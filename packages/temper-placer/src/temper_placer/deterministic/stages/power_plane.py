@@ -10,9 +10,27 @@ Temper Board Layer Strategy:
 - In1.Cu: Ground plane (GND, PGND, CGND)
 - In2.Cu: Power islands (+5V, +3V3, +15V, VCC_BOOT)
 - B.Cu (Bottom): Vertical signals + escape vias
+
+The pure reassignment compute is implemented in Rust in the
+``temper-design-bundle`` crate (Wave 4 **Phase 5, batch 2** — deterministic
+leaf stages): ``PowerPlaneStage.run``'s three-pass reassignment loop delegates
+to ``temper_design_bundle_python.deterministic_leaves.recompute_plane_assignments``;
+the ``run`` orchestration (the ``state.netlist`` guard and the ``frozenset``
+wrap) stays Python, as do the two module-level plane-net tables (data, not
+compute). ``LayerAssignment`` is the crate's pyclass.
+
+Bit-exactness: the existing-upgrade / new-plane-nets / remaining-nets passes,
+the ``plane_layers.get(net_name, 1)`` default, and the emission order are
+reproduced identically. Verified by
+``tests/deterministic/stages/test_power_plane_rust_differential.py`` (oracle:
+``tests/deterministic/stages/_power_plane_py_oracle.py``) and the PBT suite
+``test_power_plane_pbt.py``; the structural proof lives in
+``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from dataclasses import replace
+
+import temper_design_bundle_python as _tdb
 
 from ..state import BoardState
 from .base import Stage
@@ -119,54 +137,12 @@ class PowerPlaneStage(Stage):
         # Get existing assignments or create empty list
         existing_assignments = list(state.layer_assignments) if state.layer_assignments else []
 
-        # Build lookup for existing assignments
-        assignment_by_net = {a.net_name: a for a in existing_assignments}
-
         # Get all net names from netlist
-        all_nets = {net.name for net in state.netlist.nets}
+        all_nets = [net.name for net in state.netlist.nets]
 
         # Process plane nets
-        new_assignments = []
-        for net_name, assignment in assignment_by_net.items():
-            if net_name in self.plane_nets:
-                # Update to plane connection
-                layer = self.plane_layers.get(net_name, 1)  # Default to In1.Cu
-                new_assignments.append(
-                    LayerAssignment(
-                        net_name=net_name,
-                        layer=layer,
-                        allow_layer_change=assignment.allow_layer_change,
-                        is_plane=True,
-                    )
-                )
-            else:
-                # Keep existing assignment
-                new_assignments.append(assignment)
-
-        # Add assignments for plane nets not in existing assignments
-        assigned_nets = {a.net_name for a in new_assignments}
-        for net_name in self.plane_nets:
-            if net_name not in assigned_nets and net_name in all_nets:
-                layer = self.plane_layers.get(net_name, 1)
-                new_assignments.append(
-                    LayerAssignment(
-                        net_name=net_name,
-                        layer=layer,
-                        allow_layer_change=True,
-                        is_plane=True,
-                    )
-                )
-
-        # Add non-plane nets that weren't in existing assignments
-        for net in state.netlist.nets:
-            if net.name not in {a.net_name for a in new_assignments}:
-                new_assignments.append(
-                    LayerAssignment(
-                        net_name=net.name,
-                        layer=0,  # Default to F.Cu
-                        allow_layer_change=True,
-                        is_plane=False,
-                    )
-                )
+        new_assignments = _tdb.deterministic_leaves.recompute_plane_assignments(
+            existing_assignments, self.plane_nets, self.plane_layers, all_nets
+        )
 
         return replace(state, layer_assignments=frozenset(new_assignments))

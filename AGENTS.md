@@ -68,6 +68,9 @@ ceiling move):
     # is not reproducible (see _drc_api.py's own comment: 69-88 shorting_items
     # across 4 runs on a byte-identical board, measured 2026-07-29).
     # Run 120 times and take the observed range per category, not one sample.
+    # Record the count in provenance: the structured sample_count field, or
+    # measured_via prose on legacy records -- the approval gate requires
+    # >= 120 for the nondeterministic clearance category.
     "
 
 Then, in `power_pcb_dataset/drc_ceiling.json`:
@@ -82,6 +85,21 @@ Then, in `power_pcb_dataset/drc_ceiling.json`:
   measured run-to-run noise or an already-investigated, attributed,
   deliberate change; never to silently absorb an unexplained regression. If
   you can't attribute a rise, stop and report it instead of ratcheting past it.
+
+**The approval is machine-checked (R27 monotone contract).**
+`scripts/check_drc_ceiling_approval.py` requires a raise to carry, in the
+*same* PR: (1) a `Ceiling-Approval:` trailer on a PR commit -- the raise
+detector, a plain substring deliberately not parsed further; (2) a NEW
+non-empty `_march` entry naming the cause -- the `_march` log is the single
+cause authority, there is no trailer-body grammar; and (3) a fresh
+measured-live `provenance` record on the raised board: `source:
+"measured-live"`, a resolvable `measured_at_commit`, `dirty: false`, a
+recorded kicad-cli version, at least 120 samples for the nondeterministic
+`clearance` category (structured `provenance.sample_count`, or the legacy
+`measured_via` prose on records that predate the field), and an input hash
+still matching `pcb/temper.kicad_pcb`'s current content. A raise that
+fails any of these is an unapproved raise, mechanically. Existing `_march`
+entries and records are grandfathered; the contract applies to new raises.
 
 **Why this must land in the same PR, not after**: `check_measurement_provenance.py`
 fails closed the moment the board's content hash no longer matches this
@@ -233,6 +251,66 @@ cmake -B firmware/test/build firmware/test
 cmake --build firmware/test/build
 ./firmware/test/build/test_state_machine_only
 ```
+
+## Regenerate derived artifacts before pushing
+
+```bash
+make regen         # regenerate what is safe; refuse where it would hide a defect
+make regen-check   # report only -- what CI's gates will see
+```
+
+Several committed files are *generated* from source: `README.md`'s package and
+plan counts, `scripts/oracle_hashes.json`, the wasm test registry. When one
+drifts behind a change, the gate that polices it fails on `main` **after** the
+merge, and every open PR inherits the red. That happened four times on
+2026-08-06 — README counts after a merge run, the oracle registry after the
+gate landed, the workspace package count after a crate was added, and the
+oracle registry again after five oracles were added.
+
+`make regen` deliberately does **not** regenerate everything. Two of these
+artifacts are evidence, not output, and it refuses rather than laundering them:
+
+- A **hash-order `NEW_SITE`** is a determinism *defect* — a `set` iterated to
+  build an ordered artifact carries `PYTHONHASHSEED`'s order into it. Fix the
+  iteration (project through the input, or sort). Do not add it to
+  `.hash-order-inventory`. Paid-down `STALE_ENTRY` records are written, since
+  that is the shrink direction.
+- A **drifted oracle pin** means a verbatim oracle's bytes changed, which is
+  exactly what `check_oracle_hashes.py` exists to catch. `make regen` prints the
+  commit that last touched each drifted file so the cause can be established,
+  and records it only under `--accept-oracle-drift`. A genuinely *new* oracle is
+  unregistered rather than drifted, and is recorded without ceremony.
+
+## Shared cargo build cache — required when working in a worktree
+
+Before invoking `cargo` or `maturin` **directly** (not via `make`), source
+this once per shell:
+
+```bash
+source scripts/cargo_shared_env.sh
+```
+
+Anything run through `make` already exports the same value and needs no
+action.
+
+Why it matters: `.cargo/config.toml` sets `build.target-dir` to the
+*relative* path `target-shared`. Cargo resolves a relative `target-dir`
+against the config file's own directory, and every git worktree gets its own
+tracked **copy** of that file — so each worktree lands on its own
+`target-shared` and compiles all 10 pyo3 crates from cold. `CARGO_TARGET_DIR`
+overrides `build.target-dir` and can hold an absolute path, which is why the
+sharing is done there rather than in the config.
+
+This is not hypothetical. It caused the 51 GB incident the config block
+cites, and it recurred on 2026-08-06: 25 private caches totalling 36.6 GB,
+the disk at 98%, and 16 GB reclaimed by hand. Agent worktrees are the main
+source, because they are created outside the repo tree (`/private/tmp/...`)
+and then run `cargo test` / `cargo build` / `cargo clippy` directly.
+
+The trade-off is deliberate and unchanged: cargo takes an exclusive lock on
+the target directory, so concurrent builds in different worktrees serialise
+instead of running in parallel. That is still far cheaper than each doing a
+cold build — after the first, the rest are incremental.
 
 ## Rebuilding pyo3/maturin Rust Extensions
 

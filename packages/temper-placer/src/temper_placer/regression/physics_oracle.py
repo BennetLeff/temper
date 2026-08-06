@@ -7,6 +7,20 @@ Wires the full physics chain end-to-end:
 
 The oracle accepts a CP-SAT placement result and scores it against physics
 metrics (thermal, clearance, dual-rail) without running gradient optimization.
+
+Wave 4 Phase 4 (regression slice): the pure compute —
+``compute_oracle_margins``, the ``overall`` score aggregation
+(``temper_drc_rs.overall_score``, reproducing CPython 3.12's
+Neumaier-compensated ``sum()``) and the clearance pass/fail threshold
+decision (``temper_drc_rs.clearance_passed``) — moved to
+``temper_drc_rs`` (packages/temper-drc-rs/src/physics_oracle.rs). The metric
+functions themselves (``thermal_score``, ``dual_rail_clearance_report``,
+``zone_compliance_score``, ``loop_area_score``, ``compactness_score``,
+``derive_constraints_from_spec``, the parser, ``infer_quality_config``) live
+in other surfaces outside this slice's scope and are called back across the
+boundary unchanged. R1h: this is an ORACLE/comparison kernel, not a physics
+gate — it scores a placement, it does not constrain the solve. Design
+boundaries are argued in ``packages/temper-drc-rs/VERIFICATION.md``.
 """
 
 from __future__ import annotations
@@ -33,6 +47,17 @@ from temper_placer.metrics.quality import (
 )
 from temper_placer.pipeline.derivation import derive_constraints_from_spec
 from temper_placer.placer.deterministic import PlacementResult
+
+_RS = None
+
+
+def _tdrc():
+    global _RS
+    if _RS is None:
+        import temper_drc_rs  # type: ignore[import-untyped]
+
+        _RS = temper_drc_rs
+    return _RS
 
 
 @dataclass
@@ -94,19 +119,16 @@ def compute_oracle_margins(
         Keys: ``thermal_headroom_mm``, ``clearance_margin_mm``,
         ``loop_area_margin_mm2``.
     """
-    thermal_score = quality_report.get("thermal_score", 1.0)
-    clearance_score = quality_report.get("hv_lv_clearance_score", 1.0)
-    loop_score = quality_report.get("loop_area_score", 1.0)
-
-    thermal_headroom_mm = thermal_score * max_heatspread_mm
-    clearance_margin_mm = (clearance_score - 1.0) * hv_lv_threshold_mm
-    loop_area_margin_mm2 = loop_score * max_loop_area_mm2
-
-    return {
-        "thermal_headroom_mm": thermal_headroom_mm,
-        "clearance_margin_mm": clearance_margin_mm,
-        "loop_area_margin_mm2": loop_area_margin_mm2,
-    }
+    # Wave 4 Phase 4: the margin math runs in
+    # ``temper_drc_rs.compute_oracle_margins`` (bit-identical IEEE
+    # multiplication, pinned by the differential). The score dict's
+    # missing-key -> 1.0 default is preserved inside the kernel.
+    return _tdrc().compute_oracle_margins(
+        quality_report,
+        float(max_heatspread_mm),
+        float(hv_lv_threshold_mm),
+        float(max_loop_area_mm2),
+    )
 
 
 @dataclass
@@ -163,7 +185,10 @@ def score_placement(
     compact = compactness_score(state, netlist, board)
 
     normalized_scores = [thermal, zone, clearance, loop, compact]
-    overall = sum(normalized_scores) / len(normalized_scores) if normalized_scores else 0.0
+    # Wave 4 Phase 4: ``temper_drc_rs.overall_score`` reproduces CPython
+    # 3.12's Neumaier-compensated ``sum()`` / len (plain accumulation would
+    # diverge at the last bit — pinned by the differential).
+    overall = _tdrc().overall_score([float(s) for s in normalized_scores])
 
     return {
         "hv_lv_clearance_score": clearance,
@@ -342,7 +367,7 @@ def run_physics_oracle(
         compact = compactness_score(state, netlist, board)
 
         normalized_scores = [thermal, zone, clearance, loop, compact]
-        overall = sum(normalized_scores) / len(normalized_scores) if normalized_scores else 0.0
+        overall = _tdrc().overall_score([float(s) for s in normalized_scores])
 
         report = {
             "thermal_score": thermal,
@@ -381,7 +406,10 @@ def run_physics_oracle(
             errors=[f"Quality report failed: {e}"],
         )
 
-    passed = clearance >= _CLEARANCE_PASS_THRESHOLD
+    # Wave 4 Phase 4: the pass decision runs in the kernel (the threshold
+    # constant stays here, passed in — the migration ports the comparison,
+    # not the constant).
+    passed = _tdrc().clearance_passed(clearance, _CLEARANCE_PASS_THRESHOLD)
 
     return PhysicsOracleResult(
         board_id=board_id,

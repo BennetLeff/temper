@@ -12,29 +12,66 @@ Grid Model:
 - Bottleneck = demand > supply
 
 Example usage:
-    >>> from temper_placer.routing.congestion import analyze_congestion
+    >>> from temper_placer.router_v6.congestion import analyze_congestion
     >>> from temper_placer.core.board import Board
     >>>
     >>> result = analyze_congestion(netlist, board)
     >>> if not result.is_feasible():
     ...     for b in result.get_top_bottlenecks(5):
     ...         print(f"Bottleneck at ({b.x}, {b.y}): {b.utilization:.1%}")
+
+Wave 4 Phase B (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
+``CongestionGrid.from_board``/``get_utilization``/``get_overflow``,
+``Bottleneck.to_coordinates`` and ``CongestionResult.overflow_ratio`` delegate
+to ``temper_geometry`` (``congestion_grid_from_board_py`` and neighbours) --
+pure array/scalar math with no gap between the kernel's contract and this
+module's. Three entry points do **not** delegate, each for a reason verified
+against a real production call site rather than only against the
+differential (``tests/router_v6/test_congestion_rust_differential.py``,
+which never exercises any of these three call shapes):
+
+* ``estimate_net_demand`` -- the Rust kernel (``congestion_estimate_net_demand_py``)
+  always builds a *fresh* zero-initialised grid from ``(width, height)``; it
+  has no parameter for an already-populated ``grid.demand``. This function's
+  only production caller (``analyze_congestion``'s per-net loop, below)
+  accumulates onto the SAME grid across many nets, so delegating here would
+  silently drop every net's demand but the first.
+* ``CongestionResult.get_top_bottlenecks`` -- the Rust kernel
+  (``congestion_result_top_bottlenecks_py``) takes only the list of
+  ``overflow`` floats and reconstructs synthetic ``Bottleneck(x=i, y=0,
+  utilization=float(i), ...)`` rows to match the differential's own test
+  fixture; it cannot sort real ``Bottleneck`` objects (arbitrary ``x``/``y``/
+  ``utilization``/``layer``) without discarding their true fields.
+* ``analyze_congestion`` -- the Rust kernel (``congestion_analyze_py``)
+  reimplements pin-position resolution via its own ``pin_world_position``,
+  which composes rotation only and omits the bottom-side mirror
+  (``if side == 1: px = -px``) that
+  ``core.pin_geometry.pin_world_position_at`` applies. The kernel's own
+  module doc names this omission deliberate: its corpus never sets
+  ``Component.initial_side``, so the mirror branch "never fires" there. Every
+  real caller (``metrics/physics.py``, ``pipeline/stages/routing_stage.py``,
+  ``router_v6/verifier.py``) analyzes netlists that may legitimately place
+  components on the bottom side, so wiring this kernel would silently
+  mis-place every bottom-side pin's demand contribution on any board that
+  uses one -- a regression invisible to the differential (whose corpus never
+  sets a side) and only reachable by inspecting the kernel's own
+  ``pin_world_position`` against ``pin_world_position_at``.
 """
 
-import math
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeAlias
 
 import numpy as np
+import temper_geometry as _tg
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
-from temper_placer.core.pin_geometry import pin_world_position
+from temper_placer.core.pin_geometry import pin_world_position_at
 
 if TYPE_CHECKING:
-    from temper_placer.routing.layer_assignment import LayerAssignment
+    from temper_placer.router_v6.layer_assignment import LayerAssignment
 
 
 @dataclass
@@ -87,16 +124,16 @@ class CongestionGrid:
             >>> grid.width_cells
             100
         """
-        width_cells = int(math.ceil(board.width / cell_size_mm))
-        height_cells = int(math.ceil(board.height / cell_size_mm))
-
-        if num_layers == 1:
-            demand = np.zeros((height_cells, width_cells))
-            supply = np.full((height_cells, width_cells), default_supply)
-        else:
-            demand = np.zeros((num_layers, height_cells, width_cells))
-            supply = np.full((num_layers, height_cells, width_cells), default_supply)
-
+        demand, supply, cell_size_mm, width_cells, height_cells, num_layers, origin = (
+            _tg.congestion_grid_from_board_py(
+                board.width,
+                board.height,
+                board.origin,
+                cell_size_mm,
+                num_layers,
+                default_supply,
+            )
+        )
         return cls(
             demand=demand,
             supply=supply,
@@ -104,7 +141,7 @@ class CongestionGrid:
             width_cells=width_cells,
             height_cells=height_cells,
             num_layers=num_layers,
-            origin=board.origin,
+            origin=origin,
         )
 
     def get_utilization(self) -> Array:
@@ -113,7 +150,15 @@ class CongestionGrid:
         Returns:
             Array of utilization ratios, same shape as demand.
         """
-        return self.demand / np.maximum(self.supply, 1e-6)
+        demand_arr = np.asarray(self.demand)
+        supply_arr = np.asarray(self.supply)
+        # The kernel is a flat 1xN elementwise op (`np.maximum`/division are
+        # shape-independent), so flattening then reshaping back preserves the
+        # original shape and is bit-identical to computing in place.
+        result = _tg.congestion_grid_utilization_py(
+            demand_arr.flatten().tolist(), supply_arr.flatten().tolist()
+        )
+        return np.asarray(result).reshape(demand_arr.shape)
 
     def get_overflow(self) -> Array:
         """Compute overflow (demand - supply) for each cell.
@@ -121,7 +166,12 @@ class CongestionGrid:
         Returns:
             Array of overflow values, clipped to >= 0.
         """
-        return np.maximum(self.demand - self.supply, 0.0)
+        demand_arr = np.asarray(self.demand)
+        supply_arr = np.asarray(self.supply)
+        result = _tg.congestion_grid_overflow_py(
+            demand_arr.flatten().tolist(), supply_arr.flatten().tolist()
+        )
+        return np.asarray(result).reshape(demand_arr.shape)
 
 
 @dataclass
@@ -158,9 +208,7 @@ class Bottleneck:
         Returns:
             (x, y) center of the bottleneck cell in mm.
         """
-        center_x = origin[0] + (self.x + 0.5) * cell_size_mm
-        center_y = origin[1] + (self.y + 0.5) * cell_size_mm
-        return (center_x, center_y)
+        return _tg.congestion_bottleneck_to_coordinates_py(self.x, self.y, cell_size_mm, origin)
 
 
 @dataclass
@@ -196,10 +244,10 @@ class CongestionResult:
         Returns:
             Overflow / total_demand, clamped to [0, 1].
         """
-        total_demand = float(self.grid.demand.sum())
-        if total_demand == 0:
-            return 0.0
-        return min(self.total_overflow / total_demand, 1.0)
+        demand_arr = np.asarray(self.grid.demand)
+        return _tg.congestion_result_overflow_ratio_py(
+            demand_arr.flatten().tolist(), self.total_overflow
+        )
 
     def get_top_bottlenecks(self, n: int = 10) -> list[Bottleneck]:
         """Get the top N bottlenecks sorted by overflow.
@@ -252,6 +300,16 @@ def estimate_net_demand(
     col_max = min(grid.width_cells - 1, int((max_x - origin_x) / cell_size))
     row_min = max(0, int((min_y - origin_y) / cell_size))
     row_max = min(grid.height_cells - 1, int((max_y - origin_y) / cell_size))
+
+    # A net whose bounding box does not intersect the grid contributes no
+    # demand. Clamping each pair from one side only is not enough: a net
+    # entirely left of (or above) the board leaves col_max/row_max NEGATIVE,
+    # and `demand[0 : -3 + 1, 0 : -3 + 1]` is a *negative-index* slice -- it
+    # writes a real block of demand at the board ORIGIN. The far edge was
+    # already correct by accident (col_min > col_max yields an empty
+    # `[50:10]` slice), which is exactly what made the near edge visible.
+    if col_max < col_min or row_max < row_min:
+        return grid
 
     # Add demand to cells in bounding box
     # Use half-perimeter estimation - weight cells along likely routing paths
@@ -322,18 +380,20 @@ def _get_pin_positions(
 
         comp_idx, comp = comp_by_ref[comp_ref]
 
-        # Get component position
+        # Get component position. When an explicit `positions` array is given
+        # it OVERRIDES the component's own initial_position -- that is the
+        # whole point of the argument, and the caller (the placement feedback
+        # loop) is evaluating a candidate placement, not the stored one.
+        # `pos_override=None` falls back to comp.initial_position, and then to
+        # (0.0, 0.0), inside pin_world_position_at.
+        pos_override: tuple[float, float] | None = None
         if positions is not None:
-            comp_x, comp_y = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
-        elif comp.initial_position is not None:
-            comp_x, comp_y = comp.initial_position
-        else:
-            _comp_x, _comp_y = 0.0, 0.0
+            pos_override = (float(positions[comp_idx, 0]), float(positions[comp_idx, 1]))
 
         # Find pin and get its position
         for pin in comp.pins:
             if pin.name == pin_name or pin.number == pin_name:
-                pin_x, pin_y = pin_world_position(pin, comp)
+                pin_x, pin_y = pin_world_position_at(pin, comp, pos_override=pos_override)
                 pin_positions.append((pin_x, pin_y))
                 break
 
@@ -374,7 +434,7 @@ def analyze_congestion(
     # Handle layer assignment impact on num_layers
     if layer_assignments is not None and num_layers == 1:
         # Check if any assignments use multiple layers
-        from temper_placer.routing.layer_assignment import Layer
+        from temper_placer.router_v6.layer_assignment import Layer
 
         layers_used = set()
         for assignment in layer_assignments.values():
@@ -403,7 +463,7 @@ def analyze_congestion(
         # Determine layer for this net
         layer = 0
         if layer_assignments is not None and net.name in layer_assignments:
-            from temper_placer.routing.layer_assignment import Layer
+            from temper_placer.router_v6.layer_assignment import Layer
 
             assignment = layer_assignments[net.name]
             if assignment.primary_layer == Layer.L4_BOT:

@@ -3,6 +3,7 @@
 // Origin: U3/U4/U7 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 
 pub mod loop_extractor;
+pub mod net_ordering;
 pub mod types;
 mod types_py_bridge;
 
@@ -288,6 +289,9 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(auto_extract_loops_rust, m)?)?;
     m.add_function(wrap_pyfunction!(astar_kernel_3d_py, m)?)?;
     m.add_function(wrap_pyfunction!(line_of_sight_py, m)?)?;
+
+    // Wave-4 Phase B: the router_v6/net_ordering kernels.
+    net_ordering::register(m)?;
     Ok(())
 }
 

@@ -51,8 +51,17 @@ permissions:
 # Only the newest state of main is interesting; a superseded run's verdict is
 # about a commit that is no longer the tip.
 concurrency:
-  group: trunk-health
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  # PRs: cancel in progress -- a superseded PR run is worthless.
+  # push (i.e. main): DO NOT cancel. A run already executing is main's
+  # only verification; killing it mid-flight is how 6 of 8 consecutive
+  # main runs ended up `cancelled` on 2026-08-06, with zero successes,
+  # so `cargo test`/clippy results never landed during a merge burst.
+  # Sharing one group by `github.ref` still prevents the 88-run pileup
+  # the sha-keyed group allowed: later pushes queue, and GitHub keeps
+  # only the newest PENDING run, so intermediate commits are still
+  # superseded -- just not the one actually running.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   canary:
@@ -98,6 +107,19 @@ jobs:
           # was built for is the vacuity class it exists to prevent.
           run_gate "Workflow pull_request trigger coverage" \
             python3 scripts/check_workflow_pr_triggers.py
+
+          # A NEW set/frozenset iteration or hash() whose order reaches an
+          # output. Six such sites shipped (issue #752 6 & 7, PR #730); the
+          # known ones are ratcheted in .hash-order-inventory, so a STALE_ENTRY
+          # here also means a fix landed without the ledger being updated.
+          run_gate "No new salted-hash order dependencies" \
+            python3 scripts/check_hash_order_determinism.py
+
+          run_gate "No unwired Rust kernels" \
+            python3 scripts/check_unwired_kernels.py
+
+          run_gate "Kernel wire formats match the Python they replace" \
+            python3 scripts/check_wire_format_fidelity.py
 
           run_gate "Required-checks manifest (trigger paths + job conditions)" \
             python3 -c "

@@ -40,6 +40,7 @@ Underneath both is a structural gap: there is no goal set, so effort flows to wh
 - **D3. The deliverable is a board file worth authorizing, not fabricated hardware.** (session-settled: user-directed — chosen over carrying through to a board in hand: fabrication and bench validation form the next horizon and would make every goal here harder to judge.) Governs Scope Boundaries.
 - **D4. The verification tier does not wait on the Rust consolidation.** (session-settled: user-approved — chosen over strict sequencing: the kernels the tier runs are already Rust, with twelve of fourteen crates compiling to `wasm32`; the consolidation's remaining surface is orchestration, contracts and IO, none of which the tier executes.) Governs R4, R5.
 - **D5. `kicad-cli` remains the reference oracle.** (chosen over replacing it with the Rust suite once that suite is fast: interval-based equivalence has to be demonstrated before the reference can be retired, and the Rust suite is the thing under test.) Governs R6, R8.
+- **D6. Deprecation is staged, and deleting a differential requires proving its replacements catch what it caught.** (session-settled: user-directed — chosen over deleting a Python shim as soon as its migration lands: the migration's evidence *is* the pinned oracle, so removing it discards the proof that justified the migration. Chosen also over keeping every oracle forever, which would make the consolidation permanent.) Governs R19–R22.
 
 ### Requirements
 
@@ -70,6 +71,14 @@ Underneath both is a structural gap: there is no goal set, so effort flows to wh
 - R14. The BOM reconciles against source in both directions, with no costed line lacking a circuit and no wired component uncosted.
 - R15. Every footprint required for fabrication is drawn.
 
+
+**Deprecation**
+
+- R19. A migrated surface passes through three states, and only the first two are reached by a migration landing: the Python module becomes a delegation shim; its pre-migration implementation is retained as the differential's pinned oracle; the shim and oracle are removed. The third is a separate, evidenced decision.
+- R20. A differential is removed only when the property and metamorphic suites are shown to catch every mutant it caught. Re-run the migration's mutation campaign with the differential disabled; any mutant that survives keeps the differential.
+- R21. A delegation shim is removed only when no consumer imports it, demonstrated by the import gate rather than by search.
+- R22. A surface carrying a JUSTIFIED-KEEP verdict is never deprecated while its blocker holds; a deprecation attempt against one is a request to re-decide the verdict under R3, with new evidence.
+
 **Board geometric correctness**
 
 - R16. DRC and ERC violations reach zero on the production board.
@@ -84,6 +93,7 @@ Underneath both is a structural gap: there is no goal set, so effort flows to wh
 - AE4. **Covers R9, R16.** A constraint's gate begins applying rules it previously ignored, and the violation count rises. The rise is attributed to the instrument and does not count as a regression, but the goal remains unmet until the count returns to zero.
 - AE5. **Covers R11–R13.** The board reaches zero DRC and ERC violations while desaturation protection is still absent. The design-completeness goal is unmet; geometric convergence does not substitute for it.
 
+- AE6. **Covers R20.** A migration's differential has passed continuously and its oracle is proposed for deletion. The mutation campaign is re-run with the differential disabled and one mutant survives, caught previously only by the differential. The oracle stays, and the surviving mutant names the property that is missing.
 ### Scope Boundaries
 
 - Fabrication, bench validation of the protection gates, and calibrated physics models validated against measurement — the next horizon, and the reason D3 stops at a board file.

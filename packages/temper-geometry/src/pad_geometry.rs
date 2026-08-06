@@ -38,19 +38,44 @@ const DEFAULT_ROUNDRECT_RATIO: f64 = 0.25;
 // builds may therefore diverge from the host Python's libm in the last
 // ULP — expected and acceptable there.
 #[cfg(not(target_arch = "wasm32"))]
+use std::ffi::CStr;
+#[cfg(not(target_arch = "wasm32"))]
 use std::sync::OnceLock;
 
 #[cfg(not(target_arch = "wasm32"))]
 type MathFn = unsafe extern "C" fn(f64) -> f64;
 
+/// `RTLD_DEFAULT` — "search every loaded object, in load order".
+///
+/// **The constant is not portable, and getting it wrong fails silently.**
+/// glibc defines it as `((void *) 0)`; Darwin's `dlfcn.h` defines it as
+/// `((void *) -2)` (`NULL` there is not a valid handle and simply misses).
+/// A hardcoded null resolved nothing on macOS — every lookup fell through to
+/// the statically-bound `f64::*` fallback and no test noticed, because the
+/// fallback is a *plausible* answer, just not the host interpreter's.
+#[cfg(all(not(target_arch = "wasm32"), target_vendor = "apple"))]
+const RTLD_DEFAULT: *const u8 = usize::MAX.wrapping_sub(1) as *const u8; // (void *) -2
+
+#[cfg(all(not(target_arch = "wasm32"), not(target_vendor = "apple")))]
+const RTLD_DEFAULT: *const u8 = core::ptr::null();
+
+/// Resolve `symbol` in the host process's already-loaded libm.
+///
+/// `symbol` is a `&CStr`, not a `&str`: `dlsym` reads a NUL-terminated C
+/// string, and a Rust `&str` carries its length out of band with no NUL, so
+/// passing `str::as_ptr` made `dlsym` read past the end of the literal into
+/// whatever `.rodata` followed it.
 #[cfg(not(target_arch = "wasm32"))]
-fn dlsym_math(symbol: &str) -> Option<MathFn> {
+fn dlsym_math(symbol: &CStr) -> Option<MathFn> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
     }
-    const RTLD_DEFAULT: *const u8 = core::ptr::null();
+    // SAFETY: `symbol` is a NUL-terminated C string and `RTLD_DEFAULT` is this
+    // platform's "search every loaded object" handle (never dereferenced). A
+    // miss returns null, which is checked here. The resolved symbol is a C
+    // `double(double)` from libm.
     unsafe {
-        let p = dlsym(RTLD_DEFAULT, symbol.as_ptr());
+        let p = dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>());
         if p.is_null() {
             None
         } else {
@@ -70,7 +95,7 @@ unsafe extern "C" fn fallback_sin(x: f64) -> f64 {
 #[cfg(not(target_arch = "wasm32"))]
 fn host_cos() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
-    let f = F.get_or_init(|| dlsym_math("cos").or(Some(fallback_cos)));
+    let f = F.get_or_init(|| dlsym_math(c"cos").or(Some(fallback_cos)));
     // The closure always returns Some (dlsym result or the fallback),
     // so the Option is never None once initialized.
     #[expect(clippy::unwrap_used, reason = "infallible: initialized with dlsym result or fallback")]
@@ -80,7 +105,7 @@ fn host_cos() -> &'static MathFn {
 #[cfg(not(target_arch = "wasm32"))]
 fn host_sin() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
-    let f = F.get_or_init(|| dlsym_math("sin").or(Some(fallback_sin)));
+    let f = F.get_or_init(|| dlsym_math(c"sin").or(Some(fallback_sin)));
     // The closure always returns Some (dlsym result or the fallback),
     // so the Option is never None once initialized.
     #[expect(clippy::unwrap_used, reason = "infallible: initialized with dlsym result or fallback")]
@@ -218,17 +243,23 @@ pub(crate) fn bounding_radius(width: f64, height: f64, shape: i64, ratio: f64) -
 /// `math.hypot` (the creepage/clearance geometry in `creepage_check.rs`
 /// is the second consumer, added Wave 3).
 pub(crate) fn py_hypot(x: f64, y: f64) -> f64 {
-    // CPython `math_hypot_impl` returns NaN up front when any input is
-    // NaN (before vector_norm runs); the `f64::max` below would otherwise
-    // discard a NaN argument.  And hypot(±inf, anything) is +inf, which
-    // the vector_norm path would turn into NaN through the fma-based
-    // correction (CPython's frexp gives e=0 for inf, ours does not), so
-    // both guards are exact CPython semantics, not approximations.
-    if x.is_nan() || y.is_nan() {
-        return f64::NAN;
-    }
+    // Infinity BEFORE NaN.  CPython's `math_hypot_impl` scans its
+    // coordinates recording `found_nan`, but returns `+inf` as soon as any
+    // coordinate is infinite — infinity wins over NaN:
+    //
+    //     math.hypot(inf, nan) == inf      math.hypot(nan, inf) == inf
+    //     math.hypot(nan, 1.0) == nan      math.hypot(1.0, nan) == nan
+    //
+    // This order was inverted here until the Wave-4 router_v6
+    // constraints-geometry differential hit it: `hypot(-inf, nan)` arises
+    // for real in `point_to_segment_distance` when a segment endpoint is
+    // infinite (the clamped projection produces a NaN coordinate), and the
+    // old order returned NaN where CPython returns inf.
     if x.is_infinite() || y.is_infinite() {
         return f64::INFINITY;
+    }
+    if x.is_nan() || y.is_nan() {
+        return f64::NAN;
     }
     let x = x.abs();
     let y = y.abs();
@@ -261,6 +292,32 @@ fn frexp(x: f64) -> (f64, i32) {
     (m, e)
 }
 
+/// Exact `2.0_f64.powi(e)` — CPython's `ldexp(1.0, e)`.
+///
+/// `2f64.powi(e)` is NOT this function.  LLVM lowers a negative `powi` to
+/// `1.0 / powi(|e|)`, so `2f64.powi(-1024)` first overflows `2^1024` to
+/// `inf` and then returns `0.0`, where the true value `2^-1024` is a
+/// perfectly representable subnormal.  `vector_norm_2` uses this as its
+/// scale factor, so the old expression made `math.hypot` return **NaN**
+/// for every input in the top binade (|max| >= 2^1023 ~ 8.99e307):
+/// `hypot(1e308, 1e308)` was NaN instead of `0x1.92c80954c51f5p+1023`.
+/// Found by the Wave-4 router_v6 constraints-geometry differential corpus,
+/// which carries the overflow-scale inputs deliberately.
+fn pow2(e: i32) -> f64 {
+    if e > 1023 {
+        return f64::INFINITY;
+    }
+    if e >= -1022 {
+        // normal range: build the exponent field directly
+        return f64::from_bits(((e + 1023) as u64) << 52);
+    }
+    if e >= -1074 {
+        // subnormal range: a single set bit in the mantissa
+        return f64::from_bits(1u64 << (e + 1074));
+    }
+    0.0
+}
+
 fn vector_norm_2(x: f64, y: f64, max: f64) -> f64 {
     let (_, max_e) = frexp(max);
     if max_e < -1023 {
@@ -269,7 +326,7 @@ fn vector_norm_2(x: f64, y: f64, max: f64) -> f64 {
         // implemented for exactness.
         return f64::MIN_POSITIVE * vector_norm_2(x / f64::MIN_POSITIVE, y / f64::MIN_POSITIVE, max / f64::MIN_POSITIVE);
     }
-    let scale = 2f64.powi(-max_e);
+    let scale = pow2(-max_e);
     let mut csum = 1.0f64;
     let mut frac1 = 0.0f64;
     let mut frac2 = 0.0f64;
@@ -457,6 +514,50 @@ pub fn best_rotation_for_barrier_py(hv_pads: Vec<PadTuple>, selv_pads: Vec<PadTu
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The host-libm indirection is actually wired, not silently bypassed.
+    ///
+    /// Before the Darwin `RTLD_DEFAULT` correction this failed on macOS:
+    /// `dlsym(NULL, ...)` reports `invalid handle` there, so every lookup
+    /// returned `None` and the fallback silently became the live route while
+    /// the code claimed bit-exactness with the host interpreter. Nothing else
+    /// in the suite could notice — the fallback is a *plausible* answer.
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn host_libm_symbols_actually_resolve() {
+        assert!(dlsym_math(c"cos").is_some(), "dlsym could not resolve `cos`");
+        assert!(dlsym_math(c"sin").is_some(), "dlsym could not resolve `sin`");
+    }
+
+    #[test]
+    fn pow2_is_exact_where_powi_is_not() {
+        // The regression this function exists for.
+        assert_eq!(2f64.powi(-1024), 0.0, "powi still overflows-then-inverts");
+        assert_eq!(pow2(-1024), 5.562684646268003e-309);
+        assert_eq!(pow2(0), 1.0);
+        assert_eq!(pow2(1023), 8.98846567431158e307);
+        assert_eq!(pow2(-1022), f64::MIN_POSITIVE);
+        assert_eq!(pow2(-1074), 5e-324);
+        assert_eq!(pow2(-1075), 0.0);
+        assert_eq!(pow2(1024), f64::INFINITY);
+    }
+
+    #[test]
+    fn py_hypot_matches_cpython_on_the_top_binade() {
+        // math.hypot(1e308, 1e308) == 0x1.92c80954c51f5p+1023 (measured on
+        // CPython 3.12); this returned NaN before pow2 replaced powi.
+        assert_eq!(py_hypot(1e308, 1e308).to_bits(), 0x7FE92C80954C51F5);
+        assert!(py_hypot(f64::MAX, 0.0) == f64::MAX);
+    }
+
+    #[test]
+    fn py_hypot_lets_infinity_win_over_nan() {
+        assert_eq!(py_hypot(f64::INFINITY, f64::NAN), f64::INFINITY);
+        assert_eq!(py_hypot(f64::NAN, f64::INFINITY), f64::INFINITY);
+        assert_eq!(py_hypot(f64::NEG_INFINITY, f64::NAN), f64::INFINITY);
+        assert!(py_hypot(f64::NAN, 1.0).is_nan());
+        assert!(py_hypot(1.0, f64::NAN).is_nan());
+    }
 
     #[test]
     fn test_corner_radius_shapes() {

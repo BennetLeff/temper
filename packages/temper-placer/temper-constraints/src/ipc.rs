@@ -48,6 +48,13 @@ fn dlsym_pow() -> Option<MathFn> {
     unsafe extern "C" {
         fn dlsym(handle: *const c_char, symbol: *const c_char) -> *mut c_char;
     }
+    // `RTLD_DEFAULT` is `((void *) 0)` on glibc but `((void *) -2)` in
+    // Darwin's `<dlfcn.h>`; hardcoding null made every macOS lookup miss
+    // silently ("dlsym(0x0, pow): invalid handle") and fall back to
+    // `f64::powf`, defeating the host-libm match this helper exists for.
+    #[cfg(target_vendor = "apple")]
+    const RTLD_DEFAULT: *const c_char = usize::MAX.wrapping_sub(1) as *const c_char; // (void *) -2
+    #[cfg(not(target_vendor = "apple"))]
     const RTLD_DEFAULT: *const c_char = core::ptr::null();
     unsafe {
         let p = dlsym(RTLD_DEFAULT, c"pow".as_ptr());
@@ -143,6 +150,19 @@ pub fn min_width_ipc2152_py(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The host-libm indirection is actually wired, not silently bypassed.
+    ///
+    /// Before the Darwin `RTLD_DEFAULT` correction this failed on macOS:
+    /// `dlsym(NULL, ...)` reports `invalid handle` there, so every lookup
+    /// returned `None` and the fallback silently became the live route while
+    /// the code claimed bit-exactness with the host interpreter. Nothing else
+    /// in the suite could notice — the fallback is a *plausible* answer.
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn host_libm_symbols_actually_resolve() {
+        assert!(dlsym_pow().is_some(), "dlsym could not resolve `pow`");
+    }
 
     #[test]
     fn test_forward_matches_known_point() {

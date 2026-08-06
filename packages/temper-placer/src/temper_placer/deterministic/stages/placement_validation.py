@@ -6,11 +6,30 @@ make safe routing geometrically impossible.
 
 EXP-11: Gate drive signals must route to MOSFET gates without approaching
 HV collector/emitter pins within 6mm (IEC 60335-1 creepage).
+
+The pure geometry + constraint kernels are implemented in Rust in the
+``temper-drc-rs`` crate (Wave 4 **Phase 5, batch 2** — deterministic leaf
+stages): ``_point_to_segment_distance``, ``_validate_proximity`` and
+``_validate_signal_hv`` delegate to ``temper_drc_rs``. The ``run``
+orchestration (config parsing, the parsed-pads lookup, the
+``PlacementViolation`` construction, logging and the hard-violation gate)
+stays Python. ``_validate_signal_hv`` receives the violation kind
+(``missing_component`` / ``path_too_long`` / ``hv_clearance``) from the
+kernel's return tuple rather than re-inferring it from message text.
+
+Bit-exactness: the kernels reproduce the oracle's expression order
+(``dx*dx``, libm ``pow`` for ``** 2``, host-libm ``sqrt``, ``py_max``/
+``py_min`` projection clamping) and build the violation messages via
+CPython's own ``__format__``. Verified by
+``tests/deterministic/stages/test_drc_leaf_rust_differential.py`` (oracle:
+``tests/deterministic/stages/_drc_leaf_py_oracle.py``); the structural proof
+lives in ``packages/temper-drc-rs/VERIFICATION.md``.
 """
 
 import logging
-import math
 from dataclasses import dataclass, replace
+
+import temper_drc_rs as _drc
 
 from ..state import BoardState
 from .base import Stage
@@ -163,35 +182,31 @@ class PlacementValidationStage(Stage):
             constraint.to_component, constraint.to_pin, component_positions
         )
 
-        if from_pos is None or to_pos is None:
+        result = _drc.validate_proximity_py(constraint, from_pos, to_pos)
+        if result is None or not result[0]:
+            return None
+        _flag, severity, actual, required, message, comp_a, comp_b = result
+
+        if severity == "warning" and (from_pos is None or to_pos is None):
             return PlacementViolation(
                 constraint_name=constraint.name,
                 violation_type="missing_component",
-                message=f"Cannot validate {constraint.name}: component not found",
-                severity="warning",
-                component_a=constraint.from_component,
-                component_b=constraint.to_component,
+                message=message,
+                severity=severity,
+                component_a=comp_a or None,
+                component_b=comp_b or None,
             )
 
-        distance = math.sqrt((to_pos[0] - from_pos[0]) ** 2 + (to_pos[1] - from_pos[1]) ** 2)
-
-        if distance > constraint.max_distance_mm:
-            return PlacementViolation(
-                constraint_name=constraint.name,
-                violation_type="proximity",
-                message=(
-                    f"{constraint.from_component}.{constraint.from_pin} is {distance:.1f}mm "
-                    f"from {constraint.to_component}.{constraint.to_pin} "
-                    f"(max: {constraint.max_distance_mm:.1f}mm)"
-                ),
-                severity="error" if constraint.tier == "hard" else "warning",
-                component_a=constraint.from_component,
-                component_b=constraint.to_component,
-                actual_distance_mm=distance,
-                required_distance_mm=constraint.max_distance_mm,
-            )
-
-        return None
+        return PlacementViolation(
+            constraint_name=constraint.name,
+            violation_type="proximity",
+            message=message,
+            severity=severity,
+            component_a=comp_a or None,
+            component_b=comp_b or None,
+            actual_distance_mm=actual,
+            required_distance_mm=required,
+        )
 
     def _validate_signal_hv(
         self, constraint, component_positions: dict
@@ -213,68 +228,39 @@ class PlacementValidationStage(Stage):
             constraint.target_component, constraint.target_pin, component_positions
         )
 
-        if signal_pos is None or target_pos is None:
-            return PlacementViolation(
-                constraint_name=constraint.name,
-                violation_type="missing_component",
-                message=f"Cannot validate {constraint.name}: component not found",
-                severity="warning",
-            )
-
-        # Get HV pin positions
         hv_positions = []
         for hv_pin in constraint.hv_pins:
-            hv_pos = self._get_pin_position(constraint.hv_component, hv_pin, component_positions)
+            hv_pos = self._get_pin_position(
+                constraint.hv_component, hv_pin, component_positions
+            )
             if hv_pos:
                 hv_positions.append((hv_pin, hv_pos))
 
-        if not hv_positions:
-            return None  # No HV pins to check against
-
-        # Check signal path length
-        path_length = math.sqrt(
-            (target_pos[0] - signal_pos[0]) ** 2 + (target_pos[1] - signal_pos[1]) ** 2
+        result = _drc.validate_signal_hv_py(
+            constraint, signal_pos, target_pos, hv_positions
         )
+        if result is None or not result[0]:
+            return None
+        _flag, severity, actual, required, message, comp_a, comp_b, violation_type = result
 
-        if path_length > constraint.max_path_length_mm:
+        if violation_type == "missing_component":
             return PlacementViolation(
                 constraint_name=constraint.name,
-                violation_type="path_too_long",
-                message=(
-                    f"Signal path from {constraint.signal_component}.{constraint.signal_pin} "
-                    f"to {constraint.target_component}.{constraint.target_pin} "
-                    f"is {path_length:.1f}mm (max: {constraint.max_path_length_mm:.1f}mm)"
-                ),
-                severity="error" if constraint.tier == "hard" else "warning",
-                component_a=constraint.signal_component,
-                component_b=constraint.target_component,
-                actual_distance_mm=path_length,
-                required_distance_mm=constraint.max_path_length_mm,
+                violation_type=violation_type,
+                message=message,
+                severity=severity,
             )
 
-        # Check clearance from signal path to each HV pin
-        for hv_pin, hv_pos in hv_positions:
-            clearance = self._point_to_segment_distance(hv_pos, signal_pos, target_pos)
-
-            if clearance < constraint.required_clearance_mm:
-                return PlacementViolation(
-                    constraint_name=constraint.name,
-                    violation_type="hv_clearance",
-                    message=(
-                        f"Signal path {constraint.signal_component}.{constraint.signal_pin} "
-                        f"-> {constraint.target_component}.{constraint.target_pin} "
-                        f"passes within {clearance:.1f}mm of HV pin "
-                        f"{constraint.hv_component}.{hv_pin} "
-                        f"(required: {constraint.required_clearance_mm:.1f}mm)"
-                    ),
-                    severity="error" if constraint.tier == "hard" else "warning",
-                    component_a=constraint.signal_component,
-                    component_b=constraint.hv_component,
-                    actual_distance_mm=clearance,
-                    required_distance_mm=constraint.required_clearance_mm,
-                )
-
-        return None
+        return PlacementViolation(
+            constraint_name=constraint.name,
+            violation_type=violation_type,
+            message=message,
+            severity=severity,
+            component_a=comp_a or None,
+            component_b=comp_b or None,
+            actual_distance_mm=actual,
+            required_distance_mm=required,
+        )
 
     def _point_to_segment_distance(
         self,
@@ -286,29 +272,7 @@ class PlacementValidationStage(Stage):
 
         Uses projection formula to find closest point on segment.
         """
-        px, py = point
-        x1, y1 = seg_start
-        x2, y2 = seg_end
-
-        # Vector from seg_start to seg_end
-        dx = x2 - x1
-        dy = y2 - y1
-
-        # Length squared of segment
-        len_sq = dx * dx + dy * dy
-
-        if len_sq == 0:
-            # Segment is a point
-            return math.sqrt((px - x1) ** 2 + (py - y1) ** 2)
-
-        # Projection parameter t (0 = start, 1 = end)
-        t = max(0, min(1, ((px - x1) * dx + (py - y1) * dy) / len_sq))
-
-        # Closest point on segment
-        closest_x = x1 + t * dx
-        closest_y = y1 + t * dy
-
-        return math.sqrt((px - closest_x) ** 2 + (py - closest_y) ** 2)
+        return _drc.point_to_segment_distance_py(point, seg_start, seg_end)
 
     def _log_summary(self, violations: list[PlacementViolation]):
         if not violations:

@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate worktree
+.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate worktree regen regen-check
 
 # Show help for workflow commands
 help:
@@ -198,6 +198,17 @@ extensions:
 extensions-check:
 	uv run --no-sync python3 scripts/check_stale_extensions.py
 
+# Regenerate every derived artifact, refusing where regeneration would hide a
+# defect (a hash-order NEW_SITE, or a drifted oracle pin). Run before pushing:
+# a derived artifact drifting behind a merge turned main red four times on
+# 2026-08-06, each time caught by a gate only AFTER the merge landed.
+regen:
+	uv run --no-sync python3 scripts/regen_derived.py
+
+# Report-only: what CI's gates will see. Changes nothing.
+regen-check:
+	uv run --no-sync python3 scripts/regen_derived.py --check
+
 # Give THIS worktree its own, independent `.venv` instead of pointing
 # UV_PROJECT_ENVIRONMENT at a shared checkout's -- see
 # docs/solutions/best-practices/shared-mutable-state-dominant-cost-multi-agent-repo-2026-07-28.md
@@ -223,6 +234,16 @@ extensions-check:
 # git-checkout-mtime false positive regardless of isolation, so isolating
 # is about removing concurrent-mutation risk, not about the gate's own
 # correctness.
+# Shared cargo build cache. `.cargo/config.toml`'s relative `target-dir` gives
+# every worktree a PRIVATE cache (measured 2026-08-05: five worktrees holding
+# 10G/1.4G/750M/398M/109M separately), which is what drove .claude/worktrees to
+# 51 GB. `--git-common-dir` points at the MAIN checkout's .git from any
+# worktree, so this resolves to one absolute path everywhere -- including
+# worktrees outside the repo tree, which no relative path can reach.
+# CARGO_TARGET_DIR overrides build.target-dir.
+CARGO_TARGET_DIR := $(shell dirname "$(shell git rev-parse --path-format=absolute --git-common-dir)")/target-shared
+export CARGO_TARGET_DIR
+
 venv-isolate:
 	@echo "Provisioning this worktree's own .venv (uv sync --all-packages)..."
 	uv sync --all-packages

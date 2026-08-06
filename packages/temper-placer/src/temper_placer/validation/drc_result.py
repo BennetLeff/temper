@@ -1,10 +1,26 @@
 """
 Result types for DRC check outputs and Check stub classes.
 
-Moved from the now-removed ``temper-drc`` Python package.  All actual DRC
-execution is delegated to the Rust crate ``temper-drc-rs``; these types
-remain for backward-compatible data construction and the Check stubs are
-kept only as import-compatibility placeholders.
+Wave 4 **Phase 2** contract migration: the result contract types
+(``Severity``, ``Location``, ``Issue``, ``CheckResult``, ``RunResult``) are
+now pyo3 pyclasses in the ``temper-drc-rs`` crate (the ``temper_drc_rs``
+extension). This module is a pure-delegation re-export of those pyclasses
+(the pattern established by ``core/board.py`` and ``core/netlist.py`` and
+applied to the ``drc_types`` contracts in this same slice), with the
+dataclass protocol (``__dataclass_fields__`` / ``dataclasses.fields`` /
+``dataclasses.replace``) restored on each class by
+``core/_contract_dataclass_compat``.
+
+The pre-migration implementation is pinned VERBATIM as the oracle
+``tests/validation/_drc_result_py_oracle.py`` (commit ``17553437d``);
+construction/field/repr/str/eq/mutation parity and the consumer access
+patterns are asserted by ``tests/validation/test_drc_contracts_rust_differential.py``.
+See ``packages/temper-drc-rs/VERIFICATION.md``.
+
+The ``Check`` ABC, ``CompositeCheck`` and the 15 check stub classes remain
+Python: they are import-compatibility execution placeholders (actual check
+execution delegates to the Rust engine), not data contracts — only their
+``CheckResult`` construction calls cross to the pyclass.
 
 Former locations:
   - ``temper_drc.core.result`` → Issue, CheckResult, RunResult, Location
@@ -17,273 +33,84 @@ Former locations:
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from enum import Enum, auto
-from typing import TYPE_CHECKING, Any
+from typing import (  # noqa: F401  (annotation resolution for get_type_hints)
+    TYPE_CHECKING,
+    Any,
+    TypeAlias,
+)
+
+import temper_drc_rs as _tdrc
+
+from temper_placer.core._contract_dataclass_compat import (
+    field as _field,
+)
+from temper_placer.core._contract_dataclass_compat import (
+    install_dataclass_fields as _install_dataclass_fields,
+)
 
 if TYPE_CHECKING:
     from temper_placer.validation.drc_types import ConstraintSet, Placement
 
-
 # =========================================================================
-#  Severity  (was temper_drc.core.severity)
-# =========================================================================
-
-
-class Severity(Enum):
-    """
-    Check result severity levels.
-
-    Severity determines how issues are weighted in metrics and whether
-    they cause the overall check to fail.
-
-    Levels:
-        INFO: Informational message, no issue (weight: 0.0)
-        WARNING: Potential issue that may affect quality (weight: 1.0)
-        ERROR: Violation that should be fixed (weight: 10.0)
-        CRITICAL: Safety-critical violation that blocks manufacturing (weight: 100.0)
-    """
-
-    INFO = auto()
-    WARNING = auto()
-    ERROR = auto()
-    CRITICAL = auto()
-
-    @property
-    def weight(self) -> float:
-        weights = {
-            Severity.INFO: 0.0,
-            Severity.WARNING: 1.0,
-            Severity.ERROR: 10.0,
-            Severity.CRITICAL: 100.0,
-        }
-        return weights[self]
-
-    @property
-    def is_failure(self) -> bool:
-        return self in (Severity.ERROR, Severity.CRITICAL)
-
-    def __lt__(self, other: Severity) -> bool:
-        if not isinstance(other, Severity):
-            return NotImplemented
-        return self.value < other.value
-
-    def __le__(self, other: Severity) -> bool:
-        if not isinstance(other, Severity):
-            return NotImplemented
-        return self.value <= other.value
-
-
-# =========================================================================
-#  Result types  (was temper_drc.core.result)
+#  Result contracts  (was temper_drc.core.result / temper_drc.core.severity)
+#
+#  These are pyo3 pyclasses in temper-drc-rs. The dataclass protocol is
+#  restored field-for-field against the pinned oracle below.
+#
+#  The `TypeAlias` marker is the mypy idiom for "a module-level name bound
+#  to an (untyped) extension class that must also be usable in annotations"
+#  — the Check/stub classes annotate `-> CheckResult` below.
 # =========================================================================
 
+Severity: TypeAlias = _tdrc.Severity
+Location: TypeAlias = _tdrc.Location
+Issue: TypeAlias = _tdrc.Issue
+CheckResult: TypeAlias = _tdrc.CheckResult
+RunResult: TypeAlias = _tdrc.RunResult
 
-@dataclass
-class Location:
-    """Spatial location of an issue on the PCB."""
-
-    x: float | None = None
-    y: float | None = None
-    layer: str | None = None
-
-    def __str__(self) -> str:
-        if self.x is not None and self.y is not None:
-            loc = f"({self.x:.2f}, {self.y:.2f})"
-            if self.layer:
-                loc += f" on {self.layer}"
-            return loc
-        return "unknown"
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "x": self.x,
-            "y": self.y,
-            "layer": self.layer,
-        }
-
-
-@dataclass
-class Issue:
-    """A single check issue found during verification."""
-
-    severity: Severity
-    code: str
-    message: str
-    category: str
-    check_name: str
-    affected_items: list[str] = field(default_factory=list)
-    location: Location | None = None
-    details: dict[str, Any] = field(default_factory=dict)
-    constraint_id: str | None = None
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "severity": self.severity.name,
-            "code": self.code,
-            "message": self.message,
-            "category": self.category,
-            "check_name": self.check_name,
-            "affected_items": self.affected_items,
-            "location": self.location.to_dict() if self.location else None,
-            "details": self.details,
-            "constraint_id": self.constraint_id,
-        }
-
-    def __str__(self) -> str:
-        items = ", ".join(self.affected_items[:3])
-        if len(self.affected_items) > 3:
-            items += f" (+{len(self.affected_items) - 3} more)"
-        return f"[{self.code}] {self.message} ({items})"
-
-
-@dataclass
-class CheckResult:
-    """Result of running a single check."""
-
-    check_name: str
-    passed: bool
-    issues: list[Issue] = field(default_factory=list)
-    elapsed_ms: float = 0.0
-    metrics: dict[str, float] = field(default_factory=dict)
-
-    @property
-    def info_count(self) -> int:
-        return sum(1 for i in self.issues if i.severity == Severity.INFO)
-
-    @property
-    def warning_count(self) -> int:
-        return sum(1 for i in self.issues if i.severity == Severity.WARNING)
-
-    @property
-    def error_count(self) -> int:
-        return sum(1 for i in self.issues if i.severity == Severity.ERROR)
-
-    @property
-    def critical_count(self) -> int:
-        return sum(1 for i in self.issues if i.severity == Severity.CRITICAL)
-
-    @property
-    def total_issues(self) -> int:
-        return self.warning_count + self.error_count + self.critical_count
-
-    @property
-    def penalty(self) -> float:
-        return sum(issue.severity.weight for issue in self.issues)
-
-    def merge(self, other: CheckResult) -> CheckResult:
-        return CheckResult(
-            check_name=self.check_name,
-            passed=self.passed and other.passed,
-            issues=self.issues + other.issues,
-            elapsed_ms=self.elapsed_ms + other.elapsed_ms,
-            metrics={**self.metrics, **other.metrics},
-        )
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "check_name": self.check_name,
-            "passed": self.passed,
-            "issues": [i.to_dict() for i in self.issues],
-            "elapsed_ms": self.elapsed_ms,
-            "metrics": self.metrics,
-            "counts": {
-                "info": self.info_count,
-                "warning": self.warning_count,
-                "error": self.error_count,
-                "critical": self.critical_count,
-            },
-        }
-
-
-@dataclass
-class RunResult:
-    """Result of running multiple checks."""
-
-    check_results: list[CheckResult] = field(default_factory=list)
-    total_elapsed_ms: float = 0.0
-
-    @property
-    def passed(self) -> bool:
-        """A run that evaluated zero checks has not passed anything.
-
-        ``all()`` over an empty ``check_results`` is vacuously ``True`` in
-        Python; that would report PASS for a DRC run that never ran a
-        single check (see docs/METHODOLOGY.md §4/§5, anti-vacuous-truth).
-        Fail closed instead.
-        """
-        if not self.check_results:
-            return False
-        return all(r.passed for r in self.check_results)
-
-    @property
-    def all_issues(self) -> list[Issue]:
-        issues = []
-        for result in self.check_results:
-            issues.extend(result.issues)
-        return issues
-
-    @property
-    def total_checks(self) -> int:
-        return len(self.check_results)
-
-    @property
-    def passed_checks(self) -> int:
-        return sum(1 for r in self.check_results if r.passed)
-
-    @property
-    def failed_checks(self) -> int:
-        return sum(1 for r in self.check_results if not r.passed)
-
-    @property
-    def info_count(self) -> int:
-        return sum(r.info_count for r in self.check_results)
-
-    @property
-    def warning_count(self) -> int:
-        return sum(r.warning_count for r in self.check_results)
-
-    @property
-    def error_count(self) -> int:
-        return sum(r.error_count for r in self.check_results)
-
-    @property
-    def critical_count(self) -> int:
-        return sum(r.critical_count for r in self.check_results)
-
-    @property
-    def total_penalty(self) -> float:
-        return sum(r.penalty for r in self.check_results)
-
-    def by_category(self, category: str) -> list[CheckResult]:
-        return [
-            r
-            for r in self.check_results
-            if any(i.category == category for i in r.issues) or not r.issues
-        ]
-
-    def by_severity(self, severity: Severity) -> list[Issue]:
-        return [i for i in self.all_issues if i.severity == severity]
-
-    def issues_for_component(self, ref: str) -> list[Issue]:
-        return [i for i in self.all_issues if ref in i.affected_items]
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "passed": self.passed,
-            "total_elapsed_ms": self.total_elapsed_ms,
-            "summary": {
-                "total_checks": self.total_checks,
-                "passed_checks": self.passed_checks,
-                "failed_checks": self.failed_checks,
-                "info": self.info_count,
-                "warning": self.warning_count,
-                "error": self.error_count,
-                "critical": self.critical_count,
-                "total_penalty": self.total_penalty,
-            },
-            "check_results": [r.to_dict() for r in self.check_results],
-        }
+_install_dataclass_fields(
+    Location,
+    (
+        _field("x", "float | None", None),
+        _field("y", "float | None", None),
+        _field("layer", "str | None", None),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Issue,
+    (
+        _field("severity", "Severity"),
+        _field("code", "str"),
+        _field("message", "str"),
+        _field("category", "str"),
+        _field("check_name", "str"),
+        _field("affected_items", "list[str]", default_factory=list),
+        _field("location", "Location | None", None),
+        _field("details", "dict[str, Any]", default_factory=dict),
+        _field("constraint_id", "str | None", None),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    CheckResult,
+    (
+        _field("check_name", "str"),
+        _field("passed", "bool"),
+        _field("issues", "list[Issue]", default_factory=list),
+        _field("elapsed_ms", "float", 0.0),
+        _field("metrics", "dict[str, float]", default_factory=dict),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    RunResult,
+    (
+        _field("check_results", "list[CheckResult]", default_factory=list),
+        _field("total_elapsed_ms", "float", 0.0),
+    ),
+    module=__name__,
+)
 
 
 # =========================================================================

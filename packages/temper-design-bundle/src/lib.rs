@@ -2,6 +2,25 @@
 mod net_types;
 
 #[cfg(feature = "python")]
+mod deterministic_stages;
+
+// Wave 4 Phase 5 batch 2 — deterministic leaf stages (remaining slice):
+// component-assignment / layer-assignment / power-plane / fine-pitch /
+// slot-grid kernels + leaf data contracts (see deterministic_leaves.rs).
+#[cfg(feature = "python")]
+mod deterministic_leaves;
+
+// Wave 4 Phase 5 batch 2 — host-libm helpers (pow/sqrt/hypot via dlsym)
+// for the deterministic leaf kernels (see host_math.rs).
+#[cfg(feature = "python")]
+mod host_math;
+
+// Wave 4 Phase 5 batch 2 — routing-metrics data model + aggregation
+// (see routing_metrics.rs).
+#[cfg(feature = "python")]
+mod routing_metrics;
+
+#[cfg(feature = "python")]
 mod loops;
 
 #[cfg(feature = "python")]
@@ -27,10 +46,46 @@ mod reference_loader;
 
 #[cfg(feature = "python")]
 mod parse_engine;
+#[cfg(feature = "python")]
+mod manufacturing_tolerances;
+#[cfg(feature = "python")]
+mod manufacturing_monte_carlo;
+#[cfg(feature = "python")]
+mod hypergraph_factory;
 
 #[cfg(feature = "python")]
 mod loaders;
 
+#[cfg(feature = "python")]
+mod pcl_parse;
+
+#[cfg(feature = "python")]
+mod pcl_tags;
+
+// Wave 4 Phase 5 (deterministic hubs slice): the deterministic hub kernels
+// (channels penalty, bottleneck score, seed filter, feedback mapper/adjuster/
+// parser). Registered as the `deterministic_hubs` submodule (see lib.rs's
+// `python` module). Kept separate from the leaf-stages slice's
+// `deterministic_stages` submodule (owned by the parallel branch
+// feat/wave4-phase5-deterministic-stages-rust) so the two branches' lib.rs
+// additions merge cleanly.
+#[cfg(feature = "python")]
+mod deterministic_hubs;
+
+// Wave 4 Phase 4 — regression slice: the measure-closure /
+// cp_sat_comparison / fingerprint / schema_validator kernels (see the
+// module docstrings and packages/temper-design-bundle/VERIFICATION.md).
+#[cfg(feature = "python")]
+mod cp_sat_comparison;
+#[cfg(feature = "python")]
+mod fingerprint;
+#[cfg(feature = "python")]
+mod measure_closure;
+#[cfg(feature = "python")]
+mod schema_validator;
+
+#[cfg(feature = "python")]
+mod validation;
 mod atopile;
 mod constraint_merge;
 mod error;
@@ -199,6 +254,13 @@ mod python {
         crate::gates::register(module)?;
         crate::priority::register(module)?;
 
+        // Wave 4 Phase 5 first slice: deterministic leaf-stage compute
+        // (slot_generation / zone_geometry / zone_assignment kernels) ported
+        // from temper_placer/deterministic/stages/ (see deterministic_stages.rs).
+        crate::deterministic_stages::register(module)?;
+        crate::deterministic_leaves::register(module)?;
+        crate::routing_metrics::register(module)?;
+
         // Wave 4 Phase 3 candidate 1: the parse-target contracts ported from
         // temper_placer/core/netlist.py (see netlist_contracts.rs) and
         // temper_placer/core/board.py (see board_contracts.rs). Both are
@@ -241,11 +303,54 @@ mod python {
         )?)?;
         crate::parse_engine::register(module)?;
 
+        // Wave 4 Phase 4 leftovers slice: the manufacturing tolerance model
+        // ported from temper_placer/manufacturing/tolerances.py (see
+        // manufacturing_tolerances.rs).
+        crate::manufacturing_tolerances::register(module)?;
+
+        // Wave 4 Phase 4 leftovers slice: the Monte-Carlo tolerance
+        // simulator ported from temper_placer/manufacturing/monte_carlo.py
+        // (see manufacturing_monte_carlo.rs — the numpy RNG/aggregation
+        // boundary is argued in that module's docstring).
+        crate::manufacturing_monte_carlo::register(module)?;
+
+        // Wave 4 Phase 4 leftovers slice: the hypergraph factory ported
+        // from temper_placer/extraction/hypergraph_factory.py (see
+        // hypergraph_factory.rs — scipy/numpy/set-iteration stay Python).
+        crate::hypergraph_factory::register(module)?;
+
         // Wave 4 Phase 3 candidate 2: the YAML loaders ported from
         // temper_placer/io/netclass_loader.py and
         // temper_placer/io/loop_loader.py (see loaders.rs). They bind onto
         // the Phase-2 contracts registered above, which is why they are the
         // phase's opportunistic first pull.
-        crate::loaders::register(module)
+        crate::loaders::register(module)?;
+
+        // Wave 4 Phase 5 (deterministic hubs slice): the deterministic hub
+        // kernels. See deterministic_hubs.rs; registered after loaders so the
+        // leaf-stages branch's deterministic_stages registration (appended on
+        // its own branch) merges without textual conflict.
+        crate::deterministic_hubs::register(module)?;
+
+        // Wave 4 Phase 4: the validation-remainder decision kernels
+        // (validation/preflight.py, netlist_reconciliation.py,
+        // placement_roundtrip.py, prereg/schema.py) registered as the
+        // `validation` submodule (see validation.rs).
+        crate::validation::register(module)?;
+
+        // Wave 4 Phase 4 — regression slice: the measure-closure /
+        // cp_sat_comparison / fingerprint / schema_validator kernels (see
+        // the module docstrings and VERIFICATION.md).
+        crate::measure_closure::register(module)?;
+        crate::cp_sat_comparison::register(module)?;
+        crate::fingerprint::register(module)?;
+        crate::schema_validator::register(module)?;
+
+        // ...and then the PCL contract layer: the tag-expression algebra
+        // ported from temper_placer/pcl/tag_dispatch.py (see pcl_tags.rs)
+        // plus the parse primitives from temper_placer/pcl/_parse_utils.py
+        // (see pcl_parse.rs).
+        crate::pcl_tags::register(module)?;
+        crate::pcl_parse::register(module)
     }
 }

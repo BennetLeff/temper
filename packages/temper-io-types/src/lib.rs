@@ -35,15 +35,28 @@
 
 pub mod config_binding;
 pub mod dag_expr;
+pub mod dsn_exporter;
 pub mod dsn_types;
+pub mod explain;
 pub mod export_types;
 pub mod footprint;
 pub mod footprint_library;
 pub mod footprint_spec;
 pub mod golden_serializers;
 pub mod isolation;
+// Wave-4 Phase 2: the placer's core/ CONTRACT layer (Rect, PinInfo,
+// PlacementViolation, FabPreset + the pure kernels of units,
+// net_classification, manufacturing, placement_drc and the netlist
+// adjacency builder). See placer_core/mod.rs for what is deliberately
+// not here and why.
+pub mod placer_core;
 pub mod provenance;
+pub mod pyfmt;
 pub mod reference_aliases;
+pub mod report;
+
+pub mod stackup_validator;
+
 #[cfg(feature = "python")]
 pub mod zone_filler;
 
@@ -93,6 +106,7 @@ mod pymodule_def {
         m.add_class::<crate::export_types::PyExportResult>()?;
         m.add_class::<crate::footprint::PyFootprintBounds>()?;
         m.add_class::<crate::dsn_types::DSNExpression>()?;
+        m.add_class::<crate::dsn_exporter::PyDsnExporterCore>()?;
         m.add_class::<crate::dsn_types::PyDsnRect>()?;
         m.add_class::<crate::dsn_types::PyDsnCircle>()?;
         m.add_class::<crate::dsn_types::PyDsnPath>()?;
@@ -149,6 +163,96 @@ mod pymodule_def {
             crate::config_binding::verify_config_matches_netlist,
             m
         )?)?;
+        // Wave-4 Phase 2 contract layer.
+        crate::placer_core::pybridge::register(m)?;
+
+        // Wave 4 Phase 5 — report surface (report.rs).
+        m.add_function(wrap_pyfunction!(crate::report::report_format_text, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::report::report_format_json_data, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::report::report_format_html, m)?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::report::report_calculate_benchmark_result,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::report::report_benchmark_json_data,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::report::report_generate_summary,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::report::report_extract_key_metrics,
+            m
+        )?)?;
+        // Wave 4 Phase 5 — explainability surface (explain.rs).
+        m.add_function(wrap_pyfunction!(crate::explain::explain_trace_why, m)?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_decision_trace_why,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_decision_trace_why_not,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_decision_trace_history,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_decision_trace_summary,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(crate::explain::explain_should_log, m)?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_significant_change,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(crate::explain::explain_log_position, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::explain::explain_log_rotation, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::explain::explain_log_heuristic, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::explain::explain_log_constraint, m)?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_render_markdown_report,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_render_component_report,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_serialize_value,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_deserialize_value,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_serialize_alternative,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_serialize_decision,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_serialize_trace,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_constraint_subject,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_trace_threshold,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::explain::explain_compose_traces,
+            m
+        )?)?;
         m.add_function(wrap_pyfunction!(crate::zone_filler::fill_zones_pcbnew, m)?)?;
         m.add_function(wrap_pyfunction!(
             crate::zone_filler::fill_zones_if_present,
@@ -174,6 +278,11 @@ mod pymodule_def {
             m.getattr("serialize_connectivity_to_json")?,
         )?;
         m.add("SERIALIZER_REGISTRY", registry)?;
+
+        // Wave 4 Phase 4 leftovers slice: the stackup validator ported from
+        // temper_placer/manufacturing/stackup_validator.py (see
+        // stackup_validator.rs).
+        crate::stackup_validator::register(m)?;
 
         Ok(())
     }

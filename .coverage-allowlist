@@ -577,6 +577,11 @@ temper_placer/io/dsn.py::DSNPolygon.to_dsn  # TODO: temper-xxx
 temper_placer/io/dsn.py::DSNRect.to_dsn  # TODO: temper-xxx
 temper_placer/io/dsn.py::DSNShape.to_dsn  # TODO: temper-xxx
 temper_placer/io/dsn.py::dsn_list  # TODO: temper-xxx
+# temper_placer/io/real_board.py::load_real_board_placement is exercised by
+# the safety suite (tests/requirements/safety/) and the CLI wiring tests
+# (tests/cli/test_optimize_validator_input.py) against the real board, but
+# the coverage gate only measures tests/core/, so it reads as zero here.
+temper_placer/io/real_board.py::load_real_board_placement  # TODO: temper-617
 temper_placer/io/dsn_exporter.py::DSNExporter.export_library  # TODO: temper-xxx
 temper_placer/io/dsn_exporter.py::DSNExporter.export_network  # TODO: temper-xxx
 temper_placer/io/dsn_exporter.py::DSNExporter.export_pcb  # TODO: temper-xxx
@@ -1521,14 +1526,6 @@ temper_placer/validation/drc_result.py::Check.code_prefix  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::Check.description  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::Check.is_applicable  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::Check.supports_incremental  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::CheckResult.critical_count  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::CheckResult.error_count  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::CheckResult.info_count  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::CheckResult.merge  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::CheckResult.penalty  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::CheckResult.to_dict  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::CheckResult.total_issues  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::CheckResult.warning_count  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::ClearanceCheck.category  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::ClearanceCheck.description  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::ClearanceCheck.name  # TODO: temper-xxx
@@ -1566,8 +1563,6 @@ temper_placer/validation/drc_result.py::IsolationCheck.category  # TODO: temper-
 temper_placer/validation/drc_result.py::IsolationCheck.description  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::IsolationCheck.name  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::IsolationCheck.run  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::Issue.to_dict  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::Location.to_dict  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::LoopAreaCheck.category  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::LoopAreaCheck.description  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::LoopAreaCheck.name  # TODO: temper-xxx
@@ -1584,22 +1579,6 @@ temper_placer/validation/drc_result.py::PowerDomainCheck.category  # TODO: tempe
 temper_placer/validation/drc_result.py::PowerDomainCheck.description  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::PowerDomainCheck.name  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::PowerDomainCheck.run  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.all_issues  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.by_category  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.by_severity  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.critical_count  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.error_count  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.failed_checks  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.info_count  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.issues_for_component  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.passed  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.passed_checks  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.to_dict  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.total_checks  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.total_penalty  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::RunResult.warning_count  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::Severity.is_failure  # TODO: temper-xxx
-temper_placer/validation/drc_result.py::Severity.weight  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::TraceClearanceCheck.category  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::TraceClearanceCheck.description  # TODO: temper-xxx
 temper_placer/validation/drc_result.py::TraceClearanceCheck.name  # TODO: temper-xxx
@@ -1621,38 +1600,6 @@ temper_placer/validation/drc_runner.py::CheckRunner.get_checks_by_category  # TO
 temper_placer/validation/drc_runner.py::CheckRunner.run  # TODO: temper-xxx
 temper_placer/validation/drc_runner.py::CheckRunner.run_single  # TODO: temper-xxx
 temper_placer/validation/drc_runner.py::CheckRunner.summary  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ClearanceRule.applies_to  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ComponentPlacement.bounds  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ComponentPlacement.center  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ComponentPlacement.distance_to  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ComponentPlacement.edge_distance_to  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ComponentPlacement.overlap_area  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ComponentPlacement.overlaps  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ComponentPlacement.to_dict  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ConstraintSet.from_dict  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ConstraintSet.from_yaml  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ConstraintSet.get_clearance  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ConstraintSet.get_group  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ConstraintSet.get_loop  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ConstraintSet.get_zone  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ConstraintSet.to_dict  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::Placement.all_pairs  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::Placement.components_in_zone  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::Placement.distance_between  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::Placement.edge_distance_between  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::Placement.from_dict  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::Placement.from_yaml  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::Placement.get_component  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::Placement.get_net_class  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::Placement.get_voltage_domain  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::Placement.to_dict  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::TracePlacement.get_segments_for_net  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::TracePlacement.segment_count  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::TraceSegment.bounding_box  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::TraceSegment.length  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::Via.radius  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ViaPlacement.get_vias_for_net  # TODO: temper-xxx
-temper_placer/validation/drc_types.py::ViaPlacement.via_count  # TODO: temper-xxx
 temper_placer/validation/geometric.py::GeometricValidator.name  # TODO: temper-xxx
 temper_placer/validation/geometric.py::GeometricValidator.validate  # TODO: temper-xxx
 temper_placer/validation/geometric.py::validate_placement  # TODO: temper-xxx

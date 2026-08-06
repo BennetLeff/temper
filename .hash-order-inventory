@@ -1,0 +1,41 @@
+# Known salted-hash order-dependency sites. See
+# scripts/check_hash_order_determinism.py for what this file is and why
+# it is a ratchet rather than a suppression list.
+#
+# Format: <path>::<qualname>::<construct> <count>
+# Regenerate with: python scripts/check_hash_order_determinism.py --write-inventory
+# An entry that no longer fires is a FAILURE, not a pass: record the fix.
+#
+# This ledger is expected to SHRINK. Any branch that fixes one of these
+# sites must delete its line here in the same commit, or the gate fails
+# with STALE_ENTRY. That is deliberate: it is the only mechanism that
+# makes paid-down debt visible in a diff.
+
+packages/temper-placer/src/temper_placer/cli/__init__.py::optimize::set-materialised 1
+packages/temper-placer/src/temper_placer/constraints/compiler.py::ConstraintCompiler._find_similar::set-materialised 1
+packages/temper-placer/src/temper_placer/constraints/compiler.py::ConstraintCompiler.validate::set-materialised 2
+packages/temper-placer/src/temper_placer/core/graph.py::netlist_to_graph::set-materialised 1
+packages/temper-placer/src/temper_placer/core/loop_extractor.py::get_common_net::set-materialised 1
+packages/temper-placer/src/temper_placer/core/loop_ownership.py::LoopOwnershipMap.get_shared_loops::set-materialised 1
+packages/temper-placer/src/temper_placer/deterministic/channels.py::ChannelMap._from_payload::set-materialised 1
+packages/temper-placer/src/temper_placer/deterministic/instrumentation.py::run_with_trace_log::set-loop-records-order 1
+packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_assignment_validator.py::validate_phased_component_assignment_hv::set-loop-records-order 1
+packages/temper-placer/src/temper_placer/explainability/decision.py::DecisionTrace.summary::set-materialised 1
+packages/temper-placer/src/temper_placer/extraction/hypergraph_factory.py::HypergraphFactory.build::set-loop-records-order 1
+packages/temper-placer/src/temper_placer/io/zone_manager.py::get_board_outline::set-materialised 1
+packages/temper-placer/src/temper_placer/metrics/quality.py::thermal_score::set-loop-records-order 1
+packages/temper-placer/src/temper_placer/pipeline/dag_schema.py::_warn_unreachable::set-materialised 1
+packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py::FeedbackClassifier._handle_congestion::hash-builtin 2
+packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py::IECCreepageGate.check::set-materialised 1
+packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py::QualityGate.check::set-materialised 1
+packages/temper-placer/src/temper_placer/placer/cp_sat/unsat.py::_refine_mus::set-materialised 1
+packages/temper-placer/src/temper_placer/regression/drc_ratchet.py::DrcRatchet._run_rust_drc::set-materialised 1
+packages/temper-placer/src/temper_placer/router_v6/_astar_search.py::_astar_route_with_ripup::set-materialised 1
+packages/temper-placer/src/temper_placer/router_v6/_zone_pour_stitch.py::_emit_zone_pours::set-loop-records-order 2
+packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py::_partition_to_components::set-loop-records-order 1
+packages/temper-placer/src/temper_placer/router_v6/obstacle_map.py::validate_obstacle_map::set-loop-records-order 1
+packages/temper-placer/src/temper_placer/router_v6/terminal_tree_execution.py::_describe_layer_failure::set-materialised 1
+packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py::assign_trace_widths::set-loop-records-order 1
+packages/temper-placer/src/temper_placer/validation/drc.py::KiCadDRCValidator.validate::hash-builtin 1
+packages/temper-placer/src/temper_placer/validation/drc_oracle.py::DRCOracle._build_board_dict::set-materialised 1
+packages/temper-placer/src/temper_placer/validation/drc_oracle.py::DRCOracle._build_board_dict_from_parsed_pcb::set-materialised 1

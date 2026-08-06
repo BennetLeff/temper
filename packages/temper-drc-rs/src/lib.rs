@@ -11,12 +11,46 @@
 pub mod board;
 #[cfg(feature = "python")]
 pub mod board_py_bridge;
+// Wave 4 Phase 4 — regression slice: DRC ratchet comparison kernels
+// (drc_ratchet.rs) and the closure-test self-consistency kernels
+// (closure_test.rs) and the physics-oracle compute kernels (physics_oracle.rs).
+#[cfg(feature = "python")]
+pub mod closure_test;
+#[cfg(feature = "python")]
+pub mod drc_ratchet;
+#[cfg(feature = "python")]
+pub mod physics_oracle;
 pub mod constraints;
+#[cfg(feature = "python")]
+pub mod drc_contracts;
+pub mod pyfmt;
+#[cfg(feature = "python")]
+pub mod req_safe_01;
+pub mod dfm;
+#[cfg(feature = "python")]
+pub mod dfm_py;
+pub mod pymath;
+#[cfg(feature = "python")]
 pub mod router_clearance;
 pub mod rules;
 pub mod types;
 #[cfg(feature = "python")]
 pub mod validation;
+#[cfg(feature = "python")]
+pub mod violation_report;
+// NOT gated on `python`. The wasm32 tier builds with --no-default-features,
+// so an added `python` gate here silently excludes the registry and the
+// runner fails to compile against it. Stacked `cfg` attributes are ANDed.
+#[cfg(feature = "wasm-test-registry")]
+pub mod wasm_test_registry;
+// Wave 4 Phase 5 — deterministic leaf DRC-check kernels (drc_validation /
+// drc_sweep dedup / placement_validation / courtyard_check clamp).
+#[cfg(feature = "python")]
+pub mod deterministic_leaf_drc;
+// Wave 4 Phase 5 — deterministic connectivity-validation kernel
+// (connectivity_validation.py per-net algorithm).
+#[cfg(feature = "python")]
+pub mod deterministic_connectivity;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
@@ -285,5 +319,63 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     // Wave 4 Phase 4 — validation DRC-check kernels (validation.rs).
     crate::validation::register(m)?;
+    // Wave 4 Phase 4 — analysis/_violation_report.py report kernels.
+    crate::violation_report::register(m)?;
+    // Wave 4 Phase 5 — REQ-SAFE-01 clearance/creepage validator
+    // (req_safe_01.rs).
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_check_domain_clearance,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_check_creepage_path,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_verify_iec60335,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_format_clearance_report,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_requirement_matrix,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_nets_domain_map,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_components_in_domain,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_domain_boundary_pairs,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_component_pads,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_copper_model_init,
+        m
+    )?)?;
+    // Wave 4 cluster D — router_v6 post-route DFM kernels (dfm.rs).
+    crate::dfm_py::register(m)?;
+    // Wave 4 Phase 4 — regression slice: drc_ratchet / closure_test /
+    // physics_oracle kernels.
+    crate::drc_ratchet::register(m)?;
+    crate::closure_test::register(m)?;
+    crate::physics_oracle::register(m)?;
+    // Wave 4 Phase 4 — regression slice: drc_ratchet / closure_test /
+    // physics_oracle kernels.
+    // Wave 4 Phase 2 — drc_types / drc_result contract pyclasses.
+    crate::drc_contracts::register(m)?;
+    // Wave 4 Phase 5 — deterministic leaf DRC-check kernels.
+    crate::deterministic_leaf_drc::register(m)?;
+    crate::deterministic_connectivity::register(m)?;
     Ok(())
 }

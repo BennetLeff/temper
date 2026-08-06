@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
 import yaml
 
 from temper_placer.core.state import PlacementState
@@ -254,12 +255,19 @@ def _compute_routing_metrics(
     def mk(v):
         return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
 
-    # Routed length from trace segments
-    rdl = 0.0
-    for t in parse_result.traces:
-        dx = float(t.end[0]) - float(t.start[0])
-        dy = float(t.end[1]) - float(t.start[1])
-        rdl += math.hypot(dx, dy)
+    # Routed length from trace segments. The RDL loop — per segment
+    # ``rdl += math.hypot(end.x - start.x, end.y - start.y)`` — is the
+    # ``temper_drc_rs.rdl_sum`` kernel (the trace-kernel family; home-crate
+    # decision recorded in VERIFICATION.md). ``math.hypot`` is passed in as
+    # the per-segment length function and called back from the kernel:
+    # CPython inlines its own hypot into mathmodule.c, so neither libm nor
+    # ``f64::hypot`` matches it bit-for-bit (measured 1-ulp divergence).
+    # The trace starts/ends are passed through in segment order, and the
+    # kernel preserves the oracle's in-order `+=` accumulation.
+    rdl = _tdrc.rdl_sum(
+        [(t.start[0], t.start[1], t.end[0], t.end[1]) for t in parse_result.traces],
+        math.hypot,
+    )
 
     # Via count
     via_count = len(parse_result.vias)
@@ -277,27 +285,21 @@ def _compute_routing_metrics(
         thermal_via_count = -1
         stitching_via_count = -1
 
-    # Corridor consolidation and track-spread (U3)
-    try:
-        from temper_placer.router_v6.quality.corridor import (
-            corridor_consolidation_from_parse,
-            track_spread_from_parse,
-        )
-
-        corridor_score = corridor_consolidation_from_parse(parse_result)
-        track_spread = track_spread_from_parse(parse_result)
-    except Exception:
-        corridor_score = -1.0
-        track_spread = -1.0
-
     return {
         "rdl": mk(rdl),
         "via_count": mk(float(via_count)),
         "signal_via_count": mk(float(signal_via_count)),
         "thermal_via_count": mk(float(thermal_via_count)),
         "stitching_via_count": mk(float(stitching_via_count)),
-        "corridor_consolidation_score": mk(corridor_score),
-        "track_spread_score": mk(track_spread),
+        # corridor_consolidation_score / track_spread_score removed 2026-08-05.
+        # They never measured anything: quality/corridor compared board-relative
+        # courtyards against page-absolute traces, so bitaxe_ultra identified 739
+        # channels and assigned 0 tracks, and BOTH `else` arms of
+        # _identify_channels were unreachable (97,522 if / 0 else over 200k
+        # pairs). The scores were near-constant on 4 of 5 corpus boards. No
+        # committed baseline, corpus or golden ever recorded either key, and
+        # nothing branched on them -- they were emitted and never read. See
+        # issue #752 defect 2, and the replacement want filed separately.
     }
 
 
@@ -377,6 +379,44 @@ def _compute_aesthetic_metrics(
 # ---------------------------------------------------------------------------
 
 
+def _netlist_to_oracle_dict(netlist) -> dict:
+    """Serialize a placer Netlist into the dict shape the Rust oracle expects.
+
+    The oracle's ``extract_netlist`` reads ``nets`` (name + pin refs) and
+    ``components`` (ref, footprint, width, height, voltage). The placer
+    ``Component`` carries no voltage — the oracle defaults it to 0.0, which
+    is unused by the current config/threshold logic.
+    """
+    return {
+        "nets": [{"name": net.name, "pins": [ref for ref, _ in net.pins]} for net in netlist.nets],
+        "components": [
+            {
+                "ref": comp.ref,
+                "footprint": comp.footprint,
+                "width": float(comp.bounds[0]),
+                "height": float(comp.bounds[1]),
+            }
+            for comp in netlist.components
+        ],
+    }
+
+
+def _placement_to_oracle_dict(state: PlacementState, netlist, board) -> dict:
+    """Serialize a PlacementState into the oracle's placement dict shape.
+
+    Component refs must line up 1:1 with position rows; the extractor builds
+    both from the netlist's component order, so the netlist refs are the
+    source of truth here.
+    """
+    positions = np.asarray(state.positions, dtype=np.float64)
+    return {
+        "positions": positions.reshape(-1).tolist(),
+        "component_refs": [c.ref for c in netlist.components],
+        "board_width_mm": float(board.width),
+        "board_height_mm": float(board.height),
+    }
+
+
 def _compute_quality_metrics(
     state: PlacementState,
     context: _QualityContext,
@@ -384,26 +424,93 @@ def _compute_quality_metrics(
     pcb_git_hash: str,
     now: str,
 ) -> dict[str, MetricValue]:
-    """Compute normalized [0,1] quality scores via ``metrics.quality``.
+    """Compute normalized [0,1] quality scores via the Rust quality oracle.
 
     Config (thermal/HV components, critical loops) is inferred from the
     netlist using ``io.reference_loader.infer_quality_config`` — the same
     function used by the existing reference-loader comparison infrastructure.
+
+    The pipeline follows the oracle's setup/evaluate split: the
+    placement-independent state (config + net classifications) is prepared
+    once via ``temper_quality_oracle.prepare_quality_py``, then per-placement
+    scoring goes through ``evaluate_prepared_py``. Raw metric scores are
+    still computed by the numpy metric functions — the oracle's contract is
+    Python precomputes the scores, Rust validates + thresholds them — and the
+    verdict's validated metrics become the report.
     """
 
     def mk(v):
         return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
 
     try:
+        import temper_quality_oracle
+
         from temper_placer.io.reference_loader import infer_quality_config
-        from temper_placer.metrics.quality import compute_quality_report
+        from temper_placer.metrics.quality import (
+            compactness_score,
+            congestion_score,
+            connectivity_clustering_score,
+            hv_lv_clearance_score,
+            loop_area_score,
+            thermal_score,
+            zone_compliance_score,
+        )
 
         config = infer_quality_config(parse_result)  # type: ignore[arg-type]
         assert parse_result.board is not None
-        report = compute_quality_report(
-            state, parse_result.netlist, parse_result.board, context, config
+
+        prepared = temper_quality_oracle.prepare_quality_py(
+            _netlist_to_oracle_dict(parse_result.netlist),
+            {"name": "human_reference"},
         )
-        return {key: mk(float(value)) for key, value in report.items()}
+
+        placement_dict = _placement_to_oracle_dict(state, parse_result.netlist, parse_result.board)
+        metrics = {
+            "thermal_score": thermal_score(
+                state,
+                parse_result.netlist,
+                parse_result.board,
+                config.get("thermal_components", set()),
+            ),
+            "zone_compliance_score": zone_compliance_score(
+                state,
+                parse_result.netlist,
+                parse_result.board,
+                config.get("zone_assignments", {}),
+            ),
+            "hv_lv_clearance_score": hv_lv_clearance_score(
+                state,
+                parse_result.netlist,
+                config.get("hv_components", set()),
+                config.get("lv_components", set()),
+                config.get("min_hv_lv_clearance", 4.0),
+            ),
+            "loop_area_score": loop_area_score(
+                state,
+                parse_result.netlist,
+                context,
+                config.get("loop_components", []),
+            ),
+            "congestion_score": congestion_score(
+                state,
+                parse_result.netlist,
+                parse_result.board,
+                context,
+            ),
+            "compactness_score": compactness_score(
+                state,
+                parse_result.netlist,
+                parse_result.board,
+            ),
+            "connectivity_clustering_score": connectivity_clustering_score(
+                state,
+                parse_result.netlist,
+                context,
+            ),
+            "total_wirelength_mm": 0.0,
+        }
+        verdict = temper_quality_oracle.evaluate_prepared_py(prepared, placement_dict, metrics)
+        return {key: mk(float(value)) for key, value in verdict["metrics"].items()}
     except Exception:
         return {}
 

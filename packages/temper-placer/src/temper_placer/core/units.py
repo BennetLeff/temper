@@ -22,6 +22,7 @@ Example of bug prevented by type system:
 from typing import NewType, TypeAlias
 
 import numpy as np
+import temper_io_types as _rs
 from numpy.typing import NDArray as Array
 
 # ============================================================================
@@ -40,12 +41,28 @@ RadiansArray: TypeAlias = Array
 
 
 def deg_to_rad(degrees: float | Array) -> float | Array:
-    """Convert degrees to radians."""
+    """Convert degrees to radians.
+
+    Scalars go to Rust (``(x * pi) / 180`` in f64 -- the same two
+    roundings, in the same order, as the numpy expression below; note
+    that this is *not* ``math.radians``/``np.radians``, which disagree
+    with it on ~30% of inputs by a ulp). Arrays keep the original numpy
+    expression, because NEP 50 makes the result dtype depend on the
+    input dtype (float32 stays float32 and is computed in float32);
+    reproducing that promotion in Rust would mean reimplementing NEP 50.
+    """
+    if _rs.is_plain_python_scalar(degrees):
+        return _rs.deg_to_rad(degrees)
     return degrees * np.pi / 180.0
 
 
 def rad_to_deg(radians: float | Array) -> float | Array:
-    """Convert radians to degrees."""
+    """Convert radians to degrees.
+
+    Same scalar/array split as :func:`deg_to_rad`.
+    """
+    if _rs.is_plain_python_scalar(radians):
+        return _rs.rad_to_deg(radians)
     return radians * 180.0 / np.pi
 
 
@@ -93,7 +110,7 @@ def mm_to_cell(mm: Millimeters, cell_size_mm: Millimeters) -> CellIndex:
         >>> cell
         105
     """
-    return CellIndex(int(mm / cell_size_mm))
+    return CellIndex(_rs.mm_to_cell(mm, cell_size_mm))
 
 
 def cell_to_mm(cell: CellIndex, cell_size_mm: Millimeters) -> Millimeters:
@@ -113,7 +130,7 @@ def cell_to_mm(cell: CellIndex, cell_size_mm: Millimeters) -> Millimeters:
         >>> mm
         10.5
     """
-    return Millimeters(cell * cell_size_mm)
+    return Millimeters(_rs.cell_to_mm(cell, cell_size_mm))
 
 
 def distance_mm(x1: Millimeters, y1: Millimeters, x2: Millimeters, y2: Millimeters) -> Millimeters:
@@ -126,11 +143,7 @@ def distance_mm(x1: Millimeters, y1: Millimeters, x2: Millimeters, y2: Millimete
     Returns:
         Distance in millimeters
     """
-    import math
-
-    dx = x2 - x1
-    dy = y2 - y1
-    return Millimeters(math.sqrt(dx * dx + dy * dy))
+    return Millimeters(_rs.distance_mm(x1, y1, x2, y2))
 
 
 def manhattan_distance_mm(
@@ -145,7 +158,7 @@ def manhattan_distance_mm(
     Returns:
         Manhattan distance in millimeters
     """
-    return Millimeters(abs(x2 - x1) + abs(y2 - y1))
+    return Millimeters(_rs.manhattan_distance_mm(x1, y1, x2, y2))
 
 
 # ============================================================================
@@ -163,7 +176,7 @@ def is_valid_layer(layer: LayerIndex, max_layers: int = 4) -> bool:
     Returns:
         True if 0 <= layer < max_layers
     """
-    return 0 <= layer < max_layers
+    return _rs.is_valid_layer(layer, max_layers)
 
 
 def is_valid_net_id(net_id: NetId) -> bool:
@@ -175,4 +188,4 @@ def is_valid_net_id(net_id: NetId) -> bool:
     Returns:
         True if net_id >= 0 (0 = no net, >0 = actual net)
     """
-    return net_id >= 0
+    return _rs.is_valid_net_id(net_id)

@@ -1,6 +1,8 @@
 import logging
 from dataclasses import replace
 
+import temper_drc_rs as _drc
+
 from ..state import BoardState
 from .base import Stage
 
@@ -40,17 +42,18 @@ class DRCValidationStage(Stage):
         # Run full validation
         violations = state.drc_oracle.validate_all()
 
-        # Log summary
+        # Log summary (count-by-type computed by the Rust kernel)
         self._log_summary(violations)
 
-        # Check thresholds
-        if self.fail_on_violations and violations:
-            raise DRCValidationError(f"{len(violations)} DRC violations found")
-
-        if self.max_violations > 0 and len(violations) > self.max_violations:
-            raise DRCValidationError(
-                f"{len(violations)} violations exceeds max {self.max_violations}"
-            )
+        # Check thresholds — the raise decision (should_raise + message) is
+        # the migrated Rust kernel (`threshold_decision`), so it cannot drift
+        # from the pinned oracle. The DRCValidationError raise itself stays
+        # Python.
+        should_raise, message = _drc.threshold_decision_py(
+            self.fail_on_violations, self.max_violations, len(violations)
+        )
+        if should_raise:
+            raise DRCValidationError(message)
 
         # Store as tuple for immutability in frozen BoardState
         return replace(state, drc_violations=tuple(violations))
@@ -60,11 +63,10 @@ class DRCValidationStage(Stage):
             logger.info("DRC validation passed: 0 violations")
             return
 
-        # Count by type
-        by_type = {}
-        for v in violations:
-            by_type[v.type] = by_type.get(v.type, 0) + 1
+        # Count by type — the kernel reproduces the oracle's counting and
+        # the descending-count sort (ties in first-seen type order).
+        total, by_type = _drc.summarize_violations_py(violations)
 
-        logger.warning(f"DRC validation: {len(violations)} violations")
-        for vtype, count in sorted(by_type.items(), key=lambda x: -x[1]):
+        logger.warning(f"DRC validation: {total} violations")
+        for vtype, count in by_type:
             logger.warning(f"  {vtype}: {count}")

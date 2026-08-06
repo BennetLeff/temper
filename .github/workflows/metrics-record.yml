@@ -1,5 +1,18 @@
 name: Metrics Record
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  # PRs: cancel in progress -- a superseded PR run is worthless.
+  # push (i.e. main): DO NOT cancel. A run already executing is main's
+  # only verification; killing it mid-flight is how 6 of 8 consecutive
+  # main runs ended up `cancelled` on 2026-08-06, with zero successes,
+  # so `cargo test`/clippy results never landed during a merge burst.
+  # Sharing one group by `github.ref` still prevents the 88-run pileup
+  # the sha-keyed group allowed: later pushes queue, and GitHub keeps
+  # only the newest PENDING run, so intermediate commits are still
+  # superseded -- just not the one actually running.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 on:
   # no-pr-trigger: record pipeline metrics post-merge, not meaningful on PRs
   push:
@@ -44,6 +57,20 @@ jobs:
       - name: Build electronics netlist
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
+      # ci_closure_test.py imports temper_drc_rs (the closure kernels +
+      # run_drc). The shared venv cache is keyed only on uv.lock and is
+      # populated by python-tests.yml's sync, which excludes temper-drc-rs
+      # (--no-install-package) -- so a restored cache can carry a venv
+      # without it, and ci_closure_test.py crashes with `ImportError: No
+      # module named 'temper_drc_rs'` instead of a clean failure. Build the
+      # extension explicitly (after the sync, so uv cannot evict it). Mirrors
+      # python-tests.yml's per-crate maturin step.
+      - name: Build and install temper-drc-rs
+        run: |
+          uv pip install maturin
+          uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
       - name: Run closure test
         continue-on-error: true  # TODO: temper-NNN -- closure test best-effort; hard-fail after 2026-09-01
         run: >
@@ -60,7 +87,7 @@ jobs:
             --closure-json closure-result.json \
             --metrics-file "$NDJSON_FILE"
       - name: Upload baseline for PR scorecard
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: baseline-metrics
           path: pipeline-metrics/pipeline_metrics.jsonl

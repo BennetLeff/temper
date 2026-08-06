@@ -3,7 +3,16 @@ name: Regression Suite
 # Grouped per commit so a push cannot cancel the previous commit's run.
 # See the rationale block in python-tests.yml.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  # PRs: cancel in progress -- a superseded PR run is worthless.
+  # push (i.e. main): DO NOT cancel. A run already executing is main's
+  # only verification; killing it mid-flight is how 6 of 8 consecutive
+  # main runs ended up `cancelled` on 2026-08-06, with zero successes,
+  # so `cargo test`/clippy results never landed during a merge burst.
+  # Sharing one group by `github.ref` still prevents the 88-run pileup
+  # the sha-keyed group allowed: later pushes queue, and GitHub keeps
+  # only the newest PENDING run, so intermediate commits are still
+  # superseded -- just not the one actually running.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
@@ -121,17 +130,22 @@ jobs:
         run: make netlist
 
       # The placer/validation tests exercise the Rust-backed migrations
-      # (temper-geometry, temper-thermal, temper-rust-router,
+      # (temper-geometry, temper-thermal, temper-rust-router, temper-drc-rs,
       # temper-constraints) — the venv cache key only tracks uv.lock, so a
       # restored cache carries stale (or absent) compiled extensions. Build
-      # them explicitly on every run.
+      # them explicitly on every run. temper-drc-rs is NOT a declared project
+      # dependency and python-tests.yml's shared venv cache excludes it
+      # (--no-install-package), so on a cold/evicted cache the ratchet and
+      # closure gates would otherwise crash with `ImportError: No module
+      # named 'temper_drc_rs'` instead of a clean gate FAIL.
       - name: Build and install Rust extensions
         run: |
           uv pip install maturin
           for crate in \
             packages/temper-geometry \
             packages/temper-thermal \
-            packages/temper-rust-router; do
+            packages/temper-rust-router \
+            packages/temper-drc-rs; do
             uv run maturin develop --release --manifest-path "$crate/Cargo.toml"
           done
           # temper-constraints is the one abi3 crate; without the
@@ -166,7 +180,7 @@ jobs:
 
       - name: Upload measured baseline
         if: ${{ inputs.measure_router_baseline }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: router-output-baseline
           path: router-output-baseline.json

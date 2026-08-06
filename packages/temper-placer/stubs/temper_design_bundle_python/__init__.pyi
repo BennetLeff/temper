@@ -32,9 +32,12 @@ from typing import Any
 # pyclass's `__name__`/`__qualname__` equal to the dataclass it replaces,
 # which the `unhashable type: 'X'` / repr parity assertions depend on.
 from . import board_contracts as board_contracts
+from . import deterministic_stages as deterministic_stages
 from . import netlist_contracts as netlist_contracts
 from . import parse_engine as parse_engine
+from . import deterministic_hubs as deterministic_hubs
 
+from . import validation as validation
 def sha256_hex(bytes: bytes) -> str: ...
 
 
@@ -525,7 +528,6 @@ def apply_fixed_components_to_netlist(netlist: Any, constraints: Any) -> None: .
 def compute_design_stats(result: Any) -> dict[str, Any]: ...
 
 def infer_quality_config(design: Any) -> dict[str, Any]: ...
-||||||| f57b52d51
 
 # ---------------------------------------------------------------------------
 # Wave 4 Phase 3 candidate 2: the YAML loaders (crate module `loaders.rs`),
@@ -577,3 +579,213 @@ def load_loop_collection(
     name: str = "",
     description: str = "",
 ) -> LoopCollection: ...
+
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 4 leftovers slice: manufacturing tolerance model ported from
+# temper_placer/manufacturing/tolerances.py (manufacturing_tolerances.rs).
+# Plain Python Enums: str(member) is "CopperWeight.HALF_OZ" (NOT the bare
+# value); members are hashable/eq and usable as dict keys; `Cls(value)`
+# constructs a fresh instance (documented deviation: Python Enum returns the
+# cached singleton). The dict fields are real Python dicts keyed by the
+# enum members.
+# ---------------------------------------------------------------------------
+
+
+class CopperWeight:
+    HALF_OZ: CopperWeight
+    ONE_OZ: CopperWeight
+    TWO_OZ: CopperWeight
+
+    def __init__(self, value: float) -> None: ...
+    @property
+    def name(self) -> str: ...
+    @property
+    def value(self) -> float: ...
+
+
+class LayerType:
+    OUTER: LayerType
+    INNER: LayerType
+
+    def __init__(self, value: str) -> None: ...
+    @property
+    def name(self) -> str: ...
+    @property
+    def value(self) -> str: ...
+
+
+class ToleranceTable:
+    etch_tolerance: dict[CopperWeight, float]
+    registration: dict[LayerType, float]
+    solder_mask_registration: float
+
+    def __init__(
+        self,
+        etch_tolerance: dict[CopperWeight, float] | None = None,
+        registration: dict[LayerType, float] | None = None,
+        solder_mask_registration: float = 0.075,
+    ) -> None: ...
+
+
+class FeatureTolerance:
+    feature_type: str
+    nominal_value: float
+    tolerance_plus: float
+    tolerance_minus: float
+    worst_case_min: float
+    worst_case_max: float
+
+    def __init__(
+        self,
+        feature_type: str,
+        nominal_value: float,
+        tolerance_plus: float,
+        tolerance_minus: float,
+        worst_case_min: float,
+        worst_case_max: float,
+    ) -> None: ...
+
+
+class ToleranceAnalyzer:
+    table: ToleranceTable
+
+    def __init__(self, table: ToleranceTable | None = None) -> None: ...
+
+    def analyze_clearance(
+        self,
+        clearance_mm: float,
+        copper_weight: CopperWeight,
+        layer_type: LayerType,
+    ) -> FeatureTolerance: ...
+
+    def analyze_trace(self, width_mm: float, copper_weight: CopperWeight) -> FeatureTolerance: ...
+
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 4 leftovers — manufacturing/monte_carlo.py migration.
+# Mutable dataclasses with __dict__ (attribute injection allowed), dataclass
+# eq/repr semantics, __hash__ = None (unhashable) — mirror the Python
+# dataclasses in temper_placer/manufacturing/monte_carlo.py.
+# ---------------------------------------------------------------------------
+
+
+class DistributionParams:
+    mean: float
+    std_dev: float
+    distribution: str
+    min_val: float | None
+    max_val: float | None
+
+    def __init__(
+        self,
+        mean: float,
+        std_dev: float = 0.0,
+        distribution: str = "normal",
+        min_val: float | None = None,
+        max_val: float | None = None,
+    ) -> None: ...
+
+
+class ManufacturingVariables:
+    etch_tolerance: DistributionParams | None
+    drill_tolerance: DistributionParams | None
+    registration_x: DistributionParams | None
+    registration_y: DistributionParams | None
+    copper_thickness: DistributionParams | None
+    dielectric_thickness: DistributionParams | None
+
+    def __init__(
+        self,
+        etch_tolerance: DistributionParams | None = None,
+        drill_tolerance: DistributionParams | None = None,
+        registration_x: DistributionParams | None = None,
+        registration_y: DistributionParams | None = None,
+        copper_thickness: DistributionParams | None = None,
+        dielectric_thickness: DistributionParams | None = None,
+    ) -> None: ...
+
+
+class MonteCarloConfig:
+    num_samples: int
+    seed: int
+    report_percentiles: tuple[float, ...]
+
+    def __init__(
+        self,
+        num_samples: int = 1000,
+        seed: int = 42,
+        report_percentiles: tuple[float, ...] = (0.01, 0.1, 0.5, 0.9, 0.99),
+    ) -> None: ...
+
+
+class MonteCarloResult:
+    num_samples: int
+    yield_probability: float
+    failure_modes: list[tuple[str, float]]
+    stats: dict[str, float]
+
+    def __init__(
+        self,
+        num_samples: int,
+        yield_probability: float,
+        failure_modes: list[tuple[str, float]] | None = None,
+        stats: dict[str, float] | None = None,
+    ) -> None: ...
+
+
+class MonteCarloSimulator:
+    variables: ManufacturingVariables
+    config: MonteCarloConfig
+    _rng: object  # numpy Generator — created/advanced by numpy itself (KTD9)
+
+    def __init__(
+        self,
+        variables: ManufacturingVariables,
+        config: MonteCarloConfig | None = None,
+    ) -> None: ...
+
+    def sample_parameters(self, n: int) -> dict[str, object]: ...
+
+    def run_clearance_simulation(
+        self,
+        positions: object,
+        bounds: object,
+        required_clearance: float,
+    ) -> MonteCarloResult: ...
+
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 4 leftovers — extraction/hypergraph_factory.py migration.
+# The Rust builder computes the filtering/classification/ordering; the
+# Python shim class (temper_placer.extraction.hypergraph_factory) owns the
+# scipy/numpy assembly.
+# ---------------------------------------------------------------------------
+
+
+class HypergraphBuildResult:
+    n_nodes: int
+    n_edges: int
+    node_refs: list[str]
+    hyperedge_names: list[str]
+    edge_voltages: list[float]
+    edge_currents: list[float]
+    edge_widths: list[float]
+    node_weights: list[float]
+    hyperedge_weights: list[float]
+    connected_indices: list[list[int]]
+
+
+class HypergraphFactory:
+    netlist: object
+    ignore_global_nets: bool
+    global_net_threshold: int
+
+    def __init__(
+        self,
+        netlist: object,
+        ignore_global_nets: bool = False,
+        global_net_threshold: int = 50,
+    ) -> None: ...
+
+    def build(self) -> HypergraphBuildResult: ...
