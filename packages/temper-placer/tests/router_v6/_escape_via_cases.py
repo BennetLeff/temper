@@ -367,6 +367,16 @@ VALID_PROBES: list[tuple[str, float, float, float, float, list]] = [
     ("no_pads_at_all", 0.0, 0.0, _R, 0.15, []),
     # magnitudes where (x - px) ** 2 overflows
     ("overflow_square", 1e200, 0.0, _R, 0.15, [(-1e200, 0.0, 0.4, 0.4, "circle")]),
+    # roundrect_ratio is READ by pin_world_radius and was hardcoded to the
+    # 0.25 default in the Rust kernel until 2026-08-06. `.kicad_pcb` files
+    # carry real `roundrect_rratio` values, so this is reachable on real
+    # boards, not a synthetic edge. The probe sits between the radius the
+    # default ratio implies and the one 0.5 implies, so the two disagree on
+    # the accept/reject verdict rather than merely on a returned float.
+    ("roundrect_ratio_non_default", 0.8893943276465976, 0.0, _R, 0.15,
+     [(0.0, 0.0, 1.0, 0.6, "roundrect", 0.5)]),
+    ("roundrect_ratio_zero_is_falsy", 0.8893943276465976, 0.0, _R, 0.15,
+     [(0.0, 0.0, 1.0, 0.6, "roundrect", 0.0)]),
 ]
 
 

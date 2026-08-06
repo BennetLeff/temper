@@ -119,6 +119,8 @@ struct PadRow {
     width: f64,
     height: f64,
     shape: String,
+    /// `Pin.roundrect_ratio`. Optional so an older 6-tuple row still parses.
+    roundrect_ratio: Option<f64>,
 }
 
 impl PadRow {
@@ -141,9 +143,20 @@ impl PadRow {
         } else {
             self.shape.as_str()
         };
-        // `Pin` carries no `roundrect_ratio`, so `getattr(...) or DEFAULT`
-        // always takes the default for every row this kernel can see.
-        bounding_radius(w, h, shape_code(shape), DEFAULT_ROUNDRECT_RATIO)
+        // `ratio = getattr(pin, "roundrect_ratio", None) or DEFAULT`.
+        //
+        // The `or` is load-bearing and is NOT `unwrap_or`: 0.0 is FALSY in
+        // Python, so a zero ratio also falls back to the default. Only a
+        // non-zero value is honoured. This kernel previously hardcoded the
+        // default outright, which silently diverged from the shipped
+        // `pin_world_radius` for any board carrying a non-default
+        // `roundrect_rratio` -- and `.kicad_pcb` files do carry them
+        // (parse_engine.rs reads the field).
+        let ratio = match self.roundrect_ratio {
+            Some(r) if r != 0.0 => r,
+            _ => DEFAULT_ROUNDRECT_RATIO,
+        };
+        bounding_radius(w, h, shape_code(shape), ratio)
     }
 }
 
@@ -187,6 +200,12 @@ fn parse_pads(pins: &Bound<'_, PyAny>) -> PyResult<Vec<PadRow>> {
             width: row.get_item(3)?.extract()?,
             height: row.get_item(4)?.extract()?,
             shape: row.get_item(5)?.extract()?,
+            // 7th element is optional: a 6-tuple row keeps the old shape and
+            // falls back to the default ratio, exactly as `getattr` would.
+            roundrect_ratio: match row.get_item(6) {
+                Ok(v) => v.extract().ok(),
+                Err(_) => None,
+            },
         });
     }
     Ok(out)
@@ -471,7 +490,18 @@ pub fn escape_is_position_valid_py(
     let mut rows = Vec::new();
     for (i, row) in pads.try_iter()?.enumerate() {
         let row = row?;
-        let (px, py, w, h, shape): (f64, f64, f64, f64, String) = row.extract()?;
+        // Accept either the 5-tuple `(px, py, w, h, shape)` or the 6-tuple
+        // that additionally carries `roundrect_ratio`. The 5-tuple form keeps
+        // working and falls back to the default ratio, which is what every
+        // pre-existing corpus row relies on.
+        let (px, py, w, h, shape, ratio): (f64, f64, f64, f64, String, Option<f64>) =
+            match row.extract() {
+                Ok(six) => six,
+                Err(_) => {
+                    let (px, py, w, h, shape): (f64, f64, f64, f64, String) = row.extract()?;
+                    (px, py, w, h, shape, None)
+                }
+            };
         rows.push(PadRow {
             number: i.to_string(),
             position: (px, py),
@@ -479,6 +509,7 @@ pub fn escape_is_position_valid_py(
             width: w,
             height: h,
             shape,
+            roundrect_ratio: ratio,
         });
     }
     let comp = CompRow {
@@ -539,7 +570,8 @@ mod tests {
                 net: None,
                 width: 0.4,
                 height: 0.4,
-                shape: "circle".into(),
+                roundrect_ratio: None,
+            shape: "circle".into(),
             }],
         };
         // A coincident via is rejected ...
@@ -574,6 +606,7 @@ mod tests {
             net: None,
             width: 0.0,
             height: 0.0,
+            roundrect_ratio: None,
             shape: "rect".into(),
         };
         assert_eq!(pad.world_radius(), 0.5);
