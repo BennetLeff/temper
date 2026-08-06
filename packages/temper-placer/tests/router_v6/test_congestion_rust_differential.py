@@ -544,11 +544,24 @@ def test_estimate_net_demand_bit_exact(case):
 @pytest.mark.parametrize("seed", [11, 12])
 def test_estimate_net_demand_random_sweep(seed):
     for pins in random_net_bboxes(seed, 40):
+
+        def _oracle(p=pins):
+            # Signs the SAME pair as test_estimate_net_demand_bit_exact.
+            # Projecting a bare `.demand` here signed strictly less than its
+            # sibling and, because `sig()` is arity-carrying, no single Rust
+            # function could satisfy both call sites at once.  The identity is
+            # the D3 contract: both early returns hand back the INPUT grid, and
+            # a mirror returning a fresh copy carrying an empty write is
+            # indistinguishable from the repair unless `out is grid` is signed.
+            grid = ORACLE.CongestionGrid.from_board(
+                build_board(10.0, 10.0), cell_size_mm=1.0
+            )
+            out = ORACLE.estimate_net_demand(grid, p)
+            return (out.demand, out is grid)
+
         _assert_same(
             f"random bbox seed={seed} pins={pins}",
-            lambda p=pins: ORACLE.estimate_net_demand(
-                ORACLE.CongestionGrid.from_board(build_board(10.0, 10.0), cell_size_mm=1.0), p
-            ).demand,
+            _oracle,
             "congestion_estimate_net_demand_py",
             lambda fn, p=pins: fn(10.0, 10.0, 1.0, (0.0, 0.0), p, 0, 1.0, 1),
         )
@@ -1000,8 +1013,20 @@ def test_generate_placement_suggestions_over_many_regions():
     cm = ORACLE.CongestionMap(regions=[_region(c) for c in SUGGESTION_REGIONS])
     _assert_same(
         "generate_placement_suggestions(all regions)",
+        # Signs the SAME 5-tuple as test_generate_placement_suggestions_bit_exact.
+        # `current_position` was missing here and nowhere else; because `sig()`
+        # is arity-carrying, that made the two call sites demand different
+        # return shapes from one Rust function.  It is also the only check that
+        # a suggestion carries the position it was computed FROM once more than
+        # one region contributes, which is exactly what this test is for.
         lambda: [
-            (s.component_id, s.suggested_position, s.reason, s.priority)
+            (
+                s.component_id,
+                s.current_position,
+                s.suggested_position,
+                s.reason,
+                s.priority,
+            )
             for s in ORACLE.generate_placement_suggestions(
                 cm, dict(SUGGESTION_POSITIONS)
             ).suggestions
@@ -1133,14 +1158,35 @@ def test_apply_suggestions_with_missing_component():
     cm = ORACLE.CongestionMap(regions=[_region(c) for c in SUGGESTION_REGIONS])
     suggestions = ORACLE.generate_placement_suggestions(cm, dict(SUGGESTION_POSITIONS))
     partial = {"NEAR": SUGGESTION_POSITIONS["NEAR"]}
+    def _oracle():
+        # Signs the SAME 3-tuple as test_apply_suggestions_with_damping_bit_exact.
+        # The id-only projection signed strictly less than its sibling, and
+        # `sig()` is arity-carrying, so the two call sites demanded different
+        # return shapes from one Rust function -- undispatchable here, because
+        # they differ ONLY in the size of the positions dict (12 vs 1).
+        # It also could not see `total_movement`, which is where the
+        # `(dx ** 2 + dy ** 2) ** 0.5` libm-`pow` trap actually bites.  The
+        # `if current_pos is None: continue` guard this test exists for stays
+        # fully visible in the adjustment list.
+        out = ORACLE.apply_suggestions_with_damping(suggestions, partial, 0.5, 0.5)
+        return (
+            [
+                (
+                    a.component_id,
+                    a.original_position,
+                    a.suggested_position,
+                    a.applied_position,
+                    a.damping_factor,
+                )
+                for a in out.adjustments
+            ],
+            out.adjustment_count,
+            out.total_movement,
+        )
+
     _assert_same(
         "apply_suggestions_with_damping(partial positions)",
-        lambda: [
-            a.component_id
-            for a in ORACLE.apply_suggestions_with_damping(
-                suggestions, partial, 0.5, 0.5
-            ).adjustments
-        ],
+        _oracle,
         "apply_suggestions_damped_py",
         lambda fn: fn(list(SUGGESTION_REGIONS), partial, 0.5, 0.5),
     )
