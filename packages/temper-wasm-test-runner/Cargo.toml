@@ -1,0 +1,27 @@
+[package]
+name = "temper-wasm-test-runner"
+version = "0.1.0"
+edition = "2024"
+description = "wasm32 entry point that runs temper-drc-rs unit tests one at a time from a host (Cloudflare Worker, Node, workerd)"
+publish = false
+
+[lib]
+name = "temper_wasm_test_runner"
+# `cdylib` only. There is no consumer of this as a Rust library: its whole
+# surface is the seven `extern "C"` exports the host calls.
+crate-type = ["cdylib"]
+
+[dependencies]
+temper-drc-rs = { path = "../temper-drc-rs", default-features = false, features = [
+  "wasm-test-registry",
+] }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

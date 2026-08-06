@@ -18,14 +18,14 @@ use super::*;
 // thermal_relief
 // ---------------------------------------------------------------------------
 
-#[test]
+#[cfg_attr(test, test)]
 fn power_net_pattern_compiles() {
     // The `unwrap` in `power_net_pattern` is only sound because the
     // pattern parses; assert it here rather than discovering it at import.
     assert!(power_net_pattern().is_match("GND"));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn is_power_net_honours_word_boundaries_and_ignorecase() {
     for name in [
         "GND", "PGND", "AGND", "DGND", "CGND", "XGND", "QUIETGND", "agnd", "Gnd", "VCC", "VDD",
@@ -69,7 +69,7 @@ fn is_power_net_honours_word_boundaries_and_ignorecase() {
     }
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn connects_to_power_plane_short_circuits_on_the_net_class() {
     let pl: Vec<String> = ["In1.Cu", "In2.Cu"].iter().map(|s| (*s).into()).collect();
     let pn: Vec<String> = ["GND", "VCC"].iter().map(|s| (*s).into()).collect();
@@ -82,7 +82,7 @@ fn connects_to_power_plane_short_circuits_on_the_net_class() {
     assert!(!connects_to_power_plane("GND", "in1.cu", "b.cu", &pl, &pn));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn spoke_segments_count_and_degenerate_arms() {
     assert_eq!(generate_spoke_segments(0.0, 0.0, 0.6, 0.6, 0, 0.254, 0.254).len(), 0);
     assert_eq!(generate_spoke_segments(0.0, 0.0, 0.6, 0.6, 4, 0.254, 0.254).len(), 4);
@@ -93,7 +93,7 @@ fn spoke_segments_count_and_degenerate_arms() {
     assert_eq!(one[0].1.0, 3.0); // start_r 1.0 + spoke_length 2.0
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn spoke_length_is_cpython_max_not_f64_max() {
     // NaN in `max`'s FIRST argument (clearance_gap) wins; in the SECOND it
     // loses. `f64::max` would discard it in both positions.
@@ -106,7 +106,7 @@ fn spoke_length_is_cpython_max_not_f64_max() {
     );
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn spoke_angle_chain_is_not_reassociated() {
     // Moving the divide first changes 27% of (i, n) pairs. Assert the
     // spelling actually used still differs from the moved-divide spelling
@@ -126,7 +126,7 @@ fn spoke_angle_chain_is_not_reassociated() {
     assert!(moved > 0, "the two associations agree everywhere -- trap stale");
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn clamp_to_rect_outline_is_min_then_max() {
     let f = PyNum::Float;
     // a NaN x clamps to x_min, NOT to NaN and NOT to x_max
@@ -145,7 +145,7 @@ fn clamp_to_rect_outline_is_min_then_max() {
     assert_eq!(got, Ok((f(5.0), f(5.0))));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn clamp_to_rect_outline_nonfinite_guard_is_load_bearing() {
     // Mutation-sweep survivor M08. The corpus's non-finite-dimension rows all
     // use an INSIDE point, for which deleting the guard is a no-op: a NaN
@@ -173,7 +173,7 @@ fn clamp_to_rect_outline_nonfinite_guard_is_load_bearing() {
     );
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn clamp_to_rect_outline_preserves_int_ness() {
     let i = PyNum::Int;
     // The whole reason `PyNum` exists: `sig()` separates ('int', 0) from
@@ -186,7 +186,7 @@ fn clamp_to_rect_outline_preserves_int_ness() {
 // acid_trap_detection
 // ---------------------------------------------------------------------------
 
-#[test]
+#[cfg_attr(test, test)]
 fn calculate_angle_pins_the_60_degree_boundary() {
     let s3 = 3.0f64.sqrt() / 2.0;
     // The B3 case: acos/degrees gives 59.99999999999999; round(.., 9)
@@ -199,7 +199,7 @@ fn calculate_angle_pins_the_60_degree_boundary() {
     assert_eq!(classify_severity(60.0, 0.25), "low");
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn calculate_angle_cardinal_values() {
     assert_eq!(calculate_angle(1.0, 0.0, 0.0, 0.0, 0.0, 1.0), Ok(90.0));
     assert_eq!(calculate_angle(0.0, 1.0, 0.0, 0.0, 1.0, 0.0), Ok(90.0));
@@ -209,7 +209,7 @@ fn calculate_angle_cardinal_values() {
     assert_eq!(calculate_angle(1.0, 0.0, 0.0, 0.0, -0.5, 3.0f64.sqrt() / 2.0), Ok(120.0));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn calculate_angle_degenerate_and_nan_arms() {
     // a zero-length arm takes the early 180.0
     assert_eq!(calculate_angle(0.0, 0.0, 0.0, 0.0, 1.0, 0.0), Ok(180.0));
@@ -223,7 +223,7 @@ fn calculate_angle_degenerate_and_nan_arms() {
     assert_eq!(calculate_angle(f64::NAN, 0.0, 0.0, 0.0, 1.0, 0.0), Ok(0.0));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn calculate_angle_magnitude_is_sqrt_of_pow_not_hypot() {
     // If the magnitude were `math.hypot`, this vertex would give a
     // different last bit. Pin the divergence itself so a "simplification"
@@ -253,7 +253,7 @@ fn calculate_angle_magnitude_is_sqrt_of_pow_not_hypot() {
     assert!(sqrt_pow.is_finite());
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn classify_severity_bands_and_demotion() {
     assert_eq!(classify_severity(10.0, 0.2), "high");
     assert_eq!(classify_severity(44.999999999, 0.2), "high");
@@ -283,7 +283,7 @@ fn classify_severity_bands_and_demotion() {
 // power_plane
 // ---------------------------------------------------------------------------
 
-#[test]
+#[cfg_attr(test, test)]
 fn board_bounds_and_rect_polygon_preserve_int_ness() {
     let i = PyNum::Int;
     assert_eq!(board_bounds(i(0), i(0), i(100), i(80)), Ok((i(0), i(0), i(100), i(80))));
@@ -298,7 +298,7 @@ fn board_bounds_and_rect_polygon_preserve_int_ness() {
     );
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn power_pour_bounds_partitions_and_raises() {
     let f = PyNum::Float;
     let pours = power_pour_bounds(f(0.0), f(0.0), f(100.0), f(80.0), 3, f(0.3))
@@ -328,7 +328,7 @@ fn power_pour_bounds_partitions_and_raises() {
     assert!(power_pour_bounds(f(0.0), f(0.0), f(100.0), f(80.0), 3, f(f64::NAN)).is_ok());
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn power_pour_bounds_threads_y_type_through() {
     // y_min/y_max are pass-throughs from `_board_bounds`, so an int board
     // yields int y-bounds beside float x-bounds -- the corpus's `# integers`
@@ -340,7 +340,7 @@ fn power_pour_bounds_threads_y_type_through() {
     assert_eq!(pours[0].3, PyNum::Int(80));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn thermal_via_positions_perfect_square_and_complex_arms() {
     let g = thermal_via_positions(0.0, 0.0, 9, 1.0).unwrap_or_default();
     assert_eq!(g.len(), 9);
@@ -363,7 +363,7 @@ fn thermal_via_positions_perfect_square_and_complex_arms() {
     assert!(inf[0].0.is_nan());
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn thermal_via_side_round_absorbs_the_pow_vs_sqrt_divergence() {
     // Mutation-sweep survivors M17 (`pow(c, 0.5)` -> `sqrt(c)`) and M18
     // (`round_ties_even` -> `round`) both survive the differential. This
@@ -417,7 +417,7 @@ fn thermal_via_side_round_absorbs_the_pow_vs_sqrt_divergence() {
 // copper_balance
 // ---------------------------------------------------------------------------
 
-#[test]
+#[cfg_attr(test, test)]
 fn via_annular_area_guards() {
     assert_eq!(via_annular_area(1.0, 0.0), std::f64::consts::PI * 0.25);
     // `drill or 0.0` -- -0.0 is falsy and takes the no-hole path
@@ -437,7 +437,7 @@ fn via_annular_area_guards() {
     assert!(via_annular_area(1e300, 1e299).is_nan());
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn via_annular_area_uses_r_times_r_not_pow() {
     // The oracle header is explicit that this kernel is `r * r` while
     // `_calculate_angle` is `** 2`. Pin that they are different functions
@@ -456,7 +456,7 @@ fn via_annular_area_uses_r_times_r_not_pow() {
     assert!(differs > 0, "r * r == pow(r, 2.0) everywhere -- the B7 split has gone stale");
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn layer_is_between_is_strict_and_symmetric() {
     assert!(layer_is_between("F.Cu", "B.Cu", "In1.Cu"));
     assert!(layer_is_between("F.Cu", "B.Cu", "In2.Cu"));
@@ -469,7 +469,7 @@ fn layer_is_between_is_strict_and_symmetric() {
     assert!(!layer_is_between("f.cu", "b.cu", "in1.cu")); // case-sensitive
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn segment_run_ignores_the_trailing_vertex_layer() {
     let xs = vec![0.0, 5.0, 5.0, 10.0];
     let ys = vec![0.0, 0.0, 5.0, 5.0];
@@ -483,7 +483,7 @@ fn segment_run_ignores_the_trailing_vertex_layer() {
     assert_eq!(segment_run_copper_area(&[0.0], &[0.0], &["F.Cu"], "F.Cu", 0.25), Ok(0.0));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn segment_run_accumulates_left_to_right() {
     // 33 unit segments at width 0.1: the running `+=` order is part of the
     // contract, so pin the exact f64 the left-to-right sum produces.
@@ -504,7 +504,7 @@ fn segment_run_accumulates_left_to_right() {
 // via_placement
 // ---------------------------------------------------------------------------
 
-#[test]
+#[cfg_attr(test, test)]
 fn via_segment_index_is_first_match_wins() {
     assert_eq!(via_segment_index(0.5, 0.0, &[0.50005, 0.5], &[0.0, 0.0]), Ok(Some(0)));
     assert_eq!(via_segment_index(1.0, 0.0, &[1.0, 1.0, 1.0], &[0.0, 0.0, 0.0]), Ok(Some(1 - 1)));
@@ -526,7 +526,7 @@ fn via_segment_index_is_first_match_wins() {
     assert_eq!(via_segment_index(1e16, 0.0, &[1e16 + 1.0], &[0.0]), Ok(Some(0)));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn adjacent_layer_is_not_a_cycle() {
     assert_eq!(adjacent_layer("F.Cu"), Some("In1.Cu"));
     assert_eq!(adjacent_layer("In1.Cu"), Some("In2.Cu"));
@@ -541,7 +541,7 @@ fn adjacent_layer_is_not_a_cycle() {
 // annular_ring_check
 // ---------------------------------------------------------------------------
 
-#[test]
+#[cfg_attr(test, test)]
 fn check_annular_ring_thresholds() {
     let mv = 0.025;
     // external via, comfortably passing
@@ -585,7 +585,7 @@ fn check_annular_ring_thresholds() {
     assert!(check_annular_ring(0.14, 0.1, "F.Cu", "In1.Cu", None, 0.01, mv).is_none());
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn check_annular_ring_guards_nan_but_not_inf() {
     let mv = 0.025;
     assert_eq!(check_annular_ring(0.6, 0.0, "F.Cu", "B.Cu", None, 0.05, mv), None);
@@ -604,7 +604,7 @@ fn check_annular_ring_guards_nan_but_not_inf() {
     assert!(check_annular_ring(0.6, 0.3, "F.Cu", "B.Cu", None, f64::NEG_INFINITY, mv).is_none());
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn check_annular_ring_epsilon_is_part_of_the_contract() {
     let mv = 0.025;
     // ring == 0.05 exactly -> caught by the `<=`
@@ -636,7 +636,7 @@ fn check_annular_ring_epsilon_is_part_of_the_contract() {
 const STRAIGHT_X: [f64; 4] = [0.0, 1.0, 2.0, 3.0];
 const STRAIGHT_Y: [f64; 4] = [0.0, 0.0, 0.0, 0.0];
 
-#[test]
+#[cfg_attr(test, test)]
 fn via_teardrop_ordinary_case() {
     let t = via_teardrop(
         0.0, 0.0, 0.6, "F.Cu", "B.Cu", Some("F.Cu"), &STRAIGHT_X, &STRAIGHT_Y, 0.25, 0.5,
@@ -644,7 +644,7 @@ fn via_teardrop_ordinary_case() {
     assert_eq!(t, Ok(Some(((0.3, 0.0), 0.3, 0.36), )));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn via_teardrop_argmin_keeps_the_first_minimum() {
     // The via sits exactly between coords[0] and coords[1], so the argmin
     // ties. CPython keeps the FIRST, which selects coords[1] as the
@@ -657,7 +657,7 @@ fn via_teardrop_argmin_keeps_the_first_minimum() {
     assert_eq!(t.map(|t| t.0.0), Some(0.5 + 0.3));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn via_teardrop_gates_and_guards() {
     let s = (&STRAIGHT_X[..], &STRAIGHT_Y[..]);
     // the layer gate
@@ -707,7 +707,7 @@ fn via_teardrop_gates_and_guards() {
     );
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn via_teardrop_direction_epsilon() {
     // AT the 1e-9 boundary `dist < 1e-9` is false, so it proceeds; one ulp
     // under, it returns None.
@@ -735,7 +735,7 @@ fn via_teardrop_direction_epsilon() {
     );
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn via_teardrop_width_min_can_never_see_a_nan() {
     // Mutation-sweep survivor M30 (`py_min` -> `f64::min` for the teardrop
     // width). The two functions differ only on NaN and on a signed-zero tie,
@@ -774,7 +774,7 @@ fn via_teardrop_width_min_can_never_see_a_nan() {
     assert_eq!(t.map(|t| t.2), Some(0.0));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn via_teardrop_nan_key_never_displaces_the_incumbent() {
     // coords[0] has a NaN key; `nan < best` and `k < nan` are both false,
     // so index 0 stays the argmin either way -- matching CPython's
@@ -797,7 +797,7 @@ fn via_teardrop_nan_key_never_displaces_the_incumbent() {
 // the numeric tower
 // ---------------------------------------------------------------------------
 
-#[test]
+#[cfg_attr(test, test)]
 fn pynum_comparisons_are_exact_across_the_tower() {
     assert!(PyNum::Int(1).lt(PyNum::Float(1.5)));
     assert!(!PyNum::Int(2).lt(PyNum::Float(1.5)));
@@ -817,7 +817,7 @@ fn pynum_comparisons_are_exact_across_the_tower() {
     assert!(PyNum::Int((1i64 << 53) + 1).gt(PyNum::Float((1u64 << 53) as f64)));
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn py_minmax_over_the_tower_keeps_the_first_argument_and_its_type() {
     let nan = PyNum::Float(f64::NAN);
     // `max(x_min, min(x, x_max))` with a NaN x -> x_min, keeping x_min's type
@@ -833,9 +833,56 @@ fn py_minmax_over_the_tower_keeps_the_first_argument_and_its_type() {
     assert_eq!(z.as_f64().to_bits(), (-0.0f64).to_bits());
 }
 
-#[test]
+#[cfg_attr(test, test)]
 fn pynum_int_arithmetic_stays_int_and_reports_overflow() {
     assert_eq!(PyNum::Int(2).py_add(PyNum::Int(3)), Ok(PyNum::Int(5)));
     assert_eq!(PyNum::Int(2).py_add(PyNum::Float(3.0)), Ok(PyNum::Float(5.0)));
     assert_eq!(PyNum::Int(i64::MAX).py_add(PyNum::Int(1)), Err(DfmError::IntOverflow));
 }
+
+// --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+/// Every `#[test]` in this module, as a callable the `wasm32`
+/// entry point can invoke by index.  Generated because these
+/// functions are private to this module and unreachable from
+/// anywhere a registry could otherwise live.
+pub const WASM_TESTS: &[(&str, fn())] = &[
+    ("dfm::tests::power_net_pattern_compiles", power_net_pattern_compiles),
+    ("dfm::tests::is_power_net_honours_word_boundaries_and_ignorecase", is_power_net_honours_word_boundaries_and_ignorecase),
+    ("dfm::tests::connects_to_power_plane_short_circuits_on_the_net_class", connects_to_power_plane_short_circuits_on_the_net_class),
+    ("dfm::tests::spoke_segments_count_and_degenerate_arms", spoke_segments_count_and_degenerate_arms),
+    ("dfm::tests::spoke_length_is_cpython_max_not_f64_max", spoke_length_is_cpython_max_not_f64_max),
+    ("dfm::tests::spoke_angle_chain_is_not_reassociated", spoke_angle_chain_is_not_reassociated),
+    ("dfm::tests::clamp_to_rect_outline_is_min_then_max", clamp_to_rect_outline_is_min_then_max),
+    ("dfm::tests::clamp_to_rect_outline_nonfinite_guard_is_load_bearing", clamp_to_rect_outline_nonfinite_guard_is_load_bearing),
+    ("dfm::tests::clamp_to_rect_outline_preserves_int_ness", clamp_to_rect_outline_preserves_int_ness),
+    ("dfm::tests::calculate_angle_pins_the_60_degree_boundary", calculate_angle_pins_the_60_degree_boundary),
+    ("dfm::tests::calculate_angle_cardinal_values", calculate_angle_cardinal_values),
+    ("dfm::tests::calculate_angle_degenerate_and_nan_arms", calculate_angle_degenerate_and_nan_arms),
+    ("dfm::tests::calculate_angle_magnitude_is_sqrt_of_pow_not_hypot", calculate_angle_magnitude_is_sqrt_of_pow_not_hypot),
+    ("dfm::tests::classify_severity_bands_and_demotion", classify_severity_bands_and_demotion),
+    ("dfm::tests::board_bounds_and_rect_polygon_preserve_int_ness", board_bounds_and_rect_polygon_preserve_int_ness),
+    ("dfm::tests::power_pour_bounds_partitions_and_raises", power_pour_bounds_partitions_and_raises),
+    ("dfm::tests::power_pour_bounds_threads_y_type_through", power_pour_bounds_threads_y_type_through),
+    ("dfm::tests::thermal_via_positions_perfect_square_and_complex_arms", thermal_via_positions_perfect_square_and_complex_arms),
+    ("dfm::tests::thermal_via_side_round_absorbs_the_pow_vs_sqrt_divergence", thermal_via_side_round_absorbs_the_pow_vs_sqrt_divergence),
+    ("dfm::tests::via_annular_area_guards", via_annular_area_guards),
+    ("dfm::tests::via_annular_area_uses_r_times_r_not_pow", via_annular_area_uses_r_times_r_not_pow),
+    ("dfm::tests::layer_is_between_is_strict_and_symmetric", layer_is_between_is_strict_and_symmetric),
+    ("dfm::tests::segment_run_ignores_the_trailing_vertex_layer", segment_run_ignores_the_trailing_vertex_layer),
+    ("dfm::tests::segment_run_accumulates_left_to_right", segment_run_accumulates_left_to_right),
+    ("dfm::tests::via_segment_index_is_first_match_wins", via_segment_index_is_first_match_wins),
+    ("dfm::tests::adjacent_layer_is_not_a_cycle", adjacent_layer_is_not_a_cycle),
+    ("dfm::tests::check_annular_ring_thresholds", check_annular_ring_thresholds),
+    ("dfm::tests::check_annular_ring_guards_nan_but_not_inf", check_annular_ring_guards_nan_but_not_inf),
+    ("dfm::tests::check_annular_ring_epsilon_is_part_of_the_contract", check_annular_ring_epsilon_is_part_of_the_contract),
+    ("dfm::tests::via_teardrop_ordinary_case", via_teardrop_ordinary_case),
+    ("dfm::tests::via_teardrop_argmin_keeps_the_first_minimum", via_teardrop_argmin_keeps_the_first_minimum),
+    ("dfm::tests::via_teardrop_gates_and_guards", via_teardrop_gates_and_guards),
+    ("dfm::tests::via_teardrop_direction_epsilon", via_teardrop_direction_epsilon),
+    ("dfm::tests::via_teardrop_width_min_can_never_see_a_nan", via_teardrop_width_min_can_never_see_a_nan),
+    ("dfm::tests::via_teardrop_nan_key_never_displaces_the_incumbent", via_teardrop_nan_key_never_displaces_the_incumbent),
+    ("dfm::tests::pynum_comparisons_are_exact_across_the_tower", pynum_comparisons_are_exact_across_the_tower),
+    ("dfm::tests::py_minmax_over_the_tower_keeps_the_first_argument_and_its_type", py_minmax_over_the_tower_keeps_the_first_argument_and_its_type),
+    ("dfm::tests::pynum_int_arithmetic_stays_int_and_reports_overflow", pynum_int_arithmetic_stays_int_and_reports_overflow),
+];
+// --- END generated by scripts/gen_wasm_test_registry.py: tests ---

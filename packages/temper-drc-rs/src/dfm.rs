@@ -871,5 +871,6 @@ pub fn via_teardrop(
     Ok(None)
 }
 
-#[cfg(test)]
-mod tests;
+#[cfg(any(test, feature = "wasm-test-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests;
