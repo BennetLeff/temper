@@ -92,8 +92,6 @@
     "scripts/tests/test_check_measurement_provenance.py",
     "scripts/_lib/measurement_provenance.py",
     "scripts/tests/_lib/test_lib_measurement_provenance.py",
-    "power_pcb_dataset/drc_ceiling.json",
-    "power_pcb_dataset/physics_parameter_map.yaml",
     "scripts/check_test_baseline_writes.py",
     "scripts/tests/test_check_test_baseline_writes.py",
     "scripts/_lib/protected_artifacts.py",
@@ -103,6 +101,8 @@
     "scripts/update_production_routing_baseline.py",
     "power_pcb_dataset/baselines/**",
     "conftest.py",
+    "power_pcb_dataset/drc_ceiling.json",
+    "power_pcb_dataset/physics_parameter_map.yaml",
     "power_pcb_dataset/physics_soundness_register.yaml",
     "scripts/physics_soundness_register_gate.py",
     "packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py"

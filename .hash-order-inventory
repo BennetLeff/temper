@@ -23,8 +23,6 @@ packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_a
 packages/temper-placer/src/temper_placer/explainability/decision.py::DecisionTrace.summary::set-materialised 1
 packages/temper-placer/src/temper_placer/extraction/hypergraph_factory.py::HypergraphFactory.build::set-loop-records-order 1
 packages/temper-placer/src/temper_placer/io/zone_manager.py::get_board_outline::set-materialised 1
-packages/temper-placer/src/temper_placer/metrics/quality.py::dual_rail_clearance_report::set-loop-records-order 2
-packages/temper-placer/src/temper_placer/metrics/quality.py::hv_lv_clearance_score::set-loop-records-order 2
 packages/temper-placer/src/temper_placer/metrics/quality.py::thermal_score::set-loop-records-order 1
 packages/temper-placer/src/temper_placer/pipeline/dag_schema.py::_warn_unreachable::set-materialised 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py::FeedbackClassifier._handle_congestion::hash-builtin 2

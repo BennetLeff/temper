@@ -56,18 +56,27 @@ def _clearance_boxes(
 ) -> list[tuple[float, float, float, float]]:
     """Resolve *refs* to ``(x, y, half_width, half_height)`` tuples.
 
-    Preserves the oracle's single pass over the set, its ``KeyError`` skip,
-    and its Python-side ``bounds[n] / 2`` halving (so the exact f64 that the
-    pre-migration code divided is what crosses the boundary).
+    Preserves the Python-side ``bounds[n] / 2`` halving (so the exact f64 the
+    pre-migration code divided is what crosses the boundary) and the skip for
+    refs the netlist does not contain.
+
+    Iterates the *netlist's* component order rather than ``refs`` itself.
+    ``refs`` is a ``set``, so iterating it directly carried PYTHONHASHSEED's
+    per-process order into this ordered list -- and the consumer reduces these
+    boxes in order, which makes float accumulation order-dependent. The
+    pre-migration code had the same flaw, so no test could ever have been
+    pinned to the old order: it was a different order each run. Projecting the
+    set back through the netlist is the fix the hash-order gate prescribes.
     """
     boxes: list[tuple[float, float, float, float]] = []
-    for ref in refs:
-        try:
-            idx = netlist.get_component_index(ref)
-        except KeyError:
+    seen: set[str] = set()
+    for idx, component in enumerate(netlist.components):
+        ref = component.ref
+        if ref not in refs or ref in seen:
             continue
+        seen.add(ref)
         pos = state.positions[idx]
-        bounds = netlist.components[idx].bounds
+        bounds = component.bounds
         boxes.append((float(pos[0]), float(pos[1]), bounds[0] / 2, bounds[1] / 2))
     return boxes
 
