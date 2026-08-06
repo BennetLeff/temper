@@ -21,6 +21,8 @@ if TYPE_CHECKING:
 else:
     NDArray = np.ndarray
 
+import temper_placement_topology as _rust
+
 from temper_placer.core.board import Zone
 from temper_placer.topological.graph import TopologicalGraph
 
@@ -43,25 +45,12 @@ def compute_adjacency_force(
     Returns:
         Tuple of (force_a, force_b) as numpy arrays
     """
-    delta = pos_b - pos_a
-    distance = np.linalg.norm(delta)
-
-    if distance < 1e-6:
-        # Prevent division by zero - apply small separation
-        return np.array([0.1, 0.0]), np.array([-0.1, 0.0])
-
-    # Direction from A to B
-    direction = delta / distance
-
-    # Force proportional to distance error
-    error = distance - target_distance
-    force_magnitude = error * 0.5  # Spring constant
-
-    # A is pulled toward B, B is pulled toward A
-    force_a = direction * force_magnitude
-    force_b = -direction * force_magnitude
-
-    return force_a, force_b
+    force_a, force_b = _rust.adjacency_force(
+        (float(pos_a[0]), float(pos_a[1])),
+        (float(pos_b[0]), float(pos_b[1])),
+        target_distance,
+    )
+    return np.array(force_a), np.array(force_b)
 
 
 def compute_separation_force(
@@ -81,29 +70,12 @@ def compute_separation_force(
     Returns:
         Tuple of (force_a, force_b) as numpy arrays
     """
-    delta = pos_b - pos_a
-    distance = np.linalg.norm(delta)
-
-    if distance < 1e-6:
-        # Prevent division by zero - apply strong separation
-        return np.array([-1.0, 0.0]), np.array([1.0, 0.0])
-
-    # No force if already far enough apart
-    if distance >= min_distance:
-        return np.zeros(2), np.zeros(2)
-
-    # Direction from A to B
-    direction = delta / distance
-
-    # Repulsion force - stronger when closer
-    deficit = min_distance - distance
-    force_magnitude = deficit * 1.0  # Strong repulsion
-
-    # A pushed away from B, B pushed away from A
-    force_a = -direction * force_magnitude
-    force_b = direction * force_magnitude
-
-    return force_a, force_b
+    force_a, force_b = _rust.separation_force(
+        (float(pos_a[0]), float(pos_a[1])),
+        (float(pos_b[0]), float(pos_b[1])),
+        min_distance,
+    )
+    return np.array(force_a), np.array(force_b)
 
 
 def compute_boundary_force(
@@ -124,25 +96,12 @@ def compute_boundary_force(
     x, y = position
     x_min, y_min, x_max, y_max = zone.bounds
 
-    force = np.zeros(2)
-
-    # Push right if outside left boundary
-    if x < x_min:
-        force[0] = (x_min - x) * 2.0
-
-    # Push left if outside right boundary
-    if x > x_max:
-        force[0] = (x_max - x) * 2.0
-
-    # Push up if outside bottom boundary
-    if y < y_min:
-        force[1] = (y_min - y) * 2.0
-
-    # Push down if outside top boundary
-    if y > y_max:
-        force[1] = (y_max - y) * 2.0
-
-    return force
+    return np.array(
+        _rust.boundary_force(
+            (float(x), float(y)),
+            (float(x_min), float(y_min), float(x_max), float(y_max)),
+        )
+    )
 
 
 def _force_refine_numpy(
@@ -166,36 +125,15 @@ def _force_refine_numpy(
     Returns:
         Refined positions as (N, 2) array
     """
-    positions = positions.copy()
-    n = positions.shape[0]
-
-    for _ in range(iterations):
-        forces = np.zeros((n, 2))
-
-        # Adjacency forces (attraction)
-        for i, j, target in adjacencies:
-            force_i, force_j = compute_adjacency_force(positions[i], positions[j], target)
-            forces[i] += force_i
-            forces[j] += force_j
-
-        # Separation forces (repulsion)
-        for i, j, min_dist in separations:
-            force_i, force_j = compute_separation_force(positions[i], positions[j], min_dist)
-            forces[i] += force_i
-            forces[j] += force_j
-
-        # Boundary forces
-        for i in range(n):
-            zone = Zone(
-                name=f"zone_{i}",
-                bounds=tuple(zone_bounds[i]),  # type: ignore
-            )
-            forces[i] += compute_boundary_force(positions[i], zone)
-
-        # Apply forces
-        positions += forces * lr
-
-    return positions
+    refined = _rust.force_refine(
+        [(float(x), float(y)) for x, y in positions],
+        [(int(i), int(j), float(d)) for i, j, d in adjacencies],
+        [(int(i), int(j), float(d)) for i, j, d in separations],
+        [tuple(float(v) for v in row) for row in zone_bounds],
+        iterations,
+        lr,
+    )
+    return np.array(refined, dtype=np.float64).reshape(positions.shape)
 
 
 def apply_force_refinement(

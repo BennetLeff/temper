@@ -154,6 +154,7 @@ For contributors working on architecture, verification, or toolchain internals:
 - `temper-ipc`
 - `temper-orchestration`
 - `temper-pcl-ir`
+- `temper-placement-topology`
 - `temper-placer`
 - `temper-py-bridge`
 - `temper-py-bridge-derive`

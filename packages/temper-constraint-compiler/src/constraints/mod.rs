@@ -151,20 +151,16 @@ pub const DEFAULT_ESCAPE_CLEARANCE: f64 = 3.0;
 // - **Linux (Ubuntu CI)**: `dlsym(RTLD_DEFAULT, "pow")` resolves the
 //   process-global glibc libm `pow` — the primary route; the 200k-sample A/B
 //   against the oracle shows zero mismatches.
-// - **macOS**: `dlsym(RTLD_DEFAULT, "pow")` returns NULL when called from a
-//   Python-loaded extension: `RTLD_DEFAULT` (the null handle) only searches
-//   the main image and images loaded with `RTLD_GLOBAL`, and CPython loads
-//   extension bundles with `RTLD_LOCAL`. (The same call succeeds from a
-//   standalone C binary — the probe that makes the "invalid handle" claim
-//   look wrong until you reproduce it inside Python.) The `f64::powf`
-//   fallback therefore runs on macOS, and — because the exponent arrives as a
-//   *runtime* value — LLVM cannot fold it to `x * x`: it emits an undefined
-//   `_pow` reference resolved to libSystem, the SAME function CPython's
-//   `float_pow` calls. Sound by accident, and now regression-pinned: the
-//   compiler differential's `test_distance_pow_vs_product_discriminator`
-//   drives a found `(dx, dy)` through `_distance` where `pow` differs from
-//   the product by 1 ULP, and `nm` on the built `.so` shows `U _pow` (the
-//   fallback is live on this platform).
+// - **macOS**: `RTLD_DEFAULT` is `((void *) -2)` in Darwin's `<dlfcn.h>`, not
+//   NULL. This file used to hardcode NULL on every target, so on macOS the
+//   call failed outright — `dlerror()` reports literally
+//   `dlsym(0x0, pow): invalid handle` — and the `f64::powf` fallback ran
+//   every time. That was rationalised as "sound by accident" (a runtime
+//   exponent stops LLVM folding `powf` to `x * x`, and the emitted `_pow`
+//   resolves to libSystem, the same function CPython's `float_pow` calls),
+//   but it made a silent lookup failure load-bearing and rested on an
+//   optimiser non-guarantee. With the correct handle the dlsym route is now
+//   the live route on macOS as well as Linux.
 // - **Windows**: `#[cfg(not(target_arch = "wasm32"))]` compiles the `dlsym`
 //   declaration on Windows, where the CRT has no `dlsym` — a link error.
 //   Recorded, not fixed: out of scope for the Ubuntu CI target (the guard
@@ -178,13 +174,16 @@ fn dlsym_pow() -> Option<PowFn> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
     }
+    // `RTLD_DEFAULT` is `((void *) 0)` on glibc but `((void *) -2)` on Darwin;
+    // hardcoding null made every macOS lookup miss silently.
+    #[cfg(target_vendor = "apple")]
+    const RTLD_DEFAULT: *const u8 = usize::MAX.wrapping_sub(1) as *const u8; // (void *) -2
+    #[cfg(not(target_vendor = "apple"))]
     const RTLD_DEFAULT: *const u8 = core::ptr::null();
     let symbol = c"pow";
     // SAFETY: `symbol` is a NUL-terminated C string literal; RTLD_DEFAULT is
-    // the null handle (on Linux, "search every loaded object" — on macOS it
-    // only covers the main image + RTLD_GLOBAL-loaded images, which is why
-    // the fallback runs there; see the platform note above); a miss returns
-    // null, which is checked.
+    // this platform's "search every loaded object" handle (never
+    // dereferenced); a miss returns null, which is checked.
     let p = unsafe { dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>()) };
     if p.is_null() {
         None
@@ -196,12 +195,12 @@ fn dlsym_pow() -> Option<PowFn> {
 
 /// `f64::powf` as an `extern "C"`-compatible fallback (dlsym unavailable).
 ///
-/// On macOS this is the LIVE route (dlsym returns NULL inside a
-/// Python-loaded extension — see the platform note above). It is sound there
-/// only by accident: the runtime exponent defeats LLVM's `x * x` folding, so
-/// the lowered call resolves to libSystem `pow`, the same function CPython's
-/// `float_pow` calls (verified via `nm`: `U _pow` in the built `.so`, and the
-/// pow-vs-product discriminator in the compiler differential).
+/// No longer the live route on macOS: with the correct Darwin `RTLD_DEFAULT`
+/// (`-2`, see the platform note above) the dlsym lookup succeeds, so this is
+/// reached only where `dlsym` genuinely cannot resolve `pow`. Keeping it
+/// correct still matters — `f64::powf` with a *runtime* exponent lowers to a
+/// libSystem `_pow` call rather than `x * x` — but the bit-exactness
+/// guarantee no longer depends on that optimiser behaviour.
 unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
     f64::powf(x, y)
 }
@@ -474,6 +473,19 @@ pub fn py_float_fmt_1(x: f64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The host-libm indirection is actually wired, not silently bypassed.
+    ///
+    /// Before the Darwin `RTLD_DEFAULT` correction this failed on macOS:
+    /// `dlsym(NULL, ...)` reports `invalid handle` there, so every lookup
+    /// returned `None` and the fallback silently became the live route while
+    /// the code claimed bit-exactness with the host interpreter. Nothing else
+    /// in the suite could notice — the fallback is a *plausible* answer.
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn host_libm_symbols_actually_resolve() {
+        assert!(dlsym_pow().is_some(), "dlsym could not resolve `pow`");
+    }
 
     #[test]
     fn py_float_str_matches_cpython() {

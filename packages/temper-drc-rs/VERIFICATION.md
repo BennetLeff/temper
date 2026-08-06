@@ -657,3 +657,138 @@ see a fail-open in the marshalling boundary. That class is now closed by
 fail-loudly int-validation at the marshal boundary (above), and the
 `should_skip` null/non-dict entry class by the kernel fix in
 temper-design-bundle.
+reason); R1h **not applicable** (no physics-gated quantity).
+
+reason); R1h **not applicable** (no physics-gated quantity).
+
+## Violation-Report Kernels (`violation_report.rs`) — Verification (Wave 4 Phase 4, 2026-08-04)
+
+The Wave 4 Phase 4 analysis-surface migration moved the report-building/
+shape logic of `temper_placer/analysis/_violation_report.py` (191 LOC)
+into this crate.  The Python module is now a delegation shim; its
+pre-migration implementation is pinned verbatim as the differential
+oracle (`packages/temper-placer/tests/analysis/_violation_report_py_oracle.py`,
+commit `c5875adad`).
+
+**Home-crate decision (why temper-drc-rs).** The report consumes DRC
+items (`rule`, `components`, `location`, `message` from
+`validation/_drc_api.py`) and produces a violation report; the crate that
+owns DRC-domain kernels is temper-drc-rs, which already hosts the
+report-adjacent `group_violations` and `metrics_summary` kernels
+(validation.rs).  temper-design-bundle (Phase-2 contracts) and
+temper-rust-router (Phase-5 orchestration) were rejected: neither owns
+DRC item shaping or Markdown rendering.
+
+**Boundary — what stays Python and why (the kiutils ruling).** The
+module constructs kiutils objects (`KiBoard.from_file`,
+`_extract_component_positions` footprint reads) and computes shapely/GEOS
+intersections (`_compute_overlap_area_mm2`) for report rendering — both
+stay Python-side per the established rulings: kiutils object construction
+and GEOS intersection are library semantics that cannot be crossed
+bit-exactly (the guide's "library semantics are not reimplementable"
+precedent).  This module therefore remains one of the runtime-kiutils
+importers (the program's six resolve as their surfaces migrate; #718's
+write-engine migration removed one — the resolution here is the compute
+that *can* cross, not the kiutils read itself).  `run_drc` (the
+kicad-cli subprocess) also stays Python (I/O boundary).  The Rust side
+owns everything downstream: target-rule filtering, ref shaping, row
+construction, the overlap-callback dispatch, the stable
+overlap-descending sort, and the Markdown renderer.
+
+**Induction applicability.** Mathematical induction is not applicable:
+both kernels are fixed loops over caller-provided collections whose
+per-element operations are size-independent.  Per the plan's R1e a
+**structural proof** is recorded instead.
+
+**Structural proof (bit-identical parity).** Claim: for every input in
+the differential/PBT domains, `build_report_rows` and `render_report`
+reproduce the oracle's `_generate_report_rows`/`_render_report`
+bit-identically, with the documented deviation below.
+*Proof by structural cases.*
+- `build_report_rows` mirrors the oracle loop-for-loop: `rule` `None`
+  (the shim's `getattr(err, "rule", None)`) and non-target rules are
+  dropped; `refs_sorted` is `sorted(components)` for `len >= 2` (UTF-8
+  byte order == code-point order) and an in-order copy otherwise; row
+  dicts carry exactly the oracle's eight keys with the oracle's value
+  types (`overlap_area_mm2` starts as `0.0`); the overlap callback is
+  invoked exactly where the oracle calls `_compute_overlap_area_mm2`
+  (`courtyards_overlap` with exactly two refs — its exceptions are
+  swallowed Python-side and return `0.0`, so the callback contract
+  matches); the final sort is the oracle's stable descending sort by
+  overlap (`sort_by` with the comparator reversed; ties keep input
+  order, and the differential's tie fixture pins it).
+- `render_report` is a line-for-line port: first-appearance rule-section
+  order (dict insertion order — implemented as an ordered Vec, not a
+  HashMap), the two header lines (including the double space after
+  `` `kicad-cli pcb drc`. `` — mutant-class-checked by byte-identical
+  render assertions), the `| # | Components | ...` table header and
+  separator rows, the em-dash (`U+2014`) intro line, per-row cells with
+  CPython fixed-format floats (`py_float_fixed`: correctly rounded, so
+  it agrees with CPython's dtoa on every finite double; `nan`/`inf`
+  spellings special-cased), the `overlap > 0.0` em-dash gate (NaN and
+  `-0.0` both render the em-dash — `NaN > 0` and `-0.0 > 0` are False),
+  the pipe-escape-then-truncate message transform
+  (`replace("|", "\\|")` then 120 *characters*, not bytes), and the
+  Summary section with the oracle's two-rule tallies (non-target rules
+  count in neither) and `Total: <len(rows)>`.
+- Missing dict keys raise `KeyError` with the same argument as Python's
+  subscript (`PyKeyError::new_err("rule")` — `str(exc)` matches).
+
+**Documented deviations (per R1, recorded here).**
+- D1 (NaN sort keys): Python's `list.sort` with a NaN key is not a
+  strict weak order — TimSort's merge moves NaN-keyed elements
+  order-dependently (measured: all 6 orders over 3 elements).  The Rust
+  stable sort treats NaN keys as Equal, which is deterministic and
+  stable.  The overlap key is never NaN in production (shapely polygon
+  area or `0.0`), so the domains agree on every reachable input; the
+  differential asserts the non-NaN domain and P3 bounds its generator to
+  non-NaN overlaps.
+
+**Evidence.**
+- Differential (R1a/R1f, TDD red→green): `test_violation_report_rust_differential.py`
+  — oracle `_generate_report_rows`/`_render_report` vs the shim on
+  synthetic `DrcError` lists with real shapely fake courtyards (row keys
+  canonicalised with floats via `float.hex()` + concrete type tags),
+  empty/missing-meta/missing-positions inputs, stable-tie fixtures, the
+  rule-attribute-absent case, pipe-escape and 200-char truncation
+  renders, first-appearance section order, a 139-value float-formatting
+  corpus (location/area cells byte-identical), NaN/negative area em-dash
+  cells, missing-key `KeyError` parity, and a build→render round trip.
+  RED before the Rust landed (fails to collect).
+- PBT (R1c): `test_violation_report_pbt.py` — 6 hypothesis properties
+  (P1 rule filtering, P2 ref shaping, P3 sort contract with a
+  deterministic synthetic overlap callback, P4 row field fidelity,
+  P5 render summary arithmetic, P6 render table structure),
+  non-vacuously guarded.
+- Metamorphic (R1d): `test_violation_report_pbt.py` — MR1 summary
+  permutation invariance, MR2 filtering monotonicity (subset rows ⊆
+  superset rows), MR3 ref-order symmetry (canonical `refs_sorted` and
+  overlap are invariant under a component-pair swap; the `components`
+  field deliberately preserves input order — the honest bound), MR4
+  append-stability (appending zero-overlap rows keeps pre-existing rows
+  in their relative order).
+- Anti-vacuity mutation campaign: **6 mutants, all caught by the
+  differential/PBT** — M6 dropped target-rule filter, M7 dropped ref
+  sort, M8 ascending instead of descending sort, M9 `>= 0` instead of
+  `> 0` area gate, M10 truncation at 121 instead of 120 chars, M13
+  dropped pipe escaping.  No survivors.  (The render-literal fidelity
+  class — the double space after `` `kicad-cli pcb drc`. `` — is
+  exercised by every byte-identical render assertion.)
+- Performance A/B (R1b): **no perf arm registered — recorded why.**  The
+  migrated compute (row shaping + Markdown rendering of a handful of
+  violation rows) is a small fraction of a wall-time budget dominated by
+  the kicad-cli DRC subprocess and the kiutils board parse, both of which
+  stay Python-side.  A pr_perf_compare arm would measure marshalling
+  noise, not compute; the pure-delegation no-regression-beyond-noise
+  statement applies.
+- Rust practice (R1g): borrow over clone (rows are grouped by ref; refs
+  are cloned only where the callback needs owned strings); no `unwrap`
+  outside tests; every `#[pyfunction]` boundary relies on pyo3's default
+  `catch_unwind` (panics surface as `PanicException` — the validation.rs
+  precedent; an explicit `temper_py_bridge::catch_unwind` is impossible
+  on a `Py<PyAny>`/`Py<PyList>` return, which is not `UnwindSafe`).
+- Physics gating (R1h): **not applicable** — the violation report is not
+  a physics-gated surface (no CP-SAT constraint gates on a physics
+  quantity; the report summarises kicad-cli DRC output), so the R24
+  discipline does not apply.  Stated explicitly because the ledger
+  requires the determination.

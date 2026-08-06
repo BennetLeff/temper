@@ -2,13 +2,34 @@
 Precompute Minkowski-inflated pad dimensions for DRC proxy loss.
 
 The Minkowski inflation (pad_polygon.buffer(trace_width/2)) is done once per
-component using Shapely (non-JAX). The inflated polygons are simplified to
-axis-aligned bounding box dimensions (widths, heights) stored as JAX arrays.
+component using Shapely. The inflated polygons are simplified to axis-aligned
+bounding box dimensions (widths, heights).
 
-At evaluation time, only pairwise AABB distance checks run in JAX — lightweight,
-differentiable, and amortizes the expensive Shapely inflation.
+At evaluation time, only pairwise AABB distance checks run — lightweight and
+amortizes the expensive Shapely inflation.
 
 Design Decision: Precompute at import, check at evaluation.
+
+Wave 4, Phase 4 — what is Rust-backed here and what is not
+-----------------------------------------------------------
+``_smooth_relu_array``, ``compute_inflated_half_dims_from_bounds`` and
+``compute_drc_proxy_score`` delegate to ``temper_geometry`` (Rust:
+``packages/temper-geometry/src/drc_inflate.rs``), pinned bit-exactly against
+the verbatim pre-migration oracle by
+``tests/geometry/test_drc_inflate_rust_differential.py``.
+
+``inflate_pad_polygon``, ``precompute_inflated_dims`` and
+``precompute_from_pad_polygons`` deliberately **keep Shapely** (Wave 4 R3
+JUSTIFIED-KEEP; blocker recorded in ``packages/temper-geometry/VERIFICATION.md``
+and measured by the differential suite's ``TestGeosBlockedSurfacesStayPython``).
+The blocker is not "porting is hard": ``buffer(r, resolution=16)`` is GEOS's
+*polygonal approximation* of the round offset, so the inflated bounds are not
+the closed form ``bounds ± r``. Measured on 169 random polygons at
+``ebf9326ff``: 169/169 differ from the closed form, worst deviation 2.4e-3 mm
+— three orders of magnitude above a rounding artefact, and about 1% of a
+0.2 mm clearance. Even axis-aligned rectangles differ in 12/400 cases (1 ulp).
+Reproducing that in Rust means vendoring GEOS's buffer algorithm; approximating
+it is a behaviour change no differential on shipped fixtures would catch.
 """
 
 from __future__ import annotations
@@ -17,10 +38,19 @@ from collections.abc import Sequence
 from typing import TypeAlias
 
 import numpy as np
+import temper_geometry as _tg
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
-import numpy as np
+# The dtypes the Rust kernels model exactly. Anything else falls back to the
+# numpy expression the oracle itself uses, so the fallback cannot deviate from
+# pre-migration behaviour by construction.
+_RUST_DTYPES = (np.dtype(np.float32), np.dtype(np.float64))
+
+
+def _is_rust_array(a: object) -> bool:
+    """True when the Rust kernels model this array's dtype exactly."""
+    return isinstance(a, np.ndarray) and a.dtype in _RUST_DTYPES
 
 
 def inflate_pad_polygon(
@@ -32,6 +62,9 @@ def inflate_pad_polygon(
 
     Uses Shapely's buffer operation for the Minkowski sum, then extracts the
     axis-aligned bounding box of the inflated polygon.
+
+    Kept in Python under Wave 4 R3 — see the module docstring for the named
+    blocker (GEOS's polygonal round-join approximation) and its measurement.
 
     Args:
         pad_vertices: List of (x, y) tuples defining the pad polygon vertices.
@@ -64,7 +97,10 @@ def precompute_inflated_dims(
 
     For each component's pad polygon, inflates by trace_width/2 and extracts
     the bounding box dimensions. Returns a (N, 2) array of (width, height)
-    inflated dimensions suitable for JAX loss computation.
+    inflated dimensions.
+
+    Kept in Python under Wave 4 R3 — it is a loop over
+    :func:`inflate_pad_polygon`, so it inherits that function's GEOS blocker.
 
     Args:
         pad_vertices_list: List of pad polygons, each a list of (x, y) tuples.
@@ -99,6 +135,9 @@ def precompute_from_pad_polygons(
 
     Convenience wrapper when caller already has Shapely Polygon instances.
 
+    Kept in Python under Wave 4 R3 — the argument type *is* a Shapely object,
+    so the GEOS blocker is in the signature, not just the body.
+
     Args:
         pad_polygons: Sequence of Shapely Polygon objects.
         trace_width_mm: Width of traces (mm).
@@ -125,25 +164,23 @@ def precompute_from_pad_polygons(
 def _smooth_relu_array(x: np.ndarray, alpha: float = 10.0) -> np.ndarray:
     """Vectorized smooth ReLU: softplus(alpha * x) / alpha.
 
-    Array formulation of the scalar `temper_placer.geometry.smooth.smooth_relu`
-    (which delegates to the temper_geometry Rust crate). The Rust binding is
-    scalar-only (`smooth_relu(x: f64, ...)` in packages/temper-geometry/src/
-    bridge.rs:670), so array evaluation needs a numpy equivalent here.
+    Array formulation of the scalar `temper_placer.geometry.smooth.smooth_relu`.
+    The Rust scalar binding is scalar-only (`smooth_relu(x: f64, ...)`), so
+    array evaluation needs its own kernel; that kernel is now Rust too
+    (`temper_geometry.smooth_relu_array`, `drc_inflate.rs`), not numpy.
 
-    The formula mirrors packages/temper-geometry/src/smooth.rs:151-161 exactly,
-    including its stable branch split (evaluate only the taken branch, so no
+    The pre-migration numpy formulation widened its input to float64 on entry
+    and kept the stable branch split (evaluate only the taken branch, so no
     overflow/underflow from the untaken one):
       - ax > 0:  (ax + log(1 + exp(-ax))) / alpha
       - ax <= 0: log(1 + exp(ax)) / alpha
+    Both properties are preserved by the Rust port, which is pinned bit-exactly
+    against the numpy original — verified across 4096-sample sweeps at five
+    alphas plus subnormal, infinite and NaN inputs.
     """
-    x = np.asarray(x, dtype=np.float64)
-    ax = alpha * x
-    out = np.empty_like(ax)
-    pos = ax > 0.0
-    with np.errstate(over="ignore", under="ignore", invalid="ignore"):
-        out[pos] = (ax[pos] + np.log1p(np.exp(-ax[pos]))) / alpha
-        out[~pos] = np.log1p(np.exp(ax[~pos])) / alpha
-    return out
+    arr = np.asarray(x, dtype=np.float64)
+    flat = _tg.smooth_relu_array(np.ascontiguousarray(arr).ravel().tolist(), alpha)
+    return np.asarray(flat, dtype=np.float64).reshape(arr.shape)
 
 
 def compute_inflated_half_dims_from_bounds(
@@ -157,6 +194,12 @@ def compute_inflated_half_dims_from_bounds(
     trace inflation. This is a fast path when full polygon inflation
     is unnecessary (rectangular components).
 
+    Rust-backed (`temper_geometry.inflated_half_dims_from_bounds`). The
+    arithmetic runs in the *input array's own width*: fed the float32 output of
+    :func:`precompute_inflated_dims` — which is the documented pipeline — it
+    rounds in float32, and the result differs from the float64 answer in the
+    bits. That width is preserved, not normalised to f64.
+
     Args:
         component_bounds: (N, 2) array of (width, height) per component in mm.
         trace_width_mm: Trace width to inflate by (mm).
@@ -165,8 +208,19 @@ def compute_inflated_half_dims_from_bounds(
         (N, 2) array of (inflated_half_width, inflated_half_height).
     """
     inflation = trace_width_mm  # double-sided: trace_width/2 on each side
-    inflated_dims = component_bounds + inflation
-    return inflated_dims / 2.0
+    if not _is_rust_array(component_bounds):
+        # Containers/dtypes the Rust kernel does not model. This is the
+        # pre-migration expression verbatim, so the fallback is the oracle.
+        inflated_dims = component_bounds + inflation
+        return inflated_dims / 2.0
+
+    as_f32 = component_bounds.dtype == np.dtype(np.float32)
+    flat = _tg.inflated_half_dims_from_bounds(
+        np.ascontiguousarray(component_bounds, dtype=np.float64).ravel().tolist(),
+        float(inflation),
+        as_f32,
+    )
+    return np.asarray(flat, dtype=component_bounds.dtype).reshape(component_bounds.shape)
 
 
 def compute_drc_proxy_score(
@@ -179,16 +233,30 @@ def compute_drc_proxy_score(
     """
     Compute DRC proxy score using inflated pairwise clearance check.
 
-    This is a standalone JAX function that computes the sum of clearance
-    violation penalties across all component pairs, using the precomputed
-    inflated dimensions.
+    Computes the sum of clearance violation penalties across all component
+    pairs, using the precomputed inflated dimensions.
+
+    Rust-backed (`temper_geometry.drc_proxy_score`). Two properties of the
+    numpy original are load-bearing and are reproduced exactly rather than
+    "fixed":
+
+    * **dtype width.** The pairwise gap arithmetic runs in the callers' dtypes
+      (float32 at every shipped call site), and only the softplus onward is
+      float64. Computing the gaps in f64 would be numerically close and
+      bit-wrong.
+    * **reduction order.** ``np.sum`` is a blocked pairwise reduction, not a
+      naive left-to-right accumulation, and float addition is not associative.
+      The Rust kernel replicates numpy's blocking; the differential suite pins
+      that the two orders genuinely disagree, so that pin cannot go vacuous.
 
     Args:
         positions: (N, 2) component center positions.
         inflated_half_widths: (N,) half-widths after Minkowski inflation.
         inflated_half_heights: (N,) half-heights after Minkowski inflation.
         clearance_mm: Required track-to-track clearance (mm).
-        beta: Smoothness parameter for smooth_relu.
+        beta: Smoothness parameter for smooth_relu. (`smooth_relu`'s own
+            parameter is named `alpha`; same default, same role. See
+            docs/evidence/2026-07-26-api-signature-drift-gate.md.)
 
     Returns:
         Scalar proxy score (sum of squared clearance violations).
@@ -197,6 +265,48 @@ def compute_drc_proxy_score(
     if n < 2:
         return np.array(0.0)
 
+    # Written as three explicit checks rather than an `all(...)` over a
+    # sequence: `all()` is vacuously True over an empty collection, and
+    # scripts/check_vacuous_gates.py rejects the unguarded form on principle
+    # even where the collection is a fixed-length literal.
+    if (
+        not _is_rust_array(positions)
+        or not _is_rust_array(inflated_half_widths)
+        or not _is_rust_array(inflated_half_heights)
+    ):
+        return _proxy_score_numpy(
+            positions, inflated_half_widths, inflated_half_heights, clearance_mm, beta
+        )
+
+    f32 = np.dtype(np.float32)
+    return np.float64(
+        _tg.drc_proxy_score(
+            np.ascontiguousarray(positions, dtype=np.float64).ravel().tolist(),
+            np.ascontiguousarray(inflated_half_widths, dtype=np.float64).tolist(),
+            np.ascontiguousarray(inflated_half_heights, dtype=np.float64).tolist(),
+            float(clearance_mm),
+            float(beta),
+            positions.dtype == f32,
+            inflated_half_widths.dtype == f32,
+            inflated_half_heights.dtype == f32,
+        )
+    )
+
+
+def _proxy_score_numpy(
+    positions: Array,
+    inflated_half_widths: Array,
+    inflated_half_heights: Array,
+    clearance_mm: float,
+    beta: float,
+) -> Array:
+    """The pre-migration numpy pipeline, verbatim.
+
+    Reached only for dtypes/containers the Rust kernel does not model (integer
+    or float16 arrays, masked arrays, ...). Keeping the original expression
+    here means the residual path cannot drift from the oracle.
+    """
+    n = positions.shape[0]
     center_diff = positions[:, None, :] - positions[None, :, :]
     center_dist_x = np.abs(center_diff[:, :, 0])
     center_dist_y = np.abs(center_diff[:, :, 1])
@@ -212,15 +322,6 @@ def compute_drc_proxy_score(
     separated_dist = np.maximum(gap_x, gap_y)
     distances = np.where(both_negative, overlap_dist, separated_dist)
 
-    # `smooth_relu`'s smoothing parameter is named `alpha` (geometry/smooth.py:114),
-    # not `beta`. This call passed `beta=` and raised TypeError on every
-    # invocation. Same default (10.0) and same role, so the value carries over
-    # unchanged. See docs/evidence/2026-07-26-api-signature-drift-gate.md.
-    #
-    # The scalar `smooth_relu` binding is scalar-only (f64 extraction) and
-    # crashes on the (N, N) pairwise distance matrix for N >= 2, so the
-    # vectorized array formulation `_smooth_relu_array` is applied here.
-    # It reproduces the Rust scalar math branch-for-branch (see its docstring).
     violations = _smooth_relu_array(clearance_mm - distances, alpha=beta)
     squared_violations = violations**2
 

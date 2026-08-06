@@ -19,6 +19,8 @@ Example:
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+import temper_placement_topology as _rust
+
 if TYPE_CHECKING:
     from temper_placer.core.board import Zone
     from temper_placer.pcl.constraints import BaseConstraint
@@ -136,14 +138,43 @@ class ZoneSolver:
                 conflicts=conflicts,
             )
 
-        # Sort components by most constrained first (MCV heuristic)
+        # Sort components by most constrained first (MCV heuristic).
+        # Kept in Python: `sorted` is stable and its tie order is part of the
+        # observable behaviour.
         sorted_components = sorted(
             self.components,
             key=lambda c: len(self._candidates[c]),
         )
 
-        # Backtracking search
-        assignment = self._backtrack({}, sorted_components)
+        # Backtracking search.
+        #
+        # The candidate *order* is passed through exactly as this process's
+        # `set` iteration yields it. That order is salted by PYTHONHASHSEED,
+        # and because `_is_consistent` accepts everything, it decides the
+        # answer outright -- the same 3 components over 5 zones assign to ZA,
+        # ZD or ZB purely as a function of the seed. Sorting it here would
+        # make the solver deterministic, which is a behaviour change no
+        # differential against a live Python run could detect. Handing Rust
+        # the live order instead keeps the composed behaviour bit-identical
+        # to the pre-migration code on every run, hash seed included.
+        zone_names: list[str] = []
+        zone_index: dict[str, int] = {}
+        candidate_indices: list[list[int]] = []
+        for comp in sorted_components:
+            row = []
+            for name in self._candidates[comp]:
+                if name not in zone_index:
+                    zone_index[name] = len(zone_names)
+                    zone_names.append(name)
+                row.append(zone_index[name])
+            candidate_indices.append(row)
+
+        chosen = _rust.zone_backtrack(candidate_indices)
+        assignment = (
+            None
+            if chosen is None
+            else {comp: zone_names[z] for comp, z in zip(sorted_components, chosen, strict=True)}
+        )
 
         if assignment is None:
             # No solution found (shouldn't happen with current constraints)
@@ -158,63 +189,3 @@ class ZoneSolver:
             unassigned=[],
             conflicts=[],
         )
-
-    def _backtrack(
-        self,
-        assignment: dict[str, str],
-        remaining: list[str],
-    ) -> dict[str, str] | None:
-        """Recursive backtracking search.
-
-        Args:
-            assignment: Partial assignment so far
-            remaining: Components not yet assigned
-
-        Returns:
-            Complete assignment if found, None if no solution
-        """
-        # Base case: all assigned
-        if not remaining:
-            return assignment
-
-        # Pick next component (already sorted by MCV)
-        component = remaining[0]
-        rest = remaining[1:]
-
-        # Try each candidate zone
-        for zone_name in self._candidates[component]:
-            # Make assignment
-            new_assignment = {**assignment, component: zone_name}
-
-            # Check consistency (for future: check separation constraints)
-            if self._is_consistent(new_assignment, component, zone_name):
-                # Recurse
-                result = self._backtrack(new_assignment, rest)
-                if result is not None:
-                    return result
-
-        # No valid assignment found
-        return None
-
-    def _is_consistent(
-        self,
-        _assignment: dict[str, str],
-        _component: str,
-        _zone_name: str,
-    ) -> bool:
-        """Check if assignment is consistent with constraints.
-
-        Currently just returns True (no inter-zone constraints checked).
-        Future: check SeparatedConstraint between zones.
-
-        Args:
-            assignment: Current partial assignment
-            component: Component being assigned
-            zone_name: Zone being assigned to
-
-        Returns:
-            True if consistent, False if violates constraints
-        """
-        # For now, enclosing constraints are enforced in candidate building
-        # Future: check if separated components are in separated zones
-        return True

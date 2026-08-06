@@ -1,0 +1,117 @@
+//! Port of `temper_placer.core.board.Rect` — the placer's canonical
+//! axis-aligned bounds contract (107 references across the package).
+//!
+//! # Why the fields are stored as Python objects and not as `f64`
+//!
+//! `Rect` is `@dataclass(frozen=True, eq=False)` and its `__init__` does
+//! **no** coercion — only the `from_xyxy`/`from_xywh` constructors call
+//! `float()`. Measured on the reference:
+//!
+//! ```text
+//! Rect(1, 2, 3, 4).x_min      -> 1        (int)
+//! repr(Rect(1, 2, 3, 4))      -> 'Rect(x_min=1, y_min=2, x_max=3, y_max=4)'
+//! Rect(1, 2, 3, 4).width      -> 2        (int)
+//! Rect.coerce((1, 2, 3, 4))   -> Rect(x_min=1.0, ...)   (float)
+//! ```
+//!
+//! A pyclass with `f64` fields would silently turn `1` into `1.0` — a
+//! visible change in `repr`, in `type(r.x_min)`, and in the type-carrying
+//! R1a signature. The Python-visible fields therefore hold the objects
+//! exactly as passed, and a parallel `RectData` carries the `f64` view
+//! that Rust consumers (and any future Rust-side geometry) read without
+//! crossing the boundary. [`PyRect::data`] is the accessor for that view.
+//!
+//! The `f64` view is lossy for an integer beyond 2^53. That does not
+//! affect any Python-visible behaviour (every dunder below goes through
+//! the stored objects); it is only a caveat for a Rust consumer, and is
+//! documented on [`PyRect::data`].
+//!
+//! # Known, measured API delta
+//!
+//! `dataclasses.is_dataclass(Rect)` was `True` and is now `False`, so
+//! `dataclasses.fields`/`asdict`/`astuple` no longer accept a `Rect`.
+//! A repo-wide grep found four `asdict` call sites
+//! (`metrics/physics.py`, `pipeline/dag_observability.py`,
+//! `testing/quarantine.py`, `validation/results/battery_run.py`) and none
+//! of them is reachable from a `Rect`; a regression test pins that.
+//! Everything else — attributes, `repr`, `==` against a `Rect`, a
+//! 4-tuple and a 4-list, `hash`, iteration, indexing (including negative
+//! indices and slices), `len`, `FrozenInstanceError` on assignment, and
+//! the two `ValueError` messages — is reproduced verbatim.
+
+/// The `f64` view of a rectangle, for Rust consumers.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct RectData {
+    pub x_min: f64,
+    pub y_min: f64,
+    pub x_max: f64,
+    pub y_max: f64,
+}
+
+impl RectData {
+    pub fn width(&self) -> f64 {
+        self.x_max - self.x_min
+    }
+
+    pub fn height(&self) -> f64 {
+        self.y_max - self.y_min
+    }
+
+    /// `x_min <= x <= x_max and y_min <= y <= y_max`.
+    pub fn contains_point(&self, x: f64, y: f64) -> bool {
+        self.x_min <= x && x <= self.x_max && self.y_min <= y && y <= self.y_max
+    }
+}
+
+/// The `ValueError` text the reference raises for an inverted or
+/// degenerate x range. `x_min`/`x_max` are the `str()` renderings of the
+/// original arguments, because the reference interpolates them with an
+/// f-string (`str`), not with `!r`.
+pub fn x_invariant_message(x_min: &str, x_max: &str) -> String {
+    format!(
+        "Rect requires x_max > x_min, got x_min={x_min}, x_max={x_max}. \
+         If you have (x, y, width, height) bounds, build with Rect.from_xywh(...)."
+    )
+}
+
+/// The `ValueError` text for an inverted or degenerate y range.
+pub fn y_invariant_message(y_min: &str, y_max: &str) -> String {
+    format!(
+        "Rect requires y_max > y_min, got y_min={y_min}, y_max={y_max}. \
+         If you have (x, y, width, height) bounds, build with Rect.from_xywh(...)."
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn messages_match_the_reference_text() {
+        assert_eq!(
+            x_invariant_message("5", "1"),
+            "Rect requires x_max > x_min, got x_min=5, x_max=1. If you have \
+             (x, y, width, height) bounds, build with Rect.from_xywh(...)."
+        );
+        assert_eq!(
+            y_invariant_message("5.0", "1.0"),
+            "Rect requires y_max > y_min, got y_min=5.0, y_max=1.0. If you have \
+             (x, y, width, height) bounds, build with Rect.from_xywh(...)."
+        );
+    }
+
+    #[test]
+    fn width_and_height_are_plain_differences() {
+        let r = RectData {
+            x_min: 1.0,
+            y_min: 2.0,
+            x_max: 4.0,
+            y_max: 6.0,
+        };
+        assert_eq!(r.width(), 3.0);
+        assert_eq!(r.height(), 4.0);
+        assert!(r.contains_point(1.0, 2.0));
+        assert!(r.contains_point(4.0, 6.0));
+        assert!(!r.contains_point(4.5, 6.0));
+    }
+}
