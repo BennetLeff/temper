@@ -307,7 +307,7 @@ fn parse_rules(spec: &Bound<'_, PyAny>) -> PyResult<DesignRules> {
 /// Hence the guard is "result went infinite from a FINITE base", which leaves
 /// the inf and NaN paths alone -- the NaN path is load-bearing, since a NaN
 /// distance makes the `<` comparison false and the candidate is ACCEPTED.
-fn pow_operator(base: f64, exp: f64) -> PyResult<f64> {
+pub(crate) fn pow_operator(base: f64, exp: f64) -> PyResult<f64> {
     let r = host_math::pow(base, exp);
     if r.is_infinite() && base.is_finite() {
         return Err(PyOverflowError::new_err((34, "Result too large")));
