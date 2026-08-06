@@ -18,7 +18,9 @@ Five hypothesis properties (R1c):
 Three metamorphic relations (R1d):
 
 - MR1. Uniform-scale invariance: scaling the grid and radius by 2^n keeps
-  the within-radius result (bit-exact, powers of two).
+  the within-radius result (bit-exact, powers of two) — over the normal
+  float domain (denormal magnitudes break the IEEE rounding the property
+  depends on, so those draws are guarded out).
 - MR2. Cell-key transposition: swapping x and y swaps the cell keys.
 - MR3. Radius monotonicity: a larger radius is a superset of a smaller.
 """
@@ -120,6 +122,18 @@ def test_p5_determinism(slots, spacing, radius, center):
 @settings(max_examples=100, deadline=None)
 def test_mr1_uniform_scale_invariance(slots, radius, center):
     if not slots:
+        return
+    # The 2^n scale-invariance is exact only while every magnitude stays in
+    # the NORMAL float range: at denormal magnitudes IEEE rounding breaks it
+    # (hypot(x, x) rounds to 1 ulp when x = 1 ulp but to 3 ulp when x = 2
+    # ulp, so radius*2 + hypot no longer scales linearly). Slot coordinates
+    # are lattice-coarse (never denormal) but radius/center are not — guard
+    # the property's honest domain rather than assert a false one.
+    if (
+        radius < 1e-290
+        or abs(center[0]) < 1e-290
+        or abs(center[1]) < 1e-290
+    ):
         return
     spacing = _RS.infer_slot_spacing_py(slots)
     scale = 2.0
