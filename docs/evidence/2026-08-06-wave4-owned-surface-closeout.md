@@ -1,6 +1,6 @@
 # Wave 4 owned-surface close-out: every MIGRATE surface classified (2026-08-06)
 
-<!-- provenance: commit=d669241e772a8d5f896dee2f5e93f99aa4fb3c98 dirty=false (audit body measured at 8893ab5ca75283f0a538d0b6154711e6a3f97b76; §8 status refresh added 2026-08-06 in the close-out corrections PR, re-verified at d669241e7) -->
+<!-- provenance: commit=d669241e772a8d5f896dee2f5e93f99aa4fb3c98 dirty=false (audit body measured at 8893ab5ca75283f0a538d0b6154711e6a3f97b76; §8 status refresh added 2026-08-06 in the close-out corrections PR, re-verified at d669241e7; §8.1 corrected deterministic accounting added 2026-08-06 by the leaf-keeps ledger sync, docs/leaf-keeps-ledger-sync) -->
 
 **Scope:** post-regression ledger close-out. Read-only audit of every `MIGRATE`
 surface in `docs/wave4-verdicts.yaml` against the codebase at the provenance
@@ -249,7 +249,7 @@ classification below is a verdict flip.
 |---|---|---|
 | `validation/**` — `drc_types.py`, `drc_result.py` | "Phase-2 contracts [that] land earlier — they have not landed and have no owner" (§3.2) | **MIGRATED** — #808 merged (`drc_types`/`drc_result` contracts to Rust pyclasses, commit c1ee6af77); both files are pure-delegation re-exports of `temper_drc_rs` pyclasses with the `core/_contract_dataclass_compat` dataclass protocol restored. The ledger's `validation/**` note ("drc_types and drc_result are Phase 2 contracts and land earlier") is now true |
 | `placer/*.py` — `adjustment.py`, `deterministic.py`, `template.py` | **UNMIGRATED + UNOWNED — FLAG** (§3.1) | **MIGRATED** — #811 merged (commit 28ccf9a82); all three are delegation shims over `temper-io-types/placer_core` (`temper_io_types.placer_*`), oracles pinned in `tests/placer/_placer_*_py_oracle.py`. The ledger's `placer/*.py` note already carries the DONE 2026-08-06 record (written by #811 itself) |
-| `deterministic/**` — flagged leaf stages | 25 leaf-stage files "carry no record and have no owner" (§3.2) | **PARTIAL → MIGRATED** — #816 merged; `connectivity_validation`, `drc_validation`, `drc_sweep`, `placement_validation` and `courtyard_check` (→ `temper-drc-rs`) plus `fine_pitch_escape` and `phased_component_assignment_validator` (→ `temper-design-bundle-python`) are now crate shims — 7 of the 25 flagged files. The remaining 18 are still unowned; the audit's flag on them stands |
+| `deterministic/**` — flagged leaf stages | 25 leaf-stage files "carry no record and have no owner" (§3.2) | **PARTIAL → MIGRATED, accounting corrected (see §8.1)** — #816 merged; `connectivity_validation`, `drc_validation`, `drc_sweep`, `placement_validation` and `courtyard_check` (→ `temper-drc-rs`) plus `fine_pitch_escape` and `phased_component_assignment_validator` (→ `temper-design-bundle-python`) are now crate shims. The §8 "remaining 18 still unowned" is **superseded** by §8.1: the truthful remaining-unowned count after the ledger sync is **7 files / 2,471 LOC** |
 
 The §5 LOC table (MIGRATE 457 files / 103,476 LOC) was measured at
 8893ab5ca. The migrations above move LOC *within* the MIGRATE bucket from
@@ -274,3 +274,57 @@ the corrective reading is: the batch closed two of the three wholly-unowned
 `deterministic/**` unowned remainder. The one open *verdict* conflict
 (`_constraint_types`, §6) is untouched by this refresh — it is a decision,
 not a status, and still owed to product authority.
+
+### 8.1 Corrected deterministic accounting — the leaf-keeps ledger sync (2026-08-06)
+
+The §8 deterministic row's "remaining 18 still unowned" is superseded. It was
+computed as `25 − 7 (#816 migrations)` against §1's flagged list, and it never
+subtracted the **#805** migrations (which were already crate shims at §8's own
+re-verify commit `d669241e7`), the later **#830** retirements, or the **#816
+keep records** (recorded in
+`packages/temper-design-bundle/VERIFICATION.md` "Batch-2 remaining stages —
+JUSTIFIED-KEEP records (R3-style, named blockers)" but never synced into
+`docs/wave4-verdicts.yaml`). This sync corrects the last gap.
+
+**The seven #816 JUSTIFIED-KEEPs are now in the ledger** (each a carve-out
+from the `deterministic/**` MIGRATE entry with the blocker verbatim from the
+#816 record, verified `check_verdict_coverage.py` exits 0, keeps only — no
+verdict flipped):
+
+| Kept stage | LOC | Blocker (from #816 record) |
+|---|---:|---|
+| `stages/apply_placements.py` | 33 | pinned `dataclasses.replace()` consumer |
+| `stages/config_attach.py` | 36 | zero compute — `state.with_config` pass-through |
+| `stages/clearance_grid.py` | 42 | leaf kernels already Rust (temper-geometry `grid_raster.rs`) |
+| `stages/net_ordering.py` | 47 | 5-line delegation to `router_v6.net_ordering.order_nets` |
+| `stages/hv_lv_partition.py` | 166 | region geometry is shapely/GEOS |
+| `stages/phased_component_assignment.py` | 49 | `ConstraintCompiler`/shapely/`InvariantSpec` coupling |
+| `geometry/guard_strip.py` | 26 | shapely/GEOS `buffer`/`difference` (also the #767 hub record) |
+
+**Definitive remaining-unowned list** — the dispatch candidates. All seven are
+plain Python under the `deterministic/**` MIGRATE phase-5 verdict, carry no
+R3-style record, have no open PR/branch, and are not blocked by any recorded
+dependency (the never-port triage `2026-08-06-never-port-triage.md` §2.1 reads
+six of them as PORT compute and `_phase_core.py` as thin stage wiring — a
+JUSTIFIED-KEEP record may fit `_phase_core` better than a migration, but no
+such record exists):
+
+| File | LOC | Triage read (never-port-triage §2.1) |
+|---|---:|---|
+| `stages/_grid_stage.py` | 416 | PORT — clearance-grid construction |
+| `stages/_phase_zones.py` | 407 | PORT — zone placement geometry |
+| `stages/_phase_core.py` | 326 | NEVER-PORT — "core orchestration" per its own docstring |
+| `stages/via_validation.py` | 270 | PORT — via cleanup / HV clearance validation |
+| `stages/_phase_rotation.py` | 251 | PORT — HV creepage / isolation-slot geometry |
+| `stages/_phase_validation.py` | 201 | PORT — placement-phase validation |
+| `stages/zone_aware_slot_generation.py` | 600 | PORT — point-in-polygon zone-aware slot generation |
+| **Total** | **2,471** | |
+
+**Reconciliation of §1's flagged list at current `origin/main`** (the list
+enumerates 26 files; the audit printed "25"): 10 are crate shims (7 by #816 +
+3 by #805: component_assignment, layer_assignment, power_plane), 2 were
+retired by #830 (routing_metrics, sequential_routing_dataclasses — R21
+zero-importer shims), 7 are the #816 keeps now synced above, and 7 are the
+genuinely unowned dispatch candidates. The orchestration hubs the audit
+counted as R3-recorded (#767) are unchanged and remain inside the MIGRATE
+verdict per the #767 record's explicit note.
