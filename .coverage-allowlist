@@ -140,7 +140,6 @@ temper_placer/constraints/reporter.py::ConstraintResult.is_warning  # TODO: temp
 temper_placer/core/board.py::Board.rotated_90  # TODO: temper-xxx
 temper_placer/core/courtyard.py::Courtyard.get_global_polygon  # TODO: temper-xxx
 temper_placer/core/courtyard.py::check_overlap  # TODO: temper-xxx
-temper_placer/core/loss_types.py::LossContext.from_netlist_and_board  # TODO: temper-xxx
 temper_placer/core/net_classification.py::classify_net_type  # TODO: temper-xxx
 temper_placer/core/net_classification.py::is_clock_pin  # TODO: temper-xxx
 temper_placer/core/net_classification.py::is_ground_net  # TODO: temper-xxx
@@ -179,9 +178,6 @@ temper_placer/deterministic/flags.py::is_feedback_enabled  # TODO: temper-xxx
 temper_placer/deterministic/geometry/grid_utils.py::add_endpoint_nudge  # TODO: temper-xxx
 temper_placer/deterministic/geometry/grid_utils.py::snap_to_grid  # TODO: temper-xxx
 temper_placer/deterministic/geometry/guard_strip.py::compute_guard_strip  # TODO: temper-xxx
-temper_placer/deterministic/geometry/via_placement.py::distance  # TODO: temper-xxx
-temper_placer/deterministic/geometry/via_placement.py::is_via_position_valid  # TODO: temper-xxx
-temper_placer/deterministic/geometry/via_placement.py::place_via_with_clearance  # TODO: temper-xxx
 temper_placer/deterministic/instrumentation.py::InstrumentedStage.run  # TODO: temper-xxx
 temper_placer/deterministic/instrumentation.py::instrument_pipeline  # TODO: temper-xxx
 temper_placer/deterministic/instrumentation.py::run_with_trace_log  # TODO: temper-xxx
@@ -250,13 +246,6 @@ temper_placer/deterministic/stages/placement_validation.py::PlacementValidationS
 temper_placer/deterministic/stages/placement_validation.py::PlacementValidationStage.run  # TODO: temper-xxx
 temper_placer/deterministic/stages/power_plane.py::PowerPlaneStage.name  # TODO: temper-xxx
 temper_placer/deterministic/stages/power_plane.py::PowerPlaneStage.run  # TODO: temper-xxx
-temper_placer/deterministic/stages/routing_metrics.py::NetMetrics.completion_rate  # TODO: temper-xxx
-temper_placer/deterministic/stages/routing_metrics.py::NetMetrics.is_fully_routed  # TODO: temper-xxx
-temper_placer/deterministic/stages/routing_metrics.py::RoutingMetrics.add_net  # TODO: temper-xxx
-temper_placer/deterministic/stages/routing_metrics.py::RoutingMetrics.finalize  # TODO: temper-xxx
-temper_placer/deterministic/stages/routing_metrics.py::RoutingMetrics.print_summary  # TODO: temper-xxx
-temper_placer/deterministic/stages/routing_metrics.py::RoutingMetrics.to_dict  # TODO: temper-xxx
-temper_placer/deterministic/stages/routing_metrics.py::RoutingMetrics.to_json  # TODO: temper-xxx
 temper_placer/deterministic/stages/setup.py::DRCOracleSetupStage.name  # TODO: temper-xxx
 temper_placer/deterministic/stages/setup.py::DRCOracleSetupStage.run  # TODO: temper-xxx
 temper_placer/deterministic/stages/setup.py::NetClassSetupStage.name  # TODO: temper-xxx
