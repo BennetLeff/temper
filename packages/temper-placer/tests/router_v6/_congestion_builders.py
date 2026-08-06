@@ -63,8 +63,13 @@ def build_netlist(components: list, nets: list) -> Netlist:
     component: ``(ref, initial_position, rotation, [(pin_number, (px, py), net)])``
     net:       ``(name, [(comp_ref, pin_name), ...])``
     """
-    comps = [
-        Component(
+    def _comp(row):
+        # 4-tuple keeps the historical shape; a 5th element carries
+        # ``initial_side`` (bottom-side pads mirror X before rotation).
+        ref, position, rotation, pins = row[:4]
+        side = row[4] if len(row) > 4 else None
+        kw = {} if side is None else {"initial_side": side}
+        return Component(
             ref=ref,
             footprint="TEST",
             bounds=(1.0, 1.0),
@@ -74,9 +79,10 @@ def build_netlist(components: list, nets: list) -> Netlist:
             ],
             initial_position=position,
             initial_rotation=rotation,
+            **kw,
         )
-        for (ref, position, rotation, pins) in components
-    ]
+
+    comps = [_comp(row) for row in components]
     return Netlist(components=comps, nets=[Net(name=n, pins=list(p)) for (n, p) in nets])
 
 

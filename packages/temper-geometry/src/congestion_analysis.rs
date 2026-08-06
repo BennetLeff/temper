@@ -87,17 +87,27 @@ fn normalize_rotation(rotation: Option<i64>) -> f64 {
 }
 
 /// `core.pin_geometry.pin_world_position_at`, with `pos_override=None` and
-/// `rotation_override=None` always (this kernel's contract -- see module
-/// doc). The corpus's component tuples carry no `initial_side`, so `side`
-/// is always its default `0` and the bottom-side mirror branch never fires;
-/// it is correspondingly omitted rather than hardcoded dead code.
+/// `rotation_override=None` always (this kernel's contract -- see module doc).
+///
+/// This previously omitted the bottom-side X mirror, justified by "the
+/// corpus's component tuples carry no `initial_side`, so `side` is always its
+/// default `0`". That was a property of the FIXTURES, not of the domain --
+/// the same reasoning produced defects in escape_via.rs and net_ordering.rs,
+/// both fixed 2026-08-06. Real boards carry back-side components, and the
+/// shipped `pin_world_position_at` mirrors X BEFORE rotation for them.
 fn pin_world_position(
     pin_offset: (f64, f64),
     comp_position: Option<(f64, f64)>,
     comp_rotation: Option<i64>,
+    comp_side: Option<i64>,
 ) -> (f64, f64) {
     let rotation_rad = normalize_rotation(comp_rotation);
-    let (px, py) = pin_offset;
+    let (mut px, py) = pin_offset;
+    // `side = comp.initial_side or 0`; mirror BEFORE rotation. Order matters:
+    // mirroring afterwards gives a different point for any non-zero rotation.
+    if comp_side.unwrap_or(0) == 1 {
+        px = -px;
+    }
     let (rx, ry) = rotate_local_to_world(px, py, rotation_rad);
     // `comp.initial_position or (0.0, 0.0)` -- only `None` falls back; a
     // `(0.0, 0.0)` tuple is itself truthy.
@@ -126,6 +136,7 @@ type RegionRow = ((f64, f64), f64, String, i64, f64);
 /// fidelity to the pinned source.
 fn get_pin_positions(
     components: &[ComponentRow],
+    sides: &[Option<i64>],
     comp_by_ref: &std::collections::HashMap<&str, usize>,
     nets: &[NetRow],
     net_name: &str,
@@ -139,11 +150,12 @@ fn get_pin_positions(
             continue;
         };
         let (_, position, rotation, pins) = &components[idx];
+        let side = sides.get(idx).copied().flatten();
         // `pin.name == pin_name or pin.number == pin_name` -- the builder
         // sets `name = number = pin_number`, so a single equality check on
         // the stored pin number covers both.
         if let Some((_, offset, _net)) = pins.iter().find(|(num, _, _)| num == pin_name) {
-            pin_positions.push(pin_world_position(*offset, *position, *rotation));
+            pin_positions.push(pin_world_position(*offset, *position, *rotation, side));
         }
     }
     pin_positions
@@ -156,16 +168,36 @@ fn get_pin_positions(
 /// total_overflow, max_utilization, bottlenecks)`, where each bottleneck is
 /// `(x, y, utilization, overflow, layer)`.
 #[pyfunction]
-#[pyo3(signature = (components, nets, board, cell_size_mm, capacity_per_cell, num_layers))]
+#[pyo3(signature = (components_any, nets, board, cell_size_mm, capacity_per_cell, num_layers))]
 pub fn congestion_analyze_py<'py>(
     py: Python<'py>,
-    components: Vec<ComponentRow>,
+    components_any: &Bound<'py, PyAny>,
     nets: Vec<NetRow>,
     board: (f64, f64),
     cell_size_mm: f64,
     capacity_per_cell: f64,
     num_layers: i64,
 ) -> PyResult<Bound<'py, PyAny>> {
+    // Parse element-wise rather than as a fixed-arity tuple: pyo3 tuple
+    // extraction demands EXACT arity, so a `Vec<ComponentRow>` of 5-tuples
+    // would reject every pre-existing 4-tuple corpus row. The optional 5th
+    // element is `initial_side`.
+    let mut components: Vec<ComponentRow> = Vec::new();
+    let mut sides: Vec<Option<i64>> = Vec::new();
+    for row in components_any.try_iter()? {
+        let row = row?;
+        components.push((
+            row.get_item(0)?.extract()?,
+            row.get_item(1)?.extract()?,
+            row.get_item(2)?.extract()?,
+            row.get_item(3)?.extract()?,
+        ));
+        sides.push(match row.get_item(4) {
+            Ok(v) => v.extract().ok(),
+            Err(_) => None,
+        });
+    }
+
     let (board_width, board_height) = board;
     let width_cells = ceil_to_int(board_width / cell_size_mm)?;
     let height_cells = ceil_to_int(board_height / cell_size_mm)?;
@@ -196,7 +228,8 @@ pub fn congestion_analyze_py<'py>(
     let py_slice = py.import("builtins")?.getattr("slice")?;
 
     for (net_name, _net_pins) in &nets {
-        let pin_positions = get_pin_positions(&components, &comp_by_ref, &nets, net_name);
+        let pin_positions =
+            get_pin_positions(&components, &sides, &comp_by_ref, &nets, net_name);
         if pin_positions.len() < 2 {
             continue;
         }
