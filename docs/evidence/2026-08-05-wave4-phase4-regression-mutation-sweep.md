@@ -1,6 +1,6 @@
 # Wave 4 Phase 4 — regression slice: anti-vacuity mutation sweep — 2026-08-05
 
-<!-- provenance: commit=dc603230b dirty=true -->
+<!-- provenance: commit=dc603230b dirty=true; updated 2026-08-05 (pass 2) to add the kernel-only scope disclosure -->
 
 **Base commit:** `dc603230b` (the TDD-GREEN commit — kernels + delegation
 shims) + uncommitted working-tree changes (the VERIFICATION.md entries, the
@@ -88,6 +88,30 @@ mutant's `.so` installed). The driver is `/tmp/mutate_regression.py`.
 
 **No surviving mutants.** Every mutation was caught by at least one
 differential assertion; no discriminating-case additions were required.
+
+## Scope — kernel-only (disclosed pass 2)
+
+This sweep mutated ONLY the Rust kernels in `packages/temper-drc-rs/src/`
+and `packages/temper-design-bundle/src/`. The Python-side shim marshalling
+layer was deliberately NOT mutant-tested:
+
+- `drc_ratchet.py`'s `_marshal` (the `int()` coercion boundary),
+- `drc_ratchet.py`'s lazy `temper_drc_rs` import boundary,
+- `fingerprint.py`'s cache-entry lookup and `_tdb()` boundary,
+- the cp_sat/fingerprint delegation argument assembly.
+
+The adversarial review (2026-08-05) proved this scope matters with a
+concrete fail-open: **P1-1** — the shim's `int()` marshal truncated a
+float-valued ceiling (`100.5` → `100`), making a raise invisible to
+`detect_ceiling_raise` and failing the #575 approval gate OPEN. A
+kernel-only sweep cannot see that class. It is now closed by fail-loudly
+int-validation at the marshal boundary (the shim raises `CeilingMarshalError`
+instead of truncating), and the `should_skip` null/non-dict entry class by
+the kernel fix in `fingerprint.rs` — both landed in the same pass-2 review
+round. Two kernel-boundary pins were also added because the sweep's mutant
+set did not cover them: the cp_sat `str-number`/`bool` leaf class (pins
+`py_builtin_float`; a mutant to `extract::<f64>()` fails on `'1.5'`) and the
+drc_ratchet exact `'; '`-separator message (a `','` mutant fails).
 
 ## Notes
 

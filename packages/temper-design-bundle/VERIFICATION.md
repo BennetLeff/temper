@@ -3440,9 +3440,13 @@ metric list repr bit-for-bit.
    key on ONE side only is not in the intersection and is ignored by both
    arms.
 2. **Value conversion.** Each leaf goes through Python `builtins.float`
-   (the oracle's `float(...)`) — int/float/str-number leaves convert
+   (the oracle's `float(...)`) — int/float/str-number/bool leaves convert
    exactly; a non-numeric leaf raises the same failure family as the
-   oracle.
+   oracle. The `str-number`/`bool` leaf classes are pinned explicitly
+   (pass 2: `test_differential_str_number_and_bool_leaves`) so a mutation
+   replacing `py_builtin_float` with `extract::<f64>()` fails on the
+   `'1.5'` leaf (Python `float('1.5')` parses; `PyFloat_AsDouble` does
+   not).
 3. **Per-metric rules.** Higher-is-better passes iff `cand >= base - 1e-9`;
    the wirelength metric passes iff `cand <= base * 1.05` (ratio
    `cand / base`, or `inf` with `cand <= 0.0` when `base == 0`).
@@ -3519,7 +3523,17 @@ reproduce the pinned oracle bit-for-bit.
    yields False — the oracle's `cached == fp` returns False for a non-string
    (never equal to a str), and the kernel's failed String extraction is
    treated as a non-match rather than raised (pinned by
-   `test_differential_should_skip_non_string_cached_value`). The delegation
+   `test_differential_should_skip_non_string_cached_value`). A non-dict
+   board entry (a corrupt cache: a list/string/number in place of the board
+   record) yields False too — the kernel boundary is `Option<&PyAny>` and a
+   failed `PyDict` cast is a graceful no-skip, never a raise, so a corrupt
+   cache cannot abort the corpus run (pass 2, P2; pinned by
+   `test_differential_should_skip_null_and_non_dict_entry`). **Documented
+   deviation, SAFE direction:** the oracle returns False only for FALSY
+   non-dicts (its `if not board_cache`) and raises `AttributeError`
+   (`board_cache.get` on a truthy non-dict); the kernel is graceful across
+   BOTH classes (pinned by
+   `test_should_skip_truthy_non_dict_entry_graceful`). The delegation
    module performs the `cache["boards"][board_id]` lookup.
 
 ### R1 status
@@ -3579,3 +3593,13 @@ See `docs/evidence/2026-08-05-wave4-phase4-regression-mutation-sweep.md`
 for the full per-mutant record: **45 mutants across all seven kernels, every
 one caught by the differentials** (no surviving mutants, no infra failures
 counted as kills, pristine rebuild at the end).
+
+**Scope disclosure (pass 2): the sweep is kernel-only.** It mutated only the
+Rust kernels; the Python-side shim marshalling layer was NOT mutant-tested.
+The pass-2 review's P1-1 (the drc_ratchet `int()` marshal fail-open) is the
+concrete proof of why that scope matters — a kernel-only sweep cannot see a
+fail-open in the marshalling boundary. The `should_skip` null/non-dict
+entry class closed in pass 2 (above) is the design-bundle-side example.
+The cp_sat `str-number`/`bool` leaf pin and the drc_ratchet exact-separator
+pin added in pass 2 close the two unguarded kernel boundaries the sweep's
+mutant set did not cover.

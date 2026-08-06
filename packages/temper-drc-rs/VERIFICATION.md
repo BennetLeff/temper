@@ -480,27 +480,63 @@ pre-migration `_check_board` comparison + message composition and
    message; returns `exit_code=2` on an unapproved raise, `None` otherwise.
 
 ### Documented deviations
-- **`_marshal` truncates float-valued ceilings to `int` (the delegation
-  shim's marshal, not the kernel).** `detect_ceiling_raise`'s Python-side
-  `_marshal` in `temper_placer/regression/drc_ratchet.py` coerces
-  `error_ceiling`/`warning_ceiling`/per-type counts with `int(...)` before
-  calling the Rust kernel, which reads them as `i64`. The pinned oracle
-  (`_drc_ratchet_py_oracle.py`) compares the raw JSON values, so a
-  float-valued ceiling would produce a different decision AND message text
-  (e.g. `1.5 -> 2.5` truncates to `1 -> 2`). **Reachability: unreachable
-  today** — the ratchet data model is int-only (`DrcCeilingEntry.
-  error_ceiling`/`warning_ceiling` are typed `int`, `drc_ceiling.json`
-  records only integer DRC counts measured by `run_drc`, and the #575 gate
-  writes integers). Matching the oracle's raw comparison is not contained:
-  widening the kernel's `i64` marshal to `f64` would change message
-  rendering for integer-valued floats (Rust prints `2.0` as `2`), and
-  dropping the `int()` coercion without widening would make the `i64`
-  boundary raise `TypeError` on a float. Recorded rather than changed.
+- **Float-valued ceilings/counts fail LOUDLY at the shim marshal boundary
+  (pass 2, P1-1).** Pass 1 recorded the delegation shim's `int()` coercion
+  in `detect_ceiling_raise`'s Python-side `_marshal` as a truncation to
+  match the kernel's `i64` marshal, with the same coercion at the
+  `ratchet_check` boundary. The adversarial review demonstrated this fails
+  the #575 approval gate OPEN: a float-valued ceiling raise (`100 ->
+  100.5`) marshals to `100 -> 100` (truncated), so the kernel sees no raise,
+  the shim returns None, and the gate PASSES where it must block merge --
+  the oracle's raw compare would report `exit_code=2`. Fixed by validating
+  int-ness at the marshal boundary: any value that is not a genuine `int`
+  (bool excluded) raises `CeilingMarshalError` (a `ValueError` subclass,
+  `temper_placer/regression/drc_ratchet.py`) naming the field, board and
+  value BEFORE the kernel runs. This is a documented deviation FROM the
+  oracle's raw compare but SAFER: fail-loud where the old shim silently
+  passed. The i64 kernel boundary is unchanged (no f64 message-rendering
+  churn). The oracle keeps its raw-compare behavior; the differential pins
+  BOTH arms' loud behavior (`test_differential_float_ceiling_fails_loudly`,
+  `test_differential_float_per_type_count_fails_loudly`). Pinned int-valued
+  inputs are unaffected (the real `drc_ceiling.json` is all ints).
+
+### Pass 2 (adversarial review) — fail-loud marshal, graceful degradation, marshalling-scope disclosure
+
+**Fail-loudly float marshal (P1-1).** See the deviation record above. The
+gate's entire purpose is fail-closed on any raise; pass 1's int-only
+"record, don't change" response was the wrong response for a safety gate,
+because the truncation is exactly the failure mode the gate exists to
+prevent. Resolved by validating int-ness at the shim marshal boundary.
+
+**Kernel-missing graceful degradation restored (P1-2b).** During the
+migration the `ratchet_check` kernel call moved OUTSIDE `_check_board`'s
+`try/except`, so a missing `temper_drc_rs` raised an unhandled
+`ImportError: No module named 'temper_drc_rs'` traceback on the
+kicad-cli backend (the `ci_check_drc.py --backend kicad-cli` /
+`ci_closure_test.py` crash class) instead of the pre-migration clean
+`DRC (rust) failed` FAIL. The kernel call is back inside the `try/except`
+(pinned by `test_missing_kernel_fails_cleanly_not_traceback`). CI now also
+builds `temper-drc-rs` explicitly in every workflow that consumes it
+(regression.yml, metrics-record.yml, pr-pipeline-scorecard.yml -- see the
+workflow changes in the same PR), so the missing-extension state is a
+defensive path, not a normal one.
+
+**Mutation-sweep scope (kernel-only) disclosed (P2).** The anti-vacuity
+sweep (45 mutants) mutated ONLY the Rust kernels. The Python-side shim
+marshalling layer (`_marshal`, the `int()` coercion boundary, the
+cache-entry lookup, the import/lazy-load boundaries) was NOT
+mutant-tested -- and the P1-1 finding is the concrete proof of why that
+matters: a kernel-only sweep cannot see a fail-open in the marshalling
+boundary. Since this review round, the marshal validates int-ness and the
+`should_skip` kernel handles the null/non-dict entry class (see
+temper-design-bundle's VERIFICATION.md), closing the demonstrated classes.
 
 ### R1 status
 - R1a: bit-exact differential `test_drc_ratchet_rust_differential.py` —
   full `DrcRatchetResult` (incl. message strings) vs the oracle, both
-  backends, deterministic + 120-case randomized stress.
+  backends, deterministic + 120-case randomized stress; pass 2 added the
+  fail-loud float-marshal cases, the exact `'; '`-separator pin, and the
+  kernel-missing graceful-degradation pin.
 - R1b: no-regression arm **not registered** — the ratchet comparison runs
   once per gate invocation behind a per-call marshalling boundary; the slice
   makes no speedup claim (the recorded reason, per the #775 precedent's
@@ -610,3 +646,14 @@ See `docs/evidence/2026-08-05-wave4-phase4-regression-mutation-sweep.md`
 for the full per-mutant record: **45 mutants across all seven kernels, every
 one caught by the differentials** (no surviving mutants, no infra failures
 counted as kills, pristine rebuild at the end).
+
+**Scope disclosure (pass 2): the sweep is kernel-only.** It mutated only the
+Rust kernels; the Python-side shim marshalling layer (the `_marshal` int
+coercion, the lazy `temper_drc_rs` import boundaries, the cache-entry
+lookup) was NOT mutant-tested. The pass-2 review's P1-1 (a float-valued
+ceiling silently truncated by `int()` fails the #575 approval gate OPEN) is
+the concrete proof of why that scope matters -- a kernel-only sweep cannot
+see a fail-open in the marshalling boundary. That class is now closed by
+fail-loudly int-validation at the marshal boundary (above), and the
+`should_skip` null/non-dict entry class by the kernel fix in
+temper-design-bundle.
