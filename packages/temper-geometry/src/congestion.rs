@@ -154,6 +154,9 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(congestion_grid_utilization_py, m)?)?;
     m.add_function(wrap_pyfunction!(congestion_grid_overflow_py, m)?)?;
     m.add_function(wrap_pyfunction!(congestion_estimate_net_demand_py, m)?)?;
+    m.add_function(wrap_pyfunction!(congestion_bottleneck_to_coordinates_py, m)?)?;
+    m.add_function(wrap_pyfunction!(congestion_result_overflow_ratio_py, m)?)?;
+    m.add_function(wrap_pyfunction!(congestion_result_top_bottlenecks_py, m)?)?;
     Ok(())
 }
 
@@ -290,4 +293,97 @@ pub fn congestion_estimate_net_demand_py<'py>(
     }
 
     Ok((zeros, false).into_pyobject(py)?.into_any())
+}
+
+// ---------------------------------------------------------------------------
+// Slice 3: Bottleneck / CongestionResult
+// ---------------------------------------------------------------------------
+
+/// `min(a, b)` as CPython evaluates it: `acc = a; if b < acc { acc = b }`.
+///
+/// A NaN in the FIRST position survives, because `b < NaN` is false. The
+/// corpus pins `overflow_ratio` with a NaN `total_overflow` for this (B5);
+/// `f64::min` would return the other operand instead.
+fn cpython_min2(a: f64, b: f64) -> f64 {
+    if b < a { b } else { a }
+}
+
+/// `Bottleneck.to_coordinates` — the cell centre.
+///
+/// Op order and grouping are the reference's: `origin + (idx + 0.5) * cell`,
+/// not `origin + idx * cell + 0.5 * cell`, which reassociates and can differ
+/// in the last ulp.
+#[pyfunction]
+pub fn congestion_bottleneck_to_coordinates_py(
+    x: i64,
+    y: i64,
+    cell_size_mm: f64,
+    origin: (f64, f64),
+) -> (f64, f64) {
+    let center_x = origin.0 + (x as f64 + 0.5) * cell_size_mm;
+    let center_y = origin.1 + (y as f64 + 0.5) * cell_size_mm;
+    (center_x, center_y)
+}
+
+/// `CongestionResult.overflow_ratio`.
+///
+/// `float(self.grid.demand.sum())` is **numpy's** sum, which is
+/// blocked-pairwise rather than naive left-to-right, so it is delegated to
+/// numpy instead of accumulated in Rust. The corpus reaches the cases where
+/// that matters: cancellation to exactly 0.0, overflow of `1e308 + 1e308` to
+/// inf, a NaN element, and the denormal band (B8).
+///
+/// `total_demand == 0` is a float compare, so it catches `-0.0` too, and it
+/// is FALSE for NaN — a NaN total_demand skips the early return and divides.
+#[pyfunction]
+pub fn congestion_result_overflow_ratio_py(
+    py: Python<'_>,
+    demand: Vec<f64>,
+    total_overflow: f64,
+) -> PyResult<f64> {
+    let arr = row_array(py, &demand)?;
+    let total_demand: f64 = arr.call_method0("sum")?.extract()?;
+    if total_demand == 0.0 {
+        return Ok(0.0);
+    }
+    Ok(cpython_min2(total_overflow / total_demand, 1.0))
+}
+
+/// `CongestionResult.get_top_bottlenecks`.
+///
+/// Delegates to Python's `sorted` and to a real slice object rather than
+/// re-deriving either:
+///
+/// * `sorted(key=..., reverse=True)` is **timsort**, and stable. A plain
+///   stable merge in Rust has already been measured disagreeing with it on
+///   624 of 2400 NaN cases elsewhere in this repo. The corpus pins a full
+///   tie, a NaN sort key, and `[0.0, -0.0]` (which compare equal, so only
+///   stability decides the order).
+/// * `[:n]` with a NEGATIVE n is `[:-1]` — it drops the last element. It is
+///   NOT an empty list, which is what a naive `take(n.max(0))` would give.
+#[pyfunction]
+pub fn congestion_result_top_bottlenecks_py<'py>(
+    py: Python<'py>,
+    overflows: Vec<f64>,
+    n: i64,
+) -> PyResult<Bound<'py, PyAny>> {
+    let builtins = py.import("builtins")?;
+    // `Bottleneck(x=i, y=0, utilization=float(i), overflow=o)`, flattened to
+    // the tuple the differential projects.
+    let rows: Vec<(i64, i64, f64, f64, i64)> = overflows
+        .iter()
+        .enumerate()
+        .map(|(i, &o)| (i as i64, 0i64, i as f64, o, 0i64))
+        .collect();
+    let list = rows.into_pyobject(py)?;
+
+    let operator = py.import("operator")?;
+    let key = operator.call_method1("itemgetter", (3i64,))?;
+    let kwargs = pyo3::types::PyDict::new(py);
+    kwargs.set_item("key", key)?;
+    kwargs.set_item("reverse", true)?;
+    let sorted = builtins.call_method("sorted", (list,), Some(&kwargs))?;
+
+    let slice = builtins.getattr("slice")?.call1((py.None(), n))?;
+    sorted.get_item(slice)
 }
