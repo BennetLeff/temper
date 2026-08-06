@@ -285,27 +285,21 @@ def _compute_routing_metrics(
         thermal_via_count = -1
         stitching_via_count = -1
 
-    # Corridor consolidation and track-spread (U3)
-    try:
-        from temper_placer.router_v6.quality.corridor import (
-            corridor_consolidation_from_parse,
-            track_spread_from_parse,
-        )
-
-        corridor_score = corridor_consolidation_from_parse(parse_result)
-        track_spread = track_spread_from_parse(parse_result)
-    except Exception:
-        corridor_score = -1.0
-        track_spread = -1.0
-
     return {
         "rdl": mk(rdl),
         "via_count": mk(float(via_count)),
         "signal_via_count": mk(float(signal_via_count)),
         "thermal_via_count": mk(float(thermal_via_count)),
         "stitching_via_count": mk(float(stitching_via_count)),
-        "corridor_consolidation_score": mk(corridor_score),
-        "track_spread_score": mk(track_spread),
+        # corridor_consolidation_score / track_spread_score removed 2026-08-05.
+        # They never measured anything: quality/corridor compared board-relative
+        # courtyards against page-absolute traces, so bitaxe_ultra identified 739
+        # channels and assigned 0 tracks, and BOTH `else` arms of
+        # _identify_channels were unreachable (97,522 if / 0 else over 200k
+        # pairs). The scores were near-constant on 4 of 5 corpus boards. No
+        # committed baseline, corpus or golden ever recorded either key, and
+        # nothing branched on them -- they were emitted and never read. See
+        # issue #752 defect 2, and the replacement want filed separately.
     }
 
 
