@@ -189,6 +189,25 @@ def test_differential_type_carrying_values():
     assert s.comparisons[0].cp_sat_value == 5.0  # float()-converted
 
 
+def test_differential_str_number_and_bool_leaves():
+    """str-number (``'1.5'``) and bool leaves convert through Python
+    ``builtins.float`` exactly like the oracle (``float('1.5') == 1.5``,
+    ``float(True) == 1.0``). This pins the ``py_builtin_float`` path: a
+    mutation replacing it with ``extract::<f64>()`` would raise TypeError on
+    the ``'1.5'`` leaf (pass 2, P2 pin)."""
+    cases = [
+        ({"m": "1.5"}, {"m": "1.0"}, "none"),
+        ({"m": True}, {"m": False}, "none"),
+        ({"m": "1.5", "b": True}, {"m": 1.0, "b": 1}, "none"),
+        ({"wl": "104.9"}, {"wl": "100"}, "wl"),
+        ({"wl": "104.9", "m": "2.5"}, {"wl": 100, "m": 2}, "wl"),
+    ]
+    for cand, base, wl in cases:
+        o = _oracle.compare_metric_dicts(cand, base, wirelength_metric=wl)
+        s = ShimCompare(cand, base, wirelength_metric=wl)
+        assert _canon_result(s) == _canon_result(o)
+
+
 def test_differential_nan_and_inf_leaves():
     """NaN leaves render Python-style ('nan', not Rust's 'NaN') in the detail
     strings and compare with NaN semantics (all NaN comparisons are False);

@@ -866,3 +866,168 @@ def test_prop9_detect_raise_skips_new_boards():
     }
     for ratchet in ratchets:
         assert ratchet.detect_ceiling_raise(old, new, commit_message="fix: x") is None
+
+
+# ---------------------------------------------------------------------------
+# Pass 2 (adversarial review) — fail-loudly float marshal (P1-1), exact
+# separator pin (P2), graceful degradation on a missing kernel (P1-2)
+# ---------------------------------------------------------------------------
+
+
+def test_differential_float_ceiling_fails_loudly():
+    """A float-valued ceiling must fail LOUDLY on both arms -- never the old
+    silent-pass.
+
+    The oracle compares the raw JSON values and correctly DETECTS the raise
+    (``100 -> 100.5`` reports ``exit_code=2``, blocking merge). The shim's
+    marshal validates int-ness before the kernel and raises
+    ``CeilingMarshalError`` instead of silently truncating (``100.5`` ->
+    ``100``), which made the raise invisible to ``detect_ceiling_raise`` and
+    failed the #575 approval gate OPEN. This is a documented deviation FROM
+    the oracle's raw-compare, but SAFER: fail-loud where the OLD shim
+    silently passed. See packages/temper-drc-rs/VERIFICATION.md.
+    """
+    from temper_placer.regression.drc_ratchet import CeilingMarshalError
+
+    old = {
+        "boards": [{"board_id": "b1", "error_ceiling": 100, "warning_ceiling": 0}]
+    }
+    new = {
+        "boards": [{"board_id": "b1", "error_ceiling": 100.5, "warning_ceiling": 0}]
+    }
+
+    # Oracle arm: the raw compare reports the raise (the gate fails closed).
+    o_res = _oracle.DrcRatchet(Path("x.json")).detect_ceiling_raise(
+        old, new, commit_message="fix: nope"
+    )
+    assert o_res is not None
+    assert o_res.exit_code == 2
+    assert "error_ceiling 100 -> 100.5" in o_res.message
+
+    # Shim arm: fails loudly BEFORE the kernel -- never a silent pass.
+    with pytest.raises(CeilingMarshalError) as ei:
+        ShimRatchet(Path("x.json")).detect_ceiling_raise(
+            old, new, commit_message="fix: nope"
+        )
+    assert "error_ceiling" in str(ei.value)
+    assert "100.5" in str(ei.value)
+
+    # A float in the OLD record is just as loud (the marshal is symmetric).
+    old_f = {"boards": [{"board_id": "b1", "error_ceiling": 100.0, "warning_ceiling": 0}]}
+    new_i = {"boards": [{"board_id": "b1", "error_ceiling": 101, "warning_ceiling": 0}]}
+    with pytest.raises(CeilingMarshalError):
+        ShimRatchet(Path("x.json")).detect_ceiling_raise(
+            old_f, new_i, commit_message="fix: nope"
+        )
+
+
+def test_differential_float_per_type_count_fails_loudly():
+    """A float-valued per-type count in either record fails loudly on the
+    shim (the old ``int()`` marshal truncated ``5.5`` -> ``5`` and could hide
+    a per-type raise); the oracle's raw compare detects it."""
+    from temper_placer.regression.drc_ratchet import CeilingMarshalError
+
+    old = {
+        "boards": [
+            {
+                "board_id": "b1",
+                "error_ceiling": 10,
+                "warning_ceiling": 0,
+                "violations_by_type": {"clearance": 5},
+            }
+        ]
+    }
+    new = {
+        "boards": [
+            {
+                "board_id": "b1",
+                "error_ceiling": 10,
+                "warning_ceiling": 0,
+                "violations_by_type": {"clearance": 5.5},
+            }
+        ]
+    }
+    o_res = _oracle.DrcRatchet(Path("x.json")).detect_ceiling_raise(
+        old, new, commit_message="fix: nope"
+    )
+    assert o_res is not None
+    assert o_res.exit_code == 2
+    assert "violations_by_type[clearance] 5 -> 5.5" in o_res.message
+
+    with pytest.raises(CeilingMarshalError) as ei:
+        ShimRatchet(Path("x.json")).detect_ceiling_raise(
+            old, new, commit_message="fix: nope"
+        )
+    assert "violations_by_type[clearance]" in str(ei.value)
+    assert "5.5" in str(ei.value)
+
+
+def test_detect_raise_exact_semicolon_separator():
+    """The reasons list joins with ``'; '`` exactly (a ``','``-separator
+    mutant must fail), and the full message is bit-stable across both arms."""
+    ratchets = (_oracle.DrcRatchet(Path("x.json")), ShimRatchet(Path("x.json")))
+    old = {
+        "boards": [
+            {
+                "board_id": "b1",
+                "error_ceiling": 1,
+                "warning_ceiling": 1,
+                "violations_by_type": {"a": 1},
+                "warnings_by_type": {"w": 1},
+            }
+        ]
+    }
+    new = {
+        "boards": [
+            {
+                "board_id": "b1",
+                "error_ceiling": 2,
+                "warning_ceiling": 2,
+                "violations_by_type": {"a": 2},
+                "warnings_by_type": {"w": 2},
+            }
+        ]
+    }
+    expected = (
+        "Ceiling increase (error_ceiling 1 -> 2; warning_ceiling 1 -> 2; "
+        "violations_by_type[a] 1 -> 2; warnings_by_type[w] 1 -> 2) requires "
+        "explicit approval."
+    )
+    for ratchet in ratchets:
+        res = ratchet.detect_ceiling_raise(old, new, commit_message="fix: nope")
+        assert res is not None
+        assert res.message == expected
+
+
+def test_missing_kernel_fails_cleanly_not_traceback(tmp_path, monkeypatch):
+    """A missing ``temper_drc_rs`` must produce the clean 'DRC failed' FAIL
+    (the pre-migration graceful degradation), not an unhandled ImportError
+    traceback. The kernel call moved OUTSIDE the try/except during the
+    migration, so a kicad-cli-backend run (``ci_check_drc.py --backend
+    kicad-cli``) crashed with ``ImportError: No module named 'temper_drc_rs'``
+    instead of a gate FAIL when the extension was absent (P1-2)."""
+    entry = {
+        "board_id": "b",
+        "path": "pcb/board.kicad_pcb",
+        "error_ceiling": 10,
+        "warning_ceiling": 5,
+        "provenance": {"tool_versions": {}},
+    }
+    o, s, pcb, stub, drc_api = _make_pair(
+        tmp_path, "kicad-cli", entry, (["r1"] * 2, []), version=None
+    )
+    drc_api.run_drc = stub._run_drc
+    drc_api.get_kicad_cli_version = lambda: None
+
+    import temper_placer.regression.drc_ratchet as drc_ratchet_module
+
+    def _missing():
+        raise ImportError("No module named 'temper_drc_rs'")
+
+    monkeypatch.setattr(drc_ratchet_module, "_tdrc", _missing)
+
+    s_res = s._check_board("b", pcb, s.entries["b"])
+    assert not s_res.passed
+    assert s_res.exit_code == 1
+    assert "DRC (kicad-cli) failed" in s_res.message
+    assert "temper_drc_rs" in s_res.message

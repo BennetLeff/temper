@@ -29,6 +29,7 @@ from __future__ import annotations
 import hashlib
 import random
 
+import pytest
 import temper_design_bundle_python as _tdb
 
 import tests.regression._fingerprint_py_oracle as _oracle
@@ -204,6 +205,46 @@ def test_differential_should_skip_non_string_cached_value():
         s = ShimShouldSkip("b1", "i", "s", cache)
         assert o is False
         assert s is False
+
+
+# ---------------------------------------------------------------------------
+# Pass 2 (adversarial review) — null / non-dict board ENTRY class (P2)
+# ---------------------------------------------------------------------------
+
+
+def test_differential_should_skip_null_and_non_dict_entry():
+    """A board entry that is None or a non-dict must return False-not-skip on
+    both arms (re-run the board) -- never raise and abort the corpus run.
+    The oracle's ``if not board_cache`` short-circuits falsy entries to False;
+    the kernel must match. Pass-1 fixed non-string cached VALUES (F3b); this
+    is the null/non-dict ENTRY class: the kernel's ``Option<&PyDict>``
+    extraction raised TypeError on any non-dict entry, aborting the whole
+    corpus run."""
+    cases = [
+        {"boards": {"b1": None}},
+        {"boards": {"b1": []}},
+        {"boards": {"b1": ""}},
+        {"boards": {"b1": {"input_fingerprint": None, "source_fingerprint": "s"}}},
+    ]
+    for cache in cases:
+        o = _oracle.should_skip("b1", "i", "s", cache)
+        s = ShimShouldSkip("b1", "i", "s", cache)
+        assert o is False
+        assert s is False
+
+
+def test_should_skip_truthy_non_dict_entry_graceful():
+    """A TRUTHY non-dict board entry (e.g. ``[1, 2]``) is a documented
+    deviation in the SAFE direction: the oracle raises ``AttributeError``
+    (``board_cache.get`` on a list), the kernel returns False (graceful
+    no-skip). The kernel must NEVER raise on a corrupt cache entry -- the
+    corpus run survives and re-runs the board. See
+    packages/temper-design-bundle/VERIFICATION.md."""
+    cache = {"boards": {"b1": [1, 2]}}
+    with pytest.raises(AttributeError):
+        _oracle.should_skip("b1", "i", "s", cache)
+    assert SHOULD_SKIP("i", "s", [1, 2]) is False
+    assert ShimShouldSkip("b1", "i", "s", cache) is False
 
 
 # ---------------------------------------------------------------------------
