@@ -62,61 +62,40 @@ def create_keepout_mask(
 
     Returns:
         (H, W) boolean JAX array where True = valid for placement
+
+    Wave 4 Phase B: the mask construction itself (three keepout passes over
+    an (H, W) grid) is delegated to ``temper_geometry.keepout_mask_flags_py``
+    -- see ``packages/temper-geometry/src/heuristics_geometry.rs``. This
+    function keeps the public API and does only the primitive extraction
+    (board/constraints field access, numpy array construction), which is
+    orchestration, not compute. Pinned oracle:
+    ``packages/temper-placer/tests/heuristics/_structural_py_oracle.py``;
+    differential: ``tests/heuristics/test_structural_rust_differential.py``.
     """
+    from temper_geometry import keepout_mask_flags_py
+
     ox, oy = board.origin
     width_cells = int(board.width / resolution_mm) + 1
     height_cells = int(board.height / resolution_mm) + 1
 
-    # Start with all valid
-    mask = np.ones((height_cells, width_cells), dtype=np.bool_)
+    mounting_holes = [
+        (hole.position[0], hole.position[1], hole.keepout_radius) for hole in board.mounting_holes
+    ]
+    keepout_regions = [tuple(float(v) for v in region) for region in board.keepout_regions]
 
-    # Mark board edges as invalid (margin)
-    margin = constraints.board_margin_mm + buffer_mm
-    margin_cells = int(margin / resolution_mm)
+    flags = keepout_mask_flags_py(
+        width_cells,
+        height_cells,
+        ox,
+        oy,
+        resolution_mm,
+        constraints.board_margin_mm,
+        buffer_mm,
+        mounting_holes,
+        keepout_regions,
+    )
 
-    if margin_cells > 0:
-        # Top and bottom edges
-        mask[:margin_cells, :] = False
-        mask[-margin_cells:, :] = False
-        # Left and right edges
-        mask[:, :margin_cells] = False
-        mask[:, -margin_cells:] = False
-
-    # Mark mounting holes as invalid
-    for hole in board.mounting_holes:
-        hx, hy = hole.position
-        clearance = hole.keepout_radius + buffer_mm
-
-        # Convert to mask coordinates
-        cx = int((hx - ox) / resolution_mm)
-        cy = int((hy - oy) / resolution_mm)
-        cr = int(clearance / resolution_mm)
-
-        # Create circular keepout
-        for dy in range(-cr, cr + 1):
-            for dx in range(-cr, cr + 1):
-                if dx * dx + dy * dy <= cr * cr:
-                    mx, my = cx + dx, cy + dy
-                    if 0 <= mx < width_cells and 0 <= my < height_cells:
-                        mask[my, mx] = False
-
-    # Mark explicit keepout regions
-    for x_min, y_min, x_max, y_max in board.keepout_regions:
-        # Add buffer
-        x_min_buf = x_min - buffer_mm
-        y_min_buf = y_min - buffer_mm
-        x_max_buf = x_max + buffer_mm
-        y_max_buf = y_max + buffer_mm
-
-        # Convert to mask coordinates
-        mx_min = max(0, int((x_min_buf - ox) / resolution_mm))
-        my_min = max(0, int((y_min_buf - oy) / resolution_mm))
-        mx_max = min(width_cells, int((x_max_buf - ox) / resolution_mm) + 1)
-        my_max = min(height_cells, int((y_max_buf - oy) / resolution_mm) + 1)
-
-        mask[my_min:my_max, mx_min:mx_max] = False
-
-    return mask
+    return np.array(flags, dtype=np.bool_).reshape((height_cells, width_cells))
 
 
 class KeepoutAwarenessHeuristic(Heuristic):

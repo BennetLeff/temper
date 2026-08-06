@@ -70,6 +70,10 @@ pub use via_placement::{is_via_position_valid_py, place_via_with_clearance_py, v
 pub mod bottleneck_geometry;
 #[cfg(feature = "python")]
 pub use bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py};
+// Wave 4 Phase B: temper_placer/heuristics/structural.py's create_keepout_mask.
+pub mod heuristics_geometry;
+#[cfg(feature = "python")]
+pub use heuristics_geometry::keepout_mask_flags_py;
 pub mod audit;
 pub mod creepage_check;
 // Wave 4, router_v6 core slice: the DRC constraint-geometry kernel behind
