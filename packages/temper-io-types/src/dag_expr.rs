@@ -1053,3 +1053,53 @@ mod tests {
         }
     }
 }
+
+#[cfg(test)]
+mod depth_boundary {
+    use super::*;
+
+    /// Pin the EXACT frame at which `enter()` rejects.
+    ///
+    /// This cannot be a differential test, and that is the point. The oracle is
+    /// CPython, which raises `RecursionError` at nesting depth ~199 with the
+    /// default recursionlimit -- so `NESTING_DEPTHS` is capped at 120 and the
+    /// differential can never reach `MAX_DEPTH = 1000`. The ceiling is a
+    /// stack-safety backstop with no oracle counterpart, so only a Rust-side
+    /// test can hold its boundary.
+    ///
+    /// It was a surviving mutant that showed the gap: tightening `enter()`'s
+    /// `self.depth > MAX_DEPTH` to `>= MAX_DEPTH` -- rejecting one frame early
+    /// -- left the differential, property and perf suites all green.
+    ///
+    /// A `not` chain is the probe because `not_expr` charges exactly ONE frame
+    /// per `not` (and folds iteratively, so the Rust stack stays flat). Paren
+    /// nesting costs four frames per level and could not resolve a one-frame
+    /// shift at all.
+    ///
+    /// 996 is measured, not derived: `not` chains pay a 4-frame prologue
+    /// (`expr` -> `and_expr` -> `not_expr` -> `comparison`). Deriving it from
+    /// `MAX_DEPTH` would re-express the comparison under test and let the same
+    /// off-by-one slip through both sides.
+    const MAX_NOT_CHAIN: usize = 996;
+
+    #[test]
+    fn accepts_the_last_frame_inside_the_ceiling() {
+        let src = format!("{}true", "not ".repeat(MAX_NOT_CHAIN));
+        assert!(
+            parse(&src).is_ok(),
+            "a {MAX_NOT_CHAIN}-long `not` chain is the deepest input inside the \
+             {MAX_DEPTH}-frame ceiling and must parse; rejecting it means \
+             `enter()` fires one frame early"
+        );
+    }
+
+    #[test]
+    fn rejects_the_first_frame_past_the_ceiling() {
+        let src = format!("{}true", "not ".repeat(MAX_NOT_CHAIN + 1));
+        let err = parse(&src).expect_err("one frame past the ceiling must be rejected");
+        assert!(
+            format!("{err:?}").contains("recursion limit"),
+            "expected the recursion-limit diagnostic, got: {err:?}"
+        );
+    }
+}
