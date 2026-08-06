@@ -186,9 +186,9 @@ impl DiffPairConfig {
             "DiffPairConfig(net_pos={}, net_neg={}, spacing_mm={}, coupling_tolerance_mm={}, max_skew_mm={})",
             py_str_repr(&pos.str()?.to_string()),
             py_str_repr(&neg.str()?.to_string()),
-            py_number_repr(&self.spacing_mm.bind(py))?,
-            py_number_repr(&self.coupling_tolerance_mm.bind(py))?,
-            py_number_repr(&self.max_skew_mm.bind(py))?,
+            py_number_repr(self.spacing_mm.bind(py))?,
+            py_number_repr(self.coupling_tolerance_mm.bind(py))?,
+            py_number_repr(self.max_skew_mm.bind(py))?,
         ))
     }
 
@@ -591,10 +591,10 @@ fn compute_wirelength(
         }
         let mut positions: Vec<(f64, f64)> = vec![candidate_slot];
         for (r, _) in pins {
-            if r != component_ref {
-                if let Some(&p) = current_placements.get(r) {
-                    positions.push(p);
-                }
+            if r != component_ref
+                && let Some(&p) = current_placements.get(r)
+            {
+                positions.push(p);
             }
         }
         if positions.len() > 1 {
@@ -705,10 +705,10 @@ pub fn assign_components_to_slots(
         }
 
         // Domain filter (precomputed by the shim from the GEOS region).
-        if !no_domain {
-            if let Some(allowed) = domain_ok.get(ref_name) {
-                available_slots.retain(|s| allowed.contains(&slot_key(*s)));
-            }
+        if !no_domain
+            && let Some(allowed) = domain_ok.get(ref_name)
+        {
+            available_slots.retain(|s| allowed.contains(&slot_key(*s)));
         }
         if available_slots.is_empty() {
             continue;

@@ -79,6 +79,12 @@ fn host_pow() -> &'static BinaryMathFn {
     }
 }
 
+// `hypot` has no caller in this crate yet: the kernels that use it land with
+// the Phase-5 batch-2 slice (#816), which references it from two modules.
+// Kept rather than deleted so that slice does not have to re-add it, and
+// scoped to this family rather than the module so anything else going unused
+// still fails the build.
+#[allow(dead_code)]
 fn host_hypot() -> &'static BinaryMathFn {
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -100,6 +106,7 @@ unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
 unsafe extern "C" fn fallback_sqrt(x: f64) -> f64 {
     f64::sqrt(x)
 }
+#[allow(dead_code)]
 unsafe extern "C" fn fallback_hypot(x: f64, y: f64) -> f64 {
     f64::hypot(x, y)
 }
@@ -115,6 +122,7 @@ pub fn sqrt(x: f64) -> f64 {
 }
 
 /// CPython `math.hypot` (libm `hypot`), bit-exact with the reference.
+#[allow(dead_code)]
 pub fn hypot(x: f64, y: f64) -> f64 {
     unsafe { host_hypot()(x, y) }
 }
