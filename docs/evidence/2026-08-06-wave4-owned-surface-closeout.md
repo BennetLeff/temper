@@ -1,6 +1,6 @@
 # Wave 4 owned-surface close-out: every MIGRATE surface classified (2026-08-06)
 
-<!-- provenance: commit=8893ab5ca75283f0a538d0b6154711e6a3f97b76 dirty=false -->
+<!-- provenance: commit=d669241e772a8d5f896dee2f5e93f99aa4fb3c98 dirty=false (audit body measured at 8893ab5ca75283f0a538d0b6154711e6a3f97b76; §8 status refresh added 2026-08-06 in the close-out corrections PR, re-verified at d669241e7) -->
 
 **Scope:** post-regression ledger close-out. Read-only audit of every `MIGRATE`
 surface in `docs/wave4-verdicts.yaml` against the codebase at the provenance
@@ -234,3 +234,43 @@ JUSTIFIED-KEEP carve-outs, or open owners.
 - The verdict gate (`check_verdict_coverage.py`) exits 0 after the corrections.
 - No `git stash` used; no files outside `docs/wave4-verdicts.yaml` and this
   evidence doc were modified.
+
+---
+
+## 8. Status refresh — the close-out batch landed (2026-08-06, corrections PR)
+
+This section re-verifies the three §1/§3 classifications that the post-audit
+close-out batch (#808 drc-contracts, #811 placer, #816 leaves batch 2) moved,
+against `origin/main` at d669241e7. Per-file shim status was re-checked by
+import scan (the same `CRATE` test as §1); no verdict changed and no
+classification below is a verdict flip.
+
+| Audit row | Audit classification (at 8893ab5ca) | Now (at d669241e7) |
+|---|---|---|
+| `validation/**` — `drc_types.py`, `drc_result.py` | "Phase-2 contracts [that] land earlier — they have not landed and have no owner" (§3.2) | **MIGRATED** — #808 merged (`drc_types`/`drc_result` contracts to Rust pyclasses, commit c1ee6af77); both files are pure-delegation re-exports of `temper_drc_rs` pyclasses with the `core/_contract_dataclass_compat` dataclass protocol restored. The ledger's `validation/**` note ("drc_types and drc_result are Phase 2 contracts and land earlier") is now true |
+| `placer/*.py` — `adjustment.py`, `deterministic.py`, `template.py` | **UNMIGRATED + UNOWNED — FLAG** (§3.1) | **MIGRATED** — #811 merged (commit 28ccf9a82); all three are delegation shims over `temper-io-types/placer_core` (`temper_io_types.placer_*`), oracles pinned in `tests/placer/_placer_*_py_oracle.py`. The ledger's `placer/*.py` note already carries the DONE 2026-08-06 record (written by #811 itself) |
+| `deterministic/**` — flagged leaf stages | 25 leaf-stage files "carry no record and have no owner" (§3.2) | **PARTIAL → MIGRATED** — #816 merged; `connectivity_validation`, `drc_validation`, `drc_sweep`, `placement_validation` and `courtyard_check` (→ `temper-drc-rs`) plus `fine_pitch_escape` and `phased_component_assignment_validator` (→ `temper-design-bundle-python`) are now crate shims — 7 of the 25 flagged files. The remaining 18 are still unowned; the audit's flag on them stands |
+
+The §5 LOC table (MIGRATE 457 files / 103,476 LOC) was measured at
+8893ab5ca. The migrations above move LOC *within* the MIGRATE bucket from
+plain Python to crate shims; they do not change verdict totals or R7
+completion (the verdict gate still exits 0 at d669241e7).
+
+For §4's three recorded ledger corrections, the corrections PR resolves two
+and carries the third forward: correction 3 (the dead `scripts/*.py`
+`exclude:` entries for the two #708-deleted scripts) is **completed** -- the
+excludes and the matching RETIRE entries were removed, with a dated note in
+the ledger; correction 2 (the `physics/**` "recorded below" phantom) is
+**completed** -- the note now names where the KTD9 keep is actually recorded
+and why it is not a carve-out entry; correction 1 (`_constraint_types`) is
+**expanded, not decided** -- the ledger comment now cites both sides (#719's
+measured verdict with its evidence reference, and the always-migrate stance)
+and names the open product-authority decision.
+
+The audit's classification therefore still holds as a historical record, and
+the corrective reading is: the batch closed two of the three wholly-unowned
+§3.1/§3.2 surfaces it targeted (the `placer/*.py` FLAG and the unowned
+`drc_types`/`drc_result` remainder), and materially shrank the
+`deterministic/**` unowned remainder. The one open *verdict* conflict
+(`_constraint_types`, §6) is untouched by this refresh — it is a decision,
+not a status, and still owed to product authority.

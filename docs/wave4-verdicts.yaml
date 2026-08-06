@@ -76,18 +76,39 @@ surfaces:
     note: >-
       Contract types. Excluded from the plan's measured LOC baseline but not
       from its scope -- R7 admits no pre-exclusions.
-  # NOTE (2026-08-06, close-out audit): the MIGRATE entry above now conflicts
-  # with a merged record. PR #719 merged 2026-08-06 ("docs(wave4): Phase 2
-  # verdict -- _constraint_types is not a pyo3-pyclass candidate (measured)")
-  # with the verdict "do not migrate _constraint_types" -- the surface is
-  # declarative pydantic schema (34 BaseModel subclasses, 5 methods), not
-  # compute -- and it deliberately did NOT edit this ledger. The ledger entry
-  # is therefore untouched but contradicted by the merged record. This is a
-  # decision owed to product authority: either re-scope the entry to
-  # JUSTIFIED-KEEP with the measured blocker (#719 names it), or state why the
-  # MIGRATE verdict survives the measurement. Recorded as a comment, not
-  # flipped, per the close-out discipline. Full reasoning in
-  # docs/evidence/2026-08-06-wave4-owned-surface-closeout.md (Sec 1, Sec 4).
+  # NOTE (2026-08-06, close-out audit -> recommendation recorded, NOT decided):
+  # the MIGRATE entry above conflicts with a merged record. Both sides are
+  # recorded here so the product authority can decide; the verdict is NOT
+  # flipped.
+  #   - Measured-keep side (PR #719, merged 2026-08-06 -- "Phase 2 verdict:
+  #     _constraint_types is not a pyo3-pyclass candidate (measured)";
+  #     evidence docs/evidence/2026-08-04-wave4-phase2-constraint-types-
+  #     verdict.md): the surface is declarative pydantic schema, not compute --
+  #     34 BaseModel subclasses, exactly 5 methods (~58 LOC of bodies), no
+  #     numpy / no accumulation / one float expression. Five load-bearing
+  #     pydantic behaviours break under a #[pyclass]: model_fields (the input
+  #     to the gen_config_reference CI gate), model_validate + ValidationError
+  #     at the sole YAML entry point (io/config_loader.py), model_dump, and
+  #     field constraints / extra="forbid" / frozen=True. Measured reads are
+  #     ~10-21x slower in Rust; three of the five methods have no production
+  #     call sites. #719 deliberately did NOT edit this ledger and calls the
+  #     document "the measured input for revising it". D6 admits a
+  #     JUSTIFIED-KEEP on a measured blocker -- this is the ledger's own
+  #     "measured verdict" branch of the JUSTIFIED-KEEP definition.
+  #   - Always-migrate side (product authority, recorded 2026-08-05 in this
+  #     file -- the pcl/** and router_v6 routing_results notes): the
+  #     authority's always-migrate stance overturns JUSTIFIED-KEEP records
+  #     (the ortools calls themselves stay Python-side per the Phase-1 KEEP,
+  #     argued in-source; the contract objects/parser/registry migrate). Under
+  #     that stance the MIGRATE phase-2 verdict stands until re-decided.
+  #   - Open decision (product authority): whether the measured #719 blocker
+  #     re-scopes _constraint_types to JUSTIFIED-KEEP (measured-verdict
+  #     branch) or the always-migrate stance keeps MIGRATE standing. The
+  #     ledger must name exactly one verdict per file; until this is decided
+  #     the coverage check cannot be trusted to adjudicate _constraint_types
+  #     either way. The recommendation is deliberately not made here. Full
+  #     reasoning in docs/evidence/2026-08-06-wave4-owned-surface-closeout.md
+  #     (Sec 1, Sec 4, Sec 6).
 
   # ---- Phase 3: formats / IO ----------------------------------------------
   - pattern: packages/temper-placer/src/temper_placer/io/**
@@ -162,16 +183,23 @@ surfaces:
     phase: 4
     note: >-
       thermal_potential and operating_point are named. scipy spsolve inside
-      this tree is a separate JUSTIFIED-KEEP (KTD9) recorded below.
-  # NOTE (2026-08-06, close-out audit): the phrase "recorded below" in the
-  # note above has no corresponding ledger entry -- the KTD9 scipy keep
-  # (physics/loop_area.py, and the spsolve call inside physics/thermal_fdm.py)
-  # is real and recorded in the plan + the physics-kernels VERIFICATION.md,
-  # but it is not a carve-out entry in this file, so a reader would search the
-  # ledger for a JUSTIFIED-KEEP entry that does not exist. The physics/**
-  # pattern covers those two files under MIGRATE today; the KTD9 keep is
-  # documented at the plan/VERIFICATION level, not here. Recorded as a
-  # correction comment, not a verdict flip. See
+      this tree is a separate JUSTIFIED-KEEP (KTD9): the scipy/SuperLU solve
+      stays Python-side, recorded in the Wave-4 plan (Phase 1 / R4 KTD9
+      contract) and the temper-thermal and temper-io-types VERIFICATION.md --
+      not as a ledger carve-out entry here, because the keep is a call-level
+      boundary inside physics/thermal_fdm.py and physics/loop_area.py whose
+      remaining compute the physics/** pattern claims as MIGRATE.
+  # NOTE (2026-08-06, close-out audit -> corrections): the phrase "recorded
+  # below" in the note above had no corresponding ledger entry -- the KTD9
+  # scipy keep (physics/loop_area.py, and the spsolve call inside
+  # physics/thermal_fdm.py) is real and recorded in the plan + the
+  # physics-kernels VERIFICATION.md, but it is not a carve-out entry in this
+  # file, so a reader would search the ledger for a JUSTIFIED-KEEP entry that
+  # does not exist. Corrected 2026-08-06 (close-out corrections): the note
+  # now says where the KTD9 record lives and why it is not a carve-out entry
+  # here (the keep is call-level, inside files the physics/** pattern claims
+  # as MIGRATE for their remaining compute -- a file-level carve-out would
+  # misrepresent both files). No verdict flipped. See
   # docs/evidence/2026-08-06-wave4-owned-surface-closeout.md (Sec 4).
   - pattern: packages/temper-placer/src/temper_placer/topological/**
     verdict: MIGRATE
@@ -448,29 +476,31 @@ surfaces:
   #
   # The two RETIRE entries (scripts/internal_route.py,
   # scripts/placement_quality_report.py) and their carve-outs from the
-  # scripts/*.py pattern below were removed when the deletion landed on
-  # 2026-08-04: this ledger records verdicts for files that exist, and an
-  # entry matching nothing is not a decision anyone can act on. The verdicts
-  # and their full justifications are preserved in
-  # docs/evidence/2026-08-04-wave4-residual-verdicts.md (Sec 9), which is the
-  # durable record; removing them here does not retract them.
+  # scripts/*.py pattern below were removed with the deletion (#708,
+  # 2026-08-04), re-added by #692 (2026-08-05) when that PR's pre-deletion
+  # branch state re-landed the carve-outs and RETIRE entries, and removed
+  # again on 2026-08-06 (close-out corrections): this ledger records verdicts
+  # for files that exist, and an entry matching nothing is not a decision
+  # anyone can act on. The verdicts and their full justifications are
+  # preserved in docs/evidence/2026-08-04-wave4-residual-verdicts.md (Sec 9),
+  # which is the durable record; removing them here does not retract them.
   - pattern: scripts/*.py
-    exclude:
-      - scripts/internal_route.py
-      - scripts/placement_quality_report.py
     verdict: JUSTIFIED-KEEP
-    # NOTE (2026-08-06, close-out audit): the two exclude: entries reference
-    # scripts/internal_route.py and scripts/placement_quality_report.py, both
-    # DELETED by #708 on 2026-08-04. #692 re-added these carve-outs after the
-    # deletion landed, so they now exempt nothing (the files do not exist) and
-    # read as live gaps that are already closed -- the same shape the repo's
-    # Sec 9.1 precedent says to remove ("an entry scoped to a file that no
-    # longer exists 'exempts nothing, and reads as a live gap that is already
-    # closed'"). The in-file comment above already claims these carve-outs
-    # "were removed"; the entry contradicts it. Candidates for removal on the
-    # repo's own precedent; left in place so this audit records, not edits.
-    # The gate's dead-exclude check is glob-shape-based and cannot see this.
-    # See docs/evidence/2026-08-06-wave4-owned-surface-closeout.md (Sec 4).
+    # NOTE (2026-08-06, close-out audit -> corrections): the exclude: entries
+    # for scripts/internal_route.py and scripts/placement_quality_report.py
+    # were REMOVED (this PR), together with the matching RETIRE entries. The
+    # audit recorded why they were dead: both scripts were DELETED by #708 on
+    # 2026-08-04; #692 re-added the carve-outs (and the RETIRE entries) after
+    # the deletion landed, so they exempted nothing (the files do not exist)
+    # and read as live gaps that are already closed -- the same shape the
+    # repo's Sec 9.1 precedent says to remove ("an entry scoped to a file
+    # that no longer exists 'exempts nothing, and reads as a live gap that is
+    # already closed'"). The removal restores the ledger's own convention
+    # (entries for files that exist only) and makes the section comment above
+    # true again. The gate's dead-exclude check is glob-shape-based and cannot
+    # see this class of staleness on its own; the removal is recorded here for
+    # the reader. See docs/evidence/2026-08-06-wave4-owned-surface-closeout.md
+    # (Sec 4).
     blocker: >-
       Fail-closed independence, bootstrap, and a measured CI cost -- and the
       first of those makes migration actively harmful, not merely unprofitable.
@@ -529,27 +559,12 @@ surfaces:
       they test move.
 
   # ---- benchmarks/ (decided 2026-08-04) -----------------------------------
-  - pattern: scripts/internal_route.py
-    verdict: RETIRE
-    justification: >-
-      Import-dead, verified 2026-08-04 by AST sweep of every top-level import
-      in scripts/ and benchmarks/. Imports `jax.numpy` (jax is not in any
-      dependency set) and eight names from `temper_placer.routing.*` plus
-      `temper_placer.io.trace_writer`, none of which exist -- the package was
-      renamed to router_v6 without this script following. It cannot be
-      imported, so it cannot have run since. Already noticed in passing by
-      scripts/check_no_raw_rotation_trig.py's own notes; superseded by
-      scripts/route_board.py, which says so in its docstring. Deletion is a
-      separate change -- this entry records the verdict only.
-  - pattern: scripts/placement_quality_report.py
-    verdict: RETIRE
-    justification: >-
-      Import-dead, same 2026-08-04 sweep. Unguarded module-level imports of
-      `temper_placer.losses.base` and `temper_placer.routing.analysis`;
-      neither package exists (both are JAX-era, retired). Manifest disposition
-      is shell-invoked, which is why the sunset clock missed it: that gate
-      keys off last_run dates and the invocation graph, not importability --
-      a gap worth closing separately. Deletion is a separate change.
+  # The two RETIRE entries (scripts/internal_route.py,
+  # scripts/placement_quality_report.py) that used to sit under this header
+  # were removed 2026-08-06 (close-out corrections) -- the scripts were
+  # deleted by #708, so the entries matched nothing. See the scripts/ section
+  # comment above and docs/evidence/2026-08-04-wave4-residual-verdicts.md
+  # (Sec 9), which preserves both verdicts and justifications in full.
   - pattern: benchmarks/**
     verdict: JUSTIFIED-KEEP
     blocker: >-
