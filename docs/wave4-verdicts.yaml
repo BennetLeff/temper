@@ -246,10 +246,99 @@ surfaces:
   - pattern: packages/temper-placer/src/temper_placer/pipeline/**
     verdict: MIGRATE
     phase: 5
+  # NOTE (2026-08-06, leaf-keeps ledger sync): the seven stage/geometry files
+  # excluded below were recorded JUSTIFIED-KEEP with named blockers by the
+  # #816 leaves-batch-2 records (packages/temper-design-bundle/VERIFICATION.md
+  # "Batch-2 remaining stages -- JUSTIFIED-KEEP records (R3-style, named
+  # blockers)"), but the records were never synced into this ledger -- the
+  # ledger kept claiming the whole deterministic/** tree as MIGRATE, so a
+  # reader could not see the keeps here. Each keep is now a carve-out with its
+  # own JUSTIFIED-KEEP entry and the blocker verbatim from the #816 record.
+  # No verdict flipped (keeps only).
   - pattern: packages/temper-placer/src/temper_placer/deterministic/**
     verdict: MIGRATE
     phase: 5
-    note: Deterministic state is Phase 2; the stages and their wiring are Phase 5.
+    note: >-
+      Deterministic state is Phase 2; the stages and their wiring are Phase 5.
+      #805 (component_assignment, layer_assignment, power_plane, routing_metrics,
+      sequential_routing_dataclasses), #816 (connectivity_validation,
+      drc_validation, drc_sweep, placement_validation, courtyard_check,
+      fine_pitch_escape, phased_component_assignment_validator) and the
+      slot_generation/zone_geometry/zone_assignment/grid_utils batch migrated the
+      leaf compute; routing_metrics + sequential_routing_dataclasses were later
+      deleted (R21, #830). The seven excludes below are the #816 keeps, each with
+      its own JUSTIFIED-KEEP entry. The deterministic orchestration hubs (state,
+      stages/base, stages/setup, feedback/{orchestrator,drc_runner},
+      instrumentation, flags, geometry/courtyard) carry R3-style records (hubs
+      evidence 2026-08-04) INSIDE this MIGRATE verdict, per the #767 record's
+      explicit note -- they stay under this pattern. Remaining genuinely unowned
+      plain leaf stages under this pattern (unowned + unblocked dispatch
+      candidates, flagged by the close-out audit): stages/_phase_core.py,
+      stages/_phase_rotation.py, stages/_phase_validation.py, stages/_phase_zones.py,
+      stages/_grid_stage.py, stages/via_validation.py,
+      stages/zone_aware_slot_generation.py (2,471 LOC total).
+    exclude:
+      - packages/temper-placer/src/temper_placer/deterministic/stages/apply_placements.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/config_attach.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/net_ordering.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/hv_lv_partition.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_assignment.py
+      - packages/temper-placer/src/temper_placer/deterministic/geometry/guard_strip.py
+  # #816 keeps -- the seven JUSTIFIED-KEEP records from the leaves-batch-2
+  # VERIFICATION.md (R3-style, named blockers), synced into the ledger
+  # 2026-08-06. Blockers are verbatim from that record; re-decidable when the
+  # named blocker falls (per R3/D6).
+  - pattern: packages/temper-placer/src/temper_placer/deterministic/stages/apply_placements.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      The pinned `dataclasses.replace()` consumer (recorded #816). It rebuilds
+      Component/Netlist via dataclasses.replace, which does not dispatch to a
+      pyclass `__replace__` (Python 3.12); the
+      test_dataclasses_replace_works_on_the_public_contracts pins remain green.
+      Nothing to migrate; the stage is orchestration over the public contracts.
+  - pattern: packages/temper-placer/src/temper_placer/deterministic/stages/config_attach.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      Zero compute (recorded #816): a pass-through that copies the parsed
+      config onto BoardState (state.with_config). No leaf kernel exists.
+  - pattern: packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      The deterministic leaf kernels are already Rust (recorded #816):
+      effective_creepage and closest_component_for_zone delegate to
+      temper-geometry grid_raster.rs; the remaining _grid_core/_grid_stage code
+      is data-structure + orchestration.
+  - pattern: packages/temper-placer/src/temper_placer/deterministic/stages/net_ordering.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      A 5-line delegation to router_v6.net_ordering.order_nets (recorded #816);
+      the actual compute lives in the router_v6 subsystem (361-line module),
+      outside the deterministic leaf scope.
+  - pattern: packages/temper-placer/src/temper_placer/deterministic/stages/hv_lv_partition.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      The region geometry (outline polygon, guard strip, area) is
+      shapely/GEOS (recorded #816); the only non-GEOS leaf is the
+      safety-category classification loop + creepage max, which is a handful of
+      lookups over the pydantic rules -- no bit-exact kernel worth crossing the
+      boundary for.
+  - pattern: packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_assignment.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      The assignment algorithm depends on
+      temper_placer.constraints.compiler.ConstraintCompiler (filter/scorer),
+      shapely polygons and validation.drc_fence.InvariantSpec -- all
+      out-of-scope surfaces (recorded #816). Its validator was migrated
+      (slot-grid kernels, batch 2: phased_component_assignment_validator.py).
+  - pattern: packages/temper-placer/src/temper_placer/deterministic/geometry/guard_strip.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      shapely/GEOS buffer/difference (recorded #816). GEOS is the documented
+      non-reimplementable library-semantics precedent (same ruling as the
+      phase-4 validation trace_analyzer ConvexHull / geometric zone predicate;
+      also recorded in the #767 deterministic-hubs R3 record for this file:
+      GEOS buffer(r).bounds is NOT bounds +- r, 169/169 mismatches).
   - pattern: packages/temper-placer/src/temper_placer/cli/**
     verdict: MIGRATE
     phase: 5
