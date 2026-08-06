@@ -213,9 +213,19 @@ Expected outcomes, in order:
 
 Commit with a message naming the runs appended (e.g. `perf(ab): baseline
 rows for the 11 Wave-4 NO_BASELINE arms from CI runs <ids>`), open the PR,
-and merge. The workflow's own gate on that PR will confirm end-to-end: the PR
-run emits the same 13 arms and compares them against the now-populated
-baseline fetched from `main`.
+and merge. Do not expect the append PR's own gate run to go green: the
+comparator fetches the baseline from `main`, never from the PR checkout
+(`pr-perf-check.yml` "Fetch the committed baseline from main" --
+`pr-perf-check.yml:133-172`), and `main` still lacks the appended rows until
+this PR merges -- so the PR run reports `NO_BASELINE` for the new arms and
+fails the hard gate red, for exactly the keys the PR is about to baseline.
+That red is expected and does not invalidate the append: the end-to-end
+verification is step 6's local pre/post comparison in the PR body (the
+comparator run against the PR's own baseline file, which *includes* the
+appended rows -- zero `NO_BASELINE`), and the gate turns green only after the
+baseline lands on `main`, on the first subsequent PR that touches the trigger
+paths, which finally compares against the now-populated baseline fetched from
+`main`.
 
 ---
 
