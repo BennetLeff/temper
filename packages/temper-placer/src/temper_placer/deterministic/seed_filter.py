@@ -9,13 +9,33 @@ anywhere a seed candidate is being evaluated.
 @req(2026-06-23-004, R1)
 @req(2026-06-23-004, K1)
 @req(2026-06-23-004, K2)
+
+Wave 4, **Phase 5** (deterministic hubs slice): the accept/reject fold is
+implemented in Rust in the ``temper-design-bundle`` crate
+(``temper_design_bundle_python.deterministic_hubs.filter_seed_kernel``). This
+module keeps the pre-migration public API unchanged and delegates.
+
+Bit-exactness: the kernel iterates the seed in insertion order (first-failure
+short circuit — the accept/reject outcome is order-invariant, pinned by the
+shuffled-seed differential), applies the stricter HV threshold to refs in
+``hv_refs``, uses ``score >= limit`` equality-reject semantics, and clamps
+out-of-bounds scores to ``0.0`` via the same CPython floor-division as the
+BottleneckMap kernel. Verified by
+``tests/deterministic/test_seed_filter_rust_differential.py`` (oracle:
+``tests/deterministic/_seed_filter_py_oracle.py``) and the PBT suite
+``tests/deterministic/test_seed_filter_pbt.py``; the structural proof is in
+``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
 
 from collections.abc import Mapping
 
+import temper_design_bundle_python as _tdb
+
 from temper_placer.deterministic.bottleneck_map import BottleneckMap
+
+_DH = _tdb.deterministic_hubs
 
 
 def filter_seed(
@@ -44,10 +64,15 @@ def filter_seed(
         ``True`` if all refs in the seed pass their threshold, ``False``
         if any ref meets or exceeds its threshold.
     """
-    for ref, position in seed.items():
-        x, y = position
-        score = bottleneck_map.score_at(x, y)
-        limit = hv_threshold if ref in hv_refs else threshold
-        if score >= limit:
-            return False
-    return True
+    return _DH.filter_seed_kernel(
+        dict(seed),
+        bottleneck_map.cell_size_mm,
+        bottleneck_map.width,
+        bottleneck_map.height,
+        bottleneck_map.origin_xy[0],
+        bottleneck_map.origin_xy[1],
+        list(bottleneck_map.scores),
+        threshold,
+        hv_threshold,
+        set(hv_refs),
+    )

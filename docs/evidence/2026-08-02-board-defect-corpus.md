@@ -1,4 +1,4 @@
-<!-- provenance: commit=d3e99b153baff07f1a162856cd20ba0ac27be750 dirty=true (measured in the p1/board-defect-corpus worktree at the validation/p1-execution base commit; the committed board pcb/temper.kicad_pcb was byte-identical to HEAD throughout -- board sha256 e2fb92370da13554710e00857ad03a460340a2ee4f1782220f02c8c552c80277 -- only the corpus branch's own new files were uncommitted, none of them touching the board.) -->
+<!-- provenance: commit=a2e54f76e9f8d86fd3113b3595f1258a6af64b7c dirty=false (re-pointed 2026-08-05: the originally-cited d3e99b153baff07f1a162856cd20ba0ac27be750 was a pre-rebase validation/p1-execution branch commit, orphaned by force-push; this doc and the corpus landed on main at a2e54f76e9f8d86fd3113b3595f1258a6af64b7c, which is the cited commit. Measurement context: the corpus ran in the p1/board-defect-corpus worktree; the committed board pcb/temper.kicad_pcb was byte-identical to HEAD throughout -- board sha256 e2fb92370da13554710e00857ad03a460340a2ee4f1782220f02c8c552c80277.) -->
 
 # Board-Defect Mutation Corpus — first reproduction (R38)
 
