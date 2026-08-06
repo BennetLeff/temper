@@ -270,6 +270,23 @@ _C = "components"
 _N = "nets"
 
 ANALYZE_DESIGNS: list[dict] = [
+    # initial_side is READ by pin_world_position_at -- a bottom-side pad
+    # mirrors X BEFORE rotation -- and this kernel omitted the mirror until
+    # 2026-08-06, justified by "the corpus carries no initial_side". That was
+    # true of the fixtures and false of any real board. Same defect class as
+    # escape_via.rs (roundrect_ratio) and net_ordering.rs (initial_side).
+    {
+        "label": "mixed_side_mirror",
+        "components": [
+            ("U1", (2.0, 2.0), 0, [("1", (1.0, 0.0), "N1")], 0),
+            ("U2", (6.0, 2.0), 0, [("1", (1.0, 0.0), "N1")], 1),
+        ],
+        "nets": [("N1", [("U1", "1"), ("U2", "1")])],
+        "board": (10.0, 10.0),
+        "cell": 1.0,
+        "capacity": 10.0,
+        "layers": 1,
+    },
     {
         "label": "empty",
         "board": (10.0, 10.0),
