@@ -511,14 +511,14 @@ pub fn count_connected_layers(
             }
         }
 
-        if !connected_layers.contains(layer) {
-            if let Some(pts) = pin_index.get(layer) {
-                for &(px, py) in pts {
-                    let dist_sq = pow(vx - px, 2.0) + pow(vy - py, 2.0);
-                    if dist_sq <= tol_sq {
-                        connected_layers.insert(layer.clone());
-                        break;
-                    }
+        if !connected_layers.contains(layer)
+            && let Some(pts) = pin_index.get(layer)
+        {
+            for &(px, py) in pts {
+                let dist_sq = pow(vx - px, 2.0) + pow(vy - py, 2.0);
+                if dist_sq <= tol_sq {
+                    connected_layers.insert(layer.clone());
+                    break;
                 }
             }
         }

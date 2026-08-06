@@ -76,7 +76,6 @@ def test_p4_degenerate_segment_equals_point_distance(px, py, p):
 @given(_COORD, _COORD, _POLY)
 @settings(max_examples=200, deadline=None)
 def test_p5_mdp_is_min_over_edges(x, y, polygon):
-    edges = [0] * len(polygon)
     best = float("inf")
     for i in range(len(polygon)):
         d = RS_PTSD(x, y, polygon[i], polygon[(i + 1) % len(polygon)])

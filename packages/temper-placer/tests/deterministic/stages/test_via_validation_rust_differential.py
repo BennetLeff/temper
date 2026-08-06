@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_drc_rs as _drc
 import tests.deterministic.stages._via_validation_py_oracle as _oracle
 from tests.core._contract_canon import canon
@@ -68,10 +67,19 @@ def test_count_trace_just_outside_tolerance():
 
 
 def test_count_trace_exactly_on_boundary():
-    """dist_sq == tol_sq counts as connected (<=)."""
-    tol = 0.1
-    tx = 1.0 + tol  # dist = tol exactly -> dist_sq == tol*tol
-    _assert_count((1.0, 1.0), ["F.Cu"], tol, {"F.Cu": [(tx, 1.0)]}, {}, False, set())
+    """dist_sq == tol_sq counts as connected (<=). tol=0.5 and dy=0.5 are
+    exactly representable, so pow(0.5, 2.0) == tol*tol == 0.25 bit-exactly."""
+    tol = 0.5
+    ty = 1.0 + tol  # dist = 0.5 exactly -> dist_sq == tol*tol
+    _assert_count((1.0, 1.0), ["F.Cu"], tol, {"F.Cu": [(1.0, ty)]}, {}, False, set())
+
+
+def test_count_pin_exactly_on_boundary():
+    """The PIN-sweep boundary is the same <= : a pin at exactly dist == tol
+    connects its layer (kills the pin-sweep `<=` -> `<` mutant M12)."""
+    tol = 0.5
+    py = 1.0 + tol
+    _assert_count((1.0, 1.0), ["F.Cu"], tol, {}, {"F.Cu": [(1.0, py)]}, False, set())
 
 
 def test_count_two_layers():

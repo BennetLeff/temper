@@ -1122,3 +1122,74 @@ implies distance > radius" argument is false for round-to-nearest cells
 distance 7.6 <= 8.5, reachable only through the ceil window). It is killed
 by `test_within_radius_ceil_only_zone`. See the evidence doc
 `docs/evidence/2026-08-06-wave4-phase5-batch2-mutation-sweep.md`.
+
+# Wave 4 Phase 5 — via_validation kernels (`deterministic_leaf_drc.rs`)
+
+The final unowned deterministic helper/stage slice (2026-08-06). The two
+via-validation kernels moved here (`count_connected_layers` and
+`dedup_via_positions`, registered top-level on `temper_drc_rs` as
+`count_connected_layers_py` / `dedup_via_positions_py`):
+
+| Kernel | Python origin | Rust function |
+|---|---|---|
+| via layer-connectivity count | `deterministic/stages/via_validation.py` → `ViaValidationStage._count_connected_layers` | `count_connected_layers` |
+| via position dedup | same → `ViaDeduplicationStage.run`'s sweep | `dedup_via_positions` |
+
+The Python stage is a delegation shim; the trace/pin endpoint-index building,
+the plane-net predicate (`_is_plane_net`), and the `frozenset` wraps stay
+Python. The pre-migration implementations are pinned VERBATIM as the oracle
+(`tests/deterministic/stages/_via_validation_py_oracle.py`).
+
+## Home-crate decision
+
+`temper-drc-rs` hosts the DRC-check stage kernels (courtyard_check /
+drc_sweep / drc_validation / placement_validation, batch 2). Dangling-via
+removal and via dedup are DRC-cleanup validation compute — the same home-crate
+line. The `** 2` distance terms resolve libm `pow` via `crate::pymath`.
+
+## Induction applicability
+
+Mathematical induction is not applicable: neither kernel is recursive. Per
+R1e, a **structural proof** is recorded instead.
+
+## Structural proof (bit-identical parity)
+
+1. **The `tol * tol` vs `tolerance ** 2` split is pinned.** `count_connected_layers`
+   computes `tol_sq = tol * tol` (PLAIN MULTIPLY — the oracle does not use
+   `**` there), while `dedup_via_positions` computes `tol_sq = tolerance ** 2`
+   (libm `pow`). The two kernels deliberately differ; the differential drives
+   both against the verbatim oracle so a `**`↔`*` swap in either fails.
+2. **`** 2` distance terms.** Every distance is `(vx - tx) ** 2` via
+   `crate::pymath::pow`; the boundary is `<= tol_sq` with a first-hit `break`
+   (`test_count_trace_exactly_on_boundary`, `test_dedup_boundary`; mutants
+   M12/M13 flip `<=` to `<` and are killed).
+3. **Plane-layer auto-connect is gated on `is_plane`.** A signal net on a
+   plane layer still needs a trace/pin (`test_count_non_plane_net_plane_layer_needs_trace`;
+   mutant M11 drops the gate and is killed). Layers in `via.layers` are
+   unique, so the oracle's `connected_layers` set semantics collapse to a
+   per-layer `insert` (the trace sweep and the pin sweep are mutually
+   exclusive per layer via the `!connected_layers.contains(layer)` check).
+4. **Dedup is first-seen-wins in input order and returns kept INDICES** so
+   the shim recovers the original `Via` objects by index — object identity
+   matters when two vias share an exact position (the oracle keeps the FIRST
+   via object; an index-free position map could return the wrong one).
+
+## Evidence
+
+- Differential (R1a): `test_via_validation_rust_differential.py` — 22 cases,
+  bit-exact against the verbatim oracle.
+- PBT (R1c/R1d): `test_via_validation_pbt.py` — 5 properties + 3 MRs,
+  including an independent dedup coverage/separation cross-check.
+- Rust unit tests: existing `deterministic_leaf_drc.rs::tests` plus the
+  shared pymath pins.
+- Anti-vacuity: mutants M11–M13 in `scripts/phase5_final_leaves_mutations.py`,
+  all killed (see `docs/evidence/2026-08-06-wave4-phase5-final-leaves-mutation-sweep.md`).
+- R1b: the stage shims keep their public signatures; the full
+  `tests/deterministic/` suite (963 cases) is green. Pure-delegation carve-out:
+  no regression beyond CI noise expected.
+- R1f: the differential's first commit failed at collection (missing
+  `count_connected_layers_py` / `dedup_via_positions_py`) before the kernels
+  landed.
+- R1g: borrow-over-clone; no `unwrap` outside tests; pyo3 default
+  `catch_unwind` at the boundary (per the crate's documented convention).
+- R1h: not applicable — no physics-gated quantity (recorded N/A).

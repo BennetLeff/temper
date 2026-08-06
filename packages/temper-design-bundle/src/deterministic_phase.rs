@@ -186,10 +186,10 @@ pub fn compute_wirelength(
         }
         let mut positions: Vec<(f64, f64)> = vec![candidate_slot];
         for (ref_, _) in pins {
-            if ref_ != component_ref {
-                if let Some(p) = current_placements.get(ref_) {
-                    positions.push(*p);
-                }
+            if ref_ != component_ref
+                && let Some(p) = current_placements.get(ref_)
+            {
+                positions.push(*p);
             }
         }
         if positions.len() > 1 {
@@ -282,8 +282,13 @@ pub fn find_critical_bottleneck_violations(
             continue;
         }
         let key = (*bx, *by);
-        let existing = critical_by_cell.get(&key);
-        if existing.is_none() || *score > existing.unwrap().1 {
+        // The oracle's `existing is None or bn.score > existing.score` with
+        // the FIRST bottleneck kept on score ties.
+        let replaces = match critical_by_cell.get(&key) {
+            Some((_, existing_score)) => *score > *existing_score,
+            None => true,
+        };
+        if replaces {
             critical_by_cell.insert(key, (layer.clone(), *score));
         }
     }
@@ -416,6 +421,7 @@ pub fn point_in_polygon_py(
 }
 
 /// The module-level `_slot_intersects_iso` — inclusive AABB-vs-AABB test.
+#[allow(clippy::type_complexity)]
 pub fn slot_intersects_iso(
     slot: (f64, f64),
     iso_aabbs: &[((f64, f64), (f64, f64))],
@@ -628,11 +634,24 @@ mod tests {
         assert_eq!(compute_wirelength("U1", (0.0, 0.0), &net_pins, &placements), 40.0);
     }
 
+    fn viols(
+        placements: &[(String, Option<(f64, f64)>)],
+        bns: &[(i64, i64, String, String, f64)],
+        cell_um: f64,
+        w: i64,
+        h: i64,
+    ) -> Vec<(String, i64, i64, String, String)> {
+        match find_critical_bottleneck_violations(placements, bns, cell_um, w, h) {
+            Ok(out) => out,
+            Err(_) => unreachable!("finite test inputs never produce an index error"),
+        }
+    }
+
     #[test]
     fn critical_violations_basic() {
         let placements = vec![("R1".to_string(), Some((0.5, 0.5)))];
         let bns = vec![(0i64, 0i64, "F.Cu".to_string(), "CRITICAL".to_string(), 1.0)];
-        let out = find_critical_bottleneck_violations(&placements, &bns, 1000.0, 5, 5).unwrap();
+        let out = viols(&placements, &bns, 1000.0, 5, 5);
         assert_eq!(out, vec![("R1".to_string(), 0, 0, "F.Cu".to_string(), "CRITICAL".to_string())]);
     }
 
@@ -644,7 +663,7 @@ mod tests {
             (0i64, 0i64, "F.Cu".to_string(), "CRITICAL".to_string(), 0.9),
             (0i64, 0i64, "B.Cu".to_string(), "MEDIUM".to_string(), 0.5),
         ];
-        let out = find_critical_bottleneck_violations(&placements, &bns, 1000.0, 5, 5).unwrap();
+        let out = viols(&placements, &bns, 1000.0, 5, 5);
         assert_eq!(out[0].4, "MEDIUM");
     }
 
@@ -653,7 +672,7 @@ mod tests {
         let placements = vec![("R1".to_string(), Some((-0.001, 0.0)))];
         let bns = vec![(0i64, 0i64, "F.Cu".to_string(), "CRITICAL".to_string(), 1.0)];
         // gx = -1 -> out of grid -> skipped.
-        assert!(find_critical_bottleneck_violations(&placements, &bns, 1000.0, 5, 5).unwrap().is_empty());
+        assert!(viols(&placements, &bns, 1000.0, 5, 5).is_empty());
     }
 
     #[test]

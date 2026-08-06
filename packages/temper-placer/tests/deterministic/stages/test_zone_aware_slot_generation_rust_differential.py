@@ -25,7 +25,6 @@ Numerical traps pinned here:
 from __future__ import annotations
 
 import random
-import struct
 
 import pytest
 import temper_design_bundle_python as _tdb

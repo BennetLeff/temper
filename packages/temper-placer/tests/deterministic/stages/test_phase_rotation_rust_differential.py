@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_design_bundle_python as _tdb
 import tests.deterministic.stages._phase_rotation_py_oracle as _oracle
 from tests.core._contract_canon import canon

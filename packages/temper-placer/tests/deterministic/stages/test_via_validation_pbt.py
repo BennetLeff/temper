@@ -63,7 +63,7 @@ def test_p2_zero_when_far(pos, layers):
     if not layers:
         return
     # Every trace point placed 100+ mm away from the via: no layer connects.
-    trace = {l: [(pos[0] + 100.0 + i, pos[1] - 100.0)] for i, l in enumerate(layers)}
+    trace = {layer: [(pos[0] + 100.0 + i, pos[1] - 100.0)] for i, layer in enumerate(layers)}
     assert _count(pos, layers, 0.1, trace, {}, False) == 0
 
 
@@ -113,10 +113,10 @@ def test_mr1_layer_relabeling(pos, layers, trace, is_plane):
     if not layers:
         return
     renaming = {"F.Cu": "TOP", "In1.Cu": "IN_1", "In2.Cu": "IN_2", "B.Cu": "BOT"}
-    relabeled = {renaming.get(l, l): pts for l, pts in trace.items()}
-    rel_layers = [renaming.get(l, l) for l in layers]
+    relabeled = {renaming.get(layer, layer): pts for layer, pts in trace.items()}
+    rel_layers = [renaming.get(layer, layer) for layer in layers]
     base = _count(pos, layers, 0.1, trace, {}, is_plane)
-    got = RS_COUNT(pos, rel_layers, 0.1, relabeled, {}, is_plane, [renaming.get(l, l) for l in _PLANE])
+    got = RS_COUNT(pos, rel_layers, 0.1, relabeled, {}, is_plane, [renaming.get(layer, layer) for layer in _PLANE])
     assert got == base
 
 
@@ -125,9 +125,9 @@ def test_mr1_layer_relabeling(pos, layers, trace, is_plane):
 def test_mr2_far_point_irrelevance(pos, layers, fx, fy):
     if not layers:
         return
-    l = layers[0]
-    near = {l: [(pos[0] + 0.01, pos[1] + 0.01)]}
-    far = {l: [(pos[0] + 0.01, pos[1] + 0.01), (fx + 1000.0, fy - 1000.0)]}
+    layer = layers[0]
+    near = {layer: [(pos[0] + 0.01, pos[1] + 0.01)]}
+    far = {layer: [(pos[0] + 0.01, pos[1] + 0.01), (fx + 1000.0, fy - 1000.0)]}
     assert _count(pos, layers, 0.1, near, {}, False) == _count(pos, layers, 0.1, far, {}, False)
 
 

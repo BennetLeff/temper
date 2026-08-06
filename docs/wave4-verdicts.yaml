@@ -266,17 +266,18 @@ surfaces:
       fine_pitch_escape, phased_component_assignment_validator) and the
       slot_generation/zone_geometry/zone_assignment/grid_utils batch migrated the
       leaf compute; routing_metrics + sequential_routing_dataclasses were later
-      deleted (R21, #830). The seven excludes below are the #816 keeps, each with
+      deleted (R21, #830). The excludes below are the #816 keeps, each with
       its own JUSTIFIED-KEEP entry. The deterministic orchestration hubs (state,
       stages/base, stages/setup, feedback/{orchestrator,drc_runner},
       instrumentation, flags, geometry/courtyard) carry R3-style records (hubs
       evidence 2026-08-04) INSIDE this MIGRATE verdict, per the #767 record's
-      explicit note -- they stay under this pattern. Remaining genuinely unowned
-      plain leaf stages under this pattern (unowned + unblocked dispatch
-      candidates, flagged by the close-out audit): stages/_phase_core.py,
-      stages/_phase_rotation.py, stages/_phase_validation.py, stages/_phase_zones.py,
-      stages/_grid_stage.py, stages/via_validation.py,
-      stages/zone_aware_slot_generation.py (2,471 LOC total).
+      explicit note -- they stay under this pattern. The final unowned slice
+      (2026-08-06, #848) resolved the remaining seven helper/stage files: the
+      phase-mixin kernels (_phase_rotation/_phase_zones/_phase_validation),
+      via_validation and zone_aware_slot_generation migrated under this verdict
+      (temper-design-bundle deterministic_phase + temper-drc-rs via kernels),
+      and _phase_core.py + _grid_stage.py were recorded JUSTIFIED-KEEP with the
+      named blockers below. The unowned surface is now exhaustively closed.
     exclude:
       - packages/temper-placer/src/temper_placer/deterministic/stages/apply_placements.py
       - packages/temper-placer/src/temper_placer/deterministic/stages/config_attach.py
@@ -285,6 +286,8 @@ surfaces:
       - packages/temper-placer/src/temper_placer/deterministic/stages/hv_lv_partition.py
       - packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_assignment.py
       - packages/temper-placer/src/temper_placer/deterministic/geometry/guard_strip.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/_phase_core.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/_grid_stage.py
   # #816 keeps -- the seven JUSTIFIED-KEEP records from the leaves-batch-2
   # VERIFICATION.md (R3-style, named blockers), synced into the ledger
   # 2026-08-06. Blockers are verbatim from that record; re-decidable when the
@@ -339,6 +342,41 @@ surfaces:
       phase-4 validation trace_analyzer ConvexHull / geometric zone predicate;
       also recorded in the #767 deterministic-hubs R3 record for this file:
       GEOS buffer(r).bounds is NOT bounds +- r, 169/169 mismatches).
+  # Final unowned slice (2026-08-06, #848): the two remaining unowned files
+  # recorded JUSTIFIED-KEEP with named blockers. Both were flagged UNDECIDED by
+  # the close-out audit and are now decided; each keeps a concrete blocker
+  # (D6). Re-decidable when the named blocker falls.
+  - pattern: packages/temper-placer/src/temper_placer/deterministic/stages/_phase_core.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      Hard ConstraintCompiler dependency in __init__ (mirrors the
+      phased_component_assignment keep, recorded #816): __init__ builds
+      temper_placer.constraints.compiler.ConstraintCompiler and calls
+      compile_to_slot_filter()/compile_to_slot_scorer() -- the out-of-scope
+      ortools/constraints surface -- and run() invokes
+      validation.drc_fence.InvariantSpec (also out-of-scope). The residual
+      compute (_reserve_slots loop, _distance, _get_footprint_radius sqrt) is
+      a handful of trivial helpers bound to the mixin's used_slots set
+      mutation -- no bit-exact kernel worth crossing the boundary for
+      (same ruling as hv_lv_partition's classification-loop carve-out,
+      recorded #816). Triaged NEVER-PORT in the dispatch; decided JUSTIFIED-KEEP
+      with this named blocker (the file's own compute is orchestration; the
+      mixin kernels that WERE portable -- ghost-pad reduction, HPWL,
+      critical-bottleneck violations -- migrated to temper-design-bundle in
+      the same slice).
+  - pattern: packages/temper-placer/src/temper_placer/deterministic/stages/_grid_stage.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      All leaf kernels are already Rust (recorded #816, same ruling as the
+      clearance_grid.py keep): ClearanceGrid rasterizes via temper-geometry
+      grid_raster.rs (_grid_core block_rect/block_circle), _grid_hv delegates
+      hv_pad_set/effective_creepage/closest_component_for_zone, and _grid_fence
+      delegates fence_samples -- all temper-geometry. The remaining _grid_stage
+      code (net->pads dict assembly, the rect-vs-circle blocking dispatch, the
+      EXP-13 exclusion-zone cell marking) is data-structure + orchestration
+      over those kernels. The only non-delegating leaf is _get_clearance_for_net
+      (net-class dict lookups + an inner-layer cap) -- no bit-exact kernel
+      worth crossing the boundary for.
   - pattern: packages/temper-placer/src/temper_placer/cli/**
     verdict: MIGRATE
     phase: 5
