@@ -5,6 +5,14 @@ on:
   push:
     branches: [main]
 
+# release-please always derives the release PR from the CURRENT state of main,
+# so a superseded run can only recompute what the newer run already will.
+# Without a group these accumulate one per push: five were queued at once on
+# 2026-08-06, each holding a slot against a ~24-job account ceiling.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   pull-requests: write
