@@ -54,7 +54,8 @@
 //!
 //! Error-parity helpers: `py_unpack_2` transcribes CPython's UNPACK_SEQUENCE
 //! (the seed position unpack and the zone-config `max_size` unpack, including
-//! the rewritten `cannot unpack non-iterable <T> object` TypeError),
+//! the rewritten `cannot unpack non-iterable <T> object` TypeError and the
+//! bounded at-most-3-item consume of `_PyUnpackIterable`),
 //! `coerce_position_elem`/`coerce_max_size_elem` reproduce the oracle's
 //! arithmetic TypeErrors for non-numeric elements, and the zone-config
 //! `can_expand` / DRC `items` reads use Python iteration semantics. The
@@ -154,8 +155,13 @@ fn type_name_of(obj: &Bound<'_, PyAny>) -> String {
 /// `PyObject_GetIter`, but UNPACK_SEQUENCE REWRITES the TypeError for
 /// non-iterables into `cannot unpack non-iterable <T> object` (ceval.c
 /// `UNPACK_SEQUENCE`) — the generic `'<T>' object is not iterable` message is
-/// what a plain `for` loop raises, not an unpack. Short/long iterables raise
-/// the exact not-enough/too-many `ValueError` texts; strings iterate to
+/// what a plain `for` loop raises, not an unpack. The consume is BOUNDED like
+/// CPython's `_PyUnpackIterable`: at most THREE items are fetched — the first
+/// two, then ONE peek to decide "too many" — and the iterable is never
+/// drained past that, so an infinite iterator raises the oracle's ValueError
+/// instead of hanging and a 4+ item generator is left un-consumed after the
+/// third (both pinned by the differential). Short/long iterables raise the
+/// exact not-enough/too-many `ValueError` texts; strings iterate to
 /// characters and dicts to keys, exactly like the oracle's unpack sites (the
 /// seed positions `x, y = position` and the zone-config `max_width, max_height
 /// = max_size`).
@@ -163,7 +169,7 @@ fn py_unpack_2<'py>(
     py: Python<'py>,
     obj: &Bound<'py, PyAny>,
 ) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyAny>)> {
-    let iter = match obj.try_iter() {
+    let mut iter = match obj.try_iter() {
         Ok(it) => it,
         Err(err) if err.is_instance_of::<PyTypeError>(py) => {
             return Err(PyTypeError::new_err(format!(
@@ -173,17 +179,33 @@ fn py_unpack_2<'py>(
         }
         Err(err) => return Err(err),
     };
-    let items = iter.collect::<PyResult<Vec<_>>>()?;
-    if items.len() < 2 {
-        return Err(PyValueError::new_err(format!(
-            "not enough values to unpack (expected 2, got {})",
-            items.len()
-        )));
+    // `next()` yields `None` on StopIteration (iterator exhausted) and
+    // `Some(Err)` for any other `__next__` exception, which is propagated —
+    // exactly `_PyUnpackIterable`'s per-item error handling.
+    let first = match iter.next() {
+        Some(Ok(item)) => item,
+        Some(Err(err)) => return Err(err),
+        None => {
+            return Err(PyValueError::new_err(
+                "not enough values to unpack (expected 2, got 0)",
+            ));
+        }
+    };
+    let second = match iter.next() {
+        Some(Ok(item)) => item,
+        Some(Err(err)) => return Err(err),
+        None => {
+            return Err(PyValueError::new_err(
+                "not enough values to unpack (expected 2, got 1)",
+            ));
+        }
+    };
+    // Peek a third item ONLY to decide "too many" — never consume further.
+    match iter.next() {
+        Some(Ok(_)) => Err(PyValueError::new_err("too many values to unpack (expected 2)")),
+        Some(Err(err)) => Err(err),
+        None => Ok((first, second)),
     }
-    if items.len() > 2 {
-        return Err(PyValueError::new_err("too many values to unpack (expected 2)"));
-    }
-    Ok((items[0].clone(), items[1].clone()))
 }
 
 /// Coerce one unpacked seed-position element as the oracle's `x - origin_x`
