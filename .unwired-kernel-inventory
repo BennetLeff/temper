@@ -8,7 +8,10 @@
 # <symbol>\t<reason>
 
 HypergraphBuildResult	unwired at time of recording; no reason given
+NetMetrics	PR #835 deleted the R21 zero-importer shims that were these pyclasses' only callers. Registered by routing_metrics.rs (#805) and now reachable from tests alone. Either wire a consumer or delete the Rust; ledgered so the gate stays honest meanwhile.
 PyCompiler	unwired at time of recording; no reason given
+RoutingMetrics	PR #835 deleted the R21 zero-importer shims that were these pyclasses' only callers. Registered by routing_metrics.rs (#805) and now reachable from tests alone. Either wire a consumer or delete the Rust; ledgered so the gate stays honest meanwhile.
+SegmentMetrics	PR #835 deleted the R21 zero-importer shims that were these pyclasses' only callers. Registered by routing_metrics.rs (#805) and now reachable from tests alone. Either wire a consumer or delete the Rust; ledgered so the gate stays honest meanwhile.
 add_endpoint_nudge_py	unwired at time of recording; no reason given
 assign_components_to_slots_py	unwired at time of recording; no reason given
 build_adjacency_flat	unwired at time of recording; no reason given
