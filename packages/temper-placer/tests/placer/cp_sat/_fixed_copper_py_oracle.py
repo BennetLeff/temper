@@ -1,3 +1,21 @@
+# PINNED ORACLE -- verbatim `git show` copy, unmodified below this header.
+#
+# Source: packages/temper-placer/src/temper_placer/placer/cp_sat/fixed_copper.py
+# Extraction commit: 1dd54e3f2cc58e9dd6cbc5b3c54d68b4d0374ae9 (origin/main,
+# 2026-08-04 -- the pre-migration implementation this Wave-4 Rust port
+# (packages/temper-geometry/src/fixed_copper.rs) must reproduce bit-
+# identically for the ported functions).
+#
+# DO NOT EDIT ANYTHING BELOW THIS HEADER. This is the oracle the
+# differential (`test_fixed_copper_rust_differential.py`) compares the Rust
+# arm against, via `tests.router_v6._signature.sig`. Editing the pinned body
+# to make a test pass silently weakens the differential proof; if the
+# module's contract changes, re-pin from the new base instead.
+#
+# Only this header (all `#`-comment lines, so no statement of the pinned
+# module is touched) was added; every line below is byte-identical to the
+# extraction commit.
+
 """Pad-vs-fixed-copper NoOverlap constraint for CP-SAT placement (issue #523, R24).
 
 **The gap this closes.** The placer's constraint vocabulary separates
@@ -251,10 +269,9 @@ is load-bearing; see the evidence doc.
 from __future__ import annotations
 
 import logging
+import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
-
-import temper_geometry as _tg
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.model import CpSatModel
@@ -309,12 +326,11 @@ def _mm_to_units(mm: float) -> int:
     exists so sizes stay even for the model's midpoint constraint. The
     diagonal-edge builder uses this so the half-plane vertices sit on the
     same integer grid as the pad variables the CP-SAT encoding uses.
-
-    Computed in the ``temper-geometry`` Rust crate (``fixed_copper.rs``)
-    with the exact round-half-even + even-parity operation order of the
-    former pure-Python body.
     """
-    return _tg.fixed_copper_mm_to_units_py(mm)
+    raw = round(mm * _UNITS_PER_MM)
+    if raw % 2:
+        raw -= 1
+    return raw
 
 
 # Diagonal-edge half-planes are computed at 100x the model resolution
@@ -334,11 +350,8 @@ def _mm_to_fine_units(mm: float) -> int:
     """Round a mm coordinate to the fine (0.0001 mm) integer grid used by
     the diagonal half-plane builder. Round-half-even (Python round); no
     even-parity adjustment -- that exists only for model *sizes* (the
-    midpoint constraint), not for vertices.
-
-    Computed in the ``temper-geometry`` Rust crate.
-    """
-    return _tg.fixed_copper_mm_to_fine_units_py(mm)
+    midpoint constraint), not for vertices."""
+    return round(mm * _FINE_UNITS_PER_MM)
 
 
 @dataclass(frozen=True)
@@ -460,9 +473,12 @@ def _pin_copper_layers(pin: Any) -> frozenset[str]:
     Through-hole pads (``layer == "all"`` or ``is_pth``) sit on all four
     copper layers; SMD pads on their declared copper layer.
     """
-    is_pth = getattr(pin, "is_pth", False)
+    if getattr(pin, "is_pth", False) or getattr(pin, "layer", None) == "all":
+        return COPPER_LAYERS
     layer = getattr(pin, "layer", None)
-    return frozenset(_tg.fixed_copper_pin_copper_layers_py(is_pth, layer))
+    if layer in COPPER_LAYERS:
+        return frozenset({layer})
+    return frozenset()
 
 
 def _local_pad_half(pin: Any) -> tuple[float, float]:
@@ -474,10 +490,13 @@ def _local_pad_half(pin: Any) -> tuple[float, float]:
     rotation (``pad_rotation_deg``), the *axis-aligned bounding box* of the
     rotated rectangle is used — a conservative superset of the real copper.
     """
-    width = float(getattr(pin, "width", 1.0))
-    height = float(getattr(pin, "height", 1.0))
-    pad_rotation_deg = float(getattr(pin, "pad_rotation_deg", 0.0))
-    return _tg.fixed_copper_local_pad_half_py(width, height, pad_rotation_deg)
+    hw = float(getattr(pin, "width", 1.0)) / 2.0
+    hh = float(getattr(pin, "height", 1.0)) / 2.0
+    phi = math.radians(float(getattr(pin, "pad_rotation_deg", 0.0)) % 180.0)
+    if phi == 0.0:
+        return (hw, hh)
+    c, s = abs(math.cos(phi)), abs(math.sin(phi))
+    return (hw * c + hh * s, hw * s + hh * c)
 
 
 def build_free_component_pads(
@@ -537,7 +556,13 @@ def _rotated(pad: PadRectLocal, rot_idx: int) -> tuple[float, float, float, floa
     """
     lx, ly = pad.center
     hw, hh = pad.half
-    return _tg.fixed_copper_rotated_py(lx, ly, hw, hh, rot_idx)
+    if rot_idx == 0:
+        return (lx, ly, hw, hh)
+    if rot_idx == 1:
+        return (ly, -lx, hh, hw)
+    if rot_idx == 2:
+        return (-lx, -ly, hw, hh)
+    return (-ly, lx, hh, hw)
 
 
 def pad_world_rect(
@@ -550,10 +575,9 @@ def pad_world_rect(
     coordinates; the CP-SAT encoding below encodes the same rectangle
     affinely (offset + half-extent tables) so the two cannot drift.
     """
-    lx, ly = pad.center
-    hw, hh = pad.half
+    ox, oy, hwx, hwy = _rotated(pad, rot_idx)
     cx, cy = center_mm
-    return _tg.fixed_copper_pad_world_rect_py(lx, ly, hw, hh, rot_idx, cx, cy)
+    return (cx + ox - hwx, cy + oy - hwy, cx + ox + hwx, cy + oy + hwy)
 
 
 def _clamped_half_mm(half_mm: float) -> float:
@@ -586,10 +610,11 @@ def encoded_pad_world_rect(
     keeps the encoded predicate sound at the boundary (the point sits at
     exactly the margin distance and the clamped box still overlaps).
     """
-    lx, ly = pad.center
-    hw, hh = pad.half
+    ox, oy, hwx, hwy = _rotated(pad, rot_idx)
+    hwx = max(_MIN_HALF_MM, hwx)
+    hwy = max(_MIN_HALF_MM, hwy)
     cx, cy = center_mm
-    return _tg.fixed_copper_encoded_pad_world_rect_py(lx, ly, hw, hh, rot_idx, cx, cy)
+    return (cx + ox - hwx, cy + oy - hwy, cx + ox + hwx, cy + oy + hwy)
 
 
 # ---------------------------------------------------------------------------
@@ -610,14 +635,25 @@ def segment_slack_mm(p0, p1, width, margin) -> float:
     maximum, so the documented slack is truthful for every orientation —
     including diagonal segments, where the axis-aligned-only closed form
     ``(√2 − 1)·(width/2 + margin)`` under-reports (see module docstring).
-
-    Computed in the ``temper-geometry`` Rust crate, using THIS module's own
-    point-segment-distance convention (exact ``dx == 0.0 and dy == 0.0``
-    degenerate check -- see the crate's module header for why it is a
-    deliberately separate function from the rest of the crate's
-    point-to-segment kernels).
     """
-    return _tg.fixed_copper_segment_slack_mm_py(p0, p1, width, margin)
+    box = (
+        min(p0[0], p1[0]) - width / 2.0 - margin,
+        min(p0[1], p1[1]) - width / 2.0 - margin,
+        max(p0[0], p1[0]) + width / 2.0 + margin,
+        max(p0[1], p1[1]) + width / 2.0 + margin,
+    )
+    corners = [
+        (box[0], box[1]),
+        (box[2], box[1]),
+        (box[2], box[3]),
+        (box[0], box[3]),
+    ]
+    worst = 0.0
+    for c in corners:
+        excess = _point_segment_distance(c, p0, p1) - width / 2.0 - margin
+        if excess > worst:
+            worst = excess
+    return worst
 
 
 def _segment_item(start, end, width, net, layers, margin) -> FixedCopperItem:
@@ -634,31 +670,33 @@ def _segment_item(start, end, width, net, layers, margin) -> FixedCopperItem:
     *physical* ``margin``.
     """
     (x1a, y1a), (x2a, y2a) = (float(start[0]), float(start[1])), (float(end[0]), float(end[1]))
-    (x0, y0, x1, y1), slack_mm = _tg.fixed_copper_segment_item_geom_py(
-        (x1a, y1a), (x2a, y2a), width, margin
-    )
+    pad = width / 2.0 + margin + _GRID_HEADROOM_MM
+    x0, x1 = min(x1a, x2a) - pad, max(x1a, x2a) + pad
+    y0, y1 = min(y1a, y2a) - pad, max(y1a, y2a) + pad
     return FixedCopperItem(
         kind="segment",
         net=net,
         layers=layers,
         rect=(x0, y0, x1, y1),
         exact={"p0": (x1a, y1a), "p1": (x2a, y2a), "width": width},
-        slack_mm=slack_mm,
+        slack_mm=segment_slack_mm(
+            (x1a, y1a), (x2a, y2a), width, margin + _GRID_HEADROOM_MM
+        ),
         margin_mm=margin,
         label=f"segment {net} ({x1a:.2f},{y1a:.2f})-({x2a:.2f},{y2a:.2f})",
     )
 
 
 def _via_item(position, diameter, net, layers, margin) -> FixedCopperItem:
+    pad = diameter / 2.0 + margin + _GRID_HEADROOM_MM
     x, y = float(position[0]), float(position[1])
-    (x0, y0, x1, y1), slack_mm = _tg.fixed_copper_via_item_geom_py((x, y), diameter, margin)
     return FixedCopperItem(
         kind="via",
         net=net,
         layers=layers,
-        rect=(x0, y0, x1, y1),
+        rect=(x - pad, y - pad, x + pad, y + pad),
         exact={"center": (x, y), "diameter": diameter},
-        slack_mm=slack_mm,
+        slack_mm=(math.sqrt(2.0) - 1.0) * pad,
         margin_mm=margin,
         label=f"via {net} ({x:.2f},{y:.2f}) d={diameter:.2f}",
     )
@@ -678,12 +716,61 @@ def _rectilinear_convex_edges(
     exactly the margin distance is accepted. For a CONVEX polygon the
     encoding is exact: a pad is disjoint from the polygon iff it clears at
     least one edge half-plane (one BoolOr over the per-edge literals).
-
-    Computed in the ``temper-geometry`` Rust crate (``fixed_copper.rs``)
-    with the exact winding/convexity/edge-classification logic of the
-    former pure-Python body.
     """
-    return _tg.fixed_copper_rectilinear_convex_edges_py(list(polygon), margin)
+    n = len(polygon)
+    if n < 3:
+        return None
+    # Signed area -> winding. Positive (math convention, y up) = CCW.
+    area2 = 0.0
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        area2 += x0 * y1 - x1 * y0
+    if abs(area2) < 1e-9:
+        return None
+    cw = area2 < 0  # clockwise winding
+
+    def cross(ax, ay, bx, by):
+        return ax * by - ay * bx
+
+    # Convexity: every vertex must lie on the same (interior) side of every
+    # edge line. For CCW, interior is left (cross > 0); for CW, right.
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        for (px, py) in polygon:
+            c = cross(x1 - x0, y1 - y0, px - x0, py - y0)
+            if cw:
+                c = -c
+            if c < -1e-9:
+                return None  # a vertex on the exterior side -> non-convex
+
+    edges: list[tuple] = []
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        if abs(x0 - x1) < 1e-9:  # vertical edge at x = x0
+            upward = y1 > y0
+            # interior is left (CCW) / right (CW) of the directed edge.
+            # Left of upward = -x (interior x < x0); left of downward = +x.
+            interior_minus = upward != cw  # interior on the x < x0 side
+            if interior_minus:
+                # pad clears only at pad.x_min >= x0 + margin
+                edges.append(("x", x0 + margin, +1))
+            else:
+                # pad clears only at pad.x_max <= x0 - margin
+                edges.append(("x", x0 - margin, -1))
+        elif abs(y0 - y1) < 1e-9:  # horizontal edge at y = y0
+            rightward = x1 > x0
+            # Left of rightward = +y (interior y > y0); left of leftward = -y.
+            interior_plus = rightward != cw  # interior on the y > y0 side
+            if interior_plus:
+                edges.append(("y", y0 - margin, -1))
+            else:
+                edges.append(("y", y0 + margin, +1))
+        else:
+            return None  # diagonal edge -> bbox fallback
+    return tuple(edges)
 
 
 def _convex_polygon_edges(
@@ -720,12 +807,106 @@ def _convex_polygon_edges(
     is RIGHT and the pad must satisfy ``(dy, -dx) . p >= edge offset``.
     Soundness and conservatism are documented in the module docstring
     (convex-zone soundness section).
-
-    Computed in the ``temper-geometry`` Rust crate (``fixed_copper.rs``),
-    including the delegation to ``_rectilinear_convex_edges`` for a purely
-    rectilinear polygon.
     """
-    return _tg.fixed_copper_convex_polygon_edges_py(list(polygon), margin_mm)
+    n = len(polygon)
+    if n < 3:
+        return None
+    # Signed area -> winding. Positive (math convention, y up) = CCW.
+    area2 = 0.0
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        area2 += x0 * y1 - x1 * y0
+    if abs(area2) < 1e-9:
+        return None
+    cw = area2 < 0  # clockwise winding
+
+    def cross(ax, ay, bx, by):
+        return ax * by - ay * bx
+
+    # Convexity: every vertex must lie on the same (interior) side of every
+    # edge line. For CCW, interior is left (cross > 0); for CW, right.
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        for (px, py) in polygon:
+            c = cross(x1 - x0, y1 - y0, px - x0, py - y0)
+            if cw:
+                c = -c
+            if c < -1e-9:
+                return None  # a vertex on the exterior side -> non-convex
+
+    def _axis_aligned(p0: tuple[float, float], p1: tuple[float, float]) -> bool:
+        return abs(p0[0] - p1[0]) < 1e-9 or abs(p0[1] - p1[1]) < 1e-9
+
+    ring_edges = tuple((polygon[i], polygon[(i + 1) % n]) for i in range(n))
+    assert ring_edges, "empty ring: `n < 3` returns above, so n >= 3 holds here"
+    if all(_axis_aligned(p0, p1) for p0, p1 in ring_edges):
+        # Purely rectilinear: delegate to the legacy #567 encoder (it
+        # handles either winding and its exactness is pinned by the BMC
+        # test's encoded == exact assertion).
+        return _rectilinear_convex_edges(polygon, margin_mm)
+
+    # General convex polygon with at least one diagonal edge: normalize to
+    # CCW and emit the mixed-format edges (axis-aligned #567 form for
+    # axis-aligned edges, integer-unit half-planes for diagonal edges).
+    if cw:
+        polygon = list(reversed(polygon))
+    edges: list[tuple] = []
+    # The (margin + headroom) shift must be at the FINE scale to match d0
+    # and length_fine below (a model-scale shift here is 100x too small and
+    # shrinks the encoded clearance to ~0.0007 mm -- unsound, measured
+    # 2026-08-04).
+    margin_shift_fine = (margin_mm + _GRID_HEADROOM_MM) * _FINE_UNITS_PER_MM
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        if abs(x0 - x1) < 1e-9:  # vertical edge at x = x0
+            upward = y1 > y0
+            # CCW interior is left of the directed edge: left of upward is
+            # x < x0 (pad clears at x >= x0 + margin); left of downward is
+            # x > x0 (pad clears at x <= x0 - margin).
+            if upward:
+                edges.append(("x", x0 + margin_mm, +1))
+            else:
+                edges.append(("x", x0 - margin_mm, -1))
+        elif abs(y0 - y1) < 1e-9:  # horizontal edge at y = y0
+            rightward = x1 > x0
+            # Left of rightward is y > y0 (pad clears at y <= y0 - margin);
+            # left of leftward is y < y0 (pad clears at y >= y0 + margin).
+            if rightward:
+                edges.append(("y", y0 - margin_mm, -1))
+            else:
+                edges.append(("y", y0 + margin_mm, +1))
+        else:
+            # Diagonal edge: half-plane (A, B, R), the pad clears iff
+            #   min over pad of (A*x + B*y) >= R
+            # with x, y the pad's world rect in MODEL units and (A, B, R)
+            # integers. The direction is computed at 100x model resolution
+            # (_FINE_UNITS_PER_MM) so a short edge keeps its true slope
+            # after integerization, then scaled by _FINE_TO_MODEL so the
+            # coefficients are integers in model-unit coordinates (CP-SAT
+            # requires integer linear coefficients). R is the fine-scale
+            # interior offset plus the (margin + headroom) shift, rounded UP
+            # (a larger RHS is a stricter separation -- conservative).
+            x0f = _mm_to_fine_units(x0)
+            y0f = _mm_to_fine_units(y0)
+            x1f = _mm_to_fine_units(x1)
+            y1f = _mm_to_fine_units(y1)
+            dxf = x1f - x0f
+            dyf = y1f - y0f
+            if dxf == 0 and dyf == 0:
+                # Edge collapses to a point; omitting its literal only makes
+                # the BoolOr stricter (fewer ways to clear) -- conservative,
+                # never unsound.
+                continue
+            a = dyf
+            b = -dxf
+            length_fine = math.hypot(dxf, dyf)
+            d0 = a * x0f + b * y0f
+            r = math.ceil(d0 + margin_shift_fine * length_fine)
+            edges.append(("n", a * _FINE_TO_MODEL, b * _FINE_TO_MODEL, r))
+    return tuple(edges) if edges else None
 
 
 
@@ -737,6 +918,8 @@ def _zone_item(zone, margin) -> FixedCopperItem | None:
     polygon = zone.polygon
     if not polygon or len(polygon) < 3:
         return None
+    xs = [p[0] for p in polygon]
+    ys = [p[1] for p in polygon]
     margin = float(margin)
     layers = frozenset(zone.layers) & COPPER_LAYERS
     if not layers:
@@ -759,7 +942,12 @@ def _zone_item(zone, margin) -> FixedCopperItem | None:
         kind="zone",
         net=net,
         layers=layers,
-        rect=_tg.fixed_copper_zone_item_rect_py(list(polygon), margin),
+        rect=(
+            min(xs) - margin - _GRID_HEADROOM_MM,
+            min(ys) - margin - _GRID_HEADROOM_MM,
+            max(xs) + margin + _GRID_HEADROOM_MM,
+            max(ys) + margin + _GRID_HEADROOM_MM,
+        ),
         exact={"polygon": list(polygon)},
         slack_mm=float("inf"),
         margin_mm=margin,
@@ -786,17 +974,24 @@ def _other_component_pad_item(
     rot_idx = int(comp.initial_rotation or 0)
     hw, hh = _local_pad_half(pin)
     lx, ly = (float(pin.position[0]), float(pin.position[1]))
+    if rot_idx == 0:
+        ox, oy, hwx, hwy = lx, ly, hw, hh
+    elif rot_idx == 1:
+        ox, oy, hwx, hwy = ly, -lx, hh, hw
+    elif rot_idx == 2:
+        ox, oy, hwx, hwy = -lx, -ly, hw, hh
+    else:
+        ox, oy, hwx, hwy = -ly, lx, hh, hw
     cx, cy = float(center[0]), float(center[1])
-    rect, encoded_rect, slack_mm = _tg.fixed_copper_other_pad_item_geom_py(
-        lx, ly, hw, hh, rot_idx, cx, cy, margin
-    )
+    rect = (cx + ox - hwx, cy + oy - hwy, cx + ox + hwx, cy + oy + hwy)
+    m = margin + _GRID_HEADROOM_MM
     return FixedCopperItem(
         kind="pad",
         net=getattr(pin, "net", None),
         layers=layers,
-        rect=encoded_rect,
+        rect=(rect[0] - m, rect[1] - m, rect[2] + m, rect[3] + m),
         exact={"rect": rect},
-        slack_mm=slack_mm,
+        slack_mm=(math.sqrt(2.0) - 1.0) * m,
         margin_mm=margin,
         label=f"pad {comp.ref}.{pin.number} net={pin.net}",
     )
@@ -1034,49 +1229,81 @@ def _add_no_overlap(
 
 
 def _point_segment_distance(p: tuple[float, float], a: tuple[float, float], b: tuple[float, float]) -> float:
-    """Euclidean distance from a point to a segment.
-
-    Computed in the ``temper-geometry`` Rust crate, using THIS module's own
-    ``dx == 0.0 and dy == 0.0`` degenerate check (see that crate's module
-    header for why it is a deliberately separate function from the rest of
-    the crate's point-to-segment kernels).
-    """
-    return _tg.fixed_copper_point_segment_distance_py(p, a, b)
+    """Euclidean distance from a point to a segment."""
+    px, py = p
+    (ax, ay), (bx, by) = a, b
+    dx, dy = bx - ax, by - ay
+    if dx == 0.0 and dy == 0.0:
+        return math.hypot(px - ax, py - ay)
+    t = ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)
+    t = max(0.0, min(1.0, t))
+    return math.hypot(px - (ax + t * dx), py - (ay + t * dy))
 
 
 def _point_rect_distance(p: tuple[float, float], rect: tuple[float, float, float, float]) -> float:
-    """Euclidean distance from a point to an axis-aligned rectangle (0 if inside).
-
-    Computed in the ``temper-geometry`` Rust crate.
-    """
-    return _tg.fixed_copper_point_rect_distance_py(p, rect)
+    """Euclidean distance from a point to an axis-aligned rectangle (0 if inside)."""
+    x, y = p
+    x0, y0, x1, y1 = rect
+    if x0 <= x <= x1 and y0 <= y <= y1:
+        return 0.0
+    return min(
+        _point_segment_distance(p, (x0, y0), (x1, y0)),
+        _point_segment_distance(p, (x1, y0), (x1, y1)),
+        _point_segment_distance(p, (x1, y1), (x0, y1)),
+        _point_segment_distance(p, (x0, y1), (x0, y0)),
+    )
 
 
 def _segments_intersect(a0, a1, b0, b1) -> bool:
-    """True if segments a0-a1 and b0-b1 properly or improperly intersect.
+    """True if segments a0-a1 and b0-b1 properly or improperly intersect."""
+    (ax0, ay0), (ax1, ay1) = a0, a1
+    (bx0, by0), (bx1, by1) = b0, b1
 
-    Computed in the ``temper-geometry`` Rust crate.
-    """
-    return _tg.fixed_copper_segments_intersect_py(a0, a1, b0, b1)
+    def ccw(px, py, qx, qy, rx, ry) -> float:
+        return (qx - px) * (ry - py) - (qy - py) * (rx - px)
+
+    d1 = ccw(bx0, by0, bx1, by1, ax0, ay0)
+    d2 = ccw(bx0, by0, bx1, by1, ax1, ay1)
+    d3 = ccw(ax0, ay0, ax1, ay1, bx0, by0)
+    d4 = ccw(ax0, ay0, ax1, ay1, bx1, by1)
+    if ((d1 > 0 > d2) or (d1 < 0 < d2)) and ((d3 > 0 > d4) or (d3 < 0 < d4)):
+        return True
+    on_a = (d1 == 0 and min(bx0, bx1) <= ax0 <= max(bx0, bx1)
+            and min(by0, by1) <= ay0 <= max(by0, by1))
+    on_a_end = (d2 == 0 and min(bx0, bx1) <= ax1 <= max(bx0, bx1)
+                and min(by0, by1) <= ay1 <= max(by0, by1))
+    on_b = (d3 == 0 and min(ax0, ax1) <= bx0 <= max(ax0, ax1)
+            and min(ay0, ay1) <= by0 <= max(ay0, ay1))
+    on_b_end = (d4 == 0 and min(ax0, ax1) <= bx1 <= max(ax0, ax1)
+                and min(ay0, ay1) <= by1 <= max(ay0, ay1))
+    return on_a or on_a_end or on_b or on_b_end
 
 
 def _rect_segment_distance(rect: tuple[float, float, float, float], a, b) -> float:
     """Euclidean distance from an axis-aligned rect to a segment (0 if they
     intersect). Exact for convex sets: check intersection, then min over
-    vertex-to-opposite-set distances.
-
-    Computed in the ``temper-geometry`` Rust crate.
-    """
-    return _tg.fixed_copper_rect_segment_distance_py(rect, a, b)
+    vertex-to-opposite-set distances."""
+    x0, y0, x1, y1 = rect
+    if _segments_intersect(a, b, (x0, y0), (x1, y0)) or _segments_intersect(a, b, (x1, y0), (x1, y1)):
+        return 0.0
+    if _segments_intersect(a, b, (x1, y1), (x0, y1)) or _segments_intersect(a, b, (x0, y1), (x0, y0)):
+        return 0.0
+    corners = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+    d = min(_point_segment_distance(c, a, b) for c in corners)
+    d = min(d, _point_rect_distance(a, rect), _point_rect_distance(b, rect))
+    return max(0.0, d)
 
 
 def _rect_rect_gap(ra: tuple[float, float, float, float], rb: tuple[float, float, float, float]) -> float:
     """Gap (edge-to-edge) between two axis-aligned rectangles; 0 if they
-    overlap or touch.
-
-    Computed in the ``temper-geometry`` Rust crate.
-    """
-    return _tg.fixed_copper_rect_rect_gap_py(ra, rb)
+    overlap or touch."""
+    if (
+        ra[0] <= rb[2] and rb[0] <= ra[2] and ra[1] <= rb[3] and rb[1] <= ra[3]
+    ):
+        return 0.0
+    dx = max(0.0, max(rb[0] - ra[2], ra[0] - rb[2]))
+    dy = max(0.0, max(rb[1] - ra[3], ra[1] - rb[3]))
+    return math.hypot(dx, dy)  # exact Euclidean gap between the two boxes
 
 
 def exact_clearance_mm(pad_rect: tuple[float, float, float, float], item: FixedCopperItem) -> float:
@@ -1084,30 +1311,27 @@ def exact_clearance_mm(pad_rect: tuple[float, float, float, float], item: FixedC
     and an item's raw copper shape (mm), 0 if they touch/overlap.
 
     This is the truthful oracle the BMC test and the post-solve audit share.
-
-    Computed in the ``temper-geometry`` Rust crate for all four item kinds,
-    including ``zone`` (a from-scratch point-in-polygon + per-edge
-    rect-segment-distance kernel, NOT a reimplementation of shapely/GEOS's
-    internal distance algorithm bit-for-bit -- see that crate's module
-    header for the one documented gap, the ``poly.buffer(0)``
-    self-intersection repair for an invalid/self-intersecting polygon,
-    which is out of scope for a from-scratch Rust port). This module's own
-    ``TestFixedCopperSoundnessBMC``/``TestZonePolygonExactBMC``/
-    ``TestZoneGeneralConvexBMC`` (150k+ cases against the production board
-    and synthetic zone shapes) is the authoritative soundness/conservatism
-    proof for the zone kernel.
     """
     if item.kind == "segment":
         p0, p1 = item.exact["p0"], item.exact["p1"]
-        return _tg.fixed_copper_exact_clearance_mm_py(pad_rect, "segment", p0=p0, p1=p1, width=item.exact["width"])
+        return max(0.0, _rect_segment_distance(pad_rect, p0, p1) - item.exact["width"] / 2.0)
     if item.kind == "via":
-        return _tg.fixed_copper_exact_clearance_mm_py(
-            pad_rect, "via", center=item.exact["center"], diameter=item.exact["diameter"]
-        )
+        center = item.exact["center"]
+        return max(0.0, _point_rect_distance(center, pad_rect) - item.exact["diameter"] / 2.0)
     if item.kind == "pad":
-        return _tg.fixed_copper_exact_clearance_mm_py(pad_rect, "pad", other_rect=item.exact["rect"])
+        return _rect_rect_gap(pad_rect, item.exact["rect"])
     if item.kind == "zone":
-        return _tg.fixed_copper_exact_clearance_mm_py(pad_rect, "zone", polygon=item.exact["polygon"])
+        from shapely.geometry import Polygon, box
+        from shapely.prepared import prep
+
+        poly = Polygon(item.exact["polygon"])
+        if not poly.is_valid:
+            poly = poly.buffer(0)
+        p = prep(poly)
+        pad = box(*pad_rect)
+        if p.intersects(pad):
+            return 0.0
+        return float(pad.distance(poly))
     raise ValueError(f"unknown fixed-copper item kind {item.kind!r}")
 
 
