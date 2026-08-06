@@ -42,6 +42,17 @@ def test_default_layer_is_in1():
     _assert_equal(existing, ["GND"], {}, ["GND"])
 
 
+def test_existing_plane_net_default_layer():
+    """An EXISTING plane-net assignment with no explicit layer mapping falls
+    back to layer 1 (the `unwrap_or(1)` in the upgrade branch)."""
+    existing = [LA("GND", 0, True, False)]
+    exp = _oracle.recompute_plane_assignments(existing, ["GND"], {}, ["GND"])
+    got = _RS.recompute_plane_assignments(existing, ["GND"], {}, ["GND"])
+    assert canon(exp) == canon(got)
+    assert got[0].layer == 1
+    assert got[0].is_plane is True
+
+
 def test_signal_nets_added_layer0():
     existing = []
     _assert_equal(existing, [], {}, ["SPI_CLK", "GATE_HI"])

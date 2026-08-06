@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import temper_drc_rs as _drc
 import tests.deterministic.stages._connectivity_validation_py_oracle as _oracle
+
 from temper_placer.router_v6.constraints_spatial_index import Pad, Point, Track, Via
 
 
@@ -152,3 +153,17 @@ def test_float_bit_coords():
     tracks = _mk_tracks((0.100000001, 0.200000001, 3.3, 4.4, 0.25, "N", 0, "T1"))
     vias = _mk_vias((3.3, 4.4, 0.6, 0.3, "N", "V1"))
     _assert_same("N", pads, tracks, vias)
+
+
+def test_union_orientation_root_ordering():
+    """A one-pad component (pad + track, no via) unions with the track as
+    root under `parent[ra] = rb`; flipping the orientation roots it at the
+    pad. With two isolated pads whose roots straddle that value, the
+    reported unconnected-pad set changes — pinning the orientation."""
+    pads = _mk_pads(
+        (0, 0, "circle", (1, 1), "A", 0, "PA", 0),
+        (0, 100, "circle", (1, 1), "A", 0, "PC", 0),
+        (0, 200, "circle", (1, 1), "A", 0, "PD", 0),
+    )
+    tracks = _mk_tracks((0, 0, 5, 0, 0.25, "A", 0, "T1"))
+    _assert_same("A", pads, tracks, [])
