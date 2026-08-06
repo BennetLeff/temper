@@ -25,6 +25,27 @@ for this class:
     move drops it into empty space past the bottom edge, and the count does
     not change (11 -> 11).
 
+What this gate does NOT cover
+-----------------------------
+It detects a footprint MOVED outside the outline. It is structurally blind to a
+footprint DELETED from the board, because `analyze_board` iterates
+`board.footprints` -- a deleted footprint is never iterated, produces no
+violation, and the gate exits 0. `footprints_checked` is reported but not
+asserted against any expected inventory.
+
+That distinction is not academic. Measured 2026-08-04 over all 169 footprints
+(507 kicad-cli runs): deleting a component and moving it off-board produce
+BYTE-IDENTICAL DRC signatures, so at the ratchet's resolution they are the same
+event; 66 of 169 deletions reduce the total error count with zero penalised
+above the nondeterminism floor, the most profitable being C4 at -46. See
+`docs/plans/2026-08-04-*-drc-count-ratchet-*`.
+
+Deletion is caught elsewhere -- `scripts/check_footprint_drift.py` and
+`packages/temper-placer/src/temper_placer/validation/netlist_reconciliation.py`
+both compare the board's footprint inventory against the netlist. This gate
+deliberately does not duplicate that check; it records the boundary so that
+"the off-board class is covered" is not misread as "component loss is covered".
+
 Worse than "does not fire": with the component off the board, its copper
 stops colliding with the rest of the layout, so the board's DRC numbers
 IMPROVE. Measured on today's board, moving C26 off-outline moves
@@ -348,6 +369,15 @@ def analyze_board(board_path: Path) -> ContainmentReport:
 
     violations: list[Violation] = []
     pads_checked = 0
+    if not board.footprints:
+        # A board with no footprints would sail through every loop below and
+        # report zero violations -- a pass that checked nothing. This gate's
+        # whole purpose is that a vacuous pass is worse than a failure.
+        raise GateError(
+            f"{board_path} declares no footprints; refusing to report a "
+            f"containment pass over an empty inventory"
+        )
+
     for footprint in board.footprints:
         props = footprint.properties or {}
         ref = props.get("Reference") or "<no Reference>"

@@ -4,6 +4,11 @@ Steiner Correction Factor Tuning Sweep.
 
 Correlates SteinerTreeLoss against actual routed copper length
 to optimize the pin-count-dependent correction factor.
+
+Wave-4 Phase-5 R3-style record: study-script glue — ``losses.wirelength``
+(Phase 4) call-backs plus the (now Rust-backed) ``measure_copper_length``;
+the ``hpwl_error``/``steiner_error`` ratios are guarded division. See
+``packages/temper-orchestration/VERIFICATION.md``.
 """
 
 import argparse

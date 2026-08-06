@@ -223,6 +223,16 @@ extensions-check:
 # git-checkout-mtime false positive regardless of isolation, so isolating
 # is about removing concurrent-mutation risk, not about the gate's own
 # correctness.
+# Shared cargo build cache. `.cargo/config.toml`'s relative `target-dir` gives
+# every worktree a PRIVATE cache (measured 2026-08-05: five worktrees holding
+# 10G/1.4G/750M/398M/109M separately), which is what drove .claude/worktrees to
+# 51 GB. `--git-common-dir` points at the MAIN checkout's .git from any
+# worktree, so this resolves to one absolute path everywhere -- including
+# worktrees outside the repo tree, which no relative path can reach.
+# CARGO_TARGET_DIR overrides build.target-dir.
+CARGO_TARGET_DIR := $(shell dirname "$(shell git rev-parse --path-format=absolute --git-common-dir)")/target-shared
+export CARGO_TARGET_DIR
+
 venv-isolate:
 	@echo "Provisioning this worktree's own .venv (uv sync --all-packages)..."
 	uv sync --all-packages

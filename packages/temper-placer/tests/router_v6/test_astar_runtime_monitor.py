@@ -87,6 +87,16 @@ def test_monitor_detects_broken_heuristic():
 _OVERHEAD_ITERS = 100
 _OVERHEAD_SAMPLES = 11
 
+# Floor on the timed region. The ratio below is only evidence if the region
+# it divides by is far larger than the clock's resolution; the perf gate's own
+# noise analysis puts sub-microsecond regions at 24%+ variance and ~600us
+# regions at 3.7%. The measured baseline here is ~13ms, so this floor is ~13x
+# below the operating point and cannot cause a spurious failure -- it exists
+# because the previous spelling ended in ``if t_baseline > 0 else 0.0``, i.e.
+# a zero-length measurement reported *zero overhead* and the gate passed by
+# measuring nothing. A gate that cannot fail is worse than one that flakes.
+_MIN_BASELINE_S = 1e-3
+
 
 def _paired_overhead_sample(grid: OccupancyGrid, iters: int) -> float:
     """One interleaved (baseline, monitored) CPU-time pair -> overhead ratio.
@@ -109,7 +119,13 @@ def _paired_overhead_sample(grid: OccupancyGrid, iters: int) -> float:
             _astar_search(start, goal, grid)
     t_monitored = time.thread_time() - t1
 
-    return (t_monitored - t_baseline) / t_baseline if t_baseline > 0 else 0.0
+    assert t_baseline >= _MIN_BASELINE_S, (
+        f"baseline CPU time {t_baseline * 1e3:.4f}ms over {iters} iterations is "
+        f"below the {_MIN_BASELINE_S * 1e3:.1f}ms floor -- the overhead ratio "
+        "would be measuring clock granularity, not the monitor. Raise "
+        "_OVERHEAD_ITERS rather than removing this check."
+    )
+    return (t_monitored - t_baseline) / t_baseline
 
 
 def test_monitor_no_overhead_when_inactive():
@@ -148,6 +164,19 @@ def test_monitor_no_overhead_when_inactive():
     overhead monotonically (+12.9% / +17.7% / +28.2% / +46.2% / +87.3% for
     5 / 10 / 20 / 40 / 80 extra ops per pop) and trips the assertion, both
     idle and under the same 2x load.
+
+    Re-verified 2026-08-05, after the 51-PR backlog triage (#778) listed this
+    test as a live ``main`` breakage. It is not one: the triage measured
+    ``c60825861`` (2026-08-04T08:32-0600) and PR #697's run
+    (2026-08-04T18:33Z), both of which predate the instrument above -- it
+    landed in ``aece7c372`` at 2026-08-04T19:54Z, and #697's failure text
+    (``Monitor overhead 55.6% ... Baseline: 0.0184s``) is the *old*
+    single-wall-clock-sample message, not this one. Since then: the
+    ``router_v6 group 3`` job is green on the 10 most recent ``Python Tests``
+    runs on ``main``, and 25/25 local invocations pass under 24 busy loops on
+    a 12-core host. The threshold is deliberately still 50% and the workload
+    is deliberately unchanged; the only addition is the ``_MIN_BASELINE_S``
+    floor, which closes the one way this gate could have passed vacuously.
     """
     grid = _make_grid(20, 20)
 

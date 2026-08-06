@@ -1,4 +1,29 @@
+"""Zone assignment for the deterministic placement pipeline.
+
+The pure compute is implemented in Rust in the ``temper-design-bundle`` crate
+(Wave 4 **Phase 5, first slice** — deterministic leaf stages). This module
+keeps the pre-migration public API unchanged and delegates
+``_assign_components_to_zones`` to
+``temper_design_bundle_python.deterministic_stages.assign_component_zones``;
+the ``run`` orchestration (the ``state.netlist`` guard and the ``frozenset``
+wrap) stays Python.
+
+Bit-exactness: the Rust kernel reads the same ``Netlist`` pyclass attribute
+surface the oracle reads (``nets`` / ``components`` / ``net.name`` /
+``net.net_class`` / ``net.pins`` / ``component.ref``) and reproduces the five
+priority-ordered rules (``U_MCU`` prefix, SPI/I2C/UART protocol substrings on
+the uppercased net name, ``HighVoltage`` net class, ``Power`` net class,
+``Signal`` default). ``(ref, zone)`` pairs are returned in
+``netlist.components`` order so the dict insertion order is pinned. Verified
+by ``tests/deterministic/stages/test_zone_assignment_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_zone_assignment_py_oracle.py``) and
+the PBT suite ``test_zone_assignment_pbt.py``; the structural proof lives in
+``packages/temper-design-bundle/VERIFICATION.md``.
+"""
+
 from dataclasses import replace
+
+import temper_design_bundle_python as _tdb
 
 from ..state import BoardState
 from .base import Stage
@@ -26,52 +51,4 @@ class ZoneAssignmentStage(Stage):
         3. Power Zone: Components connected to "Power" net class
         4. Signal Zone: Default for all other components
         """
-        zone_map = {}
-
-        # Build net-to-class mapping
-        net_class_map = {}
-        for net in netlist.nets:
-            net_class = getattr(net, "net_class", "Signal")
-            net_class_map[net.name] = net_class
-
-        # Build component-to-nets mapping
-        comp_nets: dict[str, list[str]] = {}
-        for net in netlist.nets:
-            for comp_ref, _ in net.pins:
-                if comp_ref not in comp_nets:
-                    comp_nets[comp_ref] = []
-                comp_nets[comp_ref].append(net.name)
-
-        # Assign each component
-        for component in netlist.components:
-            ref = component.ref
-            zone = self._infer_zone_for_component(ref, comp_nets.get(ref, []), net_class_map)
-            zone_map[ref] = zone
-
-        return zone_map
-
-    def _infer_zone_for_component(
-        self, ref: str, nets: list[str], net_class_map: dict[str, str]
-    ) -> str:
-        """Infer zone for a single component."""
-        # Rule 1: MCU zone by ref prefix
-        if ref.startswith("U_MCU"):
-            return "MCU"
-
-        # Rule 2: MCU zone by SPI/I2C/UART nets
-        for net_name in nets:
-            if any(proto in net_name.upper() for proto in ["SPI", "I2C", "UART"]):
-                return "MCU"
-
-        # Rule 3: HV zone by net class
-        for net_name in nets:
-            if net_class_map.get(net_name) == "HighVoltage":
-                return "HV"
-
-        # Rule 4: Power zone by net class
-        for net_name in nets:
-            if net_class_map.get(net_name) == "Power":
-                return "Power"
-
-        # Rule 5: Signal zone (default)
-        return "Signal"
+        return dict(_tdb.deterministic_stages.assign_component_zones(netlist))

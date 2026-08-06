@@ -724,7 +724,25 @@ dependencies = [
  "proptest",
  "pyo3",
  "serde",
+ "temper-py-bridge",
  "temper-rust-router-core",
+]
+
+[[package]]
+name = "temper-py-bridge"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
+ "temper-py-bridge-derive",
+]
+
+[[package]]
+name = "temper-py-bridge-derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
