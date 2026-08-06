@@ -11,7 +11,7 @@ library seam) stay Python in the delegation shim; the two ``apply``
 methods delegate.
 
 The oracle is the verbatim pre-migration module in
-``tests/placer/_placer_py_oracle/template.py``.
+``tests/placer/_placer_template_py_oracle.py``.
 
 Bit-exactness notes (see the module docstring of the oracle):
 - The rotation transcendental (``math.cos``/``math.sin``) is a Python seam:
@@ -35,13 +35,11 @@ until the Rust kernels land (the TDD-RED evidence).
 from __future__ import annotations
 
 import math
-import tempfile
 from pathlib import Path
 
 import pytest
-import yaml
-
 import temper_io_types as _t
+import yaml
 
 from temper_placer.placer.template import (
     ComponentPosition,
@@ -51,8 +49,8 @@ from temper_placer.placer.template import (
     ParametricTemplate,
     load_template_from_yaml,
 )
-from tests.placer._placer_diff import assert_placement_equal
-from tests.placer._placer_py_oracle import template as oracle
+from tests.placer import _placer_template_py_oracle as oracle
+from tests.placer._placer_diff import assert_placement_equal, float_hex
 
 # The Rust surface this differential pins. Imported at module level so the
 # RED state is a collection failure (AttributeError) before the kernels
@@ -179,6 +177,26 @@ def test_component_template_get_anchor_position_matches():
     assert _oracle_template(comps).get_anchor_position().ref == comps[0].ref
 
 
+def test_component_template_zero_rotation_signed_zero_pins_bypass():
+    # The rotation=0 bypass is the identity transform only up to signed
+    # zero: with a -0.0 relative offset (Q2.x = -0.0, anchor.x = +0.0) at a
+    # -0.0 absolute anchor, the bypass preserves the -0.0 (abs = -0.0 + -0.0
+    # = -0.0) while an always-rotate kernel produces +0.0 (rel_x*cos(0) +
+    # rel_y*sin(0) = -0.0 + 0.0 = +0.0; abs = -0.0 + +0.0 = +0.0). This
+    # pins the oracle's `if rotation != 0` bypass against a mutant that
+    # drops it (an always-rotate mutant is bit-equivalent everywhere else,
+    # since cos(0)=1 and sin(0)=0 exactly).
+    comps = [
+        ComponentPosition("Q1", 0.0, 0.0, 0),
+        ComponentPosition("Q2", -0.0, 0.0, 0),
+    ]
+    prod = _prod_template(comps, "Q1").apply(-0.0, 0.0, rotation=0)
+    ref = _oracle_template(comps, "Q1").apply(-0.0, 0.0, rotation=0)
+    assert_placement_equal(prod, ref)
+    assert float_hex(prod["Q2"][0]) == float_hex(-0.0)
+    assert float_hex(prod["Q1"][0]) == float_hex(0.0)
+
+
 def test_load_template_from_yaml_matches(tmp_path: Path):
     data = {
         "name": "half_bridge_vertical",
@@ -229,7 +247,9 @@ def test_component_template_kernel_matches_oracle():
                 rotation,
                 _cos_sin,
             )
-            assert_placement_equal(dict(out), ref)
+            assert_placement_equal(
+                {ref: (x, y, rot) for ref, x, y, rot in out}, ref
+            )
 
 
 def test_parametric_template_kernel_matches_oracle():
@@ -255,7 +275,9 @@ def test_parametric_template_kernel_matches_oracle():
                 rotation,
                 _cos_sin,
             )
-            assert_placement_equal(dict(out), ref)
+            assert_placement_equal(
+                {ref: (x, y, rot) for ref, x, y, rot in out}, ref
+            )
 
 
 def test_parametric_template_kernel_default_anchor_matches_oracle():
@@ -274,4 +296,4 @@ def test_parametric_template_kernel_default_anchor_matches_oracle():
         90,
         _cos_sin,
     )
-    assert_placement_equal(dict(out), ref)
+    assert_placement_equal({ref: (x, y, rot) for ref, x, y, rot in out}, ref)

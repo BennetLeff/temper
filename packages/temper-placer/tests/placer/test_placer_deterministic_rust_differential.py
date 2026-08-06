@@ -7,7 +7,7 @@ Wave 4 Phase 4: the per-component placement compute of
 ``temper_io_types.placer_place_power_stage_template``,
 ``placer_place_by_proximity``, ``placer_place_in_zone_center``). The
 oracle is the verbatim pre-migration module in
-``tests/placer/_placer_py_oracle/deterministic.py``.
+``tests/placer/_placer_deterministic_py_oracle.py``.
 
 Bit-exactness notes:
 - Positions/rotations are float32 arrays in the oracle; every ``positions[idx] =
@@ -38,7 +38,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-
 import temper_io_types as _t
 
 from temper_placer.placer.deterministic import (
@@ -47,10 +46,10 @@ from temper_placer.placer.deterministic import (
     place_power_stage_template,
 )
 from temper_placer.placer.template import ComponentPosition, ComponentTemplate
-from tests.placer._placer_diff import assert_result_equal, assert_array_identical
-from tests.placer._placer_fixtures import power_board, power_netlist
-from tests.placer._placer_py_oracle import deterministic as oracle
-from tests.placer._placer_py_oracle import template as oracle_template
+from tests.placer import _placer_deterministic_py_oracle as oracle
+from tests.placer import _placer_template_py_oracle as oracle_template
+from tests.placer._placer_diff import assert_array_identical, assert_result_equal
+from tests.placer._placer_fixtures import MockBoard, MockZone, power_board, power_netlist
 
 # The Rust surface this differential pins. Imported at module level so the
 # RED state is a collection failure (AttributeError) before the kernels
@@ -158,6 +157,28 @@ def test_place_power_stage_template_partial_template(hb_components):
     assert "D2" in prod.unplaced_refs
 
 
+def test_place_power_stage_template_duplicate_refs_last_wins(hb_components):
+    # The oracle's `ref_to_idx = {comp.ref: i for i, comp in
+    # enumerate(netlist.components)}` is a last-wins dict: a duplicated ref
+    # resolves EVERY occurrence to its LAST index, so the template placement
+    # lands at that last index while the earlier occurrence keeps its
+    # initial/zero position, and placed_refs gains the ref once per
+    # occurrence. The kernel must reproduce that exactly.
+    board, netlist = power_board(), power_netlist()
+    netlist.components = netlist.components + [netlist.components[0]]  # "Q1" twice
+    template = [c for c in hb_components if c.ref == "Q1"]
+    prod = place_power_stage_template(netlist, board, _hb(template), zone_name="power_zone")
+    ref = oracle.place_power_stage_template(
+        netlist, board, _oracle_hb(template), zone_name="power_zone"
+    )
+    assert_result_equal(prod, ref)
+    # The template's single component lands at the LAST "Q1" index.
+    last = len(netlist.components) - 1
+    np.testing.assert_allclose(prod.positions[last], [25.0, 25.0])
+    np.testing.assert_allclose(prod.positions[0], [0.0, 0.0])
+    assert prod.placed_refs.count("Q1") == 2
+
+
 # ---------------------------------------------------------------------------
 # place_by_proximity
 # ---------------------------------------------------------------------------
@@ -186,6 +207,26 @@ def test_place_by_proximity_with_zone(hb_components):
         netlist, board, "U1", ["C1", "D1", "Q1", "Q2"], zone_name="power_zone"
     )
     assert_result_equal(prod, ref)
+
+
+def test_place_by_proximity_zone_clamp_fires():
+    # A small zone whose bounds the spiral distances (>= 8 mm) exceed on
+    # every side: the clamp MUST move the placements back inside [0, 5].
+    # Non-vacuous: without the clamp (or with only one bound clamped) the
+    # positions would leave the zone and the bounds assertion fails.
+    board = MockBoard(zones=[MockZone("tiny", (0.0, 0.0, 5.0, 5.0))])
+    netlist = power_netlist()
+    prod = place_by_proximity(netlist, board, "U1", ["C1", "D1", "Q1", "Q2"], zone_name="tiny")
+    ref = oracle.place_by_proximity(netlist, board, "U1", ["C1", "D1", "Q1", "Q2"], zone_name="tiny")
+    assert_result_equal(prod, ref)
+    pos = prod.positions
+    assert np.all(pos >= 0.0)
+    assert np.all(pos <= 5.0)
+    # The spiral ran AND clamped: C1 (the first ref, i=0) sits at
+    # (2.5 + 8.0, 2.5) = (10.5, 2.5) before the clamp.
+    c1 = next(i for i, c in enumerate(netlist.components) if c.ref == "C1")
+    assert pos[c1][0] == 5.0
+    assert pos[c1][1] == 2.5
 
 
 def test_place_by_proximity_many_refs():
@@ -274,6 +315,27 @@ def test_place_in_zone_center_clamps_to_zone():
     pos = prod.positions
     assert np.all(pos >= 50.0)
     assert np.all(pos <= 100.0)
+
+
+def test_place_in_zone_center_grid_clamp_fires():
+    # A small zone whose grid (spacing 8, centered) overflows the lower-left
+    # corner: 5 refs -> grid_size 3 -> x = center + (0 - 1.5)*8 = -2 must be
+    # clamped back to 0. Non-vacuous: the assertion on the clamped value
+    # fails if either the clamp or the grid formula is wrong.
+    board = MockBoard(zones=[MockZone("tiny", (0.0, 0.0, 20.0, 20.0))])
+    netlist = power_netlist()
+    refs = ["U1", "C1", "Q1", "Q2", "D1"]
+    prod = place_in_zone_center(netlist, board, refs, "tiny")
+    ref = oracle.place_in_zone_center(netlist, board, refs, "tiny")
+    assert_result_equal(prod, ref)
+    pos = prod.positions
+    assert np.all(pos >= 0.0)
+    assert np.all(pos <= 20.0)
+    # U1 (the first ref, i=0, col 0, row 0) computes to (10 + (0-1.5)*8,
+    # 10 + (0-1.5)*8) = (-2, -2) before the clamp; the oracle clamps to (0, 0).
+    u1 = next(i for i, c in enumerate(netlist.components) if c.ref == "U1")
+    assert pos[u1][0] == 0.0
+    assert pos[u1][1] == 0.0
 
 
 def test_place_in_zone_center_zone_missing_raises():

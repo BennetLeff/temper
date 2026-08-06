@@ -305,6 +305,16 @@ surfaces:
       and which does not wait on the solver gate. None of these import
       ortools. template.py carries real rotation geometry (it is in the
       guarded-file list of scripts/check_no_raw_rotation_trig.py).
+      DONE 2026-08-06 -- the non-cp_sat compute migrated to
+      temper-io-types/placer_core (placer_compute.rs): adjustment.py
+      (adjust_for_congestion push loop), deterministic.py
+      (place_power_stage_template / place_by_proximity / place_in_zone_center)
+      and template.py (ComponentTemplate.apply / ParametricTemplate.apply) are
+      delegation shims; the pre-migration implementations are pinned verbatim
+      in tests/placer/_placer_*_py_oracle.py and the R1a-R1h records live in
+      packages/temper-io-types/VERIFICATION.md. The placer/__init__.py
+      package root stays Python (import surface), matching the distribution-root
+      keep. cp_sat/ remains covered by its own JUSTIFIED-KEEP entry above.
 
   - pattern: packages/temper-placer/src/temper_placer/constraints/**
     verdict: MIGRATE

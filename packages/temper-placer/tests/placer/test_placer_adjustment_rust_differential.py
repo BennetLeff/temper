@@ -4,7 +4,7 @@ Wave 4 Phase 4: the per-(bottleneck, component) push loop of
 ``adjust_for_congestion`` moved to ``temper-io-types/placer_core``
 (exposed as ``temper_io_types.placer_adjust_for_congestion``). The oracle
 is the verbatim pre-migration module in
-``tests/placer/_placer_py_oracle/adjustment.py``.
+``tests/placer/_placer_adjustment_py_oracle.py``.
 
 The bottleneck iteration (``bottleneck.overflow <= 0`` skip and
 ``bottleneck.to_coordinates(...)``) is Python object navigation and stays
@@ -37,15 +37,14 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-
 import temper_io_types as _t
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist
 from temper_placer.placer.adjustment import adjust_for_congestion
 from temper_placer.router_v6.congestion import Bottleneck, CongestionGrid, CongestionResult
-from tests.placer._placer_diff import assert_array_identical, float_hex
-from tests.placer._placer_py_oracle import adjustment as oracle
+from tests.placer import _placer_adjustment_py_oracle as oracle
+from tests.placer._placer_diff import assert_array_identical
 
 # The Rust surface this differential pins. Imported at module level so the
 # RED state is a collection failure (AttributeError) before the kernel

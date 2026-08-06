@@ -47,7 +47,6 @@ dev = [
 
 [tool.uv.workspace]
 members = ["packages/*"]
-<<<<<<< HEAD
 exclude = [
     "packages/temper-py-bridge",
     "packages/temper-py-bridge-derive",
