@@ -14,6 +14,7 @@ pub mod derivation;
 pub mod config;
 pub mod thresholds;
 pub mod oracle;
+pub mod placement_metrics;
 pub mod quality_score;
 pub mod routing_quality;
 
@@ -617,6 +618,164 @@ fn interpret_score_py(score: f64) -> PyResult<String> {
     temper_py_bridge::catch_panic(|| Ok(quality_score::interpret_score(score)))
 }
 
+// ---------------------------------------------------------------------------
+// Placement metric kernels (Wave 4 Phase 4 — metrics/quality.py)
+//
+// The Python side (`temper_placer/metrics/quality.py`) keeps the public API
+// and does the object plumbing: netlist ref lookups, set/dict traversal, and
+// the `< 2` / `< 3` cardinality filters that need the netlist index.  It
+// hands these functions flat f64 tuples **in the exact order it traversed**,
+// because float accumulation is order-dependent and the oracle's order comes
+// from a `set` (see `thermal_score_py`).
+// ---------------------------------------------------------------------------
+
+#[cfg(feature = "python")]
+fn to_boxes(v: Vec<(f64, f64, f64, f64)>) -> Vec<placement_metrics::ClearanceBox> {
+    v.into_iter()
+        .map(|(x, y, half_w, half_h)| placement_metrics::ClearanceBox {
+            x,
+            y,
+            half_w,
+            half_h,
+        })
+        .collect()
+}
+
+/// `numpy.sum` over a float64 sequence, replicated bit-for-bit.
+///
+/// Exported so the differential suite can pin catalog class B11 directly
+/// against `np.sum` rather than only through `loop_area_score`.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn numpy_pairwise_sum_py(values: Vec<f64>) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| Ok(placement_metrics::numpy_pairwise_sum(&values)))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn thermal_score_py(
+    resolved: Vec<(f64, f64)>,
+    x_min: f64,
+    y_min: f64,
+    x_max: f64,
+    y_max: f64,
+    target_edge: &str,
+    max_distance: f64,
+) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(placement_metrics::thermal_score(
+            &resolved,
+            placement_metrics::BoardBounds {
+                x_min,
+                y_min,
+                x_max,
+                y_max,
+            },
+            placement_metrics::TargetEdge::from_str_exact(target_edge),
+            max_distance,
+        ))
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn zone_compliance_score_py(in_zone: Vec<bool>) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| Ok(placement_metrics::zone_compliance_score(&in_zone)))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn hv_lv_clearance_score_py(
+    hv: Vec<(f64, f64, f64, f64)>,
+    lv: Vec<(f64, f64, f64, f64)>,
+    min_clearance: f64,
+) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(placement_metrics::hv_lv_clearance_score(
+            &to_boxes(hv),
+            &to_boxes(lv),
+            min_clearance,
+        ))
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn dual_rail_clearance_report_py(
+    hv: Vec<(f64, f64, f64, f64)>,
+    lv: Vec<(f64, f64, f64, f64)>,
+) -> PyResult<(f64, f64, i64, i64)> {
+    temper_py_bridge::catch_panic(|| {
+        let r = placement_metrics::dual_rail_clearance_report(&to_boxes(hv), &to_boxes(lv));
+        Ok((
+            r.clearance_score_3mm,
+            r.clearance_score_6mm,
+            r.violations_3mm,
+            r.violations_6mm,
+        ))
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn loop_area_score_py(loops: Vec<Vec<(f64, f64)>>, max_area: f64) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| Ok(placement_metrics::loop_area_score(&loops, max_area)))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn compactness_score_py(
+    positions: Vec<(f64, f64)>,
+    half_widths: Vec<f64>,
+    half_heights: Vec<f64>,
+    areas: Vec<f64>,
+) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(placement_metrics::compactness_score(
+            &positions,
+            &half_widths,
+            &half_heights,
+            &areas,
+        ))
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+#[allow(clippy::type_complexity)]
+fn connectivity_clustering_score_py(
+    nets: Vec<(Vec<(f64, f64)>, Vec<f64>, Vec<f64>, Vec<f64>)>,
+    positions_are_f32: bool,
+) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        let clusters: Vec<placement_metrics::NetCluster> = nets
+            .into_iter()
+            .map(
+                |(positions, half_widths, half_heights, areas)| placement_metrics::NetCluster {
+                    positions,
+                    half_widths,
+                    half_heights,
+                    areas,
+                },
+            )
+            .collect();
+        Ok(placement_metrics::connectivity_clustering_score(
+            &clusters,
+            positions_are_f32,
+        ))
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn quality_report_overall_py(normalized_scores: [f64; 7]) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(placement_metrics::quality_report_overall(
+            &normalized_scores,
+        ))
+    })
+}
+
 #[cfg(feature = "python")]
 #[pyfunction]
 fn is_available_py() -> bool {
@@ -642,6 +801,15 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(drc_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(overall_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(interpret_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(numpy_pairwise_sum_py, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(zone_compliance_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(hv_lv_clearance_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(dual_rail_clearance_report_py, m)?)?;
+    m.add_function(wrap_pyfunction!(loop_area_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(compactness_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(connectivity_clustering_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(quality_report_overall_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
     m.add_function(wrap_pyfunction!(version_py, m)?)?;
     cluster_f::bindings::register(m)?;
