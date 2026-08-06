@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_drc_rs as _tdrc
 
 import tests.regression._closure_test_py_oracle as _oracle
@@ -35,26 +34,25 @@ CLOSURE_SUMMARY = _tdrc.closure_summary
 
 from temper_placer.regression.closure_test import ClosureResult as ShimResult  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # R1a — differential, bit-exact on every observable
 # ---------------------------------------------------------------------------
 
 
 def _random_params(rng):
-    return dict(
-        passed=bool(rng.getrandbits(1)),
-        board_id="b1",
-        benders_iterations=rng.randint(0, 4),
-        benders_cuts=rng.randint(0, 20),
-        router_completion_pct=rng.uniform(0.0, 100.0),
-        drc_errors=rng.randint(0, 30),
-        drc_warnings=rng.randint(0, 30),
-        wall_clock_seconds=rng.uniform(0.0, 1000.0),
-        stages_exercised=rng.randint(0, 6),
-        errors=[f"e{i}" for i in range(rng.randint(0, 3))],
-        warnings=[f"w{i}" for i in range(rng.randint(0, 3))],
-    )
+    return {
+        "passed": bool(rng.getrandbits(1)),
+        "board_id": "b1",
+        "benders_iterations": rng.randint(0, 4),
+        "benders_cuts": rng.randint(0, 20),
+        "router_completion_pct": rng.uniform(0.0, 100.0),
+        "drc_errors": rng.randint(0, 30),
+        "drc_warnings": rng.randint(0, 30),
+        "wall_clock_seconds": rng.uniform(0.0, 1000.0),
+        "stages_exercised": rng.randint(0, 6),
+        "errors": [f"e{i}" for i in range(rng.randint(0, 3))],
+        "warnings": [f"w{i}" for i in range(rng.randint(0, 3))],
+    }
 
 
 def test_differential_random_summary_and_validate():
@@ -69,14 +67,14 @@ def test_differential_random_summary_and_validate():
 
 def test_differential_validate_edge_cases():
     cases = [
-        dict(benders_iterations=1, router_completion_pct=50.0, stages_exercised=4),
-        dict(benders_iterations=0, router_completion_pct=50.0, stages_exercised=4),
-        dict(benders_iterations=1, router_completion_pct=0.0, stages_exercised=4),
-        dict(benders_iterations=0, router_completion_pct=0.0, stages_exercised=4),
-        dict(benders_iterations=1, router_completion_pct=50.0, stages_exercised=1),
-        dict(benders_iterations=0, router_completion_pct=0.0, stages_exercised=0),
-        dict(benders_iterations=0, router_completion_pct=0.0, stages_exercised=2),
-        dict(benders_iterations=2, router_completion_pct=0.0, stages_exercised=2),
+        {"benders_iterations": 1, "router_completion_pct": 50.0, "stages_exercised": 4},
+        {"benders_iterations": 0, "router_completion_pct": 50.0, "stages_exercised": 4},
+        {"benders_iterations": 1, "router_completion_pct": 0.0, "stages_exercised": 4},
+        {"benders_iterations": 0, "router_completion_pct": 0.0, "stages_exercised": 4},
+        {"benders_iterations": 1, "router_completion_pct": 50.0, "stages_exercised": 1},
+        {"benders_iterations": 0, "router_completion_pct": 0.0, "stages_exercised": 0},
+        {"benders_iterations": 0, "router_completion_pct": 0.0, "stages_exercised": 2},
+        {"benders_iterations": 2, "router_completion_pct": 0.0, "stages_exercised": 2},
     ]
     for c in cases:
         oracle = _oracle.ClosureResult(passed=True, board_id="b", **c)
@@ -87,19 +85,19 @@ def test_differential_validate_edge_cases():
 def test_differential_summary_formatting():
     """The report string — including the .1f rendering of the pct/seconds —
     must match the oracle byte-for-byte."""
-    params = dict(
-        passed=False,
-        board_id="temper_routed",
-        benders_iterations=3,
-        benders_cuts=17,
-        router_completion_pct=94.25,
-        drc_errors=3042,
-        drc_warnings=0,
-        wall_clock_seconds=123.456,
-        stages_exercised=4,
-        errors=["Placement not available: nope"],
-        warnings=["Channel analysis failed: x"],
-    )
+    params = {
+        "passed": False,
+        "board_id": "temper_routed",
+        "benders_iterations": 3,
+        "benders_cuts": 17,
+        "router_completion_pct": 94.25,
+        "drc_errors": 3042,
+        "drc_warnings": 0,
+        "wall_clock_seconds": 123.456,
+        "stages_exercised": 4,
+        "errors": ["Placement not available: nope"],
+        "warnings": ["Channel analysis failed: x"],
+    }
     oracle = _oracle.ClosureResult(**params)
     shim = ShimResult(**params)
     o_summary = oracle.summary()
@@ -114,19 +112,19 @@ def test_differential_summary_formatting():
 
 
 def test_differential_summary_empty_lists():
-    params = dict(
-        passed=True,
-        board_id="clean",
-        benders_iterations=2,
-        benders_cuts=0,
-        router_completion_pct=100.0,
-        drc_errors=0,
-        drc_warnings=0,
-        wall_clock_seconds=0.05,
-        stages_exercised=4,
-        errors=[],
-        warnings=[],
-    )
+    params = {
+        "passed": True,
+        "board_id": "clean",
+        "benders_iterations": 2,
+        "benders_cuts": 0,
+        "router_completion_pct": 100.0,
+        "drc_errors": 0,
+        "drc_warnings": 0,
+        "wall_clock_seconds": 0.05,
+        "stages_exercised": 4,
+        "errors": [],
+        "warnings": [],
+    }
     oracle = _oracle.ClosureResult(**params)
     shim = ShimResult(**params)
     assert shim.summary() == oracle.summary()

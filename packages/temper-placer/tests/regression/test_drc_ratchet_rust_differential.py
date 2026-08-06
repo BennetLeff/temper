@@ -44,7 +44,6 @@ DETECT_CEILING_RAISE = _tdrc.detect_ceiling_raise
 
 from temper_placer.regression.drc_ratchet import DrcRatchet as ShimRatchet  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # Canonicalization — bit-exact comparison keys
 # ---------------------------------------------------------------------------
@@ -152,8 +151,8 @@ def _make_pair(
     oracle.load()
     shim.load()
     board_id = entry["board_id"]
-    o_entry = oracle.entries[board_id]
-    s_entry = shim.entries[board_id]
+    oracle.entries[board_id]
+    shim.entries[board_id]
 
     if backend == "rust":
         errors, warnings = current
@@ -531,7 +530,7 @@ def test_differential_random_stress(tmp_path):
                 tmp_path, "kicad-cli", entry, (err_rules, warn_rules), version=version
             )
             drc_api.run_drc = stub._run_drc
-            drc_api.get_kicad_cli_version = lambda: stub.version
+            drc_api.get_kicad_cli_version = lambda s=stub: s.version
         board_id = entry["board_id"]
         o_res = o._check_board(board_id, pcb, o.entries[board_id])
         s_res = s._check_board(board_id, pcb, s.entries[board_id])

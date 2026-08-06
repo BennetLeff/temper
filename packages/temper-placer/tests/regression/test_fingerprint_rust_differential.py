@@ -28,9 +28,7 @@ from __future__ import annotations
 
 import hashlib
 import random
-from pathlib import Path
 
-import pytest
 import temper_design_bundle_python as _tdb
 
 import tests.regression._fingerprint_py_oracle as _oracle
@@ -42,10 +40,13 @@ SHOULD_SKIP = _tdb.should_skip
 
 from temper_placer.regression.fingerprint import (  # noqa: E402
     compute_input_fingerprint as ShimInputFp,
+)
+from temper_placer.regression.fingerprint import (
     compute_source_fingerprint as ShimSourceFp,
+)
+from temper_placer.regression.fingerprint import (
     should_skip as ShimShouldSkip,
 )
-
 
 # ---------------------------------------------------------------------------
 # R1a — differential

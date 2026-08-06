@@ -22,7 +22,6 @@ bit-exactly, including the drc-clearance-pass formula's integration with
 from __future__ import annotations
 
 import random
-from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -33,8 +32,8 @@ import tests.regression._measure_closure_py_oracle as _oracle
 # Rust symbol under test — must exist or this file fails to collect (RED).
 COMPUTE_DRC_CLEARANCE_PASS_PCT = _tdb.compute_drc_clearance_pass_pct
 
-from temper_placer.regression.closure_test import ClosureTest  # noqa: E402
 from temper_placer.regression import measure_closure as _shim_mod  # noqa: E402
+from temper_placer.regression.closure_test import ClosureTest  # noqa: E402
 
 
 def _f(v):
@@ -98,17 +97,17 @@ def test_differential_pct_branch_boundaries():
 def test_differential_end_to_end_payload(monkeypatch, tmp_path):
     """The full measure_closure() payload (payload dict assembly + the
     drc-clearance-pass formula) must match the oracle bit-exactly."""
-    result = dict(
-        stages_exercised=4,
-        drc_errors=2,
-        drc_warnings=3,
-        router_completion_pct=96.5,
-        wall_clock_seconds=12.34,
-        benders_iterations=4,
-        passed=False,
-        errors=["x"],
-        summary=lambda: "=== Closure Test: b ===",
-    )
+    result = {
+        "stages_exercised": 4,
+        "drc_errors": 2,
+        "drc_warnings": 3,
+        "router_completion_pct": 96.5,
+        "wall_clock_seconds": 12.34,
+        "benders_iterations": 4,
+        "passed": False,
+        "errors": ["x"],
+        "summary": lambda: "=== Closure Test: b ===",
+    }
     monkeypatch.setattr(ClosureTest, "run", _stub_run(result))
     pcb = tmp_path / "b.kicad_pcb"
     pcb.write_text("(kicad_pcb)\n")
@@ -121,17 +120,17 @@ def test_differential_end_to_end_payload(monkeypatch, tmp_path):
 
 def test_differential_end_to_end_degraded_stages(monkeypatch, tmp_path):
     """When DRC did not run (stages < 4) the pass pct is 0.0 — both arms."""
-    result = dict(
-        stages_exercised=3,
-        drc_errors=0,
-        drc_warnings=0,
-        router_completion_pct=90.0,
-        wall_clock_seconds=1.0,
-        benders_iterations=2,
-        passed=True,
-        errors=[],
-        summary=lambda: "s",
-    )
+    result = {
+        "stages_exercised": 3,
+        "drc_errors": 0,
+        "drc_warnings": 0,
+        "router_completion_pct": 90.0,
+        "wall_clock_seconds": 1.0,
+        "benders_iterations": 2,
+        "passed": True,
+        "errors": [],
+        "summary": lambda: "s",
+    }
     monkeypatch.setattr(ClosureTest, "run", _stub_run(result))
     pcb = tmp_path / "b.kicad_pcb"
     pcb.write_text("(kicad_pcb)\n")
@@ -144,17 +143,17 @@ def test_differential_end_to_end_degraded_stages(monkeypatch, tmp_path):
 def test_differential_end_to_end_zero_results_raise(monkeypatch, tmp_path):
     """The zero-results truth-gate raises RuntimeError with an identical
     message in both arms."""
-    result = dict(
-        stages_exercised=1,
-        drc_errors=0,
-        drc_warnings=0,
-        router_completion_pct=0.0,
-        wall_clock_seconds=0.5,
-        benders_iterations=0,
-        passed=False,
-        errors=["Placement not available: nope"],
-        summary=lambda: "s",
-    )
+    result = {
+        "stages_exercised": 1,
+        "drc_errors": 0,
+        "drc_warnings": 0,
+        "router_completion_pct": 0.0,
+        "wall_clock_seconds": 0.5,
+        "benders_iterations": 0,
+        "passed": False,
+        "errors": ["Placement not available: nope"],
+        "summary": lambda: "s",
+    }
     monkeypatch.setattr(ClosureTest, "run", _stub_run(result))
     pcb = tmp_path / "b.kicad_pcb"
     pcb.write_text("(kicad_pcb)\n")

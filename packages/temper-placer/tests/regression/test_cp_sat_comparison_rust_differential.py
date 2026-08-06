@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_design_bundle_python as _tdb
 
 import tests.regression._cp_sat_comparison_py_oracle as _oracle
@@ -33,7 +32,6 @@ import tests.regression._cp_sat_comparison_py_oracle as _oracle
 COMPARE_METRIC_DICTS = _tdb.compare_metric_dicts
 
 from temper_placer.regression.cp_sat_comparison import (  # noqa: E402
-    ParityComparisonResult,
     compare_metric_dicts as ShimCompare,
 )
 

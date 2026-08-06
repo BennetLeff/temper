@@ -44,7 +44,9 @@ COMPUTE_ORACLE_MARGINS = _tdrc.compute_oracle_margins
 OVERALL_SCORE = _tdrc.overall_score
 CLEARANCE_PASSED = _tdrc.clearance_passed
 
-from temper_placer.regression.physics_oracle import compute_oracle_margins as ShimMargins  # noqa: E402
+from temper_placer.regression.physics_oracle import (
+    compute_oracle_margins as ShimMargins,  # noqa: E402
+)
 
 
 def _f(value):
@@ -145,7 +147,6 @@ def test_differential_overall_neumaier_boundary():
     assert s == o
     assert s == pytest.approx(1.0 / 3)
     # the compensated sum itself is exactly 1.0 (not 0.0)
-    import struct
     assert s * 3.0 == 1.0
 
 

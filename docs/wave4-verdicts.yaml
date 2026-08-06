@@ -95,6 +95,56 @@ surfaces:
   - pattern: packages/temper-placer/src/temper_placer/regression/**
     verdict: MIGRATE
     phase: 4
+    note: >-
+      Compute kernels migrated 2026-08-05 (Wave 4 Phase 4 regression slice):
+      drc_ratchet / closure_test / physics_oracle -> temper-drc-rs;
+      measure_closure / cp_sat_comparison / fingerprint / schema_validator
+      -> temper-design-bundle. Each migrated module is now a delegation shim
+      over the Rust kernel (oracles pinned verbatim in
+      packages/temper-placer/tests/regression/_*_py_oracle.py at commit
+      0a29f15e3; R1a-R1h recorded in both crates' VERIFICATION.md). The six
+      harness modules below are carved out as JUSTIFIED-KEEP (harness
+      independence, D6) -- they orchestrate the migrated kernels and are
+      consumed by the gate jobs.
+    exclude:
+      - packages/temper-placer/src/temper_placer/regression/runner.py
+      - packages/temper-placer/src/temper_placer/regression/reporter.py
+      - packages/temper-placer/src/temper_placer/regression/corpus_runner.py
+      - packages/temper-placer/src/temper_placer/regression/metrics_recorder.py
+      - packages/temper-placer/src/temper_placer/regression/cli.py
+      - packages/temper-placer/src/temper_placer/regression/manifest.py
+  - pattern: packages/temper-placer/src/temper_placer/regression/runner.py
+    verdict: JUSTIFIED-KEEP
+    blocker: &regression-harness >-
+      Harness independence (the same D6 reasoning already recorded for
+      testing/ and fixtures/, applied to the regression harness, decided
+      2026-08-05). These six modules orchestrate the migrated regression
+      kernels and are themselves consumed by the gate jobs (ci_check_drc.py,
+      check_drc_ceiling_approval.py, ci_closure_test.py,
+      update_regression_cache.py, pipeline_metrics.py, pipeline_report.py)
+      and by the suite's own pytest harness. Migrating them would make the
+      harness depend on the pyo3 boundary it exists to check -- the same
+      failure mode the testing//fixtures/ blocker names. The one small
+      portable compute leaf found inside a keep (fingerprint hashing's
+      file-walk, metrics_recorder's JSONL field shaping) is left in place
+      rather than half-migrated; the migrated kernels they call are all in
+      the two home crates. Re-decidable when a consumer migrates and carries
+      the orchestration with it.
+  - pattern: packages/temper-placer/src/temper_placer/regression/reporter.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *regression-harness
+  - pattern: packages/temper-placer/src/temper_placer/regression/corpus_runner.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *regression-harness
+  - pattern: packages/temper-placer/src/temper_placer/regression/metrics_recorder.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *regression-harness
+  - pattern: packages/temper-placer/src/temper_placer/regression/cli.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *regression-harness
+  - pattern: packages/temper-placer/src/temper_placer/regression/manifest.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *regression-harness
   - pattern: packages/temper-placer/src/temper_placer/physics/**
     verdict: MIGRATE
     phase: 4

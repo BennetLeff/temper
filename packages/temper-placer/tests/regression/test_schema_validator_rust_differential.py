@@ -27,7 +27,6 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_design_bundle_python as _tdb
 
 import tests.regression._schema_validator_py_oracle as _oracle
@@ -36,7 +35,6 @@ import tests.regression._schema_validator_py_oracle as _oracle
 VALIDATE_SCHEMA = _tdb.validate_schema
 
 from temper_placer.regression.schema_validator import (  # noqa: E402
-    SchemaValidationError,
     SchemaValidator as ShimValidator,
 )
 
