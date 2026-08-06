@@ -21,6 +21,8 @@ pub mod drc_ratchet;
 #[cfg(feature = "python")]
 pub mod physics_oracle;
 pub mod constraints;
+#[cfg(feature = "python")]
+pub mod drc_contracts;
 pub mod pyfmt;
 #[cfg(feature = "python")]
 pub mod req_safe_01;
@@ -357,5 +359,7 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::drc_ratchet::register(m)?;
     crate::closure_test::register(m)?;
     crate::physics_oracle::register(m)?;
+    // Wave 4 Phase 2 — drc_types / drc_result contract pyclasses.
+    crate::drc_contracts::register(m)?;
     Ok(())
 }

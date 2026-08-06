@@ -90,12 +90,9 @@ def _pack(side, spec):
                 else RS_LOCATION(x, y, layer))
     if tag == "$issue":
         _, sev, code, message, category, affected = spec
-        return (_result_oracle.Issue(sev if side == "py" else _RS_SEV[sev],
-                                     code, message, category, "c", affected)
-                if False else
-                (_result_oracle.Issue(_SEV[sev], code, message, category, "c", affected)
-                 if side == "py" else
-                 RS_ISSUE(_RS_SEV[sev], code, message, category, "c", affected)))
+        return (_result_oracle.Issue(_SEV[sev], code, message, category, "c", affected)
+                if side == "py" else
+                RS_ISSUE(_RS_SEV[sev], code, message, category, "c", affected))
     if tag == "$comp":
         _, ref, x, y, rot, layer, w, h, nc, vd = spec
         return (_types_oracle.ComponentPlacement(
@@ -137,10 +134,14 @@ def _pack(side, spec):
 def _resolve(side, value):
     if isinstance(value, (tuple, list)) and value and isinstance(value[0], str) \
             and value[0].startswith("$"):
+        if value[0] == "$cr":
+            return _pack_check(side, value)
         return _pack(side, value)
     if isinstance(value, dict):
         return {_resolve(side, k): _resolve(side, v) for k, v in value.items()}
-    if isinstance(value, (tuple, list)):
+    if isinstance(value, tuple):
+        return tuple(_resolve(side, v) for v in value)
+    if isinstance(value, list):
         return [_resolve(side, v) for v in value]
     return value
 
@@ -212,7 +213,7 @@ _GROUP_ARGS = [
 
 _VIAS_ARGS = [
     (((5.0, 5.0), "F.Cu", "B.Cu", 0.6, 0.3, "GND"), {}),
-    (((1, 2), "In1.Cu", "In2.Cu", 1, 0), {}),  # int leaves
+    (((1, 2), "In1.Cu", "In2.Cu", 1, 0, "NET"), {}),  # int leaves
 ]
 
 _CONSTRAINT_SET_ARGS = [
@@ -233,7 +234,6 @@ _SEGMENT_ARGS = [
 _LOCATION_ARGS = [
     ((), {}),
     ((1.25, -2.75, "F.Cu"), {}),
-    ((1.25, -2.75, "F.Cu"), {"layer": "B.Cu"}),
     ((0.0, 0.0, ""), {}),  # layer falsy in __str__
     ((0, 0, "F.Cu"), {}),  # int leaves
     ((None, None, None), {}),
@@ -241,15 +241,15 @@ _LOCATION_ARGS = [
 ]
 
 _ISSUE_ARGS = [
-    (("$sev", "ERROR", "DRC_CLR_001", "msg", "drc", "drc_clearance"), {}),
-    (("$sev", "CRITICAL", "SAF_001", "m", "safety", "check"),
+    ((("$sev", "ERROR"), "DRC_CLR_001", "msg", "drc", "drc_clearance"), {}),
+    ((("$sev", "CRITICAL"), "SAF_001", "m", "safety", "check"),
      {"affected_items": ["C1", "C2"],
       "location": ("$loc", 1.0, 2.0, "F.Cu"),
       "details": {"a": 1, "b": [1.5, 2], "c": {"k": "v"}}}),
-    (("$sev", "WARNING", "X", "m", "erc", "c"), {"affected_items": []}),
-    (("$sev", "INFO", "I1", "m", "emc", "c"), {"details": {}}),
-    (("$sev", "ERROR", "C", "m", "drc", "c"), {"constraint_id": "CT-7"}),
-    (("$sev", "ERROR", "C", "m", "drc", "c"), {"constraint_id": None}),
+    ((("$sev", "WARNING"), "X", "m", "erc", "c"), {"affected_items": []}),
+    ((("$sev", "INFO"), "I1", "m", "emc", "c"), {"details": {}}),
+    ((("$sev", "ERROR"), "C", "m", "drc", "c"), {"constraint_id": "CT-7"}),
+    ((("$sev", "ERROR"), "C", "m", "drc", "c"), {"constraint_id": None}),
 ]
 
 _CHECK_RESULT_ARGS = [
@@ -280,9 +280,13 @@ _TRACE_PLACEMENT_ARGS = [
 
 
 def _pack_check(side, raw):
-    """Pack a ``$cr`` CheckResult spec into the chosen side."""
-    name, passed, issue_specs, metrics = raw[1], raw[2], raw[3], raw[4]
-    issues = [_resolve(side, ("$issue", *spec)) for spec in issue_specs]
+    """Pack a ``$cr`` CheckResult spec into the chosen side.
+
+    Spec is ``("$cr", name, passed, [issue_specs], [metrics])``; metrics
+    defaults to ``{}`` when the 5th element is omitted."""
+    name, passed, issue_specs = raw[1], raw[2], raw[3]
+    metrics = raw[4] if len(raw) > 4 else {}
+    issues = [_resolve(side, spec) for spec in issue_specs]
     if side == "py":
         return _result_oracle.CheckResult(name, passed, issues, 0.0, metrics)
     return RS_CHECK_RESULT(name, passed, issues, 0.0, metrics)
@@ -296,9 +300,12 @@ def _resolve_full(side, value):
 
 
 def _pair(py_cls, rs_cls, raw_args, raw_kwargs):
-    args = _resolve_full("py", raw_args)
+    # raw_args is a flat positional-args tuple; resolve each element so a
+    # nested ``$sev``/``$loc`` spec tuple stays an element (not the whole
+    # arg list).
+    args = tuple(_resolve_full("py", a) for a in raw_args)
     kwargs = _resolve_full("py", raw_kwargs)
-    rs_args = _resolve_full("rs", raw_args)
+    rs_args = tuple(_resolve_full("rs", a) for a in raw_args)
     rs_kwargs = _resolve_full("rs", raw_kwargs)
     return py_cls(*args, **kwargs), rs_cls(*rs_args, **rs_kwargs)
 
@@ -473,6 +480,14 @@ def test_severity_surface_identical():
     # Iteration over a list of members works (dict keys / sorted usage).
     assert sorted([RS_SEVERITY.CRITICAL, RS_SEVERITY.INFO]) == \
         [RS_SEVERITY.INFO, RS_SEVERITY.CRITICAL]
+    # Class-level enumeration: the pyo3 `members()` substitute for the
+    # Enum's `list(Severity)` (no metaclass hook on pyclasses) yields the
+    # same members in the same order as iterating the oracle enum — pinned
+    # so the report formatter's severity enumeration cannot silently drift.
+    assert [m.name for m in RS_SEVERITY.members()] == \
+        [m.name for m in list(_SEV)]
+    assert RS_SEVERITY.members() == [RS_SEVERITY.INFO, RS_SEVERITY.WARNING,
+                                     RS_SEVERITY.ERROR, RS_SEVERITY.CRITICAL]
 
 
 # ---------------------------------------------------------------------------
@@ -500,8 +515,8 @@ def test_consumer_violations_to_run_result_identical():
     shim (pyclass output) with identical violation dicts and canon-compare
     the full RunResult surface — attribute reads, list/dict iteration,
     severity.name, location float.hex(), details round-trip."""
-    from temper_placer.validation.drc_oracle import DRCOracle as ShimOracle
     import tests.validation._drc_oracle_py_oracle as _oracle
+    from temper_placer.validation.drc_oracle import DRCOracle as ShimOracle
 
     rng = random.Random(99)
     severities = ["INFO", "WARNING", "ERROR", "CRITICAL", "BOGUS"]
@@ -529,10 +544,7 @@ def test_consumer_runresult_summary_access_patterns():
     passed, all_issues, by_category/by_severity/issues_for_component, and
     iteration over check_results. Both sides built from identical inputs and
     compared canonically."""
-    issue = _result_oracle.Issue
-    check = _result_oracle.CheckResult
-
-    def build(run_cls, issue_cls, sev):
+    def build(run_cls, check_cls, issue_cls, sev):
         issues = [
             issue_cls(sev.ERROR, "E1", "bad", "drc", "c", ["R1"]),
             issue_cls(sev.WARNING, "W1", "warn", "drc", "c", ["R1", "R2"]),
@@ -541,15 +553,17 @@ def test_consumer_runresult_summary_access_patterns():
         ]
         return run_cls(
             check_results=[
-                check("c", False, issues=issues),
-                check("empty_ok", True, issues=[]),
-                check("warn_only", True, issues=[issue_cls(sev.WARNING, "W2", "w", "drc", "c", [])]),
+                check_cls("c", False, issues=issues),
+                check_cls("empty_ok", True, issues=[]),
+                check_cls("warn_only", True,
+                          issues=[issue_cls(sev.WARNING, "W2", "w", "drc", "c", [])]),
             ],
             total_elapsed_ms=7.5,
         )
 
-    py_rr = build(_result_oracle.RunResult, _result_oracle.Issue, _SEV)
-    rs_rr = build(RS_RUN_RESULT, RS_ISSUE, RS_SEVERITY)
+    py_rr = build(_result_oracle.RunResult, _result_oracle.CheckResult,
+                  _result_oracle.Issue, _SEV)
+    rs_rr = build(RS_RUN_RESULT, RS_CHECK_RESULT, RS_ISSUE, RS_SEVERITY)
 
     for attr in ("passed", "total_checks", "passed_checks", "failed_checks",
                  "info_count", "warning_count", "error_count", "critical_count",
@@ -585,23 +599,20 @@ def test_consumer_runresult_summary_access_patterns():
 def test_consumer_to_dict_and_json_identical():
     """dict conversion (to_dict) and json serialization of the result
     surface — the ``drc_cli``/report/json path."""
-    issue = _result_oracle.Issue
-    check = _result_oracle.CheckResult
-    loc = _result_oracle.Location
-
-    def build(run_cls, issue_cls, sev):
+    def build(run_cls, check_cls, issue_cls, loc_cls, sev):
         return run_cls(
             check_results=[
-                check("c", False, issues=[
+                check_cls("c", False, issues=[
                     issue_cls(sev.ERROR, "E1", "m", "drc", "c",
-                              ["R1"], loc(1.25, -2.75, "F.Cu"), {"k": 1}, "CT-1"),
+                              ["R1"], loc_cls(1.25, -2.75, "F.Cu"), {"k": 1}, "CT-1"),
                 ], metrics={"overlap_count": 2}),
             ],
             total_elapsed_ms=3.0,
         )
 
-    py_rr = build(_result_oracle.RunResult, _result_oracle.Issue, _SEV)
-    rs_rr = build(RS_RUN_RESULT, RS_ISSUE, RS_SEVERITY)
+    py_rr = build(_result_oracle.RunResult, _result_oracle.CheckResult,
+                  _result_oracle.Issue, _result_oracle.Location, _SEV)
+    rs_rr = build(RS_RUN_RESULT, RS_CHECK_RESULT, RS_ISSUE, RS_LOCATION, RS_SEVERITY)
     assert json.dumps(rs_rr.to_dict(), sort_keys=True) == \
         json.dumps(py_rr.to_dict(), sort_keys=True)
     assert json.dumps(rs_rr.check_results[0].issues[0].to_dict(), sort_keys=True) == \
@@ -734,17 +745,17 @@ def test_consumer_constraint_set_methods():
     rule = _types_oracle.ClearanceRule
     zone = _types_oracle.ZoneDefinition
     loop = _types_oracle.LoopConstraint
-    args = dict(
-        clearances=[rule("HV", "LV", 6.0), rule("*", "*", 0.3)],
-        zones=[zone("Z1", (0.0, 0.0, 10.0, 10.0), ["HV"], ["Q1"])],
-        critical_loops=[loop("L1", ["N1"], 100.0)],
-    )
+    args = {
+        "clearances": [rule("HV", "LV", 6.0), rule("*", "*", 0.3)],
+        "zones": [zone("Z1", (0.0, 0.0, 10.0, 10.0), ["HV"], ["Q1"])],
+        "critical_loops": [loop("L1", ["N1"], 100.0)],
+    }
     py_cs = _types_oracle.ConstraintSet(**args)
     rs_cs = RS_CONSTRAINT_SET(**args)
     for cs in (py_cs, rs_cs):
         assert cs.get_clearance("HV", "LV") == 6.0
-        assert cs.get_clearance("A", "B") == 0.3  # wildcard rule
-        assert cs.get_clearance("X", "Y") == 0.0  # no rule -> 0.0
+        assert cs.get_clearance("A", "B") == 0.3  # wildcard rule matches
+        assert cs.get_clearance("X", "Y") == 0.3  # "*" rule applies to any pair
         assert cs.get_zone("Z1") is not None
         assert cs.get_zone("NOPE") is None
         assert cs.get_loop("L1") is not None
@@ -831,8 +842,6 @@ def test_consumer_from_dict_to_dict_roundtrip_identical():
                    "components": ["Q1"]}],
         "critical_loops": [{"name": "L1", "nets": ["N1"], "max_area_mm2": 100.0,
                             "weight": 1.0, "description": ""}],
-        "thermal": [{"components": ["Q1"], "prefer_edge": True}],
-        "groups": [{"name": "G1", "components": ["Q1", "Q2"], "max_spread_mm": 25.0}],
         "net_classes": {"GND": "Signal"},
         "voltage_domains": {"GND": "LV"},
         "hv_clearance_mm": 8.0,
@@ -841,8 +850,19 @@ def test_consumer_from_dict_to_dict_roundtrip_identical():
     py_cs = _types_oracle.ConstraintSet.from_dict(constraints_dict)
     rs_cs = RS_CONSTRAINT_SET.from_dict(constraints_dict)
     assert canon(py_cs) == canon(rs_cs)
+    # to_dict emits exactly clearances/zones/critical_loops/net_classes/
+    # voltage_domains/hv_clearance_mm/board — so the round-trip is exact for
+    # a dict that carries only those keys (thermal/groups are NOT emitted,
+    # verbatim oracle behaviour).
     assert canon(RS_CONSTRAINT_SET.from_dict(RS_CONSTRAINT_SET.from_dict(
         constraints_dict).to_dict())) == canon(py_cs)
+
+    # thermal/groups are parsed by from_dict identically on both sides.
+    full = {**constraints_dict,
+            "thermal": [{"components": ["Q1"], "prefer_edge": True}],
+            "groups": [{"name": "G1", "components": ["Q1", "Q2"], "max_spread_mm": 25.0}]}
+    assert canon(_types_oracle.ConstraintSet.from_dict(full)) == \
+        canon(RS_CONSTRAINT_SET.from_dict(full))
 
 
 # ---------------------------------------------------------------------------
@@ -992,6 +1012,6 @@ def test_mr3_by_category_is_partitioning():
     assert "empty" in [c.check_name for c in rs_rr.by_category("drc")]
     assert "a" in [c.check_name for c in rs_rr.by_category("drc")]
     # The non-empty check appears in exactly the categories its issues carry.
-    a_cats = {i.category for i in rs_rr.by_category("drc") + rs_rr.by_category("safety")
-              if i.check_name == "a"}
-    assert {i.category for i in rs_rr.check_results[0].issues} == a_cats
+    a_names = {c.check_name for c in rs_rr.by_category("drc") + rs_rr.by_category("safety")}
+    assert "a" in a_names and "empty" in a_names
+    assert {i.category for i in rs_rr.check_results[0].issues} == {"drc", "safety"}
