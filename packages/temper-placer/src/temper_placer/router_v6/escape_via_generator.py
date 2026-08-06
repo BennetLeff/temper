@@ -3,16 +3,39 @@ Router V6 Stage 1.3: Compute Escape Via Positions
 
 Calculates via positions for dense packages using dog-bone or via-in-pad strategies.
 Part of temper-ipar (Stage 1 - Pin Escape Planning)
+
+Wave 4 Phase B (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
+``generate_escape_vias`` delegates to ``temper_geometry``
+(``escape_generate_vias_py``), the pure geometry/clearance kernel. The
+kernel was blocked (PR #751) on a real divergence -- it hardcoded
+``DEFAULT_ROUNDRECT_RATIO`` while the shipped ``core/pin_geometry.py`` reads
+``pin.roundrect_ratio`` -- fixed in #829 with a corpus row that pins the
+fallback (``getattr(pin, "roundrect_ratio", None) or DEFAULT``: 0.0 is
+falsy, so a zero ratio also takes the default). Re-verified here: the
+shipped module is still AST-identical to its pinned oracle, and the fix is
+present (see ``packages/temper-geometry/src/escape_via.rs``'s
+``PadRow::world_radius``).
+
+``_is_position_valid`` (private, previously called for every dog-bone
+candidate) is gone: its entire body -- including the two traps documented
+below -- now lives inside the kernel's own ``is_position_valid``, and the
+kernel is exercised as part of ``generate_escape_vias``'s single Rust call
+rather than as a separate Python-visible step. Two behaviours worth keeping
+in mind because a "helpful" rewrite would silently break them:
+
+* **NaN is ACCEPTED, not rejected.** ``dist < required_dist - 0.001`` is
+  ``False`` when ``dist`` is NaN, so a NaN candidate distance makes the
+  position valid and the via IS placed there.
+* **The clearance check does not exempt the source pin's own net** --
+  ``_ignore_net`` was accepted as a parameter and never read.
 """
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 
-from temper_placer.core.netlist import Component
-from temper_placer.core.pin_geometry import pin_world_position, pin_world_radius
-from temper_placer.geometry.kicad_transform import rotate_local_to_world
+import temper_geometry as _tg
+
 from temper_placer.router_v6.dense_package_detection import DensePackage
 from temper_placer.router_v6.stage0_data import DesignRules
 
@@ -42,6 +65,31 @@ class EscapeVia:
     layer: str = "F.Cu"
 
 
+def _design_rules_wire(design_rules: DesignRules) -> tuple:
+    """Marshal ``DesignRules`` into the kernel's ``(classes, assignments,
+    defaults)`` tuple contract.
+
+    Each ``NetClassRules``/defaults group is reduced to the 4-tuple
+    ``(clearance_mm, trace_width_mm, via_diameter_mm, via_drill_mm)`` --
+    exactly the fields ``escape_via.rs``'s ``Rules`` struct reads. The
+    kernel's own ``DesignRules::for_net`` reproduces
+    ``get_rules_for_net``'s fall-through (no assignment, an EMPTY class
+    name, or a class name absent from ``net_classes`` all yield the
+    defaults), so the assignments dict is passed through unmarshalled.
+    """
+    classes = {
+        name: (r.clearance_mm, r.trace_width_mm, r.via_diameter_mm, r.via_drill_mm)
+        for name, r in design_rules.net_classes.items()
+    }
+    defaults = (
+        design_rules.default_clearance_mm,
+        design_rules.default_trace_width_mm,
+        design_rules.default_via_diameter_mm,
+        design_rules.default_via_drill_mm,
+    )
+    return (classes, dict(design_rules.net_class_assignments), defaults)
+
+
 def generate_escape_vias(
     dense_pkg: DensePackage,
     design_rules: DesignRules,
@@ -58,183 +106,44 @@ def generate_escape_vias(
     Returns:
         List of EscapeVia objects.
     """
-    escape_vias = []
     component = dense_pkg.component
 
-    # Resolve layer from component side
-    from temper_placer.core.board import side_to_layer_name
-
-    # The contract field is `initial_side` (core/netlist.py), not `side`.
-    # Reading a `side` attribute Component does not have made the getattr
-    # default fire unconditionally, labelling every escape via "F.Cu" -- while
-    # pin_world_position DID mirror the pad coordinates for bottom-side parts,
-    # so the two halves of the same via disagreed. See issue #752 defect 3.
-    side = component.initial_side or 0
-    layer = side_to_layer_name(side)
-
-    # Get component absolute position
-    comp_x, comp_y = 0.0, 0.0
-    if component.initial_position:
-        comp_x, comp_y = component.initial_position
-
-    # Get component rotation in radians
-    # Component.initial_rotation is index 0-3 (0=0, 1=90, 2=180, 3=270)
-    angle = 0.0
-    if component.initial_rotation is not None:
-        angle = float(component.initial_rotation) * math.pi / 2.0
-
-    for pin in component.pins:
-        if not pin.net:
-            continue
-
-        rules = design_rules.get_rules_for_net(pin.net)
-        via_diameter = rules.via_diameter_mm
-        via_drill = rules.via_drill_mm
-        clearance = rules.clearance_mm
-
-        # Determine via position
-        if strategy == "via-in-pad":
-            # Via in center of pad
-            abs_pos = pin_world_position(pin, component)
-
-            escape_vias.append(
-                EscapeVia(
-                    position=abs_pos,
-                    net_name=pin.net,
-                    pin_number=pin.number,
-                    diameter=via_diameter,
-                    drill=via_drill,
-                    via_type="via-in-pad",
-                    layer=layer,
-                )
+    # `(initial_position, initial_rotation, initial_side, pitch_mm,
+    # package_type, pins)` -- the kernel's `escape_generate_vias_py` package
+    # contract. `package_type` is not read by the kernel (it has no bearing
+    # on geometry) but the tuple shape requires the slot.
+    package = (
+        component.initial_position,
+        component.initial_rotation,
+        component.initial_side,
+        dense_pkg.pitch_mm,
+        dense_pkg.package_type,
+        [
+            (
+                pin.number,
+                pin.position,
+                pin.net,
+                pin.width,
+                pin.height,
+                pin.shape,
+                pin.roundrect_ratio,
             )
+            for pin in component.pins
+        ],
+    )
+    rules = _design_rules_wire(design_rules)
 
-        elif strategy == "dog-bone":
-            pin_abs_pos = pin_world_position(pin, component)
+    rows = _tg.escape_generate_vias_py(package, rules, strategy)
 
-            # Valid candidates for BGA/Grid dogbone (relative to pin in component space)
-            # We try 4 diagonals: (+half_pitch, +half_pitch), etc.
-            half_pitch = dense_pkg.pitch_mm / 2.0
-
-            # Note: For non-square grids or non-BGA, this pitch-based heuristic
-            # might need refinement, but it's a good robust start for "dense" packages.
-            candidates = [
-                (half_pitch, half_pitch),
-                (half_pitch, -half_pitch),
-                (-half_pitch, half_pitch),
-                (-half_pitch, -half_pitch),
-            ]
-
-            chosen_pos = None
-
-            for dx, dy in candidates:
-                # Rotate the offset to match component rotation. `angle`
-                # is the component's real board rotation (radians) and
-                # `pin_abs_pos` below is KiCad-derived (core.pin_geometry),
-                # so this must use KiCad's footprint-child rotation
-                # convention, R(-theta) -- see
-                # temper_placer.geometry.kicad_transform's module
-                # docstring. Masked today because `angle` is always an
-                # exact quadrant value (Component.initial_rotation is a
-                # 0-3 index), at which this symmetric 4-way candidate set
-                # is set-invariant to R(+theta) vs R(-theta); fixed anyway
-                # so a non-quadrant future caller does not inherit a
-                # mirrored escape direction.
-                rot_dx, rot_dy = rotate_local_to_world(dx, dy, angle)
-
-                # Candidate absolute position
-                cand_x = pin_abs_pos[0] + rot_dx
-                cand_y = pin_abs_pos[1] + rot_dy
-
-                # Check collision with other pins
-                if _is_position_valid(
-                    cand_x,
-                    cand_y,
-                    via_diameter / 2.0,
-                    component,
-                    (comp_x, comp_y),
-                    angle,
-                    clearance,
-                    _ignore_net=pin.net,  # Ignore clearance to same net
-                ):
-                    chosen_pos = (cand_x, cand_y)
-                    break
-
-            if chosen_pos:
-                escape_vias.append(
-                    EscapeVia(
-                        position=chosen_pos,
-                        net_name=pin.net,
-                        pin_number=pin.number,
-                        diameter=via_diameter,
-                        drill=via_drill,
-                        via_type="dog-bone",
-                        layer=layer,
-                    )
-                )
-            else:
-                # Could not find valid dog-bone position.
-                # This happens if pitch is too tight for the via size.
-                pass
-
-    return escape_vias
-
-
-def _is_position_valid(
-    x: float,
-    y: float,
-    radius: float,
-    component: Component,
-    _comp_pos: tuple[float, float],
-    _comp_angle: float,
-    clearance: float,
-    _ignore_net: str | None = None,
-) -> bool:
-    """
-    Check if via at (x,y) with radius collides with any component pin.
-
-    Args:
-        x, y: Via center coordinates.
-        radius: Via radius.
-        component: Component to check against.
-        comp_pos: Component absolute position.
-        comp_angle: Component rotation angle.
-        clearance: Required clearance.
-        ignore_net: Net name to ignore (e.g. source pin's net).
-    """
-
-    for pin in component.pins:
-        # If pin is on the same net, physical overlap is allowed/expected for connection.
-        # However, for dog-bone, we ideally want separation.
-        # But strictly speaking, DRC allows overlap on same net.
-        # Let's enforce separation even for same net to ensure "dog-bone" shape,
-        # but maybe with reduced requirement?
-        # Actually, for dog-bone, the via IS separated.
-        # If we return False here, we say "invalid position".
-        # If it overlaps source pin, it's effectively Via-in-Pad, not Dog-Bone.
-        # So we SHOULD check collision even for same net to force separation.
-        # BUT, standard BGA pitch might barely fit.
-        # Let's check pure geometric overlap.
-
-        p_pos = pin_world_position(pin, component)
-
-        # Shared, shape-correct conservative radius (core.pin_geometry's
-        # single implementation -- see its docstring for the exact
-        # circle/oval/rect/roundrect closed form and never-under-reports
-        # proof). This used to be max(width, height) / 2.0 duplicated here,
-        # which under-reports a square/near-square rect pad's true corner
-        # extent.
-        pin_radius = pin_world_radius(pin)
-
-        dist = math.sqrt((x - p_pos[0]) ** 2 + (y - p_pos[1]) ** 2)
-
-        required_dist = radius + pin_radius + clearance
-
-        # If on same net, we don't need electrical clearance, but we might want mechanical separation.
-        # If ignore_net matches, we can relax the check?
-        # Let's maintain strict check for now to ensure quality fanout.
-
-        if dist < required_dist - 0.001:  # epsilon tolerance
-            return False
-
-    return True
+    return [
+        EscapeVia(
+            position=position,
+            net_name=net_name,
+            pin_number=pin_number,
+            diameter=diameter,
+            drill=drill,
+            via_type=via_type,
+            layer=layer,
+        )
+        for (position, net_name, pin_number, diameter, drill, via_type, layer) in rows
+    ]
