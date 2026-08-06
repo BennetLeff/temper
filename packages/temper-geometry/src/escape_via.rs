@@ -233,14 +233,16 @@ impl DesignRules {
     /// name is falsy and falls through to the defaults *without* a lookup,
     /// which is why the corpus carries `assignment_empty_string_class`.
     fn for_net(&self, net: &str) -> Rules {
-        if let Some(class_name) = self.assignments.get(net) {
-            if !class_name.is_empty() {
-                if let Some(r) = self.classes.get(class_name) {
-                    return *r;
-                }
+        // Written as a single match rather than nested `if`s only to satisfy
+        // `clippy::collapsible_if` under CI's `-D warnings`; the three
+        // fall-through paths are unchanged -- no assignment, an EMPTY class
+        // name, or a class name absent from `classes` all yield `defaults`.
+        match self.assignments.get(net) {
+            Some(class_name) if !class_name.is_empty() => {
+                self.classes.get(class_name).copied().unwrap_or(self.defaults)
             }
+            _ => self.defaults,
         }
-        self.defaults
     }
 }
 
