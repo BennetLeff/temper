@@ -34,6 +34,7 @@
 //     (`parse_footprint_courtyard_str`) is pure and wasm32-exported.
 
 pub mod config_binding;
+pub mod dag_expr;
 pub mod dsn_exporter;
 pub mod dsn_types;
 pub mod explain;
@@ -82,7 +83,24 @@ mod pymodule_def {
                 .get_type::<crate::config_binding::ConfigBoardMismatchError>(),
         )?;
 
+        // Which Cargo profile this extension was built with. The dag_expr
+        // performance A/B reads it: an unoptimised build of the same code
+        // measured 0.51x vs Python where the release build measures 2.70x,
+        // so a debug .so silently turns a speed-up into a apparent
+        // regression. Better to say so than to publish the wrong number.
+        m.add(
+            "BUILD_PROFILE",
+            if cfg!(debug_assertions) { "debug" } else { "release" },
+        )?;
+
+        m.add(
+            "DagExprSyntaxError",
+            m.py().get_type::<crate::dag_expr::DagExprSyntaxError>(),
+        )?;
+        m.add("DagExprError", m.py().get_type::<crate::dag_expr::DagExprError>())?;
+
         // Classes
+        m.add_class::<crate::dag_expr::PySkipExpr>()?;
         m.add_class::<crate::export_types::PyTraceSegment>()?;
         m.add_class::<crate::export_types::PyTraceVia>()?;
         m.add_class::<crate::export_types::PyExportResult>()?;
@@ -98,6 +116,7 @@ mod pymodule_def {
         m.add_class::<crate::reference_aliases::PyReferenceAliasManifest>()?;
 
         // Functions
+        m.add_function(wrap_pyfunction!(crate::dag_expr::parse_skip_expr_rs, m)?)?;
         m.add_function(wrap_pyfunction!(
             crate::footprint::parse_footprint_courtyard,
             m
