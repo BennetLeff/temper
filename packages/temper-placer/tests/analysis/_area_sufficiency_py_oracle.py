@@ -1,35 +1,25 @@
-"""Area-sufficiency computation — reusable core logic for U4.
+"""
+Pinned Python oracle for ``temper_placer/analysis/_area_sufficiency.py``
+(Wave 4, Phase 4 — the analysis surface migration).
 
-This module provides the courtyard-area vs. usable-board-area calculation.
-Both the CLI script (scripts/analysis/area_sufficiency_check.py) and its
-tests (tests/analysis/test_area_sufficiency_check.py) import from here.
+This file is a VERBATIM copy of the pre-migration implementation of
+``temper_placer/analysis/_area_sufficiency.py`` as of commit ``c5875adad``
+(origin/main, the Wave-4 Phase-4 base for this migration), with only the
+original module docstring replaced by this pin note. The module imports
+``extract_kicad_metadata`` lazily inside each function, so no import
+rewriting was needed.
 
-Wave 4, Phase 4 migration (plan
-``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
-the aggregation compute lives in the ``temper-geometry`` crate, exposed
-as ``temper_geometry.area_sufficiency_compute`` /
-``temper_geometry.top_courtyards`` (and the ``temper_geometry.py_sum``
-kernel, which reproduces CPython 3.12's Neumaier-compensated builtin
-``sum()``).  This module is a delegation shim: the pre-migration
-implementation is pinned verbatim as the differential oracle
-(``tests/analysis/_area_sufficiency_py_oracle.py``), and bit-exact parity
-is asserted by ``tests/analysis/test_area_sufficiency_rust_differential.py``.
-
-Boundary (argued in-source per the R1 rulings): the per-courtyard areas
-(``c._polygon.area``) stay Python-side — shapely/GEOS polygon area is a
-library semantic that cannot be crossed bit-exactly (the guide's
-"library semantics are not reimplementable" precedent).  The board
-dimensions also stay Python-side as their original int-or-float objects
-so an int board width remains an int in the result; the Rust function
-receives them as opaque values and passes them through unchanged.
+DO NOT EDIT THE SEMANTICS. This is the oracle the Rust
+``temper_geometry`` pyfunctions (``area_sufficiency_compute``,
+``top_courtyards``, ``py_sum``) must reproduce bit-identically; any edit
+here silently weakens the differential proof. If the module's contract
+changes, the oracle must be re-pinned from the new base first.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-
-import temper_geometry as _tg
 
 
 @dataclass(frozen=True)
@@ -71,14 +61,28 @@ def compute_area_sufficiency(pcb_path: Path, margin_mm: float = 5.0) -> AreaSuff
     from temper_placer.io.kicad_metadata import extract_kicad_metadata
 
     meta = extract_kicad_metadata(pcb_path)
-    areas = [c._polygon.area for c in meta.courtyards.values()]
-    total, usable, ratio, bw, bh, n = _tg.area_sufficiency_compute(
-        meta.board_width,
-        meta.board_height,
-        margin_mm,
-        areas,
+
+    used_w = meta.board_width - 2 * margin_mm
+    used_h = meta.board_height - 2 * margin_mm
+    usable = used_w * used_h
+    if used_w <= 0 or used_h <= 0 or usable <= 0:
+        raise ValueError(
+            f"Usable board area is non-positive ({usable:.1f} mm^2) "
+            f"with {margin_mm}mm margin on "
+            f"{meta.board_width}x{meta.board_height}mm board "
+            f"(usable region: {used_w:.1f}x{used_h:.1f} mm)."
+        )
+
+    total = sum(c._polygon.area for c in meta.courtyards.values())
+
+    return AreaSufficiencyResult(
+        total_courtyard_area_mm2=total,
+        usable_area_mm2=usable,
+        raw_ratio_pct=(total / usable) * 100.0,
+        board_width_mm=meta.board_width,
+        board_height_mm=meta.board_height,
+        component_count=len(meta.courtyards),
     )
-    return AreaSufficiencyResult(total, usable, ratio, bw, bh, n)
 
 
 def compute_top_courtyards(pcb_path: Path, n: int = 8) -> list[tuple[str, float]]:
@@ -94,5 +98,9 @@ def compute_top_courtyards(pcb_path: Path, n: int = 8) -> list[tuple[str, float]
     from temper_placer.io.kicad_metadata import extract_kicad_metadata
 
     meta = extract_kicad_metadata(pcb_path)
-    pairs = [(ref, c._polygon.area) for ref, c in meta.courtyards.items()]
-    return _tg.top_courtyards(pairs, n)
+    largest = sorted(
+        meta.courtyards.items(),
+        key=lambda kv: kv[1]._polygon.area,
+        reverse=True,
+    )[:n]
+    return [(ref, c._polygon.area) for ref, c in largest]
