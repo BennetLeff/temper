@@ -252,6 +252,37 @@ cmake --build firmware/test/build
 ./firmware/test/build/test_state_machine_only
 ```
 
+## Shared cargo build cache — required when working in a worktree
+
+Before invoking `cargo` or `maturin` **directly** (not via `make`), source
+this once per shell:
+
+```bash
+source scripts/cargo_shared_env.sh
+```
+
+Anything run through `make` already exports the same value and needs no
+action.
+
+Why it matters: `.cargo/config.toml` sets `build.target-dir` to the
+*relative* path `target-shared`. Cargo resolves a relative `target-dir`
+against the config file's own directory, and every git worktree gets its own
+tracked **copy** of that file — so each worktree lands on its own
+`target-shared` and compiles all 10 pyo3 crates from cold. `CARGO_TARGET_DIR`
+overrides `build.target-dir` and can hold an absolute path, which is why the
+sharing is done there rather than in the config.
+
+This is not hypothetical. It caused the 51 GB incident the config block
+cites, and it recurred on 2026-08-06: 25 private caches totalling 36.6 GB,
+the disk at 98%, and 16 GB reclaimed by hand. Agent worktrees are the main
+source, because they are created outside the repo tree (`/private/tmp/...`)
+and then run `cargo test` / `cargo build` / `cargo clippy` directly.
+
+The trade-off is deliberate and unchanged: cargo takes an exclusive lock on
+the target directory, so concurrent builds in different worktrees serialise
+instead of running in parallel. That is still far cheaper than each doing a
+cold build — after the first, the rest are incremental.
+
 ## Rebuilding pyo3/maturin Rust Extensions
 
 This repo has 10 pyo3/maturin extension crates under `packages/`. A merge
