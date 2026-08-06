@@ -838,6 +838,25 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: cargo test --manifest-path packages/temper-orchestration/Cargo.toml
 
+      # Same gap, same fix, one crate over: temper-geometry's `#[cfg(test)]`
+      # modules ran nowhere. CI tested only temper-design-bundle and
+      # temper-orchestration, and on 2026-08-06 the escape_via kernel made
+      # `cargo test` abort on macOS (`dyld: symbol not found '_PyBool_Type'`,
+      # see docs/evidence/2026-08-06-escape-via-cargo-test-dyld-abort.md), which
+      # removed the only place they still ran. That is ~500 unit tests plus every
+      # kernel the crate gained that day — congestion, escape_via, heatmap,
+      # placement suggestions, routing demand, apply-suggestions.
+      #
+      # This runs on Linux, where the abort does not apply: it comes from the
+      # `-undefined dynamic_lookup` rustflags in .cargo/config.toml, which are
+      # scoped to `[target.*-apple-darwin]`. temper-orchestration above carries
+      # the identical feature setup (`default = ["python"]` with pyo3
+      # `extension-module`) and passes here, which is the precedent for expecting
+      # this to link.
+      - name: Test temper-geometry (cargo test)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: cargo test --manifest-path packages/temper-geometry/Cargo.toml
+
   # Split out of Core Tests 2026-07-28. Everything here reads the compiled
   # netlist (elec/build/default.net, default.csv) or pcb/temper.kicad_pcb, so
   # they share the `make netlist` setup and belong together.
