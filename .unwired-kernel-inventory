@@ -45,20 +45,12 @@ dfm_thermal_via_positions_py	PR #749 DFM cluster -- Rust proven, shim not writte
 dfm_via_annular_area_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_via_segment_index_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_via_teardrop_py	PR #749 DFM cluster -- Rust proven, shim not written
-escape_generate_vias_py	PR #751 -- BLOCKED on a kernel defect: escape_via.rs hardcodes DEFAULT_ROUNDRECT_RATIO; shipped pin_geometry reads pin.roundrect_ratio
 escape_is_position_valid_py	PR #751 -- BLOCKED on a kernel defect: escape_via.rs hardcodes DEFAULT_ROUNDRECT_RATIO; shipped pin_geometry reads pin.roundrect_ratio
 is_available_py	unwired at time of recording; no reason given
 is_via_position_valid_py	unwired at time of recording; no reason given
 junction_temp	unwired at time of recording; no reason given
-net_class_from_string_py	unwired at time of recording; no reason given
-net_compute_bbox_area_py	unwired at time of recording; no reason given
-net_compute_hpwl_py	PR #751 -- same initial_side defect as order_nets
-net_loop_criticality_py	unwired at time of recording; no reason given
-net_priority_key_py	unwired at time of recording; no reason given
-net_priority_lt_py	unwired at time of recording; no reason given
 normalized_bundle_json	unwired at time of recording; no reason given
 numpy_pairwise_sum_py	unwired at time of recording; no reason given
-order_nets_py	PR #751 -- BLOCKED on a kernel defect: net_ordering.rs wire format carries no initial_side; shipped code mirrors X for back-side pads
 parse_axis	unwired at time of recording; no reason given
 parse_board_side	unwired at time of recording; no reason given
 parse_distance_with_unit	unwired at time of recording; no reason given
