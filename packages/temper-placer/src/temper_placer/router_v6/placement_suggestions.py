@@ -3,11 +3,20 @@ Router V6 Feedback F.3: Generate Placement Suggestions
 
 Generates placement adjustment suggestions based on congestion analysis.
 Part of temper-o35p (Feedback Loop & Co-Optimization)
+
+Wave 4 Phase B: ``generate_placement_suggestions``, ``_find_affected_components``
+and ``_calculate_suggested_position`` delegate to ``temper_geometry``
+(``placement_suggestions_generate_py`` / ``placement_find_affected_py`` /
+``placement_suggested_position_py``). All three kernels accept an arbitrary
+region/positions shape (no baked-in assumption about how the caller built
+them), so this is a full substitution.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+import temper_geometry as _tg
 
 from temper_placer.router_v6.congestion_analysis import CongestionMap
 
@@ -62,44 +71,30 @@ def generate_placement_suggestions(
         >>> suggestions.suggestion_count >= 0
         True
     """
-    if component_positions is None:
-        component_positions = {}
-
-    suggestions = []
-
-    # Analyze each congested region
-    for region in congestion_map.regions:
-        # Only generate suggestions for significant congestion
-        if region.bottleneck_score < 0.5:
-            continue
-
-        # Find components in or near this region
-        affected_components = _find_affected_components(
-            region,
-            component_positions,
+    region_rows = [
+        (
+            region.center[0],
+            region.center[1],
+            region.radius,
+            region.severity.value,
+            region.failed_net_count,
+            region.bottleneck_score,
         )
+        for region in congestion_map.regions
+    ]
 
-        # Generate movement suggestions for these components
-        for comp_id, comp_pos in affected_components:
-            # Suggest moving away from congested region
-            suggested_pos = _calculate_suggested_position(
-                comp_pos,
-                region.center,
-                region.severity.value,
-            )
+    out = _tg.placement_suggestions_generate_py(region_rows, component_positions)
 
-            # Calculate priority based on congestion severity
-            priority = min(1.0, region.bottleneck_score * 1.2)
-
-            suggestions.append(
-                PlacementSuggestion(
-                    component_id=comp_id,
-                    current_position=comp_pos,
-                    suggested_position=suggested_pos,
-                    reason=f"Reduce {region.severity.value} congestion (score: {region.bottleneck_score:.2f})",
-                    priority=priority,
-                )
-            )
+    suggestions = [
+        PlacementSuggestion(
+            component_id=component_id,
+            current_position=current_position,
+            suggested_position=suggested_position,
+            reason=reason,
+            priority=priority,
+        )
+        for (component_id, current_position, suggested_position, reason, priority) in out
+    ]
 
     return PlacementSuggestions(suggestions=suggestions)
 
@@ -118,19 +113,15 @@ def _find_affected_components(
     Returns:
         List of (component_id, position) tuples
     """
-    affected = []
-
-    for comp_id, comp_pos in component_positions.items():
-        # Check if component is in or near the congested region
-        dx = comp_pos[0] - region.center[0]
-        dy = comp_pos[1] - region.center[1]
-        distance = (dx**2 + dy**2) ** 0.5
-
-        # Include components within 2x region radius
-        if distance < region.radius * 2:
-            affected.append((comp_id, comp_pos))
-
-    return affected
+    region_row = (
+        region.center[0],
+        region.center[1],
+        region.radius,
+        region.severity.value,
+        region.failed_net_count,
+        region.bottleneck_score,
+    )
+    return _tg.placement_find_affected_py(region_row, component_positions)
 
 
 def _calculate_suggested_position(
@@ -149,30 +140,4 @@ def _calculate_suggested_position(
     Returns:
         Suggested new position
     """
-    # Move away from congestion center
-    dx = current_pos[0] - congestion_center[0]
-    dy = current_pos[1] - congestion_center[1]
-    distance = (dx**2 + dy**2) ** 0.5
-
-    if distance < 0.1:
-        # Already at center, move arbitrarily
-        dx, dy = 5.0, 0.0
-        distance = 5.0
-
-    # Normalize direction
-    dx_norm = dx / distance
-    dy_norm = dy / distance
-
-    # Move distance based on severity
-    move_distance = {
-        "critical": 10.0,
-        "high": 7.0,
-        "medium": 5.0,
-        "low": 3.0,
-    }.get(severity, 3.0)
-
-    # Calculate new position
-    new_x = current_pos[0] + dx_norm * move_distance
-    new_y = current_pos[1] + dy_norm * move_distance
-
-    return (new_x, new_y)
+    return _tg.placement_suggested_position_py(current_pos, congestion_center, severity)

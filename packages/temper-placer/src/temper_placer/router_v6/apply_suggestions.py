@@ -3,11 +3,40 @@ Router V6 Feedback F.4: Apply Suggestions with Damping
 
 Applies placement suggestions with damping to prevent oscillation.
 Part of temper-8hx1 (Feedback Loop & Co-Optimization)
+
+Wave 4 Phase B: ``_calculate_damped_position``, ``AdjustmentResult.total_movement``
+and ``update_component_positions`` delegate to ``temper_geometry``
+(``apply_damped_position_py`` / ``apply_total_movement_py`` /
+``apply_update_positions_py``) -- all three kernels operate on the exact
+values this module already has in hand (a position pair, a list of
+original/applied position pairs, a positions dict plus applied-position
+pairs), so each is a full substitution.
+
+``apply_suggestions_with_damping`` itself does **not** delegate to
+``apply_suggestions_damped_py``. That kernel does not accept a pre-built
+``PlacementSuggestions`` at all -- it takes the source congestion regions and
+*regenerates* the suggestions internally via its own copy of
+``generate_placement_suggestions``'s logic, then applies damping to that
+regenerated list. Its own module doc says as much: the identity-guard
+comment on the ``current_positions.get(comp_id) is None`` branch notes it is
+"unreachable" there because "this function is only ever called with the one
+dict the differential passes for both steps" (i.e. the SAME positions dict
+used to generate the suggestions). This module's real signature takes an
+already-built ``suggestions: PlacementSuggestions`` that may have been
+generated at an earlier time, filtered, or built by hand -- there is no way
+to recover the originating regions from it, and the kernel's assumption that
+regenerating from ``current_positions`` reproduces the same list the caller
+actually passed does not hold in general. Delegating here would silently
+substitute freshly-regenerated suggestions for whatever the caller supplied,
+which the differential's own single call-shape (regions + one positions
+dict, reused for both steps) cannot distinguish from a correct port.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+import temper_geometry as _tg
 
 from temper_placer.router_v6.placement_suggestions import PlacementSuggestions
 
@@ -37,12 +66,8 @@ class AdjustmentResult:
     @property
     def total_movement(self) -> float:
         """Total movement distance across all adjustments (mm)."""
-        total = 0.0
-        for adj in self.adjustments:
-            dx = adj.applied_position[0] - adj.original_position[0]
-            dy = adj.applied_position[1] - adj.original_position[1]
-            total += (dx**2 + dy**2) ** 0.5
-        return total
+        moves = [(adj.original_position, adj.applied_position) for adj in self.adjustments]
+        return _tg.apply_total_movement_py(moves)
 
 
 def apply_suggestions_with_damping(
@@ -125,11 +150,7 @@ def _calculate_damped_position(
     Returns:
         Damped position
     """
-    # Linear interpolation with damping
-    new_x = current[0] + (suggested[0] - current[0]) * damping
-    new_y = current[1] + (suggested[1] - current[1]) * damping
-
-    return (new_x, new_y)
+    return _tg.apply_damped_position_py(current, suggested, damping)
 
 
 def update_component_positions(
@@ -146,9 +167,8 @@ def update_component_positions(
     Returns:
         Updated positions dictionary
     """
-    updated = current_positions.copy()
-
-    for adjustment in adjustment_result.adjustments:
-        updated[adjustment.component_id] = adjustment.applied_position
-
-    return updated
+    applied = [
+        (adjustment.component_id, adjustment.applied_position)
+        for adjustment in adjustment_result.adjustments
+    ]
+    return _tg.apply_update_positions_py(current_positions, applied)

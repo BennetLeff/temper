@@ -4,6 +4,28 @@ Congestion heatmap for placer-router feedback.
 Extracts routing difficulty from MazeRouter to inform placement optimization.
 
 Part of temper-gzur.1
+
+Wave 4 Phase B: ``CongestionHeatmap.from_router`` delegates to
+``temper_geometry`` (``congestion_heatmap_from_router_py``) -- it builds a
+fresh grid from a ``router`` snapshot every call, matching the classmethod's
+own contract exactly.
+
+``get_congestion_at``, ``get_total_congestion`` and ``get_hotspots`` do
+**not** delegate. Their Rust counterparts
+(``congestion_heatmap_at_py``/``congestion_heatmap_total_py``/``congestion_heatmap_hotspots_py``)
+each *rebuild* the grid from ``(present, history, conflicts, cell_size,
+origin)`` on every call rather than operating on an already-built grid --
+``CongestionHeatmap`` is a plain ``@dataclass`` with only ``grid``,
+``cell_size`` and ``origin`` fields; it does not retain the router snapshot
+``from_router`` was built from. These three instance methods only ever have
+``self.grid`` to work with, so wiring them to those kernels would mean
+either storing the router on every heatmap (a public dataclass-shape change,
+which the substitution rules here rule out) or recomputing the grid from
+scratch on every query -- and if the router's state has moved on since
+``from_router`` was called (the ordinary case: the heatmap is a snapshot),
+that recompute would silently answer with a DIFFERENT, newer grid than the
+one the caller actually holds. Kept as plain Python operations over
+``self.grid`` instead.
 """
 
 from __future__ import annotations
@@ -12,6 +34,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
+import temper_geometry as _tg
 
 if TYPE_CHECKING:
     from typing import Any
@@ -47,34 +70,14 @@ class CongestionHeatmap:
         Returns:
             Normalized congestion heatmap
         """
-        # Aggregate congestion across layers (max per cell)
-        congestion_3d = router.present_congestion
-        congestion_2d = np.max(congestion_3d, axis=2)
-
-        # Add contribution from history costs (routing difficulty)
-        history_3d = router.history_cost
-        history_2d = np.max(history_3d, axis=2) - 1.0  # Base cost is 1.0
-
-        # Combine (weighted sum)
-        combined = congestion_2d + 0.5 * history_2d
-
-        # Boost explicit conflict locations
-        conflict_locs = router.get_conflict_locations()
-        for loc in conflict_locs:
-            gx = int((loc["world_x"] - router.origin[0]) / router.cell_size)
-            gy = int((loc["world_y"] - router.origin[1]) / router.cell_size)
-            if 0 <= gx < combined.shape[0] and 0 <= gy < combined.shape[1]:
-                combined[gx, gy] += len(loc["nets"])  # More nets = worse
-
-        # Normalize to 0-1
-        max_val = np.max(combined)
-        normalized = combined / max_val if max_val > 0 else combined
-
-        return cls(
-            grid=normalized.astype(np.float32),
-            cell_size=router.cell_size,
-            origin=router.origin,
+        grid, cell_size, origin = _tg.congestion_heatmap_from_router_py(
+            np.asarray(router.present_congestion).tolist(),
+            np.asarray(router.history_cost).tolist(),
+            list(router.get_conflict_locations()),
+            router.cell_size,
+            router.origin,
         )
+        return cls(grid=grid, cell_size=cell_size, origin=origin)
 
     def get_congestion_at(self, x: float, y: float) -> float:
         """Query congestion at world coordinate.
