@@ -32,6 +32,8 @@ pub mod routing_demand;
 pub mod placement_suggestions;
 #[cfg(feature = "python")]
 pub mod apply_suggestions;
+#[cfg(feature = "python")]
+pub mod congestion_heatmap;
 pub mod clearance_geometry;
 pub mod spice_estimators;
 #[cfg(feature = "python")]
@@ -95,6 +97,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::routing_demand::register(m)?;
     crate::placement_suggestions::register(m)?;
     crate::apply_suggestions::register(m)?;
+    crate::congestion_heatmap::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     Ok(())
 }

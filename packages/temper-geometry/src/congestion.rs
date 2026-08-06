@@ -196,7 +196,7 @@ fn cpython_max(vals: &[f64]) -> f64 {
 /// Not `floor`: `int(-2.7)` is `-2`, while `(-2.7f64).floor()` is `-3`. That
 /// difference is what lands a bounding box one cell off on the negative side
 /// of the origin, which is the neighbourhood of defect D3.
-fn int_trunc(v: f64) -> PyResult<i64> {
+pub(crate) fn int_trunc(v: f64) -> PyResult<i64> {
     if v.is_nan() {
         return Err(PyValueError::new_err(
             "cannot convert float NaN to integer",
