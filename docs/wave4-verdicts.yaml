@@ -76,6 +76,18 @@ surfaces:
     note: >-
       Contract types. Excluded from the plan's measured LOC baseline but not
       from its scope -- R7 admits no pre-exclusions.
+  # NOTE (2026-08-06, close-out audit): the MIGRATE entry above now conflicts
+  # with a merged record. PR #719 merged 2026-08-06 ("docs(wave4): Phase 2
+  # verdict -- _constraint_types is not a pyo3-pyclass candidate (measured)")
+  # with the verdict "do not migrate _constraint_types" -- the surface is
+  # declarative pydantic schema (34 BaseModel subclasses, 5 methods), not
+  # compute -- and it deliberately did NOT edit this ledger. The ledger entry
+  # is therefore untouched but contradicted by the merged record. This is a
+  # decision owed to product authority: either re-scope the entry to
+  # JUSTIFIED-KEEP with the measured blocker (#719 names it), or state why the
+  # MIGRATE verdict survives the measurement. Recorded as a comment, not
+  # flipped, per the close-out discipline. Full reasoning in
+  # docs/evidence/2026-08-06-wave4-owned-surface-closeout.md (Sec 1, Sec 4).
 
   # ---- Phase 3: formats / IO ----------------------------------------------
   - pattern: packages/temper-placer/src/temper_placer/io/**
@@ -101,6 +113,16 @@ surfaces:
     note: >-
       thermal_potential and operating_point are named. scipy spsolve inside
       this tree is a separate JUSTIFIED-KEEP (KTD9) recorded below.
+  # NOTE (2026-08-06, close-out audit): the phrase "recorded below" in the
+  # note above has no corresponding ledger entry -- the KTD9 scipy keep
+  # (physics/loop_area.py, and the spsolve call inside physics/thermal_fdm.py)
+  # is real and recorded in the plan + the physics-kernels VERIFICATION.md,
+  # but it is not a carve-out entry in this file, so a reader would search the
+  # ledger for a JUSTIFIED-KEEP entry that does not exist. The physics/**
+  # pattern covers those two files under MIGRATE today; the KTD9 keep is
+  # documented at the plan/VERIFICATION level, not here. Recorded as a
+  # correction comment, not a verdict flip. See
+  # docs/evidence/2026-08-06-wave4-owned-surface-closeout.md (Sec 4).
   - pattern: packages/temper-placer/src/temper_placer/topological/**
     verdict: MIGRATE
     phase: 4
@@ -353,6 +375,18 @@ surfaces:
       - scripts/internal_route.py
       - scripts/placement_quality_report.py
     verdict: JUSTIFIED-KEEP
+    # NOTE (2026-08-06, close-out audit): the two exclude: entries reference
+    # scripts/internal_route.py and scripts/placement_quality_report.py, both
+    # DELETED by #708 on 2026-08-04. #692 re-added these carve-outs after the
+    # deletion landed, so they now exempt nothing (the files do not exist) and
+    # read as live gaps that are already closed -- the same shape the repo's
+    # Sec 9.1 precedent says to remove ("an entry scoped to a file that no
+    # longer exists 'exempts nothing, and reads as a live gap that is already
+    # closed'"). The in-file comment above already claims these carve-outs
+    # "were removed"; the entry contradicts it. Candidates for removal on the
+    # repo's own precedent; left in place so this audit records, not edits.
+    # The gate's dead-exclude check is glob-shape-based and cannot see this.
+    # See docs/evidence/2026-08-06-wave4-owned-surface-closeout.md (Sec 4).
     blocker: >-
       Fail-closed independence, bootstrap, and a measured CI cost -- and the
       first of those makes migration actively harmful, not merely unprofitable.
