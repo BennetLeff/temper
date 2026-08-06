@@ -76,6 +76,13 @@ pub mod heuristics_geometry;
 pub use heuristics_geometry::keepout_mask_flags_py;
 pub mod audit;
 pub mod creepage_check;
+// Wave 4: placer/cp_sat/fixed_copper.py's pad-rotation/half-extent/item-
+// geometry/exact-clearance-oracle kernels, carved out of the placer/cp_sat/**
+// whole-subtree JUSTIFIED-KEEP per docs/evidence/2026-08-06-never-port-triage.md.
+// Declared after congestion (ceil_to_int), creepage_check (py_min/py_max) and
+// pad_geometry (math_cos_sin/py_hypot), which it reuses.
+#[cfg(feature = "python")]
+pub mod fixed_copper;
 // Wave 4, router_v6 core slice: the DRC constraint-geometry kernel behind
 // router_v6/constraints_geometry.py. Declared after creepage_check because
 // it reuses that module's CPython min/max replications.
@@ -105,6 +112,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::placement_suggestions::register(m)?;
     crate::apply_suggestions::register(m)?;
     crate::congestion_heatmap::register(m)?;
+    crate::fixed_copper::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     Ok(())
 }

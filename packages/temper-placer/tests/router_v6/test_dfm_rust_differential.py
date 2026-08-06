@@ -787,17 +787,44 @@ for i, (sx, sy, _) in enumerate(segs):
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _SRC = _REPO_ROOT / "packages" / "temper-placer" / "src" / "temper_placer" / "router_v6"
 
+# The commit the oracle is pinned to (see the oracle module's own docstring:
+# "as of 15110feccc6ec9389f0777d3cff1ce9f81b11068"). Matches BASE_SHA in the
+# sibling cluster-F oracle-pin test and _ORACLE_PIN_SHA in the sibling
+# congestion differential, both of which resolve "the shipped source" via
+# `git show` at this fixed commit rather than the live file on disk -- see
+# the note below for why this file now does too.
+_BASE_SHA = "15110feccc6ec9389f0777d3cff1ce9f81b11068"
+
+
+def _git_show(rel_path: str) -> str:
+    return subprocess.run(
+        ["git", "show", f"{_BASE_SHA}:{rel_path}"],
+        capture_output=True,
+        text=True,
+        check=True,
+        cwd=_REPO_ROOT,
+    ).stdout
+
 
 def _shipped_source(module: str, name: str) -> str:
-    """The shipped module's source text for ``name``, sliced by ``ast``.
+    """``name``'s source text as it read at the oracle's pin commit, sliced by ``ast``.
 
-    Parsed rather than imported, so this check does not depend on the Rust
-    extensions being buildable -- the whole point of a verbatim pin is that it
-    can be verified without the thing it is pinning against being importable.
+    Resolved via ``git show`` at :data:`_BASE_SHA` -- not the live file on
+    disk -- for the same reason the sibling congestion differential's
+    ``_segments_at_pin`` and the cluster-F oracle-pin test's ``_git_show`` both
+    do this: gate G1 asks "is the oracle a truthful copy of what production
+    looked like at the pin," not "does production still look like that today."
+    Wave 4 Phase B (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``)
+    rewires the shipped bodies below to call the now-proven Rust kernels
+    instead of running the pinned arithmetic directly -- exactly like the
+    congestion cluster's Phase B did (PR #827) -- so a live-file comparison
+    would fail by construction the moment wiring lands, for a reason that has
+    nothing to do with the oracle drifting. Reading the pinned git blob keeps
+    this test checking what it says it checks.
     """
-    path = _SRC / f"{module}.py"
-    text = path.read_text()
-    tree = ast.parse(text, filename=str(path))
+    rel_path = f"packages/temper-placer/src/temper_placer/router_v6/{module}.py"
+    text = _git_show(rel_path)
+    tree = ast.parse(text, filename=rel_path)
     for node in tree.body:
         if isinstance(node, ast.FunctionDef) and node.name == name:
             lines = text.splitlines(keepends=True)
@@ -805,7 +832,7 @@ def _shipped_source(module: str, name: str) -> str:
             # pinned kernels is decorated, which this asserts.
             assert not node.decorator_list, f"{module}.{name} grew a decorator"
             return "".join(lines[node.lineno - 1 : node.end_lineno]).rstrip() + "\n"
-    raise AssertionError(f"{module}.{name} not found in {path}")
+    raise AssertionError(f"{module}.{name} not found in {rel_path}@{_BASE_SHA}")
 
 
 # The oracle collapses `TYPE_CHECKING`-only annotations to `object`
@@ -841,9 +868,13 @@ def test_oracle_kernels_are_verbatim_copies(oracle_name, module, shipped_name):
 
 @pytest.mark.parametrize(("oracle_name", "module", "body"), _LIFTED_KERNELS)
 def test_lifted_kernel_bodies_are_verbatim(oracle_name, module, body):
-    """The two loop-lifted kernels still carry the shipped loop body verbatim."""
+    """The two loop-lifted kernels still carry the pinned loop body verbatim.
+
+    Compared against ``git show`` at :data:`_BASE_SHA`, not the live file --
+    see :func:`_shipped_source`'s docstring for why.
+    """
     mine = inspect.getsource(getattr(ORACLE, oracle_name))
-    shipped = (_SRC / f"{module}.py").read_text()
+    shipped = _git_show(f"packages/temper-placer/src/temper_placer/router_v6/{module}.py")
     needle = textwrap.dedent(body).strip()
 
     # normalise indentation, since the lift changed the nesting depth
