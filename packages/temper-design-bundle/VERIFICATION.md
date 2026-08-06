@@ -3902,3 +3902,72 @@ message forms), `copy.deepcopy` and `pickle` (via `__reduce__`, which
   max_distance_mm=10.0, id='x') == AdjacentConstraint(a='R1', b='R2',
   max_distance_mm=99.0, id='x')` is `True` (measured). Also out of scope here,
   also recorded for the next phase.
+# Fine-pitch + validator slot-grid kernels — Verification (Wave 4 Phase 5, batch 2)
+
+## Home-crate decision
+
+`fine_pitch_escape.py` (`min_pin_pitch`, `escape_layer_for_net`) and the
+phased-component-assignment-validator slot-grid kernels (`infer_slot_spacing`,
+`build_slot_index`, `slots_within_radius`) are placement/component math —
+temper-design-bundle (`deterministic_leaves.rs`). The validator's
+`run()`/`validate()` orchestration, the router_v6-bound `StageDRCFailure`
+construction, and the 7-line `_flatten_slots` list-flattening helper stay
+Python in the shim.
+
+## R1 status
+
+- **R1a.** `test_fine_pitch_escape_rust_differential.py` (8) and
+  `test_phased_component_assignment_validator_rust_differential.py` (13)
+  compare bit-exactly (floats via `float.hex()` where recomputed, e.g. the
+  libm `hypot` slot-distance kernel; cell keys via CPython round-half-to-even).
+- **R1c.** `test_fine_pitch_escape_pbt.py` (8) and
+  `test_phased_component_assignment_validator_pbt.py` (8) properties
+  (monotonicity of spacing fallback, key-disjointness of slot cells, radius
+  coverage, layer-precedence, min-pitch bounds).
+- **R1d.** 3 MRs per module (spacing scale-invariance, net-set permutation,
+  coordinate translation).
+- **R1e.** This section; single-pass/bounded loops, no induction.
+- **R1f.** RED commits fail to collect (`AttributeError`) before the kernels
+  land.
+- **R1g.** Borrow-over-clone; no `unwrap` outside tests (the two slot-grid
+  unwraps were removed in the clippy-cleanup commit); `guard` catch_unwind at
+  every boundary.
+- **R1h.** Not applicable — no physics-gated quantity.
+
+## Anti-vacuity
+
+Covered by the same 26-mutant campaign (see temper-drc-rs VERIFICATION.md).
+
+# Batch-2 remaining stages — JUSTIFIED-KEEP records (R3-style, named blockers)
+
+For every in-scope stage *not* migrated, the reason is a named blocker, per
+the orchestration-surface precedent above:
+
+- **`apply_placements.py`** — the pinned `dataclasses.replace()` consumer.
+  It rebuilds `Component`/`Netlist` via `dataclasses.replace`, which does not
+  dispatch to a pyclass `__replace__`; the `test_dataclasses_replace_works_on_the_public_contracts`
+  pins remain green. Nothing to migrate; the stage is orchestration over the
+  public contracts.
+- **`config_attach.py`** — zero compute: a pass-through that copies the parsed
+  config onto `BoardState` (`state.with_config`). No leaf kernel exists.
+- **`geometry/guard_strip.py`** — shapely/GEOS `buffer`/`difference`. GEOS is
+  the documented non-reimplementable library semantics precedent (same ruling
+  as the phase-4 validation `trace_analyzer` ConvexHull / geometric zone
+  predicate).
+- **`net_ordering.py`** — a 5-line delegation to
+  `router_v6.net_ordering.order_nets`; the actual compute lives in the
+  router_v6 subsystem (361-line module), outside this batch's deterministic
+  leaf scope.
+- **`hv_lv_partition.py`** — the region geometry (outline polygon, guard
+  strip, area) is shapely/GEOS; the only non-GEOS leaf is the safety-category
+  classification loop + creepage `max`, which is a handful of lookups over the
+  pydantic rules — no bit-exact kernel worth crossing the boundary for.
+- **`phased_component_assignment.py`** — the assignment algorithm depends on
+  `temper_placer.constraints.compiler.ConstraintCompiler` (filter/scorer),
+  `shapely` polygons and `validation.drc_fence.InvariantSpec` — all
+  out-of-scope surfaces. Its *validator* was migrated (slot-grid kernels, this
+  batch).
+- **`clearance_grid.py`** — the deterministic leaf kernels are already Rust:
+  `effective_creepage` and `closest_component_for_zone` delegate to
+  temper-geometry `grid_raster.rs`; the remaining `_grid_core`/`_grid_stage`
+  code is data-structure + orchestration.

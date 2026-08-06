@@ -189,6 +189,30 @@ def handle_manifest() -> int:
     return 1
 
 
+
+def handle_unwired() -> int:
+    """Registered Rust kernels with no production caller. Report only.
+
+    Not auto-fixable: wiring a shim is a code change with its own risk (the
+    kernel may not model every field the shipped Python reads -- two such
+    defects were found on 2026-08-06). Surfaced here so it is seen before a
+    merge rather than in an audit weeks later.
+    """
+    script = REPO_ROOT / "scripts" / "check_unwired_kernels.py"
+    if not script.exists():
+        return 0
+    code, out = run(py("check_unwired_kernels.py"))
+    first = out.strip().splitlines()[0] if out.strip() else "(no output)"
+    if code == 0:
+        print(f"  ok     unwired kernels: {first}")
+        return 0
+    print(f"  ACTION unwired kernels: {first}")
+    for ln in out.splitlines():
+        if ln.startswith(("NEW_UNWIRED", "STALE_ENTRY")):
+            print(f"           {ln[:130]}")
+    return 1
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -203,6 +227,7 @@ def main() -> int:
     problems += handle_oracles(args.check, args.accept_oracle_drift)
     problems += handle_hash_order(args.check)
     problems += handle_manifest()
+    problems += handle_unwired()
 
     if problems == 0:
         print("all derived artifacts consistent")

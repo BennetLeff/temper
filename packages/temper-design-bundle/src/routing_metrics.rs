@@ -34,9 +34,6 @@ fn py_round_digits(x: f64, digits: usize) -> f64 {
     s.parse::<f64>().unwrap_or(x)
 }
 
-
-
-
 fn opt_float(py: Python<'_>, v: Option<&Bound<'_, PyAny>>, default: f64) -> PyResult<Py<PyAny>> {
     match v {
         Some(x) => Ok(x.clone().unbind()),
