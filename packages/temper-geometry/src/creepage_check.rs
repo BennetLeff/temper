@@ -23,8 +23,14 @@ use temper_py_bridge;
 
 /// Python builtin `max(a, b)` for two args — returns `a` whenever `b > a`
 /// is false, so max(NaN, x) == NaN but max(x, NaN) == x (Rust's
-/// `f64::max` would discard the NaN).
-fn py_max(a: f64, b: f64) -> f64 {
+/// `f64::max` would discard the NaN).  Equal operands also return `a`,
+/// which is why `max(0.0, -0.0)` is `+0.0` while `max(-0.0, 0.0)` is
+/// `-0.0` — a distinction `f64::max` does not make either.
+///
+/// `pub(crate)`: shared with `drc_constraints_geometry.rs`, whose
+/// reference clamps with the same builtins.  One implementation, so the
+/// two cannot drift.
+pub(crate) fn py_max(a: f64, b: f64) -> f64 {
     if b > a {
         b
     } else {
@@ -34,7 +40,7 @@ fn py_max(a: f64, b: f64) -> f64 {
 
 /// Python builtin `min(a, b)` for two args — returns `a` whenever `b < a`
 /// is false, so min(NaN, x) == NaN but min(x, NaN) == x.
-fn py_min(a: f64, b: f64) -> f64 {
+pub(crate) fn py_min(a: f64, b: f64) -> f64 {
     if b < a {
         b
     } else {

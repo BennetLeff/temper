@@ -1,4 +1,4 @@
-# provenance: commit=e19fc516934bfc95c3b311602380db50d7e0393d dirty=True
+# provenance: commit=5c480a3bcbdddfa42f47b3ad16bb3921fcaf589f dirty=false
 conflict,ref,pad,item_kind,item_net,clearance_at_best_mm,required_mm,clearance_at_candidate_mm,zone_clear_cells_also_clearing_item,jointly_clearable_with_zones,first_clearing_position,min_disp_clearing_position
 K3 pad 2 vs zone GATE_HS,K3,2,zone,GATE_HS,20.574,0.05,0.0348,96,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
 K3 pad 2 vs zone GATE_HS,K3,2,zone,GATE_HS,20.574,0.05,0.0348,96,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"

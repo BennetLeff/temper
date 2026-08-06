@@ -64,16 +64,40 @@ design-side parser tolerates duplicate component refs (recording them as
 REUSE candidates) so the R39 reused-refdes mutation -- a netlist that strict
 parsers reject outright -- can be loaded and reconciled, which is what lets
 the corpus prove the REUSE finding bites.
+
+Wave 4 Phase 4: the self-contained s-expression parser (``_sexp``), the
+design-netlist parse navigation (``_field``/``_children``/
+``_instance_path_from_sheetpath`` and the strict fail-closed checks), and
+the reconciliation decision logic (``_component_findings``/
+``_net_findings``/``_resolve_design_net_paths``/``reconcile``) are
+implemented in Rust as the ``validation`` submodule of
+``temper_design_bundle_python`` (``temper-design-bundle/src/validation.rs``)
+and delegated to here. This module keeps the dataclasses
+(``BoardNetlist``/``DesignNetlist``/``ReconciliationFinding``/
+``ReconciliationReport``/``ReconciliationGateError``), the file I/O
+(``extract_board_netlist``'s ``parse_kicad_pcb_v6`` call,
+``parse_design_netlist``'s file read), and the board-side traversal
+(``build_board_netlist`` reads the Component contract pyclass attributes).
+Every error string raised by the parser/parse/reconcile is byte-identical
+(they are plain str / ``!r`` interpolations -- no no-format float repr),
+and the shim re-wraps the kernel's ``PyValueError`` into
+``ReconciliationGateError`` with ``from None`` (the oracle raises the gate
+error directly, so ``__cause__`` is None on both sides).
+
+Verification: bit-identical parity against the pinned pre-migration
+implementation is asserted by
+``tests/validation/test_netlist_reconciliation_rust_differential.py``
+(oracle: ``tests/validation/_netlist_reconciliation_py_oracle.py``); the
+structural proof lives in ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
 
-import json
-import re
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+
+import temper_design_bundle_python as _tdb
 
 from temper_placer.core.netlist import Component
 
@@ -88,6 +112,19 @@ __all__ = [
     "extract_board_netlist",
     "parse_design_netlist",
     "reconcile",
+    # The finding-taxonomy / mutation-class-to-check constants are public
+    # API (the R16 plan's class-to-check table) and are re-exported so they
+    # survive the migration to Rust delegation.
+    "KIND_MISSING",
+    "KIND_EXTRA",
+    "KIND_RENUMBERED",
+    "KIND_REUSE",
+    "KIND_UNKEYABLE",
+    "KIND_NET_MISSING",
+    "KIND_NET_EXTRA",
+    "KIND_NET_MEMBERSHIP",
+    "SEVERITY_ERROR",
+    "MUTATION_OWNING_KINDS",
 ]
 
 # Finding kinds (machine-readable).
@@ -118,72 +155,6 @@ class ReconciliationGateError(Exception):
     """Fail-closed condition: the reconciliation could not run a trustworthy
     comparison (missing/malformed input, zero components, duplicate instance
     paths, an un-keyable design component). Never reported as '0 findings'."""
-
-
-# ---------------------------------------------------------------------------
-# Self-contained S-expression parser for the compiled design netlist
-# (deliberate copy of the parser convention in scripts/check_domain_partition
-# .py et al. -- see module docstring).
-# ---------------------------------------------------------------------------
-
-_TOKEN = re.compile(r'\s*(?:(\()|(\))|("(?:\\.|[^"\\])*")|([^\s()]+))', re.S)
-
-
-def _sexp(text: str) -> list[Any]:
-    tokens: list[str] = []
-    pos = 0
-    while pos < len(text):
-        match = _TOKEN.match(text, pos)
-        if not match:
-            if text[pos:].strip():
-                raise ReconciliationGateError(f"invalid netlist syntax at byte {pos}")
-            break
-        pos = match.end()
-        tokens.append(match.group(1) or match.group(2) or match.group(3) or match.group(4))
-    root: list[Any] = []
-    stack: list[list[Any]] = [root]
-    for token in tokens:
-        if token == "(":
-            node: list[Any] = []
-            stack[-1].append(node)
-            stack.append(node)
-        elif token == ")":
-            if len(stack) == 1:
-                raise ReconciliationGateError("unbalanced netlist: unmatched ')'")
-            stack.pop()
-        else:
-            stack[-1].append(json.loads(token) if token.startswith('"') else token)
-    if len(stack) != 1:
-        raise ReconciliationGateError("unbalanced netlist: unmatched '('")
-    return root
-
-
-def _children(node: list[Any], name: str) -> list[list[Any]]:
-    return [c for c in node if isinstance(c, list) and c and c[0] == name]
-
-
-def _field(node: list[Any], name: str, *, required: bool = True) -> str:
-    fields = _children(node, name)
-    if len(fields) > 1 or (required and not fields):
-        raise ReconciliationGateError(f"invalid {name!r} field in {node[0]!r}")
-    if not fields:
-        return ""
-    if len(fields[0]) != 2 or not isinstance(fields[0][1], str):
-        raise ReconciliationGateError(f"malformed {name!r} field in {node[0]!r}")
-    return fields[0][1]
-
-
-def _instance_path_from_sheetpath(sheetpath_node: list[Any]) -> str:
-    """Extract the dotted atopile instance path (e.g. 'aux_supply.psu') from
-    a sheetpath's ``names`` field ('.../main.ato:Top::aux_supply.psu'),
-    stable across machines (the absolute path prefix before '::' is
-    discarded) and across ref-designator reshuffles. Same normalisation as
-    ``scripts/check_domain_partition.py`` and ``gen_pcb_skeleton.py``."""
-    for child in _children(sheetpath_node, "names"):
-        names = child[1] if len(child) > 1 and isinstance(child[1], str) else ""
-        if "::" in names:
-            return names.split("::", 1)[1]
-    return ""
 
 
 # ---------------------------------------------------------------------------
@@ -318,6 +289,14 @@ def parse_design_netlist(path: Path | str) -> DesignNetlist:
     so the R39 reused-refdes mutation can be loaded and proven to bite -- see
     the module docstring. Everything else is strict and fail-closed: a design
     component with no usable sheetpath cannot be identity-matched at all.
+
+    The self-contained s-expression parser and the strict fail-closed checks
+    are the ``parse_design_netlist`` kernel in
+    ``temper_design_bundle_python.validation`` (Rust); the file read and the
+    not-found/empty checks stay here (I/O boundary), and the kernel's
+    ``PyValueError`` (byte-identical message) is re-wrapped into
+    ``ReconciliationGateError`` with ``from None`` -- the oracle raises the
+    gate error directly, so ``__cause__`` is None on both sides.
     """
     netlist_path = Path(path)
     if not netlist_path.is_file():
@@ -325,75 +304,19 @@ def parse_design_netlist(path: Path | str) -> DesignNetlist:
     text = netlist_path.read_text(encoding="utf-8")
     if not text.strip():
         raise ReconciliationGateError(f"netlist file is empty: {netlist_path}")
-    parsed = _sexp(text)
-    export = next(
-        (item for item in parsed if isinstance(item, list) and item[:1] == ["export"]), None
-    )
-    if export is None:
-        raise ReconciliationGateError(f"netlist has no 'export' block: {netlist_path}")
 
-    components_block = _children(export, "components")
-    if len(components_block) != 1:
-        raise ReconciliationGateError("netlist must contain exactly one 'components' block")
-
-    components: list[DesignComponent] = []
-    duplicate_refs: list[tuple[str, str, str]] = []
-    seen_paths: dict[str, str] = {}
-    ref_paths: dict[str, str] = {}
-    for node in _children(components_block[0], "comp"):
-        ref = _field(node, "ref")
-        sheetpath_nodes = _children(node, "sheetpath")
-        instance_path = (
-            _instance_path_from_sheetpath(sheetpath_nodes[0]) if sheetpath_nodes else ""
+    try:
+        components, nets, duplicate_refs = _tdb.validation.parse_design_netlist(
+            str(netlist_path), text
         )
-        if not instance_path:
-            raise ReconciliationGateError(
-                f"design component {ref!r} has no usable 'sheetpath' field -- "
-                "cannot establish a designator-renumbering-safe identity for it"
-            )
-        if instance_path in seen_paths:
-            raise ReconciliationGateError(
-                f"design netlist has two components sharing instance path "
-                f"{instance_path!r} ({seen_paths[instance_path]!r} and {ref!r}) "
-                "-- identity is ambiguous, refusing to guess"
-            )
-        seen_paths[instance_path] = ref
-        if ref in ref_paths:
-            duplicate_refs.append((ref, ref_paths[ref], instance_path))
-        else:
-            ref_paths[ref] = instance_path
-        components.append(DesignComponent(ref=ref, instance_path=instance_path))
+    except ValueError as exc:
+        raise ReconciliationGateError(str(exc)) from None
 
-    if not components:
-        raise ReconciliationGateError(f"netlist contains zero components: {netlist_path}")
-
-    nets_block = _children(export, "nets")
-    if len(nets_block) != 1:
-        raise ReconciliationGateError("netlist must contain exactly one 'nets' block")
-
-    nets: dict[str, list[tuple[str, str]]] = {}
-    pin_owner: dict[tuple[str, str], str] = {}
-    for node in _children(nets_block[0], "net"):
-        name = _field(node, "name")
-        if name in nets:
-            raise ReconciliationGateError(f"duplicate net name in netlist: {name!r}")
-        nodelist: list[tuple[str, str]] = []
-        for nn in _children(node, "node"):
-            ref = _field(nn, "ref")
-            pin = _field(nn, "pin")
-            if (ref, pin) in pin_owner:
-                raise ReconciliationGateError(
-                    f"pin {ref}.{pin} appears in more than one net "
-                    f"({pin_owner[(ref, pin)]!r} and {name!r}) -- malformed netlist"
-                )
-            pin_owner[(ref, pin)] = name
-            nodelist.append((ref, pin))
-        nets[name] = nodelist
-
-    if not nets:
-        raise ReconciliationGateError(f"netlist contains zero nets: {netlist_path}")
-
-    return DesignNetlist(components=components, nets=nets, duplicate_refs=duplicate_refs)
+    return DesignNetlist(
+        components=[DesignComponent(ref=ref, instance_path=path_) for ref, path_ in components],
+        nets={name: list(nodes) for name, nodes in nets},
+        duplicate_refs=[(ref, path_a, path_b) for ref, path_a, path_b in duplicate_refs],
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -401,252 +324,43 @@ def parse_design_netlist(path: Path | str) -> DesignNetlist:
 # ---------------------------------------------------------------------------
 
 
-def _component_findings(board: BoardNetlist, design: DesignNetlist) -> list[ReconciliationFinding]:
-    findings: list[ReconciliationFinding] = []
-
-    # UNKEYABLE: board footprints without a Sheetpath -- reported, never
-    # silently dropped, never matched by guess.
-    for comp in board.components:
-        if not comp.sheetpath:
-            findings.append(
-                ReconciliationFinding(
-                    kind=KIND_UNKEYABLE,
-                    severity=SEVERITY_ERROR,
-                    detail=(
-                        f"{comp.ref}: board footprint has no 'Sheetpath' property -- "
-                        "cannot be identity-matched against the netlist at all"
-                    ),
-                    refs=(comp.ref,),
-                )
-            )
-
-    design_by_path: dict[str, str] = {
-        comp.instance_path: comp.ref for comp in design.components
-    }
-    board_by_path: dict[str, str] = {comp.sheetpath: comp.ref for comp in board.components}
-
-    # REUSE on the board side: two board footprints sharing a ref.
-    board_ref_paths: dict[str, list[str]] = {}
-    for comp in board.components:
-        board_ref_paths.setdefault(comp.ref, []).append(comp.sheetpath)
-    for ref, paths in sorted(board_ref_paths.items()):
-        if len(paths) > 1:
-            findings.append(
-                ReconciliationFinding(
-                    kind=KIND_REUSE,
-                    severity=SEVERITY_ERROR,
-                    detail=(
-                        f"ref {ref!r} names {len(paths)} board components "
-                        f"({', '.join(p or '<no sheetpath>' for p in paths)}) -- "
-                        "one ref, multiple components"
-                    ),
-                    refs=(ref,),
-                    paths=tuple(paths),
-                )
-            )
-
-    # REUSE on the design side: two netlist components sharing a ref (the R39
-    # reused-refdes mutation's owning finding -- the mutation is applied to
-    # the design netlist, so the check must fire on the design side too).
-    for ref, path_a, path_b in design.duplicate_refs:
-        findings.append(
-            ReconciliationFinding(
-                kind=KIND_REUSE,
-                severity=SEVERITY_ERROR,
-                detail=(
-                    f"ref {ref!r} names two design components "
-                    f"({path_a!r} and {path_b!r}) -- one ref, multiple components"
-                ),
-                refs=(ref,),
-                paths=(path_a, path_b),
-            )
-        )
-
-    # MISSING / RENUMBERED / EXTRA, keyed by instance path.
-    matched = 0
-    for path in sorted(design_by_path):
-        design_ref = design_by_path[path]
-        board_ref = board_by_path.get(path)
-        if board_ref is None:
-            findings.append(
-                ReconciliationFinding(
-                    kind=KIND_MISSING,
-                    severity=SEVERITY_ERROR,
-                    detail=(
-                        f"design component {design_ref!r} (path {path!r}) has no "
-                        "board footprint carrying this sheetpath -- the board has "
-                        "never been resynced to include this component (the "
-                        "tank-capacitor class)"
-                    ),
-                    refs=(design_ref,),
-                    paths=(path,),
-                )
-            )
-        else:
-            matched += 1
-            if design_ref != board_ref:
-                findings.append(
-                    ReconciliationFinding(
-                        kind=KIND_RENUMBERED,
-                        severity=SEVERITY_ERROR,
-                        detail=(
-                            f"path {path!r} carries different refs: design "
-                            f"{design_ref!r} vs board {board_ref!r} -- a "
-                            "designator renumber (refdes overlap is blind to "
-                            "this class)"
-                        ),
-                        refs=(design_ref, board_ref),
-                        paths=(path,),
-                    )
-                )
-
-    for path in sorted(board_by_path):
-        if path not in design_by_path:
-            findings.append(
-                ReconciliationFinding(
-                    kind=KIND_EXTRA,
-                    severity=SEVERITY_ERROR,
-                    detail=(
-                        f"board footprint {board_by_path[path]!r} (path {path!r}) "
-                        "has no matching component in the compiled netlist -- "
-                        "stale board, or a corrupted Sheetpath property"
-                    ),
-                    refs=(board_by_path[path],),
-                    paths=(path,),
-                )
-            )
-
-    return findings
-
-
-def _net_findings(
-    board: BoardNetlist, design_net_paths: dict[str, set[str]]
-) -> list[ReconciliationFinding]:
-    """Net-level membership reconciliation.
-
-    NET-MISSING / NET-MEMBERSHIP are driven by the DESIGN net set; NET-EXTRA
-    by the board side. A declared-but-empty design net with no board
-    counterpart is deliberately NOT a finding: the real compiled netlist
-    declares nets with zero nodes (e.g. ``gnd_ref``) that legitimately have
-    no board presence -- reporting them would manufacture findings on a clean
-    pair. The same net WITH a non-empty board counterpart is the dropped-net
-    signature (design side emptied, board side intact) and fires
-    NET-MEMBERSHIP.
-    """
-    findings: list[ReconciliationFinding] = []
-
-    for name, paths in sorted(design_net_paths.items()):
-        board_paths = board.nets.get(name)
-        if not paths:
-            # Declared-but-empty design net. No board counterpart -> nothing
-            # to compare (legitimately unused on both sides); board
-            # counterpart -> the dropped-net signature: design side emptied,
-            # board side intact.
-            if board_paths:
-                findings.append(
-                    ReconciliationFinding(
-                        kind=KIND_NET_MEMBERSHIP,
-                        severity=SEVERITY_ERROR,
-                        detail=(
-                            f"net {name!r} connects board component(s) "
-                            f"{', '.join(sorted(board_paths))} but has zero "
-                            "nodes in the compiled netlist -- the net's "
-                            "membership was dropped on the design side "
-                            "(dropped-net class)"
-                        ),
-                        paths=tuple(sorted(board_paths)),
-                    )
-                )
-            continue
-        if board_paths is None:
-            findings.append(
-                ReconciliationFinding(
-                    kind=KIND_NET_MISSING,
-                    severity=SEVERITY_ERROR,
-                    detail=(
-                        f"net {name!r} connects design component(s) "
-                        f"{', '.join(sorted(paths))} but has no counterpart on "
-                        "the board -- a design net with zero placed components"
-                    ),
-                    paths=tuple(sorted(paths)),
-                )
-            )
-        elif board_paths != paths:
-            findings.append(
-                ReconciliationFinding(
-                    kind=KIND_NET_MEMBERSHIP,
-                    severity=SEVERITY_ERROR,
-                    detail=_net_membership_detail(name, paths, board_paths),
-                    paths=tuple(sorted(paths ^ board_paths)),
-                )
-            )
-
-    for name, board_paths in sorted(board.nets.items()):
-        if name not in design_net_paths:
-            findings.append(
-                ReconciliationFinding(
-                    kind=KIND_NET_EXTRA,
-                    severity=SEVERITY_ERROR,
-                    detail=(
-                        f"net {name!r} connects board component(s) "
-                        f"{', '.join(sorted(board_paths))} but does not exist in "
-                        "the compiled netlist -- stale board or orphaned "
-                        "assignment"
-                    ),
-                    paths=tuple(sorted(board_paths)),
-                )
-            )
-
-    return findings
-
-
-def _net_membership_detail(name: str, design_paths: set[str], board_paths: set[str]) -> str:
-    only_design = sorted(design_paths - board_paths)
-    only_board = sorted(board_paths - design_paths)
-    parts = [f"net {name!r} has different component membership between the two sides"]
-    if only_design:
-        parts.append(f"design-only: {', '.join(only_design)}")
-    if only_board:
-        parts.append(f"board-only: {', '.join(only_board)}")
-    return " -- ".join(parts)
-
-
-def _resolve_design_net_paths(design: DesignNetlist) -> dict[str, set[str]]:
-    """Design net name -> set of instance paths it connects. A node touching a
-    duplicated ref contributes every candidate path -- inherently ambiguous,
-    and REUSE is that corruption's owning finding.
-
-    NOTE: nets that resolve to an EMPTY path set are kept in the mapping (as
-    empty sets), not dropped. An empty set is the signature of the R39
-    dropped-net mutation (the net stays declared, its nodes are removed): it
-    must be distinguishable from a net that was never declared at all so the
-    reconciliation can report NET-MEMBERSHIP (design empty vs board non-empty)
-    rather than misreading the emptied net as a board-only NET-EXTRA."""
-    design_ref_to_paths = design.ref_to_paths
-    out: dict[str, set[str]] = {}
-    for name, nodes in design.nets.items():
-        paths: set[str] = set()
-        for ref, _pin in nodes:
-            paths.update(design_ref_to_paths.get(ref, []))
-        out[name] = paths
-    return out
-
-
 def reconcile(board: BoardNetlist, design: DesignNetlist) -> ReconciliationReport:
     """Compare the board-side and design-side netlists, returning every
     finding keyed by instance path and net membership (never by refdes
-    overlap)."""
-    design_net_paths = _resolve_design_net_paths(design)
+    overlap).
+
+    The comparison compute — the component-level findings (UNKEYABLE /
+    REUSE / MISSING / RENUMBERED / EXTRA), the net-path resolution and
+    net-level findings (NET-MISSING / NET-EXTRA / NET-MEMBERSHIP), and the
+    report counters — is the ``reconcile`` kernel in
+    ``temper_design_bundle_python.validation`` (Rust). The board-side
+    traversal (``build_board_netlist``) and the dataclass wrapping stay
+    here. Board net node sets are passed as unordered lists; the kernel
+    compares them as sets, exactly as the oracle's `set != set` does.
+    """
+    findings, design_components, board_components, matched_paths, design_nets_nonempty, board_nets = (
+        _tdb.validation.reconcile(
+            [(c.ref, c.sheetpath) for c in board.components],
+            [(name, sorted(paths)) for name, paths in board.nets.items()],
+            [(c.ref, c.instance_path) for c in design.components],
+            [(name, list(nodes)) for name, nodes in design.nets.items()],
+            list(design.duplicate_refs),
+        )
+    )
     return ReconciliationReport(
-        findings=_component_findings(board, design)
-        + _net_findings(board, design_net_paths),
-        design_components=len(design.components),
-        board_components=len(board.components),
-        matched_paths=sum(
-            1
-            for path in {c.instance_path for c in design.components}
-            if path in {c.sheetpath for c in board.components}
-        ),
-        design_nets_nonempty=sum(1 for paths in design_net_paths.values() if paths),
-        board_nets=len(board.nets),
+        findings=[
+            ReconciliationFinding(
+                kind=f["kind"],
+                severity=f["severity"],
+                detail=f["detail"],
+                refs=tuple(f["refs"]),
+                paths=tuple(f["paths"]),
+            )
+            for f in findings
+        ],
+        design_components=design_components,
+        board_components=board_components,
+        matched_paths=matched_paths,
+        design_nets_nonempty=design_nets_nonempty,
+        board_nets=board_nets,
     )

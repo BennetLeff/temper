@@ -28,7 +28,6 @@ from pathlib import Path
 
 import pytest
 
-from temper_placer.io._parse_modules import _extract_components_from_pcb
 from temper_placer.io._write_types import PlacementUpdate
 from temper_placer.io.kicad_writer import write_placements_to_pcb
 
@@ -151,9 +150,14 @@ def test_intrinsic_pad_rotation_is_preserved(tmp_path: Path) -> None:
 def test_parse_recovers_intrinsic_rotation(tmp_path: Path) -> None:
     """A correctly-written board must not read back a doubled rotation."""
     board_path = _ssop20_template(tmp_path / "b.kicad_pcb", fp_rotation=270.0, pad_angle=270.0)
-    board = kiutils_board.Board.from_file(str(board_path))
+    import temper_design_bundle_python as _tdb
 
-    components = _extract_components_from_pcb(board, [], (0.0, 0.0))
+    # Wave 4 Phase 3 candidate 3: the component extraction moved to the Rust
+    # parse engine (io._parse_modules is now a delegation boundary marker).
+    result = _tdb.parse_engine.parse_kicad_pcb(
+        board_path.read_text(encoding="utf-8"), normalize=False
+    )
+    components = result.netlist.components
     assert len(components) == 1
     pins = components[0].pins
     assert pins, "component parsed with no pins"

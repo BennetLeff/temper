@@ -48,7 +48,7 @@ class V6RouterAdapter:
     """MazeRouter-compatible adapter wrapping RouterV6Pipeline.
 
     Exposes the subset of MazeRouter's interface that consumers
-    (auto_layout.py, internal_route.py) actually call:
+    (auto_layout.py) actually call:
 
         adapter = V6RouterAdapter.from_board(board, cell_size_mm, num_layers, ...)
         adapter.block_components(components, positions)

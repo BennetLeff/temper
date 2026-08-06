@@ -6,6 +6,7 @@
 //
 // Origin: docs/plans/2026-07-01-009-feat-quality-oracle-typed-pipeline-plan.md
 
+pub mod cluster_f;
 pub mod types;
 pub mod ipc2221;
 pub mod classification;
@@ -436,5 +437,6 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(interpret_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
     m.add_function(wrap_pyfunction!(version_py, m)?)?;
+    cluster_f::bindings::register(m)?;
     Ok(())
 }

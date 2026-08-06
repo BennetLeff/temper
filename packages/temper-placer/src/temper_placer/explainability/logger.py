@@ -11,6 +11,12 @@ The logger provides:
 - Significant change detection to reduce noise
 - Context managers for phase/epoch scoping
 
+Wave 4, Phase 5: ``should_log`` (Python-modulo interval gating),
+``significant_change`` (Euclidean distance) and the decision-construction
+logic of the four ``log_*`` methods now live in the ``temper-io-types`` Rust
+crate (``explain.rs``); this module is a delegation shim. Enable/disable
+state, the context managers and ``trace.add`` stay Python runtime semantics.
+
 Example:
     >>> logger = DecisionLogger()
     >>> logger.set_phase(DecisionPhase.GEOMETRIC)
@@ -22,10 +28,11 @@ Example:
 
 from __future__ import annotations
 
-import math
 from collections.abc import Generator
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
+
+import temper_io_types as _rust
 
 from temper_placer.explainability.decision import (
     Alternative,
@@ -175,24 +182,12 @@ class DecisionLogger:
         if not self._enabled:
             return
 
-        # Determine decision type based on whether there's a previous value
-        decision_type = (
-            DecisionType.POSITION_UPDATE if previous is not None else DecisionType.INITIAL_POSITION
+        payload = _rust.explain_log_position(
+            self.current_phase.value, component, position, previous, reason,
+            constraint_refs or [], alternatives or [], loss_delta,
+            self.current_epoch, self.current_iteration,
         )
-
-        decision = Decision(
-            decision_type=decision_type,
-            phase=self.current_phase,
-            subject=component,
-            value=position,
-            previous_value=previous,
-            reason=reason,
-            constraint_refs=constraint_refs or [],
-            loss_contribution=loss_delta if loss_delta is not None else 0.0,
-            alternatives=alternatives or [],
-            epoch=self.current_epoch,
-            iteration=self.current_iteration,
-        )
+        decision = _decision_from_payload(payload)
         self.trace.add(decision)
 
     def log_rotation(
@@ -213,16 +208,11 @@ class DecisionLogger:
         if not self._enabled:
             return
 
-        decision = Decision(
-            decision_type=DecisionType.ROTATION,
-            phase=self.current_phase,
-            subject=component,
-            value=rotation,
-            previous_value=previous,
-            reason=reason,
-            epoch=self.current_epoch,
-            iteration=self.current_iteration,
+        payload = _rust.explain_log_rotation(
+            self.current_phase.value, component, rotation, previous, reason,
+            self.current_epoch, self.current_iteration,
         )
+        decision = _decision_from_payload(payload)
         self.trace.add(decision)
 
     def log_heuristic(
@@ -248,19 +238,11 @@ class DecisionLogger:
         if not self._enabled:
             return
 
-        # Use provided reason or generate from heuristic name
-        effective_reason = reason if reason else f"Placed by {heuristic_name} heuristic"
-
-        decision = Decision(
-            decision_type=DecisionType.INITIAL_POSITION,
-            phase=DecisionPhase.TOPOLOGICAL,
-            subject=component,
-            value=position,
-            reason=effective_reason,
-            loss_contribution=confidence,  # Store confidence in loss_contribution
-            epoch=self.current_epoch,
-            iteration=self.current_iteration,
+        payload = _rust.explain_log_heuristic(
+            heuristic_name, component, position, reason, confidence,
+            self.current_epoch, self.current_iteration,
         )
+        decision = _decision_from_payload(payload)
         self.trace.add(decision)
 
     def log_constraint_application(
@@ -281,23 +263,11 @@ class DecisionLogger:
         if not self._enabled:
             return
 
-        # Generate reason from action and components if not provided
-        if reason:
-            effective_reason = reason
-        else:
-            comp_str = ", ".join(affected_components)
-            effective_reason = f"Constraint {constraint_id} {action}: affected {comp_str}"
-
-        decision = Decision(
-            decision_type=DecisionType.CONSTRAINT_APPLIED,
-            phase=self.current_phase,
-            subject=constraint_id,
-            value=affected_components,
-            reason=effective_reason,
-            constraint_refs=[constraint_id],
-            epoch=self.current_epoch,
-            iteration=self.current_iteration,
+        payload = _rust.explain_log_constraint(
+            self.current_phase.value, constraint_id, affected_components, action, reason,
+            self.current_epoch, self.current_iteration,
         )
+        decision = _decision_from_payload(payload)
         self.trace.add(decision)
 
     def should_log(
@@ -320,9 +290,7 @@ class DecisionLogger:
         Returns:
             True if logging should occur at this epoch
         """
-        if is_final:
-            return True
-        return epoch % interval == 0
+        return _rust.explain_should_log(epoch, interval, is_final)
 
     def significant_change(
         self,
@@ -343,7 +311,26 @@ class DecisionLogger:
         Returns:
             True if the movement is >= threshold
         """
-        dx = new[0] - old[0]
-        dy = new[1] - old[1]
-        distance = math.sqrt(dx * dx + dy * dy)
-        return distance >= threshold
+        return _rust.explain_significant_change(old, new, threshold)
+
+
+def _decision_from_payload(payload: dict) -> Decision:
+    """Build a Decision from the Rust decision-construction payload.
+
+    Enum construction (``DecisionType(value)`` / ``DecisionPhase(value)``)
+    stays Python stdlib per the established rulings; the payload fields
+    (type selection, reason generation, defaults) are computed by Rust.
+    """
+    return Decision(
+        decision_type=DecisionType(payload["decision_type"]),
+        phase=DecisionPhase(payload["phase"]),
+        subject=payload["subject"],
+        value=payload["value"],
+        previous_value=payload["previous_value"],
+        reason=payload["reason"],
+        constraint_refs=payload["constraint_refs"],
+        loss_contribution=payload["loss_contribution"],
+        alternatives=payload["alternatives"],
+        epoch=payload["epoch"],
+        iteration=payload["iteration"],
+    )

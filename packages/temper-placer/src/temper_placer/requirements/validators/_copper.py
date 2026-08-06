@@ -1,9 +1,15 @@
 """Copper geometry for the REQ-SAFE-01 clearance/creepage check.
 
-Split out of ``clearance.py`` so that module stays under the repo's
-1000-line file cap; this is the "how far apart is the copper" half, and
-``clearance.py`` is the "which pairs, against which requirement, reported
-how" half. Both are internal to this package.
+Wave 4, Phase 5: the validator compute — including the pad parsing and the
+copper model behind this module — now lives in the ``temper-drc-rs`` crate
+(``req_safe_01.rs``), which calls the ``temper-geometry`` kernels back across
+the boundary exactly as this module used to (the "temper_geometry
+call-back"). This file survives as a thin compatibility facade pinned by the
+Wave-3 differential ``tests/requirements/test_clearance_rust_differential.py``
+at the Python-attribute level (``_Pad`` fields, ``_component_pads`` results,
+``_CopperModel._pads/_origin/_reach/_dist_cache``); the pre-migration
+implementation is pinned verbatim as the oracle
+(``tests/requirements/clearance_oracle/_copper.py``).
 
 The measurement itself, and why it replaced origin-to-origin distance, is
 documented in ``clearance``'s module docstring. Everything here is built on
@@ -18,10 +24,10 @@ import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
+import temper_drc_rs as _rust
 import temper_geometry as _tg
 
 from temper_placer.core.pad_geometry import (
-    DEFAULT_ROUNDRECT_RATIO,
     shape_code,
 )
 
@@ -69,29 +75,21 @@ class _Pad:
 
 
 def _rotate(x: float, y: float, theta_rad: float) -> tuple[float, float]:
-    """KiCad's real footprint-child rotation convention -- see
+    """KiCad's real footprint-child rotation convention — see
     ``temper_placer.geometry.kicad_transform``'s module docstring for the
-    confirming evidence (this is the REQ-SAFE-01 copper-position site: the
-    12 independently-typed copies of this formula that module's docstring
-    describes included this one).
-    This repo's own KiCad parser (``io/_parse_modules.py``, which builds
-    ``Component.initial_position`` as ``fp.position + R(-theta) *
-    center_offset``) and writer (``io/_write_modules.py``,
-    ``io/_write_board.py``) all use this same convention -- this function
-    must agree with them: substituting ``local_offset = pad_local -
-    center_offset`` recovers ``fp.position + R(-theta) * pad_local``
-    exactly. Picking the opposite sign for pads only would make the pad set
-    inconsistent with its own reported origin.
+    confirming evidence (this is the REQ-SAFE-01 copper-position site).
 
     **Computed in the ``temper-geometry`` Rust crate**
     (``clearance_geometry.rs``, host-libm ``cos``/``sin``), bit-identical
     to ``kicad_transform.rotate_local_to_world`` -- pinned by
-    ``tests/requirements/test_clearance_rust_differential.py``. (The
-    sanctioned pure-Python module stays as-is for its other 11 call sites;
-    this clearance-path site is the one that feeds the safety validator, so
-    it runs the crate's single implementation instead.)
+    ``tests/requirements/test_clearance_rust_differential.py``.
     """
     return _tg.rotate_local_to_world_py(x, y, theta_rad)
+
+
+def _pad_from_tuple(t: tuple) -> _Pad:
+    """Rebuild a ``_Pad`` from ``req_safe_01_component_pads``'s 10-tuple."""
+    return _Pad(*t)
 
 
 def _component_pads(comp: dict[str, Any]) -> list[_Pad]:
@@ -99,34 +97,12 @@ def _component_pads(comp: dict[str, Any]) -> list[_Pad]:
 
     Returns ``[]`` when the component carries no pad data -- callers fall
     back to the (optimistic) origin point model and must account for it.
-    """
-    raw = comp.get("pads")
-    if not raw:
-        return []
-    ref = str(comp.get("ref", "?"))
-    ox, oy = comp["position"]
-    comp_rot_rad = math.radians(float(comp.get("rotation_deg", 0.0)))
 
-    pads: list[_Pad] = []
-    for i, p in enumerate(raw):
-        dx, dy = p.get("offset", (0.0, 0.0))
-        rx, ry = _rotate(float(dx), float(dy), comp_rot_rad)
-        pad_rot_rad = comp_rot_rad + math.radians(float(p.get("pad_rotation_deg", 0.0)))
-        pads.append(
-            _Pad(
-                ref=ref,
-                number=str(p.get("number", i)),
-                net=p.get("net"),
-                cx=ox + rx,
-                cy=oy + ry,
-                width=float(p.get("width", 1.0)),
-                height=float(p.get("height", 1.0)),
-                shape=str(p.get("shape", "rect")),
-                roundrect_ratio=float(p.get("roundrect_ratio", DEFAULT_ROUNDRECT_RATIO)),
-                rotation_rad=pad_rot_rad,
-            )
-        )
-    return pads
+    Wave 4, Phase 5: the parsing compute (offset rotation, radians, pad
+    defaults) is Rust (``req_safe_01_component_pads``); this facade rebuilds
+    the ``_Pad`` objects so the Wave-3-pinned attribute surface survives.
+    """
+    return [_pad_from_tuple(t) for t in _rust.req_safe_01_component_pads(comp)]
 
 
 class _CopperModel:
@@ -136,6 +112,13 @@ class _CopperModel:
     boundary twice (clearance + creepage) and usually twice more (basic +
     reinforced tiers) -- pays for each pair's exact distance once instead of
     four times.
+
+    Wave 4, Phase 5: the full validator's model (including its own memoized
+    pair distances) lives in ``temper-drc-rs`` (``req_safe_01.rs``); this
+    class is the Wave-3-pinned Python facade, populated from
+    ``req_safe_01_copper_model_init`` and with the distance methods still
+    calling the ``temper-geometry`` kernels directly (they already are the
+    migrated geometry).
     """
 
     def __init__(self, placement: dict[str, Any]) -> None:
@@ -145,24 +128,12 @@ class _CopperModel:
         self._dist_cache: dict[tuple[str, Any, str, Any], tuple[float, str, str]] = {}
         self.components_without_pads: list[str] = []
 
-        for comp in placement.get("components", []):
-            ref = str(comp.get("ref", "?"))
-            self._origin[ref] = tuple(comp["position"])  # type: ignore[assignment]
-            pads = _component_pads(comp)
-            self._pads[ref] = pads
-            if not pads:
-                self.components_without_pads.append(ref)
-                self._reach[ref] = 0.0
-                continue
-            ox, oy = self._origin[ref]
-            # The reach math (CPython math.hypot + the Rust bounding
-            # radius, folded with max) is the temper-geometry crate's
-            # component_reach_py -- bit-exact vs the pre-migration loop.
-            self._reach[ref] = _tg.component_reach_py(
-                [self._spec(p) for p in pads],
-                ox,
-                oy,
-            )
+        payload = _rust.req_safe_01_copper_model_init(placement)
+        for ref, pad_tuples in payload["pads"].items():
+            self._pads[ref] = [_pad_from_tuple(t) for t in pad_tuples]
+        self._origin = dict(payload["origins"])
+        self._reach = dict(payload["reaches"])
+        self.components_without_pads = list(payload["components_without_pads"])
 
     # -- pad selection -----------------------------------------------------
 
@@ -266,12 +237,8 @@ class _CopperModel:
         # pad-pair distance per surviving pair -- is the temper-geometry
         # crate's copper_scan_py (bit-exact vs the pre-migration loop,
         # including the `pa is pb` identity skip and the
-        # `centre_gap >= best` prune). The ids are Python object ids:
-        # equal ids reproduce `pa is pb` exactly, which also catches pads
-        # shared between a domain-filtered sublist and the component's
-        # stored full list. `best` is inf exactly when no distinct pad
-        # pair survived, which reproduces the old `best is math.inf`
-        # origin fallback.
+        # `centre_gap >= best` prune). `best` is inf exactly when no
+        # distinct pad pair survived.
         best, best_pair = _tg.copper_scan_py(
             [self._spec(p) for p in pads_a],
             [self._spec(p) for p in pads_b],

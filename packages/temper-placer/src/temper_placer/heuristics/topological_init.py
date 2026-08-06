@@ -102,11 +102,15 @@ class TopologicalInitializationHeuristic(Heuristic):
         Returns:
             HeuristicResult with generated placements
         """
-        # Get unplaced, non-fixed components
+        # Get unplaced, non-fixed components, in netlist order.
+        # This must be an ordered sequence, not a set: it seeds the zone
+        # assignment's insertion order, which becomes the cluster order, which
+        # selects each cluster's sub-region via `cluster_index`. A set here makes
+        # those sub-regions depend on PYTHONHASHSEED.
         unfixed_components = [c for c in context.netlist.components if not c.fixed]
-        unplaced_refs = {
+        unplaced_refs = [
             c.ref for c in unfixed_components if c.ref not in context.current_placements
-        }
+        ]
 
         if not unplaced_refs:
             return HeuristicResult(
@@ -130,8 +134,9 @@ class TopologicalInitializationHeuristic(Heuristic):
         zone_assignment = self._build_zone_assignment(context, graph, unplaced_refs)
 
         # Get component sizes
+        unplaced_set = set(unplaced_refs)
         component_sizes = {
-            c.ref: (c.width, c.height) for c in context.netlist.components if c.ref in unplaced_refs
+            c.ref: (c.width, c.height) for c in context.netlist.components if c.ref in unplaced_set
         }
 
         # Get zones from board
@@ -191,7 +196,7 @@ class TopologicalInitializationHeuristic(Heuristic):
     def _build_graph(
         self,
         context: PlacementContext,
-        component_refs: set[str],
+        component_refs: list[str],
     ) -> TopologicalGraph:
         """Build topological graph from context.
 
@@ -199,16 +204,19 @@ class TopologicalInitializationHeuristic(Heuristic):
 
         Args:
             context: Placement context
-            component_refs: Components to include in graph
+            component_refs: Components to include in graph, in netlist order
 
         Returns:
             TopologicalGraph with components and constraints
         """
         graph = TopologicalGraph()
 
-        # Add components
+        # Add components. Insertion order fixes the graph's node order, which
+        # downstream clustering iterates.
         for ref in component_refs:
             graph.add_component(ref)
+
+        ref_set = set(component_refs)
 
         # Infer adjacency from nets - components sharing a net should be close
         for net in context.netlist.nets:
@@ -217,7 +225,7 @@ class TopologicalInitializationHeuristic(Heuristic):
             for pin in net.pins:
                 # Pin is a tuple (component_ref, pin_name)
                 ref = pin[0]
-                if ref in component_refs:
+                if ref in ref_set:
                     net_refs.add(ref)
 
             # Add adjacency constraints between components on same net
@@ -239,7 +247,7 @@ class TopologicalInitializationHeuristic(Heuristic):
         self,
         context: PlacementContext,
         _graph: TopologicalGraph,
-        component_refs: set[str],
+        component_refs: list[str],
     ) -> ZoneAssignment:
         """Build zone assignment from context.
 
@@ -293,7 +301,7 @@ class TopologicalInitializationHeuristic(Heuristic):
     def _check_feasibility(
         self,
         context: PlacementContext,
-        component_refs: set[str],
+        component_refs: list[str],
     ) -> FeasibilityResult:
         """Check if placement is feasible before attempting.
 
@@ -311,9 +319,10 @@ class TopologicalInitializationHeuristic(Heuristic):
         conflicts: list[str] = []
 
         # Get component sizes
+        ref_set = set(component_refs)
         component_sizes: dict[str, tuple[float, float]] = {}
         for c in context.netlist.components:
-            if c.ref in component_refs:
+            if c.ref in ref_set:
                 component_sizes[c.ref] = (c.width, c.height)
 
         # Get available placement area (zones or board)
