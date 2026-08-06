@@ -33,15 +33,18 @@ module is still AST-identical to its pinned oracle, and the fix is present
 (see ``packages/temper-rust-router/src/net_ordering.rs``'s
 ``pin_world_position``).
 
-``NetPriority`` (and the kernel's ``net_priority_key_py``/
-``net_priority_lt_py``, which exist to reproduce its comparison semantics
-bit-for-bit under the differential's NaN/identity-shortcut corpus rows) is
-NOT wired: ``order_nets`` no longer constructs it at all now that the whole
-function delegates in one call, and nothing else in this repository
-constructs or compares a ``NetPriority`` directly. Wiring its ``__lt__``/
-``__eq__`` to the kernel would need inventing a caller rather than serving
-one -- exactly the "inert kernel" failure mode
-``scripts/check_unwired_kernels.py``'s module docstring names.
+``NetPriority`` is NOT wired to its two kernel-side comparison probes (see
+``packages/temper-rust-router/src/net_ordering.rs`` for the pair that exist
+to reproduce ``NetPriority``'s comparison semantics bit-for-bit under the
+differential's NaN/identity-shortcut corpus rows -- their names are
+deliberately not spelled out here, so this docstring itself does not trip
+``scripts/check_unwired_kernels.py``'s substring scan into reporting a
+production reference that is not real): ``order_nets`` no longer constructs
+``NetPriority`` at all now that the whole function delegates in one call,
+and nothing else in this repository constructs or compares a
+``NetPriority`` directly. Wiring its comparison dunders to the kernel would
+need inventing a caller rather than serving one -- exactly the "inert
+kernel" failure mode that gate's own module docstring names.
 
 Net-membership marshalling note: the kernel's ``loop_criticality`` matches a
 net against a loop's explicit net list only. The shipped
@@ -172,9 +175,7 @@ def _loop_specs_wire(loops: LoopCollection) -> list[tuple[str, str, list[str]]]:
     """
     specs = []
     for loop in loops.loops:
-        nets = list(
-            dict.fromkeys([*loop.nets, *(p.net_name for p in loop.pins if p.net_name)])
-        )
+        nets = list(dict.fromkeys([*loop.nets, *(p.net_name for p in loop.pins if p.net_name)]))
         specs.append((loop.name, loop.priority.name, nets))
     return specs
 

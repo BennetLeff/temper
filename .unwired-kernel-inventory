@@ -42,10 +42,12 @@ dfm_thermal_via_positions_py	PR #749 DFM cluster -- Rust proven, shim not writte
 dfm_via_annular_area_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_via_segment_index_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_via_teardrop_py	PR #749 DFM cluster -- Rust proven, shim not written
-escape_is_position_valid_py	PR #751 -- BLOCKED on a kernel defect: escape_via.rs hardcodes DEFAULT_ROUNDRECT_RATIO; shipped pin_geometry reads pin.roundrect_ratio
+escape_is_position_valid_py	PR #839 -- #829's kernel defect is fixed, but the signature is a differential-only probe (implicit identity component transform, no rotation/side); generate_escape_vias delegates wholesale so the real _is_position_valid became dead code and was removed. No real caller shape can use this probe contract.
 is_available_py	unwired at time of recording; no reason given
 is_via_position_valid_py	unwired at time of recording; no reason given
 junction_temp	unwired at time of recording; no reason given
+net_priority_key_py	PR #839 -- NetPriority is no longer constructed anywhere: order_nets delegates wholesale to order_nets_py and nothing else in this repo builds or compares a NetPriority. Wiring this comparison probe would mean inventing a caller, not serving one.
+net_priority_lt_py	PR #839 -- same as net_priority_key_py: NetPriority has no real caller now that order_nets delegates wholesale.
 normalized_bundle_json	unwired at time of recording; no reason given
 numpy_pairwise_sum_py	unwired at time of recording; no reason given
 parse_axis	unwired at time of recording; no reason given
