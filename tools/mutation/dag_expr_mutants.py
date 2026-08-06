@@ -684,6 +684,35 @@ class Verdict:
     elapsed_s: float
 
 
+CARGO_MANIFEST = "packages/temper-io-types/Cargo.toml"
+
+
+def run_cargo_tests() -> subprocess.CompletedProcess:
+    """Run the crate's own Rust test suite.
+
+    Some behaviour has NO Python-visible counterpart and so cannot be held by
+    the pytest suites at all. `MAX_DEPTH` is the worked example: the oracle is
+    CPython, which raises RecursionError at nesting depth ~199, so the
+    differential's inputs stop three-quarters of the way to the 1000-frame
+    ceiling and a one-frame shift in it is unreachable from Python.
+
+    A harness that consulted only pytest reported exactly that mutant as
+    SURVIVED while a Rust test was failing on it -- a false negative in the
+    gate, which is worse than a missing gate because it reads as evidence.
+    """
+    return subprocess.run(
+        ["cargo", "test", "--manifest-path", CARGO_MANIFEST],
+        capture_output=True, text=True, cwd=REPO_ROOT,
+    )
+
+
+def first_failed_rust_test(result: subprocess.CompletedProcess) -> str:
+    ids = re.findall(r"^test (\S+) \.\.\. FAILED$", result.stdout, re.M)
+    if not ids:
+        return "cargo test failed (no test id parsed)"
+    return f"{ids[0]} (+{len(ids) - 1} more)" if len(ids) > 1 else ids[0]
+
+
 def run_one(mutant: Mutant, original_lines: list[str], trailing_newline: bool) -> Verdict:
     t0 = time.monotonic()
     original_text = "\n".join(original_lines) + ("\n" if trailing_newline else "")
@@ -741,6 +770,14 @@ def run_one(mutant: Mutant, original_lines: list[str], trailing_newline: bool) -
             else:
                 status = "SURVIVED"
                 detail = f"all {summary['passed']} tests passed"
+
+            # pytest cannot see behaviour with no Python-visible counterpart,
+            # so a SURVIVED verdict is not final until the Rust suite agrees.
+            if status == "SURVIVED":
+                rust = run_cargo_tests()
+                if rust.returncode != 0:
+                    status = "KILLED"
+                    detail = "cargo test: " + first_failed_rust_test(rust)
     finally:
         # Revert unconditionally, even if the build/test step raised.
         write_lines(TARGET_FILE, original_lines, trailing_newline)
@@ -781,7 +818,25 @@ def main() -> int:
     original_lines, trailing_newline = read_lines(TARGET_FILE)
     print(f"Validating {len(MUTANTS)} mutant hunk set(s) against the pristine file...")
     validate_all(original_lines)
-    print("All hunks match. Free disk: %.1f GB\n" % free_gb(REPO_ROOT))
+    print("All hunks match. Free disk: %.1f GB" % free_gb(REPO_ROOT))
+
+    # A kill signal is only evidence if it is SILENT on the pristine tree.
+    # `run_cargo_tests` can now upgrade SURVIVED to KILLED, so a Rust suite
+    # that is already red would report all 21 mutants KILLED and the run
+    # would look like its best result ever while proving nothing.
+    print("Checking the Rust suite is green on the pristine file...")
+    baseline = run_cargo_tests()
+    if baseline.returncode != 0:
+        print(
+            "FAIL: cargo test is already failing on the UNMUTATED file -- every\n"
+            "      mutant would be reported KILLED by a signal that has nothing\n"
+            "      to do with the mutation. Fix the Rust suite before trusting\n"
+            "      any verdict from this harness.\n\n"
+            f"      first failure: {first_failed_rust_test(baseline)}",
+            file=sys.stderr,
+        )
+        return 2
+    print("Rust suite green.\n")
 
     verdicts: list[Verdict] = []
     for i, mutant in enumerate(selected, 1):
