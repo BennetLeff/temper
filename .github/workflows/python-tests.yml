@@ -35,9 +35,50 @@ name: Python Tests
 # evidenced there by 8 consecutive cancelled trunk runs -- and adds the PR-side
 # fix that motivated the head-SHA grouping, without the queue cost. #362's Core
 # Tests timeout raise (30 -> 45) is untouched.
+#
+# SUPERSEDED 2026-08-06 -- the `push -> group by SHA` half above is no longer
+# what the code does, and is kept only as the record of why it was tried.
+#
+# Per-commit trunk runs do not survive this repo's merge rate. Trunk took 169
+# commits on 2026-08-05 and 124 on 2026-08-04; one unique group per commit is
+# one full run set per commit, against a measured ~24-job concurrency ceiling.
+# #798 hit exactly that: a 29-PR merge run left 88 concurrent runs on main, 83
+# of them for commits already superseded, and jobs sat queued 19.6 minutes with
+# none starting.
+#
+# #798 then overcorrected in the other direction -- it moved the push key to
+# `github.ref` AND set cancel-in-progress unconditionally true, which
+# reproduced #362's original failure exactly: 6 of 8 consecutive trunk runs
+# `cancelled`, zero successes, and a newly added `cargo test` step that never
+# executed once.
+#
+# What the code does now (#823), and why it is the synthesis rather than a
+# third swing:
+#
+#   push (main)   -> group by `github.ref`, cancel-in-progress FALSE.
+#                    Trunk pushes share ONE group, so they queue instead of
+#                    stacking -- that is the #798 fix, and it is in the group
+#                    key, not the cancel flag. A run that is already EXECUTING
+#                    is never killed, which is #362's requirement. GitHub keeps
+#                    only the newest PENDING run per group, so intermediate
+#                    trunk commits are still superseded while waiting.
+#
+# The cost, stated plainly: not every trunk commit gets its own verdict during
+# a burst, so bisecting to a specific commit may find no run. That is a real
+# loss against #362's intent, accepted because the alternative measured worse
+# -- 88 stacked runs verify nothing either, they just do it more expensively.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # PRs: cancel in progress -- a superseded PR run is worthless.
+  # push (i.e. main): DO NOT cancel. A run already executing is main's
+  # only verification; killing it mid-flight is how 6 of 8 consecutive
+  # main runs ended up `cancelled` on 2026-08-06, with zero successes,
+  # so `cargo test`/clippy results never landed during a merge burst.
+  # Sharing one group by `github.ref` still prevents the 88-run pileup
+  # the sha-keyed group allowed: later pushes queue, and GitHub keeps
+  # only the newest PENDING run, so intermediate commits are still
+  # superseded -- just not the one actually running.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
   push:
