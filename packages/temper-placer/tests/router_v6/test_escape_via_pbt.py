@@ -45,10 +45,15 @@ differential while looking more correct.  Pinned by
 :func:`test_quadrant_rotations_are_not_exact`, and it is why M1's exactness
 is restricted to unrotated components.
 
-Defect D4 (every via is labelled ``F.Cu`` whatever side the component is on)
-is pinned by name in the differential, not encoded as a property here -- a
-property that asserted "the layer is always F.Cu" would read as a
-specification rather than as the bug report it is.
+Defect D4 (every via labelled ``F.Cu`` whatever side the component is on) was
+pinned by name in the differential, not encoded as a property here -- a
+property asserting "the layer is always F.Cu" would have read as a
+specification rather than as the bug report it was.  #760 (``aebaecd99``)
+repaired it and the differential's pin is now inverted
+(``test_repaired_d4_layer_follows_the_component_side``).  It stays out of
+this file for the mirror-image reason: the layer is a lookup on
+``initial_side``, not a floating-point property, so it has nothing to
+generate over.
 """
 
 from __future__ import annotations

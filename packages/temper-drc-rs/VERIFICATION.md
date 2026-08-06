@@ -403,3 +403,392 @@ rdl_sum`); R1g no `unwrap`/`expect` outside tests, pyo3 `catch_unwind`
 default; R1b no-regression arm not registered — a per-segment callback
 loop is marshalling-bound and the slice makes no speedup claim (recorded
 reason); R1h **not applicable** (no physics-gated quantity).
+---
+
+# Regression-slice kernels — Verification (Wave 4 Phase 4)
+
+The regression slice ported the portable compute of seven
+`temper_placer/regression/` modules. Three land in this crate (drc_ratchet,
+closure_test, physics_oracle — validation-adjacent, the #717/#761 precedent
+of hosting validation kernels here); four land in `temper-design-bundle`
+(cp_sat_comparison, measure_closure, fingerprint, schema_validator — compute
+plus the netlist/board contracts that live there). The pre-migration modules
+are pinned verbatim as the differential oracles
+(`packages/temper-placer/tests/regression/_*_py_oracle.py`, commit
+`0a29f15e3`). TDD-RED commit `de1f6ac9d` (the differentials fail to collect
+until the kernels exist); GREEN `dc603230b`.
+
+## Candidate scorecard — home-crate decisions
+
+| Kernel | Python origin | Home crate | Verdict |
+|---|---|---|---|
+| `ratchet_check` / `detect_ceiling_raise` | `drc_ratchet.py` | temper-drc-rs | migrated |
+| `closure_validate` / `closure_summary` | `closure_test.py` | temper-drc-rs | migrated |
+| `compute_oracle_margins` / `overall_score` / `clearance_passed` | `physics_oracle.py` | temper-drc-rs | migrated |
+| `compare_metric_dicts` | `cp_sat_comparison.py` | temper-design-bundle | migrated |
+| `compute_drc_clearance_pass_pct` | `measure_closure.py` | temper-design-bundle | migrated |
+| `input_fingerprint` / `source_fingerprint` / `should_skip` | `fingerprint.py` | temper-design-bundle | migrated |
+| `validate_schema` | `schema_validator.py` | temper-design-bundle | migrated |
+| DRC backends (kicad-cli subprocess, board-dict build), ceiling JSON I/O | `drc_ratchet.py` | — | **stays Python** — I/O/marshalling; the #575 ratchet constants stay where they are |
+| `ClosureTest.run()` orchestration, sidecar writer, routing-failure extraction | `closure_test.py` | — | **stays Python** — consumes pipeline/router surfaces outside this slice |
+| physics metric functions (`thermal_score`, `dual_rail_clearance_report`, `zone_compliance_score`, `loop_area_score`, `compactness_score`, `derive_constraints_from_spec`, parser, `infer_quality_config`) | `physics_oracle.py` | — | **stays Python** — other surfaces, called back across the boundary unchanged |
+| fingerprint file I/O / cache JSON, schema YAML loading, measure_closure payload assembly | fingerprint / schema_validator / measure_closure | — | **stays Python** — I/O + marshalling; messages type-carry int-vs-float via Python `str()` |
+
+The six harness modules (runner, reporter, corpus_runner, metrics_recorder,
+cli, manifest) are JUSTIFIED-KEEP with a D6 harness-independence blocker
+(recorded in `docs/wave4-verdicts.yaml`); they are NOT migrated and were not
+modified beyond what the shims require.
+
+## drc_ratchet
+
+### Induction applicability
+Not applicable — no recursion; every loop iterates over caller-provided
+collections with size-independent per-element operations. A **structural
+proof** is recorded instead.
+
+### Structural proof
+**Claim (bit-identical parity).** For every input in the differential
+suite's domain, `ratchet_check`/`detect_ceiling_raise` reproduce the pinned
+pre-migration `_check_board` comparison + message composition and
+`detect_ceiling_raise` bit-for-bit.
+
+*Proof by structural cases:*
+
+1. **Comparison semantics.** The per-type category loop sorts the current
+   rules (`sorted(current_by_type.items())`), looks up the allowed count with
+   a 0 default (implicit-zero ceiling), flags `is_new` for rules absent from
+   the allowed record, and fires only when the allowed record is non-empty
+   AND the backend supplied a breakdown (the oracle's `and` guard — an empty
+   record suppresses the per-type dimension entirely). `count > allowed` is
+   strict (the boundary pinned by M2).
+2. **Aggregate deltas.** `error_delta = current - ceiling`, failing when
+   `> 0`, with `aggregate_*_delta = max(delta, 0)`.
+3. **Message composition.** All interpolations are int/str/bool (no-format
+   `str(float)` never appears in this module), so `format!` matches CPython
+   f-strings bit-for-bit. The failing-run message keeps the version note's
+   two-space indent verbatim; the passing run `.strip()`s it (Python
+   `str.strip` == Rust `str::trim` for the ASCII note). The category block
+   renders `new_failures + regressed_failures` (NEW first), matching the
+   oracle's list concatenation, and reports `source` once per block.
+   `violation_deltas` and `category_failures` are in the oracle's order
+   (errors loop then warnings loop, each sorted).
+4. **Raise detection.** Iterates the new boards in JSON order, skips boards
+   absent from the old record, and accumulates reasons in the oracle's
+   order (aggregates, then sorted `violations_by_type`, then sorted
+   `warnings_by_type`), including a rule absent from the old record (a raise
+   from its implicit 0). Requires `"Ceiling-Approval:"` in the commit
+   message; returns `exit_code=2` on an unapproved raise, `None` otherwise.
+
+### Documented deviations
+- **Float-valued ceilings/counts fail LOUDLY at the shim marshal boundary
+  (pass 2, P1-1).** Pass 1 recorded the delegation shim's `int()` coercion
+  in `detect_ceiling_raise`'s Python-side `_marshal` as a truncation to
+  match the kernel's `i64` marshal, with the same coercion at the
+  `ratchet_check` boundary. The adversarial review demonstrated this fails
+  the #575 approval gate OPEN: a float-valued ceiling raise (`100 ->
+  100.5`) marshals to `100 -> 100` (truncated), so the kernel sees no raise,
+  the shim returns None, and the gate PASSES where it must block merge --
+  the oracle's raw compare would report `exit_code=2`. Fixed by validating
+  int-ness at the marshal boundary: any value that is not a genuine `int`
+  (bool excluded) raises `CeilingMarshalError` (a `ValueError` subclass,
+  `temper_placer/regression/drc_ratchet.py`) naming the field, board and
+  value BEFORE the kernel runs. This is a documented deviation FROM the
+  oracle's raw compare but SAFER: fail-loud where the old shim silently
+  passed. The i64 kernel boundary is unchanged (no f64 message-rendering
+  churn). The oracle keeps its raw-compare behavior; the differential pins
+  BOTH arms' loud behavior (`test_differential_float_ceiling_fails_loudly`,
+  `test_differential_float_per_type_count_fails_loudly`). Pinned int-valued
+  inputs are unaffected (the real `drc_ceiling.json` is all ints).
+
+### Pass 2 (adversarial review) — fail-loud marshal, graceful degradation, marshalling-scope disclosure
+
+**Fail-loudly float marshal (P1-1).** See the deviation record above. The
+gate's entire purpose is fail-closed on any raise; pass 1's int-only
+"record, don't change" response was the wrong response for a safety gate,
+because the truncation is exactly the failure mode the gate exists to
+prevent. Resolved by validating int-ness at the shim marshal boundary.
+
+**Kernel-missing graceful degradation restored (P1-2b).** During the
+migration the `ratchet_check` kernel call moved OUTSIDE `_check_board`'s
+`try/except`, so a missing `temper_drc_rs` raised an unhandled
+`ImportError: No module named 'temper_drc_rs'` traceback on the
+kicad-cli backend (the `ci_check_drc.py --backend kicad-cli` /
+`ci_closure_test.py` crash class) instead of the pre-migration clean
+`DRC (rust) failed` FAIL. The kernel call is back inside the `try/except`
+(pinned by `test_missing_kernel_fails_cleanly_not_traceback`). CI now also
+builds `temper-drc-rs` explicitly in every workflow that consumes it
+(regression.yml, metrics-record.yml, pr-pipeline-scorecard.yml -- see the
+workflow changes in the same PR), so the missing-extension state is a
+defensive path, not a normal one.
+
+**Mutation-sweep scope (kernel-only) disclosed (P2).** The anti-vacuity
+sweep (45 mutants) mutated ONLY the Rust kernels. The Python-side shim
+marshalling layer (`_marshal`, the `int()` coercion boundary, the
+cache-entry lookup, the import/lazy-load boundaries) was NOT
+mutant-tested -- and the P1-1 finding is the concrete proof of why that
+matters: a kernel-only sweep cannot see a fail-open in the marshalling
+boundary. Since this review round, the marshal validates int-ness and the
+`should_skip` kernel handles the null/non-dict entry class (see
+temper-design-bundle's VERIFICATION.md), closing the demonstrated classes.
+
+### R1 status
+- R1a: bit-exact differential `test_drc_ratchet_rust_differential.py` —
+  full `DrcRatchetResult` (incl. message strings) vs the oracle, both
+  backends, deterministic + 120-case randomized stress; pass 2 added the
+  fail-loud float-marshal cases, the exact `'; '`-separator pin, and the
+  kernel-missing graceful-degradation pin.
+- R1b: no-regression arm **not registered** — the ratchet comparison runs
+  once per gate invocation behind a per-call marshalling boundary; the slice
+  makes no speedup claim (the recorded reason, per the #775 precedent's
+  "only register measurable compute" carve-out).
+- R1c: 9 non-vacuous properties.
+- R1d: 4 honestly-bounded metamorphic relations.
+- R1e: structural proof above (no recursion; induction N/A).
+- R1f: RED `de1f6ac9d` (fails to collect without `ratchet_check`/
+  `detect_ceiling_raise`), GREEN `dc603230b`.
+- R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind` default at
+  every `#[pyfunction]` boundary.
+- R1h: **not applicable** — the ratchet enforces committed ceilings; no
+  CP-SAT constraint gates on a physics quantity.
+
+## closure_test
+
+### Induction applicability
+The `closure_summary` loop is a fixed-order line accumulation (structural,
+no induction). `closure_validate` is a conjunction of four independent
+predicates — no recursion and no size-parameterized correctness claim, so
+a **structural proof** is recorded (induction N/A).
+
+### Structural proof
+**Claim.** `closure_validate` emits exactly the oracle's failure messages in
+the oracle's order, and `closure_summary` renders the report string
+byte-identically.
+
+*Proof by structural cases:*
+1. Each predicate maps one-for-one from `ClosureResult.validate`'s `if`
+   chain, in order, with the exact message text; the conjunctive
+   zero-results line is present iff both placement and routing produced
+   nothing.
+2. `closure_summary` joins the fixed header block (with `:.1f` formatting
+   for the completion pct and wall clock — measured CPython-parity,
+   round-half-even) then appends the error/warning lines in list order.
+   `:.1f` renders `94.25` → `94.2` and `123.456` → `123.5` identically in
+   both arms (pinned by the differential).
+
+### R1 status
+- R1a: `test_closure_test_rust_differential.py` (300 randomized + edge
+  cases).
+- R1b: not registered (harness report rendering; no speedup claim).
+- R1c: 7 non-vacuous properties. R1d: 3 MRs. R1e: structural proof above.
+- R1f: RED `de1f6ac9d`, GREEN `dc603230b`. R1g: no `unwrap`/`expect`
+  outside tests; pyo3 `catch_unwind` default.
+- R1h: **not applicable** (no physics-gated quantity).
+
+## physics_oracle
+
+### R1h — the physics-gating question (recorded explicitly per the ledger)
+**This is an ORACLE/comparison kernel, not a physics gate.** The module
+scores a CP-SAT placement against physics metrics (thermal, clearance,
+dual-rail) to produce a pass/fail *observation*; it does not constrain any
+solve, and no CP-SAT constraint gates on a physics quantity here. The R24
+discipline (Chebyshev-style soundness proof, BMC-exhaustive validation,
+post-solve audit) therefore does **not** apply; the kernels are pinned
+against the oracle by the differential instead.
+
+### Induction applicability
+Not applicable — no recursion; the margin math is three independent
+multiplications and `overall_score` is a fixed accumulation over
+caller-provided scores. **Structural proof** recorded.
+
+### Structural proof
+**Claim.** `compute_oracle_margins`, `overall_score` and `clearance_passed`
+reproduce the pinned oracle bit-for-bit.
+
+*Proof by structural cases:*
+1. **Margins.** Each margin is one IEEE-754 multiply of the score (with the
+   oracle's `dict.get(key, 1.0)` missing-key default, preserved in-kernel)
+   by the caller's engineering-unit parameter — identical to the oracle's
+   expression. `clearance_margin_mm = (score - 1.0) * threshold` is signed
+   headroom (negative below 1.0).
+2. **Overall score.** CPython 3.12's builtin `sum()` uses Neumaier-
+   compensated summation for floats (measured on this platform: a plain
+   `+=` accumulation diverges from `sum()` on 4640/20000 random inputs and
+   `sum([1e16, 1.0, -1e16])` is 1.0, not 0.0). The kernel transcribes that
+   loop exactly (`t = s + x`; `c += (s - t) + x` when `|s| >= |x|`, else
+   `c += (x - t) + s`; `s = t`; result `s + c`), then divides by the count —
+   the oracle's `sum(...) / len(...)`. Empty input → `0.0` (the oracle's
+   `else 0.0` branch). The M3 mutant (plain accumulation) is caught by the
+   differential.
+3. **Pass decision.** `clearance_passed` is `clearance >= threshold` — the
+   oracle's `passed = clearance >= _CLEARANCE_PASS_THRESHOLD` (threshold
+   default 0.95 stays in the delegation module).
+4. **Cross-boundary call-backs.** `score_placement`, `run_physics_oracle`
+   and `score_human_baseline` keep calling the metric functions
+   (`thermal_score`, `dual_rail_clearance_report`, `zone_compliance_score`,
+   `loop_area_score`, `compactness_score`) and the spec/parse/derivation
+   pipeline across the boundary unchanged — only the three pure kernels
+   moved.
+
+### R1 status
+- R1a: `test_physics_oracle_rust_differential.py` (margins 400 randomized,
+   overall 400 randomized + the Neumaier boundary case, clearance_passed
+   boundary sweep).
+- R1b: not registered (score aggregation behind a marshalling boundary; no
+   speedup claim).
+- R1c: 7 non-vacuous properties. R1d: 4 MRs. R1e: structural proof above.
+- R1f: RED `de1f6ac9d`, GREEN `dc603230b`. R1g: no `unwrap`/`expect`
+   outside tests; pyo3 `catch_unwind` default.
+- R1h: stated above — not a physics gate.
+
+## Mutation campaign
+
+See `docs/evidence/2026-08-05-wave4-phase4-regression-mutation-sweep.md`
+for the full per-mutant record: **45 mutants across all seven kernels, every
+one caught by the differentials** (no surviving mutants, no infra failures
+counted as kills, pristine rebuild at the end).
+
+**Scope disclosure (pass 2): the sweep is kernel-only.** It mutated only the
+Rust kernels; the Python-side shim marshalling layer (the `_marshal` int
+coercion, the lazy `temper_drc_rs` import boundaries, the cache-entry
+lookup) was NOT mutant-tested. The pass-2 review's P1-1 (a float-valued
+ceiling silently truncated by `int()` fails the #575 approval gate OPEN) is
+the concrete proof of why that scope matters -- a kernel-only sweep cannot
+see a fail-open in the marshalling boundary. That class is now closed by
+fail-loudly int-validation at the marshal boundary (above), and the
+`should_skip` null/non-dict entry class by the kernel fix in
+temper-design-bundle.
+reason); R1h **not applicable** (no physics-gated quantity).
+
+reason); R1h **not applicable** (no physics-gated quantity).
+
+## Violation-Report Kernels (`violation_report.rs`) — Verification (Wave 4 Phase 4, 2026-08-04)
+
+The Wave 4 Phase 4 analysis-surface migration moved the report-building/
+shape logic of `temper_placer/analysis/_violation_report.py` (191 LOC)
+into this crate.  The Python module is now a delegation shim; its
+pre-migration implementation is pinned verbatim as the differential
+oracle (`packages/temper-placer/tests/analysis/_violation_report_py_oracle.py`,
+commit `c5875adad`).
+
+**Home-crate decision (why temper-drc-rs).** The report consumes DRC
+items (`rule`, `components`, `location`, `message` from
+`validation/_drc_api.py`) and produces a violation report; the crate that
+owns DRC-domain kernels is temper-drc-rs, which already hosts the
+report-adjacent `group_violations` and `metrics_summary` kernels
+(validation.rs).  temper-design-bundle (Phase-2 contracts) and
+temper-rust-router (Phase-5 orchestration) were rejected: neither owns
+DRC item shaping or Markdown rendering.
+
+**Boundary — what stays Python and why (the kiutils ruling).** The
+module constructs kiutils objects (`KiBoard.from_file`,
+`_extract_component_positions` footprint reads) and computes shapely/GEOS
+intersections (`_compute_overlap_area_mm2`) for report rendering — both
+stay Python-side per the established rulings: kiutils object construction
+and GEOS intersection are library semantics that cannot be crossed
+bit-exactly (the guide's "library semantics are not reimplementable"
+precedent).  This module therefore remains one of the runtime-kiutils
+importers (the program's six resolve as their surfaces migrate; #718's
+write-engine migration removed one — the resolution here is the compute
+that *can* cross, not the kiutils read itself).  `run_drc` (the
+kicad-cli subprocess) also stays Python (I/O boundary).  The Rust side
+owns everything downstream: target-rule filtering, ref shaping, row
+construction, the overlap-callback dispatch, the stable
+overlap-descending sort, and the Markdown renderer.
+
+**Induction applicability.** Mathematical induction is not applicable:
+both kernels are fixed loops over caller-provided collections whose
+per-element operations are size-independent.  Per the plan's R1e a
+**structural proof** is recorded instead.
+
+**Structural proof (bit-identical parity).** Claim: for every input in
+the differential/PBT domains, `build_report_rows` and `render_report`
+reproduce the oracle's `_generate_report_rows`/`_render_report`
+bit-identically, with the documented deviation below.
+*Proof by structural cases.*
+- `build_report_rows` mirrors the oracle loop-for-loop: `rule` `None`
+  (the shim's `getattr(err, "rule", None)`) and non-target rules are
+  dropped; `refs_sorted` is `sorted(components)` for `len >= 2` (UTF-8
+  byte order == code-point order) and an in-order copy otherwise; row
+  dicts carry exactly the oracle's eight keys with the oracle's value
+  types (`overlap_area_mm2` starts as `0.0`); the overlap callback is
+  invoked exactly where the oracle calls `_compute_overlap_area_mm2`
+  (`courtyards_overlap` with exactly two refs — its exceptions are
+  swallowed Python-side and return `0.0`, so the callback contract
+  matches); the final sort is the oracle's stable descending sort by
+  overlap (`sort_by` with the comparator reversed; ties keep input
+  order, and the differential's tie fixture pins it).
+- `render_report` is a line-for-line port: first-appearance rule-section
+  order (dict insertion order — implemented as an ordered Vec, not a
+  HashMap), the two header lines (including the double space after
+  `` `kicad-cli pcb drc`. `` — mutant-class-checked by byte-identical
+  render assertions), the `| # | Components | ...` table header and
+  separator rows, the em-dash (`U+2014`) intro line, per-row cells with
+  CPython fixed-format floats (`py_float_fixed`: correctly rounded, so
+  it agrees with CPython's dtoa on every finite double; `nan`/`inf`
+  spellings special-cased), the `overlap > 0.0` em-dash gate (NaN and
+  `-0.0` both render the em-dash — `NaN > 0` and `-0.0 > 0` are False),
+  the pipe-escape-then-truncate message transform
+  (`replace("|", "\\|")` then 120 *characters*, not bytes), and the
+  Summary section with the oracle's two-rule tallies (non-target rules
+  count in neither) and `Total: <len(rows)>`.
+- Missing dict keys raise `KeyError` with the same argument as Python's
+  subscript (`PyKeyError::new_err("rule")` — `str(exc)` matches).
+
+**Documented deviations (per R1, recorded here).**
+- D1 (NaN sort keys): Python's `list.sort` with a NaN key is not a
+  strict weak order — TimSort's merge moves NaN-keyed elements
+  order-dependently (measured: all 6 orders over 3 elements).  The Rust
+  stable sort treats NaN keys as Equal, which is deterministic and
+  stable.  The overlap key is never NaN in production (shapely polygon
+  area or `0.0`), so the domains agree on every reachable input; the
+  differential asserts the non-NaN domain and P3 bounds its generator to
+  non-NaN overlaps.
+
+**Evidence.**
+- Differential (R1a/R1f, TDD red→green): `test_violation_report_rust_differential.py`
+  — oracle `_generate_report_rows`/`_render_report` vs the shim on
+  synthetic `DrcError` lists with real shapely fake courtyards (row keys
+  canonicalised with floats via `float.hex()` + concrete type tags),
+  empty/missing-meta/missing-positions inputs, stable-tie fixtures, the
+  rule-attribute-absent case, pipe-escape and 200-char truncation
+  renders, first-appearance section order, a 139-value float-formatting
+  corpus (location/area cells byte-identical), NaN/negative area em-dash
+  cells, missing-key `KeyError` parity, and a build→render round trip.
+  RED before the Rust landed (fails to collect).
+- PBT (R1c): `test_violation_report_pbt.py` — 6 hypothesis properties
+  (P1 rule filtering, P2 ref shaping, P3 sort contract with a
+  deterministic synthetic overlap callback, P4 row field fidelity,
+  P5 render summary arithmetic, P6 render table structure),
+  non-vacuously guarded.
+- Metamorphic (R1d): `test_violation_report_pbt.py` — MR1 summary
+  permutation invariance, MR2 filtering monotonicity (subset rows ⊆
+  superset rows), MR3 ref-order symmetry (canonical `refs_sorted` and
+  overlap are invariant under a component-pair swap; the `components`
+  field deliberately preserves input order — the honest bound), MR4
+  append-stability (appending zero-overlap rows keeps pre-existing rows
+  in their relative order).
+- Anti-vacuity mutation campaign: **6 mutants, all caught by the
+  differential/PBT** — M6 dropped target-rule filter, M7 dropped ref
+  sort, M8 ascending instead of descending sort, M9 `>= 0` instead of
+  `> 0` area gate, M10 truncation at 121 instead of 120 chars, M13
+  dropped pipe escaping.  No survivors.  (The render-literal fidelity
+  class — the double space after `` `kicad-cli pcb drc`. `` — is
+  exercised by every byte-identical render assertion.)
+- Performance A/B (R1b): **no perf arm registered — recorded why.**  The
+  migrated compute (row shaping + Markdown rendering of a handful of
+  violation rows) is a small fraction of a wall-time budget dominated by
+  the kicad-cli DRC subprocess and the kiutils board parse, both of which
+  stay Python-side.  A pr_perf_compare arm would measure marshalling
+  noise, not compute; the pure-delegation no-regression-beyond-noise
+  statement applies.
+- Rust practice (R1g): borrow over clone (rows are grouped by ref; refs
+  are cloned only where the callback needs owned strings); no `unwrap`
+  outside tests; every `#[pyfunction]` boundary relies on pyo3's default
+  `catch_unwind` (panics surface as `PanicException` — the validation.rs
+  precedent; an explicit `temper_py_bridge::catch_unwind` is impossible
+  on a `Py<PyAny>`/`Py<PyList>` return, which is not `UnwindSafe`).
+- Physics gating (R1h): **not applicable** — the violation report is not
+  a physics-gated surface (no CP-SAT constraint gates on a physics
+  quantity; the report summarises kicad-cli DRC output), so the R24
+  discipline does not apply.  Stated explicitly because the ledger
+  requires the determination.

@@ -154,10 +154,12 @@ MAX_GATEABLE_MARGIN = REAL_REGRESSION_FLOOR / MIN_SEPARATION
 # Derived by the procedure above from the committed baseline. Only entries that
 # differ from TIMING_MARGIN are listed; everything else uses the 20% default.
 PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
-    # worst fixed-commit excursion 11.5% -> 2 x 11.5 = 23.0 -> 24%
-    ("bottleneck-geometry", "hard_blocked_batch"): 0.24,
+    # worst fixed-commit excursion 14.6% -> 2 x 14.6 = 29.2 -> 30%
+    ("bottleneck-geometry", "hard_blocked_batch"): 0.30,
     # worst fixed-commit excursion 10.9% -> 2 x 10.9 = 21.7 -> 22%
     ("loaders", "loaders"): 0.22,
+    # worst fixed-commit excursion 15.9% -> 2 x 15.9 = 31.8 -> 32%
+    ("physics-copper_coverage", "copper_masks"): 0.32,
     # worst fixed-commit excursion 14.7% -> 2 x 14.7 = 29.4 -> 30%
     ("physics-safety", "filter_delay"): 0.30,
 }

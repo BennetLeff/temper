@@ -17,9 +17,31 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 import networkx as nx
+import temper_placement_topology as _rust
 
 if TYPE_CHECKING:
     from temper_placer.pcl.parser import ConstraintCollection
+
+
+def _edge_tuples(graph: nx.MultiDiGraph) -> tuple[list[tuple], list[tuple]]:
+    """Snapshot the graph's edges in networkx order.
+
+    Returns ``(raw, encoded)`` where ``raw`` keeps the original ``data`` dicts
+    (so callers can format messages from CPython's own float objects) and
+    ``encoded`` is the ``(source, target, edge_type, distance)`` form the Rust
+    kernels consume.
+
+    The order is networkx's own and is deliberately passed through unchanged:
+    for graphs built by :meth:`TopologicalGraph.from_pcl` it derives from a
+    ``set`` of component refs and is therefore PYTHONHASHSEED-dependent.
+    Sorting here would silently change results that depend on it.
+    """
+    raw = list(graph.edges(data=True))
+    encoded = [
+        (u, v, data.get("edge_type", ""), float(data.get("distance", 0)))
+        for u, v, data in raw
+    ]
+    return raw, encoded
 
 
 @dataclass
@@ -197,17 +219,8 @@ class TopologicalGraph:
         Returns:
             Set of component refs in the same adjacency cluster
         """
-        cluster = {seed}
-        frontier = [seed]
-
-        while frontier:
-            current = frontier.pop(0)
-            for neighbor in self.get_neighbors(current, edge_type="adjacent"):
-                if neighbor not in cluster:
-                    cluster.add(neighbor)
-                    frontier.append(neighbor)
-
-        return cluster
+        _raw, encoded = _edge_tuples(self.graph)
+        return set(_rust.adjacency_cluster(seed, encoded))
 
     def find_separation_conflicts(self) -> list[tuple[str, str, str]]:
         """Find nodes that are both adjacent and separated.
@@ -219,28 +232,20 @@ class TopologicalGraph:
         Returns:
             List of (component_a, component_b, reason) tuples
         """
+        raw, encoded = _edge_tuples(self.graph)
+
+        # Rust returns *index pairs* into the same edge list, not messages:
+        # the reason text interpolates the distances with ``repr(float)``,
+        # which Rust's formatter does not reproduce ("5.0" vs "5", "1e+308"
+        # vs a 309-digit expansion), so it is rendered here from the original
+        # Python float objects.
         conflicts = []
-
-        # Check all adjacency edges
-        for u, v, adj_data in self.graph.edges(data=True):
-            if adj_data.get("edge_type") != "adjacent":
-                continue
-
+        for adj_idx, sep_idx in _rust.separation_conflicts(encoded):
+            u, v, adj_data = raw[adj_idx]
+            _su, _sv, sep_data = raw[sep_idx]
             adj_max = adj_data.get("distance", 0)
-
-            # Look for separation edge between same nodes
-            for _, target, sep_data in self.graph.edges(u, data=True):
-                if target != v:
-                    continue
-                if sep_data.get("edge_type") != "separated":
-                    continue
-
-                sep_min = sep_data.get("distance", 0)
-
-                # Conflict if max < min
-                if adj_max < sep_min:
-                    reason = f"adjacent({adj_max}) < separated({sep_min})"
-                    conflicts.append((u, v, reason))
+            sep_min = sep_data.get("distance", 0)
+            conflicts.append((u, v, f"adjacent({adj_max}) < separated({sep_min})"))
 
         return conflicts
 

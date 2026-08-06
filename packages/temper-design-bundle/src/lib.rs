@@ -40,6 +40,12 @@ mod hypergraph_factory;
 #[cfg(feature = "python")]
 mod loaders;
 
+#[cfg(feature = "python")]
+mod pcl_parse;
+
+#[cfg(feature = "python")]
+mod pcl_tags;
+
 // Wave 4 Phase 5 (deterministic hubs slice): the deterministic hub kernels
 // (channels penalty, bottleneck score, seed filter, feedback mapper/adjuster/
 // parser). Registered as the `deterministic_hubs` submodule (see lib.rs's
@@ -49,6 +55,18 @@ mod loaders;
 // additions merge cleanly.
 #[cfg(feature = "python")]
 mod deterministic_hubs;
+
+// Wave 4 Phase 4 — regression slice: the measure-closure /
+// cp_sat_comparison / fingerprint / schema_validator kernels (see the
+// module docstrings and packages/temper-design-bundle/VERIFICATION.md).
+#[cfg(feature = "python")]
+mod cp_sat_comparison;
+#[cfg(feature = "python")]
+mod fingerprint;
+#[cfg(feature = "python")]
+mod measure_closure;
+#[cfg(feature = "python")]
+mod schema_validator;
 
 #[cfg(feature = "python")]
 mod validation;
@@ -300,6 +318,21 @@ mod python {
         // (validation/preflight.py, netlist_reconciliation.py,
         // placement_roundtrip.py, prereg/schema.py) registered as the
         // `validation` submodule (see validation.rs).
-        crate::validation::register(module)
+        crate::validation::register(module)?;
+
+        // Wave 4 Phase 4 — regression slice: the measure-closure /
+        // cp_sat_comparison / fingerprint / schema_validator kernels (see
+        // the module docstrings and VERIFICATION.md).
+        crate::measure_closure::register(module)?;
+        crate::cp_sat_comparison::register(module)?;
+        crate::fingerprint::register(module)?;
+        crate::schema_validator::register(module)?;
+
+        // ...and then the PCL contract layer: the tag-expression algebra
+        // ported from temper_placer/pcl/tag_dispatch.py (see pcl_tags.rs)
+        // plus the parse primitives from temper_placer/pcl/_parse_utils.py
+        // (see pcl_parse.rs).
+        crate::pcl_tags::register(module)?;
+        crate::pcl_parse::register(module)
     }
 }

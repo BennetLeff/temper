@@ -76,6 +76,18 @@ surfaces:
     note: >-
       Contract types. Excluded from the plan's measured LOC baseline but not
       from its scope -- R7 admits no pre-exclusions.
+  # NOTE (2026-08-06, close-out audit): the MIGRATE entry above now conflicts
+  # with a merged record. PR #719 merged 2026-08-06 ("docs(wave4): Phase 2
+  # verdict -- _constraint_types is not a pyo3-pyclass candidate (measured)")
+  # with the verdict "do not migrate _constraint_types" -- the surface is
+  # declarative pydantic schema (34 BaseModel subclasses, 5 methods), not
+  # compute -- and it deliberately did NOT edit this ledger. The ledger entry
+  # is therefore untouched but contradicted by the merged record. This is a
+  # decision owed to product authority: either re-scope the entry to
+  # JUSTIFIED-KEEP with the measured blocker (#719 names it), or state why the
+  # MIGRATE verdict survives the measurement. Recorded as a comment, not
+  # flipped, per the close-out discipline. Full reasoning in
+  # docs/evidence/2026-08-06-wave4-owned-surface-closeout.md (Sec 1, Sec 4).
 
   # ---- Phase 3: formats / IO ----------------------------------------------
   - pattern: packages/temper-placer/src/temper_placer/io/**
@@ -95,15 +107,83 @@ surfaces:
   - pattern: packages/temper-placer/src/temper_placer/regression/**
     verdict: MIGRATE
     phase: 4
+    note: >-
+      Compute kernels migrated 2026-08-05 (Wave 4 Phase 4 regression slice):
+      drc_ratchet / closure_test / physics_oracle -> temper-drc-rs;
+      measure_closure / cp_sat_comparison / fingerprint / schema_validator
+      -> temper-design-bundle. Each migrated module is now a delegation shim
+      over the Rust kernel (oracles pinned verbatim in
+      packages/temper-placer/tests/regression/_*_py_oracle.py at commit
+      0a29f15e3; R1a-R1h recorded in both crates' VERIFICATION.md). The six
+      harness modules below are carved out as JUSTIFIED-KEEP (harness
+      independence, D6) -- they orchestrate the migrated kernels and are
+      consumed by the gate jobs.
+    exclude:
+      - packages/temper-placer/src/temper_placer/regression/runner.py
+      - packages/temper-placer/src/temper_placer/regression/reporter.py
+      - packages/temper-placer/src/temper_placer/regression/corpus_runner.py
+      - packages/temper-placer/src/temper_placer/regression/metrics_recorder.py
+      - packages/temper-placer/src/temper_placer/regression/cli.py
+      - packages/temper-placer/src/temper_placer/regression/manifest.py
+  - pattern: packages/temper-placer/src/temper_placer/regression/runner.py
+    verdict: JUSTIFIED-KEEP
+    blocker: &regression-harness >-
+      Harness independence (the same D6 reasoning already recorded for
+      testing/ and fixtures/, applied to the regression harness, decided
+      2026-08-05). These six modules orchestrate the migrated regression
+      kernels and are themselves consumed by the gate jobs (ci_check_drc.py,
+      check_drc_ceiling_approval.py, ci_closure_test.py,
+      update_regression_cache.py, pipeline_metrics.py, pipeline_report.py)
+      and by the suite's own pytest harness. Migrating them would make the
+      harness depend on the pyo3 boundary it exists to check -- the same
+      failure mode the testing//fixtures/ blocker names. The one small
+      portable compute leaf found inside a keep (fingerprint hashing's
+      file-walk, metrics_recorder's JSONL field shaping) is left in place
+      rather than half-migrated; the migrated kernels they call are all in
+      the two home crates. Re-decidable when a consumer migrates and carries
+      the orchestration with it.
+  - pattern: packages/temper-placer/src/temper_placer/regression/reporter.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *regression-harness
+  - pattern: packages/temper-placer/src/temper_placer/regression/corpus_runner.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *regression-harness
+  - pattern: packages/temper-placer/src/temper_placer/regression/metrics_recorder.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *regression-harness
+  - pattern: packages/temper-placer/src/temper_placer/regression/cli.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *regression-harness
+  - pattern: packages/temper-placer/src/temper_placer/regression/manifest.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *regression-harness
   - pattern: packages/temper-placer/src/temper_placer/physics/**
     verdict: MIGRATE
     phase: 4
     note: >-
       thermal_potential and operating_point are named. scipy spsolve inside
       this tree is a separate JUSTIFIED-KEEP (KTD9) recorded below.
+  # NOTE (2026-08-06, close-out audit): the phrase "recorded below" in the
+  # note above has no corresponding ledger entry -- the KTD9 scipy keep
+  # (physics/loop_area.py, and the spsolve call inside physics/thermal_fdm.py)
+  # is real and recorded in the plan + the physics-kernels VERIFICATION.md,
+  # but it is not a carve-out entry in this file, so a reader would search the
+  # ledger for a JUSTIFIED-KEEP entry that does not exist. The physics/**
+  # pattern covers those two files under MIGRATE today; the KTD9 keep is
+  # documented at the plan/VERIFICATION level, not here. Recorded as a
+  # correction comment, not a verdict flip. See
+  # docs/evidence/2026-08-06-wave4-owned-surface-closeout.md (Sec 4).
   - pattern: packages/temper-placer/src/temper_placer/topological/**
     verdict: MIGRATE
     phase: 4
+    note: >-
+      DONE 2026-08-04 -- migrated to the new crate temper-placement-topology
+      (graph clustering, Floyd-Warshall propagation, force refinement, initial
+      placement, zone backtracking). networkx stays as graph storage and
+      CPython renders all float-bearing message text; both recorded in that
+      crate's VERIFICATION.md along with the measured PYTHONHASHSEED
+      nondeterminism in ZoneSolver that made candidate order an explicit
+      kernel input rather than something the port normalises.
   - pattern: packages/temper-placer/src/temper_placer/fields/**
     verdict: JUSTIFIED-KEEP
     blocker: >-
@@ -301,9 +381,33 @@ surfaces:
       Phase-2 residual pass explicitly routes this here ("orchestration seam
       (PipelineRunner, adapters, strategy_registry) -> Phase 5").
   - pattern: packages/temper-placer/src/temper_placer/strategy_registry.py
-    verdict: MIGRATE
-    phase: 5
-    note: Same Phase-5 orchestration seam as runner.py, named in that record.
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      Registry-surface independence (D6), decided 2026-08-06 on
+      feat/wave4-phase4-strategy-registry-rust. The module is a pure
+      import-time registry: two module-level dicts (`_registry`,
+      `_composites`) of Python callables and five functions whose every
+      operation is a dict membership/insert with Python semantics
+      (idempotent register, KeyError raise, the `f"{p}/{n}"` key assembly)
+      or a call-back into the stored factory (`_registry[key]()`). Stored
+      values are `Callable[[], PipelineStage]` -- live Python callables, and
+      `PipelineStage` is a `@runtime_checkable` Protocol with no pyclass
+      mapping (the protocol.py R3 record); a Rust implementation would hold
+      untyped PyObjects and call back across pyo3 for every instantiation --
+      pure marshalling, zero compute gained. The registry is the shared
+      import-time seam between the Phase-5 adapters (register_strategies.py
+      registers factories as a module-import side effect; the stage
+      adapters use register/register_composite) and runner.py
+      (get_composite/get in resolve_and_run). Migrating it would make that
+      seam -- and therefore both sides of it -- import the pyo3 boundary it
+      exists to decouple; the R1 battery has nothing to pin (no kernel, no
+      arithmetic, no transformation beyond Python dict/string semantics).
+      Recorded alongside the orchestration VERIFICATION.md R3-style record
+      for this file; re-decidable if a consumer migrates and carries the
+      registry with it. Supersedes the file's prior MIGRATE phase-5 note
+      ("same Phase-5 orchestration seam as runner.py"), which misread a
+      registry as a migration target; the runner.py MIGRATE verdict is
+      unaffected.
 
   # ---- Visualization (decided 2026-08-04) ---------------------------------
   - pattern: packages/temper-placer/src/temper_placer/visualization/**
@@ -341,7 +445,22 @@ surfaces:
   # docs/evidence/2026-08-04-wave4-residual-verdicts.md (Sec 9), which is the
   # durable record; removing them here does not retract them.
   - pattern: scripts/*.py
+    exclude:
+      - scripts/internal_route.py
+      - scripts/placement_quality_report.py
     verdict: JUSTIFIED-KEEP
+    # NOTE (2026-08-06, close-out audit): the two exclude: entries reference
+    # scripts/internal_route.py and scripts/placement_quality_report.py, both
+    # DELETED by #708 on 2026-08-04. #692 re-added these carve-outs after the
+    # deletion landed, so they now exempt nothing (the files do not exist) and
+    # read as live gaps that are already closed -- the same shape the repo's
+    # Sec 9.1 precedent says to remove ("an entry scoped to a file that no
+    # longer exists 'exempts nothing, and reads as a live gap that is already
+    # closed'"). The in-file comment above already claims these carve-outs
+    # "were removed"; the entry contradicts it. Candidates for removal on the
+    # repo's own precedent; left in place so this audit records, not edits.
+    # The gate's dead-exclude check is glob-shape-based and cannot see this.
+    # See docs/evidence/2026-08-06-wave4-owned-surface-closeout.md (Sec 4).
     blocker: >-
       Fail-closed independence, bootstrap, and a measured CI cost -- and the
       first of those makes migration actively harmful, not merely unprofitable.
@@ -400,6 +519,27 @@ surfaces:
       they test move.
 
   # ---- benchmarks/ (decided 2026-08-04) -----------------------------------
+  - pattern: scripts/internal_route.py
+    verdict: RETIRE
+    justification: >-
+      Import-dead, verified 2026-08-04 by AST sweep of every top-level import
+      in scripts/ and benchmarks/. Imports `jax.numpy` (jax is not in any
+      dependency set) and eight names from `temper_placer.routing.*` plus
+      `temper_placer.io.trace_writer`, none of which exist -- the package was
+      renamed to router_v6 without this script following. It cannot be
+      imported, so it cannot have run since. Already noticed in passing by
+      scripts/check_no_raw_rotation_trig.py's own notes; superseded by
+      scripts/route_board.py, which says so in its docstring. Deletion is a
+      separate change -- this entry records the verdict only.
+  - pattern: scripts/placement_quality_report.py
+    verdict: RETIRE
+    justification: >-
+      Import-dead, same 2026-08-04 sweep. Unguarded module-level imports of
+      `temper_placer.losses.base` and `temper_placer.routing.analysis`;
+      neither package exists (both are JAX-era, retired). Manifest disposition
+      is shell-invoked, which is why the sunset clock missed it: that gate
+      keys off last_run dates and the invocation graph, not importability --
+      a gap worth closing separately. Deletion is a separate change.
   - pattern: benchmarks/**
     verdict: JUSTIFIED-KEEP
     blocker: >-

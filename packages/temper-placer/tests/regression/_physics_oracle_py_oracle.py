@@ -1,0 +1,469 @@
+"""Pinned Python oracle for ``temper_placer/regression/physics_oracle.py`` (Wave 4, Phase 4).
+
+VERBATIM copy of the pre-migration implementation of
+``temper_placer/regression/physics_oracle.py`` as of commit ``0a29f15e3`` (origin/main,
+the Wave-4 Phase-4 regression-slice base). Do NOT edit the semantics:
+this is the oracle the Rust kernels in the home crates (temper-drc-rs /
+temper-design-bundle) must reproduce bit-identically. Any edit here
+silently weakens the differential proof; if the module's contract changes,
+re-pin the oracle from the new base first.
+"""
+
+
+from __future__ import annotations
+
+import time
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+
+from temper_placer.core.design_rules import create_temper_design_rules
+from temper_placer.core.specification import PcbSpecification
+from temper_placer.core.state import PlacementState
+from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.io.reference_loader import infer_quality_config
+from temper_placer.metrics.quality import (
+    compactness_score,
+    dual_rail_clearance_report,
+    hv_lv_clearance_score,
+    loop_area_score,
+    thermal_score,
+    zone_compliance_score,
+)
+from temper_placer.pipeline.derivation import derive_constraints_from_spec
+from temper_placer.placer.deterministic import PlacementResult
+
+
+@dataclass
+class PhysicsOracleResult:
+    """Result from a physics-oracle run."""
+
+    board_id: str
+    passed: bool
+    skipped: bool = False
+    skip_reason: str = ""
+    errors: list[str] = None  # type: ignore[assignment]
+
+    quality_report: dict[str, float] = None  # type: ignore[assignment]
+    margins: dict[str, float] = None  # type: ignore[assignment]
+    threshold_mm: float = 0.0
+    clearance_score: float = 0.0
+    elapsed_seconds: float = 0.0
+
+    def __post_init__(self):
+        if self.errors is None:
+            self.errors = []
+        if self.quality_report is None:
+            self.quality_report = {}
+        if self.margins is None:
+            self.margins = {}
+
+
+# Module-level constants for experiment thresholds
+_CLEARANCE_PASS_THRESHOLD = 0.95  # legacy pass/fail for single-run oracle
+
+
+def compute_oracle_margins(
+    quality_report: dict[str, float],
+    *,
+    max_heatspread_mm: float = 10.0,
+    hv_lv_threshold_mm: float = 6.5,
+    max_loop_area_mm2: float = 100.0,
+) -> dict[str, float]:
+    """Convert quality_report [0, 1] scores to engineering-unit margins.
+
+    Margins are *signed headroom*: positive means above threshold,
+    negative means violation.  A score of 1.0 indicates the metric is
+    fully satisfied; scores below 1.0 give a proportional margin estimate.
+
+    Parameters
+    ----------
+    quality_report:
+        Dict from ``run_physics_oracle`` or ``score_placement``.
+    max_heatspread_mm:
+        Maximum acceptable heat spread distance from target edge (mm).
+    hv_lv_threshold_mm:
+        Required HV-LV clearance threshold (mm).
+    max_loop_area_mm2:
+        Maximum acceptable loop area (mm²) — areas above this score 0.
+
+    Returns
+    -------
+    dict
+        Keys: ``thermal_headroom_mm``, ``clearance_margin_mm``,
+        ``loop_area_margin_mm2``.
+    """
+    thermal_score = quality_report.get("thermal_score", 1.0)
+    clearance_score = quality_report.get("hv_lv_clearance_score", 1.0)
+    loop_score = quality_report.get("loop_area_score", 1.0)
+
+    thermal_headroom_mm = thermal_score * max_heatspread_mm
+    clearance_margin_mm = (clearance_score - 1.0) * hv_lv_threshold_mm
+    loop_area_margin_mm2 = loop_score * max_loop_area_mm2
+
+    return {
+        "thermal_headroom_mm": thermal_headroom_mm,
+        "clearance_margin_mm": clearance_margin_mm,
+        "loop_area_margin_mm2": loop_area_margin_mm2,
+    }
+
+
+@dataclass
+class _BoardSnapshot:
+    """Minimal adapter to bridge Netlist + Board into infer_quality_config."""
+
+    netlist: Any
+    board: Any
+
+
+def _build_placement_state(positions: np.ndarray, n_components: int) -> PlacementState:
+    """Build a PlacementState from a (N, 2) positions array."""
+    return PlacementState(
+        positions=np.asarray(positions, dtype=np.float32),
+        rotation_logits=np.zeros((n_components, 4), dtype=np.float32),
+    )
+
+
+def score_placement(
+    placement: PlacementResult,
+    board,
+    netlist,
+) -> dict[str, Any]:
+    """
+    Compute physics metrics from a CP-SAT placement without running optimization.
+
+    Args:
+        placement: PlacementResult from deterministic placer (positions in mm).
+        board: Board geometry.
+        netlist: Design netlist.
+
+    Returns:
+        Dict with physics metrics: hv_lv_clearance_score, clearance_score_3mm,
+        clearance_score_6mm, violations_3mm, violations_6mm, thermal_score,
+        zone_compliance_score, loop_area_score, compactness_score, overall_score.
+    """
+    positions = np.asarray(placement.positions, dtype=np.float32)
+    n_components = positions.shape[0]
+    state = _build_placement_state(positions, n_components)
+
+    hv_components = {c.ref for c in netlist.components if c.net_class in ("HighVoltage", "ACMains")}
+    lv_components = {c.ref for c in netlist.components if c.net_class == "Signal"}
+
+    dual_rail = dual_rail_clearance_report(state, netlist, hv_components, lv_components)
+    clearance = hv_lv_clearance_score(
+        state, netlist, hv_components, lv_components, min_clearance=8.0
+    )
+    thermal = thermal_score(state, netlist, board, set())
+    zone = zone_compliance_score(state, netlist, board, {})
+    # loop_area_score's context parameter is unused (JAX-era LossContext
+    # retirement left it a dead pass-through); None keeps behaviour identical
+    # to the previous minimal-stub-context call.
+    loop = loop_area_score(state, netlist, None, [])
+    compact = compactness_score(state, netlist, board)
+
+    normalized_scores = [thermal, zone, clearance, loop, compact]
+    overall = sum(normalized_scores) / len(normalized_scores) if normalized_scores else 0.0
+
+    return {
+        "hv_lv_clearance_score": clearance,
+        "clearance_score_3mm": dual_rail["clearance_score_3mm"],
+        "clearance_score_6mm": dual_rail["clearance_score_6mm"],
+        "violations_3mm": dual_rail["violations_3mm"],
+        "violations_6mm": dual_rail["violations_6mm"],
+        "thermal_score": thermal,
+        "zone_compliance_score": zone,
+        "loop_area_score": loop,
+        "compactness_score": compact,
+        "overall_score": overall,
+    }
+
+
+def run_physics_oracle(
+    pcb_path: Path,
+    placement: PlacementResult | None = None,
+    spec_path: Path | None = None,
+    verbose: bool = True,
+    _weights_override: dict[str, float] | None = None,
+) -> PhysicsOracleResult:
+    """
+    Score a CP-SAT placement against the physics oracle.
+
+    Args:
+        pcb_path: Path to the KiCad PCB file.
+        placement: CP-SAT placement result from deterministic placer.
+                   If None, uses the intrinsic KiCad reference positions.
+        spec_path: Path to pcb_spec.yaml. If None, looks alongside pcb_path
+                   or uses the default configs/pcb_spec.yaml.
+        verbose: Whether to print progress.
+        weights_override: (unused, kept for signature compatibility)
+
+    Returns:
+        PhysicsOracleResult with quality report and threshold comparison.
+    """
+    board_id = pcb_path.stem
+    start_time = time.time()
+
+    # Resolve spec path
+    if spec_path is None:
+        default_spec = Path("configs/pcb_spec.yaml")
+        if default_spec.exists():
+            spec_path = default_spec
+        else:
+            pcb_dir = pcb_path.parent
+            candidate = pcb_dir / "pcb_spec.yaml"
+            if candidate.exists():
+                spec_path = candidate
+
+    if spec_path is None or not Path(spec_path).exists():
+        return PhysicsOracleResult(
+            board_id=board_id,
+            passed=False,
+            skipped=True,
+            skip_reason=f"PCB spec not found: {spec_path}",
+        )
+
+    # Load spec
+    try:
+        spec = PcbSpecification.load(spec_path)
+    except Exception as e:
+        return PhysicsOracleResult(
+            board_id=board_id,
+            passed=False,
+            skipped=True,
+            skip_reason=f"Failed to load spec: {e}",
+        )
+
+    # Parse PCB with design rules for net classification
+    design_rules = create_temper_design_rules()
+    try:
+        parse_result = parse_kicad_pcb(pcb_path, design_rules=design_rules)
+        netlist = parse_result.netlist
+    except Exception as e:
+        return PhysicsOracleResult(
+            board_id=board_id,
+            passed=False,
+            errors=[f"Failed to parse PCB: {e}"],
+        )
+
+    if netlist.n_components == 0:
+        return PhysicsOracleResult(
+            board_id=board_id,
+            passed=False,
+            skipped=True,
+            skip_reason="Board has zero components",
+        )
+
+    # Get board from parse result
+    board = parse_result.board
+    if board is None:
+        return PhysicsOracleResult(
+            board_id=board_id,
+            passed=False,
+            skipped=True,
+            skip_reason="No board geometry extracted from PCB",
+        )
+
+    # Derive constraints from spec
+    try:
+        derived = derive_constraints_from_spec(spec, netlist)
+    except Exception as e:
+        return PhysicsOracleResult(
+            board_id=board_id,
+            passed=False,
+            errors=[f"Constraint derivation failed: {e}"],
+        )
+
+    threshold_mm = derived.get("hv_lv_isolation_mm", 6.5)
+    if verbose:
+        print(f"  Physics oracle for '{board_id}': threshold = {threshold_mm} mm")
+
+    # Build PlacementState from the placement result
+    if placement is not None:
+        positions = np.asarray(placement.positions, dtype=np.float32)
+    else:
+        # Fall back to KiCad reference positions from the netlist
+        positions = np.array(
+            [c.initial_position for c in netlist.components],
+            dtype=np.float32,
+        )
+
+    n_components = positions.shape[0]
+    state = _build_placement_state(positions, n_components)
+
+    # Solve HV/LV component sets from net classification
+    hv_components = {c.ref for c in netlist.components if c.net_class in ("HighVoltage", "ACMains")}
+    lv_components = {c.ref for c in netlist.components if c.net_class == "Signal"}
+
+    # Compute quality report from individual metric functions
+    try:
+        ref = _BoardSnapshot(netlist=netlist, board=board)
+        quality_config = infer_quality_config(ref)  # type: ignore[arg-type]
+
+        if hv_components:
+            quality_config["hv_components"] = hv_components
+        if lv_components:
+            quality_config["lv_components"] = lv_components
+
+        quality_config["min_hv_lv_clearance"] = threshold_mm
+        quality_config["thermal_target_edge"] = spec.thermal.target_edge
+        quality_config["thermal_max_distance"] = spec.thermal.max_heatspread_mm
+
+        loop_comps = []
+        if spec.emi.loop_components:
+            loop_comps = [
+                list(comps) for comps in spec.emi.loop_components.values() if len(comps) >= 3
+            ]
+
+        dual_rail = dual_rail_clearance_report(state, netlist, hv_components, lv_components)
+        clearance = hv_lv_clearance_score(
+            state,
+            netlist,
+            hv_components,
+            lv_components,
+            min_clearance=threshold_mm,
+        )
+        thermal = thermal_score(
+            state,
+            netlist,
+            board,
+            quality_config.get("thermal_components", set()),
+            target_edge=spec.thermal.target_edge,
+            max_distance=spec.thermal.max_heatspread_mm,
+        )
+        zone = zone_compliance_score(
+            state,
+            netlist,
+            board,
+            quality_config.get("zone_assignments", {}),
+        )
+        # loop_area_score's context parameter is unused (see score_placement).
+        loop = loop_area_score(state, netlist, None, loop_comps)
+        compact = compactness_score(state, netlist, board)
+
+        normalized_scores = [thermal, zone, clearance, loop, compact]
+        overall = sum(normalized_scores) / len(normalized_scores) if normalized_scores else 0.0
+
+        report = {
+            "thermal_score": thermal,
+            "zone_compliance_score": zone,
+            "hv_lv_clearance_score": clearance,
+            "clearance_score_3mm": dual_rail["clearance_score_3mm"],
+            "clearance_score_6mm": dual_rail["clearance_score_6mm"],
+            "violations_3mm": dual_rail["violations_3mm"],
+            "violations_6mm": dual_rail["violations_6mm"],
+            "loop_area_score": loop,
+            "compactness_score": compact,
+            "overall_score": overall,
+        }
+        elapsed = time.time() - start_time
+
+        # Compute continuous margins from quality report
+        _loop_max = (
+            max(spec.emi.max_loop_area_mm2.values()) if spec.emi.max_loop_area_mm2 else 100.0
+        )
+        oracle_margins = compute_oracle_margins(
+            report,
+            max_heatspread_mm=spec.thermal.max_heatspread_mm,
+            hv_lv_threshold_mm=threshold_mm,
+            max_loop_area_mm2=_loop_max,
+        )
+
+        if verbose:
+            print(f"  HV/LV clearance score: {clearance:.4f}")
+            print(f"  Overall quality score: {overall:.4f}")
+            print(f"  Margins: {oracle_margins}")
+
+    except Exception as e:
+        return PhysicsOracleResult(
+            board_id=board_id,
+            passed=False,
+            errors=[f"Quality report failed: {e}"],
+        )
+
+    passed = clearance >= _CLEARANCE_PASS_THRESHOLD
+
+    return PhysicsOracleResult(
+        board_id=board_id,
+        passed=passed,
+        quality_report=report,
+        margins=oracle_margins,
+        threshold_mm=threshold_mm,
+        clearance_score=clearance,
+        elapsed_seconds=elapsed,
+    )
+
+
+def score_human_baseline(
+    pcb_path: Path,
+    spec_path: Path | None = None,
+    verbose: bool = True,
+) -> dict[str, float | int]:
+    """
+    Score the human reference placement under the dual-rail clearance metric.
+
+    Loads the KiCad PCB at its original component positions (no optimizer run)
+    and computes worst-pair severity and violation count against both the
+    3.0mm IEC regulatory floor and the 6.0mm DRC design-rule rail.
+
+    Args:
+        pcb_path: Path to the KiCad PCB file (human reference placement).
+        spec_path: Path to pcb_spec.yaml. If None, looks alongside pcb_path.
+        verbose: Whether to print the four numbers.
+
+    Returns:
+        Dict with clearance_score_3mm, clearance_score_6mm,
+        violations_3mm, violations_6mm.
+    """
+    # Resolve spec
+    if spec_path is None:
+        default_spec = Path("configs/pcb_spec.yaml")
+        spec_path = default_spec if default_spec.exists() else pcb_path.parent / "pcb_spec.yaml"
+
+    spec = PcbSpecification.load(spec_path)
+    design_rules = create_temper_design_rules()
+    parse_result = parse_kicad_pcb(pcb_path, design_rules=design_rules)
+    netlist = parse_result.netlist
+    board = parse_result.board
+    if board is None:
+        raise ValueError("No board geometry extracted from PCB")
+
+    derived = derive_constraints_from_spec(spec, netlist)
+    threshold_mm = derived.get("hv_lv_isolation_mm", 6.5)
+
+    # Build state from intrinsic KiCad positions (no optimizer pipeline)
+    positions = np.array(
+        [c.initial_position for c in netlist.components],
+        dtype=np.float32,
+    )
+    state = _build_placement_state(positions, len(netlist.components))
+
+    # Build quality config mirroring the oracle's setup
+    ref = _BoardSnapshot(netlist=netlist, board=board)
+    quality_config = infer_quality_config(ref)  # type: ignore[arg-type]
+
+    hv_from_class = {c.ref for c in netlist.components if c.net_class in ("HighVoltage", "ACMains")}
+    lv_from_class = {c.ref for c in netlist.components if c.net_class == "Signal"}
+    if hv_from_class:
+        quality_config["hv_components"] = hv_from_class
+    if lv_from_class:
+        quality_config["lv_components"] = lv_from_class
+
+    # Score with dual-rail metric
+    result = dual_rail_clearance_report(
+        state,
+        netlist,
+        quality_config.get("hv_components", set()),
+        quality_config.get("lv_components", set()),
+    )
+
+    if verbose:
+        print(f"Human baseline ({pcb_path.stem}):")
+        print(f"  clearance_score_3mm  = {result['clearance_score_3mm']:.4f}")
+        print(f"  clearance_score_6mm  = {result['clearance_score_6mm']:.4f}")
+        print(f"  violations_3mm       = {result['violations_3mm']}")
+        print(f"  violations_6mm       = {result['violations_6mm']}")
+        print(f"  (threshold from spec  = {threshold_mm} mm)")
+
+    return result

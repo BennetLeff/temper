@@ -4,12 +4,32 @@ Extracted from the now-retired parity test harness (U4).  These dataclasses
 and functions survive as CP-SAT regression infrastructure — comparing CP-SAT
 placements against each other (across solver parameter changes, model revisions,
 or board updates), NOT against JAX.
+
+Wave 4 Phase 4 (regression slice): ``compare_metric_dicts`` — the entire
+Pareto-style per-metric comparison, the wirelength ratio/tolerance rule, the
+``:.2f``/``:.3f``/``:.4f`` detail strings and the summary line — moved to
+``temper_design_bundle_python.compare_metric_dicts``
+(packages/temper-design-bundle/src/cp_sat_comparison.rs). The dataclasses
+(``MetricComparison``, ``ParityComparisonResult``) stay Python as the public
+API; this module is now a delegation shim. Design boundaries are argued in
+``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+
+_TDB = None
+
+
+def _tdb():
+    global _TDB
+    if _TDB is None:
+        import temper_design_bundle_python  # type: ignore[import-untyped]
+
+        _TDB = temper_design_bundle_python
+    return _TDB
 
 
 @dataclass
@@ -67,68 +87,27 @@ def compare_metric_dicts(
 
     Returns:
         ParityComparisonResult with per-metric breakdown and overall pass/fail.
+
+    Wave 4 Phase 4: the comparison + detail/summary string composition runs
+    in ``temper_design_bundle_python.compare_metric_dicts`` (bit-identical,
+    pinned by the differential); this wrapper only maps the returned records
+    onto the public dataclasses.
     """
-    comparisons: list[MetricComparison] = []
-    all_passed = True
-
-    metrics = set(candidate_scores.keys()) & set(baseline_scores.keys())
-
-    if wirelength_metric in metrics:
-        metrics.discard(wirelength_metric)
-        metrics.add(wirelength_metric)  # Put it last for output readability
-
-    for metric_name in sorted(metrics):
-        cand_val = float(candidate_scores.get(metric_name, 0.0))
-        base_val = float(baseline_scores.get(metric_name, 0.0))
-
-        if metric_name == wirelength_metric:
-            # Lower is better, within 5% tolerance
-            if base_val > 0:
-                ratio = cand_val / base_val
-                tolerance = 1.05
-                passed = cand_val <= base_val * tolerance
-            else:
-                ratio = float("inf")
-                passed = cand_val <= 0.0  # If baseline is 0, candidate must be 0 too
-
-            detail = (
-                f"{metric_name}: candidate={cand_val:.2f}, "
-                f"baseline={base_val:.2f}, ratio={ratio:.3f}, "
-                f"tolerance=1.05, passed={passed}"
-            )
-        else:
-            # Higher is better (default for all oracle metrics)
-            passed = cand_val >= base_val - 1e-9
-            detail = (
-                f"{metric_name}: candidate={cand_val:.4f}, "
-                f"baseline={base_val:.4f}, delta={cand_val - base_val:.4f}, "
-                f"passed={passed}"
-            )
-
-        comp = MetricComparison(
-            name=metric_name,
-            cp_sat_value=cand_val,
-            jax_value=base_val,
-            passed=passed,
-            detail=detail,
-        )
-        comparisons.append(comp)
-        if not passed:
-            all_passed = False
-
-    passed_metrics = sum(1 for c in comparisons if c.passed)
-    total_metrics = len(comparisons)
-    summary = (
-        f"Parity comparison: {passed_metrics}/{total_metrics} metrics passed"
-        if all_passed
-        else (
-            f"Parity FAILED: {passed_metrics}/{total_metrics} metrics passed. "
-            f"Failing: {[c.name for c in comparisons if not c.passed]}"
-        )
+    result = _tdb().compare_metric_dicts(
+        candidate_scores, baseline_scores, wirelength_metric
     )
-
+    comparisons = [
+        MetricComparison(
+            name=comp["name"],
+            cp_sat_value=comp["cp_sat_value"],
+            jax_value=comp["jax_value"],
+            passed=comp["passed"],
+            detail=comp["detail"],
+        )
+        for comp in result["comparisons"]
+    ]
     return ParityComparisonResult(
-        passed=all_passed,
+        passed=result["passed"],
         comparisons=comparisons,
-        summary=summary,
+        summary=result["summary"],
     )

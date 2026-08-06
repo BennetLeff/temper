@@ -77,6 +77,14 @@ Every measurement record's ``provenance`` object carries:
       This distinguishes "we watched this measurement happen" from
       "we reconstructed what must have been true", the same distinction
       ``scripts/_lib/provenance.py`` already draws for evidence docs.
+  sample_count: optional positive int -- how many samples the measurement
+      ran. The DRC ceiling's measurement contract (AGENTS.md) is 120
+      samples of ``run_drc`` with ``--all-track-errors``; the approval gate
+      (R27 monotone contract) requires a raise's record to show >= 120.
+      Optional because records that predate this field carry the count in
+      ``measured_via`` prose instead; ``get_sample_count`` reads the
+      structured field first and falls back to that prose (the legacy
+      default), so an old record is never falsely counted as under-sampled.
 
 How "no provenance yet" is handled
 -------------------------------------
@@ -89,11 +97,11 @@ grace period.
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass, field
+import re
+import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-
-import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -102,6 +110,7 @@ from _lib.provenance import get_branch, get_head_commit, is_tree_dirty  # noqa: 
 SHA256_HEX_LENGTH = 64
 VALID_SOURCES = ("measured-live", "backfilled-historical")
 _READ_CHUNK = 1 << 20  # 1 MiB
+_SAMPLE_COUNT_RE = re.compile(r"(\d+)\s*samples?\b", re.IGNORECASE)
 
 
 def sha256_file(path: Path) -> str:
@@ -120,12 +129,40 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def get_sample_count(prov: dict[str, Any]) -> int | None:
+    """The sample count a provenance record's measurement used, or None.
+
+    Reads the structured ``sample_count`` field first (a positive int).
+    Legacy records that predate the field carry the count in
+    ``measured_via`` prose instead -- e.g. drc_ceiling.json's current entry
+    says "...run_drc with --all-track-errors (120 samples; see
+    nondeterministic_error_types.clearance.samples)" -- so this falls back
+    to parsing that prose (the legacy default). ``None`` means "no sample
+    count is recorded"; callers (the DRC ceiling approval gate's
+    measurement-evidence check) treat None as fail-closed, never as a pass.
+    """
+    raw = prov.get("sample_count")
+    if isinstance(raw, bool):
+        # bool is an int subclass; a boolean sample count is a schema bug,
+        # not a count of one/zero.
+        return None
+    if isinstance(raw, int) and raw > 0:
+        return raw
+    measured_via = prov.get("measured_via")
+    if isinstance(measured_via, str):
+        match = _SAMPLE_COUNT_RE.search(measured_via)
+        if match:
+            return int(match.group(1))
+    return None
+
+
 def build_provenance(
     repo_root: Path,
     input_paths: list[str],
     *,
     tool_versions: dict[str, str] | None = None,
     source: str = "measured-live",
+    sample_count: int | None = None,
 ) -> dict[str, Any]:
     """Build a fresh provenance record for a measurement that is running
     right now, in this tree. Intended for use by scripts that actually
@@ -140,11 +177,16 @@ def build_provenance(
     and be readable right now, or this raises ``OSError`` (fail closed --
     a measurement that cannot hash its own input has not established
     provenance at all).
+
+    ``sample_count`` records how many samples the measurement ran (the
+    DRC ceiling contract is 120); omitted (None) when the caller does not
+    track a sample count, keeping records that predate the field's
+    introduction unchanged in shape.
     """
     inputs = [
         {"path": rel, "sha256": sha256_file(repo_root / rel)} for rel in input_paths
     ]
-    return {
+    prov = {
         "measured_at_commit": get_head_commit(repo_root),
         "dirty": is_tree_dirty(repo_root),
         "branch": get_branch(repo_root),
@@ -152,6 +194,9 @@ def build_provenance(
         "tool_versions": dict(tool_versions or {}),
         "source": source,
     }
+    if sample_count is not None:
+        prov["sample_count"] = sample_count
+    return prov
 
 
 @dataclass
@@ -249,6 +294,11 @@ def validate_provenance_shape(prov: dict[str, Any]) -> str | None:
     dirty = prov.get("dirty")
     if dirty not in (True, False, "UNKNOWN"):
         return f"'dirty'={dirty!r} must be true, false, or 'UNKNOWN'"
+
+    sample_count = prov.get("sample_count")
+    if sample_count is not None:
+        if isinstance(sample_count, bool) or not isinstance(sample_count, int) or sample_count <= 0:
+            return f"'sample_count'={sample_count!r} must be a positive integer"
 
     inputs = prov.get("inputs")
     if not isinstance(inputs, list) or len(inputs) == 0:

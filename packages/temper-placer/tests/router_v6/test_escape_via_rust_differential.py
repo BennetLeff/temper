@@ -10,7 +10,7 @@ Arms
 ----
 * **oracle** -- ``tests/router_v6/_escape_via_py_oracle.py``, a verbatim
   ``git show`` copy of ``escape_via_generator.py`` at
-  ``15110feccc6ec9389f0777d3cff1ce9f81b11068`` (``origin/main``).
+  ``143752893c177dc976da614566c64e4e53e4951f`` (``origin/main``).
 * **rust** -- the pyfunctions Phase B will add, listed in
   :data:`REQUIRED_RUST_SYMBOLS` and bound in the adapter block below.
 
@@ -36,13 +36,16 @@ non-divergence.
 ``dist < required - 0.001`` is **False** for NaN, so a NaN candidate is
 ACCEPTED (:func:`test_nan_pitch_emits_nan_positioned_vias`).
 
-Defect pinned, not fixed
-------------------------
-D4: every via is labelled ``F.Cu`` regardless of the component's side,
-because ``getattr(component, "side", 0)`` reads an attribute ``Component``
-does not have (the field is ``initial_side``).  See
-:func:`test_d4_layer_is_always_f_cu_regardless_of_side` and the oracle
-header.
+Defect repaired since the first pin
+-----------------------------------
+D4: every via was labelled ``F.Cu`` regardless of the component's side,
+because ``getattr(component, "side", 0)`` read an attribute ``Component``
+does not have (the field is ``initial_side``).  **Repaired by #760**
+(``aebaecd99``), and the oracle re-pinned onto the repaired module at
+``143752893``.  The defect pin was inverted rather than deleted --
+:func:`test_repaired_d4_layer_follows_the_component_side` now asserts the
+layer *does* follow the side, so a re-introduction fails here.  See the
+oracle header for the measurement on both sides of the repair.
 """
 
 from __future__ import annotations
@@ -51,6 +54,7 @@ import ast
 import math
 import random
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -99,7 +103,10 @@ def _rust(symbol: str):
 # END ADAPTER BLOCK
 # ===========================================================================
 
-_ORACLE_PIN_SHA = "15110feccc6ec9389f0777d3cff1ce9f81b11068"
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+_SRC = _REPO_ROOT / "packages" / "temper-placer" / "src" / "temper_placer" / "router_v6"
+
+_ORACLE_PIN_SHA = "143752893c177dc976da614566c64e4e53e4951f"
 _ORACLE_NAMES: tuple[str, ...] = ("EscapeVia", "generate_escape_vias", "_is_position_valid")
 
 
@@ -312,22 +319,56 @@ def test_is_position_valid_short_circuits_on_the_first_failing_pad():
 
 
 # ---------------------------------------------------------------------------
-# The pinned defect and the pinned NaN contract
+# The repaired defect (was pinned unfixed; now inverted) and the pinned NaN
+# contract
 # ---------------------------------------------------------------------------
 
 
-def test_d4_layer_is_always_f_cu_regardless_of_side():
-    """DEFECT D4, pinned: the escape-via layer ignores the component's side.
+def test_repaired_d4_layer_follows_the_component_side():
+    """D4, REPAIRED by #760 (``aebaecd99``): the layer now tracks the side.
 
-    ``side = getattr(component, "side", 0) or 0`` reads an attribute
+    **Was:** ``side = getattr(component, "side", 0) or 0`` read an attribute
     ``Component`` does not have -- the field is ``initial_side`` -- so the
-    default fires unconditionally and ``side_to_layer_name(0)`` always
-    returns ``'F.Cu'``.  Measured: a back-side component (``initial_side=1``)
-    gets pad coordinates that ARE mirrored and vias that are labelled front.
+    default fired unconditionally and ``side_to_layer_name(0)`` always
+    returned ``'F.Cu'``.  A back-side component got pad coordinates that ARE
+    mirrored and vias that were labelled front: the two halves of the same
+    via disagreed.
 
-    REPORTED, NOT FIXED: fixing it would break the verbatim pin.
+    **Now:** ``side = component.initial_side or 0``.
+
+    This is the *inversion* of the old defect pin, not its deletion.  It
+    fails if the ``getattr`` form -- or any other side-blind resolution --
+    comes back, which is the whole regression value the old pin had and the
+    only thing that would catch a re-introduction.
+
+    ``Component`` still has no ``side`` attribute; that is asserted, because
+    a future ``side`` field would make the old ``getattr`` spelling start
+    working again and quietly mask a regression here.
+
+    Like the cluster-E repairs, this pairs a STRUCTURAL half that reads the
+    *shipped* module with ``ast`` -- the oracle is a frozen copy pinned at a
+    SHA, so only this half can catch a regression in production -- with a
+    BEHAVIOURAL half that calls the oracle for real.
     """
     from temper_placer.core.netlist import Component
+
+    # --- structural half: the shipped resolution, read without importing ---
+    path = _SRC / "escape_via_generator.py"
+    tree = ast.parse(path.read_text(), filename=str(path))
+    assigns = [
+        ast.unparse(node.value)
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == "side" for t in node.targets)
+    ]
+    assert assigns, "escape_via_generator.py no longer assigns `side` -- re-derive D4"
+    assert all("getattr" not in a for a in assigns), (
+        f"the side-blind `getattr` form of D4 is back: {assigns}"
+    )
+    assert all("initial_side" in a for a in assigns), (
+        f"`side` is resolved from something other than initial_side: {assigns} -- "
+        "that is the D4 failure mode whatever spelling it wears"
+    )
 
     assert not hasattr(
         Component(
@@ -338,7 +379,11 @@ def test_d4_layer_is_always_f_cu_regardless_of_side():
             initial_position=(0.0, 0.0),
         ),
         "side",
-    ), "Component gained a `side` attribute -- D4 may be fixed; re-pin the oracle"
+    ), (
+        "Component gained a `side` attribute -- the old `getattr(component, "
+        '"side", 0)` spelling would now silently work; re-derive D4 before '
+        "trusting this test"
+    )
 
     rules = build_design_rules(RULE_SETS[0])
     layers_by_side = {}
@@ -350,16 +395,21 @@ def test_d4_layer_is_always_f_cu_regardless_of_side():
         layers_by_side[label] = {v.layer for v in vias}
         positions_by_side[label] = [v.position for v in vias]
 
+    # `initial_side=None` short-circuits through the `or` to 0; that default
+    # is pre-existing and D4 did not change it.
     assert layers_by_side == {
         "side_0": {"F.Cu"},
-        "side_1_back": {"F.Cu"},
+        "side_1_back": {"B.Cu"},
         "side_none": {"F.Cu"},
-    }, f"D4 appears to have changed: {layers_by_side}"
+    }, f"the escape-via layer no longer follows initial_side: {layers_by_side}"
 
-    # ... while the geometry DOES respond to the side, which is what makes
-    # the mislabelling wrong rather than merely unused
+    # ... and the geometry still responds to the side.  Before the repair this
+    # assertion was what made the mislabelling *wrong* rather than merely
+    # unused; it is kept because label and geometry must now agree, and a
+    # regression in either one alone breaks that agreement.
     assert positions_by_side["side_0"] != positions_by_side["side_1_back"], (
-        "pad coordinates no longer differ by side -- D4's write-up needs re-measuring"
+        "pad coordinates no longer differ by side -- the layer label and the "
+        "geometry are no longer two independent witnesses of the same fact"
     )
 
 

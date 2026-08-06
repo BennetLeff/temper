@@ -1,25 +1,52 @@
 /// Quality oracle entry point — orchestrates the full six-layer pipeline.
 ///
-/// Single pure function: classify → derive → configure → evaluate → verdict.
+/// The pipeline is split into a placement-independent `prepare` stage
+/// (classify → derive → configure, all functions of the (spec, netlist)
+/// pair alone) and a per-placement `evaluate_prepared` stage. This mirrors
+/// the Python predecessor, which assembled the quality config once and
+/// scored every candidate placement state against it, and avoids
+/// recomputing `classify_nets`/`derive`/`build_config` per evaluation.
 use crate::classification::classify_nets;
 use crate::config::build_config;
 use crate::derivation::derive;
 use crate::thresholds::evaluate;
 use crate::types::{
-    Netlist, PcbSpecification, PlacementState, PrecomputedMetrics, QualityMetrics,
-    QualityVerdict,
+    NetClassification, Netlist, PcbSpecification, PlacementState, PrecomputedMetrics,
+    QualityConfig, QualityMetrics, QualityVerdict,
 };
 
-pub fn evaluate_quality(
-    spec: &PcbSpecification,
-    netlist: &Netlist,
-    placement: &PlacementState,
-    precomputed: &PrecomputedMetrics,
-) -> QualityVerdict {
+/// Cached, placement-independent pipeline state.
+///
+/// Everything that depends only on (spec, netlist) is computed once in
+/// [`prepare_quality`] and reused for any number of placement states via
+/// [`evaluate_prepared`].
+#[derive(Debug, Clone)]
+pub struct PreparedQuality {
+    pub config: QualityConfig,
+    pub classifications: Vec<NetClassification>,
+    pub spec: PcbSpecification,
+}
+
+/// Setup stage: compute the quality config, net classifications, and keep
+/// the spec, all of which are independent of any placement state.
+pub fn prepare_quality(spec: &PcbSpecification, netlist: &Netlist) -> PreparedQuality {
     let classifications = classify_nets(netlist);
     let constraints = derive(spec, &classifications);
     let config = build_config(netlist, &constraints);
+    PreparedQuality {
+        config,
+        classifications,
+        spec: spec.clone(),
+    }
+}
 
+/// Per-placement stage: validate the precomputed metrics and threshold them
+/// against the cached config. No classification/derivation/config work here.
+pub fn evaluate_prepared(
+    prepared: &PreparedQuality,
+    placement: &PlacementState,
+    precomputed: &PrecomputedMetrics,
+) -> QualityVerdict {
     let metrics = match QualityMetrics::from_precomputed(precomputed) {
         Ok(m) => m,
         Err(e) => {
@@ -36,13 +63,33 @@ pub fn evaluate_quality(
         }
     };
 
-    let violations = evaluate(&config, placement, &metrics, spec, &classifications);
+    let violations = evaluate(
+        &prepared.config,
+        placement,
+        &metrics,
+        &prepared.spec,
+        &prepared.classifications,
+    );
 
     if violations.is_empty() {
         QualityVerdict::Pass { metrics }
     } else {
         QualityVerdict::Fail { metrics, violations }
     }
+}
+
+/// Single-shot entry point: prepare + evaluate in one call.
+///
+/// Kept for existing callers/tests; internally it is exactly
+/// [`prepare_quality`] followed by [`evaluate_prepared`].
+pub fn evaluate_quality(
+    spec: &PcbSpecification,
+    netlist: &Netlist,
+    placement: &PlacementState,
+    precomputed: &PrecomputedMetrics,
+) -> QualityVerdict {
+    let prepared = prepare_quality(spec, netlist);
+    evaluate_prepared(&prepared, placement, precomputed)
 }
 
 #[cfg(test)]
@@ -235,6 +282,46 @@ mod tests {
             &valid_metrics(),
         );
         assert!(verdict.is_pass());
+    }
+
+    #[test]
+    fn test_prepare_evaluate_matches_evaluate_quality() {
+        let spec = empty_spec();
+        let netlist = Netlist {
+            nets: vec![
+                NetInfo { name: "GATE_DRV_H".into(), pins: vec!["Q1".into(), "U1".into()] },
+            ],
+            components: vec![
+                ComponentInfo {
+                    ref_des: "Q1".into(),
+                    footprint: "TO-247".into(),
+                    width_mm: 15.0,
+                    height_mm: 20.0,
+                    voltage: 230.0,
+                },
+                ComponentInfo {
+                    ref_des: "U1".into(),
+                    footprint: "SOIC-8".into(),
+                    width_mm: 5.0,
+                    height_mm: 4.0,
+                    voltage: 3.3,
+                },
+            ],
+        };
+        let placement = PlacementState {
+            positions: vec![(5.0, 5.0), (6.0, 5.0)],
+            component_refs: vec!["Q1".into(), "U1".into()],
+            board_width_mm: 100.0,
+            board_height_mm: 100.0,
+        };
+        let pre = valid_metrics();
+
+        let single_shot = evaluate_quality(&spec, &netlist, &placement, &pre);
+        let prepared = prepare_quality(&spec, &netlist);
+        let split = evaluate_prepared(&prepared, &placement, &pre);
+
+        assert_eq!(single_shot, split, "split pipeline must match single-shot");
+        assert!(!split.is_pass(), "HV-LV pair 1mm apart should fail");
     }
 
     #[test]

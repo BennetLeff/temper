@@ -46,6 +46,8 @@
 //! selecting the same arms CPython selects.
 
 #[cfg(not(target_arch = "wasm32"))]
+use std::ffi::CStr;
+#[cfg(not(target_arch = "wasm32"))]
 use std::sync::OnceLock;
 
 #[cfg(feature = "python")]
@@ -67,42 +69,54 @@ type UnaryMathFn = unsafe extern "C" fn(f64) -> f64;
 #[cfg(not(target_arch = "wasm32"))]
 type BinaryMathFn = unsafe extern "C" fn(f64, f64) -> f64;
 
+/// `RTLD_DEFAULT` — "search every loaded object, in load order".
+///
+/// **The constant is not portable, and getting it wrong fails silently.**
+/// glibc defines it as `((void *) 0)`; Darwin's `dlfcn.h` defines it as
+/// `((void *) -2)` (`NULL` there is not a valid handle and simply misses).
+/// A hardcoded null resolved nothing on macOS — every lookup fell through to
+/// the statically-bound `f64::*` fallback and no test noticed. Same
+/// correction, same rationale as this crate's `hostmath.rs`.
+#[cfg(all(not(target_arch = "wasm32"), target_vendor = "apple"))]
+const RTLD_DEFAULT: *const u8 = usize::MAX.wrapping_sub(1) as *const u8; // (void *) -2
+
+#[cfg(all(not(target_arch = "wasm32"), not(target_vendor = "apple")))]
+const RTLD_DEFAULT: *const u8 = core::ptr::null();
+
+/// Resolve `symbol` in the host process's already-loaded libm.
+///
+/// `symbol` is a `&CStr`, not a `&str`: `dlsym` reads a NUL-terminated C
+/// string, and a Rust `&str` carries its length out of band with no NUL, so
+/// passing `str::as_ptr` made `dlsym` read past the end of the literal into
+/// whatever `.rodata` followed it.
 #[cfg(not(target_arch = "wasm32"))]
-fn dlsym_unary(symbol: &str) -> Option<UnaryMathFn> {
+fn dlsym_ptr(symbol: &CStr) -> Option<*mut u8> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
     }
-    const RTLD_DEFAULT: *const u8 = core::ptr::null();
-    unsafe {
-        let p = dlsym(RTLD_DEFAULT, symbol.as_ptr());
-        if p.is_null() {
-            None
-        } else {
-            Some(std::mem::transmute::<*mut u8, UnaryMathFn>(p))
-        }
-    }
+    // SAFETY: `symbol` is a NUL-terminated C string and `RTLD_DEFAULT` is this
+    // platform's "search every loaded object" handle (never dereferenced). A
+    // miss returns null, which is checked here.
+    let p = unsafe { dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>()) };
+    if p.is_null() { None } else { Some(p) }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn dlsym_binary(symbol: &str) -> Option<BinaryMathFn> {
-    unsafe extern "C" {
-        fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
-    }
-    const RTLD_DEFAULT: *const u8 = core::ptr::null();
-    unsafe {
-        let p = dlsym(RTLD_DEFAULT, symbol.as_ptr());
-        if p.is_null() {
-            None
-        } else {
-            Some(std::mem::transmute::<*mut u8, BinaryMathFn>(p))
-        }
-    }
+fn dlsym_unary(symbol: &CStr) -> Option<UnaryMathFn> {
+    // SAFETY: the resolved symbol is a C `double(double)` from libm.
+    dlsym_ptr(symbol).map(|p| unsafe { std::mem::transmute::<*mut u8, UnaryMathFn>(p) })
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn dlsym_binary(symbol: &CStr) -> Option<BinaryMathFn> {
+    // SAFETY: the resolved symbol is a C `double(double, double)` from libm.
+    dlsym_ptr(symbol).map(|p| unsafe { std::mem::transmute::<*mut u8, BinaryMathFn>(p) })
 }
 
 #[cfg(not(target_arch = "wasm32"))]
 fn host_sqrt() -> &'static UnaryMathFn {
     static F: OnceLock<Option<UnaryMathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_unary("sqrt").or(Some(fallback_sqrt)))
+    F.get_or_init(|| dlsym_unary(c"sqrt").or(Some(fallback_sqrt)))
         .as_ref()
         .unwrap_or_else(|| unreachable!("fallback always set"))
 }
@@ -110,7 +124,7 @@ fn host_sqrt() -> &'static UnaryMathFn {
 #[cfg(not(target_arch = "wasm32"))]
 fn host_pow() -> &'static BinaryMathFn {
     static F: OnceLock<Option<BinaryMathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_binary("pow").or(Some(fallback_pow)))
+    F.get_or_init(|| dlsym_binary(c"pow").or(Some(fallback_pow)))
         .as_ref()
         .unwrap_or_else(|| unreachable!("fallback always set"))
 }
@@ -278,6 +292,20 @@ pub fn single_device_power_py(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The host-libm indirection is actually wired, not silently bypassed.
+    ///
+    /// Before the Darwin `RTLD_DEFAULT` correction this failed on macOS:
+    /// `dlsym(NULL, ...)` reports `invalid handle` there, so every lookup
+    /// returned `None` and the fallback silently became the live route while
+    /// the code claimed bit-exactness with the host interpreter. Nothing else
+    /// in the suite could notice — the fallback is a *plausible* answer.
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn host_libm_symbols_actually_resolve() {
+        assert!(dlsym_unary(c"sqrt").is_some(), "dlsym could not resolve `sqrt`");
+        assert!(dlsym_binary(c"pow").is_some(), "dlsym could not resolve `pow`");
+    }
 
     // The differential suite is the primary oracle; these unit tests pin
     // the branch structure and the pow-vs-mul discrimination without a

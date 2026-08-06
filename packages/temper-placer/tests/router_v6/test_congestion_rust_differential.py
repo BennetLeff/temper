@@ -12,7 +12,7 @@ Arms
 ----
 * **oracle** -- ``tests/router_v6/_congestion_py_oracle.py``, a verbatim
   ``git show`` copy of the six cluster-E modules at
-  ``15110feccc6ec9389f0777d3cff1ce9f81b11068`` (``origin/main``).
+  ``143752893c177dc976da614566c64e4e53e4951f`` (``origin/main``).
 * **rust** -- the pyfunctions Phase B will add.  All of them are listed in
   :data:`REQUIRED_RUST_SYMBOLS` and bound in the adapter block below; nothing
   outside that block knows the Rust arm exists.
@@ -46,11 +46,22 @@ the corpus's own grids (:func:`test_trap_np_sum_is_not_a_left_fold`).
 with ``numpy.float32``.  ``==`` cannot see that; ``sig()`` can
 (:func:`test_trap_hotspot_tuples_leak_float32`).
 
-Defects pinned, not fixed
--------------------------
-D1 ``positions=`` is ignored, D2 ``layer_assignments=`` raises
-``ModuleNotFoundError``, D3 an off-board net writes a 7x7 block at the
-origin.  Each has a named test.  See the oracle header for the full write-up.
+Defects repaired since the first pin
+------------------------------------
+D1 (``positions=`` ignored), D2 (``layer_assignments=`` raising
+``ModuleNotFoundError``) and D3 (an off-board net writing a 7x7 block at the
+board origin) were all pinned *unfixed* by the first version of this file.
+**#760 (``aebaecd99``) repaired all three**, and the oracle was re-pinned onto
+the repaired source at ``143752893``.
+
+The three pins were **inverted, not deleted**: each now asserts the repaired
+behaviour, so a re-introduction of the original defect fails here rather than
+being silently blessed, and each also rejects the plausible-but-wrong fix a
+reimplementation would most likely reach for instead.  Each pairs an ``ast``
+read of the *shipped* module -- which is how a production regression is
+caught even though the oracle itself is a frozen copy pinned at a SHA -- with
+a real call to the oracle.  See the oracle header for the measurements on
+both sides of each repair.
 """
 
 from __future__ import annotations
@@ -59,6 +70,7 @@ import ast
 import math
 import random
 import subprocess
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -151,7 +163,7 @@ def _rust(symbol: str):
 # END ADAPTER BLOCK
 # ===========================================================================
 
-_ORACLE_PIN_SHA = "15110feccc6ec9389f0777d3cff1ce9f81b11068"
+_ORACLE_PIN_SHA = "143752893c177dc976da614566c64e4e53e4951f"
 _ORACLE_SOURCES: dict[str, tuple[str, ...]] = {
     "congestion.py": (
         "CongestionGrid",
@@ -576,22 +588,83 @@ def test_analyze_congestion_bit_exact(design):
 
 
 # ---------------------------------------------------------------------------
-# congestion.py -- the three pinned defects
+# congestion.py -- the three defects, REPAIRED by #760 and pinned INVERTED
+#
+# Each of D1/D2/D3 was originally pinned unfixed, because the oracle's job is
+# to be the shipped behaviour.  #760 (``aebaecd99``) repaired all three and
+# this oracle was re-pinned onto the repaired source at ``143752893``.  The
+# pins below were **inverted rather than deleted**: each fails if the original
+# defect returns, and each also rejects the plausible-but-wrong "fix" that a
+# reimplementation is most likely to reach for instead.
+#
+# Every one has two halves:
+#   * a STRUCTURAL half that reads the *shipped* module with ``ast`` -- not a
+#     source-string match, so it survives reformatting, and not an import, so
+#     it holds without the Rust extensions being buildable.  This is the half
+#     that catches a regression in production even though the oracle is a
+#     frozen copy pinned at a SHA.
+#   * a BEHAVIOURAL half that actually calls the oracle.
 # ---------------------------------------------------------------------------
 
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+_SRC = _REPO_ROOT / "packages" / "temper-placer" / "src" / "temper_placer" / "router_v6"
 
-def test_d1_positions_argument_is_ignored():
-    """DEFECT D1, pinned: ``positions=`` has no effect on the result.
 
-    ``_get_pin_positions`` reads ``positions`` into ``comp_x, comp_y`` and
-    then never uses them -- the appended coordinate comes from
-    ``pin_world_position(pin, comp)``.  The placement feedback loop is
-    therefore blind to the positions it is meant to be evaluating.
+def _shipped_function(module: str, name: str) -> ast.FunctionDef:
+    """The shipped module's ``ast`` node for ``name``.
 
-    REPORTED, NOT FIXED: a fix would break the verbatim pin.  The Rust arm
-    must reproduce this, and this test is where the decision to change it
-    will surface.
+    Parsed rather than imported, for the same reason
+    :func:`test_oracle_is_verbatim_copy` shells out to ``git show``: these
+    structural checks must stay verifiable without the Rust extensions being
+    importable.
     """
+    path = _SRC / f"{module}.py"
+    tree = ast.parse(path.read_text(), filename=str(path))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == name:
+            return node
+    raise AssertionError(f"{module}.py no longer defines {name}()")
+
+
+def test_repaired_d1_positions_argument_is_honoured():
+    """D1, REPAIRED by #760 (``aebaecd99``): ``positions=`` now moves the pins.
+
+    **Was:** ``_get_pin_positions`` unpacked ``positions`` into
+    ``comp_x, comp_y`` (and the ``else`` branch into ``_comp_x, _comp_y``,
+    underscore-prefixed so linters read the whole triple as intentionally
+    unused), then appended ``pin_world_position(pin, comp)`` -- which reads
+    the component's own ``initial_position``.  Measured then: a ``positions``
+    array moving every component 999 mm produced a byte-identical result to
+    ``positions=None``, so the placement feedback loop was blind to the
+    candidate placements it was scoring.
+
+    **Now:** ``pos_override`` is threaded into ``pin_world_position_at``.
+
+    This is the *inversion* of the old defect pin.  It fails if the dead
+    ``comp_x``/``comp_y`` form returns, and -- via the structural half -- if
+    someone "fixes" it by keeping ``pin_world_position`` and mutating the
+    component instead, which would work here but leak a mutation into the
+    caller's netlist.
+    """
+    fn = _shipped_function("congestion", "_get_pin_positions")
+    body = ast.unparse(fn)
+
+    assert "pin_world_position_at" in body, (
+        "_get_pin_positions no longer calls pin_world_position_at -- the D1 "
+        "repair has been reverted or restructured; re-derive D1 before "
+        "trusting this test"
+    )
+    assert "pos_override" in body, "the positions array is no longer threaded through an override"
+    # the wrong fix: mutating the component to make the stale read come out
+    # right.  `positions` is the caller's candidate, not a commit.
+    assert not any(
+        isinstance(node, ast.Attribute)
+        and node.attr == "initial_position"
+        and isinstance(node.ctx, ast.Store)
+        for node in ast.walk(fn)
+    ), "_get_pin_positions assigns to comp.initial_position -- that mutates the caller's netlist"
+
+    # --- behavioural half -------------------------------------------------
     design = next(d for d in ANALYZE_DESIGNS if d["label"] == "two_pin_net")
     netlist = build_netlist(design["components"], design["nets"])
     moved = np.array([[999.0, 999.0], [-999.0, -999.0]], dtype=np.float64)
@@ -599,73 +672,172 @@ def test_d1_positions_argument_is_ignored():
     without = ORACLE._get_pin_positions(netlist, "N1", None)
     with_positions = ORACLE._get_pin_positions(netlist, "N1", moved)
 
-    assert sig(without) == sig(with_positions), (
-        "D1 appears to have been fixed in the oracle -- the oracle must stay "
-        "verbatim; fix the production module and re-pin instead"
+    assert without == [(1.0, 1.0), (6.0, 5.0)], (
+        f"the positions=None baseline moved: {without!r} -- the corpus row "
+        "changed and the D1 measurement below no longer means what it says"
     )
+    assert with_positions == [(999.0, 999.0), (-999.0, -999.0)], (
+        f"positions= is not being honoured: {with_positions!r}"
+    )
+    assert sig(without) != sig(with_positions)
 
     board = build_board(*design["board"])
     a = ORACLE.analyze_congestion(netlist, board)
     b = ORACLE.analyze_congestion(netlist, board, positions=moved)
-    assert sig(a.grid.demand) == sig(b.grid.demand)
-    assert sig(a.max_utilization) == sig(b.max_utilization)
+    assert sig(a.grid.demand) != sig(b.grid.demand), (
+        "analyze_congestion still produces identical demand with and without a "
+        "positions array that moves every component 999 mm -- D1 is back"
+    )
+    assert float(a.grid.demand.sum()) == 30.0
+    assert float(b.grid.demand.sum()) == 100.0
+
+    # ... and passing the components' own positions back in is a no-op, which
+    # is what says the override is a genuine substitution rather than a
+    # scale/offset applied on top of initial_position.
+    same = np.array([c.initial_position for c in netlist.components], dtype=np.float64)
+    assert sig(ORACLE._get_pin_positions(netlist, "N1", same)) == sig(without)
 
 
-def test_d2_layer_assignments_raises_module_not_found():
-    """DEFECT D2, pinned as error parity.
+def test_repaired_d2_layer_assignments_path_is_reachable():
+    """D2, REPAIRED by #760 (``aebaecd99``): the multi-layer branch now runs.
 
-    ``analyze_congestion`` imports ``temper_placer.routing.layer_assignment``,
-    a package that does not exist (the tree is ``temper_placer.router_v6``),
-    so every call with ``layer_assignments is not None`` raises before doing
-    any work.  The multi-layer branch is unreachable in production.
+    **Was:** ``from temper_placer.routing.layer_assignment import Layer`` in
+    two places inside ``analyze_congestion``.  There is no
+    ``temper_placer.routing`` package -- the tree is ``temper_placer.router_v6``
+    -- so every call with ``layer_assignments is not None`` raised
+    ``ModuleNotFoundError`` before computing anything.  The entire multi-layer
+    branch was unreachable in production, and the old pin asserted that as
+    *error parity*.
 
-    The Rust arm must raise the same type with the same message until someone
-    fixes the import -- which is what this assertion says out loud.
+    **Now:** both imports read ``temper_placer.router_v6.layer_assignment``.
+
+    Inverted, not deleted: this fails if the dead ``temper_placer.routing``
+    path comes back in either location, and also if someone "fixes" it by
+    wrapping the import in ``try/except ImportError`` -- which would stop the
+    raise while leaving the branch just as unreachable, and is exactly the
+    shape a reviewer would wave through.
     """
+    fn = _shipped_function("congestion", "analyze_congestion")
+    imports = [
+        ".".join(filter(None, (node.module, alias.name)))
+        for node in ast.walk(fn)
+        if isinstance(node, ast.ImportFrom)
+        for alias in node.names
+    ]
+    assert imports, "analyze_congestion no longer has function-local imports at all"
+    assert all(i == "temper_placer.router_v6.layer_assignment.Layer" for i in imports), (
+        f"analyze_congestion imports something other than the repaired path: {imports}"
+    )
+    # the wrong fix: silence the raise, keep the branch dead.
+    assert not any(
+        isinstance(node, ast.Try)
+        and any(isinstance(h.type, ast.Name) and "Error" in h.type.id for h in node.handlers)
+        for node in ast.walk(fn)
+    ), (
+        "analyze_congestion swallows an import error -- that suppresses D2's "
+        "symptom without making the multi-layer branch reachable"
+    )
+
+    # --- behavioural half -------------------------------------------------
+    from temper_placer.router_v6.layer_assignment import Layer, LayerAssignment
+
     design = next(d for d in ANALYZE_DESIGNS if d["label"] == "two_pin_net")
     netlist = build_netlist(design["components"], design["nets"])
     board = build_board(*design["board"])
 
-    with pytest.raises(ModuleNotFoundError) as excinfo:
-        ORACLE.analyze_congestion(netlist, board, layer_assignments={})
-    assert excinfo.value.name == "temper_placer.routing"
+    # an empty mapping used to raise; it now returns a result
+    empty = ORACLE.analyze_congestion(netlist, board, layer_assignments={})
+    assert isinstance(empty, ORACLE.CongestionResult)
+    assert empty.grid.num_layers == 1
 
-    # ... and with a non-empty mapping, i.e. the branch is not reached at all
-    with pytest.raises(ModuleNotFoundError):
-        ORACLE.analyze_congestion(netlist, board, layer_assignments={"N1": object()})
+    def _assign(net: str, layer: Layer) -> LayerAssignment:
+        return LayerAssignment(
+            net=net, primary_layer=layer, allowed_layers=[layer], vias_required=0, reason="test"
+        )
 
-    # `None` is the only value that works
-    ORACLE.analyze_congestion(netlist, board, layer_assignments=None)
+    # ... and a mapping that genuinely spans two layers promotes num_layers,
+    # i.e. the code the ModuleNotFoundError used to hide actually executes.
+    mixed = ORACLE.analyze_congestion(
+        netlist,
+        board,
+        layer_assignments={"N1": _assign("N1", Layer.L1_TOP), "N2": _assign("N2", Layer.L4_BOT)},
+    )
+    assert mixed.grid.num_layers == 2, "the L1_TOP/L4_BOT promotion did not fire"
+    assert mixed.grid.demand.shape == (2, 10, 10)
+
+    # a single-layer mapping must NOT promote -- otherwise "num_layers == 2"
+    # above would be true for any non-empty mapping and prove nothing.
+    single = ORACLE.analyze_congestion(
+        netlist, board, layer_assignments={"N1": _assign("N1", Layer.L1_TOP)}
+    )
+    assert single.grid.num_layers == 1
+    assert single.grid.demand.shape == (10, 10)
 
 
-def test_d3_offboard_net_writes_negative_slice():
-    """DEFECT D3, pinned: an off-board net adds demand at the ORIGIN.
+def test_repaired_d3_offboard_net_contributes_nothing():
+    """D3, REPAIRED by #760 (``aebaecd99``): off-board nets add no demand.
 
-    ``col_max = min(width_cells - 1, int(...))`` clamps only from above, so a
-    net entirely left of / below the board leaves ``col_max`` negative and
-    ``demand[row_min:row_max + 1, col_min:col_max + 1]`` becomes a
-    negative-index slice.  Measured on a 10x10 grid with a net at
-    x, y in [-5, -4]: **49** cells written, at the board origin, where the
-    correct answer is zero.
+    **Was:** ``estimate_net_demand`` clamped ``col_min`` from below and
+    ``col_max`` from above -- each bound from one side only.  A net entirely
+    left of the board left ``col_max`` negative, so
+    ``demand[row_min:row_max + 1, col_min:col_max + 1]`` became a
+    *negative-index* slice.  Measured on a 10x10 grid with a net at
+    x, y in [-5, -4]: **49** cells written at the board ORIGIN where the
+    answer is zero.  The far edge was right by accident (``col_min = 50``,
+    ``col_max = 9`` is an empty ``[50:10]`` slice), and that asymmetry is what
+    made the near edge visible at all.
 
-    The asymmetry is the tell.  A net off the FAR edge produces
-    ``col_min = 50``, ``col_max = 9`` -- an empty ``[50:10]`` slice, i.e. the
-    right answer by accident.  Only the near edge goes negative, and only the
-    near edge is wrong.
+    **Now:** ``if col_max < col_min or row_max < row_min: return grid``.
+
+    Inverted, not deleted.  The interesting failure this still catches is not
+    the original defect but the over-broad fix: a guard written as
+    ``if col_max < 0 or row_max < 0`` (or one that rejects any net with a
+    negative coordinate) also makes the 49 cells go away, and additionally
+    drops the *straddling* net that legitimately contributes 9 cells.  So the
+    straddling case is asserted alongside.
     """
+    fn = _shipped_function("congestion", "estimate_net_demand")
+    guards = [
+        ast.unparse(node.test)
+        for node in ast.walk(fn)
+        if isinstance(node, ast.If)
+        and any(isinstance(s, ast.Return) for s in node.body)
+        and "col_max" in ast.unparse(node.test)
+    ]
+    assert guards, (
+        "estimate_net_demand has no early-return guard mentioning col_max -- "
+        "the D3 repair has been reverted; re-derive D3 before trusting this test"
+    )
+    assert any("col_min" in g and "row_min" in g for g in guards), (
+        f"the D3 guard compares col_max against a constant rather than against "
+        f"col_min/row_min: {guards} -- that also rejects legitimate nets whose "
+        "bounding box straddles the low edge"
+    )
+
+    # --- behavioural half -------------------------------------------------
     grid = ORACLE.CongestionGrid.from_board(build_board(10.0, 10.0), cell_size_mm=1.0)
-    out = ORACLE.estimate_net_demand(grid, [(-5.0, -5.0), (-4.0, -4.0)], demand_per_cell=1.0)
 
-    written = out.demand > 0.0
-    assert int(written.sum()) == 49, "D3 appears to have changed -- re-pin the oracle"
-    # ... and it is the ORIGIN block, not the far corner
-    assert written[0, 0]
-    assert written[6, 6]
-    assert not written[7, 7]
+    near = ORACLE.estimate_net_demand(grid, [(-5.0, -5.0), (-4.0, -4.0)], demand_per_cell=1.0)
+    assert int((near.demand > 0.0).sum()) == 0, (
+        "an off-board net still writes demand at the origin -- D3's negative-index slice is back"
+    )
+    assert near is grid, "the guard should return the input grid, not a copy"
 
-    # the far-side equivalent produces an empty slice and writes nothing
+    # the far edge used to be right by accident, via an empty slice on a fresh
+    # copy; it is now right on purpose, by the same identity return.
     far = ORACLE.estimate_net_demand(grid, [(50.0, 50.0), (60.0, 60.0)], demand_per_cell=1.0)
     assert int((far.demand > 0.0).sum()) == 0
+    assert far is grid
+
+    # ... and the guard is not over-broad: a net straddling the low boundary
+    # still contributes its on-board part.  This is the assertion that fails
+    # for a `col_max < 0`-style fix.
+    straddling = ORACLE.estimate_net_demand(grid, [(-3.0, -3.0), (2.0, 2.0)], demand_per_cell=1.0)
+    written = straddling.demand > 0.0
+    assert int(written.sum()) == 9, f"straddling net wrote {int(written.sum())} cells, expected 9"
+    assert written[0, 0]
+    assert written[2, 2]
+    assert not written[3, 3]
 
 
 # ---------------------------------------------------------------------------
