@@ -10,10 +10,6 @@
 HypergraphBuildResult	unwired at time of recording; no reason given
 PyCompiler	unwired at time of recording; no reason given
 add_endpoint_nudge_py	unwired at time of recording; no reason given
-apply_damped_position_py	PR #751 cluster E -- as above
-apply_suggestions_damped_py	PR #751 cluster E -- as above
-apply_total_movement_py	PR #751 cluster E -- as above
-apply_update_positions_py	PR #751 cluster E -- as above
 assign_components_to_slots_py	unwired at time of recording; no reason given
 build_adjacency_flat	unwired at time of recording; no reason given
 calculate_min_trace_width	unwired at time of recording; no reason given
@@ -21,20 +17,6 @@ check_overconstrained	unwired at time of recording; no reason given
 classify_nets_py	unwired at time of recording; no reason given
 closure_validate	unwired at time of recording; no reason given
 component_reach_py	unwired at time of recording; no reason given
-congestion_analyze_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_bottleneck_to_coordinates_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_classify_severity_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_estimate_net_demand_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_grid_from_board_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_grid_overflow_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_grid_utilization_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_heatmap_at_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_heatmap_from_router_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_heatmap_hotspots_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_heatmap_total_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_identify_regions_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_result_overflow_ratio_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
-congestion_result_top_bottlenecks_py	PR #751 cluster E -- Rust proven (575-test differential), shim not written; router_v6/congestion*.py still runs
 corridor_assign_tracks_to_channels_py	unwired at time of recording; no reason given
 corridor_compute_consolidation_py	unwired at time of recording; no reason given
 corridor_compute_courtyards_py	unwired at time of recording; no reason given
@@ -81,9 +63,6 @@ parse_edge_type	unwired at time of recording; no reason given
 parse_metric	unwired at time of recording; no reason given
 parse_tier	unwired at time of recording; no reason given
 place_via_with_clearance_py	unwired at time of recording; no reason given
-placement_find_affected_py	PR #751 cluster E -- as above
-placement_suggested_position_py	PR #751 cluster E -- as above
-placement_suggestions_generate_py	PR #751 cluster E -- as above
 points_centroid_winding	unwired at time of recording; no reason given
 py_load_loop_collection	unwired at time of recording; no reason given
 py_load_loop_from_dict	unwired at time of recording; no reason given
@@ -91,8 +70,6 @@ py_load_loop_template	unwired at time of recording; no reason given
 py_load_netclass_rules	unwired at time of recording; no reason given
 recompute_plane_assignments_py	unwired at time of recording; no reason given
 required_clearance_py	unwired at time of recording; no reason given
-routing_demand_complexity_py	PR #751 cluster E -- as above
-routing_demand_estimate_py	PR #751 cluster E -- as above
 slop_angle_between_py	unwired at time of recording; no reason given
 slop_distance_mm_py	unwired at time of recording; no reason given
 slop_lint_all_py	unwired at time of recording; no reason given
