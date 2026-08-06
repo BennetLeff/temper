@@ -63,7 +63,7 @@ def compute_input_fingerprint(
     # oracle's exact update sequence in the oracle's sorted-path order:
     # existing files contribute their bytes, missing files contribute
     # ``str(path).encode()``, then the ``seed:``/``epochs:`` suffixes.
-    parts = []
+    parts: list[tuple[bytes | None, str]] = []
     for path in sorted([pcb_path, constraints_path, baseline_path]):
         if path.exists():
             parts.append((path.read_bytes(), str(path)))

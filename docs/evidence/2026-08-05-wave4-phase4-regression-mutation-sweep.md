@@ -29,7 +29,7 @@ with a **PRISTINE rebuild of both extensions from the final clean sources**
 (the `#766`/`#762` lesson — per-mutant revert alone leaves the last
 mutant's `.so` installed). The driver is `/tmp/mutate_regression.py`.
 
-## Results — N mutants across the seven kernels, all caught
+## Results — 45 mutants across the seven kernels, all caught
 
 ### temper-drc-rs
 

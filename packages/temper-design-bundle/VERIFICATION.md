@@ -3563,6 +3563,6 @@ matches the oracle's messages byte-for-byte.
 ## Mutation campaign
 
 See `docs/evidence/2026-08-05-wave4-phase4-regression-mutation-sweep.md`
-for the full per-mutant record: **N mutants across all seven kernels, every
+for the full per-mutant record: **45 mutants across all seven kernels, every
 one caught by the differentials** (no surviving mutants, no infra failures
 counted as kills, pristine rebuild at the end).
