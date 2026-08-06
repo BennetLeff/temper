@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """DRC measurement for the domain-first re-solve (#518).
 
-# provenance: commit=d49a9c2ea1097d2a6d180b0419c58386292e8346 dirty=false
+# provenance: commit=ab11daaba37f1fca17d057fd087110a663e01deb dirty=false
 
 Writes the solved placement (2026-08-04_domain_first_resolve_solve_summary.json)
 to a /tmp COPY of pcb/temper.kicad_pcb -- pcb/** stays untouched -- and

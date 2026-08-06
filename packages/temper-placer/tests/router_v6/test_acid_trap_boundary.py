@@ -309,8 +309,46 @@ def test_threshold_at_or_above_90_clamps(threshold: float):
 def test_negative_threshold_detects_no_traps(threshold: float):
     """Negative threshold — no angle (all ≥ 0°) can be < negative threshold."""
     results = _make_routing_results()
-    report = detect_acid_traps(results, min_angle_threshold=threshold)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        report = detect_acid_traps(results, min_angle_threshold=threshold)
     assert report.trap_count == 0
+
+
+@pytest.mark.parametrize("threshold", [*THRESHOLD_NEGATIVE, -5.0, -90.0, float("-inf")])
+def test_negative_threshold_warns_rather_than_silently_returning_empty(threshold: float):
+    """Issue #752 defect 9: a *finite* negative threshold must warn.
+
+    The guard was ``not math.isfinite(t) and t < 0``, which only ``-inf``
+    satisfies. A finite negative such as ``-5.0`` fell straight through, found
+    no angle below it, and returned an empty report with no warning at all —
+    indistinguishable from a clean board.
+    """
+    results = _make_routing_results()  # 45° path — a trap at any sane threshold
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        report = detect_acid_traps(results, min_angle_threshold=threshold)
+    assert report.trap_count == 0
+    assert any("negative" in str(warning.message).lower() for warning in w), (
+        f"no negative-threshold warning issued for threshold={threshold!r}"
+    )
+
+
+def test_positive_infinity_still_clamps_and_does_not_take_the_negative_path():
+    """The obvious ``or`` rewrite of the defect-9 guard would break this.
+
+    ``not math.isfinite(t) or t < 0`` is True for ``+inf``, which would return
+    an empty report with a bogus "is negative" warning instead of clamping to
+    90° and detecting the 45° trap.
+    """
+    results = _make_routing_results()
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        report = detect_acid_traps(results, min_angle_threshold=float("inf"))
+    messages = [str(warning.message).lower() for warning in w]
+    assert report.trap_count == 1
+    assert any("clamping" in m for m in messages)
+    assert not any("negative" in m for m in messages)
 
 
 @pytest.mark.parametrize("threshold", THRESHOLD_ZERO)

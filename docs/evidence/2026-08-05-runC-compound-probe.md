@@ -1,12 +1,12 @@
-<!-- provenance: commit=e19fc516934bfc95c3b311602380db50d7e0393d dirty=true -->
+<!-- provenance: commit=5c480a3bcbdddfa42f47b3ad16bb3921fcaf589f dirty=false (re-pointed 2026-08-05: the measurement tree e19fc516934bfc95c3b311602380db50d7e0393d was a pre-merge branch commit, orphaned by force-push; the probe and its artifacts landed on main at 5c480a3bcbdddfa42f47b3ad16bb3921fcaf589f (#683), which is the cited commit; dirty=false because the artifacts are committed there) -->
 
 # Run-C compound probe — the 14 non-zone conflicts under the sound zone encoding (issue #651 follow-up)
 
 **Date:** 2026-08-04. **Base:** origin/main at `c60825861` (the general-convex
-zone encoding, #674). **Measurement tree:** `e19fc5169` (see header; the
-envelope artifacts were regenerated on this tree by
-`gap1_runc_envelope_probe.py --variant C_60_s0` and carry the same commit;
-`dirty=true` records the uncommitted probe/artifact files at stamp time).
+zone encoding, #674). **Measurement tree:** `5c480a3b` (see header; the
+envelope artifacts were regenerated at the branch commit `e19fc5169` --
+orphaned by force-push -- and landed on main at `5c480a3b`, which the header
+cites; `dirty=false` because the artifacts are committed there).
 
 ## Question
 

@@ -18,22 +18,9 @@ leaf:
   so an ``f32`` array never matches an ``f64`` array even when the values
   round-trip.
 
-There is **no tolerance anywhere**.  ``test_signature_self_test.py`` is the
+There is **no tolerance anywhere**.  ``test_signature.py`` is the
 self-test that proves each of those discriminations actually fires; it is
 what stops this module from silently degrading into ``==``.
-
-Provenance
-----------
-Every executable statement in this file is **byte-identical** to
-``tests/router_v6/_signature.py`` as it stands on PR #732 (branch
-``feat/wave4-router-v6-core-rust``, head ``9c30918b7``), which is still OPEN
-at the time this slice was written; only this docstring differs.
-The survey (``docs/evidence/2026-08-04-router-v6-migration-survey.md`` §5)
-records this module and its self-test as the program's *only* genuinely
-one-time, package-wide scaffolding -- so it is copied rather than rewritten,
-and whichever of the two PRs lands second contributes nothing here.  The
-self-test is deliberately NOT duplicated: #732 owns it, and two copies of
-the same test ids in one package is worse than one.
 """
 
 from __future__ import annotations

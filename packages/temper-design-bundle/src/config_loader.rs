@@ -49,6 +49,7 @@ use pyo3::types::{PyAny, PyBool, PyDict, PyFloat, PyList, PyString, PyTuple};
 use pyo3::IntoPyObjectExt;
 
 use crate::board_contracts;
+use crate::design_rules::DesignRules;
 use crate::net_types;
 
 // ---------------------------------------------------------------------------
@@ -1835,6 +1836,15 @@ fn wrap_validation_error<'py>(
     validation_error_cls: &Bound<'py, PyAny>,
 ) -> pyo3::PyErr {
     if err.matches(py, validation_error_cls).unwrap_or(false) {
+        // `ConfigValidationError` is genuinely Python and has no pyclass
+        // mapping (PyAny surface audit, docs/evidence/2026-08-05-pyany-surface-audit.md
+        // §5 item 3). Its definition lives IN `temper_placer/io/config_loader.py`
+        // itself (the delegation shim over this crate) — there is no
+        // non-circular home to import it from, so this import IS "from its
+        // real home". It is not circular at runtime: this function only runs
+        // after the shim (and `_tdb`) are already imported, so the import is
+        // a sys.modules hit. The defensive fallback below stays for the
+        // pathological case where the shim cannot be (re)built.
         match PyModule::import(py, "temper_placer.io.config_loader")
             .and_then(|m| m.getattr("ConfigValidationError"))
             .and_then(|cls| cls.call1((config_path, &err)))
@@ -1951,9 +1961,13 @@ pub fn constraints_to_design_rules<'py>(
     py: Python<'py>,
     constraints: &Bound<'py, PyAny>,
 ) -> PyResult<Bound<'py, PyAny>> {
-    let design_rules_mod = PyModule::import(py, "temper_placer.core.design_rules")?;
-    let rules = design_rules_mod.getattr("DesignRules")?.call0()?;
-    let net_class_rules_cls = design_rules_mod.getattr("NetClassRules")?;
+    // `DesignRules` is THIS crate's own pyclass, so the circular half of the
+    // call-back (Rust -> temper_placer.core.design_rules shim -> same crate)
+    // is replaced by the crate's own type object; `NetClassRules` (pydantic)
+    // stays on the shim (genuinely Python).
+    let rules = py.get_type::<DesignRules>().call0()?;
+    let net_class_rules_cls = PyModule::import(py, "temper_placer.core.design_rules")?
+        .getattr("NetClassRules")?;
 
     // `rules.net_class_assignments = constraints.net_classes.copy()`
     let assignments = constraints.getattr("net_classes")?.call_method0("copy")?;
