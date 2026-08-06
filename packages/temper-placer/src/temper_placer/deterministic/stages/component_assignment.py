@@ -1,7 +1,22 @@
+"""Component assignment with multi-slot reservation for large footprints.
+
+The greedy slot-assignment compute is implemented in Rust in the
+``temper-design-bundle`` crate (Wave 4 **Phase 5, batch 2** — deterministic
+leaf stages): ``_assign_components_to_slots`` delegates to
+``temper_design_bundle_python.deterministic_leaves.assign_components_to_slots``.
+The ``run`` orchestration (state guards, the ``frozenset`` wrap) and the
+shapely/GEOS domain filter stay Python — the domain filter is precomputed
+into a per-ref set of allowed slots (``domain_ok``) and passed to the
+kernel, which reproduces the oracle's filter placement exactly (after the
+used-slots filter and the cross-zone fallback, before the wirelength scan).
+"""
+
 import math
 from collections.abc import Mapping
 from dataclasses import replace
 from typing import TYPE_CHECKING
+
+import temper_design_bundle_python as _tdb
 
 from ..state import BoardState
 from .base import Stage
@@ -133,109 +148,63 @@ class ComponentAssignmentStage(Stage):
         """
         Assign components to slots using greedy wirelength minimization.
 
-        Improvements over basic algorithm:
-        1. Process fixed placements first
-        2. Sort remaining components by footprint size (largest first)
-        3. Multi-slot reservation - large footprints block nearby slots
-        4. Wirelength-based slot selection
-        5. feat/hv-lv-guard-strip: domain filter drops slots outside the
-           component's HV/LV region when a domain map is present.
+        The greedy kernel (fixed placements → largest-first → per-zone
+        availability → cross-zone fallback → wirelength scoring → footprint
+        reservation) runs in Rust; the GEOS domain filter is precomputed into
+        the per-ref `domain_ok` predicate by this shim.
         """
-        placements = {}
-        used_slots: set[tuple[float, float]] = set()
+        # feat/hv-lv-guard-strip: precompute the domain predicate. The oracle
+        # filters the surviving candidate list by `region.covers(Point)`;
+        # materializing that predicate as a per-ref slot set is equivalent
+        # because it is independent of the loop's mutable `used_slots`.
+        domain_ok = {}
+        if domain_for_ref and domain_regions:
+            all_refs = {c.ref for c in netlist.components}
+            for ref in all_refs:
+                domain = domain_for_ref.get(ref)
+                if not domain:
+                    continue
+                region = domain_regions.get(domain)
+                if region is None or region.is_empty:
+                    continue
+                covered = {
+                    s
+                    for _zone, slots in zone_slots.items()
+                    for s in slots
+                    if region.covers(__import__("shapely.geometry", fromlist=["Point"]).Point(s[0], s[1]))
+                }
+                if covered:
+                    domain_ok[ref] = covered
 
-        # Build net connectivity map
-        net_pins = {}  # net_name -> [(comp_ref, pin_name), ...]
-        for net in netlist.nets:
-            net_pins[net.name] = list(net.pins)
-
-        # Build flat list of all slots for reservation checks
-        all_slots: list[tuple[float, float]] = []
-        for _zone_name, slots in zone_slots.items():
-            all_slots.extend(slots)
-
-        # 1. Process fixed placements first
-        #
-        # Keys in self.fixed_placements are resolved sheetpath-first (e.g.
-        # "hb.power_loop.q_high"), falling back to a literal ref (e.g. "Q4")
-        # for older configs. Ref-keyed entries are fragile: atopile
-        # renumbers designators across the whole design whenever the
-        # component count changes anywhere, so a config authored against
-        # one BOM snapshot can silently pin the WRONG physical component at
-        # a later snapshot (see docs/solutions/logic-errors/
-        # fixed-positions-ref-fragility-across-renumbering.md). Sheetpath
-        # is the component's module-instance path and is stable across
-        # renumbering.
-        comp_by_ref = {c.ref: c for c in netlist.components}
-        comp_by_sheetpath = {c.sheetpath: c for c in netlist.components if c.sheetpath}
-        for key, info in self.fixed_placements.items():
-            comp = comp_by_sheetpath.get(key) or comp_by_ref.get(key)
-            if comp:
-                # Handle both [x, y] and {'position': [x, y]} formats
+        # Resolve fixed placements (sheetpath-first, ref fallback) into
+        # {ref: (x, y)} exactly as the oracle does, then let the kernel place
+        # them and reserve their footprints.
+        fixed: dict[str, tuple[float, float]] = {}
+        if self.fixed_placements:
+            comp_by_ref = {c.ref: c for c in netlist.components}
+            comp_by_sheetpath = {c.sheetpath: c for c in netlist.components if c.sheetpath}
+            for key, info in self.fixed_placements.items():
+                comp = comp_by_sheetpath.get(key) or comp_by_ref.get(key)
+                if not comp:
+                    continue
                 pos = None
                 if isinstance(info, (list, tuple)) and len(info) == 2:
                     pos = info
                 elif isinstance(info, dict):
                     pos = info.get("position")
-
                 if pos and len(pos) == 2:
-                    fixed_pos = (float(pos[0]), float(pos[1]))
-                    placements[comp.ref] = fixed_pos
+                    fixed[comp.ref] = (float(pos[0]), float(pos[1]))
 
-                    # Reserve slots near fixed component
-                    footprint_radius = self._get_footprint_radius(comp)
-                    self._reserve_slots(fixed_pos, footprint_radius, all_slots, used_slots)
-
-        # 2. Sort remaining components by footprint size (largest first)
-        remaining_components = [c for c in netlist.components if c.ref not in placements]
-
-        def get_size(comp):
-            if hasattr(comp, "bounds") and comp.bounds:
-                return max(comp.bounds)
-            return 0
-
-        sorted_components = sorted(remaining_components, key=lambda c: (-get_size(c), c.ref))
-
-        for component in sorted_components:
-            ref = component.ref
-            zone_name = component_zone_map.get(ref, "Signal")
-            footprint_radius = self._get_footprint_radius(component)
-
-            # Get available slots in this zone
-            all_zone_slots = list(zone_slots.get(zone_name, ()))
-            available_slots = [s for s in all_zone_slots if s not in used_slots]
-
-            if not available_slots:
-                # Fallback: use any available slot from other zones
-                for _other_zone, slots in zone_slots.items():
-                    available_slots = [s for s in slots if s not in used_slots]
-                    if available_slots:
-                        break
-
-            if not available_slots:
-                continue  # Skip if no slots available
-
-            # feat/hv-lv-guard-strip: domain filter — drop slots outside the
-            # component's HV/LV region when a domain map is present.
-            # No-op when domain_for_ref/domain_regions are empty (NFR6).
-            available_slots = self._filter_by_domain(
-                ref, available_slots, domain_for_ref, domain_regions
+        return dict(
+            _tdb.deterministic_leaves.assign_components_to_slots(
+                netlist,
+                component_zone_map,
+                zone_slots,
+                fixed,
+                domain_ok,
+                self.slot_spacing,
             )
-            if not available_slots:
-                continue  # Domain filter removed every candidate
-
-            # Score each slot by wirelength
-            best_slot = min(
-                available_slots,
-                key=lambda slot: self._compute_wirelength(ref, slot, net_pins, placements),
-            )
-
-            placements[ref] = best_slot
-
-            # Reserve this slot AND all slots within footprint radius
-            self._reserve_slots(best_slot, footprint_radius, all_slots, used_slots)
-
-        return placements
+        )
 
     def _compute_wirelength(
         self,
