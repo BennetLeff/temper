@@ -128,6 +128,15 @@ FIELDS: dict[str, tuple[str, ...]] = {
         "outline_polygon",
         "_zone_map",
     ),
+    # --- deterministic leaf data contracts (Phase 5, batch 2) ---
+    "DiffPairConfig": (
+        "net_pos",
+        "net_neg",
+        "spacing_mm",
+        "coupling_tolerance_mm",
+        "max_skew_mm",
+    ),
+    "LayerAssignment": ("net_name", "layer", "allow_layer_change", "is_plane"),
 }
 
 # `Component` is defined by BOTH board.py and netlist.py with different
