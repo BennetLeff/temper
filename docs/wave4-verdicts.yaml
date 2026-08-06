@@ -381,9 +381,33 @@ surfaces:
       Phase-2 residual pass explicitly routes this here ("orchestration seam
       (PipelineRunner, adapters, strategy_registry) -> Phase 5").
   - pattern: packages/temper-placer/src/temper_placer/strategy_registry.py
-    verdict: MIGRATE
-    phase: 5
-    note: Same Phase-5 orchestration seam as runner.py, named in that record.
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      Registry-surface independence (D6), decided 2026-08-06 on
+      feat/wave4-phase4-strategy-registry-rust. The module is a pure
+      import-time registry: two module-level dicts (`_registry`,
+      `_composites`) of Python callables and five functions whose every
+      operation is a dict membership/insert with Python semantics
+      (idempotent register, KeyError raise, the `f"{p}/{n}"` key assembly)
+      or a call-back into the stored factory (`_registry[key]()`). Stored
+      values are `Callable[[], PipelineStage]` -- live Python callables, and
+      `PipelineStage` is a `@runtime_checkable` Protocol with no pyclass
+      mapping (the protocol.py R3 record); a Rust implementation would hold
+      untyped PyObjects and call back across pyo3 for every instantiation --
+      pure marshalling, zero compute gained. The registry is the shared
+      import-time seam between the Phase-5 adapters (register_strategies.py
+      registers factories as a module-import side effect; the stage
+      adapters use register/register_composite) and runner.py
+      (get_composite/get in resolve_and_run). Migrating it would make that
+      seam -- and therefore both sides of it -- import the pyo3 boundary it
+      exists to decouple; the R1 battery has nothing to pin (no kernel, no
+      arithmetic, no transformation beyond Python dict/string semantics).
+      Recorded alongside the orchestration VERIFICATION.md R3-style record
+      for this file; re-decidable if a consumer migrates and carries the
+      registry with it. Supersedes the file's prior MIGRATE phase-5 note
+      ("same Phase-5 orchestration seam as runner.py"), which misread a
+      registry as a migration target; the runner.py MIGRATE verdict is
+      unaffected.
 
   # ---- Visualization (decided 2026-08-04) ---------------------------------
   - pattern: packages/temper-placer/src/temper_placer/visualization/**
