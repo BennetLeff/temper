@@ -1,3 +1,15 @@
+# PINNED ORACLE -- verbatim copy of packages/temper-placer/src/temper_placer/topological/propagation.py.
+#
+# Pinned at origin/main aece7c37253da383a86d55cb97dc01cdc3e6ea61, the pre-migration implementation. This file
+# is the R1a differential reference: it must NOT be refactored, reformatted,
+# or "improved". Its only edits vs the original are the intra-package import
+# rewrites, so the oracle closes over its own pinned siblings instead of the
+# live (now Rust-delegating) package.
+#
+# Any change to this file invalidates the differential.
+#
+# ruff: noqa
+
 """Constraint propagation solver.
 
 Propagates distance bounds through the topological graph to derive implicit constraints.
@@ -11,10 +23,8 @@ Example:
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-import temper_placement_topology as _rust
-
 if TYPE_CHECKING:
-    from temper_placer.topological.graph import TopologicalGraph
+    from tests.topological._graph_py_oracle import TopologicalGraph
 
 
 @dataclass
@@ -114,18 +124,6 @@ class ConstraintPropagator:
                 # Separation is NOT necessarily symmetric in graph, but distance is
                 self.bounds[j][i].tighten_min(distance)
 
-    def _edge_index_lists(self) -> tuple[list[tuple], list[tuple]]:
-        """Adjacency/separation edges as ``(i, j, distance)`` in graph order."""
-        adjacent: list[tuple] = []
-        separated: list[tuple] = []
-        for u, v, data in self.graph.graph.edges(data=True):
-            edge_type = data.get("edge_type")
-            if edge_type == "adjacent":
-                adjacent.append((self.node_idx[u], self.node_idx[v], float(data["distance"])))
-            elif edge_type == "separated":
-                separated.append((self.node_idx[u], self.node_idx[v], float(data["distance"])))
-        return adjacent, separated
-
     def propagate(self, max_iterations: int = 100) -> bool:
         """Propagate constraints using triangle inequality.
 
@@ -140,19 +138,39 @@ class ConstraintPropagator:
             True if constraints are feasible, False if impossible
         """
         n = len(self.nodes)
-        adjacent, separated = self._edge_index_lists()
+        feasible = True
 
-        feasible, mins, maxs = _rust.propagate_bounds(n, adjacent, separated, max_iterations)
+        for _iteration in range(max_iterations):
+            changed = False
 
-        # Rehydrate the matrix so `get_bound` / `get_infeasible_pairs` keep
-        # returning the same mutable DistanceBound objects the API promises.
-        for i in range(n):
-            row = self.bounds[i]
-            base = i * n
-            for j in range(n):
-                bound = row[j]
-                bound.min_distance = mins[base + j]
-                bound.max_distance = maxs[base + j]
+            # Triangle inequality propagation (Floyd-Warshall)
+            for k in range(n):
+                for i in range(n):
+                    for j in range(n):
+                        # Skip self-loops and trivial cases
+                        if i in (j, k) or j == k:
+                            continue
+
+                        # Propagate max bound: max(i,j) ≤ max(i,k) + max(k,j)
+                        new_max = self.bounds[i][k].max_distance + self.bounds[k][j].max_distance
+                        if new_max < self.bounds[i][j].max_distance:
+                            self.bounds[i][j].tighten_max(new_max)
+                            changed = True
+
+                        # Propagate min bound: min(i,j) ≥ min(i,k) - max(k,j)
+                        # This is conservative - only tighten if result is positive
+                        new_min = self.bounds[i][k].min_distance - self.bounds[k][j].max_distance
+                        if new_min > self.bounds[i][j].min_distance:
+                            self.bounds[i][j].tighten_min(new_min)
+                            changed = True
+
+                        # Check feasibility (but don't bail early - continue to propagate all)
+                        if not self.bounds[i][j].is_feasible():
+                            feasible = False
+
+            # Early termination if converged
+            if not changed:
+                break
 
         return feasible
 
