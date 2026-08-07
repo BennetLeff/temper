@@ -168,19 +168,14 @@ pub fn preserve_rotation_offset(rotation_deg: f64, original_angle: f64) -> f64 {
 // Python bindings
 // ---------------------------------------------------------------------------
 
-/// Python-visible `reorient_pad_angle_py(current_angle, delta_deg)`. Kept
-/// UNRENAMED (no `#[pyo3(name = ...)]`) so the `_py` suffix on the
-/// registered Rust identifier is exactly what `check_unwired_kernels.py`
-/// looks for in production callers (see `kicad_exporter_geometry.rs`'s
-/// identical precedent).
-#[pyfunction]
-fn reorient_pad_angle_py(current_angle: Option<f64>, delta_deg: f64) -> PyResult<Option<f64>> {
-    guard(|| Ok(reorient_pad_angle(current_angle, delta_deg)))
-}
-
 /// Python-visible `reorient_pad_angles_py(current_angles, delta_deg)` —
 /// batch form; this is the one the shipped `_write_board._reorient_pads`
-/// actually calls (one crossing per footprint).
+/// actually calls (one crossing per footprint). No scalar
+/// `reorient_pad_angle_py` binding is registered: it would have no
+/// production caller (`check_unwired_kernels.py` would flag it), and the
+/// batch form covers the same bit-exactness surface one element at a time
+/// via a single-element list — see the Rust-side `#[cfg(test)]` unit tests
+/// below for scalar-level coverage of [`reorient_pad_angle`] directly.
 #[pyfunction]
 fn reorient_pad_angles_py(
     current_angles: Vec<Option<f64>>,
@@ -202,7 +197,6 @@ fn preserve_rotation_offset_py(rotation_deg: f64, original_angle: f64) -> PyResu
 pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     let py = module.py();
     let sub = PyModule::new(py, "write_board_geometry")?;
-    sub.add_function(wrap_pyfunction!(reorient_pad_angle_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(reorient_pad_angles_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(preserve_rotation_offset_py, &sub)?)?;
     module.add_submodule(&sub)
