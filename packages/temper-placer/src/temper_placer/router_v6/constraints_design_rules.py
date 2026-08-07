@@ -13,9 +13,7 @@ import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-import numpy as np
-from shapely.geometry import MultiPoint, Point, Polygon
-from shapely.strtree import STRtree
+from shapely.geometry import MultiPoint
 
 from temper_placer.core.design_rules import (
     NetClassRules,
@@ -48,13 +46,15 @@ class RoutingZone:
 class ZoneManager:
     """Manages routing zones and provides fast spatial lookups.
 
-    Uses an R-tree (via shapely STRtree) for O(log n) point-in-zone queries.
+    Wave 4: point-in-zone queries (``get_zone_at``) delegate to
+    ``temper_drc_rs``'s brute-force point-in-polygon kernel rather than a
+    shapely ``STRtree`` -- the zone counts this codebase produces (0-3) make
+    the R-tree's bounding-box pre-filter pure overhead, not a needed
+    optimization.
     """
 
     def __init__(self, zones: list[RoutingZone]):
         self.zones = zones
-        self._polygons = [Polygon(z.polygon) for z in zones]
-        self._tree = STRtree(self._polygons)
 
     def get_zone_at(self, x: float, y: float) -> RoutingZone | None:
         """Return the zone containing this point, or None if unzoned.
