@@ -1,3 +1,8 @@
+// The congestion_tensor module is gated behind `#[cfg(feature = "python")]`
+// (it is a wholly-pyo3 surface — see its module doc comment).  This
+// integration test cannot compile without the `python` feature.
+// WASM CI guard (plan 2026-08-03-002, U3).
+#![cfg(feature = "python")]
 use temper_geometry::congestion_tensor::CongestionTensor;
 
 fn python_cost(max_cost: f32, usage: f32) -> f32 {

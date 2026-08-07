@@ -1,3 +1,10 @@
+// When `--no-default-features` deactivates `python`, the pyo3-bridge code
+// (each module's `register`, `*_py` functions) is not compiled.  Functions
+// reachable ONLY through those bridges then appear dead — they are not, but
+// clippy cannot see past the cfg gate.  Allow dead_code in the no-python
+// config; the production (python ON) build gates nothing.
+// WASM CI guard (plan 2026-08-03-002, U3).
+#![cfg_attr(not(feature = "python"), allow(dead_code))]
 pub mod types;
 pub mod primitives;
 pub mod smooth;

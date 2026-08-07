@@ -19,7 +19,9 @@
 //! `+inf` as soon as any coordinate is infinite, even alongside a NaN), so an
 //! infinite offset yields `inf`, not NaN.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyModule;
 
 use crate::pad_geometry::{bounding_radius, py_hypot};
@@ -56,6 +58,7 @@ pub fn copper_reach_mm(pads: &[PadRow]) -> f64 {
 /// (`|offset|` is rotation-invariant and so is the bounding radius). It is not
 /// part of this signature — replicating a deliberately-ignored parameter would
 /// invite a caller to believe it does something.
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(name = "copper_reach_mm_py")]
 pub fn copper_reach_mm_py(pads: Vec<PadRow>) -> PyResult<f64> {
@@ -63,6 +66,7 @@ pub fn copper_reach_mm_py(pads: Vec<PadRow>) -> PyResult<f64> {
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(copper_reach_mm_py, module)?)?;
     Ok(())
