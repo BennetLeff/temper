@@ -3,14 +3,30 @@
 Contains the :class:`_PhaseValidationMixin` with bottleneck-map seed
 filtering, critical-bottleneck violation detection, and the invariant
 check.
+
+Wave 4, **Phase 5, final leaves**: the critical-bottleneck violation kernel
+(``find_critical_bottleneck_violations``) is implemented in Rust in the
+``temper-design-bundle`` crate (``temper_design_bundle_python.deterministic_phase``).
+This module keeps the pre-migration public API unchanged and delegates; the
+``self.channel_map`` guard, the seed-filter orchestration and the DRC-fence
+raise/opt-out logic stay Python.
+
+Bit-exactness: the Rust kernel replicates the oracle's floor-to-cell grid
+indexing (``int(math.floor((float(x_mm) * 1000.0) / cell_um))``), the
+per-cell first-wins-on-score-ties critical map, and the VERBATIM quirk that
+the violation ``severity`` reads the LAST bottleneck's severity (the first
+loop's trailing ``bn``), not the matched cell's. Verified by
+``tests/deterministic/stages/test_phase_validation_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_phase_validation_py_oracle.py``); the
+structural proof lives in ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
 
 import logging
-import math
 
-from ..channels import Bottleneck
+import temper_design_bundle_python as _tdb
+
 from ..flags import is_drc_fence_fail_enabled
 from ._phase_core import PhasedComponentAssignmentError
 
@@ -139,38 +155,16 @@ class _PhaseValidationMixin:
         cell_um = cmap.cell_size_um
         width = cmap.width
         height = cmap.height
-
-        critical_by_cell: dict[tuple[int, int], Bottleneck] = {}
-        for bn in cmap.bottlenecks:
-            if bn.severity != "CRITICAL":
-                continue
-            key = (bn.x, bn.y)
-            existing = critical_by_cell.get(key)
-            if existing is None or bn.score > existing.score:
-                critical_by_cell[key] = bn
-
-        violations: list[dict] = []
-        for ref, pos in placements.items():
-            if not isinstance(pos, (tuple, list)) or len(pos) < 2:
-                continue
-            x_mm, y_mm = pos[0], pos[1]
-            gx = int(math.floor((float(x_mm) * 1000.0) / cell_um))
-            gy = int(math.floor((float(y_mm) * 1000.0) / cell_um))
-            if gx < 0 or gx >= width or gy < 0 or gy >= height:
-                continue
-            cell_bn: Bottleneck | None = critical_by_cell.get((gx, gy))
-            if cell_bn is None:
-                continue
-            violations.append(
-                {
-                    "ref": ref,
-                    "x": gx,
-                    "y": gy,
-                    "layer": cell_bn.layer,
-                    "severity": bn.severity,
-                }
-            )
-        return violations
+        bottlenecks = [
+            (bn.x, bn.y, bn.layer, bn.severity, bn.score) for bn in cmap.bottlenecks
+        ]
+        return _tdb.deterministic_phase.find_critical_bottleneck_violations_py(
+            placements,
+            bottlenecks,
+            cell_um,
+            width,
+            height,
+        )
 
     def _check_critical_bottlenecks(self, placements: dict[str, tuple[float, float]]) -> list[dict]:
         """Run the invariant check; blocking by default.

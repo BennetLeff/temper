@@ -54,6 +54,25 @@ def _cmap_with_medium_high() -> ChannelMap:
     )
 
 
+def _cmap_with_critical_and_medium() -> ChannelMap:
+    """A CRITICAL bottleneck at the matched cell (1, 1) plus a MEDIUM one at a
+    different cell — the minimal multi-bottleneck map that exposes the
+    VERBATIM ``bn.severity`` quirk (severity reads the LAST-iterated
+    bottleneck, not the matched cell's)."""
+    grid = [[0.0] * 4 for _ in range(4)]
+    return ChannelMap._from_payload(
+        {
+            "temper_schema_hash": "temper.channels.v1",
+            "cell_size_um": 1000.0,
+            "grid": grid,
+            "bottlenecks": [
+                {"x": 1, "y": 1, "layer": "F.Cu", "severity": "CRITICAL", "score": 1.0},
+                {"x": 2, "y": 2, "layer": "B.Cu", "severity": "MEDIUM", "score": 0.5},
+            ],
+        }
+    )
+
+
 def _stage(cmap: ChannelMap) -> PhasedComponentAssignmentStage:
     return PhasedComponentAssignmentStage(
         constraints=PlacementConstraints(),
@@ -163,6 +182,46 @@ class TestFenceNonCriticalUnaffected:
         # No raise, no violations.
         violations = stage._check_critical_bottlenecks(placements)
         assert violations == []
+
+
+class TestFenceSeverityQuirkStageLevel:
+    def test_fence_severity_reads_last_bottleneck(self, fence_env_disabled, caplog):  # noqa: ARG002
+        """Stage-level pin of the VERBATIM ``bn.severity`` quirk — mirrors
+        the differential's ``test_violations_severity_reads_last_bottleneck``.
+
+        The stage marshals ``cmap.bottlenecks`` (a frozenset) into the
+        migrated kernel; the violation's ``severity`` reads the severity of
+        the LAST-iterated bottleneck, NOT the matched cell's (the CRITICAL
+        one at (1, 1) that triggers the violation). A future "fix" that
+        reads ``cell_bn.severity`` would pass every single-bottleneck stage
+        test in this file and only the differential would catch it — this
+        case pins the quirk at the stage level too.
+
+        FROZENSET HASH-ORDER DEPENDENCY: ``Bottleneck`` hashes mix salted
+        str fields (layer/severity), so which bottleneck iterates last is
+        not fixed across processes. The assertion is therefore written
+        against the ACTUAL runtime order. When the last-iterated bottleneck
+        is the MEDIUM one the emitted severity is MEDIUM and this test is
+        RED against a 'corrected' ``cell_bn.severity`` implementation
+        (which would emit the matched cell's CRITICAL); when the CRITICAL
+        bottleneck iterates last the quirk coincides with the corrected
+        answer and the divergence is indistinguishable at this stage level
+        (the differential suite pins it in that case).
+        """
+        cmap = _cmap_with_critical_and_medium()
+        last_severity = list(cmap.bottlenecks)[-1].severity
+        stage = _stage(cmap)
+        placements = {"U1": (1.5, 1.5)}  # cell (1, 1): the CRITICAL bottleneck
+        with caplog.at_level(logging.WARNING):
+            violations = stage._check_critical_bottlenecks(placements)
+        assert len(violations) == 1
+        # Faithful quirk: severity == the LAST-iterated bottleneck's severity.
+        assert violations[0]["severity"] == last_severity
+        if last_severity != "CRITICAL":
+            # The matched cell is CRITICAL; a corrected cell_bn.severity
+            # implementation would emit "CRITICAL" here and fail this.
+            assert violations[0]["severity"] == "MEDIUM"
+            assert violations[0]["severity"] != "CRITICAL"
 
 
 class TestSingleSourceOfTruth:
