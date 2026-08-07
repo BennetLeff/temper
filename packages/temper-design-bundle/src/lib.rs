@@ -8,6 +8,14 @@ mod net_types;
 #[cfg(feature = "python")]
 mod kicad_exporter_geometry;
 
+// Wave 4 Phase 3 (formats/IO): the two numeric kernels ported out of
+// temper_placer/io/_write_board.py (_reorient_pads's per-pad angle update,
+// state_to_placements's original-angle offset preservation) — see
+// write_board_geometry.rs's module docstring for the full triage of what
+// was and was not ported.
+#[cfg(feature = "python")]
+mod write_board_geometry;
+
 #[cfg(feature = "python")]
 mod deterministic_stages;
 
@@ -253,6 +261,10 @@ mod python {
         // (see kicad_exporter_geometry.rs). Registered early since it has no
         // dependency on the contracts pyclasses below.
         crate::kicad_exporter_geometry::register(module)?;
+
+        // Wave 4 Phase 3 (formats/IO): _write_board.py's numeric kernels
+        // (see write_board_geometry.rs).
+        crate::write_board_geometry::register(module)?;
 
         // Wave 4 Phase 2 contracts-as-pyclasses: the net-types data model
         // ported from temper_placer/core/net_types.py (see net_types.rs),
