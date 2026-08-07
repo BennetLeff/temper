@@ -11,6 +11,11 @@ use crate::audit::{bbox_from_center_py, chebyshev_gap_py, dist_py};
 use crate::channel_widths::edt_width_lookup_batch;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
+use crate::occupancy_raster::{
+    blocking_net_ids_py, downsample_or_blocks_py, mark_path_rect_into_grid_py,
+    mark_segment_rect_into_grid_py, mark_via_circle_into_grid_py, unmark_path_rect_into_grid_py,
+    unmark_segment_rect_into_grid_py,
+};
 use crate::grid_raster::{
     block_circle_into_grid_py, block_rect_into_grid_py, block_segment_into_grid_py,
     clear_circle_from_grid_py, closest_component_for_zone_py, effective_creepage_py,
@@ -23,6 +28,10 @@ use crate::creepage_check::{
 };
 use crate::{barrier_axis_gap_py, best_rotation_for_barrier_py, pad_axis_radius_py, pad_bounding_radius_py, pad_corner_radius_py, pad_core_half_extents_py, pad_support_radius_py, spice_infer_unit_py, spice_loop_inductance_py};
 use crate::heuristics_geometry::keepout_mask_flags_py;
+use crate::organizational_geometry::{
+    circle_offsets_py, decoupling_candidate_positions_py, domain_grid_positions_py,
+    module_grid_positions_py, power_flow_positions_py,
+};
 use crate::clearance_geometry::{
     component_reach_py, copper_scan_py, origin_distance_py, pad_pair_distance_py,
     rotate_local_to_world_py,
@@ -1460,6 +1469,7 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(pad_support_radius_py, m)?)?;
     m.add_function(wrap_pyfunction!(pad_axis_radius_py, m)?)?;
     m.add_function(wrap_pyfunction!(pad_bounding_radius_py, m)?)?;
+    crate::copper_reach::register(m)?;
     m.add_function(wrap_pyfunction!(barrier_axis_gap_py, m)?)?;
     m.add_function(wrap_pyfunction!(best_rotation_for_barrier_py, m)?)?;
     m.add_function(wrap_pyfunction!(spice_loop_inductance_py, m)?)?;
@@ -1481,6 +1491,23 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(effective_creepage_py, m)?)?;
     m.add_function(wrap_pyfunction!(keepout_mask_flags_py, m)?)?;
     m.add_function(wrap_pyfunction!(closest_component_for_zone_py, m)?)?;
+
+    // occupancy-grid rasterisation (Wave 4: router_v6/occupancy_grid.py)
+    m.add_function(wrap_pyfunction!(mark_path_rect_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(mark_segment_rect_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(unmark_segment_rect_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(unmark_path_rect_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(blocking_net_ids_py, m)?)?;
+    m.add_function(wrap_pyfunction!(mark_via_circle_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(downsample_or_blocks_py, m)?)?;
+
+    // organizational heuristics (Wave 4: heuristics/organizational.py's
+    // five _place_* position kernels)
+    m.add_function(wrap_pyfunction!(module_grid_positions_py, m)?)?;
+    m.add_function(wrap_pyfunction!(circle_offsets_py, m)?)?;
+    m.add_function(wrap_pyfunction!(power_flow_positions_py, m)?)?;
+    m.add_function(wrap_pyfunction!(decoupling_candidate_positions_py, m)?)?;
+    m.add_function(wrap_pyfunction!(domain_grid_positions_py, m)?)?;
 
     // bottleneck geometry (Wave 3: min-cut bottleneck kernels)
     m.add_function(wrap_pyfunction!(cell_capacity_batch_py, m)?)?;

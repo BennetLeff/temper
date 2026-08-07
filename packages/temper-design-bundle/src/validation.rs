@@ -44,9 +44,9 @@
 //!   `float_rem` maps an exact-multiple result (±0.0) to
 //!   `copysign(0.0, fy)` — so `-720.0 % 360.0` is `+0.0` while
 //!   `(-720.0_f64).rem_euclid(360.0)` is `-0.0` (measured; the `.hex()`
-//!   comparison would catch it). `py_float_mod` below transcribes
-//!   `float_rem` exactly (fmod + sign-correction + the `copysign` zero
-//!   branch).
+//!   comparison would catch it). `crate::host_math::py_float_mod`
+//!   transcribes `float_rem` exactly (fmod + sign-correction + the
+//!   `copysign` zero branch).
 //! - **Fixed-point formatting** (`{:.1}`) matches CPython `:.1f`
 //!   bit-for-bit on this platform (measured 21/21 incl. half-way cases
 //!   like `50.125` → `50.1` and `2.35` → `2.4`; same claim as the
@@ -118,21 +118,12 @@ type WrittenPad = (String, Option<f64>, Option<f64>, Option<f64>);
 // CPython-semantics helpers
 // ---------------------------------------------------------------------------
 
-/// CPython's `float.__mod__` (`float_rem`): `fmod(a, b)` with the sign
-/// correction `if (b < 0) != (mod < 0): mod += b` and the exact-multiple
-/// branch `mod = copysign(0.0, b)`. NOT `f64::rem_euclid` — that returns
-/// `-0.0` for `(-720.0).rem_euclid(360.0)` where CPython returns `+0.0`.
-fn py_float_mod(a: f64, b: f64) -> f64 {
-    let mut mod_ = a % b; // IEEE fmod
-    if mod_ != 0.0 {
-        if (b < 0.0) != (mod_ < 0.0) {
-            mod_ += b;
-        }
-    } else {
-        mod_ = if b < 0.0 { -0.0 } else { 0.0 };
-    }
-    mod_
-}
+// `py_float_mod` moved to `crate::host_math` (2026-08-07, Wave 4 Phase 3
+// `write_board_geometry.rs`) — it needed the exact same CPython `float %`
+// zero-sign transcription this module already carried, and a second private
+// copy would have been the third independently-typed instance of this
+// formula in the crate. See `host_math.rs`'s doc comment on `py_float_mod`.
+use crate::host_math::py_float_mod;
 
 /// CPython's `repr()` of a str — the `!r` interpolation used by the
 /// reconciliation error strings. Quote rule (CPython `unicode_repr`):

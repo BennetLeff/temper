@@ -3,15 +3,26 @@ Router V6 Stage 2.5: Build Occupancy Grid
 
 Creates discretized routing grid for A* pathfinding.
 Part of temper-8bj1 (Stage 2 - Channel Analysis)
+
+Wave 4 migration note: the rasterisation kernels of ``OccupancyGrid``
+(``mark_path_blocked``, ``mark_segment_blocked``, ``unmark_segment_blocked``,
+``unmark_path``, ``get_blocking_nets``, ``mark_via_blocked``, ``downsample``)
+now delegate to ``temper_geometry``'s ``occupancy_raster`` kernels
+(``packages/temper-geometry/src/occupancy_raster.rs``); this module keeps
+its original public API. ``build_occupancy_grid`` was NOT migrated: its hot
+path is ``shapely.contains()`` (GEOS) over points sampled inside a polygon
+produced by GEOS buffer-erosion -- opaque library behaviour with no
+accessible bit-exact Rust equivalent, so it stays Python. See
+``packages/temper-geometry/VERIFICATION.md`` for the full writeup.
 """
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, replace
 from enum import Enum
 
 import numpy as np
+import temper_geometry as _tg
 from shapely import contains, points
 
 from temper_placer.deterministic.stages.base import Stage
@@ -108,32 +119,24 @@ class OccupancyGrid:
         A coarse cell is blocked if any of its sub-cells are blocked.
         Used for coarse-to-fine A* routing (U4).
 
-        Vectorized block-reduce via reshape + np.any over factor axes.
+        The block-reduce OR-pool is computed by
+        ``temper_geometry.downsample_or_blocks_py`` (Wave 4). "Blocked" is
+        "nonzero" for whatever dtype ``self.grid`` carries (production is
+        always ``int8``, but this method also runs against ``int16`` test
+        fixtures -- see the differential's dtype-tolerance test) --
+        converted to a dtype-agnostic ``uint8`` mask before crossing the
+        Rust boundary so the kernel never needs to know the grid's dtype.
         When the fine dimensions are not evenly divisible by ``factor``,
-        the grid is padded with BLOCKED cells before pooling (conservative).
+        out-of-bounds sub-cells are treated as BLOCKED (conservative),
+        matching the pre-migration ``np.pad(..., constant_values=BLOCKED)``.
         """
         old_h, old_w = self.height_cells, self.width_cells
-        new_h = max(1, math.ceil(old_h / factor))
-        new_w = max(1, math.ceil(old_w / factor))
-
-        pad_h = new_h * factor - old_h
-        pad_w = new_w * factor - old_w
-
-        arr = self.grid
-        if pad_h > 0 or pad_w > 0:
-            arr = np.pad(
-                arr,
-                ((0, pad_h), (0, pad_w)),
-                mode="constant",
-                constant_values=CellState.BLOCKED.value,
-            )
-
-        reshaped = arr.reshape(new_h, factor, new_w, factor)
-        # max-pool: any blocked sub-cell => blocked coarse cell
-        blocked = np.any(reshaped, axis=(1, 3))
-        new_grid = np.where(blocked, CellState.BLOCKED.value, CellState.FREE.value).astype(
-            self.grid.dtype
-        )
+        mask_u8 = (self.grid != 0).astype(np.uint8)
+        raw, new_h, new_w = _tg.downsample_or_blocks_py(mask_u8, old_h, old_w, factor)
+        coarse_blocked = np.frombuffer(raw, dtype=np.uint8).reshape(new_h, new_w)
+        new_grid = np.where(
+            coarse_blocked != 0, CellState.BLOCKED.value, CellState.FREE.value
+        ).astype(self.grid.dtype)
         return OccupancyGrid(
             layer_name=f"{self.layer_name}_coarse",
             grid=new_grid,
@@ -159,42 +162,16 @@ class OccupancyGrid:
             clearance: Required clearance in mm
             net_id: Unique positive integer ID for this net
         """
-        # Calculate how many cells to block around center
-        # width/2 + clearance gives blocking radius
-        radius_mm = (trace_width / 2) + clearance
-        expansion = int(np.ceil(radius_mm / self.cell_size))
-
-        # Helper to mark a single point
-        def mark_point(x_mm, y_mm):
-            cx, cy = self.world_to_grid(x_mm, y_mm)
-
-            x_start = max(0, cx - expansion)
-            x_end = min(self.width_cells, cx + expansion + 1)
-            y_start = max(0, cy - expansion)
-            y_end = min(self.height_cells, cy + expansion + 1)
-
-            # Use net_id to mark
-            self.grid[y_start:y_end, x_start:x_end] = net_id
-
-        # Mark all points in path
-        if not path:
-            return
-
-        # Rasterize lines between points
-        for i in range(len(path) - 1):
-            p1 = path[i]
-            p2 = path[i + 1]
-
-            # Interpolate for smooth blocking if segment is long
-            dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
-            steps = int(np.ceil(dist / (self.cell_size / 2)))  # 2x density for safety
-
-            if steps > 0:
-                for s in range(steps + 1):
-                    t = s / steps
-                    x = p1[0] + t * (p2[0] - p1[0])
-                    y = p1[1] + t * (p2[1] - p1[1])
-                    mark_point(x, y)
+        _tg.mark_path_rect_into_grid_py(
+            self.grid,
+            path,
+            trace_width,
+            clearance,
+            self.origin[0],
+            self.origin[1],
+            self.cell_size,
+            net_id,
+        )
 
     def mark_segment_blocked(
         self,
@@ -205,28 +182,19 @@ class OccupancyGrid:
         net_id: int,
     ) -> None:
         """Mark a single segment blocked on THIS grid."""
-        radius_mm = (trace_width / 2) + clearance
-        expansion = int(np.ceil(radius_mm / self.cell_size))
-
-        def mark_point(x_mm, y_mm):
-            cx, cy = self.world_to_grid(x_mm, y_mm)
-            x_start = max(0, cx - expansion)
-            x_end = min(self.width_cells, cx + expansion + 1)
-            y_start = max(0, cy - expansion)
-            y_end = min(self.height_cells, cy + expansion + 1)
-            self.grid[y_start:y_end, x_start:x_end] = net_id
-
-        dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
-        steps = int(np.ceil(dist / (self.cell_size / 2)))
-
-        if steps > 0:
-            for s in range(steps + 1):
-                t = s / steps
-                x = p1[0] + t * (p2[0] - p1[0])
-                y = p1[1] + t * (p2[1] - p1[1])
-                mark_point(x, y)
-        else:
-            mark_point(p1[0], p1[1])
+        _tg.mark_segment_rect_into_grid_py(
+            self.grid,
+            p1[0],
+            p1[1],
+            p2[0],
+            p2[1],
+            trace_width,
+            clearance,
+            self.origin[0],
+            self.origin[1],
+            self.cell_size,
+            net_id,
+        )
 
     def unmark_segment_blocked(
         self,
@@ -237,40 +205,21 @@ class OccupancyGrid:
         net_id: int,
     ) -> None:
         """Unmark a single segment from THIS grid."""
-        radius_mm = (trace_width / 2) + clearance
-        expansion = int(np.ceil(radius_mm / self.cell_size))
-
-        def unmark_point(x_mm, y_mm):
-            cx, cy = self.world_to_grid(x_mm, y_mm)
-            x_start = max(0, cx - expansion)
-            x_end = min(self.width_cells, cx + expansion + 1)
-            y_start = max(0, cy - expansion)
-            y_end = min(self.height_cells, cy + expansion + 1)
-            region = self.grid[y_start:y_end, x_start:x_end]
-
-            # Restore -1 if it was a static obstacle, otherwise set to 0
-            if self.static_mask is not None:
-                static_region = self.static_mask[y_start:y_end, x_start:x_end]
-                # Identify cells that are currently our net
-                net_mask = region == net_id
-                # Set them to 0 (Free)
-                region[net_mask] = 0
-                # But if they were originally static, restore to -1
-                region[static_region & net_mask] = -1
-            else:
-                region[region == net_id] = 0
-
-        dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
-        steps = int(np.ceil(dist / (self.cell_size / 2)))
-
-        if steps > 0:
-            for s in range(steps + 1):
-                t = s / steps
-                x = p1[0] + t * (p2[0] - p1[0])
-                y = p1[1] + t * (p2[1] - p1[1])
-                unmark_point(x, y)
-        else:
-            unmark_point(p1[0], p1[1])
+        static_u8 = self.static_mask.view(np.uint8) if self.static_mask is not None else None
+        _tg.unmark_segment_rect_into_grid_py(
+            self.grid,
+            static_u8,
+            p1[0],
+            p1[1],
+            p2[0],
+            p2[1],
+            trace_width,
+            clearance,
+            self.origin[0],
+            self.origin[1],
+            self.cell_size,
+            net_id,
+        )
 
     def unmark_path(
         self,
@@ -285,37 +234,21 @@ class OccupancyGrid:
         Only clears cells that are currently owned by net_id.
         Does NOT clear if another net has overwritten it (shouldn't happen in valid state)
         or if it's a static obstacle.
+
+        Note: unlike ``unmark_segment_blocked``, this does NOT consult
+        ``static_mask`` -- a real asymmetry in the pre-migration
+        implementation, preserved here rather than "fixed".
         """
-        radius_mm = (trace_width / 2) + clearance
-        expansion = int(np.ceil(radius_mm / self.cell_size))
-
-        def unmark_point(x_mm, y_mm):
-            cx, cy = self.world_to_grid(x_mm, y_mm)
-
-            x_start = max(0, cx - expansion)
-            x_end = min(self.width_cells, cx + expansion + 1)
-            y_start = max(0, cy - expansion)
-            y_end = min(self.height_cells, cy + expansion + 1)
-
-            # Only clear cells equal to net_id
-            region = self.grid[y_start:y_end, x_start:x_end]
-            region[region == net_id] = 0  # Set back to Free.
-
-        if not path:
-            return
-
-        for i in range(len(path) - 1):
-            p1 = path[i]
-            p2 = path[i + 1]
-            dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
-            steps = int(np.ceil(dist / (self.cell_size / 2)))
-
-            if steps > 0:
-                for s in range(steps + 1):
-                    t = s / steps
-                    x = p1[0] + t * (p2[0] - p1[0])
-                    y = p1[1] + t * (p2[1] - p1[1])
-                    unmark_point(x, y)
+        _tg.unmark_path_rect_into_grid_py(
+            self.grid,
+            path,
+            trace_width,
+            clearance,
+            self.origin[0],
+            self.origin[1],
+            self.cell_size,
+            net_id,
+        )
 
     def get_blocking_nets(
         self,
@@ -325,25 +258,17 @@ class OccupancyGrid:
         """
         Identify which net IDs are blocking the line segment p1-p2.
         """
-        blocking_ids = set()
-
-        # Simple sampling along line
-        dist = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
-        steps = int(np.ceil(dist / (self.cell_size / 2)))
-
-        if steps > 0:
-            for s in range(steps + 1):
-                t = s / steps
-                x = p1[0] + t * (p2[0] - p1[0])
-                y = p1[1] + t * (p2[1] - p1[1])
-
-                cx, cy = self.world_to_grid(x, y)
-                if 0 <= cx < self.width_cells and 0 <= cy < self.height_cells:
-                    val = self.grid[cy, cx]
-                    if val > 0:  # Valid Net ID
-                        blocking_ids.add(int(val))
-
-        return blocking_ids
+        ids = _tg.blocking_net_ids_py(
+            self.grid,
+            p1[0],
+            p1[1],
+            p2[0],
+            p2[1],
+            self.origin[0],
+            self.origin[1],
+            self.cell_size,
+        )
+        return set(ids)
 
     def mark_via_blocked(
         self,
@@ -365,23 +290,17 @@ class OccupancyGrid:
             clearance: Required clearance in mm
             net_id: Net ID owning this via
         """
-        radius_mm = (via_diameter / 2) + clearance
-        expansion = int(np.ceil(radius_mm / self.cell_size))
-
-        cx, cy = self.world_to_grid(x_mm, y_mm)
-
-        x_start = max(0, cx - expansion)
-        x_end = min(self.width_cells, cx + expansion + 1)
-        y_start = max(0, cy - expansion)
-        y_end = min(self.height_cells, cy + expansion + 1)
-
-        # Mark circular region
-        for y in range(y_start, y_end):
-            for x in range(x_start, x_end):
-                # Check if within circular radius
-                dist = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5 * self.cell_size
-                if dist <= radius_mm:
-                    self.grid[y, x] = net_id
+        _tg.mark_via_circle_into_grid_py(
+            self.grid,
+            x_mm,
+            y_mm,
+            via_diameter,
+            clearance,
+            self.origin[0],
+            self.origin[1],
+            self.cell_size,
+            net_id,
+        )
 
 
 def mark_path_blocked_3d(

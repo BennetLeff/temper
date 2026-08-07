@@ -121,6 +121,28 @@ pub fn py_round(x: f64) -> f64 {
     }
 }
 
+/// CPython's `float.__mod__` (`float_rem`): `fmod(a, b)` with the sign
+/// correction `if (b < 0) != (mod < 0): mod += b` and the exact-multiple
+/// branch `mod = copysign(0.0, b)`. NOT `f64::rem_euclid` — that returns
+/// `-0.0` for `(-720.0).rem_euclid(360.0)` where CPython returns `+0.0`.
+///
+/// Moved here from `validation.rs` (2026-08-07, Wave 4 Phase 3
+/// `write_board_geometry.rs`), which carried an identical private copy of
+/// this exact CPython-quirk transcription -- consolidated to a single
+/// canonical implementation rather than duplicated a third time, following
+/// this crate's own `py_max`/`py_min`/`py_round` precedent above.
+pub fn py_float_mod(a: f64, b: f64) -> f64 {
+    let mut mod_ = a % b; // IEEE fmod
+    if mod_ != 0.0 {
+        if (b < 0.0) != (mod_ < 0.0) {
+            mod_ += b;
+        }
+    } else {
+        mod_ = if b < 0.0 { -0.0 } else { 0.0 };
+    }
+    mod_
+}
+
 /// CPython's `math.hypot` (the 2-argument `vector_norm`), replicated
 /// exactly: a Dekker double-double compensated norm with fma-based
 /// `dl_mul`. Rust's `f64::hypot` (libm) differs from it in the last ulp
@@ -207,6 +229,24 @@ mod tests {
     fn host_libm_symbols_actually_resolve() {
         assert!(dlsym_unary(c"sqrt").is_some(), "dlsym could not resolve `sqrt`");
         assert!(dlsym_binary(c"pow").is_some(), "dlsym could not resolve `pow`");
+    }
+
+    #[test]
+    fn py_float_mod_matches_cpython_zero_sign() {
+        // CPython: -720.0 % 360.0 == 0.0 (positive zero), not -0.0.
+        let result = py_float_mod(-720.0, 360.0);
+        assert_eq!(result, 0.0);
+        assert!(result.is_sign_positive(), "expected +0.0, got -0.0");
+    }
+
+    #[test]
+    fn py_float_mod_matches_python_floored_semantics() {
+        // Positive divisor: result always non-negative, unlike Rust's raw
+        // `%` (which would give -30.0 here).
+        assert_eq!(py_float_mod(-30.0, 360.0), 330.0);
+        assert_eq!(py_float_mod(370.0, 360.0), 10.0);
+        assert_eq!(py_float_mod(10.0, 360.0), 10.0);
+        assert_eq!(py_float_mod(0.0, 360.0), 0.0);
     }
 
     #[test]

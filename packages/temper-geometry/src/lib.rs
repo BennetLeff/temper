@@ -17,6 +17,7 @@ pub mod congestion_tensor;
 // Neumaier kernel it owns).
 #[cfg(feature = "python")]
 pub mod area_sufficiency;
+pub mod copper_reach;
 pub mod pad_geometry;
 // Wave 4 Phase B: router_v6/escape_via_generator.py (survey cluster G, split)
 // and the six-module congestion & placement-feedback cluster E. Both are
@@ -60,6 +61,14 @@ pub use grid_raster::{
     clear_circle_from_grid_py, closest_component_for_zone_py, effective_creepage_py,
     fence_samples_py, occupancy_bitmap_row_py,
 };
+#[cfg(feature = "python")]
+pub mod occupancy_raster;
+#[cfg(feature = "python")]
+pub use occupancy_raster::{
+    blocking_net_ids_py, downsample_or_blocks_py, mark_path_rect_into_grid_py,
+    mark_segment_rect_into_grid_py, mark_via_circle_into_grid_py, unmark_path_rect_into_grid_py,
+    unmark_segment_rect_into_grid_py,
+};
 pub mod host_math;
 pub mod grid_utils;
 #[cfg(feature = "python")]
@@ -74,6 +83,16 @@ pub use bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py
 pub mod heuristics_geometry;
 #[cfg(feature = "python")]
 pub use heuristics_geometry::keepout_mask_flags_py;
+// Wave 4: temper_placer/heuristics/organizational.py's five _place_* position
+// kernels (module grid, circular offset, power-flow stage layout, decoupling
+// candidate positions, domain grid) -- see organizational_geometry.rs's
+// module doc for the classification-vs-placement triage.
+pub mod organizational_geometry;
+#[cfg(feature = "python")]
+pub use organizational_geometry::{
+    circle_offsets_py, decoupling_candidate_positions_py, domain_grid_positions_py,
+    module_grid_positions_py, power_flow_positions_py,
+};
 pub mod audit;
 pub mod creepage_check;
 // Wave 4: placer/cp_sat/fixed_copper.py's pad-rotation/half-extent/item-
@@ -83,6 +102,12 @@ pub mod creepage_check;
 // pad_geometry (math_cos_sin/py_hypot), which it reuses.
 #[cfg(feature = "python")]
 pub mod fixed_copper;
+// Wave 4: router_v6/zone_emission.py + _zone_pour_stitch.py's geometry
+// (emit_zone_s_expr, _chamfer_path_points, and _stitch_isolated_pads's
+// point-in-polygon + nearest-vertex core). Wholly pyo3 surface, own
+// register().
+#[cfg(feature = "python")]
+pub mod zone_pour;
 // Wave 4, router_v6 core slice: the DRC constraint-geometry kernel behind
 // router_v6/constraints_geometry.py. Declared after creepage_check because
 // it reuses that module's CPython min/max replications.
@@ -113,6 +138,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::apply_suggestions::register(m)?;
     crate::congestion_heatmap::register(m)?;
     crate::fixed_copper::register(m)?;
+    crate::zone_pour::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     Ok(())
 }

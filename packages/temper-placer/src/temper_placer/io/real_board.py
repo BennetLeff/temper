@@ -333,12 +333,26 @@ def _copper_reach_mm(pads: list[dict[str, Any]], rotation_deg: float) -> float:
     separation.
     """
     del rotation_deg  # provably irrelevant; see docstring
-    if not pads:
-        return 0.0
-    return max(
-        math.hypot(*p["offset"])
-        + pad_bounding_radius(p["width"], p["height"], p["shape"], p["roundrect_ratio"])
-        for p in pads
+    from temper_placer.core.pad_geometry import shape_code
+
+    import temper_geometry as _tg
+
+    # Wave 4: delegates to temper_geometry. The kernel replicates CPython's
+    # builtin `max()` -- first NaN wins and nothing displaces it -- rather than
+    # `f64::max`, which discards NaN and would understate the reach of a
+    # component with an unparseable pad offset.
+    return _tg.copper_reach_mm_py(
+        [
+            (
+                p["offset"][0],
+                p["offset"][1],
+                p["width"],
+                p["height"],
+                shape_code(p["shape"]),
+                p["roundrect_ratio"],
+            )
+            for p in pads
+        ]
     )
 
 

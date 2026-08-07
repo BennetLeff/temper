@@ -66,6 +66,68 @@ flight). Per the audit §5, they are left.
 
 ---
 
+# PyAny removal wave 2 (2026-08-06) — typed-handle tightenings
+
+Record per plan R1e, as part of the Wave-4 PyAny-removal wave 2
+(`docs/evidence/2026-08-06-pyany-surface-audit-2.md`, Wave A). Four stored
+fields are tightened from opaque `Py<PyAny>` to typed handles. Each wrapped
+value IS the same-crate pyclass on every verified construction path, so the
+tightening changes nothing observable: identity is preserved by the typed
+handle and the differential/PBT suites stayed green unchanged. A non-pyclass
+payload that was previously stored opaquely now raises `TypeError` — the
+pinned suites never pass one.
+
+## Typed-handle tightenings (`Py<PyAny>` → typed `Py<T>`, stored fields)
+
+| Struct | Field | Change | Evidence |
+|---|---|---|---|
+| `HypergraphFactory` (hypergraph_factory.rs) | `netlist` | `Py<PyAny>` → `Py<Netlist>` | `extraction/hypergraph_factory.py:67` passes the typed `Netlist` (shim re-export of this crate's pyclass); the PBT + differential suites construct `Netlist(...)` pyclasses. Existing pin: `test_factory_attributes_parity` (`f.netlist is mixed_netlist`). |
+| `MonteCarloSimulator` (manufacturing_monte_carlo.rs) | `variables` | `Py<PyAny>` → `Py<ManufacturingVariables>` | The `manufacturing/monte_carlo.py` shim and the differential/PBT suites pass the `ManufacturingVariables` pyclass. Added pin: `test_monte_carlo_simulator_variables_config_typed_identity`. |
+| `MonteCarloSimulator` (manufacturing_monte_carlo.rs) | `config` | `Py<PyAny>` → `Py<MonteCarloConfig>` | The shim and suites pass the `MonteCarloConfig` pyclass; the omitted-config default is freshly built as the same pyclass. Same added pin. |
+| `ToleranceAnalyzer` (manufacturing_tolerances.rs) | `table` | `Py<PyAny>` → `Py<ToleranceTable>` | The default constructor builds a `ToleranceTable` pyclass (doc: the table is never mutated); the shim and suites pass the pyclass. Existing pin: `test_analyzer_table_identity_semantics` (`analyzer.table is table`). |
+
+## Dormant-handle decision (MonteCarloSimulator / ToleranceAnalyzer)
+
+The audit flags these two pyclasses as "shim-wired but no active production
+caller" (`docs/evidence/2026-08-06-pyany-surface-audit-2.md` §5) — the
+`manufacturing/*` shims re-export them, but no production pipeline constructs
+them today. **The tightening is still a genuine tightening, not inert
+bookkeeping**: the stored fields are real `Py<PyAny>` handles whose wrapped
+value is always the pyclass on every exercised path (the differential is the
+only exercised surface), and the typed `Py<...>` handle is strictly
+stronger. They were tightened AND recorded here. If the shims are later
+retired, these pyclasses (and `HypergraphBuildResult`'s unwired ledger entry)
+become candidates for the #826 unwired-ledger conversation — that is a
+separate decision from this tightening and is not taken here.
+
+## Kept (re-verified, recorded reason)
+
+- `BoardState.netlist` / `.board` / `.design_rules` (gates.rs) — **not
+  tightened**. The re-audit (§A1) re-classified these as REMOVABLE "wave-1
+  pending" and claimed "no test pushes a non-contract payload" — this is
+  factually wrong, re-verified 2026-08-06 against the current tree: the
+  gates PBT suite's P5 (`test_mr4_board_state_payload_independence`,
+  `BoardState(board=object())`) and `TestBoardState::test_all_fields_populated`
+  (`netlist=object()`, `board=object()`, `design_rules=object()`) pin the
+  opaque-payload contract (the exact-object identity the dataclass had).
+  Tightening would change observable behaviour (TypeError) and break those
+  R1a pins, so the three fields stay `Py<PyAny>` (STILL-NEEDED) — the same
+  conclusion wave-1 recorded. The pinned suites
+  (`test_gates_pbt.py`, `test_gate_contract.py::TestBoardState`) pass
+  unchanged on this wave.
+
+## Pins
+
+The differential + PBT suites pass unchanged, and one anti-vacuity pin was
+added for the field that lacked one:
+`test_monte_carlo_simulator_variables_config_typed_identity`
+(design-bundle). It asserts `is` identity for the pyclass cases, the
+fresh-default-config pyclass type, and `TypeError` for a non-pyclass payload.
+(The drc-rs pins live in `packages/temper-drc-rs/VERIFICATION.md`.)
+
+---
+
+
 # Net-type classification data model — Verification
 
 The net-types data model (`src/net_types.rs`) is the Wave 4 Phase 2
@@ -1380,7 +1442,7 @@ fixtures (the guide's survivable-mutant pattern):
 | M1 | footprint bounds `len == 2` check dropped | invalid-bounds error parity | |
 | M2 | `yaml.safe_load` → `yaml.BaseLoader` (no scalar typing) | 7 failures incl. the YAML-1.1 `on` discriminator | proves the PyYAML call-back is load-bearing |
 | M3 | self-alias check dropped | `test_rejects_self_alias` | |
-| M4 | `str.strip` → Rust `str::trim` | **strip is load-bearing** — a trim-based port would diverge on escape-decoded C0 controls | Python `str.strip` strips U+001C-U+001F (part of its Unicode whitespace set); Rust `str::trim`/`char::is_whitespace` does not (category Cc, not White_Space). PyYAML DECODES the double-quoted escape `"\x1c"` into U+001C — the Reader validates the raw input stream, not decoded escapes — so the divergence IS reachable. The `"\x1c"`-escaped fixture in `test_reference_aliases_rust_differential.py::test_escape_decoded_control_char_name_rejected` pins the call-back: the oracle rejects the name as empty, and the shim reaches the same verdict through the KEPT Python `str.strip` call (reference_aliases.rs:182); a trim-based port would accept it (asserted via the Rust unit test `rust_trim_keeps_u001c_where_python_strip_removes_it`). |
+| M4 | `str.strip` → Rust `str::trim` | **strip is load-bearing** — a trim-based port would diverge on escape-decoded C0 controls | Python `str.strip` strips U+001C-U+001F (part of its Unicode whitespace set); Rust `str::trim`/`char::is_whitespace` does not (category Cc, not White_Space). PyYAML DECODES the double-quoted escape `"\x1c"` into U+001C — the Reader validates the raw input stream, not decoded escapes — so the divergence IS reachable. The `"\x1c"`-escaped fixture in `test_reference_aliases_rust_differential.py::test_escape_decoded_control_char_name_rejected` pins the call-back: the oracle rejects the name as empty, and the shim reaches the same verdict through the KEPT Python `str.strip` call (reference_aliases.rs:182); a trim-based port would accept it (asserted via the Rust unit test `rust_trim_keeps_u001c_where_python_strip_removes_it`). #860's R20 suite hardening subsequently closed the differential-only gap with a suites-only unit test — `packages/temper-placer/tests/io/test_reference_aliases.py::test_manifest_rejects_escape_decoded_control_char_source` feeds the same `"\x1c"`-escaped fixture through the production `load_reference_alias_manifest` (no oracle import) and asserts the `ValueError`, so the load-bearing call-back is now pinned by the suites too. The differential's parity form still adds breadth — all of U+001C-U+001F plus any future Python-whitespace-class divergence — so the R20 differential-retention decision is unchanged. |
 | M5 | `_NAME_MAP` `zone_membership` alias dropped | P3 / P1 | |
 | M6 | `allow_neckdown` default flipped | production-fixture differential | |
 | M7 | differential-pair key-existence fallback | rewritten P5 | the exploration **exposed a real bug**: the initial Rust had key-existence (the truthiness-or fix had silently not applied) and P5's first draft was vacuous (no negative net in any case) — both fixed. The fix scope is the FULL truthiness-or chain: the pos/neg polarity fallbacks (`positive_net or net_pos`) **and** the spacing/impedance fallbacks (`separation_mm or spacing_mm or 0.2`, `target_impedance_ohm or impedance_ohm`) — key-existence on the latter fed `0` into pydantic's `gt=0` spacing field (raise) or `0.0` into impedance where the oracle yields `None`. RED fixtures: `separation_mm: 0`, `spacing_mm: 0`, `target_impedance_ohm: 0`, `impedance_ohm: 0`, each alone and alongside a live fallback key (commit 3b387e7cc, 9 failed) |

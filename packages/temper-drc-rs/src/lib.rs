@@ -51,6 +51,12 @@ pub mod deterministic_leaf_drc;
 // (connectivity_validation.py per-net algorithm).
 #[cfg(feature = "python")]
 pub mod deterministic_connectivity;
+// Wave 4 — router_v6/constraints_design_rules.py hot-path clearance kernels
+// (ClearanceMatrix.get_clearance / _get_base_clearance / get_track_width /
+// get_via_diameter / get_via_drill / is_differential_pair, the
+// add_differential_pair clearance arithmetic, and ZoneManager.get_zone_at).
+#[cfg(feature = "python")]
+pub mod clearance_matrix;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
@@ -377,5 +383,8 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Wave 4 Phase 5 — deterministic leaf DRC-check kernels.
     crate::deterministic_leaf_drc::register(m)?;
     crate::deterministic_connectivity::register(m)?;
+    // Wave 4 — router_v6/constraints_design_rules.py hot-path clearance
+    // kernels (clearance_matrix.rs).
+    crate::clearance_matrix::register(m)?;
     Ok(())
 }

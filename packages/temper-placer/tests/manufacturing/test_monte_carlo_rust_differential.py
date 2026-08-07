@@ -839,3 +839,25 @@ def test_rng_state_after_error_matches():
             raise AssertionError("expected ValueError")
     py_out, rust_out = _both_samples(sim_py, sim_rust, 10)
     assert _arr(py_out[1]["etch_tolerance"]) == _arr(rust_out[1]["etch_tolerance"])
+
+
+def test_monte_carlo_simulator_variables_config_typed_identity():
+    """The PyAny-removal tightening (`Py<PyAny>` -> `Py<ManufacturingVariables>`
+    / `Py<MonteCarloConfig>`, 2026-08-06) must preserve object identity and
+    the concrete pyclass type: a passed `ManufacturingVariables` reads back
+    `is` the same object, an explicit `config` reads back `is` the same
+    `MonteCarloConfig`, and the omitted-config default is a fresh
+    `MonteCarloConfig` pyclass. A non-pyclass payload is now `TypeError` (the
+    tightened constructor is the verification — the wrapped values ARE the
+    pyclasses)."""
+    variables = MANUFACTURING_VARIABLES()
+    sim = MONTE_CARLO_SIMULATOR(variables)
+    assert sim.variables is variables
+    assert type(sim.config) is MONTE_CARLO_CONFIG
+    config = MONTE_CARLO_CONFIG(seed=7)
+    sim2 = MONTE_CARLO_SIMULATOR(variables, config=config)
+    assert sim2.config is config
+    with pytest.raises(TypeError):
+        MONTE_CARLO_SIMULATOR(object())
+    with pytest.raises(TypeError):
+        MONTE_CARLO_SIMULATOR(variables, config=object())

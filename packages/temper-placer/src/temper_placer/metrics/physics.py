@@ -3,6 +3,37 @@ Physics-based metrics for PCB design validation.
 
 This module implements measurement functions that ground placement quality
 in physical properties (mm, mm², degrees, etc.) rather than abstract scores.
+
+``measure_geometric`` and ``measure_thermal``'s arithmetic run in the
+``temper-thermal`` Rust kernels (``measure_geometric_py`` /
+``measure_thermal_edges_py``, Wave 4); this module keeps the public API,
+resolves the pyclass fields the kernels read into primitive arrays (a
+one-time attribute-read boundary, not compute), and delegates. Bit-parity
+against the pre-migration implementation is pinned by
+``tests/metrics/test_physics_rust_differential.py`` (oracle:
+``tests/metrics/_physics_py_oracle.py``).
+
+``measure_emi`` and ``measure_routability`` are deliberately NOT ported:
+
+- ``measure_emi``'s shoelace-area formula calls ``np.dot`` twice. On this
+  platform (and in general, per numpy's own docs) ``np.dot`` for 1-D float64
+  arrays dispatches to the system BLAS (Accelerate on this machine) rather
+  than a fixed-order reduction -- measured: elementwise-product-then-
+  pairwise-sum disagrees with ``np.dot`` on ~63% of random loops even at
+  n=4 vertices, so no independent Rust reduction can reproduce it
+  bit-for-bit. This is the same shape of gap that keeps
+  ``Netlist.compute_eigenvector_centrality`` (LAPACK ``?syevd``) and
+  ``Board``'s KiCad-transform call site in Python -- see those modules'
+  docstrings. The function's remaining scalar arithmetic
+  (``estimate_loop_inductance``) already delegates to Rust.
+- ``measure_routability`` is orchestration glue: it calls
+  ``router_v6.congestion.analyze_congestion`` and
+  ``validation.metrics.compute_metrics`` (each independently classified/
+  already-migrated elsewhere) and combines their outputs with a single
+  ``max(0.0, 100.0 * (1.0 - x))`` clamp -- not worth its own FFI crossing,
+  the same call this repo already made for the 2-line ``kicad_transform``
+  scalar formula (``packages/temper-geometry``'s
+  ``VERIFICATION.md``).
 """
 
 from __future__ import annotations
@@ -11,6 +42,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+import temper_thermal as _tt
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
@@ -97,81 +129,53 @@ def measure_geometric(
 ) -> GeometricMetrics:
     """
     Measure raw geometric violations.
+
+    The arithmetic runs in the ``temper-thermal`` Rust kernel
+    (``measure_geometric_py``, Wave 4), which mirrors this function's
+    exact NEP-50 float32/float64 promotion and CPython/numpy operator
+    semantics bit-for-bit (pinned by the differential suite
+    ``tests/metrics/test_physics_rust_differential.py``). This wrapper
+    only resolves the pyclass fields the kernel reads into primitive
+    arrays -- a one-time attribute-read boundary, not compute.
     """
-    positions = np.array(state.positions)
-    widths = np.array([c.bounds[0] for c in netlist.components])
-    heights = np.array([c.bounds[1] for c in netlist.components])
+    positions = np.asarray(state.positions)
     n = len(netlist.components)
 
-    metrics = GeometricMetrics()
+    zone_lookup = {z.name: tuple(float(v) for v in z.bounds) for z in board.zones}
+    zone_bounds = [
+        zone_lookup.get(c.zone) if (c.zone and c.zone in zone_lookup) else None
+        for c in netlist.components
+    ]
+    is_hv = [c.net_class == "HighVoltage" for c in netlist.components]
 
-    # 1. Overlaps
-    for i in range(n):
-        hw_i, hh_i = widths[i] / 2, heights[i] / 2
-        for j in range(i + 1, n):
-            hw_j, hh_j = widths[j] / 2, heights[j] / 2
+    (
+        overlap_count,
+        overlap_area_mm2,
+        zone_violation_count,
+        zone_violation_max_mm,
+        boundary_violation_count,
+        min_hv_lv_clearance_mm,
+    ) = _tt.measure_geometric_py(
+        [float(positions[i, 0]) for i in range(n)],
+        [float(positions[i, 1]) for i in range(n)],
+        [float(c.bounds[0]) for c in netlist.components],
+        [float(c.bounds[1]) for c in netlist.components],
+        float(min_separation),
+        zone_bounds,
+        (float(board.origin[0]), float(board.origin[1])),
+        float(board.width),
+        float(board.height),
+        is_hv,
+    )
 
-            dx = abs(positions[i, 0] - positions[j, 0])
-            dy = abs(positions[i, 1] - positions[j, 1])
-
-            ox = (hw_i + hw_j + min_separation) - dx
-            oy = (hh_i + hh_j + min_separation) - dy
-
-            if ox > 0 and oy > 0:
-                metrics.overlap_count += 1
-                metrics.overlap_area_mm2 += ox * oy
-
-    # 2. Zone Violations
-    zone_map = {z.name: z for z in board.zones}
-    for i, comp in enumerate(netlist.components):
-        if comp.zone and comp.zone in zone_map:
-            zone = zone_map[comp.zone]
-            x, y = positions[i]
-            hw, hh = widths[i] / 2, heights[i] / 2
-
-            # Check if component bounds are fully within zone
-            dist_x = max(0, zone.bounds[0] - (x - hw), (x + hw) - zone.bounds[2])
-            dist_y = max(0, zone.bounds[1] - (y - hh), (y + hh) - zone.bounds[3])
-
-            if dist_x > 0 or dist_y > 0:
-                metrics.zone_violation_count += 1
-                metrics.zone_violation_max_mm = max(
-                    metrics.zone_violation_max_mm, np.sqrt(dist_x**2 + dist_y**2)
-                )
-
-    # 3. Boundary Violations
-    for i in range(n):
-        x, y = positions[i]
-        hw, hh = widths[i] / 2, heights[i] / 2
-
-        if (
-            x - hw < board.origin[0]
-            or x + hw > board.origin[0] + board.width
-            or y - hh < board.origin[1]
-            or y + hh > board.origin[1] + board.height
-        ):
-            metrics.boundary_violation_count += 1
-
-    # 4. HV-LV Clearance (Creepage proxy)
-    hv_indices = [i for i, c in enumerate(netlist.components) if c.net_class == "HighVoltage"]
-    lv_indices = [i for i, c in enumerate(netlist.components) if c.net_class != "HighVoltage"]
-
-    if hv_indices and lv_indices:
-        for i in hv_indices:
-            hw_i, hh_i = widths[i] / 2, heights[i] / 2
-            for j in lv_indices:
-                hw_j, hh_j = widths[j] / 2, heights[j] / 2
-
-                dx = abs(positions[i, 0] - positions[j, 0]) - hw_i - hw_j
-                dy = abs(positions[i, 1] - positions[j, 1]) - hh_i - hh_j
-
-                dist = max(dx, dy, 0.0)
-                if dx > 0 and dy > 0:
-                    dist = np.sqrt(dx**2 + dy**2)
-
-                metrics.min_hv_lv_clearance_mm = min(metrics.min_hv_lv_clearance_mm, dist)
-
-    return metrics
+    return GeometricMetrics(
+        overlap_count=overlap_count,
+        overlap_area_mm2=overlap_area_mm2,
+        zone_violation_count=zone_violation_count,
+        zone_violation_max_mm=zone_violation_max_mm,
+        boundary_violation_count=boundary_violation_count,
+        min_hv_lv_clearance_mm=min_hv_lv_clearance_mm,
+    )
 
 
 def measure_emi(
@@ -279,37 +283,46 @@ def measure_thermal(
 ) -> ThermalMetrics:
     """
     Estimate junction temperatures based on placement and power dissipation.
+
+    The edge-distance computation, the ``max_tj`` fold, and
+    ``edge_distance_avg_mm`` run in the ``temper-thermal`` Rust kernel
+    (``measure_thermal_edges_py``, Wave 4), which internally calls the
+    already-Rust ``estimate_junction_temp`` (Wave 4 Phase A #3) directly
+    per device rather than round-tripping through Python once per item.
+    Mirrors this function's exact NEP-50 float32-narrowing arithmetic
+    bit-for-bit (pinned by
+    ``tests/metrics/test_physics_rust_differential.py``).
     """
     if not power_dissipation:
         return ThermalMetrics(ambient_temp_c, 0.0, 0.0)
 
-    from temper_placer.physics.thermal import estimate_junction_temp
+    positions = np.asarray(state.positions)
 
-    positions = np.array(state.positions)
-    max_tj = ambient_temp_c
-    edge_dists = []
-
+    xs: list[float] = []
+    ys: list[float] = []
+    powers: list[float] = []
     for ref, power in power_dissipation.items():
         try:
             idx = netlist.get_component_index(ref)
         except KeyError:
             continue
+        xs.append(float(positions[idx, 0]))
+        ys.append(float(positions[idx, 1]))
+        powers.append(float(power))
 
-        pos = positions[idx]
-        # Dist to closest edge
-        dx = min(pos[0] - board.origin[0], board.origin[0] + board.width - pos[0])
-        dy = min(pos[1] - board.origin[1], board.origin[1] + board.height - pos[1])
-        dist = min(dx, dy)
-        edge_dists.append(dist)
-
-        # Estimate Tj using the refined model
-        # TODO: Pull copper_area from netlist/board info
-        tj = estimate_junction_temp(power_W=power, edge_distance_mm=dist, ambient_C=ambient_temp_c)
-        max_tj = max(max_tj, tj)
+    max_tj, edge_distance_avg_mm = _tt.measure_thermal_edges_py(
+        xs,
+        ys,
+        powers,
+        (float(board.origin[0]), float(board.origin[1])),
+        float(board.width),
+        float(board.height),
+        float(ambient_temp_c),
+    )
 
     metrics = ThermalMetrics()
     metrics.max_junction_temp_c = max_tj
     metrics.thermal_margin_c = 150.0 - max_tj  # 150C is typical shutdown
-    metrics.edge_distance_avg_mm = float(np.mean(edge_dists)) if edge_dists else 0.0
+    metrics.edge_distance_avg_mm = edge_distance_avg_mm
 
     return metrics

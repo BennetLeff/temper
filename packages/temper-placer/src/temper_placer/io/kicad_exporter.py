@@ -121,19 +121,15 @@ def snap_to_nearest_pad(
     pad_centers: list[tuple[float, float]],
     tolerance: float = 0.15,  # Sufficient for 0.25mm grid half-cell
 ) -> tuple[float, float]:
-    """Snap coordinate to nearest pad center if within tolerance."""
-    import math
+    """Snap coordinate to nearest pad center if within tolerance.
 
-    best_dist = tolerance
-    best_pos = (x, y)
+    Delegates to the Rust kernel (Wave 4 Phase 3, formats/IO migration).
+    Pinned oracle: ``tests/io/_kicad_exporter_py_oracle.py``; differential:
+    ``tests/io/test_kicad_exporter_geometry_rust_differential.py``.
+    """
+    from temper_design_bundle_python import kicad_exporter_geometry as _kicad_exporter_geometry
 
-    for px, py in pad_centers:
-        dist = math.sqrt((x - px) ** 2 + (y - py) ** 2)
-        if dist < best_dist:
-            best_dist = dist
-            best_pos = (px, py)
-
-    return best_pos
+    return _kicad_exporter_geometry.snap_to_nearest_pad_py(x, y, list(pad_centers), tolerance)
 
 
 def path_to_segments(
@@ -276,74 +272,23 @@ def _generate_connector_segments(
 
     Returns:
         List of NEW connector segments
+
+    Delegates the nearest-endpoint bridging search to the Rust kernel (Wave 4
+    Phase 3, formats/IO migration). Pinned oracle:
+    ``tests/io/_kicad_exporter_py_oracle.py``; differential:
+    ``tests/io/test_kicad_exporter_geometry_rust_differential.py``.
     """
-    connectors = []
+    from temper_design_bundle_python import kicad_exporter_geometry as _kicad_exporter_geometry
 
-    # Organize segments by net for faster lookup
-    segs_by_net: dict[str, list] = {}
-    for seg in segments:
-        if seg.net not in segs_by_net:
-            segs_by_net[seg.net] = []
-        segs_by_net[seg.net].append(seg)
-
-    for net, pads in pad_centers.items():
-        if net not in segs_by_net:
-            continue
-
-        net_segs = segs_by_net[net]
-
-        # Collect all unique endpoints of existing segments
-        endpoints = set()
-        for seg in net_segs:
-            endpoints.add(seg.start)
-            endpoints.add(seg.end)
-
-        # Check each pad
-        for px, py in pads:
-            # Is this pad already connected? (Exact match)
-            is_connected = False
-            for ex, ey in endpoints:
-                if abs(ex - px) < 0.01 and abs(ey - py) < 0.01:
-                    is_connected = True
-                    break
-
-            if is_connected:
-                continue
-
-            # Find nearest endpoint
-            nearest_ep = None
-            min_dist = float("inf")
-
-            for ex, ey in endpoints:
-                dist = math.sqrt((ex - px) ** 2 + (ey - py) ** 2)
-                if dist < min_dist:
-                    min_dist = dist
-                    nearest_ep = (ex, ey)
-
-            # If nearest endpoint is close enough, bridge it!
-            if nearest_ep and min_dist < max_dist:
-                # Use attributes from nearest segment to match width/layer
-                # Need to find which segment has this endpoint
-                ref_seg = None
-                for seg in net_segs:
-                    if seg.start == nearest_ep or seg.end == nearest_ep:
-                        ref_seg = seg
-                        break
-
-                if ref_seg:
-                    connectors.append(
-                        TraceSegment(
-                            net=net,
-                            start=nearest_ep,
-                            end=(px, py),
-                            width=ref_seg.width,
-                            layer=ref_seg.layer,
-                        )
-                    )
-                    # Add to endpoints so we don't try to connect again
-                    endpoints.add((px, py))
-
-    return connectors
+    seg_tuples = [(seg.net, seg.start, seg.end, seg.width, seg.layer) for seg in segments]
+    # `dict.items()` preserves insertion order -- NOT a set, so this carries
+    # no PYTHONHASHSEED risk across the boundary.
+    pad_tuples = list(pad_centers.items())
+    result = _kicad_exporter_geometry.generate_connector_segments_py(seg_tuples, pad_tuples, max_dist)
+    return [
+        TraceSegment(net=net, start=start, end=end, width=width, layer=layer)
+        for (net, start, end, width, layer) in result
+    ]
 
 
 def add_segments_to_board(

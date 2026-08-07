@@ -3,9 +3,23 @@ Path simplification for router export.
 
 Removes redundant waypoints from grid paths by eliminating collinear points.
 This reduces the number of trace segments in the exported PCB.
+
+Wave 4 (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
+``is_collinear``, ``simplify_path``, and ``estimate_segment_count`` delegate to
+``temper_rust_router`` (``is_collinear_py``, ``simplify_path_py``,
+``estimate_segment_count_py``). Verified bit-identical against a pinned
+pre-migration oracle by
+``tests/router_v6/test_path_simplify_rust_differential.py`` (oracle:
+``tests/router_v6/_path_simplify_py_oracle.py``).
 """
 
+import temper_rust_router as _trr
+
 from temper_placer.router_v6.grid_converter import GridCell
+
+
+def _cell_wire(cell: GridCell) -> tuple[int, int, int]:
+    return (cell.x, cell.y, cell.layer)
 
 
 def is_collinear(p1: GridCell, p2: GridCell, p3: GridCell) -> bool:
@@ -26,16 +40,7 @@ def is_collinear(p1: GridCell, p2: GridCell, p3: GridCell) -> bool:
         >>> is_collinear(p1, p2, p3)
         False  # L-shaped path
     """
-    # All on same layer check (not strictly necessary but good practice)
-    if not (p1.layer == p2.layer == p3.layer):
-        return False
-
-    # Horizontal line: same y, consecutive x
-    if p1.y == p2.y == p3.y:
-        return True
-
-    # Vertical line: same x, consecutive y
-    return p1.x == p2.x == p3.x
+    return _trr.is_collinear_py(_cell_wire(p1), _cell_wire(p2), _cell_wire(p3))
 
 
 def simplify_path(cells: list[GridCell]) -> list[GridCell]:
@@ -66,29 +71,8 @@ def simplify_path(cells: list[GridCell]) -> list[GridCell]:
         >>> simplify_path(cells)
         [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(1, 0, 1)]
     """
-    if len(cells) <= 2:
-        # Can't simplify paths with 2 or fewer points
-        return cells
-
-    simplified = [cells[0]]  # Always keep first point
-
-    for i in range(1, len(cells) - 1):
-        prev = cells[i - 1]
-        curr = cells[i]
-        next_cell = cells[i + 1]
-
-        # Always keep layer transitions (via locations)
-        if curr.layer != prev.layer or curr.layer != next_cell.layer:
-            simplified.append(curr)
-            continue
-
-        # Keep point if direction changes (not collinear)
-        if not is_collinear(prev, curr, next_cell):
-            simplified.append(curr)
-
-    simplified.append(cells[-1])  # Always keep last point
-
-    return simplified
+    wire = [_cell_wire(c) for c in cells]
+    return [GridCell(x, y, layer) for x, y, layer in _trr.simplify_path_py(wire)]
 
 
 def estimate_segment_count(cells: list[GridCell]) -> int:
@@ -102,11 +86,5 @@ def estimate_segment_count(cells: list[GridCell]) -> int:
     Returns:
         Estimated number of trace segments
     """
-    simplified = simplify_path(cells)
-    # Each pair of consecutive cells on same layer = 1 segment
-    # Layer transitions don't create segments (they create vias)
-    segment_count = 0
-    for i in range(1, len(simplified)):
-        if simplified[i].layer == simplified[i - 1].layer:
-            segment_count += 1
-    return segment_count
+    wire = [_cell_wire(c) for c in cells]
+    return _trr.estimate_segment_count_py(wire)

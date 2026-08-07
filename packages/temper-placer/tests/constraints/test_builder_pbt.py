@@ -240,3 +240,36 @@ def test_mr4_build_identity_with_base():
     builder.add_spacing("A", "B", 10.0)
     assert builder.build() is base
     assert len(base.component_spacing_rules) == 1
+
+
+# ---------------------------------------------------------------------------
+# R20 suite hardening — discriminator moved from the differential. #850's
+# differential-disabled re-run found M8 (builder empty-string-zone gate)
+# survives the suites-only run; its discriminating assertion lived only in
+# `test_builder_rust_differential.py`. The gate is a deterministic invariant
+# of the validate()/to_yaml() surface, so it is pinned here. The differential
+# keeps its own assertion.
+# ---------------------------------------------------------------------------
+
+
+def test_p6_empty_string_zone_is_ignored():
+    """An empty-string group zone is falsy: ``validate()`` reports no zone
+    error even when ``available_zones`` is given, and ``to_yaml()`` omits the
+    ``zone`` key exactly as for ``zone=None``. A port that dropped the
+    ``!zone.is_empty()`` gate would treat ``zone=''`` as a real zone and emit
+    a 'not found' error (surviving mutant M8)."""
+    builder = ConstraintBuilder().add_group("g", ["A"], zone="")
+    for zones in (None, [], ["Zone1"], ["HV", "Zone1"]):
+        assert builder.validate(100.0, 100.0, ["A"], zones) == [], zones
+    data = yaml.safe_load(builder.to_yaml())
+    assert "zone" not in data["groups"][0]
+    # The zone=None build serializes identically (falsy-equivalence).
+    none_builder = ConstraintBuilder().add_group("g", ["A"], zone=None)
+    none_data = yaml.safe_load(none_builder.to_yaml())
+    assert "zone" not in none_data["groups"][0]
+    # Non-vacuity: a non-empty zone IS validated and serialized.
+    real = ConstraintBuilder().add_group("g", ["A"], zone="HV")
+    assert real.validate(100.0, 100.0, ["A"], ["Zone1"]) == [
+        "ComponentGroup 'g': zone 'HV' not found"
+    ]
+    assert "zone" in yaml.safe_load(real.to_yaml())["groups"][0]

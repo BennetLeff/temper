@@ -594,13 +594,21 @@ const PARAMETER_NAMES: [&str; 6] = [
 /// Run Monte Carlo tolerance simulations (mirrors `MonteCarloSimulator`).
 // `dict`: the oracle class carries a `__dict__`; pyclass(dict) keeps
 // attribute injection working.
+// Wave-4 "PyAny removal" tightening (2026-08-06): `variables` is always the
+// `ManufacturingVariables` pyclass and `config` always the `MonteCarloConfig`
+// pyclass (the `manufacturing/monte_carlo.py` shim passes the pyclasses; the
+// default config is freshly built as the same pyclass), so the opaque handles
+// are replaced by typed `Py<...>` references. Behavior is unchanged: the
+// wrapped values ARE the pyclasses and identity is preserved. This pyclass is
+// shim-wired but has no active production caller (recorded in VERIFICATION.md)
+// — the differential is the only exercised surface.
 #[pyclass(dict, module = "temper_design_bundle_python")]
 #[derive(Debug)]
 pub struct MonteCarloSimulator {
     #[pyo3(get, set)]
-    pub variables: Py<PyAny>,
+    pub variables: Py<ManufacturingVariables>,
     #[pyo3(get, set)]
-    pub config: Py<PyAny>,
+    pub config: Py<MonteCarloConfig>,
     /// The numpy `Generator` — created and advanced by numpy itself (the
     /// KTD9 RNG boundary; see the module docstring).
     #[pyo3(get, set, name = "_rng")]
@@ -665,14 +673,14 @@ impl MonteCarloSimulator {
     #[pyo3(signature = (variables, config=None))]
     fn new(
         py: Python<'_>,
-        variables: &Bound<'_, PyAny>,
-        config: Option<&Bound<'_, PyAny>>,
+        variables: &Bound<'_, ManufacturingVariables>,
+        config: Option<&Bound<'_, MonteCarloConfig>>,
     ) -> PyResult<Self> {
         // Fresh default config per simulator (documented deviation — the
         // oracle shares one definition-time instance; see the module doc).
-        let config: Py<PyAny> = match config {
+        let config: Py<MonteCarloConfig> = match config {
             Some(c) => c.clone().unbind(),
-            None => Py::new(py, MonteCarloConfig::build(py, None, None, None)?)?.into_any(),
+            None => Py::new(py, MonteCarloConfig::build(py, None, None, None)?)?,
         };
         // np.random.default_rng(config.seed) — numpy's own Generator.
         let seed = config.bind(py).getattr("seed")?;

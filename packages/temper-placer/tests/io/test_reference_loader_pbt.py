@@ -237,3 +237,34 @@ def test_mr3_area_scales_additively(comps_nets):
     # without hiding a real change (a dropped doubling would be a 4x gap).
     assert rs_doubled["component_area_mm2"] >= 4 * rs_base["component_area_mm2"] - 0.5
     assert rs_doubled["component_area_mm2"] == _oracle.compute_design_stats(doubled)["component_area_mm2"]
+
+
+# ---------------------------------------------------------------------------
+# R20 suite hardening — discriminator moved from the differential. #850's
+# differential-disabled re-run found M9 (the loops[:3] cap) survives the
+# suites-only run: `test_p5_loop_cap` only pins the upper bound `<= 3`, and the
+# generated netlists never carry GATE_* nets, so the property is vacuous for
+# the cap. The differential's exact-count fixture (5 gate nets -> 3 loops) is
+# the discriminator; it is deterministic, so it is pinned here. The
+# differential keeps its own assertion.
+# ---------------------------------------------------------------------------
+
+
+def test_p5b_loop_cap_exact_count():
+    """infer_quality_config takes only the first 3 pins of each qualifying
+    gate net (the oracle's ``net.pins[:3]``): a 5-pin GATE net yields a
+    3-ref loop. A port that dropped the ``.take(3)`` pin cap emits 5-ref
+    loops and fails the exact-content pin (surviving mutant M9)."""
+    from temper_placer.core.netlist import Component, Net, Netlist
+
+    comps = [Component(ref=f"C{i}", footprint="R_0805", bounds=(2.0, 1.25)) for i in range(8)]
+    nets = [
+        Net(name=f"GATE_{i}", pins=[(f"C{j}", "1") for j in range(5)], net_class="Signal")
+        for i in range(2)
+    ]
+    design = SimpleNamespace(netlist=Netlist(components=comps, nets=nets))
+    loops = INFER_QUALITY(design)["loop_components"]
+    assert loops == [["C0", "C1", "C2"], ["C0", "C1", "C2"]]
+    # Non-vacuity: the fixture's gate nets carry 5 pins each, so the 3-ref
+    # pin cap is genuinely exercised (a dropped cap would yield 5-ref loops).
+    assert all(len(net.pins) == 5 > 3 for net in nets)
