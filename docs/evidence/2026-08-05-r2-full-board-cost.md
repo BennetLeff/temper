@@ -1,4 +1,4 @@
-<!-- provenance: commit=f2c5af948ba2264b3fc05d1f7e6e63ce4d8fc59a dirty=false -->
+<!-- provenance: commit=00ec5f94a dirty=false -->
 
 # R2 — full-board rule pass: per-case CPU and peak RSS (U4 measurement)
 
@@ -357,3 +357,61 @@ not proposed for merge in this unit — they are measurement scaffolding:
   call path
 - `docs/evidence/2026-08-04-board-regeneration-cost.md` — the evidence
   doc format this document follows
+
+---
+
+## Addendum 2026-08-07 — per-family peak RSS (R2 completion)
+
+**Date:** 2026-08-07
+**Base:** `origin/main` @ `00ec5f94a` (branch `feat/wasm-tier-phase0`, R1 commit
+`8a3bdd6aa`)
+**Base assertion:** `scripts/assert-base.sh origin/main` exited 0.
+
+U4 measured the whole-pass peak RSS (median 2.94 MiB, §2). This addendum closes
+the remaining R2 gap named in the Phase-0 execution brief: **peak resident
+memory per rule family**, so the R5 sharding seam (one rule family per Worker
+invocation) can be judged against the 128 MiB isolate limit per unit, not only
+in aggregate.
+
+### Method
+
+`ru_maxrss` is a process-wide high-water mark and never resets inside a
+process, so per-family RSS cannot be sliced out of a whole-pass process. Each
+family is therefore measured in **fresh processes that run only that family's
+rules**: `r2_full_board_pass.rs` gained a `--family <prefix>` filter
+(rule-name prefix — `drc_`, `emc_`, `erc_`, `safety_`, `placement_`,
+`routing_` — so no rule source file needed touching), and `r2_sample.py`
+gained `--all-families` to drive N fresh processes per family. Family ↔ module
+mapping is the registry's own `name()` prefix (the parent plan's R5 families;
+the brief's named rules map onto them: `clearance` ∈ `drc`, `creepage` ∈
+`safety`).
+
+Protocol: N = 12 fresh processes per family (reportable floor), same board
+sha256 as §Machine context, exact comparison against 134,217,728 bytes.
+
+### Results (N=12 fresh processes per family, release, `--no-default-features`)
+
+| Family | Rules | Peak RSS median (bytes) | Peak RSS range | % of 128 MiB (median) | Wall median |
+|---|---|---|---|---|---|
+| `drc` | 6 | 2,768,896 (2.64 MiB) | 2,736,128–2,801,664 | **2.06%** | 1.273 ms |
+| `emc` | 3 | 2,293,760 (2.19 MiB) | 2,277,376–2,293,760 | **1.71%** | 0.053 ms |
+| `erc` | 3 | 2,293,760 (2.19 MiB) | 2,293,760–2,310,144 | **1.71%** | 0.022 ms |
+| `safety` | 3 | 2,293,760 (2.19 MiB) | 2,277,376–2,310,144 | **1.71%** | 0.093 ms |
+| `placement` | 2 | 2,244,608 (2.14 MiB) | 2,228,224–2,277,376 | **1.67%** | 0.003 ms |
+| `routing` | 10 | 2,228,224 (2.12 MiB) | 2,228,224–2,228,224 | **1.66%** | 0.006 ms |
+
+Whole-pass re-check (N=32, this run): wall median 1.475 ms (range 1.440–5.671),
+RSS median 3,031,040 bytes = 2.89 MiB (range 2,965,504–3,080,192), **2.3%** of
+limit, 79 errors / 38 warnings deterministic across all 32 runs — reproducing
+the U4 headline figures at HEAD.
+
+### Verdict
+
+Every family fits the 128 MiB isolate limit with **≥48× headroom** (largest
+family, `drc`, at 2.06%; the 50%-of-limit in-isolate re-measurement trigger at
+64 MiB is nowhere near). Peak RSS per family is dominated by the ~2.2 MiB
+board-load baseline; the only family with a material transient is `drc`
+(+~0.5 MiB over the others, the O(n²) all-pairs clearance). **The R5 sharding
+seam is memory-safe: a per-family Worker invocation needs ~3 MiB, not 128.**
+This confirms U5's verdict — no memory strategy is required for Phase 1 — at
+the per-unit granularity R5 actually shards on.
