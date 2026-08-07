@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-05'
-  total_scripts: 117
+  total_scripts: 118
   counts:
-    keep: 113
+    keep: 114
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
@@ -1814,6 +1814,25 @@ scripts:
   - pathlib
   - re
   - sys
+- path: verify_regenerated_board.py
+  purpose: 'R3 board-regeneration producer verification: assert a regenerated KiCad PCB parses, is structurally
+    equivalent (order-independent canonical sets) to the committed board, and has DRC counts within the
+    committed ceiling (regenerates DRU first, N=12, --all-track-errors)'
+  owner: wasm-tier
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections.abc
+  - json
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - tempfile
+  - typing
 - path: vulture_gate.py
   purpose: 'Vulture dead-code CI gate: diff wrapper with baseline allowlist'
   owner: pipeline

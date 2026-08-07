@@ -1,0 +1,198 @@
+name: Board Regeneration (R3 Producer)
+
+# Nightly scheduled verification that netlist → route → DRC still produces a
+# structurally-equivalent board within the committed DRC ceiling.
+#
+# Job-count argument (matching the pattern in required-checks.yml:19,
+# codeql.yml:20, literal-removal-advisory.yml:11, python-tests.yml:684-685):
+# this is +1 scheduled job, +0 push-contended jobs. A scheduled job does not
+# contend with push-triggered jobs for the account's ~24 concurrent runner
+# ceiling; it runs when no push is in flight. The cost is runner minutes,
+# which are not the binding constraint here. D3's entire justification for
+# choosing Workers is that the push-contended pool is the constraint, so
+# spending a slot there would be self-defeating.
+#
+# The route stage (~5.5 GB RSS) may OOM on a standard ubuntu-latest runner
+# (7 GB RAM). If it does, the job fails red — which is acceptable nightly
+# feedback, not a merge block. The R3 producer is trunk/scheduled-only and
+# cannot fail a PR. Per docs/evidence/2026-08-07-router-oom-diagnosis.md §6.1,
+# an `ulimit -v 8388608` (8 GB virtual memory cap) makes OOM failures fast
+# and attributable rather than destabilizing the runner.
+#
+# Hard prohibitions (per the Phase 0 plan §U7):
+# - Never writes power_pcb_dataset/drc_ceiling.json
+# - Never commits pcb/temper.kicad_pcb
+# - Never authors a Ceiling-Approval: commit trailer
+# - Never opens a PR
+# - permissions: contents: read only
+
+on:
+  schedule:
+    # Nightly at 05:00 UTC — clear of python-tests' 03:00, r9-evidence's
+    # 04:15, and the 00:00/06:00 GitHub Actions peak scheduling window.
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      inject_defect:
+        description: 'U8 anti-vacuity: mutate the regenerated artifact before verification'
+        required: false
+        type: choice
+        default: 'none'
+        options:
+          - none
+          - delete_track
+          - displace_component
+
+permissions:
+  contents: read
+  actions: write  # needed for upload-artifact (assertion 5)
+
+jobs:
+  regenerate-and-verify:
+    name: Regenerate board (netlist → route → DRC → verify)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      # ------------------------------------------------------------------
+      # Stage 0: Python environment
+      # ------------------------------------------------------------------
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Build and install temper-rust-router
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      # --inexact: avoids uv sync silently uninstalling the maturin wheels
+      # above. Mirrors the identical step in r9-evidence.yml:85-93.
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      # ------------------------------------------------------------------
+      # Stage 1: Netlist generation (~11.5 s)
+      # ------------------------------------------------------------------
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
+
+      # ------------------------------------------------------------------
+      # Stage 2: Route the production board
+      # ------------------------------------------------------------------
+      # ulimit -v 8 GB: fast-fail on OOM rather than destabilizing the runner.
+      # The 42M/78M CNF model fits in ~5.5-7 GB (docs/evidence/2026-08-07-
+      # router-oom-diagnosis.md §2.3). PYTHONHASHSEED=0 pins the hash seed
+      # so CaDiCaL's internal order is reproducible (the route itself is
+      # deterministic at a fixed seed; variance comes from HashMap hasher
+      # seeding, which PYTHONHASHSEED controls).
+
+      - name: Route board
+        run: |
+          ulimit -v 8388608
+          PYTHONHASHSEED=0 uv run python3 scripts/route_board.py \
+            --output /tmp/temper_routed.kicad_pcb
+
+      # ------------------------------------------------------------------
+      # Stage 3: Inject defect (U8 anti-vacuity, workflow_dispatch only)
+      # ------------------------------------------------------------------
+
+      - name: Inject defect (delete one track)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.inject_defect == 'delete_track' }}
+        run: |
+          python3 -c "
+          import re
+          content = open('/tmp/temper_routed.kicad_pcb').read()
+          # Remove the first (segment ...) block
+          content, n = re.subn(r'\(segment\s[^)]*\)', '', content, count=1)
+          open('/tmp/temper_routed.kicad_pcb', 'w').write(content)
+          print(f'inject_defect=delete_track: removed {n} track(s)')
+          "
+
+      - name: Inject defect (displace one component by 5mm)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.inject_defect == 'displace_component' }}
+        run: |
+          python3 -c "
+          import re
+          content = open('/tmp/temper_routed.kicad_pcb').read()
+          # Find the first (at x y rot) inside a footprint and add 5mm to x.
+          # The pattern matches '(at x y rot)' inside footprint blocks.
+          def displace(m):
+              x = float(m.group(1))
+              y = float(m.group(2))
+              rot = m.group(3)
+              return f'(at {x + 5:.6f} {y:.6f} {rot})'
+          content, n = re.subn(
+              r'\(at\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\)',
+              displace, content, count=1
+          )
+          open('/tmp/temper_routed.kicad_pcb', 'w').write(content)
+          print(f'inject_defect=displace_component: displaced {n} component(s)')
+          "
+
+      # ------------------------------------------------------------------
+      # Stage 4: Verify the regenerated board
+      # ------------------------------------------------------------------
+
+      - name: Verify regenerated board
+        run: |
+          uv run python3 scripts/verify_regenerated_board.py \
+            --committed pcb/temper.kicad_pcb \
+            --regenerated /tmp/temper_routed.kicad_pcb \
+            --ceiling power_pcb_dataset/drc_ceiling.json \
+            --drc-samples 12
+
+      # ------------------------------------------------------------------
+      # Stage 5: Content-address (sha256) and artifact upload
+      # ------------------------------------------------------------------
+
+      - name: Compute content hash
+        run: |
+          sha256sum /tmp/temper_routed.kicad_pcb | tee /tmp/routed.sha256
+          echo "ROUTED_HASH=$(sha256sum /tmp/temper_routed.kicad_pcb | cut -d' ' -f1)" >> "$GITHUB_ENV"
+
+      - name: Upload regenerated board artifact (7-day retention)
+        uses: actions/upload-artifact@v6
+        with:
+          name: temper-routed-${{ env.ROUTED_HASH }}
+          path: /tmp/temper_routed.kicad_pcb
+          retention-days: 7
