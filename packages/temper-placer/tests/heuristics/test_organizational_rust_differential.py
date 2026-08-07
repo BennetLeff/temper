@@ -378,9 +378,19 @@ def test_power_flow_topology_matches_oracle(horizontal):
 def test_power_flow_topology_nonvacuous():
     netlist, board, constraints = _power_flow_case()
     nodes = ORACLE.classify_power_topology(netlist, constraints)
+    assert len(nodes) == 6, "fixture should classify all 6 components into a stage"
     ctx = PlacementContext(board=board, netlist=netlist, constraints=constraints)
     placements = ORACLE.PowerFlowTopologyHeuristic()._place_power_flow(nodes=nodes, board=board, context=ctx)
-    assert len(placements) >= 5
+    # NOT all 6: `t = i / (len(refs) - 1)` puts the first/last item of a
+    # multi-item stage exactly on the margin line, and `is_position_valid`
+    # then rejects it (the component's own half-width/half-height crosses
+    # the boundary at a position whose CENTER sits exactly on it). This is
+    # inherent to the oracle's algorithm, not a porting defect -- the
+    # differential test above proves the Rust arm reproduces it exactly,
+    # positions included. Only the single-item stage (stage 0, t fixed at
+    # 0.5) and the middle item of the 3-item stage survive.
+    assert len(placements) >= 2
+    assert "J1_DC" in placements, "the single-item stage always survives (t=0.5, never boundary)"
 
 
 # ---------------------------------------------------------------------------
