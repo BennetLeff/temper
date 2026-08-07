@@ -24,6 +24,55 @@ from temper_placer.router_v6.stage_validators import (
 )
 
 
+#: Decimal places a channel-edge endpoint is quantised to before it becomes
+#: part of a SAT variable's identity. 1e-6 mm is one nanometre -- three orders
+#: of magnitude below any manufacturing tolerance, so two endpoints that differ
+#: only below this are the same physical point.
+_EDGE_COORD_DECIMALS = 6
+
+
+def _edge_endpoint_key(node) -> str:
+    """A skeleton node's coordinates, quantised and formatted deterministically.
+
+    Skeleton graph nodes ARE raw coordinate tuples (`channel_skeleton.py` does
+    `G.add_node(p1, pos=p1)`), so interpolating a node straight into an f-string
+    embeds `repr()` of un-rounded floats. Two geometrically identical skeletons
+    produced by different code paths then yield different SAT variable NAMES.
+    """
+    return "(" + ", ".join(f"{round(float(c), _EDGE_COORD_DECIMALS):.6f}" for c in node) + ")"
+
+
+def canonical_channel_edges(graph, layer_name: str):
+    """Yield ``(edge_id, u, v)`` in an order independent of graph insertion.
+
+    Edge identity previously came from ``enumerate(graph.edges)`` -- i.e. from
+    networkx INSERTION ORDER -- plus the raw float repr of both endpoints. That
+    made SAT variable names depend on how the skeleton happened to be built,
+    which is why `channel_skeleton.py` could not be reimplemented: an
+    independent Voronoi reproduces the geometry to <1e-9mm (measured, 12/12
+    boards) but not the insertion order, so the model came out different while
+    the geometry was identical.
+
+    Ordering here is by the quantised endpoint keys, so it is a property of the
+    GEOMETRY rather than of the construction. The index is retained as a
+    tie-break, which also keeps names unique if two distinct edges quantise to
+    the same endpoints.
+
+    All six call sites must agree byte-for-byte: several build an ``edge_id``
+    purely to look it up in ``model.net_channel_vars``, and a mismatch there
+    fails silently as a missed constraint rather than an error.
+    """
+    rows = []
+    for u, v in graph.edges:
+        ku, kv = _edge_endpoint_key(u), _edge_endpoint_key(v)
+        if kv < ku:
+            u, v, ku, kv = v, u, kv, ku
+        rows.append((ku, kv, u, v))
+    rows.sort(key=lambda r: (r[0], r[1]))
+    for i, (ku, kv, u, v) in enumerate(rows):
+        yield f"{layer_name}_E{i}_{ku}_{kv}", u, v
+
+
 @dataclass(kw_only=True)
 class Variable:
     """Base class for routing variables."""
@@ -326,9 +375,7 @@ class ModelBuilder:
         """Create per-net channel variables (unbundled path)."""
         for net_idx, _net in enumerate(self.nets):
             for layer_name, skeleton in self.skeletons.items():
-                for i, (u, v) in enumerate(skeleton.graph.edges):
-                    n1, n2 = sorted([u, v])
-                    edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
+                for edge_id, u, v in canonical_channel_edges(skeleton.graph, layer_name):
 
                     var = NetChannelVar(
                         name=f"uses_N{net_idx}_{edge_id}", net_idx=net_idx, channel_id=edge_id
@@ -355,9 +402,7 @@ class ModelBuilder:
 
         for bid in sorted(unique_bundle_ids):
             for layer_name, skeleton in self.skeletons.items():
-                for i, (u, v) in enumerate(skeleton.graph.edges):
-                    n1, n2 = sorted([u, v])
-                    edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
+                for edge_id, u, v in canonical_channel_edges(skeleton.graph, layer_name):
 
                     var = NetChannelVar(
                         name=f"uses_B{bid}_{edge_id}",
@@ -374,9 +419,7 @@ class ModelBuilder:
                 continue
             # Also skip nets that are explicitly unbundled (redundant but safe)
             for layer_name, skeleton in self.skeletons.items():
-                for i, (u, v) in enumerate(skeleton.graph.edges):
-                    n1, n2 = sorted([u, v])
-                    edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
+                for edge_id, u, v in canonical_channel_edges(skeleton.graph, layer_name):
 
                     var = NetChannelVar(
                         name=f"uses_N{net_idx}_{edge_id}", net_idx=net_idx, channel_id=edge_id
@@ -416,9 +459,7 @@ class ModelBuilder:
             if not widths:
                 continue
 
-            for i, (u, v) in enumerate(skeleton.graph.edges):
-                n1, n2 = sorted([u, v])
-                edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
+            for edge_id, u, v in canonical_channel_edges(skeleton.graph, layer_name):
 
                 # Get capacity (min width of edge)
                 # Try both directions
@@ -469,9 +510,7 @@ class ModelBuilder:
             n_idx = self.net_to_idx[pair.n_net]
 
             for layer_name, skeleton in self.skeletons.items():
-                for i, (u, v) in enumerate(skeleton.graph.edges):
-                    n1, n2 = sorted([u, v])
-                    edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
+                for edge_id, u, v in canonical_channel_edges(skeleton.graph, layer_name):
 
                     if (p_idx, edge_id) in self.model.net_channel_vars and (
                         n_idx,
@@ -521,7 +560,9 @@ class ModelBuilder:
 
                         # Restricted layer: for all edges connected to this pin position,
                         # set uses[net, edge] == 0
-                        for i, (u, v) in enumerate(skeleton.graph.edges):
+                        for edge_id, u, v in canonical_channel_edges(
+                            skeleton.graph, layer_name
+                        ):
                             # Check if either endpoint matches pin position (with tolerance)
                             match = False
                             for node in [u, v]:
@@ -533,8 +574,6 @@ class ModelBuilder:
                                     break
 
                             if match:
-                                n1, n2 = sorted([u, v])
-                                edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
 
                                 if (net_idx, edge_id) in self.model.net_channel_vars:
                                     self.model.net_channel_vars[(net_idx, edge_id)]
