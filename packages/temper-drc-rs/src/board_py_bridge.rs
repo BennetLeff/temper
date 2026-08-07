@@ -173,17 +173,13 @@ pub fn extract_opt_point(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option
     Ok(None)
 }
 
-/// Extract a geo::Polygon from a list of coordinate pairs.
+/// Parse a geo::Polygon from a Python list of coordinate pairs.
 ///
-/// The Python value should be a list of [x, y] pairs forming the
-/// polygon exterior ring (assumed closed — first point need not
-/// equal last point; the polygon is auto-closed).
-pub fn extract_polygon(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Polygon<f64>> {
-    let val = dict
-        .get_item(key)?
-        .ok_or_else(|| PyValueError::new_err(format!("missing required key: {key}")))?;
-
-    let list: Bound<'_, PyList> = val.cast_into::<PyList>().map_err(|e| {
+/// The value should be a list of [x, y] pairs forming the polygon exterior
+/// ring (assumed closed — first point need not equal last point; the
+/// polygon is auto-closed).
+fn polygon_from_value(val: &Bound<'_, PyAny>, key: &str) -> PyResult<Polygon<f64>> {
+    let list: Bound<'_, PyList> = val.clone().cast_into::<PyList>().map_err(|e| {
         PyValueError::new_err(format!("key '{key}' is not a list: {e}"))
     })?;
 
@@ -200,12 +196,10 @@ pub fn extract_polygon(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Polygon<
                     "coordinate in '{key}' polygon has fewer than 2 elements"
                 )));
             }
-            let elem0 = pair.get_item(0)?;
-            let x: f64 = elem0.extract().map_err(|e| {
+            let x: f64 = pair.get_item(0)?.extract().map_err(|e| {
                 PyValueError::new_err(format!("x coordinate in '{key}' polygon: {e}"))
             })?;
-            let elem1 = pair.get_item(1)?;
-            let y: f64 = elem1.extract().map_err(|e| {
+            let y: f64 = pair.get_item(1)?.extract().map_err(|e| {
                 PyValueError::new_err(format!("y coordinate in '{key}' polygon: {e}"))
             })?;
             Ok((x, y))
@@ -223,19 +217,21 @@ pub fn extract_polygon(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Polygon<
     Ok(polygon)
 }
 
+/// Extract a geo::Polygon from a dict value.
+pub fn extract_polygon(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Polygon<f64>> {
+    let val = dict
+        .get_item(key)?
+        .ok_or_else(|| PyValueError::new_err(format!("missing required key: {key}")))?;
+    polygon_from_value(&val, key)
+}
+
 /// Extract an optional polygon.
 pub fn extract_opt_polygon(
     dict: &Bound<'_, PyDict>,
     key: &str,
 ) -> PyResult<Option<Polygon<f64>>> {
     match dict.get_item(key)? {
-        Some(val) if !val.is_none() => {
-            // Create a temporary dict so we can reuse extract_polygon
-            let inner = PyDict::new(dict.py());
-            inner.set_item(key, val.clone())?;
-            let poly = extract_polygon(&inner, key)?;
-            Ok(Some(poly))
-        }
+        Some(val) if !val.is_none() => polygon_from_value(&val, key).map(Some),
         _ => Ok(None),
     }
 }
@@ -425,24 +421,68 @@ fn parse_nets_from_dict(
     if let Some(nets_val) = board_dict.get_item("nets")?
         && let Ok(nets_dict) = nets_val.cast_into::<PyDict>()
     {
-            for (key, val) in nets_dict.iter() {
-                let net_name: String = key.extract().map_err(|e| {
-                    PyValueError::new_err(format!("nets key is not a string: {e}"))
-                })?;
-                let list: Bound<'_, PyList> = val.cast_into::<PyList>().map_err(|e| {
-                    PyValueError::new_err(format!("nets['{net_name}'] is not a list: {e}"))
-                })?;
-                let comps: Vec<String> = list
-                    .iter()
-                    .map(|item| {
-                        item.extract::<String>().map_err(|e| {
-                            PyValueError::new_err(format!(
-                                "component ref in nets['{net_name}'] is not a string: {e}"
-                            ))
-                        })
+        for (key, val) in nets_dict.iter() {
+            let net_name: String = key.extract().map_err(|e| {
+                PyValueError::new_err(format!("nets key is not a string: {e}"))
+            })?;
+            let list: Bound<'_, PyList> = val.cast_into::<PyList>().map_err(|e| {
+                PyValueError::new_err(format!("nets['{net_name}'] is not a list: {e}"))
+            })?;
+            let comps: Vec<String> = list
+                .iter()
+                .map(|item| {
+                    item.extract::<String>().map_err(|e| {
+                        PyValueError::new_err(format!(
+                            "component ref in nets['{net_name}'] is not a string: {e}"
+                        ))
                     })
-                    .collect::<Result<Vec<_>, _>>()?;
-                result.insert(net_name, comps);
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            result.insert(net_name, comps);
+        }
+    }
+    Ok(result)
+}
+
+fn parse_net_classes_from_dict(
+    board_dict: &Bound<'_, PyDict>,
+) -> PyResult<HashMap<String, String>> {
+    let mut result = HashMap::new();
+    if let Some(nc_val) = board_dict.get_item("net_classes")?
+        && let Ok(nc_dict) = nc_val.cast_into::<PyDict>()
+    {
+        for (key, val) in nc_dict.iter() {
+            let net_name: String = key.extract().map_err(|e| {
+                PyValueError::new_err(format!("net_classes key is not a string: {e}"))
+            })?;
+            let class_name: String = val.extract().map_err(|e| {
+                PyValueError::new_err(format!(
+                    "net_classes['{net_name}'] is not a string: {e}"
+                ))
+            })?;
+            result.insert(net_name, class_name);
+        }
+    }
+    Ok(result)
+}
+
+fn parse_net_class_rules_from_dict(
+    board_dict: &Bound<'_, PyDict>,
+) -> PyResult<HashMap<NetClassName, NetClassRules>> {
+    let mut result = HashMap::new();
+    if let Some(ncr_val) = board_dict.get_item("net_class_rules")?
+        && let Ok(ncr_dict) = ncr_val.cast_into::<PyDict>()
+    {
+        for (key, val) in ncr_dict.iter() {
+            let class_name: String = key.extract().map_err(|e| {
+                PyValueError::new_err(format!("net_class_rules key is not a string: {e}"))
+            })?;
+            let rules_dict: Bound<'_, PyDict> = val.cast_into::<PyDict>().map_err(|e| {
+                PyValueError::new_err(format!(
+                    "net_class_rules['{class_name}'] is not a dict: {e}"
+                ))
+            })?;
+            result.insert(NetClassName(class_name), extract_net_class_rules(&rules_dict)?);
         }
     }
     Ok(result)
@@ -519,48 +559,10 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     let nets_dict_raw = parse_nets_from_dict(board_dict)?;
 
     // --- Net classes (HashMap: net_name → class_name) ---
-    let net_classes_raw: HashMap<String, String> = {
-        let mut result = HashMap::new();
-        if let Some(nc_val) = board_dict.get_item("net_classes")?
-            && let Ok(nc_dict) = nc_val.cast_into::<PyDict>()
-        {
-                for (key, val) in nc_dict.iter() {
-                    let net_name: String = key.extract().map_err(|e| {
-                        PyValueError::new_err(format!("net_classes key is not a string: {e}"))
-                    })?;
-                    let class_name: String = val.extract().map_err(|e| {
-                        PyValueError::new_err(format!(
-                            "net_classes['{net_name}'] is not a string: {e}"
-                        ))
-                    })?;
-                    result.insert(net_name, class_name);
-            }
-        }
-        result
-    };
+    let net_classes_raw = parse_net_classes_from_dict(board_dict)?;
 
     // --- Net class rules (HashMap: class_name → rules) ---
-    let net_class_rules: HashMap<NetClassName, NetClassRules> = {
-        let mut result = HashMap::new();
-        if let Some(ncr_val) = board_dict.get_item("net_class_rules")?
-            && let Ok(ncr_dict) = ncr_val.cast_into::<PyDict>()
-        {
-                for (key, val) in ncr_dict.iter() {
-                    let class_name: String = key.extract().map_err(|e| {
-                        PyValueError::new_err(format!(
-                            "net_class_rules key is not a string: {e}"
-                        ))
-                    })?;
-                    let rules_dict: Bound<'_, PyDict> = val.cast_into::<PyDict>().map_err(|e| {
-                        PyValueError::new_err(format!(
-                            "net_class_rules['{class_name}'] is not a dict: {e}"
-                        ))
-                    })?;
-            result.insert(NetClassName(class_name), extract_net_class_rules(&rules_dict)?);
-        }
-    }
-        result
-    };
+    let net_class_rules = parse_net_class_rules_from_dict(board_dict)?;
 
     // --- Join nets + net_classes + rules into Vec<Net> ---
     let nets: Vec<Net> = nets_dict_raw
