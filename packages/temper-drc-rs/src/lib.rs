@@ -30,6 +30,7 @@ pub mod dfm;
 #[cfg(feature = "python")]
 pub mod dfm_py;
 pub mod pymath;
+pub mod validation_kernels;
 #[cfg(feature = "python")]
 pub mod router_clearance;
 pub mod rules;

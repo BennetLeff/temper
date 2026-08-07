@@ -1,52 +1,47 @@
-//! Wave 4 Phase 4 — validation DRC-check kernels (the Python→Rust slice).
+//! Wave 4 Phase 4 — validation DRC-check kernels, pyo3 bridge.
 //!
-//! Pure compute kernels migrated from `temper_placer/validation/`:
+//! The five portable kernels (`infer_package_type`, `tht_hole_collisions`,
+//! `trace_length`, `min_hv_lv_trace_clearance`, `issue_fingerprint`) live
+//! in [`crate::validation_kernels`] and this module provides thin `#[pyfunction]`
+//! wrappers that delegate to them.  The remaining six kernels still depend
+//! on pyo3 for Python-object interactions (`PyDict`, `PyList`, callables)
+//! and are defined here behind `#[cfg(feature = "python")]`.
 //!
-//! | Kernel | Python origin |
-//! |---|---|
-//! | `infer_package_type` | `drc_oracle._infer_package_type` |
-//! | `tht_hole_collisions` | `tht_check.validate_hole_clearance` (pairwise half) |
-//! | `trace_length` | `trace_analyzer.calculate_actual_trace_length` |
-//! | `min_hv_lv_trace_clearance` | `trace_analyzer.calculate_min_hv_lv_clearance` |
-//! | `geometric_validate` | `geometric.GeometricValidator` decision logic |
-//! | `parse_drc_violation` | `drc.KiCadDRCValidator._parse_single_violation` |
-//! | `compute_drc_penalty` | `drc.KiCadDRCValidator.compute_penalty` |
-//! | `group_violations` | `drc_runner`/`drc_oracle._violations_to_run_result` |
-//! | `issue_fingerprint` | `drc_fence._issue_fingerprint` |
-//! | `metrics_summary` | `drc_fence.MetricsSummary.from_run_result` |
+//! | Kernel | Location | Family |
+//! |---|---|---|
+//! | `infer_package_type` | `validation_kernels` | drc |
+//! | `tht_hole_collisions` | `validation_kernels` | drc |
+//! | `trace_length` | `validation_kernels` | drc |
+//! | `rdl_sum` | here (python-gated) | drc |
+//! | `min_hv_lv_trace_clearance` | `validation_kernels` | safety |
+//! | `geometric_validate` | here (python-gated) | drc |
+//! | `parse_drc_violation` | here (python-gated) | drc |
+//! | `compute_drc_penalty` | here (python-gated) | drc |
+//! | `group_violations` | here (python-gated) | drc |
+//! | `issue_fingerprint` | `validation_kernels` | drc |
+//! | `metrics_summary` | here (python-gated) | drc |
 //!
 //! Design boundaries (argued in-source; see the migrated Python modules and
 //! `packages/temper-drc-rs/VERIFICATION.md`):
 //!
 //! - GEOS/`scipy.spatial.ConvexHull`/`kicad-cli` are NOT reimplementable
-//!   (Qhull is not bit-reproducible outside scipy; `kicad-cli` is an I/O
-//!   subprocess) — those calls stay Python-side.
+//!   and stay Python-side.
 //! - Float message formatting with a fixed precision (`:.2f`/`:.3f`/`.1f`)
-//!   matches CPython bit-for-bit (measured 100k/100k on random values), so
-//!   `tht_hole_collisions` builds its `:.3f` messages here. `str(float)`
-//!   (shortest-repr, no format spec) is a Python library semantic that
-//!   diverges from Rust's `Display` (e.g. `10.0` vs `10`), so messages with
-//!   no-format float interpolation are built in the delegation modules from
-//!   the numeric fields this module returns (the rtd_safety precedent).
+//!   matches CPython bit-for-bit (measured 100k/100k on random values).
 //! - CPython's `x ** y` is libm `pow` — NOT repeated multiplication and
 //!   NOT `sqrt`: measured 262/200000 mismatches of `x*x` vs `x**2` and
 //!   274/200000 of `sqrt` vs `x**0.5` on this platform. All `**2` /
-//!   `**0.5` sites (`trace_length`, `tht_hole_collisions`, the mounting-
-//!   hole distance) go through `host_math::pow`, resolved via `dlsym` to
+//!   `**0.5` sites go through `host_math::pow`, resolved via `dlsym` to
 //!   the exact libm `pow` the host CPython calls (B1, the hostmath
-//!   precedent). `f64::powf` is NOT an acceptable proxy for these two
-//!   exponents: LLVM folds the intrinsic with a constant exponent
-//!   (`powf(2.0)` → `x*x`, `powf(0.5)` → `sqrt`), both of which disagree
-//!   with libm `pow`.
-//! - Iteration order over Python sets/dicts is never touched here: the
-//!   dict builders that iterate sets stay Python (hash-randomized order is
-//!   preserved, not sorted).
+//!   precedent).
+//! - Iteration order over Python sets/dicts is never touched here.
 //!
 //! pyo3 panic policy: every `#[pyfunction]` boundary is wrapped by pyo3's
-//! default `catch_unwind` (panics surface as `pyo3_runtime.PanicException`,
-//! never across the boundary as UB) — R1g.
+//! default `catch_unwind` — R1g.
 
 use std::collections::HashMap;
+
+use crate::validation_kernels;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
@@ -77,6 +72,12 @@ use pyo3::types::{PyAnyMethods, PyDict, PyDictMethods, PyList, PyListMethods};
 /// from the same host libm. This alias keeps the call sites below reading
 /// `host_math::pow(..)`; the function is byte-for-byte the one this module
 /// used to define privately.
+///
+/// Five portable kernels (`infer_package_type`, `tht_hole_collisions`,
+/// `trace_length`, `min_hv_lv_trace_clearance`, `issue_fingerprint`) have
+/// been moved to [`crate::validation_kernels`] so the wasm32 tier can
+/// compile and test them.  The remaining functions in this module still
+/// depend on pyo3 for their Python-object interactions and stay gated.
 #[cfg(feature = "python")]
 use crate::pymath as host_math;
 
@@ -84,100 +85,42 @@ use crate::pymath as host_math;
 // drc_oracle._infer_package_type
 // ---------------------------------------------------------------------------
 
-/// Infer the SMD package type from a footprint name (verbatim port of
-/// `drc_oracle._infer_package_type` — first-match keyword order preserved,
-/// case-insensitive substring matching, `None`/empty → `"smd"`).
+/// Infer the SMD package type from a footprint name — delegates to
+/// [`crate::validation_kernels::infer_package_type`] (the pure-Rust
+/// kernel that is also compiled in the wasm32 tier).
 #[cfg(feature = "python")]
 #[pyfunction]
 fn infer_package_type(footprint: Option<String>) -> String {
-    let fp = footprint.unwrap_or_default().to_lowercase();
-    if ["tht", "through", "pin", "dip"].iter().any(|p| fp.contains(p)) {
-        return "tht".to_string();
-    }
-    if fp.contains("to-247") || fp.contains("to247") {
-        return "to247".to_string();
-    }
-    if fp.contains("to-220") || fp.contains("to220") {
-        return "to220".to_string();
-    }
-    if fp.contains("bga") {
-        return "bga".to_string();
-    }
-    if fp.contains("qfn") {
-        return "qfn".to_string();
-    }
-    if fp.contains("qfp") || fp.contains("tqfp") {
-        return "qfp".to_string();
-    }
-    if fp.contains("dpak") || fp.contains("d2pak") {
-        return "dpak".to_string();
-    }
-    "smd".to_string()
+    validation_kernels::infer_package_type(footprint)
 }
 
 // ---------------------------------------------------------------------------
 // tht_check.validate_hole_clearance — pairwise half
 // ---------------------------------------------------------------------------
 
-/// Pairwise THT hole collision check (verbatim port of the pairwise half of
-/// `tht_check.validate_hole_clearance`). Each hole is `(ref, pad, x, y,
-/// radius)` — the delegation module computes `radius = drill / 2.0` exactly
-/// as the oracle did. Returns violation messages formatted with `:.3f`
-/// (CPython-parity fixed-point formatting, measured).
+/// Pairwise THT hole collision check — delegates to
+/// [`crate::validation_kernels::tht_hole_collisions`] (the pure-Rust
+/// kernel that is also compiled in the wasm32 tier).
 #[cfg(feature = "python")]
 #[pyfunction]
 fn tht_hole_collisions(
     holes: Vec<(String, String, f64, f64, f64)>,
     min_clearance: f64,
 ) -> Vec<String> {
-    let mut violations = Vec::new();
-    for i in 0..holes.len() {
-        for j in (i + 1)..holes.len() {
-            let (ref_i, pad_i, x_i, y_i, r_i) = &holes[i];
-            let (ref_j, pad_j, x_j, y_j, r_j) = &holes[j];
-            let dx = x_i - x_j;
-            let dy = y_i - y_j;
-            // CPython `** 2` is libm pow, not `x*x` (see host_math); the
-            // oracle's `(a - b) ** 2` must match bit-for-bit.
-            let dist = (host_math::pow(dx, 2.0) + host_math::pow(dy, 2.0)).sqrt();
-            let required = r_i + r_j + min_clearance;
-            if dist < required {
-                violations.push(format!(
-                    "{ref_i}.{pad_i} <-> {ref_j}.{pad_j}: dist={dist:.3}mm (min {required:.3}mm)"
-                ));
-            }
-        }
-    }
-    violations
+    validation_kernels::tht_hole_collisions(holes, min_clearance)
 }
 
 // ---------------------------------------------------------------------------
 // trace_analyzer kernels
 // ---------------------------------------------------------------------------
 
-/// Total routed length of one net (verbatim port of
-/// `trace_analyzer.calculate_actual_trace_length`). CPython's `dx**2` is
-/// libm `pow` — NOT repeated multiplication (measured 262/200000
-/// mismatches of `x*x` vs `x**2` on this platform), so the kernel squares
-/// through `host_math::pow` (dlsym'd to the exact libm `pow` CPython
-/// calls); `math.sqrt` is the correctly-rounded IEEE sqrt — `f64::sqrt`.
-///
-/// `net` is `Option<String>` because the Trace contract is
-/// `net: str | None` (core/board.py): a None-net trace is skipped exactly
-/// like the oracle's `if trace.net == net_name` — `None` never equals a str
-/// `net_name` — rather than raising on extraction.
+/// Total routed length of one net — delegates to
+/// [`crate::validation_kernels::trace_length`] (the pure-Rust kernel
+/// that is also compiled in the wasm32 tier).
 #[cfg(feature = "python")]
 #[pyfunction]
 fn trace_length(traces: Vec<(Option<String>, f64, f64, f64, f64)>, net_name: String) -> f64 {
-    let mut length = 0.0_f64;
-    for (net, x1, y1, x2, y2) in &traces {
-        if net.as_ref() == Some(&net_name) {
-            let dx = x2 - x1;
-            let dy = y2 - y1;
-            length += (host_math::pow(dx, 2.0) + host_math::pow(dy, 2.0)).sqrt();
-        }
-    }
-    length
+    validation_kernels::trace_length(traces, &net_name)
 }
 
 /// RDL (routed-length) sum for the human-reference extractor (verbatim
@@ -204,35 +147,16 @@ fn rdl_sum(segments: Vec<(f64, f64, f64, f64)>, hypot_fn: Bound<'_, PyAny>) -> P
     Ok(rdl)
 }
 
-/// Minimum HV↔LV trace endpoint distance (verbatim port of
-/// `trace_analyzer.calculate_min_hv_lv_clearance`). Each trace is
-/// `(x1, y1, x2, y2)`; the four endpoint-pair distances are minimized.
-/// Empty HV or LV arm → `+inf` (the oracle's `float("inf")`).
+/// Minimum HV↔LV trace endpoint distance — delegates to
+/// [`crate::validation_kernels::min_hv_lv_trace_clearance`] (the
+/// pure-Rust kernel that is also compiled in the wasm32 tier).
 #[cfg(feature = "python")]
 #[pyfunction]
 fn min_hv_lv_trace_clearance(
     hv: Vec<(f64, f64, f64, f64)>,
     lv: Vec<(f64, f64, f64, f64)>,
 ) -> f64 {
-    if hv.is_empty() || lv.is_empty() {
-        return f64::INFINITY;
-    }
-    let mut min_dist = f64::INFINITY;
-    for (hx1, hy1, hx2, hy2) in &hv {
-        for (lx1, ly1, lx2, ly2) in &lv {
-            for (px, py) in [(*hx1, *hy1), (*hx2, *hy2)] {
-                for (qx, qy) in [(*lx1, *ly1), (*lx2, *ly2)] {
-                    let dx = px - qx;
-                    let dy = py - qy;
-                    // numpy's norm is sqrt(dot) — plain f64 arithmetic +
-                    // correctly-rounded sqrt (measured 0/200000 mismatches).
-                    let dist = (dx * dx + dy * dy).sqrt();
-                    min_dist = min_dist.min(dist);
-                }
-            }
-        }
-    }
-    min_dist
+    validation_kernels::min_hv_lv_trace_clearance(&hv, &lv)
 }
 
 // ---------------------------------------------------------------------------
@@ -793,15 +717,13 @@ fn group_violations(
 // drc_fence kernels
 // ---------------------------------------------------------------------------
 
-/// Canonical issue fingerprint (verbatim port of
-/// `drc_fence._issue_fingerprint`): `"code:message:" + ",".join(sorted(items))`.
-/// Rust's `String` sort matches CPython's lexicographic str sort for UTF-8
-/// (byte order == code-point order).
+/// Canonical issue fingerprint — delegates to
+/// [`crate::validation_kernels::issue_fingerprint`] (the pure-Rust
+/// kernel that is also compiled in the wasm32 tier).
 #[cfg(feature = "python")]
 #[pyfunction]
-fn issue_fingerprint(code: String, message: String, mut affected_items: Vec<String>) -> String {
-    affected_items.sort();
-    format!("{code}:{message}:{}", affected_items.join(","))
+fn issue_fingerprint(code: String, message: String, affected_items: Vec<String>) -> String {
+    validation_kernels::issue_fingerprint(&code, &message, affected_items)
 }
 
 /// A single check result's marshalled summary for `metrics_summary`:
