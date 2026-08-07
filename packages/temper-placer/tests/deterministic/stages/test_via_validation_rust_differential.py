@@ -215,6 +215,16 @@ def test_dedup_chain_first_seen_wins():
     _assert_dedup([(0.0, 0.0), (0.03, 0.0), (0.06, 0.0)], 0.05)
 
 
+def test_dedup_multi_match_chain_counts_rejected_once():
+    """(0,0) (0.03,0) (0.06,0) (0.05,0) at tol 0.05: the last position is
+    within tol of TWO KEPT positions ((0,0) at 0.05 == tol and (0.06,0) at
+    0.01). The oracle increments `duplicates` once per REJECTED position
+    (first-hit `break`), so dupes == 2. A break-removal mutant keeps the
+    `duplicates += 1` firing per matching KEPT position -> 3, diverging.
+    Kills the dedup inner-break-removal mutant (M14)."""
+    _assert_dedup([(0.0, 0.0), (0.03, 0.0), (0.06, 0.0), (0.05, 0.0)], 0.05)
+
+
 def test_dedup_negative_coords():
     _assert_dedup([(-1.0, -1.0), (-1.02, -1.0), (3.0, 4.0)], 0.05)
 

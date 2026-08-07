@@ -20,7 +20,10 @@ Five properties (R1c):
 Three metamorphic relations (R1d):
 
 - MR1. Slot-order independence: permuting the slot list does not change the
-  radius (the reduction is a commutative sum).
+  radius to a tight tolerance (the reduction is a commutative sum in real
+  arithmetic, but IEEE ``+=`` accumulation is NOT commutative at the last
+  ulp, so a stated tolerance is the honest invariant — same convention as
+  MR2/MR3).
 - MR2. Power-of-two scale invariance: scaling all inputs by `2^n` scales the
   radius by `2^n` to a tight tolerance (the Dekker hypot normalizes, so the
   result carries the scale; stated tolerance).
@@ -93,7 +96,17 @@ def test_mr1_slot_order_independent(base, cx, cy, nx, ny, slots):
     shuffled = list(s)
     rng = random.Random(42)
     rng.shuffle(shuffled)
-    assert RS(base, (cx, cy), (nx, ny), s) == RS(base, (cx, cy), (nx, ny), shuffled)
+    exp = RS(base, (cx, cy), (nx, ny), s)
+    got = RS(base, (cx, cy), (nx, ny), shuffled)
+    # IEEE `reduction += projection` accumulation is NOT commutative at the
+    # last ulp: a known counterexample is direction (1, 0), base 5.0, slots
+    # [(0,0,0.6814738914246666,0), (0,0,0.3441558891527787,0),
+    #  (0,0,1.3193222224277148,0)] -> radius 2.65504799699484 vs
+    # 2.6550479969948397 after shuffle (~1-in-170 of random draws). The
+    # kernel is faithful — the oracle folds in the same order-dependent way —
+    # so the invariant is a tight stated tolerance (the MR2/MR3 convention),
+    # not a false bit-exact equality.
+    assert abs(got - exp) <= 1e-9 * max(1.0, abs(exp))
 
 
 @given(
