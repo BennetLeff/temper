@@ -61,6 +61,14 @@ pub use grid_raster::{
     clear_circle_from_grid_py, closest_component_for_zone_py, effective_creepage_py,
     fence_samples_py, occupancy_bitmap_row_py,
 };
+#[cfg(feature = "python")]
+pub mod occupancy_raster;
+#[cfg(feature = "python")]
+pub use occupancy_raster::{
+    blocking_net_ids_py, downsample_or_blocks_py, mark_path_rect_into_grid_py,
+    mark_segment_rect_into_grid_py, mark_via_circle_into_grid_py, unmark_path_rect_into_grid_py,
+    unmark_segment_rect_into_grid_py,
+};
 pub mod host_math;
 pub mod grid_utils;
 #[cfg(feature = "python")]

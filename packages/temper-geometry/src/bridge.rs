@@ -11,6 +11,11 @@ use crate::audit::{bbox_from_center_py, chebyshev_gap_py, dist_py};
 use crate::channel_widths::edt_width_lookup_batch;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
+use crate::occupancy_raster::{
+    blocking_net_ids_py, downsample_or_blocks_py, mark_path_rect_into_grid_py,
+    mark_segment_rect_into_grid_py, mark_via_circle_into_grid_py, unmark_path_rect_into_grid_py,
+    unmark_segment_rect_into_grid_py,
+};
 use crate::grid_raster::{
     block_circle_into_grid_py, block_rect_into_grid_py, block_segment_into_grid_py,
     clear_circle_from_grid_py, closest_component_for_zone_py, effective_creepage_py,
@@ -1486,6 +1491,15 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(effective_creepage_py, m)?)?;
     m.add_function(wrap_pyfunction!(keepout_mask_flags_py, m)?)?;
     m.add_function(wrap_pyfunction!(closest_component_for_zone_py, m)?)?;
+
+    // occupancy-grid rasterisation (Wave 4: router_v6/occupancy_grid.py)
+    m.add_function(wrap_pyfunction!(mark_path_rect_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(mark_segment_rect_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(unmark_segment_rect_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(unmark_path_rect_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(blocking_net_ids_py, m)?)?;
+    m.add_function(wrap_pyfunction!(mark_via_circle_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(downsample_or_blocks_py, m)?)?;
 
     // organizational heuristics (Wave 4: heuristics/organizational.py's
     // five _place_* position kernels)
