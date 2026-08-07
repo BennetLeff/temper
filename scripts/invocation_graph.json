@@ -71,7 +71,8 @@
   "check_hash_order_determinism.py": [
     ".github/workflows/python-tests.yml",
     ".github/workflows/trunk-health.yml",
-    "packages/temper-placer/tests/deterministic/test_hash_order_determinism.py"
+    "packages/temper-placer/tests/deterministic/test_hash_order_determinism.py",
+    "packages/temper-placer/tests/router_v6/_terminal_tree_py_oracle.py"
   ],
   "check_hv_netclass_coverage.py": [
     ".github/workflows/python-tests.yml",
@@ -99,13 +100,13 @@
     "packages/temper-placer/src/temper_placer/_constraint_types/config.py",
     "packages/temper-placer/src/temper_placer/core/net_classification.py",
     "packages/temper-placer/src/temper_placer/deterministic/stages/zone_aware_slot_generation.py",
-    "packages/temper-placer/src/temper_placer/io/net_class_manager.py",
     "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
     "packages/temper-placer/src/temper_placer/router_v6/clearance_engine.py",
     "packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py",
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py",
     "packages/temper-placer/tests/core/_priority_py_oracle.py",
-    "packages/temper-placer/tests/router_v6/_congestion_py_oracle.py"
+    "packages/temper-placer/tests/router_v6/_congestion_py_oracle.py",
+    "packages/temper-placer/tests/router_v6/_constraints_design_rules_py_oracle.py"
   ],
   "check_netlist_board_reconciliation.py": [
     ".github/workflows/python-tests.yml"
@@ -316,6 +317,7 @@
   ],
   "resync_pcb_netlist.py": [],
   "route_board.py": [
+    ".github/workflows/board-regeneration.yml",
     "Makefile",
     "packages/temper-placer/src/temper_placer/router_v6/_strip_copper.py",
     "packages/temper-placer/tests/router_v6/test_strip_copper.py",
@@ -342,6 +344,7 @@
   ],
   "update_production_routing_baseline.py": [
     ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/router_v6/test_phase1_anti_false_zero.py",
     "packages/temper-placer/tests/router_v6/test_temper_production_board_routing.py"
   ],
   "update_regression_cache.py": [],
@@ -349,6 +352,9 @@
     "scripts/sprint1_validation.sh"
   ],
   "verify_proofs.py": [],
+  "verify_regenerated_board.py": [
+    ".github/workflows/board-regeneration.yml"
+  ],
   "vulture_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
