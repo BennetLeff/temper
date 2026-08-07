@@ -556,6 +556,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     # (script, primary declared input file, reason probe is non-covered)
     ("check_board_containment.py", "pcb/temper.kicad_pcb", "board-containment invariant (R26); needs the real board; probe harness deferred"),
     ("check_board_defect_corpus.py", "pcb/temper.kicad_pcb", "board-defect mutation corpus (plan 2026-08-02-024 R38); needs the real board; probe harness deferred"),
+    ("check_bom_source_reconciliation.py", "docs/hardware/BOM.md", "BOM<->source reconciliation (goal-set R14); needs the real BOM and elec/src; probe harness deferred"),
     ("check_dead_parameter_inputs.py", "power_pcb_dataset/physics_parameter_map.yaml", "dead-parameter standing check (plan 2026-08-02-019 U3); probe is the check itself"),
     ("check_firmware_board_contract.py", "firmware/tools/board_derivations.yaml", "firmware-board contract oracle (plan 2026-08-02-027); probe harness deferred"),
     ("check_required_checks.py", ".github/required-checks.json", "aggregator drift validation; probe harness deferred"),
