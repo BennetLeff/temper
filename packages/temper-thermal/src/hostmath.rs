@@ -237,6 +237,20 @@ pub fn py_max(a: f64, b: f64) -> f64 {
     }
 }
 
+/// CPython's builtin `min(a, b)` — catalog class **B5**.
+///
+/// The builtin evaluates `b if b < a else a`, so a NaN in *either*
+/// position makes the comparison false and the **first** argument wins.
+/// `f64::min` instead discards NaN, which is a different function.
+#[inline]
+pub fn py_min(a: f64, b: f64) -> f64 {
+    if b < a {
+        b
+    } else {
+        a
+    }
+}
+
 /// `np.maximum(a, b)` — NaN-**propagating** elementwise maximum.
 ///
 /// Unlike CPython's builtin `max`, the numpy ufunc returns NaN when
@@ -309,6 +323,14 @@ mod tests {
         assert_eq!(py_max(1e-6, f64::NAN), 1e-6);
         assert_eq!(py_max(1.0, 2.0), 2.0);
         assert_eq!(py_max(2.0, 1.0), 2.0);
+    }
+
+    #[test]
+    fn py_min_keeps_first_argument_on_nan() {
+        assert!(py_min(f64::NAN, 1e-6).is_nan());
+        assert_eq!(py_min(1e-6, f64::NAN), 1e-6);
+        assert_eq!(py_min(1.0, 2.0), 1.0);
+        assert_eq!(py_min(2.0, 1.0), 1.0);
     }
 
     #[test]
