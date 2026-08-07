@@ -770,3 +770,15 @@ from the build: temper-geometry's standalone wasm artifact imports 4
 wasm-bindgen glue functions (plan §5.6, now empirically confirmed). **R1
 remains PASS**; the standalone-geometry glue caveat is Phase-1 input, not a
 substrate failure.
+
+**Guard repair (same commit set, 2026-08-07):** the U3 CI regression guard's
+step used `set -euo pipefail`, which is an illegal option under the `sh`
+(dash) shell the rust-checks container runs steps with — so CI had been
+failing the step on that `set` line **before any cargo command ran**, and the
+wasm32 build+clippy guard had never actually executed in CI (confirmed on main
+runs through 2026-08-07). Fixed to `set -eu` (portable to sh and bash). The
+same guard step's clippy and cargo-test siblings are independently red on main
+at this date for pre-existing reasons outside this gate's scope
+(temper-design-bundle clippy lint; temper-geometry pyo3 test-binary link);
+both reproduce on unmodified main and are not caused by the feature-shape
+change.

@@ -924,7 +924,13 @@ jobs:
       - name: WASM32 build + clippy (temper-drc-rs, temper-geometry; --no-default-features)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
-          set -euo pipefail
+          # `set -eu`, NOT `set -euo pipefail`: this job's container runs
+          # `run:` steps under `sh` (dash), where `-o pipefail` is an illegal
+          # option -- the `set` line failed with "Illegal option" BEFORE any
+          # cargo command ran, so the guard never actually built the wasm32
+          # target (observed on main runs through 2026-08-07). `-u` is enough
+          # to catch unset-variable bugs and is portable across sh and bash.
+          set -eu
           echo "=== wasm32 build (cargo build, not check — check cannot see link failures) ==="
           cargo build --release --target wasm32-unknown-unknown --no-default-features \
             --manifest-path packages/temper-drc-rs/Cargo.toml
