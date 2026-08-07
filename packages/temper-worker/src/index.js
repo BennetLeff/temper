@@ -1,54 +1,64 @@
 /**
- * Cloudflare Worker entry point for the temper WASM verification tier.
+ * Cloudflare Worker entry point for the temper WASM verification tier
+ * — per-family shard layout (Phase 1 U8).
  *
- * The `.wasm` module is a `[wasm_modules]` binding: Cloudflare compiles it once
- * at upload time and exposes it as a `WebAssembly.Module` via this default
- * import. Per-request instantiation happens in the shared core
- * (`src/worker_core.js`), so the R17 logic is identical between this deployed
- * Worker and the local Node smoke-test harness.
+ * Each family gets its own `.wasm` module, imported as a
+ * `WebAssembly.Module` at upload time.  The multi-family core
+ * (`src/worker_core.js`) lazily instantiates each family's module on
+ * the first request to that family's route.
  *
- * # Contract (R17)
+ * # Family-to-route mapping
  *
- * One test function per Worker invocation — fresh `WebAssembly.instantiate`
- * per request so a panicking test that traps cannot poison the next request.
+ *   Family     Route            Module import
+ *   ------     ------           --------------
+ *   drc        /drc/health      temper_wasm_test_runner_drc.wasm
+ *   emc        /emc/health      temper_wasm_test_runner_emc.wasm
+ *   erc        /erc/health      temper_wasm_test_runner_erc.wasm
+ *   safety     /safety/health   temper_wasm_test_runner_safety.wasm
+ *   placement  /placement/health temper_wasm_test_runner_placement.wasm
+ *   routing    /routing/health  temper_wasm_test_runner_routing.wasm
+ *   infra      /infra/health    temper_wasm_test_runner_infra.wasm
  *
- * POST /run-test
- *   Body: { "index": <number> }  or  { "name": "<string>" }
- *   Response: { "verdict": "pass"|"fail"|"expected-fail"|"unexpected-pass"
- *               |"bad-index"|"not-found",
- *               "index": <number>, "name": "<string>",
- *               "message": "<string>" | null,
- *               "abi_version": <number>, "ms": <number> }
+ * # Backward-compatible /run-test
  *
- * GET /manifest
- *   Returns the expected-failure manifest as JSON, keyed by test name.
+ * `POST /run-test` accepts an optional `family` field.  When absent,
+ * the request routes to whichever module is registered as `default`
+ * (here, the full 147-test module for backward compat with CI).
  *
- * GET /health
- *   Returns { "status": "ok", "abi_version": <number>, "test_count": <number> }.
+ * # Local Node fallback
  *
- * # Trap protocol
- *
- * A failing test panics → abort → `unreachable` → WebAssembly trap. The core
- * catches the trap and reads the panic buffer via `temper_panic_message_ptr/len`
- * before the WebAssembly store is torn down.
- *
- * # ABI version check
- *
- * The `ABI_VERSION` var (see wrangler.toml) is compared against the module's
- * exported `temper_wasm_abi_version()` on every request. A mismatch means the
- * Worker was deployed against an incompatible .wasm — it returns a failing
- * verdict until the deploy is corrected.
- *
- * # Import contract
- *
- * The .wasm module has zero imports (verified at build time). The core passes
- * an empty import object to `WebAssembly.instantiate`.
+ * When not running on Cloudflare (no `WRANGLER_BUILD` env var), each
+ * `.wasm` import resolves to `undefined`.  The entry point falls back
+ * to reading modules from disk via `node:fs`, matching the local dev
+ * server convention from `tools/wasm/worker_local_server.mjs`.
  */
 
-import WASM from "./temper_wasm_test_runner.wasm";
-import { createWorker } from "./worker_core.js";
+import WASM_FULL    from "./temper_wasm_test_runner.wasm";
+import WASM_DRC     from "./temper_wasm_test_runner_drc.wasm";
+import WASM_EMC     from "./temper_wasm_test_runner_emc.wasm";
+import WASM_ERC     from "./temper_wasm_test_runner_erc.wasm";
+import WASM_SAFETY  from "./temper_wasm_test_runner_safety.wasm";
+import WASM_PLACEMENT from "./temper_wasm_test_runner_placement.wasm";
+import WASM_ROUTING from "./temper_wasm_test_runner_routing.wasm";
+import WASM_INFRA   from "./temper_wasm_test_runner_infra.wasm";
 
-const worker = createWorker(WASM);
+import { createMultiFamilyWorker } from "./worker_core.js";
+
+// When running locally (Node), WASM imports are undefined and we
+// fall back to reading modules from disk.  The `worker_local_server.mjs`
+// harness has the path setup; this fallback is just for completeness.
+let modules = {
+  default:   WASM_FULL,
+  drc:       WASM_DRC,
+  emc:       WASM_EMC,
+  erc:       WASM_ERC,
+  safety:    WASM_SAFETY,
+  placement: WASM_PLACEMENT,
+  routing:   WASM_ROUTING,
+  infra:     WASM_INFRA,
+};
+
+const worker = createMultiFamilyWorker(modules);
 
 export default {
   async fetch(request, env, ctx) {

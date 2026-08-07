@@ -11,10 +11,23 @@ name = "temper_wasm_test_runner"
 # surface is the seven `extern "C"` exports the host calls.
 crate-type = ["cdylib"]
 
+[features]
+# Default: full 147-test registry (backward-compatible with CI and run_wasm_tests.mjs).
+default = ["wasm-test-registry"]
+wasm-test-registry = ["temper-drc-rs/wasm-test-registry"]
+# Per-family shards (Phase 1 U8): build a smaller .wasm for each Worker function.
+wasm-registry-drc = ["temper-drc-rs/wasm-registry-drc"]
+wasm-registry-emc = ["temper-drc-rs/wasm-registry-emc"]
+wasm-registry-erc = ["temper-drc-rs/wasm-registry-erc"]
+wasm-registry-safety = ["temper-drc-rs/wasm-registry-safety"]
+wasm-registry-placement = ["temper-drc-rs/wasm-registry-placement"]
+wasm-registry-routing = ["temper-drc-rs/wasm-registry-routing"]
+wasm-registry-infra = ["temper-drc-rs/wasm-registry-infra"]
+# Build all families (same as default but explicit).
+wasm-registry-all = ["temper-drc-rs/wasm-registry-all"]
+
 [dependencies]
-temper-drc-rs = { path = "../temper-drc-rs", default-features = false, features = [
-  "wasm-test-registry",
-] }
+temper-drc-rs = { path = "../temper-drc-rs", default-features = false }
 
 [profile.release]
 opt-level = "z"

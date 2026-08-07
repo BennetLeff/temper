@@ -206,7 +206,7 @@ fn distance_to_rect_edge(rect: &geo::Rect<f64>, point: &Point<f64>) -> f64 {
     (dx * dx + dy * dy).sqrt()
 }
 
-#[cfg(any(test, feature = "wasm-test-registry"))]
+#[cfg(any(test, feature = "wasm-registry"))]
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
     use super::*;

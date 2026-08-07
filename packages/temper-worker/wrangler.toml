@@ -1,48 +1,37 @@
-# Cloudflare Worker configuration for the temper WASM verification tier.
+# Cloudflare Worker configuration for the temper WASM verification tier
+# — per-family shard layout (Phase 1 U8).
 #
-# This Worker runs one temper-drc-rs test function per HTTP invocation (R17).
-# It loads the compiled .wasm as a module asset — Cloudflare compiles it once
-# at upload time and instantiates per isolate, matching the model of
-# `WebAssembly.compile` (once) + `WebAssembly.instantiate` (per request).
+# This Worker runs one temper-drc-rs test function per HTTP invocation (R17)
+# across eight family modules (full 147-test + seven per-family shards).
+# The multi-family core (src/worker_core.js) lazily instantiates each family's
+# module on the first request to that family's route.
 #
 # Deployment requires:
-#   - `account_id` — filled in at deploy time by the maintainer (see runbook;
-#     do NOT commit the real value here)
+#   - `account_id` — filled in from the U7 deploy runbook
 #   - `wrangler login` (or CLOUDFLARE_API_TOKEN in the environment)
 #   - A wrangler version that supports module-syntax Workers (v3.x+; tested
 #     against 4.120.0)
 #
-# Build + deploy (see docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md):
-#   make wasm-worker-stage   # builds the .wasm and copies it to src/ (gitignored)
-#   wrangler deploy          # from packages/temper-worker
+# Build + stage (then deploy):
+#   bash scripts/stage_wasm_families.sh   # builds .wasm and copies to src/
+#   wrangler deploy                       # from packages/temper-worker
 #
 # No KV, R2, D1, Durable Objects, or secrets — the Worker is stateless.
-# The only binding is the compiled WASM module itself.
+# The only bindings are the compiled WASM modules (imported directly).
 name = "temper-wasm-tier"
 main = "src/index.js"
 compatibility_date = "2026-08-01"
 
 [vars]
-# The ABI version the Worker expects. The module exports `temper_wasm_abi_version`;
-# the Worker compares on every request and returns a failing verdict on mismatch.
-# Bump both in lockstep when the export set changes (see
-# packages/temper-wasm-test-runner/src/lib.rs).
 ABI_VERSION = "1"
 
-# --- WASM module ---
-# The .wasm is imported directly in src/index.js:
+# --- Per-family WASM modules ---
+# Eight .wasm files are imported directly in src/index.js.  Module-syntax
+# Workers get each file as a `WebAssembly.Module` compiled at upload time
+# (wrangler's bundler handles .wasm imports natively).  Instantiation
+# happens lazily per family in worker_core.js.
 #
-#   import WASM from "./temper_wasm_test_runner.wasm"
-#
-# Module-syntax Workers get the file as a `WebAssembly.Module` compiled at
-# upload time (wrangler's bundler handles the .wasm import natively; a
-# `[wasm_modules]` block is NOT valid for module workers and wrangler 4.x
-# rejects it). Instantiation happens per request in worker_core.js.
-#
-# The file is staged here by `make wasm-worker-stage` (copied from the shared
-# cargo target dir); the staged copy is gitignored — never commit a built .wasm.
+# Staged by scripts/stage_wasm_families.sh from cargo builds; gitignored.
 
-# --- account_id placeholder ---
-# Uncomment and fill with the real value (or rely on `wrangler deploy`'s
-# interactive account picker / `wrangler whoami`). Never commit the real value.
+# --- account_id ---
 account_id = "03f642afe070f05b727f7cd31f02ef48"
