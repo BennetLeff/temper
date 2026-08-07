@@ -17,6 +17,7 @@ pub mod oracle;
 pub mod placement_metrics;
 pub mod quality_score;
 pub mod routing_quality;
+pub mod validation_metrics;
 
 #[cfg(test)]
 #[path = "tests_common.rs"]
@@ -776,6 +777,66 @@ fn quality_report_overall_py(normalized_scores: [f64; 7]) -> PyResult<f64> {
     })
 }
 
+// ---------------------------------------------------------------------------
+// Validation placement-metric kernels (Wave 4 — validation/metrics.py)
+//
+// See `validation_metrics.rs` module doc for scope, the bit-exactness
+// catalog entries this migration measured, and why boundary/zone/keepout
+// metrics were triaged out.
+// ---------------------------------------------------------------------------
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn overlap_metrics_py(distances: Vec<f64>, n: usize) -> PyResult<(i64, f64, f64)> {
+    temper_py_bridge::catch_panic(|| Ok(validation_metrics::overlap_metrics(&distances, n)))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn clearance_metrics_py(
+    distances: Vec<f64>,
+    n: usize,
+    is_hv: Vec<bool>,
+    hv_lv_clearance: f64,
+) -> PyResult<(i64, i64, f64)> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(validation_metrics::clearance_metrics(
+            &distances,
+            n,
+            &is_hv,
+            hv_lv_clearance,
+        ))
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn wirelength_metrics_py(hpwl: Vec<f64>, weights: Vec<f64>) -> PyResult<(f64, f64, f64)> {
+    temper_py_bridge::catch_panic(|| Ok(validation_metrics::wirelength_metrics(&hpwl, &weights)))
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn distribution_metrics_py(
+    positions_x: Vec<f32>,
+    positions_y: Vec<f32>,
+    widths: Vec<f32>,
+    heights: Vec<f32>,
+    board_width: f64,
+    board_height: f64,
+) -> PyResult<(f64, f64, f64, f64)> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(validation_metrics::distribution_metrics(
+            &positions_x,
+            &positions_y,
+            &widths,
+            &heights,
+            board_width,
+            board_height,
+        ))
+    })
+}
+
 #[cfg(feature = "python")]
 #[pyfunction]
 fn is_available_py() -> bool {
@@ -810,6 +871,10 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(compactness_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(connectivity_clustering_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(quality_report_overall_py, m)?)?;
+    m.add_function(wrap_pyfunction!(overlap_metrics_py, m)?)?;
+    m.add_function(wrap_pyfunction!(clearance_metrics_py, m)?)?;
+    m.add_function(wrap_pyfunction!(wirelength_metrics_py, m)?)?;
+    m.add_function(wrap_pyfunction!(distribution_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
     m.add_function(wrap_pyfunction!(version_py, m)?)?;
     cluster_f::bindings::register(m)?;
