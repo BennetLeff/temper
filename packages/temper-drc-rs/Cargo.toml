@@ -14,7 +14,7 @@ geo = "0.28"
 # The pad-touch predicate calls temper-geometry's single-source-of-truth
 # `point_to_rotated_rect_distance` — the same function the Python arm
 # delegates to (see deterministic_connectivity.rs).
-temper-geometry = { path = "../temper-geometry" }
+temper-geometry = { path = "../temper-geometry", optional = true }
 # `thermal_relief._is_power_net` is a `re.compile(..., re.IGNORECASE)`
 # word-boundary search. Only `is_match` is used, so the automaton and
 # CPython's backtracker agree by construction (match *existence* is
@@ -27,7 +27,7 @@ thiserror = "1"
 
 [features]
 default = ["python"]
-python = ["dep:pyo3"]
+python = ["dep:pyo3", "dep:temper-geometry"]
 # Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
 # and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
 # call each test function by index.  Off by default; never enabled for the
