@@ -205,18 +205,40 @@ pub fn compute_wirelength(
 /// Python-visible `compute_wirelength(component_ref, candidate_slot, net_pins,
 /// current_placements)`.
 #[pyfunction]
-pub fn compute_wirelength_py(
+pub fn compute_wirelength_py<'py>(
     component_ref: &str,
-    candidate_slot: (f64, f64),
-    net_pins: &Bound<'_, PyDict>,
-    current_placements: &Bound<'_, PyDict>,
+    candidate_slot: &Bound<'py, PyAny>,
+    net_pins: &Bound<'py, PyDict>,
+    current_placements: &Bound<'py, PyDict>,
 ) -> PyResult<f64> {
     guard(|| {
+        // candidate_slot is extracted INDEX-wise (tuple OR list), matching the
+        // oracle's `positions = [candidate_slot]` + `p[0]` subscripting — a
+        // 2-element LIST is accepted, a bare tuple extraction would reject it.
+        let candidate: (f64, f64) = (
+            candidate_slot.get_item(0)?.extract()?,
+            candidate_slot.get_item(1)?.extract()?,
+        );
+
         let mut lists: Vec<Vec<(String, String)>> = Vec::new();
         for pins in net_pins.values() {
             let mut members: Vec<(String, String)> = Vec::new();
             for pin in pins.try_iter()? {
                 let pin = pin?;
+                // The oracle unpacks `for ref, _ in pins:` — a 3-element pin
+                // raises ValueError (a too-lenient marshaler silently drops
+                // element 2), and a 1-element pin raises ValueError too.
+                let n = pin.len()?;
+                if n < 2 {
+                    return Err(PyValueError::new_err(format!(
+                        "not enough values to unpack (expected 2, got {n})"
+                    )));
+                }
+                if n > 2 {
+                    return Err(PyValueError::new_err(
+                        "too many values to unpack (expected 2)",
+                    ));
+                }
                 members.push((pin.get_item(0)?.extract()?, pin.get_item(1)?.extract()?));
             }
             lists.push(members);
@@ -228,7 +250,7 @@ pub fn compute_wirelength_py(
             let y: f64 = pos.get_item(1)?.extract()?;
             cp.insert(ref_, (x, y));
         }
-        Ok(compute_wirelength(component_ref, candidate_slot, &lists, &cp))
+        Ok(compute_wirelength(component_ref, candidate, &lists, &cp))
     })
 }
 
@@ -271,8 +293,8 @@ pub fn find_critical_bottleneck_violations(
     placements: &[(String, Option<(f64, f64)>)],
     bottlenecks: &[(i64, i64, String, String, f64)],
     cell_um: f64,
-    width: i64,
-    height: i64,
+    width: f64,
+    height: f64,
 ) -> PyResult<Vec<(String, i64, i64, String, String)>> {
     let mut critical_by_cell: HashMap<(i64, i64), (String, f64)> = HashMap::new();
     let mut last_severity: Option<String> = None;
@@ -298,7 +320,10 @@ pub fn find_critical_bottleneck_violations(
         let Some((x_mm, y_mm)) = pos else { continue };
         let gx = grid_index(*x_mm, cell_um)?;
         let gy = grid_index(*y_mm, cell_um)?;
-        if gx < 0 || gx >= width || gy < 0 || gy >= height {
+        // The oracle compares `gx < 0 or gx >= width` with Python int-vs-int
+        // (or int-vs-float when a float width is passed); `(gx as f64) >=
+        // width` is the same promotion.
+        if gx < 0 || (gx as f64) >= width || gy < 0 || (gy as f64) >= height {
             continue;
         }
         if let Some((layer, _)) = critical_by_cell.get(&(gx, gy)) {
@@ -314,6 +339,16 @@ pub fn find_critical_bottleneck_violations(
     Ok(out)
 }
 
+/// CPython `float(x)` — the oracle's explicit placement-coordinate coercion
+/// (`float(x_mm) * 1000.0 / cell_um`). Accepts int, float and numeric str;
+/// rejects everything else with the error CPython's `float()` raises. A bare
+/// pyo3 `extract::<f64>()` would raise TypeError on a numeric str, diverging
+/// from the oracle.
+fn py_float_coerce<'py>(py: Python<'py>, value: &Bound<'py, PyAny>) -> PyResult<f64> {
+    let float_ctor = py.import("builtins")?.getattr("float")?;
+    float_ctor.call1((value,))?.extract()
+}
+
 /// Python-visible `find_critical_bottleneck_violations(placements,
 /// bottlenecks, cell_um, width, height)` returning a list of dicts.
 #[pyfunction]
@@ -322,10 +357,16 @@ pub fn find_critical_bottleneck_violations_py<'py>(
     placements: &Bound<'py, PyDict>,
     bottlenecks: &Bound<'py, PyAny>,
     cell_um: f64,
-    width: i64,
-    height: i64,
+    width: &Bound<'py, PyAny>,
+    height: &Bound<'py, PyAny>,
 ) -> PyResult<Bound<'py, PyList>> {
     guard(|| {
+        // width/height extract as f64 (int OR float), matching the oracle's
+        // `gx >= width` int-vs-(int|float) comparison; a str still raises
+        // TypeError exactly as `int >= str` does in Python.
+        let width: f64 = width.extract()?;
+        let height: f64 = height.extract()?;
+
         let mut bns: Vec<(i64, i64, String, String, f64)> = Vec::new();
         for bn in bottlenecks.try_iter()? {
             let bn = bn?;
@@ -340,6 +381,8 @@ pub fn find_critical_bottleneck_violations_py<'py>(
 
         // Marshalled placements: a non-(tuple|list) value or a short list is
         // SKIPPED (None), mirroring the oracle's `isinstance`/`len` guards.
+        // Coordinates are coerced with CPython `float()` (the oracle's
+        // `float(x_mm)`), so `(0.5, "0.5")` is accepted like the oracle.
         let mut plcs: Vec<(String, Option<(f64, f64)>)> = Vec::new();
         for (ref_, pos) in placements.iter() {
             let ref_: String = ref_.extract()?;
@@ -348,7 +391,13 @@ pub fn find_critical_bottleneck_violations_py<'py>(
                 plcs.push((ref_, None));
                 continue;
             }
-            plcs.push((ref_, Some((pos.get_item(0)?.extract()?, pos.get_item(1)?.extract()?))));
+            plcs.push((
+                ref_,
+                Some((
+                    py_float_coerce(py, &pos.get_item(0)?)?,
+                    py_float_coerce(py, &pos.get_item(1)?)?,
+                )),
+            ));
         }
 
         let violations = find_critical_bottleneck_violations(&plcs, &bns, cell_um, width, height)?;
@@ -638,8 +687,8 @@ mod tests {
         placements: &[(String, Option<(f64, f64)>)],
         bns: &[(i64, i64, String, String, f64)],
         cell_um: f64,
-        w: i64,
-        h: i64,
+        w: f64,
+        h: f64,
     ) -> Vec<(String, i64, i64, String, String)> {
         match find_critical_bottleneck_violations(placements, bns, cell_um, w, h) {
             Ok(out) => out,
@@ -651,7 +700,7 @@ mod tests {
     fn critical_violations_basic() {
         let placements = vec![("R1".to_string(), Some((0.5, 0.5)))];
         let bns = vec![(0i64, 0i64, "F.Cu".to_string(), "CRITICAL".to_string(), 1.0)];
-        let out = viols(&placements, &bns, 1000.0, 5, 5);
+        let out = viols(&placements, &bns, 1000.0, 5.0, 5.0);
         assert_eq!(out, vec![("R1".to_string(), 0, 0, "F.Cu".to_string(), "CRITICAL".to_string())]);
     }
 
@@ -663,7 +712,7 @@ mod tests {
             (0i64, 0i64, "F.Cu".to_string(), "CRITICAL".to_string(), 0.9),
             (0i64, 0i64, "B.Cu".to_string(), "MEDIUM".to_string(), 0.5),
         ];
-        let out = viols(&placements, &bns, 1000.0, 5, 5);
+        let out = viols(&placements, &bns, 1000.0, 5.0, 5.0);
         assert_eq!(out[0].4, "MEDIUM");
     }
 
@@ -672,14 +721,14 @@ mod tests {
         let placements = vec![("R1".to_string(), Some((-0.001, 0.0)))];
         let bns = vec![(0i64, 0i64, "F.Cu".to_string(), "CRITICAL".to_string(), 1.0)];
         // gx = -1 -> out of grid -> skipped.
-        assert!(viols(&placements, &bns, 1000.0, 5, 5).is_empty());
+        assert!(viols(&placements, &bns, 1000.0, 5.0, 5.0).is_empty());
     }
 
     #[test]
     fn critical_nan_index_value_error() {
         let placements = vec![("R1".to_string(), Some((f64::NAN, 0.0)))];
         let bns = vec![(0i64, 0i64, "F.Cu".to_string(), "CRITICAL".to_string(), 1.0)];
-        assert!(find_critical_bottleneck_violations(&placements, &bns, 1000.0, 5, 5).is_err());
+        assert!(find_critical_bottleneck_violations(&placements, &bns, 1000.0, 5.0, 5.0).is_err());
     }
 
     #[test]
