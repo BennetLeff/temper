@@ -53,6 +53,7 @@
   "check_drc_determinism.py": [
     "packages/temper-placer/src/temper_placer/validation/_drc_api.py"
   ],
+  "check_erc_off_grid_consequence.py": [],
   "check_evidence_provenance.py": [
     ".github/workflows/python-tests.yml"
   ],

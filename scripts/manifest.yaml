@@ -350,6 +350,28 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_erc_off_grid_consequence.py
+  purpose: 'Classify ERC endpoint_off_grid warnings (163 of 498 on pcb/temper.kicad_sch as of 2026-08-07)
+    by electrical consequence: cross-checks each off-grid pin''s actual schematic net (kicadxml export,
+    exact-coordinate connectivity) against its atopile-compiled net member-for-member, and tags the net''s
+    domain (HV/mains, SELV, protection/fault-chain) via elec/domain_manifest.yaml. Answers "does this
+    off-grid endpoint sit on a net that matters, and is it actually connected to what it looks connected
+    to" mechanically instead of by eyeballing coordinates. Not wired into CI (requires a working kicad-cli
+    to regenerate its ERC-JSON/netlist-XML inputs, not reliably available in every sandbox -- see docs/evidence/2026-08-07-erc-off-grid-endpoint-analysis.md
+    for how 10.0.5 was obtained here).'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - json
+  - pathlib
+  - re
+  - sys
+  - xml.etree.ElementTree
 - path: check_evidence_provenance.py
   purpose: 'Fail-closed provenance gate for docs/evidence/: every evidence file must declare how its numbers
     were produced'
