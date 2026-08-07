@@ -280,8 +280,7 @@ pub fn extract_medial_axis_single_py(
     temper_py_bridge::catch_unwind(|| {
         let outer_pts = to_points(outer);
         let holes_pts: Vec<Vec<Point>> = holes.into_iter().map(to_points).collect();
-        let segments =
-            extract_medial_axis_single(&outer_pts, &holes_pts, simplify_tolerance);
+        let segments = extract_medial_axis_single(&outer_pts, &holes_pts, simplify_tolerance);
         segments_to_py(segments)
     })
     .map_err(temper_py_bridge::panic_to_err)
@@ -300,9 +299,7 @@ pub fn extract_medial_axis_py(
     temper_py_bridge::catch_unwind(|| {
         let polys: Vec<(Vec<Point>, Vec<Vec<Point>>)> = polygons
             .into_iter()
-            .map(|(outer, holes)| {
-                (to_points(outer), holes.into_iter().map(to_points).collect())
-            })
+            .map(|(outer, holes)| (to_points(outer), holes.into_iter().map(to_points).collect()))
             .collect();
         let segments = extract_medial_axis(&polys, simplify_tolerance);
         segments_to_py(segments)
@@ -338,7 +335,10 @@ mod tests {
         let segments = extract_medial_axis_single(&outer, &[], 0.5);
         assert!(!segments.is_empty());
         for (p1, p2) in &segments {
-            assert!(p1.x != p2.x || p1.y != p2.y, "zero-length segment leaked through");
+            assert!(
+                p1.x != p2.x || p1.y != p2.y,
+                "zero-length segment leaked through"
+            );
         }
     }
 
