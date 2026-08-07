@@ -115,12 +115,71 @@ pattern, same situation, ledger untouched in that commit too — see
 `648506e83`). The ledger's own coverage script only evaluates files that
 exist.
 
+## Test verification performed
+
+Ran `make venv-isolate` in the worktree (13/13 pyo3/maturin extensions
+built fresh, verified via `check_stale_extensions.py`), then:
+
+* `pytest tests/pipeline/ -q` — the directly-affected suite (`__init__.py`
+  is the only file this change edits besides the deletion itself): **230
+  passed, 2 skipped**.
+* `scripts/regen_derived.py` — all derived artifacts (manifest, oracle
+  hashes, wasm registry, kernel wiring) reported consistent with no diff
+  needed; `pipeline/feedback.py` was never tracked in `manifest.yaml` (that
+  manifest covers `scripts/*.py`, not package internals).
+* `python -c "import temper_placer.pipeline"` — imports cleanly; `dir()`
+  confirms the seven feedback names are gone and everything else
+  (`PipelineConfig`, `ConvergenceChecker`, `PreflightResult`, etc.) is
+  intact.
+* Full `packages/temper-placer` suite (`pytest tests/ -q`, 17177 items
+  collected, **zero collection errors** — the definitive check that
+  nothing else imports the removed module or its symbols): run in two
+  passes.
+  1. First pass (all markers) reached 46% (~7,900 tests) before stalling
+     on a single `@pytest.mark.slow`-marked CP-SAT test
+     (`test_hybrid_pour_stitch_measurement.py`, internal 600s DRC timeout)
+     — killed and restarted with `-m "not slow"`, the repo's own
+     documented convention (`pyproject.toml:82`) for excluding exactly
+     this class of test.
+  2. Second pass (`-m "not slow"`) reached 59% (~10,100 tests, 508 test
+     files) before being stopped after a `router_v6` hypothesis
+     property-based test ran for >20 minutes on one file with no
+     completion — a legitimate compute-bound PBT test unrelated to this
+     change (confirmed still consuming CPU via repeated `ps`/`top`
+     sampling, not a hang; `sample`'s call graph showed active CP-SAT/
+     absl work, not a blocked syscall).
+  3. **Failures observed across both passes, consistently, at the same
+     four files, in domains with no import path to `pipeline/feedback.py`
+     (confirmed by the AST scan finding zero importers anywhere in the
+     repo, tests included):** `tests/analysis/test_courtyard_violation_report.py`,
+     `tests/cli/test_optimize_validator_input.py`,
+     `tests/closure/test_router_completion.py`,
+     `tests/placer/cp_sat/test_clearance_repair.py`. These read as
+     pre-existing baseline issues (consistent with the task brief's own
+     note that `test_u3_routed_nets_traceable` fails on `main` from
+     pre-existing baseline corruption) — not introduced by this change,
+     which touches only `pipeline/__init__.py`'s import list and deletes
+     an unimported file. One additional failure
+     (`tests/geometry/test_geometry_pbt.py`) appeared in the first pass
+     only and passed cleanly in the second — flaky/random-seed PBT
+     behavior, not a regression (this change does not touch geometry
+     code).
+  4. **Not run to 100% completion.** The remaining ~40% is dominated by
+     `router_v6`/`placer` CP-SAT and hypothesis property tests whose
+     per-file runtime (minutes each) is disproportionate to verifying a
+     zero-caller module deletion — stopped for proportionality, following
+     the same judgment call the 2026-08-06 `topology_phase.py` deletion
+     commit (`648506e83`) made explicitly ("rebuilding five crates was
+     disproportionate for removing a file with no references"). Nothing
+     in the untested remainder imports `pipeline`, `pipeline.feedback`, or
+     any of its symbols (per the AST scan, which covered the entire repo
+     including `tests/`).
+
 ## Not verified
 
-* Full CI-parity build (all 10 pyo3/maturin extension crates + full
-  `packages/temper-placer` pytest run) was executed in an isolated worktree
-  venv as part of this change (see PR for status/log) — flagged here in
-  case that run did not complete before this doc was written.
+* The full `packages/temper-placer` suite was not run to 100% completion
+  (see above) — the untested ~40% is `router_v6`/`placer` CP-SAT-heavy
+  tests, none of which import the deleted module per the AST scan.
 * Whether any *out-of-repo* consumer (external tooling, notebooks) imports
   `temper_placer.pipeline.feedback` — outside this repo's grep/AST reach by
   construction.
