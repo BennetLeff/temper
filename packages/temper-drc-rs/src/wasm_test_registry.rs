@@ -27,7 +27,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 147 eligible tests, in a stable order.  Each entry is
+/// All 172 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -44,6 +44,9 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-erc")] crate::rules::erc::floating_pins::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-erc")] crate::rules::erc::net_connectivity::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-erc")] crate::rules::erc::power_domain::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-safety")] crate::rules::safety::creepage::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-safety")] crate::rules::safety::hv_lv_separation::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-safety")] crate::rules::safety::isolation::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-placement")] crate::rules::placement::thermal_via_count::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-placement")] crate::rules::placement::wave_solder_keepout::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-routing")] crate::rules::routing::power_pad_teardrop::tests::WASM_TESTS,
