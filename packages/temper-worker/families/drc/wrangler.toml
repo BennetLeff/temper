@@ -1,0 +1,8 @@
+name = "temper-wasm-drc"
+main = "index.js"
+compatibility_date = "2026-08-01"
+
+[vars]
+ABI_VERSION = "1"
+
+account_id = "03f642afe070f05b727f7cd31f02ef48"
