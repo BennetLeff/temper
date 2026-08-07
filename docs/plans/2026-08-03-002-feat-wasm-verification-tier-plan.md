@@ -13,7 +13,7 @@ execution: code
 
 ## Goal Capsule
 
-- **Objective:** Establish where verification runs *at scale* — a continuously-running tier that re-checks the board and the tooling that generates it at volumes GitHub Actions cannot reach, so the board earns fabrication confidence before it is built. The tier runs the pure-Rust rules and property kernels as WASM on Cloudflare Workers, off the GitHub Actions concurrency pool. Everyday pull-request CI throughput is not in scope; it stays with `docs/plans/2026-08-03-001-perf-drc-trio-parallelization-plan.md`.
+- **Objective:** Establish where verification runs *at scale* — a continuously-running tier that re-checks the board and the tooling that generates it at volumes GitHub Actions cannot reach, so the board earns fabrication confidence before it is built. The tier runs the pure-Rust rules and property kernels as WASM on Cloudflare Workers, off the GitHub Actions concurrency pool. It additionally relieves the PR pool: the Rust test suites leave GitHub Actions suite-by-suite as their tier verdicts sustain agreement, ending with GitHub Actions running only CPython-bound work. Everyday pull-request CI throughput for the Python-bound surface stays with `docs/plans/2026-08-03-001-perf-drc-trio-parallelization-plan.md`.
 - **Product authority:** temper-placer and firmware maintainer (single-maintainer project). This plan owns the substrate decision, the phase order, the success signal, and the `kicad-cli` retirement bar. It does not own the validation ideas themselves — those are pulled from `docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md` — nor the disposition of findings, which belongs to `docs/plans/2026-07-30-001-fix-drc-burndown-to-zero-plan.md`.
 - **Open blockers:** Three, all resolved by Phase 0 and all capable of reopening the substrate decision. The `wasm32` build has never been attempted for `temper-drc-rs` or `temper-geometry`, and both declare `pyo3` unconditionally. Peak memory for a full-board rule pass is unmeasured against the 128 MiB Workers isolate limit. No workflow regenerates the board, so the continuous loop has no producer today.
 
@@ -23,13 +23,15 @@ execution: code
 
 ### Summary
 
-Run the pure-Rust DRC/ERC rules and the property and metamorphic kernels as WASM on Cloudflare Workers, sharded by rule family and region, so correctness checks scale by orders of magnitude without consuming GitHub Actions capacity. `kicad-cli` continues as the reference oracle in GitHub Actions and is retired only when the Rust suite demonstrates interval-based equivalence with it. Findings route into the DRC burn-down.
+Run the pure-Rust DRC/ERC rules and the property and metamorphic kernels as WASM on Cloudflare Workers, sharded by rule family and region, so correctness checks scale by orders of magnitude without consuming GitHub Actions capacity. The Rust test suites join them suite-by-suite, leaving GitHub Actions as their tier verdicts sustain agreement, until GitHub Actions runs only the CPython-bound surface. `kicad-cli` continues as the reference oracle in GitHub Actions and is retired only when the Rust suite demonstrates interval-based equivalence with it. Findings route into the DRC burn-down.
 
 ### Problem Frame
 
 `docs/STRATEGY.md` records that the critical path is design completion, and that the board cannot be fabricated: of seven protection gates, zero are validated on hardware, IGBT desaturation protection does not exist, and the router's output carries roughly 120 shorts and 499 clearance violations. `docs/plans/2026-07-30-001-fix-drc-burndown-to-zero-plan.md` measures 1346 DRC errors across 13 categories. Confidence sufficient to commit to fabrication does not exist today, and the checks that would build it are rationed by CI capacity rather than by their value.
 
 The rationing is measurable. On 2026-08-03 the account's concurrency ceiling was ~24 jobs while a single push requested ~40; individual jobs queued 8–13 minutes, and a run whose longest job took 6.9 minutes took 17 minutes wall-clock. Property-based tests are budget-shaped as a result: 129 properties run at `max_examples=100`, and some run at 1, 10 or 20. Those numbers were chosen to fit a runner's clock, not to find bugs.
+
+The same rationing motivates a second role for the tier. The Rust test surface is ~84 `#[cfg(test)]` modules across the crates, run on GitHub Actions in per-crate `cargo test` steps (temper-orchestration, temper-geometry) and a backgrounded subprocess inside the shared bundle job (temper-design-bundle). The CPython-bound differential/PBT surface — ~168k LOC of Python tests, the queue's dominant consumer — cannot run in a Workers isolate and stays on GitHub Actions permanently. Moving the Rust suites off the pool frees the capacity that the Python suite competes for; the end-state is GitHub Actions running only CPython-bound work.
 
 The board is also not static. It is regenerated whenever the placer, router or layout harness changes, so a single sweep of a single artifact answers a question that expires. What is missing is a place for correctness checks to run continuously, at volume, without competing for the capacity that merges depend on.
 
@@ -48,6 +50,10 @@ The project's own history sets two traps for such a tier. The burn-down plan rec
 - D9. **The existing Rust test suite is the tier's first payload** (session-settled: user-directed — chosen over leading with new property kernels: the suite already exists and proves the substrate against real code rather than kernels written for the purpose). Governs R17, R18.
 - D10. **Durability machinery is gated on gating** (session-settled: user-approved — chosen over building dead-letter handling, reconciliation and replication up front: while R15 holds the tier advisory, a lost result costs a data point rather than a merge). Governs R22, R23.
 - D11. **Regeneration verifies; it does not commit** (session-settled: user-directed — chosen over a scheduled job opening a PR on difference, and over on-demand only: the committed board is a reviewed artifact with curated history, and any diff-based cadence is untrustworthy while the board writer emits track and via order from a `frozenset`). Governs R3.
+- D12. **The tier is also CI tooling for the Rust test suites** (session-settled: user-directed — chosen over keeping it design-completion-only as D1 framed it: the Rust suites are wasm-portable and the pool relief is the immediate efficiency win, extending D1 rather than replacing it). Governs R24–R28.
+- D13. **The transition is suite-by-suite, each crate leaving GitHub Actions as its R19 agreement sustains** (session-settled: user-directed — chosen over all-at-once after a global R19 demonstration and over keeping the suites in GHA additively: incremental relief with a smaller per-step risk window). Governs R24.
+- D14. **Wasm-sensitive tests self-select via the R19 comparison** (session-settled: user-directed — chosen over an upfront per-test classification pass: a test whose tier verdict never agrees with its GitHub Actions verdict never leaves, so the mechanism separates the wasm-incompatible subset without classification machinery). Governs R27.
+- D15. **The end-state is GitHub Actions running only CPython-bound work** (session-settled: user-directed — chosen over relief-only and over scale-only: the freed pool capacity benefits the Python differentials that must remain). Governs R26, R28.
 
 ### Requirements
 
@@ -98,6 +104,14 @@ The project's own history sets two traps for such a tier. The burn-down plan rec
 - R22. Result delivery becomes loss-proof — dead-letter handling, idempotent keys, and a reconciliation pass — before the tier's verdicts gain merge authority under R15.
 - R23. Results are replicated outside the primary store, on the same trigger as R22.
 
+**Test-suite payload (extension — PR-pool relief)**
+
+- R24. Each crate's `cargo test` suite leaves GitHub Actions once its per-test verdicts agree with the tier's (R19) for that crate, sustained — the suite-by-suite transition. The agreement duration is the same question Q1 poses for `kicad-cli` retirement under R10.
+- R25. The pool relief is measured per GitHub Actions job or step actually removed, not per crate — the design-bundle `cargo test` runs as a backgrounded subprocess inside a shared job, so the freed capacity must be counted at the job level.
+- R26. The Python differential/PBT suites remain on GitHub Actions permanently — they are CPython-bound and cannot run in a Workers isolate.
+- R27. A test whose tier verdict never agrees with its GitHub Actions verdict stays on GitHub Actions — the R19 comparison self-selects the wasm-incompatible subset (host-libm-sensitive assertions) without upfront classification.
+- R28. The end-state is GitHub Actions running only CPython-bound work; the moved Rust suites' tier verdicts become their required PR context per the R15/R19 gating.
+
 ### Phased Path
 
 Phases are pulled individually. Phase 0 gates every later phase because its outcomes can invalidate D3.
@@ -107,10 +121,11 @@ Phases are pulled individually. Phase 0 gates every later phase because its outc
 - **Phase 2 — manufacturing variation.** Sweeps the board across the fabrication envelope rather than nominal geometry alone. Requires a fabrication-envelope model that does not exist yet.
 - **Phase 3 — fault injection and mutation.** Scales the seeded-defect work already in flight under portfolio R38 and R42, proving the gates bite at volume.
 - **Phase 4 — design-space variants.** Validates placer candidates rather than only the committed one, turning DRC and ERC into a selection signal.
+- **Phase 5 — suite-by-suite transition (extension).** Covers R24–R28. Each crate's `cargo test` suite moves to the tier as its R19 agreement sustains; the GitHub Actions job or step it occupied is removed from the PR path; the freed capacity is measured per job. Ends with GitHub Actions running only CPython-bound work.
 
 ### Scope Boundaries
 
-- Everyday pull-request CI throughput. It stays with `docs/plans/2026-08-03-001-perf-drc-trio-parallelization-plan.md`. Moving Rust rule work off GitHub relieves queue backpressure as a side-effect, which is welcome but is not this plan's measure of success.
+- Everyday pull-request CI throughput for the Python-bound surface stays with `docs/plans/2026-08-03-001-perf-drc-trio-parallelization-plan.md`. The Rust test suites' PR execution is in scope here (R24–R28) as the pool-relief extension.
 - Cloudflare containers-as-runners, rejected under D3 on cost.
 - Running `kicad-cli` on Workers. It is a native application and cannot execute in an isolate; R9 keeps it in GitHub Actions.
 - The CP-SAT solve and the SAT-backed router core. Neither is portable to `wasm32`, and the solver boundary's fate is already an explicit spike under `docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md` (R4).
@@ -142,6 +157,7 @@ Phases are pulled individually. Phase 0 gates every later phase because its outc
 - Q6. Which kernel Phase 1 ports first.
 - Q7. Which memory strategy carries the tier past production resolution, given R2 measured 2,400 MB at 0.01 mm against a 128 MiB limit. Four candidates, cheapest first: reuse the existing `occupancy_bitmap_row` packing (1 bit per cell rather than an `i32` net id — 32x, already implemented, but discards net identity and most DRC rules need it); region sharding (bounded by construction, composes with the rest); run-length encoding per row (matches the kernels' scanline write pattern); and a hash-consed quadtree in the hashlife sense (highest compression on empty space and pours, worst case on thin diagonal traces). Only the quadtree's spatial half transfers — hashlife's memoised time evolution has no analogue here — and the obstacle is not compression but mutation: the kernels write cell-by-cell via `merge_cell`, whereas hash-consing assumes immutability, so it needs the kernels restructured from mutate-in-place to build-then-freeze. R2's finding that CPU is effectively free is what makes trading access cost for memory a good deal.
 - Q8. Whether one build-time dispatch table serves the whole portable set or one per crate, per R18.
+- Q9. Which GitHub Actions jobs/steps the Rust suites actually occupy, and their measured wall-clock and queue cost — the per-job relief baseline R25 requires. (Measured 2026-08-07: `cargo test` steps for temper-orchestration and temper-geometry are separate steps; the temper-design-bundle `cargo test` is a backgrounded subprocess inside the shared bundle job.)
 
 ### Sources / Research
 
@@ -152,3 +168,4 @@ Phases are pulled individually. Phase 0 gates every later phase because its outc
 - `docs/plans/2026-08-03-001-perf-drc-trio-parallelization-plan.md` — owns everyday CI throughput and its own Cloudflare evidence protocol.
 - `packages/temper-placer/src/temper_placer/validation/_drc_api.py` — the recorded run-to-run ranges in `kicad-cli` DRC output that force R10's interval framing.
 - `packages/temper-drc-rs/` — the rules engine, with `drc`, `emc`, `erc`, `safety`, `placement` and `routing` families already separated.
+- Surface measurement 2026-08-07: ~84 `#[cfg(test)]` modules across the Rust crates (the wasm-portable test surface); ~168k LOC of Python tests under `packages/*/tests` + `scripts/tests` (the CPython-bound differential/PBT surface); `cargo test` locations in `.github/workflows/python-tests.yml` (temper-orchestration, temper-geometry steps; temper-design-bundle subprocess).
