@@ -891,12 +891,17 @@ jobs:
       # This runs on Linux, where the abort does not apply: it comes from the
       # `-undefined dynamic_lookup` rustflags in .cargo/config.toml, which are
       # scoped to `[target.*-apple-darwin]`. temper-orchestration above carries
-      # the identical feature setup (`default = ["python"]` with pyo3
-      # `extension-module`) and passes here, which is the precedent for expecting
-      # this to link.
+      # the identical feature setup (`python` behind an explicit feature with
+      # pyo3 `extension-module`) and passes here, which is the precedent for
+      # expecting this to link.
+      #
+      # `--features python` is explicit, not implied: `python` is NOT a default
+      # feature (WASM tier R1 flipped the default to [] so a bare wasm32 build
+      # is pyo3-free). Without it this step would silently stop compiling every
+      # python-gated `#[cfg(test)]` module.
       - name: Test temper-geometry (cargo test)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: cargo test --manifest-path packages/temper-geometry/Cargo.toml
+        run: cargo test --manifest-path packages/temper-geometry/Cargo.toml --features python
 
       # ---- WASM32 regression guard (plan 2026-08-03-002, U3) --------------
       # These steps verify that the wasm32 substrate (R1) has not silently
@@ -919,7 +924,13 @@ jobs:
       - name: WASM32 build + clippy (temper-drc-rs, temper-geometry; --no-default-features)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
-          set -euo pipefail
+          # `set -eu`, NOT `set -euo pipefail`: this job's container runs
+          # `run:` steps under `sh` (dash), where `-o pipefail` is an illegal
+          # option -- the `set` line failed with "Illegal option" BEFORE any
+          # cargo command ran, so the guard never actually built the wasm32
+          # target (observed on main runs through 2026-08-07). `-u` is enough
+          # to catch unset-variable bugs and is portable across sh and bash.
+          set -eu
           echo "=== wasm32 build (cargo build, not check — check cannot see link failures) ==="
           cargo build --release --target wasm32-unknown-unknown --no-default-features \
             --manifest-path packages/temper-drc-rs/Cargo.toml

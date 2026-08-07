@@ -14,13 +14,19 @@
 //!   # Benchmark (N=32 fresh processes driven by r2_sample.py)
 //!   cargo run --release --no-default-features \
 //!     --example r2_full_board_pass -- /tmp/board.json --summary
+//!
+//!   # Peak RSS of a single rule family in a fresh process (R2 per-family):
+//!   # the family is selected by rule-name prefix (drc_, emc_, erc_,
+//!   # safety_, placement_, routing_) so no rule source needs touching.
+//!   cargo run --release --no-default-features \
+//!     --example r2_full_board_pass -- /tmp/board.json --summary --family drc
 
 use std::hint::black_box;
 use std::time::Instant;
 
 use temper_drc_rs::board::BoardState;
 use temper_drc_rs::constraints::ConstraintSet;
-use temper_drc_rs::rules::{create_default_registry, DrcCategory};
+use temper_drc_rs::rules::create_default_registry;
 
 // ---------------------------------------------------------------------------
 // Peak RSS (getrusage)
@@ -34,6 +40,7 @@ use temper_drc_rs::rules::{create_default_registry, DrcCategory};
 /// Units differ by platform:
 ///   - Darwin (macOS): bytes
 ///   - Linux:           KiB
+///
 /// The function normalises to bytes and returns a label for the evidence doc.
 fn peak_rss_bytes() -> (i64, &'static str) {
     #[repr(C)]
@@ -142,28 +149,63 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() < 2 {
         eprintln!(
-            "usage: r2_full_board_pass <board.json> [--summary]\n\n\
+            "usage: r2_full_board_pass <board.json> [--summary] [--family <prefix>]\n\n\
              Generate board.json first with:\n  \
-             uv run python3 tools/wasm/r2_serialize_board.py --output /tmp/board.json"
+             uv run python3 tools/wasm/r2_serialize_board.py --output /tmp/board.json\n\
+             --family selects rules whose name starts with the given prefix\n\
+             (drc_, emc_, erc_, safety_, placement_, routing_)"
         );
         std::process::exit(1);
     }
     let board_path = &args[1];
-    let summary_mode = args.get(2).map_or(false, |s| s == "--summary");
+    let summary_mode = args.iter().any(|s| s == "--summary");
+    // `--family <prefix>`: measured as its own fresh process so peak RSS is
+    // attributable to the family (ru_maxrss is a process high-water mark and
+    // does not reset between families inside one process).
+    let family = args
+        .windows(2)
+        .find_map(|w| (w[0] == "--family").then(|| w[1].clone()));
 
     // ── Load board ────────────────────────────────────────────────────
     let json = std::fs::read_to_string(board_path)
         .unwrap_or_else(|e| panic!("cannot read {board_path}: {e}"));
-    let board: BoardState =
-        serde_json::from_str(&json).expect("failed to deserialise BoardState");
+    let board: BoardState = match serde_json::from_str(&json) {
+        Ok(board) => board,
+        Err(e) => {
+            eprintln!("ERROR: failed to deserialise BoardState: {e}");
+            std::process::exit(2);
+        }
+    };
     let constraints = ConstraintSet::default();
 
-    // ── Build registry ────────────────────────────────────────────────
+    // ── Build registry (optionally narrowed to one rule family) ───────
     let reg = create_default_registry();
+    let selected: Vec<&Box<dyn temper_drc_rs::rules::DrcRule>> = match &family {
+        Some(prefix) => {
+            let keep: Vec<_> = reg
+                .rules()
+                .iter()
+                .filter(|r| r.name().starts_with(prefix.as_str()))
+                .collect();
+            if keep.is_empty() {
+                eprintln!(
+                    "ERROR: --family '{prefix}' matched no rules. \
+                     Known prefixes: drc_, emc_, erc_, safety_, placement_, routing_"
+                );
+                std::process::exit(1);
+            }
+            keep
+        }
+        None => reg.rules().iter().collect(),
+    };
+    let family_label = family.as_deref().unwrap_or("all");
 
     // ── Whole-pass wall time ──────────────────────────────────────────
     let t0 = Instant::now();
-    let violations = reg.run_all(&board, &constraints);
+    let violations: Vec<temper_drc_rs::rules::Violation> = selected
+        .iter()
+        .flat_map(|r| r.check(&board, &constraints))
+        .collect();
     let wall_ns = t0.elapsed().as_nanos();
     let error_count = violations
         .iter()
@@ -182,7 +224,7 @@ fn main() {
 
     // ── Per-rule CPU (ns/case) ────────────────────────────────────────
     let mut per_rule: Vec<(String, String, f64)> = Vec::new();
-    for rule in reg.rules() {
+    for rule in &selected {
         let ns = bench_rule(&board, &constraints, rule.as_ref());
         per_rule.push((rule.name().to_string(), rule.category().to_string(), ns));
     }
@@ -200,9 +242,13 @@ fn main() {
         "UNKNOWN"
     };
 
+    let rule_names: Vec<String> = selected.iter().map(|r| r.name().to_string()).collect();
+
     if summary_mode {
         // Machine-parseable JSON for the sampling driver.
         let json_out = serde_json::json!({
+            "family": family_label,
+            "rules_run": rule_names,
             "wall_ns": wall_ns,
             "violations_error": error_count,
             "violations_warning": warning_count,
@@ -213,7 +259,16 @@ fn main() {
                 serde_json::json!({"name": n, "category": c, "ns_per_case": ns})
             }).collect::<Vec<_>>(),
         });
-        println!("{}", serde_json::to_string(&json_out).unwrap());
+        println!(
+            "{}",
+            match serde_json::to_string(&json_out) {
+                Ok(s) => s,
+                Err(e) => {
+                    eprintln!("ERROR: failed to serialise report JSON: {e}");
+                    std::process::exit(2);
+                }
+            }
+        );
     } else {
         println!("R2 — full-board rule pass  (native, release, --no-default-features)\n");
         println!("  board file:  {board_path}");
@@ -226,6 +281,7 @@ fn main() {
         println!("  nets:        {}", board.nets.len());
         println!("  net classes: {}", board.net_class_rules.len());
         println!();
+        println!("  family:      {family_label}  ({} rules)", selected.len());
 
         println!(
             "  whole-pass wall time:  {:.3} ms  ({} ns)",
@@ -247,31 +303,7 @@ fn main() {
         }
         println!();
 
-        // Per-family medians
-        let families: &[(&str, DrcCategory)] = &[
-            ("drc", DrcCategory::Drc),
-            ("dfm", DrcCategory::Dfm),
-            ("erc", DrcCategory::Erc),
-            ("safety", DrcCategory::Safety),
-            ("emc", DrcCategory::Emc),
-        ];
-        println!("  {:<12} {:>10} {:>12}", "Family", "Rules", "Median ns");
-        println!("  {:-<12} {:-<10} {:-<12}", "", "", "");
-        for (label, cat) in families {
-            let mut ns_list: Vec<f64> = per_rule
-                .iter()
-                .filter(|(_, c, _)| c == &cat.to_string())
-                .map(|(_, _, ns)| *ns)
-                .collect();
-            if !ns_list.is_empty() {
-                ns_list.sort_by(f64::total_cmp);
-                let median = ns_list[ns_list.len() / 2];
-                println!("  {label:<12} {:>10} {:>12.1}", ns_list.len(), median);
-            }
-        }
-
         // Per-rule detail
-        println!();
         println!("  {:<45} {:>12} {:>12}", "Rule", "Category", "ns/case");
         println!("  {:-<45} {:-<12} {:-<12}", "", "", "");
         for (name, cat, ns) in &per_rule {
