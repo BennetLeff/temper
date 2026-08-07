@@ -38,9 +38,9 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 import tests.router_v6._path_simplify_py_oracle as ORACLE
+from temper_placer.router_v6.grid_converter import GridCell
 from tests.router_v6._pending_rust import missing_symbols, rust
 from tests.router_v6._signature import sig
-from temper_placer.router_v6.grid_converter import GridCell
 
 # ===========================================================================
 # ADAPTER BLOCK -- the ONLY part of this file that knows the Rust arm exists.

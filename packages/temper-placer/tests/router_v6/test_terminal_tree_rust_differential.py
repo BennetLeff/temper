@@ -44,10 +44,10 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 import tests.router_v6._terminal_tree_py_oracle as ORACLE
-from tests.router_v6._pending_rust import missing_symbols, rust
-from tests.router_v6._signature import sig
 from temper_placer.router_v6.connectivity import CopperPad, PadIdentity
 from temper_placer.router_v6.constraints_geometry import Point
+from tests.router_v6._pending_rust import missing_symbols, rust
+from tests.router_v6._signature import sig
 
 # ===========================================================================
 # ADAPTER BLOCK -- the ONLY part of this file that knows the Rust arm exists.
