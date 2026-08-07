@@ -1,0 +1,62 @@
+{
+  "commit": "14979d6330c463f78e04597f7872e979aca06cee",
+  "timestamp": "2026-08-07T14:44:35.532052+00:00",
+  "native": {
+    "total": 95,
+    "passed": 95,
+    "failed": 0
+  },
+  "wasm32": {
+    "total": 95,
+    "passed": 91,
+    "failed": 0,
+    "expected_fail": 4,
+    "unexpected": 0
+  },
+  "comparison": {
+    "agree_pass": 91,
+    "agree_fail": 0,
+    "disagree": 0,
+    "expected_fail": 4,
+    "unexpected_pass": 0,
+    "native_only": 0,
+    "wasm32_only": 0,
+    "total_in_both": 95,
+    "agreement_rate": 1.0,
+    "disagreements": [],
+    "expected_fail_detail": [
+      {
+        "name": "dfm::tests::thermal_via_side_round_absorbs_the_pow_vs_sqrt_divergence",
+        "native_status": "pass",
+        "wasm32_status": "expected-fail",
+        "expectedClass": "b7-pow-divergence-absent",
+        "reason": "Same root cause as pymath::tests::pow_is_not_a_multiply_or_a_sqrt -- it asserts the pow-vs-sqrt divergence is non-empty before checking that rounding absorbs it. Zero divergence on wasm32."
+      },
+      {
+        "name": "dfm::tests::via_annular_area_uses_r_times_r_not_pow",
+        "native_status": "pass",
+        "wasm32_status": "expected-fail",
+        "expectedClass": "b7-pow-divergence-absent",
+        "reason": "Same root cause -- asserts r*r differs from pow(r,2.0) somewhere. Zero divergence on wasm32."
+      },
+      {
+        "name": "pymath::tests::host_libm_symbols_actually_resolve",
+        "native_status": "pass",
+        "wasm32_status": "expected-fail",
+        "expectedClass": "no-dynamic-loader",
+        "reason": "Asserts dlsym(RTLD_DEFAULT, ...) resolves cos/sin/acos/pow in the running process. wasm32 has no dynamic loader at all; pymath::dlsym_ptr is cfg'd to always miss there, because merely declaring the extern emits an env.dlsym import that makes the module non-instantiable in a bare isolate. The property under test is native-only by construction."
+      },
+      {
+        "name": "pymath::tests::pow_is_not_a_multiply_or_a_sqrt",
+        "native_status": "pass",
+        "wasm32_status": "expected-fail",
+        "expectedClass": "b7-pow-divergence-absent",
+        "reason": "Asserts that libm pow(x,2.0) differs from x*x for at least one x out of 200000 samples, and pow(c,0.5) from sqrt(c). That divergence is what the B7 pin exists to preserve. On wasm32 pymath::pow falls back to f64::powf, which LLVM folds for constant exponents, so the divergence count is exactly zero and the staleness assertion fires. The test is correct; the platform property it pins is native-only."
+      }
+    ],
+    "unexpected_pass_detail": [],
+    "native_only_detail": [],
+    "wasm32_only_detail": []
+  },
+  "expected_failure_manifest": "tools/wasm/wasm_expected_failures.json"
+}

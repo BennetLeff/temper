@@ -1,0 +1,131 @@
+{
+  "generated_at": null,
+  "total": 95,
+  "families": {
+    "drc": 1,
+    "routing": 2
+  },
+  "by_family": {
+    "drc": [
+      "rules::drc::clearance::tests::clearance_at_exact_threshold_flagged"
+    ],
+    "routing": [
+      "rules::routing::power_pad_teardrop::tests::test_distance_to_rect_edge_inside",
+      "rules::routing::power_pad_teardrop::tests::test_distance_to_rect_edge_outside"
+    ]
+  },
+  "infra": {
+    "board": 8,
+    "dfm": 38,
+    "pyfmt": 1,
+    "pymath": 7,
+    "rules-integration": 2,
+    "types": 36
+  },
+  "infra_modules": {
+    "board": [
+      "board::board_state_tests::component_count_sums_correctly",
+      "board::board_state_tests::net_class_rules_covers_all_net_classes",
+      "board::tests::edge_distance_bbox_fallback_upper_bound",
+      "board::tests::edge_distance_catches_mid_edge_gap",
+      "board::tests::edge_distance_is_symmetric",
+      "board::tests::edge_distance_le_vertex_distance",
+      "board::tests::edge_distance_stacked_vertically",
+      "board::tests::overlapping_components_have_zero_edge_distance"
+    ],
+    "dfm": [
+      "dfm::tests::adjacent_layer_is_not_a_cycle",
+      "dfm::tests::board_bounds_and_rect_polygon_preserve_int_ness",
+      "dfm::tests::calculate_angle_cardinal_values",
+      "dfm::tests::calculate_angle_degenerate_and_nan_arms",
+      "dfm::tests::calculate_angle_magnitude_is_sqrt_of_pow_not_hypot",
+      "dfm::tests::calculate_angle_pins_the_60_degree_boundary",
+      "dfm::tests::check_annular_ring_epsilon_is_part_of_the_contract",
+      "dfm::tests::check_annular_ring_guards_nan_but_not_inf",
+      "dfm::tests::check_annular_ring_thresholds",
+      "dfm::tests::clamp_to_rect_outline_is_min_then_max",
+      "dfm::tests::clamp_to_rect_outline_nonfinite_guard_is_load_bearing",
+      "dfm::tests::clamp_to_rect_outline_preserves_int_ness",
+      "dfm::tests::classify_severity_bands_and_demotion",
+      "dfm::tests::connects_to_power_plane_short_circuits_on_the_net_class",
+      "dfm::tests::is_power_net_honours_word_boundaries_and_ignorecase",
+      "dfm::tests::layer_is_between_is_strict_and_symmetric",
+      "dfm::tests::power_net_pattern_compiles",
+      "dfm::tests::power_pour_bounds_partitions_and_raises",
+      "dfm::tests::power_pour_bounds_threads_y_type_through",
+      "dfm::tests::py_minmax_over_the_tower_keeps_the_first_argument_and_its_type",
+      "dfm::tests::pynum_comparisons_are_exact_across_the_tower",
+      "dfm::tests::pynum_int_arithmetic_stays_int_and_reports_overflow",
+      "dfm::tests::segment_run_accumulates_left_to_right",
+      "dfm::tests::segment_run_ignores_the_trailing_vertex_layer",
+      "dfm::tests::spoke_angle_chain_is_not_reassociated",
+      "dfm::tests::spoke_length_is_cpython_max_not_f64_max",
+      "dfm::tests::spoke_segments_count_and_degenerate_arms",
+      "dfm::tests::thermal_via_positions_perfect_square_and_complex_arms",
+      "dfm::tests::thermal_via_side_round_absorbs_the_pow_vs_sqrt_divergence",
+      "dfm::tests::via_annular_area_guards",
+      "dfm::tests::via_annular_area_uses_r_times_r_not_pow",
+      "dfm::tests::via_segment_index_is_first_match_wins",
+      "dfm::tests::via_teardrop_argmin_keeps_the_first_minimum",
+      "dfm::tests::via_teardrop_direction_epsilon",
+      "dfm::tests::via_teardrop_gates_and_guards",
+      "dfm::tests::via_teardrop_nan_key_never_displaces_the_incumbent",
+      "dfm::tests::via_teardrop_ordinary_case",
+      "dfm::tests::via_teardrop_width_min_can_never_see_a_nan"
+    ],
+    "pyfmt": [
+      "pyfmt::tests::py_float_fmt_matches_cpython"
+    ],
+    "pymath": [
+      "pymath::tests::degrees_is_a_single_multiply",
+      "pymath::tests::host_libm_symbols_actually_resolve",
+      "pymath::tests::hypot_infinity_beats_nan",
+      "pymath::tests::hypot_pinned_values",
+      "pymath::tests::pow_is_not_a_multiply_or_a_sqrt",
+      "pymath::tests::py_max_keeps_the_first_argument",
+      "pymath::tests::round_is_decimal_not_scaled"
+    ],
+    "rules-integration": [
+      "rules::integration_tests::empty_board_zero_violations",
+      "rules::integration_tests::incremental_check_equals_full_check_for_same_region"
+    ],
+    "types": [
+      "types::clock::tests::test_point_to_point_branched",
+      "types::clock::tests::test_point_to_point_ok",
+      "types::clock::tests::test_point_to_point_unloaded",
+      "types::esd::tests::test_esd_connector_requires_return_path",
+      "types::esd::tests::test_validate_esd_path_exact_boundary",
+      "types::esd::tests::test_validate_esd_path_ok",
+      "types::esd::tests::test_validate_esd_path_violation",
+      "types::fuse::tests::test_fuse_trace_exact_boundary",
+      "types::fuse::tests::test_fuse_trace_validate_ok",
+      "types::fuse::tests::test_fuse_trace_validate_undersized",
+      "types::fuse::tests::test_ipc_2152_external_baseline",
+      "types::fuse::tests::test_ipc_2152_internal_narrower",
+      "types::guard::tests::test_guarded_pin_construction",
+      "types::guard::tests::test_validate_guard_ring_low_impedance_no_guard_ok",
+      "types::guard::tests::test_validate_guard_ring_ok_with_guard",
+      "types::guard::tests::test_validate_guard_ring_violation",
+      "types::hv_net::tests::test_hv_net_below_threshold",
+      "types::hv_net::tests::test_hv_net_construction",
+      "types::hv_net::tests::test_validate_hv_isolation_empty_signals",
+      "types::hv_net::tests::test_validate_hv_isolation_ok",
+      "types::hv_net::tests::test_validate_hv_isolation_violation",
+      "types::magnetic::tests::test_magnetic_component_trait",
+      "types::magnetic::tests::test_validate_magnetic_void_ok",
+      "types::magnetic::tests::test_validate_magnetic_void_unknown_component",
+      "types::magnetic::tests::test_validate_magnetic_void_violation",
+      "types::noise::tests::test_net_bundle_phantom_types",
+      "types::noise::tests::test_validate_noise_domains_conflict",
+      "types::noise::tests::test_validate_noise_domains_empty",
+      "types::noise::tests::test_validate_noise_domains_ok",
+      "types::vent::tests::test_validate_vent_orientation_no_caps",
+      "types::vent::tests::test_validate_vent_orientation_ok",
+      "types::vent::tests::test_validate_vent_orientation_violation",
+      "types::vent::tests::test_vent_direction_faces",
+      "types::vent::tests::test_vent_direction_not_facing",
+      "types::vent::tests::test_vent_pair_facing_err",
+      "types::vent::tests::test_vent_pair_ok"
+    ]
+  }
+}
