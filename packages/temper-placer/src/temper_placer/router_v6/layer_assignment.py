@@ -18,11 +18,24 @@ Example usage:
     >>> assignments = assign_layers(netlist)
     >>> for net_name, assignment in assignments.items():
     ...     print(f"{net_name}: {assignment.primary_layer.name}")
+
+Wave 4 Phase 3 (``docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md``):
+``assign_layers`` delegates to ``temper_rust_router.assign_layers_py`` for its
+ONE reachable production configuration -- ``constraints=None,
+component_positions=None`` (the only way ``router_v6/verifier.py``, the sole
+caller, ever invokes it, and the only configuration any test in this
+repository exercises). See
+``packages/temper-rust-router/src/layer_assignment.rs``'s module docstring
+for the grep evidence and for why the geometric-fallback and custom-
+constraints branches below stay Python: they are dead code relative to
+everything that runs today, and porting them would build a second
+implementation of a path no caller and no test reaches.
 """
 
 from typing import TYPE_CHECKING, TypeAlias
 
 import numpy as np
+import temper_rust_router as _trr
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
@@ -373,6 +386,25 @@ def assign_layers(
         >>> assignments["DC_BUS_P"].primary_layer
         Layer.L1_TOP
     """
+    if constraints is None and component_positions is None:
+        # The one reachable production configuration -- delegate to Rust.
+        # See the module docstring and
+        # temper-rust-router/src/layer_assignment.rs for why the other two
+        # branches below (custom constraints, geometric fallback) stay
+        # Python: neither is ever exercised by a caller or a test.
+        net_names = [net.name for net in netlist.nets]
+        rows = _trr.assign_layers_py(net_names)
+        assignments: dict[str, LayerAssignment] = {}
+        for name, (primary, allowed, vias_required, reason) in zip(net_names, rows, strict=True):
+            assignments[name] = LayerAssignment(
+                net=name,
+                primary_layer=Layer(primary),
+                allowed_layers={Layer(v) for v in allowed},
+                vias_required=vias_required,
+                reason=reason,
+            )
+        return assignments
+
     if constraints is None:
         constraints = DEFAULT_LAYER_CONSTRAINTS
 
