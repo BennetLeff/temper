@@ -12,6 +12,12 @@ crate-type = ["cdylib", "rlib"]
 temper-py-bridge = { path = "../temper-py-bridge", optional = true }
 rand = "0.8"
 pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
+# Independent (non-GEOS) Delaunay/Voronoi for router_v6/channel_skeleton.py's
+# medial-axis extraction. Pure Rust, exact circumcenter predicates via the
+# `robust` crate (already a transitive dependency elsewhere in this repo via
+# temper-drc-rs's `geo`/`rstar` stack) -- no libc/OS dependency, so it builds
+# for wasm32 the same as the rest of this crate.
+spade = "2.15"
 
 [features]
 default = ["python"]
