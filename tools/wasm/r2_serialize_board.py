@@ -122,7 +122,11 @@ def build_board_dict(parsed: Any) -> dict[str, Any]:
     nets: dict[str, list[str]] = {}
     net_classes: dict[str, str] = {}
     for net in parsed.nets:
-        comp_refs = list({ref for ref, _ in net.pins})
+        # dict.fromkeys, not a set: a set comprehension dedups but its
+        # iteration order is hash-seed dependent, so this list differed
+        # across processes and broke content-addressing (R5). dict
+        # preserves first-encounter order and dedups identically.
+        comp_refs = list(dict.fromkeys(ref for ref, _ in net.pins))
         nets[net.name] = comp_refs
         net_classes[net.name] = net.net_class
 
