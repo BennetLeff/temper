@@ -36,6 +36,7 @@ pub mod copper_coverage;
 pub mod device_power;
 pub mod emi;
 pub mod fdm;
+pub mod geometric_metrics;
 pub mod heat_removal;
 pub mod hostmath;
 pub mod inductance;
@@ -44,6 +45,7 @@ pub mod operating_point;
 pub mod parameter_bounds;
 pub mod rtd;
 pub mod safety;
+pub mod thermal_edges;
 pub mod thermal_potential;
 pub mod thermal_scorer;
 pub mod tj_cross_check;
@@ -131,5 +133,7 @@ fn temper_thermal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(tj_cross_check::device_cross_check_py, m)?)?;
     m.add_function(wrap_pyfunction!(parameter_bounds::classify_parameter_py, m)?)?;
     m.add_function(wrap_pyfunction!(parameter_bounds::worst_case_values_py, m)?)?;
+    m.add_function(wrap_pyfunction!(geometric_metrics::measure_geometric_py, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_edges::measure_thermal_edges_py, m)?)?;
     Ok(())
 }

@@ -59,7 +59,7 @@ use pyo3::basic::CompareOp;
 use pyo3::prelude::*;
 use pyo3::types::PyList;
 
-use crate::netlist_contracts::unpack2;
+use crate::netlist_contracts::{unpack2, Netlist};
 
 // ---------------------------------------------------------------------------
 // HypergraphBuildResult — the ordered extraction output the Python shim
@@ -110,11 +110,17 @@ pub struct HypergraphBuildResult {
 /// `temper_placer/extraction/hypergraph_factory.py`).
 // `dict`: the oracle class carries a `__dict__`; pyclass(dict) keeps
 // attribute injection working.
+// Wave-4 "PyAny removal" tightening (2026-08-06): `netlist` is always the
+// `Netlist` pyclass (the Python wrapper passes a typed `Netlist` — see
+// `extraction/hypergraph_factory.py:67` — and every test constructs one), so
+// the opaque handle is replaced by the typed `Py<Netlist>` reference.
+// Behavior is unchanged: the wrapped value IS the pyclass and identity is
+// preserved by the typed handle.
 #[pyclass(dict, module = "temper_design_bundle_python")]
 #[derive(Debug)]
 pub struct HypergraphFactory {
     #[pyo3(get, set)]
-    pub netlist: Py<PyAny>,
+    pub netlist: Py<Netlist>,
     #[pyo3(get, set)]
     pub ignore_global_nets: bool,
     #[pyo3(get, set)]
@@ -126,7 +132,7 @@ impl HypergraphFactory {
     #[new]
     #[pyo3(signature = (netlist, ignore_global_nets=false, global_net_threshold=50))]
     fn new(
-        netlist: &Bound<'_, PyAny>,
+        netlist: &Bound<'_, Netlist>,
         ignore_global_nets: bool,
         global_net_threshold: i64,
     ) -> PyResult<Self> {

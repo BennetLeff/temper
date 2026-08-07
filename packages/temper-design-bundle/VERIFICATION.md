@@ -66,6 +66,68 @@ flight). Per the audit §5, they are left.
 
 ---
 
+# PyAny removal wave 2 (2026-08-06) — typed-handle tightenings
+
+Record per plan R1e, as part of the Wave-4 PyAny-removal wave 2
+(`docs/evidence/2026-08-06-pyany-surface-audit-2.md`, Wave A). Four stored
+fields are tightened from opaque `Py<PyAny>` to typed handles. Each wrapped
+value IS the same-crate pyclass on every verified construction path, so the
+tightening changes nothing observable: identity is preserved by the typed
+handle and the differential/PBT suites stayed green unchanged. A non-pyclass
+payload that was previously stored opaquely now raises `TypeError` — the
+pinned suites never pass one.
+
+## Typed-handle tightenings (`Py<PyAny>` → typed `Py<T>`, stored fields)
+
+| Struct | Field | Change | Evidence |
+|---|---|---|---|
+| `HypergraphFactory` (hypergraph_factory.rs) | `netlist` | `Py<PyAny>` → `Py<Netlist>` | `extraction/hypergraph_factory.py:67` passes the typed `Netlist` (shim re-export of this crate's pyclass); the PBT + differential suites construct `Netlist(...)` pyclasses. Existing pin: `test_factory_attributes_parity` (`f.netlist is mixed_netlist`). |
+| `MonteCarloSimulator` (manufacturing_monte_carlo.rs) | `variables` | `Py<PyAny>` → `Py<ManufacturingVariables>` | The `manufacturing/monte_carlo.py` shim and the differential/PBT suites pass the `ManufacturingVariables` pyclass. Added pin: `test_monte_carlo_simulator_variables_config_typed_identity`. |
+| `MonteCarloSimulator` (manufacturing_monte_carlo.rs) | `config` | `Py<PyAny>` → `Py<MonteCarloConfig>` | The shim and suites pass the `MonteCarloConfig` pyclass; the omitted-config default is freshly built as the same pyclass. Same added pin. |
+| `ToleranceAnalyzer` (manufacturing_tolerances.rs) | `table` | `Py<PyAny>` → `Py<ToleranceTable>` | The default constructor builds a `ToleranceTable` pyclass (doc: the table is never mutated); the shim and suites pass the pyclass. Existing pin: `test_analyzer_table_identity_semantics` (`analyzer.table is table`). |
+
+## Dormant-handle decision (MonteCarloSimulator / ToleranceAnalyzer)
+
+The audit flags these two pyclasses as "shim-wired but no active production
+caller" (`docs/evidence/2026-08-06-pyany-surface-audit-2.md` §5) — the
+`manufacturing/*` shims re-export them, but no production pipeline constructs
+them today. **The tightening is still a genuine tightening, not inert
+bookkeeping**: the stored fields are real `Py<PyAny>` handles whose wrapped
+value is always the pyclass on every exercised path (the differential is the
+only exercised surface), and the typed `Py<...>` handle is strictly
+stronger. They were tightened AND recorded here. If the shims are later
+retired, these pyclasses (and `HypergraphBuildResult`'s unwired ledger entry)
+become candidates for the #826 unwired-ledger conversation — that is a
+separate decision from this tightening and is not taken here.
+
+## Kept (re-verified, recorded reason)
+
+- `BoardState.netlist` / `.board` / `.design_rules` (gates.rs) — **not
+  tightened**. The re-audit (§A1) re-classified these as REMOVABLE "wave-1
+  pending" and claimed "no test pushes a non-contract payload" — this is
+  factually wrong, re-verified 2026-08-06 against the current tree: the
+  gates PBT suite's P5 (`test_mr4_board_state_payload_independence`,
+  `BoardState(board=object())`) and `TestBoardState::test_all_fields_populated`
+  (`netlist=object()`, `board=object()`, `design_rules=object()`) pin the
+  opaque-payload contract (the exact-object identity the dataclass had).
+  Tightening would change observable behaviour (TypeError) and break those
+  R1a pins, so the three fields stay `Py<PyAny>` (STILL-NEEDED) — the same
+  conclusion wave-1 recorded. The pinned suites
+  (`test_gates_pbt.py`, `test_gate_contract.py::TestBoardState`) pass
+  unchanged on this wave.
+
+## Pins
+
+The differential + PBT suites pass unchanged, and one anti-vacuity pin was
+added for the field that lacked one:
+`test_monte_carlo_simulator_variables_config_typed_identity`
+(design-bundle). It asserts `is` identity for the pyclass cases, the
+fresh-default-config pyclass type, and `TypeError` for a non-pyclass payload.
+(The drc-rs pins live in `packages/temper-drc-rs/VERIFICATION.md`.)
+
+---
+
+
 # Net-type classification data model — Verification
 
 The net-types data model (`src/net_types.rs`) is the Wave 4 Phase 2

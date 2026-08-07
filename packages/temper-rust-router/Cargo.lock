@@ -617,6 +617,7 @@ name = "temper-rust-router"
 version = "0.1.0"
 dependencies = [
  "pyo3",
+ "regex",
  "serde",
  "serde_json",
  "temper-rust-router-core",

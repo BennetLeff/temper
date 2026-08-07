@@ -1,19 +1,80 @@
-"""
-Organizational placement heuristics.
+"""Pinned Python oracle for Wave-4 heuristics/ -- organizational.py.
 
-Organizational heuristics handle component grouping and domain layout:
-- Functional module clustering
-- Power flow topology placement
-- Decoupling capacitor positioning
-- Analog/digital domain separation
+DO NOT EDIT -- THIS IS THE REFERENCE.
+======================================
+Everything below the module docstring is a **verbatim** ``git show``
+extraction of commit ``b9c766059c34649c2947f04f89a578fdb48a2756``
+("make component placement independent of PYTHONHASHSEED", the last commit
+that touched this file; ``origin/main`` at the time this migration was
+pulled remains at the same text -- see
+``test_oracle_is_verbatim_copy``, which re-extracts the pinned commit via
+``git show`` and compares byte-for-byte against everything in this file
+from ``from __future__ import annotations`` onward) of
+``packages/temper-placer/src/temper_placer/heuristics/organizational.py``.
 
-These run at ORGANIZATIONAL priority, after structural constraints are satisfied.
+Nothing below the marker line has been cleaned up, refactored, reformatted,
+or fixed -- not even the module docstring the original file itself carried
+(dropped here only because *this* file needs its own, to record the pin).
+Any drift (a "helpful" fix, a reformat, a reordered import) fails
+``test_oracle_is_verbatim_copy`` instead of passing quietly.
+
+Why this file, not `structural.py`'s narrower per-function pin
+-----------------------------------------------------------------
+`heuristics/structural.py`'s oracle (`_structural_py_oracle.py`) pins a
+single top-level function, `create_keepout_mask`, because that function was
+the one substantial numpy-array kernel in that module and stood alone.
+`organizational.py` has no such single function: its five real compute
+sites (`_place_modules`, `_place_module_components`, `_place_power_flow`,
+`_place_decoupling_caps`, `_place_by_domain`) are private methods on four
+`Heuristic` subclasses, each reached only through that class's public
+`apply()`, which also calls this module's *classification* helpers
+(`identify_functional_modules`, `_find_highly_connected_groups`,
+`classify_power_topology`, `identify_decoupling_caps`,
+`classify_signal_domains`) -- regex/keyword lookup tables and dict/set
+bookkeeping, not compute (see the program's own "keyword lookup tables are
+NOT compute" rule), but load-bearing for `apply()` to run standalone here.
+Pinning the whole module, verbatim, is what lets the differential call each
+`XxxHeuristic().apply(context)` exactly as production does (proving the
+kernels through their real entry point, not a synthetic shim) without also
+re-implementing the classification helpers a second time in the oracle.
+
+Traps this pin exercises (see
+``packages/temper-geometry/src/organizational_geometry.rs``'s module doc
+for the Rust-side mirror of each)
+--------------------------------------------------------------------------
+* ``_place_module_components``'s circular offset uses a **hardcoded pi
+  approximation**, ``2 * 3.14159 * i / n`` -- not ``math.pi`` / ``math.tau``.
+* ``_place_modules`` and ``_place_by_domain`` both derive a ``cols`` /
+  ``rows`` grid from ``int(np.sqrt(n))`` -- truncation toward zero, which
+  coincides with flooring here because sqrt of a non-negative value is
+  never negative.
+* ``_place_modules`` and ``_place_by_domain`` compute the SAME mathematical
+  quantity (a grid-cell center) with two DIFFERENT floating-point operation
+  orders (precompute-then-multiply vs. multiply-then-divide-inline) --
+  floating point multiplication and division do not associate, so these are
+  not interchangeable despite looking like the same formula.
+* ``_place_power_flow``'s vertical branch builds ``y_center`` by
+  SUBTRACTING from ``oy + board.height`` (input stage at the top), unlike
+  the horizontal branch's additive ``x_center`` -- not a simple mirror of
+  the same formula across the two branches.
+* ``_find_highly_connected_groups`` iterates a ``set`` difference
+  (``net.get_component_refs() - exclude_refs``), which is
+  ``PYTHONHASHSEED``-dependent for ``str`` keys; production re-projects
+  through netlist order via ``order_refs_by_netlist`` at the call site
+  (`test_hash_seed_determinism.py`), not inside this pinned function, so
+  the pin's set-ordering is exercised as-is.
 """
 
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import TypeAlias
+
+import numpy as np
+from numpy.typing import NDArray
+
+Array: TypeAlias = NDArray
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -235,28 +296,31 @@ class FunctionalModuleClusteringHeuristic(Heuristic):
         board: Board,
         context: PlacementContext,
     ) -> dict[str, ComponentPlacement]:
-        """Place module components in clusters.
-
-        The grid-centroid math (cols/rows from ``sqrt(n)``, cell size, per-
-        module center) is delegated to ``temper_geometry.module_grid_positions_py``
-        -- see ``packages/temper-geometry/src/organizational_geometry.rs``.
-        This method keeps the public API and only extracts primitives
-        (``board.origin``, module count) and iterates the result, which is
-        orchestration, not compute. Pinned oracle:
-        ``packages/temper-placer/tests/heuristics/_organizational_py_oracle.py``;
-        differential:
-        ``packages/temper-placer/tests/heuristics/test_organizational_rust_differential.py``.
-        """
-        from temper_geometry import module_grid_positions_py
-
+        """Place module components in clusters."""
         placements: dict[str, ComponentPlacement] = {}
         ox, oy = board.origin
 
-        centroids = module_grid_positions_py(
-            len(modules), ox, oy, board.width, board.height, context.constraints.board_margin_mm
-        )
+        # Compute centroids for modules (grid layout)
+        n_modules = len(modules)
+        cols = max(1, int(np.sqrt(n_modules)))
+        rows = (n_modules + cols - 1) // cols
 
-        for module, (cx, cy) in zip(modules, centroids, strict=True):
+        # Available board area (with margin)
+        margin = context.constraints.board_margin_mm + 10
+        avail_width = board.width - 2 * margin
+        avail_height = board.height - 2 * margin
+
+        cell_width = avail_width / cols
+        cell_height = avail_height / rows
+
+        for i, module in enumerate(modules):
+            col = i % cols
+            row = i // cols
+
+            # Module centroid
+            cx = ox + margin + (col + 0.5) * cell_width
+            cy = oy + margin + (row + 0.5) * cell_height
+
             # Place components within module
             module_placements = self._place_module_components(
                 module=module,
@@ -273,16 +337,7 @@ class FunctionalModuleClusteringHeuristic(Heuristic):
         centroid: tuple[float, float],
         context: PlacementContext,
     ) -> dict[str, ComponentPlacement]:
-        """Place components around module centroid.
-
-        The circular/spiral offset math is delegated to
-        ``temper_geometry.circle_offsets_py`` -- see
-        ``organizational_geometry.rs``'s module doc for why it uses a
-        hardcoded pi approximation (``2 * 3.14159 * i / n``, not
-        ``math.pi``) and resolves cos/sin through the host libm.
-        """
-        from temper_geometry import circle_offsets_py
-
+        """Place components around module centroid."""
         placements: dict[str, ComponentPlacement] = {}
         cx, cy = centroid
 
@@ -300,10 +355,19 @@ class FunctionalModuleClusteringHeuristic(Heuristic):
         # Arrange in circle/spiral around centroid
         n = len(to_place)
         radius = min(self.max_spread_mm / 2, 8.0)
-        offsets = circle_offsets_py(n, radius)
 
-        for ref, (offset_x, offset_y) in zip(to_place, offsets, strict=True):
+        for i, ref in enumerate(to_place):
             comp = context.netlist.get_component(ref)
+
+            offset_x: Array | float
+            offset_y: Array | float
+            if n > 1:
+                angle = 2 * 3.14159 * i / n
+                offset_x = radius * np.cos(angle)
+                offset_y = radius * np.sin(angle)
+            else:
+                offset_x = 0.0
+                offset_y = 0.0
 
             pos_x = cx + float(offset_x)
             pos_y = cy + float(offset_y)
@@ -476,18 +540,7 @@ class PowerFlowTopologyHeuristic(Heuristic):
         board: Board,
         context: PlacementContext,
     ) -> dict[str, ComponentPlacement]:
-        """Place components by power flow stage.
-
-        The per-stage layout math (column/row center, linear interpolation
-        along the stage) is delegated to
-        ``temper_geometry.power_flow_positions_py``, which mirrors both the
-        horizontal and vertical branches -- see ``organizational_geometry.rs``
-        for why the vertical branch's ``y_center`` is not a simple mirror of
-        the horizontal branch's ``x_center`` (it subtracts from
-        ``oy + board.height`` so the input stage renders at the top).
-        """
-        from temper_geometry import power_flow_positions_py
-
+        """Place components by power flow stage."""
         placements: dict[str, ComponentPlacement] = {}
         ox, oy = board.origin
         margin = context.constraints.board_margin_mm
@@ -498,23 +551,59 @@ class PowerFlowTopologyHeuristic(Heuristic):
             if node.ref not in context.current_placements:
                 stages[node.stage].append(node.ref)
 
+        # Compute stage regions
         horizontal = self.flow_direction == "left_to_right"
-        stage_counts = [len(stages[0]), len(stages[1]), len(stages[2])]
-        per_stage = power_flow_positions_py(
-            ox, oy, board.width, board.height, margin, stage_counts, horizontal
-        )
 
-        for stage, refs in stages.items():
-            for ref, (pos_x, pos_y) in zip(refs, per_stage[stage], strict=True):
-                comp = context.netlist.get_component(ref)
-                if context.is_position_valid(pos_x, pos_y, comp.width, comp.height):
-                    placements[ref] = ComponentPlacement(
-                        ref=ref,
-                        position=(pos_x, pos_y),
-                        rotation=0,
-                        confidence=0.65,
-                        placed_by=self.name,
-                    )
+        if horizontal:
+            # Divide board into 3 columns (input, dist, load)
+            col_width = (board.width - 2 * margin) / 3
+            for stage, refs in stages.items():
+                if not refs:
+                    continue
+
+                x_center = ox + margin + (stage + 0.5) * col_width
+                y_range = board.height - 2 * margin
+
+                for i, ref in enumerate(refs):
+                    comp = context.netlist.get_component(ref)
+                    t = i / (len(refs) - 1) if len(refs) > 1 else 0.5
+
+                    pos_x = x_center
+                    pos_y = oy + margin + t * y_range
+
+                    if context.is_position_valid(pos_x, pos_y, comp.width, comp.height):
+                        placements[ref] = ComponentPlacement(
+                            ref=ref,
+                            position=(pos_x, pos_y),
+                            rotation=0,
+                            confidence=0.65,
+                            placed_by=self.name,
+                        )
+        else:
+            # Divide board into 3 rows (input at top, dist middle, load bottom)
+            row_height = (board.height - 2 * margin) / 3
+            for stage, refs in stages.items():
+                if not refs:
+                    continue
+
+                y_center = oy + board.height - margin - (stage + 0.5) * row_height
+                x_range = board.width - 2 * margin
+
+                for i, ref in enumerate(refs):
+                    comp = context.netlist.get_component(ref)
+                    t = i / (len(refs) - 1) if len(refs) > 1 else 0.5
+
+                    pos_x = ox + margin + t * x_range
+                    pos_y = y_center
+
+                    if context.is_position_valid(pos_x, pos_y, comp.width, comp.height):
+                        placements[ref] = ComponentPlacement(
+                            ref=ref,
+                            position=(pos_x, pos_y),
+                            rotation=0,
+                            confidence=0.65,
+                            placed_by=self.name,
+                        )
 
         return placements
 
@@ -636,14 +725,7 @@ class DecouplingCapHeuristic(Heuristic):
         cap_to_ic: dict[str, str],
         context: PlacementContext,
     ) -> dict[str, ComponentPlacement]:
-        """Place caps adjacent to their ICs.
-
-        The four candidate-position offsets are delegated to
-        ``temper_geometry.decoupling_candidate_positions_py``. The trial
-        loop (validity + overlap check, first-fit) stays Python.
-        """
-        from temper_geometry import decoupling_candidate_positions_py
-
+        """Place caps adjacent to their ICs."""
         placements: dict[str, ComponentPlacement] = {}
 
         for cap_ref, ic_ref in cap_to_ic.items():
@@ -661,11 +743,15 @@ class DecouplingCapHeuristic(Heuristic):
 
             # Place cap near IC (offset by component sizes)
             ic_comp = context.netlist.get_component(ic_ref)
+            offset = ic_comp.width / 2 + cap_comp.width / 2 + 1.0
 
-            # Try positions around the IC: right, left, above, below.
-            positions_to_try = decoupling_candidate_positions_py(
-                ic_pos[0], ic_pos[1], ic_comp.width, cap_comp.width
-            )
+            # Try positions around the IC
+            positions_to_try = [
+                (ic_pos[0] + offset, ic_pos[1]),  # Right
+                (ic_pos[0] - offset, ic_pos[1]),  # Left
+                (ic_pos[0], ic_pos[1] + offset),  # Above
+                (ic_pos[0], ic_pos[1] - offset),  # Below
+            ]
 
             for pos_x, pos_y in positions_to_try:
                 if context.is_position_valid(
@@ -827,20 +913,7 @@ class DomainSeparationHeuristic(Heuristic):
         board: Board,
         context: PlacementContext,
     ) -> dict[str, ComponentPlacement]:
-        """Place components in domain regions.
-
-        The per-domain grid layout (cols/rows from ``sqrt(n)``, per-cell
-        position within the region box) is delegated to
-        ``temper_geometry.domain_grid_positions_py``. This uses a DIFFERENT
-        floating-point operation order than ``_place_modules``'s
-        ``module_grid_positions_py`` for the same-looking formula -- see
-        ``organizational_geometry.rs``'s module doc; the two are not
-        interchangeable. The region-box definition (board-fraction
-        constants) stays Python, matching ``ox, oy = board.origin`` staying
-        Python in ``create_keepout_mask``'s delegation.
-        """
-        from temper_geometry import domain_grid_positions_py
-
+        """Place components in domain regions."""
         placements: dict[str, ComponentPlacement] = {}
         ox, oy = board.origin
         margin = context.constraints.board_margin_mm
@@ -877,10 +950,23 @@ class DomainSeparationHeuristic(Heuristic):
                 continue
 
             x_min, y_min, x_max, y_max = regions[domain]
-            positions = domain_grid_positions_py(len(refs), x_min, y_min, x_max, y_max)
+            region_width = x_max - x_min
+            region_height = y_max - y_min
 
-            for ref, (pos_x, pos_y) in zip(refs, positions, strict=True):
+            for i, ref in enumerate(refs):
                 comp = context.netlist.get_component(ref)
+
+                # Distribute within region
+                n = len(refs)
+                cols = max(1, int(np.sqrt(n)))
+                rows = (n + cols - 1) // cols
+
+                col = i % cols
+                row = i // cols
+
+                pos_x = x_min + (col + 0.5) * region_width / cols
+                pos_y = y_min + (row + 0.5) * region_height / rows
+
                 if context.is_position_valid(pos_x, pos_y, comp.width, comp.height):
                     placements[ref] = ComponentPlacement(
                         ref=ref,

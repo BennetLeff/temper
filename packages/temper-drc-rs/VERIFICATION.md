@@ -1,5 +1,39 @@
 # Validation DRC-check kernels — Verification
 
+## PyAny-removal wave 2 (2026-08-06) — typed-handle tightenings
+
+Record per plan R1e, as part of the Wave-4 PyAny-removal wave 2
+(`docs/evidence/2026-08-06-pyany-surface-audit-2.md`, Wave A). Four stored
+fields in `drc_contracts.rs` are tightened from opaque `Py<PyAny>` to typed
+handles. Each wrapped value IS the same-crate pyclass on every verified
+production construction path, so the tightening changes nothing observable:
+the getter/setter/`__eq__`/`__repr__`/`to_dict` surfaces are unchanged, and
+the differential suites stayed green unchanged. A non-pyclass payload that
+was previously stored opaquely now raises `TypeError` — the pinned suites
+never pass one.
+
+| Struct | Field | Change | Evidence |
+|---|---|---|---|
+| `Issue` | `severity` | `Py<PyAny>` → `Py<Severity>` | Production (`drc_runner.py:225`, `drc_oracle.py:575`) and every differential corpus case pass the `Severity` pyclass members (`_SEVERITY_MAP[...]`, `_RS_SEV[...]`). |
+| `Issue` | `location` | `Py<PyAny>` → `Option<Py<Location>>` | Production passes `_Location(...)` or `None`; differential cases resolve `$loc` → the `Location` pyclass or default `None`. |
+| `Placement` | `via_placement` | `Py<PyAny>` → `Option<Py<ViaPlacement>>` | `_pipeline_verify.py:98` assigns `DRCViaPlacement(...)` (the pyclass re-export) after default construction; `from_dict` emits `None`. |
+| `Placement` | `trace_placement` | `Py<PyAny>` → `Option<Py<TracePlacement>>` | `_pipeline_verify.py:124` assigns `DRCTracePlacement(...)`; `from_dict` emits `None`. |
+
+The remaining 81 stored fields stay `Py<PyAny>` (INTENTIONAL int-vs-float
+type preservation or STILL-NEEDED Python-built identity-mutable containers,
+per the audit).
+
+**Pins:** the differential suites
+(`test_drc_contracts_rust_differential.py`, the #717/#761 consumer
+differentials, the report differentials) pass unchanged, and three anti-
+vacuity identity pins were added: `test_issue_severity_typed_identity_and_type`,
+`test_issue_location_typed_none_and_identity`,
+`test_placement_via_trace_typed_identity_and_none` (each asserts `is`
+identity for the pyclass cases, `None` for the empty cases, and `TypeError`
+for a non-pyclass payload).
+
+---
+
 The validation DRC-check slice (`src/validation.rs`) is the FIRST Wave 4
 Phase 4 migration, porting the pure compute kernels of
 `temper_placer/validation/` into `temper_drc_rs`. The Python modules

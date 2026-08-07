@@ -1,74 +1,102 @@
+"""Pinned Python oracle for ``router_v6/layer_assignment.py`` (Wave-4 Phase 3).
+
+DO NOT EDIT -- THESE ARE THE REFERENCE.
+=======================================
+Every executable statement below is a **verbatim** ``git show`` extraction
+from commit ``550cab2a3a0fcfd4a6c29063d30d3a83837ebcb5`` (``origin/main``,
+2026-08-06) of ``temper_placer/router_v6/layer_assignment.py``:
+``Layer``, ``LayerConstraint``, ``LayerAssignment``, ``matches_pattern``,
+``DEFAULT_LAYER_CONSTRAINTS``, ``assign_layers``,
+``_get_net_dominant_direction``.
+
+Nothing has been cleaned up, refactored, or fixed.
+``test_layer_assignment_rust_differential.py::test_oracle_is_verbatim_copy``
+re-extracts each definition from the pinned commit and compares the source
+text character for character.
+
+Scope of the Rust port (why most of the module is NOT here)
+-------------------------------------------------------------
+``layer_assignment.py`` has exactly one production caller of ``assign_layers``
+-- ``router_v6/verifier.py``'s ``assign_layers(netlist)`` -- and it is called
+with NO ``constraints`` override and NO ``component_positions``. Repo-wide
+grep (both ``packages/`` and ``tests/``) confirms:
+
+* No caller and no test ever passes ``component_positions=`` to this
+  ``assign_layers`` (the ``component_positions=`` hits elsewhere in the repo
+  all belong to unrelated functions -- ``analyze_congestion``,
+  ``EMIFilterValidator``, etc). ``_get_net_dominant_direction`` and every
+  geometric-fallback branch inside ``assign_layers`` are therefore DEAD CODE
+  relative to everything that runs today: unreachable from production, and
+  unreachable from any test, so a Rust port of that path would be a second
+  implementation of code nothing exercises, pinned against a differential
+  that would have to invent its own never-verified scenarios. It is pinned
+  here verbatim (so the oracle is a faithful, complete copy) but is NOT
+  ported and NOT exercised by the differential below.
+* No caller and no test ever passes a custom ``constraints=`` list built from
+  THIS module's ``LayerConstraint`` (the ``LayerConstraint`` hits in
+  ``test_stage3_constraint_audit.py`` / ``sat_property_strategies.py`` are a
+  same-named but unrelated class imported from
+  ``router_v6.constraint_model``).
+
+So the only configuration ``assign_layers`` is ever called under is
+``constraints=None, component_positions=None``, which collapses the function
+to: for each net, walk ``DEFAULT_LAYER_CONSTRAINTS`` in order and take the
+first regex-``fullmatch``; the catch-all ``r".*"`` guarantees a match, so
+``matched_constraint`` is never ``None`` and the geometric branches never
+fire. Every ``DEFAULT_LAYER_CONSTRAINTS`` entry lists all four layers in
+``allowed_layers``, so ``vias_required`` is always ``True`` in this
+configuration too -- not hardcoded here, but a fact the differential checks.
+
+That reachable slice -- ``matches_pattern`` + ``DEFAULT_LAYER_CONSTRAINTS`` +
+the constraint-matching loop of ``assign_layers`` -- is what
+``packages/temper-rust-router/src/layer_assignment.rs`` ports.
+``get_layer_for_net``, ``layer_assignments_from_netclass`` and
+``_get_net_class`` are a separate SSOT-driven code path (arbitrary
+``design_rules`` object via ``hasattr``/``getattr`` dispatch) with no
+arithmetic to speed up; they are orchestration/glue, not a kernel, and are
+not pinned here at all.
+
+Which language's operator each call site uses
+-----------------------------------------------
+* ``matches_pattern`` is ``bool(re.fullmatch(pattern, net_name))``. Every
+  pattern in ``DEFAULT_LAYER_CONSTRAINTS`` is ASCII, has no groups, no
+  backreferences, no flags -- alternations of literal prefixes/suffixes
+  glued to ``.*`` (e.g. ``r"DC_BUS_.*|HV_.*|SW_NODE|AC_L|AC_N|RECT_.*"``) or
+  bare literals, plus the terminal ``r".*"`` catch-all. The Rust kernel uses
+  the ``regex`` crate with the same pattern text under an explicit
+  ``^(?:...)$`` anchor (Rust's ``Regex::is_match`` is a substring search, not
+  an implicit fullmatch); ``.`` does not match ``\\n`` in either engine by
+  default, so a net name containing an embedded newline is handled
+  identically, not approximated with a hand-rolled ``starts_with``/
+  ``ends_with`` check.
+* ``DEFAULT_LAYER_CONSTRAINTS`` order is the contract: "first match wins".
+  Nothing here sorts; the list's Python source order IS the priority order,
+  reproduced as a Rust array in the same order.
+
+Determinism
+-----------
+``assign_layers`` builds a plain ``dict`` keyed by ``net.name`` in
+``netlist.nets`` iteration order, so the Rust kernel's output list must
+preserve the input net-name order verbatim -- no re-sorting, no HashMap
+iteration reaching the caller.
 """
-Layer assignment solver for PCB routing (temper-wna.2).
 
-This module assigns each net to optimal PCB layer(s) while respecting hard
-constraints like HV nets on L1 only. Layer assignment is deterministic -
-same inputs always produce the same assignments.
-
-Layer Model (4-Layer Induction Cooker):
-- L1 (Top): Signal routing, 2oz copper, HV traces
-- L2 (GND): Ground plane, split (PGND, CGND, ISOGND)
-- L3 (PWR): Power plane (VCC_15V, VCC_3V3)
-- L4 (Bottom): Signal routing, 1oz copper
-
-Example usage:
-    >>> from temper_placer.routing.layer_assignment import assign_layers, Layer
-    >>> from temper_placer.core.netlist import Netlist
-    >>>
-    >>> assignments = assign_layers(netlist)
-    >>> for net_name, assignment in assignments.items():
-    ...     print(f"{net_name}: {assignment.primary_layer.name}")
-
-Wave 4 Phase 3 (``docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md``):
-``assign_layers`` delegates to ``temper_rust_router.assign_layers_py`` for its
-ONE reachable production configuration -- ``constraints=None,
-component_positions=None`` (the only way ``router_v6/verifier.py``, the sole
-caller, ever invokes it, and the only configuration any test in this
-repository exercises). See
-``packages/temper-rust-router/src/layer_assignment.rs``'s module docstring
-for the grep evidence and for why the geometric-fallback and custom-
-constraints branches below stay Python: they are dead code relative to
-everything that runs today, and porting them would build a second
-implementation of a path no caller and no test reaches.
-"""
-
-from typing import TYPE_CHECKING, TypeAlias
-
-import numpy as np
-import temper_rust_router as _trr
-
-Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
-
-if TYPE_CHECKING:
-    from temper_placer.core.netlist import Net, Netlist
+from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import TYPE_CHECKING, TypeAlias
+
+import numpy as np
 
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.pin_geometry import pin_world_position
 
-# KiCad layer name <-> Layer enum mapping (SSOT decision U2 in
-# 2026-07-08-004-feat-4-layer-functional-stackup-plan.md): the netclass YAML
-# `layer` value is the KiCad layer name; this is the single place the KiCad
-# name, the KiCad index, and the L1..L4 Layer enum meet.
-_LAYER_NAME_TO_ENUM: dict[str, "Layer"] = {}  # populated after Layer is defined
-_LAYER_NAME_TO_INDEX: dict[str, int] = {
-    "F.Cu": 0,
-    "In1.Cu": 1,
-    "In2.Cu": 2,
-    "B.Cu": 3,
-}
+Array: TypeAlias = np.ndarray
 
-# Power-domain rails poured on In2.Cu (per R2). These override the Power
-# netclass `layer` (B.Cu) because the rails reach copper as plane pours, not
-# as bottom-side signal traces.
-_POWER_DOMAIN_RAILS: frozenset[str] = frozenset({"+3V3", "+5V", "+15V"})
-
-# Default layer for nets with no class layer assignment (catch-all → B.Cu,
-# matching DEFAULT_LAYER_CONSTRAINTS' bottom-layer preference).
-_DEFAULT_LAYER_NAME: str = "B.Cu"
+if TYPE_CHECKING:
+    from temper_placer.core.netlist import Net
 
 
 class Layer(Enum):
@@ -91,65 +119,6 @@ class Layer(Enum):
     L2_GND = 2
     L3_PWR = 3
     L4_BOT = 4
-
-
-# Complete the KiCad-name -> Layer enum mapping now that Layer exists.
-_LAYER_NAME_TO_ENUM.update(
-    {
-        "F.Cu": Layer.L1_TOP,
-        "In1.Cu": Layer.L2_GND,
-        "In2.Cu": Layer.L3_PWR,
-        "B.Cu": Layer.L4_BOT,
-    }
-)
-
-
-def layer_name_to_enum(name: str) -> Layer:
-    """Map a KiCad layer name (e.g. ``"F.Cu"``) to its :class:`Layer` enum.
-
-    Raises:
-        KeyError: if ``name`` is not one of the canonical 4-layer names.
-    """
-    return _LAYER_NAME_TO_ENUM[name]
-
-
-def layer_name_to_index(name: str) -> int:
-    """Map a KiCad layer name to its KiCad copper index (F.Cu=0 .. B.Cu=3).
-
-    Raises:
-        KeyError: if ``name`` is not one of the canonical 4-layer names.
-    """
-    return _LAYER_NAME_TO_INDEX[name]
-
-
-def get_layer_for_net(net_name: str, design_rules: "object") -> str:
-    """Return the KiCad layer name a given net is assigned to.
-
-    Resolution order (deterministic):
-
-    1. Power-domain rails (``+3V3`` / ``+5V`` / ``+15V``) → ``In2.Cu`` pours.
-    2. The net's resolved net class ``layer`` field from the netclass SSOT.
-    3. Fall back to the catch-all default (``B.Cu``).
-
-    Args:
-        net_name: Name of the net (e.g. ``"AC_L"``, ``"+3V3"``).
-        design_rules: A ``DesignRules`` instance whose net classes carry the
-            SSOT ``layer`` field (loaded from ``netclass_rules.yaml``).
-
-    Returns:
-        A canonical KiCad copper layer name.
-    """
-    if net_name in _POWER_DOMAIN_RAILS:
-        return "In2.Cu"
-
-    rules = None
-    if design_rules is not None and hasattr(design_rules, "get_rules_for_net"):
-        rules = design_rules.get_rules_for_net(net_name)
-
-    layer_name = getattr(rules, "layer", None) if rules is not None else None
-    if layer_name is None:
-        return _DEFAULT_LAYER_NAME
-    return layer_name
 
 
 @dataclass
@@ -208,23 +177,6 @@ class LayerAssignment:
     allowed_layers: set[Layer] = field(default_factory=set)
     vias_required: bool = False
     reason: str = ""
-
-
-@dataclass
-class LayerConflict:
-    """Represents a conflict between layer assignments.
-
-    Attributes:
-        net1: First conflicting net
-        net2: Second conflicting net
-        conflict_type: Type of conflict (e.g., "clearance_violation")
-        description: Human-readable description
-    """
-
-    net1: str
-    net2: str
-    conflict_type: str
-    description: str
 
 
 def matches_pattern(net_name: str, pattern: str) -> bool:
@@ -303,67 +255,6 @@ DEFAULT_LAYER_CONSTRAINTS: list[LayerConstraint] = [
 ]
 
 
-def layer_assignments_from_netclass(
-    design_rules: "object",
-    net_names: list[str],
-) -> dict[str, LayerAssignment]:
-    """Resolve each net's layer from the netclass SSOT ``layer`` field.
-
-    This is the SSOT-driven replacement for the regex-based
-    ``DEFAULT_LAYER_CONSTRAINTS`` path: it walks each net's resolved net class
-    and reads the ``layer`` value that originated in ``netclass_rules.yaml``,
-    producing the same ``LayerAssignment`` output contract that
-    :func:`assign_layers` returns.
-
-    Signal nets are restricted to a single primary layer (never In1.Cu/In2.Cu);
-    power-domain rails resolve to In2.Cu pours via :func:`get_layer_for_net`.
-
-    Args:
-        design_rules: ``DesignRules`` whose net classes carry ``layer``.
-        net_names: Net names to resolve.
-
-    Returns:
-        Mapping of net name → :class:`LayerAssignment` (deterministic).
-    """
-    assignments: dict[str, LayerAssignment] = {}
-    for net_name in net_names:
-        layer_name = get_layer_for_net(net_name, design_rules)
-
-        # Resolve the net class name for downstream layer-selection logic
-        # (W2 U2 — channel_mapping._assign_layer needs to know whether the
-        # assignment came from an explicit class or the Default catch-all).
-        nc_rules = None
-        if design_rules is not None and hasattr(design_rules, "get_rules_for_net"):
-            nc_rules = design_rules.get_rules_for_net(net_name)
-        nc_name = getattr(nc_rules, "name", "Default") if nc_rules is not None else "Default"
-
-        primary = layer_name_to_enum(layer_name)
-        assignments[net_name] = LayerAssignment(
-            net=net_name,
-            primary_layer=primary,
-            allowed_layers={primary},
-            vias_required=False,
-            reason=f"netclass={nc_name} SSOT layer={layer_name}",
-        )
-    return assignments
-
-
-def _get_net_class(net_name: str, netlist: Netlist) -> str | None:
-    """Get the net class for a net from the netlist.
-
-    Args:
-        net_name: Name of the net.
-        netlist: Netlist containing net definitions.
-
-    Returns:
-        Net class string, or None if not found.
-    """
-    for net in netlist.nets:
-        if net.name == net_name:
-            return getattr(net, "net_class", None)
-    return None
-
-
 def assign_layers(
     netlist: Netlist,
     constraints: list[LayerConstraint] | None = None,
@@ -386,25 +277,6 @@ def assign_layers(
         >>> assignments["DC_BUS_P"].primary_layer
         Layer.L1_TOP
     """
-    if constraints is None and component_positions is None:
-        # The one reachable production configuration -- delegate to Rust.
-        # See the module docstring and
-        # temper-rust-router/src/layer_assignment.rs for why the other two
-        # branches below (custom constraints, geometric fallback) stay
-        # Python: neither is ever exercised by a caller or a test.
-        net_names = [net.name for net in netlist.nets]
-        rows = _trr.assign_layers_py(net_names)
-        assignments: dict[str, LayerAssignment] = {}
-        for name, (primary, allowed, vias_required, reason) in zip(net_names, rows, strict=True):
-            assignments[name] = LayerAssignment(
-                net=name,
-                primary_layer=Layer(primary),
-                allowed_layers={Layer(v) for v in allowed},
-                vias_required=vias_required,
-                reason=reason,
-            )
-        return assignments
-
     if constraints is None:
         constraints = DEFAULT_LAYER_CONSTRAINTS
 
@@ -524,66 +396,3 @@ def _get_net_dominant_direction(net: "Net", netlist: Netlist, positions: Array) 
         return "vertical"
 
     return "mixed"
-
-
-def find_layer_conflicts(
-    _assignments: dict[str, LayerAssignment],
-) -> list[LayerConflict]:
-    """Find conflicts in layer assignments.
-
-    Currently checks for:
-    - (Future) HV nets too close to LV nets on same layer
-    - (Future) Nets that can't be routed without crossings
-
-    Args:
-        assignments: Dictionary of layer assignments.
-
-    Returns:
-        List of LayerConflict objects describing conflicts.
-
-    Example:
-        >>> conflicts = find_layer_conflicts(assignments)
-        >>> if conflicts:
-        ...     for c in conflicts:
-        ...         print(f"Conflict: {c.description}")
-    """
-    conflicts: list[LayerConflict] = []
-
-    # Currently a placeholder - real conflict detection would require
-    # geometric analysis of actual routes, which happens in maze routing
-    #
-    # Future improvements:
-    # 1. Check for HV/LV proximity violations
-    # 2. Check for impossible crossing situations
-    # 3. Verify ground/power plane splits are respected
-
-    return conflicts
-
-
-def get_routing_layers() -> list[Layer]:
-    """Get layers available for signal routing.
-
-    Returns:
-        List of layers that can be used for routing.
-        Now includes all 4 layers since inner layers support mixed routing.
-    """
-    return [Layer.L1_TOP, Layer.L2_GND, Layer.L3_PWR, Layer.L4_BOT]
-
-
-def get_plane_layers() -> list[Layer]:
-    """Get layers that are primarily planes (but can also route signals).
-
-    Returns:
-        List of plane layers (L2 and L3).
-        Note: These layers now support mixed-mode routing.
-    """
-    return [Layer.L2_GND, Layer.L3_PWR]
-
-
-def get_signal_only_layers() -> list[Layer]:
-    """Get layers that are signal-only (outer layers).
-
-    Returns:
-        List of signal-only layers (L1 and L4).
-    """
-    return [Layer.L1_TOP, Layer.L4_BOT]
