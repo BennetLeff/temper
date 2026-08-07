@@ -51,21 +51,26 @@
 //! The oracle's `ZoneManager.get_zone_at` queries a shapely `STRtree` by
 //! bounding-box first, then confirms containment with GEOS's
 //! `Polygon.contains(Point)` (strict interior; boundary points are
-//! excluded). [`point_in_polygon`] here is a standard even-odd ray-casting
-//! test over the *full* zone list (no bounding-box pre-filter — the zone
-//! counts in practice are 0-3, so brute force is cheap and the pre-filter is
-//! purely a performance optimization in the oracle, not part of its
-//! observable behavior for non-overlapping zones). Two caveats, both
-//! practically unreachable for the zones this codebase actually constructs
-//! (`ClearanceMatrix.parse`'s `HV`/rect zones and `infer_zones`'s output,
-//! neither of which overlaps by construction): first, GEOS's `contains` at
-//! an *exact* boundary vertex/edge may disagree with this ray-casting
-//! implementation in the last bit, since GEOS uses its own robust
-//! predicates; second, if zones DO overlap, `get_zone_at` returns whichever
-//! zone the STRtree happens to enumerate first (unspecified order), while
-//! this kernel always returns the first zone in list order — for
-//! non-overlapping zones (the only case this codebase produces) both return
-//! the unique containing zone, so the two orders agree.
+//! excluded). [`point_in_polygon`] here is an even-odd ray-casting test over
+//! the *full* zone list (no bounding-box pre-filter — the zone counts in
+//! practice are 0-3, so brute force is cheap and the pre-filter is purely a
+//! performance optimization in the oracle, not part of its observable
+//! behavior for non-overlapping zones), with an exact on-segment pre-check
+//! ([`point_on_segment`]) so vertices and edges get a definite "outside"
+//! answer rather than depending on plain ray casting's inherent ambiguity
+//! there. Two residual caveats, both practically unreachable for the zones
+//! this codebase actually constructs (`ClearanceMatrix.parse`'s `HV`/rect
+//! zones and `infer_zones`'s output, neither of which overlaps by
+//! construction): first, a boundary point that is only *nearly* exact (off
+//! by a ULP or two from the polygon's own vertices/edges, e.g. after an
+//! upstream floating-point transform) can still land on the wrong side of
+//! `point_on_segment`'s exact-cross-product test — GEOS uses its own robust
+//! predicates there and may disagree in the last bit; second, if zones DO
+//! overlap, `get_zone_at` returns whichever zone the STRtree happens to
+//! enumerate first (unspecified order), while this kernel always returns the
+//! first zone in list order — for non-overlapping zones (the only case this
+//! codebase produces) both return the unique containing zone, so the two
+//! orders agree.
 
 use std::collections::HashMap;
 
@@ -268,17 +273,47 @@ pub fn get_clearance_kernel_py(
 // ZoneManager.get_zone_at
 // ---------------------------------------------------------------------------
 
+/// Exact on-segment test (collinear via a zero cross product, then a
+/// bounding-box check) used to give polygon EDGES and VERTICES a definite,
+/// non-ray-casting-dependent answer before falling through to the even-odd
+/// sweep below. Plain ray casting is only ambiguous exactly ON a boundary
+/// (a ray through a vertex can toggle 0, 1, or 2 times depending on which
+/// way its neighbours lean) -- for points strictly off the boundary this
+/// pre-check never fires and the sweep is the sole decider.
+fn point_on_segment(px: f64, py: f64, ax: f64, ay: f64, bx: f64, by: f64) -> bool {
+    let cross = (bx - ax) * (py - ay) - (by - ay) * (px - ax);
+    if cross != 0.0 {
+        return false;
+    }
+    let min_x = ax.min(bx);
+    let max_x = ax.max(bx);
+    let min_y = ay.min(by);
+    let max_y = ay.max(by);
+    px >= min_x && px <= max_x && py >= min_y && py <= max_y
+}
+
 /// Even-odd ray-casting point-in-polygon test. See the module docstring for
 /// the fidelity discussion relative to GEOS's `Polygon.contains`.
 ///
-/// Boundary points are treated as OUTSIDE (matching `contains`, not
-/// `covers`), by using strict inequality throughout.
+/// Boundary points (vertices and edges) are treated as OUTSIDE (matching
+/// `contains`, not `covers`): [`point_on_segment`] checks every edge first
+/// and returns `false` immediately on a hit, sidestepping plain ray
+/// casting's inherent ambiguity exactly at a vertex.
 pub fn point_in_polygon(x: f64, y: f64, poly: &[(f64, f64)]) -> bool {
     if poly.len() < 3 {
         return false;
     }
-    let mut inside = false;
     let n = poly.len();
+
+    for i in 0..n {
+        let (ax, ay) = poly[i];
+        let (bx, by) = poly[(i + 1) % n];
+        if point_on_segment(x, y, ax, ay, bx, by) {
+            return false;
+        }
+    }
+
+    let mut inside = false;
     let mut j = n - 1;
     for i in 0..n {
         let (xi, yi) = poly[i];
@@ -413,6 +448,17 @@ mod tests {
         let square = vec![(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0)];
         assert!(point_in_polygon(5.0, 5.0, &square));
         assert!(!point_in_polygon(20.0, 20.0, &square));
+    }
+
+    #[test]
+    fn point_in_polygon_excludes_exact_vertices_and_edges() {
+        // Plain ray casting is ambiguous exactly at a vertex; the
+        // point_on_segment pre-check must give a definite "outside" answer
+        // for every corner and every mid-edge point of this square.
+        let square = vec![(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0)];
+        for &(x, y) in &[(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0), (10.0, 5.0), (5.0, 0.0)] {
+            assert!(!point_in_polygon(x, y, &square), "boundary point ({x}, {y}) should be OUTSIDE");
+        }
     }
 
     #[test]
