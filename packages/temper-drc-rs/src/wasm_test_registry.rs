@@ -19,7 +19,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 112 eligible tests, in a stable order.
+/// All 147 eligible tests, in a stable order.
 pub const ALL: &[&[WasmTest]] = &[
     crate::board::tests::WASM_TESTS,
     crate::board::board_state_tests::WASM_TESTS,
@@ -28,6 +28,14 @@ pub const ALL: &[&[WasmTest]] = &[
     crate::pymath::tests::WASM_TESTS,
     crate::rules::integration_tests::WASM_TESTS,
     crate::rules::drc::clearance::tests::WASM_TESTS,
+    crate::rules::emc::ground_plane::tests::WASM_TESTS,
+    crate::rules::emc::loop_area::tests::WASM_TESTS,
+    crate::rules::emc::noise_coupling::tests::WASM_TESTS,
+    crate::rules::erc::floating_pins::tests::WASM_TESTS,
+    crate::rules::erc::net_connectivity::tests::WASM_TESTS,
+    crate::rules::erc::power_domain::tests::WASM_TESTS,
+    crate::rules::placement::thermal_via_count::tests::WASM_TESTS,
+    crate::rules::placement::wave_solder_keepout::tests::WASM_TESTS,
     crate::rules::routing::power_pad_teardrop::tests::WASM_TESTS,
     crate::types::clock::tests::WASM_TESTS,
     crate::types::esd::tests::WASM_TESTS,

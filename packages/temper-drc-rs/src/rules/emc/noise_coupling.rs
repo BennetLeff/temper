@@ -125,3 +125,151 @@ impl DrcRule for NoiseCouplingCheck {
         violations
     }
 }
+
+#[cfg(any(test, feature = "wasm-test-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
+    use super::*;
+    use crate::board::*;
+    use crate::constraints::*;
+    use geo::Point;
+    use std::collections::HashMap;
+
+    fn make_board(components: Vec<Component>, clearance_mm: f64) -> BoardState {
+        let mut rules = HashMap::new();
+        // Insert net class rules for every net class used in tests so
+        // clearance_between() can resolve them in the key-value map.
+        let default_rules = NetClassRules {
+            clearance_mm,
+            ..NetClassRules::default()
+        };
+        rules.insert(NetClassName("power".into()), default_rules.clone());
+        rules.insert(NetClassName("analog".into()), default_rules.clone());
+        rules.insert(NetClassName("Signal".into()), default_rules.clone());
+        BoardState {
+            width_mm: 100.0,
+            height_mm: 100.0,
+            margin_mm: 3.0,
+            electrical_components: components,
+            mechanical_components: vec![],
+            nets: vec![],
+            net_class_rules: rules,
+            traces: vec![],
+            vias: vec![],
+            zones: vec![],
+        }
+    }
+
+    fn make_component(refdes: &str, x: f64, y: f64, net_class: &str) -> Component {
+        Component {
+            refdes: ComponentRef(refdes.into()),
+            center: Point::new(x, y),
+            rotation: 0.0,
+            side: BoardSide::Top,
+            width: 10.0,
+            height: 10.0,
+            net_class: NetClassName(net_class.into()),
+            power_dissipation_w: None,
+            package_type: PackageType::Smd,
+            is_magnetic: false,
+            is_electrolytic: false,
+            vent_direction: None,
+            footprint_polygon: None,
+        }
+    }
+
+    #[cfg_attr(test, test)]
+    fn noise_coupling_empty_board_no_violations() {
+        let board = make_board(vec![], 5.0);
+        let constraints = ConstraintSet::default();
+        let check = NoiseCouplingCheck::new();
+        let violations = check.check(&board, &constraints);
+        assert!(
+            violations.is_empty(),
+            "empty board must produce 0 violations"
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn noise_coupling_far_apart_no_violation() {
+        // Noisy ("power") and sensitive ("analog") 50mm apart
+        // edge_distance ≈ 50 - 10 = 40mm > clearance 5mm
+        let c1 = make_component("C1", 0.0, 0.0, "power");
+        let c2 = make_component("C2", 50.0, 0.0, "analog");
+        let board = make_board(vec![c1, c2], 5.0);
+        let constraints = ConstraintSet::default();
+        let check = NoiseCouplingCheck::new();
+        let violations = check.check(&board, &constraints);
+        assert!(
+            violations.is_empty(),
+            "distant pair must produce 0 violations, got {}",
+            violations.len()
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn noise_coupling_close_pair_violation() {
+        // Noisy ("power") and sensitive ("analog") 12mm apart
+        // edge_distance ≈ 12 - 10 = 2mm < clearance 5mm
+        let c1 = make_component("C1", 0.0, 0.0, "power");
+        let c2 = make_component("C2", 12.0, 0.0, "analog");
+        let board = make_board(vec![c1, c2], 5.0);
+        let constraints = ConstraintSet::default();
+        let check = NoiseCouplingCheck::new();
+        let violations = check.check(&board, &constraints);
+        assert_eq!(
+            violations.len(),
+            1,
+            "close noisy-sensitive pair must produce 1 violation"
+        );
+        let v = &violations[0];
+        assert_eq!(v.code, "EMC_NSE_001");
+        assert_eq!(v.severity, Severity::Warning);
+        assert_eq!(v.category, DrcCategory::Emc);
+    }
+
+    #[cfg_attr(test, test)]
+    fn noise_coupling_non_noisy_sensitive_no_violation() {
+        // Both components are "Signal" (not noisy, not sensitive)
+        let c1 = make_component("C1", 0.0, 0.0, "Signal");
+        let c2 = make_component("C2", 11.0, 0.0, "Signal");
+        let board = make_board(vec![c1, c2], 5.0);
+        let constraints = ConstraintSet::default();
+        let check = NoiseCouplingCheck::new();
+        let violations = check.check(&board, &constraints);
+        assert!(
+            violations.is_empty(),
+            "non-noisy/sensitive pair must produce 0 violations"
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn noise_coupling_at_threshold_exact_violation() {
+        // Two 10mm-wide components, 10mm apart center-to-center
+        // edge_distance = 10 - 5 - 5 = 0mm < clearance 5mm → violation
+        let c1 = make_component("C1", 0.0, 0.0, "power");
+        let c2 = make_component("C2", 10.0, 0.0, "analog");
+        let board = make_board(vec![c1, c2], 5.0);
+        let constraints = ConstraintSet::default();
+        let check = NoiseCouplingCheck::new();
+        let violations = check.check(&board, &constraints);
+        assert!(
+            !violations.is_empty(),
+            "touching noisy-sensitive pair must produce a violation"
+        );
+    }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("rules::emc::noise_coupling::tests::noise_coupling_empty_board_no_violations", noise_coupling_empty_board_no_violations),
+        ("rules::emc::noise_coupling::tests::noise_coupling_far_apart_no_violation", noise_coupling_far_apart_no_violation),
+        ("rules::emc::noise_coupling::tests::noise_coupling_close_pair_violation", noise_coupling_close_pair_violation),
+        ("rules::emc::noise_coupling::tests::noise_coupling_non_noisy_sensitive_no_violation", noise_coupling_non_noisy_sensitive_no_violation),
+        ("rules::emc::noise_coupling::tests::noise_coupling_at_threshold_exact_violation", noise_coupling_at_threshold_exact_violation),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
+}
