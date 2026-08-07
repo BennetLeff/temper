@@ -408,7 +408,7 @@ def assign_layers(
     if constraints is None:
         constraints = DEFAULT_LAYER_CONSTRAINTS
 
-    assignments: dict[str, LayerAssignment] = {}
+    assignments = {}  # annotated at its first binding above
 
     for net in netlist.nets:
         # Find first matching constraint

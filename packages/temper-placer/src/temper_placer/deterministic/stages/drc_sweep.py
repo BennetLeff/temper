@@ -20,6 +20,7 @@ lives in ``packages/temper-drc-rs/VERIFICATION.md``.
 """
 
 from dataclasses import replace
+from typing import Any
 
 import temper_drc_rs as _drc
 
@@ -143,8 +144,9 @@ class TrackDeduplicationStage(Stage):
         # positions INTO this marshalled list. Non-Trace route entries (e.g.
         # Via) are never marshalled, so the shim records the marshalled ->
         # state.routes index mapping and remaps the kept indices back.
-        marshalled = []  # (start, end, layer, net) for Trace objects
-        marshalled_to_route = {}  # marshalled index -> state.routes index
+        # (start, end, layer, net) for Trace objects
+        marshalled: list[tuple[Any, Any, Any, Any]] = []
+        marshalled_to_route: dict[int, int] = {}  # marshalled idx -> state.routes idx
         for route_index, trace in enumerate(state.routes):
             if isinstance(trace, Trace):
                 marshalled_to_route[len(marshalled)] = route_index
