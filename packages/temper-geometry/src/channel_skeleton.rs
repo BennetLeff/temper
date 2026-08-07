@@ -366,7 +366,7 @@ mod tests {
     fn hole_is_excluded_from_the_skeleton_interior_filter() {
         let outer = box_ring(0.0, 0.0, 40.0, 30.0);
         let hole = box_ring(15.0, 10.0, 25.0, 20.0);
-        let segments = extract_medial_axis_single(&outer, &[hole.clone()], 0.5);
+        let segments = extract_medial_axis_single(&outer, std::slice::from_ref(&hole), 0.5);
         assert!(!segments.is_empty());
         for (p1, p2) in &segments {
             let mid = p1.midpoint(p2);
