@@ -75,7 +75,6 @@ board_interface:
     - RELAY_CTRL
     - DISCHARGE_CTRL
     - V_BUS_SENSE
-    - ZCD_ISO
 
 domains:
   # Mains / high-voltage power domain: AC line/neutral, the rectified DC
