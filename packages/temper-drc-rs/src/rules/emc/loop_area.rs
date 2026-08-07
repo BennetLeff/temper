@@ -109,3 +109,181 @@ impl DrcRule for LoopAreaCheck {
         violations
     }
 }
+
+#[cfg(any(test, feature = "wasm-test-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
+    use super::*;
+    use crate::board::*;
+    use crate::constraints::*;
+    use geo::Point;
+    use std::collections::HashMap;
+
+    fn make_board(components: Vec<Component>, nets: Vec<Net>) -> BoardState {
+        BoardState {
+            width_mm: 100.0,
+            height_mm: 100.0,
+            margin_mm: 3.0,
+            electrical_components: components,
+            mechanical_components: vec![],
+            nets,
+            net_class_rules: {
+                let mut m = HashMap::new();
+                m.insert(
+                    NetClassName("Signal".into()),
+                    NetClassRules::default(),
+                );
+                m
+            },
+            traces: vec![],
+            vias: vec![],
+            zones: vec![],
+        }
+    }
+
+    fn make_component(refdes: &str, x: f64, y: f64) -> Component {
+        Component {
+            refdes: ComponentRef(refdes.into()),
+            center: Point::new(x, y),
+            rotation: 0.0,
+            side: BoardSide::Top,
+            width: 10.0,
+            height: 10.0,
+            net_class: NetClassName("Signal".into()),
+            power_dissipation_w: None,
+            package_type: PackageType::Smd,
+            is_magnetic: false,
+            is_electrolytic: false,
+            vent_direction: None,
+            footprint_polygon: None,
+        }
+    }
+
+    #[cfg_attr(test, test)]
+    fn loop_area_empty_board_no_violations() {
+        let board = make_board(vec![], vec![]);
+        let constraints = ConstraintSet {
+            critical_loops: vec![LoopConstraint {
+                name: "switch_loop".into(),
+                nets: vec!["N1".into()],
+                max_area_mm2: Some(100.0),
+                weight: 1.0,
+            }],
+            ..Default::default()
+        };
+        let check = LoopAreaCheck::new();
+        let violations = check.check(&board, &constraints);
+        assert!(
+            violations.is_empty(),
+            "empty board must produce 0 violations, got {}",
+            violations.len()
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn loop_area_under_threshold_no_violations() {
+        // Two components 5mm apart → loop bbox area = 5*10 = 50mm² < 200mm² max
+        let c1 = make_component("C1", 0.0, 0.0);
+        let c2 = make_component("C2", 5.0, 0.0);
+        let net = Net {
+            name: NetName("N1".into()),
+            components: vec![ComponentRef("C1".into()), ComponentRef("C2".into())],
+            class: NetClassName("Signal".into()),
+            rules: NetClassRules::default(),
+        };
+        let board = make_board(vec![c1, c2], vec![net]);
+        let constraints = ConstraintSet {
+            critical_loops: vec![LoopConstraint {
+                name: "switch_loop".into(),
+                nets: vec!["N1".into()],
+                max_area_mm2: Some(200.0),
+                weight: 1.0,
+            }],
+            ..Default::default()
+        };
+        let check = LoopAreaCheck::new();
+        let violations = check.check(&board, &constraints);
+        assert!(
+            violations.is_empty(),
+            "loop under threshold must have 0 violations, got {}",
+            violations.len()
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn loop_area_over_threshold_violation() {
+        // Two components 50mm apart in X, 10mm apart in Y
+        // → loop bbox area = 50*10 = 500mm² > 200mm² max
+        let c1 = make_component("C1", 0.0, 0.0);
+        let c2 = make_component("C2", 50.0, 10.0);
+        let net = Net {
+            name: NetName("N1".into()),
+            components: vec![ComponentRef("C1".into()), ComponentRef("C2".into())],
+            class: NetClassName("Signal".into()),
+            rules: NetClassRules::default(),
+        };
+        let board = make_board(vec![c1, c2], vec![net]);
+        let constraints = ConstraintSet {
+            critical_loops: vec![LoopConstraint {
+                name: "switch_loop".into(),
+                nets: vec!["N1".into()],
+                max_area_mm2: Some(200.0),
+                weight: 1.0,
+            }],
+            ..Default::default()
+        };
+        let check = LoopAreaCheck::new();
+        let violations = check.check(&board, &constraints);
+        assert_eq!(
+            violations.len(),
+            1,
+            "loop over threshold must produce 1 violation"
+        );
+        let v = &violations[0];
+        assert_eq!(v.code, "EMC_LPA_001");
+        assert_eq!(v.severity, Severity::Warning);
+        assert_eq!(v.category, DrcCategory::Emc);
+    }
+
+    #[cfg_attr(test, test)]
+    fn loop_area_no_max_no_violations() {
+        let c1 = make_component("C1", 0.0, 0.0);
+        let c2 = make_component("C2", 100.0, 0.0);
+        let net = Net {
+            name: NetName("N1".into()),
+            components: vec![ComponentRef("C1".into()), ComponentRef("C2".into())],
+            class: NetClassName("Signal".into()),
+            rules: NetClassRules::default(),
+        };
+        let board = make_board(vec![c1, c2], vec![net]);
+        let constraints = ConstraintSet {
+            critical_loops: vec![LoopConstraint {
+                name: "switch_loop".into(),
+                nets: vec!["N1".into()],
+                max_area_mm2: None,
+                weight: 1.0,
+            }],
+            ..Default::default()
+        };
+        let check = LoopAreaCheck::new();
+        let violations = check.check(&board, &constraints);
+        assert!(
+            violations.is_empty(),
+            "no max_area must produce 0 violations, got {}",
+            violations.len()
+        );
+    }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("rules::emc::loop_area::tests::loop_area_empty_board_no_violations", loop_area_empty_board_no_violations),
+        ("rules::emc::loop_area::tests::loop_area_under_threshold_no_violations", loop_area_under_threshold_no_violations),
+        ("rules::emc::loop_area::tests::loop_area_over_threshold_violation", loop_area_over_threshold_violation),
+        ("rules::emc::loop_area::tests::loop_area_no_max_no_violations", loop_area_no_max_no_violations),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
+}
