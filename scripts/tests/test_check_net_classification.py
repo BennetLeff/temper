@@ -215,8 +215,11 @@ class TestHistoricalDefectReconstruction:
     def test_non_vocabulary_keyword_list_is_not_flagged(self, tmp_path):
         """A keyword-loop-substring-test shape whose vocabulary has
         nothing to do with the HV/SELV boundary (e.g. impedance-class
-        keywords) must not be flagged -- this is
-        ``net_class_manager.HIGH_SPEED_KEYWORDS``'s real shape.
+        keywords) must not be flagged -- this was
+        ``io/net_class_manager.py``'s ``HIGH_SPEED_KEYWORDS`` shape. That
+        module was retired (zero importers, recorded RETIRE in the Phase-3
+        triage); the fixture below is self-contained and keeps the shape it
+        was derived from, which is the thing under test.
         """
         root = tmp_path / "fixture"
         _write(
