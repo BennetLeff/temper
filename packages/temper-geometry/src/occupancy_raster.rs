@@ -400,10 +400,10 @@ fn unmark_point_rect(
                 continue;
             }
             grid[idx].set(0);
-            if let Some(sm) = static_mask {
-                if sm[idx].get() != 0 {
-                    grid[idx].set(-1);
-                }
+            if let Some(sm) = static_mask
+                && sm[idx].get() != 0
+            {
+                grid[idx].set(-1);
             }
         }
     }
@@ -493,6 +493,10 @@ pub fn unmark_path_rect(
 /// value is a SORTED, deduplicated `Vec<i64>` instead of an unordered
 /// Python `set` — the Python wrapper rewraps it as a `set` to preserve
 /// the public API.
+// 8 arguments mirrors the reference's own parameter list (grid dims, two
+// endpoints, origin, cell size); collapsing them into a struct here would make
+// the kernel's shape diverge from the Python it is measured against.
+#[allow(clippy::too_many_arguments)]
 pub fn blocking_net_ids(
     grid: &[i8],
     width_cells: i64,
@@ -825,6 +829,10 @@ pub fn downsample_or_blocks_py(
 // ---------------------------------------------------------------------------
 
 #[cfg(test)]
+// Same precedent as channel_widths.rs / bottleneck_geometry.rs: test bodies
+// unwrap freely, and the index arithmetic (`0 * 13 + 0`) is written out for
+// readability as row/col rather than folded to a constant.
+#[allow(clippy::unwrap_used, clippy::identity_op, clippy::erasing_op)]
 mod tests {
     use super::*;
 
