@@ -1,3 +1,10 @@
+// When `--no-default-features` deactivates `python`, the pyo3-bridge code
+// (each module's `register`, `*_py` functions) is not compiled.  Functions
+// reachable ONLY through those bridges then appear dead — they are not, but
+// clippy cannot see past the cfg gate.  Allow dead_code in the no-python
+// config; the production (python ON) build gates nothing.
+// WASM CI guard (plan 2026-08-03-002, U3).
+#![cfg_attr(not(feature = "python"), allow(dead_code))]
 pub mod types;
 pub mod primitives;
 pub mod smooth;
@@ -112,6 +119,10 @@ pub mod zone_pour;
 // router_v6/constraints_geometry.py. Declared after creepage_check because
 // it reuses that module's CPython min/max replications.
 pub mod drc_constraints_geometry;
+// Wave 4: router_v6/channel_skeleton.py's medial-axis (Voronoi) extraction.
+// Declared after creepage_check (py_min) and host_math (pow), which it
+// reuses.
+pub mod channel_skeleton;
 #[cfg(feature = "python")]
 pub use drc_constraints_geometry::{
     drc_closest_points_segment_segment_py, drc_point_to_circle_distance_py,
@@ -139,6 +150,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::congestion_heatmap::register(m)?;
     crate::fixed_copper::register(m)?;
     crate::zone_pour::register(m)?;
+    crate::channel_skeleton::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     Ok(())
 }

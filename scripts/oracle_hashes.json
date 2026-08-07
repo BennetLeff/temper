@@ -79,6 +79,7 @@
     "packages/temper-placer/tests/report/_formatter_py_oracle.py": "8c434a1250bbe40f1169ae84a9663db20999917972423d3dfd28b07e504fa883",
     "packages/temper-placer/tests/report/_generator_py_oracle.py": "9db70aeb5cd4cf3576b0cfb4c327bd5d75b9a7012d57abfac37e69837e174bd8",
     "packages/temper-placer/tests/report/_summary_py_oracle.py": "c5aff026026d7e485584740fc02da0ee99dc336fec55453686d4adcfac6241b5",
+    "packages/temper-placer/tests/router_v6/_channel_skeleton_py_oracle.py": "85401c9a8f6bfe4c32df619c1654440509367aaffd89b9c18e92bd8b182f677d",
     "packages/temper-placer/tests/router_v6/_congestion_py_oracle.py": "08f80339403da18ca2cfcf42ea7a899bb934778ac8d45e144aee7467eba33c41",
     "packages/temper-placer/tests/router_v6/_constraints_design_rules_py_oracle.py": "30c715fd4f592d9cb29725ba3763e06fbba69ce3f1180900bfce0b64450bcedb",
     "packages/temper-placer/tests/router_v6/_constraints_geometry_py_oracle.py": "46fa90b92f8eaf341865a933acd49f78f72fd11561a88c5a6f47bd52bce6ca16",
@@ -107,6 +108,7 @@
     "packages/temper-placer/tests/validation/_placement_roundtrip_py_oracle.py": "893479e553ed9bda70106671a7cdc79e27bf57678fe8cd7ee42f9649cb723926",
     "packages/temper-placer/tests/validation/_preflight_py_oracle.py": "0f6af5967d9de083b02ffe8fc228b714d3b4b49b298058099a6f03afa1932e7c",
     "packages/temper-placer/tests/validation/_tht_check_py_oracle.py": "9ccb2e2c246f8105d5e147a10d612d918930eb6fc44cb7d13154a0ff9e0d67d0",
+    "packages/temper-placer/tests/validation/_validation_metrics_py_oracle.py": "ff77b3295c704b0f42d4784e728dba0c0498a4f5ab09b5e536dc30ee29008d32",
     "packages/temper-placer/tests/validation/prereg/_schema_py_oracle.py": "17a1851388201c42b67fe8e8a82eb661103289f0afae6a57303a0384d6396996",
     "packages/temper-placer/tests/wave4_phase2/_core_py_oracle.py": "216491409ff956508b47fa1442da8da5ac49b0e52b17bc13cb507cba7a1c717e",
     "packages/temper-workflow/tests/_route_and_measure_py_oracle.py": "d3e0d57c371983a987746e972ea6072869d2c1c50b32073f1b4dae0f5c5835ad"
