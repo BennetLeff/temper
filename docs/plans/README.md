@@ -8,7 +8,7 @@
 
 <!-- BEGIN GENERATED: plan-status -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*201 plan documents. Generated from frontmatter.*
+*202 plan documents. Generated from frontmatter.*
 
 | Status | Count | Meaning |
 |---|---:|---|
@@ -19,7 +19,7 @@
 | `superseded` | 5 | Replaced by a later plan or by STRATEGY.md. |
 | `draft` | 1 | -- |
 | `research-only, no elec/src or pcb/ changes made -- this is a requirements document for a human/planning decision, not an implementation` | 1 | -- |
-| *(no frontmatter)* | 54 | Legacy documents predating the plan format. |
+| *(no frontmatter)* | 55 | Legacy documents predating the plan format. |
 
 **Active plans (10):**
 
