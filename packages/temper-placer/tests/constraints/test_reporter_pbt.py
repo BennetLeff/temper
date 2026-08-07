@@ -358,3 +358,46 @@ def test_mr4_placing_skipped_component_activates_check():
     # The two checks are the same rule; only placement state changed.
     assert skipped.constraint_type == placed.constraint_type == "ComponentSpacing"
     assert skipped.components == placed.components == ["A", "B"]
+
+
+# ---------------------------------------------------------------------------
+# R20 suite hardening — discriminators moved from the differential. #850's
+# differential-disabled re-run found M5 (multi-decimal threshold message) and
+# M6 (corridor exact half-width) survive the suites-only run; their
+# discriminating assertions lived only in `test_reporter_rust_differential.py`.
+# Both are deterministic invariants of the report surface, so they are pinned
+# here. The differential keeps its own assertions.
+# ---------------------------------------------------------------------------
+
+
+def test_p6_spacing_message_multi_decimal_threshold():
+    """A multi-decimal threshold renders with Python's ``str`` semantics:
+    ``str(10.25) == '10.25'``, so the violation message reads
+    ``(5.0mm < 10.25mm)``. A ``{:.1}``-based formatter would render
+    ``10.2mm`` and fail the pin (surviving mutant M5)."""
+    constraints = _mk(
+        component_spacing_rules=[
+            ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.25, tier="hard")
+        ]
+    )
+    reporter = ConstraintReporter(constraints)
+    report = reporter.check({"A": (0.0, 0.0), "B": (5.0, 0.0)})
+    assert report.results[0].status == ConstraintStatus.VIOLATED
+    assert report.results[0].message == "ComponentSpacing: A - B (5.0mm < 10.25mm)"
+
+
+def test_mr5_corridor_exact_half_width_clear():
+    """The corridor check is strict-``<``: a component at exactly half the
+    corridor width is CLEAR (not a violation), and a hair inside (2.999mm) is a
+    violation. A non-strict ``<=`` comparison would flag the exact-boundary
+    component (surviving mutant M6)."""
+    constraints = _mk(
+        routing_corridors=[
+            RoutingCorridor(name="path", from_component="A", to_component="B", width_mm=6.0, tier="hard")
+        ]
+    )
+    reporter = ConstraintReporter(constraints)
+    clear = reporter.check({"A": (0.0, 0.0), "B": (20.0, 0.0), "X": (10.0, 3.0)})
+    assert clear.results[0].status == ConstraintStatus.SATISFIED
+    inside = reporter.check({"A": (0.0, 0.0), "B": (20.0, 0.0), "X": (10.0, 2.999)})
+    assert inside.results[0].status == ConstraintStatus.VIOLATED
