@@ -281,7 +281,6 @@ def test_get_clearance_zone_override_max_keeps_nan_not_f64_max():
             name="HighVoltage", trace_width=0.5, clearance=math.nan, via_diameter=1.2, via_drill=0.6
         ),
     }
-    zones = [_HV_ZONE]
     oracle_m = ORACLE.ClearanceMatrix(_net_class_rules=dict(nan_rules), _net_to_class=dict(_NET_TO_CLASS))
     shim_m = SHIM.ClearanceMatrix(_net_class_rules=dict(nan_rules), _net_to_class=dict(_NET_TO_CLASS))
     oracle_m.zone_manager = ORACLE.ZoneManager(
