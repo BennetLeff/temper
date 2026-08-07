@@ -1,0 +1,1241 @@
+{
+  "provenance": {
+    "commit": "1e932217b9ee74e4b7b56a48e0f61b2caeaf05c8",
+    "dirty": false
+  },
+  "generated_by": "2026-08-07-pumpkin-equivalence-run.py",
+  "engines": [
+    "ortools-cpsat",
+    "pumpkin-solver-0.5.0"
+  ],
+  "seeds": [
+    0,
+    1,
+    7
+  ],
+  "worker_counts": [
+    1,
+    4,
+    8
+  ],
+  "quick": false,
+  "models": [
+    {
+      "name": "small",
+      "n_components": 5,
+      "n_constraints": 13,
+      "feasibility_parity": true,
+      "status_set": [
+        "optimal"
+      ],
+      "objective_parity": true,
+      "objective_spread": 0.0,
+      "membership_rate": 1.0,
+      "membership_fail_examples": [],
+      "determinism_rate": 1.0,
+      "determinism_groups": 18,
+      "runs": [
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 29.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 29.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 31.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 31.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 21.0,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 29.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 30.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 22.0,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.7,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 2.0,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 1.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        }
+      ]
+    },
+    {
+      "name": "medium",
+      "n_components": 12,
+      "n_constraints": 70,
+      "feasibility_parity": true,
+      "status_set": [
+        "feasible",
+        "optimal"
+      ],
+      "objective_parity": false,
+      "objective_spread": 23926.0,
+      "membership_rate": 1.0,
+      "membership_fail_examples": [],
+      "determinism_rate": 0.5,
+      "determinism_groups": 18,
+      "runs": [
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1941.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1857.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1915.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1865.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1779.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1808.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1376.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1429.7,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1293.1,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1334.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1333.7,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1225.1,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 915.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 942.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 950.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 957.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 909.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 867.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "feasible",
+          "objective_value": 21324.0,
+          "solve_time_ms": 5006.7,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "feasible",
+          "objective_value": 3113.0,
+          "solve_time_ms": 5006.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "feasible",
+          "objective_value": 6912.0,
+          "solve_time_ms": 5004.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "feasible",
+          "objective_value": 3087.0,
+          "solve_time_ms": 5004.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "feasible",
+          "objective_value": 12818.0,
+          "solve_time_ms": 5003.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "feasible",
+          "objective_value": 3004.0,
+          "solve_time_ms": 5004.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "feasible",
+          "objective_value": 12469.0,
+          "solve_time_ms": 5005.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "feasible",
+          "objective_value": 8585.0,
+          "solve_time_ms": 5005.7,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "feasible",
+          "objective_value": 25429.0,
+          "solve_time_ms": 5006.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "feasible",
+          "objective_value": 6684.0,
+          "solve_time_ms": 5008.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "feasible",
+          "objective_value": 13456.0,
+          "solve_time_ms": 5004.1,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "feasible",
+          "objective_value": 23369.0,
+          "solve_time_ms": 5004.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "feasible",
+          "objective_value": 26146.0,
+          "solve_time_ms": 5003.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "feasible",
+          "objective_value": 14886.0,
+          "solve_time_ms": 5004.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "feasible",
+          "objective_value": 4077.0,
+          "solve_time_ms": 5007.0,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "feasible",
+          "objective_value": 10905.0,
+          "solve_time_ms": 5012.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "feasible",
+          "objective_value": 20643.0,
+          "solve_time_ms": 5003.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "feasible",
+          "objective_value": 7171.0,
+          "solve_time_ms": 5004.0,
+          "verified": true,
+          "verification_summary": "PASS"
+        }
+      ]
+    },
+    {
+      "name": "full-board",
+      "n_components": 33,
+      "n_constraints": 543,
+      "feasibility_parity": false,
+      "status_set": [
+        "optimal",
+        "unknown"
+      ],
+      "objective_parity": true,
+      "objective_spread": 0.0,
+      "membership_rate": 1.0,
+      "membership_fail_examples": [],
+      "determinism_rate": 1.0,
+      "determinism_groups": 18,
+      "runs": [
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 2593.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 2729.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 2610.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 2600.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 2622.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 2529.1,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30044.0
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30045.2
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30052.8
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30041.9
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30042.9
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30051.8
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30041.1
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30039.4
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30072.2
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30039.1
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30054.7
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30050.9
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 18.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 18.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 18.5,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 18.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 18.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 14.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 14.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 14.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 15.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 21.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 34.7,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 20.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 20.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 20.0,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.7,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "pumpkin-solver-0.5.0",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 19.7,
+          "verified": true,
+          "verification_summary": "PASS"
+        }
+      ]
+    }
+  ]
+}
