@@ -41,9 +41,26 @@ def _fake_run_factory(
     payload: dict | None = None,
     stderr: str = "",
 ):
-    """Build a ``subprocess.run`` replacement for ``IECCreepageGate``."""
+    """Build a ``subprocess.run`` replacement for ``IECCreepageGate``.
+
+    Handles BOTH kicad-cli invocations the DRC path makes, not just the DRC
+    one. PR #722 ("pin kicad-cli's worker pool so the DRC measurement
+    reproduces") added ``_single_threaded_kicad_env`` -> ``_kicad_settings_dirname``
+    -> ``get_kicad_cli_version``, which shells out to ``kicad-cli version``
+    BEFORE the DRC run.
+
+    This fake assumed every call was the DRC call and did
+    ``cmd.index("--output")`` unconditionally, so the version probe raised
+    ``ValueError: '--output' is not in list``. ``run_drc`` caught it, the gate
+    returned ``UNMEASURED``, and six tests asserted on a gate that never ran --
+    the exact false-confidence this anti-false-zero suite exists to prevent,
+    reproduced inside the suite itself.
+    """
 
     def fake_run(cmd, **kwargs):  # noqa: ARG001
+        # `kicad-cli version` -- no --output, answer on stdout.
+        if "version" in cmd and "--output" not in cmd:
+            return subprocess.CompletedProcess(cmd, 0, stdout="10.0.4\n", stderr="")
         if payload is not None:
             out_idx = cmd.index("--output") + 1
             Path(cmd[out_idx]).write_text(json.dumps(payload))
