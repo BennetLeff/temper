@@ -2436,15 +2436,21 @@ jobs:
         # silently miss them. pytest_guard enforces a floor so a bad
         # --deselect ID (typo, renamed test) that silently drops a test
         # instead of erroring is caught here rather than passing quietly.
-        # Same `-v --tb=short -p no:cacheprovider --maxfail=10` flags and the
-        # same `continue-on-error` as before this split. Partially
-        # re-verified 2026-08-07: ran locally to 94% (687/731 selected
-        # tests) with ZERO failures before timing out at 280s under heavy
-        # host contention (concurrent unrelated sessions, load avg ~31 on
-        # 24 cores) -- no evidence of flakiness or a real failure was found,
-        # but the run did not reach completion, so this is not a confirmed
-        # green. Kept masked pending one clean, uncontended full run
-        # (matches the comment above: "cost well under a minute" normally).
+        # Same `-v --tb=short -p no:cacheprovider --maxfail=10` flags as
+        # before this split. Re-measured to COMPLETION 2026-08-07 on this
+        # exact invocation: 721 passed, 7 failed, 3 skipped, 3 deselected in
+        # 314.8s; pytest_guard floor satisfied at 728 executed. All 7
+        # failures are in ONE file, tests/placer/cp_sat/test_erc_gate.py,
+        # and all 7 are this host having no KiCad -- "FileNotFoundError:
+        # 'kicad-cli'" and "KiCad footprint library directory not found".
+        # The pinned CI container (.github/docker/ci.Dockerfile) ships
+        # kicad 10.0.5 and its footprint library, so these pass there.
+        # Nothing flaky was observed: zero run-to-run variance, and the
+        # failures are a deterministic function of an absent binary.
+        # Kept masked only because that claim rests on a local run without
+        # kicad-cli rather than on a container run; removable as soon as one
+        # green run of this step is observed in CI, which the evidence says
+        # it should already be producing.
         run: >
           cd packages/temper-placer &&
           uv run python ../../scripts/pytest_guard.py --min-tests 400 --
