@@ -1094,6 +1094,11 @@ mod depth_boundary {
     }
 
     #[test]
+    #[allow(
+        clippy::expect_used,
+        reason = "test asserts a specific error; expect_err is the clearest \
+                  way to express 'this must fail'"
+    )]
     fn rejects_the_first_frame_past_the_ceiling() {
         let src = format!("{}true", "not ".repeat(MAX_NOT_CHAIN + 1));
         let err = parse(&src).expect_err("one frame past the ceiling must be rejected");

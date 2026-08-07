@@ -270,17 +270,17 @@ fn point_on_segment(px: f64, py: f64, ax: f64, ay: f64, bx: f64, by: f64) -> boo
 /// `RayCrossingCounter`. `ring` is the closed 5-coordinate loop.
 fn locate_in_rect(px: f64, py: f64, ring: &[[f64; 2]; 5]) -> u8 {
     // 0 = EXTERIOR, 1 = INTERIOR, 2 = BOUNDARY (GEOS Location).
-    for i in 0..4 {
-        let a = ring[i];
-        let b = ring[i + 1];
+    for seg in ring.windows(2) {
+        let a = seg[0];
+        let b = seg[1];
         if point_on_segment(px, py, a[0], a[1], b[0], b[1]) {
             return 2; // BOUNDARY
         }
     }
     let mut inside = false;
-    for i in 0..4 {
-        let (x1, y1) = (ring[i][0], ring[i][1]);
-        let (x2, y2) = (ring[i + 1][0], ring[i + 1][1]);
+    for seg in ring.windows(2) {
+        let (x1, y1) = (seg[0][0], seg[0][1]);
+        let (x2, y2) = (seg[1][0], seg[1][1]);
         if (y1 > py) != (y2 > py) {
             // sign of orientation(p1, p2, p), matching RayCrossingCounter's
             // crossing decision
@@ -317,11 +317,11 @@ fn facet_distance(a: &Core, b: &Core) -> f64 {
             let ring_a = rect_ring(a);
             let ring_b = rect_ring(b);
             let mut best = f64::INFINITY;
-            for i in 0..4 {
-                for j in 0..4 {
+            for seg_a in ring_a.windows(2) {
+                for seg_b in ring_b.windows(2) {
                     let d = seg_seg_dist(
-                        ring_a[i][0], ring_a[i][1], ring_a[i + 1][0], ring_a[i + 1][1],
-                        ring_b[j][0], ring_b[j][1], ring_b[j + 1][0], ring_b[j + 1][1],
+                        seg_a[0][0], seg_a[0][1], seg_a[1][0], seg_a[1][1],
+                        seg_b[0][0], seg_b[0][1], seg_b[1][0], seg_b[1][1],
                     );
                     if d < best {
                         best = d;
@@ -333,9 +333,9 @@ fn facet_distance(a: &Core, b: &Core) -> f64 {
         (Core::Rect(_), Core::Segment(x1, y1, x2, y2)) => {
             let ring = rect_ring(a);
             let mut best = f64::INFINITY;
-            for i in 0..4 {
+            for seg in ring.windows(2) {
                 let d = seg_seg_dist(
-                    ring[i][0], ring[i][1], ring[i + 1][0], ring[i + 1][1],
+                    seg[0][0], seg[0][1], seg[1][0], seg[1][1],
                     *x1, *y1, *x2, *y2,
                 );
                 if d < best {
@@ -354,8 +354,8 @@ fn facet_distance(a: &Core, b: &Core) -> f64 {
         (Core::Point(x, y), Core::Rect(_)) => {
             let ring = rect_ring(b);
             let mut best = f64::INFINITY;
-            for i in 0..4 {
-                let d = pt_seg_dist(*x, *y, ring[i][0], ring[i][1], ring[i + 1][0], ring[i + 1][1]);
+            for seg in ring.windows(2) {
+                let d = pt_seg_dist(*x, *y, seg[0][0], seg[0][1], seg[1][0], seg[1][1]);
                 if d < best {
                     best = d;
                 }

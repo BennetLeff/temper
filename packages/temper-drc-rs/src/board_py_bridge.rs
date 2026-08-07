@@ -1,10 +1,11 @@
 // PyO3 bridge helpers: extract typed values from Python dicts.
 //
-// Follows the `HashMapResolver` pattern from
-// `packages/temper-constraint-compiler/src/pyo3_bridge.rs`.
-//
-// All extraction functions produce descriptive PyValueError messages
-// on type mismatch or missing required keys.
+// Common extractors (`extract_str`, `extract_opt_str`, `extract_f64`,
+// `extract_opt_f64`, `extract_opt_bool`, `extract_str_list`,
+// `extract_dict_list`) are delegated to the shared `temper_py_bridge`
+// crate's `DictExtract` trait — the semantics (error messages, defaults,
+// None-handling) are byte-for-byte identical. Crate-specific extractors
+// (`extract_i32`, `extract_point`, `extract_component`, etc.) remain local.
 //
 // Origin: U2 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
@@ -14,6 +15,7 @@ use geo::{Line, Point, Polygon};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyDict, PyList};
+use temper_py_bridge::DictExtract;
 
 use crate::board::{
     BoardSide, BoardState, Component, ComponentRef, CopperZone, Net, NetClassRules, NetClassName,
@@ -23,39 +25,15 @@ use crate::board::{
 // ---------------------------------------------------------------------------
 // Primitive extractors
 // ---------------------------------------------------------------------------
-
-/// Extract a required string value from a dict.
-pub fn extract_str(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<String> {
-    dict.get_item(key)?
-        .ok_or_else(|| PyValueError::new_err(format!("missing required key: {key}")))?
-        .extract::<String>()
-        .map_err(|e| {
-            PyValueError::new_err(format!("key '{key}' is not a string: {e}"))
-        })
-}
-
-/// Extract an optional string value from a dict (None if absent or null).
-pub fn extract_opt_str(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<String>> {
-    match dict.get_item(key)? {
-        Some(val) if !val.is_none() => Ok(Some(val.extract::<String>().map_err(|e| {
-            PyValueError::new_err(format!("key '{key}' is not a string: {e}"))
-        })?)),
-        _ => Ok(None),
-    }
-}
-
-/// Extract a required f64 value from a dict.
-pub fn extract_f64(dict: &Bound<'_, PyDict>, key: &str, default: f64) -> PyResult<f64> {
-    match dict.get_item(key)? {
-        Some(val) if !val.is_none() => {
-            // Accept both float and int from Python
-            val.extract::<f64>().map_err(|e| {
-                PyValueError::new_err(format!("key '{key}' is not a number: {e}"))
-            })
-        }
-        _ => Ok(default),
-    }
-}
+//
+// `extract_str`, `extract_opt_str`, `extract_f64`, `extract_opt_f64`,
+// `extract_opt_bool`, `extract_str_list`, and `extract_dict_list` are
+// provided by the `temper_py_bridge::DictExtract` trait (imported above).
+// Call sites use `dict.extract_str("key")` etc. directly on a
+// `Bound<'_, PyDict>`.
+//
+// `extract_i32` has no equivalent in the shared trait (the shared crate
+// only provides f64/str/bool extractors), so it stays local.
 
 /// Extract a required i32 value from a dict.
 pub fn extract_i32(dict: &Bound<'_, PyDict>, key: &str, default: i32) -> PyResult<i32> {
@@ -66,78 +44,6 @@ pub fn extract_i32(dict: &Bound<'_, PyDict>, key: &str, default: i32) -> PyResul
             })
         }
         _ => Ok(default),
-    }
-}
-
-/// Extract an optional f64 value from a dict.
-pub fn extract_opt_f64(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<f64>> {
-    match dict.get_item(key)? {
-        Some(val) if !val.is_none() => {
-            let v: f64 = val.extract().map_err(|e| {
-                PyValueError::new_err(format!("key '{key}' is not a number: {e}"))
-            })?;
-            Ok(Some(v))
-        }
-        _ => Ok(None),
-    }
-}
-
-/// Extract an optional bool value from a dict.
-pub fn extract_opt_bool(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<bool>> {
-    match dict.get_item(key)? {
-        Some(val) if !val.is_none() => {
-            let v: bool = val.extract().map_err(|e| {
-                PyValueError::new_err(format!("key '{key}' is not a bool: {e}"))
-            })?;
-            Ok(Some(v))
-        }
-        _ => Ok(None),
-    }
-}
-
-/// Extract a list of strings from a dict value.
-pub fn extract_str_list(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Vec<String>> {
-    match dict.get_item(key)? {
-        Some(val) if !val.is_none() => {
-            let list: Bound<'_, PyList> = val.cast_into::<PyList>().map_err(|e| {
-                PyValueError::new_err(format!("key '{key}' is not a list: {e}"))
-            })?;
-            let mut result = Vec::with_capacity(list.len());
-            for item in list.iter() {
-                result.push(item.extract::<String>().map_err(|e| {
-                    PyValueError::new_err(format!(
-                        "item in '{key}' list is not a string: {e}"
-                    ))
-                })?);
-            }
-            Ok(result)
-        }
-        _ => Ok(Vec::new()),
-    }
-}
-
-/// Extract a required list-of-dicts value.
-pub fn extract_dict_list<'py>(
-    dict: &Bound<'py, PyDict>,
-    key: &str,
-) -> PyResult<Vec<Bound<'py, PyDict>>> {
-    match dict.get_item(key)? {
-        Some(val) if !val.is_none() => {
-            let list: Bound<'_, PyList> = val.cast_into::<PyList>().map_err(|e| {
-                PyValueError::new_err(format!("key '{key}' is not a list: {e}"))
-            })?;
-            let mut result = Vec::with_capacity(list.len());
-            for item in list.iter() {
-                let d: Bound<'_, PyDict> = item.cast_into::<PyDict>().map_err(|e| {
-                    PyValueError::new_err(format!(
-                        "item in '{key}' list is not a dict: {e}"
-                    ))
-                })?;
-                result.push(d);
-            }
-            Ok(result)
-        }
-        _ => Ok(Vec::new()),
     }
 }
 
@@ -153,8 +59,8 @@ pub fn extract_point(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Point<f64>
     let inner: Bound<'_, PyDict> = item
         .cast_into::<PyDict>()
         .map_err(|e| PyValueError::new_err(format!("key '{key}' is not a dict: {e}")))?;
-    let x = extract_f64(&inner, "x", 0.0)?;
-    let y = extract_f64(&inner, "y", 0.0)?;
+    let x = inner.extract_f64("x", 0.0)?;
+    let y = inner.extract_f64("y", 0.0)?;
     Ok(Point::new(x, y))
 }
 
@@ -163,8 +69,8 @@ pub fn extract_opt_point(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option
     match dict.get_item(key)? {
         Some(val) if !val.is_none() => {
             if let Ok(inner) = val.cast_into::<PyDict>() {
-                let x = extract_f64(&inner, "x", 0.0)?;
-                let y = extract_f64(&inner, "y", 0.0)?;
+                let x = inner.extract_f64("x", 0.0)?;
+                let y = inner.extract_f64("y", 0.0)?;
                 return Ok(Some(Point::new(x, y)));
             }
         }
@@ -265,21 +171,21 @@ fn parse_package_type(s: &str) -> PyResult<PackageType> {
 }
 
 fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
-    let refdes = extract_str(dict, "ref")?;
-    let x = extract_f64(dict, "x", 0.0)?;
-    let y = extract_f64(dict, "y", 0.0)?;
-    let rotation = extract_f64(dict, "rot", 0.0)?;
-    let side_str = extract_str(dict, "side")?;
+    let refdes = dict.extract_str("ref")?;
+    let x = dict.extract_f64("x", 0.0)?;
+    let y = dict.extract_f64("y", 0.0)?;
+    let rotation = dict.extract_f64("rot", 0.0)?;
+    let side_str = dict.extract_str("side")?;
     let side = parse_board_side(&side_str)?;
-    let width = extract_f64(dict, "width", 0.0)?;
-    let height = extract_f64(dict, "height", 0.0)?;
-    let net_class = extract_str(dict, "net_class")?;
-    let power_dissipation_w = extract_opt_f64(dict, "power_dissipation_w")?;
-    let package_type_str = extract_str(dict, "package_type")?;
+    let width = dict.extract_f64("width", 0.0)?;
+    let height = dict.extract_f64("height", 0.0)?;
+    let net_class = dict.extract_str("net_class")?;
+    let power_dissipation_w = dict.extract_opt_f64("power_dissipation_w")?;
+    let package_type_str = dict.extract_str("package_type")?;
     let package_type = parse_package_type(&package_type_str)?;
-    let is_magnetic = extract_opt_bool(dict, "is_magnetic")?.unwrap_or(false);
-    let is_electrolytic = extract_opt_bool(dict, "is_electrolytic")?.unwrap_or(false);
-    let vent_direction = extract_opt_f64(dict, "vent_direction")?;
+    let is_magnetic = dict.extract_opt_bool("is_magnetic")?.unwrap_or(false);
+    let is_electrolytic = dict.extract_opt_bool("is_electrolytic")?.unwrap_or(false);
+    let vent_direction = dict.extract_opt_f64("vent_direction")?;
     let footprint_polygon = extract_opt_polygon(dict, "footprint_polygon")?;
 
     Ok(Component {
@@ -305,21 +211,21 @@ fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
 
 fn extract_net_class_rules(dict: &Bound<'_, PyDict>) -> PyResult<NetClassRules> {
     Ok(NetClassRules {
-        name: extract_str(dict, "name").unwrap_or_default(),
-        trace_width_mm: extract_f64(dict, "trace_width_mm", 0.2)?,
-        clearance_mm: extract_f64(dict, "clearance_mm", 0.2)?,
-        dru_priority: extract_f64(dict, "dru_priority", 0.0)?.round() as i32,
-        via_diameter: extract_f64(dict, "via_diameter", 0.6)?,
-        via_drill: extract_f64(dict, "via_drill", 0.3)?,
-        via_template: extract_opt_str(dict, "via_template")?,
-        creepage_mm: extract_f64(dict, "creepage_mm", 0.0)?,
-        voltage_v: extract_f64(dict, "voltage_v", 0.0)?,
-        target_impedance: extract_opt_f64(dict, "target_impedance")?,
-        max_current_rating: extract_opt_f64(dict, "max_current_rating")?,
-        required_layer: extract_opt_str(dict, "required_layer")?,
-        layer: extract_opt_str(dict, "layer")?,
-        safety_category: extract_opt_str(dict, "safety_category")?,
-        routing_strategy: extract_opt_str(dict, "routing_strategy")?,
+        name: dict.extract_str("name").unwrap_or_default(),
+        trace_width_mm: dict.extract_f64("trace_width_mm", 0.2)?,
+        clearance_mm: dict.extract_f64("clearance_mm", 0.2)?,
+        dru_priority: dict.extract_f64("dru_priority", 0.0)?.round() as i32,
+        via_diameter: dict.extract_f64("via_diameter", 0.6)?,
+        via_drill: dict.extract_f64("via_drill", 0.3)?,
+        via_template: dict.extract_opt_str("via_template")?,
+        creepage_mm: dict.extract_f64("creepage_mm", 0.0)?,
+        voltage_v: dict.extract_f64("voltage_v", 0.0)?,
+        target_impedance: dict.extract_opt_f64("target_impedance")?,
+        max_current_rating: dict.extract_opt_f64("max_current_rating")?,
+        required_layer: dict.extract_opt_str("required_layer")?,
+        layer: dict.extract_opt_str("layer")?,
+        safety_category: dict.extract_opt_str("safety_category")?,
+        routing_strategy: dict.extract_opt_str("routing_strategy")?,
         ..NetClassRules::default()
     })
 }
@@ -343,9 +249,9 @@ fn extract_f64_list(val: &Bound<'_, PyAny>) -> PyResult<Vec<f64>> {
 }
 
 fn extract_trace_segment(dict: &Bound<'_, PyDict>) -> PyResult<TraceSegment> {
-    let net = extract_str(dict, "net")?;
-    let layer = extract_str(dict, "layer")?;
-    let width = extract_f64(dict, "width", 0.2)?;
+    let net = dict.extract_str("net")?;
+    let layer = dict.extract_str("layer")?;
+    let width = dict.extract_f64("width", 0.2)?;
 
     // Segments from Python: [[x1, y1, x2, y2], [x1, y1, x2, y2], ...]
     let mut segments = Vec::new();
@@ -376,13 +282,13 @@ fn extract_trace_segment(dict: &Bound<'_, PyDict>) -> PyResult<TraceSegment> {
 // ---------------------------------------------------------------------------
 
 fn extract_via(dict: &Bound<'_, PyDict>) -> PyResult<Via> {
-    let net = extract_str(dict, "net")?;
-    let x = extract_f64(dict, "x", 0.0)?;
-    let y = extract_f64(dict, "y", 0.0)?;
-    let drill = extract_f64(dict, "drill", 0.3)?;
-    let pad = extract_f64(dict, "pad", 0.6)?;
-    let from_layer = extract_opt_str(dict, "from_layer")?.unwrap_or_else(|| "F.Cu".into());
-    let to_layer = extract_opt_str(dict, "to_layer")?.unwrap_or_else(|| "B.Cu".into());
+    let net = dict.extract_str("net")?;
+    let x = dict.extract_f64("x", 0.0)?;
+    let y = dict.extract_f64("y", 0.0)?;
+    let drill = dict.extract_f64("drill", 0.3)?;
+    let pad = dict.extract_f64("pad", 0.6)?;
+    let from_layer = dict.extract_opt_str("from_layer")?.unwrap_or_else(|| "F.Cu".into());
+    let to_layer = dict.extract_opt_str("to_layer")?.unwrap_or_else(|| "B.Cu".into());
 
     Ok(Via {
         net: NetName(net),
@@ -399,8 +305,8 @@ fn extract_via(dict: &Bound<'_, PyDict>) -> PyResult<Via> {
 // ---------------------------------------------------------------------------
 
 fn extract_copper_zone(dict: &Bound<'_, PyDict>) -> PyResult<CopperZone> {
-    let net = extract_str(dict, "net")?;
-    let layer = extract_str(dict, "layer")?;
+    let net = dict.extract_str("net")?;
+    let layer = dict.extract_str("layer")?;
     let polygon = extract_polygon(dict, "polygon")?;
 
     Ok(CopperZone {
@@ -503,7 +409,7 @@ fn parse_net_class_rules_from_dict(
 }
 
 fn parse_traces_from_dict(board_dict: &Bound<'_, PyDict>) -> PyResult<Vec<TraceSegment>> {
-    let trace_list = extract_dict_list(board_dict, "traces")?;
+    let trace_list = board_dict.extract_dict_list("traces")?;
     let mut result = Vec::with_capacity(trace_list.len());
     for trace_dict in trace_list {
         result.push(extract_trace_segment(&trace_dict)?);
@@ -512,7 +418,7 @@ fn parse_traces_from_dict(board_dict: &Bound<'_, PyDict>) -> PyResult<Vec<TraceS
 }
 
 fn parse_zones_from_dict(board_dict: &Bound<'_, PyDict>) -> PyResult<Vec<CopperZone>> {
-    let zone_list = extract_dict_list(board_dict, "zones")?;
+    let zone_list = board_dict.extract_dict_list("zones")?;
     let mut result = Vec::with_capacity(zone_list.len());
     for zone_dict in zone_list {
         result.push(extract_copper_zone(&zone_dict)?);
@@ -548,17 +454,17 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
         .cast_into::<PyDict>()
         .map_err(|e| PyValueError::new_err(format!("key 'board' is not a dict: {e}")))?;
 
-    let width_mm = extract_f64(&board_info, "width_mm", 100.0)?;
-    let height_mm = extract_f64(&board_info, "height_mm", 150.0)?;
-    let margin_mm = extract_f64(&board_info, "margin_mm", 3.0)?;
+    let width_mm = board_info.extract_f64("width_mm", 100.0)?;
+    let height_mm = board_info.extract_f64("height_mm", 150.0)?;
+    let margin_mm = board_info.extract_f64("margin_mm", 3.0)?;
 
     // --- Components ---
     let (electrical_components, mechanical_components) = {
-        let comp_list = extract_dict_list(board_dict, "components")?;
+        let comp_list = board_dict.extract_dict_list("components")?;
         let mut elec = Vec::with_capacity(comp_list.len());
         let mut mech = Vec::new();
         for comp_dict in comp_list {
-            let is_mechanical = extract_opt_bool(&comp_dict, "is_mechanical")?.unwrap_or(false);
+            let is_mechanical = comp_dict.extract_opt_bool("is_mechanical")?.unwrap_or(false);
             let comp = extract_component(&comp_dict)?;
             if is_mechanical {
                 mech.push(comp);
@@ -612,7 +518,7 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
 
     // --- Vias (optional) ---
     let vias = {
-        let via_list = extract_dict_list(board_dict, "vias")?;
+        let via_list = board_dict.extract_dict_list("vias")?;
         let mut result = Vec::with_capacity(via_list.len());
         for via_dict in via_list {
             result.push(extract_via(&via_dict)?);

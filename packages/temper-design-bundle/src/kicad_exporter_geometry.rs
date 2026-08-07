@@ -199,7 +199,12 @@ pub fn generate_connector_segments(
             }
 
             let Some(ep) = nearest_ep else { continue };
-            if !(min_dist < max_dist) {
+            // Clippy: replace negated float comparison with partial_cmp.
+            // `!(min_dist < max_dist)` replicated exactly: for NaN inputs
+            // the condition is true (both NaN < x and x < NaN are false,
+            // so !false => true), and partial_cmp returns None for NaN,
+            // so `None != Some(Less)` matches.
+            if min_dist.partial_cmp(&max_dist) != Some(std::cmp::Ordering::Less) {
                 continue;
             }
 
@@ -349,5 +354,37 @@ mod tests {
         let pad_centers = vec![("GND".to_string(), vec![(1.0, 0.0)])];
         let out = generate_connector_segments(&segments, &pad_centers, 2.0);
         assert!(out.is_empty());
+    }
+
+    /// Verify that the `partial_cmp`-based replacement for `!(min_dist <
+    /// max_dist)` preserves the original float semantics: NaN on either side
+    /// yields `true` (skip the pad), exactly as the negated less-than did.
+    #[test]
+    #[allow(clippy::neg_cmp_op_on_partial_ord)]
+    // ^ The test deliberately reproduces the original expression to verify
+    //   behavioural equivalence against the replacement.
+    fn partial_cmp_condition_matches_negated_less_than() {
+        // The condition replaced: `if !(min_dist < max_dist) { continue; }`
+        // with:                  `if min_dist.partial_cmp(&max_dist) != Some(Less) { ... }`
+        use std::cmp::Ordering;
+        let cases: [(f64, f64, bool); 7] = [
+            (1.0, 2.0, false), // 1.0 < 2.0 => true, !true => false
+            (2.0, 1.0, true),  // 2.0 < 1.0 => false, !false => true
+            (1.0, 1.0, true),  // 1.0 < 1.0 => false, !false => true
+            (f64::INFINITY, 1.0, true),  // ∞ < 1.0 => false, !false => true
+            (1.0, f64::INFINITY, false), // 1.0 < ∞ => true, !true => false
+            (f64::NAN, 1.0, true),       // NaN < 1.0 => false, !false => true
+            (1.0, f64::NAN, true),       // 1.0 < NaN => false, !false => true
+        ];
+        for (min_dist, max_dist, expected) in cases {
+            let negated_lt = !(min_dist < max_dist);
+            let partial_cmp = min_dist.partial_cmp(&max_dist) != Some(Ordering::Less);
+            assert_eq!(
+                partial_cmp, negated_lt,
+                "min_dist={min_dist:?}, max_dist={max_dist:?}: \
+                 partial_cmp={partial_cmp}, negated_lt={negated_lt}"
+            );
+            assert_eq!(partial_cmp, expected);
+        }
     }
 }

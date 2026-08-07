@@ -102,7 +102,8 @@ pub fn compare_stage(
 /// lives in the Python shim, not here.
 #[pyfunction]
 pub fn p95(py: Python<'_>, values: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
-    let mut pairs: Vec<(f64, Py<PyAny>)> = Vec::new();
+    let mut pairs: Vec<(f64, Py<PyAny>)> =
+        Vec::with_capacity(values.len()?);
     for item in values.try_iter()? {
         let item = item?;
         let f = item.extract::<f64>()?;

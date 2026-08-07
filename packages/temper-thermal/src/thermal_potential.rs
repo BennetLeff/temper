@@ -544,8 +544,8 @@ impl OrderedAnchors {
             .map(move |(i, k)| (k.as_str(), self.values[i]))
     }
 
-    fn positions(&self) -> Vec<(f64, f64)> {
-        self.values.clone()
+    fn positions(&self) -> &[(f64, f64)] {
+        &self.values
     }
 }
 
@@ -796,7 +796,7 @@ pub fn assign_thermal_anchors(inputs: &AnchorInputs<'_>) -> Result<AnchorOutcome
                 edge: inputs.edge,
                 config: cfg,
                 devices: &coupled,
-                anchors: &anchor_positions,
+                anchors: anchor_positions,
                 copper_zone_count: inputs.copper_zone_count,
                 copper_zones: inputs.copper_zones,
                 airflow: inputs.airflow,

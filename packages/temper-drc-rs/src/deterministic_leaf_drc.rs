@@ -40,7 +40,7 @@ use crate::pymath::{pow, py_max, py_min, sqrt};
 ///
 /// Returns `(total, [(type_str, count), ...])`.
 pub fn summarize_violations(violations: &[String]) -> (usize, Vec<(String, usize)>) {
-    let mut by_type: Vec<(String, usize)> = Vec::new();
+    let mut by_type: Vec<(String, usize)> = Vec::with_capacity(violations.len());
     for t in violations {
         if let Some(entry) = by_type.iter_mut().find(|(k, _)| k == t) {
             entry.1 += 1;
@@ -48,7 +48,7 @@ pub fn summarize_violations(violations: &[String]) -> (usize, Vec<(String, usize
             by_type.push((t.clone(), 1));
         }
     }
-    by_type.sort_by(|a, b| b.1.cmp(&a.1));
+    by_type.sort_by_key(|(_, n)| std::cmp::Reverse(*n));
     (violations.len(), by_type)
 }
 
@@ -116,8 +116,8 @@ pub fn deduplicate_traces(
     tolerance: f64,
 ) -> (Vec<usize>, usize) {
     let mut seen: std::collections::HashSet<(u64, u64, u64, u64, String, Option<String>)> =
-        std::collections::HashSet::new();
-    let mut kept: Vec<usize> = Vec::new();
+        std::collections::HashSet::with_capacity(traces.len());
+    let mut kept: Vec<usize> = Vec::with_capacity(traces.len());
     let mut duplicates = 0usize;
 
     for (i, (sx, sy, ex, ey, layer, net)) in traces.iter().enumerate() {
@@ -276,7 +276,7 @@ pub fn validate_proximity(
             to_pin,
             fmt_1f(py, max_distance_mm)?,
         );
-        Ok((true, severity.to_string(), distance, max_distance_mm, msg, from_component.to_string(), to_component.to_string()))
+        Ok((true, severity, distance, max_distance_mm, msg, from_component.to_string(), to_component.to_string()))
     } else {
         Ok((false, String::new(), distance, 0.0, String::new(), String::new(), String::new()))
     }

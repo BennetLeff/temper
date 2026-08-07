@@ -12,8 +12,6 @@ pub mod type_lattice;
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList};
-#[cfg(feature = "python")]
-use pyo3::Py;
 
 #[cfg(feature = "python")]
 #[pyfunction]
@@ -29,7 +27,7 @@ fn compile_pcl_constraints(
     existing_vars: &Bound<'_, PyList>,
     existing_cons: &Bound<'_, PyList>,
     net_names: Vec<String>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     pyo3_bridge::run_full_pipeline(
         py,
         pcl_dicts,
@@ -94,7 +92,7 @@ impl PyCompiler {
         py: Python<'_>,
         pcl_dicts: &Bound<'_, PyList>,
         _net_names: Vec<String>,
-    ) -> PyResult<Py<PyAny>> {
+    ) -> PyResult<Py<PyDict>> {
         let pcl_constraints =
             crate::pyo3_bridge::build_pcl_constraints_from_py(pcl_dicts)?;
 
@@ -131,21 +129,21 @@ impl PyCompiler {
 
         self.last_model = Some(tier1_model);
 
-        let constraint_dicts: Vec<Py<PyAny>> = tier2_constraints
+        let constraint_dicts: Vec<Py<PyDict>> = tier2_constraints
             .iter()
             .map(|c| {
                 crate::pyo3_bridge::internal_constraint_to_py_dict(py, c)
             })
             .collect::<Result<Vec<_>, _>>()?;
 
-        let conflict_dicts: Vec<Py<PyAny>> = conflicts
+        let conflict_dicts: Vec<Py<PyDict>> = conflicts
             .iter()
             .map(|c| {
                 let d = PyDict::new(py);
                 d.set_item("pcl_constraint_ids", c.pcl_constraint_ids.clone())?;
                 d.set_item("description", &c.description)?;
                 d.set_item("tier", format!("{}", c.tier))?;
-                Ok(d.into())
+                Ok(d.unbind())
             })
             .collect::<PyResult<Vec<_>>>()?;
 
@@ -153,7 +151,7 @@ impl PyCompiler {
         result.set_item("constraints", constraint_dicts)?;
         result.set_item("conflicts", conflict_dicts)?;
         result.set_item("num_lowered", tier2_constraints.len())?;
-        Ok(result.into())
+        Ok(result.unbind())
     }
 
     fn recompile_delta(
@@ -170,14 +168,14 @@ impl PyCompiler {
         &self,
         py: Python<'_>,
         unsat_core_indices: Vec<usize>,
-    ) -> PyResult<Py<PyAny>> {
+    ) -> PyResult<Py<PyList>> {
         let diagnostics =
             crate::provenance::reverse_map_unsat_core(&unsat_core_indices, &self.prov);
         let list = PyList::empty(py);
         for diag in &diagnostics {
             list.append(crate::pyo3_bridge::diagnostic_to_py_dict(py, diag)?)?;
         }
-        Ok(list.into())
+        Ok(list.unbind())
     }
 }
 

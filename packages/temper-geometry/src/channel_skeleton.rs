@@ -73,9 +73,9 @@ fn sample_ring(ring: &[Point], out: &mut Vec<Point>) {
     if ring.len() < 2 {
         return;
     }
-    for i in 0..ring.len() - 1 {
-        let p1 = ring[i];
-        let p2 = ring[i + 1];
+    for pair in ring.windows(2) {
+        let p1 = pair[0];
+        let p2 = pair[1];
         let dx = p2.x - p1.x;
         let dy = p2.y - p1.y;
         // CPython: `dist = (dx**2 + dy**2) ** 0.5` -- `**` on floats is

@@ -738,6 +738,7 @@ dependencies = [
  "serde",
  "serde_json",
  "temper-geometry",
+ "temper-py-bridge",
  "thiserror",
 ]
 
@@ -748,6 +749,23 @@ dependencies = [
  "getrandom",
  "rand",
  "spade",
+]
+
+[[package]]
+name = "temper-py-bridge"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
+ "temper-py-bridge-derive",
+]
+
+[[package]]
+name = "temper-py-bridge-derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

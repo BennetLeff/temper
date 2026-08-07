@@ -56,21 +56,23 @@ pub fn smooth_max(a: f64, b: f64, alpha: f64) -> f64 {
 /// When alpha is low, the result is influenced by all elements.
 /// When alpha is high, the result is dominated by the maximum element.
 pub fn smooth_max_axis(arr: &[f64], alpha: f64) -> f64 {
-    smooth_max_axis_vals(arr.iter().copied(), alpha)
+    smooth_max_axis_vals(arr, alpha)
 }
 
-/// Iterator-based smooth max; `arr` is consumed (and cloned for the two-pass
-/// softmax) so callers can map over borrowed data without allocating.
-fn smooth_max_axis_vals<I: Iterator<Item = f64> + Clone>(arr: I, alpha: f64) -> f64 {
-    let max_val = arr.clone().fold(f64::NEG_INFINITY, f64::max);
+/// Two-pass smooth max over a slice: first pass finds max, second pass
+/// computes the LogSumExp.
+fn smooth_max_axis_vals(arr: &[f64], alpha: f64) -> f64 {
+    let max_val = arr.iter().copied().fold(f64::NEG_INFINITY, f64::max);
     if max_val.is_infinite() {
         return max_val;
     }
-    let sum_exp: f64 = arr.map(|v| (alpha * (v - max_val)).exp()).sum();
+    let sum_exp: f64 = arr.iter().map(|&v| (alpha * (v - max_val)).exp()).sum();
     max_val + sum_exp.ln() / alpha
 }
 
 /// Element-wise smooth max between two slices.
+///
+/// # Panics
 ///
 /// Panics if the slices have different lengths.
 pub fn smooth_max_pair(a: &[f64], b: &[f64], alpha: f64) -> Vec<f64> {
@@ -104,22 +106,23 @@ pub fn smooth_min(a: f64, b: f64, alpha: f64) -> f64 {
 ///
 /// This is always <= `min(arr)`, with equality as `alpha → ∞`.
 pub fn smooth_min_axis(arr: &[f64], alpha: f64) -> f64 {
-    smooth_min_axis_vals(arr.iter().copied(), alpha)
+    smooth_min_axis_vals(arr, alpha)
 }
 
-/// Iterator-based smooth min; see `smooth_max_axis_vals`.
-fn smooth_min_axis_vals<I: Iterator<Item = f64> + Clone>(arr: I, alpha: f64) -> f64 {
-    let min_val = arr.clone().fold(f64::INFINITY, f64::min);
+/// Two-pass smooth min over a slice: first pass finds min, second pass
+/// computes the LogSumExp.
+fn smooth_min_axis_vals(arr: &[f64], alpha: f64) -> f64 {
+    let min_val = arr.iter().copied().fold(f64::INFINITY, f64::min);
     if min_val.is_infinite() {
         return min_val;
     }
-    let sum_exp: f64 = arr
-        .map(|v| (-alpha * (v - min_val)).exp())
-        .sum();
+    let sum_exp: f64 = arr.iter().map(|&v| (-alpha * (v - min_val)).exp()).sum();
     min_val - sum_exp.ln() / alpha
 }
 
 /// Element-wise smooth min between two slices.
+///
+/// # Panics
 ///
 /// Panics if the slices have different lengths.
 pub fn smooth_min_pair(a: &[f64], b: &[f64], alpha: f64) -> Vec<f64> {
@@ -276,6 +279,8 @@ pub fn hpwl_smooth(points: &[(f64, f64)], alpha: f64) -> f64 {
 ///
 /// Useful for differentiable selection among discrete options.
 ///
+/// # Panics
+///
 /// Panics if the slices have different lengths.
 pub fn weighted_average_smooth(values: &[f64], weights: &[f64], alpha: f64) -> f64 {
     assert_eq!(
@@ -286,7 +291,7 @@ pub fn weighted_average_smooth(values: &[f64], weights: &[f64], alpha: f64) -> f
     if values.is_empty() {
         return f64::NAN;
     }
-    let max_weight = weights.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+    let max_weight = weights.iter().copied().fold(f64::NEG_INFINITY, f64::max);
     let sum_exp: f64 = weights
         .iter()
         .map(|w| ((w - max_weight) / alpha).exp())

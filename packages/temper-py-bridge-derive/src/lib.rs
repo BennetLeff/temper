@@ -246,3 +246,160 @@ pub fn derive_to_py_dict(input: TokenStream) -> TokenStream {
 
     TokenStream::from(expanded)
 }
+
+// =============================================================================
+// Tests (pure helpers only — no proc-macro runtime needed)
+// =============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use syn::parse_quote;
+
+    // ------------------------------------------------------------------
+    // is_optional_type
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn test_is_optional_type_true() {
+        let ty: syn::Type = parse_quote!(Option<String>);
+        assert!(is_optional_type(&ty));
+    }
+
+    #[test]
+    fn test_is_optional_type_false() {
+        let ty: syn::Type = parse_quote!(String);
+        assert!(!is_optional_type(&ty));
+    }
+
+    #[test]
+    fn test_is_optional_type_nested_path_false() {
+        let ty: syn::Type = parse_quote!(std::option::Option<String>);
+        // Only the last segment is checked
+        assert!(is_optional_type(&ty));
+    }
+
+    // ------------------------------------------------------------------
+    // is_str_type
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn test_is_str_type_string() {
+        let ty: syn::Type = parse_quote!(String);
+        assert!(is_str_type(&ty));
+    }
+
+    #[test]
+    fn test_is_str_type_str_ref() {
+        let ty: syn::Type = parse_quote!(&str);
+        // `&str` is Type::Reference, not Type::Path, so is_str_type returns false.
+        assert!(!is_str_type(&ty));
+    }
+
+    #[test]
+    fn test_is_str_type_os_string() {
+        let ty: syn::Type = parse_quote!(std::ffi::OsString);
+        assert!(is_str_type(&ty));
+    }
+
+    #[test]
+    fn test_is_str_type_false() {
+        let ty: syn::Type = parse_quote!(i32);
+        assert!(!is_str_type(&ty));
+    }
+
+    // ------------------------------------------------------------------
+    // is_bool_type
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn test_is_bool_type_true() {
+        let ty: syn::Type = parse_quote!(bool);
+        assert!(is_bool_type(&ty));
+    }
+
+    #[test]
+    fn test_is_bool_type_false() {
+        let ty: syn::Type = parse_quote!(f64);
+        assert!(!is_bool_type(&ty));
+    }
+
+    // ------------------------------------------------------------------
+    // is_f64_type
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn test_is_f64_type_f64() {
+        let ty: syn::Type = parse_quote!(f64);
+        assert!(is_f64_type(&ty));
+    }
+
+    #[test]
+    fn test_is_f64_type_i32() {
+        let ty: syn::Type = parse_quote!(i32);
+        assert!(is_f64_type(&ty));
+    }
+
+    #[test]
+    fn test_is_f64_type_i64() {
+        let ty: syn::Type = parse_quote!(i64);
+        assert!(is_f64_type(&ty));
+    }
+
+    #[test]
+    fn test_is_f64_type_f32() {
+        let ty: syn::Type = parse_quote!(f32);
+        assert!(is_f64_type(&ty));
+    }
+
+    #[test]
+    fn test_is_f64_type_false() {
+        let ty: syn::Type = parse_quote!(String);
+        assert!(!is_f64_type(&ty));
+    }
+
+    // ------------------------------------------------------------------
+    // parse_field_meta — basic key extraction
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn test_parse_field_meta_plain_field() {
+        let field: syn::Field = parse_quote! {
+            name: String
+        };
+        let meta = parse_field_meta(&field);
+        assert_eq!(meta.key, "name");
+        assert!(meta.default.is_none());
+        assert!(!meta.is_optional);
+    }
+
+    #[test]
+    fn test_parse_field_meta_with_pyo3_key_attr() {
+        let field: syn::Field = parse_quote! {
+            #[pyo3(key = "the_name")]
+            ident: String
+        };
+        let meta = parse_field_meta(&field);
+        assert_eq!(meta.key, "the_name");
+    }
+
+    #[test]
+    fn test_parse_field_meta_optional_attr() {
+        let field: syn::Field = parse_quote! {
+            #[pyo3(optional)]
+            maybe: Option<String>
+        };
+        let meta = parse_field_meta(&field);
+        assert!(meta.is_optional);
+    }
+
+    #[test]
+    fn test_parse_field_meta_default_attr() {
+        let field: syn::Field = parse_quote! {
+            #[pyo3(default = 42.0)]
+            width: f64
+        };
+        let meta = parse_field_meta(&field);
+        assert!(meta.default.is_some());
+    }
+}

@@ -77,10 +77,13 @@ fn encode_at_most_k(
 
 /// Convert the internal constraint model to CNF.
 pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String>) {
-    let mut var_map: Vec<SatVariable> = Vec::new();
-    let mut var_to_net: Vec<usize> = Vec::new();
-    let mut name_to_idx: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
-    let mut clauses: Vec<Vec<i32>> = Vec::new();
+    let n_vars = model.variables.len();
+    let n_cons = model.constraints.len();
+    let mut var_map: Vec<SatVariable> = Vec::with_capacity(n_vars);
+    let mut var_to_net: Vec<usize> = Vec::with_capacity(n_vars);
+    let mut name_to_idx: std::collections::HashMap<String, usize> =
+        std::collections::HashMap::with_capacity(n_vars);
+    let mut clauses: Vec<Vec<i32>> = Vec::with_capacity(n_cons * 2);
 
     // Sentinel value for auxiliary variables that don't map to a specific net.
     const NO_NET: usize = usize::MAX;
@@ -365,5 +368,18 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn encode_to_cnf_empty_model() {
+        let model = InternalConstraintModel {
+            variables: vec![],
+            constraints: vec![],
+        };
+        let (cnf, var_names) = encode_to_cnf(&model);
+        assert_eq!(cnf.num_vars, 0);
+        assert!(cnf.clauses.is_empty());
+        assert!(cnf.var_to_net.is_empty());
+        assert!(var_names.is_empty());
     }
 }

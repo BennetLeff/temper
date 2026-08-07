@@ -50,7 +50,7 @@ fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist
         .cast_into::<PyList>()
         .map_err(|_| PyValueError::new_err("nets must be a list"))?;
 
-    let mut nets = Vec::new();
+    let mut nets = Vec::with_capacity(nets_pylist.len());
     for item in nets_pylist.iter() {
         let net_dict: Bound<'_, PyDict> = item.cast_into::<PyDict>()?;
         let name: String = net_dict
@@ -169,7 +169,7 @@ fn extract_spec(dict: &Bound<'_, PyDict>) -> PyResult<PcbSpecification> {
 fn metrics_to_py_dict(
     py: Python<'_>,
     metrics: &crate::types::QualityMetrics,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     let dict = PyDict::new(py);
     dict.set_item("thermal_score", metrics.thermal_score.value())?;
     dict.set_item("zone_compliance_score", metrics.zone_compliance_score.value())?;
@@ -190,7 +190,7 @@ fn metrics_to_py_dict(
 fn violation_to_py_dict(
     py: Python<'_>,
     v: &crate::types::Violation,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     let dict = PyDict::new(py);
     dict.set_item(
         "type",
@@ -281,7 +281,7 @@ fn extract_placement(py: Python<'_>, placement: &Bound<'_, PyDict>) -> PyResult<
     })
 }
 
-fn verdict_to_py_dict(py: Python<'_>, verdict: &QualityVerdict) -> PyResult<Py<PyAny>> {
+fn verdict_to_py_dict(py: Python<'_>, verdict: &QualityVerdict) -> PyResult<Py<PyDict>> {
     let result = PyDict::new(py);
     if verdict.is_pass() {
         result.set_item("verdict", "Pass")?;
@@ -311,7 +311,7 @@ fn verdict_to_py_dict(py: Python<'_>, verdict: &QualityVerdict) -> PyResult<Py<P
 /// The config is not serde-serializable, but every field is a plain
 /// Python-encodable collection, so we round-trip the exact fields
 /// [`thresholds::evaluate`] consumes.
-fn quality_config_to_py_dict(py: Python<'_>, config: &QualityConfig) -> PyResult<Py<PyAny>> {
+fn quality_config_to_py_dict(py: Python<'_>, config: &QualityConfig) -> PyResult<Py<PyDict>> {
     let dict = PyDict::new(py);
     dict.set_item("thermal_components", PyList::new(py, config.thermal_components.iter())?)?;
     dict.set_item("hv_components", PyList::new(py, config.hv_components.iter())?)?;
@@ -416,7 +416,7 @@ fn classifications_from_py_dict(prepared: &Bound<'_, PyDict>) -> PyResult<Vec<Ne
         .cast_into::<PyList>()
         .map_err(|_| PyValueError::new_err("classifications must be a list"))?;
 
-    let mut classifications = Vec::new();
+    let mut classifications = Vec::with_capacity(pylist.len());
     for item in pylist.iter() {
         let cd: Bound<'_, PyDict> = item
             .cast_into::<PyDict>()
@@ -444,7 +444,7 @@ fn evaluate_quality_py(
     placement: &Bound<'_, PyDict>,
     spec: &Bound<'_, PyDict>,
     metrics: &Bound<'_, PyDict>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     temper_py_bridge::catch_panic(|| {
         let rust_netlist = extract_netlist(py, netlist)?;
         let rust_spec = extract_spec(spec)?;
@@ -468,7 +468,7 @@ fn prepare_quality_py(
     py: Python<'_>,
     netlist: &Bound<'_, PyDict>,
     spec: &Bound<'_, PyDict>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     temper_py_bridge::catch_panic(|| {
         let rust_netlist = extract_netlist(py, netlist)?;
         let rust_spec = extract_spec(spec)?;
@@ -500,7 +500,7 @@ fn evaluate_prepared_py(
     prepared: &Bound<'_, PyDict>,
     placement: &Bound<'_, PyDict>,
     metrics: &Bound<'_, PyDict>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     temper_py_bridge::catch_panic(|| {
         let config = config_from_py_dict(prepared)?;
         let classifications = classifications_from_py_dict(prepared)?;
@@ -526,7 +526,7 @@ fn evaluate_prepared_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
-fn classify_nets_py(py: Python<'_>, netlist: &Bound<'_, PyDict>) -> PyResult<Py<PyAny>> {
+fn classify_nets_py(py: Python<'_>, netlist: &Bound<'_, PyDict>) -> PyResult<Py<PyDict>> {
     temper_py_bridge::catch_panic(|| {
         let rust_netlist = extract_netlist(py, netlist)?;
         let classifications = classification::classify_nets(&rust_netlist);

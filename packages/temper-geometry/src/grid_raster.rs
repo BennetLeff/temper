@@ -300,7 +300,7 @@ fn closest_component_for_zone(
     half_w: f64,
     half_h: f64,
 ) -> Option<String> {
-    let mut best: Option<(String, f64)> = None;
+    let mut best: Option<(&str, f64)> = None;
     for (ref_, px, py) in positions {
         let in_bounds = (zx - half_w) <= *px && *px <= (zx + half_w)
             && (zy - half_h) <= *py && *py <= (zy + half_h);
@@ -308,13 +308,13 @@ fn closest_component_for_zone(
             continue;
         }
         let key = math_pow(*px - zx, 2.0) + math_pow(*py - zy, 2.0);
-        match &best {
-            None => best = Some((ref_.clone(), key)),
-            Some((_, best_key)) if key < *best_key => best = Some((ref_.clone(), key)),
+        match best {
+            None => best = Some((ref_.as_str(), key)),
+            Some((_, best_key)) if key < best_key => best = Some((ref_.as_str(), key)),
             _ => {}
         }
     }
-    best.map(|(r, _)| r)
+    best.map(|(r, _)| r.to_string())
 }
 
 // ---------------------------------------------------------------------------

@@ -100,7 +100,7 @@ pub fn load_reference_alias_manifest<'py>(
     path: &Bound<'py, PyAny>,
     component_refs: &Bound<'py, PyAny>,
     loop_names: &Bound<'py, PyAny>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyReferenceAliasManifest>> {
     let path_str: String = path.str()?.extract()?;
     // `yaml.safe_load(path.read_text(encoding="utf-8"))`
     let pathlib = PyModule::import(py, "pathlib")?;
@@ -141,7 +141,7 @@ pub fn load_reference_alias_manifest<'py>(
         py,
         PyReferenceAliasManifest::new(&component_aliases, &loop_aliases)?,
     )?;
-    Ok(manifest.into_any())
+    Ok(manifest)
 }
 
 fn yaml_safe_load<'py>(

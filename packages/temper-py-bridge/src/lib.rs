@@ -289,3 +289,407 @@ pub fn extract_dict_list<'py>(
 ) -> PyResult<Vec<Bound<'py, PyDict>>> {
     DictExtract::extract_dict_list(dict, key)
 }
+
+// =============================================================================
+// Tests
+// =============================================================================
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests {
+    use super::*;
+    use pyo3::types::{PyDict, PyList};
+    use std::sync::Once;
+
+    static PYTHON_INIT: Once = Once::new();
+
+    /// Ensure the Python interpreter is initialized (once per process).
+    /// Must be called before any test that uses `Python::attach` or pyo3
+    /// APIs that require the interpreter.
+    fn ensure_python_init() {
+        PYTHON_INIT.call_once(|| {
+            pyo3::Python::initialize();
+        });
+    }
+
+    // ------------------------------------------------------------------
+    // panic_to_err
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn panic_to_err_string_payload() {
+        ensure_python_init();
+        let err = panic_to_err(Box::new("static str payload".to_string()));
+        let msg = err.to_string();
+        assert!(msg.contains("static str payload"), "got: {msg}");
+    }
+
+    #[test]
+    fn panic_to_err_str_ref_payload() {
+        ensure_python_init();
+        let s: &str = "borrowed str payload";
+        let err = panic_to_err(Box::new(s));
+        let msg = err.to_string();
+        assert!(msg.contains("borrowed str payload"), "got: {msg}");
+    }
+
+    #[test]
+    fn panic_to_err_unknown_payload() {
+        ensure_python_init();
+        let err = panic_to_err(Box::new(42u32));
+        let msg = err.to_string();
+        assert!(msg.contains("unknown panic"), "got: {msg}");
+    }
+
+    // ------------------------------------------------------------------
+    // catch_unwind
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn catch_unwind_success() {
+        let result = catch_unwind(|| 42);
+        match result {
+            Ok(v) => assert_eq!(v, 42),
+            Err(_) => panic!("expected Ok"),
+        }
+    }
+
+    #[test]
+    fn catch_unwind_panic_caught() {
+        use std::panic::{self, AssertUnwindSafe};
+        let result = panic::catch_unwind(AssertUnwindSafe(|| {
+            panic!("boom");
+        }));
+        assert!(result.is_err());
+    }
+
+    // ------------------------------------------------------------------
+    // catch_panic
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn catch_panic_success() {
+        ensure_python_init();
+        let result: PyResult<i32> = catch_panic(|| Ok(7));
+        assert_eq!(result.unwrap(), 7);
+    }
+
+    #[test]
+    fn catch_panic_propagates_error() {
+        ensure_python_init();
+        let result: PyResult<i32> = catch_panic(|| {
+            Err(py_value_err("not good"))
+        });
+        let e = result.unwrap_err();
+        let msg = e.to_string();
+        assert!(msg.contains("not good"), "got: {msg}");
+    }
+
+    #[test]
+    fn catch_panic_converts_panic() {
+        ensure_python_init();
+        let result: PyResult<()> = catch_panic(|| -> PyResult<()> {
+            panic!("unexpected");
+        });
+        let e = result.unwrap_err();
+        let msg = e.to_string();
+        assert!(msg.contains("unexpected"), "got: {msg}");
+    }
+
+    // ------------------------------------------------------------------
+    // py_runtime_err / py_value_err
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn py_runtime_err_contains_message() {
+        ensure_python_init();
+        let e = py_runtime_err("something broke");
+        assert!(e.to_string().contains("something broke"));
+    }
+
+    #[test]
+    fn py_value_err_contains_message() {
+        ensure_python_init();
+        let e = py_value_err("bad value");
+        assert!(e.to_string().contains("bad value"));
+    }
+
+    // ------------------------------------------------------------------
+    // DictExtract — basic extraction
+    // ------------------------------------------------------------------
+
+    fn make_test_dict<'py>(py: Python<'py>) -> Bound<'py, PyDict> {
+        let d = PyDict::new(py);
+        d.set_item("name", "Alice").unwrap();
+        d.set_item("age", 30.0_f64).unwrap();
+        d.set_item("active", true).unwrap();
+        d.set_item("tags", vec!["rust", "pyo3"]).unwrap();
+        d.set_item("empty_tags", PyList::empty(py)).unwrap();
+        d
+    }
+
+    #[test]
+    fn extract_str_present() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let name = d.extract_str("name").unwrap();
+            assert_eq!(name, "Alice");
+        });
+    }
+
+    #[test]
+    fn extract_str_missing() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let err = d.extract_str("nope").unwrap_err();
+            assert!(err.to_string().contains("nope"));
+        });
+    }
+
+    #[test]
+    fn extract_opt_str_present() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let name = d.extract_opt_str("name").unwrap();
+            assert_eq!(name, Some("Alice".to_string()));
+        });
+    }
+
+    #[test]
+    fn extract_opt_str_missing() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let name = d.extract_opt_str("nope").unwrap();
+            assert_eq!(name, None);
+        });
+    }
+
+    #[test]
+    fn extract_opt_str_none() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = PyDict::new(py);
+            d.set_item("x", py.None()).unwrap();
+            let v = d.extract_opt_str("x").unwrap();
+            assert_eq!(v, None);
+        });
+    }
+
+    #[test]
+    fn extract_f64_present() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let age = d.extract_f64("age", 0.0).unwrap();
+            assert!((age - 30.0).abs() < f64::EPSILON);
+        });
+    }
+
+    #[test]
+    fn extract_f64_missing_returns_default() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let v = d.extract_f64("nope", 99.0).unwrap();
+            assert!((v - 99.0).abs() < f64::EPSILON);
+        });
+    }
+
+    #[test]
+    fn extract_f64_none_returns_default() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = PyDict::new(py);
+            d.set_item("x", py.None()).unwrap();
+            let v = d.extract_f64("x", 42.0).unwrap();
+            assert!((v - 42.0).abs() < f64::EPSILON);
+        });
+    }
+
+    #[test]
+    fn extract_f64_required_present() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let age = d.extract_f64_required("age").unwrap();
+            assert!((age - 30.0).abs() < f64::EPSILON);
+        });
+    }
+
+    #[test]
+    fn extract_f64_required_missing() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let err = d.extract_f64_required("nope").unwrap_err();
+            assert!(err.to_string().contains("nope"));
+        });
+    }
+
+    #[test]
+    fn extract_opt_f64_present() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let v: Option<f64> = d.extract_opt_f64("age").unwrap();
+            assert!(v.is_some());
+            assert!((v.unwrap() - 30.0).abs() < f64::EPSILON);
+        });
+    }
+
+    #[test]
+    fn extract_opt_f64_missing() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let v: Option<f64> = d.extract_opt_f64("nope").unwrap();
+            assert_eq!(v, None);
+        });
+    }
+
+    #[test]
+    fn extract_bool_present() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            assert!(d.extract_bool("active").unwrap());
+        });
+    }
+
+    #[test]
+    fn extract_opt_bool_none() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = PyDict::new(py);
+            d.set_item("x", py.None()).unwrap();
+            let v = d.extract_opt_bool("x").unwrap();
+            assert_eq!(v, None);
+        });
+    }
+
+    #[test]
+    fn extract_bool_default_missing() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = PyDict::new(py);
+            let v = d.extract_bool_default("nope", true).unwrap();
+            assert!(v);
+        });
+    }
+
+    #[test]
+    fn extract_str_list_present() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let tags = d.extract_str_list("tags").unwrap();
+            assert_eq!(tags, vec!["rust", "pyo3"]);
+        });
+    }
+
+    #[test]
+    fn extract_str_list_missing_returns_empty() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let tags = d.extract_str_list("nope").unwrap();
+            assert!(tags.is_empty());
+        });
+    }
+
+    #[test]
+    fn extract_str_list_empty_list() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            let tags = d.extract_str_list("empty_tags").unwrap();
+            assert!(tags.is_empty());
+        });
+    }
+
+    #[test]
+    fn extract_dict_present() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let outer = PyDict::new(py);
+            let inner = PyDict::new(py);
+            inner.set_item("k", "v").unwrap();
+            outer.set_item("inner", inner).unwrap();
+            let extracted = outer.extract_dict("inner").unwrap();
+            let v: String = extracted.get_item("k").unwrap().unwrap().extract().unwrap();
+            assert_eq!(v, "v");
+        });
+    }
+
+    #[test]
+    fn extract_dict_missing() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = PyDict::new(py);
+            let err = d.extract_dict("nope").unwrap_err();
+            assert!(err.to_string().contains("nope"));
+        });
+    }
+
+    #[test]
+    fn extract_opt_dict_present() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let outer = PyDict::new(py);
+            let inner = PyDict::new(py);
+            inner.set_item("k", 1).unwrap();
+            outer.set_item("inner", inner).unwrap();
+            let opt = outer.extract_opt_dict("inner").unwrap();
+            assert!(opt.is_some());
+        });
+    }
+
+    #[test]
+    fn extract_opt_dict_none_value() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = PyDict::new(py);
+            d.set_item("x", py.None()).unwrap();
+            let opt = d.extract_opt_dict("x").unwrap();
+            assert!(opt.is_none());
+        });
+    }
+
+    #[test]
+    fn extract_dict_list_present() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let outer = PyDict::new(py);
+            let items = PyList::empty(py);
+            let d1 = PyDict::new(py);
+            d1.set_item("a", 1).unwrap();
+            items.append(d1).unwrap();
+            outer.set_item("items", items).unwrap();
+            let extracted = outer.extract_dict_list("items").unwrap();
+            assert_eq!(extracted.len(), 1);
+        });
+    }
+
+    // ------------------------------------------------------------------
+    // Standalone functions (verify they delegate to DictExtract)
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn standalone_extractors_delegate() {
+        ensure_python_init();
+        Python::attach(|py| {
+            let d = make_test_dict(py);
+            assert_eq!(extract_str(&d, "name").unwrap(), "Alice");
+            assert_eq!(
+                extract_opt_str(&d, "name").unwrap(),
+                Some("Alice".to_string())
+            );
+            assert!((extract_f64(&d, "age", 0.0).unwrap() - 30.0).abs() < f64::EPSILON);
+            assert_eq!(extract_str_list(&d, "tags").unwrap(), vec!["rust", "pyo3"]);
+        });
+    }
+}

@@ -144,17 +144,17 @@ pub fn chamfer_path_points(path_points: &[PathPoint], chamfer_offset: f64) -> Ve
     let mut result: Vec<PathPoint> = Vec::with_capacity(path_points.len());
     result.push(path_points[0].clone());
 
-    for i in 1..path_points.len() - 1 {
-        let prev = &path_points[i - 1];
-        let curr = &path_points[i];
-        let nxt = &path_points[i + 1];
+    for triple in path_points.windows(3) {
+        let prev = &triple[0];
+        let curr = &triple[1];
+        let nxt = &triple[2];
 
         if prev.2 != curr.2 || curr.2 != nxt.2 {
             result.push(curr.clone());
             continue;
         }
 
-        let lyr = curr.2.clone();
+        let lyr = &curr.2;
         let dx1 = curr.0 - prev.0;
         let dy1 = curr.1 - prev.1;
         let dx2 = nxt.0 - curr.0;
@@ -191,7 +191,7 @@ pub fn chamfer_path_points(path_points: &[PathPoint], chamfer_offset: f64) -> Ve
         let after = (
             curr.0 + ux2 * chamfer_offset,
             curr.1 + uy2 * chamfer_offset,
-            lyr,
+            lyr.clone(),
         );
 
         result.push(before);

@@ -486,12 +486,12 @@ impl Location {
         Err(unhashable("Location"))
     }
 
-    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let d = PyDict::new(py);
         d.set_item("x", self.x.bind(py))?;
         d.set_item("y", self.y.bind(py))?;
         d.set_item("layer", self.layer.bind(py))?;
-        Ok(d.into())
+        Ok(d.unbind())
     }
 }
 
@@ -650,7 +650,7 @@ impl Issue {
         Err(unhashable("Issue"))
     }
 
-    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let d = PyDict::new(py);
         d.set_item("severity", self.severity.bind(py).getattr("name")?)?;
         d.set_item("code", self.code.bind(py))?;
@@ -667,7 +667,7 @@ impl Issue {
         }
         d.set_item("details", self.details.bind(py))?;
         d.set_item("constraint_id", self.constraint_id.bind(py))?;
-        Ok(d.into())
+        Ok(d.unbind())
     }
 }
 
@@ -777,7 +777,7 @@ impl CheckResult {
     /// The dataclass `merge`: new CheckResult with concatenated issues,
     /// AND-ed passed, added elapsed_ms, `{**a, **b}` metrics (later keys
     /// win, first-seen position kept).
-    fn merge(&self, py: Python<'_>, other: &Bound<'_, Self>) -> PyResult<Py<PyAny>> {
+    fn merge(&self, py: Python<'_>, other: &Bound<'_, Self>) -> PyResult<Py<CheckResult>> {
         let other_ref = other.borrow();
         let issues = PyList::empty(py);
         for item in self.issues.bind(py).try_iter()? {
@@ -808,7 +808,7 @@ impl CheckResult {
             elapsed_ms: elapsed.unbind(),
             metrics: metrics.into(),
         };
-        Ok(Py::new(py, cr)?.into_any())
+        Py::new(py, cr)
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
@@ -837,7 +837,7 @@ impl CheckResult {
         Err(unhashable("CheckResult"))
     }
 
-    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let issues = PyList::empty(py);
         for issue in self.issues.bind(py).try_iter()? {
             issues.append(issue?.call_method0("to_dict")?)?;
@@ -854,7 +854,7 @@ impl CheckResult {
         d.set_item("elapsed_ms", self.elapsed_ms.bind(py))?;
         d.set_item("metrics", self.metrics.bind(py))?;
         d.set_item("counts", counts)?;
-        Ok(d.into())
+        Ok(d.unbind())
     }
 }
 
@@ -922,7 +922,7 @@ impl RunResult {
     }
 
     #[getter]
-    fn all_issues(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+    fn all_issues(&self, py: Python<'_>) -> PyResult<Py<PyList>> {
         let out = PyList::empty(py);
         for cr in self.check_results.bind(py).try_iter()? {
             let issues = cr?.getattr("issues")?;
@@ -930,7 +930,7 @@ impl RunResult {
                 out.append(issue?)?;
             }
         }
-        Ok(out.into())
+        Ok(out.unbind())
     }
 
     #[getter]
@@ -1001,7 +1001,7 @@ impl RunResult {
         self.sum_property(py, "penalty")
     }
 
-    fn by_category(&self, py: Python<'_>, category: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+    fn by_category(&self, py: Python<'_>, category: &Bound<'_, PyAny>) -> PyResult<Py<PyList>> {
         let out = PyList::empty(py);
         for cr in self.check_results.bind(py).try_iter()? {
             let cr = cr?;
@@ -1018,10 +1018,10 @@ impl RunResult {
                 out.append(cr)?;
             }
         }
-        Ok(out.into())
+        Ok(out.unbind())
     }
 
-    fn by_severity(&self, py: Python<'_>, severity: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+    fn by_severity(&self, py: Python<'_>, severity: &Bound<'_, PyAny>) -> PyResult<Py<PyList>> {
         let out = PyList::empty(py);
         for item in self.all_issues(py)?.bind(py).try_iter()? {
             let issue = item?;
@@ -1029,10 +1029,10 @@ impl RunResult {
                 out.append(issue)?;
             }
         }
-        Ok(out.into())
+        Ok(out.unbind())
     }
 
-    fn issues_for_component(&self, py: Python<'_>, ref_: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+    fn issues_for_component(&self, py: Python<'_>, ref_: &Bound<'_, PyAny>) -> PyResult<Py<PyList>> {
         let out = PyList::empty(py);
         for issue in self.all_issues(py)?.bind(py).try_iter()? {
             let issue = issue?;
@@ -1041,7 +1041,7 @@ impl RunResult {
                 out.append(issue)?;
             }
         }
-        Ok(out.into())
+        Ok(out.unbind())
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
@@ -1067,7 +1067,7 @@ impl RunResult {
         Err(unhashable("RunResult"))
     }
 
-    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let check_results = PyList::empty(py);
         for cr in self.check_results.bind(py).try_iter()? {
             check_results.append(cr?.call_method0("to_dict")?)?;
@@ -1086,7 +1086,7 @@ impl RunResult {
         d.set_item("total_elapsed_ms", self.total_elapsed_ms.bind(py))?;
         d.set_item("summary", summary)?;
         d.set_item("check_results", check_results)?;
-        Ok(d.into())
+        Ok(d.unbind())
     }
 }
 
@@ -1272,7 +1272,7 @@ impl ComponentPlacement {
         x_overlap.mul(&y_overlap).map(|v| v.unbind())
     }
 
-    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let d = PyDict::new(py);
         d.set_item("ref", self.r#ref.bind(py))?;
         d.set_item("footprint", self.footprint.bind(py))?;
@@ -1284,7 +1284,7 @@ impl ComponentPlacement {
         d.set_item("height", self.height.bind(py))?;
         d.set_item("net_class", self.net_class.bind(py))?;
         d.set_item("voltage_domain", self.voltage_domain.bind(py))?;
-        Ok(d.into())
+        Ok(d.unbind())
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
@@ -1498,7 +1498,7 @@ impl Placement {
     }
 
     /// The oracle's `all_pairs`: every unique pair of component refs.
-    fn all_pairs(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+    fn all_pairs(&self, py: Python<'_>) -> PyResult<Py<PyList>> {
         let keys = self.components.bind(py).call_method0("keys")?;
         let refs = py_list_of(py, &keys)?;
         let refs = refs.bind(py);
@@ -1511,7 +1511,7 @@ impl Placement {
                 out.append(PyTuple::new(py, [a.clone(), b.clone()])?)?;
             }
         }
-        Ok(out.into())
+        Ok(out.unbind())
     }
 
     /// Verbatim `from_dict` marshalling (see the module docstring for the
@@ -1584,7 +1584,7 @@ impl Placement {
         Self::from_dict(cls, &data)
     }
 
-    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let components = PyList::empty(py);
         for comp in self
             .components
@@ -1609,7 +1609,7 @@ impl Placement {
         d.set_item("board_height", self.board_height.bind(py))?;
         d.set_item("net_classes", self.net_classes.bind(py))?;
         d.set_item("voltage_domains", self.voltage_domains.bind(py))?;
-        Ok(d.into())
+        Ok(d.unbind())
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
@@ -2338,7 +2338,7 @@ impl ConstraintSet {
         Self::from_dict(cls, &data)
     }
 
-    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+    fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let clearances = PyList::empty(py);
         for rule in self.clearances.bind(py).try_iter()? {
             let rule = rule?;
@@ -2381,7 +2381,7 @@ impl ConstraintSet {
         d.set_item("voltage_domains", self.voltage_domains.bind(py))?;
         d.set_item("hv_clearance_mm", self.hv_clearance_mm.bind(py))?;
         d.set_item("board", board)?;
-        Ok(d.into())
+        Ok(d.unbind())
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {

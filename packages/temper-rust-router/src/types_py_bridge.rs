@@ -55,17 +55,15 @@ pub fn model_from_python(
             let capacity: f64 = obj.getattr("capacity")?.extract()?;
             let slack_factor: f64 = obj.getattr("slack_factor")?.extract()?;
             let mut terms = Vec::new();
-            if let Ok(terms_bound) = obj.getattr("terms") {
-                let terms_bound = terms_bound;  // Bound<'py, PyAny>
-                if let Ok(terms_list) = terms_bound.cast::<PyList>() {
-                    for i in 0..terms_list.len() {
-                        let item = terms_list.get_item(i)?;
-                        let tup = item.cast::<PyTuple>()?;
-                        let var_any = tup.get_item(0)?;
-                        let vname: String = var_any.getattr("name")?.extract()?;
-                        let width: f64 = tup.get_item(1)?.extract()?;
-                        terms.push((vname, width));
-                    }
+            if let Ok(terms_bound) = obj.getattr("terms")
+                && let Ok(terms_list) = terms_bound.cast::<PyList>()
+            {
+                for item in terms_list.iter() {
+                    let tup = item.cast::<PyTuple>()?;
+                    let var_any = tup.get_item(0)?;
+                    let vname: String = var_any.getattr("name")?.extract()?;
+                    let width: f64 = tup.get_item(1)?.extract()?;
+                    terms.push((vname, width));
                 }
             }
             cons.push(InternalConstraint::Capacity { channel_id, capacity, slack_factor, terms });
