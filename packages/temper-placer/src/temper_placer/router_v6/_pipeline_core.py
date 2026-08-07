@@ -77,6 +77,7 @@ class RouterV6Pipeline:
         enable_zone_pours: bool = False,
         enable_connectivity_verifier: bool = False,
         enable_erc_check: bool = False,
+        enable_geographic_pruning: bool = False,
     ):
         """
         Initialize Router V6 pipeline.
@@ -157,6 +158,12 @@ class RouterV6Pipeline:
                 promotion is a separate decision, matching
                 enable_connectivity_verifier's discipline (plan
                 2026-07-23-001 U2).
+            enable_geographic_pruning: Enable geographic pruning of the
+                SAT model (U3 of plan 2026-08-07-001). Default False
+                (behavior unchanged). When True, NetChannelVar and ViaVar
+                variables are created only for edges/nodes within
+                max(K * pin_span, M_min) of the net's pins, reducing
+                CNF variables and clauses.
         """
         del enable_connectivity_verifier  # inherited unused arg (baseline debt)
         if dfm_fail_on not in ("none", "critical", "all"):
@@ -191,6 +198,8 @@ class RouterV6Pipeline:
         self.enable_all_pad_tree = enable_all_pad_tree
         self.enable_zone_pours = enable_zone_pours
         self.enable_erc_check = enable_erc_check
+        # U3: geographic SAT-model pruning (plan 2026-08-07-001)
+        self.enable_geographic_pruning = enable_geographic_pruning
         # Per-net layer assignments resolved from the netclass SSOT (W2 R2).
         # Maps net name -> LayerAssignment; consumed to constrain layer choice.
         self.layer_constraints = layer_constraints or {}

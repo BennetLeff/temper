@@ -254,6 +254,7 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
             pcb=pcb,
             enable_bundling=True,
             bundle_manifest=bundle_manifest,
+            enable_geographic_pruning=self.enable_geographic_pruning,
         )
         constraint_model = model_builder.build()
     else:
@@ -264,6 +265,7 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
             design_rules=pcb.design_rules,
             diff_pairs=diff_pairs,
             pcb=pcb,
+            enable_geographic_pruning=self.enable_geographic_pruning,
         )
         constraint_model = model_builder.build()
         bundle_manifest = None

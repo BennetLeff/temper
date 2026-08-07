@@ -323,6 +323,125 @@ class ConstraintModel:
         return len(self.constraints)
 
 
+#: Default detour-factor headroom for geographic pruning (matches
+#: ``temper-rust-router-core::pruning::PruningParams::k_factor``).
+_DEFAULT_PRUNE_K_FACTOR = 2.0
+
+#: Default absolute floor margin in mm for geographic pruning (matches
+#: ``temper-rust-router-core::pruning::PruningParams::m_min``).
+_DEFAULT_PRUNE_M_MIN = 30.0
+
+
+def _point_to_segment_distance(
+    px: float, py: float,
+    seg_ax: float, seg_ay: float,
+    seg_bx: float, seg_by: float,
+) -> float:
+    """Minimum Euclidean distance from point ``(px, py)`` to line segment
+    ``(seg_a, seg_b)``.
+
+    When the perpendicular projection falls outside the segment, returns
+    the distance to the nearer endpoint.  Degenerate (zero-length) segment
+    returns the distance to the single endpoint.
+
+    This is an exact Python replica of
+    ``temper_rust_router_core::pruning::point_to_segment_distance`` for
+    use in the model builder.  The test
+    ``test_pruning_python_parity_with_rust`` cross-checks the two
+    implementations on the fixed/test cases.
+    """
+    dx = seg_bx - seg_ax
+    dy = seg_by - seg_ay
+    len_sq = dx * dx + dy * dy
+
+    if len_sq == 0.0:
+        dx_p = px - seg_ax
+        dy_p = py - seg_ay
+        return math.sqrt(dx_p * dx_p + dy_p * dy_p)
+
+    t = ((px - seg_ax) * dx + (py - seg_ay) * dy) / len_sq
+    if t < 0.0:
+        t_c = 0.0
+    elif t > 1.0:
+        t_c = 1.0
+    else:
+        t_c = t
+
+    proj_x = seg_ax + t_c * dx
+    proj_y = seg_ay + t_c * dy
+    dx_p = px - proj_x
+    dy_p = py - proj_y
+    return math.sqrt(dx_p * dx_p + dy_p * dy_p)
+
+
+def _pin_world_positions(net: Net, pcb: ParsedPCB) -> list[tuple[float, float]]:
+    """Collect the world positions of every pin on *net* from *pcb*.
+
+    Returns an empty list for nets with no assignable pins (e.g. zone-pour
+    nets whose pads aren't matched to a component pin).
+    """
+    positions: list[tuple[float, float]] = []
+    for comp in pcb.components:
+        for pin in comp.pins:
+            if pin.net == net.name:
+                pos = pin_world_position(pin, comp)
+                positions.append((pos[0], pos[1]))
+    return positions
+
+
+def _dist_min_edge_to_pins(
+    edge_ax: float, edge_ay: float,
+    edge_bx: float, edge_by: float,
+    pin_positions: list[tuple[float, float]],
+) -> float:
+    """Minimum Euclidean distance from the line segment *edge* to any pin."""
+    if not pin_positions:
+        return float("inf")
+    best = float("inf")
+    for px, py in pin_positions:
+        d = _point_to_segment_distance(px, py, edge_ax, edge_ay, edge_bx, edge_by)
+        if d < best:
+            best = d
+    return best
+
+
+def _pin_span(pin_positions: list[tuple[float, float]]) -> float:
+    """Maximum Euclidean distance between any two pins."""
+    if len(pin_positions) < 2:
+        return 0.0
+    max_d = 0.0
+    for i in range(len(pin_positions)):
+        xi, yi = pin_positions[i]
+        for j in range(i + 1, len(pin_positions)):
+            xj, yj = pin_positions[j]
+            d = math.sqrt((xi - xj) ** 2 + (yi - yj) ** 2)
+            if d > max_d:
+                max_d = d
+    return max_d
+
+
+def _is_candidate_edge(
+    pin_positions: list[tuple[float, float]],
+    edge_ax: float, edge_ay: float,
+    edge_bx: float, edge_by: float,
+    k_factor: float = _DEFAULT_PRUNE_K_FACTOR,
+    m_min: float = _DEFAULT_PRUNE_M_MIN,
+) -> bool:
+    """Geographic pruning predicate: is net *n* a candidate for edge *e*?
+
+    ``candidate(n, e) = dist_min(e, P_n) <= M_n``
+    where ``M_n = max(K * S_n, M_min)``.
+
+    This is an exact Python replica of
+    ``temper_rust_router_core::pruning::is_candidate_edge``.  The
+    test ``test_pruning_python_parity_with_rust`` cross-checks.
+    """
+    span = _pin_span(pin_positions)
+    margin = max(k_factor * span, m_min)
+    dist = _dist_min_edge_to_pins(edge_ax, edge_ay, edge_bx, edge_by, pin_positions)
+    return dist <= margin
+
+
 class ModelBuilder:
     """Builder for generating the constraint model from skeletons and nets."""
 
@@ -337,6 +456,7 @@ class ModelBuilder:
         pcl_constraints=None,
         enable_bundling: bool = False,
         bundle_manifest=None,
+        enable_geographic_pruning: bool = False,
     ):
         self.skeletons = skeletons or {}
         self.nets = nets
@@ -347,6 +467,7 @@ class ModelBuilder:
         self.pcl_constraints = pcl_constraints
         self.enable_bundling = enable_bundling
         self.bundle_manifest = bundle_manifest
+        self.enable_geographic_pruning = enable_geographic_pruning
         self.model = ConstraintModel()
 
         # Build net name to index mapping for fast lookup
@@ -372,10 +493,28 @@ class ModelBuilder:
             self._create_per_net_channel_vars()
 
     def _create_per_net_channel_vars(self):
-        """Create per-net channel variables (unbundled path)."""
+        """Create per-net channel variables (unbundled path).
+
+        When ``enable_geographic_pruning`` is True, a ``NetChannelVar``
+        is created only if the net's pins are within geographic range of
+        the edge (the ``_is_candidate_edge`` predicate).  Otherwise every
+        (net, edge) pair gets a variable unconditionally.
+        """
+        if self.enable_geographic_pruning and self.pcb is not None:
+            # Pre-compute pin world positions per net, indexed by net_idx.
+            net_pins: dict[int, list[tuple[float, float]]] = {
+                net_idx: _pin_world_positions(net, self.pcb)
+                for net_idx, net in enumerate(self.nets)
+            }
+
         for net_idx, _net in enumerate(self.nets):
             for layer_name, skeleton in self.skeletons.items():
                 for edge_id, u, v in canonical_channel_edges(skeleton.graph, layer_name):
+
+                    if self.enable_geographic_pruning and self.pcb is not None:
+                        pin_positions = net_pins.get(net_idx, [])
+                        if not _is_candidate_edge(pin_positions, u[0], u[1], v[0], v[1]):
+                            continue
 
                     var = NetChannelVar(
                         name=f"uses_N{net_idx}_{edge_id}", net_idx=net_idx, channel_id=edge_id
@@ -427,7 +566,15 @@ class ModelBuilder:
                     self.model.add_variable(var)
 
     def _create_via_vars(self):
-        """Create variables for via placement."""
+        """Create variables for via placement.
+
+        When ``enable_geographic_pruning`` is True, a ``ViaVar`` is
+        created only if the via-anchor node is within geographic range
+        of the net's pins (the same ``_is_candidate_edge`` predicate,
+        using a zero-length "edge" at the node position — so
+        ``_point_to_segment_distance`` degenerates to point-to-point
+        distance, which is the intended behaviour).
+        """
         # Collect all unique node locations across all skeletons
         all_nodes = set()
         for skeleton in self.skeletons.values():
@@ -437,8 +584,22 @@ class ModelBuilder:
         # Sort for stability
         sorted_nodes = sorted(all_nodes)
 
+        if self.enable_geographic_pruning and self.pcb is not None:
+            net_pins: dict[int, list[tuple[float, float]]] = {
+                net_idx: _pin_world_positions(net, self.pcb)
+                for net_idx, net in enumerate(self.nets)
+            }
+
         for net_idx, _net in enumerate(self.nets):
             for i, node in enumerate(sorted_nodes):
+                if self.enable_geographic_pruning and self.pcb is not None:
+                    pin_positions = net_pins.get(net_idx, [])
+                    # Via at node: treat as a degenerate (zero-length) edge.
+                    # _is_candidate_edge with equal endpoints → point-to-point
+                    # distance.
+                    if not _is_candidate_edge(pin_positions, node[0], node[1], node[0], node[1]):
+                        continue
+
                 node_id = f"VIA_N{i}_{node[0]:.2f}_{node[1]:.2f}"
 
                 var = ViaVar(name=f"via_N{net_idx}_{node_id}", net_idx=net_idx, location_id=node_id)
@@ -480,6 +641,15 @@ class ModelBuilder:
                     if (net_idx, edge_id) in self.model.net_channel_vars:
                         var = self.model.net_channel_vars[(net_idx, edge_id)]
                         terms.append((var, net_width))
+                    elif self.enable_geographic_pruning and self.pcb is not None:
+                        # Defense-in-depth: if pruning is active, every term
+                        # that appears in a capacity constraint for this edge
+                        # MUST have been created by _create_per_net_channel_vars,
+                        # which already applied the predicate.  A net-variable
+                        # that passes the predicate for one edge will NOT be
+                        # spuriously invisible here.  Silence is correct — the
+                        # net legitimately has no variable on this edge.
+                        pass
 
                 if terms:
                     constraint = CapacityConstraint(
@@ -640,6 +810,9 @@ class ConstraintGenerationStage(Stage):
         channel_widths = state.channel_widths
         diff_pairs = infer_differential_pairs([net.name for net in pcb.nets])
         pcl_constraints = getattr(state, "pcl_constraints", None)
+        enable_geographic_pruning: bool = getattr(
+            state, "enable_geographic_pruning", False
+        )
         model_builder = ModelBuilder(
             skeletons=skeletons,
             nets=pcb.nets,
@@ -648,6 +821,7 @@ class ConstraintGenerationStage(Stage):
             diff_pairs=diff_pairs,
             pcb=pcb,
             pcl_constraints=pcl_constraints,
+            enable_geographic_pruning=enable_geographic_pruning,
         )
         constraint_model = model_builder.build()
         return replace(state, constraint_model=constraint_model)
