@@ -2,9 +2,9 @@
 date: 2026-06-22
 type: feat
 origin: docs/ideation/2026-06-22-test-and-build-next-ideation.md
-status: stale
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+status: completed
+swept: 2026-08-07
+swept_basis: "landed and expanded: scripts/pipeline_metrics.py (record/trend/spc/slo), power_pcb_dataset/metrics/pipeline_metrics.jsonl, multiple CI workflows (metrics-record.yml, metrics-trend-check.yml)"
 ---
 
 # Plan: Pipeline Quality Metrics Time-Series & Trend Detection

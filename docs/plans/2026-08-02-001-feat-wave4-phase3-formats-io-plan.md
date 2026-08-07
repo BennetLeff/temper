@@ -6,6 +6,9 @@ topic: wave4-phase3-formats-io
 artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
+status: active
+swept: 2026-08-07
+swept_basis: "Wave 4 Phase 3 pull, in progress; io/ LOC still growing not shrinking as of 2026-08-03 measurement in the parent plan"
 ---
 
 # Wave 4 Phase 3: Formats/IO Migration — Plan

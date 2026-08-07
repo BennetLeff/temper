@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R28, R29)
+status: active
+swept: 2026-08-07
+swept_basis: "No transition-manifest model-builder/reachability script or invariant-proof module found under firmware/test/. Unbuilt, uncontradicted."
 ---
 
 # State-Machine Model Check & Invariant Proofs - Plan

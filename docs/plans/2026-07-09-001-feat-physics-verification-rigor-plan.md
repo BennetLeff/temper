@@ -1,11 +1,11 @@
 ---
 title: "feat: Physics Verification Rigor — Invariants, Induction & PBT for the Physics Feature"
 type: feat
-status: stale
+status: completed
 date: 2026-07-09
 origin: docs/brainstorms/2026-07-09-physics-verification-rigor-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "direct @req(2026-07-09-001...) tags in test_methodology_conventions.py (R1/R22/R24), test_thermal_fdm_mms.py (R13), test_thermal_fdm_refinement.py (R11)"
 ---
 
 # feat: Physics Verification Rigor — Invariants, Induction & PBT for the Physics Feature

@@ -9,6 +9,8 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: planned
 product_contract_source: ce-brainstorm
 execution: code
+swept: 2026-08-07
+swept_basis: "U1-U3 landed (per doc's own Landing Status); U4/U5 confirmed still absent (no check_prover_soundness_gate.py / check_coverage_ratchet.py) as of today."
 ---
 
 # Provable-Safety Place and Route - Plan

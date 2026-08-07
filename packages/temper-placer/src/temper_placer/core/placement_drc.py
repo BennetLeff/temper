@@ -15,20 +15,17 @@ Two contract details worth knowing when reading the Rust:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeAlias
+from typing import TypeAlias
 
 import temper_io_types as _rs
 
-if TYPE_CHECKING:
-    # ``temper_io_types`` is a compiled pyo3 extension with no stubs, so
-    # ``X = _rs.X`` binds a *variable* of type Any and every annotation
-    # using it is "not valid as a type". Aliasing to Any under
-    # TYPE_CHECKING keeps the runtime binding below untouched.
-    PinInfo: TypeAlias = Any
-    PlacementViolation: TypeAlias = Any
-else:
-    PinInfo = _rs.PinInfo
-    PlacementViolation = _rs.PlacementViolation
+# `temper_io_types` has no `.pyi` stub, so `_rs.PinInfo`/`_rs.PlacementViolation`
+# type as `Any`; without an explicit `TypeAlias` annotation mypy cannot tell
+# this rebinding is meant to be used as a type (`Variable ... is not valid as
+# a type`) rather than a runtime value -- same idiom used for the numpy Array
+# aliases elsewhere in core/ (e.g. core/board.py, core/netlist.py).
+PinInfo: TypeAlias = _rs.PinInfo
+PlacementViolation: TypeAlias = _rs.PlacementViolation
 
 
 def validate_placement_drc(

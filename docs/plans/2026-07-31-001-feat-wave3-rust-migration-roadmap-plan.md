@@ -6,6 +6,9 @@ topic: wave3-rust-migration-roadmap
 artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
+status: completed
+swept: 2026-08-07
+swept_basis: "Wave 3 candidates all landed per Wave 4 plan's own retrospective (2026-08-01-001-feat-wave4-full-migration-program-plan.md Problem Frame)"
 ---
 
 # Wave 3 Python → Rust Migration Roadmap — Ranking

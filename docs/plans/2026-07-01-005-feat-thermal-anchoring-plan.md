@@ -1,11 +1,11 @@
 ---
 title: "feat: Thermal-Potential-Field Anchoring for Power Device Placement"
 type: feat
-status: stale
+status: abandoned
 date: 2026-07-01
 origin: docs/brainstorms/2026-07-01-thermal-anchoring-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "thermal_potential.py math landed+tested, but ThermalAnchoringStage/dag_engine.py framework has zero callers anywhere in the live pipeline"
 ---
 
 # feat: Thermal-Potential-Field Anchoring for Power Device Placement

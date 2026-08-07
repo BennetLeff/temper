@@ -1,10 +1,10 @@
 ---
 title: "feat: Mathematical rigor proofs for Rust SAT solver subsystems"
 type: feat
-status: stale
+status: completed
 date: 2026-06-28
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "test_stage3_constraint_audit.py cross-validates Rust CDCL encoding against pysat/Glucose3 on random models, as specified; passes in CI"
 ---
 
 # Solver Rigor Proofs

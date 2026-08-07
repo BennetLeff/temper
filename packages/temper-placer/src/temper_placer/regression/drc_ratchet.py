@@ -810,9 +810,12 @@ class DrcRatchet:
             # board file's current content -- a raise measured against a
             # board that has since moved is a stale measurement.
             board_rel = record.get("path")
-            # Bind once, then narrow: `prov.get(...)` called twice is two
-            # separate expressions, so the isinstance does not narrow the
-            # value that actually gets assigned.
+            # Narrow via a local variable rather than calling `prov.get(...)`
+            # twice: mypy narrows an isinstance check on a variable inside its
+            # own ternary, but does not correlate two separate `.get()` call
+            # expressions as "the same value" even when textually identical,
+            # so the two-call form left `inputs` typed `Any | list[Any] |
+            # None` (union-attr on the `for inp in inputs` below).
             raw_inputs = prov.get("inputs")
             inputs = raw_inputs if isinstance(raw_inputs, list) else []
             matching_inputs = [

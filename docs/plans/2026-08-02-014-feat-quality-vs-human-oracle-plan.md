@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R13)
+status: active
+swept: 2026-08-07
+swept_basis: "No metrics/grouping.py or metrics/symmetry.py found; human_reference_extractor.py has no grouping/symmetry criteria yet. Unbuilt, uncontradicted."
 ---
 
 # Quality vs Human Oracle - Plan

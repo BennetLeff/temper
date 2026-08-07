@@ -1,11 +1,11 @@
 ---
 title: "fix: Finalize Cython Twin Cleanup and Lock Pure-Python A* Performance"
 type: fix
-status: abandoned
+status: completed
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-cython-twin-measure-requirements.md
-swept: 2026-07-25
-swept_basis: "only 3/17 named paths exist"
+swept: 2026-08-07
+swept_basis: "cleanup landed - no .pyx files anywhere, docs/specs/cython_twin_threshold.md exists (the re-introduction threshold spec); the paths-don't-exist signal was mis-scored since this is a deletion plan"
 ---
 
 # fix: Finalize Cython Twin Cleanup and Lock Pure-Python A* Performance

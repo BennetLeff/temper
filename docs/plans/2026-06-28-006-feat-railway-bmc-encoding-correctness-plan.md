@@ -1,11 +1,11 @@
 ---
 title: "feat: Railway-style BMC verification for SAT encoding correctness"
 type: feat
-status: stale
+status: completed
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-railway-bmc-encoding-correctness-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed as bmc.rs (BMC engine) + esl.rs (Encoder Spec Language) in temper-rust-router-core, wired + tested; ported to Rust after Python SAT surface retired"
 ---
 
 # Railway-Style BMC Verification for Encoding Correctness

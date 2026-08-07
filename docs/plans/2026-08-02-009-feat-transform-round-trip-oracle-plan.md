@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R12)
+status: completed
+swept: 2026-08-07
+swept_basis: "packages/temper-placer/src/temper_placer/validation/placement_roundtrip.py + tests exist; tests/validation/ runs whole in the trunk-only invariant-rest CI job."
 ---
 
 # Transform Round-trip Oracle - Plan

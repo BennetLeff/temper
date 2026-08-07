@@ -1,11 +1,11 @@
 ---
 title: "feat: CLI Zoning, 1000-Line LOC Cap, and entry_points Discovery"
 type: feat
-status: abandoned
+status: completed
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-cli-zoning-loc-cap-requirements.md
-swept: 2026-07-25
-swept_basis: "only 11/76 named paths exist"
+swept: 2026-08-07
+swept_basis: "LOC cap landed and CI-enforced - tools/loc_cap_check.py exists, 'LOC Cap Gate' is a live CI job; entry_points discovery unverified"
 ---
 
 # feat: CLI Zoning, 1000-Line LOC Cap, and entry_points Discovery

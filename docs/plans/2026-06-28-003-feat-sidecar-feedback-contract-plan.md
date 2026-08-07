@@ -1,10 +1,10 @@
 ---
 plan_type: feat
 origin: docs/ideation/2026-06-28-sidecar-feedback-convergence-ideation.md
-status: stale
+status: abandoned
 created: 2026-06-28
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed 2026-06-28 (bottleneck_report.py, feedback.py) but never wired to a Stage; feedback.py retired as dead code, 0 callers (d1640c62)"
 ---
 
 # feat: Sidecar-as-Contract Placement-Routing Feedback Loop

@@ -9,7 +9,7 @@ _meta:
   # seed is re-validated by the run itself (KTD3: the corpus re-derives from
   # the committed board on every run). Update this hash with
   # `--update-manifest` after a board change has been re-validated green.
-  board_sha256: 51e39844b18aa37c84e4cc0b011acc51dc24cb1282359e1334ecbdf6ed07d9af
+  board_sha256: 1cce4a0872051675b0339de3378ff7ec2c16bb4b035c999dfa408dec5ecbc3f6
   board_commit: de59c045822194bbaffbefeb542cc48f895ecc82
   created: 2026-08-02
   reseeded: 2026-08-04
@@ -131,3 +131,93 @@ classes:
       (116.26, 138.72) -- ~2mm from C11 (LV_CONTROL) -- compressing a
       currently-compliant HV<->SELV pair below the enforced margin.
       Measured 2026-08-02: DC_BUS<->LV_CONTROL creepage 99 -> 102.
+  clearance:
+    mutation: clearance
+    seed: 4
+    params:
+      ref: R67
+      position_mm: [134.66, 140.1]
+      pad: "1"
+      anchor_ref: R64
+      anchor_pad: "1"
+    owning_gates: [kicad-drc]
+    failure_signal: gate-names-defect
+    note: >-
+      Ordinary copper-to-copper clearance class (R9/R10 vacuity closure,
+      2026-08-07 -- scripts/board_defect_corpus.yaml had NO clearance
+      mutation class before this; clearance only ever appeared incidentally
+      in the pad-short mutation's kicad-cli output). R67 (0603, pad 1
+      +3V3, pad 2 safety.coil_thermal.comp-inp; originally at (101.37,
+      144.9) rot 180) is moved to (134.66, 140.1), placing R67 pad 1
+      0.05mm from the fixed R64 (0603, pad 1 safety.thermal.comp-inp, pad 2
+      safety.thermal-line; NOT moved) pad 1 -- below the applicable
+      net-class clearance (netclass 'Default' 0.2mm; R67 pad 1's own net is
+      'FinePitch' 0.1mm, and KiCad enforces the MAX of the two classes'
+      requirements) but strictly positive, so no copper overlap (unlike
+      pad-short, which drives the gap to exactly 0.0mm). Measured
+      2026-08-07: kicad-cli reports "Clearance violation (netclass
+      'Default' clearance 0.2000 mm; actual 0.0500 mm)" naming R64 pad 1
+      and R67 pad 1 on the mutated board, and nothing names that pair on
+      the clean board. This is a distinct DRC boundary from both
+      pad-short's same-footprint "Fine pitch IC pads" 0.1mm exception
+      (RULE 1 in generate_kicad_dru.py -- this mutation moves a whole
+      SEPARATE footprint, not a pad within one) and creepage's HV<->SELV
+      custom DRU rule (R64/R67's nets are plain LV signals, not
+      ACMains/HighVoltage).
+    stability_note: >-
+      `clearance` is this repo's OWN documented nondeterministic DRC
+      category (AGENTS.md's DRC-ceiling section: "observed max + 1
+      headroom", >=120 samples required). A raw count-delta on it would
+      repeat the exact defect pad-short was fixed for on 2026-08-04, so
+      this class is identity-based from the start (asserts the R64
+      pad1/R67 pad1 pair is named together, not that the category count
+      rises). Measured N=120 repeated runs of the byte-identical mutated
+      board (kicad-cli 10.0.5, thread-pinned via _drc_api.py's
+      _single_threaded_kicad_env): errors naming BOTH R64 pad 1 and R67
+      pad 1 = 2 on every one of 120 runs (zero variance); on 120 repeated
+      runs of the clean board it is 0 on every run. The raw 'clearance'
+      category total was also observed stable in this sample (339 clean /
+      340 mutated, unchanged across all 120 runs each) -- see
+      docs/evidence/2026-08-07-clearance-courtyard-corpus-coverage.md for
+      the full sample data; the identity signal is asserted regardless.
+  courtyard:
+    mutation: courtyard
+    seed: 5
+    params:
+      ref: C38
+      position_mm: [41.54, 189.55]
+      anchor_ref: R48
+    owning_gates: [kicad-drc]
+    failure_signal: gate-names-defect
+    note: >-
+      Courtyard-overlap class (R9/R10 vacuity closure, 2026-08-07;
+      docs/evidence/2026-08-04-board-defect-corpus-uncovered-classes.md
+      recorded courtyards_overlap DROPPED as the off-board class's owning
+      gate because it was measured NOT to discriminate that seed -- 11 -> 11
+      unchanged -- and no replacement gate was ever assigned). Unlike that
+      seed, this mutation computes its target position FROM the two
+      footprints' own F.CrtYd courtyard geometry (an FpRect bounding box
+      read via kiutils, the same kicad_transform rotation convention used
+      everywhere else in this module), so the courtyard collision is a
+      deterministic property of the seed rather than an accident of
+      unrelated placement geometry -- directly addressing the 2026-08-04
+      finding instead of repeating it. C38 (0603, originally at (21.24,
+      203.44) rot 90, far from R48) is moved to (41.54, 189.55), overlapping
+      its F.CrtYd rectangle with the fixed R48 (0603 at (41.54, 187.57) rot
+      180; NOT moved) by ~0.23mm in Y, while keeping every pad pair between
+      the two >=0.28mm apart (above every applicable net-class clearance),
+      so courtyards_overlap is the ONLY violation this mutation produces
+      between the two refs -- no confounding clearance/short. Measured
+      2026-08-07: kicad-cli reports "Courtyards overlap" naming Footprint
+      R48 and Footprint C38 on the mutated board, and nothing names that
+      pair on the clean board.
+    stability_note: >-
+      Identity-based for the same reason as `clearance` above (a
+      count-delta on courtyards_overlap is exactly the 2026-08-04 off-board
+      failure mode repeating). Measured N=120 repeated runs of the
+      byte-identical mutated board (kicad-cli 10.0.5, thread-pinned):
+      errors naming both R48 and C38 = 1 on every run (zero variance); 0 on
+      every one of 120 runs of the clean board. The raw courtyards_overlap
+      category total was also observed stable in this sample (11 clean / 12
+      mutated, unchanged across all 120 runs each) -- see
+      docs/evidence/2026-08-07-clearance-courtyard-corpus-coverage.md.

@@ -3,6 +3,8 @@ title: "refactor: Baseline Burn-Down"
 type: refactor
 status: active
 date: 2026-07-25
+swept: 2026-08-07
+swept_basis: "partially executed: drc_ceiling.json gate now LIVE (check_drc_ceiling_approval.py); coverage-allowlist shrunk 1943->1844; FEATURE_AUTO_BASELINE_TIGHTEN & typecheck --check-shrink still unwired; 2026-09-01 hard-fail deadline not yet due."
 ---
 
 ## Goal

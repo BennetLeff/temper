@@ -2,13 +2,13 @@
 type: feat
 origin: docs/brainstorms/2026-07-08-4-layer-functional-stackup-requirements.md
 contract: docs/brainstorms/2026-07-08-gate-contract.md
-status: stale
+status: completed
 date: 2026-07-08
 workstream: W2
 depth: deep
 depends_on: [W0, W1]
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "router_v6/layer_assignment.py cites this plan's SSOT decision U2 directly; F.Cu/In1.Cu/In2.Cu/B.Cu mapping + StackupGate in gates.py, both live"
 ---
 
 # W2 — 4-Layer Functional Stackup

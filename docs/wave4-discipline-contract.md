@@ -135,9 +135,10 @@ libraries bound to it: ortools, kiutils, shapely, networkx, scipy, plotly),
   min-cut partition order — `nx.minimum_cut`'s reachable partition is
   algorithm-order-dependent, recorded in `temper-geometry/VERIFICATION.md`), or
   a recorded solver-kept verdict in the style of **KTD8** (scipy EDT — `edt`
-  crate measured max diff 2.0–2.236, rejected) / **KTD9** (scipy spsolve —
-  deliberately kept, measured ~5e-13 K parity) — or a written cost-benefit
-  analysis showing migration net-negative.
+  crate measured max diff 2.0–2.236, rejected; **KTD8 was overturned
+  2026-08-07 — cited here for the style of the justification, not as a live
+  keep**) / **KTD9** (scipy spsolve — deliberately kept, measured ~5e-13 K
+  parity) — or a written cost-benefit analysis showing migration net-negative.
 - **Re-decidable rule:** a JUSTIFIED-KEEP is never permanent — a spike can
   overturn it (a spike *produced* KTD8/KTD9; the Phase 1 ortools spike exists
   precisely to re-open the solver boundary). A verdict is re-reviewed when
@@ -155,6 +156,38 @@ Example (matching the recorded verdicts):
 ```
 - scipy EDT (router_v6/channel_widths.py): product-runtime → JUSTIFIED-KEEP — KTD8: edt crate diverges (max diff 2.0–2.236); Rust-native exact EDT recorded fallback (LOC: ~200; consumers: 2 — channel_widths.py:208, _astar_heuristics.py:101; deps: scipy.ndimage; churn: low)
 ```
+
+### Overturn record — KTD8, 2026-08-07
+
+The verdict above is **OVERTURNED**, under the re-decidable rule: a measured
+parity result changed the evidence. It is kept above unedited, because the
+verdict was correct on the evidence it had — the rejection was of one
+*approximate* crate, not of the approach. The record of an overturn belongs
+beside the original, not in place of it.
+
+```
+- scipy EDT (router_v6/{channel_widths,_astar_heuristics,routability_check}.py): product-runtime → JUSTIFIED-KEEP **OVERTURNED** — measured bit-exact parity: max abs diff 0.0, 0 differing cells over 7,435,980 (23 curated + 300 random); 1.6–1.7× faster incl. FFI (485ms → 289ms @ 5.3M cells) (LOC: ~200; consumers: 3, not the 2 recorded above — routability_check.py:395 was missed; deps: scipy.ndimage; evidence: docs/evidence/2026-08-07-exact-edt-rust-spike.md, commit 0b7c850c)
+```
+
+Three things this overturn establishes, recorded so the next one is cheaper:
+
+1. **The original verdict named its own remedy** — "Rust-native exact EDT
+   recorded fallback" — and that is exactly what resolved it. A JUSTIFIED-KEEP
+   that names the remedy is re-openable by anyone; one that names only the
+   blocker is not.
+2. **The rejected artifact was a crate, not an algorithm.** `edt`'s 2.0–2.236
+   divergence is what an approximate algorithm looks like. Felzenszwalb–
+   Huttenlocher is the exact algorithm scipy itself runs, so agreement is
+   bit-exact rather than close. A measured rejection should record *which* was
+   rejected; KTD8 did not, and that ambiguity is what let it stand.
+3. **Clearing a blocker is not unblocking a module.**
+   `routability_check.py` retains an unrelated `scipy.ndimage.label` binding
+   (:341) and stays BLOCKED. Overturning one of two blockers moves nothing on
+   its own.
+
+Note the original recorded **2** consumers; there are **3**. The
+consumer count in a JUSTIFIED-KEEP is load-bearing — it is the migration's
+blast radius — and this one was undercounted from the start.
 
 ---
 

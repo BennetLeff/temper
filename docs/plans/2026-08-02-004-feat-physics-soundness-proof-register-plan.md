@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R20)
+status: completed
+swept: 2026-08-07
+swept_basis: "power_pcb_dataset/physics_soundness_register.yaml + scripts/physics_soundness_register_gate.py exist, unit-tested, and wired into .github/workflows/python-tests.yml."
 ---
 
 # Physics Soundness-Proof Register - Plan
