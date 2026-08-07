@@ -112,8 +112,7 @@ pub fn base_clearance(
 }
 
 #[pyfunction]
-#[pyo3(name = "clearance_get_base_clearance_py")]
-pub fn base_clearance_py(
+pub fn clearance_get_base_clearance_py(
     class_a: String,
     class_b: String,
     clearances: Vec<(String, String, f64)>,
@@ -140,8 +139,7 @@ pub fn class_attr(net_class: &str, table: &[(String, f64)], default: f64) -> f64
 }
 
 #[pyfunction]
-#[pyo3(name = "clearance_class_attr_py")]
-pub fn class_attr_py(net_class: String, table: Vec<(String, f64)>, default: f64) -> f64 {
+pub fn clearance_class_attr_py(net_class: String, table: Vec<(String, f64)>, default: f64) -> f64 {
     class_attr(&net_class, &table, default)
 }
 
@@ -166,8 +164,7 @@ pub fn is_differential_pair(net_a: &str, net_b: &str, pairs: &[(String, String, 
 }
 
 #[pyfunction]
-#[pyo3(name = "clearance_is_differential_pair_py")]
-pub fn is_differential_pair_py(
+pub fn clearance_is_differential_pair_py(
     net_a: String,
     net_b: String,
     pairs: Vec<(String, String, f64)>,
@@ -187,8 +184,7 @@ pub fn diff_pair_required_clearance(spacing_mm: f64, track_width: f64) -> f64 {
 }
 
 #[pyfunction]
-#[pyo3(name = "clearance_diff_pair_required_py")]
-pub fn diff_pair_required_clearance_py(spacing_mm: f64, track_width: f64) -> f64 {
+pub fn clearance_diff_pair_required_py(spacing_mm: f64, track_width: f64) -> f64 {
     diff_pair_required_clearance(spacing_mm, track_width)
 }
 
@@ -241,10 +237,9 @@ pub fn get_clearance_kernel(
 }
 
 #[pyfunction]
-#[pyo3(name = "clearance_get_clearance_py")]
 #[pyo3(signature = (net_a, net_b, class_a, class_b, pairs, clearances, class_clearance, default_clearance, zone=None))]
 #[allow(clippy::too_many_arguments)]
-pub fn get_clearance_kernel_py(
+pub fn clearance_get_clearance_py(
     net_a: String,
     net_b: String,
     class_a: String,
@@ -336,8 +331,7 @@ pub fn zone_at(x: f64, y: f64, polygons: &[Vec<(f64, f64)>]) -> Option<usize> {
 }
 
 #[pyfunction]
-#[pyo3(name = "clearance_zone_at_py")]
-pub fn zone_at_py(x: f64, y: f64, polygons: Vec<Vec<(f64, f64)>>) -> Option<usize> {
+pub fn clearance_zone_at_py(x: f64, y: f64, polygons: Vec<Vec<(f64, f64)>>) -> Option<usize> {
     zone_at(x, y, &polygons)
 }
 
@@ -346,12 +340,12 @@ pub fn zone_at_py(x: f64, y: f64, polygons: Vec<Vec<(f64, f64)>>) -> Option<usiz
 // ---------------------------------------------------------------------------
 
 pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
-    module.add_function(wrap_pyfunction!(base_clearance_py, module)?)?;
-    module.add_function(wrap_pyfunction!(class_attr_py, module)?)?;
-    module.add_function(wrap_pyfunction!(is_differential_pair_py, module)?)?;
-    module.add_function(wrap_pyfunction!(diff_pair_required_clearance_py, module)?)?;
-    module.add_function(wrap_pyfunction!(get_clearance_kernel_py, module)?)?;
-    module.add_function(wrap_pyfunction!(zone_at_py, module)?)?;
+    module.add_function(wrap_pyfunction!(clearance_get_base_clearance_py, module)?)?;
+    module.add_function(wrap_pyfunction!(clearance_class_attr_py, module)?)?;
+    module.add_function(wrap_pyfunction!(clearance_is_differential_pair_py, module)?)?;
+    module.add_function(wrap_pyfunction!(clearance_diff_pair_required_py, module)?)?;
+    module.add_function(wrap_pyfunction!(clearance_get_clearance_py, module)?)?;
+    module.add_function(wrap_pyfunction!(clearance_zone_at_py, module)?)?;
     Ok(())
 }
 
