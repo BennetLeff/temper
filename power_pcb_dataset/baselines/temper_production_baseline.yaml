@@ -24,10 +24,10 @@ cp_sat:
   loop_drc_errors: null
   loop_success: null
 router_v6_routing:
-  wall_time_s: 52.9
-  completion_rate: 0.3673469387755102
-  routed_nets: 40
-  unrouted_nets: 62
+  wall_time_s: 58.0
+  completion_rate: 0.37755102040816324
+  routed_nets: 41
+  unrouted_nets: 61
   unrouted_nets_list:
   - GATE_HS
   - GATE_LS
@@ -65,7 +65,6 @@ router_v6_routing:
   - refin_n
   - rtd_pan.r_low_top-inn
   - rtd_pan.rail_monitor-ina_p
-  - rtd_pan.rail_monitor-outa
   - safety-line
   - safety-line-1
   - safety-line-2
@@ -91,27 +90,26 @@ router_v6_routing:
   - w1_1
   - w1_2
   - zcd
-  drc_violations_post_route: 1389
+  drc_violations_post_route: 1411
   drc_violations_by_type:
+    shorting_items: 136
     clearance: 499
-    shorting_items: 130
-    hole_clearance: 20
-    tracks_crossing: 2
+    hole_clearance: 22
     courtyards_overlap: 11
     pth_inside_courtyard: 1
-    copper_edge_clearance: 20
+    copper_edge_clearance: 18
     drill_out_of_range: 4
     via_diameter: 4
     solder_mask_bridge: 154
-    track_dangling: 111
-    via_dangling: 15
+    track_dangling: 113
+    via_dangling: 31
     silk_edge_clearance: 1
     lib_footprint_mismatch: 12
     lib_footprint_issues: 34
     silk_overlap: 199
     silk_over_copper: 172
-  unconnected_items: 460
-  extraction_date: '2026-07-18'
+  unconnected_items: 461
+  extraction_date: '2026-08-07'
   extraction_method: router_v6.route_pcb(existing_positions)
   kicad_cli_version: 10.0.4
 u9_final:
