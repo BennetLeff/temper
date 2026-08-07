@@ -264,3 +264,29 @@ def test_mr3_losses_wins_over_loss_weights():
     rs = PRECONFIG(cfg)
     py = _oracle._preprocess_config(cfg)
     assert rs["losses"].overlap.weight == py["losses"].overlap.weight == 5.0
+
+
+# ---------------------------------------------------------------------------
+# R20 suite hardening — discriminator moved from the differential. #850's
+# differential-disabled re-run found M10 (the LossConfig.enabled default
+# flip) survives the suites-only run; its discriminating assertion (a
+# dict-form `losses` entry without an explicit `enabled` gets the True
+# default) lived only in `test_config_loader_rust_differential.py`. The
+# default is a deterministic invariant of preprocess_config, so it is pinned
+# here. The differential keeps its own assertion.
+# ---------------------------------------------------------------------------
+
+
+def test_p7_losses_dict_form_default_enabled():
+    """A dict-form `losses` entry WITHOUT an explicit `enabled` gets the
+    LossConfig default True (the ``data.get("enabled", True)`` default — the
+    `loss_weights` path cannot see it because it goes through the float
+    branch). A port that flipped the default to False fails the pin
+    (surviving mutant M10)."""
+    rs = PRECONFIG({"losses": {"overlap": {"weight": 2.0}}})
+    assert rs["losses"].overlap.enabled is True
+    assert rs["losses"].overlap.weight == 2.0
+    # Non-vacuity: an explicit `enabled: false` is honored (the default is
+    # not constant).
+    off = PRECONFIG({"losses": {"overlap": {"weight": 2.0, "enabled": False}}})
+    assert off["losses"].overlap.enabled is False

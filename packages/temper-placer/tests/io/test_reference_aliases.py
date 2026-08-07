@@ -82,6 +82,28 @@ def test_manifest_rejects_empty_names(tmp_path: Path) -> None:
         load_reference_alias_manifest(path, component_refs={"C2"}, loop_names=set())
 
 
+def test_manifest_rejects_escape_decoded_control_char_source(tmp_path: Path) -> None:
+    """The lM4 discriminator, in the suites, oracle-free.
+
+    PyYAML decodes the double-quoted escape ``"\\x1c"`` into U+001C (the
+    Reader validates the raw stream, not decoded escapes). The kept Python
+    ``str.strip`` call-back (reference_aliases.rs:182) treats U+001C-U+001F
+    as whitespace, so the decoded source name strips to empty and the
+    manifest is REJECTED. The lM4 mutant (Rust ``str::trim`` instead of the
+    strip call-back) keeps U+001C non-empty — pinned by the in-crate unit
+    test ``rust_trim_keeps_u001c_where_python_strip_removes_it``
+    (reference_aliases.rs:247-261) — and would ACCEPT this manifest, so the
+    ``pytest.raises(ValueError)`` below fails under the mutant. The
+    differential's parity form (``test_reference_aliases_rust_differential.py:201-225``)
+    still adds breadth: all of U+001C-U+001F plus any future
+    Python-whitespace-class divergence.
+    """
+    path = tmp_path / "ctrl.references.yaml"
+    path.write_text('schema_version: 1\ncomponent_aliases:\n  "\\x1c": C2\n', encoding="utf-8")
+    with pytest.raises(ValueError, match="empty name"):
+        load_reference_alias_manifest(path, component_refs={"C2"}, loop_names=set())
+
+
 def test_manifest_rejects_self_alias(tmp_path: Path) -> None:
     path = tmp_path / "self.references.yaml"
     path.write_text("schema_version: 1\ncomponent_aliases:\n  LEGACY_A: LEGACY_A\n", encoding="utf-8")

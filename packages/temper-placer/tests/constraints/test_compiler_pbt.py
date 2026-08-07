@@ -47,7 +47,7 @@ from __future__ import annotations
 
 import math
 
-from hypothesis import given, settings
+from hypothesis import given, seed, settings
 from hypothesis import strategies as st
 
 from temper_placer._constraint_types import (
@@ -294,6 +294,111 @@ def test_p5_soft_rules_never_filter(slot, comp, placements):
     )
     filter_fn = ConstraintCompiler(constraints).compile_to_slot_filter()
     assert filter_fn(slot, comp, placements) is True
+
+
+# ---------------------------------------------------------------------------
+# R20 suite hardening — discriminators moved from the differential. #850's
+# differential-disabled re-run found M3 (escape None-clearance default) and
+# M10 (proximity scorer multiplier) survive the suites-only run; their
+# discriminating assertions lived only in the compiler/reporter differentials.
+# They are deterministic invariants of the compiled filter/scorer, so they are
+# pinned here (M10 as a fixed-seed property with an independent reference
+# recomputation). The differentials keep their own assertions.
+# ---------------------------------------------------------------------------
+
+
+def test_p6_escape_none_clearance_default_three_mm():
+    """A hard escape clearance with ``clearance_mm=None`` uses the 3.0mm
+    default in the compiled filter: a slot 2.0mm inside is rejected and a slot
+    4.0mm outside is accepted; the soft scorer adds the +50.0 penalty inside
+    and 0.0 outside. A port that moved the default to 0.0 would accept the
+    2.0mm slot (surviving mutant M3)."""
+    constraints = _mk(
+        escape_clearances=[EscapeClearance(component="U_MCU", clearance_mm=None, tier="hard")]
+    )
+    filter_fn = ConstraintCompiler(constraints).compile_to_slot_filter()
+    assert filter_fn((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) is False
+    assert filter_fn((4.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) is True
+
+    soft = _mk(
+        escape_clearances=[EscapeClearance(component="U_MCU", clearance_mm=None, tier="soft")]
+    )
+    scorer = ConstraintCompiler(soft).compile_to_slot_scorer()
+    assert scorer((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) == 50.0
+    assert scorer((4.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) == 0.0
+
+
+@st.composite
+def _proximity_scorer_args(draw):
+    """A (constraints, slot_x) pair for a single soft proximity rule where the
+    scorer's total is independently recomputable: one group [A, B] with one
+    proximity rule, A placed at the origin, B queried at (x, 0)."""
+    max_distance = draw(st.floats(min_value=2.0, max_value=20.0, allow_nan=False,
+                                  allow_infinity=False))
+    max_spread = draw(st.floats(min_value=10.0, max_value=60.0, allow_nan=False,
+                                allow_infinity=False))
+    weight = draw(st.floats(min_value=1.0, max_value=5.0, allow_nan=False,
+                            allow_infinity=False))
+    slot_x = draw(st.floats(min_value=0.0, max_value=80.0, allow_nan=False,
+                            allow_infinity=False))
+    constraints = _mk(
+        component_groups=[
+            ComponentGroup(
+                name="g",
+                components=["A", "B"],
+                max_spread_mm=max_spread,
+                weight=weight,
+                proximity_rules=[
+                    ProximityRule(component_a="A", component_b="B",
+                                  max_distance_mm=max_distance, tier="soft")
+                ],
+            )
+        ]
+    )
+    return constraints, max_distance, max_spread, weight, slot_x
+
+
+@seed(0x53454344)
+@settings(max_examples=200, deadline=None)
+@given(_proximity_scorer_args())
+def test_p7_proximity_scorer_formula(args):
+    """The soft-proximity scorer penalty is exactly ``(dist - D) * 10.0`` when
+    ``dist > D`` (else 0), plus the group-spread term ``dist * weight * 0.1``
+    when ``dist > max_spread/2`` (else 0) — recomputed independently here, not
+    via the oracle. ``dist`` replicates the kernel's ``distance()`` exactly
+    (libm ``pow`` for the squares, IEEE sqrt — see ``slot.rs``). A port that
+    changed the proximity multiplier 10.0 -> 5.0 fails on every case with
+    ``dist > D`` (surviving mutant M10)."""
+    constraints, max_distance, max_spread, weight, slot_x = args
+    scorer = ConstraintCompiler(constraints).compile_to_slot_scorer()
+    # distance(slot, (0,0)) — the kernel's py_pow + sqrt, bit-for-bit.
+    dist = math.sqrt(math.pow(slot_x, 2.0) + math.pow(0.0, 2.0))
+    proximity = (dist - max_distance) * 10.0 if dist > max_distance else 0.0
+    spread = dist * weight * 0.1 if dist > max_spread / 2.0 else 0.0
+    assert scorer((slot_x, 0.0), "B", {"A": (0.0, 0.0)}) == proximity + spread, (
+        f"dist={dist} max_distance={max_distance} max_spread={max_spread}"
+    )
+
+
+def test_p7_proximity_scorer_non_vacuous():
+    """The P7 reference genuinely discriminates: a proximity-violating slot
+    scores strictly positive (a constant-zero scorer would pass P7 vacuously),
+    and the multiplier is observably 10.0 (2x, 5x, 1x all fail the pin)."""
+    constraints = _mk(
+        component_groups=[
+            ComponentGroup(
+                name="g", components=["A", "B"], max_spread_mm=50.0,
+                proximity_rules=[
+                    ProximityRule(component_a="A", component_b="B",
+                                  max_distance_mm=10.0, tier="soft")
+                ],
+            )
+        ]
+    )
+    scorer = ConstraintCompiler(constraints).compile_to_slot_scorer()
+    assert scorer((15.0, 0.0), "B", {"A": (0.0, 0.0)}) == (15.0 - 10.0) * 10.0
+    assert scorer((15.0, 0.0), "B", {"A": (0.0, 0.0)}) > 0.0
+    assert scorer((5.0, 0.0), "B", {"A": (0.0, 0.0)}) == 0.0
 
 
 # ---------------------------------------------------------------------------
