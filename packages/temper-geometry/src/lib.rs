@@ -119,6 +119,10 @@ pub mod zone_pour;
 // router_v6/constraints_geometry.py. Declared after creepage_check because
 // it reuses that module's CPython min/max replications.
 pub mod drc_constraints_geometry;
+// Wave 4: router_v6/channel_skeleton.py's medial-axis (Voronoi) extraction.
+// Declared after creepage_check (py_min) and host_math (pow), which it
+// reuses.
+pub mod channel_skeleton;
 #[cfg(feature = "python")]
 pub use drc_constraints_geometry::{
     drc_closest_points_segment_segment_py, drc_point_to_circle_distance_py,
@@ -146,6 +150,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::congestion_heatmap::register(m)?;
     crate::fixed_copper::register(m)?;
     crate::zone_pour::register(m)?;
+    crate::channel_skeleton::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     Ok(())
 }

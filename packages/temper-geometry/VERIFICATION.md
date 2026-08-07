@@ -1838,3 +1838,120 @@ recorded, not faked" rule.
 
 N/A. Zone/pour emission is KiCad output geometry, not a manufacturing or
 safety rule; it has no threshold and produces no pass/fail verdict.
+
+## Channel Skeleton Medial-Axis (`channel_skeleton.rs`) — Wave 4, 2026-08-07
+
+Ports `_extract_medial_axis` / `_extract_medial_axis_single`
+(`router_v6/channel_skeleton.py:181-349`) -- boundary sampling, a Voronoi
+diagram, the interior-edge filter, and both fallback branches.
+
+### Why this was previously BLOCKED, and what changed
+
+Three prior documents (most recently
+`docs/evidence/2026-08-07-channel-skeleton-triage-no-port.md`, PR #870)
+recorded this file as BLOCKED. The block was never the shapely/GEOS
+Voronoi itself -- the 2026-08-04 spike
+(`docs/evidence/2026-08-04-shapely-voronoi-channel-skeleton-spike.md`)
+measured an independent (Qhull) Voronoi reproducing the GEOS skeleton to
+<1e-9mm on 12/12 synthetic boards. The actual blocker was
+`constraint_model.py`: SAT channel-edge identity came from
+`enumerate(skeleton.graph.edges)` (networkx INSERTION ORDER) plus the raw
+float `repr()` of both endpoints -- unsatisfiable by any reimplementation,
+bit-exact geometry or not.
+
+`fix/constraint-model-edge-identity` (not yet on `main` as of this port;
+branched from directly) fixes the consumer: `canonical_channel_edges()`
+now derives identity from endpoints quantised to 1e-6mm, ordered by that
+quantised key, with the positional index retained only as a tie-break.
+
+### Independent verification of the unblock, before porting
+
+Re-ran (not inherited) the spike's central claim, first with the spike's
+own Qhull-substitution harness extended to the NEW 1e-6mm quantum and to
+`canonical_channel_edges()`-style ids computed independently over a
+GEOS-built graph and a Qhull-built graph:
+
+| Check | Result |
+|---|---|
+| Node-set match at 1e-6mm (6dp) | 12/12 boards |
+| `canonical_channel_edges()` ids identical, GEOS-graph vs Qhull-graph | 12/12 boards |
+
+Then again against the ACTUAL Rust (`spade`) build, in
+`tests/router_v6/test_channel_skeleton_rust_differential.py`
+(`test_rust_reproduces_geos_node_set_at_1e6mm_quantum`,
+`test_canonical_channel_edges_identical_rust_vs_python`): same result,
+12/12 boards plus a holes-bearing board and a simple box, all against the
+shipped Rust path, not a Python stand-in.
+
+### Implementation: `spade` instead of GEOS
+
+Uses `spade` (Delaunay triangulation via `undirected_voronoi_edges()`,
+`robust`-crate exact circumcenter predicates) -- an independent, non-GEOS
+implementation, the class of crate the spike's §7 named as the parity
+target (`voronator`/`spade`/`geo`). The interior-edge filter reuses
+`polygon::point_in_polygon_winding` (already shipped) rather than
+reimplementing GEOS's `polygon.buffer(1e-3)` + `prepared.contains()` --
+measured to agree with the buffered-GEOS reference on all 12 boards tested
+(see the differential); a true polygon-offset reimplementation was judged
+unnecessary given that agreement, not attempted.
+
+`sample_boundary_points` replicates CPython's `(dx**2+dy**2)**0.5` via
+`host_math::pow` (NOT `f64::sqrt`, and NOT `math.hypot` -- this file never
+calls `hypot`) and the `int(dist)` truncation-toward-zero (matches Rust's
+`as i64` cast for the non-negative domain here, written explicitly per
+this crate's documented `int()`-truncation trap). The fallback cross
+pattern reuses `creepage_check::py_min` for CPython `min()` NaN semantics.
+
+### Scope: what stays in Python (JUSTIFIED-KEEP for this pull)
+
+- `_ensure_skeleton_connectivity` -- `nx.Graph` bookkeeping, an O(n^2)
+  nearest-pair search over networkx node/component objects. The one
+  arithmetic expression inside it (Euclidean distance) is a one-line
+  expression embedded in graph traversal; marshalling the whole
+  component/node structure across FFI per call is the "per-call boundary
+  can be net-negative" trap this repo's Wave 4 notes measured elsewhere.
+- `ChannelSkeletonStage` / `validate_channel_skeleton` -- pipeline `Stage`
+  / `@register_validator` orchestration wiring.
+- `extract_channel_skeleton`'s pad-anchoring block -- dict/list
+  bookkeeping over `ParsedPCB.components`/`pins`.
+
+`simplify_tolerance` is threaded through the Rust signature for parity but
+is a documented no-op: GEOS's Voronoi edges on this path are always
+exactly 2 coordinates (2026-08-04 spike §8), and spade's undirected
+Voronoi edges are likewise always two circumcenters -- Douglas-Peucker
+simplification of a 2-point line is the identity either way.
+
+### Anti-vacuity (mutation campaign, 2 mutants, 2 killed, 0 survivors)
+
+| Mutation | Rebuilt? | Named tests killed | Reverted + rebuilt clean? |
+|---|---|---|---|
+| Interior-edge filter forced to `true \|\| ...` (accept every Voronoi edge, not just interior ones) | Yes | `test_rust_reproduces_geos_node_set_at_1e6mm_quantum`, `test_rust_and_geos_edge_counts_agree`, `test_canonical_channel_edges_identical_rust_vs_python`, `test_canonical_channel_edges_identical_with_holes` (4) | Yes |
+| Boundary-sampling density off-by-one (`dist as i64 + 1`) | Yes | all 4 above plus `test_canonical_channel_edges_identical_on_simple_box` (5) | Yes |
+
+Each mutation was verified with `python -c "import temper_geometry"`
+after every `maturin develop --release` (the stale-dylib build hazard:
+`maturin develop` exits 0 on a stale cache with only a warning) before
+running the differential, and reverted-then-REBUILT (not just reverted)
+before declaring green, per this crate's anti-vacuity convention.
+
+### Not attempted / unverified
+
+- Cross-platform / cross-`spade`-version stability: measured on
+  darwin/arm64 only, mirroring the spike's own stated scope limit for
+  GEOS.
+- Real (non-synthetic) `.kicad_pcb` routing areas: the differential corpus
+  is the spike's synthetic degenerate-geometry generator (axis-aligned
+  board minus axis-aligned pad rectangles), not boards pulled from the
+  `power_pcb_dataset` fixtures. Chosen deliberately to match the spike's
+  own measurement basis for the 1e-9mm/1e-6mm claims being re-verified;
+  not extended to real boards in this pull.
+- `_ensure_skeleton_connectivity`'s bridging path is exercised (several
+  differential boards produce disconnected islands and bridge, visible in
+  the `DEBUG: Added bridge` output) but not independently stressed beyond
+  what the 12-board sweep produces.
+
+### R1h — physics gating
+
+N/A. Medial-axis skeleton extraction is routing-channel geometry, not a
+manufacturing or safety rule; it has no threshold and produces no
+pass/fail verdict.
