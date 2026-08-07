@@ -80,10 +80,16 @@ physics modules that are out of this triage's scope (`temper_placer.physics.ther
   calling it "a battery verdict surfaced on the reporter" — it looks like a
   consumer of `battery_run.py`'s output but does not import either file; it is a
   hand-shaped mirror of a subset of `BatteryRunReport`'s fields. Its only method,
-  `RegressionReporter.add_battery_verdict`, has **zero callers** repo-wide
-  (`grep -rn "add_battery_verdict\|BatteryVerdictReport("` outside `tests/` returns
-  only its own definition and one other unused constructor site) — dead scaffolding
-  for a wiring that was never completed, not evidence of runtime reachability.
+  `RegressionReporter.add_battery_verdict`, has **zero PRODUCTION callers** — it
+  is called only from tests (`tests/validation/test_thermal_battery_run.py`, 3 call
+  sites at lines 802/833/843). An earlier draft of this note said "zero callers
+  repo-wide", which overstated the evidence: the grep behind it was scoped to
+  exclude `tests/`, so the claim reached further than what was measured.
+
+  The distinction does not change the verdict and in fact strengthens it: the
+  method is exercised, so it is not dead scaffolding — it is test-only surface,
+  which is exactly the "reachable only from tests" category this triage is
+  establishing. It is not evidence of runtime reachability either way.
 
 **Conclusion: neither file is reachable from the `temper` CLI, `route_pcb`, or the
 pipeline DAG. Both are reachable only from tests.**
