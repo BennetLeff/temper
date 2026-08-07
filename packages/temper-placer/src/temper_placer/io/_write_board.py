@@ -43,18 +43,25 @@ def _reorient_pads(fp, old_fp_angle: float, new_fp_angle: float) -> None:
     defined by the library footprint) is preserved: ``intrinsic =
     old_pad_angle - old_fp_angle``, and the new absolute angle is
     ``new_fp_angle + intrinsic``.
+
+    The per-pad angle arithmetic delegates to the Rust kernel (Wave 4
+    Phase 3, formats/IO migration). Pinned oracle:
+    ``tests/io/_write_board_py_oracle.py``; differential:
+    ``tests/io/test_write_board_geometry_rust_differential.py``.
     """
     delta = new_fp_angle - old_fp_angle
     if delta % 360.0 == 0.0:
         return
-    for pad in fp.pads or []:
-        if pad.position is None:
-            continue
-        current = pad.position.angle or 0.0
-        new_angle = (current + delta) % 360.0
-        # kiutils omits the angle token when it is None; an absent angle
-        # means 0 in KiCad, so only write None when the result really is 0.
-        pad.position.angle = None if new_angle == 0.0 else new_angle
+    pads = [pad for pad in fp.pads or [] if pad.position is not None]
+    if not pads:
+        return
+    from temper_design_bundle_python import write_board_geometry as _write_board_geometry
+
+    new_angles = _write_board_geometry.reorient_pad_angles_py(
+        [pad.position.angle for pad in pads], delta
+    )
+    for pad, new_angle in zip(pads, new_angles, strict=True):
+        pad.position.angle = new_angle
 
 
 def write_placements_to_pcb(
@@ -240,12 +247,19 @@ def state_to_placements(
         # If original angle was non-90°, preserve the offset
         # e.g., if original was 45° (quantized to 0°), and optimizer chose 90°,
         # output should be 90° + 45° = 135°
+        #
+        # Delegates to the Rust kernel (Wave 4 Phase 3, formats/IO
+        # migration). Pinned oracle: ``tests/io/_write_board_py_oracle.py``;
+        # differential:
+        # ``tests/io/test_write_board_geometry_rust_differential.py``.
         if original_angles and ref in original_angles:
-            original = original_angles[ref]
-            quantized = round(original / 90) * 90.0
-            offset = original - quantized
-            if abs(offset) > 0.1:  # Only apply if there was a real offset
-                rotation_deg = (rotation_deg + offset) % 360.0
+            from temper_design_bundle_python import (
+                write_board_geometry as _write_board_geometry,
+            )
+
+            rotation_deg = _write_board_geometry.preserve_rotation_offset_py(
+                rotation_deg, original_angles[ref]
+            )
 
         # Get position (internal bounding-box-center coordinates)
         x = float(state.positions[i, 0]) + origin[0]

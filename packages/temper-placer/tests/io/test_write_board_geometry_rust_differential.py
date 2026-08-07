@@ -152,9 +152,18 @@ def test_preserve_rotation_offset_below_threshold_unchanged():
 
 
 def test_preserve_rotation_offset_exact_threshold_boundary_excluded():
-    """Dedicated named test: |offset| exactly 0.1 is excluded (strict `>`)."""
-    py_result = _oracle.preserve_rotation_offset(0.0, 90.1)
-    rust_result = PRESERVE_ROTATION_OFFSET(0.0, 90.1)
+    """Dedicated named test: |offset| exactly 0.1 is excluded (strict `>`).
+
+    ``original_angle=0.1`` is the deliberate choice here (not e.g. 90.1):
+    ``quantized = round(0.1 / 90) * 90.0 == 0.0``, so ``offset = 0.1 - 0.0``
+    is bit-identical to the float literal ``0.1`` -- a genuine exact tie on
+    the threshold, unlike ``90.1 - 90.0``, which rounds to
+    ``0.09999999999999432`` (not exactly ``0.1``) and so cannot distinguish
+    strict `>` from `>=` at all. Verified against a `>=` mutant: this exact
+    case is the one that kills it (see the mutation-testing note in this
+    migration's PR description)."""
+    py_result = _oracle.preserve_rotation_offset(0.0, 0.1)
+    rust_result = PRESERVE_ROTATION_OFFSET(0.0, 0.1)
     assert py_result == 0.0
     assert rust_result == pytest.approx(0.0)
 
