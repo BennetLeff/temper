@@ -511,11 +511,19 @@ impl FeatureTolerance {
 
 /// Analyze tolerances for a design based on manufacturing capabilities
 /// (mirrors `ToleranceAnalyzer`).
+// Wave-4 "PyAny removal" tightening (2026-08-06): `table` is always the
+// `ToleranceTable` pyclass (the default constructor builds one; the
+// `manufacturing/tolerances.py` shim and every test pass the pyclass — the
+// doc states the table is never mutated), so the opaque handle is replaced by
+// the typed `Py<ToleranceTable>` reference. Behavior is unchanged: the wrapped
+// value IS the pyclass and identity is preserved. This pyclass is shim-wired
+// but has no active production caller (recorded in VERIFICATION.md) — the
+// differential is the only exercised surface.
 #[pyclass(module = "temper_design_bundle_python")]
 #[derive(Debug)]
 pub struct ToleranceAnalyzer {
     #[pyo3(get)]
-    pub table: Py<PyAny>,
+    pub table: Py<ToleranceTable>,
 }
 
 impl ToleranceAnalyzer {
@@ -545,17 +553,10 @@ impl ToleranceAnalyzer {
     /// table is never mutated; see the module docstring).
     #[new]
     #[pyo3(signature = (table=None))]
-    fn new(py: Python<'_>, table: Option<&Bound<'_, PyAny>>) -> PyResult<Self> {
+    fn new(py: Python<'_>, table: Option<&Bound<'_, ToleranceTable>>) -> PyResult<Self> {
         let table = match table {
             Some(v) => v.clone().unbind(),
-            None => Bound::new(py, ToleranceTable::new(
-                py,
-                None,
-                None,
-                0.075,
-            )?)?
-            .into_any()
-            .unbind(),
+            None => Py::new(py, ToleranceTable::new(py, None, None, 0.075)?)?,
         };
         Ok(Self { table })
     }
