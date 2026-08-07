@@ -454,7 +454,6 @@ pub(crate) mod tests {
         assert_eq!(py_max(-0.0, 0.0).to_bits(), (-0.0f64).to_bits());
     }
 
-    #[cfg_attr(test, test)]
     /// Infinity beats NaN, pinned against real CPython 3.12.
     ///
     /// Regression test for the guard ORDER. This file checked NaN first and
@@ -599,6 +598,7 @@ pub(crate) mod tests {
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
         ("pymath::tests::py_max_keeps_the_first_argument", py_max_keeps_the_first_argument),
+        ("pymath::tests::hypot_infinity_beats_nan", hypot_infinity_beats_nan),
         ("pymath::tests::hypot_pinned_values", hypot_pinned_values),
         ("pymath::tests::pow_is_not_a_multiply_or_a_sqrt", pow_is_not_a_multiply_or_a_sqrt),
         ("pymath::tests::round_is_decimal_not_scaled", round_is_decimal_not_scaled),

@@ -19,7 +19,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 94 eligible tests, in a stable order.
+/// All 95 eligible tests, in a stable order.
 pub const ALL: &[&[WasmTest]] = &[
     crate::board::tests::WASM_TESTS,
     crate::board::board_state_tests::WASM_TESTS,
