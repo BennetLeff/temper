@@ -614,9 +614,18 @@ PRODUCTION_BOARD_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 # designator/footprint-identity resync plus one additive staged part, not a
 # re-route. Every existing footprint's position/rotation/UUID and every
 # copper item's net-by-NAME are proved unchanged in that same evidence doc.
+#
+# 2026-08-06: segments 2338 -> 2290 (-48, one per via).  #771
+# ("fix(router): stop emitting a zero-length track at every via", e5a89b1e0)
+# removed exactly the 48 zero-length segments the router had been writing at
+# each via — no copper change, vias/zones/footprints untouched (re-verified
+# against pcb/temper.kicad_pcb at the time of this edit).  R24 also moved in
+# #690/#711 (7e3608bc2).  This is the first shape change since the gate went
+# masked 2026-07-30 (continue-on-error), which is why it went unnoticed for
+# ~12 days — the un-mask (wasm/router-unmask) surfaced it.
 PRODUCTION_BOARD_BASELINE_SHAPE = {
     "footprints": 169,
-    "segments": 2338,
+    "segments": 2290,
     "vias": 48,
     "zones": 96,
 }
@@ -1020,7 +1029,7 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     repo — placement *and* whatever copper is committed with it.  It does
     NOT run CP-SAT placement (infeasible at 168 components / 30s timeout),
     and since 556ccf4f (2026-07-27) it is no longer a placement-only
-    measurement: the committed board carries 2,338 segments, 48 vias and
+    measurement: the committed board carries 2,290 segments, 48 vias and
     96 zones.  See the provenance block above.
 
     The corpus board (<30 nets, CP-SAT placed) provides fast, stable
