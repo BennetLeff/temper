@@ -99,6 +99,7 @@ ELIGIBLE: list[tuple[str, str]] = [
     ("types/magnetic.rs", "tests"),
     ("types/noise.rs", "tests"),
     ("types/vent.rs", "tests"),
+    ("validation_kernels.rs", "tests"),
 ]
 
 TEST_FN = re.compile(r"^(\s*)#\[(?:test|cfg_attr\(test, test\))\]\s*$")
