@@ -1,0 +1,44 @@
+# Cloudflare Worker configuration for the temper WASM verification tier.
+#
+# This Worker runs one temper-drc-rs test function per HTTP invocation (R17).
+# It loads the compiled .wasm as a module asset — Cloudflare compiles it once
+# at upload time and instantiates per isolate, matching the model of
+# `WebAssembly.compile` (once) + `WebAssembly.instantiate` (per request).
+#
+# Deployment requires:
+#   - `account_id` — provisioned by the maintainer (no placeholder here)
+#   - `wrangler login` (or CLOUDFLARE_API_TOKEN in the environment)
+#   - A wrangler version that supports module-syntax Workers and `[wasm_modules]`
+#
+# After the maintainer provisions those, deploy with:
+#   wrangler deploy
+#
+# No KV, R2, D1, Durable Objects, or secrets — the Worker is stateless.
+# The only binding is the compiled WASM module itself.
+name = "temper-wasm-tier"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+
+[vars]
+# The ABI version the Worker expects. The module exports `temper_wasm_abi_version`;
+# the Worker compares at startup and returns 500 on mismatch. Bump both in lockstep
+# when the export set changes (see packages/temper-wasm-test-runner/src/lib.rs).
+ABI_VERSION = "1"
+
+# The `temper_wasm_test_runner.wasm` artifact is declared as a WASM module
+# binding. In module-syntax Workers, a `[wasm_modules]` entry makes the module
+# available as a default import of the named file — `import WASM from
+# "./temper_wasm_test_runner.wasm"` yields a `WebAssembly.Module` that was
+# compiled at upload time. Instantiation happens per request.
+#
+# Uncomment and adjust the path after the .wasm artifact is placed beside the
+# Worker source (or use a wrangler build step to copy it). The local probe
+# (`tools/wasm/worker_local_probe.mjs`) and the existing host driver
+# (`tools/wasm/run_wasm_tests.mjs`) both use Node's V8 directly against the
+# raw .wasm file, which is the Phase-0-sanctioned workerd substitution.
+#
+# [wasm_modules]
+# WASM = "./temper_wasm_test_runner.wasm"
+
+# --- Placeholder for account provisioning ---
+# account_id = ""  # provisioned by the maintainer; do not commit the real value
