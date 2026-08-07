@@ -204,6 +204,9 @@ impl From<&str> for SafetyCategory {
 
 // Note: use std::collections::HashMap is already declared in the outer file.
 
+// `BoardState` holds `HashMap<NetClassName, NetClassRules>` and derives
+// Serialize/Deserialize (d559b446a, serde BoardState round-trip), so this
+// struct must derive them too or temper-drc-rs does not compile.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetClassRules {
     /// Net class name (e.g., 'Power', 'Signal', 'HighSpeed')
