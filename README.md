@@ -113,7 +113,7 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: repo-map -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*All 19 tracked top-level directories. Generated -- a new directory without a description fails CI.*
+*All 20 tracked top-level directories. Generated -- a new directory without a description fails CI.*
 
 | Directory | Purpose |
 |---|---|
@@ -122,6 +122,7 @@ For contributors working on architecture, verification, or toolchain internals:
 | `benchmarks/` | CP-SAT benchmark harness and external board corpora manifests |
 | `components/` | Local KiCad symbol/footprint libraries, one directory per part |
 | `configs/` | Named placer configurations (deterministic, production) |
+| `crates/` | Rust-only crates -- no pyproject.toml, outside the uv workspace. Where code lives once it no longer needs an interpreter: the temper binary and the CP-SAT FFI |
 | `dashboard/` | Static HTML/JS dashboard for placer metrics |
 | `datasheets/` | Vendor PDFs for parts used in the design |
 | `docs/` | Plans, brainstorms, solutions, evidence, specs, and strategy |
