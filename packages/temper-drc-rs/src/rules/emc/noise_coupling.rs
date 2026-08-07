@@ -58,15 +58,20 @@ impl DrcRule for NoiseCouplingCheck {
         let comps = &board.electrical_components;
         let n = comps.len();
 
+        // Noise/sensitivity classification is pure per component; compute
+        // once, not four times per pair.
+        let noisy: Vec<bool> = comps.iter().map(|c| is_noisy(&c.net_class)).collect();
+        let sensitive: Vec<bool> = comps.iter().map(|c| is_sensitive(&c.net_class)).collect();
+
         for i in 0..n {
             for j in (i + 1)..n {
                 let a = &comps[i];
                 let b = &comps[j];
 
-                let a_noisy = is_noisy(&a.net_class);
-                let b_noisy = is_noisy(&b.net_class);
-                let a_sensitive = is_sensitive(&a.net_class);
-                let b_sensitive = is_sensitive(&b.net_class);
+                let a_noisy = noisy[i];
+                let b_noisy = noisy[j];
+                let a_sensitive = sensitive[i];
+                let b_sensitive = sensitive[j];
 
                 let is_noise_case = (a_noisy && b_sensitive) || (b_noisy && a_sensitive);
 

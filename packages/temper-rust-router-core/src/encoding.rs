@@ -2,6 +2,8 @@
 //
 // Origin: U5 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 
+use std::collections::HashSet;
+
 use crate::types::{InternalConstraint, InternalConstraintModel, InternalVariable, SatVariable};
 
 /// A CNF formula: list of clauses (each clause is a list of signed variable indices).
@@ -173,16 +175,18 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
                 }
                 // Collect all relevant variables (NetChannelVar for these nets on this channel).
                 // They were already registered as variables during model conversion.
-                // For now, enforce that for each a in A, b in B:
-                // at least one ordering variable separates them.
+                // For each a in A, b in B, enforce the ordering variable.
+                // Dedup normalized (min, max) pairs: when a net is in BOTH
+                // groups the same unit clause would be pushed twice — a CNF
+                // no-op, so skip repeats (F5).
+                let mut seen_pairs: HashSet<(usize, usize)> = HashSet::new();
                 for &a_idx in group_a {
                     for &b_idx in group_b {
-                        let order_name = format!(
-                            "order_N{}_N{}_{}",
-                            a_idx.min(b_idx),
-                            a_idx.max(b_idx),
-                            _ch
-                        );
+                        let pair = (a_idx.min(b_idx), a_idx.max(b_idx));
+                        if !seen_pairs.insert(pair) {
+                            continue;
+                        }
+                        let order_name = format!("order_N{}_N{}_{}", pair.0, pair.1, _ch);
                         // If there's an ordering var, enforce it.
                         if let Some(&order_idx) = name_to_idx.get(&order_name) {
                             // a must be before b (positive order) OR must not share.

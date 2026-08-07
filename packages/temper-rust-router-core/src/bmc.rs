@@ -9,7 +9,7 @@
 use std::collections::HashMap;
 
 use rustsat::{
-    solvers::{Solve, SolverResult},
+    solvers::{Solve, SolveIncremental, SolverResult},
     types::{Clause, Lit},
 };
 use rustsat_cadical::CaDiCaL;
@@ -82,6 +82,12 @@ pub fn bmc_verify(
     let total = 1u64 << n;
     let mut counterexamples = Vec::new();
 
+    // Build the solver ONCE and add every clause exactly once; each mask is
+    // then solved incrementally under the fixed primary variables as
+    // assumptions (F1: previously a fresh CaDiCaL was built and every clause
+    // re-added per mask).
+    let mut solver = build_solver(&cnf)?;
+
     for mask in 0..total {
         // Build assignment.
         let mut assignment: HashMap<String, bool> = HashMap::new();
@@ -92,8 +98,8 @@ pub fn bmc_verify(
         // ESL ground truth.
         let esl_sat = esl::evaluate_all(&model.constraints, &assignment);
 
-        // CNF satisfiability.
-        let cnf_sat = check_cnf_sat(&cnf, &assignment, &name_to_idx)?;
+        // CNF satisfiability under this mask's fixed variables.
+        let cnf_sat = solve_with_assumptions(&mut solver, &cnf, &assignment, &name_to_idx)?;
 
         if esl_sat != cnf_sat {
             counterexamples.push(Counterexample {
@@ -117,8 +123,43 @@ pub fn bmc_verify(
     })
 }
 
+/// Build a CaDiCaL solver for the CNF, adding all clauses exactly once.
+///
+/// Clause-add failures propagate as errors (the old per-mask `check_cnf_sat`
+/// collapsed them to `Ok(false)`; with one shared solver an add failure is a
+/// real invariant violation, not a per-mask signal).
+fn build_solver(cnf: &CnfFormula) -> Result<CaDiCaL<'static, 'static>, String> {
+    let mut solver = CaDiCaL::default();
+
+    // Add all clauses.
+    for clause in &cnf.clauses {
+        let clause_obj: Clause = clause
+            .iter()
+            .map(|&lit| {
+                let var_idx = lit.unsigned_abs() - 1;
+                if lit > 0 {
+                    Lit::positive(var_idx)
+                } else {
+                    Lit::negative(var_idx)
+                }
+            })
+            .collect();
+        solver
+            .add_clause(clause_obj)
+            .map_err(|e| format!("failed to add clause to CaDiCaL: {e}"))?;
+    }
+
+    Ok(solver)
+}
+
 /// Check if the CNF is satisfiable given fixed primary variable values.
-fn check_cnf_sat(
+///
+/// The fixed variables are handed to the already-built solver as assumptions
+/// (F1) — no clause re-adding, no per-mask solver rebuild. CaDiCaL's `assume`
+/// only applies to the next solve call, so re-invoking `solve_assumps` per
+/// mask with fresh assumptions is the intended incremental usage.
+fn solve_with_assumptions(
+    solver: &mut CaDiCaL<'static, 'static>,
     cnf: &CnfFormula,
     fixed: &HashMap<String, bool>,
     name_to_idx: &HashMap<String, usize>,
@@ -127,40 +168,21 @@ fn check_cnf_sat(
         return Ok(true); // Vacuous
     }
 
-    let mut solver = CaDiCaL::default();
-
-    // Add all clauses.
-    for clause in &cnf.clauses {
-        let mut lits: Vec<Lit> = Vec::with_capacity(clause.len());
-        for &lit in clause {
-            let var_idx = lit.unsigned_abs() - 1;
-            let lit_obj = if lit > 0 {
-                Lit::positive(var_idx)
-            } else {
-                Lit::negative(var_idx)
-            };
-            lits.push(lit_obj);
-        }
-        if solver.add_clause(Clause::from(&lits[..])).is_err() {
-            return Ok(false);
-        }
-    }
-
-    // Fix primary variables as unit clauses.
+    // Fix primary variables as assumptions.
+    let mut assumps: Vec<Lit> = Vec::new();
     for (name, &val) in fixed {
         if let Some(&idx) = name_to_idx.get(name) {
-            let lit = if val {
+            assumps.push(if val {
                 Lit::positive(idx as u32)
             } else {
                 Lit::negative(idx as u32)
-            };
-            if solver.add_clause(Clause::from([lit])).is_err() {
-                return Ok(false);
-            }
+            });
         }
     }
 
-    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| solver.solve()));
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        solver.solve_assumps(&assumps)
+    }));
     match result {
         Ok(Ok(SolverResult::Sat)) => Ok(true),
         Ok(Ok(SolverResult::Unsat)) => Ok(false),

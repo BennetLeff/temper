@@ -60,6 +60,7 @@ pub fn extract_component_references(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

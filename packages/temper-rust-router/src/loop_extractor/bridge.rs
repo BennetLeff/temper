@@ -141,7 +141,9 @@ pub fn auto_extract_loops_rust(_py: Python<'_>, json_str: &str) -> PyResult<Stri
                     max_area_mm2: l.max_area_mm2,
                 }).collect()),
             };
-            Ok(serde_json::to_string(&out).unwrap())
+            Ok(serde_json::to_string(&out).map_err(|e| {
+                PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("serialize output: {e}"))
+            })?)
         }
         Err(e) => {
             let out = ExtractionOutput {
@@ -149,7 +151,9 @@ pub fn auto_extract_loops_rust(_py: Python<'_>, json_str: &str) -> PyResult<Stri
                 error: Some(e.to_string()),
                 loops: None,
             };
-            Ok(serde_json::to_string(&out).unwrap())
+            Ok(serde_json::to_string(&out).map_err(|e| {
+                PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("serialize output: {e}"))
+            })?)
         }
     }
 }

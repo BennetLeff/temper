@@ -124,6 +124,7 @@ impl QualityMetrics {
     }
 
     pub fn zeroed() -> Self {
+        #[expect(clippy::expect_used, reason = "0.0 is statically within the valid [0, 1] domain")]
         let z = NormalizedScore::new(0.0).expect("0.0 is a valid NormalizedScore");
         QualityMetrics {
             thermal_score: z,
@@ -260,6 +261,7 @@ pub struct ComponentInfo {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use proptest::prelude::*;

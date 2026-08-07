@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used)] // test-support module, compiled only under cfg(test)
+
 /// Shared test helpers for the temper-quality-oracle crate.
 ///
 /// Provides common constructors used across multiple test modules to avoid

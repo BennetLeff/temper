@@ -100,6 +100,7 @@ fn scalar(kind: &PclConstraintKind) -> Option<f64> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use temper_pcl_ir::{ConstraintOrigin, ConstraintTier, PclConstraint};

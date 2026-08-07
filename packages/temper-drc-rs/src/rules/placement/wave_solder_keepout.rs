@@ -54,8 +54,27 @@ impl DrcRule for WaveSolderKeepoutCheck {
             return violations;
         }
 
-        for smd in &bottom_smd {
-            for tht in &tht_components {
+        // Precompute each component's bbox expanded by KEEPOUT_MM. The
+        // distance between expanded bboxes is a lower bound on the true
+        // polygon edge-to-edge distance (expanded bbox ⊇ footprint bbox ⊇
+        // polygon, so the min over a superset of point pairs is ≤ the polygon
+        // distance; board.rs:590-614), so a pair whose expanded bboxes are
+        // ≥ KEEPOUT_MM apart can never violate and skips the full
+        // edge_distance_to polygon sweep.
+        let smd_bboxes: Vec<geo::Rect<f64>> = bottom_smd
+            .iter()
+            .map(|c| expand_rect(&c.footprint_bbox(), KEEPOUT_MM))
+            .collect();
+        let tht_bboxes: Vec<geo::Rect<f64>> = tht_components
+            .iter()
+            .map(|c| expand_rect(&c.footprint_bbox(), KEEPOUT_MM))
+            .collect();
+
+        for (s_idx, smd) in bottom_smd.iter().enumerate() {
+            for (t_idx, tht) in tht_components.iter().enumerate() {
+                if rect_edge_distance(&smd_bboxes[s_idx], &tht_bboxes[t_idx]) >= KEEPOUT_MM {
+                    continue;
+                }
                 let dist = smd.edge_distance_to(tht);
                 if dist < KEEPOUT_MM {
                     violations.push(violation(
@@ -86,4 +105,44 @@ impl DrcRule for WaveSolderKeepoutCheck {
 
         violations
     }
+}
+
+/// Expand a Rect by `margin` on all sides.
+///
+/// Local copy of the helper in drc/courtyard.rs (that module is private);
+/// kept in sync — bbox expansion must be identical for both rules.
+fn expand_rect(rect: &geo::Rect<f64>, margin: f64) -> geo::Rect<f64> {
+    geo::Rect::new(
+        geo::Coord {
+            x: rect.min().x - margin,
+            y: rect.min().y - margin,
+        },
+        geo::Coord {
+            x: rect.max().x + margin,
+            y: rect.max().y + margin,
+        },
+    )
+}
+
+/// Minimum Euclidean distance between two axis-aligned rectangles.
+///
+/// Mirror of the (private) board::rect_edge_distance — same formula, so the
+/// gate compares against the exact same distance the bbox fallback path of
+/// edge_distance_to() would report.
+fn rect_edge_distance(r1: &geo::Rect<f64>, r2: &geo::Rect<f64>) -> f64 {
+    let dx = if r1.max().x < r2.min().x {
+        r2.min().x - r1.max().x
+    } else if r2.max().x < r1.min().x {
+        r1.min().x - r2.max().x
+    } else {
+        0.0
+    };
+    let dy = if r1.max().y < r2.min().y {
+        r2.min().y - r1.max().y
+    } else if r2.max().y < r1.min().y {
+        r1.min().y - r2.max().y
+    } else {
+        0.0
+    };
+    (dx * dx + dy * dy).sqrt()
 }

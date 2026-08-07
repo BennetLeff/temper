@@ -192,14 +192,16 @@ fn find_capacitor_chain(
         .map(|v| v.iter().copied().collect())
         .unwrap_or_default();
 
-    // Collect all nets that capacitors connected to DC+ also touch
-    let mut intermediate_nets: Vec<String> = Vec::new();
+    // Collect all nets that capacitors connected to DC+ also touch.
+    // Net names are borrowed from `components` (which outlives this function),
+    // so a HashSet<&str> gives O(1) membership below without cloning (F4).
+    let mut intermediate_nets: HashSet<&str> = HashSet::new();
     for &cap_idx in &dc_plus_caps {
         for pin in &components[cap_idx].pins {
             #[allow(clippy::collapsible_if)]
         if let Some(ref net_name) = pin.net {
             if net_name != dc_plus && net_name != dc_minus {
-                    intermediate_nets.push(net_name.clone());
+                    intermediate_nets.insert(net_name.as_str());
                 }
             }
         }
@@ -211,7 +213,7 @@ fn find_capacitor_chain(
         for pin in &components[cap_idx].pins {
             #[allow(clippy::collapsible_if)]
         if let Some(ref net_name) = pin.net {
-            if intermediate_nets.contains(net_name) {
+            if intermediate_nets.contains(net_name.as_str()) {
                     // Found! Add caps from DC+ side and DC- side that share this net
                     for &dcp_idx in &dc_plus_caps {
                         let has_net = components[dcp_idx]
@@ -239,7 +241,9 @@ fn find_capacitor_chain(
         return Err(ExtractionError::NoBusCapacitor {
             dc_plus: dc_plus.to_string(),
             dc_minus: dc_minus.to_string(),
-            intermediate_nets,
+            // HashSet → Vec for the diagnostic payload (order is unspecified,
+            // duplicates removed; the display is informational only).
+            intermediate_nets: intermediate_nets.into_iter().map(String::from).collect(),
         });
     }
 

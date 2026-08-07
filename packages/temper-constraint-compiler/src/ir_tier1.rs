@@ -237,18 +237,20 @@ impl ChannelTopology {
         Self { channels }
     }
 
-    pub fn shared_channels(&self, net_a: usize, net_b: usize) -> Vec<&Channel> {
+    pub fn shared_channels(
+        &self,
+        net_a: usize,
+        net_b: usize,
+    ) -> impl Iterator<Item = &Channel> {
         self.channels
             .iter()
-            .filter(|c| c.nets.contains(&net_a) && c.nets.contains(&net_b))
-            .collect()
+            .filter(move |c| c.nets.contains(&net_a) && c.nets.contains(&net_b))
     }
 
-    pub fn channels_for_net(&self, net: usize) -> Vec<&Channel> {
+    pub fn channels_for_net(&self, net: usize) -> impl Iterator<Item = &Channel> {
         self.channels
             .iter()
-            .filter(|c| c.nets.contains(&net))
-            .collect()
+            .filter(move |c| c.nets.contains(&net))
     }
 
     pub fn is_empty(&self) -> bool {
@@ -344,11 +346,11 @@ mod tests {
                 layer: "B.Cu".into(),
             },
         ]);
-        let shared = topology.shared_channels(0, 1);
+        let shared = topology.shared_channels(0, 1).collect::<Vec<_>>();
         assert_eq!(shared.len(), 1);
         assert_eq!(shared[0].id, "CH1");
         let not_shared = topology.shared_channels(0, 2);
-        assert_eq!(not_shared.len(), 0);
+        assert_eq!(not_shared.count(), 0);
     }
 
     #[test]
@@ -368,8 +370,8 @@ mod tests {
             },
         ]);
         let channels = topology.channels_for_net(0);
-        assert_eq!(channels.len(), 2);
-        assert_eq!(topology.channels_for_net(3).len(), 0);
+        assert_eq!(channels.count(), 2);
+        assert_eq!(topology.channels_for_net(3).count(), 0);
     }
 
     #[test]

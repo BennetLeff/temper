@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used)]
+
 //! Property-based tests for `from_shared_ir` — the shared-IR → loss-engine
 //! adapter seam.
 //!
@@ -109,7 +111,7 @@ proptest! {
         metric in arb_metric(),
         tier in arb_tier(),
     ) {
-        let out = from_shared_ir(&ir(tier.clone(), PclConstraintKind::Adjacent {
+        let out = from_shared_ir(&ir(tier, PclConstraintKind::Adjacent {
             a: a.clone(), b: b.clone(), max_distance_mm: d, metric: metric.into(),
         })).unwrap();
         match out {
@@ -135,7 +137,7 @@ proptest! {
         metric in arb_metric(),
         tier in arb_tier(),
     ) {
-        let out = from_shared_ir(&ir(tier.clone(), PclConstraintKind::Separated {
+        let out = from_shared_ir(&ir(tier, PclConstraintKind::Separated {
             a: a.clone(), b: b.clone(), min_distance_mm: d, metric: metric.into(),
         })).unwrap();
         match out {
@@ -157,7 +159,7 @@ proptest! {
         margin in arb_mm(),
         tier in arb_tier(),
     ) {
-        let out = from_shared_ir(&ir(tier.clone(), PclConstraintKind::Enclosing {
+        let out = from_shared_ir(&ir(tier, PclConstraintKind::Enclosing {
             outer: outer.clone(), inner: inner.clone(), margin_mm: margin,
         })).unwrap();
         match out {
@@ -178,7 +180,7 @@ proptest! {
         tol in arb_mm(),
         tier in arb_tier(),
     ) {
-        let out = from_shared_ir(&ir(tier.clone(), PclConstraintKind::Aligned {
+        let out = from_shared_ir(&ir(tier, PclConstraintKind::Aligned {
             components: components.clone(), axis: axis.into(), tolerance_mm: tol,
         })).unwrap();
         match out {
@@ -203,7 +205,7 @@ proptest! {
         d in prop::option::of(arb_mm()),
         tier in arb_tier(),
     ) {
-        let out = from_shared_ir(&ir(tier.clone(), PclConstraintKind::OnSide {
+        let out = from_shared_ir(&ir(tier, PclConstraintKind::OnSide {
             components: components.clone(), side: side.into(), edge: edge.into(),
             max_distance_mm: d,
         })).unwrap();
@@ -239,7 +241,7 @@ proptest! {
         position in prop::option::of([arb_mm(), arb_mm()]),
         tier in arb_tier(),
     ) {
-        let out = from_shared_ir(&ir(tier.clone(), PclConstraintKind::Anchored {
+        let out = from_shared_ir(&ir(tier, PclConstraintKind::Anchored {
             component: component.clone(), region, position,
         })).unwrap();
         match out {
@@ -277,7 +279,7 @@ proptest! {
         area in arb_mm(),
         tier in arb_tier(),
     ) {
-        let out = from_shared_ir(&ir(tier.clone(), PclConstraintKind::LoopArea {
+        let out = from_shared_ir(&ir(tier, PclConstraintKind::LoopArea {
             loop_name: loop_name.clone(), max_area_mm2: area,
         })).unwrap();
         match out {

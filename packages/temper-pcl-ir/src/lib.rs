@@ -144,6 +144,7 @@ impl TryFrom<u8> for ConstraintTier {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     #[test]

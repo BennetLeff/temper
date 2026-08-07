@@ -69,6 +69,7 @@ pub fn verify_monotonic() -> Result<(), String> {
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used)]
 mod tests {
     use super::*;
 

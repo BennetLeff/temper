@@ -13,3 +13,7 @@ pyo3 = { version = "0.29", features = ["extension-module"] }
 
 [profile.release]
 panic = "unwind"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

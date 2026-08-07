@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used)]
+
 use temper_constraints::constraints::{Constraint, from_shared_ir};
 use temper_pcl_ir::{ConstraintOrigin, ConstraintTier, PclConstraint, PclConstraintKind};
 

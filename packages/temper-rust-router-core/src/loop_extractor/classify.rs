@@ -55,13 +55,12 @@ pub fn classify_component(comp: &CompInfo) -> Classification {
 }
 
 fn classify_by_mpn(_ref_upper: &str, _fp_upper: &str, mpn: &str) -> Option<Classification> {
-    let mpn_orig = mpn; // keep original case for ref
-
+    
     // IGBT patterns
     let igbt_patterns = ["IK", "IHW", "IRG", "STGP", "FGA", "IRGP", "IRG4",
                           "IXY", "IXG", "IXB", "HGTG", "NGTB", "FGH"];
     for pat in &igbt_patterns {
-        if mpn_orig.to_uppercase().contains(pat) {
+        if mpn.contains(pat) {
             return Some(Classification {
                 component_ref: String::new(), // filled by caller
                 category: "power_switch".into(),
@@ -76,7 +75,7 @@ fn classify_by_mpn(_ref_upper: &str, _fp_upper: &str, mpn: &str) -> Option<Class
                             "FDS", "SIH", "IPA", "IPB", "IPD", "IRFZ", "IRFB",
                             "IRFP", "STW", "STB", "IPP", "SPW", "FDP"];
     for pat in &mosfet_patterns {
-        if mpn_orig.to_uppercase().contains(pat) {
+        if mpn.contains(pat) {
             return Some(Classification {
                 component_ref: String::new(),
                 category: "power_switch".into(),
@@ -90,7 +89,7 @@ fn classify_by_mpn(_ref_upper: &str, _fp_upper: &str, mpn: &str) -> Option<Class
     let driver_patterns = ["UCC", "ISO", "SI82", "HCPL", "FOD", "SI827", "ACPL",
                             "IR2", "IRS2", "2ED", "1ED", "ADUM", "BM60"];
     for pat in &driver_patterns {
-        if mpn_orig.to_uppercase().contains(pat) {
+        if mpn.contains(pat) {
             return Some(Classification {
                 component_ref: String::new(),
                 category: "gate_driver".into(),

@@ -11,6 +11,10 @@ struct FieldMeta {
     is_optional: bool,
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "proc-macro: misuse (unnamed fields) is reported by rustc as a compile error at the derive site"
+)]
 fn parse_field_meta(field: &syn::Field) -> FieldMeta {
     let ident = field.ident.clone().expect("FromPyDict requires named fields");
     let ty = field.ty.clone();
@@ -49,39 +53,39 @@ fn parse_field_meta(field: &syn::Field) -> FieldMeta {
 }
 
 fn is_optional_type(ty: &syn::Type) -> bool {
-    if let syn::Type::Path(type_path) = ty {
-        if let Some(segment) = type_path.path.segments.last() {
-            return segment.ident == "Option";
-        }
+    if let syn::Type::Path(type_path) = ty
+        && let Some(segment) = type_path.path.segments.last()
+    {
+        return segment.ident == "Option";
     }
     false
 }
 
 fn is_str_type(ty: &syn::Type) -> bool {
-    if let syn::Type::Path(type_path) = ty {
-        if let Some(segment) = type_path.path.segments.last() {
-            let name = segment.ident.to_string();
-            return name == "String" || name == "str" || name == "OsString";
-        }
+    if let syn::Type::Path(type_path) = ty
+        && let Some(segment) = type_path.path.segments.last()
+    {
+        let name = segment.ident.to_string();
+        return name == "String" || name == "str" || name == "OsString";
     }
     false
 }
 
 fn is_bool_type(ty: &syn::Type) -> bool {
-    if let syn::Type::Path(type_path) = ty {
-        if let Some(segment) = type_path.path.segments.last() {
-            return segment.ident == "bool";
-        }
+    if let syn::Type::Path(type_path) = ty
+        && let Some(segment) = type_path.path.segments.last()
+    {
+        return segment.ident == "bool";
     }
     false
 }
 
 fn is_f64_type(ty: &syn::Type) -> bool {
-    if let syn::Type::Path(type_path) = ty {
-        if let Some(segment) = type_path.path.segments.last() {
-            let name = segment.ident.to_string();
-            return name == "f64" || name == "f32" || name == "i64" || name == "i32";
-        }
+    if let syn::Type::Path(type_path) = ty
+        && let Some(segment) = type_path.path.segments.last()
+    {
+        let name = segment.ident.to_string();
+        return name == "f64" || name == "f32" || name == "i64" || name == "i32";
     }
     false
 }

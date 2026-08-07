@@ -74,6 +74,7 @@ pub fn validate_hv_isolation(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

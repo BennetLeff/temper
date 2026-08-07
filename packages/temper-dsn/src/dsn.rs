@@ -8,12 +8,19 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
+/// Compiles a regex from a source literal. Infallible: every pattern passed
+/// here is a compile-time constant in this file, so `Regex::new` cannot fail.
+#[expect(clippy::expect_used, reason = "literal patterns compiled from source cannot fail")]
+fn static_regex(pattern: &'static str) -> Regex {
+    Regex::new(pattern).expect("invalid static regex literal")
+}
+
 static NON_SEMANTIC_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
     vec![
-        Regex::new(r"^;exported-at:").expect("valid regex"),
-        Regex::new(r"^;tool-version:").expect("valid regex"),
-        Regex::new(r"^;machine:").expect("valid regex"),
-        Regex::new(r"^;path:").expect("valid regex"),
+        static_regex(r"^;exported-at:"),
+        static_regex(r"^;tool-version:"),
+        static_regex(r"^;machine:"),
+        static_regex(r"^;path:"),
     ]
 });
 
@@ -75,7 +82,7 @@ pub fn compute_dsn_schema_hash(
 ) -> String {
     let mut schema = serde_json::Map::new();
 
-    let mut names_sorted = layer_names.clone();
+    let mut names_sorted = layer_names;
     names_sorted.sort();
     let mut types_map = serde_json::Map::new();
     for name in &names_sorted {
@@ -96,7 +103,7 @@ pub fn compute_dsn_schema_hash(
     }
     schema.insert("footprints".into(), serde_json::Value::Object(fp_obj));
 
-    let mut nets_sorted = nets.clone();
+    let mut nets_sorted = nets;
     nets_sorted.sort();
     schema.insert("nets".into(), serde_json::Value::Array(nets_sorted.into_iter().map(serde_json::Value::String).collect()));
 

@@ -9,9 +9,32 @@
 //
 // Origin: U4 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
-use crate::board::BoardState;
+use std::collections::HashMap;
+
+use crate::board::{BoardState, Component, NetClassName, NetClassRules};
 use crate::constraints::ConstraintSet;
 use crate::rules::{clearance_between, violation, DrcCategory, DrcRule, Severity, Violation};
+
+/// Look up (with memoization) the required clearance between two components'
+/// net classes. The cache key is normalized (class_a <= class_b) because
+/// clearance_between() is symmetric, so each unordered class pair is computed
+/// once regardless of which component order is encountered first.
+fn required_for(
+    a: &Component,
+    b: &Component,
+    cache: &mut HashMap<(NetClassName, NetClassName), f64>,
+    constraints: &ConstraintSet,
+    net_class_rules: &HashMap<NetClassName, NetClassRules>,
+) -> f64 {
+    let key = if a.net_class <= b.net_class {
+        (a.net_class.clone(), b.net_class.clone())
+    } else {
+        (b.net_class.clone(), a.net_class.clone())
+    };
+    *cache.entry(key).or_insert_with(|| {
+        clearance_between(constraints, net_class_rules, &a.net_class, &b.net_class)
+    })
+}
 
 #[derive(Default)]
 pub struct ClearanceCheck;
@@ -35,17 +58,43 @@ impl DrcRule for ClearanceCheck {
         let mut violations = Vec::new();
         let components: Vec<&crate::board::Component> = board.all_components().collect();
 
+        // Precompute each component's footprint bbox once. The bbox distance
+        // between two components is a lower bound on the true polygon
+        // edge-to-edge distance (a polygon is contained in its width/height
+        // bbox; board.rs:590-614 derives this), so pairs whose bboxes are
+        // already farther apart than the required clearance can never violate
+        // and skip the expensive full-polygon edge sweep.
+        let bboxes: Vec<geo::Rect<f64>> = components.iter().map(|c| c.footprint_bbox()).collect();
+        let mut required_cache: HashMap<(NetClassName, NetClassName), f64> = HashMap::new();
+
         for i in 0..components.len() {
             for j in (i + 1)..components.len() {
                 let a = components[i];
                 let b = components[j];
-                let dist = a.edge_distance_to(b);
-                let required = clearance_between(
+                let required = required_for(
+                    a,
+                    b,
+                    &mut required_cache,
                     constraints,
                     &board.net_class_rules,
-                    &a.net_class,
-                    &b.net_class,
                 );
+
+                let ba = &bboxes[i];
+                let bb = &bboxes[j];
+                let bbox_dist = {
+                    let dx = (ba.min().x - bb.max().x)
+                        .max(0.0)
+                        .max((bb.min().x - ba.max().x).max(0.0));
+                    let dy = (ba.min().y - bb.max().y)
+                        .max(0.0)
+                        .max((bb.min().y - ba.max().y).max(0.0));
+                    dx.hypot(dy)
+                };
+                if bbox_dist > required {
+                    continue;
+                }
+
+                let dist = a.edge_distance_to(b);
                 if dist <= required {
                     violations.push(violation(
                         Severity::Critical,

@@ -13,6 +13,7 @@ use crate::board::BoardState;
 use crate::constraints::ConstraintSet;
 use crate::rules::{clearance_between, violation, DrcCategory, DrcRule, Severity, Violation};
 use geo::EuclideanDistance;
+use std::collections::HashMap;
 
 #[derive(Default)]
 pub struct TraceClearanceCheck;
@@ -35,6 +36,15 @@ impl DrcRule for TraceClearanceCheck {
     fn check(&self, board: &BoardState, constraints: &ConstraintSet) -> Vec<Violation> {
         let mut violations = Vec::new();
         let traces = &board.traces;
+        let default_class = crate::board::NetClassName("Default".into());
+
+        // Index net name → class once. board.net_by_name() is a linear scan;
+        // this map turns the per-trace-pair lookup into a hash lookup.
+        let net_class: HashMap<&str, &crate::board::NetClassName> = board
+            .nets
+            .iter()
+            .map(|n| (n.name.0.as_str(), &n.class))
+            .collect();
 
         for i in 0..traces.len() {
             for j in (i + 1)..traces.len() {
@@ -43,27 +53,23 @@ impl DrcRule for TraceClearanceCheck {
                 if ta.layer != tb.layer {
                     continue;
                 }
+
+                // Net-class resolution and required clearance are invariant
+                // across a trace pair's segment pairs; resolve once, not per
+                // segment pair.
+                let class_a = net_class
+                    .get(ta.net.0.as_str())
+                    .copied()
+                    .unwrap_or(&default_class);
+                let class_b = net_class
+                    .get(tb.net.0.as_str())
+                    .copied()
+                    .unwrap_or(&default_class);
+                let required = clearance_between(constraints, &board.net_class_rules, class_a, class_b);
+
                 for seg_a in &ta.segments {
                     for seg_b in &tb.segments {
                         let dist = seg_a.euclidean_distance(seg_b);
-
-                        // Look up net classes for both nets
-                        let default_class = crate::board::NetClassName("Default".into());
-                        let class_a = board
-                            .net_by_name(&ta.net.0)
-                            .map(|n| &n.class)
-                            .unwrap_or(&default_class);
-                        let class_b = board
-                            .net_by_name(&tb.net.0)
-                            .map(|n| &n.class)
-                            .unwrap_or(&default_class);
-
-                        let required = clearance_between(
-                            constraints,
-                            &board.net_class_rules,
-                            class_a,
-                            class_b,
-                        );
 
                         if dist < required {
                             violations.push(violation(

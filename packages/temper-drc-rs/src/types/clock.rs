@@ -60,6 +60,7 @@ impl<A, B> PointToPoint<A, B> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

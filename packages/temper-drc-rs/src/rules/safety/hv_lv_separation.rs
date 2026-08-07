@@ -24,16 +24,15 @@ const LV_KEYWORDS: [&str; 6] = ["lv", "signal", "3v3", "5v", "gnd", "analog"];
 /// Falls back to keyword substring matching for undeclared net classes.
 fn resolve_safety_category(comp: &Component, board: &BoardState) -> Option<&'static str> {
     // Prefer declared safety_category from the model
-    let nc = crate::board::NetClassName(comp.net_class.0.clone());
-    if let Some(rules) = board.net_class_rules.get(&nc) {
-        if let Some(ref sc) = rules.safety_category {
-            return match sc.as_str() {
-                "HV" => Some("HV"),
-                "LV" => Some("LV"),
-                "AC" => Some("HV"), // AC treated as HV-side for separation
-                _ => None,
-            };
-        }
+    if let Some(rules) = board.net_class_rules.get(&comp.net_class)
+        && let Some(ref sc) = rules.safety_category
+    {
+        return match sc.as_str() {
+            "HV" => Some("HV"),
+            "LV" => Some("LV"),
+            "AC" => Some("HV"), // AC treated as HV-side for separation
+            _ => None,
+        };
     }
     // Keyword fallback
     let lc = comp.net_class.0.to_lowercase();
@@ -46,6 +45,7 @@ fn resolve_safety_category(comp: &Component, board: &BoardState) -> Option<&'sta
     }
 }
 
+#[derive(Default)]
 pub struct HVLVSeparationCheck;
 
 impl HVLVSeparationCheck {
@@ -73,13 +73,19 @@ impl DrcRule for HVLVSeparationCheck {
         let comps: Vec<&Component> = board.all_components().collect();
         let n = comps.len();
 
+        // Safety category is pure per component; resolve once, not per pair.
+        let cats: Vec<Option<&'static str>> = comps
+            .iter()
+            .map(|c| resolve_safety_category(c, board))
+            .collect();
+
         for i in 0..n {
             for j in (i + 1)..n {
                 let a = &comps[i];
                 let b = &comps[j];
 
-                let a_cat = resolve_safety_category(a, board);
-                let b_cat = resolve_safety_category(b, board);
+                let a_cat = cats[i];
+                let b_cat = cats[j];
 
                 let is_a_hv = a_cat == Some("HV");
                 let is_b_hv = b_cat == Some("HV");

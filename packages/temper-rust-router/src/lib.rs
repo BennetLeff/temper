@@ -52,7 +52,7 @@ fn solve_topology_rust(
     let py_cons: Vec<Py<PyAny>> = constraints.iter().map(|c| c.into()).collect();
 
     let model: InternalConstraintModel =
-        types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons, py)?;
+        types_py_bridge::model_from_python(py_vars, py_cons, py)?;
     if phase_trace {
         eprintln!("[phase-trace t={:.3}s] model_from_python done", t_start.elapsed().as_secs_f64());
     }
@@ -190,12 +190,12 @@ fn audit_result(
     variables: &Bound<'_, PyList>,
     constraints: &Bound<'_, PyList>,
     assignments: &Bound<'_, PyDict>,
-    net_names: Vec<String>,
+    _net_names: Vec<String>,
 ) -> PyResult<Py<PyAny>> {
     let py_vars: Vec<Py<PyAny>> = variables.iter().map(|v| v.into()).collect();
     let py_cons: Vec<Py<PyAny>> = constraints.iter().map(|c| c.into()).collect();
 
-    let model = types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons, py)?;
+    let model = types_py_bridge::model_from_python(py_vars, py_cons, py)?;
 
     // Build var_names from model
     let var_names: Vec<String> = model.variables.iter().map(|v| match v {
@@ -301,6 +301,10 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     congestion_bytes=None, congestion_weight=1.0, max_congestion_cost=100.0,
     thermal_bytes=None, thermal_weight=0.0,
 ))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the numba kernel arguments 1:1; a config struct would change the FFI"
+)]
 fn astar_kernel_3d_py(
     start_idx: i64,
     goal_idx: i64,
@@ -338,6 +342,10 @@ fn astar_kernel_3d_py(
 /// row-major (height, width) int8 occupancy grid.
 #[pyfunction]
 #[pyo3(signature = (x0, y0, x1, y1, grid_bytes, width_cells, height_cells, net_id))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the numba kernel arguments 1:1; a config struct would change the FFI"
+)]
 fn line_of_sight_py(
     x0: i64,
     y0: i64,
@@ -382,7 +390,9 @@ fn f32s_from_le_bytes(bytes: &[u8], expected: usize) -> Vec<f32> {
     debug_assert_eq!(bytes.len() % 4, 0);
     let mut out = Vec::with_capacity(bytes.len() / 4);
     for c in bytes.chunks_exact(4) {
-        out.push(f32::from_le_bytes(c.try_into().unwrap()));
+        let mut a = [0u8; 4];
+        a.copy_from_slice(c);
+        out.push(f32::from_le_bytes(a));
     }
     debug_assert!(expected == 0 || out.len() == expected);
     out

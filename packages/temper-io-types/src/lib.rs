@@ -432,22 +432,22 @@ fn serialize_boardstate_to_dsn(
 // golden_serializers: serialize_boardstate_to_ses
 // ---------------------------------------------------------------------------
 
-fn get_routes<'py>(py: Python<'py>, state: &Bound<'py, PyAny>) -> Bound<'py, PyAny> {
+fn get_routes<'py>(py: Python<'py>, state: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
     if let Ok(r) = state.getattr("routes")
         && !r.is_none()
     {
-        return r;
+        return Ok(r);
     }
-    py.eval(c"frozenset()", None, None).unwrap()
+    py.eval(c"frozenset()", None, None)
 }
 
-fn get_vias<'py>(py: Python<'py>, state: &Bound<'py, PyAny>) -> Bound<'py, PyAny> {
+fn get_vias<'py>(py: Python<'py>, state: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
     if let Ok(v) = state.getattr("vias")
         && !v.is_none()
     {
-        return v;
+        return Ok(v);
     }
-    py.eval(c"frozenset()", None, None).unwrap()
+    py.eval(c"frozenset()", None, None)
 }
 
 fn get_attr_str(obj: &Bound<'_, PyAny>, name: &str, default: &str) -> String {
@@ -483,8 +483,8 @@ fn serialize_boardstate_to_ses(
     py: Python<'_>,
     state: Bound<'_, PyAny>,
 ) -> PyResult<String> {
-    let routes = get_routes(py, &state);
-    let vias = get_vias(py, &state);
+    let routes = get_routes(py, &state)?;
+    let vias = get_vias(py, &state)?;
 
     let mut route_entries: Vec<(String, (String, i64))> = Vec::new();
 
@@ -563,13 +563,13 @@ fn get_violations_or_empty<'py>(
     py: Python<'py>,
     state: &Bound<'py, PyAny>,
     attr: &str,
-) -> Bound<'py, PyAny> {
+) -> PyResult<Bound<'py, PyAny>> {
     if let Ok(v) = state.getattr(attr)
         && !v.is_none()
     {
-        return v;
+        return Ok(v);
     }
-    py.eval(c"()", None, None).unwrap()
+    py.eval(c"()", None, None)
 }
 
 fn get_attr_str_or(v: &Bound<'_, PyAny>, name: &str) -> String {
@@ -608,7 +608,7 @@ fn serialize_violations_to_json(
     py: Python<'_>,
     state: Bound<'_, PyAny>,
 ) -> PyResult<String> {
-    let violations = get_violations_or_empty(py, &state, "drc_violations");
+    let violations = get_violations_or_empty(py, &state, "drc_violations")?;
 
     let mut entries: Vec<(String, Py<PyAny>)> = Vec::new();
 
@@ -668,7 +668,7 @@ fn serialize_connectivity_to_json(
     py: Python<'_>,
     state: Bound<'_, PyAny>,
 ) -> PyResult<String> {
-    let violations = get_violations_or_empty(py, &state, "connectivity_violations");
+    let violations = get_violations_or_empty(py, &state, "connectivity_violations")?;
 
     let mut entries: Vec<(String, Py<PyAny>)> = Vec::new();
 
