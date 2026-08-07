@@ -4,6 +4,7 @@
 
 pub mod loop_extractor;
 pub mod net_ordering;
+pub mod terminal_planning;
 pub mod types;
 mod types_py_bridge;
 
@@ -292,6 +293,9 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Wave-4 Phase B: the router_v6/net_ordering kernels.
     net_ordering::register(m)?;
+    // Wave-4: the router_v6 terminal-tree slice (terminal_extraction,
+    // terminal_tree, path_simplify).
+    terminal_planning::register(m)?;
     Ok(())
 }
 

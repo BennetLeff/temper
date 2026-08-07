@@ -166,6 +166,13 @@ def test_rust_symbols_exist():
 
 
 def _pad(ref: str, index: int, x: float, y: float, layers: tuple[int, ...] = (0,)) -> CopperPad:
+    # x/y are coerced to float: PadIdentity.x/y and Point.x/y are typed
+    # `float` (`connectivity.py`/`core/geometry_types.py`), and real pad
+    # positions are always the float output of pin_world_position -- an
+    # int literal here would be an unrealistic fixture, and would also
+    # trip `sig()`'s deliberate int/float discrimination against a Rust
+    # arm that (correctly) always returns f64.
+    x, y = float(x), float(y)
     return CopperPad(PadIdentity(ref, str(index), "NET", x, y, layers), Point(x, y), "rect", (1, 1))
 
 
