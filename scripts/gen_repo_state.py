@@ -58,6 +58,7 @@ DIRECTORY_PURPOSE: dict[str, str] = {
     "metrics": "Recorded routing/placement metric snapshots (JSON)",
     "output_gerbers": "Exported Gerber/drill artifacts from a past routed revision",
     "packages": "Python and Rust workspace members -- placer, DRC, geometry, router",
+    "crates": "Rust-only crates -- no pyproject.toml, outside the uv workspace. Where code lives once it no longer needs an interpreter: the temper binary and the CP-SAT FFI",
     "pcb": "KiCad project: schematics, board, and project settings",
     "power_pcb_dataset": "Regression corpus, baselines, and DRC ceilings",
     "scripts": "CI gates, generators, and one-off analysis tooling",

@@ -19,7 +19,6 @@ build_adjacency_flat	unwired at time of recording; no reason given
 calculate_min_trace_width	unwired at time of recording; no reason given
 check_overconstrained	unwired at time of recording; no reason given
 classify_nets_py	unwired at time of recording; no reason given
-closure_summary	SURFACED by PR #839's AST rescan of this gate -- the previous text scan matched the symbol name in comments and docstrings and reported it wired. Genuinely has no production caller. Reason for being unwired NOT yet established; needs triage (deliberate omission vs a migration that stopped at 'the differential is green').
 closure_validate	unwired at time of recording; no reason given
 component_reach_py	unwired at time of recording; no reason given
 congestion_analyze_py	DELIBERATE, documented in router_v6/congestion.py: the kernel reimplements pin-position resolution with its own pin_world_position that composes rotation only and omits the bottom-side mirror (if side == 1: px = -px). Wiring it would reintroduce the D4 defect class.

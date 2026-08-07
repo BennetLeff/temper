@@ -1,0 +1,13 @@
+[package]
+name = "temper-cli"
+version = "0.1.0"
+edition = "2021"
+description = "The temper binary. The first Rust entry point in this repo."
+
+[[bin]]
+name = "temper"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+temper-design-bundle = { path = "../../packages/temper-design-bundle" }

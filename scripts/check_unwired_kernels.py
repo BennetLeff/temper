@@ -125,6 +125,54 @@ def registered_symbols() -> dict[str, str]:
     return out
 
 
+def registered_symbols_runtime() -> dict[str, str]:
+    """AUDIT MODE: the symbols the built extensions actually export.
+
+    `dir(module)` is the list Python callers really see, so it is immune to the
+    ways a registered name diverges from its Python name -- path-qualified
+    registration, `#[pyclass(name=...)]` declared in another file,
+    `#[pyo3(name=...)]` on a function, and `use X as Y` aliases at the
+    registration site. Every one of those has produced a wrong verdict here.
+
+    It is NOT the default, and that is deliberate: it requires the extensions to
+    be built, and the gate runs in trunk-health.yml under a bare `python3` with
+    no venv. A ledger keyed to this view would report phantom STALE_ENTRYs in
+    CI, which is a worse failure than the parser's -- noise that trains people
+    to ignore the gate. Use it as a periodic audit:
+
+        uv run --no-sync python scripts/check_unwired_kernels.py --runtime
+
+    and reconcile anything it finds by hand.
+    """
+    import importlib
+    import pkgutil
+
+    out: dict[str, str] = {}
+    for name in sorted({m.name for m in pkgutil.iter_modules() if m.name.startswith("temper_")}):
+        mod = None
+        try:
+            mod = importlib.import_module(f"{name}.{name}")   # maturin layout
+        except Exception:
+            try:
+                candidate = importlib.import_module(name)
+                if str(getattr(candidate, "__file__", "")).endswith((".so", ".pyd")):
+                    mod = candidate
+            except Exception:
+                mod = None
+        if mod is None:
+            continue          # pure-Python package: its names are not kernels
+        for sym in dir(mod):
+            if sym.startswith("_"):
+                continue
+            try:
+                obj = getattr(mod, sym)
+            except Exception:
+                continue
+            if callable(obj) or isinstance(obj, type):
+                out.setdefault(sym, name)
+    return out
+
+
 def pyclass_renames(text: str) -> dict[str, str]:
     """Rust type name -> Python-visible name, for `#[pyclass(name = "...")]`.
 
@@ -185,13 +233,26 @@ def code_identifiers(src: str) -> set[str]:
             names.add(node.name.rsplit(".", 1)[-1])
             if node.asname:
                 names.add(node.asname)
-        elif isinstance(node, ast.Call):
-            func = node.func
-            label = getattr(func, "attr", None) or getattr(func, "id", None)
-            if label in {"getattr", "hasattr", "import_module", "__import__"}:
-                for arg in node.args:
-                    if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
-                        names.update(arg.value.split("."))
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
+            # WHOLE-string literals, never substrings.
+            #
+            # Restricting this to getattr/import_module arguments missed the
+            # dispatch TABLES that are this repo's actual idiom: pcl/rust_bridge.py
+            # lists its kernels as strings and resolves them later, and
+            # scripts/bench_rust_constraints.py does the same. Ten
+            # compute_*_loss_py kernels were being carried in the ledger as
+            # unwired while production called every one of them.
+            #
+            # Exact equality is what keeps this safe. The failure that motivated
+            # dropping strings entirely was a docstring containing "re-tokenize",
+            # which a SUBSTRING scan matched against the `tokenize` kernel. As a
+            # whole string it matches nothing, and neither does a mutation
+            # description like "M7 is_via_position_valid: <= instead of <" --
+            # verified against both.
+            v = node.value.strip()
+            if v:
+                names.add(v)
+                names.update(v.split("."))
     return names
 
 
@@ -256,11 +317,14 @@ def write_inventory(unwired: dict[str, str], previous: dict[str, str]) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--runtime", action="store_true",
+                    help="AUDIT: read symbols from the built extensions instead of "
+                         "parsing Rust (exact, but needs `maturin develop`)")
     ap.add_argument("--write-inventory", action="store_true",
                     help="record the current unwired set (shrink-only ledger)")
     args = ap.parse_args()
 
-    symbols = registered_symbols()
+    symbols = registered_symbols_runtime() if args.runtime else registered_symbols()
     if not symbols:
         print("FAIL: found zero registered pyo3 symbols -- the scan is broken, "
               "not the tree (a gate that inspects nothing passes vacuously).",
