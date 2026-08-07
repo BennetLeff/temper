@@ -159,3 +159,6 @@ temp_routing_test/
 # every fresh clone. Repopulate locally with scripts/scan_external_corpus.py.
 benchmarks/downloads_digital_iot/
 power_pcb_dataset/sources/
+
+# Rust-only crates build into the shared target dir
+/crates/*/target/
