@@ -232,10 +232,17 @@ Exit 0, no findings.
 - **Any board file, DRC ceiling, or production source.** `git status`
   will be verified clean of `pcb/**` and `power_pcb_dataset/**` before
   push.
-- **Test baselines in `test_regression_drc.py`**: not updated. The board
-  shape changed (2338→2290 segments) since the baselines were set, and
-  updating them requires DRC re-measurement per the test's own assertion
-  message. Out of scope for this task.
+- **Test baselines in `test_regression_drc.py`**: updated in a follow-up
+  commit on this branch (`c971db1d5`). The shape guard
+  `PRODUCTION_BOARD_BASELINE_SHAPE` was re-baselined 2338→2290 segments
+  (the #771 zero-length-track-per-via removal, one segment per via, with
+  vias/zones/footprints unchanged at 48/96/169), and the gate test re-run:
+  **PASSED in 56 s** against the corrected shape, with the Category-B DRC
+  baselines (shorting ≤ 115, unconnected ≤ 405, total ≤ 1551) still
+  holding. This is what makes the un-masked `extended-cpsat-slow` gate
+  green. **Still open, not fixed here:** the `route_pcb()` OOM (>13 GB
+  RSS, §3) — it blocks the R3 producer but is orthogonal to this gate,
+  which runs the routing path that completes.
 
 ---
 
