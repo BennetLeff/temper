@@ -14,19 +14,16 @@
 // (simulated by removing variables that are legitimately needed for routes)
 // causes a SAT/UNSAT divergence, which the test catches.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
-use crate::encoding::encode_to_cnf;
-use crate::solver::{solve_with_cadical, SolveLimits};
-use crate::types::{
-    InternalConstraint, InternalConstraintModel, InternalVariable, SolverStatus, TopologyResult,
-};
+use crate::types::{InternalConstraint, InternalConstraintModel, InternalVariable};
 
 /// Build a small synthetic routing problem.
 ///
 /// Three nets, two channels, one capacity constraint per channel.
 /// This is small enough for exhaustive verification (2^6 = 64 assignments)
 /// yet exercises the full encode→solve→compare pipeline.
+#[allow(dead_code)] // test-support harness; exercised only by `mod tests`
 fn build_toy_model_a() -> InternalConstraintModel {
     let variables = vec![
         // Net 0 on channel A
@@ -101,6 +98,7 @@ fn build_toy_model_a() -> InternalConstraintModel {
 
 /// Build a second, independent toy model with different net count and
 /// capacity to stress different cardinality-encoding paths.
+#[allow(dead_code)] // test-support harness; exercised only by `mod tests`
 fn build_toy_model_b() -> InternalConstraintModel {
     let mut vars = Vec::new();
     let mut terms_a = Vec::new();
@@ -150,6 +148,7 @@ fn build_toy_model_b() -> InternalConstraintModel {
 /// in the model, producing a "pruned" model with fewer variables per
 /// constraint. This simulates the effect of geographic pruning without
 /// needing actual board geometry.
+#[allow(dead_code)] // test-support harness; exercised only by `mod tests`
 fn prune_model(model: &InternalConstraintModel, remove_vars: &HashSet<String>) -> InternalConstraintModel {
     let variables: Vec<InternalVariable> = model
         .variables
@@ -201,6 +200,7 @@ fn prune_model(model: &InternalConstraintModel, remove_vars: &HashSet<String>) -
 /// Check that the pruned model's constraints are structurally a subset
 /// of the full model's constraints. Variable indices shift between
 /// encodings, so we compare constraint structure, not raw clause literals.
+#[allow(dead_code)] // test-support harness; exercised only by `mod tests`
 fn model_constraints_are_subset(
     pruned: &InternalConstraintModel,
     full: &InternalConstraintModel,
@@ -285,6 +285,10 @@ fn model_constraints_are_subset(
 #[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
+    use crate::encoding::encode_to_cnf;
+    use crate::solver::{solve_with_cadical, SolveLimits};
+    use crate::types::{SolverStatus, TopologyResult};
+    use std::collections::HashMap;
 
     /// Helper: encode, solve, return status.
     fn solve_model(model: &InternalConstraintModel) -> TopologyResult {

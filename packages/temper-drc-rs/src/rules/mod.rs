@@ -263,6 +263,27 @@ pub fn create_default_registry() -> RuleRegistry {
 // Shared helper: clearance between two net classes
 // ---------------------------------------------------------------------------
 
+/// Net names belonging to net classes whose `max_current_rating` is at or
+/// above `min_current` (A).  Shared by the high-current routing rules.
+pub(crate) fn high_current_net_names(board: &BoardState, min_current: f64) -> Vec<&str> {
+    let class_names: Vec<NetClassName> = board
+        .net_class_rules
+        .iter()
+        .filter(|(_, rules)| rules.max_current_rating.is_some_and(|r| r >= min_current))
+        .map(|(name, _)| name)
+        .cloned()
+        .collect();
+    if class_names.is_empty() {
+        return Vec::new();
+    }
+    board
+        .nets
+        .iter()
+        .filter(|n| class_names.contains(&n.class))
+        .map(|n| n.name.0.as_str())
+        .collect()
+}
+
 /// Look up the minimum required clearance between two net classes.
 ///
 /// Checks explicit ClearanceRule entries first, then falls back to

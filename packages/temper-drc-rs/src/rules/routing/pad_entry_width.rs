@@ -10,9 +10,9 @@
 
 use geo::{EuclideanDistance, Point};
 
-use crate::board::{BoardSide, BoardState, NetClassName, TraceSegment};
+use crate::board::{BoardSide, BoardState, TraceSegment};
 use crate::constraints::ConstraintSet;
-use crate::rules::{violation, DrcCategory, DrcRule, Location, Severity, Violation};
+use crate::rules::{high_current_net_names, violation, DrcCategory, DrcRule, Location, Severity, Violation};
 
 /// A trace endpoint must be within this distance (mm) of a component's
 /// footprint edge to be considered a pad junction.
@@ -50,26 +50,6 @@ fn comp_layer(side: BoardSide) -> &'static str {
         BoardSide::Top => "F.Cu",
         BoardSide::Bottom => "B.Cu",
     }
-}
-
-/// Collect the net names belonging to net classes whose
-/// `max_current_rating` is at or above `min_current` (A).
-fn collect_high_current_net_names(board: &BoardState, min_current: f64) -> Vec<&str> {
-    let class_names: Vec<NetClassName> = board
-        .net_class_rules
-        .iter()
-        .filter(|(_, rules)| rules.max_current_rating.is_some_and(|r| r >= min_current))
-        .map(|(name, _)| name).cloned()
-        .collect();
-    if class_names.is_empty() {
-        return Vec::new();
-    }
-    board
-        .nets
-        .iter()
-        .filter(|n| class_names.contains(&n.class))
-        .map(|n| n.name.0.as_str())
-        .collect()
 }
 
 /// Check whether a trace endpoint at a component pad meets the minimum
@@ -158,7 +138,7 @@ impl DrcRule for PadEntryWidthCheck {
     fn check(&self, board: &BoardState, _constraints: &ConstraintSet) -> Vec<Violation> {
         let mut violations = Vec::new();
 
-        let high_cur_nets = collect_high_current_net_names(board, HIGH_CUR_THRESHOLD_A);
+        let high_cur_nets = high_current_net_names(board, HIGH_CUR_THRESHOLD_A);
         if high_cur_nets.is_empty() {
             return violations;
         }

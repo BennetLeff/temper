@@ -11,7 +11,7 @@ use std::collections::HashSet;
 
 use crate::board::BoardState;
 use crate::constraints::ConstraintSet;
-use crate::rules::{violation, DrcCategory, DrcRule, Severity, Violation};
+use crate::rules::{violation, DrcCategory, DrcRule, Location, Severity, Violation};
 
 #[derive(Default)]
 pub struct LoopAreaCheck;
@@ -20,6 +20,36 @@ impl LoopAreaCheck {
     pub fn new() -> Self {
         Self
     }
+}
+
+/// The unique refdes of every component touching any of `net_names`.
+fn components_on_nets<'a>(board: &'a BoardState, net_names: &[String]) -> HashSet<&'a str> {
+    net_names
+        .iter()
+        .filter_map(|name| board.net_by_name(name))
+        .flat_map(|net| net.components.iter().map(|c| c.0.as_str()))
+        .collect()
+}
+
+/// Bounding box over the centers of the given refs, if any resolve to a
+/// component: `(min_x, min_y, max_x, max_y)`.
+fn bbox_of_refs(board: &BoardState, refs: &HashSet<&str>) -> Option<(f64, f64, f64, f64)> {
+    let mut min_x = f64::MAX;
+    let mut min_y = f64::MAX;
+    let mut max_x = f64::MIN;
+    let mut max_y = f64::MIN;
+    let mut found = false;
+    for refdes in refs {
+        let Some(comp) = board.electrical_components.iter().find(|c| c.refdes.0 == *refdes) else {
+            continue;
+        };
+        min_x = min_x.min(comp.center.x());
+        min_y = min_y.min(comp.center.y());
+        max_x = max_x.max(comp.center.x());
+        max_y = max_y.max(comp.center.y());
+        found = true;
+    }
+    found.then_some((min_x, min_y, max_x, max_y))
 }
 
 impl DrcRule for LoopAreaCheck {
@@ -36,52 +66,21 @@ impl DrcRule for LoopAreaCheck {
     }
 
     fn check(&self, board: &BoardState, constraints: &ConstraintSet) -> Vec<Violation> {
-        let mut violations = Vec::new();
-
-        for loop_constraint in &constraints.critical_loops {
-            // Collect all unique component refdes involved in this loop's nets
-            let mut involved_refs: HashSet<&str> = HashSet::new();
-            for net_name in &loop_constraint.nets {
-                if let Some(net) = board.net_by_name(net_name) {
-                    for r in &net.components {
-                        involved_refs.insert(&*r.0);
-                    }
+        constraints
+            .critical_loops
+            .iter()
+            .filter_map(|loop_constraint| {
+                let involved_refs = components_on_nets(board, &loop_constraint.nets);
+                if involved_refs.len() < 2 {
+                    return None;
                 }
-            }
-
-            if involved_refs.len() < 2 {
-                continue;
-            }
-
-            // Calculate bounding box of all involved components
-            let mut min_x = f64::MAX;
-            let mut min_y = f64::MAX;
-            let mut max_x = f64::MIN;
-            let mut max_y = f64::MIN;
-            let mut valid = false;
-
-            for refdes in &involved_refs {
-                if let Some(comp) = board.electrical_components.iter().find(|c| c.refdes.0 == *refdes) {
-                    min_x = min_x.min(comp.center.x());
-                    min_y = min_y.min(comp.center.y());
-                    max_x = max_x.max(comp.center.x());
-                    max_y = max_y.max(comp.center.y());
-                    valid = true;
-                }
-            }
-
-            if !valid {
-                continue;
-            }
-
-            let width = (max_x - min_x).max(0.0);
-            let height = (max_y - min_y).max(0.0);
-            let area = width * height;
-
-            if let Some(max_area) = loop_constraint.max_area_mm2
-                && area > max_area
-            {
-                    violations.push(violation(
+                let (min_x, min_y, max_x, max_y) = bbox_of_refs(board, &involved_refs)?;
+                let width = (max_x - min_x).max(0.0);
+                let height = (max_y - min_y).max(0.0);
+                let area = width * height;
+                let max_area = loop_constraint.max_area_mm2?;
+                (area > max_area).then(|| {
+                    violation(
                         Severity::Warning,
                         "EMC_LPA_001",
                         &format!(
@@ -91,7 +90,7 @@ impl DrcRule for LoopAreaCheck {
                         DrcCategory::Emc,
                         "emc_loop_area",
                         involved_refs.iter().map(|s| s.to_string()).collect(),
-                        Some(crate::rules::Location {
+                        Some(Location {
                             x: Some((min_x + max_x) / 2.0),
                             y: Some((min_y + max_y) / 2.0),
                             layer: None,
@@ -102,11 +101,10 @@ impl DrcRule for LoopAreaCheck {
                             "max_area_mm2": max_area,
                             "nets": loop_constraint.nets,
                         }),
-                    ));
-            }
-        }
-
-        violations
+                    )
+                })
+            })
+            .collect()
     }
 }
 

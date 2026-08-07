@@ -18,6 +18,30 @@ pub fn evaluate_all(
     constraints.iter().all(|c| evaluate_one(c, assignment))
 }
 
+/// The assigned value of a variable, defaulting to false when unset — the
+/// reference's dict `.get(name, False)`.
+fn assignment_value(assignment: &HashMap<String, bool>, name: impl AsRef<str>) -> bool {
+    assignment.get(name.as_ref()).copied().unwrap_or(false)
+}
+
+/// Capacity-constraint metrics under an assignment: `(min_width, max_nets,
+/// true_count)`.  Shared by `evaluate_one` and the audit's violation
+/// construction so the two can never drift apart.
+fn capacity_metrics(
+    terms: &[(String, f64)],
+    capacity: f64,
+    slack_factor: f64,
+    assignment: &HashMap<String, bool>,
+) -> (f64, usize, usize) {
+    let min_width = terms.iter().map(|(_, w)| *w).fold(f64::INFINITY, f64::min);
+    let max_nets = ((capacity * slack_factor) / min_width).floor() as usize;
+    let true_count = terms
+        .iter()
+        .filter(|(name, _)| assignment_value(assignment, name))
+        .count();
+    (min_width, max_nets, true_count)
+}
+
 /// Evaluate a single constraint against a variable assignment.
 pub fn evaluate_one(constraint: &InternalConstraint, assignment: &HashMap<String, bool>) -> bool {
     match constraint {
@@ -27,15 +51,7 @@ pub fn evaluate_one(constraint: &InternalConstraint, assignment: &HashMap<String
             terms,
             ..
         } => {
-            let min_width = terms
-                .iter()
-                .map(|(_, w)| *w)
-                .fold(f64::INFINITY, f64::min);
-            let max_nets = ((capacity * slack_factor) / min_width).floor() as usize;
-            let true_count = terms
-                .iter()
-                .filter(|(name, _)| assignment.get(name).copied().unwrap_or(false))
-                .count();
+            let (_, max_nets, true_count) = capacity_metrics(terms, *capacity, *slack_factor, assignment);
             true_count <= max_nets
         }
         InternalConstraint::DiffPair {
@@ -43,16 +59,12 @@ pub fn evaluate_one(constraint: &InternalConstraint, assignment: &HashMap<String
             n_var_name,
             ..
         } => {
-            let p = assignment.get(p_var_name).copied().unwrap_or(false);
-            let n = assignment.get(n_var_name).copied().unwrap_or(false);
-            p == n
+            assignment_value(assignment, p_var_name) == assignment_value(assignment, n_var_name)
         }
         InternalConstraint::LayerRestriction {
             var_name,
             allowed,
-        } => {
-            assignment.get(var_name).copied().unwrap_or(false) == *allowed
-        }
+        } => assignment_value(assignment, var_name) == *allowed,
         InternalConstraint::ChannelSeparation { .. } => {
             // ChannelSeparation is a structural constraint, not a behavioral one.
             // It is decomposed into sub-constraints before evaluation.
@@ -83,65 +95,67 @@ pub enum Violation {
     },
 }
 
+/// The violation implied by one constraint under an assignment, or `None`
+/// when the constraint is satisfied or structural (ChannelSeparation).
+fn violation_for(
+    c: &InternalConstraint,
+    assignment: &HashMap<String, bool>,
+) -> Option<Violation> {
+    if evaluate_one(c, assignment) {
+        return None;
+    }
+    Some(match c {
+        InternalConstraint::ChannelSeparation { .. } => {
+            // Structural — never violates (see `evaluate_one`); kept as an
+            // arm for exhaustiveness.
+            return None;
+        }
+        InternalConstraint::Capacity {
+            channel_id,
+            capacity,
+            slack_factor,
+            terms,
+            ..
+        } => {
+            let (_, max_nets, true_count) = capacity_metrics(terms, *capacity, *slack_factor, assignment);
+            Violation::Capacity {
+                constraint_name: "Capacity".into(),
+                channel_id: channel_id.clone(),
+                max_nets,
+                true_count,
+            }
+        }
+        InternalConstraint::DiffPair {
+            p_var_name,
+            n_var_name,
+            ..
+        } => Violation::DiffPair {
+            constraint_name: "DiffPair".into(),
+            p_val: assignment_value(assignment, p_var_name),
+            n_val: assignment_value(assignment, n_var_name),
+        },
+        InternalConstraint::LayerRestriction {
+            var_name,
+            allowed,
+        } => Violation::Layer {
+            constraint_name: "Layer".into(),
+            var_name: var_name.clone(),
+            expected: *allowed,
+            // A violation means the assigned value differs from `allowed`.
+            actual: assignment_value(assignment, var_name),
+        },
+    })
+}
+
 /// Audit an assignment against all constraints, returning violations.
 pub fn audit(
     constraints: &[InternalConstraint],
     assignment: &HashMap<String, bool>,
 ) -> Vec<Violation> {
-    let mut violations = Vec::new();
-    for c in constraints {
-        if matches!(c, InternalConstraint::ChannelSeparation { .. }) {
-            continue;
-        }
-        if !evaluate_one(c, assignment) {
-            violations.push(match c {
-                InternalConstraint::Capacity {
-                    channel_id,
-                    capacity,
-                    slack_factor,
-                    terms,
-                    ..
-                } => {
-                    let min_width = terms.iter().map(|(_, w)| *w).fold(f64::INFINITY, f64::min);
-                    let max_nets = ((capacity * slack_factor) / min_width).floor() as usize;
-                    let true_count = terms
-                        .iter()
-                        .filter(|(name, _)| assignment.get(name).copied().unwrap_or(false))
-                        .count();
-                    Violation::Capacity {
-                        constraint_name: "Capacity".into(),
-                        channel_id: channel_id.clone(),
-                        max_nets,
-                        true_count,
-                    }
-                }
-                InternalConstraint::DiffPair {
-                    p_var_name,
-                    n_var_name,
-                    ..
-                } => {
-                    let p = assignment.get(p_var_name).copied().unwrap_or(false);
-                    let n = assignment.get(n_var_name).copied().unwrap_or(false);
-                    Violation::DiffPair {
-                        constraint_name: "DiffPair".into(),
-                        p_val: p,
-                        n_val: n,
-                    }
-                }
-                InternalConstraint::LayerRestriction {
-                    var_name,
-                    allowed,
-                } => Violation::Layer {
-                    constraint_name: "Layer".into(),
-                    var_name: var_name.clone(),
-                    expected: *allowed,
-                    actual: !allowed,
-                },
-                InternalConstraint::ChannelSeparation { .. } => unreachable!("ChannelSeparation skipped before audit match"),
-            });
-        }
-    }
-    violations
+    constraints
+        .iter()
+        .filter_map(|c| violation_for(c, assignment))
+        .collect()
 }
 
 #[cfg(test)]

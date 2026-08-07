@@ -10,7 +10,7 @@
 
 use crate::board::BoardState;
 use crate::constraints::ConstraintSet;
-use crate::rules::{violation, DrcCategory, DrcRule, Severity, Violation};
+use crate::rules::{violation, DrcCategory, DrcRule, Location, Severity, Violation};
 
 use geo::{Centroid, Coord, Point, Rect};
 
@@ -72,18 +72,12 @@ impl DrcRule for CopperPullbackCheck {
             // We approximate by testing that every exterior point of the zone
             // polygon falls within the inner_rect.
             let exterior = &zone.polygon.exterior();
-            let mut outside = false;
-
-            for pt in exterior.points() {
-                if pt.x() < inner_rect.min().x
+            let outside = exterior.points().any(|pt| {
+                pt.x() < inner_rect.min().x
                     || pt.x() > inner_rect.max().x
                     || pt.y() < inner_rect.min().y
                     || pt.y() > inner_rect.max().y
-                {
-                    outside = true;
-                    break;
-                }
-            }
+            });
 
             if outside {
                 // Compute zone centroid for the location.
@@ -100,7 +94,7 @@ impl DrcRule for CopperPullbackCheck {
                     DrcCategory::Drc,
                     "routing_copper_pullback",
                     vec![zone.net.0.clone()],
-                    Some(crate::rules::Location {
+                    Some(Location {
                         x: Some(cx),
                         y: Some(cy),
                         layer: Some(zone.layer.clone()),
