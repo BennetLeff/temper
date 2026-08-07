@@ -3,12 +3,31 @@
 Contains the :class:`_PhasePlacementMixin` with _place_template,
 _place_proximity, _place_optimize, slot scoring, wirelength, and
 fallback greedy placement.
+
+Wave 4, **Phase 5, final leaves**: the HPWL wirelength kernel
+(``_compute_wirelength``) is implemented in Rust in the ``temper-design-bundle``
+crate (``temper_design_bundle_python.deterministic_phase``). This module keeps
+the pre-migration public API unchanged and delegates; the constraint-bound
+surfaces (``self.slot_filter`` / ``self.slot_scorer`` from the
+ConstraintCompiler), the shapely ``_filter_by_domain`` and the placement
+orchestration stay Python.
+
+Bit-exactness: the Rust kernel replicates the oracle's
+``[candidate_slot]`` + placed-other-net-members position list (pin order
+preserved, duplicates kept), the ``len(positions) > 1`` gate and the
+``(max(xs) - min(xs)) + (max(ys) - min(ys))`` HPWL with CPython
+``min``/``max`` (first-argument-on-ties) folds. Verified by
+``tests/deterministic/stages/test_phase_zones_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_phase_zones_py_oracle.py``); the
+structural proof lives in ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
 
 from collections.abc import Mapping
 from typing import TYPE_CHECKING
+
+import temper_design_bundle_python as _tdb
 
 from ..channels import routability_penalty
 
@@ -338,25 +357,9 @@ class _PhasePlacementMixin:
         current_placements: dict[str, tuple[float, float]],
     ) -> float:
         """Compute HPWL (Half-Perimeter Wirelength) for placing component at slot."""
-        total_hpwl = 0.0
-
-        for _net_name, pins in net_pins.items():
-            component_on_net = any(ref == component_ref for ref, _ in pins)
-            if not component_on_net:
-                continue
-
-            positions = [candidate_slot]
-            for ref, _ in pins:
-                if ref != component_ref and ref in current_placements:
-                    positions.append(current_placements[ref])
-
-            if len(positions) > 1:
-                xs = [p[0] for p in positions]
-                ys = [p[1] for p in positions]
-                hpwl = (max(xs) - min(xs)) + (max(ys) - min(ys))
-                total_hpwl += hpwl
-
-        return total_hpwl
+        return _tdb.deterministic_phase.compute_wirelength_py(
+            component_ref, candidate_slot, net_pins, current_placements
+        )
 
     def _simple_greedy_placement(
         self,

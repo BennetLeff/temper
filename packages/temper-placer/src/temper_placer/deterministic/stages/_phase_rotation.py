@@ -2,12 +2,26 @@
 
 Contains the :class:`_PhaseHVMixin` with ghost-pad injection (U1),
 isolation-slot reduction (U2), and HV-pin position collection.
+
+Wave 4, **Phase 5, final leaves**: the U2 isolation-slot reduction kernel
+(``_effective_ghost_pad_radius``) is implemented in Rust in the
+``temper-design-bundle`` crate (``temper_design_bundle_python.deterministic_phase``).
+This module keeps the pre-migration public API unchanged and delegates; the
+NFR4 ``use_isolation_slots`` toggle and the per-ref slot lookup stay Python.
+
+Bit-exactness: the Rust kernel replicates the oracle's ``math.hypot`` (Dekker
+vector_norm, NOT libm hypot), the ``d_len <= 0.0`` early-out, the strict
+``projection > 0.0`` accumulation and the ``max(0.0, ...)`` clamp. Verified by
+``tests/deterministic/stages/test_phase_rotation_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_phase_rotation_py_oracle.py``); the
+structural proof lives in ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
 
-import math
 from typing import TYPE_CHECKING
+
+import temper_design_bundle_python as _tdb
 
 if TYPE_CHECKING:
     from temper_placer.core.component import Component
@@ -100,23 +114,17 @@ class _PhaseHVMixin:
         slots = self._isolation_slots_by_ref.get(component_ref, [])
         if not slots:
             return base_radius
-        dx = nearest_other_hv_pin_absolute[0] - current_pin_absolute[0]
-        dy = nearest_other_hv_pin_absolute[1] - current_pin_absolute[1]
-        d_len = math.hypot(dx, dy)
-        if d_len <= 0.0:
-            return base_radius
-        ux, uy = dx / d_len, dy / d_len
-
-        reduction = 0.0
+        flat_slots = []
         for slot in slots:
             sx0, sy0 = slot.start_offset
             sx1, sy1 = slot.end_offset
-            sdx = sx1 - sx0
-            sdy = sy1 - sy0
-            projection = sdx * ux + sdy * uy
-            if projection > 0.0:
-                reduction += projection
-        return max(0.0, base_radius - reduction)
+            flat_slots.append((sx0, sy0, sx1, sy1))
+        return _tdb.deterministic_phase.effective_ghost_pad_radius_py(
+            base_radius,
+            current_pin_absolute,
+            nearest_other_hv_pin_absolute,
+            flat_slots,
+        )
 
     def _reserve_slots_with_hv(
         self,

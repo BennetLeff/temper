@@ -36,6 +36,7 @@ from . import deterministic_stages as deterministic_stages
 from . import netlist_contracts as netlist_contracts
 from . import parse_engine as parse_engine
 from . import deterministic_hubs as deterministic_hubs
+from . import deterministic_phase as deterministic_phase
 
 from . import validation as validation
 def sha256_hex(bytes: bytes) -> str: ...

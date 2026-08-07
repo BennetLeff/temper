@@ -7,13 +7,36 @@ routing failures.
 Special handling for plane connections:
 - Vias connecting to inner plane layers (In1.Cu for GND, In2.Cu for power)
   are considered valid even without traces, as they connect via copper pour.
+
+Wave 4, **Phase 5, final leaves**: the via-connectivity counting kernel
+(``_count_connected_layers``) and the via-position dedup kernel
+(``ViaDeduplicationStage.run``'s sweep) are implemented in Rust in the
+``temper-drc-rs`` crate (``temper_drc_rs.count_connected_layers_py`` /
+``temper_drc_rs.dedup_via_positions_py``). This module keeps the pre-migration
+public API unchanged and delegates; the endpoint-index building, the plane-net
+predicate and the ``frozenset`` wraps stay Python.
+
+Bit-exactness: the kernels replicate the oracle's ``tol_sq = tol * tol``
+(plain multiply) vs ``tol_sq = tolerance ** 2`` (libm ``pow``) split, the
+``** 2`` distance terms, the ``<=`` boundaries, and the plane-layer
+short-circuit. Verified by
+``tests/deterministic/stages/test_via_validation_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_via_validation_py_oracle.py``); the
+structural proof lives in ``packages/temper-drc-rs/VERIFICATION.md``.
 """
 
 from dataclasses import replace
 
+import temper_drc_rs as _drc
+
 from temper_placer.core.net_classification import is_ground_net, is_power_net
 
-from ...core.board import STANDARD_LAYER_ORDER, Trace, Via, is_plane_layer
+from ...core.board import (
+    PLANE_LAYER_INDICES,
+    STANDARD_LAYER_ORDER,
+    Trace,
+    Via,
+)
 from ...core.pin_geometry import pin_world_position
 from ..state import BoardState
 from .base import Stage
@@ -194,37 +217,17 @@ class ViaValidationStage(Stage):
         For plane nets (GND, power), inner layers (In1.Cu, In2.Cu) are considered
         connected automatically since they connect via copper pour, not traces.
         """
-        connected_layers = set()
-        tol = self.tolerance_mm
-        tol_sq = tol * tol
-        vx, vy = via.position
-
-        # Check if this is a plane net (GND or power)
         is_plane = _is_plane_net(via.net) if via.net else False
-
-        for layer in via.layers:
-            # For plane nets, inner layers count as connected (copper pour)
-            if is_plane and is_plane_layer(layer):
-                connected_layers.add(layer)
-                continue
-
-            # Check trace endpoints
-            if layer in trace_index:
-                for tx, ty in trace_index[layer]:
-                    dist_sq = (vx - tx) ** 2 + (vy - ty) ** 2
-                    if dist_sq <= tol_sq:
-                        connected_layers.add(layer)
-                        break
-
-            # If not connected to trace, check pin positions
-            if layer not in connected_layers and layer in pin_index:
-                for px, py in pin_index[layer]:
-                    dist_sq = (vx - px) ** 2 + (vy - py) ** 2
-                    if dist_sq <= tol_sq:
-                        connected_layers.add(layer)
-                        break
-
-        return len(connected_layers)
+        plane_layers = [str(idx) for idx in PLANE_LAYER_INDICES]
+        return _drc.count_connected_layers_py(
+            via.position,
+            list(via.layers),
+            self.tolerance_mm,
+            trace_index,
+            pin_index,
+            is_plane,
+            plane_layers,
+        )
 
 
 class ViaDeduplicationStage(Stage):
@@ -245,24 +248,12 @@ class ViaDeduplicationStage(Stage):
         if not state.vias:
             return state
 
-        unique_vias = []
-        seen_positions: list[tuple[float, float]] = []  # List of (x, y) already added
-        tol_sq = self.tolerance_mm**2
-        duplicates = 0
-
-        for via in state.vias:
-            vx, vy = via.position
-            is_duplicate = False
-
-            for sx, sy in seen_positions:
-                if (vx - sx) ** 2 + (vy - sy) ** 2 <= tol_sq:
-                    is_duplicate = True
-                    duplicates += 1
-                    break
-
-            if not is_duplicate:
-                unique_vias.append(via)
-                seen_positions.append(via.position)
+        vias_list = list(state.vias)
+        positions = [via.position for via in vias_list]
+        kept_indices, duplicates = _drc.dedup_via_positions_py(
+            positions, self.tolerance_mm
+        )
+        unique_vias = [vias_list[i] for i in kept_indices]
 
         if duplicates > 0:
             print(f"ViaDeduplication: Removed {duplicates} duplicate vias")

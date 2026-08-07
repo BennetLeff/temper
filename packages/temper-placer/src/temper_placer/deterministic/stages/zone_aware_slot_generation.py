@@ -7,11 +7,29 @@ covered by copper zones (GND/VCC fill), which would block routing channels.
 Also avoids placing components in axis-aligned isolation-slot cutouts and
 emits a per-(component, lv_pin, hv_pin) clearance reclaim dict that the
 DRC oracle consumes (plan 2026-06-23-007, U2 / R2).
+
+Wave 4, **Phase 5, final leaves**: the pure geometry kernels (``_point_in_polygon``
+ray casting, ``_slot_intersects_iso`` AABB, and the
+``RoutingChannelAwareSlotStage`` ``_point_to_segment_distance`` /
+``_min_distance_to_polygon``) are implemented in Rust in the
+``temper-design-bundle`` crate (``temper_design_bundle_python.deterministic_phase``).
+This module keeps the pre-migration public API unchanged and delegates; the
+zone walking, the bounds-margin branch, the K4 reclaim formula and the
+isolation-slot AABB building stay Python.
+
+Bit-exactness: the Rust kernels replicate the oracle's ray-casting half-open
+edge semantics, the inclusive AABB test, and the ``** 0.5`` (libm ``pow``,
+NOT ``sqrt``) segment-distance close. Verified by
+``tests/deterministic/stages/test_zone_aware_slot_generation_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_zone_aware_slot_generation_py_oracle.py``);
+the structural proof lives in ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 import logging
 import re
 from dataclasses import replace
+
+import temper_design_bundle_python as _tdb
 
 from ...io.isolation_slot_geometry import isolation_slot_aabb
 from ..state import BoardState
@@ -75,23 +93,11 @@ def _point_in_polygon(x: float, y: float, polygon: list[tuple[float, float]]) ->
 
     Returns:
         True if point is inside polygon
+
+    Wave 4, Phase 5, final leaves: the ray-casting body is the migrated Rust
+    kernel ``temper_design_bundle_python.deterministic_phase.point_in_polygon_py``.
     """
-    if len(polygon) < 3:
-        return False
-
-    n = len(polygon)
-    inside = False
-
-    p1x, p1y = polygon[0]
-    for i in range(1, n + 1):
-        p2x, p2y = polygon[i % n]
-        if y > min(p1y, p2y) and y <= max(p1y, p2y) and x <= max(p1x, p2x):
-            xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x if p1y != p2y else x
-            if p1x == p2x or x <= xinters:
-                inside = not inside
-        p1x, p1y = p2x, p2y
-
-    return inside
+    return _tdb.deterministic_phase.point_in_polygon_py(x, y, polygon)
 
 
 def _get_copper_zones(board, yaml_zones: list | None = None) -> list:
@@ -407,11 +413,7 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
         iso_aabbs: list[tuple[tuple[float, float], tuple[float, float]]],
     ) -> bool:
         """AABB-vs-AABB test: a slot is blocked by a cutout that overlaps its footprint."""
-        sx, sy = slot
-        for (x_lo, y_lo), (x_hi, y_hi) in iso_aabbs:
-            if x_lo <= sx <= x_hi and y_lo <= sy <= y_hi:
-                return True
-        return False
+        return _tdb.deterministic_phase.slot_intersects_iso_py(slot, iso_aabbs)
 
     def _is_slot_in_copper_zone(
         self,
@@ -552,21 +554,7 @@ class RoutingChannelAwareSlotStage(ZoneAwareSlotGenerationStage):
         polygon: list[tuple[float, float]],
     ) -> float:
         """Compute minimum distance from point to polygon boundary."""
-        if len(polygon) < 2:
-            return float("inf")
-
-        min_dist = float("inf")
-        n = len(polygon)
-
-        for i in range(n):
-            p1 = polygon[i]
-            p2 = polygon[(i + 1) % n]
-
-            # Distance to line segment
-            dist = self._point_to_segment_distance(x, y, p1, p2)
-            min_dist = min(min_dist, dist)
-
-        return min_dist
+        return _tdb.deterministic_phase.min_distance_to_polygon_py(x, y, polygon)
 
     def _point_to_segment_distance(
         self,
@@ -576,25 +564,4 @@ class RoutingChannelAwareSlotStage(ZoneAwareSlotGenerationStage):
         p2: tuple[float, float],
     ) -> float:
         """Compute distance from point (px, py) to line segment p1-p2."""
-        x1, y1 = p1
-        x2, y2 = p2
-
-        # Vector from p1 to p2
-        dx = x2 - x1
-        dy = y2 - y1
-
-        # Length squared
-        l2 = dx * dx + dy * dy
-
-        if l2 == 0:
-            # Segment is a point
-            return ((px - x1) ** 2 + (py - y1) ** 2) ** 0.5
-
-        # Project point onto line
-        t = max(0, min(1, ((px - x1) * dx + (py - y1) * dy) / l2))
-
-        # Closest point on segment
-        proj_x = x1 + t * dx
-        proj_y = y1 + t * dy
-
-        return ((px - proj_x) ** 2 + (py - proj_y) ** 2) ** 0.5
+        return _tdb.deterministic_phase.point_to_segment_distance_py(px, py, p1, p2)

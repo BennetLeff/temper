@@ -10,6 +10,12 @@ mod deterministic_stages;
 #[cfg(feature = "python")]
 mod deterministic_leaves;
 
+// Wave 4 Phase 5 final leaves — the remaining unowned deterministic
+// helper/stage compute (phase mixin kernels + zone-aware slot geometry; see
+// deterministic_phase.rs).
+#[cfg(feature = "python")]
+mod deterministic_phase;
+
 // Wave 4 Phase 5 batch 2 — host-libm helpers (pow/sqrt/hypot via dlsym)
 // for the deterministic leaf kernels (see host_math.rs).
 #[cfg(feature = "python")]
@@ -254,6 +260,7 @@ mod python {
         // from temper_placer/deterministic/stages/ (see deterministic_stages.rs).
         crate::deterministic_stages::register(module)?;
         crate::deterministic_leaves::register(module)?;
+        crate::deterministic_phase::register(module)?;
 
         // Wave 4 Phase 3 candidate 1: the parse-target contracts ported from
         // temper_placer/core/netlist.py (see netlist_contracts.rs) and

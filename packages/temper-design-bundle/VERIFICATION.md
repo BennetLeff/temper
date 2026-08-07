@@ -3971,3 +3971,174 @@ the orchestration-surface precedent above:
   `effective_creepage` and `closest_component_for_zone` delegate to
   temper-geometry `grid_raster.rs`; the remaining `_grid_core`/`_grid_stage`
   code is data-structure + orchestration.
+
+# Wave 4 Phase 5 — final deterministic leaves (`deterministic_phase.rs`)
+
+The final unowned deterministic helper/stage slice (2026-08-06, PR closes the
+Wave-4 unowned surface). The remaining pure compute of the phased-placement
+mixins and the zone-aware slot geometry moved here
+(`src/deterministic_phase.rs`, registered as the
+`temper_design_bundle_python.deterministic_phase` submodule):
+
+| Kernel | Python origin | Rust function |
+|---|---|---|
+| U2 isolation-slot reduction | `deterministic/stages/_phase_rotation.py` → `_PhaseHVMixin._effective_ghost_pad_radius` | `effective_ghost_pad_radius` |
+| HPWL wirelength | `deterministic/stages/_phase_zones.py` → `_PhasePlacementMixin._compute_wirelength` | `compute_wirelength` |
+| critical-bottleneck violations | `deterministic/stages/_phase_validation.py` → `_PhaseValidationMixin.find_critical_bottleneck_violations` | `find_critical_bottleneck_violations` |
+| ray-casting containment | `deterministic/stages/zone_aware_slot_generation.py` → `_point_in_polygon` | `point_in_polygon` |
+| AABB cutout test | same → `_slot_intersects_iso` | `slot_intersects_iso` |
+| point-to-segment distance | same → `_point_to_segment_distance` | `point_to_segment_distance` |
+| min polygon distance | same → `_min_distance_to_polygon` | `min_distance_to_polygon` |
+
+The Python modules are delegation shims; the orchestration (the NFR4
+`use_isolation_slots` toggle, the `self.channel_map` guard, the shapely
+`_filter_by_domain`, the ConstraintCompiler-bound `slot_filter`/`slot_scorer`,
+the K4 reclaim formula, the zone walking and the bounds-margin branch) stays
+Python and is not part of the oracles. The pre-migration method bodies are
+pinned VERBATIM as the differential oracles
+(`tests/deterministic/stages/_phase_rotation_py_oracle.py`,
+`_phase_zones_py_oracle.py`, `_phase_validation_py_oracle.py`,
+`_zone_aware_slot_generation_py_oracle.py`).
+
+## Home-crate decision
+
+These kernels land in `temper-design-bundle` for the same reason the earlier
+deterministic slices did (#762): they are the deterministic placer's stage
+kernels, bind onto this crate's contract pyclasses (the phase mixins live on
+`phased_component_assignment.py`, whose validator slot-grid kernels are already
+here), and the bottleneck-grid compute they read is already in this crate's
+`deterministic_hubs` (`bottleneck_score_at`). The DRC-check *stage* kernels
+(`via_validation`) land in `temper-drc-rs` (see that crate's VERIFICATION.md).
+`_point_in_polygon` is the GEOS precedent's mirror image: the ray-cast is a
+plain loop over `list[tuple[float, float]]`, not a shapely surface, so it is
+portable — the `_filter_by_domain` shapely `covers()` path is the one recorded
+out-of-scope (ConstraintCompiler + GEOS, batch-2 records).
+
+## Induction applicability
+
+Mathematical induction is not applicable: none of these kernels is recursive,
+and none iterates over a dimension whose correctness depends on a size
+parameter. Per R1e, a **structural proof** is recorded instead.
+
+## Structural proof (bit-identical parity)
+
+Each kernel is a direct transcription of the oracle body. The load-bearing
+equivalences, each pinned by the differential/PBT suites and the mutation
+campaign:
+
+1. **`math.hypot` is the Dekker double-double `vector_norm`, NOT libm
+   `hypot`.** `effective_ghost_pad_radius` resolves the unit direction via
+   `host_math::hypot` (the vector_norm port). They diverge in the last ulp on
+   a measurable operand class; `test_radius_hypot_last_ulp_divergence_pair`
+   pins the known divergence bits and mutant M1 (libm `hypot`) is killed by
+   it. The `d_len <= 0.0` early-out and `ux, uy = dx / d_len, dy / d_len`
+   order are verbatim.
+2. **Naive `reduction += projection` with a strict `projection > 0.0`
+   gate.** A zero-projection (perpendicular) slot contributes nothing; the
+   anti-aligned slot must not contribute. The `max(0.0, base - reduction)`
+   clamp is Python `max` — first argument on ties, so an exact-`-0.0` sum
+   returns `+0.0` (`test_radius_negative_zero_tie_py_max`). Mutants M2
+   (negative projections accumulate) and M3 (clamp dropped) are killed.
+3. **HPWL is `[candidate_slot]` + every placed other net member in pin-list
+   order** — duplicates appended, NOT deduplicated — gated on
+   `len(positions) > 1`, folded as `(max(xs)-min(xs)) + (max(ys)-min(ys))`
+   with CPython `min`/`max` folds (`py_list_min`/`py_list_max`: first element
+   on ties, NaN only wins when first). The net NAMES are never read (the unit
+   suite drives this kernel with Mock net keys), so the marshaler passes
+   member-lists only. Mutants M4 (membership any→all) and M5 (y-term dropped)
+   are killed.
+4. **The `bn.severity`-of-last-bottleneck quirk is pinned verbatim.**
+   `find_critical_bottleneck_violations` emits `severity` = the FIRST loop's
+   trailing `bn` — the LAST bottleneck in the input list, not the matched
+   cell. `test_violations_severity_reads_last_bottleneck` asserts the
+   "MEDIUM" case where the corrected `cell_bn.severity` would emit
+   "CRITICAL"; mutant M6 ("corrected") is killed. The per-cell critical map
+   is first-wins-on-score-ties (M7 `>=` killed by
+   `test_violations_score_tie_first_wins`).
+5. **CPython floor-to-cell indexing.** Grid coords are
+   `int(math.floor((float(x_mm) * 1000.0) / cell_um))` — float() coercion,
+   `* 1000.0`, `/ cell_um`, floor (toward -inf), with NaN → `ValueError` and
+   ±inf → `OverflowError` matching `math.floor`'s exact failure modes.
+   Saturated i64 floors are behaviorally identical (always out-of-grid →
+   skipped). Mutant M8 (trunc) killed by `test_violations_floor_negative_coordinates`.
+6. **Ray casting with the oracle's half-open edges.** `y > min`, `y <= max`
+   (top edge counts, bottom does not), `x <= max(p1x, p2x)`, and the
+   `p1y != p2y` ternary for `xinters` (`(y-p1y)*(p2x-p1x)/(p2y-p1y)+p1x`),
+   using `py_min`/`py_max` (first-argument-on-ties). Mutant M9 (top edge open)
+   killed by `test_pip_boundary_semantics`.
+7. **`** 2` / `** 0.5` are libm `pow`, NOT `*`/`sqrt`.**
+   `point_to_segment_distance` closes with
+   `pow(pow(px-proj_x, 2.0) + pow(py-proj_y, 2.0), 0.5)` in both the `l2 == 0`
+   branch and the general close; `pow(s, 0.5)` and `sqrt(s)` differ by 1 ulp
+   on a measurable input class. Mutant M10 (sqrt) is killed by
+   `test_ptsd_pow_vs_sqrt_discriminating_operand`. The `t` clamp is
+   `py_max(0.0, py_min(1.0, ...))`.
+8. **`min_distance_to_polygon`'s `inf` sentinel.** `len(polygon) < 2` → `inf`;
+   the fold is `py_min` over edges in polygon order. `slot_intersects_iso` is
+   an inclusive AABB test (boundary = hit).
+
+## Marshaler coercion pins (defensive-input parity)
+
+The pyo3 marshalers replicate the oracle's input coercion for the
+defensive-input classes a direct caller might pass. The stage API always
+passes well-formed values (placements are parsed-pad floats, width/height
+are channel-map ints, severities are `ALLOWED_SEVERITIES` str), so these are
+unreachable through the stage — they are pinned so a direct call does not
+silently diverge:
+
+1. **Placement coordinates are coerced with CPython `float()`.** The oracle
+   computes `float(x_mm) * 1000.0 / cell_um`, so a numeric-str coordinate
+   like `(0.5, "0.5")` is accepted; the marshaler calls `builtins.float`
+   (`py_float_coerce`) before extraction instead of a bare pyo3
+   `extract::<f64>()` (which would raise TypeError on a numeric str).
+2. **width/height extract as f64 (int OR float).** The oracle's `gx >= width`
+   comparison accepts an int or a float width (int-vs-float promotion); the
+   kernel compares `(gx as f64) >= width`. A str still raises TypeError,
+   exactly as `int >= str` does in Python.
+3. **`candidate_slot` is extracted index-wise (tuple OR list).** The oracle
+   subscripts `candidate_slot` with `p[0]`, so a 2-element LIST is accepted;
+   a bare tuple extraction would reject it.
+4. **Net-pin tuples of length != 2 raise `ValueError` with CPython's exact
+   unpack texts** (`too many values to unpack (expected 2)` for length > 2 —
+   the previous marshaler silently dropped element 2 — and
+   `not enough values to unpack (expected 2, got n)` for length < 2).
+5. **RECORDED deviation — non-str severity.** The oracle emits `bn.severity`
+   verbatim (an int 5 stays int 5); the Rust kernel's output tuple types
+   `severity` as `String`, so an int severity raises TypeError at extraction
+   where the oracle emits the violation. Matching would require a dynamic
+   `PyObject` severity through the kernel's return type, for an input the
+   stage cannot produce (severities come from `ALLOWED_SEVERITIES` str
+   records validated at sidecar load in `channels.py`). Recorded, not
+   matched.
+6. **RECORDED deviation — `** 2` overflow at ~1e200.** CPython's
+   `(px - proj_x) ** 2` raises `OverflowError` when the operand exceeds
+   ~1.34e154 (the square overflows f64); libm `pow(px - proj_x, 2.0)`
+   returns `inf`. PCB coordinates are mm-scale (the placer envelope is well
+   under 1e3), so the overflow class is unreachable; the reachable last-ulp
+   parity is pinned by `test_ptsd_pow_vs_sqrt_discriminating_operand`.
+   Recorded, not matched.
+
+## Evidence
+
+- Differential (R1a): `test_{phase_rotation,phase_zones,phase_validation,zone_aware_slot_generation}_rust_differential.py`
+  — 64 cases (10+12+14+28 test functions), all bit-exact `canon` equality against
+  the verbatim oracles.
+- PBT (R1c/R1d): the four `<module>_pbt.py` suites — 5 non-vacuous properties
+  + 3 metamorphic relations each (40 cases). The order-permutation (MR1),
+  scale (MR2) and translation (MR3) MRs state honest stated tolerances where
+  IEEE rounding breaks bit-exactness — MR1 was reworked after review because
+  IEEE `+=` accumulation is NOT commutative at the last ulp (see
+  `test_mr1_slot_order_independent`).
+- Rust unit tests: `deterministic_phase.rs::tests` (18 cases).
+- Anti-vacuity: mutants M1–M10 in `scripts/phase5_final_leaves_mutations.py`,
+  all killed (see `docs/evidence/2026-08-06-wave4-phase5-final-leaves-mutation-sweep.md`).
+- R1b (regression arm): the stage shims keep their public signatures and the
+  full `tests/deterministic/` suite (963 cases) is green; the pure-delegation
+  kernels add no wall-clock-heavy path. Per the pure-delegation R2 carve-out,
+  no perf regression beyond CI noise is expected; the kernels are O(slots/nets)
+  as before.
+- R1f (TDD): the differential suites' first commit failed at collection
+  (missing `deterministic_phase` submodule) before the kernels landed.
+- R1g: `guard` (catch_unwind) at every pyo3 boundary; no `unwrap` outside
+  tests; borrow-over-clone throughout; clippy-clean.
+- R1h: not applicable — no physics-gated quantity (recorded N/A).

@@ -171,7 +171,8 @@
     ".github/workflows/python-tests.yml"
   ],
   "check_unwired_kernels.py": [
-    ".github/workflows/trunk-health.yml"
+    ".github/workflows/trunk-health.yml",
+    "packages/temper-placer/src/temper_placer/router_v6/net_ordering.py"
   ],
   "check_vacuous_gates.py": [
     ".github/workflows/python-tests.yml",
@@ -272,6 +273,7 @@
   "phase5_batch1_mutations.py": [],
   "phase5_batch2_mutations.py": [],
   "phase5_cli_adapters_workflow_mutations.py": [],
+  "phase5_final_leaves_mutations.py": [],
   "phase5_hubs_mutations.py": [],
   "physics_soundness_register_gate.py": [
     ".github/workflows/python-tests.yml",
