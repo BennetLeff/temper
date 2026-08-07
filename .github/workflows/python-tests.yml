@@ -898,6 +898,40 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: cargo test --manifest-path packages/temper-geometry/Cargo.toml
 
+      # ---- WASM32 regression guard (plan 2026-08-03-002, U3) --------------
+      # These steps verify that the wasm32 substrate (R1) has not silently
+      # regressed.  They build with --no-default-features (python OFF) because
+      # pyo3 cannot cross-compile to wasm32-unknown-unknown.  The build step
+      # uses `cargo build`, not `cargo check`, because `check` cannot see link
+      # failures — the crates carry `unsafe extern "C" { fn dlsym }` whose
+      # failure mode is a link error, and `cargo check` skips linking.
+      # Expected to add runner-minutes but zero new job slots (the plan's
+      # binding CI constraint is job count, not duration, and this repo's
+      # ~24-job ceiling is already over-subscribed).
+      # If the container image ghcr.io/bennetleff/temper-ci:latest could
+      # pre-install the wasm32-unknown-unknown target, these steps would
+      # save ~30s of `rustup target add` per run.
+
+      - name: Install wasm32 target
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: WASM32 build + clippy (temper-drc-rs, temper-geometry; --no-default-features)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          echo "=== wasm32 build (cargo build, not check — check cannot see link failures) ==="
+          cargo build --release --target wasm32-unknown-unknown --no-default-features \
+            --manifest-path packages/temper-drc-rs/Cargo.toml
+          cargo build --release --target wasm32-unknown-unknown --no-default-features \
+            --manifest-path packages/temper-geometry/Cargo.toml
+          echo "=== clippy --no-default-features (temper-drc-rs) ==="
+          cargo clippy --manifest-path packages/temper-drc-rs/Cargo.toml \
+            --no-default-features --all-targets -- -D warnings
+          echo "=== clippy --no-default-features (temper-geometry) ==="
+          cargo clippy --manifest-path packages/temper-geometry/Cargo.toml \
+            --no-default-features --all-targets -- -D warnings
+
   # Split out of Core Tests 2026-07-28. Everything here reads the compiled
   # netlist (elec/build/default.net, default.csv) or pcb/temper.kicad_pcb, so
   # they share the `make netlist` setup and belong together.
