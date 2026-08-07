@@ -177,7 +177,19 @@ fn solve_topology_rust(
     }
 
     // Var-to-net mapping.
-    d.set_item("var_to_net", cnf.var_to_net.clone())?;
+    //
+    // NOTE: cnf.var_to_net is 42M usizes for the full production board -- a
+    // ~336 MB Rust Vec that serializes to a ~1.2 GB Python list of ints.
+    // Nothing downstream reads it (grep '.var_to_net' across the repo: zero
+    // Python consumers outside this assignment site and the type annotation),
+    // so we elide the clone and pass an empty list instead.  The original
+    // intent (docs/plans/2026-06-28-007-feat-routability-gradient-signal-plan.md
+    // U3, per-net routability scoring) was never implemented.  When it is,
+    // it should receive a compact format (flat bytes, not a Python list of
+    // 42M individual int objects).
+    //
+    // See docs/evidence/2026-08-07-router-oom-diagnosis.md §5.
+    d.set_item("var_to_net", Vec::<usize>::new())?;
 
     Ok(d.into())
 }
