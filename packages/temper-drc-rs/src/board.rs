@@ -12,14 +12,15 @@
 use std::collections::HashMap;
 
 use geo::{EuclideanDistance, Intersects, Line, Point, Polygon, Rect};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 // ---------------------------------------------------------------------------
 // Newtype wrappers for type safety
 // ---------------------------------------------------------------------------
 
 /// Component reference designator (e.g., "Q1", "C_BOOT", "U_MCU").
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct ComponentRef(pub String);
 
 impl std::fmt::Display for ComponentRef {
@@ -48,7 +49,8 @@ impl PartialEq<str> for ComponentRef {
 }
 
 /// Net name (e.g., "+340V_BUS", "GATE_HS", "SPI_CLK").
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct NetName(pub String);
 
 impl std::fmt::Display for NetName {
@@ -77,7 +79,8 @@ impl PartialEq<str> for NetName {
 }
 
 /// Net class name (e.g., "Signal", "Power", "HighVoltage").
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct NetClassName(pub String);
 
 impl std::fmt::Display for NetClassName {
@@ -114,7 +117,7 @@ impl PartialEq<str> for NetClassName {
 /// Display impl returns KiCad layer names (F.Cu, In1.Cu, In2.Cu, B.Cu).
 /// Variants intentionally use KiCad naming (non-CamelCase).
 #[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum LayerType {
     F_Cu,
     In1_Cu,
@@ -138,7 +141,7 @@ impl std::fmt::Display for LayerType {
 // ---------------------------------------------------------------------------
 
 /// Board side for component placement.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BoardSide {
     Top,
     Bottom,
@@ -149,7 +152,7 @@ pub enum BoardSide {
 // ---------------------------------------------------------------------------
 
 /// Component package classification.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PackageType {
     Smd,
     Tht,
@@ -167,7 +170,7 @@ pub enum PackageType {
 // ---------------------------------------------------------------------------
 
 /// Safety classification for net classes used in HV/LV separation checks.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SafetyCategory {
     #[serde(rename = "HV")]
     Hv,
@@ -201,7 +204,7 @@ impl From<&str> for SafetyCategory {
 
 // Note: use std::collections::HashMap is already declared in the outer file.
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetClassRules {
     /// Net class name (e.g., 'Power', 'Signal', 'HighSpeed')
     pub name: String,
@@ -271,7 +274,7 @@ impl Default for NetClassRules {
 /// A single component (part) on the board.
 ///
 /// The `center` field is the spatial coordinate used for rstar indexing.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Component {
     pub refdes: ComponentRef,
     pub center: Point<f64>,
@@ -393,7 +396,7 @@ fn rect_edge_distance(r1: &Rect<f64>, r2: &Rect<f64>) -> f64 {
 // ---------------------------------------------------------------------------
 
 /// A routed trace composed of one or more straight-line segments.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TraceSegment {
     pub net: NetName,
     pub layer: String,
@@ -406,7 +409,7 @@ pub struct TraceSegment {
 // ---------------------------------------------------------------------------
 
 /// A plated through-hole via connecting layers.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Via {
     pub net: NetName,
     pub position: Point<f64>,
@@ -421,7 +424,7 @@ pub struct Via {
 // ---------------------------------------------------------------------------
 
 /// A copper pour/fill zone on a specific layer.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CopperZone {
     pub net: NetName,
     pub layer: String,
@@ -433,7 +436,7 @@ pub struct CopperZone {
 // ---------------------------------------------------------------------------
 
 /// A net: a named electrical connection between components.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Net {
     pub name: NetName,
     pub components: Vec<ComponentRef>,
@@ -451,7 +454,7 @@ pub struct Net {
 ///   - components, nets, net_class_rules
 ///   - traces, vias, zones (optional, populated post-route)
 ///   - board dimensions
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BoardState {
     // Board dimensions
     pub width_mm: f64,

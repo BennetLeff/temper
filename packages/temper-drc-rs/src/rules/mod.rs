@@ -175,6 +175,11 @@ impl RuleRegistry {
         self.rules.push(rule);
     }
 
+    /// Access the registered rules (for benchmarking / introspection).
+    pub fn rules(&self) -> &[Box<dyn DrcRule>] {
+        &self.rules
+    }
+
     /// Run all registered checks against the full board.
     pub fn run_all(&self, board: &BoardState, constraints: &ConstraintSet) -> Vec<Violation> {
         self.rules
