@@ -73,7 +73,15 @@ def estimate_routing_demand(
     # Handle both dict and list formats for nets
     # Type annotation says list[Net] but tests and some code paths use dict
     as_dict = isinstance(pcb.nets, dict)
-    net_names = list(pcb.nets.keys()) if as_dict else [net.name for net in pcb.nets]
+    # Narrow via an inline isinstance check rather than reusing `as_dict`:
+    # mypy narrows `pcb.nets` inside a ternary's own `isinstance(...)`
+    # condition, but does not propagate that narrowing through an
+    # intermediate bool variable, so the `as_dict`-flag form left the
+    # declared `list[Net]` type unnarrowed on this branch (attr-defined
+    # on `.keys()`).
+    net_names = (
+        list(pcb.nets.keys()) if isinstance(pcb.nets, dict) else [net.name for net in pcb.nets]
+    )
 
     # `pin.net` is `str | None`; the classification loop only ever compares
     # it against a real net name (never `None`), so a pin with no net is
