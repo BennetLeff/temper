@@ -91,6 +91,88 @@ deliberately no separate "violation" exit code, because this gate does not
 independently verify correctness, only freshness of what's already
 recorded.
 
+Design decision: ``measured_at_commit`` is advisory, but a dangling one is
+a hard problem, not a shrug
+------------------------------------------------------------------------
+Incident (2026-08-07): ``drc_ceiling.json``'s ``measured_at_commit`` was
+``3410ee4e1fe8c3a5cce13b9262585016a06fce8d`` -- a commit that does not
+exist anywhere in this repository's object store (``git cat-file -t``
+fails on it). Root cause, confirmed by ``git log -p`` and the GitHub API:
+PR #602 (branch ``feat/k3-swap-and-board-write``) recorded that SHA as the
+"Run-B re-solve" commit mid-development; the branch was repeatedly rebased
+before merge (its own commit trailers say "re-point wave-2 provenance to
+post-rebase HEAD" twice), and squash/rebase machinery orphaned the original
+object before the PR landed as merge commit ``de59c0458``. This is exactly
+the class of history rewriting ``check_evidence_provenance.py``'s own
+module docstring already names ("a squash-merged PR whose branch was
+deleted leaves its pre-squash commits unreachable, and eventually ``git
+gc`` prunes them") -- that gate solved this for ``docs/evidence/*`` before
+this incident; this gate had not adopted the same fix for measurement
+artifacts, which is precisely how the dangling SHA went undetected.
+
+Neither existing check actually verified resolvability. ``validate_provenance_shape``
+here only checks *shape* (40 lowercase hex characters, or ``UNKNOWN``) --
+a syntactically well-formed but entirely fabricated or orphaned SHA passes
+it outright. ``DrcRatchet.validate_raise_evidence`` (``drc_ratchet.py``,
+the R27 raise-approval evidence contract) does the same: its check is
+``_SHA256_HEX_RE.fullmatch(commit)``, a regex, despite the adjacent error
+message claiming the commit "does not resolve to a commit" -- it never
+calls git at all. And that check only runs when a ceiling *raise* is being
+approved; a re-measurement PR that does not raise any ceiling value (as
+#602's actually was not, for the aggregate at least) never reaches it. So
+the dangling anchor could land on any PR that merely updates ``provenance``
+-- not just a raise -- and nothing would notice until someone tried to
+resolve it months later, which is exactly what happened.
+
+The fix: this gate now batch-verifies every non-``UNKNOWN``
+``measured_at_commit`` across every registered artifact actually resolves
+to a real commit object, via ``check_evidence_provenance.verify_commits_exist``
+(``git cat-file --batch-check``) -- reused rather than reimplemented, since
+it already carries the shallow-clone guard (a shallow clone cannot be
+distinguished from "every historical SHA is fake") and the "one subprocess
+for the whole scan" batching this gate's own docstring already commits to
+for input hashing. An unresolvable commit is a hard ``problems`` entry
+(never allowlist-eligible -- "unknown" and "wrong" are different failure
+modes, same rule ``validate_provenance_shape`` already applies to a
+malformed ``provenance`` object), even when the record's content hash is
+still fresh: a dangling SHA gives none of the human traceability an
+explicit commit promises while looking exactly like it does, which is
+worse than an honest ``UNKNOWN``.
+
+This does NOT change what freshness is keyed on. The content hash
+(``inputs[].sha256``) was already, and remains, the sole freshness oracle
+-- see "Design decision: content hashes, not mtimes" in
+``measurement_provenance.py``. Two alternatives were considered and
+rejected: (1) re-anchoring freshness itself on the commit SHA (e.g.
+comparing against ``git show <sha>:<path>``) was rejected because it is
+the exact fragility this incident demonstrates -- a commit SHA is not
+stable under history rewriting, while file content is; and (2) silently
+downgrading an unresolvable commit to ``UNKNOWN`` and continuing was
+rejected because that would erase the record's dishonesty instead of
+surfacing it -- a record that claims a specific commit and is wrong about
+it is a worse failure than one that admits it doesn't know, and the two
+must not collapse to the same outcome. Making the content hash the
+explicit, sole, primary identity and the commit SHA an explicitly
+*verified* advisory field is therefore the shape of the fix, not a new
+freshness mechanism.
+
+Design decision: ``dirty: true`` is now also a hard problem, not just a
+raise-time requirement
+------------------------------------------------------------------------
+Before this fix, ``dirty: true`` (or any non-``false`` value) was only
+rejected by ``DrcRatchet.validate_raise_evidence`` for a ceiling *raise*.
+A re-measurement that held or lowered every ceiling value -- most of them,
+by volume -- could carry ``dirty: true`` and this gate would still call it
+fresh, as long as the named input's content hash matched. That is too
+narrow a promise: ``dirty: true`` means the tree had some other uncommitted
+change when the measurement ran, and that unnamed change (a locally-edited
+DRU file, an uncommitted script tweak) could have influenced the
+measurement without ever appearing in ``inputs`` -- the content-hash check
+cannot see what it was never told to hash. This gate now treats
+``dirty: true`` on any provenanced record as a ``problems`` entry,
+unconditionally, closing the same "only checked on a raise" gap that let
+the dangling commit through undetected on a non-raising PR.
+
 Do NOT re-measure or update any ceiling value
 ------------------------------------------------------------------------
 This gate is read-only with respect to every artifact it checks. It never
@@ -102,14 +184,17 @@ touching only the added keys (see docs/evidence/2026-07-28-measurement-provenanc
 
 Exit codes
 ----------
-  0 - OK: every registered artifact parsed, every record either has fresh
-      provenance or is validly allowlisted as not-yet-provenanced.
+  0 - OK: every registered artifact parsed, every record either has fresh,
+      trustworthy provenance or is validly allowlisted as not-yet-provenanced.
   5 - GATE ERROR: any of -- STALE input(s) on a provenanced record,
       missing/malformed provenance on an unallowlisted record, a malformed
-      provenance object, a missing/unparseable artifact file, zero
-      registered artifacts, or zero provenance-bearing records found across
-      every registered artifact (vacuous scan -- never folded into "0
-      violations", see docs/METHODOLOGY.md Sec 4/5).
+      provenance object, a ``measured_at_commit`` that does not resolve to
+      a real commit object, ``dirty: true``, a missing/unparseable artifact
+      file, zero registered artifacts, zero provenance-bearing records
+      found across every registered artifact (vacuous scan -- never folded
+      into "0 violations", see docs/METHODOLOGY.md Sec 4/5), or the commit-
+      resolvability check itself being untrustworthy (git unavailable, or
+      a shallow clone -- see ``verify_commits_exist``).
 
 Usage
 -----
@@ -141,6 +226,17 @@ from _lib.measurement_provenance import (  # noqa: E402
     validate_provenance_shape,
 )
 from _lib.repo import find_repo_root  # noqa: E402
+
+# check_evidence_provenance is a sibling script (scripts/ is already on
+# sys.path via the insert above, so this is a plain sibling import, not a
+# package dependency) -- verify_commits_exist is reused, not reimplemented:
+# it already solved "does this claimed commit actually resolve" for
+# docs/evidence/* (see module docstring, "Design decision: measured_at_commit
+# is advisory, but a dangling one is a hard problem, not a shrug"), carries
+# its own shallow-clone guard, and batches every SHA into one `git cat-file
+# --batch-check` subprocess -- the same batching discipline this gate
+# already uses for input-hash freshness.
+from check_evidence_provenance import verify_commits_exist  # noqa: E402
 
 REPO_ROOT = find_repo_root()
 
@@ -269,6 +365,16 @@ def evaluate(
     outcome = Outcome()
     total_records = 0
 
+    # Pass 1: load every record and settle everything that needs no git
+    # I/O -- _MISSING (allowlist lookup), non-dict garbage, and shape
+    # validity. This also collects every well-formed, non-UNKNOWN
+    # measured_at_commit across every artifact so pass 2 can verify all of
+    # them in a single batched git subprocess (mirrors
+    # check_evidence_provenance.py's own two-pass structure, for the same
+    # reason: never one git invocation per record).
+    shape_valid: list[Record] = []
+    shas_to_verify: set[str] = set()
+
     for artifact in artifacts:
         records = load_records(artifact)
         for rec in records:
@@ -295,11 +401,10 @@ def evaluate(
             if shape_err:
                 outcome.problems.append((rec.key, f"malformed provenance: {shape_err}"))
                 continue
-            mismatches = check_inputs_fresh(repo_root, rec.provenance["inputs"])
-            if mismatches:
-                outcome.stale.append((rec.key, mismatches))
-            else:
-                outcome.fresh.append(rec.key)
+            shape_valid.append(rec)
+            commit = rec.provenance["measured_at_commit"]
+            if commit != "UNKNOWN":
+                shas_to_verify.add(commit)
 
     if total_records == 0:
         raise GateError(
@@ -308,6 +413,66 @@ def evaluate(
             "the vacuous-pass shape this project's gates have died on before "
             "(docs/METHODOLOGY.md Sec 4/5); failing closed instead."
         )
+
+    # Pass 2: batch-verify every claimed measured_at_commit resolves to a
+    # real commit object -- one `git cat-file --batch-check` subprocess for
+    # the whole scan, reusing check_evidence_provenance.verify_commits_exist
+    # rather than reimplementing it (see module docstring, "Design decision:
+    # measured_at_commit is advisory, but a dangling one is a hard problem").
+    # A RuntimeError here (git missing, or a shallow clone where "does not
+    # resolve" would be true of nearly every legitimate historical SHA) is a
+    # GATE ERROR, not a silent skip: a check that cannot verify its own
+    # claim must not report a meaningful verdict.
+    try:
+        resolved_commits = verify_commits_exist(shas_to_verify, repo_root)
+    except RuntimeError as exc:
+        raise GateError(f"cannot verify measured_at_commit provenance: {exc}")
+
+    # Pass 3: for every shape-valid record, check the two integrity
+    # dimensions that are orthogonal to (and checked before) content-hash
+    # freshness: does the claimed commit anchor actually exist, and was the
+    # tree clean when the measurement ran. Both are hard 'problems' --
+    # never allowlist-eligible, exactly like a malformed provenance object
+    # -- because a record that actively misrepresents its own measurement
+    # conditions is a worse failure than one that honestly doesn't know.
+    # Freshness (the content-hash check) remains the sole and unchanged
+    # freshness oracle; it is not run at all when either integrity check
+    # fails, so a record cannot be simultaneously STALE and a 'problem'.
+    for rec in shape_valid:
+        prov = rec.provenance
+        integrity_problems: list[str] = []
+
+        commit = prov["measured_at_commit"]
+        if commit != "UNKNOWN" and not resolved_commits.get(commit, False):
+            integrity_problems.append(
+                f"measured_at_commit={commit!r} does not resolve to a commit object "
+                "in this repository (git cat-file confirms no such object exists) -- "
+                "whether mistyped, fabricated, or naming a commit that once existed "
+                "on a branch that was squash-merged or rebased away and is no longer "
+                "reachable, a dangling commit gives none of the traceability an "
+                "explicit SHA promises while looking like it does; cite a commit "
+                "that persists (this change's own merge commit into main, not a "
+                "pre-squash/pre-rebase branch commit) or, if it is genuinely gone, "
+                "record 'UNKNOWN' instead"
+            )
+
+        if prov.get("dirty") is True:
+            integrity_problems.append(
+                "dirty=true: measured in an unclean working tree -- an uncommitted, "
+                "unnamed change could have influenced this measurement without ever "
+                "appearing in 'inputs' (the content-hash check cannot see what it "
+                "was never told to hash); re-measure in a clean tree"
+            )
+
+        if integrity_problems:
+            outcome.problems.append((rec.key, "; ".join(integrity_problems)))
+            continue
+
+        mismatches = check_inputs_fresh(repo_root, prov["inputs"])
+        if mismatches:
+            outcome.stale.append((rec.key, mismatches))
+        else:
+            outcome.fresh.append(rec.key)
 
     # Every allowlist entry must carry a ticket, unconditionally (not just
     # under --check-shrink) -- mirrors check_evidence_provenance.py exactly,

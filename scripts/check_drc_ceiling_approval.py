@@ -68,6 +68,28 @@ Legacy trailers (bare ``Ceiling-Approval:`` with no ``_march`` entry) are
 grandfathered only for already-landed raises; the contract applies to new
 raises.
 
+Relationship to check_measurement_provenance.py (2026-08-07)
+------------------------------------------------------------------------
+``DrcRatchet.validate_raise_evidence``'s ``measured_at_commit`` check (used
+by this gate, requirement 2 above) only verifies *shape* -- 40 lowercase
+hex characters -- despite its own error message saying "does not resolve
+to a commit"; it never calls git. And this whole gate, including that
+check, only runs when a ceiling *raise* is detected -- a re-measurement PR
+that updates ``provenance`` without raising any value never reaches it.
+Both gaps together are exactly how a dangling ``measured_at_commit``
+(``3410ee4e1fe8c3a5cce13b9262585016a06fce8d``, orphaned by a squash-merged/
+rebased branch on PR #602) sat undetected in ``drc_ceiling.json`` -- see
+``scripts/check_measurement_provenance.py``'s module docstring for the full
+incident writeup. That gate now performs the actual git-backed
+resolvability check (via ``check_evidence_provenance.verify_commits_exist``)
+unconditionally, on every PR that touches a registered measurement artifact,
+regardless of whether it raises a ceiling -- it is the backstop this gate's
+raise-only, format-only check does not provide. Fixing
+``DrcRatchet``'s check to actually call git is out of scope here (it lives
+in ``packages/temper-placer/src/temper_placer/regression/drc_ratchet.py``,
+owned elsewhere); flagged for a follow-up so the raise-evidence message
+stops claiming a verification it does not perform.
+
 Exit codes
 ----------
   0 - OK: no ceiling raise, or every raise carries a ``Ceiling-Approval:``
