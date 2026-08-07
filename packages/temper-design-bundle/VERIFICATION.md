@@ -69,7 +69,7 @@ flight). Per the audit §5, they are left.
 # PyAny removal wave 2 (2026-08-06) — typed-handle tightenings
 
 Record per plan R1e, as part of the Wave-4 PyAny-removal wave 2
-(`docs/evidence/2026-08-06-pyany-surface-audit-2.md`, Wave A). Five stored
+(`docs/evidence/2026-08-06-pyany-surface-audit-2.md`, Wave A). Four stored
 fields are tightened from opaque `Py<PyAny>` to typed handles. Each wrapped
 value IS the same-crate pyclass on every verified construction path, so the
 tightening changes nothing observable: identity is preserved by the typed
