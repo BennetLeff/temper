@@ -1,4 +1,8 @@
 <!-- provenance: commit=f7a1fbf8fd155a0c303462717d531f8ae7606b7f dirty=false -->
+<!-- correction: commit=63ec4e75 dirty=false, 2026-08-07 later the same day —
+     Track D (U7/U8) un-deferred; see "Addendum" at the end of this document.
+     Original content below is left unedited; only the U7/U8 row and the
+     verdict sentence carry inline pointers to the addendum. -->
 
 # WASM Verification Tier — Phase 1 Verdict (U9)
 
@@ -15,9 +19,11 @@ touched; `git status` is clean apart from this file.
 This document consolidates the Phase 1 verdict from the evidence produced by
 U0 (build fix), U1 (R19 baseline), U2 (local at-scale runner), U3 (sharding
 design, Q4), U4 (coverage, R7/R8), U5 (local volume run), and U6 (R19 sustained
-agreement). Track D (U7/U8, Cloudflare Worker deployment) is DEFERRED. It does
-not edit the parent plan or the Phase 1 plan; it is the recorded verdict that
-either licenses Phase 2 or records the preconditions for a re-pull.
+agreement). Track D (U7/U8, Cloudflare Worker deployment) was DEFERRED at the
+time this document was first written and was un-deferred later the same day
+— see "Addendum" at the end of this document. It does not edit the parent
+plan or the Phase 1 plan; it is the recorded verdict that either licenses
+Phase 2 or records the preconditions for a re-pull.
 
 ---
 
@@ -32,8 +38,8 @@ either licenses Phase 2 or records the preconditions for a re-pull.
 | U4 | Coverage reporting per test/family + canaries (R7, R8) | PARTIAL | `2026-08-07-phase1-u4-coverage.md` | Machinery complete, non-vacuity proven — but family coverage thin (drc 1, routing 2 of 95; erc 0 registered tests). The gap is the Phase 2 precondition |
 | U5 | Local volume run ≥ 10^4 invocations | PASS | `2026-08-07-phase1-u5-volume.md` | 190,000 invocations deterministic, ~3,379 inv/s, 1.75 MiB peak memory; stretch target (94,000) exceeded 2× |
 | U6 | R19 sustained agreement | PASS (SUSTAINED) | `2026-08-07-phase1-u6-sustained-agreement.md` | R19 SUSTAINED: agreement 1.0 across 10 consecutive commits; licenses later gating under R15 |
-| U7 | Worker deployed | DEFERRED | — | No Cloudflare account provisioned; un-deferred by account + token provisioning |
-| U8 | Worker volume run + cost ceiling | DEFERRED | — | Gated on U7; cost model stands as an estimate (~$0.12/month, plan §U8/U3), not a measurement |
+| U7 | Worker deployed | ~~DEFERRED~~ **PASS (2026-08-07, later same day)** | `2026-08-07-phase1-u7-deploy-runbook.md`, `2026-08-07-phase1-u8-multi-worker.md` | Account provisioned; 8 Workers deployed and reachable (1 full + 7 per-family). See "Addendum" below |
+| U8 | Worker volume run + cost ceiling | ~~DEFERRED~~ **PARTIAL (2026-08-07, later same day)** | `2026-08-07-phase1-u8-multi-worker.md` | Deployed and measured at small scale (147-request sweep, 1.30× speedup at c64) — the plan's ≥10^4-invocation volume run was **never executed against the Worker**; the cost ceiling is still the U3 estimate, not a Worker-measured figure. See "Addendum" below |
 
 U0–U6 are the critical path (Tracks A+B+C) and are complete. U3's verdict is
 the plan's "COMPLETE" (Q4 answered); U6's is the plan's "R19 SUSTAINED." The
@@ -54,6 +60,19 @@ a demonstrated failing case, but the per-family test distribution is thin —
 > 95 tests, `erc` 0) named as the precondition for Phase 2's
 > manufacturing-variation work, and the Worker deploy (Track D, U7/U8) as the
 > open external dependency, deferred on Cloudflare account provisioning.
+
+> **Superseded, 2026-08-07 later the same day — see "Addendum" below.** The
+> Cloudflare account was provisioned the same day; Track D is no longer
+> deferred. **Corrected verdict sentence:** Phase 1 complete; U0–U6 PASS,
+> U4 PARTIAL (coverage spread), as above and unchanged. **Track D: U7 PASS**
+> (8 Workers deployed and reachable — 1 full-corpus Worker plus 7 per-family
+> Workers, all live at `*.bennetleff.workers.dev`). **U8 PARTIAL**: deployed
+> and exercised at small scale (a 147-request full-corpus sweep across the
+> 7 per-family Workers, measuring a 1.30× parallel speedup over the
+> single-worker baseline at concurrency 64) but the plan's ≥10^4-invocation
+> volume run against the real Worker was **never executed** — the cost
+> ceiling therefore still rests on U3's local-measurement estimate
+> (~$0.12/month), not a Worker-measured figure. U8 is not complete.
 
 ---
 
@@ -134,21 +153,26 @@ Until they are re-read, this section keeps the verdict self-contained.
   (Phase 5, descoped from the parent plan) — it does not itself gate merges in
   Phase 1.
 
-### Track D — Worker deployment (U7/U8), DEFERRED
+### Track D — Worker deployment (U7/U8), DEFERRED at time of writing — un-deferred later the same day, see "Addendum"
 
-- **Reason:** the Cloudflare account is not provisioned — no account, no
-  `wrangler` API token, no subdomain. This is the same upstream-scheduling
-  deferral pattern as Phase 0's R3 BLOCKED-UPSTREAM; per the Phase 1 plan §3 it
-  is an **acceptable Phase 1 exit** (the local volume run and R19 agreement
-  measurement are the gating milestones; Track D is not on the critical path).
-- **What un-deferring requires:** the maintainer provisions (1) a Cloudflare
-  account with Workers enabled, (2) a `wrangler` API token with Workers deploy
-  permission, (3) a subdomain (`temper-wasm.workers.dev` or a custom route).
-  Then U7 deploys `wrangler.toml` + `worker.js` and measures cold start and
-  per-invocation CPU time; U8 runs ≥10^4 invocations against the Worker and
-  replaces the cost model with measurement (the platform overhead factor,
-  Worker wall vs. local Node wall).
-- **Deferred, not descoped.** A re-pull of Track D does not re-run U0–U6.
+- **Reason (at time of writing):** the Cloudflare account is not provisioned —
+  no account, no `wrangler` API token, no subdomain. This is the same
+  upstream-scheduling deferral pattern as Phase 0's R3 BLOCKED-UPSTREAM; per
+  the Phase 1 plan §3 it is an **acceptable Phase 1 exit** (the local volume
+  run and R19 agreement measurement are the gating milestones; Track D is not
+  on the critical path).
+- **What un-deferring requires (at time of writing):** the maintainer
+  provisions (1) a Cloudflare account with Workers enabled, (2) a `wrangler`
+  API token with Workers deploy permission, (3) a subdomain
+  (`temper-wasm.workers.dev` or a custom route). Then U7 deploys
+  `wrangler.toml` + `worker.js` and measures cold start and per-invocation
+  CPU time; U8 runs ≥10^4 invocations against the Worker and replaces the
+  cost model with measurement (the platform overhead factor, Worker wall vs.
+  local Node wall).
+- **Deferred, not descoped — and it did not stay deferred.** The account was
+  provisioned the same day; see "Addendum" below for what U7/U8 actually
+  measured. The "un-deferring requires" list above is preserved as the
+  runbook it turned out to be, not as an open item.
 
 ---
 
@@ -181,10 +205,63 @@ scope, deferred per plan U3), **#871** route OOM (R3, not Phase 1 scope).
 - U2 has no standalone evidence doc on `origin/main`; its verdict is carried by
   the U3 and U5 measurements that its `--repeat` runner produced.
 - The Worker cost numbers ($0.003/commit, ~$0.12/month at 40 commits/month) are
-  **estimates** from U3's local measurements — U8's real-platform measurement
-  is the un-deferred follow-on. The platform overhead factor (Worker vs. Node)
-  remains unmeasured until Track D runs.
+  **estimates** from U3's local measurements. **Updated 2026-08-07, see
+  "Addendum":** Track D did run — U7 deployed 8 Workers — but U8's real-scale
+  (≥10^4 invocation) measurement against them did not happen; only a
+  147-request sweep was measured. The cost-ceiling estimate and the platform
+  overhead factor (Worker vs. Node) both therefore remain unmeasured at the
+  volume the plan specified, notwithstanding U7's successful deploy.
 - The `erc` family's 0 registered tests and the thin `drc`/`routing` counts are
   read from `2026-08-07-phase1-u4-coverage.md`; the dispatch's summary
   characterized the U4 gap more broadly than the evidence doc records, and this
   verdict follows the evidence doc's own numbers.
+
+---
+
+## 6. Addendum — Track D un-deferred (2026-08-07, later the same day)
+
+This section is appended, not a rewrite of anything above — the sections
+above are left as originally written, each carrying an inline pointer to
+here. Base commit for this addendum: `63ec4e75` (`origin/main`).
+
+**What happened:** the Cloudflare account was provisioned the same day this
+verdict was recorded. Two follow-on evidence docs cover it in full:
+
+- `docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md` — the deploy
+  runbook and the initial single-Worker deployment
+  (`temper-wasm-tier.bennetleff.workers.dev`, account
+  `03f642afe070f05b727f7cd31f02ef48`). First deploy hit a cold-isolate CPU
+  limit (error 1042/1104, free-tier 10 ms budget, re-instantiating the 1.2 MB
+  module on every request); fixed by caching the instance per isolate.
+- `docs/evidence/2026-08-07-phase1-u8-multi-worker.md` — a second
+  deployment of 7 additional per-family Workers (`temper-wasm-drc`,
+  `-emc`, `-erc`, `-safety`, `-placement`, `-routing`, `-infra`), routing
+  each family to a separate isolate for true parallelism.
+
+**U7 verdict: PASS.** 8 Workers total (1 full-corpus + 7 per-family) are
+deployed and reachable, `/health` and `/run-test` verified against them, cold
+start and warm-instantiate numbers measured (§5 of the runbook).
+
+**U8 verdict: PARTIAL, not complete.** What was measured: a full sweep of
+all 147 tests across the 7 per-family Workers, at concurrency 8/32/64,
+showing a **1.30× parallel speedup** at concurrency 64 versus the
+single-Worker baseline (4,470 ms vs. 5,791–6,227 ms wall time; multi-worker
+throughput 32.9 tests/s vs. single-worker 23.6–25.4 tests/s). What was
+**not** measured: the plan's ≥10^4-invocation volume run against the
+deployed Worker(s). 147 requests is roughly three orders of magnitude below
+that bar. The cost ceiling therefore still rests on U3's local-Node
+extrapolation (~$0.12/month at 40 commits/month), not a Worker-measured
+figure, and the platform overhead factor (Worker wall vs. local Node wall)
+is still not independently established at volume — only at the single
+147-request sweep's scale.
+
+**Corrected §4 evidence-source row:**
+
+| Row | Verdict source |
+|---|---|
+| U7/U8 | `docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md` (U7, PASS) and `docs/evidence/2026-08-07-phase1-u8-multi-worker.md` (U8, PARTIAL — deployed and sweep-tested, not volume-tested) |
+
+**What would close U8:** run `tools/wasm/sweep_multi_worker.mjs` (or
+equivalent) for ≥10^4 total invocations against the deployed Workers, the
+way U5 did locally against Node, and replace the U3 cost estimate with a
+measured figure. That has not happened as of this addendum.
