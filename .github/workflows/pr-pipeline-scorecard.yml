@@ -36,6 +36,16 @@ jobs:
           if [ -n "$RUN_ID" ]; then
             gh run download "$RUN_ID" --name baseline-metrics --dir baseline-metrics 2>/dev/null || true
           fi
+        # Guards only `gh run list`'s own failure (network blip, GitHub API
+        # rate limit, or a token permission edge case) -- under bash's
+        # default `set -e` that aborts the script (RUN_ID=$(...) is a plain
+        # assignment) before the internal `|| true` on the `gh run download`
+        # line is even reached. The "no baseline exists yet" case is already
+        # handled internally and doesn't need this mask. Tolerated because
+        # neither job in this workflow is in `.github/required-checks.json`
+        # (see the header comment above `jobs:`), and it is opt-in via the
+        # `ci-advisory` label, so a real failure here can never block a
+        # merge regardless.
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -127,8 +137,15 @@ jobs:
       - name: Verify temper-drc-rs loads
         run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
 
+      # No `continue-on-error` here: the `|| echo "CLOSURE_EXIT=$?" >>
+      # $GITHUB_ENV` fallback already makes this step exit 0 unconditionally
+      # (echo succeeding after `||` swallows any nonzero exit from
+      # ci_closure_test.py), so the mask was dead weight -- unreachable
+      # regardless of whether the closure test passes or fails. Removed
+      # 2026-08-07. Note $CLOSURE_EXIT itself is written but never read
+      # anywhere in this repo -- a separate pre-existing dead-output issue,
+      # left as-is since it isn't a masking directive.
       - name: Run closure test on PR head
-        continue-on-error: true
         run: |
           uv run python3 scripts/ci_closure_test.py \
             --pcb pcb/temper.kicad_pcb \
@@ -136,6 +153,15 @@ jobs:
             --metrics-dir ./current-metrics \
             || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
 
+      # The `baseline` job only uploads this artifact when a prior
+      # successful main run had metrics to reuse
+      # (`steps.check.outputs.has_metrics == 'true'`); until that has
+      # happened at least once on main, this download always misses by
+      # design. The next step explicitly checks for
+      # baseline-metrics/pipeline_metrics.jsonl's absence and posts a
+      # degraded "metrics unavailable" scorecard instead of failing -- this
+      # mask exists so that designed-missing case doesn't hard-fail the job
+      # before reaching that fallback.
       - name: Download baseline metrics
         uses: actions/download-artifact@v8
         with:

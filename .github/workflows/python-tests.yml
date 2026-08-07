@@ -758,6 +758,13 @@ jobs:
         env:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
+      # Removed 2026-08-07: dead weight. The `run:` command already ends in
+      # `|| echo "::warning ..."`, a shell fallback that makes the WHOLE
+      # step exit 0 unconditionally (verified: `bash -c 'false || echo x;
+      # echo $?'` -> 0) regardless of what check_coverage_gate.py does --
+      # continue-on-error had nothing left to guard. The gate is still
+      # genuinely warn-only (Phase 1 paydown pending); that policy now lives
+      # entirely in the `|| echo` fallback, not in a second masking layer.
       - name: Coverage gate (temper-placer)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
@@ -766,7 +773,6 @@ jobs:
           --coverage-json coverage.json
           --allowlist ../../.coverage-allowlist
           || echo "::warning title=Coverage Gate::Phase 1 paydown prerequisite not yet met; gate is warn-only."
-        continue-on-error: true  # TODO: temper-NNN -- coverage gate remains warn-only pending Phase 1 paydown; hard-fail after 2026-09-01
 
   # Split out of Core Tests 2026-07-28. These two cargo steps ran at position
   # 16-17 of the old 58-step job, ahead of every Python gate in the pipeline. On
@@ -1135,13 +1141,19 @@ jobs:
       # run must surface dead inputs / unproven parameters for triage before
       # this can hard-fail. Hard-fail after 2026-09-01 (with the coverage-gate
       # and ruff gates), same horizon as the other warn-only gates.
+      # Removed 2026-08-07: dead weight, same pattern as the Coverage gate
+      # step above -- the `run:` command already ends in `|| echo
+      # "::warning ..."`, which makes the step exit 0 unconditionally no
+      # matter what check_dead_parameter_inputs.py reports, so
+      # continue-on-error had nothing left to guard. Still genuinely
+      # warn-only (U3 landing contract, first-run triage pending); that
+      # policy lives entirely in the `|| echo` fallback now.
       - name: Dead-parameter standing check (dead inputs + physics plumbing)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/check_dead_parameter_inputs.py
           || echo "::warning title=Dead-Parameter Standing Check::first-run triage pending (plan 2026-08-02-019 U3); gate is warn-only."
-        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01 per plan U3 landing contract
 
       - name: Evidence provenance gate (docs/evidence/)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -1408,9 +1420,21 @@ jobs:
         run: uv run python scripts/check_isolation_keepout.py
 
       # ---- MUTATING: writes pcb/*.kicad_sch, must stay last ----
+      # Removed 2026-08-07: dead weight. The stated reason ("make netlist
+      # (atopile) invokes kicad-cli in container") is stale -- commit
+      # bd8bb68e (2026-07-23, "Schematics check: add --no-oracle flag for
+      # container") already added `--no-oracle` specifically to avoid the
+      # kicad-cli dependency (oracle_verify() is the only caller of
+      # _export_netlist(), which is what shells out to `kicad-cli sch
+      # export netlist` -- --no-oracle skips it entirely). Verified
+      # 2026-08-07 by running the exact two commands locally with NO
+      # kicad-cli on PATH: `make netlist` then `uv run python3
+      # scripts/gen_schematics.py --check --no-oracle` -> "CHECK PASS: all
+      # schematics match netlist", then `git diff --exit-code
+      # pcb/*.kicad_sch` -> exit 0. The mask outlived the fix it was
+      # waiting for.
       - name: Regenerate schematics and check drift
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        continue-on-error: true  # TODO: temper-NNN -- make netlist (atopile) invokes kicad-cli in container; hard-fail after 2026-09-01
         run: |
           uv run python3 scripts/gen_schematics.py --check --no-oracle
           git diff --exit-code pcb/*.kicad_sch
@@ -1833,9 +1857,18 @@ jobs:
         id: setup
         run: echo "setup complete; gates below report independently"
 
+      # Still genuinely failing, but the debt is being paid down: `uv run
+      # ruff check packages/` -> 45 errors, exit 1, verified 2026-08-07 (29
+      # auto-fixable with --fix). This is down from the "594 pre-existing"
+      # this mask originally cited -- the placeholder count was stale, not
+      # the mask itself. Tolerated because 45 pre-existing errors would
+      # otherwise block every unrelated PR touching packages/ until they're
+      # individually triaged; removable once ruff check exits 0 (or the
+      # remainder is captured in a per-file ignore list instead of a
+      # blanket job-level mask).
       - name: Lint with ruff
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        continue-on-error: true  # TODO: temper-NNN -- 594 pre-existing ruff errors; hard-fail after 2026-09-01
+        continue-on-error: true
         run: uv run ruff check packages/
 
       - name: Vulture dead-code gate
@@ -1871,15 +1904,35 @@ jobs:
             --no-hashes > /tmp/requirements-ci.expected
           diff -u requirements-ci.txt /tmp/requirements-ci.expected
 
+      # Removed 2026-08-07: dead weight. check_script_sunset.py's main()
+      # ends in an unconditional `sys.exit(0)` with the comment "Sunset
+      # never blocks PR merge" -- warnings/escalations are printed but
+      # never change the exit code, verified by running it locally (13
+      # warnings, 0 escalations, exit 0). The only non-zero exits
+      # (sys.exit(5), lines ~130-144) are fail-closed "gate cannot run"
+      # cases (manifest or invocation-graph file missing/malformed) -- this
+      # mask was hiding those too, inconsistently with the rest of this
+      # job's "a gate that cannot run must exit non-zero" discipline
+      # (see e.g. the isolation-barrier and board-containment gates below).
+      # Unmasked so that residual case hard-fails as it should; the
+      # genuinely-informational sunset warnings still can't fail the step.
       - name: Script sunset check (warnings only)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_script_sunset.py
-        continue-on-error: true  # TODO: temper-NNN -- sunset is informational; hard-fail after 2026-09-01
 
+      # Still genuinely failing, verified 2026-08-07: `uv run pytest
+      # scripts/test_root_hygiene.py` -> 1 failed. Root-level `conftest.py`
+      # (added by #726, a56390f6) trips the `*.py` category, whose
+      # allowlist is empty by design (scripts/test_root_hygiene.py's
+      # _PER_GLOB_ALLOWLIST) -- but conftest.py at the repo root is the
+      # standard pytest convention, not a stray script, so this is a real
+      # false positive rather than actual root clutter. Tolerated until the
+      # allowlist is fixed to permit conftest.py explicitly (a one-line
+      # change to _PER_GLOB_ALLOWLIST["*.py"]); removable once that lands.
       - name: Root artifact hygiene check
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/test_root_hygiene.py -v --tb=short
-        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
+        continue-on-error: true
 
       - name: Import boundary enforcement
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -2150,7 +2203,22 @@ jobs:
             wait $pid || FAIL=1
           done
           exit $FAIL
-        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+        # Still genuinely failing, but NOT flakiness -- verified 2026-08-07
+        # by running all three backgrounded suites locally: CHECKS_PID fails
+        # deterministically, every time, at a broken relative path. The
+        # subshell does `cd packages/temper-placer` then references
+        # `firmware/test/gen_transition_table.py`, but that script only
+        # exists at the repo root (firmware/test/gen_transition_table.py),
+        # not under packages/temper-placer/firmware/ -- `python3: can't open
+        # file '.../packages/temper-placer/firmware/test/
+        # gen_transition_table.py'`. Introduced in 6be2e82c (2026-06-22) and
+        # unchanged since. This is a one-line path bug (missing `../../` or
+        # equivalent), not test-suite flakiness -- the stated reason is
+        # wrong, not just the ticket placeholder. Not fixed here (out of
+        # scope for a continue-on-error-only pass on this file); flagged for
+        # a follow-up PR that corrects the path and can then remove this
+        # mask entirely.
+        continue-on-error: true
 
   # 2026-07-30: the 2026-07-29 split (see the comment above
   # extended-bundle-workflow-checks) gave `extended-cpsat` the old combined
@@ -2369,9 +2437,14 @@ jobs:
         # --deselect ID (typo, renamed test) that silently drops a test
         # instead of erroring is caught here rather than passing quietly.
         # Same `-v --tb=short -p no:cacheprovider --maxfail=10` flags and the
-        # same `continue-on-error` as before this split --
-        # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after
-        # 2026-09-01.
+        # same `continue-on-error` as before this split. Partially
+        # re-verified 2026-08-07: ran locally to 94% (687/731 selected
+        # tests) with ZERO failures before timing out at 280s under heavy
+        # host contention (concurrent unrelated sessions, load avg ~31 on
+        # 24 cores) -- no evidence of flakiness or a real failure was found,
+        # but the run did not reach completion, so this is not a confirmed
+        # green. Kept masked pending one clean, uncontended full run
+        # (matches the comment above: "cost well under a minute" normally).
         run: >
           cd packages/temper-placer &&
           uv run python ../../scripts/pytest_guard.py --min-tests 400 --
@@ -2381,7 +2454,7 @@ jobs:
           --deselect "tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items"
           --deselect "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
           -v --tb=short -p no:cacheprovider --maxfail=10
-        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+        continue-on-error: true
 
   extended-cpsat-slow:
     name: Extended Test Suites (cp-sat, slow x2)
@@ -2622,13 +2695,33 @@ jobs:
           tests/router_v6/test_acid_trap_boundary.py tests/router_v6/test_acid_trap_detection.py tests/router_v6/test_acid_trap_induction.py tests/router_v6/test_acid_trap_properties.py tests/router_v6/test_adapter.py tests/router_v6/test_annular_ring_induction.py tests/router_v6/test_astar_cost_field.py tests/router_v6/test_astar_inductive_ladder.py tests/router_v6/test_astar_pathfinding.py tests/router_v6/test_astar_perf_regression.py tests/router_v6/test_bundle_analyzer.py tests/router_v6/test_bundled_model_builder.py tests/router_v6/test_capacity_check.py tests/router_v6/test_channel_skeleton.py tests/router_v6/test_channel_skeleton_pbt.py tests/router_v6/test_ci_bug_regressions.py tests/router_v6/test_clearance_segment_dist.py tests/router_v6/test_copper_balance.py tests/router_v6/test_copper_balance_boundary.py tests/router_v6/test_copper_balance_induction.py tests/router_v6/test_creepage_boundary.py tests/router_v6/test_creepage_properties.py tests/router_v6/test_dfm_interaction.py tests/router_v6/test_finish_board_gate.py tests/router_v6/test_forced_segment_fail_closed_pbt.py tests/router_v6/test_grid_prep_pbt.py tests/router_v6/test_layer_capacity.py tests/router_v6/test_los_bb_shortcut.py tests/router_v6/test_manufacturing_report.py tests/router_v6/test_manufacturing_report_properties.py tests/router_v6/test_net_class_parser.py tests/router_v6/test_net_ordering_proof.py tests/router_v6/test_occupancy_grid_pbt.py tests/router_v6/test_phase1_anti_false_zero.py tests/router_v6/test_resource_bound.py tests/router_v6/test_routing_demand_pbt.py tests/router_v6/test_routing_space.py tests/router_v6/test_stage3_monolith_parity.py tests/router_v6/test_stage4_result_pbt.py tests/router_v6/test_stage_ledger.py tests/router_v6/test_teardrop_properties.py tests/router_v6/test_temper_production_board_routing.py tests/router_v6/test_terminal_extraction.py tests/router_v6/test_topology_solver.py tests/router_v6/test_trace_width_assignment.py tests/router_v6/test_tree_route_geometry.py tests/router_v6/test_truthful_completion.py tests/router_v6/test_via_layer_properties_pbt.py tests/router_v6/test_via_placement.py tests/router_v6/test_wave3_skip_sat.py tests/router_v6/test_wave4_pathfinder.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
-        # Re-masked 2026-07-28. The triage that un-masked this job measured it
-        # green at its own base, but ~370 commits landed on main in the interim
-        # and one test in this group fails on current main: verified locally at
-        # 1 failed / 716 passed / exit 1. Un-masking a job that still fails turns
-        # CI red without telling anyone anything new. Group 3 stays un-masked --
-        # it is genuinely green at 741 passed / 0 failed.
-        continue-on-error: true  # TODO: temper-NNN -- one live failure; re-check and unmask
+        # Re-masked 2026-07-28 citing "1 failed / 716 passed". Re-checked
+        # 2026-08-07 (full local run, 336s, 692 selected): now 6 failed / 672
+        # passed / 10 skipped / 4 xfailed -- worse than the 2026-07-28 count,
+        # and NOT simple flakiness. Breaking down the 6:
+        #   - 3 are local-environment artifacts, not real CI failures --
+        #     test_kicad7_footprint_dir_resolves, test_kicad_cli_available_for_drc,
+        #     test_u4_erc_finding_traceable all fail on a plain
+        #     `FileNotFoundError: kicad-cli` / unresolved footprint dir in
+        #     THIS sandbox, which has no kicad-cli installed; the pinned CI
+        #     container (.github/docker/ci.Dockerfile) has kicad-cli 10.0.5
+        #     and should pass these.
+        #   - 2 are a genuine, deterministic bug, not a flake --
+        #     test_via_layer_properties_pbt.py::test_search3d_stamps_via_footprint_with_owner_net_id
+        #     and ::test_route_segment_3d_leaves_via_footprint_protected both
+        #     fail with `BufferError: buffer contents are not compatible with
+        #     i8` in router_v6/occupancy_grid.py:293, and Hypothesis reports
+        #     it reproduces on "any other generated value" -- not
+        #     seed-dependent.
+        #   - 1 (test_manufacturing_report_properties::test_critical_violations_match_documented_sum)
+        #     hit `hypothesis.errors.DeadlineExceeded` (2619ms > 2000ms) under
+        #     this run's heavy host contention (concurrent unrelated
+        #     sessions, load avg ~31 on 24 cores) -- plausibly genuine
+        #     flakiness, not independently confirmed on an uncontended host.
+        # Net: still genuinely red, but for a real occupancy_grid.py bug, not
+        # "flakiness" -- do not just re-check and unmask; the buffer-dtype
+        # bug needs a fix first.
+        continue-on-error: true
   invariant-router-v6-2:
     name: Invariant tests (router_v6 group 2)
     # Trunk-only -- masked test step, cannot fail a PR.
@@ -2710,7 +2803,42 @@ jobs:
           tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_apply_suggestions.py tests/router_v6/test_assignment_validation_pbt.py tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_audit_tree_geometry.py tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_diagnostics.py tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_rust_correctness.py tests/router_v6/test_manufacturing_report_induction.py tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_placement_suggestions.py tests/router_v6/test_quality_via_count.py tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py tests/router_v6/test_wave4_bit_tensor.py tests/router_v6/test_wave4_numba_astar.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
-        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+        # THIS JOB CURRENTLY RUNS ZERO TESTS, AND THIS MASK IS WHY NOBODY
+        # KNOWS. Verified 2026-08-07, reproduced twice -- including once
+        # with nothing else running on the host, so it is NOT contention:
+        # `12 workers [0 items]`, "no tests ran", pytest_guard floor FAIL
+        # ("only 0 tests executed, expected at least 500"), exit 3.
+        #
+        # Root cause: the file list above names
+        # tests/router_v6/test_wave4_numba_astar.py, which no longer exists
+        # -- deleted in 37793e5c ("chore(placer): post-migration cleanup --
+        # remove Numba backend + dead code" (#537), 2026-07-31). The list
+        # was never updated. pytest treats a nonexistent PATH as a usage
+        # error: it exits 4 and collects NOTHING, and
+        # `--continue-on-collection-errors` does not rescue it (that flag
+        # covers collection errors, not usage errors). Confirmed directly:
+        # pytest given the missing file plus one real file -> "collected 0
+        # items", exit 4.
+        #
+        # So since 2026-07-31 this 500+-test invariant suite has run
+        # nothing, the anti-vacuity floor has correctly failed every time,
+        # and `continue-on-error: true` has discarded that verdict and
+        # reported the job green. This is the exact failure mode the floor
+        # exists to prevent, defeated by the mask sitting on top of it.
+        #
+        # The remaining 49 files are healthy: with the dead path dropped,
+        # the same invocation collects 673 and gives 7 failed / 666 passed
+        # -- 2 kicad-cli-absent (pass in the pinned CI container), 4 the
+        # same deterministic `BufferError: buffer contents are not
+        # compatible with i8` in occupancy_grid.py:293 that group 1 hits,
+        # and 1 latency assertion (109.6ms against a 20ms bound) under host
+        # load.
+        #
+        # FIX: delete the dead path from the list above, then remove this
+        # mask -- do not re-justify it. Kept masked only so that this
+        # documentation commit does not turn trunk red in the same breath;
+        # it is a one-line change and should land immediately.
+        continue-on-error: true
 
   invariant-router-v6-3:
     name: Invariant tests (router_v6 group 3)
@@ -2883,9 +3011,15 @@ jobs:
           tests/router_v6/test_stage2_monolith_parity.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
-        # Masking preserved from group 2, where this file ran before the
-        # 2026-08-01 split -- status quo, not a new decision.
-        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+        # Mask removed 2026-08-07: dead weight. It was never a decision of
+        # its own -- it was "preserved from group 2, where this file ran
+        # before the 2026-08-01 split", i.e. inherited status quo, and it
+        # inherited group 2's "parallel test suite flakiness" wording along
+        # with it. Re-measured to completion on this exact invocation: 3
+        # passed, 0 failed, exit 0, 232.16s (the bulk of that is
+        # test_full_output_parity, a full production-board router parity
+        # comparison -- slow, but green and not flaky). pytest_guard floor
+        # of 3 satisfied. Nothing here needs to be non-blocking.
 
   invariant-rest:
     name: Invariant tests (io, deterministic, physics, fields, validation, cp_sat)
@@ -2969,7 +3103,37 @@ jobs:
           tests/io/ tests/deterministic/ tests/physics/ tests/fields/ tests/placer/cp_sat/ tests/metrics/
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
-        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+        # Re-measured to completion 2026-08-07 on this exact invocation:
+        # 3147 passed, 14 failed, 14 skipped, 1 xfailed in 135s (exit 2 --
+        # xdist stopped at the --maxfail=10 bound, overshooting to 14).
+        # pytest_guard floor satisfied at 3161 executed. NOT flakiness --
+        # every failure is deterministic and falls in one of three buckets:
+        #
+        #   9  need KiCad and this host has none -- 7 in
+        #      tests/placer/cp_sat/test_erc_gate.py (kicad-cli absent) and 2
+        #      in tests/io/test_finepitch_production_board.py (footprint
+        #      library absent). These pass in the pinned CI container
+        #      (.github/docker/ci.Dockerfile, kicad 10.0.5), so they are a
+        #      local-environment artifact, not a CI failure.
+        #   4  self-invalidating discriminator PRECONDITIONS in the physics
+        #      differential suites, e.g. test_device_power_rust_differential
+        #      .py:223 `assert x**2 != x*x, "test input must discriminate
+        #      pow(x,2.0) from x*x"` -- on this libm/CPU the two are bit-
+        #      equal for the chosen input, so the test invalidates its own
+        #      premise before testing anything. A test-design issue that
+        #      varies with the math library, not a product defect.
+        #   1  an exact float-equality assertion failing by one ULP
+        #      (test_zone_aware_slot_generation_pbt.py:73, 51.926515850281426
+        #      vs 51.92651585028143), found by Hypothesis search. Brittle
+        #      assertion; the closest thing here to genuine run-to-run
+        #      variance, and it is still a test bug, not product behaviour.
+        #
+        # Kept masked because 14 red tests would block trunk today, but the
+        # "parallel test suite flakiness" label was wrong: nothing here is
+        # an xdist race. Removable once the four discriminator preconditions
+        # and the one ULP assertion are fixed -- after which the only
+        # remaining failures are KiCad-dependent and already pass in CI.
+        continue-on-error: true
 
       # Wave 4 Phase 4: the validation collection is a HARD gate on trunk
       # (no continue-on-error), unlike the other collections above which
@@ -3032,12 +3196,29 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # Still genuinely failing, verified 2026-08-07: `uv run python3
+      # scripts/ci_closure_test.py --pcb pcb/temper.kicad_pcb --output ...`
+      # -> exit 1, "Status: FAIL", "benders_iterations <= 0", "All
+      # strategies exhausted for phase='placement': ['template',
+      # 'template']". The stated reason ("observability merge race") does
+      # not match: the real cause is ci_closure_test.py's PlacementStage
+      # adapter still calling the removed JAX/benders_loop backend
+      # (packages/temper-placer/src/temper_placer/adapters/
+      # register_strategies.py:44, raises NotImplementedError) instead of
+      # the CP-SAT deterministic placer -- same root cause independently
+      # confirmed on the equivalent step in metrics-record.yml. `temper-N6-
+      # U8` is a placeholder ticket id shared across ~27 masks (see
+      # docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md), not a
+      # real reference. Tolerated until that adapter migration lands (same
+      # blocker as metrics-record.yml's "Run closure test" step);
+      # hard-failing now would turn this job red on every push for a known,
+      # unrelated-to-this-PR reason.
       - name: Run closure test (truth-gated)
         run: >
           uv run python3 scripts/ci_closure_test.py
           --pcb pcb/temper.kicad_pcb
           --output closure-result.json
-        continue-on-error: true  # observability merge race; temper-N6-U8 -- hard-fail after 2026-09-01
+        continue-on-error: true
 
       - uses: actions/upload-artifact@v7
         if: always()

@@ -1,0 +1,36 @@
+{
+  "_goal": "error_ceiling: 0 for every schematic, always -- ERC errors hard-fail CI and are never ratcheted. warning_ceiling may only decrease over time; raising it is a manual, reviewed decision (see scripts/ci_check_erc.py), not an automated one -- there is no separate machine-checked approval contract for this file the way power_pcb_dataset/drc_ceiling.json has one (R27/#611); that DRC-specific machinery is intentionally not duplicated here.",
+  "_provenance_note": "Baselines must be measured with the kicad-cli version pinned in .github/docker/ci.Dockerfile (KICAD_VERSION). The 2026-07-26 STRATEGY.md figures (492 warnings / 0 errors on pcb/temper.kicad_sch; 64 violations on pcb/mcu.kicad_sch) were measured by hand on kicad-cli 10.0.4, one version behind the 10.0.5 pin -- see docs/evidence/2026-08-04-router-output-rebaseline-interim.md for why a rolling-PPA version delta is not safe to carry across as a CI ceiling (a prior +107 swing on an unrelated DRC count from the exact same 10.0.4->10.0.5 move). Until this file is re-measured on 10.0.5 and this note is replaced with a real provenance block, warning_ceiling is intentionally left null (TODO) and the ratchet does not enforce it -- see ci_check_erc.py's handling of a null ceiling.",
+  "boards": [
+    {
+      "board_id": "temper",
+      "path": "pcb/temper.kicad_sch",
+      "error_ceiling": 0,
+      "warning_ceiling": null,
+      "warnings_by_type": {},
+      "provenance": {
+        "source": "TODO-unmeasured-on-pinned-kicad-cli",
+        "measured_via": null,
+        "tool_versions": {
+          "kicad-cli": null
+        },
+        "note": "2026-07-26 hand-measured figure was 492 warnings / 0 errors on kicad-cli 10.0.4 (docs/STRATEGY.md:1412), NOT the 10.0.5 pinned in .github/docker/ci.Dockerfile. Re-measure on 10.0.5 (e.g. inside ghcr.io/bennetleff/temper-ci:latest) and replace this whole provenance block before relying on warning_ceiling."
+      }
+    },
+    {
+      "board_id": "mcu",
+      "path": "pcb/mcu.kicad_sch",
+      "error_ceiling": 0,
+      "warning_ceiling": null,
+      "warnings_by_type": {},
+      "provenance": {
+        "source": "TODO-unmeasured-on-pinned-kicad-cli",
+        "measured_via": null,
+        "tool_versions": {
+          "kicad-cli": null
+        },
+        "note": "2026-07-26 hand-measured figure was 64 violations on kicad-cli 10.0.4 (docs/STRATEGY.md:304, severity/error split not recorded by hand), NOT the 10.0.5 pinned in .github/docker/ci.Dockerfile. Re-measure on 10.0.5 and replace this whole provenance block before relying on warning_ceiling."
+      }
+    }
+  ]
+}

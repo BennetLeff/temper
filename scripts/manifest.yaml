@@ -1101,6 +1101,23 @@ scripts:
   - argparse
   - pathlib
   - sys
+- path: ci_check_erc.py
+  purpose: 'CI entry point: ERC (kicad-cli sch erc) ratchet check -- errors hard-fail, warnings ratchet against power_pcb_dataset/erc_ceiling.json'
+  owner: pipeline
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - contextlib
+  - dataclasses
+  - json
+  - pathlib
+  - shutil
+  - subprocess
+  - sys
+  - tempfile
+  - typing
 - path: ci_closure_test.py
   purpose: 'CI entry point: closure test (Benders -> Router -> DRC)'
   owner: pipeline

@@ -62,16 +62,16 @@ jobs:
       # (pcb/temper.kicad_pcb) -- hardware and firmware cannot disagree
       # about a load-bearing value.
       #
-      # ADVISORY (continue-on-error) until the board fix lands: the oracle
-      # is RED on the current board by design -- tank.c_tank3 is present
-      # in the board file but staged OFF-OUTLINE at (20.0, 272.75), the
-      # exact defect class this oracle exists to catch (a plain refdes /
-      # value lookup would pass it). The step still RUNS on every firmware
-      # and board change and reports the named failure; the landing
-      # contract makes it a hard gate in the PR that places the tank cap
-      # (per the plan: do NOT fail CI and do NOT re-place the cap here).
-      - name: Firmware-board contract oracle (advisory until board fix)
-        continue-on-error: true
+      # Was ADVISORY (continue-on-error) until the board fix landed: the
+      # oracle was RED by design because tank.c_tank3 was staged
+      # OFF-OUTLINE at (20.0, 272.75) -- the exact defect class this
+      # oracle exists to catch. The tank-cap placement fix landed in
+      # de59c045 (#602, 2026-08-03); the oracle now PASSES 3/3 on the
+      # current board (verified stable across repeated local runs on
+      # 2026-08-07) and the mask was removed -- it was dead weight, not a
+      # live advisory. This is now a hard gate, per the landing contract
+      # the original comment described.
+      - name: Firmware-board contract oracle
         run: python3 scripts/check_firmware_board_contract.py
 
       # Drift guard: every constant annotated with a board-derivation

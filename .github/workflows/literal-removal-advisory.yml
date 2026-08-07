@@ -2,10 +2,12 @@ name: Literal-Removal Advisory
 
 # Runs once per merge to main, NOT per pull-request push.
 #
-# This job carries job-level `continue-on-error: true`, and
-# scripts/literal_removal_check.py "always exits 0" by its own docstring -- so
-# it is advisory at both levels and can never block a merge. Its only output is
-# text for a human to read.
+# scripts/literal_removal_check.py "always exits 0" by its own docstring, so
+# this job can never block a merge -- its only output is text for a human to
+# read. (Until 2026-08-07 this job also carried a job-level
+# `continue-on-error: true`; removed as dead weight once confirmed the script
+# genuinely never returns non-zero, so the mask never had anything to
+# guard.)
 #
 # On the PR path that made it pure capacity consumption. Measured 2026-08-03:
 # the account ceiling is ~24 concurrent jobs while a single push already
@@ -33,9 +35,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# no-pr-trigger: advisory only -- the job carries job-level
-# continue-on-error and scripts/literal_removal_check.py "always exits 0" by
-# its own docstring, so it can never block a merge. Running it per merge
+# no-pr-trigger: advisory only -- scripts/literal_removal_check.py "always
+# exits 0" by its own docstring, so it can never block a merge. Running it per merge
 # instead of per PR push analyses exactly the same diffs (on a squash merge
 # github.event.before is the previous main tip) at a fraction of the runner
 # cost.
@@ -47,7 +48,16 @@ on:
 jobs:
   advisory:
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # Removed 2026-08-07: dead weight, confirmed by running the script
+    # directly (`python3 scripts/literal_removal_check.py --base HEAD~1`,
+    # exit 0). scripts/literal_removal_check.py's own docstring says it
+    # "always exits 0", and reading main() confirms every code path returns
+    # 0; the one thing that could raise (an invalid diff base) is already
+    # prevented by the "Resolve diff base" step above, which falls back to
+    # HEAD~1 (guaranteed to resolve given fetch-depth: 0) whenever
+    # github.event.before is unusable. This job-level mask could never fire.
+    # The header comment above already asserted this; this just makes the
+    # code match what the comment already claimed.
     # The check runs one `git grep` over the whole repo per removed literal, so
     # a large diff makes it slow. It used to crash out in ~16s on a decode
     # error, which hid that; with the crash fixed it runs to completion and

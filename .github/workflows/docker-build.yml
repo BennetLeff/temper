@@ -61,9 +61,14 @@ jobs:
           echo "full=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${HASH}" >> "$GITHUB_OUTPUT"
           echo "latest=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> "$GITHUB_OUTPUT"
 
+      # Removed 2026-08-07: dead weight. This script has no `set -e` and its
+      # last statement on every branch is a successful `echo`, so the step
+      # exits 0 regardless of whether `docker manifest inspect` finds the
+      # tag or not (verified: a nonexistent tag makes `docker manifest
+      # inspect` itself exit 1, but the wrapping if/else always ends in a
+      # successful echo) -- the step structurally cannot fail.
       - name: Check if image already exists
         id: check
-        continue-on-error: true  # TODO: temper-NNN -- cache lookup best-effort; hard-fail after 2026-09-01
         run: |
           if docker manifest inspect "${{ steps.tag.outputs.full }}" > /dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"

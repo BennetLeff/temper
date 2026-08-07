@@ -71,8 +71,22 @@ jobs:
           uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
       - name: Verify temper-drc-rs loads
         run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+      # Removed 2026-08-07: `continue-on-error` was dead weight here -- the
+      # `run:` command already ends in `|| echo "CLOSURE_EXIT=$?" >>
+      # $GITHUB_ENV`, which makes the step exit 0 unconditionally regardless
+      # of ci_closure_test.py's real exit code, so the mask had nothing left
+      # to guard (same self-swallow pattern as the pr-pipeline-scorecard.yml
+      # "Run closure test on PR head" step, and $CLOSURE_EXIT is written but
+      # never read anywhere in this repo). NOT fixed here (out of scope for
+      # a masking cleanup, needs its own PR): the underlying command
+      # genuinely fails every run -- `ci_closure_test.py`'s PlacementStage
+      # adapter still calls the removed JAX/benders_loop backend
+      # (packages/temper-placer/src/temper_placer/adapters/
+      # register_strategies.py:44, `NotImplementedError`) instead of the
+      # CP-SAT deterministic placer, verified 2026-08-07. Making this step
+      # actually hard-fail (drop the `|| echo` too) should wait for that
+      # migration, or it will just turn this job red on every push.
       - name: Run closure test
-        continue-on-error: true  # TODO: temper-NNN -- closure test best-effort; hard-fail after 2026-09-01
         run: >
           uv run python3 scripts/ci_closure_test.py
           --pcb pcb/temper.kicad_pcb
@@ -91,8 +105,11 @@ jobs:
         with:
           name: baseline-metrics
           path: pipeline-metrics/pipeline_metrics.jsonl
+      # Removed 2026-08-07: dead weight, verified by running both halves of
+      # the pipe locally -- `temper profile run --module loss-fn ...` and
+      # the downstream `pipeline_metrics.py record --from-stdin` both exit
+      # 0 with a clean recorded metric.
       - name: Profile loss functions
-        continue-on-error: true  # TODO: temper-NNN -- loss-fn profiling best-effort; hard-fail after 2026-09-01
         run: |
           uv run temper profile run \
             --module loss-fn --board temper \
@@ -100,8 +117,17 @@ jobs:
             | uv run python scripts/pipeline_metrics.py record \
               --board temper --commit "${{ github.sha }}" \
               --from-stdin --metrics-file "$NDJSON_FILE"
+      # router-bench profiles all 4 fixture boards (Piantor_Right,
+      # LibreSolar_BMS, RP2040_DesignGuide, BitAxe_Ultra) through full
+      # topological CP-SAT routing -- a genuinely heavy, multi-minute
+      # benchmark. Spot-checked 2026-08-07: no errors observed through
+      # board 1's full SAT solve (15.8M vars, 23.4M clauses, 14.7s) and well
+      # into board 2, but a full run was not observed to a clean exit
+      # locally (session time limits, not a failure). Kept non-blocking
+      # until a maintainer confirms one complete CI run finishes within this
+      # job's 30-minute budget with exit 0; remove once confirmed.
       - name: Profile router benchmarks
-        continue-on-error: true  # TODO: temper-NNN -- router benchmarks best-effort; hard-fail after 2026-09-01
+        continue-on-error: true
         run: |
           uv run temper profile run \
             --module router-bench \
@@ -145,9 +171,19 @@ jobs:
         with:
           name: pipeline-report
           path: pipeline_report.html
+      # This step auto-writes power_pcb_dataset/timing_baselines.yaml and
+      # pushes the commit directly to main (see the git commit/push below,
+      # retry-looped) -- it is feature-flagged off by default
+      # (FEATURE_AUTO_BASELINE_TIGHTEN) and exists purely for auto-
+      # maintenance, not correctness. `temper timing tighten --ci` does have
+      # real non-zero exit paths (malformed baseline data, missing metrics
+      # file; packages/temper-placer/src/temper_placer/cli/timing.py), so
+      # this isn't unconditionally safe -- but a transient push race or a
+      # temporarily-malformed metrics file legitimately should not fail
+      # pipeline-metrics *recording*, which is this job's actual purpose.
       - name: Auto-tighten timing baselines
         if: env.FEATURE_AUTO_BASELINE_TIGHTEN == 'true'
-        continue-on-error: true  # TODO: temper-NNN -- auto-maintenance best-effort; hard-fail after 2026-09-01
+        continue-on-error: true
         run: |
           echo "Checking for eligible baseline tightening..."
           uv run temper timing tighten --ci \
