@@ -45,4 +45,4 @@ ABI_VERSION = "1"
 # --- account_id placeholder ---
 # Uncomment and fill with the real value (or rely on `wrangler deploy`'s
 # interactive account picker / `wrangler whoami`). Never commit the real value.
-# account_id = ""
+account_id = "03f642afe070f05b727f7cd31f02ef48"

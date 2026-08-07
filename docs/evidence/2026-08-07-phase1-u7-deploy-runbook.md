@@ -225,3 +225,17 @@ measure before ratcheting.
 - `wrangler dev` parity: the local harness (`worker_local_server.mjs`) runs the
   same core against the same artifact and is the sanctioned Phase-0 substitution
   for a local workerd.
+
+---
+
+## 6. Deployment status (2026-08-07)
+
+**Deployed:** `https://temper-wasm-tier.bennetleff.workers.dev`
+- Version ID: `7e606562-7d31-4b98-a0af-09eb74b05c9a` (v2 — after the cached-instance fix)
+- Account: `03f642afe070f05b727f7cd31f02ef48` (bennetleff@gmail.com)
+- Artifact: 147-test runner (1,238,461 bytes staged), 0 imports
+- First version `d7f08600` hit **error 1042/1104 (CPU limit)** on cold isolates: each request did a fresh `WebAssembly.instantiate` of the 1.2 MB module, which exceeds the free-tier 10 ms CPU budget.
+
+**Fix (committed in `worker_core.js`):** cache the instance per isolate and reuse it across requests (the runner records "Instance callable after trap: true", so reuse survives expected-fail traps). Instantiation now happens once per isolate; every subsequent request is ~1 ms CPU. Post-fix sweep: 15/15 random indexes `pass`, /health 200×3, expected-fail classified correctly.
+
+**Cost basis (free tier):** 10 ms CPU/invocation is now ample — warm requests are ~1 ms. The plan's ~$0.12/month estimate at 40 commits/month holds (free tier covers daily full sweeps).
