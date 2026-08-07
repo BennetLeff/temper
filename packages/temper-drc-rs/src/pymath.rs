@@ -264,17 +264,34 @@ pub fn py_min(a: f64, b: f64) -> f64 {
 ///
 /// See CPython `Modules/mathmodule.c`, `vector_norm`.
 pub fn py_hypot(x: f64, y: f64) -> f64 {
-    // CPython `math_hypot_impl` returns NaN up front when any input is
-    // NaN (before vector_norm runs); the `f64::max` below would otherwise
-    // discard a NaN argument. And hypot(+-inf, anything) is +inf, which
-    // the vector_norm path would turn into NaN through the fma-based
-    // correction (CPython's frexp gives e=0 for inf, ours does not), so
-    // both guards are exact CPython semantics, not approximations.
-    if x.is_nan() || y.is_nan() {
-        return f64::NAN;
-    }
+    // INFINITY IS CHECKED BEFORE NaN, and the order is the whole point.
+    //
+    // CPython's `math_hypot_impl` scans its coordinates recording `found_nan`,
+    // but returns `+inf` as soon as any coordinate is infinite -- infinity wins
+    // over NaN. Measured against CPython 3.12:
+    //
+    //     math.hypot(inf, nan) == inf      math.hypot(nan, inf) == inf
+    //     math.hypot(-inf, nan) == inf
+    //     math.hypot(nan, 1.0) == nan      math.hypot(1.0, nan) == nan
+    //
+    // This file had the guards in the opposite order and returned NaN where
+    // CPython returns inf. Each guard in isolation is correct -- the previous
+    // comment here claimed "both guards are exact CPython semantics", which is
+    // true of each and false of the pair -- so only an input that is BOTH
+    // infinite and NaN-bearing exposes it, which no fixture happened to carry.
+    //
+    // `temper-geometry`'s copy of this function already had the correct order,
+    // fixed when the Wave-4 router_v6 constraints-geometry differential hit
+    // `hypot(-inf, nan)` for real: it arises in `point_to_segment_distance`
+    // when a segment endpoint is infinite and the clamped projection produces
+    // a NaN coordinate. Two crates disagreeing on the same primitive is the
+    // divergence class this port exists to eliminate, so this copy is brought
+    // into line rather than left to be discovered a third time.
     if x.is_infinite() || y.is_infinite() {
         return f64::INFINITY;
+    }
+    if x.is_nan() || y.is_nan() {
+        return f64::NAN;
     }
     let x = x.abs();
     let y = y.abs();
@@ -437,6 +454,23 @@ pub(crate) mod tests {
         assert_eq!(py_max(-0.0, 0.0).to_bits(), (-0.0f64).to_bits());
     }
 
+    /// Infinity beats NaN, pinned against real CPython 3.12.
+    ///
+    /// Regression test for the guard ORDER. This file checked NaN first and
+    /// returned NaN where CPython returns inf; `temper-geometry`'s copy already
+    /// had it right. Only an input that is both infinite and NaN-bearing shows
+    /// the difference, which is why no existing fixture caught it.
+    #[cfg_attr(test, test)]
+    fn hypot_infinity_beats_nan() {
+        assert!(py_hypot(f64::INFINITY, f64::NAN).is_infinite());
+        assert!(py_hypot(f64::NAN, f64::INFINITY).is_infinite());
+        assert!(py_hypot(f64::NEG_INFINITY, f64::NAN).is_infinite());
+        assert!(py_hypot(f64::INFINITY, f64::NAN) > 0.0, "must be +inf");
+        // ...and a NaN with no infinity present is still NaN.
+        assert!(py_hypot(f64::NAN, 1.0).is_nan());
+        assert!(py_hypot(1.0, f64::NAN).is_nan());
+    }
+
     #[cfg_attr(test, test)]
     fn hypot_pinned_values() {
         // `math.hypot(...).hex()` from CPython 3.12, including the two
@@ -449,7 +483,11 @@ pub(crate) mod tests {
         // argument itself here, which `f64::hypot` does not
         assert_eq!(py_hypot(5e-324, 5e-324), 5e-324);
         assert!(py_hypot(f64::NAN, 1.0).is_nan());
-        assert!(py_hypot(f64::INFINITY, f64::NAN).is_nan());
+        // Was `.is_nan()`, which pinned the defect this file carried: CPython
+        // returns +inf here (infinity wins over NaN in `math_hypot_impl`), so
+        // the old assertion asserted the bug. Measured on CPython 3.12:
+        //     math.hypot(inf, nan) == inf
+        assert_eq!(py_hypot(f64::INFINITY, f64::NAN), f64::INFINITY);
         assert_eq!(py_hypot(f64::NEG_INFINITY, 1.0), f64::INFINITY);
         assert_eq!(py_hypot(0.0, 0.0), 0.0);
     }
@@ -560,6 +598,7 @@ pub(crate) mod tests {
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
         ("pymath::tests::py_max_keeps_the_first_argument", py_max_keeps_the_first_argument),
+        ("pymath::tests::hypot_infinity_beats_nan", hypot_infinity_beats_nan),
         ("pymath::tests::hypot_pinned_values", hypot_pinned_values),
         ("pymath::tests::pow_is_not_a_multiply_or_a_sqrt", pow_is_not_a_multiply_or_a_sqrt),
         ("pymath::tests::round_is_decimal_not_scaled", round_is_decimal_not_scaled),
