@@ -111,29 +111,50 @@ function text(body, status = 200) {
  */
 export function createWorker(wasmModule) {
   /**
+   * Cached instance, per isolate. Instantiation is the dominant per-request
+   * CPU cost (the free-tier 10 ms cap is blown by a cold instantiate of the
+   * 1.2 MB module — observed 1042/1104 on cold isolates). The wasm-test-runner
+   * records "Instance callable after trap: true": a trap unwinds to the host
+   * without corrupting linear memory or globals, so one instance is safe to
+   * reuse across requests, including after an expected-fail trap. This is the
+   * warm-isolate amortization the U3 sharding analysis named as Track D's one
+   * cost lever. Set back to null only if a future module needs fresh state per
+   * invocation.
+   */
+  let cachedInstance = null;
+
+  async function getInstance() {
+    if (cachedInstance) return cachedInstance;
+    try {
+      // WebAssembly.instantiate(compiledModule, importObject) returns the Instance directly.
+      cachedInstance = await WebAssembly.instantiate(wasmModule, {});
+    } catch (err) {
+      // Instantiation itself trapped — corrupted module or OOM. Return null so
+      // the caller reports it; the next request retries.
+      return null;
+    }
+    return cachedInstance;
+  }
+
+  /**
    * Instantiate the WASM module and run a single test by index.
    *
    * Returns { verdict, index, name, message, abi_version, ms }.
-   * On trap, the panic buffer is read from the dying instance before the
+   * On trap, the panic buffer is read from the instance before the
    * WebAssembly store is released.
    */
   async function runTest(index, expectedAbi) {
     const t0 = Date.now();
 
-    let inst;
-    try {
-      // WebAssembly.instantiate(compiledModule, importObject) returns the Instance directly.
-      inst = await WebAssembly.instantiate(wasmModule, {});
-    } catch (err) {
-      // Instantiation itself trapped — corrupted module or OOM.
-      const ms = Date.now() - t0;
+    const inst = await getInstance();
+    if (!inst) {
       return {
         verdict: "fail",
         index,
         name: null,
-        message: `instantiation trap: ${err.message || err}`,
+        message: "instantiation trap: module could not be instantiated",
         abi_version: null,
-        ms,
+        ms: Date.now() - t0,
       };
     }
 
@@ -202,10 +223,11 @@ export function createWorker(wasmModule) {
     const expectedAbi = parseInt((env && env.ABI_VERSION) || "1", 10);
     const url = new URL(request.url);
 
-    // GET /health — liveness + census (fresh instantiate each time)
+    // GET /health — liveness + census (cached instance)
     if (request.method === "GET" && url.pathname === "/health") {
       try {
-        const inst = await WebAssembly.instantiate(wasmModule, {});
+        const inst = await getInstance();
+        if (!inst) return json({ status: "error", message: "instantiation failed" }, 500);
         const abi = inst.exports.temper_wasm_abi_version();
         const count = inst.exports.temper_test_count();
         return json({ status: "ok", abi_version: abi, test_count: count });
@@ -232,16 +254,15 @@ export function createWorker(wasmModule) {
       if (typeof body.index === "number") {
         index = body.index;
       } else if (typeof body.name === "string") {
-        // Resolve name→index via a fresh census. This costs a second
-        // instantiation for the census, but in the Workers model each
-        // request gets a fresh isolate anyway, and the census is fast
-        // (one instantiate + N string reads).
+        // Resolve name→index via the cached instance (one census, then N
+        // string reads on the same instance — no extra instantiation).
         let inst;
         try {
-          inst = await WebAssembly.instantiate(wasmModule, {});
+          inst = await getInstance();
         } catch (err) {
           return json({ error: `instantiation failed: ${err.message || err}` }, 500);
         }
+        if (!inst) return json({ error: "instantiation failed" }, 500);
         const nameIndex = buildNameIndex(inst);
         if (nameIndex.has(body.name)) {
           index = nameIndex.get(body.name);
