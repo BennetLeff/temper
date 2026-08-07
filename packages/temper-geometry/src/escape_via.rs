@@ -100,10 +100,10 @@ fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
 /// `Component.initial_rotation` is a rotation *index*; the corpus carries
 /// out-of-range values (`5`, `-1`) precisely because the module multiplies
 /// without validating.
-fn normalize_rotation(rotation: Option<i64>) -> f64 {
+fn normalize_rotation(rotation: Option<f64>) -> f64 {
     match rotation {
         None => 0.0,
-        Some(r) => (r as f64) * std::f64::consts::PI / 2.0,
+        Some(r) => r * std::f64::consts::PI / 2.0,
     }
 }
 
@@ -162,7 +162,7 @@ impl PadRow {
 
 struct CompRow {
     position: Option<(f64, f64)>,
-    rotation: Option<i64>,
+    rotation: Option<f64>,
     side: Option<i64>,
     pads: Vec<PadRow>,
 }
@@ -215,7 +215,7 @@ fn parse_pads(pins: &Bound<'_, PyAny>) -> PyResult<Vec<PadRow>> {
 /// package_type, pins)` -- the corpus `PACKAGES` row with its label dropped.
 fn parse_package(pkg: &Bound<'_, PyAny>) -> PyResult<(CompRow, f64)> {
     let position: Option<(f64, f64)> = pkg.get_item(0)?.extract()?;
-    let rotation: Option<i64> = pkg.get_item(1)?.extract()?;
+    let rotation: Option<f64> = pkg.get_item(1)?.extract()?;
     let side: Option<i64> = pkg.get_item(2)?.extract()?;
     let pitch: f64 = pkg.get_item(3)?.extract()?;
     let pads = parse_pads(&pkg.get_item(5)?)?;
@@ -378,10 +378,8 @@ fn generate_escape_vias(
     // `angle` is the component's own board rotation.  `comp_x`/`comp_y` are
     // computed by the reference and then only handed to `_is_position_valid`'s
     // unused `_comp_pos`, so they are deliberately not modelled here.
-    let angle = match comp.rotation {
-        None => 0.0,
-        Some(r) => (r as f64) * std::f64::consts::PI / 2.0,
-    };
+    // Same rule as `normalize_rotation`, which this used to duplicate inline.
+    let angle = normalize_rotation(comp.rotation);
 
     for pad in &comp.pads {
         // `if not pin.net` -- both `None` and `""` are skipped.
@@ -514,7 +512,7 @@ pub fn escape_is_position_valid_py(
     }
     let comp = CompRow {
         position: Some((0.0, 0.0)),
-        rotation: Some(0),
+        rotation: Some(0.0),
         side: None,
         pads: rows,
     };
@@ -533,7 +531,7 @@ mod tests {
 
     #[test]
     fn quadrant_rotation_is_not_an_exact_axis_swap() {
-        let (x, y) = rotate_local_to_world(0.9375, 0.0, normalize_rotation(Some(1)));
+        let (x, y) = rotate_local_to_world(0.9375, 0.0, normalize_rotation(Some(1.0)));
         assert_ne!(x, 0.0, "the cos(pi/2) residue was optimised away");
         assert_eq!(y, -0.9375);
     }
@@ -562,7 +560,7 @@ mod tests {
     fn nan_distance_is_accepted_not_rejected() {
         let comp = CompRow {
             position: Some((0.0, 0.0)),
-            rotation: Some(0),
+            rotation: Some(0.0),
             side: None,
             pads: vec![PadRow {
                 number: "1".into(),
@@ -584,7 +582,7 @@ mod tests {
     fn empty_pad_list_is_always_valid() {
         let comp = CompRow {
             position: Some((0.0, 0.0)),
-            rotation: Some(0),
+            rotation: Some(0.0),
             side: None,
             pads: vec![],
         };

@@ -15,9 +15,18 @@ propagates a NaN from the left only. See ``placer_core/manufacturing.rs``.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any, TypeAlias
+
 import temper_io_types as _rs
 
-FabPreset = _rs.FabPreset
+if TYPE_CHECKING:
+    # ``temper_io_types`` is a compiled pyo3 extension with no stubs, so
+    # ``X = _rs.X`` binds a *variable* of type Any and every annotation
+    # using it is "not valid as a type". Aliasing to Any under
+    # TYPE_CHECKING keeps the runtime binding below untouched.
+    FabPreset: TypeAlias = Any
+else:
+    FabPreset = _rs.FabPreset
 
 
 def get_fab_presets() -> dict[str, FabPreset]:

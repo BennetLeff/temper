@@ -1056,6 +1056,7 @@ mod tests {
 
 #[cfg(test)]
 mod depth_boundary {
+    #![allow(clippy::expect_used)] // test-only: expect_err IS the assertion
     use super::*;
 
     /// Pin the EXACT frame at which `enter()` rejects.

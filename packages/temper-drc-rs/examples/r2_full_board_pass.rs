@@ -20,6 +20,7 @@
 //!   # safety_, placement_, routing_) so no rule source needs touching.
 //!   cargo run --release --no-default-features \
 //!     --example r2_full_board_pass -- /tmp/board.json --summary --family drc
+#![allow(clippy::unwrap_used, clippy::expect_used)] // standalone measurement example: a panic IS the failure mode
 
 use std::hint::black_box;
 use std::time::Instant;
@@ -38,8 +39,9 @@ use temper_drc_rs::rules::create_default_registry;
 /// dependency for this measurement-only example.
 ///
 /// Units differ by platform:
-///   - Darwin (macOS): bytes
-///   - Linux:           KiB
+///
+/// - Darwin (macOS): bytes
+/// - Linux: KiB
 ///
 /// The function normalises to bytes and returns a label for the evidence doc.
 fn peak_rss_bytes() -> (i64, &'static str) {

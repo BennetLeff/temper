@@ -311,7 +311,7 @@ class TestMetamorphicRelations:
         """
         expr = live.TagOr(
             live.TagRef(getattr(live.ComponentTag, name)),
-            live.TagRef(live.ComponentTag.ALL if False else live.ComponentTag.MCU),
+            live.TagRef(live.ComponentTag.MCU),
         )
         before = live.resolve(expr, _comp(ref, tags))
         after = live.resolve(expr, _comp(ref, frozenset(tags) | {extra}))

@@ -72,8 +72,15 @@ def estimate_routing_demand(
     """
     # Handle both dict and list formats for nets
     # Type annotation says list[Net] but tests and some code paths use dict
-    as_dict = isinstance(pcb.nets, dict)
-    net_names = list(pcb.nets.keys()) if as_dict else [net.name for net in pcb.nets]
+    # The isinstance is inlined rather than hoisted into an `as_dict` flag so
+    # the type checker can narrow `pcb.nets` inside each branch; a boolean
+    # computed on a previous line does not narrow.
+    if isinstance(pcb.nets, dict):
+        as_dict = True
+        net_names = list(pcb.nets.keys())
+    else:
+        as_dict = False
+        net_names = [net.name for net in pcb.nets]
 
     # `pin.net` is `str | None`; the classification loop only ever compares
     # it against a real net name (never `None`), so a pin with no net is

@@ -108,7 +108,7 @@ DISTANCE_CASES = [
     "0mil",
     "1mil",
     "3.14159in",
-    "1e-3mm" if False else "0.001mm",
+    "0.001mm",
     # --- rejected units / malformed
     "5m",
     "1e5",

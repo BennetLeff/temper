@@ -810,7 +810,11 @@ class DrcRatchet:
             # board file's current content -- a raise measured against a
             # board that has since moved is a stale measurement.
             board_rel = record.get("path")
-            inputs = prov.get("inputs") if isinstance(prov.get("inputs"), list) else []
+            # Bind once, then narrow: `prov.get(...)` called twice is two
+            # separate expressions, so the isinstance does not narrow the
+            # value that actually gets assigned.
+            raw_inputs = prov.get("inputs")
+            inputs = raw_inputs if isinstance(raw_inputs, list) else []
             matching_inputs = [
                 inp
                 for inp in inputs
