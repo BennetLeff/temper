@@ -2,6 +2,13 @@
 
 provenance: commit=4da76ebb0 dirty=false
 
+> **Wave-3 outcome addendum (2026-08-07, commit `7dcfb2fe`):** This plan's
+> Wave A and Wave B both overstate what is removable. Wave-3 landed the safe
+> tightening (transient returns, extract-helper dedup onto `temper-py-bridge`)
+> and verified — against the actual pinned test suite — that the remaining
+> stored fields are not removable. A future audit must compare against this
+> state, not against the wave-2 numbers below.
+
 Measured against `origin/main` @ `4da76ebb0` (2026-08-06) in an isolated
 worktree (`/private/tmp/wt9-pyany2`, branch `docs/pyany-audit-2`). The
 wave-1 baseline is `docs/evidence/2026-08-05-pyany-surface-audit.md`
@@ -281,6 +288,18 @@ and defer to Python ops). Verified call sites all pass contract pyclasses:
 **Pins:** `tests/placer/cp_sat/test_gate_contract.py::TestBoardState`
 (empty / `board=` / `netlist=` kwargs); no test pushes a non-contract payload.
 
+> **Wave-3 verdict: NOT REMOVABLE — the pin claim above is false.** The
+> pinned `test_gate_contract.py::TestBoardState::test_all_fields_populated`
+> (line 244–258) and `test_gates_rust_differential.py::test_board_state_populated_identical`
+> (line 371–395) both push bare `object()` instances into `netlist`/`board`/
+> `design_rules` and assert identity (`bs.netlist is fake_netlist`). A typed
+> constructor (`Option<&Bound<Netlist>>`) would raise `TypeError` on those
+> payloads and break both pins. Typed storage behind a `PyAny` constructor
+> was considered and rejected in wave 3: transmuting `object()` into a
+> `Py<Netlist>` is a type lie (UB on any Rust-side downcast). These three
+> fields are reclassified **INTENTIONAL** — arbitrary-payload identity
+> preservation is the pinned contract. Documented in `gates.rs:563`.
+
 **A2. `Issue.severity` → `Py<Severity>`** (drc_contracts.rs:507).
 `#[pyclass]` `Severity` singletons are the only production values
 (`drc_runner.py:239`, `drc_oracle.py:575`). Constructor param → `&Bound<Severity>`;
@@ -322,8 +341,11 @@ zero behavioral risk, and the differential is the only pin.
   a pipeline path; tighten alongside the Phase-5 orchestration collapse.
 - `Violation.components`/`nets`/`context` and `GateResult.violations` —
   assembled by cp_sat Python gates (JUSTIFIED-KEEP, ortools). Permanent
-  unless the keep is re-decided; at most tighten `Py<PyAny>` → `Py<PyTuple>`/
-  `Py<PyDict>` for clarity.
+  unless the keep is re-decided. The suggested clarity tightening
+  (`Py<PyAny>` → `Py<PyTuple>`/`Py<PyDict>`) is **NOT dispatchable**: the
+  pinned `tests/placer/cp_sat/test_loop_termination_pbt.py:144` constructs
+  `GateResult(..., violations=[v])` with a **list**, so a `Py<PyTuple>`
+  field/constructor would break it (same pin-claim error as Wave A1).
 - `PyPlacementViolation.item_a`/`item_b` — the duck-typed pin fallback
   (pybridge.rs:871–881) keeps these INTENTIONAL. Re-flag only if a sweep
   proves every production pin is a `PyPinInfo`.
@@ -413,13 +435,18 @@ all ledgered. Verified by running the gate in the worktree.
 
 ## 7. Recommended follow-ups
 
-1. **Dispatch Wave A** (11 REMOVABLEs) as one small PR (or two: design-bundle
-   BoardState+hypergraph+manufacturing, then drc-rs) — it closes all three
-   wave-1 pendings and all eight wave-2 new REMOVABLEs.
+1. ~~**Dispatch Wave A** (11 REMOVABLEs) as one small PR~~ — **DONE in wave-3**
+   (commit `7dcfb2fe`): A2–A7 had already landed (PR #858); the transient
+   returns and extract-helper dedup landed in wave-3; A1 is proven NOT
+   removable (see §4). The remaining stored `Py<PyAny>` is all INTENTIONAL
+   or STILL-NEEDED.
 2. Update `docs/MIGRATION_PHASE_GUIDE.md` § Phase 5's boundary figure again:
    the "58 `Py<PyAny>` fields" paragraph should now be told as stored 20 → 161
-   → 353 with the stored-vs-transient distinction, so the next measurement
-   (wave-3) compares like for like.
+   → 353 → (wave-3: transient tightened, stored unchanged for the non-removable
+   classes) with the stored-vs-transient distinction, so the next measurement
+   (wave-3) compares like for like. NOTE: `docs/MIGRATION_PHASE_GUIDE.md` no
+   longer exists as of 2026-08-07 — record the wave-3 numbers wherever the
+   Phase-5 boundary figure lives next.
 3. Re-run this audit when the pcl/net_graph/`_constraint_types`/differential_pair
    migrations land — each converts a §3 watch-item into a circular call-back
    and can make `DesignRules`' seven containers removable.
