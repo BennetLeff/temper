@@ -1,10 +1,28 @@
-"""
-Design rules parsing and clearance matrix for DRC.
+"""Pinned Python oracle for ``router_v6/constraints_design_rules.py`` (Wave 4).
 
-Extends core.design_rules with KiCad PCB parsing and clearance matrix
-for net-class-aware constraint checking.
+This file is a VERBATIM copy of the pre-migration implementation of
+``temper_placer/router_v6/constraints_design_rules.py`` as of commit
+``4884d284cde3b8247ae90727d8374d3aac98c5b8`` (origin/main). Only the module
+docstring was replaced with this pin note; every executable statement below
+-- imports, ``RoutingZone``, ``ZoneManager``, ``ClearanceMatrix``,
+``DesignRulesParser``, ``_classify_net``, ``infer_zones`` -- is byte-identical
+to the pinned commit.
 
-Part of temper-lueu.1
+DO NOT EDIT THE SEMANTICS. This is the oracle the Rust kernels in
+``temper-drc-rs`` (``clearance_matrix.rs``) must reproduce bit-identically
+for the hot-path subset (``ClearanceMatrix.get_clearance``,
+``_get_base_clearance``, ``get_track_width``, ``get_via_diameter``,
+``get_via_drill``, ``is_differential_pair``, ``add_differential_pair``'s
+clearance arithmetic, and ``ZoneManager.get_zone_at``). If the module's
+contract changes, the oracle must be re-pinned from the new base first.
+
+NOT ported (confirmed dead, zero callers repo-wide, or GEOS-dependent):
+``ZoneManager.get_clearance``, ``ZoneManager.can_route_net_at``,
+``ClearanceMatrix.can_route_at``, ``infer_zones`` (shapely
+``convex_hull``/``buffer`` has no bit-exact Rust reproduction -- a library
+boundary, not a port). ``DesignRulesParser.*`` and ``ClearanceMatrix.parse``
+are one-shot kiutils-marshalling glue, not hot path, and are also not
+ported.
 """
 
 from __future__ import annotations
@@ -13,7 +31,9 @@ import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from shapely.geometry import MultiPoint
+import numpy as np
+from shapely.geometry import MultiPoint, Point, Polygon
+from shapely.strtree import STRtree
 
 from temper_placer.core.design_rules import (
     NetClassRules,
@@ -46,15 +66,13 @@ class RoutingZone:
 class ZoneManager:
     """Manages routing zones and provides fast spatial lookups.
 
-    Wave 4: point-in-zone queries (``get_zone_at``) delegate to
-    ``temper_drc_rs``'s brute-force point-in-polygon kernel rather than a
-    shapely ``STRtree`` -- the zone counts this codebase produces (0-3) make
-    the R-tree's bounding-box pre-filter pure overhead, not a needed
-    optimization.
+    Uses an R-tree (via shapely STRtree) for O(log n) point-in-zone queries.
     """
 
     def __init__(self, zones: list[RoutingZone]):
         self.zones = zones
+        self._polygons = [Polygon(z.polygon) for z in zones]
+        self._tree = STRtree(self._polygons)
 
     def get_zone_at(self, x: float, y: float) -> RoutingZone | None:
         """Return the zone containing this point, or None if unzoned.
@@ -65,20 +83,24 @@ class ZoneManager:
         Returns:
             RoutingZone containing the point, or None
         """
-        # Wave 4: delegates the point-in-polygon test to temper_drc_rs. The
-        # kernel brute-forces all zones in list order (no STRtree bounding-box
-        # pre-filter -- zone counts here are 0-3, so that is purely a
-        # performance optimization, not observable behavior, for the
-        # non-overlapping zones this codebase constructs). See
-        # clearance_matrix.rs's module docstring for the GEOS-boundary and
-        # overlapping-zone fidelity caveats.
-        import temper_drc_rs as _temper_drc_rs
+        point = Point(x, y)
+        # Query tree for polygons whose bounding box intersects the point
+        possible_indices = self._tree.query(point)
 
-        polygons = [list(z.polygon) for z in self.zones]
-        idx = _temper_drc_rs.clearance_zone_at_py(x, y, polygons)
-        if idx is None:
-            return None
-        return self.zones[idx]
+        # Check actual containment (STRtree query is based on envelopes)
+        # Note: query returns a scalar if one result, or array if multiple in some versions.
+        # Shapely 2.0 query(point) returns an array of indices.
+        if isinstance(possible_indices, np.ndarray):
+            for idx in possible_indices:
+                if self._polygons[idx].contains(point):
+                    return self.zones[idx]
+        elif possible_indices is not None:
+            # Older shapely or single result
+            idx = int(possible_indices)
+            if self._polygons[idx].contains(point):
+                return self.zones[idx]
+
+        return None
 
     def get_clearance(
         self, x: float, y: float, net_a: str, net_b: str, matrix: ClearanceMatrix
@@ -151,13 +173,6 @@ class ClearanceMatrix:
     # For diff pairs, this spacing is the required center-to-center distance
     _differential_pairs: dict[frozenset, float] = field(default_factory=dict)
 
-    def _diff_pairs_wire(self) -> list[tuple[str, str, float]]:
-        """Wire-format for ``_differential_pairs``: a flat list of ``(net_a,
-        net_b, required_clearance)`` rows. The Rust kernels canonicalize the
-        unordered pair themselves, so callers do not need to sort.
-        """
-        return [(a, b, v) for (a, b), v in self._differential_pairs.items()]
-
     def is_differential_pair(self, net_a: str, net_b: str) -> bool:
         """Check if two nets are a registered differential pair.
 
@@ -168,12 +183,7 @@ class ClearanceMatrix:
         Returns:
             True if the nets are a registered differential pair
         """
-        # Wave 4: delegates to temper_drc_rs.
-        import temper_drc_rs as _temper_drc_rs
-
-        return _temper_drc_rs.clearance_is_differential_pair_py(
-            net_a, net_b, self._diff_pairs_wire()
-        )
+        return frozenset([net_a, net_b]) in self._differential_pairs
 
     def get_clearance(
         self, net_a: str, net_b: str, x: float | None = None, y: float | None = None
@@ -188,63 +198,56 @@ class ClearanceMatrix:
         Returns:
             Required clearance in mm (center-to-center for diff pairs, edge-to-edge otherwise)
         """
-        # Wave 4: delegates the differential-pair shortcut, the class-based
-        # baseline, and the NaN-sensitive zone-override max() to
-        # temper_drc_rs. Only plain attribute/dict-membership glue (net ->
-        # class resolution, the zone_manager.get_zone_at call itself) stays
-        # in Python; see clearance_matrix.rs's get_clearance_kernel for the
-        # ported control flow (steps 0-2 below, unchanged).
-        import temper_drc_rs as _temper_drc_rs
+        # 0. Check if this is a differential pair - if so, return configured spacing
+        # Differential pairs have relaxed clearance requirements (intentionally routed close)
+        pair_key = frozenset([net_a, net_b])
+        if pair_key in self._differential_pairs:
+            return self._differential_pairs[pair_key]
 
-        class_a = self._net_to_class.get(net_a, "Default")
-        class_b = self._net_to_class.get(net_b, "Default")
+        # 1. Start with class-based baseline
+        base_clearance = self._get_base_clearance(net_a, net_b)
 
-        zone_arg: tuple[str, float] | None = None
+        # 2. Apply spatial override if coordinates and zone manager are provided
         if x is not None and y is not None and self.zone_manager:
             zone = self.zone_manager.get_zone_at(x, y)
             if zone:
-                zone_arg = (zone.name, zone.clearance_mm)
+                # Only apply zone clearance if at least one net is of a hazard class
+                # for this zone. E.g., HV zone clearance only applies when routing
+                # near HV nets, not for signal-to-signal routing that happens to
+                # pass through the HV region.
+                class_a = self._net_to_class.get(net_a, "Default")
+                class_b = self._net_to_class.get(net_b, "Default")
 
-        return _temper_drc_rs.clearance_get_clearance_py(
-            net_a,
-            net_b,
-            class_a,
-            class_b,
-            self._diff_pairs_wire(),
-            self._clearances_wire(),
-            self._class_clearance_wire(),
-            self.default_clearance,
-            zone_arg,
-        )
+                # Check if either net requires this zone's clearance
+                # HV zone applies to HighVoltage nets
+                # Signal zone doesn't need special handling (uses base clearance)
+                zone_applies = False
+                if zone.name == "HV":
+                    zone_applies = class_a == "HighVoltage" or class_b == "HighVoltage"
 
-    def _class_clearance_wire(self) -> list[tuple[str, float]]:
-        """Wire-format for the per-class clearance table (``NetClassRules.
-        clearance``), keyed by class name."""
-        return [(name, rules.clearance) for name, rules in self._net_class_rules.items()]
+                if zone_applies:
+                    return max(base_clearance, zone.clearance_mm)
 
-    def _clearances_wire(self) -> list[tuple[str, str, float]]:
-        """Wire-format for ``_clearances``: a flat list of ``(class_a,
-        class_b, clearance_mm)`` rows (each ordering ``set_class_to_class_clearance``
-        stored is passed through as its own row -- the Rust kernel probes
-        ``(class_a, class_b)`` then ``(class_b, class_a)`` itself, matching the
-        dict-lookup order the oracle uses)."""
-        return [(a, b, v) for (a, b), v in self._clearances.items()]
+        return base_clearance
 
     def _get_base_clearance(self, net_a: str, net_b: str) -> float:
         """Baseline class-to-class clearance without spatial overrides."""
-        # Wave 4: delegates to temper_drc_rs.
-        import temper_drc_rs as _temper_drc_rs
-
         class_a = self._net_to_class.get(net_a, "Default")
         class_b = self._net_to_class.get(net_b, "Default")
 
-        return _temper_drc_rs.clearance_get_base_clearance_py(
-            class_a,
-            class_b,
-            self._clearances_wire(),
-            self._class_clearance_wire(),
-            self.default_clearance,
-        )
+        # Try both orderings (matrix is symmetric)
+        key1 = (class_a, class_b)
+        key2 = (class_b, class_a)
+
+        if key1 in self._clearances:
+            return self._clearances[key1]
+        if key2 in self._clearances:
+            return self._clearances[key2]
+
+        # Fall back to max of individual class clearances
+        clear_a = self._get_class_clearance(class_a)
+        clear_b = self._get_class_clearance(class_b)
+        return max(clear_a, clear_b)
 
     def can_route_at(self, net: str, x: float, y: float) -> bool:
         """Check if a net is allowed to route at this spatial location.
@@ -270,12 +273,10 @@ class ClearanceMatrix:
         Returns:
             Track width in mm
         """
-        # Wave 4: delegates to temper_drc_rs (shared class-attribute kernel).
-        import temper_drc_rs as _temper_drc_rs
-
         net_class = self._net_to_class.get(net, "Default")
-        table = [(name, rules.trace_width) for name, rules in self._net_class_rules.items()]
-        return _temper_drc_rs.clearance_class_attr_py(net_class, table, self.default_track_width)
+        if net_class in self._net_class_rules:
+            return self._net_class_rules[net_class].trace_width
+        return self.default_track_width
 
     def get_via_diameter(self, net: str) -> float:
         """Get via diameter for a net.
@@ -286,12 +287,10 @@ class ClearanceMatrix:
         Returns:
             Via pad diameter in mm
         """
-        # Wave 4: delegates to temper_drc_rs (shared class-attribute kernel).
-        import temper_drc_rs as _temper_drc_rs
-
         net_class = self._net_to_class.get(net, "Default")
-        table = [(name, rules.via_diameter) for name, rules in self._net_class_rules.items()]
-        return _temper_drc_rs.clearance_class_attr_py(net_class, table, self.default_via_diameter)
+        if net_class in self._net_class_rules:
+            return self._net_class_rules[net_class].via_diameter
+        return self.default_via_diameter
 
     def get_via_drill(self, net: str) -> float:
         """Get via drill diameter for a net.
@@ -302,12 +301,10 @@ class ClearanceMatrix:
         Returns:
             Via drill diameter in mm
         """
-        # Wave 4: delegates to temper_drc_rs (shared class-attribute kernel).
-        import temper_drc_rs as _temper_drc_rs
-
         net_class = self._net_to_class.get(net, "Default")
-        table = [(name, rules.via_drill) for name, rules in self._net_class_rules.items()]
-        return _temper_drc_rs.clearance_class_attr_py(net_class, table, self.default_via_drill)
+        if net_class in self._net_class_rules:
+            return self._net_class_rules[net_class].via_drill
+        return self.default_via_drill
 
     def _get_class_clearance(self, net_class: str) -> float:
         """Get clearance for a specific net class."""
@@ -363,13 +360,8 @@ class ClearanceMatrix:
         track_width = self.get_track_width(net_a)
 
         # Calculate required clearance value that DRC system expects
-        # DRC will add track widths back, so we subtract them here.
-        # Wave 4: delegates the arithmetic to temper_drc_rs.
-        import temper_drc_rs as _temper_drc_rs
-
-        required_clearance = _temper_drc_rs.clearance_diff_pair_required_py(
-            spacing_mm, track_width
-        )
+        # DRC will add track widths back, so we subtract them here
+        required_clearance = spacing_mm - (2 * track_width)
 
         pair_key = frozenset([net_a, net_b])
         self._differential_pairs[pair_key] = required_clearance
