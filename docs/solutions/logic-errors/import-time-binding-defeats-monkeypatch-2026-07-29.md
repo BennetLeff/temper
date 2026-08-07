@@ -20,6 +20,23 @@ tags:
   - facade-drift
   - typo-classification
   - golden-board-gate
+enforced_by:
+  - packages/temper-placer/tests/placer/cp_sat/test_encoder.py::TestUnresolvedRefPolicyIsReadLive
+enforcement_status: "pinned by the fix itself (PR #379, 2026-07-29), not newly added
+  by a later triage pass: test_solve_module_holds_no_policy_snapshot asserts no
+  stale import-time binding exists in _encoder_solve; test_solve_placement_reads_policy_through_the_core_module
+  asserts the live attribute lookup happens (via __code__.co_names, not a snapshot);
+  test_core_is_the_sole_definition pins _encoder_core as canonical. Verified passing
+  2026-08-07 (3 passed). Triaged CHECKABLE and confirmed already-mechanized rather
+  than re-implemented -- see docs/solutions/best-practices/moved-function-relocates-monkeypatch-surface-2026-07-29.md
+  for the sibling incident (same day, different module split) with no equivalent
+  repo-wide static check; a general AST-based 'test patches module M.attr while a
+  production module does from-M-import-attr' scanner was considered for that entry
+  and deferred as NEITHER for now (see the 2026-08-07 solutions-corpus triage report)
+  -- the two live instances are narrow enough that a broad static scanner risked
+  more noise than signal against this codebase's ~40 monkeypatch/patch.object call
+  sites without deeper call-graph analysis to confirm the consumer actually reads
+  the snapshot."
 ---
 
 # `encoder.py` never re-exported a moved constant, and the obvious fix would have been vacuous

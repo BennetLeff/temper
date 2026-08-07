@@ -18,6 +18,21 @@ tags:
   - re-export-hazard
   - fail-loud-not-silent
   - patch-where-looked-up
+enforced_by:
+  - packages/temper-placer/tests/router_v6/test_astar_route_multilayer_via_fallback.py
+enforcement_status: "INJECTABLE, not a new static check: mock.patch.object refuses to
+  patch a nonexistent attribute by construction, so the four tests in this file are
+  self-enforcing against exactly the fault this doc describes -- seed the fault by
+  pointing any of their patch.object calls back at astar_reconstruct_mod (the
+  pre-68cdd8e6 module) and all four fail closed with AttributeError, per the doc's
+  own before/after transcript (commit 68cdd8e6 broke them, 7aee8e74 fixed them).
+  Verified passing 2026-08-07 (7 passed, all tests in the file). No new gate was
+  written for this entry -- read but not modified (router_v6/ is out of scope for
+  this pass); a repo-wide static scanner for the general pattern (test patches
+  module M.attr while a production module does from-M-import-attr) was considered
+  and deferred as NEITHER for now, see
+  docs/solutions/logic-errors/import-time-binding-defeats-monkeypatch-2026-07-29.md's
+  enforcement_status for the reasoning."
 ---
 
 # A moved function silently relocates the monkeypatch surface
