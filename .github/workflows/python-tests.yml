@@ -888,20 +888,26 @@ jobs:
       # kernel the crate gained that day — congestion, escape_via, heatmap,
       # placement suggestions, routing demand, apply-suggestions.
       #
-      # This runs on Linux, where the abort does not apply: it comes from the
-      # `-undefined dynamic_lookup` rustflags in .cargo/config.toml, which are
-      # scoped to `[target.*-apple-darwin]`. temper-orchestration above carries
-      # the identical feature setup (`python` behind an explicit feature with
-      # pyo3 `extension-module`) and passes here, which is the precedent for
-      # expecting this to link.
+      # Runs with --no-default-features, which drops the optional `python`
+      # feature and with it pyo3's `extension-module`.
       #
-      # `--features python` is explicit, not implied: `python` is NOT a default
-      # feature (WASM tier R1 flipped the default to [] so a bare wasm32 build
-      # is pyo3-free). Without it this step would silently stop compiling every
-      # python-gated `#[cfg(test)]` module.
+      # The earlier note here claimed temper-orchestration was precedent for
+      # this linking with default features on Linux. That was wrong: the two
+      # crates carry an identical pyo3 setup, but temper-orchestration's test
+      # binary never reaches a pyo3 symbol, so the linker never demands one.
+      # temper-geometry's does, and `extension-module` deliberately leaves
+      # libpython unlinked -- so the step failed on Linux with
+      # `rust-lld: undefined symbol: PyImport_ImportModule` (and on macOS with
+      # the dyld abort in
+      # docs/evidence/2026-08-06-escape-via-cargo-test-dyld-abort.md).
+      # It has therefore never executed a single test since it was added.
+      #
+      # --no-default-features runs the pure-Rust core -- 514 tests, which is
+      # the ~500 this step was added to protect -- and is the same
+      # configuration the wasm32 build below uses.
       - name: Test temper-geometry (cargo test)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: cargo test --manifest-path packages/temper-geometry/Cargo.toml --features python
+        run: cargo test --manifest-path packages/temper-geometry/Cargo.toml --no-default-features
 
       # ---- WASM32 regression guard (plan 2026-08-03-002, U3) --------------
       # These steps verify that the wasm32 substrate (R1) has not silently
