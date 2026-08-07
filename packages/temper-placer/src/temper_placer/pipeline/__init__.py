@@ -10,15 +10,6 @@ from temper_placer.pipeline.convergence import (
     ConvergenceState,
     TerminationReason,
 )
-from temper_placer.pipeline.feedback import (
-    AdjustmentApplier,
-    AdjustmentType,
-    FeedbackAdjustment,
-    FeedbackGenerator,
-    FeedbackLoopConfig,
-    FeedbackLoopResult,
-    run_feedback_loop,
-)
 from temper_placer.pipeline.metrics_observer import (
     CanaryCheckError,
     CrossValidationError,
@@ -54,14 +45,6 @@ __all__ = [
     "ConvergenceCriteria",
     "ConvergenceState",
     "ConvergenceChecker",
-    # Feedback
-    "AdjustmentType",
-    "FeedbackAdjustment",
-    "FeedbackGenerator",
-    "AdjustmentApplier",
-    "FeedbackLoopConfig",
-    "FeedbackLoopResult",
-    "run_feedback_loop",
     # Preflight
     "PreflightResult",
     "PreflightCheck",
