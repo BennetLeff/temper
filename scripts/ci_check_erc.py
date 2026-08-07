@@ -4,47 +4,57 @@
 Runs ``kicad-cli sch erc`` against every schematic recorded in
 ``power_pcb_dataset/erc_ceiling.json`` and enforces:
 
-  - **errors: always zero, hard fail.** Unlike the DRC ratchet
-    (``scripts/ci_check_drc.py`` / ``power_pcb_dataset/drc_ceiling.json``),
-    ERC error counts are never ratcheted upward from a nonzero baseline --
-    the currently-true, defensible assertion is "zero ERC errors", and any
-    error is a hard failure regardless of what ``error_ceiling`` says (it
-    exists in the ceiling file only as a self-check that the file itself
-    still asserts zero).
+  - **errors: zero by default, hard fail, essentially never ratcheted.**
+    The default and strongly-expected ``error_ceiling`` is 0 -- unlike the
+    DRC ratchet (``scripts/ci_check_drc.py`` / ``power_pcb_dataset/
+    drc_ceiling.json``), a nonzero ``error_ceiling`` here is NOT a normal
+    "debt to pay down" ratchet value; it is only ever acceptable as a
+    narrowly-scoped, fully-documented exception for a PROVEN tooling
+    artifact (see ``pcb/mcu.kicad_sch`` below for the one case that exists
+    today, and its ``_artifact_note`` for the evidence). Every error type
+    NOT listed in a board's ``errors_by_type`` has an implicit ceiling of
+    0, exactly mirroring ``violations_by_type``'s implicit-zero semantics
+    in ``power_pcb_dataset/drc_ceiling.json`` -- a documented allowance for
+    one known error type never silently covers a new, different one.
   - **warnings: ratchet, may only decrease.** A brand-new schematic
     (``kicad-cli sch erc`` was never run in CI before this gate) starts
-    with hundreds of pre-existing warnings (492 on pcb/temper.kicad_sch,
-    64 violations on pcb/mcu.kicad_sch, hand-measured 2026-07-26 on
-    kicad-cli 10.0.4 -- see docs/STRATEGY.md:1412 and :304). Asserting
-    zero warnings on day one would be permanently red and get ignored
-    within a week (the same alarm-fatigue failure mode
+    with hundreds of pre-existing warnings (498 on pcb/temper.kicad_sch,
+    measured 2026-08-07 on the pinned kicad-cli 10.0.5, stable across 10
+    runs). Asserting zero warnings on day one would be permanently red and
+    get ignored within a week (the same alarm-fatigue failure mode
     ``continue-on-error: true`` placeholders create). Instead each
     schematic's ``warning_ceiling`` in ``power_pcb_dataset/erc_ceiling.json``
     is a monotonic ceiling: CI fails if the current warning count exceeds
     it, and lowering it (as warnings get fixed) is always allowed.
   - **null ceiling means "not yet measured on the pinned tool" --
-    do not enforce, say so loudly.** ``.github/docker/ci.Dockerfile``
-    pins ``KICAD_VERSION=10.0.5~ubuntu24.04.1``; the 2026-07-26 figures
-    above were measured by hand on 10.0.4, one version behind. A prior
-    DRC ceiling swung by +107 on the exact same 10.0.4->10.0.5 PPA move
+    do not enforce, say so loudly.** Kept as a defined behavior (rather
+    than removed now that both boards in the committed ceiling file ARE
+    measured) because it is what protects the next re-measurement: if a
+    future KiCad version bump invalidates the committed numbers before
+    anyone re-measures on the new pinned tool, this is the fallback that
+    keeps the gate honest instead of silently comparing against a stale
+    baseline. ``.github/docker/ci.Dockerfile`` pins
+    ``KICAD_VERSION=10.0.5~ubuntu24.04.1``; a prior DRC ceiling swung by
+    +107 on the exact same 10.0.4->10.0.5 PPA move
     (docs/evidence/2026-08-04-router-output-rebaseline-interim.md) --
-    carrying the 10.0.4 warning counts over as a 10.0.5 ceiling would
-    reproduce that exact defect. Until a maintainer re-measures on the
-    pinned version and fills in ``warning_ceiling``, this gate still runs
-    ERC and still hard-fails on any error, but does not fail on warning
-    count -- it prints the measured count and a reminder that the ceiling
-    is unset.
+    carrying an old warning count over as a new-version ceiling would
+    reproduce that exact defect. When ``warning_ceiling`` is null, this
+    gate still runs ERC and still hard-fails on any (non-implicitly-
+    allowed) error, but does not fail on warning count -- it prints the
+    measured count and a reminder that the ceiling is unset.
 
 Unlike ``scripts/ci_check_drc.py`` / ``drc_ceiling.json``, this file does
 NOT implement drc_ceiling.json's separate machine-checked
 ``Ceiling-Approval:`` trailer contract (R27, scripts/check_drc_ceiling_approval.py)
 -- that machinery is DRC-specific and owned elsewhere. Raising a
-``warning_ceiling`` here is a manual, reviewed edit to
-``power_pcb_dataset/erc_ceiling.json``, same as any other committed constant.
+``warning_ceiling`` (or adding/raising an ``errors_by_type`` entry) here is
+a manual, reviewed edit to ``power_pcb_dataset/erc_ceiling.json``, same as
+any other committed constant.
 
-Exit codes: 0 = pass, 1 = ERC errors present or a warning ceiling exceeded,
-2 = the gate itself could not run (kicad-cli missing, schematic missing,
-malformed ceiling file).
+Exit codes: 0 = pass, 1 = ERC errors present beyond an explicitly
+documented ceiling or a warning ceiling exceeded, 2 = the gate itself
+could not run (kicad-cli missing, schematic missing, malformed ceiling
+file).
 """
 
 from __future__ import annotations
@@ -229,17 +239,10 @@ def _check_board(repo_root: Path, entry: dict[str, Any]) -> tuple[bool, list[str
     board_id = entry["board_id"]
     sch_path = repo_root / entry["path"]
     error_ceiling = entry.get("error_ceiling", 0)
+    allowed_errors_by_type: dict[str, int] = entry.get("errors_by_type") or {}
     warning_ceiling = entry.get("warning_ceiling")
 
     messages: list[str] = []
-
-    if error_ceiling != 0:
-        messages.append(
-            f"FAIL: {board_id}: erc_ceiling.json records error_ceiling="
-            f"{error_ceiling!r}, not 0 -- ERC errors are never ratcheted, "
-            "this file must always assert zero. Fix the ceiling file."
-        )
-        return False, messages
 
     try:
         erc_result = run_erc(sch_path)
@@ -249,15 +252,46 @@ def _check_board(repo_root: Path, entry: dict[str, Any]) -> tuple[bool, list[str
 
     passed = True
 
-    if erc_result.error_count > 0:
-        by_type = ", ".join(f"{k}={v}" for k, v in sorted(erc_result.errors_by_type.items()))
-        messages.append(
-            f"FAIL: {board_id}: {erc_result.error_count} ERC error(s) "
-            f"({by_type}) -- errors must be zero, no exceptions."
-        )
-        passed = False
-    else:
+    # Aggregate ceiling, PLUS per-type implicit-zero ceiling (mirrors
+    # power_pcb_dataset/drc_ceiling.json's violations_by_type semantics): a
+    # rule absent from allowed_errors_by_type has ceiling 0 regardless of
+    # aggregate headroom, so a documented allowance for one known error
+    # type (e.g. mcu.kicad_sch's pin_not_connected artifact, see that
+    # board's _artifact_note) can never silently cover a new, different
+    # one.
+    if erc_result.error_count == 0:
         messages.append(f"PASS: {board_id}: 0 ERC errors.")
+    else:
+        category_problems: list[str] = []
+        for rule, count in sorted(erc_result.errors_by_type.items()):
+            allowed = allowed_errors_by_type.get(rule, 0)
+            if count > allowed:
+                category_problems.append(f"{rule}={count} (allowed {allowed})")
+        if erc_result.error_count > error_ceiling or category_problems:
+            by_type = ", ".join(
+                f"{k}={v}" for k, v in sorted(erc_result.errors_by_type.items())
+            )
+            reason = (
+                "errors must be zero, no exceptions"
+                if error_ceiling == 0
+                else f"exceeds documented ceiling ({error_ceiling} aggregate"
+                + (f"; new/regressed categories: {', '.join(category_problems)}" if category_problems else "")
+                + ")"
+            )
+            messages.append(
+                f"FAIL: {board_id}: {erc_result.error_count} ERC error(s) "
+                f"({by_type}) -- {reason}."
+            )
+            passed = False
+        else:
+            by_type = ", ".join(
+                f"{k}={v}" for k, v in sorted(erc_result.errors_by_type.items())
+            )
+            messages.append(
+                f"PASS: {board_id}: {erc_result.error_count} ERC error(s) "
+                f"({by_type}) within documented ceiling of {error_ceiling} "
+                "(see erc_ceiling.json's _artifact_note for this board)."
+            )
 
     if warning_ceiling is None:
         messages.append(

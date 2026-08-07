@@ -2806,45 +2806,54 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_apply_suggestions.py tests/router_v6/test_assignment_validation_pbt.py tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_audit_tree_geometry.py tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_diagnostics.py tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_rust_correctness.py tests/router_v6/test_manufacturing_report_induction.py tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_placement_suggestions.py tests/router_v6/test_quality_via_count.py tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py tests/router_v6/test_wave4_bit_tensor.py tests/router_v6/test_wave4_numba_astar.py
+          tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_apply_suggestions.py tests/router_v6/test_assignment_validation_pbt.py tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_audit_tree_geometry.py tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_diagnostics.py tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_rust_correctness.py tests/router_v6/test_manufacturing_report_induction.py tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_placement_suggestions.py tests/router_v6/test_quality_via_count.py tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py tests/router_v6/test_wave4_bit_tensor.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
-        # THIS JOB CURRENTLY RUNS ZERO TESTS, AND THIS MASK IS WHY NOBODY
-        # KNOWS. Verified 2026-08-07, reproduced twice -- including once
-        # with nothing else running on the host, so it is NOT contention:
-        # `12 workers [0 items]`, "no tests ran", pytest_guard floor FAIL
-        # ("only 0 tests executed, expected at least 500"), exit 3.
-        #
-        # Root cause: the file list above names
-        # tests/router_v6/test_wave4_numba_astar.py, which no longer exists
-        # -- deleted in 37793e5c ("chore(placer): post-migration cleanup --
-        # remove Numba backend + dead code" (#537), 2026-07-31). The list
-        # was never updated. pytest treats a nonexistent PATH as a usage
-        # error: it exits 4 and collects NOTHING, and
+        # FIXED 2026-08-07: this job ran ZERO tests since 2026-07-31. The
+        # file list above named tests/router_v6/test_wave4_numba_astar.py,
+        # deleted in 37793e5c ("chore(placer): post-migration cleanup --
+        # remove Numba backend + dead code" (#537), 2026-07-31) but never
+        # dropped from this list. pytest treats a nonexistent PATH as a
+        # usage error: it exits 4 and collects NOTHING, and
         # `--continue-on-collection-errors` does not rescue it (that flag
-        # covers collection errors, not usage errors). Confirmed directly:
-        # pytest given the missing file plus one real file -> "collected 0
-        # items", exit 4.
+        # covers collection errors, not usage errors) -- confirmed directly
+        # (`12 workers [0 items]`, "no tests ran", pytest_guard floor FAIL,
+        # reproduced with nothing else running on the host, so it was not
+        # contention). The `continue-on-error: true` that used to sit here
+        # discarded that FAIL and reported the job green -- the exact
+        # failure mode the anti-vacuity floor exists to prevent, defeated
+        # by a mask sitting on top of it. Fixed by deleting the dead path
+        # above; mask removed, not re-justified.
         #
-        # So since 2026-07-31 this 500+-test invariant suite has run
-        # nothing, the anti-vacuity floor has correctly failed every time,
-        # and `continue-on-error: true` has discarded that verdict and
-        # reported the job green. This is the exact failure mode the floor
-        # exists to prevent, defeated by the mask sitting on top of it.
-        #
-        # The remaining 49 files are healthy: with the dead path dropped,
-        # the same invocation collects 673 and gives 7 failed / 666 passed
-        # -- 2 kicad-cli-absent (pass in the pinned CI container), 4 the
-        # same deterministic `BufferError: buffer contents are not
-        # compatible with i8` in occupancy_grid.py:293 that group 1 hits,
-        # and 1 latency assertion (109.6ms against a 20ms bound) under host
-        # load.
-        #
-        # FIX: delete the dead path from the list above, then remove this
-        # mask -- do not re-justify it. Kept masked only so that this
-        # documentation commit does not turn trunk red in the same breath;
-        # it is a one-line change and should land immediately.
-        continue-on-error: true
+        # Real result once tests actually run: re-checked TWICE 2026-08-07.
+        # First without kicad-cli on this host (673 collected, 7 failed).
+        # Second WITH kicad-cli 10.0.5 available (userspace-extracted, same
+        # binary used to measure power_pcb_dataset/erc_ceiling.json) to
+        # separate genuine local-environment gaps from real bugs: 673
+        # collected, 6 failed / 667 passed / 3 skipped / 1 xfailed. This is
+        # a genuine finding, reported rather than masked:
+        #   - 4 are the SAME deterministic `BufferError: buffer contents
+        #     are not compatible with i8` in router_v6/occupancy_grid.py
+        #     (line 165 here, line 293 in "Invariant tests router_v6 group
+        #     1" -- multiple call sites, same class of bug, see that job's
+        #     comment) -- a real, reproducible bug, not flakiness. All 4 are
+        #     in test_multi_layer_tree_routing.py.
+        #   - 1 (test_audit_tree_geometry.py::test_happy_path_router_and_
+        #     kicad_agree) still fails even with kicad-cli present:
+        #     `AuditResult(... router_disposition='UNMEASURED', ...
+        #     detail='kicad-cli produced no DRC output')`. Not confirmed
+        #     whether this is a genuine product gap or a remaining local
+        #     library-table/config gap in this session's minimal
+        #     kicad-cli-only extraction (no full KiCad install, no
+        #     sym-lib-table/fp-lib-table) -- flagged rather than resolved,
+        #     needs checking in the actual pinned CI container.
+        #   - 1 (test_routability_check.py::test_latency_unroutable_early_exit)
+        #     is a latency assertion (50.9ms against a 20ms bound this run)
+        #     that plausibly reflects genuine host-load sensitivity, not
+        #     independently confirmed on an uncontended host.
+        # No continue-on-error added back: per the same discipline as every
+        # other hard gate in this job, a red result here is a real finding
+        # that should be visible, not re-masked.
 
   invariant-router-v6-3:
     name: Invariant tests (router_v6 group 3)
