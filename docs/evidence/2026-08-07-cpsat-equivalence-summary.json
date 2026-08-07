@@ -1,0 +1,644 @@
+{
+  "provenance": {
+    "commit": "7e1194b776aad76db2f1fd2a323defa0bebd5367",
+    "dirty": false
+  },
+  "generated_by": "2026-08-07-cpsat-equivalence-harness.py",
+  "engines": [
+    "ortools-cpsat"
+  ],
+  "seeds": [
+    0,
+    1,
+    7
+  ],
+  "worker_counts": [
+    1,
+    4,
+    8
+  ],
+  "models": [
+    {
+      "name": "small",
+      "n_components": 5,
+      "n_constraints": 13,
+      "feasibility_parity": true,
+      "status_set": [
+        "optimal"
+      ],
+      "objective_parity": true,
+      "objective_spread": 0.0,
+      "membership_rate": 1.0,
+      "membership_fail_examples": [],
+      "determinism_rate": 1.0,
+      "determinism_groups": 9,
+      "runs": [
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 35.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 25.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 21.1,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 21.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 21.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 25.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 33.7,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 32.3,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 27.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 26.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 24.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 28.0,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 32.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 33.0,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 29.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 23.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 26.1,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 22.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        }
+      ]
+    },
+    {
+      "name": "medium",
+      "n_components": 12,
+      "n_constraints": 70,
+      "feasibility_parity": true,
+      "status_set": [
+        "optimal"
+      ],
+      "objective_parity": true,
+      "objective_spread": 0.0,
+      "membership_rate": 1.0,
+      "membership_fail_examples": [],
+      "determinism_rate": 1.0,
+      "determinism_groups": 9,
+      "runs": [
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 2140.1,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 2166.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 2201.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 2168.7,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 2195.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 2152.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1590.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1560.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1531.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1609.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1595.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1585.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1234.2,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1346.1,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1145.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1312.0,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1465.7,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 2220.0,
+          "solve_time_ms": 1216.1,
+          "verified": true,
+          "verification_summary": "PASS"
+        }
+      ]
+    },
+    {
+      "name": "full-board",
+      "n_components": 33,
+      "n_constraints": 543,
+      "feasibility_parity": false,
+      "status_set": [
+        "optimal",
+        "unknown"
+      ],
+      "objective_parity": true,
+      "objective_spread": 0.0,
+      "membership_rate": 1.0,
+      "membership_fail_examples": [],
+      "determinism_rate": 1.0,
+      "determinism_groups": 9,
+      "runs": [
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 3239.0,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 3219.6,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 3325.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 3322.9,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 3290.8,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 0,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "optimal",
+          "objective_value": 0.0,
+          "solve_time_ms": 3159.4,
+          "verified": true,
+          "verification_summary": "PASS"
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30074.9
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30105.4
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30084.5
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30083.1
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30067.8
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 1,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30054.8
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30064.9
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 1,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30047.3
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30086.5
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 4,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30054.2
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 0,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30057.1
+        },
+        {
+          "engine": "ortools-cpsat",
+          "seed": 7,
+          "num_workers": 8,
+          "repeat": 1,
+          "status": "unknown",
+          "objective_value": 0.0,
+          "solve_time_ms": 30071.2
+        }
+      ]
+    }
+  ]
+}
