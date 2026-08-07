@@ -108,6 +108,10 @@ use crate::pymath::{py_max, py_min, py_sum, sqrt};
 
 const OVERLAP_THRESHOLD: f64 = 0.1;
 
+/// `(net_name, (min_x, min_y, max_x, max_y))` — the flattened dict-order
+/// pairs `list(net_bboxes.items())` produces on the Python side.
+type NetBbox = (String, (f64, f64, f64, f64));
+
 // ---------------------------------------------------------------------------
 // np.clip (measured semantics — see module docs)
 // ---------------------------------------------------------------------------
@@ -151,7 +155,7 @@ fn np_clip(x: f64, lo: f64, hi: f64) -> f64 {
 /// within-cluster net order (hash-randomized in CPython, sorted here for
 /// determinism) and why that divergence cannot change any numeric output.
 pub fn compute_conflict_clusters(
-    nets: &[(String, (f64, f64, f64, f64))],
+    nets: &[NetBbox],
     overlap_threshold: f64,
 ) -> Vec<Vec<String>> {
     let n = nets.len();
@@ -219,7 +223,7 @@ pub fn compute_conflict_clusters(
 #[pyo3(name = "resource_bound_compute_conflict_clusters")]
 #[pyo3(signature = (nets, overlap_threshold=OVERLAP_THRESHOLD))]
 pub fn compute_conflict_clusters_py(
-    nets: Vec<(String, (f64, f64, f64, f64))>,
+    nets: Vec<NetBbox>,
     overlap_threshold: f64,
 ) -> Vec<Vec<String>> {
     compute_conflict_clusters(&nets, overlap_threshold)
@@ -346,10 +350,8 @@ pub fn capacity_in_bbox(
                 continue;
             }
             let idx = row_base + col as usize;
-            if let Some(&v) = grid_cells.get(idx) {
-                if v == 0 {
-                    free_cells += 1;
-                }
+            if let Some(&0) = grid_cells.get(idx) {
+                free_cells += 1;
             }
         }
     }
@@ -426,7 +428,7 @@ struct BoundResult {
 /// their return shape differs.
 fn resource_bound_core(
     grid: &GridArgs<'_>,
-    nets: &[(String, (f64, f64, f64, f64))],
+    nets: &[NetBbox],
     trace_width: f64,
     fill_factor: Option<f64>,
 ) -> Result<BoundResult, NonFiniteGridCoordinate> {
@@ -519,7 +521,7 @@ pub fn max_routable_nets_py(
     height_cells: i64,
     origin: (f64, f64),
     cell_size: f64,
-    nets: Vec<(String, (f64, f64, f64, f64))>,
+    nets: Vec<NetBbox>,
     trace_width: f64,
     fill_factor: Option<f64>,
 ) -> PyResult<i64> {
@@ -541,7 +543,7 @@ pub fn demand_budget_summary_py<'py>(
     height_cells: i64,
     origin: (f64, f64),
     cell_size: f64,
-    nets: Vec<(String, (f64, f64, f64, f64))>,
+    nets: Vec<NetBbox>,
     trace_width: f64,
     fill_factor: Option<f64>,
 ) -> PyResult<Bound<'py, PyDict>> {
