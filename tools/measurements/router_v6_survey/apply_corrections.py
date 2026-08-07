@@ -112,6 +112,26 @@ FIX: dict[str, tuple[str, str]] = {
         "to method: scripts/bmc_adoption_gate.py was a live consumer reading it as TEXT "
         "-- a channel the import graph could not see",
     ),
+    "_astar_heuristics": (
+        "PORT",
+        "2026-08-07 KTD8 OVERTURNED by 0b7c850c: an exact Rust EDT "
+        "(Felzenszwalb-Huttenlocher, the same algorithm scipy runs) measured "
+        "BIT-EXACT against scipy -- max abs diff 0.0, 0 differing cells over "
+        "7,435,980, and 1.6-1.7x faster including the FFI boundary. The prior "
+        "rejection was of the APPROXIMATE edt crate (max diff 2.0-2.236), not of "
+        "the approach. distance_transform_edt (:100) was this module's only scipy "
+        "binding, so the blocker clears outright. Evidence: "
+        "docs/evidence/2026-08-07-exact-edt-rust-spike.md",
+    ),
+    "routability_check": (
+        "BLOCKED",
+        "2026-08-07 PARTIAL -- bucket deliberately UNCHANGED. KTD8 "
+        "(distance_transform_edt :395) is overturned by 0b7c850c, bit-exact vs "
+        "scipy; see docs/evidence/2026-08-07-exact-edt-rust-spike.md. But this "
+        "module carries a SECOND, unrelated binding -- scipy.ndimage.label (:341) "
+        "-- that no spike has addressed. Clearing one of two blockers does not "
+        "unblock a module; label is now the sole remaining blocker here",
+    ),
 }
 
 
