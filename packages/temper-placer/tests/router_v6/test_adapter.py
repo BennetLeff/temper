@@ -1473,6 +1473,7 @@ class TestToStage0NetclassRulesRoundTrip:
                 st.none(),
                 st.sampled_from(["HV", "LV", "AC", "iso"]),
             ),
+            creepage_mm=st.floats(min_value=0.0, max_value=10.0),
         )
 
     @given(source=_valid_netclass_strategy())
@@ -1495,6 +1496,58 @@ class TestToStage0NetclassRulesRoundTrip:
         result = _to_stage0_netclass_rules(source)
         assert result.safety_category == source.safety_category
 
+    @given(source=_valid_netclass_strategy())
+    @settings(max_examples=100, deadline=10000)
+    def test_creepage_mm_survives_conversion(self, source):
+        """creepage_mm must survive: the router previously enforced ZERO
+        creepage because this field had no stage0 equivalent (it only
+        appeared in _UNREPRESENTED_WARN, which logs and discards)."""
+        result = _to_stage0_netclass_rules(source)
+        assert result.creepage_mm == source.creepage_mm
+
+
+# ============================================================================
+# Regression: netclass creepage MUST reach the router as its own value,
+# not fall back to (or be masked by an equal) clearance figure.
+# ============================================================================
+
+
+class TestToStage0NetclassRulesCreepageRegression:
+    """Regression for the dropped-creepage safety gap.
+
+    Netclass creepage requirements were silently discarded by
+    ``_to_stage0_netclass_rules`` -- ``stage0_data.NetClassRules`` had no
+    ``creepage_mm`` field, so every downstream ``getattr(rule,
+    "creepage_mm", 0.0)`` read (e.g. ``bottleneck_geometry.py``'s
+    ``_required_creepage_mm``, ``_pipeline_route.py``'s PCL netclass
+    metadata) always saw 0.0 regardless of what the netclass declared --
+    the router enforced zero creepage on a mains-connected board.
+
+    ``clearance`` and ``creepage_mm`` are deliberately UNEQUAL here (3.0 vs
+    6.0). A fixture with clearance == creepage would pass even on the
+    buggy code, because ``clearance_mm`` was never dropped -- equality is
+    exactly what let this bug hide undetected.
+    """
+
+    def test_creepage_strictly_greater_than_clearance_is_not_dropped(self):
+        from temper_placer.core.netclass_rules_gen import NetClassRules
+
+        source = NetClassRules(
+            name="ACMains",
+            trace_width=2.5,
+            clearance=3.0,
+            creepage_mm=6.0,
+            safety_category="AC",
+        )
+        result = _to_stage0_netclass_rules(source)
+
+        assert result.clearance_mm == 3.0
+        assert result.creepage_mm == 6.0, (
+            f"expected the declared creepage_mm=6.0 to survive conversion "
+            f"distinctly from clearance_mm=3.0, got creepage_mm={result.creepage_mm} "
+            "-- creepage is being dropped (or collapsed onto clearance)"
+        )
+
 
 # ============================================================================
 # R1b — Surface unrepresented fields via log warnings
@@ -1504,7 +1557,12 @@ class TestToStage0NetclassRulesRoundTrip:
 class TestToStage0NetclassRulesWarnings:
     """R1b: unrepresented fields must log warnings when non-None."""
 
-    def test_creepage_mm_warns_when_set(self, caplog):
+    def test_creepage_mm_no_longer_warns_now_represented(self, caplog):
+        """creepage_mm gained a real stage0 field -- it must NOT warn as
+        dropped anymore. (Previously this asserted the opposite: that
+        setting creepage_mm=6.0 logged a "no stage0 equivalent field
+        exists" warning. That was the bug -- the value was warned about
+        and then discarded. Now it has a home, so no warning fires.)"""
         from temper_placer.core.netclass_rules_gen import NetClassRules
 
         source = NetClassRules(
@@ -1514,11 +1572,9 @@ class TestToStage0NetclassRulesWarnings:
             creepage_mm=6.0,
         )
         with caplog.at_level(logging.WARNING):
-            _to_stage0_netclass_rules(source)
-        assert any(
-            "Creepage distance" in rec.message and "Test" in rec.message
-            for rec in caplog.records
-        )
+            result = _to_stage0_netclass_rules(source)
+        assert result.creepage_mm == 6.0
+        assert not any("Creepage distance" in rec.message for rec in caplog.records)
 
     def test_voltage_v_warns_when_set(self, caplog):
         from temper_placer.core.netclass_rules_gen import NetClassRules

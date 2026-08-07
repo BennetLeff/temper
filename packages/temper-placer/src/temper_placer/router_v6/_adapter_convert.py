@@ -132,9 +132,20 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
         if val is not None:
             safety_category = str(val)
 
+    # creepage_mm survives conversion: previously this field was dropped
+    # (only appeared in _UNREPRESENTED_WARN below), so every consumer that
+    # reads it off the stage0 object via getattr(..., 0.0) -- e.g.
+    # bottleneck_geometry.py's _required_creepage_mm and
+    # _pipeline_route.py's PCL netclass metadata -- silently enforced ZERO
+    # creepage regardless of the netclass's declared requirement.
+    creepage_mm: float = 0.0
+    if hasattr(rules, "creepage_mm"):
+        val = rules.creepage_mm
+        if val is not None:
+            creepage_mm = float(val)
+
     # --- R1b: Warn on unrepresented fields that are explicitly set ---
     _UNREPRESENTED_WARN = (
-        ("creepage_mm", "Creepage distance", 0.0),
         ("voltage_v", "Voltage rating", 0.0),
         ("routing_strategy", "Routing strategy", None),
         ("via_cost_multiplier", "Via cost multiplier", 1.0),
@@ -164,6 +175,7 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
         via_drill_mm=via_drill_mm,
         current_rating_amps=current_rating_amps,
         safety_category=safety_category,
+        creepage_mm=creepage_mm,
     )
 
 
