@@ -1,3 +1,5 @@
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled: predates the evidence-provenance gate and no self-declared commit exists in this file's own content. See .evidence-provenance-allowlist. -->
+
 # Wave 4 triage: `router_v6/channel_skeleton.py` (temper-geometry pull) — NO PORT
 
 <!-- provenance: worktree branched from origin/main 0cd6a3a39 (2026-08-07); no production file modified -->

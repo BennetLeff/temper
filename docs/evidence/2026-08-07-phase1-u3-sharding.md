@@ -1,3 +1,5 @@
+<!-- provenance: commit=14979d6330c463f78e04597f7872e979aca06cee dirty=UNKNOWN -->
+
 # Phase 1 U3 — Sharding Design (Q4 Answer)
 
 **Date:** 2026-08-07  

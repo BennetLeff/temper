@@ -1,4 +1,4 @@
-<!-- provenance: commit=e1426308eec1577594e5737e92ddd4fb1312c90f dirty=false (the tree the macOS measurements in section 2 were taken against: the `_mm` heal, whose alias fix landed separately as #671) -->
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- the originally recorded commit (e1426308eec1577594e5737e92ddd4fb1312c90f) does not resolve to any commit object in this repository (dangling, orphaned by rebase/squash) and no persisting equivalent (e.g. a merge commit) could be identified without guessing; the tree the macOS measurements in section 2 were taken against was described only as "the wave4 `_mm` heal", whose alias fix landed separately as #671. See .evidence-provenance-allowlist. -->
 # Router-output DRC gate: the red is environmental (#652 Part 1)
 
 **Status: diagnosis complete, re-baseline NOT landed.** This records why the gate is red and

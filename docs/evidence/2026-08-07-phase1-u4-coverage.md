@@ -1,3 +1,5 @@
+<!-- provenance: commit=14979d6330c463f78e04597f7872e979aca06cee dirty=UNKNOWN -->
+
 # Phase 1 U4 — Coverage Reporting and Non-Vacuity (R7, R8)
 
 **Date:** 2026-08-07  

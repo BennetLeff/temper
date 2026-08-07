@@ -1,4 +1,4 @@
-<!-- provenance: base=origin/main@15110fecc (dispatch base; all measurements above taken against it) branch=feat/wave4-phase5-deterministic-hubs-rust dirty=false -->
+<!-- provenance: commit=15110feccc6ec9389f0777d3cff1ce9f81b11068 dirty=false (base=origin/main@15110fecc, the dispatch base all measurements above were taken against) branch=feat/wave4-phase5-deterministic-hubs-rust -->
 # Wave 4 Phase 5 — deterministic hubs slice: per-module verdicts and R3-style orchestration records
 
 Slice owner: this branch (`feat/wave4-phase5-deterministic-hubs-rust`), working

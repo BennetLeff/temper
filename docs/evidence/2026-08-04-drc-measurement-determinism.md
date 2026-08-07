@@ -1,6 +1,6 @@
 # Making the KiCad DRC measurement reproducible — 2026-08-04
 
-<!-- provenance: commit=96fb58871 dirty=true -->
+<!-- provenance: commit=96fb58871c6d3951c70342784f9bcc07119bd7e1 dirty=true -->
 
 **Base commit:** `96fb58871` (`origin/main`), branch
 `fix/drc-measurement-determinism` in an isolated worktree. `dirty=true`

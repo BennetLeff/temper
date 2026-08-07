@@ -301,3 +301,111 @@ class TestCommitExistenceGateEndToEnd:
         result = _run_gate(evidence_dir, tmp_path / ".allowlist")
         assert result.returncode == 0, result.stdout + result.stderr
         assert "PASSED" in result.stdout
+
+
+class TestAntiVacuity:
+    """The legacy-backlog allowlist (commit=UNKNOWN + a ticketed
+    .evidence-provenance-allowlist entry) exists so genuinely-unrecoverable
+    historical docs can be marked rather than fabricated a SHA -- see the
+    module docstring and the 2026-08-07 backlog paydown recorded in
+    .evidence-provenance-allowlist. That mechanism must not become a way for
+    a brand-new doc to dodge the gate: an allowlist entry only tolerates the
+    *specific file* it names, and only when that file actually carries a
+    valid commit=UNKNOWN stamp -- it must never make the *directory* pass
+    regardless of what else is in it. These pin that boundary directly,
+    mirroring TestAntiVacuity in test_check_isolation_keepout.py.
+    """
+
+    def test_legacy_unknown_doc_alone_passes(self, tmp_path: Path) -> None:
+        """Sanity baseline: a properly-stamped, properly-allowlisted legacy
+        doc passes by itself -- establishes that the fixture setup below is
+        exercising the allowlist path, not accidentally failing for some
+        other reason."""
+        evidence_dir = tmp_path / "evidence"
+        evidence_dir.mkdir()
+        (evidence_dir / "legacy.md").write_text(
+            "# Legacy\n\n<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -->\n"
+        )
+        allowlist = tmp_path / ".allowlist"
+        allowlist.write_text("legacy.md  # TODO: temper-xxx\n")
+        result = _run_gate(evidence_dir, allowlist)
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "PASSED" in result.stdout
+
+    def test_new_unstamped_doc_still_fails_alongside_allowlisted_legacy_doc(
+        self, tmp_path: Path
+    ) -> None:
+        """The case this test exists for: the legacy doc is present, valid,
+        and allowlisted (passes on its own, per the test above) -- and a
+        second, brand-new file with NO provenance stamp at all is dropped
+        into the same directory, not allowlisted. The gate must still fail
+        overall: the allowlist covers exactly the one named legacy file, not
+        the directory as a whole."""
+        evidence_dir = tmp_path / "evidence"
+        evidence_dir.mkdir()
+        (evidence_dir / "legacy.md").write_text(
+            "# Legacy\n\n<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -->\n"
+        )
+        (evidence_dir / "new-unprovenanced.md").write_text(
+            "# Brand new doc\n\nSome prose with no provenance stamp at all.\n"
+        )
+        allowlist = tmp_path / ".allowlist"
+        allowlist.write_text("legacy.md  # TODO: temper-xxx\n")
+        result = _run_gate(evidence_dir, allowlist)
+        assert result.returncode == 3, result.stdout + result.stderr
+        assert "new-unprovenanced.md" in result.stdout
+        assert "no 'provenance" in result.stdout
+        # The legacy doc itself must not be reported as a violation -- only
+        # the new, genuinely-unstamped file should be.
+        assert "legacy.md:" not in result.stdout
+
+    def test_new_doc_declaring_unknown_without_an_allowlist_entry_fails(
+        self, tmp_path: Path
+    ) -> None:
+        """A second way to try to dodge the gate: self-declare
+        commit=UNKNOWN without ever adding the ticketed allowlist entry. The
+        allowlist entry is not optional bookkeeping -- an unlisted UNKNOWN is
+        exactly as much a violation as a missing stamp."""
+        evidence_dir = tmp_path / "evidence"
+        evidence_dir.mkdir()
+        (evidence_dir / "legacy.md").write_text(
+            "# Legacy\n\n<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -->\n"
+        )
+        (evidence_dir / "sneaky-unknown.md").write_text(
+            "# Sneaky\n\n<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -->\n"
+        )
+        allowlist = tmp_path / ".allowlist"
+        allowlist.write_text("legacy.md  # TODO: temper-xxx\n")
+        result = _run_gate(evidence_dir, allowlist)
+        assert result.returncode == 3, result.stdout + result.stderr
+        assert "sneaky-unknown.md" in result.stdout
+        assert "not on" in result.stdout
+
+
+class TestFailBeforePassAfter:
+    """Explicit before/after demonstration that adding a real, correct
+    provenance stamp to a NEW (non-legacy) doc is what actually turns the
+    gate green -- not just the presence of an allowlist. Mirrors
+    TestFailBeforePassAfter in test_check_isolation_keepout.py: two synthetic
+    fixtures standing in for a single file's before/after edit, since there
+    is no git history to diff against here."""
+
+    def test_before_no_stamp_fails(self, tmp_path: Path) -> None:
+        evidence_dir = tmp_path / "evidence"
+        evidence_dir.mkdir()
+        (evidence_dir / "before.md").write_text(
+            "# T\n\nSome prose with no provenance stamp.\n"
+        )
+        result = _run_gate(evidence_dir, tmp_path / ".allowlist")
+        assert result.returncode == 3, result.stdout + result.stderr
+
+    def test_after_real_commit_stamp_passes(self, tmp_path: Path) -> None:
+        head = _real_head_sha()
+        evidence_dir = tmp_path / "evidence"
+        evidence_dir.mkdir()
+        (evidence_dir / "after.md").write_text(
+            f"# T\n\n<!-- provenance: commit={head} dirty=false -->\n"
+        )
+        result = _run_gate(evidence_dir, tmp_path / ".allowlist")
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "PASSED" in result.stdout

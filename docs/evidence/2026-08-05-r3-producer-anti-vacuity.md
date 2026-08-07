@@ -1,4 +1,4 @@
-<!-- provenance: commit=fd10229c7e7155ed444b10ef6f3fdbca4eac1e1c dirty=false -->
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- the originally recorded commit (fd10229c7e7155ed444b10ef6f3fdbca4eac1e1c) does not resolve to any commit object in this repository (dangling, orphaned by rebase/squash) and no persisting equivalent could be identified without guessing. See .evidence-provenance-allowlist. -->
 
 # R3 Producer Anti-Vacuity: Demonstrated Red Runs
 

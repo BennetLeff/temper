@@ -1,3 +1,5 @@
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled: predates the evidence-provenance gate and no self-declared commit exists in this file's own content. See .evidence-provenance-allowlist. -->
+
 # PR #751 Phase A: three adapter/oracle projection inconsistencies
 
 **Date:** 2026-08-06

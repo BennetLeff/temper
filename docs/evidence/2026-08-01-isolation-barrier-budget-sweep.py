@@ -1,3 +1,4 @@
+# provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled: predates the evidence-provenance gate and no self-declared commit exists in this file's own content. See .evidence-provenance-allowlist.
 """Budget-floor sweep for the straight corridor at its geometric-best position.
 
 Continuation of the NO-GO corridor-feasibility probe: the NO-GO ran the

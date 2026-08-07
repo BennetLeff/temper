@@ -1,4 +1,4 @@
-<!-- provenance: experiment plan docs/plans/2026-08-01-002-feat-isolation-barrier-feasibility-experiment-plan.md -->
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled: predates the evidence-provenance gate and no self-declared commit exists in this file's own content; experiment plan docs/plans/2026-08-01-002-feat-isolation-barrier-feasibility-experiment-plan.md. See .evidence-provenance-allowlist. -->
 
 # Isolation-Barrier Corridor-Feasibility Probe — Decision Record (2026-08-01)
 

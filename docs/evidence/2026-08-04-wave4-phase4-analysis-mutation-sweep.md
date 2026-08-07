@@ -1,6 +1,6 @@
 # Wave 4 Phase 4 — analysis-surface mutation sweep (area sufficiency + violation report)
 
-<!-- provenance: commit=1ac0ae306c2e11a40a9a0a1ec4b9ec0eccef70cd dirty=false -->
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- the originally recorded commit (1ac0ae306c2e11a40a9a0a1ec4b9ec0eccef70cd) does not resolve to any commit object in this repository (dangling, orphaned by rebase/squash) and no persisting equivalent could be identified without guessing. See .evidence-provenance-allowlist. -->
 
 The anti-vacuity campaign for the two Wave 4 Phase 4 analysis-surface
 migrations: `temper_placer/analysis/_area_sufficiency.py` →

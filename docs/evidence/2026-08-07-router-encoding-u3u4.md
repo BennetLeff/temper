@@ -1,4 +1,4 @@
-<!-- provenance: commit=d518b56054e1e5f6f54592b20458d3a9fdb23e73 dirty=false -->
+<!-- provenance: commit=63ec4e756a879f28642641d7aa67d2e304904408 dirty=false (re-pointed from the pre-merge branch SHA, orphaned by squash-merge, to PR #916's merge commit into main) -->
 
 # Router Encoding Pruning — U3+U4 Implementation
 

@@ -1,5 +1,7 @@
 # R3 WASM CI Guard — Regression guard (U3)
 
+<!-- provenance: commit=f8982e155700f8c224ad1d4944f1905bf94e92fa dirty=UNKNOWN -->
+
 **Date:** 2026-08-07
 **Base:** `origin/main` @ `f8982e155700f8c224ad1d4944f1905bf94e92fa`
 **Branch:** `wasm/u3-ci-guard`

@@ -1,6 +1,6 @@
 # Wave 4 Phase 4 — regression slice: anti-vacuity mutation sweep — 2026-08-05
 
-<!-- provenance: commit=dc603230b dirty=true; updated 2026-08-05 (pass 2) to add the kernel-only scope disclosure -->
+<!-- provenance: commit=dc603230bbddb27cc634ba89f6bc50adbb951747 dirty=true; updated 2026-08-05 (pass 2) to add the kernel-only scope disclosure -->
 
 **Base commit:** `dc603230b` (the TDD-GREEN commit — kernels + delegation
 shims) + uncommitted working-tree changes (the VERIFICATION.md entries, the

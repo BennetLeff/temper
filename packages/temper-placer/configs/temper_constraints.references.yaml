@@ -13,6 +13,33 @@ authority:
   component_identity: board Sheetpath matched to source instance path
   measured_at_commit: 3f1744ca3abfc14f8c80df78e8d359c264a46917
 
+# Content-hash freshness identity (scripts/check_measurement_provenance.py),
+# added 2026-08-07. `authority.measured_at_commit` above is advisory (human
+# traceability of which commit's reconciliation produced the aliases below);
+# this block is the verified freshness oracle, per the same primary-identity
+# design AGENTS.md's "Board Change -> DRC Ceiling Re-measurement" section
+# documents for drc_ceiling.json. Before this block existed, nothing checked
+# whether `authority.measured_at_commit` even resolved, and there was no
+# input hash at all -- so neither a rebase-orphaned commit nor a drifted
+# board/export would have been noticed. `inputs[].sha256` below is pinned to
+# the two files' content AS OF `measured_at_commit` (via `git show
+# <sha>:<path>`), not today's tree -- that is what makes a future drift
+# detectable at all. As of this backfill, `pcb/temper.kicad_pcb` has already
+# drifted since this reconciliation was measured (the board changed after
+# 3f1744ca; the source export did not) -- see the gate's STALE report; this
+# is a finding, not swallowed by re-hashing today's board into a
+# false-fresh record.
+provenance:
+  measured_at_commit: 3f1744ca3abfc14f8c80df78e8d359c264a46917
+  dirty: UNKNOWN
+  inputs:
+    - path: pcb/temper.kicad_pcb
+      sha256: 0fff888a456ba652d24b417f9f49211e356b32b548d48970d274d396cde6fea5
+    - path: elec/exports/temper.design-input.v1.json
+      sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
+  tool_versions: {}
+  source: backfilled-historical
+
 # Re-derived 2026-08-01 against the post-#517/#521 board (169 components)
 # by matching each board component's KiCad sheetpath to its source instance
 # path (e.g. ...hb.gate_hs.driver -> U7). The #498 branch's manifest

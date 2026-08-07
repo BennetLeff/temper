@@ -1,4 +1,4 @@
-<!-- provenance: commit=bcc5fa0ded062584d23cc707298c705afe4fcdc9 dirty=false -->
+<!-- provenance: commit=a7dc2c5636121d5c0b18ef51c7eaadf4f8fe17b7 dirty=false (re-pointed from the pre-merge branch SHA, orphaned by squash-merge, to PR #653's merge commit -- "feat(placer): hoist fixed_copper into run_clearance_repair_solve (#617) (#653)") -->
 
 # Fixed-copper hoisted into the repair caller — issue #617
 

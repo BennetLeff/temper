@@ -1,3 +1,5 @@
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled: predates the evidence-provenance gate and no self-declared commit exists in this file's own content. See .evidence-provenance-allowlist. -->
+
 # The performance A/B margin is per benchmark, and five benchmarks cannot be gated at all (2026-08-05)
 
 **Date:** 2026-08-05

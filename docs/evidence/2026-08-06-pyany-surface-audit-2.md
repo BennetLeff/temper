@@ -1,6 +1,6 @@
 # `Py<PyAny>` Surface Re-Audit + Removal Plan (post-wave-2)
 
-provenance: commit=4da76ebb0 dirty=false
+provenance: commit=4da76ebb00fe7bcf0590c00de14b6d498aa6b679 dirty=false
 
 Measured against `origin/main` @ `4da76ebb0` (2026-08-06) in an isolated
 worktree (`/private/tmp/wt9-pyany2`, branch `docs/pyany-audit-2`). The

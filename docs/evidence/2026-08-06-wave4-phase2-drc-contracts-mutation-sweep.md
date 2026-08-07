@@ -1,8 +1,6 @@
 # Wave 4 Phase 2 — drc_types/drc_result contracts: anti-vacuity mutation sweep — 2026-08-06
 
-<!-- provenance: commit=9995e8323 (migration GREEN); count + pristine verification
-     re-run 2026-08-06 on the completion commit (11/11 killed, pristine 52/52);
-     driver /tmp/wt7-drc-mutants.py -->
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- neither the originally recorded abbreviated token (9995e8323) nor the Base commit named below (b7af1384b) resolves to any commit object in this repository (both dangling, orphaned by rebase/squash), and no persisting equivalent could be identified without guessing; count + pristine verification re-run 2026-08-06 on the completion commit (11/11 killed, pristine 52/52); driver /tmp/wt7-drc-mutants.py. See .evidence-provenance-allowlist. -->
 
 **Base commit:** `b7af1384b` (TDD-RED) + the GREEN working-tree state this PR
 commits (`packages/temper-drc-rs/src/drc_contracts.rs`,

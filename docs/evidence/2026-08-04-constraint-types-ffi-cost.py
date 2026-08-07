@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled: predates the evidence-provenance gate and no self-declared commit exists in this file's own content. See .evidence-provenance-allowlist.
 """Measure whether ``_constraint_types`` is a pyo3-pyclass migration candidate.
 
 Wave 4 Phase 2 proposed moving

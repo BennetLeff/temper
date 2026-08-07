@@ -150,6 +150,7 @@ from _lib.gate_allowlist import (
     git_show_main_allowlist as _git_show_main_allowlist,
     check_shrink_mode as _check_shrink_mode,
 )
+from _lib.github_summary import get_github_summary_path
 from _lib.repo import find_repo_root
 from rich.console import Console
 
@@ -640,6 +641,25 @@ def main() -> None:
         f"{unknown_count} allowlisted UNKNOWN, "
         f"{len(violations)} violation(s)."
     )
+
+    # Surface the legacy (allowlisted commit=UNKNOWN) backlog count in the
+    # GitHub Actions job summary unconditionally -- not only when the gate
+    # fails. This is the "report the legacy count visibly" requirement: a
+    # legacy doc that passes via the allowlist is still unprovenanced, and a
+    # gate that only ever prints PASSED lets that number drift upward
+    # unnoticed. The count must stay in view (here, and in the allowlist
+    # file's own line count) so it can be driven down, mirroring
+    # check_measurement_provenance.py's unconditional summary write.
+    gh = get_github_summary_path()
+    if gh:
+        with open(gh, "a") as f:
+            f.write("### Evidence-Provenance Gate\n")
+            f.write(
+                f"- Files scanned: {len(files)}\n"
+                f"- Real commit provenance: {real_commit_count}\n"
+                f"- **Legacy backlog (allowlisted commit=UNKNOWN): {unknown_count}**\n"
+                f"- Violations: {len(violations)}\n"
+            )
 
     if violations:
         console.print("\n=== EVIDENCE PROVENANCE VIOLATIONS ===")

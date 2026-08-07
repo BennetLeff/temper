@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled: predates the evidence-provenance gate and no self-declared commit exists in this file's own content. See .evidence-provenance-allowlist.
 """Corridor-feasibility probe for the mains<->SELV isolation barrier.
 
 Runs the CP-SAT corridor-constrained placement on the PRODUCTION board
