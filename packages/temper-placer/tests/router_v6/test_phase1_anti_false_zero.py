@@ -18,6 +18,7 @@ is real but the measurement is not.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
@@ -145,8 +146,22 @@ class TestGatesProperlyConfigured:
             f"— 0 means the routing pipeline never ran against the "
             f"production board (degenerate measurement)"
         )
-        assert router_v6.get("extraction_date") == "2026-07-18", (
-            "Baseline extraction date not updated — stale measurement"
+        # NOT pinned to a literal date. This assertion read
+        #     extraction_date == "2026-07-18"
+        # under the message "Baseline extraction date not updated — stale
+        # measurement", which is exactly backwards: it fires when the date IS
+        # refreshed, so re-recording the baseline breaks it. Same
+        # stale-absolute-vs-mutable-artifact shape as the routed_nets pin above
+        # and the component_count/net_count keys deleted from this baseline on
+        # 2026-07-29.
+        #
+        # What it can honestly check is that a date is present and well-formed,
+        # i.e. that the block came from a real measurement run rather than
+        # being hand-written.
+        extraction_date = router_v6.get("extraction_date")
+        assert extraction_date, "no extraction_date — the block is untraceable to a run"
+        assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(extraction_date)), (
+            f"extraction_date {extraction_date!r} is not an ISO date"
         )
 
 
@@ -154,57 +169,60 @@ class TestClaimsTraceable:
     """Guard: every Phase 1 numeric claim is traceable to a test artifact."""
 
     def test_u3_routed_nets_traceable(self):
-        """U3's routed_nets is recorded, non-degenerate, and self-consistent.
+        """U3's routed_nets is recorded and non-degenerate.
 
-        This asserted ``routed == 71`` -- an absolute recorded 2026-07-18
-        against a 95-net board. The board is mutable by design and has been
-        resynced twice since (``net_count`` 95 -> 106 -> 108, per this
-        baseline's own changelog), so the absolute described a board that no
-        longer exists. This very file already paid for that lesson:
-        ``component_count``/``net_count`` were deleted from the baseline on
-        2026-07-29 after going red four times in three days on legitimate
-        board changes, and the recorded durable fix was to stop comparing an
-        absolute against a mutable artifact. The sibling assertion below
-        (``completion_rate``) already follows that pattern; this one did not.
+        TWO WRONG VERSIONS OF THIS TEST ARE ON RECORD; both are worth knowing
+        about because each looked reasonable.
 
-        What replaces it is strictly STRONGER than the magic number, because
-        it checks the one thing a stale absolute cannot: that the three fields
-        describe the SAME measurement. On 2026-08-05 merge ``1fdb6de15``
-        replaced this block with values present in neither parent --
-        ``routed_nets: 40`` and ``unrouted_nets: 62`` (implying 102 nets)
-        alongside ``completion_rate: 18/49`` (implying 36 of 98). Fields from
-        two different runs, spliced. The old assertion reported that only as
-        "expected 71, got 40", which reads as a routing regression; it is
-        data corruption, and this assertion says so.
+        1. It asserted ``routed == 71`` -- an absolute recorded 2026-07-18
+           against a 95-net board. The board is mutable by design and has been
+           resynced since, so the number described a board that no longer
+           exists. This file already paid for that lesson once:
+           ``component_count``/``net_count`` were deleted from the baseline on
+           2026-07-29 after going red four times in three days.
+
+        2. It was then changed (by me, 2026-08-06) to assert internal
+           consistency: ``completion_rate == routed / (routed + unrouted)``.
+           That relationship NEVER HELD. The three fields use three different
+           denominators::
+
+               completion_rate  router's own rate, over ROUTABLE (multi-pin) nets
+               routed_nets      int(len(netlist.nets) * completion_rate) -- ALL nets
+               unrouted_nets    len(unrouted) -- only nets that were attempted
+
+           So a correct, freshly-measured record fails that assertion. It did:
+           the 2026-08-07 re-record produced routed=41, unrouted=61,
+           rate=0.3776, and the "consistency" check flagged a 0.024
+           discrepancy in a measurement that was perfectly valid.
+
+           Worse, that wrong assertion was used to argue the previous record
+           was CORRUPT. It was not. The real defect at the time was different:
+           a ``test_update_baseline_yaml`` with no env guard rewrote the
+           baseline during ordinary pytest runs and stripped ~235 comment
+           lines. That was fixed in #726 by splitting measurement from writing;
+           regeneration now goes through
+           ``scripts/update_production_routing_baseline.py``.
+
+        What is left is what this suite is actually for: the number exists, is
+        traceable to the measurement artifact, and is not a degenerate zero.
+        No absolute, and no invented relationship between fields whose
+        definitions differ.
         """
         import yaml
 
         with open(_BASELINE_PATH) as f:
             doc = yaml.safe_load(f) or {}
         block = doc.get("router_v6_routing", {})
-        routed = block.get("routed_nets")
-        unrouted = block.get("unrouted_nets")
-        rate = block.get("completion_rate")
 
+        routed = block.get("routed_nets")
         assert routed is not None, "routed_nets not recorded -- U3 claim untraceable"
         assert routed > 0, (
             f"routed_nets={routed} -- a zero is the degenerate measurement this "
             "anti-false-zero suite exists to catch"
         )
-        assert unrouted is not None, "unrouted_nets not recorded"
-
-        total = routed + unrouted
-        assert total > 0, "routed + unrouted = 0 -- nothing was measured"
-        derived = routed / total
-        assert abs(rate - derived) < 1e-9, (
-            f"the baseline's router_v6_routing block is INTERNALLY INCONSISTENT: "
-            f"routed_nets={routed} and unrouted_nets={unrouted} imply {total} nets "
-            f"and a completion_rate of {derived!r}, but {rate!r} is recorded "
-            f"(~{round(rate * 98)}/98). Those fields come from different runs. "
-            "Do not hand-edit this file -- re-record the block with its only "
-            "sanctioned writer, test_update_baseline_yaml in "
-            "tests/router_v6/test_temper_production_board_routing.py, which "
-            "requires test_route_pcb_production_board to run first."
+        assert block.get("unrouted_nets") is not None, "unrouted_nets not recorded"
+        assert block.get("extraction_date"), (
+            "no extraction_date -- the number is untraceable to a measurement run"
         )
 
     def test_u3_completion_rate_traceable(self):
