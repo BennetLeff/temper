@@ -340,8 +340,23 @@ class ChannelSkeletonStage(Stage):
         pcb: ParsedPCB = state._parsed_pcb
         routing_spaces = state.routing_spaces
         skeletons: dict[str, ChannelSkeleton] = {}
-        outer_layers = {k: v for k, v in routing_spaces.items() if k in ("F.Cu", "B.Cu")}  # type: ignore[union-attr]
-        for layer_name, routing_space in outer_layers.items():
+        # Was hardcoded to the two literal outer-copper layer names only --
+        # a hardcode present since this stage's original implementation
+        # (4bf34600), predating this board having a 4-layer stackup with
+        # named inner routable layers. Once RoutingSpaceStage
+        # (routing_space.py:85) already restricts `routing_spaces` to
+        # routable layers, filtering again here to two hardcoded names
+        # silently drops every other routable layer from ever getting a
+        # channel skeleton -- regardless of whether it is present and
+        # usable. Combined with the plane-condemnation quantifier bug (see
+        # the use_declared_layer_roles=True comment in _pipeline_core.py),
+        # this left state.channel_skeletons == {} even when routing_spaces
+        # was non-empty (see
+        # docs/evidence/2026-08-07-router-silent-noop-diagnosis.md, "Bug
+        # B"). A 4-layer board should be able to use its inner layers, so
+        # build a skeleton for every routable layer routing_spaces
+        # actually contains.
+        for layer_name, routing_space in routing_spaces.items():  # type: ignore[union-attr]
             skeleton = extract_channel_skeleton(routing_space, pcb=pcb)
             skeletons[layer_name] = skeleton
         return replace(state, channel_skeletons=skeletons)

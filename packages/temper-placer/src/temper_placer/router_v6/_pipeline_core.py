@@ -248,7 +248,37 @@ class RouterV6Pipeline:
             print("Stage 0: Loading PCB...")
         from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 
-        pcb = parse_kicad_pcb_v6(pcb_path)
+        # use_declared_layer_roles=True (R8): layer_type comes from structural
+        # position in the declared stackup (outer = signal, inner = mixed),
+        # never from "does at least one zone on this layer sit on a
+        # plane-required net". Fixes the quantifier bug in _extract_stackup()
+        # (docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md):
+        # before this, a handful of plane-required zones (4 of 48 on
+        # pcb/temper.kicad_pcb's F.Cu) condemned the *entire* physical layer
+        # to layer_type="plane", which routing_space.py:85 then drops from
+        # the router's routing space wholesale -- collapsing
+        # state.channel_skeletons to {} and route_pcb() to a 0-variable
+        # model that silently degrades to a per-net fallback (see
+        # docs/evidence/2026-08-07-router-silent-noop-diagnosis.md).
+        #
+        # This flag was flagged NOT SAFE alone: obstacle_map.py's zone loop
+        # (build_obstacle_map, section 3) already unions every zone on a
+        # layer into that layer's obstacle polygon unconditionally --
+        # regardless of layer_type -- so opening F.Cu/B.Cu here does not
+        # skip registering their existing pours as obstacles (verified by
+        # reading obstacle_map.py: the zone loop has no layer_type guard,
+        # unlike the pad/via loops next to it). The companion risk named in
+        # the solutions doc (obstacle_map.py unioning ALL pours net-blind,
+        # previously measured to cut F.Cu's available area to ~24.7% and
+        # cause a 12x completion regression when the outer layers were
+        # forced open by a1fe623e/60d441f2) is real but is the documented,
+        # separate, not-yet-landed "pours become derived output" project
+        # (docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md, R7/U3,
+        # status: swept -- not implemented). Flipping this flag here does not
+        # depend on that project to be *safe* in the sense of "never routes
+        # through copper" -- it only affects how much free area remains once
+        # the layer is legitimately open.
+        pcb = parse_kicad_pcb_v6(pcb_path, use_declared_layer_roles=True)
         if pcb_override is not None:
             pcb = pcb_override
 

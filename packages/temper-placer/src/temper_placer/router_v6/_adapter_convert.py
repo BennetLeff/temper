@@ -176,6 +176,7 @@ def route_pcb(
     enable_all_pad_tree: bool = False,
     enable_zone_pours: bool = True,
     enable_connectivity_verifier: bool = False,
+    enable_geographic_pruning: bool = False,
     enable_manufacturing_drc: bool = False,
     sat_conflict_limit: int | None = 20_000,
     sat_time_limit_ms: int | None = None,
@@ -218,6 +219,19 @@ def route_pcb(
             are enabled by default for multi-layer power/ground routing.
         enable_connectivity_verifier: Run post-write connectivity
             preflight via verify_net_connectivity (default False).
+        enable_geographic_pruning: Enable geographic pruning of the
+            Stage 3 SAT model (U3 of plan
+            2026-08-07-001-feat-router-encoding-pruning-plan.md).
+            Default False -- behavior unchanged. When True,
+            NetChannelVar and ViaVar variables are created only for
+            edges/nodes within max(K * pin_span, M_min) of each net's
+            pins, reducing CNF variable/clause count. See
+            RouterV6Pipeline.__init__'s docstring for the full
+            rationale. This worktree's branch point predates that U3
+            merge landing on ``main``; ported forward here (parameter +
+            wiring below) because this task needs to compare route_pcb()
+            on the production board with and without it once the
+            plane-condemnation fix makes the model non-empty.
         enable_manufacturing_drc: Run the Stage 5 manufacturing DRC
             checks (acid_trap, annular_ring, teardrop, thermal_relief,
             power_planes, copper_balance, creepage, clearance) and attach
@@ -296,6 +310,13 @@ def route_pcb(
         enable_all_pad_tree=enable_all_pad_tree,
         enable_zone_pours=enable_zone_pours,
         enable_connectivity_verifier=enable_connectivity_verifier,
+        # Ported forward from a later point on `main` than this worktree's
+        # branch point (see the docstring above) -- ConstraintModel.build()
+        # only honors this when it is actually threaded through to
+        # RouterV6Pipeline; ModelBuilder itself already defaults it False,
+        # so leaving this unwired would make enable_geographic_pruning=True
+        # a silent no-op at this call site specifically.
+        enable_geographic_pruning=enable_geographic_pruning,
         # Manufacturing DRC (acid_trap, annular_ring, teardrop,
         # thermal_relief, power_planes, copper_balance, creepage,
         # clearance). This never ran during production routing before
