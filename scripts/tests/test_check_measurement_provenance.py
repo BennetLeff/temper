@@ -1,6 +1,6 @@
 """Tests for check_measurement_provenance.py.
 
-Three groups:
+Four groups:
 
 1. `TestExtractRecords` -- the generic record walker over both supported
    artifact shapes (single top-level "provenance" object, and a list of
@@ -9,18 +9,30 @@ Three groups:
 2. `TestEvaluate` -- `evaluate()`'s classification of fresh / stale /
    allowlisted / problem records, and its anti-vacuity fail-closed behavior
    (zero artifacts, zero records) -- all against synthetic tmp_path
-   artifacts, entirely independent of the real repo.
+   artifacts, entirely independent of the real repo. These use
+   `measured_at_commit: "UNKNOWN"` throughout (via `_valid_prov`) so they
+   exercise freshness/allowlist logic without needing a real git repo --
+   commit *resolvability* is a distinct concern with its own group below.
 3. `TestFalsifierDrcCeilingReconstruction` -- the task's own falsifier,
    reconstructed directly: a ceiling-shaped artifact whose recorded input
    hash no longer matches the board file on disk must FAIL (STALE, exit
    EXIT_GATE_ERROR); the same artifact, once its provenance is re-recorded
    against the board's current content, must PASS. No `git stash` is used
    anywhere -- both states are plain tmp_path fixtures.
+4. `TestCommitResolvabilityAntiVacuity` -- reproduces the 2026-08-07
+   dangling-SHA incident directly: `measured_at_commit` values are checked
+   against a real (throwaway, tmp_path-local) git repo, so "resolves" and
+   "does not resolve" are genuine git facts, not mocked. Covers the three
+   FAIL conditions the incident's fix must catch (unresolvable commit,
+   stale content hash, dirty=true) and the one PASS condition (a clean
+   record with everything true) -- the `TestAntiVacuity` /
+   `TestFailBeforePassAfter` pattern from test_check_isolation_keepout.py.
 """
 
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -50,13 +62,41 @@ VALID_COMMIT = "b" * 40
 
 
 def _valid_prov(sha: str, path: str = "pcb/board.kicad_pcb"):
+    # measured_at_commit: "UNKNOWN" deliberately -- this helper backs the
+    # freshness/allowlist tests below, which run against tmp_path
+    # directories that are NOT git repositories. A well-formed-but-fake SHA
+    # here would now (correctly) fail the commit-resolvability check added
+    # for the dangling-SHA incident; "UNKNOWN" is the honest, git-independent
+    # value and exercises a different, deliberately-tolerated code path.
+    # Tests that specifically need a resolvable (or unresolvable) commit
+    # build a real tmp_path git repo -- see TestCommitResolvabilityAntiVacuity.
     return {
-        "measured_at_commit": VALID_COMMIT,
+        "measured_at_commit": "UNKNOWN",
         "dirty": False,
         "inputs": [{"path": path, "sha256": sha}],
         "tool_versions": {"kicad-cli": "UNKNOWN"},
         "source": "backfilled-historical",
     }
+
+
+def _init_git_repo(path: Path) -> None:
+    """Initialize a real, throwaway, non-shallow git repo at *path* -- used
+    only by TestCommitResolvabilityAntiVacuity so "resolves to a commit
+    object" is a genuine git fact, never mocked."""
+    subprocess.run(["git", "init", "-q"], cwd=path, check=True)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=path, check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=path, check=True)
+
+
+def _commit_all(path: Path, message: str) -> str:
+    """Stage everything under *path* and commit; return the new commit's
+    full 40-char SHA."""
+    subprocess.run(["git", "add", "-A"], cwd=path, check=True)
+    subprocess.run(["git", "commit", "-q", "-m", message], cwd=path, check=True)
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=path, capture_output=True, text=True, check=True
+    )
+    return result.stdout.strip()
 
 
 # ---------------------------------------------------------------------------
@@ -313,6 +353,168 @@ class TestFalsifierDrcCeilingReconstruction:
         outcome = evaluate(tmp_path, [artifact], allowlist={})
         exit_code = EXIT_GATE_ERROR if (outcome.stale or outcome.problems) else EXIT_OK
         assert exit_code == EXIT_GATE_ERROR
+
+
+# ---------------------------------------------------------------------------
+# TestCommitResolvabilityAntiVacuity -- reproduces the 2026-08-07 dangling-
+# commit incident (drc_ceiling.json's measured_at_commit,
+# 3410ee4e1fe8c3a5cce13b9262585016a06fce8d, orphaned by a squash-merged/
+# rebased PR branch and never caught because neither existing check called
+# git at all). Anti-vacuity requirement (goal-set R9/R10): demonstrate the
+# check FAILS on each of the three conditions the fix must catch, and
+# PASSES on a clean record, all in one place.
+# ---------------------------------------------------------------------------
+
+
+class TestCommitResolvabilityAntiVacuity:
+    def _write_ceiling(self, tmp_path: Path, prov: dict) -> Path:
+        artifact = tmp_path / "ceiling.json"
+        artifact.write_text(json.dumps({"boards": [{"board_id": "b1", "provenance": prov}]}))
+        return artifact
+
+    def test_fails_on_unresolvable_measured_at_commit(self, tmp_path):
+        """(a) A well-formed (40 lowercase hex) but never-committed SHA --
+        exactly the shape of the incident's dangling SHA from this
+        checker's point of view: format-valid, resolves to nothing."""
+        _init_git_repo(tmp_path)
+        board = tmp_path / "board.txt"
+        board.write_text("v1")
+        _commit_all(tmp_path, "add board")  # a real commit exists in this repo...
+
+        prov = _valid_prov(sha256_file(board), "board.txt")
+        prov["measured_at_commit"] = "f" * 40  # ...but this SHA is not it
+        artifact = self._write_ceiling(tmp_path, prov)
+
+        outcome = evaluate(tmp_path, [artifact], allowlist={})
+        assert outcome.fresh == [], "an unresolvable commit must never be reported fresh"
+        assert outcome.stale == []
+        assert len(outcome.problems) == 1
+        key, reason = outcome.problems[0]
+        assert key == f"{artifact.name}#boards.b1"
+        assert "does not resolve" in reason
+
+    def test_fails_on_content_hash_not_matching_current_board(self, tmp_path):
+        """(b) The pre-existing STALE mechanism, reproduced here with a
+        real resolvable commit alongside it -- a moved input must still
+        fail even when the commit anchor itself is perfectly valid."""
+        _init_git_repo(tmp_path)
+        board = tmp_path / "board.txt"
+        board.write_text("v1")
+        real_commit = _commit_all(tmp_path, "add board")
+        recorded_hash = sha256_file(board)
+        board.write_text("v2 -- routed after measurement")  # input moved
+
+        prov = _valid_prov(recorded_hash, "board.txt")
+        prov["measured_at_commit"] = real_commit
+        artifact = self._write_ceiling(tmp_path, prov)
+
+        outcome = evaluate(tmp_path, [artifact], allowlist={})
+        assert outcome.fresh == []
+        assert outcome.problems == [], "a moved input is STALE, not a 'problem'"
+        assert len(outcome.stale) == 1
+        assert outcome.stale[0][0] == f"{artifact.name}#boards.b1"
+
+    def test_fails_on_dirty_true(self, tmp_path):
+        """(c) dirty=true must fail even with a resolvable commit and a
+        matching content hash -- an unnamed uncommitted change could have
+        influenced the measurement without appearing in 'inputs'."""
+        _init_git_repo(tmp_path)
+        board = tmp_path / "board.txt"
+        board.write_text("v1")
+        real_commit = _commit_all(tmp_path, "add board")
+
+        prov = _valid_prov(sha256_file(board), "board.txt")
+        prov["measured_at_commit"] = real_commit
+        prov["dirty"] = True
+        artifact = self._write_ceiling(tmp_path, prov)
+
+        outcome = evaluate(tmp_path, [artifact], allowlist={})
+        assert outcome.fresh == []
+        assert outcome.stale == []
+        assert len(outcome.problems) == 1
+        key, reason = outcome.problems[0]
+        assert key == f"{artifact.name}#boards.b1"
+        assert "dirty=true" in reason
+
+    def test_passes_on_a_clean_record(self, tmp_path):
+        """Control: a resolvable commit, a clean tree, and a matching
+        content hash together must PASS -- the fix must not be so eager it
+        fails everything (the anti-vacuity check needs a real PASS case,
+        not just three FAIL cases, per TestFailBeforePassAfter convention)."""
+        _init_git_repo(tmp_path)
+        board = tmp_path / "board.txt"
+        board.write_text("v1")
+        real_commit = _commit_all(tmp_path, "add board")
+
+        prov = _valid_prov(sha256_file(board), "board.txt")
+        prov["measured_at_commit"] = real_commit
+        artifact = self._write_ceiling(tmp_path, prov)
+
+        outcome = evaluate(tmp_path, [artifact], allowlist={})
+        assert outcome.problems == []
+        assert outcome.stale == []
+        assert outcome.fresh == [f"{artifact.name}#boards.b1"]
+
+    def test_unknown_commit_is_not_penalized_by_the_resolvability_check(self, tmp_path):
+        """measured_at_commit='UNKNOWN' is the honest escape hatch (backfilled
+        records, or a measurement whose commit genuinely can't be
+        reconstructed) -- it must never be required to resolve, and must
+        not even trigger a git subprocess (asserted indirectly: this repo
+        root is not a git repository at all, so any git invocation would
+        raise, and this test must still pass)."""
+        board = tmp_path / "board.txt"
+        board.write_text("v1")
+        prov = _valid_prov(sha256_file(board), "board.txt")  # commit == "UNKNOWN"
+        artifact = self._write_ceiling(tmp_path, prov)
+
+        outcome = evaluate(tmp_path, [artifact], allowlist={})
+        assert outcome.problems == []
+        assert outcome.fresh == [f"{artifact.name}#boards.b1"]
+
+    def test_multiple_records_batch_verified_in_one_git_call(self, tmp_path, monkeypatch):
+        """Two records, two different commits (one resolvable, one not) --
+        must still be a single git subprocess for the whole scan, not one
+        per record (mirrors verify_commits_exist's own batching contract)."""
+        import check_evidence_provenance as cep
+
+        _init_git_repo(tmp_path)
+        board = tmp_path / "board.txt"
+        board.write_text("v1")
+        real_commit = _commit_all(tmp_path, "add board")
+
+        good_prov = _valid_prov(sha256_file(board), "board.txt")
+        good_prov["measured_at_commit"] = real_commit
+        bad_prov = _valid_prov(sha256_file(board), "board.txt")
+        bad_prov["measured_at_commit"] = "e" * 40
+
+        artifact = tmp_path / "ceiling.json"
+        artifact.write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {"board_id": "good", "provenance": good_prov},
+                        {"board_id": "bad", "provenance": bad_prov},
+                    ]
+                }
+            )
+        )
+
+        call_count = 0
+        real_run = subprocess.run
+
+        def _counting_run(cmd, *args, **kwargs):
+            nonlocal call_count
+            if isinstance(cmd, list) and "cat-file" in cmd:
+                call_count += 1
+            return real_run(cmd, *args, **kwargs)
+
+        monkeypatch.setattr(cep.subprocess, "run", _counting_run)
+
+        outcome = evaluate(tmp_path, [artifact], allowlist={})
+        assert call_count == 1, "expected exactly one batched git cat-file call"
+        assert outcome.fresh == [f"{artifact.name}#boards.good"]
+        assert len(outcome.problems) == 1
+        assert outcome.problems[0][0] == f"{artifact.name}#boards.bad"
 
 
 # ---------------------------------------------------------------------------

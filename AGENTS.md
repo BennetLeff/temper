@@ -105,14 +105,81 @@ entries and records are grandfathered; the contract applies to new raises.
 fails closed the moment the board's content hash no longer matches this
 file's recorded hash -- it already catches an unpaired board change, on the
 board-changing PR itself, before merge. It does not, by itself, stop that
-PR from merging: `main` currently has no branch-protection required status
-checks (verified via `gh api repos/<org>/<repo>/branches/main/protection` ->
-`404 Branch not protected`), so a red "Provenance & Anti-Vacuity Gates" run
-does not block the merge button. Landing the re-measurement inside the same
-commit is what actually prevents the gap (there is no red window to begin
-with); a separate follow-up PR only repeats the pattern this section exists
-to stop, and depends on a person or agent remembering to open it before the
+PR from merging. As of 2026-08-07, `main` **does** have branch-protection
+required status checks (`gh api repos/<org>/<repo>/branches/main/protection`
+-> `required_status_checks.contexts: ["Required Python Tests"]`; this
+superseded the earlier "no branch protection at all" state this section
+used to cite) -- but `Required Python Tests` is an aggregator
+(`.github/workflows/required-checks.yml`, driven by
+`.github/required-checks.json`) polling a fixed, named list of contexts,
+and `Board, Provenance & Requirements Gates` -- the job this file's
+provenance and DRC-ceiling checks run in -- is **not** one of them (see
+`required_contexts` in `.github/required-checks.json`). So the conclusion
+is unchanged, for a sharper reason than before: it is not that nothing
+blocks the merge button, it is that the specific gate this section depends
+on is not wired into what does. A red run of this job still does not block
+merging. Landing the re-measurement inside the same commit is what
+actually prevents the gap (there is no red window to begin with); a
+separate follow-up PR only repeats the pattern this section exists to
+stop, and depends on a person or agent remembering to open it before the
 board moves again. See `docs/evidence/2026-07-30-drc-ceiling-remeasurement-cascade.md`.
+The durable fix is adding `Board, Provenance & Requirements Gates` to
+`required_contexts` in `.github/required-checks.json` (a maintainer call --
+it changes what blocks every PR, not just DRC-adjacent ones -- not applied
+by this section).
+
+**Identity: what a measurement is anchored to, and why a squash merge must
+not be able to orphan it.** 2026-08-07 incident:
+`drc_ceiling.json`'s `provenance.measured_at_commit` was
+`3410ee4e1fe8c3a5cce13b9262585016a06fce8d` -- a commit absent from this
+repository's object store entirely (`git cat-file -t` fails on it).
+Root cause, confirmed against `git log -p` and the GitHub API: the PR that
+recorded it (#602, branch `feat/k3-swap-and-board-write`) named a
+mid-development branch commit as the measurement anchor; that branch was
+rebased more than once before merging (its own commit trailers say
+"re-point wave-2 provenance to post-rebase HEAD"), and the squash/rebase
+orphaned the original commit object before the PR landed. Neither existing
+check would have caught it: `validate_provenance_shape` only checks that
+`measured_at_commit` is 40 lowercase hex characters or `"UNKNOWN"` --
+shape, not existence -- and `DrcRatchet.validate_raise_evidence`'s commit
+check (`_SHA256_HEX_RE.fullmatch`) is the same regex-only check despite its
+error message claiming otherwise, and it only runs when a ceiling *raise*
+is being approved, not on every re-measurement.
+
+The fix (`scripts/check_measurement_provenance.py`, 2026-08-07): a
+measurement's **primary, authoritative identity is the content hash**
+already recorded at `provenance.inputs[].sha256` -- this was already true
+in design (the module docstring's "informational, never the thing
+compared" language predates this incident) but was not fully true in
+enforcement. `measured_at_commit` is **advisory** -- useful for a human
+tracing which run produced a number -- but is now also **verified for
+resolvability whenever it is not `"UNKNOWN"`**, via
+`check_evidence_provenance.verify_commits_exist` (the same
+`git cat-file --batch-check` mechanism that already closed this exact hole
+for `docs/evidence/*`, reused rather than reimplemented). A commit SHA was
+rejected as the *primary* identity outright, not merely deprioritized: it
+is not stable under history rewriting by construction (squash merge,
+rebase, `git gc` pruning an unreachable object), while a raw content hash
+of the file bytes is independent of git object model, mtimes, or commit
+topology entirely -- the only signal that directly answers "is this the
+same content" regardless of how the repository's history around it
+changed. A **dangling** `measured_at_commit` (well-formed but unresolvable)
+is now treated as a hard failure -- worse than an honest `"UNKNOWN"`,
+because it claims traceability it does not have while looking exactly like
+a record that does. A `dirty: true` record is now also a hard failure on
+every provenanced record, not only on a ceiling raise: an unnamed
+uncommitted change at measurement time could have influenced the result
+without ever appearing in `inputs`, which the content-hash check cannot
+see. All three of these are checked unconditionally by
+`check_measurement_provenance.py` on every PR that touches a registered
+measurement artifact -- not only on a ceiling raise -- so a bad record now
+fails closed on the PR that writes it, the same "same-PR" discipline this
+section already requires of the re-measurement itself. See
+`scripts/check_measurement_provenance.py`'s module docstring for the full
+incident writeup and design rationale, including the alternatives
+considered and rejected (re-anchoring freshness on the commit SHA instead
+of content; silently downgrading a dangling commit to `"UNKNOWN"` instead
+of failing on it).
 
 ## Import Boundary Check
 
