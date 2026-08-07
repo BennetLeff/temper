@@ -2322,7 +2322,8 @@ jobs:
 
   extended-cpsat-slow:
     name: Extended Test Suites (cp-sat, slow x2)
-    # Trunk-only -- masked test step, cannot fail a PR.
+    # Trunk-only. The routing DRC regression gate in this job was unmasked
+    # 2026-08-05 (fix(netclass): _mm read aliases landed; gate can now bite).
     if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     container:
@@ -2458,20 +2459,23 @@ jobs:
         # workers (measured via a same-day invariant-router-v6-1 log:
         # "created: 2/2 workers") -- same per-test outcomes as serial, just
         # two running concurrently instead of one-at-a-time. Same
-        # `-v --tb=short -p no:cacheprovider --maxfail=10` flags and the same
-        # `continue-on-error` this pair ran under before the split.
+        # `-v --tb=short -p no:cacheprovider --maxfail=10` flags, minus
+        # `continue-on-error` (removed 2026-08-05: the routing gate is now
+        # a real trunk-blocking gate, not a masked observer).
         # Floor is 1, not 2, deliberately (plan 2026-08-03-001, U5): the zone
         # test is xfail(strict) -- a known, measured, accepted negative -- and
         # pytest reports XFAIL as JUnit <skipped>, so pytest_guard's executed
-        # count for this lane is the routing test alone. --min-tests 2 exited
-        # 3 on every run, masked by the continue-on-error below.
+        # count for this lane is the routing test alone.
         run: >
           cd packages/temper-placer &&
           uv run python ../../scripts/pytest_guard.py --min-tests 1 --
           "tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items"
           "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
           -v --tb=short -p no:cacheprovider --maxfail=10 -n auto --dist loadgroup
-        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+        # continue-on-error removed 2026-08-05: the _mm-aliases fix (#671)
+        # landed on main, so this gate's failure is a real signal, not masked
+        # flakiness. If flakiness re-emerges in this step, triage it as a bug,
+        # not a mask target.
 
   invariant-router-v6-1:
     name: Invariant tests (router_v6 group 1)
