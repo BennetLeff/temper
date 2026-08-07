@@ -135,6 +135,11 @@ packages/*/target/
 # per-crate target/ dirs above, which each worktree used to build from scratch.
 target-shared/
 
+# Staged WASM artifact copied into the Worker by `make wasm-worker-stage`
+# (see docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md). Built by cargo,
+# never committed — it is a reproducible build output.
+packages/temper-worker/src/*.wasm
+
 # Pruned root files (2026-06-23 purge)
 /*.pkl
 minimal_overlap_config.yaml

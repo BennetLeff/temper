@@ -35,8 +35,17 @@ const ABI_VERSION = 1;
 const RUN_OK = 0;
 const RUN_BAD_INDEX = 1;
 
-// Expected-fail test indices (from the registry census at f7a1fbf8f)
-const EXPECTED_FAIL_INDICES = new Set([26, 28, 50, 52]);
+// Expected-fail tests, keyed by NAME (from the committed manifest) rather than
+// by hardcoded index, so the probe stays correct as the census grows. The
+// registry appends new families at the end, but name-keying removes the need
+// to track shifts at all.
+const EXPECTED_FAIL_NAMES = new Set(
+  Object.keys(
+    JSON.parse(
+      readFileSync(new URL("./wasm_expected_failures.json", import.meta.url), "utf8"),
+    ).expected_failures ?? {},
+  ),
+);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -200,7 +209,7 @@ async function main() {
         message = "(panic message unreadable)";
       }
 
-      const isExpectedFail = EXPECTED_FAIL_INDICES.has(index);
+      const isExpectedFail = EXPECTED_FAIL_NAMES.has(name);
       verdict = isExpectedFail ? "expected-fail" : "fail";
       results.push({
         index,

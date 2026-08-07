@@ -6,12 +6,15 @@
 # `WebAssembly.compile` (once) + `WebAssembly.instantiate` (per request).
 #
 # Deployment requires:
-#   - `account_id` — provisioned by the maintainer (no placeholder here)
+#   - `account_id` — filled in at deploy time by the maintainer (see runbook;
+#     do NOT commit the real value here)
 #   - `wrangler login` (or CLOUDFLARE_API_TOKEN in the environment)
-#   - A wrangler version that supports module-syntax Workers and `[wasm_modules]`
+#   - A wrangler version that supports module-syntax Workers (v3.x+; tested
+#     against 4.120.0)
 #
-# After the maintainer provisions those, deploy with:
-#   wrangler deploy
+# Build + deploy (see docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md):
+#   make wasm-worker-stage   # builds the .wasm and copies it to src/ (gitignored)
+#   wrangler deploy          # from packages/temper-worker
 #
 # No KV, R2, D1, Durable Objects, or secrets — the Worker is stateless.
 # The only binding is the compiled WASM module itself.
@@ -21,24 +24,25 @@ compatibility_date = "2026-08-01"
 
 [vars]
 # The ABI version the Worker expects. The module exports `temper_wasm_abi_version`;
-# the Worker compares at startup and returns 500 on mismatch. Bump both in lockstep
-# when the export set changes (see packages/temper-wasm-test-runner/src/lib.rs).
+# the Worker compares on every request and returns a failing verdict on mismatch.
+# Bump both in lockstep when the export set changes (see
+# packages/temper-wasm-test-runner/src/lib.rs).
 ABI_VERSION = "1"
 
-# The `temper_wasm_test_runner.wasm` artifact is declared as a WASM module
-# binding. In module-syntax Workers, a `[wasm_modules]` entry makes the module
-# available as a default import of the named file — `import WASM from
-# "./temper_wasm_test_runner.wasm"` yields a `WebAssembly.Module` that was
-# compiled at upload time. Instantiation happens per request.
+# --- WASM module ---
+# The .wasm is imported directly in src/index.js:
 #
-# Uncomment and adjust the path after the .wasm artifact is placed beside the
-# Worker source (or use a wrangler build step to copy it). The local probe
-# (`tools/wasm/worker_local_probe.mjs`) and the existing host driver
-# (`tools/wasm/run_wasm_tests.mjs`) both use Node's V8 directly against the
-# raw .wasm file, which is the Phase-0-sanctioned workerd substitution.
+#   import WASM from "./temper_wasm_test_runner.wasm"
 #
-# [wasm_modules]
-# WASM = "./temper_wasm_test_runner.wasm"
+# Module-syntax Workers get the file as a `WebAssembly.Module` compiled at
+# upload time (wrangler's bundler handles the .wasm import natively; a
+# `[wasm_modules]` block is NOT valid for module workers and wrangler 4.x
+# rejects it). Instantiation happens per request in worker_core.js.
+#
+# The file is staged here by `make wasm-worker-stage` (copied from the shared
+# cargo target dir); the staged copy is gitignored — never commit a built .wasm.
 
-# --- Placeholder for account provisioning ---
-# account_id = ""  # provisioned by the maintainer; do not commit the real value
+# --- account_id placeholder ---
+# Uncomment and fill with the real value (or rely on `wrangler deploy`'s
+# interactive account picker / `wrangler whoami`). Never commit the real value.
+# account_id = ""

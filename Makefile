@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate worktree regen regen-check
+.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy
 
 # Show help for workflow commands
 help:
@@ -197,6 +197,40 @@ extensions:
 # `make extensions` as "check, then fix".
 extensions-check:
 	uv run --no-sync python3 scripts/check_stale_extensions.py
+
+# WASM verification tier (Track D): build the wasm-test-runner artifact and
+# stage it beside the Worker source so `wrangler deploy` can bundle it via the
+# [wasm_modules] binding. Full flow in
+# docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md.
+#
+#   make wasm-worker-stage   # build .wasm + copy to packages/temper-worker/src/
+#   make wasm-worker-deploy  # stage, then `wrangler deploy` (HUMAN step:
+#                            # requires a Cloudflare account + login/token)
+#
+# The staged copy is gitignored — never commit a built .wasm binary. Deploy is
+# deliberately not reachable from `make build`; it is a credentialed,
+# human-gated action.
+#
+# CARGO_TARGET_DIR (exported below) is the shared target dir, so this builds
+# incrementally against whatever the rest of the repo already compiled.
+WASM_RUNNER_MANIFEST = packages/temper-wasm-test-runner/Cargo.toml
+WASM_RUNNER_ARTIFACT = $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/temper_wasm_test_runner.wasm
+WORKER_STAGED_WASM = packages/temper-worker/src/temper_wasm_test_runner.wasm
+
+wasm-runner:
+	@echo "Building temper-wasm-test-runner (wasm32-unknown-unknown)..."
+	cargo build --release --target wasm32-unknown-unknown --no-default-features \
+		--manifest-path $(WASM_RUNNER_MANIFEST)
+
+wasm-worker-stage: wasm-runner
+	@mkdir -p $(dir $(WORKER_STAGED_WASM))
+	cp $(WASM_RUNNER_ARTIFACT) $(WORKER_STAGED_WASM)
+	@echo "Staged $(WORKER_STAGED_WASM) ($$(stat -f %z $(WORKER_STAGED_WASM)) bytes)."
+	@echo "Local smoke test:  node tools/wasm/worker_local_server.mjs"
+
+wasm-worker-deploy: wasm-worker-stage
+	@echo "Deploying to Cloudflare Workers (requires account + login/token)..."
+	cd packages/temper-worker && npx wrangler deploy
 
 # Regenerate every derived artifact, refusing where regeneration would hide a
 # defect (a hash-order NEW_SITE, or a drifted oracle pin). Run before pushing:
