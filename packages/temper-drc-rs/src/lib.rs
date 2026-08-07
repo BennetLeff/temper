@@ -165,6 +165,28 @@ fn run_drc(
 }
 
 // ---------------------------------------------------------------------------
+// Board serialization helper (for WASM tier cost-model measurements)
+// ---------------------------------------------------------------------------
+
+/// Serialize a BoardState to JSON from a Python board dict.
+///
+/// This exists so cost-model benchmarks can deserialize a pre-computed
+/// board snapshot without embedding Python in the measurement process.
+/// The Rust rules need a `BoardState`; the only path to one from a
+/// production `.kicad_pcb` file is through the Python bridge.  This
+/// function captures that bridge output as a JSON string the Rust
+/// example `r2_full_board_pass` reads back via `serde_json`.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn serialize_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<String> {
+    let board = build_board_state(board_dict).map_err(|e| {
+        PyValueError::new_err(format!("board deserialization error: {e}"))
+    })?;
+    serde_json::to_string(&board)
+        .map_err(|e| PyValueError::new_err(format!("board serialization error: {e}")))
+}
+
+// ---------------------------------------------------------------------------
 // Category parsing
 // ---------------------------------------------------------------------------
 
@@ -313,6 +335,7 @@ fn json_value_to_py(py: Python<'_>, value: &serde_json::Value) -> PyResult<Py<Py
 #[pymodule]
 fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(run_drc, m)?)?;
+    m.add_function(wrap_pyfunction!(serialize_board_state, m)?)?;
     m.add_function(wrap_pyfunction!(
         crate::router_clearance::verify_route_clearance,
         m
