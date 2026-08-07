@@ -24,14 +24,14 @@ import random
 
 import numpy as np
 import pytest
-
-from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Component, Net, Netlist
-from temper_placer.core.state import PlacementState
 from tests.metrics._physics_py_oracle import (
     _oracle_measure_geometric,
     _oracle_measure_thermal,
 )
+
+from temper_placer.core.board import Board, Zone
+from temper_placer.core.netlist import Component, Net, Netlist
+from temper_placer.core.state import PlacementState
 
 # ---------------------------------------------------------------------------
 # Bit-exact comparison helpers (mirrors test_quality_rust_differential.py)
@@ -61,18 +61,14 @@ def assert_metrics_bit_identical(got, expected) -> None:
             continue
         g = getattr(got, field)
         e = getattr(expected, field)
-        assert key(g) == key(e), (
-            f"{field}: rust={g!r} ({key(g)}) oracle={e!r} ({key(e)})"
-        )
+        assert key(g) == key(e), f"{field}: rust={g!r} ({key(g)}) oracle={e!r} ({key(e)})"
 
 
 def assert_thermal_bit_identical(got, expected) -> None:
     for field in ("max_junction_temp_c", "thermal_margin_c", "edge_distance_avg_mm"):
         g = getattr(got, field)
         e = getattr(expected, field)
-        assert key(g) == key(e), (
-            f"{field}: rust={g!r} ({key(g)}) oracle={e!r} ({key(e)})"
-        )
+        assert key(g) == key(e), f"{field}: rust={g!r} ({key(g)}) oracle={e!r} ({key(e)})"
 
 
 # ---------------------------------------------------------------------------
@@ -179,8 +175,12 @@ class TestDirectRustKernelPins:
     """Calls straight into ``temper_thermal``'s new kernels, bypassing the
     Python delegation entirely -- proves the KERNEL is bit-exact,
     independent of whether ``metrics/physics.py`` has been wired to call
-    it yet (see ``TestShippedPathReachesRust`` in
-    ``test_physics_wiring.py`` for the wiring proof itself)."""
+    it. (The wiring itself -- that the shipped ``measure_geometric`` /
+    ``measure_thermal`` genuinely reach these kernels -- was proven by
+    making the kernel raise and observing the exception propagate through
+    the public entry point; see the PR description for that evidence,
+    since a proof-by-raise is a one-time demonstration, not a standing
+    test.)"""
 
     @pytest.mark.parametrize("seed", range(15))
     def test_direct_geometric_kernel_bit_exact(self, seed):
@@ -357,11 +357,13 @@ def test_measure_geometric_adversarial_magnitudes(seed):
     rng = random.Random(5000 + seed)
     n = 6
     positions = [
-        [rng.choice([1e-6, 1e6, -1e6, rng.uniform(-1e4, 1e4)]) for _ in range(2)]
-        for _ in range(n)
+        [rng.choice([1e-6, 1e6, -1e6, rng.uniform(-1e4, 1e4)]) for _ in range(2)] for _ in range(n)
     ]
     bounds = [
-        (rng.choice([1e-3, 1e5, rng.uniform(0.1, 50.0)]), rng.choice([1e-3, 1e5, rng.uniform(0.1, 50.0)]))
+        (
+            rng.choice([1e-3, 1e5, rng.uniform(0.1, 50.0)]),
+            rng.choice([1e-3, 1e5, rng.uniform(0.1, 50.0)]),
+        )
         for _ in range(n)
     ]
     net_classes = [rng.choice(["Signal", "HighVoltage"]) for _ in range(n)]
@@ -485,11 +487,8 @@ def test_measure_thermal_narrowing_is_real_on_this_input():
 
     expected = _oracle_measure_thermal(state, netlist, board, power_dissipation=power)
 
-    ox, oy = board.origin
-    w, h = board.width, board.height
-    naive_dx = min(pos[0] - ox, ox + w - pos[0])
-    naive_dy = min(pos[1] - oy, oy + h - pos[1])
-    naive_dist = min(naive_dx, naive_dy)
+    ox = board.origin[0]
+    w = board.width
 
     # Reconstruct what the real (float32-narrowed) dist must have been from
     # the pinned Tj: not directly observable, so instead assert the two
