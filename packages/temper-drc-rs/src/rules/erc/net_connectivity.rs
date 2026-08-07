@@ -48,7 +48,7 @@ impl DrcRule for NetConnectivityCheck {
     }
 }
 
-#[cfg(any(test, feature = "wasm-test-registry"))]
+#[cfg(any(test, feature = "wasm-registry"))]
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
     use super::*;

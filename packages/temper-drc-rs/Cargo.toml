@@ -40,7 +40,33 @@ python = ["dep:pyo3", "dep:temper-geometry"]
 # and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
 # call each test function by index.  Off by default; never enabled for the
 # Python extension module.
-wasm-test-registry = []
+#
+# `wasm-registry` is the umbrella feature that gates module visibility: every
+# per-family feature implies it, so any test-module compilation reaches all
+# modules.  Per-family filtering happens in the `ALL` array of
+# `wasm_test_registry.rs` via `#[cfg(feature = "wasm-registry-<family>")]`
+# guards; with LTO, unreferenced test functions from excluded families are
+# dead-stripped from the `.wasm`.
+wasm-registry = []
+wasm-registry-drc = ["wasm-registry"]
+wasm-registry-emc = ["wasm-registry"]
+wasm-registry-erc = ["wasm-registry"]
+wasm-registry-safety = ["wasm-registry"]
+wasm-registry-placement = ["wasm-registry"]
+wasm-registry-routing = ["wasm-registry"]
+wasm-registry-infra = ["wasm-registry"]
+wasm-registry-all = [
+    "wasm-registry-drc",
+    "wasm-registry-emc",
+    "wasm-registry-erc",
+    "wasm-registry-safety",
+    "wasm-registry-placement",
+    "wasm-registry-routing",
+    "wasm-registry-infra",
+]
+# The original full-registry feature: compiles all tests and includes all
+# families.  Backward-compatible with existing CI and run_wasm_tests.mjs.
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 
 [profile.release]
 panic = "unwind"

@@ -42,7 +42,9 @@ pub mod violation_report;
 // NOT gated on `python`. The wasm32 tier builds with --no-default-features,
 // so an added `python` gate here silently excludes the registry and the
 // runner fails to compile against it. Stacked `cfg` attributes are ANDed.
-#[cfg(feature = "wasm-test-registry")]
+// `wasm-registry` is implied by every per-family feature and by
+// `wasm-test-registry`, so any wasm build compiles this module.
+#[cfg(feature = "wasm-registry")]
 pub mod wasm_test_registry;
 // Wave 4 Phase 5 — deterministic leaf DRC-check kernels (drc_validation /
 // drc_sweep dedup / placement_validation / courtyard_check clamp).

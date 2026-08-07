@@ -2,18 +2,32 @@
  * Request-handling core for the temper WASM verification tier.
  *
  * Shared between the Cloudflare Worker entry (`src/index.js`) and the local
- * Node smoke-test harness (`tools/wasm/worker_local_server.mjs`), so the
- * deployed logic and the locally-tested logic are the same code.
+ * Node smoke-test harness, so the deployed logic and the locally-tested
+ * logic are the same code.
  *
- * The core is environment-agnostic: it receives a compiled `WebAssembly.Module`
- * (`createWorker(module)`) and never touches Node or Workers-specific globals.
+ * The core is environment-agnostic: it receives compiled `WebAssembly.Module`
+ * objects (`createWorker(module)` or `createMultiFamilyWorker(families)`)
+ * and never touches Node or Workers-specific globals.
+ *
+ * ## Per-family sharding (Phase 1 U8)
+ *
+ * `createMultiFamilyWorker` accepts a map of family-name → compiled module.
+ * Each family route (`/drc`, `/emc`, …) compiles+instantiates its module
+ * lazily on the first request and caches the instance for subsequent
+ * requests.  `POST /run-test` accepts `{ family, index }` to select a
+ * family; the legacy `{ index }` or `{ name }` routes to a default module
+ * (the full 147-test registry or whichever module is provided as `default`).
  *
  * Contract (R17):
  *
- *   POST /run-test  { "index": <number> }  |  { "name": "<string>" }
- *     → { verdict, index, name, message, abi_version, ms }
- *   GET /manifest   → expected-failure manifest (bundled)
- *   GET /health     → { status: "ok", abi_version, test_count }
+ *   POST /run-test  { "family": "<family>", "index": <number> }
+ *                |  { "family": "<family>", "name": "<string>" }
+ *                |  { "index": <number> }  |  { "name": "<string>" }
+ *     → { verdict, index, name, message, abi_version, ms, family }
+ *   GET  /manifest   → expected-failure manifest (bundled)
+ *   GET  /health     → { status: "ok", abi_version, test_count }
+ *   GET  /families   → { families: { <name>: { abi_version, test_count } } }
+ *   GET  /<family>/health  → per-family health
  *
  * Per-request instantiation model: each HTTP request instantiates a fresh
  * `WebAssembly.Instance` from the compiled module, so a panicking test that
@@ -101,60 +115,72 @@ function text(body, status = 200) {
 }
 
 // ---------------------------------------------------------------------------
-// Worker factory
+// Single-module worker (backward-compatible factory)
 
 /**
- * Build a Worker fetch handler around a compiled WebAssembly.Module.
+ * Build a Worker fetch handler around a single compiled WebAssembly.Module.
+ * This is the original R17 single-module model, kept for backward compat
+ * with the CI run_wasm_tests.mjs flow and for the local Node smoke test.
  *
  * @param {WebAssembly.Module} wasmModule compiled once at startup
  * @returns {{ fetch: (request: Request, env: object) => Promise<Response> }}
  */
 export function createWorker(wasmModule) {
-  /**
-   * Cached instance, per isolate. Instantiation is the dominant per-request
-   * CPU cost (the free-tier 10 ms cap is blown by a cold instantiate of the
-   * 1.2 MB module — observed 1042/1104 on cold isolates). The wasm-test-runner
-   * records "Instance callable after trap: true": a trap unwinds to the host
-   * without corrupting linear memory or globals, so one instance is safe to
-   * reuse across requests, including after an expected-fail trap. This is the
-   * warm-isolate amortization the U3 sharding analysis named as Track D's one
-   * cost lever. Set back to null only if a future module needs fresh state per
-   * invocation.
-   */
-  let cachedInstance = null;
+  return createMultiFamilyWorker({ default: wasmModule });
+}
 
-  async function getInstance() {
-    if (cachedInstance) return cachedInstance;
+// ---------------------------------------------------------------------------
+// Multi-family worker (Phase 1 U8)
+
+/**
+ * Build a Worker fetch handler around a map of family→compiled module.
+ *
+ * Each family gets its own lazy-instantiated cached instance.  The first
+ * request to a family pays the cold-compile cost for that family's (smaller)
+ * module; subsequent requests reuse the cached instance.
+ *
+ * @param {Record<string, WebAssembly.Module>} familyModules
+ *        e.g. { drc: moduleDrc, emc: moduleEmc, ... }
+ *        Must include a "default" key for backward-compatible /run-test
+ *        without a `family` field, and for /health.
+ * @returns {{ fetch: (request: Request, env: object) => Promise<Response> }}
+ */
+export function createMultiFamilyWorker(familyModules) {
+  const families = new Set(Object.keys(familyModules));
+
+  // Per-family cached instances (lazy, one per family per isolate).
+  const instances = Object.create(null);
+
+  async function getInstance(family) {
+    const mod = familyModules[family];
+    if (!mod) return null;
+    if (instances[family]) return instances[family];
     try {
-      // WebAssembly.instantiate(compiledModule, importObject) returns the Instance directly.
-      cachedInstance = await WebAssembly.instantiate(wasmModule, {});
-    } catch (err) {
-      // Instantiation itself trapped — corrupted module or OOM. Return null so
-      // the caller reports it; the next request retries.
+      instances[family] = await WebAssembly.instantiate(mod, {});
+    } catch {
       return null;
     }
-    return cachedInstance;
+    return instances[family];
   }
 
   /**
    * Instantiate the WASM module and run a single test by index.
    *
-   * Returns { verdict, index, name, message, abi_version, ms }.
-   * On trap, the panic buffer is read from the instance before the
-   * WebAssembly store is released.
+   * Returns { verdict, index, name, message, abi_version, ms, family }.
    */
-  async function runTest(index, expectedAbi) {
+  async function runTest(family, index, expectedAbi) {
     const t0 = Date.now();
 
-    const inst = await getInstance();
+    const inst = await getInstance(family);
     if (!inst) {
       return {
         verdict: "fail",
         index,
         name: null,
-        message: "instantiation trap: module could not be instantiated",
+        message: `instantiation trap: family ${family} module could not be instantiated`,
         abi_version: null,
         ms: Date.now() - t0,
+        family,
       };
     }
 
@@ -167,6 +193,7 @@ export function createWorker(wasmModule) {
         message: `ABI mismatch: module has ${abi}, Worker expects ${expectedAbi}`,
         abi_version: abi,
         ms: Date.now() - t0,
+        family,
       };
     }
 
@@ -176,9 +203,10 @@ export function createWorker(wasmModule) {
         verdict: "bad-index",
         index,
         name: null,
-        message: `index ${index} out of range [0, ${count})`,
+        message: `index ${index} out of range [0, ${count}) for family ${family}`,
         abi_version: abi,
         ms: Date.now() - t0,
+        family,
       };
     }
 
@@ -193,11 +221,11 @@ export function createWorker(wasmModule) {
       const ms = Date.now() - t0;
 
       if (rc === RUN_OK) {
-        return { verdict: "pass", index, name, message: null, abi_version: abi, ms };
+        return { verdict: "pass", index, name, message: null, abi_version: abi, ms, family };
       } else if (rc === RUN_BAD_INDEX) {
-        return { verdict: "bad-index", index, name, message: "registry returned bad-index", abi_version: abi, ms };
+        return { verdict: "bad-index", index, name, message: "registry returned bad-index", abi_version: abi, ms, family };
       } else {
-        return { verdict: "fail", index, name, message: `unknown rc=${rc}`, abi_version: abi, ms };
+        return { verdict: "fail", index, name, message: `unknown rc=${rc}`, abi_version: abi, ms, family };
       }
     } catch (err) {
       // Test panicked → abort → trap. Read the panic buffer from the still-valid store.
@@ -212,8 +240,29 @@ export function createWorker(wasmModule) {
       } catch {
         message = "(panic message unreadable)";
       }
-      return { verdict: "fail", index, name, message, abi_version: abi, ms };
+      return { verdict: "fail", index, name, message, abi_version: abi, ms, family };
     }
+  }
+
+  /**
+   * Resolve a test name to (family, index) by searching all
+   * instantiated families.  For the initial census.
+   */
+  async function resolveFamilyAndIndex(testName) {
+    for (const fam of families) {
+      const inst = await getInstance(fam);
+      if (!inst) continue;
+      const count = inst.exports.temper_test_count();
+      for (let i = 0; i < count; i++) {
+        const n = readString(
+          inst,
+          inst.exports.temper_test_name_ptr(i),
+          inst.exports.temper_test_name_len(i),
+        );
+        if (n === testName) return { family: fam, index: i };
+      }
+    }
+    return null;
   }
 
   // -----------------------------------------------------------------------
@@ -222,11 +271,12 @@ export function createWorker(wasmModule) {
   async function handleRequest(request, env) {
     const expectedAbi = parseInt((env && env.ABI_VERSION) || "1", 10);
     const url = new URL(request.url);
+    const pathname = url.pathname;
 
-    // GET /health — liveness + census (cached instance)
-    if (request.method === "GET" && url.pathname === "/health") {
+    // GET /health — liveness + census for the default module
+    if (request.method === "GET" && pathname === "/health") {
       try {
-        const inst = await getInstance();
+        const inst = await getInstance("default");
         if (!inst) return json({ status: "error", message: "instantiation failed" }, 500);
         const abi = inst.exports.temper_wasm_abi_version();
         const count = inst.exports.temper_test_count();
@@ -236,13 +286,52 @@ export function createWorker(wasmModule) {
       }
     }
 
+    // GET /families — per-family census (all families)
+    if (request.method === "GET" && pathname === "/families") {
+      const result = {};
+      for (const fam of families) {
+        try {
+          const inst = await getInstance(fam);
+          if (!inst) {
+            result[fam] = { error: "instantiation failed" };
+          } else {
+            result[fam] = {
+              abi_version: inst.exports.temper_wasm_abi_version(),
+              test_count: inst.exports.temper_test_count(),
+            };
+          }
+        } catch (err) {
+          result[fam] = { error: `instantiation failed: ${err.message || err}` };
+        }
+      }
+      return json({ families: result });
+    }
+
     // GET /manifest — serve the expected-failure manifest
-    if (request.method === "GET" && url.pathname === "/manifest") {
+    if (request.method === "GET" && pathname === "/manifest") {
       return json(EXPECTED_FAILURES);
     }
 
+    // GET /<family>/health — per-family health check
+    const familyHealthMatch = pathname.match(/^\/([a-z]+)\/health$/);
+    if (request.method === "GET" && familyHealthMatch) {
+      const fam = familyHealthMatch[1];
+      if (!families.has(fam)) {
+        return json({ error: `unknown family: ${fam}` }, 404);
+      }
+      try {
+        const inst = await getInstance(fam);
+        if (!inst) return json({ status: "error", message: "instantiation failed" }, 500);
+        const abi = inst.exports.temper_wasm_abi_version();
+        const count = inst.exports.temper_test_count();
+        return json({ status: "ok", family: fam, abi_version: abi, test_count: count });
+      } catch (err) {
+        return json({ status: "error", message: `instantiation failed: ${err.message || err}` }, 500);
+      }
+    }
+
     // POST /run-test — one test per invocation (R17)
-    if (request.method === "POST" && url.pathname === "/run-test") {
+    if (request.method === "POST" && pathname === "/run-test") {
       let body;
       try {
         body = await request.json();
@@ -250,30 +339,46 @@ export function createWorker(wasmModule) {
         return json({ error: "invalid JSON body" }, 400);
       }
 
+      // Determine family: explicit in body, or default.
+      let family = body.family || "default";
+      if (!families.has(family)) {
+        return json({ error: `unknown family: ${family}. Known: ${[...families].join(", ")}` }, 400);
+      }
+
       let index;
       if (typeof body.index === "number") {
         index = body.index;
       } else if (typeof body.name === "string") {
-        // Resolve name→index via the cached instance (one census, then N
-        // string reads on the same instance — no extra instantiation).
-        let inst;
-        try {
-          inst = await getInstance();
-        } catch (err) {
-          return json({ error: `instantiation failed: ${err.message || err}` }, 500);
-        }
-        if (!inst) return json({ error: "instantiation failed" }, 500);
-        const nameIndex = buildNameIndex(inst);
-        if (nameIndex.has(body.name)) {
-          index = nameIndex.get(body.name);
+        if (family !== "default") {
+          // Name lookup within a specific family
+          let inst;
+          try {
+            inst = await getInstance(family);
+          } catch (err) {
+            return json({ error: `instantiation failed: ${err.message || err}` }, 500);
+          }
+          if (!inst) return json({ error: "instantiation failed" }, 500);
+          const nameIndex = buildNameIndex(inst);
+          if (nameIndex.has(body.name)) {
+            index = nameIndex.get(body.name);
+          } else {
+            return json({ verdict: "not-found", index: null, name: body.name, family, message: "test name not in registry" }, 404);
+          }
         } else {
-          return json({ verdict: "not-found", index: null, name: body.name, message: "test name not in registry" }, 404);
+          // When family is not specified, search all families for the name
+          const resolved = await resolveFamilyAndIndex(body.name);
+          if (resolved) {
+            family = resolved.family;
+            index = resolved.index;
+          } else {
+            return json({ verdict: "not-found", index: null, name: body.name, message: "test name not found in any family registry" }, 404);
+          }
         }
       } else {
         return json({ error: "body must contain { index: <number> } or { name: <string> }" }, 400);
       }
 
-      const result = await runTest(index, expectedAbi);
+      const result = await runTest(family, index, expectedAbi);
 
       // Reclassify against the expected-failure manifest
       const expected = EXPECTED_FAILURES.expected_failures[result.name];
@@ -290,8 +395,23 @@ export function createWorker(wasmModule) {
       return json(result);
     }
 
+    // GET / — help page
+    if (request.method === "GET" && (pathname === "/" || pathname === "")) {
+      const famList = [...families].map(f => `  GET /${f}/health`).join("\n");
+      return text(
+        "temper-wasm-tier Worker (multi-family)\n\n" +
+        "POST /run-test  { family: \"...\", index: N } | { family: \"...\", name: \"...\" }\n" +
+        "                { index: N } | { name: \"...\" }  (uses default family)\n" +
+        "GET  /health\n" +
+        "GET  /families\n" +
+        "GET  /manifest\n" +
+        famList + "\n",
+        200
+      );
+    }
+
     // Catch-all
-    return text("temper-wasm-tier Worker\n\nPOST /run-test  { index: N } | { name: \"...\" }\nGET  /manifest\nGET  /health\n", 404);
+    return text("temper-wasm-tier Worker\n\nPOST /run-test  { family, index } | { family, name }\nGET  /families\nGET  /health\nGET  /manifest\n", 404);
   }
 
   return {

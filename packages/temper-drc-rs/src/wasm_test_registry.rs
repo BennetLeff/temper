@@ -10,6 +10,14 @@
 //! Only modules that survive `--no-default-features` appear here.  Tests
 //! inside `#[cfg(feature = "python")]` modules are structurally absent
 //! from a `wasm32` build and are censused in the Phase 0 report instead.
+//!
+//! ## Per-family sharding (Phase 1 U8)
+//!
+//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`
+//! feature.  Building with only e.g. `--features wasm-registry-drc`
+//! includes only the DRC family's modules; with LTO, unreferenced test
+//! functions from other families are dead-stripped, producing a smaller
+//! `.wasm` module per Worker function.
 
 /// A single test: its fully qualified name and a nullary callable.
 ///
@@ -19,36 +27,38 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 147 eligible tests, in a stable order.
+/// All 147 eligible tests, in a stable order.  Each entry is
+/// gated on the per-family `wasm-registry-<family>` feature; enable
+/// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
-    crate::board::tests::WASM_TESTS,
-    crate::board::board_state_tests::WASM_TESTS,
-    crate::dfm::tests::WASM_TESTS,
-    crate::pyfmt::tests::WASM_TESTS,
-    crate::pymath::tests::WASM_TESTS,
-    crate::rules::integration_tests::WASM_TESTS,
-    crate::rules::drc::clearance::tests::WASM_TESTS,
-    crate::rules::emc::ground_plane::tests::WASM_TESTS,
-    crate::rules::emc::loop_area::tests::WASM_TESTS,
-    crate::rules::emc::noise_coupling::tests::WASM_TESTS,
-    crate::rules::erc::floating_pins::tests::WASM_TESTS,
-    crate::rules::erc::net_connectivity::tests::WASM_TESTS,
-    crate::rules::erc::power_domain::tests::WASM_TESTS,
-    crate::rules::placement::thermal_via_count::tests::WASM_TESTS,
-    crate::rules::placement::wave_solder_keepout::tests::WASM_TESTS,
-    crate::rules::routing::power_pad_teardrop::tests::WASM_TESTS,
-    crate::types::clock::tests::WASM_TESTS,
-    crate::types::esd::tests::WASM_TESTS,
-    crate::types::fuse::tests::WASM_TESTS,
-    crate::types::guard::tests::WASM_TESTS,
-    crate::types::hv_net::tests::WASM_TESTS,
-    crate::types::magnetic::tests::WASM_TESTS,
-    crate::types::noise::tests::WASM_TESTS,
-    crate::types::vent::tests::WASM_TESTS,
-    crate::validation_kernels::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::board::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::board::board_state_tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::dfm::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::pyfmt::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::pymath::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::rules::integration_tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-drc")] crate::rules::drc::clearance::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-emc")] crate::rules::emc::ground_plane::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-emc")] crate::rules::emc::loop_area::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-emc")] crate::rules::emc::noise_coupling::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-erc")] crate::rules::erc::floating_pins::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-erc")] crate::rules::erc::net_connectivity::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-erc")] crate::rules::erc::power_domain::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-placement")] crate::rules::placement::thermal_via_count::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-placement")] crate::rules::placement::wave_solder_keepout::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-routing")] crate::rules::routing::power_pad_teardrop::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::types::clock::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::types::esd::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::types::fuse::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::types::guard::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::types::hv_net::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::types::magnetic::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::types::noise::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::types::vent::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-infra")] crate::validation_kernels::tests::WASM_TESTS,
 ];
 
-/// Total number of registered tests.
+/// Total number of registered tests *in the currently-selected families*.
 pub fn count() -> usize {
     ALL.iter().map(|m| m.len()).sum()
 }
