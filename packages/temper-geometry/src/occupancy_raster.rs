@@ -286,29 +286,43 @@ pub fn mark_path_rect(
     let radius_mm = trace_width / 2.0 + clearance;
     let expansion = expansion_cells(radius_mm, cell_size)?;
 
-    let mut segments = Vec::with_capacity(path.len() - 1);
+    // INTERLEAVED, deliberately: compute one segment's steps, mark it, then
+    // move to the next -- exactly as the reference's
+    // `for i in range(len(path) - 1)` loop does.
+    //
+    // An earlier version precomputed every segment's `steps` before marking
+    // anything. That is observably different when a LATER segment carries a
+    // non-finite coordinate: `segment_steps` raises, and the batched form
+    // propagated before touching the grid, whereas the reference has already
+    // marked the earlier segments. Measured on
+    // `[(1.5,1.5), (5.5,5.5), (nan,3.0)]`: the reference raises with 32 cells
+    // marked, the batched form raised with 0. Both raise `ValueError`, so the
+    // error-TYPE parity test could not see it.
+    //
+    // The int8 range check stays LAZY -- taken on the first segment that
+    // actually writes -- so an all-degenerate path still never raises, which
+    // is what the batching was introduced to preserve. `unmark_path_rect`
+    // already had this structure; this brings the two into line.
+    let mut net_id_i8: Option<i8> = None;
     for w in path.windows(2) {
         let steps = segment_steps(w[0].0, w[0].1, w[1].0, w[1].1, cell_size)?;
-        segments.push((w[0], w[1], steps));
-    }
-    // Only check the int8 range if at least one mark_point call is about
-    // to happen: an all-degenerate path never writes and therefore never
-    // raises, matching the reference (which evaluates the check lazily,
-    // per numpy slice-assignment, inside the loop body).
-    if !segments.iter().any(|(_, _, steps)| *steps > 0) {
-        return Ok(());
-    }
-    let net_id_i8 = check_i8_write(net_id)?;
-
-    for (p1, p2, steps) in segments {
-        if steps > 0 {
-            for s in 0..=steps {
-                let (x, y) = interpolated_point(p1, p2, s, steps);
-                mark_point_rect(
-                    grid, width_cells, height_cells, x, y, origin_x, origin_y, cell_size,
-                    expansion, net_id_i8,
-                )?;
+        if steps <= 0 {
+            continue;
+        }
+        let id = match net_id_i8 {
+            Some(v) => v,
+            None => {
+                let v = check_i8_write(net_id)?;
+                net_id_i8 = Some(v);
+                v
             }
+        };
+        for s in 0..=steps {
+            let (x, y) = interpolated_point(w[0], w[1], s, steps);
+            mark_point_rect(
+                grid, width_cells, height_cells, x, y, origin_x, origin_y, cell_size, expansion,
+                id,
+            )?;
         }
     }
     Ok(())

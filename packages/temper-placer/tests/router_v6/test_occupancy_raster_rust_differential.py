@@ -207,3 +207,49 @@ def test_shipped_module_delegates_to_rust():
             prod.mark_segment_blocked((0.5, 0.5), (2.0, 2.0), 0.3, 0.1, net_id=1)
     finally:
         _tg.mark_segment_rect_into_grid_py = original
+
+
+def test_nan_late_in_path_leaves_earlier_segments_marked():
+    """Partial mutation before the raise is observable, and must match.
+
+    `mark_path_blocked` computes one segment's steps, marks it, then moves on.
+    A non-finite coordinate on a LATER segment therefore raises with the
+    earlier segments already written to the grid.
+
+    An earlier Rust version batched every segment's `steps` computation up
+    front and so raised having marked NOTHING. Both versions raise
+    `ValueError`, so an error-TYPE parity test cannot distinguish them — only
+    comparing the grid state after the exception can.
+    """
+    prod, orac = _pair()
+    path = [(1.5, 1.5), (5.5, 5.5), (float("nan"), 3.0)]
+
+    prod_exc = orac_exc = None
+    try:
+        prod.mark_path_blocked(path, 0.4, 0.1, net_id=7)
+    except Exception as e:  # noqa: BLE001
+        prod_exc = type(e)
+    try:
+        orac.mark_path_blocked(path, 0.4, 0.1, net_id=7)
+    except Exception as e:  # noqa: BLE001
+        orac_exc = type(e)
+
+    assert prod_exc is orac_exc is ValueError
+    assert np.count_nonzero(np.asarray(orac.grid)) > 0, (
+        "the oracle must have marked the earlier segment -- if it did not, this "
+        "test no longer exercises partial mutation and needs re-deriving"
+    )
+    _same_grid(prod, orac, "partial marks before a late NaN")
+
+
+def test_all_degenerate_path_never_raises():
+    """The int8 range check stays LAZY: no write, no check, no exception.
+
+    This is the property the batched form existed to preserve, so it is pinned
+    alongside the fix rather than traded away for it.
+    """
+    prod, orac = _pair()
+    path = [(2.0, 2.0), (2.0, 2.0), (2.0, 2.0)]
+    prod.mark_path_blocked(path, 0.4, 0.1, net_id=999)
+    orac.mark_path_blocked(path, 0.4, 0.1, net_id=999)
+    _same_grid(prod, orac, "all-degenerate path")
