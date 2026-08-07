@@ -4077,13 +4077,57 @@ campaign:
    the fold is `py_min` over edges in polygon order. `slot_intersects_iso` is
    an inclusive AABB test (boundary = hit).
 
+## Marshaler coercion pins (defensive-input parity)
+
+The pyo3 marshalers replicate the oracle's input coercion for the
+defensive-input classes a direct caller might pass. The stage API always
+passes well-formed values (placements are parsed-pad floats, width/height
+are channel-map ints, severities are `ALLOWED_SEVERITIES` str), so these are
+unreachable through the stage — they are pinned so a direct call does not
+silently diverge:
+
+1. **Placement coordinates are coerced with CPython `float()`.** The oracle
+   computes `float(x_mm) * 1000.0 / cell_um`, so a numeric-str coordinate
+   like `(0.5, "0.5")` is accepted; the marshaler calls `builtins.float`
+   (`py_float_coerce`) before extraction instead of a bare pyo3
+   `extract::<f64>()` (which would raise TypeError on a numeric str).
+2. **width/height extract as f64 (int OR float).** The oracle's `gx >= width`
+   comparison accepts an int or a float width (int-vs-float promotion); the
+   kernel compares `(gx as f64) >= width`. A str still raises TypeError,
+   exactly as `int >= str` does in Python.
+3. **`candidate_slot` is extracted index-wise (tuple OR list).** The oracle
+   subscripts `candidate_slot` with `p[0]`, so a 2-element LIST is accepted;
+   a bare tuple extraction would reject it.
+4. **Net-pin tuples of length != 2 raise `ValueError` with CPython's exact
+   unpack texts** (`too many values to unpack (expected 2)` for length > 2 —
+   the previous marshaler silently dropped element 2 — and
+   `not enough values to unpack (expected 2, got n)` for length < 2).
+5. **RECORDED deviation — non-str severity.** The oracle emits `bn.severity`
+   verbatim (an int 5 stays int 5); the Rust kernel's output tuple types
+   `severity` as `String`, so an int severity raises TypeError at extraction
+   where the oracle emits the violation. Matching would require a dynamic
+   `PyObject` severity through the kernel's return type, for an input the
+   stage cannot produce (severities come from `ALLOWED_SEVERITIES` str
+   records validated at sidecar load in `channels.py`). Recorded, not
+   matched.
+6. **RECORDED deviation — `** 2` overflow at ~1e200.** CPython's
+   `(px - proj_x) ** 2` raises `OverflowError` when the operand exceeds
+   ~1.34e154 (the square overflows f64); libm `pow(px - proj_x, 2.0)`
+   returns `inf`. PCB coordinates are mm-scale (the placer envelope is well
+   under 1e3), so the overflow class is unreachable; the reachable last-ulp
+   parity is pinned by `test_ptsd_pow_vs_sqrt_discriminating_operand`.
+   Recorded, not matched.
+
 ## Evidence
 
 - Differential (R1a): `test_{phase_rotation,phase_zones,phase_validation,zone_aware_slot_generation}_rust_differential.py`
   — 87 cases, all bit-exact `canon` equality against the verbatim oracles.
 - PBT (R1c/R1d): the four `<module>_pbt.py` suites — 5 non-vacuous properties
-  + 3 metamorphic relations each (40 cases). Translation MRs state honest
-  tolerances where IEEE rounding breaks bit-exactness.
+  + 3 metamorphic relations each (40 cases). The order-permutation (MR1),
+  scale (MR2) and translation (MR3) MRs state honest stated tolerances where
+  IEEE rounding breaks bit-exactness — MR1 was reworked after review because
+  IEEE `+=` accumulation is NOT commutative at the last ulp (see
+  `test_mr1_slot_order_independent`).
 - Rust unit tests: `deterministic_phase.rs::tests` (18 cases).
 - Anti-vacuity: mutants M1–M10 in `scripts/phase5_final_leaves_mutations.py`,
   all killed (see `docs/evidence/2026-08-06-wave4-phase5-final-leaves-mutation-sweep.md`).

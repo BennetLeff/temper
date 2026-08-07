@@ -1162,7 +1162,11 @@ R1e, a **structural proof** is recorded instead.
 2. **`** 2` distance terms.** Every distance is `(vx - tx) ** 2` via
    `crate::pymath::pow`; the boundary is `<= tol_sq` with a first-hit `break`
    (`test_count_trace_exactly_on_boundary`, `test_dedup_boundary`; mutants
-   M12/M13 flip `<=` to `<` and are killed).
+   M12/M13 flip `<=` to `<` and are killed). The `break` is load-bearing for
+   the `duplicates` COUNT, not just the boundary: without it, one rejected
+   position within tolerance of two KEPT positions fires `duplicates += 1`
+   twice (`test_dedup_multi_match_chain_counts_rejected_once`; mutant M14
+   removes the `break` and is killed).
 3. **Plane-layer auto-connect is gated on `is_plane`.** A signal net on a
    plane layer still needs a trace/pin (`test_count_non_plane_net_plane_layer_needs_trace`;
    mutant M11 drops the gate and is killed). Layers in `via.layers` are
@@ -1176,14 +1180,20 @@ R1e, a **structural proof** is recorded instead.
 
 ## Evidence
 
-- Differential (R1a): `test_via_validation_rust_differential.py` — 22 cases,
-  bit-exact against the verbatim oracle.
+- Differential (R1a): `test_via_validation_rust_differential.py` — 25 test
+  functions (33 oracle-vs-Rust comparisons), bit-exact against the verbatim
+  oracle.
 - PBT (R1c/R1d): `test_via_validation_pbt.py` — 5 properties + 3 MRs,
   including an independent dedup coverage/separation cross-check.
 - Rust unit tests: existing `deterministic_leaf_drc.rs::tests` plus the
   shared pymath pins.
-- Anti-vacuity: mutants M11–M13 in `scripts/phase5_final_leaves_mutations.py`,
+- Anti-vacuity: mutants M11–M14 in `scripts/phase5_final_leaves_mutations.py`,
   all killed (see `docs/evidence/2026-08-06-wave4-phase5-final-leaves-mutation-sweep.md`).
+  M14 (the dedup inner-`break` removal) is killed by
+  `test_dedup_multi_match_chain_counts_rejected_once` — a multi-match chain
+  where one rejected position sits within tolerance of two KEPT positions
+  over-counts `duplicates` without the `break` (the oracle counts once per
+  REJECTED position).
 - R1b: the stage shims keep their public signatures; the full
   `tests/deterministic/` suite (963 cases) is green. Pure-delegation carve-out:
   no regression beyond CI noise expected.

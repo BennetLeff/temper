@@ -374,9 +374,20 @@ surfaces:
       delegates fence_samples -- all temper-geometry. The remaining _grid_stage
       code (net->pads dict assembly, the rect-vs-circle blocking dispatch, the
       EXP-13 exclusion-zone cell marking) is data-structure + orchestration
-      over those kernels. The only non-delegating leaf is _get_clearance_for_net
-      (net-class dict lookups + an inner-layer cap) -- no bit-exact kernel
-      worth crossing the boundary for.
+      over those kernels. The two non-delegating leaves are
+      _get_clearance_for_net (net-class dict lookups + an inner-layer cap) and
+      the EXP-13 zone-to-grid marking (real-arithmetic grid indices via
+      int((cx +/- half_w) / grid.cell_size_mm) -- CPython int() truncation
+      toward zero, clamped to [0, cols/rows) by the surrounding
+      max(0, ...)/min(..., +1) -- plus direct numpy writes on
+      grid._trace_net_ids). The truncation-vs-floor choice is the
+      PRE-EXISTING code, unchanged by this PR: _grid_stage.py is kept as
+      Python, so its "oracle" is the same source and the int() truncation
+      (not math.floor) is intentional as-written; it is equivalent to floor
+      for the lower clamp (negative quotients clamp to 0 either way) and
+      differs only for a fully-negative upper bound, which writes one extra
+      boundary column -- orchestration-shaped data writes, no bit-exact
+      kernel worth crossing the boundary for.
   - pattern: packages/temper-placer/src/temper_placer/cli/**
     verdict: MIGRATE
     phase: 5

@@ -17,7 +17,7 @@ counts as the kill; exit 0 is a SURVIVOR and any other exit code is an ERROR.
 The campaign ends with a PRISTINE rebuild of both touched crates and the full
 differential + PBT set green.
 
-**Coverage of the sweep** — 13 mutants across the migrated kernels:
+**Coverage of the sweep** — 14 mutants across the migrated kernels:
 
 | # | Kernel / crate | Mutant |
 |---|---|---|
@@ -34,8 +34,9 @@ differential + PBT set green.
 | 11 | count_connected_layers (drc) | plane-layer auto-connect drops the `is_plane` gate |
 | 12 | count_connected_layers | pin-sweep boundary `<=` → `<` |
 | 13 | dedup_via_positions | boundary `<=` → `<` |
+| 14 | dedup_via_positions | inner `break` removed (a position within tolerance of 2+ KEPT positions over-counts `duplicates`) |
 
-**Results** — kills=13/13, errors=0, survivors=0; pristine rebuild + the full
+**Results** — kills=14/14, errors=0, survivors=0; pristine rebuild + the full
 differential/PBT set green after the final pass.
 
 **Corpus gaps closed during the campaign.** Round 1 produced one survivor
@@ -47,6 +48,15 @@ at all (`pow(1.0-1.1, 2)` = `0x1.47ae147ae1485p-7` > `0.1*0.1` =
 tests were reworked to the exact `tol=0.5`, `dy=0.5` construction
 (`pow(0.5, 2.0) == 0.5*0.5 == 0.25` bit-exactly), and `test_count_pin_exactly_on_boundary`
 now kills M12. Round 2 is 13/13.
+
+The adversarial review then found a second, independent gap that the Round-2
+corpus could NOT kill: the dedup inner `break` is load-bearing for the
+`duplicates` COUNT, not just the boundary. A multi-match chain — one rejected
+position within tolerance of two or more KEPT positions — fires the
+`duplicates += 1` once per matching kept position when the `break` is removed
+(divergence 2 vs 3 on `[(0,0),(0.03,0),(0.06,0),(0.05,0)]` at tol 0.05), while
+the oracle counts once per REJECTED position. `test_dedup_multi_match_chain_counts_rejected_once`
+closes the gap and now kills M14. Round 3 is 14/14.
 
 **Vacuity notes.** The `d_len <= 0.0` early-out mutant (making it unreachable)
 was dropped as observably vacuous: for coincident pins the division produces

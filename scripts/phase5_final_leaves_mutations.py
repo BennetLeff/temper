@@ -123,6 +123,11 @@ add(DRC, "src/deterministic_leaf_drc.rs",
     "if dist_sq < tol_sq {\n                is_duplicate = true;\n                duplicates += 1;\n                break;\n            }",
     ["test_via_validation_rust_differential.py"],
     "via dedup boundary <= -> <")
+add(DRC, "src/deterministic_leaf_drc.rs",
+    "if dist_sq <= tol_sq {\n                is_duplicate = true;\n                duplicates += 1;\n                break;\n            }",
+    "if dist_sq <= tol_sq {\n                is_duplicate = true;\n                duplicates += 1;\n            }",
+    ["test_via_validation_rust_differential.py"],
+    "via dedup inner break removed (multi-match chain over-counts dupes)")
 
 PRISTINE_TESTS = [
     "test_phase_rotation_rust_differential.py",
