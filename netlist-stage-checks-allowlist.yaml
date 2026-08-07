@@ -1,0 +1,106 @@
+# Netlist-stage-checks gate allowlist -- hand-curated only.
+#
+# scripts/check_netlist_stage_checks.py has no --init/--regenerate mode and
+# never writes this file. Every entry below was added after reading the
+# cited elec/src/*.ato line(s) directly and confirming the finding is a
+# genuine non-defect (an explicitly-documented no-connect pin, a
+# deliberately-unused relay contact, or a series-divider element whose own
+# node voltage is provably below the net's full magnitude) -- never a bulk
+# suppression. Matches the pattern of bom-reconciliation-allowlist.yaml /
+# mpn-fabrication-allowlist.yaml.
+#
+# Deliberately NOT allowlisted, and left as real, open findings for a human
+# to triage, at gate-introduction time (2026-08-07) -- see the gate's own
+# report for the full list and severity triage:
+#
+#   - 27 of the 31 single-pin-net findings not listed below: 11 unused
+#     ESP32-S3 GPIO/IO pins on U27 (gpio18/21/35/36/37, io40/41/42/45/46/48,
+#     tx, rx) and 6 spare logic-gate inputs on U23/U24/U25 (SN74HC4075/
+#     SN74HC00 unused gate legs) -- likely benign (normal MCU/logic-gate
+#     headroom, not wired because firmware/logic doesn't use them), but not
+#     independently confirmed against firmware source in this pass, so left
+#     live rather than assumed.
+#   - usb_dn / usb_dp (U27.13/.14): mcu.usb_dn/usb_dp ARE wired
+#     (main.ato:927-928) but nothing else in elec/src connects to either
+#     net -- no USB connector component exists anywhere in the design. This
+#     looks like an incomplete/missing USB circuit, not a benign spare pin.
+#   - rtd_force_p/rtd_force_n/rtd_sense_p/rtd_sense_n (U9.8/.12/.10/.11):
+#     MAX31865's 4-wire RTD measurement pins are wired only at the ADC IC
+#     itself -- no RTD probe / external connector exists anywhere in the
+#     design. The analog sensing front-end has no physical sensor
+#     interface wired to it.
+#   - rtd_pan.rail_monitor-outb (U14.6), safety.uvlo_logic.mon-outb (U21.6):
+#     TPS3700 dual-window-supervisor OUTB pins, each unused (only OUTA is
+#     wired for both instances) -- plausibly intentional (single-window use
+#     of a dual-window part) but not confirmed against a design note.
+#
+allowlist:
+  # --- Single-pin nets: explicitly-documented no-connect pins ---------
+  - check: single_pin_net
+    net: "nc_7"
+    reason: >
+      UCC21550BDWK (hb.gate_hs.driver, U7) pin 7 is declared
+      `signal NC_7 ~ pin 7` in elec/src/components.ato -- literally named
+      "no connect 7" by the component model itself, matching TI SLUSE89C's
+      DWK-package pin table (components.ato's own docstring: "Both
+      datasheets give an identical PW... pinout" listing NC_7 among the
+      primary-side pins). A datasheet-declared no-connect pin correctly
+      compiles to its own single-node net; this is not a wiring defect.
+
+  - check: single_pin_net
+    net: "nc3"
+    reason: >
+      MAX31865 (rtd_pan.adc, U9) pin 20 is declared `signal NC3 ~ pin 20`
+      in elec/src/components.ato -- literally named "no connect 3" by the
+      component model itself (the MAX31865AAP+ SSOP-20 package's spare
+      pin). Same reasoning as nc_7 above.
+
+  # --- Single-pin nets: deliberately-unused relay contacts -------------
+  - check: single_pin_net
+    net: "discharge.k_dis1-no"
+    reason: >
+      k_dis1 (K2, TE/Schrack RT314012, Relay_SPDT) is used in this design's
+      fail-safe discharge topology via its COM and NC contacts only --
+      elec/src/modules.ato BusDischarge wires `r_dis1b.p2 ~ k_dis1.NC` and
+      `k_dis1.COM ~ mid` but never references `k_dis1.NO` anywhere in the
+      file (confirmed: zero matches for "k_dis1.NO" across elec/src/*.ato).
+      Relay_SPDT's own docstring (elec/src/components.ato) explains why:
+      "pin 4 = NC ... the pole rests against pin 4 when de-energized --
+      this is the fail-safe contact used by BusDischarge". The NO contact
+      is deliberately, permanently unused by this design's safety topology,
+      not an oversight.
+
+  - check: single_pin_net
+    net: "discharge.k_dis2-no"
+    reason: >
+      Same reasoning as discharge.k_dis1-no above: k_dis2 (K3, same
+      Relay_SPDT part) also only wires COM/NC
+      (elec/src/modules.ato:1414-1415), never NO.
+
+  # --- Voltage-domain compatibility: series-divider element -----------
+  - check: voltage_domain
+    instance_path: "discharge.r_dis1a"
+    net: "+170V_BUS"
+    reason: >
+      This gate's voltage-domain check compares a component's OWN
+      voltage_rating against the FULL magnitude of any net it has a pin
+      on, which is the right comparison for a component with its other
+      terminal at or near the domain's return potential, but not for one
+      element of a series divider -- r_dis1a (R11, 139V rated) is the
+      first of two 3.9kohm resistors in series (r_dis1a then r_dis1b,
+      elec/src/modules.ato:1406-1408: `hv_plus ~ r_dis1a.p1`,
+      `r_dis1a.p2 ~ r_dis1b.p1`, `r_dis1b.p2 ~ k_dis1.NC`) forming the
+      K2 discharge-relay snubber/bleed network, so it only ever sees a
+      FRACTION of the +170V_BUS net's full potential across its own body,
+      not the whole 170V. The design's own source already encodes and
+      verifies the physically-correct requirement directly:
+      elec/src/modules.ato:1399 `assert r_dis1a.voltage_rating >=
+      v_bus_half * 0.625` (v_bus_half = 170V per modules.ato:2700, so the
+      required floor is 106.25V) -- 139V passes that assertion with ~31%
+      margin, and `ato build` (which evaluates every such assert) is
+      green on this design. This is a genuine, general limitation of this
+      lightweight per-net-magnitude check (it has no model of voltage
+      division across a series chain, which would need real per-net
+      analysis, not a netlist-stage graph check) rather than a defect in
+      the design -- allowlisted with the specific arithmetic that resolves
+      it, not suppressed blindly.

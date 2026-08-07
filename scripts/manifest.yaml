@@ -538,6 +538,27 @@ scripts:
   - argparse
   - pathlib
   - sys
+- path: check_netlist_stage_checks.py
+  purpose: 'Netlist-stage checks CI gate (docs/STRATEGY.md build order step 6): single-pin nets, unconnected
+    power pins (declared power/ground pins resolved from elec/src/components.ato, never net-name substrings),
+    and voltage-domain compatibility (component voltage_rating vs. the explicit voltage named in a domain
+    net''s own name, e.g. "+170V_BUS" -> 170V) -- imports check_domain_partition.py''s netlist parser,
+    freshness check and domain-manifest loader rather than re-deriving them; isolation-domain reachability
+    itself is already covered by check_domain_partition.py and deliberately not re-implemented here.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - check_domain_partition
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_netlist_mutation_corpus.py
   purpose: 'Netlist-mutation corpus CI runner (plan 2026-08-02-021, R39/U7): applies the renumber/dropped-net/reused-refdes
     mutations to a copy of the design netlist and asserts each class fails its owning identity check (renumber
@@ -1825,9 +1846,7 @@ scripts:
   imports:
   - __future__
   - argparse
-  - collections.abc
   - json
-  - os
   - pathlib
   - subprocess
   - sys
