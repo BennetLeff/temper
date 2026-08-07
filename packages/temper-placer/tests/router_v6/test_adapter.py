@@ -1012,6 +1012,92 @@ class TestCrossClassZoneClearance:
             os.unlink(temp_path)
 
 
+class TestRoutePcbGeographicPruningWiring:
+    """route_pcb()'s `enable_geographic_pruning` kwarg must reach
+    `ModelBuilder` -- not merely be accepted by route_pcb()'s signature.
+
+    A test that only asserts `RouterV6Pipeline`'s constructor receives the
+    kwarg (the pattern
+    `test_route_pcb_e2e_threads_design_rules_to_zone_pours_and_pipeline`
+    above uses for `enable_zone_pours`, with `RouterV6Pipeline` itself
+    mocked out) would not catch a break anywhere between
+    `RouterV6Pipeline.__init__` and `_run_stage3`'s
+    `ModelBuilder(..., enable_geographic_pruning=self.enable_geographic_pruning)`
+    call -- that link is internal to the (unmocked, in that test) pipeline
+    and is never itself exercised.
+
+    This test instead runs `route_pcb()` against a real, unmocked
+    `RouterV6Pipeline` on a tiny real board fixture
+    (`tests/fixtures/minimal_board.kicad_pcb`, also used by
+    `test_router_v6_fence_integration.py` for full non-mocked pipeline
+    runs), with only `ModelBuilder.__init__` spied on -- via
+    `unittest.mock.patch.object` replacing it with a wrapper that still
+    calls through to the real constructor -- to capture the kwargs it is
+    actually invoked with. This proves the full
+    `route_pcb() -> RouterV6Pipeline -> _run_stage3 -> ModelBuilder` thread,
+    not just the first hop.
+    """
+
+    @staticmethod
+    def _minimal_board_parsed():
+        from pathlib import Path
+
+        fixture_dir = Path(__file__).resolve().parents[1] / "fixtures"
+        pcb_path = fixture_dir / "minimal_board.kicad_pcb"
+        assert pcb_path.exists(), f"fixture missing: {pcb_path}"
+        return type("ParsedPCB", (), {"source_path": str(pcb_path)})()
+
+    def test_enable_geographic_pruning_true_reaches_model_builder(self):
+        from temper_placer.router_v6.constraint_model import ModelBuilder
+
+        parsed = self._minimal_board_parsed()
+
+        captured_kwargs: dict = {}
+        real_init = ModelBuilder.__init__
+
+        def spy_init(self, *args, **kwargs):
+            captured_kwargs.update(kwargs)
+            return real_init(self, *args, **kwargs)
+
+        with umock.patch.object(ModelBuilder, "__init__", spy_init):
+            result = route_pcb(parsed, {}, enable_geographic_pruning=True)
+
+        assert captured_kwargs.get("enable_geographic_pruning") is True, (
+            "enable_geographic_pruning=True passed to route_pcb() must "
+            "reach ModelBuilder's constructor via RouterV6Pipeline -> "
+            f"_run_stage3 -- got kwargs: {captured_kwargs!r}"
+        )
+        assert result is not None
+
+    def test_enable_geographic_pruning_default_false_reaches_model_builder(self):
+        """Default (omitted) must thread through as False, not merely be
+        absent -- a broken default anywhere in the chain (e.g. a stray
+        `True` default introduced in RouterV6Pipeline or _run_stage3)
+        would flip production behavior silently, since route_pcb() never
+        exposed this parameter before this change and every existing
+        caller omits it.
+        """
+        from temper_placer.router_v6.constraint_model import ModelBuilder
+
+        parsed = self._minimal_board_parsed()
+
+        captured_kwargs: dict = {}
+        real_init = ModelBuilder.__init__
+
+        def spy_init(self, *args, **kwargs):
+            captured_kwargs.update(kwargs)
+            return real_init(self, *args, **kwargs)
+
+        with umock.patch.object(ModelBuilder, "__init__", spy_init):
+            result = route_pcb(parsed, {})
+
+        assert captured_kwargs.get("enable_geographic_pruning") is False, (
+            "enable_geographic_pruning must default to False all the way "
+            f"through to ModelBuilder -- got kwargs: {captured_kwargs!r}"
+        )
+        assert result is not None
+
+
 class TestZonesReplacedNotAppended:
     """U3 (R7): a board's stored zones must be replaced by the regenerated
     set, not left to coexist alongside it. Without this, any (zone ...)
