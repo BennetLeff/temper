@@ -1,0 +1,96 @@
+//! `io/real_board.py::_copper_reach_mm` — how far a component's copper extends
+//! from its own origin.
+//!
+//! `max over pads of (|offset| + pad_bounding_radius(...))`. Both halves already
+//! live in this crate (`pad_geometry::py_hypot`, `pad_geometry::bounding_radius`),
+//! which is why the kernel lives here rather than being duplicated into the
+//! crate that owns `real_board.py`'s other concerns.
+//!
+//! ## The NaN contract
+//!
+//! The reference is CPython's builtin `max()` over a generator. That keeps the
+//! FIRST NaN it encounters and then compares nothing against it — every later
+//! candidate loses the `>` test against NaN. `f64::max` does the opposite: it
+//! DISCARDS NaN and returns the other operand. Using it here would turn a NaN
+//! reach into a finite one, and a NaN reach is what an unparseable pad produces,
+//! so the difference is reachable from real boards rather than theoretical.
+//!
+//! `py_hypot` also returns `inf` before `nan` (CPython's `vector_norm` returns
+//! `+inf` as soon as any coordinate is infinite, even alongside a NaN), so an
+//! infinite offset yields `inf`, not NaN.
+
+use pyo3::prelude::*;
+use pyo3::types::PyModule;
+
+use crate::pad_geometry::{bounding_radius, py_hypot};
+
+/// One pad: `(offset_x, offset_y, width, height, shape_code, roundrect_ratio)`.
+pub type PadRow = (f64, f64, f64, f64, i64, f64);
+
+/// CPython's builtin `max()` over an iterable of floats.
+///
+/// Seeded with the first element and updated only on a strict `>`, so a NaN
+/// seed is never displaced and a NaN encountered mid-stream is never adopted.
+/// This is the same asymmetry recorded for `min`/`max` elsewhere in this repo.
+fn cpython_max(values: impl Iterator<Item = f64>) -> Option<f64> {
+    let mut it = values;
+    let mut acc = it.next()?;
+    for v in it {
+        if v > acc {
+            acc = v;
+        }
+    }
+    Some(acc)
+}
+
+pub fn copper_reach_mm(pads: &[PadRow]) -> f64 {
+    // `if not pads: return 0.0` — an empty component has no copper.
+    cpython_max(pads.iter().map(|&(ox, oy, w, h, shape, ratio)| {
+        py_hypot(ox, oy) + bounding_radius(w, h, shape, ratio)
+    }))
+    .unwrap_or(0.0)
+}
+
+/// `rotation_deg` is accepted by the Python reference purely to make the
+/// rotation-invariance explicit at the call site; it is provably unused
+/// (`|offset|` is rotation-invariant and so is the bounding radius). It is not
+/// part of this signature — replicating a deliberately-ignored parameter would
+/// invite a caller to believe it does something.
+#[pyfunction]
+#[pyo3(name = "copper_reach_mm_py")]
+pub fn copper_reach_mm_py(pads: Vec<PadRow>) -> PyResult<f64> {
+    temper_py_bridge::catch_unwind(|| copper_reach_mm(&pads))
+        .map_err(temper_py_bridge::panic_to_err)
+}
+
+pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
+    module.add_function(wrap_pyfunction!(copper_reach_mm_py, module)?)?;
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn empty_component_has_no_reach() {
+        assert_eq!(copper_reach_mm(&[]), 0.0);
+    }
+
+    #[test]
+    fn keeps_a_nan_the_way_cpython_max_does() {
+        // A NaN offset must survive: `f64::max` would discard it and report the
+        // finite pad's reach instead, understating the copper extent.
+        let pads = vec![
+            (f64::NAN, 0.0, 1.0, 1.0, 0, 0.25),
+            (10.0, 0.0, 1.0, 1.0, 0, 0.25),
+        ];
+        assert!(copper_reach_mm(&pads).is_nan(), "first-NaN must not be displaced");
+    }
+
+    #[test]
+    fn infinity_beats_nan_via_py_hypot() {
+        let pads = vec![(f64::INFINITY, f64::NAN, 1.0, 1.0, 0, 0.25)];
+        assert!(copper_reach_mm(&pads).is_infinite());
+    }
+}
