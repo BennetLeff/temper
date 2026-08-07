@@ -724,54 +724,50 @@ def test_rect_subclassing_still_works():
     assert_same(list(copy.deepcopy(m)), list(copy.deepcopy(o)), "subclass deepcopy")
 
 
-def test_rect_is_no_longer_a_dataclass_and_asdict_changes_shape():
-    """The one measured API delta, pinned rather than hidden.
+def test_rect_keeps_the_dataclass_protocol_and_asdict_shape():
+    """The migration's one API delta was CLOSED; this pins the parity.
 
-    `dataclasses.is_dataclass(Rect)` was `True` and is now `False`. The
-    visible consequence is that `asdict()` on a dataclass *containing* a
-    `Rect` no longer recurses into it: it deep-copies the `Rect` instead
-    of flattening it to a nested dict.
+    This test used to pin the delta in the other direction:
+    `dataclasses.is_dataclass(Rect)` had become `False`, so `asdict()` on a
+    dataclass *containing* a `Rect` stopped recursing into it and deep-copied
+    the `Rect` instead::
 
         before:  {'bounds': {'x_min': 0.0, 'y_min': 0.0, ...}}
         after:   {'bounds': Rect(x_min=0.0, y_min=0.0, ...)}
 
-    Both shapes are recorded here so the delta is a documented fact
-    rather than something a reader has to rediscover. A repo-wide grep
-    found four `asdict` call sites -- metrics/physics.py,
-    pipeline/dag_observability.py, testing/quarantine.py and
-    validation/results/battery_run.py -- and none is reachable from a
-    `Rect`, which is why this is acceptable rather than blocking.
+    That delta was judged acceptable because none of the four `asdict` call
+    sites was reachable from a `Rect`. It was then closed anyway by
+    `b5d472865` ("restore the dataclass protocol on the migrated contracts"),
+    which put `__dataclass_fields__` back on the pyclass. Measured here: the
+    nested-dict shape is what `asdict` produces again.
+
+    So the assertion is inverted relative to its old self ON PURPOSE. Left as
+    it was, it asserted the absence of a property that a later commit
+    deliberately restored -- a test pinning a fact that had stopped being
+    true. It still bites: lose the protocol again and both halves fail.
     """
     import dataclasses
 
-    assert not dataclasses.is_dataclass(ProdRect)
+    assert dataclasses.is_dataclass(ProdRect), (
+        "Rect lost __dataclass_fields__ -- b5d472865 restored it deliberately, "
+        "and asdict() on anything containing a Rect silently changes shape "
+        "when it goes missing"
+    )
     assert dataclasses.is_dataclass(oracle.Rect)
 
     from temper_placer.core.board import Zone
 
     z = Zone("Z", (0, 0, 1, 1))
-    assert not dataclasses.is_dataclass(z.bounds)
+    assert dataclasses.is_dataclass(z.bounds)
 
-    # After: the Rect survives asdict() as an object (it is copyable now
-    # that __reduce__ exists) rather than being flattened.
-    after = dataclasses.asdict(z)
-    assert after["bounds"] == (0.0, 0.0, 1.0, 1.0)
-    assert not isinstance(after["bounds"], dict)
-
-    # Before: the oracle's Rect flattens to a nested dict.
     @dataclasses.dataclass
-    class _OracleZone:
-        name: str
+    class _Holder:
         bounds: object
 
-    before = dataclasses.asdict(_OracleZone("Z", oracle.Rect.coerce((0, 0, 1, 1))))
-    assert before["bounds"] == {"x_min": 0.0, "y_min": 0.0, "x_max": 1.0, "y_max": 1.0}
-
-
-# ---------------------------------------------------------------------------
-# placement DRC
-# ---------------------------------------------------------------------------
-
+    prod = dataclasses.asdict(_Holder(bounds=ProdRect(0.0, 0.0, 1.0, 1.0)))
+    orac = dataclasses.asdict(_Holder(bounds=oracle.Rect(0.0, 0.0, 1.0, 1.0)))
+    assert prod == orac, f"asdict shape diverged from the oracle: {prod} != {orac}"
+    assert prod == {"bounds": {"x_min": 0.0, "y_min": 0.0, "x_max": 1.0, "y_max": 1.0}}
 
 def _pin_pair(cls, ax, ay, an, bx, by, bn, da=1.0, db=1.0):
     return [
