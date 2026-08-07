@@ -407,6 +407,24 @@ scripts:
   - re
   - sys
   - yaml
+- path: check_firmware_invariants.py
+  purpose: 'CI gate (R29, plan 2026-08-02-028 U7): rerun firmware/tools/invariants.py from source over
+    the shared transition model (firmware/tools/transition_model.py) on every invocation and fail on any
+    violated load-bearing safety invariant (over-temp disables the power stage, sensor faults block heating,
+    faulted states cannot re-enter heating without the reset path, and the runaway interlock reaches a
+    safe/de-energized state from every state) -- named with the invariant id and offending edge/path evidence.
+    Separately fails (DRIFT, exit 3) if the committed firmware/tools/proof_record.json does not byte-match
+    a fresh regeneration, so the proof record can never silently go stale relative to the manifest.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - gen_proof_record
+  - invariants
+  - pathlib
+  - sys
+  - transition_model
 - path: check_footprint_drift.py
   purpose: 'Footprint-drift gate: catch a footprint corrected in elec/src/*.ato that never propagated
     into pcb/temper.kicad_pcb, matched by sheetpath (designator-renumbering-safe), not refdes.'
@@ -867,6 +885,27 @@ scripts:
   - pathlib
   - subprocess
   - sys
+- path: check_state_machine_model.py
+  purpose: 'CI gate (R28, plan 2026-08-02-028 U4): runs, in one invocation, the exhaustive reachability
+    report over the transition model (firmware/tools/transition_model.py -- 9 states x 25 events including
+    the 2 KTD2 runaway-interlock wildcard events, closure from STATE_INIT), the P1-P4 unsafe-state/transition-property
+    checks (firmware/tools/transition_model_checks.py), and the production-vs-test-generator manifest cross-check
+    (firmware/tools/transition_manifest_crosscheck.py) -- fails closed on any unreachable state, undocumented
+    interlock-only state, property violation, or manifest divergence not covered by the documented KTD2
+    wildcard state-set exception. Writes the reachability report artifact to firmware/tools/state_machine_reachability_report.json
+    on every run.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - json
+  - pathlib
+  - sys
+  - transition_manifest_crosscheck
+  - transition_model
+  - transition_model_checks
 - path: check_test_baseline_writes.py
   purpose: 'CI gate: fail closed when a test source writes a committed measurement artifact (baselines,
     drc_ceiling.json, goldens, recorded metrics). Static half of the 2026-08-04 fix for test_update_baseline_yaml,
