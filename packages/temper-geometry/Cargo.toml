@@ -20,7 +20,14 @@ pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
 spade = "2.15"
 
 [features]
-default = ["python"]
+# WASM tier R1 (plan 2026-08-03-002): pyo3 is gated behind the optional
+# `python` feature and is NOT a default feature. A plain
+# `cargo build --target wasm32-unknown-unknown` therefore builds the pure
+# geometry kernels with pyo3 out of the dependency graph. The Python
+# extension build (maturin) re-enables `python` explicitly via
+# `[tool.maturin] features` in pyproject.toml -- default features are not
+# the mechanism that build relies on.
+default = []
 python = ["dep:pyo3", "dep:temper-py-bridge"]
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]

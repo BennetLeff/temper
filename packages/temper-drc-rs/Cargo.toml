@@ -34,7 +34,14 @@ serde_json = "1"
 thiserror = "1"
 
 [features]
-default = ["python"]
+# WASM tier R1 (plan 2026-08-03-002): pyo3 is gated behind the optional
+# `python` feature and is NOT a default feature. A plain
+# `cargo build --target wasm32-unknown-unknown` therefore builds the pure
+# Rust kernels with pyo3 (and temper-geometry) out of the dependency graph.
+# The Python extension build (maturin) re-enables `python` explicitly via
+# `[tool.maturin] features` in pyproject.toml -- default features are not
+# the mechanism that build relies on.
+default = []
 python = ["dep:pyo3", "dep:temper-geometry"]
 # Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
 # and exposes them through `wasm_test_registry`, so a `wasm32` entry point can

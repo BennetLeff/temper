@@ -649,3 +649,124 @@ is recorded at U9 per the plan.
 - **The plan's §6 "783 `#[test]`" figure.** Not reproduced by any scoping
   tried; this measurement's compiled-harness counts (637 default / 576
   no-default) use a different, and for this unit the relevant, definition.
+
+---
+
+## Part 3 — Feature-shape change: `default = []` (R1 re-verification, 2026-08-07)
+
+**Date:** 2026-08-07
+**Base:** `origin/main` @ `00ec5f94a535ff86b4042748f7b036c139b3cac2`
+**Branch:** `feat/wasm-tier-phase0`
+**Base assertion:** `scripts/assert-base.sh origin/main` exited 0.
+
+### 1. What changed
+
+Parts 1–2 closed R1 with `default = ["python"]` and a `--no-default-features`
+wasm32 build. This execution's R1 requirement specified the stronger shape
+`[features] default = []`: a **plain** `cargo build --target wasm32-unknown-unknown`
+(default features off by default) must be the pyo3-free build. Four files
+changed:
+
+| File | Change |
+|---|---|
+| `packages/temper-drc-rs/Cargo.toml` | `default = ["python"]` → `default = []` (feature comment updated) |
+| `packages/temper-geometry/Cargo.toml` | `default = ["python"]` → `default = []` (feature comment updated) |
+| both `pyproject.toml` | `[tool.maturin] features = ["pyo3/extension-module"]` → `["python", "pyo3/extension-module"]` — the Python extension build now re-enables the `python` feature explicitly, because default features are no longer the mechanism that supplies it |
+| `.github/workflows/python-tests.yml` | "Test temper-geometry (cargo test)" step → `cargo test --features python` — preserves the python-gated `#[cfg(test)]` surface that the default-feature flip would otherwise silently drop from CI |
+
+### 2. wasm32 build — plain command, both crates
+
+```
+$ cargo build --release --target wasm32-unknown-unknown \
+    --manifest-path packages/temper-drc-rs/Cargo.toml      # no feature flags
+Finished `release` profile [optimized] target(s) in 2.07s
+
+$ cargo build --release --target wasm32-unknown-unknown \
+    --manifest-path packages/temper-geometry/Cargo.toml    # no feature flags
+Finished `release` profile [optimized] target(s) in 11.60s
+```
+
+Artifacts (shared `CARGO_TARGET_DIR`):
+
+| Artifact | Size (bytes) |
+|---|---|
+| `target-shared/wasm32-unknown-unknown/release/temper_drc_rs.wasm` | 364 |
+| `target-shared/wasm32-unknown-unknown/release/temper_geometry.wasm` | 465,977 |
+| `target-shared/wasm32-unknown-unknown/release/temper_wasm_test_runner.wasm` | 1,183,886 (unchanged from Part 1) |
+
+### 3. Import lists — the artifact-level finding
+
+```
+$ wasm-tools print .../temper_drc_rs.wasm  | grep -c '^  (import'   → 0
+$ wasm-tools print .../temper_geometry.wasm | grep '^  (import'     → 4
+```
+
+- **`temper_drc_rs.wasm` — zero imports.** Same as the Part-1 runner artifact.
+  The tier's rule surface (the six families, `create_default_registry`) is
+  deployable to a bare Cloudflare isolate.
+- **`temper_geometry.wasm` — 4 `__wbindgen_*` imports.** `__wbindgen_throw`,
+  `__wbindgen_describe`, `__wbindgen_externref_table_grow`,
+  `__wbindgen_externref_table_set_null`. Source: `transform.rs::gumbel_softmax`
+  calls `rand::random()` unconditionally in a pure kernel; `rand` → `getrandom
+  0.2` pulls the `js` feature (the `[target.'cfg(target_arch = "wasm32")']`
+  dependency), whose entropy source routes through wasm-bindgen glue. This is
+  the **exact risk the parent plan's §5.6 predicted** — now verified
+  empirically at the artifact level rather than by inspection. It is NOT a
+  build failure and does not reopen D3 (the rules the tier runs live in
+  temper-drc-rs's import-free artifact); it is a recorded deployability caveat
+  for a standalone temper-geometry module, matching the "unowned risk" the
+  plan flagged for Phase 1. The `getrandom` `js` feature was previously
+  thought to be excluded from the wasm graph (Part 1 §1) — that was true for
+  the *runner* graph (which does not include temper-geometry), not for a
+  standalone temper-geometry build.
+
+### 4. dlsym fallback verification (pad_geometry.rs)
+
+`pad_geometry.rs` resolves `cos`/`sin` through `dlsym` on non-wasm32 targets;
+on wasm32 the `#[cfg(target_arch = "wasm32")]` std-intrinsic fallback
+(`f64::cos`/`f64::sin`, no dynamic loader) is what compiles. The successful
+`wasm32-unknown-unknown` build of temper-geometry above **proves the fallback
+compiles and links** — `cargo check` could not have shown this (G1), and the
+rung-2 link step now does.
+
+### 5. Native pyo3 build — intact after the default flip
+
+The Python extension build re-enables `python` via `[tool.maturin] features`,
+verified end to end:
+
+```
+$ uv run --no-sync maturin develop --release --manifest-path packages/temper-geometry/Cargo.toml   # OK
+$ uv run --no-sync maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml     # OK ("Using build options features from pyproject.toml")
+$ uv run --no-sync python scripts/write_extension_stamps.py
+$ uv run --no-sync python scripts/check_stale_extensions.py
+  fresh=13 stale=0 missing=0   # 0 STALE
+$ python -c "import temper_geometry; import temper_drc_rs; import temper_rust_router"
+  temper_geometry pyfunctions present; temper_drc_rs.serialize_board_state present; OK
+```
+
+### 6. Native gates (both feature modes)
+
+| Gate | `--no-default-features` | `--all-features` (python on) |
+|---|---|---|
+| `cargo build --release` temper-drc-rs | PASS | PASS |
+| `cargo build --release` temper-geometry | PASS | PASS |
+| `cargo clippy --all-targets -- -D warnings` temper-drc-rs | PASS | PASS |
+| `cargo clippy --all-targets -- -D warnings` temper-geometry | PASS | PASS |
+| `cargo test` temper-drc-rs | 112 passed | — (macOS dyld abort for the python-gated test harness is the documented pre-existing platform limitation; CI runs the equivalent step on Linux) |
+| `cargo test` temper-geometry | 482+31+1 passed | compiles; macOS dyld abort, documented, CI runs on Linux |
+
+The four clippy lints the `--all-targets` sweep surfaced in
+`examples/r2_full_board_pass.rs` (`doc_lazy_continuation`,
+`unnecessary_map_or`, `expect_used`, `unwrap_used`) are **pre-existing** (the
+example merged via #875) and were fixed mechanically in this execution so the
+exact CI command is green for the touched crates.
+
+### 7. Verdict
+
+R1's feature-gate shape is now exactly `default = []`; the plain wasm32 build
+works for both crates; the dlsym fallback links; and the native pyo3 build is
+verified fresh (0 STALE, imports exercised). The one caveat carried forward
+from the build: temper-geometry's standalone wasm artifact imports 4
+wasm-bindgen glue functions (plan §5.6, now empirically confirmed). **R1
+remains PASS**; the standalone-geometry glue caveat is Phase-1 input, not a
+substrate failure.

@@ -34,6 +34,7 @@ use temper_drc_rs::rules::{create_default_registry, DrcCategory};
 /// Units differ by platform:
 ///   - Darwin (macOS): bytes
 ///   - Linux:           KiB
+///
 /// The function normalises to bytes and returns a label for the evidence doc.
 fn peak_rss_bytes() -> (i64, &'static str) {
     #[repr(C)]
@@ -149,13 +150,18 @@ fn main() {
         std::process::exit(1);
     }
     let board_path = &args[1];
-    let summary_mode = args.get(2).map_or(false, |s| s == "--summary");
+    let summary_mode = args.get(2).is_some_and(|s| s == "--summary");
 
     // ── Load board ────────────────────────────────────────────────────
     let json = std::fs::read_to_string(board_path)
         .unwrap_or_else(|e| panic!("cannot read {board_path}: {e}"));
-    let board: BoardState =
-        serde_json::from_str(&json).expect("failed to deserialise BoardState");
+    let board: BoardState = match serde_json::from_str(&json) {
+        Ok(board) => board,
+        Err(e) => {
+            eprintln!("ERROR: failed to deserialise BoardState: {e}");
+            std::process::exit(2);
+        }
+    };
     let constraints = ConstraintSet::default();
 
     // ── Build registry ────────────────────────────────────────────────
@@ -213,7 +219,16 @@ fn main() {
                 serde_json::json!({"name": n, "category": c, "ns_per_case": ns})
             }).collect::<Vec<_>>(),
         });
-        println!("{}", serde_json::to_string(&json_out).unwrap());
+        println!(
+            "{}",
+            match serde_json::to_string(&json_out) {
+                Ok(s) => s,
+                Err(e) => {
+                    eprintln!("ERROR: failed to serialise report JSON: {e}");
+                    std::process::exit(2);
+                }
+            }
+        );
     } else {
         println!("R2 — full-board rule pass  (native, release, --no-default-features)\n");
         println!("  board file:  {board_path}");

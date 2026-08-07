@@ -891,12 +891,17 @@ jobs:
       # This runs on Linux, where the abort does not apply: it comes from the
       # `-undefined dynamic_lookup` rustflags in .cargo/config.toml, which are
       # scoped to `[target.*-apple-darwin]`. temper-orchestration above carries
-      # the identical feature setup (`default = ["python"]` with pyo3
-      # `extension-module`) and passes here, which is the precedent for expecting
-      # this to link.
+      # the identical feature setup (`python` behind an explicit feature with
+      # pyo3 `extension-module`) and passes here, which is the precedent for
+      # expecting this to link.
+      #
+      # `--features python` is explicit, not implied: `python` is NOT a default
+      # feature (WASM tier R1 flipped the default to [] so a bare wasm32 build
+      # is pyo3-free). Without it this step would silently stop compiling every
+      # python-gated `#[cfg(test)]` module.
       - name: Test temper-geometry (cargo test)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: cargo test --manifest-path packages/temper-geometry/Cargo.toml
+        run: cargo test --manifest-path packages/temper-geometry/Cargo.toml --features python
 
       # ---- WASM32 regression guard (plan 2026-08-03-002, U3) --------------
       # These steps verify that the wasm32 substrate (R1) has not silently
