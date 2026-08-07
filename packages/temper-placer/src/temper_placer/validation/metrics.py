@@ -6,6 +6,41 @@ pass/fail status. Useful for:
 - Comparing different placements
 - Tracking optimization progress
 - Reporting final placement quality
+
+``_compute_overlap_metrics``, ``_compute_clearance_metrics``,
+``_compute_wirelength_metrics``'s numeric fold, and
+``_compute_distribution_metrics`` run in ``temper-quality-oracle``'s Rust
+kernels (``overlap_metrics_py`` / ``clearance_metrics_py`` /
+``wirelength_metrics_py`` / ``distribution_metrics_py``, Wave 4); this
+module keeps the public API, resolves the pyclass/dataclass fields the
+kernels read into primitive arrays (a one-time attribute-read boundary,
+not compute), and delegates. Bit-parity against the pre-migration
+implementation is pinned by
+``tests/validation/test_validation_metrics_rust_differential.py``
+(oracle: ``tests/validation/_validation_metrics_py_oracle.py``).
+
+``_compute_boundary_metrics``, ``_compute_zone_metrics`` and
+``_compute_keepout_metrics`` are deliberately NOT ported:
+
+- ``_compute_boundary_metrics`` / ``_compute_keepout_metrics`` both call
+  ``get_rotated_bounds`` once per component -- already a Rust FFI crossing
+  (``temper-geometry``). What's left per component is a handful of
+  subtractions and a 4-way ``max`` (boundary) or a small loop over
+  ``board.keepout_regions`` / ``board.mounting_holes`` (keepout) -- an
+  ``O(n)`` loop dominated by an FFI call this module already makes, not
+  worth a second one. Restructuring the call site to batch the rotated
+  bounds first (so a kernel could consume them) would touch
+  ``compute_metrics``'s shared orchestration for marginal gain.
+- ``_compute_zone_metrics`` is dominated by ``board.get_zone(name)`` dict
+  lookup and ``KeyError``-as-control-flow -- domain glue, not compute.
+
+See ``packages/temper-quality-oracle/src/validation_metrics.rs`` for the
+full bit-exactness catalog this migration measured (CPython ``max``/``min``
+first-argument-on-tie semantics; CPython 3.12's compensated builtin
+``sum()`` for ``avg_net_length``; and a NEP-50 *narrowing* -- not
+promotion -- of ``_compute_distribution_metrics``'s arithmetic to float32,
+since both ``state.positions`` and ``netlist.get_bounds_array()`` are
+float32 with no float64 array anchor present).
 """
 
 from __future__ import annotations
@@ -15,6 +50,7 @@ from dataclasses import dataclass
 from typing import TypeAlias
 
 import numpy as np
+import temper_quality_oracle as _qo
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
@@ -161,18 +197,21 @@ def compute_metrics(
 
     # Build rects list for the Rust-backed compute_pairwise_distances
     # (signature changed from 4 args to 1: Vec<f64> of [cx, cy, w, h] per component).
+    # Kept flat (row-major n*n, not reshaped to a 2D array) -- both
+    # consumers below (_compute_overlap_metrics, _compute_clearance_metrics)
+    # now delegate to Rust kernels that take the flat form directly.
     rects = np.column_stack([positions, widths[:, None], heights[:, None]])
     rects_flat = rects.ravel().tolist()
-    distances = np.array(compute_pairwise_distances(rects_flat)).reshape(n_components, n_components)
+    distances_flat = compute_pairwise_distances(rects_flat)
 
     # === Overlap metrics ===
-    _compute_overlap_metrics(metrics, distances, n_components)
+    _compute_overlap_metrics(metrics, distances_flat, n_components)
 
     # === Boundary metrics ===
     _compute_boundary_metrics(metrics, positions, rotations, widths, heights, board)
 
     # === Clearance metrics ===
-    _compute_clearance_metrics(metrics, distances, netlist, hv_lv_clearance)
+    _compute_clearance_metrics(metrics, distances_flat, netlist, hv_lv_clearance)
 
     # === Zone metrics ===
     _compute_zone_metrics(metrics, positions, netlist, board)
@@ -190,21 +229,15 @@ def compute_metrics(
     return metrics
 
 
-def _compute_overlap_metrics(metrics: PlacementMetrics, distances: Array, n: int) -> None:
-    """Compute overlap-related metrics."""
-    overlap_count = 0
-    total_overlap = 0.0
-    worst_overlap = 0.0
+def _compute_overlap_metrics(metrics: PlacementMetrics, distances_flat: list[float], n: int) -> None:
+    """Compute overlap-related metrics.
 
-    for i in range(n):
-        for j in range(i + 1, n):
-            dist = float(distances[i, j])
-            if dist < 0:
-                overlap_amount = -dist
-                overlap_count += 1
-                total_overlap += overlap_amount
-                worst_overlap = max(worst_overlap, overlap_amount)
-
+    Delegates to ``temper_quality_oracle.overlap_metrics_py`` (Wave 4);
+    see ``validation_metrics.rs`` for the ported arithmetic.
+    """
+    overlap_count, total_overlap, worst_overlap = _qo.overlap_metrics_py(
+        list(distances_flat), n
+    )
     metrics.overlap_count = overlap_count
     metrics.total_overlap_area = total_overlap
     metrics.worst_overlap = worst_overlap
@@ -262,35 +295,23 @@ def _compute_boundary_metrics(
 
 def _compute_clearance_metrics(
     metrics: PlacementMetrics,
-    distances: Array,
+    distances_flat: list[float],
     netlist: Netlist,
     hv_lv_clearance: float,
 ) -> None:
-    """Compute clearance violation metrics."""
+    """Compute clearance violation metrics.
+
+    Delegates to ``temper_quality_oracle.clearance_metrics_py`` (Wave 4);
+    see ``validation_metrics.rs`` for the ported arithmetic. ``is_hv`` is
+    ``comp.net_class == "HighVoltage"`` per component -- a string
+    comparison resolved here (glue), not compute.
+    """
     n = len(netlist.components)
-    clearance_violations = 0
-    hv_lv_violations = 0
-    min_hv_lv = float("inf")
+    is_hv = [c.net_class == "HighVoltage" for c in netlist.components]
 
-    min_clearance = 0.2  # Default minimum clearance
-
-    for i in range(n):
-        for j in range(i + 1, n):
-            comp_i = netlist.components[i]
-            comp_j = netlist.components[j]
-            dist = float(distances[i, j])
-
-            is_hv_lv = (
-                comp_i.net_class == "HighVoltage" and comp_j.net_class != "HighVoltage"
-            ) or (comp_j.net_class == "HighVoltage" and comp_i.net_class != "HighVoltage")
-
-            if is_hv_lv:
-                min_hv_lv = min(min_hv_lv, dist)
-                if dist < hv_lv_clearance:
-                    hv_lv_violations += 1
-                    clearance_violations += 1
-            elif dist < min_clearance:
-                clearance_violations += 1
+    clearance_violations, hv_lv_violations, min_hv_lv = _qo.clearance_metrics_py(
+        list(distances_flat), n, is_hv, float(hv_lv_clearance)
+    )
 
     metrics.clearance_violations = clearance_violations
     metrics.hv_lv_violations = hv_lv_violations
@@ -386,10 +407,18 @@ def _compute_wirelength_metrics(
     rotation_indices: Array,
     netlist: Netlist,
 ) -> None:
-    """Compute wirelength metrics using half-perimeter wirelength (HPWL)."""
-    total_wirelength = 0.0
-    max_net_length = 0.0
-    net_lengths = []
+    """Compute wirelength metrics using half-perimeter wirelength (HPWL).
+
+    Pin-position resolution (``pin_world_position_at``,
+    ``netlist.get_component_index``, the ``try/except (KeyError,
+    IndexError)`` guard) is domain geometry glue and stays in Python.
+    Once resolved into a flat per-net HPWL value and weight, the fold
+    (weighted total, max, and CPython-3.12-compensated-``sum()`` average)
+    delegates to ``temper_quality_oracle.wirelength_metrics_py``
+    (Wave 4); see ``validation_metrics.rs`` for the ported arithmetic.
+    """
+    hpwl_values: list[float] = []
+    weights: list[float] = []
 
     for net in netlist.nets:
         if len(net.pins) < 2:
@@ -426,16 +455,16 @@ def _compute_wirelength_metrics(
 
         hpwl = (max(xs) - min(xs)) + (max(ys) - min(ys))
 
-        # Apply net weight
-        weighted_hpwl = hpwl * net.weight
+        hpwl_values.append(hpwl)
+        weights.append(float(net.weight))
 
-        total_wirelength += weighted_hpwl
-        max_net_length = max(max_net_length, hpwl)
-        net_lengths.append(hpwl)
+    total_wirelength, max_net_length, avg_net_length = _qo.wirelength_metrics_py(
+        hpwl_values, weights
+    )
 
     metrics.total_wirelength = total_wirelength
     metrics.max_net_length = max_net_length
-    metrics.avg_net_length = sum(net_lengths) / len(net_lengths) if net_lengths else 0.0
+    metrics.avg_net_length = avg_net_length
 
 
 def _compute_distribution_metrics(
@@ -445,19 +474,26 @@ def _compute_distribution_metrics(
     heights: Array,
     board: Board,
 ) -> None:
-    """Compute placement distribution metrics."""
-    positions.shape[0]
+    """Compute placement distribution metrics.
 
-    # Utilization
-    total_component_area = float(np.sum(widths * heights))
-    board_area = board.width * board.height
-    metrics.utilization = total_component_area / board_area
+    Delegates to ``temper_quality_oracle.distribution_metrics_py``
+    (Wave 4); see ``validation_metrics.rs`` for the ported arithmetic and
+    the measured NEP-50 float32-narrowing catalog entry (``positions``
+    and ``widths``/``heights`` are both float32 with no float64 anchor,
+    so ``np.sum``/``np.mean`` run their pairwise-summation reduction in
+    float32, not float64).
+    """
+    n = positions.shape[0]
 
-    # Center of mass
-    com_x = float(np.mean(positions[:, 0]))
-    com_y = float(np.mean(positions[:, 1]))
+    utilization, com_x, com_y, spread_score = _qo.distribution_metrics_py(
+        [float(positions[i, 0]) for i in range(n)],
+        [float(positions[i, 1]) for i in range(n)],
+        [float(w) for w in widths],
+        [float(h) for h in heights],
+        float(board.width),
+        float(board.height),
+    )
+
+    metrics.utilization = utilization
     metrics.center_of_mass = (com_x, com_y)
-
-    # Spread score: average distance from center of mass
-    distances_from_com = np.sqrt((positions[:, 0] - com_x) ** 2 + (positions[:, 1] - com_y) ** 2)
-    metrics.spread_score = float(np.mean(distances_from_com))
+    metrics.spread_score = spread_score
