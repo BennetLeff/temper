@@ -100,6 +100,13 @@ pub use organizational_geometry::{
     circle_offsets_py, decoupling_candidate_positions_py, domain_grid_positions_py,
     module_grid_positions_py, power_flow_positions_py,
 };
+// Wave 4: temper_placer/heuristics/style.py's two _place_* position kernels
+// (star-ground radial sector placement, signal-chain linear placement) --
+// see style_geometry.rs's module doc for the classification-vs-placement
+// triage.
+pub mod style_geometry;
+#[cfg(feature = "python")]
+pub use style_geometry::{radial_sector_positions_py, signal_chain_positions_py};
 pub mod audit;
 pub mod creepage_check;
 // Wave 4: placer/cp_sat/fixed_copper.py's pad-rotation/half-extent/item-
