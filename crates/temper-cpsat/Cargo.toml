@@ -1,0 +1,14 @@
+[package]
+name = "temper-cpsat"
+version = "0.1.0"
+edition = "2021"
+description = "CP-SAT via OR-Tools' C++ API. No Python."
+
+[dependencies]
+prost = "0.13"
+
+[build-dependencies]
+prost = "0.13"
+prost-build = "0.13"
+prost-types = "0.13"
+cc = "1"
