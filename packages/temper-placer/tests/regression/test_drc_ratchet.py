@@ -3,7 +3,11 @@
 import json
 from pathlib import Path
 
-from temper_placer.regression.drc_ratchet import DrcRatchet, DrcRatchetResult
+from temper_placer.regression.drc_ratchet import (
+    DrcRatchet,
+    DrcRatchetResult,
+    check_noise_headroom,
+)
 
 
 class TestDrcRatchet:
@@ -831,3 +835,278 @@ class TestCategorySourceLabeling:
         (failure,) = r.category_failures
         assert failure.source == "kicad-cli"
         assert "source: kicad-cli" in r.message
+
+
+class TestNoiseHeadroomGuard:
+    """`_check_board` runs `run_drc` exactly ONCE per CI invocation and
+    compares that lone sample straight against the ceiling. That is only
+    safe if the ceiling's headroom above the historical max (``ceiling -
+    max(observed)``) is at least as wide as a category's own measured
+    run-to-run spread (``max(observed) - min(observed)``) -- otherwise a
+    single fresh sample can land outside the previously-observed range
+    from noise alone, failing a board that never regressed.
+    ``check_noise_headroom`` checks that invariant against the ceiling
+    file's own committed ``nondeterministic_error_types`` data (the
+    120-sample characterization ``AGENTS.md``'s protocol already
+    requires) instead of assuming it holds.
+    """
+
+    @staticmethod
+    def _entry(tmp_path, nondet, by_type, error_ceiling=1000):
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "b",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": error_ceiling,
+                            "warning_ceiling": 0,
+                            "violations_by_type": by_type,
+                            "nondeterministic_error_types": nondet,
+                        }
+                    ]
+                }
+            )
+        )
+        ratchet = DrcRatchet(ceiling_path, backend="kicad-cli")
+        ratchet.load()
+        return ratchet, ratchet.entries["b"]
+
+    def test_max_plus_one_headroom_passes_when_spread_is_one(self, tmp_path):
+        """The file's own ``max + 1`` convention on a two-valued category
+        (e.g. this board's real ``clearance``/``shorting_items`` records):
+        headroom == spread == 1, exactly at the boundary -- safe."""
+        ratchet, entry = self._entry(
+            tmp_path,
+            nondet={"clearance": {"observed": [377, 378], "samples": 120}},
+            by_type={"clearance": 379},
+        )
+        assert check_noise_headroom("b", entry) == []
+
+    def test_headroom_smaller_than_spread_fails_loudly(self, tmp_path):
+        """Anti-vacuity: reproduces this board's real recorded ``creepage``
+        category verbatim (3 distinct observed values over 120 samples,
+        spread 2) sitting behind a ``max + 1`` ceiling (headroom 1). The
+        guard must flag this rather than silently pass it -- and it does,
+        on this repo's actual committed drc_ceiling.json, not just in this
+        synthetic fixture (verified separately; see the PR description)."""
+        ratchet, entry = self._entry(
+            tmp_path,
+            nondet={"creepage": {"observed": [185, 186, 187], "samples": 120}},
+            by_type={"creepage": 188},
+        )
+        violations = check_noise_headroom("b", entry)
+        assert len(violations) == 1
+        v = violations[0]
+        assert v.board_id == "b"
+        assert v.category == "creepage"
+        assert v.spread == 2
+        assert v.headroom == 1
+        assert v.ceiling == 188
+        assert "creepage" in v.message
+        assert "188" in v.message
+
+    def test_headroom_wider_than_spread_passes(self, tmp_path):
+        ratchet, entry = self._entry(
+            tmp_path,
+            nondet={"shorting_items": {"observed": [199, 200], "samples": 120}},
+            by_type={"shorting_items": 205},  # generous +5 headroom vs. spread 1
+        )
+        assert check_noise_headroom("b", entry) == []
+
+    def test_category_missing_from_violations_by_type_is_skipped(self, tmp_path):
+        """A category the nondeterministic block names but with no
+        corresponding per-type ceiling (yet) has nothing to compare
+        headroom against -- must not crash or be misreported."""
+        ratchet, entry = self._entry(
+            tmp_path,
+            nondet={"creepage": {"observed": [185, 186, 187], "samples": 120}},
+            by_type={},
+        )
+        assert check_noise_headroom("b", entry) == []
+
+    def test_single_observed_value_is_skipped(self, tmp_path):
+        """A category recorded with only one distinct observed value has no
+        spread to compare -- must not raise and must not be reported."""
+        ratchet, entry = self._entry(
+            tmp_path,
+            nondet={"clearance": {"observed": [378], "samples": 120}},
+            by_type={"clearance": 379},
+        )
+        assert check_noise_headroom("b", entry) == []
+
+    def test_no_nondeterministic_block_returns_empty(self, tmp_path):
+        ratchet, entry = self._entry(tmp_path, nondet={}, by_type={"clearance": 379})
+        assert check_noise_headroom("b", entry) == []
+
+    def test_missing_samples_field_does_not_crash(self, tmp_path):
+        ratchet, entry = self._entry(
+            tmp_path,
+            nondet={"creepage": {"observed": [185, 186, 187]}},  # no "samples" key
+            by_type={"creepage": 188},
+        )
+        violations = check_noise_headroom("b", entry)
+        assert len(violations) == 1
+        assert violations[0].samples is None
+        assert "unrecorded sample count" in violations[0].message
+
+    def test_ratchet_method_aggregates_across_boards(self, tmp_path):
+        """``DrcRatchet.check_noise_headroom`` must report a board_id per
+        violation and must not flag a safe board just because another
+        board in the same file is unsafe."""
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "safe_board",
+                            "path": "pcb/a.kicad_pcb",
+                            "error_ceiling": 1000,
+                            "warning_ceiling": 0,
+                            "violations_by_type": {"clearance": 379},
+                            "nondeterministic_error_types": {
+                                "clearance": {"observed": [377, 378], "samples": 120}
+                            },
+                        },
+                        {
+                            "board_id": "unsafe_board",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": 1000,
+                            "warning_ceiling": 0,
+                            "violations_by_type": {"creepage": 188},
+                            "nondeterministic_error_types": {
+                                "creepage": {"observed": [185, 186, 187], "samples": 120}
+                            },
+                        },
+                    ]
+                }
+            )
+        )
+        ratchet = DrcRatchet(ceiling_path, backend="kicad-cli")
+        ratchet.load()
+        violations = ratchet.check_noise_headroom()
+        assert len(violations) == 1
+        assert violations[0].board_id == "unsafe_board"
+        assert violations[0].category == "creepage"
+
+
+class TestNoiseHeadroomAntiVacuity:
+    """Demonstrates, by driving ``_check_board`` directly against a
+    synthetic noisy oracle (never a real kicad-cli run), that insufficient
+    ceiling headroom produces REAL spurious FAILs on an unchanged board --
+    and that widening headroom to at least the measured spread (the
+    guard's own remedy) eliminates them. This is the
+    ``TestFailBeforePassAfter`` pattern from
+    ``scripts/tests/test_check_isolation_keepout.py`` applied to
+    ``check_noise_headroom``'s predicate itself: the static "headroom <
+    spread => unsafe" verdict must correspond to an actual single-sample
+    failure mode, not just a plausible-sounding inequality.
+
+    The oracle's TRUE support (185..189, 5 values) is deliberately WIDER
+    than the 3 values (185-187) an earlier/smaller sample happened to
+    observe -- modelling exactly the risk the guard exists to catch: a
+    sample too small to have seen the full range yet, with a ceiling set
+    from what it did see.
+    """
+
+    TRUE_SUPPORT = [185, 186, 187, 188, 189]
+
+    def _stub_cycling_run_drc(self, monkeypatch):
+        """Deterministically cycles through TRUE_SUPPORT on each call --
+        no randomness, so the test is not flaky, while still exercising
+        every value in the true (wider-than-observed) range repeatedly."""
+        import temper_placer.validation._drc_api as drc_api
+
+        state = {"i": 0}
+
+        def _run(_pcb_path):
+            n = self.TRUE_SUPPORT[state["i"] % len(self.TRUE_SUPPORT)]
+            state["i"] += 1
+            errors = [type("E", (), {"rule": "creepage"})() for _ in range(n)]
+            return type(
+                "R", (), {"error_count": len(errors), "warning_count": 0, "errors": errors}
+            )()
+
+        monkeypatch.setattr(drc_api, "run_drc", _run)
+
+    def _entry(self, tmp_path, ceiling):
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "b",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": 1000,
+                            "warning_ceiling": 0,
+                            "violations_by_type": {"creepage": ceiling},
+                        }
+                    ]
+                }
+            )
+        )
+        ratchet = DrcRatchet(ceiling_path, backend="kicad-cli")
+        ratchet.load()
+        pcb = tmp_path / "b.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        return ratchet, ratchet.entries["b"], pcb
+
+    def test_before_undersized_headroom_spuriously_fails(self, tmp_path, monkeypatch):
+        """ceiling = 188 -- this board's REAL recorded creepage ceiling
+        (observed-max-187 + 1), which ``check_noise_headroom`` already
+        flags as unsafe (spread 2 > headroom 1) in
+        ``TestNoiseHeadroomGuard.test_headroom_smaller_than_spread_fails_loudly``.
+        Run against the wider TRUE oracle: every 5th sample (the 189 draw)
+        must FAIL even though nothing about the board changed between
+        calls -- proving the flagged risk is real, not hypothetical."""
+        ratchet, entry, pcb = self._entry(tmp_path, ceiling=188)
+        self._stub_cycling_run_drc(monkeypatch)
+
+        results = [ratchet._check_board("b", pcb, entry) for _ in range(25)]
+
+        failures = [r for r in results if not r.passed]
+        assert len(failures) == 5, "expected exactly the five 189-draws (1 in 5) to fail"
+        for r in failures:
+            assert any(f.rule == "creepage" and f.count == 189 for f in r.category_failures)
+        # And the complementary case: the same unchanged board also PASSED
+        # on other draws -- this is genuinely flaky pass/fail on noise
+        # alone, not a consistent regression.
+        assert len(results) - len(failures) == 20
+
+    def test_after_widened_headroom_eliminates_spurious_fails(self, tmp_path, monkeypatch):
+        """Same TRUE oracle, ceiling widened per the guard's own remedy --
+        headroom >= measured spread, i.e. 187 (the old observed max) + 2
+        (the old observed spread) = 189 -- happens to exactly cover this
+        oracle's true max. Zero draws fail across a full cycle."""
+        ratchet, entry, pcb = self._entry(tmp_path, ceiling=189)
+        self._stub_cycling_run_drc(monkeypatch)
+
+        results = [ratchet._check_board("b", pcb, entry) for _ in range(25)]
+
+        failures = [r for r in results if not r.passed]
+        assert failures == []
+
+    def test_guard_predicate_matches_the_empirical_before_after_outcome(self, tmp_path):
+        """Ties the two demonstrations above back to the static guard:
+        given the SAME recorded 120-sample characterization (observed
+        185-187, unchanged -- widening the ceiling does not by itself
+        mean anyone re-measured), the guard says UNSAFE for the ceiling
+        that empirically failed above (188) and SAFE for the ceiling that
+        empirically held above (189)."""
+        _, unsafe_entry = TestNoiseHeadroomGuard._entry(
+            tmp_path,
+            nondet={"creepage": {"observed": [185, 186, 187], "samples": 120}},
+            by_type={"creepage": 188},
+        )
+        assert len(check_noise_headroom("b", unsafe_entry)) == 1
+
+        _, safe_entry = TestNoiseHeadroomGuard._entry(
+            tmp_path,
+            nondet={"creepage": {"observed": [185, 186, 187], "samples": 120}},
+            by_type={"creepage": 189},
+        )
+        assert check_noise_headroom("b", safe_entry) == []

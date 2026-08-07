@@ -150,6 +150,16 @@ class DrcCeilingEntry:
     that ever populates a per-type breakdown) and (2) detect when the
     running ``kicad-cli`` differs from the one the ceiling was measured
     with, rather than silently comparing against a different engine.
+
+    ``nondeterministic_error_types`` is read verbatim from the file's own
+    top-level ``nondeterministic_error_types`` block (e.g. ``{"clearance":
+    {"observed": [377, 378], "samples": 120, "note": "..."}}``) -- the
+    multi-sample characterization the file's own ``_march`` protocol
+    already requires (>= 120 samples) for every category whose count moves
+    on a byte-identical board. It exists so ``check_noise_headroom`` can
+    compare a category's *measured run-to-run spread* against its *ceiling
+    headroom* without re-deriving either number: both are already
+    committed, human-reviewed data, never re-measured by this guard.
     """
 
     board_id: str
@@ -160,6 +170,7 @@ class DrcCeilingEntry:
     warnings_by_type: dict[str, int] = field(default_factory=dict)
     tool_versions: dict[str, str] = field(default_factory=dict)
     category_source: str | None = None
+    nondeterministic_error_types: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 @dataclass
@@ -230,6 +241,92 @@ class DrcRatchetResult:
     kicad_cli_version_mismatch: bool = False
 
 
+@dataclass
+class NoiseHeadroomViolation:
+    """A nondeterministic category whose ceiling headroom is smaller than
+    its own measured run-to-run spread.
+
+    Why this check exists: ``DrcRatchet.check()`` (``_check_board``) runs
+    ``run_drc`` exactly ONCE per CI invocation and compares that single
+    sample directly against the ceiling. That is only safe if a single
+    fresh sample on an unchanged board is guaranteed to land at or below
+    the ceiling -- which is true if and only if the ceiling's headroom
+    above the historical max (``ceiling - max(observed)``) is at least as
+    wide as the measured spread (``max(observed) - min(observed)``) the
+    file's own 120-sample protocol already characterized. The ``max + 1``
+    convention this file uses throughout gives exactly 1 unit of headroom;
+    if a category's own measured spread is wider than 1 (e.g. a category
+    that visits 3 distinct values, not 2), a single fresh sample can land
+    outside the previously-observed range purely from noise -- a false
+    ceiling-exceeded FAIL on a board that did not regress. This dataclass
+    is what ``check_noise_headroom`` reports when that invariant does not
+    hold; it does not itself re-measure anything.
+    """
+
+    board_id: str
+    category: str
+    observed: list[int]
+    samples: int | None
+    ceiling: int
+
+    @property
+    def spread(self) -> int:
+        return max(self.observed) - min(self.observed)
+
+    @property
+    def headroom(self) -> int:
+        return self.ceiling - max(self.observed)
+
+    @property
+    def message(self) -> str:
+        samples_desc = f"{self.samples} samples" if self.samples else "an unrecorded sample count"
+        return (
+            f"{self.board_id}: {self.category!r} has ceiling headroom "
+            f"{self.headroom} (ceiling {self.ceiling} - observed max "
+            f"{max(self.observed)}) smaller than its own measured "
+            f"run-to-run spread {self.spread} (observed {self.observed} "
+            f"over {samples_desc}). A single-sample CI run can land above "
+            f"the ceiling from noise alone, with no board regression -- "
+            f"widen the headroom (or move this category to a "
+            f"deterministic engine) before trusting a single sample."
+        )
+
+
+def check_noise_headroom(board_id: str, entry: DrcCeilingEntry) -> list[NoiseHeadroomViolation]:
+    """Check every category ``entry`` records as nondeterministic against
+    the single-sample-safety invariant: ceiling headroom >= measured
+    spread. Returns one ``NoiseHeadroomViolation`` per category that fails
+    it (empty list = single-sampling is safe for every recorded category
+    on this board, given its own measured noise).
+
+    Reads only already-committed data (``nondeterministic_error_types`` and
+    ``violations_by_type``, both loaded by ``DrcRatchet.load()``) -- this
+    performs no DRC run of its own, so it costs nothing beyond the JSON
+    parse ``check()`` already does. A category with fewer than 2 distinct
+    observed values, or with no per-type ceiling recorded at all, is
+    skipped: there is no spread to compare (or nothing to compare it to).
+    """
+    violations: list[NoiseHeadroomViolation] = []
+    for category, info in sorted(entry.nondeterministic_error_types.items()):
+        observed = info.get("observed")
+        if not isinstance(observed, list) or len(observed) < 2:
+            continue
+        ceiling = entry.violations_by_type.get(category)
+        if ceiling is None:
+            continue
+        samples = info.get("samples")
+        violation = NoiseHeadroomViolation(
+            board_id=board_id,
+            category=category,
+            observed=list(observed),
+            samples=samples if isinstance(samples, int) else None,
+            ceiling=ceiling,
+        )
+        if violation.headroom < violation.spread:
+            violations.append(violation)
+    return violations
+
+
 class DrcRatchet:
     """Enforces DRC ceiling via committed JSON file.
 
@@ -264,6 +361,7 @@ class DrcRatchet:
                 warnings_by_type=entry.get("warnings_by_type", {}),
                 tool_versions=provenance.get("tool_versions") or {},
                 category_source=entry.get("category_source"),
+                nondeterministic_error_types=entry.get("nondeterministic_error_types") or {},
             )
 
     def check(self, repo_root: Path) -> list[DrcRatchetResult]:
@@ -275,6 +373,21 @@ class DrcRatchet:
             results.append(result)
 
         return results
+
+    def check_noise_headroom(self) -> list[NoiseHeadroomViolation]:
+        """Run ``check_noise_headroom`` (module-level) over every loaded
+        board entry. See that function and ``NoiseHeadroomViolation`` for
+        what this guards against.
+
+        Independent of ``check()``/``_check_board``: it needs no PCB file,
+        no ``repo_root``, and no DRC run -- it is a pure function of the
+        already-loaded ceiling data, so it is safe (and cheap) to call on
+        every CI invocation regardless of backend.
+        """
+        violations: list[NoiseHeadroomViolation] = []
+        for board_id, entry in self.entries.items():
+            violations.extend(check_noise_headroom(board_id, entry))
+        return violations
 
     def _run_rust_drc(self, pcb_path: Path) -> tuple[int, int]:
         """Run the Rust DRC engine on a PCB file.
@@ -775,9 +888,7 @@ class DrcRatchet:
 
             tool_versions = prov.get("tool_versions")
             kicad_cli_version = (
-                tool_versions.get("kicad-cli")
-                if isinstance(tool_versions, dict)
-                else None
+                tool_versions.get("kicad-cli") if isinstance(tool_versions, dict) else None
             )
             if not (
                 isinstance(kicad_cli_version, str)
@@ -812,9 +923,7 @@ class DrcRatchet:
             board_rel = record.get("path")
             inputs = prov.get("inputs") if isinstance(prov.get("inputs"), list) else []
             matching_inputs = [
-                inp
-                for inp in inputs
-                if isinstance(inp, dict) and inp.get("path") == board_rel
+                inp for inp in inputs if isinstance(inp, dict) and inp.get("path") == board_rel
             ]
             if not matching_inputs:
                 problems.append(
@@ -912,9 +1021,7 @@ class DrcRatchet:
                                     board_id,
                                 ),
                             )
-                            for rule, count in (
-                                board.get("violations_by_type") or {}
-                            ).items()
+                            for rule, count in (board.get("violations_by_type") or {}).items()
                         ],
                         [
                             (
@@ -925,9 +1032,7 @@ class DrcRatchet:
                                     board_id,
                                 ),
                             )
-                            for rule, count in (
-                                board.get("warnings_by_type") or {}
-                            ).items()
+                            for rule, count in (board.get("warnings_by_type") or {}).items()
                         ],
                     )
                 )

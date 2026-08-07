@@ -23,6 +23,7 @@ saved and restored around each test.
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -122,3 +123,105 @@ class TestRegenerateKicadDru:
         # was attempted before that point.
         ci_check_drc.main()
         assert calls == []
+
+
+class TestNoiseHeadroomGuardWiring:
+    """``DrcRatchet.check()`` runs ``run_drc`` exactly once per invocation
+    and was, before this guard, the ONLY thing deciding a PR's DRC
+    pass/fail -- the file's own documented >= 120-sample protocol
+    (AGENTS.md's "Board Change -> DRC Ceiling Re-measurement" section) was
+    enforced only at ceiling-raise time (``check_drc_ceiling_approval.py``),
+    never on every PR. These tests are the missing wiring check: ``main()``
+    must surface ``DrcRatchet.check_noise_headroom()`` as its own exit-code
+    3 failure, independent of whatever ``check()`` itself returned -- a
+    category the guard has identified as unsafe for single-sampling must
+    not stay invisible to CI just because the one sample that run happened
+    to land under the ceiling anyway.
+
+    ``DrcRatchet.check`` is monkeypatched in every test here so these are
+    pure wiring tests: they exercise ``main()``'s exit-code composition,
+    not a real (or even Rust-backend) DRC run -- ``check_noise_headroom``
+    itself, and the false-fail scenario it is a proxy for, are exercised
+    directly against a synthetic noisy oracle in
+    ``packages/temper-placer/tests/regression/test_drc_ratchet.py``'s
+    ``TestNoiseHeadroomGuard``/``TestNoiseHeadroomAntiVacuity``.
+    """
+
+    @staticmethod
+    def _write_ceiling(tmp_path: Path, *, nondet: dict, by_type: dict) -> None:
+        ceiling_dir = tmp_path / "power_pcb_dataset"
+        ceiling_dir.mkdir(parents=True, exist_ok=True)
+        (ceiling_dir / "drc_ceiling.json").write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "b",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": 1000,
+                            "warning_ceiling": 0,
+                            "violations_by_type": by_type,
+                            "nondeterministic_error_types": nondet,
+                        }
+                    ]
+                }
+            )
+        )
+
+    @staticmethod
+    def _stub_check_passes(monkeypatch) -> None:
+        """Force DrcRatchet.check() (the per-board ceiling comparison) to
+        report a clean PASS, so exit code 3 in these tests can only come
+        from the noise-headroom guard, never from the unrelated per-board
+        check."""
+        ci_check_drc._setup_path(Path(__file__).resolve().parents[2])
+        from temper_placer.regression.drc_ratchet import DrcRatchet, DrcRatchetResult
+
+        monkeypatch.setattr(
+            DrcRatchet,
+            "check",
+            lambda self, repo_root: [DrcRatchetResult(passed=True, board_id="b", message="ok")],
+        )
+
+    def test_insufficient_headroom_sets_exit_code_3(self, monkeypatch, tmp_path, capsys):
+        """Reproduces this repo's real recorded ``creepage`` category
+        (observed 185-187 over 120 samples, spread 2) behind a ``max + 1``
+        ceiling (188, headroom 1) -- exactly the shape
+        ``check_noise_headroom`` flags as unsafe."""
+        self._write_ceiling(
+            tmp_path,
+            nondet={"creepage": {"observed": [185, 186, 187], "samples": 120}},
+            by_type={"creepage": 188},
+        )
+        self._stub_check_passes(monkeypatch)
+        monkeypatch.setattr(sys, "argv", ["ci_check_drc.py", "--backend", "rust"])
+        monkeypatch.setattr(ci_check_drc, "_find_repo_root", lambda: tmp_path)
+
+        exit_code = ci_check_drc.main()
+        out = capsys.readouterr().out
+
+        assert exit_code == 3
+        assert "noise-headroom guard" in out
+        assert "creepage" in out
+
+    def test_sufficient_headroom_leaves_exit_code_at_check_result(
+        self, monkeypatch, tmp_path, capsys
+    ):
+        """The file's own ``max + 1`` convention on a two-valued category
+        (spread 1, headroom 1) is exactly at the safe boundary -- must not
+        trip the guard, and ``check()``'s own clean PASS must be the only
+        thing exit code 0 depends on."""
+        self._write_ceiling(
+            tmp_path,
+            nondet={"clearance": {"observed": [377, 378], "samples": 120}},
+            by_type={"clearance": 379},
+        )
+        self._stub_check_passes(monkeypatch)
+        monkeypatch.setattr(sys, "argv", ["ci_check_drc.py", "--backend", "rust"])
+        monkeypatch.setattr(ci_check_drc, "_find_repo_root", lambda: tmp_path)
+
+        exit_code = ci_check_drc.main()
+        out = capsys.readouterr().out
+
+        assert exit_code == 0
+        assert "PASS: noise-headroom guard" in out

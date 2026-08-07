@@ -2,7 +2,28 @@
 """CI entry point: DRC ratchet check.
 
 Loads drc_ceiling.json, runs DRC on each board, checks against ceilings.
-Exit codes: 0 = pass, 1 = ceiling exceeded, 2 = ceiling raised without approval.
+Exit codes: 0 = pass, 1 = ceiling exceeded, 2 = ceiling raised without
+approval, 3 = noise-headroom guard failed (see below).
+
+Noise-headroom guard (exit code 3)
+-----------------------------------
+``DrcRatchet.check()`` runs ``run_drc`` exactly ONCE per invocation and
+compares that single sample directly against the ceiling -- it does not
+itself account for kicad-cli's documented run-to-run noise on a handful of
+categories (``drc_ceiling.json``'s own ``nondeterministic_error_types``
+block, populated by the file's 120-sample re-measurement protocol; see
+AGENTS.md's "Board Change -> DRC Ceiling Re-measurement" section). Single-
+sampling is safe only as long as every such category's ceiling headroom
+(``ceiling - observed max``) is at least as wide as its own measured
+spread (``observed max - observed min``) -- otherwise a single fresh
+sample can land outside the historically-observed range from noise alone,
+failing a board that never regressed. ``DrcRatchet.check_noise_headroom()``
+checks that invariant against the already-committed ceiling data (no extra
+DRC run, negligible added time) and this script fails loudly -- rather
+than silently continuing to assume the single sample is representative --
+the moment it does not hold for some category. See
+``packages/temper-placer/src/temper_placer/regression/drc_ratchet.py``'s
+``NoiseHeadroomViolation`` docstring for the full reasoning.
 """
 
 import argparse
@@ -101,6 +122,19 @@ def main() -> int:
         else:
             print(f"FAIL: {result.message}")
             exit_code = max(exit_code, result.exit_code)
+
+    headroom_violations = ratchet.check_noise_headroom()
+    if headroom_violations:
+        print(
+            "FAIL: noise-headroom guard -- single-sample DRC is not safe for "
+            f"{len(headroom_violations)} nondeterministic categor"
+            f"{'y' if len(headroom_violations) == 1 else 'ies'}:"
+        )
+        for violation in headroom_violations:
+            print(f"  {violation.message}")
+        exit_code = max(exit_code, 3)
+    else:
+        print("PASS: noise-headroom guard (single-sample DRC is safe for every recorded category)")
 
     return exit_code
 
