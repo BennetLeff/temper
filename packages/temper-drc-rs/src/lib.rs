@@ -60,6 +60,11 @@ pub mod deterministic_connectivity;
 // add_differential_pair clearance arithmetic, and ZoneManager.get_zone_at).
 #[cfg(feature = "python")]
 pub mod clearance_matrix;
+// Wave 4 — router_v6/resource_bound.py resource-exhaustion bin-packing
+// kernels (conflict clustering, union bbox, free-area capacity, fill
+// factor, and the two orchestration entry points).
+#[cfg(feature = "python")]
+pub mod resource_bound;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
@@ -412,5 +417,8 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Wave 4 — router_v6/constraints_design_rules.py hot-path clearance
     // kernels (clearance_matrix.rs).
     crate::clearance_matrix::register(m)?;
+    // Wave 4 — router_v6/resource_bound.py resource-exhaustion bin-packing
+    // kernels (resource_bound.rs).
+    crate::resource_bound::register(m)?;
     Ok(())
 }

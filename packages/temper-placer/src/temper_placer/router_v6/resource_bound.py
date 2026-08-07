@@ -20,6 +20,17 @@ Completeness:
   geometric reasons (blocking, clearance, detour).
 
 Part of feat/resource-exhaustion.
+
+Wave 4: the bin-packing/clustering/capacity arithmetic
+(``_compute_conflict_clusters``, ``_cluster_union_bbox``,
+``_capacity_in_bbox``, ``_compute_fill_factor``, ``max_routable_nets``,
+``demand_budget_summary``) delegates to ``temper_drc_rs`` (see
+``packages/temper-drc-rs/src/resource_bound.rs``); the pre-migration
+implementations are pinned VERBATIM as the differential oracle in
+``packages/temper-placer/tests/router_v6/_resource_bound_py_oracle.py``.
+``_net_bboxes_from_pcb`` (glue over the ``ParsedPCB``/``Component``/``Pin``
+object graph) and ``max_routable_nets_from_pcb`` (thin wrapper) stay
+Python -- see the Rust module's docstring for the full rationale.
 """
 
 from __future__ import annotations
@@ -27,6 +38,7 @@ from __future__ import annotations
 import logging
 
 import numpy as np
+import temper_drc_rs as _drc
 
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import ParsedPCB
@@ -75,6 +87,26 @@ def _net_bboxes_from_pcb(pcb: ParsedPCB) -> dict[str, tuple[float, float, float,
     return bboxes
 
 
+def _grid_rust_args(
+    grid: OccupancyGrid,
+) -> tuple[bytes, int, int, tuple[float, float], float]:
+    """Flatten an ``OccupancyGrid`` into the plain-value shape
+    ``temper_drc_rs``'s resource-bound kernels expect: the cell grid as
+    raw bytes (row-major, one byte per int8 cell — same convention as
+    ``astar_core_rust.py``'s ``grid_contig.tobytes()``), plus the scalar
+    fields the kernel needs to replicate ``OccupancyGrid.world_to_grid``
+    and the free-cell-area arithmetic.
+    """
+    grid_contig = np.ascontiguousarray(grid.grid, dtype=np.int8)
+    return (
+        grid_contig.tobytes(),
+        grid.width_cells,
+        grid.height_cells,
+        (float(grid.origin[0]), float(grid.origin[1])),
+        float(grid.cell_size),
+    )
+
+
 def _compute_conflict_clusters(
     bboxes: dict[str, tuple[float, float, float, float]],
     overlap_threshold: float = _OVERLAP_THRESHOLD,
@@ -85,59 +117,13 @@ def _compute_conflict_clusters(
     ``overlap_threshold`` of the smaller net's area.
 
     Returns a list of clusters, where each cluster is a list of net names.
+
+    Delegates to ``temper_drc_rs.resource_bound_compute_conflict_clusters``
+    — see the Rust kernel's docstring for why within-cluster net order is
+    safe to differ from the pre-migration oracle's hash-order-dependent
+    traversal.
     """
-    nets = list(bboxes.keys())
-
-    if len(nets) <= 1:
-        return [nets] if nets else []
-
-    # Compute per-net areas
-    areas: dict[str, float] = {}
-    for n, (x1, y1, x2, y2) in bboxes.items():
-        areas[n] = max((x2 - x1) * (y2 - y1), 0.0)
-
-    # Build conflict graph
-    conflict: dict[str, set[str]] = {n: set() for n in nets}
-    for i in range(len(nets)):
-        a = nets[i]
-        ax1, ay1, ax2, ay2 = bboxes[a]
-        area_a = areas[a]
-        if area_a <= 0:
-            continue
-        for j in range(i + 1, len(nets)):
-            b = nets[j]
-            bx1, by1, bx2, by2 = bboxes[b]
-            area_b = areas[b]
-            if area_b <= 0:
-                continue
-            ox = max(0.0, min(ax2, bx2) - max(ax1, bx1))
-            oy = max(0.0, min(ay2, by2) - max(ay1, by1))
-            overlap = ox * oy
-            min_area = min(area_a, area_b)
-            if min_area > 0 and overlap / min_area > overlap_threshold:
-                conflict[a].add(b)
-                conflict[b].add(a)
-
-    # BFS to find connected components
-    visited: set[str] = set()
-    clusters: list[list[str]] = []
-    for net in nets:
-        if net in visited:
-            continue
-        queue = [net]
-        cluster: list[str] = []
-        while queue:
-            n = queue.pop()
-            if n in visited:
-                continue
-            visited.add(n)
-            cluster.append(n)
-            for neighbor in conflict[n]:
-                if neighbor not in visited:
-                    queue.append(neighbor)
-        clusters.append(cluster)
-
-    return clusters
+    return _drc.resource_bound_compute_conflict_clusters(list(bboxes.items()), overlap_threshold)
 
 
 def _cluster_union_bbox(
@@ -148,13 +134,7 @@ def _cluster_union_bbox(
 
     Returns (min_x, min_y, max_x, max_y) in mm.
     """
-    if not cluster:
-        return (0.0, 0.0, 0.0, 0.0)
-    x1 = min(bboxes[n][0] for n in cluster)
-    y1 = min(bboxes[n][1] for n in cluster)
-    x2 = max(bboxes[n][2] for n in cluster)
-    y2 = max(bboxes[n][3] for n in cluster)
-    return (x1, y1, x2, y2)
+    return _drc.resource_bound_cluster_union_bbox([bboxes[n] for n in cluster])
 
 
 def _capacity_in_bbox(
@@ -166,31 +146,8 @@ def _capacity_in_bbox(
     Sums the area of all free cells (grid value == 0) that fall within
     the world-coordinate bounding box.
     """
-    min_x, min_y, max_x, max_y = bbox
-
-    gx1, gy1 = grid.world_to_grid(min_x, min_y)
-    gx2, gy2 = grid.world_to_grid(max_x, max_y)
-
-    # Clamp to grid bounds
-    gx1 = max(0, min(gx1, grid.width_cells - 1))
-    gx2 = max(0, min(gx2, grid.width_cells - 1))
-    gy1 = max(0, min(gy1, grid.height_cells - 1))
-    gy2 = max(0, min(gy2, grid.height_cells - 1))
-
-    if gx1 > gx2:
-        gx1, gx2 = gx2, gx1
-    if gy1 > gy2:
-        gy1, gy2 = gy2, gy1
-
-    # Guard against degenerate regions
-    if gx1 > gx2 or gy1 > gy2:
-        return 0.0
-
-    region = grid.grid[gy1 : gy2 + 1, gx1 : gx2 + 1]
-    free_cells = int(np.sum(region == 0))
-    cell_area = grid.cell_size * grid.cell_size
-
-    return free_cells * cell_area
+    grid_bytes, width_cells, height_cells, origin, cell_size = _grid_rust_args(grid)
+    return _drc.resource_bound_capacity_in_bbox(grid_bytes, width_cells, height_cells, origin, cell_size, bbox)
 
 
 def _compute_fill_factor(
@@ -207,14 +164,7 @@ def _compute_fill_factor(
 
     clamped to [0.01, 1.0].
     """
-    if not bbox_areas:
-        return 0.5
-    avg_area = sum(bbox_areas.values()) / len(bbox_areas)
-    if avg_area <= 0:
-        return 0.5
-    sqrt_area = float(np.sqrt(avg_area))
-    ff = trace_width / sqrt_area
-    return float(np.clip(ff, 0.01, 1.0))
+    return _drc.resource_bound_compute_fill_factor(trace_width, list(bbox_areas.values()))
 
 
 def max_routable_nets(
@@ -242,61 +192,24 @@ def max_routable_nets(
     Returns:
         Maximum number of routable nets (provable upper bound).
     """
-    if not net_bboxes:
-        return 0
-
-    # Compute per-net area
-    bbox_areas: dict[str, float] = {}
-    for name, bbox in net_bboxes.items():
-        w = bbox[2] - bbox[0]
-        h = bbox[3] - bbox[1]
-        bbox_areas[name] = max(w * h, 0.0)
-
-    # Determine fill factor
-    if fill_factor is None:
-        fill_factor = _compute_fill_factor(trace_width, bbox_areas)
-
-    # Compute demand per net
-    demands: dict[str, float] = {n: bbox_areas[n] * fill_factor for n in net_bboxes}
-
-    # Build conflict clusters
-    clusters = _compute_conflict_clusters(net_bboxes)
-
-    total_routable = 0
-    cluster_details: list[dict] = []
-
-    for cluster in clusters:
-        union_bbox = _cluster_union_bbox(cluster, net_bboxes)
-        capacity = _capacity_in_bbox(edt_grid, union_bbox)
-
-        cluster_demands = sorted(demands[n] for n in cluster)
-        running = 0.0
-        k = 0
-        for d in cluster_demands:
-            if running + d > capacity:
-                break
-            running += d
-            k += 1
-
-        total_routable += k
-        cluster_details.append(
-            {
-                "size": len(cluster),
-                "capacity": capacity,
-                "routable": k,
-                "demands": cluster_demands[:k] if k else [],
-            }
-        )
+    grid_bytes, width_cells, height_cells, origin, cell_size = _grid_rust_args(edt_grid)
+    total_routable = _drc.resource_bound_max_routable_nets(
+        grid_bytes,
+        width_cells,
+        height_cells,
+        origin,
+        cell_size,
+        list(net_bboxes.items()),
+        trace_width,
+        fill_factor,
+    )
 
     logger.info(
-        "Resource bound: %d/%d nets routable (fill_factor=%.3f, trace_width=%.3f mm, %d clusters)",
+        "Resource bound: %d/%d nets routable (trace_width=%.3f mm)",
         total_routable,
         len(net_bboxes),
-        fill_factor,
         trace_width,
-        len(clusters),
     )
-    logger.debug("Resource bound cluster details: %s", cluster_details)
 
     return total_routable
 
@@ -339,52 +252,14 @@ def demand_budget_summary(
       - total_demand_mm2: float
       - utilization: float  (total_demand / total_capacity)
     """
-    if not net_bboxes:
-        return {
-            "max_routable": 0,
-            "total_nets": 0,
-            "fill_factor": fill_factor if fill_factor is not None else 0.5,
-            "cluster_count": 0,
-            "total_capacity_mm2": 0.0,
-            "total_demand_mm2": 0.0,
-            "utilization": 0.0,
-        }
-
-    bbox_areas = {}
-    for name, bbox in net_bboxes.items():
-        bbox_areas[name] = max((bbox[2] - bbox[0]) * (bbox[3] - bbox[1]), 0.0)
-
-    if fill_factor is None:
-        fill_factor = _compute_fill_factor(trace_width, bbox_areas)
-
-    demands = {n: bbox_areas[n] * fill_factor for n in net_bboxes}
-    clusters = _compute_conflict_clusters(net_bboxes)
-
-    total_capacity = 0.0
-    total_demand = sum(demands.values())
-    total_routable = 0
-
-    for cluster in clusters:
-        union_bbox = _cluster_union_bbox(cluster, net_bboxes)
-        capacity = _capacity_in_bbox(edt_grid, union_bbox)
-        total_capacity += capacity
-
-        cluster_demands = sorted(demands[n] for n in cluster)
-        running = 0.0
-        k = 0
-        for d in cluster_demands:
-            if running + d > capacity:
-                break
-            running += d
-            k += 1
-        total_routable += k
-
-    return {
-        "max_routable": total_routable,
-        "total_nets": len(net_bboxes),
-        "fill_factor": fill_factor,
-        "cluster_count": len(clusters),
-        "total_capacity_mm2": total_capacity,
-        "total_demand_mm2": total_demand,
-        "utilization": total_demand / max(total_capacity, 1e-6),
-    }
+    grid_bytes, width_cells, height_cells, origin, cell_size = _grid_rust_args(edt_grid)
+    return _drc.resource_bound_demand_budget_summary(
+        grid_bytes,
+        width_cells,
+        height_cells,
+        origin,
+        cell_size,
+        list(net_bboxes.items()),
+        trace_width,
+        fill_factor,
+    )
