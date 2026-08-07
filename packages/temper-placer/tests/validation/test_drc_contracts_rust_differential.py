@@ -445,6 +445,60 @@ def test_unhashable_identical():
 
 
 # ---------------------------------------------------------------------------
+# Wave-4 PyAny removal -- typed-handle identity pins (anti-vacuity).
+# ---------------------------------------------------------------------------
+
+
+def test_issue_severity_typed_identity_and_type():
+    """The PyAny-removal tightening (`Py<PyAny>` -> `Py<Severity>`, 2026-08-06)
+    must preserve object identity and the concrete pyclass type: a passed
+    `Severity` member reads back `is` the same object. A non-`Severity`
+    payload is now rejected with `TypeError` (the tightened setter/constructor
+    is the verification — the wrapped value IS the pyclass)."""
+    severity = RS_SEVERITY.ERROR
+    issue = RS_ISSUE(severity, "E1", "m", "drc", "c")
+    assert issue.severity is severity
+    assert type(issue.severity) is RS_SEVERITY
+    with pytest.raises(TypeError):
+        RS_ISSUE(object(), "E1", "m", "drc", "c")
+
+
+def test_issue_location_typed_none_and_identity():
+    """`Issue.location` is `Option<Py<Location>>`: the default (and an
+    explicit `None`) reads back `None`, and a passed `Location` reads back
+    `is` the same object. A non-`Location` payload is now `TypeError`."""
+    assert RS_ISSUE(RS_SEVERITY.INFO, "I1", "m", "drc", "c").location is None
+    location = RS_LOCATION(1.0, 2.0, "F.Cu")
+    issue = RS_ISSUE(RS_SEVERITY.INFO, "I1", "m", "drc", "c", location=location)
+    assert issue.location is location
+    with pytest.raises(TypeError):
+        RS_ISSUE(RS_SEVERITY.INFO, "I1", "m", "drc", "c", location=object())
+
+
+def test_placement_via_trace_typed_identity_and_none():
+    """`Placement.via_placement`/`trace_placement` are
+    `Option<Py<ViaPlacement>>`/`Option<Py<TracePlacement>>`: the defaults read
+    back `None`, assignment preserves `is` identity for the pyclasses, and a
+    re-assigned `None` clears the field. A non-pyclass payload is now
+    `TypeError` (the `_pipeline_verify.py` setter path passes the pyclasses)."""
+    p = RS_PLACEMENT()
+    assert p.via_placement is None
+    assert p.trace_placement is None
+    via = RS_VIA_PLACEMENT([])
+    trace = RS_TRACE_PLACEMENT([])
+    p.via_placement = via
+    p.trace_placement = trace
+    assert p.via_placement is via
+    assert p.trace_placement is trace
+    p.via_placement = None
+    assert p.via_placement is None
+    with pytest.raises(TypeError):
+        p.via_placement = object()
+    with pytest.raises(TypeError):
+        p.trace_placement = object()
+
+
+# ---------------------------------------------------------------------------
 # Severity surface
 # ---------------------------------------------------------------------------
 

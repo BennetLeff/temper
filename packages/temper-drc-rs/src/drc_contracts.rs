@@ -20,6 +20,16 @@
 //! (`PyAnyMethods::sub`/`mul`/`div`/`pow`) — makes type preservation true
 //! *by construction* (the netlist_contracts.rs precedent).
 //!
+//! Two fields are exceptions and use typed handles instead (Wave-4 "PyAny
+//! removal" tightening, 2026-08-06 — `docs/evidence/2026-08-06-pyany-surface-audit-2.md`
+//! Wave A): `Issue.severity` is always the `Severity` pyclass and
+//! `Issue.location` / `Placement.via_placement` / `Placement.trace_placement`
+//! are always their pyclass or `None`, so `Py<Severity>` /
+//! `Option<Py<Location>>` / `Option<Py<ViaPlacement>>` /
+//! `Option<Py<TracePlacement>>` replace the opaque handles with no observable
+//! change (a non-pyclass payload previously stored opaquely now raises
+//! `TypeError`; every verified production path passes the pyclass).
+//!
 //! # `repr` / `__eq__` / `__hash__`
 //!
 //! Rather than re-deriving CPython's `repr(float)`/`repr(str)` rules, these
@@ -503,8 +513,17 @@ fn py_float_fmt_2(py: Python<'_>, x: &Bound<'_, PyAny>) -> PyResult<String> {
 #[pyclass(dict, module = "temper_drc_rs")]
 #[derive(Debug)]
 pub struct Issue {
+    // Wave-4 "PyAny removal" tightening (2026-08-06): `severity` and
+    // `location` wrap the same-crate `Severity`/`Location` pyclasses on every
+    // production construction path (`drc_runner.py`, `drc_oracle.py` pass the
+    // `_SEVERITY_MAP[...]` singletons and `_Location(...)`/`None`), so the
+    // opaque handles are replaced by typed references. Behavior is unchanged:
+    // the wrapped value IS the pyclass (or `None`) and identity is preserved.
+    // The scalar/container fields stay `Py<PyAny>` (int-vs-float type
+    // preservation / Python-built identity-mutable containers — INTENTIONAL +
+    // STILL-NEEDED per the PyAny surface audit).
     #[pyo3(get, set)]
-    pub severity: Py<PyAny>,
+    pub severity: Py<Severity>,
     #[pyo3(get, set)]
     pub code: Py<PyAny>,
     #[pyo3(get, set)]
@@ -516,7 +535,7 @@ pub struct Issue {
     #[pyo3(get, set)]
     pub affected_items: Py<PyAny>,
     #[pyo3(get, set)]
-    pub location: Py<PyAny>,
+    pub location: Option<Py<Location>>,
     #[pyo3(get, set)]
     pub details: Py<PyAny>,
     #[pyo3(get, set)]
@@ -526,13 +545,16 @@ pub struct Issue {
 impl Issue {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
-            same(py, &self.severity),
+            self.severity.clone_ref(py).into_any(),
             same(py, &self.code),
             same(py, &self.message),
             same(py, &self.category),
             same(py, &self.check_name),
             same(py, &self.affected_items),
-            same(py, &self.location),
+            match self.location.as_ref() {
+                Some(location) => location.clone_ref(py).into_any(),
+                None => py.None(),
+            },
             same(py, &self.details),
             same(py, &self.constraint_id),
         ]
@@ -546,13 +568,13 @@ impl Issue {
     #[allow(clippy::too_many_arguments)] // mirrors the dataclass field list
     fn new(
         py: Python<'_>,
-        severity: &Bound<'_, PyAny>,
+        severity: &Bound<'_, Severity>,
         code: &Bound<'_, PyAny>,
         message: &Bound<'_, PyAny>,
         category: &Bound<'_, PyAny>,
         check_name: &Bound<'_, PyAny>,
         affected_items: Option<&Bound<'_, PyAny>>,
-        location: Option<&Bound<'_, PyAny>>,
+        location: Option<&Bound<'_, Location>>,
         details: Option<&Bound<'_, PyAny>>,
         constraint_id: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
@@ -563,23 +585,28 @@ impl Issue {
             category: category.clone().unbind(),
             check_name: check_name.clone().unbind(),
             affected_items: list_or_new(py, affected_items)?,
-            location: opt_or_none(py, location),
+            location: location.map(|l| l.clone().unbind()),
             details: dict_or_new(py, details)?,
             constraint_id: opt_or_none(py, constraint_id),
         })
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
+        let severity = self.severity.clone_ref(py).into_any();
+        let location = match self.location.as_ref() {
+            Some(location) => location.clone_ref(py).into_any(),
+            None => py.None(),
+        };
         Ok(dataclass_repr(
             "Issue",
             &[
-                ("severity", repr_of(&self.severity, py)?),
+                ("severity", repr_of(&severity, py)?),
                 ("code", repr_of(&self.code, py)?),
                 ("message", repr_of(&self.message, py)?),
                 ("category", repr_of(&self.category, py)?),
                 ("check_name", repr_of(&self.check_name, py)?),
                 ("affected_items", repr_of(&self.affected_items, py)?),
-                ("location", repr_of(&self.location, py)?),
+                ("location", repr_of(&location, py)?),
                 ("details", repr_of(&self.details, py)?),
                 ("constraint_id", repr_of(&self.constraint_id, py)?),
             ],
@@ -631,12 +658,12 @@ impl Issue {
         d.set_item("category", self.category.bind(py))?;
         d.set_item("check_name", self.check_name.bind(py))?;
         d.set_item("affected_items", self.affected_items.bind(py))?;
-        let loc = self.location.bind(py);
-        if loc.is_none() {
-            d.set_item("location", py.None())?;
-        } else {
-            let sub = loc.call_method0("to_dict")?;
-            d.set_item("location", sub)?;
+        match self.location.as_ref() {
+            Some(location) => {
+                let sub = location.bind(py).call_method0("to_dict")?;
+                d.set_item("location", sub)?;
+            }
+            None => d.set_item("location", py.None())?,
         }
         d.set_item("details", self.details.bind(py))?;
         d.set_item("constraint_id", self.constraint_id.bind(py))?;
@@ -1314,10 +1341,17 @@ pub struct Placement {
     pub net_classes: Py<PyAny>,
     #[pyo3(get, set)]
     pub voltage_domains: Py<PyAny>,
+    // Wave-4 "PyAny removal" tightening (2026-08-06): `via_placement` /
+    // `trace_placement` are always the `ViaPlacement`/`TracePlacement`
+    // pyclasses or `None` on every production path (`_pipeline_verify.py`
+    // assigns the pyclass after default construction; `from_dict` emits
+    // `None`). The typed `Option` handle preserves identity for the pyclass
+    // case and `None` for the empty case. The container/scalar fields stay
+    // `Py<PyAny>` (INTENTIONAL / STILL-NEEDED per the PyAny surface audit).
     #[pyo3(get, set)]
-    pub via_placement: Py<PyAny>,
+    pub via_placement: Option<Py<ViaPlacement>>,
     #[pyo3(get, set)]
-    pub trace_placement: Py<PyAny>,
+    pub trace_placement: Option<Py<TracePlacement>>,
 }
 
 impl Placement {
@@ -1330,8 +1364,14 @@ impl Placement {
             same(py, &self.board_height),
             same(py, &self.net_classes),
             same(py, &self.voltage_domains),
-            same(py, &self.via_placement),
-            same(py, &self.trace_placement),
+            match self.via_placement.as_ref() {
+                Some(vp) => vp.clone_ref(py).into_any(),
+                None => py.None(),
+            },
+            match self.trace_placement.as_ref() {
+                Some(tp) => tp.clone_ref(py).into_any(),
+                None => py.None(),
+            },
         ]
     }
 }
@@ -1350,8 +1390,8 @@ impl Placement {
         board_height: Option<&Bound<'_, PyAny>>,
         net_classes: Option<&Bound<'_, PyAny>>,
         voltage_domains: Option<&Bound<'_, PyAny>>,
-        via_placement: Option<&Bound<'_, PyAny>>,
-        trace_placement: Option<&Bound<'_, PyAny>>,
+        via_placement: Option<&Bound<'_, ViaPlacement>>,
+        trace_placement: Option<&Bound<'_, TracePlacement>>,
     ) -> PyResult<Self> {
         Ok(Self {
             components: dict_or_new(py, components)?,
@@ -1361,8 +1401,8 @@ impl Placement {
             board_height: opt_or(py, board_height, 100.0_f64)?,
             net_classes: dict_or_new(py, net_classes)?,
             voltage_domains: dict_or_new(py, voltage_domains)?,
-            via_placement: opt_or_none(py, via_placement),
-            trace_placement: opt_or_none(py, trace_placement),
+            via_placement: via_placement.map(|vp| vp.clone().unbind()),
+            trace_placement: trace_placement.map(|tp| tp.clone().unbind()),
         })
     }
 
@@ -1525,8 +1565,8 @@ impl Placement {
             board_height: mapping_get(py, data, "board_height", 100.0)?.unbind(),
             net_classes: mapping_get(py, data, "net_classes", PyDict::new(py))?.unbind(),
             voltage_domains: mapping_get(py, data, "voltage_domains", PyDict::new(py))?.unbind(),
-            via_placement: py.None(),
-            trace_placement: py.None(),
+            via_placement: None,
+            trace_placement: None,
         };
         Ok(Py::new(py, placement)?.into_any())
     }
@@ -1573,6 +1613,14 @@ impl Placement {
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
+        let via_placement = match self.via_placement.as_ref() {
+            Some(vp) => vp.clone_ref(py).into_any(),
+            None => py.None(),
+        };
+        let trace_placement = match self.trace_placement.as_ref() {
+            Some(tp) => tp.clone_ref(py).into_any(),
+            None => py.None(),
+        };
         Ok(dataclass_repr(
             "Placement",
             &[
@@ -1583,8 +1631,8 @@ impl Placement {
                 ("board_height", repr_of(&self.board_height, py)?),
                 ("net_classes", repr_of(&self.net_classes, py)?),
                 ("voltage_domains", repr_of(&self.voltage_domains, py)?),
-                ("via_placement", repr_of(&self.via_placement, py)?),
-                ("trace_placement", repr_of(&self.trace_placement, py)?),
+                ("via_placement", repr_of(&via_placement, py)?),
+                ("trace_placement", repr_of(&trace_placement, py)?),
             ],
         ))
     }
