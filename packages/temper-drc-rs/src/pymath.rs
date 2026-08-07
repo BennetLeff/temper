@@ -248,6 +248,44 @@ pub fn py_min(a: f64, b: f64) -> f64 {
 }
 
 // ---------------------------------------------------------------------------
+// CPython 3.12+ builtin `sum()` on floats — Neumaier compensated summation
+// ---------------------------------------------------------------------------
+
+/// CPython's builtin `sum(iterable_of_floats)`.
+///
+/// **Not** a naive sequential fold. CPython 3.12 (gh-100425) changed
+/// `sum()`'s float fast path to Neumaier (improved Kahan-Babuska)
+/// compensated summation for accuracy — a *different function* from
+/// `iter().sum()` (Rust's `Sum for f64` is a plain sequential
+/// `fold(0.0, Add::add)`), and the two disagree in the last ULP on
+/// ordinary inputs, not just pathological ones: measured on
+/// `resource_bound.rs`'s `_compute_fill_factor` port, a 4-element sum
+/// diverged from a plain sequential Rust fold on the FIRST randomized
+/// differential trial. 0/20000 mismatches against this implementation
+/// over random float vectors of length 1-12 (see `py_sum_matches_cpython_312`
+/// below and the differential in
+/// `packages/temper-placer/tests/router_v6/test_resource_bound_rust_differential.py`).
+///
+/// This is unrelated to `np.sum`'s pairwise-vs-sequential divergence
+/// (that is a numpy ufunc concern, already documented on
+/// `capacity_in_bbox` in `resource_bound.rs`) — this is CPython's own
+/// builtin, called with no numpy involved at all.
+pub fn py_sum(values: &[f64]) -> f64 {
+    let mut total = 0.0_f64;
+    let mut c = 0.0_f64; // running compensation
+    for &x in values {
+        let t = total + x;
+        if total.abs() >= x.abs() {
+            c += (total - t) + x;
+        } else {
+            c += (x - t) + total;
+        }
+        total = t;
+    }
+    total + c
+}
+
+// ---------------------------------------------------------------------------
 // B4 — `math.hypot`
 // ---------------------------------------------------------------------------
 

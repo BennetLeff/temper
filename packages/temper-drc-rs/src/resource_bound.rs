@@ -54,6 +54,19 @@
 //! arithmetic is native Python `float` / numpy `float64`), so the NEP-50
 //! narrowing hazard does not apply here.
 //!
+//! ## A FOURTH hazard, not on the numpy list: CPython 3.12's `sum()`
+//!
+//! `_compute_fill_factor`'s `sum(bbox_areas.values())` and
+//! `demand_budget_summary`'s `total_demand = sum(demands.values())` are
+//! plain CPython builtin `sum()` — no numpy involved — but CPython 3.12
+//! (gh-100425) changed `sum()`'s float fast path to Neumaier compensated
+//! summation, which is a *different function* from a naive sequential
+//! fold. Measured while writing this port: a naive `bbox_areas.iter().sum()`
+//! diverged from the oracle's `sum(bbox_areas.values())` in the last ULP on
+//! the FIRST randomized differential trial (4-element `f64` sum). Both
+//! summations here go through [`crate::pymath::py_sum`], not
+//! `Iterator::sum`.
+//!
 //! ## NaN in bounding boxes: builtin `min`/`max` keep the FIRST NaN
 //!
 //! `_cluster_union_bbox`'s `min(bboxes[n][0] for n in cluster)` /
@@ -91,7 +104,7 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyModule};
 
-use crate::pymath::{py_max, py_min, sqrt};
+use crate::pymath::{py_max, py_min, py_sum, sqrt};
 
 const OVERLAP_THRESHOLD: f64 = 0.1;
 
@@ -373,7 +386,7 @@ pub fn compute_fill_factor(trace_width: f64, bbox_areas: &[f64]) -> f64 {
     if bbox_areas.is_empty() {
         return 0.5;
     }
-    let avg_area = bbox_areas.iter().sum::<f64>() / bbox_areas.len() as f64;
+    let avg_area = py_sum(bbox_areas) / bbox_areas.len() as f64;
     if avg_area <= 0.0 {
         return 0.5;
     }
@@ -483,7 +496,9 @@ fn resource_bound_core(
     // net belongs to exactly one cluster, so the two are mathematically
     // equal, but this mirrors the oracle's own computation path rather
     // than relying on that equivalence for bit-exact float rounding).
-    let total_demand: f64 = demands.iter().sum();
+    // CPython 3.12's builtin `sum()` on floats is Neumaier-compensated,
+    // not a naive fold — see `pymath::py_sum` and the module docs.
+    let total_demand: f64 = py_sum(&demands);
 
     Ok(BoundResult {
         total_routable,
@@ -647,5 +662,25 @@ mod tests {
         assert!((0.01..=1.0).contains(&ff_large));
         assert!(ff_large > ff_small);
         assert_eq!(compute_fill_factor(0.1, &[]), 0.5);
+    }
+
+    #[test]
+    fn compute_fill_factor_uses_neumaier_sum_not_naive_fold() {
+        // Pinned regression: CPython 3.12's `sum()` on floats is
+        // Neumaier-compensated (see module docs) -- this exact 4-element
+        // vector diverges by 1 ULP between a naive sequential fold and the
+        // oracle's `sum()`. `compute_fill_factor` must match the oracle.
+        let areas = [4671.917981058251, 2274.697238796103, 3849.4502398234745, 3324.755168764735];
+        let trace_width = f64::from_bits(0x3ff719750feb72f7);
+        let naive_avg = areas.iter().sum::<f64>() / areas.len() as f64;
+        let compensated_avg = py_sum(&areas) / areas.len() as f64;
+        assert_ne!(
+            naive_avg.to_bits(),
+            compensated_avg.to_bits(),
+            "fixture no longer exhibits the 1-ULP divergence -- pin a new one"
+        );
+        let got = compute_fill_factor(trace_width, &areas);
+        let expected_bits = 0x3f98e1bc891336e3_u64; // oracle: float(np.clip(...)).hex()
+        assert_eq!(got.to_bits(), expected_bits);
     }
 }
