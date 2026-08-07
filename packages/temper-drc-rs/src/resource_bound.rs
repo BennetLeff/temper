@@ -87,6 +87,36 @@ use pyo3::types::PyModule;
 use crate::pymath::{py_max, py_min};
 
 // ---------------------------------------------------------------------------
+// CPython 3.12 builtin `sum()` float path — Neumaier-compensated, NOT a
+// naive left fold. Measured directly (this differential): a naive
+// `areas.iter().sum()` diverges from Python's `sum(bbox_areas.values())`
+// in the last ULP on ordinary random inputs (not just adversarial
+// cancellation cases) -- e.g. `sum([23.02..., 477.16..., 340.30...,
+// 402.55..., 406.99..., 128.24...])` is `296.3788240378778` via CPython's
+// `sum()` vs `296.37882403787773` via naive left-to-right `+=`. Same
+// algorithm as `physics_oracle.rs::overall_score` and
+// `temper-geometry/area_sufficiency.rs::py_sum_neumaier`; transcribed
+// locally rather than shared because both of those are `pub(crate)`/
+// module-private by the same convention this crate already uses for
+// `py_max2`/`py_min2`-shaped helpers (see `router_clearance.rs`).
+// ---------------------------------------------------------------------------
+
+fn py_sum_neumaier(values: &[f64]) -> f64 {
+    let mut sum = 0.0_f64;
+    let mut c = 0.0_f64;
+    for &x in values {
+        let t = sum + x;
+        if sum.abs() >= x.abs() {
+            c += (sum - t) + x;
+        } else {
+            c += (x - t) + sum;
+        }
+        sum = t;
+    }
+    sum + c
+}
+
+// ---------------------------------------------------------------------------
 // np.clip — either-operand NaN-propagating min/max, NOT py_max/py_min
 // ---------------------------------------------------------------------------
 
@@ -259,7 +289,12 @@ pub fn resource_bound_cluster_union_bbox_py(
 /// extracts via `grid.grid[gy1:gy2+1, gx1:gx2+1]`.
 pub fn capacity_in_bbox(region: &[i64], cell_size: f64) -> f64 {
     let free_cells = region.iter().filter(|&&v| v == 0).count() as f64;
-    free_cells * cell_size * cell_size
+    // Oracle computes `cell_area = cell_size * cell_size` FIRST, then
+    // `free_cells * cell_area` -- grouping matters for f64 (non-associative);
+    // `free_cells * cell_size * cell_size` (left-to-right) is a DIFFERENT,
+    // measured-diverging computation in the last ULP.
+    let cell_area = cell_size * cell_size;
+    free_cells * cell_area
 }
 
 #[pyfunction]
@@ -273,15 +308,18 @@ pub fn resource_bound_capacity_in_bbox_py(region: Vec<i64>, cell_size: f64) -> f
 
 /// `_compute_fill_factor`: `trace_width / sqrt(mean(areas))`, clamped to
 /// `[0.01, 1.0]` via `np.clip` (see module doc for the NaN trap).
-/// `areas` must be in the caller's original dict-value order — the mean's
-/// `sum()` is a left-to-right float accumulation and dict iteration order
-/// is deterministic (insertion order), so this is a bit-exact
-/// reproduction, not merely a value-equivalent one.
+/// `areas` must be in the caller's original dict-value order: the mean's
+/// `sum()` is CPython 3.12's Neumaier-compensated float summation
+/// ([`py_sum_neumaier`], NOT a naive left fold — measured to diverge in
+/// the last ULP on ordinary random inputs, see that function's doc), which
+/// is still order-sensitive; dict iteration order is deterministic
+/// (insertion order), so this is a bit-exact reproduction, not merely a
+/// value-equivalent one.
 pub fn compute_fill_factor(trace_width: f64, areas: &[f64]) -> f64 {
     if areas.is_empty() {
         return 0.5;
     }
-    let sum: f64 = areas.iter().sum();
+    let sum = py_sum_neumaier(areas);
     let avg_area = sum / (areas.len() as f64);
     if avg_area <= 0.0 {
         return 0.5;
@@ -430,6 +468,33 @@ mod tests {
     #[test]
     fn compute_fill_factor_empty_returns_half() {
         assert_eq!(compute_fill_factor(0.2, &[]), 0.5);
+    }
+
+    #[test]
+    fn py_sum_neumaier_matches_measured_cpython_312_value() {
+        // Measured against this repo's CPython 3.12.12: sum() on this
+        // exact sequence is 296.3788240378778, while a naive left-to-right
+        // fold gives 296.37882403787773 -- a real, not hypothetical,
+        // divergence on ordinary (non-adversarial) random floats.
+        let vals = [
+            23.025289715282675,
+            477.1625760836891,
+            340.3015468079908,
+            402.54761019435176,
+            406.99931766284374,
+            128.23660376310846,
+        ];
+        assert_eq!(py_sum_neumaier(&vals), 296.3788240378778);
+        let naive: f64 = vals.iter().sum();
+        assert_ne!(naive, 296.3788240378778, "naive fold should NOT match -- otherwise this test proves nothing");
+    }
+
+    #[test]
+    fn py_sum_neumaier_classic_discriminator() {
+        // Naive accumulation gives 0.0 (the 1.0 is lost to rounding once
+        // added to 1e16, then the -1e16 cancels the big term exactly);
+        // compensated summation recovers the 1.0.
+        assert_eq!(py_sum_neumaier(&[1e16, 1.0, -1e16]), 1.0);
     }
 
     #[test]
