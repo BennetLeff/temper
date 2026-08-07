@@ -17,6 +17,7 @@ pub mod congestion_tensor;
 // Neumaier kernel it owns).
 #[cfg(feature = "python")]
 pub mod area_sufficiency;
+pub mod copper_reach;
 pub mod pad_geometry;
 // Wave 4 Phase B: router_v6/escape_via_generator.py (survey cluster G, split)
 // and the six-module congestion & placement-feedback cluster E. Both are

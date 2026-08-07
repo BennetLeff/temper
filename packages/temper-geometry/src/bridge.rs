@@ -1460,6 +1460,7 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(pad_support_radius_py, m)?)?;
     m.add_function(wrap_pyfunction!(pad_axis_radius_py, m)?)?;
     m.add_function(wrap_pyfunction!(pad_bounding_radius_py, m)?)?;
+    crate::copper_reach::register(m)?;
     m.add_function(wrap_pyfunction!(barrier_axis_gap_py, m)?)?;
     m.add_function(wrap_pyfunction!(best_rotation_for_barrier_py, m)?)?;
     m.add_function(wrap_pyfunction!(spice_loop_inductance_py, m)?)?;
