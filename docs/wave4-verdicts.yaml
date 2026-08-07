@@ -754,3 +754,964 @@ surfaces:
       when the last oracle retires the harness has no arm left to compare and
       becomes a RETIRE candidate, not a MIGRATE one (the same shape as the
       benchmarks/ entry).
+
+# ===========================================================================
+# Python-removal verdict axis (R1)
+# ===========================================================================
+#
+# R7 above answers "should this compute move to Rust?" The goal-set has since
+# widened to R1: "remove Python entirely" -- a different question. Under R7,
+# most of what follows was NEVER-PORT / JUSTIFIED-KEEP ("no reason to touch
+# it"); under R1 the same code mostly has to move anyway, just not by a
+# line-by-line port. The re-triage that answers R1
+# (docs/plans/2026-08-06-001-docs-python-removal-retriage-plan.md, backed by
+# docs/evidence/2026-08-06-never-port-triage.md and
+# tools/measurements/retriage_python_removal.py's ROWS table) uses a
+# different taxonomy:
+#
+#   BLOCKER-ORTOOLS -- bound to the OR-Tools Python API. Not portable by
+#                      rewriting; needs an FFI to the C++ library, an
+#                      out-of-process solver, or a different solver entirely.
+#   BLOCKER-SCIPY   -- bound to scipy.ndimage.distance_transform_edt.
+#                      Portable in principle (EDT is a known algorithm) but a
+#                      real numeric port with an oracle, not glue.
+#   PORT            -- must move. Mechanical orchestration/glue, no
+#                      third-party blocker, no design question. This is the
+#                      re-triage's default/unmarked case -- most of the old
+#                      NEVER-PORT tree lands here, because "no reason to
+#                      touch it" was itself a Rust-only-compute-question
+#                      artifact.
+#   REPLACE         -- reimplemented natively rather than translated
+#                      line-by-line (clap for the CLI, direct HTML/Plotly-JSON
+#                      emission for the visualizer).
+#   DELETE          -- disappears with the interpreter: re-export shims,
+#                      dict-marshalling at the Rust boundary, dead code.
+#   OUT-OF-RUNTIME  -- dev/CI tooling, not shipped runtime. In scope only
+#                      under "no Python in the repo", not "no Python at
+#                      runtime" -- the re-triage's own open question, left
+#                      open here too (recorded, not resolved, per file below).
+#   UNDECIDED       -- no removal verdict recorded yet, same discipline as
+#                      the R7 UNDECIDED state: an honest backlog entry, not a
+#                      guess dressed up as a decision.
+#
+# WHY A SECOND LIST, NOT A SECOND FIELD ON `surfaces:` ABOVE:
+# The two taxonomies cut the tree at different granularities. `router_v6/**`
+# is a single R7 MIGRATE entry, but under R1 its clusters land in multiple
+# different removal categories (mostly PORT, plus a REPLACE-shaped
+# reporting/CLI/diagnostics cluster; two files were BLOCKER-SCIPY until that
+# blocker was resolved 2026-08-07 -- see the scipy-EDT section below).
+# Recording `removal_verdict:` on the R7 entries directly would force one of two bad
+# choices: fragment the R7 `surfaces:` entries to match R1 cluster
+# boundaries (rewriting entries that are already correct, settled answers to
+# the R7 question -- exactly what "correct forward, don't rewrite" forbids),
+# or coarsen the R1 verdict to the R7 grain (hiding the OR-Tools/scipy
+# blockers inside a MIGRATE-shaped bucket, which is the kind of decorative
+# 100% this ledger exists to prevent). A second list, checked against the
+# same `roots:` and the same file inventory by
+# scripts/check_verdict_coverage.py, keeps both axes honest independently: a
+# file can carry an R7 verdict, an R1 verdict, both, or (correctly) neither
+# yet, and neither axis's coverage number can hide behind the other's.
+#
+# SCOPE, TRANSCRIBED HONESTLY:
+# The re-triage's own scope was `packages/temper-placer/src/temper_placer/`
+# and `packages/temper-workflow/src/temper_workflow/` -- specifically the
+# "no direct import of a Rust extension module" residual (370 files /
+# 82,310 LOC at the triage's 2026-08-06 baseline, commit d5f459314). It never
+# scored `scripts/`, `benchmarks/`, or `packages/temper-placer/tests/` at
+# all, and it never scored the files in temper_placer/temper_workflow that
+# already import a Rust extension directly (those are R7-MIGRATE-complete,
+# but under R1 the *calling* Python file is still Python and still needs its
+# own disposition -- e.g. "invert the boundary" per the re-triage's own
+# sequencing section -- which this document does not decide). Both of those
+# gaps are real UNDECIDED backlog, not oversights in this transcription: they
+# surface below as files that match no `removal_surfaces:` entry, which
+# scripts/check_verdict_coverage.py reports as a FAIL, exactly like an
+# unmatched file does on the R7 axis.
+#
+# DRIFT SINCE THE RE-TRIAGE'S BASELINE:
+# One day and several merged PRs separate this transcription from the
+# re-triage's commit (current HEAD is a descendant of d5f459314). Per-cluster
+# LOC below mostly lands within single-digit percent of the doc's stated
+# figures (spot-checked file by file, not just at the cluster total) -- close
+# enough to be the same code, drifted normally. A few clusters drifted more
+# than that or lost/gained files outright; those are called out inline where
+# they occur, and the true current LOC is whatever
+# scripts/check_verdict_coverage.py measures live, not the doc's snapshot
+# figure. Three concrete cases where the doc's named files could not be
+# confidently matched to the current tree at all (not just LOC drift, but
+# missing/renamed files) are recorded as explicit UNDECIDED entries below
+# rather than silently folded into a PORT bucket: `router_v6/zone_emission.py`
+# (a directly-verified GEOS blocker per the doc's own correction, not the
+# clean PORT its parenthetical cluster listing implies), the two SPLIT/UNKNOWN
+# router_v6 files the doc says neither of its two independent passes
+# resolved, and `temper_workflow/`'s named files, three of which no longer
+# exist. `cp_sat/handlers/{__init__,_protocol,_registry,_shared}.py` (142
+# LOC) is a genuine gap in the re-triage's own row accounting -- the
+# `handlers/*.py` row's LOC (590) matches only the 8 `encode_*` handler
+# files, not these four -- recorded as UNDECIDED rather than guessed into
+# BLOCKER-ORTOOLS by proximity.
+#
+# `paths:` is used instead of `pattern:` for clusters that are specific files
+# scattered through a directory rather than a clean subtree or suffix glob;
+# see scripts/check_verdict_coverage.py's `entry_pattern_matches()`. A
+# surface carries exactly one of `pattern:` or `paths:`.
+
+removal_surfaces:
+  # ---- BLOCKER-ORTOOLS: the placer/cp_sat/ ortools boundary -----------------
+  # Source: docs/evidence/2026-08-06-never-port-triage.md Sec 2.1
+  # (placer/cp_sat/ table) and the re-triage plan's "critical path" table.
+  # This is the whole-subtree R7 JUSTIFIED-KEEP (docs/wave4-verdicts.yaml
+  # placer/cp_sat/** entry above) split into its R1 clusters.
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_solve.py
+    verdict: BLOCKER-ORTOOLS
+    blocker: >-
+      solve_placement invokes ortools.CpSolver().Solve() directly -- the
+      textbook OR-Tools CP-SAT blocker. No mature Rust CP-SAT solver exists;
+      remediation is an FFI to OR-Tools' C++ library, an out-of-process
+      solver invocation, or a different solver (re-triage plan Sec
+      "The critical path is OR-Tools").
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/adjacent.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/aligned.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/anchored.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/enclosing.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/keepout.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/loop_area.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/onside.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/separated.py
+    verdict: BLOCKER-ORTOOLS
+    blocker: >-
+      Each encode_X handler builds ortools.CpModel AddConstraint/
+      NewIntervalVar calls from geometric parameters -- thin wrappers over
+      the ortools API (evidence doc Sec 2.1, "Constraint handlers" row, 590
+      LOC). handlers/keepout.py also calls an already-delegated micro-kernel
+      (keepout_rect_units_py via temper_constraints); the file remains
+      BLOCKER-ORTOOLS overall because the rest of its body is ortools glue.
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/__init__.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_core.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/encoder.py
+    verdict: BLOCKER-ORTOOLS
+    blocker: >-
+      Constraint-ref reconciliation and dispatch to the handler modules
+      above -- orchestration that exists only to serve the ortools encoder
+      (evidence doc Sec 2.1, "Encoder dispatch + validation" row, 584 LOC).
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/model.py
+    verdict: BLOCKER-ORTOOLS
+    blocker: >-
+      "CP-SAT model wrapper around OR-Tools CpModel" per its own docstring --
+      the definitional thin wrapper (evidence doc Sec 2.1, 518 LOC). Two
+      unit-conversion methods already delegate to temper_constraints; the
+      file remains BLOCKER-ORTOOLS overall.
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/unsat.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/unsat_surface.py
+    verdict: BLOCKER-ORTOOLS
+    blocker: >-
+      Calls ortools' own infeasible-assumption API for UNSAT-core
+      extraction; unsat_surface.py renders the result via a rich terminal
+      panel (evidence doc Sec 2.1, 433 LOC).
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/clearance_repair.py
+    verdict: BLOCKER-ORTOOLS
+    blocker: >-
+      run_clearance_repair_solve is a round-loop wrapper around
+      solve_placement (the _encoder_solve.py blocker above), called
+      repeatedly with overrides -- no independent geometry, the ortools call
+      it wraps is the blocker (evidence doc Sec 2.1, "corrected on re-read"
+      note, 757 LOC).
+
+  # ---- scipy EDT: BLOCKER RESOLVED 2026-08-07, now PORT ----------------------
+  # Source: evidence doc Sec 2.1 (router_v6/ table) and Sec 5.2 (KTD8
+  # consumer-list gap) originally recorded these two files BLOCKER-SCIPY --
+  # bound to scipy.ndimage.distance_transform_edt, with the `edt` Rust crate
+  # measured and rejected (max diff 2.0-2.236, an approximate algorithm).
+  #
+  # That blocker no longer holds. docs/evidence/2026-08-07-exact-edt-rust-
+  # spike.md (commit 0b7c850c, packages/temper-geometry/src/edt.rs) implements
+  # the exact Felzenszwalb-Huttenlocher separable EDT in Rust and measures it
+  # bit-exact against scipy.ndimage.distance_transform_edt: 0.0 max abs diff,
+  # 0 differing cells across 7,435,980 cells (23 curated cases + 300 random
+  # trials), 1.6-1.7x faster than scipy including the Python<->Rust FFI
+  # boundary, at real production grid sizes (up to 5.3M cells). The one
+  # divergence found is scipy's own undocumented behavior on an all-foreground
+  # mask (no background cell anywhere) -- unreachable by all three consumers
+  # by construction, per the evidence doc Sec 3's read of each call site
+  # (channel_widths.py:171, _astar_heuristics.py:103, routability_check.py:397
+  # -- all three call the plain scalar form, no `sampling`, no
+  # `return_indices`, which is exactly what the spike implements).
+  #
+  # Precision matters here (the spike brief's own words): the blocking
+  # *question* is answered, the *work* is not. Per the spike's own scope, the
+  # three consumer call sites are deliberately untouched -- "no migration
+  # happened here." That is exactly the re-triage taxonomy's PORT definition
+  # applied to the specific case the taxonomy's own scipy-EDT row already
+  # anticipated: "EDT is a known algorithm with a clear Rust implementation
+  # path. It is a real numeric port with an oracle, not glue, so it belongs
+  # in the PORT stream with a differential rather than in a spike" (re-triage
+  # plan, "The critical path is OR-Tools" section). No new removal-taxonomy
+  # value is needed; PORT with this note carries the full history. This
+  # leaves OR-Tools (3,599 LOC, six BLOCKER-ORTOOLS entries above) as the
+  # sole remaining genuine R1 blocker -- BLOCKER-SCIPY no longer has any
+  # members in this ledger.
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/routability_check.py
+    verdict: PORT
+    note: >-
+      _edt_from_obstacle_mask's scipy.ndimage.distance_transform_edt call
+      (previously BLOCKER-SCIPY -- see the section note above) is resolved by
+      the exact-Rust-EDT spike (docs/evidence/2026-08-07-exact-edt-rust-spike.md,
+      commit 0b7c850c): bit-exact vs scipy on every reachable input, this
+      call site's exact form (no sampling/return_indices). Migration itself
+      is unstarted -- this file still calls scipy today. 477 LOC. Also
+      imports scipy.ndimage.label (check_routability_cc) for connected-
+      component labeling, a different scipy function the spike explicitly
+      left out of scope (evidence doc Sec 3) -- not resolved by this record.
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/_astar_heuristics.py
+    verdict: PORT
+    note: >-
+      Builds its EDT via scipy.ndimage.distance_transform_edt (previously
+      BLOCKER-SCIPY; the `edt` Rust crate was measured and rejected, max
+      diff 2.0-2.236, because it is an approximate algorithm). Resolved by
+      the same exact-Rust-EDT spike as routability_check.py above --
+      bit-exact vs scipy, this call site's exact form. Migration itself is
+      unstarted. 196 LOC.
+
+  # ---- REPLACE ---------------------------------------------------------------
+  - pattern: packages/temper-placer/src/temper_placer/visualization/**
+    verdict: REPLACE
+    note: >-
+      HTML document embedding Plotly figure JSON, rendered by a browser and
+      accepted by human visual judgment (already R7 JUSTIFIED-KEEP above, for
+      the same reason). Under R1 this is REPLACE, not PORT: plotly.py's
+      figure serialization is an implementation detail with no bit-identical
+      bar to port against, so the R1 target is direct HTML/Plotly-JS emission
+      from Rust, not a translated plotly.py. Re-triage plan Sec 5,
+      6,086 LOC.
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/benchmark.py
+      - packages/temper-placer/src/temper_placer/router_v6/diagnostics.py
+      - packages/temper-placer/src/temper_placer/router_v6/manufacturing_report.py
+      - packages/temper-placer/src/temper_placer/router_v6/all_pad_evidence.py
+      - packages/temper-placer/src/temper_placer/router_v6/audit_provenance.py
+      - packages/temper-placer/src/temper_placer/router_v6/test_boards.py
+      - packages/temper-placer/src/temper_placer/router_v6/_routing_reports.py
+      - packages/temper-placer/src/temper_placer/router_v6/astar_monitor.py
+      - packages/temper-placer/src/temper_placer/router_v6/kicad_connectivity.py
+    verdict: REPLACE
+    note: >-
+      Benchmark CLI, structured-diagnostics scoring/formatting, hash-based
+      evidence validators, runtime monitors -- reporting/CLI surfaces, not
+      compute (evidence doc Sec 2.1 "Reporting/CLI/evidence/diagnostics" row,
+      2,177 LOC). REPLACE rather than PORT for the same reason as cli/ below:
+      the CLI/reporting shape is the thing to reimplement, not translate.
+  - pattern: packages/temper-placer/src/temper_placer/cli/*.py
+    verdict: REPLACE
+    exclude:
+      - packages/temper-placer/src/temper_placer/cli/timing.py
+      - packages/temper-placer/src/temper_placer/cli/trace_commands.py
+    note: >-
+      click dispatcher + rich panels -> clap (re-triage plan Sec 5,
+      "cli/ -> clap"). timing.py/trace_commands.py (963 LOC) already import a
+      Rust extension directly and are excluded -- they are R7-migrated; their
+      own R1 disposition (does the calling shim PORT into the Rust binary, or
+      DELETE once main() moves) is not decided by this document and is left
+      UNDECIDED by omission. Evidence doc Sec 2.2, 1,501 LOC for the
+      remainder.
+
+  # ---- PORT: package-entry-point and orchestration/glue that must move ------
+  # Source: evidence doc Sec 2.1/2.2 tables (NEVER-PORT clusters re-scored
+  # PORT under R1) plus, where explicitly noted, the original triage's
+  # already-PORT clusters within the same table ("not re-scored... the goal
+  # change does not affect them" -- re-triage plan, Method section). Both are
+  # recorded PORT here because R1 asks the same thing of both: this code must
+  # move before the interpreter can go away.
+  - pattern: packages/temper-placer/src/temper_placer/pipeline/*.py
+    verdict: PORT
+    exclude:
+      - packages/temper-placer/src/temper_placer/pipeline/topological.py
+    note: >-
+      dag_engine/dag_expr/dag_schema/dag_types/dag_observability (declarative
+      DAG executor + predicate parser + pydantic manifest schema),
+      andon_observer (HTTP+SSE dashboard), terminal_dashboard/visualization
+      (rich terminal UI), metrics_observer (JSONL event bridge),
+      bottleneck_report (data contract), iterator/state/explainability/
+      logging_context/__init__ -- orchestration/UI glue, evidence doc Sec 2.2
+      "pipeline/ - orchestration/UI/dead code" row (3,582 LOC including the
+      excluded topological.py and pipeline/stages/, recorded separately).
+      convergence.py/derivation.py/preflight.py are the original triage's
+      already-PORT "pipeline/ - compute" cluster (1,396 LOC stated,
+      evidence doc Sec 2.2), folded into this pattern because both land on
+      PORT; feedback.py and topology_phase.py, also named in that cluster,
+      no longer exist at this path in the current tree and are not
+      transcribed (nothing to attach a verdict to).
+  - pattern: packages/temper-placer/src/temper_placer/pipeline/stages/**
+    verdict: PORT
+    note: >-
+      Thin Stage.__call__ wrappers over already-classified compute (evidence
+      doc Sec 2.2, "pipeline/stages/* (705 LOC, 8 files)").
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/_pipeline_core.py
+      - packages/temper-placer/src/temper_placer/router_v6/_pipeline_grid.py
+      - packages/temper-placer/src/temper_placer/router_v6/_pipeline_verify.py
+      - packages/temper-placer/src/temper_placer/router_v6/pipeline.py
+      - packages/temper-placer/src/temper_placer/router_v6/stage2_orchestrator.py
+      - packages/temper-placer/src/temper_placer/router_v6/stage4_orchestrator.py
+      - packages/temper-placer/src/temper_placer/router_v6/stage_ledger.py
+      - packages/temper-placer/src/temper_placer/router_v6/stage_validators.py
+      - packages/temper-placer/src/temper_placer/router_v6/grid_prep_stage.py
+      - packages/temper-placer/src/temper_placer/router_v6/net_prep_stage.py
+      - packages/temper-placer/src/temper_placer/router_v6/result_aggregate_stage.py
+      - packages/temper-placer/src/temper_placer/router_v6/route_stage.py
+      - packages/temper-placer/src/temper_placer/router_v6/astar_pathfinding.py
+      - packages/temper-placer/src/temper_placer/router_v6/routing_results.py
+      - packages/temper-placer/src/temper_placer/router_v6/terminal_tree_execution.py
+      - packages/temper-placer/src/temper_placer/router_v6/verifier.py
+    verdict: PORT
+    note: >-
+      Stage-style wiring classes; each calls into already-classified compute
+      modules and validates field presence (evidence doc Sec 2.1, "Pipeline/
+      stage orchestration" row, 2,624 LOC). Note router_v6/_pipeline_route.py
+      (632 LOC) is not named in this cluster or anywhere else in the
+      re-triage and is not transcribed here -- it postdates the triage's
+      baseline or was missed by it; left UNDECIDED by omission rather than
+      assumed into this bucket.
+  - paths:
+      - packages/temper-placer/src/temper_placer/validation/__init__.py
+      - packages/temper-placer/src/temper_placer/validation/base.py
+      - packages/temper-placer/src/temper_placer/validation/gate_input_registry.py
+      - packages/temper-placer/src/temper_placer/validation/mfem_gate.py
+      - packages/temper-placer/src/temper_placer/validation/prereg/__init__.py
+      - packages/temper-placer/src/temper_placer/validation/results/__init__.py
+      - packages/temper-placer/src/temper_placer/validation/scorecard.py
+      - packages/temper-placer/src/temper_placer/validation/validation_gates.py
+    verdict: PORT
+    note: >-
+      Threshold/decision-gate classes over already-computed metrics; a
+      config registry; margin-scoring contract (evidence doc Sec 2.1,
+      "Type/registry/gate glue" row, 2,564 LOC stated). Current LOC for these
+      8 files is 2,007 -- a 557 LOC / 28% gap from the doc's figure, the
+      largest single-cluster discrepancy found in this transcription; the
+      files and their membership in this cluster are not in question (the
+      doc names them explicitly), only the historical LOC total. Reported
+      here rather than forced to agree.
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_core.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_gates.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_routing.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_types.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_utils.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/loop.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/gate.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/delta_mapper.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/netclass_constraints.py
+    verdict: PORT
+    note: >-
+      Place->Route loop control flow, gate management, PCB construction
+      glue, violation->delta dispatch table -- no ortools call in this
+      cluster itself (it calls the encoder, classified separately as
+      BLOCKER-ORTOOLS above) (evidence doc Sec 2.1, "Loop controller" row,
+      2,238 LOC).
+  - paths:
+      - packages/temper-placer/src/temper_placer/pcl/__init__.py
+      - packages/temper-placer/src/temper_placer/pcl/_constraint_parser.py
+      - packages/temper-placer/src/temper_placer/pcl/_schema.py
+      - packages/temper-placer/src/temper_placer/pcl/_tag_parser.py
+      - packages/temper-placer/src/temper_placer/pcl/linter.py
+      - packages/temper-placer/src/temper_placer/pcl/parser.py
+      - packages/temper-placer/src/temper_placer/pcl/resolver.py
+      - packages/temper-placer/src/temper_placer/pcl/schemas/__init__.py
+      - packages/temper-placer/src/temper_placer/pcl/sat_bridge.py
+    verdict: PORT
+    note: >-
+      dict-dispatch parser, JSON-schema wrapper, boolean-expression parser,
+      structural lint, re-export hub, PCL->SAT compilation (builds ortools
+      model primitives, but the *objects* migrate while the ortools calls
+      stay Python per the ledger's own resolved pcl/constraints.py
+      conflict note above) (evidence doc Sec 2.2, "pcl/ - parser/compiler/
+      glue" row, 1,962 LOC; exact current-LOC match).
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py
+      - packages/temper-placer/src/temper_placer/router_v6/_adapter_core.py
+      - packages/temper-placer/src/temper_placer/router_v6/adapter.py
+      - packages/temper-placer/src/temper_placer/router_v6/_strip_copper.py
+    verdict: PORT
+    note: >-
+      route_pcb entry point, KiCad s-expression text writing/stripping,
+      MazeRouter-compat shim -- I/O and orchestration (evidence doc Sec 2.1,
+      "Adapter I/O" row, 1,484 LOC; exact current-LOC match).
+  - paths:
+      - packages/temper-placer/src/temper_placer/deterministic/stages/__init__.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/_phase_core.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/apply_placements.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/base.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/config_attach.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/drc_validation.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/net_ordering.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_assignment.py
+      - packages/temper-placer/src/temper_placer/deterministic/stages/setup.py
+    verdict: PORT
+    note: >-
+      Thin Stage entry points delegating to the real kernels (evidence doc
+      Sec 2.1, "Stage wiring" row, 1,424 LOC). Several of these files carry
+      an R7 JUSTIFIED-KEEP above (apply_placements.py, config_attach.py,
+      clearance_grid.py, net_ordering.py, phased_component_assignment.py,
+      _phase_core.py) -- R1 disagrees with R7 here on purpose: the R7 keep is
+      "no kernel worth crossing a pyo3 boundary for while Python still
+      orchestrates," which is a different question from "does this file
+      disappear when Python does." Under full removal the wiring itself must
+      still move even though there was never a case for extracting it as a
+      standalone pyo3 kernel.
+  - paths:
+      - packages/temper-placer/src/temper_placer/core/__init__.py
+      - packages/temper-placer/src/temper_placer/core/_contract_dataclass_compat.py
+      - packages/temper-placer/src/temper_placer/core/bus_cohort.py
+      - packages/temper-placer/src/temper_placer/core/decision.py
+      - packages/temper-placer/src/temper_placer/core/differential_pair.py
+      - packages/temper-placer/src/temper_placer/core/interfaces.py
+      - packages/temper-placer/src/temper_placer/core/isolation_constants.py
+      - packages/temper-placer/src/temper_placer/core/net_graph.py
+      - packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py
+      - packages/temper-placer/src/temper_placer/core/specification.py
+      - packages/temper-placer/src/temper_placer/core/stackup.py
+    verdict: PORT
+    note: >-
+      Protocol interfaces, a dataclass-protocol compat shim over the
+      already-migrated contract pyclasses, static stackup table,
+      name-pattern bus grouping, plain accessor methods (evidence doc Sec
+      2.1, "Type/registry/constant/spec glue" row, 1,228 LOC).
+  - paths:
+      - packages/temper-placer/src/temper_placer/validation/_drc_api.py
+      - packages/temper-placer/src/temper_placer/validation/mfem_mesh.py
+      - packages/temper-placer/src/temper_placer/validation/mfem_runner.py
+      - packages/temper-placer/src/temper_placer/validation/spice_pipeline.py
+      - packages/temper-placer/src/temper_placer/validation/spice_templates/__init__.py
+    verdict: PORT
+    note: >-
+      kicad-cli/compiled-FEM-binary subprocess wrappers, SPICE netlist
+      template strings, board->Gmsh-mesh format conversion (evidence doc Sec
+      2.1, "External-tool subprocess wrappers" row, 1,076 LOC; exact
+      current-LOC match).
+  - pattern: packages/temper-placer/src/temper_placer/_constraint_types/**
+    verdict: PORT
+    note: >-
+      1,033 LOC, 34 pydantic.BaseModel subclasses / 5 methods (evidence doc
+      Sec 2.2 "_constraint_types/" row; exact current-LOC match). This is a
+      case where R1 and R7 point the same direction for different reasons:
+      the ledger's R7 entry above still shows an unresolved MIGRATE-vs-
+      JUSTIFIED-KEEP conflict (whether it's a pyclass candidate). R1 doesn't
+      need that question answered -- under full removal a pydantic schema
+      also has to leave Python one way or another, so it is PORT here
+      regardless of how the pyclass question resolves.
+  - paths:
+      - packages/temper-placer/src/temper_placer/deterministic/__init__.py
+      - packages/temper-placer/src/temper_placer/deterministic/flags.py
+      - packages/temper-placer/src/temper_placer/deterministic/instrumentation.py
+      - packages/temper-placer/src/temper_placer/deterministic/state.py
+      - packages/temper-placer/src/temper_placer/deterministic/feedback/__init__.py
+      - packages/temper-placer/src/temper_placer/deterministic/feedback/drc_runner.py
+      - packages/temper-placer/src/temper_placer/deterministic/feedback/orchestrator.py
+      - packages/temper-placer/src/temper_placer/deterministic/geometry/__init__.py
+      - packages/temper-placer/src/temper_placer/deterministic/geometry/courtyard.py
+    verdict: PORT
+    note: >-
+      create_drc_aware_pipeline/create_legacy_pipeline factory, feature
+      flags, debug instrumentation, kicad-cli subprocess wrapper (evidence
+      doc Sec 2.1, "Pipeline factory/wiring" row, 926 LOC).
+  - paths:
+      - packages/temper-placer/src/temper_placer/io/snapshot.py
+      - packages/temper-placer/src/temper_placer/io/boundary_registry.py
+      - packages/temper-placer/src/temper_placer/io/kicad_writer.py
+      - packages/temper-placer/src/temper_placer/io/_write_types.py
+      - packages/temper-placer/src/temper_placer/io/__init__.py
+    verdict: PORT
+    note: >-
+      snapshot.py (JSON/SVG debug dumper), boundary_registry.py (name->config
+      lookup), kicad_writer.py ("re-export hub" per its own docstring),
+      _write_types.py (shared dataclasses), __init__.py. Evidence doc Sec 2.2
+      "io/ - glue/dead code" row (1,165 LOC) less net_class_manager.py (524
+      LOC, DELETE -- see below); this cluster is the ROWS table's "io/ - live
+      glue (1165 less 524 dead)" row, 641 LOC; exact current-LOC match.
+  - paths:
+      - packages/temper-placer/src/temper_placer/__init__.py
+      - packages/temper-placer/src/temper_placer/__main__.py
+      - packages/temper-placer/src/temper_placer/_version.py
+      - packages/temper-placer/src/temper_placer/protocol.py
+      - packages/temper-placer/src/temper_placer/runner.py
+      - packages/temper-placer/src/temper_placer/strategy_registry.py
+    verdict: PORT
+    note: >-
+      Package entry points, a Protocol definition, a PipelineRunner
+      orchestrator, a dict-of-callables strategy registry (evidence doc Sec
+      2.2 "(root)" row, 521 LOC; exact current-LOC match). All six carry an
+      R7 JUSTIFIED-KEEP above (distribution-root / structural-typing / D6
+      registry-independence reasons) -- same R1-vs-R7 divergence as the
+      deterministic stage-wiring cluster: not worth a pyo3 boundary while
+      Python remains, but still Python that has to leave under full removal.
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/validator_audit.py
+    verdict: PORT
+    note: >-
+      audit_domain_clearance_validator re-invokes the domain-clearance
+      checker and classifies/reports violations -- the call site and report
+      builder, not the geometry itself (evidence doc Sec 2.1, "corrected on
+      re-read" note, 509 LOC).
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py
+    verdict: PORT
+    note: >-
+      _compute_heuristic_position is a hardcoded +/-5mm nudge, not geometric
+      optimization; the rest is violation-type dispatch building
+      ConstraintDelta objects -- classification/dispatch, not a kernel
+      (evidence doc Sec 2.1, "corrected on re-read" note, 477 LOC).
+  - paths:
+      - packages/temper-placer/src/temper_placer/adapters/__init__.py
+      - packages/temper-placer/src/temper_placer/adapters/deterministic_adapter.py
+      - packages/temper-placer/src/temper_placer/adapters/register_strategies.py
+      - packages/temper-placer/src/temper_placer/adapters/router_v6_stage_adapter.py
+    verdict: PORT
+    note: >-
+      Each wraps an already-classified module as a PipelineStage (evidence
+      doc Sec 2.2 "adapters/" row). placement_adapter.py, also named in that
+      row, is carved out below as DELETE (dead code, doc Sec 4/5.3).
+  - pattern: packages/temper-placer/src/temper_placer/fields/**
+    verdict: PORT
+    note: >-
+      interface.py (Protocol) + result.py (accessor properties over a
+      kept-Python gate object) + field.py (numpy per-cell scalar grid ops --
+      arguably PORT-able compute, deferred to the R7 fields/** JUSTIFIED-KEEP
+      above: "no algorithm to protect"). Evidence doc Sec 2.2 "fields/" row,
+      279 LOC; exact current-LOC match. Same R1-vs-R7 divergence as the
+      package-root and deterministic-stage clusters.
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_stability.py
+    verdict: PORT
+    note: >-
+      _consecutive_stable_rounds/_detect_oscillation are round-history
+      bookkeeping (equality/threshold checks over prior rounds' recorded
+      state), not a numeric kernel -- control flow for the repair loop's
+      stopping criteria (evidence doc Sec 2.1, "corrected on re-read" note,
+      168 LOC).
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/net_classification.py
+    verdict: PORT
+    note: >-
+      Keyword/regex lookup tables (is_ground_net/is_power_net), not numeric
+      compute (evidence doc Sec 2.1, 157 LOC; exact current-LOC match).
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/astar_core.py
+      - packages/temper-placer/src/temper_placer/router_v6/_astar_search.py
+      - packages/temper-placer/src/temper_placer/router_v6/_astar_reconstruct.py
+      - packages/temper-placer/src/temper_placer/router_v6/_astar_theta_star.py
+      - packages/temper-placer/src/temper_placer/router_v6/_astar_ordering.py
+    verdict: PORT
+    note: >-
+      Grid A*/Theta*/Lazy-Theta* search, octile-distance heuristic; the
+      3D fallback tier in astar_core.py is still live (doc Sec 5.4, called
+      from _astar_search.py as the documented last-resort tier, not dead).
+      Original-triage already-PORT (evidence doc Sec 2.1, "A* pathfinding
+      kernel" row); these 5 files sum to exactly the row's stated 2,433 LOC.
+      astar_grid.py, named in the same parenthetical file list, is NOT
+      included here -- see the UNDECIDED entry below for why.
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/_zone_pour_stitch.py
+    verdict: PORT
+    note: >-
+      Pour/zone emission geometry: convex hull, clustering, chamfered
+      pour-shaping (evidence doc Sec 2.1, "Pour/zone emission geometry"
+      row). zone_emission.py, named in the same row, is carved out below as
+      UNDECIDED -- the doc's own cross-check found it BLOCKED on a GEOS
+      convex-hull boundary, not a clean PORT candidate.
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/terminal_extraction.py
+      - packages/temper-placer/src/temper_placer/router_v6/terminal_tree.py
+      - packages/temper-placer/src/temper_placer/router_v6/path_simplify.py
+      - packages/temper-placer/src/temper_placer/router_v6/grid_converter.py
+    verdict: PORT
+    note: >-
+      Manhattan-distance tree planning, collinearity/path-simplification,
+      coordinate conversion + path-length computation (evidence doc Sec 2.1,
+      "Terminal-tree planning + path geometry" row, 390 LOC).
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/constraints_drc_oracle.py
+      - packages/temper-placer/src/temper_placer/router_v6/constraints_spatial_index.py
+      - packages/temper-placer/src/temper_placer/router_v6/constraint_model.py
+      - packages/temper-placer/src/temper_placer/router_v6/channel_skeleton.py
+      - packages/temper-placer/src/temper_placer/router_v6/channel_mapping.py
+      - packages/temper-placer/src/temper_placer/router_v6/obstacle_map.py
+      - packages/temper-placer/src/temper_placer/router_v6/occupancy_grid.py
+      - packages/temper-placer/src/temper_placer/router_v6/clearance_engine.py
+      - packages/temper-placer/src/temper_placer/router_v6/layer_assignment.py
+      - packages/temper-placer/src/temper_placer/router_v6/layer_capacity.py
+      - packages/temper-placer/src/temper_placer/router_v6/escape_via_generator.py
+      - packages/temper-placer/src/temper_placer/router_v6/bottleneck_analysis.py
+      - packages/temper-placer/src/temper_placer/router_v6/capacity_check.py
+      - packages/temper-placer/src/temper_placer/router_v6/resource_bound.py
+      - packages/temper-placer/src/temper_placer/router_v6/connectivity.py
+      - packages/temper-placer/src/temper_placer/router_v6/routing_space.py
+      - packages/temper-placer/src/temper_placer/router_v6/net_ordering.py
+      - packages/temper-placer/src/temper_placer/router_v6/dense_package_detection.py
+      - packages/temper-placer/src/temper_placer/router_v6/diff_pair_inference.py
+      - packages/temper-placer/src/temper_placer/router_v6/via_placement.py
+      - packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py
+      - packages/temper-placer/src/temper_placer/router_v6/audit_tree_geometry.py
+      - packages/temper-placer/src/temper_placer/router_v6/power_plane.py
+    verdict: PORT
+    note: >-
+      Medial-axis channel skeletons (networkx+shapely), spatial index/KD-tree
+      clearance queries, resource-exhaustion bin-packing bound, layer
+      assignment solving, functional power-plane geometry (evidence doc Sec
+      2.1, "Spatial DRC/connectivity/capacity/topology cluster" row). This is
+      the 25-file cluster (8,911 LOC stated) with two files carved out below
+      as UNDECIDED (constraints_design_rules.py, bundle_analyzer.py) -- the
+      doc's own flagged disagreement between its two independent router_v6
+      passes concentrates in exactly those two files plus topology_solver.py/
+      topology_extraction.py (already recorded DELETE above, per this
+      document's own explicit classification, not the disputed one). The 23
+      files here sum to 7,808 LOC against this row's 8,911-less-1,087
+      (constraints_design_rules.py + bundle_analyzer.py) = 7,824 implied
+      split -- a 16 LOC gap, i.e. this split reproduces the doc's own math
+      almost exactly.
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/congestion.py
+      - packages/temper-placer/src/temper_placer/router_v6/congestion_analysis.py
+      - packages/temper-placer/src/temper_placer/router_v6/congestion_heatmap.py
+      - packages/temper-placer/src/temper_placer/router_v6/routing_demand.py
+      - packages/temper-placer/src/temper_placer/router_v6/placement_suggestions.py
+      - packages/temper-placer/src/temper_placer/router_v6/apply_suggestions.py
+    verdict: PORT
+    note: >-
+      Grid demand estimation, congestion classification, numeric heatmap
+      grid, damped position update (evidence doc Sec 2.1, "Congestion &
+      placement-feedback" row, 1,336 LOC). router_v6/congestion_tensor.py
+      (170 LOC) is not named in this cluster or anywhere else in the
+      re-triage and is not transcribed here -- left UNDECIDED by omission.
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/thermal_relief.py
+      - packages/temper-placer/src/temper_placer/router_v6/acid_trap_detection.py
+      - packages/temper-placer/src/temper_placer/router_v6/copper_balance.py
+      - packages/temper-placer/src/temper_placer/router_v6/annular_ring_check.py
+      - packages/temper-placer/src/temper_placer/router_v6/teardrop_generation.py
+    verdict: PORT
+    note: >-
+      Real spoke/annular-ring/copper-area/teardrop geometry (evidence doc
+      Sec 2.1, "Post-route DFM" row, 1,551 LOC).
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/placement_audit.py
+      - packages/temper-placer/src/temper_placer/router_v6/placement_legalization.py
+    verdict: PORT
+    note: >-
+      Shapely-based post-solve audit; collision guard (evidence doc Sec 2.1,
+      "Misc small real geometry" row, 128 LOC; exact current-LOC match).
+  - paths:
+      - packages/temper-placer/src/temper_placer/core/community.py
+      - packages/temper-placer/src/temper_placer/core/courtyard.py
+      - packages/temper-placer/src/temper_placer/core/geometry_types.py
+      - packages/temper-placer/src/temper_placer/core/graph.py
+      - packages/temper-placer/src/temper_placer/core/hypergraph.py
+      - packages/temper-placer/src/temper_placer/core/loop_extractor.py
+      - packages/temper-placer/src/temper_placer/core/loop_ownership.py
+      - packages/temper-placer/src/temper_placer/core/pin_geometry.py
+      - packages/temper-placer/src/temper_placer/core/power_topology.py
+      - packages/temper-placer/src/temper_placer/core/routing_validator.py
+      - packages/temper-placer/src/temper_placer/core/state.py
+      - packages/temper-placer/src/temper_placer/core/topology.py
+    verdict: PORT
+    note: >-
+      Networkx community detection, hypergraph representation, automatic
+      current-loop extraction, rotation-and-side-aware pad geometry,
+      grid-based routing validation (evidence doc Sec 2.1, "Graph/geometry
+      algorithms" row, 2,349 LOC; exact current-LOC match).
+  - pattern: packages/temper-placer/src/temper_placer/heuristics/**
+    verdict: PORT
+    note: >-
+      mcu_subsystem/power_stage/spectral/structural/organizational/conflict/
+      style/topological_init/graph_utils (3,486 LOC stated, real
+      placement-heuristic algorithms) plus __init__/base/pipeline (892 LOC
+      stated, package init/abstract base/orchestrator) -- both clusters from
+      evidence doc Sec 2.2 "heuristics/" row cover the entire current
+      directory (12 files). The doc notes "a sibling agent is porting this
+      area now" as of 2026-08-06; still Python in this tree as of this
+      transcription, so still carries the verdict.
+  - paths:
+      - packages/temper-placer/src/temper_placer/metrics/aesthetic.py
+      - packages/temper-placer/src/temper_placer/metrics/physics.py
+      - packages/temper-placer/src/temper_placer/metrics/__init__.py
+      - packages/temper-placer/src/temper_placer/metrics/external_oracle.py
+    verdict: PORT
+    note: >-
+      aesthetic.py + physics.py (evidence doc Sec 2.2, real numpy
+      quality/physics metrics) + __init__.py + external_oracle.py (re-export
+      + thin adapter). metrics/quality.py, metrics/quality_score.py and
+      metrics/routing_quality.py (867 LOC) exist in the current tree but are
+      not named anywhere in the re-triage -- new since its baseline, left
+      UNDECIDED by omission rather than assumed PORT by proximity.
+  - paths:
+      - packages/temper-placer/src/temper_placer/requirements/__init__.py
+      - packages/temper-placer/src/temper_placer/requirements/validators/__init__.py
+      - packages/temper-placer/src/temper_placer/requirements/validators/_geometry.py
+    verdict: PORT
+    note: >-
+      _distance/_point_in_rect/_rects_overlap real geometry kernels plus two
+      trivial __init__.py (evidence doc Sec 2.2, "requirements/" row, 185
+      LOC). requirements/validators/clearance.py and _copper.py (827 LOC)
+      exist in the current tree but are not named in the re-triage -- new
+      since its baseline, left UNDECIDED by omission.
+  - paths:
+      - packages/temper-placer/src/temper_placer/physics/loop_area.py
+    verdict: PORT
+    note: >-
+      Commutation-loop-area computation from routed traces (networkx+numpy+
+      scipy); evidence doc Sec 2.2, 240 LOC; exact current-LOC match. Doc Sec
+      5.10 flags an unactioned sub-file carve-out: the scipy.spatial.
+      ConvexHull fallback path is a recorded KTD9-style Qhull-not-
+      bit-reproducible keep and would, on a finer read, be its own
+      BLOCKER-SCIPY-shaped entry rather than folded into this file's PORT
+      verdict. Recording the doc's stated file-level verdict (PORT) as-is
+      rather than performing that unexecuted split myself.
+  - paths:
+      - packages/temper-placer/src/temper_placer/io/_write_board.py
+      - packages/temper-placer/src/temper_placer/io/_write_modules.py
+      - packages/temper-placer/src/temper_placer/io/_write_tracks.py
+      - packages/temper-placer/src/temper_placer/io/_write_zones.py
+      - packages/temper-placer/src/temper_placer/io/kicad_exporter.py
+      - packages/temper-placer/src/temper_placer/io/placement_exporter.py
+      - packages/temper-placer/src/temper_placer/io/via_dedup.py
+      - packages/temper-placer/src/temper_placer/io/zone_manager.py
+      - packages/temper-placer/src/temper_placer/io/real_board.py
+    verdict: PORT
+    note: >-
+      s-expression construction geometry plus real_board.py's copper-reach
+      and board-surface-geometry kernels (shoelace ring area, outline/cutout
+      classification for creepage -- doc Sec 5.7, verified by reading
+      function bodies, not the "production loader" docstring). Evidence doc
+      Sec 2.2, "io/ - write/export + real_board geometry" row, 3,531 LOC.
+  - paths:
+      - packages/temper-placer/src/temper_placer/pcl/constraints.py
+      - packages/temper-placer/src/temper_placer/pcl/_tag_expanders.py
+      - packages/temper-placer/src/temper_placer/pcl/tagged_constraints.py
+      - packages/temper-placer/src/temper_placer/pcl/drc_bridge.py
+      - packages/temper-placer/src/temper_placer/pcl/tiers.py
+      - packages/temper-placer/src/temper_placer/pcl/unsat_compiler.py
+    verdict: PORT
+    note: >-
+      PCL data structures (temper-pcl-ir is the named Rust seed, per the R7
+      pcl/** MIGRATE entry above), tag->concrete-constraint expansion,
+      PCL->DRC-assertion compiler, tier/penalty-weight computation (the
+      unwired Python twin of rust_bridge.py's already-tested Rust kernel --
+      doc Sec 5.1), UNSAT-core->PCL upward compiler. Evidence doc Sec 2.2,
+      "pcl/ - constraint-object compute" row, 2,069 LOC; exact current-LOC
+      match.
+
+  # ---- DELETE -----------------------------------------------------------
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/__init__.py
+      - packages/temper-placer/src/temper_placer/router_v6/_adapter_types.py
+      - packages/temper-placer/src/temper_placer/router_v6/_pipeline_types.py
+      - packages/temper-placer/src/temper_placer/router_v6/stage0_data.py
+      - packages/temper-placer/src/temper_placer/router_v6/topology_extraction.py
+      - packages/temper-placer/src/temper_placer/router_v6/topology_solver.py
+      - packages/temper-placer/src/temper_placer/router_v6/tree_route_geometry.py
+      - packages/temper-placer/src/temper_placer/router_v6/_check_report_base.py
+    verdict: DELETE
+    note: >-
+      Protocol/dataclass declarations, no methods with logic (evidence doc
+      Sec 2.1, "Re-export/type shims" row, 806 LOC stated; current LOC 752).
+  - paths:
+      - packages/temper-placer/src/temper_placer/constraints/_payload.py
+      - packages/temper-placer/src/temper_placer/constraints/__init__.py
+    verdict: DELETE
+    note: >-
+      _payload.py marshals PlacementConstraints into a plain dict at the
+      boundary the Rust constraint builder/compiler consumes -- a one-time
+      attribute-read boundary, not compute; __init__.py re-exports (evidence
+      doc Sec 2.2, "constraints/" row, 133 LOC; exact current-LOC match).
+      constraints/builder.py/compiler.py/reporter.py (757 LOC), also under
+      this directory, are not part of this row and are not transcribed here.
+  - paths:
+      - packages/temper-placer/src/temper_placer/explainability/__init__.py
+    verdict: DELETE
+    note: >-
+      Re-exports Decision/DecisionTrace from core/decision.py, already
+      counted PORT above (evidence doc Sec 2.2, "explainability/" row, 76
+      LOC; exact current-LOC match).
+  - paths:
+      - packages/temper-placer/src/temper_placer/manufacturing/__init__.py
+    verdict: DELETE
+    note: >-
+      Re-exports already-migrated tolerances.py content (evidence doc Sec
+      2.2, "manufacturing/" row, 23 LOC; exact current-LOC match).
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/__init__.py
+    verdict: DELETE
+    note: >-
+      Trivial; the real non-cp_sat placer compute already migrated (evidence
+      doc Sec 2.1, "placer/ top-level" row, 1 LOC).
+  - paths:
+      - packages/temper-placer/src/temper_placer/analysis/__init__.py
+    verdict: DELETE
+    note: >-
+      Near-empty; the substance (_area_sufficiency.py, _violation_report.py,
+      281 LOC) already imports temper_* directly (evidence doc Sec 2.2,
+      "analysis/" row, 1 LOC; exact current-LOC match).
+  - paths:
+      - packages/temper-placer/src/temper_placer/adapters/placement_adapter.py
+    verdict: DELETE
+    note: >-
+      Entire body is `raise NotImplementedError("... post-JAX retirement")`
+      -- dead code, not a port candidate (evidence doc Sec 4/5.3, which
+      explicitly recommends RETIRE over the row's blanket NEVER-PORT/PORT
+      classification; DELETE is this axis's equivalent of that
+      recommendation).
+  - paths:
+      - packages/temper-placer/src/temper_placer/pipeline/topological.py
+    verdict: DELETE
+    note: >-
+      legalize_zone_aware(*a, **kw): raise NotImplementedError(...), called
+      unconditionally from step 3 of run_topological_phase -- every call
+      that reaches that step crashes today (evidence doc Sec 5.3, same
+      "honest verdict is RETIRE, not keep" recommendation as
+      placement_adapter.py above). 75 LOC.
+  # NOTE: io/net_class_manager.py -- the doc's other named DELETE candidate
+  # (524 LOC, "already recorded RETIRE, zero consumers") -- no longer exists
+  # in the tree at all. It has already been removed; there is nothing here
+  # to attach a verdict to, so no entry is recorded for it.
+
+  # ---- OUT-OF-RUNTIME -----------------------------------------------------
+  # Dev/CI tooling; in scope only under "no Python in the repo", the
+  # re-triage's own open question (re-triage plan, "Open question" section).
+  - paths:
+      - packages/temper-placer/src/temper_placer/validation/helps_battery.py
+      - packages/temper-placer/src/temper_placer/validation/results/battery_run.py
+      - packages/temper-placer/src/temper_placer/validation/scheduler.py
+    verdict: OUT-OF-RUNTIME
+    note: >-
+      A/B experiment harnesses producing keep/kill verdicts and a
+      training-loop scheduler -- orchestration around a physics kernel, not
+      the kernel itself, same harness-independence shape as regression/'s
+      six R7-carved-out modules (evidence doc Sec 2.1, "Experiment-harness
+      orchestrators" row, 1,963 LOC; exact current-LOC match).
+  - pattern: packages/temper-placer/src/temper_placer/profiling/**
+    verdict: OUT-OF-RUNTIME
+    note: >-
+      CI/dev instrumentation harness; no product hot path (evidence doc Sec
+      2.2, "profiling/" row, 1,302 LOC; exact current-LOC match). Same
+      surface as the R7 profiling/** JUSTIFIED-KEEP above.
+  - paths:
+      - packages/temper-placer/src/temper_placer/regression/runner.py
+      - packages/temper-placer/src/temper_placer/regression/reporter.py
+      - packages/temper-placer/src/temper_placer/regression/corpus_runner.py
+      - packages/temper-placer/src/temper_placer/regression/metrics_recorder.py
+      - packages/temper-placer/src/temper_placer/regression/cli.py
+      - packages/temper-placer/src/temper_placer/regression/manifest.py
+    verdict: OUT-OF-RUNTIME
+    note: >-
+      Orchestrates the already-migrated regression kernels (evidence doc Sec
+      2.2, "regression/" row, 1,181 LOC stated; current LOC for these 6
+      files is 1,129). Same 6 files as the R7 regression/*.py JUSTIFIED-KEEP
+      entries above; regression/{closure_test,cp_sat_comparison,drc_ratchet,
+      fingerprint,measure_closure,physics_oracle,schema_validator}.py (the
+      migrated-kernel delegation shims, 2,516 LOC) are not part of this row.
+  - pattern: packages/temper-placer/src/temper_placer/testing/**
+    verdict: OUT-OF-RUNTIME
+    note: >-
+      pytest harness helpers (golden_diff/quarantine/version_gate); same
+      surface as the R7 testing/** JUSTIFIED-KEEP above (evidence doc Sec
+      2.2, 733 LOC; exact current-LOC match).
+  - pattern: packages/temper-placer/src/temper_placer/fixtures/**
+    verdict: OUT-OF-RUNTIME
+    note: >-
+      Synthetic netlist generator, consumed only by pytest; same surface as
+      the R7 fixtures/** JUSTIFIED-KEEP above (evidence doc Sec 2.2, 393
+      LOC; exact current-LOC match).
+
+  # ---- UNDECIDED: explicitly flagged, not guessed --------------------------
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/zone_emission.py
+    verdict: UNDECIDED
+    owed: >-
+      The re-triage's own router_v6 table lists this file under a PORT
+      cluster ("Pour/zone emission geometry"), but the same document's
+      cross-check against docs/evidence/2026-08-04-router-v6-migration-
+      survey.md directly verifies a GEOS boundary instead:
+      _convex_hull_from_positions runs on every zone regardless of
+      clustering, with 2,141/3,904 byte flips against identical copper --
+      "reclassified scipy -> GEOS", i.e. BLOCKED, not a clean PORT. Neither
+      taxonomy value (PORT nor a not-yet-defined GEOS-blocker category) is
+      recorded with confidence; owed a file-level decision, not a guess by
+      proximity to _zone_pour_stitch.py.
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py
+      - packages/temper-placer/src/temper_placer/router_v6/bundle_analyzer.py
+    verdict: UNDECIDED
+    owed: >-
+      Named in the re-triage's "Spatial DRC/connectivity/capacity/topology
+      cluster" as PORT, but also named in the doc's own flagged
+      disagreement: a second, independently-derived router_v6 split
+      (docs/evidence/2026-08-04-router-v6-migration-survey.md, 9 correction
+      rounds) puts these in its SPLIT/UNKNOWN bucket alongside
+      topology_solver.py/topology_extraction.py -- "narrowing it further
+      means walking the survey's SPLIT/UNKNOWN rows... which neither pass
+      completed" (evidence doc Sec 2.1). Owed a resolved file-by-file read
+      against that survey before either PORT or a blocker verdict is
+      recorded.
+  - paths:
+      - packages/temper-workflow/src/temper_workflow/utils/__init__.py
+    verdict: UNDECIDED
+    owed: >-
+      The re-triage's temper_workflow/ PORT row (393 LOC) names
+      metrics/aesthetic_turing_test.py, metrics/compare_refinement.py,
+      metrics/measure_displacement.py, routing/steiner_sweep.py and
+      utils/__init__.py. The first four no longer exist anywhere in the
+      current tree (already retired, not merely renamed -- confirmed by
+      directory listing); only utils/__init__.py (5 LOC) remains, and its
+      disposition was never argued independently of the deleted files it was
+      grouped with. Owed a fresh look now that 3 of the row's 4 substantive
+      files are gone.
+  - paths:
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/__init__.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/_protocol.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/_registry.py
+      - packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/_shared.py
+    verdict: UNDECIDED
+    owed: >-
+      A gap in the re-triage's own row accounting, not a drift artifact: the
+      "Constraint handlers (handlers/*.py)" row's stated 590 LOC matches
+      only the 8 encode_X handler files (588 LOC actual) recorded as
+      BLOCKER-ORTOOLS above; these four handler-infrastructure files (142
+      LOC total) are not covered by that row, the "Encoder dispatch +
+      validation" row (which names cp_sat/__init__.py, _encoder_core.py,
+      encoder.py specifically -- not handlers/), or any other row. Likely
+      BLOCKER-ORTOOLS by the same reasoning as the handlers they register
+      (they exist only to dispatch to ortools-bound encode_X calls), but
+      recorded UNDECIDED rather than assumed, since the re-triage never
+      actually said so.
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/metrics/slop_linter.py
+      - packages/temper-placer/src/temper_placer/router_v6/metrics/__init__.py
+      - packages/temper-placer/src/temper_placer/router_v6/quality/via_count.py
+      - packages/temper-placer/src/temper_placer/router_v6/quality/__init__.py
+    verdict: UNDECIDED
+    owed: >-
+      Evidence doc Sec 2.1 "Quality metrics" row states 607 LOC PORT for
+      these four files; current LOC is 366, a 241 LOC / 40% gap large enough
+      that the file set may not be what the doc measured (unlike the smaller
+      drifts elsewhere in this transcription, this one is not confidently
+      "the same code, one day later"). Recorded UNDECIDED rather than PORT
+      to avoid presenting an uncertain match as a decision.
+  - paths:
+      - packages/temper-placer/src/temper_placer/router_v6/astar_grid.py
+    verdict: UNDECIDED
+    owed: >-
+      Named in the re-triage's "A* pathfinding kernel" cluster's parenthetical
+      file list, but the cluster's own stated LOC (2,433) is reproduced
+      exactly by the other five files in that cluster without astar_grid.py
+      (350 LOC) -- see the PORT entry above. Whether that is a listing typo
+      (astar_grid.py belongs, and 2,433 undercounts by 350) or a real
+      exclusion (astar_grid.py belongs elsewhere, e.g. already-migrated) is
+      not resolvable from the document alone. Recorded UNDECIDED rather than
+      assumed into the PORT cluster by proximity.
