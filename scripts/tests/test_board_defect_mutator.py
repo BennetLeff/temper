@@ -24,6 +24,8 @@ from board_defect_mutator import (  # noqa: E402
     board_content_hash,
     copy_board,
     footprint_positions,
+    mutate_clearance,
+    mutate_courtyard,
     mutate_creepage,
     mutate_off_board,
     mutate_pad_short,
@@ -139,6 +141,53 @@ class TestMutateCreepage:
         assert after["C8"] == (116.26, 138.72)
         moved = {ref for ref in before if before[ref] != after.get(ref)}
         assert moved == {"C8"}
+
+
+@pytest.mark.skipif(not BOARD.exists(), reason="committed board not available")
+class TestMutateClearance:
+    def test_moves_exactly_one_component_preserves_others(self, tmpdir):
+        out = tmpdir / "clearance.kicad_pcb"
+        mutate_clearance(BOARD, out, "R67", (134.66, 140.1), seed=4)
+
+        before = _ref_positions(_read_board(BOARD))
+        after = _ref_positions(_read_board(out))
+        assert after["R67"] == (134.66, 140.1)
+        moved = {ref for ref in before if before[ref] != after.get(ref)}
+        assert moved == {"R67"}
+
+    def test_rotation_preserved(self, tmpdir):
+        out = tmpdir / "clearance.kicad_pcb"
+        mutate_clearance(BOARD, out, "R67", (134.66, 140.1), seed=4)
+        before_fp = next(
+            f for f in _read_board(BOARD).footprints
+            if (f.properties or {}).get("Reference") == "R67"
+        )
+        after_fp = next(
+            f for f in _read_board(out).footprints
+            if (f.properties or {}).get("Reference") == "R67"
+        )
+        assert after_fp.position.angle == before_fp.position.angle
+
+    def test_missing_footprint_fails_closed(self, tmpdir):
+        with pytest.raises(MutationError):
+            mutate_clearance(BOARD, tmpdir / "x.kicad_pcb", "ZZ_NOT_A_REF", (1.0, 1.0), seed=4)
+
+
+@pytest.mark.skipif(not BOARD.exists(), reason="committed board not available")
+class TestMutateCourtyard:
+    def test_moves_exactly_one_component_preserves_others(self, tmpdir):
+        out = tmpdir / "courtyard.kicad_pcb"
+        mutate_courtyard(BOARD, out, "C38", (41.54, 189.55), seed=5)
+
+        before = _ref_positions(_read_board(BOARD))
+        after = _ref_positions(_read_board(out))
+        assert after["C38"] == (41.54, 189.55)
+        moved = {ref for ref in before if before[ref] != after.get(ref)}
+        assert moved == {"C38"}
+
+    def test_missing_footprint_fails_closed(self, tmpdir):
+        with pytest.raises(MutationError):
+            mutate_courtyard(BOARD, tmpdir / "x.kicad_pcb", "ZZ_NOT_A_REF", (1.0, 1.0), seed=5)
 
 
 @pytest.mark.skipif(not BOARD.exists(), reason="committed board not available")
