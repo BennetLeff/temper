@@ -61,11 +61,17 @@
 //    all-degenerate path (every sub-segment has `steps <= 0`) marks
 //    nothing and therefore never raises, matching the reference.
 //    `mark_via_blocked`'s inner loop is a plain nested Python `for` (one
-//    scalar assignment per matching cell), so the reference raises on the
-//    FIRST matching cell in row-major (y outer, x inner) iteration order,
-//    leaving earlier-in-order cells already mutated; replicated
-//    faithfully (checked per-cell) rather than "fixed" into an
-//    all-or-nothing upfront check.
+//    scalar assignment per matching cell), checked per-cell rather than
+//    upfront — but since `net_id` is the SAME value on every iteration, an
+//    out-of-range `net_id` always raises on the FIRST matching cell,
+//    before that cell's own write lands, so a call that raises never
+//    mutates the grid at all (measured: unlike the rectangular kernels,
+//    which raise unconditionally once any point would be marked, this one
+//    raises only when at least one cell GEOMETRICALLY matches — a via
+//    whose bbox has zero matching cells never raises regardless of
+//    `net_id`, pinned by `test_mark_via_blocked_zero_matches_raises_nothing`).
+//    Checked per-cell (not upfront) purely to mirror the reference's
+//    control flow, not because it changes the observable outcome here.
 //  - `unmark_path` does NOT consult `static_mask` (only
 //    `unmark_segment_blocked` does) — a real asymmetry in the reference,
 //    preserved as-is rather than "fixed".
@@ -113,6 +119,22 @@ fn py_int_ceil(x: f64) -> PyResult<i64> {
     py_int_trunc(x.ceil())
 }
 
+/// Plain CPython `float / float`: unlike numpy division, this RAISES
+/// `ZeroDivisionError` for a zero divisor (`+0.0` or `-0.0`, both compare
+/// equal to `0.0`) instead of producing inf/nan — measured:
+/// `0.6 / 0.0` raises `ZeroDivisionError: float division by zero` in
+/// plain Python, where `np.float64(0.6) / 0.0` would instead warn and
+/// return `inf`. Every `/` in the reference kernels below (`world_to_grid`,
+/// `expansion`, `steps`) is this plain-float form, NOT a numpy division —
+/// so a zero `cell_size` raises HERE, before `np.ceil`/`int()` ever run
+/// (those only see the OUTPUT of an already-successful division).
+fn py_float_div(num: f64, den: f64) -> PyResult<f64> {
+    if den == 0.0 {
+        return Err(PyZeroDivisionError::new_err("float division by zero"));
+    }
+    Ok(num / den)
+}
+
 /// `self.world_to_grid(x_mm, y_mm)` verbatim.
 fn world_to_grid(
     x_mm: f64,
@@ -122,28 +144,36 @@ fn world_to_grid(
     cell_size: f64,
 ) -> PyResult<(i64, i64)> {
     Ok((
-        py_int_trunc((x_mm - origin_x) / cell_size)?,
-        py_int_trunc((y_mm - origin_y) / cell_size)?,
+        py_int_trunc(py_float_div(x_mm - origin_x, cell_size)?)?,
+        py_int_trunc(py_float_div(y_mm - origin_y, cell_size)?)?,
     ))
 }
 
 /// `expansion = int(np.ceil(radius_mm / self.cell_size))`.
 fn expansion_cells(radius_mm: f64, cell_size: f64) -> PyResult<i64> {
-    py_int_ceil(radius_mm / cell_size)
+    py_int_ceil(py_float_div(radius_mm, cell_size)?)
 }
 
 /// `steps = int(np.ceil(dist / (self.cell_size / 2)))`, with `dist` the
 /// libm-`pow`-computed Euclidean distance between two float points
-/// (`((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2) ** 0.5`).
+/// (`((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2) ** 0.5`). `self.cell_size / 2`
+/// (division by the int literal `2`) can never itself be a zero-divisor
+/// error; it becomes the (possibly zero) divisor of the outer division.
 fn segment_steps(x1: f64, y1: f64, x2: f64, y2: f64, cell_size: f64) -> PyResult<i64> {
     let dx = x2 - x1;
     let dy = y2 - y1;
     let dist = host_math::pow(host_math::pow(dx, 2.0) + host_math::pow(dy, 2.0), 0.5);
-    py_int_ceil(dist / (cell_size / 2.0))
+    py_int_ceil(py_float_div(dist, cell_size / 2.0)?)
 }
 
 /// `x_start,x_end,y_start,y_end` clamp verbatim
-/// (`max(0, cx-expansion)` / `min(dim, cx+expansion+1)`).
+/// (`max(0, cx-expansion)` / `min(dim, cx+expansion+1)`). `x_end`/`y_end`
+/// are the RAW `min(...)` result and MAY be negative (when
+/// `cx + expansion + 1 < 0`, i.e. the point is far enough off the
+/// negative edge of the grid) — callers that index via a numpy SLICE
+/// must run these through `slice_stop` before using them (see below);
+/// callers that index via a `range()` loop (`mark_via_circle`) must NOT,
+/// and use these values as-is.
 fn clamp_bbox(
     cx: i64,
     cy: i64,
@@ -156,6 +186,29 @@ fn clamp_bbox(
     let y_start = (cy - expansion).max(0);
     let y_end = (cy + expansion + 1).min(height_cells);
     (x_start, x_end, y_start, y_end)
+}
+
+/// Python slice-stop normalisation for `grid[start:raw_end]`.
+///
+/// **Measured, previously-unhandled trap:** `x_end`/`y_end` above are fed
+/// straight into a numpy SLICE (`self.grid[y_start:y_end, x_start:x_end]
+/// = net_id`) in the reference, NOT a `range()`. A negative slice stop in
+/// Python/numpy does NOT mean "empty" — it WRAPS AROUND to count from the
+/// end of the axis: `min(width_cells, cx + expansion + 1)` can be
+/// negative when a path/segment point lands far enough off the NEGATIVE
+/// edge of the grid, and `grid[1:4, 0:-1] = 9` on a 13-wide axis then
+/// blocks columns 0..11 (everything except the last column), not
+/// nothing. Measured against numpy 2.4.6. `mark_via_circle` is IMMUNE:
+/// its bbox feeds a `range()` loop, and `range(0, -1)` really is empty —
+/// only the four slice-based kernels (`mark_path_blocked`,
+/// `mark_segment_blocked`, `unmark_segment_blocked`, `unmark_path`) hit
+/// this.
+fn slice_stop(raw_end: i64, dim: i64) -> i64 {
+    if raw_end < 0 {
+        (dim + raw_end).max(0)
+    } else {
+        raw_end.min(dim)
+    }
 }
 
 /// numpy's int8 scalar-assignment range check: `arr[...] = net_id` on an
@@ -198,7 +251,10 @@ fn mark_point_rect(
     net_id_i8: i8,
 ) -> PyResult<()> {
     let (cx, cy) = world_to_grid(x_mm, y_mm, origin_x, origin_y, cell_size)?;
-    let (x_start, x_end, y_start, y_end) = clamp_bbox(cx, cy, expansion, width_cells, height_cells);
+    let (x_start, x_end_raw, y_start, y_end_raw) =
+        clamp_bbox(cx, cy, expansion, width_cells, height_cells);
+    let x_end = slice_stop(x_end_raw, width_cells); // slice consumer: wraps on negative
+    let y_end = slice_stop(y_end_raw, height_cells);
     for row in y_start..y_end {
         for col in x_start..x_end {
             let idx = (row * width_cells + col) as usize;
@@ -318,7 +374,10 @@ fn unmark_point_rect(
     net_id: i64,
 ) -> PyResult<()> {
     let (cx, cy) = world_to_grid(x_mm, y_mm, origin_x, origin_y, cell_size)?;
-    let (x_start, x_end, y_start, y_end) = clamp_bbox(cx, cy, expansion, width_cells, height_cells);
+    let (x_start, x_end_raw, y_start, y_end_raw) =
+        clamp_bbox(cx, cy, expansion, width_cells, height_cells);
+    let x_end = slice_stop(x_end_raw, width_cells); // slice consumer: wraps on negative
+    let y_end = slice_stop(y_end_raw, height_cells);
     for row in y_start..y_end {
         for col in x_start..x_end {
             let idx = (row * width_cells + col) as usize;
@@ -455,8 +514,12 @@ pub fn blocking_net_ids(
 /// integer exponentiation, not a float `pow`), scaled by `cell_size`
 /// AFTER the `** 0.5`. The int8-range check happens per matching cell (a
 /// plain nested Python `for` in the reference, one scalar assignment per
-/// cell), so an out-of-range `net_id` raises on the FIRST matching cell
-/// in row-major order, leaving earlier cells already mutated.
+/// cell); since `net_id` is constant across the call, an out-of-range
+/// value always raises on the FIRST matching cell (before that cell's own
+/// write lands), so the grid is left completely unmutated by a raising
+/// call — but ONLY raises if at least one cell geometrically matches
+/// (`dist <= radius_mm`); a via whose bbox matches nothing never raises,
+/// regardless of `net_id`.
 #[allow(clippy::too_many_arguments)]
 pub fn mark_via_circle(
     grid: &[Cell<i8>],
@@ -805,6 +868,58 @@ mod tests {
     }
 
     #[test]
+    fn test_slice_stop_wraps_on_negative_like_python_slicing() {
+        // grid[1:-1] on a 13-wide axis stops at index 12 (dim + (-1)),
+        // NOT "before index -1" -- Python/numpy slice semantics, not
+        // range() semantics.
+        assert_eq!(slice_stop(-1, 13), 12);
+        assert_eq!(slice_stop(-13, 13), 0);
+        assert_eq!(slice_stop(-100, 13), 0); // clamps to 0, does not go negative
+        assert_eq!(slice_stop(5, 13), 5); // non-negative: passthrough (already <= dim)
+        assert_eq!(slice_stop(20, 13), 13); // non-negative: still capped at dim
+    }
+
+    #[test]
+    fn test_mark_point_rect_negative_end_wraps_not_empty() {
+        // A point far enough off the NEGATIVE edge of the grid produces a
+        // raw x_end = cx + expansion + 1 < 0. Python's
+        // `grid[y_start:y_end, x_start:x_end] = net_id` with a negative
+        // x_end WRAPS to count from the end of the row, blocking almost
+        // the whole row -- NOT a no-op. `mark_point_rect` must reproduce
+        // this exactly (regression for a mismatch caught by the
+        // differential suite against the pinned oracle).
+        let cells = cells_from(&[0i8; 5 * 13]); // 5 rows x 13 cols
+        // origin=(0,0), cell_size=1.0: x_mm=-3.4 -> cx = int(-3.4/1.0) = -3
+        // (truncation toward zero). expansion=1 -> raw x_end = -3+1+1 = -1
+        // -> wraps to col 12 (13 + (-1)), NOT "no columns".
+        mark_point_rect(&cells, 13, 5, -3.4, 2.4, 0.0, 0.0, 1.0, 1, 9).unwrap();
+        let g = cells_to(&cells);
+        // y: cy = int(2.4/1.0) = 2, expansion 1 -> rows 1..4 (raw y_end=4,
+        // non-negative, unaffected by wraparound).
+        for row in 1..4 {
+            for col in 0..12 {
+                assert_eq!(g[row * 13 + col], 9, "row={row} col={col}");
+            }
+            assert_eq!(g[row * 13 + 12], 0, "last column must stay unblocked");
+        }
+        assert_eq!(g[0 * 13 + 0], 0); // row 0 untouched
+        assert_eq!(g[4 * 13 + 0], 0); // row 4 untouched
+    }
+
+    #[test]
+    fn test_mark_via_circle_immune_to_slice_wraparound() {
+        // mark_via_circle's bbox feeds a range() loop, not a slice, so an
+        // out-of-grid centre with a negative raw bbox bound must produce
+        // NO marks at all -- unlike the rectangular kernels above.
+        let cells = cells_from(&[0i8; 5 * 13]);
+        // Same coordinates as the mark_point_rect wraparound case, but as
+        // a via: cx=-3, cy=2, expansion depends on radius; force a small
+        // expansion so the raw x_end is still negative.
+        mark_via_circle(&cells, 13, 5, -3.4, 2.4, 0.4, 0.0, 0.0, 0.0, 1.0, 9).unwrap();
+        assert_eq!(cells_to(&cells), vec![0i8; 5 * 13]);
+    }
+
+    #[test]
     fn test_mark_path_rect_empty_path_is_noop() {
         let cells = cells_from(&[0i8; 9]);
         mark_path_rect(&cells, 3, 3, &[], 1.0, 0.0, 0.0, 0.0, 1.0, 200).unwrap(); // net_id out of range but no points -> no raise
@@ -888,18 +1003,27 @@ mod tests {
     }
 
     #[test]
-    fn test_mark_via_circle_partial_mutation_on_overflow() {
-        // A via whose net_id is out of int8 range raises on the FIRST
-        // matching cell in row-major order, leaving earlier cells (if
-        // any preceded it in iteration order) mutated. With a single
-        // matching cell this just proves the raise; the ordering claim
-        // is exercised by the differential (randomized) suite.
+    fn test_mark_via_circle_overflow_raises_before_any_write() {
+        // net_id is CONSTANT across the call, so the int8-range check
+        // fails identically on every matching cell -- meaning it always
+        // fails on the very FIRST match, before that cell's own write
+        // lands. A raising call therefore mutates nothing at all (see the
+        // module doc comment above `mark_via_circle`).
         let cells = cells_from(&[0i8; 9]);
         let err = mark_via_circle(&cells, 3, 3, 1.5, 1.5, 1.0, 0.0, 0.0, 0.0, 1.0, 500);
         assert!(err.is_err());
-        // The centre cell (which matched dist<=radius first in row-major
-        // order among the 3x3 block) was mutated before the raise.
-        assert_eq!(cells_to(&cells)[1 * 3 + 1], 500i64 as i8);
+        assert_eq!(cells_to(&cells), vec![0i8; 9]);
+    }
+
+    #[test]
+    fn test_mark_via_circle_zero_matches_never_raises() {
+        // An out-of-range net_id only raises when at least one cell
+        // geometrically matches; a via placed entirely outside the grid
+        // (empty bbox after clamping) never enters the match check at
+        // all, so it never raises regardless of net_id.
+        let cells = cells_from(&[0i8; 9]);
+        mark_via_circle(&cells, 3, 3, -100.0, -100.0, 0.0, 0.0, 0.0, 0.0, 1.0, 500).unwrap();
+        assert_eq!(cells_to(&cells), vec![0i8; 9]);
     }
 
     #[test]
