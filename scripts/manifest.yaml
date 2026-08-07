@@ -181,6 +181,25 @@ scripts:
   - sys
   - tempfile
   - typing
+- path: check_bom_source_reconciliation.py
+  purpose: 'BOM<->source reconciliation CI gate (R14): parses docs/hardware/BOM.md component tables and
+    elec/src/*.ato physical-component instantiations, matches by normalized designator, and reports
+    costed-with-no-circuit, wired-but-uncosted, and same-designator-different-MPN findings. Heuristic
+    string-identity matching (documented limitation, no built netlist involved); see the module docstring.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: check_copper_net_consistency.py
   purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
   owner: bennet
