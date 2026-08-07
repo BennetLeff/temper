@@ -10,11 +10,19 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
-geo = "0.28"
+geo = { version = "0.28", features = ["use-serde"] }
 # The pad-touch predicate calls temper-geometry's single-source-of-truth
 # `point_to_rotated_rect_distance` — the same function the Python arm
 # delegates to (see deterministic_connectivity.rs).
-temper-geometry = { path = "../temper-geometry" }
+# temper-geometry reference in this crate is exclusively Rust-level:
+# `deterministic_connectivity.rs:21` (drc_constraints_geometry), which lives
+# behind `#[cfg(feature = "python")]`.  The `--no-default-features` wasm32 build
+# therefore does not need temper-geometry at all: it is `optional = true` and
+# re-enabled under `python` (U1, wasm/u1-rung23-closing), and
+# `default-features = false` additionally prevents the transitive pyo3 pull
+# through temper-geometry's own `python` feature that would otherwise fail the
+# wasm32-unknown-unknown link step (U3, wasm/u3-ci-guard).
+temper-geometry = { path = "../temper-geometry", optional = true, default-features = false }
 # `thermal_relief._is_power_net` is a `re.compile(..., re.IGNORECASE)`
 # word-boundary search. Only `is_match` is used, so the automaton and
 # CPython's backtracker agree by construction (match *existence* is
@@ -27,7 +35,7 @@ thiserror = "1"
 
 [features]
 default = ["python"]
-python = ["dep:pyo3"]
+python = ["dep:pyo3", "dep:temper-geometry"]
 # Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
 # and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
 # call each test function by index.  Off by default; never enabled for the

@@ -77,6 +77,7 @@ use crate::host_math::{cos, sin};
 /// this as a named constant (rather than inlining `3.14159`) makes the
 /// deliberate-inexactness visible at every call site instead of reading as
 /// a typo.
+#[allow(clippy::approx_constant, reason = "deliberate CPython-parity approximation, not a typo")]
 const PY_PI_APPROX: f64 = 3.14159;
 
 /// `cols = max(1, int(sqrt(n)))`, `rows = ceil(n / cols)` -- shared by
@@ -451,6 +452,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::approx_constant, reason = "deliberate CPython-parity pin, not a typo")]
     fn test_circle_offsets_uses_hardcoded_pi_not_std_pi() {
         // Direct pin of the literal: angle for i=1,n=2 is 2*3.14159*1/2 = 3.14159.
         let pos = circle_offsets(2, 1.0);
