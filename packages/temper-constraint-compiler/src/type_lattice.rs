@@ -177,11 +177,10 @@ pub fn propagate_through_topology(
     let mut warnings = Vec::new();
 
     for &(net_a, net_b, ref channel_id) in skeleton_edges {
-        #[allow(clippy::collapsible_if)]
-        if let Some(indices) = existing_net_indices {
-            if !indices.contains(&net_a) || !indices.contains(&net_b) {
-                continue;
-            }
+        if let Some(indices) = existing_net_indices
+            && (!indices.contains(&net_a) || !indices.contains(&net_b))
+        {
+            continue;
         }
 
         let class_a = match net_class_map.get(&net_a) {
