@@ -55,6 +55,11 @@ exclude = [
     # every `uv run`/`uv sync` fails with "Workspace member is missing a
     # pyproject.toml" and the pyo3 extension gate cannot run.
     "packages/temper-wasm-test-runner",
+    # Cloudflare Worker scaffold (#897): JavaScript only — index.js +
+    # wrangler.toml, deployed through wrangler, never installed by uv.
+    # Same failure mode as the wasm crate above: without the exclusion
+    # `uv sync --all-packages` exits 2 on every job in every workflow.
+    "packages/temper-worker",
 ]
 
 [tool.uv.sources]
