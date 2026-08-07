@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import logging
 
-import numpy as np
+import temper_drc_rs as _temper_drc_rs
 
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import ParsedPCB
@@ -85,59 +85,19 @@ def _compute_conflict_clusters(
     ``overlap_threshold`` of the smaller net's area.
 
     Returns a list of clusters, where each cluster is a list of net names.
+
+    Wave 4: delegates to ``temper_drc_rs`` (the O(n^2) conflict-graph
+    kernel). Cluster/within-cluster element order is NOT guaranteed to
+    match a from-scratch Python re-implementation bit-for-bit -- the
+    original algorithm's own within-cluster traversal order depended on
+    CPython's salted ``set`` iteration, which was never reproducible
+    across processes to begin with. Cluster count and membership are
+    unaffected. See ``resource_bound.rs``'s module doc for the full
+    reasoning.
     """
-    nets = list(bboxes.keys())
-
-    if len(nets) <= 1:
-        return [nets] if nets else []
-
-    # Compute per-net areas
-    areas: dict[str, float] = {}
-    for n, (x1, y1, x2, y2) in bboxes.items():
-        areas[n] = max((x2 - x1) * (y2 - y1), 0.0)
-
-    # Build conflict graph
-    conflict: dict[str, set[str]] = {n: set() for n in nets}
-    for i in range(len(nets)):
-        a = nets[i]
-        ax1, ay1, ax2, ay2 = bboxes[a]
-        area_a = areas[a]
-        if area_a <= 0:
-            continue
-        for j in range(i + 1, len(nets)):
-            b = nets[j]
-            bx1, by1, bx2, by2 = bboxes[b]
-            area_b = areas[b]
-            if area_b <= 0:
-                continue
-            ox = max(0.0, min(ax2, bx2) - max(ax1, bx1))
-            oy = max(0.0, min(ay2, by2) - max(ay1, by1))
-            overlap = ox * oy
-            min_area = min(area_a, area_b)
-            if min_area > 0 and overlap / min_area > overlap_threshold:
-                conflict[a].add(b)
-                conflict[b].add(a)
-
-    # BFS to find connected components
-    visited: set[str] = set()
-    clusters: list[list[str]] = []
-    for net in nets:
-        if net in visited:
-            continue
-        queue = [net]
-        cluster: list[str] = []
-        while queue:
-            n = queue.pop()
-            if n in visited:
-                continue
-            visited.add(n)
-            cluster.append(n)
-            for neighbor in conflict[n]:
-                if neighbor not in visited:
-                    queue.append(neighbor)
-        clusters.append(cluster)
-
-    return clusters
+    net_names = list(bboxes.keys())
+    bbox_values = [bboxes[n] for n in net_names]
+    return _temper_drc_rs.resource_bound_conflict_clusters_py(net_names, bbox_values, overlap_threshold)
 
 
 def _cluster_union_bbox(
@@ -147,14 +107,12 @@ def _cluster_union_bbox(
     """Compute the union bounding box of all nets in a cluster.
 
     Returns (min_x, min_y, max_x, max_y) in mm.
+
+    Wave 4: delegates to ``temper_drc_rs``.
     """
-    if not cluster:
-        return (0.0, 0.0, 0.0, 0.0)
-    x1 = min(bboxes[n][0] for n in cluster)
-    y1 = min(bboxes[n][1] for n in cluster)
-    x2 = max(bboxes[n][2] for n in cluster)
-    y2 = max(bboxes[n][3] for n in cluster)
-    return (x1, y1, x2, y2)
+    net_names = list(bboxes.keys())
+    bbox_values = [bboxes[n] for n in net_names]
+    return _temper_drc_rs.resource_bound_cluster_union_bbox_py(list(cluster), net_names, bbox_values)
 
 
 def _capacity_in_bbox(
@@ -165,6 +123,12 @@ def _capacity_in_bbox(
 
     Sums the area of all free cells (grid value == 0) that fall within
     the world-coordinate bounding box.
+
+    Wave 4: ``world_to_grid`` conversion, clamping, and the degenerate-
+    region check stay here (widely-used general-purpose grid arithmetic,
+    called only twice per invocation -- see ``resource_bound.rs``'s module
+    doc); the ``np.sum(region == 0)`` reduction over the sliced region
+    delegates to ``temper_drc_rs``.
     """
     min_x, min_y, max_x, max_y = bbox
 
@@ -187,10 +151,8 @@ def _capacity_in_bbox(
         return 0.0
 
     region = grid.grid[gy1 : gy2 + 1, gx1 : gx2 + 1]
-    free_cells = int(np.sum(region == 0))
-    cell_area = grid.cell_size * grid.cell_size
-
-    return free_cells * cell_area
+    region_flat = [int(v) for v in region.flatten().tolist()]
+    return _temper_drc_rs.resource_bound_capacity_in_bbox_py(region_flat, grid.cell_size)
 
 
 def _compute_fill_factor(
@@ -206,15 +168,11 @@ def _compute_fill_factor(
         fill_factor = trace_width / sqrt(avg_bbox_area)
 
     clamped to [0.01, 1.0].
+
+    Wave 4: delegates to ``temper_drc_rs`` (the ``sqrt``/``np.clip`` NaN
+    trap -- see ``resource_bound.rs``'s module doc).
     """
-    if not bbox_areas:
-        return 0.5
-    avg_area = sum(bbox_areas.values()) / len(bbox_areas)
-    if avg_area <= 0:
-        return 0.5
-    sqrt_area = float(np.sqrt(avg_area))
-    ff = trace_width / sqrt_area
-    return float(np.clip(ff, 0.01, 1.0))
+    return _temper_drc_rs.resource_bound_compute_fill_factor_py(trace_width, list(bbox_areas.values()))
 
 
 def max_routable_nets(
