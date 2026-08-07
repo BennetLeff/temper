@@ -28,13 +28,15 @@ status: draft
   Phases 2–4.
 - **Open blockers:** Four, none of which reopen D3 but all of which gate Phase 1
   units.
-  1. **The wasm32 build is broken on `origin/main`.** A stray
-     `#[cfg(feature = "python")]` gate on `wasm_test_registry` landed in commit
-     `13aee32b7` (PR #751, "DO NOT MERGE") and makes the module unreachable
-     under the documented build command. Diagnosed and recorded in
-     `docs/evidence/2026-08-06-wasm32-float-divergence.md` §7. Fix is one line
-     in `packages/temper-drc-rs/src/lib.rs`; the tier does not build without it,
-     so it is U0, not optional.
+   1. **The wasm32 build is broken on `origin/main` (verified `af5aa02c8`).** The
+      documented build command fails in a pyo3 cross-compile
+      (`PYO3_CROSS_PYTHON_VERSION ... must be specified when cross-compiling`).
+      The cause is the **transitive pyo3 pull through the non-optional
+      `temper-geometry` dependency** — issue #872, not the `wasm_test_registry`
+      gate (that regression from `13aee32b7` was fixed by #819 and is correct at
+      HEAD). The fix is already written in the open Phase 0 PRs: #879 makes
+      `temper-geometry` optional, #880 gates `copper_reach.rs`'s pyo3 and adds
+      the CI guard. So U0 is a merge-order prerequisite, not new code.
   2. **Routing data absent from the `BoardState` bridge (issue #873).** The
      `board_py_bridge` does not emit traces, vias, or zones, so routing-family
      tests execute against an empty board. This bounds what routing-family test
@@ -92,29 +94,36 @@ artifacts, not claims:
 - **Phase 0 verdict.** R1 PASS, R2 PASS (2.94 MiB RSS, 1.51 ms whole-pass
   median, 42× below the 128 MiB limit), R3 BLOCKED-UPSTREAM. D3 STANDS.
 
-### What is broken — the one-line gate
+### What is broken — the transitive pyo3 pull (verified, not assumed)
 
-`packages/temper-drc-rs/src/lib.rs` lines 41-43 (as of `af5aa02c8`):
+At `af5aa02c8` the `wasm_test_registry` gate in
+`packages/temper-drc-rs/src/lib.rs` is CORRECT (a single
+`#[cfg(feature = "wasm-test-registry")]`); the `13aee32b7` regression was
+fixed by #819. The build failure is elsewhere. Verified 2026-08-07:
 
-```rust
-#[cfg(feature = "python")]
-#[cfg(feature = "wasm-test-registry")]
-pub mod wasm_test_registry;
+```text
+$ cargo build --release --target wasm32-unknown-unknown --no-default-features \
+    --manifest-path packages/temper-wasm-test-runner/Cargo.toml
+error: PYO3_CROSS_PYTHON_VERSION or either an abi3-py3* or abi3t-py3* feature
+must be specified when cross-compiling and PYO3_CROSS_LIB_DIR is not set.
 ```
 
-Both `cfg`s must be true simultaneously for the module to exist.
-`temper-wasm-test-runner` depends on `temper-drc-rs` with
-`default-features = false, features = ["wasm-test-registry"]` — `python` is
-never on. There is no configuration that satisfies both: enabling `python` for a
-`wasm32-unknown-unknown` cross build fails because `pyo3`'s
-`extension-module` feature rejects `wasm32` cross-compilation.
+Root cause: `temper-drc-rs` depends on `temper-geometry` (non-optional, default
+features) for `deterministic_connectivity.rs`, and temper-geometry's default
+`python` feature drags pyo3 into the wasm32 dependency graph. pyo3 cannot
+cross-compile to `wasm32-unknown-unknown`. This is the feature-unification
+problem recorded as issue **#872**.
 
-`git blame` traces the stray line to commit `13aee32b7` ("DO NOT MERGE" in its
-own title, PR #751). PR #800's commits (`2259f8598`, `97dd0fc13`) had the gate
-correct (`#[cfg(feature = "wasm-test-registry")]` alone). The documented build
-command in the Phase 0 plan has not produced a valid `.wasm` artifact for any
-commit since.
+The fix already exists in the open Phase 0 PRs and needs no new code here:
+- **#879** (U1) makes `temper-geometry` `optional = true` in
+  `temper-drc-rs/Cargo.toml`, re-enabled under `python` — geometry leaves the
+  wasm32 graph entirely.
+- **#880** (U3) gates `copper_reach.rs`'s un-`cfg`'d pyo3 (real regression
+  from #863) and adds the CI guard (U3) that turns this failure into a red
+  gate instead of a silent one.
 
+U0 is therefore a merge-order prerequisite (land #874/#875/#876/#879/#880/#882,
+re-verify), not a one-line source edit.
 ### What does not exist yet
 
 - **No other crate has a `wasm-test-registry`.** `temper-geometry`,
@@ -163,38 +172,53 @@ the Cloudflare-account blocker.
 
 ---
 
-### Track A — Prerequisite: fix the build
+### Track A — Prerequisite: land the Phase 0 substrate fixes
 
-#### U0. Remove the stray `#[cfg(feature = "python")]` gate
+#### U0. Land the Phase 0 substrate fixes and re-verify the wasm32 build
 
 **Goal.** Make the documented build command produce a `.wasm` artifact again.
 
-**Why.** The tier does not build on `origin/main`. The fix is one line; every
-other Phase 1 unit depends on it.
+**Why.** The tier does not build on `origin/main` today, verified at
+`af5aa02c8` (2026-08-07): `cargo build --release --target
+wasm32-unknown-unknown --no-default-features -p temper-wasm-test-runner`
+fails in a pyo3 build script with `PYO3_CROSS_PYTHON_VERSION ... must be
+specified when cross-compiling`. **The cause is NOT a stray gate on
+`wasm_test_registry`** — that regression (commit `13aee32b7`, "DO NOT MERGE",
+merged anyway) was fixed by `#819`, and the single
+`#[cfg(feature = "wasm-test-registry")]` gate is correct at HEAD. The real
+cause is the **transitive pyo3 pull through the non-optional
+`temper-geometry` dependency** — the feature-unification problem tracked as
+issue **#872**. On current main, temper-drc-rs depends on temper-geometry
+without `optional`/`default-features = false`, so geometry's default `python`
+feature drags pyo3 into the wasm32 build and fails the cross-compile.
 
-**What changes.** `packages/temper-drc-rs/src/lib.rs`: remove line 41
-(`#[cfg(feature = "python")]`), leaving only
-`#[cfg(feature = "wasm-test-registry")]` as the gate for `pub mod wasm_test_registry;`.
-No other source change. No feature-graph change. No API change.
+**What changes.** Nothing new to write. This unit is a **merge-order
+prerequisite**: land the open Phase 0 PRs, which already fix the failure
+class end-to-end:
+- **#879** (U1): makes `temper-geometry` `optional = true` in
+  `temper-drc-rs/Cargo.toml`, re-enabled under `python` — removes geometry
+  (and pyo3/getrandom) from the wasm32 graph entirely. This is the fix for
+  #872.
+- **#880** (U3): adds the missing `#[cfg(feature = "python")]` gates to
+  `temper-geometry/src/copper_reach.rs` (real regression from #863) plus the
+  other `--no-default-features` clippy fixes, and the CI guard that keeps the
+  build green.
 
-**Risks.** The stray line was added in a commit whose own title says "DO NOT
-MERGE." Verify that no module behind `wasm_test_registry` actually *requires*
-the `python` feature — it doesn't (the registry explicitly lists only modules
-that survive `--no-default-features`). The `wasm-test-registry` feature is
-independent by construction: it only activates `#[cfg(any(test, feature =
-"wasm-test-registry"))]` on test modules, which are already compilable without
-`python` (the whole point of the Phase 0 `--no-default-features` work).
+If, after landing #874/#875/#876/#879/#880/#882, the build still fails, THEN
+investigate as a genuine U0 defect per the R1 FAIL classification in the Phase
+0 plan (§2) — do not work around it.
 
 **Verification / evidence that closes U0**
-1. `cd packages/temper-wasm-test-runner && cargo build --release --target
-   wasm32-unknown-unknown` exits 0 and produces a `.wasm` artifact.
+1. On a merged main: `cargo build --release --target wasm32-unknown-unknown
+   --no-default-features -p temper-wasm-test-runner` exits 0 and produces a
+   `.wasm` artifact (the U1 rung-2 baseline: 1,183,886 bytes).
 2. `tools/wasm/run_wasm_tests.mjs` against that artifact reports
    `registered == executed >= 90` (the Phase 0 baseline: 94–95 tests).
-3. `tools/wasm/run_r1_smoke.py` (from the `wasm/u1-rung23-closing` branch, or
-   the equivalent wasmtime invocation) shows zero unexpected failures.
-4. A deliberate re-addition of the stray `#[cfg(feature = "python")]` line turns
-   the build red — demonstrating the gate is not vacuous. (Commit, verify,
-   revert — do not land the re-addition.)
+3. `tools/wasm/run_r1_smoke.py` (from `wasm/u1-rung23-closing`, or the
+   equivalent wasmtime invocation) shows zero unexpected failures.
+4. The CI guard from #880 is green on the PR that merges it — and its
+   anti-vacuity demonstration (planted break → red) is already recorded in
+   `docs/evidence/2026-08-05-r3-wasm-ci-guard.md`.
 
 **Blocks:** U1, U2, U3, U4, U5, U6, U7, U8, U9.
 
