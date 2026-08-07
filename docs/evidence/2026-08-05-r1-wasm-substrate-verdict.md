@@ -1,3 +1,5 @@
+<!-- provenance: commit=00ec5f94a dirty=false -->
+
 # R1 WASM Substrate — Verdict-in-progress
 
 **Date:** 2026-08-07
