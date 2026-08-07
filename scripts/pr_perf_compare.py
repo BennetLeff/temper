@@ -187,10 +187,16 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
         "fixed-commit excursion 32.5% -> margin 66%, above the 33.8% max "
         "gateable margin",
     ("board-netlist", "contracts_construction"):
-        "fixed-commit excursion 30.9% -> margin 62%, above the 33.8% max "
+        "fixed-commit excursion 44.8% -> margin 90%, above the 33.8% max "
         "gateable margin",
     ("drc-geometry", "point_rect"):
         "fixed-commit excursion 26.0% -> margin 53%, above the 33.8% max "
+        "gateable margin",
+    ("drc-inflate", "drc_proxy_score"):
+        "fixed-commit excursion 32.0% -> margin 64%, above the 33.8% max "
+        "gateable margin",
+    ("drc-inflate", "smooth_relu_array"):
+        "fixed-commit excursion 36.8% -> margin 74%, above the 33.8% max "
         "gateable margin",
     ("physics-heat_removal", "build_h_field"):
         "fixed-commit excursion 24.4% -> margin 49%, above the 33.8% max "
