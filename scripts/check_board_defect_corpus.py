@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Board-defect mutation corpus runner (plan 2026-08-02-024, R38).
 
-For each of the three real defect classes (component off-board, pad short,
-creepage crossing) this runner:
+For each defect class (component off-board, pad short, creepage crossing,
+plain copper clearance, courtyard overlap -- the last two added 2026-08-07;
+see ``docs/evidence/2026-08-07-clearance-courtyard-corpus-coverage.md`` for
+why ``clearance``/``courtyards_overlap`` were VACUOUS gates before this
+change and how the new classes close that) this runner:
 
   1. re-derives a mutated copy of the committed ``pcb/temper.kicad_pcb``
      from the seed manifest (``scripts/board_defect_corpus.yaml``) via
@@ -53,6 +56,33 @@ measurement. The REQ-SAFE-01 creepage gate is RED on main today, so it is
 excluded from the clean-board anti-vacuity control and asserted against the
 clean measurement as its documented known-finding baseline -- see
 ``scripts/board_defect_corpus.yaml`` ``classes.creepage.baseline_note``.
+
+  * ``clearance`` and ``courtyard`` (added 2026-08-07) are identity-based
+    from the start, for the same reason ``pad-short`` had to become
+    identity-based: ``clearance`` is this repo's OWN documented
+    nondeterministic DRC category (AGENTS.md's DRC-ceiling section requires
+    >=120 samples for it precisely because it moves on a byte-identical
+    board), so a raw count-delta on it would repeat the exact defect this
+    module was fixed to stop having. ``clearance`` asserts that some DRC
+    error names both a specific pad of the seeded ref AND a specific pad of
+    a fixed anchor ref (:func:`errors_naming_two_pads` -- the two-footprint
+    generalization of ``pad-short``'s same-footprint check). ``courtyard``
+    asserts that some DRC error names both the seeded ref and a fixed
+    anchor ref (:func:`errors_naming_both_refs` -- courtyard violations are
+    footprint-level, "Footprint X", not pad-level). Measured over 120
+    repeated runs of each byte-identical mutated board: the identity signal
+    is exactly 2/0 (clearance) and 1/0 (courtyard) respectively (mutated
+    vs clean) with ZERO variance, even though the underlying category
+    totals in principle carry the same allocation-address-ordering
+    nondeterminism ``_drc_api.py`` documents for ``clearance``. See
+    ``docs/evidence/2026-08-07-clearance-courtyard-corpus-coverage.md`` for
+    the full sample data and why ``courtyards_overlap`` -- which the
+    2026-08-04 evidence measured NOT to discriminate the ``off-board`` seed
+    (11 -> 11, unchanged) -- discriminates the new ``courtyard`` seed
+    cleanly: that mutation computes its target position FROM the two
+    footprints' own courtyard geometry, so the overlap is a deterministic
+    property of the seed rather than an accident of unrelated placement
+    geometry.
 
 The clean-board anti-vacuity control covers the DRC gate categories that
 are GREEN on the committed board (``courtyards_overlap`` /
@@ -223,6 +253,43 @@ def errors_naming_pad_pair(
     return found
 
 
+def errors_naming_two_pads(
+    errors: list[Any], ref_a: str, pad_a: str, ref_b: str, pad_b: str
+) -> list[str]:
+    """DRC errors that name *pad_a* of *ref_a* AND *pad_b* of *ref_b* --
+    the same identity signal as :func:`errors_naming_pad_pair`, generalized
+    to two DIFFERENT footprints. This is the ``clearance`` class's failure
+    signal: the mutator compresses the gap between one pad of each
+    footprint below the required net-class clearance, and a violation
+    naming both of those exact pads cannot be produced by unrelated board
+    drift, unlike a category count.
+    """
+    found: list[str] = []
+    for error in errors:
+        items = getattr(error, "items", None) or []
+        if any(item_names_pad(i, ref_a, pad_a) for i in items) and any(
+            item_names_pad(i, ref_b, pad_b) for i in items
+        ):
+            found.append(f"{error.rule}: {error.message}")
+    return found
+
+
+def errors_naming_both_refs(errors: list[Any], ref_a: str, ref_b: str) -> list[str]:
+    """DRC errors whose (deduped) ``components`` name BOTH *ref_a* and
+    *ref_b* -- the ``courtyard`` class's failure signal. Courtyard items are
+    footprint-level ("Footprint R48"), not pad-level, so this checks
+    ``error.components`` (already extracted by ``_drc_api._parse_drc_json``
+    from each item's description) rather than the pad-number regex
+    :func:`item_names_pad` uses.
+    """
+    found: list[str] = []
+    for error in errors:
+        components = getattr(error, "components", None) or []
+        if ref_a in components and ref_b in components:
+            found.append(f"{error.rule}: {error.message}")
+    return found
+
+
 def measure_containment(pcb_path: Path) -> set[str]:
     """Reference designators with copper outside the board outline, via the
     R26 containment gate (``scripts/check_board_containment.py``) -- the
@@ -294,6 +361,10 @@ class ClassMeasurement:
     mutated_pair_errors: list[str] = field(default_factory=list)
     clean_creepage: int | None = None
     mutated_creepage: int | None = None
+    clean_cross_pair_errors: list[str] = field(default_factory=list)
+    mutated_cross_pair_errors: list[str] = field(default_factory=list)
+    clean_courtyard_pair_errors: list[str] = field(default_factory=list)
+    mutated_courtyard_pair_errors: list[str] = field(default_factory=list)
 
 
 def evaluate_class(
@@ -408,6 +479,81 @@ def evaluate_class(
             message=(
                 f"{class_name}: uncovered class -- DC_BUS<->LV_CONTROL "
                 f"creepage did not rise ({clean_creepage} -> {mutated_creepage})"
+            ),
+        )
+    if mutation == "clearance":
+        ref_a = measurement.params.get("ref", "<no ref>")
+        pad_a = measurement.params.get("pad", "<no pad>")
+        ref_b = measurement.params.get("anchor_ref", "<no anchor_ref>")
+        pad_b = measurement.params.get("anchor_pad", "<no anchor_pad>")
+        if measurement.clean_cross_pair_errors:
+            return ClassVerdict(
+                name=class_name,
+                ok=False,
+                message=(
+                    f"{class_name}: control violated -- {ref_a} pad {pad_a} "
+                    f"and {ref_b} pad {pad_b} are ALREADY in violation "
+                    f"together on the CLEAN board "
+                    f"({measurement.clean_cross_pair_errors[0]}), so the "
+                    "mutated board proves nothing. Re-seed this class onto a "
+                    "pad pair that starts clean."
+                ),
+            )
+        if measurement.mutated_cross_pair_errors:
+            return ClassVerdict(
+                name=class_name,
+                ok=True,
+                message=(
+                    f"{class_name}: owning gate kicad-drc fired: "
+                    f"{len(measurement.mutated_cross_pair_errors)} DRC "
+                    f"error(s) name both {ref_a} pad {pad_a} and {ref_b} pad "
+                    f"{pad_b} on the mutated board and none on the clean "
+                    f"board [{'; '.join(measurement.mutated_cross_pair_errors[:3])}]"
+                ),
+            )
+        return ClassVerdict(
+            name=class_name,
+            ok=False,
+            message=(
+                f"{class_name}: uncovered class -- no DRC error names both "
+                f"{ref_a} pad {pad_a} and {ref_b} pad {pad_b} on the mutated "
+                "board"
+            ),
+        )
+    if mutation == "courtyard":
+        ref_a = measurement.params.get("ref", "<no ref>")
+        ref_b = measurement.params.get("anchor_ref", "<no anchor_ref>")
+        if measurement.clean_courtyard_pair_errors:
+            return ClassVerdict(
+                name=class_name,
+                ok=False,
+                message=(
+                    f"{class_name}: control violated -- {ref_a} and {ref_b} "
+                    "ALREADY have overlapping courtyards on the CLEAN board "
+                    f"({measurement.clean_courtyard_pair_errors[0]}), so the "
+                    "mutated board proves nothing. Re-seed this class onto a "
+                    "pair whose courtyards start clear."
+                ),
+            )
+        if measurement.mutated_courtyard_pair_errors:
+            return ClassVerdict(
+                name=class_name,
+                ok=True,
+                message=(
+                    f"{class_name}: owning gate kicad-drc "
+                    "(courtyards_overlap) fired: "
+                    f"{len(measurement.mutated_courtyard_pair_errors)} DRC "
+                    f"error(s) name both {ref_a} and {ref_b} on the mutated "
+                    "board and none on the clean board "
+                    f"[{'; '.join(measurement.mutated_courtyard_pair_errors[:3])}]"
+                ),
+            )
+        return ClassVerdict(
+            name=class_name,
+            ok=False,
+            message=(
+                f"{class_name}: uncovered class -- no DRC error names both "
+                f"{ref_a} and {ref_b} on the mutated board"
             ),
         )
     raise GateError(f"manifest class {class_name!r} has unknown mutation {mutation!r}")
@@ -589,6 +735,23 @@ def run_corpus(
             )
             measurement.mutated_pair_errors = errors_naming_pad_pair(
                 measure_drc(out_path, dru_path), ref, pad_a, pad_b
+            )
+        elif mutation == "clearance":
+            ref_a, pad_a = params["ref"], params["pad"]
+            ref_b, pad_b = params["anchor_ref"], params["anchor_pad"]
+            measurement.clean_cross_pair_errors = errors_naming_two_pads(
+                clean_errors, ref_a, pad_a, ref_b, pad_b
+            )
+            measurement.mutated_cross_pair_errors = errors_naming_two_pads(
+                measure_drc(out_path, dru_path), ref_a, pad_a, ref_b, pad_b
+            )
+        elif mutation == "courtyard":
+            ref_a, ref_b = params["ref"], params["anchor_ref"]
+            measurement.clean_courtyard_pair_errors = errors_naming_both_refs(
+                clean_errors, ref_a, ref_b
+            )
+            measurement.mutated_courtyard_pair_errors = errors_naming_both_refs(
+                measure_drc(out_path, dru_path), ref_a, ref_b
             )
         else:
             raise GateError(
