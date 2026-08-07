@@ -268,16 +268,135 @@ def test_compute_channel_widths_multipolygon_batch_matches_per_point() -> None:
 
 
 # ---------------------------------------------------------------------------
-# KTD8 spike verdict (2026-07-31): the `edt` crate was evaluated as a
-# scipy.distance_transform_edt replacement and REJECTED — its distance
-# field diverges from scipy's Euclidean transform (max diff 2.0-2.236 on
+# KTD8 history: the third-party `edt` crate (2026-07-31) was evaluated as a
+# scipy.distance_transform_edt replacement and REJECTED -- its distance
+# field diverged from scipy's Euclidean transform (max diff 2.0-2.236 on
 # random masks even with a False-border padding workaround and transposed
-# layout handling; the crate hardcodes a grid-edge clamp and other
-# semantic differences). scipy's transform stays (it is C-speed and was
-# never the hot loop); a Rust-native exact EDT remains the KTD8 fallback
-# for a follow-up. The migration win delivered by U4 is the batched width
-# lookup, not the transform.
+# layout handling; the crate hardcoded a grid-edge clamp and other semantic
+# differences). That rejection was of the third-party crate, not of a
+# Rust-native EDT in general. A follow-up spike (2026-08-07, see
+# docs/evidence/2026-08-07-exact-edt-rust-spike.md) implemented an exact
+# Felzenszwalb-Huttenlocher sweep in `packages/temper-geometry/src/edt.rs`
+# and measured bit-exact agreement with scipy (0.0 max abs diff over
+# 7.4M+ cells). `_build_edt` (below, via `_exact_edt`) now delegates to it;
+# `_scipy_edt` in this file pins the pre-migration scipy call as the
+# differential's oracle (R19). U4's migration win was the batched width
+# lookup; this later migration is the transform itself.
 # ---------------------------------------------------------------------------
+
+
+def _scipy_edt(mask: np.ndarray) -> np.ndarray:
+    """Pre-migration oracle, pinned verbatim (R19): this is exactly what
+    ``_build_edt`` called before the Rust EDT migration -- ``mask`` cast to
+    ``uint8``, no ``sampling``, no ``return_indices``."""
+    from scipy.ndimage import distance_transform_edt
+
+    return distance_transform_edt(mask.astype(np.uint8))
+
+
+def _curated_edt_masks() -> list[np.ndarray]:
+    """Masks spanning the categories from the KTD8 spike corpus, restricted
+    to reachable inputs (>= 1 background cell -- see
+    test_rasterize_boundary_mask_always_has_background_cell below for why
+    that restriction models this module's actual call site)."""
+    cases: list[np.ndarray] = []
+    cases.append(np.zeros((10, 10), dtype=bool))  # all background
+    single = np.ones((12, 9), dtype=bool)
+    single[0, 0] = False
+    cases.append(single)  # single seed, corner
+    corner = np.ones((8, 8), dtype=bool)
+    corner[4, 4] = False
+    cases.append(corner)  # single seed, center
+    for h, w in [(5, 5), (4, 60), (60, 4), (30, 30), (7, 23), (1, 9), (9, 1)]:
+        rng = np.random.default_rng(hash((h, w)) & 0xFFFFFFFF)
+        for density in (0.02, 0.1, 0.3, 0.5, 0.7, 0.95, 0.98):
+            mask = rng.random((h, w)) > density
+            mask[0, 0] = False  # guarantee >= 1 background cell
+            cases.append(mask)
+    return cases
+
+
+def test_exact_edt_matches_scipy_bit_exact_curated() -> None:
+    """`_exact_edt` (Rust FH sweep) vs `_scipy_edt` (pinned oracle):
+    bit-exact agreement on every reachable-shape case in the curated
+    corpus, mirroring the KTD8 spike's own differential."""
+    from temper_placer.router_v6.channel_widths import _exact_edt
+
+    for mask in _curated_edt_masks():
+        got = _exact_edt(mask)
+        want = _scipy_edt(mask)
+        assert got.dtype == np.float64
+        assert np.array_equal(got, want), f"mismatch on shape {mask.shape}"
+
+
+def test_exact_edt_matches_scipy_bit_exact_random() -> None:
+    """300 random trials (grid dims, density varied): bit-exact agreement,
+    restricted to reachable (>= 1 background cell) inputs."""
+    from temper_placer.router_v6.channel_widths import _exact_edt
+
+    rng = np.random.default_rng(42)
+    for _ in range(300):
+        h = int(rng.integers(2, 120))
+        w = int(rng.integers(2, 120))
+        density = rng.choice([0.02, 0.1, 0.3, 0.5, 0.7, 0.95, 0.98])
+        mask = rng.random((h, w)) > density
+        mask[0, 0] = False
+        got = _exact_edt(mask)
+        want = _scipy_edt(mask)
+        assert np.array_equal(got, want), f"mismatch at shape ({h},{w}) density={density}"
+
+
+def test_build_edt_end_to_end_matches_scipy_oracle() -> None:
+    """`_build_edt` (the real call site, uncached) matches an independent
+    scipy rebuild of the same rasterized mask, end to end."""
+    from temper_placer.router_v6.channel_widths import (
+        _build_edt,
+        _rasterize_boundary_mask,
+    )
+
+    geom = MultiPolygon([box(0, 0, 20, 15), box(30, 5, 45, 25)])
+    routing_space = _routing_space(geom)
+    edt, mask, bounds = _build_edt(routing_space, 1.0, use_cache=False)
+
+    expected_mask = _rasterize_boundary_mask(routing_space.available_area, bounds, 1.0)
+    expected_edt = _scipy_edt(expected_mask)
+
+    np.testing.assert_array_equal(mask, expected_mask)
+    np.testing.assert_array_equal(edt, expected_edt)
+
+
+def test_rasterize_boundary_mask_always_has_background_cell() -> None:
+    """All-foreground reachability check (KTD8 spike section 4 divergence):
+    `_exact_edt` returns +inf everywhere on an all-foreground mask (no
+    background cell anywhere), while scipy returns a finite C-implementation
+    artifact -- a real behavioral difference IF this call site could ever
+    produce an all-foreground mask.
+
+    It cannot, by construction: `xs`/`ys` in `_rasterize_boundary_mask`
+    start exactly at `bounds`' own (min_x, min_y) -- the geometry's own
+    bounding-box corner. A bounding box's minimum corner can never be
+    strictly interior to the geometry it bounds (if it were, the geometry
+    would have to extend past that corner in the direction that made the
+    box tight, contradicting minimality), so `shapely.contains_xy` is
+    always False there and cell (0, 0) of the mask is always background.
+    This test verifies that reasoning empirically across varied geometries,
+    including ones designed to stress it (rectangle exactly filling its own
+    bounds, multi-part geometry, geometry touching the bounds on one edge
+    only).
+    """
+    from temper_placer.router_v6.channel_widths import _rasterize_boundary_mask
+
+    geoms = [
+        MultiPolygon([box(0, 0, 10, 10)]),  # exactly fills its own bbox
+        MultiPolygon([box(0, 0, 10, 10), box(20, 0, 30, 10)]),  # multi-part
+        MultiPolygon([box(0, 0, 5, 5), box(0, 8, 5, 13)]),  # touches one edge only
+        MultiPolygon([box(-5, -5, 5, 5)]),  # negative-coordinate bounds
+    ]
+    for geom in geoms:
+        bounds = geom.bounds
+        mask = _rasterize_boundary_mask(geom, bounds, 1.0)
+        assert not mask.all(), f"all-foreground mask reachable for geom bounds={bounds}"
+        assert not mask[0, 0], "bounding-box min corner must be background"
 
 
 def test_compute_channel_widths_empty_space_still_empty() -> None:

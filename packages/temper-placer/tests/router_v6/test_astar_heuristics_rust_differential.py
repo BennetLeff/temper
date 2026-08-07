@@ -30,7 +30,13 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from temper_placer.router_v6._astar_heuristics import (
+    _build_edt_from_grid,
+    compute_demand_budget,
+    min_edt_along_line,
+)
 from temper_placer.router_v6.astar_pathfinding import _compute_bottleneck_widths
+from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 # ---------------------------------------------------------------------------
 # Oracle: the pre-migration per-point EDT width lookup, pinned verbatim.
@@ -265,3 +271,109 @@ def test_bottleneck_widths_uses_single_batch_call(monkeypatch) -> None:
     assert bw["b"] == float("inf")
     assert bw["c"] == float("inf")
     assert bw["a"] == min(original(np.asarray(xs), np.asarray(ys), edt, mask, bounds, 1.0))
+
+
+# ---------------------------------------------------------------------------
+# EDT migration (KTD8): ``_build_edt_from_grid``'s ``_exact_edt`` (Rust FH
+# sweep, via temper_geometry) vs ``scipy.ndimage.distance_transform_edt``,
+# the pre-migration oracle pinned here per R19. See
+# docs/evidence/2026-08-07-exact-edt-rust-spike.md.
+# ---------------------------------------------------------------------------
+
+
+def _scipy_build_edt_from_grid(grid: OccupancyGrid):
+    """Pre-migration oracle, pinned verbatim (R19): this is exactly what
+    ``_build_edt_from_grid`` computed before the Rust EDT migration."""
+    from scipy.ndimage import distance_transform_edt
+
+    mask = (grid.grid == 0).astype(np.uint8)
+    edt = distance_transform_edt(mask)
+    min_x, min_y = grid.origin
+    max_x = min_x + grid.width_cells * grid.cell_size
+    max_y = min_y + grid.height_cells * grid.cell_size
+    return edt, (min_x, min_y, max_x, max_y), grid.cell_size
+
+
+def test_build_edt_from_grid_matches_scipy_oracle_bit_exact() -> None:
+    """50 randomized OccupancyGrids, each with >= 1 blocked cell (reachable,
+    finite-EDT inputs): ``_build_edt_from_grid`` is bit-exact vs the pinned
+    scipy oracle."""
+    rng = random.Random(20260807)
+    for _ in range(50):
+        h = rng.randint(3, 40)
+        w = rng.randint(3, 40)
+        grid_arr = np.zeros((h, w), dtype=np.int8)
+        n_blocked = rng.randint(1, max(1, (h * w) // 3))
+        for _ in range(n_blocked):
+            grid_arr[rng.randrange(h), rng.randrange(w)] = 1
+        grid = OccupancyGrid(
+            layer_name="F.Cu",
+            grid=grid_arr,
+            origin=(rng.uniform(-5.0, 5.0), rng.uniform(-5.0, 5.0)),
+            cell_size=rng.choice([0.1, 0.5, 1.0]),
+            width_cells=w,
+            height_cells=h,
+        )
+        got_edt, got_bounds, got_cell = _build_edt_from_grid(grid)
+        want_edt, want_bounds, want_cell = _scipy_build_edt_from_grid(grid)
+        np.testing.assert_array_equal(got_edt, want_edt)
+        assert got_bounds == want_bounds
+        assert got_cell == want_cell
+
+
+def test_build_edt_from_grid_all_free_grid_is_reachable_and_diverges() -> None:
+    """All-foreground reachability check (KTD8 spike section 4 divergence):
+    the spike claimed an all-foreground mask is unreachable by all three
+    consumers "by construction". That does NOT hold for
+    ``_build_edt_from_grid``: an all-free ``OccupancyGrid`` (no blocked
+    cell anywhere) produces exactly this input, and it IS constructed in
+    this repo -- ``test_budget_via_run_astar_pathfinding`` in
+    ``test_demand_budget_pbt.py`` builds
+    ``OccupancyGrid("F.Cu", np.zeros((30, 30), dtype=np.int8), ...)``.
+
+    Verified explicitly here rather than trusted: Rust returns +inf
+    everywhere, scipy returns a finite boundary artifact -- a real,
+    reachable divergence. It does not silently propagate downstream:
+    ``min_edt_along_line``'s ``if min_dist == float("inf")`` branch already
+    exists to handle an unbounded EDT and returns the documented
+    single-cell-width fallback.
+    """
+    grid = OccupancyGrid(
+        layer_name="F.Cu",
+        grid=np.zeros((30, 30), dtype=np.int8),
+        origin=(0.0, 0.0),
+        cell_size=1.0,
+        width_cells=30,
+        height_cells=30,
+    )
+    edt, bounds, cell_size = _build_edt_from_grid(grid)
+    assert np.all(np.isinf(edt)), "Rust EDT must be +inf everywhere on an all-free grid"
+
+    want_edt, _, _ = _scipy_build_edt_from_grid(grid)
+    assert np.all(np.isfinite(want_edt)), "scipy's boundary artifact is finite by construction"
+    assert not np.array_equal(edt, want_edt), "the two genuinely diverge on this reachable input"
+
+    # Downstream: the inf-fallback branch actually fires and returns the
+    # documented fallback, not a propagated inf/nan.
+    val = min_edt_along_line(edt, bounds, cell_size, (2.0, 2.0), (28.0, 28.0))
+    assert val == cell_size
+
+
+def test_compute_demand_budget_all_free_grid_stays_bounded() -> None:
+    """End-to-end: an all-free grid's budget computation stays in the
+    documented [1000, base_budget] range despite the raw EDT being +inf
+    everywhere (no NaN/inf propagation into the public output)."""
+    grid = OccupancyGrid(
+        layer_name="F.Cu",
+        grid=np.zeros((30, 30), dtype=np.int8),
+        origin=(0.0, 0.0),
+        cell_size=1.0,
+        width_cells=30,
+        height_cells=30,
+    )
+    edt, bounds, cell_size = _build_edt_from_grid(grid)
+    mapping = FakeChannelMapping(
+        {"n0": FakeChannelPath(net_name="n0", waypoints=[(2.0, 2.0), (28.0, 28.0)])}
+    )
+    budget = compute_demand_budget(edt, bounds, cell_size, mapping)
+    assert 1000 <= budget["n0"] <= 100000
