@@ -32,6 +32,7 @@ use crate::organizational_geometry::{
     circle_offsets_py, decoupling_candidate_positions_py, domain_grid_positions_py,
     module_grid_positions_py, power_flow_positions_py,
 };
+use crate::style_geometry::{radial_sector_positions_py, signal_chain_positions_py};
 use crate::clearance_geometry::{
     component_reach_py, copper_scan_py, origin_distance_py, pad_pair_distance_py,
     rotate_local_to_world_py,
@@ -1508,6 +1509,8 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(power_flow_positions_py, m)?)?;
     m.add_function(wrap_pyfunction!(decoupling_candidate_positions_py, m)?)?;
     m.add_function(wrap_pyfunction!(domain_grid_positions_py, m)?)?;
+    m.add_function(wrap_pyfunction!(radial_sector_positions_py, m)?)?;
+    m.add_function(wrap_pyfunction!(signal_chain_positions_py, m)?)?;
 
     // bottleneck geometry (Wave 3: min-cut bottleneck kernels)
     m.add_function(wrap_pyfunction!(cell_capacity_batch_py, m)?)?;

@@ -1,17 +1,77 @@
-"""
-Style placement heuristics.
+"""Pinned Python oracle for Wave-4 heuristics/ -- style.py.
 
-Style heuristics handle aesthetic and review-friendly placement:
-- Star ground topology
-- Signal flow preservation (left-to-right)
+DO NOT EDIT -- THIS IS THE REFERENCE.
+======================================
+Everything below the module docstring is a **verbatim** ``git show``
+extraction of commit ``550cab2a3a0fcfd4a6c29063d30d3a83837ebcb5``
+("docs(plans): board regeneration proposal for wasm-tier R3 (Q2) (#669)", the
+last commit that touched this file; ``origin/main`` at the time this
+migration was pulled remains at the same text -- see
+``test_oracle_is_verbatim_copy``, which re-extracts the pinned commit via
+``git show`` and compares byte-for-byte against everything in this file from
+``from __future__ import annotations`` onward) of
+``packages/temper-placer/src/temper_placer/heuristics/style.py``.
 
-These run at STYLE priority (lowest), after all functional constraints are satisfied.
+Nothing below the marker line has been cleaned up, refactored, reformatted,
+or fixed -- not even the module docstring the original file itself carried
+(dropped here only because *this* file needs its own, to record the pin).
+Any drift (a "helpful" fix, a reformat, a reordered import) fails
+``test_oracle_is_verbatim_copy`` instead of passing quietly.
+
+Why this file, not `structural.py`'s narrower per-function pin
+-----------------------------------------------------------------
+Same reasoning as `organizational.py`'s oracle
+(`_organizational_py_oracle.py`): `style.py` has no single standalone
+function like `structural.py`'s `create_keepout_mask`. Its two real compute
+sites (`_place_radially`, `_place_by_flow`) are private methods on two
+`Heuristic` subclasses, each reached only through that class's public
+`apply()`, which also calls this module's *classification* helpers
+(`identify_ground_domains`, `extract_signal_chains`, `_trace_signal_path`) --
+regex/keyword lookup tables and graph-walk bookkeeping, not compute (see the
+program's own "keyword lookup tables are NOT compute" rule), but load-bearing
+for `apply()` to run standalone here. Pinning the whole module, verbatim, is
+what lets the differential call each `XxxHeuristic().apply(context)` exactly
+as production does (proving the kernels through their real entry point, not
+a synthetic shim) without also re-implementing the classification helpers a
+second time in the oracle.
+
+Traps this pin exercises (see
+``packages/temper-geometry/src/style_geometry.rs``'s module doc for the
+Rust-side mirror of each)
+--------------------------------------------------------------------------
+* ``_place_radially``'s sector angles (``domain_angles``) are built from a
+  **hardcoded pi approximation**, ``3.14159 * 0.25`` etc -- not ``math.pi``.
+  Unlike `organizational.py`'s `circle_offsets`, the inexact constant is
+  folded into the dict *before* the Rust boundary, so `angle_start`/
+  `angle_end` arrive as plain floats already carrying the approximation.
+* ``_place_radially``'s ``t = i / (n - 1) if n > 1 else 0.5`` -- the same
+  interpolation shape as `organizational.py`'s kernels, but note ``n`` here
+  is re-derived as ``len(refs)`` *inside* the loop (constant across
+  iterations, just written redundantly).
+* ``_place_by_flow``'s ``max_pos = max(n.position for n in nodes) if nodes
+  else 1`` is computed from the chain's FULL node list, **before** the
+  per-node ``if node.ref in context.current_placements: continue`` /
+  ``if ... .fixed: continue`` skip-checks run. A naive port that filters
+  nodes first and computes `max_pos` from the filtered subset changes the
+  denominator whenever the skipped node held the chain's maximum position.
+* ``_place_by_flow``'s ``t = node.position / max_pos if max_pos > 0 else
+  0.5`` -- a single-node chain has ``position == 0``, so ``max_pos == 0``
+  and this hits the ``else`` branch (midpoint), not a division by zero.
+* ``extract_signal_chains``/``_trace_signal_path`` use a ``set`` (``visited``
+  / ``exclude``) only for **membership testing** (``ref not in exclude``),
+  never iterated for output order -- unlike `organizational.py`'s
+  `_find_highly_connected_groups`, there is no PYTHONHASHSEED-dependent
+  ordering to re-project through `order_refs_by_netlist` here, because
+  `input_connectors` and each net's `pins` are plain lists (netlist-order,
+  deterministic) throughout.
 """
 
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+
+import numpy as np
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -189,23 +249,7 @@ class StarGroundTopologyHeuristic(Heuristic):
         board: Board,
         context: PlacementContext,
     ) -> dict[str, ComponentPlacement]:
-        """Place components radially by ground domain.
-
-        The per-sector angle/radius math (interpolating ``t`` across each
-        domain's angular sector and radius range, then resolving to an
-        (x, y) via cos/sin) is delegated to
-        ``temper_geometry.radial_sector_positions_py`` -- see
-        ``packages/temper-geometry/src/style_geometry.rs``'s module doc for
-        the hardcoded-pi-approximation and host-libm-cos/sin notes. This
-        method keeps the public API and only extracts primitives (star
-        point, domain grouping, per-domain angle/radius bounds) and iterates
-        the result, which is orchestration, not compute. Pinned oracle:
-        ``packages/temper-placer/tests/heuristics/_style_py_oracle.py``;
-        differential:
-        ``packages/temper-placer/tests/heuristics/test_style_rust_differential.py``.
-        """
-        from temper_geometry import radial_sector_positions_py
-
+        """Place components radially by ground domain."""
         placements: dict[str, ComponentPlacement] = {}
         sx, sy = star_point
 
@@ -234,17 +278,24 @@ class StarGroundTopologyHeuristic(Heuristic):
                 continue
 
             angle_start, angle_end = domain_angles[domain]
+            angle_range = angle_end - angle_start
 
             # Determine radius range (from star point to board edge)
             min_radius = 15.0  # Keep some distance from star point
             max_radius = min(board.width, board.height) * 0.4
 
-            positions = radial_sector_positions_py(
-                len(refs), sx, sy, angle_start, angle_end, min_radius, max_radius
-            )
-
-            for ref, (pos_x, pos_y) in zip(refs, positions, strict=True):
+            for i, ref in enumerate(refs):
                 comp = context.netlist.get_component(ref)
+
+                # Distribute within sector
+                n = len(refs)
+                t = i / (n - 1) if n > 1 else 0.5
+
+                angle = angle_start + t * angle_range
+                radius = min_radius + t * (max_radius - min_radius)
+
+                pos_x = sx + radius * float(np.cos(angle))
+                pos_y = sy + radius * float(np.sin(angle))
 
                 if context.is_position_valid(pos_x, pos_y, comp.width, comp.height):
                     placements[ref] = ComponentPlacement(
@@ -415,22 +466,7 @@ class SignalFlowPreservationHeuristic(Heuristic):
         board: Board,
         context: PlacementContext,
     ) -> dict[str, ComponentPlacement]:
-        """Place components according to signal flow.
-
-        The per-chain, per-node position math (normalizing each node's
-        ``position`` against its chain's max, then interpolating x/y) is
-        delegated to ``temper_geometry.signal_chain_positions_py`` -- see
-        ``style_geometry.rs``'s module doc for why ``max_pos`` must be
-        computed from each chain's FULL node list, before this method's own
-        ``current_placements``/``fixed`` skip-checks run below (the Rust
-        kernel takes every node's position unfiltered, matching the
-        pre-migration order of operations exactly). Pinned oracle:
-        ``packages/temper-placer/tests/heuristics/_style_py_oracle.py``;
-        differential:
-        ``packages/temper-placer/tests/heuristics/test_style_rust_differential.py``.
-        """
-        from temper_geometry import signal_chain_positions_py
-
+        """Place components according to signal flow."""
         placements: dict[str, ComponentPlacement] = {}
         ox, oy = board.origin
         margin = context.constraints.board_margin_mm
@@ -446,26 +482,28 @@ class SignalFlowPreservationHeuristic(Heuristic):
         for _chain_name, nodes in chain_groups.items():
             nodes.sort(key=lambda n: n.position)
 
-        chain_names = list(chain_groups.keys())
-        # Full, unfiltered per-node positions -- max_pos inside the kernel
-        # must see every node in the chain, exactly as the pre-migration
-        # `max(n.position for n in nodes)` did before any skip-check ran.
-        chain_positions = [[n.position for n in chain_groups[name]] for name in chain_names]
+        # Place chains (stacked vertically, flowing horizontally)
+        n_chains = len(chain_groups)
+        chain_height = (board.height - 2 * margin) / max(n_chains, 1)
 
-        per_chain = signal_chain_positions_py(
-            chain_positions, ox, oy, board.width, board.height, margin
-        )
+        for chain_idx, (_chain_name, nodes) in enumerate(chain_groups.items()):
+            # Find max position for normalization
+            max_pos = max(n.position for n in nodes) if nodes else 1
 
-        for chain_idx, chain_name in enumerate(chain_names):
-            nodes = chain_groups[chain_name]
+            y_center = oy + margin + (chain_idx + 0.5) * chain_height
 
-            for node, (pos_x, pos_y) in zip(nodes, per_chain[chain_idx], strict=True):
+            for node in nodes:
                 if node.ref in context.current_placements:
                     continue
                 if context.netlist.get_component(node.ref).fixed:
                     continue
 
                 comp = context.netlist.get_component(node.ref)
+
+                # Position along X based on chain position
+                t = node.position / max_pos if max_pos > 0 else 0.5
+                pos_x = ox + margin + t * (board.width - 2 * margin)
+                pos_y = y_center
 
                 if context.is_position_valid(pos_x, pos_y, comp.width, comp.height):
                     placements[node.ref] = ComponentPlacement(
