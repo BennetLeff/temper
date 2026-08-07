@@ -74,6 +74,16 @@ pub use bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py
 pub mod heuristics_geometry;
 #[cfg(feature = "python")]
 pub use heuristics_geometry::keepout_mask_flags_py;
+// Wave 4: temper_placer/heuristics/organizational.py's five _place_* position
+// kernels (module grid, circular offset, power-flow stage layout, decoupling
+// candidate positions, domain grid) -- see organizational_geometry.rs's
+// module doc for the classification-vs-placement triage.
+pub mod organizational_geometry;
+#[cfg(feature = "python")]
+pub use organizational_geometry::{
+    circle_offsets_py, decoupling_candidate_positions_py, domain_grid_positions_py,
+    module_grid_positions_py, power_flow_positions_py,
+};
 pub mod audit;
 pub mod creepage_check;
 // Wave 4: placer/cp_sat/fixed_copper.py's pad-rotation/half-extent/item-
