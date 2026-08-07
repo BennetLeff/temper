@@ -1,6 +1,13 @@
 #[cfg(feature = "python")]
 mod net_types;
 
+// Wave 4 Phase 3 (formats/IO): the two GEOMETRY/matching kernels ported out
+// of temper_placer/io/kicad_exporter.py (snap_to_nearest_pad,
+// _generate_connector_segments) — see kicad_exporter_geometry.rs's module
+// docstring for the full triage of what was and was not ported.
+#[cfg(feature = "python")]
+mod kicad_exporter_geometry;
+
 #[cfg(feature = "python")]
 mod deterministic_stages;
 
@@ -241,6 +248,11 @@ mod python {
         module.add_function(wrap_pyfunction!(normalized_bundle_json, module)?)?;
         module.add_function(wrap_pyfunction!(preflight_identity, module)?)?;
         module.add_function(wrap_pyfunction!(sha256_hex, module)?)?;
+
+        // Wave 4 Phase 3 (formats/IO): kicad_exporter.py's geometry kernels
+        // (see kicad_exporter_geometry.rs). Registered early since it has no
+        // dependency on the contracts pyclasses below.
+        crate::kicad_exporter_geometry::register(module)?;
 
         // Wave 4 Phase 2 contracts-as-pyclasses: the net-types data model
         // ported from temper_placer/core/net_types.py (see net_types.rs),
