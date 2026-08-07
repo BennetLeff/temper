@@ -14,6 +14,7 @@ import random
 import pytest
 
 from temper_placer.requirements.validators.clearance import (
+    InsulationType,
     VoltageDomain,
     check_creepage_path,
     check_domain_clearance,
@@ -166,3 +167,100 @@ def test_prop_intra_component_never_self_pairs_in_inter():
     for v in intra:
         assert v.ref_a == v.ref_b
         assert "(intra)" in v.message or "within" in v.message
+
+
+# ---------------------------------------------------------------------------
+# R20 suite hardening — discriminators moved from the differential. #850's
+# differential-disabled re-run found 4 of the 5 clearance campaign mutants
+# survive the suites-only run (only the +1e-9 copper bias was PBT-caught);
+# their discriminating assertions lived only in
+# `test_clearance_validator_rust_differential.py`. Each is a deterministic
+# invariant of the shim surface, so it is pinned here. The differential keeps
+# its own assertions.
+# ---------------------------------------------------------------------------
+
+
+def test_prop_same_domain_functional_pairing():
+    """A same-domain LV_CONTROL<->LV_CONTROL pair with a 0.4mm gap violates
+    the 0.5mm FUNCTIONAL requirement — the same-domain pairing branch must
+    run. A port that killed the ``domain_a == domain_b`` branch reports no
+    violation (surviving mutant clM9)."""
+    placement = _placement([
+        _comp("L1", (0.0, 0.0), [_pad(LV, (0.0, 0.0), 1.0, 1.0)]),
+        _comp("L2", (0.4, 0.0), [_pad(LV, (0.0, 0.0), 1.0, 1.0)]),
+    ])
+    result = check_domain_clearance(
+        placement, VoltageDomain.LV_CONTROL, VoltageDomain.LV_CONTROL, 0.5
+    )
+    assert len(result.violations) == 1
+    assert result.violations[0].boundary == "LV_CONTROL<->LV_CONTROL"
+    assert result.violations[0].shortfall_mm > 0.0
+
+
+def test_prop_iec_verify_reports_all_four_rows():
+    """A 2.0mm DC_BUS<->LV_CONTROL gap against the full IEC matrix reports
+    exactly four violations (basic/reinforced x clearance/creepage — every
+    row's requirement exceeds 2.0). A port that halved the clearance
+    requirements would silently forgive the basic-clearance row (2.0 >= 1.5)
+    and report three (surviving mutant clM12)."""
+    placement = _placement([
+        _comp("A", (0.0, 0.0), [_pad(HV, (0.0, 0.0), 2.0, 2.0)]),
+        _comp("B", (4.0, 0.0), [_pad(LV, (0.0, 0.0), 2.0, 2.0)]),
+    ])
+    result = verify_iec60335_compliance(
+        placement, {HV: VoltageDomain.DC_BUS.value, LV: VoltageDomain.LV_CONTROL.value}
+    )
+    assert len(result.violations) == 4
+    basic_clr = [v for v in result.violations
+                 if v.metric == "clearance" and v.insulation_type == InsulationType.BASIC]
+    assert len(basic_clr) == 1
+    assert basic_clr[0].required_mm == 3.0
+    assert basic_clr[0].boundary == "DC_BUS<->LV_CONTROL"
+
+
+def test_prop_iec_verify_origin_modelled_warning(caplog):
+    """A pair whose components carry no pad geometry is measured
+    ORIGIN-TO-ORIGIN, and the verify emits a WARNING naming the proxy. A port
+    that dropped the ``origin_modelled > 0`` clause emits nothing and the
+    caplog assertion fails (surviving mutant clM13)."""
+    placement = _placement([
+        {"ref": "A", "position": (0.0, 0.0), "nets": [HV]},
+        {"ref": "B", "position": (2.0, 0.0), "nets": [LV]},
+    ])
+    verify_iec60335_compliance(
+        placement, {HV: VoltageDomain.DC_BUS.value, LV: VoltageDomain.LV_CONTROL.value}
+    )
+    messages = [r.getMessage() for r in caplog.records]
+    origin = [m for m in messages if "ORIGIN-TO-ORIGIN" in m]
+    assert origin, "expected an ORIGIN-TO-ORIGIN WARNING, got none"
+    assert "UPPER bound" in origin[0]
+
+
+def test_prop_report_rows_worst_first():
+    """The report's data rows are sorted worst-first by the shortfall column
+    (descending). A port that reversed the sort emits ascending rows and fails
+    the pin (surviving mutant clM11)."""
+    placement = _placement([
+        _comp("A", (0.0, 0.0), [_pad(HV, (0.0, 0.0), 2.0, 2.0)]),
+        _comp("B", (4.0, 0.0), [_pad(LV, (0.0, 0.0), 2.0, 2.0)]),
+    ])
+    result = verify_iec60335_compliance(
+        placement, {HV: VoltageDomain.DC_BUS.value, LV: VoltageDomain.LV_CONTROL.value}
+    )
+    text = format_clearance_report(result)
+    assert text.startswith(f"{len(result.violations)} REQ-SAFE-01 violation(s), worst first:")
+    rows = [
+        ln for ln in text.splitlines()
+        if not ln.startswith(" ") and not ln.startswith("-") and "<->" in ln
+    ]
+    assert len(rows) >= 2
+    shortfalls = []
+    for ln in rows:
+        parts = ln.split()
+        # Columns: pair boundary insul metric meas req short model[...]
+        try:
+            shortfalls.append(float(parts[6]))
+        except (IndexError, ValueError):
+            continue
+    assert len(shortfalls) >= 2
+    assert shortfalls == sorted(shortfalls, reverse=True), shortfalls

@@ -428,3 +428,53 @@ def test_vacuity_sanity_default_config_discriminates():
         cfg.classify_net(n) for n in ["HV_SW", "GATE_DRV", "SPI1", "SENSE", "3V3", "BUS_12V"]
     }
     assert len(classes) == 5
+
+
+# ---------------------------------------------------------------------------
+# R20 suite hardening — repr/default invariants moved from the differential.
+# #850's differential-disabled re-run found these three survivors caught only
+# by `test_priority_rust_differential.py` (enum repr byte-parity, dataclass
+# default field values). They are deterministic invariants of the exported
+# pyclass surface, so they are pinned here as literal property cases — no
+# oracle import. The differential keeps its own (identical) assertions.
+# ---------------------------------------------------------------------------
+
+
+def test_p6_enum_str_and_repr_cpython_rendering():
+    """Enum members render with CPython IntEnum's exact text: ``str`` is the
+    int value's string, ``repr`` is ``<ClassName.MEMBER: value>``. A repr
+    port that swapped the delimiters (e.g. ``[Class.MEMBER: 1]``) or quoted
+    the value would diverge and this property fails (surviving mutant PR1).
+
+    The member iteration uses the same fixed (name, value) tables as P4
+    (pyo3 pyclass enums have no class-level ``__iter__``)."""
+    for enum_cls, table in _ENUM_TABLES.items():
+        for name, value in table.items():
+            member = getattr(enum_cls, name)
+            expected_repr = f"<{enum_cls.__name__}.{name}: {value}>"
+            assert repr(member) == expected_repr, name
+            assert str(member) == str(value), name
+
+
+def test_p7_placement_phase_default_max_distance_mm():
+    """The default-constructor ``max_distance_mm`` is 20.0 (the pre-migration
+    dataclass default). A port that moved the default to 25.0 diverges
+    (surviving mutant PR2)."""
+    for name in _ENUM_TABLES[PlacementPriority]:
+        pc = PlacementPhaseConfig(name="p", priority=getattr(PlacementPriority, name))
+        assert pc.max_distance_mm == 20.0, name
+    assert PlacementPhaseConfig(
+        name="p", priority=PlacementPriority.POWER, max_distance_mm=25.0
+    ).max_distance_mm == 25.0
+
+
+def test_p8_routing_phase_default_allow_layer_change():
+    """The default-constructor ``allow_layer_change`` is True (the
+    pre-migration dataclass default). A port that flipped the default to
+    False diverges (surviving mutant PR3)."""
+    for name in _ENUM_TABLES[RoutingPriority]:
+        rc = RoutingPhaseConfig(name="r", priority=getattr(RoutingPriority, name))
+        assert rc.allow_layer_change is True, name
+    assert RoutingPhaseConfig(
+        name="r", priority=RoutingPriority.POWER, allow_layer_change=False
+    ).allow_layer_change is False

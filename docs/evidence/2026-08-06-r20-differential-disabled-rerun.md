@@ -289,3 +289,24 @@ is licensed by this run.
   `cargo test -p temper-drc-rs` cannot link on this macOS setup (pyo3
   `_PyBool_Type` flat-namespace SIGABRT, unrelated to any mutant) — the drc
   kernel files carry zero `#[test]`, so no suites-only coverage is lost.
+
+---
+
+## Addendum (2026-08-06, PR #860 — §5 superseded, record kept)
+
+Per the docs-never-drift convention this record is kept verbatim; the
+**§5 survivor list above is now stale** and is superseded by PR #860
+(`perf/r20-suite-hardening`), which moved the discriminating assertions for
+**35 of the 36 survivors into the PBT/MR suites** (one test per module, all
+demonstrated to kill their mutants — see the PR body). The last remaining
+differential-only survivor, **loaders lM4** (the `str.strip` escape-decoded
+C0-control call-back, §5 line "loaders (3)" and §7's
+"structurally uncatchable" claim), is closed by a suites-only unit test
+(`packages/temper-placer/tests/io/test_reference_aliases.py::test_manifest_rejects_escape_decoded_control_char_source`):
+it feeds the `"\x1c"`-escaped fixture through the production
+`load_reference_alias_manifest` (no oracle import) and asserts the
+`ValueError` — under the trim mutant the name stays non-empty and is
+accepted, so the assertion fails. The differential's parity form is retained
+(unchanged decision under R20) because it still adds breadth — all of
+U+001C-U+001F plus any future Python-whitespace-class divergence — but the
+"structurally uncatchable" framing no longer holds.
