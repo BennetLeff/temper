@@ -596,3 +596,379 @@ allowlist:
     design as currently unsafe to power for an independent reason (common-mode voltage on the INA240)
     and explicitly not yet trusted on hardware.'
   file: elec/src/modules.ato
+
+# ---------------------------------------------------------------------------
+# BACKLOG (seeded 2026-08-07) -- everything below this line is NOT a
+# justified exception.
+#
+# scripts/check_bom_source_reconciliation.py (R14) went live as a hard,
+# non-continue-on-error gate in consistency-gates on 2026-08-07 and, run
+# against HEAD at that moment, found the 49 real findings entered below
+# (14 costed_no_circuit / 27 wired_uncosted / 8 mpn_mismatch -- pinned by
+# scripts/tests/test_check_bom_source_reconciliation.py's TestRealTree).
+# None of these 49 are false positives or same-part-different-label
+# matches like the justified entries above -- they are genuine,
+# already-known BOM/source drift (the same drift docs/evidence/2026-07-25-
+# bom-source-audit.md and docs/evidence/2026-07-26-bom-blocker-resolution.md
+# manually found and partially fixed, and that has since drifted again).
+# Turning the gate on as a hard blocker without first landing this backlog
+# would have blocked every PR in the repo on an unrelated procurement
+# decision, so these 49 were seeded in bulk, once, on 2026-08-07 rather
+# than triaged individually -- that is exactly what makes them backlog and
+# not justified.
+#
+# Every entry below is structurally distinguishable from a justified
+# exception, on purpose, so this backlog can never quietly become
+# permanent or be mistaken for "verified fine":
+#   - `backlog: true` and `seeded: "2026-08-07"` are REQUIRED together --
+#     load_allowlist() fails the whole gate closed (GATE ERROR, not a
+#     silent pass) if either key appears without the other. Neither key
+#     ever appears on a justified entry above this line.
+#   - `reason` holds the finding's own VERBATIM detail text (what the gate
+#     itself would have printed), not a human justification -- there is no
+#     claim anywhere below this line that the finding is wrong.
+#   - check_bom_source_reconciliation.py's `run()` reports every backlog
+#     finding under its own "ALLOWLISTED -- BACKLOG" section, separately
+#     counted from justified exceptions, and prints a
+#     "N backlog finding(s) suppressed (seeded ...)" banner on EVERY run
+#     (pass or fail) -- never folded into a silent PASSED with no trace.
+#   - `--backlog-report` lists every entry below with a live/STALE status
+#     against the current tree, so this backlog is something a maintainer
+#     works down over time, not something that sits here forever.
+#
+# Do NOT add new entries below this line to suppress newly-introduced
+# drift -- that defeats the entire purpose of the gate. New findings must
+# be fixed (BOM.md or elec/src) or, if genuinely justified, added as a
+# plain entry above this line with a real citation -- never backdated into
+# this 2026-08-07 backlog.
+# ---------------------------------------------------------------------------
+- kind: costed_no_circuit
+  designator: R_OCP_REF_T
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.5 OCP Reference Divider'', line 377) costs ''R_OCP_REF_T'' as
+    ''RC0603FR-073K2L'', but no elec/src/*.ato instantiation''s variable name normalizes to match it'
+- kind: costed_no_circuit
+  designator: R_OVP1
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.6 OVP Voltage Divider'', line 384) costs ''R_OVP1'' as ''RC1206FR-07430KL'',
+    but no elec/src/*.ato instantiation''s variable name normalizes to match it'
+- kind: costed_no_circuit
+  designator: R_OVP2
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.6 OVP Voltage Divider'', line 384) costs ''R_OVP2'' as ''RC1206FR-07430KL'',
+    but no elec/src/*.ato instantiation''s variable name normalizes to match it'
+- kind: costed_no_circuit
+  designator: R_OVP3
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.6 OVP Voltage Divider'', line 384) costs ''R_OVP3'' as ''RC1206FR-07430KL'',
+    but no elec/src/*.ato instantiation''s variable name normalizes to match it'
+- kind: costed_no_circuit
+  designator: R_OVP4
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.6 OVP Voltage Divider'', line 385) costs ''R_OVP4'' as ''RC0603FR-0710KL'',
+    but no elec/src/*.ato instantiation''s variable name normalizes to match it'
+- kind: costed_no_circuit
+  designator: R_OVP_ADC_T
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.6 OVP Voltage Divider'', line 388) costs ''R_OVP_ADC_T'' as ''RC1206FR-07510KL'',
+    but no elec/src/*.ato instantiation''s variable name normalizes to match it'
+- kind: costed_no_circuit
+  designator: R_OVP_REF_B
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.6 OVP Voltage Divider'', line 387) costs ''R_OVP_REF_B'' as ''RC0603FR-0710KL'',
+    but no elec/src/*.ato instantiation''s variable name normalizes to match it'
+- kind: costed_no_circuit
+  designator: R_OVP_REF_T
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.6 OVP Voltage Divider'', line 386) costs ''R_OVP_REF_T'' as ''RC0603FR-07732RL'',
+    but no elec/src/*.ato instantiation''s variable name normalizes to match it'
+- kind: costed_no_circuit
+  designator: R_THM2_HYST
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.8 Coil Thermal Protection (THM-02)'', line 426) costs ''R_THM2_HYST''
+    as ''RC0603FR-07100KL'', but no elec/src/*.ato instantiation''s variable name normalizes to match
+    it'
+- kind: costed_no_circuit
+  designator: R_THM2_REF_B
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.8 Coil Thermal Protection (THM-02)'', line 425) costs ''R_THM2_REF_B''
+    as ''RC0603FR-0710KL'', but no elec/src/*.ato instantiation''s variable name normalizes to match it'
+- kind: costed_no_circuit
+  designator: R_THM2_REF_T
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.8 Coil Thermal Protection (THM-02)'', line 424) costs ''R_THM2_REF_T''
+    as ''RC0603FR-079K09L'', but no elec/src/*.ato instantiation''s variable name normalizes to match
+    it'
+- kind: costed_no_circuit
+  designator: R_THM_HYST
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.7 Thermal Protection (THM-01, Heatsink)'', line 404) costs ''R_THM_HYST''
+    as ''RC0603FR-07100KL'', but no elec/src/*.ato instantiation''s variable name normalizes to match
+    it'
+- kind: costed_no_circuit
+  designator: R_THM_REF_B
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.7 Thermal Protection (THM-01, Heatsink)'', line 403) costs ''R_THM_REF_B''
+    as ''RC0603FR-0710KL'', but no elec/src/*.ato instantiation''s variable name normalizes to match it'
+- kind: costed_no_circuit
+  designator: R_THM_REF_T
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): BOM.md (''5.7 Thermal Protection (THM-01, Heatsink)'', line 402) costs ''R_THM_REF_T''
+    as ''RC0603FR-079K53L'', but no elec/src/*.ato instantiation''s variable name normalizes to match
+    it'
+- kind: wired_uncosted
+  designator: boot_cap
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:98 instantiates boot_cap = new Capacitor (''GRM32ER71H106KA12L''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: c_tank3
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:527 instantiates c_tank3 = new Capacitor (''942C16P1K-F''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: fault_or3
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:3073 instantiates fault_or3 = new SN74HC4075 (''SN74HC4075DR''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: inv
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:2973 instantiates inv = new SN74LVC1G38 (''SN74LVC1G38DBVR''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: mon
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:2911 instantiates mon = new TPS3700 (''TPS3700DDCR''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: r_adc_top1
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:2408 instantiates r_adc_top1 = new Resistor (''RC1206FR-07169KL''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: r_adc_top2
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:2420 instantiates r_adc_top2 = new Resistor (''RC1206FR-07169KL''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: r_adc_top3
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:2427 instantiates r_adc_top3 = new Resistor (''RC1206FR-07169KL''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: r_div_bot
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception; this designator/file pair covers 2 live findings): elec/src/modules.ato:2295
+    instantiates r_div_bot = new Resistor (''RT0603BRD0716K9L''), but no BOM.md designator normalizes
+    to match it | elec/src/modules.ato:2918 instantiates r_div_bot = new Resistor (''RC0603FR-07100KL''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: r_div_top
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:2913 instantiates r_div_top = new Resistor (''RC0603FR-07698KL''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: r_div_top1
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:2251 instantiates r_div_top1 = new Resistor (''RC1206FR-07430KL''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: r_div_top2
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:2258 instantiates r_div_top2 = new Resistor (''RC1206FR-07430KL''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: r_div_top3
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:2265 instantiates r_div_top3 = new Resistor (''RC1206FR-07430KL''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: r_hyst
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception; this designator/file pair covers 4 live findings): elec/src/modules.ato:2366
+    instantiates r_hyst = new Resistor (''RT0603BRD07487KL''), but no BOM.md designator normalizes to
+    match it | elec/src/modules.ato:2541 instantiates r_hyst = new Resistor (''RC0603FR-0734K8L''), but
+    no BOM.md designator normalizes to match it | elec/src/modules.ato:2634 instantiates r_hyst = new
+    Resistor (''RC0603FR-0711K5L''), but no BOM.md designator normalizes to match it | elec/src/modules.ato:2940
+    instantiates r_hyst = new Resistor (''RC0603FR-073M74L''), but no BOM.md designator normalizes to
+    match it'
+- kind: wired_uncosted
+  designator: r_outa_pullup
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:2947 instantiates r_outa_pullup = new Resistor (''RC0603FR-0710KL''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: r_ref_top
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception; this designator/file pair covers 4 live findings): elec/src/modules.ato:2113
+    instantiates r_ref_top = new Resistor (''RC0603FR-073K24L''), but no BOM.md designator normalizes
+    to match it | elec/src/modules.ato:2522 instantiates r_ref_top = new Resistor (''RC0603FR-079K09L''),
+    but no BOM.md designator normalizes to match it | elec/src/modules.ato:2618 instantiates r_ref_top
+    = new Resistor (''RC0603FR-073K16L''), but no BOM.md designator normalizes to match it | elec/src/modules.ato:2745
+    instantiates r_ref_top = new Resistor (''RC0603FR-073K74L''), but no BOM.md designator normalizes
+    to match it'
+- kind: wired_uncosted
+  designator: r_zcd_opto
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:1028 instantiates r_zcd_opto = new Resistor (''RC0603FR-07430RL''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: r_zcd_pullup
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:1043 instantiates r_zcd_pullup = new Resistor (''RC0603FR-0710KL''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: tp_uvlo2_fault
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:3227 instantiates tp_uvlo2_fault = new TestPoint (''GENERIC_TEST_POINT''),
+    but no BOM.md designator normalizes to match it'
+- kind: wired_uncosted
+  designator: zcd_opto
+  file: elec/src/modules.ato
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): elec/src/modules.ato:1035 instantiates zcd_opto = new H11L1 (''H11L1TVM''),
+    but no BOM.md designator normalizes to match it'
+- kind: mpn_mismatch
+  designator: C_TANK1
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): designator ''C_TANK1'' matches on both sides but MPN sets disagree: BOM=[''FKP1T031507G00JSSD'']
+    vs. source [elec/src/modules.ato:513 mpn=''942C16P1K-F'']'
+- kind: mpn_mismatch
+  designator: C_TANK2
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): designator ''C_TANK2'' matches on both sides but MPN sets disagree: BOM=[''FKP1T031507G00JSSD'']
+    vs. source [elec/src/modules.ato:520 mpn=''942C16P1K-F'']'
+- kind: mpn_mismatch
+  designator: K_DIS1
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): designator ''K_DIS1'' matches on both sides but MPN sets disagree: BOM=[''G5LE-1
+    DC12''] vs. source [elec/src/modules.ato:1227 mpn=''RT314012'']'
+- kind: mpn_mismatch
+  designator: K_DIS2
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): designator ''K_DIS2'' matches on both sides but MPN sets disagree: BOM=[''G5LE-1
+    DC12''] vs. source [elec/src/modules.ato:1249 mpn=''RT314012'']'
+- kind: mpn_mismatch
+  designator: R_DIS1A
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): designator ''R_DIS1A'' matches on both sides but MPN sets disagree: BOM=[''AC05000004701JAC00'']
+    vs. source [elec/src/modules.ato:1263 mpn=''AC05000003901JAC00'']'
+- kind: mpn_mismatch
+  designator: R_DIS1B
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): designator ''R_DIS1B'' matches on both sides but MPN sets disagree: BOM=[''AC05000004701JAC00'']
+    vs. source [elec/src/modules.ato:1270 mpn=''AC05000003901JAC00'']'
+- kind: mpn_mismatch
+  designator: R_DIS2A
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): designator ''R_DIS2A'' matches on both sides but MPN sets disagree: BOM=[''AC05000004701JAC00'']
+    vs. source [elec/src/modules.ato:1277 mpn=''AC05000003901JAC00'']'
+- kind: mpn_mismatch
+  designator: R_DIS2B
+  backlog: true
+  seeded: '2026-08-07'
+  reason: 'BACKLOG (seeded 2026-08-07, R14 gate introduction, pre-existing drift not yet triaged -- NOT
+    a justified exception): designator ''R_DIS2B'' matches on both sides but MPN sets disagree: BOM=[''AC05000004701JAC00'']
+    vs. source [elec/src/modules.ato:1284 mpn=''AC05000003901JAC00'']'
