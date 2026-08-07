@@ -83,6 +83,12 @@ pub mod creepage_check;
 // pad_geometry (math_cos_sin/py_hypot), which it reuses.
 #[cfg(feature = "python")]
 pub mod fixed_copper;
+// Wave 4: router_v6/zone_emission.py + _zone_pour_stitch.py's geometry
+// (emit_zone_s_expr, _chamfer_path_points, and _stitch_isolated_pads's
+// point-in-polygon + nearest-vertex core). Wholly pyo3 surface, own
+// register().
+#[cfg(feature = "python")]
+pub mod zone_pour;
 // Wave 4, router_v6 core slice: the DRC constraint-geometry kernel behind
 // router_v6/constraints_geometry.py. Declared after creepage_check because
 // it reuses that module's CPython min/max replications.
@@ -113,6 +119,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::apply_suggestions::register(m)?;
     crate::congestion_heatmap::register(m)?;
     crate::fixed_copper::register(m)?;
+    crate::zone_pour::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     Ok(())
 }

@@ -457,29 +457,55 @@ def test_stitch_matches_oracle_tstamp_counter_shared_and_advances():
     assert tstamp_oracle[0] == 7
 
 
-def test_tie_break_diverges_from_cKDTree():
+def test_tie_break_class_exists_direct_cKDTree_comparison():
     """Recorded, non-blocking divergence (see module doc comment in
-    zone_pour.rs): on an EXACT nearest-vertex distance tie, this kernel and
-    scipy's cKDTree do not always pick the same vertex, because cKDTree's
-    choice depends on its internal tree traversal, not input order. This is
-    a documented residual, not a silently-passed assumption: constructed so
-    the tie is exact (both vertices exactly (0, 5) away from the pad).
+    zone_pour.rs): on an EXACT nearest-vertex distance tie, ``stitch_targets_py``
+    (first-strictly-smaller-wins over input order) and ``scipy.spatial.
+    cKDTree.query`` (internal tree-traversal order) do not always pick the
+    same vertex.
+
+    This is demonstrated directly against ``cKDTree`` -- not routed through
+    ``_stitch_isolated_pads``, because reaching this exact tie through the
+    polygon-exterior-coords vertex ordering that function builds is
+    incidental to the point being made here (that the two ALGORITHMS
+    disagree on ties, independent of how their vertex list is assembled).
+    The forcing coordinates are copied from an offline randomized search
+    (1-decimal-rounded coordinates, to manufacture exact float64 ties) that
+    found this as one of 2/2000 disagreements; see the module doc comment
+    for the full measurement.
     """
-    pad_positions = {"ac_l": [(5.0, 0.0)]}
-    net_map = {"ac_l": 1}
-    # Two disjoint tiny triangles: one vertex on each side, both exactly
-    # 5.0 away from the pad at (5.0, 0.0).
-    zone_points = {
-        "ac_l": [
-            ((0.0, 0.0), (0.0, 0.1), (0.1, 0.0)),
-            ((10.0, 0.0), (10.0, 0.1), (9.9, 0.0)),
-        ]
-    }
-    segments_oracle: list[str] = []
-    segments_rust: list[str] = []
-    ORACLE._stitch_isolated_pads(pad_positions, segments_oracle, net_map, zone_points)
-    _rust_stitch_isolated_pads(pad_positions, segments_rust, net_map, zone_points)
-    # Both must produce exactly one stitch segment (an outside pad + a tie).
-    assert len(segments_oracle) == 1
-    assert len(segments_rust) == 1
-    # NOT asserted equal -- this is the documented divergence.
+    from scipy.spatial import cKDTree
+
+    verts = [
+        (-3.1, 4.3), (3.5, 3.3), (1.6, -0.5), (2.6, 0.4),
+        (3.7, 2.9), (-4.2, 0.5), (-4.3, -3.0), (4.8, -1.9),
+    ]
+    query = (1.8, -4.4)
+
+    tree = cKDTree(verts)
+    _dist, scipy_idx = tree.query(query)
+
+    import temper_geometry as _tg
+
+    # A single vertex far outside `verts`' bounding region keeps `query`
+    # classified "outside" (stitch_targets_py only searches `verts` for the
+    # nearest point once a pad is outside every polygon; a degenerate
+    # 3-point polygon far away satisfies the >=3-point filter without
+    # affecting containment of `query`).
+    far_polygon = [(1000.0, 1000.0), (1000.1, 1000.0), (1000.0, 1000.1)]
+    result = _tg.stitch_targets_py([query], [list(verts), far_polygon])
+    assert len(result) == 1
+    rust_nearest = (result[0][2], result[0][3])
+
+    scipy_nearest = verts[scipy_idx]
+    first_wins_nearest = verts[2]  # index 2, the first of the two tied vertices
+
+    assert rust_nearest == first_wins_nearest, (
+        "stitch_targets_py's tie-break contract changed -- expected "
+        "first-strictly-smaller-wins"
+    )
+    assert scipy_nearest != first_wins_nearest, (
+        "the forcing coordinates no longer reproduce a scipy/first-wins "
+        "disagreement -- this test no longer demonstrates the documented "
+        "divergence and should be re-derived"
+    )
