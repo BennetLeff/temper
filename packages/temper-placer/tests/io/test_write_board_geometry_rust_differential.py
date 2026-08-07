@@ -42,9 +42,19 @@ from temper_placer.core.state import PlacementState
 from temper_placer.io import _write_board as shipped
 
 # Rust symbols under test -- must exist or this file fails to collect (RED).
+# Only the BATCH form is registered into Python (`reorient_pad_angles_py`):
+# a scalar `reorient_pad_angle_py` binding would have no production caller
+# (`_reorient_pads` calls the batch form once per footprint) and
+# `check_unwired_kernels.py` would flag it. Scalar-level bit-exactness is
+# exercised here via a single-element batch call; the scalar
+# `reorient_pad_angle` Rust function itself has direct `#[cfg(test)]`
+# coverage in `write_board_geometry.rs`.
 _GEOM = _tdb.write_board_geometry
-REORIENT_PAD_ANGLE = _GEOM.reorient_pad_angle_py
 PRESERVE_ROTATION_OFFSET = _GEOM.preserve_rotation_offset_py
+
+
+def REORIENT_PAD_ANGLE(current_angle, delta_deg):
+    return _GEOM.reorient_pad_angles_py([current_angle], delta_deg)[0]
 
 
 def _f(value) -> str:
