@@ -356,9 +356,10 @@ scripts:
     exact-coordinate connectivity) against its atopile-compiled net member-for-member, and tags the net''s
     domain (HV/mains, SELV, protection/fault-chain) via elec/domain_manifest.yaml. Answers "does this
     off-grid endpoint sit on a net that matters, and is it actually connected to what it looks connected
-    to" mechanically instead of by eyeballing coordinates. Not wired into CI (requires a working kicad-cli
-    to regenerate its ERC-JSON/netlist-XML inputs, not reliably available in every sandbox -- see docs/evidence/2026-08-07-erc-off-grid-endpoint-analysis.md
-    for how 10.0.5 was obtained here).'
+    to" mechanically instead of by eyeballing coordinates. Wired into CI (2026-08-07): python-tests.yml
+    consistency-gates job regenerates the ERC-JSON/netlist-XML inputs via the pinned kicad-cli in the
+    temper-ci container immediately before invoking this gate (not runnable in every local sandbox --
+    see docs/evidence/2026-08-07-erc-off-grid-endpoint-analysis.md for how 10.0.5 was obtained here).'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
@@ -436,7 +437,8 @@ scripts:
     faulted states cannot re-enter heating without the reset path, and the runaway interlock reaches a
     safe/de-energized state from every state) -- named with the invariant id and offending edge/path evidence.
     Separately fails (DRIFT, exit 3) if the committed firmware/tools/proof_record.json does not byte-match
-    a fresh regeneration, so the proof record can never silently go stale relative to the manifest.'
+    a fresh regeneration, so the proof record can never silently go stale relative to the manifest.
+    Wired into CI (2026-08-07): firmware-tests.yml.'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
@@ -603,7 +605,10 @@ scripts:
     and voltage-domain compatibility (component voltage_rating vs. the explicit voltage named in a domain
     net''s own name, e.g. "+170V_BUS" -> 170V) -- imports check_domain_partition.py''s netlist parser,
     freshness check and domain-manifest loader rather than re-deriving them; isolation-domain reachability
-    itself is already covered by check_domain_partition.py and deliberately not re-implemented here.'
+    itself is already covered by check_domain_partition.py and deliberately not re-implemented here.
+    27 real, open single-pin-net findings are a dated backlog allowlist entry class (backlog: true +
+    seeded pair, netlist-stage-checks-allowlist.yaml), reported every run but not blocking. Wired into
+    CI (2026-08-07): python-tests.yml consistency-gates job.'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
@@ -728,8 +733,7 @@ scripts:
     plane-condemnation-allowlist.yaml or the gate fails -- so a NEW layer joining the condemned
     set, not just the two (F.Cu/B.Cu) already known and tracked, is caught. Fail-closed on a
     missing/unparseable board, zero copper layers, zero net-bearing zones, or a malformed
-    allowlist. NOT YET CI-WIRED: this session was scoped not to edit
-    .github/workflows/python-tests.yml; a maintainer must add an invocation step.'
+    allowlist. Wired into CI (2026-08-07): python-tests.yml consistency-gates job.'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
@@ -858,8 +862,7 @@ scripts:
   purpose: 'CI gate: SIL fault-injection coverage over (fault class, origin state) -- fails on any pair
     the transition table (plus documented C-only interlock call sites) defines but firmware/test/traces/manifest.json
     does not exercise (plan 2026-08-02-031, U1/U4). Thin wrapper around firmware/test/test_sil_coverage.py
-    --gate. NOT YET invoked from .github/workflows/firmware-tests.yml as of this commit -- see the script''s
-    own docstring for the wiring needed once the concurrent CI-rewrite agent''s changes there land.'
+    --gate. Wired into CI (2026-08-07): firmware-tests.yml, immediately after the sil_fault_tests ctest step.'
   owner: firmware
   last_run: '2026-08-07'
   category: keep
@@ -914,16 +917,20 @@ scripts:
     checks (firmware/tools/transition_model_checks.py), and the production-vs-test-generator manifest cross-check
     (firmware/tools/transition_manifest_crosscheck.py) -- fails closed on any unreachable state, undocumented
     interlock-only state, property violation, or manifest divergence not covered by the documented KTD2
-    wildcard state-set exception. Writes the reachability report artifact to firmware/tools/state_machine_reachability_report.json
-    on every run.'
+    wildcard state-set exception OR a dated backlog entry (state-machine-crosscheck-allowlist.yaml). Writes
+    the reachability report artifact to firmware/tools/state_machine_reachability_report.json on every run.
+    Wired into CI (2026-08-07): firmware-tests.yml. One real, pre-existing manifest divergence
+    ((STATE_FAULT, EVENT_FAULT_RESET_PERSISTS)) is a dated backlog entry, deferred to a firmware maintainer.'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
   disposition: ci-gate
   imports:
   - argparse
+  - dataclasses
   - json
   - pathlib
+  - re
   - sys
   - transition_manifest_crosscheck
   - transition_model
@@ -1541,6 +1548,25 @@ scripts:
   - typing
   - pydantic
   - temper_placer.constraint_types.config
+- path: part_stress_gate.py
+  purpose: 'Part stress gate: applied stress vs. absolute-maximum rating, per part, data-driven
+    against scripts/part_stress_limits.yaml (docs/hardware/PART_STRESS_AUDIT.md). Fails on any
+    non-backlogged FAIL (margin < 0); the 3 real over-rating findings found at CI-wiring time
+    (2026-08-07) are dated backlog entries (backlog: true + seeded pair), still reported every
+    run, deferred to a hardware maintainer redesign call.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - csv
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: phase5_batch1_mutations.py
   purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic grid_utils/via_placement): applies
     each Rust-kernel mutant, rebuilds temper-geometry, runs the four Batch-1 suites, expects failure,

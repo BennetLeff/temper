@@ -23,7 +23,15 @@ it carries a demonstrated failing case"):
     built) and the real scripts/part_stress_limits.yaml reproduces the
     docs/hardware/PART_STRESS_AUDIT.md Sec 1 findings (at least the bus-cap
     ripple current FAIL) -- skipped, not failed, if elec/build/ has not
-    been built in this environment (gitignored, requires `ato build`).
+    been built in this environment (gitignored, requires `ato build`). As
+    of the 2026-08-07 CI-wiring session, all 3 of those Sec 1 findings are
+    dated backlog entries (`backlog: true` + `seeded: '2026-08-07'` in
+    part_stress_limits.yaml) -- the gate still reports and prints them as
+    FAIL(backlog), it just no longer exits 3 on the 3 known ones; a
+    genuinely NEW FAIL not on that dated list still flips the exit code.
+  - backlog: `backlog: true` without `seeded` (or vice versa) is a
+    malformed entry and must fail closed (exit 5), never silently treated
+    as either "not backlogged" or "backlogged".
 """
 
 from __future__ import annotations
@@ -153,6 +161,97 @@ def test_seeded_below_guideline_defect_produces_warn_not_fail(tmp_path: Path) ->
     entries, errors = build_entries(load_limits(limits_path), load_bom(bom_path))
     assert not errors
     assert entries[0].status == "WARN"
+
+
+# ---------------------------------------------------------------------------
+# Backlog entries (2026-08-07 CI-wiring session)
+# ---------------------------------------------------------------------------
+
+
+def _seeded_fail_entry(**overrides: object) -> dict:
+    entry = {
+        "id": "seeded_over_rating",
+        "designators": ["C1"],
+        "mpn": "FAKE_CAP_100V",
+        "domain": "voltage_ceramic_dc_bias",
+        "unit": "V",
+        "rated": 100.0,
+        "applied": 150.0,  # seeded defect: 50% OVER rated
+        "guideline_margin": 0.5,
+        "conditional": False,
+        "source": "synthetic fixture",
+        "notes": "seeded defect",
+    }
+    entry.update(overrides)
+    return entry
+
+
+def test_backlog_fail_does_not_trip_exit_code(tmp_path: Path) -> None:
+    """A FAIL entry carrying a valid backlog/seeded pair is reported (still
+    FAIL) but does not by itself flip the exit code -- the whole point of
+    the backlog convention is "block new defects, not the known ones"."""
+    bom_path = _base_bom(tmp_path)
+    limits_path = tmp_path / "limits.yaml"
+    _write_limits(
+        limits_path,
+        [_seeded_fail_entry(backlog=True, seeded="2026-08-07")],
+    )
+
+    exit_code = main(["--bom", str(bom_path), "--limits", str(limits_path)])
+    assert exit_code == 0
+
+
+def test_backlog_fail_still_shown_as_fail_in_report(tmp_path: Path) -> None:
+    """A backlog FAIL must never be silently invisible -- it is still
+    printed, still classified FAIL, and tagged, plus a summary line."""
+    bom = load_bom(_base_bom(tmp_path))
+    raw = [_seeded_fail_entry(backlog=True, seeded="2026-08-07")]
+    entries, errors = build_entries(raw, bom)
+    assert not errors
+    assert entries[0].status == "FAIL"
+    assert entries[0].blocking is False
+    report = render_report(entries)
+    assert "FAIL" in report
+    assert "BACKLOG" in report
+    assert "Backlog: 1 " in report
+
+
+def test_non_backlog_fail_alongside_backlog_fail_still_trips_gate(tmp_path: Path) -> None:
+    """A NEW (non-backlog) FAIL must still block the gate even when a
+    dated backlog FAIL is also present -- the backlog must never mask an
+    unrelated, genuinely new finding."""
+    bom_path = _base_bom(tmp_path)
+    limits_path = tmp_path / "limits.yaml"
+    _write_limits(
+        limits_path,
+        [
+            _seeded_fail_entry(id="backlogged", backlog=True, seeded="2026-08-07"),
+            _seeded_fail_entry(id="new_finding", designators=["R1"], mpn="FAKE_RES_1K"),
+        ],
+    )
+    exit_code = main(["--bom", str(bom_path), "--limits", str(limits_path)])
+    assert exit_code == 3
+
+
+def test_backlog_true_without_seeded_fails_closed(tmp_path: Path) -> None:
+    bom = load_bom(_base_bom(tmp_path))
+    raw = [_seeded_fail_entry(backlog=True)]
+    with pytest.raises(GateError, match="must travel together"):
+        build_entries(raw, bom)
+
+
+def test_seeded_without_backlog_true_fails_closed(tmp_path: Path) -> None:
+    bom = load_bom(_base_bom(tmp_path))
+    raw = [_seeded_fail_entry(seeded="2026-08-07")]
+    with pytest.raises(GateError, match="must travel together"):
+        build_entries(raw, bom)
+
+
+def test_malformed_seeded_date_fails_closed(tmp_path: Path) -> None:
+    bom = load_bom(_base_bom(tmp_path))
+    raw = [_seeded_fail_entry(backlog=True, seeded="not-a-date")]
+    with pytest.raises(GateError, match="malformed 'seeded' date"):
+        build_entries(raw, bom)
 
 
 def test_passing_entry_reports_ok(tmp_path: Path) -> None:
@@ -340,18 +439,27 @@ def test_real_tree_reproduces_bus_cap_ripple_finding() -> None:
     ripple-current rating is exceeded by ~4-6x on the committed design.
     This is the motivating finding for this whole gate -- if the real gate
     run against the real board does not reproduce it, the gate (or the
-    limits file) has drifted from the design it claims to check."""
+    limits file) has drifted from the design it claims to check.
+
+    As of the 2026-08-07 CI-wiring session this finding (along with the
+    other 2 Sec 1 FAILs) is a dated backlog entry, so the real-tree run no
+    longer exits 3 on it alone -- but the finding must still be reported,
+    still classified FAIL, and still tagged BACKLOG, never silently
+    dropped from the output."""
     result = subprocess.run(
         [sys.executable, str(GATE_SCRIPT), "--bom", str(REAL_BOM), "--limits", str(REAL_LIMITS)],
         capture_output=True,
         text=True,
     )
-    assert result.returncode == 3, (
-        f"expected the real board to still fail the bus-cap ripple check "
+    assert result.returncode == 0, (
+        f"expected the 3 known Sec 1 FAILs (all dated backlog entries) to not "
+        f"block the gate by themselves "
         f"(stdout={result.stdout!r}, stderr={result.stderr!r})"
     )
     assert "bus_cap_ripple_current" in result.stdout
     assert "FAIL" in result.stdout
+    assert "BACKLOG" in result.stdout
+    assert "Backlog: 3 " in result.stdout
 
 
 @pytest.mark.skipif(

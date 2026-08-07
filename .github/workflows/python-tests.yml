@@ -1733,6 +1733,79 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_pll_range_consistency.py
 
+      # Plane-condemnation quantifier gate (docs/solutions/logic-errors/
+      # single-zone-condemns-whole-copper-layer-plane-2026-07-29.md): catches
+      # a MINORITY of a copper layer's zones (fraction < 0.5) silently
+      # condemning the whole physical layer via _extract_stackup's
+      # any()-quantifier classification. Every currently-condemned layer must
+      # be on the dated plane-condemnation-allowlist.yaml or the gate fails,
+      # so a NEW layer joining the condemned set is caught.
+      - name: Plane-condemnation quantifier gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_plane_condemnation_quantifier.py -v --tb=short
+
+      - name: Plane-condemnation quantifier gate (pcb/temper.kicad_pcb minority-zone layer exclusion)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_plane_condemnation_quantifier.py
+
+      # Netlist-stage checks gate (docs/STRATEGY.md "Checks by stage"):
+      # single-pin nets, unconnected power pins, and voltage-domain
+      # compatibility against elec/build/default.net + elec/src/*.ato. 27
+      # real, open single-pin-net findings are a dated backlog
+      # (netlist-stage-checks-allowlist.yaml, seeded 2026-08-07, see that
+      # file's header) -- not fixed here, deferred to a hardware maintainer;
+      # a NEW finding still fails this step immediately.
+      - name: Netlist-stage checks gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_netlist_stage_checks.py -v --tb=short
+
+      - name: Netlist-stage checks gate (single-pin nets, unconnected power pins, voltage-domain compatibility)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_netlist_stage_checks.py
+
+      # Part-stress gate (docs/hardware/PART_STRESS_AUDIT.md): applied stress
+      # vs. absolute-maximum rating per part, data-driven against
+      # scripts/part_stress_limits.yaml. 3 real over-rating findings are a
+      # dated backlog (seeded 2026-08-07, see that file's header) -- board
+      # redesign decisions for a hardware maintainer, not fixed here; a NEW
+      # over-rating finding still fails this step immediately.
+      - name: Part-stress gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_part_stress_gate.py -v --tb=short
+
+      - name: Part-stress gate (applied stress vs. abs-max rating, scripts/part_stress_limits.yaml)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/part_stress_gate.py
+
+      # ERC endpoint_off_grid consequence gate
+      # (docs/evidence/2026-08-07-erc-off-grid-endpoint-analysis.md): cross-
+      # checks every endpoint_off_grid-flagged pin's actual schematic net
+      # (kicad-cli-exported, exact-coordinate connectivity) against its
+      # atopile-compiled net member-for-member, so a merely-cosmetic ERC
+      # warning class cannot hide a real "looks connected, isn't" defect.
+      # `kicad-cli sch erc` intentionally exits non-zero whenever the
+      # schematic has ANY warning/error (the normal case here) even though
+      # the JSON report was written successfully -- same non-fatal-exit-code
+      # convention the ERC ratchet gate (erc-gate.yml) already documents and
+      # relies on -- so this step checks the report file was produced, not
+      # the CLI's own exit code.
+      - name: Regenerate ERC JSON + schematic netlist XML (for endpoint_off_grid consequence gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          mkdir -p /tmp/erc_off_grid
+          kicad-cli sch erc --format json --severity-all \
+            -o /tmp/erc_off_grid/temper_erc.json pcb/temper.kicad_sch || true
+          test -s /tmp/erc_off_grid/temper_erc.json
+          kicad-cli sch export netlist --format kicadxml \
+            -o /tmp/erc_off_grid/temper_netlist.xml pcb/temper.kicad_sch
+
+      - name: ERC endpoint_off_grid consequence gate (pcb/temper.kicad_sch)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: >
+          uv run python scripts/check_erc_off_grid_consequence.py
+          --erc-json /tmp/erc_off_grid/temper_erc.json
+          --sch-netlist-xml /tmp/erc_off_grid/temper_netlist.xml
+
   # Split out of Core Tests 2026-07-28. Gates that check a claim can be traced
   # to a measurement, plus the anti-vacuous-truth gate that checks a gate
   # actually measured something.

@@ -17,14 +17,9 @@ Exit 0 if every (fault class, origin state) pair the transition table (plus
 the documented C-only interlock paths) defines is covered by a manifest.json
 scenario; non-zero otherwise, naming the missing pairs.
 
-NOT YET WIRED INTO CI: this script is not invoked from
-.github/workflows/firmware-tests.yml as of this commit -- that file is
-owned by a concurrent agent finishing CI registration for the full firmware
-test matrix (plan 2026-08-02, CI rewrite in progress). Wiring needed once
-unblocked: add a step in the firmware-tests job, after the sil_fault_tests
-ctest step, running `python3 scripts/check_sil_coverage.py`, with no
-continue-on-error (see AGENTS.md / this plan's instructions: no soft-masked
-gates).
+Wired into CI (2026-08-07): invoked from .github/workflows/firmware-tests.yml
+as the "SIL fault-injection coverage gate" step, immediately after the
+sil_fault_tests ctest step, with no continue-on-error.
 """
 
 import subprocess

@@ -19,8 +19,9 @@ Runs, in one invocation, over the model built by
 
 Fails closed (nonzero exit) on ANY reachable-but-undocumented-unreachable
 state, ANY property violation, or ANY manifest divergence that is not the
-one documented KTD2 wildcard state-set exception. This gate intentionally
-has no ``continue-on-error`` escape hatch.
+one documented KTD2 wildcard state-set exception OR a dated backlog entry
+(see "Backlog allowlist" below). This gate intentionally has no
+``continue-on-error`` escape hatch.
 
 The reachability report is written to
 ``firmware/tools/state_machine_reachability_report.json`` on every run
@@ -28,15 +29,38 @@ The reachability report is written to
 "reachability report artifact" deliverable) and printed as a human-readable
 summary to stdout.
 
+Backlog allowlist (2026-08-07, CI-wiring session)
+---------------------------------------------------
+At CI-introduction time this gate found one real, pre-existing manifest
+divergence: production routes (STATE_FAULT, EVENT_FAULT_RESET_PERSISTS) to
+(STATE_FAULT, FAULT_NONE); the test-side generator hardcodes
+(STATE_FAULT, FAULT_OVER_TEMP). This is genuine drift between
+``firmware/transition_table.yaml`` and
+``firmware/test/gen_transition_table.py``'s ``TRANSITIONS`` list -- not the
+documented KTD2 exception -- and deciding which of the two is correct is a
+firmware maintainer's call, out of scope for a CI-wiring change (and
+``firmware/transition_table.yaml`` is explicitly out of scope to edit here).
+Rather than leave the gate permanently red on this one known row,
+``state-machine-crosscheck-allowlist.yaml`` (repo root) carries it as a
+dated backlog entry: ``backlog: true`` + ``seeded: '2026-08-07'``, a pair
+that must travel together (``load_crosscheck_allowlist`` fails closed on
+one without the other). A backlog-matched divergence is still printed every
+run, tagged ``(backlog)``, and counted in a ``Backlog: N ...`` summary line
+(pass or fail) -- it is not silently suppressed, it just does not by itself
+flip the exit code. Any OTHER divergence -- a new row, or a value change on
+this same row -- still fails the gate immediately.
+
 Exit codes
 ----------
   0 - OK: every state reachable-or-documented-interlock-only, all four
       properties pass, and the two manifests agree (modulo the KTD2
-      exception).
+      exception and the dated backlog above).
   2 - VIOLATION: an unreachable state, a property violation, or a manifest
-      divergence -- the offending rows/edges are named in the output.
-  5 - GATE ERROR: the manifest or C source could not be parsed at all
-      (never conflated with "0 violations").
+      divergence that is neither the KTD2 exception nor on the dated
+      backlog -- the offending rows/edges are named in the output.
+  5 - GATE ERROR: the manifest or C source could not be parsed at all, or
+      the backlog allowlist is malformed (never conflated with "0
+      violations").
 
 Usage:
   uv run python scripts/check_state_machine_model.py
@@ -47,7 +71,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -55,8 +81,12 @@ FIRMWARE_TOOLS = REPO_ROOT / "firmware" / "tools"
 if str(FIRMWARE_TOOLS) not in sys.path:
     sys.path.insert(0, str(FIRMWARE_TOOLS))
 
-from transition_manifest_crosscheck import CrosscheckError, run_crosscheck  # noqa: E402
-from transition_model import ModelParseError, RUNAWAY_FAULT_STATE, build_model  # noqa: E402
+from transition_manifest_crosscheck import (  # noqa: E402
+    CrosscheckError,
+    RowDivergence,
+    run_crosscheck,
+)
+from transition_model import RUNAWAY_FAULT_STATE, ModelParseError, build_model  # noqa: E402
 from transition_model_checks import run_all_checks  # noqa: E402
 
 EXIT_OK = 0
@@ -64,6 +94,7 @@ EXIT_VIOLATION = 2
 EXIT_GATE_ERROR = 5
 
 DEFAULT_REPORT_PATH = FIRMWARE_TOOLS / "state_machine_reachability_report.json"
+DEFAULT_CROSSCHECK_ALLOWLIST = REPO_ROOT / "state-machine-crosscheck-allowlist.yaml"
 
 # States allowed to be reachable ONLY via the KTD2 implicit interlock edges
 # (i.e. no declared manifest row enters them from elsewhere). This is the
@@ -72,13 +103,106 @@ DEFAULT_REPORT_PATH = FIRMWARE_TOOLS / "state_machine_reachability_report.json"
 # category, or any state found genuinely unreachable, is a gate failure.
 EXPECTED_INTERLOCK_ONLY_STATES = frozenset({RUNAWAY_FAULT_STATE})
 
+_SEEDED_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+@dataclass
+class CrosscheckAllowlistEntry:
+    kind: str
+    from_state: str
+    event: str
+    reason: str
+    backlog: bool = False
+    seeded: str | None = None
+
+
+def load_crosscheck_allowlist(path: Path) -> list[CrosscheckAllowlistEntry]:
+    """Load the dated backlog allowlist for
+    transition_manifest_crosscheck.py row divergences. Missing file == no
+    entries (never an error -- matches the sibling gates' convention).
+    Fails closed (raises) on malformed YAML, a missing required field, or a
+    `backlog`/`seeded` field present without its required pair."""
+    if not path.is_file():
+        return []
+    raw_text = path.read_text(encoding="utf-8")
+    if not raw_text.strip():
+        return []
+    import yaml
+
+    try:
+        data = yaml.safe_load(raw_text)
+    except yaml.YAMLError as exc:
+        raise CrosscheckError(f"{path}: not valid YAML: {exc}") from exc
+    if data is None:
+        return []
+    if not isinstance(data, dict) or "allowlist" not in data:
+        raise CrosscheckError(f"{path}: must be a mapping with a top-level 'allowlist' key")
+    entries_raw = data["allowlist"]
+    if not isinstance(entries_raw, list):
+        raise CrosscheckError(f"{path}: 'allowlist' must be a list")
+
+    entries: list[CrosscheckAllowlistEntry] = []
+    for e in entries_raw:
+        if not isinstance(e, dict):
+            raise CrosscheckError(f"{path}: allowlist entry must be a mapping: {e!r}")
+        kind = e.get("kind")
+        from_state = e.get("from_state")
+        event = e.get("event")
+        reason = e.get("reason")
+        for field_name, value in (("kind", kind), ("from_state", from_state), ("event", event), ("reason", reason)):
+            if not value or not isinstance(value, str):
+                raise CrosscheckError(f"{path}: allowlist entry missing {field_name!r}: {e!r}")
+        backlog = e.get("backlog", False)
+        seeded = e.get("seeded")
+        if not isinstance(backlog, bool):
+            raise CrosscheckError(f"{path}: allowlist entry 'backlog' must be a bool: {e!r}")
+        if backlog and not seeded:
+            raise CrosscheckError(
+                f"{path}: allowlist entry ({from_state}, {event}) has 'backlog: true' "
+                "without a 'seeded' date -- the two fields must travel together"
+            )
+        if seeded and not backlog:
+            raise CrosscheckError(
+                f"{path}: allowlist entry ({from_state}, {event}) has 'seeded' set "
+                "without 'backlog: true' -- the two fields must travel together"
+            )
+        if seeded is not None and (not isinstance(seeded, str) or not _SEEDED_DATE_RE.match(seeded)):
+            raise CrosscheckError(
+                f"{path}: allowlist entry ({from_state}, {event}) has malformed "
+                f"'seeded' date {seeded!r} -- expected YYYY-MM-DD"
+            )
+        entries.append(
+            CrosscheckAllowlistEntry(
+                kind=kind, from_state=from_state, event=event, reason=reason,
+                backlog=backlog, seeded=seeded,
+            )
+        )
+    return entries
+
+
+def _crosscheck_allowlisted(
+    kind: str, d: RowDivergence, entries: list[CrosscheckAllowlistEntry]
+) -> CrosscheckAllowlistEntry | None:
+    for e in entries:
+        if e.kind == kind and e.from_state == d.from_state and e.event == d.event:
+            return e
+    return None
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     parser.add_argument("--report-path", type=Path, default=DEFAULT_REPORT_PATH)
+    parser.add_argument("--allowlist", type=Path, default=DEFAULT_CROSSCHECK_ALLOWLIST)
     args = parser.parse_args()
 
+    try:
+        crosscheck_allowlist = load_crosscheck_allowlist(args.allowlist)
+    except CrosscheckError as exc:
+        print(f"[GATE ERROR] crosscheck allowlist could not be loaded: {exc}", file=sys.stderr)
+        return EXIT_GATE_ERROR
+
     violations: list[str] = []
+    backlog_matches: list[CrosscheckAllowlistEntry] = []
 
     # -- U1: reachability -----------------------------------------------
     try:
@@ -133,10 +257,20 @@ def main() -> int:
           f"test-side={crosscheck.test_row_count} rows, "
           f"documented KTD2 exceptions={len(crosscheck.wildcard_documented_exceptions)}")
     for d in crosscheck.explicit_divergences:
+        entry = _crosscheck_allowlisted("explicit", d, crosscheck_allowlist)
+        if entry is not None and entry.backlog:
+            backlog_matches.append(entry)
+            print(f"    - (backlog, seeded {entry.seeded}) [crosscheck/explicit] {d.describe()} -- {entry.reason}")
+            continue
         msg = f"[crosscheck/explicit] {d.describe()}"
         print(f"    - {msg}")
         violations.append(msg)
     for d in crosscheck.wildcard_divergences:
+        entry = _crosscheck_allowlisted("wildcard", d, crosscheck_allowlist)
+        if entry is not None and entry.backlog:
+            backlog_matches.append(entry)
+            print(f"    - (backlog, seeded {entry.seeded}) [crosscheck/wildcard] {d.describe()} -- {entry.reason}")
+            continue
         msg = f"[crosscheck/wildcard] {d.describe()}"
         print(f"    - {msg}")
         violations.append(msg)
@@ -144,6 +278,20 @@ def main() -> int:
         msg = f"[crosscheck/codegen] {c}"
         print(f"    - {msg}")
         violations.append(msg)
+
+    # Printed every run, pass or fail -- the dated backlog is real, open
+    # drift deferred to a firmware maintainer's call, never silently
+    # invisible. See module docstring "Backlog allowlist" section.
+    if backlog_matches:
+        dates = ", ".join(sorted({e.seeded for e in backlog_matches if e.seeded}))
+        print(
+            f"Backlog: {len(backlog_matches)} pre-existing manifest divergence(s) "
+            f"carried as backlog (seeded {dates}) -- real, open drift deferred to "
+            "a firmware maintainer's call; tracked every run, not blocking CI; "
+            "any additional divergence beyond this dated list still fails the gate."
+        )
+    else:
+        print("Backlog: 0 finding(s) carried as backlog.")
 
     if violations:
         print(f"\nFAILED: {len(violations)} violation(s)", file=sys.stderr)

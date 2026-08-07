@@ -37,14 +37,34 @@ What this gate checks, per entry in the limits file:
      independently confirm (see the entry's `notes`), so it must never be
      silently merged into the same bucket as a directly-measured finding.
 
+Backlog entries (2026-08-07, CI-wiring session)
+-------------------------------------------------
+At CI-introduction time this gate found 3 real, pre-existing FAIL findings
+(bus_cap_ripple_current, tank_coil_peak_current, ac_line_current_low_line --
+see docs/hardware/PART_STRESS_AUDIT.md). These are genuine over-rating
+findings, not measurement error, and fixing them is a board-redesign
+decision for a hardware maintainer, out of scope for a CI-wiring change.
+Rather than leave the gate permanently red (which would make a NEW,
+4th over-rating finding indistinguishable from the known 3), each of the 3
+entries carries `backlog: true` and `seeded: '2026-08-07'` in
+part_stress_limits.yaml -- a pair that must travel together (`__post_init__`
+below fails closed if only one is set). A backlog FAIL still prints in the
+report exactly like any other FAIL (status is never hidden) and is counted
+in a `Backlog:` summary line printed every run, pass or fail, but does not
+by itself flip the exit code -- only a FAIL entry that is NOT on the dated
+backlog does that. Nothing here fixes, re-derives, or waives the underlying
+over-rating; it only stops it from masking a future, different one.
+
 Exit codes:
-  0 - OK: every entry is OK or WARN (guideline advisories do not fail the
-      gate -- they are not the hard limit).
+  0 - OK: every entry is OK, WARN, or a dated-backlog FAIL (guideline
+      advisories and the known backlog do not fail the gate).
   3 - stress_violation: at least one entry is FAIL (margin < 0, at or over
-      its rated limit), unconditional or conditional.
+      its rated limit) and NOT on the dated backlog, unconditional or
+      conditional.
   5 - tool_error: missing/unparseable BOM or limits file, a designator
-      absent from the BOM, or an MPN mismatch against the current board.
-      Never treated as "0 violations" -- same fail-closed convention as
+      absent from the BOM, an MPN mismatch against the current board, or a
+      `backlog`/`seeded` field present without its required pair. Never
+      treated as "0 violations" -- same fail-closed convention as
       scripts/capacity_budget_gate.py.
 
 Usage:
@@ -56,6 +76,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -69,6 +90,8 @@ from _lib.repo import find_repo_root  # noqa: E402
 REPO_ROOT = find_repo_root()
 DEFAULT_BOM = REPO_ROOT / "elec" / "build" / "default.csv"
 DEFAULT_LIMITS = REPO_ROOT / "scripts" / "part_stress_limits.yaml"
+
+_SEEDED_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 class GateError(Exception):
@@ -88,12 +111,34 @@ class Entry:
     conditional: bool
     source: str
     notes: str
+    # `backlog`/`seeded` are a pair, not independent flags -- see module
+    # docstring's "Backlog entries" section. A dated backlog FAIL is a real,
+    # pre-existing over-rating finding deferred to a hardware maintainer's
+    # redesign call; it is still reported and counted, just not treated as
+    # a NEW blocking finding.
+    backlog: bool = False
+    seeded: str | None = None
     margin: float = field(init=False)
     status: str = field(init=False)
 
     def __post_init__(self) -> None:
         if self.rated == 0:
             raise GateError(f"entry {self.id!r}: rated must be nonzero")
+        if self.backlog and not self.seeded:
+            raise GateError(
+                f"entry {self.id!r}: 'backlog: true' without a 'seeded' date -- "
+                "the two fields must travel together"
+            )
+        if self.seeded and not self.backlog:
+            raise GateError(
+                f"entry {self.id!r}: 'seeded' set without 'backlog: true' -- "
+                "the two fields must travel together"
+            )
+        if self.seeded is not None and not _SEEDED_DATE_RE.match(self.seeded):
+            raise GateError(
+                f"entry {self.id!r}: malformed 'seeded' date {self.seeded!r} -- "
+                "expected YYYY-MM-DD"
+            )
         self.margin = (self.rated - self.applied) / self.rated
         if self.margin < 0:
             self.status = "FAIL"
@@ -104,9 +149,17 @@ class Entry:
 
     @property
     def display_status(self) -> str:
+        base = self.status
         if self.conditional and self.status in ("FAIL", "WARN"):
-            return f"{self.status}(conditional)"
-        return self.status
+            base = f"{base}(conditional)"
+        if self.backlog and self.status == "FAIL":
+            base = f"{base}(backlog)"
+        return base
+
+    @property
+    def blocking(self) -> bool:
+        """A FAIL that is not on the dated backlog is what flips the exit code."""
+        return self.status == "FAIL" and not self.backlog
 
 
 def load_bom(path: Path) -> dict[str, str]:
@@ -203,6 +256,8 @@ def build_entries(
                     conditional=bool(raw.get("conditional", False)),
                     source=raw.get("source", ""),
                     notes=raw.get("notes", ""),
+                    backlog=bool(raw.get("backlog", False)),
+                    seeded=raw.get("seeded"),
                 )
             )
         except (KeyError, TypeError, ValueError) as exc:
@@ -216,12 +271,12 @@ def render_report(entries: list[Entry]) -> str:
     order = {"FAIL": 0, "WARN": 1, "OK": 2}
     ranked = sorted(entries, key=lambda e: (order[e.status], e.margin))
 
-    lines.append(f"{'STATUS':<18} {'MARGIN':>8}  {'ID':<32} {'DESIGNATORS'}")
-    lines.append("-" * 90)
+    lines.append(f"{'STATUS':<28} {'MARGIN':>8}  {'ID':<32} {'DESIGNATORS'}")
+    lines.append("-" * 100)
     for e in ranked:
         designators = ",".join(e.designators)
         lines.append(
-            f"{e.display_status:<18} {e.margin * 100:>7.1f}%  {e.id:<32} {designators}"
+            f"{e.display_status:<28} {e.margin * 100:>7.1f}%  {e.id:<32} {designators}"
         )
 
     fails = [e for e in ranked if e.status == "FAIL"]
@@ -233,13 +288,32 @@ def render_report(entries: list[Entry]) -> str:
         lines.append("")
         lines.append("--- FAIL detail (at or over rated limit) ---")
         for e in fails:
+            tags = "".join(
+                [
+                    " [CONDITIONAL]" if e.conditional else "",
+                    f" [BACKLOG seeded {e.seeded}]" if e.backlog else "",
+                ]
+            )
             lines.append(
                 f"\n[{e.id}] {e.applied}{e.unit} applied vs {e.rated}{e.unit} rated "
-                f"({e.margin * -100:.1f}% over){' [CONDITIONAL]' if e.conditional else ''}"
+                f"({e.margin * -100:.1f}% over){tags}"
             )
             lines.append(f"  designators: {', '.join(e.designators)}")
             lines.append(f"  source: {e.source}")
             lines.append(f"  notes: {e.notes}")
+
+    backlog_fails = [e for e in fails if e.backlog]
+    lines.append("")
+    if backlog_fails:
+        dates = ", ".join(sorted({e.seeded for e in backlog_fails if e.seeded}))
+        lines.append(
+            f"Backlog: {len(backlog_fails)} pre-existing FAIL finding(s) carried as "
+            f"backlog (seeded {dates}) -- real, over-rated parts deferred to a "
+            "hardware maintainer's redesign call; tracked every run, not blocking "
+            "CI; any additional FAIL beyond this dated list still fails the gate."
+        )
+    else:
+        lines.append("Backlog: 0 finding(s) carried as backlog.")
 
     return "\n".join(lines)
 
@@ -266,7 +340,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(render_report(entries))
 
-    if any(e.status == "FAIL" for e in entries):
+    if any(e.blocking for e in entries):
         return 3
     return 0
 

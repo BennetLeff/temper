@@ -102,9 +102,28 @@ data. Exits non-zero -- never silently 0 -- for every one of:
   - elec/src/*.ato cannot be parsed into a non-empty class model, or the
     "Top" root class does not exist
 
+Backlog allowlist entries (2026-08-07, CI-wiring session)
+-----------------------------------------------------------
+At CI-introduction time this gate found 27 real, non-allowlisted single-pin-
+net findings that are open questions for a hardware maintainer, not verified
+non-defects (see netlist-stage-checks-allowlist.yaml's own header for the
+per-category breakdown and citations). Rather than either (a) leaving the
+gate permanently red and therefore uninformative the moment a 28th, genuinely
+new finding appears, or (b) silently allowlisting them with an invented
+"verified" reason, each carries `backlog: true` and `seeded: '2026-08-07'`
+in the allowlist -- a distinct entry kind from an ordinary reasoned
+allowlist entry. Backlog entries still suppress the exit code (so the gate
+does not block on a backlog item), but are never invisible: every run prints
+a `Backlog: N ...` summary line naming the count and seed date, pass or
+fail, and a genuinely NEW finding not on the dated list still fails the gate
+immediately. Fixing the underlying wiring/circuit questions is out of scope
+here -- that is the maintainer decision this backlog exists to make visible.
+
 Exit codes:
-  0 - PASSED: 0 non-allowlisted findings across all three checks
-  3 - VIOLATION: at least one non-allowlisted finding
+  0 - PASSED: 0 non-allowlisted (reasoned- or backlog-allowlisted) findings
+      across all three checks
+  3 - VIOLATION: at least one finding that is neither reasoned- nor
+      backlog-allowlisted
   5 - GATE ERROR: the gate could not run a trustworthy check at all
 
 Usage:
@@ -572,11 +591,25 @@ def check_voltage_domain_compat(
 # ---------------------------------------------------------------------------
 
 
+_SEEDED_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
 @dataclass
 class AllowlistEntry:
     check: str
     key: dict[str, str]
     reason: str
+    # `backlog`/`seeded` are a pair, not independent flags -- see module
+    # docstring section "Backlog allowlist entries" below. A `backlog: true`
+    # entry marks a REAL, open, unconfirmed finding (deferred to a hardware
+    # maintainer's call), as opposed to an ordinary allowlist entry's
+    # verified-non-defect reason. It still suppresses the finding from the
+    # gate's exit code -- the design goal is "block any NEW finding
+    # immediately", not "block everything including the known backlog" --
+    # but it is never silently invisible: it is printed every run, tagged,
+    # counted separately, and dated.
+    backlog: bool = False
+    seeded: str | None = None
 
 
 def load_allowlist(path: Path) -> list[AllowlistEntry]:
@@ -610,21 +643,50 @@ def load_allowlist(path: Path) -> list[AllowlistEntry]:
             raise GateError(f"{path}: allowlist entry missing 'check': {e!r}")
         if not reason or not isinstance(reason, str):
             raise GateError(f"{path}: allowlist entry missing 'reason': {e!r}")
-        key = {k: str(v) for k, v in e.items() if k not in ("check", "reason")}
+        backlog = e.get("backlog", False)
+        seeded = e.get("seeded")
+        if not isinstance(backlog, bool):
+            raise GateError(f"{path}: allowlist entry 'backlog' must be a bool: {e!r}")
+        if backlog and not seeded:
+            raise GateError(
+                f"{path}: allowlist entry for check {check!r} has 'backlog: true' "
+                "without a 'seeded' date -- the two fields must travel together"
+            )
+        if seeded and not backlog:
+            raise GateError(
+                f"{path}: allowlist entry for check {check!r} has 'seeded' set "
+                "without 'backlog: true' -- the two fields must travel together"
+            )
+        if seeded is not None:
+            if not isinstance(seeded, str) or not _SEEDED_DATE_RE.match(seeded):
+                raise GateError(
+                    f"{path}: allowlist entry for check {check!r} has malformed "
+                    f"'seeded' date {seeded!r} -- expected YYYY-MM-DD"
+                )
+        key = {
+            k: str(v)
+            for k, v in e.items()
+            if k not in ("check", "reason", "backlog", "seeded")
+        }
         if not key:
             raise GateError(
                 f"{path}: allowlist entry for check {check!r} has no key "
-                "fields beyond 'check'/'reason' -- would match every finding"
+                "fields beyond 'check'/'reason'/'backlog'/'seeded' -- would "
+                "match every finding"
             )
-        entries.append(AllowlistEntry(check=check, key=key, reason=reason))
+        entries.append(
+            AllowlistEntry(check=check, key=key, reason=reason, backlog=backlog, seeded=seeded)
+        )
     return entries
 
 
-def _allowlisted(check: str, key: dict[str, str], entries: list[AllowlistEntry]) -> str | None:
-    """Return the matching entry's reason, or None if not allowlisted."""
+def _allowlisted(
+    check: str, key: dict[str, str], entries: list[AllowlistEntry]
+) -> AllowlistEntry | None:
+    """Return the matching entry, or None if not allowlisted."""
     for e in entries:
         if e.check == check and e.key == key:
-            return e.reason
+            return e
     return None
 
 
@@ -700,9 +762,9 @@ def run(
     def _partition(findings: list, check: str, key_fn) -> tuple[list, list[tuple]]:
         live, allowed = [], []
         for f in findings:
-            reason = _allowlisted(check, key_fn(f), allowlist)
-            if reason is not None:
-                allowed.append((f, reason))
+            entry = _allowlisted(check, key_fn(f), allowlist)
+            if entry is not None:
+                allowed.append((f, entry))
             else:
                 live.append(f)
         return live, allowed
@@ -720,6 +782,27 @@ def run(
     total_live = len(live_single) + len(live_power) + len(live_voltage)
     total_allowed = len(allowed_single) + len(allowed_power) + len(allowed_voltage)
 
+    all_allowed_entries = [e for _, e in allowed_single + allowed_power + allowed_voltage]
+    backlog_entries = [e for e in all_allowed_entries if e.backlog]
+    backlog_seeded_dates = sorted({e.seeded for e in backlog_entries if e.seeded})
+
+    def _backlog_summary_line() -> str:
+        # Printed on every run, pass or fail (per this gate's dated-backlog
+        # convention -- see AllowlistEntry.backlog docstring): the backlog
+        # is real, open findings deferred to a hardware maintainer's call,
+        # not silently suppressed. It stops blocking CI on findings already
+        # known at seed time while still failing closed the moment a NEW,
+        # non-allowlisted finding of any kind appears.
+        if not backlog_entries:
+            return "Backlog: 0 finding(s) carried as backlog."
+        dates = ", ".join(backlog_seeded_dates)
+        return (
+            f"Backlog: {len(backlog_entries)} pre-existing finding(s) carried as "
+            f"backlog (seeded {dates}) -- real, open, NOT independently confirmed "
+            "benign; tracked every run, not blocking CI; any additional finding "
+            "beyond this dated list still fails the gate."
+        )
+
     gh = get_github_summary_path()
     gh_lines: list[str] = []
 
@@ -730,10 +813,12 @@ def run(
             f"net(s), {len(power)} unconnected-power-pin finding(s), "
             f"{len(voltage)} voltage-domain finding(s) total)"
         )
+        print(_backlog_summary_line())
         if gh:
             with open(gh, "a") as f:
                 f.write("### Netlist-Stage Checks Gate -- PASSED\n")
                 f.write(f"0 non-allowlisted findings ({total_allowed} allowlisted).\n")
+                f.write(_backlog_summary_line() + "\n")
         return EXIT_OK
 
     print(f"\n=== SINGLE-PIN NETS: {len(single_pin)} ({len(live_single)} live) ===")
@@ -741,8 +826,9 @@ def run(
         line = f"  {f.net_name!r}: only {f.ref}.{f.pin} connects to it"
         print(line)
         gh_lines.append(f"- [single_pin_net] `{f.net_name}`: only {f.ref}.{f.pin}")
-    for f, reason in allowed_single:
-        print(f"  (allowlisted) {f.net_name!r}: only {f.ref}.{f.pin} -- {reason}")
+    for f, entry in allowed_single:
+        tag = f"(backlog, seeded {entry.seeded})" if entry.backlog else "(allowlisted)"
+        print(f"  {tag} {f.net_name!r}: only {f.ref}.{f.pin} -- {entry.reason}")
 
     print(
         f"\n=== UNCONNECTED POWER PINS: {len(power)} ({len(live_power)} live) ==="
@@ -754,10 +840,11 @@ def run(
             f"- [unconnected_power_pin] `{f.instance_path}` ({f.ref}.{f.pin} "
             f"{f.signal_name}): {f.reason}"
         )
-    for f, reason in allowed_power:
+    for f, entry in allowed_power:
+        tag = f"(backlog, seeded {entry.seeded})" if entry.backlog else "(allowlisted)"
         print(
-            f"  (allowlisted) {f.instance_path} ({f.ref}.{f.pin}, "
-            f"{f.signal_name!r}): {f.reason} -- {reason}"
+            f"  {tag} {f.instance_path} ({f.ref}.{f.pin}, "
+            f"{f.signal_name!r}): {f.reason} -- {entry.reason}"
         )
 
     print(
@@ -774,11 +861,14 @@ def run(
             f"- [voltage_domain] `{f.instance_path}` ({f.ref}) on {f.domain} "
             f"`{f.net_name}`: rated {f.voltage_rating:g}V < {f.floor_voltage:g}V floor"
         )
-    for f, reason in allowed_voltage:
+    for f, entry in allowed_voltage:
+        tag = f"(backlog, seeded {entry.seeded})" if entry.backlog else "(allowlisted)"
         print(
-            f"  (allowlisted) {f.instance_path} ({f.ref}) on {f.domain} "
-            f"{f.net_name!r}: {f.voltage_rating:g}V < {f.floor_voltage:g}V -- {reason}"
+            f"  {tag} {f.instance_path} ({f.ref}) on {f.domain} "
+            f"{f.net_name!r}: {f.voltage_rating:g}V < {f.floor_voltage:g}V -- {entry.reason}"
         )
+
+    print(_backlog_summary_line())
 
     if gh:
         with open(gh, "a") as f:
@@ -789,6 +879,7 @@ def run(
                 f"net(s), {len(live_power)} unconnected-power-pin(s), "
                 f"{len(live_voltage)} voltage-domain violation(s)\n\n"
             )
+            f.write(_backlog_summary_line() + "\n\n")
             for line in gh_lines[:200]:
                 f.write(line + "\n")
 

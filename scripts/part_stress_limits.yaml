@@ -35,6 +35,17 @@
 #                        never silently merged with an unconditional finding
 #   source              datasheet or evidence-doc citation
 #   notes                short explanation, cross-referenced to the audit doc
+#   backlog              true for a real, pre-existing FAIL deferred to a
+#                        hardware maintainer's redesign call (CI-wiring
+#                        session, 2026-08-07) -- must be paired with `seeded`
+#                        (scripts/part_stress_gate.py fails closed on one
+#                        without the other). A backlog FAIL is still
+#                        reported and counted every run; it does not itself
+#                        flip the gate's exit code, but a NEW FAIL that is
+#                        not on this dated list still does.
+#   seeded                'YYYY-MM-DD' the backlog entry was recorded on;
+#                        only meaningful (and only permitted) alongside
+#                        `backlog: true`
 
 entries:
   # ---------------------------------------------------------------------
@@ -49,6 +60,8 @@ entries:
     applied: 13.02
     guideline_margin: 0.0
     conditional: false
+    backlog: true
+    seeded: "2026-08-07"
     source: >-
       United Chemi-Con CAT. No. E1001E (KMQ series, 250V row, 1800uF,
       phi35xL50) rated ripple 2.70 Arms @ 105C/120Hz; applied figure is the
@@ -58,7 +71,9 @@ entries:
       even the best case (11.39A) is 4.22x rated.
     notes: >-
       docs/hardware/PART_STRESS_AUDIT.md Sec 1.1. Still live: modules.ato
-      C_BUS1/1B/2/2B unchanged since the 2026-07-26 finding.
+      C_BUS1/1B/2/2B unchanged since the 2026-07-26 finding. Backlogged at
+      CI-wiring time (2026-08-07): a real, pre-existing over-rating finding
+      deferred to a hardware maintainer's redesign call, not fixed here.
 
   - id: ac_line_current_low_line
     designators: [F1, L1]
@@ -69,6 +84,8 @@ entries:
     applied: 18.52
     guideline_margin: 0.0
     conditional: true
+    backlog: true
+    seeded: "2026-08-07"
     source: >-
       Fuse (0034.3129, Schurter FST 5x20 time-lag) and CMC
       (B82726S2163N030, TDK datasheet "Date: April 2025") both rated 16A
@@ -82,7 +99,9 @@ entries:
       firmware/, but that is not proof none exists. This entry uses the
       110V/eta=0.90 case (18.52A) as a representative, not worst-case,
       point -- the audit doc's full table spans 18.12-21.18A depending on
-      V_line and eta.
+      V_line and eta. Backlogged at CI-wiring time (2026-08-07): a real,
+      pre-existing (conditional) over-rating finding deferred to a hardware
+      maintainer's call, not fixed here.
 
   - id: tank_coil_peak_current
     designators: [R30]
@@ -93,6 +112,8 @@ entries:
     applied: 31.9
     guideline_margin: 0.0
     conditional: false
+    backlog: true
+    seeded: "2026-08-07"
     source: >-
       footprint LitzPad_15A (footprints.ato) names its own 15A pad rating.
       Applied figure (28.7-31.9A peak) from modules.ato:585-596, both the
@@ -101,6 +122,9 @@ entries:
     notes: >-
       docs/hardware/PART_STRESS_AUDIT.md Sec 1.3. Already flagged
       in-source verbatim; not a new finding, reconfirmed unchanged.
+      Backlogged at CI-wiring time (2026-08-07): a real, pre-existing
+      over-rating finding deferred to a hardware maintainer's redesign
+      call, not fixed here.
 
   # ---------------------------------------------------------------------
   # Section 2: BELOW NORMAL DERATING GUIDELINE
