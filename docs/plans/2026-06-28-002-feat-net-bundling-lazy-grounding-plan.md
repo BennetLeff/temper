@@ -1,11 +1,11 @@
 ---
 title: "feat: Hierarchical Net Bundling with Type-Gated Lazy Grounding"
 type: feat
-status: stale
+status: abandoned
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-net-bundling-lazy-grounding-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "built+merged 2026-06-29, PyO3 entrypoint lost in a 2026-07-08 refactor; docs/evidence/2026-07-27-bundled-encoding.md: unreachable, never restored"
 ---
 
 # Hierarchical Net Bundling with Type-Gated Lazy Grounding

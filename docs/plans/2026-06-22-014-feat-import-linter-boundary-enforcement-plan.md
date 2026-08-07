@@ -1,11 +1,11 @@
 ---
 title: "feat: Import-Linter Module Boundary Enforcement CI Gate"
 type: feat
-status: stale
+status: completed
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-22-import-linter-boundary-enforcement-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed - scripts/import_linter_gate.py, .importlinter, import-linter-allowlist.yaml all present and wired into CI (python-tests.yml); AGENTS.md documents it as an active merge-blocking gate"
 ---
 
 # feat: Import-Linter Module Boundary Enforcement CI Gate

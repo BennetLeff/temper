@@ -2,9 +2,9 @@
 date: 2026-06-22
 type: feat
 origin: docs/ideation/2026-06-22-test-and-build-next-ideation.md
-status: stale
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+status: completed
+swept: 2026-08-07
+swept_basis: "landed: tests/protocol/ contains test_stage_conformance.py, test_strategy_registry.py, test_runner.py, test_adapters.py exactly as specified"
 ---
 
 # Plan: Protocol Conformance Test Suite — Stage Contract Validation

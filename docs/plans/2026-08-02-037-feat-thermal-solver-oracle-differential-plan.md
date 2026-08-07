@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R9)
+status: active
+swept: 2026-08-07
+swept_basis: "validation/mfem_gate.py exists (per-placement gate) but has no per-solve hook into cp_sat/_loop_core.py and no subsampled-comparison entry point. Extension unbuilt."
 ---
 
 # Thermal Solver Oracle Differential - Plan

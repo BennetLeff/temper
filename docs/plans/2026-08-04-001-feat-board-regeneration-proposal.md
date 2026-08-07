@@ -7,6 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 execution: code
+status: completed
+swept: 2026-08-07
+swept_basis: "analysis-only deliverable, fully delivered (answers wasm-verification-tier Q2); its recommendation against automated regeneration is not yet built, tracked separately"
 ---
 
 # Board Regeneration for the WASM Verification Tier - Proposal

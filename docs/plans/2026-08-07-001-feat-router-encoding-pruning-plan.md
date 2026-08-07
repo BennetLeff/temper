@@ -7,6 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
+status: active
+swept: 2026-08-07
+swept_basis: "in flight - U1-U4 landed (commits dd622121, d518b560, PR #916); U5 (production-board measurement) and U6 (verdict) still open"
 ---
 
 # Router SAT Encoding Geographic Pruning — Plan

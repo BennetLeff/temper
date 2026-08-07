@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R14, R25)
+status: active
+swept: 2026-08-07
+swept_basis: "No use of OR-Tools BestObjectiveBound() or a gap-certificate registry found anywhere in the placer's CP-SAT solve path. Unbuilt, uncontradicted."
 ---
 
 # Solve-Gap Oracle & Certificate - Plan

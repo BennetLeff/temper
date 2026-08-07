@@ -8,6 +8,8 @@ artifact_readiness: implementation-ready
 product_contract_source: ce-plan
 execution: code
 status: active
+swept: 2026-08-07
+swept_basis: "Phase 0 of the wasm-verification-tier plan; superseded in scope by Phase 1 (2026-08-07-001-feat-wasm-tier-phase1-plan.md) which is now the active execution unit"
 ---
 
 # WASM Verification Tier — Phase 0 Implementation Plan

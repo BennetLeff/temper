@@ -1,11 +1,11 @@
 ---
 title: "fix: Remediate N2 Safety Drift Sites"
 type: fix
-status: stale
+status: completed
 date: 2026-06-22
 origin: docs/plans/2026-06-22-002-feat-safety-constant-ssot-plan.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed: commit 2116fb50 'fix(U5): remove all drift override entries from safety_constant_overrides.yaml' matches plan scope exactly"
 ---
 
 # fix: Remediate N2 Safety Drift Sites

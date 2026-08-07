@@ -1,11 +1,11 @@
 ---
 title: "fix: Physics Oracle Metric Fix and C-CAP Experiment"
 type: fix
-status: stale
+status: abandoned
 date: 2026-07-02
 origin: docs/brainstorms/2026-07-02-physics-oracle-metric-fix-and-c-cap-experiment-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "no C-CAP/worst-pair code anywhere; clearance problem later solved differently via domain_clearance.py CP-SAT constraints (STRATEGY.md 2026-07-27, 22→0 violations)"
 ---
 
 # fix: Physics Oracle Metric Fix and C-CAP Experiment

@@ -1,11 +1,11 @@
 ---
 title: Fresh-build inventory gate
 type: feat
-status: stale
+status: abandoned
 date: 2026-07-13
 origin: docs/brainstorms/2026-07-13-real-induction-board-closure-arc-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "no fresh-build inventory gate (component/net identity from ato build) anywhere in scripts/ or CI; same abandoned closure-arc concept as 2026-07-13-001"
 ---
 
 # Fresh-build inventory gate

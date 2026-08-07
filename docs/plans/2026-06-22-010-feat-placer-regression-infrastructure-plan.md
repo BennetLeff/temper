@@ -1,11 +1,11 @@
 ---
 title: "Placer Regression Infrastructure"
 type: feat
-status: stale
+status: superseded
 date: 2026-06-22
 origin: "docs/ideation/2026-06-22-design-validation-ideation.md"
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "superseded by docs/plans/2026-08-04-003-feat-drc-count-ratchet-deletion-incentive-plan.md - corpus_runner.py's optimizer path was retired (JAX removal); DRC ratchet now guards regressions"
 ---
 
 # Plan: Placer Regression Infrastructure

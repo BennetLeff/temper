@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R41)
+status: active
+swept: 2026-08-07
+swept_basis: "Verified live: test_sil_fault_injection.c's power_off/eeprom_logged assertions are still 'soft' (WARN-only), not promoted to hard checks as KTD3 requires; test_sil_coverage.py doesn't exist."
 ---
 
 # Firmware fault injection - Plan

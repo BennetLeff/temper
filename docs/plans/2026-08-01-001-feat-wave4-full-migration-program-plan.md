@@ -6,6 +6,9 @@ topic: wave4-full-migration-program
 artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
+status: active
+swept: 2026-08-07
+swept_basis: "in flight - governs goal-set goal 1 (Rust consolidation); Phase 3 pulled (2026-08-02-001-feat-wave4-phase3-formats-io-plan.md), Phase 4 baselines landing (commit 90d5fd98)"
 ---
 
 # Wave 4 Python → Rust Full-Migration Program — Plan

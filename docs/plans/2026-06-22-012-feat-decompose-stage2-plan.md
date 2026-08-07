@@ -1,11 +1,11 @@
 ---
 title: "feat: Decompose RouterV6 Stage 2 Channel Analysis into 8 Micro-Stages"
 type: feat
-status: stale
+status: completed
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-22-decompose-stage2-channel-analysis-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed: router_v6/stage2_orchestrator.py (Stage2Orchestrator class) and tests/router_v6/generate_stage2_goldens.py both exist"
 ---
 
 # feat: Decompose RouterV6 Stage 2 Channel Analysis into 8 Micro-Stages

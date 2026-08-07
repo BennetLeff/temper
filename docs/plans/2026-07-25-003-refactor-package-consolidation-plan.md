@@ -1,8 +1,10 @@
 ---
 title: "refactor: Package Consolidation"
 type: refactor
-status: active
+status: completed
 date: 2026-07-25
+swept: 2026-08-07
+swept_basis: "3 -core crates merged (#360, a025ef9a/33b65f50/500b9b2b); temper-validation and constraint_types/ dup deleted; none of the 4 remain in packages/."
 ---
 
 ## Goal

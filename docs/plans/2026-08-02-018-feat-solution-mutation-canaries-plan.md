@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R36)
+status: active
+swept: 2026-08-07
+swept_basis: "validation/mutation_canary.py does not exist. Unbuilt, uncontradicted menu item."
 ---
 
 # Solution Mutation Canaries - Plan
