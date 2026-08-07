@@ -17,8 +17,9 @@ unchanged.
 from __future__ import annotations
 
 import logging
-import math
 from typing import Any
+
+import temper_geometry as _tg
 
 logger = logging.getLogger(__name__)
 
@@ -111,14 +112,18 @@ def _stitch_isolated_pads(
     sequence across every element emitted in a single route_pcb() call.
     Callers that invoke this function standalone (e.g. tests) get a
     fresh, independent counter starting at 0.
+
+    Wave 4: the point-in-polygon (``shapely.Polygon.contains``/``.touches``)
+    and nearest-boundary-vertex (``scipy.spatial.cKDTree``) geometry
+    delegates to ``temper_geometry.stitch_targets_py`` (see
+    ``packages/temper-geometry/src/zone_pour.rs``). The netclass-SSOT
+    eligibility check (``_zone_layers_for_net``) and tstamp/segment
+    formatting stay here -- they are not geometry.
     """
     from temper_placer.router_v6._adapter_convert import _next_tstamp
 
     if tstamp_counter is None:
         tstamp_counter = [0]
-
-    from shapely.geometry import Point as ShapelyPoint
-    from shapely.geometry import Polygon
 
     for net_name, positions in pad_positions.items():
         # Zone-eligibility check delegates to _zone_layers_for_net() rather
@@ -143,41 +148,15 @@ def _stitch_isolated_pads(
         if not zps:
             continue
 
-        pour_polys: list[Polygon] = []
-        for pts in zps:
-            if len(pts) >= 3:
-                pour_polys.append(Polygon(pts))
-
-        if not pour_polys:
+        targets = _tg.stitch_targets_py(positions, [list(pts) for pts in zps])
+        if not targets:
             continue
 
-        outside: list[tuple[float, float]] = []
-        for x, y in positions:
-            pt = ShapelyPoint(x, y)
-            if not any(poly.contains(pt) or poly.touches(pt) for poly in pour_polys):
-                outside.append((x, y))
-
-        if not outside:
-            continue
-
-        from scipy.spatial import cKDTree
-
-        all_verts: list[tuple[float, float]] = []
-        for poly in pour_polys:
-            for x, y in poly.exterior.coords:
-                all_verts.append((float(x), float(y)))
-        if not all_verts:
-            continue
-
-        tree = cKDTree(all_verts)
         trace_layer = (
             _zone_layers_for_net(net_name)[0] if _zone_layers_for_net(net_name) else "F.Cu"
         )
 
-        for px, py in outside:
-            _dist, idx = tree.query((px, py))
-            nearest_x, nearest_y = all_verts[idx]
-
+        for px, py, nearest_x, nearest_y in targets:
             segments.append(
                 f"  (segment (start {px:.4f} {py:.4f})"
                 f" (end {nearest_x:.4f} {nearest_y:.4f})"
@@ -311,53 +290,9 @@ def _chamfer_path_points(
     Layer transitions (vias) are never chamfered.  Start and end points
     are preserved unchanged.  Segments shorter than ``2 * chamfer_offset``
     on either side of a turn skip chamfering.
+
+    Wave 4: delegates to ``temper_geometry.chamfer_path_points_py`` (pure
+    f64 arithmetic, no external library; see
+    ``packages/temper-geometry/src/zone_pour.rs``).
     """
-    if len(path_points) <= 2:
-        return list(path_points)
-
-    result: list[tuple[float, float, str]] = [path_points[0]]
-
-    for i in range(1, len(path_points) - 1):
-        prev = path_points[i - 1]
-        curr = path_points[i]
-        nxt = path_points[i + 1]
-
-        if prev[2] != curr[2] or curr[2] != nxt[2]:
-            result.append(curr)
-            continue
-
-        lyr = curr[2]
-        dx1 = curr[0] - prev[0]
-        dy1 = curr[1] - prev[1]
-        dx2 = nxt[0] - curr[0]
-        dy2 = nxt[1] - curr[1]
-
-        h1 = abs(dy1) < 1e-12 and abs(dx1) > 1e-12
-        v1 = abs(dx1) < 1e-12 and abs(dy1) > 1e-12
-        h2 = abs(dy2) < 1e-12 and abs(dx2) > 1e-12
-        v2 = abs(dx2) < 1e-12 and abs(dy2) > 1e-12
-
-        is_orthogonal = (h1 and v2) or (v1 and h2)
-        if not is_orthogonal:
-            result.append(curr)
-            continue
-
-        seg1_len = math.sqrt(dx1 * dx1 + dy1 * dy1)
-        seg2_len = math.sqrt(dx2 * dx2 + dy2 * dy2)
-        if seg1_len < 2.0 * chamfer_offset or seg2_len < 2.0 * chamfer_offset:
-            result.append(curr)
-            continue
-
-        ux1 = dx1 / seg1_len
-        uy1 = dy1 / seg1_len
-        ux2 = dx2 / seg2_len
-        uy2 = dy2 / seg2_len
-
-        before = (curr[0] - ux1 * chamfer_offset, curr[1] - uy1 * chamfer_offset, lyr)
-        after = (curr[0] + ux2 * chamfer_offset, curr[1] + uy2 * chamfer_offset, lyr)
-
-        result.append(before)
-        result.append(after)
-
-    result.append(path_points[-1])
-    return result
+    return _tg.chamfer_path_points_py(path_points, chamfer_offset)

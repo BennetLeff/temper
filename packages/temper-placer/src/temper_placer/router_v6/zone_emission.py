@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import temper_geometry as _tg
 from shapely.geometry import MultiPoint
 
 
@@ -192,15 +193,17 @@ def compute_zone_for_net(
 
 
 def emit_zone_s_expr(zone: ZoneDefinition) -> str:
-    """Render a ZoneDefinition as a KiCad ``(zone ...)`` s-expression."""
-    poly = " ".join(f"(xy {x:.4f} {y:.4f})" for x, y in zone.points)
-    return (
-        f'  (zone (net {zone.net_number}) (net_name "{zone.net_name}")'
-        f' (layer "{zone.layer}")'
-        f" (hatch full 0.5)"
-        f" (priority {zone.priority})"
-        f" (connect_pads yes (clearance {zone.clearance:.4f}))"
-        f" (min_thickness {zone.min_thickness:.4f})"
-        f" (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))"
-        f" (polygon (pts {poly})))"
+    """Render a ZoneDefinition as a KiCad ``(zone ...)`` s-expression.
+
+    Wave 4: delegates to ``temper_geometry.emit_zone_s_expr_py`` (pure
+    string formatting; see ``packages/temper-geometry/src/zone_pour.rs``).
+    """
+    return _tg.emit_zone_s_expr_py(
+        zone.net_number,
+        zone.net_name,
+        zone.layer,
+        list(zone.points),
+        zone.clearance,
+        zone.priority,
+        zone.min_thickness,
     )

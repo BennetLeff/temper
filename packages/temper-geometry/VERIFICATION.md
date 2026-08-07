@@ -1677,3 +1677,164 @@ N/A. Nothing in this module is physics-gated. `compute_drc_proxy_score` is a
 differentiable *proxy* loss for optimisation, not a manufacturing or safety
 rule: it has no threshold, produces no verdict, and gates nothing. The R24
 discipline applies to CP-SAT physics constraints; there are none here.
+
+## Zone Pour Emission Geometry (`zone_pour.rs`) — Wave 4, 2026-08-06
+
+Ports three kernels from `router_v6/zone_emission.py` and
+`router_v6/_zone_pour_stitch.py`: `emit_zone_s_expr` (string formatting),
+`_chamfer_path_points` (90-degree-turn chamfering), and the point-in-polygon
++ nearest-boundary-vertex geometric core of `_stitch_isolated_pads`
+(`stitch_targets_py`, replacing `shapely.Polygon.contains`/`.touches` and
+`scipy.spatial.cKDTree`).
+
+### Verification by Induction
+
+**`emit_zone_s_expr_py`.** Base case: a 3-point triangle with all-zero
+numeric fields (`net_number=0`, `clearance=0.0`, `priority=0`,
+`min_thickness=0.0`) — the output is a single format! expansion with no
+branch taken, checked byte-for-byte against the oracle
+(`test_emit_zone_s_expr_matches_oracle_edge_cases`). Induction step: each
+additional polygon point contributes one more `(xy {x:.4} {y:.4})` segment,
+joined by a single space, independent of every other point's value or the
+scalar fields — string concatenation of independently-formatted pieces has
+no cross-element interaction, so N-point correctness follows from 1-point
+correctness by structural induction on `points`. `{:.4}` (Rust) and `.4f`
+(Python) are both correctly-rounded decimal-digit-selection algorithms
+applied to the same f64 bit pattern; they were not assumed to agree --
+`test_emit_zone_s_expr_matches_oracle_random_corpus` checks 200 random
+zones (including negative/near-boundary clearances and priorities up to
+90) bit-exact against the oracle.
+
+**`chamfer_path_points_py`.** Base case: paths of length 0, 1, or 2 return
+unchanged (`if path_points.len() <= 2`), checked directly
+(`test_chamfer_matches_oracle_edge_cases`). Induction step: each interior
+point `i` is classified using only `path_points[i-1..=i+1]` (a fixed
+3-point window) and emits 1 or 2 output points independent of every other
+index's classification -- the chamfer decision has no accumulated state
+across iterations (unlike, say, a running centroid), so per-window
+correctness at every `i` implies whole-path correctness. The four boolean
+guards (`prev[2] != curr[2]`, orthogonality, degenerate-length) are each
+independently exercised by a crafted case in
+`test_chamfer_matches_oracle_edge_cases`, and the random corpus
+(`test_chamfer_matches_oracle_random_corpus`, 200 paths of 0-15 points,
+random chamfer_offset in [0.01, 0.5], layer switches injected at ~15%
+probability) exercises every guard in combination.
+
+**`stitch_targets_py`.** Base case: a single pad, a single valid (>=3
+point) polygon containing it -- empty output, checked directly
+(`test_stitch_matches_oracle_pad_inside_zone_not_stitched`). Induction
+step (containment): each pad's inside/outside classification depends only
+on that pad and the polygon set, not on any other pad -- per-pad
+correctness composes to whole-batch correctness by construction (the loop
+carries no state between pads). Induction step (nearest-vertex): each
+outside pad's nearest vertex is a linear scan over the flattened,
+polygon-order-independent vertex list; extending that list with one more
+polygon's vertices cannot change the answer unless one of the new vertices
+is strictly closer, which is exactly what the `d < best_d` update tests --
+so correctness for `k` polygons implies correctness for `k+1`. The
+`len(pts) >= 3` polygon filter (dead-vertex-list rejection) is checked
+directly (`test_stitch_matches_oracle_polygon_with_too_few_points_skipped`,
+`test_stitch_matches_oracle_empty_zone_points_skipped`).
+
+Containment reuses the already-shipped, already-verified
+`polygon::point_in_polygon_winding` rather than a second predicate --
+its own on-edge/on-vertex behaviour is covered by that function's existing
+unit tests (`polygon.rs`, `test_point_in_polygon_on_edge`/`_on_vertex`).
+
+### Empirical Verification
+
+`packages/temper-placer/tests/router_v6/test_zone_pour_geometry_rust_differential.py`,
+16 tests, all green against the pinned oracle
+(`_zone_pour_geometry_py_oracle.py`, verbatim at
+`a920657f2d4fa2f56b24d71f3ae558dd244dc0fc`): 200-case random corpora for
+`emit_zone_s_expr` and `_chamfer_path_points`, a 60-trial multi-cluster
+random corpus for `_stitch_isolated_pads` (including shared-tstamp-counter
+state), plus crafted edge cases (empty/degenerate polygons, quoted net
+names, negative-zero coordinates, non-eligible nets). Comparison is by
+`tests/router_v6/_signature.sig` -- bit-exact, type-carrying, no tolerance.
+
+**Mutation testing (anti-vacuity).** Each kernel was mutated, rebuilt, and
+confirmed to fail a *named* test; reverted and confirmed `git diff` clean
+before continuing:
+
+| kernel | mutation | named test that failed |
+|---|---|---|
+| `emit_zone_s_expr` | `min_thickness` format precision `.4` -> `.3` | `test_emit_zone_s_expr_matches_oracle_random_corpus`, `test_emit_zone_s_expr_matches_oracle_edge_cases` |
+| `chamfer_path_points` | short-segment skip guard `2.0 * chamfer_offset` -> `1.0 * chamfer_offset` | `test_chamfer_matches_oracle_random_corpus` |
+| `stitch_targets` | inverted containment branch `if inside_any` -> `if !inside_any` | `test_stitch_matches_oracle_pad_outside_zone_gets_trace` (+3 others) |
+
+**Wiring proof.** A `panic!("WIRING_PROOF_SENTINEL: ...")` was temporarily
+inserted into each of the three `catch_unwind` closures, the extension
+rebuilt, and each SHIPPED entry point invoked directly (not through a
+test): `zone_emission.emit_zone_s_expr`, `_zone_pour_stitch.
+_chamfer_path_points`, `_zone_pour_stitch._stitch_isolated_pads`, and the
+top-level `_zone_pour_stitch._emit_zone_pours` orchestrator that
+production's `route_pcb()` calls. All four raised `RuntimeError:
+WIRING_PROOF_SENTINEL: <symbol>`, proving the panic propagates from the
+Rust kernel through the shipped Python call chain, not just through the
+differential's direct `temper_geometry.<symbol>` calls. Reverted; `git
+diff` against the committed Rust source was empty.
+
+### Known, recorded divergence: nearest-vertex tie-break
+
+`stitch_targets_py` resolves exact nearest-vertex distance ties by
+"first-strictly-smaller-wins" over the flattened, polygon-order vertex
+list. Measured against `scipy.spatial.cKDTree.query`: of 2000 randomized
+tie-forced queries (coordinates rounded to 1 decimal specifically to
+manufacture ties), cKDTree picked a different tied vertex in 2 cases,
+because its answer depends on its internal space-partitioning traversal
+order, not input order. Reproducing that traversal bit-for-bit would mean
+re-deriving scipy's `cKDTree` splitting rule -- out of scope for this
+migration. Unreachable in practice: it requires an EXACT float64 distance
+tie between two distinct pour-boundary vertices, a measure-zero event for
+placement/routing-derived board coordinates. Demonstrated directly (not
+routed through the full `_stitch_isolated_pads` composition, where
+constructing a real-geometry tie proved incidental to the point) in
+`test_tie_break_class_exists_direct_cKDTree_comparison`.
+
+### JUSTIFIED-KEEP: clustering and hull-buffer geometry (not migrated)
+
+`_cluster_positions` (scipy `linkage`/`fcluster`, Ward hierarchical
+clustering) and `_convex_hull_from_positions`'s `shapely.buffer(margin,
+join_style=2)` step (GEOS mitre-join polygon offsetting) were evaluated
+and NOT migrated in this slice:
+
+- **`_cluster_positions`**: a scipy library boundary in the same class as
+  KTD8/KTD9 (see the residual decision procedure in
+  `docs/wave4-discipline-contract.md`). The Ward-linkage NN-chain /
+  Lance-Williams recurrence is a specific numerical algorithm to
+  reimplement and independently validate bit-exact against scipy's own
+  `_hierarchy.pyx`, not a closed-form transcription.
+- **`_convex_hull_from_positions`'s `buffer()` step**: measured directly
+  (offline, not committed as a test) against an analytic mitre-offset
+  reimplementation (outward-normal edge offset + adjacent-offset-line
+  intersection per vertex, matching GEOS's winding convention once its
+  hull output was observed to be clockwise, not the textbook CCW):
+  agreement to ~1e-13 (float noise, NOT bit-exact) on 181/200 random
+  convex hulls, with the remaining ~10% diverging in VERTEX COUNT
+  (mitre-limit beveling, GEOS's exact rule unconfirmed against the
+  analytic model). Same divergence class as this file's own
+  `drc_inflate.rs`-documented `buffer(r, resolution=16)` JUSTIFIED-KEEP
+  (round join instead of mitre join, same GEOS boundary, same conclusion).
+
+Both stay on `compute_zones_for_net`/`compute_zone_for_net` in
+`zone_emission.py`, unchanged, calling live `shapely`/`scipy`. Re-decidable
+per the discipline contract's residual procedure: a future spike with a
+validated from-scratch Ward-linkage or GEOS-mitre-buffer implementation can
+reopen this boundary.
+
+### PBT / Metamorphic Coverage
+
+Not added as a separate suite in this slice -- the differential's 200-case
+random corpora (per kernel) plus the crafted edge-case sets serve the same
+falsification role for these three kernels, which have no free parameters
+beyond their direct inputs (no thresholds, no iteration counts, no solver
+state) for a property suite to usefully vary independently of the
+input-shape coverage the differential already has. Recorded here rather
+than silently omitted, per the discipline contract's "reported and
+recorded, not faked" rule.
+
+### R1h — physics gating
+
+N/A. Zone/pour emission is KiCad output geometry, not a manufacturing or
+safety rule; it has no threshold and produces no pass/fail verdict.
