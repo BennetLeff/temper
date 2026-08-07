@@ -133,10 +133,10 @@ pub(crate) mod tests {
     use crate::board::*;
     use crate::constraints::*;
     use geo::Point;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     fn make_board(components: Vec<Component>, clearance_mm: f64) -> BoardState {
-        let mut rules = HashMap::new();
+        let mut rules = BTreeMap::new();
         // Insert net class rules for every net class used in tests so
         // clearance_between() can resolve them in the key-value map.
         let default_rules = NetClassRules {
