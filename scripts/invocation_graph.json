@@ -114,6 +114,7 @@
   "check_netlist_mutation_corpus.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_netlist_stage_checks.py": [],
   "check_no_raw_rotation_trig.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py",
