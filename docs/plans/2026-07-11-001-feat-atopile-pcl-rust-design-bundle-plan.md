@@ -2,11 +2,11 @@
 plan_id: 2026-07-11-001
 plan_type: feat
 title: "feat: typed Rust Atopile + PCL design bundle boundary"
-status: stale
+status: completed
 origin: docs/brainstorms/2026-07-11-atopile-pcl-rust-design-bundle-requirements.md
 tags: [atopile, pcl, rust, pyo3, provenance, constraints, pipeline]
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "packages/temper-design-bundle/ fully landed: 30+ src modules, tests, VERIFICATION.md, golden fixtures; used across placer io/router_v6"
 ---
 
 # Typed Rust Atopile + PCL Design Bundle Boundary

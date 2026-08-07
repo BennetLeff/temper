@@ -1,9 +1,10 @@
----status: completed
+---
+status: completed
 date: 2026-06-28
 type: feat
 origin: docs/brainstorms/2026-06-28-constraint-lowering-compiler-requirements.md
-swept: 2026-07-25
-swept_basis: "referenced in git history; 21/22 paths exist"
+swept: 2026-08-07
+swept_basis: "packages/temper-constraint-compiler/ exists (21 .rs files); landed via #715 Wave4 Phase4 (808ee13d) + follow-ups"
 ---
 
 # feat: Constraint Lattice & Multi-Tier Lowering Compiler

@@ -1,11 +1,11 @@
 ---
 title: "feat: NetClassRules Field Extension — dru_priority + required_layer + safety_category"
 type: feat
-status: abandoned
+status: completed
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-net-class-rules-fields-requirements.md
-swept: 2026-07-25
-swept_basis: "only 3/14 named paths exist"
+swept: 2026-08-07
+swept_basis: "landed at the post-src/-layout path - dru_priority, required_layer, safety_category all present in packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py and used in design_rules.py"
 ---
 
 # feat: NetClassRules Field Extension — dru_priority + required_layer + safety_category

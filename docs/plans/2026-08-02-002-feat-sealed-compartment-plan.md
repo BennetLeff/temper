@@ -7,6 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 execution: mech + placer + elec
+status: abandoned
+swept: 2026-08-07
+swept_basis: "R1's physical gasket/compartment build (parts, BOM, assembly) is fabricated hardware, explicitly out of scope per 2026-08-04-002-docs-temper-goal-set-plan.md's Scope Boundary (D3)."
 ---
 
 # Sealed Compartment for PD2/8.0mm — Plan

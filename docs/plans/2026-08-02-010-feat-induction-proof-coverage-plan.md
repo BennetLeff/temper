@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R22)
+status: active
+swept: 2026-08-07
+swept_basis: "docs/verification/crate-verification-coverage.md and its gate script don't exist; the 4 VERIFICATION.md proofs and Wave4's R1e rule persist as practice, not yet a checked registry."
 ---
 
 # Induction-proof Coverage for Compute Crates - Plan

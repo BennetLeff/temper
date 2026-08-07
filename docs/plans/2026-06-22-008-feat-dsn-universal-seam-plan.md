@@ -2,9 +2,9 @@
 date: 2026-06-22
 type: feat
 origin: docs/brainstorms/2026-06-22-dsn-universal-seam-requirements.md
-status: stale
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+status: completed
+swept: 2026-08-07
+swept_basis: "landed: power_pcb_dataset/stage_boundaries.yaml, io/dsn_exporter.py, io/dsn_validator.py with schema-version header validation"
 ---
 
 # Plan: DSN/SES Universal Seam for Pipeline Stage Boundaries

@@ -1,11 +1,11 @@
 ---
 title: Layer Names Consolidation
 type: refactor
-status: stale
+status: completed
 date: 2026-06-23
 origin: docs/brainstorms/2026-06-23-layer-names-consolidation-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed: LayerIndex IntEnum, STANDARD_LAYER_ORDER, PLANE_LAYER_INDICES all present in core/board.py exactly per spec"
 ---
 
 # Layer Names Consolidation

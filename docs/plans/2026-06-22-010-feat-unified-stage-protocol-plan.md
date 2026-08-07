@@ -2,9 +2,9 @@
 date: 2026-06-22
 type: feat
 origin: docs/brainstorms/2026-06-22-unified-stage-protocol-requirements.md
-status: stale
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+status: completed
+swept: 2026-08-07
+swept_basis: "landed: temper_placer/protocol.py, strategy_registry.py, and packages/temper-placer/tests/protocol/ conformance suite all exist"
 ---
 
 # Plan: Unified Stage Protocol — Protocol Class, Strategy Registry, Adapters for All Three Pipelines

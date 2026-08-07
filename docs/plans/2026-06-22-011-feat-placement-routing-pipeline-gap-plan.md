@@ -2,9 +2,9 @@
 date: 2026-06-22
 type: feat
 origin: docs/brainstorms/2026-06-22-placement-routing-pipeline-gap-requirements.md
-status: stale
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+status: completed
+swept: 2026-08-07
+swept_basis: "landed: route_pcb() adapter in router_v6/_adapter_convert.py:170; benders_placement() strategy adapter in adapters/register_strategies.py"
 ---
 
 # Plan: Placement-to-Routing Pipeline Gap

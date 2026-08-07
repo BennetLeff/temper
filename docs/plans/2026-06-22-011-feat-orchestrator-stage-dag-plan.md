@@ -3,9 +3,9 @@ date: 2026-06-22
 plan_id: 011-feat-orchestrator-stage-dag
 title: PipelineOrchestrator → Declarative Stage DAG + Feedback Contracts
 origin: docs/brainstorms/2026-06-22-orchestrator-stage-dag-requirements.md
-status: stale
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+status: completed
+swept: 2026-08-07
+swept_basis: "landed and superseded old orchestrator.py entirely: pipeline/dag_engine.py, dag_schema.py, dag_types.py + per-stage modules now the live pipeline"
 ---
 
 # Implementation Plan: Orchestrator Stage DAG

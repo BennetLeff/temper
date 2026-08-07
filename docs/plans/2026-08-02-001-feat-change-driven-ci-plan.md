@@ -4,6 +4,9 @@ artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 date: 2026-08-02
 plan_type: infrastructure
+status: completed
+swept: 2026-08-07
+swept_basis: "landed via PR #593 (03794e4b, job-level path conditions + gate-verified skips); .github/required-checks.json implements the mapping model."
 ---
 
 # Change-Driven CI — Plan

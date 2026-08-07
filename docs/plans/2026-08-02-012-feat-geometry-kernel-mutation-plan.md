@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R34, R35)
+status: active
+swept: 2026-08-07
+swept_basis: "scripts/check_geometry_kernel_mutations.py (the plan's U1 harness) does not exist; unbuilt, uncontradicted menu item, depends on 2026-08-02-009 which is now landed."
 ---
 
 # Geometry-Kernel & Writer Mutation - Plan

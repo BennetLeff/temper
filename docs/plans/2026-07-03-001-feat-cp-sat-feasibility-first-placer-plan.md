@@ -1,11 +1,11 @@
 ---
 title: "feat: CP-SAT feasibility-first placer (paradigm swap from JAX descent)"
 type: feat
-status: stale
+status: completed
 date: 2026-07-03
 origin: docs/brainstorms/2026-07-03-cp-sat-feasibility-first-placer-paradigm-swap-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "JAX gradient-descent stack fully deleted (0e06a8e9); placer/cp_sat/ is now the sole, extensively used placement engine"
 ---
 
 # feat: CP-SAT Feasibility-First Placer (Paradigm Swap from JAX Descent)

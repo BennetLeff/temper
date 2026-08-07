@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R17)
+status: active
+swept: 2026-08-07
+swept_basis: "Unbuilt (no golden_traces/ or QEMU harness). Scope note: plan explicitly targets emulated QEMU, not real hardware/fabrication, so it does not itself violate the goal-set's fabrication exclusion -- but it is unreferenced by any of the 5 current goals or in-flight plans, so it reads as dormant menu inventory, not near-term work."
 ---
 
 # Hardware-in-the-loop oracle - Plan

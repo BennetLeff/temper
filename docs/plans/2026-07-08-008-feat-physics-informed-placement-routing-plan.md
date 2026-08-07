@@ -1,12 +1,12 @@
 ---
 title: "feat: Physics-Informed Placement & Routing — Thermal Cost Field + Validation Discipline"
 type: feat
-status: stale
+status: abandoned
 date: 2026-07-08
 deepened: 2026-07-08
 origin: docs/brainstorms/2026-07-08-physics-informed-placement-routing-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "no @req tags anywhere (unlike sibling 07-08 plans); loop.py's field_compute_fn hook exists but nothing plugs in a field; STRATEGY.md: branch parked, hygiene HALTED"
 ---
 
 # feat: Physics-Informed Placement & Routing — Thermal Cost Field + Validation Discipline

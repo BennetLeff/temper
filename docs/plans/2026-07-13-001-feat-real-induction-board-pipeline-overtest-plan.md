@@ -1,11 +1,11 @@
 ---
 title: Real induction board pipeline overtest
 type: feat
-status: stale
+status: abandoned
 date: 2026-07-13
 origin: docs/brainstorms/2026-07-13-real-induction-board-closure-arc-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "no closure-arc/FMEA/dependency-spine gate ever built; superseded in practice by the later two-board HV/LV split; advances none of the 5 current goals"
 ---
 
 # Real induction board pipeline overtest

@@ -7,6 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 execution: code
+status: active
+swept: 2026-08-07
+swept_basis: "the current north star - five goals this entire triage was judged against; still the live anchor as of 2026-08-07"
 ---
 
 # Temper Goal Set - Plan

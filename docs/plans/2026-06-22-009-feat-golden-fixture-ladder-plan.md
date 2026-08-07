@@ -1,14 +1,14 @@
 ---
 title: "feat: Golden Fixture Ladder — Per-Seam Parity Testing as Strangler Safety Net"
 type: feat
-status: stale
+status: completed
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-22-golden-fixture-ladder-requirements.md
 depends_on:
   - docs/brainstorms/2026-06-22-dsn-universal-seam-requirements.md   (Ideation #1 — DSN/SES serialization layer)
   - docs/brainstorms/2026-06-22-unified-stage-protocol-requirements.md (typed StageInput/StageOutput)
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed: power_pcb_dataset/goldens/ populated across 6 boards + manifest.yaml; .github/workflows/golden-check.yml is the PR-blocking diff gate"
 ---
 
 # feat: Golden Fixture Ladder — Per-Seam Parity Testing as Strangler Safety Net

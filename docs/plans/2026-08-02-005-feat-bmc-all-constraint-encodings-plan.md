@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R21)
+status: active
+swept: 2026-08-07
+swept_basis: "Verified live: scripts/bmc_adoption_gate.py still FAILS (4 constraints missing BMC coverage); esl.py/bmc.py/test_bmc_* never restored."
 ---
 
 # BMC-Exhaustive All Constraint Encodings - Plan

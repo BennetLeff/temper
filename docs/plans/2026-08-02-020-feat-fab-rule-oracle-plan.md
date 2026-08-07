@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R15)
+status: active
+swept: 2026-08-07
+swept_basis: "power_pcb_dataset/fab_rules.yaml and fab_ceiling.json don't exist; validation/manufacturing.py::check_worst_case_drc remains the placeholder the plan targets. Unbuilt."
 ---
 
 # Fab-Rule Oracle - Plan

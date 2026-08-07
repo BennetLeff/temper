@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R40)
+status: completed
+swept: 2026-08-07
+swept_basis: "firmware/test/mutate_transition_table.py exists and is wired into .github/workflows/firmware-tests.yml."
 ---
 
 # Transition-table mutation suite - Plan

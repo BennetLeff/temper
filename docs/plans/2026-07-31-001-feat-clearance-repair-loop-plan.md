@@ -7,6 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: active
 product_contract_source: ce-brainstorm
 execution: code
+status: completed
+swept: 2026-08-07
+swept_basis: "landed via PR #504 (2677ae08, 742a6fdc); placer/cp_sat/clearance_repair.py exists; consumed by follow-up #517/#523 re-solves."
 ---
 
 # Minimum-Displacement Clearance Repair Loop (issue #504)

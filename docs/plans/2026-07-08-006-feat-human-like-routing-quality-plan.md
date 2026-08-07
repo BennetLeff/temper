@@ -1,12 +1,12 @@
 ---
 title: "feat: Human-Like Routing Quality Gate (W4)"
 type: feat
-status: stale
+status: completed
 date: 2026-07-08
 origin: docs/brainstorms/2026-07-08-human-like-routing-quality-requirements.md
 gate-contract: docs/brainstorms/2026-07-08-gate-contract.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "QualityGate in gates.py carries @req(2026-07-08-006, R5/R6); octilinear/slop-linter/via-budget checks wired in, tested in test_quality_gate.py"
 ---
 
 # feat: Human-Like Routing Quality Gate (W4) — Octilinear, Via Budget, Corridor, Slop Linting

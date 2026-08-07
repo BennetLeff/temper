@@ -1,11 +1,11 @@
 ---
 title: "feat: Safety-Constant SSOT with Two-Layer Enforcement"
 type: feat
-status: stale
+status: completed
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-safety-constant-ssot-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed (commits a36ce3be/93d1397e); SAFETY_CONSTANT_AUTHORITY still live in design_rules.py; AST-linter test retired only when temper-drc moved to Rust (3d9322b5)"
 ---
 
 # feat: Safety-Constant SSOT with Two-Layer Enforcement

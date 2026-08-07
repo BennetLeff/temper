@@ -2,9 +2,9 @@
 date: 2026-06-22
 type: feat
 origin: docs/brainstorms/2026-06-22-router-v6-performance-fixes-requirements.md
-status: stale
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+status: completed
+swept: 2026-08-07
+swept_basis: "landed: OccupancyGrid uses numpy arrays; coarse-to-fine A* (commits c6f854db, 03539a5c, OccupancyGrid.downsample()) shipped per R1/R4"
 ---
 
 # Plan: Router V6 Performance — 5 Quality-Preserving Fixes

@@ -1,10 +1,12 @@
 ---
 title: "fix: Resolve REQ-SAFE-01 clearance debt at PD2/8.0mm via placement re-solve (#517)"
 type: fix
-status: active
+status: completed
 date: 2026-07-31
 topic: pd2-clearance-resolve
 origin: https://github.com/BennetLeff/temper/issues/517
+swept: 2026-08-07
+swept_basis: "landed via PR #521 (55226f8a re-solve, 5b1df08b DRC ceiling re-measure); follow-up K2/K3 swaps (de59c045, #689) built on this board state."
 ---
 
 # Resolve REQ-SAFE-01 clearance debt at PD2/8.0mm (#517)
