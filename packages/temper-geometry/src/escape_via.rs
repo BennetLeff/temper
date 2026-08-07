@@ -378,10 +378,8 @@ fn generate_escape_vias(
     // `angle` is the component's own board rotation.  `comp_x`/`comp_y` are
     // computed by the reference and then only handed to `_is_position_valid`'s
     // unused `_comp_pos`, so they are deliberately not modelled here.
-    let angle = match comp.rotation {
-        None => 0.0,
-        Some(r) => (r as f64) * std::f64::consts::PI / 2.0,
-    };
+    // Same rule as `normalize_rotation`, which this used to duplicate inline.
+    let angle = normalize_rotation(comp.rotation);
 
     for pad in &comp.pads {
         // `if not pin.net` -- both `None` and `""` are skipped.
