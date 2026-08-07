@@ -1,0 +1,191 @@
+# Baseline snapshot for test_ci_test_file_registration.py.
+#
+# Every path below is a packages/temper-placer/tests/**/test_*.py file that
+# exists on disk today but is referenced -- by individual filename, or by a
+# whole-directory pytest argument -- by no .github/workflows/*.yml job. None
+# of these were individually re-triaged by the pull that added this file
+# (docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md, which DID
+# triage the tests/router_v6/ subset -- those live in
+# _KNOWN_UNCOVERED_ROUTER_V6_FILES in the test module instead, with a real
+# per-file reason each, since that pull actually ran them).
+#
+# This file exists so the drift test doesn't have to fail on 169 pre-existing
+# gaps outside this pull's scope. It is NOT a statement that any of these are
+# fine to leave uncovered -- it is a tracked debt list. A file leaving this
+# list because it stopped existing, or because it got wired into a job, is
+# fine and expected (the test enforces that "in this file" implies "still
+# actually uncovered" the other direction). A file being ADDED here requires
+# it to have shown up as new drift first -- do not add speculative entries.
+#
+# One path per line, relative to packages/temper-placer/tests/. Blank lines
+# and lines starting with # are ignored.
+
+analysis/test_area_sufficiency_check.py
+analysis/test_area_sufficiency_pbt.py
+analysis/test_area_sufficiency_rust_differential.py
+analysis/test_courtyard_violation_report.py
+analysis/test_violation_report_pbt.py
+analysis/test_violation_report_rust_differential.py
+architecture/test_oracle_coupling_contracts.py
+cli/test_cli_error_handling.py
+cli/test_export_command.py
+cli/test_multi_seed.py
+cli/test_optimize_no_loop.py
+cli/test_optimize_validator_input.py
+cli/test_subcommand_registration.py
+cli/test_unsat_report.py
+cli/test_validate_command.py
+closure/test_router_completion.py
+constraint_types/test_config.py
+constraint_types/test_fixture_roundtrip.py
+constraint_types/test_placement_constraints.py
+constraint_types/test_submodule_constraints.py
+constraints/test_builder.py
+constraints/test_builder_pbt.py
+constraints/test_builder_rust_differential.py
+constraints/test_compiler.py
+constraints/test_compiler_pbt.py
+constraints/test_compiler_rust_differential.py
+constraints/test_existing_constraint_integration.py
+constraints/test_reporter.py
+constraints/test_reporter_pbt.py
+constraints/test_reporter_rust_differential.py
+fixtures/test_synthetic_netlist.py
+geometry/test_congestion_tensor_pbt.py
+geometry/test_drc_inflate.py
+geometry/test_drc_inflate_pbt.py
+geometry/test_drc_inflate_rust_differential.py
+geometry/test_geometry.py
+geometry/test_geometry_pbt.py
+geometry/test_kicad_transform.py
+geometry/test_kicad_transform_algebra.py
+geometry/test_kicad_transform_rust_differential.py
+geometry/test_transform_algebra_pcbnew_oracle.py
+heuristics/test_base.py
+heuristics/test_conflict.py
+heuristics/test_graph_heuristics.py
+heuristics/test_graph_utils.py
+heuristics/test_hash_seed_determinism.py
+heuristics/test_mcu_subsystem.py
+heuristics/test_organizational_rust_differential.py
+heuristics/test_pipeline.py
+heuristics/test_spectral.py
+heuristics/test_structural_rust_differential.py
+heuristics/test_style_rust_differential.py
+heuristics/test_topological_integration.py
+integration/test_all_gates_convergence.py
+integration/test_dpp_multiseed_ab.py
+integration/test_phased_placement_pipeline.py
+integration/test_phased_stage_integration.py
+integration/test_place_route_loop_temper.py
+integration/test_power_net_exclusion_manual.py
+integration/test_roundtrip.py
+integration/test_seed_filter_retriggers.py
+manufacturing/test_monte_carlo.py
+manufacturing/test_monte_carlo_pbt.py
+manufacturing/test_monte_carlo_rust_differential.py
+manufacturing/test_stackup_validator.py
+manufacturing/test_stackup_validator_pbt.py
+manufacturing/test_stackup_validator_rust_differential.py
+manufacturing/test_tolerances.py
+manufacturing/test_tolerances_pbt.py
+manufacturing/test_tolerances_rust_differential.py
+mechanical/test_coil_bracket.py
+mechanical/test_sensor_mount.py
+parity/test_lv_only_parity.py
+pcl/test_bridge_registration.py
+pcl/test_constraints.py
+pcl/test_drc_bridge.py
+pcl/test_e2e_netclass_ssot.py
+pcl/test_linter.py
+pcl/test_netclass_constraints.py
+pcl/test_netclass_feedback.py
+pcl/test_parse_utils_rust_differential.py
+pcl/test_parser.py
+pcl/test_pcl_bench_fixture_parity.py
+pcl/test_pcl_rust_pbt.py
+pcl/test_pclsig_selftest.py
+pcl/test_schema.py
+pcl/test_tag_dispatch_pbt.py
+pcl/test_tag_dispatch_rust_differential.py
+pcl/test_tag_metamorphic_pbt.py
+pcl/test_tiers.py
+pcl/test_unsat_compiler.py
+pipeline/stages/test_input_stage_identity_preflight.py
+pipeline/test_dag_expr_perf.py
+pipeline/test_dag_expr_properties.py
+pipeline/test_dag_expr_rust_differential.py
+placer/test_adjustment.py
+placer/test_deterministic_unit.py
+placer/test_parametric_template.py
+placer/test_placer_adjustment_rust_differential.py
+placer/test_placer_deterministic_rust_differential.py
+placer/test_placer_template_pbt.py
+placer/test_placer_template_rust_differential.py
+property/test_ghost_pad_injection.py
+protocol/test_adapters.py
+protocol/test_protocol.py
+protocol/test_runner.py
+protocol/test_stage_conformance.py
+protocol/test_strategy_registry.py
+regression/test_closure.py
+regression/test_closure_bottleneck_perf.py
+regression/test_closure_test_rust_differential.py
+regression/test_corpus_runner.py
+regression/test_cp_sat_comparison_rust_differential.py
+regression/test_drc_ratchet_rust_differential.py
+regression/test_fingerprint_rust_differential.py
+regression/test_golden_check_descriptive_fields.py
+regression/test_measure_closure_rust_differential.py
+regression/test_metrics_recorder.py
+regression/test_metrics_trend.py
+regression/test_physics_oracle_rust_differential.py
+regression/test_routing_bottleneck_reporting.py
+regression/test_runner.py
+regression/test_schema_validator_rust_differential.py
+requirements/test_clearance_pbt.py
+requirements/test_clearance_rust_differential.py
+requirements/validators/test_points.py
+scripts/test_check_physics_provenance.py
+scripts/test_physics_soundness_register_gate.py
+test_board_state_snapshot.py
+test_component_factory.py
+test_correlation_tuned_config.py
+test_cp_sat_bench.py
+test_fixtures.py
+test_instrumentation.py
+test_placement_validation.py
+test_profiling_instrumentation.py
+test_router_v6_fence_integration.py
+test_stage_invariants.py
+test_strip_routing_consolidation.py
+test_timing_tighten.py
+test_validation.py
+testing/test_golden_diff.py
+testing/test_golden_serializers.py
+testing/test_version_gate.py
+topological/test_force_refinement.py
+topological/test_graph.py
+topological/test_initial_placement.py
+topological/test_propagation.py
+topological/test_topological_init_heuristic.py
+topological/test_topological_invariants_pbt.py
+topological/test_topological_metamorphic.py
+topological/test_topological_rust_differential.py
+topological/test_zone_solver.py
+unit/test_projections.py
+visualization/test_board_renderer.py
+visualization/test_coordinate_transforms.py
+visualization/test_live.py
+visualization/test_loop_viz.py
+visualization/test_loss_plots.py
+visualization/test_model.py
+visualization/test_render_output.py
+visualization/test_report.py
+visualization/test_server.py
+visualization/test_status.py
+wave4_phase2/test_core_contracts_differential.py
+wave4_phase2/test_core_contracts_metamorphic.py
+wave4_phase2/test_core_contracts_pbt.py
+wave4_phase2/test_core_contracts_perf.py
+wave4_phase2/test_sig_self.py
