@@ -4121,7 +4121,8 @@ silently diverge:
 ## Evidence
 
 - Differential (R1a): `test_{phase_rotation,phase_zones,phase_validation,zone_aware_slot_generation}_rust_differential.py`
-  — 87 cases, all bit-exact `canon` equality against the verbatim oracles.
+  — 64 cases (10+12+14+28 test functions), all bit-exact `canon` equality against
+  the verbatim oracles.
 - PBT (R1c/R1d): the four `<module>_pbt.py` suites — 5 non-vacuous properties
   + 3 metamorphic relations each (40 cases). The order-permutation (MR1),
   scale (MR2) and translation (MR3) MRs state honest stated tolerances where

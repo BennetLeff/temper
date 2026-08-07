@@ -27,6 +27,8 @@ Three metamorphic relations (R1d):
 
 from __future__ import annotations
 
+import math
+
 import temper_drc_rs as _drc
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -138,11 +140,21 @@ def test_mr3_dedup_coverage_and_separation(positions, tol):
     kept = [positions[i] for i in kept_idx]
     assert len(kept) + dupes == len(positions)
     # pairwise separation: any two kept positions are > tol apart.
+    # The kernel's boundary is `tol_sq = pow(tol, 2.0)` (host libm), and every
+    # distance term is `pow(dx, 2.0)` -- NOT `tol * tol` / `x * x`: CPython
+    # folds `** 2` into a multiply, and a non-correctly-rounded host libm
+    # `pow` can disagree with that multiply by 1 ulp (the exact pair the
+    # mutation-sweep doc documents). math.pow is the Python spelling of the
+    # host libm the kernel dlsym-resolves, so these assertions reproduce the
+    # kernel's arithmetic exactly.
     for i in range(len(kept)):
         for j in range(i + 1, len(kept)):
             (x1, y1), (x2, y2) = kept[i], kept[j]
-            assert ((x1 - x2) ** 2 + (y1 - y2) ** 2) > tol * tol
+            assert math.pow(x1 - x2, 2.0) + math.pow(y1 - y2, 2.0) > math.pow(tol, 2.0)
     # coverage: every rejected position is within tol of SOME kept position.
     rejected = [p for i, p in enumerate(positions) if i not in kept_idx]
     for (x, y) in rejected:
-        assert any(((x - kx) ** 2 + (y - ky) ** 2) <= tol * tol for (kx, ky) in kept)
+        assert any(
+            math.pow(x - kx, 2.0) + math.pow(y - ky, 2.0) <= math.pow(tol, 2.0)
+            for (kx, ky) in kept
+        )

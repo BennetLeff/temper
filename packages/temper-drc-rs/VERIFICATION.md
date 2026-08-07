@@ -1177,11 +1177,22 @@ R1e, a **structural proof** is recorded instead.
    the shim recovers the original `Via` objects by index — object identity
    matters when two vias share an exact position (the oracle keeps the FIRST
    via object; an index-free position map could return the wrong one).
+5. **Non-string via layers flow through silently (tolerant extraction).** The
+   oracle compares each `via.layers` element against the string trace/pin/
+   plane keys, and a non-string layer simply matches nothing (`layer in
+   trace_index` on a `{str: ...}` dict misses without raising). The marshaler
+   therefore DROPS non-string elements instead of propagating
+   `extract::<String>()`'s TypeError, reproducing the oracle exactly — a
+   hashable non-string layer contributes nothing to the count on either arm.
+   Reachability: only an externally-constructed `BoardState(vias=...)` whose
+   `Via.layers` carries a non-string layer (the stage's `Via` is
+   contract-typed `tuple[str, ...]`; all production construction sites pass
+   layer-name strings). Pinned by `test_count_non_string_layer_ignored`.
 
 ## Evidence
 
-- Differential (R1a): `test_via_validation_rust_differential.py` — 25 test
-  functions (33 oracle-vs-Rust comparisons), bit-exact against the verbatim
+- Differential (R1a): `test_via_validation_rust_differential.py` — 26 test
+  functions (36 oracle-vs-Rust comparisons), bit-exact against the verbatim
   oracle.
 - PBT (R1c/R1d): `test_via_validation_pbt.py` — 5 properties + 3 MRs,
   including an independent dedup coverage/separation cross-check.

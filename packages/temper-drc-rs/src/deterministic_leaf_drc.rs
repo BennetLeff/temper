@@ -540,14 +540,22 @@ pub fn count_connected_layers_py(
     is_plane: bool,
     plane_layers: &Bound<'_, PyAny>,
 ) -> PyResult<usize> {
+    // Tolerant extraction: a non-string via layer is dropped, not raised on.
+    // The oracle compares each layer against the string trace/pin/plane keys,
+    // and `int_in_str_dict`-style lookups simply do not match -- a non-string
+    // layer contributes nothing and flows through silently. `extract::<String>`
+    // would raise TypeError here, diverging from the oracle on an
+    // externally-constructed `BoardState(vias=...)` whose Via carries a
+    // non-string layer. Dropping the element reproduces the oracle exactly
+    // (a hashable non-string layer matches no str key on either arm).
     let layers: Vec<String> = via_layers
         .try_iter()?
-        .map(|i| i.and_then(|x| x.extract::<String>()))
-        .collect::<PyResult<_>>()?;
+        .filter_map(|i| i.and_then(|x| x.extract::<String>()).ok())
+        .collect();
     let plane_set: std::collections::HashSet<String> = plane_layers
         .try_iter()?
-        .map(|i| i.and_then(|x| x.extract::<String>()))
-        .collect::<PyResult<_>>()?;
+        .filter_map(|i| i.and_then(|x| x.extract::<String>()).ok())
+        .collect();
     let trace_map = points_index(trace_index)?;
     let pin_map = points_index(pin_index)?;
     Ok(count_connected_layers(

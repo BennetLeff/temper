@@ -1,6 +1,7 @@
 # Wave-4 Phase-5 final-leaves mutation sweep (2026-08-06)
 
-<!-- provenance: commit=11d6709f6, worktree=<wt10-finalleaves>, branch=feat/wave4-phase5-final-leaves -->
+<!-- provenance: commit=11d6709f6b1d131a4f05429dde0be2ea12ade931 dirty=false (campaign results recorded at this commit; the sweep ends with a pristine rebuild) -->
+<!-- provenance: worktree=<wt10-finalleaves>, branch=feat/wave4-phase5-final-leaves -->
 
 **What this is.** The anti-vacuity record for the final deterministic leaf
 kernels migrated in Wave-4 Phase-5 (the last unowned slice). A kernel is

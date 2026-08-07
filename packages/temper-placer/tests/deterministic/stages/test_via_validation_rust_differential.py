@@ -175,6 +175,26 @@ def test_count_non_vacuity_guard():
     assert RS_COUNT((1.0, 1.0), ["F.Cu"], 0.1, {"F.Cu": [(1.0, 1.0)]}, {}, False, []) == 1
 
 
+def test_count_non_string_layer_ignored():
+    """A non-string via layer matches no string trace/pin/plane key, so the
+    oracle's dict/set lookups simply miss and it flows through silently. The
+    kernel's tolerant extraction drops it rather than raising TypeError --
+    pinned for an externally-constructed BoardState(vias=...) whose Via
+    carries a non-string layer (the stage's Via is contract-typed
+    tuple[str, ...]; all production construction sites pass strings)."""
+    _assert_count(
+        (1.0, 1.0),
+        [1, "F.Cu"],
+        0.1,
+        {"F.Cu": [(1.02, 1.0)]},
+        {},
+        False,
+        set(),
+    )
+    _assert_count((1.0, 1.0), [True], 0.1, {"F.Cu": [(1.0, 1.0)]}, {}, False, {"In1.Cu"})
+    _assert_count((1.0, 1.0), [1, 2], 0.1, {"F.Cu": [(1.0, 1.0)]}, {}, False, set())
+
+
 # --- dedup_via_positions -----------------------------------------------------
 
 def _assert_dedup(positions, tolerance):
