@@ -17,8 +17,11 @@ pub mod esl;
 pub mod extraction;
 pub mod loop_extractor;
 pub mod provenance;
+pub mod pruning;
 #[cfg(feature = "sat")]
 pub mod solver;
+#[cfg(feature = "sat")]
+pub mod equivalence;
 pub mod tension;
 pub mod types;
 #[cfg(feature = "sat")]
