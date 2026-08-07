@@ -15,10 +15,17 @@ Two contract details worth knowing when reading the Rust:
 
 from __future__ import annotations
 
+from typing import TypeAlias
+
 import temper_io_types as _rs
 
-PinInfo = _rs.PinInfo
-PlacementViolation = _rs.PlacementViolation
+# `temper_io_types` has no `.pyi` stub, so `_rs.PinInfo`/`_rs.PlacementViolation`
+# type as `Any`; without an explicit `TypeAlias` annotation mypy cannot tell
+# this rebinding is meant to be used as a type (`Variable ... is not valid as
+# a type`) rather than a runtime value -- same idiom used for the numpy Array
+# aliases elsewhere in core/ (e.g. core/board.py, core/netlist.py).
+PinInfo: TypeAlias = _rs.PinInfo
+PlacementViolation: TypeAlias = _rs.PlacementViolation
 
 
 def validate_placement_drc(

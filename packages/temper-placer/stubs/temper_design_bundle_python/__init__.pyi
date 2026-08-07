@@ -24,6 +24,20 @@ from __future__ import annotations
 
 from typing import Any
 
+# The five `pcl_parse_*` enum return types stay real Python `enum.Enum`
+# classes (Rust hands back the same singletons) -- imported from their
+# actual home so the `pcl_parse_*` signatures near the end of this file are
+# exact, not `Any`, and don't trip `warn_return_any` at the
+# `_parse_utils.py` call sites that annotate their return values with these
+# same types.
+from temper_placer.pcl.constraints import (
+    Axis as Axis,
+    BoardSide as BoardSide,
+    ConstraintTier as ConstraintTier,
+    DistanceMetric as DistanceMetric,
+    EdgeType as EdgeType,
+)
+
 # Wave 4 Phase 3 candidate 1: the parse-target contracts, in SUBMODULES.
 #
 # They are nested rather than flattened into this namespace because
@@ -37,6 +51,12 @@ from . import netlist_contracts as netlist_contracts
 from . import parse_engine as parse_engine
 from . import deterministic_hubs as deterministic_hubs
 from . import deterministic_phase as deterministic_phase
+
+# Wave 4 Phase 3/5 per-domain submodules (formats/IO + deterministic leaf
+# stages) — same nesting rationale as the block above.
+from . import deterministic_leaves as deterministic_leaves
+from . import kicad_exporter_geometry as kicad_exporter_geometry
+from . import write_board_geometry as write_board_geometry
 
 from . import validation as validation
 def sha256_hex(bytes: bytes) -> str: ...
@@ -790,3 +810,159 @@ class HypergraphFactory:
     ) -> None: ...
 
     def build(self) -> HypergraphBuildResult: ...
+
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 5 batch 2 — deterministic_leaves.rs pyclasses.
+#
+# Registered at the TOP level of the extension module (not on the
+# `deterministic_leaves` submodule) -- see that Rust file's `register()`.
+# `LayerAssignment` is re-exported under its pre-migration name by
+# `deterministic/stages/layer_assignment.py`.
+# ---------------------------------------------------------------------------
+
+
+class LayerAssignment:
+    """`frozen`-dataclass-equivalent pyo3 pyclass."""
+
+    def __init__(
+        self,
+        net_name: Any,
+        layer: Any,
+        allow_layer_change: Any = None,
+        is_plane: Any = None,
+    ) -> None: ...
+    @property
+    def net_name(self) -> Any: ...
+    @property
+    def layer(self) -> Any: ...
+    @property
+    def allow_layer_change(self) -> Any: ...
+    @property
+    def is_plane(self) -> Any: ...
+
+
+class DiffPairConfig:
+    """`frozen`-dataclass-equivalent pyo3 pyclass."""
+
+    def __init__(
+        self,
+        net_pos: Any,
+        net_neg: Any,
+        spacing_mm: Any = None,
+        coupling_tolerance_mm: Any = None,
+        max_skew_mm: Any = None,
+    ) -> None: ...
+    @property
+    def net_pos(self) -> Any: ...
+    @property
+    def net_neg(self) -> Any: ...
+    @property
+    def spacing_mm(self) -> Any: ...
+    @property
+    def coupling_tolerance_mm(self) -> Any: ...
+    @property
+    def max_skew_mm(self) -> Any: ...
+
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 2 "contracts-as-pyo3-pyclasses" — pcl_tags.rs. The tag
+# expression algebra (`TagRef`/`TagAnd`/`TagOr`/`TagNot`/`ComponentRef`) and
+# the `pcl_*` module-level functions, ported from
+# `temper_placer/pcl/tag_dispatch.py` and re-exported there under their
+# original names. Registered at the TOP level of the extension module (see
+# `pcl_tags::register` in `lib.rs`), not on a submodule. Keep in sync with
+# `packages/temper-design-bundle/src/pcl_tags.rs`.
+# ---------------------------------------------------------------------------
+
+
+class TagRef:
+    """`frozen`: reference to a single component tag in a tag expression."""
+
+    def __init__(self, tag: Any) -> None: ...
+    @property
+    def tag(self) -> Any: ...
+
+
+class TagAnd:
+    """`frozen`: logical AND of two tag expressions."""
+
+    def __init__(self, left: Any, right: Any) -> None: ...
+    @property
+    def left(self) -> Any: ...
+    @property
+    def right(self) -> Any: ...
+
+
+class TagOr:
+    """`frozen`: logical OR of two tag expressions."""
+
+    def __init__(self, left: Any, right: Any) -> None: ...
+    @property
+    def left(self) -> Any: ...
+    @property
+    def right(self) -> Any: ...
+
+
+class TagNot:
+    """`frozen`: logical NOT of a tag expression."""
+
+    def __init__(self, expr: Any) -> None: ...
+    @property
+    def expr(self) -> Any: ...
+
+
+class ComponentRef:
+    """`frozen`: reference to a specific component by refdes."""
+
+    def __init__(self, ref: Any) -> None: ...
+    @property
+    def ref(self) -> Any: ...
+
+
+def pcl_tag_closure() -> dict[Any, Any]: ...
+
+
+def pcl_tag_le(this: Any, other: Any) -> bool: ...
+
+
+def pcl_resolve(expr: Any, comp: Any) -> bool: ...
+
+
+def pcl_components(expr: Any, netlist: Any) -> list[Any]: ...
+
+
+def pcl_tag_to_component_refs(expr: Any, netlist: Any) -> list[Any]: ...
+
+
+def pcl_check_overconstrained(expanded: Any) -> None: ...
+
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 2 "contracts-as-pyo3" — pcl_parse.rs. Parsing compute ported
+# from `temper_placer/pcl/_parse_utils.py`. Registered at the TOP level of
+# the extension module (see `pcl_parse::register` in `lib.rs`), not on a
+# submodule. Keep in sync with
+# `packages/temper-design-bundle/src/pcl_parse.rs`.
+#
+# The five enum return types (`Axis`/`BoardSide`/`ConstraintTier`/
+# `DistanceMetric`/`EdgeType`) are imported at the top of this file.
+# ---------------------------------------------------------------------------
+
+
+def pcl_parse_distance_with_unit(value: Any) -> float: ...
+
+
+def pcl_parse_tier(tier_value: Any) -> ConstraintTier: ...
+
+
+def pcl_parse_metric(metric_value: str | None) -> DistanceMetric: ...
+
+
+def pcl_parse_axis(axis_value: str) -> Axis: ...
+
+
+def pcl_parse_board_side(side_value: str) -> BoardSide: ...
+
+
+def pcl_parse_edge_type(edge_value: str) -> EdgeType: ...

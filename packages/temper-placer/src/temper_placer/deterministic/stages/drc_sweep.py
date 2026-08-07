@@ -143,7 +143,9 @@ class TrackDeduplicationStage(Stage):
         # positions INTO this marshalled list. Non-Trace route entries (e.g.
         # Via) are never marshalled, so the shim records the marshalled ->
         # state.routes index mapping and remaps the kept indices back.
-        marshalled = []  # (start, end, layer, net) for Trace objects
+        # (start, end, layer, net) for Trace objects -- types per
+        # board_contracts.pyi's Trace properties.
+        marshalled: list[tuple[tuple[float, float], tuple[float, float], str, str | None]] = []
         marshalled_to_route = {}  # marshalled index -> state.routes index
         for route_index, trace in enumerate(state.routes):
             if isinstance(trace, Trace):

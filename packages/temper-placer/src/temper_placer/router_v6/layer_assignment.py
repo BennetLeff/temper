@@ -394,16 +394,21 @@ def assign_layers(
         # Python: neither is ever exercised by a caller or a test.
         net_names = [net.name for net in netlist.nets]
         rows = _trr.assign_layers_py(net_names)
-        assignments: dict[str, LayerAssignment] = {}
+        # Named distinctly from the fallback branches' `assignments` below --
+        # this branch always returns before reaching them, but mypy's no-redef
+        # check is lexical, not control-flow-sensitive, so a second annotated
+        # `assignments: dict[...] = {}` in the same function scope reads as a
+        # redefinition even though the two are mutually exclusive at runtime.
+        rust_assignments: dict[str, LayerAssignment] = {}
         for name, (primary, allowed, vias_required, reason) in zip(net_names, rows, strict=True):
-            assignments[name] = LayerAssignment(
+            rust_assignments[name] = LayerAssignment(
                 net=name,
                 primary_layer=Layer(primary),
                 allowed_layers={Layer(v) for v in allowed},
                 vias_required=vias_required,
                 reason=reason,
             )
-        return assignments
+        return rust_assignments
 
     if constraints is None:
         constraints = DEFAULT_LAYER_CONSTRAINTS

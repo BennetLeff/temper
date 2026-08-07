@@ -15,9 +15,16 @@ propagates a NaN from the left only. See ``placer_core/manufacturing.rs``.
 
 from __future__ import annotations
 
+from typing import TypeAlias
+
 import temper_io_types as _rs
 
-FabPreset = _rs.FabPreset
+# `temper_io_types` has no `.pyi` stub, so `_rs.FabPreset` types as `Any`;
+# without an explicit `TypeAlias` annotation mypy cannot tell this rebinding
+# is meant to be used as a type (`Variable "FabPreset" is not valid as a
+# type`) rather than a runtime value -- same idiom used for the numpy Array
+# aliases elsewhere in core/ (e.g. core/board.py, core/netlist.py).
+FabPreset: TypeAlias = _rs.FabPreset
 
 
 def get_fab_presets() -> dict[str, FabPreset]:
