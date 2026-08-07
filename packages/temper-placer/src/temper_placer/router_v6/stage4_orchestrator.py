@@ -16,7 +16,7 @@ from temper_placer.router_v6.grid_prep_stage import GridPrepStage
 from temper_placer.router_v6.net_prep_stage import NetPrepStage
 from temper_placer.router_v6.result_aggregate_stage import ResultAggregateStage
 from temper_placer.router_v6.route_stage import RouteStage
-from temper_placer.router_v6.stage_validators import run_validators
+from temper_placer.router_v6.stage_validators import assert_no_fatal_failures, run_validators
 
 
 class Stage4Orchestrator:
@@ -53,6 +53,9 @@ class Stage4Orchestrator:
             if drc_failures and self.verbose:
                 for f in drc_failures:
                     print(f"    DRC WARNING: {f}")
+            # See Stage2Orchestrator.run() for why this is unconditional
+            # (not gated on self.verbose).
+            assert_no_fatal_failures(stage.name, drc_failures)
 
         return state
 
