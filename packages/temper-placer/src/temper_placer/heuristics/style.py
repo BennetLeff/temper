@@ -13,8 +13,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-import numpy as np
-
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.heuristics.base import (
@@ -191,7 +189,21 @@ class StarGroundTopologyHeuristic(Heuristic):
         board: Board,
         context: PlacementContext,
     ) -> dict[str, ComponentPlacement]:
-        """Place components radially by ground domain."""
+        """Place components radially by ground domain.
+
+        The per-item sector placement (angle/radius interpolation, cos/sin)
+        is delegated to ``temper_geometry.radial_sector_positions_py`` --
+        see ``packages/temper-geometry/src/style_geometry.rs``. The sector
+        angle table (``domain_angles``, a hardcoded-pi board-fraction-style
+        constant table) stays Python, matching
+        ``organizational.py::_place_by_domain``'s region-box precedent.
+        Pinned oracle:
+        ``packages/temper-placer/tests/heuristics/_style_py_oracle.py``;
+        differential:
+        ``packages/temper-placer/tests/heuristics/test_style_rust_differential.py``.
+        """
+        from temper_geometry import radial_sector_positions_py
+
         placements: dict[str, ComponentPlacement] = {}
         sx, sy = star_point
 
@@ -220,24 +232,17 @@ class StarGroundTopologyHeuristic(Heuristic):
                 continue
 
             angle_start, angle_end = domain_angles[domain]
-            angle_range = angle_end - angle_start
 
             # Determine radius range (from star point to board edge)
             min_radius = 15.0  # Keep some distance from star point
             max_radius = min(board.width, board.height) * 0.4
 
-            for i, ref in enumerate(refs):
+            positions = radial_sector_positions_py(
+                len(refs), sx, sy, angle_start, angle_end, min_radius, max_radius
+            )
+
+            for ref, (pos_x, pos_y) in zip(refs, positions, strict=True):
                 comp = context.netlist.get_component(ref)
-
-                # Distribute within sector
-                n = len(refs)
-                t = i / (n - 1) if n > 1 else 0.5
-
-                angle = angle_start + t * angle_range
-                radius = min_radius + t * (max_radius - min_radius)
-
-                pos_x = sx + radius * float(np.cos(angle))
-                pos_y = sy + radius * float(np.sin(angle))
 
                 if context.is_position_valid(pos_x, pos_y, comp.width, comp.height):
                     placements[ref] = ComponentPlacement(
@@ -408,7 +413,25 @@ class SignalFlowPreservationHeuristic(Heuristic):
         board: Board,
         context: PlacementContext,
     ) -> dict[str, ComponentPlacement]:
-        """Place components according to signal flow."""
+        """Place components according to signal flow.
+
+        The per-chain, per-node linear placement (chain y-center, x
+        interpolation by ``node.position / max_pos``) is delegated to
+        ``temper_geometry.signal_chain_positions_py`` -- see
+        ``packages/temper-geometry/src/style_geometry.rs``. Grouping and
+        sorting nodes by chain, and the per-node
+        ``current_placements``/``fixed`` skip-checks, stay Python
+        (orchestration); critically, ``max_pos`` inside the Rust kernel is
+        derived from every node passed in for a chain -- including ones this
+        method will go on to skip below -- exactly matching the pre-port
+        behaviour where ``max_pos`` is computed before the skip-checks run.
+        Pinned oracle:
+        ``packages/temper-placer/tests/heuristics/_style_py_oracle.py``;
+        differential:
+        ``packages/temper-placer/tests/heuristics/test_style_rust_differential.py``.
+        """
+        from temper_geometry import signal_chain_positions_py
+
         placements: dict[str, ComponentPlacement] = {}
         ox, oy = board.origin
         margin = context.constraints.board_margin_mm
@@ -424,28 +447,21 @@ class SignalFlowPreservationHeuristic(Heuristic):
         for _chain_name, nodes in chain_groups.items():
             nodes.sort(key=lambda n: n.position)
 
-        # Place chains (stacked vertically, flowing horizontally)
-        n_chains = len(chain_groups)
-        chain_height = (board.height - 2 * margin) / max(n_chains, 1)
+        chain_names = list(chain_groups.keys())
+        chain_positions = [[n.position for n in chain_groups[name]] for name in chain_names]
+        per_chain = signal_chain_positions_py(
+            chain_positions, ox, oy, board.width, board.height, margin
+        )
 
-        for chain_idx, (_chain_name, nodes) in enumerate(chain_groups.items()):
-            # Find max position for normalization
-            max_pos = max(n.position for n in nodes) if nodes else 1
-
-            y_center = oy + margin + (chain_idx + 0.5) * chain_height
-
-            for node in nodes:
+        for name, per_node in zip(chain_names, per_chain, strict=True):
+            nodes = chain_groups[name]
+            for node, (pos_x, pos_y) in zip(nodes, per_node, strict=True):
                 if node.ref in context.current_placements:
                     continue
                 if context.netlist.get_component(node.ref).fixed:
                     continue
 
                 comp = context.netlist.get_component(node.ref)
-
-                # Position along X based on chain position
-                t = node.position / max_pos if max_pos > 0 else 0.5
-                pos_x = ox + margin + t * (board.width - 2 * margin)
-                pos_y = y_center
 
                 if context.is_position_valid(pos_x, pos_y, comp.width, comp.height):
                     placements[node.ref] = ComponentPlacement(

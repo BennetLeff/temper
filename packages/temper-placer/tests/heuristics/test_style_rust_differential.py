@@ -446,6 +446,7 @@ def _raise_marker(*_args, **_kwargs):
 
 def test_star_ground_topology_shipped_module_delegates_to_rust(monkeypatch):
     import temper_geometry
+
     import temper_placer.heuristics.style as SHIPPED
 
     monkeypatch.setattr(temper_geometry, "radial_sector_positions_py", _raise_marker)
@@ -458,6 +459,7 @@ def test_star_ground_topology_shipped_module_delegates_to_rust(monkeypatch):
 
 def test_signal_flow_preservation_shipped_module_delegates_to_rust(monkeypatch):
     import temper_geometry
+
     import temper_placer.heuristics.style as SHIPPED
 
     monkeypatch.setattr(temper_geometry, "signal_chain_positions_py", _raise_marker)
