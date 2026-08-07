@@ -61,13 +61,19 @@ def main():
                     f"fault_list_generated.h"
                 )
 
-    # 4. Check supplemental doesn't duplicate manifest
+    # 4. Check supplemental doesn't duplicate manifest.
+    # FAULT_NONE is excluded: it's the sentinel "no fault occurred" outcome
+    # for non-fault SIL scenarios (plan 2026-08-02-031/U3 timing scenarios,
+    # demonstrated-gap scenarios), not a fault class being claimed by the
+    # manifest -- it legitimately appears in both manifest.json (as an
+    # expected outcome) and fault_list_supplemental.yaml (as the canonical
+    # definition), same exclusion as firmware/tools/gen_fault_list.py.
     if supplemental_path.exists():
         with open(supplemental_path) as f:
             supplemental = yaml.safe_load(f)
         supplemental_names = {e["name"] for e in supplemental.get("entries", [])}
         if manifest_codes and supplemental_names:
-            collisions = manifest_codes & supplemental_names
+            collisions = (manifest_codes - {"FAULT_NONE"}) & supplemental_names
             if collisions:
                 for code in sorted(collisions):
                     errors.append(

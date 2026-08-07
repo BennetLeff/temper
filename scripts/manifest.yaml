@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-05'
-  total_scripts: 118
+  total_scripts: 119
   counts:
-    keep: 114
+    keep: 115
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
@@ -813,6 +813,20 @@ scripts:
   - datetime
   - json
   - pathlib
+  - sys
+- path: check_sil_coverage.py
+  purpose: 'CI gate: SIL fault-injection coverage over (fault class, origin state) -- fails on any pair
+    the transition table (plus documented C-only interlock call sites) defines but firmware/test/traces/manifest.json
+    does not exercise (plan 2026-08-02-031, U1/U4). Thin wrapper around firmware/test/test_sil_coverage.py
+    --gate. NOT YET invoked from .github/workflows/firmware-tests.yml as of this commit -- see the script''s
+    own docstring for the wiring needed once the concurrent CI-rewrite agent''s changes there land.'
+  owner: firmware
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - pathlib
+  - subprocess
   - sys
 - path: check_stale_extensions.py
   purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/

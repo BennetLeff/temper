@@ -44,7 +44,9 @@ extern void  mock_sm_set_selftest_results(bool adc, bool pwm, bool fan,
                                           bool eeprom);
 extern fault_code_t mock_sm_get_last_logged_fault(void);
 extern uint32_t     mock_sm_get_eeprom_log_count(void);
-extern uint32_t     mock_sm_get_trigger_shutdown_count(void);
+extern uint32_t     mock_sm_get_pwm_disable_count(void);
+extern bool         mock_sm_get_pll_enabled(void);
+extern uint32_t     mock_sm_get_power_level(void);
 
 #define MOCK_PAN_ABSENT  0
 #define MOCK_PAN_PRESENT 1
@@ -199,16 +201,31 @@ typedef struct {
     char name[128];
     char description[256];
     char trace_file[256];
+    char finding[512];        /* optional: printed prominently -- used for
+                                  demonstrated-gap scenarios that are not
+                                  expected to reach a safe state */
     bool self_test_pass;     /* initial_conditions */
+    system_state_t origin_state; /* state the manifest defines this fault
+                                     path from (INIT/PAN_DET/PREHEAT/HEATING/
+                                     COOLDOWN); defaults to HEATING */
     int  perturbation_at_tick;
     int  perturbation_over_ticks; /* computed from sensors */
+    /* Timing/timeout injection (plan 031/U3): an alternative to trace-based
+     * sensor perturbation for boundaries too large to replay tick-by-tick
+     * (e.g. MAX_PREHEAT_TIME_MS = 600000ms, far beyond MAX_TICKS*DT_MS).
+     * When set, the scenario advances time once by timing_advance_ms and
+     * checks the outcome after a single state_machine_update(), instead of
+     * replaying a CSV trace. */
+    bool is_timing_scenario;
+    long timing_advance_ms;
     system_state_t expected_state;
     fault_code_t   expected_fault;
     int  max_latency_ticks;
-    /* soft assertions */
-    bool soft_power_off;
-    bool soft_eeprom_logged;
-    fault_code_t soft_eeprom_fault;
+    /* hard assertions (KTD3): a scenario that reaches the right state but
+     * misses these side effects fails the run, it does not warn. */
+    bool require_power_off;
+    bool require_eeprom_logged;
+    fault_code_t expected_eeprom_fault;
 } manifest_entry_t;
 
 /* ---------------------------------------------------------------------------
@@ -242,6 +259,8 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
         manifest_entry_t *e = &entries[count];
         memset(e, 0, sizeof(*e));
         e->self_test_pass = true; /* default */
+        e->origin_state = STATE_HEATING; /* default: matches the legacy
+                                             single-trajectory scenarios */
         e->expected_state = STATE_INIT;
         e->expected_fault = FAULT_NONE;
 
@@ -264,6 +283,12 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
             } else if (!strcmp(key, "trace_file")) {
                 char *val = extract_string(&p);
                 if (val) { strncpy(e->trace_file, val, sizeof(e->trace_file) - 1); free(val); }
+            } else if (!strcmp(key, "finding")) {
+                char *val = extract_string(&p);
+                if (val) { strncpy(e->finding, val, sizeof(e->finding) - 1); free(val); }
+            } else if (!strcmp(key, "origin_state")) {
+                char *val = extract_string(&p);
+                if (val) { e->origin_state = parse_state(val); free(val); }
             } else if (!strcmp(key, "initial_conditions")) {
                 /* Parse the initial_conditions object */
                 p = skip_ws(p);
@@ -283,6 +308,28 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
                             skip_value(&p);
                         }
                         free(ik);
+                        p = skip_ws(p);
+                        if (*p == ',') p++;
+                    }
+                    if (*p == '}') p++;
+                }
+            } else if (!strcmp(key, "timing")) {
+                p = skip_ws(p);
+                if (*p == '{') {
+                    p++;
+                    e->is_timing_scenario = true;
+                    while (*p && *p != '}') {
+                        p = skip_ws(p);
+                        char *tk = extract_string(&p);
+                        if (!tk) break;
+                        p = skip_ws(p);
+                        if (*p == ':') p++;
+                        if (!strcmp(tk, "advance_ms")) {
+                            e->timing_advance_ms = (long)extract_int(&p);
+                        } else {
+                            skip_value(&p);
+                        }
+                        free(tk);
                         p = skip_ws(p);
                         if (*p == ',') p++;
                     }
@@ -364,8 +411,10 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
                             free(val);
                         } else if (!strcmp(ek, "max_latency_ticks")) {
                             e->max_latency_ticks = extract_int(&p);
-                        } else if (!strcmp(ek, "soft_assertions")) {
-                            /* Array of soft assertion objects */
+                        } else if (!strcmp(ek, "hard_assertions")) {
+                            /* Array of hard assertion objects (KTD3):
+                             * power_off and eeprom_logged fail the run when
+                             * unmet, they do not warn. */
                             p = skip_ws(p);
                             if (*p == '[') {
                                 p++;
@@ -381,13 +430,13 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
                                             if (*p == ':') p++;
                                             if (!strcmp(sak, "power_off")) {
                                                 p = skip_ws(p);
-                                                if (!strncmp(p, "true", 4)) { e->soft_power_off = true; p += 4; }
+                                                if (!strncmp(p, "true", 4)) { e->require_power_off = true; p += 4; }
                                             } else {
                                                 char *sv = extract_string(&p);
                                                 if (sv) {
                                                     if (!strcmp(sak, "eeprom_logged")) {
-                                                        e->soft_eeprom_logged = true;
-                                                        e->soft_eeprom_fault = parse_fault_code(sv);
+                                                        e->require_eeprom_logged = true;
+                                                        e->expected_eeprom_fault = parse_fault_code(sv);
                                                     }
                                                     free(sv);
                                                 }
@@ -472,10 +521,16 @@ static int load_csv(const char *path, csvrow_t *rows, int max_rows) {
 }
 
 /* ---------------------------------------------------------------------------
- * State machine boilerplate: advance from INIT through to HEATING
+ * State machine boilerplate: advance from INIT to a chosen origin state
+ *
+ * Generalized (plan 031/U1) from the single HEATING-only helper so scenarios
+ * can inject from every state the manifest defines a fault path from, not
+ * only the end of one trajectory. Each stage returns as soon as the
+ * requested origin is reached; falling off the end lands in HEATING, same
+ * as the original helper.
  * --------------------------------------------------------------------------- */
 
-static void sm_boilerplate_to_heating(bool self_test_pass) {
+static void sm_boilerplate_to_origin(system_state_t origin, bool self_test_pass) {
     /* INIT -> IDLE (self-test runs on first update) */
     if (!self_test_pass) {
         mock_sm_set_selftest_results(false, true, true, true, true, true, true);
@@ -483,32 +538,37 @@ static void sm_boilerplate_to_heating(bool self_test_pass) {
     mock_sm_advance_time(DT_MS);
     state_machine_update();
 
-    /* Now in IDLE -- wait if self-test failed (already in FAULT) */
+    /* Self-test failure short-circuits every origin: already in FAULT. */
+    if (state_machine_get_state() == STATE_FAULT) return;
+    if (origin == STATE_INIT) return;
 
-    if (state_machine_get_state() != STATE_FAULT) {
-        /* IDLE -> PAN_DET */
-        state_machine_set_target_temp(100.0f);
-        mock_sm_press_button(BUTTON_START);
+    /* IDLE -> PAN_DET */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(DT_MS);
+    state_machine_update();
+    mock_sm_release_button(BUTTON_START);
+    if (origin == STATE_PAN_DET) return;
+
+    /* PAN_DET -> PREHEAT (need pan present + confidence) */
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < PAN_CONFIDENCE_NEEDED; i++) {
         mock_sm_advance_time(DT_MS);
         state_machine_update();
-        mock_sm_release_button(BUTTON_START);
-
-        /* PAN_DET -> PREHEAT (need pan present + confidence) */
-        mock_sm_set_pan_status(MOCK_PAN_PRESENT);
-        for (int i = 0; i < PAN_CONFIDENCE_NEEDED; i++) {
-            mock_sm_advance_time(DT_MS);
-            state_machine_update();
-            if (state_machine_get_state() != STATE_PAN_DET) break;
-        }
-
-        /* PREHEAT -> HEATING (pan near target) */
-        if (state_machine_get_state() == STATE_PREHEAT) {
-            mock_sm_set_pan_temperature(92.0f);
-            state_machine_reset_temp_baseline();
-            mock_sm_advance_time(DT_MS);
-            state_machine_update();
-        }
+        if (state_machine_get_state() != STATE_PAN_DET) break;
     }
+    if (state_machine_get_state() != STATE_PREHEAT) return; /* didn't arrive; nothing more to do */
+    if (origin == STATE_PREHEAT) return;
+
+    /* PREHEAT -> HEATING (pan near target: temp_error <= 10 degrees) */
+    mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
+    mock_sm_advance_time(DT_MS);
+    state_machine_update();
+    /* origin == STATE_HEATING (or unrecognized) falls through here.
+     * COOLDOWN-origin scenarios reach COOLDOWN via the replayed trace itself
+     * (pan removal -> NO_PAN -> timeout -> COOLDOWN), not via boilerplate;
+     * see trace_fault_cooldown_overheat.csv / trace_fault_relay_welded.csv. */
 }
 
 /* ---------------------------------------------------------------------------
@@ -611,6 +671,132 @@ static int check_trace_invariants(const csvrow_t *rows, int row_count,
 }
 
 /* ---------------------------------------------------------------------------
+ * Hard safe-state assertions (plan 031/U2, KTD3)
+ *
+ * Promoted from warnings-only: a scenario that reaches the right (state,
+ * fault) pair but misses the power-off or fault-logging side effect now
+ * fails the run instead of printing [WARN]. Uses the probe API named by
+ * KTD3 rather than mock_sm_get_trigger_shutdown_count(), because not every
+ * designed fault path routes through the hardware-latch shortcut (e.g.
+ * FAULT_SELF_TEST_FAILED fires before the power stage is ever enabled) --
+ * pwm_disable_count / power_level / pll_enabled are asserted by
+ * state_fault_entry()/state_runaway_fault_entry() on every route.
+ * --------------------------------------------------------------------------- */
+
+static void assert_safe_state_side_effects(const manifest_entry_t *entry,
+                                            uint32_t pwm_disable_baseline) {
+    char msg[224];
+
+    if (entry->require_power_off) {
+        uint32_t pwm_calls = mock_sm_get_pwm_disable_count();
+        uint32_t power_level = mock_sm_get_power_level();
+        bool pll_enabled = mock_sm_get_pll_enabled();
+
+        if (pwm_calls <= pwm_disable_baseline) {
+            snprintf(msg, sizeof(msg),
+                     "HARD ASSERTION FAILED: power_off expected but "
+                     "pwm_disable_all() was never called (count=%u, "
+                     "baseline=%u)", pwm_calls, pwm_disable_baseline);
+            TEST_FAIL_MESSAGE(msg);
+            return;
+        }
+        if (power_level != 0) {
+            snprintf(msg, sizeof(msg),
+                     "HARD ASSERTION FAILED: power_off expected but "
+                     "power_level=%u (expected 0)", power_level);
+            TEST_FAIL_MESSAGE(msg);
+            return;
+        }
+        if (pll_enabled) {
+            TEST_FAIL_MESSAGE(
+                "HARD ASSERTION FAILED: power_off expected but PLL is "
+                "still enabled");
+            return;
+        }
+    }
+
+    if (entry->require_eeprom_logged) {
+        fault_code_t logged = mock_sm_get_last_logged_fault();
+        if (logged != entry->expected_eeprom_fault) {
+            snprintf(msg, sizeof(msg),
+                     "HARD ASSERTION FAILED: eeprom_logged expected fault "
+                     "%d, got %d", (int)entry->expected_eeprom_fault,
+                     (int)logged);
+            TEST_FAIL_MESSAGE(msg);
+            return;
+        }
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * Timing/timeout injection (plan 031/U3)
+ *
+ * Advances time once across a manifest-derived boundary (e.g.
+ * MAX_PREHEAT_TIME_MS) instead of replaying a CSV trace tick-by-tick --
+ * timeouts on the order of minutes don't fit MAX_TICKS*DT_MS (100s).
+ * --------------------------------------------------------------------------- */
+
+static void run_sil_timing_test(const manifest_entry_t *entry) {
+    printf("\n[SIL] %s\n", entry->name);
+    if (entry->finding[0] != '\0') {
+        printf("  [FINDING] %s\n", entry->finding);
+    }
+
+    mock_sm_reset();
+    state_machine_init();
+    uint32_t pwm_disable_baseline = mock_sm_get_pwm_disable_count();
+
+    sm_boilerplate_to_origin(entry->origin_state, entry->self_test_pass);
+
+    if (!entry->self_test_pass) {
+        system_state_t st = state_machine_get_state();
+        fault_code_t fc = state_machine_get_fault();
+        TEST_ASSERT_EQUAL(STATE_FAULT, st);
+        TEST_ASSERT_EQUAL(entry->expected_fault, fc);
+        assert_safe_state_side_effects(entry, pwm_disable_baseline);
+        printf("  [PASS] self_test_failed detected\n");
+        return;
+    }
+
+    /* Single large jump across the timeout boundary; the check fires on the
+     * state's own next update() (state_duration is measured from
+     * state_entry_time, not accumulated per-tick). */
+    mock_sm_advance_time((uint32_t)entry->timing_advance_ms);
+    state_machine_update();
+
+    /* Some timeout paths (e.g. PAN_TIMEOUT -> IDLE) go through
+     * show_message_then_transition(): the first update() only arms
+     * message_pending, the actual transition needs a second update() after
+     * MESSAGE_DISPLAY_TIME_MS. Always run this second step; it is a no-op
+     * for paths that already transitioned directly (e.g. FAULT via
+     * enter_hardware_latched_fault()), since a second state_fault_update()
+     * doesn't re-run state_fault_entry() or change the probe counters. */
+    mock_sm_advance_time(MESSAGE_DISPLAY_TIME_MS + 100);
+    state_machine_update();
+
+    system_state_t st = state_machine_get_state();
+    fault_code_t fc = state_machine_get_fault();
+
+    if (st != entry->expected_state) {
+        char msg[256];
+        snprintf(msg, sizeof(msg),
+                 "Expected state %d after %ld ms advance from origin %d, got state %d",
+                 (int)entry->expected_state, entry->timing_advance_ms,
+                 (int)entry->origin_state, (int)st);
+        TEST_FAIL_MESSAGE(msg);
+        return;
+    }
+    if (entry->expected_fault != FAULT_NONE || fc != FAULT_NONE) {
+        TEST_ASSERT_EQUAL(entry->expected_fault, fc);
+    }
+
+    printf("  [PASS] state=%d fault=%d after %ld ms advance\n",
+           (int)st, (int)fc, entry->timing_advance_ms);
+
+    assert_safe_state_side_effects(entry, pwm_disable_baseline);
+}
+
+/* ---------------------------------------------------------------------------
  * Run a single fault-injection test
  * --------------------------------------------------------------------------- */
 
@@ -618,7 +804,15 @@ static void run_sil_test(const manifest_entry_t *entry) {
     csvrow_t rows[MAX_TICKS];
     int row_count;
 
+    if (entry->is_timing_scenario) {
+        run_sil_timing_test(entry);
+        return;
+    }
+
     printf("\n[SIL] %s\n", entry->name);
+    if (entry->finding[0] != '\0') {
+        printf("  [FINDING] %s\n", entry->finding);
+    }
 
     /* Build full path to perturbed trace (relative to traces/ directory) */
     char trace_path[512];
@@ -642,8 +836,14 @@ static void run_sil_test(const manifest_entry_t *entry) {
     mock_sm_reset();
     state_machine_init();
 
-    /* Boilerplate: get to HEATING (or FAULT if self-test fails) */
-    sm_boilerplate_to_heating(entry->self_test_pass);
+    /* Baseline the power-disable probe before any boilerplate/replay runs,
+     * so the hard power_off assertion measures an increment attributable to
+     * this scenario rather than assuming a zero starting count. */
+    uint32_t pwm_disable_baseline = mock_sm_get_pwm_disable_count();
+
+    /* Boilerplate: get to the scenario's designed origin state (or FAULT if
+     * self-test fails) */
+    sm_boilerplate_to_origin(entry->origin_state, entry->self_test_pass);
 
     /* If self-test was set to fail, we should already be in FAULT */
     if (!entry->self_test_pass) {
@@ -654,6 +854,7 @@ static void run_sil_test(const manifest_entry_t *entry) {
             /* Expected outcome - test passes */
             TEST_ASSERT_EQUAL(STATE_FAULT, st);
             TEST_ASSERT_EQUAL(FAULT_SELF_TEST_FAILED, fc);
+            assert_safe_state_side_effects(entry, pwm_disable_baseline);
             printf("  [PASS] self_test_failed detected\n");
             return;
         }
@@ -755,20 +956,8 @@ static void run_sil_test(const manifest_entry_t *entry) {
     printf("  [PASS] state=%d fault=%d latency=%d ticks (at tick %d)\n",
            (int)entry->expected_state, (int)captured_fault, latency, reached_tick);
 
-    /* --- Soft assertions (warnings only) --- */
-    if (entry->soft_power_off) {
-        uint32_t shutdowns = mock_sm_get_trigger_shutdown_count();
-        if (shutdowns == 0) {
-            printf("  [WARN] soft_assertion: power_off expected but none called\n");
-        }
-    }
-    if (entry->soft_eeprom_logged) {
-        fault_code_t logged = mock_sm_get_last_logged_fault();
-        if (logged != entry->soft_eeprom_fault) {
-            printf("  [WARN] soft_assertion: eeprom_logged expected %d, got %d\n",
-                   (int)entry->soft_eeprom_fault, (int)logged);
-        }
-    }
+    /* --- Hard assertions (plan 031/U2): failing, not warning --- */
+    assert_safe_state_side_effects(entry, pwm_disable_baseline);
 }
 
 /* ---------------------------------------------------------------------------
@@ -802,6 +991,14 @@ DECLARE_SIL_TEST(12)
 DECLARE_SIL_TEST(13)
 DECLARE_SIL_TEST(14)
 DECLARE_SIL_TEST(15)
+DECLARE_SIL_TEST(16)
+DECLARE_SIL_TEST(17)
+DECLARE_SIL_TEST(18)
+DECLARE_SIL_TEST(19)
+DECLARE_SIL_TEST(20)
+DECLARE_SIL_TEST(21)
+DECLARE_SIL_TEST(22)
+DECLARE_SIL_TEST(23)
 
 int main(void) {
     g_entry_count = parse_manifest(g_entries, MAX_MANIFEST_ENTRIES);
@@ -834,6 +1031,14 @@ int main(void) {
             case 13: RUN_TEST(test_sil_13); break;
             case 14: RUN_TEST(test_sil_14); break;
             case 15: RUN_TEST(test_sil_15); break;
+            case 16: RUN_TEST(test_sil_16); break;
+            case 17: RUN_TEST(test_sil_17); break;
+            case 18: RUN_TEST(test_sil_18); break;
+            case 19: RUN_TEST(test_sil_19); break;
+            case 20: RUN_TEST(test_sil_20); break;
+            case 21: RUN_TEST(test_sil_21); break;
+            case 22: RUN_TEST(test_sil_22); break;
+            case 23: RUN_TEST(test_sil_23); break;
             default: break;
         }
     }

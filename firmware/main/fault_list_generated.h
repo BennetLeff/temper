@@ -20,8 +20,6 @@
 
 #define FAULT_LIST(X) \
     X(FAULT_NONE, "NO FAULT") \
-    X(FAULT_RUNAWAY_BOUNDARY, "RUNAWAY BOUNDARY") \
-    X(FAULT_SELF_TEST_FAILED, "SELF TEST FAIL") \
     X(FAULT_WATCHDOG_RESET, "WATCHDOG RESET") \
     X(FAULT_PAN_DETECT_HW, "PAN DETECT HW") \
     X(FAULT_ADC_STUCK, "ADC STUCK") \
@@ -32,7 +30,9 @@
     X(FAULT_OVER_TEMP, "OVER TEMP") \
     X(FAULT_PROBE_OPEN, "PROBE OPEN") \
     X(FAULT_PROBE_SHORT, "PROBE SHORT") \
+    X(FAULT_RUNAWAY_BOUNDARY, "RUNAWAY BOUNDARY") \
+    X(FAULT_SELF_TEST_FAILED, "SELF TEST FAIL") \
     X(FAULT_THERMAL_RUNAWAY, "THERMAL RUNAWAY") 
 
 /* FAULT_COUNT is derived from the above list — see state_machine.h.
-   After regeneration:  9 manifest + 5 supplemental = 14 total entries. */
+   After regeneration:  11 manifest + 3 supplemental = 14 total entries. */

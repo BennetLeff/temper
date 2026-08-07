@@ -32,6 +32,12 @@ LABEL_OVERRIDES = {
     "FAULT_COOLDOWN_OVERHEAT": "COOLDOWN FAULT",
     "FAULT_IGBT_SHORT": "IGBT SHORT",
     "FAULT_ADC_STUCK": "ADC STUCK",
+    # FAULT_SELF_TEST_FAILED graduated out of fault_list_supplemental.yaml
+    # on 2026-08-07 (plan 031/U1); preserve its pre-existing display label
+    # rather than mechanically deriving one from the new manifest scenario
+    # name ("SIL: Self-Test Failure (INIT)"), which doesn't end in the
+    # " Fault" suffix derive_label() strips.
+    "FAULT_SELF_TEST_FAILED": "SELF TEST FAIL",
 }
 
 
@@ -71,6 +77,16 @@ def extract_manifest_faults(manifest_path):
         if fault_code in seen:
             continue
         seen.add(fault_code)
+
+        # FAULT_NONE is a legitimate expected outcome for non-fault SIL
+        # scenarios (plan 2026-08-02-031/U3 timing scenarios asserting a
+        # timeout resolves to a non-fault state e.g. PAN_TIMEOUT -> IDLE;
+        # and demonstrated-gap scenarios that intentionally assert the
+        # absence of a fault). It is already defined once, canonically, by
+        # fault_list_supplemental.yaml -- skip re-deriving/re-emitting it
+        # here so it doesn't collide with that entry in check_collisions().
+        if fault_code == "FAULT_NONE":
+            continue
 
         name = scenario.get("name", fault_code)
         label = derive_label(name, fault_code)

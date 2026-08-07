@@ -1,14 +1,16 @@
 # Fault codes without SIL fault-injection scenarios.
 # New fault codes should be added to manifest.json with SIL scenarios,
-# not to this file. This file exists only for the 5 legacy entries
-# that predate the SIL manifest.
+# not to this file. This file exists only for legacy entries that predate
+# the SIL manifest and have no SIL scenario.
+#
+# FAULT_RUNAWAY_BOUNDARY and FAULT_SELF_TEST_FAILED graduated out of this
+# file on 2026-08-07 (plan 2026-08-02-031/U1): both now have real SIL
+# scenarios in firmware/test/traces/manifest.json (Runaway Boundary Fault
+# HEATING/PREHEAT; Self-Test Failure INIT), so gen_fault_list.py derives
+# them from the manifest like every other exercised fault code.
 entries:
   - name: FAULT_NONE
     label: "NO FAULT"
-  - name: FAULT_RUNAWAY_BOUNDARY
-    label: "RUNAWAY BOUNDARY"
-  - name: FAULT_SELF_TEST_FAILED
-    label: "SELF TEST FAIL"
   - name: FAULT_WATCHDOG_RESET
     label: "WATCHDOG RESET"
   - name: FAULT_PAN_DETECT_HW
