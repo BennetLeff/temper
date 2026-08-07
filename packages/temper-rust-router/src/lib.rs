@@ -2,6 +2,7 @@
 //
 // Origin: U3/U4/U7 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 
+pub mod layer_assignment;
 pub mod loop_extractor;
 pub mod net_ordering;
 pub mod terminal_planning;
@@ -293,6 +294,9 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Wave-4 Phase B: the router_v6/net_ordering kernels.
     net_ordering::register(m)?;
+    // Wave-4 Phase 3: the router_v6/layer_assignment kernel.
+    layer_assignment::register(m)?;
+
     // Wave-4: the router_v6 terminal-tree slice (terminal_extraction,
     // terminal_tree, path_simplify).
     terminal_planning::register(m)?;
