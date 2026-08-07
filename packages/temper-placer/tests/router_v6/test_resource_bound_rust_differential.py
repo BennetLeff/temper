@@ -160,6 +160,30 @@ def test_conflict_clusters_empty_and_single():
     assert _rb._compute_conflict_clusters(single) == _oracle._compute_conflict_clusters(single) == [["A"]]
 
 
+def test_conflict_clusters_overlap_ratio_exactly_at_threshold_is_not_a_conflict():
+    """Boundary: overlap/min_area == overlap_threshold EXACTLY (both are the
+    same IEEE-754 double, 1.0/10.0 == 0.1) must NOT count as a conflict --
+    the oracle's comparison is strict `>`, not `>=`. A `>=` mutant merges
+    these two nets into one cluster; the correct kernel keeps them
+    separate. Random floats essentially never land exactly on the
+    threshold, so this exact-equality case needs its own fixture."""
+    bboxes = {
+        "A": (0.0, 0.0, 10.0, 1.0),
+        "B": (0.0, 0.0, 1.0, 10.0),
+    }
+    # Sanity: the fixture actually hits the exact double-precision boundary.
+    ox = min(10.0, 1.0) - max(0.0, 0.0)
+    oy = min(1.0, 10.0) - max(0.0, 0.0)
+    overlap = ox * oy
+    min_area = min(10.0 * 1.0, 1.0 * 10.0)
+    assert overlap / min_area == 0.1
+
+    oracle_clusters = _oracle._compute_conflict_clusters(bboxes)
+    rust_clusters = _rb._compute_conflict_clusters(bboxes)
+    assert len(oracle_clusters) == 2, "oracle: exact-threshold overlap must NOT conflict"
+    assert _cluster_sets(oracle_clusters) == _cluster_sets(rust_clusters) == {frozenset(["A"]), frozenset(["B"])}
+
+
 def test_conflict_clusters_deterministic_across_repeated_calls():
     """The Rust kernel sorts explicitly -- repeated calls on the same
     input must return the identical structure (not just membership),
