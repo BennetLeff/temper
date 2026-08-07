@@ -111,8 +111,9 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
             }
             let n_idx = (ndr * input.cols as i64 + ndc) as usize;
 
-            // Octile step cost: straight 1.0, diagonal 1.4142135 (f32).
-            let mut step: f32 = if d % 2 == 0 { 1.0 } else { 1.4142135 };
+            // Octile step cost: straight 1.0, diagonal SQRT_2 (f32) — the
+            // reference's `1.4142135` literal is the same f32 bit pattern.
+            let mut step: f32 = if d % 2 == 0 { 1.0 } else { std::f32::consts::SQRT_2 };
 
             // U7/R11 congestion penalty — f32 log(1+raw), capped.
             if use_congestion {
@@ -125,7 +126,7 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
                         } else {
                             cong_cost
                         };
-                        step = step + input.congestion_weight * cong_cost;
+                        step += input.congestion_weight * cong_cost;
                     }
                 }
             }
@@ -134,7 +135,7 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
                 if let Some(th) = input.thermal {
                     let t_val = th[n_idx];
                     if t_val > 0.0f32 {
-                        step = step + input.thermal_weight * t_val;
+                        step += input.thermal_weight * t_val;
                     }
                 }
             }
@@ -142,7 +143,7 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
             let tentative = g_score[cur_i] + step;
             if tentative < g_score[n_idx] {
                 g_score[n_idx] = tentative;
-                came_from[n_idx] = cur as i32;
+                came_from[n_idx] = cur;
                 let gdx = (ndc - gc).abs();
                 let gdy = (ndr - gr).abs();
                 let h = octile_heuristic_f32(gdx, gdy);
@@ -243,8 +244,8 @@ mod tests {
         let input = input_for(5, 5, &validity, 0, 24);
         let out = astar_kernel_3d(&input);
         assert!(!out.path.is_empty());
-        assert_eq!(*out.path.first().unwrap(), 0);
-        assert_eq!(*out.path.last().unwrap(), 24);
+        assert_eq!(out.path.first().copied(), Some(0));
+        assert_eq!(out.path.last().copied(), Some(24));
     }
 
     #[test]
@@ -267,7 +268,7 @@ mod tests {
         // Block everything except the start cell.
         let mut validity = vec![0u8; 4 * 4 * 8];
         for d in 0..8 {
-            validity[0 * 8 + d] = 0;
+            validity[d] = 0;
         }
         let input = input_for(4, 4, &validity, 0, 15);
         let out = astar_kernel_3d(&input);
@@ -297,8 +298,8 @@ mod tests {
         let with_cong = astar_kernel_3d(&input);
         let plain = astar_kernel_3d(&input_for(9, 9, &validity, 0, 80));
         assert!(!with_cong.path.is_empty());
-        assert_eq!(*with_cong.path.first().unwrap(), 0);
-        assert_eq!(*with_cong.path.last().unwrap(), 80);
+        assert_eq!(with_cong.path.first().copied(), Some(0));
+        assert_eq!(with_cong.path.last().copied(), Some(80));
         // The direct route through the blob must be abandoned.
         assert_ne!(with_cong.path, plain.path);
     }

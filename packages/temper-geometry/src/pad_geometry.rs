@@ -55,17 +55,13 @@ unsafe extern "C" fn fallback_sin(x: f64) -> f64 {
 }
 
 fn host_cos() -> &'static MathFn {
-    static F: OnceLock<Option<MathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_math("cos").or(Some(fallback_cos)))
-        .as_ref()
-        .unwrap()
+    static F: OnceLock<MathFn> = OnceLock::new();
+    F.get_or_init(|| dlsym_math("cos").unwrap_or(fallback_cos))
 }
 
 fn host_sin() -> &'static MathFn {
-    static F: OnceLock<Option<MathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_math("sin").or(Some(fallback_sin)))
-        .as_ref()
-        .unwrap()
+    static F: OnceLock<MathFn> = OnceLock::new();
+    F.get_or_init(|| dlsym_math("sin").unwrap_or(fallback_sin))
 }
 
 fn math_cos(x: f64) -> f64 {
@@ -238,26 +234,52 @@ fn project_onto_barrier_axis(local_x: f64, local_y: f64, rot_value: i64, barrier
 /// A pad as consumed by the barrier sweep: (x, y, width, height, shape, roundrect_ratio).
 type PadTuple = (f64, f64, f64, f64, String, f64);
 
-fn pad_projection(p: &PadTuple, rot_value: i64, barrier_axis: i64) -> (f64, f64) {
-    let (x, y, w, h, shape, ratio) = p;
-    let proj = project_onto_barrier_axis(*x, *y, rot_value, barrier_axis);
+/// A pad as consumed by the barrier sweep — the `PadTuple` FFI shape
+/// decoded into named fields.
+#[derive(Debug, Clone, Copy)]
+struct Pad<'a> {
+    x: f64,
+    y: f64,
+    width: f64,
+    height: f64,
+    shape: &'a str,
+    roundrect_ratio: f64,
+}
+
+/// Decode the FFI tuple list into typed `Pad`s (borrowing the shapes).
+fn pads_from_tuples(tuples: &[PadTuple]) -> Vec<Pad<'_>> {
+    tuples
+        .iter()
+        .map(|(x, y, w, h, shape, ratio)| Pad {
+            x: *x,
+            y: *y,
+            width: *w,
+            height: *h,
+            shape,
+            roundrect_ratio: *ratio,
+        })
+        .collect()
+}
+
+fn pad_projection(p: &Pad<'_>, rot_value: i64, barrier_axis: i64) -> (f64, f64) {
+    let proj = project_onto_barrier_axis(p.x, p.y, rot_value, barrier_axis);
     // Python reference: `rot_value * math.pi / 2.0` (multiply then divide,
     // NOT rot_value * FRAC_PI_2 — the latter differs in the last ulp for
     // odd rot_values, propagating into the axis radius).
-    let rad = axis_radius(*w, *h, shape, barrier_axis, rot_value as f64 * std::f64::consts::PI / 2.0, *ratio);
+    let rad = axis_radius(p.width, p.height, p.shape, barrier_axis, rot_value as f64 * std::f64::consts::PI / 2.0, p.roundrect_ratio);
     (proj, rad)
 }
 
 /// Worst-case (minimum over every HV x SELV pair) edge-to-edge gap on one
 /// LOCAL axis, rotation 0. Mirrors isolation_barrier.py::_axis_gap.
-fn barrier_axis_gap(hv: &[PadTuple], selv: &[PadTuple], axis_idx: i64) -> f64 {
+fn barrier_axis_gap(hv: &[Pad<'_>], selv: &[Pad<'_>], axis_idx: i64) -> f64 {
     let mut worst = f64::INFINITY;
     for hp in hv {
         for sp in selv {
-            let h = if axis_idx == 0 { hp.0 } else { hp.1 };
-            let s = if axis_idx == 0 { sp.0 } else { sp.1 };
-            let hr = axis_radius(hp.2, hp.3, &hp.4, axis_idx, 0.0, hp.5);
-            let sr = axis_radius(sp.2, sp.3, &sp.4, axis_idx, 0.0, sp.5);
+            let h = if axis_idx == 0 { hp.x } else { hp.y };
+            let s = if axis_idx == 0 { sp.x } else { sp.y };
+            let hr = axis_radius(hp.width, hp.height, hp.shape, axis_idx, 0.0, hp.roundrect_ratio);
+            let sr = axis_radius(sp.width, sp.height, sp.shape, axis_idx, 0.0, sp.roundrect_ratio);
             let gap = (h - s).abs() - hr - sr;
             if gap < worst {
                 worst = gap;
@@ -272,36 +294,43 @@ fn barrier_axis_gap(hv: &[PadTuple], selv: &[PadTuple], axis_idx: i64) -> f64 {
 /// Mirrors isolation_barrier.py::_best_rotation_for_barrier exactly
 /// (first-maximum tie-breaking, fallback on convention violation).
 /// Returns (rot_value, gap_mm, convention_kept).
-fn best_rotation_for_barrier(hv: &[PadTuple], selv: &[PadTuple], barrier_axis: i64) -> (i64, f64, bool) {
-    let mut best: Option<(i64, f64)> = None;
-    let mut fallback: Option<(i64, f64)> = None;
-    for rot_value in 0..4i64 {
-        let hv_proj: Vec<(f64, f64)> = hv.iter().map(|p| pad_projection(p, rot_value, barrier_axis)).collect();
-        let selv_proj: Vec<(f64, f64)> = selv.iter().map(|p| pad_projection(p, rot_value, barrier_axis)).collect();
-        let hv_mean: f64 = hv_proj.iter().map(|(p, _)| p).sum::<f64>() / hv_proj.len() as f64;
-        let selv_mean: f64 = selv_proj.iter().map(|(p, _)| p).sum::<f64>() / selv_proj.len() as f64;
-        let gap = hv_proj
-            .iter()
-            .flat_map(|(hp, hr)| selv_proj.iter().map(move |(sp, sr)| (hp - sp).abs() - hr - sr))
-            .fold(f64::INFINITY, f64::min);
-        match fallback {
-            None => fallback = Some((rot_value, gap)),
-            Some((_, g)) if gap > g => fallback = Some((rot_value, gap)),
-            _ => {}
-        }
-        if hv_mean > selv_mean {
-            continue; // would invert the board-wide HV=lo/SELV=hi convention
-        }
-        match best {
-            None => best = Some((rot_value, gap)),
-            Some((_, g)) if gap > g => best = Some((rot_value, gap)),
-            _ => {}
-        }
-    }
+fn best_rotation_for_barrier(hv: &[Pad<'_>], selv: &[Pad<'_>], barrier_axis: i64) -> (i64, f64, bool) {
+    // Evaluate every rotation once, keeping the convention flag alongside.
+    // `fallback` is the first-max gap overall; `best` the first-max among
+    // rotations that keep HV=lo/SELV=hi (the reference's update order —
+    // strict `>` keeps the first rotation on ties).
+    let candidates: Vec<(i64, f64, bool)> = (0..4i64)
+        .map(|rot_value| {
+            let (gap, hv_mean, selv_mean) = rotation_scores(hv, selv, barrier_axis, rot_value);
+            (rot_value, gap, hv_mean <= selv_mean)
+        })
+        .collect();
+    let fallback = candidates
+        .iter()
+        .reduce(|acc, c| if c.1 > acc.1 { c } else { acc })
+        .unwrap_or(&candidates[0]);
+    let best = candidates
+        .iter()
+        .filter(|(_, _, keeps_convention)| *keeps_convention)
+        .reduce(|acc, c| if c.1 > acc.1 { c } else { acc });
     match best {
-        Some((rot, gap)) => (rot, gap, true),
-        None => fallback.map(|(rot, gap)| (rot, gap, false)).expect("rotation sweep produced no fallback"),
+        Some((rot, gap, _)) => (*rot, *gap, true),
+        None => (fallback.0, fallback.1, false),
     }
+}
+
+/// Gap and cluster means for one candidate rotation — the per-rotation
+/// factor of `_best_rotation_for_barrier`. Returns `(gap, hv_mean, selv_mean)`.
+fn rotation_scores(hv: &[Pad<'_>], selv: &[Pad<'_>], barrier_axis: i64, rot_value: i64) -> (f64, f64, f64) {
+    let hv_proj: Vec<(f64, f64)> = hv.iter().map(|p| pad_projection(p, rot_value, barrier_axis)).collect();
+    let selv_proj: Vec<(f64, f64)> = selv.iter().map(|p| pad_projection(p, rot_value, barrier_axis)).collect();
+    let hv_mean: f64 = hv_proj.iter().map(|(p, _)| p).sum::<f64>() / hv_proj.len() as f64;
+    let selv_mean: f64 = selv_proj.iter().map(|(p, _)| p).sum::<f64>() / selv_proj.len() as f64;
+    let gap = hv_proj
+        .iter()
+        .flat_map(|(hp, hr)| selv_proj.iter().map(move |(sp, sr)| (hp - sp).abs() - hr - sr))
+        .fold(f64::INFINITY, f64::min);
+    (gap, hv_mean, selv_mean)
 }
 
 // ---------------------------------------------------------------------------
@@ -357,13 +386,23 @@ pub fn pad_bounding_radius_py(width: f64, height: f64, shape: String, roundrect_
 #[pyfunction]
 #[pyo3(signature = (hv_pads, selv_pads, axis_idx))]
 pub fn barrier_axis_gap_py(hv_pads: Vec<PadTuple>, selv_pads: Vec<PadTuple>, axis_idx: i64) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| barrier_axis_gap(&hv_pads, &selv_pads, axis_idx)).map_err(temper_py_bridge::panic_to_err)
+    temper_py_bridge::catch_unwind(|| {
+        let hv = pads_from_tuples(&hv_pads);
+        let selv = pads_from_tuples(&selv_pads);
+        barrier_axis_gap(&hv, &selv, axis_idx)
+    })
+    .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[pyfunction]
 #[pyo3(signature = (hv_pads, selv_pads, barrier_axis))]
 pub fn best_rotation_for_barrier_py(hv_pads: Vec<PadTuple>, selv_pads: Vec<PadTuple>, barrier_axis: i64) -> PyResult<(i64, f64, bool)> {
-    temper_py_bridge::catch_unwind(|| best_rotation_for_barrier(&hv_pads, &selv_pads, barrier_axis)).map_err(temper_py_bridge::panic_to_err)
+    temper_py_bridge::catch_unwind(|| {
+        let hv = pads_from_tuples(&hv_pads);
+        let selv = pads_from_tuples(&selv_pads);
+        best_rotation_for_barrier(&hv, &selv, barrier_axis)
+    })
+    .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[cfg(test)]
@@ -400,8 +439,16 @@ mod tests {
 
     #[test]
     fn test_barrier_gap_and_rotation() {
-        let hv = vec![(0.0, 0.0, 2.0, 1.0, "roundrect".to_string(), 0.25)];
-        let selv = vec![(10.0, 0.0, 2.0, 1.0, "roundrect".to_string(), 0.25)];
+        let pad = |x: f64, y: f64| Pad {
+            x,
+            y,
+            width: 2.0,
+            height: 1.0,
+            shape: "roundrect",
+            roundrect_ratio: 0.25,
+        };
+        let hv = vec![pad(0.0, 0.0)];
+        let selv = vec![pad(10.0, 0.0)];
         let gap = barrier_axis_gap(&hv, &selv, 0);
         assert!((gap - 8.0).abs() < 1e-9); // 10 - 1.0 (hv rad) - 1.0 (selv rad)
         let (rot, best, kept) = best_rotation_for_barrier(&hv, &selv, 0);
@@ -414,8 +461,16 @@ mod tests {
     fn test_rotation_searches_other_axis() {
         // HV/SELV separated along local Y only; barrier axis X must pick a
         // 90-degree rotation to bring the Y separation onto the barrier.
-        let hv = vec![(0.0, 0.0, 1.0, 1.0, "circle".to_string(), 0.25)];
-        let selv = vec![(0.0, 10.0, 1.0, 1.0, "circle".to_string(), 0.25)];
+        let pad = |x: f64, y: f64| Pad {
+            x,
+            y,
+            width: 1.0,
+            height: 1.0,
+            shape: "circle",
+            roundrect_ratio: 0.25,
+        };
+        let hv = vec![pad(0.0, 0.0)];
+        let selv = vec![pad(0.0, 10.0)];
         let (rot, best, _) = best_rotation_for_barrier(&hv, &selv, 0);
         assert!(rot == 1 || rot == 3, "expected a 90-degree rotation, got {rot}");
         assert!((best - 9.0).abs() < 1e-9); // 10 - 0.5 - 0.5

@@ -49,7 +49,7 @@ fn dlsym_pow() -> Option<MathFn> {
     }
     const RTLD_DEFAULT: *const u8 = core::ptr::null();
     unsafe {
-        let p = dlsym(RTLD_DEFAULT, b"pow\0".as_ptr());
+        let p = dlsym(RTLD_DEFAULT, c"pow".as_ptr().cast());
         if p.is_null() {
             None
         } else {
@@ -63,8 +63,8 @@ unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
 }
 
 fn host_pow() -> &'static MathFn {
-    static F: OnceLock<Option<MathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_pow().or(Some(fallback_pow))).as_ref().unwrap()
+    static F: OnceLock<MathFn> = OnceLock::new();
+    F.get_or_init(|| dlsym_pow().unwrap_or(fallback_pow))
 }
 
 fn math_pow(x: f64, y: f64) -> f64 {

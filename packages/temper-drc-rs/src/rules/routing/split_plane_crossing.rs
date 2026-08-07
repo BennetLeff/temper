@@ -39,6 +39,14 @@ fn is_ground_net(net: &str) -> bool {
     GND_KEYWORDS.iter().any(|k| upper.contains(k))
 }
 
+/// The midpoint of a trace segment — the crossing-detection sample point.
+fn segment_midpoint(seg: &geo::Line<f64>) -> Point<f64> {
+    Point::new(
+        (seg.start.x + seg.end.x) / 2.0,
+        (seg.start.y + seg.end.y) / 2.0,
+    )
+}
+
 // ---------------------------------------------------------------------------
 // Check
 // ---------------------------------------------------------------------------
@@ -110,13 +118,17 @@ fn collect_ground_polys<'a>(
             .filter(|zd| is_ground_net(&zd.name) || zd.net_classes.iter().any(|nc| is_ground_net(nc)))
             .map(|zd| zd.name.as_str())
             .collect();
+        let ground_zone_lower: Vec<String> = ground_zone_names
+            .iter()
+            .map(|gzn| gzn.to_lowercase())
+            .collect();
 
         board
             .zones
             .iter()
             .filter(|z| {
                 let lc_net = z.net.to_lowercase();
-                ground_zone_names.iter().any(|gzn| lc_net.contains(&gzn.to_lowercase()))
+                ground_zone_lower.iter().any(|gzn| lc_net.contains(gzn))
             })
             .map(|z| (z.net.0.as_str(), &z.polygon))
             .collect()
@@ -138,10 +150,7 @@ fn check_fast_traces(
         let mut domains_hit: Vec<String> = Vec::new();
 
         for seg in &trace.segments {
-            let mid = Point::new(
-                (seg.start.x + seg.end.x) / 2.0,
-                (seg.start.y + seg.end.y) / 2.0,
-            );
+            let mid = segment_midpoint(seg);
             for (gnd_name, poly) in ground_polys {
                 if poly.intersects(&mid) {
                     let name_str = gnd_name.to_string();
@@ -153,12 +162,10 @@ fn check_fast_traces(
         }
 
         if domains_hit.len() > 1 {
-            let mid = trace.segments.first().map_or(Point::new(0.0, 0.0), |seg| {
-                Point::new(
-                    (seg.start.x + seg.end.x) / 2.0,
-                    (seg.start.y + seg.end.y) / 2.0,
-                )
-            });
+            let mid = trace
+                .segments
+                .first()
+                .map_or(Point::new(0.0, 0.0), segment_midpoint);
 
             violations.push(violation(
                 Severity::Warning,

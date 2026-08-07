@@ -2,12 +2,20 @@
 //
 // Origin: U4 of docs/plans/2026-06-28-003-feat-unsat-provenance-tension-detection-plan.md
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashSet};
 
 use crate::types::{
     ClauseOrigin, ConflictReport, InternalConstraint, InternalConstraintModel,
     SatVariable,
 };
+
+/// The maximum nets a Capacity constraint permits —
+/// `floor(capacity * slack_factor / min_term_width)` (reference operation
+/// order).  Shared by the label and explanation builders.
+fn max_nets_for(capacity: f64, slack_factor: f64, terms: &[(String, f64)]) -> usize {
+    let min_width = terms.iter().map(|(_, w)| *w).fold(f64::INFINITY, f64::min);
+    ((capacity * slack_factor) / min_width).floor() as usize
+}
 
 /// Build a human-readable conflict report from UNSAT core clause indices.
 ///
@@ -31,19 +39,16 @@ pub fn build_conflict_report(
     }
 
     // Deduplicate constraints referenced by core clauses.
-    let mut unique_constraints: BTreeSet<usize> = BTreeSet::new();
-    for &ci in core_indices {
-        if ci >= provenance.len() {
-            continue;
-        }
-        let origin = provenance[ci];
-        unique_constraints.insert(origin.constraint_idx as usize);
-    }
+    let unique_constraints: BTreeSet<usize> = core_indices
+        .iter()
+        .filter(|&&ci| ci < provenance.len())
+        .map(|&ci| provenance[ci].constraint_idx as usize)
+        .collect();
 
     // Build conflicting_constraints list with labels.
     let mut conflicting_constraints: Vec<(usize, String)> = Vec::new();
     let mut channels_involved: Vec<String> = Vec::new();
-    let mut channel_set: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let mut channel_set: HashSet<String> = HashSet::new();
 
     for idx in &unique_constraints {
         if *idx >= model.constraints.len() {
@@ -77,11 +82,7 @@ fn constraint_label(idx: usize, c: &InternalConstraint) -> String {
             slack_factor,
             terms,
         } => {
-            let min_width = terms
-                .iter()
-                .map(|(_, w)| *w)
-                .fold(f64::INFINITY, f64::min);
-            let max_nets = ((capacity * slack_factor) / min_width).floor() as usize;
+            let max_nets = max_nets_for(*capacity, *slack_factor, terms);
             format!("Capacity[{idx}]:{channel_id}≤{max_nets}")
         }
         InternalConstraint::DiffPair {
@@ -126,6 +127,23 @@ fn parse_channel_id(var_name: &str) -> Option<&str> {
     }
     let after_uses_n = &var_name[5..];
     after_uses_n.find('_').map(|uscore_pos| &after_uses_n[uscore_pos + 1..])
+}
+
+/// Number of distinct non-empty channels among the core's constraints.
+fn unique_channel_count(
+    unique_constraints: &BTreeSet<usize>,
+    model: &InternalConstraintModel,
+) -> usize {
+    let mut chs: HashSet<String> = HashSet::new();
+    for idx in unique_constraints {
+        if *idx < model.constraints.len() {
+            let ch = constraint_channel(&model.constraints[*idx]);
+            if !ch.is_empty() {
+                chs.insert(ch);
+            }
+        }
+    }
+    chs.len()
 }
 
 /// Generate a human-readable explanation from the set of conflicting constraints.
@@ -180,11 +198,7 @@ fn explain_core(
             },
         ) = (dp, cap)
         {
-            let min_width = terms
-                .iter()
-                .map(|(_, w)| *w)
-                .fold(f64::INFINITY, f64::min);
-            let max_nets = ((capacity * slack_factor) / min_width).floor() as usize;
+            let max_nets = max_nets_for(*capacity, *slack_factor, terms);
             return format!(
                 "Diff pair requires both {p_var_name} and {n_var_name} on channel {channel_id}, \
                  but capacity '{cap_ch}' limits {channel_id} to {max_nets} nets"
@@ -200,11 +214,7 @@ fn explain_core(
             channel_id, capacity, slack_factor, terms,
         }) = capacity_constraints.first()
         {
-            let min_width = terms
-                .iter()
-                .map(|(_, w)| *w)
-                .fold(f64::INFINITY, f64::min);
-            let max_nets = ((capacity * slack_factor) / min_width).floor() as usize;
+            let max_nets = max_nets_for(*capacity, *slack_factor, terms);
             return format!(
                 "Capacity constraint limits channel {channel_id} to {max_nets} nets, but layer \
                  restrictions force additional nets to use {channel_id} — capacity exceeded"
@@ -217,11 +227,7 @@ fn explain_core(
             channel_id, capacity, slack_factor, terms,
         }) = capacity_constraints.first()
         {
-            let min_width = terms
-                .iter()
-                .map(|(_, w)| *w)
-                .fold(f64::INFINITY, f64::min);
-            let max_nets = ((capacity * slack_factor) / min_width).floor() as usize;
+            let max_nets = max_nets_for(*capacity, *slack_factor, terms);
             return format!(
                 "Channel {channel_id} capacity ({max_nets}) exceeded — core contains \
                  {} clauses",
@@ -239,18 +245,7 @@ fn explain_core(
     format!(
         "UNSAT core involves {} constraints across {} channels",
         unique_constraints.len(),
-        {
-            let mut chs: std::collections::HashSet<String> = std::collections::HashSet::new();
-            for idx in unique_constraints {
-                if *idx < model.constraints.len() {
-                    let ch = constraint_channel(&model.constraints[*idx]);
-                    if !ch.is_empty() {
-                        chs.insert(ch);
-                    }
-                }
-            }
-            chs.len()
-        }
+        unique_channel_count(unique_constraints, model)
     )
 }
 

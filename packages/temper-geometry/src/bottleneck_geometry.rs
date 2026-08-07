@@ -466,6 +466,7 @@ pub fn build_capacitated_graph_py(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)] // `Result` values in tests; unwrap is idiomatic here
 mod tests {
     use super::*;
 

@@ -217,27 +217,20 @@ fn violation_to_py_dict<'py>(py: Python<'py>, v: &Violation) -> PyResult<Bound<'
 fn json_value_to_py(py: Python<'_>, value: &serde_json::Value) -> PyResult<Py<PyAny>> {
     match value {
         serde_json::Value::Null => Ok(py.None()),
-        serde_json::Value::Bool(b) => {
-            let obj = (*b).into_pyobject(py)?;
-            Ok(obj.as_any().clone().unbind())
-        }
+        // Python caches bool singletons, so `into_pyobject` returns a
+        // *borrowed* handle — `as_any().clone()` is the owned-form
+        // conversion here, unlike the owned Bound types below.
+        serde_json::Value::Bool(b) => Ok((*b).into_pyobject(py)?.as_any().clone().unbind()),
         serde_json::Value::Number(n) => {
             if let Some(i) = n.as_i64() {
-                let obj = i.into_pyobject(py)?;
-                Ok(obj.as_any().clone().unbind())
+                Ok(i.into_pyobject(py)?.into_any().unbind())
             } else if let Some(f) = n.as_f64() {
-                let obj = f.into_pyobject(py)?;
-                Ok(obj.as_any().clone().unbind())
+                Ok(f.into_pyobject(py)?.into_any().unbind())
             } else {
-                let s = n.to_string();
-                let obj = s.into_pyobject(py)?;
-                Ok(obj.as_any().clone().unbind())
+                Ok(n.to_string().into_pyobject(py)?.into_any().unbind())
             }
         }
-        serde_json::Value::String(s) => {
-            let obj = s.clone().into_pyobject(py)?;
-            Ok(obj.as_any().clone().unbind())
-        }
+        serde_json::Value::String(s) => Ok(s.clone().into_pyobject(py)?.into_any().unbind()),
         serde_json::Value::Array(arr) => {
             let list = PyList::empty(py);
             for item in arr {

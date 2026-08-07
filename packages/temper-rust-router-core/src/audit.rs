@@ -35,6 +35,23 @@ pub enum AuditViolation {
     NoAssignmentForVar(String),
 }
 
+/// Look up a variable's assigned truth value by name, recording a
+/// `NoAssignmentForVar` violation when the name isn't in `var_names`.
+fn assignment_value_for(
+    name_to_idx: &HashMap<&str, usize>,
+    assignments: &HashMap<usize, bool>,
+    name: &str,
+    violations: &mut Vec<AuditViolation>,
+) -> Option<bool> {
+    match name_to_idx.get(name) {
+        Some(&idx) => assignments.get(&idx).copied(),
+        None => {
+            violations.push(AuditViolation::NoAssignmentForVar(name.to_string()));
+            None
+        }
+    }
+}
+
 /// Audit a solver result against the original constraint model.
 pub fn audit_constraints(
     model: &InternalConstraintModel,
@@ -50,17 +67,6 @@ pub fn audit_constraints(
         .map(|(i, name)| (name.as_str(), i))
         .collect();
 
-    // Helper: get truth value for a variable name
-    let get_val = |name: &str, violations: &mut Vec<AuditViolation>| -> Option<bool> {
-        match name_to_idx.get(name) {
-            Some(&idx) => result.assignments.get(&idx).copied(),
-            None => {
-                violations.push(AuditViolation::NoAssignmentForVar(name.to_string()));
-                None
-            }
-        }
-    };
-
     if result.status != SolverStatus::Satisfiable {
         // UNSAT: check if the problem is actually unsatisfiable.
         // We can't prove that from the model alone, but we can check for
@@ -71,20 +77,25 @@ pub fn audit_constraints(
 
     for c in &model.constraints {
         match c {
-            InternalConstraint::Capacity { channel_id, capacity: _cap, slack_factor: _sf, terms } => {
+            InternalConstraint::Capacity {
+                channel_id,
+                capacity,
+                slack_factor,
+                terms,
+            } => {
                 if terms.is_empty() {
                     continue;
                 }
                 let min_width = terms.iter().map(|(_, w)| *w).fold(f64::INFINITY, f64::min);
-                let max_nets = ((_cap * _sf) / min_width).floor() as usize;
+                let max_nets = ((capacity * slack_factor) / min_width).floor() as usize;
 
                 let mut true_vars: Vec<String> = Vec::new();
                 for (vname, _w) in terms {
-                    #[allow(clippy::collapsible_if)]
-        if let Some(val) = get_val(vname, &mut violations) {
-            if val {
-                            true_vars.push(vname.clone());
-                        }
+                    if let Some(val) =
+                        assignment_value_for(&name_to_idx, &result.assignments, vname, &mut violations)
+                        && val
+                    {
+                        true_vars.push(vname.clone());
                     }
                 }
 
@@ -97,41 +108,46 @@ pub fn audit_constraints(
                     });
                 }
             }
-            InternalConstraint::DiffPair { channel_id, p_var_name, n_var_name } => {
-                let p_val = get_val(p_var_name, &mut violations);
-                let n_val = get_val(n_var_name, &mut violations);
-                if let (Some(p), Some(n)) = (p_val, n_val) {
-                    if p != n {
-                        violations.push(AuditViolation::DiffPairMismatch {
-                            channel_id: channel_id.clone(),
-                            p_var: p_var_name.clone(),
-                            n_var: n_var_name.clone(),
-                            p_value: p,
-                            n_value: n,
-                        });
-                    }
+            InternalConstraint::DiffPair {
+                channel_id,
+                p_var_name,
+                n_var_name,
+            } => {
+                let p_val =
+                    assignment_value_for(&name_to_idx, &result.assignments, p_var_name, &mut violations);
+                let n_val =
+                    assignment_value_for(&name_to_idx, &result.assignments, n_var_name, &mut violations);
+                if let (Some(p), Some(n)) = (p_val, n_val)
+                    && p != n
+                {
+                    violations.push(AuditViolation::DiffPairMismatch {
+                        channel_id: channel_id.clone(),
+                        p_var: p_var_name.clone(),
+                        n_var: n_var_name.clone(),
+                        p_value: p,
+                        n_value: n,
+                    });
                 }
             }
             InternalConstraint::LayerRestriction { var_name, allowed } => {
-                #[allow(clippy::collapsible_if)]
-        if let Some(val) = get_val(var_name, &mut violations) {
-            if val != *allowed {
-                        violations.push(AuditViolation::LayerViolation {
-                            var_name: var_name.clone(),
-                            expected: *allowed,
-                            actual: val,
-                        });
-                    }
+                if let Some(val) =
+                    assignment_value_for(&name_to_idx, &result.assignments, var_name, &mut violations)
+                    && val != *allowed
+                {
+                    violations.push(AuditViolation::LayerViolation {
+                        var_name: var_name.clone(),
+                        expected: *allowed,
+                        actual: val,
+                    });
                 }
             }
-            InternalConstraint::ChannelSeparation { min_slots, .. } => {
+            InternalConstraint::ChannelSeparation { .. } => {
                 // ChannelSeparation is encoded as AtMostK + ordering clauses.
                 // The audit for Capacity constraints already catches AtMostK
                 // violations. Ordering clause violations are encoded as hard
                 // unit clauses, so if they're violated the SAT solver would
                 // have returned UNSAT. When the solver returns SAT, order
                 // constraints are satisfied by construction.
-                let _ = min_slots;
             }
         }
     }
@@ -245,13 +261,10 @@ mod tests {
                     let mut true_count = 0;
                     for (vname, _) in terms {
                         // Find index by searching model variables
-                        if let Some(pos) = model.variables.iter().position(|v| match v {
-                            InternalVariable::NetChannel { name, .. } => name == vname,
-                            InternalVariable::NetLayer { name, .. } => name == vname,
-                            InternalVariable::Via { name, .. } => name == vname,
-                            InternalVariable::Ordering { name, .. } => name == vname,
-                        }) {
-                            if assign.get(&pos).copied().unwrap_or(false) { true_count += 1; }
+                        if let Some(pos) = var_position(model, vname)
+                            && assign.get(&pos).copied().unwrap_or(false)
+                        {
+                            true_count += 1;
                         }
                     }
                     if true_count > max_nets {
@@ -259,22 +272,14 @@ mod tests {
                     }
                 }
                 InternalConstraint::DiffPair { p_var_name, n_var_name, .. } => {
-                    let p_pos = model.variables.iter().position(|v| match v {
-                        InternalVariable::NetChannel { name, .. } => name == p_var_name, _ => false,
-                    });
-                    let n_pos = model.variables.iter().position(|v| match v {
-                        InternalVariable::NetChannel { name, .. } => name == n_var_name, _ => false,
-                    });
-                    if let (Some(p), Some(n)) = (p_pos, n_pos) {
+                    if let (Some(p), Some(n)) = (var_position(model, p_var_name), var_position(model, n_var_name)) {
                         let pv = assign.get(&p).copied().unwrap_or(false);
                         let nv = assign.get(&n).copied().unwrap_or(false);
                         if pv != nv { violations.push(format!("diffpair:{p_var_name}!={n_var_name}")); }
                     }
                 }
                 InternalConstraint::LayerRestriction { var_name, allowed } => {
-                    if let Some(pos) = model.variables.iter().position(|v| match v {
-                        InternalVariable::NetChannel { name, .. } => name == var_name, _ => false,
-                    }) {
+                    if let Some(pos) = var_position(model, var_name) {
                         let val = assign.get(&pos).copied().unwrap_or(false);
                         if val != *allowed { violations.push(format!("layer:{var_name}:{val}!={allowed}")); }
                     }
@@ -285,6 +290,16 @@ mod tests {
             }
         }
         violations
+    }
+
+    /// Index of the model variable with this name, across all variant kinds.
+    fn var_position(model: &InternalConstraintModel, name: &str) -> Option<usize> {
+        model.variables.iter().position(|v| match v {
+            InternalVariable::NetChannel { name: n, .. }
+            | InternalVariable::NetLayer { name: n, .. }
+            | InternalVariable::Via { name: n, .. }
+            | InternalVariable::Ordering { name: n, .. } => n == name,
+        })
     }
 
     #[test]

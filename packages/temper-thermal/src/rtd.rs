@@ -69,12 +69,54 @@ fn threshold_adc_codes(rref_ohm: f64, short_ohm: f64, open_ohm: f64) -> (i64, i6
 // Window derivations
 // ---------------------------------------------------------------------------
 
-/// Derive the fault-safe comparator window. Mirrors
-/// `derive_hardware_window`'s arithmetic exactly (the Python wrapper
-/// performs the corner validation and raises the reference ValueErrors).
-/// Returns (low_trip_v, high_trip_v, status) with status 0=ok,
-/// 1=low-window overlap, 2=high-window overlap.
-fn derive_hardware_window(
+/// The comparator/divider/margin geometry shared by every window
+/// derivation: `divider_low = 1 - tolerance`, `divider_high = 1 + tolerance`,
+/// `margin = 1 + required_margin` (reference operation order).
+#[derive(Debug, Clone, Copy)]
+struct ComparatorContext {
+    offset_v: f64,
+    divider_low: f64,
+    divider_high: f64,
+    margin: f64,
+}
+
+impl ComparatorContext {
+    fn new(comparator_offset_abs_v: f64, divider_tolerance_fraction: f64, required_margin_fraction: f64) -> Self {
+        Self {
+            offset_v: comparator_offset_abs_v,
+            divider_low: 1.0 - divider_tolerance_fraction,
+            divider_high: 1.0 + divider_tolerance_fraction,
+            margin: 1.0 + required_margin_fraction,
+        }
+    }
+
+    /// The low/high comparator trip voltages for the four corner voltages,
+    /// mirroring the reference's arithmetic exactly.  Returns
+    /// `(low_trip_v, high_trip_v, status)` with status 0=ok,
+    /// 1=low-window overlap, 2=high-window overlap.
+    fn trip_voltages(&self, short_vmax: f64, valid_vmin: f64, valid_vmax: f64, open_vmin: f64) -> (f64, f64, i64) {
+        let low_nominal_min = (short_vmax + self.offset_v) / self.divider_low;
+        let low_nominal_max = (valid_vmin / self.margin - self.offset_v) / self.divider_high;
+        let high_nominal_min = (valid_vmax * self.margin + self.offset_v) / self.divider_low;
+        let high_nominal_max = (open_vmin - self.offset_v) / self.divider_high;
+        if low_nominal_min > low_nominal_max {
+            return (0.0, 0.0, 1);
+        }
+        if high_nominal_min > high_nominal_max {
+            return (0.0, 0.0, 2);
+        }
+        (
+            (low_nominal_min + low_nominal_max) / 2.0,
+            (high_nominal_min + high_nominal_max) / 2.0,
+            0,
+        )
+    }
+}
+
+/// Inputs for `derive_hardware_window` — the corner resistances and the
+/// excitation/tolerance parameters of the reference's window dataclass.
+#[derive(Debug, Clone, Copy)]
+struct WindowParams {
     bias_current_min_a: f64,
     bias_current_max_a: f64,
     comparator_offset_abs_v: f64,
@@ -84,39 +126,11 @@ fn derive_hardware_window(
     valid_min_ohm: f64,
     valid_max_ohm: f64,
     open_min_ohm: f64,
-) -> (f64, f64, i64) {
-    let current_min = bias_current_min_a;
-    let current_max = bias_current_max_a;
-    let offset = comparator_offset_abs_v;
-    let divider_low = 1.0 - divider_tolerance_fraction;
-    let divider_high = 1.0 + divider_tolerance_fraction;
-    let margin = 1.0 + required_margin_fraction;
-
-    let short_voltage_max = hardware_window_voltage(short_max_ohm, current_max);
-    let valid_voltage_min = hardware_window_voltage(valid_min_ohm, current_min);
-    let valid_voltage_max = hardware_window_voltage(valid_max_ohm, current_max);
-    let open_voltage_min = hardware_window_voltage(open_min_ohm, current_min);
-
-    let low_nominal_min = (short_voltage_max + offset) / divider_low;
-    let low_nominal_max = (valid_voltage_min / margin - offset) / divider_high;
-    let high_nominal_min = (valid_voltage_max * margin + offset) / divider_low;
-    let high_nominal_max = (open_voltage_min - offset) / divider_high;
-
-    if low_nominal_min > low_nominal_max {
-        return (0.0, 0.0, 1);
-    }
-    if high_nominal_min > high_nominal_max {
-        return (0.0, 0.0, 2);
-    }
-    (
-        (low_nominal_min + low_nominal_max) / 2.0,
-        (high_nominal_min + high_nominal_max) / 2.0,
-        0,
-    )
 }
 
-/// MAX31865 VBIAS/RREF variant of the derivation.
-fn derive_max31865_hardware_window(
+/// Inputs for `derive_max31865_hardware_window` (VBIAS/RREF variant).
+#[derive(Debug, Clone, Copy)]
+struct Max31865WindowParams {
     comparator_offset_abs_v: f64,
     divider_tolerance_fraction: f64,
     vbias_min_v: f64,
@@ -128,35 +142,30 @@ fn derive_max31865_hardware_window(
     valid_max_ohm: f64,
     open_min_ohm: f64,
     required_margin_fraction: f64,
-) -> (f64, f64, i64) {
-    let rref_min = rref_nominal_ohm * (1.0 - rref_tolerance_fraction);
-    let rref_max = rref_nominal_ohm * (1.0 + rref_tolerance_fraction);
-    let offset = comparator_offset_abs_v;
-    let divider_low = 1.0 - divider_tolerance_fraction;
-    let divider_high = 1.0 + divider_tolerance_fraction;
-    let margin = 1.0 + required_margin_fraction;
+}
 
-    let short_voltage_max = max31865_rtd_voltage_v(short_max_ohm, vbias_max_v, rref_min);
-    let valid_voltage_min = max31865_rtd_voltage_v(valid_min_ohm, vbias_min_v, rref_max);
-    let valid_voltage_max = max31865_rtd_voltage_v(valid_max_ohm, vbias_max_v, rref_min);
-    let open_voltage_min = max31865_rtd_voltage_v(open_min_ohm, vbias_min_v, rref_max);
+/// Derive the fault-safe comparator window. Mirrors
+/// `derive_hardware_window`'s arithmetic exactly (the Python wrapper
+/// performs the corner validation and raises the reference ValueErrors).
+fn derive_hardware_window(p: WindowParams) -> (f64, f64, i64) {
+    let ctx = ComparatorContext::new(p.comparator_offset_abs_v, p.divider_tolerance_fraction, p.required_margin_fraction);
+    let short_voltage_max = hardware_window_voltage(p.short_max_ohm, p.bias_current_max_a);
+    let valid_voltage_min = hardware_window_voltage(p.valid_min_ohm, p.bias_current_min_a);
+    let valid_voltage_max = hardware_window_voltage(p.valid_max_ohm, p.bias_current_max_a);
+    let open_voltage_min = hardware_window_voltage(p.open_min_ohm, p.bias_current_min_a);
+    ctx.trip_voltages(short_voltage_max, valid_voltage_min, valid_voltage_max, open_voltage_min)
+}
 
-    let low_nominal_min = (short_voltage_max + offset) / divider_low;
-    let low_nominal_max = (valid_voltage_min / margin - offset) / divider_high;
-    let high_nominal_min = (valid_voltage_max * margin + offset) / divider_low;
-    let high_nominal_max = (open_voltage_min - offset) / divider_high;
-
-    if low_nominal_min > low_nominal_max {
-        return (0.0, 0.0, 1);
-    }
-    if high_nominal_min > high_nominal_max {
-        return (0.0, 0.0, 2);
-    }
-    (
-        (low_nominal_min + low_nominal_max) / 2.0,
-        (high_nominal_min + high_nominal_max) / 2.0,
-        0,
-    )
+/// MAX31865 VBIAS/RREF variant of the derivation.
+fn derive_max31865_hardware_window(p: Max31865WindowParams) -> (f64, f64, i64) {
+    let rref_min = p.rref_nominal_ohm * (1.0 - p.rref_tolerance_fraction);
+    let rref_max = p.rref_nominal_ohm * (1.0 + p.rref_tolerance_fraction);
+    let ctx = ComparatorContext::new(p.comparator_offset_abs_v, p.divider_tolerance_fraction, p.required_margin_fraction);
+    let short_voltage_max = max31865_rtd_voltage_v(p.short_max_ohm, p.vbias_max_v, rref_min);
+    let valid_voltage_min = max31865_rtd_voltage_v(p.valid_min_ohm, p.vbias_min_v, rref_max);
+    let valid_voltage_max = max31865_rtd_voltage_v(p.valid_max_ohm, p.vbias_max_v, rref_min);
+    let open_voltage_min = max31865_rtd_voltage_v(p.open_min_ohm, p.vbias_min_v, rref_max);
+    ctx.trip_voltages(short_voltage_max, valid_voltage_min, valid_voltage_max, open_voltage_min)
 }
 
 // ---------------------------------------------------------------------------
@@ -210,6 +219,7 @@ pub fn rtd_threshold_adc_codes_py(rref_ohm: f64, short_ohm: f64, open_ohm: f64) 
 }
 
 #[pyfunction]
+#[allow(clippy::too_many_arguments)] // FFI surface mirrors the fixed Python API; the kernel takes a typed params struct
 #[pyo3(signature = (bias_current_min_a, bias_current_max_a, comparator_offset_abs_v, divider_tolerance_fraction, required_margin_fraction, short_max_ohm, valid_min_ohm, valid_max_ohm, open_min_ohm))]
 pub fn rtd_derive_hardware_window_py(
     bias_current_min_a: f64,
@@ -222,7 +232,7 @@ pub fn rtd_derive_hardware_window_py(
     valid_max_ohm: f64,
     open_min_ohm: f64,
 ) -> (f64, f64, i64) {
-    derive_hardware_window(
+    derive_hardware_window(WindowParams {
         bias_current_min_a,
         bias_current_max_a,
         comparator_offset_abs_v,
@@ -232,10 +242,11 @@ pub fn rtd_derive_hardware_window_py(
         valid_min_ohm,
         valid_max_ohm,
         open_min_ohm,
-    )
+    })
 }
 
 #[pyfunction]
+#[allow(clippy::too_many_arguments)] // FFI surface mirrors the fixed Python API; the kernel takes a typed params struct
 #[pyo3(signature = (comparator_offset_abs_v, divider_tolerance_fraction, vbias_min_v, vbias_max_v, rref_nominal_ohm, rref_tolerance_fraction, short_max_ohm, valid_min_ohm, valid_max_ohm, open_min_ohm, required_margin_fraction))]
 pub fn rtd_derive_max31865_hardware_window_py(
     comparator_offset_abs_v: f64,
@@ -250,7 +261,7 @@ pub fn rtd_derive_max31865_hardware_window_py(
     open_min_ohm: f64,
     required_margin_fraction: f64,
 ) -> (f64, f64, i64) {
-    derive_max31865_hardware_window(
+    derive_max31865_hardware_window(Max31865WindowParams {
         comparator_offset_abs_v,
         divider_tolerance_fraction,
         vbias_min_v,
@@ -262,7 +273,7 @@ pub fn rtd_derive_max31865_hardware_window_py(
         valid_max_ohm,
         open_min_ohm,
         required_margin_fraction,
-    )
+    })
 }
 
 #[cfg(test)]
@@ -300,9 +311,17 @@ mod tests {
         // 100..194.1 ohm valid window, 0.2 margin, 1 mA excitation:
         // the derived trip must sit strictly between the short and valid
         // voltage extremes.
-        let (low, high, status) = derive_hardware_window(
-            0.001, 0.001, 0.0, 0.0, 0.2, 10.0, 100.0, 194.1, 300.0,
-        );
+        let (low, high, status) = derive_hardware_window(WindowParams {
+            bias_current_min_a: 0.001,
+            bias_current_max_a: 0.001,
+            comparator_offset_abs_v: 0.0,
+            divider_tolerance_fraction: 0.0,
+            required_margin_fraction: 0.2,
+            short_max_ohm: 10.0,
+            valid_min_ohm: 100.0,
+            valid_max_ohm: 194.1,
+            open_min_ohm: 300.0,
+        });
         assert_eq!(status, 0);
         assert!(low > 10.0 * 0.001 && low < 100.0 * 0.001);
         assert!(high > 194.1 * 0.001 && high < 300.0 * 0.001);
@@ -312,9 +331,17 @@ mod tests {
     #[test]
     fn test_derive_window_overlap_detected() {
         // A 0.2 margin with an impossibly narrow valid window must overlap.
-        let (_, _, status) = derive_hardware_window(
-            0.001, 0.001, 0.0, 0.0, 0.2, 10.0, 10.5, 10.6, 11.0,
-        );
+        let (_, _, status) = derive_hardware_window(WindowParams {
+            bias_current_min_a: 0.001,
+            bias_current_max_a: 0.001,
+            comparator_offset_abs_v: 0.0,
+            divider_tolerance_fraction: 0.0,
+            required_margin_fraction: 0.2,
+            short_max_ohm: 10.0,
+            valid_min_ohm: 10.5,
+            valid_max_ohm: 10.6,
+            open_min_ohm: 11.0,
+        });
         assert!(status == 1 || status == 2);
     }
 

@@ -105,6 +105,7 @@ fn build_conductivity_field_inner(
 /// The reference's numpy negative-slice wrap for fully off-grid-low devices
 /// is replicated (`py_slice_indices`).
 #[pyfunction]
+#[allow(clippy::too_many_arguments)] // FFI surface mirrors the fixed Python API; the kernel takes a dense grid config
 #[pyo3(signature = (devices, power_map, origin_x, origin_y, cell_size_mm, height_cells, width_cells))]
 pub fn build_heat_source_field_py(
     py: Python<'_>,
@@ -210,6 +211,16 @@ fn py_slice_indices(lo: i64, hi: i64, n: usize) -> Vec<usize> {
 // Convective system assembly
 // ---------------------------------------------------------------------------
 
+/// Physics/config parameters of the convective FDM system assembly.
+#[derive(Debug, Clone)]
+struct ConvectiveParams {
+    ambient_c: f64,
+    cell_size_mm: f64,
+    board_thickness_mm: f64,
+    h_conv: f64,
+    heatsink_edge: String,
+}
+
 /// Assemble the sparse linear system A·T = b for the convective-boundary
 /// FDM.  Mirrors `_assemble_convective_system` exactly: 5-point
 /// harmonic-mean stencil, Dirichlet face at the heatsink edge (coeff
@@ -224,6 +235,7 @@ fn py_slice_indices(lo: i64, hi: i64, n: usize) -> Vec<usize> {
 /// RHS vector; the Python side builds scipy CSR from the triplets and keeps
 /// the sparse solve in scipy (SuperLU).
 #[pyfunction]
+#[allow(clippy::too_many_arguments)] // FFI surface mirrors the fixed Python API; the kernel takes typed params
 #[pyo3(signature = (k_field_bytes, q_bytes, h_field_bytes, height_cells, width_cells, ambient_c, cell_size_mm, board_thickness_mm, h_conv, heatsink_edge))]
 pub fn assemble_convective_system_py(
     k_field_bytes: Vec<u8>,
@@ -244,11 +256,13 @@ pub fn assemble_convective_system_py(
             h_field_bytes,
             height_cells,
             width_cells,
-            ambient_c,
-            cell_size_mm,
-            board_thickness_mm,
-            h_conv,
-            heatsink_edge,
+            ConvectiveParams {
+                ambient_c,
+                cell_size_mm,
+                board_thickness_mm,
+                h_conv,
+                heatsink_edge,
+            },
         )
     })
     .map_err(temper_py_bridge::panic_to_err)
@@ -261,11 +275,7 @@ fn assemble_convective_system_inner(
     h_field_bytes: Option<Vec<u8>>,
     height_cells: usize,
     width_cells: usize,
-    ambient_c: f64,
-    cell_size_mm: f64,
-    board_thickness_mm: f64,
-    h_conv: f64,
-    heatsink_edge: String,
+    params: ConvectiveParams,
 ) -> (Vec<i64>, Vec<i64>, Vec<f64>, Vec<f64>) {
     let k = parse_f64s(&k_field_bytes);
     let q = parse_f64s(&q_bytes);
@@ -275,10 +285,10 @@ fn assemble_convective_system_inner(
     debug_assert_eq!(q.len(), n);
 
     let (h, w) = (height_cells, width_cells);
-    let cs = cell_size_mm;
+    let cs = params.cell_size_mm;
     let dx2 = cs * cs;
     let dy2 = cs * cs;
-    let hs = heatsink_edge.to_uppercase();
+    let hs = params.heatsink_edge.to_uppercase();
 
     let mut rows: Vec<i64> = Vec::with_capacity(n * 5);
     let mut cols: Vec<i64> = Vec::with_capacity(n * 5);
@@ -302,7 +312,7 @@ fn assemble_convective_system_inner(
             } else if heatsink_face(row, col, "east", h, w, &hs) {
                 let coeff = 2.0 * k_c / dx2;
                 diag += coeff;
-                b[idx] += coeff * ambient_c;
+                b[idx] += coeff * params.ambient_c;
             }
 
             // West
@@ -316,7 +326,7 @@ fn assemble_convective_system_inner(
             } else if heatsink_face(row, col, "west", h, w, &hs) {
                 let coeff = 2.0 * k_c / dx2;
                 diag += coeff;
-                b[idx] += coeff * ambient_c;
+                b[idx] += coeff * params.ambient_c;
             }
 
             // North (row+1 = larger y)
@@ -330,7 +340,7 @@ fn assemble_convective_system_inner(
             } else if heatsink_face(row, col, "north", h, w, &hs) {
                 let coeff = 2.0 * k_c / dy2;
                 diag += coeff;
-                b[idx] += coeff * ambient_c;
+                b[idx] += coeff * params.ambient_c;
             }
 
             // South
@@ -344,15 +354,15 @@ fn assemble_convective_system_inner(
             } else if heatsink_face(row, col, "south", h, w, &hs) {
                 let coeff = 2.0 * k_c / dy2;
                 diag += coeff;
-                b[idx] += coeff * ambient_c;
+                b[idx] += coeff * params.ambient_c;
             }
 
             // Convective (Robin) boundary term at non-heatsink edge cells:
             // conv_coeff = h_conv * t_mm / cs * 1e-6 (left-to-right).
             if convective_edge_cell(row, col, h, w, &hs) {
-                let conv_coeff = h_conv * board_thickness_mm / cs * 1e-6;
+                let conv_coeff = params.h_conv * params.board_thickness_mm / cs * 1e-6;
                 diag += conv_coeff;
-                b[idx] += conv_coeff * ambient_c;
+                b[idx] += conv_coeff * params.ambient_c;
             }
 
             // Through-plane heat-removal sink (U5-compatible, #141)
@@ -360,7 +370,7 @@ fn assemble_convective_system_inner(
                 let h_cell = hf[idx];
                 if h_cell > 0.0 {
                     diag += h_cell;
-                    b[idx] += h_cell * ambient_c;
+                    b[idx] += h_cell * params.ambient_c;
                 }
             }
 
@@ -420,7 +430,13 @@ fn parse_f64s(bytes: &[u8]) -> Vec<f64> {
     debug_assert_eq!(bytes.len() % 8, 0);
     bytes
         .chunks_exact(8)
-        .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
+        .map(|c| {
+            // `chunks_exact(8)` guarantees exactly 8 bytes, so the array
+            // copy cannot fail; `copy_from_slice` is the unwrap-free form.
+            let mut chunk = [0u8; 8];
+            chunk.copy_from_slice(c);
+            f64::from_le_bytes(chunk)
+        })
         .collect()
 }
 
@@ -451,20 +467,14 @@ mod tests {
             .iter()
             .map(|v| k_fr4_eff + (k_cu_eff - k_fr4_eff) * v.clamp(0.0, 1.0))
             .collect();
-        let got_f: Vec<f64> = got
-            .chunks_exact(8)
-            .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
-            .collect();
+        let got_f = parse_f64s(&got);
         assert_eq!(got_f, expect);
     }
 
     #[test]
     fn test_conductivity_field_uniform_when_no_copper() {
         let got = build_conductivity_field_inner(0.3, 385.0, 1.6, None, 4, 5);
-        let got_f: Vec<f64> = got
-            .chunks_exact(8)
-            .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
-            .collect();
+        let got_f = parse_f64s(&got);
         assert!(got_f.iter().all(|&v| v == 0.3 * 1.6 * 1e-3));
     }
 
@@ -480,10 +490,7 @@ mod tests {
         ];
         let powers = vec![("A".to_string(), 10.0), ("B".to_string(), 5.0), ("C".to_string(), 20.0)];
         let got = build_heat_source_field_inner(&devices, &powers, 0.0, 0.0, 1.0, 10, 10);
-        let got_f: Vec<f64> = got
-            .chunks_exact(8)
-            .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
-            .collect();
+        let got_f = parse_f64s(&got);
         // Reference semantics: device A covers cols 1..=7, rows 1..=7
         // (5mm footprint centered at 3.0 -> [0.5, 5.5] -> floor 0, ceil 6
         // wait: (3.0-2.5)/1 = 0.5 -> floor 0; (3.0+2.5)/1 = 5.5 -> ceil 6;
@@ -500,10 +507,10 @@ mod tests {
             if r < 6 && ccol < 6 {
                 v += a;
             }
-            if r < 6 && ccol >= 3 && ccol < 9 {
+            if r < 6 && (3..9).contains(&ccol) {
                 v += b;
             }
-            if r >= 2 && r < 8 && ccol >= 2 && ccol < 8 {
+            if (2..8).contains(&r) && (2..8).contains(&ccol) {
                 v += c;
             }
             v
@@ -539,10 +546,7 @@ mod tests {
         let devices = vec![("Q1".to_string(), -5.0, -5.0)];
         let powers = vec![("Q1".to_string(), 15.0)];
         let got = build_heat_source_field_inner(&devices, &powers, 0.0, 0.0, 1.0, 10, 12);
-        let got_f: Vec<f64> = got
-            .chunks_exact(8)
-            .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
-            .collect();
+        let got_f = parse_f64s(&got);
         // n_cells uses the clamped pre-wrap bounds: rows 0..-2 -> max(1, -4) = 1
         // hmm: row_min=0, row_max=min(10, ceil(-2.5))=-2 -> ( -2 - 0 ) = -2;
         // col same -> n_cells = max(1, 4) = 4; density = 15/4.
@@ -559,6 +563,9 @@ mod tests {
 
     // --- convective assembly ---
 
+    // The Python reference, verbatim — arg count mirrors the reference's
+    // function signature, so the too-many-arguments lint does not apply.
+    #[allow(clippy::too_many_arguments)]
     fn ref_assemble_convective(
         k: &[f64],
         q: &[f64],
@@ -685,11 +692,13 @@ mod tests {
                         hf.clone().map(|v| f64_bytes(&v)),
                         h,
                         w,
-                        40.0,
-                        0.5,
-                        1.6,
-                        h_conv,
-                        hs.to_string(),
+                        ConvectiveParams {
+                            ambient_c: 40.0,
+                            cell_size_mm: 0.5,
+                            board_thickness_mm: 1.6,
+                            h_conv,
+                            heatsink_edge: hs.to_string(),
+                        },
                     );
                     let expect = ref_assemble_convective(
                         &k, &q, hf.as_deref(), h, w, 40.0, 0.5, 1.6, h_conv, hs,
@@ -706,7 +715,12 @@ mod tests {
         let q = vec![0.2];
         for hs in ["TOP", "BOTTOM", "LEFT", "RIGHT"] {
             let got = assemble_convective_system_inner(
-                f64_bytes(&k), f64_bytes(&q), None, 1, 1, 40.0, 1.0, 1.6, 10.0, hs.to_string(),
+                f64_bytes(&k),
+                f64_bytes(&q),
+                None,
+                1,
+                1,
+                ConvectiveParams { ambient_c: 40.0, cell_size_mm: 1.0, board_thickness_mm: 1.6, h_conv: 10.0, heatsink_edge: hs.to_string() },
             );
             let expect = ref_assemble_convective(&k, &q, None, 1, 1, 40.0, 1.0, 1.6, 10.0, hs);
             assert_eq!(got, expect, "heatsink={hs}");

@@ -18,6 +18,8 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use temper_py_bridge;
 
+use crate::types::{Point, Segment};
+
 /// Python builtin `max(a, b)` for two args — returns `a` whenever `b > a`
 /// is false, so max(NaN, x) == NaN but max(x, NaN) == x (Rust's
 /// `f64::max` would discard the NaN).
@@ -101,16 +103,11 @@ fn orient(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64) -> f64 {
 /// only (strict `< 0.0` orientation products — shared endpoints and
 /// collinear overlaps do not count), then the intersection point via the
 /// parameter on segment 2.  Returns `(intersects, ix, iy)`.
-fn segments_intersect(
-    x1: f64,
-    y1: f64,
-    x2: f64,
-    y2: f64,
-    x3: f64,
-    y3: f64,
-    x4: f64,
-    y4: f64,
-) -> (bool, f64, f64) {
+fn segments_intersect(a: Segment, b: Segment) -> (bool, f64, f64) {
+    let (x1, y1) = (a.start.x, a.start.y);
+    let (x2, y2) = (a.end.x, a.end.y);
+    let (x3, y3) = (b.start.x, b.start.y);
+    let (x4, y4) = (b.end.x, b.end.y);
     let o1 = orient(x1, y1, x2, y2, x3, y3);
     let o2 = orient(x1, y1, x2, y2, x4, y4);
     let o3 = orient(x3, y3, x4, y4, x1, y1);
@@ -138,17 +135,10 @@ fn segments_intersect(
 /// Order preserved exactly: intersection shortcut first, then seg1's
 /// endpoints against seg2, then seg2's endpoints against seg1, each with
 /// strict `<` so NaN distances never displace a finite best.
-fn segment_to_segment_info(
-    x1: f64,
-    y1: f64,
-    x2: f64,
-    y2: f64,
-    x3: f64,
-    y3: f64,
-    x4: f64,
-    y4: f64,
-) -> (f64, f64, f64, f64, f64) {
-    let (intersects, ix, iy) = segments_intersect(x1, y1, x2, y2, x3, y3, x4, y4);
+fn segment_to_segment_info(a: Segment, b: Segment) -> (f64, f64, f64, f64, f64) {
+    let (x1, y1, x2, y2) = (a.start.x, a.start.y, a.end.x, a.end.y);
+    let (x3, y3, x4, y4) = (b.start.x, b.start.y, b.end.x, b.end.y);
+    let (intersects, ix, iy) = segments_intersect(a, b);
     if intersects {
         return (0.0, ix, iy, ix, iy);
     }
@@ -178,6 +168,11 @@ fn segment_to_segment_info(
 /// (x1, y1, x2, y2, layer).
 type Seg = (f64, f64, f64, f64, String);
 
+/// Convert a route segment tuple into the typed geometry `Segment`.
+fn seg_from(seg: &Seg) -> Segment {
+    Segment::new(Point::new(seg.0, seg.1), Point::new(seg.2, seg.3))
+}
+
 /// Mirrors the same-layer min-aggregation loop in creepage_check.py
 /// `_find_clearance_violations`: the worst-case (closest-approach)
 /// distance between two routes' segment sets, restricted to same-layer
@@ -187,14 +182,14 @@ type Seg = (f64, f64, f64, f64, String);
 fn min_clearance_distance(segs1: &[Seg], segs2: &[Seg]) -> (f64, f64, f64) {
     let mut best_dist = f64::INFINITY;
     let mut best_loc = (0.0, 0.0);
-    for (x1, y1, x2, y2, layer1) in segs1 {
-        for (x3, y3, x4, y4, layer2) in segs2 {
-            if layer1 != layer2 {
+    for seg1 in segs1 {
+        let a = seg_from(seg1);
+        for seg2 in segs2 {
+            if seg1.4 != seg2.4 {
                 // Different layers — via-to-via creepage is not modelled.
                 continue;
             }
-            let (dist, c1x, c1y, c2x, c2y) =
-                segment_to_segment_info(*x1, *y1, *x2, *y2, *x3, *y3, *x4, *y4);
+            let (dist, c1x, c1y, c2x, c2y) = segment_to_segment_info(a, seg_from(seg2));
             if dist < best_dist {
                 best_dist = dist;
                 // Midpoint of closest approach as violation location.
@@ -251,6 +246,7 @@ fn py_repr_nonfinite(v: f64) -> String {
 /// multi-byte UTF-8 char, so a byte scan is safe); the trailing check
 /// decodes the next char so Unicode decimal digits match Python re's
 /// `\d` (`char::to_digit(10)` is exactly the Nd property).
+#[expect(clippy::is_digit_ascii_radix, reason = "is_ascii_digit() would miss Unicode Nd digits that Python re's \\d matches")]
 fn word_bounded(name: &str, kw: &str) -> bool {
     let bytes = name.as_bytes();
     if name.len() < kw.len() {
@@ -263,10 +259,10 @@ fn word_bounded(name: &str, kw: &str) -> bool {
             if after == name.len() {
                 return true;
             }
-            if let Some(c) = name[after..].chars().next() {
-                if c == '_' || c.to_digit(10).is_some() {
-                    return true;
-                }
+            if let Some(c) = name[after..].chars().next()
+                && (c == '_' || c.is_digit(10))
+            {
+                return true;
             }
         }
         match bytes[i..].iter().position(|&b| b == b'_') {
@@ -362,7 +358,7 @@ pub fn closest_point_on_segment_py(
 }
 
 #[pyfunction]
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments)] // FFI surface mirrors the fixed Python API; the kernel takes two Segments
 pub fn segments_intersect_py(
     x1: f64,
     y1: f64,
@@ -373,12 +369,17 @@ pub fn segments_intersect_py(
     x4: f64,
     y4: f64,
 ) -> PyResult<(bool, f64, f64)> {
-    temper_py_bridge::catch_unwind(|| segments_intersect(x1, y1, x2, y2, x3, y3, x4, y4))
-        .map_err(temper_py_bridge::panic_to_err)
+    temper_py_bridge::catch_unwind(|| {
+        segments_intersect(
+            Segment::new(Point::new(x1, y1), Point::new(x2, y2)),
+            Segment::new(Point::new(x3, y3), Point::new(x4, y4)),
+        )
+    })
+    .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[pyfunction]
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments)] // FFI surface mirrors the fixed Python API; the kernel takes two Segments
 pub fn segment_to_segment_info_py(
     x1: f64,
     y1: f64,
@@ -389,8 +390,13 @@ pub fn segment_to_segment_info_py(
     x4: f64,
     y4: f64,
 ) -> PyResult<(f64, f64, f64, f64, f64)> {
-    temper_py_bridge::catch_unwind(|| segment_to_segment_info(x1, y1, x2, y2, x3, y3, x4, y4))
-        .map_err(temper_py_bridge::panic_to_err)
+    temper_py_bridge::catch_unwind(|| {
+        segment_to_segment_info(
+            Segment::new(Point::new(x1, y1), Point::new(x2, y2)),
+            Segment::new(Point::new(x3, y3), Point::new(x4, y4)),
+        )
+    })
+    .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[pyfunction]
@@ -423,6 +429,10 @@ pub fn is_high_voltage_net_py(net_name: String) -> PyResult<bool> {
 mod tests {
     use super::*;
 
+    fn seg(x1: f64, y1: f64, x2: f64, y2: f64) -> Segment {
+        Segment::new(Point::new(x1, y1), Point::new(x2, y2))
+    }
+
     #[test]
     fn point_to_segment_zero_length_segment() {
         // Degenerate (point) segment: point-to-point distance.
@@ -450,27 +460,27 @@ mod tests {
         // intersection mirrors through P3 (ix=-5, iy=15 here, not (5,5)).
         // Bit-exact migration replicates this; dist is 0 either way, so
         // the pass/fail verdict is unaffected. Recorded in VERIFICATION.md.
-        let (hit, ix, iy) = segments_intersect(0.0, 0.0, 10.0, 10.0, 0.0, 10.0, 10.0, 0.0);
+        let (hit, ix, iy) = segments_intersect(seg(0.0, 0.0, 10.0, 10.0), seg(0.0, 10.0, 10.0, 0.0));
         assert!(hit);
         assert_eq!((ix, iy), (-5.0, 15.0));
     }
 
     #[test]
     fn segments_intersect_shared_endpoint_is_not_proper() {
-        let (hit, _, _) = segments_intersect(0.0, 0.0, 10.0, 0.0, 10.0, 0.0, 10.0, 10.0);
+        let (hit, _, _) = segments_intersect(seg(0.0, 0.0, 10.0, 0.0), seg(10.0, 0.0, 10.0, 10.0));
         assert!(!hit);
     }
 
     #[test]
     fn segment_to_segment_parallel_gap() {
-        let (dist, _, _, _, _) = segment_to_segment_info(0.0, 0.0, 10.0, 0.0, 0.0, 2.0, 10.0, 2.0);
+        let (dist, _, _, _, _) = segment_to_segment_info(seg(0.0, 0.0, 10.0, 0.0), seg(0.0, 2.0, 10.0, 2.0));
         assert_eq!(dist, 2.0);
     }
 
     #[test]
     fn segment_to_segment_crossing_is_zero() {
         let (dist, c1x, c1y, c2x, c2y) =
-            segment_to_segment_info(0.0, 0.0, 10.0, 10.0, 0.0, 10.0, 10.0, 0.0);
+            segment_to_segment_info(seg(0.0, 0.0, 10.0, 10.0), seg(0.0, 10.0, 10.0, 0.0));
         assert_eq!(dist, 0.0);
         assert_eq!((c1x, c1y), (c2x, c2y));
     }

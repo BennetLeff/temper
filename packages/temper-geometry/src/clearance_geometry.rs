@@ -72,6 +72,7 @@ use pyo3::prelude::*;
 use temper_py_bridge;
 
 use crate::pad_geometry::{bounding_radius, core_half_extents, corner_radius, math_cos_sin, py_hypot};
+use crate::types::{Point, Segment};
 
 /// A pad as consumed by this module:
 /// (width, height, shape, cx, cy, rotation_rad, roundrect_ratio) — the
@@ -190,31 +191,33 @@ fn pt_seg_dist(px: f64, py: f64, ax: f64, ay: f64, bx: f64, by: f64) -> f64 {
 
 /// GEOS `Envelope::intersects(p1, p2, q1, q2)` (segment envelopes, touching
 /// counts as intersecting).
-fn env_intersects(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64, dx: f64, dy: f64) -> bool {
-    let minp = ax.min(bx);
-    let maxp = ax.max(bx);
-    let minq = cx.min(dx);
-    let maxq = cx.max(dx);
+fn env_intersects(a: Segment, b: Segment) -> bool {
+    let minp = a.start.x.min(a.end.x);
+    let maxp = a.start.x.max(a.end.x);
+    let minq = b.start.x.min(b.end.x);
+    let maxq = b.start.x.max(b.end.x);
     if minp > maxq || maxp < minq {
         return false;
     }
-    let minp = ay.min(by);
-    let maxp = ay.max(by);
-    let minq = cy.min(dy);
-    let maxq = cy.max(dy);
+    let minp = a.start.y.min(a.end.y);
+    let maxp = a.start.y.max(a.end.y);
+    let minq = b.start.y.min(b.end.y);
+    let maxq = b.start.y.max(b.end.y);
     !(minp > maxq || maxp < minq)
 }
 
 /// GEOS `Distance::segmentToSegment`, exact operation order (envelope
 /// pre-check, `denom == 0`, strict r/s comparisons, nested min chain).
-fn seg_seg_dist(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64, dx: f64, dy: f64) -> f64 {
+fn seg_seg_dist(a: Segment, b: Segment) -> f64 {
+    let (ax, ay, bx, by) = (a.start.x, a.start.y, a.end.x, a.end.y);
+    let (cx, cy, dx, dy) = (b.start.x, b.start.y, b.end.x, b.end.y);
     if ax == bx && ay == by {
         return pt_seg_dist(ax, ay, cx, cy, dx, dy);
     }
     if cx == dx && cy == dy {
         return pt_seg_dist(dx, dy, ax, ay, bx, by);
     }
-    let no_intersection = if !env_intersects(ax, ay, bx, by, cx, cy, dx, dy) {
+    let no_intersection = if !env_intersects(a, b) {
         true
     } else {
         let denom = (bx - ax) * (dy - cy) - (by - ay) * (dx - cx);
@@ -225,7 +228,7 @@ fn seg_seg_dist(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64, dx: f64, d
             let s_num = (ay - cy) * (bx - ax) - (ax - cx) * (by - ay);
             let s = s_num / denom;
             let r = r_num / denom;
-            r < 0.0 || r > 1.0 || s < 0.0 || s > 1.0
+            !(0.0..=1.0).contains(&r) || !(0.0..=1.0).contains(&s)
         }
     };
     if no_intersection {
@@ -297,6 +300,11 @@ fn rect_ring(rect: &Core) -> [[f64; 2]; 5] {
     }
 }
 
+/// Ring edge `i` → `i+1` as a typed `Segment`.
+fn ring_edge(ring: &[[f64; 2]; 5], i: usize) -> Segment {
+    Segment::new(Point::new(ring[i][0], ring[i][1]), Point::new(ring[i + 1][0], ring[i + 1][1]))
+}
+
 /// The DistanceOp facet distance between two cores (min over the same
 /// segment/point candidate set GEOS enumerates; the min value is
 /// independent of enumeration order — see module docstring).
@@ -308,10 +316,7 @@ fn facet_distance(a: &Core, b: &Core) -> f64 {
             let mut best = f64::INFINITY;
             for i in 0..4 {
                 for j in 0..4 {
-                    let d = seg_seg_dist(
-                        ring_a[i][0], ring_a[i][1], ring_a[i + 1][0], ring_a[i + 1][1],
-                        ring_b[j][0], ring_b[j][1], ring_b[j + 1][0], ring_b[j + 1][1],
-                    );
+                    let d = seg_seg_dist(ring_edge(&ring_a, i), ring_edge(&ring_b, j));
                     if d < best {
                         best = d;
                     }
@@ -321,12 +326,10 @@ fn facet_distance(a: &Core, b: &Core) -> f64 {
         }
         (Core::Rect(_), Core::Segment(x1, y1, x2, y2)) => {
             let ring = rect_ring(a);
+            let b_seg = Segment::new(Point::new(*x1, *y1), Point::new(*x2, *y2));
             let mut best = f64::INFINITY;
             for i in 0..4 {
-                let d = seg_seg_dist(
-                    ring[i][0], ring[i][1], ring[i + 1][0], ring[i + 1][1],
-                    *x1, *y1, *x2, *y2,
-                );
+                let d = seg_seg_dist(ring_edge(&ring, i), b_seg);
                 if d < best {
                     best = d;
                 }
@@ -334,9 +337,10 @@ fn facet_distance(a: &Core, b: &Core) -> f64 {
             best
         }
         (Core::Segment(_x1, _y1, _x2, _y2), Core::Rect(_)) => facet_distance(b, a),
-        (Core::Segment(x1, y1, x2, y2), Core::Segment(x3, y3, x4, y4)) => {
-            seg_seg_dist(*x1, *y1, *x2, *y2, *x3, *y3, *x4, *y4)
-        }
+        (Core::Segment(x1, y1, x2, y2), Core::Segment(x3, y3, x4, y4)) => seg_seg_dist(
+            Segment::new(Point::new(*x1, *y1), Point::new(*x2, *y2)),
+            Segment::new(Point::new(*x3, *y3), Point::new(*x4, *y4)),
+        ),
         (Core::Point(x1, y1), Core::Point(x2, y2)) => pt_dist(*x1, *y1, *x2, *y2),
         (Core::Point(x, y), Core::Segment(x1, y1, x2, y2)) => pt_seg_dist(*x, *y, *x1, *y1, *x2, *y2),
         (Core::Segment(x1, y1, x2, y2), Core::Point(x, y)) => pt_seg_dist(*x, *y, *x1, *y1, *x2, *y2),
@@ -509,6 +513,11 @@ pub fn copper_scan_py(
 mod tests {
     use super::*;
 
+    /// A 2x2 rect pad at (cx, cy) — the tests' common pad shape.
+    fn pad(cx: f64, cy: f64) -> PadSpec {
+        (2.0, 2.0, "rect".to_string(), cx, cy, 0.0, 0.0)
+    }
+
     #[test]
     fn test_rotate_local_to_world_matches_manual() {
         // R(-theta): (x*c + y*s, -x*s + y*c); 90deg -> (y, -x)
@@ -534,41 +543,35 @@ mod tests {
     #[test]
     fn test_pad_pair_distance_zero_when_identical() {
         // identical rects at the same position -> gap 0, radii 0 -> 0.0
-        let pad: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
-        assert_eq!(pad_pair_distance_spec(&pad, &pad), 0.0);
+        let p = pad(0.0, 0.0);
+        assert_eq!(pad_pair_distance_spec(&p, &p), 0.0);
     }
 
     #[test]
     fn test_pad_pair_distance_rect_gap() {
         // two 2x2 rects 5 apart centre-to-centre, axis aligned: gap 3.0
-        let a: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let b: PadSpec = (2.0, 2.0, "rect".to_string(), 5.0, 0.0, 0.0, 0.0);
-        assert!((pad_pair_distance_spec(&a, &b) - 3.0).abs() < 1e-12);
+        assert!((pad_pair_distance_spec(&pad(0.0, 0.0), &pad(5.0, 0.0)) - 3.0).abs() < 1e-12);
     }
 
     #[test]
     fn test_circle_pad_distance() {
         // two 2x2 circle pads 5 apart: gap 3.0, radii 1+1 -> 3.0
-        let a: PadSpec = (2.0, 2.0, "circle".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let b: PadSpec = (2.0, 2.0, "circle".to_string(), 5.0, 0.0, 0.0, 0.0);
-        assert!((pad_pair_distance_spec(&a, &b) - 3.0).abs() < 1e-12);
+        let circle = |cx: f64| -> PadSpec { (2.0, 2.0, "circle".to_string(), cx, 0.0, 0.0, 0.0) };
+        assert!((pad_pair_distance_spec(&circle(0.0), &circle(5.0)) - 3.0).abs() < 1e-12);
     }
 
     #[test]
     fn test_containment_zero() {
         // small rect fully inside a big rect -> 0.0
         let big: PadSpec = (10.0, 10.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let small: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
+        let small = pad(0.0, 0.0);
         assert_eq!(pad_pair_distance_spec(&big, &small), 0.0);
         assert_eq!(pad_pair_distance_spec(&small, &big), 0.0);
     }
 
     #[test]
     fn test_scan_returns_closest_pair() {
-        let a: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let b: PadSpec = (2.0, 2.0, "rect".to_string(), 5.0, 0.0, 0.0, 0.0);
-        let c: PadSpec = (2.0, 2.0, "rect".to_string(), 20.0, 0.0, 0.0, 0.0);
-        let (best, pair) = copper_scan(&[a.clone(), c], &[b.clone()], &[1, 2], &[3]);
+        let (best, pair) = copper_scan(&[pad(0.0, 0.0), pad(20.0, 0.0)], &[pad(5.0, 0.0)], &[1, 2], &[3]);
         assert_eq!(pair, Some((0, 0)));
         assert!((best - 3.0).abs() < 1e-12);
     }
@@ -578,12 +581,11 @@ mod tests {
         // The Python `pa is pb` skip: equal object ids (e.g. a domain-
         // filtered sublist vs the stored full list sharing the same pad)
         // must not pair a pad with itself.
-        let a: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let (best, pair) = copper_scan(&[a.clone()], &[a.clone()], &[42], &[42]);
+        let (best, pair) = copper_scan(&[pad(0.0, 0.0)], &[pad(0.0, 0.0)], &[42], &[42]);
         assert!(best.is_infinite());
         assert_eq!(pair, None);
         // ... distinct ids (two different pad objects) pair normally -> 0.0
-        let (best, pair) = copper_scan(&[a.clone()], &[a], &[42], &[43]);
+        let (best, pair) = copper_scan(&[pad(0.0, 0.0)], &[pad(0.0, 0.0)], &[42], &[43]);
         assert_eq!(best, 0.0);
         assert_eq!(pair, Some((0, 0)));
     }
@@ -592,10 +594,12 @@ mod tests {
     fn test_scan_skips_shared_object_in_sublist() {
         // matching = [pad0, pad2] vs stored = [pad0, pad1, pad2]: the
         // (0, 0) and (1, 2) pairs share objects and must be skipped.
-        let p0: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let p1: PadSpec = (2.0, 2.0, "rect".to_string(), 5.0, 0.0, 0.0, 0.0);
-        let p2: PadSpec = (2.0, 2.0, "rect".to_string(), 9.0, 0.0, 0.0, 0.0);
-        let (best, pair) = copper_scan(&[p0.clone(), p2.clone()], &[p0, p1, p2], &[100, 102], &[100, 101, 102]);
+        let (best, pair) = copper_scan(
+            &[pad(0.0, 0.0), pad(9.0, 0.0)],
+            &[pad(0.0, 0.0), pad(5.0, 0.0), pad(9.0, 0.0)],
+            &[100, 102],
+            &[100, 101, 102],
+        );
         // surviving pairs: (0,1) p0<->p1 gap 3.0, (0,2) p0<->p2 gap 7.0,
         // (1,0) p2<->p0 gap 7.0, (1,1) p2<->p1 gap 2.0 -- the closest
         // surviving pair is p2<->p1 at 2.0.

@@ -98,11 +98,7 @@ fn infer_unit(name: &str, value: f64) -> String {
 
 #[pyfunction]
 #[pyo3(signature = (positions, trace_height_mm))]
-pub fn spice_loop_inductance_py(
-    py: Python<'_>,
-    positions: Vec<(f64, f64)>,
-    trace_height_mm: f64,
-) -> PyResult<f64> {
+pub fn spice_loop_inductance_py(positions: Vec<(f64, f64)>, trace_height_mm: f64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| loop_inductance(&positions, trace_height_mm))
         .map_err(temper_py_bridge::panic_to_err)
 }
