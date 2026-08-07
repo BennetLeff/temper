@@ -30,6 +30,42 @@ import math
 from collections import deque
 
 import numpy as np
+import temper_geometry as _tg
+
+
+def _exact_edt(mask: np.ndarray) -> np.ndarray:
+    """Exact Euclidean distance transform, delegating to
+    ``temper_geometry.exact_edt_transform`` (Rust Felzenszwalb-Huttenlocher
+    sweep).  Bit-exact vs ``scipy.ndimage.distance_transform_edt(mask)`` (no
+    ``sampling`` argument) on every input reachable by this module -- see
+    ``docs/evidence/2026-08-07-exact-edt-rust-spike.md``.  ``mask`` must
+    already be the desired ``uint8`` array at the call site; this function
+    does not renormalize dtype or semantics.
+
+    This module keeps a *separate*, still-scipy ``scipy.ndimage.label`` call
+    in ``check_routability_cc`` -- a different function, out of scope for
+    this migration; this module does not become scipy-free.
+
+    R19: the pre-migration ``scipy.ndimage.distance_transform_edt`` call is
+    retained, unused here, as the differential's pinned oracle in
+    ``tests/router_v6/test_routability_check_rust_differential.py``.
+
+    Known divergence (documented, not silently absorbed): on an
+    all-foreground mask (no background/zero cell anywhere -- reachable here
+    via a fully-open ``obstacle_mask`` of all ``False``, e.g.
+    ``TestCheckRoutabilityDirect.test_open_grid``), this returns ``+inf``
+    for every cell; scipy returns a finite C-implementation boundary
+    artifact instead.  Downstream, ``check_routability``'s
+    ``passable_mask = (edt_mask > 0) & (edt_grid >= min_edt)`` treats
+    ``+inf >= min_edt`` as True unconditionally, matching scipy's behavior
+    on this input in practice (its finite artifact values are always well
+    above the tiny thresholds used here) -- see the differential suite's
+    dedicated test for this case.
+    """
+    h, w = mask.shape
+    mask_u8 = np.ascontiguousarray(mask, dtype=np.uint8)
+    out_bytes = _tg.exact_edt_transform(mask_u8.tobytes(), h, w)
+    return np.frombuffer(out_bytes, dtype="<f8").reshape(h, w)
 
 
 def _clear_region(
@@ -392,9 +428,7 @@ def _edt_from_obstacle_mask(
     - ``edt_grid``: distance transform over interior cells.
     """
     interior = ~obstacle_mask
-    from scipy.ndimage import distance_transform_edt
-
-    edt = distance_transform_edt(interior.astype(np.uint8))
+    edt = _exact_edt(interior.astype(np.uint8))
     return edt, interior
 
 
