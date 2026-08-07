@@ -14,9 +14,11 @@ Python (a 7-line list flattening over ``state.zone_slots`` — no bit-exact
 compute worth crossing the boundary for). The
 ``validate_phased_component_assignment_hv`` function stays Python: it binds
 router_v6's ``StageDRCFailure`` and the phasing mixins'
-``_get_footprint_radius`` / ``_effective_ghost_pad_radius`` (unmigrated
-surfaces), and its failure ordering is orchestration over the migrated
-slot-grid kernels.
+``_get_footprint_radius`` (unmigrated) / ``_effective_ghost_pad_radius``
+(migrated to ``temper_design_bundle_python.deterministic_phase`` in the
+Wave 4 Phase 5 final leaves; the Python method is now a delegation shim),
+and its failure ordering is orchestration over the migrated slot-grid
+kernels.
 
 Bit-exactness: slot-spacing inference (minimum non-zero coordinate
 difference), the bucketed cell index (`int(round(x/spacing))` — CPython

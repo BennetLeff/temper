@@ -650,6 +650,45 @@ impl Layer {
 
 #[pymethods]
 impl Layer {
+    /// See `Zone::__reduce__` -- state restored field-by-field so nothing is
+    /// re-normalised on a round-trip. Reached through `LayerStackup.layers`.
+    fn __reduce__<'py>(
+        slf: &Bound<'py, Self>,
+    ) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyTuple>, Bound<'py, PyAny>)> {
+        let py = slf.py();
+        let b = slf.borrow();
+        let args = PyTuple::new(py, [b.name.bind(py), b.layer_type.bind(py)])?;
+        Ok((slf.get_type().into_any(), args, Self::__getstate__(slf)?))
+    }
+
+    fn __getstate__<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
+        let py = slf.py();
+        let b = slf.borrow();
+        let state = PyDict::new(py);
+        state.set_item("name", b.name.bind(py))?;
+        state.set_item("layer_type", b.layer_type.bind(py))?;
+        state.set_item("copper_weight", b.copper_weight.bind(py))?;
+        state.set_item("is_routable", b.is_routable.bind(py))?;
+        state.set_item("__dict__", slf.getattr("__dict__")?)?;
+        Ok(state.into_any())
+    }
+
+    fn __setstate__(slf: &Bound<'_, Self>, state: &Bound<'_, PyAny>) -> PyResult<()> {
+        let d = state.cast::<PyDict>()?;
+        for key in ["name", "layer_type", "copper_weight", "is_routable"] {
+            if let Some(v) = d.get_item(key)? {
+                slf.setattr(key, v)?;
+            }
+        }
+        if let Some(extra) = d.get_item("__dict__")? {
+            let inst = slf.getattr("__dict__")?;
+            let inst_dict = inst.cast::<PyDict>()?;
+            let extra_dict = extra.cast::<PyDict>()?;
+            inst_dict.update(extra_dict.as_mapping())?;
+        }
+        Ok(())
+    }
+
     #[new]
     #[pyo3(signature = (name, layer_type, copper_weight=None, is_routable=None))]
     fn new(
@@ -721,6 +760,19 @@ impl LayerStackup {
 
 #[pymethods]
 impl LayerStackup {
+    /// Frozen, so the `Rect` form applies: reconstruct through the ctor.
+    /// Reached from every `Board` (it is the default `layer_stackup`), which is
+    /// why `pickle.dumps(board)` failed even for a board that never mentions a
+    /// stackup.
+    fn __reduce__<'py>(
+        slf: &Bound<'py, Self>,
+    ) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyTuple>)> {
+        let py = slf.py();
+        let b = slf.borrow();
+        let args = PyTuple::new(py, [b.layers.bind(py), b.thickness.bind(py)])?;
+        Ok((slf.get_type().into_any(), args))
+    }
+
     #[new]
     #[pyo3(signature = (layers=None, thickness=None))]
     fn new(
@@ -935,7 +987,7 @@ fn make_layer<'py>(
 ///
 /// `@dataclass(frozen=True, eq=False)`: the generated `__repr__` and the
 /// frozen `__setattr__` apply, but `__eq__`/`__hash__` are the class's own.
-#[pyclass(frozen, module = "temper_design_bundle_python.board_contracts")]
+#[pyclass(frozen, subclass, module = "temper_design_bundle_python.board_contracts")]
 #[derive(Debug)]
 pub struct Rect {
     #[pyo3(get)]
@@ -966,6 +1018,29 @@ impl Rect {
 
 #[pymethods]
 impl Rect {
+    /// Make `pickle`, `copy.copy` and `copy.deepcopy` work.
+    ///
+    /// A pyclass is unpicklable by default, which the dataclass this replaced
+    /// was not. `deepcopy(zone)` and `pickle.dumps(board)` both reach a `Rect`
+    /// through `Zone.bounds` and raised `TypeError: cannot pickle
+    /// 'temper_design_bundle_python.board_contracts.Rect' object`.
+    ///
+    /// The identical defect was found and fixed for `temper_io_types.Rect`
+    /// (see `placer_core/pybridge.rs`); the contracts migrated into this crate
+    /// on 2026-08-04 did not carry the fix, so the repair is duplicated here
+    /// rather than left to the next person to rediscover.
+    ///
+    /// Reconstructing through `type(self)(...)` re-runs the invariant check and
+    /// preserves field types exactly (an `int` `Rect` round-trips as `int`),
+    /// and using `type(self)` rather than the concrete class keeps a subclass a
+    /// subclass -- matching what the dataclass did.
+    fn __reduce__<'py>(
+        slf: &Bound<'py, Self>,
+    ) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyTuple>)> {
+        let py = slf.py();
+        Ok((slf.get_type().into_any(), slf.borrow().as_tuple(py)?))
+    }
+
     /// Direct construction does **no** coercion — `Rect(0, 0, 1, 1)` keeps
     /// `int` fields (only `from_xyxy`/`from_xywh` call `float()`).
     #[new]
@@ -1192,6 +1267,69 @@ impl Zone {
 
 #[pymethods]
 impl Zone {
+    /// Make `pickle` and `copy.deepcopy` work, WITHOUT re-coercing `bounds`.
+    ///
+    /// The naive reduce -- reconstruct through `type(self)(...)` -- is wrong
+    /// here. `new` coerces `bounds` to a validated `Rect`, but the dataclass
+    /// only did that in `__post_init__`, which `deepcopy` never re-ran. A later
+    /// `zone.bounds = (x0, y0, x1, y1)` therefore stays a raw tuple on the
+    /// original (relied on by deterministic/feedback/orchestrator.py) and would
+    /// silently come back as a `Rect` through a round-trip.
+    ///
+    /// So state is restored field-by-field after construction: `__setstate__`
+    /// overwrites every field with the exact object that was stored, and the
+    /// instance `__dict__` (this is a `dict` pyclass, so dynamic attributes are
+    /// part of the contract) is restored with it.
+    fn __reduce__<'py>(
+        slf: &Bound<'py, Self>,
+    ) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyTuple>, Bound<'py, PyAny>)> {
+        let py = slf.py();
+        let b = slf.borrow();
+        // Minimal valid ctor args; every field is then overwritten by
+        // __setstate__, so coercion here cannot reach the restored value.
+        let args = PyTuple::new(py, [b.name.bind(py), b.bounds.bind(py)])?;
+        Ok((slf.get_type().into_any(), args, Self::__getstate__(slf)?))
+    }
+
+    fn __getstate__<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
+        let py = slf.py();
+        let b = slf.borrow();
+        let state = PyDict::new(py);
+        state.set_item("name", b.name.bind(py))?;
+        state.set_item("bounds", b.bounds.bind(py))?;
+        state.set_item("net_classes", b.net_classes.bind(py))?;
+        state.set_item("components", b.components.bind(py))?;
+        state.set_item("weight", b.weight.bind(py))?;
+        state.set_item("polygon", b.polygon.bind(py))?;
+        state.set_item("layers", b.layers.bind(py))?;
+        state.set_item("max_size", b.max_size.bind(py))?;
+        state.set_item("can_expand", b.can_expand.bind(py))?;
+        state.set_item("zone_type", b.zone_type.bind(py))?;
+        // Dynamic attributes: `dict` is on this pyclass for behavioural parity,
+        // so anything set on the instance travels too.
+        state.set_item("__dict__", slf.getattr("__dict__")?)?;
+        Ok(state.into_any())
+    }
+
+    fn __setstate__(slf: &Bound<'_, Self>, state: &Bound<'_, PyAny>) -> PyResult<()> {
+        let d = state.cast::<PyDict>()?;
+        for key in [
+            "name", "bounds", "net_classes", "components", "weight", "polygon",
+            "layers", "max_size", "can_expand", "zone_type",
+        ] {
+            if let Some(v) = d.get_item(key)? {
+                slf.setattr(key, v)?;
+            }
+        }
+        if let Some(extra) = d.get_item("__dict__")? {
+            let inst = slf.getattr("__dict__")?;
+            let inst_dict = inst.cast::<PyDict>()?;
+            let extra_dict = extra.cast::<PyDict>()?;
+            inst_dict.update(extra_dict.as_mapping())?;
+        }
+        Ok(())
+    }
+
     #[new]
     #[pyo3(signature = (
         name,
@@ -1451,7 +1589,57 @@ pub struct Board {
     pub zone_map: Py<PyAny>,
 }
 
+
+#[pymethods]
 impl Board {
+    /// Same contract as `Zone::__reduce__` -- see the note there. State is
+    /// restored field-by-field rather than replayed through the constructor so
+    /// no field is re-normalised on a round-trip, matching what `deepcopy` of
+    /// the original dataclass did.
+    fn __reduce__<'py>(
+        slf: &Bound<'py, Self>,
+    ) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyTuple>, Bound<'py, PyAny>)> {
+        let py = slf.py();
+        let b = slf.borrow();
+        let args = PyTuple::new(py, [b.width.bind(py), b.height.bind(py)])?;
+        Ok((slf.get_type().into_any(), args, Self::__getstate__(slf)?))
+    }
+
+    fn __getstate__<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
+        let py = slf.py();
+        let b = slf.borrow();
+        let state = PyDict::new(py);
+        state.set_item("width", b.width.bind(py))?;
+        state.set_item("height", b.height.bind(py))?;
+        state.set_item("origin", b.origin.bind(py))?;
+        state.set_item("zones", b.zones.bind(py))?;
+        state.set_item("mounting_holes", b.mounting_holes.bind(py))?;
+        state.set_item("keepouts", b.keepouts.bind(py))?;
+        state.set_item("ground_domains", b.ground_domains.bind(py))?;
+        state.set_item("layer_stackup", b.layer_stackup.bind(py))?;
+        state.set_item("outline_polygon", b.outline_polygon.bind(py))?;
+        state.set_item("zone_map", b.zone_map.bind(py))?;
+        state.set_item("__dict__", slf.getattr("__dict__")?)?;
+        Ok(state.into_any())
+    }
+
+    fn __setstate__(slf: &Bound<'_, Self>, state: &Bound<'_, PyAny>) -> PyResult<()> {
+        let d = state.cast::<PyDict>()?;
+        for key in ["width", "height", "origin", "zones", "mounting_holes", "keepouts", "ground_domains", "layer_stackup", "outline_polygon", "zone_map"] {
+            if let Some(v) = d.get_item(key)? {
+                slf.setattr(key, v)?;
+            }
+        }
+        if let Some(extra) = d.get_item("__dict__")? {
+            let inst = slf.getattr("__dict__")?;
+            let inst_dict = inst.cast::<PyDict>()?;
+            let extra_dict = extra.cast::<PyDict>()?;
+            inst_dict.update(extra_dict.as_mapping())?;
+        }
+        Ok(())
+    }
+
+
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
             same(py, &self.width),
@@ -1466,10 +1654,6 @@ impl Board {
             same(py, &self.zone_map),
         ]
     }
-}
-
-#[pymethods]
-impl Board {
     #[new]
     #[pyo3(signature = (
         width,
