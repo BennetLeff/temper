@@ -1,0 +1,49 @@
+# Migration-narrowing gate allowlist.
+#
+# Format: CHECK_A|<rust_file>|<NAME>|<python_file>  # reason: <why this
+# is a coincidental name collision, not a real capability narrowing>
+#
+# Every entry MUST carry a written reason and MUST be a coincidental
+# name/identifier collision, not a real defect. Do NOT allowlist a genuine
+# capability-narrowing defect (a Rust port silently dropping a
+# parameter/precision the Python had) — that is the exact defect class this
+# gate exists to catch. See scripts/check_migration_narrowing.py module
+# docstring for the two seeded historical instances (H_CONV_BACKGROUND,
+# escape_via.rs rotation).
+#
+# Seeded 2026-08-07 from a real `--init` run against origin/main
+# (63ec4e756). At seed time this run additionally surfaced two more, not
+# previously catalogued, live instances of the same defect class
+# (net_ordering.rs `rotation` and terminal_planning.rs `initial_rotation`,
+# both `Option<i64>` mirroring `float(comp.initial_rotation) * math.pi / 2.0`
+# in obstacle_map.py) — those are intentionally NOT listed below; they are
+# real findings, not false positives, and should stay failing until fixed.
+
+# --- CHECK A: net_classification.py pattern-set constants ------------------
+# These frozensets (GROUND_NET_PATTERNS, POWER_NET_PATTERNS, etc.) are NOT
+# runtime parameters threaded into a Rust call — the Rust classifiers
+# (`_rs.is_ground_net(name)` etc.) take only `name` and hard-code the same
+# literal pattern sets internally. The Python constants exist so
+# `tests/wave4_phase2/test_core_contracts_differential.py` can cross-check
+# `oracle.GROUND_NET_PATTERNS` (etc.) against the Rust predicates'
+# behaviour independently — i.e. there IS a differential guard here, just
+# not a call-site argument. Confirmed by reading net_classification.py and
+# its differential test; no call site exists where these could be threaded
+# through as an argument in the first place.
+CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|GROUND_NET_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: pattern-set constant hard-coded identically in the Rust classifier, not a threadable per-call parameter; cross-checked by test_core_contracts_differential.py.
+CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|POWER_NET_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
+CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|HV_NET_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
+CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|GROUND_PIN_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
+CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|POWER_PIN_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
+CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|HV_PIN_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
+CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|CLOCK_PIN_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
+
+# --- CHECK B: short/common identifier collisions ----------------------------
+# `v`, `i`, `name` are common loop/scratch variable names. In each case the
+# matched Python `float(...)` usage is a different domain value that happens
+# to reuse the same short identifier in an unrelated function.
+CHECK_B|packages/temper-constraint-compiler/src/pyo3_bridge.rs|v|packages/temper-placer/src/temper_placer/constraints/_payload.py  # reason: Rust `v` here is a PyDict "dru_priority" scratch extraction (Option<u32> via i64); Python match is an unrelated list-comprehension var `float(v) for v in board_bounds` in _payload.py:59. Coincidental identifier collision.
+CHECK_B|packages/temper-constraint-compiler/src/pyo3_bridge.rs|v|packages/temper-placer/src/temper_placer/constraints/_payload.py  # reason: second `v: usize = value.extract()` scratch extraction in the same file (line 237, different dict key); same false match as above.
+CHECK_B|packages/temper-design-bundle/src/deterministic_leaves.rs|i|packages/temper-placer/src/temper_placer/router_v6/congestion.py  # reason: Rust `i` is a HashMap tuple-key coordinate (`(i64,i64)` grid index) in dict_index_to_rust; Python match is a docstring comment in congestion.py:42 ("utilization=float(i)") describing a synthetic Bottleneck row, not a real field. Coincidental identifier collision.
+CHECK_B|packages/temper-design-bundle/src/pcl_parse.rs|name|packages/temper-placer/src/temper_placer/metrics/physics.py  # reason: Rust `name` is a local match-arm binding for tier-int-to-string mapping (parse_tier) with no relation to geometry; Python match is a dict-literal `z.name: tuple(float(v) ...)` in physics.py:144, which the annotation-regex over-matches (dict-literal `key: value` syntax reads like a type annotation to the heuristic). Coincidental identifier collision + known regex limitation.
+CHECK_B|packages/temper-drc-rs/src/req_safe_01.rs|i|packages/temper-placer/src/temper_placer/router_v6/congestion.py  # reason: same coincidental match as deterministic_leaves.rs `i` above — an unrelated grid-index variable matching the congestion.py:42 docstring comment.
