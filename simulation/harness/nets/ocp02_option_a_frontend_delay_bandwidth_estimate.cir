@@ -1,0 +1,68 @@
+* OCP-02 Option A front-end delay -- BANDWIDTH-CONSISTENT ESTIMATE CT model.
+*
+* Same circuit and measurement convention as
+* ocp02_option_a_frontend_delay_default_model.cir (read that file's header
+* first) -- this variant only changes two CT_WITH_BURDEN parameters, to
+* probe how much the DEFAULT model's likely-wrong leakage inductance
+* matters.
+*
+* WHY THIS VARIANT EXISTS: CT_WITH_BURDEN's default LL=100uH, combined with
+* R_BURDEN+RW = 4.99+50 = 54.99R, gives an L/R time constant of
+* 100uH/54.99R = 1.82us -- implying a -3dB corner around 1/(2*pi*1.82us) =
+* 87kHz. That directly CONTRADICTS Coilcraft Document 1608-1's own stated
+* frequency range for this exact part, CST3015-100ED: "0.78 kHz - >1000
+* kHz" (elec/src/components.ato:132). A part datasheet-rated for >1MHz
+* cannot have an 87kHz L/R pole; the default LL=100uH is not just
+* uncalibrated, it is quantitatively inconsistent with the real part for
+* this specific measurement. (It remains fine for the trip-point
+* threshold sim, where only the ramp's DC/quasi-static end value matters,
+* not its dynamics -- see ocp02_option_a_trip_point.cir.)
+*
+* This variant instead sets LL and RW so that the model's own L/R time
+* constant matches -- order of magnitude, not a precision fit -- the
+* datasheet's stated bandwidth and DCR:
+*   - RW=1.54 ohm: Coilcraft Document 1608-1's own published secondary DCR
+*     MAX for CST3015-100ED (not the subckt's generic 50R default).
+*   - LL backed out from tau = 1/(2*pi*f_high) with f_high=1MHz (the
+*     datasheet's OWN stated lower bound on its high-frequency corner --
+*     "designed for up to 1MHz and above" -- treated here as a
+*     representative order-of-magnitude corner, NOT a precision -3dB point
+*     the datasheet actually specifies to that resolution):
+*       tau = 1/(2*pi*1MHz) = 159ns
+*       LL = tau * (R_BURDEN+RW) = 159ns * 6.53R = 1.04uH -> LL=1u used.
+*
+* This is an ESTIMATE, explicitly derived here, not a datasheet-published
+* leakage inductance (Coilcraft's datasheet does not publish one for this
+* part). It exists to bracket the default model's likely error, not to
+* replace it as a calibrated figure. Neither this file nor the
+* _default_model variant should be reported as a measured or
+* datasheet-sourced propagation delay -- both are simulations against an
+* explicitly uncalibrated component model, differing only in which
+* uncalibrated assumption they make.
+*
+* CALIBRATED: false.
+
+.include ../../models/current_transformer.sub
+.include ../../models/TLV3201_ngspice.lib
+
+V_VCC VCC_3V3 0 DC 3.3
+I_PRI pri_p 0 PWL(0 0 1u 0 1.05u 80 2u 80)
+
+X_CT pri_p 0 i_sense 0 CT_WITH_BURDEN PARAMS: N=100 RW=1.54 LL=1u R_BURDEN=4.99
+
+R_REF_TOP VCC_3V3 vref 1020
+R_REF_BOT vref 0 10000
+
+X_COMP i_sense vref VCC_3V3 0 comp_out TLV3201_NGSPICE
+
+.control
+set noaskquit
+tran 0.2n 2u
+meas tran t_trip WHEN v(comp_out)=1.65 RISE=1
+meas tran v_sense_at_trip FIND v(i_sense) AT={t_trip}
+print t_trip
+print v_sense_at_trip
+quit
+.endc
+
+.end
