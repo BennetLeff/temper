@@ -182,6 +182,8 @@ def route_pcb(
     sat_time_limit_ms: int | None = None,
     rotations: dict[str, float] | None = None,
     components: list | None = None,
+    enable_net_batching: bool = False,
+    net_batch_size: int = 10,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -249,6 +251,16 @@ def route_pcb(
         sat_time_limit_ms: Secondary wall-clock bound on the same
             solve. None by default (conflict-count alone is the
             recommended bound; it is deterministic, wall-clock is not).
+        enable_net_batching: `#871` net-batching prototype. Solve Stage
+            3's SAT model in batches of ``net_batch_size`` nets, with
+            each batch's channel capacity reduced by what earlier
+            batches already consumed, instead of one monolithic model
+            covering every net. Default False (behavior unchanged). See
+            ``router_v6/net_batching.py`` for the full design and
+            ``RouterV6Pipeline.__init__``'s docstring for interaction
+            with ``enable_bundling``/``max_sat_nets``.
+        net_batch_size: Nets per Stage 3 SAT batch when
+            ``enable_net_batching=True``. Default 10.
 
     Returns:
         RoutingResult with completion_rate, routed_pcb_content, and
@@ -345,6 +357,8 @@ def route_pcb(
         dfm_fail_on="none",
         sat_conflict_limit=sat_conflict_limit,
         sat_time_limit_ms=sat_time_limit_ms,
+        enable_net_batching=enable_net_batching,
+        net_batch_size=net_batch_size,
     )
 
     # Resolve the net->class-name mapping from the caller's design_rules.

@@ -106,6 +106,8 @@ def route_once(
     *,
     keep_existing_copper: bool = False,
     enable_geographic_pruning: bool = False,
+    enable_net_batching: bool = False,
+    net_batch_size: int = 10,
 ) -> dict[str, Any]:
     """Run one full route_pcb() pass and return measured results.
 
@@ -149,6 +151,8 @@ def route_once(
         # DFM bundle costs ~6-7x routing wall time (see
         # docs/evidence/2026-07-26-manufacturing-drc-scalability.md).
         enable_geographic_pruning=enable_geographic_pruning,
+        enable_net_batching=enable_net_batching,
+        net_batch_size=net_batch_size,
     )
     wall_s = time.perf_counter() - t0
 
@@ -199,9 +203,17 @@ def run_single(
     output_path: Path,
     *,
     enable_geographic_pruning: bool = False,
+    enable_net_batching: bool = False,
+    net_batch_size: int = 10,
 ) -> int:
     print(f"Routing {pcb_path} ...")
-    r = route_once(pcb_path, rules_path, enable_geographic_pruning=enable_geographic_pruning)
+    r = route_once(
+        pcb_path,
+        rules_path,
+        enable_geographic_pruning=enable_geographic_pruning,
+        enable_net_batching=enable_net_batching,
+        net_batch_size=net_batch_size,
+    )
     print(_format_run("Result", r))
     if r["unrouted_nets"]:
         print(f"Unrouted ({r['unrouted']}): {', '.join(sorted(r['unrouted_nets']))}")
@@ -345,6 +357,18 @@ def main(argv: list[str] | None = None) -> int:
             "Default False -- unchanged full-encoding behavior."
         ),
     )
+    parser.add_argument(
+        "--net-batching", action="store_true",
+        help=(
+            "Pass enable_net_batching=True to route_pcb() (`#871` net-"
+            "batching prototype, see router_v6/net_batching.py). Default "
+            "False -- unchanged monolithic-model behavior."
+        ),
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=10,
+        help="Nets per Stage 3 SAT batch when --net-batching is set (default 10).",
+    )
     args = parser.parse_args(argv)
 
     if not args.pcb.exists():
@@ -353,7 +377,13 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"Netclass rules file not found: {args.rules}")
 
     if args._worker_output is not None:
-        r = route_once(args.pcb, args.rules, enable_geographic_pruning=args.pruning)
+        r = route_once(
+            args.pcb,
+            args.rules,
+            enable_geographic_pruning=args.pruning,
+            enable_net_batching=args.net_batching,
+            net_batch_size=args.batch_size,
+        )
         r.pop("routed_pcb_content", None)
         args._worker_output.write_text(json.dumps(r), encoding="utf-8")
         return 0
@@ -379,7 +409,14 @@ def main(argv: list[str] | None = None) -> int:
             "This driver refuses to overwrite the input board, ever."
         )
 
-    return run_single(args.pcb, args.rules, args.output, enable_geographic_pruning=args.pruning)
+    return run_single(
+        args.pcb,
+        args.rules,
+        args.output,
+        enable_geographic_pruning=args.pruning,
+        enable_net_batching=args.net_batching,
+        net_batch_size=args.batch_size,
+    )
 
 
 if __name__ == "__main__":

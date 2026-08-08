@@ -78,6 +78,8 @@ class RouterV6Pipeline:
         enable_connectivity_verifier: bool = False,
         enable_erc_check: bool = False,
         enable_geographic_pruning: bool = False,
+        enable_net_batching: bool = False,
+        net_batch_size: int = 10,
     ):
         """
         Initialize Router V6 pipeline.
@@ -164,6 +166,20 @@ class RouterV6Pipeline:
                 variables are created only for edges/nodes within
                 max(K * pin_span, M_min) of the net's pins, reducing
                 CNF variables and clauses.
+            enable_net_batching: Batch Stage 3's SAT solve over
+                ``net_batch_size`` nets at a time instead of building one
+                model for every net (`#871`'s net-batching prototype, see
+                ``net_batching.py``). Default False (behavior unchanged
+                -- the existing single-model path is untouched). Mutually
+                orthogonal to ``enable_bundling``/``max_sat_nets``; if
+                more than one is set, net_batching takes priority (it is
+                checked first in ``_run_stage3``).
+            net_batch_size: Nets per Stage 3 SAT batch when
+                ``enable_net_batching=True``. Default 10, matching the
+                reduction survey's own worked estimate (~2.04M raw vars
+                per batch, corroborated by a MEASURED 2.6M-variable model
+                that already survived construction under an 8GB
+                ``ulimit -v`` cap on this same skeleton).
         """
         del enable_connectivity_verifier  # inherited unused arg (baseline debt)
         if dfm_fail_on not in ("none", "critical", "all"):
@@ -200,6 +216,10 @@ class RouterV6Pipeline:
         self.enable_erc_check = enable_erc_check
         # U3: geographic SAT-model pruning (plan 2026-08-07-001)
         self.enable_geographic_pruning = enable_geographic_pruning
+        # `#871` net-batching prototype (see net_batching.py)
+        self.enable_net_batching = enable_net_batching
+        self.net_batch_size = net_batch_size
+        self.last_batch_results: list[Any] = []
         # Per-net layer assignments resolved from the netclass SSOT (W2 R2).
         # Maps net name -> LayerAssignment; consumed to constrain layer choice.
         self.layer_constraints = layer_constraints or {}
