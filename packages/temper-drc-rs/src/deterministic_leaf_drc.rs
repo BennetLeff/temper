@@ -48,7 +48,11 @@ pub fn summarize_violations(violations: &[String]) -> (usize, Vec<(String, usize
             by_type.push((t.clone(), 1));
         }
     }
-    by_type.sort_by(|a, b| b.1.cmp(&a.1));
+    // Descending by count. `sort_by_key(Reverse(..))` rather than
+    // `sort_by(|a, b| b.1.cmp(&a.1))`: both are stable, so ties keep
+    // insertion order either way (which is what Python's
+    // `reverse=True` also does -- it does not reverse ties).
+    by_type.sort_by_key(|x| std::cmp::Reverse(x.1));
     (violations.len(), by_type)
 }
 

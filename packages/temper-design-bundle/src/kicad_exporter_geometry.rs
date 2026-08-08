@@ -199,6 +199,15 @@ pub fn generate_connector_segments(
             }
 
             let Some(ep) = nearest_ep else { continue };
+            // NOT `min_dist >= max_dist`. The oracle
+            // (`tests/io/_kicad_exporter_py_oracle.py:117`) reads
+            // `if nearest_ep and min_dist < max_dist:` and this is its faithful
+            // negation as an early-continue. The two differ exactly when
+            // `max_dist` is NaN: `!(x < NaN)` is true (skip, as Python does),
+            // while `x >= NaN` is false (proceed). Rewriting it the way
+            // clippy suggests would silently change behaviour on NaN input
+            // and break the differential.
+            #[allow(clippy::neg_cmp_op_on_partial_ord)]
             if !(min_dist < max_dist) {
                 continue;
             }

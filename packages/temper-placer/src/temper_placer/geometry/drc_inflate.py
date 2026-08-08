@@ -229,7 +229,7 @@ def compute_drc_proxy_score(
     inflated_half_heights: Array,
     clearance_mm: float = 0.2,
     beta: float = 10.0,
-) -> Array:
+) -> Array | np.float64:
     """
     Compute DRC proxy score using inflated pairwise clearance check.
 

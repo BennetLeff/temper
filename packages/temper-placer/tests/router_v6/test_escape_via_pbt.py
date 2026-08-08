@@ -697,9 +697,11 @@ def test_p5_fails_for_a_constant_true_predicate(restore_kernels):
     def always_valid(*_args, **_kwargs):
         return True
 
+    # ``restore_kernels`` is requested purely for its teardown; naming it here
+    # is what tells vulture the fixture parameter is live (it is read nowhere
+    # else in the suite, so dropping this reference flags all 73 sites).
+    _ = restore_kernels
     ORACLE._is_position_valid = always_valid
-    # sanity: the reference really does reject the tight case
-    ORACLE._is_position_valid = restore_kernels if False else always_valid
     assert len(_vias(_TIGHT)) == 9  # the mutant places all nine
 
 
