@@ -78,13 +78,13 @@ were missed by that filter — both verified directly below, not taken on faith:
 | Clean, unmerged | 5 | 0 conflicts today, real unmerged content |
 | Conflict — baseline signature only | 36 | Would be clean if the `main`/`origin/main` divergence (item 2 above) were resolved first |
 | Conflict — baseline + genuine extra conflict | 10 | Needs its own reconciliation beyond the baseline fix |
-| Zero unique commits (tip == `origin/main`, i.e. `7e1194b7`) | 4 | `a1087c2ce1ce15224`, `acf6badeed2dfe305` (this session's own branch), `ad6d49136abdf2281`, `ae8fccd26c6009709` — no content to merge |
+| Zero unique **committed** commits (tip == `origin/main`, i.e. `7e1194b7`) | 4* | `a1087c2ce1ce15224`, `acf6badeed2dfe305` (this session's own branch), `ad6d49136abdf2281`, `ae8fccd26c6009709` — no *committed* content to merge. *`ad6d49136abdf2281` is not actually empty — see the correction below and Decision List item 10; it carries a real, load-bearing evidence document that was left uncommitted. |
 | **Total** | **66*** | *one branch (`a3937a7`) has commits so it lands in both the "conflict" count and would double as an "empty" branch had it not moved mid-session — see note below |
 
 Distinct commit tips: 66 branch names resolve to **56 distinct SHAs** — 5 groups of duplicates share a tip
 byte-for-byte:
 
-- `7e1194b776aa` (= `origin/main`, zero new work): `a1087c2ce1ce15224`, `acf6badeed2dfe305`, `ad6d49136abdf2281`, `ae8fccd26c6009709`
+- `7e1194b776aa` (= `origin/main`, zero *committed* new work): `a1087c2ce1ce15224`, `acf6badeed2dfe305`, `ad6d49136abdf2281`, `ae8fccd26c6009709` — but see the correction directly below for `ad6d49136abdf2281`, which is not actually empty
 - `07d514f9b8a9` ("perf(router): KD-tree + Kruskal MST island bridging"): `a11904da8310c7be8`, `a1edfc6c42603e6ca`, `abf95b30125935383`, `af448502d9c6417ca`
 - `6a5758b856a4` ("measure(router): U5 CNF measurement — OOM"): `a09b73d5391322d6d`, `a14cebd66c9c866e4`
 - `6665aa3cdd4b` ("test(ci): drift test for unreferenced router_v6 test files"): `a681a84f1f1282eb8`, `a83609cb5411455d2`
@@ -96,6 +96,16 @@ board-defect corpus` — is byte-identical to the subject of `worktree-agent-a01
 **already merged** branches. This looks like a duplicate/re-attempt of already-landed work; flagged for a human
 to check for redundancy rather than resolved here (its actual diff was not compared against `a011ebcd`'s, out of
 this index's read-only scope for judging content, only reporting the coincidence).
+
+**Correction (post-review): `worktree-agent-ad6d49136abdf2281` is not actually empty.** Its tracked commit history
+is still exactly `7e1194b7` (verified again on review — no new commit landed there, unlike `a3937a7` above), but
+its **worktree directory carries a real, uncommitted evidence document**,
+`docs/evidence/2026-08-07-via-dangling-attribution.md` — found by checking
+`/home/bennet/Desktop/temper/.claude/worktrees/agent-ad6d49136abdf2281/docs/evidence/` directly, the same way the
+RTD and bus-capacitor-ripple documents (§3 items 5 and 8) were found uncommitted in their own worktrees. This is
+the **third** instance of this exact pattern in this session — see the standing note in §5. This document is the
+decisive source for Decision List item 10 (`via_dangling`); it is not "no content to merge," it is "committable,
+high-value content sitting unprotected in a worktree." See item 10 for the full finding.
 
 ### Already merged into local `main` (unpushed) — 15
 
@@ -162,7 +172,7 @@ In `git reflog show main` merge order (most recent first): `aec27330dae453cf8`, 
 | `worktree-agent-ac631b39bdae6694a` | `0b0c4f4a` | 0 | CLEAN (already merged) | feat(wave4): record R1 python-removal verdicts alongside R7's | — |
 | `worktree-agent-acca281869a5601ab` | `b2400b67` | 2 | CONFLICT (baseline only) | docs(evidence): WASM tier Phase 2-4 status, R4-R8 evidence map, R8/#871 reachability | 27 files, +896/-112 |
 | `worktree-agent-acf6badeed2dfe305` | `7e1194b7` | 1 | CONFLICT (baseline only, zero unique content, this session's own branch) | fix(ci): unbreak main (#911) | 26 files, +274/-112 |
-| `worktree-agent-ad6d49136abdf2281` | `7e1194b7` | 1 | CONFLICT (baseline only, zero unique content) | fix(ci): unbreak main (#911) | 26 files, +274/-112 |
+| `worktree-agent-ad6d49136abdf2281` | `7e1194b7` | 1 | CONFLICT (baseline only, zero unique **committed** content — but see correction above: carries an uncommitted evidence doc, the source for Decision List item 10) | fix(ci): unbreak main (#911) | 26 files, +274/-112 |
 | `worktree-agent-ad9ce7411805de565` | `c57101ac` | 2 | CONFLICT (baseline only) | fix(cache): scope, atomicize, and re-key the global EDT disk cache | 28 files, +738/-125 |
 | `worktree-agent-add6fe8eba1f890f4` | `404803b3` | 1 | **CLEAN, unmerged** | fix(ci): guard the DRC ratchet's single-sample assumption against measured noise | 4 files, +535/-14 |
 | `worktree-agent-adea9e1d805efd923` | `2a2f2fa7` | 2 | CONFLICT (baseline only) | fix(ci): clear evidence-provenance backlog and anchor the reference manifest | 88 files, +674/-146 |
@@ -232,6 +242,9 @@ In `git reflog show main` merge order (most recent first): `aec27330dae453cf8`, 
 - `power_pcb_dataset/drc_ceiling.json`'s `2026-08-07-oracle-repin-10.0.5` `_march` entry — `fix/drc-ceiling-remeasure-10.0.5`
   (`835474e4`, outside the `worktree-agent-*` naming pattern, added post-review — see §1's scope correction and
   Decision List item 10)
+- `docs/evidence/2026-08-07-via-dangling-attribution.md` — `worktree-agent-ad6d49136abdf2281`, the decisive
+  supersession of the above `_march` entry's oracle-version hypothesis (see Decision List item 10); **currently
+  uncommitted** in that branch's own worktree, found post-review
 
 ### Planning
 
@@ -323,25 +336,62 @@ states one.
    ~40–44mm from `U6`'s `DC_BUS_RTN` pad. Conclusion explicitly reopens Option B (bias-supply scope) as a live
    alternative. `OCP02_DECISION_BRIEF.md` is byte-identical across its two carrying branches — no divergence risk.
    **Blocked on:** choosing between the re-place and Option B.
-10. **`via_dangling` ceiling raise needs approval — CONFIRMED as a real, live, pending decision; the specific
-    `e5a89b1e` attribution in the original claim is not supported by the source and should be dropped.** The
-    original enumeration missed this because the branch it lives on, `fix/drc-ceiling-remeasure-10.0.5`
-    (`835474e4`), does not match the `worktree-agent-*` pattern this index scanned (see §1's scope correction) —
-    it genuinely is true that no `worktree-agent-*` branch touches `power_pcb_dataset/drc_ceiling.json`, but that
-    was the wrong universe to check. Verified directly against that commit and its `_march` entry
-    (`2026-08-07-oracle-repin-10.0.5`): `via_dangling` measured 32/32 samples against a committed ceiling of 15
-    (+17) and is deliberately withheld pending a maintainer's `Ceiling-Approval:` trailer, per the R27 "do not
-    ratchet past an unexplained rise" rule. **However**, `e5a89b1e` is mentioned nowhere in that commit, its diff,
-    or its `_march` text (`git show 835474e4:power_pcb_dataset/drc_ceiling.json | grep e5a89b1e` returns nothing).
-    The source's own attribution is the **opposite shape** from the claim: it argues the +17 is *very likely the
-    kicad-cli 10.0.4→10.0.5 (or platform) oracle-version delta* — cross-checked by finding the identical constant
-    "+17 via_dangling" delta on multiple unrelated PRs/pushes regardless of what each touched, which a
-    per-commit routing regression would not produce — and explicitly frames this as circumstantial, not proof,
-    which is exactly why it's left for a maintainer rather than self-approved. So: the decision is real
-    (approve or reject a `via_dangling` ceiling raise from 15 to 32), but it is attributed to **a tool/platform
-    version change, not to any specific commit** — `e5a89b1e` does not belong in this claim as sourced. **Blocked
-    on:** a maintainer's `Ceiling-Approval:` review of whether the 10.0.4→10.0.5 attribution is correct before
-    the ceiling is raised.
+10. **`via_dangling` ceiling raise needs approval, attributed to `e5a89b1e` — CONFIRMED, exactly as the original
+    claim stated. This required two rounds to get right; recording both so the reasoning is auditable.**
+
+    **Round 1** (previous version of this index) found the live pending-approval situation on
+    `fix/drc-ceiling-remeasure-10.0.5` (`835474e4`, missed initially because it's outside the `worktree-agent-*`
+    pattern this index scanned — see §1) but concluded the `e5a89b1e` attribution was unsupported, because that
+    commit's own `_march` entry (`2026-08-07-oracle-repin-10.0.5`) attributes the +17 to a *likely* kicad-cli
+    10.0.4→10.0.5 oracle-version delta instead, calling its own reasoning circumstantial ("no old-board-on-10.0.5
+    data point exists to test directly... reported... rather than self-approved").
+
+    **Round 2** (this correction) found the missing data point: `docs/evidence/2026-08-07-via-dangling-attribution.md`,
+    which **was already sitting in this session's own `worktree-agent-*` scope** — on
+    `worktree-agent-ad6d49136abdf2281`, one of the branches Round 1 recorded as having "zero unique content"
+    because its tracked commit history is still exactly `origin/main` (`7e1194b7`). The document itself was never
+    committed to that branch — it exists only as an untracked file in that branch's own worktree, found by listing
+    that directory directly (the same discovery method that surfaced the RTD and bus-capacitor-ripple documents;
+    see the standing note in §5). Round 1's branch-emptiness conclusion for `ad6d49136abdf2281` was itself wrong
+    for the same reason those two other findings were initially missed.
+
+    That document supplies the exact missing A/B: it measures the **old** board (pre-`e5a89b1e`, content-hash
+    identified as `de59c045`) on the CI-pinned kicad-cli **10.0.5** — the oracle version the `_march` entry
+    suspected — for 70 samples across two independent runs, and gets `via_dangling = 15/15`, zero scatter,
+    identical to `e5a89b1e`'s own pre-existing 10.0.4 A/B test (from that commit's own message: old board 15, new
+    board 32, on 10.0.4). Laid out as a 2×2:
+
+    | | kicad-cli 10.0.4 | kicad-cli 10.0.5 |
+    |---|---|---|
+    | old board (pre-`e5a89b1e`) | 15 (`e5a89b1e`'s own commit msg) | **15** (70/70, this document) |
+    | new board (post-`e5a89b1e`) | 32 (`e5a89b1e`'s own commit msg) | 32 (130/130, `835474e4`) |
+
+    The count moves with board content and not at all with tool version — the oracle contributes ~0. Mechanism
+    (from `e5a89b1e`'s own commit message, independently corroborated by this document's union-find check over
+    the board's copper graph): the router's path-emission loop was pairing a via's from-layer and to-layer points
+    into a zero-length track segment at every via, which had no electrical extent but was enough for KiCad's
+    `via_dangling` check to count the point as non-dangling — masking 17 vias that were always genuinely dangling.
+    Removing the stub (`e5a89b1e`, #771, 2026-08-05) unmasked them; nothing about the board's actual connectivity
+    changed (union-find over the copper graph is identical before/after: 2389 nodes, 51 connected components).
+
+    The "identical +17 across unrelated PRs" evidence that originally motivated the oracle hypothesis is
+    explained without it: `e5a89b1e` landed 2026-08-05 and `drc_ceiling.json` was never bumped to match (that
+    commit deliberately withheld the update, "reported for the owner"). Every commit built on `main` after
+    2026-08-05 inherits a board whose true count is 32 against a ceiling frozen at 15 — one unbumped ancestor
+    produces a constant, diff-independent +17 on every descendant, which is indistinguishable from a global
+    instrument change *unless* you have the old-board-on-new-tool data point. Now that data point exists, and it
+    rules the oracle out.
+
+    **So: the original claim was correct as stated.** `e5a89b1e` is the cause; "oracle version" is not.
+    **Action item, not in the original claim:** the `_march` entry on `fix/drc-ceiling-remeasure-10.0.5` is now
+    **stale and actively wrong** about the cause — if a `Ceiling-Approval:` trailer is written citing "oracle
+    version" (its current framing), that would enshrine the incorrect cause in `drc_ceiling.json`'s `_march` log,
+    which this repo's own conventions treat as the single cause authority (see `AGENTS.md`'s DRC-ceiling section).
+    **The `_march` entry must be corrected to name `e5a89b1e0f6f5d77e16a11b05a5c0e06ecffca9c` as the cause before
+    any `Ceiling-Approval:` trailer is written** — sequencing, not just content, matters here. **Blocked on:** a
+    maintainer (a) committing `docs/evidence/2026-08-07-via-dangling-attribution.md` before it is lost, (b)
+    correcting the `_march` entry's attribution, then (c) landing the `via_dangling: 32` / `warning_ceiling: 489`
+    update with a `Ceiling-Approval:` trailer citing the correct commit.
 11. **`part_stress_gate.py` backlog removal — likely a misattribution.** `scripts/part_stress_gate.py`
     (`ab3a5bcd917b9e190` etc.) has **no backlog/allowlist mechanism** — it's standalone and, per its own
     docstring, **not wired into any CI workflow** (confirmed independently: no reference to it in `.github/` or
@@ -442,12 +492,25 @@ which OCP-02 topology, whether to approve the `via_dangling` ceiling raise, whet
 shrink to zero). Item 0 (push local `main` to `origin/main`, and how to resolve the 9-file conflict in doing so)
 is itself now a human decision this index surfaces, not merely mechanical.
 
-**Two of these (items 5 and 8) are also blocked on a smaller, more urgent action first: committing the source
-document.** `docs/hardware/BUS_CAPACITOR_RIPPLE_BRIEF.md` (item 5) is currently uncommitted/untracked in
-`worktree-agent-a97cdea26fe0b4c1c`'s own worktree — the same failure mode `docs/hardware/RTD_PROBE_INTERFACE_ANALYSIS.md`
-(item 8) was in until a reviewer committed it as `3a4431ff` mid-review. AGENTS.md already documents this exact
-class of loss ("agents have lost work this session by holding commits"); this ripple brief is presently exposed
-to it.
+**Three of these (items 5, 8, and 10) are also blocked on a smaller, more urgent action first: committing the
+source document.** This is now a confirmed pattern, not an isolated incident:
+
+| Document | Branch | Status |
+|---|---|---|
+| `docs/hardware/RTD_PROBE_INTERFACE_ANALYSIS.md` (item 8) | `worktree-agent-afefd5add15cfaca4` | **Fixed** — committed as `3a4431ff` mid-review |
+| `docs/hardware/BUS_CAPACITOR_RIPPLE_BRIEF.md` (item 5) | `worktree-agent-a97cdea26fe0b4c1c` | **Still uncommitted/untracked** as of this writing |
+| `docs/evidence/2026-08-07-via-dangling-attribution.md` (item 10) | `worktree-agent-ad6d49136abdf2281` | **Still uncommitted/untracked** as of this writing |
+
+All three were found the same way: not via `git log`/`git diff` against the branch (which shows nothing for an
+uncommitted file), but by listing the branch's own worktree directory directly
+(`/home/bennet/Desktop/temper/.claude/worktrees/agent-<id>/...`). This means **any other `worktree-agent-*`
+worktree could be holding an undiscovered deliverable the same way** — this index's branch inventory (§1), which
+is built entirely from `git log`/`git diff`/`git merge-tree` against committed refs, is blind to this class of
+content by construction, and a clean sweep of all 66 worktrees' working directories was not performed (out of
+this pass's remaining time budget). AGENTS.md already documents this exact class of loss ("agents have lost work
+this session by holding commits"); at least two real, load-bearing documents are presently exposed to it, and a
+third narrowly avoided it. Recommend a maintainer sweep all 66 worktree directories for untracked files before
+any are torn down.
 
 ### Blocked on infrastructure, not a decision
 
@@ -477,11 +540,16 @@ decision itself.
 - **Item 8** (RTD/PID-01…04): real and now confirmed, but the reason the first pass found nothing was that the
   source document was uncommitted, not that the claim was wrong — a scope/timing artifact, not a content error in
   the original claim.
-- **Item 10** (`via_dangling`): the ceiling-raise-pending-approval situation is real, but on a branch
-  (`fix/drc-ceiling-remeasure-10.0.5`) outside the `worktree-agent-*` pattern this index originally scanned — a
-  scope artifact, not a fabricated claim. The specific `e5a89b1e` attribution, however, **is** unsupported by the
-  source: the source attributes the rise to a kicad-cli tool-version change, not to any commit, and `e5a89b1e`
-  does not appear in it at all. Use the corrected item 10, not the original claim text, going forward.
+- **Item 10** (`via_dangling`): the original claim text (ceiling raise needs approval, attributed to `e5a89b1e`,
+  not the oracle) is **confirmed correct as originally stated** — this took two review passes to establish. The
+  first pass, reading only `fix/drc-ceiling-remeasure-10.0.5`'s `_march` entry, found that document itself
+  attributes the rise to a tool-version change and concluded the `e5a89b1e` framing was unsupported; that was a
+  premature conclusion from an incomplete source set, not a correct rebuttal — the decisive counter-evidence
+  (`docs/evidence/2026-08-07-via-dangling-attribution.md`) was sitting uncommitted in
+  `worktree-agent-ad6d49136abdf2281`'s own worktree, a branch this index's first pass had already scanned and
+  wrongly recorded as empty. The lesson generalizes beyond this one item: an uncommitted file in a scanned
+  branch's worktree can silently invert a verification result, not just add missing content — see the standing
+  note in §5.
 - Item 11 as literally stated (`part_stress_gate.py`'s backlog) does not correspond to any actual mechanism —
   that script has no backlog to remove; the backlog that does exist and could plausibly be meant is R14's.
 - The task's own framing that `main` is "1 behind `origin/main`" is materially incomplete — see Executive
