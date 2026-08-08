@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "provenance": {
+    "commit": "34aba8599898a24b3986ea3f008e90da6ec0accc",
+    "dirty": true,
+    "branch": "worktree-agent-a2f38e19dbc923bc5",
+    "source": "measured-live"
+  },
+  "measurement_date": "2026-08-07",
+  "harness": "simulation/harness/run_ocp02_option_a_sim.py",
+  "candidate_circuit": "OCP-02 Option A -- second CST3015-100ED CT at DC_BUS_RTN. NOT instantiated in elec/src/*.ato. Analysis-only, per docs/hardware/OCP02_DECISION_BRIEF.md SS3.1.",
+  "simulator": {
+    "tool": "ngspice",
+    "version": "42+ds-3build1 (Ubuntu noble/universe)",
+    "install_method": "apt-get download + dpkg-deb -x into a userspace prefix (no root available in this sandbox); invoked with LD_LIBRARY_PATH pointed at the extracted usr/lib/x86_64-linux-gnu. Not installed into the repo or committed anywhere.",
+    "determinism_runs": 5,
+    "deterministic": true
+  },
+  "models_used": [
+    {
+      "file": "simulation/models/current_transformer.sub",
+      "subckt": "CT_WITH_BURDEN",
+      "calibrated": false,
+      "note": "N=100, R_BURDEN=4.99 sourced from elec/src/modules.ato (read-only, OCP-01's CurrentSensing). LM/LL/RW left at subckt defaults or bandwidth-derived estimates -- see netlist headers. NEWLY FOUND: LL and RW are dynamically inert at v_out when driven by an ideal PWL current source on the primary (this repo's own established harness pattern) -- see 'frontend_delay_measurement' below."
+    },
+    {
+      "file": "simulation/models/TLV3201_ngspice.lib",
+      "subckt": "TLV3201_NGSPICE",
+      "calibrated": false,
+      "note": "Zero-delay behavioural model; declares no timing model."
+    }
+  ],
+  "reference_divider_note": "r_ref_top=1020, r_ref_bot=10000 ohm: sized for this simulation only to hit ~60.0A nominal with the reused 4.99R burden. NOT committed to elec/ -- OCP-02's CT-based front end has never been instantiated there. V_ref=2.995V is 90.7% of the 3.3V rail, the same near-rail tightness OCP02_DECISION_BRIEF.md SS3.1/SS7 already flagged and proposed fixing with a REF2025 precision reference.",
+  "trip_point_measurement": {
+    "netlist": "simulation/harness/nets/ocp02_option_a_trip_point.cir",
+    "measurements": {
+      "t_trip_s": 0.0006003083,
+      "v_sense_at_trip_v": 2.995538
+    },
+    "i_trip_from_ramp_time_a": 60.031,
+    "i_trip_from_burden_voltage_a": 60.031,
+    "internal_consistency_check_a": 8e-06,
+    "ocp02_spec_window_a": [
+      55.0,
+      65.0
+    ],
+    "within_ocp02_spec_window": true,
+    "matches_secondaryocpcomparator_nominal_target": true,
+    "worst_case_analysis": {
+      "method": "Analytic corner sweep (NOT simulated) over r_ref_top/r_ref_bot/r_burden at +/-1% E96 tolerance plus +/-100ppm/C tempco at DT=60C (stacked, not RSS-combined, matching run_ocp01_sim.py's convention), same method as OCP-01's own worst-case sweep.",
+      "tolerance_plus_tempco": {
+        "effective_resistor_tolerance": 0.016,
+        "worst_case_min_a": 58.88881401028929,
+        "worst_case_max_a": 61.16523160639732
+      },
+      "within_ocp02_spec_window_worst_case": true
+    }
+  },
+  "frontend_delay_measurement": {
+    "attempted": true,
+    "measured": false,
+    "reason_not_measured": "CT_WITH_BURDEN's F_xfmr element is an ideal CCCS: when the primary is driven by an ideal PWL current source (this repo's own established harness convention, used by ocp01_trip_point.cir and this file's own trip-point deck), v_out is forced to equal I_pri(t)/N*R_BURDEN exactly and instantaneously, and L_leak/R_wind's dynamics are confined to internal nodes (sec_int/sec_leak) nothing downstream reads. Confirmed empirically, not just by inspection: changing LL 100uH->1uH and RW 50->1.54 ohm between the two decks below produced IDENTICAL t_trip and v_sense_at_trip to full precision.",
+    "default_model_deck": {
+      "netlist": "simulation/harness/nets/ocp02_option_a_frontend_delay_default_model.cir",
+      "params": {
+        "LL_H": 0.0001,
+        "RW_OHM": 50
+      },
+      "measurements": {
+        "t_trip_s": 1.03746e-06,
+        "v_sense_at_trip_v": 2.990806
+      },
+      "apparent_delay_s": 1.2460000000000047e-08
+    },
+    "bandwidth_estimate_deck": {
+      "netlist": "simulation/harness/nets/ocp02_option_a_frontend_delay_bandwidth_estimate.cir",
+      "params": {
+        "LL_H": 1e-06,
+        "RW_OHM": 1.54
+      },
+      "measurements": {
+        "t_trip_s": 1.03746e-06,
+        "v_sense_at_trip_v": 2.990806
+      },
+      "apparent_delay_s": 1.2460000000000047e-08
+    },
+    "apparent_delay_is_not_physical": "The ~12.5ns 'apparent_delay_s' above is NOT a propagation delay. It is purely geometric: the 60.0A trip point sits at 75% of the 0->80A/50ns step, not at the 50% reference point this delay is measured from, so a positive number appears even though v_out tracks I_pri(t) with zero lag (confirmed by both decks -- identical LL/RW-independent, step-shape-dependent, sub-ns-resolution-limited timing). Do not report this figure as Option A's front-end delay.",
+    "llrw_confirmed_dynamically_inert_at_v_out": true,
+    "fallback_estimate": {
+      "method": "Datasheet-bandwidth-derived order-of-magnitude estimate (t ~ 0.35/BW_high), NOT simulated, NOT a guaranteed datasheet parameter. Coilcraft Document 1608-1 states CST3015-100ED frequency range as '0.78 kHz - >1000 kHz' -- open-ended above 1MHz, so 1MHz is used as a conservative LOWER bound on the true high-frequency corner (the real corner, and therefore the real rise time, could be faster, not slower, than this estimate).",
+      "bw_high_hz_lower_bound": 1000000.0,
+      "rise_time_estimate_s": 3.5e-07,
+      "status": "datasheet-bandwidth-derived-estimate, NOT measured, NOT datasheet-typ/max"
+    }
+  },
+  "verdict": {
+    "calibrated": false,
+    "trip_point": {
+      "measured_trip_current_a": 60.031,
+      "worst_case_min_a": 58.889,
+      "worst_case_max_a": 61.165,
+      "within_ocp02_spec_window_worst_case": true,
+      "summary": "Simulated OCP-02 Option A trip current is 60.03 A (uncalibrated, divider not committed to elec/), within the 55-65 A spec window and matching SecondaryOCPComparator's stated 60.0A nominal target."
+    },
+    "propagation_delay": {
+      "measured": false,
+      "summary": "ngspice simulation of front-end delay was attempted and FAILED to produce a meaningful number: the existing CT_WITH_BURDEN model structurally cannot exhibit propagation delay at its output when driven per this repo's own established (current-source) harness convention, for any LL/RW parameter choice -- confirmed empirically. This is a genuine, newly-found limitation of the available SPICE model, not evidence the real part is delay-free. Falling back to a datasheet-bandwidth-derived order-of-magnitude estimate (~350ns, using the datasheet's own stated >1MHz bandwidth as a conservative lower bound), NOT a simulated or measured figure."
+    }
+  }
+}

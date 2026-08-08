@@ -2563,26 +2563,186 @@ module CoilThermalComparator:
 
 
 module SecondaryOCPComparator:
-    """Secondary overcurrent protection, 60.0A threshold (OCP-02).
+    """Secondary overcurrent protection, OCP-02 (55-65A window, 60A nominal
+    target).
 
-    Designed 2026-07-26 per docs/hardware/OCP02_DESIGN.md. OCP-02 must trip
-    independently of OCP-01 (docs/STRATEGY.md gate: 55-65A, <5us), so it
-    uses a different sensing element (resistive shunt, not the CT that
-    serves OCP-01) at a different location (DC bus return, not the
-    resonant tank) -- a single sensor failure cannot disable both.
+    IMPLEMENTS OPTION A (second current transformer) -- the decision made
+    on evidence in docs/hardware/OCP02_DECISION_BRIEF.md and confirmed with
+    simulation and real-kicad-cli-DRC evidence in
+    docs/hardware/OCP02_QUANTIFIED_TRADEOFF.md. This REPLACES the original
+    shunt + INA240A1 front end (SUPERSEDED block at the end of this
+    docstring, kept verbatim for history) -- that design put a low-side
+    shunt directly in DC_BUS_RTN and read it with an INA240A1 referenced to
+    signal ground. DC_BUS_RTN sits at roughly -170V relative to signal
+    ground in this doubler topology (dc_bus_minus is the far side of the
+    doubler midpoint from dc_bus_plus, both +/-170V nominal -- see
+    main.ato's PowerInput/BusDischarge topology), about 2x the INA240's
+    -4..+80V absolute maximum common-mode rating -- destructive. That is
+    exactly why this module was never instantiated (main.ato, prior text at
+    the hb.dc_bus.hv_minus connection). A current transformer sidesteps the
+    problem entirely: its secondary has no galvanic connection to the
+    primary, so it can be referenced to signal ground regardless of
+    DC_BUS_RTN's absolute potential, up to its own insulation rating -- the
+    same reasoning that already makes OCP-01's CT (ct_sense.ct) work on the
+    tank-return path.
 
-        DC_BUS_RTN --[ R_SHUNT 2mOhm ]-- DC_BUS_RTN (bulk side)
-                       |          |
-                      IN+        IN-
-                    +-----------------+
-                    |     INA240A1    |  G = 20, REF1/REF2 -> GND
-                    +--------+--------+
-                             | 2.402V at ~60A
-                          +--+--+  INP
-                 3V3 -[3.74k]-+-INN--comparator (TLV3201)--> fault.line
-                           [10k]
-                             |
-                            GND
+        DC_BUS_RTN (hb/bus_in) --[ CT2 primary ]-- DC_BUS_RTN (bulk/bus_out)
+                                     |
+                                [ CT2 secondary, 1:100 ]
+                                     |
+                                 r_burden (4.12R)
+                                     |
+                                  i_sense --- comp.INP
+                                                 |  TLV3201 --> fault.line
+                       REF2025.VREF (2.5V) --- comp.INN
+
+    PLACEMENT / SPLICE POINT (per OCP02_DECISION_BRIEF.md SS3.1 and
+    OCP02_QUANTIFIED_TRADEOFF.md SS3): the CT primary sits IN the
+    DC_BUS_RTN conductor, in series, at the same splice point the
+    superseded shunt design used -- between hb.dc_bus.hv_minus
+    (half-bridge/load side, `bus_in`) and the shared dc_bus_minus net that
+    power_in and discharge also sit on (bulk/source side, `bus_out`); the
+    bus_in/bus_out signal names and their meaning carry over unchanged from
+    the shunt design, only the sensing element between them changed. In a
+    shoot-through fault (both IGBTs conducting), fault current flows
+    dc_bus_plus -> Q_high -> SW_NODE -> Q_low -> DC_BUS_RTN -- through this
+    exact conductor -- so this CT sees the same fault class OCP-01's CT
+    does, just at a different physical location on the board (independence:
+    a single sensor failure cannot disable both channels).
+
+    BOARD FOLLOW-ON, NOT DONE HERE (elec/ only; pcb/ is out of scope for
+    this change -- see docs/hardware/OCP02_QUANTIFIED_TRADEOFF.md SS3): the
+    second CST3015-100ED footprint (23.0 x 30.0mm) has not been placed on
+    pcb/temper.kicad_pcb. The placement study's own real-kicad-cli-DRC
+    measurement found a ~44mm HV run from this splice point to a
+    domain-safe candidate site produces 9 new creepage violations (7 after
+    correcting a pre-existing, unrelated netclass-pattern gap that
+    misclassified two HV nets), 6 of them against U7 (the high-side gate
+    driver, newly identified as sitting almost exactly on the corridor,
+    22mm from the splice, and a poor relocation candidate itself since it
+    must stay close to the half-bridge for gate-loop inductance) -- known,
+    attributed, and pending a human placement decision, not silently
+    absorbed here. A BOM row for the second CST3015-100ED and
+    RC1206FR-074R12L is also still needed (docs/hardware/BOM.md untouched
+    by this change, per instruction).
+
+    TRIP-POINT DERIVATION (real E96 part, REF2025 precision reference --
+    see "WHY REF2025" below for why not a raw VCC divider):
+
+        I_trip = N * V_ref / R_burden = 100 * 2.5V / 4.12ohm = 60.68A
+
+    R_burden = 4.12ohm, Yageo RC1206FR-074R12L: E96 member, 1%, 1206/3216,
+    0.25W @ 70C -- verified directly against Yageo's own published
+    specsheet this session (yageogroup.com component-documentation
+    specsheet download, fetched and read, not inferred from the MPN
+    string): 4.12 Ohms, 1%, +/-200ppm/C. Chosen over 4.02ohm (the other E96
+    neighbour of the exact 2.5V*100/60A = 4.1667ohm target; 4.02ohm gives a
+    less-centred 62.19A nominal) because 4.12ohm centres the nominal trip
+    closer to the window's 60.0A midpoint while still landing on a real,
+    specsheet-verified Yageo value, not merely an E96-membership check.
+
+    +/-200ppm/C, NOT +/-100ppm/C -- a real correction, flagged not fixed:
+    this repo's usual "Yageo RC-series = +/-100ppm/C" shorthand (used
+    throughout modules.ato's worst-case comments) is only correct for the
+    0603 F-tolerance family -- independently re-verified this session
+    against RC0603FR-073K24L's own specsheet: 3.24k, 1%, +/-100ppm/C,
+    confirmed. The 1206 F-tolerance family is different: both
+    RC1206FR-074R99L (OCP-01's own existing burden, CurrentSensing.r_burden)
+    and this new RC1206FR-074R12L are, per their own Yageo specsheets
+    (fetched and read this session), +/-200ppm/C. OCP-01's own worst-case
+    commentary applies +/-100ppm/C uniformly to "Yageo RC-series," including
+    its 1206 burden -- likely the same 0603 shorthand carried one package
+    size too far. NOT corrected in OCP-01 here (out of this task's scope:
+    "implement OCP-02 in elec/src only"); the corrected +/-200ppm/C figure
+    is used for THIS module's own derivation below, and OCP-01's committed
+    worst-case band is independently re-checked with the corrected figure
+    in the SEPARATION note below to confirm this discrepancy does not
+    silently erode the OCP-01/OCP-02 margin.
+
+    WHY REF2025, NOT A RAW VCC DIVIDER: the exploratory ngspice harness
+    (simulation/harness/nets/ocp02_option_a_trip_point.cir) used a raw
+    r_ref_top=1020/r_ref_bot=10000 divider off VCC, reusing OCP-01's own
+    4.99ohm burden unchanged, purely for simulation convenience -- and its
+    own header flags the resulting 2.994V/3.3V = 90.7%-of-rail reference as
+    the same tightness OCP02_DECISION_BRIEF.md SS3.1/SS7 already named,
+    recommending "a precision reference ... would be the real fix." That is
+    the fix applied here, not the sim's raw divider: REF2025 is already
+    instantiated on this board (RTDSensing.reference, main.ato's rtd_pan)
+    and already used for exactly this purpose by OVP-01
+    (OVPComparator's "RE-REFERENCED 2026-07-27" history, an analogous
+    near-rail-percentage problem) -- its VREF pin's 20mA output-current
+    rating has enormous headroom against a second TLV3201's ~pA CMOS input
+    bias current, so no new part is needed. Wired at Top exactly like
+    OVP-01's vref_ext: `safety.ocp2.vref_ext.line ~ rtd_pan.reference.VREF`.
+    Using a fixed 2.5V reference instead of the sim's 90.7%-of-rail divider
+    also means this module's burden value (4.12ohm) differs deliberately
+    from the sim's reused 4.99ohm -- a considered choice, not a copy of
+    OCP-01's value, per instruction not to reuse it blindly.
+
+    WORST CASE (r_burden +/-1% tolerance and +/-200ppm/C tempco at
+    dT=60C -> +/-2.2% combined; REF2025 +/-0.05% initial accuracy and
+    +/-8ppm/C tempco at dT=60C -> +/-0.098% combined -- both figures
+    independently re-verified against the parts' own published datasheets
+    this session):
+
+        I_trip_max = 100 * (2.5V*1.00098) / (4.12ohm*0.978)  = 62.10A
+        I_trip_min = 100 * (2.5V*0.99902) / (4.12ohm*1.022)  = 59.31A
+
+    Worst-case band: 59.31-62.10A, inside the 55-65A window with 4.31A of
+    margin to the low edge and 2.90A to the high edge -- both directions
+    clear in the worst corner, not just nominally.
+
+    OCP-01/OCP-02 SEPARATION (must hold across tolerances so OCP-02 cannot
+    trip before OCP-01 on a monotonically rising fault current): OCP-01's
+    own committed worst-case band
+    (docs/evidence/2026-07-27-ocp01-trip-point-sim.json,
+    re-derived symbolically in OCPComparator/CurrentSensing's own
+    docstrings) is 48.77-51.16A, using this repo's usual (uncorrected)
+    +/-100ppm/C figure for its 1206 burden. Re-deriving that SAME band with
+    the CORRECTED +/-200ppm/C 1206-burden tempco (see above) --
+    r_ref_top/r_ref_bot (0603, +/-100ppm/C, confirmed correct) unchanged,
+    only r_burden's tempco term corrected -- widens it slightly to
+    48.49-51.47A. Either way, OCP-01's trip ceiling (51.16A as committed,
+    51.47A re-derived) sits at least 7.84A below this module's worst-case
+    trip floor (59.31A): under every tolerance corner considered for either
+    channel, OCP-01 trips first, which is the intended behaviour (OCP-02 is
+    a backstop, not a race). Independent ngspice confirmation:
+    docs/evidence/2026-08-07-ocp02-option-a-sim.json (60.03A simulated,
+    58.89-61.17A worst-case corner sweep, on the exploratory raw-VCC-divider
+    circuit -- a different reference topology than this module's REF2025
+    design, but broadly consistent with, and not contradicted by, the
+    REF2025-referenced arithmetic above).
+
+    TIMING: unchanged from the decision brief's own budget -- this module's
+    logic/driver path downstream of `fault.line` is identical to before,
+    only the analog front end changed. 528ns logic/driver (real datasheet
+    arithmetic, OCP02_DECISION_BRIEF.md SS3.3, 2 OR + 2 NAND from
+    fault_or3.B1 to the latch) + ~350ns CT front-end (datasheet-bandwidth
+    estimate, OCP02_QUANTIFIED_TRADEOFF.md SS2.3 -- ngspice cannot produce a
+    non-trivial figure here, see that section for why, an honest structural
+    limitation of the CT model, not a claim the physical part is
+    delay-free) + 40ns TLV3201 typ (datasheet-typical, not a guaranteed
+    max) = ~918ns, ~82% margin to the 5us budget.
+
+    Comparator is TLV3201 (already used for OCP-01/OVP-01/THM-01/THM-02, no
+    new comparator part).
+
+    SUPERSEDED SHUNT+INA240 DESIGN (2026-07-26, kept verbatim for history --
+    this front end no longer exists in this module; every value/MPN/pin
+    reference below is stale):
+
+    "DC_BUS_RTN --[ R_SHUNT 2mOhm ]-- DC_BUS_RTN (bulk side)
+                   |          |
+                  IN+        IN-
+                +-----------------+
+                |     INA240A1    |  G = 20, REF1/REF2 -> GND
+                +--------+--------+
+                         | 2.402V at ~60A
+                      +--+--+  INP
+             3V3 -[3.74k]-+-INN--comparator (TLV3201)--> fault.line
+                       [10k]
+                         |
+                        GND
 
     Derivation (matches OCP02_DESIGN.md exactly):
 
@@ -2595,19 +2755,6 @@ module SecondaryOCPComparator:
     Rtop 3.7026-3.7774k, Rbot 9.9-10.1k, Rshunt 1.98-2.02mOhm, gain
     19.8-20.2 V/V gives 58.5-61.6A -- same order, no discrepancy from the
     design doc's stated band).
-
-    Comparator is TLV3201, NOT the LM393DR the BOM currently costs
-    (BOM.md:109-111, a separate reconciliation track's line -- not touched
-    here). LM393's ~1.3-3us delay leaves only 2.2-3.9us of the 5us budget
-    once stacked with the INA240's 0.875us rise time at 400kHz; TLV3201's
-    40ns delay leaves 0.92us, comfortable margin. TLV3201 is already used
-    for OCP-01/OVP-01/THM-01/THM-02, so this also avoids adding a new
-    comparator part.
-
-    Shunt dissipation: 0.45W at 15A continuous (fine against the WSLP2512's
-    3W rating); 7.2W at the 60A trip point (2.4x rated, but the latch cuts
-    PWM within microseconds, so this is a pulse, not steady state -- the
-    WSLP2512 family is designed for pulse duty, per OCP02_DESIGN.md).
 
     FLAGGED, NOT SILENTLY ASSUMED -- common-mode voltage on the INA240:
     OCP02_DESIGN.md justifies the low-side shunt placement by treating the
@@ -2632,70 +2779,89 @@ module SecondaryOCPComparator:
     the common-mode question MUST be resolved (either the bus topology
     read here is wrong, or the sensing domain needs isolation) before this
     circuit is trusted on hardware. Do not power this from power_3v3
-    without re-deriving the actual DC_BUS_RTN-to-gnd potential first."""
+    without re-deriving the actual DC_BUS_RTN-to-gnd potential first." --
+    END SUPERSEDED BLOCK. Resolved 2026-08-07 by switching to the CT front
+    end above (Option A), which has no common-mode dependency at all."""
 
     power = new ElectricPower
     fault = new ElectricLogic
     fault.reference ~ power.gnd
     fault.line.required = true
 
-    # The shunt sits IN the DC_BUS_RTN conductor (a two-terminal splice,
-    # not a signal tap): bus_in is the half-bridge (load) side, bus_out is
+    # The CT primary sits IN the DC_BUS_RTN conductor (a two-terminal
+    # splice, not a signal tap), at the same splice point the superseded
+    # shunt design used: bus_in is the half-bridge (load) side, bus_out is
     # the bulk-capacitor/bleeder (source) side. Top wires these into the
-    # dc_bus_minus net on either side of the shunt so bus return current
-    # flows through it.
+    # dc_bus_minus net on either side of the CT primary so bus return
+    # current flows through it.
     signal bus_in
     signal bus_out
 
-    shunt = new Resistor
-    shunt.value = 0.002ohm +/- 1%
-    shunt.power_rating = 3W  # WSLP2512 rated; 7.2W at trip is a pulse, see docstring
-    shunt.mpn = "WSLP25122L000FEA"
-    shunt.footprint = "Resistor_SMD:R_2512_6332Metric"
+    # Second instance of OCP-01's own CT (ct_sense.ct) -- same real,
+    # already-verified MPN, zero incremental part-verification risk. See
+    # elec/domain_manifest.yaml's isolator declaration for this instance
+    # (safety.ocp2.ct), added alongside this change.
+    ct = new CST3015_100E
 
-    amp = new INA240A1
+    r_burden = new Resistor
+    # 4.12ohm, sized for a 60A-ish nominal trip against REF2025's fixed
+    # 2.5V reference (not OCP-01's 4.99ohm/raw-VCC-divider pair) -- see the
+    # docstring's TRIP-POINT DERIVATION and WHY REF2025 sections for the
+    # full derivation, E96 neighbour comparison, and worst-case corners.
+    r_burden.value = 4.12ohm +/- 1%
+    r_burden.power_rating = 0.25W
+    r_burden.mpn = "RC1206FR-074R12L"
+    r_burden.footprint = "Resistor_SMD:R_1206_3216Metric"
 
     comp = new TLV3201
 
-    r_ref_top = new Resistor
-    r_ref_top.value = 3740ohm +/- 1%
-    r_ref_top.mpn = "RC0603FR-073K74L"
-    r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    i_sense = new ElectricSignal
+    i_sense.reference ~ power.gnd
 
-    r_ref_bot = new Resistor
-    r_ref_bot.value = 10000ohm +/- 1%
-    r_ref_bot.mpn = "RC0603FR-0710KL"
-    r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    c_filter = new Capacitor
+    c_filter.value = 100nF
+    c_filter.dielectric = "C0G"
+    c_filter.voltage_rating = 16V
+    c_filter.mpn = "GRM1885C1H104JA01D"
+    c_filter.footprint = "Capacitor_SMD:C_0603_1608Metric"
 
-    # Shunt in series in the DC_BUS_RTN conductor
-    bus_in ~ shunt.p1
-    shunt.p2 ~ bus_out
+    # Fixed 2.5V reference for comp.INN -- see docstring's "WHY REF2025"
+    # section. Driven at Top from RTDSensing's already-instantiated REF2025
+    # (main.ato: `safety.ocp2.vref_ext.line ~ rtd_pan.reference.VREF`),
+    # the same pattern OVP-01's vref_ext already uses.
+    vref_ext = new ElectricSignal
+    vref_ext.reference ~ power.gnd
 
-    # INA240: IN+ on the supply (bus_in/load) side, IN- on the load
-    # (bus_out/bulk) side -- per the TI pin-function table (see
-    # components.ato INA240A1 docstring).
-    shunt.p1 ~ amp.INP
-    shunt.p2 ~ amp.INN
+    # CT primary in series in the DC_BUS_RTN conductor
+    bus_in ~ ct.P1
+    ct.P2 ~ bus_out
 
-    amp.REF1 ~ power.gnd
-    amp.REF2 ~ power.gnd
-    amp.GND ~ power.gnd
-    amp.VS ~ power.vcc
-    # Pin 1 (NC/reserved): datasheet says connect to ground.
-    amp.NC ~ power.gnd
+    # CT secondary + burden: ct.S1/r_burden.p1 is the sense node, ct.S2 is
+    # the secondary bias reference, tied to power.gnd -- same roles as
+    # ct_sense.ct's S1/S2 in CurrentSensing.
+    ct.S1 ~ r_burden.p1
+    ct.S2 ~ power.gnd
+    r_burden.p2 ~ power.gnd
+    ct.S1 ~ i_sense.line
+    i_sense.line ~ c_filter.p1
+    c_filter.p2 ~ power.gnd
 
-    amp.OUT ~ comp.INP
-
-    # Reference divider: 3V3 -> 3.74k -> INN -> 10k -> GND, V_ref = 2.402V
-    power.vcc ~ r_ref_top.p1
-    r_ref_top.p2 ~ comp.INN
-    comp.INN ~ r_ref_bot.p1
-    r_ref_bot.p2 ~ power.gnd
+    i_sense.line ~ comp.INP
+    vref_ext.line ~ comp.INN
 
     power.vcc ~ comp.VCC
     power.gnd ~ comp.GND
-
     comp.OUT ~ fault.line
+
+    # Sanity check: at the window's 60A centre (600mA secondary), the
+    # burden voltage should land close to REF2025's fixed 2.5V reference --
+    # same style of design-point check CurrentSensing.r_burden already
+    # uses for OCP-01 (i_ct_trip/v_burden_trip), same 2.4-2.6V window
+    # width, this time centred on REF2025's literal value rather than a
+    # VCC-divider ratio.
+    i_sense_design: current = 600mA  # 60A primary / N=100
+    v_burden_design: voltage = i_sense_design * r_burden.value
+    assert v_burden_design within 2.4V to 2.6V
 
 
 module Watchdog:
@@ -2918,13 +3084,16 @@ module SafetyInterlock:
     coil_ntc_sense = new ElectricSignal
     coil_ntc_sense.reference ~ power_3v3.gnd
 
-    # OCP-02 shunt splice (added 2026-07-26): the shunt is a two-terminal
+    # OCP-02 CT splice (WIRED 2026-08-07, Option A -- see
+    # SecondaryOCPComparator's docstring): the CT primary is a two-terminal
     # element IN the DC_BUS_RTN conductor, not a signal tap, so these are
     # plain signals (like HalfBridge.switch_node) rather than an
     # ElectricSignal interface. Top wires them into main.ato's dc_bus_minus
-    # net on either side of the SecondaryOCPComparator's internal shunt.
-    # signal ocp2_bus_in
-    # signal ocp2_bus_out
+    # net on either side of SecondaryOCPComparator's internal CT primary
+    # (main.ato: `hb.dc_bus.hv_minus ~ safety.ocp2_bus_in` /
+    # `safety.ocp2_bus_out ~ dc_bus_minus`).
+    signal ocp2_bus_in
+    signal ocp2_bus_out
 
     wdt_kick = new ElectricLogic
     wdt_kick.reference ~ power_3v3.gnd
@@ -2965,12 +3134,16 @@ module SafetyInterlock:
     ovp = new OVPComparator
     thermal = new ThermalComparator
     coil_thermal = new CoilThermalComparator  # THM-02
-    # OCP-02 NOT INSTANTIATED -- see main.ato. The design placed the shunt in
-    # DC_BUS_RTN believing common mode was near ground; DC_BUS_RTN is ~-170 V
-    # from signal ground in this doubler topology and the INA240 is a
-    # -4..+80 V part. SecondaryOCPComparator stays defined and ready; the
-    # sensing domain is an open topology decision.
-    # ocp2 = new SecondaryOCPComparator  # OCP-02
+    # OCP-02: INSTANTIATED 2026-08-07 (Option A, second CT -- see
+    # SecondaryOCPComparator's docstring and
+    # docs/hardware/OCP02_DECISION_BRIEF.md /
+    # docs/hardware/OCP02_QUANTIFIED_TRADEOFF.md). The original shunt+INA240
+    # front end could never be instantiated: DC_BUS_RTN sits at ~-170V from
+    # signal ground in this doubler topology, ~2x the INA240's -4..+80V
+    # absolute common-mode rating. The CT front end has no common-mode
+    # dependency (magnetically isolated secondary), so that blocker no
+    # longer applies.
+    ocp2 = new SecondaryOCPComparator  # OCP-02
     wdt = new Watchdog
     uvlo_logic = new LogicUVLOComparator
     fault_or = new SN74HC4075
@@ -3002,11 +3175,11 @@ module SafetyInterlock:
     coil_thermal.power ~ power_3v3
     coil_thermal.ntc_sense.line ~ coil_ntc_sense.line
 
-    # OCP-02: secondary overcurrent, 60A. Added 2026-07-26 -- this gate
-    # previously had no circuit at all (docs/hardware/OCP02_DESIGN.md).
-    # ocp2.power ~ power_3v3
-    # ocp2.bus_in ~ ocp2_bus_in
-    # ocp2.bus_out ~ ocp2_bus_out
+    # OCP-02: secondary overcurrent, 55-65A window. WIRED 2026-08-07
+    # (Option A, second CT -- see SecondaryOCPComparator's docstring).
+    ocp2.power ~ power_3v3
+    ocp2.bus_in ~ ocp2_bus_in
+    ocp2.bus_out ~ ocp2_bus_out
 
     wdt.power ~ power_3v3
     wdt.wdi.line ~ wdt_kick.line
@@ -3055,18 +3228,19 @@ module SafetyInterlock:
     coil_thermal.fault.line ~ fault_any_or.C1
 
     # Third-package aggregation, added 2026-07-27: gate1 combines the new
-    # fault sources (UVL-02 wired now; one input reserved for OCP-02,
-    # tied GND until its sensing domain is resolved -- NOT wired here, see
-    # the OCP-02 note below; one input genuinely spare). gate2 merges that
-    # with the existing 7-source SET bus (fault_any_or.Y1) and now drives
-    # latch.A1 in place of the previous direct connection. This adds
-    # exactly one gate of delay to the pre-existing 7-source path -- see
+    # fault sources (UVL-02 and, as of 2026-08-07, OCP-02 -- both wired;
+    # one input genuinely spare). gate2 merges that with the existing
+    # 7-source SET bus (fault_any_or.Y1) and now drives latch.A1 in place
+    # of the previous direct connection. This adds exactly one gate of
+    # delay to the pre-existing 7-source path -- see
     # docs/evidence/2026-07-27-fault-tree-capacity-expansion.md for the
-    # propagation-delay recheck against OCP-01's <1us budget.
+    # propagation-delay recheck against OCP-01's <1us budget, and
+    # SecondaryOCPComparator's own docstring TIMING section for OCP-02's
+    # recheck against the 5us budget.
     fault_or3.VCC ~ power_3v3.vcc
     fault_or3.GND ~ power_3v3.gnd
     uvlo_logic.fault.line ~ fault_or3.A1
-    power_3v3.gnd ~ fault_or3.B1  # reserved for OCP-02; NOT wired (deliberate)
+    ocp2.fault.line ~ fault_or3.B1  # OCP-02, WIRED 2026-08-07 (Option A)
     power_3v3.gnd ~ fault_or3.C1  # spare
     fault_any_or.Y1 ~ fault_or3.A2
     fault_or3.Y1 ~ fault_or3.B2
@@ -3104,29 +3278,20 @@ module SafetyInterlock:
     tp_fault = new TestPoint
     tp_fault.p1 ~ fault_status.line
 
-    # OCP-02 fault output: STILL NOT wired into the fault OR-tree.
-    #
-    # A third fan-in package (fault_or3, added 2026-07-27, see its
-    # instantiation comment above and docs/evidence/
-    # 2026-07-27-fault-tree-capacity-expansion.md) now provides SET-path
+    # OCP-02 fault output: WIRED 2026-08-07, via fault_or3 above
+    # (ocp2.fault.line ~ fault_or3.B1 -> fault_or3.Y1 -> fault_or3.B2 ->
+    # fault_or3.Y2 ~ latch.A1). A third fan-in package (fault_or3, added
+    # 2026-07-27, see its instantiation comment above and docs/evidence/
+    # 2026-07-27-fault-tree-capacity-expansion.md) provided the SET-path
     # capacity that did not exist when this was last surveyed
-    # (fault_or/fault_any_or were both fully occupied -- see
-    # docs/hardware/OCP02_DESIGN.md's original survey). fault_or3.B1 is
-    # reserved for OCP-02 (tied GND for now, a real spare input on a gate
-    # that DOES reach the SET path via fault_or3.Y1 -> fault_or3.B2 ->
-    # fault_or3.Y2 -> latch.A1) -- but OCP-02 is deliberately NOT wired
-    # here. Its sensing domain is still unresolved: the design places an
-    # INA240 shunt in DC_BUS_RTN, which sits at ~-170V common mode in this
-    # doubler topology against the INA240's -4..+80V input range. Wiring a
-    # fault source into working aggregation logic while the upstream
-    # sensing circuit cannot actually work would be worse than leaving it
-    # unwired -- it would look connected on inspection while never being
-    # able to assert correctly. SecondaryOCPComparator therefore stays
-    # un-instantiated (see main.ato), and its fault output has no source
-    # to wire in the first place; the reserved fault_or3.B1 input is
-    # capacity held ready for whenever that topology decision lands.
-    # tp_ocp2_fault = new TestPoint
-    # tp_ocp2_fault.p1 ~ ocp2.fault.line
+    # (fault_or/fault_any_or were both fully occupied -- see the SUPERSEDED
+    # survey block below); fault_or3.B1 was reserved for OCP-02 from that
+    # point on but stayed tied to GND until the sensing-domain question
+    # (the INA240 common-mode problem, see SecondaryOCPComparator's
+    # docstring) was resolved by switching to a CT front end (Option A,
+    # 2026-08-07), which has no common-mode dependency to resolve.
+    tp_ocp2_fault = new TestPoint
+    tp_ocp2_fault.p1 ~ ocp2.fault.line
 
     # UVL-02 fault output: WIRED 2026-07-27, via fault_or3 above
     # (uvlo_logic.fault.line ~ fault_or3.A1 -> fault_or3.Y1 ->

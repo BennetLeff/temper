@@ -1,0 +1,67 @@
+* OCP-02 Option A front-end delay -- DEFAULT (uncalibrated generic) CT model.
+*
+* Measures the delay contributed by the CT_WITH_BURDEN sensor itself (NOT
+* the comparator -- TLV3201_ngspice.lib is a zero-delay behavioural model,
+* R_OUT*C_OUT = 60*0.5p = 30ps, negligible) between a fast current step
+* through the CT primary and the comparator output crossing its logic
+* threshold.
+*
+* Step shape: 0 -> 80A (above the 55-65A trip band, ensures a clean single
+* crossing) with a 50ns 10-90% edge. 50ns is sourced from this repo's own
+* DESAT_REDESIGN_SPIKE.md:120, which cites the IKW40N120H3 datasheet's
+* Table 3 current rise time (t_r = 49ns @ 600V, 40A, R_G=12ohm, 175C) --
+* the fastest real, datasheet-sourced edge rate anywhere in this repo for
+* this board's own IGBT. NOTE: no shoot-through-specific di/dt or
+* fault-current rise-time figure exists anywhere in this repo (confirmed by
+* search); this edge rate is a stand-in for "as fast as this board's own
+* switches can plausibly move current," not a measured or claimed
+* shoot-through fault edge. A slower real fault edge would only make the
+* CT's own intrinsic L/R delay a *smaller* fraction of the total observed
+* delay (the sensor would already be settled by the time the fault current
+* itself finishes rising) -- so this is the pessimistic (worst-case for the
+* sensor's own contribution), not representative, choice.
+*
+* Reference point for the delay measurement: the step's own 50% crossing
+* (40A, at t=1.000025us for a step starting at t=1us with a 50ns edge),
+* matching how the AMC1300 datasheet (SBAS895D SS7.10/7.11) itself defines
+* "VINx to VOUTx signal delay (50%-XX%)" -- so Option A's front-end delay
+* here is directly comparable to Option B's datasheet-published delay
+* figures, both anchored to the same 50%-input-crossing convention.
+*
+* CT PARAMS -- THIS VARIANT: RW=50, LL=100u -- the CT_WITH_BURDEN subckt's
+* own defaults, UNCHANGED from ocp01_trip_point.cir's usage. These are
+* explicitly flagged uncalibrated/unverified against the real CST3015-100ED
+* datasheet in this repo already (docs/evidence/
+* 2026-07-27-ocp01-uvl02-part-resolution.md:244-247). This run exists to
+* show what the *as-shipped, unmodified* repo model produces, and --
+* critically -- whether that number is even physically plausible for this
+* specific part (see the companion _bandwidth_estimate variant and the
+* evidence JSON's own commentary).
+*
+* CALIBRATED: false, both for the CT model and for the fact that this
+* candidate circuit does not exist in elec/.
+
+.include ../../models/current_transformer.sub
+.include ../../models/TLV3201_ngspice.lib
+
+V_VCC VCC_3V3 0 DC 3.3
+I_PRI pri_p 0 PWL(0 0 1u 0 1.05u 80 2u 80)
+
+X_CT pri_p 0 i_sense 0 CT_WITH_BURDEN PARAMS: N=100 RW=50 LL=100u R_BURDEN=4.99
+
+R_REF_TOP VCC_3V3 vref 1020
+R_REF_BOT vref 0 10000
+
+X_COMP i_sense vref VCC_3V3 0 comp_out TLV3201_NGSPICE
+
+.control
+set noaskquit
+tran 0.2n 2u
+meas tran t_trip WHEN v(comp_out)=1.65 RISE=1
+meas tran v_sense_at_trip FIND v(i_sense) AT={t_trip}
+print t_trip
+print v_sense_at_trip
+quit
+.endc
+
+.end

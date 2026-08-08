@@ -393,6 +393,25 @@ isolators:
       "2": "P2 (primary return, in series with tank return)"
       "4": "S2 (secondary bias reference)"
 
+  # OCP-02 second CT (Option A, WIRED 2026-08-07 -- see
+  # docs/hardware/OCP02_DECISION_BRIEF.md and
+  # docs/hardware/OCP02_QUANTIFIED_TRADEOFF.md for the decision record, and
+  # elec/src/modules.ato SecondaryOCPComparator's docstring for the full
+  # derivation). Same real MPN as ct_sense.ct above (zero incremental
+  # part-verification risk), same isolator shape: primary is a two-terminal
+  # splice IN the DC_BUS_RTN conductor (HV domain, both pins), secondary is
+  # magnetically isolated and referenced to power.gnd (SELV `gnd`, via
+  # SafetyInterlock's power_3v3), same as ct_sense.ct's own barrier.
+  - instance_path: safety.ocp2.ct
+    component: "Coilcraft CST3015-100ED (CST3015_100E), current sense transformer, OCP-02"
+    groups:
+      primary: ["1", "2"]     # P1, P2 -- both DC_BUS_RTN (in-series splice)
+      secondary: ["3", "4"]   # S1, S2
+    pin_labels:
+      "1": "P1 (bus_in, half-bridge/load side)"
+      "2": "P2 (bus_out, bulk-capacitor/bleeder side)"
+      "4": "S2 (secondary bias reference, power.gnd)"
+
   - instance_path: power_in.bypass_relay
     component: "Omron G4A-1A-E DC12 (Relay_SPST), bypass relay"
     groups:

@@ -460,12 +460,14 @@ component INA240A1:
 
     Common-mode range is -4 V to +80 V (TI datasheet Description section /
     Recommended Operating Conditions), independent of supply voltage. This
-    is the reason OCP-02 (docs/hardware/OCP02_DESIGN.md) requires the shunt
-    on the LOW side (DC bus return) rather than the high side: a high-side
-    placement across the 340V DC bus would put ~340V of common-mode on the
-    inputs and destroy the part. See SecondaryOCPComparator in modules.ato
-    for a flagged concern about how much common-mode voltage the low-side
-    placement actually leaves, given the DC_BUS_RTN topology as built.
+    part is NOT currently instantiated anywhere in elec/src -- it was
+    originally specified for OCP-02's low-side shunt (DC bus return), but
+    even the low side of this doubler topology sits at roughly -170 V from
+    signal ground, about 2x this part's -4..+80 V absolute maximum -- see
+    SecondaryOCPComparator's docstring in modules.ato (the SUPERSEDED block)
+    for the full history of that finding and docs/hardware/
+    OCP02_DECISION_BRIEF.md for why OCP-02 was rebuilt around a current
+    transformer (magnetically isolated, no common-mode dependency) instead.
 
     Gain is fixed by grade (TI Device Comparison Table): A1=20 V/V (this
     part), A2=50, A3=100, A4=200 V/V."""

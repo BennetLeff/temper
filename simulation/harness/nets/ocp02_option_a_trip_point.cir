@@ -1,0 +1,80 @@
+* OCP-02 Option A (second CT at DC_BUS_RTN) trip-current transient.
+* Reuses the exact CT_WITH_BURDEN + TLV3201 models and pattern
+* simulation/harness/nets/ocp01_trip_point.cir already established for
+* OCP-01 -- same simulator, same subckt, same comparator behavioural model,
+* different target trip point (60.0 A per docs/hardware/OCP02_DECISION_BRIEF.md
+* / SecondaryOCPComparator's 55-65A window) and a different reference divider
+* sized for that target.
+*
+* CALIBRATED: false. No bench measurement of this circuit exists -- it is
+* not instantiated in elec/src/*.ato at all (this is a *candidate* Option A
+* circuit, analysis-only, never committed to elec/).
+*
+* Component provenance:
+*   - CT turns ratio N=100, R_BURDEN=4.99 ohm: REUSED from OCP-01's own
+*     committed CurrentSensing burden (elec/src/modules.ato), per
+*     OCP02_DECISION_BRIEF.md SS3.1's own stated approach ("naively reusing
+*     OCP-01's exact burden ... at the same 1:100 ratio").
+*   - r_ref_top=1020 / r_ref_bot=10000 ohm: NOT sourced from elec/ (OCP-02's
+*     CT-based front end has never been instantiated there). Sized here,
+*     for simulation purposes only, to hit the SecondaryOCPComparator's
+*     stated 60.0A nominal target with the reused 4.99R burden:
+*       V_ref = 60A/100 * 4.99R = 2.994V
+*       R_top/R_bot = (VCC-V_ref)/V_ref = (3.3-2.994)/2.994 = 0.10215
+*       R_bot=10k -> R_top=1021.5R -> nearest E96 value 1020R (1.02k, a
+*       standard E96 step, matching the decade pattern already used
+*       elsewhere in this repo's dividers -- e.g. r_ref_top=3.74k in
+*       SecondaryOCPComparator itself). This divider is NOT committed to
+*       elec/ and carries the same 91%-of-VCC tightness the decision brief
+*       already flagged (2.994V/3.3V = 90.7%); a precision reference
+*       (REF2025, already used elsewhere on this board) would be the real
+*       fix, per the brief's SS7.
+*   - RW (secondary winding resistance): 50 ohm, CT_WITH_BURDEN subckt
+*     default -- NOT verified against the real CST3015-100ED datasheet
+*     (Coilcraft Document 1608-1 gives secondary DCR max = 1.54 ohm, a
+*     factor of ~32 lower; RW=50R is carried over unchanged from the OCP-01
+*     harness for direct comparability, and because RW this small relative
+*     to R_BURDEN=4.99R does not materially change the *trip threshold*
+*     -- it only adds a small IR drop. It DOES matter for the front-end
+*     delay deck; see ocp02_option_a_frontend_delay_*.cir for the
+*     DCR-corrected variant.)
+*   - LM (magnetizing inductance): 10 mH, subckt default. Datasheet gives
+*     3.20 mH nominal (+/-25%) measured on the SECONDARY at 1kHz/0.1Vrms
+*     (Document 1608-1). Referred to the primary side (where the model's
+*     L_mag sits) that is 3.20mH/100^2 = 320nH -- utterly negligible next
+*     to the model's 10mH default for a slow 800us ramp; this parameter
+*     only matters for very-low-frequency droop, irrelevant to a trip-point
+*     measurement, so the default is left unchanged (uncalibrated, flagged).
+*
+* Known model-fidelity limit (same as OCP-01's harness): TLV3201_ngspice.lib
+* declares no timing model, so this deck measures only the DC/quasi-static
+* trip THRESHOLD, not propagation delay. See
+* ocp02_option_a_frontend_delay_*.cir for the delay measurement.
+
+.include ../../models/current_transformer.sub
+.include ../../models/TLV3201_ngspice.lib
+
+.param RAMP_MAX_A=80
+.param RAMP_TIME=800u
+
+V_VCC VCC_3V3 0 DC 3.3
+I_PRI pri_p 0 PWL(0 0 {RAMP_TIME} {RAMP_MAX_A})
+
+X_CT pri_p 0 i_sense 0 CT_WITH_BURDEN PARAMS: N=100 RW=50 R_BURDEN=4.99
+
+R_REF_TOP VCC_3V3 vref 1020
+R_REF_BOT vref 0 10000
+
+X_COMP i_sense vref VCC_3V3 0 comp_out TLV3201_NGSPICE
+
+.control
+set noaskquit
+tran 100n 800u
+meas tran t_trip WHEN v(comp_out)=1.65 RISE=1
+meas tran v_sense_at_trip FIND v(i_sense) AT={t_trip}
+print t_trip
+print v_sense_at_trip
+quit
+.endc
+
+.end
