@@ -57,6 +57,55 @@ delegation total **26,131 LOC** — within 10% of 23,684. If 23,684 was meant to
 delegation is often partial (one file of nine), not all-or-nothing, so this reconciliation
 is a guess, not a finding I'd stake a plan on.
 
+### 1.1 RESOLVED: 23,684 is `retriage_python_removal.py`'s ROWS table, not the ledger
+
+The reconciliation above can be retired — the figure is now sourced exactly. **23,684 is
+the sum of the 20 `PORT` rows in `tools/measurements/retriage_python_removal.py`'s
+hard-coded `ROWS` table**, reproduced to the digit:
+
+```
+$ python3 -c "…sum the 20 PORT rows of ROWS…"
+23684 20
+```
+
+This is not a corrupt or unreachable number, and it is not a stale copy of the ledger. It
+is a **different artifact measuring a different scope**, and the ledger's own header cites
+it by name ("the re-triage that answers R1 … and
+`tools/measurements/retriage_python_removal.py`'s ROWS table"). That header is precisely
+where the confusion enters: it presents the ROWS table as the source the `removal_surfaces:`
+axis was transcribed from, which invites the reader to assume the two agree. They do not,
+and the gap is structural rather than drift:
+
+- `ROWS` is a **hand-maintained list of 43 cluster-level rows** with LOC baked in as
+  integer literals. It is a frozen snapshot; nothing recomputes it against the tree.
+- `removal_surfaces:` is a **file-level** axis whose LOC is computed live by
+  `check_verdict_coverage.py` against whatever the tree currently contains.
+- `ROWS`'s PORT rows **never scored the router_v6 compute clusters at all** — there is no
+  row in that table for the spatial-DRC cluster (7,813), the A* kernel (2,433), post-route
+  DFM (1,566), congestion (1,289), `core/` graph/geometry (2,349), `heuristics/` (4,346),
+  `io/` write/export (3,513), or `pcl/` constraint-object compute (2,069). Those were
+  already-PORT in the *original* triage, and the re-triage explicitly scoped itself to
+  re-scoring the old NEVER-PORT rows ("not re-scored… the goal change does not affect
+  them"). The ledger, correctly, transcribed both sets. The ROWS table only ever held one.
+
+Those eight omitted clusters alone total **25,378 LOC**, which is essentially the entire
+gap between the two numbers (51,161 − 23,684 = 27,477).
+
+**Consequence for planning, and it cuts the opposite way from the brief's premise.** The
+task that commissioned this survey described 23,684 as "demonstrably inflated." Against the
+clusters it actually names, that is true — this report finds ~9,552 LOC of PORT-labelled
+code already delegating. But 23,684 is not an inflated measure of the ledger's PORT axis; it
+is an **undercount of it by more than half**, because it was never measuring that axis. Both
+statements hold simultaneously and neither cancels the other: the *named clusters* contain
+less outstanding work than believed, and the *program as a whole* contains far more. A plan
+built on 23,684 under-scopes the remaining work by ~27,000 LOC.
+
+**Recommendation:** either delete the `ROWS` table's frozen LOC integers in favour of a call
+into `check_verdict_coverage.py`, or annotate the table in-source and in the ledger header
+as a historical snapshot of a narrower scope that must not be read as the PORT total. As
+written, two documents in this repo answer "how big is PORT?" with numbers differing by
+2.2×, and the header wires them together as if they agreed.
+
 ## 2. Per-entry classification
 
 All 36 `removal_surfaces` PORT entries, actual LOC at `main`, and delegation status (grep
@@ -230,6 +279,57 @@ using the verification above, not the ledger's raw LOC.
     existing `cli/`/`visualization/` REPLACE entries) rather than scheduling a mechanical
     PORT — a translated rich-TUI/SSE-dashboard in Rust is not obviously the right target
     shape, and no gate in this repo can score whether a port preserved behavior.
+
+## 6b. Adjacent finding: the BLOCKER-ORTOOLS handler justification is factually wrong
+
+Out of scope for a PORT survey, but found while confirming entry 6's "no ortools import"
+claim and material enough to record, because it concerns the one category the ledger calls
+"the sole remaining genuine R1 blocker."
+
+The ledger justifies BLOCKER-ORTOOLS for the eight `handlers/encode_*.py` files with:
+
+> Each `encode_X` handler builds `ortools.CpModel` `AddConstraint`/`NewIntervalVar` calls
+> from geometric parameters — thin wrappers over the ortools API
+
+Measured against `main`, **none of the eight contains an ortools import or an ortools API
+call**:
+
+```
+$ grep -cE '\b(ortools|cp_model|CpSolver)\b' adjacent.py aligned.py anchored.py \
+      enclosing.py keepout.py loop_area.py onside.py separated.py
+adjacent.py:0   aligned.py:0   anchored.py:0   enclosing.py:0
+keepout.py:0    onside.py:0    separated.py:0  loop_area.py:1
+```
+
+`loop_area.py`'s single hit is line 28 — a **docstring sentence** ("Uses
+`cp_model.AddMultiplicationEquality` for width*height <= max_area"), not a call. Its actual
+code goes through `model.new_int_var(...)` / `model.add(...)` like every sibling. Reading
+`adjacent.py`'s body confirms the shape: it calls `model.mm_to_units()`,
+`model.new_assumption()` and `model.add_constraint_enforced()` — all methods of the
+project's own `CpSatModel` wrapper. `AddConstraint` and `NewIntervalVar` do not appear in
+any handler.
+
+**The dependency is real but structural, not API-level.** Expressions like
+`va.x_center - vb.x_center <= max_d` build ortools expression objects through operator
+overloading on `IntVar`, so the handlers do depend on ortools' expression algebra. That is a
+genuine coupling — but it is a materially different porting story from "thin wrappers over
+the ortools API." The ortools API surface is confined to `model.py`, `_encoder_solve.py`,
+`unsat.py`, and `__init__.py`. Abstract `CpSatModel`'s expression type and the 588 LOC of
+handlers port mechanically; they do not require the solver-replacement decision that the
+BLOCKER-ORTOOLS verdict exists to defer.
+
+Two of the four `handlers/` infrastructure files the ledger leaves **UNDECIDED**
+(`_protocol.py`, `_registry.py`) *do* import ortools — but only for type aliases
+(`AssumptionLiteral = cp_model.IntVar`; the registry's `Callable[..., list[cp_model.IntVar]]`
+signature). That is a typing dependency erasable at runtime, not a solve-path one.
+
+**Recommendation (not applied — this file's verdicts are not mine to change):** correct the
+BLOCKER-ORTOOLS blocker text for `handlers/*.py` to say the handlers depend on ortools
+*expression objects via the `CpSatModel` wrapper*, and consider re-scoping those 588 LOC to
+PORT-behind-an-abstraction. The blocker text as written would lead a reader to skip 588 LOC
+of mechanically-portable code on the belief that it calls a solver API it never touches.
+This does not disturb the `_encoder_solve.py` / `model.py` / `unsat.py` core of the verdict,
+which is accurate and where the real blocker lives.
 
 ## 7. What I did not verify
 
