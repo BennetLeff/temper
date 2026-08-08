@@ -8,11 +8,11 @@
 
 <!-- BEGIN GENERATED: plan-status -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*202 plan documents. Generated from frontmatter.*
+*203 plan documents. Generated from frontmatter.*
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `active` | 10 | Live work. |
+| `active` | 11 | Live work. |
 | `completed` | 61 | Deliverables landed. |
 | `stale` | 52 | Insufficient evidence -- needs human triage. |
 | `abandoned` | 17 | Named deliverables largely absent; work never landed. |
@@ -21,7 +21,7 @@
 | `research-only, no elec/src or pcb/ changes made -- this is a requirements document for a human/planning decision, not an implementation` | 1 | -- |
 | *(no frontmatter)* | 55 | Legacy documents predating the plan format. |
 
-**Active plans (10):**
+**Active plans (11):**
 
 - [`2026-06-28-004-feat-mathematical-rigor-deferred-items-plan.md`](./2026-06-28-004-feat-mathematical-rigor-deferred-items-plan.md) — 2026-06-28-004-feat-mathematical-rigor-deferred-items-plan
 - [`2026-07-25-001-fix-test-skip-accounting-plan.md`](./2026-07-25-001-fix-test-skip-accounting-plan.md) — fix: Test Skip Accounting
@@ -33,6 +33,7 @@
 - [`2026-07-31-001-fix-pd2-clearance-resolve-plan.md`](./2026-07-31-001-fix-pd2-clearance-resolve-plan.md) — fix: Resolve REQ-SAFE-01 clearance debt at PD2/8.0mm via placement re-solve (#517)
 - [`2026-07-31-002-fix-pr513-red-checks-and-board-debt-plan.md`](./2026-07-31-002-fix-pr513-red-checks-and-board-debt-plan.md) — Fix PR #513 red checks and attempt the board-clearance solve
 - [`2026-08-05-001-feat-wasm-tier-phase0-plan.md`](./2026-08-05-001-feat-wasm-tier-phase0-plan.md) — WASM Verification Tier — Phase 0 Implementation Plan
+- [`2026-08-07-002-feat-wasm-tier-phase2-4-plan.md`](./2026-08-07-002-feat-wasm-tier-phase2-4-plan.md) — WASM Verification Tier — Phases 2–4 Implementation Plan
 
 <!-- END GENERATED: plan-status -->
 
