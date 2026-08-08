@@ -8,10 +8,13 @@ pinned Python implementations (Wave 4, Phase 4 — validation DRC-check slice).
 
 The pre-migration implementations are pinned VERBATIM below (the
 thermal_scorer convention of pinning the migrated functions inside the
-differential, commit ``aece7c372``). ``calculate_actual_loop_area`` stays in
-Python: its core is ``scipy.spatial.ConvexHull`` (Qhull), which is not
-bit-reproducible outside scipy — the GEOS-style "library semantics are not
-reimplementable" boundary, argued in the module source.
+differential, commit ``aece7c372``). ``calculate_actual_loop_area``'s
+convex-hull core has since also moved to Rust (``temper_geometry.
+convex_hull_area_py``, replacing ``scipy.spatial.ConvexHull`` -- see that
+function's own docstring and
+``docs/evidence/2026-08-07-scipy-keeps-re-triage.md`` Sec 2); its dedicated
+differential lives in
+``tests/geometry/test_convex_hull_area_rust_differential.py``, not here.
 
 Floats are compared bit-exactly via ``float.hex()``; ``+inf`` (empty input
 semantics) is a first-class asserted output, not an accident.
