@@ -56,7 +56,7 @@ pub(crate) mod tests {
     use super::*;
     use crate::board::*;
     use crate::constraints::*;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     #[cfg_attr(test, test)]
     fn power_domain_empty_board_no_violations() {
@@ -67,7 +67,7 @@ pub(crate) mod tests {
             electrical_components: vec![],
             mechanical_components: vec![],
             nets: vec![],
-            net_class_rules: HashMap::new(),
+            net_class_rules: BTreeMap::new(),
             traces: vec![],
             vias: vec![],
             zones: vec![],

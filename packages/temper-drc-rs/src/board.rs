@@ -9,7 +9,7 @@
 //
 // Origin: U2 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use geo::{EuclideanDistance, Intersects, Line, Point, Polygon, Rect};
 use serde::{Deserialize, Serialize};
@@ -204,9 +204,11 @@ impl From<&str> for SafetyCategory {
 
 // Note: use std::collections::HashMap is already declared in the outer file.
 
-// `BoardState` holds `HashMap<NetClassName, NetClassRules>` and derives
+// `BoardState` holds `BTreeMap<NetClassName, NetClassRules>` and derives
 // Serialize/Deserialize (d559b446a, serde BoardState round-trip), so this
-// struct must derive them too or temper-drc-rs does not compile.
+// struct must derive them too or temper-drc-rs does not compile. BTreeMap,
+// not HashMap: see board.rs's own field comment -- a HashMap's iteration
+// order (used directly as JSON key order) reseeds per process.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetClassRules {
     /// Net class name (e.g., 'Power', 'Signal', 'HighSpeed')
@@ -471,10 +473,18 @@ pub struct BoardState {
     pub mechanical_components: Vec<Component>,
 
     // Net topology — Vec<Net> replaces the former nets + net_classes HasMaps.
-    // net_class_rules is retained as a HashNap keyed by NetClassName for
-    // clearance lookups between classes.
+    // net_class_rules is retained as a map keyed by NetClassName for
+    // clearance lookups between classes. BTreeMap, not HashMap: this field
+    // derives Serialize, and a HashMap's iteration order (used directly as
+    // JSON key order) reseeds per process, making the serialized BoardState
+    // nondeterministic across processes on any board with 2+ net classes
+    // (masked on pcb/temper.kicad_pcb, which has exactly one — "Signal").
+    // Same class of bug as the `nets` field fix in board_py_bridge.rs
+    // (parse_nets_from_dict); BTreeMap sorts by key instead, which is
+    // sufficient since callers only ever `.get()`/`.contains_key()` this
+    // map — no order-preservation-from-input contract to keep, unlike nets.
     pub nets: Vec<Net>,
-    pub net_class_rules: HashMap<NetClassName, NetClassRules>,
+    pub net_class_rules: BTreeMap<NetClassName, NetClassRules>,
 
     // Routing data (optional, populated post-route)
     pub traces: Vec<TraceSegment>,
@@ -647,7 +657,7 @@ pub(crate) mod tests {
 pub(crate) mod board_state_tests {
     use super::*;
     use geo::Point;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     fn basic_state() -> BoardState {
         BoardState {
@@ -710,7 +720,7 @@ pub(crate) mod board_state_tests {
                 },
             ],
             net_class_rules: {
-                let mut m = HashMap::new();
+                let mut m = BTreeMap::new();
                 m.insert(NetClassName("Signal".into()), NetClassRules::default());
                 m.insert(NetClassName("Power".into()), NetClassRules {
                     trace_width_mm: 0.5,

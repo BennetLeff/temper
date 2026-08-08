@@ -4,9 +4,11 @@
 
 // Note: use std::collections::HashMap is already declared in the outer file.
 
-// `BoardState` holds `HashMap<NetClassName, NetClassRules>` and derives
+// `BoardState` holds `BTreeMap<NetClassName, NetClassRules>` and derives
 // Serialize/Deserialize (d559b446a, serde BoardState round-trip), so this
-// struct must derive them too or temper-drc-rs does not compile.
+// struct must derive them too or temper-drc-rs does not compile. BTreeMap,
+// not HashMap: see board.rs's own field comment -- a HashMap's iteration
+// order (used directly as JSON key order) reseeds per process.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetClassRules {
 {%- for field in data_fields %}

@@ -940,10 +940,27 @@ def _required_creepage_mm(
     Falls back to ``net_class_rules[name].clearance`` when no creepage
     is configured; falls back to ``board_state``'s default clearance as
     a last resort.
+
+    ``net_class_rules`` is typed (and required, by this function's own
+    contract) as ``dict[str, core.design_rules.NetClassRules]`` -- the
+    Pydantic model with a *required* ``.clearance`` field. There is a
+    second, unrelated ``NetClassRules`` in this codebase
+    (``router_v6.stage0_data.NetClassRules``, the dataclass Stage 0.1's
+    KiCad parser produces) whose equivalent field is named
+    ``.clearance_mm``, not ``.clearance``. This governs creepage on a
+    mains-adjacent safety path, so a stage0 object reaching here must
+    fail loudly, not silently substitute the 0.2mm ``fallback`` for a
+    real (possibly much larger, e.g. ACMains) declared clearance -- see
+    the type check below.
     """
     fallback = 0.2  # mm; matches default_signal_clearance elsewhere
     if not net_class_rules or net is None:
         return fallback
+
+    # Local import: avoids a module-level runtime dependency on `core` for
+    # every caller of this module, matching the existing lazy-import
+    # convention here (see `analyze_bottleneck`'s FailureReason import).
+    from temper_placer.core.design_rules import NetClassRules as _CoreNetClassRules
 
     candidates: list[float] = []
     for comp_ref, _pin_name in getattr(net, "pins", []):
@@ -957,8 +974,20 @@ def _required_creepage_mm(
                 comp_class = comp.net_class
         if comp_class and comp_class in net_class_rules:
             rule = net_class_rules[comp_class]
-            candidates.append(float(getattr(rule, "creepage_mm", 0.0) or 0.0))
-            candidates.append(float(getattr(rule, "clearance", fallback) or fallback))
+            if not isinstance(rule, _CoreNetClassRules):
+                raise TypeError(
+                    f"_required_creepage_mm received a {type(rule).__module__}."
+                    f"{type(rule).__qualname__} for net class {comp_class!r}, "
+                    "not core.design_rules.NetClassRules. This function's "
+                    "`.clearance` field access is specific to the core model; "
+                    "router_v6.stage0_data.NetClassRules names the same "
+                    "quantity `.clearance_mm` and would silently fall back to "
+                    f"the wrong {fallback}mm default here instead of raising "
+                    "-- reject it instead, since this governs creepage on a "
+                    "mains board."
+                )
+            candidates.append(float(rule.creepage_mm))
+            candidates.append(float(rule.clearance))
         else:
             candidates.append(fallback)
     if not candidates:

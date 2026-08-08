@@ -662,3 +662,78 @@ class TestRequiredCreepageMm:
             "NetClassRules.creepage_mm field is not reaching the router's "
             "min-cut geometry (dropped-creepage regression)"
         )
+# _required_creepage_mm: a getattr that always misses on a stage0 object
+# ---------------------------------------------------------------------------
+
+
+class TestRequiredCreepageMmTypeSafety:
+    """``_required_creepage_mm``'s ``net_class_rules`` values are typed (and
+    documented) as ``core.design_rules.NetClassRules`` -- the model with a
+    *required* ``.clearance`` field. There is a second, unrelated
+    ``NetClassRules`` in this codebase
+    (``router_v6.stage0_data.NetClassRules``, the dataclass Stage 0.1's
+    KiCad parser produces) whose equivalent field is ``.clearance_mm``.
+
+    Pre-fix, ``getattr(rule, "clearance", fallback)`` silently substituted
+    the 0.2mm ``fallback`` for ANY object lacking ``.clearance`` -- so a
+    stage0 object's real, possibly much larger, declared clearance (e.g.
+    ACMains) was silently discarded on this mains-adjacent creepage path.
+    Post-fix, a stage0 (or any other wrong-shaped) object is rejected with a
+    loud ``TypeError`` instead of a silent wrong number.
+    """
+
+    def test_core_net_class_rules_is_accepted(self) -> None:
+        """The documented, correctly-typed case still works: a real
+        core.design_rules.NetClassRules with an explicit .clearance is
+        used verbatim (not the 0.2mm fallback)."""
+        from temper_placer.core.design_rules import NetClassRules
+        from temper_placer.router_v6.bottleneck_geometry import _required_creepage_mm
+
+        netlist = _build_two_pad_netlist()
+        grid = _small_grid()
+        state = _make_state(netlist, grid)
+        net = netlist.nets[0]
+
+        rule = NetClassRules(
+            name="HV", trace_width=0.5, clearance=5.0, dru_priority=0, creepage_mm=0.0
+        )
+        net_class_rules = {"HV": rule, "LV": rule}
+
+        result = _required_creepage_mm(net_class_rules, net, state)
+        assert result == 5.0, (
+            f"expected the rule's real .clearance (5.0mm), got {result} "
+            "-- looks like the 0.2mm fallback fired instead"
+        )
+
+    def test_stage0_net_class_rules_is_rejected_not_silently_defaulted(self) -> None:
+        """A router_v6.stage0_data.NetClassRules object reaching
+        _required_creepage_mm must be rejected loudly (TypeError), not
+        silently substitute the 0.2mm fallback for its differently-named
+        `.clearance_mm` field.
+
+        This is the failing-before/passing-after regression test for the
+        defect: pre-fix, this call does not raise at all -- it silently
+        returns 0.2 (the wrong, generic fallback) even though the stage0
+        rule declares a real 5.0mm clearance. The assertion below (expects
+        TypeError) fails pre-fix for exactly that reason, and passes
+        post-fix.
+        """
+        from temper_placer.router_v6.bottleneck_geometry import _required_creepage_mm
+        from temper_placer.router_v6.stage0_data import NetClassRules as Stage0NetClassRules
+
+        netlist = _build_two_pad_netlist()
+        grid = _small_grid()
+        state = _make_state(netlist, grid)
+        net = netlist.nets[0]
+
+        stage0_rule = Stage0NetClassRules(
+            name="HV",
+            clearance_mm=5.0,
+            trace_width_mm=0.5,
+            via_diameter_mm=0.6,
+            via_drill_mm=0.3,
+        )
+        net_class_rules = {"HV": stage0_rule, "LV": stage0_rule}
+
+        with pytest.raises(TypeError, match="clearance_mm"):
+            _required_creepage_mm(net_class_rules, net, state)

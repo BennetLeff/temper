@@ -19,7 +19,7 @@ pub mod placement;
 pub mod routing;
 pub mod safety;
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use geo::Rect;
 use serde::Serialize;
@@ -306,7 +306,7 @@ pub(crate) fn high_current_net_names(board: &BoardState, min_current: f64) -> Ve
 /// the maximum of the two classes' individual clearance_mm values.
 pub fn clearance_between(
     constraints: &ConstraintSet,
-    net_class_rules: &HashMap<NetClassName, NetClassRules>,
+    net_class_rules: &BTreeMap<NetClassName, NetClassRules>,
     class_a: &NetClassName,
     class_b: &NetClassName,
 ) -> f64 {
@@ -378,7 +378,7 @@ pub(crate) mod integration_tests {
     use crate::board::*;
     use crate::constraints::*;
     use geo::Point;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     fn empty_board() -> BoardState {
         BoardState {
@@ -388,7 +388,7 @@ pub(crate) mod integration_tests {
             electrical_components: vec![],
             mechanical_components: vec![],
             nets: vec![],
-            net_class_rules: HashMap::new(),
+            net_class_rules: BTreeMap::new(),
             traces: vec![],
             vias: vec![],
             zones: vec![],
@@ -459,7 +459,7 @@ pub(crate) mod integration_tests {
             mechanical_components: vec![],
             nets: vec![],
             net_class_rules: {
-                let mut m = HashMap::new();
+                let mut m = BTreeMap::new();
                 m.insert(
                     NetClassName("Signal".into()),
                     NetClassRules::default(),

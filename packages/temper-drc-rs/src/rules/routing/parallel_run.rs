@@ -13,7 +13,7 @@
 // Origin: U6 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
 use geo::{EuclideanDistance, Line};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::f64::consts::PI;
 
 use crate::board::BoardState;
@@ -103,7 +103,7 @@ impl DrcRule for ParallelRunCheck {
 
 fn check_net_pair(
     constraints: &ConstraintSet,
-    net_class_rules: &HashMap<crate::board::NetClassName, crate::board::NetClassRules>,
+    net_class_rules: &BTreeMap<crate::board::NetClassName, crate::board::NetClassRules>,
     segs_by_net: &HashMap<&str, Vec<&Line<f64>>>,
     class_by_net: &HashMap<&str, &crate::board::NetClassName>,
     emitter_net: &str,

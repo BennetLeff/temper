@@ -8,7 +8,7 @@
 //
 // Origin: U2 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use geo::{Line, Point, Polygon};
 use pyo3::exceptions::PyValueError;
@@ -575,8 +575,8 @@ fn parse_net_classes_from_dict(
 
 fn parse_net_class_rules_from_dict(
     board_dict: &Bound<'_, PyDict>,
-) -> PyResult<HashMap<NetClassName, NetClassRules>> {
-    let mut result = HashMap::new();
+) -> PyResult<BTreeMap<NetClassName, NetClassRules>> {
+    let mut result = BTreeMap::new();
     if let Some(ncr_val) = board_dict.get_item("net_class_rules")?
         && let Ok(ncr_dict) = ncr_val.cast_into::<PyDict>()
     {

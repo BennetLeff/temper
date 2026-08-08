@@ -9,7 +9,7 @@
 //
 // Origin: U4 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use crate::board::{BoardState, Component, NetClassName, NetClassRules};
 use crate::constraints::ConstraintSet;
@@ -24,7 +24,7 @@ fn required_for(
     b: &Component,
     cache: &mut HashMap<(NetClassName, NetClassName), f64>,
     constraints: &ConstraintSet,
-    net_class_rules: &HashMap<NetClassName, NetClassRules>,
+    net_class_rules: &BTreeMap<NetClassName, NetClassRules>,
 ) -> f64 {
     let key = if a.net_class <= b.net_class {
         (a.net_class.clone(), b.net_class.clone())
@@ -126,7 +126,7 @@ pub(crate) mod tests {
     use crate::board::*;
     use crate::constraints::*;
     use geo::polygon;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     #[cfg_attr(test, test)]
     fn clearance_at_exact_threshold_flagged() {
@@ -179,7 +179,7 @@ pub(crate) mod tests {
             mechanical_components: vec![],
             nets: vec![],
             net_class_rules: {
-                let mut m = HashMap::new();
+                let mut m = BTreeMap::new();
                 m.insert(
                     NetClassName("Signal".into()),
                     NetClassRules {

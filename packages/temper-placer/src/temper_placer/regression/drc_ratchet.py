@@ -64,6 +64,60 @@ def _tdrc():
     return _RS
 
 
+_VERIFY_COMMITS_EXIST = None
+
+# This file's own location fixes where scripts/check_evidence_provenance.py
+# lives on disk: packages/temper-placer/src/temper_placer/regression/ is
+# always four directories below packages/, which is always one directory
+# below the repo root. Deliberately NOT derived from the repo_root a caller
+# passes to _verify_commits_exist -- that repo_root names the repository
+# whose *commits* are being checked (in tests, a throwaway synthetic repo
+# that has no scripts/ directory of its own), which is a different question
+# from "where is this module's own sibling tooling installed".
+_REPO_ROOT_FOR_TOOLING = Path(__file__).resolve().parents[5]
+
+
+def _verify_commits_exist(shas: set[str], repo_root: Path) -> dict[str, bool]:
+    """Lazily load and call ``check_evidence_provenance.verify_commits_exist``.
+
+    Reused, not reimplemented: real commit-existence resolution (a single
+    ``git cat-file --batch-check`` subprocess) already exists in
+    ``scripts/check_evidence_provenance.py`` for exactly this purpose.
+    ``check_evidence_provenance.py`` is a ``scripts/`` sibling script, not an
+    installed package, so it is loaded from its file path (relative to this
+    module's own location -- see ``_REPO_ROOT_FOR_TOOLING`` -- rather than
+    assuming ``scripts/`` is on ``sys.path``, since this module is a library
+    module that may be imported from contexts where it is not).
+
+    *repo_root* is passed straight through to ``verify_commits_exist`` as
+    the repository the SHAs are checked against (git's ``cwd``) -- it may
+    legitimately differ from where this module's own tooling lives, e.g. a
+    test's throwaway synthetic repo.
+
+    Raises ``RuntimeError`` (git unavailable, or a shallow clone where
+    "does not resolve" would be true of nearly every legitimate historical
+    SHA) exactly as ``verify_commits_exist`` does -- a fail-closed TOOL
+    ERROR, propagated to the caller rather than swallowed.
+    """
+    global _VERIFY_COMMITS_EXIST
+    if _VERIFY_COMMITS_EXIST is None:
+        import importlib.util
+
+        script_path = _REPO_ROOT_FOR_TOOLING / "scripts" / "check_evidence_provenance.py"
+        spec = importlib.util.spec_from_file_location(
+            "temper_placer_drc_ratchet._check_evidence_provenance", script_path
+        )
+        if spec is None or spec.loader is None:
+            raise RuntimeError(
+                f"cannot load {script_path} to verify commit existence -- "
+                "check_evidence_provenance.py is missing or not importable"
+            )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        _VERIFY_COMMITS_EXIST = module.verify_commits_exist
+    return _VERIFY_COMMITS_EXIST(shas, repo_root)
+
+
 class CeilingMarshalError(ValueError):
     """A ceiling/count value the #575 gate cannot compare safely.
 
@@ -847,6 +901,30 @@ class DrcRatchet:
 
         # (b) Measurement evidence, per raised board.
         board_by_id = {b.get("board_id"): b for b in new_ceiling.get("boards", [])}
+
+        # Batch-verify every shape-valid measured_at_commit resolves to a
+        # real commit object -- one `git cat-file --batch-check` subprocess
+        # for the whole raise set (see _verify_commits_exist above). The
+        # pre-fix check below only validated SHA *shape*
+        # (_SHA256_HEX_RE.fullmatch) while its own error message claimed
+        # the commit "does not resolve to a commit" -- it never asked git,
+        # so a syntactically-valid but dangling/orphaned SHA (e.g. one
+        # orphaned by a rebase) passed silently. This is exactly how
+        # drc_ceiling.json carried an unresolvable measured_at_commit for
+        # weeks.
+        shas_to_verify: set[str] = set()
+        for board_id, _reasons in raises:
+            record = board_by_id.get(board_id)
+            if record is None:
+                continue
+            prov = record.get("provenance")
+            if not isinstance(prov, dict):
+                continue
+            commit = prov.get("measured_at_commit")
+            if isinstance(commit, str) and _SHA256_HEX_RE.fullmatch(commit):
+                shas_to_verify.add(commit)
+        resolved_commits = _verify_commits_exist(shas_to_verify, repo_root)
+
         for board_id, _reasons in raises:
             record = board_by_id.get(board_id)
             if record is None:
@@ -872,7 +950,11 @@ class DrcRatchet:
                 )
 
             commit = prov.get("measured_at_commit")
-            if not (isinstance(commit, str) and _SHA256_HEX_RE.fullmatch(commit)):
+            if not (
+                isinstance(commit, str)
+                and _SHA256_HEX_RE.fullmatch(commit)
+                and resolved_commits.get(commit, False)
+            ):
                 problems.append(
                     f"{board_id}: provenance measured_at_commit={commit!r} does not "
                     "resolve to a commit -- a measured-live raise must name the "

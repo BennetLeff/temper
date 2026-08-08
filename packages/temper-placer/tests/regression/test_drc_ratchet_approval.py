@@ -17,15 +17,27 @@ Covers the three DrcRatchet methods that implement the contract:
     the refactor onto ``find_ceiling_raises`` cannot silently change the
     established contract.
 
-No ``git stash`` and no real repo is used anywhere: every fixture is a
-``tmp_path`` directory with a synthetic board file and synthetic ceiling
-dicts.
+No ``git stash`` is used anywhere. ``validate_raise_evidence`` now resolves
+``measured_at_commit`` against real git history (see its module-level
+``_verify_commits_exist``, reusing
+``check_evidence_provenance.verify_commits_exist`` -- the pre-fix version
+only checked SHA *shape*, which is exactly how ``drc_ceiling.json`` carried
+an unresolvable ``measured_at_commit`` for weeks). Every "compliant" fixture
+below therefore initializes a real, throwaway, tmp_path-local git repo and
+commits the synthetic board into it (``_init_git_repo``/``_commit_all``,
+mirroring ``scripts/tests/test_check_measurement_provenance.py``'s
+``TestCommitResolvabilityAntiVacuity`` helpers) so its
+``measured_at_commit`` is a genuine, resolvable git fact rather than a
+shape-only fake -- no mocking of git itself anywhere. ``VALID_COMMIT``
+(a well-formed but never-committed SHA) is kept for the opposite case: a
+raise whose commit merely *looks* real must still fail.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 from temper_placer.regression.drc_ratchet import DrcRatchet
@@ -36,6 +48,30 @@ BOARD_CONTENT = b"board-content-v1"
 
 def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def _init_git_repo(path: Path) -> None:
+    """Initialize a real, throwaway git repo at *path* so a
+    ``measured_at_commit`` built from it is a genuine, resolvable git fact
+    -- never mocked. Mirrors
+    ``scripts/tests/test_check_measurement_provenance.py``'s
+    ``TestCommitResolvabilityAntiVacuity`` helper (same incident, same fix
+    pattern).
+    """
+    subprocess.run(["git", "init", "-q"], cwd=path, check=True)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=path, check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=path, check=True)
+
+
+def _commit_all(path: Path, message: str) -> str:
+    """Stage everything under *path* and commit; return the new commit's
+    full 40-char SHA."""
+    subprocess.run(["git", "add", "-A"], cwd=path, check=True)
+    subprocess.run(["git", "commit", "-q", "-m", message], cwd=path, check=True)
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=path, capture_output=True, text=True, check=True
+    )
+    return result.stdout.strip()
 
 
 def _base_ceiling() -> dict:
@@ -90,8 +126,9 @@ def _compliant_new_ceiling(
 ) -> tuple[dict, Path]:
     """The compliant row of the contract matrix: a raise backed by a new
     non-empty ``_march`` entry and a fresh measured-live provenance record
-    whose input hash matches the board file on disk. Returns (new_ceiling,
-    board_file_path).
+    whose input hash matches the board file on disk AND whose
+    ``measured_at_commit`` resolves in a real (throwaway, tmp_path-local)
+    git repo. Returns (new_ceiling, board_file_path).
     """
     base = base or _base_ceiling()
     board_file = tmp_path / "pcb" / "temper.kicad_pcb"
@@ -99,13 +136,16 @@ def _compliant_new_ceiling(
     board_file.write_bytes(BOARD_CONTENT)
     board_sha = _sha256(BOARD_CONTENT)
 
+    _init_git_repo(tmp_path)
+    commit_sha = _commit_all(tmp_path, "compliant board snapshot")
+
     new = json.loads(json.dumps(base))
     entry = new["boards"][0]
     entry["error_ceiling"] = entry["error_ceiling"] + raise_error_ceiling
     entry["nondeterministic_error_types"] = {
         "clearance": {"observed": [499, 500, 501], "samples": 120, "note": "only nondeterministic category"}
     }
-    entry["provenance"] = _valid_provenance(board_sha)
+    entry["provenance"] = _valid_provenance(board_sha, measured_at_commit=commit_sha)
     new["_march"] = {
         "2026-07-30": "prior entry (base state)",
         march_entry: march_value,
@@ -279,6 +319,27 @@ class TestValidateRaiseEvidence:
         new["boards"][0]["provenance"]["measured_at_commit"] = "UNKNOWN"
         problems = DrcRatchet(Path("dummy.json")).validate_raise_evidence(old, new, tmp_path)
         assert any("does not resolve to a commit" in p for p in problems)
+
+    def test_shape_valid_but_never_committed_sha_fails(self, tmp_path):
+        """The 2026-08-07 incident, reproduced directly: a well-formed
+        40-char-hex SHA (``VALID_COMMIT``) that was never committed anywhere
+        -- passes the old shape-only ``_SHA256_HEX_RE.fullmatch`` check but
+        must fail now that the check actually asks git.
+
+        ``_compliant_new_ceiling`` already committed a DIFFERENT, real
+        commit into this tmp_path repo (so the repo is a genuine, non-empty
+        git history, not just "any commit resolves because there are
+        none to compare against") -- ``VALID_COMMIT`` specifically is not
+        among its objects.
+        """
+        old = _base_ceiling()
+        new, _board = _compliant_new_ceiling(tmp_path)
+        new["boards"][0]["provenance"]["measured_at_commit"] = VALID_COMMIT
+        problems = DrcRatchet(Path("dummy.json")).validate_raise_evidence(old, new, tmp_path)
+        assert any(
+            f"measured_at_commit={VALID_COMMIT!r} does not resolve to a commit" in p
+            for p in problems
+        ), problems
 
     def test_dirty_tree_measurement_fails(self, tmp_path):
         old = _base_ceiling()
