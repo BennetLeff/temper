@@ -40,7 +40,6 @@ from shapely.geometry import Polygon
 
 import tests.router_v6._zone_emission_clustering_py_oracle as ORACLE
 from temper_placer.router_v6.zone_emission import (
-    _clip_to_board,
     _cluster_positions,
     _convex_hull_from_positions,
 )
@@ -106,18 +105,21 @@ def _assert_partitions_match(positions, label=""):
     )
 
 
-def _hull_union_area(groups, margin, board_polygon=None) -> float:
+def _hull_union_area(groups, margin) -> float:
+    # This worktree's zone_emission.py predates the board-outline-clip
+    # feature (commit 24c71979, out of scope for this scipy migration) --
+    # no caller here ever passed a non-None board_polygon, so the
+    # _clip_to_board branch this helper used to have was dead code on this
+    # branch. Simplified to the always-taken path: raw hull outlines.
     polys = []
     for grp in groups:
         hull = _convex_hull_from_positions(grp, margin=margin)
         if not hull:
             continue
-        outlines = _clip_to_board(hull, board_polygon) if board_polygon is not None else [hull]
-        for outline in outlines:
-            if len(outline) >= 3:
-                p = Polygon(outline)
-                if p.is_valid and not p.is_empty:
-                    polys.append(p)
+        if len(hull) >= 3:
+            p = Polygon(hull)
+            if p.is_valid and not p.is_empty:
+                polys.append(p)
     if not polys:
         return 0.0
     u = polys[0]
