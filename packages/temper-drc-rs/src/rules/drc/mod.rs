@@ -5,6 +5,12 @@
 pub(crate) mod clearance;
 mod component_overlap;
 mod courtyard;
+// Property-based volume campaign (R7) over `Component::edge_distance_to`;
+// not a `DrcRule` itself, no `pub use` needed -- see the module doc. `pub`
+// (not `pub(crate)`) so `examples/property_containment_sweep.rs` and
+// `tests/property_containment_gap.rs` can reuse `gen_case`/`naive_closest`
+// rather than re-implementing them.
+pub mod property_campaigns;
 mod trace_clearance;
 mod via_spacing;
 mod zone_containment;
