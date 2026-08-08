@@ -74,27 +74,32 @@ def test_r2_theta_star_can_still_be_disabled_explicitly():
     assert pipeline.enable_theta_star is False
 
 
-def test_r3_channel_skeleton_filters_to_outer_layers():
-    """ChannelSkeletonStage only extracts skeletons for F.Cu and B.Cu.
+def test_r3_channel_skeleton_covers_all_routable_layers():
+    """ChannelSkeletonStage builds skeletons for every routable layer.
 
-    Per R3: inner layers (In1.Cu, In2.Cu, etc.) are reserved for power
-    ground planes; the channel skeleton graph is too sparse to be
-    useful on those layers and adds SAT model bloat. Confirm the
-    filter in ``ChannelSkeletonStage.run`` at
-    ``router_v6/channel_skeleton.py:411`` still excludes inner layers.
+    R3's original F.Cu/B.Cu hardcode was corrected by the plane-condemnation
+    fix (2026-08-07 router-silent-noop-diagnosis "Bug B"): RoutingSpaceStage
+    (routing_space.py:85) already restricts ``routing_spaces`` to routable
+    layers, so filtering again here to two literal layer names silently
+    dropped every other routable layer (e.g. a 4-layer stackup's inner
+    layers) from ever getting a channel skeleton -- leaving
+    ``state.channel_skeletons == {}`` even with a non-empty routing space.
+    The corrected stage iterates the routing spaces it is given.
     """
     import inspect
 
     from temper_placer.router_v6.channel_skeleton import ChannelSkeletonStage
 
     source = inspect.getsource(ChannelSkeletonStage.run)
-    assert '"F.Cu"' in source and '"B.Cu"' in source, (
-        "ChannelSkeletonStage.run must explicitly filter to F.Cu and "
-        "B.Cu in its outer_layers dict comprehension. R3 depends on this."
+    # The stage must not re-filter to the two literal outer-layer names:
+    # that hardcode is the bug the fix removed.
+    assert '"F.Cu"' not in source and '"B.Cu"' not in source, (
+        "ChannelSkeletonStage.run must not hardcode an F.Cu/B.Cu filter -- "
+        "routing_spaces is already restricted to routable layers by "
+        "RoutingSpaceStage; re-filtering here drops inner routable layers."
     )
-    # Defensive: ensure no inner layer names appear in the filter list
-    for inner in ("In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu"):
-        assert inner not in source.replace('"', "").replace("'", ""), (
-            f"Inner layer {inner} should not appear in "
-            f"ChannelSkeletonStage.run's outer-layer filter."
-        )
+    # Defensive: the loop must iterate the routing spaces, not a literal list.
+    assert "routing_spaces.items()" in source, (
+        "ChannelSkeletonStage.run must iterate routing_spaces (the routable-"
+        "layer-restricted set), not a hardcoded layer-name list."
+    )
