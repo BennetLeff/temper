@@ -469,3 +469,26 @@ all ledgered. Verified by running the gate in the worktree.
 4. Wire or retire the hypergraph kernel (Wave D) — `HypergraphBuildResult`'s
    8-field surface is inert today, and the #826 ledger is the mechanism to
    make that visible.
+5. ~~**Migrate `BusCohortConstraint` to close `DesignRules.bus_cohorts`
+   opacity**~~ — **PLANNED** (`docs/plans/2026-08-08-002-feat-buscohort-pyclass-migration-plan.md`).
+   `bus_cohorts` (`design_rules.rs:354`) was excluded from Wave-C because its
+   element type is pure Python; the plan migrates the dataclass to a pyclass
+   (typed `Py<PyList>` elements, `get_bus_cohort_for_net` typed, config_loader
+   resolved), dropping the stored count by 1 and reclassifying `bus_cohorts`
+   INTENTIONAL.
+6. **`metrics/quality.py::compute_quality_report` — test-only, unwired Rust
+   replacement.** Verified 2026-08-08: the deprecated function has NO production
+   caller (only its own differential pins it), and its Rust replacement
+   `temper_quality_oracle.evaluate_quality_py` (`lib.rs:441`) takes a different
+   contract (netlist/placement/spec/metrics as PyDicts, not PlacementState/
+   Board objects) — wiring it requires a marshal layer, not a delegation. Both
+   ends are dormant (test-only); the honest decision is Phase-6 test-suite
+   territory (wire the marshaler + retire the Python, or keep both as migration
+   validation). Not dispatched.
+7. **`pcl/tiers.py` `tier_to_weight` twin wired** (2026-08-08, commit
+   `4a19ade9`): `TieredConstraintManager.get_penalty_weights` now delegates to
+   the built `temper_constraints` kernel via `pcl/rust_bridge.py`, keeping the
+   dict as the R10 Python fallback. Values pinned by
+   `test_rust_constraints.py::test_tier_weight_parity`. (The wider tier system
+   — `ConstraintStatus`/`EscalationConfig`/`calculate_penalty` — still has zero
+   production callers and is a product-owner RETIRE-vs-keep call.)
