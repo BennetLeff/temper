@@ -382,4 +382,128 @@ mod tests {
         assert!(cnf.var_to_net.is_empty());
         assert!(var_names.is_empty());
     }
+
+    // --- proptest: encode_to_cnf structural invariants ---
+
+    mod proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        use super::*;
+        use proptest::prelude::*;
+
+        /// Build a model with some NetChannel variables.
+        fn model_with_net_channels(count: usize) -> InternalConstraintModel {
+            let variables: Vec<InternalVariable> = (0..count)
+                .map(|i| InternalVariable::NetChannel {
+                    name: format!("uses_N{i}_ch0"),
+                    net_idx: i,
+                    channel_id: "ch0".to_string(),
+                })
+                .collect();
+            InternalConstraintModel {
+                variables,
+                constraints: vec![],
+            }
+        }
+
+        /// Build a model with some LayerRestriction constraints.
+        fn model_with_layer_restrictions(count: usize) -> InternalConstraintModel {
+            let variables: Vec<InternalVariable> = (0..count)
+                .map(|i| InternalVariable::NetLayer {
+                    name: format!("layer_N{i}_seg0"),
+                    net_idx: i,
+                    segment_id: "seg0".to_string(),
+                })
+                .collect();
+            let constraints: Vec<InternalConstraint> = variables
+                .iter()
+                .enumerate()
+                .map(|(i, _)| InternalConstraint::LayerRestriction {
+                    var_name: format!("layer_N{i}_seg0"),
+                    allowed: i % 2 == 0,
+                })
+                .collect();
+            InternalConstraintModel {
+                variables,
+                constraints,
+            }
+        }
+
+        proptest! {
+            // --------------------------------------------------------------
+            // Property E1: encode_to_cnf produces consistent output sizes.
+            // var_names.len() == num_vars == var_to_net.len().
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_output_sizes_consistent(n in 0usize..=20usize) {
+                let model = model_with_net_channels(n);
+                let (cnf, var_names) = encode_to_cnf(&model);
+                prop_assert_eq!(cnf.num_vars, var_names.len());
+                prop_assert_eq!(cnf.var_to_net.len(), var_names.len());
+            }
+
+            // --------------------------------------------------------------
+            // Property E2: All variable indices in clauses are within
+            // [-num_vars, num_vars] \ {0}.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_clause_indices_in_bounds(n in 0usize..=20usize) {
+                let model = model_with_layer_restrictions(n);
+                let (cnf, _) = encode_to_cnf(&model);
+                let num_v = cnf.num_vars as i32;
+                for clause in &cnf.clauses {
+                    for &lit in clause {
+                        prop_assert!(lit != 0,
+                            "clause contains literal 0");
+                        prop_assert!(lit.unsigned_abs() <= num_v as u32,
+                            "literal {lit} out of range [1, {num_v}]");
+                    }
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property E3: No clause is empty.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_no_empty_clauses(n in 0usize..=20usize) {
+                let model = model_with_layer_restrictions(n);
+                let (cnf, _) = encode_to_cnf(&model);
+                for clause in &cnf.clauses {
+                    prop_assert!(!clause.is_empty(),
+                        "encoded CNF contains an empty clause");
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property E4: No clause contains both a variable and its
+            // negation => would be a tautology (can't happen for these
+            // simple models but structurally important to check).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_no_tautological_clause(n in 0usize..=10usize) {
+                let model = model_with_layer_restrictions(n);
+                let (cnf, _) = encode_to_cnf(&model);
+                for clause in &cnf.clauses {
+                    for &lit in clause {
+                        // Check the negation is NOT also in the same clause.
+                        prop_assert!(!clause.contains(&-lit),
+                            "clause {:?} contains both {lit} and -{lit} (tautology)",
+                            clause);
+                    }
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property E5: For a model with no constraints, the CNF has
+            // no clauses.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_empty_constraints_no_clauses(n in 0usize..=10usize) {
+                let model = model_with_net_channels(n);
+                let (cnf, _) = encode_to_cnf(&model);
+                prop_assert!(cnf.clauses.is_empty());
+                prop_assert_eq!(cnf.num_vars, n);
+            }
+        }
+    }
 }

@@ -82,6 +82,7 @@ wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 panic = "unwind"
 
 [dev-dependencies]
+proptest = "1"
 
 [lints.clippy]
 unwrap_used = "deny"

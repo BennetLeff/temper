@@ -104,6 +104,10 @@ def test_diff_pair_validation():
     pair = DiffPair(base_name="USB_D", p_net="USB_D+", n_net="USB_D-")
     assert pair.p_net == "USB_D+"
 
+    # Property aliases
+    assert pair.positive_net == "USB_D+"
+    assert pair.negative_net == "USB_D-"
+
     # Invalid pair (same net)
     with pytest.raises(ValueError, match="must be different"):
         DiffPair(base_name="BAD", p_net="NET", n_net="NET")

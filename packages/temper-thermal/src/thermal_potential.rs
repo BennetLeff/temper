@@ -1851,4 +1851,102 @@ mod tests {
         assert!(findings.contains(&AuditFinding::InsideKeepout));
         assert!(findings.contains(&AuditFinding::Duplicate));
     }
+
+    // --- proptest: linspace structural properties ---
+
+    mod linspace_proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        use super::*;
+        use proptest::prelude::*;
+
+        proptest! {
+            // --------------------------------------------------------------
+            // Property L1: linspace length is exactly `num`.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_linspace_length_correct(
+                start in prop::num::f64::NORMAL,
+                stop in prop::num::f64::NORMAL,
+                num in 0usize..=100usize,
+            ) {
+                let v = linspace(start, stop, num);
+                prop_assert_eq!(v.len(), num);
+            }
+
+            // --------------------------------------------------------------
+            // Property L2: When `num >= 2`, the first element equals `start`
+            // and the last equals `stop` exactly.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_linspace_endpoints_exact(
+                start in prop::num::f64::NORMAL,
+                stop in prop::num::f64::NORMAL,
+                num in 2usize..=100usize,
+            ) {
+                let v = linspace(start, stop, num);
+                prop_assert_eq!(v[0], start);
+                prop_assert_eq!(v[num - 1], stop);
+            }
+
+            // --------------------------------------------------------------
+            // Property L3: When `num == 1`, the sole element equals `start`.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_linspace_single_element_is_start(start in prop::num::f64::NORMAL) {
+                let v = linspace(start, 99.0, 1);
+                prop_assert_eq!(v[0], start);
+            }
+
+            // --------------------------------------------------------------
+            // Property L4: When `start < stop`, linspace is strictly
+            // monotonically increasing.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_linspace_monotonic_increasing(
+                start in prop::num::f64::NORMAL,
+                stop in prop::num::f64::NORMAL,
+                num in 3usize..=100usize,
+            ) {
+                prop_assume!(start < stop);
+                let v = linspace(start, stop, num);
+                for i in 0..(num - 1) {
+                    prop_assert!(v[i] < v[i + 1],
+                        "linspace not monotonic at i={i}: v[{i}]={:.16e}, v[{}]={:.16e}",
+                        v[i], i+1, v[i+1]);
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property L5: When `start == stop`, every element equals that
+            // value.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_linspace_degenerate_constant(
+                val in prop::num::f64::NORMAL,
+                num in 1usize..=50usize,
+            ) {
+                let v = linspace(val, val, num);
+                for &elem in &v {
+                    prop_assert_eq!(elem, val);
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property L6: All elements are finite for finite start/stop.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_linspace_all_finite(
+                start in prop::num::f64::NORMAL,
+                stop in prop::num::f64::NORMAL,
+                num in 0usize..=50usize,
+            ) {
+                let v = linspace(start, stop, num);
+                for &elem in &v {
+                    prop_assert!(elem.is_finite(),
+                        "non-finite element {elem:e} in linspace({start:e}, {stop:e}, {num})");
+                }
+            }
+        }
+    }
 }

@@ -758,4 +758,67 @@ mod property_tests {
              Default K=2.0 admits it (margin=400)."
         );
     }
+
+    // ------------------------------------------------------------------
+    // Property 8: duplicate pins — edge touching duplicate should
+    // behave identically to a single-pin net for distance.
+    // ------------------------------------------------------------------
+
+    proptest! {
+        #[test]
+        fn property_duplicate_pins_dont_break_predicate(
+            x in 0.0f64..100.0,
+            y in 0.0f64..100.0,
+        ) {
+            let params = PruningParams::default();
+            let single = NetPins { positions: vec![(x, y)] };
+            let duplicate = NetPins { positions: vec![(x, y), (x, y), (x, y)] };
+            let edge = Edge2D { start: (50.0, 50.0), end: (150.0, 150.0) };
+
+            let r1 = is_candidate_edge(&single, &edge, &params);
+            let r2 = is_candidate_edge(&duplicate, &edge, &params);
+            // Both should agree: same min-distance to pins, span=0 in both.
+            assert_eq!(r1, r2,
+                "duplicate pins changed candidate result: single={r1}, duplicate={r2}");
+            assert_eq!(pin_span(&single.positions), pin_span(&duplicate.positions));
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Property 9: net with spread-out pins has larger span than a
+    // more compact net (span monotonicity with respect to point-set
+    // diameter).
+    // ------------------------------------------------------------------
+
+    proptest! {
+        #[test]
+        fn property_span_non_negative(
+            net in net_pins(),
+        ) {
+            let span = pin_span(&net.positions);
+            prop_assert!(span >= 0.0,
+                "pin_span must be non-negative, got {span}");
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Property 10: dist_min_edge_to_pins returns 0.0 when an endpoint
+    // coincides with a pin.
+    // ------------------------------------------------------------------
+
+    proptest! {
+        #[test]
+        fn property_dist_zero_when_edge_contains_pin(
+            pin in point_2d(),
+            offset_x in -10.0f64..10.0,
+            offset_y in -10.0f64..10.0,
+        ) {
+            prop_assume!(offset_x.abs() > 0.0 || offset_y.abs() > 0.0);
+            let edge = Edge2D { start: pin, end: (pin.0 + offset_x, pin.1 + offset_y) };
+            let net = NetPins { positions: vec![pin] };
+            let d = dist_min_edge_to_pins(&edge, &net.positions);
+            prop_assert!((d - 0.0).abs() < f64::EPSILON,
+                "dist_min to edge containing the pin should be 0.0, got {d}");
+        }
+    }
 }

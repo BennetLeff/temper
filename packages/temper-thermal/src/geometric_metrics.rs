@@ -413,4 +413,106 @@ mod tests {
         let via_mul = (x * x + y * y).sqrt();
         assert_ne!(via_pow, via_mul);
     }
+
+    // --- proptest: measure_geometric structural properties ---
+
+    mod proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        use super::*;
+        use proptest::prelude::*;
+
+        fn pos_f32() -> impl Strategy<Value = f32> {
+            (0.0f32..1000.0f32).prop_map(|x| x)
+        }
+
+        fn dim_f64() -> impl Strategy<Value = f64> {
+            // Positive dimensions only — zero-width/height components are
+            // degenerate but not impossible.
+            0.0f64..50.0f64
+        }
+
+        proptest! {
+            // --------------------------------------------------------------
+            // Property G1: Overlap area is non-negative.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_overlap_area_non_negative(
+                xs in proptest::collection::vec(pos_f32(), 0..=6),
+                ys in proptest::collection::vec(pos_f32(), 0..=6),
+                ws in proptest::collection::vec(dim_f64(), 0..=6),
+                hs in proptest::collection::vec(dim_f64(), 0..=6),
+            ) {
+                let n = xs.len().min(ys.len()).min(ws.len()).min(hs.len());
+                let m = measure_geometric(
+                    &xs[..n], &ys[..n], &ws[..n], &hs[..n],
+                    0.0, &vec![None; n], (0.0, 0.0), 10000.0, 10000.0, &vec![false; n],
+                );
+                prop_assert!(m.overlap_area_mm2 >= 0.0);
+                prop_assert!(m.overlap_count >= 0);
+            }
+
+            // --------------------------------------------------------------
+            // Property G2: Boundary violation count is bounded above by
+            // component count.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_boundary_violation_count_bounded(
+                xs in proptest::collection::vec(pos_f32(), 0..=10),
+                ys in proptest::collection::vec(pos_f32(), 0..=10),
+                ws in proptest::collection::vec(dim_f64(), 0..=10),
+                hs in proptest::collection::vec(dim_f64(), 0..=10),
+            ) {
+                let n = xs.len().min(ys.len()).min(ws.len()).min(hs.len());
+                let m = measure_geometric(
+                    &xs[..n], &ys[..n], &ws[..n], &hs[..n],
+                    0.0, &vec![None; n], (0.0, 0.0), 1000.0, 1000.0, &vec![false; n],
+                );
+                prop_assert!(m.boundary_violation_count >= 0);
+                prop_assert!(m.boundary_violation_count <= n as i64);
+            }
+
+            // --------------------------------------------------------------
+            // Property G3: min_hv_lv_clearance_mm defaults to 1000.0 when
+            // there are no HV or no LV components.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_hv_lv_clearance_default_when_empty_classes(
+                xs in proptest::collection::vec(pos_f32(), 0..=5),
+                ys in proptest::collection::vec(pos_f32(), 0..=5),
+                ws in proptest::collection::vec(dim_f64(), 0..=5),
+                hs in proptest::collection::vec(dim_f64(), 0..=5),
+                all_hv in proptest::bool::ANY,
+            ) {
+                let n = xs.len().min(ys.len()).min(ws.len()).min(hs.len());
+                // Either all HV (no LV) or all LV (no HV).
+                let is_hv = vec![all_hv; n];
+                let m = measure_geometric(
+                    &xs[..n], &ys[..n], &ws[..n], &hs[..n],
+                    0.0, &vec![None; n], (0.0, 0.0), 1000.0, 1000.0, &is_hv,
+                );
+                prop_assert_eq!(m.min_hv_lv_clearance_mm, 1000.0);
+            }
+
+            // --------------------------------------------------------------
+            // Property G4: Zone violation max is non-negative.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_zone_violation_max_non_negative(
+                xs in proptest::collection::vec(pos_f32(), 0..=5),
+                ys in proptest::collection::vec(pos_f32(), 0..=5),
+                ws in proptest::collection::vec(dim_f64(), 0..=5),
+                hs in proptest::collection::vec(dim_f64(), 0..=5),
+            ) {
+                let n = xs.len().min(ys.len()).min(ws.len()).min(hs.len());
+                let zone = Some((0.0, 0.0, 500.0, 500.0));
+                let m = measure_geometric(
+                    &xs[..n], &ys[..n], &ws[..n], &hs[..n],
+                    0.0, &vec![zone; n], (0.0, 0.0), 2000.0, 2000.0, &vec![false; n],
+                );
+                prop_assert!(m.zone_violation_max_mm >= 0.0);
+                prop_assert!(m.zone_violation_count >= 0);
+            }
+        }
+    }
 }

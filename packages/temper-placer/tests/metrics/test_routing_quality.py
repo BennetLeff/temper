@@ -84,3 +84,22 @@ def test_routing_quality_threshold():
     drc_result.error_count = 1
     quality = evaluate_routing_quality(routing_result, drc_result)
     assert quality.is_acceptable is False
+
+
+def test_routing_quality_score_to_dict():
+    """RoutingQualityScore.to_dict() returns a dict with all fields."""
+    score = RoutingQualityScore(
+        completion_rate=0.9,
+        via_count=5,
+        total_length=150.0,
+        drc_violations=0,
+        is_acceptable=True,
+        score=85.0,
+    )
+    d = score.to_dict()
+    assert d["completion_rate"] == 0.9
+    assert d["via_count"] == 5
+    assert d["total_length"] == 150.0
+    assert d["drc_violations"] == 0
+    assert d["is_acceptable"] is True
+    assert d["score"] == 85.0

@@ -108,4 +108,61 @@ mod tests {
         assert!((required_clearance(1000.0) - 12.00).abs() < 1e-10);
         assert!((required_clearance(1001.0) - 12.00).abs() < 1e-10);
     }
+
+    // --- proptest: required_clearance monotonicity ---
+
+    mod proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        use super::*;
+        use proptest::prelude::*;
+
+        proptest! {
+            // --------------------------------------------------------------
+            // Property I1: required_clearance is non-decreasing in voltage.
+            // Higher voltage => no smaller clearance.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_clearance_monotonic(
+                v1 in prop::num::f64::NORMAL,
+                v2 in prop::num::f64::NORMAL,
+            ) {
+                prop_assume!(v1 <= v2);
+                let c1 = required_clearance(v1);
+                let c2 = required_clearance(v2);
+                prop_assert!(c1 <= c2,
+                    "required_clearance({v1})={c1} > required_clearance({v2})={c2}");
+            }
+
+            // --------------------------------------------------------------
+            // Property I2: required_clearance is bounded: always one of
+            // the bracket values or the maximum.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_clearance_in_known_set(v in prop::num::f64::NORMAL) {
+                let c = required_clearance(v);
+                let known: Vec<f64> = IPC2221_BRACKETS.iter()
+                    .map(|b| b.clearance_mm)
+                    .collect();
+                prop_assert!(known.contains(&c),
+                    "required_clearance({v})={c} not in bracket set {known:?}");
+            }
+
+            // --------------------------------------------------------------
+            // Property I3: For any voltage <= the max bracket, the
+            // clearance is the bracket value covering it.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_clearance_covers_input(v in 0.0f64..1000.0f64) {
+                let c = required_clearance(v);
+                // Find the bracket: first with max_voltage >= v.
+                let expected = IPC2221_BRACKETS.iter()
+                    .find(|b| v <= b.max_voltage)
+                    .map(|b| b.clearance_mm)
+                    .unwrap_or(12.0);
+                prop_assert!((c - expected).abs() < f64::EPSILON,
+                    "required_clearance({v})={c}, expected {expected}");
+            }
+        }
+    }
 }
