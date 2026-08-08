@@ -27,7 +27,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 1676 eligible tests, in a stable order.  Each entry is
+/// All 1692 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -39,6 +39,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-infra")] crate::rules::integration_tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-drc")] crate::rules::drc::clearance::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-drc")] crate::rules::drc::property_campaigns::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-drc")] crate::rules::drc::zone_containment::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-emc")] crate::rules::emc::ground_plane::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-emc")] crate::rules::emc::loop_area::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-emc")] crate::rules::emc::noise_coupling::tests::WASM_TESTS,
@@ -48,6 +49,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-safety")] crate::rules::safety::creepage::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-safety")] crate::rules::safety::hv_lv_separation::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-safety")] crate::rules::safety::isolation::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-placement")] crate::rules::placement::thermal_constraint::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-placement")] crate::rules::placement::thermal_via_count::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-placement")] crate::rules::placement::wave_solder_keepout::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-routing")] crate::rules::routing::power_pad_teardrop::tests::WASM_TESTS,

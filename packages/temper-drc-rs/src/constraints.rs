@@ -77,6 +77,45 @@ pub struct ThermalProperty {
     pub max_ambient_c: Option<f64>,
 }
 
+/// A thermal *placement* constraint group (YAML top-level `thermal:` key),
+/// distinct from `ThermalProperty` above (`thermal_properties`, a different
+/// key nothing currently populates). Mirrors
+/// `temper_placer._constraint_types.thermal.ThermalConstraint` field-for-field
+/// so the dict `drc_runner.py::_constraints_to_dict` already builds under the
+/// key `"thermal_constraints"` (forwarding `t.components`, `t.prefer_edge`,
+/// `t.min_spacing_mm`, `t.max_distance_from_edge_mm`, `t.description`) lands
+/// on a real field instead of being silently dropped by
+/// `serde_json::from_value` (no `#[serde(deny_unknown_fields)]` on
+/// `ConstraintSet`, so an unrecognized key is otherwise discarded, not an
+/// error — this was the root cause of the "thermal_constraints has zero
+/// consumers" finding in
+/// docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md, Task 2).
+///
+/// Defaults mirror the Python model's field defaults
+/// (`_constraint_types/thermal.py`) exactly.
+#[derive(Debug, Clone, Deserialize)]
+pub struct ThermalConstraint {
+    pub components: Vec<String>,
+    #[serde(default = "default_thermal_prefer_edge")]
+    pub prefer_edge: bool,
+    #[serde(default = "default_thermal_min_spacing_mm")]
+    pub min_spacing_mm: f64,
+    #[serde(default = "default_thermal_max_distance_from_edge_mm")]
+    pub max_distance_from_edge_mm: f64,
+    #[serde(default)]
+    pub description: String,
+}
+
+fn default_thermal_prefer_edge() -> bool {
+    true
+}
+fn default_thermal_min_spacing_mm() -> f64 {
+    5.0
+}
+fn default_thermal_max_distance_from_edge_mm() -> f64 {
+    20.0
+}
+
 /// Matched-length routing group.
 #[derive(Debug, Clone, Deserialize)]
 pub struct MatchedLengthGroup {
@@ -142,6 +181,9 @@ pub struct ConstraintSet {
     pub thermal_properties: Vec<ThermalProperty>,
 
     #[serde(default)]
+    pub thermal_constraints: Vec<ThermalConstraint>,
+
+    #[serde(default)]
     pub noise_domains: Vec<NoiseDomain>,
 
     #[serde(default)]
@@ -178,6 +220,7 @@ impl Default for ConstraintSet {
             board_width: default_board_width(),
             board_height: default_board_height(),
             thermal_properties: vec![],
+            thermal_constraints: vec![],
             noise_domains: vec![],
             isolation_barriers: vec![],
             matched_length_groups: vec![],

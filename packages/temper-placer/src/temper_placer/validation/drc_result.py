@@ -17,10 +17,24 @@ construction/field/repr/str/eq/mutation parity and the consumer access
 patterns are asserted by ``tests/validation/test_drc_contracts_rust_differential.py``.
 See ``packages/temper-drc-rs/VERIFICATION.md``.
 
-The ``Check`` ABC, ``CompositeCheck`` and the 15 check stub classes remain
-Python: they are import-compatibility execution placeholders (actual check
-execution delegates to the Rust engine), not data contracts — only their
-``CheckResult`` construction calls cross to the pyclass.
+The ``Check`` ABC and ``CompositeCheck`` remain Python, as do the 15
+former "check stub" classes below — but as of the 2026-08-08 Python-side
+DRC vacuity fix, 14 of those 15 (every one whose Rust rule name is
+registered in ``temper_drc_rs::rules::create_default_registry()``) call
+``_run_check_via_rust()`` from their own ``run()``: a real, per-check-name
+delegation to ``temper_drc_rs.run_drc()``, not a hardcoded result. The one
+exception is ``PowerDomainCheck``: the Rust engine deliberately does NOT
+register ``erc_power_domain`` (the native ``BoardState``/``Component``
+schema has no ``voltage_domain`` field to check against), so its ``run()``
+reports not-run (``passed=False`` plus an INFO ``ERC_PWR_000`` issue)
+instead of fabricating a pass — see its class docstring.
+
+Note that the production entry point, ``CheckRunner.run()``
+(``drc_runner.py``), still bypasses every one of these classes' own
+``run()`` methods and calls ``temper_drc_rs.run_drc()`` directly as one
+full/category-filtered sweep; these classes' ``run()`` bodies matter for
+direct callers (tests, ``CompositeCheck``, anything that instantiates and
+calls a single check) and for import compatibility.
 
 Former locations:
   - ``temper_drc.core.result`` → Issue, CheckResult, RunResult, Location
@@ -231,13 +245,73 @@ class CompositeCheck(Check):
 # =========================================================================
 #  Check stub classes  (formerly in temper_drc.checks.{drc,erc,emc,safety}.*)
 #
-#  These are kept as import-compatibility placeholders.  Actual check
-#  execution is delegated to the Rust engine (temper_drc_rs).
+#  2026-08-08 vacuity fix: 14 of these 15 classes now call
+#  ``_run_check_via_rust()`` below, which is a REAL per-check-name
+#  delegation to ``temper_drc_rs.run_drc()`` — not a hardcoded result.  The
+#  one exception, ``PowerDomainCheck``, cannot delegate (its Rust rule is
+#  deliberately unregistered; see its docstring) and reports not-run
+#  instead of a fabricated pass.
 # =========================================================================
 
 
+def _run_check_via_rust(
+    check_name: str,
+    placement: Placement,
+    constraints: ConstraintSet,
+) -> CheckResult:
+    """Delegate a single named check to the Rust engine (temper_drc_rs).
+
+    Converts *placement*/*constraints* to the K1-schema dicts (reusing
+    ``drc_runner``'s marshalling helpers — a deferred import, since
+    ``drc_runner`` imports this module at load time and importing it back
+    here at module scope would be circular; deferring to call time is safe
+    because both modules are already fully loaded by the time any check's
+    ``run()`` executes) and calls ``temper_drc_rs.run_drc(...,
+    check_names=[check_name])``. That runs the full registered-rule sweep
+    and filters the violations down to this one check's name (see
+    ``temper_drc_rs``'s ``run_drc`` check-name-filtered branch in
+    ``packages/temper-drc-rs/src/lib.rs``). A check with real violations
+    reports them (``passed=False`` with the ``Issue``\\ s attached); a check
+    with none reports a genuinely-earned ``passed=True``.
+
+    Callers MUST only pass a *check_name* that is actually registered in
+    ``temper_drc_rs::rules::create_default_registry()``. A name that is not
+    registered silently filters to zero violations here — indistinguishable
+    from "ran clean" — which is exactly the vacuity defect this module used
+    to have. ``PowerDomainCheck`` (``erc_power_domain`` is deliberately
+    unregistered) does NOT go through this helper for that reason.
+
+    KNOWN GAP shared with ``CheckRunner.run()`` (``drc_runner.py``):
+    incremental ``modified_regions`` re-checking is not wired through this
+    per-check path either — the caller-supplied region bounds are accepted
+    (by every ``run()`` below) and ignored, same as the runner's own
+    documented gap.
+    """
+    import temper_drc_rs as _tdrc_mod
+
+    from temper_placer.validation.drc_runner import (
+        _constraints_to_dict,
+        _placement_to_board_dict,
+        _violations_to_run_result,
+    )
+
+    board_dict = _placement_to_board_dict(placement)
+    constraints_dict = _constraints_to_dict(constraints)
+    violation_dicts = _tdrc_mod.run_drc(
+        board_dict,
+        constraints_dict,
+        check_names=[check_name],
+    )
+    run_result = _violations_to_run_result(violation_dicts)
+    for cr in run_result.check_results:
+        if cr.check_name == check_name:
+            return cr
+    return CheckResult(check_name=check_name, passed=True)
+
+
 class ClearanceCheck(Check):
-    """Clearance check — delegates to Rust engine via CheckRunner."""
+    """Clearance check — delegates to the Rust engine (temper_drc_rs),
+    filtered to this check's name (``drc_clearance``)."""
 
     @property
     def name(self) -> str:
@@ -253,15 +327,17 @@ class ClearanceCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class ComponentOverlapCheck(Check):
-    """Component overlap check — delegates to Rust engine via CheckRunner."""
+    """Component overlap check — delegates to the Rust engine
+    (temper_drc_rs), filtered to this check's name
+    (``drc_component_overlap``)."""
 
     @property
     def name(self) -> str:
@@ -281,15 +357,25 @@ class ComponentOverlapCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class CourtyardCheck(Check):
-    """Courtyard check — delegates to Rust engine via CheckRunner."""
+    """Courtyard check — delegates to the Rust engine (temper_drc_rs),
+    filtered to this check's name (``drc_courtyard``).
+
+    ``margin_mm`` is NOT forwarded to the Rust side: delegation runs the
+    Rust registry's own registered ``CourtyardCheck`` instance (constructed
+    with a fixed 0.05mm margin in
+    ``temper_drc_rs::rules::create_default_registry()``), not a fresh one
+    parameterized by this constructor arg. Kept for import/API compat and
+    because it happens to match the Rust default; it does not currently
+    change delegated behavior if overridden.
+    """
 
     def __init__(self, margin_mm: float = 0.05):
         self._margin_mm = margin_mm
@@ -308,15 +394,17 @@ class CourtyardCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class ZoneContainmentCheck(Check):
-    """Zone containment check — delegates to Rust engine via CheckRunner."""
+    """Zone containment check — delegates to the Rust engine
+    (temper_drc_rs), filtered to this check's name
+    (``drc_zone_containment``)."""
 
     @property
     def name(self) -> str:
@@ -332,15 +420,22 @@ class ZoneContainmentCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class TraceClearanceCheck(Check):
-    """Trace clearance check — delegates to Rust engine via CheckRunner."""
+    """Trace clearance check — delegates to the Rust engine
+    (temper_drc_rs), filtered to this check's name
+    (``drc_trace_clearance``).
+
+    Registered in ``temper_drc_rs::rules::create_default_registry()`` but
+    not currently instantiated by ``drc_cli.py`` / ``drc_oracle.py``'s
+    check lists — orphaned from Python wiring, not from the Rust engine.
+    """
 
     @property
     def name(self) -> str:
@@ -356,15 +451,21 @@ class TraceClearanceCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class ViaSpacingCheck(Check):
-    """Via spacing check — delegates to Rust engine via CheckRunner."""
+    """Via spacing check — delegates to the Rust engine (temper_drc_rs),
+    filtered to this check's name (``drc_via_spacing``).
+
+    Registered in ``temper_drc_rs::rules::create_default_registry()`` but
+    not currently instantiated by ``drc_cli.py`` / ``drc_oracle.py``'s
+    check lists — orphaned from Python wiring, not from the Rust engine.
+    """
 
     @property
     def name(self) -> str:
@@ -380,15 +481,26 @@ class ViaSpacingCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class NetConnectivityCheck(Check):
-    """Net connectivity check — delegates to Rust engine via CheckRunner."""
+    """Net connectivity check — delegates to the Rust engine
+    (temper_drc_rs), filtered to this check's name
+    (``erc_net_connectivity``).
+
+    2026-08-08 vacuity fix: prior to this, ``run()`` unconditionally
+    returned ``passed=True`` while claiming to delegate. The Rust rule
+    itself had the same defect (computed a real per-net connection tally
+    and discarded it) and has now been implemented for real — it emits
+    ``ERC_NET_001`` for any net with fewer than 2 connected components
+    (see ``packages/temper-drc-rs/src/rules/erc/net_connectivity.rs``).
+    This class now genuinely delegates to that.
+    """
 
     @property
     def name(self) -> str:
@@ -404,15 +516,36 @@ class NetConnectivityCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class PowerDomainCheck(Check):
-    """Power domain check — delegates to Rust engine via CheckRunner."""
+    """Power domain check — UNIMPLEMENTED; ``run()`` never delegates and
+    never reports a pass.
+
+    2026-08-08 vacuity fix: this class used to carry a docstring claiming
+    Rust delegation while ``run()`` unconditionally hardcoded
+    ``passed=True``. The truth is there is nothing to delegate to:
+    ``erc_power_domain`` is deliberately NOT registered in
+    ``temper_drc_rs::rules::create_default_registry()`` (see
+    ``packages/temper-drc-rs/src/rules/erc/power_domain.rs``) because the
+    native ``BoardState``/``Component`` schema carries no
+    ``voltage_domain`` field at all — a real implementation needs a schema
+    addition that is a human decision, not something to invent silently.
+
+    ``run()`` now returns a not-run ``CheckResult``: ``passed=False`` (never
+    ``True`` — a pass here would be indistinguishable from "ran and found
+    zero violations", the exact defect being fixed) plus a single
+    INFO-severity ``ERC_PWR_000`` issue (``details={"not_run": True}``)
+    that marks it as not-run rather than "found a violation" (an
+    ERROR/CRITICAL issue) — so a consumer inspecting severities, not just
+    ``passed``, can also tell the three states apart: ran-clean,
+    ran-and-failed, and did-not-run.
+    """
 
     @property
     def name(self) -> str:
@@ -424,7 +557,11 @@ class PowerDomainCheck(Check):
 
     @property
     def description(self) -> str:
-        return "Identify nets connecting components from different voltage domains."
+        return (
+            "UNIMPLEMENTED: identify nets connecting components from different "
+            "voltage domains. The native Rust board schema has no voltage_domain "
+            "field to check against, so this check does not run."
+        )
 
     def run(
         self,
@@ -432,11 +569,32 @@ class PowerDomainCheck(Check):
         _constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return CheckResult(
+            check_name=self.name,
+            passed=False,
+            issues=[
+                Issue(
+                    severity=Severity.INFO,
+                    code="ERC_PWR_000",
+                    message=(
+                        "erc_power_domain did not run: the native Rust "
+                        "BoardState/Component schema has no voltage_domain field, "
+                        "so there is nothing to delegate to (deregistered in "
+                        "packages/temper-drc-rs/src/rules/erc/power_domain.rs). "
+                        "passed=False marks this as NOT-RUN -- it must not be read "
+                        "as either a clean pass or a found violation."
+                    ),
+                    category=self.category,
+                    check_name=self.name,
+                    details={"not_run": True},
+                )
+            ],
+        )
 
 
 class FloatingPinsCheck(Check):
-    """Floating pins check — delegates to Rust engine via CheckRunner."""
+    """Floating pins check — delegates to the Rust engine (temper_drc_rs),
+    filtered to this check's name (``erc_floating_pins``)."""
 
     @property
     def name(self) -> str:
@@ -452,15 +610,17 @@ class FloatingPinsCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class HVLVSeparationCheck(Check):
-    """HV/LV separation check — delegates to Rust engine via CheckRunner."""
+    """HV/LV separation check — delegates to the Rust engine
+    (temper_drc_rs), filtered to this check's name
+    (``safety_hv_lv_separation``)."""
 
     @property
     def name(self) -> str:
@@ -476,15 +636,25 @@ class HVLVSeparationCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class CreepageCheck(Check):
-    """Creepage check — delegates to Rust engine via CheckRunner."""
+    """Creepage check — delegates to the Rust engine (temper_drc_rs),
+    filtered to this check's name (``safety_creepage``).
+
+    ``min_iso_width_mm`` is NOT forwarded to the Rust side: delegation runs
+    the Rust registry's own registered ``CreepageCheck`` instance
+    (constructed with a fixed 6.0mm minimum in
+    ``temper_drc_rs::rules::create_default_registry()``), not a fresh one
+    parameterized by this constructor arg. Kept for import/API compat and
+    because it happens to match the Rust default; it does not currently
+    change delegated behavior if overridden.
+    """
 
     def __init__(self, min_iso_width_mm: float = 6.0):
         self._min_iso_width_mm = min_iso_width_mm
@@ -503,15 +673,16 @@ class CreepageCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class IsolationCheck(Check):
-    """Isolation check — delegates to Rust engine via CheckRunner."""
+    """Isolation check — delegates to the Rust engine (temper_drc_rs),
+    filtered to this check's name (``safety_isolation``)."""
 
     @property
     def name(self) -> str:
@@ -527,15 +698,16 @@ class IsolationCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class LoopAreaCheck(Check):
-    """Loop area check — delegates to Rust engine via CheckRunner."""
+    """Loop area check — delegates to the Rust engine (temper_drc_rs),
+    filtered to this check's name (``emc_loop_area``)."""
 
     @property
     def name(self) -> str:
@@ -551,15 +723,16 @@ class LoopAreaCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class NoiseCouplingCheck(Check):
-    """Noise coupling check — delegates to Rust engine via CheckRunner."""
+    """Noise coupling check — delegates to the Rust engine (temper_drc_rs),
+    filtered to this check's name (``emc_noise_coupling``)."""
 
     @property
     def name(self) -> str:
@@ -575,15 +748,16 @@ class NoiseCouplingCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)
 
 
 class GroundPlaneCheck(Check):
-    """Ground plane check — delegates to Rust engine via CheckRunner."""
+    """Ground plane check — delegates to the Rust engine (temper_drc_rs),
+    filtered to this check's name (``emc_ground_plane``)."""
 
     @property
     def name(self) -> str:
@@ -599,8 +773,8 @@ class GroundPlaneCheck(Check):
 
     def run(
         self,
-        _placement: Placement,
-        _constraints: ConstraintSet,
+        placement: Placement,
+        constraints: ConstraintSet,
         _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
-        return CheckResult(check_name=self.name, passed=True)
+        return _run_check_via_rust(self.name, placement, constraints)

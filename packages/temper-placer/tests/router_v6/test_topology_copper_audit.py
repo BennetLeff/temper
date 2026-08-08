@@ -52,6 +52,7 @@ from temper_placer.router_v6.topology_copper_audit import (
     audit_topology_vs_copper,
     is_self_referential_net,
     net_number_to_name_map,
+    nets_carrying_copper,
     nets_with_copper,
 )
 
@@ -123,6 +124,21 @@ def test_multiline_zone_block_fully_consumed_not_misparsed():
     explicit, zoned = nets_with_copper(content)
     assert zoned == {"plane_net"}
     assert explicit == set()
+
+
+def test_nets_carrying_copper_is_the_union_not_explicit_only():
+    """The accessor this task exists to make unambiguous: a net covered
+    only by a zone pour (no explicit trace/via) still carries copper, and
+    must count in the single-number "nets carrying copper" total -- this
+    is exactly the convention split that produced two different baseline
+    counts (52 explicit-only vs. 64 union) for the identical routed board
+    in the investigation this function's docstring cites."""
+    content = _board(
+        '  (segment (start 0 0) (end 1 1) (width 0.25) (layer "F.Cu") (net 1) (tstamp "x"))',
+        '  (zone (net 3) (net_name "plane_net") (layer "F.Cu")\n'
+        "    (polygon (pts (xy 0 0) (xy 1 0) (xy 1 1))))",
+    )
+    assert nets_carrying_copper(content) == {"signal_a", "plane_net"}
 
 
 def test_is_self_referential_net():

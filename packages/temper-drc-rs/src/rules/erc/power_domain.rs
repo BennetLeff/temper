@@ -1,4 +1,28 @@
 // Placeholder — will be implemented in U4 (migrated DRC checks).
+//
+// 2026-08-08 vacuity remediation
+// (docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md, Task 1):
+// this rule was found registered live in `create_default_registry()` while
+// `check()` unconditionally returned `vec![]` for any input — indistinguishable
+// from a real "0 violations" pass. It has been DEREGISTERED
+// (`rules::create_default_registry()` no longer constructs this type) rather
+// than patched to fake a status, because a real implementation is not
+// tractable with the data this crate's native `BoardState`/`Component`
+// currently carry: no per-component or per-net "voltage domain" field exists
+// on the native schema at all (only the legacy PyO3 differential-testing
+// bridge in `drc_contracts.rs` carries a `voltage_domain`/`voltage_domains`
+// concept, for parity-testing purposes only — it never reaches this rule).
+// A pre-migration Python implementation existed
+// (`packages/temper-drc/src/temper_drc/checks/erc/power_domain.py`, deleted
+// in `2122544d`): for each net, collect the distinct `voltage_domain` values
+// across its connected components and flag the net if more than one appears.
+// To restore that behavior here, `board::Component` needs a
+// `voltage_domain: Option<String>` field (or `BoardState`/`ConstraintSet`
+// needs a `voltage_domains: HashMap<NetName, String>` map), populated by
+// whichever board-dict builder is in use — that is a schema decision for a
+// human, not something this remediation should invent silently. Until that
+// lands, `PowerDomainCheck` stays unregistered so nothing can mistake its
+// absence for a passing 0-violation result.
 use crate::board::BoardState;
 use crate::constraints::ConstraintSet;
 use crate::rules::{DrcCategory, DrcRule, Violation};

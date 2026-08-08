@@ -13,8 +13,7 @@ mod courtyard;
 pub mod property_campaigns;
 mod trace_clearance;
 mod via_spacing;
-mod zone_containment;
-
+pub(crate) mod zone_containment;
 pub use clearance::ClearanceCheck;
 pub use component_overlap::ComponentOverlapCheck;
 pub use courtyard::CourtyardCheck;

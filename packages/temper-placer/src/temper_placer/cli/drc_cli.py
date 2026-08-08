@@ -142,6 +142,18 @@ def check(
         else:
             click.echo("Running all checks...", err=True)
 
+    # NOTE (2026-08-08 DRC vacuity remediation): CheckRunner.run() (see
+    # validation/drc_runner.py) ignores `all_checks` above and calls
+    # temper_drc_rs.run_drc() directly as one full/category-filtered sweep
+    # of the Rust registry -- it does not invoke any Check subclass's own
+    # run() method. `erc_power_domain` is deliberately unregistered on the
+    # Rust side (see PowerDomainCheck's docstring in validation/drc_result.py),
+    # so it never appears in `result` at all here: it is silently ABSENT
+    # from the report, not silently counted as passed -- `result.passed`
+    # and every per-check total are computed only from checks that actually
+    # ran. That is the honest behavior, but it also means a reader of this
+    # CLI's output gets no visual cue that erc_power_domain was skipped;
+    # `list_checks` below is the only place that says so.
     result = runner.run(placement, constraint_set, categories=categories_list)
 
     if format == "text":
@@ -225,7 +237,9 @@ def list_checks() -> None:
         ],
         "ERC": [
             "erc_net_connectivity - Net connectivity verification",
-            "erc_power_domain - Power domain isolation",
+            "erc_power_domain - [UNIMPLEMENTED, does not run: the native Rust "
+            "board schema has no voltage_domain field to check against; see "
+            "PowerDomainCheck in validation/drc_result.py]",
             "erc_floating_pins - Unconnected pin detection",
         ],
         "Safety": [

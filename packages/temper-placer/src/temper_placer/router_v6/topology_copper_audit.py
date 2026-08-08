@@ -55,6 +55,7 @@ __all__ = [
     "audit_topology_vs_copper",
     "is_self_referential_net",
     "net_number_to_name_map",
+    "nets_carrying_copper",
     "nets_with_copper",
 ]
 
@@ -121,6 +122,46 @@ def nets_with_copper(pcb_content: str) -> tuple[set[str], set[str]]:
             if name:
                 zoned.add(name)
     return explicit, zoned
+
+
+def nets_carrying_copper(pcb_content: str) -> set[str]:
+    """The single, unambiguous "does this net carry copper at all" set.
+
+    **Why this exists.** ``nets_with_copper()`` deliberately returns two
+    *separate* sets (explicit trace/via vs. zone pour) because that
+    distinction matters for diagnosing *why* a net has no explicit trace.
+    But it means every caller who just wants "how many nets carry copper"
+    has to choose how to collapse the pair into one number, and two callers
+    measuring the identical routed board content, independently, chose
+    differently: one counted only the explicit set (a net routed by a
+    literal trace/via), the other counted the union (explicit or zone) --
+    treating a zone pour as "carrying copper" too. Both cited "using
+    nets_with_copper()" and both were technically correct, since the
+    accessor doesn't say which. That produced two different baseline
+    counts for the same commit and the same routed board bytes (measured
+    2026-08-08: explicit-only 52 vs. union 64 on an identical `pcb/
+    temper.kicad_pcb --net-batching --batch-size 10` run -- the 12-net gap
+    is exactly the zone-pour-covered HV/ACMains nets, e.g. `SW_NODE`,
+    `DC_BUS_RTN`, `ac_l`, `ac_n`, that were never routed by A* on purpose).
+
+    **The union is correct for "carries copper."** A zone pour is real,
+    physical copper -- a net covered only by a pour is not missing copper,
+    it has a different *kind* of copper than a trace. Excluding it
+    undercounts completion and would make a zone-pour-covered net look
+    identical to a genuinely orphaned one. This is also the convention
+    ``NetCopperOutcome.has_copper`` (``has_explicit_copper or
+    has_zone_copper``) already uses internally in this module -- this
+    function just exposes that same definition as a single top-level call
+    so future callers don't have to re-derive it (or re-diverge on it) from
+    the raw tuple.
+
+    Use ``nets_with_copper()`` directly only when the explicit-vs-zone
+    distinction itself is what's being investigated (as
+    ``audit_topology_vs_copper`` does); use this for a plain count/set of
+    "nets with any copper."
+    """
+    explicit, zoned = nets_with_copper(pcb_content)
+    return explicit | zoned
 
 
 def is_self_referential_net(pins: Sequence[tuple[str, str]]) -> bool:

@@ -1413,6 +1413,70 @@ jobs:
         # exit non-zero.
         run: uv run python scripts/check_isolation_keepout.py
 
+      # PREPARED, NOT ENABLED -- pending human approval
+      # (docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md Task 3;
+      # remediation session 2026-08-08).
+      #
+      # scripts/check_creepage_clearance_drift.py is a real, sophisticated,
+      # already-tested gate (scripts/tests/test_check_creepage_clearance_drift.py,
+      # 38 tests, all passing today against the checker's own synthetic
+      # fixtures -- confirmed by running it in this remediation) that
+      # cross-checks every creepage/clearance figure declared across
+      # elec/*.ato, scripts/*.py, packages/**/*.py|yaml, and configs/*.yaml
+      # by discovering declaration sites rather than reading a hand-
+      # maintained file list. It was written but never wired into any
+      # workflow -- confirmed by `grep -rl check_creepage_clearance_drift
+      # .github/workflows/` returning no matches (for either the gate
+      # script OR its own unit-test file) before this comment was added.
+      #
+      # Running it against the real repo TODAY exits 3 (FAILED) with 4
+      # mismatched value families -- these are live, previously-unseen
+      # findings, not hypothetical:
+      #   - [clearance/basic]: elec/src/constraints.ato:90
+      #     (AC_to_LV.min_clearance) = 3.0mm vs
+      #     configs/temper_deterministic_config.yaml:133
+      #     (net_class_rules.HighVoltage.clearance_mm) = 6.0mm
+      #   - [clearance/reinforced]: scripts/generate_kicad_dru.py:63
+      #     (HV_INTERNAL_CLEARANCE_MM) = 2.0mm vs
+      #     elec/src/constraints.ato:83 (HV_to_LV.min_clearance) = 6.0mm vs
+      #     packages/temper-placer/configs/netclass_rules.yaml:57
+      #     (classes.HighVoltageIsolated.clearance) = 6.0mm
+      #   - [creepage/basic]: elec/src/constraints.ato:91
+      #     (AC_to_LV.min_creepage) = 5.0mm vs
+      #     configs/temper_deterministic_config.yaml:134
+      #     (net_class_rules.HighVoltage.creepage_mm) = 6.0mm
+      #   - [creepage/reinforced]: packages/temper-placer/configs/
+      #     netclass_rules.yaml:61 (classes.HighVoltageIsolated.creepage_mm)
+      #     = 6.0mm vs 8 sites at 8.0mm, including
+      #     elec/src/constraints.ato:36/:84, generate_kicad_dru.py:77
+      #     (HV_CREEPAGE_PD2_MM), isolation_constants.py:45
+      #     (MIN_BARRIER_WIDTH_MM), and 4 pcl/temper_production.yaml
+      #     min_distance_mm entries
+      # It also reports (separately from the 4 failing families) that
+      # scripts/generate_kicad_dru.py:78's HV_CREEPAGE_PD3_MM = 12.6mm is
+      # DECLARED BUT NOT ENFORCED -- HV_CREEPAGE_ENFORCED_MM currently
+      # selects HV_CREEPAGE_PD2_MM (8.0mm) instead, at generate_kicad_dru.py
+      # line 106 -- which directly contradicts a comment in
+      # packages/temper-placer/configs/netclass_rules.yaml (around line 53)
+      # that describes HV_CREEPAGE_ENFORCED_MM as "12.6mm, PD3-pinned".
+      #
+      # Turning this on is a human decision (it would go CI-red today on
+      # main, exactly as intended -- this is a real gate finding real
+      # drift, not a broken gate). The step below is deliberately commented
+      # out rather than `continue-on-error`'d: per this file's own
+      # convention, a gate that can run must be allowed to fail loudly, so
+      # softening it defeats the purpose. Uncomment both steps together
+      # once a human has resolved (or explicitly accepted) the 4 families
+      # above.
+      #
+      # - name: Creepage/clearance drift gate unit tests
+      #   if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+      #   run: uv run pytest scripts/tests/test_check_creepage_clearance_drift.py -v --tb=short
+      #
+      # - name: Creepage/clearance SSOT-drift gate (cross-source figure agreement)
+      #   if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+      #   run: uv run python scripts/check_creepage_clearance_drift.py
+
       # ---- MUTATING: writes pcb/*.kicad_sch, must stay last ----
       - name: Regenerate schematics and check drift
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
