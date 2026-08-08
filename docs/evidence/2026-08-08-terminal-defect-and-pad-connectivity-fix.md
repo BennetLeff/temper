@@ -196,4 +196,58 @@ Measured with `pad_connectivity_audit.audit_pcb_file()` against a fresh
 `git show 7ac299be` unmodified; fixed = this branch), both boards freshly
 routed in this task:
 
-<!-- FILLED IN ONCE BOTH ROUTES COMPLETE -->
+Both boards routed fresh in this task, same command
+(`uv run --no-sync python3 scripts/route_board.py --pcb pcb/temper.kicad_pcb
+--net-batching --batch-size 10 --output ...`), run concurrently on the same
+machine from separate worktrees (baseline = `git show 7ac299be`'s worktree,
+unmodified; fixed = this branch).
+
+| | Raw completion (Stage 4 A*) | Segments | Vias | Fully pad-connected (of 139 audited) | Fake completion | Honest gap |
+|---|---|---:|---:|---:|---:|---:|
+| baseline (pre-fix) | 52/104 (50.0%) | 2579 | 50 | **31** | 48 | 60 |
+| fixed (this branch) | 61/104 (58.7%) | 3264 | 24 | **48** | 40 | 51 |
+
+Baseline is byte-identical to the cited spike evidence doc's own baseline
+figures (52/104, 2579 segments, 50 vias) -- confirms this worktree/board/
+command combination is still exactly `6121c49f`/`7ac299be`'s deterministic
+baseline, and that this run is a genuine apples-to-apples comparison, not a
+different starting point.
+
+**`fully_connected` gained +17 nets (31 -> 48), zero lost** -- verified by
+direct set comparison (`baseline_fully_connected_set ⊆ fixed_fully_connected_set`,
+not just matching counts): `DISCHARGE_CTRL`, `OVP_VREF_2V5`, `boot`,
+`discharge.r_snub1-p2`, `hb.gate_hs.driver-p1`, `input`,
+`power_in.r_zcd_top1-p2`, `rtd_pan.high_window-out`, `rtd_pan.low_window-out`,
+`safety.fault_or-a2`, `safety.fault_or-b2`, `safety.fault_or3-b2`,
+`safety.fault_or3-y2`, `safety.ovp.r_adc_top2-p2`, `safety.ovp.r_div_top1-p2`,
+`sclk`, `tank-out`. `fake_completion` fell 48 -> 40 and `honest_gap` fell
+60 -> 51 -- both moved in the honest direction, not just the
+fully-connected count.
+
+Both the primary metric (pad connectivity, +17) and the raw/naive metric
+(58.7% vs 50.0% completion) improved together here -- this fix did not
+need to trade one for the other, though the task's framing (a fix is a good
+outcome even if it *only* holds or improves true connectivity while raw
+copper falls) would still apply if it had.
+
+**`GATE_HS` itself: terminal-correct, still not fully pad-connected, for a
+different, unexamined reason.** The routing-free scan (§1a) confirms
+`GATE_HS`'s waypoint no longer lands on R23's foreign pad after the fix,
+and Stage 4 A* now reports `✓ GATE_HS routed successfully`. It nonetheless
+still appears in the fixed board's fake-completion list -- its copper
+reaches one pad but not the other for a reason this task did not trace
+further (candidates: grid-quantization snap tolerance vs.
+`pad_connectivity_audit`'s 0.02mm match tolerance, or a residual capacity/
+clearance constraint independent of the terminal defect). The
+wrong-net-bridging safety defect this task was scoped to fix is closed;
+full routability for every individual net is not claimed and was never
+this task's scope.
+
+**Baseline denominator note.** This task's own brief states "Real
+completion on this board is 31/110." The `31` is exactly reproduced above;
+`110` is `nets_carrying_copper()`'s denominator (total board nets), not
+`pad_connectivity_audit`'s (139 -- every net with at least one physical
+pad, the same denominator the cited evidence doc used throughout its own
+§3.3 table). Reported here as `31/139` / `48/139` to match the actual
+audit tool's own accounting rather than mixing the two metrics'
+denominators.
