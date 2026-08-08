@@ -219,14 +219,17 @@ def run_astar_pathfinding(
                 execute_terminal_tree,
             )
 
+            # Same per-net rule as the plain-path _mark_route_blocked call
+            # below, not the flat board default -- see that call's comment.
+            tree_net_rule = design_rules.get_rules_for_net(net_name)
             execution = execute_terminal_tree(
                 channel_path.terminal_tree,
                 channel_path.terminals,
                 all_grids,
                 max_iter=per_net_max_iter,
                 net_id=net_id,
-                trace_width=design_rules.default_trace_width_mm,
-                clearance=design_rules.default_clearance_mm,
+                trace_width=tree_net_rule.trace_width_mm,
+                clearance=tree_net_rule.clearance_mm,
             )
             completed_geometry = TreeRouteGeometry(
                 net_name=net_name,
@@ -360,11 +363,18 @@ def run_astar_pathfinding(
                     ripped_name = id_to_net[ripped_id]
                     if ripped_name in routed_paths:
                         ripped_path = routed_paths[ripped_name]
+                        # Unmark using the SAME per-net rule that marked this
+                        # net blocked in the first place (below) -- see that
+                        # call's comment. Using the flat board default here
+                        # instead of ripped_name's own rule would leave a
+                        # stale over/under-sized footprint behind whenever
+                        # ripped_name's real class differs from the default.
+                        ripped_rule = design_rules.get_rules_for_net(ripped_name)
                         _unmark_route_blocked(
                             ripped_path,
                             all_grids,
-                            design_rules.default_trace_width_mm,
-                            design_rules.default_clearance_mm,
+                            ripped_rule.trace_width_mm,
+                            ripped_rule.clearance_mm,
                             ripped_id,
                         )
                         del routed_paths[ripped_name]
@@ -372,11 +382,27 @@ def run_astar_pathfinding(
                         ripup_counts[ripped_name] = ripup_counts.get(ripped_name, 0) + 1
 
             routed_paths[net_name] = route_path
+            # Block this net's own copper using ITS netclass rule, not the
+            # flat board default -- get_rules_for_net() is the same call
+            # net_batching.py's Stage 3 capacity accounting
+            # (_consume_capacity) and constraint_model.py's CapacityConstraint
+            # already use for this exact net_width = trace_width + clearance
+            # computation (also mirrored two branches up, in the via-aware
+            # 3D fallback tier's net_rules = design_rules.get_rules_for_net(
+            # net_name) call). Using the board default here instead was a
+            # real Stage3-vs-Stage4 clearance-model disagreement: MEASURED
+            # on pcb/temper.kicad_pcb (2026-08-08) to mark every successfully
+            # -routed net's copper blocked at a flat 0.25mm/0.15mm regardless
+            # of class, while Stage 3's SAT capacity model had already
+            # reserved the correct (and sometimes very different -- e.g.
+            # HighVoltage's 3.0mm/6.0mm) per-net width for the same net. See
+            # docs/evidence/2026-08-08-stage4-astar-clearance-mismatch.md.
+            net_rule = design_rules.get_rules_for_net(net_name)
             _mark_route_blocked(
                 route_path,
                 all_grids,
-                trace_width=design_rules.default_trace_width_mm,
-                clearance=design_rules.default_clearance_mm,
+                trace_width=net_rule.trace_width_mm,
+                clearance=net_rule.clearance_mm,
                 net_id=net_id,
             )
 
