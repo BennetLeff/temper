@@ -1,76 +1,24 @@
 """Explainability module for temper-placer.
 
 This module provides auditable decision tracking for placement and routing.
-Every decision the placer makes can be traced back to its reason.
+Every decision the placer makes can be traced back to its reason. The
+substantive types (Decision, DecisionTrace, Trace, ...) live in this
+package's submodules (decision.py, trace.py, serialization.py,
+markdown_report.py) and are unaffected by this change.
 
-Key Components:
-- Decision: Single auditable decision with reason and alternatives
-- DecisionTrace: Complete audit trail for a pipeline run
-- DecisionType: Types of decisions (placement, rotation, constraint, etc.)
-- DecisionPhase: Pipeline phases (semantic, topological, geometric, routing)
+The `from temper_placer.explainability import X` re-export surface that
+used to live here was removed 2026-08-07
+(docs/plans/2026-08-06-001-docs-python-removal-retriage-plan.md DELETE
+pass): no consumer in src/tests/scripts/benchmarks imports through this
+package root -- every real caller already imports the submodule directly
+(e.g. `temper_placer.explainability.decision`). One orphaned, non-CI script
+(`tools/demo_explainability_file.py`) does `from temper_placer.explainability
+import Trace`; it already guards the import in a try/except ImportError and
+is not exercised by any test or workflow.
 
-Example:
-    >>> from temper_placer.explainability import Decision, DecisionTrace, DecisionType, DecisionPhase
-    >>> trace = DecisionTrace()
-    >>> trace.add(Decision(
-    ...     decision_type=DecisionType.INITIAL_POSITION,
-    ...     phase=DecisionPhase.GEOMETRIC,
-    ...     subject='Q1',
-    ...     value=(45.2, 12.3),
-    ...     reason='Thermal edge constraint requires IGBT within 5mm of top edge'
-    ... ))
-    >>> print(trace.why('Q1'))
-    Q1 is at (45.2, 12.3) because: Thermal edge constraint requires IGBT within 5mm of top edge
+The file itself is kept (not deleted) because `.importlinter`'s
+core-public-interface-only and router-v6-public-interface-only contracts
+name `temper_placer.explainability` as a source_module; grimp cannot
+resolve a namespace package (no __init__.py) as a module, so removing the
+file outright breaks the import-boundary CI gate.
 """
-
-from temper_placer.explainability.decision import (
-    Alternative,
-    Decision,
-    DecisionPhase,
-    DecisionTrace,
-    DecisionType,
-)
-from temper_placer.explainability.markdown_report import (
-    render_component_report,
-    render_markdown_report,
-    save_markdown_report,
-)
-from temper_placer.explainability.serialization import (
-    deserialize_decision,
-    deserialize_trace,
-    load_trace,
-    save_trace,
-    serialize_decision,
-    serialize_trace,
-    trace_from_json,
-    trace_to_json,
-)
-from temper_placer.explainability.trace import (
-    Entry,
-    Trace,
-)
-
-__all__ = [
-    # Data structures (legacy)
-    "Alternative",
-    "Decision",
-    "DecisionPhase",
-    "DecisionTrace",
-    "DecisionType",
-    # Functional trace (new)
-    "Entry",
-    "Trace",
-    # Serialization
-    "deserialize_decision",
-    "deserialize_trace",
-    "load_trace",
-    "save_trace",
-    "serialize_decision",
-    "serialize_trace",
-    "trace_from_json",
-    "trace_to_json",
-    # Markdown reports
-    "render_component_report",
-    "render_markdown_report",
-    "save_markdown_report",
-]

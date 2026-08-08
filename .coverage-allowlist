@@ -79,7 +79,6 @@ temper_placer/core/units.py::manhattan_distance_mm  # TODO: temper-xxx
 temper_placer/core/units.py::mm_to_cell  # TODO: temper-xxx
 temper_placer/core/units.py::rad_to_deg  # TODO: temper-xxx
 temper_placer/adapters/deterministic_adapter.py::wrap_deterministic_stage  # TODO: temper-xxx
-temper_placer/adapters/placement_adapter.py::TemplatePlacementStage.run  # TODO: temper-xxx
 temper_placer/adapters/register_strategies.py::PlacementStage.run  # TODO: temper-xxx
 temper_placer/adapters/register_strategies.py::RoutingStage.run  # TODO: temper-xxx
 temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage0_LoadPCB.run  # TODO: temper-xxx
