@@ -261,7 +261,7 @@ def test_format_report_lists_unexplained_net_names():
     assert "orphan_net" in report
 
 
-def test_real_policy_predicates_flag_the_measured_power_ground_orphans():
+def test_real_policy_predicates_no_longer_orphan_the_measured_power_ground_nets():
     """Runs the REAL production predicates (`_should_route`,
     `_zone_layers_for_net` -- not mocks) against the exact net names this
     investigation measured as orphaned on `pcb/temper.kicad_pcb`
@@ -269,49 +269,54 @@ def test_real_policy_predicates_flag_the_measured_power_ground_orphans():
     only needs the classification logic, which is a pure function of net
     name plus the netclass SSOT already loaded by these modules.
 
-    This is a real regression pin: if `_should_route` and
-    `_zone_layers_for_net` are ever reconciled (either +3V3-class nets
-    regain zone eligibility, or GND/Power nets are no longer excluded from
-    A*), this test needs to be updated -- which is the point, it makes that
-    change visible instead of silent.
+    UPDATED 2026-08-08 as the reconciliation this test's own previous
+    docstring anticipated: `_should_route` no longer excludes a
+    Power/GND-classified net from A* unless `_zone_layers_for_net` actually
+    grants it zone eligibility (see `_net_policy.py`'s `_should_route`
+    docstring for the per-net evidence -- `docs/evidence/
+    2026-07-28-pour-strategy-audit.md` Task 1/Task 3 -- for why A*-routing,
+    not zone eligibility, is the correct fix for all six of these nets).
+    So these six nets are no longer excluded from A* (`_should_route` now
+    returns ``True``), while remaining correctly zone-ineligible per the
+    netclass SSOT (`_zone_layers_for_net` still returns ``[]`` -- that half
+    of the classifier was already correct and is untouched by this fix).
+    This is the real regression pin now: if either predicate regresses back
+    toward re-excluding these nets from A* without restoring zone
+    eligibility, this test must fail.
     """
+    from temper_placer.router_v6._net_policy import _should_route
+    from temper_placer.router_v6._zone_pour_stitch import _zone_layers_for_net
+
     orphaned_by_policy = ["+15V", "+3V3", "PWR_RTN", "V_BUS_SENSE", "gnd", "vcc"]
-    # Board content carries zero copper of any kind for these nets, exactly
-    # as measured in the real routed output.
+    for name in orphaned_by_policy:
+        assert _should_route(name), (
+            f"{name!r} must be routed by A* now that it is not zone-eligible "
+            "-- excluding it here without zone coverage would re-orphan it "
+            "from both copper-producing mechanisms"
+        )
+        assert _zone_layers_for_net(name) == [], (
+            f"{name!r} unexpectedly gained zone eligibility; if that's "
+            "intentional this test (and _should_route's docstring) should "
+            "be updated to match, not just this assertion"
+        )
+
+    # And the audit agrees: with real copper present for these nets (as the
+    # production run now provides -- see
+    # test_full_pipeline_run_surfaces_the_same_unexplained_gap below), they
+    # are no longer unexplained gaps.
     content = "\n".join(
-        f'  (net {i} "{name}")' for i, name in enumerate(orphaned_by_policy, start=1)
+        f'  (net {i} "{name}")\n'
+        f'  (segment (start 0 0) (end 1 1) (width 0.25) (layer "F.Cu") '
+        f"(net {i}) (tstamp \"t{i}\"))"
+        for i, name in enumerate(orphaned_by_policy, start=1)
     )
     net_pins = {name: [("U1", "1"), ("U2", "1")] for name in orphaned_by_policy}
-
     audit = audit_topology_vs_copper(orphaned_by_policy, content, net_pins)
-
-    assert set(audit.unexplained_gap) == set(orphaned_by_policy), (
-        "Expected the real _should_route/_zone_layers_for_net predicates to "
-        "flag all 6 measured power/ground orphans as unexplained gaps; if "
-        "this now fails because some net gained copper eligibility, that is "
-        "real progress and this list should shrink to match -- but it must "
-        "not silently start passing with an empty diff."
-    )
-    for name in orphaned_by_policy:
-        assert "policy mismatch" in audit.outcomes[name].note
+    assert audit.with_copper == sorted(orphaned_by_policy)
+    assert audit.unexplained_gap == []
 
 
 @pytest.mark.slow
-@pytest.mark.xfail(
-    reason=(
-        "KNOWN, MEASURED pipeline gap (independent of net-batching): "
-        "_should_route excludes Power/GND/HV nets from Stage 4's A* on the "
-        "assumption zone pours cover them, but _zone_layers_for_net (driven "
-        "by NetClassRules.routing_strategy) only grants zone eligibility to "
-        "ACMains/HighVoltage, not Power/GND (since d4047607, "
-        "2026-07-28) -- so Power/GND nets get neither. Reproduced here on "
-        "the 33-net fixture board's +15V/+3V3/+5V/CGND/GND/PGND/VCC_BOOT. "
-        "strict=True: this must turn into a loud XPASS failure (not a "
-        "silent pass) the moment someone reconciles the two classifiers, "
-        "forcing this xfail to be removed rather than forgotten."
-    ),
-    strict=True,
-)
 def test_full_pipeline_run_surfaces_the_same_unexplained_gap():
     """End-to-end: actually run ``route_pcb()`` (no net-batching -- this
     confirms the gap is a general Stage3/Stage4 pipeline property, not a
@@ -324,22 +329,21 @@ def test_full_pipeline_run_surfaces_the_same_unexplained_gap():
     content. It is marked ``slow`` (~60-90s: full skeleton/grid/A* pipeline)
     rather than run on every commit, matching this repo's convention for
     tests that invoke the real router (see ``pytest.ini``/``pyproject.toml``
-    ``slow`` marker), and ``xfail(strict=True)`` because it currently and
-    knowingly fails -- see the reason string -- and a plain failing test
-    would break any CI stage that runs ``slow`` tests. ``strict=True`` means
-    an unexpected pass (XPASS) is itself a failure: the day this gap is
-    fixed, this test forces a human to notice and delete the xfail, rather
-    than the fix silently going unverified.
+    ``slow`` marker).
 
-    CURRENT STATUS (measured 2026-08-08): this fails today -- the fixture's
-    GND/+3V3/+5V/etc. power/ground nets hit the exact same
+    FIXED 2026-08-08 (was ``xfail(strict=True)``, converted to a normal
+    passing assertion now that the underlying gap is closed): this used to
+    fail because the fixture's GND/+3V3/+5V/etc. power/ground nets hit the
     ``_should_route``-excludes-but-``_zone_layers_for_net``-doesn't-cover
     gap documented in this module's docstring, independent of net-batching.
-    That failure is the point: it makes a real, currently-silent pipeline
-    gap fail loudly instead of reading as 100% success. It should start
-    passing only once that gap is actually fixed (either restore Power/GND
-    zone eligibility, or stop excluding them from A*) -- not by weakening
-    this assertion.
+    ``_should_route`` (``_net_policy.py``) now only excludes a
+    Power/GND/HV-classified net from A* when ``_zone_layers_for_net`` says
+    a zone pour will actually cover it -- see that function's docstring and
+    ``docs/evidence/2026-07-28-pour-strategy-audit.md`` Task 1/Task 3 for
+    the per-net evidence this fix was based on. Verified live on
+    ``pcb/temper.kicad_pcb`` (``--net-batching --batch-size 10``): all six
+    of the previously-orphaned nets (``+15V``, ``+3V3``, ``PWR_RTN``,
+    ``V_BUS_SENSE``, ``gnd``, ``vcc``) now carry explicit copper.
     """
     if not FIXTURE_33.exists():
         pytest.skip(f"fixture board not found: {FIXTURE_33}")
