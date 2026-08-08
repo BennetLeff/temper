@@ -49,6 +49,10 @@ from temper_placer.validation.drc_result import (  # noqa: E402
 from temper_placer.validation.drc_runner import (
     _violations_to_run_result as shim_convert,  # noqa: E402
 )
+from temper_placer.validation.drc_types import (  # noqa: E402
+    ComponentPlacement,
+    Placement,
+)
 
 # The runner's wrapper adds elapsed_ms to the RunResult — drive it through
 # the shim wrapper (the kernel-level records are pinned via drc_oracle's and
@@ -331,6 +335,125 @@ def test_mr3_append_only_grows_group():
     after = [i.severity.name for i in cr2.issues]
     assert after[:2] == before
     assert after == ["ERROR", "WARNING", "CRITICAL"]
+
+
+# ---------------------------------------------------------------------------
+# Boundary-schema contract tests (Python<->Rust dict-payload key-set audit,
+# 2026-08-08)
+# ---------------------------------------------------------------------------
+#
+# The rest of this file pins group_violations' *compute*. These two tests
+# guard the OTHER half of the same Python<->Rust boundary this module
+# crosses: that _placement_to_board_dict / _constraints_to_dict emit dicts
+# temper_drc_rs actually accepts. That contract used to be silent --
+# board_py_bridge.rs's hand-rolled extract_*() functions only ever read
+# keys they know about, so a renamed/misspelled key on either side was
+# invisible (this is exactly how the via/trace/zones K1-schema mismatch
+# shipped undetected: see drc_runner.py's _placement_to_board_dict history).
+#
+# `build_board_state` (board_py_bridge.rs) now calls `reject_unknown_keys`
+# at the board_dict top level and inside every component/via/trace/zone/
+# net_class_rules sub-dict; `ConstraintSet` and every constraint sub-type
+# (constraints.rs) now carry `#[serde(deny_unknown_fields)]`. That makes
+# "no exception raised" a real, CI-enforced assertion instead of a
+# vacuous one: any future rename/typo on either side of the boundary now
+# makes these tests raise, not silently drop data.
+#
+# Demonstrated failing before the fix (reproduced live, not just by
+# reasoning): reverting board_py_bridge.rs's guards and drc_runner.py's
+# via/trace/zones key names back to their pre-fix shapes reproduces
+# `ValueError: missing required key: net` here.
+
+
+def test_placement_to_board_dict_matches_rust_k1_schema() -> None:
+    """A fully-populated Placement (components, nets, net_classes, vias,
+    traces) run through _placement_to_board_dict must produce a dict
+    temper_drc_rs.run_drc() accepts without raising -- the K1-schema
+    key-set contract between the Python builder and the Rust consumer."""
+    from temper_placer.validation.drc_runner import _placement_to_board_dict
+
+    placement = Placement(
+        components={
+            "C1": ComponentPlacement(
+                ref="C1", footprint="0402", x=10.0, y=10.0, rotation=0.0,
+                layer="F.Cu", width=1.0, height=1.0, net_class="Signal",
+            ),
+            "C2": ComponentPlacement(
+                ref="C2", footprint="0402", x=50.0, y=50.0, rotation=0.0,
+                layer="B.Cu", width=1.0, height=1.0, net_class="Signal",
+            ),
+        },
+        nets={"N1": ["C1", "C2"]},
+        net_classes={"N1": "Signal"},
+        board_width=100.0,
+        board_height=100.0,
+        via_placement=_tdrc.ViaPlacement(
+            vias=[
+                _tdrc.Via(
+                    position=(5.0, 5.0), from_layer="F.Cu", to_layer="B.Cu",
+                    diameter=0.6, drill=0.3, net_name="N1",
+                ),
+            ]
+        ),
+        trace_placement=_tdrc.TracePlacement(
+            segments=[
+                _tdrc.TraceSegment(
+                    net_name="N1", layer="F.Cu", width=0.25,
+                    start=(0.0, 0.0), end=(10.0, 0.0),
+                ),
+            ]
+        ),
+    )
+    board_dict = _placement_to_board_dict(placement)
+    result = _tdrc.run_drc(board_dict, {})
+    assert isinstance(result, list)
+
+
+def test_constraints_to_dict_matches_rust_constraint_set_schema() -> None:
+    """A fully-populated ConstraintSet (clearances, zones, critical_loops,
+    thermal_constraints, component_groups) run through
+    _constraints_to_dict, then through temper_drc_rs.run_drc(), must not
+    raise -- the ConstraintSet #[serde(deny_unknown_fields)] contract."""
+    from temper_placer.validation.drc_runner import _constraints_to_dict
+
+    minimal_board = {
+        "board": {"width_mm": 100.0, "height_mm": 100.0},
+        "components": [],
+        "nets": {},
+        "net_classes": {},
+    }
+    constraints = _tdrc.ConstraintSet(
+        clearances=[
+            _tdrc.ClearanceRule(from_class="HV", to_class="LV", min_mm=6.0, description="safety"),
+        ],
+        zones=[
+            _tdrc.ZoneDefinition(name="Z1", bounds=(0.0, 0.0, 10.0, 10.0),
+                                  net_classes=["HV"], components=["Q1"]),
+        ],
+        critical_loops=[
+            _tdrc.LoopConstraint(name="L1", nets=["N1"], max_area_mm2=100.0,
+                                  weight=1.0, description=""),
+        ],
+        thermal_constraints=[
+            _tdrc.ThermalConstraint(components=["Q1"], prefer_edge=True,
+                                     min_spacing_mm=5.0,
+                                     max_distance_from_edge_mm=20.0,
+                                     description=""),
+        ],
+        component_groups=[
+            _tdrc.GroupConstraint(name="G1", components=["Q1", "Q2"],
+                                   max_spread_mm=25.0, zone=None,
+                                   proximity_rules=[], description=""),
+        ],
+        net_classes={"N1": "Signal"},
+        voltage_domains={},
+        hv_clearance_mm=8.0,
+        board_width=100.0,
+        board_height=100.0,
+    )
+    constraints_dict = _constraints_to_dict(constraints)
+    result = _tdrc.run_drc(minimal_board, constraints_dict)
+    assert isinstance(result, list)
 
 
 if __name__ == "__main__":
