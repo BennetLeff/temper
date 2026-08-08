@@ -92,11 +92,21 @@ def project_mfem_to_fdm(
 ) -> np.ndarray:
     """Project an MFEM nodal solution onto the FDM grid.
 
-    Uses scipy.interpolate.griddata (nearest-neighbor, deterministic).
-    Falls back to a flat reshape when node coordinates are unavailable.
-    """
-    from scipy.interpolate import griddata
+    Uses ``temper_geometry.nearest_neighbor_transform`` (Rust, ``rstar``
+    R*-tree single-nearest-neighbor query) — deterministic, replacing
+    ``scipy.interpolate.griddata(method="nearest")`` as of 2026-08-07 (see
+    ``docs/evidence/2026-08-07-scipy-keeps-re-triage.md`` Sec 4 and
+    ``packages/temper-geometry/src/nearest_neighbor.rs``'s module doc for
+    the contract determination, including the equidistant-tie-break
+    discussion — this call site's consumer, ``compare_fields``, applies a
+    coarse ``tolerance_C`` pass/fail gate, so which backend's tie-break
+    wins on an exact spatial tie is not load-bearing). Falls back to a flat
+    reshape when node coordinates are unavailable.
 
+    R19: the pre-migration ``scipy.interpolate.griddata`` call is retained,
+    unused here, as the differential's pinned oracle in
+    ``tests/validation/test_mfem_compare_nearest_neighbor_rust_differential.py``.
+    """
     H = fdm_config.height_cells
     W = fdm_config.width_cells
     cs = fdm_config.cell_size_mm
@@ -114,8 +124,7 @@ def project_mfem_to_fdm(
         grid_x, grid_y = np.meshgrid(xs, ys, indexing="xy")
         grid_pts = np.column_stack([grid_x.ravel(), grid_y.ravel()])
 
-        src_pts = nc[:, :2]
-        temps = griddata(src_pts, t, grid_pts, method="nearest", rescale=False)
+        temps = _nearest_neighbor_lookup(nc[:, :2], t, grid_pts)
         return temps.reshape(H, W)
 
     temp = np.asarray(mfem_result.temperature).ravel()
@@ -125,6 +134,33 @@ def project_mfem_to_fdm(
     raise ValueError(
         f"cannot project MFEM field (size {len(temp)}) onto FDM grid ({H}x{W}={H * W})"
     )
+
+
+def _nearest_neighbor_lookup(
+    src_pts: np.ndarray, values: np.ndarray, query_pts: np.ndarray
+) -> np.ndarray:
+    """For each point in ``query_pts``, the ``values`` entry of the nearest
+    ``src_pts`` point by Euclidean distance — the value-gather half of
+    ``griddata(method="nearest")``, kept as a standalone function so the
+    differential suite can call it directly against curated point sets
+    (including an explicit equidistant-tie case) without needing a full
+    ``MFEMResult``/``ThermalFDMConfig`` pair.
+
+    ``temper_geometry.nearest_neighbor_transform`` (Rust) does the spatial
+    query and returns indices; the value gather (``values[idx]``) stays
+    Python-side, matching this crate's "geometry kernel returns indices,
+    caller owns domain values" convention (see
+    ``packages/temper-geometry/src/nearest_neighbor.rs``'s module doc).
+    """
+    import temper_geometry as _tg
+
+    src = np.ascontiguousarray(src_pts, dtype=np.float64)
+    query = np.ascontiguousarray(query_pts, dtype=np.float64)
+    n_src = len(src)
+    n_query = len(query)
+    idx_bytes = _tg.nearest_neighbor_transform(src.tobytes(), n_src, query.tobytes(), n_query)
+    idx = np.frombuffer(idx_bytes, dtype="<i8")
+    return values[idx]
 
 
 def _attribute_disagreement(

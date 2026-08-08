@@ -166,6 +166,14 @@ pub mod persistent_radius_index;
 pub mod convex_hull;
 #[cfg(feature = "python")]
 pub use convex_hull::convex_hull_area_py;
+// validation/mfem_compare.py's project_mfem_to_fdm: batch single-nearest-
+// neighbor lookup (rstar), replacing
+// scipy.interpolate.griddata(method="nearest"). One-shot batch shape, same
+// as radius_pairs.rs above -- see this module's own doc comment for the
+// contract determination and tie-breaking discussion.
+pub mod nearest_neighbor;
+#[cfg(feature = "python")]
+pub use nearest_neighbor::nearest_neighbor_transform;
 #[cfg(feature = "python")]
 pub use drc_constraints_geometry::{
     drc_closest_points_segment_segment_py, drc_point_to_circle_distance_py,

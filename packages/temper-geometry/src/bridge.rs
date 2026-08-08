@@ -13,6 +13,7 @@ use crate::connected_components::connected_components_8_transform;
 use crate::edt::exact_edt_transform;
 use crate::radius_pairs::radius_pairs_transform;
 use crate::convex_hull::convex_hull_area_py;
+use crate::nearest_neighbor::nearest_neighbor_transform;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
 use crate::occupancy_raster::{
@@ -1496,6 +1497,10 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // replaces scipy.spatial.ConvexHull; both call sites read only the
     // scalar hull area, see convex_hull.rs's module doc)
     m.add_function(wrap_pyfunction!(convex_hull_area_py, m)?)?;
+
+    // nearest_neighbor (validation/mfem_compare.py's project_mfem_to_fdm --
+    // replaces scipy.interpolate.griddata(method="nearest"))
+    m.add_function(wrap_pyfunction!(nearest_neighbor_transform, m)?)?;
 
     // grid rasterisation (Wave 3 candidate #1: ClearanceGrid compute)
     m.add_function(wrap_pyfunction!(block_circle_into_grid_py, m)?)?;
