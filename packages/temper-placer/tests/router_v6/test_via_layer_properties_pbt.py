@@ -67,7 +67,17 @@ def _make_grids(
     return {
         layer: OccupancyGrid(
             layer_name=layer,
-            grid=np.zeros((height_cells, width_cells), dtype=np.int32),
+            # int8 is the documented CellState dtype (build_occupancy_grid's
+            # own np.full(..., dtype=np.int8), and the sole dtype the Rust
+            # occupancy_raster kernels' PyBuffer<i8> boundary accepts for
+            # mutation -- see occupancy_grid.py's mark_path_blocked/
+            # mark_via_blocked docstrings). A wider dtype here isn't a more
+            # "generic" test fixture; it's an input the real system can
+            # never produce, and it used to raise BufferError once these
+            # methods started crossing into Rust (Wave 4, #867) -- it only
+            # ever worked pre-migration because the old pure-Python
+            # implementation didn't care about dtype.
+            grid=np.zeros((height_cells, width_cells), dtype=np.int8),
             origin=(0.0, 0.0),
             cell_size=cell_size,
             width_cells=width_cells,
@@ -78,7 +88,14 @@ def _make_grids(
 
 
 _grid_dims = st.integers(min_value=8, max_value=24)
-_net_ids = st.integers(min_value=1, max_value=10_000)
+# Bounded to int8's positive range: net_id is written into an int8 grid cell
+# (see _make_grids above), and the Rust mark_via_circle_into_grid_py kernel's
+# check_i8_write rejects anything outside [-128, 127] with OverflowError --
+# exactly mirroring real numpy int8 scalar-assignment overflow. A net_id
+# above 127 is not a value this system can ever store, so it is not a
+# meaningful input for these properties (P1a/P1b test that a via ends up
+# correctly stamped/protected, not int8 overflow handling).
+_net_ids = st.integers(min_value=1, max_value=127)
 
 
 @st.composite

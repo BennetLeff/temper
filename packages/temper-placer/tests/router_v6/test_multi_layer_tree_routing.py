@@ -35,7 +35,17 @@ def _make_grids(
     return {
         layer: OccupancyGrid(
             layer_name=layer,
-            grid=np.zeros((height, width), dtype=np.int32),
+            # int8 is the documented CellState dtype (build_occupancy_grid's
+            # own np.full(..., dtype=np.int8), and the sole dtype the Rust
+            # occupancy_raster kernels' PyBuffer<i8> boundary accepts for
+            # mutation -- see occupancy_grid.py's mark_path_blocked/
+            # mark_via_blocked docstrings). A wider dtype here isn't a more
+            # "generic" test fixture; it's an input the real system can
+            # never produce, and it used to raise BufferError once these
+            # methods started crossing into Rust (Wave 4, #867) -- it only
+            # ever worked pre-migration because the old pure-Python
+            # implementation didn't care about dtype.
+            grid=np.zeros((height, width), dtype=np.int8),
             origin=(0.0, 0.0),
             cell_size=0.1,
             width_cells=width,
