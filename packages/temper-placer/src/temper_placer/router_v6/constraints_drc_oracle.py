@@ -77,8 +77,9 @@ INTERNAL_LAYER_CREEPAGE_FACTOR = 0.30
 class DRCOracle:
     """Real-time design rule constraint checker.
 
-    Uses cKDTree for O(log n) spatial queries to validate track and via
-    placement against design rules.
+    Uses a persistent ``temper_geometry.RadiusIndex`` (Rust ``rstar``
+    R*-tree, see ``constraints_spatial_index.py``) for O(log n) spatial
+    queries to validate track and via placement against design rules.
 
     EXP-13: Supports internal layer creepage reduction for signals routed
     under ground/power planes. When routing on In1.Cu or In2.Cu, clearance

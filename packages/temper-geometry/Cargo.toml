@@ -18,6 +18,42 @@ pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
 # temper-drc-rs's `geo`/`rstar` stack) -- no libc/OS dependency, so it builds
 # for wasm32 the same as the rest of this crate.
 spade = "2.15"
+# radius_pairs.rs: exact all-pairs-within-radius query for
+# router_v6/channel_skeleton.py's island-bridging MST, replacing
+# scipy.spatial.cKDTree.query_pairs. Same version already pinned by
+# temper-drc-rs ("geo + rstar spatial indexing") -- reusing rather than
+# introducing a second spatial-index crate (kiddo was evaluated and rejected;
+# see radius_pairs.rs's module doc). Pure Rust (heapless/num-traits/smallvec
+# only, no `geo` dependency needed -- rstar has its own Point trait with a
+# blanket impl for fixed-size float arrays), so it builds for wasm32 the same
+# as spade above; already proven on wasm32-unknown-unknown in this repo via
+# temper-drc-rs's own WASM tier R1 build.
+rstar = "0.12"
+# convex_hull.rs: hull *area* for physics/loop_area.py's
+# `_convex_hull_area` and validation/trace_analyzer.py's
+# `calculate_actual_loop_area`, replacing scipy.spatial.ConvexHull (both
+# call sites read only `hull.volume`, never vertex ordering -- see
+# docs/evidence/2026-08-07-scipy-keeps-re-triage.md Sec 2). Already a
+# resolved workspace dependency via temper-drc-rs ("geo + rstar spatial
+# indexing"), so this adds no new external crate surface -- reusing the
+# same pinned version. Pure Rust (QuickHull, Barber-Dobkin-Huhdanpaa), no
+# libc/OS dependency, so it builds for wasm32 the same way temper-drc-rs's
+# unconditional (non-wasm-gated) `geo` dependency already does.
+geo = "0.28"
+# hierarchical_clustering.rs: Ward-linkage agglomerative clustering for
+# router_v6/zone_emission.py's `_cluster_positions`, replacing
+# scipy.cluster.hierarchy.linkage(method="ward")/fcluster/pdist. Pure Rust,
+# zero production dependencies of its own (verified: kodama's own Cargo.toml
+# declares dev-dependencies only), so it builds for wasm32-unknown-unknown
+# with no extra feature wiring -- confirmed directly against a throwaway
+# crate depending on kodama alone before adding it here. Last published
+# 2023-01-04 (no `fcluster`-equivalent flat-cut API -- this crate's own
+# hierarchical_clustering.rs implements that reconstruction), but the
+# linkage algorithm itself needs no further development: it is a closed,
+# well-specified numerical procedure (Ward/Lance-Williams recurrence),
+# verified bit-exact against scipy's own dissimilarity values on real board
+# geometry -- see docs/evidence/2026-08-07-zone-emission-clustering-kodama-port.md.
+kodama = "0.3"
 
 [features]
 # WASM tier R1 (plan 2026-08-03-002): pyo3 is gated behind the optional

@@ -3021,9 +3021,10 @@ leftovers slice's fourth migration: the `HypergraphFactory` pyclass (the
 valid-nets filter, the ref→index mapping, the physics classification and the
 per-net connection extraction) plus the `HypergraphBuildResult` pyclass,
 ported from `temper_placer/extraction/hypergraph_factory.py` (the Python
-module is now a wrapper: the `HypergraphFactory` shim class owns the scipy
-COO assembly and the `netlist_to_hypergraph` convenience function stays
-Python). Home crate: `temper-design-bundle` — the factory consumes the
+module is now a wrapper: the `HypergraphFactory` shim class owns the COO
+triplet assembly (`Coo`, a plain-array container — see Sec 6 below) and the
+`netlist_to_hypergraph` convenience function stays Python). Home crate:
+`temper-design-bundle` — the factory consumes the
 `Netlist` contract pyclasses (`netlist_contracts.rs`), so the netlist reader
 and the factory share one crate.
 
@@ -3097,10 +3098,19 @@ commit `58b302ce8`).
    original objects (int × int stays int; the H9 mutant pinned the
    operator), collected in component order.
 6. **The assembly boundary (KTD9).** `np.array(..., dtype=np.float32)`
-   casts and `coo_matrix((values, (rows, cols)), shape=...)` run in the
-   shim on the Rust-returned objects — numpy/scipy conversion semantics
-   (int leaves, 0.2's f32 rounding, empty-matrix handling, scipy's COO
-   construction) are the libraries' own on both sides of the differential.
+   casts run in the shim on the Rust-returned objects — numpy conversion
+   semantics (int leaves, 0.2's f32 rounding, empty-array handling) are
+   numpy's own on both sides of the differential. The COO triplets
+   themselves are assembled into `Coo` (a plain-array container,
+   `temper_placer.core.hypergraph.Coo`) as of 2026-08-07 — this used to be
+   `scipy.sparse.coo_matrix`; see
+   `docs/evidence/2026-08-07-scipy-keeps-re-triage.md` Sec 3 for why that
+   was retired (the triplets arriving here are already deduplicated per
+   net, so scipy's duplicate-coordinate summation semantics were never
+   exercised). The oracle (`_hypergraph_factory_py_oracle.py`) still builds
+   a real `coo_matrix`, retained as the pinned pre-migration reference per
+   R19; both sides duck-type the same `.shape`/`.nnz`/`.data`/`.row`/`.col`
+   surface the differential compares.
 
 ## Evidence
 
@@ -3168,7 +3178,7 @@ commit `58b302ce8`).
    not silently matched; the differential and PBT suites use the netlist
    contract types exclusively.
 2. **`HypergraphFactory` (the Python shim class) remains Python.** It owns
-   the scipy/numpy assembly — the KTD9 boundary is the class boundary, not
+   the `Coo`/numpy assembly — the KTD9 boundary is the class boundary, not
    a method boundary. The pyclass underneath is the migrated compute.
 
 ---

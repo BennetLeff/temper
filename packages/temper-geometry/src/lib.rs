@@ -67,6 +67,13 @@ pub mod channel_widths;
 pub mod edt;
 #[cfg(feature = "python")]
 pub use edt::exact_edt_transform;
+// KTD8 follow-up (docs/evidence/2026-08-07-rust-connected-components-spike.md):
+// exact 8-connected connected-component labeling, matching
+// scipy.ndimage.label(mask, structure=np.ones((3, 3), dtype=bool)) --
+// routability_check.py's last scipy binding (check_routability_cc).
+pub mod connected_components;
+#[cfg(feature = "python")]
+pub use connected_components::connected_components_8_transform;
 pub mod grid_raster;
 #[cfg(feature = "python")]
 pub use grid_raster::{
@@ -128,6 +135,12 @@ pub mod fixed_copper;
 // register().
 #[cfg(feature = "python")]
 pub mod zone_pour;
+// router_v6/zone_emission.py's `_cluster_positions`: Ward-linkage
+// hierarchical clustering + flat-cut, replacing
+// scipy.cluster.hierarchy.linkage/fcluster/pdist. See this module's own doc
+// comment for the consumer-contract verification, crate choice, and the
+// scipy-boundary tie-break semantics the flat-cut reconstruction depends on.
+pub mod hierarchical_clustering;
 // Wave 4, router_v6 core slice: the DRC constraint-geometry kernel behind
 // router_v6/constraints_geometry.py. Declared after creepage_check because
 // it reuses that module's CPython min/max replications.
@@ -136,6 +149,37 @@ pub mod drc_constraints_geometry;
 // Declared after creepage_check (py_min) and host_math (pow), which it
 // reuses.
 pub mod channel_skeleton;
+// router_v6/channel_skeleton.py's island-bridging MST candidate generation:
+// exact all-pairs-within-radius query (rstar R*-tree), replacing
+// scipy.spatial.cKDTree.query_pairs. See
+// docs/evidence/2026-08-07-channel-skeleton-bridging-perf.md for the
+// bridging algorithm this feeds, and this module's own doc comment for the
+// crate-choice and tie-breaking contract determination.
+pub mod radius_pairs;
+#[cfg(feature = "python")]
+pub use radius_pairs::radius_pairs_transform;
+// router_v6/constraints_spatial_index.py's PCBGeometry: a persistent
+// rstar R*-tree handle (build once per rebuild_index() batch, query many
+// times via query_ball_point), replacing the per-kind scipy.spatial.cKDTree
+// instances that call site built. Different contract from radius_pairs.rs
+// above (one-shot batch all-pairs) -- see this module's own doc comment.
+pub mod persistent_radius_index;
+// scipy.spatial.ConvexHull -> geo::ConvexHull port for
+// physics/loop_area.py + validation/trace_analyzer.py's hull *area* call
+// sites (scalar-only consumers -- see docs/evidence/2026-08-07-scipy-keeps-
+// re-triage.md Sec 2 and this module's own doc comment for the verified
+// contract).
+pub mod convex_hull;
+#[cfg(feature = "python")]
+pub use convex_hull::convex_hull_area_py;
+// validation/mfem_compare.py's project_mfem_to_fdm: batch single-nearest-
+// neighbor lookup (rstar), replacing
+// scipy.interpolate.griddata(method="nearest"). One-shot batch shape, same
+// as radius_pairs.rs above -- see this module's own doc comment for the
+// contract determination and tie-breaking discussion.
+pub mod nearest_neighbor;
+#[cfg(feature = "python")]
+pub use nearest_neighbor::nearest_neighbor_transform;
 #[cfg(feature = "python")]
 pub use drc_constraints_geometry::{
     drc_closest_points_segment_segment_py, drc_point_to_circle_distance_py,
@@ -164,6 +208,8 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::fixed_copper::register(m)?;
     crate::zone_pour::register(m)?;
     crate::channel_skeleton::register(m)?;
+    crate::hierarchical_clustering::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
+    m.add_class::<crate::persistent_radius_index::RadiusIndex>()?;
     Ok(())
 }

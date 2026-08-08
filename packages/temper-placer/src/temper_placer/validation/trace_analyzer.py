@@ -7,19 +7,21 @@ to validate compliance with EMI, Signal Integrity, and Thermal specs.
 Wave 4 Phase 4: the two pure numeric kernels (total net length and the
 HV-LV minimum endpoint distance) delegate to ``temper_drc_rs``
 (``trace_length`` / ``min_hv_lv_trace_clearance`` in
-packages/temper-drc-rs/src/validation.rs). ``calculate_actual_loop_area``
-stays here: its core is ``scipy.spatial.ConvexHull`` (Qhull), which is not
-bit-reproducible outside scipy — the GEOS-style "library semantics are not
-reimplementable" boundary (see docs/MIGRATION_PHASE_GUIDE.md). The two
-remaining validators are orchestration/printing over those kernels and stay
-Python.
+packages/temper-drc-rs/src/validation.rs). ``calculate_actual_loop_area``'s
+convex-hull core also delegates to Rust now (``temper_geometry.
+convex_hull_area_py``, ``geo``'s QuickHull replacing
+``scipy.spatial.ConvexHull``): this call site only ever reads the scalar
+``hull.volume`` (2-D "volume" == area), never vertex ordering, so the
+"not bit-reproducible outside scipy" concern that blocked this port for a
+while does not apply — that was a blanket claim never actually checked
+against this call site's contract, corrected in
+docs/evidence/2026-08-07-scipy-keeps-re-triage.md Sec 2. The two remaining
+validators are orchestration/printing over these kernels and stay Python.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
-
-import numpy as np
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
@@ -65,12 +67,16 @@ def calculate_actual_loop_area(board: Board, net_names: list[str]) -> float:
     # Simple bounding box area as proxy if not enough points.
 
     # Better: use actual points and shoelace if they form a closed loop.
-    # For validation, we'll use convex hull area as a conservative upper bound.
-    from scipy.spatial import ConvexHull
+    # For validation, we'll use convex hull area as a conservative upper
+    # bound (Rust kernel -- see module docstring). Degenerate inputs
+    # (< 3 points, collinear, all-duplicate) return 0.0 directly from the
+    # kernel rather than raising, matching the pre-migration
+    # `except Exception: return 0.0` fallback exactly.
+    import temper_geometry
 
+    flat: list[float] = [c for p in points for c in (float(p[0]), float(p[1]))]
     try:
-        hull = ConvexHull(np.array(points))
-        return float(hull.volume)  # volume of 2D hull is area
+        return float(temper_geometry.convex_hull_area_py(flat))  # area of 2D hull
     except Exception:
         return 0.0
 

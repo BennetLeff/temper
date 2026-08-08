@@ -17,10 +17,22 @@
 //!
 //! ## The KTD9 boundaries (kept Python-side, argued in-source)
 //!
-//! 1. **scipy**: `coo_matrix((values, (rows, cols)), shape=...)` stays in
-//!    the Python shim. scipy's COO construction (duplicate-coordinate
+//! 1. **COO triplet assembly**: `rows`/`cols`/`data` construction stays in
+//!    the Python shim, into `temper_placer.core.hypergraph.Coo` (a
+//!    plain-array container). This was `scipy.sparse.coo_matrix` until
+//!    2026-08-07 (`docs/evidence/2026-08-07-scipy-keeps-re-triage.md` Sec
+//!    3): the original "scipy's COO construction (duplicate-coordinate
 //!    handling, dtype validation, empty-matrix semantics) is a library
-//!    semantic, not portable compute.
+//!    semantic, not portable compute" framing overstated the case — by the
+//!    time this constructor runs, `set(connected_indices)` (point 3 below)
+//!    has already deduplicated every net's triplets, so scipy's
+//!    duplicate-coordinate summation semantics were never actually
+//!    exercised at this call site. What remained was triplet storage plus
+//!    an order-invariant `H @ ones` reduction (`PhysicsHypergraph
+//!    .compute_node_degrees`/`compute_edge_degrees`) — not an algorithm
+//!    scipy uniquely owns. No new Rust was needed to retire it: `Coo` wraps
+//!    the same `rows`/`cols`/`data` this shim already assembles from the
+//!    Rust-returned `connected_indices` below.
 //! 2. **numpy casts**: every `np.array(..., dtype=np.float32)` stays in
 //!    the shim, so int-vs-float leaves convert with numpy's own semantics
 //!    (an int `weight=7` reaches numpy as the original Python int, never

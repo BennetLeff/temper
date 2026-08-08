@@ -1,0 +1,38 @@
+[
+  {
+    "case": "n_src=500, grid=50x50 (mfem_gate min-cap)",
+    "n_src": 500,
+    "n_query": 2500,
+    "values_agree": true,
+    "scipy_s": 0.001659109999309294,
+    "rust_s": 0.0013853819982614368,
+    "rust_over_scipy": 0.8350151580294175
+  },
+  {
+    "case": "n_src=2000, grid=50x50 (mfem_gate min-cap)",
+    "n_src": 2000,
+    "n_query": 2500,
+    "values_agree": true,
+    "scipy_s": 0.0022864089987706393,
+    "rust_s": 0.0016029289981815964,
+    "rust_over_scipy": 0.7010683561180271
+  },
+  {
+    "case": "n_src=2000, grid=100x200 (thermal_fdm default)",
+    "n_src": 2000,
+    "n_query": 20000,
+    "values_agree": true,
+    "scipy_s": 0.00954323000041768,
+    "rust_s": 0.01028017100179568,
+    "rust_over_scipy": 1.077221339247377
+  },
+  {
+    "case": "n_src=5000, grid=100x200 (thermal_fdm default)",
+    "n_src": 5000,
+    "n_query": 20000,
+    "values_agree": true,
+    "scipy_s": 0.010622752000926994,
+    "rust_s": 0.013443937998090405,
+    "rust_over_scipy": 1.2655795783349946
+  }
+]

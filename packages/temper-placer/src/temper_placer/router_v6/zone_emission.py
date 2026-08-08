@@ -42,13 +42,25 @@ def _cluster_positions(
     positions: list[tuple[float, float]],
 ) -> list[list[tuple[float, float]]]:
     """Group positions into spatial clusters using data-informed hierarchical
-    clustering (scipy).  The cut threshold is derived from the largest gap in
+    clustering.  The cut threshold is derived from the largest gap in
     sorted nearest-neighbour distances — separating within-component adjacency
     (~0.6-2.5 mm) from inter-component separation (70-111 mm median on the
     production board).
 
     Falls back to a single cluster for nets with ≤2 pads or when no natural
     gap is detectable.
+
+    Wave 4 (2026-08-07): the Ward-linkage clustering step (previously
+    ``scipy.cluster.hierarchy.linkage``/``fcluster``/``scipy.spatial.
+    distance.pdist``) delegates to ``temper_geometry.ward_cluster_labels_py``
+    (``packages/temper-geometry/src/hierarchical_clustering.rs``, `kodama`
+    crate). Verified bit-exact against scipy's own dissimilarity values and
+    partition-identical (as a set of sets, the only contract any consumer
+    here relies on — see that module's doc comment) on all zone-eligible
+    HighVoltage nets on the production board plus synthetic/symmetric stress
+    cases; see docs/evidence/2026-08-07-zone-emission-clustering-kodama-port.md.
+    The NN-distance-gap threshold heuristic above this call is unchanged
+    (plain Python, never used scipy).
     """
     if len(positions) <= 2:
         return [list(positions)]
@@ -89,15 +101,11 @@ def _cluster_positions(
         idx = min(len(nn_dists) - 1, int(len(nn_dists) * 0.95))
         threshold = max(10.0, nn_dists[idx]) if nn_dists else 10.0
 
-    from scipy.cluster.hierarchy import fcluster, linkage
-    from scipy.spatial.distance import pdist
-
-    Z = linkage(pdist(positions), method="ward")
-    labels = fcluster(Z, t=threshold, criterion="distance")  # type: ignore[attr-defined]
+    labels = _tg.ward_cluster_labels_py(positions, threshold)
 
     clusters: dict[int, list[tuple[float, float]]] = {}
     for i, label in enumerate(labels):
-        clusters.setdefault(int(label), []).append(positions[i])  # type: ignore[arg-type]
+        clusters.setdefault(int(label), []).append(positions[i])
 
     return list(clusters.values())
 

@@ -2,7 +2,8 @@
 Physics-Aware Hypergraph representation for PCB placement.
 
 This module defines the core immutable data structures for the hypergraph.
-Uses Python dataclasses and scipy sparse matrices (JAX removed).
+Uses Python dataclasses and a plain-array COO triplet container (JAX removed;
+scipy.sparse retired -- see ``Coo``'s docstring).
 """
 
 from __future__ import annotations
@@ -12,9 +13,60 @@ from typing import TypeAlias
 
 import numpy as np
 from numpy.typing import NDArray
-from scipy.sparse import coo_matrix
 
 Array: TypeAlias = NDArray  # type alias for sparse operations
+
+
+@dataclass(frozen=True)
+class Coo:
+    """Minimal COO-triplet container, replacing ``scipy.sparse.coo_matrix``.
+
+    ``extraction/hypergraph_factory.py`` builds this from triplets that are
+    already deduplicated per net (a Python ``set()`` over connected-component
+    indices, before construction -- see that module's docstring), so there is
+    no duplicate-entry summation semantics to reproduce: this is triplet
+    storage plus an order-invariant matrix-vector product, not an algorithm.
+    ``docs/evidence/2026-08-07-scipy-keeps-re-triage.md`` Sec 3 re-triaged
+    this call site and found the prior "sparse construction semantics are not
+    reimplementable" premise did not hold once checked against the actual
+    code and its sole consumer (``PhysicsHypergraph.compute_node_degrees``/
+    ``compute_edge_degrees``, an order-invariant ``H @ ones`` / ``H.T @
+    ones``).
+
+    Duck-types the handful of ``scipy.sparse.coo_matrix`` attributes this
+    codebase's call sites and tests actually use (``shape``, ``nnz``,
+    ``row``, ``col``, ``data``, ``.T``, ``@``) -- this is not a general
+    sparse-matrix replacement, only enough surface for those consumers.
+    """
+
+    row: Array  # (nnz,) int -- row index per stored triplet
+    col: Array  # (nnz,) int -- column index per stored triplet
+    data: Array  # (nnz,) -- value per stored triplet
+    shape: tuple[int, int]
+
+    @property
+    def nnz(self) -> int:
+        return int(self.data.shape[0])
+
+    @property
+    def T(self) -> Coo:  # noqa: N802 - matches scipy's `.T` attribute name
+        return Coo(row=self.col, col=self.row, data=self.data, shape=(self.shape[1], self.shape[0]))
+
+    def __matmul__(self, other: Array) -> Array:
+        """Sparse matrix-vector product ``self @ other``.
+
+        For each stored triplet ``(r, c, d)``, scatter-adds ``d *
+        other[c]`` into ``result[r]``. The result does not depend on
+        triplet order -- ``np.bincount`` sums by group regardless of the
+        order its inputs arrive in -- matching the order-invariance
+        ``scipy.sparse.coo_matrix``'s matvec already provided (this class's
+        justification for dropping it).
+        """
+        n_rows = self.shape[0]
+        if self.nnz == 0:
+            return np.zeros(n_rows, dtype=np.float64)
+        contributions = self.data.astype(np.float64) * other[self.col]
+        return np.bincount(self.row, weights=contributions, minlength=n_rows)
 
 
 @dataclass
@@ -31,7 +83,7 @@ class HypergraphIncidence:
     - 0.0 otherwise
     """
 
-    matrix: coo_matrix
+    matrix: Coo
     node_weights: Array  # (N_nodes,) - e.g., component area
     hyperedge_weights: Array  # (N_edges,) - e.g., net priority/current
 

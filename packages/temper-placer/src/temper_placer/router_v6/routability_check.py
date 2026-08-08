@@ -42,9 +42,11 @@ def _exact_edt(mask: np.ndarray) -> np.ndarray:
     already be the desired ``uint8`` array at the call site; this function
     does not renormalize dtype or semantics.
 
-    This module keeps a *separate*, still-scipy ``scipy.ndimage.label`` call
-    in ``check_routability_cc`` -- a different function, out of scope for
-    this migration; this module does not become scipy-free.
+    ``check_routability_cc``'s connected-component labeling (previously
+    ``scipy.ndimage.label``) is migrated separately by
+    ``_connected_components_8`` below -- see
+    ``docs/evidence/2026-08-07-rust-connected-components-spike.md``. This
+    module is scipy-free as of that migration.
 
     R19: the pre-migration ``scipy.ndimage.distance_transform_edt`` call is
     retained, unused here, as the differential's pinned oracle in
@@ -66,6 +68,40 @@ def _exact_edt(mask: np.ndarray) -> np.ndarray:
     mask_u8 = np.ascontiguousarray(mask, dtype=np.uint8)
     out_bytes = _tg.exact_edt_transform(mask_u8.tobytes(), h, w)
     return np.frombuffer(out_bytes, dtype="<f8").reshape(h, w)
+
+
+def _connected_components_8(mask: np.ndarray) -> tuple[np.ndarray, int]:
+    """8-connected component labeling, delegating to
+    ``temper_geometry.connected_components_8_transform`` (Rust two-pass
+    union-find raster scan).
+
+    Matches the *partition* ``scipy.ndimage.label(mask,
+    structure=np.ones((3, 3), dtype=bool))`` computes -- exactly, on every
+    case measured (7.9M+ curated-corpus cells and 300 random trials, 0
+    partition mismatches; see
+    ``docs/evidence/2026-08-07-rust-connected-components-spike.md``).
+    ``check_routability_cc`` (the sole caller) only tests
+    ``component_labels[sy, sx] == component_labels[gy, gx] != 0`` -- label
+    *values* are not part of its contract, only which cells share a label
+    and which are background (``0``) -- so this function does not promise
+    numeric parity with scipy's own label numbering, even though the
+    measured implementation happens to reproduce it (both assign labels in
+    raster first-encounter order).
+
+    ``mask`` must already be the desired boolean/uint8-castable array; this
+    function does not renormalize dtype. Returns ``(labels, num_features)``:
+    ``labels`` is ``int32``, same shape as ``mask``, ``0`` for background
+    and ``1..=num_features`` for foreground components.
+
+    R19: the pre-migration ``scipy.ndimage.label`` call is retained, unused
+    here, as the differential's pinned oracle in
+    ``tests/router_v6/test_routability_check_cc_rust_differential.py``.
+    """
+    h, w = mask.shape
+    mask_u8 = np.ascontiguousarray(mask, dtype=np.uint8)
+    out_bytes, num_features = _tg.connected_components_8_transform(mask_u8.tobytes(), h, w)
+    labels = np.frombuffer(out_bytes, dtype="<i4").reshape(h, w)
+    return labels, int(num_features)
 
 
 def _clear_region(
@@ -363,19 +399,18 @@ def check_routability_cc(
     """Check routability using 8-connected components (O(1) per net).
 
     Precomputes 8-connected component labels via
-    ``scipy.ndimage.label``.  The first call with a given ``trace_width``
-    incurs an O(N) cost; subsequent calls with the same mask reuse the
-    cached labels.
+    ``_connected_components_8`` (Rust; see
+    ``docs/evidence/2026-08-07-rust-connected-components-spike.md``).  The
+    first call with a given ``trace_width`` incurs an O(N) cost; subsequent
+    calls with the same mask reuse the cached labels.
 
     Pass ``passable_mask`` or ``component_labels`` to reuse across
     multiple nets with the same width.
 
     This is mathematically equivalent to BFS/Dijkstra for reachability:
-    the ``label`` function finds ALL 8-connected components, and the
-    answer is simply whether start and goal share the same label.
+    the labeling finds ALL 8-connected components, and the answer is
+    simply whether start and goal share the same label.
     """
-    from scipy.ndimage import label as nd_label
-
     h, w = edt_grid.shape
     min_edt = trace_width / (2.0 * cell_size)
 
@@ -407,10 +442,10 @@ def check_routability_cc(
             _clear_region(passable_mask, sx, sy, pad_radius_cells)
             _clear_region(passable_mask, gx, gy, pad_radius_cells)
 
-        # 8-connected components.  The ``structure`` parameter defines
-        # connectivity: a 3x3 block of ones means all 8 neighbors.
-        structure = np.ones((3, 3), dtype=bool)
-        component_labels, _num_features = nd_label(passable_mask, structure=structure)
+        # 8-connected components (all 8 neighbors, including diagonals --
+        # matches scipy's structure=np.ones((3, 3)), not scipy's own
+        # 4-connected default).
+        component_labels, _num_features = _connected_components_8(passable_mask)
 
     ls = component_labels[sy, sx]
     lg = component_labels[gy, gx]

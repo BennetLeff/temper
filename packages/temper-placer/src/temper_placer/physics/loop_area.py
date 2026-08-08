@@ -229,12 +229,20 @@ def _convex_hull_area(points: list[tuple[float, float]]) -> float:
 
     Used as the fallback when the true routed polygon cannot be formed
     (e.g. trace graph contains spurs that prevent cycle detection).
-    """
-    from scipy.spatial import ConvexHull
 
-    pts = np.array(points, dtype=np.float64)
+    Rust kernel (``temper_geometry.convex_hull_area_py``, ``geo``'s
+    QuickHull), replacing ``scipy.spatial.ConvexHull``: this call site only
+    ever read the scalar ``hull.volume`` (2-D "volume" == area), never
+    vertex ordering, so the port carries no ordering/tie-break risk — see
+    docs/evidence/2026-08-07-scipy-keeps-re-triage.md Sec 2. Degenerate
+    inputs (< 3 points, collinear, all-duplicate) return ``0.0`` directly
+    from the kernel rather than raising, matching this function's
+    pre-migration ``except Exception: return 0.0`` fallback exactly.
+    """
+    import temper_geometry
+
+    flat: list[float] = [c for p in points for c in (float(p[0]), float(p[1]))]
     try:
-        hull = ConvexHull(pts)
-        return float(hull.volume)
+        return float(temper_geometry.convex_hull_area_py(flat))
     except Exception:
         return 0.0
