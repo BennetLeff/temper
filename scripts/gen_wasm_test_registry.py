@@ -90,6 +90,7 @@ ELIGIBLE: list[tuple[str, str]] = [
     ("pymath.rs", "tests"),
     ("rules/mod.rs", "integration_tests"),
     ("rules/drc/clearance.rs", "tests"),
+    ("rules/drc/property_campaigns.rs", "tests"),
     ("rules/emc/ground_plane.rs", "tests"),
     ("rules/emc/loop_area.rs", "tests"),
     ("rules/emc/noise_coupling.rs", "tests"),

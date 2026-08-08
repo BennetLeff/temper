@@ -27,7 +27,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 147 eligible tests, in a stable order.  Each entry is
+/// All 1651 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -38,6 +38,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-infra")] crate::pymath::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-infra")] crate::rules::integration_tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-drc")] crate::rules::drc::clearance::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-drc")] crate::rules::drc::property_campaigns::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-emc")] crate::rules::emc::ground_plane::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-emc")] crate::rules::emc::loop_area::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-emc")] crate::rules::emc::noise_coupling::tests::WASM_TESTS,
