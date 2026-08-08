@@ -27,11 +27,49 @@ def build_board_dict(parsed: Any) -> dict[str, Any]:
     """Build the K1-schema board dict consumed by the Rust bridge.
 
     Mirrors the logic in ``scripts/ci_closure_test.py`` and
-    ``scripts/calibrate_drc_ceiling.py``.
+    ``scripts/calibrate_drc_ceiling.py`` for components/nets/net_classes.
+
+    Issue #873: those two scripts (and, until this change, this one) never
+    populated the K1 schema's optional ``traces``/``vias``/``zones`` keys,
+    so every routing-family DRC check driven by this producer ran against
+    an empty board even though ``build_board_state``
+    (``packages/temper-drc-rs/src/board_py_bridge.rs``) and ``BoardState``
+    (``packages/temper-drc-rs/src/board.rs``) already fully support them —
+    the gap was entirely in this bridge-side dict construction, not the
+    Rust side. See ``_traces_from_parsed``/``_vias_from_parsed``/
+    ``_zones_from_parsed`` below.
+
+    Coordinate frame (discovered wiring zones in for the first time):
+    ``parse_kicad_pcb_v6`` parses with ``normalize=False``, so
+    ``parsed.components``/``.tracks``/``.vias`` come back in raw/absolute
+    KiCad sheet coordinates (offset from the board by the Edge.Cuts origin
+    -- 20mm/20mm on the committed board). ``parsed.zones``
+    (``parsed.board.zones``) is different: ``extract_zones_pure`` in
+    ``parse_engine.rs`` *always* subtracts that same origin, regardless of
+    ``normalize``, so zone polygons already arrive in board-local
+    ``[0, width_mm] x [0, height_mm]`` coordinates -- which is exactly what
+    ``routing_copper_pullback`` (the only rule that reads
+    ``board.width_mm``/``height_mm`` as an absolute frame) assumes. Rules
+    that cross-reference zones against traces or components
+    (``routing_split_plane_crossing``, ``drc_zone_containment``) instead
+    need zones and the rest of the board in the *same* frame, whichever it
+    is. Both constraints are satisfied at once by normalizing everything
+    to board-local: components/traces/vias get the origin subtracted here
+    (zones need no change, they are already local). An earlier version of
+    this fix instead added the origin back onto zones to match components'
+    raw frame -- that broke ``routing_copper_pullback``, which flagged 44
+    real zones as exceeding the board-edge margin purely because they'd
+    been shifted 20mm past a `[0, width_mm]` boundary that was never moved
+    to match. Caught by re-running the routing family against the real
+    board (see the R2 measurement in this change's evidence), not by
+    inspection -- exactly the kind of spatially-wrong-but-present data this
+    change is supposed to avoid.
     """
+    ox, oy = parsed.board.origin
     components: list[dict[str, Any]] = []
     for c in parsed.components:
-        x, y = c.initial_position or (0.0, 0.0)
+        raw_x, raw_y = c.initial_position or (0.0, 0.0)
+        x, y = raw_x - ox, raw_y - oy
         rotation = (
             float(c.initial_rotation * 90)
             if c.initial_rotation is not None
@@ -84,7 +122,11 @@ def build_board_dict(parsed: Any) -> dict[str, Any]:
     nets: dict[str, list[str]] = {}
     net_classes: dict[str, str] = {}
     for net in parsed.nets:
-        comp_refs = list({ref for ref, _ in net.pins})
+        # dict.fromkeys, not a set: a set comprehension dedups but its
+        # iteration order is hash-seed dependent, so this list differed
+        # across processes and broke content-addressing (R5). dict
+        # preserves first-encounter order and dedups identically.
+        comp_refs = list(dict.fromkeys(ref for ref, _ in net.pins))
         nets[net.name] = comp_refs
         net_classes[net.name] = net.net_class
 
@@ -111,7 +153,139 @@ def build_board_dict(parsed: Any) -> dict[str, Any]:
         "nets": nets,
         "net_classes": net_classes,
         "net_class_rules": net_class_rules,
+        "traces": _traces_from_parsed(parsed),
+        "vias": _vias_from_parsed(parsed),
+        "zones": _zones_from_parsed(parsed),
     }
+
+
+def _traces_from_parsed(parsed: Any) -> list[dict[str, Any]]:
+    """Convert ``parsed.tracks`` (``ParsedPCB.tracks``, one entry per raw
+    KiCad ``segment`` record) into the K1 ``traces`` schema, grouped by
+    ``(net, layer)`` — every segment on the same net and layer becomes one
+    ``{net, layer, width, segments}`` entry holding all of that net's line
+    segments on that layer.
+
+    Grouping (not a 1:1 segment-to-entry mapping) is required for
+    correctness, not just convenience: ``drc_trace_clearance``
+    (``packages/temper-drc-rs/src/rules/drc/trace_clearance.rs``) computes
+    pairwise clearance *across* ``board.traces`` entries but never *within*
+    one entry's own ``segments`` list — that is the schema's implicit
+    contract for what one entry means (an already-mutually-compatible
+    group). A first version of this function emitted one entry per raw
+    KiCad segment; two consecutive segments of the same physical route
+    share an endpoint by construction (that is what makes them one
+    connected track), so the clearance check saw them as two different
+    "traces" of the same net touching at distance 0mm and flagged each
+    junction as a same-net clearance violation — 2,911 of them on the
+    committed board, none real (verified: every sampled violation was a
+    net compared against itself at ~0mm, exactly the connected-segment
+    junction pattern, not a real proximity issue between distinct
+    routes). Grouping by ``(net, layer)`` removes that whole class of
+    false positives while still checking genuinely distinct
+    nets/layers against each other, and preserves the *total* segment
+    count exactly (``sum(len(t["segments"]) for t in traces) == len
+    (parsed.tracks)``) — the invariant the "N segments in -> N segments in
+    BoardState" bridge test checks, since grouping only changes which
+    top-level entry a segment lands in, never whether it lands at all.
+
+    ``width`` is taken from the first segment encountered per (net, layer)
+    group (a track's width is occasionally not perfectly uniform end to
+    end in KiCad, e.g. at a taper); this is an approximation, not exact
+    per-segment width tracking, which the K1 schema's per-entry (not
+    per-segment) ``width`` field does not support.
+
+    Coordinate frame: ``parsed.tracks`` comes back in raw/absolute KiCad
+    coordinates (``parse_kicad_pcb_v6`` parses with ``normalize=False``).
+    The board-origin correction is applied here to land in the same
+    board-local frame as ``_zones_from_parsed`` and the (also corrected)
+    components loop in ``build_board_dict`` — see that function's
+    docstring for why all of components/traces/vias/zones must share one
+    frame, and why that frame has to be board-local rather than raw.
+
+    Grouping uses a plain ``dict`` keyed by ``(net, layer)``, built by
+    iterating ``parsed.tracks`` in its already-deterministic list order
+    (the parser's own output order, not a set/hash-ordered structure).
+    Python ``dict`` insertion order is guaranteed since 3.7 and is NOT the
+    frozenset/HashMap-iteration-order hazard recorded in
+    ``docs/evidence/2026-08-07-r3-frozenset-order-verification.md`` — that
+    caveat is about ``set``/``frozenset`` (and Rust ``HashMap``)
+    iteration, not ``dict`` insertion order.
+    """
+    ox, oy = parsed.board.origin
+    groups: dict[tuple[str, str], dict[str, Any]] = {}
+    for t in parsed.tracks:
+        net = t.net or ""
+        key = (net, t.layer)
+        entry = groups.get(key)
+        if entry is None:
+            entry = {"net": net, "layer": t.layer, "width": float(t.width), "segments": []}
+            groups[key] = entry
+        x1, y1 = t.start
+        x2, y2 = t.end
+        entry["segments"].append(
+            [float(x1) - ox, float(y1) - oy, float(x2) - ox, float(y2) - oy]
+        )
+    return list(groups.values())
+
+
+def _vias_from_parsed(parsed: Any) -> list[dict[str, Any]]:
+    """Convert ``parsed.vias`` (``ParsedPCB.vias``, ``ViaData``) into the
+    K1 ``vias`` schema (``{net, x, y, drill, pad, from_layer, to_layer}``,
+    consumed by ``extract_via`` in ``board_py_bridge.rs``).
+
+    Same board-local coordinate-frame correction as ``_traces_from_parsed``.
+    """
+    ox, oy = parsed.board.origin
+    out: list[dict[str, Any]] = []
+    for v in parsed.vias:
+        x, y = v.position
+        layers = tuple(v.layers) if v.layers else ("F.Cu", "B.Cu")
+        out.append(
+            {
+                "net": v.net or "",
+                "x": float(x) - ox,
+                "y": float(y) - oy,
+                "drill": float(v.drill),
+                "pad": float(v.diameter),
+                "from_layer": layers[0],
+                "to_layer": layers[-1],
+            }
+        )
+    return out
+
+
+def _zones_from_parsed(parsed: Any) -> list[dict[str, Any]]:
+    """Convert ``parsed.zones`` (== ``parsed.board.zones``, the generic
+    placement ``Zone`` dataclass reused by the KiCad copper-zone parse path
+    -- see ``build_board`` in ``parse_engine.rs``) into the K1 ``zones``
+    schema (``{net, layer, polygon}``, one entry per zone-layer pair, since
+    ``CopperZone`` on the Rust side is single-layer while a KiCad zone can
+    declare multiple layers).
+
+    ``zone.net_classes[0]`` is the zone's net name despite the field name
+    (the KiCad-zone code path repurposes the placement ``Zone``'s
+    ``net_classes`` field to carry the actual net name; it defaults to the
+    literal string ``"Signal"`` when the zone record had no net).
+
+    No coordinate correction needed: ``extract_zones_pure`` in
+    ``parse_engine.rs`` *always* subtracts the board's Edge.Cuts origin
+    from zone polygon points regardless of the ``normalize`` flag, so
+    ``z.polygon`` already arrives in board-local ``[0, width_mm] x
+    [0, height_mm]`` coordinates — see ``build_board_dict``'s docstring for
+    why that (not raw/absolute) is the frame the whole board_dict must
+    share, and why zones are the anchor rather than components/traces/vias.
+    """
+    out: list[dict[str, Any]] = []
+    for z in parsed.zones:
+        if not z.polygon:
+            continue
+        net = z.net_classes[0] if z.net_classes else ""
+        polygon = [[float(x), float(y)] for x, y in z.polygon]
+        layers = z.layers if z.layers else ["F.Cu"]
+        for layer in layers:
+            out.append({"net": net, "layer": layer, "polygon": polygon})
+    return out
 
 
 def build_constraints_dict(parsed: Any) -> dict[str, Any]:
