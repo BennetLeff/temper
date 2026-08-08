@@ -182,7 +182,58 @@ def _placement_to_board_dict(placement: _Placement) -> dict[str, _Any]:
 
 
 def _constraints_to_dict(constraints: _ConstraintSet) -> dict[str, _Any]:
-    """Convert a ``ConstraintSet`` to the dict format expected by ``temper_drc_rs``."""
+    """Convert a ``ConstraintSet`` to the dict format expected by ``temper_drc_rs``.
+
+    NOTE (Python<->Rust boundary schema fix, 2026-08-08): this dict is
+    deserialized by ``temper_drc_rs::constraints::build_constraint_set``
+    (`packages/temper-drc-rs/src/constraints.rs`) into its serde
+    ``ConstraintSet`` -- a *different* Rust type from the
+    ``temper_drc_rs.ConstraintSet`` pyclass this function reads its input
+    from (`drc_contracts.rs`, installed with dataclass-compat fields in
+    ``drc_types.py``). The two share a name but not a field set, and this
+    function is the marshalling point between them. It used to forward
+    several pyclass fields the serde struct has no matching field for --
+    each was a real, populated value that ``serde_json::from_value``
+    silently dropped (no ``deny_unknown_fields``, the exact defect class
+    this remediation closes):
+
+    - ``zones[].bounds`` / ``zones[].components``: the pyclass
+      ``ZoneDefinition`` has 4 fields (name, bounds, net_classes,
+      components); the serde ``ZoneDefinition`` actually consumed here
+      has only 2 (name, net_classes) -- confirmed no rule in
+      ``packages/temper-drc-rs/src/rules/`` reads zone bounds/components
+      from constraints at all (zone geometry reaches DRC rules via the K1
+      ``board_dict["zones"]`` ``CopperZone`` list instead, a wholly
+      separate mechanism -- see ``_placement_to_board_dict``'s "zones"
+      NOTE above). Dropped rather than invented on the Rust side.
+    - ``critical_loops[].description``: the serde ``LoopConstraint`` has
+      no ``description`` field; no violation message renders it. Dropped.
+    - ``component_groups``: the serde ``ConstraintSet`` has no matching
+      field at all (confirmed: zero references anywhere in
+      ``temper-drc-rs/src/``) -- component-group proximity constraints
+      are consumed by the CP-SAT placer's preflight path
+      (``_preflight_py_oracle.py``-style checks), never by the native DRC
+      engine. Always silently discarded before; not sent at all now.
+    - ``net_classes`` / ``voltage_domains`` (top-level): same -- no
+      matching serde field, no native-engine consumer.
+      ``voltage_domains`` mirrors the same documented native-schema gap
+      as per-component ``voltage_domain`` (see
+      ``rules/erc/power_domain.rs`` -- ``PowerDomainCheck`` is
+      deliberately deregistered for exactly this reason).
+    - ``board`` (nested ``{width_mm, height_mm}``): the serde
+      ``ConstraintSet`` wants flat ``board_width``/``board_height`` keys.
+      Dead either way today (no rule reads
+      ``constraints.board_width``/``board_height``), but sent in the
+      correct shape now instead of under a key the target struct doesn't
+      have.
+
+    None of the dropped keys were read by any native Rust DRC rule
+    (verified by grep across ``constraints.rs`` and ``rules/``), so this
+    is a shape correction, not a behavior change -- and it is what makes
+    it safe to add ``#[serde(deny_unknown_fields)]`` to the serde
+    ``ConstraintSet`` without breaking the production ``CheckRunner.run()``
+    path.
+    """
     return {
         "clearances": [
             {
@@ -196,9 +247,7 @@ def _constraints_to_dict(constraints: _ConstraintSet) -> dict[str, _Any]:
         "zones": [
             {
                 "name": z.name,
-                "bounds": list(z.bounds),
                 "net_classes": z.net_classes,
-                "components": z.components,
             }
             for z in constraints.zones
         ],
@@ -208,7 +257,6 @@ def _constraints_to_dict(constraints: _ConstraintSet) -> dict[str, _Any]:
                 "nets": l.nets,
                 "max_area_mm2": l.max_area_mm2,
                 "weight": l.weight,
-                "description": l.description,
             }
             for l in constraints.critical_loops
         ],
@@ -222,23 +270,9 @@ def _constraints_to_dict(constraints: _ConstraintSet) -> dict[str, _Any]:
             }
             for t in constraints.thermal_constraints
         ],
-        "component_groups": [
-            {
-                "name": g.name,
-                "components": g.components,
-                "max_spread_mm": g.max_spread_mm,
-                "zone": g.zone,
-                "description": g.description,
-            }
-            for g in constraints.component_groups
-        ],
-        "net_classes": dict(constraints.net_classes),
-        "voltage_domains": dict(constraints.voltage_domains),
         "hv_clearance_mm": constraints.hv_clearance_mm,
-        "board": {
-            "width_mm": constraints.board_width,
-            "height_mm": constraints.board_height,
-        },
+        "board_width": constraints.board_width,
+        "board_height": constraints.board_height,
     }
 
 
