@@ -194,10 +194,29 @@ def test_dissimilar_types_dont_bundle():
 
 
 # ---------------------------------------------------------------------------
-# T-U1-3: Different widths don't bundle
+# T-U1-3 (revised 2026-08-07): Different widths, SAME net_class -> DO bundle
 # ---------------------------------------------------------------------------
-def test_different_widths_dont_bundle():
-    """Two signal nets with 0.2mm and 0.5mm trace widths -> different bundle classes."""
+#
+# Pre-2026-08-07, TypeSignature grouped on exact (trace_width, clearance)
+# match in addition to net_class -- so two signal nets with different
+# widths never bundled. Measured against the production board
+# (docs/evidence/2026-08-07-sat-model-reduction-options.md Sec 3.4), that
+# was the dominant reason only 8/110 nets ever bundled: 11 distinct
+# design-rule netclasses all collapse to net_classification's single
+# "signal" bucket by name, so "same coarse net_class" almost never meant
+# "same exact width/clearance."
+#
+# The grouping was widened to drop the exact width/clearance match, and
+# `ModelBuilder._create_capacity_constraints` was changed to sum each
+# bundle member's OWN width (not assume a shared one) -- so two
+# different-width nets bundling together no longer under-counts the
+# channel capacity their shared variable actually needs. See
+# `bundle_analyzer.BundleAnalyzer`'s own docstring for the full soundness
+# argument. This test now asserts the new (intended) behavior directly.
+def test_different_widths_same_class_do_bundle():
+    """Two signal nets with 0.2mm and 0.5mm trace widths, same net_class,
+    same (unassigned) safety_category, overlapping footprints -> DO bundle.
+    """
     nets = [
         MockNet("SIG_A", [(10.0, 10.0), (20.0, 10.0)]),
         MockNet("SIG_B", [(10.0, 10.0), (20.0, 10.0)]),
@@ -213,9 +232,65 @@ def test_different_widths_dont_bundle():
 
     manifest = analyzer.analyze()
 
+    bundled_together = any(
+        0 in b.net_indices and 1 in b.net_indices for b in manifest.bundles.values()
+    )
+    assert bundled_together, (
+        "Nets differing only in trace width, same net_class/safety_category, "
+        "with overlapping footprints, should bundle under the widened "
+        "TypeSignature (capacity constraints now sum each member's own width)"
+    )
+
+
+# ---------------------------------------------------------------------------
+# T-U1-3b (added 2026-08-07): safety_category still isolates bundling
+# ---------------------------------------------------------------------------
+def test_different_safety_category_dont_bundle():
+    """Two nets that both name-classify as 'signal' (net_classification's
+    coarse bucket) but carry different design-rule `safety_category`
+    (HV vs LV) must NOT bundle -- this is the case the widened grouping
+    must still refuse, since safety_category is the design-rule-
+    authoritative physical isolation tier (see BundleAnalyzer's docstring).
+    A net like GATE_HS/GATE_LS is exactly this shape in production: its
+    *name* doesn't match any HV pattern, but its assigned netclass
+    (GateDriveHV) is safety_category="HV".
+    """
+    nets = [
+        MockNet("GATE_HS", [(10.0, 10.0), (20.0, 10.0)]),
+        MockNet("SIG_A", [(10.0, 10.0), (20.0, 10.0)]),
+    ]
+    skeletons = {"F.Cu": make_grid_skeleton("F.Cu", (0, 30), (0, 30), spacing=5)}
+    pcb = _make_pcb_for_nets(*nets)
+    dr = FakeSafetyCategoryDesignRules(
+        categories={"GATE_HS": "HV", "SIG_A": "LV"},
+    )
+    analyzer = BundleAnalyzer(nets, skeletons, design_rules=dr, pcb=pcb)
+
+    manifest = analyzer.analyze()
+
     for b in manifest.bundles.values():
         assert not (0 in b.net_indices and 1 in b.net_indices), (
-            "Nets with different widths should not bundle"
+            "An HV-safety_category net and an LV-safety_category net must "
+            "never share a bundle, even if both name-classify as 'signal'"
+        )
+
+
+class FakeSafetyCategoryDesignRules:
+    """DesignRules that returns per-net safety_category for testing."""
+
+    def __init__(self, categories: dict[str, str]):
+        self._categories = categories
+
+    def get_rules_for_net(self, net_name):
+        from temper_placer.router_v6.stage0_data import NetClassRules
+
+        return NetClassRules(
+            name="Default",
+            clearance_mm=0.2,
+            trace_width_mm=0.2,
+            via_diameter_mm=0.6,
+            via_drill_mm=0.3,
+            safety_category=self._categories.get(net_name),
         )
 
 
