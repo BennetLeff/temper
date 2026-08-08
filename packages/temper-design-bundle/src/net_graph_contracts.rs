@@ -208,10 +208,32 @@ impl NetGraph {
         self.edges.clone_ref(py)
     }
 
+    /// Dataclass-field assignment: replaces the edges list reference
+    /// (`graph.edges = [...]`), exactly like the pre-migration dataclass.
+    #[setter]
+    fn set_edges(&mut self, value: &Bound<'_, PyAny>) -> PyResult<()> {
+        let list = value.cast::<PyList>().map_err(|_| {
+            pyo3::exceptions::PyTypeError::new_err("edges must be a list")
+        })?;
+        self.edges = list.clone().unbind();
+        Ok(())
+    }
+
     /// The mutable star_nodes set — returns the SAME Python object (identity-preserving).
     #[getter]
     fn star_nodes(&self, py: Python<'_>) -> Py<PySet> {
         self.star_nodes.clone_ref(py)
+    }
+
+    /// Dataclass-field assignment: replaces the star_nodes set reference
+    /// (`graph.star_nodes = {...}`), exactly like the pre-migration dataclass.
+    #[setter]
+    fn set_star_nodes(&mut self, value: &Bound<'_, PyAny>) -> PyResult<()> {
+        let set = value.cast::<PySet>().map_err(|_| {
+            pyo3::exceptions::PyTypeError::new_err("star_nodes must be a set")
+        })?;
+        self.star_nodes = set.clone().unbind();
+        Ok(())
     }
 
     /// Find an edge by source and sink pins. Linear scan — matches the oracle.

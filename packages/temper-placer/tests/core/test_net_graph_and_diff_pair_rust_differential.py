@@ -281,6 +281,54 @@ class TestNetGraph:
         assert "PIN1" in prod.star_nodes
         assert _graph_fields(prod) == _graph_fields(oracle)
 
+    def test_edges_assignment_replaces(self):
+        """Dataclass-field assignment `graph.edges = [...]` replaces the list.
+
+        This is the surface `config_loader.rs:1185` exercises via
+        `graph.setattr("star_nodes", ...)` — a pyclass with only a getter
+        (no setter) raises AttributeError where the dataclass accepted
+        assignment. Regression pin for the code-review P0.
+        """
+        prod = NetGraph("NET1")
+        oracle = _OracleNetGraph("NET1")
+        prod.edges = [SubNetEdge("A.1", "B.1")]
+        oracle.edges = [_OracleSubNetEdge("A.1", "B.1")]
+        assert len(prod.edges) == 1
+        assert _edge_fields(prod.edges[0]) == _edge_fields(oracle.edges[0])
+        assert _graph_fields(prod) == _graph_fields(oracle)
+
+    def test_star_nodes_assignment_replaces(self):
+        """Dataclass-field assignment `graph.star_nodes = {...}` replaces the set.
+
+        Same code-review-P0 regression pin as test_edges_assignment_replaces:
+        `config_loader.rs:1185` does `graph.setattr("star_nodes", star)`.
+        """
+        prod = NetGraph("NET1")
+        oracle = _OracleNetGraph("NET1")
+        prod.star_nodes = {"PIN1", "PIN2"}
+        oracle.star_nodes = {"PIN1", "PIN2"}
+        assert prod.star_nodes == {"PIN1", "PIN2"}
+        assert _graph_fields(prod) == _graph_fields(oracle)
+
+    def test_edges_assignment_rejects_non_list(self):
+        """Assignment of a non-list raises TypeError (pyclass strictness).
+
+        The pre-migration dataclass accepted any assignable object; the pyclass
+        requires a list. This is a documented, deliberate deviation (a
+        non-list assignment was never reachable in production) — the pyclass
+        fails loudly instead of silently storing a foreign object.
+        """
+        prod = NetGraph("NET1")
+        with pytest.raises(TypeError):
+            prod.edges = "not-a-list"
+
+    def test_star_nodes_assignment_rejects_non_set(self):
+        """Assignment of a non-set raises TypeError (see
+        test_edges_assignment_rejects_non_list for the rationale)."""
+        prod = NetGraph("NET1")
+        with pytest.raises(TypeError):
+            prod.star_nodes = "not-a-set"
+
     def test_get_edge_found(self):
         prod = NetGraph("NET1")
         prod.edges.append(SubNetEdge("A.1", "B.1"))
