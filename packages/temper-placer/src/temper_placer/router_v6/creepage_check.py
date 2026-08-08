@@ -241,9 +241,27 @@ def _extract_segments(
     """
     segments: list[tuple[float, float, float, float, str]] = []
 
-    def _ok(*values: float) -> bool:
-        """True when all values are finite (no NaN, no inf)."""
-        return all(math.isfinite(v) for v in values)
+    def _ok(x1: float, y1: float, x2: float, y2: float) -> bool:
+        """True when all four segment-endpoint coordinates are finite.
+
+        Fixed-arity by construction (not ``*values: float``): the vacuous-
+        truth gate (``scripts/check_vacuous_gates.py``) flags an unguarded
+        ``all(...)`` over a possibly-empty iterable, because ``all(())`` is
+        vacuously ``True`` -- an empty ``values`` here would silently
+        classify a segment with NO checked coordinates as "finite", which is
+        exactly the kind of pass-on-nothing this check exists to prevent.
+        Both call sites always pass exactly 4 coordinates, so requiring them
+        as named parameters (rather than accepting the empty case and
+        asserting against it at runtime) makes the vacuous call a ``TypeError``
+        at the call site instead of a value this function could ever
+        silently rubber-stamp.
+        """
+        return (
+            math.isfinite(x1)
+            and math.isfinite(y1)
+            and math.isfinite(x2)
+            and math.isfinite(y2)
+        )
 
     if hasattr(route.path, "segments"):
         # RoutePath3D  – (x, y, layer) triples

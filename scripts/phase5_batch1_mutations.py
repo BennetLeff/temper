@@ -129,6 +129,48 @@ EXPECTED: dict[str, str] = {label: "KILLED" for label, *_ in MUTATIONS}
 EXPECTED["M6 distance: x*x instead of pow(x, 2.0)"] = "EQUIVALENT"
 
 
+# `EXPECTED`'s values ("KILLED" / "EQUIVALENT") are a *verdict* vocabulary,
+# distinct from the `status` a run actually produces ("SURVIVED" / "KILLED"
+# / "ERROR"). An EQUIVALENT mutant is expected to SURVIVE (its behaviour
+# change is not observable by the suites) -- the two vocabularies are not
+# the same strings by coincidence, so a bare `status == expected[label]`
+# can never match the EQUIVALENT case even when the run went exactly as
+# designed.
+_EXPECTED_VERDICT_TO_STATUS = {"KILLED": "KILLED", "EQUIVALENT": "SURVIVED"}
+
+
+def campaign_passed(
+    results: list[tuple[str, str, str]], expected: dict[str, str]
+) -> bool:
+    """True iff every mutation's outcome matches its ``expected`` verdict.
+
+    Two independent fixes live here:
+
+    1. ``assert results`` -- ``results`` accumulates exactly one entry per
+       ``MUTATIONS`` row (the driving loop has no break/skip path), and
+       ``MUTATIONS`` is a non-empty literal today, but ``all()`` over an
+       empty collection is vacuously True. Without this guard, a future
+       ``MUTATIONS = []`` edit (or any refactor that lets the loop run zero
+       times) would make this function silently report a clean campaign
+       with zero mutations actually tested -- exactly the failure class
+       ``scripts/check_vacuous_gates.py`` exists to catch.
+    2. Compared against ``expected`` (translated through
+       ``_EXPECTED_VERDICT_TO_STATUS``), not a bare ``status == "KILLED"``:
+       M6 is a documented EQUIVALENT mutant (see the ``EXPECTED`` override
+       above) that the campaign does not expect to kill -- it expects it to
+       SURVIVE. The previous ``all(s == "KILLED" for _, s, _ in results)``
+       ignored ``EXPECTED`` entirely, so a fully-successful run (M6
+       SURVIVED as designed, every other mutation KILLED) reported failure
+       -- a real bug independent of the vacuous-``all()`` question, caught
+       while fixing it.
+    """
+    assert results, "no mutations were run -- MUTATIONS is empty"
+    return all(
+        status == _EXPECTED_VERDICT_TO_STATUS[expected[label]]
+        for label, status, _ in results
+    )
+
+
 def main() -> int:
     results = []
     for label, rel, old, new in MUTATIONS:
@@ -177,7 +219,7 @@ def main() -> int:
     if code != 0:
         print(out[-2000:])
         return 1
-    return 0 if all(s == "KILLED" for _, s, _ in results) else 1
+    return 0 if campaign_passed(results, EXPECTED) else 1
 
 
 if __name__ == "__main__":
