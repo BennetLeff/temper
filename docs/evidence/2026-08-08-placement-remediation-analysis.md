@@ -14,6 +14,16 @@ placements cause it, *what* to move, whether the *board itself* is large
 enough, and resolves the 3 of 52 failures recorded with an empty
 `blocking_nets` list.
 
+**Revision note:** §4 (board-size verdict) was rewritten after a
+coordinator review challenged its first-pass claim that "only 2 of 4
+copper layers are usable." That challenge was correct to press — the
+original claim did not check `select_routing_grids`, the power-plane
+generators, or the committed board's actual per-layer copper, and the
+corrected §4 reverses the verdict's direction: the constraint measured
+today is a hard-coded 2-layer cap in the A* engine (software), not the
+board's physical layer count (hardware). §§1-3 and §5 are unchanged from
+the first pass.
+
 **Method:** Two independent full production routes of `pcb/temper.kicad_pcb`
 on the combined-fix worktree (`agent/router-combined` @ `6121c49f`,
 `scripts/route_board.py`-equivalent call: `route_pcb(parsed_stub, {},
@@ -242,62 +252,225 @@ number rather than continuing to estimate.
 
 ---
 
-## 4. Is the board large enough? **No — not as currently specified, at 2 usable signal layers.**
+## 4. Is the board large enough? **REVISED — see the errata note below. Verdict: unresolved, and for a reason that changes the shape of the answer — the constraint measured today is software (a hard-coded 2-layer cap in the A* engine), not the board's physical layer count.**
 
-Stated plainly, per this task's instruction not to soften the answer if
-the evidence points this way:
+> **Errata (this section rewritten after coordinator review).** The first
+> version of this section claimed "only 2 of 4 copper layers are ever
+> usable for signal routing" and concluded the board must grow or gain
+> layers. That claim was checked against the actual committed board and
+> against code the first pass never reached (`select_routing_grids`,
+> `power_plane.py`'s pour generators, and `docs/hardware/POWER_PLANE_DESIGN.md`),
+> and it does not survive: **`In1.Cu`/`In2.Cu` are two fully fabricated,
+> currently 100%-copper-free layers, and nothing in this pipeline's
+> current, real behavior — not Stage 4, not the plane generator — ever
+> writes anything to either of them.** This is not "the board is too
+> small"; it is closer to the coordinator's hypothesized "the router is
+> failing to use two copper layers the board already has," with one
+> substantial qualifier: exploiting that capacity safely is a nontrivial
+> software project, not a one-line fix, and this task did not attempt it
+> (out of scope for diagnosis, and a naive version of it has a
+> directly-documented failure mode — see §4.3).
 
-- **The stackup has 4 copper layers** (`F.Cu`, `In1.Cu`, `In2.Cu`,
-  `B.Cu`, confirmed directly from the board's own `(layers ...)` block),
-  **but only 2 are ever available to the router for general signal
-  escape/routing.** `In1.Cu` is reserved wholesale for the GND reference
-  plane and `In2.Cu` for per-domain power pours
-  (`power_plane.py::generate_ground_pour`/`generate_power_pours`,
-  `channel_mapping.py`'s own comment: *"Inner layers (In1.Cu / In2.Cu)
-  are reference/power planes, not A* routing layers"*). Verified directly
-  in `_pipeline_route.py:592`: the A* stage is built with exactly one
-  primary grid (`F.Cu`) and one `alternate_grid` (`B.Cu`) — no
-  `In1.Cu`/`In2.Cu` `OccupancyGrid` is ever constructed for A* at all.
-  110 nets — including every fine-pitch SPI/I2C signal *and* every
-  6.0mm-clearance HV/HV-isolated net — compete for those same 2 layers.
-- **50% of attempted Stage-4 nets fail** (52/104 A*-attempted nets,
-  `completion_rate: 0.5` in this task's own fresh measurement, matching
-  the established finding exactly) **after two independent, real
-  correctness fixes were already applied and measured net-neutral**
-  (`agent/router-combined`'s own evidence doc: 64/110 nets carrying
-  copper both before and after Fix A+B combined, from offsetting
-  +6/−6 changes, not from either fix doing nothing).
-- **This is not an iteration-budget artifact.** A prior, independent
-  investigation on this same router
-  (`docs/evidence/2026-07-27-forced-segment-analysis.md`) swept the A*
-  per-net iteration cap from 500k to 4,000,000 (8×) on the full board and
-  found **the failure count never moved** — at 4M, 56/59 of that day's
-  failures provably exhausted their entire reachable search space, and
-  only 3/59 were still cap-limited (at a cap already near the grid's
-  total cell count). Raising the cap further has nothing left to search.
-  This task's own instrumentation (§5 below) directly reproduces the same
-  class of exhaustion on the current, larger 110-net board.
-- **The congestion is concentrated, not marginal**: median 7 simultaneous
-  blockers per failing net (§1), 73% of failures have at least one
-  6.0mm-clearance blocker *and* a majority of ordinary-clearance blockers
-  in the same list — meaning even a hypothetical perfect placement fix
-  for the HV envelopes would still leave the ordinary-clearance
-  congestion in place (established finding, confirmed again in this
-  task's fresh run: 0/52 nets have HV blockers as a list majority).
+### 4.1 Where the 2-layer restriction actually lives (both parts, exact code)
 
-**Verdict:** the evidence supports "the board is too tightly constrained
-as currently specified" over "this is a placement-tuning problem that
-will close with enough nudges." The clearest, safety-compliant paths
-forward are architectural, not incremental: (a) recover real routing
-capacity from an inner layer — e.g. a split/stitched plane on `In2.Cu`
-that leaves channel gaps for signal traces instead of a solid domain
-pour, or (b) add a 5th/6th copper layer. Placement fixes (§3) may recover
-some fraction of the 52 failures — the interventions above are concrete
-and worth trying and measuring — but nothing measured in this task or the
-router-combined lineage demonstrates that placement alone, at 2 usable
-signal layers, reaches 100% completion. This is an assessment from the
-congestion signature and layer-budget facts above, not a formal
-capacity/feasibility proof — no exhaustive placement search was run.
+**Part A — the layer-role classification is correct and lets all 4
+layers through.** `RouterV6Pipeline.run()` (`_pipeline_core.py`) parses
+with `use_declared_layer_roles=True` (landed in `8abcec24`, present on
+this branch — confirmed: `git merge-base --is-ancestor 8abcec24 HEAD`
+succeeds). This classifies layer role by structural stackup position
+(outer = signal, inner = mixed), not by an existential zone-quantifier
+bug the same commit fixed. `ChannelSkeletonStage.run()`
+(`channel_skeleton.py`) was also fixed in the same commit to stop
+hardcoding skeleton extraction to the literal names `"F.Cu"`/`"B.Cu"` and
+now builds a skeleton for every layer `routing_spaces` contains. Verified
+directly on this branch: no `"F.Cu"`/`"B.Cu"` literal filter remains in
+`channel_skeleton.py` (grep confirms only stale comments referencing old
+perf numbers). This matches the coordinator's independent measurement
+exactly (204,500 skeleton edges across 4 layers: F.Cu 114,632 / In1.Cu
+29,956 / In2.Cu 29,956 / B.Cu 29,956) — **Stage 2 genuinely builds real,
+substantial, unblocked routing raw material for all four layers.**
+
+**Part B — Stage 4 never asks for it.** Two places, both exact:
+
+1. `select_routing_grids()`, `_pipeline_route.py:463-487`:
+   ```python
+   primary = occupancy_grids.get("F.Cu") or next(iter(occupancy_grids.values()))
+   alternate = occupancy_grids.get("B.Cu") or next(
+       (candidate for name, candidate in occupancy_grids.items() if name != primary.layer_name),
+       None,
+   )
+   return primary, alternate
+   ```
+   This always returns exactly 2 grids. Called unconditionally at
+   `_pipeline_route.py:586` inside `_run_stage4` — the `if
+   pathfinding_result is None:` guard around it is not a real branch:
+   `pathfinding_result = orchestrated.assemble_pathfinding_result(state)`
+   (line 583) is called on a `state` that was just freshly constructed
+   two lines above and never run through `Stage4Orchestrator.run()`, so
+   `state.pathfinding_result` is always unset and `assemble_pathfinding_result`
+   (`stage4_orchestrator.py:59-62`, a bare `getattr(state,
+   "pathfinding_result", None)`) always returns `None`. `select_routing_grids`
+   therefore runs on every production route.
+2. `run_astar_pathfinding()`'s own signature caps it a second, deeper way
+   (`_astar_reconstruct.py:89-120`): the function takes one `grid`
+   (primary) and one `alternate_grid: OccupancyGrid | None` — singular,
+   not a list — and builds `all_grids: dict[str, OccupancyGrid] =
+   {grid.layer_name: grid}` (line 118), optionally adding the one
+   alternate (line 119-120). **No code path anywhere in this project ever
+   passes more than 2 grids.** Confirmed by history, not absence of
+   effort to look: `git log --all -S"alternate_grids"` (plural) returns
+   zero commits, across the entire repository's history.
+
+**Both parts are needed and neither is new debt from `8abcec24`** — that
+commit's own message scopes itself explicitly to "F.Cu/B.Cu" and never
+claims to change Stage 4's layer consumption. `select_routing_grids`
+predates it (`b39b382d`, 2026-07-29) and was written for a *different*
+world: at that time, `_extract_stackup()`'s zone-quantifier bug
+misclassified F.Cu/B.Cu as `plane` (condemning them) whenever *any* zone
+on them sat on a plane-required net, so **In1.Cu/In2.Cu were the *only*
+grid-backed layers available**, and `select_routing_grids`'s
+name-preference fallback (`.get("F.Cu") or next(...)`) existed precisely
+to substitute inner layers in for outer ones when the latter were
+unavailable — not to combine all four. `8abcec24` fixed the
+misclassification (F.Cu/B.Cu are correctly `signal` again), which means
+`select_routing_grids` now finds F.Cu/B.Cu present and picks them by
+name preference, silently dropping the extra 2 grids Stage 2 still
+builds — the *correct* outcome for a 2-signal-layer board, but arrived at
+by a name-preference accident rather than an explicit plane-role check.
+This is a real, narrow, honest hardening gap (`select_routing_grids`
+should gate on layer role, not on literal names) but — per §4.2-4.3
+below — it is not gating away real signal capacity today, because
+nothing else is either.
+
+### 4.2 Is the 2-signal-layer design itself deliberate? **Yes — this part of the original verdict was correct and is now better-cited.**
+
+`docs/hardware/POWER_PLANE_DESIGN.md` (REQ-ELEC-05, **Status: Implemented**)
+specifies the stackup explicitly: L1 (`F.Cu`/TOP) = HV pours + power
+components (signal), L2 (`In1.Cu`/GND) = **continuous ground reference
+plane**, L3 (`In2.Cu`/PWR) = **power distribution / domain planes**, L4
+(`B.Cu`/BOT) = control signals, digital, gate drive (signal) — with a
+stated impedance-control rationale (50Ω microstrip L1→L2, referenced to
+the L2 plane). `power_plane.py::generate_ground_pour`/`generate_power_pours`
+implement exactly this: `generate_ground_pour` floods the **entire board
+rectangle, unconditionally, on `In1.Cu`** (100% of 35,568mm²);
+`generate_power_pours` partitions `In2.Cu` into 3 domain strips
+(`DEFAULT_POWER_DOMAINS = ("+3V3", "+5V", "+15V")`) spanning the full
+152mm board width minus 2×`DEFAULT_ISOLATION_GAP_MM` (0.3mm) = 151.4mm —
+**99.6% of `In2.Cu`**. Neither generator has any copper-awareness (no
+keepout carved for pre-existing traces): a real 4-layer board built to
+this spec genuinely has only 2 signal layers. A companion evidence doc
+independently confirms this boundary already received direct engineering
+scrutiny, not silence: `docs/evidence/2026-07-28-stackup-partial-revert.md`
+measured forcing F.Cu/B.Cu to `signal` (an earlier, over-corrected attempt
+at what `8abcec24` later did properly) and found it cost a **12×
+completion regression** (38.5% → 3.12%) on the July board, because outer
+layers already carried real per-net zone-pour copper for creepage/thermal
+reasons — that doc closes with an explicit, still-open flag: *"Should
+this board's outer layers be poured at all?"*.
+
+### 4.3 But the plane design is not actually realized anywhere in this pipeline's current output — which is the load-bearing correction.
+
+Measured directly against the committed `pcb/temper.kicad_pcb` (not
+inferred): **every existing zone (96), every committed segment (2290),
+and every committed via (48) is on `F.Cu`/`B.Cu` only.**
+
+```
+zones by layer:    {'F.Cu': 48, 'B.Cu': 48}
+segments by layer:  {'F.Cu': 1193, 'B.Cu': 1097}
+via layer pairs:    {('F.Cu','B.Cu'): 24, ('B.Cu','F.Cu'): 24}
+```
+
+`In1.Cu`/`In2.Cu` carry **zero copper of any kind** in the artifact that
+actually gets routed, DRC'd, and measured — not a sliver, not a partial
+pour, nothing. And critically, nothing in this pipeline's real behavior
+is currently positioned to change that:
+
+- `enable_manufacturing_drc` — the only flag that invokes
+  `generate_power_planes` at all — defaults to `False`, and
+  `scripts/route_board.py`'s own comment says why: *"stays at its False
+  default deliberately -- it is reporting-only, does not affect
+  pathfinding."* Every completion-rate measurement to date (the
+  established finding, both of this task's fresh runs) used that
+  default — `In1.Cu`/`In2.Cu` were never even hypothetically poured
+  during any of them.
+- Even when `enable_manufacturing_drc=True`, `generate_power_planes`'s
+  output (`geometry`) only ever feeds a log line
+  (`_pipeline_verify.py:350`, *"Power planes: GND pour on %s..."*) and a
+  `ManufacturingReport` violation count. **It is never merged into
+  `routed_pcb_content`** — traced through `_pipeline_core.py`'s
+  `manufacturing_report` field and `_adapter_convert.py:820`'s
+  `routed_pcb_content=routed_content` construction; the pour geometry has
+  no path to the output board at all in the current code.
+- The mechanism that *does* write real zone-pour copper into production
+  output — `_zone_pour_stitch.py::_zone_layers_for_net()`, active by
+  default (`enable_zone_pours=True`) and directly responsible for the
+  established finding's 12 zone-only nets (`SW_NODE`, `DC_BUS_RTN`,
+  `ac_l`, `ac_n`, ...) and the 96 committed zones above — **only ever
+  returns `["F.Cu", "B.Cu"]`** (`_zone_pour_stitch.py:63`). It has no
+  `In1.Cu`/`In2.Cu` branch either.
+
+So the honest, complete picture: **`In1.Cu` and `In2.Cu` are real,
+physically fabricated, currently and durably empty copper layers.**
+REQ-ELEC-05 says they *should* eventually carry continuous/near-continuous
+reference and domain planes, and the Python to generate exactly that
+pour geometry exists and is correct — but it is wired into a report-only
+path that never reaches the board this project actually measures,
+routes, or (per the committed file) fabricates against. There is,
+concretely, **no code today that would conflict with a hypothetical
+Stage-4 trace placed on either inner layer** — my original claim that
+such a trace would be "silently overwritten/shorted" by a later pour step
+was checked against the actual code path and does not hold: that pour
+step does not write to the board at all, today, regardless of Stage 4.
+
+### 4.4 Why this is not, therefore, a green light — and why §3's recovery estimate stays "unquantified"
+
+Two real obstacles remain, both concrete, neither hand-waved:
+
+1. **The A* engine has no N-layer via-transition logic**, only a 2-layer
+   one (`_astar_route_multilayer`'s primary/alternate structure, §4.1).
+   Extending it is a real search-algorithm change (how to drop a via onto
+   a 3rd/4th layer, cost-model and capacity-accounting implications for
+   Stage 3's SAT model, `select_routing_grids`'s role-based hardening from
+   §4.1) — not a parameter tweak, and explicitly out of scope for a
+   diagnosis-only task (per this task's own constraint: "do not change
+   router behavior").
+2. **A directly-relevant, already-measured precedent shows the naive
+   version of "just let it route on an extra layer" produces fake
+   completion.** `b39b382d`'s commit message: a rejected competing fix
+   that routed a tree-route edge "on some grid-backed layer anyway" (when
+   the pad's real layer had no grid) reported 41.6% vs 26.3% completion,
+   but emitted 23,605 extra segments landing on `In1.Cu` that never
+   touched their intended `F.Cu` pad — DRC got *worse* (398 vs 396
+   unconnected items) despite the higher completion number. "The extra
+   completion is fake." A hasty 4-grid extension to `run_astar_pathfinding`
+   risks reproducing exactly this failure mode if via-drops onto the new
+   layers aren't done correctly.
+
+Given both, this task did **not** attempt to prototype N-layer A* (even
+as a throwaway, read-only-style diagnostic) to produce a real recovered-net
+count — doing so safely requires exactly the engineering work in
+obstacle (1), and doing it unsafely risks reproducing obstacle (2)'s
+already-documented trap. §3's ranked interventions and their
+"unquantified" recovery estimates stand unchanged.
+
+### 4.5 Revised verdict
+
+**Not "the board is too small."** The board has four real copper layers;
+two are currently, measurably, 100% unused by any part of this pipeline —
+neither routed by Stage 4 nor (despite existing, correct code to do so)
+actually filled with the planes they are speced for. Whether opening them
+to real signal routing would recover some, most, or none of the 52
+failing nets is a **genuine, currently open, empirically-testable
+question that this task did not answer** — not because the layers are
+unavailable (they are not), but because answering it safely requires
+implementing real N-layer A* routing, which is a software project with a
+known failure mode to avoid, not a diagnostic measurement. The
+highest-leverage next step for this board is very likely **that software
+project**, not a hardware change (grow the board / add a 5th-6th layer) —
+my original verdict had this backwards. If that project is later
+attempted and still leaves a meaningful gap, growing the board becomes
+the fallback question, but the evidence gathered in this task does not
+support jumping there first.
 
 ---
 
@@ -405,14 +578,32 @@ actually intended.
 - Board outline/layers/component footprints/courtyards: read directly
   from `pcb/temper.kicad_pcb` (`Edge.Cuts` polygon, `(layers ...)`
   block, per-footprint `F.CrtYd` graphics and `Sheetpath` properties).
-- Layer-usage-for-routing claim (§4): `channel_mapping.py` comment +
-  `power_plane.py` (`generate_ground_pour`/`generate_power_pours`) +
-  `_pipeline_route.py:592` (`alternate_grid=None if self.single_layer
-  else bcu_grid` — only F.Cu/B.Cu grids ever built for A*).
-- Iteration-cap-not-binding claim (§4, §5):
+- Iteration-cap-not-binding claim (§5):
   `docs/evidence/2026-07-27-forced-segment-analysis.md` Parts 3–5
   (pre-existing, cited not re-run in full — the 8x sweep is expensive and
   its conclusion is orthogonal to this task's new questions; this task's
   own Run 2 independently reproduces the same *class* of zero-blocker
   exhaustion on the current board, corroborating rather than merely
   citing).
+- §4 (revised after coordinator review): `_pipeline_route.py:463-487`
+  (`select_routing_grids`), `:586`, `:592`; `_astar_reconstruct.py:89-120`
+  (`run_astar_pathfinding` signature, `all_grids` construction);
+  `stage4_orchestrator.py:59-62` (`assemble_pathfinding_result`); commit
+  `8abcec24` (`fix(router): open F.Cu/B.Cu to real routing instead of the
+  plane-condemnation fallback`, confirmed ancestor of this branch's HEAD
+  via `git merge-base --is-ancestor`) and commit `b39b382d` (`fix(router):
+  pick a tree route layer that actually has an occupancy grid (#386)`,
+  origin of `select_routing_grids` and the "fake completion" precedent);
+  `docs/hardware/POWER_PLANE_DESIGN.md` (REQ-ELEC-05, Status: Implemented);
+  `docs/evidence/2026-07-28-stackup-partial-revert.md`; `power_plane.py`
+  (`generate_ground_pour`/`generate_power_pours`, `DEFAULT_POWER_DOMAINS`,
+  `DEFAULT_ISOLATION_GAP_MM`); `_pipeline_verify.py:340-364`
+  (`generate_power_planes` call site, report-only); `_adapter_convert.py:820`
+  (`routed_pcb_content` construction, no plane geometry merged in);
+  `scripts/route_board.py:149-152` (`enable_manufacturing_drc` False-by-
+  design comment); `_zone_pour_stitch.py:40-63` (`_zone_layers_for_net`,
+  `["F.Cu", "B.Cu"]` only); committed-board zone/segment/via layer counts
+  measured directly against `pcb/temper.kicad_pcb` with a short read-only
+  Python snippet using `re.findall` over the file's own `(zone
+  ...)`/`(segment ...)`/`(via ...)` blocks (metadata extraction, not a
+  copper-accessor re-derivation).
