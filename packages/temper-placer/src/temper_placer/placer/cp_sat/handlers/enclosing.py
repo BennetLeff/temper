@@ -11,7 +11,10 @@ from temper_placer.placer.cp_sat.handlers._registry import register_handler
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.encoder import EncoderContext
-    from temper_placer.placer.cp_sat.model import ComponentVars, CpSatModel
+    from temper_placer.placer.cp_sat.handlers._model_protocol import (
+        ComponentVarsProtocol,
+        ModelProtocol,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +22,8 @@ logger = logging.getLogger(__name__)
 @register_handler(ConstraintType.ENCLOSING)
 def encode_enclosing(
     constraint: EnclosingConstraint,
-    components: dict[str, ComponentVars],
-    model: CpSatModel,
+    components: dict[str, ComponentVarsProtocol],
+    model: ModelProtocol,
     ctx: EncoderContext,
 ) -> list[AssumptionLiteral]:
     """Constrain inner components to lie within the outer zone rectangle."""
