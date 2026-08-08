@@ -174,13 +174,38 @@ PBT properties (`test_channel_widths_pbt.py`): non-negative, bounded by
 the grid diagonal, scale-invariant, symmetric under coordinate swap,
 monotonic in the interior mask.
 
-**KTD8 spike verdict (2026-07-31):** the `edt` crate was evaluated as a
-`scipy.ndimage.distance_transform_edt` replacement and rejected — its
-distance field diverges from scipy's Euclidean transform even with a
-False-border padding workaround (measured max diff 2.0–2.236 on random
-masks); a Rust-native exact EDT is the recorded fallback for a
-follow-up. The U4 perf win (the per-sample lookup hot loop) is
-delivered by the batch; scipy's transform was never the hot loop.
+**KTD8 history:** the third-party `edt` crate (2026-07-31 spike) was
+evaluated as a `scipy.ndimage.distance_transform_edt` replacement and
+rejected — its distance field diverges from scipy's Euclidean transform
+even with a False-border padding workaround (measured max diff 2.0–2.236 on
+random masks). That rejection was of the third-party crate specifically,
+not of a Rust-native EDT in general; the U4 perf win described above (the
+per-sample lookup hot loop) is delivered by the batch, and at that time
+scipy's transform itself was never the hot loop.
+
+A 2026-08-07 follow-up spike (`docs/evidence/2026-08-07-exact-edt-rust-spike.md`)
+implemented an exact Felzenszwalb–Huttenlocher sweep in-house
+(`packages/temper-geometry/src/edt.rs`, `exact_edt`/`exact_edt_transform`)
+and measured bit-exact agreement with scipy (0.0 max abs diff over
+7,435,980 cells across 23 curated cases + 300 random trials), 1.6–1.9x
+faster including the Python↔Rust FFI boundary at realistic grid sizes.
+KTD8 is resolved: `channel_widths.py:_build_edt`, `_astar_heuristics.py:
+_build_edt_from_grid`, and `routability_check.py:_edt_from_obstacle_mask`
+now delegate to it (R19 migration; the pre-migration
+`scipy.ndimage.distance_transform_edt` calls are retained as pinned
+oracles in `test_channel_widths_rust_differential.py`,
+`test_astar_heuristics_rust_differential.py`, and
+`test_routability_check_rust_differential.py`). The one documented
+divergence — an all-foreground mask (no background cell anywhere) yields
+Rust `+inf` vs scipy's finite C-implementation boundary artifact — is
+reachable at two of the three call sites (an all-free `OccupancyGrid` and
+an obstacle-free `obstacle_mask`, both exercised by existing tests); it
+does not change any downstream boolean/budget outcome because each
+consumer already treats an unbounded/very-large EDT specially (an
+`inf`-fallback branch or a `>=`-threshold comparison). `routability_check.py`
+is not scipy-free: it still calls `scipy.ndimage.label` in
+`check_routability_cc`, a different function this migration does not
+address.
 
 ### Consumer: `_compute_bottleneck_widths` (last per-point EDT width loop, cleanup C3 — 2026-07-31)
 

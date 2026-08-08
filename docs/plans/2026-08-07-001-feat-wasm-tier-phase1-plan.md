@@ -7,7 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: implementation-ready
 product_contract_source: ce-plan
 execution: code
-status: draft
+status: active
+swept: 2026-08-07
+swept_basis: "in flight - U8 multi-worker deploy landed (PR #915, commit 08560eac); Cloudflare account provisioning still an open blocker for remaining units"
 ---
 
 # WASM Verification Tier — Phase 1 Implementation Plan

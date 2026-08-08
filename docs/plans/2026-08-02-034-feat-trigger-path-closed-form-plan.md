@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R31)
+status: active
+swept: 2026-08-07
+swept_basis: "scripts/check_closed_form_triggers.py does not exist; only python-tests.yml's validate_trigger_manifest remains scoped to that one workflow. Unbuilt."
 ---
 
 # Closed-Form Trigger-Path Verification - Plan

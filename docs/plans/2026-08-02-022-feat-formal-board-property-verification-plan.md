@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R26)
+status: active
+swept: 2026-08-07
+swept_basis: "Partially landed: scripts/check_board_containment.py (PR #689) covers only the containment invariant, explicitly labeled 'R26 invariant' in scripts/manifest.yaml. Connectivity and pour-reach invariants (board_properties.py) remain unbuilt."
 ---
 
 # Formal Board-Property Verification - Plan

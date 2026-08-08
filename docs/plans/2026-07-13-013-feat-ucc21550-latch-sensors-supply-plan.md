@@ -1,11 +1,11 @@
 ---
 title: UCC21550 latch, sensor, and supply closure
 type: feat
-status: stale
+status: completed
 date: 2026-07-13
 origin: docs/brainstorms/2026-07-13-real-induction-board-closure-arc-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "UCC21550BDWK, DIS/SHUTDOWN latch, DT resistor all present today in elec/src/modules.ato + main.ato, with active elec/validation/test_ucc21550_*.py tests"
 ---
 
 # UCC21550 latch, sensor, and supply closure

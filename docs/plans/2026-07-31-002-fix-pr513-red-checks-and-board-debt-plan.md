@@ -1,13 +1,15 @@
 ---
 title: Fix PR #513 red checks and attempt the board-clearance solve
 type: fix
-status: active
+status: completed
 date: 2026-07-31
 topic: pr513-red-checks-and-board-debt
 artifact_contract: ce-unified-plan/v1
 artifact_readiness: planned
 product_contract_source: ce-brainstorm
 execution: code
+swept: 2026-08-07
+swept_basis: "PR #513 merged (538f326b); fixed_positions API landed + documented in docs/evidence/2026-07-31-minimal-disruption-clearance-solve-attempt.md; later consumed by #504/#517 solves."
 ---
 
 # Fix PR #513 red checks and attempt the board-clearance solve

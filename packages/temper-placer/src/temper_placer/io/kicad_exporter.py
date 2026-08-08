@@ -9,6 +9,7 @@ from __future__ import annotations
 import math
 import uuid
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
@@ -22,6 +23,14 @@ from temper_placer.io.via_dedup import deduplicate_vias
 from temper_placer.router_v6 import _AdapterRoutePath as RoutePath
 from temper_placer.router_v6.grid_converter import grid_to_world
 from temper_placer.router_v6.path_simplify import simplify_path
+
+if TYPE_CHECKING:
+    # Annotation-only (postponed evaluation via `from __future__ import
+    # annotations`): guarded to avoid pulling deterministic/state.py's import
+    # graph into this module at runtime. Was previously an undefined name
+    # (mypy `name-defined`), long ruff-`noqa: F821`-suppressed and therefore
+    # invisible to lint -- mypy is the first gate that actually checks it.
+    from temper_placer.deterministic.state import BoardState
 
 # Layer mapping from grid layer index to KiCad layer name.
 # The canonical Temper board is 4-layer. 2-layer is not a production
@@ -530,7 +539,7 @@ def export_routed_pcb(
 
 def export_board_state(
     template_pcb: Path,
-    state: BoardState,  # noqa: F821
+    state: BoardState,
     output_pcb: Path,
     auto_fill_zones: bool = True,
     netlist_path: Path | None = None,

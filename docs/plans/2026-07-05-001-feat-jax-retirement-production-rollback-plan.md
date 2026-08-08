@@ -1,9 +1,9 @@
 ---
 type: feat
 origin: docs/brainstorms/2026-07-05-jax-retirement-production-rollback-requirements.md
-status: abandoned
-swept: 2026-07-25
-swept_basis: "only 1/33 named paths exist"
+status: completed
+swept: 2026-08-07
+swept_basis: "JAX fully retired - no jax dependency anywhere; docs/solutions/architecture-patterns/jax-framework-retirement-reverse-topological-deletion-2026-07-05.md documents the landed deletion. Paths-don't-exist was the success signal, not failure, for this deletion plan"
 ---
 # feat: JAX Retirement — Reverse-Topological Deletion
 

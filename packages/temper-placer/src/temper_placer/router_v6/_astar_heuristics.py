@@ -10,9 +10,39 @@ from __future__ import annotations
 import math
 
 import numpy as np
+import temper_geometry as _tg
 
 from temper_placer.router_v6.channel_mapping import ChannelMapping
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+
+
+def _exact_edt(mask: np.ndarray) -> np.ndarray:
+    """Exact Euclidean distance transform, delegating to
+    ``temper_geometry.exact_edt_transform`` (Rust Felzenszwalb-Huttenlocher
+    sweep).  Bit-exact vs ``scipy.ndimage.distance_transform_edt(mask)`` (no
+    ``sampling`` argument) on every input reachable by this module -- see
+    ``docs/evidence/2026-08-07-exact-edt-rust-spike.md``.  ``mask`` must
+    already be the desired ``uint8`` array at the call site; this function
+    does not renormalize dtype or semantics.
+
+    R19: the pre-migration ``scipy.ndimage.distance_transform_edt`` call is
+    retained, unused here, as the differential's pinned oracle in
+    ``tests/router_v6/test_astar_heuristics_rust_differential.py``.
+
+    Known divergence (documented, not silently absorbed): on an
+    all-foreground mask (no background/zero cell anywhere -- reachable here
+    via an all-free ``OccupancyGrid``, e.g. ``test_budget_via_run_astar_pathfinding``),
+    this returns ``+inf`` for every cell; scipy returns a finite
+    C-implementation boundary artifact instead.  Downstream,
+    ``min_edt_along_line``'s ``if min_dist == float("inf"): return cell_size``
+    fallback already handles an all-``inf`` EDT explicitly, so this does not
+    silently propagate -- see the differential suite's dedicated test for
+    this case.
+    """
+    h, w = mask.shape
+    mask_u8 = np.ascontiguousarray(mask, dtype=np.uint8)
+    out_bytes = _tg.exact_edt_transform(mask_u8.tobytes(), h, w)
+    return np.frombuffer(out_bytes, dtype="<f8").reshape(h, w)
 
 
 def manhattan_distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
@@ -97,10 +127,8 @@ def _build_edt_from_grid(
     Free cells (0) receive distance to the nearest blocked cell (>0).
     Returns ``(edt_grid, bounds, cell_size)``.
     """
-    from scipy.ndimage import distance_transform_edt
-
     mask = (grid.grid == 0).astype(np.uint8)
-    edt = distance_transform_edt(mask)
+    edt = _exact_edt(mask)
     min_x, min_y = grid.origin
     max_x = min_x + grid.width_cells * grid.cell_size
     max_y = min_y + grid.height_cells * grid.cell_size

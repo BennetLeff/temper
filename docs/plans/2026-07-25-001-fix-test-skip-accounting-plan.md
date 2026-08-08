@@ -1,8 +1,10 @@
 ---
 title: "fix: Test Skip Accounting"
 type: fix
-status: active
+status: completed
 date: 2026-07-25
+swept: 2026-08-07
+swept_basis: "R2/R3 landed & cited by ID: python-tests.yml:1095 wires tests/requirements/ (R2); dd8226da fixes tests/losses/ path (R3); pytest_guard.py is the mechanical floor gate."
 ---
 
 ## Goal

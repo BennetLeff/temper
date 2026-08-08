@@ -4,7 +4,9 @@ artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 title: Correct the Pad Geometry Model - Plan
 date: 2026-07-28
-status: active
+status: completed
+swept: 2026-08-07
+swept_basis: "core/pad_geometry.py shared shape-correct model landed (e799183c, 10645b3d); wired into isolation gate, CP-SAT barrier, and obstacle_map.py."
 ---
 
 # Correct the Pad Geometry Model - Plan

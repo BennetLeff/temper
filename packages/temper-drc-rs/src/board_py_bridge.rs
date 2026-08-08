@@ -414,10 +414,24 @@ fn extract_copper_zone(dict: &Bound<'_, PyDict>) -> PyResult<CopperZone> {
 // Composite dict parsers (orchestrated by build_board_state)
 // ---------------------------------------------------------------------------
 
+/// Parse `board_dict["nets"]` preserving the dict's iteration order.
+///
+/// Returns an ordered `Vec<(net_name, component_refs)>`, NOT a `HashMap`.
+/// `PyDict::iter()` already yields items in the dict's insertion order
+/// (matching whatever order the Python producer built `nets` in — see
+/// `build_board_state`'s doc comment). A `HashMap` intermediate here would
+/// throw that order away: Rust's default `RandomState` hasher reseeds per
+/// process, so `HashMap::into_iter()` order is stable within one process
+/// but differs across processes, which previously made the `nets` field of
+/// the serialized `BoardState` (see `serialize_board_state` in `lib.rs`)
+/// nondeterministic across runs even for byte-identical input — breaking
+/// content-addressed hashing of the JSON (goal-set R5). Cross-process
+/// regression test:
+/// `packages/temper-placer/tests/validation/test_drc_board_bridge_nets_order_determinism.py`.
 fn parse_nets_from_dict(
     board_dict: &Bound<'_, PyDict>,
-) -> PyResult<HashMap<String, Vec<String>>> {
-    let mut result = HashMap::new();
+) -> PyResult<Vec<(String, Vec<String>)>> {
+    let mut result = Vec::new();
     if let Some(nets_val) = board_dict.get_item("nets")?
         && let Ok(nets_dict) = nets_val.cast_into::<PyDict>()
     {
@@ -438,7 +452,7 @@ fn parse_nets_from_dict(
                     })
                 })
                 .collect::<Result<Vec<_>, _>>()?;
-            result.insert(net_name, comps);
+            result.push((net_name, comps));
         }
     }
     Ok(result)
@@ -555,7 +569,10 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
         (elec, mech)
     };
 
-    // --- Nets (HashMap: net_name → [component_refs]) ---
+    // --- Nets (order-preserving: [(net_name, [component_refs]), ...]) ---
+    // Deliberately NOT a HashMap — see parse_nets_from_dict's doc comment.
+    // The `.into_iter()` below must walk this Vec, not a HashMap, so the
+    // resulting `nets: Vec<Net>` order matches the input dict's order.
     let nets_dict_raw = parse_nets_from_dict(board_dict)?;
 
     // --- Net classes (HashMap: net_name → class_name) ---

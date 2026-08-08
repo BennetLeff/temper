@@ -589,3 +589,76 @@ class TestBottleneckSynthetic:
         assert cap_legacy == _BASE_CAPACITY - 1, (
             f"legacy path (no current_net_class) must discount; got {cap_legacy}"
         )
+
+
+# ---------------------------------------------------------------------------
+# Regression: stage0 NetClassRules.creepage_mm must reach _required_creepage_mm
+# ---------------------------------------------------------------------------
+
+
+class TestRequiredCreepageMm:
+    """Regression for the dropped-creepage safety gap.
+
+    ``_to_stage0_netclass_rules`` (``_adapter_convert.py``) previously had
+    no field to carry a netclass's declared ``creepage_mm`` into the
+    router's internal ``stage0_data.NetClassRules`` shape --
+    ``_required_creepage_mm``'s ``getattr(rule, "creepage_mm", 0.0)``
+    (``bottleneck_geometry.py:960``) therefore always saw 0.0, regardless
+    of what the netclass actually declared.
+
+    The fixture below deliberately sets ``creepage_mm`` STRICTLY GREATER
+    than ``clearance_mm`` (6.0 vs 0.5). An equal-value fixture would pass
+    even with the bug -- ``clearance_mm`` still flows through correctly and
+    would coincidentally satisfy an assertion that only checks *some*
+    non-zero value came out. Only an unequal pair proves the *creepage*
+    figure specifically survived, not just clearance masquerading as it.
+    """
+
+    def test_creepage_strictly_greater_than_clearance_reaches_consumer(self) -> None:
+        from temper_placer.router_v6.bottleneck_geometry import _required_creepage_mm
+        from temper_placer.router_v6.stage0_data import (
+            NetClassRules as Stage0NetClassRules,
+        )
+
+        # The exact object shape produced by
+        # ``_adapter_convert._to_stage0_netclass_rules`` -- this is what
+        # actually flows through ``pcb.design_rules.net_classes`` after
+        # the stage0 conversion/injection (``_pipeline_core.py``), not a
+        # stand-in.
+        hv_rule = Stage0NetClassRules(
+            name="HV",
+            clearance_mm=0.5,
+            trace_width_mm=0.5,
+            via_diameter_mm=0.6,
+            via_drill_mm=0.3,
+            safety_category="HV",
+            creepage_mm=6.0,
+        )
+        net_class_rules = {"HV": hv_rule}
+
+        components = [
+            Component(
+                ref="Q1",
+                footprint="TO-247",
+                bounds=(4.0, 4.0),
+                pins=[Pin("D", "1", (0.0, 0.0), net="GATE_H")],
+                initial_position=(2.0, 5.0),
+                net_class="HV",
+            ),
+        ]
+        nets = [Net("GATE_H", [("Q1", "D")], net_class="HV")]
+        netlist = Netlist(components=components, nets=nets)
+        state = BoardState(netlist=netlist)
+
+        result = _required_creepage_mm(
+            net_class_rules=net_class_rules,
+            net=nets[0],
+            board_state=state,
+        )
+
+        assert result == pytest.approx(6.0), (
+            f"expected the netclass's declared creepage_mm=6.0 to dominate "
+            f"_required_creepage_mm's max(), got {result} -- the stage0 "
+            "NetClassRules.creepage_mm field is not reaching the router's "
+            "min-cut geometry (dropped-creepage regression)"
+        )

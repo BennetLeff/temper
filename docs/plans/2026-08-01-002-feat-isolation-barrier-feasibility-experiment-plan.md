@@ -4,6 +4,9 @@ artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 date: 2026-08-01
 plan_type: experiment
+status: completed
+swept: 2026-08-07
+swept_basis: "experiment ran to completion; NO-GO result recorded in docs/evidence/2026-08-01-isolation-barrier-feasibility-experiment.md, feeding the rescope decision (08-01-003)"
 ---
 
 # Isolation-Barrier Corridor-Feasibility Probe — Plan

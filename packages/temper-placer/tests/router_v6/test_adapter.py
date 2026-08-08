@@ -1012,6 +1012,92 @@ class TestCrossClassZoneClearance:
             os.unlink(temp_path)
 
 
+class TestRoutePcbGeographicPruningWiring:
+    """route_pcb()'s `enable_geographic_pruning` kwarg must reach
+    `ModelBuilder` -- not merely be accepted by route_pcb()'s signature.
+
+    A test that only asserts `RouterV6Pipeline`'s constructor receives the
+    kwarg (the pattern
+    `test_route_pcb_e2e_threads_design_rules_to_zone_pours_and_pipeline`
+    above uses for `enable_zone_pours`, with `RouterV6Pipeline` itself
+    mocked out) would not catch a break anywhere between
+    `RouterV6Pipeline.__init__` and `_run_stage3`'s
+    `ModelBuilder(..., enable_geographic_pruning=self.enable_geographic_pruning)`
+    call -- that link is internal to the (unmocked, in that test) pipeline
+    and is never itself exercised.
+
+    This test instead runs `route_pcb()` against a real, unmocked
+    `RouterV6Pipeline` on a tiny real board fixture
+    (`tests/fixtures/minimal_board.kicad_pcb`, also used by
+    `test_router_v6_fence_integration.py` for full non-mocked pipeline
+    runs), with only `ModelBuilder.__init__` spied on -- via
+    `unittest.mock.patch.object` replacing it with a wrapper that still
+    calls through to the real constructor -- to capture the kwargs it is
+    actually invoked with. This proves the full
+    `route_pcb() -> RouterV6Pipeline -> _run_stage3 -> ModelBuilder` thread,
+    not just the first hop.
+    """
+
+    @staticmethod
+    def _minimal_board_parsed():
+        from pathlib import Path
+
+        fixture_dir = Path(__file__).resolve().parents[1] / "fixtures"
+        pcb_path = fixture_dir / "minimal_board.kicad_pcb"
+        assert pcb_path.exists(), f"fixture missing: {pcb_path}"
+        return type("ParsedPCB", (), {"source_path": str(pcb_path)})()
+
+    def test_enable_geographic_pruning_true_reaches_model_builder(self):
+        from temper_placer.router_v6.constraint_model import ModelBuilder
+
+        parsed = self._minimal_board_parsed()
+
+        captured_kwargs: dict = {}
+        real_init = ModelBuilder.__init__
+
+        def spy_init(self, *args, **kwargs):
+            captured_kwargs.update(kwargs)
+            return real_init(self, *args, **kwargs)
+
+        with umock.patch.object(ModelBuilder, "__init__", spy_init):
+            result = route_pcb(parsed, {}, enable_geographic_pruning=True)
+
+        assert captured_kwargs.get("enable_geographic_pruning") is True, (
+            "enable_geographic_pruning=True passed to route_pcb() must "
+            "reach ModelBuilder's constructor via RouterV6Pipeline -> "
+            f"_run_stage3 -- got kwargs: {captured_kwargs!r}"
+        )
+        assert result is not None
+
+    def test_enable_geographic_pruning_default_false_reaches_model_builder(self):
+        """Default (omitted) must thread through as False, not merely be
+        absent -- a broken default anywhere in the chain (e.g. a stray
+        `True` default introduced in RouterV6Pipeline or _run_stage3)
+        would flip production behavior silently, since route_pcb() never
+        exposed this parameter before this change and every existing
+        caller omits it.
+        """
+        from temper_placer.router_v6.constraint_model import ModelBuilder
+
+        parsed = self._minimal_board_parsed()
+
+        captured_kwargs: dict = {}
+        real_init = ModelBuilder.__init__
+
+        def spy_init(self, *args, **kwargs):
+            captured_kwargs.update(kwargs)
+            return real_init(self, *args, **kwargs)
+
+        with umock.patch.object(ModelBuilder, "__init__", spy_init):
+            result = route_pcb(parsed, {})
+
+        assert captured_kwargs.get("enable_geographic_pruning") is False, (
+            "enable_geographic_pruning must default to False all the way "
+            f"through to ModelBuilder -- got kwargs: {captured_kwargs!r}"
+        )
+        assert result is not None
+
+
 class TestZonesReplacedNotAppended:
     """U3 (R7): a board's stored zones must be replaced by the regenerated
     set, not left to coexist alongside it. Without this, any (zone ...)
@@ -1387,6 +1473,7 @@ class TestToStage0NetclassRulesRoundTrip:
                 st.none(),
                 st.sampled_from(["HV", "LV", "AC", "iso"]),
             ),
+            creepage_mm=st.floats(min_value=0.0, max_value=10.0),
         )
 
     @given(source=_valid_netclass_strategy())
@@ -1409,6 +1496,58 @@ class TestToStage0NetclassRulesRoundTrip:
         result = _to_stage0_netclass_rules(source)
         assert result.safety_category == source.safety_category
 
+    @given(source=_valid_netclass_strategy())
+    @settings(max_examples=100, deadline=10000)
+    def test_creepage_mm_survives_conversion(self, source):
+        """creepage_mm must survive: the router previously enforced ZERO
+        creepage because this field had no stage0 equivalent (it only
+        appeared in _UNREPRESENTED_WARN, which logs and discards)."""
+        result = _to_stage0_netclass_rules(source)
+        assert result.creepage_mm == source.creepage_mm
+
+
+# ============================================================================
+# Regression: netclass creepage MUST reach the router as its own value,
+# not fall back to (or be masked by an equal) clearance figure.
+# ============================================================================
+
+
+class TestToStage0NetclassRulesCreepageRegression:
+    """Regression for the dropped-creepage safety gap.
+
+    Netclass creepage requirements were silently discarded by
+    ``_to_stage0_netclass_rules`` -- ``stage0_data.NetClassRules`` had no
+    ``creepage_mm`` field, so every downstream ``getattr(rule,
+    "creepage_mm", 0.0)`` read (e.g. ``bottleneck_geometry.py``'s
+    ``_required_creepage_mm``, ``_pipeline_route.py``'s PCL netclass
+    metadata) always saw 0.0 regardless of what the netclass declared --
+    the router enforced zero creepage on a mains-connected board.
+
+    ``clearance`` and ``creepage_mm`` are deliberately UNEQUAL here (3.0 vs
+    6.0). A fixture with clearance == creepage would pass even on the
+    buggy code, because ``clearance_mm`` was never dropped -- equality is
+    exactly what let this bug hide undetected.
+    """
+
+    def test_creepage_strictly_greater_than_clearance_is_not_dropped(self):
+        from temper_placer.core.netclass_rules_gen import NetClassRules
+
+        source = NetClassRules(
+            name="ACMains",
+            trace_width=2.5,
+            clearance=3.0,
+            creepage_mm=6.0,
+            safety_category="AC",
+        )
+        result = _to_stage0_netclass_rules(source)
+
+        assert result.clearance_mm == 3.0
+        assert result.creepage_mm == 6.0, (
+            f"expected the declared creepage_mm=6.0 to survive conversion "
+            f"distinctly from clearance_mm=3.0, got creepage_mm={result.creepage_mm} "
+            "-- creepage is being dropped (or collapsed onto clearance)"
+        )
+
 
 # ============================================================================
 # R1b — Surface unrepresented fields via log warnings
@@ -1418,7 +1557,12 @@ class TestToStage0NetclassRulesRoundTrip:
 class TestToStage0NetclassRulesWarnings:
     """R1b: unrepresented fields must log warnings when non-None."""
 
-    def test_creepage_mm_warns_when_set(self, caplog):
+    def test_creepage_mm_no_longer_warns_now_represented(self, caplog):
+        """creepage_mm gained a real stage0 field -- it must NOT warn as
+        dropped anymore. (Previously this asserted the opposite: that
+        setting creepage_mm=6.0 logged a "no stage0 equivalent field
+        exists" warning. That was the bug -- the value was warned about
+        and then discarded. Now it has a home, so no warning fires.)"""
         from temper_placer.core.netclass_rules_gen import NetClassRules
 
         source = NetClassRules(
@@ -1428,11 +1572,9 @@ class TestToStage0NetclassRulesWarnings:
             creepage_mm=6.0,
         )
         with caplog.at_level(logging.WARNING):
-            _to_stage0_netclass_rules(source)
-        assert any(
-            "Creepage distance" in rec.message and "Test" in rec.message
-            for rec in caplog.records
-        )
+            result = _to_stage0_netclass_rules(source)
+        assert result.creepage_mm == 6.0
+        assert not any("Creepage distance" in rec.message for rec in caplog.records)
 
     def test_voltage_v_warns_when_set(self, caplog):
         from temper_placer.core.netclass_rules_gen import NetClassRules

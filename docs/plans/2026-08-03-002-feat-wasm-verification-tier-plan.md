@@ -7,6 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 execution: code
+status: active
+swept: 2026-08-07
+swept_basis: "in flight - governs goal-set goals 2/3; Phase 0 done, Phase 1 in progress (2026-08-07-001-feat-wasm-tier-phase1-plan.md). NOTE: cites docs/plans/2026-07-30-001-fix-drc-burndown-to-zero-plan.md and 2026-08-03-001-perf-drc-trio-parallelization-plan.md, neither of which exists on main - both live only on the unmerged branch origin/docs/phase3-formats-io-plan"
 ---
 
 # WASM Verification Tier - Plan

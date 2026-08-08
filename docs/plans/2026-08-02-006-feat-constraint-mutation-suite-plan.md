@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R32)
+status: completed
+swept: 2026-08-07
+swept_basis: "scripts/constraint_mutation_runner.py + constraint_mutation_gate.py + power_pcb_dataset/constraint_kill_sets.yaml exist, tested, and run in .github/workflows/python-tests.yml (line ~1934)."
 ---
 
 # Constraint Mutation Suite - Plan

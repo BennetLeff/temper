@@ -1,11 +1,11 @@
 ---
 title: "feat: Truth-Gate the Closure Test — Require Real Pipeline Results"
 type: feat
-status: stale
+status: completed
 date: 2026-06-22
 origin: docs/ideation/2026-06-22-test-and-build-next-ideation.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed: --require-all-stages in closure_test.py/ci_closure_test.py; CI job 'Pipeline Closure Test (Truth-Gated)' in python-tests.yml runs it on trunk"
 ---
 
 # feat: Truth-Gate the Closure Test

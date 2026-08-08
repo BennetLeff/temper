@@ -1,11 +1,11 @@
 ---
 title: "feat: Dead-Path Re-enablement and Exercise-or-Delete Coverage Gate"
 type: feat
-status: stale
+status: completed
 date: 2026-06-22 (revised 2026-06-22)
 origin: docs/brainstorms/2026-06-21-dead-path-coverage-gate-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "Part A obsolete per doc itself; Part B landed: scripts/check_coverage_gate.py wired in .github/workflows/python-tests.yml:765"
 ---
 
 # feat: Dead-Path Re-enablement and Exercise-or-Delete Coverage Gate

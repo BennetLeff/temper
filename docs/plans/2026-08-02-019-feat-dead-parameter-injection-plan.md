@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R33, R37)
+status: completed
+swept: 2026-08-07
+swept_basis: "scripts/check_dead_parameter_inputs.py + validation/dead_parameter_probe.py exist, tested, and wired into .github/workflows/python-tests.yml (test_dead_parameter_probe.py in the coverage job)."
 ---
 
 # Dead-Parameter & Physics-Input Injection - Plan

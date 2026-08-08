@@ -7,6 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 execution: code
+status: active
+swept: 2026-08-07
+swept_basis: "U1 (creepage tool, 6ef9dde8) and U4 (IEC status doc, 01ece8c9) landed on main; U2/U3 (ZCD-optocoupler deletion + board reconciliation) exist only on unmerged origin/codex/handoff-actionables (835 commits behind main) -- H11L1 still present in elec/ and pcb/ on main."
 ---
 
 # Handoff Actionables Integration - Plan

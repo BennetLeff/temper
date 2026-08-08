@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R24)
+status: active
+swept: 2026-08-07
+swept_basis: "Verified live: PlacementAuditor._check in cp_sat/audit.py still returns [] (silent pass) for any ConstraintType absent from _CHECK_MAP; fail-closed change not made."
 ---
 
 # Post-Solve Audit for All Constraints - Plan

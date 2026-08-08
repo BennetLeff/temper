@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R11)
+status: active
+swept: 2026-08-07
+swept_basis: "No drc_differential.py or internal-vs-kicad-cli comparator found; 2026-08-03-002-feat-wasm-verification-tier-plan.md (R11) still names this as a premise the tier depends on, not yet landed code."
 ---
 
 # Full-board DRC Oracle Differential - Plan

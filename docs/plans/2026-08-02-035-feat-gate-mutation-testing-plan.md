@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R42)
+status: active
+swept: 2026-08-07
+swept_basis: "scripts/gate_mutate.py and ci-corpus/mutations.yaml don't exist; depends on the still-unbuilt 2026-08-02-032 incident corpus. Unbuilt, uncontradicted."
 ---
 
 # Gate-Mutation Testing - Plan

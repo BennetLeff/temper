@@ -146,6 +146,25 @@ def _edt_cache_path(fp: str, layer: str) -> Path:
     return _EDT_CACHE_DIR / f"edt_{fp}_{layer}.npz"
 
 
+def _exact_edt(mask: np.ndarray) -> np.ndarray:
+    """Exact Euclidean distance transform, delegating to
+    ``temper_geometry.exact_edt_transform`` (Rust Felzenszwalb-Huttenlocher
+    sweep).  Bit-exact vs ``scipy.ndimage.distance_transform_edt(mask)`` (no
+    ``sampling`` argument) on every input reachable by this module -- see
+    ``docs/evidence/2026-08-07-exact-edt-rust-spike.md``.  ``mask`` must
+    already be the desired ``uint8``/bool array at the call site; this
+    function does not renormalize dtype or semantics.
+
+    R19: the pre-migration ``scipy.ndimage.distance_transform_edt`` call is
+    retained, unused here, as the differential's pinned oracle in
+    ``tests/router_v6/test_channel_widths_rust_differential.py``.
+    """
+    h, w = mask.shape
+    mask_u8 = np.ascontiguousarray(mask, dtype=np.uint8)
+    out_bytes = _tg.exact_edt_transform(mask_u8.tobytes(), h, w)
+    return np.frombuffer(out_bytes, dtype="<f8").reshape(h, w)
+
+
 def _build_edt(
     routing_space: RoutingSpace,
     cell_size: float,
@@ -166,9 +185,7 @@ def _build_edt(
             return data["edt"], data["mask"], bounds
 
     mask = _rasterize_boundary_mask(routing_space.available_area, bounds, cell_size)
-    from scipy.ndimage import distance_transform_edt
-
-    edt = distance_transform_edt(mask.astype(np.uint8))
+    edt = _exact_edt(mask.astype(np.uint8))
 
     if use_cache:
         np.savez_compressed(cache_path, edt=edt, mask=mask)

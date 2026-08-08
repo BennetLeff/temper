@@ -1,9 +1,9 @@
 # Temper Project Strategy
 
-**Version:** 3.0
-**Date:** 2026-07-25
-**Supersedes:** v2.0 (same day), v1.0 (2026-06-22) and its "Strategy-Level
-Move Set".
+**Version:** 3.1
+**Date:** 2026-08-07
+**Supersedes:** v3.0 (2026-07-25), v2.0 (2026-07-25), v1.0 (2026-06-22) and
+its "Strategy-Level Move Set".
 
 How we work lives in [`METHODOLOGY.md`](./METHODOLOGY.md) and should rarely
 change. This document holds what we are building and where we honestly are. It
@@ -13,63 +13,177 @@ churns by design.
 
 ## Bottom line
 
-**The critical path is design completion, not tooling. The board cannot be
-fabricated, and the router is not what is stopping it.**
+> **Correction, 2026-08-07.** v3.0's bottom line below described the board as
+> undesigned and dated its evidence 2026-07-25. Two weeks of design work have
+> since landed — OVP-01, the isolation barrier, the fault tree, DESAT, the
+> `CST3015` footprint, and full routing are all fixed or resolved (table
+> below, each row independently spot-checked against source at HEAD). Left
+> uncorrected, v3.0's executive summary would misdirect effort at things that
+> no longer need it. v3.0's original text is preserved, unedited, in
+> "v3.0's original bottom line — superseded" below, per this document's own
+> correct-forward practice (see `docs/STRATEGY.md`'s own "Correction: the
+> committed board is UNROUTED" precedent).
 
-This reverses the premise the project has run on for roughly a month. The
-evidence, all gathered 2026-07-25 and detailed below:
+**The critical path is now verification integrity and one design decision —
+not design completion, and not tooling.** Design work that v3.0 called
+undone is done. What remains is: OCP-02 has no implementing circuit and is
+blocked on a sensing-domain decision (an INA240 at `DC_BUS_RTN` would see
+~170 V common-mode against a -4..+80 V rating); the DRC ceiling's own
+provenance record doesn't anchor to a real commit; two DRC gate classes
+(clearance, courtyard) are vacuous; creepage is computed but not plumbed into
+the router's own constraint model; and `enable_geographic_pruning` is
+implemented but defaults off and unreachable from `route_pcb()`. None of that
+is a tooling
+nice-to-have — it is the difference between a gate that would actually catch
+a regression and one that rubber-stamps whatever is fed to it.
 
-| | |
-|---|---|
-| **Protection gates** | Of seven: **3 fixed** (OCP-01, THM-01, THM-02), **OVP-01 fail-open** (senses the half-bus, can never trip), UVL-02 designed but its fault has nowhere to connect, OCP-02 blocked on sensing domain, UVL-01 vendor-internal. **0 validated on hardware** |
-| **IGBT desaturation protection** | **Does not exist.** 19 BOM lines cost it; `grep -ni desat elec/src/*.ato` returns nothing |
-| **BOM** | Unusable in both directions — 35 lines costed with no circuit, ~75 wired components uncosted |
-| **Router** | ~79% path-finding, but its output carries ~120 shorts and 499 clearance violations |
-| **Router's own DRC** | Never ran; when enabled, the first check **crashes** on current data |
-| **Fixed today** | OCP-01 50.12 A (was 37.6), THM-01 84.91 °C (was 99.5), board outline, 10 dead CI gates |
+**This does not mean the board is close to signable, and it is not a claim of
+hardware validation.** No board has been fabricated. **0 of 22 gates are
+measured on hardware** — every fixed-and-simulated gate below is simulation
+only, on uncalibrated models (`calibrated: false` throughout
+`simulation/models/`). That sentence was true in v3.0 and is unchanged here.
 
-The router was never the bottleneck. A month went into routing a board whose
-overcurrent protection trips 17% low, whose thermal shutdown is 14.5 °C high,
-which has no secondary OCP, no coil thermal sensing, and no desaturation
-protection — while its BOM bills for a desat circuit that was never designed
-and omits the bus discharge that was.
+| Item | v3.0 (2026-07-25) said | Verified at HEAD (2026-08-07) | Evidence |
+|---|---|---|---|
+| OVP-01 | fail-open, senses half-bus, "can never trip" | **Fixed 2026-07-27 18:19**, commit `75a708a8` — re-referenced `comp.INN` to `REF2025`'s fixed 2.5 V output; simulated worst-case trip 196.11–203.81 V (inside the 195–205 V window) including tempco at ΔT=60°C | `elec/src/modules.ato:2132-2400`, `docs/evidence/2026-07-27-ovp01-ref2025-implementation.md` |
+| Isolation barrier | shorted by the star-point ground join | **Fixed**, commit `6976ef44` (2026-07-26) — `power_return ~ gnd` removed; SELV `gnd` now bonds directly to `pe` instead of the doubler-midpoint net that shorted the AuxSupply IRM-10-15's 4.2 kVAC barrier | `elec/src/main.ato:714,754`, `docs/hardware/SELV_ISOLATION_REDESIGN.md` |
+| Fault tree | full; UVL-02 and OCP-02 can't reach the latch | **Fixed 2026-07-27** for UVL-02 — `fault_or3` gate added, `uvlo_logic.fault.line ~ fault_or3.A1` reaches `latch.A1`. **OCP-02 still unwired** — no upstream circuit exists to connect (see below) | `elec/src/modules.ato:3151-3159`, `docs/evidence/2026-07-27-fault-tree-capacity-expansion.md` |
+| DESAT | "does not exist," 19 BOM lines cost it | Formally **DE-SCOPED 2026-07-26** (BOM rev 1.4) — the 19 lines are removed, not just unpaid-for; residual risk (shoot-through, gate-drive loss) accepted in writing, next-revision item | `docs/hardware/DESAT_DECISION_BRIEF.md`, `BOM.md:341-355,559` |
+| `temper:CST3015` footprint | "must be drawn before fabrication" | **Drawn 2026-07-26.** Every footprint referenced in `elec/src` resolves against `pcb/libs/temper.pretty/` | `pcb/libs/temper.pretty/CST3015.kicad_mod`, `elec/src/components.ato:146,155` |
+| Board routing | "carries no routing: 0 segments, 0 vias, 0 zones" | **Routed.** `pcb/temper.kicad_pcb` measures 2,290 segments, 48 vias, 96 zones, 169 footprints (direct count, this pass) | count directly from `pcb/temper.kicad_pcb` |
+| `shorting_items` DRC noise | unreliable at ±11 (~9%, 5 runs) | **±1 (~0.5%) over 120 samples**, since `run_drc()` started passing `--all-track-errors` unconditionally. (A further fix, thread-pinning `MaximumThreads=1`, collapses this to a single value and is written up but **not yet applied** to `drc_ceiling.json` — see `docs/evidence/2026-08-04-drc-measurement-determinism.md`.) | `power_pcb_dataset/drc_ceiling.json` (`nondeterministic_error_types.shorting_items`) |
+| Physics branches | "parked... highest-value existing work," implying unmerged | **Merged onto main 2026-07-10** (PR #145, merge `15157110`) — before v3.0 was even dated. Three of the four branches (`feat/physics-routing-constraints`, `feat/physics-thermal-field`, `feat/physics-verification-rigor`) no longer exist as remote refs; the fourth, `feat/physics-informed-placement-routing`, still exists as a ref but `git merge-base --is-ancestor` confirms it is a fully-merged ancestor of `main`, not a live branch of unlanded work | `git branch -a --no-merged main`; merge commit `15157110` |
+| ERC | 438 warnings (2026-07-25) | Superseded by **492 warnings, 0 errors** (2026-07-26) — already recorded below at "ERC", not a new finding this pass | `docs/STRATEGY.md` "ERC" section |
 
-**All of it was found in one day, with tools already in the repository**: four
-ngspice runs against models sitting unused since they were committed, and a
-grep of the BOM against the source. None of it required the router to work.
+**Still genuinely open — do not read any of the above as "board is ready":**
+
+- **OCP-02** has no implementing circuit at all (verified by inspection:
+  exactly one `OCPComparator` instance exists, and it is OCP-01's). It is
+  blocked on a sensing-domain decision: an INA240 across a `DC_BUS_RTN` shunt
+  would see roughly 170 V common-mode against the part's -4..+80 V rating.
+  This is the one open *design* decision left; everything else in this
+  section is verification-layer work.
+- The router's internal creepage plumbing is still incomplete: `creepage_mm`
+  is a voltage-table lookup in the standalone `clearance_engine.py`, but the
+  CP-SAT constraint model the router actually solves against
+  (`router_v6/constraint_model.py`) has no `creepage` parameter at all —
+  zero references, verified this pass — and the adapter/geometry layers that
+  do carry a `creepage_mm` field (`_adapter_convert.py`,
+  `bottleneck_geometry.py`) default it to `0.0` when absent. Creepage is
+  computed somewhere, but it is not wired into what the router optimizes
+  against.
+- Clearance and courtyard DRC gates are vacuous (they exist and run, but do
+  not fail a board that should fail one — see the relevant `docs/evidence/`
+  anti-vacuity write-ups referenced elsewhere in this document).
+- `enable_geographic_pruning` is implemented
+  (`router_v6/constraint_model.py`, `_pipeline_core.py`) but **defaults to
+  `False`** and there is no path from `route_pcb()`'s public surface that
+  turns it on — a real feature that is currently dead code from the caller's
+  perspective.
+- `drc_ceiling.json`'s own `provenance` block is unanchored: its
+  `measured_at_commit` (`3410ee4e1f...`) does not resolve to any commit in
+  this repository (`git cat-file -t` fails on it), its recorded board hash
+  does not match the current `pcb/temper.kicad_pcb` content hash, and it was
+  measured on `kicad-cli 10.0.4` while CI's Docker image
+  (`.github/docker/ci.Dockerfile`) pins `10.0.5` — three independent reasons
+  not to trust the ceiling file's own chain of custody, verified directly
+  this pass.
 
 ### What this changes
 
-1. **Fabrication is not the next milestone.** "Close one loop, fab a board"
-   — the model this document carried this morning — assumed a roughly sound
-   design. That assumption is falsified. Ordering this board would produce
-   hardware missing three protection mechanisms.
-2. **Simulation, not place-and-route, is where the pipeline investment pays.**
-   Four SPICE runs found more real defects than a month of router work. For the
-   long-term goal of building kitchen appliances quickly, a
-   simulation-in-the-loop design-verification layer is worth more than
-   incremental autorouter quality — and it is far less built.
-3. **The verification layer is not trustworthy yet, but it is now honest.**
-   Ten dead CI gates, five vacuous production gates, and a DRC oracle with ±11
-   noise were found and mostly fixed. That work is done; continuing it advances
-   no gate.
+1. **The critical path moved from "design" to "verification integrity plus
+   one decision."** OCP-01, THM-01, THM-02, OVP-01, DESAT, the isolation
+   barrier, the fault tree, and the CST3015 footprint are all fixed or
+   resolved. OCP-02 is the one remaining protection-circuit gap, and it is a
+   sensing-domain decision, not an unstarted design. Everything else blocking
+   a signable board is now provenance and gate-vacuity work: an unanchored
+   `drc_ceiling.json`, a hardcoded creepage constant, vacuous clearance/
+   courtyard gates, and a pruning feature the router never actually reaches.
+2. **Fabrication is still not the next milestone — but for a different
+   reason than v3.0 gave.** v3.0 said the design was unsound. It is now
+   largely sound, on paper, in simulation. What is missing is any hardware
+   validation at all: **0 of 22 gates measured on hardware**, and a
+   verification layer (DRC ceiling, creepage, clearance/courtyard gates) that
+   cannot yet be trusted to catch a regression if one appeared. Ordering a
+   board today would be ordering against gates that do not reliably gate.
+3. **Simulation-in-the-loop remains the right investment, and is now further
+   along.** The SPICE/thermal harness that found the original defects is the
+   same one that verified OVP-01's fix. It still has not touched hardware.
+4. **The verification layer's remaining debt is now narrower and better
+   named.** Not "some gates are vacuous, unspecified" but four specific,
+   checkable items (creepage plumbing, clearance/courtyard vacuity, dead
+   pruning path, unanchored provenance) — see "Still genuinely open" above.
 
 ### Recommended sequence
 
-1. ~~**Design review of the protection chain**~~ — **done 2026-07-25**
-   (`docs/hardware/PROTECTION_CHAIN_REVIEW.md`). OCP-01 and THM-01 are fixed
-   and verified in simulation. Still outstanding from it: OVP-01's divider
-   reference is a design decision; OCP-02, THM-02 and DESAT need circuits
-   designed; `temper:CST3015` footprint must be drawn before fabrication.
-2. **Reconcile the BOM against the source**, both directions.
-3. **Extend the SPICE harness** to the power stage — a ZVS-margin sweep across
-   the pan-load envelope is the highest-value remaining simulation
-   (`METHODOLOGY.md` §11) and the models are already present.
-4. **Then** return to routing quality: the ~120 shorts, and repairing the
-   manufacturing DRC checks so they run against `RoutePath3D`.
+1. ~~**Design review of the protection chain**~~ — **done 2026-07-25**, and
+   ~~its outstanding items~~ — **OVP-01, DESAT, and the CST3015 footprint are
+   now resolved** (table above). OCP-02 remains: its sensing-domain decision
+   needs an owner.
+2. ~~**Reconcile the BOM against the source**~~ — **done 2026-07-26** (BOM
+   rev 1.5, full class-by-class reconciliation against `elec/src/*.ato`,
+   component count matches source exactly at 155).
+3. **Decide OCP-02's sensing domain.** This is the one remaining protection
+   circuit gap and is a design/procurement decision, not a coding task.
+4. **Anchor `drc_ceiling.json`'s provenance and close the vacuous gates**
+   (creepage plumbing, clearance/courtyard, `enable_geographic_pruning`
+   reachability) — this is what actually stands between "simulated as
+   correct" and "a gate that would catch it if it weren't."
+5. **Then, and only then, hardware.** Nothing above requires a fabricated
+   board; hardware validation of all 22 gates is the step after this list,
+   not concurrent with it.
 
-Nothing in steps 1–2 is a coding task, and nothing in them should be delegated
-to an agent. They are design and procurement decisions.
+Step 3 is a design/procurement decision, not a coding task, and should not be
+delegated to an agent. Steps 4–5 are the actual current critical path.
+
+---
+
+### v3.0's original bottom line (2026-07-25) — superseded 2026-08-07
+
+> Kept verbatim for history, per this document's own practice of correcting
+> forward rather than silently rewriting (see the "Correction: the committed
+> board is UNROUTED" section below for the precedent this follows). **Every
+> claim in this block is superseded by the table above — do not read it as
+> current state.**
+>
+> **The critical path is design completion, not tooling. The board cannot be
+> fabricated, and the router is not what is stopping it.**
+>
+> This reverses the premise the project has run on for roughly a month. The
+> evidence, all gathered 2026-07-25 and detailed below:
+>
+> | | |
+> |---|---|
+> | **Protection gates** | Of seven: **3 fixed** (OCP-01, THM-01, THM-02), **OVP-01 fail-open** (senses the half-bus, can never trip), UVL-02 designed but its fault has nowhere to connect, OCP-02 blocked on sensing domain, UVL-01 vendor-internal. **0 validated on hardware** |
+> | **IGBT desaturation protection** | **Does not exist.** 19 BOM lines cost it; `grep -ni desat elec/src/*.ato` returns nothing |
+> | **BOM** | Unusable in both directions — 35 lines costed with no circuit, ~75 wired components uncosted |
+> | **Router** | ~79% path-finding, but its output carries ~120 shorts and 499 clearance violations |
+> | **Router's own DRC** | Never ran; when enabled, the first check **crashes** on current data |
+> | **Fixed today** | OCP-01 50.12 A (was 37.6), THM-01 84.91 °C (was 99.5), board outline, 10 dead CI gates |
+>
+> The router was never the bottleneck. A month went into routing a board whose
+> overcurrent protection trips 17% low, whose thermal shutdown is 14.5 °C high,
+> which has no secondary OCP, no coil thermal sensing, and no desaturation
+> protection — while its BOM bills for a desat circuit that was never designed
+> and omits the bus discharge that was.
+>
+> **All of it was found in one day, with tools already in the repository**: four
+> ngspice runs against models sitting unused since they were committed, and a
+> grep of the BOM against the source. None of it required the router to work.
+>
+> **What this changes (2026-07-25):**
+>
+> 1. Fabrication is not the next milestone — this assumption is falsified by
+>    the design gaps found that day.
+> 2. Simulation, not place-and-route, is where the pipeline investment pays.
+> 3. The verification layer is not trustworthy yet, but it is now honest.
+>
+> **Recommended sequence (2026-07-25):**
+>
+> 1. Design review of the protection chain.
+> 2. Reconcile the BOM against the source, both directions.
+> 3. Extend the SPICE harness to the power stage.
+> 4. Then return to routing quality.
 
 ---
 
@@ -144,7 +258,14 @@ writing, zero of 22 have been measured.**
 ## Honest state (2026-07-25)
 
 All figures measured on this date unless noted. Figures without a reproducible
-command are not recorded here.
+command are not recorded here. **This section is a dated journal, not a
+live snapshot** — later entries in this same document (search for
+"Correction:", and the OVP-01/isolation-barrier/fault-tree/DESAT/footprint
+entries dated 2026-07-26 and 2026-07-27) supersede specific figures below as
+they were superseded, in place, without deleting the original numbers. The
+"Bottom line" table at the top of this document is the current summary of
+what has since changed; where it disagrees with a figure below, the top of
+the document is current and the figure below is history.
 
 ### Board
 
@@ -1924,13 +2045,30 @@ router currently treats as opaque strings. Carrying that intent into router
 objectives is likely a larger win than any A* improvement and is mostly plumbing
 on information already present.
 
-### Physics branches are the live line of work
+### Physics branches — merged, not parked (corrected 2026-08-07)
 
-`feat/physics-routing-constraints`, `feat/physics-informed-placement-routing`,
-`feat/physics-thermal-field`, and `feat/physics-verification-rigor` (last
-touched 2026-07-09) implement checks-as-cost-fields, the pattern
-`METHODOLOGY.md` §6.3 depends on. They were parked for router hygiene. They are
-the highest-value existing work in the repository.
+> **Correction.** This section previously read: "`feat/physics-routing-
+> constraints`, `feat/physics-informed-placement-routing`,
+> `feat/physics-thermal-field`, and `feat/physics-verification-rigor` (last
+> touched 2026-07-09) implement checks-as-cost-fields... They were parked for
+> router hygiene. They are the highest-value existing work in the
+> repository." **That was already wrong when v3.0 was dated 2026-07-25**: all
+> four branches merged onto `main` on **2026-07-10** (PR #145, merge commit
+> `15157110dff21a432e142125d7dc9498faa299fa`, titled "merge: physics
+> verification arc onto main") — the day *before* this document's dated
+> content begins. Verified this pass: `git branch -a --no-merged main` shows
+> three of the four (`feat/physics-routing-constraints`,
+> `feat/physics-thermal-field`, `feat/physics-verification-rigor`) no longer
+> exist as branches at all (deleted post-merge, as expected); the fourth,
+> `feat/physics-informed-placement-routing`, still exists as a ref but
+> `git merge-base --is-ancestor origin/feat/physics-informed-placement-routing
+> main` confirms it is a fully-merged ancestor of `main`, i.e. stale-but-
+> harmless housekeeping, not unlanded work.
+>
+> The checks-as-cost-fields *pattern* (`METHODOLOGY.md` §6.3) these branches
+> introduced is real and landed; whatever remains to plumb it fully into the
+> router's objective function is tracked as ordinary follow-on work (see
+> "Build order" below), not as branches waiting to be revived.
 
 ---
 
@@ -2048,7 +2186,7 @@ principle 2 gating principle 4, applied to the plan itself.
 | 7 | Datasheet → check extraction, provenance-tiered | Scales with part count |
 | 8 | Block decomposition of routing on the atopile hierarchy | Only after step 2. Subdivides the one loop that is still monolithic (`METHODOLOGY.md` §3.4) |
 | 9 | ngspice harness; ZVS sweep first; models tagged uncalibrated | Highest simulation return |
-| 10 | Revive physics branches — **thresholds first, cost fields second** | Router objective function, under threshold subordination (`METHODOLOGY.md` §6.3) |
+| 10 | Wire the merged physics work into the router objective — **thresholds first, cost fields second** (corrected 2026-08-07: the four physics branches merged onto `main` 2026-07-10, see "Architecture decisions"; this step is completing the plumbing, not reviving unlanded branches) | Router objective function, under threshold subordination (`METHODOLOGY.md` §6.3) |
 | 11 | Convert `docs/solutions/` prose to checks + injections | Turns on the flywheel |
 
 Rungs of constraint tightening (`METHODOLOGY.md` §10) run alongside, starting at
@@ -2071,6 +2209,16 @@ shippable.
 
 Reopening the hygiene track requires a stated reason logged against this
 section.
+
+**Correction (2026-08-07):** the "Router/placer hygiene — HALTED" row does
+not, and never did, refer to the four physics branches discussed under
+"Architecture decisions." Those merged onto `main` on 2026-07-10, before
+this track structure existed; they are not parked, halted, or gated by any
+row in this table. This table's "Verification correctness — ACTIVE" row is
+consistent with the "Bottom line" correction above: the current critical
+path (unanchored `drc_ceiling.json` provenance, vacuous clearance/courtyard
+gates, un-plumbed creepage, unreachable `enable_geographic_pruning`, and the
+OCP-02 sensing-domain decision) is exactly this track's scope.
 
 ---
 

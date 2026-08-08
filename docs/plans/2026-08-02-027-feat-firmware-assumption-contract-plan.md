@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R18)
+status: completed
+swept: 2026-08-07
+swept_basis: "firmware/tools/board_derivations.yaml + board_derivation_lib.py exist and are wired into .github/workflows/firmware-tests.yml and python-tests.yml."
 ---
 
 # Firmware-assumption contract oracle - Plan

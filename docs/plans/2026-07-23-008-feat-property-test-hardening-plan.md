@@ -1,7 +1,7 @@
 ---
 title: "feat: Property-test hardening for netclass-rules conversion and forced-segment bypass"
 type: feat
-status: stale
+status: completed
 date: 2026-07-23
 origin: docs/brainstorms/2026-07-23-property-test-hardening-requirements.md
 adversarial_review: true
@@ -12,8 +12,8 @@ review_findings:
   - "R5 adds public API with zero consumers; test could inspect PathfindingResult internals instead"
   - "R4 tests a dormant code path; should be deprioritized explicitly"
   - "Fail-closed alternative to forced segments never evaluated; added as option 1 in R6"
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "_parse_nets.py cites 'plan 2026-07-23-008 R7' directly for the netclass-rules SSOT consolidation; landed and still governs current design"
 ---
 
 ## Summary

@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R19, R30)
+status: active
+swept: 2026-08-07
+swept_basis: "No ci-corpus/ directory or scripts/check_incident_corpus.py found. Unbuilt; still cited as premise by 2026-08-03-002-feat-wasm-verification-tier-plan.md (R8's canary-contract extension, portfolio R30)."
 ---
 
 # Incident Corpus & Gate Canary Contract - Plan

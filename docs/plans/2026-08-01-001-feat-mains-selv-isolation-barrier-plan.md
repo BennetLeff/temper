@@ -8,6 +8,9 @@ date: 2026-08-01
 topic: mains-selv-isolation-barrier
 focus: Place the physical mains<->SELV isolation barrier (MAINS_SELV_ISOLATION_BARRIER keepout) on the production board so scripts/check_isolation_keepout.py exits 0, making the one red required Board & Netlist Gates step green. The verified precondition is a domain-first floorplan re-solve: the current interleaved board has no valid corridor.
 origin: Task brief (human-settled sequencing: the short-term report-only split of the gate is handled elsewhere; this plan owns the long-term real fix, the barrier placement itself). Prior work: docs/evidence/2026-07-28-isolation-keepout.md, docs/evidence/2026-07-28-barrier-constrained-placement.md, docs/solutions/architecture-patterns/physical-isolation-barrier-requires-domain-first-floorplan-2026-07-30.md, docs/brainstorms/2026-07-29-mains-selv-barrier-requirements.md.
+status: superseded
+swept: 2026-08-07
+swept_basis: "superseded by docs/plans/2026-08-01-003-feat-mains-selv-isolation-barrier-rescope-plan.md - the feasibility experiment (08-01-002) found the corridor re-solve empirically NO-GO"
 ---
 
 # Mains-SELV Isolation Barrier Placement - Plan

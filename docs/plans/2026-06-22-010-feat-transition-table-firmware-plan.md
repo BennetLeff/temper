@@ -1,11 +1,11 @@
 ---
 title: "feat: Formalize Firmware State Machine Transition Table"
 type: feat
-status: stale
+status: completed
 date: 2026-06-22
 origin: docs/ideation/2026-06-22-design-validation-ideation.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed: firmware/transition_table.yaml, firmware/main/transition_table.h, firmware/tools/gen_transition_table.py, test_transition_table_generated.c all present"
 ---
 
 # feat: Formalize Firmware State Machine Transition Table

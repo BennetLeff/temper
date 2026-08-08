@@ -1,8 +1,10 @@
 ---
 title: "refactor: Typed Coordinate Frames for the Placer's Geometry Pipeline"
 type: refactor
-status: active
+status: abandoned
 date: 2026-07-30
+swept: 2026-08-07
+swept_basis: "no phantom Point[Frame] types exist anywhere; core/geometry_types.py's Point is unchanged plain dataclass; predates goal-set, advances none of its 5 goals, no successor."
 ---
 
 # Typed Coordinate Frames for the Placer's Geometry Pipeline
