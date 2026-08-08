@@ -19,6 +19,19 @@
 #
 # One path per line, relative to packages/temper-placer/tests/. Blank lines
 # and lines starting with # are ignored.
+#
+# 2026-08-07 update (docs/evidence/2026-08-07-full-tree-ci-name-enumeration-triage.md):
+# all 169 files then in this snapshot were actually run (13 pyo3/maturin
+# Rust extensions built fresh via `make extensions`, `-m "not slow"` matching
+# the CI convention, plus the 2 fully-`slow`-marked files re-run without the
+# marker filter so nothing went untriaged). 166 passed cleanly or skipped for
+# a documented environmental/fixture reason (no kicad-cli/ngspice/mfem/JAX/
+# pcbnew bindings, or a fixture only produced by a full pipeline run); the
+# remaining 3 were genuinely failing and were promoted out of this file into
+# `_KNOWN_UNCOVERED_OTHER_FILES` in test_ci_test_file_registration.py, with a
+# real per-file reason each (same treatment router_v6's 3 failing files
+# already had). Every entry still below this line is confirmed clean as of
+# that run -- not merely assumed safe because nobody looked.
 
 analysis/test_area_sufficiency_check.py
 analysis/test_area_sufficiency_pbt.py
@@ -35,7 +48,6 @@ cli/test_optimize_validator_input.py
 cli/test_subcommand_registration.py
 cli/test_unsat_report.py
 cli/test_validate_command.py
-closure/test_router_completion.py
 constraint_types/test_config.py
 constraint_types/test_fixture_roundtrip.py
 constraint_types/test_placement_constraints.py
@@ -54,7 +66,6 @@ fixtures/test_synthetic_netlist.py
 geometry/test_congestion_tensor_pbt.py
 geometry/test_drc_inflate.py
 geometry/test_drc_inflate_pbt.py
-geometry/test_drc_inflate_rust_differential.py
 geometry/test_geometry.py
 geometry/test_geometry_pbt.py
 geometry/test_kicad_transform.py
@@ -88,7 +99,6 @@ manufacturing/test_stackup_validator.py
 manufacturing/test_stackup_validator_pbt.py
 manufacturing/test_stackup_validator_rust_differential.py
 manufacturing/test_tolerances.py
-manufacturing/test_tolerances_pbt.py
 manufacturing/test_tolerances_rust_differential.py
 mechanical/test_coil_bracket.py
 mechanical/test_sensor_mount.py

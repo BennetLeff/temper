@@ -37,6 +37,19 @@ this very file lives in) -- an earlier draft of the underlying survey didn't,
 and consequently misclassified every file under `tests/validation/`,
 including this one, as "unreferenced." Fixed before landing; see the doc's
 §1 for the full account.
+
+2026-08-07 follow-up (docs/evidence/2026-08-07-full-tree-ci-name-enumeration-triage.md):
+`_all_test_files()`/`_referenced_files_and_dirs()` below already scan the
+*entire* `packages/temper-placer/tests/` tree, not just `router_v6/` -- the
+169-entry baseline snapshot this module loads (`ci_test_file_registration_baseline.txt`)
+is that full-tree coverage in action, not a router_v6-only mechanism. This
+follow-up actually ran all 169 of those files (all 13 pyo3/maturin Rust
+extensions built fresh, `-m "not slow"` matching the CI convention, plus the
+2 fully-`slow`-marked files re-run without the filter): 166 passed cleanly or
+skipped for a documented environmental/fixture reason, and 3 were genuinely
+failing. Those 3 are promoted out of the baseline into
+`_KNOWN_UNCOVERED_OTHER_FILES` below, the same reasoned-registry treatment
+router_v6's 3 failing files already got in `_KNOWN_UNCOVERED_ROUTER_V6_FILES`.
 """
 
 from __future__ import annotations
@@ -247,6 +260,61 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
     ),
 }
 
+# --- the 3 genuinely-failing files outside router_v6/, triaged in
+# docs/evidence/2026-08-07-full-tree-ci-name-enumeration-triage.md §4. All
+# three were promoted here out of the generic baseline snapshot because this
+# pull actually ran them and has a real, specific reason for each -- the same
+# treatment router_v6's 3 failing files got above. Built with the same 13
+# pyo3/maturin Rust extensions the CI container prebuilds (freshly built via
+# `make extensions` in this session), `-m "not slow"`, from a fresh
+# `make venv-isolate` checkout, on 2026-08-07.
+
+_KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
+    "closure/test_router_completion.py": (
+        "FAILING (2026-08-07 full-tree triage), 3 of 4 tests -- "
+        "TestPostChangePromotionGate::test_closure_post_change_meets_{sm1,sm2,sm6}. "
+        "Two stacked causes, both real: (A) NEW finding -- "
+        "_measure_candidate_closure() does json.loads() on the full captured "
+        "subprocess stdout, but temper_placer/router_v6/_astar_reconstruct.py "
+        "(lines 139/241/338/356) prints per-net routing diagnostics via bare "
+        "print() to stdout ahead of measure_closure.py's JSON payload, so any "
+        "real board run breaks the JSON contract for this test (and any other "
+        "caller of measure_closure.py) regardless of kicad-cli availability -- "
+        "not environmental. (B) pre-existing, already documented in "
+        "docs/evidence/2026-07-29-ci-health-after-split.md (metrics-record.yml "
+        "row): router_completion_pct=0.37%, 'All strategies exhausted for "
+        "phase=\"placement\"', DRC blocked on missing kicad-cli -- confirmed "
+        "chronic there, not a new regression here. "
+        "test_closure_pre_change_baseline_recorded (the 4th test in this file) "
+        "is unaffected and passes. temper-NNN. Do not wire in un-deselected -- "
+        "see doc §4.1/§6."
+    ),
+    "geometry/test_drc_inflate_rust_differential.py": (
+        "FAILING (2026-08-07 full-tree triage): "
+        "TestDRCProxyScoreDifferential::test_summation_order_is_load_bearing -- "
+        "same class as router_v6's test_zone_pour_geometry_rust_differential.py "
+        "finding: an anti-vacuity meta-test whose fixed corpus "
+        "(np.random.default_rng(3), n=40) no longer provokes a genuine "
+        "pairwise-vs-naive-sum disagreement, so the assertion "
+        "'pairwise.hex() != naive.hex()' now fails on identical bit patterns. "
+        "The underlying differential this meta-test guards still passes in "
+        "the same run -- maintenance debt in the corpus, not a Rust-port "
+        "regression. temper-NNN. Do not wire in un-deselected -- see doc §4.2."
+    ),
+    "manufacturing/test_tolerances_pbt.py": (
+        "FAILING (2026-08-07 full-tree triage): "
+        "test_p3_clearance_monotonic_in_nominal -- Hypothesis-found float64 "
+        "boundary case: c1=1.0000000000000002e-06 and c2=1e-06 differ by one "
+        "ULP, but worst_case_min = nominal_value - tolerance_minus with "
+        "tolerance_minus~0.15 (5 orders of magnitude larger than the ULP gap), "
+        "so the subtraction rounds both to the identical float and the "
+        "property's strict '>' assertion cannot hold -- inherent to float64 "
+        "arithmetic at this scale disparity, not a bug in analyze_clearance "
+        "itself. Reproducible, not seed-flaky. temper-NNN. Do not wire in "
+        "un-deselected -- see doc §4.3."
+    ),
+}
+
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------
 
 _KNOWN_DANGLING_WORKFLOW_REFERENCES: dict[str, str] = {
@@ -292,16 +360,22 @@ def test_no_new_uncovered_test_files(all_test_files, referenced, baseline):
     named_files, named_dirs = referenced
     covered = _covered(all_test_files, named_files, named_dirs)
     uncovered = all_test_files - covered
-    tracked = frozenset(_KNOWN_UNCOVERED_ROUTER_V6_FILES) | baseline
+    tracked = (
+        frozenset(_KNOWN_UNCOVERED_ROUTER_V6_FILES)
+        | frozenset(_KNOWN_UNCOVERED_OTHER_FILES)
+        | baseline
+    )
 
     new_drift = uncovered - tracked
     assert not new_drift, (
         "New CI-uncovered test file(s) found -- referenced by no workflow "
-        "job (by name or by directory sweep) and absent from both "
-        "_KNOWN_UNCOVERED_ROUTER_V6_FILES and the baseline snapshot: "
-        f"{sorted(new_drift)}. Wire the file into a job, or add it to the "
-        "appropriate registry with a reason (see this module's docstring "
-        "and docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md)."
+        "job (by name or by directory sweep) and absent from "
+        "_KNOWN_UNCOVERED_ROUTER_V6_FILES, _KNOWN_UNCOVERED_OTHER_FILES, and "
+        f"the baseline snapshot: {sorted(new_drift)}. Wire the file into a "
+        "job, or add it to the appropriate registry with a reason (see this "
+        "module's docstring and "
+        "docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md / "
+        "docs/evidence/2026-08-07-full-tree-ci-name-enumeration-triage.md)."
     )
 
 
@@ -314,24 +388,34 @@ def test_no_stale_tracked_entries(all_test_files, referenced, baseline):
     """
     named_files, named_dirs = referenced
     covered = _covered(all_test_files, named_files, named_dirs)
-    tracked = frozenset(_KNOWN_UNCOVERED_ROUTER_V6_FILES) | baseline
+    tracked = (
+        frozenset(_KNOWN_UNCOVERED_ROUTER_V6_FILES)
+        | frozenset(_KNOWN_UNCOVERED_OTHER_FILES)
+        | baseline
+    )
 
     now_covered = tracked & covered
     assert not now_covered, (
         "Tracked-as-uncovered file(s) are now actually CI-covered -- prune "
-        f"these from _KNOWN_UNCOVERED_ROUTER_V6_FILES or the baseline "
-        f"snapshot: {sorted(now_covered)}."
+        "these from _KNOWN_UNCOVERED_ROUTER_V6_FILES, "
+        f"_KNOWN_UNCOVERED_OTHER_FILES, or the baseline snapshot: {sorted(now_covered)}."
     )
 
     gone = tracked - all_test_files
     assert not gone, (
         "Tracked entry no longer exists on disk -- prune from "
-        f"_KNOWN_UNCOVERED_ROUTER_V6_FILES or the baseline snapshot: {sorted(gone)}."
+        "_KNOWN_UNCOVERED_ROUTER_V6_FILES, _KNOWN_UNCOVERED_OTHER_FILES, or "
+        f"the baseline snapshot: {sorted(gone)}."
     )
 
 
 def test_router_v6_registry_entries_have_reasons():
     for name, reason in _KNOWN_UNCOVERED_ROUTER_V6_FILES.items():
+        assert reason and len(reason) > 10, f"{name} registered without a real reason"
+
+
+def test_other_registry_entries_have_reasons():
+    for name, reason in _KNOWN_UNCOVERED_OTHER_FILES.items():
         assert reason and len(reason) > 10, f"{name} registered without a real reason"
 
 
@@ -372,4 +456,24 @@ def test_baseline_and_router_v6_registry_do_not_overlap(baseline):
         f"File(s) tracked in both the router_v6 registry and the baseline "
         f"snapshot -- remove from the baseline, the router_v6 registry is "
         f"more specific: {sorted(overlap)}"
+    )
+
+
+def test_baseline_and_other_registry_do_not_overlap(baseline):
+    overlap = frozenset(_KNOWN_UNCOVERED_OTHER_FILES) & baseline
+    assert not overlap, (
+        f"File(s) tracked in both _KNOWN_UNCOVERED_OTHER_FILES and the "
+        f"baseline snapshot -- remove from the baseline, the reasoned "
+        f"registry is more specific: {sorted(overlap)}"
+    )
+
+
+def test_router_v6_and_other_registry_do_not_overlap():
+    overlap = frozenset(_KNOWN_UNCOVERED_ROUTER_V6_FILES) & frozenset(
+        _KNOWN_UNCOVERED_OTHER_FILES
+    )
+    assert not overlap, (
+        f"File(s) tracked in both _KNOWN_UNCOVERED_ROUTER_V6_FILES and "
+        f"_KNOWN_UNCOVERED_OTHER_FILES -- a file belongs in exactly one "
+        f"reasoned registry: {sorted(overlap)}"
     )
