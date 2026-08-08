@@ -100,6 +100,53 @@ def strip_existing_copper(content: str) -> tuple[str, int]:
     return _strip_existing_copper(content)
 
 
+def audit_pad_connectivity(content: str) -> dict[str, Any]:
+    """Run ``pad_connectivity_audit`` against routed ``.kicad_pcb`` content
+    and return a compact, JSON-serializable summary.
+
+    This is the PRIMARY completion metric (docs/evidence/
+    2026-08-08-nlayer-via-astar-spike.md): ``nets_carrying_copper()`` /
+    the routed/attempted line above only prove a net has SOME copper with
+    the right net number -- not that the copper actually reaches every one
+    of that net's own pads. A net can be "carrying copper" and still have
+    most of its pads unreached (the documented b39b382d shape); measured on
+    this board, a 32-net rise in raw "carrying copper" was proven to be
+    entirely this shape -- zero of those nets became genuinely
+    pad-connected (see the evidence doc §3.3). Surfacing the pad-connected
+    count here, in the router's own normal output, is what makes that kind
+    of regression visible without a separate manual audit step.
+
+    ``audit_pcb_file`` parses a real ``.kicad_pcb`` path (it needs the full
+    KiCad footprint/pin structure to resolve pad positions the same way the
+    router itself does), so ``content`` is written to a throwaway temp file
+    first.
+    """
+    from temper_placer.router_v6.pad_connectivity_audit import audit_pcb_file
+
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".kicad_pcb", delete=False, encoding="utf-8"
+    ) as tmp:
+        tmp.write(content)
+        tmp_path = Path(tmp.name)
+    try:
+        results = audit_pcb_file(tmp_path)
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+    fully_connected_nets = sorted(n for n, r in results.items() if r.fully_connected)
+    fake_completion_nets = sorted(n for n, r in results.items() if r.is_fake_completion)
+    honest_gap = len(results) - len(fully_connected_nets) - len(fake_completion_nets)
+
+    return {
+        "audited": len(results),
+        "fully_connected": len(fully_connected_nets),
+        "fully_connected_nets": fully_connected_nets,
+        "fake_completion": len(fake_completion_nets),
+        "fake_completion_nets": fake_completion_nets,
+        "honest_gap": honest_gap,
+    }
+
+
 def route_once(
     pcb_path: Path,
     rules_path: Path,
@@ -108,6 +155,7 @@ def route_once(
     enable_geographic_pruning: bool = False,
     enable_net_batching: bool = False,
     net_batch_size: int = 10,
+    enable_nlayer_astar_spike: bool = False,
 ) -> dict[str, Any]:
     """Run one full route_pcb() pass and return measured results.
 
@@ -153,6 +201,7 @@ def route_once(
         enable_geographic_pruning=enable_geographic_pruning,
         enable_net_batching=enable_net_batching,
         net_batch_size=net_batch_size,
+        enable_nlayer_astar_spike=enable_nlayer_astar_spike,
     )
     wall_s = time.perf_counter() - t0
 
@@ -214,6 +263,11 @@ def route_once(
     except ImportError:
         pass
 
+    # Pad connectivity -- see audit_pad_connectivity's docstring for why
+    # this, not the routed/attempted line above, is the completion number
+    # that should be trusted.
+    pad_connectivity = audit_pad_connectivity(content) if content else None
+
     return {
         "wall_s": wall_s,
         "completion_rate": completion,
@@ -229,16 +283,28 @@ def route_once(
         "unexplained_copper_gap": unexplained_copper_gap,
         "total_router_nets": total_router_nets,
         "should_route_excluded_nets": should_route_excluded_nets,
+        "pad_connectivity": pad_connectivity,
     }
 
 
 def _format_run(label: str, r: dict[str, Any]) -> str:
-    return (
+    line = (
         f"{label}: {r['routed']}/{r['attempted']} nets "
         f"({r['completion_rate'] * 100:.1f}%)  "
         f"segments={r['segments']} vias={r['vias']} zones={r['zones']}  "
         f"wall={r['wall_s']:.1f}s"
     )
+    pc = r.get("pad_connectivity")
+    if pc:
+        # The PRIMARY completion metric -- see audit_pad_connectivity's
+        # docstring. Printed alongside (not replacing) the raw line above so
+        # a fake-completion gap between the two is visible in normal output.
+        line += (
+            f"\n{label} (pad connectivity, PRIMARY metric): "
+            f"{pc['fully_connected']}/{pc['audited']} nets fully pad-connected  "
+            f"fake-completion={pc['fake_completion']} honest-gap={pc['honest_gap']}"
+        )
+    return line
 
 
 def run_single(
@@ -249,6 +315,7 @@ def run_single(
     enable_geographic_pruning: bool = False,
     enable_net_batching: bool = False,
     net_batch_size: int = 10,
+    enable_nlayer_astar_spike: bool = False,
 ) -> int:
     print(f"Routing {pcb_path} ...")
     r = route_once(
@@ -257,6 +324,7 @@ def run_single(
         enable_geographic_pruning=enable_geographic_pruning,
         enable_net_batching=enable_net_batching,
         net_batch_size=net_batch_size,
+        enable_nlayer_astar_spike=enable_nlayer_astar_spike,
     )
     print(_format_run("Result", r))
     if r["unrouted_nets"]:
@@ -272,6 +340,13 @@ def run_single(
         )
     if r["copper_audit_report"]:
         print(r["copper_audit_report"])
+    pc = r.get("pad_connectivity")
+    if pc and pc["fake_completion_nets"]:
+        print(
+            f"Fake-completion nets ({pc['fake_completion']}, copper exists but "
+            f"does not join all of the net's own pads -- the b39b382d shape): "
+            f"{', '.join(pc['fake_completion_nets'])}"
+        )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(r["routed_pcb_content"], encoding="utf-8")
@@ -424,6 +499,17 @@ def main(argv: list[str] | None = None) -> int:
         "--batch-size", type=int, default=10,
         help="Nets per Stage 3 SAT batch when --net-batching is set (default 10).",
     )
+    parser.add_argument(
+        "--nlayer-astar-spike", action="store_true",
+        help=(
+            "Pass enable_nlayer_astar_spike=True to route_pcb() -- routes "
+            "Stage 4 through the N-layer, via-aware A* spike prototype "
+            "(_astar_nlayer.py, spike/nlayer-via-astar branch) instead of "
+            "the production 2-layer-capped path. Default False -- "
+            "unchanged production behavior. See "
+            "docs/evidence/2026-08-08-nlayer-via-astar-spike.md."
+        ),
+    )
     args = parser.parse_args(argv)
 
     if not args.pcb.exists():
@@ -438,6 +524,7 @@ def main(argv: list[str] | None = None) -> int:
             enable_geographic_pruning=args.pruning,
             enable_net_batching=args.net_batching,
             net_batch_size=args.batch_size,
+            enable_nlayer_astar_spike=args.nlayer_astar_spike,
         )
         r.pop("routed_pcb_content", None)
         args._worker_output.write_text(json.dumps(r), encoding="utf-8")
@@ -471,6 +558,7 @@ def main(argv: list[str] | None = None) -> int:
         enable_geographic_pruning=args.pruning,
         enable_net_batching=args.net_batching,
         net_batch_size=args.batch_size,
+        enable_nlayer_astar_spike=args.nlayer_astar_spike,
     )
 
 

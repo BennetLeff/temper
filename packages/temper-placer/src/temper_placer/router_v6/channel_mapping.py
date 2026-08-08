@@ -58,9 +58,20 @@ def expand_channel_path_terminals(
     SAT waypoints remain in their original order, preserving their channel
     guidance.  For a multi-pad net, absent pad centres are appended in a
     stable order so the existing incremental A* chain must reach every
-    conductive terminal.  Two-pad channel paths are intentionally returned
-    unchanged to retain the established route coordinates and ordering.
+    conductive terminal.
+
+    A 2-pad net is always validated against its own true pad positions
+    (regardless of ``enable_all_pad_tree``) -- see
+    ``_validated_two_pad_terminals`` -- and corrected if its SAT-derived
+    endpoint(s) do not resolve to this net's own pads. This closes a
+    measured Stage 3 defect (docs/evidence/2026-08-08-nlayer-via-astar-spike.md
+    §2.4): the channel/topology extraction can hand this function a 2-pad
+    net whose endpoint waypoint is not this net's pad at all but a
+    physically adjacent pad of a *different* net, which Stage 4 A* would
+    then treat as a required terminal and route real copper to.
     """
+    if len(pads) == 2:
+        return _validated_two_pad_terminals(channel_path, pads)
     if not enable_all_pad_tree or len(pads) <= 2:
         return channel_path
     existing = set(channel_path.waypoints)
@@ -75,6 +86,73 @@ def expand_channel_path_terminals(
         waypoints=[*channel_path.waypoints, *ordered_missing],
         total_length=_calculate_path_length([*channel_path.waypoints, *missing]),
         preferred_layer=channel_path.preferred_layer,
+    )
+
+
+def _validated_two_pad_terminals(
+    channel_path: ChannelPath,
+    pads: list[tuple[float, float]],
+) -> ChannelPath:
+    """Validate/correct a 2-pad net's path endpoints against its own pads.
+
+    ``channel_path.waypoints`` for a SAT/channel-derived path is untrusted
+    input: Stage 4's A* treats *every* waypoint as a required terminal it
+    must reach (``_route_segment_3d`` / ``_astar_route_multilayer`` search a
+    segment to each consecutive waypoint pair in turn -- see
+    ``_astar_search.py``), so an unverified endpoint becomes real copper.
+    Measured on ``pcb/temper.kicad_pcb`` (docs/evidence/
+    2026-08-08-nlayer-via-astar-spike.md §2.4): a 2-pad net's endpoint can
+    coincide exactly with a *different* net's pad (a physically adjacent
+    pad on the same footprint), not this net's own. On a mains-connected
+    board with an SELV/HV isolation requirement, copper that bridges the
+    wrong two nets is a safety defect, not merely a completion bug -- so
+    this is corrected unconditionally, not just under a feature flag.
+
+    **Why snap to the pad rather than fail the net closed:** ``pads`` is
+    this net's own two true pad positions -- the exact same
+    ``_net_pad_positions`` values the caller already trusts for pad
+    unblocking, already in hand, already authoritative. There are only ever
+    two candidates and both are known exactly, so correcting a bad endpoint
+    is not a guess the way picking an arbitrary nearby pad would be.
+    Declining the net instead would discard real, achievable completion for
+    no correctness benefit. (Failing closed remains the right call when the
+    correct terminal is *not* known -- it is not here.)
+
+    The two true pads are assigned to the path's first/last waypoint by
+    whichever pairing (identity or swap) minimizes total displacement, so an
+    already-correct endpoint is left untouched (zero-cost identity mapping)
+    and only a wrong one moves. Interior waypoints -- channel-skeleton
+    routing guidance, not terminals -- are never touched. A path with fewer
+    than 2 waypoints has no real geometry to preserve, so it is replaced
+    outright by the two true pads.
+    """
+    waypoints = channel_path.waypoints
+    pad_a, pad_b = pads[0], pads[1]
+
+    if len(waypoints) < 2:
+        corrected = [pad_a, pad_b]
+    else:
+        first, last = waypoints[0], waypoints[-1]
+
+        def _dist(p: tuple[float, float], q: tuple[float, float]) -> float:
+            return ((p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2) ** 0.5
+
+        identity_cost = _dist(first, pad_a) + _dist(last, pad_b)
+        swap_cost = _dist(first, pad_b) + _dist(last, pad_a)
+        new_first, new_last = (pad_a, pad_b) if identity_cost <= swap_cost else (pad_b, pad_a)
+        corrected = [new_first, *waypoints[1:-1], new_last]
+
+    if corrected == waypoints:
+        return channel_path
+
+    return ChannelPath(
+        net_name=channel_path.net_name,
+        channel_sequence=list(channel_path.channel_sequence),
+        waypoints=corrected,
+        total_length=_calculate_path_length(corrected),
+        preferred_layer=channel_path.preferred_layer,
+        terminal_tree=channel_path.terminal_tree,
+        terminals=channel_path.terminals,
     )
 
 

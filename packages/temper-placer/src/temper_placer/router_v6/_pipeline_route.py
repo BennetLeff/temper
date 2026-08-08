@@ -582,7 +582,38 @@ def _run_stage4(
     )
     pathfinding_result = orchestrated.assemble_pathfinding_result(state)
 
-    if pathfinding_result is None:
+    if pathfinding_result is None and self.enable_nlayer_astar_spike:
+        # SPIKE PROTOTYPE opt-in (default False; see
+        # RouterV6Pipeline.__init__'s enable_nlayer_astar_spike docstring
+        # and docs/evidence/2026-08-08-nlayer-via-astar-spike.md). Routes
+        # through _astar_nlayer.py's N-layer, via-aware generalization
+        # instead of the production 2-layer-capped path below.
+        from temper_placer.router_v6._astar_nlayer import (
+            run_astar_pathfinding_nlayer,
+            select_routing_grids_nlayer,
+        )
+
+        nlayer_grids = select_routing_grids_nlayer(stage2.occupancy_grids)
+        if self.single_layer:
+            first_layer = next(iter(nlayer_grids))
+            nlayer_grids = {first_layer: nlayer_grids[first_layer]}
+
+        pathfinding_result = run_astar_pathfinding_nlayer(
+            channel_mapping,
+            nlayer_grids,
+            pcb.design_rules,
+            pcb=pcb,
+            escape_vias_map=escape_vias_map,
+            use_theta_star=self.enable_theta_star,
+            use_lazy_theta_star=self.enable_lazy_theta_star,
+            max_nets=self.max_nets,
+            target_nets=self.target_nets,
+            max_iter=self.max_iter,
+            enable_coarse_to_fine=self.enable_coarse_to_fine,
+            coarse_factor=self.coarse_factor,
+            corridor_buffer_cells=self.corridor_buffer_cells,
+        )
+    elif pathfinding_result is None:
         fcu_grid, bcu_grid = select_routing_grids(stage2.occupancy_grids)
 
         pathfinding_result = run_astar_pathfinding(

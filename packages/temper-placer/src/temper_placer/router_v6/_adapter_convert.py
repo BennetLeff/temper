@@ -132,20 +132,9 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
         if val is not None:
             safety_category = str(val)
 
-    # creepage_mm survives conversion: previously this field was dropped
-    # (only appeared in _UNREPRESENTED_WARN below), so every consumer that
-    # reads it off the stage0 object via getattr(..., 0.0) -- e.g.
-    # bottleneck_geometry.py's _required_creepage_mm and
-    # _pipeline_route.py's PCL netclass metadata -- silently enforced ZERO
-    # creepage regardless of the netclass's declared requirement.
-    creepage_mm: float = 0.0
-    if hasattr(rules, "creepage_mm"):
-        val = rules.creepage_mm
-        if val is not None:
-            creepage_mm = float(val)
-
     # --- R1b: Warn on unrepresented fields that are explicitly set ---
     _UNREPRESENTED_WARN = (
+        ("creepage_mm", "Creepage distance", 0.0),
         ("voltage_v", "Voltage rating", 0.0),
         ("routing_strategy", "Routing strategy", None),
         ("via_cost_multiplier", "Via cost multiplier", 1.0),
@@ -175,7 +164,6 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
         via_drill_mm=via_drill_mm,
         current_rating_amps=current_rating_amps,
         safety_category=safety_category,
-        creepage_mm=creepage_mm,
     )
 
 
@@ -194,6 +182,9 @@ def route_pcb(
     sat_time_limit_ms: int | None = None,
     rotations: dict[str, float] | None = None,
     components: list | None = None,
+    enable_net_batching: bool = False,
+    net_batch_size: int = 10,
+    enable_nlayer_astar_spike: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -239,10 +230,11 @@ def route_pcb(
             edges/nodes within max(K * pin_span, M_min) of each net's
             pins, reducing CNF variable/clause count. See
             RouterV6Pipeline.__init__'s docstring for the full
-            rationale. Not yet measured against the production board
-            through this entry point -- see
-            docs/evidence/2026-08-07-pruned-encoding-measurement.md
-            (if present) for the U5 measurement status.
+            rationale. This worktree's branch point predates that U3
+            merge landing on ``main``; ported forward here (parameter +
+            wiring below) because this task needs to compare route_pcb()
+            on the production board with and without it once the
+            plane-condemnation fix makes the model non-empty.
         enable_manufacturing_drc: Run the Stage 5 manufacturing DRC
             checks (acid_trap, annular_ring, teardrop, thermal_relief,
             power_planes, copper_balance, creepage, clearance) and attach
@@ -260,6 +252,21 @@ def route_pcb(
         sat_time_limit_ms: Secondary wall-clock bound on the same
             solve. None by default (conflict-count alone is the
             recommended bound; it is deterministic, wall-clock is not).
+        enable_net_batching: `#871` net-batching prototype. Solve Stage
+            3's SAT model in batches of ``net_batch_size`` nets, with
+            each batch's channel capacity reduced by what earlier
+            batches already consumed, instead of one monolithic model
+            covering every net. Default False (behavior unchanged). See
+            ``router_v6/net_batching.py`` for the full design and
+            ``RouterV6Pipeline.__init__``'s docstring for interaction
+            with ``enable_bundling``/``max_sat_nets``.
+        net_batch_size: Nets per Stage 3 SAT batch when
+            ``enable_net_batching=True``. Default 10.
+        enable_nlayer_astar_spike: Opt into the N-layer, via-aware A*
+            pathfinding spike prototype (``_astar_nlayer.py``) instead of
+            the production 2-layer-capped path. Default False -- see
+            ``RouterV6Pipeline.__init__``'s docstring for the full
+            rationale.
 
     Returns:
         RoutingResult with completion_rate, routed_pcb_content, and
@@ -356,6 +363,9 @@ def route_pcb(
         dfm_fail_on="none",
         sat_conflict_limit=sat_conflict_limit,
         sat_time_limit_ms=sat_time_limit_ms,
+        enable_net_batching=enable_net_batching,
+        net_batch_size=net_batch_size,
+        enable_nlayer_astar_spike=enable_nlayer_astar_spike,
     )
 
     # Resolve the net->class-name mapping from the caller's design_rules.
@@ -804,6 +814,11 @@ def _build_routing_result(
 
         connectivity = connectivity_preflight(routed_content, pad_positions)
 
+    stage3 = getattr(result, "stage3", None)
+    topology_graph = getattr(stage3, "topology_graph", None)
+    net_topologies = getattr(topology_graph, "net_topologies", None) or {}
+    topology_solved_nets = list(net_topologies.keys())
+
     return RoutingResult(
         completion_rate=result.completion_rate,
         unrouted_nets=unrouted_nets,
@@ -812,6 +827,7 @@ def _build_routing_result(
         routed_pcb_content=routed_content,
         connectivity=connectivity,
         forced_segment_nets=forced_segment_nets,
+        topology_solved_nets=topology_solved_nets,
     )
 
 
