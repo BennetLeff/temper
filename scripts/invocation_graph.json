@@ -53,6 +53,7 @@
   "check_drc_determinism.py": [
     "packages/temper-placer/src/temper_placer/validation/_drc_api.py"
   ],
+  "check_erc_off_grid_consequence.py": [],
   "check_evidence_provenance.py": [
     ".github/workflows/python-tests.yml"
   ],
@@ -114,6 +115,7 @@
   "check_netlist_mutation_corpus.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_netlist_stage_checks.py": [],
   "check_no_raw_rotation_trig.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py",

@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-05'
-  total_scripts: 118
+  total_scripts: 119
   counts:
-    keep: 114
+    keep: 115
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
@@ -350,6 +350,29 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_erc_off_grid_consequence.py
+  purpose: 'Classify ERC endpoint_off_grid warnings (163 of 498 on pcb/temper.kicad_sch as of 2026-08-07)
+    by electrical consequence: cross-checks each off-grid pin''s actual schematic net (kicadxml export,
+    exact-coordinate connectivity) against its atopile-compiled net member-for-member, and tags the net''s
+    domain (HV/mains, SELV, protection/fault-chain) via elec/domain_manifest.yaml. Answers "does this
+    off-grid endpoint sit on a net that matters, and is it actually connected to what it looks connected
+    to" mechanically instead of by eyeballing coordinates. Wired into CI (2026-08-07): python-tests.yml
+    consistency-gates job regenerates the ERC-JSON/netlist-XML inputs via the pinned kicad-cli in the
+    temper-ci container immediately before invoking this gate (not runnable in every local sandbox --
+    see docs/evidence/2026-08-07-erc-off-grid-endpoint-analysis.md for how 10.0.5 was obtained here).'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - json
+  - pathlib
+  - re
+  - sys
+  - xml.etree.ElementTree
 - path: check_evidence_provenance.py
   purpose: 'Fail-closed provenance gate for docs/evidence/: every evidence file must declare how its numbers
     were produced'
@@ -407,6 +430,25 @@ scripts:
   - re
   - sys
   - yaml
+- path: check_firmware_invariants.py
+  purpose: 'CI gate (R29, plan 2026-08-02-028 U7): rerun firmware/tools/invariants.py from source over
+    the shared transition model (firmware/tools/transition_model.py) on every invocation and fail on any
+    violated load-bearing safety invariant (over-temp disables the power stage, sensor faults block heating,
+    faulted states cannot re-enter heating without the reset path, and the runaway interlock reaches a
+    safe/de-energized state from every state) -- named with the invariant id and offending edge/path evidence.
+    Separately fails (DRIFT, exit 3) if the committed firmware/tools/proof_record.json does not byte-match
+    a fresh regeneration, so the proof record can never silently go stale relative to the manifest.
+    Wired into CI (2026-08-07): firmware-tests.yml.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - gen_proof_record
+  - invariants
+  - pathlib
+  - sys
+  - transition_model
 - path: check_footprint_drift.py
   purpose: 'Footprint-drift gate: catch a footprint corrected in elec/src/*.ato that never propagated
     into pcb/temper.kicad_pcb, matched by sheetpath (designator-renumbering-safe), not refdes.'
@@ -557,6 +599,30 @@ scripts:
   - argparse
   - pathlib
   - sys
+- path: check_netlist_stage_checks.py
+  purpose: 'Netlist-stage checks CI gate (docs/STRATEGY.md build order step 6): single-pin nets, unconnected
+    power pins (declared power/ground pins resolved from elec/src/components.ato, never net-name substrings),
+    and voltage-domain compatibility (component voltage_rating vs. the explicit voltage named in a domain
+    net''s own name, e.g. "+170V_BUS" -> 170V) -- imports check_domain_partition.py''s netlist parser,
+    freshness check and domain-manifest loader rather than re-deriving them; isolation-domain reachability
+    itself is already covered by check_domain_partition.py and deliberately not re-implemented here.
+    27 real, open single-pin-net findings are a dated backlog allowlist entry class (backlog: true +
+    seeded pair, netlist-stage-checks-allowlist.yaml), reported every run but not blocking. Wired into
+    CI (2026-08-07): python-tests.yml consistency-gates job.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - check_domain_partition
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_netlist_mutation_corpus.py
   purpose: 'Netlist-mutation corpus CI runner (plan 2026-08-02-021, R39/U7): applies the renumber/dropped-net/reused-refdes
     mutations to a copy of the design netlist and asserts each class fails its owning identity check (renumber
@@ -656,6 +722,32 @@ scripts:
   - re
   - rich.console
   - sys
+- path: check_plane_condemnation_quantifier.py
+  purpose: 'Plane-condemnation quantifier gate: catch a MINORITY of a copper layer''s zones
+    (fraction < 0.5) silently condemning the whole physical layer via _extract_stackup''s
+    any()-quantifier classification, which routing_space.py then excludes wholesale --
+    docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md.
+    Independently re-derives per-layer zone fractions via kiutils (reusing _is_plane_required_net
+    as the SSOT, not a second copy) and cross-references against temper_placer''s own real
+    classification. Every currently-condemned layer must be on the dated
+    plane-condemnation-allowlist.yaml or the gate fails -- so a NEW layer joining the condemned
+    set, not just the two (F.Cu/B.Cu) already known and tracked, is caught. Fail-closed on a
+    missing/unparseable board, zero copper layers, zero net-bearing zones, or a malformed
+    allowlist. Wired into CI (2026-08-07): python-tests.yml consistency-gates job.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - sys
+  - temper_placer.io._parse_board
+  - temper_placer.io.kicad_parser
 - path: check_pll_range_consistency.py
   purpose: 'CI gate: fail when firmware/components/control/pll_control.h''s PLL_MIN/MAX/DEFAULT_FREQ_HZ
     and elec/src/main.ato''s declared f_switching/f_pll_tracking_min/max disagree -- main.ato asserted
@@ -766,6 +858,19 @@ scripts:
   - json
   - pathlib
   - sys
+- path: check_sil_coverage.py
+  purpose: 'CI gate: SIL fault-injection coverage over (fault class, origin state) -- fails on any pair
+    the transition table (plus documented C-only interlock call sites) defines but firmware/test/traces/manifest.json
+    does not exercise (plan 2026-08-02-031, U1/U4). Thin wrapper around firmware/test/test_sil_coverage.py
+    --gate. Wired into CI (2026-08-07): firmware-tests.yml, immediately after the sil_fault_tests ctest step.'
+  owner: firmware
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - pathlib
+  - subprocess
+  - sys
 - path: check_stale_extensions.py
   purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/
     -- an installed .so older than its own crate''s source (or a crate whose extension is missing entirely)
@@ -805,6 +910,31 @@ scripts:
   - pathlib
   - subprocess
   - sys
+- path: check_state_machine_model.py
+  purpose: 'CI gate (R28, plan 2026-08-02-028 U4): runs, in one invocation, the exhaustive reachability
+    report over the transition model (firmware/tools/transition_model.py -- 9 states x 25 events including
+    the 2 KTD2 runaway-interlock wildcard events, closure from STATE_INIT), the P1-P4 unsafe-state/transition-property
+    checks (firmware/tools/transition_model_checks.py), and the production-vs-test-generator manifest cross-check
+    (firmware/tools/transition_manifest_crosscheck.py) -- fails closed on any unreachable state, undocumented
+    interlock-only state, property violation, or manifest divergence not covered by the documented KTD2
+    wildcard state-set exception OR a dated backlog entry (state-machine-crosscheck-allowlist.yaml). Writes
+    the reachability report artifact to firmware/tools/state_machine_reachability_report.json on every run.
+    Wired into CI (2026-08-07): firmware-tests.yml. One real, pre-existing manifest divergence
+    ((STATE_FAULT, EVENT_FAULT_RESET_PERSISTS)) is a dated backlog entry, deferred to a firmware maintainer.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - re
+  - sys
+  - transition_manifest_crosscheck
+  - transition_model
+  - transition_model_checks
 - path: check_test_baseline_writes.py
   purpose: 'CI gate: fail closed when a test source writes a committed measurement artifact (baselines,
     drc_ceiling.json, goldens, recorded metrics). Static half of the 2026-08-04 fix for test_update_baseline_yaml,
@@ -978,6 +1108,23 @@ scripts:
   - argparse
   - pathlib
   - sys
+- path: ci_check_erc.py
+  purpose: 'CI entry point: ERC (kicad-cli sch erc) ratchet check -- errors hard-fail, warnings ratchet against power_pcb_dataset/erc_ceiling.json'
+  owner: pipeline
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - contextlib
+  - dataclasses
+  - json
+  - pathlib
+  - shutil
+  - subprocess
+  - sys
+  - tempfile
+  - typing
 - path: ci_closure_test.py
   purpose: 'CI entry point: closure test (Benders -> Router -> DRC)'
   owner: pipeline
@@ -1401,6 +1548,25 @@ scripts:
   - typing
   - pydantic
   - temper_placer.constraint_types.config
+- path: part_stress_gate.py
+  purpose: 'Part stress gate: applied stress vs. absolute-maximum rating, per part, data-driven
+    against scripts/part_stress_limits.yaml (docs/hardware/PART_STRESS_AUDIT.md). Fails on any
+    non-backlogged FAIL (margin < 0); the 3 real over-rating findings found at CI-wiring time
+    (2026-08-07) are dated backlog entries (backlog: true + seeded pair), still reported every
+    run, deferred to a hardware maintainer redesign call.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - csv
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: phase5_batch1_mutations.py
   purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic grid_utils/via_placement): applies
     each Rust-kernel mutant, rebuilds temper-geometry, runs the four Batch-1 suites, expects failure,
@@ -1844,9 +2010,7 @@ scripts:
   imports:
   - __future__
   - argparse
-  - collections.abc
   - json
-  - os
   - pathlib
   - subprocess
   - sys

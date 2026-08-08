@@ -33,12 +33,14 @@ The Temper induction cooker firmware runs on ESP32-S3 and controls a power stage
 
 **What:** Replay perturbed plant-model CSV traces through the real `state_machine.c` compiled for host build, validating that injected faults cause correct state transitions within latency bounds.
 
-**How:** A test harness (`firmware/test/test_sil_fault_injection.c`) reads `firmware/test/traces/manifest.json`, which declares test cases with perturbed sensor traces, expected outcomes, and latency budgets. Each test case drives the state machine through a standardized warm-up sequence (INIT → IDLE → PAN_DET → PREHEAT → HEATING), then replays the perturbed trace tick-by-tick. The harness checks:
-- **Hard assertions**: final state matches expected, fault code matches expected, latency ≤ `max_latency_ticks`.
-- **Soft assertions**: power level zeroed, fault code logged to mock EEPROM.
-- **Coverage report**: a table of all `FAULT_LIST` entries with test/detection/latency status.
+**How:** A test harness (`firmware/test/test_sil_fault_injection.c`) reads `firmware/test/traces/manifest.json`, which declares test cases with perturbed sensor traces (or, for timeout boundaries too large to replay tick-by-tick, a `timing.advance_ms` time jump), expected outcomes, and latency budgets. Each scenario names an `origin_state` (INIT/PAN_DET/PREHEAT/HEATING/COOLDOWN); `sm_boilerplate_to_origin()` drives the state machine from INIT to that state, then the harness replays the perturbed trace tick-by-tick (or, for timing scenarios, advances time once and lets the state's own next `update()` notice). The harness checks, **all as hard assertions** (a failure fails the run, not a warning — see `docs/plans/2026-08-02-031-feat-firmware-fault-injection-plan.md` KTD3):
+- Final state matches expected, fault code matches expected, latency ≤ `max_latency_ticks`.
+- `hard_assertions`: power is off (`mock_sm_get_pwm_disable_count()` incremented, `mock_sm_get_power_level() == 0`, `mock_sm_get_pll_enabled() == false`) and the fault is logged to mock EEPROM matching `eeprom_logged`.
+- **Coverage**: `firmware/test/test_sil_coverage.py` (`--gate` to fail closed; `scripts/check_sil_coverage.py` is the CI-facing wrapper) reports the (fault class × origin state) matrix over `firmware/transition_table.yaml` rows plus documented C-only interlock call sites (`check_safety_interlocks()`, `check_runaway_boundary()`), and fails on any uncovered designed pair.
 
-**When to extend:** Every new entry in `FAULT_LIST` (in `firmware/main/state_machine.h`) needs a corresponding entry in `manifest.json` and a perturbed CSV trace. The trace generator is in `firmware/test/traces/` (plant-model scripts that produce `.csv` files with injected sensor anomalies at specific tick offsets).
+**When to extend:** Every new entry in `FAULT_LIST` (in `firmware/main/state_machine.h`) needs a corresponding entry in `manifest.json`, an `origin_state`, and a perturbed CSV trace (or a `timing` block). The trace generator is in `firmware/test/traces/` (plant-model scripts that produce `.csv` files with injected sensor anomalies at specific tick offsets). Re-run `python3 firmware/test/test_sil_coverage.py` after adding a fault path in `transition_table.yaml` — a new (fault class, origin state) pair with no scenario shows up as `MISSING` in the matrix.
+
+**Known gap, deliberately demonstrated not fixed (2026-08-07):** `check_safety_interlocks()` is called from `state_preheat_update()` and `state_heating_update()` but *not* `state_pan_det_update()`, even though pan detection runs at `power_set_level(5)`. A manifest scenario (`SIL: DEMONSTRATED GAP -- Fan Failure during PAN_DET is not interlocked`) injects a sustained fan failure through the entire PAN_DET dwell and asserts the *current* (unsafe) outcome — the machine reaches PREHEAT with no fault — specifically so this test starts failing, as a forcing function, the day someone adds the interlock and forgets to update the expectation. Hardware interlocks (OCP/OVP/thermal comparators) remain independent of this software path, so this is a defense-in-depth gap, not a hardware-safety gap. Fixing it is a firmware change to `state_pan_det_update()`, out of scope for the test suite.
 
 ### Pattern 2: Runaway Boundary Interlock
 
@@ -74,7 +76,7 @@ The Temper induction cooker firmware runs on ESP32-S3 and controls a power stage
 
 ## When to Apply
 
-- **SIL fault injection**: Every time you add a fault code to `FAULT_LIST` in `state_machine.h`. Create a perturbed trace CSV and a manifest entry. If the fault is triggered from a specific state (not STATE_HEATING), extend the warm-up boilerplate in `sm_boilerplate_to_heating()`.
+- **SIL fault injection**: Every time you add a fault code to `FAULT_LIST` in `state_machine.h`. Create a perturbed trace CSV (or `timing` block) and a manifest entry with an `origin_state`. `sm_boilerplate_to_origin()` already supports INIT/PAN_DET/PREHEAT/HEATING; extend it if a new origin state is needed. Re-run the coverage check.
 - **Runaway boundary interlock**: Every time you modify `check_safety_interlocks()`, add or change a temperature threshold, or touch `trigger_hardware_shutdown()`. The interlock must remain the *first* check in `state_machine_update()` — nothing may move above it. If a new sensor is added to the safety chain, consider whether it should also feed the boundary check.
 - **Both patterns**: Before merging any PR that touches `firmware/main/state_machine.c`, `firmware/main/safety.*`, `firmware/config.yaml`, or `firmware/main/state_machine.h`.
 
@@ -100,7 +102,7 @@ From `firmware/test/traces/manifest.json` line 3:
     "final_state": "FAULT",
     "fault_code": "FAULT_OVER_TEMP",
     "max_latency_ticks": 2,
-    "soft_assertions": [
+    "hard_assertions": [
       { "power_off": true },
       { "eeprom_logged": "FAULT_OVER_TEMP" }
     ]
@@ -185,7 +187,7 @@ From `firmware/test/traces/manifest.json` line 177:
     "final_state": "FAULT",
     "fault_code": "FAULT_ADC_STUCK",
     "max_latency_ticks": 52,
-    "soft_assertions": [
+    "hard_assertions": [
       { "power_off": true },
       { "eeprom_logged": "FAULT_ADC_STUCK" }
     ]

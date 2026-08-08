@@ -24,6 +24,20 @@ related_components:
   - temper_placer.io._parse_board
   - temper_placer.router_v6.routing_space
   - temper_placer.router_v6.obstacle_map
+enforced_by:
+  - scripts/check_plane_condemnation_quantifier.py
+  - scripts/tests/test_check_plane_condemnation_quantifier.py
+  - plane-condemnation-allowlist.yaml
+  - packages/temper-placer/tests/router_v6/test_u2_stackup_role_ssot.py::test_default_behavior_unchanged_fcu_absent_from_routing_space
+enforcement_status: "gate script exists (2026-08-07), proven via anti-vacuity +
+  fail-before/pass-after tests, and fails closed against a dated allowlist --
+  but is NOT wired into a CI job: this session was scoped not to edit
+  .github/workflows/python-tests.yml, so a maintainer must add an invocation
+  step before this stops being a manually-run check. The listed
+  test_u2_stackup_role_ssot.py test already pins today's exact condemned-layer
+  set (a differential unit test on the use_declared_layer_roles flag, not a
+  dedicated recurrence gate) and would independently catch a third layer
+  joining it; it runs as part of the normal packages/temper-placer/tests suite."
 ---
 
 # One small pour can delete an entire copper layer from the router

@@ -36,12 +36,21 @@ jobs:
       - name: Scan external corpus (refresh manifest)
         run: uv run python scripts/scan_external_corpus.py
 
+      # Removed 2026-08-07: dead weight. batch_pipeline_validate.py catches
+      # every per-board failure and quarantines it rather than re-raising --
+      # there is no path in main() that exits non-zero, so this mask could
+      # never fire. Separately (not a masking issue, flagged for whoever
+      # owns the corpus pipeline): benchmarks/downloads_digital_iot/ is
+      # gitignored and nothing in this workflow populates it in a fresh CI
+      # checkout, so this step currently validates 0 real boards in CI.
       - name: Batch pipeline validation
-        continue-on-error: true  # TODO: temper-NNN -- weekly batch best-effort; hard-fail after 2026-09-01
         run: uv run python scripts/batch_pipeline_validate.py --max-boards 80
 
+      # Removed 2026-08-07: dead weight. quarantine_report.py can exit
+      # non-zero (regressions/new failures), but only when fed real
+      # quarantine entries -- the step above never produces any (see its
+      # comment), so this has never had anything to fail on.
       - name: Quarantine report
-        continue-on-error: true  # TODO: temper-NNN -- reporting best-effort; hard-fail after 2026-09-01
         run: uv run python scripts/quarantine_report.py
 
       - name: Upload quarantine artifacts

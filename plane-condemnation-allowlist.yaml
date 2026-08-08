@@ -1,0 +1,50 @@
+# Dated allowlist for scripts/check_plane_condemnation_quantifier.py.
+#
+# Each entry records a copper layer that is CURRENTLY classified
+# layer_type="plane" (and therefore excluded from the router's routing
+# space wholesale, routing_space.py:85) by a MINORITY of its zones being on
+# a plane-required net -- the exact quantifier-vs-predicate bug documented
+# in docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md.
+#
+# This is NOT a "the bug is fixed" record. It is a record of the bug's
+# CURRENT, KNOWN, ACCEPTED blast radius (the fix -- use_declared_layer_roles
+# -- is deliberately opt-in and default off: obstacle_map.py is not yet
+# derived-output-safe to open the outer layers with, per that doc's
+# "Solution" section and
+# docs/solutions/best-practices/correct-diagnosis-unsafe-change-2026-07-28.md's
+# 12x completion regression). The allowlist exists so that a NEW layer
+# joining this set, or the fraction on an existing entry getting worse
+# without anyone noticing, fails the gate instead of passing silently --
+# which is what happened for 11 undetected days before this gate existed.
+#
+# measured_fraction is informational (drift-detection note in the gate's
+# report), not itself enforced -- see the module docstring for why: this
+# repo's own corpus (docs/solutions/best-practices/stale-absolute-baseline-vs-mutable-board-2026-07-29.md,
+# docs/solutions/best-practices/ratchet-inputs-must-be-pinned-2026-07-29.md)
+# warns against trusting a stale pinned number over the board's own current
+# state, so a drifted fraction is surfaced as a note, not a hard failure.
+#
+# Re-measure before editing:
+#   uv run --no-sync python scripts/check_plane_condemnation_quantifier.py
+
+allowlist:
+  - layer: F.Cu
+    date: "2026-08-07"
+    reason: >-
+      Outer layer carries a per-net copper pour for creepage/thermal reasons
+      (see docs/evidence/2026-07-28-stackup-partial-revert.md); a small
+      minority of its zones are on plane-required nets (ACMains/HighVoltage),
+      which condemns the whole layer from routing space under today's
+      any()-quantifier classification. Not safe to fix via
+      use_declared_layer_roles=True alone until obstacle_map.py treats pours
+      as derived output rather than opaque per-layer obstacles.
+    doc: docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md
+    measured_fraction: 0.125
+  - layer: B.Cu
+    date: "2026-08-07"
+    reason: >-
+      Same mechanism as F.Cu (mirror outer layer); same tracked fix
+      dependency (pours-as-derived-output before use_declared_layer_roles is
+      safe to default on).
+    doc: docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md
+    measured_fraction: 0.125

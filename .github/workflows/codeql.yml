@@ -148,6 +148,16 @@ jobs:
           # affects Java/Kotlin and C# anyway -- neither is in this matrix --
           # so neither is set explicitly here.
 
+      # Removed 2026-08-07: dead weight. Checked live CI history (`gh run
+      # list --workflow codeql.yml`) across the most recent runs on main --
+      # every "Perform CodeQL analysis" step (all four matrix languages)
+      # concludes `success`; no SARIF-processing failure was observed. The
+      # stated reason also matches a pattern documented elsewhere in this
+      # repo: docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md notes
+      # `temper-N6-U8` is a placeholder shared across ~27 masks, and in the
+      # one case that doc audits in depth, the mask's stated reason was
+      # fabricated (it was hiding an unrelated, always-failing bug). Nothing
+      # here substantiates keeping this one; re-add with a real, specific
+      # reason if a genuine GitHub-side SARIF failure recurs.
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
-        continue-on-error: true  # SARIF processing bug on GitHub side; temper-N6-U8 -- hard-fail after 2026-09-01

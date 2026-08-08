@@ -1,8 +1,9 @@
 [
   {
-    "name": "SIL: Over-Temperature Fault",
-    "description": "Heatsink exceeds 100C during heating triggers FAULT_OVER_TEMP",
+    "name": "SIL: Over-Temperature Fault (HEATING)",
+    "description": "Heatsink exceeds 100C during HEATING triggers FAULT_OVER_TEMP",
     "trace_file": "trace_fault_over_temp.csv",
+    "origin_state": "HEATING",
     "initial_conditions": {
       "self_test_pass": true
     },
@@ -19,7 +20,7 @@
       "final_state": "FAULT",
       "fault_code": "FAULT_OVER_TEMP",
       "max_latency_ticks": 2,
-      "soft_assertions": [
+      "hard_assertions": [
         {
           "power_off": true
         },
@@ -30,9 +31,10 @@
     }
   },
   {
-    "name": "SIL: Over-Current Fault",
-    "description": "DC bus current exceeds 35A triggers FAULT_OVER_CURRENT",
+    "name": "SIL: Over-Current Fault (HEATING)",
+    "description": "DC bus current exceeds 35A during HEATING triggers FAULT_OVER_CURRENT",
     "trace_file": "trace_fault_over_current.csv",
+    "origin_state": "HEATING",
     "initial_conditions": {
       "self_test_pass": true
     },
@@ -49,7 +51,7 @@
       "final_state": "FAULT",
       "fault_code": "FAULT_OVER_CURRENT",
       "max_latency_ticks": 2,
-      "soft_assertions": [
+      "hard_assertions": [
         {
           "power_off": true
         },
@@ -60,9 +62,10 @@
     }
   },
   {
-    "name": "SIL: Fan Failure Fault",
-    "description": "Fan stops during heating triggers FAULT_FAN_FAILURE",
+    "name": "SIL: Fan Failure Fault (HEATING)",
+    "description": "Fan stops during HEATING triggers FAULT_FAN_FAILURE",
     "trace_file": "trace_fault_fan_failure.csv",
+    "origin_state": "HEATING",
     "initial_conditions": {
       "self_test_pass": true
     },
@@ -79,7 +82,7 @@
       "final_state": "FAULT",
       "fault_code": "FAULT_FAN_FAILURE",
       "max_latency_ticks": 2,
-      "soft_assertions": [
+      "hard_assertions": [
         {
           "power_off": true
         },
@@ -90,9 +93,10 @@
     }
   },
   {
-    "name": "SIL: RTD Probe Open Fault",
-    "description": "RTD resistance exceeds 10kOhm triggers FAULT_PROBE_OPEN",
+    "name": "SIL: RTD Probe Open Fault (HEATING)",
+    "description": "RTD resistance exceeds 10kOhm during HEATING triggers FAULT_PROBE_OPEN",
     "trace_file": "trace_fault_probe_open.csv",
+    "origin_state": "HEATING",
     "initial_conditions": {
       "self_test_pass": true
     },
@@ -109,7 +113,7 @@
       "final_state": "FAULT",
       "fault_code": "FAULT_PROBE_OPEN",
       "max_latency_ticks": 2,
-      "soft_assertions": [
+      "hard_assertions": [
         {
           "power_off": true
         },
@@ -120,9 +124,10 @@
     }
   },
   {
-    "name": "SIL: RTD Probe Short Fault",
-    "description": "RTD resistance below 10 Ohm triggers FAULT_PROBE_SHORT",
+    "name": "SIL: RTD Probe Short Fault (HEATING)",
+    "description": "RTD resistance below 10 Ohm during HEATING triggers FAULT_PROBE_SHORT",
     "trace_file": "trace_fault_probe_short.csv",
+    "origin_state": "HEATING",
     "initial_conditions": {
       "self_test_pass": true
     },
@@ -139,7 +144,7 @@
       "final_state": "FAULT",
       "fault_code": "FAULT_PROBE_SHORT",
       "max_latency_ticks": 2,
-      "soft_assertions": [
+      "hard_assertions": [
         {
           "power_off": true
         },
@@ -150,9 +155,10 @@
     }
   },
   {
-    "name": "SIL: Thermal Runaway Fault",
-    "description": "Pan temperature exceeds target + 10C triggers FAULT_THERMAL_RUNAWAY",
+    "name": "SIL: Thermal Runaway Fault (HEATING, rate-of-rise)",
+    "description": "Pan temperature exceeds target + 10C during HEATING triggers FAULT_THERMAL_RUNAWAY",
     "trace_file": "trace_fault_thermal_runaway.csv",
+    "origin_state": "HEATING",
     "initial_conditions": {
       "self_test_pass": true
     },
@@ -169,7 +175,7 @@
       "final_state": "FAULT",
       "fault_code": "FAULT_THERMAL_RUNAWAY",
       "max_latency_ticks": 2,
-      "soft_assertions": [
+      "hard_assertions": [
         {
           "power_off": true
         },
@@ -180,9 +186,10 @@
     }
   },
   {
-    "name": "SIL: IGBT Short Fault",
-    "description": "DC bus current exceeds 50A triggers FAULT_IGBT_SHORT (hard short detection)",
+    "name": "SIL: IGBT Short Fault (HEATING)",
+    "description": "DC bus current exceeds 50A during HEATING triggers FAULT_IGBT_SHORT (hard short detection)",
     "trace_file": "trace_fault_igbt_short.csv",
+    "origin_state": "HEATING",
     "initial_conditions": {
       "self_test_pass": true
     },
@@ -199,7 +206,7 @@
       "final_state": "FAULT",
       "fault_code": "FAULT_IGBT_SHORT",
       "max_latency_ticks": 2,
-      "soft_assertions": [
+      "hard_assertions": [
         {
           "power_off": true
         },
@@ -213,6 +220,7 @@
     "name": "SIL: Relay Welded Fault (detected as COOLDOWN_OVERHEAT)",
     "description": "Heatsink temperature rises during COOLDOWN indicates welded relay contacts",
     "trace_file": "trace_fault_relay_welded.csv",
+    "origin_state": "COOLDOWN",
     "initial_conditions": {
       "self_test_pass": true
     },
@@ -229,7 +237,7 @@
       "final_state": "FAULT",
       "fault_code": "FAULT_COOLDOWN_OVERHEAT",
       "max_latency_ticks": 3,
-      "soft_assertions": [
+      "hard_assertions": [
         {
           "power_off": true
         },
@@ -240,9 +248,10 @@
     }
   },
   {
-    "name": "SIL: ADC Stuck Fault",
-    "description": "Pan temperature ADC returns identical value across 3+ reads triggers FAULT_ADC_STUCK",
+    "name": "SIL: ADC Stuck Fault (HEATING)",
+    "description": "Pan temperature ADC returns identical value across 3+ reads during HEATING triggers FAULT_ADC_STUCK",
     "trace_file": "trace_fault_adc_stuck.csv",
+    "origin_state": "HEATING",
     "initial_conditions": {
       "self_test_pass": true
     },
@@ -259,7 +268,7 @@
       "final_state": "FAULT",
       "fault_code": "FAULT_ADC_STUCK",
       "max_latency_ticks": 52,
-      "soft_assertions": [
+      "hard_assertions": [
         {
           "power_off": true
         },
@@ -270,9 +279,10 @@
     }
   },
   {
-    "name": "SIL: Cooldown Overheat Fault",
+    "name": "SIL: Cooldown Overheat Fault (COOLDOWN)",
     "description": "Heatsink temperature spikes during COOLDOWN triggers FAULT_COOLDOWN_OVERHEAT",
     "trace_file": "trace_fault_cooldown_overheat.csv",
+    "origin_state": "COOLDOWN",
     "initial_conditions": {
       "self_test_pass": true
     },
@@ -289,7 +299,7 @@
       "final_state": "FAULT",
       "fault_code": "FAULT_COOLDOWN_OVERHEAT",
       "max_latency_ticks": 3,
-      "soft_assertions": [
+      "hard_assertions": [
         {
           "power_off": true
         },
@@ -297,6 +307,374 @@
           "eeprom_logged": "FAULT_COOLDOWN_OVERHEAT"
         }
       ]
+    }
+  },
+  {
+    "name": "SIL: Self-Test Failure (INIT)",
+    "description": "Self-test fails during INIT triggers FAULT_SELF_TEST_FAILED before the power stage is ever enabled",
+    "trace_file": "trace_fault_self_test_failed.csv",
+    "origin_state": "INIT",
+    "initial_conditions": {
+      "self_test_pass": false
+    },
+    "perturbation": {
+      "at_tick": 0,
+      "sensors": []
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_SELF_TEST_FAILED",
+      "max_latency_ticks": 1,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_SELF_TEST_FAILED"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Over-Temperature Fault (PREHEAT)",
+    "description": "Heatsink exceeds 100C during PREHEAT triggers FAULT_OVER_TEMP -- coverage gap fill: transition_table.yaml defines this path from PREHEAT as well as HEATING, but only HEATING was previously exercised",
+    "trace_file": "trace_fault_over_temp_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "heatsink_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_OVER_TEMP",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_OVER_TEMP"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Over-Current Fault (PREHEAT)",
+    "description": "DC bus current exceeds 35A during PREHEAT triggers FAULT_OVER_CURRENT -- coverage gap fill",
+    "trace_file": "trace_fault_over_current_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "dc_bus_current",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_OVER_CURRENT",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_OVER_CURRENT"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: IGBT Short Fault (PREHEAT)",
+    "description": "DC bus current exceeds 50A during PREHEAT triggers FAULT_IGBT_SHORT -- coverage gap fill",
+    "trace_file": "trace_fault_igbt_short_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "dc_bus_current",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_IGBT_SHORT",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_IGBT_SHORT"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Fan Failure Fault (PREHEAT)",
+    "description": "Fan stops during PREHEAT triggers FAULT_FAN_FAILURE -- coverage gap fill",
+    "trace_file": "trace_fault_fan_failure_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "fan_running",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_FAN_FAILURE",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_FAN_FAILURE"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: RTD Probe Open Fault (PREHEAT)",
+    "description": "RTD resistance exceeds 10kOhm during PREHEAT triggers FAULT_PROBE_OPEN -- coverage gap fill",
+    "trace_file": "trace_fault_probe_open_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_OPEN",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_OPEN"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: RTD Probe Short Fault (PREHEAT)",
+    "description": "RTD resistance below 10 Ohm during PREHEAT triggers FAULT_PROBE_SHORT -- coverage gap fill",
+    "trace_file": "trace_fault_probe_short_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_SHORT",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_SHORT"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: ADC Stuck Fault (PREHEAT)",
+    "description": "Pan temperature ADC returns identical value across 3+ reads during PREHEAT triggers FAULT_ADC_STUCK -- coverage gap fill",
+    "trace_file": "trace_fault_adc_stuck_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 60,
+      "sensors": [
+        {
+          "name": "pan_temperature",
+          "over_ticks": 50
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_ADC_STUCK",
+      "max_latency_ticks": 52,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_ADC_STUCK"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Runaway Boundary Fault (HEATING, absolute temperature)",
+    "description": "Pan temperature exceeds the 300C absolute runaway boundary during HEATING; the interlock (check_runaway_boundary) is checked every tick regardless of state and latches STATE_RUNAWAY_FAULT -- previously zero manifest coverage of this class",
+    "trace_file": "trace_fault_runaway_boundary_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "pan_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "RUNAWAY_FAULT",
+      "fault_code": "FAULT_RUNAWAY_BOUNDARY",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_RUNAWAY_BOUNDARY"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Runaway Boundary Fault (PREHEAT, absolute temperature)",
+    "description": "Pan temperature exceeds the 300C absolute runaway boundary during PREHEAT, demonstrating the interlock reaches every operational state including the one with the pan-detect-interlock gap documented separately in this suite",
+    "trace_file": "trace_fault_runaway_boundary_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "pan_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "RUNAWAY_FAULT",
+      "fault_code": "FAULT_RUNAWAY_BOUNDARY",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_RUNAWAY_BOUNDARY"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Preheat Timeout -> Thermal Runaway (PREHEAT, timing)",
+    "description": "Advancing past MAX_PREHEAT_TIME_MS (600000ms) while still in PREHEAT triggers FAULT_THERMAL_RUNAWAY via EVENT_PREHEAT_TIMEOUT -- coverage gap fill (the last of the 20 designed fault-class x origin-state pairs; the only one requiring a timing injection rather than a sensor perturbation, since the timeout is far larger than MAX_TICKS*DT_MS)",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "timing": {
+      "advance_ms": 601000
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_THERMAL_RUNAWAY",
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_THERMAL_RUNAWAY"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Pan-Detect Timeout -> IDLE (PAN_DET, timing)",
+    "description": "Advancing past PAN_DETECT_TIMEOUT_MS (5000ms) with no pan ever detected triggers EVENT_PAN_TIMEOUT -> STATE_IDLE (not a fault; verifies the non-fault timeout path so the fault-only matrix isn't the only timing behavior exercised)",
+    "trace_file": "",
+    "origin_state": "PAN_DET",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "timing": {
+      "advance_ms": 6000
+    },
+    "expected": {
+      "final_state": "IDLE",
+      "fault_code": "FAULT_NONE"
+    }
+  },
+  {
+    "name": "SIL: DEMONSTRATED GAP -- Fan Failure during PAN_DET is not interlocked",
+    "description": "Fan is off for the entire PAN_DET dwell (power_set_level(5) is active) yet the state machine reaches PREHEAT normally with no fault -- proves check_safety_interlocks() is not called from state_pan_det_update() (only from state_preheat_update() and state_heating_update()). This is a defense-in-depth gap, not a hardware-interlock gap: OCP/OVP/thermal comparators (33ns/9ns/<1ms) remain independent of this software path. NOT part of the required coverage matrix (transition_table.yaml defines no PAN_DET fault row) and intentionally has no hard_assertions -- the current, unsafe behavior is what this scenario documents. Firmware fix (adding check_safety_interlocks() to state_pan_det_update()) is out of scope for this suite; see plan 031 audit note.",
+    "trace_file": "trace_gap_pan_det_fan_failure.csv",
+    "origin_state": "PAN_DET",
+    "finding": "SAFETY GAP (demonstrated, not fixed): fan failure injected throughout PAN_DET produces no fault; the machine proceeds to PREHEAT with power_set_level(5) applied and no interlock check. See state_handlers.c state_pan_det_update() vs state_preheat_update()/state_heating_update().",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 0,
+      "sensors": [
+        {
+          "name": "fan_running",
+          "over_ticks": 3
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "PREHEAT",
+      "fault_code": "FAULT_NONE",
+      "max_latency_ticks": 2
     }
   }
 ]

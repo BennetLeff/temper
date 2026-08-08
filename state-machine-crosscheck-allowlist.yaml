@@ -1,0 +1,49 @@
+# Dated backlog allowlist for scripts/check_state_machine_model.py's
+# transition_manifest_crosscheck.py cross-check -- hand-curated only.
+#
+# This is NOT the documented KTD2 wildcard state-set exception (that is
+# computed, not curated -- see transition_manifest_crosscheck.py's own
+# docstring). This file is for row-level divergences between
+# firmware/transition_table.yaml (production) and
+# firmware/test/gen_transition_table.py's TRANSITIONS list (test-side) that
+# are REAL, open drift -- not verified as equivalent or benign -- deferred
+# to a firmware maintainer's decision on which of the two is correct.
+#
+# Every entry MUST carry `backlog: true` and a `seeded: 'YYYY-MM-DD'` date
+# together (scripts/check_state_machine_model.py's loader fails closed on
+# one without the other). A backlog-matched divergence still prints every
+# run, tagged `(backlog, seeded ...)`, and is counted in the gate's
+# `Backlog: N ...` summary line (pass or fail) -- it is not silently
+# suppressed, it just does not by itself flip the gate's exit code. Any
+# OTHER divergence -- a new row, or a value change on this same row -- still
+# fails the gate immediately.
+#
+# Fields:
+#   kind:        explicit | wildcard  (transition_manifest_crosscheck.py's
+#                RowDivergence categories -- see that module's docstring)
+#   from_state:  the divergent row's FROM state
+#   event:       the divergent row's event
+#   backlog:     must be true, paired with seeded
+#   seeded:      'YYYY-MM-DD' this entry was recorded
+#   reason:      why this is real, open drift and what the two manifests
+#                each say, with a citation
+
+allowlist:
+  - kind: explicit
+    from_state: STATE_FAULT
+    event: EVENT_FAULT_RESET_PERSISTS
+    backlog: true
+    seeded: "2026-08-07"
+    reason: >
+      Production manifest (firmware/transition_table.yaml) routes
+      (STATE_FAULT, EVENT_FAULT_RESET_PERSISTS) to (STATE_FAULT,
+      FAULT_NONE); the test-side generator (firmware/test/
+      gen_transition_table.py's TRANSITIONS list) hardcodes (STATE_FAULT,
+      FAULT_OVER_TEMP) for the same (from_state, event) pair. First
+      surfaced by this gate's introduction (2026-08-07) -- not fixed here:
+      firmware/transition_table.yaml is out of scope for this change, and
+      deciding which of the two manifests is correct (does a persisting
+      fault reset condition clear the fault code, or does it re-arm
+      specifically as an over-temp fault?) is a firmware maintainer's call,
+      not a CI-wiring one. Tracked so the crosscheck still blocks any NEW
+      divergence immediately.

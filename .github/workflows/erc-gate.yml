@@ -1,0 +1,57 @@
+name: ERC Gate
+
+# ERC (Electrical Rules Check, `kicad-cli sch erc`) has never run in CI --
+# only ever by hand (docs/STRATEGY.md:294-304, :1412). This workflow closes
+# that gap: it runs ERC on both schematics on every push/PR that touches
+# them and hard-fails on any ERC error. Warnings ratchet against
+# power_pcb_dataset/erc_ceiling.json (scripts/ci_check_erc.py), mirroring
+# the DRC ceiling pattern in scripts/ci_check_drc.py /
+# power_pcb_dataset/drc_ceiling.json -- but this is its own gate/job/file,
+# deliberately not a step inside python-tests.yml's consistency-gates job,
+# to avoid colliding with concurrent edits to that job.
+#
+# PR runs grouped per PR number, cancelled when superseded; main runs
+# grouped per SHA and never cancelled. Rationale: python-tests.yml.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pcb/temper.kicad_sch'
+      - 'pcb/mcu.kicad_sch'
+      - 'pcb/*.kicad_sch'
+      - 'power_pcb_dataset/erc_ceiling.json'
+      - 'scripts/ci_check_erc.py'
+      - '.github/workflows/erc-gate.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'pcb/temper.kicad_sch'
+      - 'pcb/mcu.kicad_sch'
+      - 'pcb/*.kicad_sch'
+      - 'power_pcb_dataset/erc_ceiling.json'
+      - 'scripts/ci_check_erc.py'
+      - '.github/workflows/erc-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  erc:
+    name: ERC ratchet (kicad-cli sch erc)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      # No continue-on-error here, and none should be added: a gate that
+      # cannot run must exit non-zero, same discipline as the DRC gate's
+      # steps in python-tests.yml/regression.yml.
+      - name: kicad-cli sch erc ratchet
+        run: python3 scripts/ci_check_erc.py

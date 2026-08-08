@@ -1,0 +1,274 @@
+# Per-part stress limits for scripts/part_stress_gate.py.
+#
+# This is DATA, not code, deliberately: docs/hardware/PART_STRESS_AUDIT.md
+# §7 explains why -- a part swap or a re-derived stress figure should only
+# require editing this file, never the gate script. Every entry's `rated`
+# and `source` fields must trace to a real datasheet or an existing
+# in-repo evidence document; `applied` is either measured/derived-and-cited
+# the same way, or computed from a `formula` (kept as a comment, not
+# executed) against committed elec/src/*.ato values. See the audit doc for
+# the full derivation of every number below -- this file is the checked-in
+# summary a gate reads, not the analysis itself.
+#
+# Fields:
+#   id                  stable key, used in test fixtures and reports
+#   designators         refs this entry covers, as they appear in
+#                        elec/build/default.csv's Designator column
+#   mpn                 expected MPN for ALL of `designators` (per
+#                        elec/build/default.csv's Comment/LCSC column) --
+#                        used to fail closed if the part has been swapped
+#                        since this entry was written
+#   domain              voltage_electrolytic | voltage_ceramic_dc_bias |
+#                        voltage_film | current | ripple_current | power |
+#                        temperature
+#   unit                unit string for display only (A, V, W, C)
+#   rated               the datasheet/spec absolute limit in `unit`
+#   applied              the worst-case (or central-case, noted per entry)
+#                        applied stress in `unit`
+#   guideline_margin    minimum acceptable (rated-applied)/rated before
+#                        this entry is reported WARN instead of OK. A
+#                        margin < 0 is always FAIL regardless of this
+#                        field (at-or-over the hard rating).
+#   conditional          true if `applied` depends on an assumption this
+#                        repo could not independently confirm (see notes) --
+#                        printed as FAIL(conditional)/WARN(conditional),
+#                        never silently merged with an unconditional finding
+#   source              datasheet or evidence-doc citation
+#   notes                short explanation, cross-referenced to the audit doc
+#   backlog              true for a real, pre-existing FAIL deferred to a
+#                        hardware maintainer's redesign call (CI-wiring
+#                        session, 2026-08-07) -- must be paired with `seeded`
+#                        (scripts/part_stress_gate.py fails closed on one
+#                        without the other). A backlog FAIL is still
+#                        reported and counted every run; it does not itself
+#                        flip the gate's exit code, but a NEW FAIL that is
+#                        not on this dated list still does.
+#   seeded                'YYYY-MM-DD' the backlog entry was recorded on;
+#                        only meaningful (and only permitted) alongside
+#                        `backlog: true`
+
+entries:
+  # ---------------------------------------------------------------------
+  # Section 1: AT OR OVER RATING
+  # ---------------------------------------------------------------------
+  - id: bus_cap_ripple_current
+    designators: [C2, C3, C4, C5]
+    mpn: EKMQ251VSN182MA50S
+    domain: ripple_current
+    unit: A
+    rated: 2.70
+    applied: 13.02
+    guideline_margin: 0.0
+    conditional: false
+    backlog: true
+    seeded: "2026-08-07"
+    source: >-
+      United Chemi-Con CAT. No. E1001E (KMQ series, 250V row, 1800uF,
+      phi35xL50) rated ripple 2.70 Arms @ 105C/120Hz; applied figure is the
+      "central" scenario (eta=0.90, conduction angle=40deg) from
+      docs/evidence/2026-07-26-bus-capacitor-ripple.md Sec 5, which reports
+      a full 11.39-15.57A range across best/central/worst assumptions --
+      even the best case (11.39A) is 4.22x rated.
+    notes: >-
+      docs/hardware/PART_STRESS_AUDIT.md Sec 1.1. Still live: modules.ato
+      C_BUS1/1B/2/2B unchanged since the 2026-07-26 finding. Backlogged at
+      CI-wiring time (2026-08-07): a real, pre-existing over-rating finding
+      deferred to a hardware maintainer's redesign call, not fixed here.
+
+  - id: ac_line_current_low_line
+    designators: [F1, L1]
+    mpn: null  # covers two different parts (fuse + CMC); MPN check skipped, see notes
+    domain: current
+    unit: A
+    rated: 16.0
+    applied: 18.52
+    guideline_margin: 0.0
+    conditional: true
+    backlog: true
+    seeded: "2026-08-07"
+    source: >-
+      Fuse (0034.3129, Schurter FST 5x20 time-lag) and CMC
+      (B82726S2163N030, TDK datasheet "Date: April 2025") both rated 16A
+      continuous. Applied = P_out/(eta*V_line) = 1800W/(0.90*108V) = 18.52A,
+      using main.ato's committed eta=0.90 target and
+      docs/ENVIRONMENTAL_SPEC.md's documented 108V input minimum.
+    notes: >-
+      docs/hardware/PART_STRESS_AUDIT.md Sec 1.2. CONDITIONAL: holds only
+      if the control loop holds constant 1800W output as line voltage
+      sags -- no line-voltage-based power derating was found in
+      firmware/, but that is not proof none exists. This entry uses the
+      110V/eta=0.90 case (18.52A) as a representative, not worst-case,
+      point -- the audit doc's full table spans 18.12-21.18A depending on
+      V_line and eta. Backlogged at CI-wiring time (2026-08-07): a real,
+      pre-existing (conditional) over-rating finding deferred to a hardware
+      maintainer's call, not fixed here.
+
+  - id: tank_coil_peak_current
+    designators: [R30]
+    mpn: CUSTOM_LITZ_COIL
+    domain: current
+    unit: A
+    rated: 15.0
+    applied: 31.9
+    guideline_margin: 0.0
+    conditional: false
+    backlog: true
+    seeded: "2026-08-07"
+    source: >-
+      footprint LitzPad_15A (footprints.ato) names its own 15A pad rating.
+      Applied figure (28.7-31.9A peak) from modules.ato:585-596, both the
+      150uH and 88uH tank models. A second, less severe comparison exists
+      against the module's own imposed current_rating=25A (15-28% over).
+    notes: >-
+      docs/hardware/PART_STRESS_AUDIT.md Sec 1.3. Already flagged
+      in-source verbatim; not a new finding, reconfirmed unchanged.
+      Backlogged at CI-wiring time (2026-08-07): a real, pre-existing
+      over-rating finding deferred to a hardware maintainer's redesign
+      call, not fixed here.
+
+  # ---------------------------------------------------------------------
+  # Section 2: BELOW NORMAL DERATING GUIDELINE
+  # ---------------------------------------------------------------------
+  - id: auxsupply_c_in_bulk_dc_bias
+    designators: [C14]
+    mpn: GRM55DR72E106KW01L
+    domain: voltage_ceramic_dc_bias
+    unit: V
+    rated: 250.0
+    applied: 170.0
+    guideline_margin: 0.50
+    conditional: false
+    source: >-
+      Murata GRM55 series family (2220, X7R, 250V) -- MPN itself is
+      UNVERIFIED at any distributor in this pass, see audit doc Sec 6.
+      Applied = dc_bus_plus half-bus nominal, modules.ato:1607,1630-1632.
+    notes: >-
+      docs/hardware/PART_STRESS_AUDIT.md Sec 2.1. Worst DC-bias ratio
+      (68%) found in the design; unlike its two 60%-biased siblings, this
+      instance carries no in-source derating flag.
+
+  - id: buck3v3_c_in_dc_bias
+    designators: [C9]
+    mpn: GRM32ER71E106KA12L
+    domain: voltage_ceramic_dc_bias
+    unit: V
+    rated: 25.0
+    applied: 15.0
+    guideline_margin: 0.50
+    conditional: false
+    source: "Murata GRM32ER71E106KA12L, 1210, X7R, 25V. modules.ato:1474-1479, sees +15V rail (BuckConverter3V3.power_in)."
+    notes: "docs/hardware/PART_STRESS_AUDIT.md Sec 2.1. Same 60% bias as the two already-flagged c_vdda/c_vddb parts, but unflagged."
+
+  - id: auxsupply_c_out_dc_bias
+    designators: [C15]
+    mpn: GRM32ER71E107ME15L
+    domain: voltage_ceramic_dc_bias
+    unit: V
+    rated: 25.0
+    applied: 15.0
+    guideline_margin: 0.50
+    conditional: false
+    source: "Murata GRM32ER71E107ME15L, 1210, X7R, 25V. modules.ato:1611-1616, +15V AuxSupply output filter."
+    notes: "docs/hardware/PART_STRESS_AUDIT.md Sec 2.1. Same pattern as buck3v3_c_in_dc_bias."
+
+  - id: cmc_current_margin
+    designators: [L1]
+    mpn: B82726S2163N030
+    domain: current
+    unit: A
+    rated: 16.0
+    applied: 15.0
+    guideline_margin: 0.20
+    conditional: false
+    source: "TDK B82726S2163N030 datasheet, 'Date: April 2025' rev, 16A @ 50Hz/dTr+60C. components.ato:258-276."
+    notes: "docs/hardware/PART_STRESS_AUDIT.md Sec 2.2. Nominal-only (120V/15A); see ac_line_current_low_line for the over-rating case."
+
+  - id: fuse_current_margin
+    designators: [F1]
+    mpn: "0034.3129"
+    domain: current
+    unit: A
+    rated: 16.0
+    applied: 15.0
+    guideline_margin: 0.20
+    conditional: false
+    source: "Schurter FST 5x20 time-lag family, 16A. modules.ato:660-676 (already flagged in-source)."
+    notes: "docs/hardware/PART_STRESS_AUDIT.md Sec 2.3."
+
+  - id: bus_bleeder_power_margin
+    designators: [R4, R5]
+    mpn: CRGP2512F22K
+    domain: power
+    unit: W
+    rated: 2.0
+    applied: 1.31
+    guideline_margin: 0.50
+    conditional: false
+    source: >-
+      CRGP2512 family, 2W @ 70C continuous (verified comment,
+      modules.ato:831). Applied = 170V*170V/22kohm, modules.ato:845.
+    notes: >-
+      docs/hardware/PART_STRESS_AUDIT.md Sec 2.4 and Sec 4 -- the
+      in-source assertion meant to check this (modules.ato:852-853) is
+      written backwards and does not actually enforce a 50% margin; this
+      entry's applied/rated figures were computed independently.
+
+  - id: tank_cap_ripple_current
+    designators: [C25, C26, C27]
+    mpn: 942C16P1K-F
+    domain: ripple_current
+    unit: A
+    rated: 9.5
+    applied: 7.50
+    guideline_margin: 0.30
+    conditional: false
+    source: >-
+      Cornell Dubilier 942C.pdf p.2 (11.4A @ 100kHz/70C) x 0.84
+      frequency-transfer factor to 47kHz, both derived in
+      modules.ato:468-496. Applied is the 88uH-coil 22.5A tank-current
+      stress point (worse of the two cited operating points).
+    notes: >-
+      docs/hardware/PART_STRESS_AUDIT.md Sec 2.5. Thin (27-38%
+      margin across the two cited operating points) but positive;
+      guideline_margin=0.30 here is this audit's own threshold for film
+      ripple current, not a datasheet-stated derating rule.
+
+  - id: coil_ntc_temperature_margin
+    designators: [R65]
+    mpn: NTCALUG01A104GA
+    domain: temperature
+    unit: C
+    rated: 125.0
+    applied: 120.3
+    guideline_margin: 0.20
+    conditional: false
+    source: "Vishay BCcomponents datasheet 29092, +125C max operating. modules.ato:2476-2483."
+    notes: "docs/hardware/PART_STRESS_AUDIT.md Sec 2.6. Already flagged in-source verbatim."
+
+  # ---------------------------------------------------------------------
+  # Section 3: adequate-margin reference entries (small sample, for
+  # OK-path coverage -- not exhaustive, see the audit doc Sec 3 table)
+  # ---------------------------------------------------------------------
+  - id: igbt_voltage_margin
+    designators: [U5, U6]
+    mpn: IKW40N120H3
+    domain: voltage_film
+    unit: V
+    rated: 1200.0
+    applied: 340.0
+    guideline_margin: 0.20
+    conditional: false
+    source: "Infineon IKW40N120H3, datasheets/infineon-ikw40n120h3-datasheet-en.pdf Table 2, VCE=1200V."
+    notes: "docs/hardware/PART_STRESS_AUDIT.md Sec 3."
+
+  - id: tank_cap_voltage_margin
+    designators: [C25, C26, C27]
+    mpn: 942C16P1K-F
+    domain: voltage_film
+    unit: V
+    rated: 1600.0
+    applied: 400.0
+    guideline_margin: 0.20
+    conditional: false
+    source: "Cornell Dubilier 942C.pdf p.2, 1600Vdc row. modules.ato:513-537."
+    notes: "docs/hardware/PART_STRESS_AUDIT.md Sec 3."
