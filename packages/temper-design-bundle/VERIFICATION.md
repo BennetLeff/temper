@@ -4204,3 +4204,91 @@ silently diverge:
 - R1g: `guard` (catch_unwind) at every pyo3 boundary; no `unwrap` outside
   tests; borrow-over-clone throughout; clippy-clean.
 - R1h: not applicable — no physics-gated quantity (recorded N/A).
+
+# SubNetEdge + NetGraph + DifferentialPairConstraint — Verification by Induction (Wave C)
+
+## Structural Proof
+
+These three classes are data-contract pyclasses (Wave C core-contracts
+migration, plan `docs/plans/2026-08-08-001-feat-wavec-core-contracts-migration-plan.md`).
+They store fields opaquely (`Py<PyAny>`) with no recursive or iterative
+computation. The induction is structural: each instance is defined entirely
+by its fields, and every method operates on at most one instance's fields.
+
+### Base Case — the smallest meaningful input
+
+**SubNetEdge**: `SubNetEdge("A.1", "B.1")` — two required string fields,
+three defaulted fields (`None`, `None`, `0`). The constructor stores the
+exact Python objects the caller passed; `repr` renders them via CPython's
+own `repr()`; `__eq__` builds a field tuple and compares via Python tuple
+equality. This matches the Python dataclass oracle bit-identically
+(verified by the differential suite, 37 tests green).
+
+**NetGraph**: `NetGraph("NET1")` — one required string, two defaulted
+containers (empty list, empty set). The `edges` and `star_nodes` getters
+return the same Python object (`clone_ref`), not copies. The three lookup
+methods (`get_edge`, `get_outgoing_edges`, `get_incoming_edges`) perform a
+linear scan of the stored list, accessing `source_pin`/`sink_pin` via
+Python attribute access (identical to the oracle's list comprehensions).
+
+**DifferentialPairConstraint**: `DifferentialPairConstraint("A+", "A-")` —
+two required strings, four defaulted fields. The `#[new]` constructor
+replicates `__post_init__` validation in declaration order: spacing ≤ 0,
+coupling_tolerance < 0, max_skew < 0, impedance_ohm (when not None) ≤ 0.
+Error messages use CPython's own `str()` on the stored field value, so
+float rendering is CPython's, not Rust's.
+
+### Induction Step — per-field independence
+
+Each class's `repr` iterates over a fixed ordered list of field names,
+calls `repr()` on each stored `Py<PyAny>` object independently, and
+splices the results. Adding a field (or changing one) does not affect the
+rendering of other fields — there is no cross-field interaction in the
+rendering path.
+
+`__eq__` builds a tuple of all stored fields and compares via Python
+tuple equality. Each field's equality is resolved by Python's own `==`
+on the stored objects — no Rust-side comparison, no widening. Adding a
+field adds one more element to the tuple; existing elements are unchanged.
+
+Container identity (NetGraph.edges, NetGraph.star_nodes) is preserved by
+construction: the getter returns `self.edges.clone_ref(py)`, which is the
+same underlying Python list/set object. The `#[new]` defaults create a
+fresh empty container per instance, preventing the shared-default footgun.
+
+### No recursive or iterative computation
+
+None of the three classes defines recursive data structures or iterative
+computation. `get_edge`/`get_outgoing_edges`/`get_incoming_edges` iterate
+a stored list with no nesting. The induction step is trivial: N+1 edges
+in the list means one more iteration, with no change to the result of
+earlier iterations (the list is not modified during scan).
+
+### R24 Physics Discipline
+
+**N/A** — these are data-contract pyclasses with no physics-gated
+quantities. No Chebyshev bound, no BMC-exhaustive validation, no
+post-solve audit. Recorded per G8.
+
+## Empirical Verification
+
+- **Differential suite**: `test_net_graph_and_diff_pair_rust_differential.py`
+  (37 tests, all green) — bit-identical `repr`, `==`/`!=`, hash unavailability,
+  mutable container identity, `get_edge`/`get_outgoing_edges`/
+  `get_incoming_edges`, `__post_init__` validation text and order.
+- **PBT suite**: `test_net_graph_diff_pair_pbt.py` (17 tests, all green) —
+  7 non-vacuous properties each with anti-vacuity companion, 6 metamorphic
+  relations (3 per module), all modules reached.
+- **Rust unit tests**: no dedicated unit tests; the differential and PBT
+  suites exercise the pyclasses through the Python boundary, which is
+  where the contract lives.
+- **Clippy**: `cargo clippy --all-features -- -D warnings` — clean
+  (0 warnings).
+- **Anti-vacuity**: every PBT property has a companion test proving a
+  degenerate kernel would be caught (e.g., P1 has `test_p1_fails_for_always_none_kernel`,
+  P6 has `test_p6_fails_for_swapped_check_order_kernel`).
+- **Performance**: pure-delegation data contracts with no compute kernels.
+  The R2 carve-out applies: "no regression beyond noise." The migration
+  replaces dataclass construction with pyclass construction; both are
+  Python-object operations with no algorithmic work.
+
