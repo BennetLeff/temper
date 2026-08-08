@@ -39,17 +39,23 @@ TraceClearanceCheck and ViaSpacingCheck (``drc_trace_clearance`` /
 ``drc_via_spacing``) are EXCLUDED from the guard's per-check requirement.
 Both are genuinely registered Rust rules and their ``run()`` bodies were
 fixed identically to the other 12 (they now call ``_run_check_via_rust``
-too) -- but a fixture that populates ``Placement.via_placement`` or
-``Placement.trace_placement`` cannot reach ``temper_drc_rs.run_drc()`` at
-all: ``drc_runner._placement_to_board_dict`` builds via/trace dicts with
-keys (``position``/``diameter``/``net_name``) that do not match what
-``temper_drc_rs::board_py_bridge::extract_via`` /
+too). A fixture that populates ``Placement.via_placement`` or
+``Placement.trace_placement`` USED TO be unable to reach
+``temper_drc_rs.run_drc()`` at all: ``drc_runner._placement_to_board_dict``
+built via/trace dicts with keys (``position``/``diameter``/``net_name``)
+that did not match what ``temper_drc_rs::board_py_bridge::extract_via`` /
 ``extract_trace_segment`` require (``x``/``y``/``pad``/``net``), so
-deserialization raises ``ValueError: missing required key: net`` before
-any rule runs. This is a real, independent, pre-existing bug -- not
-something this remediation introduced or is fixing -- documented and
-pinned by ``test_via_and_trace_fixtures_hit_a_preexisting_dict_key_bug``
-below so it stays visible rather than silently dropped from coverage.
+deserialization raised ``ValueError: missing required key: net`` before
+any rule ran. That schema-mismatch bug (documented and reproduced live via
+a real ``temper_drc_rs.run_drc()`` call, not just static reasoning) is
+fixed as of the Python<->Rust boundary schema remediation
+(2026-08-08) -- ``test_via_and_trace_fixtures_hit_a_preexisting_dict_key_bug``
+below now pins the FIXED behavior (via/trace fixtures reach the Rust
+engine and produce a real result) as a regression guard, so a reintroduced
+key mismatch fails loudly again. The two checks remain excluded from the
+per-check vacuity-guard corpus above only because the corpus's shared
+fixtures don't happen to populate ``via_placement``/``trace_placement`` --
+a coverage gap, not a defect.
 """
 
 from __future__ import annotations
@@ -71,6 +77,7 @@ from temper_placer.validation.drc_result import (
     NoiseCouplingCheck,
     PowerDomainCheck,
     Severity,
+    TraceClearanceCheck,
     ViaSpacingCheck,
     ZoneContainmentCheck,
 )
@@ -80,6 +87,8 @@ from temper_placer.validation.drc_types import (
     ConstraintSet,
     LoopConstraint,
     Placement,
+    TracePlacement,
+    TraceSegment,
     Via,
     ViaPlacement,
     ZoneDefinition,
@@ -345,25 +354,30 @@ def test_power_domain_check_never_reports_passed_true() -> None:
 
 
 def test_via_and_trace_fixtures_hit_a_preexisting_dict_key_bug() -> None:
-    """Documents (does not fix) a real, independent, pre-existing bug that
-    blocks exercising ViaSpacingCheck/TraceClearanceCheck through the
-    Placement contract.
+    """Regression guard for a fixed, real, independent, pre-existing bug
+    that used to block exercising ViaSpacingCheck/TraceClearanceCheck
+    through the Placement contract.
 
-    ``drc_runner._placement_to_board_dict`` builds each via dict with keys
-    ``position``/``diameter``/``net_name``; ``temper_drc_rs``'s
+    ``drc_runner._placement_to_board_dict`` used to build each via dict
+    with keys ``position``/``diameter``/``net_name``; ``temper_drc_rs``'s
     ``extract_via`` (``board_py_bridge.rs``) requires ``x``/``y``/``pad``/
-    ``net``. The two never overlap, so ANY placement with vias (or,
-    identically, traces) raises before any DRC rule runs at all -- this
-    affects EVERY delegating check's ``run()`` when vias/traces are
-    present, not only the via/trace-specific ones, and it also affects the
-    production ``CheckRunner.run()`` path (``drc_runner.py``), which shares
-    the same builder.
+    ``net``. The two never overlapped, so ANY placement with vias (or,
+    identically, traces) raised before any DRC rule ran at all -- this
+    affected EVERY delegating check's ``run()`` when vias/traces were
+    present, not only the via/trace-specific ones, and it also affected
+    the production ``CheckRunner.run()`` path (``drc_runner.py``), which
+    shares the same builder.
 
-    Out of scope for the vacuity remediation this file guards (a schema/
-    key-mismatch bug is a different defect class from "hardcodes a
-    passing result"), but pinned here so ``ViaSpacingCheck`` /
-    ``TraceClearanceCheck``'s absence from the per-check vacuity guard
-    above is a documented, re-discoverable fact instead of a silent gap.
+    Fixed as part of the Python<->Rust boundary schema remediation
+    (2026-08-08): ``_placement_to_board_dict`` now emits
+    ``net``/``x``/``y``/``drill``/``pad``/``from_layer``/``to_layer`` for
+    vias and ``net``/``layer``/``width``/``segments`` for traces -- the
+    exact key set ``board_py_bridge.rs`` reads. This test now pins the
+    FIXED behavior (two vias 0.2mm apart trip ``ViaSpacingCheck`` for a
+    real geometric reason, proving the dict reaches the Rust engine and is
+    interpreted correctly, not just "doesn't raise") as a regression guard
+    -- a reintroduced key mismatch will make this test raise again instead
+    of silently losing coverage.
     """
     placement = Placement(
         components={"C1": _comp("C1", 10, 10)},
@@ -390,5 +404,39 @@ def test_via_and_trace_fixtures_hit_a_preexisting_dict_key_bug() -> None:
             ]
         ),
     )
-    with pytest.raises(ValueError, match="missing required key: net"):
-        ViaSpacingCheck().run(placement, ConstraintSet())
+    result = ViaSpacingCheck().run(placement, ConstraintSet())
+    assert result is not None, "ViaSpacingCheck must reach the Rust engine and return a result"
+    # Two vias 0.2mm apart (well under any sane via-to-via clearance) must
+    # produce a real violation -- proving the dict payload was actually
+    # interpreted as via geometry, not merely accepted without raising.
+    assert any(
+        issue.check_name == "drc_via_spacing" for issue in result.issues
+    ), f"expected a drc_via_spacing violation for two vias 0.2mm apart, got: {result.issues}"
+
+
+def test_trace_fixture_reaches_rust_engine_without_dict_key_bug() -> None:
+    """Companion to the via regression guard above, for traces.
+
+    Pins that a ``Placement.trace_placement`` fixture reaches
+    ``TraceClearanceCheck`` -> ``temper_drc_rs.run_drc()`` without raising
+    ``ValueError: missing required key: net`` -- the trace half of the
+    same schema-mismatch bug the via test above pins.
+    """
+    placement = Placement(
+        components={"C1": _comp("C1", 10, 10)},
+        board_width=100,
+        board_height=100,
+        trace_placement=TracePlacement(
+            segments=[
+                TraceSegment(
+                    net_name="N1",
+                    layer="F.Cu",
+                    width=0.25,
+                    start=(0.0, 0.0),
+                    end=(10.0, 0.0),
+                ),
+            ]
+        ),
+    )
+    result = TraceClearanceCheck().run(placement, ConstraintSet())
+    assert result is not None, "TraceClearanceCheck must reach the Rust engine and return a result"
