@@ -1,0 +1,598 @@
+# BOM<->source reconciliation gate allowlist -- hand-curated only.
+#
+# scripts/check_bom_source_reconciliation.py has no --init/--regenerate
+# mode and never writes this file (see that module's docstring for why --
+# same rationale as mpn-fabrication-allowlist.yaml). Every entry below was
+# added after reading the cited elec/src/*.ato line(s) directly and
+# confirming the MPN, value and functional role genuinely match the BOM.md
+# row it's paired with -- this is not a bulk suppression of the gate's
+# output. Deliberately NOT allowlisted, and left as real findings for a
+# human to triage, at gate-introduction time (2026-08-07):
+#
+#   - All 8 mpn_mismatch findings (K_DIS1/K_DIS2, C_TANK1/C_TANK2,
+#     R_DIS1A/R_DIS1B/R_DIS2A/R_DIS2B) -- genuine value/MPN drift.
+#   - R_OVP1/R_OVP2/R_OVP3/R_OVP4/R_OVP_REF_T/R_OVP_REF_B/R_OCP_REF_T and
+#     their source-side counterparts -- the OVP-01/OCP-01 protective-
+#     impedance redesign (docs/evidence/2026-07-26-ovp-crossing-
+#     resolution.md, docs/evidence/2026-07-27-ocp01-uvl02-part-
+#     resolution.md) that BOM.md never absorbed.
+#   - R_THM_REF_T/R_THM_REF_B/R_THM_HYST/R_THM2_REF_T/R_THM2_REF_B/
+#     R_THM2_HYST and their source-side counterparts (r_ref_top/r_ref_bot/
+#     r_hyst under ThermalComparator and CoilThermalComparator) -- BOM.md's
+#     section 5.7/5.8 reference-divider and hysteresis values are stale/
+#     cross-attributed between THM-01 and THM-02 (confirmed against
+#     source's own inline comments admitting prior values), a newly-found
+#     drift this gate's introduction surfaced beyond the previously-known
+#     gap list.
+#   - c_tank3, r_div_top1/2/3 unmatched siblings, r_adc_top1/2/3 -- named
+#     explicitly in the gap this gate was built to close.
+#   - The entire LogicUVLOComparator (UVLO-02) circuit (mon, r_div_top,
+#     r_div_bot, r_hyst, r_outa_pullup, inv, r_fault_pullup at lines
+#     2906-2985) and the ZCD-to-SELV optocoupler redesign (zcd_opto,
+#     r_zcd_opto, r_zcd_pullup at lines 1028-1046) -- genuinely wired,
+#     genuinely uncosted, no BOM section exists for either at all.
+#   - boot_cap (elec/src/modules.ato:98, gate-driver bootstrap cap) --
+#     BOM.md reuses the designator "C_BOOT" for two structurally
+#     different capacitors (this one, 10uF GRM32ER71H106KA12L, and the
+#     buck converter's 100nF bootstrap cap at modules.ato:1481, which
+#     already matches by normalized name). A known false-negative of this
+#     gate's per-normalized-designator set comparison: because "C_BOOT"
+#     already has a matching source entry, no finding fires for the
+#     second, different physical part sharing that label. See the module
+#     docstring's "FALSE NEGATIVES" paragraph.
+#
+# Each entry:
+#   kind:       costed_no_circuit | wired_uncosted | mpn_mismatch
+#   designator: BOM designator (costed_no_circuit) or elec/src/*.ato
+#               variable name (wired_uncosted, mpn_mismatch)
+#   file:       optional, scopes a wired_uncosted entry to one file (all
+#               current entries needing this are in elec/src/modules.ato)
+#   reason:     why this is a genuine same-part-different-label match, not
+#               a content defect, with a citation
+
+allowlist:
+- kind: costed_no_circuit
+  designator: HS1
+  reason: Chassis/mechanical part explicitly documented in BOM.md section 11 as "not modeled in elec/src
+    -- these are mechanical/thermal assembly parts, out of the atopile design's scope by its own convention."
+    There is, and per that note is meant to be, no elec/src/*.ato counterpart. Not a content defect.
+- kind: costed_no_circuit
+  designator: FAN1
+  reason: Chassis/mechanical part explicitly documented in BOM.md section 11 as "not modeled in elec/src
+    -- these are mechanical/thermal assembly parts, out of the atopile design's scope by its own convention."
+    There is, and per that note is meant to be, no elec/src/*.ato counterpart. Not a content defect.
+- kind: costed_no_circuit
+  designator: TIM_HV
+  reason: Chassis/mechanical part explicitly documented in BOM.md section 11 as "not modeled in elec/src
+    -- these are mechanical/thermal assembly parts, out of the atopile design's scope by its own convention."
+    There is, and per that note is meant to be, no elec/src/*.ato counterpart. Not a content defect.
+- kind: costed_no_circuit
+  designator: TIM_LV
+  reason: Chassis/mechanical part explicitly documented in BOM.md section 11 as "not modeled in elec/src
+    -- these are mechanical/thermal assembly parts, out of the atopile design's scope by its own convention."
+    There is, and per that note is meant to be, no elec/src/*.ato counterpart. Not a content defect.
+- kind: costed_no_circuit
+  designator: HW_MOUNT
+  reason: Chassis/mechanical part explicitly documented in BOM.md section 11 as "not modeled in elec/src
+    -- these are mechanical/thermal assembly parts, out of the atopile design's scope by its own convention."
+    There is, and per that note is meant to be, no elec/src/*.ato counterpart. Not a content defect.
+- kind: costed_no_circuit
+  designator: FUSE1
+  reason: Chassis/mechanical part explicitly documented in BOM.md section 11 as "not modeled in elec/src
+    -- these are mechanical/thermal assembly parts, out of the atopile design's scope by its own convention."
+    There is, and per that note is meant to be, no elec/src/*.ato counterpart. Not a content defect.
+- kind: costed_no_circuit
+  designator: F1_HOLDER
+  reason: 'Mechanical carrier for F1 (same two electrical nodes, per BOM.md section 1.2''s own note: "Not
+    separately modeled in elec/src"). Not a content defect.'
+- kind: costed_no_circuit
+  designator: C_CT_FILT
+  reason: matches elec/src/modules.ato:1749 c_filter (GRM1885C1H104JA01D, CT signal filter cap).
+- kind: costed_no_circuit
+  designator: C_OVP_ADC
+  reason: matches elec/src/modules.ato:2440 c_adc_filter (C0603C104K5RACTU, OVP ADC-tap filter cap).
+- kind: costed_no_circuit
+  designator: C_PWM_A
+  reason: 'matches elec/src/modules.ato:104 c_filt_a -- confirmed directly by BOM.md section 8''s own
+    note: "These are r_filt_a/b/c_filt_a/b referenced from section 1.1".'
+- kind: costed_no_circuit
+  designator: C_PWM_B
+  reason: matches elec/src/modules.ato:106 c_filt_b -- same BOM.md section 8 note as C_PWM_A.
+- kind: costed_no_circuit
+  designator: CT1
+  reason: matches elec/src/modules.ato:1699 ct (CST3015-100ED current transformer).
+- kind: costed_no_circuit
+  designator: C_WDT
+  reason: matches elec/src/modules.ato:2800 c_bypass (C0603C104K5RACTU, watchdog decoupling cap, immediately
+    after wdt = new TPS3823 at line 2798).
+- kind: costed_no_circuit
+  designator: D_BOOT
+  reason: matches elec/src/modules.ato:97 boot_diode (ES1J).
+- kind: costed_no_circuit
+  designator: D_RLY_FLYBACK
+  reason: matches elec/src/modules.ato:788 d_flyback (SS14).
+- kind: costed_no_circuit
+  designator: D_ZENER
+  reason: matches elec/src/modules.ato:99 neg_bias_zener (BZT52C5V1-7-F).
+- kind: costed_no_circuit
+  designator: F1
+  reason: matches elec/src/modules.ato:660 fuse (0034.3129).
+- kind: costed_no_circuit
+  designator: K_BYPASS
+  reason: matches elec/src/modules.ato:757 bypass_relay (G4A-1A-E DC12).
+- kind: costed_no_circuit
+  designator: L_BUCK
+  reason: matches elec/src/modules.ato:1490 l_out (SRP1265A-5R6M).
+- kind: costed_no_circuit
+  designator: L_EMI
+  reason: matches elec/src/modules.ato:750 cmc (B82726S2163N030).
+- kind: costed_no_circuit
+  designator: L_TANK
+  reason: matches elec/src/modules.ato:617 inductor_conn (CUSTOM_LITZ_COIL; source even overrides inductor_conn.designator
+    = "R30", confirming this is a deliberately relabeled instance).
+- kind: costed_no_circuit
+  designator: NTC_COIL
+  reason: matches elec/src/modules.ato:2599 ntc (NTCALUG01A104GA, inside CoilThermalComparator/THM-02).
+- kind: costed_no_circuit
+  designator: NTC_HS
+  reason: matches elec/src/modules.ato:2474 ntc (NTCALUG01A104GA, inside ThermalComparator/THM-01).
+- kind: costed_no_circuit
+  designator: NTC_INRUSH
+  reason: matches elec/src/modules.ato:753 ntc (SL32 10015, type NTC_Inrush).
+- kind: costed_no_circuit
+  designator: PS1
+  reason: matches elec/src/modules.ato:1600 psu (IRM-10-15).
+- kind: costed_no_circuit
+  designator: Q1
+  reason: matches elec/src/modules.ato:78 q_high (IKW40N120H3, half-bridge high side).
+- kind: costed_no_circuit
+  designator: Q2
+  reason: matches elec/src/modules.ato:79 q_low (IKW40N120H3, half-bridge low side).
+- kind: costed_no_circuit
+  designator: Q_RLY_DRV
+  reason: matches elec/src/modules.ato:764 q_relay_drv (AO3400A).
+- kind: costed_no_circuit
+  designator: R_DIS_GATE
+  reason: matches elec/src/modules.ato:1316 r_gate (CRCW08051K00FKEA, discharge relay driver gate resistor
+    -- var name "r_gate" is reused for the analogous bypass-relay-driver resistor at line 774, matched
+    separately as R_RLY_GATE).
+- kind: costed_no_circuit
+  designator: R_DIS_GATE_PD
+  reason: matches elec/src/modules.ato:1323 r_gate_pd (CRCW0805100KFKEA, discharge relay driver gate pulldown
+    -- var name reused at line 781 for the bypass-relay driver, matched separately as R_RLY_GATE_PD).
+- kind: costed_no_circuit
+  designator: R_DT
+  reason: matches elec/src/modules.ato:271 dt_res (RC0603FR-0734KL, UCC21550 dead-time resistor).
+- kind: costed_no_circuit
+  designator: R_NTC2_PU
+  reason: matches elec/src/modules.ato:2605 r_ntc_fixed (RC0603FR-073K32L, inside CoilThermalComparator/THM-02).
+- kind: costed_no_circuit
+  designator: R_NTC_PU
+  reason: matches elec/src/modules.ato:2489 r_ntc_fixed (RC0603FR-0710KL, inside ThermalComparator/THM-01
+    -- var name reused for THM-02's analogous resistor, matched separately as R_NTC2_PU).
+- kind: costed_no_circuit
+  designator: R_OCP_REF_B
+  reason: 'matches elec/src/modules.ato:2118 r_ref_bot (RC0603FR-0710KL, 10k, OCP-01 reference divider
+    low leg) -- MPN and value agree exactly. NOTE: the source variable name "r_ref_bot" is reused across
+    4 different comparator instances (OCP-01/THM-01/THM-02/OCP-02, only some of which currently agree
+    with their BOM row -- see the un-allowlisted r_ref_bot findings for THM-01/THM-02), so this entry
+    intentionally does NOT also suppress the corresponding wired_uncosted findings; only this one, individually-verified
+    BOM row is covered.'
+- kind: costed_no_circuit
+  designator: R_OVP_ADC_B
+  reason: matches elec/src/modules.ato:2434 r_adc_bot (RC0603FR-0710KL, 10k) -- MPN and value agree exactly;
+    this leg of the OVP-01 ADC-tap divider was NOT changed by the 2026-07-26 protective-impedance redesign
+    that split only the top leg into r_adc_top1-3 (see the un-allowlisted R_OVP_ADC_T finding, which IS
+    a real drift).
+- kind: costed_no_circuit
+  designator: R_PWM_A
+  reason: matches elec/src/modules.ato:103 r_filt_a -- confirmed directly by BOM.md section 8's own note
+    (see C_PWM_A).
+- kind: costed_no_circuit
+  designator: R_PWM_B
+  reason: matches elec/src/modules.ato:105 r_filt_b -- same BOM.md section 8 note as R_PWM_A.
+- kind: costed_no_circuit
+  designator: R_RLY_DROP
+  reason: matches elec/src/modules.ato:767 r_relay_drop (RSF100JB-73-39R).
+- kind: costed_no_circuit
+  designator: R_RLY_GATE
+  reason: matches elec/src/modules.ato:774 r_gate (CRCW08051K00FKEA, bypass relay driver gate resistor).
+- kind: costed_no_circuit
+  designator: R_RLY_GATE_PD
+  reason: matches elec/src/modules.ato:781 r_gate_pd (CRCW0805100KFKEA, bypass relay driver gate pulldown).
+- kind: costed_no_circuit
+  designator: R_RTD_AVDD_BOT
+  reason: matches elec/src/modules.ato:2048 r_avdd_bottom (ERA-3AEB104V).
+- kind: costed_no_circuit
+  designator: R_RTD_AVDD_TOP
+  reason: matches elec/src/modules.ato:2044 r_avdd_top (ERA-6AEB6193V).
+- kind: costed_no_circuit
+  designator: R_RTD_FAULT_PULLUP
+  reason: matches elec/src/modules.ato:2069 r_fault_pullup (RC0603FR-0710KL, RTD hardware-window fault
+    chain) -- MPN and value agree exactly. The var name "r_fault_pullup" is reused at line 2979 for an
+    unrelated, currently entirely-uncosted UVLO comparator chain; this entry intentionally covers only
+    the RTD instance, not that one.
+- kind: costed_no_circuit
+  designator: R_RTD_HIGH_BOT
+  reason: matches elec/src/modules.ato:1988 r_high_bottom (ERA-3AEB103V).
+- kind: costed_no_circuit
+  designator: R_RTD_HIGH_TOP
+  reason: matches elec/src/modules.ato:1985 r_high_top (ERA-3AEB5901V).
+- kind: costed_no_circuit
+  designator: R_RTD_LOW_BOT
+  reason: matches elec/src/modules.ato:1982 r_low_bottom (ERA-3AEB103V).
+- kind: costed_no_circuit
+  designator: R_RTD_LOW_TOP
+  reason: matches elec/src/modules.ato:1979 r_low_top (ERA-3AEB6192V).
+- kind: costed_no_circuit
+  designator: R_RTD_RAIL_PULLUP
+  reason: matches elec/src/modules.ato:2055 r_rail_ok_pullup (RC0603FR-0710KL, RTD rail-monitor OUTA pullup).
+- kind: costed_no_circuit
+  designator: R_RTD_WIN_PULLDOWN
+  reason: matches elec/src/modules.ato:2018 r_window_ok_pulldown (RC0603FR-07100KL, 100k) -- MPN and value
+    agree exactly; not to be confused with the THM-01/THM-02 hysteresis resistors, which also nominally
+    read "100k" in BOM.md but do NOT match their real source values (see the un-allowlisted R_THM_HYST/R_THM2_HYST
+    findings).
+- kind: costed_no_circuit
+  designator: RV1
+  reason: matches elec/src/modules.ato:696 mov (V150LA10AP).
+- kind: costed_no_circuit
+  designator: TP1
+  reason: 'matches elec/src/modules.ato:3187 tp_shutdown (GENERIC_TEST_POINT) -- confirmed directly by
+    BOM.md section 10.2''s own note: "Source instantiates exactly 2 (SafetyInterlock.tp_shutdown, SafetyInterlock.tp_fault)".'
+- kind: costed_no_circuit
+  designator: TP2
+  reason: matches elec/src/modules.ato:3189 tp_fault (GENERIC_TEST_POINT) -- same BOM.md section 10.2
+    note as TP1.
+- kind: costed_no_circuit
+  designator: U_BUCK
+  reason: matches elec/src/modules.ato:1472 buck (LMR51430XDDCR).
+- kind: costed_no_circuit
+  designator: U_GD
+  reason: matches elec/src/modules.ato:94 driver (UCC21550BDWKR).
+- kind: costed_no_circuit
+  designator: U_MCU
+  reason: matches elec/src/modules.ato:3341 mcu (ESP32-S3-WROOM-1-N8R8).
+- kind: costed_no_circuit
+  designator: U_NAND
+  reason: matches elec/src/modules.ato:3074 latch (SN74HC00DR).
+- kind: costed_no_circuit
+  designator: U_OCP
+  reason: matches elec/src/modules.ato:2111 comp (TLV3201AIDBVR, inside OCPComparator) -- var name "comp"
+    is the generic comparator instance name reused across every SafetyInterlock comparator (OCP-01/OVP-01/THM-01/THM-02/OCP-02);
+    each real instance has its own BOM row (U_OCP/U_OVP/U_THERMAL/U_THERMAL2), matched individually below.
+    OCP-02's comp is separately allowlisted (see SecondaryOCPComparator entries).
+- kind: costed_no_circuit
+  designator: U_OR1
+  reason: matches elec/src/modules.ato:3061 fault_or (SN74HC4075DR) -- confirmed by BOM.md section 5.2's
+    own note naming fault_or/fault_any_or explicitly.
+- kind: costed_no_circuit
+  designator: U_OR2
+  reason: matches elec/src/modules.ato:3062 fault_any_or (SN74HC4075DR) -- same BOM.md section 5.2 note
+    as U_OR1. A THIRD SN74HC4075 instance, fault_or3 (elec/src/modules.ato:3073), is NOT covered by this
+    entry -- it is part of an undocumented UVLO fault-OR stage with no BOM row at all and is left as a
+    real wired_uncosted finding.
+- kind: costed_no_circuit
+  designator: U_OVP
+  reason: matches elec/src/modules.ato:2240 comp (TLV3201AIDBVR, inside OVPComparator) -- see U_OCP entry
+    for the reused "comp" var name.
+- kind: costed_no_circuit
+  designator: U_RTD
+  reason: matches elec/src/modules.ato:1835 adc (MAX31865AAP+).
+- kind: costed_no_circuit
+  designator: U_RTD_FAULT_NAND
+  reason: matches elec/src/modules.ato:2064 fault_nand (SN74LVC1G38DBVR).
+- kind: costed_no_circuit
+  designator: U_RTD_HIGH_WIN
+  reason: matches elec/src/modules.ato:1993 high_window (TLV3201AIDBVR).
+- kind: costed_no_circuit
+  designator: U_RTD_LOW_WIN
+  reason: matches elec/src/modules.ato:1992 low_window (TLV3201AIDBVR).
+- kind: costed_no_circuit
+  designator: U_RTD_RAIL_MON
+  reason: matches elec/src/modules.ato:2029 rail_monitor (TPS3700DDCR) -- a second, currently entirely-uncosted
+    TPS3700 instance ("mon", elec/src/modules.ato:2911) belongs to an unrelated UVLO comparator chain
+    and is NOT covered by this entry.
+- kind: costed_no_circuit
+  designator: U_RTD_REF
+  reason: matches elec/src/modules.ato:1963 reference (REF2025AIDDCR).
+- kind: costed_no_circuit
+  designator: U_RTD_WIN_AND
+  reason: matches elec/src/modules.ato:2011 window_and (SN74LVC1G08DBVR).
+- kind: costed_no_circuit
+  designator: U_THERMAL
+  reason: matches elec/src/modules.ato:2471 comp (TLV3201AIDBVR, inside ThermalComparator/THM-01) -- see
+    U_OCP entry for the reused "comp" var name.
+- kind: costed_no_circuit
+  designator: U_WDT
+  reason: matches elec/src/modules.ato:2798 wdt (TPS3823-33DBVR).
+- kind: costed_no_circuit
+  designator: U_THERMAL2
+  reason: matches elec/src/modules.ato:2596 comp (TLV3201AIDBVR, inside CoilThermalComparator/THM-02)
+    -- see U_OCP entry for the reused "comp" var name.
+- kind: costed_no_circuit
+  designator: C_DEC_RTD
+  reason: 'the 7 instances this row''s Qty covers are elec/src/modules.ato:1842 (c_vdd), 1892 (c_reference),
+    1893 (c_low_window), 1894 (c_high_window), 1895 (c_window_and), 1896 (c_rail_monitor), 1897 (c_fault_nand)
+    -- confirmed directly by BOM.md section 4.6''s own note: "one per: VDD (post-ferrite), reference,
+    low/high-window comparators, window-AND, rail monitor, fault-NAND".'
+- kind: wired_uncosted
+  designator: ntc
+  reason: 'All 3 instances are confirmed real matches: line 753 (NTC_Inrush type) = BOM NTC_INRUSH, line
+    2474 (ThermalComparator/THM-01) = BOM NTC_HS, line 2599 (CoilThermalComparator/THM-02) = BOM NTC_COIL.'
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: comp
+  reason: Generic TLV3201 comparator instance name, reused 5x. 4 instances are confirmed real matches
+    (2111=U_OCP, 2240=U_OVP, 2471=U_THERMAL, 2596=U_THERMAL2, each allowlisted individually on the BOM
+    side above); the 5th (2743) belongs to SecondaryOCPComparator (OCP-02), which BOM.md section 4.4 documents
+    as designed but deliberately not instantiated at the top level ("Do not add them until the sensing-domain
+    topology decision is made") -- so all 5 are legitimately non-findings.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_gate
+  reason: Reused for the bypass-relay driver (774, = BOM R_RLY_GATE) and the discharge-relay driver (1316,
+    = BOM R_DIS_GATE) -- both confirmed real matches, same MPN/value in both roles (CRCW08051K00FKEA,
+    1k).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_gate_pd
+  reason: Reused for the bypass-relay driver (781, = BOM R_RLY_GATE_PD) and the discharge-relay driver
+    (1323, = BOM R_DIS_GATE_PD) -- both confirmed real matches, same MPN/value in both roles (CRCW0805100KFKEA,
+    100k).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_ntc_fixed
+  reason: Reused for THM-01's NTC divider (2489, = BOM R_NTC_PU) and THM-02's (2605, = BOM R_NTC2_PU)
+    -- both confirmed real matches.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: adc
+  reason: elec/src/modules.ato:1835 = BOM U_RTD (MAX31865AAP+).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: boot_diode
+  reason: elec/src/modules.ato:97 = BOM D_BOOT (ES1J).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: buck
+  reason: elec/src/modules.ato:1472 = BOM U_BUCK (LMR51430XDDCR).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: bypass_relay
+  reason: elec/src/modules.ato:757 = BOM K_BYPASS (G4A-1A-E DC12).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_adc_filter
+  reason: elec/src/modules.ato:2440 = BOM C_OVP_ADC (C0603C104K5RACTU).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_bypass
+  reason: elec/src/modules.ato:2800 = BOM C_WDT (C0603C104K5RACTU, immediately after wdt = new TPS3823).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_fault_nand
+  reason: elec/src/modules.ato:1897 = BOM C_DEC_RTD (one of its 7 instances -- see BOM-side C_DEC_RTD
+    entry).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_filt_a
+  reason: elec/src/modules.ato:104 = BOM C_PWM_A -- confirmed directly by BOM.md section 8's own note.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_filt_b
+  reason: elec/src/modules.ato:106 = BOM C_PWM_B -- confirmed directly by BOM.md section 8's own note.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_filter
+  reason: elec/src/modules.ato:1749 = BOM C_CT_FILT (GRM1885C1H104JA01D).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_high_window
+  reason: elec/src/modules.ato:1894 = BOM C_DEC_RTD (one of its 7 instances).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_low_window
+  reason: elec/src/modules.ato:1893 = BOM C_DEC_RTD (one of its 7 instances).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_rail_monitor
+  reason: elec/src/modules.ato:1896 = BOM C_DEC_RTD (one of its 7 instances).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_reference
+  reason: elec/src/modules.ato:1892 = BOM C_DEC_RTD (one of its 7 instances).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_vdd
+  reason: elec/src/modules.ato:1842 = BOM C_DEC_RTD (one of its 7 instances, the post-ferrite VDD cap).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: c_window_and
+  reason: elec/src/modules.ato:1895 = BOM C_DEC_RTD (one of its 7 instances).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: cmc
+  reason: elec/src/modules.ato:750 = BOM L_EMI (B82726S2163N030).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: ct
+  reason: elec/src/modules.ato:1699 = BOM CT1 (CST3015-100ED).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: d_flyback
+  reason: elec/src/modules.ato:788 = BOM D_RLY_FLYBACK (SS14).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: driver
+  reason: elec/src/modules.ato:94 = BOM U_GD (UCC21550BDWKR).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: dt_res
+  reason: elec/src/modules.ato:271 = BOM R_DT (RC0603FR-0734KL).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: fault_any_or
+  reason: elec/src/modules.ato:3062 = BOM U_OR2 -- confirmed by BOM.md section 5.2's own note.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: fault_nand
+  reason: elec/src/modules.ato:2064 = BOM U_RTD_FAULT_NAND (SN74LVC1G38DBVR).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: fault_or
+  reason: elec/src/modules.ato:3061 = BOM U_OR1 -- confirmed by BOM.md section 5.2's own note.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: fuse
+  reason: elec/src/modules.ato:660 = BOM F1 (0034.3129).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: high_window
+  reason: elec/src/modules.ato:1993 = BOM U_RTD_HIGH_WIN (TLV3201AIDBVR).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: inductor_conn
+  reason: elec/src/modules.ato:617 = BOM L_TANK (CUSTOM_LITZ_COIL).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: latch
+  reason: elec/src/modules.ato:3074 = BOM U_NAND (SN74HC00DR).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: l_out
+  reason: elec/src/modules.ato:1490 = BOM L_BUCK (SRP1265A-5R6M).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: low_window
+  reason: elec/src/modules.ato:1992 = BOM U_RTD_LOW_WIN (TLV3201AIDBVR).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: mcu
+  reason: elec/src/modules.ato:3341 = BOM U_MCU (ESP32-S3-WROOM-1-N8R8).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: mov
+  reason: elec/src/modules.ato:696 = BOM RV1 (V150LA10AP).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: neg_bias_zener
+  reason: elec/src/modules.ato:99 = BOM D_ZENER (BZT52C5V1-7-F).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: psu
+  reason: elec/src/modules.ato:1600 = BOM PS1 (IRM-10-15).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: q_high
+  reason: elec/src/modules.ato:78 = BOM Q1 (IKW40N120H3).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: q_low
+  reason: elec/src/modules.ato:79 = BOM Q2 (IKW40N120H3).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: q_relay_drv
+  reason: elec/src/modules.ato:764 = BOM Q_RLY_DRV (AO3400A).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_adc_bot
+  reason: elec/src/modules.ato:2434 = BOM R_OVP_ADC_B (RC0603FR-0710KL) -- the OVP-01 ADC-tap divider's
+    bottom leg was not changed by the top-leg split; see BOM-side R_OVP_ADC_B entry.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_avdd_bottom
+  reason: elec/src/modules.ato:2048 = BOM R_RTD_AVDD_BOT (ERA-3AEB104V).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_avdd_top
+  reason: elec/src/modules.ato:2044 = BOM R_RTD_AVDD_TOP (ERA-6AEB6193V).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_fault_pullup
+  reason: elec/src/modules.ato:2069 = BOM R_RTD_FAULT_PULLUP (RC0603FR-0710KL) -- the RTD instance only;
+    the reused-name instance at line 2979 (unrelated UVLO chain) is left as a real finding.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_filt_a
+  reason: elec/src/modules.ato:103 = BOM R_PWM_A -- confirmed directly by BOM.md section 8's own note.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_filt_b
+  reason: elec/src/modules.ato:105 = BOM R_PWM_B -- confirmed directly by BOM.md section 8's own note.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_high_bottom
+  reason: elec/src/modules.ato:1988 = BOM R_RTD_HIGH_BOT (ERA-3AEB103V).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_high_top
+  reason: elec/src/modules.ato:1985 = BOM R_RTD_HIGH_TOP (ERA-3AEB5901V).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_low_bottom
+  reason: elec/src/modules.ato:1982 = BOM R_RTD_LOW_BOT (ERA-3AEB103V).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_low_top
+  reason: elec/src/modules.ato:1979 = BOM R_RTD_LOW_TOP (ERA-3AEB6192V).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_rail_ok_pullup
+  reason: elec/src/modules.ato:2055 = BOM R_RTD_RAIL_PULLUP (RC0603FR-0710KL).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_ref_bot
+  reason: elec/src/modules.ato:2118 = BOM R_OCP_REF_B (RC0603FR-0710KL) -- the OCP-01 instance only, individually
+    verified; the other 3 reused-name instances (THM-01/THM-02/OCP-02) are left as real findings or covered
+    separately (OCP-02, see SecondaryOCPComparator entries).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_relay_drop
+  reason: elec/src/modules.ato:767 = BOM R_RLY_DROP (RSF100JB-73-39R).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: r_window_ok_pulldown
+  reason: elec/src/modules.ato:2018 = BOM R_RTD_WIN_PULLDOWN (RC0603FR-07100KL).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: rail_monitor
+  reason: elec/src/modules.ato:2029 = BOM U_RTD_RAIL_MON (TPS3700DDCR) -- the RTD instance only; the reused-name
+    instance at line 2911 ("mon", unrelated UVLO chain) is left as a real finding.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: reference
+  reason: elec/src/modules.ato:1963 = BOM U_RTD_REF (REF2025AIDDCR).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: tp_fault
+  reason: elec/src/modules.ato:3189 = BOM TP2 -- confirmed directly by BOM.md section 10.2's own note.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: tp_shutdown
+  reason: elec/src/modules.ato:3187 = BOM TP1 -- confirmed directly by BOM.md section 10.2's own note.
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: wdt
+  reason: elec/src/modules.ato:2798 = BOM U_WDT (TPS3823-33DBVR).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: window_and
+  reason: elec/src/modules.ato:2011 = BOM U_RTD_WIN_AND (SN74LVC1G08DBVR).
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: shunt
+  reason: 'elec/src/modules.ato:2735 (WSLP25122L000FEA) is part of SecondaryOCPComparator (OCP-02), designed
+    but deliberately not instantiated at the top level -- BOM.md section 4.4: "Do not add them until the
+    sensing-domain topology decision is made." Not a content defect; the module''s docstring flags this
+    design as currently unsafe to power for an independent reason (common-mode voltage on the INA240)
+    and explicitly not yet trusted on hardware.'
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: amp
+  reason: 'elec/src/modules.ato:2741 (INA240A1QPWRQ1) is part of SecondaryOCPComparator (OCP-02), designed
+    but deliberately not instantiated at the top level -- BOM.md section 4.4: "Do not add them until the
+    sensing-domain topology decision is made." Not a content defect; the module''s docstring flags this
+    design as currently unsafe to power for an independent reason (common-mode voltage on the INA240)
+    and explicitly not yet trusted on hardware.'
+  file: elec/src/modules.ato
