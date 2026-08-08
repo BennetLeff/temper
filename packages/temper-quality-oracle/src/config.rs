@@ -49,7 +49,7 @@ pub fn build_config(
         }
     }
 
-    let mut loops: Vec<Vec<String>> = Vec::new();
+    let mut loops: Vec<Vec<String>> = Vec::with_capacity(netlist.nets.len());
     for net in &netlist.nets {
         let net_upper = net.name.to_uppercase();
         let is_gate_drive = ["GATE", "DRV", "DRIVE"]

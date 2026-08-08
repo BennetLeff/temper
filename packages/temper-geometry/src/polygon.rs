@@ -915,3 +915,160 @@ mod tests {
         assert!((sigmoid(0.0, 1.0) - 0.5).abs() < EPS);
     }
 }
+
+// ---------------------------------------------------------------------------
+// Property-based tests (proptest)
+// ---------------------------------------------------------------------------
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn coord() -> impl Strategy<Value = f64> {
+        -100.0f64..100.0f64
+    }
+
+    fn point() -> impl Strategy<Value = Point> {
+        (coord(), coord()).prop_map(|(x, y)| Point::new(x, y))
+    }
+
+    /// A closed polygon with 3–8 vertices (triangle through octagon).
+    fn small_polygon() -> impl Strategy<Value = Vec<Point>> {
+        prop::collection::vec(point(), 3..=8)
+    }
+
+    proptest! {
+        // -----------------------------------------------------------------
+        // polygon_area
+        // -----------------------------------------------------------------
+
+        /// P1. polygon_area is never negative.
+        #[test]
+        fn p1_polygon_area_non_negative(poly in small_polygon()) {
+            prop_assert!(polygon_area(&poly) >= 0.0,
+                "negative area {} for poly {:?}", polygon_area(&poly), poly);
+        }
+
+        /// P2. polygon_signed_area sign flips on vertex-reversal.
+        #[test]
+        fn p2_area_sign_flips_on_reversal(poly in small_polygon()) {
+            let mut rev = poly.clone();
+            rev.reverse();
+            let forward = polygon_signed_area(&poly);
+            let backward = polygon_signed_area(&rev);
+            // The absolute values should match (same magnitude), sign flips.
+            prop_assert!(
+                (forward + backward).abs() < 1e-9,
+                "forward={forward}, backward={backward} expected opposite signs"
+            );
+        }
+
+        // -----------------------------------------------------------------
+        // triangle_area
+        // -----------------------------------------------------------------
+
+        /// P3. triangle_area is never negative.
+        #[test]
+        fn p3_triangle_area_non_negative(
+            a in point(), b in point(), c in point(),
+        ) {
+            prop_assert!(triangle_area(&a, &b, &c) >= 0.0);
+        }
+
+        /// P4. triangle_area is symmetric: any permutation of vertices gives
+        /// the same area (the absolute value of the half cross product is
+        /// invariant under cyclic permutations and reversal).
+        #[test]
+        fn p4_triangle_area_symmetric(
+            a in point(), b in point(), c in point(),
+        ) {
+            let areas = [
+                triangle_area(&a, &b, &c),
+                triangle_area(&b, &c, &a),
+                triangle_area(&c, &a, &b),
+                triangle_area(&a, &c, &b),
+                triangle_area(&b, &a, &c),
+                triangle_area(&c, &b, &a),
+            ];
+            for pair in areas.windows(2) {
+                prop_assert!(
+                    (pair[0] - pair[1]).abs() < 1e-9,
+                    "triangle_area varies under permutation: {} != {}", pair[0], pair[1]
+                );
+            }
+        }
+
+        /// P5. triangle_area equals polygon_area on the same three vertices.
+        #[test]
+        fn p5_triangle_area_matches_polygon_area(
+            a in point(), b in point(), c in point(),
+        ) {
+            let poly = vec![a, b, c];
+            prop_assert!(
+                (triangle_area(&a, &b, &c) - polygon_area(&poly)).abs() < 1e-9,
+                "triangle_area != polygon_area"
+            );
+        }
+
+        // -----------------------------------------------------------------
+        // polygon_perimeter
+        // -----------------------------------------------------------------
+
+        /// P6. polygon_perimeter is never negative.
+        #[test]
+        fn p6_perimeter_non_negative(poly in small_polygon()) {
+            prop_assert!(polygon_perimeter(&poly) >= 0.0);
+        }
+
+        /// P7. polygon_perimeter equals the explicit sum of all edge lengths.
+        #[test]
+        fn p7_perimeter_is_sum_of_edge_lengths(poly in small_polygon()) {
+            let n = poly.len();
+            let mut sum = 0.0;
+            for i in 0..n {
+                let j = (i + 1) % n;
+                sum += poly[i].distance(&poly[j]);
+            }
+            prop_assert!(
+                (polygon_perimeter(&poly) - sum).abs() < 1e-9,
+                "perimeter {} != sum {}", polygon_perimeter(&poly), sum
+            );
+        }
+
+        // -----------------------------------------------------------------
+        // polygon_bounding_box
+        // -----------------------------------------------------------------
+
+        /// P8. Bounding box contains all vertices.
+        #[test]
+        fn p8_bounding_box_contains_vertices(poly in small_polygon()) {
+            let bb = polygon_bounding_box(&poly);
+            for p in &poly {
+                prop_assert!(
+                    bb.x_min <= p.x && p.x <= bb.x_max,
+                    "x {} out of [{}, {}]", p.x, bb.x_min, bb.x_max
+                );
+                prop_assert!(
+                    bb.y_min <= p.y && p.y <= bb.y_max,
+                    "y {} out of [{}, {}]", p.y, bb.y_min, bb.y_max
+                );
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // translate_polygon
+        // -----------------------------------------------------------------
+
+        /// P9. Translation preserves polygon area (up to f64 tolerance).
+        #[test]
+        fn p9_translation_preserves_area(
+            poly in small_polygon(), tx in coord(), ty in coord(),
+        ) {
+            let translated = translate_polygon(&poly, tx, ty);
+            prop_assert!(
+                (polygon_area(&poly) - polygon_area(&translated)).abs() < 1e-9,
+                "area changed under translation"
+            );
+        }
+    }
+}

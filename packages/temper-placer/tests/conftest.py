@@ -30,7 +30,6 @@ from _lib.pytest_artifact_guard import (  # noqa: E402
 from temper_placer.core.board import Board, Zone  # noqa: E402
 from temper_placer.core.design_rules import DesignRules, NetClassRules  # noqa: E402
 from temper_placer.core.netlist import Component, Net, Netlist, Pin  # noqa: E402
-from temper_placer.core.state import PlacementState  # noqa: E402
 from temper_placer.deterministic.state import BoardState  # noqa: E402
 from temper_placer.io.footprint_library import load_footprint_library  # noqa: E402
 
@@ -248,18 +247,6 @@ def simple_nets():
 def simple_netlist(simple_components, simple_nets):
     """Create a complete simple netlist for testing."""
     return Netlist(components=simple_components, nets=simple_nets)
-
-
-@pytest.fixture
-def simple_placement_state(simple_netlist, rng_key):
-    """Create a random placement state for the simple netlist."""
-    return PlacementState.random_init(
-        n_components=simple_netlist.n_components,
-        board_width=100.0,
-        board_height=100.0,
-        key=rng_key,
-        margin=10.0,
-    )
 
 
 # =============================================================================

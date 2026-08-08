@@ -51,6 +51,13 @@ mod priority;
 #[cfg(feature = "python")]
 mod netlist_contracts;
 
+// Wave C core-contracts migration: net_graph + differential_pair pyclasses
+// (see docs/plans/2026-08-08-001-feat-wavec-core-contracts-migration-plan.md).
+#[cfg(feature = "python")]
+mod net_graph_contracts;
+#[cfg(feature = "python")]
+mod differential_pair_contracts;
+
 #[cfg(feature = "python")]
 mod board_contracts;
 
@@ -293,6 +300,8 @@ mod python {
         // source modules each define a DIFFERENT class called `Component`;
         // flattening them into one namespace would silently alias them.
         crate::netlist_contracts::register(module)?;
+        crate::net_graph_contracts::register(module)?;
+        crate::differential_pair_contracts::register(module)?;
         crate::board_contracts::register(module)?;
 
         // Wave 4 Phase 3 candidate 5: the config/reference loaders. The

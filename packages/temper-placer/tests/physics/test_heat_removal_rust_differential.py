@@ -161,7 +161,7 @@ def _direct(cfg, devices, device_thermal, label) -> None:
     r_sa = [device_thermal[k].R_theta_sa for k in devices]
     raw = _tt.build_h_field_py(
         cfg.cell_size_mm, cfg.origin_mm[0], cfg.origin_mm[1],
-        cfg.height_cells, cfg.width_cells, xs, ys, r_cs, r_sa,
+        cfg.height_cells, cfg.width_cells, xs, ys, r_cs, r_sa, 10.0,
     )
     got = np.frombuffer(raw, dtype=np.float64).reshape((cfg.height_cells, cfg.width_cells)).copy()
     want = _oracle_build_h_field(cfg, devices, device_thermal)

@@ -43,7 +43,7 @@ _r = st.floats(min_value=0.05, max_value=2.0, allow_nan=False, allow_infinity=Fa
 
 
 def _field(cs, ox, oy, h, w, xs, ys, r_cs, r_sa):
-    raw = _tt.build_h_field_py(cs, ox, oy, h, w, xs, ys, r_cs, r_sa)
+    raw = _tt.build_h_field_py(cs, ox, oy, h, w, xs, ys, r_cs, r_sa, 10.0)
     return np.frombuffer(raw, dtype=np.float64).reshape((h, w)).copy()
 
 
@@ -161,7 +161,7 @@ def test_p5_footprint_cell_count_geometry():
 
 def _mutant_zero_background(cs, ox, oy, h, w, xs, ys, r_cs, r_sa):
     """P1 mutant: fills zeros instead of the background value."""
-    raw = _tt.build_h_field_py(cs, ox, oy, h, w, xs, ys, r_cs, r_sa)
+    raw = _tt.build_h_field_py(cs, ox, oy, h, w, xs, ys, r_cs, r_sa, 10.0)
     f = np.frombuffer(raw, dtype=np.float64).reshape((h, w)).copy()
     f -= _bg(cs)  # zero out the background → P1's `== bg` fails
     return f
@@ -184,7 +184,7 @@ def _mutant_centroid_only(cs, ox, oy, h, w, xs, ys, r_cs, r_sa):
 
 def _mutant_sign_flip_sink(cs, ox, oy, h, w, xs, ys, r_cs, r_sa):
     """P4 mutant: negative sink (subtract instead of add)."""
-    raw = _tt.build_h_field_py(cs, ox, oy, h, w, xs, ys, r_cs, r_sa)
+    raw = _tt.build_h_field_py(cs, ox, oy, h, w, xs, ys, r_cs, r_sa, 10.0)
     f = np.frombuffer(raw, dtype=np.float64).reshape((h, w)).copy()
     bg = _bg(cs)
     half = 2.5

@@ -352,6 +352,131 @@ mod tests {
         assert!(np_clip(5.0, 0.0, f64::NAN).is_nan());
     }
 
+    // --- proptest: py_max / py_min / np_maximum / np_minimum / np_clip ---
+
+    #[cfg(test)]
+    mod proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        use super::*;
+        use proptest::prelude::*;
+
+        /// Non-NaN, finite values in a reasonable range.
+        fn finite_f64() -> impl Strategy<Value = f64> {
+            prop::num::f64::NORMAL
+        }
+
+        proptest! {
+            // ---------------------------------------------------------------
+            // Property 1: py_max keeps the first argument on NaN, returns
+            // the greater of two non-NaN values.
+            // ---------------------------------------------------------------
+            #[test]
+            fn prop_py_max_nan_semantics(a in finite_f64()) {
+                // NaN first → NaN wins.
+                prop_assert!(py_max(f64::NAN, a).is_nan());
+                // NaN second → a wins.
+                prop_assert_eq!(py_max(a, f64::NAN), a);
+            }
+
+            // ---------------------------------------------------------------
+            // Property 2: py_min keeps the first argument on NaN.
+            // ---------------------------------------------------------------
+            #[test]
+            fn prop_py_min_nan_semantics(a in finite_f64()) {
+                prop_assert!(py_min(f64::NAN, a).is_nan());
+                prop_assert_eq!(py_min(a, f64::NAN), a);
+            }
+
+            // ---------------------------------------------------------------
+            // Property 3: For two finite non-NaN values, py_max returns
+            // the larger and py_min the smaller.
+            // ---------------------------------------------------------------
+            #[test]
+            fn prop_py_max_min_agree_on_finite(a in finite_f64(), b in finite_f64()) {
+                let mx = py_max(a, b);
+                let mn = py_min(a, b);
+                prop_assert!(mx >= a && mx >= b);
+                prop_assert!(mn <= a && mn <= b);
+                // At least one equality must hold (the extrema are in {a,b}).
+                prop_assert!((mx - a).abs() < f64::EPSILON || (mx - b).abs() < f64::EPSILON);
+                prop_assert!((mn - a).abs() < f64::EPSILON || (mn - b).abs() < f64::EPSILON);
+            }
+
+            // ---------------------------------------------------------------
+            // Property 4: np_maximum propagates NaN from either operand.
+            // ---------------------------------------------------------------
+            #[test]
+            fn prop_np_maximum_propagates_nan(a in finite_f64()) {
+                prop_assert!(np_maximum(f64::NAN, a).is_nan());
+                prop_assert!(np_maximum(a, f64::NAN).is_nan());
+            }
+
+            // ---------------------------------------------------------------
+            // Property 5: For two finite values, np_maximum picks the larger.
+            // ---------------------------------------------------------------
+            #[test]
+            fn prop_np_maximum_finite(a in finite_f64(), b in finite_f64()) {
+                let mx = np_maximum(a, b);
+                prop_assert!(mx >= a && mx >= b);
+                prop_assert!((mx - a).abs() < f64::EPSILON || (mx - b).abs() < f64::EPSILON);
+            }
+
+            // ---------------------------------------------------------------
+            // Property 6: np_clip with well-ordered bounds returns a value
+            // in [lo, hi] for any finite x, lo, hi.
+            // ---------------------------------------------------------------
+            #[test]
+            fn prop_np_clip_bounded(
+                x in finite_f64(),
+                lo in finite_f64(),
+                hi in finite_f64(),
+            ) {
+                // Order directly: prop_assume!(lo <= hi) rejects ~50% and
+                // trips proptest's global-reject limit at high PROPTEST_CASES.
+                let (lo, hi) = if lo <= hi { (lo, hi) } else { (hi, lo) };
+                let y = np_clip(x, lo, hi);
+                // Result must be finite and in [lo, hi].
+                prop_assert!(y.is_finite());
+                prop_assert!(y >= lo && y <= hi);
+            }
+
+            // ---------------------------------------------------------------
+            // Property 7: np_clip with inverted bounds (lo > hi) returns hi.
+            // ---------------------------------------------------------------
+            #[test]
+            fn prop_np_clip_inverted_returns_hi(
+                x in finite_f64(),
+                a in finite_f64(),
+                b in finite_f64(),
+            ) {
+                // Generate a strict inverted pair directly (lo = max, hi = min
+                // of two distinct-ordered values) instead of prop_assume!(lo > hi).
+                let (lo, hi) = if a > b { (a, b) } else { (b, a) };
+                prop_assert_eq!(np_clip(x, lo, hi), hi);
+            }
+
+            // ---------------------------------------------------------------
+            // Property 8: np_clip with any NaN operand returns NaN.
+            // ---------------------------------------------------------------
+            #[test]
+            fn prop_np_clip_nan_propagates(a in finite_f64(), b in finite_f64(), c in finite_f64()) {
+                prop_assert!(np_clip(f64::NAN, b, c).is_nan());
+                prop_assert!(np_clip(a, f64::NAN, c).is_nan());
+                prop_assert!(np_clip(a, b, f64::NAN).is_nan());
+            }
+
+            // ---------------------------------------------------------------
+            // Property 9: py_max / py_min are idempotent (same argument twice).
+            // ---------------------------------------------------------------
+            #[test]
+            fn prop_py_max_min_idempotent(a in finite_f64()) {
+                prop_assert_eq!(py_max(a, a), a);
+                prop_assert_eq!(py_min(a, a), a);
+            }
+        }
+    }
+
     #[cfg(target_os = "macos")]
     #[test]
     fn dlsym_resolves_on_macos() {

@@ -11,10 +11,14 @@
 //! (inside `catch_panic`).
 //!
 //! The constraint data is marshalled ONCE from a plain-dict payload into a
-//! typed `ConstraintData` (the "data moves into Rust" form — no `Py<PyAny>`
-//! handles added; the 11 existing handles in this crate's PCL pipeline are
-//! untouched). Per-call evaluation (the compiled slot filter/scorer) then
-//! touches Python only for exact-ref dict lookups into the placements dict.
+//! typed `ConstraintData` (the "data moves into Rust" form). Per-call
+//! evaluation (the compiled slot filter/scorer) then touches Python only
+//! for exact-ref dict lookups into the placements dict.
+//!
+//! PyO3 return types use the most specific concrete type (`Py<PyDict>`,
+//! `Py<PyList>`) wherever the function always returns one kind of object;
+//! genuinely heterogeneous returns (e.g. `yaml_value_to_py`) stay as
+//! `Py<PyAny>`.
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
@@ -473,7 +477,7 @@ fn constraint_find_similar(name: String, options: Vec<String>) -> PyResult<Optio
 fn validation_error_to_dict(
     py: Python<'_>,
     e: &ValidationErrorData,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     let d = PyDict::new(py);
     d.set_item("constraint_type", &e.constraint_type)?;
     d.set_item("message", &e.message)?;
@@ -485,7 +489,7 @@ fn validation_error_to_dict(
         Some(s) => d.set_item("suggestion", s)?,
         None => d.set_item("suggestion", py.None())?,
     }
-    Ok(d.into())
+    Ok(d.unbind())
 }
 
 /// `ConstraintCompiler.validate(board, netlist)` — returns the error list;
@@ -496,7 +500,7 @@ fn validate_constraints(
     payload: &Bound<'_, PyDict>,
     component_refs: Vec<String>,
     zone_names: Vec<String>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyList>> {
     catch_panic(|| {
         let data = parse_payload(payload)?;
         let errors = crate::constraints::validate::validate_constraints(&data, &component_refs, &zone_names);
@@ -504,7 +508,7 @@ fn validate_constraints(
         for e in &errors {
             list.append(validation_error_to_dict(py, e)?)?;
         }
-        Ok(list.into())
+        Ok(list.unbind())
     })
     .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{e}")))
 }
@@ -575,7 +579,7 @@ fn builder_to_yaml_data(py: Python<'_>, payload: &Bound<'_, PyDict>) -> PyResult
 // ConstraintReporter.check
 // ---------------------------------------------------------------------------
 
-fn check_result_to_dict(py: Python<'_>, r: &CheckResult) -> PyResult<Py<PyAny>> {
+fn check_result_to_dict(py: Python<'_>, r: &CheckResult) -> PyResult<Py<PyDict>> {
     let d = PyDict::new(py);
     d.set_item("type", &r.ctype)?;
     d.set_item("status", &r.status)?;
@@ -595,7 +599,7 @@ fn check_result_to_dict(py: Python<'_>, r: &CheckResult) -> PyResult<Py<PyAny>> 
         None => d.set_item("expected", py.None())?,
     }
     d.set_item("details", PyDict::new(py))?;
-    Ok(d.into())
+    Ok(d.unbind())
 }
 
 /// `ConstraintReporter.check(placements)` — all checks, in rule order.
@@ -612,7 +616,7 @@ fn check_constraints(
     py: Python<'_>,
     payload: &Bound<'_, PyDict>,
     placements: &Bound<'_, PyDict>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyList>> {
     let err: RefCell<Option<PyErr>> = RefCell::new(None);
     let lookup = placements_lookup(placements, &err);
     let out = catch_panic(|| {
@@ -623,7 +627,7 @@ fn check_constraints(
         for r in &results {
             list.append(check_result_to_dict(py, r)?)?;
         }
-        Ok(list.into())
+        Ok(list.unbind())
     })
     .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{e}")))?;
     if let Some(e) = err.borrow_mut().take() {
@@ -736,7 +740,7 @@ fn report_to_text(results: &Bound<'_, PyList>) -> PyResult<String> {
 fn report_to_json_data(
     py: Python<'_>,
     results: &Bound<'_, PyList>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     catch_panic(|| {
         let parsed = parse_results(py, results)?;
         let summary = crate::constraints::report::report_summary(&parsed.results);
@@ -802,7 +806,7 @@ fn report_to_json_data(
         }
         data.set_item("all_results", all_list)?;
 
-        Ok(data.into())
+        Ok(data.unbind())
     })
     .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{e}")))
 }

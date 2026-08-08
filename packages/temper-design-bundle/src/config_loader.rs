@@ -30,7 +30,7 @@
 //! oracle does (pydantic models from `temper_placer._constraint_types`,
 //! `Zone`/`GroundDomain`/`Board`/`LayerStackup`/`NetClassification` from
 //! this crate's own pyclasses, `NetGraph`/`SubNetEdge` from
-//! `temper_placer.core.net_graph`, PCL constraints from
+//! `temper_placer.core.net_graph` (now resolved — same-crate pyclasses), PCL constraints from
 //! `temper_placer.pcl`, `estimate_current_from_net_class` from
 //! `temper_placer.core.ipc2221`), so error timing and error text are the
 //! oracle's by construction.
@@ -50,6 +50,8 @@ use pyo3::IntoPyObjectExt;
 
 use crate::board_contracts;
 use crate::design_rules::DesignRules;
+use crate::differential_pair_contracts::DifferentialPairConstraint;
+use crate::net_graph_contracts::{NetGraph, SubNetEdge};
 use crate::net_types;
 
 // ---------------------------------------------------------------------------
@@ -1348,18 +1350,18 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
     // --- Net topology ---
     if raw.contains("net_topology")? {
         let net_topologies = processed_list(py, &processed, "net_topologies")?;
-        let net_graph_mod = PyModule::import(py, "temper_placer.core.net_graph")?;
+        let net_graph_cls = py.get_type::<NetGraph>();
+        let sub_edge_cls = py.get_type::<SubNetEdge>();
         for entry in raw.get_item("net_topology")?.call_method0("items")?.try_iter()? {
                 let entry = entry?;
                 let net_name = entry.get_item(0)?;
                 let topo_cfg = entry.get_item(1)?;
-            let graph = net_graph_mod.getattr("NetGraph")?.call1((net_name,))?;
+            let graph = net_graph_cls.call1((net_name,))?;
             if topo_cfg.contains("star_nodes")? {
                 let star = py_set(py, &topo_cfg.get_item("star_nodes")?)?;
                 graph.setattr("star_nodes", star)?;
             }
             if topo_cfg.contains("edges")? {
-                let sub_edge_cls = net_graph_mod.getattr("SubNetEdge")?;
                 for ec in topo_cfg.get_item("edges")?.try_iter()? {
                     let ec = ec?;
                     let edge = call_with_kwargs(
@@ -1382,13 +1384,13 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
 
     if raw.contains("kelvin_sensing")? {
         let net_topologies = processed_list(py, &processed, "net_topologies")?;
-        let net_graph_mod = PyModule::import(py, "temper_placer.core.net_graph")?;
-        let sub_edge_cls = net_graph_mod.getattr("SubNetEdge")?;
+        let net_graph_cls = py.get_type::<NetGraph>();
+        let sub_edge_cls = py.get_type::<SubNetEdge>();
         for entry in raw.get_item("kelvin_sensing")?.try_iter()? {
             let kc = entry?;
             let net_name = kc.get_item("net_name")?;
             let star_pin = kc.get_item("star_point_pin")?;
-            let graph = net_graph_mod.getattr("NetGraph")?.call1((net_name,))?;
+            let graph = net_graph_cls.call1((net_name,))?;
             graph.getattr("star_nodes")?.call_method1("add", (&star_pin,))?;
             let force_width = dict_get(py, &kc, "force_width_mm", &f64_obj(py, 1.0)?)?;
             for entry in kc.get_item("force_pins")?.try_iter()? {
@@ -2141,8 +2143,8 @@ pub fn infer_rjc(_py: Python<'_>, package_type: Option<&Bound<'_, PyAny>>) -> Py
 }
 
 /// `constraints_to_design_rules` — builds the Rust `DesignRules`/`NetClassRules`
-/// pyclasses, calling back to `temper_placer.core.differential_pair` for the
-/// dataclass `DifferentialPairConstraint`.
+/// pyclasses. `DifferentialPairConstraint` is now a same-crate pyclass
+/// (resolved — was `temper_placer.core.differential_pair`).
 #[pyfunction]
 #[pyo3(name = "constraints_to_design_rules")]
 pub fn constraints_to_design_rules<'py>(
@@ -2189,7 +2191,7 @@ pub fn constraints_to_design_rules<'py>(
         dict_setitem(py, &rules.getattr("net_classes")?, &name, &ncr)?;
     }
 
-    let diff_pair_cls = py_callable(py, "temper_placer.core.differential_pair", "DifferentialPairConstraint")?;
+    let diff_pair_cls = py.get_type::<DifferentialPairConstraint>();
     let differential_pairs = constraints.getattr("differential_pairs")?;
     for pair_rule in differential_pairs.try_iter()? {
         let pair_rule = pair_rule?;

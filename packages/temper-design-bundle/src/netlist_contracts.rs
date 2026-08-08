@@ -119,7 +119,7 @@ pub(crate) fn dataclass_hash(py: Python<'_>, fields: &[Py<PyAny>]) -> PyResult<i
 
 /// Clone an owned handle to the same underlying Python object (NOT a copy) --
 /// preserves identity for mutable containers.
-fn same(py: Python<'_>, obj: &Py<PyAny>) -> Py<PyAny> {
+pub(crate) fn same(py: Python<'_>, obj: &Py<PyAny>) -> Py<PyAny> {
     obj.clone_ref(py)
 }
 
@@ -209,7 +209,7 @@ fn np_array<'py>(
 
 /// Default a `None` argument to a freshly created empty `list` -- what
 /// `field(default_factory=list)` does on every construction.
-fn list_or_new(py: Python<'_>, value: Option<&Bound<'_, PyAny>>) -> PyResult<Py<PyAny>> {
+pub(crate) fn list_or_new(py: Python<'_>, value: Option<&Bound<'_, PyAny>>) -> PyResult<Py<PyAny>> {
     match value {
         Some(v) => Ok(v.clone().unbind()),
         None => PyList::empty(py).into_py_any(py),
@@ -217,7 +217,7 @@ fn list_or_new(py: Python<'_>, value: Option<&Bound<'_, PyAny>>) -> PyResult<Py<
 }
 
 /// Default a `None` argument to a freshly created empty `dict`.
-fn dict_or_new(py: Python<'_>, value: Option<&Bound<'_, PyAny>>) -> PyResult<Py<PyAny>> {
+pub(crate) fn dict_or_new(py: Python<'_>, value: Option<&Bound<'_, PyAny>>) -> PyResult<Py<PyAny>> {
     match value {
         Some(v) => Ok(v.clone().unbind()),
         None => PyDict::new(py).into_py_any(py),
@@ -392,7 +392,7 @@ impl Pin {
 }
 
 /// `Option`-or-literal-default helper for scalar dataclass defaults.
-fn opt_or<'py, T>(py: Python<'py>, value: Option<&Bound<'py, PyAny>>, default: T) -> PyResult<Py<PyAny>>
+pub(crate) fn opt_or<'py, T>(py: Python<'py>, value: Option<&Bound<'py, PyAny>>, default: T) -> PyResult<Py<PyAny>>
 where
     T: IntoPyObject<'py>,
 {

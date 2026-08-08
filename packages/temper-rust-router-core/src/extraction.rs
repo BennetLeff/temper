@@ -64,33 +64,28 @@ pub fn extract_topology(
         }
     }
 
-    // Build NetTopology for each net.
+    // Build NetTopology for each net, first from explicit net_names order,
+    // then from any remaining unclaimed net_channels entries.
     let mut net_topologies: HashMap<String, NetTopology> = HashMap::new();
 
     for net_name in net_names {
-        let channels = net_channels.remove(net_name.as_str()).unwrap_or_default();
-        let path_graph = build_path_graph(net_name, &channels);
-        net_topologies.insert(
-            net_name.clone(),
-            NetTopology {
-                net_name: net_name.clone(),
-                uses_channels: channels.clone(),
-                path_graph,
-                total_length_estimate: channels.len() as f64 * 10.0,
-            },
-        );
+        if let Some(channels) = net_channels.remove(net_name.as_str()) {
+            net_topologies.insert(
+                net_name.to_string(),
+                make_net_topo(net_name, channels),
+            );
+        } else {
+            net_topologies.insert(
+                net_name.to_string(),
+                make_net_topo(net_name, Vec::new()),
+            );
+        }
     }
 
     for (net_name, channels) in net_channels {
-        let path_graph = build_path_graph(&net_name, &channels);
         net_topologies.insert(
             net_name.clone(),
-            NetTopology {
-                net_name,
-                uses_channels: channels.clone(),
-                path_graph,
-                total_length_estimate: channels.len() as f64 * 10.0,
-            },
+            make_net_topo(&net_name, channels),
         );
     }
 
@@ -243,32 +238,38 @@ pub fn extract_bundled(
     // Build NetTopology for each net.
     let mut net_topologies: HashMap<String, NetTopology> = HashMap::new();
     for net_name in net_names {
-        let channels = net_channels.remove(net_name.as_str()).unwrap_or_default();
-        let path_graph = build_path_graph(net_name, &channels);
-        net_topologies.insert(
-            net_name.clone(),
-            NetTopology {
-                net_name: net_name.clone(),
-                uses_channels: channels.clone(),
-                path_graph,
-                total_length_estimate: channels.len() as f64 * 10.0,
-            },
-        );
+        if let Some(channels) = net_channels.remove(net_name.as_str()) {
+            net_topologies.insert(
+                net_name.to_string(),
+                make_net_topo(net_name, channels),
+            );
+        } else {
+            net_topologies.insert(
+                net_name.to_string(),
+                make_net_topo(net_name, Vec::new()),
+            );
+        }
     }
     for (net_name, channels) in net_channels {
-        let path_graph = build_path_graph(&net_name, &channels);
         net_topologies.insert(
             net_name.clone(),
-            NetTopology {
-                net_name,
-                uses_channels: channels.clone(),
-                path_graph,
-                total_length_estimate: channels.len() as f64 * 10.0,
-            },
+            make_net_topo(&net_name, channels),
         );
     }
 
     TopologyGraph { net_topologies }
+}
+
+/// Build a `NetTopology` from a net name and its assigned channels.
+fn make_net_topo(net_name: &str, channels: Vec<String>) -> NetTopology {
+    let total_length_estimate = channels.len() as f64 * 10.0;
+    let path_graph = build_path_graph(net_name, &channels);
+    NetTopology {
+        net_name: net_name.to_string(),
+        uses_channels: channels,
+        path_graph,
+        total_length_estimate,
+    }
 }
 
 /// Build an ordered edge walk from a list of channel IDs.

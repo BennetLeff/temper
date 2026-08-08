@@ -10,6 +10,32 @@ from enum import Enum
 
 from .constraints import BaseConstraint, ConstraintTier
 
+# Tier → weight mapping, kept as the R10-mandated Python fallback (Rust is an
+# acceleration, not a requirement). The Rust kernel
+# (``temper_constraints.tier_to_weight_py`` via :mod:`.rust_bridge`) is the
+# primary path when installed; the two are pinned identical by
+# ``tests/rust_integration/test_rust_constraints.py::test_tier_weight_parity``.
+_TIER_WEIGHTS: dict[ConstraintTier, float] = {
+    ConstraintTier.HARD: 1e6,  # Effectively infinite
+    ConstraintTier.STRONG: 1e3,
+    ConstraintTier.SOFT: 1e1,
+}
+
+try:  # rust_bridge itself imports nothing heavy at module load.
+    from .rust_bridge import tier_to_weight_rust as _tier_to_weight_rust
+except ImportError:  # pragma: no cover - defensively keep the fallback
+    _tier_to_weight_rust = None
+
+
+def _tier_weight(tier: ConstraintTier) -> float:
+    """Weight for a constraint tier, preferring the Rust kernel when available."""
+    if _tier_to_weight_rust is not None:
+        try:
+            return float(_tier_to_weight_rust(tier.value))
+        except NotImplementedError:
+            pass
+    return _TIER_WEIGHTS[tier]
+
 
 class EscalationReason(Enum):
     """Reason why a constraint was escalated."""
@@ -267,14 +293,8 @@ class TieredConstraintManager:
             Dict mapping constraint ID to current weight
         """
         weights = {}
-        tier_to_weight = {
-            ConstraintTier.HARD: 1e6,
-            ConstraintTier.STRONG: 1e3,
-            ConstraintTier.SOFT: 1e1,
-        }
-
         for constraint in self.constraints:
             status = self.statuses[constraint.id]
-            weights[constraint.id] = tier_to_weight[status.current_tier]
+            weights[constraint.id] = _tier_weight(status.current_tier)
 
         return weights

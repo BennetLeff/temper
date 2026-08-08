@@ -214,7 +214,6 @@ pub fn detect_conflicts(model: &[ResolvedConstraint]) -> Vec<ConflictReport> {
         } = sep
         {
             for adj in &adjacencies {
-                #[allow(clippy::collapsible_if)]
                 if let ResolvedConstraint::Adjacency {
                     id: adj_id,
                     net_a: adj_a,
@@ -222,9 +221,10 @@ pub fn detect_conflicts(model: &[ResolvedConstraint]) -> Vec<ConflictReport> {
                     max_distance_mm: max_d,
                     ..
                 } = adj
+                    && ((sep_a == adj_a && sep_b == adj_b)
+                        || (sep_a == adj_b && sep_b == adj_a))
+                    && min_d > max_d
                 {
-                    if (sep_a == adj_a && sep_b == adj_b) || (sep_a == adj_b && sep_b == adj_a) {
-                        if min_d > max_d {
                     conflicts.push(ConflictReport {
                         pcl_constraint_ids: vec![sep_id.clone(), adj_id.clone()],
                         description: format!(
@@ -232,8 +232,6 @@ pub fn detect_conflicts(model: &[ResolvedConstraint]) -> Vec<ConflictReport> {
                         ),
                         tier: ConstraintTier::Hard,
                     });
-                        }
-                    }
                 }
             }
         }

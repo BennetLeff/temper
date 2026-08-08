@@ -334,8 +334,11 @@ mod hv_word_boundary_tests {
 /// the actual Python `dict`/`list` object (in-place mutation persists), each
 /// field has a setter (whole-field assignment persists), and the
 /// dynamically-attached `class_pairs` attribute is a real settable property.
-/// Unmigrated cross-module types (`NetClassRules`, `DifferentialPairConstraint`,
-/// `BusCohortConstraint`, `NetGraph`) are held opaquely.
+/// Unmigrated cross-module types (`NetClassRules`, `BusCohortConstraint`) are
+/// held opaquely. Wave C—migrated types (`DifferentialPairConstraint`,
+/// `NetGraph`, `SubNetEdge`) are now same-crate pyclasses; their containers
+/// (`differential_pairs: Py<PyList>`, `net_topologies: Py<PyDict>`) hold
+/// typed pyclass elements (INTENTIONAL — container identity-preserving).
 #[pyclass]
 pub struct DesignRules {
     default_trace_width: f64,
@@ -345,8 +348,11 @@ pub struct DesignRules {
     net_classes: Py<PyDict>,
     net_overrides: Py<PyDict>,
     net_class_assignments: Py<PyDict>,
+    /// List of `DifferentialPairConstraint` pyclasses (identity-mutable list).
     differential_pairs: Py<PyList>,
+    /// List of `BusCohortConstraint` (still unmigrated, held opaquely).
     bus_cohorts: Py<PyList>,
+    /// Dict of net-name → `NetGraph` pyclass (identity-mutable dict).
     net_topologies: Py<PyDict>,
     via_templates: Py<PyDict>,
     /// Dynamically-attached attribute (NOT a dataclass field): consumers set

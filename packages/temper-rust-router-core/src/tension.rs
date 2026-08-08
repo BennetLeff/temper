@@ -378,6 +378,32 @@ fn check_layer_restriction_starvation(
     }
 }
 
+/// Return the set of channels that `net_idx` is allowed to use, given its
+/// bans and available channel variables.
+fn allowed_channels<'a>(
+    net_idx: usize,
+    all_channels: &'a HashSet<&'a str>,
+    net_bans: &HashMap<usize, HashSet<&'a str>>,
+    net_channels: &HashMap<usize, HashSet<&'a str>>,
+) -> HashSet<&'a str> {
+    all_channels
+        .iter()
+        .filter(|&&ch| {
+            match net_bans.get(&net_idx) {
+                Some(bans) => !bans.contains(ch),
+                None => {
+                    // No ban on this channel. But does the net even have a var for it?
+                    match net_channels.get(&net_idx) {
+                        Some(chs) => chs.contains(ch),
+                        None => false,
+                    }
+                }
+            }
+        })
+        .copied()
+        .collect()
+}
+
 /// Check 4: Mutually-exclusive diffpair assignment — the two nets in a diff-pair
 /// have no shared allowed channel.
 fn check_mutually_exclusive_diffpair(
@@ -388,40 +414,8 @@ fn check_mutually_exclusive_diffpair(
     violations: &mut Vec<TensionViolation>,
 ) {
     for &(dpi, _channel_id, p_var, n_var, p_net, n_net) in diffpairs {
-        let p_allowed: HashSet<&str> = all_channels
-            .iter()
-            .filter(|&&ch| {
-                let bans = net_bans.get(&p_net);
-                match bans {
-                    Some(bans) => !bans.contains(ch),
-                    None => {
-                        // No ban on this channel. But does the net even have a var for it?
-                        match net_channels.get(&p_net) {
-                            Some(chs) => chs.contains(ch),
-                            None => false,
-                        }
-                    }
-                }
-            })
-            .copied()
-            .collect();
-
-        let n_allowed: HashSet<&str> = all_channels
-            .iter()
-            .filter(|&&ch| {
-                let bans = net_bans.get(&n_net);
-                match bans {
-                    Some(bans) => !bans.contains(ch),
-                    None => {
-                        match net_channels.get(&n_net) {
-                            Some(chs) => chs.contains(ch),
-                            None => false,
-                        }
-                    }
-                }
-            })
-            .copied()
-            .collect();
+        let p_allowed = allowed_channels(p_net, all_channels, net_bans, net_channels);
+        let n_allowed = allowed_channels(n_net, all_channels, net_bans, net_channels);
 
         if !p_allowed.is_empty() && !n_allowed.is_empty() {
             if p_allowed.intersection(&n_allowed).next().is_none() {

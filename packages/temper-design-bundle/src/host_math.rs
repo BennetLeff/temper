@@ -188,6 +188,28 @@ fn frexp(x: f64) -> (f64, i32) {
     (m, e)
 }
 
+/// Exact `2^e` for every `i32` exponent (same helper as `temper-geometry`'s
+/// `pad_geometry::pow2` and `temper-drc-rs`'s `pymath::pow2`).
+///
+/// `2f64.powi(e)` is NOT sufficient: for `e = -1024` (reachable from
+/// `frexp` of any `x >= 2^1023`, the top binade), `powi(-1024)` underflows
+/// to `0.0`, making `v * scale = 0`, `h = 0`, and `h / scale = 0/0 = NaN`.
+/// The subnormal `2^-1024` must be built from its bit pattern to keep full
+/// mantissa precision. (This copy was fixed after `temper-drc-rs`'s; the
+/// proptest there caught the same class.)
+fn pow2(e: i32) -> f64 {
+    if e > 1023 {
+        return f64::INFINITY;
+    }
+    if e >= -1022 {
+        return f64::from_bits(((e + 1023) as u64) << 52);
+    }
+    if e >= -1074 {
+        return f64::from_bits(1u64 << (e + 1074));
+    }
+    0.0
+}
+
 fn vector_norm_2(x: f64, y: f64, max: f64) -> f64 {
     let (_, max_e) = frexp(max);
     if max_e < -1023 {
@@ -198,7 +220,7 @@ fn vector_norm_2(x: f64, y: f64, max: f64) -> f64 {
                 max / f64::MIN_POSITIVE,
             );
     }
-    let scale = 2f64.powi(-max_e);
+    let scale = pow2(-max_e);
     let mut csum = 1.0f64;
     let mut frac1 = 0.0f64;
     let mut frac2 = 0.0f64;
@@ -229,6 +251,17 @@ mod tests {
     fn host_libm_symbols_actually_resolve() {
         assert!(dlsym_unary(c"sqrt").is_some(), "dlsym could not resolve `sqrt`");
         assert!(dlsym_binary(c"pow").is_some(), "dlsym could not resolve `pow`");
+    }
+
+    #[test]
+    fn hypot_matches_cpython_on_the_top_binade() {
+        // Top binade (x >= 2^1023): `pow2(-1024)` must build the subnormal
+        // 2^-1024 from its bit pattern — `2f64.powi(-1024)` underflows to
+        // 0.0, giving `h / scale = 0/0 = NaN`. Pinned against CPython 3.12
+        // (same pin as temper-geometry's pad_geometry and temper-drc-rs).
+        assert_eq!(hypot(1e308, 1e308).to_bits(), 0x7FE92C80954C51F5);
+        assert!(hypot(f64::MAX, 0.0) == f64::MAX);
+        assert!(hypot(1.091009947397983e308, 0.0) == 1.091009947397983e308);
     }
 
     #[test]

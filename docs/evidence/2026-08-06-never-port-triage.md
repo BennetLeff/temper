@@ -325,6 +325,21 @@ are recommendations only.
 - `adapters/placement_adapter.py`: RETIRE — body is
   `raise NotImplementedError(...)`, nothing to port.
 
+> **Actioned 2026-08-07** (commit on `feat/rust-hardening-pyany-removal-wave3`):
+> `pipeline/topological.py` and `adapters/placement_adapter.py` were retired
+> (git rm) along with five further dead modules discovered by an AST import-graph
+> scan (zero importers): `pipeline/stages/geometric_stage.py` (the only importer
+> of `pipeline/topological.py`), `output_stage.py`, `preflight_stage.py`,
+> `semantic_stage.py`, `topological_stage.py`. Verified: 0 importers each via
+> importlib AST walk; no test, `.importlinter`, `import-linter-allowlist.yaml`,
+> `deadcode-baseline.py`, `vulture_gate.py`, or `.loc-allowlist.txt` references;
+> `import_linter_gate.py` PASSED; `import temper_placer` package import smoke
+> PASSED. `pipeline/stages/routing_stage.py` and `input_stage.py` are LIVE
+> (imported by `router_v6/congestion.py`/`register_strategies.py` and a test)
+> and were retained. The never-port verdicts above remain correct as written;
+> this addendum records that the RETIRE half of the "RETIRE or fix" verdicts
+> was the branch taken.
+
 ## 5. Surprising findings
 
 **5.1 — A third measurement trap, distinct from the task's two: the

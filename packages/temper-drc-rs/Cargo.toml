@@ -23,6 +23,9 @@ geo = { version = "0.28", features = ["use-serde"] }
 # through temper-geometry's own `python` feature that would otherwise fail the
 # wasm32-unknown-unknown link step (U3, wasm/u3-ci-guard).
 temper-geometry = { path = "../temper-geometry", optional = true, default-features = false }
+# Shared PyO3 dict extraction utilities (used from board_py_bridge).
+# Optional + gated behind `python` to keep wasm32 pyo3-free.
+temper-py-bridge = { path = "../temper-py-bridge", optional = true }
 # `thermal_relief._is_power_net` is a `re.compile(..., re.IGNORECASE)`
 # word-boundary search. Only `is_match` is used, so the automaton and
 # CPython's backtracker agree by construction (match *existence* is
@@ -42,7 +45,7 @@ thiserror = "1"
 # `[tool.maturin] features` in pyproject.toml -- default features are not
 # the mechanism that build relies on.
 default = []
-python = ["dep:pyo3", "dep:temper-geometry"]
+python = ["dep:pyo3", "dep:temper-geometry", "dep:temper-py-bridge"]
 # Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
 # and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
 # call each test function by index.  Off by default; never enabled for the
@@ -79,6 +82,7 @@ wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 panic = "unwind"
 
 [dev-dependencies]
+proptest = "1"
 
 [lints.clippy]
 unwrap_used = "deny"

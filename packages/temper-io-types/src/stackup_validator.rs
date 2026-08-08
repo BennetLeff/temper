@@ -352,7 +352,7 @@ mod python {
 
         /// `warnings` — the non-passed results, in order.
         #[getter]
-        fn warnings(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        fn warnings(&self, py: Python<'_>) -> PyResult<Py<PyList>> {
             let results = self.results.bind(py);
             let out = PyList::empty(py);
             for r in results.try_iter()? {
@@ -361,7 +361,7 @@ mod python {
                     out.append(item)?;
                 }
             }
-            Ok(out.into_any().unbind())
+            Ok(out.unbind())
         }
 
         /// `summary()` — the oracle's `[PASS]`/`[WARN]` rendering.
@@ -665,7 +665,7 @@ mod python {
         py: Python<'_>,
         routing_results: &Bound<'_, PyAny>,
         board_dims: &Bound<'_, PyAny>,
-    ) -> PyResult<Py<PyAny>> {
+    ) -> PyResult<Py<PyDict>> {
         let copper_balance =
             py.import("temper_placer.router_v6.copper_balance")?;
         let width: f64 = board_dims.get_item(0)?.extract()?;
@@ -683,7 +683,7 @@ mod python {
             let pct: f64 = item.getattr("copper_percentage")?.extract()?;
             out.set_item(name, pct)?;
         }
-        Ok(out.into_any().unbind())
+        Ok(out.unbind())
     }
 
     /// Resolve copper fill percentages: explicit truthy dict wins; else the
@@ -700,7 +700,7 @@ mod python {
             return Ok(explicit.clone().unbind());
         }
         if let (Some(rr), Some(bd)) = (routing_results, board_dims) {
-            return resolve_fill_via_routing(py, rr, bd);
+            return Ok(resolve_fill_via_routing(py, rr, bd)?.into_any());
         }
         let layers = stackup.getattr("layers")?;
         let is_4layer_fcu = layers.len()? == 4

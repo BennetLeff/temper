@@ -247,7 +247,7 @@ impl PyFootprintLibrary {
 pub fn load_footprint_library<'py>(
     py: Python<'py>,
     path: &Bound<'py, PyAny>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyFootprintLibrary>> {
     let path_str: String = path.str()?.extract()?;
     let pathlib = PyModule::import(py, "pathlib")?;
     let path_cls = pathlib.getattr("Path")?;
@@ -261,5 +261,5 @@ pub fn load_footprint_library<'py>(
     let content = path_obj.call_method0("read_text")?;
     let content: String = content.extract()?;
     let lib = PyFootprintLibrary::from_yaml_string(py, &content)?;
-    Ok(Py::new(py, lib)?.into_any())
+    Py::new(py, lib)
 }

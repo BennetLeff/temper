@@ -300,7 +300,7 @@ fn closest_component_for_zone(
     half_w: f64,
     half_h: f64,
 ) -> Option<String> {
-    let mut best: Option<(String, f64)> = None;
+    let mut best: Option<(&str, f64)> = None;
     for (ref_, px, py) in positions {
         let in_bounds = (zx - half_w) <= *px && *px <= (zx + half_w)
             && (zy - half_h) <= *py && *py <= (zy + half_h);
@@ -308,13 +308,13 @@ fn closest_component_for_zone(
             continue;
         }
         let key = math_pow(*px - zx, 2.0) + math_pow(*py - zy, 2.0);
-        match &best {
-            None => best = Some((ref_.clone(), key)),
-            Some((_, best_key)) if key < *best_key => best = Some((ref_.clone(), key)),
+        match best {
+            None => best = Some((ref_.as_str(), key)),
+            Some((_, best_key)) if key < best_key => best = Some((ref_.as_str(), key)),
             _ => {}
         }
     }
-    best.map(|(r, _)| r)
+    best.map(|(r, _)| r.to_string())
 }
 
 // ---------------------------------------------------------------------------
@@ -678,5 +678,103 @@ mod tests {
             None
         );
         assert_eq!(closest_component_for_zone(&[], 0.0, 0.0, 1.0, 1.0), None);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Property-based tests (proptest)
+// ---------------------------------------------------------------------------
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    /// Small net ids (1..99) — keep them in i32 range but away from
+    /// conflict sentinels like -1, 0.
+    fn net_id() -> impl Strategy<Value = i32> {
+        1i32..99
+    }
+
+    proptest! {
+        // -----------------------------------------------------------------
+        // merge_cell
+        // -----------------------------------------------------------------
+
+        /// P1. merge_cell(0, n) returns n (free cell accepts first occupant).
+        #[test]
+        fn p1_merge_cell_free_accepts(n in net_id()) {
+            prop_assert_eq!(merge_cell(0, n), n);
+        }
+
+        /// P2. merge_cell(n, n) returns n (same net = no change).
+        #[test]
+        fn p2_merge_cell_same_net_idempotent(n in net_id()) {
+            prop_assert_eq!(merge_cell(n, n), n);
+        }
+
+        /// P3. merge_cell(a, b) returns -1 when a > 0 and a != b (conflict).
+        #[test]
+        fn p3_merge_cell_different_positive_nets_conflict(
+            a in net_id(), b in net_id(),
+        ) {
+            prop_assume!(a != b);
+            prop_assert_eq!(merge_cell(a, b), -1);
+        }
+
+        /// P4. merge_cell(-1, anything) stays -1 (already a conflict).
+        #[test]
+        fn p4_merge_cell_conflict_is_sticky(n in net_id()) {
+            prop_assert_eq!(merge_cell(-1, n), -1);
+        }
+
+        // -----------------------------------------------------------------
+        // effective_creepage
+        // -----------------------------------------------------------------
+
+        /// P5. Outer layers carry the full base creepage unchanged.
+        #[test]
+        fn p5_effective_creepage_outer_is_identity(base in 0.0f64..100.0) {
+            prop_assert_eq!(effective_creepage(true, base), base);
+        }
+
+        /// P6. Inner layers carry base * 0.30.
+        #[test]
+        fn p6_effective_creepage_inner_is_scaled(base in 0.0f64..100.0) {
+            prop_assert_eq!(effective_creepage(false, base), base * 0.30);
+        }
+
+        // -----------------------------------------------------------------
+        // closest_component_for_zone
+        // -----------------------------------------------------------------
+
+        /// P7. When positions are empty, result is always None.
+        #[test]
+        fn p7_closest_component_empty_returns_none(
+            zx in -10.0f64..10.0, zy in -10.0f64..10.0,
+            hw in 1.0f64..10.0, hh in 1.0f64..10.0,
+        ) {
+            prop_assert_eq!(closest_component_for_zone(&[], zx, zy, hw, hh), None);
+        }
+
+        /// P8. When the result is Some, it equals one of the input refs.
+        #[test]
+        fn p8_closest_component_result_is_an_input_ref(
+            refs in prop::collection::vec("[A-Z][a-z]?", 1..=8),
+            xs in prop::collection::vec(-10.0f64..10.0, 1..=8),
+            ys in prop::collection::vec(-10.0f64..10.0, 1..=8),
+            zx in 0.0f64..2.0,
+            zy in 0.0f64..2.0,
+        ) {
+            // All generated positions are within [-10,10]; use a zone that
+            // covers the whole area to guarantee at least one is in-bounds.
+            let n = refs.len().min(xs.len()).min(ys.len());
+            let positions: Vec<(String, f64, f64)> = (0..n)
+                .map(|i| (refs[i].clone(), xs[i], ys[i]))
+                .collect();
+            if let Some(result) = closest_component_for_zone(&positions, zx, zy, 20.0, 20.0) {
+                let matches = positions.iter().any(|(r, _, _)| *r == result);
+                prop_assert!(matches, "result '{result}' not in inputs");
+            }
+        }
     }
 }

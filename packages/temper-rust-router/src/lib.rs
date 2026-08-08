@@ -42,7 +42,7 @@ fn solve_topology_rust(
     net_names: Vec<String>,
     conflict_limit: Option<u32>,
     time_limit_ms: Option<u64>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     // Diagnostic phase timing, enabled by TEMPER_REWRITE_TRACE (same env
     // var the rewrite engine's own instrumentation uses -- see
     // docs/evidence/2026-07-27-stage3-model-and-rewrite.md). Off by
@@ -206,7 +206,7 @@ fn audit_result(
     constraints: &Bound<'_, PyList>,
     assignments: &Bound<'_, PyDict>,
     _net_names: Vec<String>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyList>> {
     let py_vars: Vec<Py<PyAny>> = variables.iter().map(|v| v.into()).collect();
     let py_cons: Vec<Py<PyAny>> = constraints.iter().map(|c| c.into()).collect();
 

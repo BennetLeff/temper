@@ -217,7 +217,7 @@ fn geometric_validate(
     overlap_threshold: f64,
     min_clearance: f64,
     hv_lv_clearance: f64,
-) -> PyResult<(Py<PyAny>, Py<PyAny>)> {
+) -> PyResult<(Py<PyList>, Py<PyDict>)> {
     let n = positions.len();
     let findings = PyList::empty(py);
 
@@ -374,7 +374,7 @@ fn geometric_validate(
     metrics.set_item("boundary_violations", boundary_count)?;
     metrics.set_item("keepout_violations", keepout_count)?;
 
-    Ok((findings.into(), metrics.into()))
+    Ok((findings.unbind(), metrics.unbind()))
 }
 
 // ---------------------------------------------------------------------------
@@ -750,7 +750,7 @@ type CheckResultSummary = (String, Py<PyAny>, Vec<String>, Vec<(String, Py<PyAny
 fn metrics_summary(
     py: Python<'_>,
     check_results: Vec<CheckResultSummary>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     let mut checks_run: Vec<String> = Vec::new();
     let mut timings: Vec<(String, Py<PyAny>)> = Vec::new();
     let mut erc: i64 = 0;
@@ -809,7 +809,7 @@ fn metrics_summary(
     d.set_item("safety_issues", safety)?;
     d.set_item("emc_issues", emc)?;
     d.set_item("custom_metrics", custom_dict)?;
-    Ok(d.into())
+    Ok(d.unbind())
 }
 
 /// Register the validation kernels on the `temper_drc_rs` module.

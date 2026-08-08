@@ -1,7 +1,6 @@
 """Tests for core.state module."""
 
 import numpy as np
-import pytest
 from scipy.special import softmax as _softmax
 
 from temper_placer.core.state import (
@@ -33,50 +32,6 @@ class TestPlacementState:
 
         assert state.rotation_logits.shape == (1, 4)
         assert np.allclose(state.rotation_logits, logits)
-
-    @pytest.mark.skip(reason="PlacementState.random_init retired (JAX)")
-    def test_random_init(self, rng_key):
-        """Test random initialization."""
-        state = PlacementState.random_init(
-            n_components=10,
-            board_width=100.0,
-            board_height=150.0,
-            key=rng_key,
-            margin=10.0,
-        )
-
-        assert state.n_components == 10
-        assert state.positions.shape == (10, 2)
-
-        # All positions should be within margins
-        assert np.all(state.positions[:, 0] >= 10.0)
-        assert np.all(state.positions[:, 0] <= 90.0)
-        assert np.all(state.positions[:, 1] >= 10.0)
-        assert np.all(state.positions[:, 1] <= 140.0)
-
-    @pytest.mark.skip(reason="PlacementState.random_init retired (JAX)")
-    def test_get_rotations(self, rng_key):
-        """Test Gumbel-Softmax rotation sampling."""
-        state = PlacementState.random_init(5, 100.0, 100.0, rng_key)
-        rotations = state.get_rotations(temperature=1.0, key=rng_key)
-
-        assert rotations.shape == (5, 4)
-        # Each row should sum to approximately 1 (soft one-hot)
-        row_sums = np.sum(rotations, axis=1)
-        assert np.allclose(row_sums, np.ones(5), atol=1e-5)
-
-    @pytest.mark.skip(reason="PlacementState.random_init retired (JAX)")
-    def test_get_rotation_angles(self, rng_key):
-        """Test getting rotation angles in radians."""
-        state = PlacementState.random_init(5, 100.0, 100.0, rng_key)
-        angles = state.get_rotation_angles(temperature=0.1, key=rng_key)
-
-        assert angles.shape == (5,)
-        # Angles should be approximately one of [0, π/2, π, 3π/2]
-        valid_angles = np.array([0.0, np.pi / 2, np.pi, 3 * np.pi / 2])
-        for angle in angles:
-            diffs = np.abs(valid_angles - angle)
-            assert np.min(diffs) < 0.5  # Allow some deviation at low temp
 
     def test_to_discrete(self, rng_key):  # noqa: ARG002 (consumed by pytest fixture)
         """Test conversion to discrete placement."""

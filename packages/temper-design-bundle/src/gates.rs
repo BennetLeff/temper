@@ -563,6 +563,18 @@ impl GateResult {
 /// Every field is an opaque payload held as the exact Python object
 /// (`Py<PyAny>`), so `bs.board is board` identity holds and gates can
 /// inspect the payload objects directly.
+///
+/// Wave A1 of the PyAny removal plan (`docs/evidence/2026-08-06-pyany-surface-audit-2.md`)
+/// proposed tightening `netlist`/`board`/`design_rules` to
+/// `Py<Netlist>`/`Py<Board>`/`Py<DesignRules>`. That is **not** removable:
+/// the pinned gate-contract tests (`tests/placer/cp_sat/test_gate_contract.py::
+/// TestBoardState::test_all_fields_populated` and the wave-2 differential
+/// `test_gates_rust_differential.py::test_board_state_populated_identical`)
+/// push bare `object()` payloads into these fields and assert identity
+/// (`bs.netlist is fake_netlist`), which a typed constructor would reject.
+/// The fields therefore stay `Py<PyAny>` (INTENTIONAL — arbitrary-payload
+/// identity preservation), and a typed storage that transmutes `object()`
+/// into a `Py<Netlist>` would be a type lie (UB on any Rust-side downcast).
 #[pyclass(frozen)]
 pub struct BoardState {
     #[pyo3(get)]

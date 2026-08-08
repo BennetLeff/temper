@@ -56,21 +56,23 @@ pub fn smooth_max(a: f64, b: f64, alpha: f64) -> f64 {
 /// When alpha is low, the result is influenced by all elements.
 /// When alpha is high, the result is dominated by the maximum element.
 pub fn smooth_max_axis(arr: &[f64], alpha: f64) -> f64 {
-    smooth_max_axis_vals(arr.iter().copied(), alpha)
+    smooth_max_axis_vals(arr, alpha)
 }
 
-/// Iterator-based smooth max; `arr` is consumed (and cloned for the two-pass
-/// softmax) so callers can map over borrowed data without allocating.
-fn smooth_max_axis_vals<I: Iterator<Item = f64> + Clone>(arr: I, alpha: f64) -> f64 {
-    let max_val = arr.clone().fold(f64::NEG_INFINITY, f64::max);
+/// Two-pass smooth max over a slice: first pass finds max, second pass
+/// computes the LogSumExp.
+fn smooth_max_axis_vals(arr: &[f64], alpha: f64) -> f64 {
+    let max_val = arr.iter().copied().fold(f64::NEG_INFINITY, f64::max);
     if max_val.is_infinite() {
         return max_val;
     }
-    let sum_exp: f64 = arr.map(|v| (alpha * (v - max_val)).exp()).sum();
+    let sum_exp: f64 = arr.iter().map(|&v| (alpha * (v - max_val)).exp()).sum();
     max_val + sum_exp.ln() / alpha
 }
 
 /// Element-wise smooth max between two slices.
+///
+/// # Panics
 ///
 /// Panics if the slices have different lengths.
 pub fn smooth_max_pair(a: &[f64], b: &[f64], alpha: f64) -> Vec<f64> {
@@ -104,22 +106,23 @@ pub fn smooth_min(a: f64, b: f64, alpha: f64) -> f64 {
 ///
 /// This is always <= `min(arr)`, with equality as `alpha → ∞`.
 pub fn smooth_min_axis(arr: &[f64], alpha: f64) -> f64 {
-    smooth_min_axis_vals(arr.iter().copied(), alpha)
+    smooth_min_axis_vals(arr, alpha)
 }
 
-/// Iterator-based smooth min; see `smooth_max_axis_vals`.
-fn smooth_min_axis_vals<I: Iterator<Item = f64> + Clone>(arr: I, alpha: f64) -> f64 {
-    let min_val = arr.clone().fold(f64::INFINITY, f64::min);
+/// Two-pass smooth min over a slice: first pass finds min, second pass
+/// computes the LogSumExp.
+fn smooth_min_axis_vals(arr: &[f64], alpha: f64) -> f64 {
+    let min_val = arr.iter().copied().fold(f64::INFINITY, f64::min);
     if min_val.is_infinite() {
         return min_val;
     }
-    let sum_exp: f64 = arr
-        .map(|v| (-alpha * (v - min_val)).exp())
-        .sum();
+    let sum_exp: f64 = arr.iter().map(|&v| (-alpha * (v - min_val)).exp()).sum();
     min_val - sum_exp.ln() / alpha
 }
 
 /// Element-wise smooth min between two slices.
+///
+/// # Panics
 ///
 /// Panics if the slices have different lengths.
 pub fn smooth_min_pair(a: &[f64], b: &[f64], alpha: f64) -> Vec<f64> {
@@ -276,6 +279,8 @@ pub fn hpwl_smooth(points: &[(f64, f64)], alpha: f64) -> f64 {
 ///
 /// Useful for differentiable selection among discrete options.
 ///
+/// # Panics
+///
 /// Panics if the slices have different lengths.
 pub fn weighted_average_smooth(values: &[f64], weights: &[f64], alpha: f64) -> f64 {
     assert_eq!(
@@ -286,7 +291,7 @@ pub fn weighted_average_smooth(values: &[f64], weights: &[f64], alpha: f64) -> f
     if values.is_empty() {
         return f64::NAN;
     }
-    let max_weight = weights.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+    let max_weight = weights.iter().copied().fold(f64::NEG_INFINITY, f64::max);
     let sum_exp: f64 = weights
         .iter()
         .map(|w| ((w - max_weight) / alpha).exp())
@@ -940,5 +945,226 @@ mod tests {
             (result - expected).abs() < EPS,
             "smooth_max_axis should match logsumexp/alpha: {result} vs {expected}"
         );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Property-based tests (proptest)
+// ---------------------------------------------------------------------------
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    /// Reasonable f64 range for smooth function inputs — avoids NaN/inf
+    /// unless a test explicitly needs those semantics.
+    fn val() -> impl Strategy<Value = f64> {
+        -1e6f64..1e6f64
+    }
+
+    /// Positive alpha values (including edge cases near zero).
+    fn alpha() -> impl Strategy<Value = f64> {
+        (0.001f64..1000.0f64).prop_map(|x| x)
+    }
+
+    /// Small vec of at most 8 reals, non-empty.
+    fn small_vec() -> impl Strategy<Value = Vec<f64>> {
+        prop::collection::vec(val(), 1..=8)
+    }
+
+    /// Small vec of at most 8 points, non-empty.
+    fn small_points() -> impl Strategy<Value = Vec<(f64, f64)>> {
+        prop::collection::vec((val(), val()), 1..=8)
+    }
+
+    proptest! {
+        // -----------------------------------------------------------------
+        // smooth_max
+        // -----------------------------------------------------------------
+
+        /// P1. smooth_max is always >= the true maximum (it overestimates due
+        /// to the LogSumExp contribution from the non-maximal argument).
+        #[test]
+        fn p1_smooth_max_ge_max(a in val(), b in val(), alpha in alpha()) {
+            let s = smooth_max(a, b, alpha);
+            prop_assert!(s >= a.max(b), "smooth_max({a},{b},{alpha})={s} < max={}", a.max(b));
+        }
+
+        /// P2. smooth_max is symmetric in its two arguments (bit-exact).
+        #[test]
+        fn p2_smooth_max_symmetric(a in val(), b in val(), alpha in alpha()) {
+            prop_assert_eq!(smooth_max(a, b, alpha), smooth_max(b, a, alpha));
+        }
+
+        /// P3. smooth_max is monotonic in alpha: increasing alpha brings the
+        /// approximation closer to the true maximum, so the overestimate
+        /// shrinks (never grows).
+        #[test]
+        fn p3_smooth_max_monotonic_in_alpha(
+            a in val(), b in val(),
+            alpha1 in alpha(),
+            alpha2 in alpha(),
+        ) {
+            // Generate ordered pairs directly (not via prop_assume): a
+            // ~50% rejection rate trips proptest's global-reject limit
+            // (1024) before enough cases accumulate at high PROPTEST_CASES.
+            let (alpha1, alpha2) = if alpha1 < alpha2 { (alpha1, alpha2) } else { (alpha2, alpha1) };
+            let s1 = smooth_max(a, b, alpha1);
+            let s2 = smooth_max(a, b, alpha2);
+            let m = a.max(b);
+            prop_assert!(s1 >= s2, "{s1} < {s2} for alpha {alpha1} < {alpha2}");
+            prop_assert!(s2 >= m, "{s2} < {m}");
+        }
+
+        // -----------------------------------------------------------------
+        // smooth_min
+        // -----------------------------------------------------------------
+
+        /// P4. smooth_min is always <= the true minimum.
+        #[test]
+        fn p4_smooth_min_le_min(a in val(), b in val(), alpha in alpha()) {
+            let s = smooth_min(a, b, alpha);
+            prop_assert!(s <= a.min(b), "smooth_min({a},{b},{alpha})={s} > min={}", a.min(b));
+        }
+
+        /// P5. smooth_min is symmetric (bit-exact).
+        #[test]
+        fn p5_smooth_min_symmetric(a in val(), b in val(), alpha in alpha()) {
+            prop_assert_eq!(smooth_min(a, b, alpha), smooth_min(b, a, alpha));
+        }
+
+        /// P6. smooth_min(a,b,alpha) == -smooth_max(-a,-b,alpha) — the
+        /// identity the implementation is built on.
+        #[test]
+        fn p6_smooth_min_via_max_identity(a in val(), b in val(), alpha in alpha()) {
+            let direct = smooth_min(a, b, alpha);
+            let via_max = -smooth_max(-a, -b, alpha);
+            prop_assert_eq!(direct, via_max);
+        }
+
+        // -----------------------------------------------------------------
+        // smooth_abs
+        // -----------------------------------------------------------------
+
+        /// P7. smooth_abs is symmetric: abs(-x) == abs(x).
+        #[test]
+        fn p7_smooth_abs_symmetric(x in val(), alpha in alpha()) {
+            prop_assert_eq!(smooth_abs(x, alpha), smooth_abs(-x, alpha));
+        }
+
+        /// P8. smooth_abs is never negative.
+        #[test]
+        fn p8_smooth_abs_non_negative(x in val(), alpha in alpha()) {
+            prop_assert!(smooth_abs(x, alpha) >= 0.0);
+        }
+
+        // -----------------------------------------------------------------
+        // smooth_step
+        // -----------------------------------------------------------------
+
+        /// P9. smooth_step output is always in [0, 1].
+        #[test]
+        fn p9_smooth_step_output_in_01(x in val(), alpha in alpha()) {
+            let s = smooth_step(x, alpha);
+            prop_assert!((0.0..=1.0).contains(&s), "smooth_step({x},{alpha})={s} not in [0,1]");
+        }
+
+        // -----------------------------------------------------------------
+        // smooth_max_axis / smooth_min_axis
+        // -----------------------------------------------------------------
+
+        /// P10. smooth_max_axis is never below the true maximum of the slice.
+        #[test]
+        fn p10_smooth_max_axis_ge_max(arr in small_vec(), alpha in alpha()) {
+            let true_max = arr.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+            let s = smooth_max_axis(&arr, alpha);
+            prop_assert!(s >= true_max, "smooth_max_axis={s} < max={true_max}");
+        }
+
+        /// P11. smooth_min_axis is never above the true minimum of the slice.
+        #[test]
+        fn p11_smooth_min_axis_le_min(arr in small_vec(), alpha in alpha()) {
+            let true_min = arr.iter().copied().fold(f64::INFINITY, f64::min);
+            let s = smooth_min_axis(&arr, alpha);
+            prop_assert!(s <= true_min, "smooth_min_axis={s} > min={true_min}");
+        }
+
+        // -----------------------------------------------------------------
+        // hpwl_smooth
+        // -----------------------------------------------------------------
+
+        /// P12. hpwl_smooth >= true HPWL (it overestimates).
+        #[test]
+        fn p12_hpwl_smooth_ge_true_hpwl(pts in small_points(), alpha in alpha()) {
+            let xs: Vec<f64> = pts.iter().map(|(x, _)| *x).collect();
+            let ys: Vec<f64> = pts.iter().map(|(_, y)| *y).collect();
+            let true_max_x = xs.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+            let true_min_x = xs.iter().copied().fold(f64::INFINITY, f64::min);
+            let true_max_y = ys.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+            let true_min_y = ys.iter().copied().fold(f64::INFINITY, f64::min);
+            let true_hpwl = (true_max_x - true_min_x) + (true_max_y - true_min_y);
+            let s = hpwl_smooth(&pts, alpha);
+            prop_assert!(s >= true_hpwl - 1e-9,
+                "hpwl_smooth={s} < true_hpwl={true_hpwl}");
+        }
+
+        // -----------------------------------------------------------------
+        // weighted_average_smooth
+        // -----------------------------------------------------------------
+
+        /// P13. weighted_average_smooth result lies in [min(values), max(values)]
+        /// when all weights are non-negative.
+        #[test]
+        fn p13_weighted_average_bounded_by_extrema(
+            values in small_vec(),
+            alpha in alpha(),
+        ) {
+            // Use values as their own weights (all non-negative) to test
+            // that the result is a convex combination.
+            let result = weighted_average_smooth(&values, &values, alpha);
+            let lo = values.iter().copied().fold(f64::INFINITY, f64::min);
+            let hi = values.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+            prop_assert!(result >= lo - 1e-9,
+                "weighted_average_smooth={result} < min={lo}");
+            prop_assert!(result <= hi + 1e-9,
+                "weighted_average_smooth={result} > max={hi}");
+        }
+
+        // -----------------------------------------------------------------
+        // get_alpha_schedule
+        // -----------------------------------------------------------------
+
+        /// P14. First element equals start_alpha, last equals end_alpha
+        /// (for epochs > 1).
+        #[test]
+        fn p14_alpha_schedule_endpoints(
+            start in 0.1f64..100.0,
+            end in 0.1f64..100.0,
+            epochs in 2usize..20,
+        ) {
+            let schedule = get_alpha_schedule(start, end, epochs);
+            prop_assert_eq!(schedule.len(), epochs);
+            prop_assert!((schedule[0] - start).abs() < 1e-12,
+                "first={} != start={start}", schedule[0]);
+            prop_assert!((schedule[epochs - 1] - end).abs() < 1e-12,
+                "last={} != end={end}", schedule[epochs - 1]);
+        }
+
+        /// P15. The schedule is monotonic (non-decreasing when start <= end).
+        #[test]
+        fn p15_alpha_schedule_monotonic(
+            start in 0.1f64..100.0,
+            end in 0.1f64..100.0,
+            epochs in 2usize..20,
+        ) {
+            // Order directly; the 50% rejection rate of prop_assume!(start <= end)
+            // trips the global-reject limit at high PROPTEST_CASES.
+            let (start, end) = if start <= end { (start, end) } else { (end, start) };
+            let schedule = get_alpha_schedule(start, end, epochs);
+            for w in schedule.windows(2) {
+                prop_assert!(w[1] >= w[0],
+                    "schedule not monotonic: {} > {}", w[0], w[1]);
+            }
+        }
     }
 }

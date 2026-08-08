@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 use pyo3::Py;
+use temper_py_bridge::{extract_f64, extract_opt_str, extract_str, extract_str_list};
 
 use crate::desugar_tier0::compile_tier0_to_tier1;
 use crate::desugar_tier1::compile_tier1_to_tier2;
@@ -37,48 +38,6 @@ impl ComponentResolver for HashMapResolver {
 impl ZoneResolver for HashMapResolver {
     fn resolve(&self, zone_name: &str) -> Option<Rect> {
         self.zone_map.get(zone_name).copied()
-    }
-}
-
-fn extract_str(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<String> {
-    dict.get_item(key)?
-        .ok_or_else(|| {
-            PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("missing key: {key}"))
-        })?
-        .extract()
-}
-
-fn extract_opt_str(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<String>> {
-    match dict.get_item(key)? {
-        Some(val) if !val.is_none() => Ok(Some(val.extract()?)),
-        _ => Ok(None),
-    }
-}
-
-fn extract_f64(dict: &Bound<'_, PyDict>, key: &str, default: f64) -> PyResult<f64> {
-    match dict.get_item(key)? {
-        Some(val) => {
-            if val.is_none() {
-                Ok(default)
-            } else {
-                val.extract()
-            }
-        }
-        None => Ok(default),
-    }
-}
-
-fn extract_str_list(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Vec<String>> {
-    match dict.get_item(key)? {
-        Some(val) if !val.is_none() => {
-            let list: Bound<'_, PyList> = val.cast_into::<PyList>()?;
-            let mut result = Vec::new();
-            for item in list {
-                result.push(item.extract::<String>()?);
-            }
-            Ok(result)
-        }
-        _ => Ok(Vec::new()),
     }
 }
 
@@ -305,7 +264,7 @@ pub fn build_channel_topology_from_py(
 pub fn internal_constraint_to_py_dict(
     py: Python<'_>,
     constraint: &temper_rust_router_core::types::InternalConstraint,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     let d = PyDict::new(py);
     match constraint {
         temper_rust_router_core::types::InternalConstraint::Capacity {
@@ -358,17 +317,17 @@ pub fn internal_constraint_to_py_dict(
             d.set_item("channel_id", channel_id)?;
         }
     }
-    Ok(d.into())
+    Ok(d.unbind())
 }
 
-pub fn diagnostic_to_py_dict(py: Python<'_>, diag: &crate::provenance::ProvenanceDiagnostic) -> PyResult<Py<PyAny>> {
+pub fn diagnostic_to_py_dict(py: Python<'_>, diag: &crate::provenance::ProvenanceDiagnostic) -> PyResult<Py<PyDict>> {
     let d = PyDict::new(py);
     d.set_item("pcl_constraint_id", &diag.pcl_constraint_id)?;
     d.set_item("tier", format!("{}", diag.tier))?;
     d.set_item("rationale", &diag.rationale)?;
     d.set_item("conflict_with", diag.conflict_with.clone())?;
     d.set_item("clause_indices", diag.clause_indices.clone())?;
-    Ok(d.into())
+    Ok(d.unbind())
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -383,7 +342,7 @@ pub fn run_full_pipeline(
     _existing_vars: &Bound<'_, PyList>,
     _existing_cons: &Bound<'_, PyList>,
     _net_names: Vec<String>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyDict>> {
     let mut warnings: Vec<String> = Vec::new();
 
     let pcl_constraints = build_pcl_constraints_from_py(pcl_dicts)?;
@@ -445,14 +404,14 @@ pub fn run_full_pipeline(
         })?;
 
     let conflicts = detect_conflicts(&tier1_model.constraints);
-    let conflict_dicts: Vec<Py<PyAny>> = conflicts
+    let conflict_dicts: Vec<Py<PyDict>> = conflicts
         .iter()
         .map(|c| {
             let d = PyDict::new(py);
             d.set_item("pcl_constraint_ids", c.pcl_constraint_ids.clone())?;
             d.set_item("description", &c.description)?;
             d.set_item("tier", format!("{}", c.tier))?;
-            Ok(d.into())
+            Ok(d.unbind())
         })
         .collect::<PyResult<Vec<_>>>()?;
 
@@ -461,7 +420,7 @@ pub fn run_full_pipeline(
             PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Tier 1→2 error: {e}"))
         })?;
 
-    let constraint_dicts: Vec<Py<PyAny>> = tier2_constraints
+    let constraint_dicts: Vec<Py<PyDict>> = tier2_constraints
         .iter()
         .map(|c| internal_constraint_to_py_dict(py, c))
         .collect::<Result<Vec<_>, _>>()?;
@@ -472,5 +431,5 @@ pub fn run_full_pipeline(
     result.set_item("conflicts", conflict_dicts)?;
     result.set_item("num_lowered", tier2_constraints.len())?;
 
-    Ok(result.into())
+    Ok(result.unbind())
 }

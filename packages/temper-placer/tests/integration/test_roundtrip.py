@@ -17,14 +17,9 @@ from pathlib import Path
 
 import pytest
 
-# Skip all tests if JAX not available
-jax = pytest.importorskip("jax")
-
-from temper_placer.core.state import PlacementState  # noqa: E402
 from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb  # noqa: E402
 from temper_placer.io.kicad_writer import (  # noqa: E402
     PlacementUpdate,
-    export_placements,
     write_placements_to_pcb,
 )
 
@@ -105,55 +100,6 @@ class TestPositionRoundtrip:
         finally:
             if temp_path.exists():
                 temp_path.unlink()
-
-    @pytest.mark.skipif(not MINIMAL_PCB.exists(), reason="Minimal PCB fixture not found")
-    def test_state_export_roundtrip(self):
-        """PlacementState export should produce parseable results."""
-        original_result = parse_kicad_pcb(MINIMAL_PCB)
-        netlist = original_result.netlist
-        assert original_result.board is not None, "Original parse has no board"
-        board = original_result.board
-
-        # Create a random placement state
-        n = netlist.n_components
-        key = jax.random.PRNGKey(42)
-        state = PlacementState.random_init(
-            n_components=n,
-            board_width=board.width,
-            board_height=board.height,
-            key=key,
-        )
-
-        # Get component refs in order
-        component_refs = [c.ref for c in netlist.components]
-
-        with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", delete=False) as f:
-            temp_path = Path(f.name)
-
-        try:
-            # Export using high-level function
-            result = export_placements(
-                template_pcb=MINIMAL_PCB,
-                output_pcb=temp_path,
-                state=state,
-                component_refs=component_refs,
-                origin=board.origin,
-            )
-
-            assert result.components_updated == n, (
-                f"Expected {n} components updated, got {result.components_updated}"
-            )
-
-            # Re-parse should succeed
-            reparsed = parse_kicad_pcb(temp_path)
-            assert reparsed.netlist.n_components == n
-        finally:
-            if temp_path.exists():
-                temp_path.unlink()
-
-
-class TestRotationRoundtrip:
-    """Tests for rotation preservation through roundtrip."""
 
     @pytest.mark.skipif(not MINIMAL_PCB.exists(), reason="Minimal PCB fixture not found")
     def test_rotation_0_roundtrip(self):

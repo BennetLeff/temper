@@ -7,7 +7,7 @@
 
 use pyo3::exceptions::{PyOverflowError, PyTypeError, PyValueError, PyZeroDivisionError};
 use pyo3::prelude::*;
-use pyo3::types::{PyBool, PyFloat, PyInt, PyList, PyTuple, PyType};
+use pyo3::types::{PyBool, PyDict, PyFloat, PyInt, PyList, PyTuple, PyType};
 use std::panic::AssertUnwindSafe;
 
 use super::adjacency;
@@ -60,7 +60,7 @@ fn unhashable(type_name: &str) -> PyErr {
 /// an infinity and `ValueError` on a NaN, with the interpreter's own
 /// message text. Values outside `i64` are handed back to CPython so the
 /// arbitrary-precision result is exact rather than saturated.
-fn py_int_from_f64(py: Python<'_>, value: f64) -> PyResult<Py<PyAny>> {
+fn py_int_from_f64(py: Python<'_>, value: f64) -> PyResult<Py<PyInt>> {
     if value.is_nan() {
         return Err(PyValueError::new_err("cannot convert float NaN to integer"));
     }
@@ -71,13 +71,17 @@ fn py_int_from_f64(py: Python<'_>, value: f64) -> PyResult<Py<PyAny>> {
     }
     let truncated = value.trunc();
     if truncated >= -(2f64.powi(63)) && truncated < 2f64.powi(63) {
-        return Ok((truncated as i64).into_pyobject(py)?.into_any().unbind());
+        return Ok((truncated as i64).into_pyobject(py)?.unbind());
     }
     // |x| >= 2^63: every such f64 is already an integer, but it does not
     // fit i64. CPython's own float.__int__ is exact, so defer to it
     // instead of approximating.
     let as_float = PyFloat::new(py, truncated);
-    Ok(as_float.call_method0("__int__")?.unbind())
+    Ok(as_float
+        .call_method0("__int__")?
+        .cast::<PyInt>()?
+        .clone()
+        .unbind())
 }
 
 // ---------------------------------------------------------------------------
@@ -400,7 +404,7 @@ pub fn mm_to_cell(
     py: Python<'_>,
     mm: &Bound<'_, PyAny>,
     cell_size_mm: &Bound<'_, PyAny>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<PyInt>> {
     let divisor: f64 = cell_size_mm.extract()?;
     if divisor == 0.0 {
         let both_int = mm.is_instance_of::<PyInt>() && cell_size_mm.is_instance_of::<PyInt>();
@@ -645,12 +649,12 @@ impl PyFabPreset {
 }
 
 #[pyfunction]
-pub fn get_fab_presets(py: Python<'_>) -> PyResult<Py<PyAny>> {
-    let dict = pyo3::types::PyDict::new(py);
+pub fn get_fab_presets(py: Python<'_>) -> PyResult<Py<PyDict>> {
+    let dict = PyDict::new(py);
     dict.set_item("jlcpcb_standard", PyFabPreset::jlcpcb_standard())?;
     dict.set_item("jlcpcb_hdi", PyFabPreset::jlcpcb_hdi())?;
     dict.set_item("oshpark", PyFabPreset::oshpark())?;
-    Ok(dict.into_any().unbind())
+    Ok(dict.unbind())
 }
 
 // ---------------------------------------------------------------------------
