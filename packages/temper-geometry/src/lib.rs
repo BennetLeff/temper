@@ -152,6 +152,12 @@ pub mod channel_skeleton;
 pub mod radius_pairs;
 #[cfg(feature = "python")]
 pub use radius_pairs::radius_pairs_transform;
+// router_v6/constraints_spatial_index.py's PCBGeometry: a persistent
+// rstar R*-tree handle (build once per rebuild_index() batch, query many
+// times via query_ball_point), replacing the per-kind scipy.spatial.cKDTree
+// instances that call site built. Different contract from radius_pairs.rs
+// above (one-shot batch all-pairs) -- see this module's own doc comment.
+pub mod persistent_radius_index;
 #[cfg(feature = "python")]
 pub use drc_constraints_geometry::{
     drc_closest_points_segment_segment_py, drc_point_to_circle_distance_py,
@@ -181,5 +187,6 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::zone_pour::register(m)?;
     crate::channel_skeleton::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
+    m.add_class::<crate::persistent_radius_index::RadiusIndex>()?;
     Ok(())
 }

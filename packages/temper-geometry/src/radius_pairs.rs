@@ -82,9 +82,15 @@ use rstar::{PointDistance, RTree, RTreeObject, AABB};
 /// directly) because coincident points are possible (two skeleton nodes at
 /// the same position) and the caller's contract is index pairs, not point
 /// pairs -- a bare-point tree could not tell two coincident points apart.
-struct IndexedPoint {
-    xy: [f64; 2],
-    idx: u32,
+///
+/// `pub(crate)`: reused by `persistent_radius_index.rs`, which needs the
+/// identical index-carrying-point representation for its own `RTree` (a
+/// standing index built once and queried many times, vs. this module's
+/// one-shot all-pairs batch) -- see that module's doc comment for why the
+/// two are a different contract despite sharing this point type.
+pub(crate) struct IndexedPoint {
+    pub(crate) xy: [f64; 2],
+    pub(crate) idx: u32,
 }
 
 impl RTreeObject for IndexedPoint {
