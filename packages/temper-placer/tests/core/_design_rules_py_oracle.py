@@ -430,6 +430,7 @@ TEMPER_NET_CLASSES = {
         via_diameter=1.0,
         via_drill=0.5,
         via_template="Via3x3",
+        routing_strategy="plane_preferred",
         dru_priority=60,
         required_layer=None,
         safety_category="LV",

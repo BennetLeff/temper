@@ -142,6 +142,18 @@ TEMPER_NET_CLASSES = {
         required_layer="F.Cu",
         safety_category="LV",
     ),
+    # routing_strategy="plane_preferred" added per R3 of
+    # docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md: this field
+    # was previously left at its Python default (None), silently
+    # disagreeing with packages/temper-placer/configs/temper_constraints.yaml
+    # (GND, lines ~315-323: "routing_strategy: plane_preferred") and with
+    # docs/evidence/2026-07-28-pour-strategy-audit.md's Task 1 verdict for
+    # PWR_RTN specifically (KEEP the copper -- never DELETE). GND lost its
+    # pour by accident, not by decision, when _zone_layers_for_net() was
+    # fixed to read this field instead of a hardcoded 5-class list -- this
+    # field never declared what the config file already said. See R3-R5 of
+    # the plan above; _zone_layers_for_net (_zone_pour_stitch.py) is the
+    # paired fix that makes the eligibility check recognize this tier.
     "GND": NetClassRules(
         name="GND",
         trace_width=1.0,
@@ -149,6 +161,7 @@ TEMPER_NET_CLASSES = {
         via_diameter=1.0,
         via_drill=0.5,
         via_template="Via3x3",
+        routing_strategy="plane_preferred",
         dru_priority=60,
         required_layer=None,
         safety_category="LV",

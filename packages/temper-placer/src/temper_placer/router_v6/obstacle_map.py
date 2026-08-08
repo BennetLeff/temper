@@ -95,9 +95,72 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
 
     # 3. Zones / Keepouts
     if hasattr(pcb, "zones") and pcb.zones:
+        # Net-aware pour handling (U2's routing_space.py sub-requirement of
+        # docs/plans/2026-07-28-001-feat-provable-safety-place-and-route-plan.md
+        # -- landed for stackup role classification via
+        # use_declared_layer_roles, but never landed here, which is what this
+        # fixes).
+        #
+        # This loop used to union EVERY zone into its layer's obstacle
+        # polygon unconditionally (the "TODO: filter by net" immediately
+        # below, now resolved). Measured on pcb/temper.kicad_pcb: that made
+        # F.Cu/B.Cu ~25% available (vs. ~98% on the pour-free inner layers)
+        # and fragmented the medial-axis skeleton into 150+ islands (see
+        # docs/evidence/2026-08-07-channel-skeleton-bridging-perf.md Sec 5).
+        #
+        # 84 of this board's 96 committed zones belong to net classes
+        # (`Power`, `GateDrive`) that `_zone_layers_for_net()` -- the SAME
+        # eligibility rule `_write_routes_to_content` already uses to decide
+        # which pours survive into the routed output (`strip_existing_zones`
+        # unconditionally strips every existing zone; `_emit_zone_pours`
+        # only re-emits one for an eligible net class) -- says get NO pour
+        # in the final board. Treating those 84 zones as routing obstacles
+        # here contradicts what the write path already does with them: they
+        # are stale, pending-regeneration input, not a real constraint any
+        # net will ever have to route around, since none of them survive to
+        # the output regardless of which net is being routed.
+        #
+        # A zone whose net class IS pour-eligible (`ACMains`/`HighVoltage`
+        # `plane_required`, `GND` `plane_preferred` -- 14 of 96 zones) DOES
+        # survive into the routed output on a comparable footprint, and
+        # remains a real obstacle to every OTHER net -- kept unconditionally
+        # obstructive here, deliberately not exempted for its own owning
+        # net. A fully net-scoped "net N may enter its own eligible pour"
+        # view would need a per-net (not per-layer, shared-across-all-nets)
+        # topology, which this stage does not have; ModelBuilder
+        # (constraint_model.py) offers every NetChannelVar to every net over
+        # this SAME shared skeleton/obstacle view, so opening an eligible
+        # zone's interior here would hand every OTHER net a channel through
+        # copper it must keep clearance to -- the exact "diagnosis without
+        # measuring the consequence" trap
+        # docs/solutions/best-practices/correct-diagnosis-unsafe-change-2026-07-28.md
+        # documents. Excluding only the 84 never-regenerated zones has no
+        # such risk: that geometry will not exist in the output for ANY net,
+        # so no other net's clearance is ever at stake.
+        #
+        # Measured effect (docs/evidence/2026-08-07-channel-skeleton-net-aware-pours.md):
+        # smaller than the raw 25%->~98% gap might suggest, because 2 of the
+        # 14 still-eligible zones (SW_NODE, DC_BUS_RTN, both HighVoltage)
+        # are themselves pathological board-spanning hulls -- a SEPARATE,
+        # already-diagnosed defect (R6 of
+        # docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md,
+        # zone_emission.py's clustering-exemption for plane_required
+        # classes) this change deliberately does not also fix.
+        from temper_placer.router_v6._zone_pour_stitch import _zone_layers_for_net
+
         for zone in pcb.zones:
             # Skip if no polygon data
             if not hasattr(zone, "polygon") or not zone.polygon:
+                continue
+
+            # A zone with no net at all is a true keepout (no net-class
+            # eligibility to resolve) and keeps the unconditional-obstacle
+            # treatment this replaces for net-owned zones. A zone whose
+            # every declared net belongs to a non-pour-eligible class is
+            # stale, never-regenerated input -- see the module-level note
+            # above -- and is excluded from the obstacle map entirely.
+            net_names = [n for n in (getattr(zone, "net_classes", None) or []) if n]
+            if net_names and not any(_zone_layers_for_net(n) for n in net_names):
                 continue
 
             # Create Polygon from points
@@ -113,16 +176,6 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
             layers = zone.layers if hasattr(zone, "layers") else ["F.Cu"]
 
             for layer in layers:
-                # Add to layer obstacles
-                # If it's a Keepout (usually indicated by no net or specific flag?)
-                # Or if it's a Copper Zone of a DIFFERENT net, it's an obstacle.
-                # Ideally we should filter by net, but ObstacleMap is usually "Static Obstacles".
-                # For simplicity, we treat ALL Zones as obstacles.
-                # TODO: If we route the SAME net, we should allow entering the zone.
-                # But Router V6 treats zones as "Targets" (via pads) usually.
-                # If we treat them as obstacles, we might block access.
-                # However, for the "Missing Obstacles" bug (AC_L vs CGND), CGND zone is definitely an obstacle for AC_L.
-                # Safe default: Treat as obstacle. The router connects to PADS, not zones directly yet.
                 layer_obstacles[layer].append(poly)
 
     # 4. Pre-routed Tracks

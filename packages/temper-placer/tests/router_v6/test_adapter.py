@@ -544,13 +544,43 @@ class TestZoneLayersForNet:
     def test_dc_bus_minus_is_zone_eligible(self):
         assert _zone_layers_for_net("DC_BUS-") == ["F.Cu", "B.Cu"]
 
-    def test_cgnd_is_not_zone_eligible(self):
-        """FIXED 2026-07-28: eligibility is now driven by
-        routing_strategy=="plane_required" (core/design_rules.py), which
-        GND does not declare (only ACMains/HighVoltage do) -- see
-        docs/evidence/2026-07-28-zone-layer-classification-fix.md. GND
-        nets no longer get automatic zone treatment from this function."""
-        assert _zone_layers_for_net("CGND") == []
+    def test_cgnd_is_zone_eligible(self):
+        """UPDATED 2026-08-07 (R3/R4,
+        docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md): GND now
+        declares routing_strategy="plane_preferred" (core/design_rules.py,
+        matching packages/temper-placer/configs/temper_constraints.yaml,
+        which already said so) and _zone_layers_for_net() now recognizes
+        that tier alongside "plane_required". Eligibility is a net-CLASS
+        grant, not a per-net one (matching every other class here), so both
+        of GND's members -- PWR_RTN and CGND -- are eligible even though
+        pcb/temper.kicad_pcb carries zero committed CGND zones today (R5's
+        own documented assumption: this is a class-level correction, not a
+        claim that CGND currently has -- or needs -- a pour on this board).
+        Superseded 2026-07-28 test (`test_cgnd_is_not_zone_eligible`, which
+        asserted the accidental gap this fix closes) is now wrong and would
+        silently pass if this correction ever regressed -- see R7's own
+        observability requirement, which this test satisfies for the GND
+        class specifically."""
+        assert _zone_layers_for_net("CGND") == ["F.Cu", "B.Cu"]
+
+    def test_pwr_rtn_is_zone_eligible(self):
+        """PWR_RTN is the one net this correction changes emitted copper for
+        in practice (R5) -- GND's return-plane member, previously an
+        accidental gap (KD2 of the plan above)."""
+        assert _zone_layers_for_net("PWR_RTN") == ["F.Cu", "B.Cu"]
+
+    def test_power_class_is_not_zone_eligible(self):
+        """R1/R7: Power (+3V3, vcc, +15V, +15V_LS*, V_BUS_SENSE) routes as
+        traces only -- this is the R7 gap the plan names explicitly:
+        GateDrive already had eligibility coverage above; Power did not, so
+        a regression silently re-granting it a pour would have passed every
+        existing test. (*+15V_LS itself is reassigned to the HighVoltage
+        class, not Power -- see design_rules.py -- so it is intentionally
+        excluded from this net-class-boundary check.)"""
+        assert _zone_layers_for_net("+3V3") == []
+        assert _zone_layers_for_net("vcc") == []
+        assert _zone_layers_for_net("+15V") == []
+        assert _zone_layers_for_net("V_BUS_SENSE") == []
 
     def test_gate_l_short_form_is_not_zone_eligible(self):
         """GateDrive does not declare routing_strategy=="plane_required"."""
