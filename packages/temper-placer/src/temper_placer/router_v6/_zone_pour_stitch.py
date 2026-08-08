@@ -25,15 +25,16 @@ logger = logging.getLogger(__name__)
 
 # U1: netclasses where clustering would fragment a continuous return/ground
 # plane and undermine EMI/loop-area control for switching-power-supply nets.
-# NOTE 2026-07-28: "GND" is currently dormant here -- _zone_layers_for_net()
-# now drives zone eligibility from routing_strategy=="plane_required", which
-# GND does not declare (only ACMains/HighVoltage do), so a GND net never
-# reaches this membership check today (the zone-emission loop above skips
-# it before this constant is consulted). Left in place rather than removed:
-# it is not wrong, only unreachable under the current netclass SSOT, and
-# would immediately reactivate if GND's routing_strategy is ever set to
-# "plane_required" (e.g. per the pour audit's inner-layer-return-plane
-# recommendation, docs/evidence/2026-07-28-pour-strategy-audit.md Task 3).
+# UPDATE 2026-08-07 (R3/R4, docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md):
+# "GND" was dormant here from 2026-07-28 through this fix -- GND declared no
+# routing_strategy, so _zone_layers_for_net() (which now drives eligibility
+# from routing_strategy) never let a GND net reach this membership check.
+# core/design_rules.py's GND entry now sets routing_strategy="plane_preferred"
+# (matching the human-authored temper_constraints.yaml SSOT, which already
+# said so) and _zone_layers_for_net() now recognizes that tier -- so this
+# entry is live again for PWR_RTN (GND's only member with committed zones).
+# It was left in place rather than removed while dormant precisely so this
+# reactivation would not require re-deriving it.
 _CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains", "HighVoltage"})
 
 
@@ -54,12 +55,25 @@ def _zone_layers_for_net(net_name: str) -> list[str]:
     eligibility from ``routing_strategy`` keeps this in step with the
     metadata by construction instead of by two hand-maintained lists
     happening to agree.
+
+    FIXED 2026-08-07 (R4, docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md):
+    also recognize ``"plane_preferred"``, not only ``"plane_required"``.
+    ``routing_strategy`` has four documented values
+    (``netclass_rules_gen.py``'s field comment: ``plane_required``,
+    ``plane_preferred``, ``wide_trace``, ``standard``) but this check only
+    ever branched on one of them. ``GND`` declares ``"plane_preferred"``
+    (paired fix: ``core/design_rules.py``'s ``GND`` entry, R3) -- without
+    this half of the pair, ``GND``'s corrected SSOT field would still be
+    silently ignored here, reproducing the exact accident R3-R5 exist to
+    fix. In practice this changes eligibility for exactly one net on the
+    production board: ``PWR_RTN`` (``GND``'s only member with committed
+    zones today; ``CGND`` carries none regardless -- R5).
     """
     from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
 
     nc_name = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
     nc = TEMPER_NET_CLASSES.get(nc_name)
-    if nc is not None and nc.routing_strategy == "plane_required":
+    if nc is not None and nc.routing_strategy in ("plane_required", "plane_preferred"):
         return ["F.Cu", "B.Cu"]
     return []
 
