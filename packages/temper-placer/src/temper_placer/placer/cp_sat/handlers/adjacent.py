@@ -11,7 +11,10 @@ from temper_placer.placer.cp_sat.handlers._registry import register_handler
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.encoder import EncoderContext
-    from temper_placer.placer.cp_sat.model import ComponentVars, CpSatModel
+    from temper_placer.placer.cp_sat.handlers._model_protocol import (
+        ComponentVarsProtocol,
+        ModelProtocol,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +22,8 @@ logger = logging.getLogger(__name__)
 @register_handler(ConstraintType.ADJACENT)
 def encode_adjacent(
     constraint: AdjacentConstraint,
-    components: dict[str, ComponentVars],
-    model: CpSatModel,
+    components: dict[str, ComponentVarsProtocol],
+    model: ModelProtocol,
     ctx: EncoderContext,  # noqa: ARG001
 ) -> list[AssumptionLiteral]:
     """Constrain two components to be within max_distance_mm of each other.
