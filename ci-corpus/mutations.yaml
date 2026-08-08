@@ -1,0 +1,403 @@
+# R42 gate-mutation testing manifest (docs/plans/2026-08-02-035).
+#
+# Each entry is a (gate, mutation, canary) triple, KTD1: a reviewer sees
+# every weakening applied to a real gate script in this diff, in plain
+# language, rather than trusting a blind generator. `scripts/gate_mutate.py`
+# applies the mutation fields (everything except `canary`) to a temp copy of
+# the named gate; `scripts/check_gate_mutations.py` then runs the `canary`
+# block's `pristine`/`seed` functions (from the sibling module under
+# ci-corpus/canaries/) against both the unmutated and mutated gate and
+# checks whether the seed verdict flips.
+#
+# Scope (R42's explicit "gates that matter most"): creepage/clearance
+# drift, the physical isolation keepout, HV netclass coverage, the R27 DRC
+# ceiling ratchet approval gate, both provenance checkers, and the
+# anti-vacuity guard itself (check_vacuous_gates.py) -- not the full
+# fail-closed gate inventory (R19/R30's incident-corpus/canary-contract
+# plan, which this suite bootstraps around per the plan's own "Assumptions"
+# section, has not landed yet; this is a first sweep of the safety-critical
+# subset, not a claim of exhaustive coverage).
+#
+# Mutation axes deliberately model the nine observed failure mechanisms
+# from the 2026-08-07 session (see docs/plans/.../035's own header), not
+# generic arithmetic off-by-ones -- see scripts/gate_mutate.py's module
+# docstring for the axis-by-axis rationale.
+
+mutations:
+  # ---------------------------------------------------------------------
+  # scripts/check_creepage_clearance_drift.py
+  # ---------------------------------------------------------------------
+  - gate: scripts/check_creepage_clearance_drift.py
+    mutation_id: creepage-guard-strip-zero-declarations
+    axis: guard-strip
+    function: run
+    match: raise
+    index: 0
+    line_hint: "raise GateError("
+    description: >-
+      Strip the anti-vacuity raise that fires when discovery finds zero
+      creepage/clearance declarations anywhere -- models "seven vacuous
+      validators iterating empty dicts": a scan that found nothing must
+      report a gate ERROR, never a silent 0-violations pass.
+    canary:
+      module: ci-corpus/canaries/check_creepage_clearance_drift.py
+      pristine: pristine_agree
+      seed: seed_zero_declarations
+      expected_pristine: clean
+      expected_seed: error
+
+  - gate: scripts/check_creepage_clearance_drift.py
+    mutation_id: creepage-invert-mismatch-detection
+    axis: condition-invert
+    function: run
+    match: if-invert
+    index: 3
+    line_hint: "not fam.is_consistent"
+    description: >-
+      Invert the family-mismatch guard (`if not fam.is_consistent:`) so a
+      drifted (metric, tier) family is marked clean and an internally
+      consistent one is marked a violation -- the backwards-comparison
+      class (cf. the schematic `rated >= actual*0.5` bug), mechanized.
+    canary:
+      module: ci-corpus/canaries/check_creepage_clearance_drift.py
+      pristine: pristine_agree
+      seed: seed_mismatch
+      expected_pristine: clean
+      expected_seed: violation
+
+  - gate: scripts/check_creepage_clearance_drift.py
+    mutation_id: creepage-scope-remove-scripts-root
+    axis: scope-remove
+    match: container-remove
+    name: SCAN_ROOT_NAMES
+    remove_value: "scripts"
+    line_hint: 'SCAN_ROOT_NAMES = ("elec", "scripts", "packages", "configs")'
+    description: >-
+      Drop "scripts" from SCAN_ROOT_NAMES -- the exact gate-subset-blindness
+      class this project has already hit for real
+      (docs/evidence/2026-07-27-gate-subset-blindness-audit.md): a whole
+      declaration-bearing directory silently stops being scanned, and any
+      drift living only there goes unseen.
+    canary:
+      module: ci-corpus/canaries/check_creepage_clearance_drift.py
+      pristine: pristine_agree
+      seed: seed_mismatch
+      expected_pristine: clean
+      expected_seed: violation
+
+  - gate: scripts/check_creepage_clearance_drift.py
+    mutation_id: creepage-return-stub-always-clean
+    axis: return-stub
+    function: run
+    match: return-stub
+    stub_code: "return 'clean', Report(), [], [], [], [], []"
+    line_hint: "def run("
+    description: >-
+      Force run() to unconditionally return a clean verdict as its first
+      statement -- "a test binary returning 0 instead of calling
+      UnityEnd()" / "return a constant success", the highest-severity
+      mutant this suite can register.
+    canary:
+      module: ci-corpus/canaries/check_creepage_clearance_drift.py
+      pristine: pristine_agree
+      seed: seed_mismatch
+      expected_pristine: clean
+      expected_seed: violation
+
+  # ---------------------------------------------------------------------
+  # scripts/check_isolation_keepout.py
+  # ---------------------------------------------------------------------
+  - gate: scripts/check_isolation_keepout.py
+    mutation_id: isolation-loosen-width-divisor
+    axis: threshold-set
+    function: run
+    match: constant-set
+    index: 4
+    old_value: 2.0
+    new_value: 200.0
+    line_hint: "buffer(-min_width / 2.0)"
+    description: >-
+      Loosen the width-check erosion divisor (2.0 -> 200.0) so
+      `barrier_poly.buffer(-min_width / divisor)` erodes almost nothing --
+      a barrier far narrower than MIN_BARRIER_WIDTH_MM stops registering
+      as `eroded.is_empty`. Models a threshold that quietly loosens.
+    canary:
+      module: ci-corpus/canaries/check_isolation_keepout.py
+      pristine: pristine_valid_barrier
+      seed: seed_narrow_barrier
+      expected_pristine: clean
+      expected_seed: violation
+
+  - gate: scripts/check_isolation_keepout.py
+    mutation_id: isolation-discard-width-violation
+    axis: violation-discard
+    function: run
+    match: append-drop
+    index: 3
+    line_hint: "report.violations.append("
+    description: >-
+      Drop the `report.violations.append(Violation("width", ...))` call
+      inside the width-check branch to `pass` -- the detection logic still
+      runs (eroded.is_empty is still computed correctly) but the finding
+      never reaches the verdict. Models "a value discarded before reaching
+      its consumer".
+    canary:
+      module: ci-corpus/canaries/check_isolation_keepout.py
+      pristine: pristine_valid_barrier
+      seed: seed_narrow_barrier
+      expected_pristine: clean
+      expected_seed: violation
+
+  - gate: scripts/check_isolation_keepout.py
+    mutation_id: isolation-invert-width-guard
+    axis: condition-invert
+    function: run
+    match: if-invert
+    index: 6
+    line_hint: "if eroded.is_empty:"
+    description: >-
+      Invert `if eroded.is_empty:` so the width violation fires exactly
+      when the barrier IS wide enough and stays silent when it is not --
+      the width check runs entirely backwards.
+    canary:
+      module: ci-corpus/canaries/check_isolation_keepout.py
+      pristine: pristine_valid_barrier
+      seed: seed_narrow_barrier
+      expected_pristine: clean
+      expected_seed: violation
+
+  # ---------------------------------------------------------------------
+  # scripts/check_hv_netclass_coverage.py
+  # ---------------------------------------------------------------------
+  - gate: scripts/check_hv_netclass_coverage.py
+    mutation_id: hv-netclass-invert-membership-test
+    axis: comparison-flip
+    function: check_hv_net_coverage
+    match: compare-op-flip
+    index: 0
+    line_hint: "n not in net_assignments"
+    description: >-
+      Flip `n not in net_assignments` to `n in net_assignments` -- the
+      real +170V_BUS defect this gate exists to catch (a manifest-HV net
+      silently falling through to the LV default) becomes structurally
+      invisible: only ASSIGNED nets are ever reported.
+    canary:
+      module: ci-corpus/canaries/check_hv_netclass_coverage.py
+      pristine: pristine_fully_covered
+      seed: seed_unassigned_hv_net
+      expected_pristine: clean
+      expected_seed: "violation:['dc_bus']"
+
+  - gate: scripts/check_hv_netclass_coverage.py
+    mutation_id: hv-netclass-invert-verdict-guard
+    axis: condition-invert
+    function: run
+    match: if-invert
+    index: 3
+    line_hint: "if report.unclassified_hv_nets or report.classes_with_no_rules:"
+    description: >-
+      Invert the final violation guard in run() so a clean run is reported
+      as a violation and a real violation is reported clean -- the
+      StageDRCFailure-gated-behind-verbose class, mechanized on this gate's
+      own verdict line.
+    canary:
+      module: ci-corpus/canaries/check_hv_netclass_coverage.py
+      pristine: pristine_fully_covered
+      seed: seed_unassigned_hv_net
+      expected_pristine: clean
+      expected_seed: "violation:['dc_bus']"
+
+  - gate: scripts/check_hv_netclass_coverage.py
+    mutation_id: hv-netclass-return-stub-always-clean
+    axis: return-stub
+    function: run
+    match: return-stub
+    stub_code: "return 'clean', Report()"
+    line_hint: "def run("
+    description: >-
+      Force run() to unconditionally return a clean verdict -- the
+      "return a constant success" mutant.
+    canary:
+      module: ci-corpus/canaries/check_hv_netclass_coverage.py
+      pristine: pristine_fully_covered
+      seed: seed_class_with_no_rules
+      expected_pristine: clean
+      expected_seed: violation
+
+  # ---------------------------------------------------------------------
+  # scripts/check_vacuous_gates.py (the anti-vacuity guard itself)
+  # ---------------------------------------------------------------------
+  - gate: scripts/check_vacuous_gates.py
+    mutation_id: vacuous-scope-remove-all-aggregator
+    axis: scope-remove
+    match: container-remove
+    name: AGGREGATORS
+    remove_value: "all"
+    line_hint: 'AGGREGATORS = {"all"}'
+    description: >-
+      Drop "all" from AGGREGATORS = {"all"} -- the anti-vacuity gate's own
+      scope, emptied. Models "a CI group collecting zero tests from a
+      deleted path": the meta case where the gate that catches vacuous
+      checks becomes vacuous itself.
+    canary:
+      module: ci-corpus/canaries/check_vacuous_gates.py
+      pristine: pristine_guarded
+      seed: seed_unguarded_all
+      expected_pristine: clean
+      expected_seed: violation
+
+  - gate: scripts/check_vacuous_gates.py
+    mutation_id: vacuous-return-stub-find-violations
+    axis: return-stub
+    function: find_violations
+    match: return-stub
+    stub_code: "return []"
+    line_hint: "def find_violations(py_file: Path) -> list[tuple[int, str]]:"
+    description: >-
+      Force find_violations() to unconditionally return no violations --
+      the highest-severity "return True" mutant applied to the gate this
+      whole plan takes its name from.
+    canary:
+      module: ci-corpus/canaries/check_vacuous_gates.py
+      pristine: pristine_guarded
+      seed: seed_unguarded_all
+      expected_pristine: clean
+      expected_seed: violation
+
+  # ---------------------------------------------------------------------
+  # scripts/check_drc_ceiling_approval.py (R27 DRC ceiling ratchet)
+  # ---------------------------------------------------------------------
+  - gate: scripts/check_drc_ceiling_approval.py
+    mutation_id: drc-ratchet-invert-no-raise-shortcircuit
+    axis: condition-invert
+    function: run_gate
+    match: if-invert
+    index: 6
+    line_hint: "if not raises:"
+    description: >-
+      Invert `if not raises:` (the early "no ceiling raise, nothing to
+      check" return) so it fires exactly when a raise WAS detected --
+      every real raise now short-circuits straight to PASS before the
+      trailer/evidence checks ever run.
+    canary:
+      module: ci-corpus/canaries/check_drc_ceiling_approval.py
+      pristine: pristine_no_raise
+      seed: seed_unapproved_raise
+      expected_pristine: clean
+      expected_seed: violation
+
+  - gate: scripts/check_drc_ceiling_approval.py
+    mutation_id: drc-ratchet-invert-trailer-check
+    axis: comparison-flip
+    function: run_gate
+    match: compare-op-flip
+    index: 2
+    line_hint: "Ceiling-Approval:\" in commit_messages"
+    description: >-
+      Flip `"Ceiling-Approval:" in commit_messages` to `not in` -- the
+      trailer-detection the R27 contract is built on runs backwards: a PR
+      WITHOUT the trailer is treated as approved, and one WITH it is
+      treated as unapproved.
+    canary:
+      module: ci-corpus/canaries/check_drc_ceiling_approval.py
+      pristine: pristine_no_raise
+      seed: seed_unapproved_raise_with_valid_evidence
+      expected_pristine: clean
+      expected_seed: violation
+
+  - gate: scripts/check_drc_ceiling_approval.py
+    mutation_id: drc-ratchet-return-stub-always-pass
+    axis: return-stub
+    function: run_gate
+    match: return-stub
+    stub_code: "return EXIT_OK, 'PASS: stub'"
+    line_hint: "def run_gate("
+    description: >-
+      Force run_gate() to unconditionally return EXIT_OK -- the "return a
+      constant success" mutant applied to the safety-critical R27 ratchet
+      gate itself.
+    canary:
+      module: ci-corpus/canaries/check_drc_ceiling_approval.py
+      pristine: pristine_no_raise
+      seed: seed_unapproved_raise
+      expected_pristine: clean
+      expected_seed: violation
+
+  # ---------------------------------------------------------------------
+  # scripts/check_measurement_provenance.py
+  # ---------------------------------------------------------------------
+  - gate: scripts/check_measurement_provenance.py
+    mutation_id: measurement-guard-strip-zero-artifacts
+    axis: guard-strip
+    function: evaluate
+    match: raise
+    index: 0
+    line_hint: "raise GateError("
+    description: >-
+      Strip the anti-vacuity raise that fires when zero measurement
+      artifacts are registered -- "no records therefore no violations" is
+      exactly the vacuous-pass shape this gate's own docstring names as
+      the failure it exists to avoid.
+    canary:
+      module: ci-corpus/canaries/check_measurement_provenance.py
+      pristine: pristine_fresh
+      seed: seed_zero_artifacts
+      expected_pristine: clean
+      expected_seed: "error:zero-artifacts"
+
+  - gate: scripts/check_measurement_provenance.py
+    mutation_id: measurement-invert-freshness-guard
+    axis: condition-invert
+    function: evaluate
+    match: if-invert
+    index: 6
+    line_hint: "if mismatches:"
+    description: >-
+      Invert `if mismatches:` so a record with real content-hash
+      mismatches is filed as `fresh` and a genuinely fresh record is filed
+      as `stale` -- the exact drc_ceiling.json incident (measured 91,
+      actual ~710 errors) this gate exists to catch, run backwards.
+    canary:
+      module: ci-corpus/canaries/check_measurement_provenance.py
+      pristine: pristine_fresh
+      seed: seed_stale_input
+      expected_pristine: clean
+      expected_seed: violation
+
+  - gate: scripts/check_measurement_provenance.py
+    mutation_id: measurement-return-stub-always-clean
+    axis: return-stub
+    function: evaluate
+    match: return-stub
+    stub_code: "return Outcome()"
+    line_hint: "def evaluate("
+    description: >-
+      Force evaluate() to unconditionally return an empty (all-clean)
+      Outcome -- the "return a constant success" mutant.
+    canary:
+      module: ci-corpus/canaries/check_measurement_provenance.py
+      pristine: pristine_fresh
+      seed: seed_stale_input
+      expected_pristine: clean
+      expected_seed: violation
+
+  # ---------------------------------------------------------------------
+  # scripts/check_evidence_provenance.py
+  # ---------------------------------------------------------------------
+  - gate: scripts/check_evidence_provenance.py
+    mutation_id: evidence-return-stub-always-ok
+    axis: return-stub
+    function: check_file
+    match: return-stub
+    stub_code: "return FileCheckResult(True)"
+    line_hint: "def check_file(path: Path) -> FileCheckResult:"
+    description: >-
+      Force check_file() to unconditionally report ok=True -- an evidence
+      doc with no provenance stamp at all would be certified traceable.
+      The "return a constant success" mutant.
+    canary:
+      module: ci-corpus/canaries/check_evidence_provenance.py
+      pristine: pristine_stamped
+      seed: seed_no_stamp
+      expected_pristine: clean
+      expected_seed: violation
