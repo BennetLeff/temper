@@ -5,7 +5,14 @@ For each defect class (component off-board, pad short, creepage crossing,
 plain copper clearance, courtyard overlap -- the last two added 2026-08-07;
 see ``docs/evidence/2026-08-07-clearance-courtyard-corpus-coverage.md`` for
 why ``clearance``/``courtyards_overlap`` were VACUOUS gates before this
-change and how the new classes close that) this runner:
+change and how the new classes close that -- plus drilled hole-to-hole
+spacing and missing courtyard, added later the same day for STRATEGY.md
+build order step 4; see ``docs/evidence/
+2026-08-07-missing-courtyard-and-hole-to-hole-classes.md``. The last of
+these, ``missing-courtyard``, is a DELIBERATE exception: its injector is
+independently self-verified but its owning gate does not fire -- reported
+as a genuine coverage gap, not weakened, per METHODOLOGY.md Sec. 5) this
+runner:
 
   1. re-derives a mutated copy of the committed ``pcb/temper.kicad_pcb``
      from the seed manifest (``scripts/board_defect_corpus.yaml``) via
@@ -191,16 +198,33 @@ def regenerate_dru(repo_root: Path) -> Path:
 
 
 def measure_drc(pcb_path: Path, dru_path: Path | None) -> list[Any]:
-    """Every DRC error for *pcb_path* via run_drc (the canonical path).
+    """Every DRC error AND warning for *pcb_path* via run_drc (the canonical
+    path).
 
     kicad-cli resolves ``<stem>.kicad_dru`` next to the board file (verified:
     placing the regenerated SSOT dru beside a copy makes the custom
     ``creepage`` DRU category appear), so the dru is copied next to the
     mutated copy to keep the measurement byte-for-byte the ratchet's.
 
-    Returns the ``DrcError`` list rather than a count summary: the
-    pad-short class asserts on WHICH items a violation names, which a
-    per-category count cannot express.
+    Returns ``result.errors + result.warnings`` (mixed ``DrcError``/
+    ``DrcWarning`` objects), not just ``result.errors``, since 2026-08-07:
+    ``hole_to_hole`` is a genuinely-computed kicad-cli rule whose severity
+    is ``warning`` even under kicad-cli's compiled-in defaults (no project
+    file present) -- ``_parse_drc_json`` buckets anything ``severity ==
+    "warning"`` into ``result.warnings``, so a class whose owning gate is a
+    warning-severity rule was previously invisible to every consumer of
+    this function, discovered while building the ``hole-to-hole`` corpus
+    class (docs/evidence/
+    2026-08-07-missing-courtyard-and-hole-to-hole-classes.md). This is
+    local to the corpus's own measurement wrapper -- ``_drc_api.run_drc()``
+    itself, and every OTHER consumer of it (the DRC ceiling ratchet,
+    ``ci_check_drc.py``), are unmodified. ``DrcWarning`` has no ``items``
+    field (only ``components``/``nets`` -- see its docstring), so any
+    identity check that needs raw per-item pad-number text
+    (:func:`errors_naming_pad_pair`/:func:`errors_naming_two_pads`) still
+    only matches ``DrcError`` entries; ref-level checks
+    (:func:`errors_naming_both_refs`/:func:`errors_of_type_naming_ref`)
+    work on both.
     """
     if dru_path is not None and dru_path.exists():
         shutil.copyfile(dru_path, pcb_path.with_suffix(".kicad_dru"))
@@ -210,7 +234,7 @@ def measure_drc(pcb_path: Path, dru_path: Path | None) -> list[Any]:
         result = run_drc(pcb_path)
     except (DrcRunnerError, OSError) as exc:
         raise GateError(f"DRC measurement failed on {pcb_path.name}: {exc}") from exc
-    return list(result.errors)
+    return list(result.errors) + list(result.warnings)
 
 
 def drc_counts(errors: list[Any]) -> dict[str, int]:
@@ -290,6 +314,50 @@ def errors_naming_both_refs(errors: list[Any], ref_a: str, ref_b: str) -> list[s
     return found
 
 
+def errors_of_type_naming_both_refs(
+    errors: list[Any], rule: str, ref_a: str, ref_b: str
+) -> list[str]:
+    """DRC errors of *rule* type whose (deduped) ``components`` name BOTH
+    *ref_a* and *ref_b* -- the ``hole-to-hole`` class's failure signal.
+
+    Ref-level (like :func:`errors_naming_both_refs`), not pad-level like
+    :func:`errors_naming_two_pads`: ``hole_to_hole`` is reported as a
+    ``DrcWarning`` under kicad-cli's compiled-in default severity for that
+    rule (verified 2026-08-07 -- see :func:`measure_drc`'s docstring), and
+    ``DrcWarning`` carries no raw per-item ``items`` text, only the deduped
+    ``components`` list. Since the mutation moves exactly one footprint to
+    sit next to one fixed anchor footprint, naming both refs together in a
+    ``hole_to_hole``-type violation is unambiguous without needing the pad
+    number.
+    """
+    found: list[str] = []
+    for error in errors:
+        if getattr(error, "rule", None) != rule:
+            continue
+        components = getattr(error, "components", None) or []
+        if ref_a in components and ref_b in components:
+            found.append(f"{error.rule}: {error.message}")
+    return found
+
+
+def errors_of_type_naming_ref(errors: list[Any], rule: str, ref: str) -> list[str]:
+    """DRC errors of *rule* type whose (deduped) ``components`` name *ref*
+    -- the ``missing-courtyard`` class's failure signal. Scoped to a single
+    rule (unlike :func:`errors_naming_both_refs`) because a footprint ref
+    can legitimately appear in OTHER rule types' output (e.g.
+    ``courtyards_overlap``) without that meaning the specific rule this
+    class cares about fired.
+    """
+    found: list[str] = []
+    for error in errors:
+        if getattr(error, "rule", None) != rule:
+            continue
+        components = getattr(error, "components", None) or []
+        if ref in components:
+            found.append(f"{error.rule}: {error.message}")
+    return found
+
+
 def measure_containment(pcb_path: Path) -> set[str]:
     """Reference designators with copper outside the board outline, via the
     R26 containment gate (``scripts/check_board_containment.py``) -- the
@@ -365,6 +433,12 @@ class ClassMeasurement:
     mutated_cross_pair_errors: list[str] = field(default_factory=list)
     clean_courtyard_pair_errors: list[str] = field(default_factory=list)
     mutated_courtyard_pair_errors: list[str] = field(default_factory=list)
+    clean_hole_pair_errors: list[str] = field(default_factory=list)
+    mutated_hole_pair_errors: list[str] = field(default_factory=list)
+    clean_missing_courtyard_errors: list[str] = field(default_factory=list)
+    mutated_missing_courtyard_errors: list[str] = field(default_factory=list)
+    clean_courtyard_item_count: int | None = None
+    mutated_courtyard_item_count: int | None = None
 
 
 def evaluate_class(
@@ -554,6 +628,122 @@ def evaluate_class(
             message=(
                 f"{class_name}: uncovered class -- no DRC error names both "
                 f"{ref_a} and {ref_b} on the mutated board"
+            ),
+        )
+    if mutation == "hole-to-hole":
+        ref_a = measurement.params.get("ref", "<no ref>")
+        ref_b = measurement.params.get("anchor_ref", "<no anchor_ref>")
+        if measurement.clean_hole_pair_errors:
+            return ClassVerdict(
+                name=class_name,
+                ok=False,
+                message=(
+                    f"{class_name}: control violated -- {ref_a} and {ref_b} "
+                    "ALREADY have a hole_to_hole violation together on the "
+                    f"CLEAN board ({measurement.clean_hole_pair_errors[0]}), "
+                    "so the mutated board proves nothing. Re-seed this "
+                    "class onto a pad pair that starts clean."
+                ),
+            )
+        if measurement.mutated_hole_pair_errors:
+            return ClassVerdict(
+                name=class_name,
+                ok=True,
+                message=(
+                    f"{class_name}: owning gate kicad-drc (hole_to_hole) "
+                    "fired: "
+                    f"{len(measurement.mutated_hole_pair_errors)} DRC "
+                    f"error(s) name both {ref_a} and {ref_b} on the mutated "
+                    "board and none on the clean board "
+                    f"[{'; '.join(measurement.mutated_hole_pair_errors[:3])}]"
+                ),
+            )
+        return ClassVerdict(
+            name=class_name,
+            ok=False,
+            message=(
+                f"{class_name}: uncovered class -- no hole_to_hole DRC "
+                f"error names both {ref_a} and {ref_b} on the mutated board"
+            ),
+        )
+    if mutation == "missing-courtyard":
+        ref = measurement.params.get("ref", "<no ref>")
+        clean_items = measurement.clean_courtyard_item_count
+        mutated_items = measurement.mutated_courtyard_item_count
+        if clean_items is None or mutated_items is None:
+            return ClassVerdict(
+                name=class_name,
+                ok=False,
+                gate_error=True,
+                message=(
+                    f"{class_name}: gate error -- independent courtyard-item "
+                    "re-parse unavailable, cannot verify the injector itself"
+                ),
+            )
+        if clean_items == 0:
+            return ClassVerdict(
+                name=class_name,
+                ok=False,
+                message=(
+                    f"{class_name}: control violated -- {ref} ALREADY has 0 "
+                    "F.CrtYd/B.CrtYd items on the CLEAN board, so the "
+                    "mutated board proves nothing. Re-seed this class onto a "
+                    "ref that starts with real courtyard graphics."
+                ),
+            )
+        if mutated_items != 0:
+            return ClassVerdict(
+                name=class_name,
+                ok=False,
+                gate_error=True,
+                message=(
+                    f"{class_name}: injector no-op -- {ref} still has "
+                    f"{mutated_items} F.CrtYd/B.CrtYd item(s) on the mutated "
+                    "board (independent re-parse); the mutation did not take "
+                    "effect"
+                ),
+            )
+        # Injector self-verified independently of the DRC gate: ref had
+        # courtyard graphics on the clean board (clean_items > 0) and has
+        # none on the mutated board (mutated_items == 0), confirmed by a
+        # re-parse of the written file -- not by asking kicad-cli anything.
+        # The DRC gate itself is checked next, and is EXPECTED not to fire
+        # -- see board_defect_corpus.yaml's uncovered_finding note and
+        # board_defect_mutator.mutate_missing_courtyard's docstring for the
+        # two independently verified root causes. Reported honestly as
+        # uncovered rather than silently dropped or weakened.
+        if measurement.mutated_missing_courtyard_errors:
+            # Would only happen if run_drc()'s invocation is later fixed to
+            # request warning-severity output with a project file present
+            # -- kept so this class re-covers itself automatically the day
+            # that gap closes, instead of needing a second edit here.
+            return ClassVerdict(
+                name=class_name,
+                ok=True,
+                message=(
+                    f"{class_name}: owning gate kicad-drc (missing_courtyard) "
+                    f"fired: {len(measurement.mutated_missing_courtyard_errors)} "
+                    f"DRC error(s) name {ref} on the mutated board and none "
+                    "on the clean board "
+                    f"[{'; '.join(measurement.mutated_missing_courtyard_errors[:3])}]"
+                ),
+            )
+        return ClassVerdict(
+            name=class_name,
+            ok=False,
+            message=(
+                f"{class_name}: UNCOVERED (expected, reported per "
+                "METHODOLOGY.md Sec. 5) -- injector independently verified "
+                f"({ref}: 1 courtyard item on clean board, 0 on mutated "
+                "board, re-parsed directly), but no DRC error names "
+                f"missing_courtyard for {ref} on the mutated board. Root "
+                "cause: kicad-cli's compiled-in default for the "
+                "missing_courtyard rule is 'ignore' without an accompanying "
+                ".kicad_pro (which this corpus's mutated-board workdir never "
+                "has), AND run_drc() never passes --severity-warning/"
+                "--severity-all even when a project file is present -- "
+                "either gap alone is sufficient to hide this class. See "
+                "docs/evidence/2026-08-07-missing-courtyard-and-hole-to-hole-classes.md."
             ),
         )
     raise GateError(f"manifest class {class_name!r} has unknown mutation {mutation!r}")
@@ -752,6 +942,33 @@ def run_corpus(
             )
             measurement.mutated_courtyard_pair_errors = errors_naming_both_refs(
                 measure_drc(out_path, dru_path), ref_a, ref_b
+            )
+        elif mutation == "hole-to-hole":
+            ref_a, ref_b = params["ref"], params["anchor_ref"]
+            measurement.clean_hole_pair_errors = errors_of_type_naming_both_refs(
+                clean_errors, "hole_to_hole", ref_a, ref_b
+            )
+            measurement.mutated_hole_pair_errors = errors_of_type_naming_both_refs(
+                measure_drc(out_path, dru_path), "hole_to_hole", ref_a, ref_b
+            )
+        elif mutation == "missing-courtyard":
+            ref = params["ref"]
+            from board_defect_mutator import courtyard_item_count
+
+            # Independent re-parse of both files -- injector self-
+            # verification, decoupled from whatever the DRC gate does or
+            # does not see (METHODOLOGY.md Sec. 5).
+            measurement.clean_courtyard_item_count = courtyard_item_count(
+                clean_copy, ref
+            )
+            measurement.mutated_courtyard_item_count = courtyard_item_count(
+                out_path, ref
+            )
+            measurement.clean_missing_courtyard_errors = errors_of_type_naming_ref(
+                clean_errors, "missing_courtyard", ref
+            )
+            measurement.mutated_missing_courtyard_errors = errors_of_type_naming_ref(
+                measure_drc(out_path, dru_path), "missing_courtyard", ref
             )
         else:
             raise GateError(

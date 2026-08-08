@@ -1,0 +1,19 @@
+# Component-defect corpus -- clean baseline fixture (STRATEGY.md build order
+# step 4, 2026-08-07). NOT sourced from elec/src and never written there --
+# a synthetic fixture using the same "<ref>.value = ..." / "<ref>.mpn = ..."
+# atopile line syntax scripts/mpn_fabrication_gate.py's VALUE_RE/MPN_RE parse
+# (a regex-per-line parser, not a real .ato grammar, so this file need not be
+# valid atopile source beyond those two line shapes), so the corpus can
+# inject component-value defects and measure the real gate against them
+# without ever touching elec/ (task rule: do not modify elec/).
+#
+# r_target is real and verified-correct: 100 kOhm 1%, Yageo RC0603FR-07100KL
+# -- the actual replacement part from the real UVL-02 fix (docs/STRATEGY.md
+# "Every fabricated part is now resolved -- MPN gate 5 -> 0", 2026-07-27:
+# "r_div_bot ... MPN encoding 10 kOhm -> RC0603FR-07100KL"). Yageo's RC
+# family encoding of "100KL" is 100 kOhm, agreeing with the declared value;
+# 100 is an E24 (and E96) member. scripts/check_component_defect_corpus.py
+# asserts this fixture, parsed and analyzed exactly like elec/src is,
+# produces ZERO findings -- the corpus's own clean-board control.
+r_target.value = 100.0kohm +/- 1.0%
+r_target.mpn = "RC0603FR-07100KL"
