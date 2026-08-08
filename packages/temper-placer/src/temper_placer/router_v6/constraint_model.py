@@ -536,8 +536,32 @@ class ModelBuilder:
                 for net_idx, net in enumerate(self.nets)
             }
 
+        # 2026-08-07 U5 measurement instrumentation (see build()'s
+        # TEMPER_MODEL_TRACE block). This loop is exactly where the 2026-08-07
+        # unpruned production-board run raised MemoryError under an 8GB
+        # ulimit -v cap -- inside dict-assignment in add_variable(), never
+        # reaching build()'s own post-loop print. Printing progress here,
+        # gated behind the same env var, means a crash mid-loop still leaves
+        # a last-known count instead of zero data.
+        trace = os.environ.get("TEMPER_MODEL_TRACE")
+        t_loop = time.perf_counter() if trace else None
+        report_every = 200_000
+        edge_count_by_layer: dict[str, int] = {}
+
         for net_idx, _net in enumerate(self.nets):
             for layer_name, skeleton in self.skeletons.items():
+                if trace and net_idx == 0 and layer_name not in edge_count_by_layer:
+                    n_edges = sum(
+                        1 for _ in canonical_channel_edges(skeleton.graph, layer_name)
+                    )
+                    edge_count_by_layer[layer_name] = n_edges
+                    print(
+                        f"[model-trace] layer={layer_name}: {n_edges} channel-skeleton "
+                        f"edges (canonical_channel_edges); running total="
+                        f"{sum(edge_count_by_layer.values())}",
+                        file=sys.stderr,
+                        flush=True,
+                    )
                 for edge_id, u, v in canonical_channel_edges(skeleton.graph, layer_name):
 
                     if self.enable_geographic_pruning and self.pcb is not None:
@@ -549,6 +573,28 @@ class ModelBuilder:
                         name=f"uses_N{net_idx}_{edge_id}", net_idx=net_idx, channel_id=edge_id
                     )
                     self.model.add_variable(var)
+
+                    if trace and self.model.variable_count % report_every == 0:
+                        elapsed = time.perf_counter() - t_loop
+                        print(
+                            f"[model-trace t={elapsed:.3f}s] "
+                            f"_create_per_net_channel_vars progress: "
+                            f"net_idx={net_idx}/{len(self.nets)}, "
+                            f"vars_so_far={self.model.variable_count}",
+                            file=sys.stderr,
+                            flush=True,
+                        )
+
+        if trace and edge_count_by_layer:
+            print(
+                f"[model-trace] channel-skeleton edge counts by layer "
+                f"(canonical_channel_edges, net_idx=0 pass): {edge_count_by_layer}, "
+                f"total={sum(edge_count_by_layer.values())}, "
+                f"nets={len(self.nets)}, "
+                f"unpruned_upper_bound={sum(edge_count_by_layer.values()) * len(self.nets)}",
+                file=sys.stderr,
+                flush=True,
+            )
 
     def _create_bundle_channel_vars(self):
         """Create bundle-level channel variables (bundled path).
