@@ -483,7 +483,7 @@ def run_astar_pathfinding_nlayer(
         if route_path and route_path.forced_segment_count > 0:
             blockers = _identify_blocking_nets(channel_path, list(grids.values()))
             if blockers:
-                ripped_ids = list(blockers)
+                ripped_ids = sorted(blockers)
         blocker_names = [id_to_net.get(rid, f"Unknown-{rid}") for rid in ripped_ids]
         blocker_history.setdefault(net_name, set()).update(blocker_names)
 

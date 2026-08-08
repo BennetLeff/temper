@@ -47,6 +47,7 @@ DIRECTORY_PURPOSE: dict[str, str] = {
     ".cargo": "Cargo config -- macOS pyo3 `-undefined dynamic_lookup` link flags",
     ".github": "CI workflows, issue templates, code owners",
     "benchmarks": "CP-SAT benchmark harness and external board corpora manifests",
+    "ci-corpus": "Gate-mutation-testing corpus (canaries + mutations.yaml) for CI gates",
     "components": "Local KiCad symbol/footprint libraries, one directory per part",
     "configs": "Named placer configurations (deterministic, production)",
     "dashboard": "Static HTML/JS dashboard for placer metrics",

@@ -113,13 +113,14 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: repo-map -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*All 20 tracked top-level directories. Generated -- a new directory without a description fails CI.*
+*All 21 tracked top-level directories. Generated -- a new directory without a description fails CI.*
 
 | Directory | Purpose |
 |---|---|
 | `.cargo/` | Cargo config -- macOS pyo3 `-undefined dynamic_lookup` link flags |
 | `.github/` | CI workflows, issue templates, code owners |
 | `benchmarks/` | CP-SAT benchmark harness and external board corpora manifests |
+| `ci-corpus/` | Gate-mutation-testing corpus (canaries + mutations.yaml) for CI gates |
 | `components/` | Local KiCad symbol/footprint libraries, one directory per part |
 | `configs/` | Named placer configurations (deterministic, production) |
 | `crates/` | Rust-only crates -- no pyproject.toml, outside the uv workspace. Where code lives once it no longer needs an interpreter: the temper binary and the CP-SAT FFI |

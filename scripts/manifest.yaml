@@ -2127,3 +2127,61 @@ scripts:
   - check_stale_extensions
   - pathlib
   - sys
+
+- path: check_ceiling_raise_evidence_corpus.py
+  purpose: "DRC-ceiling-raise-evidence fault-injection corpus (STRATEGY.md build order)"
+  owner: bennet
+  last_run: "2026-08-08"
+  category: keep
+  disposition: ci-gate
+  imports: []
+- path: check_component_defect_corpus.py
+  purpose: "Component-value/MPN-fabrication defect corpus runner"
+  owner: bennet
+  last_run: "2026-08-08"
+  category: keep
+  disposition: ci-gate
+  imports: []
+- path: check_corpus_specificity.py
+  purpose: "Corpus specificity run (STRATEGY.md build order step 5)"
+  owner: bennet
+  last_run: "2026-08-08"
+  category: keep
+  disposition: ci-gate
+  imports: []
+- path: component_defect_mutator.py
+  purpose: "Deterministic component-value/MPN-defect mutations on a synthetic fixture"
+  owner: bennet
+  last_run: "2026-08-08"
+  category: keep
+  disposition: utility
+  imports: []
+- path: rcm_blocking_diag.py
+  purpose: "Problem-3 spot-check diagnostic for the combined (Fix A + Fix B) router"
+  owner: bennet
+  last_run: "2026-08-08"
+  category: keep
+  disposition: utility
+  imports: []
+
+- path: rcm_empty_blocker_diag.py
+  purpose: "RCM empty-blocker diagnostic"
+  owner: bennet
+  last_run: "2026-08-08"
+  category: keep
+  disposition: utility
+  imports: []
+- path: rcm_pin_positions.py
+  purpose: "RCM pin-position analysis"
+  owner: bennet
+  last_run: "2026-08-08"
+  category: keep
+  disposition: utility
+  imports: []
+- path: rcm_spatial_analysis.py
+  purpose: "RCM spatial analysis"
+  owner: bennet
+  last_run: "2026-08-08"
+  category: keep
+  disposition: utility
+  imports: []
