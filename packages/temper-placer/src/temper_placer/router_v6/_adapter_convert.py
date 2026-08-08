@@ -184,6 +184,7 @@ def route_pcb(
     components: list | None = None,
     enable_net_batching: bool = False,
     net_batch_size: int = 10,
+    enable_nlayer_astar_spike: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -261,6 +262,11 @@ def route_pcb(
             with ``enable_bundling``/``max_sat_nets``.
         net_batch_size: Nets per Stage 3 SAT batch when
             ``enable_net_batching=True``. Default 10.
+        enable_nlayer_astar_spike: Opt into the N-layer, via-aware A*
+            pathfinding spike prototype (``_astar_nlayer.py``) instead of
+            the production 2-layer-capped path. Default False -- see
+            ``RouterV6Pipeline.__init__``'s docstring for the full
+            rationale.
 
     Returns:
         RoutingResult with completion_rate, routed_pcb_content, and
@@ -359,6 +365,7 @@ def route_pcb(
         sat_time_limit_ms=sat_time_limit_ms,
         enable_net_batching=enable_net_batching,
         net_batch_size=net_batch_size,
+        enable_nlayer_astar_spike=enable_nlayer_astar_spike,
     )
 
     # Resolve the net->class-name mapping from the caller's design_rules.

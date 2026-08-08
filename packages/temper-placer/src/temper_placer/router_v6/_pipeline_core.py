@@ -80,6 +80,7 @@ class RouterV6Pipeline:
         enable_geographic_pruning: bool = False,
         enable_net_batching: bool = False,
         net_batch_size: int = 10,
+        enable_nlayer_astar_spike: bool = False,
     ):
         """
         Initialize Router V6 pipeline.
@@ -180,6 +181,20 @@ class RouterV6Pipeline:
                 per batch, corroborated by a MEASURED 2.6M-variable model
                 that already survived construction under an 8GB
                 ``ulimit -v`` cap on this same skeleton).
+            enable_nlayer_astar_spike: Opt into the N-layer, via-aware A*
+                pathfinding SPIKE PROTOTYPE (``_astar_nlayer.py``,
+                ``spike/nlayer-via-astar`` branch) instead of the
+                production ``run_astar_pathfinding`` (which is hardcoded
+                to at most 2 layers -- see ``select_routing_grids`` and
+                ``run_astar_pathfinding``'s ``alternate_grid`` singular
+                parameter). Default False -- production behavior
+                completely unchanged. See
+                ``docs/evidence/2026-08-08-nlayer-via-astar-spike.md`` for
+                what this buys, what it doesn't, and why it is not wired
+                in as the default. Not combined with
+                ``enable_all_pad_tree`` -- the spike's driver does not
+                implement the experimental all-terminal-tree path (see
+                ``_astar_nlayer.py``'s module docstring).
         """
         del enable_connectivity_verifier  # inherited unused arg (baseline debt)
         if dfm_fail_on not in ("none", "critical", "all"):
@@ -219,6 +234,9 @@ class RouterV6Pipeline:
         # `#871` net-batching prototype (see net_batching.py)
         self.enable_net_batching = enable_net_batching
         self.net_batch_size = net_batch_size
+        # Spike prototype opt-in (see enable_nlayer_astar_spike's docstring
+        # above). Default False -- production behavior unchanged.
+        self.enable_nlayer_astar_spike = enable_nlayer_astar_spike
         self.last_batch_results: list[Any] = []
         # Per-net layer assignments resolved from the netclass SSOT (W2 R2).
         # Maps net name -> LayerAssignment; consumed to constrain layer choice.
