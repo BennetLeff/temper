@@ -23,8 +23,9 @@ module's own docstrings below for the mechanism):**
   it is the state that now has to survive the subprocess boundary (see
   below) once per batch, every batch: the ``consumed`` dict lives in the
   *parent* process, is used to compute ``shrunk_widths`` in the parent, and
-  ``shrunk_widths`` is then pickled across the fork/exec boundary into each
-  batch's fresh child process (see :func:`_run_subset_subprocess`).
+  ``shrunk_widths`` is then pickled as a ``multiprocessing`` ``Process``
+  arg into each batch's fresh (``spawn``-context) child process (see
+  :func:`_run_subset_subprocess`).
 - **Creepage, HV/SELV separation, and geometric clearance** are, by
   inspection of ``constraint_model.py`` (no ``CreepageConstraint`` or
   ``ClearanceConstraint`` class exists there — only ``CapacityConstraint``,
@@ -57,13 +58,18 @@ process:
 
 - **What crosses the boundary, and why that set was chosen.** The child
   needs everything ``_solve_subset`` needs to build and solve one batch's
-  model: the *static-across-the-whole-run* ``ParsedPCB`` and skeleton
-  graphs (written to a temp pickle file **once**, before the batch loop,
-  and re-read by every child from that path -- avoids re-pickling
-  multi-MB structures through a pipe on every one of up to ~11 + N-retry
-  subprocess launches) plus the *per-batch* pieces that actually vary --
-  the net subset, this batch's already-shrunk ``channel_widths``, and the
-  batch's diff pairs (passed directly as ``Process`` args; small). The
+  model. The *static-across-the-whole-run* pieces -- the board's source
+  path (each child re-parses it once, cheap: ~40ms measured on the
+  production board) plus the skeleton graphs and a precomputed per-net
+  trace-width/clearance snapshot -- are written to a temp pickle file
+  **once**, before the batch loop, and re-read by every child from that
+  path (:func:`_write_shared_context`; see its docstring for why this is
+  a source path and a rules *snapshot*, not the live ``ParsedPCB``/
+  ``DesignRules`` objects -- they turned out to be Rust pyo3 pyclasses
+  with no pickle support, discovered by this failing loudly rather than
+  assumed). The *per-batch* pieces that actually vary -- the net-name
+  subset, this batch's already-shrunk ``channel_widths``, and the batch's
+  diff pairs -- are passed directly as ``Process`` args (small). The
   child sends back only a **small, plain-dict summary** -- topology
   (edges/channels actually used, needed for Stage 4 and for
   :func:`_consume_capacity`), variable/constraint counts, wall time, and
