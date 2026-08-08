@@ -18,12 +18,7 @@ temper_placer/core/placement_drc.py::validate_placement_drc  # TODO: temper-xxx
 temper_placer/core/routing_validator.py::RoutingValidator.validate  # TODO: temper-xxx
 temper_placer/core/routing_validator.py::validate_routing_result  # TODO: temper-xxx
 temper_placer/core/state.py::PlacementState.from_netlist_and_board  # TODO: temper-xxx
-temper_placer/core/state.py::PlacementState.get_rotation_angles  # TODO: temper-xxx
-temper_placer/core/state.py::PlacementState.get_rotations  # TODO: temper-xxx
-temper_placer/core/state.py::PlacementState.random_init  # TODO: temper-xxx
-temper_placer/core/state.py::sample_rotation  # TODO: temper-xxx
 temper_placer/adapters/deterministic_adapter.py::wrap_deterministic_stage  # TODO: temper-xxx
-temper_placer/adapters/placement_adapter.py::TemplatePlacementStage.run  # TODO: temper-xxx
 temper_placer/adapters/register_strategies.py::PlacementStage.run  # TODO: temper-xxx
 temper_placer/adapters/register_strategies.py::RoutingStage.run  # TODO: temper-xxx
 temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage0_LoadPCB.run  # TODO: temper-xxx
@@ -686,7 +681,6 @@ temper_placer/pipeline/terminal_dashboard.py::TerminalDashboardObserver.on_stage
 temper_placer/pipeline/terminal_dashboard.py::TerminalDashboardObserver.on_stage_start  # TODO: temper-xxx
 temper_placer/pipeline/terminal_dashboard.py::TerminalDashboardObserver.update  # TODO: temper-xxx
 temper_placer/pipeline/terminal_dashboard.py::create_terminal_dashboard  # TODO: temper-xxx
-temper_placer/pipeline/topological.py::run_topological_phase  # TODO: temper-xxx
 temper_placer/pipeline/visualization.py::ProgressCallback.on_epoch  # TODO: temper-xxx
 temper_placer/pipeline/visualization.py::ProgressCallback.on_iteration  # TODO: temper-xxx
 temper_placer/pipeline/visualization.py::ProgressCallback.on_phase_complete  # TODO: temper-xxx

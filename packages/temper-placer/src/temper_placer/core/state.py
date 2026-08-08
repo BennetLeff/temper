@@ -189,40 +189,6 @@ class PlacementState:
             net_virtual_nodes=net_virtual_nodes,
         )
 
-    @classmethod
-    def random_init(
-        cls,
-        n_components: int,
-        board_width: float,
-        board_height: float,
-        key: NDArray | None = None,
-        margin: float = 10.0,
-        origin: tuple[float, float] = (0.0, 0.0),
-        n_nets: int = 0,
-    ) -> PlacementState:
-        """DEPRECATED: JAX random initialization removed.
-
-        Use CP-SAT placer for initial placement instead.
-        """
-        raise NotImplementedError(
-            "PlacementState.random_init removed (JAX retirement). "
-            "Use CP-SAT placer for initial placement."
-        )
-
-    def get_rotations(self, temperature: float, key: NDArray) -> NDArray:
-        """DEPRECATED: JAX Gumbel-Softmax rotation sampling removed."""
-        raise NotImplementedError(
-            "get_rotations removed (JAX retirement). "
-            "Use CP-SAT placer for discrete placement decisions."
-        )
-
-    def get_rotation_angles(self, temperature: float, key: NDArray) -> NDArray:
-        """DEPRECATED: JAX Gumbel-Softmax rotation sampling removed."""
-        raise NotImplementedError(
-            "get_rotation_angles removed (JAX retirement). "
-            "Use CP-SAT placer for discrete placement decisions."
-        )
-
     def to_discrete(self) -> tuple[NDArray, NDArray]:
         """
         Convert to discrete placement (argmax rotations).
@@ -239,17 +205,6 @@ class PlacementState:
     def n_components(self) -> int:
         """Number of components in this state."""
         return self.positions.shape[0]
-
-
-def sample_rotation(logits: NDArray, key: NDArray, temperature: float = 1.0) -> NDArray:
-    """DEPRECATED: JAX Gumbel-Softmax rotation sampling removed.
-
-    Use CP-SAT placer for discrete placement decisions instead.
-    """
-    raise NotImplementedError(
-        "sample_rotation removed (JAX retirement). "
-        "Use CP-SAT placer for discrete placement decisions."
-    )
 
 
 def rotation_matrix(angle: float) -> NDArray:

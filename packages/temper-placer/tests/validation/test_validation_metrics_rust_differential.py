@@ -45,7 +45,7 @@ Bit-exactness catalog measured for this migration (see
 Caller-invariant note: ``state.positions`` is a plain-Python-dataclass
 field (``core/state.py``'s ``PlacementState`` is NOT a Rust pyclass) with
 no dtype enforcement at the type level — only the *factories*
-(``from_positions``, ``random_init``, etc.) hardcode
+(``from_positions``, etc.) hardcode
 ``dtype=np.float32``. This migration assumes (matching the precedent
 already merged for the same field in
 ``packages/temper-thermal/src/geometric_metrics.rs`` /
