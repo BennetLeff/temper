@@ -758,24 +758,42 @@ module Top:
     # ===========================================================================
     
     hb.dc_bus.hv_plus ~ dc_bus_plus
-    # OCP-02 IS NOT WIRED IN. The shunt splice that belongs here is removed
-    # deliberately -- as designed it would destroy the sense amplifier.
+    # OCP-02 IS WIRED IN (2026-08-07, Option A -- second current
+    # transformer). History: docs/hardware/OCP02_DESIGN.md originally
+    # claimed a low-side INA240 shunt in DC_BUS_RTN keeps common mode near
+    # ground. That was wrong -- this is a voltage-doubler topology:
+    # `power_return` IS the doubler midpoint and IS signal ground, so
+    # DC_BUS_RTN sits at roughly -170 V with respect to it, ~2x the
+    # INA240's -4..+80 V common-mode range -- far outside its absolute
+    # maximum. See docs/hardware/OCP02_DECISION_BRIEF.md (the A/B/C/D
+    # options considered) and docs/hardware/OCP02_QUANTIFIED_TRADEOFF.md
+    # (the quantified evidence that settled it) for the full decision
+    # record; SecondaryOCPComparator's own docstring has the current
+    # derivation and worst-case arithmetic.
     #
-    # docs/hardware/OCP02_DESIGN.md claimed a low-side shunt in DC_BUS_RTN
-    # keeps the INA240's common mode near ground. That is wrong. This is a
-    # voltage-doubler topology: `power_return` IS the doubler midpoint
-    # (main.ato:247) and IS signal ground (main.ato:283), so DC_BUS_RTN sits
-    # at roughly -170 V with respect to it. The INA240's common-mode range is
-    # -4 V to +80 V, so the part would see ~170 V of common mode -- far
-    # outside its absolute maximum.
+    # A current transformer sidesteps the common-mode problem entirely
+    # (magnetically isolated secondary, referenced to signal ground
+    # regardless of DC_BUS_RTN's absolute potential) -- the same technique
+    # OCP-01's own CT (ct_sense) already uses on the tank-return path.
+    # SecondaryOCPComparator's CT primary is spliced IN SERIES in the
+    # DC_BUS_RTN conductor, at the same point the original shunt design
+    # used: between the half-bridge (this connection, below) and the
+    # shared dc_bus_minus net that power_in/discharge sit on. This mirrors
+    # ct_sense's own tank-return splice (tank.out ~ ct_sense.primary_in;
+    # ct_sense.primary_out ~ power_return, above).
     #
-    # SecondaryOCPComparator remains defined in modules.ato with the
-    # verified INA240 pinout, ready to wire once the sensing domain is
-    # resolved. The options are a shunt at the doubler midpoint (common mode
-    # ~0 V, but that is the tank return, which erodes OCP-02's independence
-    # from OCP-01), an isolated amplifier (AMC1300 / ACPL-C79A class), or a
-    # high-common-mode part. That is a topology decision, not a value change.
-    hb.dc_bus.hv_minus ~ dc_bus_minus
+    # KNOWN, PENDING BOARD FOLLOW-ON (elec/ only in this change; pcb/ is
+    # out of scope): the second CST3015-100ED footprint has not been placed
+    # on pcb/temper.kicad_pcb. docs/hardware/OCP02_QUANTIFIED_TRADEOFF.md
+    # SS3 measured (real kicad-cli DRC, scratch board copies) a ~44mm HV
+    # run from this splice to a domain-safe candidate site costing 9 new
+    # creepage violations (7 after correcting an unrelated, pre-existing
+    # netclass-pattern gap), 6 against U7 (the high-side gate driver) --
+    # known and attributed, not yet remediated. A BOM row is also still
+    # needed (docs/hardware/BOM.md untouched by this change, per
+    # instruction).
+    hb.dc_bus.hv_minus ~ safety.ocp2_bus_in
+    safety.ocp2_bus_out ~ dc_bus_minus
     hb.power_15v.vcc ~ vcc_15v
     hb.power_15v.gnd ~ gnd
     hb.power_3v3.vcc ~ vcc_3v3
@@ -857,10 +875,19 @@ module Top:
     # 2026-07-27-ovp01-ref2025-implementation.md): OVPComparator's comp.INN
     # is referenced to RTDSensing's REF2025.VREF (2.5V, +/-0.05%/8ppm/C)
     # instead of a resistor divider off vcc_3v3 -- see OVPComparator's
-    # docstring and r_div_bot's comment for the full derivation. VREF was
-    # otherwise completely unused; this is the only place it is wired.
+    # docstring and r_div_bot's comment for the full derivation.
     safety.ovp.vref_ext.line ~ rtd_pan.reference.VREF
     safety.ovp.vref_ext.line.override_net_name = "OVP_VREF_2V5"
+
+    # OCP-02 REF2025 reference (Option A implementation, 2026-08-07): same
+    # pattern as OVP-01 above -- SecondaryOCPComparator's comp.INN is
+    # referenced to the SAME REF2025.VREF (a second load on this buffered,
+    # actively-driven output; its 20mA rating has enormous headroom against
+    # a second TLV3201's ~pA CMOS input bias current) rather than a
+    # resistor divider off vcc_3v3. See SecondaryOCPComparator's docstring
+    # ("WHY REF2025") for the full derivation.
+    safety.ocp2.vref_ext.line ~ rtd_pan.reference.VREF
+    safety.ocp2.vref_ext.line.override_net_name = "OCP2_VREF_2V5"
 
     # Watchdog
     mcu.wdt_kick.line ~ safety.wdt_kick.line
