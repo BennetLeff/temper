@@ -15,7 +15,10 @@ import contextlib
 from dataclasses import dataclass, field
 from typing import Any
 
-from shapely.geometry import MultiPoint, Point, Polygon
+import numpy as np
+import shapely
+from shapely import STRtree
+from shapely.geometry import MultiPoint, Polygon
 
 
 @dataclass(frozen=True)
@@ -24,13 +27,25 @@ class TypeSignature:
 
     Two nets share a bundle class iff their TypeSignature is identical AND
     their geometric footprints overlap sufficiently (Jaccard > 0.5).
+
+    2026-08-07 (docs/evidence/2026-08-07-sat-model-reduction-options.md
+    Sec 3.4): the original signature also matched on exact ``trace_width``/
+    ``clearance`` (rounded floats) and ``pin_layer_set`` (an exact
+    frozenset). On the production board that produced only 8 bundle
+    classes covering 21/110 nets -- this board has 11 distinct design-rule
+    netclasses (``netclass_rules.yaml``), each with its own width/clearance,
+    so "same coarse net_class" (e.g. 98 nets all classified "signal" by
+    ``net_classification.classify_net_type``) almost never meant "same
+    exact width/clearance/pin-layer-set" in practice. Widened here to
+    ``safety_category`` (the design-rule-authoritative AC/HV/LV isolation
+    tier) + ``net_class`` (the coarse name-pattern bucket) + diff-pair
+    status -- see this class's own module docstring / ``analyze()``'s
+    soundness note for why this widening does not weaken the model.
     """
 
+    safety_category: str | None  # "AC", "HV", "LV", or None (unassigned net)
     net_class: str  # "ground", "power", "hv", "signal"
-    trace_width: float  # mm
-    clearance: float  # mm
     has_diff_pair: bool
-    pin_layer_set: frozenset[str]
 
 
 @dataclass
@@ -71,10 +86,50 @@ class BundleAnalyzer:
     """Partitions nets into bundle equivalence classes.
 
     Two nets are bundle-equivalent iff:
-    1. Their TypeSignature is identical (same net class, width, clearance, etc.)
+    1. Their TypeSignature is identical (same safety_category, net_class,
+       diff-pair status -- see ``TypeSignature``'s own docstring for why
+       exact trace_width/clearance/pin_layer_set matching was dropped
+       2026-08-07)
     2. Their geometric footprints overlap with Jaccard index > 0.5
 
     Diff-pair nets form their own dedicated 2-net bundles (KD6).
+
+    **Soundness of the widened TypeSignature** (docs/evidence/2026-08-07-
+    sat-model-reduction-options.md Sec 3.4, this task's own fix):
+
+    - **Capacity soundness**: a bundle's SAT channel variable is shared by
+      all its member nets, so a channel-capacity term must reflect the
+      combined physical width of every member, not one representative
+      member's width. ``ModelBuilder._create_capacity_constraints`` (fixed
+      alongside this change) sums each member net's *own*
+      ``trace_width_mm + clearance_mm`` from ``design_rules`` when building
+      a bundle's capacity term -- so bundling nets with different widths no
+      longer under-counts the capacity a bundle actually needs. This is
+      what makes it safe to drop the old exact ``trace_width``/``clearance``
+      match: the capacity constraint is exact per-member now, not merely
+      "close enough because everyone in the bundle has the same width."
+    - **Safety-domain soundness**: bundling never crosses an AC/HV/LV
+      boundary, because ``safety_category`` -- the design-rule-authoritative
+      isolation tier from ``netclass_rules.yaml`` (not the name-pattern
+      heuristic in ``net_classification.py``, which can misclassify a
+      HV-designated net like ``GATE_HS``/``GATE_LS`` as "signal" purely
+      because its *name* doesn't match an HV pattern) -- is part of the
+      required-match signature. A net design-rules tags AC or HV can never
+      share a bundle (and therefore never share a capacity/routing
+      decision) with an LV net, regardless of what the coarser ``net_class``
+      says.
+    - **Geometric soundness is unchanged**: the Jaccard > 0.5 footprint-
+      overlap requirement -- the primary defense against forcing unrelated,
+      board-spanning nets into one bundle -- is untouched by this change.
+    - **Known pre-existing gap, not affected either way**: SMD pin
+      layer restrictions (``ModelBuilder._create_layer_constraints``) are
+      not enforced for bundled member nets today, independent of
+      ``TypeSignature`` -- that function only ever looks up per-net
+      ``(net_idx, edge_id)`` keys, which bundled member nets never
+      populate (only the unbundled/singleton nets do). Dropping
+      ``pin_layer_set`` from the signature does not remove any enforcement
+      that existed, since none existed for bundled nets before this change
+      either; this remains a real, separately-scoped gap for future work.
     """
 
     def __init__(
@@ -102,6 +157,13 @@ class BundleAnalyzer:
 
         # Compute median skeleton edge length for footprint expansion
         self._median_edge_length = self._compute_median_edge_length()
+
+        # Lazily-built spatial index over every skeleton edge's midpoint,
+        # shared across all `_compute_covered_edges` calls -- see that
+        # method's docstring for why (2026-08-07 vectorization).
+        self._edge_ids: np.ndarray | None = None
+        self._edge_points: np.ndarray | None = None
+        self._edge_tree: STRtree | None = None
 
     def _compute_median_edge_length(self) -> float:
         lengths = []
@@ -182,22 +244,59 @@ class BundleAnalyzer:
             return hull.buffer(self._median_edge_length)
         return Polygon()
 
-    def _compute_covered_edges(self, footprint: Polygon) -> frozenset[str]:
-        """Compute the set of skeleton edge IDs whose midpoints lie within the footprint."""
-        edges: set[str] = set()
+    def _build_edge_index(self) -> None:
+        """Precompute every skeleton edge's id and midpoint, once, plus an
+        STRtree spatial index over the midpoints.
+
+        2026-08-07 vectorization (docs/evidence/2026-08-07-sat-model-
+        reduction-options.md Sec 3.4): the previous ``_compute_covered_edges``
+        re-derived every one of ``total_edges`` (id, midpoint) pairs AND
+        re-tested each one against the net's footprint from scratch on
+        *every* call -- i.e. once per net. On the production board
+        (204,490 edges x 110 nets) that is ~22.5M raw-Python
+        ``Polygon.contains(Point(...))`` calls and MEASURED ~391s wall,
+        ~3.5s/net average (one net alone: 80.6s). This method builds the
+        (edge_id, midpoint) table and its STRtree exactly once, cached on
+        the instance; ``_compute_covered_edges`` then does one
+        bounding-box-pruned, exact ``STRtree.query(..., predicate="contains")``
+        call per net instead of a Python-level loop over every edge -- the
+        same fix shape as ``07d514f9``'s KD-tree rewrite of island bridging
+        elsewhere in this pipeline.
+        """
+        if self._edge_ids is not None:
+            return
+
+        edge_ids: list[str] = []
+        mids_x: list[float] = []
+        mids_y: list[float] = []
         for layer_name, skeleton in self.skeletons.items():
             for i, (_u, _v) in enumerate(skeleton.graph.edges):  # type: ignore[attr-defined]
                 n1, n2 = sorted([_u, _v])
-                edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
-                # Check if edge midpoint is within footprint
-                mx = (n1[0] + n2[0]) / 2.0
-                my = (n1[1] + n2[1]) / 2.0
-                try:
-                    if footprint.contains(Point(mx, my)):
-                        edges.add(edge_id)
-                except Exception:
-                    pass
-        return frozenset(edges)
+                edge_ids.append(f"{layer_name}_E{i}_{n1}_{n2}")
+                mids_x.append((n1[0] + n2[0]) / 2.0)
+                mids_y.append((n1[1] + n2[1]) / 2.0)
+
+        self._edge_ids = np.array(edge_ids, dtype=object)
+        if edge_ids:
+            self._edge_points = shapely.points(np.array(mids_x), np.array(mids_y))
+            self._edge_tree = STRtree(self._edge_points)
+        else:
+            self._edge_points = np.empty(0, dtype=object)
+            self._edge_tree = None
+
+    def _compute_covered_edges(self, footprint: Polygon) -> frozenset[str]:
+        """Compute the set of skeleton edge IDs whose midpoints lie within the footprint."""
+        self._build_edge_index()
+        assert self._edge_ids is not None
+        if self._edge_tree is None or footprint.is_empty:
+            return frozenset()
+        try:
+            idx = self._edge_tree.query(footprint, predicate="contains")
+        except Exception:
+            return frozenset()
+        if len(idx) == 0:
+            return frozenset()
+        return frozenset(self._edge_ids[idx].tolist())
 
     def _jaccard(self, a: frozenset, b: frozenset) -> float:
         """Jaccard index: |A ∩ B| / |A ∪ B|."""
@@ -210,39 +309,28 @@ class BundleAnalyzer:
         return intersection / union
 
     def _compute_type_signature(self, net) -> TypeSignature:
-        """Compute the constraint-type signature for a net."""
+        """Compute the constraint-type signature for a net.
+
+        See ``TypeSignature``'s own docstring (2026-08-07) for why this
+        keys on ``safety_category`` (design-rule-authoritative AC/HV/LV
+        isolation tier) + ``net_class`` (coarse name-pattern bucket) +
+        diff-pair status, rather than exact trace_width/clearance/
+        pin_layer_set as before.
+        """
         from temper_placer.router_v6.net_classification import classify_net_type
 
         net_class = classify_net_type(net.name)
         has_diff_pair = net.name in self._diff_pair_net_names
 
-        width = 0.2
-        clearance = 0.2
+        safety_category: str | None = None
         if self.design_rules:
             rule = self.design_rules.get_rules_for_net(net.name)  # type: ignore[attr-defined]
-            width = rule.trace_width_mm
-            clearance = rule.clearance_mm
-
-        # Pin layer set from component pin lookups
-        pin_layers: set[str] = set()
-        if self.pcb:
-            comp_by_ref = {comp.ref: comp for comp in self.pcb.components}  # type: ignore[attr-defined]
-            for comp_ref, pin_name in getattr(net, "pins", []):
-                comp = comp_by_ref.get(comp_ref)
-                if comp is None:
-                    continue
-                pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None  # type: ignore[attr-defined]
-                if pin and not getattr(pin, "is_pth", True):
-                    pin_layers.add(getattr(pin, "layer", "F.Cu"))
-                else:
-                    pin_layers.add("any")
+            safety_category = getattr(rule, "safety_category", None)
 
         return TypeSignature(
+            safety_category=safety_category,
             net_class=net_class,
-            trace_width=round(width, 4),
-            clearance=round(clearance, 4),
             has_diff_pair=has_diff_pair,
-            pin_layer_set=frozenset(pin_layers),
         )
 
     def analyze(self) -> BundleManifest:
