@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Issue #617 hoist -- the run-B fixed-copper recipe through the production caller.
 
-# provenance: commit=bcc5fa0ded062584d23cc707298c705afe4fcdc9 dirty=false
+# provenance: commit=a7dc2c5636121d5c0b18ef51c7eaadf4f8fe17b7 dirty=false (re-pointed from the pre-merge branch SHA, orphaned by squash-merge, to PR #653's merge commit -- issue #617)
 
 Runs the production repair recipe through ``run_clearance_repair_solve``
 WITH the fixed-copper dict (the run-B values: free_refs={K3, C27},
@@ -67,7 +67,7 @@ FREE = {"K3", "C27"}
 MARGIN_FC_MM = 0.05
 PCB = REPO / "pcb" / "temper.kicad_pcb"
 # Set at commit time (see docs/evidence/2026-08-03-fixed-copper-repair-caller.md).
-_PROVENANCE_COMMIT = "bcc5fa0ded062584d23cc707298c705afe4fcdc9"
+_PROVENANCE_COMMIT = "a7dc2c5636121d5c0b18ef51c7eaadf4f8fe17b7"
 _PROVENANCE_DIRTY = False
 
 

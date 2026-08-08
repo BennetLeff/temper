@@ -1,3 +1,5 @@
+<!-- provenance: commit=d5f4593142da87c75f9b21734e0e65d0e991f16d dirty=UNKNOWN -->
+
 # wasm32 `pow` divergence: measured, and whether it can flip a DRC verdict
 
 **Date:** 2026-08-06

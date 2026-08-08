@@ -1,3 +1,5 @@
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled: predates the evidence-provenance gate and no self-declared commit exists in this file's own content. See .evidence-provenance-allowlist. -->
+
 # Mains↔SELV Isolation Barrier — Feasibility Evidence (2026-08-01)
 
 Reproducible analysis of whether a straight `MAINS_SELV_ISOLATION_BARRIER` keepout

@@ -1,6 +1,6 @@
 # `Py<PyAny>` Surface Re-Audit + Removal Plan (post-wave-2)
 
-provenance: commit=4da76ebb0 dirty=false
+provenance: commit=4da76ebb00fe7bcf0590c00de14b6d498aa6b679 dirty=false
 
 > **Wave-3 outcome addendum (2026-08-07, commit `7dcfb2fe`):** This plan's
 > Wave A and Wave B both overstate what is removable. Wave-3 landed the safe

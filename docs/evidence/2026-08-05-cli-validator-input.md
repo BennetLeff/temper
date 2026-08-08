@@ -1,4 +1,4 @@
-<!-- provenance: commit=d1f6d5e9644b9ec03c1b28ff4f300968548e3b9b dirty=false -->
+<!-- provenance: commit=02abba561939a0cbb6af7d963ba4e6bc9d6b414d dirty=false (re-pointed from the pre-merge branch SHA, orphaned by squash-merge, to PR #702's merge commit -- "feat(placer): production real-board loader + CLI validator_input wiring (#617) (#702)") -->
 
 # CLI optimize path REQ-SAFE-01 validator_input wiring — issue #617 second half
 

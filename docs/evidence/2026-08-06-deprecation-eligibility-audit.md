@@ -1,6 +1,6 @@
 # Deprecation eligibility audit — what Python can be deleted NOW
 
-<!-- provenance: commit=a365f0906 (origin/main HEAD at audit time) branch=docs/deprecation-audit
+<!-- provenance: commit=a365f090613ab030b5a0a3eb3b8739cdb328d4af dirty=UNKNOWN (origin/main HEAD at audit time; working-tree cleanliness at audit time was not recorded) branch=docs/deprecation-audit
      date=2026-08-06 method=AST import-gate over src/ + tests/ + scripts/ + benchmarks/ (grep-verified),
      differential-mapped shim population, ledger + handoff cross-check, per-mutant campaign analysis -->
 

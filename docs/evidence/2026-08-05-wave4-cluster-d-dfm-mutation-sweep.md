@@ -1,6 +1,6 @@
 # Wave 4 cluster D — router_v6 post-route DFM slice: anti-vacuity mutation sweep — 2026-08-05
 
-<!-- provenance: commit=1e71b613cd110849e3861f2a7d754671c66b15a3 dirty=true -->
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- the originally recorded commit (1e71b613cd110849e3861f2a7d754671c66b15a3) does not resolve to any commit object in this repository (dangling, orphaned by rebase/squash) and no persisting equivalent could be identified without guessing. See .evidence-provenance-allowlist. -->
 
 **Base commit:** `1e71b613c` (the Phase A TDD-RED commit: pinned oracle,
 shared corpus, RED differential, PBT) plus the working-tree Phase B change

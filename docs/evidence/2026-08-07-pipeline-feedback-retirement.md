@@ -1,3 +1,5 @@
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled: predates the evidence-provenance gate and no self-declared commit exists in this file's own content. See .evidence-provenance-allowlist. -->
+
 # `pipeline/feedback.py` retirement (468 LOC, zero callers)
 
 **Date:** 2026-08-07

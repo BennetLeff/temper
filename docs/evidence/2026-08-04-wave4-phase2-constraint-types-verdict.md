@@ -1,3 +1,5 @@
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled: predates the evidence-provenance gate and no self-declared commit exists in this file's own content. See .evidence-provenance-allowlist. -->
+
 # Wave 4 Phase 2 — `_constraint_types` is not a pyo3-pyclass candidate
 
 **Verdict: do not migrate. Re-scope Phase 2 to `core/**` and `pcl/**`.**

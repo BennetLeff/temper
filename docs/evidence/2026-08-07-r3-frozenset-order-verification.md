@@ -1,4 +1,4 @@
-<!-- provenance: commit=00ec5f94a dirty=false -->
+<!-- provenance: commit=00ec5f94a535ff86b4042748f7b036c139b3cac2 dirty=false -->
 
 # R3 — Board producer + frozenset-order caveat verification
 

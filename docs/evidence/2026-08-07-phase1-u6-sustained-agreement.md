@@ -1,3 +1,5 @@
+<!-- provenance: commit=9478209623e068449f9b0bbb6edcba991322b7bd dirty=UNKNOWN -- this measurement spans 10 consecutive origin/main commits (see "Commit Selection" below); the field above names the most recent (#10, the state as-of which this document was written), not a single anchor for the whole sweep -->
+
 # Phase 1 U6 — R19 Sustained Agreement
 
 **Date:** 2026-08-07  

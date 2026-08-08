@@ -1,4 +1,4 @@
-<!-- provenance: commit=8725ad475f94ad8af5b7634fc2e191bc71602a3b dirty=false -->
+<!-- provenance: commit=08560eac2643904fb4db8f20f6edf7372d683c1b dirty=false (re-pointed from the pre-merge branch SHA, orphaned by squash-merge, to the merge commit that actually landed this work on main) -->
 
 # Phase 1 U8 — Multi-Worker Deployment (Separate Per-Family Workers)
 

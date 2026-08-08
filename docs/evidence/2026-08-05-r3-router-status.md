@@ -1,4 +1,4 @@
-<!-- provenance: commit=c6b5402684ca4fa75a307a9e6e17f9e6b2538e04 dirty=false -->
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -- the originally recorded commit (c6b5402684ca4fa75a307a9e6e17f9e6b2538e04) does not resolve to any commit object in this repository (dangling, orphaned by rebase/squash) and no persisting equivalent could be identified without guessing. See .evidence-provenance-allowlist. -->
 
 # R3 Router Status: fix confirmed applied, gate un-masked, route timing unmeasurable
 

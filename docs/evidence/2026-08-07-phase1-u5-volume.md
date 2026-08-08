@@ -1,3 +1,5 @@
+<!-- provenance: commit=be7e25538ac94b897976bb6d7ace97f6ccf0d752 dirty=UNKNOWN -->
+
 # Phase 1 U5 — Formal Local Volume Run
 
 **Date:** 2026-08-07  

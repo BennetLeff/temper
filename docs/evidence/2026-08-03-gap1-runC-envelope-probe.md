@@ -1,4 +1,4 @@
-<!-- provenance: commit=5d574d4c1d33c42441a84ebd753f65068f514532 dirty=false -->
+<!-- provenance: commit=f6933d0a241ea1bc04f8395cf2ee4fe7d87c459e dirty=false (re-pointed from a dangling SHA to the base commit this document's own Sec "Base" line already names -- see below) -->
 
 # Gap-1 run-C envelope probe — does relaxing the displacement cap unblock the zone-inclusive solve? (issue #618)
 

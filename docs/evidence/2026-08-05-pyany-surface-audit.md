@@ -1,6 +1,6 @@
 # `Py<PyAny>` Surface Audit + Removal Plan (post-wave-1)
 
-provenance: commit=db89355a6 dirty=false
+provenance: commit=db89355a60076e1e28012d6d22410b862445d3dc dirty=false
 
 Measured against `origin/main` @ `db89355a6` in an isolated worktree
 (`docs/pyany-surface-audit`), 2026-08-05. The guide baseline is

@@ -212,6 +212,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from _lib.gate_allowlist import (  # noqa: E402
@@ -243,9 +245,17 @@ REPO_ROOT = find_repo_root()
 # See module docstring "Design decision: an explicit artifact registry".
 # A future routing baseline / benchmark baseline adopts this contract by
 # adding a "provenance" object (schema: measurement_provenance.py) to its
-# own JSON and adding its path here.
+# own JSON (or YAML -- see load_records) and adding its path here.
 MEASURED_ARTIFACTS: list[Path] = [
     REPO_ROOT / "power_pcb_dataset" / "drc_ceiling.json",
+    # The second anchored record (2026-08-07 backlog paydown): board-vs-source
+    # reconciliation for the legacy placement config, consumed by
+    # temper_placer.cli via reference_aliases.load_reference_alias_manifest.
+    # It carried a resolvable measured_at_commit (authority.measured_at_commit)
+    # but no content-hash inputs at all and was not covered by any gate --
+    # exactly the "advisory commit, no verified freshness oracle" gap this
+    # script's own module docstring exists to close.
+    REPO_ROOT / "packages" / "temper-placer" / "configs" / "temper_constraints.references.yaml",
 ]
 
 ALLOWLIST_DEFAULT = REPO_ROOT / ".measurement-provenance-allowlist"
@@ -318,10 +328,23 @@ def extract_records(data: object) -> list[tuple[str, Any]]:
 def load_records(artifact: Path) -> list[Record]:
     if not artifact.is_file():
         raise GateError(f"registered measurement artifact not found: {artifact}")
+    # Dispatch on suffix: most registered artifacts are JSON (drc_ceiling.json),
+    # but a measurement record legitimately lives in YAML too (e.g.
+    # temper_constraints.references.yaml, hand-authored and consumed via
+    # yaml.safe_load by temper_placer.cli) -- extract_records() below is
+    # already format-agnostic (it walks a parsed dict/list structure, not
+    # JSON syntax), so supporting both is a loader-only change, not a second
+    # parallel checker.
+    is_yaml = artifact.suffix in (".yaml", ".yml")
     try:
-        data = json.loads(artifact.read_text())
+        if is_yaml:
+            data = yaml.safe_load(artifact.read_text())
+        else:
+            data = json.loads(artifact.read_text())
     except json.JSONDecodeError as exc:
-        raise GateError(f"{artifact}: malformed JSON, cannot verify provenance: {exc}")
+        raise GateError(f"{artifact}: malformed JSON, cannot verify provenance: {exc}") from exc
+    except yaml.YAMLError as exc:
+        raise GateError(f"{artifact}: malformed YAML, cannot verify provenance: {exc}") from exc
     return [Record(artifact, rid, prov) for rid, prov in extract_records(data)]
 
 

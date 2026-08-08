@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled: predates the evidence-provenance gate and no self-declared commit exists in this file's own content. See .evidence-provenance-allowlist.
 """Feasibility evidence for the mains<->SELV isolation-barrier plan (2026-08-01).
 
 Answers OQ1 (achievable corridor width), OQ2 (isolator-BOM dependency) and

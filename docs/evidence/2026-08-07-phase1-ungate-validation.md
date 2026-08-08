@@ -1,3 +1,5 @@
+<!-- provenance: commit=f7a1fbf8fd155a0c303462717d531f8ae7606b7f dirty=UNKNOWN -->
+
 # Phase 1 U4 — validation.rs ungating and family-coverage growth
 
 **Date**: 2026-08-07

@@ -49,3 +49,37 @@ cp-sat-feasibility-evidence-2026-07-03.md  # TODO: temper-xxx
 2026-07-27-invariant-suite-parallel-split.md  # TODO: temper-xxx -- set a real commit when known
 2026-07-27-ovp01-ref2025-implementation.md  # TODO: temper-xxx -- set a real commit when known
 2026-07-27-router-determinism.md  # TODO: temper-xxx -- set a real commit when known
+
+# 2026-08-07 backlog paydown (temper-evidence-backlog): each of the entries
+# below carries either no self-declared commit at all, or a self-declared
+# commit/abbreviated-SHA that does not resolve to any commit object in this
+# repository (dangling -- squash/rebase-orphaned, per
+# check_measurement_provenance.py's own 2026-08-07 incident writeup). Every
+# entry was checked for a resolvable in-doc alternative (a named branch/PR
+# merge commit, or an internal "Base commit" reference) before being
+# allowlisted here; where one existed and resolved, it was used instead of
+# UNKNOWN and the file is NOT on this list. These are the ones for which no
+# honest, git-history-derived replacement could be found.
+2026-08-01-isolation-barrier-budget-sweep.json  # TODO: temper-xxx
+2026-08-01-isolation-barrier-budget-sweep.py  # TODO: temper-xxx
+2026-08-01-isolation-barrier-corridor-feasibility.json  # TODO: temper-xxx
+2026-08-01-isolation-barrier-corridor-feasibility.py  # TODO: temper-xxx
+2026-08-01-isolation-barrier-feasibility-experiment.md  # TODO: temper-xxx
+2026-08-01-isolation-barrier-feasibility.md  # TODO: temper-xxx
+2026-08-01-isolation-barrier-feasibility.py  # TODO: temper-xxx
+2026-08-04-constraint-types-ffi-cost.py  # TODO: temper-xxx
+2026-08-04-router-output-rebaseline-interim.md  # TODO: temper-xxx -- originally-recorded commit is dangling (orphaned)
+2026-08-04-wave4-phase2-constraint-types-verdict.md  # TODO: temper-xxx
+2026-08-04-wave4-phase4-analysis-mutation-sweep.md  # TODO: temper-xxx -- originally-recorded commit is dangling (orphaned)
+2026-08-05-perf-ab-per-benchmark-margin.md  # TODO: temper-xxx -- measured across two unnamed commits, no single anchor
+2026-08-05-r3-producer-anti-vacuity.md  # TODO: temper-xxx -- originally-recorded commit is dangling (orphaned)
+2026-08-05-r3-router-status.md  # TODO: temper-xxx -- originally-recorded commit is dangling (orphaned)
+2026-08-05-wave4-cluster-d-dfm-mutation-sweep.md  # TODO: temper-xxx -- originally-recorded commit is dangling (orphaned)
+2026-08-06-751-phase-a-adapter-inconsistencies.md  # TODO: temper-xxx
+2026-08-06-escape-via-cargo-test-dyld-abort.md  # TODO: temper-xxx
+2026-08-06-ortools-ffi-spike.md  # TODO: temper-xxx
+2026-08-06-pipeline-dead-code-audit.md  # TODO: temper-xxx
+2026-08-06-wave4-phase2-drc-contracts-mutation-sweep.md  # TODO: temper-xxx -- both the recorded abbreviated token and the doc's own named Base commit are dangling (orphaned)
+2026-08-07-channel-skeleton-triage-no-port.md  # TODO: temper-xxx
+2026-08-07-phase1-u8-per-family-shards.md  # TODO: temper-xxx -- doc's own named commit does not resolve
+2026-08-07-pipeline-feedback-retirement.md  # TODO: temper-xxx -- only in-doc commit reference is a citation of a different, past commit, not this doc's own measurement

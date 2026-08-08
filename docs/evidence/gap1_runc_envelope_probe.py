@@ -1,9 +1,9 @@
-# provenance: commit=5d574d4c1d33c42441a84ebd753f65068f514532 dirty=false
+# provenance: commit=f6933d0a241ea1bc04f8395cf2ee4fe7d87c459e dirty=false (re-pointed from a dangling SHA to the base commit docs/evidence/2026-08-03-gap1-runC-envelope-probe.md's own "Base" line already names for this same measurement)
 #!/usr/bin/env python3
 """Gap-1 run-C envelope probe: does relaxing the displacement cap unblock the
 zone-inclusive fixed-copper solve?
 
-# provenance: commit=5d574d4c1d33c42441a84ebd753f65068f514532 dirty=false
+# provenance: commit=f6933d0a241ea1bc04f8395cf2ee4fe7d87c459e dirty=false (re-pointed from a dangling SHA to the base commit docs/evidence/2026-08-03-gap1-runC-envelope-probe.md's own "Base" line already names for this same measurement)
 
 Companion to ``docs/evidence/2026-08-03-gap1-runC-envelope-probe.md``.
 Re-derives the run-C formulation (issue #523, "gap 1") against the CURRENT

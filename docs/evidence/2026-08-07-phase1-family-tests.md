@@ -1,3 +1,5 @@
+<!-- provenance: commit=00ec5f94a535ff86b4042748f7b036c139b3cac2 dirty=UNKNOWN -->
+
 # Phase 1 — family-coverage gap closure (emc, erc, placement)
 
 **Date:** 2026-08-07

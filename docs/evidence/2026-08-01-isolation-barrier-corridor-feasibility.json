@@ -1,4 +1,5 @@
 {
+  "provenance": {"commit": "UNKNOWN", "dirty": "UNKNOWN"},
   "_schema": "isolation-barrier-solve-records/v2",
   "_note": "unsat cores are deduplicated. Each solve carries `unsat_core_ref` (a sha256[:12] key into `unsat_cores`) and `unsat_core_size`. The v1 form inlined the full core into every solve; only a handful of distinct cores exist across these records, so v1 stored the same ~22k-name list many times. Each core is written as one compact line rather than one name per line -- same data, ~3 orders of magnitude fewer lines. Reconstruct v1 exactly by replacing each ref/size pair with `unsat_cores[ref]`.",
   "unsat_cores": {

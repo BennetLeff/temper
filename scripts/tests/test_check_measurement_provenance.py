@@ -607,3 +607,107 @@ class TestSampleCountSchema:
         board.write_text("v1")
         prov = build_provenance(tmp_path, ["board.txt"], source="measured-live")
         assert "sample_count" not in prov
+
+
+# ---------------------------------------------------------------------------
+# TestYamlArtifactSupport -- the second anchored record
+# (temper_constraints.references.yaml) is YAML, not JSON. load_records()
+# must parse it via the same extract_records() walker, not a parallel
+# YAML-only checker.
+# ---------------------------------------------------------------------------
+
+
+class TestYamlArtifactSupport:
+    def test_yaml_artifact_with_top_level_provenance_is_loaded(self, tmp_path):
+        artifact = tmp_path / "manifest.references.yaml"
+        artifact.write_text(
+            "schema_version: 1\n"
+            "authority:\n"
+            "  measured_at_commit: " + VALID_COMMIT + "\n"
+            "component_aliases:\n"
+            "  FOO: BAR\n"
+            "provenance:\n"
+            "  measured_at_commit: " + VALID_COMMIT + "\n"
+            "  dirty: false\n"
+            "  inputs:\n"
+            "    - path: some/input.json\n"
+            "      sha256: " + ("a" * 64) + "\n"
+            "  tool_versions: {}\n"
+            "  source: backfilled-historical\n"
+        )
+        records = load_records(artifact)
+        assert len(records) == 1
+        assert records[0].record_id == "<root>"
+        assert records[0].provenance["measured_at_commit"] == VALID_COMMIT
+        assert records[0].provenance["inputs"] == [{"path": "some/input.json", "sha256": "a" * 64}]
+
+    def test_yml_suffix_also_dispatches_to_yaml_parser(self, tmp_path):
+        artifact = tmp_path / "manifest.yml"
+        artifact.write_text("provenance:\n  measured_at_commit: UNKNOWN\n")
+        records = load_records(artifact)
+        assert len(records) == 1
+        assert records[0].provenance == {"measured_at_commit": "UNKNOWN"}
+
+    def test_malformed_yaml_raises_gate_error(self, tmp_path):
+        artifact = tmp_path / "broken.yaml"
+        artifact.write_text("provenance: [unterminated\n  - this: is not valid yaml::::\n")
+        with pytest.raises(GateError, match="malformed YAML"):
+            load_records(artifact)
+
+    def test_stale_yaml_artifact_is_reported_stale_not_silently_fresh(self, tmp_path):
+        """Reconstructs the exact shape of the real
+        temper_constraints.references.yaml finding: a YAML artifact whose
+        pinned input hash no longer matches the file on disk must fail
+        STALE through the normal evaluate() path -- not a YAML-specific
+        carve-out."""
+        board = tmp_path / "pcb" / "temper.kicad_pcb"
+        board.parent.mkdir()
+        board.write_text("(kicad_pcb (version at-reconciliation-time))")
+        old_hash = sha256_file(board)
+
+        artifact = tmp_path / "temper_constraints.references.yaml"
+        artifact.write_text(
+            "schema_version: 1\n"
+            "component_aliases:\n"
+            "  FOO: BAR\n"
+            "provenance:\n"
+            f"  measured_at_commit: {VALID_COMMIT}\n"
+            "  dirty: UNKNOWN\n"
+            "  inputs:\n"
+            "    - path: pcb/temper.kicad_pcb\n"
+            f"      sha256: {old_hash}\n"
+            "  tool_versions: {}\n"
+            "  source: backfilled-historical\n"
+        )
+
+        # Board drifts after the reconciliation was measured -- the YAML
+        # artifact itself is untouched, exactly like the real incident.
+        board.write_text("(kicad_pcb (version after board changed))")
+
+        outcome = evaluate(tmp_path, [artifact], allowlist={})
+        assert outcome.stale, "a drifted input behind a YAML artifact must be caught, not skipped"
+        assert outcome.fresh == []
+        key, mismatches = outcome.stale[0]
+        assert key == "temper_constraints.references.yaml#<root>"
+        assert mismatches[0].path == "pcb/temper.kicad_pcb"
+
+
+def test_real_references_yaml_artifact_is_registered_and_provenanced():
+    """The real repo file, not a synthetic fixture: confirms
+    packages/temper-placer/configs/temper_constraints.references.yaml is
+    both registered in MEASURED_ARTIFACTS and carries a shape-valid
+    provenance block -- the two steps the module docstring says are both
+    required for a provenance block to actually be checked ('a provenance
+    block nobody points this gate at is exactly as unchecked as no
+    provenance at all')."""
+    from check_measurement_provenance import MEASURED_ARTIFACTS, REPO_ROOT
+
+    target = (
+        REPO_ROOT / "packages" / "temper-placer" / "configs" / "temper_constraints.references.yaml"
+    )
+    assert target in MEASURED_ARTIFACTS
+    records = load_records(target)
+    assert len(records) == 1
+    assert records[0].provenance is not _MISSING
+    err = validate_provenance_shape(records[0].provenance)
+    assert err is None, err

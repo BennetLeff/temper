@@ -5,6 +5,8 @@ date: 2026-08-06
 topic: wave4-router-v6-status-reconciliation
 ---
 
+<!-- provenance: commit=3524812c05e5a9a56d8624b870668d983c38cf83 dirty=UNKNOWN -->
+
 # `router_v6/` status reconciliation
 
 **This document reconciles, file by file, two documents that disagree by

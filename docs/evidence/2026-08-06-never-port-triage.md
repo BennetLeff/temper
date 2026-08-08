@@ -5,6 +5,8 @@ date: 2026-08-06
 topic: wave4-never-port-triage
 ---
 
+<!-- provenance: commit=d5f4593142da87c75f9b21734e0e65d0e991f16d dirty=UNKNOWN -->
+
 # Never-Port Triage — Remaining Python Surface
 
 **This is a recommendation, not a decision.** It does not edit

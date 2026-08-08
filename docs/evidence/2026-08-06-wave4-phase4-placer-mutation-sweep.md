@@ -1,3 +1,5 @@
+<!-- provenance: commit=091203fd7ca0cc2a6cd93f34b4d5e1fc992ab58c dirty=UNKNOWN -->
+
 # Wave-4 Phase-4 placer (non-cp_sat) mutation sweep
 
 Date: 2026-08-06
