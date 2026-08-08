@@ -156,5 +156,7 @@ def build_h_field(
         r_cs = [device_thermal[k].R_theta_cs for k in devices]
         r_sa = [device_thermal[k].R_theta_sa for k in devices]
 
-    raw = _tt.build_h_field_py(cs, ox, oy, h, w, xs, ys, r_cs, r_sa)
+    raw = _tt.build_h_field_py(
+        cs, ox, oy, h, w, xs, ys, r_cs, r_sa, H_CONV_BACKGROUND
+    )
     return np.frombuffer(raw, dtype=np.float64).reshape((h, w)).copy()

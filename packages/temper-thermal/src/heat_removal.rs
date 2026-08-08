@@ -160,6 +160,7 @@ pub fn build_h_field(
     ys: &[f64],
     r_cs: &[f64],
     r_sa: &[f64],
+    h_conv_background: f64,
 ) -> Result<Vec<f64>, BuildHFieldError> {
     let cs = cell_size_mm;
     let ox = origin_x;
@@ -185,9 +186,12 @@ pub fn build_h_field(
 
     // Background convection (uniform).  `(cs * 1e-3) ** 2` is host
     // libm pow (B1); `h_bg = (10.0 * cell_area_m2) / (cs * cs)` is the
-    // reference's left-to-right chain (B7).
+    // reference's left-to-right chain (B7).  `h_conv_background` is the
+    // Python module constant `H_CONV_BACKGROUND` threaded through so the
+    // dead-parameter probe can perturb it (the kernel's own const is the
+    // default; a patched Python value reaches the computation here).
     let cell_area_m2 = hostmath::pow(cs * 1e-3, 2.0);
-    let h_bg = H_CONV_BACKGROUND * cell_area_m2 / (cs * cs);
+    let h_bg = h_conv_background * cell_area_m2 / (cs * cs);
 
     let mut field = vec![h_bg; h * w];
 
@@ -263,7 +267,7 @@ pub fn build_h_field(
 /// ZeroDivisionError) with the reference's message text.
 #[cfg(feature = "python")]
 #[pyfunction]
-#[pyo3(signature = (cell_size_mm, origin_x, origin_y, height_cells, width_cells, xs, ys, r_cs, r_sa))]
+#[pyo3(signature = (cell_size_mm, origin_x, origin_y, height_cells, width_cells, xs, ys, r_cs, r_sa, h_conv_background))]
 #[expect(
     clippy::too_many_arguments,
     reason = "Pyo3 boundary mirrors the Python reference signature"
@@ -279,6 +283,7 @@ pub fn build_h_field_py(
     ys: Vec<f64>,
     r_cs: Vec<f64>,
     r_sa: Vec<f64>,
+    h_conv_background: f64,
 ) -> PyResult<Bound<'_, PyBytes>> {
     let field = match temper_py_bridge::catch_unwind(|| {
         build_h_field(
@@ -291,6 +296,7 @@ pub fn build_h_field_py(
             &ys,
             &r_cs,
             &r_sa,
+            h_conv_background,
         )
     }) {
         Ok(Ok(field)) => field,
@@ -332,7 +338,7 @@ mod tests {
 
     #[test]
     fn empty_devices_background_only() {
-        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[], &[], &[], &[]).unwrap();
+        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[], &[], &[], &[], H_CONV_BACKGROUND).unwrap();
         // h_bg = 10.0 * pow(1e-3, 2.0) / (1.0 * 1.0) = 10.0 * 1e-6 = 1e-5
         assert_eq!(f.len(), 16);
         // h_bg = 10.0 * pow(1e-3, 2.0) / (1.0*1.0) — NOT exactly 1e-5
@@ -345,7 +351,7 @@ mod tests {
     fn device_sink_accumulates() {
         // One device at the centre of a 4x4 grid, cs=1, origin (0,0),
         // footprint 5x5 → covers the whole 4x4 grid (16 cells).
-        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[2.0], &[2.0], &[0.25], &[1.0]).unwrap();
+        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[2.0], &[2.0], &[0.25], &[1.0], H_CONV_BACKGROUND).unwrap();
         let g_dev = 1.0 / (0.25 + 1.0);
         let h_cell = g_dev / (16.0 * 1.0 * 1.0);
         let h_bg = 10.0 * (1e-3f64).powi(2) / (1.0 * 1.0);
@@ -356,14 +362,14 @@ mod tests {
     fn board_heatsinked_device_skipped() {
         // R_vert = 0 → skip; the cell keeps only the background value.
         let h_bg = 10.0 * (1e-3f64).powi(2) / (1.0 * 1.0);
-        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[2.0], &[2.0], &[0.0], &[0.0]).unwrap();
+        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[2.0], &[2.0], &[0.0], &[0.0], H_CONV_BACKGROUND).unwrap();
         assert!(f.iter().all(|&v| v == h_bg));
     }
 
     #[test]
     fn off_grid_footprint_is_noop() {
         let h_bg = 10.0 * (1e-3f64).powi(2) / (1.0 * 1.0);
-        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[-100.0], &[-100.0], &[0.25], &[1.0]).unwrap();
+        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[-100.0], &[-100.0], &[0.25], &[1.0], H_CONV_BACKGROUND).unwrap();
         assert!(f.iter().all(|&v| v == h_bg));
     }
 
@@ -371,7 +377,7 @@ mod tests {
     fn overlapping_footprints_accumulate() {
         // Two devices whose footprints overlap the same cells; both
         // h_cells accumulate per cell.
-        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[1.0, 2.0], &[1.0, 2.0], &[0.25, 0.5], &[1.0, 1.0]).unwrap();
+        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[1.0, 2.0], &[1.0, 2.0], &[0.25, 0.5], &[1.0, 1.0], H_CONV_BACKGROUND).unwrap();
         let g1 = 1.0 / 1.25;
         let g2 = 1.0 / 1.5;
         // device 1 footprint: x in [2.5-2.5, 2.5+2.5] → [0, 5] → cols 0..4;
@@ -389,19 +395,19 @@ mod tests {
         // division → ZeroDivisionError.  Rust `as i64` would saturate;
         // the checked conversions must reject.
         assert_eq!(
-            build_h_field(1.0, 0.0, 0.0, 4, 4, &[f64::NAN], &[1.0], &[0.25], &[1.0]),
+            build_h_field(1.0, 0.0, 0.0, 4, 4, &[f64::NAN], &[1.0], &[0.25], &[1.0], H_CONV_BACKGROUND),
             Err(BuildHFieldError::NanToInt)
         );
         assert_eq!(
-            build_h_field(1.0, 0.0, 0.0, 4, 4, &[f64::INFINITY], &[1.0], &[0.25], &[1.0]),
+            build_h_field(1.0, 0.0, 0.0, 4, 4, &[f64::INFINITY], &[1.0], &[0.25], &[1.0], H_CONV_BACKGROUND),
             Err(BuildHFieldError::InfToInt)
         );
         assert_eq!(
-            build_h_field(1.0, 0.0, f64::NAN, 4, 4, &[1.0], &[1.0], &[0.25], &[1.0]),
+            build_h_field(1.0, 0.0, f64::NAN, 4, 4, &[1.0], &[1.0], &[0.25], &[1.0], H_CONV_BACKGROUND),
             Err(BuildHFieldError::NanToInt)
         );
         assert_eq!(
-            build_h_field(0.0, 0.0, 0.0, 4, 4, &[], &[], &[], &[]),
+            build_h_field(0.0, 0.0, 0.0, 4, 4, &[], &[], &[], &[], H_CONV_BACKGROUND),
             Err(BuildHFieldError::DivisionByZero)
         );
     }
@@ -414,12 +420,12 @@ mod tests {
         // must NOT return an all-NaN field (pass 2 P1: was all-NaN).
         for cs in [5e-324f64, 1e-200f64, 1e-162f64, -5e-324f64] {
             assert_eq!(
-                build_h_field(cs, 0.0, 0.0, 4, 4, &[], &[], &[], &[]),
+                build_h_field(cs, 0.0, 0.0, 4, 4, &[], &[], &[], &[], H_CONV_BACKGROUND),
                 Err(BuildHFieldError::DivisionByZero),
                 "cs={cs:e} must raise DivisionByZero"
             );
             assert_eq!(
-                build_h_field(cs, 0.0, 0.0, 4, 4, &[1.0], &[1.0], &[0.25], &[1.0]),
+                build_h_field(cs, 0.0, 0.0, 4, 4, &[1.0], &[1.0], &[0.25], &[1.0], H_CONV_BACKGROUND),
                 Err(BuildHFieldError::DivisionByZero),
                 "cs={cs:e} with a device must raise DivisionByZero"
             );
@@ -428,13 +434,13 @@ mod tests {
         // NaN without an exception — the oracle returns an all-NaN
         // field for an empty device set).
         for cs in [f64::INFINITY, f64::NAN] {
-            let f = build_h_field(cs, 0.0, 0.0, 4, 4, &[], &[], &[], &[]);
+            let f = build_h_field(cs, 0.0, 0.0, 4, 4, &[], &[], &[], &[], H_CONV_BACKGROUND);
             assert!(f.is_ok(), "cs={cs:?} must NOT raise (NaN field, like the oracle)");
             assert!(f.unwrap().iter().all(|v| v.is_nan()));
         }
         // The band boundary: cs*cs stays nonzero just above it → no raise.
         assert_eq!(
-            build_h_field(1e-100, 0.0, 0.0, 4, 4, &[], &[], &[], &[]),
+            build_h_field(1e-100, 0.0, 0.0, 4, 4, &[], &[], &[], &[], H_CONV_BACKGROUND),
             Ok(vec![1.0000000000000003e-05; 16])
         );
     }
