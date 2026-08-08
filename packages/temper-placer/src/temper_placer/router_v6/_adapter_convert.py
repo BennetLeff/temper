@@ -693,6 +693,7 @@ def _write_routes_to_content(
             net_name_to_number,
             design_rules=design_rules,
             tstamp_counter=tstamp_counter,
+            pcb=pcb,
         )
 
     if not segments:

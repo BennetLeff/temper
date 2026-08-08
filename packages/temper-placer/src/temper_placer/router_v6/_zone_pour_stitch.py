@@ -35,7 +35,44 @@ logger = logging.getLogger(__name__)
 # entry is live again for PWR_RTN (GND's only member with committed zones).
 # It was left in place rather than removed while dormant precisely so this
 # reactivation would not require re-deriving it.
-_CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains", "HighVoltage"})
+#
+# UPDATE 2026-08-07 (R6, same plan): "HighVoltage" REMOVED from this set.
+# Reproducing compute_zones_for_net() against the current board's real pad
+# positions (docs/evidence/2026-08-07-zone-emission-clustering-defect.md)
+# showed the exemption was not merely "generous" for this class -- every
+# HighVoltage net whose pads are genuinely spread across the board (SW_NODE,
+# DC_BUS_RTN, and more: +170V_BUS, zcd, w1_1/w1_2, tank.c_tank1-p2,
+# power_in.ntc-no, discharge.k_dis1-nc/k_dis2-nc, hb.power_loop.q_high-g, a)
+# produced a SINGLE convex hull covering 5-71% of the board per net,
+# several exceeding the physical board outline outright (R6's own framing:
+# "SW_NODE's existing hull covers 40% of board area"). This is the opposite
+# of the class's own documented intent: TRACE_WIDTH_CALCULATIONS.md SS3.1
+# says of the DC bus "multiple parallel traces or zones acceptable", and
+# SS3.2 says of the switch node "keep switch node AREA minimal (EMI
+# source)" -- clustering-exemption was never justified for this class in
+# the first place, unlike GND/ACMains (see below). Un-exempting HighVoltage
+# lets compute_zones_for_net() cluster it like every other class: measured
+# 5-6 tight per-component hulls per net instead of one board-spanning hull,
+# 88-94% smaller in aggregate area for SW_NODE/DC_BUS_RTN specifically, and
+# each cluster still carries 12-34mm of hull width -- well over the 5-10mm
+# minimum copper width TRACE_WIDTH_CALCULATIONS.md SS3.1-3.3 requires for
+# this board's tank current (24.5A rms / 34.5A peak per the 2026-08-07
+# part-stress/ZVS work). Electrical continuity of the net itself is
+# unaffected: the zone is a supplemental pour on top of already-routed
+# copper traces, not the net's only conductive path, so splitting the pour
+# into per-cluster patches does not disconnect anything.
+#
+# GND and ACMains are NOT touched by this update. PWR_RTN (GND's only
+# zoned member) is a genuine return-plane request (KD2 of the same plan:
+# "plane_preferred" is a deliberate SSOT declaration, not an accident) and
+# its measured hull, while large (60.5% of board), does not exceed the
+# physical board outline -- a real oversizing concern, but a different one
+# from R6's "board-spanning past the board edge" defect, and out of this
+# fix's scope (R6 names SW_NODE/DC_BUS_RTN specifically; GND's plane-vs-
+# clustered sizing is inner-layer/plane architecture, U2/R8, deferred).
+# ac_l/ac_n (ACMains) measured 3.9%/7.0% of board, within the outline --
+# not pathological today, left as-is.
+_CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains"})
 
 
 def _zone_layers_for_net(net_name: str) -> list[str]:
@@ -187,6 +224,7 @@ def _emit_zone_pours(
     *,
     design_rules: Any = None,
     tstamp_counter: list[int] | None = None,
+    pcb: Any = None,
 ) -> None:
     """Emit filled-copper zone geometry for all zone-eligible nets.
 
@@ -194,6 +232,16 @@ def _emit_zone_pours(
     so the isolated-pad stitch segments this function emits (via
     ``_stitch_isolated_pads``) continue the same deterministic tstamp
     sequence as the caller's other segments/vias.
+
+    ``pcb``: the ``ParsedPCB`` the caller already has (``result.pcb`` in
+    ``_write_routes_to_content``), used only to resolve the board outline
+    so every emitted hull can be clipped to it (R6,
+    docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md --
+    ``zone_emission.compute_zones_for_net``'s ``board_polygon`` argument).
+    ``None`` (the default, and every existing call site before this
+    change) disables clipping and reproduces the prior unclipped
+    behavior -- callers that don't have a ``ParsedPCB`` handy (e.g. unit
+    tests constructing pad positions directly) are unaffected.
     """
     from temper_placer.core.design_rules import (
         TEMPER_NET_ASSIGNMENTS,
@@ -204,6 +252,22 @@ def _emit_zone_pours(
         compute_zones_for_net,
         emit_zone_s_expr,
     )
+
+    board_polygon = None
+    if pcb is not None:
+        from temper_placer.router_v6.routing_space import _get_board_polygon
+
+        try:
+            board_polygon = _get_board_polygon(pcb)
+        except Exception:
+            # Board outline resolution is best-effort here: a malformed or
+            # missing board geometry should degrade to "no clip" (prior
+            # behavior), not break zone emission outright.
+            board_polygon = None
+        if board_polygon is not None and (
+            not hasattr(board_polygon, "is_empty") or board_polygon.is_empty
+        ):
+            board_polygon = None
 
     zone_netclasses: set[str] = set()
     for net_name in pad_positions:
@@ -263,6 +327,7 @@ def _emit_zone_pours(
                         layer=layer,
                         margin=margin,
                         cluster=not exempt,
+                        board_polygon=board_polygon,
                     )
                     for zd in zds:
                         zd = ZoneDefinition(
