@@ -101,7 +101,11 @@ def strip_existing_copper(content: str) -> tuple[str, int]:
 
 
 def route_once(
-    pcb_path: Path, rules_path: Path, *, keep_existing_copper: bool = False
+    pcb_path: Path,
+    rules_path: Path,
+    *,
+    keep_existing_copper: bool = False,
+    enable_geographic_pruning: bool = False,
 ) -> dict[str, Any]:
     """Run one full route_pcb() pass and return measured results.
 
@@ -144,6 +148,7 @@ def route_once(
         # it is reporting-only, does not affect pathfinding, and the full
         # DFM bundle costs ~6-7x routing wall time (see
         # docs/evidence/2026-07-26-manufacturing-drc-scalability.md).
+        enable_geographic_pruning=enable_geographic_pruning,
     )
     wall_s = time.perf_counter() - t0
 
@@ -188,9 +193,15 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
     )
 
 
-def run_single(pcb_path: Path, rules_path: Path, output_path: Path) -> int:
+def run_single(
+    pcb_path: Path,
+    rules_path: Path,
+    output_path: Path,
+    *,
+    enable_geographic_pruning: bool = False,
+) -> int:
     print(f"Routing {pcb_path} ...")
-    r = route_once(pcb_path, rules_path)
+    r = route_once(pcb_path, rules_path, enable_geographic_pruning=enable_geographic_pruning)
     print(_format_run("Result", r))
     if r["unrouted_nets"]:
         print(f"Unrouted ({r['unrouted']}): {', '.join(sorted(r['unrouted_nets']))}")
@@ -201,7 +212,9 @@ def run_single(pcb_path: Path, rules_path: Path, output_path: Path) -> int:
     return 0
 
 
-def _run_worker_subprocess(pcb_path: Path, rules_path: Path) -> dict[str, Any]:
+def _run_worker_subprocess(
+    pcb_path: Path, rules_path: Path, *, enable_geographic_pruning: bool = False
+) -> dict[str, Any]:
     """Run one route_once() in a *fresh child process* and return its result.
 
     Deliberately a subprocess, not an in-process loop: the router is always
@@ -221,14 +234,17 @@ def _run_worker_subprocess(pcb_path: Path, rules_path: Path) -> dict[str, Any]:
     ) as tmp:
         out_path = Path(tmp.name)
     try:
+        cmd = [
+            sys.executable,
+            str(Path(__file__).resolve()),
+            "--_worker-output", str(out_path),
+            "--pcb", str(pcb_path),
+            "--rules", str(rules_path),
+        ]
+        if enable_geographic_pruning:
+            cmd.append("--pruning")
         proc = subprocess.run(
-            [
-                sys.executable,
-                str(Path(__file__).resolve()),
-                "--_worker-output", str(out_path),
-                "--pcb", str(pcb_path),
-                "--rules", str(rules_path),
-            ],
+            cmd,
             capture_output=True,
             text=True,
             env=os.environ.copy(),
@@ -244,17 +260,22 @@ def _run_worker_subprocess(pcb_path: Path, rules_path: Path) -> dict[str, Any]:
         out_path.unlink(missing_ok=True)
 
 
-def run_measurement(pcb_path: Path, rules_path: Path, n: int) -> int:
+def run_measurement(
+    pcb_path: Path, rules_path: Path, n: int, *, enable_geographic_pruning: bool = False
+) -> int:
     hashseed = os.environ.get("PYTHONHASHSEED")
     print(
         f"Routing {pcb_path} {n} time(s) from identical input, each run a "
-        f"fresh process (PYTHONHASHSEED={hashseed!r}) ..."
+        f"fresh process (PYTHONHASHSEED={hashseed!r}, "
+        f"pruning={enable_geographic_pruning}) ..."
     )
     completions: list[float] = []
     routed_counts: list[int] = []
     unrouted_sets: list[frozenset[str]] = []
     for i in range(1, n + 1):
-        r = _run_worker_subprocess(pcb_path, rules_path)
+        r = _run_worker_subprocess(
+            pcb_path, rules_path, enable_geographic_pruning=enable_geographic_pruning
+        )
         completions.append(r["completion_rate"])
         routed_counts.append(r["routed"])
         unrouted_sets.append(frozenset(r["unrouted_nets"]))
@@ -316,6 +337,14 @@ def main(argv: list[str] | None = None) -> int:
         "--_worker-output", type=Path, default=None,
         help=argparse.SUPPRESS,  # internal: used by --runs's own subprocess dispatch
     )
+    parser.add_argument(
+        "--pruning", action="store_true",
+        help=(
+            "Pass enable_geographic_pruning=True to route_pcb() (U5 of "
+            "docs/plans/2026-08-07-001-feat-router-encoding-pruning-plan.md). "
+            "Default False -- unchanged full-encoding behavior."
+        ),
+    )
     args = parser.parse_args(argv)
 
     if not args.pcb.exists():
@@ -324,7 +353,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"Netclass rules file not found: {args.rules}")
 
     if args._worker_output is not None:
-        r = route_once(args.pcb, args.rules)
+        r = route_once(args.pcb, args.rules, enable_geographic_pruning=args.pruning)
         r.pop("routed_pcb_content", None)
         args._worker_output.write_text(json.dumps(r), encoding="utf-8")
         return 0
@@ -332,7 +361,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.runs is not None:
         if args.runs < 1:
             parser.error("--runs must be >= 1")
-        return run_measurement(args.pcb, args.rules, args.runs)
+        return run_measurement(
+            args.pcb, args.rules, args.runs, enable_geographic_pruning=args.pruning
+        )
 
     if args.output is None:
         parser.error(
@@ -348,7 +379,7 @@ def main(argv: list[str] | None = None) -> int:
             "This driver refuses to overwrite the input board, ever."
         )
 
-    return run_single(args.pcb, args.rules, args.output)
+    return run_single(args.pcb, args.rules, args.output, enable_geographic_pruning=args.pruning)
 
 
 if __name__ == "__main__":
