@@ -32,6 +32,104 @@ class DrcRunnerError(Exception):
     pass
 
 
+class DrcProjectContextError(DrcRunnerError):
+    """``pcb_path`` has no resolvable sibling ``.kicad_pro`` project file.
+
+    kicad-cli resolves a project by looking for ``<stem>.kicad_pro`` next to
+    the board file it is asked to DRC. When that file is missing, kicad-cli
+    does NOT error and does NOT fall back to some documented default -- it
+    silently drops every violation category sourced from the project: the
+    project's custom ``<stem>.kicad_dru`` rules (this repo's ``track_width``
+    and, critically, ``creepage`` -- the IEC 60335-1 HV/LV isolation check)
+    and the project's ``rule_severities`` overrides (``missing_courtyard``,
+    ``annular_width``). Measured on this repo's board (2026-08-08, kicad-cli
+    10.0.5): with project context, 1249 errors / 489 warnings; WITHOUT it,
+    828 errors / 621 warnings -- creepage 187 -> 0, track_width 199 -> 0,
+    annular_width 4 -> 0, missing_courtyard 5 -> 0, entirely absent from the
+    report rather than reported as zero violations. See
+    docs/evidence/2026-08-08-drc-power-token-jump-root-cause.md and
+    docs/evidence/2026-08-08-drc-project-context-audit.md.
+
+    A DRC measurement that can silently under-report a safety-critical
+    category is a can't-fail gate with a fail-open bug. This project treats
+    that as a defect, not a degraded-but-acceptable measurement -- so a
+    missing/unresolvable project is a loud error here, never a quiet
+    subset-of-the-truth result. If you are DRC'ing a scratch/temp copy of a
+    board (a routed-output measurement, a mutated defect-corpus copy, ...),
+    give it a resolvable project explicitly -- see
+    ``copy_kicad_project_sidecar`` in this module -- rather than suppressing
+    this error.
+    """
+
+
+def _kicad_project_path(pcb_path: Path) -> Path:
+    """The ``.kicad_pro`` kicad-cli would resolve for *pcb_path* -- same
+    stem, same directory, per KiCad's own project-file convention."""
+    return pcb_path.with_suffix(".kicad_pro")
+
+
+def ensure_resolvable_kicad_project(pcb_path: Path) -> None:
+    """Raise :class:`DrcProjectContextError` if *pcb_path* has no sibling
+    ``.kicad_pro`` kicad-cli can resolve.
+
+    Every kicad-cli DRC invocation in this codebase must call this (directly
+    or via :func:`run_drc`) before shelling out. See
+    :class:`DrcProjectContextError` for why: without it, kicad-cli silently
+    measures a strict subset of the real violations, with no warning.
+    """
+    project_path = _kicad_project_path(pcb_path)
+    if not project_path.exists():
+        raise DrcProjectContextError(
+            f"No resolvable KiCad project for {pcb_path}: expected "
+            f"{project_path} to exist alongside it. kicad-cli DRC without a "
+            f"resolvable project silently drops the project's custom DRU "
+            f"rules (track_width, creepage) and rule_severities overrides "
+            f"(missing_courtyard, annular_width) -- entire categories "
+            f"vanish from the report rather than reading zero. Refusing to "
+            f"run a DRC measurement that can silently under-report a "
+            f"safety-critical category (creepage is the IEC 60335-1 HV/LV "
+            f"isolation check). If this is a scratch copy of a real board "
+            f"(a routed-output measurement, a mutated defect-corpus copy, "
+            f"...), call copy_kicad_project_sidecar(pcb_path, "
+            f"source_board_path) to give it a resolvable project before "
+            f"DRC'ing it."
+        )
+
+
+def copy_kicad_project_sidecar(pcb_path: Path, source_pcb_path: Path) -> None:
+    """Give a scratch copy of a board a resolvable KiCad project, so DRC on
+    it is not silently blind to the source project's custom rules.
+
+    Copies ``<source_pcb_path.stem>.kicad_pro`` (and, if present,
+    ``<source_pcb_path.stem>.kicad_dru``) from ``source_pcb_path``'s
+    directory to ``<pcb_path.stem>.kicad_pro`` / ``.kicad_dru`` next to
+    *pcb_path* -- i.e. renamed to match the scratch copy's own stem, which
+    is what kicad-cli's project-resolution-by-filename-convention requires.
+
+    This is the supported way to DRC a routed/mutated/otherwise-derived copy
+    of a real board without tripping :func:`ensure_resolvable_kicad_project`
+    -- NOT a way to suppress that check. Every caller that writes a board
+    copy to measure with kicad-cli DRC should call this immediately after
+    writing it.
+
+    Raises:
+        FileNotFoundError: if ``source_pcb_path`` has no ``.kicad_pro`` of
+            its own -- there is nothing valid to propagate.
+    """
+    source_project = _kicad_project_path(source_pcb_path)
+    if not source_project.exists():
+        raise FileNotFoundError(
+            f"source board {source_pcb_path} has no {source_project} to "
+            f"propagate -- cannot give the copy a resolvable project"
+        )
+    dest_project = _kicad_project_path(pcb_path)
+    shutil.copyfile(source_project, dest_project)
+
+    source_dru = source_pcb_path.with_suffix(".kicad_dru")
+    if source_dru.exists():
+        shutil.copyfile(source_dru, pcb_path.with_suffix(".kicad_dru"))
+
+
 @dataclass
 class DrcError:
     """
@@ -429,6 +527,9 @@ def run_drc(pcb_path: Path) -> DrcResult:
 
     Raises:
         FileNotFoundError: If PCB file doesn't exist.
+        DrcProjectContextError: If ``pcb_path`` has no resolvable sibling
+            ``.kicad_pro`` -- see that class's docstring for why this is a
+            hard failure rather than a degraded measurement.
         DrcRunnerError: If kicad-cli is not available or DRC fails.
     """
     pcb_path = Path(pcb_path)
@@ -440,6 +541,12 @@ def run_drc(pcb_path: Path) -> DrcResult:
         raise DrcRunnerError(
             "kicad-cli is not available. Install KiCad 8+ and ensure kicad-cli is in PATH."
         )
+
+    # Fail loud, not silent-and-wrong: see DrcProjectContextError. This must
+    # run before the subprocess call below -- kicad-cli itself gives no
+    # warning when it can't resolve a project, it just quietly measures
+    # fewer categories.
+    ensure_resolvable_kicad_project(pcb_path)
 
     # Get output path for JSON report
     with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:

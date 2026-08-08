@@ -35,6 +35,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from temper_placer.validation._drc_api import ensure_resolvable_kicad_project
+
 
 class LoudDrcError(Exception):
     """A DRC subprocess failed (timeout or missing output) loudly."""
@@ -46,7 +48,18 @@ def run_drc_loud(pcb_path: str | Path, *, timeout: int, label: str) -> dict:
     Raises :class:`LoudDrcError` on timeout or missing output, naming
     ``label`` and ``timeout`` so the failure is attributable in the job
     log — never a silent skip that reports green.
+
+    Also raises :class:`~temper_placer.validation._drc_api.DrcProjectContextError`
+    if ``pcb_path`` has no resolvable sibling ``.kicad_pro`` -- this helper
+    used to shell out to kicad-cli directly with no such check, which meant
+    every routed-board DRC sample measured through it (the production and
+    golden-board routing regression gates) silently dropped the project's
+    creepage/track_width/missing_courtyard/annular_width categories. See
+    docs/evidence/2026-08-08-drc-project-context-audit.md. Callers writing a
+    scratch board copy must give it a resolvable project first -- see
+    ``temper_placer.validation._drc_api.copy_kicad_project_sidecar``.
     """
+    ensure_resolvable_kicad_project(Path(pcb_path))
     drc_out_fd, drc_out_str = tempfile.mkstemp(suffix=".json")
     os.close(drc_out_fd)
     drc_out = Path(drc_out_str)

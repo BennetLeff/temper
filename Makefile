@@ -115,8 +115,30 @@ route: netlist
 # Omitting it here meant `make drc` disagreed with CI, with
 # power_pcb_dataset/drc_ceiling.json, and with itself between runs. See the
 # rationale in packages/temper-placer/src/temper_placer/validation/_drc_api.py.
+#
+# The pre-flight check below is load-bearing, not decorative: kicad-cli
+# resolves a project by finding <stem>.kicad_pro next to the board, and
+# when it can't, it does NOT error -- it silently drops every violation
+# sourced from the project's custom pcb/temper.kicad_dru rules
+# (track_width, and creepage -- the IEC 60335-1 HV/LV isolation check) and
+# from temper.kicad_pro's rule_severities overrides (missing_courtyard,
+# annular_width). `scripts/route_board.py` (the `route` target above)
+# propagates a resolvable project onto $(ROUTED_PCB) automatically, but
+# `make drc` can also be run standalone against a stale/hand-placed
+# $(ROUTED_PCB) that predates that fix, so this still fails loud rather
+# than measuring a silent subset. See
+# docs/evidence/2026-08-08-drc-project-context-audit.md.
 drc:
 	@echo "Running KiCad DRC..."
+	@if [ ! -f "$(ROUTED_PCB:.kicad_pcb=.kicad_pro)" ]; then \
+		echo "ERROR: $(ROUTED_PCB:.kicad_pcb=.kicad_pro) not found next to $(ROUTED_PCB)."; \
+		echo "kicad-cli DRC without a resolvable project silently drops"; \
+		echo "creepage/track_width/missing_courtyard/annular_width -- refusing"; \
+		echo "to run blind. Re-run 'make route' (which now propagates the"; \
+		echo "project automatically), or see"; \
+		echo "docs/evidence/2026-08-08-drc-project-context-audit.md."; \
+		exit 1; \
+	fi
 	kicad-cli pcb drc --all-track-errors --exit-code-violations $(ROUTED_PCB)
 
 # Fast inner-loop test run: skips the 163 tests marked `slow` (of 6389).

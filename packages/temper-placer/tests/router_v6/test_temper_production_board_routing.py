@@ -30,6 +30,11 @@ from pathlib import Path
 
 import pytest
 
+from temper_placer.validation._drc_api import (
+    copy_kicad_project_sidecar,
+    ensure_resolvable_kicad_project,
+)
+
 _TEMPER_PLACER_ROOT = Path(__file__).resolve().parent.parent.parent
 _REPO_ROOT = _TEMPER_PLACER_ROOT.parent.parent
 
@@ -53,6 +58,13 @@ def _kicad_cli_available() -> bool:
 
 
 def _run_drc(pcb_path: Path) -> dict:
+    # Hard-fail rather than silently under-measure: kicad-cli drops the
+    # project's creepage/track_width/missing_courtyard/annular_width
+    # categories with no warning when it can't resolve a sibling
+    # .kicad_pro. Every call site below must give the routed scratch copy
+    # one via copy_kicad_project_sidecar before reaching this function. See
+    # docs/evidence/2026-08-08-drc-project-context-audit.md.
+    ensure_resolvable_kicad_project(pcb_path)
     drc_out_fd, drc_out_str = tempfile.mkstemp(suffix=".json")
     os.close(drc_out_fd)
     drc_out = Path(drc_out_str)
@@ -171,12 +183,19 @@ class TestProductionBoardRouting:
         )
         routed_tmp.write(routing_result.routed_pcb_content)
         routed_tmp.close()
+        # Propagate the real project (rules, severities) onto the routed
+        # scratch copy -- same board, so this is exact, not an approximation.
+        copy_kicad_project_sidecar(Path(routed_tmp.name), _PCB_PATH)
 
         try:
             drc_data = _run_drc(Path(routed_tmp.name))
         finally:
             with contextlib.suppress(OSError):
                 os.unlink(routed_tmp.name)
+                with contextlib.suppress(OSError):
+                    os.unlink(Path(routed_tmp.name).with_suffix(".kicad_pro"))
+                with contextlib.suppress(OSError):
+                    os.unlink(Path(routed_tmp.name).with_suffix(".kicad_dru"))
 
         violations = drc_data.get("violations", [])
         by_type: dict[str, int] = {}
