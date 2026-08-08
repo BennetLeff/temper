@@ -50,7 +50,6 @@ forbidden_modules =
     temper_placer.core.graph
     temper_placer.core.placement_drc
     temper_placer.core.power_topology
-    temper_placer.core.routing_validator
 as_packages = False
 ignore_imports =
     temper_placer.core.* -> temper_placer.core.*
@@ -95,7 +94,6 @@ forbidden_modules =
     temper_placer.router_v6.acid_trap_detection
     temper_placer.router_v6.adapter
     temper_placer.router_v6.annular_ring_check
-    temper_placer.router_v6.apply_suggestions
     temper_placer.router_v6.astar_pathfinding
     temper_placer.router_v6.benchmark
     temper_placer.router_v6.bottleneck_analysis
@@ -125,7 +123,6 @@ forbidden_modules =
     temper_placer.router_v6.occupancy_grid
     temper_placer.router_v6.pad_escape_classification
     temper_placer.router_v6.pipeline
-    temper_placer.router_v6.placement_suggestions
     temper_placer.router_v6.reference_plane_constraints
     temper_placer.router_v6.routing_demand
     temper_placer.router_v6.routing_failure_handler

@@ -15,8 +15,6 @@
 # See AGENTS.md §Coverage Gate for details.
 
 temper_placer/core/placement_drc.py::validate_placement_drc  # TODO: temper-xxx
-temper_placer/core/routing_validator.py::RoutingValidator.validate  # TODO: temper-xxx
-temper_placer/core/routing_validator.py::validate_routing_result  # TODO: temper-xxx
 temper_placer/core/state.py::PlacementState.from_netlist_and_board  # TODO: temper-xxx
 temper_placer/adapters/deterministic_adapter.py::wrap_deterministic_stage  # TODO: temper-xxx
 temper_placer/adapters/register_strategies.py::PlacementStage.run  # TODO: temper-xxx
@@ -503,8 +501,6 @@ temper_placer/io/reference_loader.py::filter_components  # TODO: temper-xxx
 temper_placer/io/reference_loader.py::list_reference_designs  # TODO: temper-xxx
 temper_placer/io/reference_loader.py::load_reference_pcb  # TODO: temper-xxx
 temper_placer/io/reference_loader.py::netlist_to_placement_state  # TODO: temper-xxx
-temper_placer/io/snapshot.py::save_json_snapshot  # TODO: temper-xxx
-temper_placer/io/snapshot.py::save_svg_snapshot  # TODO: temper-xxx
 temper_placer/io/via_dedup.py::ViaKey.from_via  # TODO: temper-xxx
 temper_placer/io/via_dedup.py::deduplicate_vias  # TODO: temper-xxx
 temper_placer/io/zone_manager.py::add_power_planes  # TODO: temper-xxx
@@ -647,8 +643,6 @@ temper_placer/pipeline/convergence.py::ConvergenceChecker.mark_user_abort  # TOD
 temper_placer/pipeline/convergence.py::ConvergenceChecker.record_loss  # TODO: temper-xxx
 temper_placer/pipeline/convergence.py::ConvergenceChecker.reset  # TODO: temper-xxx
 temper_placer/pipeline/convergence.py::is_converged  # TODO: temper-xxx
-temper_placer/pipeline/dag_engine.py::StageDAGEngine.add_observer  # TODO: temper-xxx
-temper_placer/pipeline/dag_engine.py::StageDAGEngine.run  # TODO: temper-xxx
 temper_placer/pipeline/dag_expr.py::evaluate_skip_expr  # TODO: temper-xxx
 temper_placer/pipeline/dag_expr.py::parse_skip_expr  # TODO: temper-xxx
 temper_placer/pipeline/dag_observability.py::PipelineExecutionLog.to_dict  # TODO: temper-xxx
@@ -661,8 +655,6 @@ temper_placer/pipeline/explainability.py::DecisionLogger.finish  # TODO: temper-
 temper_placer/pipeline/explainability.py::DecisionLogger.log_placement  # TODO: temper-xxx
 temper_placer/pipeline/explainability.py::DecisionLogger.log_routing  # TODO: temper-xxx
 temper_placer/pipeline/explainability.py::generate_markdown_report  # TODO: temper-xxx
-temper_placer/pipeline/logging_context.py::clear_run_context  # TODO: temper-xxx
-temper_placer/pipeline/logging_context.py::set_run_context  # TODO: temper-xxx
 temper_placer/pipeline/metrics_observer.py::MetricsObserver.on_feedback_triggered  # TODO: temper-xxx
 temper_placer/pipeline/metrics_observer.py::MetricsObserver.on_pipeline_complete  # TODO: temper-xxx
 temper_placer/pipeline/metrics_observer.py::MetricsObserver.on_stage_complete  # TODO: temper-xxx
@@ -820,10 +812,6 @@ temper_placer/router_v6/acid_trap_detection.py::detect_acid_traps  # TODO: tempe
 temper_placer/router_v6/all_pad_evidence.py::validate_all_pad_baseline  # TODO: temper-xxx
 temper_placer/router_v6/annular_ring_check.py::AnnularRingViolation.deficiency  # TODO: temper-xxx
 temper_placer/router_v6/annular_ring_check.py::check_annular_rings  # TODO: temper-xxx
-temper_placer/router_v6/apply_suggestions.py::AdjustmentResult.adjustment_count  # TODO: temper-xxx
-temper_placer/router_v6/apply_suggestions.py::AdjustmentResult.total_movement  # TODO: temper-xxx
-temper_placer/router_v6/apply_suggestions.py::apply_suggestions_with_damping  # TODO: temper-xxx
-temper_placer/router_v6/apply_suggestions.py::update_component_positions  # TODO: temper-xxx
 temper_placer/router_v6/astar_core.py::RoutePath.segment_count  # TODO: temper-xxx
 temper_placer/router_v6/astar_core.py::RoutePath.success  # TODO: temper-xxx
 temper_placer/router_v6/astar_core.py::RoutePath3D.segment_count  # TODO: temper-xxx
@@ -838,7 +826,6 @@ temper_placer/router_v6/astar_monitor.py::MonitorState.validate_cost_lower_bound
 temper_placer/router_v6/astar_monitor.py::MonitorState.validate_path_completeness  # TODO: temper-xxx
 temper_placer/router_v6/astar_monitor.py::get_monitor_state  # TODO: temper-xxx
 temper_placer/router_v6/audit_provenance.py::validate_via_routing_measurement  # TODO: temper-xxx
-temper_placer/router_v6/audit_tree_geometry.py::audit_tree_geometry  # TODO: temper-xxx
 temper_placer/router_v6/benchmark.py::main  # TODO: temper-xxx
 temper_placer/router_v6/benchmark.py::run_benchmark_suite  # TODO: temper-xxx
 temper_placer/router_v6/benchmark.py::run_resource_bound_benchmark  # TODO: temper-xxx
@@ -898,10 +885,6 @@ temper_placer/router_v6/congestion_analysis.py::CongestionMap.congested_region_c
 temper_placer/router_v6/congestion_analysis.py::CongestionMap.critical_region_count  # TODO: temper-xxx
 temper_placer/router_v6/congestion_analysis.py::CongestionMap.get_regions_by_severity  # TODO: temper-xxx
 temper_placer/router_v6/congestion_analysis.py::identify_congested_regions  # TODO: temper-xxx
-temper_placer/router_v6/congestion_heatmap.py::CongestionHeatmap.from_router  # TODO: temper-xxx
-temper_placer/router_v6/congestion_heatmap.py::CongestionHeatmap.get_congestion_at  # TODO: temper-xxx
-temper_placer/router_v6/congestion_heatmap.py::CongestionHeatmap.get_hotspots  # TODO: temper-xxx
-temper_placer/router_v6/congestion_heatmap.py::CongestionHeatmap.get_total_congestion  # TODO: temper-xxx
 temper_placer/router_v6/congestion_tensor.py::CongestionTensor.cost  # TODO: temper-xxx
 temper_placer/router_v6/congestion_tensor.py::CongestionTensor.decay  # TODO: temper-xxx
 temper_placer/router_v6/congestion_tensor.py::CongestionTensor.increment  # TODO: temper-xxx
@@ -1085,9 +1068,6 @@ temper_placer/router_v6/path_simplify.py::is_collinear  # TODO: temper-xxx
 temper_placer/router_v6/path_simplify.py::simplify_path  # TODO: temper-xxx
 temper_placer/router_v6/placement_audit.py::PlacementAuditor.check_collisions  # TODO: temper-xxx
 temper_placer/router_v6/placement_legalization.py::Legalizer.legalize  # TODO: temper-xxx
-temper_placer/router_v6/placement_suggestions.py::PlacementSuggestions.get_high_priority_suggestions  # TODO: temper-xxx
-temper_placer/router_v6/placement_suggestions.py::PlacementSuggestions.suggestion_count  # TODO: temper-xxx
-temper_placer/router_v6/placement_suggestions.py::generate_placement_suggestions  # TODO: temper-xxx
 temper_placer/router_v6/power_plane.py::CopperPour.area  # TODO: temper-xxx
 temper_placer/router_v6/power_plane.py::CopperPour.height  # TODO: temper-xxx
 temper_placer/router_v6/power_plane.py::CopperPour.width  # TODO: temper-xxx
@@ -1548,10 +1528,7 @@ temper_placer/visualization/model.py::ZoneView.to_dict  # TODO: temper-xxx
 temper_placer/visualization/model.py::create_board_view_from_state  # TODO: temper-xxx
 temper_placer/visualization/model.py::create_component_view  # TODO: temper-xxx
 temper_placer/visualization/model.py::create_loss_data_point_from_metrics  # TODO: temper-xxx
-temper_placer/visualization/progression.py::render_progression_html  # TODO: temper-xxx
 temper_placer/visualization/report.py::generate_report  # TODO: temper-xxx
-temper_placer/visualization/routing_health.py::build_dashboard_from_pipeline  # TODO: temper-xxx
-temper_placer/visualization/routing_health.py::routing_health_dashboard  # TODO: temper-xxx
 temper_placer/visualization/server.py::LiveServer.client_count  # TODO: temper-xxx
 temper_placer/visualization/server.py::LiveServer.is_paused  # TODO: temper-xxx
 temper_placer/visualization/server.py::LiveServer.send_training_complete  # TODO: temper-xxx
