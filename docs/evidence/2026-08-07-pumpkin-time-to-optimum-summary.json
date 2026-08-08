@@ -1,0 +1,274 @@
+{
+  "provenance": {
+    "commit": "<fill in>",
+    "dirty": false
+  },
+  "known_optimum": 2220.0,
+  "timeouts_ms": [
+    2000,
+    5000,
+    8000,
+    12000,
+    18000,
+    25000,
+    35000,
+    50000,
+    65000
+  ],
+  "seeds": [
+    0,
+    1,
+    7
+  ],
+  "runs": [
+    {
+      "timeout_ms": 2000,
+      "seed": 0,
+      "status": "feasible",
+      "objective_value": 14804.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 2004.9939340024139,
+      "wall_s_measured": 2.005
+    },
+    {
+      "timeout_ms": 2000,
+      "seed": 1,
+      "status": "feasible",
+      "objective_value": 23584.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 2005.4962740032352,
+      "wall_s_measured": 2.006
+    },
+    {
+      "timeout_ms": 2000,
+      "seed": 7,
+      "status": "feasible",
+      "objective_value": 44384.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 2008.727896005439,
+      "wall_s_measured": 2.009
+    },
+    {
+      "timeout_ms": 5000,
+      "seed": 0,
+      "status": "feasible",
+      "objective_value": 13163.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 5004.172338005446,
+      "wall_s_measured": 5.004
+    },
+    {
+      "timeout_ms": 5000,
+      "seed": 1,
+      "status": "feasible",
+      "objective_value": 13223.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 5004.004743997939,
+      "wall_s_measured": 5.004
+    },
+    {
+      "timeout_ms": 5000,
+      "seed": 7,
+      "status": "feasible",
+      "objective_value": 3672.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 5003.998574000434,
+      "wall_s_measured": 5.004
+    },
+    {
+      "timeout_ms": 8000,
+      "seed": 0,
+      "status": "feasible",
+      "objective_value": 9788.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 8014.455953001743,
+      "wall_s_measured": 8.015
+    },
+    {
+      "timeout_ms": 8000,
+      "seed": 1,
+      "status": "feasible",
+      "objective_value": 4711.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 8005.003254002077,
+      "wall_s_measured": 8.005
+    },
+    {
+      "timeout_ms": 8000,
+      "seed": 7,
+      "status": "feasible",
+      "objective_value": 9183.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 8003.637961002823,
+      "wall_s_measured": 8.004
+    },
+    {
+      "timeout_ms": 12000,
+      "seed": 0,
+      "status": "feasible",
+      "objective_value": 4316.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 12004.2610399978,
+      "wall_s_measured": 12.004
+    },
+    {
+      "timeout_ms": 12000,
+      "seed": 1,
+      "status": "feasible",
+      "objective_value": 3728.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 12006.335828999,
+      "wall_s_measured": 12.007
+    },
+    {
+      "timeout_ms": 12000,
+      "seed": 7,
+      "status": "feasible",
+      "objective_value": 2722.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 12009.105501005251,
+      "wall_s_measured": 12.009
+    },
+    {
+      "timeout_ms": 18000,
+      "seed": 0,
+      "status": "feasible",
+      "objective_value": 9498.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 18007.734588005405,
+      "wall_s_measured": 18.008
+    },
+    {
+      "timeout_ms": 18000,
+      "seed": 1,
+      "status": "feasible",
+      "objective_value": 2825.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 18014.75277699501,
+      "wall_s_measured": 18.015
+    },
+    {
+      "timeout_ms": 18000,
+      "seed": 7,
+      "status": "feasible",
+      "objective_value": 8284.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 18058.92665799911,
+      "wall_s_measured": 18.059
+    },
+    {
+      "timeout_ms": 25000,
+      "seed": 0,
+      "status": "feasible",
+      "objective_value": 9478.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 25006.62957500026,
+      "wall_s_measured": 25.007
+    },
+    {
+      "timeout_ms": 25000,
+      "seed": 1,
+      "status": "feasible",
+      "objective_value": 2351.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 25020.268104002753,
+      "wall_s_measured": 25.02
+    },
+    {
+      "timeout_ms": 25000,
+      "seed": 7,
+      "status": "feasible",
+      "objective_value": 23259.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 25027.304513998388,
+      "wall_s_measured": 25.028
+    },
+    {
+      "timeout_ms": 35000,
+      "seed": 0,
+      "status": "feasible",
+      "objective_value": 4509.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 35021.21718000126,
+      "wall_s_measured": 35.021
+    },
+    {
+      "timeout_ms": 35000,
+      "seed": 1,
+      "status": "optimal",
+      "objective_value": 2220.0,
+      "at_known_optimum": true,
+      "solve_time_ms_reported": 33920.5102670021,
+      "wall_s_measured": 33.921
+    },
+    {
+      "timeout_ms": 35000,
+      "seed": 7,
+      "status": "optimal",
+      "objective_value": 2220.0,
+      "at_known_optimum": true,
+      "solve_time_ms_reported": 5460.236178005289,
+      "wall_s_measured": 5.46
+    },
+    {
+      "timeout_ms": 50000,
+      "seed": 0,
+      "status": "optimal",
+      "objective_value": 2220.0,
+      "at_known_optimum": true,
+      "solve_time_ms_reported": 43562.12096099625,
+      "wall_s_measured": 43.562
+    },
+    {
+      "timeout_ms": 50000,
+      "seed": 1,
+      "status": "feasible",
+      "objective_value": 33880.0,
+      "at_known_optimum": false,
+      "solve_time_ms_reported": 50230.44088399911,
+      "wall_s_measured": 50.231
+    },
+    {
+      "timeout_ms": 50000,
+      "seed": 7,
+      "status": "optimal",
+      "objective_value": 2220.0,
+      "at_known_optimum": true,
+      "solve_time_ms_reported": 34238.91185100365,
+      "wall_s_measured": 34.239
+    },
+    {
+      "timeout_ms": 65000,
+      "seed": 0,
+      "status": "optimal",
+      "objective_value": 2220.0,
+      "at_known_optimum": true,
+      "solve_time_ms_reported": 50432.64708499919,
+      "wall_s_measured": 50.433
+    },
+    {
+      "timeout_ms": 65000,
+      "seed": 1,
+      "status": "optimal",
+      "objective_value": 2220.0,
+      "at_known_optimum": true,
+      "solve_time_ms_reported": 31998.25069799408,
+      "wall_s_measured": 31.998
+    },
+    {
+      "timeout_ms": 65000,
+      "seed": 7,
+      "status": "optimal",
+      "objective_value": 2220.0,
+      "at_known_optimum": true,
+      "solve_time_ms_reported": 48464.366551997955,
+      "wall_s_measured": 48.465
+    }
+  ],
+  "first_timeout_ms_any_seed_at_optimum": 35000,
+  "first_timeout_ms_all_seeds_at_optimum": 65000,
+  "verification": {
+    "checked": 7,
+    "verified_optimum_count": 7
+  }
+}
