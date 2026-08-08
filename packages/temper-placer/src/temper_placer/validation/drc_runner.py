@@ -90,10 +90,41 @@ def _placement_to_board_dict(placement: _Placement) -> dict[str, _Any]:
             }
         )
 
-    zones_list: list[dict[str, _Any]] = []
-    for name, bounds in placement.zones.items():
-        zones_list.append({"name": name, "bounds": list(bounds)})
-
+    # NOTE (isolation-barrier polyline follow-up, 2026-08-08): `board_dict`
+    # deliberately does NOT carry a "zones" key built from
+    # ``placement.zones``. ``Placement.zones`` is a *placement-boundary*
+    # map (``name -> (x0, y0, x1, y1)`` rectangles, e.g. the
+    # ``temper_constraints.yaml`` ``power_zone``/``driver_zone`` regions) --
+    # a completely different concept from the K1-schema ``board_dict["zones"]``
+    # key, which ``temper_drc_rs.board_py_bridge::extract_copper_zone``
+    # (`packages/temper-drc-rs/src/board_py_bridge.rs`) parses as
+    # ``CopperZone`` records: ``{net, layer, polygon}`` -- actual copper
+    # zone/pour geometry, the input `IsolationBarrierCheck`
+    # (`packages/temper-drc-rs/src/rules/routing/isolation_barrier.rs`)
+    # inspects.
+    #
+    # Previously this function *did* populate "zones" from
+    # ``placement.zones`` as ``{"name": ..., "bounds": [...]}`` -- key
+    # collision with the CopperZone shape. `extract_copper_zone` requires
+    # "net" (`board_py_bridge.rs::extract_str`), so any call through this
+    # path with a non-empty ``placement.zones`` (a legitimate, common state
+    # -- e.g. any placement loaded via ``drc_cli.py``'s ``check`` command
+    # against a config that defines placement zones, which
+    # ``temper_constraints.yaml`` always does) raised
+    # ``ValueError: missing required key: net`` deep in the Rust
+    # deserializer, and ``CheckRunner.run()`` never returned a result at
+    # all -- not just for the isolation-barrier check, for every check.
+    #
+    # ``Placement`` carries no copper-pour geometry at all today (no field
+    # analogous to ``via_placement``/``trace_placement`` for zones/pours),
+    # so there is nothing correct to put under "zones" here yet --
+    # omitting the key (the K1 schema treats it as optional; an absent/empty
+    # "zones" list is the correct "no copper-zone data available"
+    # representation) is the fix, not a substitute shape. A real board's
+    # zone/pour polygons reach the Rust engine via
+    # ``DRCOracle``/``drc_oracle.py``'s board-dict builders instead (which
+    # already build ``{net, layer, polygon}``-shaped records from a parsed
+    # ``.kicad_pcb`` or router output).
     board_dict: dict[str, _Any] = {
         "board": {
             "width_mm": placement.board_width,
@@ -103,7 +134,6 @@ def _placement_to_board_dict(placement: _Placement) -> dict[str, _Any]:
         "components": components,
         "nets": dict(placement.nets),
         "net_classes": dict(placement.net_classes),
-        "zones": zones_list,
     }
 
     if placement.via_placement is not None:
@@ -122,15 +152,25 @@ def _placement_to_board_dict(placement: _Placement) -> dict[str, _Any]:
         board_dict["vias"] = via_list
 
     if placement.trace_placement is not None:
+        # Same class of bug as "zones" above, on the same K1-schema
+        # boundary: `board_py_bridge.rs::extract_trace_segment` requires
+        # key "net" (not "net_name") and a "segments" list of
+        # ``[x1, y1, x2, y2]`` coordinate groups (not top-level
+        # "start"/"end" keys) -- see `board_py_bridge.rs:345-372`. The
+        # previous shape here raised the identical
+        # ``missing required key: net`` error whenever
+        # ``placement.trace_placement`` was set, independent of the
+        # "zones" bug above. One ``board_dict["traces"]`` entry per raw
+        # segment (a "segments" list of length 1 each) keeps this a
+        # minimal, cardinality-preserving fix rather than a regrouping.
         seg_list: list[dict[str, _Any]] = []
         for seg in placement.trace_placement.segments:
             seg_list.append(
                 {
-                    "net_name": seg.net_name,
+                    "net": seg.net_name,
                     "layer": seg.layer,
                     "width": seg.width,
-                    "start": list(seg.start),
-                    "end": list(seg.end),
+                    "segments": [[seg.start[0], seg.start[1], seg.end[0], seg.end[1]]],
                 }
             )
         board_dict["traces"] = seg_list
@@ -139,7 +179,35 @@ def _placement_to_board_dict(placement: _Placement) -> dict[str, _Any]:
 
 
 def _constraints_to_dict(constraints: _ConstraintSet) -> dict[str, _Any]:
-    """Convert a ``ConstraintSet`` to the dict format expected by ``temper_drc_rs``."""
+    """Convert a ``ConstraintSet`` to the dict format expected by ``temper_drc_rs``.
+
+    KNOWN GAP, deliberately not closed here: this dict never has an
+    ``isolation_barriers`` key, so `IsolationBarrierCheck`
+    (`packages/temper-drc-rs/src/rules/routing/isolation_barrier.rs`) is
+    unreachable through ``CheckRunner.run()`` regardless of the board-dict
+    fixes above. The reason isn't an oversight in this function: the
+    ``ConstraintSet`` type this function's input (`_ConstraintSet`,
+    ``temper_drc_rs.ConstraintSet``, installed with dataclass fields in
+    ``validation/drc_types.py``) is a Wave-4-Phase-2 pyo3 pyclass whose
+    fixed field set (``clearances``, ``zones``, ``critical_loops``,
+    ``thermal_constraints``, ``component_groups``, ``net_classes``,
+    ``voltage_domains``, ``hv_clearance_mm``, ``board_width``,
+    ``board_height``) predates the U3 YAML-driven constraint types
+    (``noise_domains``, ``isolation_barriers``, ``snubber_requirements``,
+    etc.) and does not carry them -- there is no ``constraints.isolation_barriers``
+    to read here. Adding that field means extending the pyclass contract
+    itself (`drc_contracts.rs` + the dataclass-compat installer +
+    the differential-test suites pinned to its current field set), a
+    separate, larger migration, not a marshalling fix.
+    A YAML-configured barrier already reaches ``IsolationBarrierCheck``
+    through the other production entry point instead:
+    ``DRCOracle._build_constraints_dict``
+    (``temper_placer/validation/drc_oracle.py``) builds its
+    ``constraints_dict`` as a plain dict (not this pyclass) directly from
+    ``context.constraints_config.isolation_barriers``, which is exactly
+    where a config-defined barrier lands (see that module for the fix
+    that makes the *values* survive the trip, not just the key).
+    """
     return {
         "clearances": [
             {
