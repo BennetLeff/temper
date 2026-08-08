@@ -16,8 +16,19 @@ filtering/classification/ordering compute underneath.
 Boundaries kept Python-side (argued in ``hypergraph_factory.rs`` and
 ``packages/temper-design-bundle/VERIFICATION.md``):
 
-- **scipy**: ``coo_matrix((values, (rows, cols)), shape=...)`` — sparse
-  construction semantics are not reimplementable.
+- **COO triplet assembly**: ``rows``/``cols``/``data`` are collected into a
+  ``Coo`` (``temper_placer.core.hypergraph.Coo``, a plain-array container --
+  see its docstring). This used to be ``scipy.sparse.coo_matrix``; that
+  changed 2026-08-07 (``docs/evidence/2026-08-07-scipy-keeps-re-triage.md``
+  Sec 3) once triage found the "sparse construction semantics are not
+  reimplementable" premise did not survive contact with the actual code: by
+  the time ``coo_matrix``/``Coo`` is built, triplets are already
+  deduplicated per net (the ``set(conn)`` below runs BEFORE construction),
+  so there is no duplicate-entry summation-order ambiguity to reproduce, and
+  the sole consumer (``PhysicsHypergraph.compute_node_degrees``/
+  ``compute_edge_degrees``) is an order-invariant reduction. Retiring scipy
+  here needed no new Rust: the Rust ``HypergraphFactory`` already returns
+  the deduplicated ``connected_indices`` this module assembles into triplets.
 - **numpy casts**: every ``np.array(..., dtype=np.float32)`` runs on the
   original Python objects (an int ``weight=7`` reaches numpy as the int,
   never through a Rust f64), so int-vs-float leaf conversion is numpy's.
@@ -30,21 +41,22 @@ Boundaries kept Python-side (argued in ``hypergraph_factory.rs`` and
   ``__mul__`` on the original objects (int × int stays int).
 
 Verification: bit-identical parity against the pinned pre-migration
-implementation — including the COO matrix's (shape, nnz, data, row, col)
+implementation — including the COO triplets' (shape, nnz, data, row, col)
 WITH triplet order, every array's ``(dtype, shape, tobytes())``, and the
 physics classifications — is asserted by
 ``tests/core/test_hypergraph_factory_rust_differential.py`` (oracle:
-``tests/core/_hypergraph_factory_py_oracle.py``) and the closed-form
-properties in ``tests/core/test_hypergraph_factory_pbt.py``.
+``tests/core/_hypergraph_factory_py_oracle.py``, which still builds a real
+``scipy.sparse.coo_matrix`` -- the pre-migration scipy path is retained
+there, unused in production, as the differential's pinned oracle per R19)
+and the closed-form properties in ``tests/core/test_hypergraph_factory_pbt.py``.
 """
 
 from __future__ import annotations
 
 import numpy as np
 import temper_design_bundle_python as _tdb
-from scipy.sparse import coo_matrix
 
-from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
+from temper_placer.core.hypergraph import Coo, HypergraphIncidence, PhysicsHypergraph
 from temper_placer.core.netlist import Netlist
 
 
@@ -54,8 +66,8 @@ class HypergraphFactory:
 
     The filtering, ref→index mapping, physics classification and connection
     extraction run in the Rust ``HypergraphFactory`` pyclass; this wrapper
-    assembles the scipy COO matrix and the PhysicsHypergraph (KTD9 — see
-    the module docstring).
+    assembles the ``Coo`` triplet container and the PhysicsHypergraph (KTD9
+    — see the module docstring).
     """
 
     def __init__(
@@ -93,18 +105,26 @@ class HypergraphFactory:
                 cols.append(net_idx)
                 data.append(weight)
 
-        # Create Sparse Matrix (scipy semantics stay Python-side).
+        # Assemble the plain-array COO container (triplets are already
+        # deduplicated per net above -- see the module docstring's "COO
+        # triplet assembly" boundary note for why no scipy sparse-matrix
+        # construction semantics are needed here).
         if parts.n_edges > 0:
             values = np.array(data, dtype=np.float32)
         else:
             values = np.empty((0,), dtype=np.float32)
 
         shape = (parts.n_nodes, parts.n_edges)
-        bcoo_matrix = coo_matrix((values, (rows, cols)), shape=shape)
+        incidence_matrix = Coo(
+            row=np.array(rows, dtype=np.int64),
+            col=np.array(cols, dtype=np.int64),
+            data=values,
+            shape=shape,
+        )
 
         return PhysicsHypergraph(
             incidence=HypergraphIncidence(
-                matrix=bcoo_matrix,
+                matrix=incidence_matrix,
                 node_weights=np.array(parts.node_weights, dtype=np.float32),
                 hyperedge_weights=np.array(parts.hyperedge_weights, dtype=np.float32),
             ),

@@ -12,15 +12,25 @@ here drives IDENTICAL inputs through both sides.
 
 Comparison conventions:
 - numpy arrays as ``(dtype, shape, tobytes())`` (bit-exact);
-- the scipy COO matrix by ``(shape, nnz, data-tobytes, row, col)`` — the
+- the COO triplet matrix by ``(shape, nnz, data-tobytes, row, col)`` — the
   triplet ORDER is asserted, not just the multiset, because the oracle's
   per-net triplet order comes from CPython set iteration, and the shim
-  preserves it by re-deriving the same set from the same pin-order list;
+  preserves it by re-deriving the same set from the same pin-order list.
+  Both sides duck-type the same ``.shape``/``.nnz``/``.data``/``.row``/
+  ``.col`` surface: the oracle's is a real ``scipy.sparse.coo_matrix``, the
+  shim's (as of 2026-08-07,
+  ``docs/evidence/2026-08-07-scipy-keeps-re-triage.md`` Sec 3) is
+  ``temper_placer.core.hypergraph.Coo``, a plain-array container -- see that
+  class's docstring for why scipy's sparse-construction semantics were never
+  actually load-bearing here (triplets arrive pre-deduplicated);
 - every non-float leaf's concrete type rides in the comparison key.
 
 Boundary notes (KTD9 — kept Python-side, argued in ``VERIFICATION.md``):
-- ``scipy.sparse.coo_matrix`` construction stays Python (scipy sparse
-  semantics are not reimplementable);
+- COO triplet assembly stays Python (``Coo``, a plain-array container —
+  scipy's ``coo_matrix`` was retired here 2026-08-07 once triage found its
+  "sparse construction semantics are not reimplementable" premise
+  unsupported; the oracle below still builds a real ``coo_matrix`` as the
+  pinned pre-migration reference per R19);
 - the numpy dtype casts (``np.array(..., dtype=np.float32)``) stay Python
   (numpy conversion semantics);
 - CPython ``set`` iteration order stays Python — the shim builds
