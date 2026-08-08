@@ -189,11 +189,52 @@ more than 2 pads and all-pad-tree disabled. `pad_connectivity_audit.py`
 is, as far as this investigation found, the first tool in this codebase
 that can see that gap at all.
 
+### 2.4 A first measurement caught its own defect -- exactly the discipline this spike was told to apply
+
+The first full production run of this spike's path (before the fix below)
+reported `nets_carrying_copper() = 96/110` -- dramatically higher than
+baseline's 64/110 -- with segments almost doubled (5016 vs 2579) and vias
+roughly doubled (104 vs 50). Per this task's own warning ("this session has
+watched routing metrics mislead three separate times"), this number was
+**not reported** without first running `pad_connectivity_audit.audit_pcb_file()`
+against that output. The audit immediately found the same shape as
+b39b382d: dozens of "carrying copper" nets whose emitted geometry did not
+reach their own pads (e.g. `GATE_HS`, a 2-pad net, showed a 104-segment
+`B.Cu` chain with **zero vias**, starting 2.925mm from its own pad -- at
+the exact position of R23's *other* pad, belonging to a different net).
+
+**Root cause, traced rather than guessed:** this spike's driver
+(`run_astar_pathfinding_nlayer`) omitted the production per-net iteration
+budget -- `run_astar_pathfinding`'s elliptical, waypoint-span-derived
+`per_net_max_iter` (`_astar_reconstruct.py:189-201`) -- and used the flat
+`max_iter` (500,000) for every net instead. This is a real, unintentional
+gap, not a documented scope decision (unlike the rip-up queue in §2.1,
+which was verified dead code). A flat, always-larger budget lets more
+segment searches succeed between whatever waypoints Stage 3's channel/topology
+solve assigned -- including, for at least `GATE_HS`, waypoints that do not
+terminate at that net's own pad, a channel-topology characteristic that
+predates this spike (`expand_channel_path_terminals` deliberately leaves a
+2-pad net's SAT-derived waypoints unchanged -- see `channel_mapping.py:61-67` --
+so this is not new geometry construction on this spike's part). Under
+production's tighter budget these searches more often exhaust their
+iteration cap and decline; under this spike's unbounded-by-comparison
+budget they complete, emitting real, well-formed copper that nonetheless
+does not reach the net's own pad.
+
+**Fixed** by replicating `run_astar_pathfinding`'s exact per-net budget
+derivation in `run_astar_pathfinding_nlayer` (same formula, same primary
+grid choice). Re-measured below (§3) with the fix in place, and compared
+against a **freshly run baseline** (not only the cited figures) so the
+pad-connectivity comparison in §3.3 has a real baseline board to audit
+too -- the cited baseline evidence doc never ran this check, because this
+check did not exist before this spike.
+
 ## 3. Measured results
 
-### 3.1 Baseline (cited, not re-run)
+### 3.1 Baseline
 
-Per this task's own brief and `docs/evidence/2026-08-08-router-power-gnd-and-stage4-clearance-combined.md`
+Cited figures, per this task's own brief and
+`docs/evidence/2026-08-08-router-power-gnd-and-stage4-clearance-combined.md`
 §3 (the "combined (A+B)" row, measured at `agent/router-combined @
 6121c49f` -- the exact commit this spike branches from, with the exact
 `route_board.py --net-batching --batch-size 10` invocation this spike's
