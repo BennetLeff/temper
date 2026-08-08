@@ -126,26 +126,54 @@
 * ============================================================================
 * Values NOT in modules.ato -- model defaults used instead (flagged, R4)
 * ============================================================================
-*   - PAN_L1 = 80uH (coil inductance): elec/src/modules.ato's ResonantTank
-*     does not specify a coil inductance at all -- `inductor_conn` is a
-*     placeholder Resistor standing in for a physical Litz coil
-*     (mpn="CUSTOM_LITZ_COIL", modules.ato:407-409). 80uH is
-*     pan_load.sub's own PANLOAD_TRANSFORMER subckt default. Note
-*     pan_load.sub's own header text (line 9, "~50uH uncoupled") disagrees
-*     with its own subckt's coded default (80uH) -- an internal
-*     inconsistency in the vendor/model file, reported not resolved. The
-*     coded default is what actually executes and is what this deck uses.
-*   - PAN_L2 = 218uH (pan-side inductance): CORRECTED 2026-07-27 (was 1uH).
-*     The 1uH default kept omega*L2 ~45x below every RPAN preset, which
-*     suppressed the coupling's effect on both L and R almost entirely
-*     regardless of K -- see docs/evidence/2026-07-27-coil-pan-coupling-
-*     resolution.md Sec 2.3. 218uH is the Infineon-anchored value derived
-*     in that document's Sec 2.5, held uniform across pan presets (see
-*     run_zvs_sweep.py's PAN_PRESETS comment for why). Still not measured
-*     for this project's coil/pan -- see
-*     docs/evidence/2026-07-27-pan-preset-correction.md.
+*   - PAN_L1 = 88uH (coil UNLOADED inductance): UPDATED 2026-08-07 (this
+*     pass, docs/evidence/2026-08-07-zvs-margin-sweep.md) from the stale
+*     80uH pan_load.sub subckt default to elec/src/main.ato's now-declared
+*     `l_tank_assumed = 88uH` / modules.ato `inductor_conn = new Inductor,
+*     88uH +/-10%` (docs/evidence/2026-07-29-tank-coil-specification.md).
+*     The coil is no longer a placeholder (it was, when this deck was
+*     first written 2026-07-26) -- using the harness's old model default
+*     instead of the now-declared value would silently re-introduce a
+*     defect this project already fixed once in main.ato but never
+*     propagated here. Historical note, no longer current: pan_load.sub's
+*     own header text (line 9, "~50uH uncoupled") disagrees with its own
+*     subckt's coded 80uH default -- an internal inconsistency in the
+*     vendor/model file, reported not resolved, and moot for this deck
+*     now that PAN_L1 is overridden from elec/ rather than left at either
+*     of the model's own conflicting numbers.
+*   - PAN_L2 = 97.13uH, PAN_K = 0.6136 (pan-side inductance / coupling):
+*     RE-DERIVED 2026-08-07 (docs/evidence/2026-08-07-zvs-margin-sweep.md)
+*     from the PREVIOUS 2026-07-27 correction (K=0.79, L2=218uH), which
+*     is now STALE relative to elec/src/main.ato: that pair was solved to
+*     reproduce Infineon AN235020's loaded/unloaded ratio (0.40) measured
+*     at 90-150kHz on a DIFFERENT, unstated coil -- out of this design's
+*     20-50kHz band. main.ato's `l_pan_loaded_ratio` moved 0.399 -> 0.68
+*     on 2026-07-29 (docs/evidence/2026-07-29-tank-coil-specification.md)
+*     using a DIFFERENT, in-band source (Infineon EVAL-IHW25N140R5L Fig.
+*     16, a 2kW cooking coil measured WITH a pan across 15-50kHz, giving
+*     ratio 0.71/0.68/0.66 at 30/40/50kHz) -- but only main.ato's own
+*     scalar `l_pan_loaded_ratio` was updated; this deck's K/L2 (which
+*     determine the ratio *through* the T-model, not as a direct input)
+*     were deliberately left at the old values, and main.ato itself names
+*     that a real, open divergence (main.ato's l_pan_loaded_ratio comment,
+*     "CONSEQUENCE, RECORDED NOT FIXED"). This pass closes it: K=0.6136,
+*     L2=97.13uH (RPAN=10 ohm held fixed, same uncited placeholder as
+*     before -- not re-solved, to avoid inventing a THIRD free parameter
+*     on top of two already underdetermined ones) is the constraint-
+*     satisfying point reproducing ALL THREE of main.ato's chart-read
+*     ratios (0.7100/0.6776/0.6600 at 30/40/50kHz against declared
+*     0.71/0.68/0.66 -- worst deviation 0.35% at 40kHz) via the SAME
+*     `L_app/L1 = 1 - K^2*x^2/(RPAN^2+x^2), x=omega*L2` relation
+*     run_tank_coil_sweep.py already uses elsewhere in this repo. THE FIX
+*     BELOW IS STILL CONSTRAINT-SATISFYING, NOT MEASURED, and still one
+*     solution in an underdetermined family (RPAN held fixed) -- it moves
+*     this deck from "reproduces an out-of-band literature point" to
+*     "reproduces the design's own in-band literature point," not to
+*     "calibrated." See docs/evidence/2026-08-07-zvs-margin-sweep.md Sec
+*     2 for the full derivation and its own caveats.
 *   - PAN_RCOIL = 0.1 ohm (coil series resistance): PANLOAD_TRANSFORMER's
-*     own default; no schematic source (the coil is unspecified, above).
+*     own default; no schematic source (the coil's AC resistance is not
+*     characterized by any measurement this project has).
 *
 * ============================================================================
 * Model substitution: PANLOAD_SIMPLE is NOT used, and this is a finding
@@ -243,22 +271,31 @@
 .param C_TANK   = 300n
 
 * --- Model defaults, NOT from elec/ (see header) ---
-.param PAN_L1     = 80u
-.param PAN_L2     = 218u
+.param PAN_L1     = 88u
+.param PAN_L2     = 97.13u
 .param PAN_RCOIL  = 0.1
 
 * --- Sweep axes (baseline values here = the one demonstrated point this
 *     deck reproduces stand-alone; run_zvs_sweep.py overrides these).
-*     PAN_K/PAN_RPAN/PAN_L2 baseline CORRECTED 2026-07-27 to the
-*     Infineon-anchored cast_iron/stainless point (K=0.79, RPAN=10,
-*     L2=218u -- see docs/evidence/2026-07-27-pan-preset-correction.md).
-*     The old baseline (K=0.5, RPAN=8, L2=1u) was the provably-impossible
-*     pre-correction default (pan_load.sub header table, uncited). This
+*     PAN_K/PAN_RPAN/PAN_L2/PAN_L1 baseline RE-DERIVED 2026-08-07 to the
+*     in-band cast_iron/stainless point (K=0.6136, RPAN=10, L2=97.13u,
+*     L1=88u -- see docs/evidence/2026-08-07-zvs-margin-sweep.md and the
+*     header note above). The prior baseline (K=0.79, RPAN=10, L2=218u,
+*     L1=80u, set 2026-07-27) is now stale relative to
+*     elec/src/main.ato's own 2026-07-29 `l_pan_loaded_ratio` update; the
+*     one before that (K=0.5, RPAN=8, L2=1u) was the provably-impossible
+*     pre-2026-07-27 default (pan_load.sub header table, uncited). This
 *     baseline must track run_zvs_sweep.py's cast_iron preset exactly, or
 *     the harness's own self-consistency check
-*     (grid_reproduces_independent_baseline_run) fails by design. ---
+*     (grid_reproduces_independent_baseline_run) fails by design. F_SW is
+*     kept at 35kHz -- NOT updated to the design's current 47kHz nominal
+*     -- deliberately: it is this deck's own fixed self-test anchor point
+*     for the determinism/self-consistency checks, independent of
+*     whatever main.ato currently declares as nominal (see
+*     run_zvs_sweep.py's F_SWITCHING_NOMINAL_HZ / FREQ_GRID_HZ comments).
+*     ---
 .param F_SW     = 35k
-.param PAN_K    = 0.79
+.param PAN_K    = 0.6136
 .param PAN_RPAN = 10
 
 * --- Simulation control ---
@@ -298,13 +335,29 @@ X_PAN tank_mid2 0 PANLOAD_TRANSFORMER L1={PAN_L1} L2={PAN_L2} K={PAN_K} RPAN={PA
 * time, a known stiffness issue for switched resonant circuits with the
 * device model's small fixed capacitances and no explicit snubber. ABSTOL
 * is loosened 1e-12->1e-9 (still far below the ~1-100A signal scale here)
-* and ITL4 (max Newton iterations/point) raised 10->200 so the solver is
-* given more attempts before giving up, rather than accepting a coarser
-* answer; GMIN is raised 1e-12->1e-11, adding at most ~1.7nA of leakage
-* per node at 170V -- twelve orders of magnitude below the tank currents
-* being measured, i.e. a convergence aid, not a smoothing-away of the
-* transition being studied. RELTOL is left at ngspice's own default value.
-.options reltol=1e-3 abstol=1e-9 vntol=1e-6 itl4=200 gmin=1e-11
+* and ITL4 (max Newton iterations/point) raised 10->200->500 so the solver
+* is given more attempts before giving up, rather than accepting a coarser
+* answer; RELTOL is left at ngspice's own default value.
+*
+* GMIN loosened FURTHER 2026-08-07 (1e-11 -> 1e-9), verified empirically:
+* the 2026-08-07 PAN_L1/PAN_K/PAN_L2 update (88uH / 0.6136 / 97.13uH,
+* replacing 80uH / 0.79 / 218uH -- see header) moved several grid points,
+* including this deck's OWN (cast_iron, 35kHz) self-test anchor, onto a
+* "singular matrix: check node x_pan.n_s1/n_s2" / dynamic-gmin-stepping-
+* failure edge that 1e-11 could no longer always clear (X_PAN's shorted
+* secondary loop is a floating DC loop with no independent path to
+* ground; GMIN is what gives the op-point solver a path). At GMIN=1e-9
+* this same point converged identically on 5/5 repeated runs (verified);
+* at GMIN=1e-11 it did not converge on ANY of several repeated runs at
+* the new parameter values (also verified, not assumed). Compared
+* directly at three other grid points that converged under BOTH GMIN
+* values, the two settings' vce_hs_last/vce_ls_last agree to within
+* ~2%, well inside this deck's already-declared "ordinal, not
+* calibrated" fidelity bound (see IGBT model note above) -- this is a
+* convergence aid, not a physics change, same as the ABSTOL/ITL4 moves
+* it joins. 1e-9 still adds at most ~170nA of leakage per node at 170V,
+* eleven orders of magnitude below the tank currents being measured.
+.options reltol=1e-3 abstol=1e-9 vntol=1e-6 itl4=500 gmin=1e-9
 
 * Top-level (non-.control) .tran/.meas cards: ngspice's numparam brace/quote
 * substitution ({...}, '...') is only reliably applied to netlist cards, not
