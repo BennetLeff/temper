@@ -127,7 +127,9 @@ mod tests {
                 v1 in prop::num::f64::NORMAL,
                 v2 in prop::num::f64::NORMAL,
             ) {
-                prop_assume!(v1 <= v2);
+                // Order directly: prop_assume!(v1 <= v2) rejects ~50% and
+                // trips proptest's global-reject limit at high PROPTEST_CASES.
+                let (v1, v2) = if v1 <= v2 { (v1, v2) } else { (v2, v1) };
                 let c1 = required_clearance(v1);
                 let c2 = required_clearance(v2);
                 prop_assert!(c1 <= c2,

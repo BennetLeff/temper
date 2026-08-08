@@ -1908,7 +1908,9 @@ mod tests {
                 stop in prop::num::f64::NORMAL,
                 num in 3usize..=100usize,
             ) {
-                prop_assume!(start < stop);
+                // Order directly: prop_assume!(start < stop) rejects ~50% and
+                // trips proptest's global-reject limit at high PROPTEST_CASES.
+                let (start, stop) = if start < stop { (start, stop) } else { (stop, start) };
                 let v = linspace(start, stop, num);
                 for i in 0..(num - 1) {
                     prop_assert!(v[i] < v[i + 1],

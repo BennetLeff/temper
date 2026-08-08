@@ -1067,20 +1067,25 @@ mod tests {
 
         proptest! {
             // --------------------------------------------------------------
-            // Property S1: All three sum strategies agree on arrays of
-            // length < 8 (numpy pairwise uses naive summation below 8,
-            // builtin sum and naive sum both agree for small arrays).
+            // Property S1: numpy pairwise and naive accumulation agree on
+            // arrays of length < 8 (numpy's pairwise uses naive summation
+            // below 8). NOTE: py_builtin_sum is NOT included here — CPython's
+            // sum() is always the compensated (Kahan-Babuska) algorithm
+            // (catalog B12), which differs from both naive sums by 1 ulp even
+            // for 3 elements (e.g. [4.15e102, 9.95e106, 1.18e96], measured
+            // against numpy 2.3.5: np==naive, builtin differs). This property
+            // was originally written to assert all three agree below 8; the
+            // proptest found the builtin divergence at n=3 and the claim was
+            // wrong, not the kernels.
             // --------------------------------------------------------------
             #[test]
             fn prop_sums_agree_below_eight(
                 vals in proptest::collection::vec(prop::num::f64::NORMAL, 1..=7),
             ) {
                 let p = numpy_pairwise_sum(&vals);
-                let b = py_builtin_sum(&vals);
                 let n = naive_sum(&vals);
-                // All three must be bit-identical.
-                prop_assert_eq!(p.to_bits(), b.to_bits());
-                prop_assert_eq!(b.to_bits(), n.to_bits());
+                // numpy and naive must be bit-identical below 8.
+                prop_assert_eq!(p.to_bits(), n.to_bits());
             }
 
             // --------------------------------------------------------------

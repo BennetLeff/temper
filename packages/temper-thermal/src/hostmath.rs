@@ -432,7 +432,9 @@ mod tests {
                 lo in finite_f64(),
                 hi in finite_f64(),
             ) {
-                prop_assume!(lo <= hi);
+                // Order directly: prop_assume!(lo <= hi) rejects ~50% and
+                // trips proptest's global-reject limit at high PROPTEST_CASES.
+                let (lo, hi) = if lo <= hi { (lo, hi) } else { (hi, lo) };
                 let y = np_clip(x, lo, hi);
                 // Result must be finite and in [lo, hi].
                 prop_assert!(y.is_finite());
@@ -445,10 +447,12 @@ mod tests {
             #[test]
             fn prop_np_clip_inverted_returns_hi(
                 x in finite_f64(),
-                lo in finite_f64(),
-                hi in finite_f64(),
+                a in finite_f64(),
+                b in finite_f64(),
             ) {
-                prop_assume!(lo > hi);
+                // Generate a strict inverted pair directly (lo = max, hi = min
+                // of two distinct-ordered values) instead of prop_assume!(lo > hi).
+                let (lo, hi) = if a > b { (a, b) } else { (b, a) };
                 prop_assert_eq!(np_clip(x, lo, hi), hi);
             }
 

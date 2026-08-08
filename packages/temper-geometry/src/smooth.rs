@@ -1005,7 +1005,10 @@ mod proptests {
             alpha1 in alpha(),
             alpha2 in alpha(),
         ) {
-            prop_assume!(alpha1 < alpha2);
+            // Generate ordered pairs directly (not via prop_assume): a
+            // ~50% rejection rate trips proptest's global-reject limit
+            // (1024) before enough cases accumulate at high PROPTEST_CASES.
+            let (alpha1, alpha2) = if alpha1 < alpha2 { (alpha1, alpha2) } else { (alpha2, alpha1) };
             let s1 = smooth_max(a, b, alpha1);
             let s2 = smooth_max(a, b, alpha2);
             let m = a.max(b);
@@ -1154,7 +1157,9 @@ mod proptests {
             end in 0.1f64..100.0,
             epochs in 2usize..20,
         ) {
-            prop_assume!(start <= end);
+            // Order directly; the 50% rejection rate of prop_assume!(start <= end)
+            // trips the global-reject limit at high PROPTEST_CASES.
+            let (start, end) = if start <= end { (start, end) } else { (end, start) };
             let schedule = get_alpha_schedule(start, end, epochs);
             for w in schedule.windows(2) {
                 prop_assert!(w[1] >= w[0],
