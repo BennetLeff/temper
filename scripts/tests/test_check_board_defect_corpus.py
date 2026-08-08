@@ -308,6 +308,49 @@ class TestBothRefsMatching:
         assert not corpus.errors_naming_both_refs([one], "R48", "C38")
 
 
+class TestRuleScopedBothRefsMatching:
+    """The hole-to-hole class's failure signal: ref-level (like
+    TestBothRefsMatching above -- DrcWarning has no per-item ``items``
+    text, see _drc_api.DrcWarning), but scoped to a specific rule so an
+    unrelated violation naming the same two refs by coincidence can't
+    false-positive the identity check."""
+
+    def test_requires_both_refs_and_matching_rule(self):
+        class _E:
+            def __init__(self, rule, components):
+                self.rule, self.message, self.components = rule, "m", components
+
+        right_rule = _E("hole_to_hole", ["C24", "C2"])
+        wrong_rule = _E("courtyards_overlap", ["C24", "C2"])
+        one_ref = _E("hole_to_hole", ["C24", "U18"])
+        assert corpus.errors_of_type_naming_both_refs(
+            [right_rule], "hole_to_hole", "C24", "C2"
+        )
+        assert not corpus.errors_of_type_naming_both_refs(
+            [wrong_rule], "hole_to_hole", "C24", "C2"
+        )
+        assert not corpus.errors_of_type_naming_both_refs(
+            [one_ref], "hole_to_hole", "C24", "C2"
+        )
+
+
+class TestRuleScopedRefMatching:
+    """The missing-courtyard class's failure signal: a single ref, scoped
+    to the missing_courtyard rule specifically (a ref can legitimately
+    appear in OTHER rule types' output without the rule this class cares
+    about having fired)."""
+
+    def test_requires_ref_and_matching_rule(self):
+        class _E:
+            def __init__(self, rule, components):
+                self.rule, self.message, self.components = rule, "m", components
+
+        right_rule = _E("missing_courtyard", ["R1"])
+        wrong_rule = _E("courtyards_overlap", ["R1"])
+        assert corpus.errors_of_type_naming_ref([right_rule], "missing_courtyard", "R1")
+        assert not corpus.errors_of_type_naming_ref([wrong_rule], "missing_courtyard", "R1")
+
+
 # ---------------------------------------------------------------------------
 # anti-vacuity control (U2 scenario 3)
 # ---------------------------------------------------------------------------
@@ -364,11 +407,12 @@ class TestMissingKicadCli:
 
 
 class TestSeedManifest:
-    def test_manifest_names_five_classes_and_valid_mutations(self):
+    def test_manifest_names_seven_classes_and_valid_mutations(self):
         manifest = corpus.load_manifest(MANIFEST)
         classes = manifest["classes"]
         assert set(classes) == {
             "off-board", "pad-short", "creepage", "clearance", "courtyard",
+            "hole-to-hole", "missing-courtyard",
         }
         for name, class_def in classes.items():
             assert class_def["mutation"] in MUTATIONS, name
@@ -409,26 +453,50 @@ class TestSeedManifest:
     reason="REQ-SAFE-01 inputs (compiled netlist / domain manifest) missing",
 )
 class TestCorpusEndToEnd:
-    def test_full_corpus_passes_with_five_classes_covered(self, tmp_path):
+    # ``missing-courtyard`` is a DELIBERATE, verified-uncovered class
+    # (docs/evidence/2026-08-07-missing-courtyard-and-hole-to-hole-classes.md,
+    # METHODOLOGY.md Sec. 5: "if a gate turns out not to catch its own
+    # defect class, that is a finding -- report it, do not weaken the
+    # class"). Its injector is independently self-verified
+    # (TestMutateMissingCourtyard in test_board_defect_mutator.py); its
+    # owning gate genuinely does not fire, so the corpus is honestly red on
+    # this one class until the underlying gap (kicad-cli's compiled-in
+    # ``missing_courtyard`` severity default without a project file, and
+    # ``run_drc()`` never requesting warning-severity output) is fixed.
+    _EXPECTED_UNCOVERED = {"missing-courtyard"}
+
+    def test_full_corpus_covers_six_of_seven_classes(self, tmp_path):
         report = corpus.run_corpus(
             REPO_ROOT,
             manifest_path=MANIFEST,
             workdir=tmp_path / "work",
         )
-        assert report.ok, [v.message for v in report.class_verdicts]
-        assert report.exit_code == corpus.EXIT_PASS
+        assert not report.ok, [v.message for v in report.class_verdicts]
+        assert report.exit_code == corpus.EXIT_CORPUS_FAIL
         assert report.anti_vacuity_violations == []
-        assert all(v.ok for v in report.class_verdicts)
-        assert {v.name for v in report.class_verdicts} == {
+        covered = {v.name for v in report.class_verdicts if v.ok}
+        uncovered = {v.name for v in report.class_verdicts if not v.ok}
+        assert uncovered == self._EXPECTED_UNCOVERED, [
+            (v.name, v.ok, v.gate_error, v.message) for v in report.class_verdicts
+        ]
+        assert covered == {
             "off-board", "pad-short", "creepage", "clearance", "courtyard",
+            "hole-to-hole",
         }
+        # The one uncovered class is a genuine gate gap, not an
+        # infrastructure/measurement failure -- gate_error is reserved for
+        # "the measurement itself broke" (KTD2), which this is not.
+        missing_courtyard_verdict = next(
+            v for v in report.class_verdicts if v.name == "missing-courtyard"
+        )
+        assert not missing_courtyard_verdict.gate_error
         assert report.board_matches_manifest
 
     def test_board_change_detected_and_corpus_revalidates(self, tmp_path):
         # U3 scenario 4: a manifest whose recorded board hash no longer
         # matches the committed board is DETECTED (mismatch surfaced), and
         # the corpus still re-derives every mutated board from the actual
-        # board and re-validates all three classes in the same run.
+        # board and re-validates every class in the same run.
         import re
 
         manifest_text = MANIFEST.read_text(encoding="utf-8")
@@ -442,5 +510,9 @@ class TestCorpusEndToEnd:
             workdir=tmp_path / "work2",
         )
         assert not report.board_matches_manifest
-        assert report.ok  # the run itself IS the re-validation
-        assert all(v.ok for v in report.class_verdicts)
+        # The run itself IS the re-validation -- every class except the
+        # deliberately-uncovered one still passes against the re-derived
+        # mutations.
+        covered = {v.name for v in report.class_verdicts if v.ok}
+        uncovered = {v.name for v in report.class_verdicts if not v.ok}
+        assert uncovered == self._EXPECTED_UNCOVERED

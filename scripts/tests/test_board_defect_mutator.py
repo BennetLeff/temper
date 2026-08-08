@@ -23,10 +23,13 @@ from board_defect_mutator import (  # noqa: E402
     apply_mutation,
     board_content_hash,
     copy_board,
+    courtyard_item_count,
     footprint_positions,
     mutate_clearance,
     mutate_courtyard,
     mutate_creepage,
+    mutate_hole_to_hole,
+    mutate_missing_courtyard,
     mutate_off_board,
     mutate_pad_short,
 )
@@ -188,6 +191,68 @@ class TestMutateCourtyard:
     def test_missing_footprint_fails_closed(self, tmpdir):
         with pytest.raises(MutationError):
             mutate_courtyard(BOARD, tmpdir / "x.kicad_pcb", "ZZ_NOT_A_REF", (1.0, 1.0), seed=5)
+
+
+@pytest.mark.skipif(not BOARD.exists(), reason="committed board not available")
+class TestMutateHoleToHole:
+    def test_moves_exactly_one_component_preserves_others(self, tmpdir):
+        out = tmpdir / "hole_to_hole.kicad_pcb"
+        mutate_hole_to_hole(BOARD, out, "C24", (95.28, 64.84), seed=6)
+
+        before = _ref_positions(_read_board(BOARD))
+        after = _ref_positions(_read_board(out))
+        assert after["C24"] == (95.28, 64.84)
+        moved = {ref for ref in before if before[ref] != after.get(ref)}
+        assert moved == {"C24"}
+
+    def test_missing_footprint_fails_closed(self, tmpdir):
+        with pytest.raises(MutationError):
+            mutate_hole_to_hole(BOARD, tmpdir / "x.kicad_pcb", "ZZ_NOT_A_REF", (1.0, 1.0), seed=6)
+
+
+@pytest.mark.skipif(not BOARD.exists(), reason="committed board not available")
+class TestMutateMissingCourtyard:
+    def test_removes_courtyard_graphics_from_named_footprint_only(self, tmpdir):
+        out = tmpdir / "missing_courtyard.kicad_pcb"
+        before_count = courtyard_item_count(BOARD, "R1")
+        assert before_count > 0, "R1 must start with real courtyard graphics for this test to prove anything"
+
+        result = mutate_missing_courtyard(BOARD, out, "R1", seed=7)
+
+        assert courtyard_item_count(out, "R1") == 0
+        assert result.summary["removed_courtyard_items"] == before_count
+
+        # No other footprint's courtyard graphics were touched.
+        before_board = _read_board(BOARD)
+        after_board = _read_board(out)
+        for fp in before_board.footprints:
+            ref = (fp.properties or {}).get("Reference")
+            if ref == "R1":
+                continue
+            before_n = sum(
+                1 for it in fp.graphicItems if getattr(it, "layer", None) in ("F.CrtYd", "B.CrtYd")
+            )
+            after_n = courtyard_item_count(out, ref) if before_n else None
+            if before_n:
+                assert after_n == before_n
+
+    def test_source_board_untouched(self, tmpdir):
+        out = tmpdir / "missing_courtyard.kicad_pcb"
+        before_hash = board_content_hash(BOARD)
+        mutate_missing_courtyard(BOARD, out, "R1", seed=7)
+        assert board_content_hash(BOARD) == before_hash
+
+    def test_missing_footprint_fails_closed(self, tmpdir):
+        with pytest.raises(MutationError):
+            mutate_missing_courtyard(BOARD, tmpdir / "x.kicad_pcb", "ZZ_NOT_A_REF", seed=7)
+
+    def test_ref_already_missing_courtyard_fails_closed(self, tmpdir):
+        # F1 has no F.CrtYd/B.CrtYd graphics on the committed board (verified
+        # directly, 2026-08-07) -- deleting nothing must not silently
+        # "succeed" (METHODOLOGY.md Sec. 5, no-op injector).
+        assert courtyard_item_count(BOARD, "F1") == 0
+        with pytest.raises(MutationError):
+            mutate_missing_courtyard(BOARD, tmpdir / "x.kicad_pcb", "F1", seed=7)
 
 
 @pytest.mark.skipif(not BOARD.exists(), reason="committed board not available")

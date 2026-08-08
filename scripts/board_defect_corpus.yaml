@@ -221,3 +221,95 @@ classes:
       category total was also observed stable in this sample (11 clean / 12
       mutated, unchanged across all 120 runs each) -- see
       docs/evidence/2026-08-07-clearance-courtyard-corpus-coverage.md.
+  hole-to-hole:
+    mutation: hole-to-hole
+    seed: 6
+    params:
+      ref: C24
+      position_mm: [95.28, 64.84]
+      pad: "1"
+      anchor_ref: C2
+      anchor_pad: "1"
+    owning_gates: [kicad-drc]
+    failure_signal: gate-names-defect
+    note: >-
+      Drilled-hole-to-hole spacing class (STRATEGY.md build order step 4,
+      2026-08-07 -- one of the ~10 fault-injection classes; docs/STRATEGY.md
+      Sec "Checks by stage" names ampacity/clearance-family Routing checks,
+      and PTH hole-to-hole spacing is a real manufacturing rule this repo's
+      own SSOT DRU generator emits (scripts/generate_kicad_dru.py, "PTH hole
+      to hole", min 0.5mm) but the corpus had no class for it before this).
+      C24 (a THT 2-pin capacitor, pad 1 net +170V_BUS; originally at
+      (31.57, 88.86) rot 0, 10.9mm+ from every other drilled hole) is moved
+      to (95.28, 64.84), placing its pad 1 drill 1.8mm center-to-center
+      (0.20mm edge-to-edge) from the fixed C2 (THT 2-pin capacitor, pad 1
+      also net +170V_BUS; NOT moved, at (93.48, 64.84)) pad 1 drill -- below
+      the 0.4995mm hole_to_hole minimum kicad-cli measures (the DRU's 0.5mm
+      minus its own rounding), but the two pads share ONE net deliberately:
+      hole_to_hole is a manufacturing/mechanical constraint independent of
+      electrical connectivity, so pairing same-net pads lets their copper
+      overlap (legal, same net) without also tripping clearance/
+      shorting_items -- isolating the hole-to-hole signal the way the
+      clearance/courtyard classes above isolate theirs. Measured 2026-08-07:
+      kicad-cli reports "Drilled hole too close to other hole (rule 'PTH
+      hole to hole' min 0.4995 mm; actual 0.2000 mm)" naming "PTH pad 1
+      [+170V_BUS] of C24" and "PTH pad 1 [+170V_BUS] of C2" on the mutated
+      board, and nothing names that pair on the clean board.
+  missing-courtyard:
+    mutation: missing-courtyard
+    seed: 7
+    params:
+      ref: R1
+    owning_gates: [kicad-drc]
+    failure_signal: gate-names-defect
+    note: >-
+      Missing-courtyard class (STRATEGY.md build order step 4, 2026-08-07).
+      R1 (THT resistor, `allowMissingCourtyard: False`; ONE F.CrtYd FpRect
+      graphic item on the clean board) has that item deleted outright --
+      not moved, not compressed, DELETED -- via
+      board_defect_mutator.mutate_missing_courtyard.
+      board_defect_mutator.courtyard_item_count independently re-parses the
+      mutated file and confirms 0 F.CrtYd/B.CrtYd items remain on R1 (1 on
+      the clean board), proving the injector itself works, before the DRC
+      gate is ever asked anything (METHODOLOGY.md Sec. 5, injector
+      self-verification).
+    uncovered_finding: >-
+      DELIBERATE EXCEPTION: this class's owning gate does NOT fire, and is
+      reported as an honest gap rather than weakened or dropped
+      (METHODOLOGY.md Sec. 5, "if a gate turns out not to catch its own
+      defect class, that is a finding -- report it, do not weaken the
+      class"). Two independent, separately verified causes, EITHER one of
+      which alone is already sufficient to hide this class from every
+      DRC-based gate in this repo (docs/evidence/
+      2026-08-07-missing-courtyard-and-hole-to-hole-classes.md has the full
+      before/after JSON):
+        (1) kicad-cli's compiled-in default severity for the
+            `missing_courtyard` rule is `ignore` when no `.kicad_pro`
+            accompanies the board file -- true of every mutated board copy
+            this corpus (and `run_drc()` generally) ever measures, since
+            they live in a scratch workdir next to nothing but a
+            regenerated `.kicad_dru`. Measured directly: even
+            `kicad-cli pcb drc --severity-all` on a board with R1's
+            courtyard genuinely deleted reports 0 `missing_courtyard`
+            violations without a project file present.
+        (2) `temper_placer.validation._drc_api.run_drc` -- the corpus's
+            canonical measurement path, used unmodified so every class
+            measures identically -- never passes `--severity-warning` or
+            `--severity-all` to kicad-cli, and `missing_courtyard` is a
+            `warning`-severity rule in `pcb/temper.kicad_pro`. Measured
+            directly: copying `temper.kicad_pro` beside the mutated board
+            makes kicad-cli CHECK the rule, but its JSON output still omits
+            `missing_courtyard` entries unless `--severity-all` is ALSO
+            passed; with BOTH the project file AND `--severity-all`
+            present, it correctly reports "Footprint has no courtyard
+            defined" naming R1 (plus the 5 pre-existing real instances:
+            F1, L2, R30, RT1, U27).
+      Neither fix was applied to `_drc_api.py`/`run_drc()` here: that
+      function is the canonical path for `drc_ceiling.json`'s own ratchet
+      (`ci_check_drc.py`/`DrcRatchet`) and every other DRC-based gate in
+      this repo, not just this corpus, and changing its severity flags
+      would surface many new categories across the whole DRC-ceiling
+      contract -- a real, separate, much larger re-baselining task, out of
+      this task's scope (and `power_pcb_dataset/drc_ceiling.json` is
+      explicitly not to be touched by this work). Reported here, not
+      silently special-cased to pass.

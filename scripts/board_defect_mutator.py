@@ -12,20 +12,44 @@ board is ever committed (KTD3) and the DRC-ceiling re-measurement convention
 (which fires only when the committed board's content hash changes) stays
 inert (KTD1).
 
-The five defect classes (R38, extended 2026-08-07 for R9/R10 vacuity
-closure): component off-board, pad short, creepage crossing, ordinary
-copper clearance, and courtyard overlap. The real off-board/pad-short/
+The seven defect classes (R38, extended 2026-08-07 for R9/R10 vacuity
+closure -- clearance, courtyard -- and again 2026-08-07 for step 4 of
+docs/STRATEGY.md's build order -- hole-to-hole, missing courtyard):
+component off-board, pad short, creepage crossing, ordinary copper
+clearance, courtyard overlap, drilled-hole-to-hole spacing, and a
+footprint with no courtyard defined at all. The real off-board/pad-short/
 creepage defect instances are ALREADY on the committed board (the tank cap
 staged off-outline at ``(at 20.0 272.75)``, the C1 pad2<->R7 pad2 short, the
 DC_BUS<->LV_CONTROL creepage crossings), so "re-create the defect" would be
 a no-op. Each seed is therefore taken from a DEFECT-FREE starting point:
 move an in-board footprint off-board, short a not-yet-shorted pad pair,
 compress a currently-compliant creepage pair, close a currently-compliant
-inter-footprint clearance gap, or overlap two currently-clear courtyards.
+inter-footprint clearance gap, overlap two currently-clear courtyards, bring
+two currently-compliant drilled holes too close together, or delete a
+footprint's courtyard graphics outright.
 Every class is asserted by IDENTITY in the runner (the owning gate must
 name the exact seeded ref(s)/pad(s)), not a raw count-delta -- see
 ``check_board_defect_corpus.py``'s module docstring for why a count-delta
 is not trustworthy for this corpus's DRC categories.
+
+``missing-courtyard`` is a deliberate exception to "every class in this
+module is caught": self-verification proves the injector genuinely deletes
+the courtyard graphics (independent re-parse, Sec. "missing_courtyard"
+below), but the corpus's canonical DRC measurement path
+(``temper_placer.validation._drc_api.run_drc``, used unmodified so every
+class measures through the SAME path) never observes it -- see
+``check_board_defect_corpus.py``'s module docstring and
+``docs/evidence/2026-08-07-missing-courtyard-and-hole-to-hole-classes.md``
+for the two independent, verified root causes (kicad-cli's compiled-in
+default for the ``missing_courtyard`` rule is ``ignore`` without an
+accompanying ``.kicad_pro``, which the corpus's mutated-board workdir never
+has; and even with one, ``run_drc()`` never passes ``--severity-warning``/
+``--severity-all``, so a ``warning``-severity rule's output is dropped
+either way). This is reported as a genuine coverage gap, per
+docs/METHODOLOGY.md Sec. 5 ("if a gate turns out not to catch its own
+defect class, that is a finding -- report it, do not weaken the class"),
+not silently fixed by reimplementing the measurement path for one class
+only.
 
 Determinism contract (U1 test 4): a mutation is a pure function of (board
 bytes, params). Two runs with the same seed (i.e. the same params, keyed by
@@ -59,9 +83,18 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 BOARD_OUTLINE = ((20.0, 20.0), (172.0, 254.0))
 
 # The defect classes this corpus seeds (R38, extended 2026-08-07 for R9/R10
-# vacuity closure -- clearance, courtyard). Keys are the ``mutation`` names
-# used by scripts/board_defect_corpus.yaml.
-MUTATIONS = ("off-board", "pad-short", "creepage", "clearance", "courtyard")
+# vacuity closure -- clearance, courtyard -- and again 2026-08-07 for
+# STRATEGY.md build-order step 4 -- hole-to-hole, missing-courtyard). Keys
+# are the ``mutation`` names used by scripts/board_defect_corpus.yaml.
+MUTATIONS = (
+    "off-board",
+    "pad-short",
+    "creepage",
+    "clearance",
+    "courtyard",
+    "hole-to-hole",
+    "missing-courtyard",
+)
 
 
 class MutationError(RuntimeError):
@@ -371,6 +404,129 @@ def mutate_courtyard(
     )
 
 
+def mutate_hole_to_hole(
+    board_path: Path,
+    out_path: Path,
+    ref: str,
+    position: tuple[float, float],
+    seed: int,
+) -> MutationResult:
+    """Move footprint *ref* to an absolute board position chosen so one of
+    its drilled (PTH) pads sits closer than the board's ``hole_to_hole``
+    manufacturing minimum (0.5mm edge-to-edge, ``scripts/generate_kicad_dru.py``)
+    to a FIXED anchor footprint's drilled pad, while keeping the two pads on
+    the SAME net -- the drilled-hole-spacing defect class (STRATEGY.md build
+    order step 4, 2026-08-07).
+
+    Same net, deliberately: ``hole_to_hole`` is a pure manufacturing/
+    mechanical constraint (two holes drilled too close together weaken the
+    board irrespective of what nets they carry), so pairing same-net pads
+    means the pads' own copper can overlap without ALSO tripping
+    ``clearance``/``shorting_items`` (which only apply between different
+    nets) -- isolating the hole-to-hole signal from the confounds the
+    ``clearance``/``courtyard`` classes above were fixed to avoid.
+
+    Same mechanism as :func:`mutate_off_board`/:func:`mutate_creepage` -- a
+    single-footprint absolute-position move.
+    """
+    source_hash = board_content_hash(board_path)
+    board = Board.from_file(str(board_path))
+    fp = find_footprint(board, ref)
+    old_pos = (fp.position.X, fp.position.Y)
+    fp.position = Position(position[0], position[1], fp.position.angle)
+    mutated_hash = _write_and_hash(board, out_path)
+    return MutationResult(
+        mutation="hole-to-hole",
+        seed=seed,
+        board_sha256=source_hash,
+        mutated_sha256=mutated_hash,
+        seed_board_sha256=sha256_bytes(f"{seed}:{mutated_hash}".encode()),
+        summary={
+            "ref": ref,
+            "from_mm": list(old_pos),
+            "to_mm": list(position),
+            "moved_footprints": [ref],
+            "footprints_total": len(board.footprints),
+        },
+    )
+
+
+def mutate_missing_courtyard(
+    board_path: Path,
+    out_path: Path,
+    ref: str,
+    seed: int,
+) -> MutationResult:
+    """Delete every ``F.CrtYd``/``B.CrtYd`` graphic item from footprint
+    *ref* -- the missing-courtyard defect class (STRATEGY.md build order
+    step 4, 2026-08-07).
+
+    Unlike every other mutation in this module this is a graphic-item
+    deletion, not a position move -- there is no ``position`` parameter.
+    Fail-closed self-verification (METHODOLOGY.md Sec. 5, "an injector that
+    cannot prove its own mutations took effect is not evidence"): if *ref*
+    has zero ``F.CrtYd``/``B.CrtYd`` items to begin with, this raises
+    :class:`MutationError` rather than silently writing an unmutated board
+    -- exactly the class of no-op ``check_board_defect_corpus.py``'s own
+    module docstring documents a real prior instance of (a seeded defect
+    that moved a DRC count 11 -> 11 because the mutation never touched what
+    it claimed to).
+    """
+    source_hash = board_content_hash(board_path)
+    board = Board.from_file(str(board_path))
+    fp = find_footprint(board, ref)
+    removed = [
+        item
+        for item in fp.graphicItems
+        if getattr(item, "layer", None) in ("F.CrtYd", "B.CrtYd")
+    ]
+    if not removed:
+        raise MutationError(
+            f"footprint {ref!r} has no F.CrtYd/B.CrtYd graphic items to remove "
+            "-- it is already missing a courtyard on the CLEAN board, so "
+            "deleting nothing would prove nothing (re-seed onto a ref that "
+            "starts with real courtyard graphics)"
+        )
+    fp.graphicItems = [
+        item
+        for item in fp.graphicItems
+        if getattr(item, "layer", None) not in ("F.CrtYd", "B.CrtYd")
+    ]
+    mutated_hash = _write_and_hash(board, out_path)
+    return MutationResult(
+        mutation="missing-courtyard",
+        seed=seed,
+        board_sha256=source_hash,
+        mutated_sha256=mutated_hash,
+        seed_board_sha256=sha256_bytes(f"{seed}:{mutated_hash}".encode()),
+        summary={
+            "ref": ref,
+            "removed_courtyard_items": len(removed),
+            "removed_item_types": [type(item).__name__ for item in removed],
+            "footprints_total": len(board.footprints),
+        },
+    )
+
+
+def courtyard_item_count(board_path: Path, ref: str) -> int:
+    """Independent re-parse of *board_path* counting ``F.CrtYd``/``B.CrtYd``
+    graphic items on footprint *ref* -- used by the corpus runner to verify
+    the ``missing-courtyard`` injector's effect directly against the written
+    file, separate from (and before) asking the DRC gate anything. This is
+    the "injected artifact differs, structurally, independent of the gate
+    under test" half of injector self-verification (METHODOLOGY.md Sec. 5);
+    the DRC-gate half is a separate, and in this class's case negative,
+    finding -- see :func:`mutate_missing_courtyard`'s docstring.
+    """
+    board = Board.from_file(str(board_path))
+    fp = find_footprint(board, ref)
+    return sum(
+        1
+        for item in fp.graphicItems
+        if getattr(item, "layer", None) in ("F.CrtYd", "B.CrtYd")
+    )
+
+
 # mutation name -> (callable, required params). Used by the corpus runner to
 # dispatch the manifest's seed entries, and by the CLI.
 _MUTATION_FUNCS: dict[str, Any] = {
@@ -379,6 +535,8 @@ _MUTATION_FUNCS: dict[str, Any] = {
     "creepage": mutate_creepage,
     "clearance": mutate_clearance,
     "courtyard": mutate_courtyard,
+    "hole-to-hole": mutate_hole_to_hole,
+    "missing-courtyard": mutate_missing_courtyard,
 }
 
 
@@ -414,6 +572,12 @@ def apply_mutation(
         return mutate_courtyard(
             board_path, out_path, params["ref"], tuple(params["position_mm"]), seed
         )
+    if mutation == "hole-to-hole":
+        return mutate_hole_to_hole(
+            board_path, out_path, params["ref"], tuple(params["position_mm"]), seed
+        )
+    if mutation == "missing-courtyard":
+        return mutate_missing_courtyard(board_path, out_path, params["ref"], seed)
     raise AssertionError("unreachable")
 
 
@@ -438,10 +602,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
 
-    if args.mutation in ("off-board", "creepage", "clearance", "courtyard"):
+    if args.mutation in ("off-board", "creepage", "clearance", "courtyard", "hole-to-hole"):
         if args.position is None:
             parser.error(f"--mutation {args.mutation} requires --position X Y")
         params: dict[str, Any] = {"ref": args.ref, "position_mm": list(args.position)}
+    elif args.mutation == "missing-courtyard":
+        params = {"ref": args.ref}
     else:
         if args.pad_a is None or args.pad_b is None:
             parser.error("--mutation pad-short requires --pad-a and --pad-b")
