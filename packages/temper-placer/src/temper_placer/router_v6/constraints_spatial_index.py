@@ -1,7 +1,26 @@
 """
 Spatial indexing for efficient DRC queries.
 
-Uses scipy cKDTree for O(log n) nearest-neighbor queries on PCB geometry.
+Uses ``temper_geometry.RadiusIndex`` (Rust, ``rstar`` R*-tree) for O(log n)
+nearest-neighbor queries on PCB geometry.
+
+Rust migration (KTD9, ``docs/wave4-verdicts.yaml``): this module previously
+used ``scipy.spatial.cKDTree``, built once per ``rebuild_index()`` call and
+queried repeatedly via ``tree.query_ball_point(point, radius)`` -- a
+persistent-index, single-point-radius-query pattern DIFFERENT from
+``channel_skeleton.py``'s one-shot batch all-pairs query
+(``radius_pairs.rs``). See
+``packages/temper-geometry/src/persistent_radius_index.rs``'s module doc for
+the full contract determination (query pattern, and why result ORDER is
+*not* a scipy contract at this call site -- unlike ``channel_skeleton.py``'s
+``_radius_pairs``, nothing here early-returns or aggregates in an
+order-sensitive way that any test or caller actually depends on) and
+``docs/evidence/2026-08-07-persistent-radius-index-rust-migration.md`` for
+the differential/benchmark evidence.
+
+R19: the pre-migration ``scipy.spatial.cKDTree`` call is retained, unused
+here, as the differential's pinned oracle in
+``tests/router_v6/test_constraints_spatial_index_rust_differential.py``.
 
 Part of temper-lueu.2
 """
@@ -12,7 +31,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 import numpy as np
-from scipy.spatial import cKDTree
+import temper_geometry as _tg
 
 from temper_placer.router_v6.constraints_geometry import LineSegment, Point, RotatedRect
 
@@ -103,11 +122,39 @@ class Pad:
         return (w**2 + h**2) ** 0.5 / 2
 
 
+def _build_radius_index(points: NDArray) -> _tg.RadiusIndex:
+    """Build a persistent ``temper_geometry.RadiusIndex`` over ``points``
+    (``(N, 2)`` float64), the Rust ``rstar`` R*-tree replacement for
+    ``scipy.spatial.cKDTree(points)``.
+
+    Mirrors ``channel_skeleton.py``'s ``_radius_pairs`` bytes-in convention:
+    ``positions_bytes`` is a C-contiguous float64 ``(x, y)``-interleaved
+    buffer, ``n_points`` the row count. Construction is O(N log N)
+    (``RTree::bulk_load``, paid once here) -- see
+    ``packages/temper-geometry/src/persistent_radius_index.rs``.
+    """
+    points_c = np.ascontiguousarray(points, dtype=np.float64)
+    return _tg.RadiusIndex(points_c.tobytes(), len(points_c))
+
+
+def _query_ball_point(index: _tg.RadiusIndex, point: Point, radius: float) -> list[int]:
+    """Indices of every point in ``index`` within ``radius`` of ``point``.
+
+    Result SET matches ``cKDTree.query_ball_point((point.x, point.y),
+    radius)`` exactly; result ORDER is this Rust index's own (deterministic,
+    but not scipy's -- see this module's and
+    ``persistent_radius_index.rs``'s module docs for why that is not a
+    contract violation at this call site).
+    """
+    return index.query_ball_point(point.x, point.y, radius)
+
+
 @dataclass
 class PCBGeometry:
     """Indexed collection of all PCB geometry.
 
-    Provides O(log n) spatial queries using cKDTree.
+    Provides O(log n) spatial queries using a persistent
+    ``temper_geometry.RadiusIndex`` (Rust ``rstar`` R*-tree).
     """
 
     tracks: list[Track] = field(default_factory=list)
@@ -115,9 +162,9 @@ class PCBGeometry:
     pads: list[Pad] = field(default_factory=list)
 
     # Internal indices
-    _track_index: cKDTree | None = field(default=None, repr=False)
-    _via_index: cKDTree | None = field(default=None, repr=False)
-    _pad_index: cKDTree | None = field(default=None, repr=False)
+    _track_index: _tg.RadiusIndex | None = field(default=None, repr=False)
+    _via_index: _tg.RadiusIndex | None = field(default=None, repr=False)
+    _pad_index: _tg.RadiusIndex | None = field(default=None, repr=False)
     _track_midpoints: NDArray | None = field(default=None, repr=False)
     _via_centers: NDArray | None = field(default=None, repr=False)
     _pad_centers: NDArray | None = field(default=None, repr=False)
@@ -185,7 +232,7 @@ class PCBGeometry:
         if self.tracks:
             midpoints = np.array([[t.midpoint().x, t.midpoint().y] for t in self.tracks])
             self._track_midpoints = midpoints
-            self._track_index = cKDTree(midpoints)
+            self._track_index = _build_radius_index(midpoints)
         else:
             self._track_index = None
             self._track_midpoints = None
@@ -194,7 +241,7 @@ class PCBGeometry:
         if self.vias:
             centers = np.array([[v.center.x, v.center.y] for v in self.vias])
             self._via_centers = centers
-            self._via_index = cKDTree(centers)
+            self._via_index = _build_radius_index(centers)
         else:
             self._via_index = None
             self._via_centers = None
@@ -203,7 +250,7 @@ class PCBGeometry:
         if self.pads:
             centers = np.array([[p.center.x, p.center.y] for p in self.pads])
             self._pad_centers = centers
-            self._pad_index = cKDTree(centers)
+            self._pad_index = _build_radius_index(centers)
         else:
             self._pad_index = None
             self._pad_centers = None
@@ -230,7 +277,7 @@ class PCBGeometry:
         if self._track_index is None:
             return []
 
-        indices = self._track_index.query_ball_point([point.x, point.y], radius)
+        indices = _query_ball_point(self._track_index, point, radius)
         tracks = [self.tracks[i] for i in indices]
 
         if layer is not None:
@@ -249,7 +296,7 @@ class PCBGeometry:
         if self._via_index is None:
             return []
 
-        indices = self._via_index.query_ball_point([point.x, point.y], radius)
+        indices = _query_ball_point(self._via_index, point, radius)
         return [self.vias[i] for i in indices]
 
     def query_pads_near(self, point: Point, radius: float, layer: int | None = None) -> list[Pad]:
@@ -263,7 +310,7 @@ class PCBGeometry:
         if self._pad_index is None:
             return []
 
-        indices = self._pad_index.query_ball_point([point.x, point.y], radius)
+        indices = _query_ball_point(self._pad_index, point, radius)
         pads = [self.pads[i] for i in indices]
 
         if layer is not None:
