@@ -594,3 +594,122 @@ def test_real_board_constraints_zones_populated_from_zone_eligible_classes():
     assert "ACMains" in zone_names
     for z in constraints["zones"]:
         assert z["net_classes"] == [z["name"]]
+
+
+# ---------------------------------------------------------------------------
+# 7-gap closure (2026-08-07): max_current_rating via the IPC-2221 fallback
+# already shipped in config_loader.rs, and the isolator-device "iso" safety
+# category via elec/domain_manifest.yaml's isolators: list matched against
+# the parsed component's own Sheetpath property. See
+# docs/evidence/2026-08-07-r9-harness-table-gap-closure.md.
+# ---------------------------------------------------------------------------
+
+
+_REAL_DOMAIN_MANIFEST_PATH = _REPO_ROOT / "elec" / "domain_manifest.yaml"
+
+
+@pytest.mark.skipif(
+    not _REAL_PCB_PATH.exists(), reason="pcb/temper.kicad_pcb not present"
+)
+@pytest.mark.skipif(
+    not _REAL_DOMAIN_MANIFEST_PATH.exists(), reason="elec/domain_manifest.yaml not present"
+)
+def test_real_board_isolator_component_refs_resolve_to_real_components():
+    """Every ``instance_path`` in ``elec/domain_manifest.yaml``'s
+    ``isolators:`` list must resolve to a real, live refdes on the committed
+    board via the footprint's own ``Sheetpath`` property -- the same 8
+    components verified by hand against the real board on 2026-08-07."""
+    sys.path.insert(0, str(_REPO_ROOT / "packages" / "temper-placer" / "src"))
+    from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+
+    parsed = parse_kicad_pcb_v6(str(_REAL_PCB_PATH))
+    refs = r2_serialize_board._isolator_component_refs(parsed)
+    assert refs == {"C6", "K1", "K2", "K3", "PS1", "T1", "U3", "U7"}
+
+
+@pytest.mark.skipif(
+    not _REAL_PCB_PATH.exists(), reason="pcb/temper.kicad_pcb not present"
+)
+def test_real_board_isolator_components_get_iso_safety_category():
+    """Components resolved by ``_isolator_component_refs`` must be
+    reclassified to a net class whose ``net_class_rules`` entry declares
+    ``safety_category == "iso"`` -- the fix that makes
+    ``safety_isolation``/``safety_creepage``'s ``is_iso_component`` see them
+    (both kernels were previously vacuous for every real component: no
+    ``TEMPER_NET_CLASSES`` entry ever declared ``"iso"``, see
+    docs/evidence/2026-08-07-router-free-r8-producer.md §6.2)."""
+    parsed, pads = _parse_real_board_with_pads()
+    board_dict = r2_serialize_board.build_board_dict(parsed, pads)
+
+    isolator_refs = r2_serialize_board._isolator_component_refs(parsed)
+    assert isolator_refs, "production board must have at least one declared isolator"
+
+    by_ref = {c["ref"]: c for c in board_dict["components"]}
+    for ref in isolator_refs:
+        net_class = by_ref[ref]["net_class"]
+        rules = board_dict["net_class_rules"][net_class]
+        assert rules["safety_category"] == "iso", (
+            f"{ref} (declared isolator) must resolve to an iso-category net class, "
+            f"got {net_class!r} -> safety_category={rules['safety_category']!r}"
+        )
+
+
+@pytest.mark.skipif(
+    not _REAL_PCB_PATH.exists(), reason="pcb/temper.kicad_pcb not present"
+)
+def test_real_board_isolation_device_clearance_not_weaker_than_highvoltage():
+    """The synthetic ``IsolationDevice`` net class must not weaken
+    ``drc_clearance`` protection for the real isolator components -- they
+    were already classified "HighVoltage" (severity override) before this
+    fix, so ``IsolationDevice``'s clearance/trace_width must be at least as
+    strict, not an arbitrary new number."""
+    parsed, pads = _parse_real_board_with_pads()
+    board_dict = r2_serialize_board.build_board_dict(parsed, pads)
+    rules = board_dict["net_class_rules"]
+    assert "IsolationDevice" in rules
+    assert rules["IsolationDevice"]["clearance_mm"] >= rules["HighVoltage"]["clearance_mm"]
+    assert rules["IsolationDevice"]["trace_width_mm"] >= rules["HighVoltage"]["trace_width_mm"]
+
+
+@pytest.mark.skipif(
+    not _REAL_PCB_PATH.exists(), reason="pcb/temper.kicad_pcb not present"
+)
+def test_real_board_max_current_rating_populated_via_ipc2221_fallback():
+    """Every ``net_class_rules`` entry's ``max_current_rating`` must be
+    populated (not ``None``) -- previously every one of the 11
+    ``TEMPER_NET_CLASSES`` entries left it unset, which made
+    ``routing_tht_thermal_relief`` permanently vacuous (its gate is
+    ``Some(rating) if rating <= 10.0``, never reachable with `None`; see
+    docs/evidence/2026-08-07-router-free-r8-producer.md §6.4). The fallback
+    (``estimate_current_from_net_class(trace_width_mm)``, IPC-2221) mirrors
+    the one already shipped in ``config_loader.rs``'s
+    ``validate_current_capacity``, not an invented number."""
+    parsed, pads = _parse_real_board_with_pads()
+    board_dict = r2_serialize_board.build_board_dict(parsed, pads)
+    rules = board_dict["net_class_rules"]
+    assert rules, "production board must declare at least one net class"
+    for class_name, r in rules.items():
+        assert r["max_current_rating"] is not None, (
+            f"{class_name}: max_current_rating must be populated (IPC-2221 fallback)"
+        )
+        assert r["max_current_rating"] > 0
+
+
+@pytest.mark.skipif(
+    not _REAL_PCB_PATH.exists(), reason="pcb/temper.kicad_pcb not present"
+)
+def test_real_board_max_current_rating_prefers_declared_value_over_fallback(monkeypatch):
+    """When the harness DOES declare ``max_current_rating`` for a class, that
+    value must be used verbatim -- the IPC-2221 fallback only fills the gap
+    when the harness is silent, it never overrides an authoritative value."""
+    sys.path.insert(0, str(_REPO_ROOT / "packages" / "temper-placer" / "src"))
+    from temper_placer.core import design_rules as design_rules_module
+
+    parsed, pads = _parse_real_board_with_pads()
+    patched = design_rules_module.TEMPER_NET_CLASSES["HighVoltage"].model_copy(
+        update={"max_current_rating": 123.0}
+    )
+    monkeypatch.setitem(design_rules_module.TEMPER_NET_CLASSES, "HighVoltage", patched)
+
+    board_dict = r2_serialize_board.build_board_dict(parsed, pads)
+    assert board_dict["net_class_rules"]["HighVoltage"]["max_current_rating"] == 123.0

@@ -131,6 +131,7 @@ def build_board_dict(
         )
 
     harness_safety_classes = _harness_component_safety_classes(parsed, harness_net_assignments, harness_net_classes)
+    isolator_refs = _isolator_component_refs(parsed)
     components: list[dict[str, Any]] = []
     for c in parsed.components:
         raw_x, raw_y = c.initial_position or (0.0, 0.0)
@@ -173,7 +174,11 @@ def build_board_dict(
                 "side": side,
                 "width": float(c.width),
                 "height": float(c.height),
-                "net_class": harness_safety_classes.get(c.ref, c.net_class),
+                "net_class": (
+                    "IsolationDevice"
+                    if c.ref in isolator_refs
+                    else harness_safety_classes.get(c.ref, c.net_class)
+                ),
                 "package_type": package_type,
                 "power_dissipation_w": None,
                 "is_magnetic": False,
@@ -226,6 +231,36 @@ def build_board_dict(
     # harness SSOT (there are none today, but the fallback is kept for
     # boards/classes the harness doesn't know about) keeps the prior
     # KiCad-declared-only, mostly-None behaviour.
+    # `max_current_rating` gap (found while wiring the 7 harness-table
+    # blocked kernels, docs/evidence/2026-08-07-router-free-r8-producer.md
+    # §6.4): every one of the 11 `TEMPER_NET_CLASSES` entries declares
+    # `max_current_rating=None` -- the harness SSOT has never assigned this
+    # field a value for any class, so `routing_tht_thermal_relief` (gated on
+    # `Some(rating) if rating <= 10.0`) could never fire regardless of what
+    # this producer emitted elsewhere. Rather than inventing a number, this
+    # applies the SAME fallback already shipped in production for exactly
+    # this situation: `_validate_current_capacity`
+    # (`packages/temper-design-bundle/src/config_loader.rs`,
+    # `validate_current_capacity`, ported 1:1 from
+    # `tests/io/_config_loader_py_oracle.py`'s pinned oracle) does
+    # `current_a = net_class.max_current_rating if not None else
+    # estimate_current_from_net_class(net_class.trace_width_mm)` when
+    # loading any PCL constraints config -- i.e. an IPC-2221 trace-width ->
+    # ampacity estimate (`temper_placer.core.ipc2221`, backed by the
+    # `temper_ipc` Rust crate) is already the harness's own accepted
+    # fallback for an unpopulated per-class current rating, not a value this
+    # producer invents. Applied uniformly to every class (harness-sourced
+    # and KiCad-declared-only) so a class that *does* someday declare a real
+    # `max_current_rating` keeps that authoritative value untouched.
+    from temper_placer.core.ipc2221 import estimate_current_from_net_class
+
+    def _current_rating(declared: float | None, trace_width_mm: float) -> float | None:
+        if declared is not None:
+            return declared
+        if trace_width_mm <= 0:
+            return None
+        return estimate_current_from_net_class(trace_width_mm)
+
     net_class_rules: dict[str, dict[str, Any]] = {}
     for class_name, harness in harness_net_classes.items():
         net_class_rules[class_name] = {
@@ -233,7 +268,7 @@ def build_board_dict(
             "clearance_mm": harness.clearance,
             "creepage_mm": harness.creepage_mm,
             "voltage_v": harness.voltage_v,
-            "max_current_rating": harness.max_current_rating,
+            "max_current_rating": _current_rating(harness.max_current_rating, harness.trace_width),
             "safety_category": harness.safety_category,
             "required_layer": harness.required_layer,
             "routing_strategy": harness.routing_strategy,
@@ -246,8 +281,63 @@ def build_board_dict(
             "clearance_mm": rules.clearance_mm,
             "creepage_mm": None,
             "voltage_v": None,
-            "max_current_rating": None,
+            "max_current_rating": _current_rating(None, rules.trace_width_mm),
             "safety_category": None,
+            "required_layer": None,
+            "routing_strategy": None,
+        }
+
+    # `safety_category == "iso"` gap (§6.2 of the same evidence doc):
+    # no `TEMPER_NET_CLASSES` entry ever declares `safety_category="iso"`
+    # (the schema allows it -- `netclass_rules_manifest.yaml`'s
+    # `Literal["HV", "LV", "AC", "iso"]` -- but no class uses it), so
+    # `safety_isolation`/`safety_creepage`'s `is_iso_component` could never
+    # return true via the declared-model branch, and their keyword fallback
+    # (`"iso"/"opto"/"coupler"/"isolator"/"transformer"/...` substring on
+    # the net class NAME) never matches any of the 11 real class names
+    # either. This is NOT the same gap as "no source exists" -- the real
+    # isolation devices (which components physically implement the
+    # reinforced/basic isolation barrier) ARE declared, just not in
+    # `design_rules.py`: `elec/domain_manifest.yaml`'s `isolators:` list
+    # (the same source `scripts/check_domain_partition.py`'s CI gate
+    # already treats as authoritative for this exact fact), keyed by
+    # atopile `instance_path`, which is also what every footprint's own
+    # `Sheetpath` property carries (`parsed.components[i].sheetpath`) --
+    # see `_isolator_component_refs`. A synthetic per-component net-class
+    # override ("IsolationDevice", mirroring `_harness_component_safety_classes`'s
+    # own existing per-component net_class override pattern) is added below
+    # so `net_class_rules["IsolationDevice"].safety_category == "iso"`
+    # resolves correctly for those specific components.
+    #
+    # Deliberately copies HighVoltage's clearance_mm/trace_width_mm/
+    # creepage_mm/voltage_v verbatim rather than picking new numbers: every
+    # one of the isolator refs this producer identifies already carries at
+    # least one HV-or-AC-severity pin (confirmed against the real board --
+    # PS1/T1/U3/U7 all have a primary-side pin on an HV/AC net, K1/K2/K3
+    # switch an HV/AC-side contact), so before this change they were ALREADY
+    # classified "HighVoltage" by `_harness_component_safety_classes`'s
+    # severity rule and `drc_clearance` was ALREADY enforcing HighVoltage's
+    # 6.0mm/3.0mm clearance/trace_width against their neighbours. Copying
+    # those same numbers (rather than, say, 0.0) keeps that protection
+    # non-weakened by this reclassification -- reusing an already-sourced
+    # number for a different, still-true fact about the same components,
+    # not inventing a new one. `safety_category` is the one field that
+    # deliberately does NOT carry over (that is the entire point of the
+    # override): HighVoltage's own is "HV"; this class's is "iso". Only
+    # added when the harness SSOT is in scope (fake-board unit tests with
+    # no real net classes get no `HighVoltage` to copy from, same guard
+    # shape as the `harness_net_classes` lookup above) and when this board's
+    # parse actually resolved at least one isolator ref (an empty override
+    # set need not manufacture an unused class entry).
+    if isolator_refs and "HighVoltage" in net_class_rules:
+        hv = net_class_rules["HighVoltage"]
+        net_class_rules["IsolationDevice"] = {
+            "trace_width_mm": hv["trace_width_mm"],
+            "clearance_mm": hv["clearance_mm"],
+            "creepage_mm": hv["creepage_mm"],
+            "voltage_v": hv["voltage_v"],
+            "max_current_rating": _current_rating(None, hv["trace_width_mm"]),
+            "safety_category": "iso",
             "required_layer": None,
             "routing_strategy": None,
         }
@@ -329,6 +419,66 @@ def _harness_component_safety_classes(
     # AC(2) both collapse to "HighVoltage"; LV(1)/unclassified keep the
     # existing (KiCad-declared) class untouched.
     return {ref: "HighVoltage" for ref, sev in best_severity.items() if sev >= 2}
+
+
+def _isolator_instance_paths(repo_root: Path | None = None) -> set[str]:
+    """Atopile ``instance_path`` strings of every declared isolation device,
+    read from ``elec/domain_manifest.yaml``'s ``isolators:`` list -- the
+    same list ``scripts/check_domain_partition.py``'s CI gate (``Manifest``/
+    ``load_manifest``) already treats as the authoritative declaration of
+    which components physically implement a safety isolation barrier on
+    this board (reinforced or basic). Read-only: this task must not modify
+    ``elec/``.
+
+    Deliberately minimal compared to ``load_manifest``'s full validation
+    (duplicate-path/pin-group/overlap checks) -- this producer only needs
+    the set of paths, not the pin-group detail the CI gate cross-checks
+    against the netlist; re-deriving that validation here would duplicate
+    a gate that already runs independently, not add coverage.
+    """
+    import yaml
+
+    path = (repo_root or Path(__file__).resolve().parents[2]) / "elec" / "domain_manifest.yaml"
+    if not path.is_file():
+        return set()
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        return set()
+    isolators = data.get("isolators")
+    if not isinstance(isolators, list):
+        return set()
+    return {
+        entry["instance_path"]
+        for entry in isolators
+        if isinstance(entry, dict) and isinstance(entry.get("instance_path"), str)
+    }
+
+
+def _isolator_component_refs(parsed: Any) -> set[str]:
+    """Refdes of every component on ``parsed`` that is a declared isolation
+    device, matched via ``elec/domain_manifest.yaml``'s ``instance_path`` ==
+    the component footprint's own ``Sheetpath`` property
+    (``parsed.components[i].sheetpath``, populated directly from the
+    ``.kicad_pcb`` file by ``parse_engine.rs`` -- no `elec/` netlist parse
+    needed here, the PCB file already carries the same atopile path string
+    atopile itself stamped onto the footprint).
+
+    Verified against the real board (2026-08-07): all 7 declared isolators
+    resolve to a real, live component -- ``aux_supply.psu`` -> PS1,
+    ``hb.gate_hs.driver`` -> U7, ``ct_sense.ct`` -> T1,
+    ``power_in.bypass_relay`` -> K1, ``discharge.k_dis1`` -> K2,
+    ``discharge.k_dis2`` -> K3, ``power_in.zcd_opto`` -> U3. None of the
+    other 3 entries the same manifest could in principle declare are
+    missing or ambiguous on this board.
+    """
+    instance_paths = _isolator_instance_paths()
+    if not instance_paths:
+        return set()
+    # getattr, not c.sheetpath: fake-board unit tests build components as
+    # plain SimpleNamespace/stub objects without a `sheetpath` attribute at
+    # all (unlike the real pyo3 `Component`, which always has one, `None`
+    # or not) -- this must degrade to "not an isolator" for those, not raise.
+    return {c.ref for c in parsed.components if getattr(c, "sheetpath", None) in instance_paths}
 
 
 def _traces_from_parsed(parsed: Any) -> list[dict[str, Any]]:
