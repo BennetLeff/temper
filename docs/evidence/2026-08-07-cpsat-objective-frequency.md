@@ -35,13 +35,18 @@ against 482 commits touching this surface. The harness's 5s budget is not
 derived from any CI gate, R2 margin, or production timeout: production's own
 default for the one objective-bearing path is **180,000 ms**, 36x the
 harness's number, and the test suite that exercises it never uses anything
-tighter than 1,000 ms for a single artificial-timeout edge case. Pumpkin's
-measured time-to-optimum on the objective corpus is
-**[FILLED IN BELOW, Sec 3]**. **Verdict: R2 does not yet formally apply to
+tighter than 1,000 ms for a single artificial-timeout edge case (and that
+one entry is inert — both uses are error-path tests that raise before the
+solver runs). Pumpkin's measured time-to-optimum on the objective corpus
+(Sec 3) is **5-50s once achievable at all, with the sweep's first
+all-seeds-reliable cutoff at 65s** — comfortably inside the real 180s
+budget, all 7 claimed-optimum runs independently re-verified. **Verdict:
+PASS-WITH-RECORDED-EXCEPTION (Sec 4) — R2 does not yet formally apply to
 this surface (it is JUSTIFIED-KEEP, not MIGRATE), but the underlying
-performance question resolves in Pumpkin's favor with a recorded exception:
-KEEP the 5s number as a Tier-2 diagnostic, not a decision gate, and measure
-against the 180s production budget instead.**
+performance question resolves in Pumpkin's favor: the 5s number is a
+harness-test-convenience artifact, not a decision gate, and measured
+against the real 180s production budget Pumpkin has 3-30x headroom on the
+one path (<1% of solves) where it is slower than OR-Tools at all.**
 
 ---
 
@@ -211,15 +216,114 @@ incumbent before Pumpkin was even in the picture.
 
 ## 3. Pumpkin's real time-to-optimum on the objective corpus
 
-**[SWEEP RESULTS PLACEHOLDER — filled in from
-`docs/evidence/2026-08-07-pumpkin-time-to-optimum-summary.json` after the
-background run completes; see the script's own header for methodology.]**
+Swept the same `medium` corpus (12 components, 70 constraints, the real
+`minimize_displacement_to` objective) across 9 timeouts (2s-65s, geometric
+spacing) x the harness's own 3 seeds = 27 genuine re-solves, each checked
+against the known optimum (2220, established by OR-Tools 18/18 and the
+prior 60s Pumpkin probe) and, for every run that claimed to reach it,
+independently re-verified from scratch by the harness's own
+`IndependentVerifier` — not accepted on the engine's own say-so. Full data:
+`docs/evidence/2026-08-07-pumpkin-time-to-optimum-summary.json`.
+
+| timeout | seed=0 | seed=1 | seed=7 |
+|---|---|---|---|
+| 2s | feasible, obj=14804 | feasible, obj=23584 | feasible, obj=44384 |
+| 5s | feasible, obj=13163 | feasible, obj=13223 | feasible, obj=3672 |
+| 8s | feasible, obj=9788 | feasible, obj=4711 | feasible, obj=9183 |
+| 12s | feasible, obj=4316 | feasible, obj=3728 | feasible, obj=2722 |
+| 18s | feasible, obj=9498 | feasible, obj=2825 | feasible, obj=8284 |
+| 25s | feasible, obj=9478 | feasible, obj=2351 | feasible, obj=23259 |
+| 35s | feasible, obj=4509 | **optimal @ 33.9s** | **optimal @ 5.5s** |
+| 50s | **optimal @ 43.6s** | feasible, obj=33880 | **optimal @ 34.2s** |
+| 65s | **optimal @ 50.4s** | **optimal @ 32.0s** | **optimal @ 48.5s** |
+
+**First timeout at which any seed reaches the proven optimum: 35,000 ms.
+First timeout at which every seed in the sweep reaches it: 65,000 ms.**
+Independent verification: **7/7** claimed-optimum results across the whole
+sweep pass the from-scratch constraint checker (`verification.
+verified_optimum_count = 7 / checked = 7` in the summary JSON) — every
+"optimal" claim is a genuine proven optimum, not a search artifact.
+
+**A real finding, not just a number: success is not monotone in the
+timeout.** Seed=1 reaches the optimum at 35s (33.9s actual) and again at
+65s (32.0s actual), but at 50s it does *not* — it returns `feasible` at
+objective 33880, having consumed the entire 50s budget without proving
+optimality. This is not measurement noise (each cell is a single genuine
+re-solve, but the pattern — succeed, fail, succeed, at increasing
+timeouts, same nominal seed — repeats across the table: seed=0 fails at
+2s-35s then succeeds at 50s/65s; seed=7's actual proof time (5.5s) is far
+below its own 35s budget, meaning the *timeout value itself*, not just the
+seed, perturbs Pumpkin 0.5.0's single-threaded search trajectory (most
+likely via time-based restart/Luby scheduling reacting to the budget it's
+told it has). This is the same *class* of finding the equivalence harness
+already flagged for OR-Tools (§4.3's 13-14x seed-dependent variance on
+`full-board`) — search-time variance under a fixed budget is not an
+OR-Tools-specific weakness, and Pumpkin's version of it is now measured
+with the same rigor rather than assumed absent.
+
+**Practical read:** once a run gets into the regime where it *can* prove
+optimality at all (35s+), actual proof time clusters in the **5-50s**
+range, comfortably inside production's real 180,000ms-per-round budget for
+the one path this objective is used on (§2) — with roughly 3-30x headroom
+depending on seed, not the wafer-thin margin the harness's 5s number would
+suggest.
 
 ---
 
 ## 4. R2 verdict and BLOCKER-ORTOOLS recommendation
 
-**[FILLED IN AFTER SEC 3]**
+**R2's formal gate does not yet apply to this surface.**
+`packages/temper-placer/src/temper_placer/placer/cp_sat/**` is
+`JUSTIFIED-KEEP` in `docs/wave4-verdicts.yaml`, not `MIGRATE` — G3
+(Performance A/B, `docs/wave4-discipline-contract.md`) only fires on a
+landing migration PR, and none has been proposed for this surface. So
+there is no live R2 check to pass or fail today; what follows answers the
+underlying performance question R2 would ask if a MIGRATE decision were on
+the table.
+
+**Verdict: PASS-WITH-RECORDED-EXCEPTION**, on the same footing as the two
+R2 exceptions already accepted for other migrations this session (an
+argued exception, not an assumed one):
+
+- On **≥99% of real solves** (§1: every automatically-triggered production
+  path, bounded above by 5 manual-repair invocations against 482 commits
+  touching this surface) — Pumpkin is **unconditionally faster and
+  equally correct**: 14-35ms vs. OR-Tools' own seed-dependent 2.5s-81s+ on
+  the identical golden board (`2026-08-07-pumpkin-engine-differential.md`
+  §3), zero Tier-1/Tier-3 disagreements across 108 differential runs. This
+  is not a close call.
+- On the **<1% of solves that post an objective** — the one path this
+  matters for — Pumpkin is slower than OR-Tools at a matched 5s budget
+  (§3's own confirmation of the differential doc's finding), but:
+  - The 5s figure that produces the FAIL has no connection to any real
+    requirement (§2) — production's own budget for this exact path is
+    180,000ms, and every real historical use of it (5 incidents, its full
+    test suite) already budgets 10,000-180,000ms, never 5,000.
+  - Measured proof time, once achievable at all, is 5-50s (§3) — inside
+    the real 180s budget with 3-30x headroom, not a photo finish.
+  - The one genuinely new risk this sweep surfaces is **non-monotone
+    timeout sensitivity** (§3): a caller cannot assume "give it more time"
+    always helps for a fixed seed. This is real and should be recorded,
+    but it argues for *seed/retry diversity* in a production repair
+    caller (already how `run_clearance_repair_solve`'s multi-round design
+    behaves — a failed round re-solves under reinforced constraints, not
+    the identical model) rather than against adopting Pumpkin outright.
+
+**Recommended `docs/wave4-verdicts.yaml` update** (not applied here, per
+scope): append to BLOCKER-ORTOOLS's blocker text (the
+`packages/temper-placer/src/temper_placer/placer/cp_sat/**` entry) that
+the remaining acceptance criteria — (b) search quality measured, (d) what
+"good enough" means under a wall-clock budget — are now answered:
+objective-posting frequency is measured (~1% or less of real solves,
+§1), the informal "5s" performance bar that produced Tier 2's FAIL is
+traced to an arbitrary harness literal with no production backing (§2),
+and Pumpkin's real time-to-optimum on the one path that budget was
+supposed to gate (5-50s proof time, 65s worst-case-in-sample reliable
+cutoff) fits inside production's actual 180s budget with substantial
+headroom (§3). **BLOCKER-ORTOOLS can close on correctness and performance
+grounds; what remains is the product/engineering judgment call — KEEP vs.
+MIGRATE — which this doc does not make, but which no longer has an
+unmeasured variable blocking it.**
 
 ---
 
