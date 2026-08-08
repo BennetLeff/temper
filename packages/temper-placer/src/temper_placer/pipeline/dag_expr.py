@@ -145,6 +145,17 @@ def _evaluate_ast(
             raise DAGExprError(f"Unsupported unary operator: {type(node.op).__name__}")
         if isinstance(node, ast.BoolOp):
             if isinstance(node.op, ast.And):
+                # `_evaluate_ast` is the compatibility walker for
+                # *externally-constructed* ASTs (see its docstring) -- unlike
+                # `_materialize`'s own output, which always builds exactly
+                # 2-element `values` lists, a caller-built `ast.BoolOp` is
+                # not guaranteed to be well-formed. `all(())` is vacuously
+                # True, which would silently evaluate a malformed empty
+                # `and` node as "passes" instead of raising -- fail loudly
+                # instead (`any(())` for `or` already fails closed to False,
+                # so it needs no guard; see check_vacuous_gates.py).
+                if not node.values:
+                    raise DAGExprError("BoolOp 'and' with no operands")
                 return all(_eval(v) for v in node.values)
             if isinstance(node.op, ast.Or):
                 return any(_eval(v) for v in node.values)

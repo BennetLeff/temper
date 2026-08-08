@@ -391,6 +391,47 @@ def test_classify_vias_signal_accumulator_is_dead() -> None:
     assert not ORACLE.is_signal_net("+3V3")
 
 
+def test_zigzag_window_all_call_is_never_reachable_empty() -> None:
+    """Resolves ``scripts/check_vacuous_gates.py``'s finding at this file's
+    ``lint_zigzag_patterns`` line ``alternating = all(dirs[j] != dirs[j + 1]
+    for j in range(len(dirs) - 1))`` -- NOT a real defect, proven here rather
+    than fixed in place.
+
+    That gate flags any unguarded ``all(...)`` because ``all(())`` is
+    vacuously ``True``.  It cannot see that ``dirs`` there is built from
+    ``window = turns[start : start + 3]`` for ``start in range(len(turns) -
+    3 + 1)`` -- and Python slicing guarantees ``len(seq[a : a + N]) == N``
+    whenever ``0 <= a <= len(seq) - N``, exactly the range that loop
+    produces for ``a``. So whenever the loop body executes at all, ``window``
+    (and ``dirs``, built one-to-one from it) has EXACTLY 3 elements, never
+    fewer -- ``range(len(dirs) - 1)`` is ``range(2)``, never empty. When
+    ``len(turns) < 3``, ``range(len(turns) - 3 + 1)`` is itself empty, so the
+    loop body -- and the flagged line -- never executes at all that trip.
+    There is no path to an empty ``dirs`` reaching that ``all()``.
+
+    ``lint_zigzag_patterns`` is a byte-pinned symbol (verified by
+    ``test_oracle_is_verbatim_copy`` above); it cannot be edited to add an
+    inline guard the gate's syntactic heuristic would recognize without
+    breaking the pin. This test is this module's existing "Known defects,
+    deliberately preserved" convention applied to a *non*-defect: prove the
+    property structurally instead of guarding it inline, since the site
+    itself must stay verbatim. The proof is generic over ``turns`` length
+    (not tied to any specific board/content), because the claim is about
+    Python's slicing semantics, not about any one input.
+    """
+    for n in range(0, 25):
+        turns = list(range(n))  # content is irrelevant -- only length matters
+        window_count = 0
+        for start in range(len(turns) - 3 + 1):
+            window = turns[start : start + 3]
+            assert len(window) == 3, f"n={n} start={start}: window had {len(window)} elements"
+            dirs = list(window)
+            assert len(dirs) - 1 >= 1, "range(len(dirs) - 1) would be empty here"
+            window_count += 1
+        # The loop -- and the flagged all() -- runs at all iff n >= 3.
+        assert (window_count > 0) == (n >= 3)
+
+
 def test_single_layer_mode_is_at_its_default() -> None:
     """``_classify_vias`` has a hidden module-global input; pin it.
 

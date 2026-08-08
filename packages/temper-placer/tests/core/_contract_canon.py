@@ -150,8 +150,19 @@ def _field_names(value: Any) -> tuple[str, ...] | None:
         return FIELDS[name]
     if name == "Component":
         for variant in _COMPONENT_VARIANTS:
-            if all(hasattr(value, f) for f in FIELDS[variant]):
-                return FIELDS[variant]
+            variant_fields = FIELDS[variant]
+            # `all(())` is vacuously True: an empty `variant_fields` tuple
+            # (a future edit to FIELDS, not reachable today -- both current
+            # entries are non-empty literals above) would make every
+            # `Component` instance match the FIRST variant in
+            # `_COMPONENT_VARIANTS` regardless of its actual field surface,
+            # silently defeating the disambiguation this function exists to
+            # do. Guarded explicitly rather than relying on FIELDS staying
+            # non-empty by convention.
+            if not variant_fields:
+                continue
+            if all(hasattr(value, f) for f in variant_fields):
+                return variant_fields
     return None
 
 

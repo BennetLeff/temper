@@ -36,12 +36,7 @@ anywhere in their path).
 
 The scope is now a **default-include, narrow documented-exclude** union of:
 
-1. Every ``.py`` file under ``packages/*/src`` (recursive), except the
-   ``router_v6`` package -- excluded per the forced-segment fail-closed
-   plan (``docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md``);
-   see that plan's current status before assuming this exclusion still
-   applies (UNVERIFIED as of this rewrite -- a concurrent agent is
-   actively working router_v6 code and this gate does not touch it).
+1. Every ``.py`` file under ``packages/*/src`` (recursive).
 2. Every ``.py`` file under ``packages/*/tests`` (recursive) EXCEPT actual
    test modules, matched by filename convention (``test_*.py``,
    ``*_test.py``, ``conftest.py``) rather than by path substring -- the
@@ -50,10 +45,35 @@ The scope is now a **default-include, narrow documented-exclude** union of:
    ``tests/requirements/validators/`` tree (``isolation.py``,
    ``emi_filter.py``, ``ground_plane.py``, ``pick_and_place.py``,
    ``routability_check.py``, ``clearance_check.py``) even though they are
-   not test files themselves. Same ``router_v6`` exclusion applies.
+   not test files themselves.
 3. Every top-level ``.py`` file directly under ``scripts/`` (non-recursive
    -- this naturally excludes ``scripts/_lib/``, ``scripts/tests/``,
    ``scripts/spikes/``, ``scripts/templates/`` without a separate rule).
+
+**2026-08-07: the ``router_v6`` package exclusion is removed.** It was
+UNVERIFIED as of the 2026-07-27 rewrite above and is resolved here: the
+plan it cited (``docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md``)
+carries ``status: superseded`` (swept 2026-07-25, "fix was correct; framing
+was not") and never actually argued that ``router_v6`` code needed a
+scanning exemption -- the exclusion's own docstring reason was "a
+concurrent agent is actively working router_v6 code and this gate does not
+touch it," i.e. a courtesy against scanning code mid-edit by a different
+session, not a claim that router_v6 legitimately contains unfixable
+vacuous ``all()``/tautological-assert patterns. That courtesy does not
+generalize into a permanent blind spot: this gate is read-only (it never
+modifies the files it scans), so including router_v6 cannot conflict with
+or disrupt a concurrent editor's work-in-progress the way a shared-write
+operation could -- it can only change what this gate *reports*. Leaving
+the exclusion in place is exactly the blind spot
+docs/evidence/2026-08-07-router-silent-noop-diagnosis.md flags: the two
+validators most directly implicated in the router's eleven-day silent-noop
+bug (``validate_routing_space``, ``validate_channel_skeleton``) are
+``router_v6`` modules that this repo's own anti-vacuity linter was never
+looking at. See that diagnosis doc for the full incident; see this
+change's own commit for the violation count this un-exclusion surfaced
+(reported, not silently fixed -- consistent with the 2026-07-27 rewrite's
+own precedent of reporting newly-surfaced findings rather than narrowing
+scope back to stay green).
 
 Rationale for "default-include, narrow exclude" over an allowlist: an
 allowlist (of files, or of filename tokens) requires a maintainer to
@@ -215,10 +235,6 @@ console = Console()
 # fail-closed (returns False) -- see module docstring.
 AGGREGATORS = {"all"}
 
-# Package excluded from scope entirely (see module docstring: frozen per
-# the forced-segment fail-closed plan; UNVERIFIED whether still current).
-EXCLUDED_PACKAGE = "router_v6"
-
 # Filename conventions that mark a file as an actual test module rather
 # than a validator/gate implementation -- matched on the filename only,
 # never on path substring (see module docstring for why "/tests/" as a
@@ -241,27 +257,15 @@ _STRIP_SUFFIX_RE = re.compile(r"\.(values|keys|items)\(\)$")
 # ---------------------------------------------------------------------------
 
 
-def _is_router_v6(rel_path: str) -> bool:
-    """True when *rel_path* falls under the excluded router_v6 package."""
-    parts = rel_path.split("/")
-    return EXCLUDED_PACKAGE in parts
-
-
 def find_packages_scope_files(packages_dir: Path) -> list[Path]:
     """Return every in-scope ``.py`` file under ``packages/*/src`` and
     ``packages/*/tests`` (see module docstring for the exclusion rules)."""
     results: list[Path] = []
     for src_dir in sorted(packages_dir.glob("*/src")):
         for py_file in sorted(src_dir.rglob("*.py")):
-            rel = py_file.relative_to(packages_dir.parent).as_posix()
-            if _is_router_v6(rel):
-                continue
             results.append(py_file)
     for tests_dir in sorted(packages_dir.glob("*/tests")):
         for py_file in sorted(tests_dir.rglob("*.py")):
-            rel = py_file.relative_to(packages_dir.parent).as_posix()
-            if _is_router_v6(rel):
-                continue
             if _TEST_FILENAME_RE.match(py_file.name):
                 continue
             results.append(py_file)
@@ -460,21 +464,16 @@ def find_tautology_scope_files(
     module docstring), so excluding test-named files here -- as is
     correct for the all()-aggregation scope, which targets validator
     *implementations* -- would silently exempt the exact files this
-    detector exists to cover. The ``router_v6`` exclusion carries over
-    unchanged (same frozen-package rationale as ``find_scope_files``).
+    detector exists to cover. No package-level exclusion applies here or
+    in ``find_scope_files`` (the prior ``router_v6`` exclusion was removed
+    2026-08-07 -- see module docstring).
     """
     results: list[Path] = []
     for src_dir in sorted(packages_dir.glob("*/src")):
         for py_file in sorted(src_dir.rglob("*.py")):
-            rel = py_file.relative_to(packages_dir.parent).as_posix()
-            if _is_router_v6(rel):
-                continue
             results.append(py_file)
     for tests_dir in sorted(packages_dir.glob("*/tests")):
         for py_file in sorted(tests_dir.rglob("*.py")):
-            rel = py_file.relative_to(packages_dir.parent).as_posix()
-            if _is_router_v6(rel):
-                continue
             results.append(py_file)
     if scripts_dir is not None and scripts_dir.is_dir():
         for py_file in sorted(scripts_dir.rglob("*.py")):

@@ -34,6 +34,10 @@ pub mod pad_geometry;
 pub mod congestion;
 #[cfg(feature = "python")]
 pub mod congestion_analysis;
+// Shared CPython-exact OverflowError construction for the `pow_operator`
+// overflow guard duplicated in escape_via.rs and placement_suggestions.rs.
+#[cfg(feature = "python")]
+mod py_errors;
 #[cfg(feature = "python")]
 pub mod escape_via;
 #[cfg(feature = "python")]

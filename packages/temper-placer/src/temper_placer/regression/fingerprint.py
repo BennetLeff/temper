@@ -20,7 +20,10 @@ timestamp) stay here — I/O and marshalling. Design boundaries are argued in
 
 from __future__ import annotations
 
+import contextlib
 import json
+import os
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -100,11 +103,42 @@ def load_cache(corpus_root: Path) -> dict:
 
 
 def save_cache(corpus_root: Path, cache: dict) -> None:
+    """Write ``.regression-cache.json`` atomically.
+
+    The cache's key is sufficient (each board entry is keyed on the input
+    content hash and the full source-tree hash together -- see
+    ``should_skip``), so a crash mid-write can never serve a foreign
+    board's stale result under a live key. But the previous plain
+    ``json.dump(cache, f, ...)`` wrote directly to the destination path
+    with no atomicity: a crash (or a concurrent process opening the file)
+    mid-write could observe a truncated/malformed JSON document -- and
+    because this file holds every board's cache entry in one JSON object,
+    that corrupts the whole cache, not just the one board being updated at
+    the time. ``load_cache`` already treats a ``JSONDecodeError`` as "no
+    cache" (full-corpus fallback, not a crash), so the failure mode was
+    silent-but-slow rather than a hard error -- exactly the kind of defect
+    that stays unnoticed. Fixed the same way as the EDT disk cache
+    (``router_v6/channel_widths.py::_atomic_write_npz``, commit
+    ``c57101ac``): write to a temp file in the *same directory* (so the
+    final rename is same-filesystem, hence atomic on POSIX) and
+    ``os.replace`` into place. A concurrent reader then only ever observes
+    the fully-old file or the fully-new one, never a partial one.
+    """
     cache_path = corpus_root / CACHE_FILENAME
     cache["generated_at"] = datetime.now(UTC).isoformat()
-    with open(cache_path, "w") as f:
-        json.dump(cache, f, indent=2)
-        f.write("\n")
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(
+        dir=cache_path.parent, prefix=f".{cache_path.name}.", suffix=".tmp"
+    )
+    try:
+        with os.fdopen(fd, "w") as f:
+            json.dump(cache, f, indent=2)
+            f.write("\n")
+        os.replace(tmp_name, cache_path)
+    except BaseException:
+        with contextlib.suppress(OSError):
+            os.unlink(tmp_name)
+        raise
 
 
 def should_skip(

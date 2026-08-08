@@ -457,7 +457,14 @@ class TestTautologyScope:
         assert "test_something.py" not in all_scope
         assert "test_something.py" in taut_scope
 
-    def test_router_v6_excluded(self, tmp_path):
+    def test_router_v6_no_longer_excluded(self, tmp_path):
+        """2026-08-07: the router_v6 package-level exclusion was removed
+        (docs/evidence/2026-08-07-router-silent-noop-diagnosis.md) -- it
+        was a courtesy against scanning code a concurrent agent was
+        mid-edit on, not a claim that router_v6 needs a permanent
+        vacuity-detection blind spot, and that courtesy does not survive
+        the incident it directly contributed to going unnoticed for
+        eleven days. A router_v6 file is now in scope like any other."""
         pkg_dir = tmp_path / "packages" / "demo"
         tests_dir = pkg_dir / "tests" / "router_v6"
         tests_dir.mkdir(parents=True)
@@ -465,7 +472,7 @@ class TestTautologyScope:
 
         packages_dir = tmp_path / "packages"
         taut_scope = {p.name for p in find_tautology_scope_files(packages_dir)}
-        assert "test_router.py" not in taut_scope
+        assert "test_router.py" in taut_scope
 
     def test_find_all_tautology_violations_reports_files_scanned(self, tmp_path):
         pkg_dir = tmp_path / "packages" / "demo" / "tests"

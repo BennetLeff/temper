@@ -49,17 +49,28 @@
 //! [`stitch_targets_py`] resolves ties (multiple pour-boundary vertices at
 //! **exactly** equal distance from a pad) by keeping the first vertex found
 //! in iteration order (`d < best`, strict). Measured: `scipy.spatial.
-//! cKDTree.query` does NOT always agree -- of 2000 randomized tie-forced
-//! queries (coordinates rounded to 1 decimal specifically to manufacture
-//! ties), cKDTree returned a different tied index in 2 cases, because its
-//! answer depends on the tree's internal space-partitioning traversal order,
-//! not on input array order. Reproducing that traversal bit-for-bit would
-//! mean re-deriving scipy's ckdtree splitting rule, which is out of scope
-//! here. This is UNREACHABLE in practice for real board coordinates -- it
-//! requires an exact float64 distance tie between two distinct pour-boundary
-//! vertices, a measure-zero event for placement/routing-derived positions --
-//! and is recorded, not hidden: see `test_tie_break_diverges_from_cKDTree` in
-//! the differential suite (a known, non-blocking divergence, not a bug).
+//! cKDTree.query` does NOT always agree, because its answer depends on the
+//! tree's internal space-partitioning traversal order, not on input array
+//! order. Reproducing that traversal bit-for-bit would mean re-deriving
+//! scipy's ckdtree splitting rule, which is out of scope here. This is
+//! UNREACHABLE in practice for real board coordinates -- it requires an
+//! exact float64 distance tie between two distinct pour-boundary vertices, a
+//! measure-zero event for placement/routing-derived positions -- and is
+//! recorded, not hidden: see `test_tie_break_class_exists_direct_cKDTree_comparison`
+//! in the differential suite (a known, non-blocking divergence, not a bug).
+//!
+//! **The exact forcing coordinates are scipy-version-dependent** and were
+//! re-derived once already (2026-08-07): `cKDTree`'s default `leafsize` is
+//! 16, so a tree with <= 16 points never splits into more than one node and
+//! is scanned as a single leaf -- whose traversal order can happen to agree
+//! with first-strictly-smaller-wins on a given scipy build regardless of
+//! whether the divergence class itself still exists. The original forcing
+//! set used 8 points (of 2000 randomized 1-decimal-rounded trials, 2
+//! disagreements) and stopped reproducing under scipy 1.16.3; re-deriving
+//! with 20 points (comfortably above `leafsize`) reproduced it again (3
+//! disagreements in ~250 forced-tie trials). A future scipy upgrade that
+//! breaks the test again should re-run the same randomized search at a
+//! vertex count above 16, not assume the divergence class itself is gone.
 
 use crate::polygon::point_in_polygon_winding;
 use crate::types::Point;

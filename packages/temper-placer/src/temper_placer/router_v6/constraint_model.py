@@ -27,6 +27,28 @@ from temper_placer.router_v6.stage_validators import (
 )
 
 
+class ConstraintModelEmptyError(RuntimeError):
+    """Raised by ``ModelBuilder.build()`` when a non-empty skeleton set
+    produces a zero-variable constraint model.
+
+    R10 non-emptiness precondition for Stage 3.1
+    (docs/evidence/2026-08-07-router-silent-noop-diagnosis.md): the
+    diagnosis traced the router's silent-noop bug all the way to
+    ``_create_per_net_channel_vars`` iterating
+    ``self.skeletons.items()`` -- with an empty ``skeletons`` dict (the
+    Stage 2.3 bug this file does not fix) that loop creates zero
+    ``NetChannelVar``s for every net regardless of any other flag, and
+    nothing downstream ever noticed. This precondition covers the
+    complementary case this module *can* fail on its own: if skeletons
+    were genuinely available going into ``build()`` but the resulting
+    model still has zero variables, that is a Stage 3 defect in its own
+    right, not merely a symptom of an empty upstream dict, and deserves a
+    distinct, specific failure rather than proceeding to solve an empty
+    SAT model and reporting a misleadingly "successful" completion rate
+    from the router's post-Stage-3 fallback path.
+    """
+
+
 #: Decimal places a channel-edge endpoint is quantised to before it becomes
 #: part of a SAT variable's identity. 1e-6 mm is one nanometre -- three orders
 #: of magnitude below any manufacturing tolerance, so two endpoints that differ
@@ -572,6 +594,31 @@ class ModelBuilder:
                 file=sys.stderr,
                 flush=True,
             )
+
+        # R10 non-emptiness precondition (docs/evidence/2026-08-07-router-
+        # silent-noop-diagnosis.md): a non-empty skeleton set with real
+        # nets to route must produce a non-zero-variable model. Scoped to
+        # skeletons+nets both non-empty deliberately -- a board with
+        # skeletons but zero nets (or vice versa) legitimately has nothing
+        # to build a model from, and is not this bug's shape. An empty
+        # `self.skeletons` on a board with routable nets is instead the
+        # Stage 2.3 (ChannelSkeleton) failure mode, guarded separately by
+        # vacuity_guards.validate_channel_skeleton_nonvacuous.
+        if self.skeletons and self.nets and not self.model.variables:
+            node_counts = {
+                name: len(sk.graph.nodes) for name, sk in self.skeletons.items()
+            }
+            raise ConstraintModelEmptyError(
+                f"ModelBuilder.build() produced 0 variables (0 constraints) "
+                f"from {len(self.skeletons)} non-empty skeleton(s) "
+                f"({sorted(self.skeletons)!r}, node counts {node_counts!r}) "
+                f"and {len(self.nets)} net(s) ({[n.name for n in self.nets][:5]!r}"
+                f"{'...' if len(self.nets) > 5 else ''}). A non-empty "
+                f"skeleton set must produce a non-zero-variable constraint "
+                f"model -- see "
+                f"docs/evidence/2026-08-07-router-silent-noop-diagnosis.md."
+            )
+
         return self.model
 
     def _create_channel_vars(self):
@@ -1096,6 +1143,7 @@ def validate_constraint_generation(state: BoardState) -> list[StageDRCFailure]:
                 value=cm.variable_count,
                 reason="Constraint model has zero variables and zero constraints",
                 stage="ConstraintGeneration",
+                fatal=True,
             )
         )
     channel_var_ids = set()

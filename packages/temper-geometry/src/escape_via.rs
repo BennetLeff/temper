@@ -51,7 +51,7 @@
 //!   (measured; recorded in the oracle header as a *non*-divergence).  The
 //!   multiply-then-divide form is kept because it is what the oracle writes.
 
-use pyo3::exceptions::{PyOverflowError, PyValueError};
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
 
@@ -326,10 +326,15 @@ fn parse_rules(spec: &Bound<'_, PyAny>) -> PyResult<DesignRules> {
 /// Hence the guard is "result went infinite from a FINITE base", which leaves
 /// the inf and NaN paths alone -- the NaN path is load-bearing, since a NaN
 /// distance makes the `<` comparison false and the candidate is ACCEPTED.
+///
+/// The exception text is resolved through the platform's own
+/// `strerror(ERANGE)` (`crate::py_errors::overflow_error`), matching
+/// whatever CPython's own `float_pow` raises on this host -- not hardcoded
+/// to one platform's text. See `py_errors.rs`'s module doc comment.
 pub(crate) fn pow_operator(base: f64, exp: f64) -> PyResult<f64> {
     let r = host_math::pow(base, exp);
     if r.is_infinite() && base.is_finite() {
-        return Err(PyOverflowError::new_err((34, "Result too large")));
+        return Err(crate::py_errors::overflow_error());
     }
     Ok(r)
 }
