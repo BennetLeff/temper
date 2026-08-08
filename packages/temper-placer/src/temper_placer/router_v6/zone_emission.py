@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import temper_geometry as _tg
-from shapely.geometry import MultiPoint
+from shapely.geometry import MultiPoint, Polygon
 
 
 @dataclass(frozen=True)
@@ -145,6 +145,42 @@ def _convex_hull_from_positions(
     return tuple(pts)
 
 
+def _clip_to_board(
+    hull: tuple[tuple[float, float], ...],
+    board_polygon: Polygon,
+) -> list[tuple[tuple[float, float], ...]]:
+    """Intersect *hull* with *board_polygon*, returning zero or more
+    clipped outlines (a hull that straddles a concave board boundary can
+    split into multiple pieces; an empty result means the hull fell
+    entirely outside the board and is dropped).
+
+    R6 (docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md):
+    ``_convex_hull_from_positions``'s margin/clearance buffer uses a
+    mitre join (``join_style=2``), which extends a convex hull's corners
+    past the flat margin distance at acute vertices -- measured up to
+    ~12mm past a 6mm margin on this board's HighVoltage nets (see
+    docs/evidence/2026-08-07-zone-emission-clustering-defect.md). Nothing
+    upstream of this function ever bounded a hull to the physical board,
+    so that overshoot reached the emitted zone unclipped. Clipping here
+    is unconditionally correct: copper cannot exist off the board
+    regardless of clustering policy.
+    """
+    clipped = Polygon(hull).intersection(board_polygon)
+    if clipped.is_empty:
+        return []
+    polys = list(clipped.geoms) if hasattr(clipped, "geoms") else [clipped]
+    out: list[tuple[tuple[float, float], ...]] = []
+    for poly in polys:
+        if not hasattr(poly, "exterior") or poly.is_empty:
+            continue
+        pts = [(float(x), float(y)) for x, y in poly.exterior.coords]
+        if len(pts) > 1 and pts[0] == pts[-1]:
+            pts.pop()
+        if len(pts) >= 3:
+            out.append(tuple(pts))
+    return out
+
+
 def compute_zones_for_net(
     net_name: str,
     net_number: int,
@@ -153,9 +189,16 @@ def compute_zones_for_net(
     *,
     margin: float = 1.0,
     cluster: bool = True,
+    board_polygon: Polygon | None = None,
 ) -> list[ZoneDefinition]:
     """Return ZoneDefinitions for a net — one hull per spatial cluster
     when *cluster* is True, or a single hull over all pads otherwise.
+
+    ``board_polygon``, when given, clips every emitted hull to the
+    physical board outline (R6 -- see ``_clip_to_board``'s docstring).
+    Copper cannot exist outside ``Edge.Cuts`` regardless of how the hull
+    was constructed, so this clip is unconditional and independent of
+    the ``cluster`` choice above.
 
     Raises ValueError if pads is empty.
     """
@@ -169,14 +212,18 @@ def compute_zones_for_net(
         hull = _convex_hull_from_positions(group, margin=margin)
         if not hull:
             continue
-        zones.append(
-            ZoneDefinition(
-                net_name=net_name,
-                net_number=net_number,
-                layer=layer,
-                points=hull,
-            )
+        outlines = (
+            _clip_to_board(hull, board_polygon) if board_polygon is not None else [hull]
         )
+        for outline in outlines:
+            zones.append(
+                ZoneDefinition(
+                    net_name=net_name,
+                    net_number=net_number,
+                    layer=layer,
+                    points=outline,
+                )
+            )
     return zones
 
 
