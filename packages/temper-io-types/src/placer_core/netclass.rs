@@ -54,6 +54,18 @@ pub const POWER_PIN_PATTERNS: [&str; 7] = ["VCC", "VDD", "VIN", "VOUT", "PVCC", 
 pub const HV_PIN_PATTERNS: [&str; 6] = ["AC_L", "AC_N", "PE", "HV", "MAINS", "RECT"];
 pub const CLOCK_PIN_PATTERNS: [&str; 6] = ["CLK", "CLOCK", "XTAL1", "XTAL2", "OSC_IN", "OSC_OUT"];
 
+/// `router_v6.net_classification.POWER_NET_PATTERNS` -- a near-duplicate of
+/// [`POWER_NET_PATTERNS`] above (same module docstring claim of being "the"
+/// single source of truth; see that module's own bug-history note) that
+/// carries four extra entries this repo's canonical `core/net_types.py`
+/// set does not: `"+340V"`, `"DC_BUS"`, `"PWR_RTN"`, `"V_BUS"`. Kept as its
+/// own pattern set rather than unioned into [`POWER_NET_PATTERNS`] because
+/// the two call sites (`core.net_classification`, `router_v6.net_classification`)
+/// are verified independently and must not silently converge.
+pub const POWER_NET_PATTERNS_V6: [&str; 11] = [
+    "+3V3", "+5V", "+12V", "+15V", "VCC", "VDD", "VBUS", "+340V", "DC_BUS", "PWR_RTN", "V_BUS",
+];
+
 /// Which pattern set a query is being matched against.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PatternSet {
@@ -64,6 +76,7 @@ pub enum PatternSet {
     PowerPin,
     HvPin,
     ClockPin,
+    PowerNetV6,
 }
 
 impl PatternSet {
@@ -76,6 +89,7 @@ impl PatternSet {
             PatternSet::PowerPin => &POWER_PIN_PATTERNS,
             PatternSet::HvPin => &HV_PIN_PATTERNS,
             PatternSet::ClockPin => &CLOCK_PIN_PATTERNS,
+            PatternSet::PowerNetV6 => &POWER_NET_PATTERNS_V6,
         }
     }
 
@@ -94,6 +108,7 @@ impl PatternSet {
             PatternSet::PowerPin => cell!(POWER_PIN),
             PatternSet::HvPin => cell!(HV_PIN),
             PatternSet::ClockPin => cell!(CLOCK_PIN),
+            PatternSet::PowerNetV6 => cell!(POWER_NET_V6),
         }
     }
 }
@@ -216,7 +231,49 @@ pub fn is_clock_pin(pin_name: &str) -> bool {
     matches_any(pin_name, PatternSet::ClockPin)
 }
 
-pub const ALL_SETS: [PatternSet; 7] = [
+// ---------------------------------------------------------------------------
+// router_v6.net_classification variant
+//
+// Ground/HV net patterns and all four pin pattern sets are byte-identical
+// between `core.net_classification` and `router_v6.net_classification` (see
+// the router_v6 module's own docstring: "patterns here are taken verbatim
+// from core/net_types.py"), so [`is_ground_net`]/[`is_hv_net`]/the four
+// `is_*_pin` functions above are reused as-is. Only power-net classification
+// differs: router_v6's `POWER_NET_PATTERNS` carries four extra entries
+// ([`POWER_NET_PATTERNS_V6`]) and its `is_power_net` adds a "starts with
+// '+'" prefix heuristic the core module does not have:
+//
+// ```python
+// def is_power_net(name: str) -> bool:
+//     upper = name.upper()
+//     if _matches_any(upper, POWER_NET_PATTERNS):
+//         return True
+//     return upper.startswith("+")
+// ```
+// ---------------------------------------------------------------------------
+
+pub fn is_power_net_v6(name: &str) -> bool {
+    matches_any(name, PatternSet::PowerNetV6) || name.to_uppercase().starts_with('+')
+}
+
+pub fn is_signal_net_v6(name: &str) -> bool {
+    !(is_ground_net(name) || is_power_net_v6(name) || is_hv_net(name))
+}
+
+/// Precedence: ground > power > hv > signal.
+pub fn classify_net_type_v6(name: &str) -> &'static str {
+    if is_ground_net(name) {
+        "ground"
+    } else if is_power_net_v6(name) {
+        "power"
+    } else if is_hv_net(name) {
+        "hv"
+    } else {
+        "signal"
+    }
+}
+
+pub const ALL_SETS: [PatternSet; 8] = [
     PatternSet::GroundNet,
     PatternSet::PowerNet,
     PatternSet::HvNet,
@@ -224,6 +281,7 @@ pub const ALL_SETS: [PatternSet; 7] = [
     PatternSet::PowerPin,
     PatternSet::HvPin,
     PatternSet::ClockPin,
+    PatternSet::PowerNetV6,
 ];
 
 #[cfg(test)]
@@ -307,5 +365,52 @@ mod tests {
         assert!(is_ground_net("ß_gnd")); // 'ß'.upper() == "SS"
         assert!(is_ground_net("ı_gnd")); // 'ı'.upper() == "I"
         assert!(!is_ground_net("gndı"));
+    }
+
+    #[test]
+    fn v6_power_net_extra_patterns() {
+        // The four entries router_v6's POWER_NET_PATTERNS has beyond the
+        // core module's set.
+        assert!(is_power_net_v6("+340V"));
+        assert!(is_power_net_v6("DC_BUS"));
+        assert!(is_power_net_v6("PWR_RTN"));
+        assert!(is_power_net_v6("V_BUS"));
+        // Word-boundary discipline still applies to the extra patterns.
+        assert!(!is_power_net_v6("SDA_BUS")); // "DC_BUS" not a substring here
+    }
+
+    #[test]
+    fn v6_power_net_plus_prefix_heuristic() {
+        // Any name starting with '+' is a power net in router_v6, even if
+        // it matches no declared pattern -- the core module (`is_power_net`,
+        // no v6 suffix) has no such fallback.
+        assert!(is_power_net_v6("+24V"));
+        assert!(is_power_net_v6("+"));
+        assert!(!is_power_net_v6("24V+")); // '+' not a leading character
+        assert!(!is_power_net("+24V")); // core has no prefix fallback
+    }
+
+    #[test]
+    fn v6_classify_precedence_matches_core_ordering() {
+        assert_eq!(classify_net_type_v6("GND"), "ground");
+        assert_eq!(classify_net_type_v6("VCC"), "power");
+        assert_eq!(classify_net_type_v6("DC_BUS"), "power");
+        assert_eq!(classify_net_type_v6("+24V"), "power");
+        assert_eq!(classify_net_type_v6("AC_L"), "hv");
+        assert_eq!(classify_net_type_v6("SDA"), "signal");
+        // Ground still wins over the '+' prefix heuristic when a name
+        // (contrived) matches both -- precedence is checked in order.
+        assert_eq!(classify_net_type_v6("GND"), "ground");
+    }
+
+    #[test]
+    fn v6_signal_is_the_complement() {
+        for name in ["GND", "VCC", "DC_BUS", "+24V", "AC_L", "SDA", "", "PE"] {
+            assert_eq!(
+                is_signal_net_v6(name),
+                classify_net_type_v6(name) == "signal",
+                "disagreement on {name:?}"
+            );
+        }
     }
 }
