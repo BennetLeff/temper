@@ -7,7 +7,11 @@ Part of temper-7qu7 (Stage 2 - Channel Analysis)
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
+import os
+import tempfile
+import zipfile
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import cast
@@ -24,7 +28,75 @@ from temper_placer.router_v6.stage_validators import (
     register_validator,
 )
 
-_EDT_CACHE_DIR = Path("/tmp/temper-edt-cache")
+# --- EDT disk cache: path scoping, atomicity, key sufficiency, eviction ---
+#
+# This cache was previously a single machine-global path
+# (``Path("/tmp/temper-edt-cache")``), shared by every checkout/worktree on
+# the box with no writer coordination and a cache key that hashed only
+# ``(bounds, area)`` of the routing polygon. All three properties were
+# wrong:
+#
+# 1. Global path: this repo routinely runs 20-60+ concurrent agent
+#    worktrees against a shared machine (see AGENTS.md's cargo/venv
+#    sections for the same failure class). A single shared cache directory
+#    meant worktree A could read a `.npz` written by worktree B for an
+#    *unrelated* board/branch state, and concurrent writers to the same
+#    path produced the read-during-write ERRORs that motivated this fix
+#    (spurious failures in test_stage2_monolith_parity.py).
+# 2. Non-atomic writes: ``np.savez_compressed`` wrote directly to the
+#    final path. A reader could ``np.load`` a truncated/half-written file.
+# 3. Insufficient key: ``_compute_board_fingerprint`` hashed only
+#    ``f"{bounds}{area}"`` -- the polygon's bounding box and total area.
+#    This is NOT injective: two ``available_area`` geometries with
+#    different shapes (different obstacle layout, different concavity,
+#    holes moved around) can share the same bounding box and the same
+#    total area while differing in actual boundary shape. Such a
+#    collision would silently serve one board's distance field for
+#    another's channel-width computation -- a correctness bug on the
+#    clearance/routability path, not merely a performance one. Also
+#    missing from the old key: ``cell_size`` (a coarser/finer grid changes
+#    every distance value; only an unenforced code comment kept every
+#    call site pinned to 0.1mm) and a cache-format version (so a future
+#    change to the EDT algorithm or ``.npz`` schema would silently reuse
+#    stale entries instead of invalidating them).
+#
+# Fixes below: scope the directory per checkout/worktree (and honor
+# ``TMPDIR``), make writes atomic (temp file + ``os.replace``), and key on
+# the routing polygon's exact geometry (WKB) plus cell_size plus a format
+# version. See docs/solutions/ for the incident writeup.
+
+_CACHE_FORMAT_VERSION = "v2"  # bump when the EDT algorithm or .npz schema changes
+_EDT_CACHE_MAX_ENTRIES = int(os.environ.get("TEMPER_EDT_CACHE_MAX_ENTRIES", "500"))
+
+
+def _checkout_discriminator() -> str:
+    """A short hash that differs per git checkout/worktree.
+
+    Walks up from this file to the nearest ``.git`` (a directory in a
+    normal checkout, a file in a git *worktree* -- ``.exists()`` covers
+    both) and hashes that directory's resolved path. Every worktree in
+    this repo's multi-agent workflow lives at its own path
+    (``.claude/worktrees/agent-<id>/...``), so this reliably gives each
+    worktree its own cache subdirectory even though they all share the
+    same ``$TMPDIR``. Falls back to this file's own parent directory if no
+    ``.git`` is found (e.g. installed as a package outside a checkout).
+    """
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        if (parent / ".git").exists():
+            root = parent
+            break
+    else:
+        root = here.parent
+    return hashlib.sha256(str(root).encode()).hexdigest()[:16]
+
+
+def _cache_root() -> Path:
+    """``$TMPDIR`` (or the platform default) scoped to this checkout."""
+    return Path(tempfile.gettempdir()) / "temper-edt-cache" / _checkout_discriminator()
+
+
+_EDT_CACHE_DIR = _cache_root()
 
 
 @dataclass
@@ -134,16 +206,107 @@ def _edt_width_lookup_batch(
     return np.asarray(out, dtype=np.float64)
 
 
-def _compute_board_fingerprint(routing_space: RoutingSpace) -> str:
-    """Stable hash of the routing space geometry for cache keying."""
-    bounds = routing_space.available_area.bounds
-    area = routing_space.available_area.area
-    return hashlib.sha256(f"{bounds}{area}".encode()).hexdigest()[:16]
+def _compute_board_fingerprint(routing_space: RoutingSpace, cell_size: float) -> str:
+    """Content hash of everything that determines the EDT output.
+
+    Must include, and previously did not:
+
+    - The routing polygon's *exact* geometry (WKB), not just
+      ``bounds``/``area``. Two ``available_area`` geometries can share a
+      bounding box and total area while differing in actual boundary shape
+      (different obstacle layout, concavity, hole placement) -- bounds+area
+      is not an injective function of the geometry, so it was possible for
+      two different boards/layers to collide on one cache key and silently
+      serve each other's distance field.
+    - ``cell_size``: a coarser/finer raster grid changes every distance
+      value. Previously every call site just happened to pass 0.1mm by
+      convention (see ``capacity_check.py``'s ``_EDT_CELL_SIZE`` comment
+      "matches channel_widths.py") -- an unenforced invariant, not a
+      guarantee.
+    - ``_CACHE_FORMAT_VERSION``: bumping it invalidates every existing
+      entry, so a future change to the EDT algorithm or the ``.npz``
+      schema can't be silently misread as an old-format cache hit.
+
+    ``layer_name`` is intentionally hashed in too (in addition to being a
+    separate filename component below) so the key alone is already unique
+    per layer, independent of how the filename happens to be built.
+    """
+    geom = routing_space.available_area
+    h = hashlib.sha256()
+    h.update(_CACHE_FORMAT_VERSION.encode())
+    h.update(b"\0")
+    h.update(routing_space.layer_name.encode())
+    h.update(b"\0")
+    h.update(repr(cell_size).encode())
+    h.update(b"\0")
+    h.update(geom.wkb)
+    return h.hexdigest()[:32]
 
 
 def _edt_cache_path(fp: str, layer: str) -> Path:
-    _EDT_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    return _EDT_CACHE_DIR / f"edt_{fp}_{layer}.npz"
+    safe_layer = "".join(c if c.isalnum() or c in "._-" else "_" for c in layer)
+    return _EDT_CACHE_DIR / f"edt_{fp}_{safe_layer}.npz"
+
+
+def _atomic_write_npz(path: Path, *, edt: np.ndarray, mask: np.ndarray) -> None:
+    """Write an ``.npz`` cache entry atomically.
+
+    ``np.savez_compressed`` writes directly to its destination with no
+    atomicity guarantee: a concurrent reader (``np.load``) can observe a
+    truncated/partial file mid-write, and a crash mid-write leaves a
+    permanently corrupt file behind. Fixed by writing to a temp file in the
+    *same directory* (so the final rename is same-filesystem, hence atomic
+    on POSIX) and calling ``os.replace`` into the real path. A concurrent
+    reader either sees the fully-old file or the fully-new file, never a
+    partial one -- ``os.replace`` never exposes an intermediate state, and
+    an already-open reader fd keeps working against the old inode even
+    after this replace unlinks its name.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "wb") as f:
+            np.savez_compressed(f, edt=edt, mask=mask)
+        os.replace(tmp_name, path)
+    except BaseException:
+        with contextlib.suppress(OSError):
+            os.unlink(tmp_name)
+        raise
+
+
+def _evict_if_over_budget(max_entries: int = _EDT_CACHE_MAX_ENTRIES) -> None:
+    """Bound the per-checkout cache to ``max_entries`` files (LRU by mtime).
+
+    116,000+ files accumulated in the old global cache because nothing
+    ever removed an entry -- it was a leak, not a working cache. Scoping
+    the directory per checkout/worktree (above) already bounds the *blast
+    radius* of that leak to one checkout's lifetime, but a single
+    long-lived checkout run across many boards/layers/cell-sizes would
+    still grow unboundedly, so this adds an explicit cap.
+
+    Count-based LRU (evict oldest-by-mtime first) rather than a TTL or a
+    byte-size budget: entries are small and roughly uniform in size for a
+    given board, so entry count is a reasonable proxy for disk footprint,
+    and mtime ordering needs no extra bookkeeping file (which would itself
+    need cross-process locking). This runs after every write, is O(n) in
+    directory size, and is a leak-prevention backstop rather than a
+    hot-path optimization -- acceptable because the directory is now
+    scoped per checkout rather than shared globally by every checkout on
+    the machine, which was the actual cause of the 116K-file accumulation.
+    Default cap is overridable via ``TEMPER_EDT_CACHE_MAX_ENTRIES`` for
+    tests that want to exercise eviction without creating 500 files.
+    """
+    try:
+        entries = sorted(
+            (p for p in _EDT_CACHE_DIR.glob("edt_*.npz") if p.is_file()),
+            key=lambda p: p.stat().st_mtime,
+        )
+    except OSError:
+        return
+    excess = len(entries) - max_entries
+    for p in entries[: max(excess, 0)]:
+        with contextlib.suppress(OSError):
+            p.unlink()
 
 
 def _exact_edt(mask: np.ndarray) -> np.ndarray:
@@ -176,19 +339,33 @@ def _build_edt(
         (edt_distances, interior_mask, bounds)
     """
     bounds = routing_space.available_area.bounds
-    fp = _compute_board_fingerprint(routing_space)
+    fp = _compute_board_fingerprint(routing_space, cell_size)
 
     if use_cache:
         cache_path = _edt_cache_path(fp, routing_space.layer_name)
-        if cache_path.exists():
-            data = np.load(cache_path)
-            return data["edt"], data["mask"], bounds
+        try:
+            # No pre-check ``cache_path.exists()``: that would be a
+            # separate syscall racing a concurrent evictor/writer
+            # (TOCTOU). Attempting the load directly and handling
+            # "not there" is the race-free version of the same check.
+            with np.load(cache_path) as data:
+                return np.array(data["edt"]), np.array(data["mask"]), bounds
+        except FileNotFoundError:
+            pass
+        except (OSError, ValueError, EOFError, zipfile.BadZipFile):
+            # A cache entry that exists but fails to parse cleanly is
+            # treated as a miss, never as an error: the atomic write below
+            # means this should only happen for a pre-fix legacy file, not
+            # a genuine race, but a cache must never be allowed to turn a
+            # read failure into a computation failure.
+            pass
 
     mask = _rasterize_boundary_mask(routing_space.available_area, bounds, cell_size)
     edt = _exact_edt(mask.astype(np.uint8))
 
     if use_cache:
-        np.savez_compressed(cache_path, edt=edt, mask=mask)
+        _atomic_write_npz(cache_path, edt=edt, mask=mask)
+        _evict_if_over_budget()
 
     return edt, mask, bounds
 
