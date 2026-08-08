@@ -10,8 +10,11 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 
 import networkx as nx
+import numpy as np
+import shapely
 import temper_geometry as _tg
-from shapely.geometry import LineString, Polygon
+from scipy.spatial import cKDTree
+from shapely.geometry import LineString, MultiPolygon, Polygon
 
 from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.deterministic.stages.base import Stage
@@ -114,8 +117,13 @@ def extract_channel_skeleton(
             G.add_edge(p1, p2, weight=length)
             total_length += length
 
-    # Ensure connectivity by bridging islands
-    G = _ensure_skeleton_connectivity(G, max_bridge_distance=10.0)
+    # Ensure connectivity by bridging islands. ``available_area`` (obstacles
+    # already subtracted) is passed through so every bridge is validated to
+    # lie entirely within routable copper -- see _ensure_skeleton_connectivity's
+    # docstring for why this check exists and did not before.
+    G = _ensure_skeleton_connectivity(
+        G, max_bridge_distance=10.0, available_area=available_area
+    )
 
     # **OPTION F FIX**: Add component pad positions as anchor nodes
     if pcb and hasattr(pcb, "components") and G.number_of_nodes() > 0:
@@ -263,67 +271,292 @@ def _extract_medial_axis_single(
     return [LineString([p1, p2]) for p1, p2 in segments]
 
 
-def _ensure_skeleton_connectivity(G: nx.Graph, max_bridge_distance: float = 5.0) -> nx.Graph:
+class _UnionFind:
+    """Disjoint-set over small integer labels (component ids), path-compressed
+    with union-by-rank. Used to track which islands have merged without
+    re-running ``nx.connected_components`` (an O(V+E) pass) after every edge."""
+
+    __slots__ = ("parent", "rank")
+
+    def __init__(self, n: int) -> None:
+        self.parent = list(range(n))
+        self.rank = [0] * n
+
+    def find(self, x: int) -> int:
+        root = x
+        while self.parent[root] != root:
+            root = self.parent[root]
+        while self.parent[x] != root:
+            self.parent[x], x = root, self.parent[x]
+        return root
+
+    def union(self, a: int, b: int) -> bool:
+        ra, rb = self.find(a), self.find(b)
+        if ra == rb:
+            return False
+        if self.rank[ra] < self.rank[rb]:
+            ra, rb = rb, ra
+        self.parent[rb] = ra
+        if self.rank[ra] == self.rank[rb]:
+            self.rank[ra] += 1
+        return True
+
+
+def _bridge_validity_mask(
+    available_area: Polygon | MultiPolygon | None,
+    coords_a: np.ndarray,
+    coords_b: np.ndarray,
+) -> np.ndarray:
+    """Validate, in one vectorized batch, that every candidate bridge segment
+    ``(coords_a[k], coords_b[k])`` lies entirely inside the routable region.
+
+    Returns a boolean array aligned with the input rows (all True when
+    ``available_area`` is None -- e.g. synthetic graphs built without
+    routing-space geometry, matching the legacy no-check behavior).
+
+    Why vectorized rather than a per-candidate ``PreparedGeometry.contains``
+    call: measured on pcb/temper.kicad_pcb, an individually-prepared
+    predicate (``shapely.prepared.prep(area).contains(line)`` called once
+    per candidate) costs ~13us/call in Python-loop overhead; batching the
+    same predicate through ``shapely.prepare`` (in-place, vectorized) plus
+    the ``shapely.contains`` ufunc over a numpy array of geometries costs
+    ~1us/call -- roughly 13x faster because the per-call Python/GIL
+    overhead is paid once for the whole batch instead of once per candidate.
+    At O(10^6) candidates (2.6M on F.Cu within a 10mm bridging radius) that
+    difference is the gap between this stage costing single-digit seconds
+    and costing nearly a minute. A tiny buffer absorbs floating point noise
+    where a skeleton node sits exactly on the routable-region boundary
+    (common -- skeleton nodes are themselves derived from that boundary's
+    medial axis).
+    """
+    if available_area is None or available_area.is_empty or len(coords_a) == 0:
+        return np.ones(len(coords_a), dtype=bool)
+
+    coord_pairs = np.stack([coords_a, coords_b], axis=1)  # (N, 2, 2)
+    line_arr = shapely.linestrings(coord_pairs)
+
+    buffered = available_area.buffer(1e-6)
+    shapely.prepare(buffered)
+    return shapely.contains(buffered, line_arr)
+
+
+def _ensure_skeleton_connectivity(
+    G: nx.Graph,
+    max_bridge_distance: float = 5.0,
+    available_area: Polygon | MultiPolygon | None = None,
+) -> nx.Graph:
     """
     Ensure skeleton graph is fully connected by adding bridge edges.
 
     Args:
         G: Potentially fragmented skeleton graph
         max_bridge_distance: Maximum distance (mm) to bridge between islands
+        available_area: Routable region (obstacles already subtracted). When
+            given, every candidate bridge is validated to lie entirely
+            inside it before being added -- bridging through an obstacle
+            would silently create a route where copper actually is. When
+            None (e.g. synthetic graphs built without routing-space
+            geometry), bridges are not geometry-checked, matching the
+            legacy behavior.
 
     Returns:
-        Connected graph
+        Connected graph (or as connected as ``max_bridge_distance`` and
+        obstacle geometry allow -- islands with no valid bridge within
+        that distance are left unconnected, same as before).
+
+    Algorithm (replaces an O(components^2 * nodes_per_component^2)
+    brute-force nearest-pair search that did not complete in practical
+    time on production geometry -- a single outer-loop pass did not finish
+    in 79s of pure-Python CPU time on pcb/temper.kicad_pcb's 153-island
+    F.Cu skeleton):
+
+    The old code's "always bridge the globally closest cross-island node
+    pair, recompute components, repeat" is exactly Kruskal's MST algorithm
+    run over the complete graph of all skeleton nodes, restricted to
+    cross-component edges and thresholded at ``max_bridge_distance``: both
+    add the cheapest available edge that connects two different components,
+    in ascending distance order, and stop when nothing eligible remains
+    under the threshold. That equivalence is what licenses replacing the
+    brute-force distance computation with a spatial index without changing
+    which components end up merged (it is the same MST-with-cutoff, just
+    computed without enumerating pairs that were never going to be the
+    answer).
+
+    Implementation:
+      - ``scipy.spatial.cKDTree.query_pairs(r=max_bridge_distance)`` finds
+        *every* node pair within the bridging radius in one call --
+        O(N log N + P) where P is the number of pairs within the radius
+        (output-sensitive: bounded by local point density around each
+        node, not by N^2; measured 44.1M pairs for N=41,271 nodes in 1.2s
+        on F.Cu, see the perf evidence doc). This is deliberately exact,
+        not a K-nearest-neighbour approximation: an approximate top-K
+        candidate set was tried first and rejected -- see "Rejected
+        alternatives" below.
+      - Pairs are filtered to cross-component ones (O(P)), distances
+        computed vectorized (O(P)), then sorted ascending (O(P log P)).
+      - Every cross-component candidate's geometry is validated against
+        ``available_area`` in **one vectorized batch call**
+        (``_bridge_validity_mask``: ``shapely.linestrings`` to construct
+        all P candidate segments at once, ``shapely.prepare`` +
+        ``shapely.contains`` to test all of them against the routable
+        region in a single C-level loop) rather than one Python-level
+        ``shapely`` call per candidate -- measured ~13x faster per
+        predicate (~1us/candidate vectorized vs ~13us/candidate through an
+        individually-prepared-geometry Python call), because the
+        candidate-pair count in practice is dominated by genuinely
+        obstacle-separated islands where most candidates are invalid (see
+        "Upstream finding" below), so a real fraction of P gets checked
+        either way.
+      - Kruskal via union-find then consumes the sorted candidates using
+        the precomputed boolean mask (a cheap array lookup, not a shapely
+        call): for each valid candidate that would connect two different
+        (super)components, the bridge is added and the components merged.
+        The loop exits as soon as every component has merged (union-find
+        count reaches 1).
+
+    Total: O(N log N + P log P) where P is the number of node pairs within
+    the bridging radius (query-pairs output size, output-sensitive in local
+    point density -- not the O(components^2 * nodes^2) term that made the
+    original implementation intractable). Measured on pcb/temper.kicad_pcb:
+    ~10s wall time per layer including the vectorized geometry pass over
+    ~2.6M candidates (see the perf evidence doc for full wall-time/RSS
+    tables) versus not completing in 79s of pure-Python CPU for one
+    outer-loop pass before.
+
+    Rejected alternatives:
+      - K-nearest-neighbour candidate generation (query each node's K
+        nearest neighbours, K fixed, e.g. 16) was implemented and measured
+        first. It is asymptotically cheaper per query but is an
+        *approximation*: a component's true nearest cross-component point
+        can be crowded out of any fixed K by same-component neighbours in
+        a dense island (the two ~20,000-node F.Cu islands are exactly this
+        case), silently under-connecting relative to the exact algorithm
+        it replaces. Patching that with a second fallback phase (exact
+        nearest-neighbour search only over the few components K-NN missed)
+        was also implemented and measured -- and was *slower* than the
+        exact radius query on this board (roughly 57s for B.Cu alone),
+        because a large fraction of candidates near real-world zone-pour
+        geometry are geometrically invalid (obstacle-crossing) and get
+        rejected, pushing many components into that fallback path, whose
+        cost is quadratic in how many components still need it (a fresh
+        O(remaining_components^2) tree-query sweep per single merge). The
+        exact radius query has no such failure mode: it enumerates every
+        candidate within the threshold once.
+      - Per-candidate (non-vectorized) geometry validation, called lazily
+        inside the Kruskal loop and skipping remaining candidates for a
+        pair once it exceeded an attempt cap, was implemented and measured
+        as an intermediate step: it worked (F.Cu ~54s, B.Cu ~48s) but was
+        still dominated by ~13us/call Python-level ``shapely`` overhead at
+        the P ~ 10^6 scale this board exhibits, and traded away exactness
+        (a capped pair could in principle have had a valid bridge past the
+        cap). Batching the *entire* candidate set through one vectorized
+        ``shapely.contains`` call (~1us/candidate) removed both problems at
+        once -- it is both faster in aggregate and exact, so the attempt
+        cap was deleted rather than kept as a secondary safeguard.
+      - A Euclidean-MST-over-island-*centroids* formulation (bridge
+        component A to component B via their centroids) was rejected: a
+        component's centroid is not guaranteed to be a real skeleton node,
+        and worse, a centroid-to-centroid line is far more likely to cross
+        an obstacle than a line between the two islands' actual nearest
+        boundary nodes -- exactly the geometric-validity failure mode this
+        function must avoid.
+      - An R-tree over per-node bounding boxes (e.g. via shapely's STRtree)
+        was rejected in favor of a KD-tree: candidates here are point-to-
+        point nearest-neighbour queries, which is what a KD-tree is built
+        for; an R-tree earns its keep over 2D *regions* with extent, which
+        skeleton nodes do not have.
+
+    Upstream finding (not fixed here, out of scope -- reported instead):
+    the 153/225-island fragmentation this function bridges is itself
+    downstream of a documented obstacle-map defect, not primarily a medial-
+    axis artifact. F.Cu/B.Cu measure ~25% available area versus ~98% on the
+    inner layers on pcb/temper.kicad_pcb, matching the ~24.7% figure in
+    docs/solutions/best-practices/correct-diagnosis-unsafe-change-2026-07-28.md's
+    2026-07-29 update: ``obstacle_map.py``'s zone loop unions every zone on
+    a layer into that layer's obstacle polygon net-blind (regardless of
+    which net the pour belongs to), so outer-layer pours the router will
+    never actually route through still carve the medial axis into many
+    small, often genuinely wall-separated pockets. The inner layers, with
+    real pour-free area, produce only 3 islands. A correct fast bridging
+    algorithm over spurious islands is still bridging the wrong problem;
+    the durable fix is the already-scoped, not-yet-implemented "pours
+    become derived output" project
+    (docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md).
     """
     if G.number_of_nodes() == 0:
         return G
 
-    # Find connected components
-    # nx.connected_components returns a generator of sets
     components = list(nx.connected_components(G))
-
-    if len(components) <= 1:
+    n_components = len(components)
+    if n_components <= 1:
         return G  # Already connected
 
-    print(f"DEBUG: Skeleton has {len(components)} disconnected islands, bridging...")
+    print(f"DEBUG: Skeleton has {n_components} disconnected islands, bridging...")
 
-    # Build bridges between components
-    # We iteratively merge components until only one remains or we can't bridge any more
-    current_components = components
+    nodes = list(G.nodes())
+    positions = np.asarray(nodes, dtype=float)
+    node_index = {node: i for i, node in enumerate(nodes)}
 
-    while len(current_components) > 1:
-        best_bridge = None
-        best_distance = float("inf")
+    comp_id = np.empty(len(nodes), dtype=np.int64)
+    for cid, comp in enumerate(components):
+        for node in comp:
+            comp_id[node_index[node]] = cid
 
-        # Find closest pair of nodes between any two components
-        # This is O(N^2) worst case but N is small (<2000 nodes)
-        for i in range(len(current_components)):
-            for j in range(i + 1, len(current_components)):
-                comp_a = current_components[i]
-                comp_b = current_components[j]
+    uf = _UnionFind(n_components)
+    merges = 0
 
-                for node_a in comp_a:
-                    for node_b in comp_b:
-                        # Nodes are (x, y) tuples
-                        dist = ((node_a[0] - node_b[0]) ** 2 + (node_a[1] - node_b[1]) ** 2) ** 0.5
+    tree = cKDTree(positions)
+    pairs = tree.query_pairs(r=max_bridge_distance, output_type="ndarray")
 
-                        if dist < best_distance:
-                            best_distance = dist
-                            best_bridge = (node_a, node_b, i, j)
+    if len(pairs) > 0:
+        ci_all = comp_id[pairs[:, 0]]
+        cj_all = comp_id[pairs[:, 1]]
+        cross_mask = ci_all != cj_all
+        cross_pairs = pairs[cross_mask]
 
-        if best_bridge is None or best_distance > max_bridge_distance:
-            print(
-                f"DEBUG: Warning: Cannot bridge islands (min distance: {best_distance:.1f}mm > {max_bridge_distance}mm)"
+        if len(cross_pairs) > 0:
+            cand_dist = np.linalg.norm(
+                positions[cross_pairs[:, 0]] - positions[cross_pairs[:, 1]], axis=1
             )
-            break
+            order = np.argsort(cand_dist, kind="stable")
+            cross_pairs = cross_pairs[order]
+            cand_dist = cand_dist[order]
 
-        # Add bridge edge
-        node_a, node_b, comp_i, comp_j = best_bridge
-        G.add_edge(node_a, node_b, weight=best_distance)
-        print(f"DEBUG: Added bridge: {best_distance:.2f}mm")
+            # Validate every candidate's geometry in one vectorized batch
+            # up front (see _bridge_validity_mask's docstring for why this
+            # beats a per-candidate check by ~13x) -- the Kruskal loop below
+            # then does a plain boolean-array lookup per candidate instead
+            # of a shapely call, so it stays cheap even at O(10^6)
+            # candidates with no need to bound how many are attempted per
+            # component pair.
+            valid_mask = _bridge_validity_mask(
+                available_area,
+                positions[cross_pairs[:, 0]],
+                positions[cross_pairs[:, 1]],
+            )
 
-        # Re-compute components to reflect the merge
-        # (Naive re-compute is safer than manual set merging to keep logic simple)
-        current_components = list(nx.connected_components(G))
+            for pos in range(len(cross_pairs)):
+                if not valid_mask[pos]:
+                    continue
+                i, j = int(cross_pairs[pos, 0]), int(cross_pairs[pos, 1])
+                ci, cj = uf.find(comp_id[i]), uf.find(comp_id[j])
+                if ci == cj:
+                    continue
+                d = float(cand_dist[pos])
+                a, b = nodes[i], nodes[j]
+                G.add_edge(a, b, weight=d)
+                uf.union(ci, cj)
+                merges += 1
+                print(f"DEBUG: Added bridge: {d:.2f}mm")
+                if merges == n_components - 1:
+                    break
+
+    if merges < n_components - 1:
+        n_remaining = len({uf.find(c) for c in comp_id})
+        print(
+            f"DEBUG: Warning: Cannot bridge all islands within "
+            f"{max_bridge_distance}mm ({n_remaining} groups remain)"
+        )
 
     return G
 

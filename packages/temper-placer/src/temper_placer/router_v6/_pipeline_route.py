@@ -217,6 +217,25 @@ def _build_clause_origin(model: ConstraintModel) -> list[str]:
 def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
     """Run Stage 3: Topological Routing."""
 
+    # `#871` net-batching prototype: solve Stage 3's SAT model in batches
+    # of `self.net_batch_size` nets instead of one monolithic model.
+    # Checked first/takes priority over enable_bundling/max_sat_nets --
+    # see RouterV6Pipeline.__init__'s enable_net_batching docstring.
+    if getattr(self, "enable_net_batching", False):
+        from temper_placer.router_v6.net_batching import run_net_batched_stage3
+
+        stage3_output, batch_results = run_net_batched_stage3(
+            pcb,
+            stage2,
+            batch_size=self.net_batch_size,
+            enable_geographic_pruning=self.enable_geographic_pruning,
+            sat_conflict_limit=self.sat_conflict_limit,
+            sat_time_limit_ms=self.sat_time_limit_ms,
+            verbose=self.verbose,
+        )
+        self.last_batch_results = batch_results
+        return stage3_output
+
     net_names = [net.name for net in pcb.nets]
     diff_pairs = infer_differential_pairs(net_names)
 

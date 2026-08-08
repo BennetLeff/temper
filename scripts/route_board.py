@@ -101,7 +101,13 @@ def strip_existing_copper(content: str) -> tuple[str, int]:
 
 
 def route_once(
-    pcb_path: Path, rules_path: Path, *, keep_existing_copper: bool = False
+    pcb_path: Path,
+    rules_path: Path,
+    *,
+    keep_existing_copper: bool = False,
+    enable_geographic_pruning: bool = False,
+    enable_net_batching: bool = False,
+    net_batch_size: int = 10,
 ) -> dict[str, Any]:
     """Run one full route_pcb() pass and return measured results.
 
@@ -144,6 +150,9 @@ def route_once(
         # it is reporting-only, does not affect pathfinding, and the full
         # DFM bundle costs ~6-7x routing wall time (see
         # docs/evidence/2026-07-26-manufacturing-drc-scalability.md).
+        enable_geographic_pruning=enable_geographic_pruning,
+        enable_net_batching=enable_net_batching,
+        net_batch_size=net_batch_size,
     )
     wall_s = time.perf_counter() - t0
 
@@ -151,6 +160,22 @@ def route_once(
     segments = content.count("(segment ")
     vias = content.count("(via ")
     zones = content.count("(zone ")
+
+    # Topology-level ("Stage 3 solved") vs copper-level ("Stage 4 + zone
+    # regen actually emitted geometry") outcome, cross-checked -- see
+    # temper_placer.router_v6.topology_copper_audit's module docstring.
+    # This is the check that makes net_batching's "N/110 nets fell back"
+    # trace line (topology-only) unable to read fully green while nets
+    # silently emit no copper: the two are now reported side by side.
+    copper_audit_report = ""
+    unexplained_copper_gap: list[str] = []
+    if content and result.topology_solved_nets:
+        from temper_placer.router_v6.topology_copper_audit import audit_topology_vs_copper
+
+        net_pins = {n.name: list(n.pins) for n in netlist.nets}
+        audit = audit_topology_vs_copper(result.topology_solved_nets, content, net_pins)
+        copper_audit_report = audit.format_report()
+        unexplained_copper_gap = audit.unexplained_gap
 
     unrouted = len(result.unrouted_nets)
     completion = result.completion_rate
@@ -165,6 +190,30 @@ def route_once(
         attempted = unrouted
     routed = attempted - unrouted
 
+    # The printed "routed/attempted (completion%)" denominator is NOT the
+    # board's total net count -- it is PathfindingResult.success_count +
+    # failure_count, which only ever includes
+    # `[n for n in net_order if _should_route(n)]`
+    # (_astar_reconstruct.py). `_should_route` excludes power/ground/HV
+    # nets from Stage 4's A* entirely (comment: "handled by zone pours,
+    # not path routing"), so they never enter this ratio's numerator OR
+    # denominator -- not counted as routed, not counted as failed, simply
+    # absent. MEASURED on pcb/temper.kicad_pcb (2026-08-08): 12 of 110
+    # nets are excluded this way, which is exactly why net_batching's own
+    # trace says "110 nets" while this line says ".../98" -- two different
+    # universes, silently, with no note that they differ. Reported here so
+    # that shift is visible instead of read as attrition.
+    total_router_nets = len(netlist.nets)
+    should_route_excluded_nets: list[str] = []
+    try:
+        from temper_placer.router_v6._net_policy import _should_route
+
+        should_route_excluded_nets = sorted(
+            n.name for n in netlist.nets if not _should_route(n.name)
+        )
+    except ImportError:
+        pass
+
     return {
         "wall_s": wall_s,
         "completion_rate": completion,
@@ -176,6 +225,10 @@ def route_once(
         "vias": vias,
         "zones": zones,
         "routed_pcb_content": content,
+        "copper_audit_report": copper_audit_report,
+        "unexplained_copper_gap": unexplained_copper_gap,
+        "total_router_nets": total_router_nets,
+        "should_route_excluded_nets": should_route_excluded_nets,
     }
 
 
@@ -188,12 +241,37 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
     )
 
 
-def run_single(pcb_path: Path, rules_path: Path, output_path: Path) -> int:
+def run_single(
+    pcb_path: Path,
+    rules_path: Path,
+    output_path: Path,
+    *,
+    enable_geographic_pruning: bool = False,
+    enable_net_batching: bool = False,
+    net_batch_size: int = 10,
+) -> int:
     print(f"Routing {pcb_path} ...")
-    r = route_once(pcb_path, rules_path)
+    r = route_once(
+        pcb_path,
+        rules_path,
+        enable_geographic_pruning=enable_geographic_pruning,
+        enable_net_batching=enable_net_batching,
+        net_batch_size=net_batch_size,
+    )
     print(_format_run("Result", r))
     if r["unrouted_nets"]:
         print(f"Unrouted ({r['unrouted']}): {', '.join(sorted(r['unrouted_nets']))}")
+    if r["should_route_excluded_nets"]:
+        n_excl = len(r["should_route_excluded_nets"])
+        print(
+            f"Note: the {r['attempted']}-net denominator above is "
+            f"{r['total_router_nets']} total nets minus {n_excl} excluded "
+            f"from Stage 4's A* entirely by _should_route() (power/ground/HV "
+            f"nets, presumed zone-covered) -- not counted as routed or "
+            f"failed: {', '.join(r['should_route_excluded_nets'])}"
+        )
+    if r["copper_audit_report"]:
+        print(r["copper_audit_report"])
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(r["routed_pcb_content"], encoding="utf-8")
@@ -201,7 +279,9 @@ def run_single(pcb_path: Path, rules_path: Path, output_path: Path) -> int:
     return 0
 
 
-def _run_worker_subprocess(pcb_path: Path, rules_path: Path) -> dict[str, Any]:
+def _run_worker_subprocess(
+    pcb_path: Path, rules_path: Path, *, enable_geographic_pruning: bool = False
+) -> dict[str, Any]:
     """Run one route_once() in a *fresh child process* and return its result.
 
     Deliberately a subprocess, not an in-process loop: the router is always
@@ -221,14 +301,17 @@ def _run_worker_subprocess(pcb_path: Path, rules_path: Path) -> dict[str, Any]:
     ) as tmp:
         out_path = Path(tmp.name)
     try:
+        cmd = [
+            sys.executable,
+            str(Path(__file__).resolve()),
+            "--_worker-output", str(out_path),
+            "--pcb", str(pcb_path),
+            "--rules", str(rules_path),
+        ]
+        if enable_geographic_pruning:
+            cmd.append("--pruning")
         proc = subprocess.run(
-            [
-                sys.executable,
-                str(Path(__file__).resolve()),
-                "--_worker-output", str(out_path),
-                "--pcb", str(pcb_path),
-                "--rules", str(rules_path),
-            ],
+            cmd,
             capture_output=True,
             text=True,
             env=os.environ.copy(),
@@ -244,17 +327,22 @@ def _run_worker_subprocess(pcb_path: Path, rules_path: Path) -> dict[str, Any]:
         out_path.unlink(missing_ok=True)
 
 
-def run_measurement(pcb_path: Path, rules_path: Path, n: int) -> int:
+def run_measurement(
+    pcb_path: Path, rules_path: Path, n: int, *, enable_geographic_pruning: bool = False
+) -> int:
     hashseed = os.environ.get("PYTHONHASHSEED")
     print(
         f"Routing {pcb_path} {n} time(s) from identical input, each run a "
-        f"fresh process (PYTHONHASHSEED={hashseed!r}) ..."
+        f"fresh process (PYTHONHASHSEED={hashseed!r}, "
+        f"pruning={enable_geographic_pruning}) ..."
     )
     completions: list[float] = []
     routed_counts: list[int] = []
     unrouted_sets: list[frozenset[str]] = []
     for i in range(1, n + 1):
-        r = _run_worker_subprocess(pcb_path, rules_path)
+        r = _run_worker_subprocess(
+            pcb_path, rules_path, enable_geographic_pruning=enable_geographic_pruning
+        )
         completions.append(r["completion_rate"])
         routed_counts.append(r["routed"])
         unrouted_sets.append(frozenset(r["unrouted_nets"]))
@@ -316,6 +404,26 @@ def main(argv: list[str] | None = None) -> int:
         "--_worker-output", type=Path, default=None,
         help=argparse.SUPPRESS,  # internal: used by --runs's own subprocess dispatch
     )
+    parser.add_argument(
+        "--pruning", action="store_true",
+        help=(
+            "Pass enable_geographic_pruning=True to route_pcb() (U5 of "
+            "docs/plans/2026-08-07-001-feat-router-encoding-pruning-plan.md). "
+            "Default False -- unchanged full-encoding behavior."
+        ),
+    )
+    parser.add_argument(
+        "--net-batching", action="store_true",
+        help=(
+            "Pass enable_net_batching=True to route_pcb() (`#871` net-"
+            "batching prototype, see router_v6/net_batching.py). Default "
+            "False -- unchanged monolithic-model behavior."
+        ),
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=10,
+        help="Nets per Stage 3 SAT batch when --net-batching is set (default 10).",
+    )
     args = parser.parse_args(argv)
 
     if not args.pcb.exists():
@@ -324,7 +432,13 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"Netclass rules file not found: {args.rules}")
 
     if args._worker_output is not None:
-        r = route_once(args.pcb, args.rules)
+        r = route_once(
+            args.pcb,
+            args.rules,
+            enable_geographic_pruning=args.pruning,
+            enable_net_batching=args.net_batching,
+            net_batch_size=args.batch_size,
+        )
         r.pop("routed_pcb_content", None)
         args._worker_output.write_text(json.dumps(r), encoding="utf-8")
         return 0
@@ -332,7 +446,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.runs is not None:
         if args.runs < 1:
             parser.error("--runs must be >= 1")
-        return run_measurement(args.pcb, args.rules, args.runs)
+        return run_measurement(
+            args.pcb, args.rules, args.runs, enable_geographic_pruning=args.pruning
+        )
 
     if args.output is None:
         parser.error(
@@ -348,7 +464,14 @@ def main(argv: list[str] | None = None) -> int:
             "This driver refuses to overwrite the input board, ever."
         )
 
-    return run_single(args.pcb, args.rules, args.output)
+    return run_single(
+        args.pcb,
+        args.rules,
+        args.output,
+        enable_geographic_pruning=args.pruning,
+        enable_net_batching=args.net_batching,
+        net_batch_size=args.batch_size,
+    )
 
 
 if __name__ == "__main__":
