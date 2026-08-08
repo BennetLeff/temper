@@ -456,5 +456,94 @@ def test_constraints_to_dict_matches_rust_constraint_set_schema() -> None:
     assert isinstance(result, list)
 
 
+# ---------------------------------------------------------------------------
+# Negative-path guards: the two tests above only prove the guard accepts a
+# GOOD payload without raising -- that is necessary but not sufficient
+# evidence the guard works ("a schema guard that has never been shown
+# rejecting a bad payload is not evidence"). These prove it actually
+# rejects a bad one, live, against the real installed extension -- not
+# reasoned about, not reverted-after-manual-check, permanently pinned so a
+# regression that silently disables the guard (e.g. an accidental
+# `#[serde(deny_unknown_fields)]` removal, or a `reject_unknown_keys` call
+# site deleted during a refactor) fails CI immediately.
+# ---------------------------------------------------------------------------
+
+
+def test_board_dict_rejects_unrecognized_via_key() -> None:
+    """The hand-rolled board_py_bridge.rs guard (reject_unknown_keys,
+    since this boundary is manual get_item() calls, not a serde Deserialize
+    -- deny_unknown_fields does not apply here) must reject a via dict
+    carrying the OLD pre-fix key name ("net_name" instead of "net") rather
+    than silently ignoring it and defaulting x/y/pad to 0.0/0.0/0.6."""
+    bad_board = {
+        "board": {"width_mm": 100.0, "height_mm": 100.0},
+        "components": [],
+        "nets": {},
+        "net_classes": {},
+        "vias": [
+            {
+                "net_name": "N1",  # pre-fix key name; extract_via wants "net"
+                "x": 5.0,
+                "y": 5.0,
+                "drill": 0.3,
+                "pad": 0.6,
+                "from_layer": "F.Cu",
+                "to_layer": "B.Cu",
+            }
+        ],
+    }
+    with pytest.raises(ValueError, match="net_name"):
+        _tdrc.run_drc(bad_board, {})
+
+
+def test_board_dict_rejects_unrecognized_top_level_key() -> None:
+    """A typo'd top-level board_dict key (e.g. a future rename that misses
+    one call site) must raise, not vanish into an ignored dict entry."""
+    bad_board = {
+        "board": {"width_mm": 100.0, "height_mm": 100.0},
+        "componentz": [],  # typo of "components"
+        "nets": {},
+        "net_classes": {},
+    }
+    with pytest.raises(ValueError, match="componentz"):
+        _tdrc.run_drc(bad_board, {})
+
+
+def test_constraints_dict_rejects_unrecognized_key() -> None:
+    """The serde #[serde(deny_unknown_fields)] guard on ConstraintSet must
+    reject an unrecognized top-level constraints_dict key. This is the
+    guard 337a2c2f's thermal_constraints fix relies on staying live --
+    before this remediation, an unrecognized key here (e.g. the legacy
+    pyclass's "component_groups", which has no serde ConstraintSet field)
+    was silently discarded by serde_json::from_value, not an error."""
+    minimal_board = {
+        "board": {"width_mm": 100.0, "height_mm": 100.0},
+        "components": [],
+        "nets": {},
+        "net_classes": {},
+    }
+    with pytest.raises(ValueError, match="component_groups|unknown field"):
+        _tdrc.run_drc(minimal_board, {"component_groups": []})
+
+
+def test_constraints_dict_rejects_unrecognized_nested_key() -> None:
+    """The deny_unknown_fields guard applies to nested constraint
+    sub-structs too, not just the top-level ConstraintSet -- a zone dict
+    carrying the legacy pyclass's "bounds"/"components" keys (real fields
+    on the pyclass ZoneDefinition, but not on the serde ZoneDefinition
+    build_constraint_set deserializes into) must raise."""
+    minimal_board = {
+        "board": {"width_mm": 100.0, "height_mm": 100.0},
+        "components": [],
+        "nets": {},
+        "net_classes": {},
+    }
+    bad_constraints = {
+        "zones": [{"name": "Z1", "net_classes": ["HV"], "bounds": [0, 0, 1, 1]}],
+    }
+    with pytest.raises(ValueError, match="bounds|unknown field"):
+        _tdrc.run_drc(minimal_board, bad_constraints)
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))
