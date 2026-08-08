@@ -55,6 +55,7 @@ import MAX31865 from "components.ato"
 import CST3015_100E from "components.ato"
 import IRM_10_15 from "components.ato"
 import PinHeader_1x02 from "components.ato"
+import JST_XH_B4B_XH_A from "components.ato"
 
 # Safety components
 import H11L1 from "components.ato"
@@ -2080,6 +2081,20 @@ module RTDSensing:
     adc.FORCE_N ~ rtd_force_n
     adc.RTDIN_P ~ rtd_sense_p
     adc.RTDIN_N ~ rtd_sense_n
+
+    # J_RTD1 (docs/CONNECTORS_AND_WIRING.md Sec 1, 2.3): the external PT100
+    # pan-probe connector these four force/sense conductors dead-ended
+    # without (docs/hardware/RTD_PROBE_INTERFACE_ANALYSIS.md). JST XH 4-pin,
+    # pinout 1:Bias+ 2:Sense+ 3:Sense- 4:Bias-, which the doc states maps
+    # 1:1 onto MAX31865 FORCE+/RTDIN+/RTDIN-/FORCE- -- verified directly
+    # against this module's own adc.FORCE_P/FORCE_N/RTDIN_P/RTDIN_N wiring
+    # immediately above before wiring the connector, not assumed from the
+    # doc alone.
+    j_rtd1 = new JST_XH_B4B_XH_A
+    j_rtd1.p1 ~ rtd_force_p   # Bias+  = MAX31865 FORCE+
+    j_rtd1.p2 ~ rtd_sense_p   # Sense+ = MAX31865 RTDIN+
+    j_rtd1.p3 ~ rtd_sense_n   # Sense- = MAX31865 RTDIN-
+    j_rtd1.p4 ~ rtd_force_n   # Bias-  = MAX31865 FORCE-
 
 module OCPComparator:
     """Over-current protection comparator, 50A threshold.

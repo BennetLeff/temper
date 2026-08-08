@@ -13,7 +13,7 @@
 # to triage, at gate-introduction time (2026-08-07) -- see the gate's own
 # report for the full list and severity triage:
 #
-#   - 27 of the 31 single-pin-net findings not listed below: 11 unused
+#   - 23 of the 27 single-pin-net findings not listed below: 11 unused
 #     ESP32-S3 GPIO/IO pins on U27 (gpio18/21/35/36/37, io40/41/42/45/46/48,
 #     tx, rx) and 6 spare logic-gate inputs on U23/U24/U25 (SN74HC4075/
 #     SN74HC00 unused gate legs) -- likely benign (normal MCU/logic-gate
@@ -24,15 +24,25 @@
 #     (main.ato:927-928) but nothing else in elec/src connects to either
 #     net -- no USB connector component exists anywhere in the design. This
 #     looks like an incomplete/missing USB circuit, not a benign spare pin.
-#   - rtd_force_p/rtd_force_n/rtd_sense_p/rtd_sense_n (U9.8/.12/.10/.11):
-#     MAX31865's 4-wire RTD measurement pins are wired only at the ADC IC
-#     itself -- no RTD probe / external connector exists anywhere in the
-#     design. The analog sensing front-end has no physical sensor
-#     interface wired to it.
+#     (docs/hardware/RTD_PROBE_INTERFACE_ANALYSIS.md Sec 4 separately
+#     confirms this is vestigial MCU wiring with no documented role and no
+#     gate depends on it -- left live rather than allowlisted anyway,
+#     because "vestigial" is a design-intent judgment, not a netlist fact
+#     this gate can verify.)
 #   - rtd_pan.rail_monitor-outb (U14.6), safety.uvlo_logic.mon-outb (U21.6):
 #     TPS3700 dual-window-supervisor OUTB pins, each unused (only OUTA is
 #     wired for both instances) -- plausibly intentional (single-window use
 #     of a dual-window part) but not confirmed against a design note.
+#
+#   RESOLVED 2026-08-07 (not allowlisted -- fixed at the source, per
+#   docs/hardware/RTD_PROBE_INTERFACE_ANALYSIS.md's recommendation):
+#   rtd_force_p/rtd_force_n/rtd_sense_p/rtd_sense_n (previously U9.8/.12/
+#   .10/.11 single-pin) are no longer single-pin nets. J_RTD1, a 4-pin JST
+#   XH connector (elec/src/modules.ato RTDSensing, MPN B4B-XH-A(LF)(SN),
+#   matching docs/CONNECTORS_AND_WIRING.md's J_RTD1 spec), now terminates
+#   each of the four MAX31865 force/sense pins. This entry documents why
+#   they are absent from both the finding list and this allowlist, not
+#   suppressed -- the underlying gap was closed, not hidden.
 #
 allowlist:
   # --- Single-pin nets: explicitly-documented no-connect pins ---------

@@ -832,6 +832,29 @@ component PinHeader_1x02:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component JST_XH_B4B_XH_A:
+    """4-position JST XH-series wire-to-board header, 2.50mm pitch, vertical
+    THT. Board-side half of docs/CONNECTORS_AND_WIRING.md's J_RTD1/J_RTD2
+    (Pan/Heatsink Sensor); mates with JST XHP-4 (crimp housing).
+
+    VERIFIED 2026-08-07: JST B4B-XH-A(LF)(SN) is a real, orderable JST
+    Sales America Inc. part -- DigiKey 455-2249-ND / product ID 1651047,
+    "Connector Header Through Hole 4 position 0.098" (2.50mm)" -- confirmed
+    by DigiKey product-page listing, not by naming-pattern similarity alone.
+    Matches the footprint already shipped in KiCad's own
+    Connector_JST.pretty library
+    (JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod).
+    """
+    designator_prefix = "J"
+    footprint = "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
+    mpn = "B4B-XH-A(LF)(SN)"
+    manufacturer = "JST Sales America Inc."
+
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+
 component TestPoint:
     """Surface mount or through-hole test point"""
     designator_prefix = "TP"
