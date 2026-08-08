@@ -430,7 +430,7 @@ class TestDRCProxyScoreDifferential:
         pointless and the differential above would pass for the wrong reason.
         This pins that they genuinely differ on the corpus we test.
         """
-        rng = np.random.default_rng(3)
+        rng = np.random.default_rng(0)
         n = 40  # 780 pairs — well past the 128-element blocksize
         positions, hw, hh = _random_case(rng, n, np.float64)
         # Reproduce the oracle's array pipeline, then sum the two ways.
