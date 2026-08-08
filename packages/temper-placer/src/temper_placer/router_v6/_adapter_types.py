@@ -110,6 +110,16 @@ class RoutingResult:
     routed_pcb_content: str | None = None
     enable_zone_pours: bool = False
     connectivity: dict[str, Any] | None = None
+    # Net names Stage 3 (net-batched or monolithic) produced a NetTopology
+    # for -- i.e. what "solved" means today, BEFORE Stage 4 tries to turn
+    # that topology into physical copper. Exposed so a caller (e.g.
+    # scripts/route_board.py) can run
+    # topology_copper_audit.audit_topology_vs_copper() against
+    # routed_pcb_content and see the topology-level and copper-level
+    # outcomes diverge, instead of only the topology-level "solved" count.
+    # See topology_copper_audit.py's module docstring for why the two can
+    # disagree.
+    topology_solved_nets: list[str] = field(default_factory=list)
     # Always [] as of docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md:
     # no net class produces a forced segment anymore (all fail closed).
     # Left in place -- removing it is a larger API-surface change tracked

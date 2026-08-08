@@ -1076,7 +1076,17 @@ def run_net_batched_stage3(
             f"[batch-trace] done: {n_batches} batches, {n_sat_batches} solved "
             f"at batch level, {n_crashed_batches} batch-level crashes, "
             f"{len(all_failed_nets)}/{len(nets)} nets fell back to Stage 4's "
-            f"existing no-topology path, total_wall_s={total_wall:.2f}",
+            f"existing no-topology path, total_wall_s={total_wall:.2f}. "
+            f"NOTE: this counts TOPOLOGY only (a channel-graph assignment "
+            f"from Stage 3's SAT solve) -- it is not a copper/completion "
+            f"metric. A net counted 'solved' here can still emit zero "
+            f"segments/vias/zones once Stage 4's clearance-aware A* runs "
+            f"(fails closed rather than forcing an illegal segment) or if "
+            f"it is excluded from A* entirely by _should_route without "
+            f"being zone-pour-eligible. See "
+            f"temper_placer.router_v6.topology_copper_audit for the "
+            f"copper-level cross-check (route_board.py prints it as "
+            f"'[copper-audit] ...' alongside this line).",
             file=sys.stderr,
             flush=True,
         )

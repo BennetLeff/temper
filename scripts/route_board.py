@@ -161,6 +161,22 @@ def route_once(
     vias = content.count("(via ")
     zones = content.count("(zone ")
 
+    # Topology-level ("Stage 3 solved") vs copper-level ("Stage 4 + zone
+    # regen actually emitted geometry") outcome, cross-checked -- see
+    # temper_placer.router_v6.topology_copper_audit's module docstring.
+    # This is the check that makes net_batching's "N/110 nets fell back"
+    # trace line (topology-only) unable to read fully green while nets
+    # silently emit no copper: the two are now reported side by side.
+    copper_audit_report = ""
+    unexplained_copper_gap: list[str] = []
+    if content and result.topology_solved_nets:
+        from temper_placer.router_v6.topology_copper_audit import audit_topology_vs_copper
+
+        net_pins = {n.name: list(n.pins) for n in netlist.nets}
+        audit = audit_topology_vs_copper(result.topology_solved_nets, content, net_pins)
+        copper_audit_report = audit.format_report()
+        unexplained_copper_gap = audit.unexplained_gap
+
     unrouted = len(result.unrouted_nets)
     completion = result.completion_rate
     # RoutingResult exposes completion_rate and unrouted_nets but not the
@@ -174,6 +190,30 @@ def route_once(
         attempted = unrouted
     routed = attempted - unrouted
 
+    # The printed "routed/attempted (completion%)" denominator is NOT the
+    # board's total net count -- it is PathfindingResult.success_count +
+    # failure_count, which only ever includes
+    # `[n for n in net_order if _should_route(n)]`
+    # (_astar_reconstruct.py). `_should_route` excludes power/ground/HV
+    # nets from Stage 4's A* entirely (comment: "handled by zone pours,
+    # not path routing"), so they never enter this ratio's numerator OR
+    # denominator -- not counted as routed, not counted as failed, simply
+    # absent. MEASURED on pcb/temper.kicad_pcb (2026-08-08): 12 of 110
+    # nets are excluded this way, which is exactly why net_batching's own
+    # trace says "110 nets" while this line says ".../98" -- two different
+    # universes, silently, with no note that they differ. Reported here so
+    # that shift is visible instead of read as attrition.
+    total_router_nets = len(netlist.nets)
+    should_route_excluded_nets: list[str] = []
+    try:
+        from temper_placer.router_v6._net_policy import _should_route
+
+        should_route_excluded_nets = sorted(
+            n.name for n in netlist.nets if not _should_route(n.name)
+        )
+    except ImportError:
+        pass
+
     return {
         "wall_s": wall_s,
         "completion_rate": completion,
@@ -185,6 +225,10 @@ def route_once(
         "vias": vias,
         "zones": zones,
         "routed_pcb_content": content,
+        "copper_audit_report": copper_audit_report,
+        "unexplained_copper_gap": unexplained_copper_gap,
+        "total_router_nets": total_router_nets,
+        "should_route_excluded_nets": should_route_excluded_nets,
     }
 
 
@@ -217,6 +261,17 @@ def run_single(
     print(_format_run("Result", r))
     if r["unrouted_nets"]:
         print(f"Unrouted ({r['unrouted']}): {', '.join(sorted(r['unrouted_nets']))}")
+    if r["should_route_excluded_nets"]:
+        n_excl = len(r["should_route_excluded_nets"])
+        print(
+            f"Note: the {r['attempted']}-net denominator above is "
+            f"{r['total_router_nets']} total nets minus {n_excl} excluded "
+            f"from Stage 4's A* entirely by _should_route() (power/ground/HV "
+            f"nets, presumed zone-covered) -- not counted as routed or "
+            f"failed: {', '.join(r['should_route_excluded_nets'])}"
+        )
+    if r["copper_audit_report"]:
+        print(r["copper_audit_report"])
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(r["routed_pcb_content"], encoding="utf-8")

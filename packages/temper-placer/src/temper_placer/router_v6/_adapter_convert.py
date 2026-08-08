@@ -807,6 +807,11 @@ def _build_routing_result(
 
         connectivity = connectivity_preflight(routed_content, pad_positions)
 
+    stage3 = getattr(result, "stage3", None)
+    topology_graph = getattr(stage3, "topology_graph", None)
+    net_topologies = getattr(topology_graph, "net_topologies", None) or {}
+    topology_solved_nets = list(net_topologies.keys())
+
     return RoutingResult(
         completion_rate=result.completion_rate,
         unrouted_nets=unrouted_nets,
@@ -815,6 +820,7 @@ def _build_routing_result(
         routed_pcb_content=routed_content,
         connectivity=connectivity,
         forced_segment_nets=forced_segment_nets,
+        topology_solved_nets=topology_solved_nets,
     )
 
 
