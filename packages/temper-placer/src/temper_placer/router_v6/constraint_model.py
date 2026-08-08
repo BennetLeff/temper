@@ -113,6 +113,33 @@ class ViaVar(Variable):
     """
     Variable representing if a via exists for a net at a specific location.
     via[net_id, location_id]
+
+    **Currently unconstrained -- not bundled, by design (2026-08-07,
+    docs/evidence/2026-08-07-via-var-characterization.md).** Before adding
+    bundling support for this variable (the same treatment
+    ``bundle_analyzer.py`` gives ``NetChannelVar``), an audit of every
+    ``Constraint`` subclass in this file and every ``InternalConstraint``
+    variant in ``temper-rust-router-core/src/types.rs`` found **none of
+    them ever reference a ``ViaVar``** -- ``CapacityConstraint``,
+    ``DiffPairConstraint``, ``LayerConstraint``, and
+    ``ChannelSeparationConstraint`` (and their Rust mirrors) only ever
+    hold ``NetChannelVar``/bundle-channel terms. ``extract_topology``
+    (``extraction.rs``) also only parses ``uses_``-prefixed solved
+    variable names -- a ``via_N...`` name never matches, so a via var's
+    solved value (arbitrary, since nothing constrains it) is never read
+    back either. Separately, the pipeline's actual physical via placement
+    (``via_placement.place_vias``, Stage 4) derives via locations directly
+    from A*-pathfinding layer transitions, entirely independent of this
+    SAT variable. Net effect: today, a ``ViaVar`` is a free boolean that
+    costs a CNF variable slot and Python construction memory and
+    influences nothing. Bundling would only be a sound optimization of a
+    *load-bearing* term; there is no load here to bear, so the higher-
+    leverage, equally-sound fix is not creating these variables at all
+    (see ``ModelBuilder.enable_via_vars``) until some future feature
+    (e.g. via-density/drill-spacing capacity) actually adds a constraint
+    that consumes them -- at which point this docstring's "unconstrained"
+    claim would need updating alongside that feature, and bundling would
+    become a live question worth re-asking.
     """
 
     net_idx: int
@@ -479,6 +506,7 @@ class ModelBuilder:
         enable_bundling: bool = False,
         bundle_manifest=None,
         enable_geographic_pruning: bool = False,
+        enable_via_vars: bool = False,
     ):
         self.skeletons = skeletons or {}
         self.nets = nets
@@ -490,6 +518,18 @@ class ModelBuilder:
         self.enable_bundling = enable_bundling
         self.bundle_manifest = bundle_manifest
         self.enable_geographic_pruning = enable_geographic_pruning
+        # Default False: see ViaVar's own docstring for the audit this
+        # relies on (2026-08-07). No Constraint subclass here, no
+        # InternalConstraint variant in the Rust encoder, and no reader in
+        # extract_topology ever references a ViaVar -- and Stage 4's real
+        # via placement is computed independently from A* paths. Until a
+        # feature that actually consumes ViaVar exists, creating ~110x
+        # (unique node count) of them is pure CNF-var and Python-construction
+        # overhead with zero effect on solve correctness or output geometry
+        # (~16.9M of them on the production board -- comparable in scale to
+        # the entire bundled channel-var term). Opt in explicitly once a
+        # real consumer exists.
+        self.enable_via_vars = enable_via_vars
         self.model = ConstraintModel()
 
         # Build net name to index mapping for fast lookup
@@ -501,7 +541,8 @@ class ModelBuilder:
         """
         t0 = time.perf_counter() if os.environ.get("TEMPER_MODEL_TRACE") else None
         self._create_channel_vars()
-        self._create_via_vars()
+        if self.enable_via_vars:
+            self._create_via_vars()
         self._create_capacity_constraints()
         self._create_diff_pair_constraints()
         self._create_layer_constraints()
@@ -708,12 +749,31 @@ class ModelBuilder:
     def _create_via_vars(self):
         """Create variables for via placement.
 
+        Only called from ``build()`` when ``enable_via_vars`` is True
+        (default False — see ``ModelBuilder.__init__`` and ``ViaVar``'s own
+        docstring for why: these variables are unconstrained and unread by
+        every consumer audited 2026-08-07).
+
+        Count formula: ``len(self.nets) * n_unique_node_locations``, where
+        ``n_unique_node_locations`` is the number of distinct ``(x, y)``
+        coordinates across the union of every layer skeleton's graph nodes
+        (deduplicated across layers, since a via's location is layer-
+        independent — it is the thing that *connects* layers). On the
+        204,490-edge production skeleton this is 153,432 unique locations x
+        110 nets ~= 16.9M variables — comparable in scale to the entire
+        18,404,100-variable bundled channel-var term this same task's sibling
+        work reduced.
+
         When ``enable_geographic_pruning`` is True, a ``ViaVar`` is
         created only if the via-anchor node is within geographic range
         of the net's pins (the same ``_is_candidate_edge`` predicate,
         using a zero-length "edge" at the node position — so
         ``_point_to_segment_distance`` degenerates to point-to-point
-        distance, which is the intended behaviour).
+        distance, which is the intended behaviour). Measured elsewhere
+        (docs/evidence/2026-08-07-pruned-encoding-measurement.md) this
+        pruning is ~0% effective on the production board (nets are not
+        spatially local), so it would not meaningfully shrink this count
+        even if ``enable_via_vars`` were turned back on.
         """
         # Collect all unique node locations across all skeletons
         all_nodes = set()
