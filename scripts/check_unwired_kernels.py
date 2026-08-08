@@ -66,7 +66,6 @@ from __future__ import annotations
 import argparse
 import ast
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -88,6 +87,8 @@ ADD_CLASS = re.compile(
 # `#[pyo3(name = "...")]` renames the Python-visible symbol.
 PYO3_NAME = re.compile(r'#\[pyo3\([^)]*name\s*=\s*"([^"]+)"')
 PYCLASS_NAME = re.compile(r'#\[pyclass\([^)]*name\s*=\s*"([^"]+)"')
+# `#[pyfunction(name = "...")]` renames the Python-visible function.
+PYFUNCTION_NAME = re.compile(r'#\[pyfunction\([^)]*name\s*=\s*"([^"]+)"')
 
 
 def registered_symbols() -> dict[str, str]:
@@ -111,10 +112,12 @@ def registered_symbols() -> dict[str, str]:
     renames: dict[str, str] = {}
     for _rel, text in sources:
         renames.update(pyclass_renames(text))
+        renames.update(pyfunction_renames(text))
 
     for rel, text in sources:
         for m in ADD_FUNCTION.finditer(text):
-            out.setdefault(m.group(1), rel)
+            rust_name = m.group(1)
+            out.setdefault(renames.get(rust_name, rust_name), rel)
         for m in ADD_CLASS.finditer(text):
             rust_name = m.group(1)
             # A `#[pyclass(name = "X")]` is visible to Python as X, NOT as the
@@ -173,6 +176,32 @@ def registered_symbols_runtime() -> dict[str, str]:
     return out
 
 
+def _logical_lines(text: str) -> list[str]:
+    """Merge multi-line `#[...]` attributes into one logical line each.
+
+    `#[pyo3(signature = (\n  name = "X",\n))]` puts the `name` on a continuation
+    line; a line-by-line scan would either miss the rename or reset `pending`
+    before the `fn` it applies to. Joining the attribute's lines keeps both
+    rename regexes single-line.
+    """
+    out: list[str] = []
+    buf = ""
+    for line in text.splitlines():
+        s = line.strip()
+        if buf:
+            buf += " " + s
+            if line.rstrip().endswith("]"):
+                out.append(buf)
+                buf = ""
+        elif s.startswith("#[") and not line.rstrip().endswith("]"):
+            buf = s
+        else:
+            out.append(line)
+    if buf:
+        out.append(buf)
+    return out
+
+
 def pyclass_renames(text: str) -> dict[str, str]:
     """Rust type name -> Python-visible name, for `#[pyclass(name = "...")]`.
 
@@ -182,13 +211,42 @@ def pyclass_renames(text: str) -> dict[str, str]:
     """
     renames: dict[str, str] = {}
     pending: str | None = None
-    for line in text.splitlines():
+    for line in _logical_lines(text):
         s = line.strip()
         hit = PYCLASS_NAME.search(s) or PYO3_NAME.search(s)
         if hit:
             pending = hit.group(1)
             continue
         m = re.match(r"(?:pub\s+)?(?:struct|enum)\s+([A-Za-z_][A-Za-z0-9_]*)", s)
+        if m:
+            if pending:
+                renames[m.group(1)] = pending
+            pending = None
+        elif s and not s.startswith(("#[", "//", "///")):
+            pending = None
+    return renames
+
+
+def pyfunction_renames(text: str) -> dict[str, str]:
+    """Rust fn name -> Python-visible name, for `#[pyfunction(name = "...")]`.
+
+    Mirrors `pyclass_renames` for functions: the name attribute applies to the
+    `fn` that immediately follows it. Without this, the ledger keys an unwired
+    kernel by its Rust name and reports it unwired even when production calls
+    the renamed Python symbol -- measured 2026-08-08: 23 of 83 ledger entries
+    were wired-in-disguise (e.g. `snap_to_grid_py` -> `snap_to_grid`,
+    `validate_stackup_py` -> `validate_stackup`, the `parse_*`/`tag_*` ->
+    `pcl_*` family, `py_load_loop_collection` -> `load_loop_collection`).
+    """
+    renames: dict[str, str] = {}
+    pending: str | None = None
+    for line in _logical_lines(text):
+        s = line.strip()
+        hit = PYFUNCTION_NAME.search(s) or PYO3_NAME.search(s)
+        if hit:
+            pending = hit.group(1)
+            continue
+        m = re.match(r"(?:pub\s+)?(?:unsafe\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)", s)
         if m:
             if pending:
                 renames[m.group(1)] = pending
@@ -268,6 +326,15 @@ def production_references() -> tuple[set[str], list[str]]:
         for py in base.rglob("*.py"):
             p = str(py)
             if "/tests/" in p or "/test_" in p or p.endswith("_test.py"):
+                continue
+            if "phase5_" in p and p.endswith("_mutations.py"):
+                # Mutation-campaign drivers contain MUTATED copies of the
+                # pre-migration kernels (to verify the Rust differential
+                # catches behavior drift). They are adversarial harnesses,
+                # not production callers -- counting them makes genuinely
+                # unwired kernels look wired (measured 2026-08-08:
+                # is_via_position_valid / place_via_with_clearance were
+                # reported STALE_ENTRY via phase5_batch1_mutations.py).
                 continue
             if "/.venv/" in p or "/target" in p or "/_py_oracle" in p:
                 continue

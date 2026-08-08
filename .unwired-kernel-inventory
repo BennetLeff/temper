@@ -12,12 +12,10 @@ DrillDefinition	SURFACED by PR #839's AST rescan of this gate -- the previous te
 HypergraphBuildResult	unwired at time of recording; no reason given
 PyCompiler	unwired at time of recording; no reason given
 SkipExpr	SURFACED 2026-08-06 by the path-qualified registration fix. Registered as `wrap_pyfunction!(<module>::<fn>)`, so the old regex recorded the Rust MODULE name and never tracked this symbol at all -- it has been unwatched, not wired. Zero mentions in any production Python. Needs triage: deliberate omission vs a migration that stopped at 'the differential is green'.
-add_endpoint_nudge_py	unwired at time of recording; no reason given
 apply_suggestions_damped_py	SURFACED by PR #839's AST rescan of this gate -- the previous text scan matched the symbol name in comments and docstrings and reported it wired. Genuinely has no production caller. Reason for being unwired NOT yet established; needs triage (deliberate omission vs a migration that stopped at 'the differential is green').
-assign_components_to_slots_py	unwired at time of recording; no reason given
 build_adjacency_flat	unwired at time of recording; no reason given
 calculate_min_trace_width	unwired at time of recording; no reason given
-check_overconstrained	unwired at time of recording; no reason given
+classify_net_type_v6	exported probe from the net_classification io-types migration (merged 2026-08-08); router_v6/net_classification.py calls the specific helpers (_rs.is_ground_net / is_power_net_v6 / is_hv_net) and never the combined classifier -- wiring it would mean inventing a caller, not serving one.
 classify_nets_py	unwired at time of recording; no reason given
 closure_validate	unwired at time of recording; no reason given
 component_reach_py	unwired at time of recording; no reason given
@@ -46,47 +44,28 @@ evaluate_quality_py	SURFACED by PR #839's AST rescan of this gate -- the previou
 extract_config_refs_py	SURFACED 2026-08-06 by the path-qualified registration fix. Registered as `wrap_pyfunction!(<module>::<fn>)`, so the old regex recorded the Rust MODULE name and never tracked this symbol at all -- it has been unwatched, not wired. Zero mentions in any production Python. Needs triage: deliberate omission vs a migration that stopped at 'the differential is green'.
 extract_medial_axis_py	Exposed for the differential only. Production calls the SINGLE form extract_medial_axis_single_py (channel_skeleton.py:262); the batch form is invoked internally in Rust across the polygon list. Wiring it would mean inventing a Python caller, not serving one.
 is_available_py	unwired at time of recording; no reason given
-is_via_position_valid_py	unwired at time of recording; no reason given
-isolation_slot_aabb_py	SURFACED 2026-08-06 by the path-qualified registration fix. Registered as `wrap_pyfunction!(<module>::<fn>)`, so the old regex recorded the Rust MODULE name and never tracked this symbol at all -- it has been unwatched, not wired. Zero mentions in any production Python. Needs triage: deliberate omission vs a migration that stopped at 'the differential is green'.
+is_signal_net_v6	exported probe from the net_classification io-types migration (merged 2026-08-08); net_classification.py has no signal-net helper call site (signal classification flows through NetClassSpec.classify_net in core/net_types.py) -- differential/export-only, no production caller.
+is_via_position_valid	renamed probe (pyo3 name, via_placement.rs:106); router_v6/via_placement.py does its own thing -- no caller under either name (2026-08-08 unwired-kernel gate fix)
 net_currents	SURFACED by PR #839's AST rescan of this gate -- the previous text scan matched the symbol name in comments and docstrings and reported it wired. Genuinely has no production caller. Reason for being unwired NOT yet established; needs triage (deliberate omission vs a migration that stopped at 'the differential is green').
 net_priority_key_py	PR #839 -- NetPriority is no longer constructed anywhere: order_nets delegates wholesale to order_nets_py and nothing else in this repo builds or compares a NetPriority. Wiring this comparison probe would mean inventing a caller, not serving one.
 net_priority_lt_py	PR #839 -- same as net_priority_key_py: NetPriority has no real caller now that order_nets delegates wholesale.
 normalized_bundle_json	unwired at time of recording; no reason given
 numpy_pairwise_sum_py	unwired at time of recording; no reason given
-parse_axis	unwired at time of recording; no reason given
-parse_board_side	unwired at time of recording; no reason given
-parse_distance_with_unit	unwired at time of recording; no reason given
-parse_edge_type	unwired at time of recording; no reason given
-parse_metric	unwired at time of recording; no reason given
-parse_tier	unwired at time of recording; no reason given
-place_via_with_clearance_py	unwired at time of recording; no reason given
+place_via_with_clearance	renamed probe (via_placement.rs:123); router_v6/via_placement.py does its own thing -- no caller under either name (2026-08-08 unwired-kernel gate fix)
 points_centroid_winding	unwired at time of recording; no reason given
-py_load_loop_collection	unwired at time of recording; no reason given
-py_load_loop_from_dict	unwired at time of recording; no reason given
-py_load_loop_template	unwired at time of recording; no reason given
-py_load_netclass_rules	unwired at time of recording; no reason given
 py_sum	SURFACED by PR #839's AST rescan of this gate -- the previous text scan matched the symbol name in comments and docstrings and reported it wired. Genuinely has no production caller. Reason for being unwired NOT yet established; needs triage (deliberate omission vs a migration that stopped at 'the differential is green').
-recompute_plane_assignments_py	unwired at time of recording; no reason given
+radius_pairs_transform	scipy-removal kernel (temper-geometry bridge.rs, merged 2026-08-08 via scipy/router-purge); the router reaches the radius-pairs index through the Rust-side spatial-index path, not this transform probe -- no production Python caller shape exists.
 required_clearance_py	unwired at time of recording; no reason given
-sha256_hex_py	SURFACED 2026-08-06 by the path-qualified registration fix. Registered as `wrap_pyfunction!(<module>::<fn>)`, so the old regex recorded the Rust MODULE name and never tracked this symbol at all -- it has been unwatched, not wired. Zero mentions in any production Python. Needs triage: deliberate omission vs a migration that stopped at 'the differential is green'.
 slop_angle_between_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
 slop_distance_mm_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
 slop_load_traces_by_net_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
 slop_order_traces_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
 slop_vector_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
-snap_to_grid_py	unwired at time of recording; no reason given
 solve_faer_py	SURFACED 2026-08-06 by the path-qualified registration fix. Registered as `wrap_pyfunction!(<module>::<fn>)`, so the old regex recorded the Rust MODULE name and never tracked this symbol at all -- it has been unwatched, not wired. Zero mentions in any production Python. Needs triage: deliberate omission vs a migration that stopped at 'the differential is green'.
-tag_closure	unwired at time of recording; no reason given
-tag_le	unwired at time of recording; no reason given
-tag_to_component_refs	unwired at time of recording; no reason given
 tokenize	PR #839 -- no production caller. Hidden by the old text scan: the only production mention is the word 're-tokenize' in core/netlist.py's docstring, and the word-boundary regex treated the hyphen as a boundary.
 trace_current_table_1oz	unwired at time of recording; no reason given
-validate_stackup_py	unwired at time of recording; no reason given
 via_count_get_board_bbox_py	PR #750 quality-metrics cluster -- quality/via_count.py's classify_vias_from_parse (the real caller, used by validation/human_reference_extractor.py) is handed an already-parsed ParseResult, and the kernel's board-source boundary accepts only a scenario dict or a .kicad_pcb path, not a pre-parsed object; wiring here would break that caller or require hand-marshalling ParseResult into a scenario dict, duplicating an unused Rust-side conversion path. classify_vias_from_parse and this symbol's Python counterpart (_get_board_bbox) are left unwired together (2026-08-06 wiring); via_count_classify_vias_py itself IS wired, via the path-taking top-level functions.
 via_count_get_component_bboxes_py	PR #750 quality-metrics cluster -- same ParseResult-vs-path wire-format gap as via_count_get_board_bbox_py above (2026-08-06 wiring); left unwired alongside classify_vias_from_parse.
 via_count_is_via_in_bbox_py	PR #750 quality-metrics cluster -- same ParseResult-vs-path wire-format gap as via_count_get_board_bbox_py above (2026-08-06 wiring); left unwired alongside classify_vias_from_parse.
 via_count_is_via_near_board_edge_py	PR #750 quality-metrics cluster -- same ParseResult-vs-path wire-format gap as via_count_get_board_bbox_py above (2026-08-06 wiring); left unwired alongside classify_vias_from_parse.
-via_distance_py	unwired at time of recording; no reason given
-classify_net_type_v6	exported probe from the net_classification io-types migration (merged 2026-08-08); router_v6/net_classification.py calls the specific helpers (_rs.is_ground_net / is_power_net_v6 / is_hv_net) and never the combined classifier -- wiring it would mean inventing a caller, not serving one.
-is_signal_net_v6	exported probe from the net_classification io-types migration (merged 2026-08-08); net_classification.py has no signal-net helper call site (signal classification flows through NetClassSpec.classify_net in core/net_types.py) -- differential/export-only, no production caller.
-radius_pairs_transform	scipy-removal kernel (temper-geometry bridge.rs, merged 2026-08-08 via scipy/router-purge); the router reaches the radius-pairs index through the Rust-side spatial-index path, not this transform probe -- no production Python caller shape exists.
+via_distance	renamed probe (via_placement.rs:98); no caller under either name -- via distance computed in-line by the router (2026-08-08 unwired-kernel gate fix)
