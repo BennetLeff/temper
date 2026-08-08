@@ -25,13 +25,19 @@ out of scope for this migration.  ``_stitch_isolated_pads`` still calls the
 *live* (unmigrated) ``_zone_layers_for_net`` below, exactly as production
 does -- only its point-in-polygon/nearest-neighbour geometry moves to Rust.
 
-``_cluster_positions`` (scipy Ward-linkage hierarchical clustering) and
 ``_convex_hull_from_positions``'s ``shapely.buffer(margin, join_style=2)``
-step (GEOS mitre-join polygon offsetting) are NOT migrated -- see the
+step (GEOS mitre-join polygon offsetting) is NOT migrated -- see the
 JUSTIFIED-KEEP note in ``packages/temper-geometry/VERIFICATION.md`` ("Zone
-Pour Emission Geometry" section) for the measured evidence.  They stay on
+Pour Emission Geometry" section) for the measured evidence.  It stays on
 ``compute_zones_for_net``/``compute_zone_for_net`` in the live
-``zone_emission.py``, unpinned here because they are not being replaced.
+``zone_emission.py``, unpinned here because it is not being replaced.
+
+``_cluster_positions`` (scipy Ward-linkage hierarchical clustering) WAS
+migrated (2026-08-07, `kodama` crate) -- separately from the three
+functions this file pins, with its own oracle
+(``_zone_emission_clustering_py_oracle.py``) and differential
+(``test_zone_emission_clustering_rust_differential.py``). See
+``docs/evidence/2026-08-07-zone-emission-clustering-kodama-port.md``.
 """
 
 from __future__ import annotations

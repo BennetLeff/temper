@@ -31,10 +31,16 @@ Kernels covered
    ``_stitch_isolated_pads`` will, so this differential proves the
    composition, not just the raw kernel.
 
-NOT covered (JUSTIFIED-KEEP, not migrated -- see
-``packages/temper-geometry/VERIFICATION.md``): ``_cluster_positions`` (scipy
-Ward-linkage clustering) and ``_convex_hull_from_positions``'s
-``buffer(margin, join_style=2)`` step (GEOS mitre-join offsetting).
+NOT covered here: ``_cluster_positions`` (scipy Ward-linkage clustering) --
+migrated separately (2026-08-07) to ``hierarchical_clustering.rs``
+(`kodama`), with its own oracle/differential --
+``_zone_emission_clustering_py_oracle.py`` /
+``test_zone_emission_clustering_rust_differential.py`` -- and its own
+evidence doc,
+``docs/evidence/2026-08-07-zone-emission-clustering-kodama-port.md``.
+``_convex_hull_from_positions``'s ``buffer(margin, join_style=2)`` step
+(GEOS mitre-join offsetting) remains JUSTIFIED-KEEP, not migrated -- see
+``packages/temper-geometry/VERIFICATION.md``.
 """
 
 from __future__ import annotations

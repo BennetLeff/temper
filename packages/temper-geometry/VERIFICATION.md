@@ -1817,19 +1817,56 @@ routed through the full `_stitch_isolated_pads` composition, where
 constructing a real-geometry tie proved incidental to the point) in
 `test_tie_break_class_exists_direct_cKDTree_comparison`.
 
-### JUSTIFIED-KEEP: clustering and hull-buffer geometry (not migrated)
+### `_cluster_positions`: MIGRATED (2026-08-07) -- was JUSTIFIED-KEEP, premise did not survive re-triage
 
-`_cluster_positions` (scipy `linkage`/`fcluster`, Ward hierarchical
-clustering) and `_convex_hull_from_positions`'s `shapely.buffer(margin,
-join_style=2)` step (GEOS mitre-join polygon offsetting) were evaluated
-and NOT migrated in this slice:
+Previously JUSTIFIED-KEEP as a scipy library boundary in the same class as
+KTD8/KTD9 -- "the Ward-linkage NN-chain / Lance-Williams recurrence is a
+specific numerical algorithm to reimplement and independently validate
+bit-exact against scipy's own `_hierarchy.pyx`, not a closed-form
+transcription." `docs/evidence/2026-08-07-scipy-keeps-re-triage.md` re-ran
+that premise against the actual call sites (not the docstring) and found it
+did not survive scrutiny: `compute_zones_for_net` reduces every returned
+group to its own independent convex hull immediately -- nothing downstream
+reads a cluster label or scipy-internal cluster id, and
+`test_zone_emission.py`'s `TestDataInformedClustering` asserts only cluster
+*count*. The exactness bar this JUSTIFIED-KEEP was written against
+(bit-exact scipy internal tie-break reproduction) was never the actual
+contract.
 
-- **`_cluster_positions`**: a scipy library boundary in the same class as
-  KTD8/KTD9 (see the residual decision procedure in
-  `docs/wave4-discipline-contract.md`). The Ward-linkage NN-chain /
-  Lance-Williams recurrence is a specific numerical algorithm to
-  reimplement and independently validate bit-exact against scipy's own
-  `_hierarchy.pyx`, not a closed-form transcription.
+`docs/evidence/2026-08-07-zone-emission-clustering-kodama-port.md` ported
+`_cluster_positions` to `hierarchical_clustering.rs` (`kodama` crate, Ward
+linkage) after a differential spike, not by assumption:
+
+- `kodama`'s raw Ward dissimilarity values are bit-exact to scipy's own
+  `Z[:, 2]` column on every case checked (verified to full `f64` precision
+  printed, not just "close").
+- `kodama` has no `fcluster` equivalent; this port's own flat-cut
+  reconstruction (union-find over `kodama`'s `Dendrogram` steps) initially
+  used a `<` boundary comparison and mismatched scipy's partition on 4 of 12
+  real HighVoltage-class production-board nets -- traced to scipy's
+  `fcluster(criterion="distance")` treating a merge exactly AT the cut
+  threshold as INCLUDED (verified empirically:
+  `fcluster(Z, t=t, ...) == fcluster(Z, t=t+1e-9, ...) !=
+  fcluster(Z, t=t-1e-9, ...)` for a merge whose height is bit-exactly `t`).
+  Switching to `<=` reproduced scipy's partition exactly on all 12 real
+  nets, 300 synthetic clustered-data trials, and 6 symmetric/degenerate
+  stress configurations (perfect square, grid, duplicate points, collinear,
+  hexagon, two well-separated squares) -- 0 mismatches after the fix.
+- Emitted zone geometry (convex hull, clipped to the board outline) is area-
+  identical between the two arms on every real board net tested (0.00 mm^2
+  difference), not merely "within tolerance."
+- `kodama` builds for `wasm32-unknown-unknown` with zero extra dependencies
+  or feature wiring, verified directly.
+
+See the evidence doc for the full differential, real-board numbers, and the
+port decision. `_convex_hull_from_positions`'s `buffer()` step below is a
+separate, unrelated GEOS boundary and is unaffected by this port.
+
+### JUSTIFIED-KEEP: hull-buffer geometry (not migrated)
+
+`_convex_hull_from_positions`'s `shapely.buffer(margin, join_style=2)` step
+(GEOS mitre-join polygon offsetting) was evaluated and NOT migrated:
+
 - **`_convex_hull_from_positions`'s `buffer()` step**: measured directly
   (offline, not committed as a test) against an analytic mitre-offset
   reimplementation (outward-normal edge offset + adjacent-offset-line
@@ -1842,11 +1879,10 @@ and NOT migrated in this slice:
   `drc_inflate.rs`-documented `buffer(r, resolution=16)` JUSTIFIED-KEEP
   (round join instead of mitre join, same GEOS boundary, same conclusion).
 
-Both stay on `compute_zones_for_net`/`compute_zone_for_net` in
-`zone_emission.py`, unchanged, calling live `shapely`/`scipy`. Re-decidable
-per the discipline contract's residual procedure: a future spike with a
-validated from-scratch Ward-linkage or GEOS-mitre-buffer implementation can
-reopen this boundary.
+Stays on `_convex_hull_from_positions` in `zone_emission.py`, unchanged,
+calling live `shapely`. Re-decidable per the discipline contract's residual
+procedure: a future spike with a validated from-scratch GEOS-mitre-buffer
+implementation can reopen this boundary.
 
 ### PBT / Metamorphic Coverage
 

@@ -135,6 +135,12 @@ pub mod fixed_copper;
 // register().
 #[cfg(feature = "python")]
 pub mod zone_pour;
+// router_v6/zone_emission.py's `_cluster_positions`: Ward-linkage
+// hierarchical clustering + flat-cut, replacing
+// scipy.cluster.hierarchy.linkage/fcluster/pdist. See this module's own doc
+// comment for the consumer-contract verification, crate choice, and the
+// scipy-boundary tie-break semantics the flat-cut reconstruction depends on.
+pub mod hierarchical_clustering;
 // Wave 4, router_v6 core slice: the DRC constraint-geometry kernel behind
 // router_v6/constraints_geometry.py. Declared after creepage_check because
 // it reuses that module's CPython min/max replications.
@@ -202,6 +208,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::fixed_copper::register(m)?;
     crate::zone_pour::register(m)?;
     crate::channel_skeleton::register(m)?;
+    crate::hierarchical_clustering::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     m.add_class::<crate::persistent_radius_index::RadiusIndex>()?;
     Ok(())

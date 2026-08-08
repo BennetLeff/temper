@@ -40,6 +40,20 @@ rstar = "0.12"
 # libc/OS dependency, so it builds for wasm32 the same way temper-drc-rs's
 # unconditional (non-wasm-gated) `geo` dependency already does.
 geo = "0.28"
+# hierarchical_clustering.rs: Ward-linkage agglomerative clustering for
+# router_v6/zone_emission.py's `_cluster_positions`, replacing
+# scipy.cluster.hierarchy.linkage(method="ward")/fcluster/pdist. Pure Rust,
+# zero production dependencies of its own (verified: kodama's own Cargo.toml
+# declares dev-dependencies only), so it builds for wasm32-unknown-unknown
+# with no extra feature wiring -- confirmed directly against a throwaway
+# crate depending on kodama alone before adding it here. Last published
+# 2023-01-04 (no `fcluster`-equivalent flat-cut API -- this crate's own
+# hierarchical_clustering.rs implements that reconstruction), but the
+# linkage algorithm itself needs no further development: it is a closed,
+# well-specified numerical procedure (Ward/Lance-Williams recurrence),
+# verified bit-exact against scipy's own dissimilarity values on real board
+# geometry -- see docs/evidence/2026-08-07-zone-emission-clustering-kodama-port.md.
+kodama = "0.3"
 
 [features]
 # WASM tier R1 (plan 2026-08-03-002): pyo3 is gated behind the optional
