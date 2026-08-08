@@ -21,6 +21,7 @@ from __future__ import annotations
 from typing import TypeAlias
 
 import numpy as np
+from pydantic import BaseModel
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
@@ -50,6 +51,43 @@ def _rs() -> Any:
 
         _RS = temper_drc_rs
     return _RS
+
+
+def _constraint_value_to_plain(value: Any) -> Any:
+    """Recursively convert a ``constraints_config`` field into the plain
+    dict/list/str/int/float/bool/None shape ``temper_drc_rs.run_drc()``
+    understands.
+
+    ``context.constraints_config`` (``temper_placer._constraint_types.PlacementConstraints``)
+    fields such as ``isolation_barriers`` are lists of frozen pydantic
+    ``BaseModel`` instances (e.g. ``IsolationBarrier``), not dicts. The
+    PyO3 bridge on the Rust side
+    (``constraints::build_constraint_set``/``py_any_to_json_value`` in
+    ``packages/temper-drc-rs/src/constraints.rs``) only recognizes
+    dict/list/str/int/float/bool/None -- a raw pydantic object passed
+    through raises ``cannot convert Python value to JSON`` deep inside the
+    Rust boundary. Before this fix, that meant a YAML-configured
+    ``isolation_barriers`` entry could never reach ``IsolationBarrierCheck``
+    through this path even once the config schema/loader supported it: the
+    dict always carried objects `run_drc()` would reject, not the empty
+    default this code silently produced for every real run today (see
+    ``constraints::IsolationBarrier``'s doc comment in
+    ``packages/temper-drc-rs/src/constraints.rs``).
+    """
+    if isinstance(value, BaseModel):
+        # mode="json" is load-bearing, not cosmetic: several fields here
+        # (``y_span``, the new ``points``) are typed as ``tuple[...]`` on
+        # the pydantic model (the project's immutable-field convention),
+        # and PyO3's dict-to-JSON bridge on the Rust side only recognizes
+        # ``list``, not ``tuple`` -- ``model_dump()``'s default
+        # ``mode="python"`` would leave those as tuples and the same
+        # ``cannot convert Python value to JSON`` error would resurface
+        # one level down. ``mode="json"`` recursively coerces every
+        # nested tuple to a list.
+        return value.model_dump(mode="json")
+    if isinstance(value, (list, tuple)):
+        return [_constraint_value_to_plain(v) for v in value]
+    return value
 
 
 def _infer_package_type(footprint: str | None) -> str:
@@ -507,7 +545,7 @@ class DRCOracle:
             ):
                 val = getattr(config, key, None)
                 if val is not None:
-                    constraints_dict[key] = val
+                    constraints_dict[key] = _constraint_value_to_plain(val)
 
         return constraints_dict
 

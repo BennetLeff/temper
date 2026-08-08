@@ -59,15 +59,88 @@ pub struct NoiseDomain {
     pub max_parallel_run_mm: f64,
 }
 
-/// An isolation barrier line across the board.
+/// An isolation barrier across the board: either a straight line
+/// (`x_mm`/`y_span`, the original representation) or a piecewise-linear
+/// polyline (`points`, added in the SELV/HV pour-crossing-barrier DRC
+/// spike's polyline-generalization follow-up).
+///
+/// **Why a polyline, not just a line:** the unmerged
+/// `MAINS_SELV_ISOLATION_BARRIER` keepout on
+/// `origin/safety/mains-selv-isolation-barrier` (commit `645154b7`)
+/// concluded from an exhaustive computational search (all axis-aligned
+/// positions, all 180 degrees of orientation) that "no single straight
+/// line separates this board's HV and SELV pads" — the best possible
+/// single straight line still misclassifies 90-101 of 318 pads (28-32%).
+/// A single `geo::Line` therefore cannot express this board's real
+/// barrier at all; `points`, when it has >= 2 vertices, replaces the
+/// straight-line interpretation with an arbitrary bent boundary that can
+/// route around the pads a straight cut cannot separate.
+///
+/// **Why not a general polygon region:** a barrier is a 1-D boundary you
+/// must not cross or come within `clearance_mm` of, not a 2-D area — a
+/// polyline plus a symmetric `clearance_mm` buffer on both sides already
+/// expresses a corridor of that width along an arbitrary path, which is
+/// what the prior-art keepout (a 9.0mm-wide rectangular corridor: 8.0mm
+/// REINFORCED creepage + 1.0mm margin) needed. Nothing in that prior art
+/// or in the falsification evidence calls for an asymmetric or
+/// non-corridor-shaped keepout, so a full arbitrary-polygon barrier type
+/// is not implemented — `points` + `clearance_mm` covers the evidenced
+/// need.
+///
+/// **Why not a "multiple disjoint barriers" extension:** already
+/// supported without any change here — `ConstraintSet::isolation_barriers`
+/// is a `Vec<IsolationBarrier>`, and `IsolationBarrierCheck::check` (below)
+/// already loops over every entry, so N disjoint barriers is just N
+/// entries in that list.
+///
+/// This is the sole machine-readable representation of a SELV/HV
+/// isolation barrier in this project as of this writing — nothing in
+/// `packages/temper-placer/configs/temper_constraints.yaml` populates it
+/// today (grep for `isolation_barrier` in that file: 0 hits), so
+/// `ConstraintSet::isolation_barriers` is empty on every real run and
+/// `routing::IsolationBarrierCheck` (below) never fires against the real
+/// board today. It is kept as an explicit input specifically so a barrier
+/// can be supplied (by config, once defined, or by a caller) without
+/// further schema changes.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct IsolationBarrier {
     pub name: String,
+    /// X-position (mm) of the straight-line barrier. Ignored when `points`
+    /// has >= 2 vertices.
     pub x_mm: f64,
+    /// `(y_start, y_end)` span (mm) of the straight-line barrier. Ignored
+    /// when `points` has >= 2 vertices.
     pub y_span: [f64; 2],
+    /// Optional piecewise-linear barrier geometry: an ordered list of
+    /// `[x_mm, y_mm]` vertices (>= 2 required to take effect). When
+    /// present, this REPLACES the straight `x_mm`/`y_span` line with the
+    /// exact polyline through these vertices, in order — see the struct
+    /// doc comment for why this exists. Default: empty (straight-line
+    /// behavior, byte-for-byte unchanged from before this field existed).
+    #[serde(default)]
+    pub points: Vec<[f64; 2]>,
+    /// Comma-separated KiCad copper layer names the barrier spans
+    /// (e.g. `"F.Cu,In1.Cu,In2.Cu,B.Cu"`), or `"all"` (default) to cover
+    /// every layer. A barrier must span every copper layer it needs to
+    /// guard — an inner-layer pour crossing it is exactly as dangerous as
+    /// an outer-layer one, so `"all"` is the safe default and is what a
+    /// real 4-layer barrier (see the unmerged `MAINS_SELV_ISOLATION_BARRIER`
+    /// keepout on `origin/safety/mains-selv-isolation-barrier`, which spans
+    /// `F.Cu In1.Cu In2.Cu B.Cu`) would set explicitly.
     #[serde(default = "default_layers_all")]
     pub layers: String,
+    /// Minimum required clearance (mm) from any copper (trace segment or
+    /// zone/pour polygon edge) to the barrier geometry, beyond which no
+    /// violation is raised. `0.0` (the default) preserves pure
+    /// crossing-only semantics for any existing caller that does not set
+    /// this field. A real barrier should set this to the applicable IEC
+    /// 60335-1 creepage figure (8.0mm REINFORCED, per
+    /// `packages/temper-placer/src/temper_placer/requirements/validators/clearance.py:265-284`
+    /// and `req_safe_01.rs`) so a pour that comes close without literally
+    /// crossing is still caught.
+    #[serde(default)]
+    pub clearance_mm: f64,
 }
 
 fn default_layers_all() -> String {

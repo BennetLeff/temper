@@ -104,6 +104,7 @@ ELIGIBLE: list[tuple[str, str]] = [
     ("rules/placement/thermal_constraint.rs", "tests"),
     ("rules/placement/thermal_via_count.rs", "tests"),
     ("rules/placement/wave_solder_keepout.rs", "tests"),
+    ("rules/routing/isolation_barrier.rs", "tests"),
     ("rules/routing/power_pad_teardrop.rs", "tests"),
     ("types/clock.rs", "tests"),
     ("types/esd.rs", "tests"),

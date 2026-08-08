@@ -1738,6 +1738,15 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
         let ibs = PyList::empty(py);
         for entry in raw.get_item("isolation_barriers")?.try_iter()? {
             let ib = entry?;
+            // `points` (>= 2 [x_mm, y_mm] vertices) and `clearance_mm` are
+            // optional generalizations (polyline-barrier follow-up to the
+            // SELV/HV pour-crossing-barrier DRC spike): defaulted here to
+            // exactly the values `IsolationBarrier`'s own pydantic
+            // defaults would apply (empty tuple / 0.0), so a config that
+            // omits them produces a byte-identical object to before these
+            // fields existed -- see
+            // packages/temper-placer/src/temper_placer/_constraint_types/safety.py
+            // and packages/temper-drc-rs/src/constraints.rs (kept in sync).
             let b = call_with_kwargs(
                 &cls,
                 py,
@@ -1745,7 +1754,9 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
                     ("name", &ib.get_item("name")?),
                     ("x_mm", &ib.get_item("x_mm")?),
                     ("y_span", &py_tuple(py, &ib.get_item("y_span")?)?),
+                    ("points", &dict_get(py, &ib, "points", &PyList::empty(py).into_any())?),
                     ("layers", &dict_get(py, &ib, "layers", &str_obj(py, "all"))?),
+                    ("clearance_mm", &dict_get(py, &ib, "clearance_mm", &f64_obj(py, 0.0)?)?),
                 ],
             )?;
             ibs.append(b)?;
