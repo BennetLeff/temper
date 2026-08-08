@@ -468,6 +468,29 @@ scripts:
   - re
   - sys
   - typing
+- path: check_gate_mutations.py
+  purpose: 'R42 gate-mutation runner: the canary-flip oracle. For every (gate, mutation, canary) triple
+    in ci-corpus/mutations.yaml, runs the unmutated gate against the canary (baseline must reject the
+    seed, pass the pristine), applies the mutation via gate_mutate.py to a scratch temp copy, substitutes
+    it into sys.modules for one call, and asserts the canary flips from pass to fail -- KILLED when it
+    does, SURVIVED when the weakened gate still rejects the seed (a blind spot), UNVERIFIED on a broken
+    baseline or a crashing mutant. Fails closed on zero registered triples, any SURVIVED, or any UNVERIFIED;
+    never continue-on-error.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - gate_mutate
+  - importlib.util
+  - pathlib
+  - sys
+  - tempfile
+  - yaml
 - path: check_hash_order_determinism.py
   purpose: 'CI gate: fail on any NEW site under packages/*/src that records a PYTHONHASHSEED-chosen order
     -- a set/frozenset iteration materialised, accumulated over, indexed, first-element-selected or appended
@@ -1249,6 +1272,28 @@ scripts:
   - sys
   - time
   - typing
+- path: gate_mutate.py
+  purpose: 'R42 gate-mutation engine: applies one declarative mutation (guard-strip, condition-invert,
+    scope-remove, violation-discard, comparison-flip, threshold-set, return-stub -- chosen to model
+    observed failure mechanisms, not generic arithmetic mutants) to an in-memory copy of a gate script''s
+    AST and writes the mutated source to a fresh scratch tempfile; never touches the committed gate.
+    Every mutation is validated against a line_hint drift guard before being applied, and reported
+    NOT APPLICABLE (not silently skipped) when the source has moved since the manifest entry was authored.
+    Consumed by check_gate_mutations.py.'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - sys
+  - typing
+  - yaml
 - path: gen_architecture_poster.py
   purpose: Generate a deterministic SVG architecture poster from monorepo build manifests
   owner: pipeline
