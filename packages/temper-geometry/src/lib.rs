@@ -158,6 +158,14 @@ pub use radius_pairs::radius_pairs_transform;
 // instances that call site built. Different contract from radius_pairs.rs
 // above (one-shot batch all-pairs) -- see this module's own doc comment.
 pub mod persistent_radius_index;
+// scipy.spatial.ConvexHull -> geo::ConvexHull port for
+// physics/loop_area.py + validation/trace_analyzer.py's hull *area* call
+// sites (scalar-only consumers -- see docs/evidence/2026-08-07-scipy-keeps-
+// re-triage.md Sec 2 and this module's own doc comment for the verified
+// contract).
+pub mod convex_hull;
+#[cfg(feature = "python")]
+pub use convex_hull::convex_hull_area_py;
 #[cfg(feature = "python")]
 pub use drc_constraints_geometry::{
     drc_closest_points_segment_segment_py, drc_point_to_circle_distance_py,

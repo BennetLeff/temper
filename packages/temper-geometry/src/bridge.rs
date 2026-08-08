@@ -12,6 +12,7 @@ use crate::channel_widths::edt_width_lookup_batch;
 use crate::connected_components::connected_components_8_transform;
 use crate::edt::exact_edt_transform;
 use crate::radius_pairs::radius_pairs_transform;
+use crate::convex_hull::convex_hull_area_py;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
 use crate::occupancy_raster::{
@@ -1490,6 +1491,11 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // radius_pairs (router_v6/channel_skeleton.py's island-bridging MST
     // candidate generation -- replaces scipy.spatial.cKDTree.query_pairs)
     m.add_function(wrap_pyfunction!(radius_pairs_transform, m)?)?;
+
+    // convex_hull (physics/loop_area.py + validation/trace_analyzer.py --
+    // replaces scipy.spatial.ConvexHull; both call sites read only the
+    // scalar hull area, see convex_hull.rs's module doc)
+    m.add_function(wrap_pyfunction!(convex_hull_area_py, m)?)?;
 
     // grid rasterisation (Wave 3 candidate #1: ClearanceGrid compute)
     m.add_function(wrap_pyfunction!(block_circle_into_grid_py, m)?)?;
