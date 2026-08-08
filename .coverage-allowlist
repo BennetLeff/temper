@@ -625,15 +625,6 @@ temper_placer/pcl/tiers.py::calculate_penalty  # TODO: temper-xxx
 temper_placer/pcl/tiers.py::check_hard_constraints  # TODO: temper-xxx
 temper_placer/pcl/unsat_compiler.py::compile_unsat_to_pcl  # TODO: temper-xxx
 temper_placer/pcl/unsat_compiler.py::reset_escalation_counts  # TODO: temper-xxx
-temper_placer/pipeline/andon_observer.py::AndonObserver.on_epoch  # TODO: temper-xxx
-temper_placer/pipeline/andon_observer.py::AndonObserver.on_feedback_triggered  # TODO: temper-xxx
-temper_placer/pipeline/andon_observer.py::AndonObserver.on_pipeline_complete  # TODO: temper-xxx
-temper_placer/pipeline/andon_observer.py::AndonObserver.on_stage_complete  # TODO: temper-xxx
-temper_placer/pipeline/andon_observer.py::AndonObserver.on_stage_error  # TODO: temper-xxx
-temper_placer/pipeline/andon_observer.py::AndonObserver.on_stage_skip  # TODO: temper-xxx
-temper_placer/pipeline/andon_observer.py::AndonObserver.on_stage_start  # TODO: temper-xxx
-temper_placer/pipeline/andon_observer.py::AndonObserver.start  # TODO: temper-xxx
-temper_placer/pipeline/andon_observer.py::AndonObserver.stop  # TODO: temper-xxx
 temper_placer/pipeline/bottleneck_report.py::BottleneckNetEntry.from_dict  # TODO: temper-xxx
 temper_placer/pipeline/bottleneck_report.py::BottleneckNetEntry.to_dict  # TODO: temper-xxx
 temper_placer/pipeline/bottleneck_report.py::BottleneckRegion.from_dict  # TODO: temper-xxx
@@ -675,7 +666,6 @@ temper_placer/pipeline/explainability.py::DecisionLogger.finish  # TODO: temper-
 temper_placer/pipeline/explainability.py::DecisionLogger.log_placement  # TODO: temper-xxx
 temper_placer/pipeline/explainability.py::DecisionLogger.log_routing  # TODO: temper-xxx
 temper_placer/pipeline/explainability.py::generate_markdown_report  # TODO: temper-xxx
-temper_placer/pipeline/iterator.py::PlaceRouteIterator.run  # TODO: temper-xxx
 temper_placer/pipeline/logging_context.py::clear_run_context  # TODO: temper-xxx
 temper_placer/pipeline/logging_context.py::set_run_context  # TODO: temper-xxx
 temper_placer/pipeline/metrics_observer.py::MetricsObserver.on_feedback_triggered  # TODO: temper-xxx
@@ -1369,8 +1359,6 @@ temper_placer/validation/helps_battery.py::decide_verdict  # TODO: temper-xxx
 temper_placer/validation/helps_battery.py::run_helps_battery  # TODO: temper-xxx
 temper_placer/validation/human_reference_extractor.py::HumanReference.save  # TODO: temper-xxx
 temper_placer/validation/human_reference_extractor.py::extract_human_reference  # TODO: temper-xxx
-temper_placer/validation/manufacturing.py::ManufacturingReport.passed  # TODO: temper-xxx
-temper_placer/validation/manufacturing.py::check_worst_case_drc  # TODO: temper-xxx
 temper_placer/validation/metrics.py::PlacementMetrics.is_valid  # TODO: temper-xxx
 temper_placer/validation/metrics.py::PlacementMetrics.summary  # TODO: temper-xxx
 temper_placer/validation/metrics.py::PlacementMetrics.to_dict  # TODO: temper-xxx
@@ -1469,8 +1457,6 @@ temper_placer/validation/spice.py::run_all_placement_validations  # TODO: temper
 temper_placer/validation/spice.py::run_bootstrap_simulation  # TODO: temper-xxx
 temper_placer/validation/spice.py::run_gate_drive_simulation  # TODO: temper-xxx
 temper_placer/validation/spice.py::run_power_integrity_simulation  # TODO: temper-xxx
-temper_placer/validation/spice_pipeline.py::SpiceValidationPipeline.print_report  # TODO: temper-xxx
-temper_placer/validation/spice_pipeline.py::SpiceValidationPipeline.validate_placement  # TODO: temper-xxx
 temper_placer/validation/spice_templates/__init__.py::check_thresholds  # TODO: temper-xxx
 temper_placer/validation/spice_templates/__init__.py::compute_spice_penalty  # TODO: temper-xxx
 temper_placer/validation/spice_templates/__init__.py::get_available_templates  # TODO: temper-xxx
