@@ -275,6 +275,31 @@ def run_single(
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(r["routed_pcb_content"], encoding="utf-8")
+
+    # Propagate pcb_path's project (rules, severities) onto the routed
+    # output under ITS OWN stem, so `make drc` / any kicad-cli DRC run
+    # against output_path resolves a project instead of silently dropping
+    # the project's creepage/track_width/missing_courtyard/annular_width
+    # categories. Without this, a routed board written outside pcb/ (e.g.
+    # pcb/temper_routed.kicad_pcb, which has no temper_routed.kicad_pro of
+    # its own) measures a strict, silent subset of the real violations --
+    # see docs/evidence/2026-08-08-drc-project-context-audit.md. Best-effort:
+    # if pcb_path itself has no project (e.g. a bare benchmark fixture),
+    # there is nothing to propagate and DRC on the output will (correctly)
+    # refuse to run blind rather than this script refusing to route.
+    try:
+        from temper_placer.validation._drc_api import copy_kicad_project_sidecar
+
+        copy_kicad_project_sidecar(output_path, pcb_path)
+        print(f"Propagated {pcb_path.with_suffix('.kicad_pro').name} onto {output_path.name}")
+    except FileNotFoundError as e:
+        print(
+            f"WARNING: could not give {output_path} a resolvable KiCad project "
+            f"({e}) -- a kicad-cli DRC run against it will refuse to run blind "
+            f"rather than silently under-measure. See "
+            f"docs/evidence/2026-08-08-drc-project-context-audit.md."
+        )
+
     print(f"Wrote routed board to {output_path}")
     return 0
 

@@ -20,6 +20,20 @@ from temper_placer.validation._drc_api import (
 )
 
 
+def _write_sibling_project(pcb_file: Path) -> None:
+    """Give a synthetic test board a resolvable ``.kicad_pro`` next to it.
+
+    ``run_drc`` now hard-fails (``DrcProjectContextError``, see
+    ``test_drc_requires_project_context.py``) when a board has no sibling
+    project file, since kicad-cli itself silently under-measures in that
+    case rather than erroring. These fixture boards exist to exercise
+    subprocess-mocking / JSON-parsing behavior, not project resolution, so
+    they need a (minimal, content-irrelevant) project file to reach that
+    code at all.
+    """
+    pcb_file.with_suffix(".kicad_pro").write_text("{}", encoding="utf-8")
+
+
 class TestDrcRunnerBasics:
     """Test basic DRC runner functionality."""
 
@@ -170,6 +184,7 @@ class TestDrcRunner:
         # Create mock PCB file
         pcb_file = tmp_path / "clean_board.kicad_pcb"
         pcb_file.write_text("(kicad_pcb)")
+        _write_sibling_project(pcb_file)
 
         # Create mock JSON output file
         json_file = tmp_path / "drc_report.json"
@@ -205,6 +220,7 @@ class TestDrcRunner:
 
         pcb_file = tmp_path / "overlap_board.kicad_pcb"
         pcb_file.write_text("(kicad_pcb)")
+        _write_sibling_project(pcb_file)
 
         json_file = tmp_path / "drc_report.json"
         json_file.write_text(json.dumps(mock_error_drc_output))
@@ -241,6 +257,7 @@ class TestDrcRunner:
 
         pcb_file = tmp_path / "clearance_board.kicad_pcb"
         pcb_file.write_text("(kicad_pcb)")
+        _write_sibling_project(pcb_file)
 
         json_file = tmp_path / "drc_report.json"
         json_file.write_text(json.dumps(mock_error_drc_output))
@@ -275,6 +292,7 @@ class TestDrcRunner:
 
         pcb_file = tmp_path / "crashed_board.kicad_pcb"
         pcb_file.write_text("(kicad_pcb)")
+        _write_sibling_project(pcb_file)
         json_file = tmp_path / "drc_report.json"
         json_file.write_text(json.dumps(mock_clean_drc_output))
 
@@ -334,6 +352,7 @@ class TestDrcRunnerIntegration:
 )"""
         pcb_file = tmp_path / "minimal.kicad_pcb"
         pcb_file.write_text(pcb_content)
+        _write_sibling_project(pcb_file)
 
         result = run_drc(pcb_file)
 

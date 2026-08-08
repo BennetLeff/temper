@@ -181,6 +181,9 @@ def test_synthetic_fixture_yields_expected_violation(tmp_path):
 )
 """
     pcb = _write_pcb(tmp_path, "overlap.kicad_pcb", content)
+    # run_drc now hard-requires a resolvable sibling .kicad_pro (see
+    # ensure_resolvable_kicad_project) -- give this synthetic fixture one.
+    pcb.with_suffix(".kicad_pro").write_text("{}", encoding="utf-8")
     report, counts = generate_violation_report(pcb)
     assert counts["courtyards_overlap"] >= 1
     assert "R1" in report

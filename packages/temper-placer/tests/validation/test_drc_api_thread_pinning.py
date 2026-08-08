@@ -122,6 +122,10 @@ def test_run_drc_passes_the_pinned_env_to_kicad_cli(tmp_path, monkeypatch):
     forgets to hand the environment to the subprocess."""
     pcb = tmp_path / "board.kicad_pcb"
     pcb.write_text("(kicad_pcb)")
+    # run_drc now hard-requires a resolvable sibling .kicad_pro (see
+    # ensure_resolvable_kicad_project) -- this test exercises env plumbing,
+    # not project resolution, so give it a minimal one.
+    pcb.with_suffix(".kicad_pro").write_text("{}", encoding="utf-8")
     monkeypatch.setattr(_drc_api, "is_kicad_cli_available", lambda: True)
     monkeypatch.setattr(_drc_api, "get_kicad_cli_version", lambda: "10.0.4")
     seen: dict = {}

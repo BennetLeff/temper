@@ -48,6 +48,8 @@ from pathlib import Path
 
 import pytest
 
+from temper_placer.validation._drc_api import copy_kicad_project_sidecar
+
 from tests.placer.cp_sat._parallel_drc import run_drc_loud, run_drc_samples
 
 TEMPER_PLACER_ROOT = Path(__file__).resolve().parent.parent.parent.parent
@@ -56,6 +58,23 @@ REPO_ROOT = TEMPER_PLACER_ROOT.parent.parent
 RULES_PATH = TEMPER_PLACER_ROOT / "configs" / "netclass_rules.yaml"
 PCL_CONFIG = TEMPER_PLACER_ROOT / "configs" / "constraints" / "temper_induction_cooker.yaml"
 BOARD_PATH = REPO_ROOT / "power_pcb_dataset" / "corpus" / "temper" / "temper.kicad_pcb"
+
+# The real, committed project -- the only ``.kicad_pro`` (and DRU-rule
+# source) this repo has. ``BOARD_PATH`` above (the corpus fixture) and every
+# placed/routed scratch copy this module writes have no project of their
+# own, so kicad-cli DRC on them used to silently drop the project's
+# creepage/track_width/missing_courtyard/annular_width categories -- see
+# docs/evidence/2026-08-08-drc-project-context-audit.md. Every scratch board
+# this module DRCs must get this project's rules propagated onto it via
+# ``_provision_project`` before ``run_drc_loud``/``run_drc_samples`` runs.
+_REAL_PRODUCTION_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
+
+
+def _provision_project(scratch_pcb_path: str | Path) -> None:
+    """Give a scratch board copy this module wrote a resolvable project,
+    propagated from the real committed board, so DRC on it is not blind to
+    creepage/track_width/missing_courtyard/annular_width."""
+    copy_kicad_project_sidecar(Path(scratch_pcb_path), _REAL_PRODUCTION_BOARD)
 
 # known_failure_pins.py lives in scripts/ (not a package -- no __init__.py),
 # so it is reached the same way scripts/tests/*.py reach each other: an
@@ -203,6 +222,7 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: p
     with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as tmp:
         tmp.write(placed)
         placed_path = tmp.name
+    _provision_project(placed_path)
 
     try:
         # 5b. Round-trip oracle (plan 2026-08-02-009 U3): re-parse the
@@ -474,6 +494,7 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
     ) as placed_tmp:
         placed_tmp.write(placed_content)
         placed_path = placed_tmp.name
+    _provision_project(placed_path)
 
     try:
         placement_drc = run_drc_loud(placed_path, timeout=120, label="production-placement")
@@ -512,6 +533,7 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
     ) as routed_tmp:
         routed_tmp.write(routing_result.routed_pcb_content)
         routed_path = routed_tmp.name
+    _provision_project(routed_path)
 
     try:
         # 9. Run kicad-cli DRC on the routed PCB
@@ -1139,6 +1161,7 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     )
     routed_tmp.write(routing_result.routed_pcb_content)
     routed_tmp.close()
+    _provision_project(routed_tmp.name)
 
     try:
         # The router's geometry is deterministic (docs/STRATEGY.md); the
