@@ -1,9 +1,9 @@
 # Temper Induction Cooker - Bill of Materials (BOM)
 
 **Project:** Temper - Production-grade Induction Cooker
-**Version:** 1.6
-**Date:** 2026-07-26
-**Status:** Reconciled against `elec/src/*.ato` (155 components, `elec/build/default.net`/`default.csv`) — see `docs/evidence/2026-07-25-bom-source-audit.md`. Three procurement blockers resolved 2026-07-26 — see `docs/evidence/2026-07-26-bom-blocker-resolution.md`.
+**Version:** 1.7
+**Date:** 2026-08-07
+**Status:** Reconciled against `elec/src/*.ato` via `scripts/check_bom_source_reconciliation.py` (R14) — see `docs/hardware/BOM_RECONCILIATION_PROPOSAL.md` for the 49-finding evidence base this pass applied. Three procurement blockers resolved 2026-07-26 — see `docs/evidence/2026-07-26-bom-blocker-resolution.md`.
 
 ---
 
@@ -60,6 +60,9 @@
 | R_ZCD_TOP1, R_ZCD_TOP2 | ZCD Divider High | RC1206FR-07220KL | Yageo | 2 | 1206 | 220kΩ 5% 0.25W 250V |
 | R_ZCD_BOT | ZCD Divider Low | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 5% 0.1W |
 | D_ZCD_CLAMP | ZCD Clamp Zener | BZT52C3V3-7-F | - | 1 | SOD-123 | 3.3V — protects MCU ADC input |
+| U_ZCD_OPTO | ZCD Isolation Optocoupler | H11L1TVM | Onsemi/Vishay | 1 | DIP-6 (SMD) | HV-side ZCD (clamped to 3.3V) drives the LED; SELV-side open-collector output crosses the isolation barrier. Added 2026-08-07, see note |
+| R_ZCD_OPTO | Opto LED Drive | RC0603FR-07430RL | Yageo | 1 | 0603 | 430Ω 5% 0.125W 200V — sets ~5.0mA LED current at the 3.3V clamp voltage, >3x the H11L1's 1.6mA guaranteed turn-on threshold |
+| R_ZCD_PULLUP | Opto Output Pull-Up | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% — SELV side, pulls the opto's open-collector output up to vcc_3v3 (not power_15v, which would overvoltage the 3.3V MCU GPIO input) |
 
 > **`J_IN` (AC mains inlet connector, Schurter 4798.9000) removed.** No inlet-connector component exists anywhere in `elec/src/*.ato` — `ac_l`/`ac_n`/`pe` are declared only as abstract external `signal`s on `PowerInput` (`modules.ato:432-437`), never instantiated as a physical connector part. `grep -rn "4798\|Schurter" elec/src/*.ato` returns nothing.
 >
@@ -82,17 +85,19 @@
 > **`Y_CAP_PE` footprint corrected in source 2026-07-28; the board still needs the edit.** Every 2.2nF Y1 disc, including both real Murata spellings and the Vishay part above, has 10mm lead spacing, but the land on the board is a 5.00mm-pitch stub whose own `descr` says "Created to resolve netlist reference" (and says Y2, a different safety class). `elec/src/modules.ato` now assigns `Capacitor_THT:C_Disc_D12.5mm_W5.0mm_P10.00mm` (stock KiCad; its own `descr` cites Vishay's sibling VY2 datasheet 28535; D12.5 ≥ the 12.0mm body, W5.0 ≥ the 5.0mm thickness), which takes C6's HV↔SELV pad separation from **3.200mm to 8.000mm** — clearing the 8.0mm gate exactly, but not the CP-SAT placer's 8.5mm working corridor. `pcb/temper.kicad_pcb` still carries the 5.00mm stub. See `docs/evidence/2026-07-28-tank-cap-and-isolator-footprints.md` and `2026-07-28-isolator-sourcing-brief.md`.
 >
 > `RV1`, `C_X2`, `Y_CAP_PE`, `F1`, the `K_BYPASS` driver (`Q_RLY_DRV`/`R_RLY_DROP`/`R_RLY_GATE`/`R_RLY_GATE_PD`/`D_RLY_FLYBACK`), and the ZCD divider+clamp were wired in source but not costed (Class B, 2026-07-25 audit).
+>
+> **`U_ZCD_OPTO`/`R_ZCD_OPTO`/`R_ZCD_PULLUP` added 2026-08-07 — previously entirely uncosted.** `PowerInput` (`modules.ato:1021-1053`) isolates the ZCD signal across the HV/SELV barrier through an `H11L1` optocoupler: the HV-side divider+clamp above (unchanged) feeds `r_zcd_opto` (LED current-set resistor) into `zcd_opto` (the opto itself); its SELV-side open-collector output is pulled up by `r_zcd_pullup` to `vcc_3v3` and fed to the MCU as `zcd_out`. A prepared, unmerged commit (`27725af9`, `origin/codex/handoff-actionables`) would delete this entire block (opto chain and the HV-side divider/clamp together) as part of a mains-ZCD-sensing redesign decision; if/when that lands, this BOM subsection and `R_ZCD_TOP1/TOP2`/`R_ZCD_BOT`/`D_ZCD_CLAMP` above must be pruned in the same change, not left to drift again. Not bench-verified for soft-start timing accuracy (edge shape/delay through the opto vs. the original raw-ADC approach) — flagged in source, not silently assumed.
 
 ### 1.3 Active Bus Discharge (Fail-Safe)
 
 **Added 2026-07-26 — was entirely uncosted.** `BusDischarge` (`modules.ato:692-938`) is the sole fail-safe mechanism that discharges the ~340V bus to <34V within ~60s on any loss of power (unplug, fuse, aux-supply fault, or MCU death — `IO47` boots Hi-Z, which engages discharge by default). It runs in parallel with, not instead of, the passive `R_BLEED1/2` bleeders in §1.2.
 
-> **`K_DIS1`/`K_DIS2` swap TRIED-AND-REVERTED 2026-07-28** (`docs/evidence/2026-07-28-relay-replacement-implementation.md` → `docs/evidence/2026-07-28-pd3-retarget-relay.md` → `docs/evidence/2026-07-28-relay-board-resync-decision.md`, this is the up-to-date status): `G5LE-1 DC12` was briefly replaced with Finder `40.52.7.012.0000` (a genuinely 2-pole DPDT relay) on the strength of a claimed 9.2mm edge-to-edge coil↔contact PCB creepage figure. **That figure was retracted** — it was an invented footprint layout, not measured from the real part's fixed pinout; the manufacturer's real 7.5mm coil-to-nearest-contact pitch caps achievable edge-to-edge creepage at 5.3mm, failing both the 8.0mm and 12.6mm (PD3) targets, with no routed-slot remedy available. **Reverted to `G5LE-1 DC12` below.** This is NOT a fix: the `G5LE-1` still fails reinforced coil↔contact isolation on three independent grounds — 6.32mm pad gap (3.50mm edge-to-edge) against an 8.0mm requirement, with the shortest path running across the relay's own case; no creepage/clearance figure stated in its own datasheet; and only 2000VAC coil-to-contact dielectric strength, below IS 302-1 Table 7's reinforced figure. A real fix needs a manufacturer-verified relay (reinforced isolation AND rated DC break at 170–200V AND fail-safe NC topology) with roughly double the Finder 40.52's coil-to-contact pin pitch (~14.4–14.8mm) — none has been found yet.
+> **`K_DIS1`/`K_DIS2` corrected 2026-08-07 — swapped to `RT314012`.** `G5LE-1 DC12` was TRIED-AND-REVERTED 2026-07-28 (`docs/evidence/2026-07-28-relay-replacement-implementation.md` → `docs/evidence/2026-07-28-pd3-retarget-relay.md` → `docs/evidence/2026-07-28-relay-board-resync-decision.md`): a Finder `40.52.7.012.0000` attempt was retracted when its claimed 9.2mm edge-to-edge coil↔contact creepage figure turned out to be an invented footprint layout, not measured from the real part's fixed pinout (the manufacturer's real pitch caps achievable creepage at 5.3mm, failing both the 8.0mm and 12.6mm PD3 targets). The `G5LE-1` reverted to at that point genuinely failed reinforced coil↔contact isolation (6.32mm pad gap / 3.50mm edge-to-edge against the 8.0mm requirement). **That gap is now resolved**: source (`modules.ato:1227-1253`) swapped both relays to TE Connectivity/Schrack `RT314012` (RT1 family, `Relay_SPDT`, footprint `temper:Relay_SPDT_Schrack-RT314012`) — K2 on 2026-07-31 (`23f103c9`), K3 on 2026-08-02 (`0f0a1341` interim revert for a placement blocker, `de59c045`/PR #602 final) — with a 12.76mm coil-to-contact copper gap, clearing the 8.0mm reinforced-creepage bar (1.6×) and the 6.0mm clearance minimum (2.1×). Coil/contact ratings (12V/10A, 360Ω±10%/400mW coil, 8.4V must-operate) match the outgoing G5LE-1 exactly, so `R_COIL1/2` and the driver circuit are unaffected.
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| K_DIS1, K_DIS2 | Discharge Relay | G5LE-1 DC12 | Omron | 2 | THT, 5-pin SPDT | 12V coil, 10A contact — NC contact engages discharge fail-safe. **Does not meet reinforced coil↔contact isolation (see corrected note above) — known, tracked, unresolved gap.** |
-| R_DIS1A, R_DIS1B, R_DIS2A, R_DIS2B | Discharge Resistor | AC05000004701JAC00 | Vishay | 4 | Axial DIN0918 | 4.7kΩ 5% 5W — 2 in series per half-bus (9.4kΩ/half) |
+| K_DIS1, K_DIS2 | Discharge Relay | RT314012 | TE Connectivity / Schrack | 2 | THT, 5-pin SPDT | 12V coil, 10A contact — NC contact engages discharge fail-safe. 12.76mm coil↔contact copper gap clears the 8.0mm reinforced-creepage bar (1.6×) and 6.0mm clearance minimum (2.1×) — see corrected note above. |
+| R_DIS1A, R_DIS1B, R_DIS2A, R_DIS2B | Discharge Resistor | AC05000003901JAC00 | Vishay | 4 | Axial DIN0918 | 3.9kΩ 5% 5W — 2 in series per half-bus (7.8kΩ/half). RESIZED 2026-07-27 from 4.7kΩ (9.4kΩ/half) — at 4.7kΩ the bus discharges in 65.4s against the <60s requirement (fails on the bus capacitor's own +20% rated tolerance alone); 3.9kΩ gives 56.9s under stacked worst-case tolerance (+5% R, +20% C), ~3.1s margin. See `docs/evidence/2026-07-27-busdischarge-tolerance-retune.md`. |
 | R_COIL1, R_COIL2 | Relay Coil Dropper | RC1206FR-07100RL | Yageo | 2 | 1206 | 100Ω 1% 0.25W 200V |
 | Q_DIS_DRV | Discharge Relay Driver MOSFET | AO3400A | Alpha & Omega Semi | 1 | SOT-23 | Low-side switch, both coils |
 | R_DIS_GATE | Discharge Driver Gate R | CRCW08051K00FKEA | Vishay | 1 | 0805 | 1kΩ 5% 0.125W |
@@ -101,18 +106,20 @@
 | R_SNUB1, R_SNUB2 | Contact Snubber R | CRGP2512F100R | TE Connectivity | 2 | 2512 | 100Ω 1% 2W 500V |
 | C_SNUB1, C_SNUB2 | Contact Snubber C | B32671L6474K000 | TDK/EPCOS | 2 | THT Film 18x11mm | 470nF 10% 630V PP |
 
-17 parts total. Sizing: τ = 9.4kΩ × 3600µF ≈ 33.8s per half-bus, <34V in ≈54s (<60s target). See the module docstring (`modules.ato:692-723`) for the full contact-stress and snubber derivation, and `docs/plans/2026-07-16-001-feat-active-bus-discharge-and-thermal-bom-plan.md` for the option analysis.
+17 parts total. Sizing: τ = 7.8kΩ × 3600µF ≈ 28.1s per half-bus; worst-case stacked tolerance (R+5%, C+20%) gives 56.9s to <34V, against the <60s target (~3.1s margin) — see the `R_DIS1A/1B/2A/2B` note above and `docs/evidence/2026-07-27-busdischarge-tolerance-retune.md`. See the module docstring (`modules.ato:692-723`) for the full contact-stress and snubber derivation, and `docs/plans/2026-07-16-001-feat-active-bus-discharge-and-thermal-bom-plan.md` for the option analysis.
 
 ### 1.4 Resonant Tank
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | L_TANK | Tank Inductor | CUSTOM_LITZ_COIL | — (custom-wound) | 1 | Flat spiral, ferrite-backed, OD ≤ 200mm, 2 leads to `LitzPad_15A` pads | **88µH ±10% @ 40kHz**, DCR ≤ 0.12Ω, R_ac ≤ 0.40Ω @ 40kHz, 25A rms — **must pass the incoming acceptance test** in `docs/hardware/TANK_COIL_SPECIFICATION.md` §2 |
-| C_TANK1, C_TANK2 | Tank Capacitor | FKP1T031507G00JSSD | WIMA | 2 | Radial 41.5×20mm, **PCM 37.5mm**, 39.5mm tall | 150nF 1600VDC PP FKP1 — wired in parallel (300nF combined). MPN and package corrected 2026-07-28, see note |
+| C_TANK1, C_TANK2, C_TANK3 | Tank Capacitor | 942C16P1K-F | Cornell Dubilier (CDE) | 3 | Axial, D22.5×L34.0mm, **P40.00mm** | 100nF 1600VDC PP, ±10% — wired in parallel (300nF combined), 11.4A rms/cap. Re-sourced 2026-07-29, see note |
 
-> **`C_TANK1/2` MPN corrected again 2026-07-28 (10× value error).** The previous value `FKP1U021507E00JSSD` decodes, against WIMA's own 18-digit part-number system (FKP 1 datasheet rev. 03.26, p.136), as `FKP1` | `U0` = **2000 VDC** | `2150` = **0.015 µF** | size `7E` | `00JSSD` — a tenth of the declared 150nF, at the wrong voltage. `scripts/mpn_fabrication_gate.py`'s WIMA decoder (PR #397) flags exactly this. The 2000 VDC table has no 0.015 µF row in a size-7 (PCM 37.5) case at all — its only 0.015 µF row is `FKP1U021506D` (13 × 24 × 31.5, PCM 27.5) — and the land pattern the board carried, `C_Rect_L31.5mm_W13.0mm_P27.50mm_MKS4`, is precisely that case, i.e. the board was drawn for the mis-decoded part rather than for the declared value. Corrected to **`FKP1T031507G00JSSD`**, read off WIMA's 1600 VDC ordering table: "0.15 µF | W 20 | H 39.5 | L 41.5 | PCM 37.5 | `FKP1T031507G_ _ _ _ _ _`". The six trailing digits are the datasheet's own "Part number completion" box and are carried over unchanged (`00` 2-pin, `J` ±5 %, `S` bulk, `SD` 6-2 pin length). **Capacitance is unchanged at 150nF each / 300nF combined** — that value was never in doubt; it is what `RESONANT_TANK_DESIGN.md`, every ZVS/inductance sweep in `simulation/harness/`, and `main.ato`'s 47kHz switching point are all built on. The KEMET R76-series "(alt)" second-source line from an earlier revision remains dropped.
+> **`C_TANK1/2` re-sourced again 2026-07-29 (WIMA → CDE, 2→3 physical caps).** Source (`modules.ato:513-532`, `docs/evidence/2026-07-29-tank-cap-cde-942c-verification.md`) replaced the 2× WIMA `FKP1T031507G00JSSD` (150nF each) with 3× CDE `942C16P1K-F` (100nF each, same 300nF combined) because the WIMA part's AC-current rating undershot the 10.37A required at 47kHz switching — CDE's 11.4A rating clears with 1.38× margin (PR #410, `3ae26dfe`). This adds a third physical capacitor (`C_TANK3`, `c_tank3` at `modules.ato:527`, previously entirely uncosted) and loosens tolerance from ±5% to ±10% (MPN's "K" suffix). Package changes from WIMA's 41.5×20mm radial box (37.5mm pitch) to CDE's 22.5mm-diameter, 34.0mm-long axial can (40.00mm pitch, footprint `temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal`).
 >
-> **⚠ `C_TANK1/2` needs board rework, not yet done.** The correct part is a materially bigger can: 41.5 × 20mm on a **37.5mm** lead pitch (was 31.5 × 13mm on 27.5mm), and 39.5mm tall. `pcb/temper.kicad_pcb` still carries the 27.5mm land for both. At the current placement the enlarged `C25` outline overlaps `C5` (a D35 snap-in bus electrolytic) by 7.6 × 1.3mm, and the enlarged `C26` outline runs 3.0mm past the board edge at y=20. Both must be re-placed. See `docs/evidence/2026-07-28-tank-cap-and-isolator-footprints.md`.
+> **`C_TANK1/2` MPN corrected 2026-07-28 (10× value error, superseded by the 2026-07-29 re-source above).** The previous value `FKP1U021507E00JSSD` decodes, against WIMA's own 18-digit part-number system (FKP 1 datasheet rev. 03.26, p.136), as `FKP1` | `U0` = **2000 VDC** | `2150` = **0.015 µF** | size `7E` | `00JSSD` — a tenth of the declared 150nF, at the wrong voltage. `scripts/mpn_fabrication_gate.py`'s WIMA decoder (PR #397) flags exactly this. The 2000 VDC table has no 0.015 µF row in a size-7 (PCM 37.5) case at all — its only 0.015 µF row is `FKP1U021506D` (13 × 24 × 31.5, PCM 27.5) — and the land pattern the board carried, `C_Rect_L31.5mm_W13.0mm_P27.50mm_MKS4`, is precisely that case, i.e. the board was drawn for the mis-decoded part rather than for the declared value. Corrected to **`FKP1T031507G00JSSD`**, read off WIMA's 1600 VDC ordering table: "0.15 µF | W 20 | H 39.5 | L 41.5 | PCM 37.5 | `FKP1T031507G_ _ _ _ _ _`". The six trailing digits are the datasheet's own "Part number completion" box and are carried over unchanged (`00` 2-pin, `J` ±5 %, `S` bulk, `SD` 6-2 pin length). **Capacitance is unchanged at 150nF each / 300nF combined** — that value was never in doubt; it is what `RESONANT_TANK_DESIGN.md`, every ZVS/inductance sweep in `simulation/harness/`, and `main.ato`'s 47kHz switching point are all built on. The KEMET R76-series "(alt)" second-source line from an earlier revision remains dropped.
+>
+> **⚠ `C_TANK1/2/3` board layout status superseded, needs re-verification.** The 2026-07-28 note below describes board-rework needs against the now-superseded WIMA 41.5×20mm/37.5mm-pitch part; the 2026-07-29 re-source to CDE's 22.5mm-diameter/34.0mm-long/40.00mm-pitch axial can (and the addition of a third physical capacitor, `C_TANK3`) means the PCB placement question must be re-checked against the current footprint (`temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal`), not assumed resolved or unresolved from the WIMA-era findings. Not verified against `pcb/temper.kicad_pcb`'s current state by this pass (BOM-vs-source reconciliation only; PCB layout out of scope). See `docs/evidence/2026-07-28-tank-cap-and-isolator-footprints.md` for the WIMA-era findings and `docs/evidence/2026-07-29-tank-cap-cde-942c-verification.md` for the CDE re-source.
 >
 > **`L_TANK` is now specified — 88µH ±10% @ 40kHz (2026-07-29).** It was
 > undetermined until then (`elec/src/*.ato` contained no inductance value at
@@ -281,9 +288,11 @@ Per task instructions, `R_SHUNT` (WSLP25122L000FEA), `U_DIFF` (INA240A1QPWRQ1), 
 | C_CT_FILT | CT Signal Filter Cap | GRM1885C1H104JA01D | Murata | 1 | 0603 | 100nF C0G 16V |
 | R_BIAS_TOP, R_BIAS_BOT | CT Bias Divider | RC0603FR-0710KL | Yageo | 2 | 0603 | 10kΩ 1% — sets the 1.65V mid-rail for the bipolar CT output |
 
-### 4.6 RTD Hardware-Window Fault Chain (UVL-02 candidate)
+### 4.6 RTD Hardware-Window Fault Chain
 
-**Added 2026-07-26 — 15 parts, entirely uncosted (Class B, High).** `RTDSensing` (`modules.ato:1413-1511`) includes an independent hardware comparator window that faults if the RTD sense voltage falls outside a defined band, or if the post-ferrite `RTD_AVDD` rail browns out — the circuit `docs/STRATEGY.md` identifies as the UVL-02 candidate. This is separate from, and does not depend on, the MCU's firmware-side RTD fault handling. (Combined with the RTD decoupling/SPI-filter/ferrite additions in §4.1, this and §4.5 together add ~24 previously-uncosted RTD/CT-side components, in line with the audit's "~25 parts" estimate.)
+**Added 2026-07-26 — 15 parts, entirely uncosted (Class B, High).** `RTDSensing` (`modules.ato:1413-1511`) includes an independent hardware comparator window that faults if the RTD sense voltage falls outside a defined band, or if the post-ferrite `RTD_AVDD` rail browns out. This is separate from, and does not depend on, the MCU's firmware-side RTD fault handling. (Combined with the RTD decoupling/SPI-filter/ferrite additions in §4.1, this and §4.5 together add ~24 previously-uncosted RTD/CT-side components, in line with the audit's "~25 parts" estimate.)
+
+> **Corrected 2026-08-07: this is NOT UVL-02.** This section was previously titled "UVL-02 candidate" — an earlier, since-rejected identification. `RTDSensing.rail_monitor` (the `TPS3700` in this chain) trips at a simulated 2.825V with no added hysteresis resistor and monitors `RTD_AVDD` (a downstream RTD-subsystem rail), not the board's own 3.3V logic supply — its own module docstring states plainly it is "Not UVL-02." The real UVL-02 gate is `LogicUVLOComparator`, a wholly separate, previously entirely-uncosted circuit — see the new §5.9 below.
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
@@ -320,14 +329,16 @@ Per task instructions, `R_SHUNT` (WSLP25122L000FEA), `U_DIFF` (INA240A1QPWRQ1), 
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| U_OR1, U_OR2 | Triple 3-Input OR | SN74HC4075DR | Texas Instruments | 2 | SOIC-14 | Base fault combining (`fault_or`) + fault-any aggregation (`fault_any_or`) |
+| U_OR1, U_OR2, U_OR3 | Triple 3-Input OR | SN74HC4075DR | Texas Instruments | 3 | SOIC-14 | Base fault combining (`fault_or`) + fault-any aggregation (`fault_any_or`) + UVLO-02 fan-in capacity (`fault_or3`, added 2026-07-27, see note) |
 | U_NAND | Quad 2-Input NAND | SN74HC00DR | Texas Instruments | 1 | SOIC-14 | SR latch (`latch`) |
 
 > **MPN/manufacturer corrected.** Source uses TI `SN74HC4075DR`/`SN74HC00DR`, not the Nexperia `74HC4075D`/`74HC00D` this BOM previously listed — different manufacturer and different exact part number (reel suffix).
 >
-> **Quantity corrected**: source instantiates *two* `SN74HC4075` packages (`fault_or` and `fault_any_or`, `modules.ato:2089-2090`), not one — the second combines the RTD hardware fault and reset-qualification logic.
+> **Quantity corrected 2026-07-26**: source instantiates *two* `SN74HC4075` packages (`fault_or` and `fault_any_or`, `modules.ato:2089-2090`), not one — the second combines the RTD hardware fault and reset-qualification logic.
 >
-> **`U_AND` (74HC08D) and `U_INV` (74HC04D) removed** — zero hits for `74HC08\|74HC04` anywhere in `elec/src/*.ato`. The latch is built entirely from the two OR packages above plus the one NAND package.
+> **Quantity corrected again 2026-08-07 — `U_OR3` added.** Source instantiates a *third* `SN74HC4075` package, `fault_or3` (`modules.ato:3073`), added 2026-07-27 for UVLO-02's fault fan-in: by the time `LogicUVLOComparator` was designed, THM-02 already occupied the one spare input in `fault_any_or`, and no other input reached `fault_any_or.Y1 → latch.A1` without a further OR stage. This row had no BOM entry at all before this pass. See `docs/hardware/UVL02_DESIGN.md` §7.1 and `docs/evidence/2026-07-27-fault-tree-capacity-expansion.md`.
+>
+> **`U_AND` (74HC08D) and `U_INV` (74HC04D) removed** — zero hits for `74HC08\|74HC04` anywhere in `elec/src/*.ato`. The latch is built entirely from the OR packages above plus the one NAND package.
 
 ### 5.3 Hardware Watchdog
 
@@ -374,24 +385,27 @@ git history rather than re-deriving them.
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| R_OCP_REF_T | OCP Reference Divider High | RC0603FR-073K2L | Yageo | 1 | 0603 | 3.2kΩ 1% |
+| R_OCP_REF_T | OCP Reference Divider High | RC0603FR-073K24L | Yageo | 1 | 0603 | 3.24kΩ 1% — corrected 2026-08-07, see note |
 | R_OCP_REF_B | OCP Reference Divider Low | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% |
+
+> **`R_OCP_REF_T` corrected 2026-08-07 (fabricated MPN).** `RC0603FR-073K2L` (3.2kΩ) was never a real part: 3.2kΩ is not an E24 or E96 value (nearest E96 neighbours 3.16k/3.24k), the MPN encodes the same invented "3K2" figure, and it returns zero DigiKey hits. Source (`modules.ato:2113-2116`) uses the real E96 neighbour 3.24kΩ, `RC0603FR-073K24L` — DigiKey-confirmed, chosen over the other E96 neighbour (3.16k) because it centres the nominal trip closer to the 45-55A window's 50.0A midpoint. Nominal trip: `V_ref = 3.3 × 10000/13240 = 2.492V`; `I_trip = V_ref × 100 / r_burden = 2.492 × 100 / 4.99Ω ≈ 49.95A`, inside the 45-55A window. Worst-case (±1% tol + ±100ppm/°C tempco, ΔT=60°C) on `r_ref_top`/`r_ref_bot`/`r_burden`: 48.77-51.16A. See `docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md`.
 
 ### 5.6 OVP Voltage Divider
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| R_OVP1-3 | HV Sense Divider High | RC1206FR-07430KL | Yageo | 3 | 1206 | 430kΩ 1% 0.25W |
-| R_OVP4 | HV Sense Divider Low | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% |
-| R_OVP_REF_T | Comparator Reference High | RC0603FR-07732RL | Yageo | 1 | 0603 | 732Ω 1% — sets V_ref = 3.075V |
-| R_OVP_REF_B | Comparator Reference Low | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% |
-| R_OVP_ADC_T | MCU ADC Tap Divider High | RC1206FR-07510KL | Yageo | 1 | 1206 | 510kΩ 1% 0.1W 250V |
+| R_OVP1, R_OVP2, R_OVP3 | HV Sense Divider High | RC1206FR-07430KL | Yageo | 3 | 1206 | 430kΩ 1% 0.25W — protective-impedance chain, 3 in series (matches source `r_div_top1/2/3`) |
+| R_OVP_DIV_BOT | HV Sense Divider Low | RT0603BRD0716K9L | Yageo | 1 | 0603 | 16.9kΩ 0.1% — re-derived 2026-07-27 for the fixed REF2025 reference, replaces the previous R_OVP4/10kΩ divider-referenced design, see note |
+| R_OVP_HYST | OVP-01 Hysteresis Feedback | RT0603BRD07487KL | Yageo | 1 | 0603 | 487kΩ 0.1% — positive feedback from comp.OUT to the bus-sense node, sets ~8.7V hysteresis (5-10V window). New row 2026-08-07 — this resistor previously had no BOM entry at all, see note |
+| R_OVP_ADC_T1, R_OVP_ADC_T2, R_OVP_ADC_T3 | MCU ADC Tap Divider High | RC1206FR-07169KL | Yageo | 3 | 1206 | 169kΩ 1% 0.25W 200V — split from a single 510kΩ resistor 2026-07-26 for protective-impedance fault tolerance, replaces R_OVP_ADC_T, see note |
 | R_OVP_ADC_B | MCU ADC Tap Divider Low | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% 0.1W |
 | C_OVP_ADC | ADC Tap Filter Cap | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 50V X7R — MPN fixed 2026-07-26 |
 
-> **Divider values corrected 2026-07-26.** `R_OVP1-3`/`R_OVP4` previously read 1MΩ/30kΩ (ratio ≈1/101, implying a ~195V bus-half trip). Source (`modules.ato:1561-1583`) uses 430kΩ×3 + 10kΩ (ratio 1/130), matching the comparator reference below to trip at 399.7V (390-410V window, OVP-01). This was flagged Critical/material in the 2026-07-25 audit and had not yet been applied to this BOM — it is fixed in this pass.
+> **Divider values corrected 2026-07-26.** `R_OVP1-3` previously read 1MΩ (ratio ≈1/101, implying a ~195V bus-half trip). Source (`modules.ato:2251-2270`) uses 430kΩ×3 (ratio corrected against the divider bottom leg below), matching the comparator reference to trip at ~200V (195-205V window, OVP-01). This was flagged Critical/material in the 2026-07-25 audit and had not yet been applied to this BOM — it is fixed in this pass. `R_OVP1/2/3` alias `elec/src/modules.ato`'s `r_div_top1/r_div_top2/r_div_top3` — same value/MPN, different label; see `bom-reconciliation-allowlist.yaml`.
 >
-> `R_OVP_REF_T/B` and `R_OVP_ADC_T/B`/`C_OVP_ADC` were entirely uncosted (Class B). The reference divider sets the comparator's own trip threshold (732Ω was itself corrected in source on 2026-07-25 from 12kΩ, which had pinned the fault permanently active — `modules.ato:1591-1599`); the ADC tap is a separate, independent divider feeding the MCU's bus-voltage ADC channel, not the comparator.
+> **`R_OVP4`/`R_OVP_REF_T`/`R_OVP_REF_B`/`R_OVP_ADC_T` corrected 2026-08-07 (Option C re-reference, `docs/evidence/2026-07-27-ovp01-ref2025-implementation.md`).** The divider-referenced design (a `r_ref_top`/`r_ref_bot` divider off `power.vcc`, corresponding to the old `R_OVP_REF_T`/`R_OVP_REF_B` rows) failed worst-case-tolerance-only analysis (193.9-206.2V against the 195-205V window) before tempco was even considered — see `docs/evidence/2026-07-27-ovp01-half-bus-retune.md`. It was **deleted outright**: `comp.INN` is now driven directly by `RTDSensing`'s REF2025 fixed 2.5V reference (already costed as `U_RTD_REF`, §4.6) via `vref_ext`, an unpopulated signal net, not a new part. `R_OVP4` (10kΩ) is replaced by `R_OVP_DIV_BOT` (16.9kΩ, `r_div_bot` in source), re-derived for the new 2.5V reference: `V_trip = Vref × (1 + Rtop/r_div_bot + Rtop/r_hyst) = 2.5 × (77.331 + 1290000/487000) ≈ 199.95V`, centred in the 195-205V window. `R_OVP_ADC_T` (a single 510kΩ resistor) is replaced by `R_OVP_ADC_T1/2/3` (3× 169kΩ, source `r_adc_top1/2/3`): a single top resistor is not a valid IEC 60335-1 protective-impedance construction — shorting the one resistor dumps the full +170V bus across `R_OVP_ADC_B` alone (~29× its power rating, ~13× the touch-current limit); losing any one of three 169kΩ resistors still leaves 338k or 169k of top-side impedance. `R_OVP_ADC_B`/`C_OVP_ADC` are unchanged (the ADC tap's bottom leg was not touched by the top-leg split).
+>
+> **`R_OVP_HYST` added 2026-08-07 — new gap, not previously flagged.** Source's `r_hyst` (487kΩ, `modules.ato:2366-2371`) provides OVP-01's hysteresis feedback (comp.OUT → the bus-sense node) and had **no BOM.md row at all**, old or new — a genuine uncosted gap this pass found, distinct from the R_OVP_REF_T/B deletion above. Worst-case corner sweep (64 corners over all 6 error sources, tolerance + tempco at ΔT=60°C): trip 196.11-203.81V, hysteresis 8.58-8.90V, both clearing the 195-205V/5-10V windows with margin.
 
 ### 5.7 Thermal Protection (THM-01, Heatsink)
 
@@ -399,11 +413,13 @@ git history rather than re-deriving them.
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | NTC_HS | NTC Thermistor (heatsink) | NTCALUG01A104GA | Vishay BCcomponents | 1 | M3 lug | 100kΩ @ 25°C, B25/85=4190K, 1500VAC isolation |
 | R_NTC_PU | NTC Divider Fixed | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% — matches R_NTC at the 85°C trip |
-| R_THM_REF_T | Thermal Ref Divider High | RC0603FR-079K53L | Yageo | 1 | 0603 | 9.53kΩ 1% |
-| R_THM_REF_B | Thermal Ref Divider Low | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% |
-| R_THM_HYST | Thermal Hysteresis | RC0603FR-07100KL | Yageo | 1 | 0603 | 100kΩ 1% — 5.6°C hysteresis |
+| R_THM_REF_T | Thermal Ref Divider High | RC0603FR-079K09L | Yageo | 1 | 0603 | 9.09kΩ 1% |
+| R_THM_REF_B | Thermal Ref Divider Low | RC0603FR-0711K5L | Yageo | 1 | 0603 | 11.5kΩ 1% |
+| R_THM_HYST | Thermal Hysteresis | RC0603FR-0734K8L | Yageo | 1 | 0603 | 34.8kΩ 1% — 15.2°C hysteresis |
 
-> **THM-01 corrected 2026-07-25.** Trips at 84.91 °C (simulated), against the
+> **Divider values corrected 2026-08-07.** This BOM's costed values (9.53k/10k/100k) were byte-for-byte the divider superseded by commit `a4fb15dc` (2026-07-26, "add the hysteresis three gates actually specify") — a functional deficiency, not a naming lag: at those values the trip/release pair gives only **5.6°C** of hysteresis against the FUNCTIONAL_TEST_CRITERIA §2.3 requirement of **15°C**, a real risk of chatter right at the 85°C trip threshold instead of a clean latch-until-cooldown. Source's current divider (9.09k/11.5k/34.8k) gives 85.0°C trip / 69.8°C release, i.e. 15.2°C of hysteresis — independently re-derived here from the divider equations and the NTC's own R-T curve (R25=100k, B25/85=4190K), confirming the module docstring's figures. See commit `a4fb15dc` for the full E96 two-constraint derivation (no separate evidence doc exists for this commit).
+>
+> **THM-01 trip point corrected 2026-07-25.** Trips at 84.91 °C (simulated), against the
 > 85 °C requirement. Previously 99.47 °C.
 >
 > The thermistor entry was wrong: this listed `NCU18XH103F6SRB` (10 kΩ, B=3950)
@@ -411,7 +427,7 @@ git history rather than re-deriving them.
 > "VERIFIED 2026-07-16") — a different resistance decade *and* a different beta.
 > The three divider resistors were absent from this BOM entirely.
 >
-> Re-verified 2026-07-26: this subsection's parts and values still match source exactly. **THM-02 (coil NTC, 120°C) now has a circuit** — see §5.8. It did not when this note was first written.
+> Re-verified 2026-07-26 (predates commit `a4fb15dc`'s same-day hysteresis fix, and was never re-checked against it — see the divider-values note above): this subsection's parts and values matched source at the time, but the reference/hysteresis divider drifted stale again the same day and has now been corrected. **THM-02 (coil NTC, 120°C) now has a circuit** — see §5.8. It did not when this note was first written.
 
 ### 5.8 Coil Thermal Protection (THM-02)
 
@@ -421,13 +437,32 @@ git history rather than re-deriving them.
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | NTC_COIL | NTC Thermistor (coil) | NTCALUG01A104GA | Vishay BCcomponents | 1 | Axial DIN0207 | 100kΩ @ 25°C, B25/85=4190K — same part family as NTC_HS; source gives this instance a plain axial footprint, not the M3-lug pattern used for NTC_HS |
 | R_NTC2_PU | NTC Divider Fixed | RC0603FR-073K32L | Yageo | 1 | 0603 | 3.32kΩ 1% — matches R_NTC at the 120°C trip |
-| R_THM2_REF_T | Thermal Ref Divider High | RC0603FR-079K09L | Yageo | 1 | 0603 | 9.09kΩ 1% |
-| R_THM2_REF_B | Thermal Ref Divider Low | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% |
-| R_THM2_HYST | Thermal Hysteresis | RC0603FR-07100KL | Yageo | 1 | 0603 | 100kΩ 1% — 6.6°C hysteresis |
+| R_THM2_REF_T | Thermal Ref Divider High | RC0603FR-073K16L | Yageo | 1 | 0603 | 3.16kΩ 1% |
+| R_THM2_REF_B | Thermal Ref Divider Low | RC0603FR-074K42L | Yageo | 1 | 0603 | 4.42kΩ 1% |
+| R_THM2_HYST | Thermal Hysteresis | RC0603FR-0711K5L | Yageo | 1 | 0603 | 11.5kΩ 1% — 19.9°C hysteresis |
 
-Trips at 120.3°C (simulated), releasing at 113.7°C. Comparator is `U_THERMAL2` (§5.1). The fault feeds `fault_any_or` on a previously-spare gate input, so THM-02 costs no additional logic IC.
+> **Divider values corrected 2026-08-07.** This BOM's costed values (9.09k/10k/100k, THM-02's own first-revision values) were superseded by commit `a4fb15dc` (2026-07-26): only 6.6°C of hysteresis against the FUNCTIONAL_TEST_CRITERIA §2.3 requirement of 20°C. Source's current divider (3.16k/4.42k/11.5k) gives 120.0°C trip / 100.1°C release, i.e. 19.9°C of hysteresis — independently re-derived here from the divider equations and the NTC's own R-T curve (R_ntc_fixed=3.32k, R25=100k, B25/85=4190K), confirming the module docstring's figures exactly. See commit `a4fb15dc`.
+
+Trips at 120.3°C (simulated), releasing at 100.1°C (was 113.7°C against the pre-`a4fb15dc` divider — the trip point was already correct; only the release/hysteresis value changes with this correction). Comparator is `U_THERMAL2` (§5.1). The fault feeds `fault_any_or` on a previously-spare gate input, so THM-02 costs no additional logic IC.
 
 > **Sensor rating caveat, from source's own docstring:** `NTCALUG01A104GA` is rated to +125°C and this gate trips at 120.3°C — within 5°C of the sensor's maximum. Confirm the part is acceptable for sustained coil-adjacent service, or select a higher-temperature variant, before fabrication.
+
+### 5.9 Logic UVLO (UVLO-02)
+
+**Added 2026-08-07 — 6 parts, entirely uncosted until now.** `LogicUVLOComparator` (`modules.ato:2815-2985`) is the actual UVL-02 gate (logic-rail/3.3V under-voltage lockout, FUNCTIONAL_TEST_CRITERIA §2.4: trip <2.9V falling, recover >3.0V rising, >100mV hysteresis). Two pre-existing candidates were checked and rejected before this module was designed: the watchdog's `TPS3823-33` brownout comparator (fixed silicon, cannot deliver the required hysteresis) and `RTDSensing.rail_monitor` (monitors `RTD_AVDD`, not the logic rail — see the corrected §4.6 note above). This module had **zero BOM rows** before this pass, despite being wired into the fault interlock since 2026-07-27 (`fault_or3` below).
+
+| Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
+|-----|-------------|-------------|--------------|-----|---------|-------|
+| U_UVLO2 | Logic UVLO Supervisor | TPS3700DDCR | Texas Instruments | 1 | SOT-23-6 | `mon` — VDD wired directly across power_3v3, external divider sets an absolute trip point off the internal ~394.5mV bandgap reference |
+| R_UVLO2_DIV_TOP | UVLO Divider High | RC0603FR-07698KL | Yageo | 1 | 0603 | 698kΩ 1% |
+| R_UVLO2_DIV_BOT | UVLO Divider Low | RC0603FR-07100KL | Yageo | 1 | 0603 | 100kΩ 1% |
+| R_UVLO2_HYST | UVLO Hysteresis | RC0603FR-073M74L | Yageo | 1 | 0603 | 3.74MΩ 1% — positive feedback from OUTA to the sense node |
+| R_UVLO2_OUTA_PULLUP | OUTA Open-Drain Pull-Up | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% |
+| U_UVLO2_INV | Active-Low-to-High Inverter | SN74LVC1G38DBVR | Texas Instruments | 1 | SOT-23-5 | Open-drain (`inv`); its own pull-up is a 10kΩ `r_fault_pullup` instance at `modules.ato:2979`, same reused variable name as (but a physically separate part from) the RTD chain's `R_RTD_FAULT_PULLUP` (§4.6). Not one of the 49 gate findings this pass fixes (confirmed against a live gate run — see `docs/hardware/BOM_RECONCILIATION_PROPOSAL.md` §3's `r_fault_pullup` correction note); left as a documentation gap for a follow-up, not added as a numbered row here. |
+
+Nominal (698k/100k/3.74M): trip 2.715V, recover 3.222V, 0.507V (15.4%) hysteresis. Worst-case (each resistor ±1%, VIT_A over its full datasheet range): trip ≤2.800V (100mV margin under the 2.9V ceiling), recover ≥3.106V (106mV margin over the 3.0V floor). See `docs/hardware/UVL02_DESIGN.md` and `docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md`.
+
+`fault_or3` (the third `SN74HC4075` triple-OR package that fans this fault into the interlock, added 2026-07-27) is costed as `U_OR3` in §5.2. `tp_uvlo2_fault` (bench probe point) is costed as `TP3` in §10.2.
 
 ---
 
@@ -479,14 +514,15 @@ Trips at 120.3°C (simulated), releasing at 113.7°C. Comparator is `U_THERMAL2`
 
 ### 10.2 Test Points
 
-`components.ato:717` marks `TestPoint.bom_exclude = true` — these are not meant to be procured as BOM line items; listed here for rework/bring-up reference only, not for ordering. Source instantiates exactly 2 (`SafetyInterlock.tp_shutdown`, `SafetyInterlock.tp_fault`), not the 5 previously listed.
+`components.ato:717` marks `TestPoint.bom_exclude = true` — these are not meant to be procured as BOM line items; listed here for rework/bring-up reference only, not for ordering. Source instantiates exactly 3 (`SafetyInterlock.tp_shutdown`, `SafetyInterlock.tp_fault`, `SafetyInterlock.tp_uvlo2_fault`), not the 5 originally listed nor the 2 counted 2026-07-25.
 
 | Ref | Description | Part Number | Manufacturer | Qty | Notes |
 |-----|-------------|-------------|--------------|-----|-------|
 | TP1 | SHUTDOWN test point | GENERIC_TEST_POINT | - | 1 | `safety.tp_shutdown` — latched shutdown output to gate-driver DIS |
 | TP2 | FAULT_STATUS test point | GENERIC_TEST_POINT | - | 1 | `safety.tp_fault` — latch Q output to MCU |
+| TP3 | UVLO2_FAULT test point | GENERIC_TEST_POINT | - | 1 | `safety.tp_uvlo2_fault` (`modules.ato:3227`) — UVLO-02 bench probe point, added 2026-08-07. A different, newer instance than the originally-removed `TP3` (`GATE_DISABLE`) below, which reuses the same ref label for an unrelated net. |
 
-Removed: `TP3` (`GATE_DISABLE`), `TP4` (`V_BOOT`), `TP5` (`SW_NODE`) — no corresponding `TestPoint` instances exist in source for these nets.
+Removed: the original `TP3` (`GATE_DISABLE`), `TP4` (`V_BOOT`), `TP5` (`SW_NODE`) — no corresponding `TestPoint` instances exist in source for these nets.
 
 ---
 
@@ -522,15 +558,15 @@ Removed: `TP3` (`GATE_DISABLE`), `TP4` (`V_BOOT`), `TP5` (`SW_NODE`) — no corr
 
 | Category | Component Count |
 |----------|----------------|
-| Power Stage (IGBT, gate drive, EMI/doubler, bus discharge, tank) | 44 |
+| Power Stage (IGBT, gate drive, EMI/doubler, bus discharge, tank) | 45 |
 | Power Management (buck, aux supply) | 13 |
 | Microcontroller | 10 |
 | Sensing (RTD chain, CT, CT bias) | 34 |
-| Safety Interlock (comparators, logic, watchdog, OVP/OCP dividers, thermal ×2) | 34 |
+| Safety Interlock (comparators, logic, watchdog, OVP/OCP dividers, thermal ×2, UVLO-02) | 43 |
 | User Interface (buttons) | 2 |
 | PWM Filter | 4 |
 | Thermal (PCB-side fan interface) | 2 |
-| **TOTAL (matches `elec/build/default.net` exactly)** | **155** |
+| **TOTAL** | **~165 (not re-verified against `elec/build/default.net` in this pass — see 2026-08-07 revision note)** |
 
 Chassis BOM (§11, not in the 155): heatsink, fan, TIM ×2, mounting hardware, thermal fuse — 6 additional lines, mechanical/off-`elec/src` by design. `F1_HOLDER` (§1.2, added 2026-07-26) is the same kind of exception: a real orderable part and BOM line that is not a separate `elec/src` component (mechanical carrier, same two electrical nodes as `F1`) — 1 additional line, not in the 155.
 
@@ -559,6 +595,7 @@ Chassis BOM (§11, not in the 155): heatsink, fan, TIM ×2, mounting hardware, t
 | 1.4 | 2026-07-26 | **De-scoped IGBT desaturation protection** — removed 19 costed line items for a circuit that was never designed. The UCC21550 in use has no DESAT pin, so this is a gate-drive redesign rather than a part swap. Shoot-through, gate-drive failure and device-local shorts are recorded as accepted residual risk; see `docs/hardware/DESAT_DECISION_BRIEF.md`. A redesign spike is open. |
 | 1.5 | 2026-07-26 | **Full BOM-vs-source reconciliation**, working the `docs/evidence/2026-07-25-bom-source-audit.md` findings class by class against `elec/src/*.ato` (verified via `elec/build/default.net`/`default.csv`, 155 components). Class C (16 value/MPN disagreements): fixed OVP divider (1MΩ/30kΩ → 430kΩ/10kΩ — this was still wrong going into this pass despite the OCP/thermal fixes in 1.2-1.3), bootstrap diode (UJ3D1210TS → ES1J), bus caps (fictional 3300µF → 4×1800µF), bleeder resistors (100kΩ → 22kΩ), CMC, bypass relay, buck converter (wrong topology entirely — was described as 24V/12V→5V, corrected to 15V→3.3V with all real values), gate driver MPN, RTD MPN/package/channel-count, PWM filter cap, ESP32 variant, watchdog decoupling cap, logic-IC manufacturer/MPN/quantity, fan, heatsink, TIM. Class A (removed, absence proven by grep against `elec/src/*.ato`): OCP-02 shunt/amp/comparator (still not instantiated — topology decision pending, see §4.4), precision rectifier, I2C isolator, fault LEDs, AND/INV logic gates, anti-aliasing filter, LDO section (replaced by buck), plus a newly-found `J_IN` connector line with no source component and a generic decoupling bucket superseded by exact itemization. Class B (added from source, ~95 previously-uncosted components): active bus discharge (17 parts), isolated auxiliary 15V supply (4 parts — the isolation barrier itself), RTD hardware-window fault chain (15 parts) plus RTD SPI/ferrite/decoupling (12 parts), CT bias+filter (3 parts), OCP/OVP reference and ADC-tap dividers (9 parts), gate-drive bypass/filter/dead-time/zener network (10 parts), AC-input protection (fuse, MOV, X2/Y1 caps, ZCD network, bypass-relay driver — 11 parts), MCU boot/reset RC + buttons (4 parts), plus THM-02 coil-thermal protection (5 parts, designed in source on this same date — previously had no circuit at all, not merely uncosted). Component count now matches source exactly at 155. See full per-line detail inline above; `docs/evidence/2026-07-25-bom-source-audit.md` records the original findings this pass resolves. |
 | 1.6 | 2026-07-26 | **Resolved the three confirmed procurement blockers from `docs/evidence/2026-07-26-bom-availability-sweep.md`** (full resolution detail: `docs/evidence/2026-07-26-bom-blocker-resolution.md`). (1) `GRM188R71E104KA01D` (100nF/0603/X7R decoupling, Obsolete/0-stock at DigiKey, 16 instances across §1.1/2.1/2.3/3.1/4.1/5.3/5.6) → `C0603C104K5RACTU` (KEMET, 100nF ±10% X7R 50V) — Active, 6.7M units at DigiKey; flagged DC-bias derating on the three 15V-rail instances (`C_VDDA`, `C_VDDB`, §2.3 `C_OUT_HF`). (2) `C_X2` MPN `DE2E3KH221MA3B` (not found at any distributor; Murata's own DE2 "221" suffix convention decodes to 220pF, 1000× off the 220nF this circuit needs, and the DE2 family tops out ~10nF regardless) → `B32922C3224M289` (EPCOS/TDK X2/305VAC film cap) — Active, 28,179 units at DigiKey; approvals read directly from EPCOS's own datasheet (IEC 60384-14/EN132400, UL 1414/1283, CSA C22.2, CQC); new box-style footprint required, not yet drawn. (3) `F1` (`0034.3129`) confirmed to be a bare Schurter FST fuse **link**, not a holder+fuse assembly — added `F1_HOLDER` = Schurter `0031.2510` (FUP series, 16A/250-500VAC, matches the fuse's rating) as a new BOM line; not separately modeled in `elec/src` (mechanical carrier, same two nodes as `F1`); new footprint required. Also flagged, unresolved: no I²t/inrush coordination analysis exists anywhere in this repo for `F1`/`NTC_INRUSH`/`K_BYPASS`, and the 16A fuse has only ~7% headroom over the 15A continuous branch load. |
+| 1.7 | 2026-08-07 | **Full BOM<->source reconciliation against the R14 gate's 49 seeded findings** — applied `docs/hardware/BOM_RECONCILIATION_PROPOSAL.md`'s verdicts (41 BOM-stale edits, 7 designator-normalization allowlist mappings, 1 already-correct design decision, 0 source-stale, 0 ambiguous). **Safety-relevant (3):** `R_DIS1A/1B/2A/2B` 4.7kΩ→3.9kΩ (BOM's 4.7kΩ fails the <60s bus-discharge requirement at 65.4s on the capacitor's own tolerance alone; 3.9kΩ gives 56.9s worst-case); THM-01/THM-02 reference/hysteresis dividers corrected to restore 15°C/20°C hysteresis (BOM's stale, pre-`a4fb15dc` values gave only 5.6°C/6.6°C, risking chatter at the trip threshold); `R_OCP_REF_T` 3.2kΩ (fabricated, non-orderable MPN)→3.24kΩ (real E96 value, 49.95A trip). **Misleading-documentation fixes (2):** removed the stale "does not meet reinforced isolation, unresolved" warning on `K_DIS1/K_DIS2` (source fixed this 2026-07-31/08-02, swapping to `RT314012`, 12.76mm gap vs the 8.0mm requirement); corrected §4.6's mislabeling of the RTD hardware-window chain as "UVL-02 candidate" (its own module docstring says "Not UVL-02") and added the real, previously zero-row `LogicUVLOComparator` (UVLO-02) gate as new §5.9 (8 items total: 6 in §5.9, `U_OR3` in §5.2, `TP3` in §10.2). **Other BOM-stale corrections:** `C_TANK1/2` WIMA→CDE re-source plus a third physical capacitor (`C_TANK3`, 2→3 caps); OVP-01's Option C re-reference (`R_OVP4`→`R_OVP_DIV_BOT`, `R_OVP_REF_T/B` deleted — resistor no longer in circuit, `R_OVP_ADC_T` split into 3 protective-impedance-compliant resistors, new `R_OVP_HYST` row for a previously entirely-uncosted hysteresis resistor). **Designator-normalization-only (7, allowlist mapping added, no BOM.md value change):** `R_OVP1/2/3` (alias of source's `r_div_top1/2/3`, value was already correct) and `boot_cap` (gate-driver bootstrap cap, distinct from the buck converter's same-labeled `C_BOOT`). See `docs/hardware/BOM_RECONCILIATION_PROPOSAL.md` for full per-item evidence and re-derivations. |
 
 ---
 

@@ -159,9 +159,49 @@ There is no ``--init``/auto-regenerate mode, for the same reason
 ``mpn_fabrication_gate.py`` has none (see that module's docstring): an
 allowlist a script can bulk-write to is not a safety net.
 
+BACKLOG ENTRIES (``backlog: true``) vs. JUSTIFIED EXCEPTIONS
+==============================================================
+
+Two structurally distinct kinds of allowlist entry share this file:
+
+  * JUSTIFIED EXCEPTIONS (the default shape, no ``backlog`` key): a
+    hand-verified, permanent statement that a finding is NOT a content
+    defect -- the BOM and source genuinely refer to the same part under
+    different labels, or the part is deliberately out of ``elec/src``
+    scope. ``reason`` explains *why the finding is wrong*, citing the
+    source line(s), and is expected to stay in this file indefinitely.
+
+  * BACKLOG ENTRIES (``backlog: true`` + ``seeded: "YYYY-MM-DD"``): a
+    dated admission that a finding IS real, pre-existing drift, not yet
+    triaged or fixed -- seeded in bulk on the date this gate first became
+    a hard, non-``continue-on-error`` CI gate (2026-08-07), purely so the
+    gate could go live without being reverted for blocking every PR on a
+    pre-existing procurement backlog. A backlog entry's ``reason`` holds
+    the finding's own verbatim detail (what the gate would otherwise have
+    printed), NOT a justification -- there is no claim here that the
+    finding is wrong.
+
+    ``load_allowlist()`` fails closed (returns ``None``, same as any
+    other malformed entry) if ``backlog: true`` appears without a valid
+    ``seeded: "YYYY-MM-DD"`` date, or if ``seeded`` appears without
+    ``backlog: true`` -- the two fields are required to travel together,
+    so a backlog entry can never be hand-edited into looking like a plain
+    justified one (or vice versa) by dropping just one field.
+
+    ``run()`` always reports backlog-suppressed findings under their own
+    banner and section, counted separately from both new findings and
+    justified exceptions, on every single run (pass or fail) -- see the
+    "N backlog finding(s) suppressed" line -- specifically so a growing
+    backlog cannot fade into silent, permanent background noise the way a
+    merged-in justified entry can. Run with ``--backlog-report`` to list
+    every outstanding backlog entry (and whether it still matches a live
+    finding) so the backlog can be worked down and the count watched
+    falling.
+
 Usage:
   uv run python scripts/check_bom_source_reconciliation.py
   uv run python scripts/check_bom_source_reconciliation.py --bom PATH --ato-glob 'elec/src/*.ato'
+  uv run python scripts/check_bom_source_reconciliation.py --backlog-report
 """
 
 from __future__ import annotations
@@ -429,11 +469,24 @@ class AllowlistEntry:
     designator: str
     file: str | None
     reason: str
+    backlog: bool = False
+    seeded: str | None = None
+
+
+_SEEDED_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def load_allowlist(path: Path) -> list[AllowlistEntry] | None:
     """Load the hand-curated allowlist. Returns None on any parse failure
-    (caller must treat that as a tool error, not an empty-but-valid list)."""
+    (caller must treat that as a tool error, not an empty-but-valid list).
+
+    Two entry shapes are accepted (see module docstring's "BACKLOG ENTRIES
+    vs. JUSTIFIED EXCEPTIONS"): a plain justified exception (no ``backlog``/
+    ``seeded`` keys), or a dated backlog entry (``backlog: true`` AND a
+    ``seeded: "YYYY-MM-DD"`` string -- both required together, never just
+    one). Either shape fails closed the same as a missing kind/designator/
+    reason -- a backlog entry with a malformed date is not silently treated
+    as either an empty allowlist or a justified one."""
     if not path.is_file():
         return []
     import yaml
@@ -465,8 +518,31 @@ def load_allowlist(path: Path) -> list[AllowlistEntry] | None:
         file_val = e.get("file")
         if file_val is not None and not isinstance(file_val, str):
             return None
+        backlog_val = e.get("backlog", False)
+        if not isinstance(backlog_val, bool):
+            return None
+        seeded_val = e.get("seeded")
+        if seeded_val is not None and not isinstance(seeded_val, str):
+            return None
+        if backlog_val:
+            if not seeded_val or not seeded_val.strip() or not _SEEDED_DATE_RE.match(seeded_val.strip()):
+                return None
+            seeded_val = seeded_val.strip()
+        else:
+            # A plain justified entry must NOT carry a seeded date -- the
+            # two fields travel together or not at all, so one can never be
+            # dropped to blur a backlog entry into a justified-looking one.
+            if seeded_val is not None:
+                return None
         entries.append(
-            AllowlistEntry(kind=e["kind"], designator=e["designator"], file=file_val, reason=e["reason"])
+            AllowlistEntry(
+                kind=e["kind"],
+                designator=e["designator"],
+                file=file_val,
+                reason=e["reason"],
+                backlog=backlog_val,
+                seeded=seeded_val,
+            )
         )
     return entries
 
@@ -497,6 +573,8 @@ class Finding:
     allowlisted: bool
     allow_reason: str = ""
     file: str | None = None
+    backlog: bool = False
+    seeded: str | None = None
 
 
 @dataclass
@@ -512,6 +590,20 @@ class Report:
     @property
     def allowlisted_findings(self) -> list[Finding]:
         return [f for f in self.findings if f.allowlisted]
+
+    @property
+    def backlog_findings(self) -> list[Finding]:
+        """Allowlisted findings suppressed by a dated BACKLOG entry --
+        real, un-triaged drift, not a justified exception. Kept separate
+        from ``justified_findings`` so a backlog can never be reported as
+        (or silently mistaken for) hand-verified-clean."""
+        return [f for f in self.findings if f.allowlisted and f.backlog]
+
+    @property
+    def justified_findings(self) -> list[Finding]:
+        """Allowlisted findings suppressed by a plain, permanent justified
+        exception (no ``backlog`` flag)."""
+        return [f for f in self.findings if f.allowlisted and not f.backlog]
 
 
 def reconcile(
@@ -544,6 +636,8 @@ def reconcile(
                     ),
                     allowlisted=entry is not None,
                     allow_reason=entry.reason if entry else "",
+                    backlog=entry.backlog if entry else False,
+                    seeded=entry.seeded if entry else None,
                 )
             )
 
@@ -565,6 +659,8 @@ def reconcile(
                     allowlisted=entry is not None,
                     allow_reason=entry.reason if entry else "",
                     file=sp.file,
+                    backlog=entry.backlog if entry else False,
+                    seeded=entry.seeded if entry else None,
                 )
             )
 
@@ -591,6 +687,8 @@ def reconcile(
                 ),
                 allowlisted=entry is not None,
                 allow_reason=entry.reason if entry else "",
+                backlog=entry.backlog if entry else False,
+                seeded=entry.seeded if entry else None,
             )
         )
 
@@ -602,12 +700,24 @@ def reconcile(
 # ---------------------------------------------------------------------------
 
 
-def run(bom_path: Path, ato_glob: str, allowlist_path: Path, src_root: Path = REPO_ROOT) -> int:
+def run(
+    bom_path: Path,
+    ato_glob: str,
+    allowlist_path: Path,
+    src_root: Path = REPO_ROOT,
+    backlog_report: bool = False,
+) -> int:
     """``src_root`` is the base ``ato_glob`` is resolved against (and the
     base ``parse_instances()`` reports each part's ``file`` relative to) --
     an explicit parameter, like ``check_netlist_board_reconciliation.py``'s
     ``--src-dir``, so tests can point it at a synthetic ``tmp_path`` tree
-    instead of the real repo root."""
+    instead of the real repo root.
+
+    ``backlog_report``, if set, prints an additional section listing every
+    dated BACKLOG allowlist entry and whether it still matches a live
+    finding (vs. STALE -- the underlying drift got fixed and the entry can
+    be deleted). Purely additive: it never changes the pass/fail exit
+    code, which is always governed solely by ``report.new_findings``."""
     if not bom_path.is_file():
         print(f"[BOM-RECONCILIATION-GATE-ERROR] BOM not found: {bom_path}", file=sys.stderr)
         return EXIT_GATE_ERROR
@@ -674,16 +784,61 @@ def run(bom_path: Path, ato_glob: str, allowlist_path: Path, src_root: Path = RE
     print(f"Allowlist entries loaded: {len(allowlist)}")
 
     new_findings = report.new_findings
-    allowlisted = report.allowlisted_findings
+    justified = report.justified_findings
+    backlog = report.backlog_findings
 
     by_kind: dict[str, list[Finding]] = {}
     for f in new_findings:
         by_kind.setdefault(f.kind, []).append(f)
 
-    if allowlisted:
-        print(f"\n=== ALLOWLISTED (suppressed, {len(allowlisted)}) ===")
-        for f in allowlisted:
+    if justified:
+        print(f"\n=== ALLOWLISTED -- justified exceptions (suppressed, {len(justified)}) ===")
+        for f in justified:
             print(f"  [{f.kind}] {f.designator}: {f.allow_reason}")
+
+    seeded_dates = sorted({f.seeded for f in backlog if f.seeded})
+    seeded_desc = ", ".join(seeded_dates) if seeded_dates else "n/a"
+
+    if backlog:
+        print(
+            f"\n=== ALLOWLISTED -- BACKLOG (suppressed, {len(backlog)}; seeded {seeded_desc}; "
+            "NOT justified exceptions -- real, un-triaged drift, see "
+            f"{allowlist_path.name}'s docstring) ==="
+        )
+        for f in backlog:
+            print(f"  [{f.kind}] {f.designator}: {f.allow_reason}")
+
+    # Printed on EVERY run, pass or fail, so a growing backlog can never
+    # fade into silent background noise the way a merged-in justified
+    # entry can -- see module docstring's "BACKLOG ENTRIES vs. JUSTIFIED
+    # EXCEPTIONS".
+    backlog_banner = (
+        f"{len(backlog)} backlog finding(s) suppressed (seeded {seeded_desc}); "
+        f"{len(new_findings)} new finding(s)."
+    )
+    print(f"\n{backlog_banner}")
+
+    if backlog_report:
+        print("\n=== BACKLOG REPORT ===")
+        backlog_entries = [e for e in allowlist if e.backlog]
+        if not backlog_entries:
+            print("  (no backlog entries in allowlist)")
+        else:
+            live_counts: dict[tuple[str, str, str | None], int] = {}
+            for f in backlog:
+                live_counts[(f.kind, normalize(f.designator), f.file)] = (
+                    live_counts.get((f.kind, normalize(f.designator), f.file), 0) + 1
+                )
+            for e in sorted(backlog_entries, key=lambda e: (e.kind, e.designator)):
+                key = (e.kind, normalize(e.designator), e.file)
+                n = live_counts.get(key, 0)
+                status = f"{n} live finding(s)" if n else "STALE -- 0 live findings, safe to remove"
+                scope = f" ({e.file})" if e.file else ""
+                print(f"  [{e.kind}] {e.designator}{scope} -- seeded {e.seeded}: {status}")
+            print(
+                f"\n  {len(backlog_entries)} backlog entry/entries in {allowlist_path.name}, "
+                f"{len(backlog)} live backlogged finding(s) suppressed this run."
+            )
 
     gh = get_github_summary_path()
 
@@ -695,7 +850,8 @@ def run(bom_path: Path, ato_glob: str, allowlist_path: Path, src_root: Path = RE
         if gh:
             with open(gh, "a") as fh:
                 fh.write("### BOM<->Source Reconciliation Gate -- PASSED\n")
-                fh.write(f"0 new finding(s). {len(allowlisted)} allowlisted.\n")
+                fh.write(f"0 new finding(s). {len(justified)} justified exception(s) allowlisted. ")
+                fh.write(f"{backlog_banner}\n")
         return EXIT_OK
 
     print(f"\n=== FINDINGS: {len(new_findings)} ===")
@@ -712,17 +868,23 @@ def run(bom_path: Path, ato_glob: str, allowlist_path: Path, src_root: Path = RE
     if gh:
         with open(gh, "a") as fh:
             fh.write("### BOM<->Source Reconciliation Gate -- FAILED\n")
-            fh.write(f"{len(new_findings)} finding(s) ({len(allowlisted)} allowlisted)\n\n")
+            fh.write(
+                f"{len(new_findings)} finding(s) ({len(justified)} justified exception(s) "
+                f"allowlisted). {backlog_banner}\n\n"
+            )
             for line in gh_lines[:200]:
                 fh.write(line + "\n")
 
     print(f"\nFAILED -- {len(new_findings)} finding(s)")
+    print(backlog_banner)
     print(
         "Remediation: either fix the drift (BOM.md or elec/src, maintainer's call -- this gate "
         "only detects), or if the finding is a genuine, deliberate exception (e.g. a chassis "
         "part intentionally out of elec/src scope, or a reused generic template variable name "
         f"that a real netlist would disambiguate), add a justified entry to "
-        f"{allowlist_path.name} (hand-edited only -- see module docstring)."
+        f"{allowlist_path.name} (hand-edited only -- see module docstring). Pre-existing, "
+        "not-yet-triaged drift belongs in a dated BACKLOG entry (backlog: true, seeded: "
+        "\"YYYY-MM-DD\"), never a justified one."
     )
     return EXIT_VIOLATION
 
@@ -732,8 +894,15 @@ def main() -> None:
     parser.add_argument("--bom", type=Path, default=DEFAULT_BOM)
     parser.add_argument("--ato-glob", default=DEFAULT_ATO_GLOB)
     parser.add_argument("--allowlist", type=Path, default=DEFAULT_ALLOWLIST)
+    parser.add_argument(
+        "--backlog-report",
+        action="store_true",
+        help="List every dated BACKLOG allowlist entry and whether it still matches a live "
+        "finding (vs. STALE, safe to remove), so the backlog can be worked down and its count "
+        "watched falling. Purely additive -- never changes the exit code.",
+    )
     args = parser.parse_args()
-    sys.exit(run(args.bom, args.ato_glob, args.allowlist))
+    sys.exit(run(args.bom, args.ato_glob, args.allowlist, backlog_report=args.backlog_report))
 
 
 if __name__ == "__main__":

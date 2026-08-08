@@ -34,14 +34,33 @@ Groups:
                             tree, BOM missing a line (fails) vs. BOM carrying
                             it (passes) -- proves the gate would have caught
                             the defect this plan was written to close.
+  TestBacklog           -- the ``backlog: true`` / ``seeded: "YYYY-MM-DD"``
+                            allowlist-entry shape (seeded in bulk 2026-08-07
+                            to unblock the R14 gate without a procurement
+                            detour): malformed backlog/seeded correlation
+                            fails closed like any other bad entry; a backlog
+                            entry suppresses its finding but is reported
+                            under its own separate banner/section; and --
+                            the whole point of a backlog instead of a
+                            silent kind-level suppression -- a brand-new,
+                            NOT-backlogged defect still fails the gate even
+                            when every other finding in the tree is
+                            backlogged.
   TestRealTree          -- the actual gate, actual repo, at HEAD: must run a
-                            real (non-vacuous) check and must currently FAIL
-                            (the BOM does not yet reconcile -- that is this
-                            gate's whole reason to exist), pinning the real
-                            finding counts so a future accidental regression
-                            in the parser (e.g. silently parsing 0 rows) is
-                            caught by "counts changed" rather than trusted
-                            silently.
+                            real (non-vacuous) check; the real allowlist now
+                            seeds all 49 pre-existing findings pinned at
+                            gate-introduction time (2026-08-07) as a dated
+                            BACKLOG (not silently resolved, not blurred into
+                            the hand-verified justified-exception entries),
+                            so the real tree now passes (0 new findings) --
+                            pinning the backlog count (14/27/8 by kind) so a
+                            future accidental regression (e.g. the allowlist
+                            silently swallowing a real NEW finding, or the
+                            parser silently parsing 0 rows) is caught by
+                            "counts changed" rather than trusted silently.
+                            A companion test proves a synthetic 50th finding,
+                            layered on top of the real 49-entry backlog, is
+                            NOT swallowed.
 """
 
 from __future__ import annotations
@@ -59,6 +78,7 @@ from check_bom_source_reconciliation import (  # noqa: E402
     KIND_MPN_MISMATCH,
     KIND_WIRED_UNCOSTED,
     AllowlistEntry,
+    SourcePart,
     allowlist_covers,
     load_allowlist,
     normalize,
@@ -491,6 +511,201 @@ class TestAllowlist:
 
 
 # ---------------------------------------------------------------------------
+# TestBacklog -- the ``backlog: true`` / ``seeded: "YYYY-MM-DD"`` allowlist
+# entry shape (see bom-reconciliation-allowlist.yaml's "BACKLOG (seeded
+# 2026-08-07)" section and this module's docstring).
+# ---------------------------------------------------------------------------
+
+
+class TestBacklog:
+    def test_backlog_true_without_seeded_fails_closed(self, tmp_path: Path) -> None:
+        bad = tmp_path / "bad_backlog.yaml"
+        bad.write_text(
+            "allowlist:\n"
+            "  - kind: costed_no_circuit\n"
+            "    designator: K_BYPASS\n"
+            "    backlog: true\n"
+            "    reason: backlog flag with no seeded date\n"
+        )
+        assert load_allowlist(bad) is None
+
+    def test_seeded_without_backlog_true_fails_closed(self, tmp_path: Path) -> None:
+        # The two fields travel together -- a plain justified entry can
+        # never carry a seeded date, so one can't be dropped to blur a
+        # backlog entry into looking like a justified one.
+        bad = tmp_path / "bad_backlog2.yaml"
+        bad.write_text(
+            "allowlist:\n"
+            "  - kind: costed_no_circuit\n"
+            "    designator: K_BYPASS\n"
+            "    seeded: '2026-08-07'\n"
+            "    reason: seeded date without the backlog flag\n"
+        )
+        assert load_allowlist(bad) is None
+
+    def test_malformed_seeded_date_fails_closed(self, tmp_path: Path) -> None:
+        bad = tmp_path / "bad_backlog3.yaml"
+        bad.write_text(
+            "allowlist:\n"
+            "  - kind: costed_no_circuit\n"
+            "    designator: K_BYPASS\n"
+            "    backlog: true\n"
+            "    seeded: 'not-a-date'\n"
+            "    reason: malformed seeded date\n"
+        )
+        assert load_allowlist(bad) is None
+
+    def test_backlog_entry_parses_with_flag_and_date(self, tmp_path: Path) -> None:
+        good = tmp_path / "good_backlog.yaml"
+        good.write_text(
+            "allowlist:\n"
+            "  - kind: costed_no_circuit\n"
+            "    designator: K_BYPASS\n"
+            "    backlog: true\n"
+            "    seeded: '2026-08-07'\n"
+            "    reason: 'BACKLOG (seeded 2026-08-07): synthetic finding detail'\n"
+        )
+        entries = load_allowlist(good)
+        assert entries is not None
+        assert len(entries) == 1
+        assert entries[0].backlog is True
+        assert entries[0].seeded == "2026-08-07"
+
+    def test_justified_entry_defaults_backlog_false_and_seeded_none(self, tmp_path: Path) -> None:
+        plain = tmp_path / "plain.yaml"
+        plain.write_text(
+            "allowlist:\n"
+            "  - kind: costed_no_circuit\n"
+            "    designator: K_BYPASS\n"
+            "    reason: a normal justified exception\n"
+        )
+        entries = load_allowlist(plain)
+        assert entries is not None
+        assert entries[0].backlog is False
+        assert entries[0].seeded is None
+
+    def test_backlog_entry_suppresses_and_is_reported_as_backlog_not_justified(
+        self, tmp_path: Path
+    ) -> None:
+        _minimal_matched_tree(tmp_path)
+        bom = write_bom(
+            tmp_path,
+            "| K_BYPASS | Bypass Relay | G4A-1A-E DC12 | Omron | 1 | THT | note |\n"
+            "| HS1 | Heatsink | 392-120AB | Wakefield-Vette | 1 | - | mechanical |\n",
+        )
+        allow = tmp_path / "allow.yaml"
+        allow.write_text(
+            "allowlist:\n"
+            "  - kind: costed_no_circuit\n"
+            "    designator: HS1\n"
+            "    backlog: true\n"
+            "    seeded: '2026-08-07'\n"
+            "    reason: 'BACKLOG (seeded 2026-08-07): synthetic backlog finding for test'\n"
+        )
+        code = run(bom, "elec/src/*.ato", allow, tmp_path)
+        assert code == EXIT_OK
+
+        files = sorted((tmp_path / "elec" / "src").glob("*.ato"))
+        types, defaults = parse_component_defaults(files)
+        parts = parse_instances(files, types, defaults, tmp_path)
+        bom_lines = parse_bom(bom)
+        allowlist = load_allowlist(allow)
+        assert allowlist is not None
+        report = reconcile(bom_lines, parts, allowlist)
+        assert report.new_findings == []
+        assert len(report.backlog_findings) == 1
+        assert report.backlog_findings[0].designator == "HS1"
+        assert report.justified_findings == []
+
+    def test_new_defect_not_covered_by_backlog_still_fails(self, tmp_path: Path) -> None:
+        """The whole point of a dated backlog instead of a blanket
+        suppression: a tree where one pre-existing defect is backlogged
+        passes, but adding a second, brand-new, NOT-backlogged defect must
+        still fail -- even though every OTHER finding in the tree is
+        already suppressed. If a backlog entry ever became a kind-level or
+        file-level blanket suppression instead of a per-designator one,
+        this test would start incorrectly passing."""
+        write_ato(tmp_path, "components.ato", COMPONENTS_ATO)
+        write_ato(
+            tmp_path,
+            "modules.ato",
+            "module Top:\n"
+            "    k_bypass = new Relay_SPDT\n"
+            "    k_bypass.mpn = \"G4A-1A-E DC12\"\n"
+            "    legacy_backlog_part = new Resistor\n"
+            "    legacy_backlog_part.mpn = \"BACKLOG-MPN\"\n",
+        )
+        bom = write_bom(tmp_path, "| K_BYPASS | Bypass Relay | G4A-1A-E DC12 | Omron | 1 | THT | note |\n")
+        allow = tmp_path / "allow.yaml"
+        allow.write_text(
+            "allowlist:\n"
+            "  - kind: wired_uncosted\n"
+            "    designator: legacy_backlog_part\n"
+            "    file: elec/src/modules.ato\n"
+            "    backlog: true\n"
+            "    seeded: '2026-08-07'\n"
+            "    reason: 'BACKLOG (seeded 2026-08-07): pre-existing drift, tracked, not yet fixed'\n"
+        )
+
+        # Before: only the backlogged defect is present -> passes.
+        code_before = run(bom, "elec/src/*.ato", allow, tmp_path)
+        assert code_before == EXIT_OK
+
+        # After: add a brand-new, unrelated defect that the backlog does
+        # NOT cover -- must still fail.
+        write_ato(
+            tmp_path,
+            "modules.ato",
+            "module Top:\n"
+            "    k_bypass = new Relay_SPDT\n"
+            "    k_bypass.mpn = \"G4A-1A-E DC12\"\n"
+            "    legacy_backlog_part = new Resistor\n"
+            "    legacy_backlog_part.mpn = \"BACKLOG-MPN\"\n"
+            "    brand_new_drift_part = new Capacitor\n"
+            "    brand_new_drift_part.mpn = \"NEW-MPN\"\n",
+        )
+        code_after = run(bom, "elec/src/*.ato", allow, tmp_path)
+        assert code_after == EXIT_VIOLATION
+
+    def test_real_backlog_of_49_does_not_swallow_a_synthetic_50th_finding(self) -> None:
+        """The real allowlist now backlogs all 49 findings pinned at
+        gate-introduction time (2026-08-07). Layer one more, synthetic,
+        NOT-backlogged source instantiation onto the real repo's parsed
+        parts and confirm reconcile() -- using the REAL allowlist, unmodified
+        -- still reports it as a brand-new finding. This is the literal
+        proof that seeding the 49-item backlog did not turn into a blanket
+        suppression that would also swallow real future drift."""
+        files = sorted(REPO_ROOT.glob(REAL_ATO_GLOB))
+        types, defaults = parse_component_defaults(files)
+        parts = parse_instances(files, types, defaults, REPO_ROOT)
+        bom_lines = parse_bom(REAL_BOM)
+        allowlist = load_allowlist(REAL_ALLOWLIST)
+        assert allowlist is not None
+
+        # Sanity: real tree + real (now-seeded) allowlist reconciles clean
+        # before the synthetic 50th defect is added.
+        baseline = reconcile(bom_lines, parts, allowlist)
+        assert baseline.new_findings == [], [f.detail for f in baseline.new_findings]
+
+        synthetic = SourcePart(
+            var="q_synthetic_backlog_test_drift",
+            type_="Resistor",
+            mpn="SYNTHETIC-MPN-NOT-IN-BOM",
+            file="elec/src/modules.ato",
+            line=999999,
+        )
+        seeded_report = reconcile(bom_lines, parts + [synthetic], allowlist)
+        new_designators = {f.designator for f in seeded_report.new_findings}
+        assert "q_synthetic_backlog_test_drift" in new_designators, seeded_report.new_findings
+        matching = [
+            f for f in seeded_report.new_findings if f.designator == "q_synthetic_backlog_test_drift"
+        ]
+        assert len(matching) == 1
+        assert matching[0].kind == KIND_WIRED_UNCOSTED
+        assert not matching[0].allowlisted
+
+
+# ---------------------------------------------------------------------------
 # TestFailBeforePassAfter
 # ---------------------------------------------------------------------------
 
@@ -564,16 +779,53 @@ class TestRealTree:
             "155-component design"
         )
 
-    def test_real_tree_currently_fails_with_known_finding_count(self) -> None:
-        """Pinned at gate-introduction time (2026-08-07): the BOM does not
+    def test_real_tree_now_passes_via_dated_backlog(self) -> None:
+        """The gate went live as a hard, non-continue-on-error CI gate on
+        2026-08-07 (R14). At that moment the BOM did not reconcile against
+        source at all (49 real findings -- see
+        test_real_tree_backlog_seeded_2026_08_07_matches_known_count below)
+        -- landing the gate as a hard blocker without first addressing that
+        would have blocked every PR on an unrelated procurement backlog.
+        The real allowlist seeded all 49 as a dated BACKLOG (``backlog:
+        true``, ``seeded: "2026-08-07"``) that same day, and by the end of
+        that day all 49 were individually triaged and resolved (see that
+        test's docstring) -- the backlog is now empty and the real tree
+        passes purely on justified exceptions plus a real reconciliation.
+        Either way, exit must be EXIT_OK, not EXIT_VIOLATION."""
+        code = run(REAL_BOM, REAL_ATO_GLOB, REAL_ALLOWLIST)
+        assert code == EXIT_OK, f"gate returned {code}, expected EXIT_OK ({EXIT_OK})"
+
+    def test_real_tree_backlog_seeded_2026_08_07_matches_known_count(self) -> None:
+        """Pinned at gate-introduction time (2026-08-07): the BOM did not
         yet reconcile against source (that is this gate's whole reason to
         exist -- R14, docs/hardware/BOM.md's own long history of manual
-        audits finding and re-finding drift). This assertion is deliberately
-        an exact count, not just ">0": if it drops, either real drift got
-        fixed (update the count down) or the allowlist silently grew to
-        swallow a real finding (investigate before updating the count) --
-        either way, silently letting the count drift is exactly the
-        alarm-fatigue failure mode this gate exists to prevent elsewhere."""
+        audits finding and re-finding drift) -- 49 real findings, seeded in
+        bulk into bom-reconciliation-allowlist.yaml as a dated BACKLOG (NOT
+        silently resolved, NOT blurred into the hand-verified
+        justified-exception entries above them in that file).
+
+        RESOLVED the same day (2026-08-07): all 49 were triaged individually
+        against docs/hardware/BOM_RECONCILIATION_PROPOSAL.md's per-item
+        evidence and closed -- 41 by editing BOM.md to match elec/src
+        (3 safety-relevant: R_DIS1A/1B/2A/2B's bus-discharge-time-critical
+        value, the THM-01/THM-02 hysteresis dividers, R_OCP_REF_T's
+        fabricated MPN), 7 by adding justified designator-normalization
+        entries above the (now-empty) BACKLOG section, and 1
+        (SecondaryOCPComparator/OCP-02's r_ref_top instance) already covered
+        by the pre-existing wired_uncosted r_ref_top entry once its sibling
+        instances were fixed. The dated backlog entries were removed --
+        per this test's own original docstring: "if the backlog count itself
+        drops, either real drift got fixed (delete the now-stale backlog
+        entry and lower this count)". This assertion is deliberately an
+        exact count, not just ">0" or "==0": if the NEW-finding count rises
+        above 0, either the backlog stopped covering something it used to
+        (investigate) or real new drift landed uncaught (the gate's whole
+        job); if the backlog count changes, either real drift got fixed
+        (delete the now-stale backlog entry and lower this count) or the
+        allowlist silently grew to swallow a real finding under the backlog
+        label (investigate before updating the count) -- either way,
+        silently letting either count drift is exactly the alarm-fatigue
+        failure mode this gate exists to prevent elsewhere."""
         files = sorted(REPO_ROOT.glob(REAL_ATO_GLOB))
         types, defaults = parse_component_defaults(files)
         parts = parse_instances(files, types, defaults, REPO_ROOT)
@@ -581,10 +833,21 @@ class TestRealTree:
         allowlist = load_allowlist(REAL_ALLOWLIST)
         assert allowlist is not None
         report = reconcile(bom_lines, parts, allowlist)
+
+        # The whole point of this seed: zero NEW (un-backlogged,
+        # non-justified) findings against the real tree today.
+        assert report.new_findings == [], [f.detail for f in report.new_findings]
+
+        backlog = report.backlog_findings
         by_kind: dict[str, int] = {}
-        for f in report.new_findings:
+        for f in backlog:
             by_kind[f.kind] = by_kind.get(f.kind, 0) + 1
-        assert by_kind.get(KIND_MPN_MISMATCH, 0) == 8, by_kind
-        assert by_kind.get(KIND_COSTED_NO_CIRCUIT, 0) == 14, by_kind
-        assert by_kind.get(KIND_WIRED_UNCOSTED, 0) == 27, by_kind
-        assert len(report.new_findings) == 49, by_kind
+        assert by_kind.get(KIND_MPN_MISMATCH, 0) == 0, by_kind
+        assert by_kind.get(KIND_COSTED_NO_CIRCUIT, 0) == 0, by_kind
+        assert by_kind.get(KIND_WIRED_UNCOSTED, 0) == 0, by_kind
+        assert len(backlog) == 0, len(backlog)
+
+        # Every backlog finding must be marked backlog, never counted as a
+        # justified exception -- the two categories must never blur.
+        assert report.justified_findings, "expected the pre-existing ~135+ justified entries to still fire"
+        assert not any(f.backlog for f in report.justified_findings)
