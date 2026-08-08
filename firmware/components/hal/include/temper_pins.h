@@ -61,7 +61,7 @@ extern "C" {
 /** SPI Master Out Slave In (ESP32-S3 IO11) */
 #define PIN_SPI_MOSI            11
 
-/** SPI Master In Slave Out (ESP32-S3 IO12; IO13 is ZCD) */
+/** SPI Master In Slave Out (ESP32-S3 IO12) */
 #define PIN_SPI_MISO            12
 
 /** Chip Select for RTD sensor 1 (coil temperature) */
@@ -76,9 +76,6 @@ extern "C" {
 /* ============================================================================
  * Control and Status Pins
  * ============================================================================ */
-
-/** Zero-crossing detector input (from comparator output) */
-#define PIN_ZCD_INPUT           13
 
 /** Hardware watchdog kick output (to TPS3823) */
 #define PIN_WDT_KICK            7

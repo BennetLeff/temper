@@ -689,7 +689,6 @@ module Top:
     power_in.gnd ~ gnd  # PowerInput relay control return (SELV side)
     power_in.power_15v.vcc ~ vcc_15v
     # power_in already ties power_15v.gnd ~ gnd internally; redundant
-    power_in.vcc_3v3 ~ vcc_3v3  # SELV supply for the isolated ZCD opto output
     power_in.pe ~ pe  # Protective earth, from the external AC connector
     
     # Auxiliary supply: 170VDC half-bus -> isolated 15V SELV rail
@@ -915,14 +914,7 @@ module Top:
     discharge.gnd ~ gnd
     mcu.discharge_ctrl.line ~ discharge.ctrl
     mcu.discharge_ctrl.line.override_net_name = "DISCHARGE_CTRL"
-    
-    # Zero-crossing detection for soft-start timing. Isolated via an H11L1
-    # optocoupler inside PowerInput (2026-07-26, SELV isolation redesign) --
-    # power_in.zcd (HV side, raw divider node) no longer leaves the module;
-    # power_in.zcd_out is the SELV-side, galvanically isolated signal.
-    power_in.zcd_out.line ~ mcu.zcd_in.line
-    power_in.zcd_out.line.override_net_name = "ZCD_ISO"
-    
+
     # USB connections
     mcu.usb_dn ~ usb_dn
     mcu.usb_dp ~ usb_dp
