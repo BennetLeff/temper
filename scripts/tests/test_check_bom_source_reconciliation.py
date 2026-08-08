@@ -786,9 +786,12 @@ class TestRealTree:
         test_real_tree_backlog_seeded_2026_08_07_matches_known_count below)
         -- landing the gate as a hard blocker without first addressing that
         would have blocked every PR on an unrelated procurement backlog.
-        The real allowlist now seeds all 49 as a dated BACKLOG (``backlog:
-        true``, ``seeded: "2026-08-07"``), so the real tree passes: exit
-        must be EXIT_OK, not EXIT_VIOLATION."""
+        The real allowlist seeded all 49 as a dated BACKLOG (``backlog:
+        true``, ``seeded: "2026-08-07"``) that same day, and by the end of
+        that day all 49 were individually triaged and resolved (see that
+        test's docstring) -- the backlog is now empty and the real tree
+        passes purely on justified exceptions plus a real reconciliation.
+        Either way, exit must be EXIT_OK, not EXIT_VIOLATION."""
         code = run(REAL_BOM, REAL_ATO_GLOB, REAL_ALLOWLIST)
         assert code == EXIT_OK, f"gate returned {code}, expected EXIT_OK ({EXIT_OK})"
 
@@ -799,17 +802,30 @@ class TestRealTree:
         audits finding and re-finding drift) -- 49 real findings, seeded in
         bulk into bom-reconciliation-allowlist.yaml as a dated BACKLOG (NOT
         silently resolved, NOT blurred into the hand-verified
-        justified-exception entries above them in that file). This
-        assertion is deliberately an exact count, not just ">0" or "==0":
-        if the NEW-finding count rises above 0, either the backlog stopped
-        covering something it used to (investigate) or real new drift
-        landed uncaught (the gate's whole job); if the backlog count itself
+        justified-exception entries above them in that file).
+
+        RESOLVED the same day (2026-08-07): all 49 were triaged individually
+        against docs/hardware/BOM_RECONCILIATION_PROPOSAL.md's per-item
+        evidence and closed -- 41 by editing BOM.md to match elec/src
+        (3 safety-relevant: R_DIS1A/1B/2A/2B's bus-discharge-time-critical
+        value, the THM-01/THM-02 hysteresis dividers, R_OCP_REF_T's
+        fabricated MPN), 7 by adding justified designator-normalization
+        entries above the (now-empty) BACKLOG section, and 1
+        (SecondaryOCPComparator/OCP-02's r_ref_top instance) already covered
+        by the pre-existing wired_uncosted r_ref_top entry once its sibling
+        instances were fixed. The dated backlog entries were removed --
+        per this test's own original docstring: "if the backlog count itself
         drops, either real drift got fixed (delete the now-stale backlog
-        entry and lower this count) or the allowlist silently grew to
-        swallow a real finding under the backlog label (investigate before
-        updating the count) -- either way, silently letting either count
-        drift is exactly the alarm-fatigue failure mode this gate exists to
-        prevent elsewhere."""
+        entry and lower this count)". This assertion is deliberately an
+        exact count, not just ">0" or "==0": if the NEW-finding count rises
+        above 0, either the backlog stopped covering something it used to
+        (investigate) or real new drift landed uncaught (the gate's whole
+        job); if the backlog count changes, either real drift got fixed
+        (delete the now-stale backlog entry and lower this count) or the
+        allowlist silently grew to swallow a real finding under the backlog
+        label (investigate before updating the count) -- either way,
+        silently letting either count drift is exactly the alarm-fatigue
+        failure mode this gate exists to prevent elsewhere."""
         files = sorted(REPO_ROOT.glob(REAL_ATO_GLOB))
         types, defaults = parse_component_defaults(files)
         parts = parse_instances(files, types, defaults, REPO_ROOT)
@@ -826,13 +842,12 @@ class TestRealTree:
         by_kind: dict[str, int] = {}
         for f in backlog:
             by_kind[f.kind] = by_kind.get(f.kind, 0) + 1
-        assert by_kind.get(KIND_MPN_MISMATCH, 0) == 8, by_kind
-        assert by_kind.get(KIND_COSTED_NO_CIRCUIT, 0) == 14, by_kind
-        assert by_kind.get(KIND_WIRED_UNCOSTED, 0) == 27, by_kind
-        assert len(backlog) == 49, len(backlog)
-        assert all(f.seeded == "2026-08-07" for f in backlog), backlog
+        assert by_kind.get(KIND_MPN_MISMATCH, 0) == 0, by_kind
+        assert by_kind.get(KIND_COSTED_NO_CIRCUIT, 0) == 0, by_kind
+        assert by_kind.get(KIND_WIRED_UNCOSTED, 0) == 0, by_kind
+        assert len(backlog) == 0, len(backlog)
 
         # Every backlog finding must be marked backlog, never counted as a
         # justified exception -- the two categories must never blur.
-        assert report.justified_findings, "expected the pre-existing ~135 justified entries to still fire"
+        assert report.justified_findings, "expected the pre-existing ~135+ justified entries to still fire"
         assert not any(f.backlog for f in report.justified_findings)
