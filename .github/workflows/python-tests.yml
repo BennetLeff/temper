@@ -1611,6 +1611,24 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/mpn_fabrication_gate.py
 
+      # BOM<->source reconciliation gate (R14): docs/hardware/BOM.md previously
+      # appeared only in this workflow's path-filter list -- nothing parsed it.
+      # mpn_fabrication_gate.py above checks MPN/value consistency WITHIN
+      # elec/src/*.ato; check_netlist_board_reconciliation.py (below) checks
+      # pcb/temper.kicad_pcb against elec/build/default.net. Neither ever reads
+      # the priced BOM document itself. See the gate's own module docstring for
+      # its documented heuristic-matching limitation (BOM.md's Ref column is a
+      # human-chosen label, not the real KiCad-annotated refdes) and
+      # bom-reconciliation-allowlist.yaml for hand-verified same-part
+      # exceptions.
+      - name: BOM<->source reconciliation gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_bom_source_reconciliation.py -v --tb=short
+
+      - name: BOM<->source reconciliation gate (docs/hardware/BOM.md vs elec/src/*.ato, R14)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_bom_source_reconciliation.py
+
       - name: Derived-document drift gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_derived_doc_drift.py -v --tb=short

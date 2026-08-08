@@ -1,11 +1,11 @@
 ---
 title: "feat: UNSAT provenance + pre-solve tension detection"
 type: feat
-status: stale
+status: completed
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-unsat-provenance-tension-detection-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed as provenance.rs (build_conflict_report, cites this plan's U4) + tension.rs (detect_tensions), tested; not yet PyO3-exposed to Python"
 ---
 
 # UNSAT Provenance + Pre-Solve Tension Detection

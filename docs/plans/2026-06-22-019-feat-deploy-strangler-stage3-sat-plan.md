@@ -1,11 +1,11 @@
 ---
 title: "feat: Deploy Strangler to RouterV6 Stage 3 (SAT Solver) into 5 Micro-Stages"
 type: feat
-status: stale
+status: abandoned
 date: 2026-06-22
 origin: docs/ideation/2026-06-22-test-and-build-next-ideation.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "no Stage3Orchestrator/golden fixtures ever built; commit 7028dbef retired the Python SAT surface entirely, replaced by Rust CaDiCaL solver (different, unplanned direction)"
 ---
 
 # feat: Deploy Strangler to RouterV6 Stage 3 (SAT Solver)

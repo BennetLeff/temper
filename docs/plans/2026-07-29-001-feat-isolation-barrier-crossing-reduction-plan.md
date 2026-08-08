@@ -17,8 +17,9 @@ origin: Task brief (board re-floorplanning out of scope; CP-SAT already
   fix-classification for C6/K2/K3/U3/U7, explicitly the complementary
   document to this one -- that one asks "how do we fix each crossing's
   geometry," this one asks "which crossings can we delete or merge instead")
-status: research-only, no elec/src or pcb/ changes made -- this is a
-  requirements document for a human/planning decision, not an implementation
+status: superseded
+swept: 2026-08-07
+swept_basis: "superseded by docs/plans/2026-08-01-001-feat-mains-selv-isolation-barrier-plan.md, which took the physical-barrier direction instead; that plan was itself later rescoped to report-only (08-01-003)"
 actors: elec/domain_manifest.yaml, elec/src/modules.ato (OVPComparator,
   BusDischarge, CurrentSensing, PowerInput), scripts/check_isolation_keepout.py,
   docs/hardware/IEC60335_CRITICAL_COMPONENTS.md, PCB footprint/BOM author

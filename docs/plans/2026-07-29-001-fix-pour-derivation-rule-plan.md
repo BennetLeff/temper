@@ -7,6 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 execution: code
+status: active
+swept: 2026-08-07
+swept_basis: "fix not landed: GND still has no routing_strategy in design_rules.py, _zone_layers_for_net() still checks only 'plane_required'; code's own dormant-code comment confirms gap still open, not rejected."
 ---
 
 # Pour Derivation Rule - Plan

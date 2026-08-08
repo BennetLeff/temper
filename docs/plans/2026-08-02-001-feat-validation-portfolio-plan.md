@@ -7,6 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 execution: code
+status: active
+swept: 2026-08-07
+swept_basis: "Live, evergreen 'pull to plan' menu, still cited by 2026-08-03-002-feat-wasm-verification-tier-plan.md (R11, R30, R38, R42) as of 2026-08-04."
 ---
 
 # Validation Portfolio - Plan

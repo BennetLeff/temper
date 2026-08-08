@@ -1,11 +1,11 @@
 ---
 title: Net Classification Consolidation
 type: refactor
-status: stale
+status: completed
 date: 2026-06-23
 origin: docs/brainstorms/2026-06-23-net-classification-consolidation-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed: core/net_classification.py with GROUND/POWER/HV_NET_PATTERNS + is_ground_net/is_power_net helpers, actively imported by 4+ call sites"
 ---
 
 # Net Classification Consolidation

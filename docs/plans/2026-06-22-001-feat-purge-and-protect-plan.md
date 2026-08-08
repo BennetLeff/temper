@@ -1,11 +1,11 @@
 ---
 title: "feat: Purge-and-Protect Root Directory Hygiene Gate"
 type: feat
-status: stale
+status: completed
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-purge-and-protect-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed: root has zero *.kicad_pcb/*.kicad_pro/*-drc.json/*.stats, .gitignore root-hygiene section, .git-blame-ignore-revs, scripts/_lib/pytest_artifact_guard.py"
 ---
 
 # feat: Purge-and-Protect Root Directory Hygiene Gate

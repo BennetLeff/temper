@@ -96,6 +96,9 @@ ELIGIBLE: list[tuple[str, str]] = [
     ("rules/erc/floating_pins.rs", "tests"),
     ("rules/erc/net_connectivity.rs", "tests"),
     ("rules/erc/power_domain.rs", "tests"),
+    ("rules/safety/creepage.rs", "tests"),
+    ("rules/safety/hv_lv_separation.rs", "tests"),
+    ("rules/safety/isolation.rs", "tests"),
     ("rules/placement/thermal_via_count.rs", "tests"),
     ("rules/placement/wave_solder_keepout.rs", "tests"),
     ("rules/routing/power_pad_teardrop.rs", "tests"),
@@ -120,6 +123,8 @@ for _rel, _ident in ELIGIBLE:
         MODULE_FAMILY[(_rel, _ident)] = "emc"
     elif _rel.startswith("rules/erc/"):
         MODULE_FAMILY[(_rel, _ident)] = "erc"
+    elif _rel.startswith("rules/safety/"):
+        MODULE_FAMILY[(_rel, _ident)] = "safety"
     elif _rel.startswith("rules/placement/"):
         MODULE_FAMILY[(_rel, _ident)] = "placement"
     elif _rel.startswith("rules/routing/"):

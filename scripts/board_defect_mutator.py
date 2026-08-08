@@ -12,14 +12,20 @@ board is ever committed (KTD3) and the DRC-ceiling re-measurement convention
 (which fires only when the committed board's content hash changes) stays
 inert (KTD1).
 
-The three defect classes (R38): component off-board, pad short, creepage
-crossing. The real defect instances are ALREADY on the committed board (the
-tank cap staged off-outline at ``(at 20.0 272.75)``, the C1 pad2<->R7 pad2
-short, the DC_BUS<->LV_CONTROL creepage crossings), so "re-create the
-defect" would be a no-op. Each seed is therefore taken from a DEFECT-FREE
-starting point and asserted with a count-delta in the runner: move an
-in-board footprint off-board, short a not-yet-shorted pad pair, compress a
-currently-compliant creepage pair.
+The five defect classes (R38, extended 2026-08-07 for R9/R10 vacuity
+closure): component off-board, pad short, creepage crossing, ordinary
+copper clearance, and courtyard overlap. The real off-board/pad-short/
+creepage defect instances are ALREADY on the committed board (the tank cap
+staged off-outline at ``(at 20.0 272.75)``, the C1 pad2<->R7 pad2 short, the
+DC_BUS<->LV_CONTROL creepage crossings), so "re-create the defect" would be
+a no-op. Each seed is therefore taken from a DEFECT-FREE starting point:
+move an in-board footprint off-board, short a not-yet-shorted pad pair,
+compress a currently-compliant creepage pair, close a currently-compliant
+inter-footprint clearance gap, or overlap two currently-clear courtyards.
+Every class is asserted by IDENTITY in the runner (the owning gate must
+name the exact seeded ref(s)/pad(s)), not a raw count-delta -- see
+``check_board_defect_corpus.py``'s module docstring for why a count-delta
+is not trustworthy for this corpus's DRC categories.
 
 Determinism contract (U1 test 4): a mutation is a pure function of (board
 bytes, params). Two runs with the same seed (i.e. the same params, keyed by
@@ -52,9 +58,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # documentation/validation messages; mutations take explicit positions.
 BOARD_OUTLINE = ((20.0, 20.0), (172.0, 254.0))
 
-# The three defect classes this corpus seeds (R38). Keys are the
-# ``mutation`` names used by scripts/board_defect_corpus.yaml.
-MUTATIONS = ("off-board", "pad-short", "creepage")
+# The defect classes this corpus seeds (R38, extended 2026-08-07 for R9/R10
+# vacuity closure -- clearance, courtyard). Keys are the ``mutation`` names
+# used by scripts/board_defect_corpus.yaml.
+MUTATIONS = ("off-board", "pad-short", "creepage", "clearance", "courtyard")
 
 
 class MutationError(RuntimeError):
@@ -260,12 +267,118 @@ def mutate_creepage(
     )
 
 
+def mutate_clearance(
+    board_path: Path,
+    out_path: Path,
+    ref: str,
+    position: tuple[float, float],
+    seed: int,
+) -> MutationResult:
+    """Move footprint *ref* to an absolute board position chosen to compress
+    a currently-compliant, ordinary (non-HV, non-same-footprint) pad pair on
+    DIFFERENT nets below the board's plain copper-to-copper clearance
+    requirement (net-class ``clearance``, e.g. Default 0.2mm) -- the generic
+    ``clearance`` DRC-category defect class (R9/R10 vacuity closure,
+    2026-08-07).
+
+    This is deliberately distinct from the two DRC categories the corpus
+    already exercises incidentally: it is not the ``pad-short`` class's
+    same-footprint "Fine pitch IC pads" 0.1mm exception (RULE 1 in
+    ``generate_kicad_dru.py`` -- that only reduces clearance between two
+    pads of ONE footprint, and this mutation moves a whole SEPARATE
+    footprint), and it is not the ``creepage`` class's HV<->SELV custom DRU
+    boundary (this mutation's target ref/nets are plain LV signal nets, not
+    ACMains/HighVoltage). The gap this mutation creates is small but
+    strictly positive (no copper overlap) -- unlike ``pad-short``, which
+    drives the gap to exactly 0.0mm.
+
+    Same mechanism as :func:`mutate_off_board`/:func:`mutate_creepage` -- a
+    single-footprint absolute-position move.
+    """
+    source_hash = board_content_hash(board_path)
+    board = Board.from_file(str(board_path))
+    fp = find_footprint(board, ref)
+    old_pos = (fp.position.X, fp.position.Y)
+    fp.position = Position(position[0], position[1], fp.position.angle)
+    mutated_hash = _write_and_hash(board, out_path)
+    return MutationResult(
+        mutation="clearance",
+        seed=seed,
+        board_sha256=source_hash,
+        mutated_sha256=mutated_hash,
+        seed_board_sha256=sha256_bytes(f"{seed}:{mutated_hash}".encode()),
+        summary={
+            "ref": ref,
+            "from_mm": list(old_pos),
+            "to_mm": list(position),
+            "moved_footprints": [ref],
+            "footprints_total": len(board.footprints),
+        },
+    )
+
+
+def mutate_courtyard(
+    board_path: Path,
+    out_path: Path,
+    ref: str,
+    position: tuple[float, float],
+    seed: int,
+) -> MutationResult:
+    """Move footprint *ref* to an absolute board position chosen so its
+    ``F.CrtYd`` courtyard rectangle overlaps a fixed neighbor's courtyard,
+    while the two footprints' copper stays clear (no clearance/short
+    defect) -- the ``courtyards_overlap`` defect class (R9/R10 vacuity
+    closure, 2026-08-07).
+
+    This directly addresses the 2026-08-04 finding
+    (docs/evidence/2026-08-04-board-defect-corpus-uncovered-classes.md) that
+    ``courtyards_overlap`` did not discriminate the ``off-board`` seed: that
+    mutation only produced a courtyard collision BY COINCIDENCE of the
+    pre-#517 board's geometry (a component's own rotation happened to lay
+    its body across a populated region), and stopped working the moment the
+    board was re-solved, because "move a component off the board" was never
+    a mutation designed to overlap courtyards in the first place -- it is a
+    containment defect, now correctly owned by
+    ``scripts/check_board_containment.py``. This mutation is the opposite:
+    it computes the target position FROM the two footprints' own courtyard
+    geometry (an ``F.CrtYd`` ``FpRect``/``FpLine`` bounding box, read via
+    kiutils, the same rotation convention as everywhere else in this module)
+    so the courtyard overlap is a deterministic property of the seed, not an
+    accident of an unrelated placement.
+
+    Same mechanism as :func:`mutate_off_board`/:func:`mutate_creepage` -- a
+    single-footprint absolute-position move.
+    """
+    source_hash = board_content_hash(board_path)
+    board = Board.from_file(str(board_path))
+    fp = find_footprint(board, ref)
+    old_pos = (fp.position.X, fp.position.Y)
+    fp.position = Position(position[0], position[1], fp.position.angle)
+    mutated_hash = _write_and_hash(board, out_path)
+    return MutationResult(
+        mutation="courtyard",
+        seed=seed,
+        board_sha256=source_hash,
+        mutated_sha256=mutated_hash,
+        seed_board_sha256=sha256_bytes(f"{seed}:{mutated_hash}".encode()),
+        summary={
+            "ref": ref,
+            "from_mm": list(old_pos),
+            "to_mm": list(position),
+            "moved_footprints": [ref],
+            "footprints_total": len(board.footprints),
+        },
+    )
+
+
 # mutation name -> (callable, required params). Used by the corpus runner to
 # dispatch the manifest's seed entries, and by the CLI.
 _MUTATION_FUNCS: dict[str, Any] = {
     "off-board": mutate_off_board,
     "pad-short": mutate_pad_short,
     "creepage": mutate_creepage,
+    "clearance": mutate_clearance,
+    "courtyard": mutate_courtyard,
 }
 
 
@@ -293,6 +406,14 @@ def apply_mutation(
         return mutate_creepage(
             board_path, out_path, params["ref"], tuple(params["position_mm"]), seed
         )
+    if mutation == "clearance":
+        return mutate_clearance(
+            board_path, out_path, params["ref"], tuple(params["position_mm"]), seed
+        )
+    if mutation == "courtyard":
+        return mutate_courtyard(
+            board_path, out_path, params["ref"], tuple(params["position_mm"]), seed
+        )
     raise AssertionError("unreachable")
 
 
@@ -317,7 +438,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
 
-    if args.mutation in ("off-board", "creepage"):
+    if args.mutation in ("off-board", "creepage", "clearance", "courtyard"):
         if args.position is None:
             parser.error(f"--mutation {args.mutation} requires --position X Y")
         params: dict[str, Any] = {"ref": args.ref, "position_mm": list(args.position)}

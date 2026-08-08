@@ -61,6 +61,12 @@ pub use spice_estimators::{spice_infer_unit_py, spice_loop_inductance_py};
 pub mod corridor;
 pub mod copper_coverage;
 pub mod channel_widths;
+// KTD8 spike (docs/plans/2026-08-06-001-docs-python-removal-retriage-plan.md):
+// exact Euclidean distance transform, Felzenszwalb-Huttenlocher. See
+// docs/evidence/2026-08-07-exact-edt-rust-spike.md.
+pub mod edt;
+#[cfg(feature = "python")]
+pub use edt::exact_edt_transform;
 pub mod grid_raster;
 #[cfg(feature = "python")]
 pub use grid_raster::{

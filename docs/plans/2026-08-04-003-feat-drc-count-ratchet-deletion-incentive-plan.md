@@ -8,6 +8,9 @@ artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 execution: code
 origin: docs/evidence/2026-08-04-board-defect-corpus-uncovered-classes.md (PR #689)
+status: active
+swept: 2026-08-07
+swept_basis: "decision plan, recommendation not yet acted on by the maintainer; explicitly scoped as analysis only, nothing implemented"
 ---
 
 # The DRC Count Ratchet Rewards Deleting Components - Decision Plan

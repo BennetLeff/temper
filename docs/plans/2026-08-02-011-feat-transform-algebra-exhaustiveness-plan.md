@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R23)
+status: active
+swept: 2026-08-07
+swept_basis: "tests/geometry/test_kicad_transform_algebra.py exists on disk but no workflow in .github/workflows/ invokes tests/geometry/ at all -- not wired into CI."
 ---
 
 # Transform-algebra Exhaustiveness - Plan

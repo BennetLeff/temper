@@ -4,6 +4,9 @@ artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
 date: 2026-08-01
 plan_type: re-scope
+status: completed
+swept: 2026-08-07
+swept_basis: "decision reached - Option 4 (report-only stand) adopted; matches the gate's already-report-only state in .github/required-checks.json"
 ---
 
 # Isolation-Barrier Re-Scope After the NO-GO Experiment — Plan

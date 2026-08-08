@@ -1,11 +1,11 @@
 ---
 title: "feat: Decompose Router God-Objects and Firmware State Machine (N6 U5-U8)"
 type: feat
-status: stale
+status: completed
 date: 2026-06-22
 origin: docs/plans/2026-06-22-006-feat-cli-zoning-loc-cap-plan.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed: firmware/main/state_handlers.{c,h} exist; astar_pathfinding.py shrunk 2289->68 lines; none of the 4 targets remain in .loc-allowlist.txt"
 ---
 
 # feat: Decompose Router God-Objects and Firmware State Machine

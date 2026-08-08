@@ -1,11 +1,11 @@
 ---
 title: "fix: Resolve PCL constraint refs to match board components + decisive-result measurement run"
 type: fix
-status: stale
+status: completed
 date: 2026-07-06
 origin: docs/reports/2026-07-06-umbrella-status.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "fix landed same day, commit 92f477b8 (exact ref remap); temper_induction.yaml was itself later superseded by fresh temper_production.yaml (2026-07-17)"
 ---
 
 # fix: Resolve PCL Constraint Refs + Decisive-Result Measurement Run

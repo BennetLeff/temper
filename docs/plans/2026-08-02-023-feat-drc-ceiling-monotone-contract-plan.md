@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R27)
+status: active
+swept: 2026-08-07
+swept_basis: "Verified live: check_drc_ceiling_approval.py still checks only a bare substring ('Ceiling-Approval:' in commit_messages); called 'unbuilt' by 2026-08-04-003-feat-drc-count-ratchet-deletion-incentive-plan.md sec 3."
 ---
 
 # DRC Ceiling as Monotone Contract - Plan

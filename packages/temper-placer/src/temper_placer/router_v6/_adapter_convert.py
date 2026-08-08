@@ -132,9 +132,20 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
         if val is not None:
             safety_category = str(val)
 
+    # creepage_mm survives conversion: previously this field was dropped
+    # (only appeared in _UNREPRESENTED_WARN below), so every consumer that
+    # reads it off the stage0 object via getattr(..., 0.0) -- e.g.
+    # bottleneck_geometry.py's _required_creepage_mm and
+    # _pipeline_route.py's PCL netclass metadata -- silently enforced ZERO
+    # creepage regardless of the netclass's declared requirement.
+    creepage_mm: float = 0.0
+    if hasattr(rules, "creepage_mm"):
+        val = rules.creepage_mm
+        if val is not None:
+            creepage_mm = float(val)
+
     # --- R1b: Warn on unrepresented fields that are explicitly set ---
     _UNREPRESENTED_WARN = (
-        ("creepage_mm", "Creepage distance", 0.0),
         ("voltage_v", "Voltage rating", 0.0),
         ("routing_strategy", "Routing strategy", None),
         ("via_cost_multiplier", "Via cost multiplier", 1.0),
@@ -164,6 +175,7 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
         via_drill_mm=via_drill_mm,
         current_rating_amps=current_rating_amps,
         safety_category=safety_category,
+        creepage_mm=creepage_mm,
     )
 
 
@@ -176,6 +188,7 @@ def route_pcb(
     enable_all_pad_tree: bool = False,
     enable_zone_pours: bool = True,
     enable_connectivity_verifier: bool = False,
+    enable_geographic_pruning: bool = False,
     enable_manufacturing_drc: bool = False,
     sat_conflict_limit: int | None = 20_000,
     sat_time_limit_ms: int | None = None,
@@ -218,6 +231,18 @@ def route_pcb(
             are enabled by default for multi-layer power/ground routing.
         enable_connectivity_verifier: Run post-write connectivity
             preflight via verify_net_connectivity (default False).
+        enable_geographic_pruning: Enable geographic pruning of the
+            Stage 3 SAT model (U3 of plan
+            2026-08-07-001-feat-router-encoding-pruning-plan.md).
+            Default False -- behavior unchanged. When True,
+            NetChannelVar and ViaVar variables are created only for
+            edges/nodes within max(K * pin_span, M_min) of each net's
+            pins, reducing CNF variable/clause count. See
+            RouterV6Pipeline.__init__'s docstring for the full
+            rationale. Not yet measured against the production board
+            through this entry point -- see
+            docs/evidence/2026-08-07-pruned-encoding-measurement.md
+            (if present) for the U5 measurement status.
         enable_manufacturing_drc: Run the Stage 5 manufacturing DRC
             checks (acid_trap, annular_ring, teardrop, thermal_relief,
             power_planes, copper_balance, creepage, clearance) and attach
@@ -296,6 +321,7 @@ def route_pcb(
         enable_all_pad_tree=enable_all_pad_tree,
         enable_zone_pours=enable_zone_pours,
         enable_connectivity_verifier=enable_connectivity_verifier,
+        enable_geographic_pruning=enable_geographic_pruning,
         # Manufacturing DRC (acid_trap, annular_ring, teardrop,
         # thermal_relief, power_planes, copper_balance, creepage,
         # clearance). This never ran during production routing before

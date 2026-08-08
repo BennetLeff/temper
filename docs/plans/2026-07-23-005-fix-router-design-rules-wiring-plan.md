@@ -1,11 +1,11 @@
 ---
 title: "fix: Thread real per-net design rules into the Router V6 A* engine"
 type: fix
-status: stale
+status: completed
 date: 2026-07-23
 origin: investigation triggered by re-measuring docs/plans/2026-07-22-001's R14 promotion gate
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "plan's own post-implementation note documents runtime verification; net_class_assignments/net_classes still threaded through _adapter_convert.py in current tree"
 ---
 
 ## Post-implementation update (same day)

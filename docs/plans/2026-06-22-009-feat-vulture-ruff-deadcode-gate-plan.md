@@ -1,11 +1,11 @@
 ---
 title: "feat: Vulture + Ruff F401/F841 CI Dead-Code Gate with Baseline Allowlist"
 type: feat
-status: stale
+status: completed
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-vulture-ruff-deadcode-gate-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed: scripts/vulture_gate.py + scripts/deadcode-baseline.py, wired at python-tests.yml:1825; docs/evidence/2026-07-28-vulture-dead-code-gate.md"
 ---
 
 # feat: Vulture + Ruff F401/F841 CI Dead-Code Gate with Baseline Allowlist

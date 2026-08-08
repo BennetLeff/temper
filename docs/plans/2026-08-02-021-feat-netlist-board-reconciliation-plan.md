@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R16, R39)
+status: completed
+swept: 2026-08-07
+swept_basis: "scripts/check_netlist_board_reconciliation.py exists, unit-tested (scripts/tests/test_check_netlist_board_reconciliation.py), and wired into .github/workflows/python-tests.yml."
 ---
 
 # Netlist↔Board Reconciliation & Mutation - Plan

@@ -8,6 +8,9 @@ artifact_readiness: implementation-ready
 execution: code
 product_contract_source: ce-plan
 origin: docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md (R10)
+status: active
+swept: 2026-08-07
+swept_basis: "No spice_snapshot_corpus/, estimator-differential, or error-bound registration found in validation/spice_pipeline.py; unbuilt, uncontradicted menu item."
 ---
 
 # SPICE Estimator Oracle - Plan

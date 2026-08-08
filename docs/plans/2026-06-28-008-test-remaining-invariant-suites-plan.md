@@ -2,11 +2,11 @@
 plan_id: 2026-06-28-008
 plan_type: feat
 title: "feat: Hypothesis invariant test suites for IO, deterministic pipeline, and loss functions"
-status: stale
+status: completed
 origin: docs/brainstorms/2026-06-28-router-v6-hypothesis-invariant-tests-requirements.md
 tags: [hypothesis, pbt, invariants, testing, io, deterministic, losses]
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "commit 068024e4 landed 54 PBTs (IO, deterministic, losses); IO+deterministic remain, loss suite removed only when JAX itself was later deleted"
 ---
 
 # feat: Hypothesis invariant test suites for IO, deterministic pipeline, and loss functions

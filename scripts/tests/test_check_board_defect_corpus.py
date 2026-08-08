@@ -40,6 +40,13 @@ CEILINGS = {"courtyards_overlap": 14, "copper_edge_clearance": 15, "shorting_ite
 
 OFF_BOARD_PARAMS = {"ref": "C26", "position_mm": [59.38, 256.0]}
 PAD_SHORT_PARAMS = {"ref": "C28", "pad_a": "1", "pad_b": "2"}
+CLEARANCE_PARAMS = {
+    "ref": "R67", "position_mm": [134.66, 140.1],
+    "pad": "1", "anchor_ref": "R64", "anchor_pad": "1",
+}
+COURTYARD_PARAMS = {
+    "ref": "C38", "position_mm": [41.54, 189.55], "anchor_ref": "R48",
+}
 
 
 class TestEvaluateClass:
@@ -154,6 +161,72 @@ class TestEvaluateClass:
         )
         assert not verdict.ok and verdict.gate_error
 
+    def test_clearance_fires_when_an_error_names_both_pads(self):
+        verdict = corpus.evaluate_class(
+            "clearance", "clearance",
+            corpus.ClassMeasurement(
+                params=CLEARANCE_PARAMS,
+                clean_cross_pair_errors=[],
+                mutated_cross_pair_errors=[
+                    "clearance: netclass 'Default' clearance 0.2000 mm; actual 0.0500 mm"
+                ],
+            ),
+        )
+        assert verdict.ok and not verdict.gate_error
+        assert "R67" in verdict.message and "R64" in verdict.message
+
+    def test_uncovered_clearance(self):
+        verdict = corpus.evaluate_class(
+            "clearance", "clearance",
+            corpus.ClassMeasurement(params=CLEARANCE_PARAMS),
+        )
+        assert not verdict.ok
+        assert "uncovered class" in verdict.message
+
+    def test_clearance_control_violated_when_pair_already_close(self):
+        verdict = corpus.evaluate_class(
+            "clearance", "clearance",
+            corpus.ClassMeasurement(
+                params=CLEARANCE_PARAMS,
+                clean_cross_pair_errors=["clearance: already too close"],
+                mutated_cross_pair_errors=["clearance: still too close"],
+            ),
+        )
+        assert not verdict.ok
+        assert "control violated" in verdict.message
+
+    def test_courtyard_fires_when_an_error_names_both_refs(self):
+        verdict = corpus.evaluate_class(
+            "courtyard", "courtyard",
+            corpus.ClassMeasurement(
+                params=COURTYARD_PARAMS,
+                clean_courtyard_pair_errors=[],
+                mutated_courtyard_pair_errors=["courtyards_overlap: Courtyards overlap"],
+            ),
+        )
+        assert verdict.ok and not verdict.gate_error
+        assert "C38" in verdict.message and "R48" in verdict.message
+
+    def test_uncovered_courtyard(self):
+        verdict = corpus.evaluate_class(
+            "courtyard", "courtyard",
+            corpus.ClassMeasurement(params=COURTYARD_PARAMS),
+        )
+        assert not verdict.ok
+        assert "uncovered class" in verdict.message
+
+    def test_courtyard_control_violated_when_already_overlapping(self):
+        verdict = corpus.evaluate_class(
+            "courtyard", "courtyard",
+            corpus.ClassMeasurement(
+                params=COURTYARD_PARAMS,
+                clean_courtyard_pair_errors=["courtyards_overlap: already overlapping"],
+                mutated_courtyard_pair_errors=["courtyards_overlap: still overlapping"],
+            ),
+        )
+        assert not verdict.ok
+        assert "control violated" in verdict.message
+
 
 class TestPadPairMatching:
     """The pad-short class's failure signal is decided from raw kicad-cli
@@ -183,6 +256,56 @@ class TestPadPairMatching:
         one = _E(["Pad 1 [I_SENSE] of C28 on F.Cu", "Track [inb] on F.Cu"])
         assert corpus.errors_naming_pad_pair([both], "C28", "1", "2")
         assert not corpus.errors_naming_pad_pair([one], "C28", "1", "2")
+
+
+class TestCrossFootprintPadMatching:
+    """The clearance class's failure signal: two DIFFERENT footprints'
+    pads named together in one violation."""
+
+    def test_pair_requires_both_refs_pads_in_one_violation(self):
+        class _E:
+            def __init__(self, items):
+                self.rule, self.message, self.items = "clearance", "m", items
+
+        both = _E([
+            "Pad 1 [safety.thermal.comp-inp] of R64 on F.Cu",
+            "Pad 1 [+3V3] of R67 on F.Cu",
+        ])
+        one = _E([
+            "Pad 1 [safety.thermal.comp-inp] of R64 on F.Cu",
+            "Track [inb] on F.Cu",
+        ])
+        assert corpus.errors_naming_two_pads([both], "R64", "1", "R67", "1")
+        assert not corpus.errors_naming_two_pads([one], "R64", "1", "R67", "1")
+
+    def test_wrong_pad_number_does_not_match(self):
+        class _E:
+            def __init__(self, items):
+                self.rule, self.message, self.items = "clearance", "m", items
+
+        wrong_pad = _E([
+            "Pad 2 [safety.thermal-line] of R64 on F.Cu",
+            "Pad 1 [+3V3] of R67 on F.Cu",
+        ])
+        assert not corpus.errors_naming_two_pads([wrong_pad], "R64", "1", "R67", "1")
+
+
+class TestBothRefsMatching:
+    """The courtyard class's failure signal: courtyard violations are
+    footprint-level ("Footprint X"), decided from the already-deduped
+    ``components`` list (see _drc_api._parse_drc_json)."""
+
+    def test_pair_requires_both_refs_named(self):
+        class _E:
+            def __init__(self, components):
+                self.rule, self.message, self.components = (
+                    "courtyards_overlap", "Courtyards overlap", components,
+                )
+
+        both = _E(["R48", "C38"])
+        one = _E(["R48", "U18"])
+        assert corpus.errors_naming_both_refs([both], "R48", "C38")
+        assert not corpus.errors_naming_both_refs([one], "R48", "C38")
 
 
 # ---------------------------------------------------------------------------
@@ -241,10 +364,12 @@ class TestMissingKicadCli:
 
 
 class TestSeedManifest:
-    def test_manifest_names_three_classes_and_valid_mutations(self):
+    def test_manifest_names_five_classes_and_valid_mutations(self):
         manifest = corpus.load_manifest(MANIFEST)
         classes = manifest["classes"]
-        assert set(classes) == {"off-board", "pad-short", "creepage"}
+        assert set(classes) == {
+            "off-board", "pad-short", "creepage", "clearance", "courtyard",
+        }
         for name, class_def in classes.items():
             assert class_def["mutation"] in MUTATIONS, name
             assert isinstance(class_def["seed"], int), name
@@ -284,7 +409,7 @@ class TestSeedManifest:
     reason="REQ-SAFE-01 inputs (compiled netlist / domain manifest) missing",
 )
 class TestCorpusEndToEnd:
-    def test_full_corpus_passes_with_three_classes_covered(self, tmp_path):
+    def test_full_corpus_passes_with_five_classes_covered(self, tmp_path):
         report = corpus.run_corpus(
             REPO_ROOT,
             manifest_path=MANIFEST,
@@ -294,7 +419,9 @@ class TestCorpusEndToEnd:
         assert report.exit_code == corpus.EXIT_PASS
         assert report.anti_vacuity_violations == []
         assert all(v.ok for v in report.class_verdicts)
-        assert {v.name for v in report.class_verdicts} == {"off-board", "pad-short", "creepage"}
+        assert {v.name for v in report.class_verdicts} == {
+            "off-board", "pad-short", "creepage", "clearance", "courtyard",
+        }
         assert report.board_matches_manifest
 
     def test_board_change_detected_and_corpus_revalidates(self, tmp_path):

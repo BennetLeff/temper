@@ -1,11 +1,11 @@
 ---
 title: "feat: Duplicate-Script Consolidation Trio"
 type: feat
-status: stale
+status: completed
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-duplicate-script-consolidation-requirements.md
-swept: 2026-07-25
-swept_basis: "insufficient evidence - needs human triage"
+swept: 2026-08-07
+swept_basis: "landed: strip_routing_v2/kiutils, run_router_v6_{minimal,simple,baseline}.py, batch_validate_power_pcb_fixed.py, batch_validate.sh all gone from tree"
 ---
 
 # feat: Duplicate-Script Consolidation Trio
