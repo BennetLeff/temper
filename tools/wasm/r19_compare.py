@@ -71,6 +71,7 @@ def run_comparison(
     wasm_results: list[dict[str, Any]],
     expected_failures: dict[str, dict[str, str]],
     commit_sha: str,
+    board_sha256: str | None = None,
 ) -> dict[str, Any]:
     """Join native and wasm32 results on test name and produce the comparison matrix.
 
@@ -164,6 +165,16 @@ def run_comparison(
 
     return {
         "commit": commit_sha,
+        # R5 (goal-set plan): every finding names the exact artifact it came
+        # from by content hash. Board content hash is optional here because
+        # not every caller has one available (the wasm tier's own findings
+        # today are board-content-agnostic per docs/evidence/2026-08-07-
+        # wasm-tier-phase2-4-status.md's R5 discussion) -- but whenever a
+        # caller can supply it, it is carried through unmodified and never
+        # silently dropped, so a scheduled run's artifact is traceable to the
+        # exact pcb/temper.kicad_pcb bytes it ran alongside.
+        "board_sha256": board_sha256,
+        "board_path": "pcb/temper.kicad_pcb" if board_sha256 else None,
         "timestamp": datetime.now(UTC).isoformat(),
         "native": {
             "total": len(native_map),
@@ -205,6 +216,27 @@ def main() -> int:
     ap.add_argument("--expected-failures", required=True, help="Path to wasm_expected_failures.json")
     ap.add_argument("--output", "-o", required=True, help="Output JSON path for the comparison matrix")
     ap.add_argument("--commit", required=True, help="Git commit SHA")
+    ap.add_argument(
+        "--board-sha256",
+        default=None,
+        help=(
+            "sha256 of pcb/temper.kicad_pcb at measurement time (R5 artifact "
+            "identity). Optional -- omit if no board artifact is in the loop "
+            "for this comparison -- but when supplied it is written into the "
+            "output matrix verbatim so the finding names the exact bytes it "
+            "ran alongside."
+        ),
+    )
+    ap.add_argument(
+        "--fail-on-disagree",
+        action="store_true",
+        help=(
+            "Exit 1 if comparison.disagree > 0 or comparison.unexpected_pass > 0. "
+            "Off by default so existing evidence-generation callers (which record "
+            "a verdict document regardless of outcome) are unaffected; a scheduled "
+            "CI gate should pass this."
+        ),
+    )
     args = ap.parse_args()
 
     # Load native results
@@ -237,7 +269,9 @@ def main() -> int:
     expected_failures = load_expected_failures(args.expected_failures)
 
     # Run comparison
-    matrix = run_comparison(native_results, wasm_results, expected_failures, args.commit)
+    matrix = run_comparison(
+        native_results, wasm_results, expected_failures, args.commit, args.board_sha256
+    )
 
     with open(args.output, "w") as f:
         json.dump(matrix, f, indent=2)
@@ -246,6 +280,8 @@ def main() -> int:
     # Summary to stdout
     c = matrix["comparison"]
     print(f"R19 Baseline at commit {matrix['commit']}")
+    if matrix["board_sha256"]:
+        print(f"  Board   : {matrix['board_path']} sha256={matrix['board_sha256']}")
     print(f"  Native  : {matrix['native']['passed']} pass, {matrix['native']['failed']} fail "
           f"({matrix['native']['total']} tests)")
     print(f"  WASM32  : {matrix['wasm32']['passed']} pass, {matrix['wasm32']['failed']} fail, "
@@ -264,6 +300,17 @@ def main() -> int:
 
     matrix_path = Path(args.output)
     print(f"\nWrote {matrix_path}")
+
+    if args.fail_on_disagree and (c["disagree"] > 0 or c["unexpected_pass"] > 0):
+        print(
+            f"\nFAIL: --fail-on-disagree set and {c['disagree']} disagreement(s) / "
+            f"{c['unexpected_pass']} unexpected-pass(es) found. This is the tier's "
+            "actual safety property: a wasm32 verdict that disagrees with the same "
+            "commit's native/CI verdict, or a manifest exclusion that has gone "
+            "stale, must not report green.",
+            file=sys.stderr,
+        )
+        return 1
 
     return 0
 

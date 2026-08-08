@@ -12,6 +12,7 @@
  *
  * Usage:
  *   node tools/wasm/sweep_multi_worker.mjs [--concurrency 64] [--json out.json]
+ *     [--board-sha256 <hex>] [--warmup]
  *
  * Worker inventory (deployed 2026-08-07, Phase 1 U8 multi-worker):
  *   drc       https://temper-wasm-drc.bennetleff.workers.dev       1 test    77 KB
@@ -33,6 +34,16 @@ function arg(name, dflt) {
 const CONCURRENCY = Math.max(1, parseInt(arg("--concurrency", "64"), 10));
 const JSON_OUT = arg("--json", null);
 const WARMUP = process.argv.includes("--warmup");
+// R5 (goal-set plan): every finding names the exact artifact it came from by
+// content hash. Optional -- the deployed Workers' tests are board-content-
+// agnostic today (docs/evidence/2026-08-07-wasm-tier-phase2-4-status.md's R5
+// discussion), so this hash is not consumed by the test logic itself. It is
+// carried in every dispatched request body (harmless: the Worker ignores
+// unrecognized JSON fields, see packages/temper-worker/src/worker_core.js's
+// `/run-test` handler) and echoed into every result and the summary, so a
+// scheduled run's artifact is traceable to the exact pcb/temper.kicad_pcb
+// bytes the sweep ran alongside, even though no single verdict depends on it.
+const BOARD_SHA256 = arg("--board-sha256", null);
 
 async function run() {
   const workerUrls = {};
@@ -87,7 +98,11 @@ async function run() {
       const r = await fetch(`${task.url}/run-test`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ index: task.index }),
+        body: JSON.stringify(
+          BOARD_SHA256
+            ? { index: task.index, boardSha256: BOARD_SHA256 }
+            : { index: task.index },
+        ),
       });
       body = await r.json();
       body._family = task.family;
@@ -143,10 +158,23 @@ async function run() {
     else perFamily[fam].other += 1;
   }
 
+  // Full per-test verdict list, in the {name, status} shape r19_compare.py's
+  // --wasm-json consumes (same convention run_wasm_tests.mjs's --json output
+  // already uses). "verdict" is renamed to "status" here to match that
+  // schema; nothing upstream is renamed, so run_wasm_tests.mjs's own JSON
+  // output is unaffected.
+  const fullResults = results.map((r) => ({
+    index: r.index,
+    name: r.name,
+    status: r.verdict,
+    family: r._family,
+  }));
+
   const summary = {
     mode: "multi-worker-parallel",
     concurrency: CONCURRENCY,
     warmup: WARMUP,
+    board_sha256: BOARD_SHA256,
     total,
     wall_ms: wallMs,
     wall_sec: wallSec,
@@ -156,6 +184,7 @@ async function run() {
     ),
     tally,
     per_family: perFamily,
+    results: fullResults,
     failures,
     worker_urls: workerUrls,
   };
