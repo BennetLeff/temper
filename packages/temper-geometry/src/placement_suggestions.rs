@@ -31,7 +31,6 @@
 //! trap (B7) first; this module carries its own copy of the same guard
 //! because that file is out of scope here.
 
-use pyo3::exceptions::PyOverflowError;
 use pyo3::prelude::*;
 use pyo3::types::{PyAnyMethods, PyDict, PyList};
 
@@ -57,10 +56,15 @@ type SuggestionRow = (String, (f64, f64), (f64, f64), String, f64);
 ///
 /// `host_math::pow` is libm, which saturates to infinity; CPython's `**`
 /// raises instead when the base was finite. See the module doc comment (B7).
+///
+/// The exception text is resolved through the platform's own
+/// `strerror(ERANGE)` (`crate::py_errors::overflow_error`), matching
+/// whatever CPython's own `float_pow` raises on this host -- not hardcoded
+/// to one platform's text. See `py_errors.rs`'s module doc comment.
 fn pow_operator(base: f64, exp: f64) -> PyResult<f64> {
     let r = host_math::pow(base, exp);
     if r.is_infinite() && base.is_finite() {
-        return Err(PyOverflowError::new_err((34, "Result too large")));
+        return Err(crate::py_errors::overflow_error());
     }
     Ok(r)
 }

@@ -157,6 +157,17 @@ _PASSING_LOCALLY = (
 )
 
 _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
+    "router_v6/test_anti_vacuity_preconditions.py": (
+        "PASSING (added 2026-08-07 by the router structural vacuity-guard "
+        "fix, merged into this branch after the CI-name-enumeration-gap "
+        "audit above was written -- not one of the originally-triaged 49, "
+        "hence not in the doc's own count). 26 tests, synthetic fixtures "
+        "reproducing the historical silent-noop failure shape (routing_space "
+        "/ constraint_model / channel_skeleton vacuity preconditions), each "
+        "with a fails-on-broken / passes-on-healthy pair. Not yet wired into "
+        "any CI job; wiring router_v6 in generally is the workflow-side "
+        "change tracked in doc §3, out of scope for this registry entry."
+    ),
     "router_v6/test_acid_trap_generator_fix.py": _PASSING_LOCALLY,
     "router_v6/test_astar_heuristics_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_astar_kernel_pbt.py": _PASSING_LOCALLY,
@@ -171,13 +182,18 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
     "router_v6/test_congestion_defects.py": _PASSING_LOCALLY,
     "router_v6/test_congestion_pbt.py": _PASSING_LOCALLY,
     "router_v6/test_congestion_rust_differential.py": (
-        "FAILING (2026-08-07 local triage): "
-        "test_total_movement_bit_exact[moves6] -- oracle raises "
-        "OverflowError(34, 'Numerical result out of range') "
-        "(glibc strerror(ERANGE)), Rust binding raises "
-        "OverflowError(34, 'Result too large'); real message-parity gap "
-        "between the pinned oracle and the Rust port, not environmental "
-        "(temper-NNN). Do not wire in un-deselected -- see doc §2/§3.3."
+        "PASSING (fixed 2026-08-07, still CI-uncovered by design -- see "
+        "docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md): "
+        "test_total_movement_bit_exact[moves6] previously failed because the "
+        "oracle raises OverflowError(34, 'Numerical result out of range') "
+        "(glibc strerror(ERANGE)) while the Rust binding hardcoded "
+        "OverflowError(34, 'Result too large') (macOS's strerror text). Fixed "
+        "in temper-geometry/src/py_errors.rs::overflow_error -- resolves the "
+        "message through the platform's own strerror(ERANGE) at runtime, "
+        "same construction as temper-drc-rs's dfm_py.rs::errno_overflow_error, "
+        "instead of hardcoding either platform's text. This file stays in "
+        "this registry (not wired into CI) because that is a workflow-side "
+        "change out of scope for the pull that fixed the content bug."
     ),
     "router_v6/test_congestion_tensor_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_constraints_geometry_rust_differential.py": _PASSING_LOCALLY,
@@ -193,12 +209,15 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
     "router_v6/test_encoding_pruning_geographic.py": _PASSING_LOCALLY,
     "router_v6/test_escape_via_pbt.py": _PASSING_LOCALLY,
     "router_v6/test_escape_via_rust_differential.py": (
-        "FAILING (2026-08-07 local triage): "
-        "test_is_position_valid_bit_exact[overflow_square] -- same "
-        "OverflowError message mismatch as test_congestion_rust_differential.py "
-        "('Numerical result out of range' vs 'Result too large'); real "
-        "message-parity gap (temper-NNN). Do not wire in un-deselected -- "
-        "see doc §2/§3.3."
+        "PASSING (fixed 2026-08-07, still CI-uncovered by design -- see "
+        "docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md): "
+        "test_is_position_valid_bit_exact[overflow_square] previously failed "
+        "with the same OverflowError message mismatch as "
+        "test_congestion_rust_differential.py ('Numerical result out of "
+        "range' vs 'Result too large'), same fix (py_errors.rs). This file "
+        "stays in this registry (not wired into CI) because that is a "
+        "workflow-side change out of scope for the pull that fixed the "
+        "content bug."
     ),
     "router_v6/test_layer_assignment_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_net_ordering_pbt.py": _PASSING_LOCALLY,
@@ -236,14 +255,19 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
     "router_v6/test_u2_stackup_role_ssot.py": _PASSING_LOCALLY,
     "router_v6/test_zero_length_segments.py": _PASSING_LOCALLY,
     "router_v6/test_zone_pour_geometry_rust_differential.py": (
-        "FAILING (2026-08-07 local triage): "
-        "test_tie_break_class_exists_direct_cKDTree_comparison -- fails with "
-        "the test's own diagnostic message, 'the forcing coordinates no "
-        "longer reproduce a scipy/first-wins disagreement -- this test no "
-        "longer demonstrates the documented divergence and should be "
-        "re-derived.' SciPy-version-dependent maintenance debt, not a Rust "
-        "regression (temper-NNN). Do not wire in un-deselected -- see doc "
-        "§2/§3.3."
+        "PASSING (fixed 2026-08-07, still CI-uncovered by design -- see "
+        "docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md): "
+        "test_tie_break_class_exists_direct_cKDTree_comparison previously "
+        "failed with the test's own diagnostic message ('the forcing "
+        "coordinates no longer reproduce a scipy/first-wins disagreement'). "
+        "SciPy-version-dependent maintenance debt (scipy 1.16.3 installed; "
+        "cKDTree's default leafsize=16 means the old 8-vertex forcing set "
+        "never split into more than one leaf), not a Rust regression. "
+        "Re-derived with 20 forcing vertices (above leafsize) via the same "
+        "randomized-search methodology; see zone_pour.rs's module doc "
+        "comment. This file stays in this registry (not wired into CI) "
+        "because that is a workflow-side change out of scope for the pull "
+        "that fixed the content bug."
     ),
 }
 

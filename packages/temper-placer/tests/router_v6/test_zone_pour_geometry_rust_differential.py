@@ -469,18 +469,30 @@ def test_tie_break_class_exists_direct_cKDTree_comparison():
     polygon-exterior-coords vertex ordering that function builds is
     incidental to the point being made here (that the two ALGORITHMS
     disagree on ties, independent of how their vertex list is assembled).
-    The forcing coordinates are copied from an offline randomized search
-    (1-decimal-rounded coordinates, to manufacture exact float64 ties) that
-    found this as one of 2/2000 disagreements; see the module doc comment
-    for the full measurement.
+
+    Re-derived 2026-08-07 (temper-NNN): the original 8-vertex forcing
+    coordinates stopped reproducing the divergence under the currently
+    installed scipy (1.16.3) -- not a Rust-port regression, a scipy-version
+    dependency. Root cause: ``cKDTree``'s default ``leafsize`` is 16, and an
+    8-point tree never splits into more than one leaf, so it is scanned as a
+    single node whose traversal order happens to agree with
+    first-strictly-smaller-wins on this scipy build. Reaching an actual
+    internal-node split -- and therefore a traversal order that can disagree
+    with input order -- needs strictly more than ``leafsize`` points. The
+    re-derivation used 20 vertices (comfortably above 16) with the same
+    1-decimal-rounded-coordinate randomized search described in the module
+    doc comment; this specific set is one of 3 disagreements found scanning
+    ~250 forced-tie trials at N=20 verts.
     """
     from scipy.spatial import cKDTree
 
     verts = [
-        (-3.1, 4.3), (3.5, 3.3), (1.6, -0.5), (2.6, 0.4),
-        (3.7, 2.9), (-4.2, 0.5), (-4.3, -3.0), (4.8, -1.9),
+        (-4.6, -0.4), (0.4, -2.9), (2.5, -2.3), (3.9, 1.9), (-4.3, 4.4),
+        (-4.8, -2.2), (-2.3, 3.2), (-0.2, -0.5), (3.8, -0.1), (2.2, 2.7),
+        (-1.5, 3.2), (-2.1, -1.4), (3.0, 4.9), (0.5, -0.3), (4.2, -3.9),
+        (-1.9, 5.0), (-2.0, -0.7), (-4.6, -1.8), (-2.4, 2.1), (1.5, -1.3),
     ]
-    query = (1.8, -4.4)
+    query = (-1.6, -3.4)
 
     tree = cKDTree(verts)
     _dist, scipy_idx = tree.query(query)
@@ -498,7 +510,7 @@ def test_tie_break_class_exists_direct_cKDTree_comparison():
     rust_nearest = (result[0][2], result[0][3])
 
     scipy_nearest = verts[scipy_idx]
-    first_wins_nearest = verts[2]  # index 2, the first of the two tied vertices
+    first_wins_nearest = verts[1]  # index 1, the first of the two tied vertices (indices 1, 11)
 
     assert rust_nearest == first_wins_nearest, (
         "stitch_targets_py's tie-break contract changed -- expected "
