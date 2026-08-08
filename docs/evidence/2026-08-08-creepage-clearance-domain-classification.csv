@@ -1,0 +1,555 @@
+type,rule,actual,required,itemA,netA,domA,itemB,netB,domB,crossing
+creepage,HV to LV,4.28,8.0,PTH pad 1 [a] of U3,a,HV,PTH pad 3 [<no net>] of U3,<no net>,UNRESOLVED,HV-UNRESOLVED
+creepage,HV to LV,4.6159,8.0,"Track [a] on F.Cu, length 6.1000 mm",a,HV,Pad 1 [+15V] of C15 on F.Cu,+15V,SELV,HV-SELV
+creepage,HV to LV,5.9882,8.0,"Track [power_in.ntc-no] on F.Cu, length 22.9103 mm",power_in.ntc-no,HV,Pad 3 [+15V] of U4 on F.Cu,+15V,SELV,HV-SELV
+creepage,HV to LV,4.48,8.0,Pad 15 [GATE_HS] of U7 on F.Cu,GATE_HS,HV,Pad 11 [+15V_LS] of U7 on F.Cu,+15V_LS,HV,HV-HV
+creepage,HV to LV,0.175,8.0,"Track [RTD_SDI] on F.Cu, length 51.1000 mm",RTD_SDI,SELV,Pad 2 [+15V_LS] of U8 on F.Cu,+15V_LS,HV,HV-SELV
+creepage,HV to LV,0.675,8.0,"Track [SHUTDOWN] on F.Cu, length 52.4000 mm",SHUTDOWN,SELV,Pad 2 [+15V_LS] of U8 on F.Cu,+15V_LS,HV,HV-SELV
+creepage,HV to LV,1.5,8.0,Pad 1 [hb.gate_hs.driver-p1-1] of U8 on F.Cu,hb.gate_hs.driver-p1-1,HV,Pad 2 [+15V_LS] of U8 on F.Cu,+15V_LS,HV,HV-HV
+creepage,HV to LV,3.21,8.0,Pad 14 [hb.gate_hs.driver-p2] of U7 on F.Cu,hb.gate_hs.driver-p2,HV,Pad 11 [+15V_LS] of U7 on F.Cu,+15V_LS,HV,HV-HV
+creepage,HV to LV,0.0,8.0,"Track [inb] on F.Cu, length 82.4000 mm",inb,SELV,Pad 1 [+15V_LS] of C23 on F.Cu,+15V_LS,HV,HV-SELV
+creepage,HV to LV,0.67,8.0,Pad 10 [input] of U7 on F.Cu,input,HV,Pad 11 [+15V_LS] of U7 on F.Cu,+15V_LS,HV,HV-HV
+creepage,HV to LV,7.0039,8.0,"Track [a] on F.Cu, length 0.0364 mm",a,HV,Pad 1 [+170V_BUS] of R4 on F.Cu,+170V_BUS,HV,HV-HV
+creepage,HV to LV,4.3389,8.0,PTH pad 2 [discharge.k_dis1-nc] of R12,discharge.k_dis1-nc,HV,PTH pad 1 [+170V_BUS] of U1,+170V_BUS,HV,HV-HV
+creepage,HighVoltageIsolated to LV,0.2128,8.0,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 52.1845 mm",hb.gate_hs.driver-p1-1,HV,Pad 1 [+170V_BUS] of R51 on F.Cu,+170V_BUS,HV,HV-HV
+creepage,HV to LV,3.95,8.0,PTH pad 1 [hb.power_loop.q_high-g] of U5,hb.power_loop.q_high-g,HV,PTH pad 2 [+170V_BUS] of U5,+170V_BUS,HV,HV-HV
+creepage,HV to LV,0.1446,8.0,"Track [power_in.ntc-no] on F.Cu, length 0.2828 mm",power_in.ntc-no,HV,PTH pad 1 [+170V_BUS] of C4,+170V_BUS,HV,HV-HV
+creepage,HV to LV,3.98,8.0,PTH pad 2 [power_in.ntc-no] of U1,power_in.ntc-no,HV,PTH pad 1 [+170V_BUS] of U1,+170V_BUS,HV,HV-HV
+creepage,HV to LV,7.2793,8.0,Via [zcd] on F.Cu - B.Cu,zcd,HV,Pad 1 [+170V_BUS] of R4 on F.Cu,+170V_BUS,HV,HV-HV
+creepage,HV to LV,1.0933,8.0,"Track [a] on F.Cu, length 27.7186 mm",a,HV,Pad 8 [+3V3] of U7 on F.Cu,+3V3,SELV,HV-SELV
+creepage,HighVoltageIsolated to LV,2.1366,8.0,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 2.5456 mm",hb.gate_hs.driver-p1-1,HV,Pad 1 [+3V3] of R48 on F.Cu,+3V3,SELV,HV-SELV
+creepage,HV to LV,2.1924,8.0,"Track [hb.power_loop.q_high-g] on F.Cu, length 0.1000 mm",hb.power_loop.q_high-g,HV,Pad 1 [+3V3] of R61 on F.Cu,+3V3,SELV,HV-SELV
+creepage,HV to LV,0.0698,8.0,"Track [power_in.ntc-no] on F.Cu, length 22.9103 mm",power_in.ntc-no,HV,Pad 14 [+3V3] of U25 on F.Cu,+3V3,SELV,HV-SELV
+creepage,HV to LV,7.02,8.0,Pad 15 [GATE_HS] of U7 on F.Cu,GATE_HS,HV,Pad 9 [DC_BUS_RTN] of U7 on F.Cu,DC_BUS_RTN,HV,HV-HV
+creepage,HV to LV,0.85,8.0,Pad 1 [GATE_LS] of R28 on F.Cu,GATE_LS,HV,Pad 2 [DC_BUS_RTN] of R28 on F.Cu,DC_BUS_RTN,HV,HV-HV
+creepage,HV to LV,4.7,8.0,Pad 1 [PWR_RTN] of R5 on F.Cu,PWR_RTN,HV,Pad 2 [DC_BUS_RTN] of R5 on F.Cu,DC_BUS_RTN,HV,HV-HV
+creepage,HV to LV,0.1478,8.0,"Track [RTD_SDI] on F.Cu, length 2.1213 mm",RTD_SDI,SELV,PTH pad 2 [DC_BUS_RTN] of C3,DC_BUS_RTN,HV,HV-SELV
+creepage,HV to LV,0.58,8.0,"Track [SHUTDOWN] on F.Cu, length 52.4000 mm",SHUTDOWN,SELV,Pad 2 [DC_BUS_RTN] of R5 on F.Cu,DC_BUS_RTN,HV,HV-SELV
+creepage,HV to LV,3.95,8.0,PTH pad 2 [SW_NODE] of U6,SW_NODE,HV,PTH pad 3 [DC_BUS_RTN] of U6,DC_BUS_RTN,HV,HV-HV
+creepage,HV to LV,6.345,8.0,"Track [cs_n] on B.Cu, length 0.1414 mm",cs_n,SELV,PTH pad 2 [DC_BUS_RTN] of C5,DC_BUS_RTN,HV,HV-SELV
+creepage,HV to LV,7.0776,8.0,"Track [discharge.k_dis1-coil1] on B.Cu, length 21.6000 mm",discharge.k_dis1-coil1,SELV,PTH pad 2 [DC_BUS_RTN] of C5,DC_BUS_RTN,HV,HV-SELV
+creepage,HV to LV,1.0326,8.0,"Track [discharge.k_dis1-coil2] on F.Cu, length 27.1529 mm",discharge.k_dis1-coil2,SELV,Pad 2 [DC_BUS_RTN] of R28 on F.Cu,DC_BUS_RTN,HV,HV-SELV
+creepage,HV to LV,3.04,8.0,PTH pad 3 [discharge.k_dis2-no] of K3,discharge.k_dis2-no,HV,PTH pad 1 [DC_BUS_RTN] of K3,DC_BUS_RTN,HV,HV-HV
+creepage,HV to LV,4.2595,8.0,"Track [gnd] on B.Cu, length 19.7990 mm",gnd,SELV,PTH pad 3 [DC_BUS_RTN] of U6,DC_BUS_RTN,HV,HV-SELV
+creepage,HV to LV,0.9094,8.0,Pad 1 [hb.gate_hs.driver-p1-1] of U8 on F.Cu,hb.gate_hs.driver-p1-1,HV,Pad 2 [DC_BUS_RTN] of C23 on F.Cu,DC_BUS_RTN,HV,HV-HV
+creepage,HV to LV,5.75,8.0,Pad 14 [hb.gate_hs.driver-p2] of U7 on F.Cu,hb.gate_hs.driver-p2,HV,Pad 9 [DC_BUS_RTN] of U7 on F.Cu,DC_BUS_RTN,HV,HV-HV
+creepage,HV to LV,0.0,8.0,"Track [inb] on F.Cu, length 82.4000 mm",inb,SELV,Pad 2 [DC_BUS_RTN] of C23 on F.Cu,DC_BUS_RTN,HV,HV-SELV
+creepage,HV to LV,0.67,8.0,Pad 10 [input] of U7 on F.Cu,input,HV,Pad 9 [DC_BUS_RTN] of U7 on F.Cu,DC_BUS_RTN,HV,HV-HV
+creepage,HV to LV,5.115,8.0,"Track [safety.coil_thermal.comp-inp] on B.Cu, length 24.1000 mm",safety.coil_thermal.comp-inp,SELV,PTH pad 1 [DC_BUS_RTN] of K3,DC_BUS_RTN,HV,HV-SELV
+creepage,HV to LV,5.844,8.0,"Track [sw] on B.Cu, length 89.0955 mm",sw,SELV,PTH pad 2 [DC_BUS_RTN] of C24,DC_BUS_RTN,HV,HV-SELV
+creepage,HV to LV,4.475,8.0,PTH pad 2 [tank.c_tank1-p2] of C25,tank.c_tank1-p2,HV,"Track [DISCHARGE_CTRL] on F.Cu, length 37.3000 mm",DISCHARGE_CTRL,SELV,HV-SELV
+creepage,HV to LV,7.7267,8.0,Pad 1 [discharge.k_dis2-nc] of R20 on F.Cu,discharge.k_dis2-nc,HV,Pad 1 [GATE_HS] of R23 on F.Cu,GATE_HS,HV,HV-HV
+creepage,HighVoltageIsolated to LV,0.67,8.0,Pad 16 [hb.gate_hs.driver-p1-1] of U7 on F.Cu,hb.gate_hs.driver-p1-1,HV,Pad 15 [GATE_HS] of U7 on F.Cu,GATE_HS,HV,HV-HV
+creepage,HighVoltageIsolated to LV,0.67,8.0,Pad 14 [hb.gate_hs.driver-p2] of U7 on F.Cu,hb.gate_hs.driver-p2,HV,Pad 15 [GATE_HS] of U7 on F.Cu,GATE_HS,HV,HV-HV
+creepage,HV to LV,1.8,8.0,Pad 2 [hb.power_loop.q_high-g] of R23 on F.Cu,hb.power_loop.q_high-g,HV,Pad 1 [GATE_HS] of R23 on F.Cu,GATE_HS,HV,HV-HV
+creepage,HV to LV,1.6685,8.0,"Track [a] on F.Cu, length 27.7186 mm",a,HV,Pad 2 [PWR_RTN] of R4 on F.Cu,PWR_RTN,HV,HV-HV
+creepage,HV to LV,1.74,8.0,PTH pad 1 [a] of U3,a,HV,PTH pad 2 [PWR_RTN] of U3,PWR_RTN,HV,HV-HV
+creepage,HV to LV,2.237,8.0,Pad 1 [discharge.k_dis1-nc] of R19 on F.Cu,discharge.k_dis1-nc,HV,PTH pad 2 [PWR_RTN] of C7,PWR_RTN,HV,HV-HV
+creepage,HV to LV,3.04,8.0,PTH pad 4 [discharge.k_dis1-nc] of K2,discharge.k_dis1-nc,HV,PTH pad 1 [PWR_RTN] of K2,PWR_RTN,HV,HV-HV
+creepage,HV to LV,3.04,8.0,PTH pad 4 [discharge.k_dis1-nc] of K2,discharge.k_dis1-nc,HV,PTH pad 1 [PWR_RTN] of K2,PWR_RTN,HV,HV-HV
+creepage,HighVoltageIsolated to LV,2.001,8.0,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 0.1414 mm",hb.gate_hs.driver-p1-1,HV,PTH pad 1 [PWR_RTN] of C6,PWR_RTN,HV,HV-HV
+creepage,HV to LV,0.2911,8.0,"Track [hb.power_loop.q_high-g] on F.Cu, length 1.1314 mm",hb.power_loop.q_high-g,HV,PTH pad 1 [PWR_RTN] of C5,PWR_RTN,HV,HV-HV
+creepage,HV to LV,2.2533,8.0,"Track [power_in.ntc-no] on F.Cu, length 12.1622 mm",power_in.ntc-no,HV,PTH pad 3 [PWR_RTN] of L1,PWR_RTN,HV,HV-HV
+creepage,HV to LV,6.36,8.0,Pad 1 [tank-out] of T1 on F.Cu,tank-out,HV,Pad 2 [PWR_RTN] of T1 on F.Cu,PWR_RTN,HV,HV-HV
+creepage,HV to LV,1.095,8.0,"Track [w1_2] on F.Cu, length 7.3000 mm",w1_2,HV,PTH pad 3 [PWR_RTN] of L1,PWR_RTN,HV,HV-HV
+creepage,HV to LV,0.85,8.0,Pad 1 [zcd] of R8 on F.Cu,zcd,HV,Pad 2 [PWR_RTN] of R8 on F.Cu,PWR_RTN,HV,HV-HV
+creepage,HighVoltageIsolated to LV,0.9736,8.0,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 0.7000 mm",hb.gate_hs.driver-p1-1,HV,Pad 2 [RTD_HW_FAULT] of R48 on F.Cu,RTD_HW_FAULT,SELV,HV-SELV
+creepage,HV to LV,6.5736,8.0,"Track [discharge.k_dis1-nc] on B.Cu, length 14.3000 mm",discharge.k_dis1-nc,HV,"Track [RTD_SCK] on B.Cu, length 0.0361 mm",RTD_SCK,SELV,HV-SELV
+creepage,HV to LV,7.722,8.0,Pad 2 [a] of R9 on F.Cu,a,HV,"Track [RTD_SDI] on F.Cu, length 0.5657 mm",RTD_SDI,SELV,HV-SELV
+creepage,HV to LV,4.6375,8.0,Via [discharge.k_dis1-nc] on F.Cu - B.Cu,discharge.k_dis1-nc,HV,"Track [RTD_SDI] on F.Cu, length 5.5000 mm",RTD_SDI,SELV,HV-SELV
+creepage,HV to LV,1.725,8.0,"Track [discharge.k_dis1-nc] on B.Cu, length 14.3000 mm",discharge.k_dis1-nc,HV,Via [RTD_SDI] on F.Cu - B.Cu,RTD_SDI,SELV,HV-SELV
+creepage,HV to LV,1.035,8.0,PTH pad 2 [discharge.k_dis2-nc] of R14,discharge.k_dis2-nc,HV,"Track [RTD_SDI] on F.Cu, length 51.1000 mm",RTD_SDI,SELV,HV-SELV
+creepage,HighVoltageIsolated to LV,0.175,8.0,Pad 1 [hb.gate_hs.driver-p1-1] of U8 on F.Cu,hb.gate_hs.driver-p1-1,HV,"Track [RTD_SDI] on F.Cu, length 51.1000 mm",RTD_SDI,SELV,HV-SELV
+creepage,HighVoltageIsolated to LV,0.0,8.0,Pad 2 [hb.gate_hs.driver-p2] of C17 on F.Cu,hb.gate_hs.driver-p2,HV,"Track [RTD_SDI] on F.Cu, length 14.9907 mm",RTD_SDI,SELV,HV-SELV
+creepage,HV to LV,3.4681,8.0,Pad 2 [hb.power_loop.q_high-g] of R23 on F.Cu,hb.power_loop.q_high-g,HV,"Track [RTD_SDI] on F.Cu, length 14.9907 mm",RTD_SDI,SELV,HV-SELV
+creepage,HV to LV,0.2732,8.0,PTH pad 2 [tank-out] of R30,tank-out,HV,"Track [RTD_SDI] on F.Cu, length 19.6576 mm",RTD_SDI,SELV,HV-SELV
+creepage,HV to LV,0.0,8.0,"Track [a] on F.Cu, length 27.7186 mm",a,HV,Pad 5 [SHUTDOWN] of U7 on F.Cu,SHUTDOWN,SELV,HV-SELV
+creepage,HighVoltageIsolated to LV,0.675,8.0,Pad 1 [hb.gate_hs.driver-p1-1] of U8 on F.Cu,hb.gate_hs.driver-p1-1,HV,"Track [SHUTDOWN] on F.Cu, length 52.4000 mm",SHUTDOWN,SELV,HV-SELV
+creepage,HV to LV,3.666,8.0,"Track [power_in.ntc-no] on F.Cu, length 22.9103 mm",power_in.ntc-no,HV,Pad 10 [SHUTDOWN] of U26 on F.Cu,SHUTDOWN,SELV,HV-SELV
+creepage,HV to LV,7.525,8.0,PTH pad 2 [tank-out] of R30,tank-out,HV,"Track [SHUTDOWN] on F.Cu, length 16.1000 mm",SHUTDOWN,SELV,HV-SELV
+creepage,HighVoltageIsolated to LV,2.4,8.0,Pad 2 [hb.gate_hs.driver-p2] of D5 on F.Cu,hb.gate_hs.driver-p2,HV,Pad 1 [SW_NODE] of D5 on F.Cu,SW_NODE,HV,HV-HV
+creepage,HV to LV,0.85,8.0,Pad 1 [hb.power_loop.q_high-g] of R24 on F.Cu,hb.power_loop.q_high-g,HV,Pad 2 [SW_NODE] of R24 on F.Cu,SW_NODE,HV,HV-HV
+creepage,HV to LV,5.2972,8.0,PTH pad 1 [w1_1] of RV1,w1_1,HV,PTH pad 1 [SW_NODE] of C25,SW_NODE,HV,HV-HV
+creepage,HV to LV,6.491,8.0,"Track [a] on F.Cu, length 14.7078 mm",a,HV,Pad 2 [V_BUS_SENSE] of R58 on F.Cu,V_BUS_SENSE,SELV,HV-SELV
+creepage,HV to LV,1.745,8.0,PTH pad 4 [w1_2] of L1,w1_2,HV,"Track [WDT_KICK] on B.Cu, length 9.5000 mm",WDT_KICK,SELV,HV-SELV
+creepage,HV to LV,2.65,8.0,"Track [a] on F.Cu, length 0.1414 mm",a,HV,"Track [WDT_RESET_N] on F.Cu, length 21.2000 mm",WDT_RESET_N,SELV,HV-SELV
+creepage,HV to LV,0.021,8.0,"Track [power_in.ntc-no] on F.Cu, length 3.5355 mm",power_in.ntc-no,HV,"Track [WDT_RESET_N] on F.Cu, length 13.1000 mm",WDT_RESET_N,SELV,HV-SELV
+creepage,HV to LV,1.9464,8.0,PTH pad 1 [w1_1] of RV1,w1_1,HV,"Track [WDT_RESET_N] on F.Cu, length 0.8485 mm",WDT_RESET_N,SELV,HV-SELV
+creepage,HV to LV,0.0,8.0,Pad 1 [zcd] of D2 on F.Cu,zcd,HV,"Track [WDT_RESET_N] on F.Cu, length 5.9000 mm",WDT_RESET_N,SELV,HV-SELV
+creepage,HV to LV,2.7928,8.0,Pad 2 [discharge.k_dis2-coil1] of R16 on F.Cu,discharge.k_dis2-coil1,SELV,"Track [a] on F.Cu, length 14.7078 mm",a,HV,HV-SELV
+creepage,HV to LV,0.5488,8.0,PTH pad 2 [gnd] of J1,gnd,SELV,"Track [a] on F.Cu, length 14.7078 mm",a,HV,HV-SELV
+creepage,HV to LV,0.0,8.0,Pad 6 [hb.gate_hs.driver-p1] of U7 on F.Cu,hb.gate_hs.driver-p1,SELV,"Track [a] on F.Cu, length 27.7186 mm",a,HV,HV-SELV
+creepage,HV to LV,3.4762,8.0,Pad 1 [ina] of U7 on F.Cu,ina,SELV,"Track [a] on F.Cu, length 27.7186 mm",a,HV,HV-SELV
+creepage,HV to LV,0.03,8.0,"Track [inb] on F.Cu, length 30.7000 mm",inb,SELV,Pad 2 [a] of R9 on F.Cu,a,HV,HV-SELV
+creepage,HV to LV,4.9823,8.0,Pad 10 [input] of U7 on F.Cu,input,HV,"Track [a] on F.Cu, length 27.7186 mm",a,HV,HV-HV
+creepage,HV to LV,0.1952,8.0,Pad 7 [nc_7] of U7 on F.Cu,nc_7,SELV,"Track [a] on F.Cu, length 27.7186 mm",a,HV,HV-SELV
+creepage,HV to LV,0.0,8.0,"Track [power_in.bypass_relay-coil2] on F.Cu, length 0.0459 mm",power_in.bypass_relay-coil2,SELV,"Track [a] on F.Cu, length 2.9000 mm",a,HV,HV-SELV
+creepage,HV to LV,0.065,8.0,Via [power_in.q_relay_drv-g] on F.Cu - B.Cu,power_in.q_relay_drv-g,SELV,"Track [a] on F.Cu, length 1.5000 mm",a,HV,HV-SELV
+creepage,HV to LV,3.635,8.0,Via [power_in.r_zcd_top1-p2] on F.Cu - B.Cu,power_in.r_zcd_top1-p2,HV,"Track [a] on F.Cu, length 2.6000 mm",a,HV,HV-HV
+creepage,HV to LV,4.45,8.0,Pad 2 [safety.coil_thermal.comp-inp] of R67 on F.Cu,safety.coil_thermal.comp-inp,SELV,"Track [a] on F.Cu, length 6.1000 mm",a,HV,HV-SELV
+creepage,HV to LV,1.615,8.0,"Track [safety.ovp.r_div_top1-p2] on F.Cu, length 51.1000 mm",safety.ovp.r_div_top1-p2,HV-chain,"Track [a] on F.Cu, length 0.0364 mm",a,HV,HV-HV
+creepage,HV to LV,0.03,8.0,Via [sw] on F.Cu - B.Cu,sw,SELV,"Track [a] on F.Cu, length 14.7078 mm",a,HV,HV-SELV
+creepage,HV to LV,0.325,8.0,PTH pad 1 [thermal.j_fan-p1] of J1,thermal.j_fan-p1,SELV,"Track [a] on F.Cu, length 6.1000 mm",a,HV,HV-SELV
+creepage,HV to LV,6.3312,8.0,PTH pad 1 [tank.c_tank1-p2] of R30,tank.c_tank1-p2,HV,PTH pad 1 [ac_l] of F1,ac_l,HV,HV-HV
+creepage,HighVoltageIsolated to LV,2.6176,8.0,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 4.9000 mm",hb.gate_hs.driver-p1-1,HV,PTH pad 2 [ac_n] of C1,ac_n,HV,HV-HV
+creepage,HV to LV,1.0713,8.0,"Track [power_in.ntc-no] on F.Cu, length 11.1723 mm",power_in.ntc-no,HV,PTH pad 2 [ac_n] of RV1,ac_n,HV,HV-HV
+creepage,HV to LV,7.0447,8.0,PTH pad 1 [w1_1] of RV1,w1_1,HV,PTH pad 2 [ac_n] of RV1,ac_n,HV,HV-HV
+creepage,HV to LV,6.455,8.0,"Track [w1_2] on F.Cu, length 3.1000 mm",w1_2,HV,PTH pad 2 [ac_n] of L1,ac_n,HV,HV-HV
+creepage,HV to LV,1.635,8.0,"Track [power_in.ntc-no] on F.Cu, length 3.5355 mm",power_in.ntc-no,HV,Pad 1 [bias] of R34 on F.Cu,bias,SELV,HV-SELV
+creepage,HighVoltageIsolated to LV,3.945,8.0,Via [hb.gate_hs.driver-p1-1] on F.Cu - B.Cu,hb.gate_hs.driver-p1-1,HV,"Track [cs_n] on B.Cu, length 48.8000 mm",cs_n,SELV,HV-SELV
+creepage,HV to LV,6.205,8.0,PTH pad 1 [w1_1] of L1,w1_1,HV,"Track [cs_n] on B.Cu, length 10.1000 mm",cs_n,SELV,HV-SELV
+creepage,HV to LV,1.443,8.0,Pad 1 [zcd] of D2 on F.Cu,zcd,HV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,HV-SELV
+creepage,HV to LV,0.0926,8.0,"Track [discharge.k_dis1-nc] on B.Cu, length 0.6000 mm",discharge.k_dis1-nc,HV,"Track [discharge.k_dis1-coil1] on B.Cu, length 0.0500 mm",discharge.k_dis1-coil1,SELV,HV-SELV
+creepage,HV to LV,6.6784,8.0,PTH pad 1 [w1_1] of L1,w1_1,HV,"Track [discharge.k_dis1-coil1] on B.Cu, length 12.0000 mm",discharge.k_dis1-coil1,SELV,HV-SELV
+creepage,HighVoltageIsolated to LV,0.2883,8.0,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 3.9598 mm",hb.gate_hs.driver-p1-1,HV,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.1000 mm",discharge.k_dis1-coil2,SELV,HV-SELV
+creepage,HV to LV,0.001,8.0,"Track [power_in.ntc-no] on F.Cu, length 13.1000 mm",power_in.ntc-no,HV,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.0539 mm",discharge.k_dis1-coil2,SELV,HV-SELV
+creepage,HV to LV,4.7,8.0,Pad 2 [discharge.r_snub1-p2] of R19 on F.Cu,discharge.r_snub1-p2,HV,Pad 1 [discharge.k_dis1-nc] of R19 on F.Cu,discharge.k_dis1-nc,HV,HV-HV
+creepage,HV to LV,0.95,8.0,"Track [gnd] on B.Cu, length 22.4000 mm",gnd,SELV,"Track [discharge.k_dis1-nc] on B.Cu, length 0.6000 mm",discharge.k_dis1-nc,HV,HV-SELV
+creepage,HV to LV,0.1226,8.0,"Track [hb.gate_hs.driver-p1] on B.Cu, length 0.2828 mm",hb.gate_hs.driver-p1,SELV,"Track [discharge.k_dis1-nc] on B.Cu, length 0.6000 mm",discharge.k_dis1-nc,HV,HV-SELV
+creepage,HV to LV,7.1613,8.0,Via [i2c_scl_ui] on F.Cu - B.Cu,i2c_scl_ui,SELV,"Track [discharge.k_dis1-nc] on B.Cu, length 14.4250 mm",discharge.k_dis1-nc,HV,HV-SELV
+creepage,HV to LV,0.0053,8.0,Via [ina] on F.Cu - B.Cu,ina,SELV,"Track [discharge.k_dis1-nc] on B.Cu, length 0.4243 mm",discharge.k_dis1-nc,HV,HV-SELV
+creepage,HV to LV,0.015,8.0,Via [safety-line-2] on F.Cu - B.Cu,safety-line-2,SELV,"Track [discharge.k_dis1-nc] on B.Cu, length 14.3000 mm",discharge.k_dis1-nc,HV,HV-SELV
+creepage,HV to LV,0.075,8.0,Via [safety.coil_thermal.comp-inp] on F.Cu - B.Cu,safety.coil_thermal.comp-inp,SELV,"Track [discharge.k_dis1-nc] on B.Cu, length 81.2000 mm",discharge.k_dis1-nc,HV,HV-SELV
+creepage,HV to LV,5.001,8.0,Via [safety.fault_or3-b2] on F.Cu - B.Cu,safety.fault_or3-b2,SELV,PTH pad 4 [discharge.k_dis1-nc] of K2,discharge.k_dis1-nc,HV,HV-SELV
+creepage,HV to LV,6.75,8.0,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.7071 mm",safety.ovp.r_adc_top2-p2,HV-chain,PTH pad 2 [discharge.k_dis1-nc] of R12,discharge.k_dis1-nc,HV,HV-HV
+creepage,HV to LV,5.7842,8.0,"Track [sw] on B.Cu, length 89.0955 mm",sw,SELV,Via [discharge.k_dis1-nc] on F.Cu - B.Cu,discharge.k_dis1-nc,HV,HV-SELV
+creepage,HV to LV,4.7,8.0,Pad 2 [discharge.r_snub2-p2] of R20 on F.Cu,discharge.r_snub2-p2,HV,Pad 1 [discharge.k_dis2-nc] of R20 on F.Cu,discharge.k_dis2-nc,HV,HV-HV
+creepage,HV to LV,1.635,8.0,"Track [ina] on B.Cu, length 65.3000 mm",ina,SELV,PTH pad 2 [discharge.k_dis2-nc] of R14,discharge.k_dis2-nc,HV,HV-SELV
+creepage,HV to LV,3.6056,8.0,PTH pad 1 [power_in.ntc-no] of U2,power_in.ntc-no,HV,PTH pad 2 [discharge.r_dis1a-p2] of R11,discharge.r_dis1a-p2,HV,HV-HV
+creepage,HighVoltageIsolated to LV,2.373,8.0,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 52.1845 mm",hb.gate_hs.driver-p1-1,HV,PTH pad 2 [discharge.r_dis2a-p2] of R13,discharge.r_dis2a-p2,HV,HV-HV
+creepage,HighVoltageIsolated to LV,3.6345,8.0,Pad 1 [hb.gate_hs.driver-p1-1] of C17 on F.Cu,hb.gate_hs.driver-p1-1,HV,Pad 2 [discharge.r_snub2-p2] of R20 on F.Cu,discharge.r_snub2-p2,HV,HV-HV
+creepage,HighVoltageIsolated to LV,5.0001,8.0,Pad 2 [hb.gate_hs.driver-p2] of C17 on F.Cu,hb.gate_hs.driver-p2,HV,Pad 2 [discharge.r_snub2-p2] of R20 on F.Cu,discharge.r_snub2-p2,HV,HV-HV
+creepage,HV to LV,1.1211,8.0,Pad 2 [hb.power_loop.q_high-g] of R23 on F.Cu,hb.power_loop.q_high-g,HV,Pad 2 [discharge.r_snub2-p2] of R20 on F.Cu,discharge.r_snub2-p2,HV,HV-HV
+creepage,HV to LV,4.6429,8.0,PTH pad 2 [power_in.ntc-no] of U1,power_in.ntc-no,HV,PTH pad 1 [discharge.r_snub2-p2] of C8,discharge.r_snub2-p2,HV,HV-HV
+creepage,HV to LV,7.8312,8.0,PTH pad 2 [tank-out] of R30,tank-out,HV,Pad 2 [discharge.r_snub2-p2] of R20 on F.Cu,discharge.r_snub2-p2,HV,HV-HV
+creepage,HighVoltageIsolated to LV,1.0192,8.0,Via [hb.gate_hs.driver-p1-1] on F.Cu - B.Cu,hb.gate_hs.driver-p1-1,HV,Pad 2 [gnd] of U18 on F.Cu,gnd,SELV,HV-SELV
+creepage,HV to LV,0.0,8.0,"Track [power_in.ntc-no] on F.Cu, length 22.9103 mm",power_in.ntc-no,HV,Pad 13 [gnd] of U25 on F.Cu,gnd,SELV,HV-SELV
+creepage,HV to LV,0.905,8.0,Pad 2 [hb.power_loop.q_high-g] of R23 on F.Cu,hb.power_loop.q_high-g,HV,Pad 1 [hb.gate_hs.driver-p1-1] of C17 on F.Cu,hb.gate_hs.driver-p1-1,HV,HV-HV
+creepage,HighVoltageIsolated to LV,0.0,8.0,"Track [inb] on F.Cu, length 82.4000 mm",inb,SELV,Pad 1 [hb.gate_hs.driver-p1-1] of U8 on F.Cu,hb.gate_hs.driver-p1-1,HV,HV-SELV
+creepage,HighVoltageIsolated to LV,7.02,8.0,Pad 10 [input] of U7 on F.Cu,input,HV,Pad 16 [hb.gate_hs.driver-p1-1] of U7 on F.Cu,hb.gate_hs.driver-p1-1,HV,HV-HV
+creepage,HighVoltageIsolated to LV,0.23,8.0,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 10.5000 mm",rtd_pan.rail_monitor-outa,SELV,Via [hb.gate_hs.driver-p1-1] on F.Cu - B.Cu,hb.gate_hs.driver-p1-1,HV,HV-SELV
+creepage,HighVoltageIsolated to LV,1.7126,8.0,"Track [safety.fault_or-b2] on F.Cu, length 0.0269 mm",safety.fault_or-b2,SELV,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 7.2000 mm",hb.gate_hs.driver-p1-1,HV,HV-SELV
+creepage,HighVoltageIsolated to LV,2.985,8.0,"Track [safety.latch-b2] on F.Cu, length 0.0472 mm",safety.latch-b2,SELV,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 7.2000 mm",hb.gate_hs.driver-p1-1,HV,HV-SELV
+creepage,HighVoltageIsolated to LV,0.1668,8.0,Pad 2 [safety.ovp.r_div_top1-p2] of R51 on F.Cu,safety.ovp.r_div_top1-p2,HV-chain,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 52.1845 mm",hb.gate_hs.driver-p1-1,HV,HV-HV
+creepage,HighVoltageIsolated to LV,0.1226,8.0,"Track [safety.ovp.r_div_top2-p2] on F.Cu, length 1.0000 mm",safety.ovp.r_div_top2-p2,HV-chain,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 0.6000 mm",hb.gate_hs.driver-p1-1,HV,HV-HV
+creepage,HighVoltageIsolated to LV,0.0981,8.0,Pad 3 [safety.thermal.comp-inp] of U18 on F.Cu,safety.thermal.comp-inp,SELV,Via [hb.gate_hs.driver-p1-1] on F.Cu - B.Cu,hb.gate_hs.driver-p1-1,HV,HV-SELV
+creepage,HV to LV,5.3197,8.0,PTH pad 2 [tank-out] of R30,tank-out,HV,Pad 1 [hb.gate_hs.driver-p1-1] of C17 on F.Cu,hb.gate_hs.driver-p1-1,HV,HV-HV
+creepage,HV to LV,6.723,8.0,"Track [w1_2] on F.Cu, length 1.9000 mm",w1_2,HV,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 13.1522 mm",hb.gate_hs.driver-p1-1,HV,HV-HV
+creepage,HighVoltageIsolated to LV,0.2917,8.0,"Track [y] on B.Cu, length 7.3539 mm",y,SELV,Via [hb.gate_hs.driver-p1-1] on F.Cu - B.Cu,hb.gate_hs.driver-p1-1,HV,HV-SELV
+creepage,HighVoltageIsolated to LV,0.4297,8.0,"Track [y1] on F.Cu, length 0.0320 mm",y1,SELV,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 7.2000 mm",hb.gate_hs.driver-p1-1,HV,HV-SELV
+creepage,HV to LV,2.1781,8.0,Pad 2 [hb.power_loop.q_high-g] of R23 on F.Cu,hb.power_loop.q_high-g,HV,Pad 2 [hb.gate_hs.driver-p2] of C17 on F.Cu,hb.gate_hs.driver-p2,HV,HV-HV
+creepage,HighVoltageIsolated to LV,4.48,8.0,Pad 10 [input] of U7 on F.Cu,input,HV,Pad 14 [hb.gate_hs.driver-p2] of U7 on F.Cu,hb.gate_hs.driver-p2,HV,HV-HV
+creepage,HighVoltageIsolated to LV,0.0,8.0,"Track [power_in.bypass_relay-coil2] on F.Cu, length 14.9907 mm",power_in.bypass_relay-coil2,SELV,Pad 2 [hb.gate_hs.driver-p2] of C17 on F.Cu,hb.gate_hs.driver-p2,HV,HV-SELV
+creepage,HighVoltageIsolated to LV,1.74,8.0,"Track [safety.ovp.r_div_top1-p2] on F.Cu, length 51.1000 mm",safety.ovp.r_div_top1-p2,HV-chain,Pad 2 [hb.gate_hs.driver-p2] of C22 on F.Cu,hb.gate_hs.driver-p2,HV,HV-HV
+creepage,HighVoltageIsolated to LV,5.0072,8.0,Via [safety.thermal.comp-inp] on F.Cu - B.Cu,safety.thermal.comp-inp,SELV,Pad 2 [hb.gate_hs.driver-p2] of C22 on F.Cu,hb.gate_hs.driver-p2,HV,HV-SELV
+creepage,HV to LV,0.7901,8.0,PTH pad 1 [tank.c_tank1-p2] of R30,tank.c_tank1-p2,HV,Pad 2 [hb.gate_hs.driver-p2] of C17 on F.Cu,hb.gate_hs.driver-p2,HV,HV-HV
+creepage,HV to LV,1.0804,8.0,Pad 2 [safety-line] of R61 on F.Cu,safety-line,SELV,"Track [hb.power_loop.q_high-g] on F.Cu, length 2.6870 mm",hb.power_loop.q_high-g,HV,HV-SELV
+creepage,HV to LV,7.875,8.0,PTH pad 2 [tank.c_tank1-p2] of C25,tank.c_tank1-p2,HV,"Track [i2c_scl_ui] on B.Cu, length 28.0000 mm",i2c_scl_ui,SELV,HV-SELV
+creepage,HV to LV,6.235,8.0,PTH pad 1 [w1_1] of RV1,w1_1,HV,"Track [i2c_scl_ui] on B.Cu, length 15.1000 mm",i2c_scl_ui,SELV,HV-SELV
+creepage,HV to LV,0.0,8.0,"Track [power_in.ntc-no] on F.Cu, length 1.1314 mm",power_in.ntc-no,HV,Pad 2 [i2c_sda_ui] of R77 on F.Cu,i2c_sda_ui,SELV,HV-SELV
+creepage,HV to LV,6.2767,8.0,PTH pad 2 [tank-out] of R30,tank-out,HV,"Track [ina] on B.Cu, length 14.3000 mm",ina,SELV,HV-SELV
+creepage,HV to LV,0.2333,8.0,PTH pad 2 [power_in.ntc-no] of RT1,power_in.ntc-no,HV,"Track [inb] on F.Cu, length 0.1414 mm",inb,SELV,HV-SELV
+creepage,HV to LV,6.0336,8.0,PTH pad 1 [w1_2] of RT1,w1_2,HV,"Track [inb] on F.Cu, length 0.2828 mm",inb,SELV,HV-SELV
+creepage,HV to LV,0.03,8.0,Pad 1 [zcd] of R9 on F.Cu,zcd,HV,"Track [inb] on F.Cu, length 30.7000 mm",inb,SELV,HV-SELV
+creepage,HV to LV,7.1127,8.0,PTH pad 1 [w1_1] of C1,w1_1,HV,Pad 1 [input] of R27 on F.Cu,input,HV,HV-HV
+creepage,HV to LV,1.7285,8.0,"Track [power_in.ntc-no] on F.Cu, length 0.8000 mm",power_in.ntc-no,HV,Pad 1 [io0] of SW2 on F.Cu,io0,SELV,HV-SELV
+creepage,HV to LV,0.3281,8.0,PTH pad 1 [tank.c_tank1-p2] of R30,tank.c_tank1-p2,HV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 14.9907 mm",power_in.bypass_relay-coil2,SELV,HV-SELV
+creepage,HV to LV,2.7251,8.0,Pad 2 [refin_n] of R34 on F.Cu,refin_n,SELV,"Track [power_in.ntc-no] on F.Cu, length 0.5000 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,7.185,8.0,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 18.9000 mm",rtd_pan.rail_monitor-outa,SELV,PTH pad 1 [power_in.ntc-no] of U2,power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,3.0396,8.0,Pad 3 [safety.fault_any_or-a2] of U25 on F.Cu,safety.fault_any_or-a2,SELV,"Track [power_in.ntc-no] on F.Cu, length 22.9103 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,2.396,8.0,Pad 9 [safety.fault_any_or-y2] of U26 on F.Cu,safety.fault_any_or-y2,SELV,"Track [power_in.ntc-no] on F.Cu, length 22.9103 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,4.7225,8.0,Pad 11 [safety.fault_or-b2] of U26 on F.Cu,safety.fault_or-b2,SELV,"Track [power_in.ntc-no] on F.Cu, length 7.0711 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,2.2335,8.0,Pad 9 [safety.fault_or3-b2] of U25 on F.Cu,safety.fault_or3-b2,SELV,"Track [power_in.ntc-no] on F.Cu, length 22.9103 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,1.3355,8.0,Pad 10 [safety.fault_or3-y3] of U25 on F.Cu,safety.fault_or3-y3,SELV,"Track [power_in.ntc-no] on F.Cu, length 22.9103 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,1.126,8.0,Pad 8 [safety.latch-b2] of U26 on F.Cu,safety.latch-b2,SELV,"Track [power_in.ntc-no] on F.Cu, length 3.0000 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,7.6335,8.0,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 4.3841 mm",safety.ovp.r_adc_top2-p2,HV-chain,PTH pad 2 [power_in.ntc-no] of U1,power_in.ntc-no,HV,HV-HV
+creepage,HV to LV,0.721,8.0,Pad 2 [safety.thermal-line] of R64 on F.Cu,safety.thermal-line,SELV,"Track [power_in.ntc-no] on F.Cu, length 0.8000 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,1.4481,8.0,Pad 1 [safety.thermal.comp-inp] of R64 on F.Cu,safety.thermal.comp-inp,SELV,"Track [power_in.ntc-no] on F.Cu, length 7.0711 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,1.2436,8.0,Pad 1 [safety.uvlo_logic-line] of U25 on F.Cu,safety.uvlo_logic-line,SELV,"Track [power_in.ntc-no] on F.Cu, length 22.9103 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,0.0,8.0,Pad 1 [sw] of L2 on F.Cu,sw,SELV,"Track [power_in.ntc-no] on F.Cu, length 0.8000 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,6.185,8.0,Pad 4 [y1] of U26 on F.Cu,y1,SELV,"Track [power_in.ntc-no] on F.Cu, length 3.0000 mm",power_in.ntc-no,HV,HV-SELV
+creepage,HV to LV,1.8,8.0,Pad 2 [zcd] of R7 on F.Cu,zcd,HV,Pad 1 [power_in.r_zcd_top1-p2] of R7 on F.Cu,power_in.r_zcd_top1-p2,HV,HV-HV
+creepage,HV to LV,3.9995,8.0,PTH pad 1 [w1_1] of C1,w1_1,HV,"Track [rtd_pan.high_window-out] on B.Cu, length 33.5169 mm",rtd_pan.high_window-out,SELV,HV-SELV
+creepage,HV to LV,1.0887,8.0,Pad 1 [zcd] of R8 on F.Cu,zcd,HV,Via [rtd_pan.high_window-out] on F.Cu - B.Cu,rtd_pan.high_window-out,SELV,HV-SELV
+creepage,HV to LV,6.1707,8.0,PTH pad 2 [tank.c_tank1-p2] of C27,tank.c_tank1-p2,HV,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 0.4000 mm",rtd_pan.r_high_top-inp,SELV,HV-SELV
+creepage,HV to LV,6.5444,8.0,Pad 1 [tank-out] of T1 on F.Cu,tank-out,HV,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 2.8000 mm",rtd_pan.rail_monitor-outa,SELV,HV-SELV
+creepage,HV to LV,4.895,8.0,PTH pad 2 [tank.c_tank1-p2] of C27,tank.c_tank1-p2,HV,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 10.1000 mm",rtd_pan.rail_monitor-outa,SELV,HV-SELV
+creepage,HV to LV,3.3631,8.0,PTH pad 1 [w1_1] of C1,w1_1,HV,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 16.2635 mm",rtd_pan.rail_monitor-outa,SELV,HV-SELV
+creepage,HV to LV,1.9341,8.0,PTH pad 2 [tank.c_tank1-p2] of C27,tank.c_tank1-p2,HV,"Track [safety.fault_or-b2] on F.Cu, length 1.6971 mm",safety.fault_or-b2,SELV,HV-SELV
+creepage,HV to LV,0.6,8.0,Pad 1 [zcd] of R8 on F.Cu,zcd,HV,"Track [safety.fault_or-b2] on F.Cu, length 6.6000 mm",safety.fault_or-b2,SELV,HV-SELV
+creepage,HV to LV,7.985,8.0,PTH pad 2 [tank.c_tank1-p2] of C27,tank.c_tank1-p2,HV,Via [safety.ovp-line] on F.Cu - B.Cu,safety.ovp-line,SELV,HV-SELV
+creepage,HV to LV,7.825,8.0,PTH pad 2 [w1_1] of F1,w1_1,HV,"Track [safety.ovp.r_div_top1-p2] on F.Cu, length 34.2000 mm",safety.ovp.r_div_top1-p2,HV-chain,HV-HV
+creepage,HV to LV,6.4683,8.0,Via [zcd] on F.Cu - B.Cu,zcd,HV,"Track [safety.ovp.r_div_top1-p2] on F.Cu, length 0.1414 mm",safety.ovp.r_div_top1-p2,HV-chain,HV-HV
+creepage,HV to LV,6.6719,8.0,PTH pad 2 [w1_1] of F1,w1_1,HV,"Track [sw] on B.Cu, length 89.0955 mm",sw,SELV,HV-SELV
+creepage,HV to LV,5.4894,8.0,Via [y] on F.Cu - B.Cu,y,SELV,Pad 1 [tank-out] of T1 on F.Cu,tank-out,HV,HV-SELV
+creepage,HV to LV,1.515,8.0,"Track [y] on B.Cu, length 15.3000 mm",y,SELV,PTH pad 1 [w1_1] of C1,w1_1,HV,HV-SELV
+creepage,HV to LV,7.125,8.0,"Track [y] on B.Cu, length 15.3000 mm",y,SELV,PTH pad 1 [w1_2] of RT1,w1_2,HV,HV-SELV
+creepage,HV to LV,0.015,8.0,Via [zcd] on F.Cu - B.Cu,zcd,HV,"Track [y] on B.Cu, length 1.4000 mm",y,SELV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [safety.ovp.r_div_top2-p2] on F.Cu, length 1.0000 mm",safety.ovp.r_div_top2-p2,HV-chain,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 0.6000 mm",hb.gate_hs.driver-p1-1,HV,HV-HV
+clearance,Default routing,0.1226,0.2,"Track [safety.ovp.r_div_top2-p2] on F.Cu, length 0.0520 mm",safety.ovp.r_div_top2-p2,HV-chain,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 0.6000 mm",hb.gate_hs.driver-p1-1,HV,HV-HV
+clearance,Default routing,0.1217,0.2,"Track [inb] on F.Cu, length 29.4000 mm",inb,SELV,Pad 2 [gnd] of C18 on F.Cu,gnd,SELV,SELV-SELV
+clearance,Default routing,0.135,0.2,Pad 17 [RTD_DRDY] of U27 on F.Cu,RTD_DRDY,SELV,"Track [sw] on F.Cu, length 0.0673 mm",sw,SELV,SELV-SELV
+clearance,Default routing,0.075,0.2,Pad 1 [discharge.k_dis1-coil1] of D3 on F.Cu,discharge.k_dis1-coil1,SELV,"Track [inb] on F.Cu, length 82.4000 mm",inb,SELV,SELV-SELV
+clearance,Default routing,0.075,0.2,Pad 2 [discharge.k_dis1-coil2] of D3 on F.Cu,discharge.k_dis1-coil2,SELV,"Track [inb] on F.Cu, length 82.4000 mm",inb,SELV,SELV-SELV
+clearance,Default routing,0.09,0.2,"Track [inb] on F.Cu, length 29.4000 mm",inb,SELV,Pad 1 [I_SENSE] of R31 on F.Cu,I_SENSE,SELV,SELV-SELV
+clearance,Default routing,0.09,0.2,Pad 2 [gnd] of R31 on F.Cu,gnd,SELV,"Track [inb] on F.Cu, length 29.4000 mm",inb,SELV,SELV-SELV
+clearance,Default routing,0.135,0.2,Pad 17 [RTD_DRDY] of U27 on F.Cu,RTD_DRDY,SELV,"Track [sw] on F.Cu, length 0.4000 mm",sw,SELV,SELV-SELV
+clearance,Default routing,0.09,0.2,"Track [inb] on F.Cu, length 29.4000 mm",inb,SELV,Pad 1 [ina] of C18 on F.Cu,ina,SELV,SELV-SELV
+clearance,Default routing,0.09,0.2,"Track [inb] on F.Cu, length 29.4000 mm",inb,SELV,Pad 1 [vcc] of C32 on F.Cu,vcc,SELV,SELV-SELV
+clearance,Default routing,0.09,0.2,"Track [inb] on F.Cu, length 29.4000 mm",inb,SELV,Pad 2 [gnd] of C32 on F.Cu,gnd,SELV,SELV-SELV
+clearance,Default routing,0.14,0.2,"Track [inb] on F.Cu, length 12.7000 mm",inb,SELV,Pad 2 [safety.uvlo_logic.mon-outa] of R72 on F.Cu,safety.uvlo_logic.mon-outa,SELV,SELV-SELV
+clearance,Default routing,0.175,0.2,"Track [inb] on F.Cu, length 0.1000 mm",inb,SELV,Pad 4 [+3V3] of U10 on F.Cu,+3V3,SELV,SELV-SELV
+clearance,Default routing,0.075,0.2,"Track [inb] on F.Cu, length 0.5657 mm",inb,SELV,Pad 4 [+3V3] of U10 on F.Cu,+3V3,SELV,SELV-SELV
+clearance,Default routing,0.1033,0.2,Pad 5 [OVP_VREF_2V5] of U10 on F.Cu,OVP_VREF_2V5,SELV,"Track [inb] on F.Cu, length 0.2828 mm",inb,SELV,SELV-SELV
+clearance,Default routing,0.1041,0.2,Pad 5 [OVP_VREF_2V5] of U10 on F.Cu,OVP_VREF_2V5,SELV,"Track [inb] on F.Cu, length 0.1414 mm",inb,SELV,SELV-SELV
+clearance,Default routing,0.01,0.2,Pad 5 [OVP_VREF_2V5] of U10 on F.Cu,OVP_VREF_2V5,SELV,"Track [inb] on F.Cu, length 0.8000 mm",inb,SELV,SELV-SELV
+clearance,Default routing,0.183,0.2,"Track [inb] on F.Cu, length 0.1000 mm",inb,SELV,Pad 5 [OVP_VREF_2V5] of U10 on F.Cu,OVP_VREF_2V5,SELV,SELV-SELV
+clearance,netclass:Default,0.1925,0.2,Via [safety.ovp.r_adc_top2-p2] on F.Cu - B.Cu,safety.ovp.r_adc_top2-p2,HV-chain,Pad 2 [safety.ovp.comp-inp] of R53 on F.Cu,safety.ovp.comp-inp,SELV,HV-SELV
+clearance,Default routing,0.195,0.2,"Track [RTD_SDI] on F.Cu, length 24.8000 mm",RTD_SDI,SELV,Pad 2 [PWR_RTN] of C14 on F.Cu,PWR_RTN,HV,HV-SELV
+clearance,Default routing,0.1765,0.2,Pad 2 [PWR_RTN] of C14 on F.Cu,PWR_RTN,HV,"Track [RTD_SDI] on F.Cu, length 3.5355 mm",RTD_SDI,SELV,HV-SELV
+clearance,Default routing,0.1947,0.2,Via [RTD_SDI] on F.Cu - B.Cu,RTD_SDI,SELV,"Track [sw] on B.Cu, length 12.5865 mm",sw,SELV,SELV-SELV
+clearance,Default routing,0.1478,0.2,PTH pad 2 [DC_BUS_RTN] of C3,DC_BUS_RTN,HV,"Track [RTD_SDI] on F.Cu, length 2.1213 mm",RTD_SDI,SELV,HV-SELV
+clearance,Default routing,0.0135,0.2,Via [sw] on F.Cu - B.Cu,sw,SELV,"Track [RTD_SDI] on F.Cu, length 0.1414 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.0135,0.2,Via [sw] on F.Cu - B.Cu,sw,SELV,"Track [RTD_SDI] on F.Cu, length 0.0522 mm",RTD_SDI,SELV,SELV-SELV
+clearance,HV to LV,1.0887,2.0,Via [rtd_pan.high_window-out] on F.Cu - B.Cu,rtd_pan.high_window-out,SELV,Pad 1 [zcd] of R8 on F.Cu,zcd,HV,HV-SELV
+clearance,Default routing,0.0833,0.2,Via [sw] on F.Cu - B.Cu,sw,SELV,"Track [RTD_SDI] on F.Cu, length 51.1000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.025,0.2,Pad 17 [RTD_DRDY] of U27 on F.Cu,RTD_DRDY,SELV,"Track [RTD_SDI] on F.Cu, length 51.1000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.0609,0.2,Pad 1 [safety.thermal-line] of U18 on F.Cu,safety.thermal-line,SELV,"Track [rtd_pan.high_window-out] on F.Cu, length 10.6066 mm",rtd_pan.high_window-out,SELV,SELV-SELV
+clearance,Default routing,0.022,0.2,"Track [rtd_pan.high_window-out] on F.Cu, length 0.2828 mm",rtd_pan.high_window-out,SELV,Pad 4 [safety-line] of U18 on F.Cu,safety-line,SELV,SELV-SELV
+clearance,Default routing,0.0609,0.2,Pad 5 [+3V3] of U18 on F.Cu,+3V3,SELV,"Track [rtd_pan.high_window-out] on F.Cu, length 10.6066 mm",rtd_pan.high_window-out,SELV,SELV-SELV
+clearance,Default routing,0.0927,0.2,Pad 8 [safety.coil_thermal-line] of U24 on F.Cu,safety.coil_thermal-line,SELV,"Track [rtd_pan.high_window-out] on F.Cu, length 10.6066 mm",rtd_pan.high_window-out,SELV,SELV-SELV
+clearance,Default routing,0.021,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.6000 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 14.6000 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.116,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.2828 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 14.6000 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.021,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 14.6000 mm",safety.ovp.r_adc_top2-p2,HV-chain,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.1414 mm",power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.1595,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 1.8000 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 14.6000 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.121,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 14.0000 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 14.6000 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.1549,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 1.5556 mm",safety.ovp.r_adc_top2-p2,HV-chain,Via [power_in.r_zcd_top1-p2] on F.Cu - B.Cu,power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.021,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.2828 mm",safety.ovp.r_adc_top2-p2,HV-chain,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.6000 mm",power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.021,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.2828 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 2.4000 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.121,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.2828 mm",safety.ovp.r_adc_top2-p2,HV-chain,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.1414 mm",power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.116,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.2828 mm",safety.ovp.r_adc_top2-p2,HV-chain,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.2828 mm",power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.116,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.5657 mm",safety.ovp.r_adc_top2-p2,HV-chain,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 1.8000 mm",power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.021,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 2.4000 mm",safety.ovp.r_adc_top2-p2,HV-chain,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 1.8000 mm",power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.1475,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.1000 mm",safety.ovp.r_adc_top2-p2,HV-chain,Via [power_in.r_zcd_top1-p2] on F.Cu - B.Cu,power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.116,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.7071 mm",safety.ovp.r_adc_top2-p2,HV-chain,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 14.0000 mm",power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.116,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.2828 mm",safety.ovp.r_adc_top2-p2,HV-chain,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 1.8000 mm",power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.021,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 1.6000 mm",safety.ovp.r_adc_top2-p2,HV-chain,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.4243 mm",power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.121,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.0275 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 14.6000 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.116,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.5657 mm",safety.ovp.r_adc_top2-p2,HV-chain,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.4243 mm",power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.0965,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.0275 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.7071 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.021,0.2,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 2.4000 mm",safety.ovp.r_adc_top2-p2,HV-chain,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.4243 mm",power_in.r_zcd_top1-p2,HV,HV-HV
+clearance,Default routing,0.121,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 16.6000 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 1.9799 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.121,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 16.6000 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.4000 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.021,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 16.6000 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.1414 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.021,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 16.6000 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 1.6000 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.116,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 16.6000 mm",power_in.r_zcd_top1-p2,HV,"Track [safety.ovp.r_adc_top2-p2] on B.Cu, length 0.5657 mm",safety.ovp.r_adc_top2-p2,HV-chain,HV-HV
+clearance,Default routing,0.1493,0.2,Pad 1 [safety.thermal-line] of U18 on F.Cu,safety.thermal-line,SELV,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 7.3539 mm",rtd_pan.rail_monitor-outa,SELV,SELV-SELV
+clearance,Default routing,0.1668,0.2,"Track [hb.gate_hs.driver-p1-1] on F.Cu, length 52.1845 mm",hb.gate_hs.driver-p1-1,HV,Pad 2 [safety.ovp.r_div_top1-p2] of R51 on F.Cu,safety.ovp.r_div_top1-p2,HV-chain,HV-HV
+clearance,HighVoltageIsolated to LV,1.962,2.0,Via [hb.gate_hs.driver-p1-1] on F.Cu - B.Cu,hb.gate_hs.driver-p1-1,HV,Pad 1 [safety.thermal-line] of U18 on F.Cu,safety.thermal-line,SELV,HV-SELV
+clearance,HighVoltageIsolated to LV,1.0192,2.0,Via [hb.gate_hs.driver-p1-1] on F.Cu - B.Cu,hb.gate_hs.driver-p1-1,HV,Pad 2 [gnd] of U18 on F.Cu,gnd,SELV,HV-SELV
+clearance,HighVoltageIsolated to LV,0.0981,2.0,Pad 3 [safety.thermal.comp-inp] of U18 on F.Cu,safety.thermal.comp-inp,SELV,Via [hb.gate_hs.driver-p1-1] on F.Cu - B.Cu,hb.gate_hs.driver-p1-1,HV,HV-SELV
+clearance,HighVoltageIsolated to LV,1.3032,2.0,Via [hb.gate_hs.driver-p1-1] on F.Cu - B.Cu,hb.gate_hs.driver-p1-1,HV,Pad 2 [RTD_HW_FAULT] of R48 on F.Cu,RTD_HW_FAULT,SELV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [WDT_KICK] on B.Cu, length 61.0000 mm",WDT_KICK,SELV,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.5657 mm",power_in.r_zcd_top1-p2,HV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [WDT_KICK] on B.Cu, length 0.2828 mm",WDT_KICK,SELV,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 16.6000 mm",power_in.r_zcd_top1-p2,HV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 16.6000 mm",power_in.r_zcd_top1-p2,HV,"Track [WDT_KICK] on B.Cu, length 61.0000 mm",WDT_KICK,SELV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [WDT_KICK] on B.Cu, length 1.2000 mm",WDT_KICK,SELV,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.4243 mm",power_in.r_zcd_top1-p2,HV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [WDT_KICK] on B.Cu, length 0.2828 mm",WDT_KICK,SELV,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.4243 mm",power_in.r_zcd_top1-p2,HV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [WDT_KICK] on B.Cu, length 1.2000 mm",WDT_KICK,SELV,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 1.8000 mm",power_in.r_zcd_top1-p2,HV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.2828 mm",power_in.r_zcd_top1-p2,HV,"Track [WDT_KICK] on B.Cu, length 1.2000 mm",WDT_KICK,SELV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [WDT_KICK] on B.Cu, length 0.2828 mm",WDT_KICK,SELV,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 1.8000 mm",power_in.r_zcd_top1-p2,HV,HV-SELV
+clearance,Default routing,0.1595,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.6000 mm",power_in.r_zcd_top1-p2,HV,"Track [WDT_KICK] on B.Cu, length 1.2000 mm",WDT_KICK,SELV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [WDT_KICK] on B.Cu, length 61.0000 mm",WDT_KICK,SELV,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.4243 mm",power_in.r_zcd_top1-p2,HV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [WDT_KICK] on B.Cu, length 37.6181 mm",WDT_KICK,SELV,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 1.8000 mm",power_in.r_zcd_top1-p2,HV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.2828 mm",power_in.r_zcd_top1-p2,HV,"Track [WDT_KICK] on B.Cu, length 37.6181 mm",WDT_KICK,SELV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 0.6000 mm",power_in.r_zcd_top1-p2,HV,"Track [WDT_KICK] on B.Cu, length 37.6181 mm",WDT_KICK,SELV,HV-SELV
+clearance,Default routing,0.01,0.2,"Track [WDT_KICK] on B.Cu, length 0.9000 mm",WDT_KICK,SELV,Via [safety-line-2] on F.Cu - B.Cu,safety-line-2,SELV,SELV-SELV
+clearance,Default routing,0.015,0.2,"Track [discharge.k_dis1-nc] on B.Cu, length 14.3000 mm",discharge.k_dis1-nc,HV,Via [safety-line-2] on F.Cu - B.Cu,safety-line-2,SELV,HV-SELV
+clearance,Default routing,0.1952,0.2,"Track [a] on F.Cu, length 27.7186 mm",a,HV,Pad 7 [nc_7] of U7 on F.Cu,nc_7,SELV,HV-SELV
+clearance,Default routing,0.1866,0.2,"Track [safety.coil_thermal.comp-inp] on B.Cu, length 0.0596 mm",safety.coil_thermal.comp-inp,SELV,"Track [discharge.k_dis1-nc] on B.Cu, length 8.0610 mm",discharge.k_dis1-nc,HV,HV-SELV
+clearance,Default routing,0.075,0.2,"Track [safety.coil_thermal.comp-inp] on B.Cu, length 24.1000 mm",safety.coil_thermal.comp-inp,SELV,PTH pad 3 [discharge.k_dis2-no] of K3,discharge.k_dis2-no,HV,HV-SELV
+clearance,Default routing,0.0114,0.2,Pad 2 [gnd] of U14 on F.Cu,gnd,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.4000 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.155,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.2000 mm",WDT_RESET_N,SELV,Pad 1 [rtd_pan.rail_monitor-outa] of U14 on F.Cu,rtd_pan.rail_monitor-outa,SELV,SELV-SELV
+clearance,Default routing,0.0483,0.2,Pad 3 [rtd_pan.rail_monitor-ina_p] of U14 on F.Cu,rtd_pan.rail_monitor-ina_p,SELV,"Track [WDT_RESET_N] on F.Cu, length 1.4142 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.0483,0.2,Pad 3 [rtd_pan.rail_monitor-ina_p] of U14 on F.Cu,rtd_pan.rail_monitor-ina_p,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.4000 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.0821,0.2,Pad 4 [gnd] of U14 on F.Cu,gnd,SELV,"Track [WDT_RESET_N] on F.Cu, length 1.4142 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.4243 mm",WDT_RESET_N,SELV,"Track [RTD_SDI] on F.Cu, length 12.9000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.9000 mm",WDT_RESET_N,SELV,"Track [RTD_SDI] on F.Cu, length 12.9000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 23.7588 mm",WDT_RESET_N,SELV,"Track [RTD_SDI] on F.Cu, length 12.9000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.0318,0.2,"Track [WDT_RESET_N] on F.Cu, length 2.4042 mm",WDT_RESET_N,SELV,Pad 2 [PWR_RTN] of D2 on F.Cu,PWR_RTN,HV,HV-SELV
+clearance,Default routing,0.125,0.2,Pad 13 [+3V3] of U26 on F.Cu,+3V3,SELV,"Track [WDT_RESET_N] on F.Cu, length 2.2000 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [safety.coil_thermal-line] on F.Cu, length 25.2000 mm",safety.coil_thermal-line,SELV,"Track [WDT_RESET_N] on F.Cu, length 10.6066 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 16.5000 mm",WDT_RESET_N,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 0.1414 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [safety.coil_thermal-line] on F.Cu, length 25.2000 mm",safety.coil_thermal-line,SELV,"Track [WDT_RESET_N] on F.Cu, length 16.5000 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.055,0.2,Pad 2 [refin_n] of R34 on F.Cu,refin_n,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 12.7000 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 1.0000 mm",WDT_RESET_N,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 1.0000 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.4243 mm",WDT_RESET_N,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 1.0000 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.055,0.2,Pad 1 [bias] of R34 on F.Cu,bias,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 12.7000 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 1.0000 mm",WDT_RESET_N,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 0.2828 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 21.2000 mm",WDT_RESET_N,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 21.2000 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1414 mm",WDT_RESET_N,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 21.2000 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 21.2000 mm",WDT_RESET_N,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 0.4243 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [y] on B.Cu, length 3.7000 mm",y,SELV,"Track [rtd_pan.high_window-out] on B.Cu, length 0.7000 mm",rtd_pan.high_window-out,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [gnd] on B.Cu, length 0.0250 mm",gnd,SELV,"Track [safety.coil_thermal.comp-inp] on B.Cu, length 9.5000 mm",safety.coil_thermal.comp-inp,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [safety.coil_thermal.comp-inp] on B.Cu, length 9.5000 mm",safety.coil_thermal.comp-inp,SELV,"Track [gnd] on B.Cu, length 4.3841 mm",gnd,SELV,SELV-SELV
+clearance,Default routing,0.0976,0.2,"Track [gnd] on B.Cu, length 0.0250 mm",gnd,SELV,"Track [safety.coil_thermal.comp-inp] on B.Cu, length 7.0000 mm",safety.coil_thermal.comp-inp,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [safety.coil_thermal.comp-inp] on B.Cu, length 7.0000 mm",safety.coil_thermal.comp-inp,SELV,"Track [gnd] on B.Cu, length 4.3841 mm",gnd,SELV,SELV-SELV
+clearance,Default routing,0.1936,0.2,"Track [gnd] on B.Cu, length 8.3439 mm",gnd,SELV,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 2.2000 mm",power_in.r_zcd_top1-p2,HV,HV-SELV
+clearance,Default routing,0.1936,0.2,"Track [gnd] on B.Cu, length 0.4000 mm",gnd,SELV,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 2.2000 mm",power_in.r_zcd_top1-p2,HV,HV-SELV
+clearance,Default routing,0.1936,0.2,"Track [gnd] on B.Cu, length 0.7071 mm",gnd,SELV,"Track [power_in.r_zcd_top1-p2] on B.Cu, length 2.2000 mm",power_in.r_zcd_top1-p2,HV,HV-SELV
+clearance,Default routing,0.01,0.2,"Track [RELAY_CTRL] on F.Cu, length 12.0000 mm",RELAY_CTRL,SELV,Pad 2 [safety-line-1] of R66 on F.Cu,safety-line-1,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 4.7000 mm",WDT_RESET_N,SELV,"Track [RELAY_CTRL] on F.Cu, length 3.1113 mm",RELAY_CTRL,SELV,SELV-SELV
+clearance,Default routing,0.035,0.2,"Track [RELAY_CTRL] on F.Cu, length 22.1000 mm",RELAY_CTRL,SELV,Via [safety-line-2] on F.Cu - B.Cu,safety-line-2,SELV,SELV-SELV
+clearance,Default routing,0.0752,0.2,Pad 1 [vcc] of C29 on F.Cu,vcc,SELV,"Track [RELAY_CTRL] on F.Cu, length 0.1000 mm",RELAY_CTRL,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 4.7000 mm",WDT_RESET_N,SELV,"Track [RELAY_CTRL] on F.Cu, length 0.2828 mm",RELAY_CTRL,SELV,SELV-SELV
+clearance,Default routing,0.1548,0.2,Pad 1 [vcc] of C29 on F.Cu,vcc,SELV,"Track [RELAY_CTRL] on F.Cu, length 0.4243 mm",RELAY_CTRL,SELV,SELV-SELV
+clearance,Default routing,0.19,0.2,"Track [RELAY_CTRL] on F.Cu, length 22.1000 mm",RELAY_CTRL,SELV,Pad 1 [+3V3] of R49 on F.Cu,+3V3,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 4.7000 mm",WDT_RESET_N,SELV,"Track [RELAY_CTRL] on F.Cu, length 0.8000 mm",RELAY_CTRL,SELV,SELV-SELV
+clearance,Default routing,0.19,0.2,"Track [RELAY_CTRL] on F.Cu, length 22.1000 mm",RELAY_CTRL,SELV,Pad 2 [safety.ocp.comp-inn] of R49 on F.Cu,safety.ocp.comp-inn,SELV,SELV-SELV
+clearance,Default routing,0.0926,0.2,"Track [discharge.k_dis1-nc] on B.Cu, length 0.6000 mm",discharge.k_dis1-nc,HV,"Track [discharge.k_dis1-coil1] on B.Cu, length 0.0500 mm",discharge.k_dis1-coil1,SELV,HV-SELV
+clearance,Default routing,0.1681,0.2,"Track [discharge.k_dis1-nc] on B.Cu, length 8.9095 mm",discharge.k_dis1-nc,HV,"Track [discharge.k_dis1-coil1] on B.Cu, length 0.0500 mm",discharge.k_dis1-coil1,SELV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [discharge.k_dis1-nc] on B.Cu, length 0.6000 mm",discharge.k_dis1-nc,HV,"Track [discharge.k_dis1-coil1] on B.Cu, length 0.7071 mm",discharge.k_dis1-coil1,SELV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [WDT_KICK] on B.Cu, length 62.0000 mm",WDT_KICK,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 0.4243 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [WDT_KICK] on B.Cu, length 62.0000 mm",WDT_KICK,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 42.9000 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [WDT_KICK] on B.Cu, length 62.0000 mm",WDT_KICK,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 1.1314 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [discharge.k_dis1-coil1] on B.Cu, length 0.1414 mm",discharge.k_dis1-coil1,SELV,"Track [WDT_KICK] on B.Cu, length 1.2000 mm",WDT_KICK,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [WDT_KICK] on B.Cu, length 61.0000 mm",WDT_KICK,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 0.1414 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [WDT_KICK] on B.Cu, length 1.2000 mm",WDT_KICK,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 0.6000 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.0006,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 0.0459 mm",power_in.bypass_relay-coil2,SELV,"Track [a] on F.Cu, length 0.7071 mm",a,HV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [WDT_KICK] on B.Cu, length 1.1314 mm",WDT_KICK,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 61.0000 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.021,0.2,"Track [a] on F.Cu, length 0.7071 mm",a,HV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 2.6000 mm",power_in.bypass_relay-coil2,SELV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [a] on F.Cu, length 2.9000 mm",a,HV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 2.6000 mm",power_in.bypass_relay-coil2,SELV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [a] on F.Cu, length 0.9899 mm",a,HV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 2.6000 mm",power_in.bypass_relay-coil2,SELV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [WDT_KICK] on B.Cu, length 1.2000 mm",WDT_KICK,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 22.2032 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [WDT_KICK] on B.Cu, length 61.0000 mm",WDT_KICK,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 61.0000 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.021,0.2,"Track [a] on F.Cu, length 2.9000 mm",a,HV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 3.9598 mm",power_in.bypass_relay-coil2,SELV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [a] on F.Cu, length 0.9899 mm",a,HV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 3.9598 mm",power_in.bypass_relay-coil2,SELV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [a] on F.Cu, length 2.9000 mm",a,HV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 3.9598 mm",power_in.bypass_relay-coil2,SELV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 23.6174 mm",power_in.bypass_relay-coil2,SELV,"Track [RTD_SDI] on F.Cu, length 5.5000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.116,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 16.0000 mm",power_in.bypass_relay-coil2,SELV,"Track [RTD_SDI] on F.Cu, length 1.8385 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.116,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 23.6174 mm",power_in.bypass_relay-coil2,SELV,"Track [RTD_SDI] on F.Cu, length 15.2735 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.116,0.2,"Track [RTD_SDI] on F.Cu, length 14.9907 mm",RTD_SDI,SELV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 1.9000 mm",power_in.bypass_relay-coil2,SELV,SELV-SELV
+clearance,Default routing,0.021,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 5.5000 mm",power_in.bypass_relay-coil2,SELV,"Track [RTD_SDI] on F.Cu, length 1.8385 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.116,0.2,"Track [RTD_SDI] on F.Cu, length 14.9907 mm",RTD_SDI,SELV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 14.9907 mm",power_in.bypass_relay-coil2,SELV,SELV-SELV
+clearance,Default routing,0.116,0.2,"Track [RTD_SDI] on F.Cu, length 6.1000 mm",RTD_SDI,SELV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 23.6174 mm",power_in.bypass_relay-coil2,SELV,SELV-SELV
+clearance,Default routing,0.021,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 5.5000 mm",power_in.bypass_relay-coil2,SELV,"Track [RTD_SDI] on F.Cu, length 5.5000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.021,0.2,"Track [RTD_SDI] on F.Cu, length 14.9907 mm",RTD_SDI,SELV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 16.0000 mm",power_in.bypass_relay-coil2,SELV,SELV-SELV
+clearance,Default routing,0.116,0.2,"Track [RTD_SDI] on F.Cu, length 16.0000 mm",RTD_SDI,SELV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 14.9907 mm",power_in.bypass_relay-coil2,SELV,SELV-SELV
+clearance,Default routing,0.021,0.2,"Track [RTD_SDI] on F.Cu, length 16.0000 mm",RTD_SDI,SELV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 16.0000 mm",power_in.bypass_relay-coil2,SELV,SELV-SELV
+clearance,Default routing,0.021,0.2,"Track [RTD_SDI] on F.Cu, length 19.6576 mm",RTD_SDI,SELV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 1.9000 mm",power_in.bypass_relay-coil2,SELV,SELV-SELV
+clearance,Default routing,0.116,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 5.5000 mm",power_in.bypass_relay-coil2,SELV,"Track [RTD_SDI] on F.Cu, length 15.2735 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.021,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 1.9000 mm",power_in.bypass_relay-coil2,SELV,"Track [RTD_SDI] on F.Cu, length 0.4000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.0333,0.2,"Track [RTD_SDI] on F.Cu, length 19.6576 mm",RTD_SDI,SELV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 14.9907 mm",power_in.bypass_relay-coil2,SELV,SELV-SELV
+clearance,Default routing,0.021,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 14.9907 mm",power_in.bypass_relay-coil2,SELV,"Track [RTD_SDI] on F.Cu, length 0.4000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.1446,0.2,PTH pad 1 [+170V_BUS] of C4,+170V_BUS,HV,"Track [power_in.ntc-no] on F.Cu, length 0.2828 mm",power_in.ntc-no,HV,HV-HV
+clearance,Default routing,0.116,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 1.8385 mm",power_in.bypass_relay-coil2,SELV,"Track [RTD_SDI] on F.Cu, length 1.8385 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.116,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 1.8385 mm",power_in.bypass_relay-coil2,SELV,"Track [RTD_SDI] on F.Cu, length 5.5000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.021,0.2,"Track [WDT_RESET_N] on F.Cu, length 18.9000 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 1.3000 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [power_in.bypass_relay-coil2] on F.Cu, length 1.8385 mm",power_in.bypass_relay-coil2,SELV,"Track [RTD_SDI] on F.Cu, length 16.0000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.116,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.2828 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 1.3000 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.1595,0.2,"Track [WDT_RESET_N] on F.Cu, length 1.2000 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 1.3000 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.0975,0.2,"Track [power_in.ntc-no] on F.Cu, length 3.5355 mm",power_in.ntc-no,HV,Pad 1 [+3V3] of R77 on F.Cu,+3V3,SELV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [WDT_RESET_N] on F.Cu, length 5.2326 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 1.8000 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [WDT_RESET_N] on F.Cu, length 5.2326 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 1.4142 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [WDT_RESET_N] on F.Cu, length 5.2326 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 1.6000 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [power_in.ntc-no] on F.Cu, length 3.5355 mm",power_in.ntc-no,HV,"Track [WDT_RESET_N] on F.Cu, length 13.1000 mm",WDT_RESET_N,SELV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [WDT_RESET_N] on F.Cu, length 18.9000 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 0.1414 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.121,0.2,"Track [power_in.ntc-no] on F.Cu, length 0.5000 mm",power_in.ntc-no,HV,Pad 2 [i2c_sda_ui] of R77 on F.Cu,i2c_sda_ui,SELV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [WDT_RESET_N] on F.Cu, length 13.1000 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 1.8000 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.191,0.2,"Track [power_in.ntc-no] on F.Cu, length 0.8000 mm",power_in.ntc-no,HV,Pad 2 [i2c_sda_ui] of R77 on F.Cu,i2c_sda_ui,SELV,HV-SELV
+clearance,Default routing,0.121,0.2,"Track [WDT_RESET_N] on F.Cu, length 18.9000 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 8.2000 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [WDT_RESET_N] on F.Cu, length 13.1000 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 1.4142 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.1305,0.2,"Track [power_in.ntc-no] on F.Cu, length 3.5355 mm",power_in.ntc-no,HV,Pad 2 [i2c_sda_ui] of R77 on F.Cu,i2c_sda_ui,SELV,HV-SELV
+clearance,Default routing,0.0698,0.2,"Track [power_in.ntc-no] on F.Cu, length 22.9103 mm",power_in.ntc-no,HV,Pad 14 [+3V3] of U25 on F.Cu,+3V3,SELV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [WDT_RESET_N] on F.Cu, length 18.9000 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 12.1622 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.2828 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 12.1622 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [WDT_RESET_N] on F.Cu, length 1.2000 mm",WDT_RESET_N,SELV,"Track [power_in.ntc-no] on F.Cu, length 12.1622 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 1.2728 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [cs_n] on F.Cu, length 1.8385 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [cs_n] on F.Cu, length 1.8385 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 1.2728 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 4.4000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.2828 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [cs_n] on F.Cu, length 4.4000 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 4.4000 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 1.2728 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 1.8385 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 4.4000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1414 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1414 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 1.2728 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.2828 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1414 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.2828 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1414 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.4243 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 2.2000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.4243 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [cs_n] on F.Cu, length 0.2828 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [cs_n] on F.Cu, length 2.2000 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 2.2000 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [cs_n] on F.Cu, length 0.2828 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.2828 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [cs_n] on F.Cu, length 2.2000 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.8485 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.2828 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [cs_n] on F.Cu, length 0.2828 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1414 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [cs_n] on F.Cu, length 0.2828 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.1414 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1414 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1414 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1414 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1623,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.2000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1414 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [cs_n] on F.Cu, length 0.1414 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.1414 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.1623,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.2000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 1.3000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.8485 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1414 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.8485 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1623,0.2,"Track [WDT_RESET_N] on F.Cu, length 16.5463 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1414 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1623,0.2,"Track [WDT_RESET_N] on F.Cu, length 16.5463 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 1.3000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [WDT_RESET_N] on F.Cu, length 0.4243 mm",WDT_RESET_N,SELV,"Track [cs_n] on F.Cu, length 0.1414 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [cs_n] on F.Cu, length 0.1414 mm",cs_n,SELV,"Track [WDT_RESET_N] on F.Cu, length 0.1000 mm",WDT_RESET_N,SELV,SELV-SELV
+clearance,Default routing,0.19,0.2,"Track [ina] on B.Cu, length 65.3000 mm",ina,SELV,Via [RTD_SDI] on F.Cu - B.Cu,RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.175,0.2,"Track [ina] on B.Cu, length 65.3000 mm",ina,SELV,Via [sw] on F.Cu - B.Cu,sw,SELV,SELV-SELV
+clearance,Default routing,0.01,0.2,"Track [discharge.k_dis1-nc] on B.Cu, length 0.4000 mm",discharge.k_dis1-nc,HV,Via [ina] on F.Cu - B.Cu,ina,SELV,HV-SELV
+clearance,Default routing,0.0089,0.2,Via [ina] on F.Cu - B.Cu,ina,SELV,"Track [RTD_SDI] on F.Cu, length 0.2828 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.014,0.2,Via [ina] on F.Cu - B.Cu,ina,SELV,"Track [RTD_SDI] on F.Cu, length 9.0000 mm",RTD_SDI,SELV,SELV-SELV
+clearance,Default routing,0.005,0.2,Pad 3 [safety.coil_thermal.comp-inp] of U19 on F.Cu,safety.coil_thermal.comp-inp,SELV,"Track [safety.uvlo_logic-line] on F.Cu, length 0.4000 mm",safety.uvlo_logic-line,SELV,SELV-SELV
+clearance,Default routing,0.005,0.2,Pad 3 [safety.coil_thermal.comp-inp] of U19 on F.Cu,safety.coil_thermal.comp-inp,SELV,"Track [safety.uvlo_logic-line] on F.Cu, length 3.9598 mm",safety.uvlo_logic-line,SELV,SELV-SELV
+clearance,Default routing,0.1077,0.2,Pad 1 [+170V_BUS] of C14 on F.Cu,+170V_BUS,HV,"Track [safety.uvlo_logic-line] on F.Cu, length 0.4243 mm",safety.uvlo_logic-line,SELV,HV-SELV
+clearance,Default routing,0.0458,0.2,"Track [i2c_scl_ui] on B.Cu, length 0.5657 mm",i2c_scl_ui,SELV,PTH pad 6 [+3V3] of U3,+3V3,SELV,SELV-SELV
+clearance,Default routing,0.0458,0.2,"Track [i2c_scl_ui] on B.Cu, length 23.2000 mm",i2c_scl_ui,SELV,PTH pad 6 [+3V3] of U3,+3V3,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 4.7000 mm",WDT_RESET_N,SELV,"Track [safety.uvlo_logic-line] on F.Cu, length 0.0335 mm",safety.uvlo_logic-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [WDT_RESET_N] on F.Cu, length 4.7000 mm",WDT_RESET_N,SELV,"Track [safety.uvlo_logic-line] on F.Cu, length 0.2828 mm",safety.uvlo_logic-line,SELV,SELV-SELV
+clearance,Default routing,0.1628,0.2,"Track [discharge.k_dis1-coil1] on B.Cu, length 3.8184 mm",discharge.k_dis1-coil1,SELV,"Track [cs_n] on B.Cu, length 0.0548 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [discharge.k_dis1-coil1] on B.Cu, length 1.9000 mm",discharge.k_dis1-coil1,SELV,"Track [cs_n] on B.Cu, length 1.9000 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.0851,0.2,"Track [discharge.k_dis1-coil1] on B.Cu, length 1.9000 mm",discharge.k_dis1-coil1,SELV,"Track [cs_n] on B.Cu, length 0.0548 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [cs_n] on B.Cu, length 0.1414 mm",cs_n,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 61.0000 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [cs_n] on B.Cu, length 0.1000 mm",cs_n,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 0.6000 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.045,0.2,PTH pad 2 [PWR_RTN] of C7,PWR_RTN,HV,"Track [cs_n] on B.Cu, length 20.7000 mm",cs_n,SELV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [cs_n] on B.Cu, length 0.1000 mm",cs_n,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 61.0000 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [cs_n] on B.Cu, length 0.0250 mm",cs_n,SELV,"Track [discharge.k_dis1-coil1] on B.Cu, length 0.6000 mm",discharge.k_dis1-coil1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [discharge.k_dis1-coil1] on B.Cu, length 61.0000 mm",discharge.k_dis1-coil1,SELV,"Track [cs_n] on B.Cu, length 0.0250 mm",cs_n,SELV,SELV-SELV
+clearance,Default routing,0.1623,0.2,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 0.7071 mm",rtd_pan.rail_monitor-outa,SELV,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.0459 mm",discharge.k_dis1-coil2,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 0.4000 mm",rtd_pan.rail_monitor-outa,SELV,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.0459 mm",discharge.k_dis1-coil2,SELV,SELV-SELV
+clearance,Default routing,0.1623,0.2,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 0.7071 mm",rtd_pan.rail_monitor-outa,SELV,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.2828 mm",discharge.k_dis1-coil2,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.0459 mm",discharge.k_dis1-coil2,SELV,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 3.0000 mm",rtd_pan.rail_monitor-outa,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 0.4000 mm",rtd_pan.rail_monitor-outa,SELV,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.2828 mm",discharge.k_dis1-coil2,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.2828 mm",discharge.k_dis1-coil2,SELV,"Track [rtd_pan.rail_monitor-outa] on F.Cu, length 3.0000 mm",rtd_pan.rail_monitor-outa,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [ina] on B.Cu, length 0.1414 mm",ina,SELV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 1.5000 mm",hb.gate_hs.driver-p1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [ina] on B.Cu, length 1.5000 mm",ina,SELV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 1.5000 mm",hb.gate_hs.driver-p1,SELV,SELV-SELV
+clearance,Default routing,0.1349,0.2,"Track [ina] on B.Cu, length 0.7071 mm",ina,SELV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 1.6971 mm",hb.gate_hs.driver-p1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [hb.gate_hs.driver-p1] on B.Cu, length 0.1414 mm",hb.gate_hs.driver-p1,SELV,"Track [ina] on B.Cu, length 65.3000 mm",ina,SELV,SELV-SELV
+clearance,Default routing,0.1349,0.2,"Track [hb.gate_hs.driver-p1] on B.Cu, length 1.6971 mm",hb.gate_hs.driver-p1,SELV,"Track [ina] on B.Cu, length 0.2000 mm",ina,SELV,SELV-SELV
+clearance,Default routing,0.116,0.2,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.0539 mm",discharge.k_dis1-coil2,SELV,"Track [power_in.ntc-no] on F.Cu, length 0.7071 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.1414 mm",discharge.k_dis1-coil2,SELV,"Track [power_in.ntc-no] on F.Cu, length 0.7071 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.001,0.2,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.0539 mm",discharge.k_dis1-coil2,SELV,"Track [power_in.ntc-no] on F.Cu, length 13.1000 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.1414 mm",discharge.k_dis1-coil2,SELV,"Track [power_in.ntc-no] on F.Cu, length 13.1000 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.121,0.2,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.9000 mm",discharge.k_dis1-coil2,SELV,"Track [power_in.ntc-no] on F.Cu, length 13.1000 mm",power_in.ntc-no,HV,HV-SELV
+clearance,Default routing,0.1349,0.2,"Track [ina] on B.Cu, length 0.7071 mm",ina,SELV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 43.5000 mm",hb.gate_hs.driver-p1,SELV,SELV-SELV
+clearance,Default routing,0.1349,0.2,"Track [ina] on B.Cu, length 0.2000 mm",ina,SELV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 43.5000 mm",hb.gate_hs.driver-p1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [ina] on B.Cu, length 1.5000 mm",ina,SELV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 0.0150 mm",hb.gate_hs.driver-p1,SELV,SELV-SELV
+clearance,Default routing,0.1226,0.2,"Track [hb.gate_hs.driver-p1] on B.Cu, length 1.1314 mm",hb.gate_hs.driver-p1,SELV,"Track [discharge.k_dis1-nc] on B.Cu, length 0.5657 mm",discharge.k_dis1-nc,HV,HV-SELV
+clearance,Default routing,0.1698,0.2,"Track [discharge.k_dis1-nc] on B.Cu, length 0.1414 mm",discharge.k_dis1-nc,HV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 0.3000 mm",hb.gate_hs.driver-p1,SELV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [hb.gate_hs.driver-p1] on B.Cu, length 1.1314 mm",hb.gate_hs.driver-p1,SELV,"Track [discharge.k_dis1-nc] on B.Cu, length 0.3000 mm",discharge.k_dis1-nc,HV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [hb.gate_hs.driver-p1] on B.Cu, length 67.1000 mm",hb.gate_hs.driver-p1,SELV,"Track [ina] on B.Cu, length 65.3000 mm",ina,SELV,SELV-SELV
+clearance,Default routing,0.1698,0.2,"Track [discharge.k_dis1-nc] on B.Cu, length 0.1414 mm",discharge.k_dis1-nc,HV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 0.7071 mm",hb.gate_hs.driver-p1,SELV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [hb.gate_hs.driver-p1] on B.Cu, length 67.1000 mm",hb.gate_hs.driver-p1,SELV,"Track [ina] on B.Cu, length 0.4243 mm",ina,SELV,SELV-SELV
+clearance,Default routing,0.121,0.2,"Track [power_in.q_relay_drv-g] on B.Cu, length 0.0459 mm",power_in.q_relay_drv-g,SELV,"Track [i2c_scl_ui] on B.Cu, length 28.0000 mm",i2c_scl_ui,SELV,SELV-SELV
+clearance,Default routing,0.121,0.2,"Track [power_in.q_relay_drv-g] on B.Cu, length 0.9899 mm",power_in.q_relay_drv-g,SELV,"Track [i2c_scl_ui] on B.Cu, length 28.0000 mm",i2c_scl_ui,SELV,SELV-SELV
+clearance,Default routing,0.1698,0.2,"Track [discharge.k_dis1-nc] on B.Cu, length 0.1000 mm",discharge.k_dis1-nc,HV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 0.3000 mm",hb.gate_hs.driver-p1,SELV,HV-SELV
+clearance,Default routing,0.1036,0.2,"Track [power_in.q_relay_drv-g] on B.Cu, length 0.0459 mm",power_in.q_relay_drv-g,SELV,"Track [i2c_scl_ui] on B.Cu, length 2.6870 mm",i2c_scl_ui,SELV,SELV-SELV
+clearance,Default routing,0.116,0.2,"Track [power_in.q_relay_drv-g] on B.Cu, length 0.9899 mm",power_in.q_relay_drv-g,SELV,"Track [i2c_scl_ui] on B.Cu, length 2.6870 mm",i2c_scl_ui,SELV,SELV-SELV
+clearance,Default routing,0.1698,0.2,"Track [hb.gate_hs.driver-p1] on B.Cu, length 0.7071 mm",hb.gate_hs.driver-p1,SELV,"Track [discharge.k_dis1-nc] on B.Cu, length 0.1000 mm",discharge.k_dis1-nc,HV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [discharge.k_dis1-nc] on B.Cu, length 0.5657 mm",discharge.k_dis1-nc,HV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 43.5000 mm",hb.gate_hs.driver-p1,SELV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [discharge.k_dis1-nc] on B.Cu, length 0.3000 mm",discharge.k_dis1-nc,HV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 43.5000 mm",hb.gate_hs.driver-p1,SELV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [hb.gate_hs.driver-p1] on B.Cu, length 0.2828 mm",hb.gate_hs.driver-p1,SELV,"Track [discharge.k_dis1-nc] on B.Cu, length 0.6000 mm",discharge.k_dis1-nc,HV,HV-SELV
+clearance,Default routing,0.1226,0.2,"Track [discharge.k_dis1-nc] on B.Cu, length 0.6000 mm",discharge.k_dis1-nc,HV,"Track [hb.gate_hs.driver-p1] on B.Cu, length 0.0335 mm",hb.gate_hs.driver-p1,SELV,HV-SELV
+clearance,Default routing,0.11,0.2,Pad 1 [vcc] of C32 on F.Cu,vcc,SELV,"Track [SHUTDOWN] on F.Cu, length 0.1414 mm",SHUTDOWN,SELV,SELV-SELV
+clearance,Default routing,0.11,0.2,"Track [SHUTDOWN] on F.Cu, length 0.7000 mm",SHUTDOWN,SELV,Pad 1 [vcc] of C32 on F.Cu,vcc,SELV,SELV-SELV
+clearance,Default routing,0.02,0.2,"Track [SHUTDOWN] on F.Cu, length 2.0000 mm",SHUTDOWN,SELV,Via [safety.coil_thermal.comp-inp] on F.Cu - B.Cu,safety.coil_thermal.comp-inp,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [rtd_pan.high_window-out] on F.Cu, length 15.6978 mm",rtd_pan.high_window-out,SELV,"Track [safety.fault_or-b2] on F.Cu, length 6.6000 mm",safety.fault_or-b2,SELV,SELV-SELV
+clearance,Default routing,0.1623,0.2,"Track [zcd] on B.Cu, length 0.5657 mm",zcd,HV,"Track [y] on B.Cu, length 0.4243 mm",y,SELV,HV-SELV
+clearance,Default routing,0.15,0.2,"Track [zcd] on B.Cu, length 0.4000 mm",zcd,HV,"Track [y] on B.Cu, length 0.4243 mm",y,SELV,HV-SELV
+clearance,Default routing,0.15,0.2,"Track [y] on B.Cu, length 1.2000 mm",y,SELV,"Track [zcd] on B.Cu, length 0.5657 mm",zcd,HV,HV-SELV
+clearance,Default routing,0.15,0.2,"Track [y] on B.Cu, length 1.2000 mm",y,SELV,"Track [zcd] on B.Cu, length 0.4000 mm",zcd,HV,HV-SELV
+clearance,Default routing,0.0761,0.2,"Track [y] on B.Cu, length 4.1012 mm",y,SELV,Via [zcd] on F.Cu - B.Cu,zcd,HV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [y] on B.Cu, length 0.5657 mm",y,SELV,"Track [zcd] on B.Cu, length 0.1414 mm",zcd,HV,HV-SELV
+clearance,Default routing,0.065,0.2,"Track [y] on B.Cu, length 0.2000 mm",y,SELV,Via [zcd] on F.Cu - B.Cu,zcd,HV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [zcd] on B.Cu, length 0.1000 mm",zcd,HV,"Track [y] on B.Cu, length 0.2828 mm",y,SELV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [y] on B.Cu, length 0.2828 mm",y,SELV,"Track [zcd] on B.Cu, length 0.5657 mm",zcd,HV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [y] on B.Cu, length 0.1000 mm",y,SELV,"Track [zcd] on B.Cu, length 0.1000 mm",zcd,HV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [y] on B.Cu, length 0.1000 mm",y,SELV,"Track [zcd] on B.Cu, length 0.5657 mm",zcd,HV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [zcd] on B.Cu, length 0.1414 mm",zcd,HV,"Track [y] on B.Cu, length 0.2000 mm",y,SELV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [y] on B.Cu, length 0.5657 mm",y,SELV,"Track [zcd] on B.Cu, length 0.1000 mm",zcd,HV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [zcd] on B.Cu, length 0.1000 mm",zcd,HV,"Track [y] on B.Cu, length 0.2000 mm",y,SELV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [zcd] on B.Cu, length 0.1414 mm",zcd,HV,"Track [y] on B.Cu, length 0.2828 mm",y,SELV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [y] on B.Cu, length 0.1414 mm",y,SELV,"Track [zcd] on B.Cu, length 0.1000 mm",zcd,HV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [zcd] on B.Cu, length 0.1414 mm",zcd,HV,"Track [y] on B.Cu, length 0.1000 mm",y,SELV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [zcd] on B.Cu, length 0.1000 mm",zcd,HV,"Track [y] on B.Cu, length 0.1000 mm",y,SELV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [zcd] on B.Cu, length 31.4000 mm",zcd,HV,"Track [y] on B.Cu, length 0.2828 mm",y,SELV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [zcd] on B.Cu, length 31.4000 mm",zcd,HV,"Track [y] on B.Cu, length 0.1000 mm",y,SELV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [y] on B.Cu, length 0.1414 mm",y,SELV,"Track [zcd] on B.Cu, length 0.2828 mm",zcd,HV,HV-SELV
+clearance,Default routing,0.1972,0.2,"Track [y] on B.Cu, length 0.1000 mm",y,SELV,"Track [zcd] on B.Cu, length 0.2828 mm",zcd,HV,HV-SELV
+clearance,Default routing,0.13,0.2,"Track [DISCHARGE_CTRL] on F.Cu, length 3.1113 mm",DISCHARGE_CTRL,SELV,Pad 2 [safety-line-1] of R66 on F.Cu,safety-line-1,SELV,SELV-SELV
+clearance,netclass:Default,0.1023,0.2,PTH pad 2 [PWR_RTN] of C4,PWR_RTN,HV,Via [safety.thermal-line] on F.Cu - B.Cu,safety.thermal-line,SELV,HV-SELV
+clearance,Default routing,0.15,0.2,"Track [DISCHARGE_CTRL] on F.Cu, length 1.0000 mm",DISCHARGE_CTRL,SELV,"Track [RELAY_CTRL] on F.Cu, length 12.0000 mm",RELAY_CTRL,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [DISCHARGE_CTRL] on F.Cu, length 3.1113 mm",DISCHARGE_CTRL,SELV,"Track [RELAY_CTRL] on F.Cu, length 12.0000 mm",RELAY_CTRL,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [DISCHARGE_CTRL] on F.Cu, length 3.1113 mm",DISCHARGE_CTRL,SELV,"Track [RELAY_CTRL] on F.Cu, length 12.0000 mm",RELAY_CTRL,SELV,SELV-SELV
+clearance,netclass:Default,0.1023,0.2,PTH pad 2 [PWR_RTN] of C4,PWR_RTN,HV,Via [safety.thermal-line] on F.Cu - B.Cu,safety.thermal-line,SELV,HV-SELV
+clearance,Default routing,0.15,0.2,"Track [safety.ovp.r_div_top1-p2] on F.Cu, length 0.0501 mm",safety.ovp.r_div_top1-p2,HV-chain,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.6000 mm",discharge.k_dis1-coil2,SELV,HV-SELV
+clearance,Default routing,0.15,0.2,"Track [safety.ovp.r_div_top1-p2] on F.Cu, length 51.1000 mm",safety.ovp.r_div_top1-p2,HV-chain,"Track [discharge.k_dis1-coil2] on F.Cu, length 0.6000 mm",discharge.k_dis1-coil2,SELV,HV-SELV
+clearance,netclass:Default,0.1023,0.2,PTH pad 2 [PWR_RTN] of C4,PWR_RTN,HV,Via [safety.thermal-line] on F.Cu - B.Cu,safety.thermal-line,SELV,HV-SELV
+clearance,netclass:Default,0.1023,0.2,PTH pad 2 [PWR_RTN] of C4,PWR_RTN,HV,Via [safety.thermal-line] on F.Cu - B.Cu,safety.thermal-line,SELV,HV-SELV
+clearance,Default routing,0.1623,0.2,"Track [discharge.k_dis2-coil1] on F.Cu, length 0.0437 mm",discharge.k_dis2-coil1,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 0.1414 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.1623,0.2,"Track [discharge.k_dis2-coil1] on F.Cu, length 0.0437 mm",discharge.k_dis2-coil1,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 0.2000 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [discharge.k_dis2-coil1] on F.Cu, length 0.8485 mm",discharge.k_dis2-coil1,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 0.1414 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [safety.coil_thermal-line] on F.Cu, length 0.2000 mm",safety.coil_thermal-line,SELV,"Track [discharge.k_dis2-coil1] on F.Cu, length 0.8485 mm",discharge.k_dis2-coil1,SELV,SELV-SELV
+clearance,Default routing,0.1623,0.2,"Track [discharge.k_dis2-coil1] on F.Cu, length 0.1000 mm",discharge.k_dis2-coil1,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 0.1414 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.1623,0.2,"Track [discharge.k_dis2-coil1] on F.Cu, length 0.1000 mm",discharge.k_dis2-coil1,SELV,"Track [safety.coil_thermal-line] on F.Cu, length 0.2000 mm",safety.coil_thermal-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [DISCHARGE_CTRL] on F.Cu, length 3.1000 mm",DISCHARGE_CTRL,SELV,"Track [discharge.k_dis2-coil1] on F.Cu, length 4.4000 mm",discharge.k_dis2-coil1,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [discharge.k_dis2-coil1] on F.Cu, length 0.0500 mm",discharge.k_dis2-coil1,SELV,"Track [DISCHARGE_CTRL] on F.Cu, length 3.1000 mm",DISCHARGE_CTRL,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [DISCHARGE_CTRL] on F.Cu, length 0.1414 mm",DISCHARGE_CTRL,SELV,"Track [discharge.k_dis2-coil1] on F.Cu, length 0.0500 mm",discharge.k_dis2-coil1,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [DISCHARGE_CTRL] on F.Cu, length 0.1414 mm",DISCHARGE_CTRL,SELV,"Track [discharge.k_dis2-coil1] on F.Cu, length 4.4000 mm",discharge.k_dis2-coil1,SELV,SELV-SELV
+clearance,Default routing,0.195,0.2,Via [y] on F.Cu - B.Cu,y,SELV,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 1.2000 mm",rtd_pan.r_high_top-inp,SELV,SELV-SELV
+clearance,Default routing,0.0612,0.2,"Track [discharge.r_snub1-p2] on F.Cu, length 0.0548 mm",discharge.r_snub1-p2,HV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 23.6174 mm",power_in.bypass_relay-coil2,SELV,HV-SELV
+clearance,Default routing,0.021,0.2,"Track [discharge.r_snub1-p2] on F.Cu, length 3.5000 mm",discharge.r_snub1-p2,HV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 5.5000 mm",power_in.bypass_relay-coil2,SELV,HV-SELV
+clearance,Default routing,0.116,0.2,"Track [discharge.r_snub1-p2] on F.Cu, length 3.5000 mm",discharge.r_snub1-p2,HV,"Track [power_in.bypass_relay-coil2] on F.Cu, length 23.6174 mm",power_in.bypass_relay-coil2,SELV,HV-SELV
+clearance,Default routing,0.15,0.2,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 2.6000 mm",rtd_pan.r_high_top-inp,SELV,"Track [safety.ovp-line] on B.Cu, length 2.6000 mm",safety.ovp-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [safety.ovp-line] on B.Cu, length 0.5000 mm",safety.ovp-line,SELV,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 0.5000 mm",rtd_pan.r_high_top-inp,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [safety.ovp-line] on B.Cu, length 0.5000 mm",safety.ovp-line,SELV,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 0.8485 mm",rtd_pan.r_high_top-inp,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 0.5000 mm",rtd_pan.r_high_top-inp,SELV,"Track [safety.ovp-line] on B.Cu, length 0.4243 mm",safety.ovp-line,SELV,SELV-SELV
+clearance,Default routing,0.1972,0.2,"Track [safety.ovp-line] on B.Cu, length 0.4243 mm",safety.ovp-line,SELV,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 0.8485 mm",rtd_pan.r_high_top-inp,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 1.8000 mm",rtd_pan.r_high_top-inp,SELV,"Track [safety.ovp-line] on B.Cu, length 0.5657 mm",safety.ovp-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 1.8000 mm",rtd_pan.r_high_top-inp,SELV,"Track [safety.ovp-line] on B.Cu, length 1.8000 mm",safety.ovp-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 0.4243 mm",rtd_pan.r_high_top-inp,SELV,"Track [safety.ovp-line] on B.Cu, length 1.8000 mm",safety.ovp-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 0.4000 mm",rtd_pan.r_high_top-inp,SELV,"Track [safety.ovp-line] on B.Cu, length 3.2527 mm",safety.ovp-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 2.6000 mm",rtd_pan.r_high_top-inp,SELV,"Track [safety.ovp-line] on B.Cu, length 0.2828 mm",safety.ovp-line,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 0.4000 mm",rtd_pan.r_high_top-inp,SELV,"Track [safety.ovp-line] on B.Cu, length 0.4000 mm",safety.ovp-line,SELV,SELV-SELV
+clearance,Default routing,0.1623,0.2,"Track [safety.ovp-line] on B.Cu, length 3.2527 mm",safety.ovp-line,SELV,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 0.2828 mm",rtd_pan.r_high_top-inp,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [safety.ovp-line] on B.Cu, length 0.4000 mm",safety.ovp-line,SELV,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 0.2828 mm",rtd_pan.r_high_top-inp,SELV,SELV-SELV
+clearance,Default routing,0.1125,0.2,Pad 3 [vcc] of U9 on F.Cu,vcc,SELV,"Track [rtd_pan.rail_monitor-ina_p] on F.Cu, length 1.2728 mm",rtd_pan.rail_monitor-ina_p,SELV,SELV-SELV
+clearance,Default routing,0.15,0.2,"Track [safety.ovp-line] on B.Cu, length 2.6000 mm",safety.ovp-line,SELV,"Track [rtd_pan.r_high_top-inp] on B.Cu, length 0.5657 mm",rtd_pan.r_high_top-inp,SELV,SELV-SELV
+clearance,netclass:Default,0.015,0.2,Pad 1 [vcc] of R45 on F.Cu,vcc,SELV,Via [safety.fault_or-a2] on F.Cu - B.Cu,safety.fault_or-a2,SELV,SELV-SELV
+clearance,Default routing,0.0,0.2,Pad 9 [gnd] of U9 on F.Cu,gnd,SELV,"Track [rtd_pan.rail_monitor-ina_p] on F.Cu, length 5.2000 mm",rtd_pan.rail_monitor-ina_p,SELV,SELV-SELV
+clearance,HV internal same footprint,0.65,2.0,Pad 1 [+15V_LS] of C23 on F.Cu,+15V_LS,HV,Pad 2 [DC_BUS_RTN] of C23 on F.Cu,DC_BUS_RTN,HV,HV-HV
+clearance,HighVoltageIsolated same side,0.9094,2.0,Pad 2 [DC_BUS_RTN] of C23 on F.Cu,DC_BUS_RTN,HV,Pad 1 [hb.gate_hs.driver-p1-1] of U8 on F.Cu,hb.gate_hs.driver-p1-1,HV,HV-HV
+clearance,HighVoltageIsolated same side,0.905,2.0,Pad 1 [hb.gate_hs.driver-p1-1] of C17 on F.Cu,hb.gate_hs.driver-p1-1,HV,Pad 2 [hb.power_loop.q_high-g] of R23 on F.Cu,hb.power_loop.q_high-g,HV,HV-HV
+clearance,HighVoltageIsolated same side,1.5,2.0,Pad 1 [hb.gate_hs.driver-p1-1] of U8 on F.Cu,hb.gate_hs.driver-p1-1,HV,Pad 2 [+15V_LS] of U8 on F.Cu,+15V_LS,HV,HV-HV
+clearance,HighVoltageIsolated same side,0.7901,2.0,Pad 2 [hb.gate_hs.driver-p2] of C17 on F.Cu,hb.gate_hs.driver-p2,HV,PTH pad 1 [tank.c_tank1-p2] of R30,tank.c_tank1-p2,HV,HV-HV
+clearance,HighVoltageIsolated to LV,0.905,2.0,Pad 2 [hb.gate_hs.driver-p2] of C17 on F.Cu,hb.gate_hs.driver-p2,HV,Pad 1 [GATE_HS] of R23 on F.Cu,GATE_HS,HV,HV-HV
+clearance,HV to LV,1.74,2.0,PTH pad 1 [a] of U3,a,HV,PTH pad 2 [PWR_RTN] of U3,PWR_RTN,HV,HV-HV
+clearance,HV to LV,1.74,2.0,PTH pad 1 [a] of U3,a,HV,PTH pad 2 [PWR_RTN] of U3,PWR_RTN,HV,HV-HV
+clearance,HV to LV,1.74,2.0,PTH pad 1 [a] of U3,a,HV,PTH pad 2 [PWR_RTN] of U3,PWR_RTN,HV,HV-HV
+clearance,HV to LV,1.74,2.0,PTH pad 1 [a] of U3,a,HV,PTH pad 2 [PWR_RTN] of U3,PWR_RTN,HV,HV-HV
+clearance,netclass:Power,0.35,0.5,Pad 2 [sw] of U4 on F.Cu,sw,SELV,Pad 3 [+15V] of U4 on F.Cu,+15V,SELV,SELV-SELV
+clearance,netclass:Power,0.35,0.5,Pad 4 [fb] of U4 on F.Cu,fb,SELV,Pad 5 [+15V] of U4 on F.Cu,+15V,SELV,SELV-SELV
+clearance,netclass:Power,0.35,0.5,Pad 5 [+15V] of U4 on F.Cu,+15V,SELV,Pad 6 [boot] of U4 on F.Cu,boot,SELV,SELV-SELV
+clearance,HV internal same footprint,0.85,2.0,Pad 1 [zcd] of R9 on F.Cu,zcd,HV,Pad 2 [a] of R9 on F.Cu,a,HV,HV-HV
+clearance,HV to LV,0.85,2.0,Pad 1 [zcd] of R8 on F.Cu,zcd,HV,Pad 2 [PWR_RTN] of R8 on F.Cu,PWR_RTN,HV,HV-HV
+clearance,HV to LV,0.67,2.0,Pad 9 [DC_BUS_RTN] of U7 on F.Cu,DC_BUS_RTN,HV,Pad 10 [input] of U7 on F.Cu,input,HV,HV-HV
+clearance,HV internal same footprint,1.94,2.0,Pad 9 [DC_BUS_RTN] of U7 on F.Cu,DC_BUS_RTN,HV,Pad 11 [+15V_LS] of U7 on F.Cu,+15V_LS,HV,HV-HV
+clearance,HV to LV,0.67,2.0,Pad 10 [input] of U7 on F.Cu,input,HV,Pad 11 [+15V_LS] of U7 on F.Cu,+15V_LS,HV,HV-HV
+clearance,HV to LV,1.8,2.0,Pad 1 [power_in.r_zcd_top1-p2] of R7 on F.Cu,power_in.r_zcd_top1-p2,HV,Pad 2 [zcd] of R7 on F.Cu,zcd,HV,HV-HV
+clearance,HighVoltageIsolated same side,1.8089,2.0,Pad 2 [DC_BUS_RTN] of R5 on F.Cu,DC_BUS_RTN,HV,Pad 1 [hb.gate_hs.driver-p1-1] of U8 on F.Cu,hb.gate_hs.driver-p1-1,HV,HV-HV
+clearance,netclass:HighVoltage,1.505,2.0,Pad 2 [DC_BUS_RTN] of R5 on F.Cu,DC_BUS_RTN,HV,Pad 2 [+15V_LS] of U8 on F.Cu,+15V_LS,HV,HV-HV
+clearance,HighVoltageIsolated to LV,0.67,2.0,Pad 14 [hb.gate_hs.driver-p2] of U7 on F.Cu,hb.gate_hs.driver-p2,HV,Pad 15 [GATE_HS] of U7 on F.Cu,GATE_HS,HV,HV-HV
+clearance,HighVoltageIsolated to LV,0.67,2.0,Pad 15 [GATE_HS] of U7 on F.Cu,GATE_HS,HV,Pad 16 [hb.gate_hs.driver-p1-1] of U7 on F.Cu,hb.gate_hs.driver-p1-1,HV,HV-HV
+clearance,HV to LV,1.1211,2.0,Pad 2 [discharge.r_snub2-p2] of R20 on F.Cu,discharge.r_snub2-p2,HV,Pad 2 [hb.power_loop.q_high-g] of R23 on F.Cu,hb.power_loop.q_high-g,HV,HV-HV
+clearance,HV to LV,0.85,2.0,Pad 1 [hb.power_loop.q_high-g] of R24 on F.Cu,hb.power_loop.q_high-g,HV,Pad 2 [SW_NODE] of R24 on F.Cu,SW_NODE,HV,HV-HV
