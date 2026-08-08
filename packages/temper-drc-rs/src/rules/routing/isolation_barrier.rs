@@ -641,15 +641,81 @@ pub(crate) mod tests {
         assert_eq!(violations[0].severity, Severity::Critical);
     }
 
+    // -- Stepped (piecewise-vertical) boundaries: already expressible
+    //    pre-`points`, via multiple straight `IsolationBarrier` entries ---
+    //
+    // Independently confirmed by the parallel geometry-analysis agent
+    // (`analysis/isolation-barrier-geometry`, commit `24b05cf8`, section
+    // 6): `ConstraintSet::isolation_barriers` was already a `Vec`, and
+    // `check()` already evaluates every entry independently, so a
+    // "stepped polyline" whose segments are all vertical (x changes only
+    // per y-band) requires ZERO new geometry machinery -- just multiple
+    // barrier entries with disjoint `y_span`s and no `points` set. This
+    // test proves that equivalence directly: two straight-only barriers
+    // (`points: vec![]`, pre-existing schema) reproduce the exact
+    // crossing verdict `bent_barrier`'s single polyline entry gives above,
+    // for the identical pour.
+    #[cfg_attr(test, test)]
+    fn multiple_straight_barriers_already_express_a_stepped_boundary_without_points() {
+        let lower_band = IsolationBarrier {
+            name: "MAINS_SELV_ISOLATION_BARRIER_LOWER".into(),
+            x_mm: 94.703,
+            y_span: [0.0, 100.0],
+            points: vec![],
+            layers: "all".into(),
+            clearance_mm: 8.0,
+        };
+        let upper_band = IsolationBarrier {
+            name: "MAINS_SELV_ISOLATION_BARRIER_UPPER".into(),
+            x_mm: 60.0,
+            y_span: [100.0, 274.0],
+            points: vec![],
+            layers: "all".into(),
+            clearance_mm: 8.0,
+        };
+        let constraints = ConstraintSet {
+            isolation_barriers: vec![lower_band, upper_band],
+            ..Default::default()
+        };
+
+        // Same pour `polyline_barrier_zone_crossing_is_rejected` (below)
+        // uses against the single-entry polyline form of this same
+        // stepped shape.
+        let crossing_zone = rect_zone("gnd", "F.Cu", 50.0, 140.0, 70.0, 160.0);
+        let board = make_board(vec![crossing_zone], vec![]);
+
+        let violations = IsolationBarrierCheck::new().check(&board, &constraints);
+
+        assert_eq!(
+            violations.len(),
+            1,
+            "two disjoint-y_span straight barriers must reproduce the \
+             stepped-boundary crossing verdict without any `points` field, \
+             got: {:?}",
+            violations
+        );
+        assert_eq!(violations[0].code, "ROUTING_ISO_002");
+        // Caught by the upper_band entry specifically (x=60.0), not the
+        // lower_band one (x=94.703, whose y_span [0,100] doesn't even
+        // reach this pour's y in [140,160]).
+        assert_eq!(violations[0].affected_items[1], "MAINS_SELV_ISOLATION_BARRIER_UPPER");
+    }
+
     // -- Polyline barrier geometry -----------------------------------------
     //
     // The generalization this follow-up adds: `barrier.points` with >= 2
     // vertices replaces the straight x_mm/y_span line with an arbitrary
-    // piecewise-linear boundary. Prior art (the unmerged
+    // piecewise-linear boundary. Unlike the stepped-vertical-bands
+    // capability demonstrated just above (already free, via multiple
+    // entries), `points` covers boundaries multiple *straight vertical*
+    // barrier entries structurally cannot: non-vertical (diagonal)
+    // segments, and a single named/grouped barrier for a bent boundary
+    // instead of N independently-named ones. Prior art (the unmerged
     // `MAINS_SELV_ISOLATION_BARRIER` keepout, commit `645154b7`) proved by
     // exhaustive search that no single straight line separates this
-    // board's HV/SELV pads, so this is the capability that makes the
-    // barrier model able to express the real board at all.
+    // board's HV/SELV pads; the parallel geometry-analysis agent's Sec. 7
+    // item 2 independently recommends exactly this extension (swap
+    // `x_mm`/`y_span` for an ordered vertex list on `geo::LineString`).
 
     #[cfg_attr(test, test)]
     fn polyline_barrier_zone_crossing_is_rejected() {
@@ -819,6 +885,7 @@ pub(crate) mod tests {
         ("rules::routing::isolation_barrier::tests::barrier_spanning_all_layers_catches_inner_layer_crossing", barrier_spanning_all_layers_catches_inner_layer_crossing),
         ("rules::routing::isolation_barrier::tests::barrier_scoped_to_outer_layers_ignores_inner_layer_crossing", barrier_scoped_to_outer_layers_ignores_inner_layer_crossing),
         ("rules::routing::isolation_barrier::tests::catches_geometric_analog_of_star_point_ground_bridge_removed_by_6976ef44", catches_geometric_analog_of_star_point_ground_bridge_removed_by_6976ef44),
+        ("rules::routing::isolation_barrier::tests::multiple_straight_barriers_already_express_a_stepped_boundary_without_points", multiple_straight_barriers_already_express_a_stepped_boundary_without_points),
         ("rules::routing::isolation_barrier::tests::polyline_barrier_zone_crossing_is_rejected", polyline_barrier_zone_crossing_is_rejected),
         ("rules::routing::isolation_barrier::tests::polyline_barrier_zone_compliant_with_margin_is_accepted", polyline_barrier_zone_compliant_with_margin_is_accepted),
         ("rules::routing::isolation_barrier::tests::straight_line_barrier_misses_pour_that_bent_polyline_would_catch", straight_line_barrier_misses_pour_that_bent_polyline_would_catch),
