@@ -239,3 +239,49 @@ four clusters called out in the task brief plus the congestion cluster's documen
 blockers. I did **not** deep-read every file in entries 4, 6, 8, 9, 13, 25's 18
 zero-delegation files, or 29 — flagged above wherever a file's size (>300 LOC) made "thin
 wiring" or "glue" a claim worth a second look before fully trusting it for wave planning.
+
+## 8. Addendum (independent pass): 23,684's exact source, found
+
+A second pass over this same task (against this worktree's original stale base,
+`7e1194b7`, cross-checked afterward against `main` `b31fe017` -- see below) reproduces
+this document's headline number almost exactly: an independent manual glob/grep survey
+of all 36 `removal_surfaces` PORT entries came to **50,874 LOC** against `7e1194b7`,
+287 LOC (0.6%) off this document's 51,161 against the 33-commits-newer `main` -- close
+enough to be the same finding from two independent methods (this document's
+`check_verdict_coverage.py --report`, and a manual per-cluster `wc -l` + import grep),
+not a coincidence.
+
+That agreement is what makes the gap worth resolving precisely rather than leaving as
+"within 10%, a guess" (§1's closing line). It resolves exactly:
+
+```
+$ python3 tools/measurements/retriage_python_removal.py
+  category               LOC      %
+  BLOCKER-ortools       3599   8.0%
+  BLOCKER-scipy          673   1.5%
+  PORT                 23684  52.8%
+  ...
+```
+
+**This script is the exact, sole source of 23,684** -- confirmed unchanged on `main`
+(`git show main:tools/measurements/retriage_python_removal.py`, same 20-row `PORT`
+total). It is not derived from `docs/wave4-verdicts.yaml` at all: it sums a hand-written
+`ROWS` constant -- 20 `(loc, "PORT", name)` tuples frozen from the *original* re-triage
+pass (`docs/evidence/2026-08-06-never-port-triage.md`), predating the ledger's later
+`removal_surfaces` expansion from ~20 clusters to 36. Summing exactly those 20
+ROWS-table PORT entries gives 3582+2624+2564+2238+1962+1484+1424+1228+1076+1033+926+
+641+521+509+477+398+393+279+168+157 = **23,684** to the digit -- not an approximation of
+"clusters with zero delegation" (§1's guess), but the literal, unmaintained provenance of
+the cited figure.
+
+Concretely, the 15 clusters this document's §2 numbers 22, 25 (7,808/7,813 LOC!), 26, 27,
+29, 30, and the `metrics/`, `requirements/`, `physics/loop_area.py`, `pcl/` constraint-object
+(entry 35), and `io/` write/export clusters have **no row in `ROWS` at all** -- the script
+was simply never updated when the ledger's `removal_surfaces` section grew to cover them.
+The two largest omissions alone (entry 25's spatial-DRC cluster, 7,813 LOC, and entry 30's
+`heuristics/`, 4,346 LOC) account for most of the ~27,500 LOC gap between 23,684 and the
+`check_verdict_coverage.py`-confirmed 51,161. `tools/measurements/retriage_python_removal.py`
+should either be deleted (superseded by `check_verdict_coverage.py --report`, which reads
+the ledger live) or regenerated from it -- keeping both around, silently disagreeing by
+more than 2x, is exactly the kind of decorative-number risk R7's own header comment warns
+against for the *other* axis.
