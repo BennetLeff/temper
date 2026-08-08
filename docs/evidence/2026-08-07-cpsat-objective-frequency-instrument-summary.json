@@ -1,0 +1,247 @@
+{
+  "counts": {
+    "solve_placement_calls_total": 44,
+    "solve_placement_with_objective": 24,
+    "solve_placement_without_objective": 20,
+    "model_solve_calls_total": 210,
+    "model_solve_with_objective": 31,
+    "model_solve_without_objective": 179,
+    "unsat_resolve_calls_total": 15,
+    "cpsolver_solve_calls_total": 269,
+    "pytest_exit_code": 1,
+    "wall_s": 32.87
+  },
+  "calls": [
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0207
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0134
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0247
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0246
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0208
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0165
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0174
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0164
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0173
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0184
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0173
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0174
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0238
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0252
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0143
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0186
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0226
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "infeasible",
+      "wall_s": 0.0175
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0152
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0152
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": true,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0159
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0284
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "infeasible",
+      "wall_s": 0.0107
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0103
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0262
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0194
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.022
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "infeasible",
+      "wall_s": 0.018
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0092
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0095
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0101
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "optimal",
+      "wall_s": 0.0098
+    },
+    {
+      "path": "solve_placement",
+      "has_objective": false,
+      "n_components": null,
+      "status": "infeasible",
+      "wall_s": 0.0095
+    }
+  ]
+}
