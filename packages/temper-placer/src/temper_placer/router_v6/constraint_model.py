@@ -305,12 +305,31 @@ class ConstraintModel:
     variables: list[Variable] = field(default_factory=list)
     constraints: list[Constraint] = field(default_factory=list)
     net_channel_vars: dict[tuple[int, str], NetChannelVar] = field(default_factory=dict)
+    #: Bundle-level channel variables, keyed by ``(bundle_id, channel_id)``.
+    #: Kept in a SEPARATE dict from ``net_channel_vars`` -- both a
+    #: ``NetChannelVar``'s ``net_idx`` (real net index, 0..n_nets-1) and a
+    #: bundle var's ``net_idx`` (bundle id, 0..bundle_count-1, stored in the
+    #: same field for historical reasons -- see ``_create_bundle_channel_vars``)
+    #: are small integers starting at 0, so a single shared dict keyed by
+    #: ``(net_idx, channel_id)`` silently collides the two ID spaces: a real
+    #: net whose index happens to equal some bundle's id would either find
+    #: no entry (net_idx not numerically a bundle id -> capacity constraint
+    #: silently drops that net's term) or find the WRONG entry (a bundle
+    #: var, contributing that bundle's constraint term under the real net's
+    #: identity). Found and fixed 2026-08-07,
+    #: docs/evidence/2026-08-07-sat-model-reduction-options.md Sec 3.3;
+    #: regression test: test_bundled_capacity_constraints.py::
+    #: test_net_index_bundle_id_collision_does_not_corrupt_capacity.
+    bundle_channel_vars: dict[tuple[int, str], NetChannelVar] = field(default_factory=dict)
     via_vars: dict[tuple[int, str], ViaVar] = field(default_factory=dict)
 
     def add_variable(self, var: Variable) -> None:
         self.variables.append(var)
         if isinstance(var, NetChannelVar):
-            self.net_channel_vars[(var.net_idx, var.channel_id)] = var
+            if var.var_type == "bundle":
+                self.bundle_channel_vars[(var.net_idx, var.channel_id)] = var
+            else:
+                self.net_channel_vars[(var.net_idx, var.channel_id)] = var
         elif isinstance(var, ViaVar):
             self.via_vars[(var.net_idx, var.location_id)] = var
 
@@ -606,6 +625,13 @@ class ModelBuilder:
         Works with both full BundleManifest objects (which have .bundles)
         and minimal manifests (which only have bundle_id_for_net and
         unbundled_net_indices).
+
+        ``var_type='bundle'`` routes these into ``ConstraintModel.
+        bundle_channel_vars`` (keyed by ``(bundle_id, channel_id)``) rather
+        than ``net_channel_vars`` (keyed by ``(net_idx, channel_id)``) --
+        see that field's docstring for why sharing one dict between the two
+        ID spaces was a real bug (2026-08-07, Sec 3.3 of
+        docs/evidence/2026-08-07-sat-model-reduction-options.md).
         """
         manifest = self.bundle_manifest
         bundle_id_for_net: dict[int, int] = getattr(manifest, "bundle_id_for_net", {})
@@ -613,6 +639,24 @@ class ModelBuilder:
 
         # Collect unique bundle IDs and the nets in each bundle
         unique_bundle_ids: set[int] = set(bundle_id_for_net.values())
+
+        # 2026-08-07 (docs/evidence/2026-08-07-sat-model-reduction-options.md
+        # Sec 3.4): this loop is where the bundled path's own MemoryError
+        # fires -- the exact same failure mode (add_variable's dict
+        # assignment) as _create_per_net_channel_vars, which already has
+        # TEMPER_MODEL_TRACE progress instrumentation (U5). This path had
+        # none, so a bundled-path OOM previously left zero partial data.
+        # Mirrors that instrumentation here for parity.
+        trace = os.environ.get("TEMPER_MODEL_TRACE")
+        t_loop = time.perf_counter() if trace else None
+        report_every = 200_000
+        if trace:
+            print(
+                f"[model-trace] _create_bundle_channel_vars: {len(unique_bundle_ids)} "
+                f"bundle(s), {len(bundle_id_for_net)} bundled net(s) of {len(self.nets)} total",
+                file=sys.stderr,
+                flush=True,
+            )
 
         for bid in sorted(unique_bundle_ids):
             for layer_name, skeleton in self.skeletons.items():
@@ -625,6 +669,16 @@ class ModelBuilder:
                         var_type="bundle",
                     )
                     self.model.add_variable(var)
+
+                    if trace and self.model.variable_count % report_every == 0:
+                        elapsed = time.perf_counter() - t_loop
+                        print(
+                            f"[model-trace t={elapsed:.3f}s] "
+                            f"_create_bundle_channel_vars progress (bundle phase): "
+                            f"bundle_id={bid}, vars_so_far={self.model.variable_count}",
+                            file=sys.stderr,
+                            flush=True,
+                        )
 
         # Create per-net vars for unbundled nets
         bundled_net_indices: set[int] = set(bundle_id_for_net.keys())
@@ -639,6 +693,17 @@ class ModelBuilder:
                         name=f"uses_N{net_idx}_{edge_id}", net_idx=net_idx, channel_id=edge_id
                     )
                     self.model.add_variable(var)
+
+                    if trace and self.model.variable_count % report_every == 0:
+                        elapsed = time.perf_counter() - t_loop
+                        print(
+                            f"[model-trace t={elapsed:.3f}s] "
+                            f"_create_bundle_channel_vars progress (unbundled-net phase): "
+                            f"net_idx={net_idx}/{len(self.nets)}, "
+                            f"vars_so_far={self.model.variable_count}",
+                            file=sys.stderr,
+                            flush=True,
+                        )
 
     def _create_via_vars(self):
         """Create variables for via placement.
@@ -680,15 +745,52 @@ class ModelBuilder:
                 var = ViaVar(name=f"via_N{net_idx}_{node_id}", net_idx=net_idx, location_id=node_id)
                 self.model.add_variable(var)
 
+    def _net_width(self, net_idx: int) -> float:
+        """A net's physical footprint on a channel: trace width + spacing."""
+        rule = self.design_rules.get_rules_for_net(self.nets[net_idx].name)
+        return rule.trace_width_mm + rule.clearance_mm
+
     def _create_capacity_constraints(self):
         """
         Create capacity constraints for each channel.
         sum(uses[n, c] * width[n]) <= capacity[c] * 0.8
+
+        **Bundled path, and the net-index/bundle-id collision fix
+        (2026-08-07, docs/evidence/2026-08-07-sat-model-reduction-options.md
+        Sec 3.3):** ``_create_bundle_channel_vars`` stores one shared
+        channel variable per *bundle*, keyed by ``bundle_id`` -- a
+        different, smaller index space than real net indices, but
+        previously stored in the SAME ``net_channel_vars`` dict, so a real
+        net whose index numerically coincided with some bundle's id would
+        either silently get no capacity term (no true collision) or get
+        the WRONG term (a bundle's variable, misattributed as that net's
+        own). ``ConstraintModel`` now keeps bundle variables in a separate
+        ``bundle_channel_vars`` dict (see its own docstring), so that
+        collision can no longer happen structurally.
+
+        A bundle's shared variable stands in for every net inside that
+        bundle using the edge *together* (see ``bundle_analyzer.py``'s
+        soundness note), so its capacity term is the SUM of every member
+        net's own ``trace_width_mm + clearance_mm`` -- not one
+        representative member's width, and not the bundle's own now-dropped
+        exact-match width/clearance (``bundle_analyzer.TypeSignature`` no
+        longer requires members to share identical width/clearance; this
+        per-member summation is what keeps that widening capacity-sound).
+        Nets already covered by a bundle term are excluded from the
+        per-net loop below so they are never double-counted.
         """
         if not self.channel_widths or not self.design_rules:
             return
 
         slack_factor = 0.8
+
+        # Bundle membership for this build, if bundling produced any bundles.
+        bundle_id_for_net: dict[int, int] = {}
+        bundle_members: dict[int, list[int]] = {}
+        if self.enable_bundling and self.bundle_manifest is not None:
+            bundle_id_for_net = dict(getattr(self.bundle_manifest, "bundle_id_for_net", {}))
+            for net_idx, bid in bundle_id_for_net.items():
+                bundle_members.setdefault(bid, []).append(net_idx)
 
         for layer_name, skeleton in self.skeletons.items():
             widths = self.channel_widths.get(layer_name)
@@ -707,15 +809,26 @@ class ModelBuilder:
                     continue
 
                 terms = []
-                for net_idx, net in enumerate(self.nets):
-                    # Get net width from design rules
-                    rule = self.design_rules.get_rules_for_net(net.name)
-                    net_width = rule.trace_width_mm + rule.clearance_mm  # width + spacing
 
-                    # Find variable
+                # Bundle-level terms: the bundle's shared variable stands
+                # in for every member net using this edge at once, so its
+                # width contribution is the sum of its members' widths.
+                for bid, members in bundle_members.items():
+                    bvar = self.model.bundle_channel_vars.get((bid, edge_id))
+                    if bvar is None:
+                        continue
+                    bundle_width = sum(self._net_width(ni) for ni in members)
+                    terms.append((bvar, bundle_width))
+
+                # Per-net terms: every net not already covered by a bundle
+                # term above (all nets when bundling is off; only the
+                # unbundled/singleton nets when it's on).
+                for net_idx in range(len(self.nets)):
+                    if net_idx in bundle_id_for_net:
+                        continue
                     if (net_idx, edge_id) in self.model.net_channel_vars:
                         var = self.model.net_channel_vars[(net_idx, edge_id)]
-                        terms.append((var, net_width))
+                        terms.append((var, self._net_width(net_idx)))
                     elif self.enable_geographic_pruning and self.pcb is not None:
                         # Defense-in-depth: if pruning is active, every term
                         # that appears in a capacity constraint for this edge
