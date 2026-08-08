@@ -31,6 +31,7 @@ from typing import Any
 
 import numpy as np
 
+from temper_placer.fields.field import CostField
 from temper_placer.validation.gate_input_registry import (
     GateInputRegistry,
     PhysicsParameterSpec,
@@ -166,8 +167,8 @@ def perturb_value(param: PhysicsParameterSpec) -> float:
     mode = param.perturbation["mode"]
     delta = float(param.perturbation["delta"])
     if mode == "relative":
-        return param.default * (1.0 + delta)
-    return param.default + delta
+        return float(param.default) * (1.0 + delta)
+    return float(param.default) + delta
 
 
 def _fdm_max_temperature(
@@ -201,7 +202,10 @@ def _fdm_max_temperature(
     result = solve_thermal_fdm(cfg, Q_field=q_field, copper_grid=np.full((n, n), copper_fraction))
     if not result.is_usable:
         raise AssertionError(f"solve_thermal_fdm unusable: {result.error_message}")
-    return float(np.max(result.field.grid))
+    field = result.field
+    if not isinstance(field, CostField):
+        raise AssertionError(f"solve_thermal_fdm field is not a CostField: {type(field).__name__}")
+    return float(np.max(field.grid))
 
 
 def _h_field_sum(h_conv_background: float) -> float:
