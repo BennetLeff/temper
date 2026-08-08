@@ -126,7 +126,7 @@ Classes, per the wave-1 audit brief (unchanged):
 | `Violation` | 4 | gates.rs:324–340 | `type` INTENTIONAL (enum member identity, no-validation); `components`/`nets`/`context` STILL-NEEDED (tuples/dicts assembled by cp_sat Python gates) |
 | `GateResult` | 2 | :474–477 | `status` INTENTIONAL; `violations` STILL-NEEDED (cp_sat-built tuple) |
 | `BoardState` | 6 | :569–579 | `netlist`/`board`/`design_rules` **REMOVABLE** → `Py<Netlist>`/`Py<Board>`/`Py<DesignRules>` (wave-1 pending); `placement`/`routing`/`routed_pcb_path` STILL-NEEDED (router_v6 results / pipeline path) |
-| `DesignRules` | 8 | design_rules.rs:345–357 | 7 STILL-NEEDED (pydantic `NetClassRules` + `DifferentialPairConstraint`/`BusCohortConstraint`/`NetGraph` cross-module objects); `class_pairs` INTENTIONAL (dynamic attr) |
+| `DesignRules` | 8 | design_rules.rs:345–357 | 5 STILL-NEEDED (pydantic `NetClassRules` + `BusCohortConstraint` cross-module objects); `differential_pairs` + `net_topologies` reclassified INTENTIONAL (Wave C — same-crate pyclasses, container identity-preserving); `class_pairs` INTENTIONAL (dynamic attr) |
 | `NetClassRulesDict` | 1 | loaders.rs:210 | `class_pairs` STILL-NEEDED (consumer-mutated dict; `design_rules` was tightened to `Py<DesignRules>`) |
 | `NetTypeSpec` | 1 | net_types.rs:277 | STILL-NEEDED — `str` OR `LayerIndex` IntEnum (R3 keep) |
 
@@ -236,10 +236,10 @@ Wave-1 flagged three live + three watch-list items. Re-scan at current main:
 | **loaders.rs:326** (`temper_placer.core.design_rules` → `DesignRules`) | **RESOLVED** — `py.get_type::<DesignRules>().call0()` replaces the shim hop (comment lines 320–323). The remaining shim import is `NetClassRules` (pydantic) — genuinely Python. |
 | **config_loader.rs:1969** (`constraints_to_design_rules` → `DesignRules`) | **RESOLVED** — same `py.get_type::<DesignRules>()` replacement; only `NetClassRules` stays on the shim. |
 | **config_loader.rs:1848** (`io.config_loader` → `ConfigValidationError`) | **KEPT, now documented inline** — the comment cites the wave-1 audit §5 item 3 and argues the import is from the exception's "real home" (the shim owns `ConfigValidationError`), not circular at runtime (sys.modules hit), with the defensive fallback (1845–1849) retained. |
-| Watch: **config_loader.rs:1174/1208** (`core.net_graph`) | **NOT yet circular** — `core/net_graph.py` is still pure-Python dataclasses (`SubNetEdge`/`NetGraph`), Phase-2 MIGRATE-pending. |
+| Watch: **config_loader.rs:1174/1208** (`core.net_graph`) | **RESOLVED (Wave C, 2026-08-08)** — `SubNetEdge`/`NetGraph` migrated to same-crate pyclasses (`net_graph_contracts.rs`). Now uses `py.get_type::<NetGraph>()` / `py.get_type::<SubNetEdge>()` (Rust→Rust, not circular). The Python shim `core/net_graph.py` is a pure-delegation re-export. |
 | Watch: **config_loader.rs:1680** (`pcl.constraints`) | **NOT yet circular** — `pcl/constraints.py` still pure-Python dataclasses (`KeepoutConstraint`/`ConstraintTier`). The always-migrate verdict for pcl (2026-08-05 ledger) is recorded; the migration is not merged. |
 | Watch: **config_loader.rs:1904** (`_constraint_types`) | **NOT yet circular** — `PlacementConstraints` is a pydantic model; still Python. |
-| Watch: **config_loader.rs:1969** (`core.differential_pair`) | **NOT yet circular** — `core/differential_pair.py` still pure-Python dataclass. |
+| Watch: **config_loader.rs:1969** (`core.differential_pair`) | **RESOLVED (Wave C, 2026-08-08)** — `DifferentialPairConstraint` migrated to same-crate pyclass (`differential_pair_contracts.rs`). Now uses `py.get_type::<DifferentialPairConstraint>()`. |
 
 **New shim-mediated call-backs since wave-1 (all non-removable, deliberate keeps):**
 
@@ -262,10 +262,10 @@ Wave-1 flagged three live + three watch-list items. Re-scan at current main:
   classes, deliberately Python (class-iteration keep). Not circular.
 
 **Verdict: zero current removable circular call-backs.** Both wave-1
-DesignRules circles are already closed (the wave-1 "wave 1" dispatch-now item
-about them landed as part of the 2026-08-04 tightening). The remaining
-Rust→Python→Rust paths are all either kept boundaries (dsn_exporter,
-ConfigValidationError) or still-pure-Python watch items.
+DesignRules circles and both Wave C watch-items (net_graph, differential_pair)
+are now closed. The remaining Rust→Python→Rust paths are all either kept
+boundaries (dsn_exporter, ConfigValidationError) or still-pure-Python
+watch items.
 
 ---
 
@@ -350,14 +350,30 @@ zero behavioral risk, and the differential is the only pin.
   (pybridge.rs:871–881) keeps these INTENTIONAL. Re-flag only if a sweep
   proves every production pin is a `PyPinInfo`.
 
-### Wave C — wait on residual cross-module migrations
+### Wave C — core-contracts migration landed (2026-08-08)
 
-- `DesignRules`' seven containers (pydantic `NetClassRules`,
-  `DifferentialPairConstraint`, `BusCohortConstraint`, `NetGraph`) — removable
-  only when those types migrate. `net_graph`, `differential_pair`,
-  `_constraint_types`, `pcl.constraints` are all still pure Python (verified
-  §3) and each migration turns a watch-list call-back circular and/or makes a
-  STILL-NEEDED field removable.
+**Landed** (plan `docs/plans/2026-08-08-001-feat-wavec-core-contracts-migration-plan.md`):
+
+- `SubNetEdge` + `NetGraph` (62 LOC) → MIGRATED as `net_graph_contracts.rs`
+  pyclasses + delegation shim. `core/net_graph.py` is now a pure-delegation
+  re-export of `temper_design_bundle_python.net_graph_contracts`.
+- `DifferentialPairConstraint` (47 LOC) → MIGRATED as `differential_pair_contracts.rs`
+  pyclass + delegation shim. `core/differential_pair.py` is now a
+  pure-delegation re-export.
+- `DesignRules.differential_pairs` and `DesignRules.net_topologies` — container
+  types unchanged (`Py<PyList>`/`Py<PyDict>`, identity-mutable) but element
+  types are now same-crate pyclasses (`DifferentialPairConstraint`/`NetGraph`).
+  Reclassified STILL-NEEDED → INTENTIONAL (container identity preserved;
+  elements typed).
+- Two §3 watch-items RESOLVED (`config_loader.rs:1174/1208`, `:1969`).
+  Watch-list shortens from 4 to 2 (pcl.constraints + _constraint_types still
+  pending).
+
+**Still pending:**
+
+- `DesignRules`' remaining containers (pydantic `NetClassRules`,
+  `BusCohortConstraint`) — removable only when those types migrate.
+  `_constraint_types` and `pcl.constraints` are still pure Python.
 - `PclTypes`/`TagTypes` cached enum handles — bound to the class-iteration
   keep; permanent.
 - `PyRect` — the parallel-`RectData` design means the opaque fields stay; a
