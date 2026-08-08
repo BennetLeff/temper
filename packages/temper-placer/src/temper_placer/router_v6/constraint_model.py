@@ -8,6 +8,9 @@ Part of temper-atsd (Stage 3 - Topological Routing)
 from __future__ import annotations
 
 import math
+import os
+import sys
+import time
 from dataclasses import dataclass, field, replace
 
 from temper_placer.core.netlist import Net
@@ -477,12 +480,38 @@ class ModelBuilder:
         """
         Generate all variables and constraints for the routing problem.
         """
+        t0 = time.perf_counter() if os.environ.get("TEMPER_MODEL_TRACE") else None
         self._create_channel_vars()
         self._create_via_vars()
         self._create_capacity_constraints()
         self._create_diff_pair_constraints()
         self._create_layer_constraints()
         self._apply_pcl_constraints()
+        if t0 is not None:
+            # 2026-08-07 U5 measurement instrumentation
+            # (docs/plans/2026-08-07-001-feat-router-encoding-pruning-plan.md).
+            # Reports the *pre-CNF* Python model size -- NetChannelVar /
+            # ViaVar / OrderVar counts and constraint counts -- before the
+            # model is handed to the Rust encode_to_cnf + CaDiCaL solve
+            # step. The Rust side already emits an "encode_to_cnf done"
+            # phase-trace line (TEMPER_REWRITE_TRACE=1) with CNF var/clause
+            # counts, but that line only prints if encode_to_cnf finishes;
+            # if the encode or solve step OOMs, this earlier print is the
+            # only var/constraint count that survives.
+            n_net_channel = sum(
+                1 for v in self.model.variables if type(v).__name__ == "NetChannelVar"
+            )
+            n_via = sum(1 for v in self.model.variables if type(v).__name__ == "ViaVar")
+            elapsed = time.perf_counter() - t0
+            print(
+                f"[model-trace t={elapsed:.3f}s] ModelBuilder.build() done, "
+                f"pruning={self.enable_geographic_pruning}, "
+                f"primary_vars={self.model.variable_count} "
+                f"(net_channel={n_net_channel}, via={n_via}), "
+                f"constraints={self.model.constraint_count}",
+                file=sys.stderr,
+                flush=True,
+            )
         return self.model
 
     def _create_channel_vars(self):
