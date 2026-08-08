@@ -9,7 +9,9 @@ use pyo3::prelude::*;
 use crate::bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py};
 use crate::audit::{bbox_from_center_py, chebyshev_gap_py, dist_py};
 use crate::channel_widths::edt_width_lookup_batch;
+use crate::connected_components::connected_components_8_transform;
 use crate::edt::exact_edt_transform;
+use crate::radius_pairs::radius_pairs_transform;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
 use crate::occupancy_raster::{
@@ -1483,6 +1485,11 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // channel widths
     m.add_function(wrap_pyfunction!(edt_width_lookup_batch, m)?)?;
     m.add_function(wrap_pyfunction!(exact_edt_transform, m)?)?;
+    m.add_function(wrap_pyfunction!(connected_components_8_transform, m)?)?;
+
+    // radius_pairs (router_v6/channel_skeleton.py's island-bridging MST
+    // candidate generation -- replaces scipy.spatial.cKDTree.query_pairs)
+    m.add_function(wrap_pyfunction!(radius_pairs_transform, m)?)?;
 
     // grid rasterisation (Wave 3 candidate #1: ClearanceGrid compute)
     m.add_function(wrap_pyfunction!(block_circle_into_grid_py, m)?)?;

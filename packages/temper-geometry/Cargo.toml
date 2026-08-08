@@ -18,6 +18,17 @@ pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
 # temper-drc-rs's `geo`/`rstar` stack) -- no libc/OS dependency, so it builds
 # for wasm32 the same as the rest of this crate.
 spade = "2.15"
+# radius_pairs.rs: exact all-pairs-within-radius query for
+# router_v6/channel_skeleton.py's island-bridging MST, replacing
+# scipy.spatial.cKDTree.query_pairs. Same version already pinned by
+# temper-drc-rs ("geo + rstar spatial indexing") -- reusing rather than
+# introducing a second spatial-index crate (kiddo was evaluated and rejected;
+# see radius_pairs.rs's module doc). Pure Rust (heapless/num-traits/smallvec
+# only, no `geo` dependency needed -- rstar has its own Point trait with a
+# blanket impl for fixed-size float arrays), so it builds for wasm32 the same
+# as spade above; already proven on wasm32-unknown-unknown in this repo via
+# temper-drc-rs's own WASM tier R1 build.
+rstar = "0.12"
 
 [features]
 # WASM tier R1 (plan 2026-08-03-002): pyo3 is gated behind the optional

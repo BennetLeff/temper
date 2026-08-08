@@ -67,6 +67,13 @@ pub mod channel_widths;
 pub mod edt;
 #[cfg(feature = "python")]
 pub use edt::exact_edt_transform;
+// KTD8 follow-up (docs/evidence/2026-08-07-rust-connected-components-spike.md):
+// exact 8-connected connected-component labeling, matching
+// scipy.ndimage.label(mask, structure=np.ones((3, 3), dtype=bool)) --
+// routability_check.py's last scipy binding (check_routability_cc).
+pub mod connected_components;
+#[cfg(feature = "python")]
+pub use connected_components::connected_components_8_transform;
 pub mod grid_raster;
 #[cfg(feature = "python")]
 pub use grid_raster::{
@@ -136,6 +143,15 @@ pub mod drc_constraints_geometry;
 // Declared after creepage_check (py_min) and host_math (pow), which it
 // reuses.
 pub mod channel_skeleton;
+// router_v6/channel_skeleton.py's island-bridging MST candidate generation:
+// exact all-pairs-within-radius query (rstar R*-tree), replacing
+// scipy.spatial.cKDTree.query_pairs. See
+// docs/evidence/2026-08-07-channel-skeleton-bridging-perf.md for the
+// bridging algorithm this feeds, and this module's own doc comment for the
+// crate-choice and tie-breaking contract determination.
+pub mod radius_pairs;
+#[cfg(feature = "python")]
+pub use radius_pairs::radius_pairs_transform;
 #[cfg(feature = "python")]
 pub use drc_constraints_geometry::{
     drc_closest_points_segment_segment_py, drc_point_to_circle_distance_py,
