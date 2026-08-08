@@ -499,6 +499,27 @@ pub fn classify_net_type(name: &str) -> &'static str {
     netclass::classify_net_type(name)
 }
 
+// `router_v6.net_classification`'s power-net variant (extra patterns + a
+// "starts with '+'" prefix heuristic; see netclass.rs). Ground/HV/pin
+// classification is byte-identical to the core module above, so router_v6
+// reuses `is_ground_net`/`is_hv_net`/`is_*_pin` directly and only needs
+// these three additional bindings.
+
+#[pyfunction]
+pub fn is_power_net_v6(name: &str) -> bool {
+    netclass::is_power_net_v6(name)
+}
+
+#[pyfunction]
+pub fn is_signal_net_v6(name: &str) -> bool {
+    netclass::is_signal_net_v6(name)
+}
+
+#[pyfunction]
+pub fn classify_net_type_v6(name: &str) -> &'static str {
+    netclass::classify_net_type_v6(name)
+}
+
 // ---------------------------------------------------------------------------
 // manufacturing
 // ---------------------------------------------------------------------------
@@ -1192,6 +1213,9 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(is_power_pin, m)?)?;
     m.add_function(wrap_pyfunction!(is_hv_pin, m)?)?;
     m.add_function(wrap_pyfunction!(is_clock_pin, m)?)?;
+    m.add_function(wrap_pyfunction!(is_power_net_v6, m)?)?;
+    m.add_function(wrap_pyfunction!(is_signal_net_v6, m)?)?;
+    m.add_function(wrap_pyfunction!(classify_net_type_v6, m)?)?;
 
     m.add_function(wrap_pyfunction!(inflated_clearance, m)?)?;
     m.add_function(wrap_pyfunction!(inflated_width, m)?)?;
