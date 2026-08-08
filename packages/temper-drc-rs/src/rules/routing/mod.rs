@@ -5,7 +5,7 @@
 // Origin: U4/U6 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
 mod copper_pullback;
-mod isolation_barrier;
+pub(crate) mod isolation_barrier;
 mod isolation_slot;
 mod pad_entry_width;
 mod parallel_run;

@@ -27,7 +27,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 147 eligible tests, in a stable order.  Each entry is
+/// All 157 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -46,6 +46,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-erc")] crate::rules::erc::power_domain::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-placement")] crate::rules::placement::thermal_via_count::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-placement")] crate::rules::placement::wave_solder_keepout::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-routing")] crate::rules::routing::isolation_barrier::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-routing")] crate::rules::routing::power_pad_teardrop::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-infra")] crate::types::clock::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-infra")] crate::types::esd::tests::WASM_TESTS,

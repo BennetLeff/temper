@@ -56,13 +56,42 @@ pub struct NoiseDomain {
 }
 
 /// An isolation barrier line across the board.
+///
+/// This is the sole machine-readable representation of a SELV/HV
+/// isolation barrier in this project as of this writing — nothing in
+/// `packages/temper-placer/configs/temper_constraints.yaml` populates it
+/// today (grep for `isolation_barrier` in that file: 0 hits), so
+/// `ConstraintSet::isolation_barriers` is empty on every real run and
+/// `routing::IsolationBarrierCheck` (below) never fires against the real
+/// board today. It is kept as an explicit input specifically so a barrier
+/// can be supplied (by config, once defined, or by a caller) without
+/// further schema changes.
 #[derive(Debug, Clone, Deserialize)]
 pub struct IsolationBarrier {
     pub name: String,
     pub x_mm: f64,
     pub y_span: [f64; 2],
+    /// Comma-separated KiCad copper layer names the barrier spans
+    /// (e.g. `"F.Cu,In1.Cu,In2.Cu,B.Cu"`), or `"all"` (default) to cover
+    /// every layer. A barrier must span every copper layer it needs to
+    /// guard — an inner-layer pour crossing it is exactly as dangerous as
+    /// an outer-layer one, so `"all"` is the safe default and is what a
+    /// real 4-layer barrier (see the unmerged `MAINS_SELV_ISOLATION_BARRIER`
+    /// keepout on `origin/safety/mains-selv-isolation-barrier`, which spans
+    /// `F.Cu In1.Cu In2.Cu B.Cu`) would set explicitly.
     #[serde(default = "default_layers_all")]
     pub layers: String,
+    /// Minimum required clearance (mm) from any copper (trace segment or
+    /// zone/pour polygon edge) to the barrier line, beyond which no
+    /// violation is raised. `0.0` (the default) preserves pure
+    /// crossing-only semantics for any existing caller that does not set
+    /// this field. A real barrier should set this to the applicable IEC
+    /// 60335-1 creepage figure (8.0mm REINFORCED, per
+    /// `packages/temper-placer/src/temper_placer/requirements/validators/clearance.py:265-284`
+    /// and `req_safe_01.rs`) so a pour that comes close without literally
+    /// crossing is still caught.
+    #[serde(default)]
+    pub clearance_mm: f64,
 }
 
 fn default_layers_all() -> String {
