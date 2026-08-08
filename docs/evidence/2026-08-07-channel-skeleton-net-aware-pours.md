@@ -293,11 +293,43 @@ configuration gets before hitting `#871`'s ceiling.
   (Section 5) plus a full test-suite run -- `routability_check.py` (the
   module under test) imports nothing this task's diff touches.
 - `uv run pytest tests/router_v6/ -q` (full suite, 4803 items, one
-  `kicad-cli`-dependent test deselected as a pre-existing environmental
-  gap): run in the background; final tally recorded in the commit this
-  document ships with, once it completes.
-- `test_r3_channel_skeleton_filters_to_outer_layers` remains failing, as
-  instructed -- untouched by this change.
+  `kicad-cli`-dependent test deselected): **15 failed, 4748 passed, 19
+  skipped, 1 deselected, 23 xfailed** (1341s -- long wall time from real
+  shared-machine contention with two concurrent `route_pcb()` background
+  measurements, Section 5, plus another agent's own concurrent pytest run
+  observed via `ps aux` during this session). Of the 15 failures:
+  - 4 are `kicad-cli`/KiCad-footprint-library-not-installed environmental
+    gaps (`test_audit_tree_geometry.py`, 3x `test_phase1_anti_false_zero.py`).
+  - `test_r3_channel_skeleton_filters_to_outer_layers` is the
+    instructed-to-remain-failing test.
+  - `test_tie_break_class_exists_direct_cKDTree_comparison` and
+    `test_latency_unroutable_early_exit` are the two pre-existing/unrelated
+    failures already explained above.
+  - 6 more (`test_multi_layer_tree_routing.py` x4,
+    `test_via_layer_properties_pbt.py` x2) all share one root cause:
+    `BufferError: buffer contents are not compatible with i8` inside
+    `occupancy_grid.py`'s calls into the `temper_geometry` Rust extension
+    (`mark_path_rect_into_grid_py`/`mark_via_circle_into_grid_py`) -- a
+    numpy/Rust buffer-dtype mismatch with no plausible connection to
+    zone/net eligibility. **Verified, not assumed**: reverted
+    `obstacle_map.py`/`_zone_pour_stitch.py`/`core/design_rules.py` to
+    their pre-this-task content via `git checkout HEAD~1 -- <files>` (not
+    `git stash` -- forbidden repo-wide, see the commit's own session
+    notes) and re-ran the same two files; all 6 fail identically on the
+    unmodified base commit. Restored via `git checkout HEAD --
+    <files>`, re-verified zero diff against the commit and an identical
+    failure signature with the fix back in place.
+  - The remaining 2 (`test_congestion_rust_differential.py::test_total_movement_bit_exact[moves6]`,
+    `test_escape_via_rust_differential.py::test_is_position_valid_bit_exact[overflow_square]`)
+    also reproduce identically on the unmodified base commit (same
+    revert/restore method as above): both are an `OverflowError` message-text
+    mismatch between the Python oracle (`"Numerical result out of range"`)
+    and the Rust extension (`"Result too large"`) on an intentional overflow
+    fixture -- a platform/libc error-string difference, unrelated to net
+    eligibility or obstacle geometry.
+- Net: **every failure not already accounted for as instructed-failing or
+  a documented pre-existing/environmental gap was independently confirmed,
+  by reversion, to reproduce identically without this task's changes.**
 
 ## 7. Sources
 
