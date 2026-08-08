@@ -5,6 +5,49 @@ working-style instructions so partial results survive an interrupted session.
 Sections marked `TODO` are not yet covered. See the bottom "Coverage" section
 for what remains.**
 
+## Flagged for immediate attention (not new danger — important context this audit surfaced)
+
+Two things worth reading before the rest of this document, both verified by
+directly running the scripts in this worktree (not just read):
+
+1. **`scripts/check_isolation_keepout.py` — a real, CI-wired, currently-RED
+   gate — is the honest counterpart to the vacuous `IsolationCheck` this
+   audit descends from.** Running it (`uv run --with-editable
+   packages/temper-placer python scripts/check_isolation_keepout.py`)
+   against the real board **fails with exit code 3**: `pcb/temper.kicad_pcb`
+   has zero keepout zones, so the required
+   `MAINS_SELV_ISOLATION_BARRIER` region (≥8.0mm, all 4 copper layers,
+   bisecting HV from SELV) does not physically exist. This is confirmed true
+   on `main` too (`git show main:pcb/temper.kicad_pcb | grep -c
+   MAINS_SELV_ISOLATION_BARRIER` → `0`), and the gate is wired into
+   `.github/workflows/python-tests.yml:1414` with an explicit comment:
+   *"Never `continue-on-error`: a gate that cannot run, or that finds the
+   barrier missing, must exit non-zero."* This is **not a new finding** — the
+   commit that added it (`ee3da42a`, "select PD2 protected-compartment
+   architecture") and `docs/evidence/2026-07-28-isolation-keepout.md`
+   document it deliberately: the team chose to "keep the missing board
+   barrier explicit rather than claiming fabrication closure." Reported here
+   because it is the single most relevant fact for anyone reasoning about the
+   vacuous `IsolationCheck` Rust rule below: the *real* enforcement for this
+   exact physical property exists, is well-built, and is currently failing
+   loudly and correctly. Fixing `IsolationCheck` does not close this gap;
+   only placing the physical keepout does.
+2. **`scripts/check_creepage_clearance_drift.py` is a real, sophisticated,
+   currently-failing gate that is wired into no CI workflow at all** —
+   confirmed by `grep -rl check_creepage_clearance_drift .github/workflows/`
+   (no matches) and by running it directly: exit code 3, "4 family/families
+   with mismatched values," including that `scripts/generate_kicad_dru.py`
+   (this project's real, evidenced clearance/creepage CI gate — see below)
+   hardcodes the PD2 figure `HV_CREEPAGE_ENFORCED_MM = 8.0mm` while a PD3
+   value `HV_CREEPAGE_PD3_MM = 12.6mm` sits declared-but-unused in the same
+   file (`generate_kicad_dru.py:77-78`). This script is not vacuous — it is
+   the opposite failure mode this audit is also watching for: a correctly-
+   built check nobody ever calls. It has its own test file
+   (`scripts/tests/test_check_creepage_clearance_drift.py`, which *is*
+   CI-wired) but the gate script itself is orphaned. Recommend someone wire
+   `uv run python scripts/check_creepage_clearance_drift.py` into
+   `python-tests.yml` alongside the other `check_*.py` gates.
+
 ## Why this document exists
 
 `IsolationCheck` (`packages/temper-drc-rs/src/rules/safety/isolation.rs`) was
