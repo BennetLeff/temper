@@ -336,12 +336,189 @@ fn build_losses_config<'py>(
 // _preprocess_config — the transform, transcribed section by section.
 // ---------------------------------------------------------------------------
 
+/// Every top-level `temper_constraints.yaml` section this function reads
+/// (via `raw.contains("...")`/`raw.get_item("...")`/`dict_get(py, raw,
+/// "...")` below), kept in lockstep with the function body by construction
+/// (grep `raw\.(contains|get_item)\("[a-z_]+"\)` over this function to
+/// regenerate). `PlacementConstraints.model_validate` (pydantic,
+/// `extra="forbid"`) is the schema authority for the *processed* dict this
+/// function emits, but it never sees keys this function never copies out of
+/// `raw` — a misspelled/renamed top-level YAML section (e.g. `"thermal_property"`
+/// instead of `"thermal_properties"`) would previously vanish silently, with
+/// no error from either this function or pydantic. This allowlist closes
+/// that gap at the true point of entry to the Rust config pipeline.
+const RAW_CONFIG_KEYS: &[&str] = &[
+    "aesthetics",
+    "bleed_resistor",
+    "board",
+    "board_width_mm",
+    "board_height_mm",
+    "board_margin_mm",
+    "clearances",
+    "component_groups",
+    "constraints",
+    "copper_zones",
+    "critical_loops",
+    "critical_paths",
+    "differential_pairs",
+    "escape_clearances",
+    "feedback",
+    "fixed_components",
+    "fixed_positions",
+    "ground_domains",
+    "groups",
+    "group_separation",
+    "hv_clearance_mm",
+    "hv_exclusion_zones",
+    "isolation_barriers",
+    "isolation_slots",
+    "kelvin_sensing",
+    "losses",
+    "loss_weights",
+    "manufacturing",
+    "manufacturing_constraints",
+    "matched_length_groups",
+    "minimum_spacing",
+    "net_assignments",
+    "net_classes",
+    "net_class_rules",
+    "net_priority",
+    "net_topology",
+    "noise_domains",
+    "noise_isolation",
+    "placement_priority",
+    "placement_proximity",
+    "placer",
+    "routing_corridors",
+    "routing_priority",
+    "seed_filter",
+    "signal_hv_clearances",
+    "skin_effect_derating",
+    "slot_generation",
+    "snubber_requirements",
+    "star_grounds",
+    "thermal",
+    "thermal_properties",
+    "zone_assignments",
+    "zones",
+];
+
+/// Top-level sections present in the production
+/// `packages/temper-placer/configs/temper_constraints.yaml` that neither
+/// this function nor the pinned pre-migration Python oracle
+/// (`tests/io/_config_loader_py_oracle.py::_preprocess_config`) reads --
+/// confirmed by `test_preprocess_matches_oracle_on_production_fixture`
+/// (`tests/io/test_config_loader_rust_differential.py`), which fails on
+/// the production fixture without these listed here (both sides agree:
+/// neither errors, neither surfaces the data).
+///
+/// This is NOT a typo-guard exemption like `RAW_CONFIG_KEYS` -- these are
+/// real production data, not a schema decision to invent silently (the
+/// established norm in this codebase; see e.g. `drc_runner.py`'s
+/// `_constraints_to_dict` NOTE on `isolation_barriers`). Listed here only
+/// so the new top-level guard doesn't turn a pre-existing, independently
+/// real gap into a hard config-load failure for the production board.
+///
+/// - `hv_lv_separation` ({hv_threshold_v, lv_reference_v, creepage_mm:
+///   6.0, clearance_mm: 6.0} -- cites "IEC 60335-1 Table 17") is
+///   SAFETY-RELEVANT and unconsumed: no rule reads it. A *different*,
+///   coarser mechanism (`hv_clearance_mm: 10.0`, consumed by
+///   `rules/safety/hv_lv_separation.rs` and `rules/drc/clearance.rs`) IS
+///   wired and live, so the board is not unprotected, but the
+///   IEC-cited 6.0mm creepage/clearance figures in this block are dead
+///   data -- worth a human decision, not silently invented here.
+/// - `critical_routing_order` (list of net names) and
+///   `via_array_overrides` (net -> via-array-size map) are router-hint
+///   sections with no current Rust or Python consumer.
+/// - `nets` is an empty list (`nets: []  # Added to satisfy config
+///   loader requirements`) -- a placeholder, not live data.
+const KNOWN_UNCONSUMED_PRODUCTION_KEYS: &[&str] = &[
+    "critical_routing_order",
+    "hv_lv_separation",
+    "nets",
+    "via_array_overrides",
+];
+
+/// Top-level sections present in `packages/temper-placer/tests/fixtures/
+/// constraints_{minimal,medium,large}.yaml` -- real, load-bearing test
+/// fixtures exercised by `tests/test_fixtures.py`,
+/// `tests/constraint_types/test_fixture_roundtrip.py`, and the CLI
+/// integration tests under `tests/cli/` (all of which call
+/// `load_constraints()` on these files directly) -- that no consumer
+/// reads. Discovered by running the full test suite against this
+/// remediation's new top-level guard (blast-radius check, not static
+/// reasoning): 23 tests failed on `net_weights` alone before this list
+/// was added.
+///
+/// - `net_weights` (net_name -> float) and `optimizer` (epochs/
+///   temperature/learning_rate) are pre-CP-SAT, JAX-gradient-descent-era
+///   settings ("The JAX gradient-descent pipeline has been removed." --
+///   `temper-placer` CLI banner). Dead by architecture change, not a
+///   marshalling bug.
+/// - `clearance_rules` (list of {name, components, min_spacing_mm}) has
+///   no consumer under that name; the live top-level key for
+///   component-pair spacing is `minimum_spacing` (same shape family,
+///   different key).
+/// - `thermal_constraints` (list of {name, components, max_temp_rise_c,
+///   min_spacing_mm, description}) is a LIKELY REAL INSTANCE of this
+///   remediation's target defect class, found here rather than fixed:
+///   the live top-level key that builds `ThermalConstraint` objects
+///   (components/prefer_edge/min_spacing_mm/max_distance_from_edge_mm/
+///   description -- see the "Thermal constraints" block below) is
+///   `thermal`, not `thermal_constraints`. `constraints_medium.yaml`'s
+///   thermal data (`"Keep power components spaced for cooling"`) has
+///   silently never reached a `ThermalConstraint` object through
+///   `load_constraints()`. Not renamed here: `max_temp_rise_c` has no
+///   matching field on `ThermalConstraint` either, so a bare key rename
+///   would silently drop that value too -- a real fix needs a human
+///   decision on whether `max_temp_rise_c` should gain a field or the
+///   fixture should be rewritten to the current shape, not a mechanical
+///   rename by this schema-hardening pass.
+const KNOWN_UNCONSUMED_TEST_FIXTURE_KEYS: &[&str] = &[
+    "clearance_rules",
+    "net_weights",
+    "optimizer",
+    "thermal_constraints",
+];
+
+/// Reject any top-level key in the raw YAML-loaded config that
+/// `preprocess_config` does not recognize. See `RAW_CONFIG_KEYS` for why
+/// this cannot be pydantic's job.
+fn reject_unknown_raw_keys(raw: &Bound<'_, PyAny>) -> PyResult<()> {
+    let Ok(dict) = raw.clone().cast_into::<PyDict>() else {
+        // A non-dict top level (e.g. malformed YAML) is caught downstream
+        // by pydantic's own type error; not this guard's job.
+        return Ok(());
+    };
+    let mut unknown: Vec<String> = Vec::new();
+    for key in dict.keys().iter() {
+        let Ok(key_str) = key.extract::<String>() else {
+            continue; // non-string keys are a YAML/pydantic concern, not ours
+        };
+        if !RAW_CONFIG_KEYS.contains(&key_str.as_str())
+            && !KNOWN_UNCONSUMED_PRODUCTION_KEYS.contains(&key_str.as_str())
+            && !KNOWN_UNCONSUMED_TEST_FIXTURE_KEYS.contains(&key_str.as_str())
+        {
+            unknown.push(key_str);
+        }
+    }
+    if !unknown.is_empty() {
+        unknown.sort();
+        return Err(PyValueError::new_err(format!(
+            "temper_constraints.yaml: unrecognized top-level key(s) {unknown:?} -- \
+             check for typos against the known section names"
+        )));
+    }
+    Ok(())
+}
+
 /// The oracle's `_preprocess_config`, Rust-side. `raw` is the `yaml.safe_load`
 /// output; every typed leaf is constructed by calling the Python classes at
 /// the same points the oracle does.
 #[pyfunction]
 #[pyo3(name = "preprocess_config")]
 pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
+    reject_unknown_raw_keys(raw)?;
     let processed = PyDict::new(py);
 
     // --- Board geometry ---

@@ -49,6 +49,10 @@ from temper_placer.validation.drc_result import (  # noqa: E402
 from temper_placer.validation.drc_runner import (
     _violations_to_run_result as shim_convert,  # noqa: E402
 )
+from temper_placer.validation.drc_types import (  # noqa: E402
+    ComponentPlacement,
+    Placement,
+)
 
 # The runner's wrapper adds elapsed_ms to the RunResult — drive it through
 # the shim wrapper (the kernel-level records are pinned via drc_oracle's and
@@ -331,6 +335,214 @@ def test_mr3_append_only_grows_group():
     after = [i.severity.name for i in cr2.issues]
     assert after[:2] == before
     assert after == ["ERROR", "WARNING", "CRITICAL"]
+
+
+# ---------------------------------------------------------------------------
+# Boundary-schema contract tests (Python<->Rust dict-payload key-set audit,
+# 2026-08-08)
+# ---------------------------------------------------------------------------
+#
+# The rest of this file pins group_violations' *compute*. These two tests
+# guard the OTHER half of the same Python<->Rust boundary this module
+# crosses: that _placement_to_board_dict / _constraints_to_dict emit dicts
+# temper_drc_rs actually accepts. That contract used to be silent --
+# board_py_bridge.rs's hand-rolled extract_*() functions only ever read
+# keys they know about, so a renamed/misspelled key on either side was
+# invisible (this is exactly how the via/trace/zones K1-schema mismatch
+# shipped undetected: see drc_runner.py's _placement_to_board_dict history).
+#
+# `build_board_state` (board_py_bridge.rs) now calls `reject_unknown_keys`
+# at the board_dict top level and inside every component/via/trace/zone/
+# net_class_rules sub-dict; `ConstraintSet` and every constraint sub-type
+# (constraints.rs) now carry `#[serde(deny_unknown_fields)]`. That makes
+# "no exception raised" a real, CI-enforced assertion instead of a
+# vacuous one: any future rename/typo on either side of the boundary now
+# makes these tests raise, not silently drop data.
+#
+# Demonstrated failing before the fix (reproduced live, not just by
+# reasoning): reverting board_py_bridge.rs's guards and drc_runner.py's
+# via/trace/zones key names back to their pre-fix shapes reproduces
+# `ValueError: missing required key: net` here.
+
+
+def test_placement_to_board_dict_matches_rust_k1_schema() -> None:
+    """A fully-populated Placement (components, nets, net_classes, vias,
+    traces) run through _placement_to_board_dict must produce a dict
+    temper_drc_rs.run_drc() accepts without raising -- the K1-schema
+    key-set contract between the Python builder and the Rust consumer."""
+    from temper_placer.validation.drc_runner import _placement_to_board_dict
+
+    placement = Placement(
+        components={
+            "C1": ComponentPlacement(
+                ref="C1", footprint="0402", x=10.0, y=10.0, rotation=0.0,
+                layer="F.Cu", width=1.0, height=1.0, net_class="Signal",
+            ),
+            "C2": ComponentPlacement(
+                ref="C2", footprint="0402", x=50.0, y=50.0, rotation=0.0,
+                layer="B.Cu", width=1.0, height=1.0, net_class="Signal",
+            ),
+        },
+        nets={"N1": ["C1", "C2"]},
+        net_classes={"N1": "Signal"},
+        board_width=100.0,
+        board_height=100.0,
+        via_placement=_tdrc.ViaPlacement(
+            vias=[
+                _tdrc.Via(
+                    position=(5.0, 5.0), from_layer="F.Cu", to_layer="B.Cu",
+                    diameter=0.6, drill=0.3, net_name="N1",
+                ),
+            ]
+        ),
+        trace_placement=_tdrc.TracePlacement(
+            segments=[
+                _tdrc.TraceSegment(
+                    net_name="N1", layer="F.Cu", width=0.25,
+                    start=(0.0, 0.0), end=(10.0, 0.0),
+                ),
+            ]
+        ),
+    )
+    board_dict = _placement_to_board_dict(placement)
+    result = _tdrc.run_drc(board_dict, {})
+    assert isinstance(result, list)
+
+
+def test_constraints_to_dict_matches_rust_constraint_set_schema() -> None:
+    """A fully-populated ConstraintSet (clearances, zones, critical_loops,
+    thermal_constraints, component_groups) run through
+    _constraints_to_dict, then through temper_drc_rs.run_drc(), must not
+    raise -- the ConstraintSet #[serde(deny_unknown_fields)] contract."""
+    from temper_placer.validation.drc_runner import _constraints_to_dict
+
+    minimal_board = {
+        "board": {"width_mm": 100.0, "height_mm": 100.0},
+        "components": [],
+        "nets": {},
+        "net_classes": {},
+    }
+    constraints = _tdrc.ConstraintSet(
+        clearances=[
+            _tdrc.ClearanceRule(from_class="HV", to_class="LV", min_mm=6.0, description="safety"),
+        ],
+        zones=[
+            _tdrc.ZoneDefinition(name="Z1", bounds=(0.0, 0.0, 10.0, 10.0),
+                                  net_classes=["HV"], components=["Q1"]),
+        ],
+        critical_loops=[
+            _tdrc.LoopConstraint(name="L1", nets=["N1"], max_area_mm2=100.0,
+                                  weight=1.0, description=""),
+        ],
+        thermal_constraints=[
+            _tdrc.ThermalConstraint(components=["Q1"], prefer_edge=True,
+                                     min_spacing_mm=5.0,
+                                     max_distance_from_edge_mm=20.0,
+                                     description=""),
+        ],
+        component_groups=[
+            _tdrc.GroupConstraint(name="G1", components=["Q1", "Q2"],
+                                   max_spread_mm=25.0, zone=None,
+                                   proximity_rules=[], description=""),
+        ],
+        net_classes={"N1": "Signal"},
+        voltage_domains={},
+        hv_clearance_mm=8.0,
+        board_width=100.0,
+        board_height=100.0,
+    )
+    constraints_dict = _constraints_to_dict(constraints)
+    result = _tdrc.run_drc(minimal_board, constraints_dict)
+    assert isinstance(result, list)
+
+
+# ---------------------------------------------------------------------------
+# Negative-path guards: the two tests above only prove the guard accepts a
+# GOOD payload without raising -- that is necessary but not sufficient
+# evidence the guard works ("a schema guard that has never been shown
+# rejecting a bad payload is not evidence"). These prove it actually
+# rejects a bad one, live, against the real installed extension -- not
+# reasoned about, not reverted-after-manual-check, permanently pinned so a
+# regression that silently disables the guard (e.g. an accidental
+# `#[serde(deny_unknown_fields)]` removal, or a `reject_unknown_keys` call
+# site deleted during a refactor) fails CI immediately.
+# ---------------------------------------------------------------------------
+
+
+def test_board_dict_rejects_unrecognized_via_key() -> None:
+    """The hand-rolled board_py_bridge.rs guard (reject_unknown_keys,
+    since this boundary is manual get_item() calls, not a serde Deserialize
+    -- deny_unknown_fields does not apply here) must reject a via dict
+    carrying the OLD pre-fix key name ("net_name" instead of "net") rather
+    than silently ignoring it and defaulting x/y/pad to 0.0/0.0/0.6."""
+    bad_board = {
+        "board": {"width_mm": 100.0, "height_mm": 100.0},
+        "components": [],
+        "nets": {},
+        "net_classes": {},
+        "vias": [
+            {
+                "net_name": "N1",  # pre-fix key name; extract_via wants "net"
+                "x": 5.0,
+                "y": 5.0,
+                "drill": 0.3,
+                "pad": 0.6,
+                "from_layer": "F.Cu",
+                "to_layer": "B.Cu",
+            }
+        ],
+    }
+    with pytest.raises(ValueError, match="net_name"):
+        _tdrc.run_drc(bad_board, {})
+
+
+def test_board_dict_rejects_unrecognized_top_level_key() -> None:
+    """A typo'd top-level board_dict key (e.g. a future rename that misses
+    one call site) must raise, not vanish into an ignored dict entry."""
+    bad_board = {
+        "board": {"width_mm": 100.0, "height_mm": 100.0},
+        "componentz": [],  # typo of "components"
+        "nets": {},
+        "net_classes": {},
+    }
+    with pytest.raises(ValueError, match="componentz"):
+        _tdrc.run_drc(bad_board, {})
+
+
+def test_constraints_dict_rejects_unrecognized_key() -> None:
+    """The serde #[serde(deny_unknown_fields)] guard on ConstraintSet must
+    reject an unrecognized top-level constraints_dict key. This is the
+    guard 337a2c2f's thermal_constraints fix relies on staying live --
+    before this remediation, an unrecognized key here (e.g. the legacy
+    pyclass's "component_groups", which has no serde ConstraintSet field)
+    was silently discarded by serde_json::from_value, not an error."""
+    minimal_board = {
+        "board": {"width_mm": 100.0, "height_mm": 100.0},
+        "components": [],
+        "nets": {},
+        "net_classes": {},
+    }
+    with pytest.raises(ValueError, match="component_groups|unknown field"):
+        _tdrc.run_drc(minimal_board, {"component_groups": []})
+
+
+def test_constraints_dict_rejects_unrecognized_nested_key() -> None:
+    """The deny_unknown_fields guard applies to nested constraint
+    sub-structs too, not just the top-level ConstraintSet -- a zone dict
+    carrying the legacy pyclass's "bounds"/"components" keys (real fields
+    on the pyclass ZoneDefinition, but not on the serde ZoneDefinition
+    build_constraint_set deserializes into) must raise."""
+    minimal_board = {
+        "board": {"width_mm": 100.0, "height_mm": 100.0},
+        "components": [],
+        "nets": {},
+        "net_classes": {},
+    }
+    bad_constraints = {
+        "zones": [{"name": "Z1", "net_classes": ["HV"], "bounds": [0, 0, 1, 1]}],
+    }
+    with pytest.raises(ValueError, match="bounds|unknown field"):
+        _tdrc.run_drc(minimal_board, bad_constraints)
 
 
 if __name__ == "__main__":

@@ -29,14 +29,31 @@ Metamorphic relations:
 
 - MR1. Dict-insertion order: ``net_assignments`` / ``critical_paths`` /
   ``net_topology`` iteration order is observable in the output lists.
-- MR2. Section independence: adding a section that is absent from the oracle's
-  mapping (``unknown_section``) never changes the processed result.
+- MR2. Unknown top-level sections are REJECTED, not silently ignored
+  (Python<->Rust boundary schema hardening, 2026-08-08). This inverts the
+  property's original form: unrecognized sections used to be silently
+  dropped with no error from either this loader or pydantic's
+  ``PlacementConstraints.model_validate`` (which only ever sees keys this
+  function chooses to copy out of ``raw`` -- a misspelled/renamed
+  top-level YAML section like ``"thermal_property"`` instead of
+  ``"thermal_properties"`` would vanish with zero signal). See
+  ``config_loader.rs::reject_unknown_raw_keys``. A handful of top-level
+  keys genuinely present in the production
+  ``temper-placer/configs/temper_constraints.yaml`` but read by neither
+  this loader nor the pinned oracle (``hv_lv_separation``,
+  ``critical_routing_order``, ``via_array_overrides``, ``nets``) are
+  allowlisted as known-but-unconsumed rather than invented a consumer
+  for here -- see ``KNOWN_UNCONSUMED_PRODUCTION_KEYS`` in
+  ``config_loader.rs`` for why (one of them,
+  ``hv_lv_separation``, is safety-relevant IEC 60335-1 creepage/clearance
+  data that nothing currently reads).
 - MR3. Loss-weights vs losses precedence: an explicit ``losses`` key wins over
   ``loss_weights`` when both are present.
 """
 
 from __future__ import annotations
 
+import pytest
 import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -244,16 +261,20 @@ def test_mr1_dict_insertion_order_observable(net_names):
 
 @given(raw_config())
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
-def test_mr2_unknown_section_ignored(cfg):
+def test_mr2_unknown_section_rejected(cfg):
+    """MR2 (inverted 2026-08-08, Python<->Rust boundary schema hardening):
+    an unrecognized top-level section used to be silently dropped with no
+    error and no effect on the processed result -- the exact silent-discard
+    defect class this remediation closes (see module docstring). It is now
+    a hard ValueError, regardless of what else is in ``cfg``, and the base
+    (un-augmented) config must still process cleanly -- proving the guard
+    rejects bad input without collaterally rejecting good input."""
     base = dict(cfg)
     augmented = dict(cfg)
     augmented["unknown_section"] = {"anything": 1}
-    rs_base = PRECONFIG(base)
-    rs_aug = PRECONFIG(augmented)
-    assert list(rs_base.keys()) == list(rs_aug.keys())
-    assert {k: repr(v) for k, v in rs_base.items()} == {
-        k: repr(v) for k, v in rs_aug.items()
-    }
+    PRECONFIG(base)  # must not raise: the base config has no unknown keys
+    with pytest.raises(ValueError, match="unrecognized top-level key"):
+        PRECONFIG(augmented)
 
 
 def test_mr3_losses_wins_over_loss_weights():

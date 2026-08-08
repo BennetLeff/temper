@@ -141,6 +141,43 @@ pub fn extract_dict_list<'py>(
     }
 }
 
+/// Reject any key in `dict` that is not in `known` — the hand-rolled
+/// equivalent of serde's `#[serde(deny_unknown_fields)]` for the K1-schema
+/// PyDict boundary, which is parsed by manual `get_item()` calls rather
+/// than a `Deserialize` derive (so `deny_unknown_fields` itself does not
+/// apply here). Without this, a misspelled or renamed key is not an
+/// error: `extract_*` only ever reads keys it knows about, so anything
+/// else in the dict is invisible — the exact silent-discard failure mode
+/// that let `thermal_constraints` reach zero consumers for an unknown
+/// period (docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md) and
+/// let the K1 "zones"/"traces"/"vias" key mismatches ship unnoticed.
+/// Reports every unrecognized key at once (not just the first) so a
+/// single bad payload surfaces its whole mismatch in one error.
+pub fn reject_unknown_keys(
+    dict: &Bound<'_, PyDict>,
+    known: &[&str],
+    context: &str,
+) -> PyResult<()> {
+    let mut unknown: Vec<String> = Vec::new();
+    for key in dict.keys().iter() {
+        let key_str: String = key.extract().map_err(|e| {
+            PyValueError::new_err(format!("{context}: dict key is not a string: {e}"))
+        })?;
+        if !known.contains(&key_str.as_str()) {
+            unknown.push(key_str);
+        }
+    }
+    if !unknown.is_empty() {
+        unknown.sort();
+        let mut known_sorted: Vec<&str> = known.to_vec();
+        known_sorted.sort_unstable();
+        return Err(PyValueError::new_err(format!(
+            "{context}: unrecognized key(s) {unknown:?} (expected a subset of {known_sorted:?})"
+        )));
+    }
+    Ok(())
+}
+
 // ---------------------------------------------------------------------------
 // Geometry extractors
 // ---------------------------------------------------------------------------
@@ -264,7 +301,35 @@ fn parse_package_type(s: &str) -> PyResult<PackageType> {
     }
 }
 
+const COMPONENT_KEYS: &[&str] = &[
+    "ref",
+    "x",
+    "y",
+    "rot",
+    "side",
+    "width",
+    "height",
+    "net_class",
+    // "voltage_domain": sent by drc_runner.py's _placement_to_board_dict
+    // but not read here -- `Component` (board.rs) has no voltage_domain
+    // field. This is a KNOWN, already-documented schema gap (see
+    // rules/erc/power_domain.rs and drc_result.py's PowerDomainCheck
+    // docstring: "the native Rust board schema has no voltage_domain
+    // field"), not something this key-set guard is meant to flag.
+    // Listed here so a genuinely deliberate, tracked gap doesn't trip the
+    // unknown-key guard meant to catch accidental/typo mismatches.
+    "voltage_domain",
+    "power_dissipation_w",
+    "package_type",
+    "is_magnetic",
+    "is_electrolytic",
+    "is_mechanical",
+    "vent_direction",
+    "footprint_polygon",
+];
+
 fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
+    reject_unknown_keys(dict, COMPONENT_KEYS, "component")?;
     let refdes = extract_str(dict, "ref")?;
     let x = extract_f64(dict, "x", 0.0)?;
     let y = extract_f64(dict, "y", 0.0)?;
@@ -303,7 +368,26 @@ fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
 // NetClassRules extraction
 // ---------------------------------------------------------------------------
 
+const NET_CLASS_RULES_KEYS: &[&str] = &[
+    "name",
+    "trace_width_mm",
+    "clearance_mm",
+    "dru_priority",
+    "via_diameter",
+    "via_drill",
+    "via_template",
+    "creepage_mm",
+    "voltage_v",
+    "target_impedance",
+    "max_current_rating",
+    "required_layer",
+    "layer",
+    "safety_category",
+    "routing_strategy",
+];
+
 fn extract_net_class_rules(dict: &Bound<'_, PyDict>) -> PyResult<NetClassRules> {
+    reject_unknown_keys(dict, NET_CLASS_RULES_KEYS, "net_class_rules entry")?;
     Ok(NetClassRules {
         name: extract_str(dict, "name").unwrap_or_default(),
         trace_width_mm: extract_f64(dict, "trace_width_mm", 0.2)?,
@@ -342,7 +426,10 @@ fn extract_f64_list(val: &Bound<'_, PyAny>) -> PyResult<Vec<f64>> {
         .collect()
 }
 
+const TRACE_SEGMENT_KEYS: &[&str] = &["net", "layer", "width", "segments"];
+
 fn extract_trace_segment(dict: &Bound<'_, PyDict>) -> PyResult<TraceSegment> {
+    reject_unknown_keys(dict, TRACE_SEGMENT_KEYS, "trace entry")?;
     let net = extract_str(dict, "net")?;
     let layer = extract_str(dict, "layer")?;
     let width = extract_f64(dict, "width", 0.2)?;
@@ -375,7 +462,10 @@ fn extract_trace_segment(dict: &Bound<'_, PyDict>) -> PyResult<TraceSegment> {
 // Via extraction
 // ---------------------------------------------------------------------------
 
+const VIA_KEYS: &[&str] = &["net", "x", "y", "drill", "pad", "from_layer", "to_layer"];
+
 fn extract_via(dict: &Bound<'_, PyDict>) -> PyResult<Via> {
+    reject_unknown_keys(dict, VIA_KEYS, "via entry")?;
     let net = extract_str(dict, "net")?;
     let x = extract_f64(dict, "x", 0.0)?;
     let y = extract_f64(dict, "y", 0.0)?;
@@ -398,7 +488,10 @@ fn extract_via(dict: &Bound<'_, PyDict>) -> PyResult<Via> {
 // CopperZone extraction
 // ---------------------------------------------------------------------------
 
+const COPPER_ZONE_KEYS: &[&str] = &["net", "layer", "polygon"];
+
 fn extract_copper_zone(dict: &Bound<'_, PyDict>) -> PyResult<CopperZone> {
+    reject_unknown_keys(dict, COPPER_ZONE_KEYS, "zone entry")?;
     let net = extract_str(dict, "net")?;
     let layer = extract_str(dict, "layer")?;
     let polygon = extract_polygon(dict, "polygon")?;
@@ -539,7 +632,22 @@ fn parse_zones_from_dict(board_dict: &Bound<'_, PyDict>) -> PyResult<Vec<CopperZ
 ///   "zones": [{net, layer, polygon}],                // optional
 /// }
 /// ```
+const BOARD_DICT_KEYS: &[&str] = &[
+    "board",
+    "components",
+    "nets",
+    "net_classes",
+    "net_class_rules",
+    "traces",
+    "vias",
+    "zones",
+];
+
+const BOARD_INFO_KEYS: &[&str] = &["width_mm", "height_mm", "margin_mm"];
+
 pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState> {
+    reject_unknown_keys(board_dict, BOARD_DICT_KEYS, "board_dict")?;
+
     // --- Board dimensions ---
     let board_item = board_dict
         .get_item("board")?
@@ -547,6 +655,7 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     let board_info: Bound<'_, PyDict> = board_item
         .cast_into::<PyDict>()
         .map_err(|e| PyValueError::new_err(format!("key 'board' is not a dict: {e}")))?;
+    reject_unknown_keys(&board_info, BOARD_INFO_KEYS, "board_dict['board']")?;
 
     let width_mm = extract_f64(&board_info, "width_mm", 100.0)?;
     let height_mm = extract_f64(&board_info, "height_mm", 150.0)?;

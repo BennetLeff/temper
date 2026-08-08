@@ -18,6 +18,7 @@ use serde::Deserialize;
 
 /// Clearance rule between two net classes or component groups.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ClearanceRule {
     pub from_class: String,
     pub to_class: String,
@@ -28,6 +29,7 @@ pub struct ClearanceRule {
 
 /// A named zone on the board (from YAML `zones` key).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ZoneDefinition {
     pub name: String,
     #[serde(default)]
@@ -36,6 +38,7 @@ pub struct ZoneDefinition {
 
 /// A critical current loop whose area must be minimized.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct LoopConstraint {
     pub name: String,
     #[serde(default)]
@@ -48,6 +51,7 @@ pub struct LoopConstraint {
 
 /// Noise coupling domain: emitters and victims that must not run parallel.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct NoiseDomain {
     pub emitters: Vec<String>,
     pub victims: Vec<String>,
@@ -57,6 +61,7 @@ pub struct NoiseDomain {
 
 /// An isolation barrier line across the board.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct IsolationBarrier {
     pub name: String,
     pub x_mm: f64,
@@ -71,6 +76,7 @@ fn default_layers_all() -> String {
 
 /// Thermal properties of a component or board area.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ThermalProperty {
     pub component: String,
     pub power_dissipation_w: Option<f64>,
@@ -85,15 +91,17 @@ pub struct ThermalProperty {
 /// key `"thermal_constraints"` (forwarding `t.components`, `t.prefer_edge`,
 /// `t.min_spacing_mm`, `t.max_distance_from_edge_mm`, `t.description`) lands
 /// on a real field instead of being silently dropped by
-/// `serde_json::from_value` (no `#[serde(deny_unknown_fields)]` on
-/// `ConstraintSet`, so an unrecognized key is otherwise discarded, not an
-/// error — this was the root cause of the "thermal_constraints has zero
-/// consumers" finding in
-/// docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md, Task 2).
+/// `serde_json::from_value` — this was the root cause of the
+/// "thermal_constraints has zero consumers" finding in
+/// docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md, Task 2.
+/// `ConstraintSet` now carries `#[serde(deny_unknown_fields)]` (Python↔Rust
+/// boundary schema hardening, 2026-08-08), so a *future* key drift of this
+/// kind fails loudly instead of silently discarding data again.
 ///
 /// Defaults mirror the Python model's field defaults
 /// (`_constraint_types/thermal.py`) exactly.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ThermalConstraint {
     pub components: Vec<String>,
     #[serde(default = "default_thermal_prefer_edge")]
@@ -118,6 +126,7 @@ fn default_thermal_max_distance_from_edge_mm() -> f64 {
 
 /// Matched-length routing group.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct MatchedLengthGroup {
     pub name: String,
     pub tolerance_mm: f64,
@@ -126,6 +135,7 @@ pub struct MatchedLengthGroup {
 
 /// Snubber circuit requirement near an IGBT pair.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SnubberRequirement {
     pub igbt_pair: [String; 2],
     #[serde(default)]
@@ -136,6 +146,7 @@ pub struct SnubberRequirement {
 
 /// Bleed resistor specification for bus discharge.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct BleedResistor {
     pub bus_voltage_v: f64,
     pub target_voltage_v: f64,
@@ -144,6 +155,7 @@ pub struct BleedResistor {
 
 /// Skin-effect derating for high-frequency traces.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SkinEffectDerating {
     pub frequency_hz: f64,
     pub derating_factor: f64,
@@ -158,6 +170,7 @@ pub struct SkinEffectDerating {
 /// All fields use `serde::Deserialize` with default values so
 /// absent YAML keys produce "no constraint" semantics.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstraintSet {
     #[serde(default)]
     pub clearances: Vec<ClearanceRule>,

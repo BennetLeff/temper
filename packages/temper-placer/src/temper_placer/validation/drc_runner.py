@@ -90,10 +90,31 @@ def _placement_to_board_dict(placement: _Placement) -> dict[str, _Any]:
             }
         )
 
-    zones_list: list[dict[str, _Any]] = []
-    for name, bounds in placement.zones.items():
-        zones_list.append({"name": name, "bounds": list(bounds)})
-
+    # NOTE (Python<->Rust boundary schema fix, 2026-08-08): `board_dict`
+    # deliberately does NOT carry a "zones" key built from
+    # ``placement.zones``. ``Placement.zones`` is a *placement-boundary*
+    # map (``name -> (x0, y0, x1, y1)`` rectangles, e.g. the
+    # ``temper_constraints.yaml`` ``power_zone``/``driver_zone`` regions) --
+    # a completely different concept from the K1-schema ``board_dict["zones"]``
+    # key, which ``temper_drc_rs.board_py_bridge::extract_copper_zone``
+    # (`packages/temper-drc-rs/src/board_py_bridge.rs`) parses as
+    # ``CopperZone`` records: ``{net, layer, polygon}`` -- actual copper
+    # zone/pour geometry.
+    #
+    # Previously this function *did* populate "zones" from
+    # ``placement.zones`` as ``{"name": ..., "bounds": [...]}`` -- a key
+    # collision with the CopperZone shape. `extract_copper_zone` requires
+    # "net" (`board_py_bridge.rs::extract_str`), so any call through this
+    # path with a non-empty ``placement.zones`` (a legitimate, common state)
+    # raised ``ValueError: missing required key: net`` deep in the Rust
+    # deserializer, and ``CheckRunner.run()`` never returned a result at
+    # all -- not just for zone-aware checks, for every check. Reproduced
+    # live via ``temper_drc_rs.run_drc()`` before this fix.
+    #
+    # ``Placement`` carries no copper-pour geometry at all today, so there
+    # is nothing correct to put under "zones" here yet -- omitting the key
+    # (the K1 schema treats it as optional) is the fix, not a substitute
+    # shape.
     board_dict: dict[str, _Any] = {
         "board": {
             "width_mm": placement.board_width,
@@ -103,34 +124,56 @@ def _placement_to_board_dict(placement: _Placement) -> dict[str, _Any]:
         "components": components,
         "nets": dict(placement.nets),
         "net_classes": dict(placement.net_classes),
-        "zones": zones_list,
     }
 
     if placement.via_placement is not None:
+        # `extract_via` (`board_py_bridge.rs:378`) requires "net" (a
+        # required key, no default) plus "x"/"y" (each independently
+        # defaulted to 0.0 when absent -- so this bug's discard was
+        # *silent* for position, not just a hard "net" crash: an omitted
+        # or misspelled x/y key would not raise, it would quietly place
+        # every via at the origin) and reads pad diameter under "pad", not
+        # "diameter". The previous shape here sent "position"/"diameter"/
+        # "net_name" -- none of which `extract_via` reads -- so every
+        # placement with vias raised "missing required key: net" before
+        # any DRC rule ran. Fixed by sending the key names Rust actually
+        # reads; `via.diameter` maps to Rust's "pad" (outer pad/land
+        # diameter, not drill).
         via_list: list[dict[str, _Any]] = []
         for via in placement.via_placement.vias:
             via_list.append(
                 {
-                    "position": list(via.position),
+                    "net": via.net_name,
+                    "x": via.position[0],
+                    "y": via.position[1],
+                    "drill": via.drill,
+                    "pad": via.diameter,
                     "from_layer": via.from_layer,
                     "to_layer": via.to_layer,
-                    "diameter": via.diameter,
-                    "drill": via.drill,
-                    "net_name": via.net_name,
                 }
             )
         board_dict["vias"] = via_list
 
     if placement.trace_placement is not None:
+        # Same class of bug as "zones" above, on the same K1-schema
+        # boundary: `board_py_bridge.rs::extract_trace_segment` requires
+        # key "net" (not "net_name") and a "segments" list of
+        # ``[x1, y1, x2, y2]`` coordinate groups (not top-level
+        # "start"/"end" keys) -- see `board_py_bridge.rs:345-372`. The
+        # previous shape here raised the identical
+        # ``missing required key: net`` error whenever
+        # ``placement.trace_placement`` was set, independent of the
+        # "zones"/"vias" bugs above. One ``board_dict["traces"]`` entry
+        # per raw segment (a "segments" list of length 1 each) keeps this
+        # a minimal, cardinality-preserving fix rather than a regrouping.
         seg_list: list[dict[str, _Any]] = []
         for seg in placement.trace_placement.segments:
             seg_list.append(
                 {
-                    "net_name": seg.net_name,
+                    "net": seg.net_name,
                     "layer": seg.layer,
                     "width": seg.width,
-                    "start": list(seg.start),
-                    "end": list(seg.end),
+                    "segments": [[seg.start[0], seg.start[1], seg.end[0], seg.end[1]]],
                 }
             )
         board_dict["traces"] = seg_list
@@ -139,7 +182,58 @@ def _placement_to_board_dict(placement: _Placement) -> dict[str, _Any]:
 
 
 def _constraints_to_dict(constraints: _ConstraintSet) -> dict[str, _Any]:
-    """Convert a ``ConstraintSet`` to the dict format expected by ``temper_drc_rs``."""
+    """Convert a ``ConstraintSet`` to the dict format expected by ``temper_drc_rs``.
+
+    NOTE (Python<->Rust boundary schema fix, 2026-08-08): this dict is
+    deserialized by ``temper_drc_rs::constraints::build_constraint_set``
+    (`packages/temper-drc-rs/src/constraints.rs`) into its serde
+    ``ConstraintSet`` -- a *different* Rust type from the
+    ``temper_drc_rs.ConstraintSet`` pyclass this function reads its input
+    from (`drc_contracts.rs`, installed with dataclass-compat fields in
+    ``drc_types.py``). The two share a name but not a field set, and this
+    function is the marshalling point between them. It used to forward
+    several pyclass fields the serde struct has no matching field for --
+    each was a real, populated value that ``serde_json::from_value``
+    silently dropped (no ``deny_unknown_fields``, the exact defect class
+    this remediation closes):
+
+    - ``zones[].bounds`` / ``zones[].components``: the pyclass
+      ``ZoneDefinition`` has 4 fields (name, bounds, net_classes,
+      components); the serde ``ZoneDefinition`` actually consumed here
+      has only 2 (name, net_classes) -- confirmed no rule in
+      ``packages/temper-drc-rs/src/rules/`` reads zone bounds/components
+      from constraints at all (zone geometry reaches DRC rules via the K1
+      ``board_dict["zones"]`` ``CopperZone`` list instead, a wholly
+      separate mechanism -- see ``_placement_to_board_dict``'s "zones"
+      NOTE above). Dropped rather than invented on the Rust side.
+    - ``critical_loops[].description``: the serde ``LoopConstraint`` has
+      no ``description`` field; no violation message renders it. Dropped.
+    - ``component_groups``: the serde ``ConstraintSet`` has no matching
+      field at all (confirmed: zero references anywhere in
+      ``temper-drc-rs/src/``) -- component-group proximity constraints
+      are consumed by the CP-SAT placer's preflight path
+      (``_preflight_py_oracle.py``-style checks), never by the native DRC
+      engine. Always silently discarded before; not sent at all now.
+    - ``net_classes`` / ``voltage_domains`` (top-level): same -- no
+      matching serde field, no native-engine consumer.
+      ``voltage_domains`` mirrors the same documented native-schema gap
+      as per-component ``voltage_domain`` (see
+      ``rules/erc/power_domain.rs`` -- ``PowerDomainCheck`` is
+      deliberately deregistered for exactly this reason).
+    - ``board`` (nested ``{width_mm, height_mm}``): the serde
+      ``ConstraintSet`` wants flat ``board_width``/``board_height`` keys.
+      Dead either way today (no rule reads
+      ``constraints.board_width``/``board_height``), but sent in the
+      correct shape now instead of under a key the target struct doesn't
+      have.
+
+    None of the dropped keys were read by any native Rust DRC rule
+    (verified by grep across ``constraints.rs`` and ``rules/``), so this
+    is a shape correction, not a behavior change -- and it is what makes
+    it safe to add ``#[serde(deny_unknown_fields)]`` to the serde
+    ``ConstraintSet`` without breaking the production ``CheckRunner.run()``
+    path.
+    """
     return {
         "clearances": [
             {
@@ -153,9 +247,7 @@ def _constraints_to_dict(constraints: _ConstraintSet) -> dict[str, _Any]:
         "zones": [
             {
                 "name": z.name,
-                "bounds": list(z.bounds),
                 "net_classes": z.net_classes,
-                "components": z.components,
             }
             for z in constraints.zones
         ],
@@ -165,7 +257,6 @@ def _constraints_to_dict(constraints: _ConstraintSet) -> dict[str, _Any]:
                 "nets": l.nets,
                 "max_area_mm2": l.max_area_mm2,
                 "weight": l.weight,
-                "description": l.description,
             }
             for l in constraints.critical_loops
         ],
@@ -179,23 +270,9 @@ def _constraints_to_dict(constraints: _ConstraintSet) -> dict[str, _Any]:
             }
             for t in constraints.thermal_constraints
         ],
-        "component_groups": [
-            {
-                "name": g.name,
-                "components": g.components,
-                "max_spread_mm": g.max_spread_mm,
-                "zone": g.zone,
-                "description": g.description,
-            }
-            for g in constraints.component_groups
-        ],
-        "net_classes": dict(constraints.net_classes),
-        "voltage_domains": dict(constraints.voltage_domains),
         "hv_clearance_mm": constraints.hv_clearance_mm,
-        "board": {
-            "width_mm": constraints.board_width,
-            "height_mm": constraints.board_height,
-        },
+        "board_width": constraints.board_width,
+        "board_height": constraints.board_height,
     }
 
 
