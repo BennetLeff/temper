@@ -196,8 +196,17 @@ fn word_bounded(name: &str, kw: &str) -> bool {
 
 /// `clearance_engine._kw_boundary_match`: does ANY keyword occur word-bounded
 /// in `upper`?  Python's `any(...)` short-circuits; the outcome is the same.
+///
+/// A trailing `_` on the keyword is stripped before matching: the reference
+/// implementation that this kernel consolidates
+/// (`trace_width_assignment._kw_boundary_match`) documents that `"AC_"`/
+/// `"HV_"` collapse to bare `"AC"`/`"HV"` because the boundary regex already
+/// requires a trailing `_`/digit/end, making the explicit trailing `_`
+/// redundant (see `docs/evidence/2026-07-27-net-classification-gate.md`).
+/// Without the strip, `AC_L` failed to classify against the `("AC_", ...)`
+/// keyword set that trace_width_assignment's callers actually pass.
 pub fn kw_boundary_match(upper: &str, keywords: &[&str]) -> bool {
-    keywords.iter().any(|kw| word_bounded(upper, kw))
+    keywords.iter().any(|kw| word_bounded(upper, kw.strip_suffix('_').unwrap_or(kw)))
 }
 
 /// `(?:^|_){digits}(?:V|$|[\d_])` — the widened trailing boundary the
