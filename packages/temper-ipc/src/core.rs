@@ -30,22 +30,6 @@ pub fn estimate_current_from_net_class(
     estimate_trace_current(trace_width_mm, thickness_oz, temp_rise_c, true)
 }
 
-/// Pre-computed lookup table for 1oz copper, 10°C rise, internal layers.
-pub fn trace_current_table_1oz() -> HashMap<String, f64> {
-    let mut map = HashMap::new();
-    map.insert("0.15".into(), 0.7);
-    map.insert("0.2".into(), 1.0);
-    map.insert("0.25".into(), 1.2);
-    map.insert("0.4".into(), 2.0);
-    map.insert("0.5".into(), 2.5);
-    map.insert("1.0".into(), 5.0);
-    map.insert("2.0".into(), 9.5);
-    map.insert("3.0".into(), 14.0);
-    map.insert("5.0".into(), 22.0);
-    map.insert("10.0".into(), 42.0);
-    map
-}
-
 /// Calculate minimum trace width for a given current using IPC-2152.
 pub fn calculate_min_trace_width(
     current_amps: f64,
@@ -120,13 +104,6 @@ mod tests {
     fn test_estimate_from_net_class() {
         let i = estimate_current_from_net_class(0.25, 1.0, 10.0);
         assert_eq!(i, estimate_trace_current(0.25, 1.0, 10.0, true));
-    }
-
-    #[test]
-    fn test_table_lookup() {
-        let table = trace_current_table_1oz();
-        assert_eq!(table["0.25"], 1.2);
-        assert_eq!(table["10.0"], 42.0);
     }
 
     #[test]

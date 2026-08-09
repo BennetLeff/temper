@@ -1,6 +1,6 @@
 //! pyo3 surface for router_v6 cluster F.
 //!
-//! The 23 exports named in
+//! The 15 exports named in
 //! `tests/router_v6/test_quality_metrics_rust_differential.py::REQUIRED_RUST_SYMBOLS`.
 //!
 //! Two conventions the differential's `sig()` comparator forces:
@@ -29,7 +29,6 @@ use pyo3::types::{PyDict, PyFloat, PyInt, PyList, PyString, PyTuple};
 use super::board::{
     Board, Component, Num, ParseView, Point, Trace, TraceRecord, Via, load_traces_by_net, pf,
 };
-use super::corridor;
 use super::slop_linter::{self, Finding};
 use super::via_count;
 
@@ -249,22 +248,6 @@ fn findings_to_list<'py>(py: Python<'py>, findings: &[Finding]) -> PyResult<Boun
     Ok(out)
 }
 
-fn courtyards_from_py(items: &Bound<'_, PyAny>) -> PyResult<Vec<corridor::Courtyard>> {
-    let mut out = Vec::new();
-    for item in items.try_iter()? {
-        let c = item?;
-        let tup: Bound<'_, PyTuple> = c.cast_into::<PyTuple>()?;
-        out.push(corridor::Courtyard {
-            reference: tup.get_item(0)?.extract()?,
-            x_min: tup.get_item(1)?.extract()?,
-            y_min: tup.get_item(2)?.extract()?,
-            x_max: tup.get_item(3)?.extract()?,
-            y_max: tup.get_item(4)?.extract()?,
-        });
-    }
-    Ok(out)
-}
-
 // ---------------------------------------------------------------------------
 // metrics/slop_linter
 // ---------------------------------------------------------------------------
@@ -394,170 +377,6 @@ pub fn slop_lint_all_py<'py>(
 }
 
 // ---------------------------------------------------------------------------
-// quality/corridor
-// ---------------------------------------------------------------------------
-
-/// `_overlap`, evaluated on the Python operands so `max`/`min` return the
-/// argument objects themselves (`_overlap(0, 10, 5, 15)` is `(5, 10)`, ints).
-#[pyfunction]
-pub fn corridor_overlap_py(
-    a_min: &Bound<'_, PyAny>,
-    a_max: &Bound<'_, PyAny>,
-    b_min: &Bound<'_, PyAny>,
-    b_max: &Bound<'_, PyAny>,
-) -> PyResult<Option<(Py<PyAny>, Py<PyAny>)>> {
-    // max(a_min, b_min): the running maximum starts at the first argument and
-    // is replaced only on a true `>`, so a NaN anywhere keeps the first.
-    let o_min = if b_min.gt(a_min)? { b_min } else { a_min };
-    let o_max = if b_max.lt(a_max)? { b_max } else { a_max };
-    if o_min.lt(o_max)? {
-        Ok(Some((
-            o_min.clone().unbind(),
-            o_max.clone().unbind(),
-        )))
-    } else {
-        Ok(None)
-    }
-}
-
-/// `_gap` — `b_min - a_max`, on the Python operands.
-#[pyfunction]
-pub fn corridor_gap_py(a_max: &Bound<'_, PyAny>, b_min: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
-    Ok(b_min.sub(a_max)?.unbind())
-}
-
-#[pyfunction]
-pub fn corridor_point_in_rect_py(
-    x: f64,
-    y: f64,
-    x_min: f64,
-    y_min: f64,
-    x_max: f64,
-    y_max: f64,
-) -> bool {
-    corridor::point_in_rect(x, y, x_min, y_min, x_max, y_max)
-}
-
-#[pyfunction]
-pub fn corridor_compute_courtyards_py(
-    py: Python<'_>,
-    source: &Bound<'_, PyAny>,
-    clearance_mm: f64,
-) -> PyResult<Vec<CourtyardTuple>> {
-    let view = build_view(py, source)?;
-    Ok(corridor::compute_courtyards(&view, clearance_mm)
-        .into_iter()
-        .map(|c| (c.reference, c.x_min, c.y_min, c.x_max, c.y_max))
-        .collect())
-}
-
-type CourtyardTuple = (String, f64, f64, f64, f64);
-type ChannelTuple = (f64, f64, f64, f64, f64, String, String, String);
-
-#[pyfunction]
-pub fn corridor_identify_channels_py(
-    courtyards: &Bound<'_, PyAny>,
-    min_gap_width_mm: f64,
-) -> PyResult<Vec<ChannelTuple>> {
-    let parsed = courtyards_from_py(courtyards)?;
-    Ok(corridor::identify_channels(&parsed, min_gap_width_mm)
-        .into_iter()
-        .map(|ch| {
-            (
-                ch.x_min,
-                ch.y_min,
-                ch.x_max,
-                ch.y_max,
-                ch.gap_width_mm,
-                ch.axis.to_string(),
-                ch.component_a,
-                ch.component_b,
-            )
-        })
-        .collect())
-}
-
-type TrackTuple = (String, f64, f64, f64, String);
-
-/// `_assign_tracks_to_channels`, keyed by **channel index**.
-///
-/// Python keys by `id(ch)`, a CPython object address. Index keys preserve the
-/// property that matters — two value-equal channels stay distinct buckets —
-/// without depending on an address.
-#[pyfunction]
-pub fn corridor_assign_tracks_to_channels_py(
-    py: Python<'_>,
-    source: &Bound<'_, PyAny>,
-    channels: &Bound<'_, PyAny>,
-) -> PyResult<Vec<Vec<TrackTuple>>> {
-    let view = build_view(py, source)?;
-    // Channels arrive as the same 8-tuple shape
-    // `corridor_identify_channels_py` returns.
-    let mut chans: Vec<corridor::Channel> = Vec::new();
-    for item in channels.try_iter()? {
-        let c = item?;
-        let tup: Bound<'_, PyTuple> = c.cast_into::<PyTuple>()?;
-        let axis: String = tup.get_item(5)?.extract()?;
-        chans.push(corridor::Channel {
-            x_min: tup.get_item(0)?.extract()?,
-            y_min: tup.get_item(1)?.extract()?,
-            x_max: tup.get_item(2)?.extract()?,
-            y_max: tup.get_item(3)?.extract()?,
-            gap_width_mm: tup.get_item(4)?.extract()?,
-            axis: if axis == "vertical" {
-                "vertical"
-            } else {
-                "horizontal"
-            },
-            component_a: tup.get_item(6)?.extract()?,
-            component_b: tup.get_item(7)?.extract()?,
-        });
-    }
-    Ok(corridor::assign_tracks_to_channels(&view, &chans)
-        .into_iter()
-        .map(|segs| {
-            segs.into_iter()
-                .map(|s| (s.net, s.x, s.y, s.width_mm, s.layer))
-                .collect()
-        })
-        .collect())
-}
-
-#[pyfunction]
-pub fn corridor_compute_consolidation_py(
-    py: Python<'_>,
-    source: &Bound<'_, PyAny>,
-    courtyard_clearance_mm: Option<f64>,
-    track_width_mm: Option<f64>,
-    min_clearance_mm: Option<f64>,
-) -> PyResult<f64> {
-    let view = build_view(py, source)?;
-    Ok(corridor::compute_consolidation(
-        &view,
-        courtyard_clearance_mm,
-        track_width_mm,
-        min_clearance_mm,
-    ))
-}
-
-#[pyfunction]
-pub fn corridor_compute_spread_py(
-    py: Python<'_>,
-    source: &Bound<'_, PyAny>,
-    courtyard_clearance_mm: Option<f64>,
-    track_width_mm: Option<f64>,
-    min_clearance_mm: Option<f64>,
-) -> PyResult<f64> {
-    let view = build_view(py, source)?;
-    Ok(corridor::compute_spread(
-        &view,
-        courtyard_clearance_mm,
-        track_width_mm,
-        min_clearance_mm,
-    ))
-}
-
-// ---------------------------------------------------------------------------
 // quality/via_count
 // ---------------------------------------------------------------------------
 
@@ -625,14 +444,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(slop_lint_isolated_vias_py, m)?)?;
     m.add_function(wrap_pyfunction!(slop_lint_single_net_detours_py, m)?)?;
     m.add_function(wrap_pyfunction!(slop_lint_all_py, m)?)?;
-    m.add_function(wrap_pyfunction!(corridor_overlap_py, m)?)?;
-    m.add_function(wrap_pyfunction!(corridor_gap_py, m)?)?;
-    m.add_function(wrap_pyfunction!(corridor_point_in_rect_py, m)?)?;
-    m.add_function(wrap_pyfunction!(corridor_compute_courtyards_py, m)?)?;
-    m.add_function(wrap_pyfunction!(corridor_identify_channels_py, m)?)?;
-    m.add_function(wrap_pyfunction!(corridor_assign_tracks_to_channels_py, m)?)?;
-    m.add_function(wrap_pyfunction!(corridor_compute_consolidation_py, m)?)?;
-    m.add_function(wrap_pyfunction!(corridor_compute_spread_py, m)?)?;
     m.add_function(wrap_pyfunction!(via_count_get_component_bboxes_py, m)?)?;
     m.add_function(wrap_pyfunction!(via_count_get_board_bbox_py, m)?)?;
     m.add_function(wrap_pyfunction!(via_count_is_via_in_bbox_py, m)?)?;

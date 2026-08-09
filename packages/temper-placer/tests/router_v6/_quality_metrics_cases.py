@@ -60,12 +60,8 @@ __all__ = [
     "DISTANCE_PAIRS",
     "ANGLE_CASES",
     "ORDER_TRACE_SETS",
-    "OVERLAP_CASES",
-    "GAP_CASES",
-    "POINT_IN_RECT_CASES",
     "BBOX_CASES",
     "EDGE_MARGIN_CASES",
-    "COURTYARD_CHANNEL_CASES",
     "SCENARIOS",
     "CORPUS_BOARDS",
     "BENCH_DISTANCE_PAIRS",
@@ -256,70 +252,6 @@ ORDER_TRACE_SETS: list[tuple[str, list[tuple[float, float, float, float]]]] = [
     ("all_nan", [(NAN, NAN, NAN, NAN), (NAN, NAN, NAN, NAN)]),
     # signed zeros
     ("signed_zeros", [(-0.0, -0.0, 0.0, 0.0), (0.0, -0.0, 1.0, 0.0)]),
-]
-
-# ---------------------------------------------------------------------------
-# (a_min, a_max, b_min, b_max) -- ``corridor._overlap``
-# ---------------------------------------------------------------------------
-OVERLAP_CASES: list[tuple[float, float, float, float]] = [
-    (0.0, 10.0, 5.0, 15.0),  # partial overlap
-    (0.0, 10.0, 0.0, 10.0),  # identical
-    (0.0, 10.0, 2.0, 8.0),  # contained
-    (0.0, 10.0, 10.0, 20.0),  # touching -> o_min == o_max -> None
-    (0.0, 10.0, 15.0, 20.0),  # disjoint -> None
-    (10.0, 0.0, 5.0, 15.0),  # inverted input range
-    (0.0, 0.0, 0.0, 0.0),  # all-degenerate -> None
-    (-0.0, 0.0, -0.0, 0.0),  # signed zeros: ``-0.0 < 0.0`` is False -> None
-    (0.0, 10.0, NAN, 5.0),  # NaN: max/min keep first arg (catalog B5)
-    (NAN, 10.0, 0.0, 5.0),
-    (0.0, NAN, 0.0, 5.0),
-    (-INF, INF, 0.0, 1.0),
-    (0.0, INF, -INF, 1.0),
-    (0, 10, 5, 15),  # ints
-]
-
-# ---------------------------------------------------------------------------
-# (a_max, b_min) -- ``corridor._gap``  (a single subtraction; pinned for
-# signed-zero and inf/NaN behaviour)
-# ---------------------------------------------------------------------------
-GAP_CASES: list[tuple[float, float]] = [
-    (0.0, 5.0),
-    (5.0, 0.0),  # negative gap (overlapping)
-    (0.0, 0.0),  # -> +0.0
-    (0.0, -0.0),  # -> -0.0 ... ``-0.0 - 0.0`` is ``-0.0``
-    (-0.0, 0.0),  # -> +0.0
-    # exactly AT the channel threshold ``3.0 * (0.2 + 0.15)`` and around it
-    (0.0, CHANNEL_MIN_GAP),
-    (0.0, 1.05),  # the DECIMAL 1.05 -- a different f64 from CHANNEL_MIN_GAP
-    (0.0, 1.0500000000000005),
-    (NAN, 0.0),
-    (0.0, NAN),
-    (INF, INF),  # -> NaN
-    (-INF, INF),
-    (1e300, -1e300),
-    (5e-324, 1e-323),  # denormal band
-]
-
-# ---------------------------------------------------------------------------
-# (x, y, x_min, y_min, x_max, y_max) -- ``corridor._point_in_rect``
-# (also the shape of ``via_count._is_via_in_bbox``'s inner predicate)
-# ---------------------------------------------------------------------------
-POINT_IN_RECT_CASES: list[tuple[float, ...]] = [
-    (5.0, 5.0, 0.0, 0.0, 10.0, 10.0),  # interior
-    (0.0, 0.0, 0.0, 0.0, 10.0, 10.0),  # on the min corner (inclusive)
-    (10.0, 10.0, 0.0, 0.0, 10.0, 10.0),  # on the max corner (inclusive)
-    (5.0, 0.0, 0.0, 0.0, 10.0, 10.0),  # on an edge
-    (-0.0, 0.0, 0.0, 0.0, 10.0, 10.0),  # ``-0.0 <= 0.0`` is True
-    (15.0, 5.0, 0.0, 0.0, 10.0, 10.0),  # outside +x
-    (5.0, 15.0, 0.0, 0.0, 10.0, 10.0),  # outside +y
-    (5.0, 5.0, 10.0, 10.0, 0.0, 0.0),  # inverted rect -> always False
-    (5.0, 5.0, 5.0, 5.0, 5.0, 5.0),  # degenerate rect, point on it
-    (NAN, 5.0, 0.0, 0.0, 10.0, 10.0),  # NaN -> every comparison False
-    (5.0, NAN, 0.0, 0.0, 10.0, 10.0),
-    (5.0, 5.0, NAN, 0.0, 10.0, 10.0),
-    (INF, 5.0, 0.0, 0.0, 10.0, 10.0),
-    (5.0, 5.0, -INF, -INF, INF, INF),
-    (5, 5, 0, 0, 10, 10),  # ints
 ]
 
 # ---------------------------------------------------------------------------
@@ -697,11 +629,7 @@ SCENARIOS: list[tuple[str, dict]] = [
         {
             # Courtyard gap 1.0500000000000007 mm against a threshold of
             # ``3.0 * (0.2 + 0.15)`` == 1.0499999999999998 -- just OVER, so a
-            # channel IS formed (with no tracks in it).  The exactly-at and
-            # just-under boundary cases cannot be built through a whole
-            # scenario, because the centre-to-edge arithmetic rounds; they are
-            # constructed directly at the helper level instead, in
-            # ``COURTYARD_CHANNEL_CASES`` below.
+            # channel IS formed (with no tracks in it).
             "traces": [],
             "vias": [],
             "components": [
@@ -894,111 +822,6 @@ SCENARIOS: list[tuple[str, dict]] = [
             "components": [],
             "board": (100.0, 100.0),
         },
-    ),
-]
-
-# ---------------------------------------------------------------------------
-# Courtyard-level inputs for ``_identify_channels`` directly.
-#
-# Going in at the helper level is the only way to land EXACTLY on the
-# ``gap > min_gap_width_mm`` boundary: routed through ``_compute_courtyards``,
-# the centre +/- half-extent arithmetic rounds and the achievable gaps skip
-# over the threshold.  Each entry is
-# ``(name, [(ref, x_min, y_min, x_max, y_max), ...], min_gap_width_mm)``.
-# ---------------------------------------------------------------------------
-COURTYARD_CHANNEL_CASES: list[tuple[str, list[tuple[str, float, float, float, float]], float]] = [
-    ("empty", [], CHANNEL_MIN_GAP),
-    ("single", [("U1", 0.0, 0.0, 10.0, 10.0)], CHANNEL_MIN_GAP),
-    # Vertical gap EXACTLY the threshold -> ``gap > min_gap`` is False -> none.
-    (
-        "vgap_exactly_at_threshold",
-        [("U1", 0.0, 0.0, 10.0, 0.0), ("U2", 0.0, CHANNEL_MIN_GAP, 10.0, 20.0)],
-        CHANNEL_MIN_GAP,
-    ),
-    # One ulp under / over the threshold.
-    (
-        "vgap_one_ulp_under",
-        [("U1", 0.0, 0.0, 10.0, 0.0), ("U2", 0.0, 1.0499999999999996, 10.0, 20.0)],
-        CHANNEL_MIN_GAP,
-    ),
-    (
-        "vgap_one_ulp_over",
-        [("U1", 0.0, 0.0, 10.0, 0.0), ("U2", 0.0, 1.05, 10.0, 20.0)],
-        CHANNEL_MIN_GAP,
-    ),
-    # Horizontal gap exactly at / just over the threshold.
-    (
-        "hgap_exactly_at_threshold",
-        [("U1", 0.0, 0.0, 0.0, 10.0), ("U2", CHANNEL_MIN_GAP, 0.0, 20.0, 10.0)],
-        CHANNEL_MIN_GAP,
-    ),
-    (
-        "hgap_one_ulp_over",
-        [("U1", 0.0, 0.0, 0.0, 10.0), ("U2", 1.05, 0.0, 20.0, 10.0)],
-        CHANNEL_MIN_GAP,
-    ),
-    # The dead-``else`` asymmetry (defect 3): the SAME two courtyards in the
-    # opposite list order.  The first yields one vertical channel; the second
-    # yields none, because ``gap`` is computed as ``cb.y_min - ca.y_max`` over
-    # ``j > i`` pairs only.
-    (
-        "order_lower_first",
-        [("U1", 0.0, 0.0, 10.0, 0.0), ("U2", 0.0, 5.0, 10.0, 15.0)],
-        CHANNEL_MIN_GAP,
-    ),
-    (
-        "order_upper_first",
-        [("U2", 0.0, 5.0, 10.0, 15.0), ("U1", 0.0, 0.0, 10.0, 0.0)],
-        CHANNEL_MIN_GAP,
-    ),
-    # x-projections merely TOUCH -> ``_overlap`` returns None -> no channel.
-    (
-        "touching_projections",
-        [("U1", 0.0, 0.0, 5.0, 0.0), ("U2", 5.0, 5.0, 10.0, 15.0)],
-        CHANNEL_MIN_GAP,
-    ),
-    # Diagonal offset: the x-projections overlap (vertical channel) but the
-    # y-projections do not, so only ONE channel comes out of the pair.
-    (
-        "diagonal_offset_vertical_only",
-        [("U1", 0.0, 0.0, 10.0, 10.0), ("U2", 5.0, 15.0, 20.0, 25.0)],
-        CHANNEL_MIN_GAP,
-    ),
-    # Degenerate / hostile inputs.
-    (
-        "zero_min_gap",
-        [("U1", 0.0, 0.0, 10.0, 0.0), ("U2", 0.0, 0.0, 10.0, 10.0)],
-        0.0,
-    ),
-    (
-        "negative_min_gap",
-        [("U1", 0.0, 0.0, 10.0, 0.0), ("U2", 0.0, 0.0, 10.0, 10.0)],
-        -1.0,
-    ),
-    (
-        "nan_courtyard",
-        [("U1", 0.0, 0.0, 10.0, NAN), ("U2", 0.0, 5.0, 10.0, 15.0)],
-        CHANNEL_MIN_GAP,
-    ),
-    (
-        "inf_courtyard",
-        [("U1", -INF, -INF, INF, INF), ("U2", 0.0, 5.0, 10.0, 15.0)],
-        CHANNEL_MIN_GAP,
-    ),
-    (
-        "nan_min_gap",
-        [("U1", 0.0, 0.0, 10.0, 0.0), ("U2", 0.0, 5.0, 10.0, 15.0)],
-        NAN,
-    ),
-    # Three courtyards -> the O(n^2) pair loop over j > i.
-    (
-        "three_stacked",
-        [
-            ("U1", 0.0, 0.0, 10.0, 0.0),
-            ("U2", 0.0, 5.0, 10.0, 10.0),
-            ("U3", 0.0, 20.0, 10.0, 25.0),
-        ],
-        CHANNEL_MIN_GAP,
     ),
 ]
 

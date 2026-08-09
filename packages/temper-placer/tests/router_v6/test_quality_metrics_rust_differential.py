@@ -62,13 +62,9 @@ from tests.router_v6._quality_metrics_cases import (
     ANGLE_CASES,
     BBOX_CASES,
     CORPUS_BOARDS,
-    COURTYARD_CHANNEL_CASES,
     DISTANCE_PAIRS,
     EDGE_MARGIN_CASES,
-    GAP_CASES,
     ORDER_TRACE_SETS,
-    OVERLAP_CASES,
-    POINT_IN_RECT_CASES,
     SCENARIOS,
     random_angle_cases,
     random_distance_pairs,
@@ -103,15 +99,6 @@ REQUIRED_RUST_SYMBOLS = (
     "slop_lint_isolated_vias_py",
     "slop_lint_single_net_detours_py",
     "slop_lint_all_py",
-    # quality/corridor
-    "corridor_overlap_py",
-    "corridor_gap_py",
-    "corridor_point_in_rect_py",
-    "corridor_compute_courtyards_py",
-    "corridor_identify_channels_py",
-    "corridor_assign_tracks_to_channels_py",
-    "corridor_compute_consolidation_py",
-    "corridor_compute_spread_py",
     # quality/via_count
     "via_count_get_component_bboxes_py",
     "via_count_get_board_bbox_py",
@@ -229,59 +216,6 @@ def test_order_traces_random_sweep() -> None:
 
 
 # ---------------------------------------------------------------------------
-# corridor — geometry helpers
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("case", OVERLAP_CASES, ids=range(len(OVERLAP_CASES)))
-def test_overlap_bit_exact(case) -> None:
-    expected = ORACLE._overlap(*case)
-    assert sig(rust("corridor_overlap_py")(*case)) == sig(expected)
-
-
-@pytest.mark.parametrize("case", GAP_CASES, ids=range(len(GAP_CASES)))
-def test_gap_bit_exact(case) -> None:
-    assert sig(rust("corridor_gap_py")(*case)) == sig(ORACLE._gap(*case))
-
-
-@pytest.mark.parametrize("case", POINT_IN_RECT_CASES, ids=range(len(POINT_IN_RECT_CASES)))
-def test_point_in_rect_bit_exact(case) -> None:
-    expected = ORACLE._point_in_rect(*case)
-    assert sig(rust("corridor_point_in_rect_py")(*case)) == sig(expected)
-
-
-@pytest.mark.parametrize(
-    "name,courtyards,min_gap",
-    COURTYARD_CHANNEL_CASES,
-    ids=[n for n, _, _ in COURTYARD_CHANNEL_CASES],
-)
-def test_identify_channels_bit_exact(name: str, courtyards, min_gap: float) -> None:
-    """Channel identification, including the dead-``else`` order asymmetry.
-
-    ``order_lower_first`` and ``order_upper_first`` are the same two courtyards
-    in opposite list order and must produce 1 and 0 channels respectively.
-    """
-    objs = [
-        ORACLE._Courtyard(ref=r, x_min=a, y_min=b, x_max=c, y_max=d)
-        for (r, a, b, c, d) in courtyards
-    ]
-    expected = [
-        (
-            ch.x_min,
-            ch.y_min,
-            ch.x_max,
-            ch.y_max,
-            ch.gap_width_mm,
-            ch.axis,
-            ch.component_a,
-            ch.component_b,
-        )
-        for ch in ORACLE._identify_channels(objs, min_gap)
-    ]
-    assert sig(rust("corridor_identify_channels_py")(list(courtyards), min_gap)) == sig(expected)
-
-
-# ---------------------------------------------------------------------------
 # via_count — classification helpers
 # ---------------------------------------------------------------------------
 
@@ -313,20 +247,6 @@ def test_classify_vias_bit_exact(name: str, scenario) -> None:
     expected = ORACLE._classify_vias(FX.build(scenario))
     got = rust("via_count_classify_vias_py")(scenario)
     assert sig(got) == sig((expected.signal, expected.thermal, expected.stitching, expected.total))
-
-
-@pytest.mark.parametrize("name,scenario", SCENARIOS, ids=[n for n, _ in SCENARIOS])
-def test_compute_consolidation_bit_exact(name: str, scenario) -> None:
-    expected = ORACLE._compute_consolidation(FX.build(scenario), None, None, None)
-    assert sig(rust("corridor_compute_consolidation_py")(scenario, None, None, None)) == sig(
-        expected
-    )
-
-
-@pytest.mark.parametrize("name,scenario", SCENARIOS, ids=[n for n, _ in SCENARIOS])
-def test_compute_spread_bit_exact(name: str, scenario) -> None:
-    expected = ORACLE._compute_spread(FX.build(scenario), None, None, None)
-    assert sig(rust("corridor_compute_spread_py")(scenario, None, None, None)) == sig(expected)
 
 
 @pytest.mark.parametrize("name,scenario", SCENARIOS, ids=[n for n, _ in SCENARIOS])
@@ -396,11 +316,5 @@ def test_corpus_board_parity(board: dict) -> None:
     counts = ORACLE._classify_vias(result)
     assert sig(rust("via_count_classify_vias_py")(str(pcb))) == sig(
         (counts.signal, counts.thermal, counts.stitching, counts.total)
-    )
-    assert sig(rust("corridor_compute_consolidation_py")(str(pcb), None, None, None)) == sig(
-        ORACLE._compute_consolidation(result, None, None, None)
-    )
-    assert sig(rust("corridor_compute_spread_py")(str(pcb), None, None, None)) == sig(
-        ORACLE._compute_spread(result, None, None, None)
     )
     assert sig(rust("slop_lint_all_py")(str(pcb))) == sig(ORACLE.lint_all(pcb))
