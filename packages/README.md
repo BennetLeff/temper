@@ -7,7 +7,6 @@ The `packages/` directory contains the temper EDA pipeline — placement, routin
 | `temper-constraint-compiler` | Constraint lowering compiler — compiles PCL designer-level constraints through a type lattice and multi-tier desugaring into SAT constraint ISA | Python + Rust | done |
 | `temper-design-bundle` | Validated, provenance-carrying Atopile and PCL design boundary | Python + Rust | partial |
 | `temper-drc-rs` | Rust DRC engine — PCB design rule checks with geo + rstar spatial indexing | Python + Rust | done |
-| `temper-dsn` | DSN (Specctra) format utilities for temper PCB placement | Python + Rust | done |
 | `temper-geometry` | 2D geometry math functions for temper PCB placement | Python + Rust | done |
 | `temper-ipc` | IPC standard calculations for PCB design (current capacity, trace width) | Python + Rust | done |
 | `temper-pcl-ir` | Shared typed PCL intermediate representation | Python + Rust | done |
