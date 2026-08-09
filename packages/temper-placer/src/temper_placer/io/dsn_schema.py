@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import temper_dsn as _td
+import temper_io_types as _td
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board

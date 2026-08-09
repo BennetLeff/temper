@@ -35,6 +35,7 @@
 
 pub mod config_binding;
 pub mod dag_expr;
+pub mod dsn;
 pub mod dsn_exporter;
 pub mod dsn_types;
 pub mod explain;
@@ -60,6 +61,13 @@ pub mod stackup_validator;
 
 #[cfg(feature = "python")]
 pub mod zone_filler;
+
+// Wave 4, Phase 3 tail: DSN (Specctra) format utilities, consolidated from the
+// deleted temper-dsn crate. `dsn` (declared above with the other modules)
+// holds the pure kernels and their unit tests; `dsn_pyo3` is the wholly-pyo3
+// surface (see its module doc).
+#[cfg(feature = "python")]
+pub mod dsn_pyo3;
 
 #[cfg(feature = "python")]
 mod pymodule_def {
@@ -287,6 +295,9 @@ mod pymodule_def {
 
         // Wave 4 — kicad-write geometry kernels (io/_write_* + placement_exporter).
         crate::kicad_write_geometry::register(m)?;
+
+        // Wave 4 Phase 3 tail — DSN format utilities (from temper-dsn).
+        crate::dsn_pyo3::register(m)?;
 
         Ok(())
     }
