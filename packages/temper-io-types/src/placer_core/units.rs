@@ -164,3 +164,164 @@ mod tests {
         assert_eq!(distance_mm(4.0, 6.0, 1.0, 2.0), 5.0);
     }
 }
+
+// ---------------------------------------------------------------------------
+// Property-based tests (proptest)
+// ---------------------------------------------------------------------------
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn normal() -> impl Strategy<Value = f64> {
+        -1e6f64..1e6f64
+    }
+
+    // ---------- distance_mm
+
+    #[test]
+    fn p1_distance_mm_non_negative() {
+        proptest!(|(x1 in normal(), y1 in normal(), x2 in normal(), y2 in normal())| {
+            prop_assert!(distance_mm(x1, y1, x2, y2) >= 0.0);
+        });
+    }
+
+    #[test]
+    fn p2_distance_mm_symmetric() {
+        proptest!(|(x1 in normal(), y1 in normal(), x2 in normal(), y2 in normal())| {
+            prop_assert_eq!(
+                distance_mm(x1, y1, x2, y2),
+                distance_mm(x2, y2, x1, y1),
+            );
+        });
+    }
+
+    #[test]
+    fn p3_distance_mm_self_is_zero() {
+        proptest!(|(x in normal(), y in normal())| {
+            prop_assert_eq!(distance_mm(x, y, x, y), 0.0);
+        });
+    }
+
+    // ---------- manhattan_distance_mm
+
+    #[test]
+    fn p4_manhattan_non_negative() {
+        proptest!(|(x1 in normal(), y1 in normal(), x2 in normal(), y2 in normal())| {
+            prop_assert!(manhattan_distance_mm(x1, y1, x2, y2) >= 0.0);
+        });
+    }
+
+    #[test]
+    fn p5_manhattan_symmetric() {
+        proptest!(|(x1 in normal(), y1 in normal(), x2 in normal(), y2 in normal())| {
+            prop_assert_eq!(
+                manhattan_distance_mm(x1, y1, x2, y2),
+                manhattan_distance_mm(x2, y2, x1, y1),
+            );
+        });
+    }
+
+    #[test]
+    fn p6_manhattan_ge_euclidean() {
+        proptest!(|(x1 in normal(), y1 in normal(), x2 in normal(), y2 in normal())| {
+            let man = manhattan_distance_mm(x1, y1, x2, y2);
+            let euc = distance_mm(x1, y1, x2, y2);
+            prop_assert!(man >= euc);
+        });
+    }
+
+    // ---------- cell_to_mm / mm_to_cell_quotient round-trip
+
+    #[test]
+    fn p7_cell_round_trip_quotient() {
+        proptest!(|(cell in -1_000_000i64..1_000_000i64, cell_size_mm in 0.001..1000.0f64)| {
+            let mm = cell_to_mm(cell as f64, cell_size_mm);
+            let quotient = mm_to_cell_quotient(mm, cell_size_mm);
+            let truncated = quotient.trunc() as i64;
+            // f64 round-trip may lose 1 ULP, so truncated value may be off by 1.
+            let diff = (truncated - cell).abs();
+            prop_assert!(diff <= 1);
+        });
+    }
+
+    #[test]
+    fn p8_round_trip_approximate() {
+        proptest!(|(mm in normal(), cell_size_mm in 0.001..1000.0f64)| {
+            let quotient = mm_to_cell_quotient(mm, cell_size_mm);
+            let mm_back = cell_to_mm(quotient, cell_size_mm);
+            let diff = (mm - mm_back).abs();
+            prop_assert!(diff <= cell_size_mm + 1e-6);
+        });
+    }
+
+    // ---------- is_valid_layer
+
+    #[test]
+    fn p9_layer_negative_invalid() {
+        proptest!(|(l in -1000i64..0i64, max_layers in 1i64..100i64)| {
+            prop_assert!(!is_valid_layer(l, max_layers));
+        });
+    }
+
+    #[test]
+    fn p10_layer_ge_max_invalid() {
+        proptest!(|(max_layers in 1i64..100i64, delta in 0i64..100i64)| {
+            let l = max_layers + delta;
+            prop_assert!(!is_valid_layer(l, max_layers));
+        });
+    }
+
+    #[test]
+    fn p11_layer_in_range_valid() {
+        proptest!(|(max_layers in 1i64..100i64)| {
+            for l in 0..max_layers {
+                assert!(is_valid_layer(l, max_layers));
+            }
+        });
+    }
+
+    // ---------- is_valid_net_id
+
+    #[test]
+    fn p12_net_id_non_negative_valid() {
+        proptest!(|(n in 0i64..100_000i64)| {
+            prop_assert!(is_valid_net_id(n));
+        });
+    }
+
+    #[test]
+    fn p13_net_id_negative_invalid() {
+        proptest!(|(n in -100_000i64..0i64)| {
+            prop_assert!(!is_valid_net_id(n));
+        });
+    }
+
+    // ---------- deg_to_rad / rad_to_deg
+
+    #[test]
+    fn p14_deg_to_rad_monotonic() {
+        proptest!(|(a in normal(), b in normal())| {
+            let (a, b) = if a <= b { (a, b) } else { (b, a) };
+            prop_assert!(deg_to_rad(a) <= deg_to_rad(b));
+        });
+    }
+
+    #[test]
+    fn p15_rad_to_deg_monotonic() {
+        proptest!(|(a in normal(), b in normal())| {
+            let (a, b) = if a <= b { (a, b) } else { (b, a) };
+            prop_assert!(rad_to_deg(a) <= rad_to_deg(b));
+        });
+    }
+
+    #[test]
+    fn p16_deg_to_rad_zero_is_zero() {
+        assert_eq!(deg_to_rad(0.0), 0.0);
+    }
+
+    #[test]
+    fn p17_rad_to_deg_zero_is_zero() {
+        assert_eq!(rad_to_deg(0.0), 0.0);
+    }
+}
