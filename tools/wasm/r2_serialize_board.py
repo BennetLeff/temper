@@ -463,13 +463,21 @@ def _isolator_component_refs(parsed: Any) -> set[str]:
     needed here, the PCB file already carries the same atopile path string
     atopile itself stamped onto the footprint).
 
-    Verified against the real board (2026-08-07): all 7 declared isolators
-    resolve to a real, live component -- ``aux_supply.psu`` -> PS1,
-    ``hb.gate_hs.driver`` -> U7, ``ct_sense.ct`` -> T1,
+    Verified against the real board (2026-08-07): the then-7 declared
+    isolators all resolved to a real, live component -- ``aux_supply.psu``
+    -> PS1, ``hb.gate_hs.driver`` -> U7, ``ct_sense.ct`` -> T1,
     ``power_in.bypass_relay`` -> K1, ``discharge.k_dis1`` -> K2,
-    ``discharge.k_dis2`` -> K3, ``power_in.zcd_opto`` -> U3. None of the
-    other 3 entries the same manifest could in principle declare are
-    missing or ambiguous on this board.
+    ``discharge.k_dis2`` -> K3, ``power_in.zcd_opto`` -> U3. Since then
+    (commit ``5842767c``, 2026-08-07) ``power_in.zcd_opto`` (U3, H11L1
+    mains-ZCD optocoupler) was deliberately removed from the manifest and
+    from ``elec/src`` -- no firmware consumer, no architectural role, and
+    its 8.560mm HV<->SELV pad separation fails the 12.6mm PD3 target (see
+    ``docs/evidence/2026-07-30-zcd-optocoupler-removal.md``) -- so the
+    refset here no longer includes U3 even though the committed board still
+    physically carries the part (its board resync was explicitly deferred).
+    ``safety.ocp2.ct`` (the OCP-02 CT) was added to the manifest's
+    ``isolators:`` list on 2026-08-07 but has no footprint on the
+    un-resynced board yet, so it too resolves to nothing here.
     """
     instance_paths = _isolator_instance_paths()
     if not instance_paths:

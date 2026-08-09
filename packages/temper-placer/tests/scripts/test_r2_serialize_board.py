@@ -617,14 +617,27 @@ _REAL_DOMAIN_MANIFEST_PATH = _REPO_ROOT / "elec" / "domain_manifest.yaml"
 def test_real_board_isolator_component_refs_resolve_to_real_components():
     """Every ``instance_path`` in ``elec/domain_manifest.yaml``'s
     ``isolators:`` list must resolve to a real, live refdes on the committed
-    board via the footprint's own ``Sheetpath`` property -- the same 8
-    components verified by hand against the real board on 2026-08-07."""
+    board via the footprint's own ``Sheetpath`` property.
+
+    The expected set tracks ``elec/domain_manifest.yaml``'s current
+    ``isolators:`` list -- 7 components as of 2026-08-08. ``U3`` is absent by
+    design: ``power_in.zcd_opto`` (H11L1 mains-ZCD optocoupler) was removed
+    from the manifest and from ``elec/src`` by commit ``5842767c`` (plus
+    ``300c4a70``), a deliberate, documented deletion (no firmware consumer,
+    no architectural role, 8.560mm HV<->SELV pad separation failing the
+    12.6mm PD3 target -- see
+    ``docs/evidence/2026-07-30-zcd-optocoupler-removal.md``). The committed
+    board still physically carries U3 (its board resync was explicitly
+    deferred), but the refset is derived from the manifest SSOT, so it no
+    longer includes U3. ``safety.ocp2.ct`` (the OCP-02 CT, added to the
+    manifest 2026-08-07) likewise has no footprint on the un-resynced board
+    yet and so resolves to nothing here."""
     sys.path.insert(0, str(_REPO_ROOT / "packages" / "temper-placer" / "src"))
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 
     parsed = parse_kicad_pcb_v6(str(_REAL_PCB_PATH))
     refs = r2_serialize_board._isolator_component_refs(parsed)
-    assert refs == {"C6", "K1", "K2", "K3", "PS1", "T1", "U3", "U7"}
+    assert refs == {"C6", "K1", "K2", "K3", "PS1", "T1", "U7"}
 
 
 @pytest.mark.skipif(

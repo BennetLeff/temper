@@ -84,12 +84,25 @@ def test_fault_remains_latched_until_explicit_reset(prefix: list[bool]) -> None:
 
 
 def test_schematic_keeps_fault_qualified_set_dominant_wiring() -> None:
-    """Guard the source-level contract exercised by the model above."""
+    """Guard the source-level contract exercised by the model above.
+
+    Set-path wiring is asserted in the post-2026-07-27 topology: commit
+    ``b3e055f9`` ("feat(elec): add third fan-in package, wire UVL-02's fault
+    into the SET path") re-routed the SET aggregation from a direct
+    ``fault_any_or.Y1 ~ latch.A1`` connection through a third SN74HC4075
+    package (``fault_or3``) to add fan-in capacity for UVL-02/OCP-02 -- see
+    ``docs/evidence/2026-07-27-fault-tree-capacity-expansion.md`` (the
+    ``fault_or3.Y2 ~ latch.A1`` hop replaces the older direct wire). The
+    fault-qualified reset and latch cross-coupling wiring are unchanged by
+    that redesign.
+    """
 
     required_wiring = (
         "fault_or.Y2 ~ fault_any_or.A1",
         "rtd_hw_fault.line ~ fault_any_or.B1",
-        "fault_any_or.Y1 ~ latch.A1",
+        "fault_any_or.Y1 ~ fault_or3.A2",
+        "fault_or3.Y1 ~ fault_or3.B2",
+        "fault_or3.Y2 ~ latch.A1",
         "fault_any_or.Y1 ~ fault_any_or.A2",
         "reset_n_in.line ~ fault_any_or.B2",
         "fault_any_or.Y2 ~ latch.A3",
