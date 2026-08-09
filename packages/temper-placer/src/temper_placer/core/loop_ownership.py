@@ -8,6 +8,13 @@ participate in. This information is used for:
 - Adjacency constraints: Loop members should be placed close together
 - Visualization: Color-code components by loop membership
 
+The data classes (LoopMembership, ComponentLoopInfo, LoopOwnershipMap) are
+Rust pyclasses in temper-design-bundle. The builder (build_ownership_map) and
+role classifier (classify_role) stay Python because they depend on
+classify_component from loop_extractor (owned by another migration session)
+and perform complex imperative orchestration over LoopCollection/Netlist
+objects.
+
 Example usage:
     >>> from temper_placer.core.loop_ownership import build_ownership_map
     >>> from temper_placer.core.loop import LoopCollection
@@ -29,8 +36,13 @@ Example usage:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
+
+import temper_design_bundle_python as _tdb
+
+ComponentLoopInfo = _tdb.loop_ownership_contracts.ComponentLoopInfo
+LoopMembership = _tdb.loop_ownership_contracts.LoopMembership
+LoopOwnershipMap = _tdb.loop_ownership_contracts.LoopOwnershipMap
 
 if TYPE_CHECKING:
     from .loop import Loop, LoopCollection
@@ -39,195 +51,28 @@ if TYPE_CHECKING:
 from .loop_extractor import classify_component
 
 
-@dataclass
-class LoopMembership:
-    """
-    A component's membership in a single loop.
+# =============================================================================
+# Re-exports from Rust pyclasses (data contracts)
+# =============================================================================
 
-    Attributes:
-        loop_name: Name of the loop this component participates in.
-        role: Component's role in the loop (e.g., 'switch', 'capacitor', 'driver').
-        pins_in_loop: List of pin names that participate in this loop.
-    """
+__all__ = [
+    "ComponentLoopInfo",
+    "LoopMembership",
+    "LoopOwnershipMap",
+    "build_ownership_map",
+    "classify_role",
+]
 
-    loop_name: str
-    role: str
-    pins_in_loop: list[str] = field(default_factory=list)
-
-
-@dataclass
-class ComponentLoopInfo:
-    """
-    Complete loop information for a single component.
-
-    A component can participate in multiple loops. For example, a half-bridge
-    IGBT is in both the commutation loop and its gate drive loop.
-
-    Attributes:
-        component_ref: Reference designator (e.g., "Q1").
-        memberships: List of loop memberships for this component.
-    """
-
-    component_ref: str
-    memberships: list[LoopMembership] = field(default_factory=list)
-
-    @property
-    def loop_names(self) -> list[str]:
-        """Get list of all loop names this component participates in."""
-        return [m.loop_name for m in self.memberships]
-
-    @property
-    def is_in_critical_loop(self) -> bool:
-        """
-        Check if component is in any critical loop.
-
-        This is a heuristic based on loop names. For precise checks, use
-        get_priority_weight() with the actual LoopCollection.
-        """
-        return any(
-            m.loop_name.startswith("commutation")
-            or m.loop_name.startswith("gate_drive")
-            or "commutation" in m.loop_name.lower()
-            or "gate_drive" in m.loop_name.lower()
-            for m in self.memberships
-        )
-
-    def get_priority_weight(self, loop_collection: LoopCollection) -> float:
-        """
-        Calculate placement priority weight based on loop memberships.
-
-        Components in multiple loops get the maximum priority of all their loops.
-
-        Args:
-            loop_collection: Collection containing priority information for each loop.
-
-        Returns:
-            Priority weight (0.0-1.0). Higher = more important to optimize.
-                1.0 = CRITICAL (commutation, gate drive)
-                0.7 = HIGH (bootstrap, sensing)
-                0.4 = MEDIUM (auxiliary power)
-                0.1 = LOW (decoupling, non-critical)
-                0.0 = Not in any loop
-        """
-        from .loop import LoopPriority
-
-        max_weight = 0.0
-        for membership in self.memberships:
-            loop = loop_collection.get_loop(membership.loop_name)
-            if loop:
-                weight = {
-                    LoopPriority.CRITICAL: 1.0,
-                    LoopPriority.HIGH: 0.7,
-                    LoopPriority.MEDIUM: 0.4,
-                    LoopPriority.LOW: 0.1,
-                }.get(loop.priority, 0.0)
-                max_weight = max(max_weight, weight)
-        return max_weight
-
-
-@dataclass
-class LoopOwnershipMap:
-    """
-    Bidirectional mapping between components and loops.
-
-    Provides efficient queries for:
-    - Which loops does component X participate in?
-    - Which components are in loop Y?
-    - What loops do components A and B share?
-
-    Attributes:
-        component_to_loops: Map from component ref to ComponentLoopInfo.
-        loop_to_components: Map from loop name to list of component refs.
-    """
-
-    component_to_loops: dict[str, ComponentLoopInfo] = field(default_factory=dict)
-    loop_to_components: dict[str, list[str]] = field(default_factory=dict)
-
-    def get_component_info(self, ref: str) -> ComponentLoopInfo | None:
-        """
-        Get loop information for a component.
-
-        Args:
-            ref: Component reference designator.
-
-        Returns:
-            ComponentLoopInfo if component is in any loops, None otherwise.
-        """
-        return self.component_to_loops.get(ref)
-
-    def get_loop_components(self, loop_name: str) -> list[str]:
-        """
-        Get all components participating in a loop.
-
-        Args:
-            loop_name: Name of the loop to query.
-
-        Returns:
-            List of component references in this loop (empty if loop not found).
-        """
-        return self.loop_to_components.get(loop_name, [])
-
-    def get_shared_loops(self, ref_a: str, ref_b: str) -> list[str]:
-        """
-        Find loops that contain both components.
-
-        Useful for determining if two components should be placed close together.
-
-        Args:
-            ref_a: First component reference.
-            ref_b: Second component reference.
-
-        Returns:
-            List of loop names containing both components.
-        """
-        info_a = self.component_to_loops.get(ref_a)
-        info_b = self.component_to_loops.get(ref_b)
-
-        if not info_a or not info_b:
-            return []
-
-        loops_a = set(info_a.loop_names)
-        loops_b = set(info_b.loop_names)
-        return list(loops_a & loops_b)
-
-    def components_share_loop(
-        self, ref_a: str, ref_b: str, _loop_collection: LoopCollection | None = None
-    ) -> bool:
-        """
-        Check if two components share any loop.
-
-        Args:
-            ref_a: First component reference.
-            ref_b: Second component reference.
-            loop_collection: Optional collection to check loop priorities.
-
-        Returns:
-            True if components share at least one loop.
-        """
-        return len(self.get_shared_loops(ref_a, ref_b)) > 0
-
-    def components_share_critical_loop(
-        self, ref_a: str, ref_b: str, loop_collection: LoopCollection
-    ) -> bool:
-        """
-        Check if two components share a CRITICAL priority loop.
-
-        Args:
-            ref_a: First component reference.
-            ref_b: Second component reference.
-            loop_collection: Collection to check loop priorities.
-
-        Returns:
-            True if components share at least one CRITICAL loop.
-        """
-        from .loop import LoopPriority
-
-        shared = self.get_shared_loops(ref_a, ref_b)
-        for loop_name in shared:
-            loop = loop_collection.get_loop(loop_name)
-            if loop and loop.priority == LoopPriority.CRITICAL:
-                return True
-        return False
+# =============================================================================
+# The following functions stay Python (JUSTIFIED-KEEP).
+#
+# classify_role depends on classify_component from loop_extractor, which is
+# owned by another session's migrate/loop-extractor branch.
+#
+# build_ownership_map performs complex imperative orchestration over
+# LoopCollection and Netlist objects, iterating loops, getting components,
+# classifying roles, and building bidirectional maps.
+# =============================================================================
 
 
 def classify_role(component: Component, _loop: Loop) -> str:
