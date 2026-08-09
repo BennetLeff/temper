@@ -108,7 +108,7 @@ mixed in at roughly file granularity, not mixed within files.
 | Routability EDT check (`routability_check.py`) | 477 | NEVER-PORT | Same `scipy.ndimage.distance_transform_edt` boundary as KTD8 — but **not** in KTD8's recorded consumer list (`channel_widths.py:208`, `_astar_heuristics.py:101`). See §5.2. |
 | Pour/zone emission geometry (`_zone_pour_stitch.py`, `zone_emission.py`) | 569 | PORT | Convex hull, clustering, chamfered pour-shaping — real geometry behind "adapter"/"emission" filenames. |
 | Terminal-tree planning + path geometry (`terminal_extraction.py`, `terminal_tree.py`, `path_simplify.py`, `grid_converter.py`) | 390 | PORT | Manhattan-distance tree planning, collinearity/path-simplification, coordinate conversion + path-length computation. |
-| Spatial DRC/connectivity/capacity/topology cluster (`constraints_drc_oracle.py`, `constraints_design_rules.py`, `constraints_spatial_index.py`, `constraint_model.py`, `channel_skeleton.py`, `channel_mapping.py`, `obstacle_map.py`, `occupancy_grid.py`, `clearance_engine.py`, `layer_assignment.py`, `layer_capacity.py`, `escape_via_generator.py`, `bottleneck_analysis.py`, `bundle_analyzer.py`, `capacity_check.py`, `resource_bound.py`, `connectivity.py`, `routing_space.py`, `net_ordering.py`, `dense_package_detection.py`, `diff_pair_inference.py`, `via_placement.py`, `trace_width_assignment.py`, `audit_tree_geometry.py`, `power_plane.py`) | 8,911 | PORT | The bulk of the router: medial-axis channel skeletons (networkx+shapely), spatial index/KD-tree clearance queries, resource-exhaustion bin-packing bound, layer assignment solving, functional power-plane geometry. **`channel_mapping.py` in this cluster is now ALREADY-DONE (migrated 2026-08-08 → temper-geometry, Wave 4; its geometry kernels delegate to the `temper_geometry` crate, public names/signatures unchanged) — the cluster's remaining PORT figure is reduced by the migrated members.** |
+| Spatial DRC/connectivity/capacity/topology cluster (`constraints_drc_oracle.py`, `constraints_design_rules.py`, `constraints_spatial_index.py`, `constraint_model.py`, `channel_skeleton.py`, `channel_mapping.py`, `obstacle_map.py`, `occupancy_grid.py`, `clearance_engine.py`, `layer_assignment.py`, `layer_capacity.py`, `escape_via_generator.py`, `bottleneck_analysis.py`, `bundle_analyzer.py`, `capacity_check.py`, `resource_bound.py`, `connectivity.py`, `routing_space.py`, `net_ordering.py`, `dense_package_detection.py`, `diff_pair_inference.py`, `via_placement.py`, `trace_width_assignment.py`, `audit_tree_geometry.py`, `power_plane.py`) | 8,911 | PORT | The bulk of the router: medial-axis channel skeletons (networkx+shapely), spatial index/KD-tree clearance queries, resource-exhaustion bin-packing bound, layer assignment solving, functional power-plane geometry. **Six files in this cluster are now ALREADY-DONE (migrated 2026-08-08, Wave 4):** `channel_mapping.py` + `resource_bound.py` + `power_plane.py` + `diff_pair_inference.py` + `dense_package_detection.py` + `trace_width_assignment.py` → temper-geometry (geometry kernels delegate to the `temper_geometry` crate, public names/signatures unchanged) and `constraint_model.py`'s six edge/candidate kernels (`edge_endpoint_key`, `canonical_channel_edges`, `point_to_segment_distance`, `pin_span`, `dist_min_edge_to_pins`, `is_candidate_edge`) → temper-design-bundle (`ModelBuilder` stays Python — scope-first pass) — the cluster's remaining PORT figure is reduced by the migrated members. |
 | Congestion & placement-feedback (`congestion.py`, `congestion_analysis.py`, `congestion_heatmap.py`, `routing_demand.py`, `placement_suggestions.py`, `apply_suggestions.py`) | 1,336 | PORT | Grid demand estimation, congestion classification, numeric heatmap grid, damped position update. |
 | Post-route DFM (`thermal_relief.py`, `acid_trap_detection.py`, `copper_balance.py`, `annular_ring_check.py`, `teardrop_generation.py`) | 1,551 | PORT | Real spoke/annular-ring/copper-area/teardrop geometry. |
 | Quality metrics (`metrics/slop_linter.py`, `quality/via_count.py`, `metrics/__init__.py`, `quality/__init__.py`) | 607 | PORT | Hairpin/zigzag/isolated-via geometric pattern detection; via counting/classification. |
@@ -186,7 +186,7 @@ Subtotal: **PORT 4,113 / NEVER-PORT 2,350 = 6,463.**
 | Cluster | LOC | Verdict | What it is |
 |---|---:|---|---|
 | Type/registry/constant/spec glue (`__init__.py`, `_contract_dataclass_compat.py`, `bus_cohort.py`, `decision.py`, `differential_pair.py`, `interfaces.py`, `isolation_constants.py`, `net_graph.py`, `netclass_rules_gen.py`, `specification.py`, `stackup.py`) | 1,228 | NEVER-PORT | Protocol interfaces, a dataclass-protocol compat shim over the already-migrated contract pyclasses, static stackup table, name-pattern bus grouping, plain accessor methods. **Three files in this cluster are now ALREADY-DONE (migrated after this triage's 2026-08-06 baseline):** `net_graph.py` + `differential_pair.py` (Wave C, 2026-08-08 → temper-design-bundle pyclasses, `net_graph_contracts.rs`/`differential_pair_contracts.rs`; each file is now a pure-delegation re-export, 18/15 LOC) and `bus_cohort.py`'s `BusCohortConstraint` (2026-08-08 → temper-design-bundle pyclass, `bus_cohort_contracts.rs`, plan `docs/plans/2026-08-08-002-feat-buscohort-pyclass-migration-plan.md`, DONE; `BusRegistry` stays Python — registry state, not a numeric kernel). |
-| Graph/geometry algorithms (`community.py`, `courtyard.py`, `geometry_types.py`, `graph.py`, `hypergraph.py`, `loop_extractor.py`, `loop_ownership.py`, `pin_geometry.py`, `power_topology.py`, `routing_validator.py`, `state.py`, `topology.py`) | 2,349 | PORT | Networkx community detection, hypergraph representation, automatic current-loop extraction, rotation-and-side-aware pad geometry, grid-based routing validation. |
+| Graph/geometry algorithms (`community.py`, `courtyard.py`, `geometry_types.py`, `graph.py`, `hypergraph.py`, `loop_extractor.py`, `loop_ownership.py`, `pin_geometry.py`, `power_topology.py`, `routing_validator.py`, `state.py`, `topology.py`) | 2,349 | PORT | Networkx community detection, hypergraph representation, automatic current-loop extraction, rotation-and-side-aware pad geometry, grid-based routing validation. **Seven files in this cluster are now ALREADY-DONE (migrated 2026-08-08 → temper-geometry, unit `core_graph_cluster`):** `graph.py`, `hypergraph.py`, `pin_geometry.py`, `power_topology.py`, `topology.py`, `courtyard.py`, `geometry_types.py` — their compute kernels (net-clique expansion, `Coo @ vector` matvec, rotation/mirror arithmetic, `topology_connected_components`, shapely-rotate kernel, `math.hypot`/midpoint/radius scalars) delegate to `core_graph_geometry.rs` with bit-exact parity pinned by `tests/core/test_core_graph_cluster_rust_differential.py`. `community.py` (networkx Louvain/KL, LAPACK-bound) and `loop_ownership.py` (no numeric compute) are recorded **JUSTIFIED-KEEP** in `packages/temper-geometry/VERIFICATION.md` — the remaining PORT members are `loop_extractor.py`, `routing_validator.py`, `state.py`. |
 
 Subtotal: **PORT 2,349 / NEVER-PORT 1,228 = 3,577.**
 
@@ -499,3 +499,57 @@ GEOS-buffer functions.
 >   differential in `packages/temper-placer/tests/heuristics/`. `spectral.py` is
 >   recorded JUSTIFIED-KEEP (networkx boundary) and `mcu_subsystem.py`
 >   NO-COMPUTE (structural proof) in `packages/temper-placement-topology/VERIFICATION.md`.
+>
+> **Round 2 (this update, same date):** further landings on `main` since the
+> addendum above, each verified against today's tree — the module is a
+> delegation shim whose kernels import the named Rust crate:
+>
+> - `router_v6/constraint_model.py`'s six edge/candidate kernels →
+>   **temper-design-bundle** (2026-08-08, merge `8ef2b4cc`) —
+>   `edge_endpoint_key`, `canonical_channel_edges`, `point_to_segment_distance`,
+>   `pin_span`, `dist_min_edge_to_pins`, `is_candidate_edge` (all bit-identical,
+>   differential 269, PBT 18). **`ModelBuilder` + orchestration stay Python** —
+>   the scope-first pass kept it (the kernels are pure geometry/string; the
+>   builder is wiring over the SAT/CP model, same judgement as the other kept
+>   orchestrators).
+> - `router_v6/{resource_bound,power_plane,diff_pair_inference,trace_width_assignment,dense_package_detection}.py`
+>   → **temper-geometry** (2026-08-08, merge `548ba05e`) — the spatial-DRC
+>   cluster's tractable kernels (conflict-cluster/union-bbox/capacity/fill-
+>   factor/`max_routable`/`demand_budget` bin-packing math, pour-rect/
+>   strip/thermal-via geometry, the three-pass suffix-matching diff-pair
+>   inference, `kw_boundary_match`/`determine_trace_width`,
+>   `estimate_pitch`/`infer_package_type`) delegate
+>   to the crate; object-graph orchestration + the `DiffPair`/`TraceWidth`/
+>   `DensePackage` dataclasses stay Python. See
+>   `packages/temper-geometry/VERIFICATION.md` for induction proofs and the
+>   bit-exactness notes.
+> - `core/{graph,hypergraph,pin_geometry,power_topology,topology,courtyard,geometry_types}.py`
+>   → **temper-geometry** (2026-08-08, merge `53fbeec3`, unit
+>   `core_graph_cluster`) — net-clique expansion + batch offset-shift
+>   (`graph.py`), `Coo @ vector` matvec (`hypergraph.py`), rotation/mirror pad
+>   arithmetic (`pin_geometry.py`), scalar arithmetic (`power_topology.py`/
+>   `geometry_types.py`), `topology_connected_components` (the graph-cc
+>   bootstrap in `topology.py`), shapely-rotate kernel (`courtyard.py`) all
+>   move to
+>   `core_graph_geometry.rs`; numpy constructor steps stay Python. Bit-exact
+>   parity pinned by `tests/core/test_core_graph_cluster_rust_differential.py`.
+>   **`community.py` + `loop_ownership.py` are NOT migrated — recorded
+>   JUSTIFIED-KEEP** (networkx Louvain/KL is LAPACK-bound; `loop_ownership.py`
+>   has no numeric compute) in `packages/temper-geometry/VERIFICATION.md`.
+> - **10 dead Rust kernels retired** (merge `109d2de5`) — corridor ×8 in
+>   temper-quality-oracle (`cluster_f/bindings.rs`) + `calculate_min_trace_width`
+>   and `trace_current_table_1oz` in temper-ipc; 508 lines deleted, unwired
+>   ledger 68 → 58. Not a Python migration — a ledger reduction that removes
+>   dead Rust surface, recorded here so the triage's "ledger as the cause
+>   authority" reasoning stays current.
+> - **3 correctness fixes in `router_v6/`** (merges `12ba067d`, `c141d5e5`) —
+>   (1) `_adapter_convert._to_stage0_netclass_rules` dropped `creepage_mm`
+>   (declared 6.0mm silently became 0.0; now carried); (2)
+>   `bottleneck_geometry._required_creepage_mm` now reads stage0
+>   `NetClassRules`' `clearance_mm`/`creepage_mm` correctly (previously
+>   `TypeError` on the stage0 shapes that actually flow through
+>   `pcb.design_rules.net_classes`); (3) EDT-cache eviction in
+>   `_evict_if_over_budget` now sorts on `(mtime, name)` — a burst of writes
+>   inside one filesystem mtime tick left the tie group's eviction order
+>   undefined. These are correctness fixes to the Python that remains, not
+>   migrations; recorded for completeness of the sweep narrative.
