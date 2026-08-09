@@ -119,6 +119,15 @@ def fake_kicad_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def _probe_board(tmp_path: Path) -> Path:
     board = tmp_path / "board.kicad_pcb"
     board.write_text("(kicad_pcb (version 20231120))")
+    # The DRC helper refuses to measure a scratch board without a resolvable
+    # KiCad project (67e04601: an unresolvable project silently drops custom
+    # DRU rules incl. creepage -- whole safety categories vanish from the
+    # report). Give the scratch a sidecar copied from the real board so the
+    # helper's own preconditions are met.
+    from temper_placer.validation._drc_api import copy_kicad_project_sidecar
+
+    real_board = Path(__file__).resolve().parents[5] / "pcb" / "temper.kicad_pcb"
+    copy_kicad_project_sidecar(board, real_board)
     return board
 
 
