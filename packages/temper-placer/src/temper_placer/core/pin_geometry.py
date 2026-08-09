@@ -7,12 +7,20 @@ transforms matching standard KiCad semantics.
 
 Use pin_world_position(pin, comp) as the single source of truth
 for all pad-position computation.
+
+Wave 4 (unit ``core_graph_cluster``): the arithmetic kernels are migrated to
+``packages/temper-geometry/src/core_graph_geometry.rs`` —
+``_normalize_rotation``'s integer path (``(i * PI) / 2.0``) and the
+mirror+rotate transform of ``pin_world_position_at`` (KiCad R(-theta) via
+host-libm cos/sin). ``pin_world_radius`` continues to delegate to
+``pad_geometry.pad_bounding_radius`` (already Rust-backed); ``pin_world_layer``
+is pure string logic. Bit-exact parity is pinned by
+``tests/core/test_core_graph_cluster_rust_differential.py``.
 """
 
-import math
 from typing import TYPE_CHECKING
 
-from temper_placer.geometry.kicad_transform import rotate_local_to_world
+import temper_geometry as _tg
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Component, Pin
@@ -29,7 +37,7 @@ def _normalize_rotation(rotation: int | float | None) -> float:
     if rotation is None:
         return 0.0
     if isinstance(rotation, int):
-        return rotation * math.pi / 2.0
+        return _tg.normalize_rotation_index_py(rotation)
     return float(rotation)
 
 
@@ -86,17 +94,15 @@ def pin_world_position_at(
 
     px, py = pin.position
 
-    # If on bottom side, mirror X coordinate before rotation (KiCad behavior)
-    if side == 1:
-        px = -px
-
-    # Rotate pin offset using KiCad's real footprint-child rotation
-    # convention -- see temper_placer.geometry.kicad_transform's docstring.
-    rx, ry = rotate_local_to_world(px, py, rotation_rad)
-
     # Add component position (use override if provided)
     cpos = pos_override if pos_override is not None else comp.initial_position or (0.0, 0.0)
-    return (cpos[0] + rx, cpos[1] + ry)
+
+    # Rust kernel: mirror X if bottom side (KiCad behavior), then rotate with
+    # KiCad's R(-theta) convention, then translate. Mirror + rotation + the
+    # additions all happen inside the kernel in the oracle's exact order.
+    return _tg.pin_world_position_kernel_py(
+        px, py, side, rotation_rad, cpos[0], cpos[1]
+    )
 
 
 def pin_world_layer(pin: "Pin") -> str:
@@ -130,6 +136,9 @@ def pin_world_radius(pin: "Pin") -> float:
 
     If both dimensions are zero, returns 0.5 mm (a common default for
     zero-sized pads, unchanged from the prior behaviour).
+
+    (Compute already Rust-backed via ``pad_geometry.pad_bounding_radius``;
+    the delegation is unchanged from before this cluster's migration.)
     """
     from temper_placer.core.pad_geometry import DEFAULT_ROUNDRECT_RATIO, pad_bounding_radius
 

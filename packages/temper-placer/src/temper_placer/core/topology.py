@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+import temper_geometry as _tg
+
 
 @dataclass
 class TopologicalGraph:
@@ -49,34 +51,17 @@ class TopologicalGraph:
 
         Connected components represent clusters of components that must stay
         relatively close to each other.
+
+        The union-find kernel runs in Rust
+        (``temper_geometry.topology_connected_components``) and reproduces the
+        oracle's partition AND group order: groups are emitted in
+        first-appearance order of each component in ``self.nodes``, and each
+        group's members in node order.
         """
-        parent = {node: node for node in self.nodes}
-
-        def find(i):
-            if parent[i] == i:
-                return i
-            parent[i] = find(parent[i])
-            return parent[i]
-
-        def union(i, j):
-            root_i = find(i)
-            root_j = find(j)
-            if root_i != root_j:
-                parent[root_i] = root_j
-
-        # Union connected nodes
-        for a, b, _ in self.adjacency_edges:
-            union(a, b)
-
-        # Group by root
-        clusters_dict: dict[str, set[str]] = {}
-        for node in self.nodes:
-            root = find(node)
-            if root not in clusters_dict:
-                clusters_dict[root] = set()
-            clusters_dict[root].add(node)
-
-        return list(clusters_dict.values())
+        edge_a = [a for a, _, _ in self.adjacency_edges]
+        edge_b = [b for _, b, _ in self.adjacency_edges]
+        groups = _tg.topology_connected_components_py(self.nodes, edge_a, edge_b)
+        return [{self.nodes[i] for i in group} for group in groups]
 
 
 @dataclass
@@ -100,7 +85,14 @@ class TopologicalSolution:
 
 
 class UnionFind:
-    """Disjoint-set / union-find data structure."""
+    """Disjoint-set / union-find data structure.
+
+    Stays Python (R3 verdict): this is a *stateful* incremental API
+    (``find`` / ``union`` mutate instance state between calls) over
+    arbitrary hashable keys, with no separable numeric kernel — a Rust
+    port would be a pyclass holding state for no compute gain. See
+    ``packages/temper-geometry/VERIFICATION.md``.
+    """
 
     def __init__(self):
         self._parent = {}

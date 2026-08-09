@@ -10,11 +10,21 @@ Design Goals:
 - Pure functions (no side effects)
 - Type-safe with Protocol interfaces
 - IPC-2221 compliant trace width calculations
+
+Wave 4 (unit ``core_graph_cluster``): the scalar arithmetic kernels are
+migrated to ``packages/temper-geometry/src/core_graph_geometry.rs`` —
+``required_trace_width``, the IPC-2221 ``trace_width`` (``oz ** 0.625`` via
+host-libm ``pow``), and the ``delivery_strategy`` thresholds. The tree
+traversal (``flatten`` / ``find_rail``) stays here: it is pure structural
+recursion over frozen dataclasses with no numeric kernel. Bit-exact parity
+is pinned by ``tests/core/test_core_graph_cluster_rust_differential.py``.
 """
 
 from dataclasses import dataclass
 from enum import Enum
 from typing import Protocol
+
+import temper_geometry as _tg
 
 
 class PowerDeliveryStrategy(Enum):
@@ -52,7 +62,7 @@ class PowerRailSpec:
         Returns:
             Minimum trace width in millimeters
         """
-        return self.max_current_a * 0.15 + 0.1
+        return _tg.power_required_trace_width_py(self.max_current_a)
 
     def delivery_strategy(self) -> PowerDeliveryStrategy:
         """Determine routing strategy based on current requirements.
@@ -65,12 +75,16 @@ class PowerRailSpec:
         Returns:
             Recommended PowerDeliveryStrategy
         """
-        if self.max_current_a >= 3.0:
-            return PowerDeliveryStrategy.PLANE
-        elif self.max_current_a >= 1.0:
-            return PowerDeliveryStrategy.WIDE_TRACE
-        else:
-            return PowerDeliveryStrategy.STANDARD_TRACE
+        code = _tg.power_delivery_strategy_py(self.max_current_a)
+        return _POWER_STRATEGIES[code]
+
+
+# Enum ordinal -> strategy mapping (0=PLANE, 1=WIDE_TRACE, 2=STANDARD_TRACE).
+_POWER_STRATEGIES = {
+    0: PowerDeliveryStrategy.PLANE,
+    1: PowerDeliveryStrategy.WIDE_TRACE,
+    2: PowerDeliveryStrategy.STANDARD_TRACE,
+}
 
 
 @dataclass(frozen=True)
@@ -162,13 +176,7 @@ class IPC2221Rule:
         Returns:
             Required trace width in millimeters
         """
-        base_width = rail.max_current_a * 0.15 + 0.1
-
-        if self.copper_weight_oz == 1.0:
-            return base_width
-        else:
-            # Thicker copper = narrower trace for same current
-            return base_width / (self.copper_weight_oz**0.625)
+        return _tg.power_trace_width_py(rail.max_current_a, self.copper_weight_oz)
 
     def route_strategy(self, rail: PowerRailSpec) -> PowerDeliveryStrategy:
         """Determine routing strategy from current requirements.

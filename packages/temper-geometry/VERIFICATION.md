@@ -2329,3 +2329,196 @@ The remaining six modules of the cluster stay Python with evidence:
 
 N/A — routing capacity/geometry and net-classification logic with no
 physics-gated threshold.
+## Core Graph/Geometry Cluster (`core_graph_geometry.rs`) — Verification by Induction (Wave 4, 2026-08-08)
+
+Unit `core_graph_cluster`: the tractable kernels behind seven of the nine
+`temper_placer/core/{graph, hypergraph, pin_geometry, power_topology,
+topology, courtyard, geometry_types}.py` modules, all in one home-crate
+module. `community.py` and `loop_ownership.py` are JUSTIFIED-KEEP (recorded
+at the bottom of this section). Every f64 expression is a verbatim copy of
+its oracle's expression shape (op count, grouping, left-to-right order —
+B7); cos/sin/pow go through `host_math` (dlsym to the host CPython runtime's
+libm — B1/B13); `math.hypot` is replicated as `pad_geometry::py_hypot`
+(CPython 3.12 `vector_norm`, the Dekker two-step — B4); `_normalize_rotation`'s
+int path writes `(i * PI) / 2.0`, the division, not `FRAC_PI_2` (B2).
+
+### graph.py kernels — `graph_clique_expand`, `graph_batch_concat`
+
+**Base case:** an empty netlist (`graph_clique_expand(&[], &[])`) emits no
+edges — `([], [], [])`, bit-identical to the oracle's `not edge_sources`
+branch. A single net with two component indices emits exactly one pair
+`(i, j)` with the net's weight copied verbatim.
+
+**Induction hypothesis:** for any netlist of k nets, the kernel emits the
+oracle's edge sequence (pairs in per-net `i < j` order, weights copied).
+
+**Induction step:** each net contributes an independent block of
+`C(k, 2)` pairs computed from its own index list; no cross-net interaction.
+Appending a net appends one independently-computed block, so if the kernel
+matches for k nets it matches for k+1. The pair *order* matches because the
+shim builds each net's index list with the oracle's exact CPython `set`
+comprehension, so set-iteration order (and hence pair order) is identical on
+both sides. `graph_batch_concat` shifts each edge pair by the cumulative
+node count — exact int64 addition — and concatenates; the empty-`edge_flats`
+dtype (int32) is reproduced in the shim to match numpy's concatenation
+promotion.
+
+### hypergraph.py kernel — `hypergraph_coo_matvec`
+
+**Base case:** `nnz == 0` returns `vec![0.0; n_rows]`, exactly
+`np.zeros(n_rows, dtype=np.float64)`. A single triplet `(r, c, d)` times a
+vector yields `d * other[c]` in `result[r]` and zeros elsewhere — one
+correctly-rounded f64 multiply.
+
+**Induction hypothesis:** for any set of n triplets, the kernel reproduces
+`np.bincount(row, weights=data.astype(f64) * other[col], minlength=n_rows)`
+bit-for-bit (same output length — `max(n_rows, max(row)+1)` — same
+extension, same negative-column wrap).
+
+**Induction step:** each triplet contributes an independent
+`data[i] * other[col[i]]` term; the scatter-add accumulates in triplet
+order exactly as bincount does, so appending a triplet appends one
+order-preserving contribution. The oracle's two-array structure (compute all
+contributions, then accumulate) is preserved rather than fused, keeping the
+accumulation order identical.
+
+### pin_geometry.py kernels — `normalize_rotation_index`, `pin_world_position_kernel`
+
+**Base case:** rotation index 0 → `(0 * PI) / 2.0 = 0.0`; `pin_world_position_kernel`
+at theta 0 with side 0 reduces to the pure translation `(cx + px, cy + py)`
+(cos(0) = 1, sin(0) = 0 exactly).
+
+**Induction hypothesis:** for any pin offset, side and rotation, the kernel
+matches `pin_world_position_at`'s mirror → R(-theta) → translate chain.
+
+**Induction step:** the mirror (`side == 1` negates x) and the rotation
+(`rx = mx*c + py*s; ry = -mx*s + py*c`, the sanctioned
+`rotate_local_to_world` R(-theta) expression) are per-pin pure functions with
+no cross-input interaction; cos/sin resolve through `host_math` so they equal
+the reference's `math.cos`/`math.sin` bit-for-bit at every rotation, and the
+final `(cx + rx, cy + ry)` additions match the oracle's own last two adds.
+
+### power_topology.py kernels — trace widths + delivery strategy
+
+**Base case:** 1.0 A → `required_trace_width = 1.0*0.15 + 0.1 = 0.25`; the
+IPC-2221 `copper_weight_oz == 1.0` shortcut returns the same base expression.
+
+**Induction hypothesis:** for arbitrary current and copper weight the two
+width kernels and the strategy threshold reproduce their oracle expressions.
+
+**Induction step:** all three are scalar pure functions of the rail's
+`max_current_a` (plus `copper_weight_oz`); the `oz ** 0.625` term is
+`host_math::pow` (libm, never `powf` lowered to `sqrt` — B13) and the
+`base / pow(...)` division preserves the oracle's grouping. The strategy
+thresholds are exact integer comparisons (`>= 3.0` PLANE, `>= 1.0` WIDE,
+else STANDARD), including NaN/negative semantics (a NaN current falls to
+STANDARD_TRACE, as in the oracle's `if` chain). The dataclass-tree traversal
+(`flatten`/`find_rail`) stays Python: pure structural recursion with no
+numeric kernel (structural non-applicability note per G6).
+
+### topology.py kernel — `topology_connected_components`
+
+**Base case:** zero or one node → a single empty / singleton partition,
+matching `get_clusters`; two nodes with one edge → one two-node cluster.
+
+**Induction hypothesis:** for any node set and adjacency edge list the kernel
+yields the same partition AND group order as `get_clusters`.
+
+**Induction step:** the partition is the mathematical equivalence closure of
+the edges, independent of union order or root choice (union-find with the
+same recursive path-compressed `find` as the oracle); the group ORDER is
+determined by first-appearance in `self.nodes`, not by root naming, so it is
+reproduced by walking nodes in input order and emitting each new component in
+first-seen order. The `UnionFind` class stays Python (stateful incremental
+API over arbitrary hashable keys — structural non-applicability note).
+
+### courtyard.py kernel — `courtyard_global_points`
+
+**Base case:** rotation 0 at position (0, 0) → the identity map
+(cosp = cos(0) = 1, sinp = sin(0) = 0).
+
+**Induction hypothesis:** for any vertex set, rotation index and position,
+the kernel reproduces shapely `affinity.rotate` + `affinity.translate`
+bit-for-bit per vertex.
+
+**Induction step:** shapely 2.1.x's `rotate` (read from source) converts
+degrees via `angle * pi / 180.0`, takes `cosp = cos(rad)`/`sinp = sin(rad)`
+from `math`, and HARD-ZEROES either below `2.5e-16`; the kernel replicates
+that exact chain, then applies the two affine passes' per-coordinate numpy
+expressions (`x' = (a*x + b*y) + xoff`, including the `+ 0.0` / `1.0*` /
+`0.0*` terms that preserve -0.0). Each vertex is an independent affine map,
+so vertex-set cardinality is preserved and the per-vertex transforms compose
+(exact quadrant rotation ladder, pinned by PBT MR16/MR17). The polygon
+BOOLEAN (`intersects`/`touches`) stays with GEOS in the Python shim — a
+geometry-engine library boundary, not a kernel (library-boundary note).
+
+### geometry_types.py kernels — `point_distance`, `track_midpoint`, `pad_radius`
+
+**Base case:** `point_distance(a, a) == 0.0` (py_hypot of (0, 0));
+`track_midpoint` of a zero-length track is the point itself;
+`pad_radius(0, 0) == 0.0`.
+
+**Induction hypothesis:** for any two points / track / pad dimensions the
+three kernels match `math.hypot`, `(x1+x2)/2`, and `(w**2 + h**2) ** 0.5 / 2`
+bit-for-bit.
+
+**Induction step:** each is a pure scalar function of its two inputs. `** 2`
+and `** 0.5` are libm `pow` (B7/B13) resolved through `host_math`; `math.hypot`
+is the Dekker `vector_norm` via `py_hypot`. String equality and numpy
+construction stay Python (structural non-applicability note).
+
+### Empirical verification
+
+- Differential suite
+  (`packages/temper-placer/tests/core/test_core_graph_cluster_rust_differential.py`,
+  29 tests): every kernel pinned bit-exactly against the verbatim
+  pre-migration `_oracle_*` blocks (numpy arrays as dtype/shape/tobytes;
+  floats via `float.hex()`; shapely vertex sequences via hex) over a
+  randomized corpus plus crafted edge cases — the empty netlist branches,
+  the `batch_graphs([])` ValueError, the `Coo` length-extension and
+  negative-column wrap, NaN matvec propagation, the `_normalize_rotation`
+  None/int/float paths, all four courtyard quadrants and the <3-point box
+  fallback, and `check_overlap`'s GEOS boolean driven through identical
+  vertex transforms.
+- PBT (`test_core_graph_cluster_pbt.py`, 41 tests): 8 properties P1–P8 (one
+  per migrated module; every property reaches its kernel through the public
+  shim) each with a mutation-test vacuity guard, plus 21 metamorphic
+  relations MR1–MR21 (>= 3 per module) with per-relation exactness claims:
+  exact where the transform preserves every bit (net/component/edge order
+  invariance, batch associativity, single-triplet basis, zero-rotation
+  translation, courtyard rotation composition/negation and vertex-shoelace
+  area preservation, topology partition invariants, distance/radius
+  symmetry, 1oz width consistency) and a stated tight tolerance where FP
+  order genuinely matters (triplet-order summation, quadrant cos(pi/2) and
+  rotation-composition bands, distance scaling).
+- The pre-existing suites for all nine modules (test_graph, test_hypergraph,
+  test_community, test_courtyard, test_loop_ownership, test_pin_geometry,
+  test_power_topology, test_topology, test_hypergraph_factory_rust_differential)
+  and the transitively-dependent consumers (tests/topological, router_v6
+  net-ordering/congestion, deterministic courtyard-check/connectivity,
+  physics loop-area) pass unchanged through the Rust-backed shims (1271 core
+  tests + 1107 consumer tests green).
+
+### Kept modules — R3 JUSTIFIED-KEEP (recorded)
+
+- `core/community.py` (LOC 153; consumers: `core/__init__.py` re-exports
+  `Community`/`detect_communities`; deps: networkx + python-louvain) —
+  `detect_communities` runs networkx Louvain (`best_partition`) and
+  `partition_netlist_min_cut` runs `nx.community.kernighan_lin_bisection`.
+  Both are eigenvector/LAPACK-bound (scipy) and their partition output and
+  bisection order are algorithm-order-dependent; no independent Rust
+  implementation reproduces them bit-for-bit (mirrors the recorded
+  `netlist.compute_eigenvector_centrality` keep). The only separable kernel,
+  `get_community_component_indices`, is a one-line list comprehension with no
+  compute to migrate.
+- `core/loop_ownership.py` (LOC 327; consumers: `core/__init__.py` re-exports;
+  deps: `loop_extractor.classify_component`, itself out-of-unit) — contains no
+  numeric compute at all: it is dict/set structural plumbing over Python
+  object graphs (`LoopCollection`, `Netlist`, `Loop`), priority weighting is a
+  dict lookup + `max` over small lists, and `classify_role` is one string
+  dispatch away from `loop_extractor.classify_component`. There is no
+  separable numeric kernel to migrate.
+
+### R24 physics discipline
+
+N/A — graph/geometry kernels with no physics-gated threshold.
