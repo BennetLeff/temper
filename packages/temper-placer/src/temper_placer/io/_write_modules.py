@@ -9,6 +9,7 @@ arithmetic order bit-identically.
 """
 
 from __future__ import annotations
+from typing import Any
 
 import math
 from pathlib import Path
@@ -27,7 +28,7 @@ def _component_bounds(
     fp_x: float,
     fp_y: float,
     fp_angle: float,
-    pads,
+    pads: list[Any],
 ) -> tuple[float, float, float, float]:
     """Pad-inclusive axis-aligned bounds of a footprint in world coordinates.
 
@@ -52,12 +53,13 @@ def _component_bounds(
         pad_h = pad.size.Y if pad.size else 1.0
         world_pads.append((rotated_x, rotated_y, pad_w, pad_h))
 
-    return _GEOM.component_bounds_py(fp_x, fp_y, world_pads)
+    _result = _GEOM.component_bounds_py(fp_x, fp_y, world_pads)
+    return (float(_result[0]), float(_result[1]), float(_result[2]), float(_result[3]))
 
 
 def add_bounding_boxes_to_pcb(
     pcb_path: Path,
-    _component_bounds: dict[str, tuple[float, float, float, float]] | None = None,
+    _bounds_override: dict[str, tuple[float, float, float, float]] | None = None,
     layer: str = "Dwgs.User",
     stroke_width: float = 0.2,
 ) -> int:
