@@ -11,17 +11,12 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 
+import temper_geometry as _tg
 from shapely.geometry import LineString as ShapelyLineString
 from shapely.geometry import Point as ShapelyPoint
 from shapely.geometry import Polygon as ShapelyPolygon
 
-from temper_placer.geometry.kicad_transform import rotate_world_to_local_deg
-from temper_placer.router_v6.constraints_geometry import (
-    LineSegment,
-    Point,
-    point_to_segment_distance,
-    segment_to_segment_distance,
-)
+from temper_placer.router_v6.constraints_geometry import LineSegment, Point
 
 CONTACT_TOLERANCE_MM = 1e-4
 
@@ -122,6 +117,19 @@ def verify_net_connectivity(
     Tracks join only on a shared layer.  Vias join only the layers in their
     explicit span; pads can be reached only on their declared conductive
     layers; zones connect to pads/tracks/vias/zones they touch (U5).
+
+    Wave 4 migration note: the union-find kernel and the ten
+    pad/track/via touch predicates run in ``temper-geometry``'s
+    ``connectivity_kernels`` (bit-exact — the predicates reuse the same
+    ``drc_constraints_geometry`` / ``primitives`` kernels the pre-migration
+    reference called through ``constraints_geometry`` / ``Point.distance_to``).
+    The four ``_zone_*`` predicates are JUSTIFIED-KEEP: they are GEOS
+    ``contains``/``touches``/``intersects`` calls on ``CopperZone.polygon``
+    (see ``docs/evidence/2026-08-04-geos-polygon-algebra-spike.md``), so
+    this shim still evaluates them and feeds the resulting (i, j) union
+    pairs to the Rust kernel — the final connected-component partition is
+    union-order independent, so parity is exact.  Pinned by
+    ``test_spatial_tier2_rust_differential.py``.
     """
     ordered_pads = tuple(sorted(pads, key=lambda pad: pad.identity))
     ordered_tracks = tuple(sorted(tracks, key=_track_key))
@@ -129,77 +137,58 @@ def verify_net_connectivity(
     ordered_zones = tuple(sorted(zones, key=lambda z: (z.layer, z.net)))
     net = ordered_pads[0].identity.net if ordered_pads else ""
 
-    items: tuple[object, ...] = (
-        *ordered_pads,
-        *ordered_tracks,
-        *ordered_vias,
-        *ordered_zones,
-    )
-    parent = list(range(len(items)))
-
-    def find(index: int) -> int:
-        while parent[index] != index:
-            parent[index] = parent[parent[index]]
-            index = parent[index]
-        return index
-
-    def union(left: int, right: int) -> None:
-        left_root, right_root = find(left), find(right)
-        if left_root != right_root:
-            parent[max(left_root, right_root)] = min(left_root, right_root)
-
     pad_count = len(ordered_pads)
     track_start = pad_count
     via_start = track_start + len(ordered_tracks)
     zone_start = via_start + len(ordered_vias)
 
-    for left, track in enumerate(ordered_tracks):
-        for right in range(left + 1, len(ordered_tracks)):
-            other = ordered_tracks[right]
-            if track.layer == other.layer and _tracks_touch(track, other):
-                union(track_start + left, track_start + right)
-        for pad_index, pad in enumerate(ordered_pads):
-            if track.layer in pad.layers and _track_touches_pad(track, pad):
-                union(track_start + left, pad_index)
-        for via_index, via in enumerate(ordered_vias):
-            if track.layer in via.layers and _track_touches_via(track, via):
-                union(track_start + left, via_start + via_index)
+    pad_flat: list[float] = []
+    pad_shapes: list[int] = []
+    pad_layers: list[list[int]] = []
+    for pad in ordered_pads:
+        pad_flat.extend([pad.center.x, pad.center.y, pad.rotation, pad.size[0], pad.size[1]])
+        pad_shapes.append(1 if pad.shape == "circle" else 0)
+        pad_layers.append(list(pad.layers))
 
-    for left, pad in enumerate(ordered_pads):
-        for right in range(left + 1, len(ordered_pads)):
-            other_pad = ordered_pads[right]
-            if pad.layers & other_pad.layers and _pads_touch(pad, other_pad):
-                union(left, right)
+    track_flat: list[float] = []
+    track_layers: list[int] = []
+    for track in ordered_tracks:
+        track_flat.extend([track.start.x, track.start.y, track.end.x, track.end.y, track.width])
+        track_layers.append(int(track.layer))
 
-    for left, via in enumerate(ordered_vias):
-        for right in range(left + 1, len(ordered_vias)):
-            other_via = ordered_vias[right]
-            if via.layers & other_via.layers and _points_touch(via.center, other_via.center):
-                union(via_start + left, via_start + right)
-        for pad_index, pad in enumerate(ordered_pads):
-            if via.layers & pad.layers and _via_touches_pad(via, pad):
-                union(via_start + left, pad_index)
+    via_flat: list[float] = []
+    via_layers: list[list[int]] = []
+    for via in ordered_vias:
+        via_flat.extend([via.center.x, via.center.y, via.diameter])
+        via_layers.append(list(via.layers))
 
-    # U5: zone/pour touch predicates — connect zones to pads, tracks,
-    # vias, and other zones they touch on the same layer.
-    for left, zone in enumerate(ordered_zones):
-        for right in range(left + 1, len(ordered_zones)):
-            if _zones_touch(zone, ordered_zones[right]):
-                union(zone_start + left, zone_start + right)
-        for pad_index, pad in enumerate(ordered_pads):
-            if _zone_touches_pad(zone, pad):
-                union(zone_start + left, pad_index)
-        for track_index, track in enumerate(ordered_tracks):
-            if _zone_touches_track(zone, track):
-                union(zone_start + left, track_start + track_index)
-        for via_index, via in enumerate(ordered_vias):
-            if zone.layer in via.layers and _zone_touches_via(zone, via):
-                union(zone_start + left, via_start + via_index)
+    zone_pairs = _zone_union_pairs(
+        ordered_zones,
+        ordered_pads,
+        ordered_tracks,
+        ordered_vias,
+        track_start,
+        via_start,
+        zone_start,
+    )
+    total_items = zone_start + len(ordered_zones)
 
-    pad_components: dict[int, list[PadIdentity]] = {}
-    for pad_index, pad in enumerate(ordered_pads):
-        pad_components.setdefault(find(pad_index), []).append(pad.identity)
-    component_pads = [tuple(sorted(component)) for component in pad_components.values()]
+    component_pad_lists = _tg.connectivity_components_py(
+        pad_flat,
+        pad_shapes,
+        pad_layers,
+        track_flat,
+        track_layers,
+        via_flat,
+        via_layers,
+        [(int(i), int(j)) for i, j in zone_pairs],
+        int(total_items),
+    )
+
+    component_pads = [
+        tuple(ordered_pads[pad_index].identity for pad_index in group)
+        for group in component_pad_lists
+    ]
     component_pads.sort(key=lambda component: (-len(component), component))
     components = tuple(ConnectivityComponent(component) for component in component_pads)
     primary = component_pads[0] if component_pads else ()
@@ -258,93 +247,16 @@ def _via_key(via: CopperVia) -> tuple[float, float, tuple[int, ...], float]:
     return (via.center.x, via.center.y, tuple(sorted(via.layers)), via.diameter)
 
 
-def _tracks_touch(left: CopperTrack, right: CopperTrack) -> bool:
-    clearance = (left.width + right.width) / 2 + CONTACT_TOLERANCE_MM
-    return segment_to_segment_distance(left.segment, right.segment) <= clearance
-
-
-def _track_touches_via(track: CopperTrack, via: CopperVia) -> bool:
-    return point_to_segment_distance(via.center, track.segment) <= (
-        track.width / 2 + via.diameter / 2 + CONTACT_TOLERANCE_MM
-    )
-
-
-def _track_touches_pad(track: CopperTrack, pad: CopperPad) -> bool:
-    return _segment_touches_pad(track.segment, pad, track.width / 2)
-
-
-def _via_touches_pad(via: CopperVia, pad: CopperPad) -> bool:
-    return _point_in_pad(via.center, pad, via.diameter / 2)
-
-
-def _pads_touch(left: CopperPad, right: CopperPad) -> bool:
-    return _point_in_pad(left.center, right) or _point_in_pad(right.center, left)
-
-
-def _segment_touches_pad(segment: LineSegment, pad: CopperPad, radius: float) -> bool:
-    if pad.shape == "circle":
-        return (
-            point_to_segment_distance(pad.center, segment)
-            <= pad.size[0] / 2 + radius + CONTACT_TOLERANCE_MM
-        )
-    start = _to_pad_coordinates(segment.start, pad)
-    end = _to_pad_coordinates(segment.end, pad)
-    half_x, half_y = pad.size[0] / 2 + radius, pad.size[1] / 2 + radius
-    return _segment_intersects_box(start, end, half_x, half_y)
-
-
-def _point_in_pad(point: Point, pad: CopperPad, radius: float = 0.0) -> bool:
-    # Rotation is intentionally handled here rather than with a global
-    # coordinate threshold.  Ovals use their bounding ellipse, a conservative
-    # representation until the KiCad shape adapter is introduced.
-    local_x, local_y = _to_pad_coordinates(point, pad)
-    half_x, half_y = pad.size[0] / 2 + radius, pad.size[1] / 2 + radius
-    if pad.shape == "circle":
-        return local_x * local_x + local_y * local_y <= half_x * half_x + CONTACT_TOLERANCE_MM
-    return (
-        abs(local_x) <= half_x + CONTACT_TOLERANCE_MM
-        and abs(local_y) <= half_y + CONTACT_TOLERANCE_MM
-    )
-
-
-def _to_pad_coordinates(point: Point, pad: CopperPad) -> tuple[float, float]:
-    """World point -> pad-local frame, undoing the pad's own rotation.
-
-    ``pad.rotation`` exists to hold real KiCad pad orientation (not yet
-    wired from any production caller, but that is what the field is for --
-    see ``CopperPad``'s own docstring). The inverse of KiCad's
-    footprint-child rotation convention R(-theta) is R(+theta), applied
-    directly to ``pad.rotation`` -- NOT the pre-fix approach here, which
-    negated the angle and reapplied the *old, wrong* R(+theta) convention's
-    own formula (that inverts R(+theta), not the corrected R(-theta)). See
-    ``temper_placer.geometry.kicad_transform.rotate_world_to_local``.
-    """
-    dx, dy = point.x - pad.center.x, point.y - pad.center.y
-    return rotate_world_to_local_deg(dx, dy, pad.rotation)
-
-
-def _segment_intersects_box(
-    start: tuple[float, float], end: tuple[float, float], half_x: float, half_y: float
-) -> bool:
-    """Liang-Barsky clipping against pad-local rectangular copper."""
-    dx, dy = end[0] - start[0], end[1] - start[1]
-    lower, upper = 0.0, 1.0
-    for position, delta, bound in ((start[0], dx, half_x), (start[1], dy, half_y)):
-        bound += CONTACT_TOLERANCE_MM
-        if delta == 0:
-            if abs(position) > bound:
-                return False
-            continue
-        entry, exit = (-bound - position) / delta, (bound - position) / delta
-        lower, upper = max(lower, min(entry, exit)), min(upper, max(entry, exit))
-    return lower <= upper and lower <= 1.0 and upper >= 0.0
-
-
-def _points_touch(left: Point, right: Point) -> bool:
-    return left.distance_to(right) <= CONTACT_TOLERANCE_MM
-
-
-# --- U5: zone/pour touch predicates ---
+# --- U5: zone/pour touch predicates (JUSTIFIED-KEEP, shapely/GEOS) ---
+#
+# The four ``_zone_*`` predicates are GEOS calls on ``CopperZone.polygon``
+# (``contains``/``touches``/``intersects``).  Bit-exact reproduction of
+# GEOS predicate output is a "vendor GEOS" bar
+# (docs/evidence/2026-08-04-geos-polygon-algebra-spike.md), so they stay in
+# Python; ``_zone_union_pairs`` turns their results into (i, j) union pairs
+# that ``connectivity_components_py`` applies inside the Rust kernel.  The
+# pad/track/via touch predicates that used to sit between here and the
+# union-find are migrated (``connectivity_kernels.rs``).
 
 
 def _zone_touches_pad(zone: CopperZone, pad: CopperPad) -> bool:
@@ -381,3 +293,37 @@ def _zone_touches_via(zone: CopperZone, via: CopperVia) -> bool:
         return False
     pt = ShapelyPoint(via.center.x, via.center.y)
     return zone.polygon.contains(pt) or zone.polygon.touches(pt)
+
+
+def _zone_union_pairs(
+    ordered_zones: tuple[CopperZone, ...],
+    ordered_pads: tuple[CopperPad, ...],
+    ordered_tracks: tuple[CopperTrack, ...],
+    ordered_vias: tuple[CopperVia, ...],
+    track_start: int,
+    via_start: int,
+    zone_start: int,
+) -> list[tuple[int, int]]:
+    """Zone-connectivity union pairs in the reference's emission order.
+
+    Mirrors the reference's zone loops in ``verify_net_connectivity``:
+    zone-zone, zone-pad, zone-track and zone-via unions, with the same
+    layer guards, expressed as absolute item indices.  The union-find
+    partition is independent of application order, so handing these pairs
+    to the Rust kernel is exact.
+    """
+    pairs: list[tuple[int, int]] = []
+    for left, zone in enumerate(ordered_zones):
+        for right in range(left + 1, len(ordered_zones)):
+            if _zones_touch(zone, ordered_zones[right]):
+                pairs.append((zone_start + left, zone_start + right))
+        for pad_index, pad in enumerate(ordered_pads):
+            if _zone_touches_pad(zone, pad):
+                pairs.append((zone_start + left, pad_index))
+        for track_index, track in enumerate(ordered_tracks):
+            if _zone_touches_track(zone, track):
+                pairs.append((zone_start + left, track_start + track_index))
+        for via_index, via in enumerate(ordered_vias):
+            if zone.layer in via.layers and _zone_touches_via(zone, via):
+                pairs.append((zone_start + left, via_start + via_index))
+    return pairs

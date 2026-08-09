@@ -3,6 +3,23 @@ Router V6 Stage 2.2: Compute Routing Space
 
 Computes available routing area by subtracting obstacles from board area.
 Part of temper-643u (Stage 2 - Channel Analysis)
+
+Wave 4 migration note: JUSTIFIED-KEEP for this unit.  The module's compute
+surface is GEOS polygon algebra — ``board_polygon.difference(obstacles)``
+and the ``.area`` reads — and the S1 spike
+(``docs/evidence/2026-08-04-geos-polygon-algebra-spike.md``) measured that
+bit-exact ``==`` on a GEOS boolean result is not a well-posed bar: the
+emitted coordinate sequence is an artifact of GEOS's traversal and noding
+(§3.1/§3.2) and non-input vertices follow GEOS's conditioned intersection
+kernel, up to 701 ulps from the textbook determinant form (§3.3).  The
+spike's §5 narrowing (drop the difference, carry the obstacle list + derived
+scalars) is a *design change* gated on the unresolved ``channel_skeleton``
+Voronoi gate (§8) — out of scope for a kernel-migration unit.  The
+``RoutingSpace.utilization_ratio`` / ``available_ratio`` properties are
+trivial arithmetic with no cross-boundary value.  The obstacle geometry
+feeding this module is already Rust-backed (``obstacle_map``'s via circles
+and ``core.pad_geometry``); the difference/area consume shapely objects and
+stay here.  Verdict recorded in ``packages/temper-geometry/VERIFICATION.md``.
 """
 
 from __future__ import annotations

@@ -227,6 +227,14 @@ pub mod dense_package_detection;
 // Wave 4, tier-2 router_v6 cluster (via_placement, clearance_engine,
 // grid_converter, path_simplify) -- see via_clearance.rs's module doc.
 pub mod via_clearance;
+// Wave 4, spatial-tier-2 unit (router_v6 spatial/router kernels): the
+// bottleneck_analysis / layer_capacity / connectivity / obstacle_map
+// compute kernels.  Append-only tail — do not move or merge these lines;
+// parallel agents append to this file.
+pub mod bottleneck_kernels;
+pub mod layer_capacity_kernels;
+pub mod connectivity_kernels;
+pub mod obstacle_map_kernels;
 
 #[cfg(feature = "python")]
 #[pymodule]
@@ -254,5 +262,9 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::via_clearance::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     m.add_class::<crate::persistent_radius_index::RadiusIndex>()?;
+    crate::bottleneck_kernels::register(m)?;
+    crate::layer_capacity_kernels::register(m)?;
+    crate::connectivity_kernels::register(m)?;
+    crate::obstacle_map_kernels::register(m)?;
     Ok(())
 }

@@ -13,7 +13,8 @@ import math
 from collections import defaultdict
 from dataclasses import replace
 
-from shapely.geometry import MultiPolygon, Point, Polygon
+import temper_geometry as _tg
+from shapely.geometry import MultiPolygon, Polygon
 from shapely.ops import unary_union
 
 from temper_placer.core.netlist import Pin
@@ -26,6 +27,22 @@ from temper_placer.router_v6.stage_validators import (
     StageDRCFailure,
     register_validator,
 )
+
+
+def _circle_buffer_ring(x: float, y: float, radius: float, quad_segs: int = 8) -> list[tuple[float, float]]:
+    """Closed exterior ring of ``Point((x, y)).buffer(radius, quad_segs=q)``.
+
+    Wave 4 migration note: the two via sites in :func:`build_obstacle_map`
+    call this instead of shapely's ``Point.buffer``.  The S1 spike
+    (``docs/evidence/2026-08-04-geos-polygon-algebra-spike.md`` §4.1) proved
+    ``Point.buffer(r, quad_segs=q)`` is exactly reconstructible — GEOS emits
+    a ``4q``-gon on ``(cx + r·cos(−kπ/2q), cy + r·sin(−kπ/2q))`` with
+    host-libm trig and a near-zero snap (``Angle::sinCosSnap``); this is
+    reproduced bit-for-bit in ``temper-geometry``'s ``obstacle_map_kernels``.
+    ``radius <= 0`` returns the empty ring (GEOS ``isLineOffsetEmpty``),
+    matching ``Point.buffer(r <= 0)`` == ``POLYGON EMPTY``.
+    """
+    return list(_tg.circle_buffer_ring_py(float(x), float(y), float(radius), int(quad_segs)))
 
 
 def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str, MultiPolygon]:
@@ -84,10 +101,13 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
     # 2. Escape Vias
     # Assume Through-Hole Vias for now (blocking all layers)
     for via in escape_vias:
-        # Create via polygon (circle)
-        # Resolution: 8-16 points is usually enough for topological routing approximation
-        # Use quad_segs instead of deprecated resolution
-        via_poly = Point(via.position).buffer(via.diameter / 2.0, quad_segs=8)
+        # Create via polygon (circle).  `Point.buffer(quad_segs=8)` is
+        # reproduced bit-exactly by `_circle_buffer_ring` (see its docstring
+        # and obstacle_map_kernels.rs); the Polygon() wrap is the container
+        # step, not compute.
+        via_poly = Polygon(
+            _circle_buffer_ring(via.position[0], via.position[1], via.diameter / 2.0, 8)
+        )
 
         for layer_info in pcb.stackup.layers:
             if layer_info.layer_type in ["signal", "mixed"]:
@@ -207,7 +227,9 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
     if hasattr(pcb, "vias") and pcb.vias:
         for via in pcb.vias:
             try:
-                via_poly = Point(via.position).buffer(via.diameter / 2.0, quad_segs=8)
+                via_poly = Polygon(
+                    _circle_buffer_ring(via.position[0], via.position[1], via.diameter / 2.0, 8)
+                )
             except Exception:
                 continue
 

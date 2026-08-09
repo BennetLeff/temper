@@ -2686,3 +2686,184 @@ consecutive-pair count over the already-simplified list.
 
 N/A — clearance/creepage-table lookups and grid/path geometry with no
 physics-gated CP-SAT constraint surface.
+---
+
+## Spatial-Tier-2 Cluster (`bottleneck_kernels.rs`, `layer_capacity_kernels.rs`, `connectivity_kernels.rs`, `obstacle_map_kernels.rs`) — Verification by Induction (Wave 4, 2026-08-09)
+
+Migration unit: `router_v6/{bottleneck_analysis,layer_capacity,connectivity,obstacle_map}.py`
+compute kernels.  `routing_space.py` is JUSTIFIED-KEEP (see the keeps record
+below).  Pinned by
+`packages/temper-placer/tests/router_v6/test_spatial_tier2_rust_differential.py`
+(G1/G2, verbatim oracles) and `test_spatial_tier2_pbt.py` (G4/G5, 6
+non-vacuous properties + 13 metamorphic relations).
+
+### `bottleneck_kernels` — Verification by Induction
+
+**Base case:** one layer, `traces = [0]`, `total_demand = 0`.
+`identify_bottlenecks_kernel` returns `total_capacity = 0`,
+`demand_per_layer = 0`, utilization `inf`, severity `"none"` — the same as
+`_oracle_identify_bottlenecks({"A": cap0}, zero_demand)` (a zero-capacity
+layer with zero demand classifies NONE, matching `_classify_severity`).
+
+**Induction hypothesis:** the kernel matches the reference for a k-layer
+`traces` prefix.
+
+**Induction step:** the (k+1)-th layer contributes
+`(total_capacity += traces[k], utilization = demand_per_layer / cap,
+ severity = classify_severity(cap, demand_per_layer))`, all per-layer
+scalars independent of every other layer's values — `total_capacity` is a
+left-to-right integer sum (no reassociation), `demand_per_layer` is
+`total_demand.div_euclid(k+1)` (Python `//` floor division, equal for the
+non-negative operand pairs the validator admits, and `div_euclid` for the
+rest), and `utilization` is IEEE f64 division of two exactly-representable
+non-negative integers (bit-exact against CPython `int / int`).
+`classify_severity` is a pure decision tree on one f64 ratio, whose only
+division operands are also exact; the `demand == 0` arm yields
+`f64::INFINITY` exactly as Python's `float("inf")`.  No cross-layer
+interaction, so the step holds.
+
+**Empirical verification:** `test_classify_severity_kernel_*` (2000
+randomized capacity/demand pairs + a 13-case edge matrix) and
+`test_identify_bottlenecks_matches_reference_on_randomized_inputs` (200
+random designs, bit-exact utilization via `.hex()`), plus the ``None``
+short-circuit and empty-dict cases.  PBT P1/P2 (utilization arithmetic,
+severity monotonicity in capacity) each carry a mutation-test vacuity guard;
+metamorphic M1 (power-of-two severity scale invariance, exact), M2
+(permutation of the layer dict, exact), M3 (zero-demand edge, exact).
+
+### `layer_capacity_kernels` — Verification by Induction
+
+**Base case:** `free_cells = 0`, `avg_channel_width = 0.0` → the
+`avg_channel_width > 0 && trace_pitch > 0` guard fails and
+`estimate_traces` returns `0`, matching `_oracle_calculate_layer_capacity`
+(which also takes the `else` → `estimated_traces = 0`).
+
+**Induction hypothesis:** the kernel's `estimate_traces` matches the
+reference formula for all scalar inputs with the formula's branch taken.
+
+**Induction step:** the estimate is a single closed expression
+`max(1, int(free_cells * 0.01 * int(avg/trace_pitch)))`, computed with no
+loop, so "correct for n" and "correct for n+1" are the same statement;
+the proof is that each operator is reproduced: `trace_pitch =
+min_trace_width + 2 * min_clearance` (same two-op chain, class B7),
+`avg / trace_pitch` is IEEE division, Python `int()` truncates toward zero
+like `f64 as i64`, `free_cells * 0.01` is `(free_cells as f64) * 0.01` (the
+same `0.01` literal), and `max(1, int(...))` maps to `1_i64.max(...)`.
+`int(inf)` raises `OverflowError` in Python; the kernel returns
+`KernelError::Overflow`, mapped at the pyo3 boundary to CPython's exact
+message `"cannot convert float infinity to integer"`.  The `int(nan)`
+ValueError arm is unreachable because the reference's `>` guard is false
+for a NaN operand (verified: the kernel returns `0`, like Python).
+**Recorded unreachable divergence:** a finite `avg/trace_pitch >= 2^63`
+would be an exact bigint in Python while `as i64` saturates — needs an
+average channel width on the order of 1e18 mm (physics-unreachable;
+documented here rather than silently absorbed).
+
+**Empirical verification:** 400 randomized `(grid, widths, mtw, mc)`
+differentials with full `LayerCapacity ==` equality, plus zero-edge cases
+(avg 0, zero pitch).  PBT P3 (monotone non-decreasing in free cells and
+channel width) with a decreasing-return mutant guard; metamorphic M1
+(common power-of-two scaling of the three width params leaves the estimate
+unchanged — exact, because scaling by 2 is exact and commutes with IEEE
+rounding), M2 (zero pitch → 0, exact), M3 (monotone in free cells, exact).
+
+### `connectivity_kernels` — Verification by Induction
+
+**Base case:** zero pads.  `connectivity_components` returns no components;
+the shim builds `NetConnectivity(net="", disposition=INCOMPLETE, ...)`,
+identical to the reference on empty inputs.
+
+**Induction hypothesis:** the kernel's pad-component partition matches the
+reference union-find for any item set of size n.
+
+**Induction step:** the reference's `union` sets
+`parent[max(left_root, right_root)] = min(left_root, right_root)`, so every
+set's canonical root is its minimum item index and the final partition is a
+pure function of the set of touch pairs — independent of union order and of
+path-halving intermediate state.  The kernel emits exactly the reference's
+touch pairs for the ten portable predicates (identical f64 expressions,
+reusing `drc_constraints_geometry::point_to_segment_distance` /
+`segment_to_segment_distance` and `primitives::point_distance` — the very
+kernels the pre-migration Python called through `constraints_geometry` /
+`Point.distance_to`), and the shim supplies the four shapely zone-predicate
+pairs, so the pair set is identical and the partition is identical.  Adding
+one more item only adds its touch pairs — no existing pair changes, so the
+step holds.  The pad-rotation unwinding (`_to_pad_coordinates`) is
+R(+theta) with host-libm cos/sin (class B1 via `host_math`) on
+`rotation * (PI / 180.0)` (Python `math.radians`); the Liang-Barsky box test
+uses `py_max`/`py_min` for the CPython builtins.
+
+**Empirical verification:** 300 randomized nets (pads 0-4, tracks 0-4,
+vias 0-3, zones 0-2) with full `NetConnectivity` equality against the
+verbatim pre-migration oracle (including crafted predicate cases: shared
+track endpoints, boundary-touching circle pads, coincident vias, rotated
+rect pads crossed by tracks, zone-pad containment).  PBT P4 (partition ==
+from-first-principles circle-pad contact closure) and P5 (monotonicity
+under copper addition, plus a strict bridge-merge test) with mutation
+guards; metamorphic M1 (permutation invariance, exact), M2 (layer-index
+shift, exact), M3 (duplicate-copper idempotence, exact).
+
+### `obstacle_map_kernels` — Verification by Induction
+
+**Base case:** `radius <= 0` → empty ring, matching
+`Point.buffer(r <= 0)` == `POLYGON EMPTY` (GEOS `isLineOffsetEmpty`).
+
+**Induction hypothesis:** `circle_buffer_ring` reproduces GEOS's circle for
+any partial ring length < n.
+
+**Induction step:** the ring is built left-to-right from GEOS's own
+transcribed construction (`OffsetSegmentGenerator::createCircle` →
+`addDirectedFillet`): `totalAngle = |0 - 2·MATH_PI|`,
+`nSegs = (int)(totalAngle/fillet + 0.5)`, `angleInc = totalAngle/nSegs`,
+vertex i at angle `-i·angleInc` with host-libm sin/cos snapped by GEOS's
+`Angle::sinCosSnap` rule (`|x| < 5e-16 → 0.0`), coordinate
+`(cx + r·cos, cy + r·sin)`, consecutive-duplicate skip, closure.  Every
+step is a pure expression over the previous index — no cross-vertex
+interaction, so vertex i's correctness is independent of vertex i+1.
+The cardinal snap is what the S1 spike's naive closed form missed; the
+kernel reproduces it (a unit test pins that the naive `cos(-π/2)` residual
+~7.7e-18 would NOT equal GEOS's exact 0.0).
+
+**Empirical verification:** 0/400 random circles differ from
+`Point.buffer(r, quad_segs=8)`'s exterior ring (verified both in Rust unit
+tests and in the differential suite over `(cx, cy) ∈ [-100, 100]²`,
+`r ∈ [1e-3, 20]`), plus a cardinal-point snap pin, the empty-radius cases,
+and the quad_segs clamp.  PBT P6 (ring vertices on the circle, count,
+closure) with a square-ring mutant guard; metamorphic M1 (empty-ring
+translation invariance, exact), M2 (vertex count = 4q+1 and closure,
+exact), M3 (cardinal-axis placement, exact), M4 (start point, exact).
+
+### Kept modules — R3 JUSTIFIED-KEEP (recorded)
+
+- `router_v6/routing_space.py` (LOC 301; consumers: occupancy_grid,
+  layer_capacity, stage2_orchestrator, tests; deps: shapely) — the module's
+  compute surface is GEOS polygon algebra (`board_polygon.difference`
+  and `.area`).  The S1 spike
+  (`docs/evidence/2026-08-04-geos-polygon-algebra-spike.md`) measured that
+  bit-exact `==` on a GEOS boolean result is not well-posed: ring-start
+  order is a traversal artifact (§3.1), the output carries the input's
+  redundant vertices (§3.2), and non-input vertices follow GEOS's
+  conditioned intersection kernel up to 701 ulps from the closed form
+  (§3.3).  The spike's §5 narrowing (drop the difference, carry
+  `(bounds, area, obstacle_polygons)`) is a *design change* gated on the
+  unresolved `channel_skeleton` Voronoi gate (§8), out of scope for a
+  kernel-migration unit.  The two `RouterSpace` ratio properties are
+  trivial arithmetic with no boundary-crossing value.  (LOC: 301;
+  consumers: 3 production + test suites; deps: shapely; churn: low)
+- `router_v6/obstacle_map.py` (partial) — `LineString.buffer(w/2,
+  cap_style=1)` and `poly.buffer(0)` are JUSTIFIED-KEEP with measured
+  blockers (spike §4.2: 32 of 66 vertices are GEOS offset-curve artifacts;
+  §4.3: `buffer(0)` is an undocumented GEOS fixed point that can silently
+  drop a self-intersecting zone's lobe).  `unary_union` and the
+  `Polygon(...)`/`is_valid` container steps also stay in Python; the two
+  `Point.buffer` via sites delegate to `circle_buffer_ring_py`.
+- `router_v6/connectivity.py` (partial) — the four `_zone_*` predicates are
+  GEOS `contains`/`touches`/`intersects` on `CopperZone.polygon`, the same
+  "vendor GEOS" bar; the shim evaluates them and feeds the (i, j) union
+  pairs to the Rust kernel.
+
+### R24 physics discipline
+
+N/A — spatial/router kernels with no physics-gated threshold; the
+connectivity and capacity quantities are routing-analytic, not physics
+fields.  No Chebyshev-style soundness proof is required.
