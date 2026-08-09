@@ -375,6 +375,31 @@ class StackupGate(Gate):
     _ROUTABLE_THRESHOLD_MM = 5.0  # widths beyond this are pours, not traces
 
     # ------------------------------------------------------------------
+    # Per-net expected current resolution
+    # ------------------------------------------------------------------
+
+    def _resolve_net_current(self, net_name: str) -> float:
+        """Resolve expected current for *net_name*.
+
+        Delegates to the ``temper_ipc`` Rust kernel (``get_net_current``)
+        where the kernel's case-insensitive-SUBSTRING lookup agrees with this
+        exact-match table (the 9 known keys, and genuinely unknown nets where
+        both fall back to ``0.1``); the Python exact table stays the
+        authority where the semantics diverge -- case variants
+        (``"dc_bus+"``) and substring-supersets that are real/plausible net
+        names for this board (``"/DC_BUS+"``, ``"SW_NODE_DC+"``,
+        ``"+3V3_SENSE"``). The divergence is pinned and documented by
+        ``tests/placer/cp_sat/test_net_currents_rust_differential.py``.
+        """
+        from temper_placer.core.ipc2152 import get_net_current
+
+        current_a = self._DEFAULT_NET_CURRENTS.get(net_name, self._DEFAULT_CURRENT)
+        rust_current = get_net_current(net_name)
+        if rust_current == current_a:
+            return rust_current
+        return current_a
+
+    # ------------------------------------------------------------------
     # Check
     # ------------------------------------------------------------------
 
@@ -452,7 +477,7 @@ class StackupGate(Gate):
 
     def _check_current_density(self, net_name: str, route: Any) -> Violation | None:
         """Check trace width meets IPC-2152 minimum for the net's current."""
-        current_a = self._DEFAULT_NET_CURRENTS.get(net_name, self._DEFAULT_CURRENT)
+        current_a = self._resolve_net_current(net_name)
 
         width_mm = _extract_trace_width(route)
         if width_mm is None or width_mm <= 0.0:

@@ -4490,3 +4490,108 @@ replicas" of that Rust for cross-checking, and the differential here pins
   (unchanged complexity); `_create_per_net_channel_vars`'s hot loop now
   spends its per-edge work in Rust. R2 carve-out applies.
 
+
+# HV/LV guard-strip partitioning — Verification (Wave 4 follow-up)
+
+`deterministic/stages/hv_lv_partition.py`'s pure decision compute moves to
+`src/hv_lv_partition.rs`, registered as the
+`temper_design_bundle_python.hv_lv_partition` submodule:
+
+| Python kernel (`HvLvPartitionStage.run`) | Rust function |
+|---|---|
+| safety-category classification + creepage `max` | `hv_lv_classify` |
+| width resolution (`width_mm` override, creepage clamp) | `hv_lv_classify` |
+| per-bucket area decision (`largest` by area, fallback/raise) | `hv_lv_area_check` |
+
+The Python stage is a delegation shim; the orchestration (state/netlist
+guards, `_rules_by_net` / `_nets` duck-typed reading, `_area` marshalling,
+the shapely outline + `compute_guard_strip` GEOS surface, the
+`PartitionError` construction, the dual-domain / below-creepage /
+insufficient-area warnings, and the `dataclasses.replace` wrap) stays Python
+and is not part of the oracles. The pre-migration implementation is pinned
+VERBATIM as the differential oracle
+(`tests/deterministic/_hv_lv_partition_py_oracle.py`, dispatch base
+`origin/main f1ffc013`).
+
+## Supersedes the batch-2 JUSTIFIED-KEEP record
+
+The batch-2 record above ("hv_lv_partition.py — ... no bit-exact kernel worth
+crossing the boundary for") is **superseded** under the re-decidable rule
+(`docs/wave4-discipline-contract.md` §3): the classification + creepage `max`
+loop, the width-resolution clamps, and the per-bucket area decision are
+exactly the pure decision surface the sibling stage slices migrated, and this
+slice ports it. The `geometry/guard_strip.py` shapely/GEOS surface that record
+correctly names as non-portable remains Python in the shim — the record's
+blocker (GEOS buffer/difference) is unchanged; only the "no bit-exact kernel
+worth crossing the boundary for" verdict is overturned.
+
+## Home-crate decision
+
+`temper-design-bundle`, same rationale as #762 and the `deterministic_phase.rs`
+slice: this is the deterministic placer's stage-kernel host and the sibling
+stage slices already live here.
+
+## Structural proof (bit-identical parity)
+
+No recursion and no size-parameterized iteration whose length depends on a
+computed value, so induction does not apply (R1e); a structural proof is
+recorded. Each kernel is a direct transcription of the oracle body. The
+load-bearing equivalences, each pinned by the differential/PBT suites:
+
+1. **The classification reads a SET of net categories.** The oracle builds
+   `cats = {rules[n][0] for n in ns if n in rules}` and tests `cats & _HV` /
+   `cats & _LV`; set dedup means repeated nets never change the outcome. The
+   Rust `hh |= is_hv(cat)` / `hl |= is_lv(cat)` fold is the same boolean
+   function over the deduped categories (`_HV = {"HV","AC"}`,
+   `_LV = {"LV","iso"}` are pinned constants). Unmapped / empty-category nets
+   fall through to the LV bucket exactly like the oracle's `else` arm.
+2. **`creepage = max(creepage, rules[n][1])` is CPython's two-arg builtin
+   `max`** — first argument kept on ties and on NaN second args;
+   `host_math::py_max`. Only HV-category nets contribute (the LV-net creepage
+   never leaks; pinned by `test_creepage_is_max_over_hv_nets_only`).
+3. **Width resolution preserves the oracle's branch order.** `width_mm == 0`
+   (int-or-float equality, so `-0.0` also skips) short-circuits before the
+   clamp; an override below the creepage clamps UP to the creepage; a resolved
+   `width <= 0` (zero creepage, no override) skips.
+4. **`largest = max(refs, key=areas)` is a key-based max: the FIRST maximal
+   ref wins on ties** (strict `>` replacement), and a NaN area never replaces
+   the running max — matching Python's builtin `max` with a key.
+5. **The bucket loop checks HV before LV; the FIRST failing bucket decides**
+   `fallback`/`raise` (pinned by `test_area_lv_bucket_checked_second`). An
+   empty refs list or an empty region is skipped before the area test.
+6. **`float(region_area)` on the fallback/raise tuple is a no-op** on the
+   f64 the shim marshals from GEOS (`float(hv_poly.area)`).
+
+The only float surface is `py_max` and IEEE comparisons — no libm calls, so
+B1/B2/B6/B7/B12 do not apply. The region *areas* and *emptiness* are GEOS
+values marshalled across the boundary; their bit patterns are what both arms
+compare.
+
+## Marshaler coercion pins (defensive-input parity)
+
+- `width_mm` is `Option<f64>`: PyO3 extracts an int `0` to `0.0`, matching
+  CPython's `0 == 0.0` equality in the oracle's `width_mm == 0` skip.
+- `rules` values are `(str, f64)` tuples; the shim marshals
+  `safety_category or ""` and `float(creepage_mm or 0.0)` before the kernel
+  sees them, so `None` categories/creepages are normalised exactly as the
+  oracle's `cats`-membership and `or 0.0` reads them.
+
+## R1 status
+
+- R1a: `tests/deterministic/test_hv_lv_partition_rust_differential.py` —
+  23 test functions (19 fixed + 2 randomized + 2 anti-vacuity), bit-exact
+  `canon` equality (floats via `float.hex()`) against the verbatim oracle.
+- R1b: pure-delegation kernels; R2 carve-out (no regression beyond noise).
+- R1c: `tests/deterministic/test_hv_lv_partition_pbt.py` — 6 properties
+  (P1 partition totality, P2 category membership, P3 creepage-is-max-over-HV,
+  P4 width resolution, P4b zero-creepage skip with anti-vacuity companion,
+  P5 area-ok, P6 fallback/raise symmetry).
+- R1d: 3 MRs (component-order permutation, power-of-two area scaling,
+  duplicate-net absorption), exactness stated per relation.
+- R1e: structural proof above; no induction (no recursion).
+- R1f: the differential suite's first commit failed at collection (missing
+  `hv_lv_partition` submodule) before the kernels landed.
+- R1g: `guard` (catch_unwind) at both pyo3 boundaries; no `unwrap` outside
+  tests (clippy `unwrap_used = deny` is crate-wide); `cargo clippy --features
+  python --all-targets` clean.
+- R1h: not applicable — no physics-gated quantity (recorded N/A).

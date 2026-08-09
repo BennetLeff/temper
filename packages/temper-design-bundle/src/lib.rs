@@ -22,6 +22,12 @@ mod write_board_geometry;
 #[cfg(feature = "python")]
 mod constraint_model;
 
+// Wave 4 follow-up: the HV/LV guard-strip partitioning decision kernels
+// (safety-category classification + creepage max / width resolution /
+// bucket-area decision) — see hv_lv_partition.rs.
+#[cfg(feature = "python")]
+mod hv_lv_partition;
+
 #[cfg(feature = "python")]
 mod deterministic_stages;
 
@@ -399,6 +405,9 @@ mod python {
         // Wave 4: the router_v6/constraint_model.py compute kernels (see
         // constraint_model.rs). Registered last so the append conflicts with
         // no parallel wave-4 branch.
-        crate::constraint_model::register(module)
+        crate::constraint_model::register(module)?;
+        // Wave 4 follow-up: the hv_lv_partition stage's decision kernels
+        // (see hv_lv_partition.rs). Registered after constraint_model.
+        crate::hv_lv_partition::register(module)
     }
 }
