@@ -6,14 +6,17 @@ This reduces the number of trace segments in the exported PCB.
 
 Wave 4 (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
 ``is_collinear``, ``simplify_path``, and ``estimate_segment_count`` delegate to
-``temper_rust_router`` (``is_collinear_py``, ``simplify_path_py``,
-``estimate_segment_count_py``). Verified bit-identical against a pinned
-pre-migration oracle by
-``tests/router_v6/test_path_simplify_rust_differential.py`` (oracle:
-``tests/router_v6/_path_simplify_py_oracle.py``).
+``temper_geometry`` (``is_collinear_py``, ``simplify_path_py``,
+``estimate_segment_count_py`` in ``via_clearance.rs``). These kernels were
+first migrated to ``temper-rust-router`` (#856); this tier **re-homes** them
+into ``temper-geometry``, the Wave-4 home crate for router_v6 geometry
+(the ``temper-rust-router`` copies remain pinned by
+``tests/router_v6/test_path_simplify_rust_differential.py``; the
+``temper-geometry`` copies are pinned by the same oracle through
+``tests/router_v6/test_via_clearance_tier2_rust_differential.py``).
 """
 
-import temper_rust_router as _trr
+import temper_geometry as _tg
 
 from temper_placer.router_v6.grid_converter import GridCell
 
@@ -40,7 +43,7 @@ def is_collinear(p1: GridCell, p2: GridCell, p3: GridCell) -> bool:
         >>> is_collinear(p1, p2, p3)
         False  # L-shaped path
     """
-    return _trr.is_collinear_py(_cell_wire(p1), _cell_wire(p2), _cell_wire(p3))
+    return _tg.is_collinear_py(_cell_wire(p1), _cell_wire(p2), _cell_wire(p3))
 
 
 def simplify_path(cells: list[GridCell]) -> list[GridCell]:
@@ -72,7 +75,7 @@ def simplify_path(cells: list[GridCell]) -> list[GridCell]:
         [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(1, 0, 1)]
     """
     wire = [_cell_wire(c) for c in cells]
-    return [GridCell(x, y, layer) for x, y, layer in _trr.simplify_path_py(wire)]
+    return [GridCell(x, y, layer) for x, y, layer in _tg.simplify_path_py(wire)]
 
 
 def estimate_segment_count(cells: list[GridCell]) -> int:
@@ -87,4 +90,4 @@ def estimate_segment_count(cells: list[GridCell]) -> int:
         Estimated number of trace segments
     """
     wire = [_cell_wire(c) for c in cells]
-    return _trr.estimate_segment_count_py(wire)
+    return _tg.estimate_segment_count_py(wire)

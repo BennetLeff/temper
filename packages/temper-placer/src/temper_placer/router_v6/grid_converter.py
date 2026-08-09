@@ -2,9 +2,18 @@
 Grid coordinate conversion utilities for router export.
 
 Converts internal routing grid cells to PCB world coordinates (mm).
+
+Wave-4 migration note: the four kernels now run in the ``temper-geometry``
+crate (``via_clearance.rs``) — ``grid_to_world_py``,
+``extract_vias_py``, ``compute_path_length_py``, ``count_vias_in_path_py``.
+The ``GridCell`` dataclass and the module-level public functions stay here
+and delegate.  Bit-identical parity is pinned by
+``tests/router_v6/test_via_clearance_tier2_rust_differential.py``.
 """
 
 from dataclasses import dataclass
+
+import temper_geometry as _tg
 
 
 @dataclass
@@ -38,9 +47,7 @@ def grid_to_world(
         >>> grid_to_world(cell, origin=(0, 0), cell_size=0.5)
         (5.25, 10.25)  # Cell center at (10*0.5 + 0.5/2, 20*0.5 + 0.5/2)
     """
-    x = origin[0] + cell.x * cell_size + cell_size / 2
-    y = origin[1] + cell.y * cell_size + cell_size / 2
-    return (x, y)
+    return _tg.grid_to_world_py(cell.x, cell.y, origin[0], origin[1], cell_size)
 
 
 def extract_vias(cells: list[GridCell]) -> list[int]:
@@ -64,11 +71,7 @@ def extract_vias(cells: list[GridCell]) -> list[int]:
         >>> extract_vias(cells)
         [2]  # Via at index 2 (transition from layer 0 to 1)
     """
-    via_indices = []
-    for i in range(1, len(cells)):
-        if cells[i].layer != cells[i - 1].layer:
-            via_indices.append(i)
-    return via_indices
+    return list(_tg.extract_vias_py([c.layer for c in cells]))
 
 
 def compute_path_length(cells: list[GridCell], cell_size: float) -> float:
@@ -86,18 +89,9 @@ def compute_path_length(cells: list[GridCell], cell_size: float) -> float:
         >>> compute_path_length(cells, cell_size=0.5)
         1.0  # 2 steps * 0.5mm
     """
-    if len(cells) < 2:
-        return 0.0
-
-    total_length = 0.0
-    for i in range(1, len(cells)):
-        # Manhattan distance between consecutive cells
-        dx = abs(cells[i].x - cells[i - 1].x)
-        dy = abs(cells[i].y - cells[i - 1].y)
-        # Layer change doesn't add physical length (via is at same x,y)
-        total_length += (dx + dy) * cell_size
-
-    return total_length
+    return _tg.compute_path_length_py(
+        [c.x for c in cells], [c.y for c in cells], cell_size
+    )
 
 
 def count_vias_in_path(cells: list[GridCell]) -> int:
@@ -119,4 +113,4 @@ def count_vias_in_path(cells: list[GridCell]) -> int:
         >>> count_vias_in_path(cells)
         2
     """
-    return len(extract_vias(cells))
+    return _tg.count_vias_in_path_py([c.layer for c in cells])

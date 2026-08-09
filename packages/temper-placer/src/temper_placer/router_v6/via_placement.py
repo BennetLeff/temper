@@ -10,6 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+import temper_geometry as _tg
+
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 
 
@@ -106,20 +108,19 @@ def _place_vias_for_path(
     # If RoutePath3D, use explicit via_positions from pathfinder.
     # U3: derive from_layer/to_layer from the actual segment layers on
     # either side of each transition, not the hardcoded F.Cu/B.Cu pair.
+    # The segment-match scan and the from/to derivation run in the
+    # temper-geometry crate (via_clearance.rs): via_segment_index_py /
+    # via_layer_pair_py, bit-identical to the pre-migration inline loop
+    # (pinned by tests/router_v6/test_via_clearance_tier2_rust_differential.py).
     if hasattr(route_path, "via_positions") and hasattr(route_path, "segments"):
         segs = route_path.segments
+        seg_xs = [s[0] for s in segs]
+        seg_ys = [s[1] for s in segs]
+        seg_layers = [s[2] for s in segs]
         for vx, vy in route_path.via_positions:
-            vi = None
-            for i, (sx, sy, _) in enumerate(segs):
-                if abs(sx - vx) < 1e-4 and abs(sy - vy) < 1e-4:
-                    vi = i
-                    break
-            if vi is not None and vi + 1 < len(segs):
-                from_layer = segs[vi][2]
-                to_layer = segs[vi + 1][2]
-            else:
-                from_layer = "F.Cu"
-                to_layer = "B.Cu"
+            from_layer, to_layer = _tg.via_layer_pair_py(
+                vx, vy, seg_xs, seg_ys, seg_layers
+            )
             vias.append(
                 Via(
                     position=(vx, vy),
@@ -166,12 +167,4 @@ def _get_adjacent_layer(layer_name: str) -> str | None:
     Returns:
         Adjacent layer name or None
     """
-    # Simplified layer mapping
-    layer_map = {
-        "F.Cu": "In1.Cu",
-        "In1.Cu": "In2.Cu",
-        "In2.Cu": "B.Cu",
-        "B.Cu": "In2.Cu",
-    }
-
-    return layer_map.get(layer_name)
+    return _tg.adjacent_layer_py(layer_name)

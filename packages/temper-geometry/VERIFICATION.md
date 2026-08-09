@@ -2522,3 +2522,167 @@ construction stay Python (structural non-applicability note).
 ### R24 physics discipline
 
 N/A — graph/geometry kernels with no physics-gated threshold.
+
+## Via/Clearance/Grid Cluster (`via_clearance.rs`) — Verification by Induction (Wave 4, tier-2, 2026-08-09)
+
+Unit `via_clearance_cluster`: the pure kernels behind
+`temper_placer/router_v6/{via_placement, clearance_engine, grid_converter,
+path_simplify}.py`, in one home-crate module. The verbatim pre-migration
+oracles are pinned in
+`packages/temper-placer/tests/router_v6/test_via_clearance_tier2_rust_differential.py`
+(`git show f1ffc013`). `path_simplify`'s three kernels were first migrated to
+`temper-rust-router` (#856); this tier re-homes them here (the Wave-4 home
+crate for router_v6 geometry), and the same pinned oracle
+(`_path_simplify_py_oracle.py`) pins both copies.
+
+**Bit-exactness classes:** the unit contains no libm transcendental — every
+f64 is an exact table literal, an int-promoted product, or an addition with
+the oracle's exact left-to-right expression shape — so the B1/B2/B4/B6/B7
+classes do not apply here. The one precision-sensitive detail is *operation
+order* (B7): `grid_to_world` is `(origin + cell*size) + size/2`, never
+reassociated; `compute_path_length` accumulates with a naive `+=` fold in
+segment order; the IEC tables short-circuit `voltage <= vl` exactly like the
+Python loop (a NaN voltage fails every comparison, including the `inf`
+sentinel, and keeps the initial 0.2/0.4). Int deltas are computed in i128
+(Python ints are unbounded; i64 extremes cannot overflow). The word-boundary
+matcher's `\d` is the Unicode Nd property (`char::is_digit(10)`), mirroring
+`creepage_check.rs`'s `word_bounded` — a plain ASCII-digit check would miss
+non-ASCII decimal digits Python `re` accepts.
+
+### via_placement kernels — `adjacent_layer`, `via_segment_index`, `via_layer_pair`
+
+**Base case:** a via whose position matches segment index 0 (first segment,
+`abs` diff `< 1e-4` on both axes) derives `(segs[0][2], segs[1][2])`; a via
+at the LAST segment's position (no successor) or matching nothing falls back
+to the hardcoded `("F.Cu", "B.Cu")`, exactly like the oracle's
+`vi + 1 < len(segs)` guard. `adjacent_layer("F.Cu") == Some("In1.Cu")` and
+`adjacent_layer("In3.Cu") == None`.
+
+**Induction hypothesis:** for any segment list and via position, the kernel
+returns the oracle's from/to pair.
+
+**Induction step:** `via_segment_index` is a left-to-right first-match scan
+over an independent per-index predicate — appending a segment can only add
+later match candidates, and the scan breaks on the first; the oracle's
+`enumerate`+`break` and the kernel's `.find()` agree index-for-index. The
+from/to pair is then a per-via pure function of the matched index and the
+layer list (element access, no cross-via interaction), so the via list
+derives per-element in position order. The `abs(...) < 1e-4` epsilon is the
+identical f64 comparison on both sides, including its rounding quirk (e.g.
+`5.0001 - 5.0` rounds BELOW `1e-4`, so `5.0001` is a *match* in both
+languages — pinned, not "fixed"). `adjacent_layer` is the shipped `dict.get`
+— a total function over the four-layer map, `None` elsewhere — including
+`B.Cu -> In2.Cu` (the map is not a cycle).
+
+### clearance_engine kernels — `safety_distances`, `kw_boundary_match`, `net_class_to_voltage_class`
+
+**Base case:** `safety_distances(50.0, 2, 2)` → `(0.2, 0.4, 50.0)` (first
+bracket on both tables); `(1200.0, 2, 2)` → `(5.0, 8.0, 1200.0)` (the `inf`
+sentinel). `kw_boundary_match("AC_L", ["AC"])` is true ("AC" at start,
+followed by `_`); `kw_boundary_match("ACH", ["AC"])` is false ("AC" followed
+by "H"). `net_class_to_voltage_class("GND")` → SELV (1).
+
+**Induction hypothesis:** for any voltage/pollution/overvoltage inputs, any
+uppercased label string, the kernels reproduce the oracle bit-for-bit.
+
+**Induction step:** `safety_distances` is a bracket lookup over fixed tables
+then two scalar multipliers (`ovcat >= 3` ×1.25 both, `pollution >= 3`
+creepage ×2.0) — per-voltage pure functions with no cross-term interaction;
+the loop order (first `voltage <= vl`) is preserved, so appending a voltage
+cannot change a previously matched bracket. `kw_boundary_match` reduces to
+per-keyword `word_bounded` scans (start-or-after-`_` leading, end-`_`-or-
+Unicode-digit trailing) combined by `any()` — each keyword is an independent
+predicate, order does not affect the outcome (Python `any` is existential).
+`net_class_to_voltage_class` is the oracle's if-chain transposed: the same
+keyword branch, then the widened `120`/`240` trailing boundary
+`(?:V|$|[\d_])`. Note the reference's asymmetry is preserved faithfully:
+there IS a standalone 120 check but NO standalone 240 check, so
+`"240V"` alone classifies as SELV (only `"MAINS..."`/HV-prefixed labels reach
+the 240 branch). The composite `get_clearance` stays Python (the IEC 60335-1
+tables and IPC-2221 bracket are shared pyo3/Rust deps, not re-copied); its
+behavior is A/B'd end-to-end against the verbatim `_oracle_get_clearance`
+over a randomized parameter space.
+
+### grid_converter kernels — `grid_to_world`, `extract_vias`, `compute_path_length`, `count_vias_in_path`
+
+**Base case:** `grid_to_world(0, 0, 0.0, 0.0, 0.5)` → `(0.25, 0.25)`
+(`0 + 0 + 0.25`); `compute_path_length` on 0 or 1 cells → `0.0`; `extract_vias`
+on a constant-layer path → `[]`.
+
+**Induction hypothesis:** for any cell list / cell_size / origin, the kernels
+reproduce the oracle.
+
+**Induction step:** `grid_to_world` is `(origin + cell*size) + size/2`
+per-axis — two independent scalar expressions; the int→f64 promotion
+(correctly rounded) and both additions match the Python expression's order
+exactly. `compute_path_length` sums per-step `(dx+dy)*size` terms with a
+naive left-to-right `+=` fold in path order (the oracle's own loop — NOT the
+builtin `sum()` Neumaier fold); each step is independent, so prepending or
+appending a step only extends the fold. `extract_vias` / `count_vias_in_path`
+are index/count scans over consecutive-layer comparisons (exact int
+equality) — no cross-cell arithmetic.
+
+### path_simplify kernels — `is_collinear`, `simplify_path`, `estimate_segment_count`
+
+**Base case:** `simplify_path` of 0, 1 or 2 cells returns the input unchanged;
+`is_collinear` of three same-layer same-y cells is true.
+
+**Induction hypothesis:** for any cell path, the kernels match the oracle
+(and the bit-identical `temper-rust-router` twins).
+
+**Induction step:** `simplify_path` is a single ordered pass over
+consecutive triples: keep on layer-change or non-collinearity, always keep
+first/last. Each triple decision is independent of all others and the output
+is built by appending in iteration order — so the pass is correct for n cells
+if it is for n-1 (the new cell adds one triple decision at the tail). All
+comparisons are exact int equality. `estimate_segment_count` is the same-layer
+consecutive-pair count over the already-simplified list.
+
+### Empirical verification
+
+- **Differential** (`test_via_clearance_tier2_rust_differential.py`, 33
+  tests): every kernel pinned bit-exactly (`float.hex()` via `sig()`, no
+  tolerance) against the verbatim `_oracle_*` blocks over a seeded randomized
+  corpus (300 path3D via-layer derivations, 300 clearance-engine parameter
+  draws, 300 grid/path draws) plus crafted edge cases — NaN/inf voltages
+  (fall-through to the initial 0.2/0.4 and the sentinel brackets), the
+  `5.0001` f64-epsilon quirk, first-match-wins coincident segments, the
+  `"F.Cu"/"B.Cu"` fallback, the `"MAINS240V"`/`"240V"` classification
+  asymmetries, and the full existing `test_via_placement.py` /
+  `test_path_simplify_rust_differential.py` / `test_clearance_rust_differential.py`
+  consumer suites (117 tests green through the shims, plus 43 in the
+  kicad-exporter / clearance-induction / DRC-invariant consumers).
+- **PBT** (`test_via_clearance_tier2_pbt.py`, 23 tests): 9 properties
+  P1–P7 (module-to-property map in the file docstring; every property calls
+  its kernel directly on generated inputs — reachability measured, not
+  assumed), each with a mutation-test vacuity guard
+  (`test_pN_fails_for_<mutant>` monkeypatching the `temper_geometry` kernel
+  and re-running via `hypothesis.inner_test`), plus 3 metamorphic relations
+  M1–M3 (path-length translation invariance, simplify reflection invariance,
+  simplify reversal symmetry — all EXACT: integer transforms preserve every
+  f64 bit). The same properties run natively as 2000-case proptests in
+  `via_clearance.rs` (P1–P5 + M1–M3), exercised by
+  `cargo test --no-default-features` (661 lib tests green) even when the pyo3
+  extension is not importable in the shared venv.
+- **G1 red→green**: the differential file (with its verbatim oracle blocks
+  and `test_oracle_is_verbatim_copy` re-extraction from `f1ffc013`) is the
+  TDD oracle; its `test_rust_symbols_exist` is RED until the 12 kernels in
+  this module exist.
+
+### Kept Python (structural, per G6 non-applicability)
+
+- `via_placement.place_vias` / `_place_vias_for_path` orchestration (per-net
+  sizing resolution, `Via`/`ViaPlacement` dataclass construction, the legacy
+  `RoutePath` midpoint fallback): pure structural iteration over Python
+  objects — no numeric kernel to migrate (the segment-match derivation it
+  uses IS migrated).
+- `clearance_engine.get_clearance` composite and the `SafetyDistances`
+  dataclass; the `VoltageClass` pyo3 tables and `_calculate_required_creepage`
+  are already-Rust shared deps, deliberately not re-copied (no third copy).
+- `grid_converter.GridCell` dataclass; `path_simplify._cell_wire` tuple
+  conversion.
+
+### R24 physics discipline
+
+N/A — clearance/creepage-table lookups and grid/path geometry with no
+physics-gated CP-SAT constraint surface.
