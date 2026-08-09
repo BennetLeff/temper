@@ -2176,3 +2176,156 @@ Each kernel is a fold over **independent per-element computations**:
 ### R24 physics discipline
 
 N/A — routing-channel geometry with no physics-gated threshold.
+
+## Spatial-DRC Cluster (`resource_bound.rs`, `power_plane.rs`, `diff_pair_inference.rs`, `trace_width_assignment.rs`, `dense_package_detection.rs`) — Wave 4
+
+Migrates the tractable kernels of the router_v6 spatial DRC/connectivity/
+capacity cluster (5 modules): the resource-exhaustion bound
+(`resource_bound.py`), the power-plane geometry (`power_plane.py`), the
+differential-pair suffix matcher (`diff_pair_inference.py`), the trace-width
+classifier (`trace_width_assignment.py`), and the dense-package classifiers
+(`dense_package_detection.py`). Each Python module keeps its public API and
+delegates the migrated kernels; the object-graph orchestration
+(`ParsedPCB`/`Board`/`Component`/`PathfindingResult`/`OccupancyGrid` access,
+the `Stage`/validator framework, the dataclasses) stays in Python.
+
+### Verification by Induction — `resource_bound.rs`
+
+The bound is a composition of four per-net / per-cluster folds over
+independent elements:
+
+1. **`conflict_clusters`** — pairwise overlap decisions over the net set.
+   Each pair `(i, j)` contributes an independent edge decision
+   `min(area_a, area_b) > 0 && overlap / min_area > threshold`; no pair's
+   decision depends on any other pair, so adding a net only adds its O(n)
+   pair terms. Cluster *membership* is then the connected components of that
+   graph — order-independent — and the outer cluster discovery order is the
+   input order of first occurrence, exactly the reference's.  Bit-exactness
+   requires Python-builtin `min`/`max` semantics (class B5): `area =
+   py_max(product, 0.0)` (product first), `overlap_x = py_max(0.0,
+   py_min(ax2,bx2) - py_max(ax1,bx1))`.
+2. **`capacity_in_bbox`** — per-cell counting over the grid region with a
+   per-dimension clamp. Each row's cells are independent; `world_to_grid`
+   truncates toward zero (`as i64`) matching `int()`, and the clamp is
+   builtin `max(0, min(g, W-1))` on ints.
+3. **`fill_factor`** — `sum(bbox_areas.values())` is CPython builtin `sum()`
+   (Neumaier-compensated, class B12) over dict insertion order, then
+   `np.sqrt` (correctly-rounded IEEE sqrt) and `np.clip(x, 0.01, 1.0)`
+   = `np.minimum(np.maximum(x, lo), hi)` (class B12 NaN semantics).
+4. **`demand_budget` / `max_routable`** — per-cluster greedy bin-packing.
+   Each cluster's `k` depends only on its own union-bbox capacity and
+   sorted demands; the per-cluster `total_capacity += capacity` fold is over
+   clusters in the deterministic outer discovery order (matching the
+   reference's dict-order iteration), and `total_demand` is builtin `sum()`
+   (Neumaier) over input order.
+
+The differential suite pins all four levels bit-exactly (see below),
+including the cluster *partition* and the reference's set-iteration
+nondeterminism: the reference's intra-cluster ordering is hash-seed
+dependent, so the kernel returns each cluster sorted and the differential
+compares the normalized form, while every downstream aggregate
+(`total_capacity`, `max_routable`, `utilization`) is pinned exactly.
+
+### Verification by Induction — `power_plane.rs`
+
+1. **`rect_polygon`** — no arithmetic; a fixed 4-corner vertex list.
+2. **`power_pour_strips`** — a per-strip arithmetic fold:
+   `strip_width = (total_width - total_gap) / n` with
+   `strip_x_min = x_min + i * (strip_width + gap)`,
+   `strip_x_max = strip_x_min + strip_width`, ops copied left-to-right
+   (class B7, no reassociation). Each strip depends only on its index and
+   the shared strip width; the two ValueError branches are CPython-exact
+   (float rendering via `py_float_str`, class B10).
+3. **`thermal_via_positions`** — `side = int(round(count**0.5))`:
+   `count**0.5` is CPython float `**` = host libm `pow` (class B1, via
+   `host_math::pow` through `dlsym`), `round()` is round-half-even (class
+   B3, via `host_math::py_round`), then `int` truncation. Positions are an
+   independent per-(row,col) double loop matching the reference's
+   `for row ... for col ...`.
+
+### Verification by Induction — string kernels
+
+`diff_pair_inference.rs`, `trace_width_assignment.rs`,
+`dense_package_detection.rs` are pure string classifications with no
+floating-point arithmetic except `dense_package`'s pin-distance fallback and
+`trace_width`'s `power_width * 0.6`:
+
+- **`infer_differential_pairs`** — three ordered passes over the input list;
+  each net is independent (matched-set membership is a monotone predicate
+  per net). `net_map = {name.upper(): name}` is last-wins (HashMap
+  insert-overwrite). Base names are the UPPERCASED slices (the reference's
+  `upper[:-k]`), p/n nets are the original-case names. ASCII contract
+  (Python `str.upper()` replicated with `to_ascii_uppercase()`); the
+  module docstring's `'USB_D'` example is stale relative to the code — the
+  actual reference yields `'USB'` for `USB_DP[:-3]`, which the differential
+  pins.
+- **`kw_boundary_match` / `determine_trace_width`** — the regex
+  `(?:^|_)kw(?:$|[\d_])` with `re.escape(kw)` and trailing `_` stripped is a
+  byte-scan with boundary checks (keywords are alphanumeric/underscore, so
+  `re.escape` is identity); precedence HV → power/leading `+` → gate/drive
+  → default. `power_width * 0.6` uses the f64 literal `0.6`.
+- **`estimate_pitch`** — the two pitch regexes are replicated by manual
+  scans whose greedy `\d+\.?\d*` capture matches Python's regex engine
+  bit-for-bit on the pinned footprint vocabulary (no backtracking case
+  reaches a boundary where the maximal capture does not). The pin fallback
+  is `pow(pow(dx,2.0) + pow(dy,2.0), 0.5)` (host libm `pow`, class B1,
+  NOT `hypot`/`sqrt`) with a CPython-exact `OverflowError` guard for a
+  finite base whose square overflows. Captures are plain decimals, so
+  `str::parse::<f64>()` agrees with CPython `float()`.
+- **`infer_package_type`** — first-hit substring scan over the fixed list,
+  mapped to base families.
+
+### Empirical Verification
+
+- **Differential**
+  (`packages/temper-placer/tests/router_v6/test_spatial_drc_cluster_rust_differential.py`):
+  20 tests, all bit-exact `==` (plus `float.hex()` on the computed trace
+  widths) against the verbatim `_oracle_*` copies: randomized bbox/grid
+  conflict-cluster partitions and `max_routable_nets`/`demand_budget_summary`
+  aggregates (Neumaier `total_demand`, per-cluster `total_capacity` fold
+  order, `max(capacity, 1e-6)` utilization), randomized capacity/fill-factor
+  probes incl. negative-origin grids and out-of-bounds bboxes, pour-strip
+  bounds and polygons, the exact 3x3 via lattice, the CPython-exact
+  ValueError messages (`py_float_str`), the diff-pair triple lists over a
+  randomized net-name pool, the trace-width classification matrix, and the
+  dense-package pitch/package-type cases incl. the mil conversion and the
+  `OverflowError` parity.
+- **PBT + metamorphic**
+  (`packages/temper-placer/tests/router_v6/test_spatial_drc_cluster_pbt.py`):
+  7 properties (G4 cluster-unit, every migrated module reached by at least
+  one) + 5 metamorphic relations (M1 integer-translation invariance of the
+  conflict partition, M2 neutral-net-addition invariance of diff pairs, M3
+  power-of-two scale of the via grid, M4 pin-set independence of a parsed
+  pitch, M5 power-of-two scale of trace widths) — each property with a
+  vacuity guard killing a degenerate kernel (20 tests).
+- The pre-existing suites for all five modules pass unchanged through the
+  Rust-backed shims (74 tests: `test_resource_bound.py`,
+  `test_power_plane_geometry.py`, `test_diff_pair_inference.py`,
+  `test_diff_pair_constraints.py`, `test_trace_width_assignment.py`,
+  `test_dense_package_detection.py`), plus `test_routing_results.py` and a
+  consumer smoke of `identify_dense_packages`, `infer_differential_pairs`,
+  `assign_trace_widths`, and `generate_power_planes`.
+- Rust `cargo test --lib`: 628 tests green incl. the new per-module unit
+  tests; `cargo clippy --all-targets` clean on the new modules.
+
+### Known, recorded scope boundaries (JUSTIFIED-KEEP)
+
+The remaining six modules of the cluster stay Python with evidence:
+
+- `bundle_analyzer.py` — shapely `STRtree` spatial index,
+  `MultiPoint.convex_hull`, polygon `union`; no bit-exact Rust equivalent.
+- `connectivity.py` — shapely zone/pour containment predicates
+  (`Polygon.contains/touches/intersects`), plus `constraints_geometry` and
+  `kicad_transform` couplings.
+- `obstacle_map.py` — shapely `unary_union`/`buffer`/polygon validity.
+- `clearance_engine.py` — `core.net_types.VoltageClass` enum boundary and
+  the `creepage_check._calculate_required_creepage` dependency.
+- `layer_capacity.py` — `OccupancyGrid`/`ChannelWidths` object coupling;
+  the arithmetic is trivial and object-bound.
+- `via_placement.py` — duck-typed `RoutePath`/`RoutePath3D`/tree geometry
+  object graph.
+
+### R24 physics discipline
+
+N/A — routing capacity/geometry and net-classification logic with no
+physics-gated threshold.

@@ -3,11 +3,21 @@ Router V6 Stage 1.1: Identify Dense Packages
 
 Identifies high-pin-count components requiring escape routing strategies.
 Part of temper-wpwf (Stage 1 - Pin Escape Planning)
+
+Wave 4 migration note: the per-component classifiers (``_estimate_pitch`` /
+``_infer_package_type``) now delegate to ``temper_geometry``'s
+``dense_package_detection`` kernels
+(``packages/temper-geometry/src/dense_package_detection.rs``); the
+``DensePackage`` dataclass, the ``Component``/``Pin`` object access, and the
+``identify_dense_packages`` loop stay here.  See
+``packages/temper-geometry/VERIFICATION.md`` for the full writeup.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+import temper_geometry as _tg
 
 from temper_placer.core.netlist import Component
 
@@ -103,48 +113,8 @@ def _estimate_pitch(comp: Component) -> float:
     Returns:
         Estimated pitch in mm (default 0.65mm if unknown)
     """
-    import re
-
-    # Try to parse pitch from footprint name
-    # Common patterns: QFN-48_0.5mm, TQFP-100_0.4mm, BGA-256_0.8mm
-    footprint_upper = comp.footprint.upper()
-
-    # Pattern: _0.5MM or _0.5
-    match = re.search(r"[_-](\d+\.?\d*)\s*MM", footprint_upper)
-    if match:
-        return float(match.group(1))
-
-    match = re.search(r"[_P](\d+\.?\d*)(?:[_-]|$)", comp.footprint)
-    if match:
-        pitch_str = match.group(1)
-        try:
-            pitch = float(pitch_str)
-            # If it's > 10, it's probably in mil (e.g., _50 = 50mil = 1.27mm)
-            if pitch > 10:
-                pitch = pitch * 0.0254  # mil to mm
-            return pitch
-        except ValueError:
-            pass
-
-    # Fallback: Calculate from pin positions
-    if len(comp.pins) >= 4:
-        # Find minimum distance between adjacent pins
-        pin_positions = [p.position for p in comp.pins]
-        min_dist = float("inf")
-
-        for i, (x1, y1) in enumerate(pin_positions):
-            for j, (x2, y2) in enumerate(pin_positions):
-                if i >= j:
-                    continue
-                dist = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
-                if dist > 0.01:  # Ignore near-zero distances (same pin)
-                    min_dist = min(min_dist, dist)
-
-        if min_dist != float("inf"):
-            return min_dist
-
-    # Default: 0.65mm (common SOIC/TQFP pitch)
-    return 0.65
+    positions = [c for p in comp.pins for c in p.position]
+    return _tg.estimate_pitch_py(comp.footprint, positions)
 
 
 def _infer_package_type(comp: Component) -> str:
@@ -157,42 +127,4 @@ def _infer_package_type(comp: Component) -> str:
     Returns:
         Package type string ("QFN", "BGA", "TQFP", "SOIC", etc.)
     """
-    footprint_upper = comp.footprint.upper()
-
-    # Check for common package types
-    package_types = [
-        "BGA",
-        "FBGA",
-        "LFBGA",
-        "TFBGA",  # Ball grid arrays
-        "QFN",
-        "DFN",
-        "SON",  # Quad flat no-lead
-        "TQFP",
-        "LQFP",
-        "QFP",  # Quad flat packages
-        "SOIC",
-        "SOP",
-        "SSOP",
-        "TSSOP",  # Small outline
-        "TO-",
-        "SOT-",  # Transistor outlines
-    ]
-
-    for pkg_type in package_types:
-        if pkg_type in footprint_upper:
-            # Return the base type (e.g., "BGA" not "FBGA")
-            if "BGA" in pkg_type:
-                return "BGA"
-            elif "QFN" in pkg_type or "DFN" in pkg_type or "SON" in pkg_type:
-                return "QFN"
-            elif "QFP" in pkg_type:
-                return "TQFP"
-            elif "SOIC" in pkg_type or "SOP" in pkg_type:
-                return "SOIC"
-            elif "TO-" in pkg_type or "SOT-" in pkg_type:
-                return "SOT"
-            return pkg_type
-
-    # Default: Unknown
-    return "UNKNOWN"
+    return _tg.infer_package_type_py(comp.footprint)
