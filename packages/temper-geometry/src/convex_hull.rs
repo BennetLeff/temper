@@ -247,7 +247,7 @@ mod tests {
     fn gift_wrap_area(points: &[[f64; 2]]) -> f64 {
         let mut unique: Vec<[f64; 2]> = Vec::new();
         for &p in points {
-            if !unique.iter().any(|&q| q == p) {
+            if !unique.contains(&p) {
                 unique.push(p);
             }
         }
