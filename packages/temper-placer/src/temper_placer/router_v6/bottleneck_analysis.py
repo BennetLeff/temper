@@ -10,6 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from enum import Enum
 
+import temper_geometry as _tg
+
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.layer_capacity import LayerCapacity
@@ -90,6 +92,14 @@ def identify_bottlenecks(
         >>> analysis = identify_bottlenecks(capacities, demand)
         >>> analysis.has_critical_bottlenecks
         False
+
+    Wave 4 migration note: the per-layer aggregation (demand
+    distribution, utilization, severity classification, total capacity)
+    runs in ``temper-geometry``'s ``bottleneck_kernels``; the dataclass
+    assembly stays here so ``Bottleneck``/``BottleneckAnalysis`` remain
+    plain Python objects stored on ``BoardState``.  The ``None``
+    short-circuit is unchanged (orchestration, not compute).  Pinned by
+    ``test_spatial_tier2_rust_differential.py``.
     """
     if layer_capacities is None or demand is None:
         return BottleneckAnalysis(
@@ -98,39 +108,29 @@ def identify_bottlenecks(
             total_demand=0,
         )
 
-    bottlenecks = []
-    total_capacity = 0
+    layer_names = list(layer_capacities.keys())
+    traces = [capacity.estimated_traces for capacity in layer_capacities.values()]
+    total_capacity, demand_per_layer, utilizations, severities = _tg.identify_bottlenecks_py(
+        [int(t) for t in traces],
+        int(demand.routable_nets),
+    )
 
-    # Distribute demand across layers (simplified - assume even distribution)
-    num_layers = len(layer_capacities)
-    demand_per_layer = demand.routable_nets // num_layers if num_layers > 0 else 0
-
-    # Analyze each layer
-    for layer_name, capacity in layer_capacities.items():
-        total_capacity += capacity.estimated_traces
-
-        # Calculate utilization
-        if capacity.estimated_traces > 0:
-            utilization = demand_per_layer / capacity.estimated_traces
-        else:
-            utilization = float("inf")
-
-        # Determine severity
-        severity = _classify_severity(capacity.estimated_traces, demand_per_layer)
-
-        bottlenecks.append(
-            Bottleneck(
-                layer_name=layer_name,
-                severity=severity,
-                capacity=capacity.estimated_traces,
-                demand=demand_per_layer,
-                utilization=utilization,
-            )
+    bottlenecks = [
+        Bottleneck(
+            layer_name=name,
+            severity=BottleneckSeverity(severity),
+            capacity=traces[i],
+            demand=int(demand_per_layer),
+            utilization=utilization,
         )
+        for i, (name, utilization, severity) in enumerate(
+            zip(layer_names, utilizations, severities)
+        )
+    ]
 
     return BottleneckAnalysis(
         bottlenecks=bottlenecks,
-        total_capacity=total_capacity,
+        total_capacity=int(total_capacity),
         total_demand=demand.routable_nets,
     )
 
@@ -145,24 +145,13 @@ def _classify_severity(capacity: int, demand: int) -> BottleneckSeverity:
 
     Returns:
         BottleneckSeverity classification
+
+    Wave 4 migration note: delegates to ``temper-geometry``'s
+    ``bottleneck_kernels::classify_severity``; the Rust kernel replicates
+    the reference's integer ratio logic bit-for-bit (including the
+    ``float("inf")`` ratio when ``demand == 0``).
     """
-    if capacity == 0:
-        if demand > 0:
-            return BottleneckSeverity.CRITICAL
-        return BottleneckSeverity.NONE
-
-    ratio = capacity / demand if demand > 0 else float("inf")
-
-    if ratio < 0.5:
-        return BottleneckSeverity.CRITICAL
-    elif ratio < 1.0:
-        return BottleneckSeverity.HIGH
-    elif ratio < 1.2:
-        return BottleneckSeverity.MEDIUM
-    elif ratio < 2.0:
-        return BottleneckSeverity.LOW
-    else:
-        return BottleneckSeverity.NONE
+    return BottleneckSeverity(_tg.classify_severity_py(int(capacity), int(demand)))
 
 
 class BottleneckAnalysisStage(Stage):

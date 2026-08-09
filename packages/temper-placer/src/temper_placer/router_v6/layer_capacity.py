@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
+import temper_geometry as _tg
+
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.channel_widths import ChannelWidths
@@ -67,6 +69,13 @@ def calculate_layer_capacity(
         >>> capacity = calculate_layer_capacity(grid, widths)
         >>> capacity.estimated_traces > 0
         True
+
+    Wave 4 migration note: the ``estimated_traces`` estimate formula runs
+    in ``temper-geometry``'s ``layer_capacity_kernels`` (bit-exact; the
+    ``int()`` truncations, the ``0.01`` factor, and the ``max(1, ...)``
+    clamp all match the pre-migration reference); the grid/width field
+    reads and the ``LayerCapacity`` dataclass assembly stay here.  Pinned
+    by ``test_spatial_tier2_rust_differential.py``.
     """
     # Get basic grid statistics
     total_cells = grid.width_cells * grid.height_cells
@@ -77,19 +86,14 @@ def calculate_layer_capacity(
     min_channel_width = widths.min_width
     avg_channel_width = widths.avg_width
 
-    # Estimate trace capacity
-    # Each trace needs: trace_width + 2*clearance for isolation
-    trace_pitch = min_trace_width + 2 * min_clearance
-
-    # Estimate number of traces that can fit in average channel
-    if avg_channel_width > 0 and trace_pitch > 0:
-        traces_per_channel = int(avg_channel_width / trace_pitch)
-
-        # Estimate total trace capacity (conservative)
-        # Use free cells as a proxy for routing area
-        estimated_traces = max(1, int(free_cells * 0.01 * traces_per_channel))
-    else:
-        estimated_traces = 0
+    estimated_traces = int(
+        _tg.estimate_traces_py(
+            int(free_cells),
+            float(avg_channel_width),
+            float(min_trace_width),
+            float(min_clearance),
+        )
+    )
 
     return LayerCapacity(
         layer_name=grid.layer_name,
