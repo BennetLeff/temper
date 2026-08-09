@@ -84,6 +84,12 @@ mod stackup_contracts;
 #[cfg(feature = "python")]
 mod loop_ownership_contracts;
 
+// Wave 4 fan-out: specification dataclasses (ThermalSpec, EMISpec,
+// SignalIntegritySpec, SafetySpec, PcbSpecification) — see
+// specification_contracts.rs.
+#[cfg(feature = "python")]
+mod specification_contracts;
+
 #[cfg(feature = "python")]
 mod board_contracts;
 
@@ -332,6 +338,7 @@ mod python {
         crate::decision_contracts::register(module)?;
         crate::stackup_contracts::register(module)?;
         crate::loop_ownership_contracts::register(module)?;
+        crate::specification_contracts::register(module)?;
         crate::board_contracts::register(module)?;
 
         // Wave 4 Phase 3 candidate 5: the config/reference loaders. The
