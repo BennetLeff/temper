@@ -18,6 +18,7 @@ pub mod extraction;
 pub mod loop_extractor;
 pub mod provenance;
 pub mod pruning;
+pub mod theta_star;
 #[cfg(feature = "sat")]
 pub mod solver;
 #[cfg(feature = "sat")]

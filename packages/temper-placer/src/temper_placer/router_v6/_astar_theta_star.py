@@ -130,7 +130,7 @@ _CONGESTION_GROWTH_THRESHOLD: int = 5
 _CONGESTION_PLATEAU_STRIKES: int = 3
 
 
-def _astar_search_lazy_theta_star(
+def _astar_search_lazy_theta_star_python(
     grid,
     start_grid: tuple[int, int],
     goal_grid: tuple[int, int],
@@ -140,7 +140,7 @@ def _astar_search_lazy_theta_star(
     enable_congestion_derivative: bool = True,
 ) -> list[tuple[int, int]] | None:
     """
-    Lazy Theta* pathfinding.
+    Lazy Theta* pathfinding (pure-Python reference).
 
     Optimizes Theta* by delaying the line-of-sight check until a node is expanded.
     This significantly reduces the number of geometric checks.
@@ -312,7 +312,7 @@ def _astar_search_lazy_theta_star(
     return None
 
 
-def _astar_search_theta_star(
+def _astar_search_theta_star_python(
     grid,
     start_grid: tuple[int, int],
     goal_grid: tuple[int, int],
@@ -322,7 +322,7 @@ def _astar_search_theta_star(
     enable_congestion_derivative: bool = True,
 ) -> list[tuple[int, int]] | None:
     """
-    Theta* pathfinding with any-angle paths.
+    Theta* pathfinding with any-angle paths (pure-Python reference).
 
     Key difference from A*: When expanding a neighbor, checks if parent
     of current has line-of-sight to neighbor. If yes, connects parent
@@ -429,3 +429,142 @@ def _astar_search_theta_star(
                 heappush(open_set, (f_score, counter, neighbor))
 
     return None  # No path found
+
+
+# ---------------------------------------------------------------------------
+# Rust-backed search entry points (Wave-4 migration of this module).
+#
+# The public names below delegate to the Rust kernel
+# (``temper_rust_router.theta_star_search_py``, proven bit-identical to the
+# pure-Python reference by the differential suite
+# ``tests/router_v6/test_astar_cluster_rust_differential.py``), falling back
+# to the pure-Python reference when the extension is missing/stale.  An
+# active runtime monitor keeps the search in Python so the monitor's
+# frontier-pop observations remain real (``get_monitor_state() is not None``
+# is the same probe the LOS dispatch already uses).
+# ---------------------------------------------------------------------------
+
+
+def _theta_star_search_rust_kernel(
+    grid,
+    start_grid: tuple[int, int],
+    goal_grid: tuple[int, int],
+    net_id: int,
+    came_from_init: dict | None,
+    max_iter: int | None,
+    enable_congestion_derivative: bool,
+    lazy: bool,
+) -> list[tuple[int, int]] | None:
+    """Run the Rust Theta* kernel (``theta_star_search_py``).
+
+    Raises ``ImportError`` when ``temper_rust_router`` is missing so the
+    caller can fall back to the pure-Python reference — the same contract
+    as ``_line_of_sight_dispatch`` above.
+    """
+    import temper_rust_router as _trr
+
+    grid_contig = np.ascontiguousarray(grid.grid, dtype=np.int8)
+    height, width = grid_contig.shape
+    start_idx = start_grid[1] * width + start_grid[0]
+    goal_idx = goal_grid[1] * width + goal_grid[0]
+    came_from_init_arg = None
+    if came_from_init:
+        came_from_init_arg = [
+            (child[1] * width + child[0], parent[1] * width + parent[0])
+            for child, parent in came_from_init.items()
+        ]
+    path_idxs = _trr.theta_star_search_py(
+        grid_contig.tobytes(),
+        width,
+        height,
+        start_idx,
+        goal_idx,
+        net_id,
+        came_from_init_arg,
+        max_iter,
+        enable_congestion_derivative,
+        lazy,
+    )
+    if not path_idxs:
+        return None
+    return [(int(i % width), int(i // width)) for i in path_idxs]
+
+
+def _astar_search_lazy_theta_star(
+    grid,
+    start_grid: tuple[int, int],
+    goal_grid: tuple[int, int],
+    net_id: int,
+    came_from_init: dict | None = None,
+    max_iter: int | None = None,
+    enable_congestion_derivative: bool = True,
+) -> list[tuple[int, int]] | None:
+    """Lazy Theta* pathfinding (Rust-backed).
+
+    Delegates to the Rust kernel when the extension is available and the
+    runtime monitor is not active; otherwise falls back to the pure-Python
+    reference (``_astar_search_lazy_theta_star_python``).
+    """
+    if get_monitor_state() is None:
+        try:
+            return _theta_star_search_rust_kernel(
+                grid,
+                start_grid,
+                goal_grid,
+                net_id,
+                came_from_init,
+                max_iter,
+                enable_congestion_derivative,
+                lazy=True,
+            )
+        except ImportError:  # pragma: no cover -- extension missing/stale
+            pass
+    return _astar_search_lazy_theta_star_python(
+        grid,
+        start_grid,
+        goal_grid,
+        net_id,
+        came_from_init,
+        max_iter,
+        enable_congestion_derivative,
+    )
+
+
+def _astar_search_theta_star(
+    grid,
+    start_grid: tuple[int, int],
+    goal_grid: tuple[int, int],
+    net_id: int,
+    came_from_init: dict | None = None,
+    max_iter: int | None = None,
+    enable_congestion_derivative: bool = True,
+) -> list[tuple[int, int]] | None:
+    """Theta* pathfinding with any-angle paths (Rust-backed).
+
+    Delegates to the Rust kernel when the extension is available and the
+    runtime monitor is not active; otherwise falls back to the pure-Python
+    reference (``_astar_search_theta_star_python``).
+    """
+    if get_monitor_state() is None:
+        try:
+            return _theta_star_search_rust_kernel(
+                grid,
+                start_grid,
+                goal_grid,
+                net_id,
+                came_from_init,
+                max_iter,
+                enable_congestion_derivative,
+                lazy=False,
+            )
+        except ImportError:  # pragma: no cover -- extension missing/stale
+            pass
+    return _astar_search_theta_star_python(
+        grid,
+        start_grid,
+        goal_grid,
+        net_id,
+        came_from_init,
+        max_iter,
+        enable_congestion_derivative,
+    )
