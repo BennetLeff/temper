@@ -224,6 +224,9 @@ pub mod power_plane;
 pub mod diff_pair_inference;
 pub mod trace_width_assignment;
 pub mod dense_package_detection;
+// Wave 4, tier-2 router_v6 cluster (via_placement, clearance_engine,
+// grid_converter, path_simplify) -- see via_clearance.rs's module doc.
+pub mod via_clearance;
 
 #[cfg(feature = "python")]
 #[pymodule]
@@ -248,6 +251,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::trace_width_assignment::register(m)?;
     crate::dense_package_detection::register(m)?;
     crate::core_graph_geometry::register(m)?;
+    crate::via_clearance::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     m.add_class::<crate::persistent_radius_index::RadiusIndex>()?;
     Ok(())

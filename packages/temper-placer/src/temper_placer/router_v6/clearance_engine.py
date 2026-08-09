@@ -7,7 +7,7 @@ and the most-conservative (largest) value is returned so that a design
 passes all applicable standards simultaneously.
 
 Standards consolidated
------------------------
+----------------------
 * **IEC 60950-1**  — ITE safety: voltage-table creepage & clearance
   (``routing/safety_distances.py``)
 * **IEC 60335-1**  — Household appliances: ``VoltageClass`` per-class
@@ -32,11 +32,22 @@ Usage
 
 Only the engine and ONE consumer are built in this commit; full migration
 of all consumers is deferred (see ``feat/unified-clearance-engine``).
+
+Wave-4 migration note: the leaf kernels now run in the ``temper-geometry``
+crate (``via_clearance.rs``) — the IEC 60950-1 tables
+(``safety_distances_py``), the word-boundary keyword matcher
+(``kw_boundary_match_py``) and the IEC 60335-1 net-class classification
+(``net_class_to_voltage_class_py``).  The ``get_clearance`` orchestration,
+the ``SafetyDistances`` dataclass, and the ``VoltageClass`` enum mapping
+stay here.  Bit-identical parity is pinned by
+``tests/router_v6/test_via_clearance_tier2_rust_differential.py``.
 """
 
 from __future__ import annotations
 
-import re
+from dataclasses import dataclass
+
+import temper_geometry as _tg
 
 from temper_placer.core.net_types import VoltageClass
 from temper_placer.router_v6.creepage_check import _calculate_required_creepage
@@ -61,7 +72,6 @@ def calculate_safety_distances(
     Returns:
         SafetyDistances dataclass with clearance_mm, creepage_mm, voltage_v.
     """
-    from dataclasses import dataclass
 
     @dataclass
     class SafetyDistances:
@@ -69,37 +79,9 @@ def calculate_safety_distances(
         creepage_mm: float
         voltage_v: float
 
-    clearance_table = [
-        (50, 0.2),
-        (150, 1.0),
-        (300, 2.0),
-        (600, 2.5),
-        (1000, 4.0),
-        (float("inf"), 5.0),
-    ]
-    creepage_table = [
-        (50, 0.4),
-        (150, 2.0),
-        (300, 2.5),
-        (600, 3.0),
-        (1000, 5.0),
-        (float("inf"), 8.0),
-    ]
-    clearance_mm = 0.2
-    for vl, d in clearance_table:
-        if voltage_v <= vl:
-            clearance_mm = d
-            break
-    creepage_mm = 0.4
-    for vl, d in creepage_table:
-        if voltage_v <= vl:
-            creepage_mm = d
-            break
-    if overvoltage_category >= 3:
-        clearance_mm *= 1.25
-        creepage_mm *= 1.25
-    if pollution_degree >= 3:
-        creepage_mm *= 2.0
+    clearance_mm, creepage_mm, voltage_v = _tg.safety_distances_py(
+        voltage_v, pollution_degree, overvoltage_category
+    )
     return SafetyDistances(
         clearance_mm=clearance_mm,
         creepage_mm=creepage_mm,
@@ -114,39 +96,28 @@ INTERNAL_LAYER_CREEPAGE_FACTOR: float = 0.30
 # Net-class → VoltageClass mapping (IEC 60335-1)
 # ---------------------------------------------------------------------------
 
+# The classification itself (the word-boundary keyword scan and the
+# 120 V / 240 V branch) runs in temper-geometry's
+# ``net_class_to_voltage_class_py``; this table maps the returned IEC 60335-1
+# enum value back onto the pyo3 ``VoltageClass`` members.
+_VC_FROM_VALUE = {
+    VoltageClass.SELV.value: VoltageClass.SELV,
+    VoltageClass.LOW_VOLTAGE.value: VoltageClass.LOW_VOLTAGE,
+    VoltageClass.MAINS_120V.value: VoltageClass.MAINS_120V,
+    VoltageClass.MAINS_240V.value: VoltageClass.MAINS_240V,
+    VoltageClass.HIGH_VOLTAGE.value: VoltageClass.HIGH_VOLTAGE,
+}
+
 
 def _kw_boundary_match(upper: str, keywords: tuple[str, ...]) -> bool:
     """Word-boundary keyword match, delimited by ``_`` or start/end of string.
 
-    Bug history (2026-07-27, ``clearance_engine.py:125``, the third
-    confirmed instance of this defect class -- see
-    ``docs/evidence/2026-07-27-net-classification-gate.md``): this
-    function's predecessor used plain substring matching
-    (``kw in upper for kw in ("HIGH_VOLTAGE", "HV", "MAINS_240V", "MAINS",
-    "AC")``). Bare ``"HV"``/``"AC"`` as substrings match any label that
-    merely *contains* those two letters in sequence -- the exact same
-    class of bug already fixed twice elsewhere in this module family:
-    ``creepage_check._is_high_voltage_net`` (merge ``5076e715`` -- ``"L1"``/
-    ``"L2"``/``"LINE"`` substrings matched ``COIL1``/``COIL2``/``...-line``,
-    producing 24/24 false-positive creepage violations) and
-    ``clearance_check._get_required_clearance`` (merge ``466c7724`` -- a
-    narrow 4-keyword substring list under-matched 11 real HV-domain nets).
-    This function was not proven to have live false positives against the
-    project's actual net names (its only caller passes canonical labels
-    like ``"HV"``/``"GND"``/``"POWER"``/``"SIGNAL"``, none of which happen
-    to collide) but its own docstring documents it as accepting arbitrary
-    caller-supplied strings, so it carries the same latent risk and is
-    fixed with the same technique for consistency and defense-in-depth,
-    rather than left as the one unfixed instance of a defect class already
-    confirmed three times in this repo.
-
-    Mirrors ``creepage_check._is_high_voltage_net``'s regex exactly:
-    a keyword must be preceded by ``_``/start-of-string and followed by
-    ``_``/digit/end-of-string to count as a match.
+    Delegates to ``temper_geometry.kw_boundary_match_py``, which replicates
+    the regex ``(?:^|_)kw(?:$|[\\d_])`` with the Unicode-Nd digit property
+    exactly (see the bug-history rationale pinned in the differential suite
+    and the Rust module doc for why plain substring matching is forbidden).
     """
-    return any(
-        re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper) for kw in keywords
-    )
+    return _tg.kw_boundary_match_py(upper, list(keywords))
 
 
 def _net_class_to_voltage_class(net_class: str) -> VoltageClass:
@@ -160,32 +131,7 @@ def _net_class_to_voltage_class(net_class: str) -> VoltageClass:
     matching here would repeat a defect class already confirmed three
     times in this repo.
     """
-    upper = net_class.upper()
-
-    if _kw_boundary_match(upper, ("HIGH_VOLTAGE", "HV", "MAINS_240V", "MAINS", "AC")):
-        # Distinguish 120 V vs 240 V when possible. "120"/"240" are
-        # typically followed by a "V" unit suffix (e.g. "MAINS_120V"),
-        # which the standard trailing boundary (`$`/digit/`_`) does not
-        # cover -- so the trailing-boundary set is widened to also accept
-        # a literal "V" immediately after the digits, rather than falling
-        # back to an unanchored substring test (found by
-        # scripts/check_net_classification.py auditing this function a
-        # second time; see
-        # docs/evidence/2026-07-27-net-classification-gate.md).
-        if re.search(r"(?:^|_)120(?:V|$|[\d_])", upper):
-            return VoltageClass.MAINS_120V
-        if re.search(r"(?:^|_)240(?:V|$|[\d_])", upper) or _kw_boundary_match(upper, ("MAINS",)):
-            return VoltageClass.MAINS_240V
-        return VoltageClass.HIGH_VOLTAGE
-
-    if re.search(r"(?:^|_)120(?:V|$|[\d_])", upper) or _kw_boundary_match(upper, ("MAINS_120V",)):
-        return VoltageClass.MAINS_120V
-
-    if _kw_boundary_match(upper, ("LOW_VOLTAGE", "LV", "POWER")):
-        return VoltageClass.LOW_VOLTAGE
-
-    # Everything else (Signal, GND, SELV, …) → SELV (lowest requirements)
-    return VoltageClass.SELV
+    return _VC_FROM_VALUE[_tg.net_class_to_voltage_class_py(net_class)]
 
 
 # ---------------------------------------------------------------------------
