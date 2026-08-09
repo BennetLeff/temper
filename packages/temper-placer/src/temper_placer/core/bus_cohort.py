@@ -17,9 +17,20 @@ reverse map) with string-prefix classification — genuinely Python glue with no
 numeric kernel worth crossing the boundary.
 """
 
+from typing import TYPE_CHECKING, Any, TypeAlias
+
 import temper_design_bundle_python as _tdb
 
-BusCohortConstraint = _tdb.bus_cohort_contracts.BusCohortConstraint
+if TYPE_CHECKING:
+    # ``temper_design_bundle_python`` is a compiled pyo3 extension with no
+    # stub, so ``_tdb.bus_cohort_contracts.BusCohortConstraint`` binds a
+    # *variable* of type Any and every annotation using it is "not valid as
+    # a type". Aliasing to Any under TYPE_CHECKING keeps the runtime binding
+    # below untouched -- same idiom as core/manufacturing.py's FabPreset and
+    # core/placement_drc.py's PinInfo.
+    BusCohortConstraint: TypeAlias = Any
+else:
+    BusCohortConstraint = _tdb.bus_cohort_contracts.BusCohortConstraint
 
 
 class BusRegistry:
@@ -33,7 +44,7 @@ class BusRegistry:
         _net_to_bus: Reverse lookup from net name to bus name.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.buses: dict[str, BusCohortConstraint] = {}
         self._net_to_bus: dict[str, str] = {}
 
