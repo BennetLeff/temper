@@ -33,13 +33,6 @@ temper_placer/cli/__init__.py::regression  # TODO: temper-xxx
 temper_placer/cli/_signal.py::InterruptGuard.restore  # TODO: temper-xxx
 temper_placer/cli/_version.py::version  # TODO: temper-xxx
 temper_placer/cli/andon_commands.py::andon  # TODO: temper-xxx
-temper_placer/cli/drc_cli.py::check  # TODO: temper-xxx
-temper_placer/cli/drc_cli.py::cli  # TODO: temper-xxx
-temper_placer/cli/drc_cli.py::init_constraints  # TODO: temper-xxx
-temper_placer/cli/drc_cli.py::init_placement  # TODO: temper-xxx
-temper_placer/cli/drc_cli.py::list_checks  # TODO: temper-xxx
-temper_placer/cli/drc_cli.py::main  # TODO: temper-xxx
-temper_placer/cli/drc_cli.py::summary  # TODO: temper-xxx
 temper_placer/cli/timing.py::timing  # TODO: temper-xxx
 temper_placer/cli/timing.py::timing_baseline  # TODO: temper-xxx
 temper_placer/cli/timing.py::timing_check  # TODO: temper-xxx
@@ -647,7 +640,6 @@ temper_placer/pipeline/dag_expr.py::evaluate_skip_expr  # TODO: temper-xxx
 temper_placer/pipeline/dag_expr.py::parse_skip_expr  # TODO: temper-xxx
 temper_placer/pipeline/dag_observability.py::PipelineExecutionLog.to_dict  # TODO: temper-xxx
 temper_placer/pipeline/dag_observability.py::write_execution_log_json  # TODO: temper-xxx
-temper_placer/pipeline/dag_schema.py::load_manifest  # TODO: temper-xxx
 temper_placer/pipeline/dag_types.py::StageResult.success  # TODO: temper-xxx
 temper_placer/pipeline/derivation.py::apply_derived_constraints  # TODO: temper-xxx
 temper_placer/pipeline/derivation.py::derive_constraints_from_spec  # TODO: temper-xxx

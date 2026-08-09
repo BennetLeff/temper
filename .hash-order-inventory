@@ -24,7 +24,6 @@ packages/temper-placer/src/temper_placer/explainability/decision.py::DecisionTra
 packages/temper-placer/src/temper_placer/extraction/hypergraph_factory.py::HypergraphFactory.build::set-loop-records-order 1
 packages/temper-placer/src/temper_placer/io/zone_manager.py::get_board_outline::set-materialised 1
 packages/temper-placer/src/temper_placer/metrics/quality.py::thermal_score::set-loop-records-order 1
-packages/temper-placer/src/temper_placer/pipeline/dag_schema.py::_warn_unreachable::set-materialised 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py::FeedbackClassifier._handle_congestion::hash-builtin 2
 packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py::IECCreepageGate.check::set-materialised 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py::QualityGate.check::set-materialised 1
