@@ -27,16 +27,29 @@ makes `ParseResult` report 4 stored fields, not 6).
 
 | Crate | Wave-1 stored | **Current stored** | Transient (current) | Raw (current) | Stored delta |
 |---|---:|---:|---:|---:|---:|
-| temper-design-bundle | 153 | **252** (245 Any + 5 Dict + 2 List) | 279 | 531 | +99 |
-| temper-drc-rs | 0 | **85** (85 Any) | 118 | 203 | +85 |
-| temper-io-types | 8 | **16** (16 Any) | 41 | 57 | +8 |
+| temper-design-bundle | 153 | **224** (209 Any + 5 Dict + 2 List, remaining) | 235 | 459 | +71 |
+| temper-drc-rs | 0 | **81** (81 Any) | 117 | 198 | +81 |
+| temper-io-types | 8 | **16** (16 Any) | 46 | 62 | +8 |
 | temper-constraint-compiler | 0 | **0** | 18 | 18 | 0 |
 | temper-rust-router | 0 | **0** | 10 | 10 | 0 |
-| temper-quality-oracle | 0 | **0** | 13 | 13 | 0 |
-| temper-geometry | — | **0** | 3 | 3 | — |
+| temper-quality-oracle | 0 | **0** | 11 | 11 | 0 |
+| temper-geometry | — | **0** | 4 | 4 | — |
 | temper-orchestration | — | **0** | 2 | 2 | — |
-| temper-placement-topology | — | **0** | 1 | 1 | — |
-| **Total** | **161** | **353** | **485** | **838** | **+192** |
+| temper-placement-topology | — | **folded into temper-geometry** (2026-08-09) | — | — | — |
+| **Total** | **161** | **321** | **443** | **764** | **+160** |
+
+> **Wave-3/4 re-measurement (2026-08-09, after Wave-C landings).** The row
+> above is re-measured at `origin/main` post-`feat/wavec-core-contracts-migration`
+> (net_graph + differential_pair + bus_cohort pyclasses landed; placement-topology
+> folded into geometry). Stored 353 → **321** (−32), raw 838 → **764** (−74).
+> The design-bundle drop (252 → 224) is the Wave-C element-typing (net_graph,
+> differential_pair, bus_cohort containers now hold same-crate pyclasses, so the
+> opaque element handles are gone); drc-rs 85 → 81 is the wave-3 `to_dict`
+> tightenings that the wave-3 note attributed. The remaining 321 stored are the
+> INTENTIONAL/STILL-NEEDED set (§2 classes unchanged): type-preservation
+> scalars (board_contracts, netlist_contracts, parse_engine, routing_metrics),
+> Python-built containers (router_v6/pipeline/cp_sat results), and the two
+> still-pending Wave-C watch-items (pcl.constraints, _constraint_types).
 
 Wave-1's own arithmetic had two small errors that this re-audit corrects
 before diffing (neither changes a classification):
@@ -371,9 +384,11 @@ zero behavioral risk, and the differential is the only pin.
 
 **Still pending:**
 
-- `DesignRules`' remaining containers (pydantic `NetClassRules`,
-  `BusCohortConstraint`) — removable only when those types migrate.
-  `_constraint_types` and `pcl.constraints` are still pure Python.
+- `DesignRules`' remaining containers (pydantic `NetClassRules`) — removable
+  only when that type migrates. `BusCohortConstraint` LANDED as
+  `bus_cohort_contracts.rs` (2026-08-08, plan `2026-08-08-002`), closing the
+  `bus_cohorts` container. `_constraint_types` and `pcl.constraints` are still
+  pure Python.
 - `PclTypes`/`TagTypes` cached enum handles — bound to the class-iteration
   keep; permanent.
 - `PyRect` — the parallel-`RectData` design means the opaque fields stay; a
@@ -456,13 +471,13 @@ all ledgered. Verified by running the gate in the worktree.
    returns and extract-helper dedup landed in wave-3; A1 is proven NOT
    removable (see §4). The remaining stored `Py<PyAny>` is all INTENTIONAL
    or STILL-NEEDED.
-2. Update `docs/MIGRATION_PHASE_GUIDE.md` § Phase 5's boundary figure again:
-   the "58 `Py<PyAny>` fields" paragraph should now be told as stored 20 → 161
-   → 353 → (wave-3: transient tightened, stored unchanged for the non-removable
-   classes) with the stored-vs-transient distinction, so the next measurement
-   (wave-3) compares like for like. NOTE: `docs/MIGRATION_PHASE_GUIDE.md` no
-   longer exists as of 2026-08-07 — record the wave-3 numbers wherever the
-   Phase-5 boundary figure lives next.
+2. ~~Update `docs/MIGRATION_PHASE_GUIDE.md` § Phase 5's boundary figure again~~
+   — **SUPERSEDED**: `docs/MIGRATION_PHASE_GUIDE.md` no longer exists. The
+   measurement trail is now: stored 20 → 161 → 353 → **321** (wave-3/4,
+   2026-08-09 — see §1 re-measurement block), raw 838 → 764, with the
+   stored-vs-transient distinction and the INTENTIONAL/STILL-NEEDED split
+   recorded inline in this document. The next measurement (wave-4) compares
+   like for like against the 321/764 row.
 3. ~~**Re-run this audit when the pcl/net_graph/`_constraint_types`/differential_pair
    migrations land** — each converts a §3 watch-item into a circular call-back
    and can make `DesignRules`' seven containers removable~~ — **PARTIALLY
