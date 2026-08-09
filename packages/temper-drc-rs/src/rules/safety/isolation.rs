@@ -138,6 +138,7 @@ pub(crate) mod tests {
     use crate::board::*;
     use crate::constraints::{ConstraintSet, ZoneDefinition};
     use geo::Point;
+    use std::collections::BTreeMap;
 
     fn component(refdes: &str, x: f64, y: f64, net_class: &str) -> Component {
         Component {
@@ -165,7 +166,7 @@ pub(crate) mod tests {
             electrical_components: components,
             mechanical_components: vec![],
             nets: vec![],
-            net_class_rules: std::collections::HashMap::new(),
+            net_class_rules: BTreeMap::new(),
             traces: vec![],
             vias: vec![],
             zones: vec![],

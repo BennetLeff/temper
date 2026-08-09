@@ -378,7 +378,7 @@ pub(crate) mod integration_tests {
     use crate::board::*;
     use crate::constraints::*;
     use geo::Point;
-    use std::collections::BTreeMap;
+    use std::collections::{BTreeMap, HashMap};
 
     fn empty_board() -> BoardState {
         BoardState {
@@ -530,7 +530,7 @@ pub(crate) mod integration_tests {
 
     /// drc_clearance — two 10x10 components 1mm apart, class clearance_mm=1.0.
     fn fixture_clearance() -> (BoardState, ConstraintSet) {
-        let mut ncr = HashMap::new();
+        let mut ncr = BTreeMap::new();
         ncr.insert(
             NetClassName("Signal".into()),
             NetClassRules { clearance_mm: 1.0, ..NetClassRules::default() },
@@ -589,7 +589,7 @@ pub(crate) mod integration_tests {
     /// drc_trace_clearance — two same-layer, different-net traces 0.05mm
     /// apart, class clearance_mm=1.0.
     fn fixture_trace_clearance() -> (BoardState, ConstraintSet) {
-        let mut ncr = HashMap::new();
+        let mut ncr = BTreeMap::new();
         ncr.insert(
             NetClassName("Signal".into()),
             NetClassRules { clearance_mm: 1.0, ..NetClassRules::default() },
@@ -694,7 +694,7 @@ pub(crate) mod integration_tests {
     /// emc_noise_coupling — "power"/"analog" pair 0.1mm apart, class
     /// clearance_mm=5.0 (> 0 required for the check to engage at all).
     fn fixture_noise_coupling() -> (BoardState, ConstraintSet) {
-        let mut ncr = HashMap::new();
+        let mut ncr = BTreeMap::new();
         ncr.insert(NetClassName("power".into()), NetClassRules { clearance_mm: 5.0, ..NetClassRules::default() });
         let board = BoardState {
             net_class_rules: ncr,
@@ -811,7 +811,7 @@ pub(crate) mod integration_tests {
             ..empty_board()
         };
         let constraints = ConstraintSet {
-            isolation_barriers: vec![IsolationBarrier { name: "main_barrier".into(), x_mm: 50.0, y_span: [0.0, 100.0], layers: "all".into() }],
+            isolation_barriers: vec![IsolationBarrier { name: "main_barrier".into(), x_mm: 50.0, y_span: [0.0, 100.0], layers: "all".into(), points: vec![], clearance_mm: 0.0 }],
             ..Default::default()
         };
         (board, constraints)
@@ -821,7 +821,7 @@ pub(crate) mod integration_tests {
     /// another trace, well under the 0.2mm base clearance x 1.5 = 0.3mm
     /// required minimum.
     fn fixture_partial_discharge() -> (BoardState, ConstraintSet) {
-        let mut ncr = HashMap::new();
+        let mut ncr = BTreeMap::new();
         ncr.insert(NetClassName("HighVoltage".into()), NetClassRules { voltage_v: 340.0, clearance_mm: 0.2, ..NetClassRules::default() });
         let board = BoardState {
             net_class_rules: ncr,
@@ -842,7 +842,7 @@ pub(crate) mod integration_tests {
 
     /// routing_tht_thermal_relief — THT part on a net class rated <= threshold.
     fn fixture_tht_thermal_relief() -> (BoardState, ConstraintSet) {
-        let mut ncr = HashMap::new();
+        let mut ncr = BTreeMap::new();
         ncr.insert(NetClassName("Signal".into()), NetClassRules { max_current_rating: Some(5.0), ..NetClassRules::default() });
         let mut c = comp("D1", 0.0, 0.0, 5.0, 5.0, "Signal");
         c.package_type = PackageType::Tht;
@@ -853,7 +853,7 @@ pub(crate) mod integration_tests {
     /// routing_power_pad_teardrop — narrow trace entering a large pad on a
     /// high-current net.
     fn fixture_power_pad_teardrop() -> (BoardState, ConstraintSet) {
-        let mut ncr = HashMap::new();
+        let mut ncr = BTreeMap::new();
         ncr.insert(NetClassName("Power".into()), NetClassRules { max_current_rating: Some(10.0), ..NetClassRules::default() });
         let board = BoardState {
             net_class_rules: ncr,
@@ -867,7 +867,7 @@ pub(crate) mod integration_tests {
     /// routing_pad_entry_width — narrow trace entering a large pad on a
     /// very-high-current net.
     fn fixture_pad_entry_width() -> (BoardState, ConstraintSet) {
-        let mut ncr = HashMap::new();
+        let mut ncr = BTreeMap::new();
         ncr.insert(NetClassName("HighCurrent".into()), NetClassRules { max_current_rating: Some(25.0), ..NetClassRules::default() });
         let board = BoardState {
             net_class_rules: ncr,

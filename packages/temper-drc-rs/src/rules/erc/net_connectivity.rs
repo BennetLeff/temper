@@ -77,7 +77,7 @@ pub(crate) mod tests {
     use super::*;
     use crate::board::*;
     use crate::constraints::*;
-    use std::collections::BTreeMap;
+    use std::collections::{BTreeMap, HashMap};
 
     #[cfg_attr(test, test)]
     fn net_connectivity_empty_board_no_violations() {
@@ -169,7 +169,7 @@ pub(crate) mod tests {
                 class: NetClassName("Signal".into()),
                 rules: NetClassRules::default(),
             }],
-            net_class_rules: HashMap::new(),
+            net_class_rules: BTreeMap::new(),
             traces: vec![],
             vias: vec![],
             zones: vec![],
@@ -195,7 +195,7 @@ pub(crate) mod tests {
                 class: NetClassName("Signal".into()),
                 rules: NetClassRules::default(),
             }],
-            net_class_rules: HashMap::new(),
+            net_class_rules: BTreeMap::new(),
             traces: vec![],
             vias: vec![],
             zones: vec![],
@@ -236,7 +236,7 @@ pub(crate) mod tests {
                     rules: NetClassRules::default(),
                 },
             ],
-            net_class_rules: HashMap::new(),
+            net_class_rules: BTreeMap::new(),
             traces: vec![],
             vias: vec![],
             zones: vec![],

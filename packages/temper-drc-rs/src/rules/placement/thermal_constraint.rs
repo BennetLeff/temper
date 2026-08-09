@@ -194,7 +194,7 @@ pub(crate) mod tests {
     use crate::board::*;
     use crate::constraints::*;
     use geo::Point;
-    use std::collections::HashMap;
+    use std::collections::{BTreeMap, HashMap};
 
     fn make_board(components: Vec<Component>) -> BoardState {
         BoardState {
@@ -204,7 +204,7 @@ pub(crate) mod tests {
             electrical_components: components,
             mechanical_components: vec![],
             nets: vec![],
-            net_class_rules: HashMap::new(),
+            net_class_rules: BTreeMap::new(),
             traces: vec![],
             vias: vec![],
             zones: vec![],

@@ -165,6 +165,7 @@ pub(crate) mod tests {
     use crate::board::*;
     use crate::constraints::*;
     use geo::{polygon, Point};
+    use std::collections::BTreeMap;
 
     fn make_board(components: Vec<Component>, zones: Vec<CopperZone>) -> BoardState {
         BoardState {
@@ -174,7 +175,7 @@ pub(crate) mod tests {
             electrical_components: components,
             mechanical_components: vec![],
             nets: vec![],
-            net_class_rules: HashMap::new(),
+            net_class_rules: BTreeMap::new(),
             traces: vec![],
             vias: vec![],
             zones,

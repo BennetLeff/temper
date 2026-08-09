@@ -131,7 +131,7 @@ pub(crate) mod tests {
     use crate::board::*;
     use crate::constraints::ConstraintSet;
     use geo::{polygon, Point};
-    use std::collections::HashMap;
+    use std::collections::{BTreeMap, HashMap};
 
     /// An axis-aligned square, half-extent `half` on each side.
     fn axis_square(refdes: &str, cx: f64, cy: f64, half: f64, net_class: &str) -> Component {
@@ -194,7 +194,7 @@ pub(crate) mod tests {
             electrical_components: components,
             mechanical_components: vec![],
             nets: vec![],
-            net_class_rules: HashMap::new(),
+            net_class_rules: BTreeMap::new(),
             traces: vec![],
             vias: vec![],
             zones: vec![],
@@ -341,7 +341,7 @@ pub(crate) mod tests {
         let hv = axis_square("HV1", 0.0, 0.0, 10.0, "CLASS_A");
         let lv = diamond("LV1", 18.5, 0.0, 8.0, "CLASS_B");
         let mut board = board_with(vec![hv, lv]);
-        let mut rules = HashMap::new();
+        let mut rules = BTreeMap::new();
         rules.insert(
             NetClassName("CLASS_A".into()),
             NetClassRules { safety_category: Some("HV".into()), ..NetClassRules::default() },
@@ -362,7 +362,7 @@ pub(crate) mod tests {
         let ac = axis_square("AC1", 0.0, 0.0, 10.0, "CLASS_AC");
         let lv = diamond("LV1", 18.5, 0.0, 8.0, "CLASS_B");
         let mut board = board_with(vec![ac, lv]);
-        let mut rules = HashMap::new();
+        let mut rules = BTreeMap::new();
         rules.insert(
             NetClassName("CLASS_AC".into()),
             NetClassRules { safety_category: Some("AC".into()), ..NetClassRules::default() },

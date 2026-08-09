@@ -338,7 +338,7 @@ pub(crate) mod tests {
     use crate::board::*;
     use crate::constraints::*;
     use geo::{Line, LineString, Point, Polygon};
-    use std::collections::HashMap;
+    use std::collections::{BTreeMap, HashMap};
 
     /// A 152mm x 234mm board (real board's `Edge.Cuts` extent, per
     /// `docs/evidence/2026-08-08-power-plane-spec-readiness.md`) with the
@@ -352,7 +352,7 @@ pub(crate) mod tests {
             electrical_components: vec![],
             mechanical_components: vec![],
             nets: vec![],
-            net_class_rules: HashMap::new(),
+            net_class_rules: BTreeMap::new(),
             traces,
             vias: vec![],
             zones,

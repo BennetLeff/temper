@@ -108,7 +108,7 @@ pub(crate) mod tests {
     use super::*;
     use crate::board::*;
     use crate::constraints::ConstraintSet;
-    use std::collections::HashMap;
+    use std::collections::{BTreeMap, HashMap};
 
     /// A component whose net class name contains an isolation keyword
     /// ("ISO"), so it is picked up by the keyword fallback in
@@ -131,7 +131,7 @@ pub(crate) mod tests {
         }
     }
 
-    fn board_with(components: Vec<Component>, net_class_rules: HashMap<NetClassName, NetClassRules>) -> BoardState {
+    fn board_with(components: Vec<Component>, net_class_rules: BTreeMap<NetClassName, NetClassRules>) -> BoardState {
         BoardState {
             width_mm: 100.0,
             height_mm: 100.0,
@@ -149,7 +149,7 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn fires_for_undersized_iso_component() {
         // max(3.0, 4.0) = 4.0mm package width < 6.0mm required.
-        let board = board_with(vec![iso_component("U1", 3.0, 4.0)], HashMap::new());
+        let board = board_with(vec![iso_component("U1", 3.0, 4.0)], BTreeMap::new());
         let check = CreepageCheck::new(6.0);
         let violations = check.check(&board, &ConstraintSet::default());
         assert_eq!(violations.len(), 1, "undersized isolation package must fire exactly one violation");
@@ -159,7 +159,7 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn does_not_fire_for_oversized_iso_component() {
-        let board = board_with(vec![iso_component("U1", 8.0, 8.0)], HashMap::new());
+        let board = board_with(vec![iso_component("U1", 8.0, 8.0)], BTreeMap::new());
         let check = CreepageCheck::new(6.0);
         let violations = check.check(&board, &ConstraintSet::default());
         assert!(violations.is_empty(), "well-sized isolation package must not fire");
@@ -172,7 +172,7 @@ pub(crate) mod tests {
         // the fires/does-not-fire pair.
         let mut c = iso_component("R1", 1.0, 1.0);
         c.net_class = NetClassName("Signal".into());
-        let board = board_with(vec![c], HashMap::new());
+        let board = board_with(vec![c], BTreeMap::new());
         let check = CreepageCheck::new(6.0);
         let violations = check.check(&board, &ConstraintSet::default());
         assert!(violations.is_empty(), "non-isolation component must never trigger the creepage check, regardless of size");
@@ -185,7 +185,7 @@ pub(crate) mod tests {
         // matching the ported Python original
         // (`if package_width < self._min_iso_width_mm`). The requirement is
         // "at least min_iso_width_mm", so equality satisfies it.
-        let board = board_with(vec![iso_component("U1", 6.0, 6.0)], HashMap::new());
+        let board = board_with(vec![iso_component("U1", 6.0, 6.0)], BTreeMap::new());
         let check = CreepageCheck::new(6.0);
         let violations = check.check(&board, &ConstraintSet::default());
         assert!(violations.is_empty(), "exact-threshold width (== min_iso_width_mm) must be compliant, not violating");
@@ -193,7 +193,7 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn boundary_just_below_threshold_fires() {
-        let board = board_with(vec![iso_component("U1", 5.999, 5.999)], HashMap::new());
+        let board = board_with(vec![iso_component("U1", 5.999, 5.999)], BTreeMap::new());
         let check = CreepageCheck::new(6.0);
         let violations = check.check(&board, &ConstraintSet::default());
         assert_eq!(violations.len(), 1, "0.001mm under threshold must fire");
@@ -201,7 +201,7 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn boundary_just_above_threshold_does_not_fire() {
-        let board = board_with(vec![iso_component("U1", 6.001, 6.001)], HashMap::new());
+        let board = board_with(vec![iso_component("U1", 6.001, 6.001)], BTreeMap::new());
         let check = CreepageCheck::new(6.0);
         let violations = check.check(&board, &ConstraintSet::default());
         assert!(violations.is_empty(), "0.001mm over threshold must not fire");
@@ -216,7 +216,7 @@ pub(crate) mod tests {
         // comp.height)` -- not min() (which would wrongly fire here) and
         // not width+height (which would wrongly pass a genuinely undersized
         // single dimension in other cases).
-        let board = board_with(vec![iso_component("U1", 2.0, 8.0)], HashMap::new());
+        let board = board_with(vec![iso_component("U1", 2.0, 8.0)], BTreeMap::new());
         let check = CreepageCheck::new(6.0);
         let violations = check.check(&board, &ConstraintSet::default());
         assert!(violations.is_empty(), "max(width, height) should govern the creepage distance, not min() or width alone");
@@ -230,7 +230,7 @@ pub(crate) mod tests {
         // check for an undersized package.
         let mut c = iso_component("U1", 3.0, 3.0);
         c.net_class = NetClassName("CLASS_X".into());
-        let mut rules = HashMap::new();
+        let mut rules = BTreeMap::new();
         rules.insert(
             NetClassName("CLASS_X".into()),
             NetClassRules { safety_category: Some("iso".into()), ..NetClassRules::default() },
@@ -251,7 +251,7 @@ pub(crate) mod tests {
         // NOT fire.
         let mut c = iso_component("U1", 1.0, 1.0);
         c.net_class = NetClassName("ISO_LOOKALIKE".into());
-        let mut rules = HashMap::new();
+        let mut rules = BTreeMap::new();
         rules.insert(
             NetClassName("ISO_LOOKALIKE".into()),
             NetClassRules { safety_category: Some("power".into()), ..NetClassRules::default() },
