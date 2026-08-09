@@ -291,19 +291,24 @@ def test_real_policy_predicates_no_longer_orphan_the_measured_power_ground_nets(
     grants it zone eligibility (see `_net_policy.py`'s `_should_route`
     docstring for the per-net evidence -- `docs/evidence/
     2026-07-28-pour-strategy-audit.md` Task 1/Task 3 -- for why A*-routing,
-    not zone eligibility, is the correct fix for all six of these nets).
-    So these six nets are no longer excluded from A* (`_should_route` now
-    returns ``True``), while remaining correctly zone-ineligible per the
-    netclass SSOT (`_zone_layers_for_net` still returns ``[]`` -- that half
-    of the classifier was already correct and is untouched by this fix).
-    This is the real regression pin now: if either predicate regresses back
-    toward re-excluding these nets from A* without restoring zone
-    eligibility, this test must fail.
+    not zone eligibility, is the correct fix for these nets). Five of the
+    six measured nets (`+15V`, `+3V3`, `V_BUS_SENSE`, `gnd`, `vcc`) are no
+    longer excluded from A* (`_should_route` returns ``True``) while
+    remaining correctly zone-ineligible per the netclass SSOT
+    (`_zone_layers_for_net` returns ``[]``).
+
+    `PWR_RTN` is the ONE exception the R4 pour-derivation fix (2026-08-07,
+    `docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md`) created
+    on purpose: `GND` declares ``plane_preferred`` and `PWR_RTN` is its
+    only member with committed zones on the board, so
+    `_zone_layers_for_net("PWR_RTN")` is now ``["F.Cu", "B.Cu"]`` and its
+    A* exclusion is correct (the zone covers it). It is deliberately NOT
+    in the A*-must-route list below.
     """
     from temper_placer.router_v6._net_policy import _should_route
     from temper_placer.router_v6._zone_pour_stitch import _zone_layers_for_net
 
-    orphaned_by_policy = ["+15V", "+3V3", "PWR_RTN", "V_BUS_SENSE", "gnd", "vcc"]
+    orphaned_by_policy = ["+15V", "+3V3", "V_BUS_SENSE", "gnd", "vcc"]
     for name in orphaned_by_policy:
         assert _should_route(name), (
             f"{name!r} must be routed by A* now that it is not zone-eligible "
@@ -315,6 +320,19 @@ def test_real_policy_predicates_no_longer_orphan_the_measured_power_ground_nets(
             "intentional this test (and _should_route's docstring) should "
             "be updated to match, not just this assertion"
         )
+
+    # PWR_RTN: plane_preferred + committed board zones -> zone-covered, so
+    # its A* exclusion is correct (the zone produces the copper).
+    assert _zone_layers_for_net("PWR_RTN") == ["F.Cu", "B.Cu"], (
+        "PWR_RTN's plane_preferred zone eligibility must persist (R4); "
+        "regressing it back to [] would re-orphan it exactly as this test "
+        "guards against"
+    )
+    assert not _should_route("PWR_RTN"), (
+        "PWR_RTN is zone-covered (plane_preferred + committed zones), so "
+        "its exclusion from A* is correct -- if it lost zone eligibility "
+        "it must move back into the A*-routed list above"
+    )
 
     # And the audit agrees: with real copper present for these nets (as the
     # production run now provides -- see

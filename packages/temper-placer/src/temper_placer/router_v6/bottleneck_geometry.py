@@ -974,20 +974,36 @@ def _required_creepage_mm(
                 comp_class = comp.net_class
         if comp_class and comp_class in net_class_rules:
             rule = net_class_rules[comp_class]
-            if not isinstance(rule, _CoreNetClassRules):
+            from temper_placer.router_v6.stage0_data import (
+                NetClassRules as _Stage0NetClassRules,
+            )
+
+            if isinstance(rule, _Stage0NetClassRules):
+                # The object `_adapter_convert._to_stage0_netclass_rules`
+                # actually produces and what flows through
+                # `pcb.design_rules.net_classes` after the stage0
+                # conversion/injection. Its field is `clearance_mm` (not the
+                # core model's `clearance`); read both correctly rather than
+                # rejecting -- a stage0 object reaching here is normal, and
+                # rejecting it crashed bottleneck analysis on any board with
+                # net classes (governs creepage on a mains board, so the
+                # value is safety-relevant).
+                candidates.append(float(rule.creepage_mm))
+                candidates.append(float(rule.clearance_mm))
+            elif isinstance(rule, _CoreNetClassRules):
+                candidates.append(float(rule.creepage_mm))
+                candidates.append(float(rule.clearance))
+            else:
                 raise TypeError(
                     f"_required_creepage_mm received a {type(rule).__module__}."
                     f"{type(rule).__qualname__} for net class {comp_class!r}, "
-                    "not core.design_rules.NetClassRules. This function's "
-                    "`.clearance` field access is specific to the core model; "
-                    "router_v6.stage0_data.NetClassRules names the same "
-                    "quantity `.clearance_mm` and would silently fall back to "
-                    f"the wrong {fallback}mm default here instead of raising "
+                    "not core.design_rules.NetClassRules or "
+                    "router_v6.stage0_data.NetClassRules. Reading `.clearance` "
+                    "or `.clearance_mm` on an unknown shape would silently "
+                    f"fall back to the wrong {fallback}mm default here "
                     "-- reject it instead, since this governs creepage on a "
                     "mains board."
                 )
-            candidates.append(float(rule.creepage_mm))
-            candidates.append(float(rule.clearance))
         else:
             candidates.append(fallback)
     if not candidates:

@@ -705,18 +705,22 @@ class TestRequiredCreepageMmTypeSafety:
             "-- looks like the 0.2mm fallback fired instead"
         )
 
-    def test_stage0_net_class_rules_is_rejected_not_silently_defaulted(self) -> None:
+    def test_stage0_net_class_rules_is_handled_not_silently_defaulted(self) -> None:
         """A router_v6.stage0_data.NetClassRules object reaching
-        _required_creepage_mm must be rejected loudly (TypeError), not
-        silently substitute the 0.2mm fallback for its differently-named
-        `.clearance_mm` field.
+        _required_creepage_mm is the NORMAL case (it is what
+        `_adapter_convert._to_stage0_netclass_rules` produces and what
+        flows through `pcb.design_rules.net_classes`), so it must be read
+        correctly -- `.clearance_mm`/`.creepage_mm` for stage0, not the
+        core model's `.clearance` -- and must NOT silently substitute the
+        0.2mm fallback.
 
         This is the failing-before/passing-after regression test for the
-        defect: pre-fix, this call does not raise at all -- it silently
-        returns 0.2 (the wrong, generic fallback) even though the stage0
-        rule declares a real 5.0mm clearance. The assertion below (expects
-        TypeError) fails pre-fix for exactly that reason, and passes
-        post-fix.
+        defect: pre-fix, this call silently returned 0.2 (the wrong,
+        generic fallback) because `getattr(rule, "clearance", fallback)`
+        found no `.clearance` on the stage0 object; the intermediate
+        "reject with TypeError" fix traded that for a crash. The correct
+        behavior is to read the stage0 object's real fields -- the declared
+        clearance and creepage survive.
         """
         from temper_placer.router_v6.bottleneck_geometry import _required_creepage_mm
         from temper_placer.router_v6.stage0_data import NetClassRules as Stage0NetClassRules
@@ -732,8 +736,13 @@ class TestRequiredCreepageMmTypeSafety:
             trace_width_mm=0.5,
             via_diameter_mm=0.6,
             via_drill_mm=0.3,
+            creepage_mm=8.0,
         )
         net_class_rules = {"HV": stage0_rule, "LV": stage0_rule}
 
-        with pytest.raises(TypeError, match="clearance_mm"):
-            _required_creepage_mm(net_class_rules, net, state)
+        result = _required_creepage_mm(net_class_rules, net, state)
+        assert result == 8.0, (
+            f"expected the stage0 rule's real creepage_mm (8.0), got {result} "
+            "-- the stage0 object must be read (clearance_mm/creepage_mm), "
+            "not silently replaced by the 0.2mm fallback"
+        )

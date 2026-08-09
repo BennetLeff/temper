@@ -132,9 +132,14 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
         if val is not None:
             safety_category = str(val)
 
+    # creepage_mm survives conversion: stage0_data.NetClassRules carries the
+    # field (default 0.0), and `_required_creepage_mm` reads it for the
+    # mains-adjacent bottleneck analysis -- dropping it here silently
+    # replaced a declared creepage (e.g. 6.0mm) with 0.0.
+    creepage_mm = getattr(rules, "creepage_mm", 0.0)
+
     # --- R1b: Warn on unrepresented fields that are explicitly set ---
     _UNREPRESENTED_WARN = (
-        ("creepage_mm", "Creepage distance", 0.0),
         ("voltage_v", "Voltage rating", 0.0),
         ("routing_strategy", "Routing strategy", None),
         ("via_cost_multiplier", "Via cost multiplier", 1.0),
@@ -164,6 +169,7 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
         via_drill_mm=via_drill_mm,
         current_rating_amps=current_rating_amps,
         safety_category=safety_category,
+        creepage_mm=creepage_mm,
     )
 
 
