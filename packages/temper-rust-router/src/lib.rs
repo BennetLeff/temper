@@ -425,6 +425,65 @@ fn f32s_from_le_bytes(bytes: &[u8], expected: usize) -> Vec<f32> {
     out
 }
 
+#[cfg(test)]
+mod proptests {
+    use proptest::prelude::*;
+
+    proptest! {
+        // -----------------------------------------------------------------
+        // f32s_from_le_bytes
+        // -----------------------------------------------------------------
+
+        /// P1. round-trip: encoding f32 values to bytes then back yields the
+        /// same values.
+        #[test]
+        fn p1_f32s_round_trip(
+            vals in prop::collection::vec(prop::num::f32::ANY, 0..=100),
+        ) {
+            let mut bytes = Vec::with_capacity(vals.len() * 4);
+            for &v in &vals {
+                bytes.extend_from_slice(&v.to_le_bytes());
+            }
+            let recovered = super::f32s_from_le_bytes(&bytes, vals.len());
+            prop_assert_eq!(recovered.len(), vals.len());
+            for (i, (&orig, &rec)) in vals.iter().zip(recovered.iter()).enumerate() {
+                // NaN has multiple bit representations, so compare bits
+                if orig.is_nan() {
+                    prop_assert!(rec.is_nan(), "index {}: expected NaN, got {}", i, rec);
+                } else {
+                    prop_assert_eq!(orig.to_bits(), rec.to_bits(),
+                        "index {}: orig={} rec={}", i, orig, rec);
+                }
+            }
+        }
+
+        /// P2. Output length equals input byte length divided by 4.
+        #[test]
+        fn p2_output_length_input_div_4(
+            bytes in prop::collection::vec(any::<u8>(), 0..=400),
+        ) {
+            // Truncate to multiple of 4
+            let n = (bytes.len() / 4) * 4;
+            let bytes = &bytes[..n];
+            let result = super::f32s_from_le_bytes(bytes, 0);
+            prop_assert_eq!(result.len(), bytes.len() / 4);
+        }
+
+        /// P3. Zero bytes decode to +0.0 f32.
+        #[test]
+        fn p3_zero_bytes_decode_to_zero(
+            count in 1usize..=20,
+        ) {
+            let bytes = vec![0u8; count * 4];
+            let result = super::f32s_from_le_bytes(&bytes, count);
+            for v in result {
+                prop_assert_eq!(v, 0.0f32);
+                prop_assert!(v.is_sign_positive());
+            }
+        }
+    }
+}
+
 /// Python-callable entry point for loop extraction via JSON.
 #[pyfunction]
 fn auto_extract_loops_rust(

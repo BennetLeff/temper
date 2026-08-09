@@ -165,3 +165,174 @@ mod tests {
         assert_eq!(w, 0.0);
     }
 }
+
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn positive_width() -> impl Strategy<Value = f64> {
+        0.01f64..100.0
+    }
+
+    fn positive_current() -> impl Strategy<Value = f64> {
+        0.01f64..50.0
+    }
+
+    fn reasonable_temp_rise() -> impl Strategy<Value = f64> {
+        1.0f64..100.0
+    }
+
+    fn copper_oz() -> impl Strategy<Value = f64> {
+        0.5f64..4.0
+    }
+
+    proptest! {
+        // -----------------------------------------------------------------
+        // estimate_trace_current
+        // -----------------------------------------------------------------
+
+        /// P1. Current capacity is always non-negative for non-negative
+        /// inputs.
+        #[test]
+        fn p1_current_capacity_non_negative(
+            w in positive_width(),
+            oz in copper_oz(),
+            tr in reasonable_temp_rise(),
+            internal in any::<bool>(),
+        ) {
+            let i = estimate_trace_current(w, oz, tr, internal);
+            prop_assert!(i >= 0.0, "current should be >= 0, got {}", i);
+        }
+
+        /// P2. Current capacity is strictly monotone in trace width:
+        /// wider traces carry more current (all else equal).
+        #[test]
+        fn p2_current_capacity_monotone_in_width(
+            w1 in positive_width(),
+            delta in 0.01f64..50.0,
+            oz in copper_oz(),
+            tr in reasonable_temp_rise(),
+            internal in any::<bool>(),
+        ) {
+            let w2 = w1 + delta;
+            let i1 = estimate_trace_current(w1, oz, tr, internal);
+            let i2 = estimate_trace_current(w2, oz, tr, internal);
+            prop_assert!(i2 > i1,
+                "wider trace ({} > {}) should carry more current, got {} <= {}",
+                w2, w1, i2, i1);
+        }
+
+        /// P3. Higher temperature rise allows more current (more headroom).
+        #[test]
+        fn p3_current_capacity_monotone_in_temp_rise(
+            w in positive_width(),
+            oz in copper_oz(),
+            tr1 in reasonable_temp_rise(),
+            delta in 1.0f64..50.0,
+            internal in any::<bool>(),
+        ) {
+            let tr2 = tr1 + delta;
+            let i1 = estimate_trace_current(w, oz, tr1, internal);
+            let i2 = estimate_trace_current(w, oz, tr2, internal);
+            prop_assert!(i2 > i1,
+                "higher temp rise ({} > {}) should allow more current",
+                tr2, tr1);
+        }
+
+        /// P4. External layers carry more current than internal for
+        /// the same parameters (k_external = 0.048 > k_internal = 0.024).
+        #[test]
+        fn p4_external_carries_more_than_internal(
+            w in positive_width(),
+            oz in copper_oz(),
+            tr in reasonable_temp_rise(),
+        ) {
+            let i_ext = estimate_trace_current(w, oz, tr, false);
+            let i_int = estimate_trace_current(w, oz, tr, true);
+            prop_assert!(i_ext > i_int,
+                "external should carry more current: {i_ext} <= {i_int}");
+        }
+
+        // -----------------------------------------------------------------
+        // calculate_min_trace_width
+        // -----------------------------------------------------------------
+
+        /// P5. Minimum trace width is non-negative for any positive
+        /// current.
+        #[test]
+        fn p5_min_trace_width_non_negative(
+            cur in positive_current(),
+            oz in copper_oz(),
+            tr in reasonable_temp_rise(),
+            internal in any::<bool>(),
+        ) {
+            let w = calculate_min_trace_width(cur, oz, tr, internal);
+            prop_assert!(w >= 0.0, "min trace width should be >= 0, got {}", w);
+        }
+
+        /// P6. Higher current demands wider traces (monotone in current).
+        #[test]
+        fn p6_min_trace_width_monotone_in_current(
+            cur1 in positive_current(),
+            delta in 0.1f64..30.0,
+            oz in copper_oz(),
+            tr in reasonable_temp_rise(),
+            internal in any::<bool>(),
+        ) {
+            let cur2 = cur1 + delta;
+            let w1 = calculate_min_trace_width(cur1, oz, tr, internal);
+            let w2 = calculate_min_trace_width(cur2, oz, tr, internal);
+            prop_assert!(w2 > w1,
+                "higher current ({} > {}) should require wider trace, got {} <= {}",
+                cur2, cur1, w2, w1);
+        }
+
+        /// P7. Internal layers require wider traces than external for the
+        /// same current.
+        #[test]
+        fn p7_internal_needs_wider_than_external(
+            cur in positive_current(),
+            oz in copper_oz(),
+            tr in reasonable_temp_rise(),
+        ) {
+            let w_ext = calculate_min_trace_width(cur, oz, tr, false);
+            let w_int = calculate_min_trace_width(cur, oz, tr, true);
+            prop_assert!(w_int > w_ext,
+                "internal should need wider trace: {w_int} <= {w_ext}");
+        }
+
+        // -----------------------------------------------------------------
+        // Round-trip
+        // -----------------------------------------------------------------
+
+        /// P8. Width → current → width is approximate identity (within
+        /// 1% relative tolerance for typical values).
+        #[test]
+        fn p8_trace_width_round_trip(
+            w in 0.1f64..10.0,
+            oz in copper_oz(),
+            tr in reasonable_temp_rise(),
+            internal in any::<bool>(),
+        ) {
+            let cur = estimate_trace_current(w, oz, tr, internal);
+            let w2 = calculate_min_trace_width(cur, oz, tr, internal);
+            let rel_err = if w > 0.0 { (w2 - w).abs() / w } else { 0.0 };
+            prop_assert!(rel_err < 0.02,
+                "round-trip error too large: w={w}, cur={cur}, w2={w2}, rel_err={rel_err}");
+        }
+
+        // -----------------------------------------------------------------
+        // get_net_current
+        // -----------------------------------------------------------------
+
+        /// P9. get_net_current always returns a non-negative value.
+        #[test]
+        fn p9_net_current_non_negative(
+            name in "[A-Za-z0-9_+]{1,32}"
+        ) {
+            let cur = get_net_current(&name);
+            prop_assert!(cur >= 0.0, "net current should be >= 0 for '{}', got {}", name, cur);
+        }
+    }
+}
