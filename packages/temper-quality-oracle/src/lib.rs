@@ -15,6 +15,7 @@ pub mod config;
 pub mod thresholds;
 pub mod oracle;
 pub mod placement_metrics;
+pub mod aesthetic;
 pub mod quality_score;
 pub mod routing_quality;
 pub mod validation_metrics;
@@ -778,6 +779,47 @@ fn quality_report_overall_py(normalized_scores: [f64; 7]) -> PyResult<f64> {
 }
 
 // ---------------------------------------------------------------------------
+// Aesthetic metric kernel (Wave 4 — metrics/aesthetic.py)
+//
+// The Python module keeps its public API and does the numpy plumbing:
+// dtype detection for the NEP 50 grid-snap / argmax chains.  It hands the
+// kernel flat coordinate and rotation tuples plus the two dtype flags.
+// ---------------------------------------------------------------------------
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn aesthetic_score_py(
+    py: Python<'_>,
+    positions: Vec<(f64, f64)>,
+    rotations: Vec<(f64, f64, f64, f64)>,
+    grid_size: f64,
+    positions_are_f32: bool,
+    rotations_are_f32: bool,
+) -> PyResult<Py<PyDict>> {
+    temper_py_bridge::catch_panic(|| {
+        let result = PyDict::new(py);
+        match crate::aesthetic::compute_aesthetic_score(
+            &positions,
+            &rotations,
+            grid_size,
+            positions_are_f32,
+            rotations_are_f32,
+        ) {
+            Some(s) => {
+                result.set_item("grid_snap_score", s.grid_snap_score)?;
+                result.set_item("orientation_score", s.orientation_score)?;
+                result.set_item("prefix_alignment_score", s.prefix_alignment_score)?;
+                result.set_item("aesthetic_index", s.aesthetic_index)?;
+            }
+            None => {
+                result.set_item("aesthetic_index", 1.0_f64)?;
+            }
+        }
+        Ok(result.into())
+    })
+}
+
+// ---------------------------------------------------------------------------
 // Validation placement-metric kernels (Wave 4 — validation/metrics.py)
 //
 // See `validation_metrics.rs` module doc for scope, the bit-exactness
@@ -871,6 +913,7 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(compactness_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(connectivity_clustering_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(quality_report_overall_py, m)?)?;
+    m.add_function(wrap_pyfunction!(aesthetic_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(overlap_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(clearance_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(wirelength_metrics_py, m)?)?;
