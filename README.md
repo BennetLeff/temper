@@ -145,7 +145,7 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: inventory -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-**20 workspace packages** under `packages/`:
+**19 workspace packages** under `packages/`:
 
 - `temper-constraint-compiler`
 - `temper-design-bundle`
@@ -156,7 +156,6 @@ For contributors working on architecture, verification, or toolchain internals:
 - `temper-ipc`
 - `temper-orchestration`
 - `temper-pcl-ir`
-- `temper-placement-topology`
 - `temper-placer`
 - `temper-py-bridge`
 - `temper-py-bridge-derive`

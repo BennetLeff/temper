@@ -8,9 +8,9 @@ a good starting point for the placement optimization.
 
 Wave 4: the feasibility arithmetic of ``_check_feasibility`` (per-component
 fit decision over both orientations, the two compensated ``sum()`` area
-totals) is implemented in Rust in the ``temper-placement-topology`` crate
-(``temper_placement_topology.feasibility_check``); see
-``packages/temper-placement-topology/src/heuristics.rs``. Graph building,
+totals) is implemented in Rust in the ``temper-geometry`` crate
+(``temper_geometry.feasibility_check``); see
+``packages/temper-geometry/src/heuristics.rs``. Graph building,
 zone assignment and message formatting stay Python. Pinned oracle:
 ``packages/temper-placer/tests/heuristics/_topological_init_py_oracle.py``;
 differential:
@@ -326,7 +326,7 @@ class TopologicalInitializationHeuristic(Heuristic):
         Returns:
             FeasibilityResult with is_feasible flag and conflicts
         """
-        from temper_placement_topology import feasibility_check
+        from temper_geometry import feasibility_check
 
         conflicts: list[str] = []
 

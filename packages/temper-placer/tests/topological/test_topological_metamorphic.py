@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import math
 
-import temper_placement_topology as _rust  # noqa: F401 -- Rust-backed guard
+import temper_geometry as _rust  # noqa: F401 -- Rust-backed guard
 from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 

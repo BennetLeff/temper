@@ -11,7 +11,7 @@ Example:
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-import temper_placement_topology as _rust
+import temper_geometry as _rust
 
 if TYPE_CHECKING:
     from temper_placer.topological.graph import TopologicalGraph

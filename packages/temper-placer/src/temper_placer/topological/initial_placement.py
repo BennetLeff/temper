@@ -16,7 +16,7 @@ from __future__ import annotations
 import math  # noqa: F401 -- re-exported trig constants kept for API compatibility
 from dataclasses import dataclass, field
 
-import temper_placement_topology as _rust
+import temper_geometry as _rust
 
 from temper_placer.core.board import Zone
 from temper_placer.topological.graph import TopologicalGraph

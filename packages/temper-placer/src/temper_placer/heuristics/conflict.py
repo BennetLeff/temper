@@ -6,9 +6,9 @@ the ConflictResolver provides strategies for resolution.
 
 Wave 4: the per-pair overlap scan (``check_conflict``) and the nudge-candidate
 selection (``_nudge_placement``'s dominant-axis primary + the four fallback
-directions) are implemented in Rust in the ``temper-placement-topology`` crate
-(``temper_placement_topology.overlap_check`` / ``nudge_candidates``); see
-``packages/temper-placement-topology/src/heuristics.rs``. This module keeps
+directions) are implemented in Rust in the ``temper-geometry`` crate
+(``temper_geometry.overlap_check`` / ``nudge_candidates``); see
+``packages/temper-geometry/src/heuristics.rs``. This module keeps
 the public API, the strategy branching, the ``is_position_valid`` trial loop
 and all message formatting. Pinned oracle:
 ``packages/temper-placer/tests/heuristics/_conflict_py_oracle.py``; differential:
@@ -114,7 +114,7 @@ class ConflictResolver:
         Returns:
             Tuple of (conflicting_ref, overlap_mm) or None if no conflict
         """
-        from temper_placement_topology import overlap_check
+        from temper_geometry import overlap_check
 
         x, y = placement.position
 
@@ -233,7 +233,7 @@ class ConflictResolver:
 
         Tries 4 directions (up, down, left, right) and picks the first valid one.
         """
-        from temper_placement_topology import nudge_candidates
+        from temper_geometry import nudge_candidates
 
         x, y = placement.position
 

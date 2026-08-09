@@ -240,6 +240,20 @@ pub mod obstacle_map_kernels;
 // ConvexHull and OffsetSegmentGenerator transcriptions, region bit-exact
 // against shapely 2.1.2 / GEOS 3.13.1.  See bundle_analyzer.rs's module doc.
 pub mod bundle_analyzer;
+// Wave 4, Phase 4 tail: topological placement kernels, consolidated from the
+// deleted temper-placement-topology crate (graph clustering, constraint
+// propagation, force refinement, initial placement, zone backtracking, and
+// the heuristics/ slice). Pure kernels are unconditional; placement_topology
+// is the wholly-pyo3 surface (see its module doc).
+pub mod force;
+pub mod graph;
+pub mod heuristics;
+pub mod numeric;
+pub mod placement;
+pub mod propagation;
+pub mod zone;
+#[cfg(feature = "python")]
+pub mod placement_topology;
 
 #[cfg(feature = "python")]
 #[pymodule]
@@ -272,5 +286,6 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::connectivity_kernels::register(m)?;
     crate::obstacle_map_kernels::register(m)?;
     crate::bundle_analyzer::register(m)?;
+    crate::placement_topology::register(m)?;
     Ok(())
 }

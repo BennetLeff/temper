@@ -891,7 +891,6 @@ jobs:
                        packages/temper-ipc/Cargo.toml \
                        packages/temper-orchestration/Cargo.toml \
                        packages/temper-pcl-ir/Cargo.toml \
-                       packages/temper-placement-topology/Cargo.toml \
                        packages/temper-py-bridge/Cargo.toml \
                        packages/temper-py-bridge-derive/Cargo.toml \
                        packages/temper-quality-oracle/Cargo.toml \
