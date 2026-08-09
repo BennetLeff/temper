@@ -4386,3 +4386,107 @@ per G8.
   replaces dataclass construction with pyclass construction; both are
   Python-object operations with no algorithmic work.
 
+
+# `router_v6/constraint_model.py` kernels — Verification (Wave 4)
+
+Six compute kernels from `temper_placer/router_v6/constraint_model.py`
+(1,162 LOC — the SAT constraint-model builder) were migrated to
+`src/constraint_model.rs`:
+
+| Python function | Rust function | Role |
+|---|---|---|
+| `_edge_endpoint_key` | `edge_endpoint_key` | 6-decimal-quantised `(x, y)` string identity |
+| `canonical_channel_edges` | `canonical_channel_edges` | quantised-key-sorted edge-identity generator |
+| `_point_to_segment_distance` | `point_to_segment_distance` | clamped projection; exact `len_sq == 0.0` degenerate arm |
+| `_pin_span` | `pin_span` | max pairwise `sqrt(pow + pow)` distance |
+| `_dist_min_edge_to_pins` | `dist_min_edge_to_pins` | min over pins; empty → `inf` |
+| `_is_candidate_edge` | `is_candidate_edge` | `dist_min <= max(k*span, m_min)` pruning predicate |
+
+Registered as the `constraint_model` submodule
+(`temper_design_bundle_python.constraint_model.<name>_py`); the module keeps
+its public names and delegates.
+
+## Home-crate decision
+
+`temper-design-bundle` per the wave-4 triage's "verify bodies before scoping"
+flag on this file: the tractable compute is exactly these six pure functions,
+and `ModelBuilder`'s orchestration (`_create_*` loops over skeletons/nets/
+PCB objects, the `ConstraintModel` registry, the `esl()` closures, the
+pipeline stage) stays Python. Not `temper-rust-router-core` (where the
+`pruning` module holds its own `point_to_segment_distance` /
+`is_candidate_edge` — this module's docstrings call them "exact Python
+replicas" of that Rust for cross-checking, and the differential here pins
+*this* module's Python as the oracle, not the other crate) and not
+`temper-geometry` (whose `_point_to_segment_distance` uses the different
+`len2 < 1e-12` degenerate threshold — deliberately not de-duped).
+
+## Structural proof (bit-identical parity)
+
+- **B3 (banker's rounding)**: Python `round(c, 6)` + `:6f` is byte-identical
+  to Rust `format!("{:.6}")`. Verified empirically over 200k adversarial
+  samples (near-tie values, `-0.0`, `1e-7`, `1e12`) on the host CPython
+  3.12.3: 0 mismatches. Argued: an exact 6-decimal tie needs a `5^6` factor
+  that no binary-float `2^k` denominator has, so there is no tie rule to
+  disagree on. `NaN` renders `"nan"` (matched explicitly; Rust's default
+  would write `NaN`).
+- **B7 (op-order / `**` is libm `pow`)**: `_pin_span`'s `(xi - xj) ** 2` is
+  CPython `float_pow` = host-libm `pow(x, 2.0)`, NOT `x*x` — measured 152 /
+  200k random samples apart on this host. Transcribed with `host_math::pow`.
+- **B1 (host libm via `dlsym`)**: `math.sqrt` = `host_math::sqrt`,
+  `**` = `host_math::pow` (the deterministic-leaf precedent).
+- **B5 (builtin `max` keeps the first argument)**: `_is_candidate_edge`'s
+  `max(k_factor * span, m_min)` → `host_math::py_max`.
+- **NaN clamp semantics**: `point_to_segment_distance`'s `if t < 0.0 / elif
+  t > 1.0 / else` is preserved verbatim (a NaN `t` falls through to `else`
+  and propagates). `clippy::manual_clamp` is suppressed with a comment — the
+  oracle is deliberately NOT a `t.clamp(0.0, 1.0)` (which panics on NaN).
+- **Stable sort**: `canonical_channel_edges`'s key sort is stable on both
+  sides; the only construction-order dependence (the `_E{i}_` index tie-break
+  for distinct edges quantising to identical keys) is preserved because the
+  shim feeds `list(graph.edges)` in the oracle's own iteration order. Pinned
+  by `test_quantise_collision_tie_break` in the differential.
+
+## Empirical Verification
+
+- **Differential suite**: `test_constraint_model_rust_differential.py` (269
+  tests, all green) — the six kernels pinned bit-exactly against a VERBATIM
+  `_oracle_*` copy of the pre-migration implementations: fixed + randomized
+  (seeded) + adversarial-magnitude + NaN/inf + denormal-band + degenerate
+  cases for the geometry kernels, randomized + insertion-order + quantise-
+  collision cases for the edge-identity kernels, plus an oracle-verbatim
+  sanity test. Numeric results compared via `float.hex()`; edge-id strings
+  byte-for-byte.
+- **PBT suite**: `test_constraint_model_pbt.py` (18 tests, all green) — six
+  non-vacuous properties (P1 endpoint-bound, P2 exact-zero on power-of-two
+  segments, P3 permutation invariance, P4 dist-min composition, P5 candidate
+  arms, P6 edge-id structure) each with an anti-vacuity mutant companion,
+  plus five metamorphic relations (M1 power-of-two scaling — exact; M2
+  endpoint swap — ulp tolerance; M3 span translation — exact; M4 k-factor
+  monotonicity — exact; M5 insertion-order independence — exact).
+- **Consumer suites**: the ModelBuilder-dependent router_v6 suites are green
+  with the delegating shim — `test_constraint_model.py`,
+  `test_encoding_pruning_geographic.py`,
+  `test_channel_edge_identity_determinism.py`,
+  `test_bundled_capacity_constraints.py`, `test_bundled_model_builder.py`,
+  `test_capacity_constraints.py`, `test_diff_pair_constraints.py`,
+  `test_layer_constraints.py`, `test_stage3_constraint_audit.py`,
+  `test_router_v6_output_validity_pbt.py` (38 + 164 tests green). The 13
+  failures seen while sweeping (`test_capacity_check.py`, `test_adapter.py`)
+  reproduce identically on unmodified `main` — stale `temper_geometry` .so
+  and main-state creepage issues, not this migration.
+- **Rust unit tests**: `constraint_model.rs` has `#[cfg(test)]` unit tests
+  (rounding, canonicalisation, tie-break, clamps, degenerate cases); like the
+  rest of the crate they only compile under `--features python` (pyo3's
+  `extension-module` prevents a plain `cargo test` link), so the Python
+  differential is the authoritative gate.
+- **Clippy**: `cargo clippy --features python -- -D warnings` — clean.
+- **Wiring**: all six `*_py` kernels are referenced by the production shim;
+  `check_unwired_kernels.py` reports no new unwired kernel.
+- **Import boundary**: `lint-imports` — 3 contracts kept, 0 broken (the new
+  `import temper_design_bundle_python` is external to the `temper_placer`
+  root package the contracts scope, and matches the precedent in
+  `pcl/_parse_utils.py`).
+- **Performance**: the five geometry kernels are O(n²)-only in `_pin_span`
+  (unchanged complexity); `_create_per_net_channel_vars`'s hot loop now
+  spends its per-edge work in Rust. R2 carve-out applies.
+
