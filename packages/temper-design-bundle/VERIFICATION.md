@@ -4302,3 +4302,87 @@ post-solve audit. Recorded per G8.
   replaces dataclass construction with pyclass construction; both are
   Python-object operations with no algorithmic work.
 
+# BusCohortConstraint — Verification by Structural Proof (Wave C)
+
+## Structural Proof
+
+`BusCohortConstraint` is a data-contract pyclass (Wave C core-contracts
+migration, plan
+`docs/plans/2026-08-08-002-feat-buscohort-pyclass-migration-plan.md`, D1–D6).
+It stores scalar fields opaquely (`Py<PyAny>`) plus one typed container
+(`nets: Py<PyList>`) with no recursive or iterative computation. The
+induction is structural: each instance is defined entirely by its fields, and
+every method operates on at most one instance's fields.
+
+### Base Case — the smallest meaningful input
+
+`BusCohortConstraint("SPI_BUS", ["sclk"])` — one required string field, one
+required `nets` list (required because the verbatim source declares
+`nets: list[str]` with NO default factory — see the module docstring in
+`bus_cohort_contracts.rs`, which supersedes plan R-A's `default_factory`
+premise), three defaulted scalars (`0.5`, `2.0`, `False`). The constructor
+stores the exact Python objects the caller passed; `repr` renders them via
+CPython's own `repr()`; `__eq__` builds a field tuple and compares via Python
+tuple equality; `__hash__` raises the unhashable `TypeError`. This matches the
+Python dataclass oracle bit-identically (verified by the differential suite,
+32 tests green).
+
+### Induction Step — per-field independence
+
+The `repr` iterates over a fixed ordered list of field names (`name`, `nets`,
+`pitch_mm`, `max_skew_mm`, `allow_swapping` — dataclass declaration order),
+calls `repr()` on each stored object independently, and splices the results.
+Adding a field (or changing one) does not affect the rendering of other fields
+— there is no cross-field interaction in the rendering path. `__eq__` builds a
+tuple of all stored fields and compares via Python tuple equality; each
+field's equality is resolved by Python's own `==` on the stored objects — no
+Rust-side comparison, no widening.
+
+Container identity (`nets`) is preserved by construction: the getter returns
+`self.nets.clone_ref(py)`, which is the same underlying Python list object, so
+`config_loader`-style in-place `append` mutates the stored container exactly
+as with the dataclass. `signal_count` reads the stored list length live (D4),
+so in-place mutation is reflected.
+
+### No recursive or iterative computation
+
+The class defines no recursive data structures and no iterative compute. The
+three `#[new]` validation checks are constant-time comparisons against fixed
+thresholds, run in declaration order with CPython's own `str()` rendering for
+the interpolated value. The induction step is trivial.
+
+### R24 Physics Discipline
+
+**N/A** — this is a data-contract pyclass with no physics-gated quantities. No
+Chebyshev bound, no BMC-exhaustive validation, no post-solve audit. Recorded
+per G8.
+
+## Empirical Verification
+
+- **Differential suite**: `test_bus_cohort_rust_differential.py` (32 tests,
+  all green) — bit-identical `repr` (field order, single-quoted strings,
+  float/int/bool rendering), `==`/`!=`, hash unavailability (`unhashable
+  type: 'BusCohortConstraint'`), field type identity (int stays int), `nets`
+  identity + in-place mutation + assignment replacement, `signal_count`,
+  and each `__post_init__` `ValueError` message text + order (empty-nets →
+  pitch_mm → max_skew_mm), verified against the inline verbatim oracle.
+- **PBT suite**: `test_bus_cohort_pbt.py` (13 tests, all green) — 5
+  non-vacuous properties (P1 signal_count == len(nets); P2 repr round-trip;
+  P3 empty-nets error first; P4 pitch-before-skew order; P5 nets identity)
+  each with an anti-vacuity mutation companion, plus 3 metamorphic relations
+  (MR1 net-list permutation; MR2 default preservation; MR3 positional-vs-
+  keyword equality).
+- **Consumer suites**: `test_bus_cohort.py` (17 tests, all green — shim +
+  `BusRegistry` inference against the pyclass) and the bus-cohort-relevant
+  tests in `test_design_rules_rust_differential.py` (`get_bus_cohort_for_net`,
+  mutation paths — green).
+- **Rust unit tests**: no dedicated unit tests; the differential and PBT
+  suites exercise the pyclass through the Python boundary, which is where the
+  contract lives.
+- **Clippy**: `cargo clippy --all-features -- -D warnings` — clean
+  (0 warnings).
+- **Performance**: pure-delegation data contract with no compute kernels.
+  The R2 carve-out applies: "no regression beyond noise." The migration
+  replaces dataclass construction with pyclass construction; both are
+  Python-object operations with no algorithmic work.
+
