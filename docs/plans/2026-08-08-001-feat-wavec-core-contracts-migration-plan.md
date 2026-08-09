@@ -7,9 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 execution: code
 product_contract_source: ce-brainstorm
-status: active
+status: completed
 swept: 2026-08-08
-swept_basis: "doc-review passed — P1s fixed (container-type overclaim corrected, R8 count 3->2); no units landed yet"
+swept_basis: "U1-U6 all landed 2026-08-08 (differential 1724335c, pyclasses, PBT/metamorphic/induction, U5 container tightening 64e4c6bd, U6 verdict in pyany audit §4/§7); see docs/evidence/2026-08-06-never-port-triage.md round-2 addendum"
 ---
 
 # Wave-C Core Contracts Migration — Plan
