@@ -657,27 +657,30 @@ class TestDomainConstraintDedup:
         )
 
     def test_production_board_constraint_count_11571(self) -> None:
-        """12,022 (pre-fix) -> 11,571 (post-fix) constraints on the
-        production board; the 451-constraint delta is exactly the duplicate
-        emissions, so the unordered pair set is unchanged (symmetric
-        difference 0 vs the measured 11,571-pair set) and the per-pair
-        margin map is unchanged (every duplicate pair kept its stricter
-        8.0mm margin)."""
+        """12,022 (pre-fix) -> 11,571 (post-fix) -> 11,343 (2026-08-09)
+        constraints on the production board.
+
+        11,571 -> 11,343 (delta 228, all in the 8.0mm HV bucket) is the
+        board's `In1.Cu`/`In2.Cu` signal -> power declaration (`c4956df6`,
+        4-layer power-plane stackup): pairs whose nets route on the inner
+        plane layers are no longer signal-clearance pairs. The 1.0mm bucket
+        is unchanged (5,565), so the signal-layer pair set is untouched;
+        only the HV/plane-bucket shrinks. Re-measured 2026-08-09 and stable
+        across runs."""
         placement, voltage_domains, _stats = self._load()
         constraints = generate_domain_clearance_constraints(placement, voltage_domains)
-        assert len(constraints) == 11_571, (
-            f"Expected 11,571 constraints (one per unordered pair, down from "
+        assert len(constraints) == 11_343, (
+            f"Expected 11,343 constraints (one per unordered pair, down from "
             f"the pre-fix 12,022 with 451 duplicate emissions), got "
             f"{len(constraints)}"
         )
         # Margin distribution must match the measured unique-pair set:
-        # 6,006 pairs at 8.0mm + 5,565 pairs at 1.0mm == 11,571 (gap-2
-        # evidence doc §1). Every duplicate pair kept the stricter 8.0mm
-        # margin, so the 8.0mm bucket is unchanged from the pre-fix unique
-        # pair count and only the 1.0mm bucket shrank (5,988 -> 5,565).
+        # 5,778 pairs at 8.0mm + 5,565 pairs at 1.0mm == 11,343. The 8.0mm
+        # bucket shrank 6,006 -> 5,778 with the In1.Cu/In2.Cu power-plane
+        # declaration; the 1.0mm signal bucket is unchanged.
         from collections import Counter
 
         dist = Counter(round(c.min_distance_mm, 3) for c in constraints)
-        assert dist[8.0] == 6_006
+        assert dist[8.0] == 5_778
         assert dist[1.0] == 5_565
-        assert sum(dist.values()) == 11_571
+        assert sum(dist.values()) == 11_343
