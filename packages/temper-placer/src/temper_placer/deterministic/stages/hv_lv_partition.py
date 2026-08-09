@@ -7,6 +7,7 @@ from collections.abc import Mapping
 from dataclasses import replace
 from typing import Any
 
+import temper_design_bundle_python as _tdb
 from pydantic import BaseModel, ConfigDict
 from shapely.geometry import Polygon
 
@@ -15,7 +16,6 @@ from ..state import BoardState
 from .base import Stage
 
 logger = logging.getLogger(__name__)
-_HV, _LV = frozenset({"HV", "AC"}), frozenset({"LV", "iso"})
 
 
 class PartitionError(Exception):
@@ -96,41 +96,43 @@ class HvLvPartitionStage(Stage):
         return "hv_lv_partition"
 
     def run(self, state: BoardState) -> BoardState:
+        """Partition components into HV-edge / LV-interior domains.
+
+        The pure decision (safety-category classification + creepage max,
+        width resolution, per-bucket area check) delegates to
+        ``temper_design_bundle_python.hv_lv_partition``; the ``run``
+        orchestration stays Python: the state/netlist guards, the
+        ``_rules_by_net`` / ``_nets`` reading, the ``_area`` marshalling, the
+        shapely outline + ``compute_guard_strip`` GEOS surface, the
+        ``PartitionError`` construction, and the ``dataclasses.replace``
+        wrap. The pre-migration implementation is pinned VERBATIM as the
+        differential oracle (``tests/deterministic/_hv_lv_partition_py_oracle.py``).
+        """
         cfg = load_guard_config(state.config)
         if not cfg.enabled or state.board is None or state.netlist is None:
             return state
         rules = _rules_by_net(state)
-        hv, lv, creepage = [], [], 0.0
-        for c in state.netlist.components:
-            ns = _nets(state.netlist, c.ref)
-            cats = {rules[n].safety_category for n in ns if n in rules}
-            hh, hl = bool(cats & _HV), bool(cats & _LV)
-            if hh and hl:
-                lv.append(c.ref)
-                logger.warning("dual-domain %s -> LV bucket", c.ref)
-            elif hh:
-                hv.append(c.ref)
-            else:
-                lv.append(c.ref)
-            if hh:
-                for n in ns:
-                    if n in rules and rules[n].safety_category in _HV:
-                        creepage = max(creepage, getattr(rules[n], "creepage_mm", 0.0) or 0.0)
-        if not hv or not lv:
+        rules_marshalled = {
+            name: (getattr(r, "safety_category", None) or "", float(getattr(r, "creepage_mm", 0.0) or 0.0))
+            for name, r in rules.items()
+        }
+        components_nets = [(c.ref, _nets(state.netlist, c.ref)) for c in state.netlist.components]
+        decision, hv, lv, creepage, width, dual = _tdb.hv_lv_partition.hv_lv_classify(
+            components_nets, rules_marshalled, cfg.width_mm
+        )
+        for ref in dual:
+            logger.warning("dual-domain %s -> LV bucket", ref)
+        if decision == "skip_empty":
             logger.info("empty HV/LV bucket (hv=%d lv=%d); skipping", len(hv), len(lv))
             return state
-        if cfg.width_mm == 0:
+        if decision == "skip_zero":
             return state
-        width = cfg.width_mm if cfg.width_mm is not None else creepage
         if cfg.width_mm is not None and cfg.width_mm < creepage:
             logger.warning(
                 "hv_lv_guard_strip.width_mm=%s below creepage %s, using creepage",
                 cfg.width_mm,
                 creepage,
             )
-            width = creepage
-        if width <= 0:
-            return state
         outline = _outline(state.board)
         if outline.exterior is None or not outline.exterior.is_closed:
             raise PartitionError("geometry", "outline", 0.0, 0.0)
@@ -139,21 +141,28 @@ class HvLvPartitionStage(Stage):
         except ValueError as exc:
             raise PartitionError("geometry", "outline", 0.0, 0.0) from exc
         comp = {c.ref: c for c in state.netlist.components}
-        for bucket, refs, region in (("HV", hv, hv_poly), ("LV", lv, lv_poly)):
-            if not refs or region.is_empty:
-                continue
-            largest = max(refs, key=lambda r: _area(comp[r]))
-            if region.area < _area(comp[largest]):
-                if cfg.fallback_to_unconstrained:
-                    logger.warning(
-                        "insufficient %s bucket area: %s requires %.2fmm^2, region has %.2fmm^2",
-                        bucket,
-                        largest,
-                        _area(comp[largest]),
-                        region.area,
-                    )
-                    return state
-                raise PartitionError(bucket, largest, float(region.area), _area(comp[largest]))
+        areas = {ref: _area(comp[ref]) for ref in hv + lv}
+        outcome, bucket, largest, region_area, required_area = _tdb.hv_lv_partition.hv_lv_area_check(
+            hv,
+            lv,
+            areas,
+            float(hv_poly.area),
+            bool(hv_poly.is_empty),
+            float(lv_poly.area),
+            bool(lv_poly.is_empty),
+            cfg.fallback_to_unconstrained,
+        )
+        if outcome == "fallback":
+            logger.warning(
+                "insufficient %s bucket area: %s requires %.2fmm^2, region has %.2fmm^2",
+                bucket,
+                largest,
+                required_area,
+                region_area,
+            )
+            return state
+        if outcome == "raise":
+            raise PartitionError(bucket, largest, region_area, required_area)
         domain = [(r, "HV_edge") for r in hv] + [(r, "LV_interior") for r in lv]
         return replace(
             state,
