@@ -24,9 +24,6 @@ temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage1_EscapeVias.run
 temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage2_ChannelAnalysis.run  # TODO: temper-xxx
 temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage3_TopologicalRouting.run  # TODO: temper-xxx
 temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage4_GeometricRealization.run  # TODO: temper-xxx
-temper_placer/analysis/_area_sufficiency.py::compute_area_sufficiency  # TODO: temper-xxx
-temper_placer/analysis/_area_sufficiency.py::compute_top_courtyards  # TODO: temper-xxx
-temper_placer/analysis/_violation_report.py::generate_violation_report  # TODO: temper-xxx
 temper_placer/cli/__init__.py::main  # TODO: temper-xxx
 temper_placer/cli/__init__.py::optimize  # TODO: temper-xxx
 temper_placer/cli/__init__.py::regression  # TODO: temper-xxx

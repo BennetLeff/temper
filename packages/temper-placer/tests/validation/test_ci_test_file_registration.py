@@ -351,6 +351,50 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
     "router_v6/test_routability_check_rust_differential.py": _PREDATES_ROUND2_DIFFERENTIAL_GATE,
     "router_v6/test_topology_copper_audit.py": _PASSING_LOCALLY_2026_08_09,
     "router_v6/test_zone_emission_clustering_rust_differential.py": _PREDATES_ROUND2_DIFFERENTIAL_GATE,
+    "router_v6/test_coverage_paydown_wave3_f.py": (
+        "PASSING locally (2026-08-09, 104 tests). Coverage-allowlist paydown "
+        "for router_v6/ (94 allowlisted functions exercised: report dataclass "
+        "properties, routing/section utility functions, spatial-index/DRC-"
+        "oracle smoke tests). Pure Python, no kicad-cli/ngspice/mfem "
+        "dependency. Not yet wired into any CI job (router_v6 directory "
+        "sweep is the tracked workflow-side change)."
+    ),
+    "router_v6/test_astar_cluster_pbt.py": (
+        "PASSING locally (2026-08-09, part of the astar-cluster migration "
+        "wave). Property-based tests for the A* cluster kernels. Pure "
+        "Python/Rust, no external binary. Not yet wired into any CI job."
+    ),
+    "router_v6/test_astar_cluster_rust_differential.py": (
+        "PASSING locally (2026-08-09, part of the astar-cluster migration "
+        "wave). Rust differential for the A* cluster kernels. Not yet wired "
+        "into any CI job."
+    ),
+    "router_v6/test_bundle_analyzer_pbt.py": (
+        "PASSING locally (2026-08-09, part of the bundle-analyzer migration "
+        "wave). Property-based tests for GEOS hull/buffer seam kernels. Not "
+        "yet wired into any CI job."
+    ),
+    "router_v6/test_bundle_analyzer_rust_differential.py": (
+        "PASSING locally (2026-08-09, part of the bundle-analyzer migration "
+        "wave). Rust differential for the GEOS hull/buffer seam kernels. Not "
+        "yet wired into any CI job."
+    ),
+    "router_v6/test_spatial_tier2_pbt.py": (
+        "PASSING locally (2026-08-09, part of the spatial-index tier-2 "
+        "migration wave). Property-based tests. Not yet wired into any CI job."
+    ),
+    "router_v6/test_spatial_tier2_rust_differential.py": (
+        "PASSING locally (2026-08-09, part of the spatial-index tier-2 "
+        "migration wave). Rust differential. Not yet wired into any CI job."
+    ),
+    "router_v6/test_via_clearance_tier2_pbt.py": (
+        "PASSING locally (2026-08-09, part of the via-clearance tier-2 "
+        "migration wave). Property-based tests. Not yet wired into any CI job."
+    ),
+    "router_v6/test_via_clearance_tier2_rust_differential.py": (
+        "PASSING locally (2026-08-09, part of the via-clearance tier-2 "
+        "migration wave). Rust differential. Not yet wired into any CI job."
+    ),
 }
 
 # --- the 3 genuinely-failing files outside router_v6/, triaged in
@@ -461,6 +505,20 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
     "testing/test_quarantine.py": _PASSING_LOCALLY_OTHER_2026_08_09,
     "topological/test_topological_coverage.py": _PASSING_LOCALLY_OTHER_2026_08_09,
     "visualization/test_visualization_coverage.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "geometry/test_drc_inflate_coverage.py": (
+        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
+        "geometry/): exercises precompute_from_pad_polygons + collateral "
+        "(inflate_pad_polygon, precompute_inflated_dims) with a "
+        "skip-if-no-shapely guard. Pure Python/Shapely, no external binary. "
+        "Not yet wired into any CI job."
+    ),
+    "visualization/test_visualization_coverage_wave2.py": (
+        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
+        "visualization/): TraceView/PadView to_dict, Plotly shape builders, "
+        "hover-data generators, board comparison render, loop summary, "
+        "LiveServer guard methods. Pure Python/Plotly, no external binary. "
+        "Not yet wired into any CI job."
+    ),
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------
