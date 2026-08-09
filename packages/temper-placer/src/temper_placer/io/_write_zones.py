@@ -1,13 +1,32 @@
-"""Internal: zone output functions and net name mapping."""
+"""Internal: zone output functions and net name mapping.
+
+Delegation shim over ``temper-io-types``' ``kicad_write_geometry`` kernels:
+the net-name → index map build and the zones writer's index resolution. The
+kiutils board I/O stays here (KiCad-format boundary); note the zone ``tstamp``
+is still ``uuid.uuid4()`` in the pre-migration code and is deliberately NOT
+determinized here — that would be a behaviour change no bit-identical
+differential could pin (see ``kicad_write_geometry.rs``'s module docstring).
+"""
 
 from __future__ import annotations
 
 from pathlib import Path
 
 from kiutils.board import Board as KiBoard
+from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.io._write_types import WriteResult
 from temper_placer.io.kicad_exporter import _validate_4_layer_output
+
+
+def _net_index_map_from_nets(nets) -> dict[str, int]:
+    """Build a ``{net.name: net.number}`` dict from a board's ``nets`` list.
+
+    ``hasattr(net, "name") and hasattr(net, "number")`` guards skip net objects
+    missing either attribute; duplicate names resolve last-wins (dict
+    insertion overwrites in place).
+    """
+    return _GEOM.build_net_name_to_index_map_py(nets)
 
 
 def build_net_name_to_index_map(pcb_path: Path) -> dict[str, int]:
@@ -23,9 +42,7 @@ def build_net_name_to_index_map(pcb_path: Path) -> dict[str, int]:
 
     net_map = {}
     if hasattr(ki_board, "nets") and ki_board.nets:
-        for net in ki_board.nets:
-            if hasattr(net, "name") and hasattr(net, "number"):
-                net_map[net.name] = net.number
+        net_map = _net_index_map_from_nets(ki_board.nets)
 
     return net_map
 
@@ -73,7 +90,7 @@ def write_zones_to_pcb(
         layer = zone_def["layer"]
         pts = zone_def["polygon_pts"]
 
-        net_index = net_name_to_index.get(net_name, 0)
+        net_index = _GEOM.resolve_net_index_default_py(net_name, net_name_to_index)
 
         try:
             import uuid

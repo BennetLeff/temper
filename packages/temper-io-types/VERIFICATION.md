@@ -1252,3 +1252,166 @@ two clamp-firing fixtures were added (and a clamp-dropping mutant is now
 caught by them). The sweep also found and corrected a verbatim-copy defect
 in the RED adjustment oracle (a duplicate `from __future__` import; the
 registry was regenerated).
+
+# Kicad-write geometry — Verification
+
+The kicad-write geometry kernels (`src/kicad_write_geometry.rs`) are the
+Wave-4 migration of the deterministic write/export surface:
+`temper_placer/io/_write_tracks.py`, `_write_zones.py`, `_write_modules.py`
+and `placement_exporter.py`. The four Python modules are now delegation
+shims keeping their public entry points (which stay Python because they are
+kiutils board I/O — the KiCad-format boundary is a documented
+JUSTIFIED-KEEP) and forwarding every pure kernel here. The pre-migration
+implementations are pinned VERBATIM as `_oracle_*` blocks inside
+`packages/temper-placer/tests/io/test_write_geometry_rust_differential.py`
+(origin/main `47349a50`); the TDD-RED state was demonstrated (the file
+failed to collect with `AttributeError: module 'temper_io_types' has no
+attribute 'kicad_write_geometry'` before the Rust landed).
+
+## R1h — state applicability
+
+**N/A.** This is a serialization/ordering surface: it derives deterministic
+object IDs and canonical emission order for the written board, computes
+axis-aligned pad bounds, and resolves net indices. No clearance, creepage,
+thermal, or current-density margin is computed or asserted anywhere, so the
+R24 physics-gate discipline has nothing to attach to.
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** No kernel is
+recursive, and none iterates over a dimension whose correctness depends on
+a size parameter:
+
+- `stable_tstamp` is a fixed sha256 + UUIDv4 derivation, independent of the
+  input size.
+- `trace_emission_key` / `via_emission_key` build a constant-shaped tuple
+  from a bounded attribute read (net, layer, one start/end/position pair,
+  width, layers, is_diff_pair) — the via layers tuple is the only
+  size-varying piece and it is a literal `tuple(str(x) for x in ...)`
+  transcription.
+- `component_bounds` is a min/max reduction whose per-pad operation is
+  independent of the pad count; order-independence is asserted (MR1), not
+  assumed.
+
+Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every ported symbol, the Rust behaviour
+is bit-identical to the pinned pre-migration Python implementation.
+
+*Proof by structural cases.*
+
+1. **`stable_tstamp`.** `_stable_tstamp` is
+   `uuid.UUID(bytes=sha256(f"{kind}\0{key!r}".encode())[:16], version=4)`.
+   `key!r` is CPython's `repr` — a Python runtime semantic (the B9 repr
+   class) — so the repr is CALLED BACK via `key.repr()` rather than
+   reimplemented; the payload bytes are therefore identical by construction.
+   `sha2`'s sha256 is byte-identical to `hashlib`'s (verified by the existing
+   `provenance.rs` pins). The UUIDv4 bit surgery replicates CPython's
+   `UUID(..., version=4)` exactly: `int &= ~(0xc000<<48); int |= 0x8000<<48`
+   (variant) and `int &= ~(0xf000<<64); int |= 4<<76` (version), which in
+   big-endian byte terms is `b[6] = (b[6] & 0x0f) | 0x40` and
+   `b[8] = (b[8] & 0x3f) | 0x80`, then the canonical 8-4-4-4-12 lowercase-hex
+   rendering. Unit-tested and differentially pinned (including keys whose
+   reprs contain quotes/escapes and floats whose reprs are repr-sensitive).
+2. **Emission keys.** Both keys read the route/via fields through Python's
+   object protocol (`str()` via `.str()`, `float()` via `__float__()`,
+   `start[0]` via `.get_item(0)`, `net or ""` via truthiness), so numpy-typed
+   geometry widens exactly as the oracle's `float(route.start[0])` does —
+   the same `from_py_object` boundary `dsn_exporter.rs` established. Net
+   index resolution is the truthiness-guarded `net and net in map` (a
+   missing or falsy net is 0), and layer rank is `LAYER_NAME_TO_IDX.get(name,
+   len(STANDARD_LAYER_ORDER))` with the map passed in from the Python SSOT.
+   The returned Python tuple compares and — load-bearing — reprs identically,
+   because repr is CPython's. The differential asserts BOTH the value tree
+   (floats as `float.hex()`) and the repr string; the determinism suite
+   (`test_write_tracks_determinism.py`) re-writes a real board under 32 hash
+   seeds and asserts byte-identical output.
+3. **`component_bounds`.** The KiCad rotation (`rotate_local_to_world`) stays
+   on the Python side and is passed pre-rotated, because it is `sin`/`cos` on
+   `math.pi` — B1: libm and Rust intrinsics are not bit-identical across
+   platforms for transcendentals, so porting it would inject a divergence
+   into geometry the differential would not reliably catch (the same
+   judgement as `dsn_exporter.rs`'s `pin_world_position`). The reduction is
+   ported with the two float facts that matter: the operation order
+   (`abs_x - pad_w / 2` groups as `abs_x - (pad_w / 2)`; B7) and CPython
+   builtin `min`/`max` first-argument NaN semantics (B5, `py_min`/`py_max`).
+   The differential drives angles at/below/above the `0.1` rotation
+   threshold, a NaN pad position, an empty pad list, and a missing
+   `position`/`size` (defaults 0.0/1.0 — handled Python-side).
+4. **Net-index map / resolution.** `build_net_name_to_index_map`'s loop
+   (`hasattr(net, "name") and hasattr(net, "number")` → `net_map[net.name] =
+   net.number`, last-wins) is transcribed with `getattr(...).ok()` — which,
+   like CPython's `hasattr`, swallows any exception, not only AttributeError.
+   The zones writer's bare `dict.get(net_name, 0)` and the truthiness-guarded
+   `_resolve_net_index` are the two resolution kernels.
+5. **Placement exporter.** `float(idx) * 90.0` and `x + origin_x` /
+   `y + origin_y` are single correctly-rounded f64 operations, identical to
+   CPython's. `np.argmax` (soft rotations → indices) deliberately stays
+   Python — reimplementing numpy's dtype promotion and tie-break would be a
+   behaviour change (the `dsn_exporter` precedent).
+
+## Boundaries kept on the Python side (and why)
+
+- **kiutils board I/O** (load, mutate, write `.kicad_pcb`) stays Python — the
+  KiCad-format boundary is a recorded JUSTIFIED-KEEP; there is no kernel to
+  extract from `KiBoard.from_file`/`to_file`.
+- **`rotate_local_to_world`** stays Python (B1, see above); the reduction
+  built on its output is ported.
+- **`np.argmax`** stays Python (numpy tie-break/dtype judgement, `dsn_exporter`
+  precedent).
+- **Zone `tstamp`** (`write_zones_to_pcb`'s `uuid.uuid4()`) is NOT determinized:
+  it is random in the pre-migration code, so determinizing it would be a
+  behaviour change no bit-identical differential could pin; the zone writer
+  has no live caller. Recorded, not silently changed.
+
+## Documented deviations and bounds (per R1, recorded here)
+
+1. **`i64` net-index bound.** `_resolve_net_index` returns `i64`; Python's
+   `int` is arbitrary precision. A net index beyond `i64` saturates at
+   extraction. KiCad net numbers are small integers (~1e3); unreachable in
+   practice, recorded rather than defended.
+2. **Emission keys on non-str net objects.** The kernels read `net` via
+   `str(net)` and `map[str(net)]`; the oracle's `net in map` hashes the raw
+   object. For the str/None domain `Trace.net` declares (and the differential
+   drives), these coincide.
+3. **`i64` rotation index in `rotation_index_to_degrees`.** Same width note;
+   indices are 0..3 in the only caller.
+4. **`component_bounds` inputs are pre-rotated world pads.** The kernel
+   signature is not a drop-in for the full oracle loop; the shim
+   (`_component_bounds`) owns the rotation-threshold branch and the SSOT call.
+   Pinned end-to-end by the delegation tests (monkeypatched Rust symbols
+   raise through the shipped entry points).
+
+## Evidence
+
+- **R1a behavioural A/B** — `test_write_geometry_rust_differential.py`: 56
+  tests. Bit-exact comparisons (floats via `float.hex()`), emission keys
+  additionally repr-compared, `_stable_tstamp` diffed against CPython
+  `hashlib`/`uuid` directly, numpy-typed route/via geometry, duck-typed
+  route/via objects, rotation-threshold and NaN pad cases, and six
+  delegation tests proving the shipped modules reach the Rust kernels
+  (monkeypatch-to-raise).
+- **R1c properties** — `test_write_geometry_pbt.py`: 9 properties (P1–P9),
+  one per cluster module, each with a G4 vacuity mutant that demonstrably
+  fails against a degenerate kernel.
+- **R1d metamorphic relations** — MR1 (bounds size-growth monotonicity,
+  exact), MR2 (emission-key permutation invariance, exact), MR3 (tstamp is a
+  1:1 function of the repr), MR4 (placement-origin associativity, exact for
+  dyadic halves), MR5 (net-index map order independence, bounded to distinct
+  names), each with a breakability test.
+- **R1f TDD** — the differential failed to collect
+  (`AttributeError: module 'temper_io_types' has no attribute
+  'kicad_write_geometry'`) before the Rust module landed; GREEN after the
+  build.
+- **R1g Rust practices** — `cargo clippy --features python --all-targets`
+  clean (0 warnings); no `unwrap`/`expect` outside `#[cfg(test)]`; every
+  pyfunction body wrapped in `temper_py_bridge::catch_panic` at the boundary;
+  borrows over clones.
+- **Regression sweep** — the end-to-end determinism suite
+  (`test_write_tracks_determinism.py`, 32 hash-seed subprocesses) still
+  produces byte-identical boards, and the existing
+  `test_placement_exporter`, `test_kicad_writer`, `test_rotation_handling`,
+  `test_integration`, `test_pad_orientation_roundtrip` and
+  `test_strip_routing_consolidation` suites stay green on the rewired shims.

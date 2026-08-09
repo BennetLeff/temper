@@ -44,6 +44,7 @@ pub mod footprint_library;
 pub mod footprint_spec;
 pub mod golden_serializers;
 pub mod isolation;
+pub mod kicad_write_geometry;
 // Wave-4 Phase 2: the placer's core/ CONTRACT layer (Rect, PinInfo,
 // PlacementViolation, FabPreset + the pure kernels of units,
 // net_classification, manufacturing, placement_drc and the netlist
@@ -283,6 +284,9 @@ mod pymodule_def {
         // temper_placer/manufacturing/stackup_validator.py (see
         // stackup_validator.rs).
         crate::stackup_validator::register(m)?;
+
+        // Wave 4 — kicad-write geometry kernels (io/_write_* + placement_exporter).
+        crate::kicad_write_geometry::register(m)?;
 
         Ok(())
     }

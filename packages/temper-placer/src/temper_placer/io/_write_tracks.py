@@ -1,12 +1,19 @@
-"""Internal: trace/via route writing and stripping functions."""
+"""Internal: trace/via route writing and stripping functions.
+
+Delegation shim over ``temper-io-types``' ``kicad_write_geometry`` kernels
+(the deterministic emission keys, the net-index resolution and the stable
+object-ID derivation). The kiutils board I/O (load/mutate/write a
+``.kicad_pcb``) stays here — the KiCad format boundary is a documented
+JUSTIFIED-KEEP — so the public entry points keep their signatures and forward
+every pure kernel to Rust.
+"""
 
 from __future__ import annotations
 
-import hashlib
-import uuid
 from pathlib import Path
 
 from kiutils.board import Board as KiBoard
+from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER
 from temper_placer.io._write_types import StrippingResult, WriteResult, _get_footprint_reference
@@ -32,22 +39,13 @@ def _stable_tstamp(kind: str, key: tuple) -> str:
     the track and via spaces so the two can never collide. Nothing references
     a track's UUID, and the previous value was random, so deriving it changes
     no meaning -- only its reproducibility.
+
+    The sha256 + RFC 4122 v4 derivation lives in Rust (``stable_tstamp_py``);
+    ``key!r`` is CPython's repr, which the kernel calls back across the
+    boundary so the digest input is byte-identical to the pre-migration
+    ``f"{kind}\\x00{key!r}"``.
     """
-    digest = hashlib.sha256(f"{kind}\x00{key!r}".encode()).digest()
-    return str(uuid.UUID(bytes=digest[:16], version=4))
-
-
-def _layer_rank(layer: object) -> tuple[int, str]:
-    """Rank a layer by physical stackup position, falling back to its name.
-
-    Stackup position -- not lexicographic name -- is the physically meaningful
-    order (``F.Cu`` above ``In1.Cu`` above ``B.Cu``); sorting by name alone
-    would put ``B.Cu`` first. The name is retained as the second element so
-    layers outside the standard stackup are still totally ordered.
-    """
-    name = str(layer)
-    idx = LAYER_NAME_TO_IDX.get(name)
-    return (_UNRANKED_LAYER if idx is None else int(idx), name)
+    return _GEOM.stable_tstamp_py(kind, key)
 
 
 def _resolve_net_index(net: object, net_name_to_index: dict[str, int]) -> int:
@@ -57,9 +55,7 @@ def _resolve_net_index(net: object, net_name_to_index: dict[str, int]) -> int:
     sort key, so the file's own net numbering and its physical ordering can
     never drift apart.
     """
-    if net and net in net_name_to_index:
-        return net_name_to_index[str(net)]
-    return 0
+    return _GEOM.resolve_net_index_py(net, net_name_to_index)
 
 
 def _trace_emission_key(route: object, net_name_to_index: dict[str, int]) -> tuple:
@@ -71,15 +67,7 @@ def _trace_emission_key(route: object, net_name_to_index: dict[str, int]) -> tup
     both be members of the ``routes`` set -- so no tie is ever left for set
     iteration order to break.
     """
-    net = route.net or ""  # type: ignore[attr-defined]
-    return (
-        _resolve_net_index(net, net_name_to_index),
-        str(net),
-        _layer_rank(route.layer),  # type: ignore[attr-defined]
-        (float(route.start[0]), float(route.start[1])),  # type: ignore[attr-defined]
-        (float(route.end[0]), float(route.end[1])),  # type: ignore[attr-defined]
-        float(route.width),  # type: ignore[attr-defined]
-    )
+    return _GEOM.trace_emission_key_py(route, net_name_to_index, LAYER_NAME_TO_IDX, _UNRANKED_LAYER)
 
 
 def _via_emission_key(via: object, net_name_to_index: dict[str, int]) -> tuple:
@@ -89,16 +77,7 @@ def _via_emission_key(via: object, net_name_to_index: dict[str, int]) -> tuple:
     over ``(position, drill, width, layers, net, is_diff_pair)`` and all six
     appear here.
     """
-    net = via.net or ""  # type: ignore[attr-defined]
-    return (
-        _resolve_net_index(net, net_name_to_index),
-        str(net),
-        (float(via.position[0]), float(via.position[1])),  # type: ignore[attr-defined]
-        float(via.drill),  # type: ignore[attr-defined]
-        float(via.width),  # type: ignore[attr-defined]
-        tuple(str(layer) for layer in via.layers),  # type: ignore[attr-defined]
-        bool(getattr(via, "is_diff_pair", False)),
-    )
+    return _GEOM.via_emission_key_py(via, net_name_to_index)
 
 
 def strip_routing(
