@@ -17,9 +17,9 @@ import temper_geometry as _tg
 
 def _flatten(pts):
     out = []
-    for x, y in pts:
-        out.append(x)
-        out.append(y)
+    for pt in pts:
+        out.append(pt[0])
+        out.append(pt[1])
     return out
 
 
