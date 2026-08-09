@@ -3,11 +3,19 @@ Router V6 Stage 0.2: Differential Pair Inference
 
 Infers differential pairs from net naming conventions.
 Part of temper-4av9
+
+Wave 4 migration note: the three-pass suffix-matching algorithm now
+delegates to ``temper_geometry``'s ``diff_pair_inference`` kernel
+(``packages/temper-geometry/src/diff_pair_inference.rs``); the ``DiffPair``
+dataclass (with its ``p_net != n_net`` validation) stays here.  See
+``packages/temper-geometry/VERIFICATION.md`` for the full writeup.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+import temper_geometry as _tg
 
 
 @dataclass
@@ -56,108 +64,6 @@ def infer_differential_pairs(net_names: list[str]) -> list[DiffPair]:
         >>> pairs = infer_differential_pairs(nets)
         >>> len(pairs)
         1
-        >>> pairs[0].base_name
-        'USB_D'
     """
-    # Normalize net names to uppercase for matching
-    net_map = {name.upper(): name for name in net_names}
-    net_set = set(net_map.keys())
-
-    pairs = []
-    matched_nets = set()
-
-    # Pattern 1: +/- suffix (USB_D+, USB_D-)
-    for net in net_names:
-        upper = net.upper()
-        if upper in matched_nets:
-            continue
-
-        if upper.endswith("+"):
-            base = upper[:-1]
-            neg_candidate = base + "-"
-            if neg_candidate in net_set:
-                pairs.append(
-                    DiffPair(
-                        base_name=base,
-                        p_net=net_map[upper],
-                        n_net=net_map[neg_candidate],
-                    )
-                )
-                matched_nets.add(upper)
-                matched_nets.add(neg_candidate)
-
-    # Pattern 2: DP/DN suffix (check BEFORE _P/_N to avoid USB_DP matching as USB_D_P)
-    for net in net_names:
-        upper = net.upper()
-        if upper in matched_nets:
-            continue
-
-        # Match patterns like: USB_DP, USBDP, ETH_DP
-        if upper.endswith("_DP"):
-            base = upper[:-3]  # Remove _DP
-            neg_candidate = base + "_DN"
-            if neg_candidate in net_set:
-                pairs.append(
-                    DiffPair(
-                        base_name=base,
-                        p_net=net_map[upper],
-                        n_net=net_map[neg_candidate],
-                    )
-                )
-                matched_nets.add(upper)
-                matched_nets.add(neg_candidate)
-        elif upper.endswith("DP") and not upper.endswith("_DP") and len(upper) > 2:
-            # Handle USBDP (no underscore)
-            base = upper[:-2]  # Remove DP
-            neg_candidate = base + "DN"
-            if neg_candidate in net_set:
-                pairs.append(
-                    DiffPair(
-                        base_name=base,
-                        p_net=net_map[upper],
-                        n_net=net_map[neg_candidate],
-                    )
-                )
-                matched_nets.add(upper)
-                matched_nets.add(neg_candidate)
-
-    # Pattern 3: _P / _N suffix (after DP/DN check)
-    for net in net_names:
-        upper = net.upper()
-        if upper in matched_nets:
-            continue
-
-        if upper.endswith("_P"):
-            base = upper[:-2]
-            neg_candidate = base + "_N"
-            if neg_candidate in net_set:
-                pairs.append(
-                    DiffPair(
-                        base_name=base,
-                        p_net=net_map[upper],
-                        n_net=net_map[neg_candidate],
-                    )
-                )
-                matched_nets.add(upper)
-                matched_nets.add(neg_candidate)
-        elif (
-            upper.endswith("P")
-            and not upper.endswith("_P")
-            and not upper.endswith("DP")
-            and len(upper) > 1
-        ):
-            # Match P suffix without underscore (but not DP)
-            base = upper[:-1]
-            neg_candidate = base + "N"
-            if neg_candidate in net_set:
-                pairs.append(
-                    DiffPair(
-                        base_name=base,
-                        p_net=net_map[upper],
-                        n_net=net_map[neg_candidate],
-                    )
-                )
-                matched_nets.add(upper)
-                matched_nets.add(neg_candidate)
-
-    return pairs
+    triples = _tg.infer_differential_pairs_py(list(net_names))
+    return [DiffPair(base_name=b, p_net=p, n_net=n) for b, p, n in triples]

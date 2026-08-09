@@ -15,6 +15,15 @@ power/ground nets for plane connectivity; this module produces the actual
 
 Requirements: R4 (power-plane pours + thermal), R5 (via strategy) from
 docs/plans/2026-07-08-004-feat-4-layer-functional-stackup-plan.md
+
+Wave 4 migration note: the pure-geometry kernels (rect corners, pour-strip
+partition, thermal-via NxN grid) now delegate to ``temper_geometry``'s
+``power_plane`` kernels (``packages/temper-geometry/src/power_plane.rs``);
+this module keeps its original public API. ``_board_bounds`` /
+``_component_center`` stay Python (Board/Component object access), as do the
+``diameter_mm <= drill_mm`` validation (its message interpolates floats, so
+it is raised here to stay CPython-exact). See
+``packages/temper-geometry/VERIFICATION.md`` for the full writeup.
 """
 
 from __future__ import annotations
@@ -22,6 +31,8 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
+
+import temper_geometry as _tg
 
 from temper_placer.core.board import Via
 
@@ -105,12 +116,7 @@ def _rect_polygon(
 ) -> list[tuple[float, float]]:
     """Return the 4 corners of an axis-aligned rectangle (CCW)."""
     x_min, y_min, x_max, y_max = bounds
-    return [
-        (x_min, y_min),
-        (x_max, y_min),
-        (x_max, y_max),
-        (x_min, y_max),
-    ]
+    return _tg.rect_polygon_py(x_min, y_min, x_max, y_max)
 
 
 def generate_ground_pour(board: Board, layer: str = "In1.Cu") -> CopperPour:
@@ -163,24 +169,16 @@ def generate_power_pours(
     resolved = tuple(domains) if domains is not None else DEFAULT_POWER_DOMAINS
     if not resolved:
         return []
-    if isolation_gap_mm < 0:
-        raise ValueError(f"isolation_gap_mm must be >= 0, got {isolation_gap_mm}")
 
     x_min, y_min, x_max, y_max = _board_bounds(board)
     n = len(resolved)
-    total_width = x_max - x_min
-    total_gap = isolation_gap_mm * (n - 1)
-    strip_width = (total_width - total_gap) / n
-    if strip_width <= 0:
-        raise ValueError(
-            f"Board too narrow ({total_width}mm) for {n} isolated pours "
-            f"with {isolation_gap_mm}mm gaps"
-        )
+    # The Rust kernel raises ValueError with the CPython-exact message for
+    # a negative gap and for a board too narrow to hold the strips.
+    strips = _tg.power_pour_strips_py(x_min, y_min, x_max, y_max, n, isolation_gap_mm)
 
     pours: list[CopperPour] = []
     for i, net in enumerate(resolved):
-        strip_x_min = x_min + i * (strip_width + isolation_gap_mm)
-        strip_x_max = strip_x_min + strip_width
+        strip_x_min, strip_x_max = strips[i]
         bounds = (strip_x_min, y_min, strip_x_max, y_max)
         pours.append(
             CopperPour(
@@ -210,17 +208,7 @@ def _thermal_via_positions(
 
     ``count`` is the total via count (must be a perfect square, e.g. 9 -> 3x3).
     """
-    side = int(round(count**0.5))
-    if side * side != count:
-        raise ValueError(f"count must be a perfect square, got {count}")
-
-    cx, cy = center
-    span = (side - 1) * pitch_mm
-    x0 = cx - span / 2.0
-    y0 = cy - span / 2.0
-    return [
-        (x0 + col * pitch_mm, y0 + row * pitch_mm) for row in range(side) for col in range(side)
-    ]
+    return _tg.thermal_via_positions_py(center[0], center[1], count, pitch_mm)
 
 
 def generate_thermal_vias(

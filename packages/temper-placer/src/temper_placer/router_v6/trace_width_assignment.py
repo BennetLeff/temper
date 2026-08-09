@@ -3,12 +3,21 @@ Router V6 Stage 4.4: Assign Trace Widths
 
 Assigns trace widths based on net class and current requirements.
 Part of temper-eixu (Stage 4 - Geometric Realization)
+
+Wave 4 migration note: the per-net classification (``_kw_boundary_match`` /
+``_determine_trace_width``) now delegates to ``temper_geometry``'s
+``trace_width_assignment`` kernels
+(``packages/temper-geometry/src/trace_width_assignment.rs``); the
+``PathfindingResult``-driven orchestration (``assign_trace_widths``) and the
+``TraceWidth``/``TraceWidthAssignment`` dataclasses stay here.  See
+``packages/temper-geometry/VERIFICATION.md`` for the full writeup.
 """
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
+
+import temper_geometry as _tg
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 
@@ -29,11 +38,7 @@ def _kw_boundary_match(upper: str, keywords: tuple[str, ...]) -> bool:
     trailing ``"_"``/digit/end, making the explicit trailing ``"_"`` in
     the original keyword redundant.
     """
-    for kw in keywords:
-        kw = kw[:-1] if kw.endswith("_") else kw
-        if re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper):
-            return True
-    return False
+    return _tg.kw_boundary_match_py(upper, list(keywords))
 
 
 @dataclass
@@ -131,47 +136,11 @@ def _determine_trace_width(
     Returns:
         TraceWidth assignment
     """
-    name_upper = net_name.upper()
-
-    # High voltage nets (AC, HV)
-    if _kw_boundary_match(name_upper, ("AC_", "HV_", "HIGH_VOLTAGE")):
-        return TraceWidth(
-            net_name=net_name,
-            width_mm=hv_width,
-            reason="High voltage net requires wider trace",
-        )
-
-    # Power nets (GND, VCC, etc.)
-    # FIXED 2026-07-28: this branch was still a bare `kw in name_upper`
-    # substring test even though the HV/gate-drive branches above and
-    # below it had already been anchored via _kw_boundary_match for the
-    # identical reason on 2026-07-27. A bare "+" matched almost any net
-    # with a "+" anywhere in its name (e.g. "DC_BUS+"'s HV classification
-    # above already short-circuits it, but a hypothetical non-HV net
-    # merely containing "+" would have been silently over-widened).
-    # Found completing the audit scripts/check_net_classification.py's
-    # 2026-07-28 vocabulary extension prompted -- see
-    # docs/evidence/2026-07-28-zone-layer-classification-fix.md.
-    if _kw_boundary_match(name_upper, ("GND", "VCC", "VDD", "VSS", "POWER")) or re.search(
-        r"^\+", name_upper
-    ):
-        return TraceWidth(
-            net_name=net_name,
-            width_mm=power_width,
-            reason="Power net requires wider trace for current capacity",
-        )
-
-    # Gate drive signals (medium current)
-    if _kw_boundary_match(name_upper, ("GATE", "DRIVE")):
-        return TraceWidth(
-            net_name=net_name,
-            width_mm=power_width * 0.6,  # 60% of power width
-            reason="Gate drive signal requires medium-width trace",
-        )
-
-    # Default signal nets
+    width_mm, reason = _tg.determine_trace_width_py(
+        net_name, default_width, power_width, hv_width
+    )
     return TraceWidth(
         net_name=net_name,
-        width_mm=default_width,
-        reason="Standard signal trace",
+        width_mm=width_mm,
+        reason=reason,
     )
