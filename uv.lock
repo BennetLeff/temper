@@ -24,7 +24,6 @@ members = [
     "temper-constraint-compiler",
     "temper-design-bundle",
     "temper-drc-rs",
-    "temper-dsn",
     "temper-geometry",
     "temper-io-types",
     "temper-ipc",
@@ -1534,11 +1533,6 @@ version = "0.1.0"
 source = { editable = "packages/temper-drc-rs" }
 
 [[package]]
-name = "temper-dsn"
-version = "0.1.0"
-source = { editable = "packages/temper-dsn" }
-
-[[package]]
 name = "temper-geometry"
 version = "0.1.0"
 source = { editable = "packages/temper-geometry" }
@@ -1720,7 +1714,6 @@ dev = [
     { name = "ruff" },
     { name = "sympy" },
     { name = "temper-design-bundle" },
-    { name = "temper-dsn" },
     { name = "temper-geometry" },
     { name = "temper-io-types" },
     { name = "temper-ipc" },
@@ -1745,7 +1738,6 @@ dev = [
     { name = "ruff", specifier = ">=0.1.6" },
     { name = "sympy", specifier = ">=1.12" },
     { name = "temper-design-bundle", editable = "packages/temper-design-bundle" },
-    { name = "temper-dsn", editable = "packages/temper-dsn" },
     { name = "temper-geometry", editable = "packages/temper-geometry" },
     { name = "temper-io-types", editable = "packages/temper-io-types" },
     { name = "temper-ipc", editable = "packages/temper-ipc" },

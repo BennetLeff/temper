@@ -885,7 +885,6 @@ jobs:
                        packages/temper-constraint-compiler/Cargo.toml \
                        packages/temper-design-bundle/Cargo.toml \
                        packages/temper-drc-rs/Cargo.toml \
-                       packages/temper-dsn/Cargo.toml \
                        packages/temper-geometry/Cargo.toml \
                        packages/temper-io-types/Cargo.toml \
                        packages/temper-ipc/Cargo.toml \

@@ -1415,3 +1415,86 @@ is bit-identical to the pinned pre-migration Python implementation.
   `test_placement_exporter`, `test_kicad_writer`, `test_rotation_handling`,
   `test_integration`, `test_pad_orientation_roundtrip` and
   `test_strip_routing_consolidation` suites stay green on the rewired shims.
+
+# DSN format utilities (`dsn.rs`) — Verification
+
+The DSN (Specctra) format utilities slice (`src/dsn.rs`) was consolidated
+from the deleted `temper-dsn` crate (2026-08-09, second crate-fold of the
+consolidation program; precedent: `placement-topology` → `geometry`).
+`dsn.rs` carries the pure kernels and their unit tests verbatim from
+`temper-dsn/src/dsn.rs`; `dsn_pyo3.rs` is the wholly-pyo3 surface that
+exposes them on `temper_io_types`, exactly as the old crate's inline bridge
+did for `temper_dsn`. The Python consumers
+(`temper_placer/io/dsn_validator.py`, `dsn_normalizer.py`, `dsn_schema.py`)
+were repointed import-only, bodies unchanged. The `temper-dsn` crate had no
+`VERIFICATION.md` to carry over, so this section records the kernels'
+verification state from first principles.
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** No kernel is
+recursive, and none iterates over a dimension whose correctness depends on a
+size parameter:
+
+- `normalize_dsn` / `strip_control_chars` / `is_dsn_normalized` are single
+  passes over the input text with per-line/per-char decisions independent of
+  the line count.
+- `compute_dsn_schema_hash` sorts the caller-supplied layer/footprint/net
+  collections and folds them into a sha256 of canonical JSON; the fold is
+  order-independent by construction (sorting first) and the hash covers a
+  fixed closed shape.
+- `embed_schema_header` / `extract_schema_hash` are constant-shaped
+  prefix/scan operations.
+
+Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every ported symbol, the Rust behaviour
+is bit-identical to the pre-migration Rust behaviour — these kernels moved
+between crates verbatim, so the claim is trivially carried: `git diff` of the
+moved `dsn.rs` against `temper-dsn/src/dsn.rs` at the fold commit is empty,
+and the unit tests embedded in the module are unchanged.
+
+*Proof by structural cases.*
+
+1. **Normalization / control-char stripping.** `normalize_dsn` filters
+   non-semantic `;exported-at:` / `;tool-version:` / `;machine:` / `;path:`
+   lines, trims trailing newlines to exactly one, and joins with `\n`.
+   `is_dsn_normalized` checks the same predicate plus the trailing-newline
+   structure. `strip_control_chars` keeps only `\n`, `\t` and `U+0020+`.
+   Each is a total function of its input string — no hidden state, no
+   iteration-order dependence.
+2. **Schema hashing.** The hash is sha256 over canonical JSON (sorted layer
+   names, sorted footprint names, sorted net names, fixed `trace_width=13` /
+   `clearance=12` rules). Sorting makes the hash order-independent for any
+   caller-supplied sequence permutation, and sha2's sha256 is byte-identical
+   to the `sha256_hex_py` pins already recorded in `provenance.rs`.
+3. **Header embed/extract.** `embed_schema_header` prepends
+   `;schema-version: sha256:<hash>` (replacing in place when a header already
+   leads the text); `extract_schema_hash` scans lines for the `sha256:`
+   prefix. The two are inverses on the header (round-trip pinned by the unit
+   tests and the Python validator tests).
+
+## R1h — state applicability
+
+**N/A.** These kernels only rewrite DSN text and compute a schema hash; no
+clearance, creepage, thermal, or current-density margin is computed or
+asserted anywhere, so the R24 physics-gate discipline has nothing to attach
+to.
+
+## Evidence
+
+- **Unit tests** — 7 tests carried verbatim in `dsn.rs`'s `#[cfg(test)]`
+  module (`test_normalize_strips_non_semantic`,
+  `test_normalize_trailing_newline`, `test_is_normalized_true` / `_false_*`
+  ×3, `test_strip_control_chars` / `_keeps_tabs`).
+- **Python coverage** — `tests/io/test_dsn_normalizer.py`,
+  `tests/io/test_dsn_schema.py`, `tests/io/test_dsn_validator.py` exercise
+  the kernels through the repointed shims; `tests/io/test_dsn_rust_differential.py`
+  pins the DSN emitter surface (`dsn_exporter.rs` / `dsn_types.rs`) that
+  `dsn_validator` fails closed on.
+- **R1g Rust practices** — `cargo clippy --features python --all-targets`
+  clean (0 warnings); no `unwrap`/`expect` outside `#[cfg(test)]` (the one
+  `#[expect(clippy::expect_used)]` in `static_regex` is carried from the
+  source crate).

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 
-import temper_dsn as _td
+import temper_io_types as _td
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class DSNVersionMismatchError(Exception):
 def validate_dsn(dsn_text: str, expected_hash: str) -> None:
     """Validate the DSN schema-version header against ``expected_hash``.
 
-    ``temper_dsn``'s Rust implementation raises a plain ``ValueError`` on
+    ``temper_io_types``'s Rust implementation raises a plain ``ValueError`` on
     mismatch; this wraps it in ``DSNVersionMismatchError`` so callers get
     the typed, attribute-bearing exception this module has always
     contracted for (``.expected`` / ``.received``, used by
