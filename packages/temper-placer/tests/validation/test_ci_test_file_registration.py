@@ -519,6 +519,27 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "LiveServer guard methods. Pure Python/Plotly, no external binary. "
         "Not yet wired into any CI job."
     ),
+    "pipeline/test_dag_expr_simple.py": (
+        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
+        "pipeline/): evaluate_skip_expr/parse_skip_expr + DAG expression "
+        "helpers. Pure Python. Not yet wired into any CI job."
+    ),
+    "pipeline/test_dag_observability.py": (
+        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
+        "pipeline/): PipelineExecutionLog.to_dict + write_execution_log_json. "
+        "Pure Python. Not yet wired into any CI job."
+    ),
+    "pipeline/test_pipeline_explainability.py": (
+        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
+        "pipeline/): DecisionLogger finish/log_placement/log_routing + "
+        "generate_markdown_report. Pure Python. Not yet wired into any CI job."
+    ),
+    "regression/test_coverage_paydown_v3.py": (
+        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
+        "regression/): record_metrics_for_stage, ClosureResult/GoldenBoard/"
+        "GoldenManifest/CorpusManifest/BaselineSpec helpers, RegressionReporter, "
+        "fingerprint cache. Pure Python. Not yet wired into any CI job."
+    ),
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------
