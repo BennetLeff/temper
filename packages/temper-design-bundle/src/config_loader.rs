@@ -437,6 +437,7 @@ const RAW_CONFIG_KEYS: &[&str] = &[
 const KNOWN_UNCONSUMED_PRODUCTION_KEYS: &[&str] = &[
     "critical_routing_order",
     "hv_lv_separation",
+    "hv_lv_guard_strip",
     "nets",
     "via_array_overrides",
 ];
