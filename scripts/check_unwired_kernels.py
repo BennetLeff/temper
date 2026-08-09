@@ -325,7 +325,7 @@ def production_references() -> tuple[set[str], list[str]]:
             continue
         for py in base.rglob("*.py"):
             p = str(py)
-            if "/tests/" in p or "/test_" in p or p.endswith("_test.py"):
+            if "/tests/" in p or "/test_" in p:
                 continue
             if "phase5_" in p and p.endswith("_mutations.py"):
                 # Mutation-campaign drivers contain MUTATED copies of the
@@ -336,6 +336,13 @@ def production_references() -> tuple[set[str], list[str]]:
                 # is_via_position_valid / place_via_with_clearance were
                 # reported STALE_ENTRY via phase5_batch1_mutations.py).
                 continue
+            # NOTE: a bare `*_test.py` suffix is NOT a test-file marker on
+            # its own -- production modules use it too
+            # (regression/closure_test.py, scripts/ci_closure_test.py) and
+            # DO call kernels. Real tests are excluded above by /tests/ and
+            # /test_ alone; excluding `*_test.py` here previously hid a
+            # production caller (measured 2026-08-08: closure_validate was
+            # reported unwired while regression/closure_test.py:202 calls it).
             if "/.venv/" in p or "/target" in p or "/_py_oracle" in p:
                 continue
             try:
