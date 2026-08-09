@@ -97,3 +97,159 @@ mod tests {
         assert!(pairs.is_empty());
     }
 }
+
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn normal_coord() -> impl Strategy<Value = f64> {
+        // Bounded to keep Euclidean distances finite and avoid inf/NaN
+        // in the additivity and non-negativity properties.
+        (-1e6f64..1e6).prop_filter("avoid subnormals", |x| x.is_normal() || *x == 0.0)
+    }
+
+    fn net_name() -> impl Strategy<Value = String> {
+        "[A-Z][A-Za-z0-9_]{0,15}"
+    }
+
+    fn trace_segment() -> impl Strategy<
+        Value = (Option<String>, f64, f64, f64, f64),
+    > {
+        (
+            prop::option::of(net_name()),
+            normal_coord(),
+            normal_coord(),
+            normal_coord(),
+            normal_coord(),
+        )
+    }
+
+    proptest! {
+        // -----------------------------------------------------------------
+        // measure_copper_length — properties
+        // -----------------------------------------------------------------
+
+        /// P1. Total length is always non-negative.
+        #[test]
+        fn p1_total_length_non_negative(
+            traces in prop::collection::vec(trace_segment(), 0..=50),
+        ) {
+            let (total, _) = measure_copper_length(traces);
+            prop_assert!(total >= 0.0,
+                "total length should be >= 0, got {total}");
+        }
+
+        /// P2. Per-net lengths are all non-negative.
+        #[test]
+        fn p2_net_lengths_non_negative(
+            traces in prop::collection::vec(trace_segment(), 0..=50),
+        ) {
+            let (_, pairs) = measure_copper_length(traces);
+            for (net, len) in &pairs {
+                prop_assert!(*len >= 0.0,
+                    "net '{net}' has negative length {len}");
+            }
+        }
+
+        /// P3. Total length equals the sum of per-net lengths.
+        #[test]
+        fn p3_total_equals_sum_of_nets(
+            traces in prop::collection::vec(trace_segment(), 0..=50),
+        ) {
+            let (total, pairs) = measure_copper_length(traces);
+            let sum: f64 = pairs.iter().map(|(_, l)| *l).sum();
+            // f64 addition is not exactly associative, so use a small
+            // tolerance here — the per-net accumulator and the total
+            // accumulator may differ by a handful of ulps.
+            let diff = (total - sum).abs();
+            prop_assert!(diff < 1e-12 * total.max(1.0),
+                "total={total} != sum of nets={sum}, diff={diff}");
+        }
+
+        /// P4. Adding segments additively: measure(traces1) + measure(traces2)
+        /// total ≈ measure(traces1 ++ traces2) total.
+        #[test]
+        fn p4_additive_over_concatenation(
+            t1 in prop::collection::vec(trace_segment(), 0..=20),
+            t2 in prop::collection::vec(trace_segment(), 0..=20),
+        ) {
+            let (total1, _) = measure_copper_length(t1.clone());
+            let (total2, _) = measure_copper_length(t2.clone());
+            let mut combined = t1;
+            combined.extend(t2);
+            let (total_combined, _) = measure_copper_length(combined);
+
+            let diff = (total_combined - (total1 + total2)).abs();
+            prop_assert!(diff < 1e-12 * total_combined.max(1.0),
+                "not additive: {} + {} != {}, diff={}", total1, total2, total_combined, diff);
+        }
+
+        /// P5. A single non-degenerate segment yields positive total length.
+        #[test]
+        fn p5_non_degenerate_segment_positive(
+            net in net_name(),
+            sx in normal_coord(),
+            sy in normal_coord(),
+            dx_delta in 0.1f64..100.0,
+            dy_delta in 0.1f64..100.0,
+        ) {
+            prop_assume!(dx_delta.abs() > 0.0 && dy_delta.abs() > 0.0);
+            let ex = sx + dx_delta;
+            let ey = sy + dy_delta;
+            let (total, _) = measure_copper_length(vec![
+                (Some(net), sx, sy, ex, ey)
+            ]);
+            prop_assert!(total > 0.0,
+                "non-degenerate segment should have positive length, got {total}");
+        }
+
+        /// P6. Falsy nets (None or empty string) are skipped and contribute
+        /// zero to total length.
+        #[test]
+        fn p6_falsy_nets_contribute_zero(
+            _real_nets in prop::collection::vec(
+                (net_name(), normal_coord(), normal_coord(), normal_coord(), normal_coord()),
+                0..=10,
+            ),
+        ) {
+            // Build a trace list with only falsy nets (None / empty string)
+            // and check that the total is zero.
+            let falsy_traces: Vec<_> = vec![
+                (Some(String::new()), 0.0, 0.0, 10.0, 10.0),
+                (None, 0.0, 0.0, 5.0, 5.0),
+            ];
+            let (total, pairs) = measure_copper_length(falsy_traces);
+            prop_assert_eq!(total, 0.0);
+            prop_assert!(pairs.is_empty());
+        }
+
+        /// P7. Per-net lengths preserve first-seen net name order.
+        #[test]
+        fn p7_first_seen_order(
+            names in prop::collection::vec(net_name(), 1..=10),
+            sx in normal_coord(),
+            sy in normal_coord(),
+            delta in 1.0f64..10.0,
+        ) {
+            // One segment per net, all same geometry but different net names.
+            let traces: Vec<_> = names.iter().map(|n| {
+                (Some(n.clone()), sx, sy, sx + delta, sy + delta)
+            }).collect();
+            let (_, pairs) = measure_copper_length(traces);
+            // The pair list should match the first-seen order of unique nets.
+            let mut seen = std::collections::HashSet::new();
+            let mut expected_order = Vec::new();
+            for n in &names {
+                if seen.insert(n.clone()) {
+                    expected_order.push(n.clone());
+                }
+            }
+            prop_assert_eq!(pairs.len(), expected_order.len());
+            for (i, (net, _)) in pairs.iter().enumerate() {
+                prop_assert_eq!(net, &expected_order[i],
+                    "order mismatch at position {}: {} != {}", i, net, expected_order[i]);
+            }
+        }
+    }
+}

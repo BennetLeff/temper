@@ -1,0 +1,9 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 005522d29d8730b110a0640284a547300f80b676cdbf8966ded5a64900adc036 # shrinks to net = "A", sx = 3.6556730744033375e177, sy = 5.3284252694981044e113, dx_delta = 0.1, dy_delta = 0.1
+cc 75d90a48c5aef6333ef95708fb23e91950f1d32e27e471e65fa6bcfba71c1d0c # shrinks to t1 = [], t2 = [(Some("A"), 3.5928665195799137e80, 3.2585594739899894e153, 2.8107144534114655e214, 2.0537563447495233e122)]
+cc 52338828cce6dbf144c941688696cdaebe946348e6c345e4b2650f11e67db5fd # shrinks to traces = [(Some("A"), 4.188496137710181e238, 9.029511187986206e-97, 1.226762206125635e-17, 8.775863903357156e-91)]

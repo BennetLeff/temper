@@ -164,3 +164,101 @@ mod tests {
         assert!(pow(1e300, 2.0).is_infinite());
     }
 }
+
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn normal_f64() -> impl Strategy<Value = f64> {
+        prop::num::f64::NORMAL
+    }
+
+    fn modest_f64() -> impl Strategy<Value = f64> {
+        (-1e3f64..1e3).prop_filter("avoid subnormals", |x| x.is_normal() || *x == 0.0)
+    }
+
+    proptest! {
+        // -----------------------------------------------------------------
+        // pow — structural properties
+        // -----------------------------------------------------------------
+
+        /// P1. pow(x, 0.0) = 1.0 for any non-zero finite x.
+        #[test]
+        fn p1_pow_zero_exponent(x in normal_f64()) {
+            prop_assume!(x != 0.0);
+            prop_assert_eq!(pow(x, 0.0), 1.0,
+                "pow({}, 0.0) should be 1.0", x);
+        }
+
+        /// P2. pow(x, 1.0) = x for any finite x.
+        #[test]
+        fn p2_pow_unity_exponent(x in normal_f64()) {
+            prop_assert_eq!(pow(x, 1.0), x,
+                "pow({}, 1.0) should be {}", x, x);
+        }
+
+        /// P3. pow(x, 2.0) is always non-negative for real x.
+        #[test]
+        fn p3_pow_square_non_negative(x in normal_f64()) {
+            let r = pow(x, 2.0);
+            prop_assert!(r >= 0.0 || r.is_nan(),
+                "pow({}, 2.0) = {} is negative", x, r);
+        }
+
+        /// P4. pow(x, y) is finite for modest non-negative inputs.
+        #[test]
+        fn p4_pow_modest_inputs_finite(
+            x in (0.0f64..1e3),
+            y in (-50.0f64..50.0),
+        ) {
+            prop_assume!(x > 0.0 || y > 0.0); // 0^negative = inf
+            let r = pow(x, y);
+            prop_assert!(r.is_finite(),
+                "pow({}, {}) = {} is not finite", x, y, r);
+        }
+
+        /// P5. pow(1.0, y) = 1.0 for all finite exponents.
+        #[test]
+        fn p5_pow_one_to_anything(y in normal_f64()) {
+            prop_assert_eq!(pow(1.0, y), 1.0,
+                "pow(1.0, {}) should be 1.0, got {}", y, pow(1.0, y));
+        }
+
+        /// P6. pow is multiplicative in the exponent: pow(x, a+b) ≈ pow(x,a)*pow(x,b).
+        /// (Within a few ulps due to floating-point rounding.)
+        #[test]
+        fn p6_pow_additive_exponents(
+            x in 0.1f64..10.0,
+            a in (-10.0f64..10.0),
+            b in (-10.0f64..10.0),
+        ) {
+            prop_assume!(a.is_finite() && b.is_finite() && (a+b).is_finite());
+            let lhs = pow(x, a + b);
+            let rhs = pow(x, a) * pow(x, b);
+            // Both values should be finite and positive, so relative error
+            // is meaningful.
+            if lhs.is_finite() && rhs.is_finite() && lhs > 0.0 && rhs > 0.0 {
+                let rel_err = (lhs - rhs).abs() / lhs.max(rhs);
+                prop_assert!(rel_err < 1e-14,
+                    "pow({}, {}+{}) = {} != pow({},{})*pow({},{}) = {}, rel_err={}",
+                    x, a, b, lhs, x, a, x, b, rhs, rel_err);
+            }
+        }
+
+        /// P7. pow is consistent with repeated multiplication for integer
+        /// exponents: pow(x, 2.0) * pow(x, 2.0) ≈ pow(x, 4.0).
+        #[test]
+        fn p7_pow_square_then_square(x in modest_f64()) {
+            let p2 = pow(x, 2.0);
+            let p4a = pow(x, 4.0);
+            let p4b = pow(p2, 2.0);
+            if p4a.is_finite() && p4a > 0.0 {
+                let rel_err = (p4a - p4b).abs() / p4a;
+                prop_assert!(rel_err < 1e-14,
+                    "pow({},4.0)={} != pow(pow({},2.0),2.0)={}, rel_err={}",
+                    x, p4a, x, p4b, rel_err);
+            }
+        }
+    }
+}

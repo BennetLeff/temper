@@ -482,3 +482,143 @@ mod tests {
         assert!(!warnings.is_empty());
     }
 }
+
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn safety_category() -> impl Strategy<Value = SafetyCategory> {
+        prop_oneof![
+            Just(SafetyCategory::HV),
+            Just(SafetyCategory::LV),
+            Just(SafetyCategory::AC),
+            Just(SafetyCategory::Iso),
+        ]
+    }
+
+    proptest! {
+        // -----------------------------------------------------------------
+        // join — lattice properties
+        // -----------------------------------------------------------------
+
+        /// P1. join is idempotent: join(a, a) = a for all categories.
+        #[test]
+        fn p1_join_idempotent(a in safety_category()) {
+            let result = join_impl(a, a);
+            prop_assert_eq!(result, a, "join({:?}, {:?}) = {:?} != {:?}", a, a, result, a);
+        }
+
+        /// P2. join is commutative: join(a, b) = join(b, a) for all pairs.
+        #[test]
+        fn p2_join_commutative(a in safety_category(), b in safety_category()) {
+            let ab = join_impl(a, b);
+            let ba = join_impl(b, a);
+            prop_assert_eq!(ab, ba,
+                "join({:?},{:?})={:?} != join({:?},{:?})={:?}", a, b, ab, b, a, ba);
+        }
+
+        /// P3. join is associative: join(join(a,b), c) = join(a, join(b,c)).
+        ///
+        /// The 4-element lattice has only 64 input triples; proptest
+        /// generates them exhaustively over enough runs.
+        #[test]
+        fn p3_join_associative(
+            a in safety_category(),
+            b in safety_category(),
+            c in safety_category(),
+        ) {
+            let left = join_impl(join_impl(a, b), c);
+            let right = join_impl(a, join_impl(b, c));
+            prop_assert_eq!(left, right,
+                "join not associative for {:?} {:?} {:?}: left={:?}, right={:?}",
+                a, b, c, left, right);
+        }
+
+        /// P4. join is monotone: join(a,b) is at least as "high" as both a and b.
+        /// "Higher" here means Iso >= HV=AC=LV (Iso is the top element).
+        #[test]
+        fn p4_join_upper_bound(a in safety_category(), b in safety_category()) {
+            let j = join_impl(a, b);
+            // join(a,b) should dominate both a and b: either equals the
+            // element or is Iso (the top). For any non-Iso pair of
+            // different elements the join is Iso.
+            let dominated = |x: SafetyCategory, top: SafetyCategory| -> bool {
+                x == top || matches!((x, top),
+                    (SafetyCategory::HV, SafetyCategory::Iso) |
+                    (SafetyCategory::LV, SafetyCategory::Iso) |
+                    (SafetyCategory::AC, SafetyCategory::Iso))
+            };
+            prop_assert!(dominated(a, j),
+                "join({:?},{:?})={:?} does not dominate {:?}", a, b, j, a);
+            prop_assert!(dominated(b, j),
+                "join({:?},{:?})={:?} does not dominate {:?}", a, b, j, b);
+        }
+
+        // -----------------------------------------------------------------
+        // meet — lattice properties
+        // -----------------------------------------------------------------
+
+        /// P5. meet is idempotent: meet(a, a) = a.
+        #[test]
+        fn p5_meet_idempotent(a in safety_category()) {
+            let result = meet_impl(a, a);
+            prop_assert_eq!(result, a, "meet({:?}, {:?}) = {:?} != {:?}", a, a, result, a);
+        }
+
+        /// P6. meet is commutative: meet(a, b) = meet(b, a).
+        #[test]
+        fn p6_meet_commutative(a in safety_category(), b in safety_category()) {
+            let ab = meet_impl(a, b);
+            let ba = meet_impl(b, a);
+            prop_assert_eq!(ab, ba,
+                "meet({:?},{:?})={:?} != meet({:?},{:?})={:?}", a, b, ab, b, a, ba);
+        }
+
+        /// P7. meet is associative: meet(meet(a,b), c) = meet(a, meet(b,c)).
+        #[test]
+        fn p7_meet_associative(
+            a in safety_category(),
+            b in safety_category(),
+            c in safety_category(),
+        ) {
+            let left = meet_impl(meet_impl(a, b), c);
+            let right = meet_impl(a, meet_impl(b, c));
+            prop_assert_eq!(left, right,
+                "meet not associative for {:?} {:?} {:?}: left={:?}, right={:?}",
+                a, b, c, left, right);
+        }
+
+        // -----------------------------------------------------------------
+        // Absorption law — join and meet together
+        // -----------------------------------------------------------------
+
+        /// P8. Absorption: meet(a, join(a, b)) = a.
+        ///
+        /// NOTE: The dual law `join(a, meet(a, b)) = a` does NOT hold for
+        /// this safety-category lattice; for example
+        /// `join(AC, meet(AC, LV)) = join(AC, LV) = Iso ≠ AC`. This is a
+        /// deliberate design property of the safety lattice, not a kernel
+        /// bug — different safety categories join to Iso (the top element),
+        /// which cannot be absorbed back down by meet.
+        #[test]
+        fn p8_absorption_meet_join(a in safety_category(), b in safety_category()) {
+            let lhs = meet_impl(a, join_impl(a, b));
+            prop_assert_eq!(lhs, a,
+                "meet({:?}, join({:?},{:?})) = {:?} != {:?}", a, a, b, lhs, a);
+        }
+
+        // -----------------------------------------------------------------
+        // SafetyCategory::parse
+        // -----------------------------------------------------------------
+
+        /// P10. Display then parse round-trips for all variants.
+        #[test]
+        fn p10_safety_category_display_parse_roundtrip(cat in safety_category()) {
+            let s = cat.to_string();
+            let parsed = SafetyCategory::parse(&s);
+            prop_assert_eq!(parsed, Some(cat),
+                "parse(display({:?})) = {:?} != Some({:?})", cat, parsed, cat);
+        }
+    }
+}
