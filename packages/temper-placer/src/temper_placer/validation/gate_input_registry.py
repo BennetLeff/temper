@@ -564,6 +564,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("constraint_mutation_gate.py", "power_pcb_dataset/constraint_kill_sets.yaml", "mutation-suite gate (plan 2026-08-02-006); probe harness deferred"),
     ("capacity_budget_gate.py", "scripts/capacity_budget_packages.yaml", "reads fault-tree fan-in data; probe harness deferred"),
     ("check_copper_net_consistency.py", "pcb/temper.kicad_pcb", "needs compiled netlist (elec/build/, not committed); baseline red today"),
+    ("check_creepage_clearance_drift.py", "elec/src/constraints.ato", "cross-source creepage/clearance SSOT drift gate -- PREPARED, NOT ENABLED: the python-tests.yml step invoking it is deliberately commented out pending human approval of the 4 mismatched value families it reports (docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md Task 3); would go CI-red on main by design. Registered as a documented non-covered case; its own unit tests pass against synthetic fixtures."),
     ("check_coverage_gate.py", "coverage.json", "consumes pytest-cov output; probe harness deferred"),
     ("check_derived_doc_drift.py", "docs/STRATEGY.md", "doc-drift comparison; probe harness deferred"),
     ("check_domain_partition.py", "elec/build/default.net", "needs compiled netlist (elec/build/, not committed)"),

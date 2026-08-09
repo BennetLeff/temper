@@ -758,6 +758,47 @@ jobs:
         env:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
+
+      # Wave 4 round-2 anti-vacuity gate (PR merge path): the round-2
+      # migration-wave differential/PBT suites (heuristics, spatial-DRC
+      # cluster, constraint-model, channel-mapping, requirements geometry
+      # validators, core-graph cluster, bus-cohort, aesthetic) are the ONLY
+      # tests that pin those migrated Rust kernels bit-exactly against the
+      # verbatim Python oracles. They previously ran in no PR-time job --
+      # the migration wave landed with the drift this gate records (see
+      # tests/validation/test_ci_test_file_registration.py and
+      # docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md).
+      # pytest_guard floors the collection at the 1092 tests counted on
+      # 2026-08-09 with this exact 16-file invocation (`-m "not slow"`,
+      # all passing), so a silently-shrunk suite fails instead of passing
+      # vacuously. The core/ and metrics/ members are also swept by other
+      # jobs' directory arguments; they get the pinned floor here regardless.
+      - name: Run Wave-4 round-2 differentials (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 1092 --
+          tests/heuristics/test_heuristics_rust_differential.py
+          tests/heuristics/test_heuristics_pbt.py
+          tests/router_v6/test_spatial_drc_cluster_rust_differential.py
+          tests/router_v6/test_spatial_drc_cluster_pbt.py
+          tests/router_v6/test_constraint_model_rust_differential.py
+          tests/router_v6/test_constraint_model_pbt.py
+          tests/router_v6/test_channel_mapping_rust_differential.py
+          tests/router_v6/test_channel_mapping_pbt.py
+          tests/requirements/validators/test_geometry_rust_differential.py
+          tests/requirements/validators/test_geometry_pbt.py
+          tests/core/test_core_graph_cluster_rust_differential.py
+          tests/core/test_core_graph_cluster_pbt.py
+          tests/core/test_bus_cohort_rust_differential.py
+          tests/core/test_bus_cohort_pbt.py
+          tests/metrics/test_aesthetic_rust_differential.py
+          tests/metrics/test_aesthetic_rust_pbt.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
       # Removed 2026-08-07: dead weight. The `run:` command already ends in
       # `|| echo "::warning ..."`, a shell fallback that makes the WHOLE
       # step exit 0 unconditionally (verified: `bash -c 'false || echo x;
@@ -2949,7 +2990,7 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_apply_suggestions.py tests/router_v6/test_assignment_validation_pbt.py tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_audit_tree_geometry.py tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_diagnostics.py tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_rust_correctness.py tests/router_v6/test_manufacturing_report_induction.py tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_placement_suggestions.py tests/router_v6/test_quality_via_count.py tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py tests/router_v6/test_wave4_bit_tensor.py
+          tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_assignment_validation_pbt.py tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_diagnostics.py tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_rust_correctness.py tests/router_v6/test_manufacturing_report_induction.py tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_quality_via_count.py tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py tests/router_v6/test_wave4_bit_tensor.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
         # FIXED 2026-08-07: this job ran ZERO tests since 2026-07-31. The
@@ -2997,6 +3038,17 @@ jobs:
         # No continue-on-error added back: per the same discipline as every
         # other hard gate in this job, a red result here is a real finding
         # that should be visible, not re-masked.
+        #
+        # Re-pruned 2026-08-09: the dead-module retirement (47349a50) deleted
+        # three more files that were still named in the list above
+        # (test_apply_suggestions.py, test_audit_tree_geometry.py,
+        # test_placement_suggestions.py) -- the same exit-4 shape this
+        # comment already documents, re-introduced by that retirement. The
+        # three paths were dropped from the list; the pytest_guard floor is
+        # unaffected (the suite still collected well above 500 once the list
+        # stopped aborting collection). They were new dangling references
+        # (not previously tracked), so removing them from the list resolves
+        # them without a registry entry.
 
   invariant-router-v6-3:
     name: Invariant tests (router_v6 group 3)

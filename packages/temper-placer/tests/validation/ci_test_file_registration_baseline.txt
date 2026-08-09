@@ -121,7 +121,6 @@ pcl/test_tag_dispatch_rust_differential.py
 pcl/test_tag_metamorphic_pbt.py
 pcl/test_tiers.py
 pcl/test_unsat_compiler.py
-pipeline/stages/test_input_stage_identity_preflight.py
 pipeline/test_dag_expr_perf.py
 pipeline/test_dag_expr_properties.py
 pipeline/test_dag_expr_rust_differential.py
