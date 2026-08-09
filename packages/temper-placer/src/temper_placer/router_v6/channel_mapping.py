@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import networkx as nx
+import temper_geometry as _tg
 
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.net_classification import (
@@ -21,6 +22,14 @@ from temper_placer.router_v6.net_classification import (
 from temper_placer.router_v6.terminal_extraction import ParsedTerminal
 from temper_placer.router_v6.terminal_tree import TerminalTreePlan
 from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
+
+
+def _flatten(points: list[tuple[float, float]]) -> list[float]:
+    out = []
+    for x, y in points:
+        out.append(x)
+        out.append(y)
+    return out
 
 
 @dataclass
@@ -498,14 +507,14 @@ def _nearest_skeleton_node(
 
     Ties are broken by the node's own coordinate, so the result depends only on
     the node *set* and ``coord`` -- never on iteration or insertion order.
+
+    Wave 4: computed in ``temper-geometry`` (``channel_mapping.rs``), which
+    reproduces the reference's ``min`` over the ``((n - coord)**2, n)`` key
+    bit-exactly.  The argmin is unique for distinct nodes, so converting the
+    node view to a list cannot change the result.
     """
-    nodes = skeleton.graph.nodes()
-    if not nodes:
-        return None
-    return min(
-        nodes,
-        key=lambda n: ((n[0] - coord[0]) ** 2 + (n[1] - coord[1]) ** 2, n),
-    )
+    nodes = list(skeleton.graph.nodes())
+    return _tg.nearest_skeleton_node_py(coord[0], coord[1], _flatten(nodes))
 
 
 def _is_near_skeleton(
@@ -513,15 +522,13 @@ def _is_near_skeleton(
     skeleton: ChannelSkeleton,
     tolerance: float = 5.0,
 ) -> bool:
-    """Check if a coordinate is near any skeleton node."""
-    if skeleton.graph.number_of_nodes() == 0:
-        return False
-    for node in skeleton.graph.nodes():
-        dx = node[0] - coord[0]
-        dy = node[1] - coord[1]
-        if (dx * dx + dy * dy) <= tolerance * tolerance:
-            return True
-    return False
+    """Check if a coordinate is near any skeleton node.
+
+    Wave 4: computed in ``temper-geometry`` (``channel_mapping.rs``), a
+    per-node ``dx*dx + dy*dy <= tolerance*tolerance`` existential scan.
+    """
+    nodes = list(skeleton.graph.nodes())
+    return _tg.is_near_skeleton_py(coord[0], coord[1], _flatten(nodes), tolerance)
 
 
 def _parse_channel_coordinate(
@@ -612,35 +619,21 @@ def _calculate_path_length(waypoints: list[tuple[float, float]]) -> float:
 
     Returns:
         Total length in mm
+
+    Wave 4: computed in ``temper-geometry`` (``channel_mapping.rs``), which
+    reproduces the reference's naive ``+=`` fold of ``(dx**2 + dy**2) ** 0.5``
+    segment lengths (host-libm ``pow``) bit-exactly.
     """
-    if len(waypoints) < 2:
-        return 0.0
-
-    total_length = 0.0
-    for i in range(len(waypoints) - 1):
-        x1, y1 = waypoints[i]
-        x2, y2 = waypoints[i + 1]
-        dx = x2 - x1
-        dy = y2 - y1
-        length = (dx**2 + dy**2) ** 0.5
-        total_length += length
-
-    return total_length
+    return _tg.channel_path_length_py(_flatten(waypoints))
 
 
 def _nearest_terminal_order(
     start: tuple[float, float], pads: list[tuple[float, float]]
 ) -> list[tuple[float, float]]:
-    """Deterministically extend an existing copper component one pad at a time."""
-    remaining = set(pads)
-    ordered: list[tuple[float, float]] = []
-    current = start
-    while remaining:
-        next_pad = min(
-            remaining,
-            key=lambda pad: (abs(pad[0] - current[0]) + abs(pad[1] - current[1]), pad),
-        )
-        ordered.append(next_pad)
-        remaining.remove(next_pad)
-        current = next_pad
-    return ordered
+    """Deterministically extend an existing copper component one pad at a time.
+
+    Wave 4: computed in ``temper-geometry`` (``channel_mapping.rs``), which
+    reproduces the reference's greedy nearest-by-Manhattan ordering over the
+    de-duplicated ``set(pads)`` bit-exactly.
+    """
+    return _tg.nearest_terminal_order_py(start[0], start[1], _flatten(pads))

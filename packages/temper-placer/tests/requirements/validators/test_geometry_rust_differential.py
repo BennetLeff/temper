@@ -22,12 +22,10 @@ B4 (``math.dist``/``math.hypot`` = ``py_hypot``, not libm hypot), B5
 (``max(0.0, min(1.0, t))`` min-then-max NaN clamp), B7 (arithmetic order
 preserved verbatim), B12 (builtin ``sum()`` = compensated Neumaier).
 
-Note on ``_polyline_length``: the pre-migration function returns CPython's
-builtin ``sum()``, which for a <2-point polyline returns the **int** ``0``
-(empty generator).  The Python shim preserves that type-changing edge case
-(``len(polyline) < 2: return 0``); the Rust kernel returns ``0.0`` and is
-only reached for ``len >= 2``.  The direct-kernel pin below asserts the
-Rust ``0.0``; the shim differential asserts the int ``0`` — both pinned.
+Note on ``_polyline_length``: for <2 points the reference's guarded branch
+returns the float ``0.0`` (the ``sum()`` itself is never reached), and the
+Rust kernel returns ``0.0`` too — the degenerate case is pinned by
+``test_polyline_length_degenerate_type``.
 """
 
 from __future__ import annotations
@@ -715,17 +713,17 @@ class TestPolylineLength:
         assert_bits(geom._polyline_length(poly), expected, f"shim polylen {poly}")
 
     def test_polyline_length_degenerate_type(self):
-        """The pre-migration ``sum()`` returns the int 0 for <2 points; the
-        shim preserves that type; the Rust kernel returns 0.0."""
+        """For <2 points the reference's ``sum()`` is empty but the guarded
+        branch returns the float ``0.0``; the shim delegates fully and the
+        Rust kernel floats the degenerate case as ``0.0`` too — all three
+        agree bit-exactly (and by type)."""
         import temper_geometry as tg
 
         for poly in ([], [(0.0, 0.0)]):
             expected = _oracle_polyline_length(poly)
-            assert expected == 0 and isinstance(expected, int)
-            # shim preserves the int edge case
+            assert expected == 0.0 and isinstance(expected, float)
             got_shim = geom._polyline_length(poly)
-            assert got_shim == 0 and isinstance(got_shim, int)
-            # Rust kernel is total but floats the degenerate result
+            assert key(got_shim) == key(expected)
             got_rust = tg.geom_polyline_length_py(flatten(poly))
             assert got_rust == 0.0 and isinstance(got_rust, float)
 

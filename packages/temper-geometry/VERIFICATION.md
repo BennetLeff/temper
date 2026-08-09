@@ -2016,3 +2016,163 @@ before declaring green, per this crate's anti-vacuity convention.
 N/A. Medial-axis skeleton extraction is routing-channel geometry, not a
 manufacturing or safety rule; it has no threshold and produces no
 pass/fail verdict.
+
+---
+
+## Validator Geometry Helpers (`geometry_kernels.rs`) — Verification by Induction (Wave 4)
+
+Migrates all 12 kernels of `temper_placer/requirements/validators/_geometry.py`
+— the shared PCB-layout-validation geometry helpers. The module is now a
+delegation shim; every kernel computes in `temper-geometry`.
+
+### Base Case: 3-4-5 triangle and a single cell
+
+- `_distance((0,0),(3,4))` = `py_hypot` of (3,4) = `5.0` — the Rust kernel
+  and the pinned `math.dist` oracle agree bit-for-bit.
+- `_point_in_rect((5,5), (0,0,10,10))` wires `Rect::contains_point`, whose
+  comparisons and `x + w` arithmetic are identical to the reference's
+  chained comparison.
+- `_segments_intersect` on the crossing pair `(0,0)-(10,10)` ×
+  `(0,10)-(10,0)` returns True; `_segment_to_segment_distance` returns
+  `0.0`; `_polyline_length` of one segment equals the segment's `math.dist`.
+
+### Induction Step
+
+Every kernel is a fold or a closed form over **independent per-element
+computations** with no cross-element interaction:
+
+1. **Per-segment folds.** `_point_to_polyline_distance`,
+   `_segment_to_segment_distance`'s candidate min, `_polyline_min_distance`
+   and `_polylines_intersect` iterate independent segment/segment-pair
+   results (min/any/sum over closed-form per-pair values). Appending a
+   segment evaluates the same formula on the new pair without perturbing
+   prior results, so correctness on n elements lifts to n+1 by the
+   associativity/commutativity of the fold. `_polyline_length` is a
+   Neumaier-compensated `sum()` (CPython 3.12 `builtin_sum_impl`, shared
+   with `area_sufficiency.rs`) over per-segment `math.dist` values — the
+   compensation accumulator is element-independent; the two degenerates
+   (`len < 2` → `0.0`) are guarded.
+2. **Per-point/segment closed forms.** `_distance` (`py_hypot`),
+   `_point_to_segment_distance`, `_orientation`, `_on_segment`,
+   `_segments_intersect`, `_point_in_rect`, `_rects_overlap` are
+   straight-line arithmetic/comparison expressions over their arguments —
+   no iteration, so base-case exactness is exactness for every input. The
+   reference's arithmetic order is preserved verbatim (`len2 < 1e-12`
+   degenerate threshold, min-then-max `py_min(1.0, t)`/`py_max(0.0, …)`
+   NaN clamp, sign-based `(o > 0) != (o > 0)` orientation test with `1e-9`
+   epsilon, negation-form `_rects_overlap` whose NaN `<` comparisons make
+   it True where `AABB::intersects` would return False).
+
+**Not de-duplicated:** the point/segment kernels here differ from
+`drc_constraints_geometry.rs`'s (degenerate threshold `1e-12` vs `1e-10`;
+sign-based vs 0/1/2 orientation code; `1e-9` vs `1e-10` epsilon;
+epsilon-padded vs plain `_on_segment` box). Reusing the DRC kernels would be
+a silent behaviour change; each reference is preserved as written.
+
+### Empirical verification
+
+- Differential suite
+  (`packages/temper-placer/tests/requirements/validators/test_geometry_rust_differential.py`):
+  all 12 kernels pinned bit-exactly against the verbatim `_oracle_*` copy
+  of the pre-migration module — randomized point/rect/segment/polyline
+  corpora, adversarial magnitudes, subnormal-band (B8), NaN/inf parity,
+  structured edge cases (collinear, touching, T-junctions, degenerate
+  `1e-12` threshold boundary), and the Neumaier discriminator. Direct Rust
+  pins + shim-level assertions both green (384 tests).
+- PBT (`test_geometry_pbt.py`): 6 properties (distance non-negativity +
+  exact symmetry; point-to-segment endpoint bound; segment-to-segment = the
+  4-candidate min with 0-iff-intersect; point-to-polyline = per-segment
+  min; polyline-min = per-pair min with 0-iff-crossing; far-point absorption
+  monotonicity) + 5 metamorphic relations (M1 exact power-of-two translation
+  invariance, M2 overlap commutativity, M3 segment reversal within 1e-9
+  relative on the projection arm only — the degenerate arm is deliberately
+  excluded because the reference's `return distance to a` breaks reversal,
+  M4/M5 exact integer-coordinate translation), each property with a vacuity
+  guard proving a degenerate mutant violates it (17 tests).
+- The pre-existing validator suites
+  (`packages/temper-placer/tests/requirements/validators/*`) pass unchanged
+  through the Rust-backed shim (422 tests incl. clearance, layout_review,
+  switching_nodes, bypass_caps, pick_and_place, ground_plane, emi_filter,
+  isolation).
+
+### R24 physics discipline
+
+N/A — pure Euclidean geometry with no physics-gated threshold and no
+pass/fail safety verdict.
+
+---
+
+## Channel-Mapping Geometry (`channel_mapping.rs`) — Verification by Induction (Wave 4)
+
+Migrates the four pure-geometry kernels of
+`temper_placer/router_v6/channel_mapping.py` (Stage 4.1, map topology to
+channels): `_calculate_path_length`, `_nearest_skeleton_node`,
+`_is_near_skeleton`, `_nearest_terminal_order`. The orchestration
+(`map_topology_to_channels`, `_extract_waypoints`,
+`expand_channel_path_terminals`, layer assignment, networkx traversal)
+stays in Python; the module delegates the four kernels to `temper-geometry`.
+
+### Base Case
+
+- `path_length` of a single segment `(0,0)-(3,4)` = `(dx**2 + dy**2) ** 0.5`
+  = `5.0` (host-libm `pow` chain, not `hypot`, not `sqrt`).
+- `nearest_skeleton_node` over a one-node set returns that node; over an
+  empty set returns `None`.
+- `is_near_skeleton` with one node exactly `tolerance` away is True
+  (`dx*dx + dy*dy == tol*tol`).
+- `nearest_terminal_order` of a single pad is that pad; of an empty pad
+  list is `[]`.
+
+### Induction Step
+
+Each kernel is a fold over **independent per-element computations**:
+
+1. **`path_length`** is a naive `+=` fold (NOT builtin `sum()` — B12's two
+   summation classes are deliberately kept distinct) of per-segment
+   `pow(pow(dx, 2.0) + pow(dy, 2.0), 0.5)` values; appending a waypoint
+   adds one independent segment term. The per-segment `**` goes through a
+   CPython-exact overflow guard (`pow_checked`, mirroring
+   `escape_via.rs::pow_operator`): a finite base whose power overflows to
+   infinity raises `OverflowError`, an already-infinite/NaN base does not —
+   evaluated left-to-right exactly as the reference expression is.
+2. **`nearest_skeleton_node`** is an argmin over independent per-node keys
+   `(pow(nx-cx, 2.0) + pow(ny-cy, 2.0), (nx, ny))` under Python tuple
+   comparison; the argmin key is unique for distinct nodes, so the result
+   is independent of node-set iteration order (pinned by the
+   insertion-order and NaN-seed tests — a NaN key never displaces a finite
+   one, and a NaN seed persists exactly as Python's `min` does).
+3. **`is_near_skeleton`** is an existential per-node
+   `dx*dx + dy*dy <= tolerance*tolerance` scan (multiplication, not pow) —
+   order-independent boolean.
+4. **`nearest_terminal_order`** is a greedy loop where each step is an
+   independent argmin over the remaining (de-duplicated, `set(pads)`
+   semantics) pads by the key `(manhattan, pad)` — unique per remaining
+   pad, so the whole sequence is iteration-order-independent.
+
+### Empirical verification
+
+- Differential suite
+  (`packages/temper-placer/tests/router_v6/test_channel_mapping_rust_differential.py`):
+  all four kernels pinned bit-exactly (and exception-for-exception) against
+  the verbatim `_oracle_*` copy — randomized waypoints/nodes/pads,
+  adversarial magnitudes, degenerate/NaN/inf, the `1e-12`-class
+  discriminators, the pow-vs-hypot discriminator, the `OverflowError` parity
+  cases (`(1e308)**2` raises in oracle, shim and Rust alike; a finite-base
+  `inf ** 0.5` does not), order-independence, and the tie-break-by-
+  coordinate cases. Direct Rust pins + shim-level assertions green (159
+  tests).
+- PBT (`test_channel_mapping_pbt.py`): 6 properties (path length
+  non-negative / exact single segment / zero-iff-coincide; nearest-node
+  argmin; near-skeleton ≡ existential scan; terminal order is a permutation
+  of the de-duplicated pads; greedy-step nearest-of-remaining; path-length
+  monotone under append) + 4 metamorphic relations (M1 exact power-of-two
+  translation invariance incl. frame-translated nearest-node result, M2
+  input-order permutation invariance, M3 additive-append, M4 tolerance
+  monotonicity), each property with a vacuity guard (16 tests).
+- The pre-existing suites (`test_channel_mapping.py`,
+  `test_channel_mapping_terminal_validation.py`) pass unchanged through the
+  Rust-backed shim.
+
+### R24 physics discipline
+
+N/A — routing-channel geometry with no physics-gated threshold.

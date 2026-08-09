@@ -147,6 +147,8 @@ def key(value):
         return ("float", value.hex())
     if isinstance(value, bool):
         return ("bool", value)
+    if isinstance(value, tuple):
+        return ("tuple", tuple(key(v) for v in value))
     return (type(value).__name__, value)
 
 
@@ -214,7 +216,6 @@ class TestCalculatePathLength:
             [(0.0, 0.0), (0.0, 0.0)],
             [(0.0, 0.0), (float("nan"), 1.0)],
             [(0.0, 0.0), (float("inf"), 1.0)],
-            [(0.0, 0.0), (1e308, 1e308)],
             [(0.0, 0.0), (3.0, 4.0), (6.0, 8.0), (9.0, 12.0)],
         ]
         for wps in cases:
@@ -222,6 +223,27 @@ class TestCalculatePathLength:
             got = tg.channel_path_length_py(flatten(wps))
             assert_bits(got, expected, f"pathlen {wps}")
             assert_bits(cm._calculate_path_length(wps), expected, f"shim pathlen {wps}")
+
+    def test_pow_overflow_raises_like_cpython(self):
+        """``(1e308)**2`` overflows: CPython's ``float_pow`` raises
+        ``OverflowError``.  The oracle raises, the shim must propagate it,
+        and the Rust pyfunction must raise the same exception type."""
+        import temper_geometry as tg
+
+        wps = [(0.0, 0.0), (1e308, 1e308)]
+        with pytest.raises(OverflowError):
+            _oracle_calculate_path_length(wps)
+        with pytest.raises(OverflowError):
+            cm._calculate_path_length(wps)
+        with pytest.raises(OverflowError):
+            tg.channel_path_length_py(flatten(wps))
+        # a sum-of-squares that overflows only through addition (both terms
+        # finite) is a finite base for the outer `** 0.5` -> inf, no raise
+        wps2 = [(0.0, 0.0), (1e154, 1e154)]
+        expected = _oracle_calculate_path_length(wps2)
+        assert expected == float("inf")
+        assert_bits(tg.channel_path_length_py(flatten(wps2)), expected, "pathlen inf")
+        assert_bits(cm._calculate_path_length(wps2), expected, "shim pathlen inf")
 
     def test_pow_not_sqrt_discriminator(self):
         """The reference is ``(dx**2 + dy**2) ** 0.5`` = host-libm pow, not
@@ -302,16 +324,46 @@ class TestNearestSkeletonNode:
 
     def test_nan_coordinate_node(self):
         """A NaN-coordinate node's squared-distance key is NaN and never
-        wins against a finite key; with only NaN nodes the result is
-        iteration-order-dependent, so only the mixed case is pinned."""
+        wins a strict-< min against a finite key.  But if the NaN node is the
+        SEED, Python's `min` keeps it (no finite key is < NaN), so the result
+        is iteration-order-dependent on NaN nodes — the differential pins
+        list order explicitly (both oracle and kernel are min-with-strict-<,
+        seed-first, so they agree for the same order)."""
         import temper_geometry as tg
 
-        nodes = [(float("nan"), 0.0), (1.0, 1.0), (3.0, 3.0)]
-        coord = (2.0, 2.0)
-        expected = _oracle_nearest_skeleton_node(coord, set(nodes))
-        assert expected == (1.0, 1.0)
-        got = tg.nearest_skeleton_node_py(2.0, 2.0, flatten(nodes))
-        assert got == expected
+        for nodes in (
+            [(float("nan"), 0.0), (1.0, 1.0), (3.0, 3.0)],
+            [(1.0, 1.0), (float("nan"), 0.0), (3.0, 3.0)],
+            [(3.0, 3.0), (float("nan"), 0.0), (1.0, 1.0)],
+        ):
+            coord = (2.0, 2.0)
+            # oracle over the SAME list order (not a set — set order is
+            # hash-order-dependent for NaN keys).  NaN-tuple equality is
+            # False in Python, so compare via key() (NaN-aware).
+            expected = _oracle_nearest_skeleton_node(coord, nodes)
+            got = tg.nearest_skeleton_node_py(2.0, 2.0, flatten(nodes))
+            assert key(got) == key(expected)
+        # a NaN node never displaces a finite argmin once a finite node seeds
+        assert _oracle_nearest_skeleton_node((2.0, 2.0), [(1.0, 1.0), (float("nan"), 0.0)]) == (1.0, 1.0)
+        assert tg.nearest_skeleton_node_py(
+            2.0, 2.0, flatten([(1.0, 1.0), (float("nan"), 0.0)])
+        ) == (1.0, 1.0)
+
+    def test_key_squared_distance_overflow_raises(self):
+        """The reference's key is ``(n - coord)**2`` (CPython ``float_pow``),
+        which raises ``OverflowError`` on a huge coordinate.  The oracle, the
+        shim, and the Rust pyfunction must all raise."""
+        import temper_geometry as tg
+
+        nodes = [(1e308, 1e308), (0.0, 0.0)]
+        with pytest.raises(OverflowError):
+            _oracle_nearest_skeleton_node((0.0, 0.0), nodes)
+        with pytest.raises(OverflowError):
+            tg.nearest_skeleton_node_py(0.0, 0.0, flatten(nodes))
+        # the shim takes a skeleton; build one with the offending node
+        sk = make_skeleton([(1e308, 1e308), (0.0, 0.0)])
+        with pytest.raises(OverflowError):
+            cm._nearest_skeleton_node((0.0, 0.0), sk)
 
 
 # ---------------------------------------------------------------------------

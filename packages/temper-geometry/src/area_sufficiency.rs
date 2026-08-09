@@ -149,7 +149,7 @@ mod py_float_tests {
 /// `fabs`/`>=`/NaN branch structure is replicated so NaN inputs take the
 /// same compensation path as CPython (NaN propagates into `c`, which then
 /// fails the finite check and leaves `f_result` NaN).
-fn py_sum_neumaier(items: &[f64]) -> f64 {
+pub(crate) fn py_sum_neumaier(items: &[f64]) -> f64 {
     debug_assert!(!items.is_empty(), "empty input is handled by the caller");
     let mut f_result = 0.0f64 + items[0]; // CPython: 0 (int) + x0
     let mut c = 0.0f64;
