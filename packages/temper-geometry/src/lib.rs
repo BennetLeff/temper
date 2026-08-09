@@ -198,6 +198,18 @@ mod bridge;
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+// Wave 4: requirements/validators/_geometry.py's shared geometry helpers
+// (distance, point-in-rect, rect overlap, point/segment/polyline kernels) —
+// see geometry_kernels.rs's module doc for the numerical contract and why
+// the segment kernels are NOT drc_constraints_geometry.rs's.  Python-gated
+// like area_sufficiency.rs, which it reuses (py_sum_neumaier).
+#[cfg(feature = "python")]
+pub mod geometry_kernels;
+// Wave 4: router_v6/channel_mapping.py's four pure-geometry kernels
+// (path length, nearest skeleton node, near-skeleton test, nearest-terminal
+// greedy order) — the Stage 4.1 orchestration stays in Python.
+pub mod channel_mapping;
+
 #[cfg(feature = "python")]
 #[pymodule]
 fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -213,6 +225,8 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::zone_pour::register(m)?;
     crate::channel_skeleton::register(m)?;
     crate::hierarchical_clustering::register(m)?;
+    crate::geometry_kernels::register(m)?;
+    crate::channel_mapping::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     m.add_class::<crate::persistent_radius_index::RadiusIndex>()?;
     Ok(())
