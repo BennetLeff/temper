@@ -19,7 +19,13 @@ logger = logging.getLogger(__name__)
 
 
 class PartitionError(Exception):
-    def __init__(self, bucket, largest_ref, region_area_mm2, required_area_mm2):
+    def __init__(
+        self,
+        bucket: object,
+        largest_ref: object,
+        region_area_mm2: float,
+        required_area_mm2: float,
+    ) -> None:
         self.bucket, self.largest_ref = bucket, largest_ref
         self.region_area_mm2, self.required_area_mm2 = region_area_mm2, required_area_mm2
         super().__init__(
@@ -46,7 +52,7 @@ def load_guard_config(config: Mapping[str, Any] | None) -> HvLvGuardConfig:
     return HvLvGuardConfig(**dict(block))
 
 
-def _outline(board):
+def _outline(board: Any) -> Polygon:
     p = getattr(board, "outline_polygon", None)
     return (
         Polygon(p)
@@ -55,19 +61,19 @@ def _outline(board):
     )
 
 
-def _nets(netlist, ref):
+def _nets(netlist: object, ref: str) -> list[object]:
     g = getattr(netlist, "get_component_nets", None)
     return (
         list(g(ref)) if callable(g) else list(getattr(netlist, "_component_nets", {}).get(ref, []))
     )
 
 
-def _area(c):
+def _area(c: object) -> float:
     b = getattr(c, "bounds", None) or (0, 0)
     return float(b[0]) * float(b[1])
 
 
-def _rules_by_net(state):
+def _rules_by_net(state: Any) -> dict[Any, Any]:
     dr = getattr(getattr(state, "drc_oracle", None), "design_rules", None)
     if dr is None:
         return {}
@@ -92,7 +98,7 @@ def _rules_by_net(state):
 
 class HvLvPartitionStage(Stage):
     @property
-    def name(self):
+    def name(self) -> str:
         return "hv_lv_partition"
 
     def run(self, state: BoardState) -> BoardState:
