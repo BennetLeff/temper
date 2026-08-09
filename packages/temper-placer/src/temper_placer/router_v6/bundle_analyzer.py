@@ -7,6 +7,19 @@ BundleManifest consumed by the bundled encoding path.
 
 Origin: U1 of docs/plans/2026-06-28-002-feat-net-bundling-lazy-grounding-plan.md
 Requirements: R1, R2, R2.1
+
+Wave-4 migration (spike docs/evidence/2026-08-09-bundle-analyzer-geos-spike.md):
+the GEOS seam moved to ``temper-geometry``'s ``bundle_analyzer`` kernel —
+``MultiPoint(pads).convex_hull`` is a faithful transcription of GEOS's own
+ConvexHull (Graham scan + double-double orientation predicate), ``hull.buffer(m)``
+is a transcription of GEOS's ``OffsetSegmentGenerator`` (region bit-identical to
+shapely 2.1.2 / GEOS 3.13.1), and the ``STRtree(points).query(footprint,
+predicate="contains")`` edge-cover query is a strict point-in-convex-polygon over
+the same region (the index only prunes candidates; the result set is a pure
+function of the region).  The two ``combined.union(...)`` sites below survive in
+Python because their only consumer is ``BundleClass.geometric_footprint`` — a
+field with zero production readers — the same "PORT with kept lines" pattern as
+``obstacle_map.py``'s ``LineString.buffer``/``unary_union`` keeps.
 """
 
 from __future__ import annotations
@@ -16,8 +29,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
-import shapely
-from shapely import STRtree
+import temper_geometry as _tg
 from shapely.geometry import MultiPoint, Polygon
 
 
@@ -158,12 +170,15 @@ class BundleAnalyzer:
         # Compute median skeleton edge length for footprint expansion
         self._median_edge_length = self._compute_median_edge_length()
 
-        # Lazily-built spatial index over every skeleton edge's midpoint,
-        # shared across all `_compute_covered_edges` calls -- see that
-        # method's docstring for why (2026-08-07 vectorization).
+        # Lazily-built (edge_id, midpoint) table shared across all
+        # `_compute_covered_edges` calls -- see that method's docstring for
+        # why (2026-08-07 vectorization).  The Rust
+        # `covered_edge_indices_py` kernel scans these arrays with a
+        # bounding-box precheck in place of the pre-migration STRtree
+        # spatial index.
         self._edge_ids: np.ndarray | None = None
-        self._edge_points: np.ndarray | None = None
-        self._edge_tree: STRtree | None = None
+        self._mids_x: list[float] = []
+        self._mids_y: list[float] = []
 
     def _compute_median_edge_length(self) -> float:
         lengths = []
@@ -202,7 +217,14 @@ class BundleAnalyzer:
         return positions
 
     def _compute_geometric_footprint(self, net) -> Polygon:
-        """Compute the convex hull of a net's pad positions, expanded by median edge length."""
+        """Compute the convex hull of a net's pad positions, expanded by median edge length.
+
+        Wave-4 migration: for >=3 pads the hull and its buffer are computed
+        by ``temper_geometry``'s ``bundle_analyzer`` kernel (GEOS ConvexHull
+        + OffsetSegmentGenerator transcriptions, region bit-identical to the
+        pre-migration shapely result).  The 0/1/2-pad footprints are pure
+        axis-aligned box construction and stay here.
+        """
         positions = self._net_pad_positions(net)
         if len(positions) < 2:
             # Single pad: create a small square around it
@@ -238,15 +260,16 @@ class BundleAnalyzer:
                 ]
             )
 
-        mp = MultiPoint(positions)
-        hull = mp.convex_hull
-        if isinstance(hull, Polygon):
-            return hull.buffer(self._median_edge_length)
-        return Polygon()
+        ring = _tg.convex_hull_ring_py(positions)
+        if not ring:
+            # MultiPoint(positions).convex_hull is not a polygon (collinear
+            # or degenerate pads) -> the pre-migration code returned
+            # Polygon().
+            return Polygon()
+        return Polygon(_tg.hull_buffer_ring_py(ring, self._median_edge_length))
 
     def _build_edge_index(self) -> None:
-        """Precompute every skeleton edge's id and midpoint, once, plus an
-        STRtree spatial index over the midpoints.
+        """Precompute every skeleton edge's id and midpoint, once.
 
         2026-08-07 vectorization (docs/evidence/2026-08-07-sat-model-
         reduction-options.md Sec 3.4): the previous ``_compute_covered_edges``
@@ -256,12 +279,12 @@ class BundleAnalyzer:
         (204,490 edges x 110 nets) that is ~22.5M raw-Python
         ``Polygon.contains(Point(...))`` calls and MEASURED ~391s wall,
         ~3.5s/net average (one net alone: 80.6s). This method builds the
-        (edge_id, midpoint) table and its STRtree exactly once, cached on
-        the instance; ``_compute_covered_edges`` then does one
-        bounding-box-pruned, exact ``STRtree.query(..., predicate="contains")``
-        call per net instead of a Python-level loop over every edge -- the
-        same fix shape as ``07d514f9``'s KD-tree rewrite of island bridging
-        elsewhere in this pipeline.
+        (edge_id, midpoint) table exactly once, cached on the instance;
+        ``_compute_covered_edges`` then hands the midpoint arrays to the
+        Rust kernel, which does one bounding-box-pruned, exact point-in-
+        convex-polygon pass per net instead of a Python-level loop over
+        every edge -- the same fix shape as ``07d514f9``'s KD-tree rewrite
+        of island bridging elsewhere in this pipeline.
         """
         if self._edge_ids is not None:
             return
@@ -277,21 +300,28 @@ class BundleAnalyzer:
                 mids_y.append((n1[1] + n2[1]) / 2.0)
 
         self._edge_ids = np.array(edge_ids, dtype=object)
-        if edge_ids:
-            self._edge_points = shapely.points(np.array(mids_x), np.array(mids_y))
-            self._edge_tree = STRtree(self._edge_points)
-        else:
-            self._edge_points = np.empty(0, dtype=object)
-            self._edge_tree = None
+        self._mids_x = mids_x
+        self._mids_y = mids_y
 
     def _compute_covered_edges(self, footprint: Polygon) -> frozenset[str]:
-        """Compute the set of skeleton edge IDs whose midpoints lie within the footprint."""
+        """Compute the set of skeleton edge IDs whose midpoints lie within the footprint.
+
+        Wave-4 migration: the pre-migration ``STRtree(points).query(footprint,
+        predicate="contains")`` becomes a strict point-in-convex-polygon scan
+        in ``temper-geometry``'s ``bundle_analyzer`` kernel.  The result set
+        is a pure function of the footprint region -- the index only pruned
+        candidates -- so it is bit-identical.
+        """
         self._build_edge_index()
         assert self._edge_ids is not None
-        if self._edge_tree is None or footprint.is_empty:
+        if not self._mids_x or footprint.is_empty:
             return frozenset()
         try:
-            idx = self._edge_tree.query(footprint, predicate="contains")
+            idx = _tg.covered_edge_indices_py(
+                list(footprint.exterior.coords),
+                self._mids_x,
+                self._mids_y,
+            )
         except Exception:
             return frozenset()
         if len(idx) == 0:
@@ -414,7 +444,11 @@ class BundleAnalyzer:
             # Create bundles for diff pairs (each pair = one bundle)
             for p_idx, n_idx in paired_diff_nets:
                 sorted_nets = sorted([p_idx, n_idx])
-                # Use combined footprint
+                # Use combined footprint.  KEPT LINE: the combined footprint
+                # only populates `geometric_footprint`, a field with zero
+                # production consumers (the pipeline serializes only
+                # bundle_id/net_indices/constraint_types/is_diff_pair), so
+                # the union stays in shapely -- see the module docstring.
                 combined = net_footprints[p_idx]
                 with contextlib.suppress(Exception):
                     combined = combined.union(net_footprints[n_idx])
@@ -476,7 +510,9 @@ class BundleAnalyzer:
                 if len(component) == 1:
                     unbundled.append(component[0])
                 else:
-                    # Compute combined footprint
+                    # Compute combined footprint.  KEPT LINE: the union
+                    # output only populates the dead `geometric_footprint`
+                    # field (see the diff-pair kept line above).
                     combined_fp = None
                     for idx in component:
                         fp = net_footprints[idx]

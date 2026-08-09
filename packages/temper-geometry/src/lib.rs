@@ -235,6 +235,11 @@ pub mod bottleneck_kernels;
 pub mod layer_capacity_kernels;
 pub mod connectivity_kernels;
 pub mod obstacle_map_kernels;
+// Wave 4, spatial-tier-2 unit: router_v6/bundle_analyzer.py's GEOS seam
+// (MultiPoint.convex_hull + hull.buffer + STRtree contains) -- GEOS
+// ConvexHull and OffsetSegmentGenerator transcriptions, region bit-exact
+// against shapely 2.1.2 / GEOS 3.13.1.  See bundle_analyzer.rs's module doc.
+pub mod bundle_analyzer;
 
 #[cfg(feature = "python")]
 #[pymodule]
@@ -266,5 +271,6 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::layer_capacity_kernels::register(m)?;
     crate::connectivity_kernels::register(m)?;
     crate::obstacle_map_kernels::register(m)?;
+    crate::bundle_analyzer::register(m)?;
     Ok(())
 }
