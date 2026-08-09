@@ -503,8 +503,12 @@ all ledgered. Verified by running the gate in the worktree.
    (typed `Py<PyList>` elements, `get_bus_cohort_for_net` typed, config_loader
    resolved), dropping the stored count by 1 and reclassifying `bus_cohorts`
    INTENTIONAL.
-6. **`metrics/quality.py::compute_quality_report` — test-only, unwired Rust
-   replacement.** Verified 2026-08-08: the deprecated function has NO production
+6. ~~**`metrics/quality.py::compute_quality_report` — test-only, unwired Rust
+   replacement.**~~ **RESOLVED 2026-08-09 (RETIRE)** — Phase-6 verdict +
+   execution (`docs/evidence/2026-08-09-compute-quality-report-verdict.md`;
+   merge 2ab94f33): zero production callers, kernel differentials independent,
+   WIRE impossible (contract mismatch). Deleted the function + orphan
+   quality_report_overall_py + test surface. Verified 2026-08-08: the deprecated function has NO production
    caller (only its own differential pins it), and its Rust replacement
    `temper_quality_oracle.evaluate_quality_py` (`lib.rs:441`) takes a different
    contract (netlist/placement/spec/metrics as PyDicts, not PlacementState/
