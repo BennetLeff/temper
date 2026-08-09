@@ -37,3 +37,18 @@ def test_check_git_ancestry_unknown_skip():
 def test_check_git_ancestry_empty_skip():
     err = check_git_ancestry("", "abc123")
     assert err is None
+
+
+def test_check_git_ancestry_head_is_ancestor():
+    """HEAD is trivially an ancestor of itself."""
+    head = get_current_git_hash()
+    err = check_git_ancestry(head, head)
+    assert err is None
+
+
+def test_check_git_ancestry_non_ancestor():
+    """An unrelated, non-existent commit is not an ancestor."""
+    err = check_git_ancestry("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef", get_current_git_hash())
+    # Should return an ORPHAN_GOLDEN error message
+    assert err is not None
+    assert "ORPHAN_GOLDEN" in err
