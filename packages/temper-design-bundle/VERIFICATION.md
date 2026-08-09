@@ -4387,6 +4387,105 @@ per G8.
   Python-object operations with no algorithmic work.
 
 
+# Alternative + Decision + DecisionTrace — Verification by Induction (Wave C)
+
+## Structural Proof
+
+These three classes are data-contract pyclasses (Wave C core-contracts
+migration, plan
+`docs/plans/2026-08-08-001-feat-wavec-core-contracts-migration-plan.md`).
+They store fields opaquely (`Py<PyAny>`) with no recursive or iterative
+computation. The induction is structural: each instance is defined entirely
+by its fields, and every method operates on at most one instance's fields.
+
+### Base Case — the smallest meaningful input
+
+**Alternative**: `Alternative(value=1, rejection_reason="too far")` — two
+required fields, two defaulted (`None`, `None`). The constructor stores the
+exact Python objects the caller passed; `to_dict()` returns a plain Python
+dict with the stored field values; `repr` renders them via CPython's own
+`repr()`; `__eq__` builds a field tuple and compares via Python tuple
+equality. This matches the Python dataclass oracle bit-identically
+(verified by the differential suite, 28 tests green).
+
+**Decision**: `Decision(id="d1", subject="Q1", value=1)` — three required
+fields, seven defaulted (timestamp via `datetime.now()`, phase, type,
+reason, constraint_refs list, loss_contribution, alternatives_considered
+list). The `to_dict()` method recursively calls `.to_dict()` on each
+stored alternative via Python attribute access. Mutable containers
+(`constraint_refs`, `alternatives_considered`) return the same Python
+object via `clone_ref`.
+
+**DecisionTrace**: `DecisionTrace(run_id="r1")` — one required field, four
+defaulted. The three computational methods (`add_decision`, `query`,
+`why_not`) iterate over stored lists with no nesting. `add_decision`
+appends to the stored list by identity (`self.decisions.bind(py).append`);
+`query` performs a linear scan with Python attribute access on each
+element; `why_not` nests a second scan over nested `alternatives_considered`
+lists on each matching decision. `to_dict()` recursively calls
+`.to_dict()` on each stored decision; `to_json()` delegates to CPython's
+own `json.dumps(d, indent=2)`.
+
+### Induction Step — per-field independence
+
+Each class's `repr` iterates over a fixed ordered list of field names,
+calls `repr()` on each stored `Py<PyAny>` object independently, and
+splices the results. Adding a field (or changing one) does not affect the
+rendering of other fields — there is no cross-field interaction in the
+rendering path.
+
+`__eq__` builds a tuple of all stored fields and compares via Python
+tuple equality. Each field's equality is resolved by Python's own `==`
+on the stored objects — no Rust-side comparison, no widening. Adding a
+field adds one more element to the tuple; existing elements are unchanged.
+
+Container identity (`Decision.constraint_refs`, `Decision.alternatives_considered`,
+`DecisionTrace.decisions`, `DecisionTrace.final_metrics`) is preserved by
+construction: getters return `self.<field>.clone_ref(py)`, which is the
+same underlying Python list/dict object. The `#[new]` defaults create a
+fresh empty container per instance, preventing the shared-default footgun.
+
+### No recursive or iterative computation
+
+The three classes define no recursive data structures. `DecisionTrace.query`
+and `why_not` iterate over stored lists with no nesting beyond one level
+of `alternatives_considered`. The induction step is trivial: N+1 decisions
+in the list means one more iteration, with no change to the result of
+earlier iterations (the list is not modified during scan).
+
+### R24 Physics Discipline
+
+**N/A** — these are data-contract pyclasses with no physics-gated
+quantities. No Chebyshev bound, no BMC-exhaustive validation, no
+post-solve audit. Recorded per G8.
+
+## Empirical Verification
+
+- **Differential suite**: `test_decision_rust_differential.py`
+  (28 tests, all green) — bit-identical `repr`, `==`/`!=`, hash unavailability,
+  `to_dict`/`to_json` round-trip, field identity preservation, `add_decision` +
+  `query` + `why_not` parity against verbatim oracle copies.
+- **PBT suite**: `test_decision_pbt.py` (14 tests, all green) —
+  5 non-vacuous properties each with anti-vacuity companion, 5 metamorphic
+  relations, all modules reached (Alternative: P1; Decision: P2, P3;
+  DecisionTrace: P4, P5).
+- **Existing consumer suites**: `test_decision.py` (3 tests, all green) —
+  the pre-migration test suite passes unchanged through the delegation shim.
+- **Rust unit tests**: no dedicated unit tests; the differential and PBT
+  suites exercise the pyclasses through the Python boundary, which is
+  where the contract lives.
+- **Clippy**: `cargo clippy --all-features -- -D warnings` — clean
+  (0 warnings).
+- **Anti-vacuity**: every PBT property has a companion test proving a
+  degenerate kernel would be caught.
+- **Performance**: pure-delegation data contracts with no compute kernels.
+  The R2 carve-out applies: "no regression beyond noise." The migration
+  replaces dataclass construction with pyclass construction; both are
+  Python-object operations with no algorithmic work.
+- **G3 (Performance A/B)**: N/A — data-contract pyclass; no compute.
+- **G8 (R24 Physics)**: N/A — no physics-gated quantities. Recorded.
+
+
 # `router_v6/constraint_model.py` kernels — Verification (Wave 4)
 
 Six compute kernels from `temper_placer/router_v6/constraint_model.py`
