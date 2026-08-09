@@ -540,6 +540,27 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "GoldenManifest/CorpusManifest/BaselineSpec helpers, RegressionReporter, "
         "fingerprint cache. Pure Python. Not yet wired into any CI job."
     ),
+    "adapters/test_deterministic_adapter.py": (
+        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
+        "adapters/): wrap_deterministic_stage. Pure Python. Not yet wired "
+        "into any CI job."
+    ),
+    "adapters/test_register_strategies.py": (
+        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
+        "adapters/): PlacementStage.run + register_strategies. Pure Python. "
+        "Not yet wired into any CI job."
+    ),
+    "adapters/test_router_v6_stage_adapter.py": (
+        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
+        "adapters/): RouterV6Stage0_LoadPCB.run. Pure Python. Not yet wired "
+        "into any CI job."
+    ),
+    "topological/test_topological_coverage_edge.py": (
+        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
+        "topological/): TopologicalGraph.from_pcl EnclosingConstraint paths, "
+        "apply_force_refinement edge case. Pure Python. Not yet wired into "
+        "any CI job."
+    ),
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------
