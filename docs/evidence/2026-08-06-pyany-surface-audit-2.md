@@ -463,9 +463,17 @@ all ledgered. Verified by running the gate in the worktree.
    (wave-3) compares like for like. NOTE: `docs/MIGRATION_PHASE_GUIDE.md` no
    longer exists as of 2026-08-07 — record the wave-3 numbers wherever the
    Phase-5 boundary figure lives next.
-3. Re-run this audit when the pcl/net_graph/`_constraint_types`/differential_pair
-   migrations land — each converts a §3 watch-item into a circular call-back
-   and can make `DesignRules`' seven containers removable.
+3. ~~**Re-run this audit when the pcl/net_graph/`_constraint_types`/differential_pair
+   migrations land** — each converts a §3 watch-item into a circular call-back
+   and can make `DesignRules`' seven containers removable~~ — **PARTIALLY
+   RESOLVED 2026-08-08**: the Wave-C pair landed (`net_graph` + `differential_pair`
+   → temper-design-bundle pyclasses; §3 watch-items already marked RESOLVED) and
+   `BusCohortConstraint` landed (item 5, closing `DesignRules.bus_cohorts` opacity
+   and reclassifying `bus_cohorts` INTENTIONAL). The audit's remaining trigger is
+   `pcl.constraints` and `_constraint_types`, both still pure Python. `DesignRules`'
+   remaining containers shrink one element-type at a time as each lands;
+   `differential_pairs`/`net_topologies` were already reclassified INTENTIONAL in
+   Wave C.
 4. Wire or retire the hypergraph kernel (Wave D) — `HypergraphBuildResult`'s
    8-field surface is inert today, and the #826 ledger is the mechanism to
    make that visible.

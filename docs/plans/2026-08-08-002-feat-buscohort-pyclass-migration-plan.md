@@ -7,7 +7,7 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 execution: code
 product_contract_source: ce-brainstorm
-status: proposed
+status: completed
 swept: 2026-08-08
 ---
 
