@@ -729,9 +729,12 @@ pub fn connectivity_clustering_score(nets: &[NetCluster], positions_are_f32: boo
     }
 }
 
-/// `compute_quality_report`'s overall score: the unweighted mean of the seven
-/// normalized subscores, summed with Python's **builtin** `sum` over a
-/// literal list — a fixed, deterministic order, not a set or dict traversal.
+/// The Rust-side duplicate of the retired Python report's overall score: the
+/// unweighted mean of the seven normalized subscores, summed with Python's
+/// **builtin** `sum` over a literal list — a fixed, deterministic order, not a
+/// set or dict traversal.  The flat Python report was retired 2026-08-09; this
+/// kernel survives because the same arithmetic is what
+/// `QualityMetrics::from_precomputed` performs and it is unit-tested here.
 pub fn quality_report_overall(normalized_scores: &[f64; 7]) -> f64 {
     py_builtin_sum(normalized_scores) / 7.0
 }

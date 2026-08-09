@@ -768,16 +768,6 @@ fn connectivity_clustering_score_py(
     })
 }
 
-#[cfg(feature = "python")]
-#[pyfunction]
-fn quality_report_overall_py(normalized_scores: [f64; 7]) -> PyResult<f64> {
-    temper_py_bridge::catch_panic(|| {
-        Ok(placement_metrics::quality_report_overall(
-            &normalized_scores,
-        ))
-    })
-}
-
 // ---------------------------------------------------------------------------
 // Aesthetic metric kernel (Wave 4 — metrics/aesthetic.py)
 //
@@ -912,7 +902,6 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(loop_area_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(compactness_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(connectivity_clustering_score_py, m)?)?;
-    m.add_function(wrap_pyfunction!(quality_report_overall_py, m)?)?;
     m.add_function(wrap_pyfunction!(aesthetic_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(overlap_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(clearance_metrics_py, m)?)?;

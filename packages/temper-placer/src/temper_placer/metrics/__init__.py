@@ -11,14 +11,12 @@ from temper_placer.metrics.external_oracle import (
 )
 from temper_placer.metrics.quality import (
     compactness_score,
-    compute_quality_report,
     congestion_score,
     connectivity_clustering_score,
     dual_rail_clearance_report,
     hv_lv_clearance_score,
     loop_area_score,
     thermal_score,
-    total_wirelength,
     zone_compliance_score,
 )
 from temper_placer.metrics.quality_score import (
@@ -32,7 +30,6 @@ from temper_placer.metrics.routing_quality import (
 )
 
 __all__ = [
-    "total_wirelength",
     "thermal_score",
     "zone_compliance_score",
     "dual_rail_clearance_report",
@@ -41,7 +38,6 @@ __all__ = [
     "congestion_score",
     "compactness_score",
     "connectivity_clustering_score",
-    "compute_quality_report",
     "score_placement",
     "QualityInputs",
     "compute_quality_score",

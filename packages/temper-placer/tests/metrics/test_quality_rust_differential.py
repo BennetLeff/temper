@@ -62,7 +62,6 @@ import pytest
 import temper_quality_oracle as _tqo
 from tests.metrics._quality_py_oracle import (
     _oracle_compactness_score,
-    _oracle_compute_quality_report,
     _oracle_connectivity_clustering_score,
     _oracle_dual_rail_clearance_report,
     _oracle_hv_lv_clearance_score,
@@ -142,9 +141,8 @@ def make_board(width=100.0, height=80.0, zones=None):
 def empty_context(n_nets=0, n_pins=0):
     """A LossContext-shaped stand-in.
 
-    The shipped pipeline always supplies an empty ``net_pin_indices`` (see the
-    retired ``total_wirelength``); the differential exercises both the empty
-    and the populated shape.
+    The shipped pipeline always supplies an empty ``net_pin_indices``; the
+    differential exercises both the empty and the populated shape.
     """
     return SimpleNamespace(
         net_pin_indices=np.zeros((n_nets, n_pins), dtype=np.int64),
@@ -790,81 +788,6 @@ class TestConnectivityClusteringScore:
 
 
 # ---------------------------------------------------------------------------
-# compute_quality_report — the aggregate
-# ---------------------------------------------------------------------------
-
-
-class TestComputeQualityReport:
-    """The aggregate report.
-
-    Note the constraint this suite surfaced: ``compute_quality_report`` calls
-    the retired ``total_wirelength``, which *raises* unless
-    ``context.net_pin_indices.shape[0] == 0``.  The report is therefore only
-    callable with an empty pin-index table — which in turn forces
-    ``connectivity_clustering_score`` to its vacuous ``1.0`` for every
-    reachable call.  ``test_report_raises_on_a_populated_context`` pins that
-    the delegation raises exactly where the oracle does, so the constraint is
-    preserved rather than accidentally relaxed.
-    """
-
-    @pytest.mark.parametrize("seed", range(25))
-    def test_randomized_matches(self, seed):
-        rng = random.Random(9000 + seed)
-        n = rng.randint(2, 10)
-        refs = [f"Z{i}" for i in range(n)]
-        bounds = [(rng.uniform(0.5, 10.0), rng.uniform(0.5, 10.0)) for _ in range(n)]
-        nl = make_netlist(refs, bounds=bounds, net_names=("A",))
-        st = make_state([(rng.uniform(0, 100), rng.uniform(0, 80)) for _ in range(n)])
-        bd = make_board(zones=[Zone(name="ZA", bounds=(0.0, 0.0, 50.0, 40.0))])
-        # Must be empty — see the class docstring.
-        ctx = empty_context()
-        split = max(1, n // 2)
-        config = {
-            "thermal_components": set(rng.sample(refs, rng.randint(0, n))),
-            "hv_components": set(refs[:split]),
-            "lv_components": set(refs[split:]),
-            "zone_assignments": dict.fromkeys(refs, "ZA"),
-            "loop_components": [rng.sample(refs, min(n, rng.randint(3, 5)))] if n >= 3 else [],
-            "min_hv_lv_clearance": rng.choice([3.0, 8.0]),
-            "thermal_target_edge": rng.choice(["TOP", "LEFT"]),
-            "thermal_max_distance": rng.choice([5.0, 10.0]),
-        }
-        with pytest.warns(DeprecationWarning):
-            got = mod.compute_quality_report(st, nl, bd, ctx, config)
-        with pytest.warns(DeprecationWarning):
-            expected = _oracle_compute_quality_report(st, nl, bd, ctx, config)
-        assert_bit_identical(got, expected, f"compute_quality_report(seed={seed})")
-
-    def test_report_keys_and_leaf_types_are_unchanged(self):
-        nl = make_netlist(["A", "B"], net_names=("A",))
-        st = make_state([(0.0, 0.0), (10.0, 10.0)])
-        bd = make_board()
-        ctx = empty_context()
-        with pytest.warns(DeprecationWarning):
-            got = mod.compute_quality_report(st, nl, bd, ctx, {})
-        with pytest.warns(DeprecationWarning):
-            expected = _oracle_compute_quality_report(st, nl, bd, ctx, {})
-        assert list(got.keys()) == list(expected.keys())
-        assert_bit_identical(got, expected, "compute_quality_report(empty config)")
-
-    def test_report_raises_on_a_populated_context(self):
-        """The retired `total_wirelength` gate is preserved, not relaxed.
-
-        A migration that quietly made this path *work* would be a behaviour
-        change on shipped inputs, so the delegation must raise exactly where
-        the oracle raises.
-        """
-        nl = make_netlist(["A", "B"], net_names=("A",))
-        st = make_state([(0.0, 0.0), (10.0, 10.0)])
-        bd = make_board()
-        ctx = context_from_nets([[0, 1]], n_pins=2)
-        with pytest.raises(NotImplementedError), pytest.warns(DeprecationWarning):
-            mod.compute_quality_report(st, nl, bd, ctx, {})
-        with pytest.raises(NotImplementedError), pytest.warns(DeprecationWarning):
-            _oracle_compute_quality_report(st, nl, bd, ctx, {})
-
-
-# ---------------------------------------------------------------------------
 # Empty-input semantics — the vacuity class, enumerated
 # ---------------------------------------------------------------------------
 
@@ -967,39 +890,3 @@ class TestEmptyInputSemantics:
         )
         assert key(got) == ("float", (1.0).hex())
 
-    def test_report_of_an_empty_config_is_six_sevenths_vacuous(self):
-        """Exactly how vacuous the aggregate is, written down.
-
-        With an empty config, **six of the seven** subscores that feed
-        `overall_score` are unconditional `1.0` defaults — thermal, zone,
-        clearance, loop, congestion (a retired stub that always returns 1.0),
-        and clustering (forced to 1.0 because the report only runs with an
-        empty pin table).  Only `compactness_score` reads the placement at
-        all.
-
-        So `overall_score >= 6/7 ≈ 0.857` for *any* input, and a gate
-        thresholding it below that is vacuous by construction.  This test
-        exists to make that ceiling visible rather than latent — it is the
-        `check_vacuous_gates.py` class, recorded at the point it is created.
-        """
-        st, nl, bd, ctx = self._fixtures()
-        with pytest.warns(DeprecationWarning):
-            got = mod.compute_quality_report(st, nl, bd, ctx, {})
-
-        vacuous = [
-            "thermal_score",
-            "zone_compliance_score",
-            "hv_lv_clearance_score",
-            "loop_area_score",
-            "congestion_score",
-            "connectivity_clustering_score",
-        ]
-        for name in vacuous:
-            assert key(got[name]) == ("float", (1.0).hex()), name
-
-        # The only data-dependent term, and it is genuinely < 1 here.
-        assert got["compactness_score"] < 1.0
-
-        assert got["overall_score"] >= 6.0 / 7.0
-        assert key(got["total_wirelength"]) == ("float", (0.0).hex())
-        assert type(got["violations_3mm"]) is int
