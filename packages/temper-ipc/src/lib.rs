@@ -36,25 +36,6 @@ fn estimate_current_from_net_class(
 
 #[cfg(feature = "python")]
 #[pyfunction]
-fn trace_current_table_1oz() -> PyResult<HashMap<String, f64>> {
-    Ok(core::trace_current_table_1oz())
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-fn calculate_min_trace_width(
-    current_amps: f64,
-    copper_weight_oz: f64,
-    temp_rise_c: f64,
-    internal_layer: bool,
-) -> PyResult<f64> {
-    Ok(core::calculate_min_trace_width(
-        current_amps, copper_weight_oz, temp_rise_c, internal_layer,
-    ))
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
 #[pyo3(signature = (current_amps, copper_weight_oz, temp_rise_c=10.0, internal_layer=false))]
 fn ipc2152_min_width_mm(
     current_amps: f64,
@@ -98,8 +79,6 @@ fn net_currents() -> PyResult<HashMap<String, f64>> {
 fn temper_ipc(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(estimate_trace_current, m)?)?;
     m.add_function(wrap_pyfunction!(estimate_current_from_net_class, m)?)?;
-    m.add_function(wrap_pyfunction!(trace_current_table_1oz, m)?)?;
-    m.add_function(wrap_pyfunction!(calculate_min_trace_width, m)?)?;
     m.add_function(wrap_pyfunction!(ipc2152_min_width_mm, m)?)?;
     m.add_function(wrap_pyfunction!(ipc2152_current_capacity, m)?)?;
     m.add_function(wrap_pyfunction!(get_net_current, m)?)?;
