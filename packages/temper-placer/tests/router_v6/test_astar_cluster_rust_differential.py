@@ -39,13 +39,6 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from temper_placer.router_v6._astar_theta_star import (
-    _CONGESTION_CHECK_INTERVAL,
-    _CONGESTION_GROWTH_THRESHOLD,
-    _CONGESTION_PLATEAU_STRIKES,
-)
-from temper_placer.router_v6.astar_core import _SAME_LAYER_DELTAS, in_bounds
-from temper_placer.router_v6.astar_monitor import get_monitor_state
 from tests.router_v6._pending_rust import missing_symbols, rust
 
 # ---------------------------------------------------------------------------
@@ -54,10 +47,43 @@ from tests.router_v6._pending_rust import missing_symbols, rust
 # reference).
 # ---------------------------------------------------------------------------
 
-# Shared by the oracles: `in_bounds` / `_SAME_LAYER_DELTAS` are imported from
-# astar_core.py (their historical home; astar_core is not part of this
-# cluster's migration surface).  The module-level LOS counters are copied so
-# the verbatim `_oracle_line_of_sight` keeps its counter updates.
+# Shared by the oracles.  In the pre-migration module these were imported
+# from astar_core.py (`in_bounds`, `_SAME_LAYER_DELTAS`) or defined in the
+# module itself (`_CONGESTION_*`).  They are reproduced HERE, with the
+# pre-migration names, so the copied function bodies below resolve them
+# verbatim and this file imports no module from `temper_placer` at all —
+# the differential must not depend on the (unstable, concurrently-rebuilt)
+# shared extension environment beyond the kernel under test.
+_SAME_LAYER_DELTAS: tuple[tuple[int, int], ...] = (
+    (0, 1),
+    (1, 0),
+    (0, -1),
+    (-1, 0),
+    (1, 1),
+    (1, -1),
+    (-1, 1),
+    (-1, -1),
+)
+
+_CONGESTION_CHECK_INTERVAL: int = 1000
+_CONGESTION_GROWTH_THRESHOLD: int = 5
+_CONGESTION_PLATEAU_STRIKES: int = 3
+
+
+def in_bounds(x: int, y: int, width_cells: int, height_cells: int) -> bool:
+    return 0 <= x < width_cells and 0 <= y < height_cells
+
+
+def get_monitor_state():
+    """Runtime-monitor probe — always inactive in this differential.
+
+    The pre-migration search functions call this once per pop; the real
+    implementation (astar_monitor.get_monitor_state) is thread-local state
+    that is only ever set inside an ``astar_monitor()`` context.  No
+    differential run opens one, so ``None`` is the exact value the oracle
+    would observe — reproduced here to keep the file hermetic.
+    """
+    return None
 
 _LOS_BB_HITS: list[int] = [0]
 _LOS_BB_FALLS_THROUGH: list[int] = [0]

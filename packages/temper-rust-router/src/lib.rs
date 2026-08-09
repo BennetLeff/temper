@@ -6,6 +6,7 @@ pub mod layer_assignment;
 pub mod loop_extractor;
 pub mod net_ordering;
 pub mod terminal_planning;
+pub mod theta_star;
 pub mod types;
 mod types_py_bridge;
 
@@ -312,6 +313,8 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Wave-4: the router_v6 terminal-tree slice (terminal_extraction,
     // terminal_tree, path_simplify).
     terminal_planning::register(m)?;
+    // Wave-4: the router_v6 Theta* cluster (_astar_theta_star).
+    theta_star::register(m)?;
     Ok(())
 }
 
