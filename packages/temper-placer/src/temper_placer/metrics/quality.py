@@ -9,8 +9,6 @@ All metrics are normalized to [0, 1] range for easy comparison:
 - 1.0 = perfect/ideal
 - 0.0 = worst case
 
-The exception is total_wirelength which returns raw mm value (lower is better).
-
 **Wave 4 Phase 4 — the scoring arithmetic now runs in Rust.**  Every kernel
 below delegates to ``temper-quality-oracle``
 (``packages/temper-quality-oracle/src/placement_metrics.rs``); this module
@@ -79,38 +77,6 @@ def _clearance_boxes(
         bounds = component.bounds
         boxes.append((float(pos[0]), float(pos[1]), bounds[0] / 2, bounds[1] / 2))
     return boxes
-
-
-def total_wirelength(
-    _state: PlacementState,
-    _netlist: Netlist,
-    context: Any,
-    _alpha: float = 10.0,
-) -> float:
-    """
-    Compute total Half-Perimeter Wire Length (HPWL) for a placement.
-
-    Lower is better - represents total estimated wire length in mm.
-
-    Args:
-        state: Current placement state.
-        netlist: Design netlist.
-        context: Pre-computed loss context.
-        alpha: LogSumExp smoothing parameter.
-
-    Returns:
-        Total HPWL in mm (lower is better).
-    """
-    if context.net_pin_indices.shape[0] == 0:
-        return 0.0
-
-    # Non-empty net_pin_indices required the removed JAX WirelengthLoss.
-    # The current pipeline always supplies an empty net_pin_indices (HPWL is
-    # computed from routed geometry elsewhere), so this path is retired.
-    raise NotImplementedError(
-        "total_wirelength for non-empty net_pin_indices used the removed JAX "
-        "WirelengthLoss; use routed-wirelength metrics instead."
-    )
 
 
 def thermal_score(
@@ -478,97 +444,3 @@ def connectivity_clustering_score(
 
     return _tqo.connectivity_clustering_score_py(nets, positions_are_f32)
 
-
-import warnings
-
-
-def compute_quality_report(
-    state: PlacementState,
-    netlist: Netlist,
-    board: Board,
-    context: Any,
-    config: dict[str, Any],
-) -> dict[str, float]:
-    """
-    Compute comprehensive quality report with all metrics.
-
-    Args:
-        state: Current placement state.
-        netlist: Design netlist.
-        board: Board definition.
-        context: Pre-computed loss context.
-        config: Configuration dict with:
-            - thermal_components: Set[str] - refs of thermal components
-            - hv_components: Set[str] - refs of HV components
-            - lv_components: Set[str] - refs of LV components
-            - zone_assignments: Dict[str, str] - component -> zone mapping
-            - loop_components: List[List[str]] - list of component loops
-            - min_hv_lv_clearance: float - required HV-LV clearance (mm)
-
-    Returns:
-        Dict with all metric scores and overall score:
-        - total_wirelength: float (raw mm, not normalized)
-        - thermal_score: float [0, 1]
-        - zone_compliance_score: float [0, 1]
-        - hv_lv_clearance_score: float [0, 1]
-        - loop_area_score: float [0, 1]
-        - congestion_score: float [0, 1]
-        - compactness_score: float [0, 1]
-        - connectivity_clustering_score: float [0, 1]
-        - overall_score: float [0, 1] (weighted average)
-    """
-    warnings.warn(
-        "compute_quality_report is deprecated. Use temper_quality_oracle.evaluate_quality_py() "
-        "from the temper-quality-oracle Rust crate instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    # Extract config
-    thermal_comps = config.get("thermal_components", set())
-    hv_comps = config.get("hv_components", set())
-    lv_comps = config.get("lv_components", set())
-    zone_assigns = config.get("zone_assignments", {})
-    loop_comps = config.get("loop_components", [])
-    min_clearance = config.get("min_hv_lv_clearance", 8.0)
-    thermal_edge = config.get("thermal_target_edge", "TOP")
-    thermal_max_dist = config.get("thermal_max_distance", 10.0)
-
-    # Compute all metrics
-    wl = total_wirelength(state, netlist, context)
-    thermal = thermal_score(
-        state,
-        netlist,
-        board,
-        thermal_comps,
-        target_edge=thermal_edge,
-        max_distance=thermal_max_dist,
-    )
-    zone = zone_compliance_score(state, netlist, board, zone_assigns)
-    clearance = hv_lv_clearance_score(state, netlist, hv_comps, lv_comps, min_clearance)
-    dual_rail = dual_rail_clearance_report(state, netlist, hv_comps, lv_comps)
-    loop = loop_area_score(state, netlist, context, loop_comps)
-    congestion = congestion_score(state, netlist, board, context)
-    compact = compactness_score(state, netlist, board)
-    clustering = connectivity_clustering_score(state, netlist, context)
-
-    # Compute overall score (equal weighting of normalized scores) — Rust
-    # kernel.  The score list is a fixed 7-element literal, so its summation
-    # order is deterministic (unlike the set traversals feeding thermal_score).
-    normalized_scores = [thermal, zone, clearance, loop, congestion, compact, clustering]
-    overall = _tqo.quality_report_overall_py(normalized_scores)
-
-    return {
-        "total_wirelength": wl,
-        "thermal_score": thermal,
-        "zone_compliance_score": zone,
-        "hv_lv_clearance_score": clearance,
-        "clearance_score_3mm": dual_rail["clearance_score_3mm"],
-        "clearance_score_6mm": dual_rail["clearance_score_6mm"],
-        "violations_3mm": dual_rail["violations_3mm"],
-        "violations_6mm": dual_rail["violations_6mm"],
-        "loop_area_score": loop,
-        "congestion_score": congestion,
-        "compactness_score": compact,
-        "connectivity_clustering_score": clustering,
-        "overall_score": overall,
-    }

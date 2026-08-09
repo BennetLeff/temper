@@ -15,8 +15,8 @@ Typical usage:
     ref_state, netlist, board = load_reference_pcb("path/to/design.kicad_pcb")
 
     # Score a placement against the Rust quality oracle (prepare once,
-    # evaluate per placement state — replaces the deprecated
-    # temper_placer.metrics.quality.compute_quality_report)
+    # evaluate per placement state — the retired Python metrics.quality
+    # flat report is gone; see docs/evidence/2026-08-09-compute-quality-report-verdict.md)
     import temper_quality_oracle
     from temper_placer.validation.human_reference_extractor import (
         _netlist_to_oracle_dict,

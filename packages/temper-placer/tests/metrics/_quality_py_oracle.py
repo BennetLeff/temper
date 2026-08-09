@@ -15,19 +15,23 @@ The only edits applied to the copied source are:
   calls between them),
 - ``import warnings``, which the original places mid-file between two function
   definitions, hoisted to the import block,
-- comment lines inside function bodies.
+- comment lines inside function bodies,
+- on 2026-08-09 (Phase-6 verdict, ``docs/evidence/2026-08-09-compute-quality-report-verdict.md``):
+  the deletion of ``_oracle_compute_quality_report`` and its two report-private
+  helpers ``_oracle_total_wirelength`` / ``_oracle_congestion_score``, plus the
+  now-unused hoisted ``import warnings``.  The seven surviving kernels are
+  untouched; the report's differential died with the retired Python path.
 
 Everything else — every operator, every ``float()`` cast, every ``max``/``min``
 argument order, every accumulation order — is identical to the pre-migration
 module.  This was verified mechanically, not by eye: tokenizing both files and
 comparing the executable token stream per function reports zero differences
-across all ten functions (the sole exception being the relocated
-``import warnings`` noted above).
+across all seven surviving functions (the sole exceptions being the relocated
+``import warnings`` noted above and the 2026-08-09 report deletion).
 """
 
 from __future__ import annotations
 
-import warnings
 from typing import Any
 
 import numpy as np
@@ -35,21 +39,6 @@ import numpy as np
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
-
-
-def _oracle_total_wirelength(
-    _state: PlacementState,
-    _netlist: Netlist,
-    context: Any,
-    _alpha: float = 10.0,
-) -> float:
-    if context.net_pin_indices.shape[0] == 0:
-        return 0.0
-
-    raise NotImplementedError(
-        "total_wirelength for non-empty net_pin_indices used the removed JAX "
-        "WirelengthLoss; use routed-wirelength metrics instead."
-    )
 
 
 def _oracle_thermal_score(
@@ -327,18 +316,6 @@ def _oracle_loop_area_score(
     return total_score / count if count > 0 else 1.0
 
 
-def _oracle_congestion_score(
-    _state: PlacementState,
-    _netlist: Netlist,
-    board: Board,
-    _context: Any,
-    _grid_shape: tuple[int, int] = (10, 10),
-    _capacity_per_cell: float = 10.0,
-) -> float:
-    board.get_relative_bounds_array()
-    return 1.0  # routing demand computation removed (JAX retirement)
-
-
 def _oracle_compactness_score(
     state: PlacementState,
     netlist: Netlist,
@@ -429,64 +406,3 @@ def _oracle_connectivity_clustering_score(
 
     return total_score / count if count > 0 else 1.0
 
-
-def _oracle_compute_quality_report(
-    state: PlacementState,
-    netlist: Netlist,
-    board: Board,
-    context: Any,
-    config: dict[str, Any],
-) -> dict[str, float]:
-    warnings.warn(
-        "compute_quality_report is deprecated. Use temper_quality_oracle.evaluate_quality_py() "
-        "from the temper-quality-oracle Rust crate instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    # Extract config
-    thermal_comps = config.get("thermal_components", set())
-    hv_comps = config.get("hv_components", set())
-    lv_comps = config.get("lv_components", set())
-    zone_assigns = config.get("zone_assignments", {})
-    loop_comps = config.get("loop_components", [])
-    min_clearance = config.get("min_hv_lv_clearance", 8.0)
-    thermal_edge = config.get("thermal_target_edge", "TOP")
-    thermal_max_dist = config.get("thermal_max_distance", 10.0)
-
-    # Compute all metrics
-    wl = _oracle_total_wirelength(state, netlist, context)
-    thermal = _oracle_thermal_score(
-        state,
-        netlist,
-        board,
-        thermal_comps,
-        target_edge=thermal_edge,
-        max_distance=thermal_max_dist,
-    )
-    zone = _oracle_zone_compliance_score(state, netlist, board, zone_assigns)
-    clearance = _oracle_hv_lv_clearance_score(state, netlist, hv_comps, lv_comps, min_clearance)
-    dual_rail = _oracle_dual_rail_clearance_report(state, netlist, hv_comps, lv_comps)
-    loop = _oracle_loop_area_score(state, netlist, context, loop_comps)
-    congestion = _oracle_congestion_score(state, netlist, board, context)
-    compact = _oracle_compactness_score(state, netlist, board)
-    clustering = _oracle_connectivity_clustering_score(state, netlist, context)
-
-    # Compute overall score (equal weighting of normalized scores)
-    normalized_scores = [thermal, zone, clearance, loop, congestion, compact, clustering]
-    overall = sum(normalized_scores) / len(normalized_scores)
-
-    return {
-        "total_wirelength": wl,
-        "thermal_score": thermal,
-        "zone_compliance_score": zone,
-        "hv_lv_clearance_score": clearance,
-        "clearance_score_3mm": dual_rail["clearance_score_3mm"],
-        "clearance_score_6mm": dual_rail["clearance_score_6mm"],
-        "violations_3mm": dual_rail["violations_3mm"],
-        "violations_6mm": dual_rail["violations_6mm"],
-        "loop_area_score": loop,
-        "congestion_score": congestion,
-        "compactness_score": compact,
-        "connectivity_clustering_score": clustering,
-        "overall_score": overall,
-    }

@@ -1,21 +1,18 @@
 """Tests for quality.py metrics functions."""
 
 import numpy as np
-import pytest
 
 from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.netlist import Component, Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.metrics.quality import (
     compactness_score,
-    compute_quality_report,
     congestion_score,
     connectivity_clustering_score,
     dual_rail_clearance_report,
     hv_lv_clearance_score,
     loop_area_score,
     thermal_score,
-    total_wirelength,
     zone_compliance_score,
 )
 
@@ -43,24 +40,6 @@ class TestCongestionScore:
         board = Board(width=100, height=100)
         score = congestion_score(state, netlist, board, None)
         assert score == 1.0
-
-
-class TestTotalWirelength:
-    def test_empty_context_returns_zero(self):
-        """With empty net_pin_indices, returns 0.0."""
-        state = _make_state([], 0)
-        netlist = Netlist()
-        context = type("Ctx", (), {"net_pin_indices": np.zeros((0, 0))})()
-        result = total_wirelength(state, netlist, context)
-        assert result == 0.0
-
-    def test_nonempty_context_raises(self):
-        """With non-empty net_pin_indices, raises NotImplementedError."""
-        state = _make_state([], 0)
-        netlist = Netlist()
-        context = type("Ctx", (), {"net_pin_indices": np.zeros((1, 1))})()
-        with pytest.raises(NotImplementedError):
-            total_wirelength(state, netlist, context)
 
 
 class TestCompactnessScore:
@@ -305,36 +284,3 @@ class TestConnectivityClusteringScore:
         score = connectivity_clustering_score(state, netlist, context)
         assert score == 1.0
 
-
-class TestComputeQualityReport:
-    def test_deprecated_warning(self):
-        """compute_quality_report raises DeprecationWarning and still runs."""
-        import warnings
-
-        state = _make_state([(25.0, 25.0), (75.0, 75.0)], 2)
-        netlist = Netlist(
-            components=[
-                Component(ref="Q1", footprint="TO-220", bounds=(10, 10)),
-                Component(ref="R1", footprint="0805", bounds=(2, 1)),
-            ],
-            nets=[Net(name="N1", pins=[("Q1", "1"), ("R1", "1")])],
-        )
-        board = Board(width=100, height=100)
-        context = type("Ctx", (), {
-            "net_pin_indices": np.zeros((0, 0)),
-            "net_pin_mask": np.zeros((0, 0)),
-        })()
-        config = {
-            "thermal_components": {"Q1"},
-            "hv_components": {"Q1"},
-            "lv_components": {"R1"},
-            "zone_assignments": {},
-            "loop_components": [],
-            "min_hv_lv_clearance": 8.0,
-        }
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            result = compute_quality_report(state, netlist, board, context, config)
-        assert isinstance(result, dict)
-        assert "overall_score" in result
-        assert "hv_lv_clearance_score" in result

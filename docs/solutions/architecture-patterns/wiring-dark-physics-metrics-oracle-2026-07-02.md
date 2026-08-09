@@ -115,10 +115,12 @@ Each metric gets a normalized `[0, 1]` score function that:
 - Returns `1.0` when input set is empty (nothing to check)
 - Returns `0.0` for severe violations (overlapping, zero area, far from edge)
 - Returns proportional values in between
-- Is called by `compute_quality_report` with the config from Link 3
+- Is called by `compute_quality_report` with the config from Link 3 (the flat report was retired 2026-08-09 — the kernels it orchestrated are still the measure step; see `docs/evidence/2026-08-09-compute-quality-report-verdict.md`)
 
 ```python
-# quality.py: compute_quality_report extracts from config
+# quality.py: the kernels extract their config here (compute_quality_report
+# — which orchestrated these calls — was retired 2026-08-09; the kernels and
+# the Rust oracle evaluate_quality_py remain)
 thermal_comps = config.get("thermal_components", set())
 hv_comps = config.get("hv_components", set())
 loop_comps = config.get("loop_components", [])

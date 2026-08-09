@@ -21,6 +21,14 @@ tags:
 
 # Production-ready quality metrics modules were built but never connected to any comparison system
 
+> **Status update (2026-08-09):** the `metrics/quality.py::compute_quality_report`
+> flat-report aggregate was **retired** per the Phase-6 verdict in
+> `docs/evidence/2026-08-09-compute-quality-report-verdict.md` (zero production
+> callers; the report-shape pin had no consumer; the overall-mean is duplicated
+> and unit-tested in Rust). The seven constituent score kernels and the Rust
+> quality oracle (`evaluate_quality_py`) remain. The historical prose below
+> still describes the 2026-07-01 state that motivated this pattern.
+
 ## Context
 
 The temper-placer codebase contained four fully-implemented, unit-tested modules for placement quality scoring that had zero consumers:
@@ -28,11 +36,11 @@ The temper-placer codebase contained four fully-implemented, unit-tested modules
 | Module | What it computes | Status |
 |--------|-----------------|--------|
 | `validation/metrics.py::compute_metrics()` | 15+ placement quality metrics (overlap count, clearance violations, zone violations, keepout violations, wirelength stats, utilization, spread score) | Production-ready, exported from `__init__.py` |
-| `metrics/quality.py::compute_quality_report()` | 8 normalized [0,1] scores (thermal, zone compliance, HV-LV clearance, loop area, congestion, compactness, connectivity clustering) + overall | Production-ready, exported from `__init__.py` |
+| `metrics/quality.py::compute_quality_report()` | 8 normalized [0,1] scores (thermal, zone compliance, HV-LV clearance, loop area, congestion, compactness, connectivity clustering) + overall | Production-ready, exported from `__init__.py` — **retired 2026-08-09** (Phase-6 verdict; the kernels survive, the flat report does not) |
 | `metrics/aesthetic.py::compute_aesthetic_score()` | Grid snap, orientation consistency, prefix alignment, aesthetic index | Experimental, not in public `__init__.py` |
 | `io/reference_loader.py::infer_quality_config()` | Thermal/HV/LV component inference from footprint names and net names | Production-ready, only caller was itself |
 
-The `reference_loader.py` even contained a function that called `compute_quality_report()` on both a reference PCB and an optimizer placement, then... did nothing with the result. The comparison infrastructure was built, the metrics were computed, and the values were discarded.
+The `reference_loader.py` even contained a function that called `compute_quality_report()` on both a reference PCB and an optimizer placement, then... did nothing with the result. The comparison infrastructure was built, the metrics were computed, and the values were discarded. (That caller, and `compute_quality_report` itself, were retired on 2026-08-09.)
 
 This is the same class of problem documented in `docs/solutions/workflow-issues/infrastructure-components-unwired-2026-06-28.md` (StageLedger tested in isolation, never called from pipeline) and `docs/solutions/workflow-issues/dead-code-from-features-with-no-activation-surface-2026-07-01.md` (config flags with False defaults, no CLI flag, no pipeline wiring).
 
@@ -52,7 +60,7 @@ This is the same class of problem documented in `docs/solutions/workflow-issues/
 
 - **False confidence from green tests**: all four modules passed their unit tests. Nobody noticed they had no callers because the tests proved the logic was correct — they didn't prove the logic was used.
 - **One-line wire-up produces disproportionate signal**: adding three function calls to `human_reference_extractor.py` added 29 new metrics (from 6 to 35) per board. The marginal cost of wiring is near-zero; the marginal benefit is every future PR getting that signal.
-- **Normalized quality scores without config return 1.0**: `compute_quality_report()` with empty config (no thermal components, no zone assignments, no loops) returns perfect scores. This is correct behavior (no constraints to violate = no violations) but misleading if you don't know that config is required. Always pair quality score computation with `infer_quality_config()` or explicit constraint loading.
+- **Normalized quality scores without config return 1.0**: `compute_quality_report()` with empty config (no thermal components, no zone assignments, no loops) returns perfect scores. This is correct behavior (no constraints to violate = no violations) but misleading if you don't know that config is required. Always pair quality score computation with `infer_quality_config()` or explicit constraint loading. (The report was retired on 2026-08-09; its vacuity was recorded in the differential before removal — the kernels' empty-input semantics are still pinned in `TestEmptyInputSemantics`.)
 - **The "already exists" test**: before building a new metric, grep for it. In this case, all four modules already existed — the work was wiring, not building.
 
 ## When to Apply
@@ -82,7 +90,7 @@ all_metrics = {
     **routing_metrics,        # 2 metrics from trace/via extraction
     **detailed_metrics,       # 17 metrics from validation.metrics.compute_metrics()
     **aesthetic_metrics,      # 4 metrics from metrics.aesthetic.compute_aesthetic_score()
-    **quality_metrics,        # 9 metrics from metrics.quality.compute_quality_report()
+    **quality_metrics,        # 7 scores from the quality kernels (report retired 2026-08-09)
     **drc_metrics,            # 1 metric from DRC runner
 }
 ```
@@ -91,11 +99,12 @@ The detailed and quality metrics use `infer_quality_config()` to build real conf
 
 ```python
 from temper_placer.io.reference_loader import infer_quality_config
-from temper_placer.metrics.quality import compute_quality_report
 
 config = infer_quality_config(parse_result)  # infers thermal/HV/LV from footprints
-report = compute_quality_report(state, netlist, board, context, config)
-# report now has real variation: overall_score 0.40-0.76 across boards
+# The flat compute_quality_report() report was retired (2026-08-09); score
+# kernels individually or through the Rust oracle (evaluate_quality_py /
+# prepare_quality_py + evaluate_prepared_py, see
+# validation/human_reference_extractor.py).
 ```
 
 ## Related

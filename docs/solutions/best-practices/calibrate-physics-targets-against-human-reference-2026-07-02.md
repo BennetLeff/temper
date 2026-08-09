@@ -28,12 +28,15 @@ Before setting target scores for any physics metric, compute the metric on the h
 
 ```python
 # Always run this before setting targets:
-from temper_placer.metrics.quality import compute_quality_report
+# (the flat compute_quality_report() report was retired 2026-08-09 — score
+# the kernels individually, or through the Rust oracle via
+# human_reference_extractor's prepare/evaluate pair)
+from temper_placer.metrics.quality import thermal_score, hv_lv_clearance_score, loop_area_score
 # ... run on human placement (temper.kicad_pcb) ...
 
-human_clearance = report["hv_lv_clearance_score"]   # 0.91 on temper
-human_thermal   = report["thermal_score"]            # 0.50 on temper (BOTTOM edge)
-human_loop      = report["loop_area_score"]          # 0.00 on temper (not a design goal)
+human_clearance = hv_lv_clearance_score(state, netlist, hv, lv)   # 0.91 on temper
+human_thermal   = thermal_score(state, netlist, board, thermal)   # 0.50 on temper (BOTTOM edge)
+human_loop      = loop_area_score(state, netlist, context, loops) # 0.00 on temper (not a design goal)
 
 # Targets should beat human, not beat physics:
 target_clearance = max(0.85, human_clearance)  # match or exceed human
