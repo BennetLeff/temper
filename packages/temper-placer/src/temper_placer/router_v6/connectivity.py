@@ -54,6 +54,24 @@ class CopperPad:
         return frozenset(self.identity.layers)
 
 
+def _to_pad_coordinates(point: Point, pad: CopperPad) -> tuple[float, float]:
+    """World point -> pad-local frame.
+
+    Verbatim pre-migration implementation (kept Python, test-only helper):
+    the Rust `connectivity_kernels.rs::to_pad_coordinates` uses the opposite
+    rotation sign (R(+theta) internally, pinned by the connectivity
+    differential), which does not match this helper's `R(-rotation)`
+    convention. This function has no production callers -- it exists for the
+    rotation-convention test oracle -- so it stays Python verbatim rather
+    than delegating to a sign-divergent kernel.
+    """
+    from math import cos, radians, sin
+
+    angle = radians(-pad.rotation)
+    dx, dy = point.x - pad.center.x, point.y - pad.center.y
+    return dx * cos(angle) - dy * sin(angle), dx * sin(angle) + dy * cos(angle)
+
+
 @dataclass(frozen=True)
 class CopperTrack:
     start: Point
