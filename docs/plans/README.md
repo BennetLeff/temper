@@ -24,11 +24,10 @@ uncovered while re-checking a plan that reads as finished but is half-landed.
 | Status | Count | Meaning |
 |---|---:|---|
 | `active` | 37 | Live work. |
-| `completed` | 128 | Deliverables landed. |
+| `completed` | 129 | Deliverables landed. |
 | `abandoned` | 23 | Named deliverables largely absent; work never landed. |
 | `superseded` | 9 | Replaced by a later plan or by STRATEGY.md. |
 | `draft` | 1 | -- |
-| `proposed` | 1 | -- |
 | *(no frontmatter)* | 8 | Legacy documents predating the plan format. |
 
 **Active plans (37):**
