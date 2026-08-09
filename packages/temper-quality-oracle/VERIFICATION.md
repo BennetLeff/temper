@@ -437,3 +437,98 @@ not apply.
   covering the B5 argument-order semantics, the B11 pairwise-sum branch
   structure, the B12 compensated-sum divergences, the `dlsym`
   resolution guard, and each kernel's empty-input value.
+
+## Aesthetic metric kernel — verification by induction
+
+Added 2026-08-08 (Wave 4 — migration of
+`temper_placer/metrics/aesthetic.py::compute_aesthetic_score` to
+`src/aesthetic.rs`; the Python module keeps its public API and delegates
+through `temper_quality_oracle.aesthetic_score_py`).
+
+### Recorded divergence (Wave-4 tie-break rule: report and record, do not fake)
+
+The pre-migration module contains a **dead branch**: its `get_prefix_groups`
+helper was retired with the JAX migration and now raises
+`NotImplementedError`, so `compute_aesthetic_score` could never complete for
+a non-empty placement.  Its only reachable pre-migration behavior was the
+`n == 0` early return (`{"aesthetic_index": 1.0}`); the consumer
+(`validation.human_reference_extractor`) swallows the exception and emits no
+aesthetic metrics, which is why the module was never observed failing.
+
+Parity on non-empty inputs therefore **cannot** be pinned against the
+verbatim oracle (it raises) — G1/G2 are honest for the empty case and are
+recorded as a deliberate divergence elsewhere.  The migration resolves the
+dead call to the module's **own specified consequence**: with no prefix
+groups, the module's `else` branch makes `prefix_alignment_score` its
+vacuous `1.0` default.  The differential suite pins both halves: the verbatim
+oracle's empty-case output is asserted bit-identical, the verbatim oracle's
+non-empty raise is asserted (so the divergence is a measured fact), and the
+Rust kernel is pinned bit-for-bit against the module's own formulas
+(`_module_formula_reference`, numpy) for the grid/orientation/aggregate
+compute.  The observable change on the consumer is that a real board now
+produces four aesthetic metrics instead of none — the state the module was
+designed for (see
+`docs/solutions/architecture-patterns/quality-metrics-built-but-never-connected-2026-07-01.md`).
+
+### Base case
+
+The smallest meaningful input is the empty placement: the oracle returns only
+`{"aesthetic_index": 1.0}`.  The Rust kernel returns `None` and the
+pyfunction emits exactly that dict — pinned bit-identical by
+`test_empty_input_bit_identical_to_oracle` (both the pyfunction and the
+public shim) and `empty_placement_is_none`.
+
+### Induction hypothesis
+
+For `n` components, the Rust kernel's result is bit-identical to the module
+formulas (`_module_formula_reference`) on the same `n` components, in the
+same order, in both the float32 and float64 chains.
+
+### Induction step
+
+The kernel has no cross-element state: the grid-snap factor aggregates a
+count of per-component booleans (each a pure function of that component's
+coordinates and the loop-invariant `grid_size`), and the orientation factor
+aggregates a fixed 4-bin histogram of per-component `argmax` indices.  Adding
+an `(n+1)`-th component appends one independent boolean to the count and one
+independent histogram increment; neither operation reads or writes any other
+component's contribution, and the aggregate is a closed-form weighted sum of
+the two order-free totals (plus the constant alignment factor).  Correctness
+for `n` therefore implies correctness for `n+1`.  Unlike `thermal_score`,
+this kernel is genuinely permutation-invariant (no float sum over components
+exists), which MR2 asserts as a bit-exact property.
+
+### Empirical verification
+
+- Differential:
+  `packages/temper-placer/tests/metrics/test_aesthetic_rust_differential.py`
+  — verbatim `_oracle_*` block pinned; empty case asserted bit-identical;
+  the oracle's non-empty `NotImplementedError` asserted (the recorded
+  divergence); 300 randomized + 5 crafted cases per dtype asserted
+  bit-identical to `_module_formula_reference` (NaN/inf positions, negative
+  and huge coordinates, all-equal and NaN logits, single component); the
+  f32-vs-f64 dtype flags pinned load-bearing (grid-snap discriminator
+  `x = 578.5099839972382`, argmax discriminator rows).
+- PBT: `packages/temper-placer/tests/metrics/test_aesthetic_rust_pbt.py` —
+  five vacuity-guarded properties (P1 bounds, P2 grid fraction, P3
+  split-extremeness ordering, P4 weighted-sum aggregate, P5 argmax-multiset
+  independence) each with a `test_pN_fails_for_<mutant>`, plus three
+  bit-exact metamorphic relations (MR1 grid-aligned translation on dyadic
+  coordinates, MR2 component permutation, MR3 coordinate reflection), each
+  with its exactness bound stated.  Reachability companions record that the
+  generated inputs genuinely reach discriminating values.
+- `src/aesthetic.rs` `#[cfg(test)]` unit tests — B12 `np.minimum`/`np_clip`
+  semantics (signed-zero tie and NaN propagation), floored `np.mod` bits,
+  measured `numpy_argmax` behavior (first-max, NaN-wins, dtype flag), the
+  `dlsym` log resolution, and both dtype-flag discriminators.
+- **Bit-exactness classes exercised:** B1 (host libm `log` via `dlsym`,
+  measured identical to `np.log` on 200k samples), B7 (aggregate expression
+  shape preserved left-to-right), B11 (the 4-term entropy `np.sum` is numpy's
+  naive sub-8 path), B12 (`np.minimum`/`np.clip` NaN propagation and tie
+  semantics), NEP 50 (f32 grid-snap and argmax chains).
+
+### R1h — physics discipline: N/A
+
+This is a counting/entropy aggregate over already-computed coordinates and
+rotation logits.  It encodes no physical constraint, feeds no solver, and
+has no Chebyshev-style soundness obligation.

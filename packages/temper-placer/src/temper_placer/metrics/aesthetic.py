@@ -8,13 +8,14 @@ of a layout, which correlates with manufacturability and ease of inspection.
 from __future__ import annotations
 
 import numpy as np
+import temper_quality_oracle as _tqo
 
 from temper_placer.core.state import PlacementState
 
 
 def compute_aesthetic_score(
     state: PlacementState,
-    netlist,
+    netlist,  # noqa: ARG001  # API compatibility; see docstring
     grid_size: float = 0.5,
 ) -> dict[str, float]:
     """
@@ -31,63 +32,26 @@ def compute_aesthetic_score(
     Returns:
         Dictionary of individual scores and an aggregated 'aesthetic_index'.
     """
-    positions = np.array(state.positions)
-    rotations = np.array(state.rotation_logits)
-    n = positions.shape[0]
-
-    if n == 0:
-        return {"aesthetic_index": 1.0}
-
-    # 1. Grid Snap Score
-    x_off = np.mod(positions[:, 0], grid_size)
-    y_off = np.mod(positions[:, 1], grid_size)
-    dist_x = np.minimum(x_off, grid_size - x_off)
-    dist_y = np.minimum(y_off, grid_size - y_off)
-
-    # Components within 0.01mm of grid are considered "snapped"
-    snapped = (dist_x < 0.01) & (dist_y < 0.01)
-    grid_score = np.mean(snapped)
-
-    # 2. Orientation Score
-    # Get dominant rotations
-    rotation_indices = np.argmax(rotations, axis=1)
-    counts = np.bincount(rotation_indices, minlength=4)
-    probs = counts / n
-    entropy = -np.sum(probs * np.log(probs + 1e-8))
-
-    # Normalized entropy (max is log(4) approx 1.38)
-    # Score is 1.0 if all same rotation, ~0.0 if perfectly mixed
-    orientation_score = np.clip(1.0 - (entropy / 1.386), 0.0, 1.0)
-
-    # 3. Alignment Score (Prefix-based)
-    def get_prefix_groups(*a, **kw):
-        raise NotImplementedError("get_prefix_groups removed (JAX retirement)")
-
-    prefix_groups_arr = get_prefix_groups(netlist)
-    prefix_groups = []
-    if prefix_groups_arr.shape[0] > 0:
-        for i in range(prefix_groups_arr.shape[0]):
-            group = prefix_groups_arr[i]
-            valid = group[group != -1]
-            if len(valid) > 1:
-                prefix_groups.append(valid)
-
-    alignment_scores = []
-    for group in prefix_groups:
-        group_pos = positions[group]
-        var = np.var(group_pos, axis=0)
-        # If variance in either axis is very low (< 0.1mm), it's aligned
-        is_aligned = np.min(var) < 0.01
-        alignment_scores.append(1.0 if is_aligned else 0.0)
-
-    alignment_score = np.mean(alignment_scores) if alignment_scores else 1.0
-
-    # Aggregate
-    aesthetic_index = (grid_score * 0.4) + (orientation_score * 0.3) + (alignment_score * 0.3)
-
-    return {
-        "grid_snap_score": float(grid_score),
-        "orientation_score": float(orientation_score),
-        "prefix_alignment_score": float(alignment_score),
-        "aesthetic_index": float(aesthetic_index),
-    }
+    # The numeric kernel lives in temper-quality-oracle
+    # (temper_quality_oracle.aesthetic_score_py).  The `*_are_f32` flags
+    # carry the source array dtypes so the kernel reproduces the numpy
+    # NEP 50 chains bit-for-bit: with float32 state (the PlacementState
+    # default), `np.mod` / `np.minimum` / `< 0.01` and `np.argmax` all run
+    # in float32.  `netlist` is accepted for API compatibility but no longer
+    # consulted: the prefix-group alignment machinery was retired with the
+    # JAX migration, and the module's own default makes `prefix_alignment_score`
+    # a constant 1.0 when no groups exist (recorded divergence, see
+    # packages/temper-quality-oracle/VERIFICATION.md).
+    positions = np.asarray(state.positions)
+    rotations = np.asarray(state.rotation_logits)
+    positions_are_f32 = positions.dtype == np.float32
+    rotations_are_f32 = rotations.dtype == np.float32
+    return dict(
+        _tqo.aesthetic_score_py(
+            [tuple(r) for r in positions.tolist()],
+            [tuple(r) for r in rotations.tolist()],
+            grid_size,
+            positions_are_f32,
+            rotations_are_f32,
+        )
+    )
