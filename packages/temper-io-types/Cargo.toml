@@ -23,6 +23,7 @@ python = ["dep:pyo3", "dep:temper-py-bridge"]
 panic = "unwind"
 
 [dev-dependencies]
+proptest = "1"
 
 [lints.clippy]
 unwrap_used = "deny"

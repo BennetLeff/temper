@@ -706,3 +706,100 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_class::<BoardState>()?;
     Ok(())
 }
+
+// ---------------------------------------------------------------------------
+// Property-based tests for repr helpers (proptest)
+// ---------------------------------------------------------------------------
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn repr_str() -> impl Strategy<Value = String> {
+        let Ok(s) = prop::string::string_regex("[ -~]{0,40}") else { unreachable!() };
+        s
+    }
+
+    fn normal_f64() -> impl Strategy<Value = f64> {
+        -1e300f64..1e300f64
+    }
+
+    fn simple_str() -> impl Strategy<Value = String> {
+        let Ok(s) = prop::string::string_regex("[A-Za-z0-9_]{1,40}") else { unreachable!() };
+        s
+    }
+
+    // ---------- py_str_repr
+
+    #[test]
+    fn p53_py_str_repr_quoted() {
+        proptest!(|(s in repr_str())| {
+            let r = py_str_repr(&s);
+            prop_assert!(r.starts_with('\''));
+            prop_assert!(r.ends_with('\''));
+        });
+    }
+
+    #[test]
+    fn p54_py_str_repr_simple_round_trip() {
+        proptest!(|(s in simple_str())| {
+            let r = py_str_repr(&s);
+            prop_assert!(r.len() >= 2);
+            let inner = &r[1..r.len() - 1];
+            prop_assert_eq!(inner, s);
+        });
+    }
+
+    #[test]
+    fn p55_py_str_repr_no_double_quotes() {
+        proptest!(|(s in repr_str())| {
+            let r = py_str_repr(&s);
+            // The output delimiter is single quotes; it should not be
+            // wrapped in double-quote delimiters (Rust's `{:?}` style).
+            prop_assert!(!r.starts_with('"'));
+        });
+    }
+
+    #[test]
+    fn p56_py_str_repr_empty() {
+        assert_eq!(py_str_repr(""), "''");
+    }
+
+    // ---------- py_float_str
+
+    #[test]
+    fn p57_py_float_str_nan_is_nan() {
+        assert_eq!(py_float_str(f64::NAN), "nan");
+    }
+
+    #[test]
+    fn p58_py_float_str_round_trip() {
+        proptest!(|(v in normal_f64())| {
+            let s = py_float_str(v);
+            let Ok(parsed) = s.parse::<f64>() else { unreachable!() };
+            prop_assert_eq!(v.to_bits(), parsed.to_bits());
+        });
+    }
+
+    #[test]
+    fn p59_py_float_str_exponent_format() {
+        proptest!(|(v in normal_f64())| {
+            let s = py_float_str(v);
+            if let Some(e_pos) = s.find('e') {
+                let exp = &s[e_pos + 1..];
+                prop_assert!(exp.starts_with('+') || exp.starts_with('-'));
+                let digits = &exp[1..];
+                prop_assert!(digits.len() >= 2 && digits.chars().all(|c| c.is_ascii_digit()));
+            }
+        });
+    }
+
+    #[test]
+    fn p60_py_float_str_no_rust_nan() {
+        proptest!(|(v in normal_f64())| {
+            let s = py_float_str(v);
+            prop_assert!(!s.contains("NaN"));
+            prop_assert!(!s.contains("inf"));
+        });
+    }
+}

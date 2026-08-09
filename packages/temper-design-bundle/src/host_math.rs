@@ -348,3 +348,208 @@ mod tests {
         assert!(hypot(f64::INFINITY, 1.0).is_infinite());
     }
 }
+
+// ---------------------------------------------------------------------------
+// Property-based tests (proptest)
+// ---------------------------------------------------------------------------
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn normal() -> impl Strategy<Value = f64> {
+        -1e6f64..1e6f64
+    }
+
+    fn positive() -> impl Strategy<Value = f64> {
+        0.001f64..1e6f64
+    }
+
+    fn safe_int() -> impl Strategy<Value = i64> {
+        -1_000_000i64..1_000_000i64
+    }
+
+    // ---------- py_max
+
+    #[test]
+    fn p32_py_max_returns_larger() {
+        proptest!(|(a in normal(), b in normal())| {
+            let r = py_max(a, b);
+            prop_assert_eq!(r, a.max(b));
+        });
+    }
+
+    #[test]
+    fn p33_py_max_returns_one_of_inputs() {
+        proptest!(|(a in normal(), b in normal())| {
+            let r = py_max(a, b);
+            prop_assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits());
+        });
+    }
+
+    #[test]
+    fn p34_py_max_nan_first_returns_nan() {
+        proptest!(|(b in normal())| {
+            prop_assert!(py_max(f64::NAN, b).is_nan());
+        });
+    }
+
+    #[test]
+    fn p35_py_max_nan_second_returns_first() {
+        proptest!(|(a in normal())| {
+            prop_assert_eq!(py_max(a, f64::NAN), a);
+        });
+    }
+
+    // ---------- py_min
+
+    #[test]
+    fn p36_py_min_returns_smaller() {
+        proptest!(|(a in normal(), b in normal())| {
+            let r = py_min(a, b);
+            prop_assert_eq!(r, a.min(b));
+        });
+    }
+
+    #[test]
+    fn p37_py_min_returns_one_of_inputs() {
+        proptest!(|(a in normal(), b in normal())| {
+            let r = py_min(a, b);
+            prop_assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits());
+        });
+    }
+
+    #[test]
+    fn p38_py_min_nan_first_returns_nan() {
+        proptest!(|(b in normal())| {
+            prop_assert!(py_min(f64::NAN, b).is_nan());
+        });
+    }
+
+    #[test]
+    fn p39_py_min_nan_second_returns_first() {
+        proptest!(|(a in normal())| {
+            prop_assert_eq!(py_min(a, f64::NAN), a);
+        });
+    }
+
+    // ---------- py_round
+
+    #[test]
+    fn p40_py_round_is_integer() {
+        proptest!(|(x in normal())| {
+            let r = py_round(x);
+            prop_assert_eq!(r.trunc(), r);
+        });
+    }
+
+    #[test]
+    fn p41_py_round_diff_at_most_half() {
+        proptest!(|(x in normal())| {
+            let r = py_round(x);
+            prop_assert!((r - x).abs() <= 0.5 + 1e-12);
+        });
+    }
+
+    #[test]
+    fn p42_py_round_ties_to_even() {
+        proptest!(|(n in safe_int())| {
+            let x = n as f64 + 0.5;
+            prop_assume!(n.unsigned_abs() < (1u64 << 52));
+            let r = py_round(x);
+            prop_assert_eq!(r % 2.0, 0.0);
+        });
+    }
+
+    #[test]
+    fn p43_py_round_preserves_sign() {
+        proptest!(|(x in normal())| {
+            prop_assume!(x.abs() >= 0.5);
+            let r = py_round(x);
+            prop_assert_eq!(r.is_sign_positive(), x.is_sign_positive());
+        });
+    }
+
+    // ---------- py_float_mod
+
+    #[test]
+    fn p44_float_mod_in_range() {
+        proptest!(|(a in normal(), b in positive())| {
+            let r = py_float_mod(a, b);
+            prop_assert!(r >= 0.0 && r < b.abs());
+        });
+    }
+
+    #[test]
+    fn p45_float_mod_sign_matches_b() {
+        proptest!(|(a in normal(), b_abs in positive())| {
+            let r_pos = py_float_mod(a, b_abs);
+            prop_assert!(r_pos.is_sign_positive() || r_pos == 0.0);
+            let r_neg = py_float_mod(a, -b_abs);
+            prop_assert!(r_neg.is_sign_negative() || r_neg == -0.0 || r_neg == 0.0);
+        });
+    }
+
+    #[test]
+    fn p46_float_mod_exact_multiple_is_zero() {
+        proptest!(|(k in -100i64..100i64, b_int in 1i64..1000i64)| {
+            let b = b_int as f64;
+            let a = (k * b_int) as f64;
+            let r = py_float_mod(a, b);
+            // Both a and b are exactly representable integers, so the
+            // division is exact and the result must be exactly zero.
+            prop_assert_eq!(r, 0.0);
+            prop_assert!(r.is_sign_positive());
+        });
+    }
+
+    // ---------- hypot
+
+    #[test]
+    fn p47_hypot_non_negative() {
+        proptest!(|(a in normal(), b in normal())| {
+            prop_assert!(hypot(a, b) >= 0.0);
+        });
+    }
+
+    #[test]
+    fn p48_hypot_symmetric() {
+        proptest!(|(a in normal(), b in normal())| {
+            prop_assert_eq!(hypot(a, b), hypot(b, a));
+        });
+    }
+
+    #[test]
+    fn p49_hypot_ge_max_abs() {
+        proptest!(|(a in normal(), b in normal())| {
+            let h = hypot(a, b);
+            let m = a.abs().max(b.abs());
+            prop_assert!(h >= m);
+        });
+    }
+
+    #[test]
+    fn p50_hypot_zero_returns_abs() {
+        proptest!(|(x in normal())| {
+            prop_assert_eq!(hypot(0.0, x), x.abs());
+            prop_assert_eq!(hypot(x, 0.0), x.abs());
+        });
+    }
+
+    #[test]
+    fn p51_hypot_triangle_bound() {
+        proptest!(|(a in normal(), b in normal())| {
+            let h = hypot(a, b);
+            let sum = a.abs() + b.abs();
+            prop_assert!(h <= sum);
+        });
+    }
+
+    #[test]
+    fn p52_hypot_nan_returns_nan() {
+        proptest!(|(x in normal())| {
+            prop_assert!(hypot(f64::NAN, x).is_nan());
+            prop_assert!(hypot(x, f64::NAN).is_nan());
+        });
+    }
+}

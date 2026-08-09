@@ -733,3 +733,134 @@ mod tests {
         assert_eq!(y as f64, expected_y);
     }
 }
+
+// ---------------------------------------------------------------------------
+// Property-based tests (proptest)
+// ---------------------------------------------------------------------------
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn normal() -> impl Strategy<Value = f64> {
+        -1e6f64..1e6f64
+    }
+
+    fn modulus() -> impl Strategy<Value = i64> {
+        1i64..360i64
+    }
+
+    // ---------- py_max
+
+    #[test]
+    fn p18_py_max_returns_larger() {
+        proptest!(|(a in normal(), b in normal())| {
+            let r = py_max(a, b);
+            let expected = a.max(b);
+            prop_assert_eq!(r, expected);
+        });
+    }
+
+    #[test]
+    fn p19_py_max_returns_one_of_inputs() {
+        proptest!(|(a in normal(), b in normal())| {
+            let r = py_max(a, b);
+            prop_assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits());
+        });
+    }
+
+    #[test]
+    fn p20_py_max_nan_first_returns_nan() {
+        proptest!(|(b in normal())| {
+            let nan = f64::NAN;
+            prop_assert!(py_max(nan, b).is_nan());
+        });
+    }
+
+    #[test]
+    fn p21_py_max_nan_second_returns_first() {
+        proptest!(|(a in normal())| {
+            let nan = f64::NAN;
+            prop_assert_eq!(py_max(a, nan), a);
+        });
+    }
+
+    #[test]
+    fn p22_py_max_signed_zero_first_wins() {
+        assert_eq!(py_max(0.0, -0.0).to_bits(), 0.0f64.to_bits());
+        assert_eq!(py_max(-0.0, 0.0).to_bits(), (-0.0f64).to_bits());
+    }
+
+    // ---------- py_min
+
+    #[test]
+    fn p23_py_min_returns_smaller() {
+        proptest!(|(a in normal(), b in normal())| {
+            let r = py_min(a, b);
+            let expected = a.min(b);
+            prop_assert_eq!(r, expected);
+        });
+    }
+
+    #[test]
+    fn p24_py_min_returns_one_of_inputs() {
+        proptest!(|(a in normal(), b in normal())| {
+            let r = py_min(a, b);
+            prop_assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits());
+        });
+    }
+
+    #[test]
+    fn p25_py_min_nan_first_returns_nan() {
+        proptest!(|(b in normal())| {
+            prop_assert!(py_min(f64::NAN, b).is_nan());
+        });
+    }
+
+    #[test]
+    fn p26_py_min_nan_second_returns_first() {
+        proptest!(|(a in normal())| {
+            prop_assert_eq!(py_min(a, f64::NAN), a);
+        });
+    }
+
+    #[test]
+    fn p27_py_min_signed_zero_first_wins() {
+        assert_eq!(py_min(0.0, -0.0).to_bits(), 0.0f64.to_bits());
+        assert_eq!(py_min(-0.0, 0.0).to_bits(), (-0.0f64).to_bits());
+    }
+
+    // ---------- py_mod
+
+    #[test]
+    fn p28_py_mod_result_in_range() {
+        proptest!(|(a in -10_000i64..10_000i64, b in modulus())| {
+            let r = py_mod(a, b);
+            prop_assert!(0 <= r && r < b);
+        });
+    }
+
+    #[test]
+    fn p29_py_mod_congruent() {
+        proptest!(|(a in -10_000i64..10_000i64, b in modulus())| {
+            let r = py_mod(a, b);
+            prop_assert_eq!((a - r) % b, 0);
+        });
+    }
+
+    #[test]
+    fn p30_py_mod_idempotent() {
+        proptest!(|(a in -10_000i64..10_000i64, b in modulus())| {
+            let r = py_mod(a, b);
+            prop_assert_eq!(py_mod(r, b), r);
+        });
+    }
+
+    #[test]
+    fn p31_py_mod_add_b_invariant() {
+        proptest!(|(a in -10_000i64..10_000i64, b in modulus())| {
+            prop_assume!(a <= 10_000 - b);
+            prop_assert_eq!(py_mod(a + b, b), py_mod(a, b));
+        });
+    }
+}
