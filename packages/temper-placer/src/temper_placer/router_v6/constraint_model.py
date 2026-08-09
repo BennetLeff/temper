@@ -13,6 +13,8 @@ import sys
 import time
 from dataclasses import dataclass, field, replace
 
+import temper_design_bundle_python as _tdb
+
 from temper_placer.core.netlist import Net
 from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.deterministic.stages.base import Stage
@@ -63,8 +65,13 @@ def _edge_endpoint_key(node) -> str:
     `G.add_node(p1, pos=p1)`), so interpolating a node straight into an f-string
     embeds `repr()` of un-rounded floats. Two geometrically identical skeletons
     produced by different code paths then yield different SAT variable NAMES.
+
+    Wave 4: delegates to the Rust kernel
+    ``temper_design_bundle_python.constraint_model.edge_endpoint_key_py``
+    (see ``packages/temper-design-bundle/src/constraint_model.rs``), pinned
+    bit-exactly by ``tests/router_v6/test_constraint_model_rust_differential.py``.
     """
-    return "(" + ", ".join(f"{round(float(c), _EDGE_COORD_DECIMALS):.6f}" for c in node) + ")"
+    return _tdb.constraint_model.edge_endpoint_key_py((float(node[0]), float(node[1])))
 
 
 def canonical_channel_edges(graph, layer_name: str):
@@ -86,16 +93,17 @@ def canonical_channel_edges(graph, layer_name: str):
     All six call sites must agree byte-for-byte: several build an ``edge_id``
     purely to look it up in ``model.net_channel_vars``, and a mismatch there
     fails silently as a missed constraint rather than an error.
+
+    Wave 4: the key/sort/name computation delegates to the Rust kernel
+    ``temper_design_bundle_python.constraint_model.canonical_channel_edges_py``;
+    only the networkx edge iteration (whose order is the sole remaining
+    construction-order dependence -- the stable-sort tie-break for distinct
+    edges that quantise to identical keys) stays in Python, feeding the edges
+    in the same order the pre-migration generator iterated them.
     """
-    rows = []
-    for u, v in graph.edges:
-        ku, kv = _edge_endpoint_key(u), _edge_endpoint_key(v)
-        if kv < ku:
-            u, v, ku, kv = v, u, kv, ku
-        rows.append((ku, kv, u, v))
-    rows.sort(key=lambda r: (r[0], r[1]))
-    for i, (ku, kv, u, v) in enumerate(rows):
-        yield f"{layer_name}_E{i}_{ku}_{kv}", u, v
+    yield from _tdb.constraint_model.canonical_channel_edges_py(
+        layer_name, list(graph.edges)
+    )
 
 
 @dataclass(kw_only=True)
@@ -420,29 +428,14 @@ def _point_to_segment_distance(
     use in the model builder.  The test
     ``test_pruning_python_parity_with_rust`` cross-checks the two
     implementations on the fixed/test cases.
+
+    Wave 4: delegates to the Rust kernel
+    ``temper_design_bundle_python.constraint_model.point_to_segment_distance_py``
+    (bit-exact; pinned by ``tests/router_v6/test_constraint_model_rust_differential.py``).
     """
-    dx = seg_bx - seg_ax
-    dy = seg_by - seg_ay
-    len_sq = dx * dx + dy * dy
-
-    if len_sq == 0.0:
-        dx_p = px - seg_ax
-        dy_p = py - seg_ay
-        return math.sqrt(dx_p * dx_p + dy_p * dy_p)
-
-    t = ((px - seg_ax) * dx + (py - seg_ay) * dy) / len_sq
-    if t < 0.0:
-        t_c = 0.0
-    elif t > 1.0:
-        t_c = 1.0
-    else:
-        t_c = t
-
-    proj_x = seg_ax + t_c * dx
-    proj_y = seg_ay + t_c * dy
-    dx_p = px - proj_x
-    dy_p = py - proj_y
-    return math.sqrt(dx_p * dx_p + dy_p * dy_p)
+    return _tdb.constraint_model.point_to_segment_distance_py(
+        px, py, seg_ax, seg_ay, seg_bx, seg_by
+    )
 
 
 def _pin_world_positions(net: Net, pcb: ParsedPCB) -> list[tuple[float, float]]:
@@ -465,30 +458,23 @@ def _dist_min_edge_to_pins(
     edge_bx: float, edge_by: float,
     pin_positions: list[tuple[float, float]],
 ) -> float:
-    """Minimum Euclidean distance from the line segment *edge* to any pin."""
-    if not pin_positions:
-        return float("inf")
-    best = float("inf")
-    for px, py in pin_positions:
-        d = _point_to_segment_distance(px, py, edge_ax, edge_ay, edge_bx, edge_by)
-        if d < best:
-            best = d
-    return best
+    """Minimum Euclidean distance from the line segment *edge* to any pin.
+
+    Wave 4: delegates to the Rust kernel
+    ``temper_design_bundle_python.constraint_model.dist_min_edge_to_pins_py``.
+    """
+    return _tdb.constraint_model.dist_min_edge_to_pins_py(
+        edge_ax, edge_ay, edge_bx, edge_by, pin_positions
+    )
 
 
 def _pin_span(pin_positions: list[tuple[float, float]]) -> float:
-    """Maximum Euclidean distance between any two pins."""
-    if len(pin_positions) < 2:
-        return 0.0
-    max_d = 0.0
-    for i in range(len(pin_positions)):
-        xi, yi = pin_positions[i]
-        for j in range(i + 1, len(pin_positions)):
-            xj, yj = pin_positions[j]
-            d = math.sqrt((xi - xj) ** 2 + (yi - yj) ** 2)
-            if d > max_d:
-                max_d = d
-    return max_d
+    """Maximum Euclidean distance between any two pins.
+
+    Wave 4: delegates to the Rust kernel
+    ``temper_design_bundle_python.constraint_model.pin_span_py``.
+    """
+    return _tdb.constraint_model.pin_span_py(pin_positions)
 
 
 def _is_candidate_edge(
@@ -506,11 +492,13 @@ def _is_candidate_edge(
     This is an exact Python replica of
     ``temper_rust_router_core::pruning::is_candidate_edge``.  The
     test ``test_pruning_python_parity_with_rust`` cross-checks.
+
+    Wave 4: delegates to the Rust kernel
+    ``temper_design_bundle_python.constraint_model.is_candidate_edge_py``.
     """
-    span = _pin_span(pin_positions)
-    margin = max(k_factor * span, m_min)
-    dist = _dist_min_edge_to_pins(edge_ax, edge_ay, edge_bx, edge_by, pin_positions)
-    return dist <= margin
+    return _tdb.constraint_model.is_candidate_edge_py(
+        pin_positions, edge_ax, edge_ay, edge_bx, edge_by, k_factor, m_min
+    )
 
 
 class ModelBuilder:

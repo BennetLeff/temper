@@ -16,6 +16,12 @@ mod kicad_exporter_geometry;
 #[cfg(feature = "python")]
 mod write_board_geometry;
 
+// Wave 4: the router_v6/constraint_model.py compute kernels (edge-identity,
+// point-to-segment / pin-span / pruning-predicate geometry) — see
+// constraint_model.rs's module docstring for the full triage.
+#[cfg(feature = "python")]
+mod constraint_model;
+
 #[cfg(feature = "python")]
 mod deterministic_stages;
 
@@ -388,6 +394,11 @@ mod python {
         // plus the parse primitives from temper_placer/pcl/_parse_utils.py
         // (see pcl_parse.rs).
         crate::pcl_tags::register(module)?;
-        crate::pcl_parse::register(module)
+        crate::pcl_parse::register(module)?;
+
+        // Wave 4: the router_v6/constraint_model.py compute kernels (see
+        // constraint_model.rs). Registered last so the append conflicts with
+        // no parallel wave-4 branch.
+        crate::constraint_model::register(module)
     }
 }
