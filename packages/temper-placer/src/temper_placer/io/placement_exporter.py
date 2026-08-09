@@ -27,6 +27,7 @@ from typing import Any, TypeAlias
 
 import numpy as np
 from numpy.typing import NDArray
+from temper_io_types import kicad_write_geometry as _GEOM
 
 Array: TypeAlias = NDArray
 
@@ -41,6 +42,10 @@ def soft_to_discrete_rotations(rotations: Array) -> Array:
     Gumbel-Softmax. For DRC, we need discrete rotations (0, 1, 2, 3)
     representing 0°, 90°, 180°, 270°.
 
+    Deliberately stays Python: this is ``np.argmax``, and reimplementing
+    numpy's dtype promotion and tie-break in Rust would be a behaviour change
+    (the same judgement ``dsn_exporter`` records for its ``np.argmax``).
+
     Args:
         rotations: (N, 4) soft one-hot rotation vectors.
 
@@ -52,7 +57,7 @@ def soft_to_discrete_rotations(rotations: Array) -> Array:
 
 def rotation_index_to_degrees(index: int) -> float:
     """Convert rotation index (0-3) to degrees (0, 90, 180, 270)."""
-    return float(index) * 90.0
+    return _GEOM.rotation_index_to_degrees_py(int(index))
 
 
 def positions_to_placements(
@@ -97,9 +102,11 @@ def positions_to_placements(
     placements: dict[str, PlacementUpdate] = {}
 
     for i, ref in enumerate(component_refs):
-        # Get position (add origin offset)
-        x = float(positions[i, 0]) + origin[0]
-        y = float(positions[i, 1]) + origin[1]
+        # Get position (add origin offset) -- the offset arithmetic runs in
+        # Rust (placement_coordinate_py) on the caller's extracted floats.
+        x, y = _GEOM.placement_coordinate_py(
+            float(positions[i, 0]), float(positions[i, 1]), origin[0], origin[1]
+        )
 
         # Convert rotation index to degrees
         rot_idx = int(rotation_indices[i])

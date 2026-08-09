@@ -1,4 +1,12 @@
-"""Internal: footprint/module visualization and annotation functions."""
+"""Internal: footprint/module visualization and annotation functions.
+
+Delegation shim over ``temper-io-types``' ``kicad_write_geometry`` kernel for
+the pad-bounding-box reduction. The per-pad KiCad rotation stays here (the
+``rotate_local_to_world`` SSOT — sin/cos on ``math.pi`` is not bit-portable
+across libm implementations, B1), and the pre-rotated world-space pads are
+handed to the Rust reduction, which reproduces the oracle's min/max and
+arithmetic order bit-identically.
+"""
 
 from __future__ import annotations
 
@@ -8,10 +16,43 @@ from pathlib import Path
 from kiutils.board import Board as KiBoard
 from kiutils.items.common import Position
 from kiutils.items.gritems import GrRect, GrText
+from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io._write_types import _get_footprint_reference
 from temper_placer.io.kicad_exporter import _validate_4_layer_output
+
+
+def _component_bounds(
+    fp_x: float,
+    fp_y: float,
+    fp_angle: float,
+    pads,
+) -> tuple[float, float, float, float]:
+    """Pad-inclusive axis-aligned bounds of a footprint in world coordinates.
+
+    Shared by ``add_bounding_boxes_to_pcb`` and ``add_silkscreen_labels``
+    (both pre-migration implementations ran this identical loop). The rotation
+    threshold (``abs(fp_angle) > 0.1``), the ``rotate_local_to_world`` SSOT call
+    and the ``position``/``size`` defaults stay here; the min/max reduction
+    over the rotated extents runs in Rust (``component_bounds_py``).
+    """
+    angle_rad = math.radians(fp_angle)
+    world_pads = []
+    for pad in pads:
+        local_x = pad.position.X if pad.position else 0.0
+        local_y = pad.position.Y if pad.position else 0.0
+
+        if abs(fp_angle) > 0.1:
+            rotated_x, rotated_y = rotate_local_to_world(local_x, local_y, angle_rad)
+        else:
+            rotated_x, rotated_y = local_x, local_y
+
+        pad_w = pad.size.X if pad.size else 1.0
+        pad_h = pad.size.Y if pad.size else 1.0
+        world_pads.append((rotated_x, rotated_y, pad_w, pad_h))
+
+    return _GEOM.component_bounds_py(fp_x, fp_y, world_pads)
 
 
 def add_bounding_boxes_to_pcb(
@@ -50,44 +91,16 @@ def add_bounding_boxes_to_pcb(
         if not ref:
             continue
 
-        # Get footprint center position
+        # Get footprint position
         fp_x = fp.position.X if fp.position else 0.0
         fp_y = fp.position.Y if fp.position else 0.0
         fp_angle = fp.position.angle if fp.position and fp.position.angle else 0.0
-        angle_rad = math.radians(fp_angle)
 
         # Calculate bounds from all pads
         if not fp.pads:
             continue
 
-        x_min, y_min = float("inf"), float("inf")
-        x_max, y_max = float("-inf"), float("-inf")
-
-        for pad in fp.pads:
-            # Pad position is local to footprint center
-            local_x = pad.position.X if pad.position else 0.0
-            local_y = pad.position.Y if pad.position else 0.0
-
-            # Rotate local position by footprint angle, using KiCad's real
-            # rotation convention -- see
-            # temper_placer.geometry.kicad_transform's docstring.
-            if abs(fp_angle) > 0.1:
-                rotated_x, rotated_y = rotate_local_to_world(local_x, local_y, angle_rad)
-            else:
-                rotated_x, rotated_y = local_x, local_y
-
-            # Get pad size
-            pad_w = pad.size.X if pad.size else 1.0
-            pad_h = pad.size.Y if pad.size else 1.0
-
-            # Update bounds (absolute coordinates)
-            abs_x = fp_x + rotated_x
-            abs_y = fp_y + rotated_y
-
-            x_min = min(x_min, abs_x - pad_w / 2)
-            y_min = min(y_min, abs_y - pad_h / 2)
-            x_max = max(x_max, abs_x + pad_w / 2)
-            y_max = max(y_max, abs_y + pad_h / 2)
+        x_min, y_min, x_max, y_max = _component_bounds(fp_x, fp_y, fp_angle, fp.pads)
 
         # Add small margin
         margin = 0.3
@@ -165,36 +178,12 @@ def add_silkscreen_labels(
         fp_x = fp.position.X if fp.position else 0.0
         fp_y = fp.position.Y if fp.position else 0.0
         fp_angle = fp.position.angle if fp.position and fp.position.angle else 0.0
-        angle_rad = math.radians(fp_angle)
 
         # Calculate bounds from pads
         if not fp.pads:
             continue
 
-        x_min, y_min = float("inf"), float("inf")
-        x_max, y_max = float("-inf"), float("-inf")
-
-        for pad in fp.pads:
-            local_x = pad.position.X if pad.position else 0.0
-            local_y = pad.position.Y if pad.position else 0.0
-
-            if abs(fp_angle) > 0.1:
-                # KiCad's real rotation convention -- see
-                # temper_placer.geometry.kicad_transform's docstring.
-                rotated_x, rotated_y = rotate_local_to_world(local_x, local_y, angle_rad)
-            else:
-                rotated_x, rotated_y = local_x, local_y
-
-            pad_w = pad.size.X if pad.size else 1.0
-            pad_h = pad.size.Y if pad.size else 1.0
-
-            abs_x = fp_x + rotated_x
-            abs_y = fp_y + rotated_y
-
-            x_min = min(x_min, abs_x - pad_w / 2)
-            y_min = min(y_min, abs_y - pad_h / 2)
-            x_max = max(x_max, abs_x + pad_w / 2)
-            y_max = max(y_max, abs_y + pad_h / 2)
+        x_min, y_min, x_max, y_max = _component_bounds(fp_x, fp_y, fp_angle, fp.pads)
 
         comp_width = x_max - x_min
         comp_height = y_max - y_min
