@@ -28,6 +28,11 @@ from dataclasses import dataclass
 
 import pytest
 
+# Production class — after migration this is the Rust pyclass via the
+# delegation shim. Before the migration, it IS the Python dataclass (identity
+# mode).
+from temper_placer.core.bus_cohort import BusCohortConstraint
+
 # ---------------------------------------------------------------------------
 # Oracle block — verbatim copy of `temper_placer/core/bus_cohort.py`'s
 # `BusCohortConstraint` (origin/main, pre-migration).
@@ -73,17 +78,9 @@ class _OracleBusCohortConstraint:
 
 
 # ---------------------------------------------------------------------------
-# Production imports — after migration these are the Rust pyclass via the
-# delegation shim. Before the migration, they ARE the Python dataclass
-# (identity mode).
-# ---------------------------------------------------------------------------
-from temper_placer.core.bus_cohort import BusCohortConstraint  # noqa: E402
-
-
-# ============================================================================
 # Canonicalization helpers — extract fields from both sides into comparable
 # forms. This way the oracle class name doesn't need to match the pyclass name.
-# ============================================================================
+# ---------------------------------------------------------------------------
 
 
 def _bus_fields(bus) -> tuple:
@@ -144,13 +141,13 @@ class TestBusCohortConstruction:
         assert _bus_fields(prod) == _bus_fields(oracle)
 
     def test_construction_keyword_all_fields(self):
-        kwargs = dict(
-            name="SPI_BUS",
-            nets=["SPI_CLK", "SPI_MOSI"],
-            pitch_mm=0.4,
-            max_skew_mm=1.5,
-            allow_swapping=True,
-        )
+        kwargs = {
+            "name": "SPI_BUS",
+            "nets": ["SPI_CLK", "SPI_MOSI"],
+            "pitch_mm": 0.4,
+            "max_skew_mm": 1.5,
+            "allow_swapping": True,
+        }
         prod, oracle = _make(**kwargs)
         assert _repr_normalized(prod, "BusCohortConstraint") == _oracle_repr(oracle)
         assert _bus_fields(prod) == _bus_fields(oracle)
@@ -219,14 +216,12 @@ class TestBusCohortReprEqHash:
         a = BusCohortConstraint("X", ["a", "b"])
         b = BusCohortConstraint("X", ["a", "b"])
         assert a == b
-        assert not (a != b)
         assert (a == b) == (_OracleBusCohortConstraint("X", ["a", "b"]) == _OracleBusCohortConstraint("X", ["a", "b"]))
 
     def test_equality_different_pitch(self):
         a = BusCohortConstraint("X", ["a"], pitch_mm=0.5)
         b = BusCohortConstraint("X", ["a"], pitch_mm=0.6)
         assert a != b
-        assert not (a == b)
 
     def test_equality_different_nets(self):
         a = BusCohortConstraint("X", ["a", "b"])
