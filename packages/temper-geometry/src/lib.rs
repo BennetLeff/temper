@@ -209,6 +209,15 @@ pub mod geometry_kernels;
 // (path length, nearest skeleton node, near-skeleton test, nearest-terminal
 // greedy order) — the Stage 4.1 orchestration stays in Python.
 pub mod channel_mapping;
+// Wave 4: router_v6 spatial-DRC cluster (resource_bound, power_plane,
+// diff_pair_inference, trace_width_assignment, dense_package_detection).
+// Declared after channel_mapping (this file's tail) so appends cannot
+// rewrite a parallel agent's lines.
+pub mod resource_bound;
+pub mod power_plane;
+pub mod diff_pair_inference;
+pub mod trace_width_assignment;
+pub mod dense_package_detection;
 
 #[cfg(feature = "python")]
 #[pymodule]
@@ -227,6 +236,11 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::hierarchical_clustering::register(m)?;
     crate::geometry_kernels::register(m)?;
     crate::channel_mapping::register(m)?;
+    crate::resource_bound::register(m)?;
+    crate::power_plane::register(m)?;
+    crate::diff_pair_inference::register(m)?;
+    crate::trace_width_assignment::register(m)?;
+    crate::dense_package_detection::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     m.add_class::<crate::persistent_radius_index::RadiusIndex>()?;
     Ok(())
