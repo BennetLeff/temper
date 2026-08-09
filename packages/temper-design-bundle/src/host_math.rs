@@ -97,6 +97,45 @@ pub fn sqrt(x: f64) -> f64 {
     unsafe { host_sqrt()(x) }
 }
 
+unsafe extern "C" fn fallback_log(x: f64) -> f64 {
+    f64::ln(x)
+}
+
+fn host_log() -> &'static UnaryMathFn {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        static CELL: std::sync::OnceLock<Option<UnaryMathFn>> = std::sync::OnceLock::new();
+        CELL.get_or_init(|| dlsym_unary(c"log").or(Some(fallback_log)))
+            .as_ref()
+            .unwrap_or_else(|| unreachable!("fallback always set"))
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        static CELL: std::sync::OnceLock<UnaryMathFn> = std::sync::OnceLock::new();
+        CELL.get_or_init(fallback_log)
+    }
+}
+
+/// Raw libm ``log``, bit-exact with the reference.
+///
+/// NOTE: most callers should use [`py_log`] instead — this raw libm ``log``
+/// returns ``-inf`` for ``log(0)``, while CPython's ``math.log`` raises
+/// ``ValueError``.
+#[allow(dead_code)]
+pub fn log(x: f64) -> f64 {
+    unsafe { host_log()(x) }
+}
+
+/// CPython ``math.log`` semantics: libm `log`, but raises ``ValueError``
+/// for domain errors (x <= 0 and finite), matching CPython's
+/// ``math.log(0)`` → ``ValueError`` (not ``-inf``).
+pub fn py_log(x: f64) -> Result<f64, &'static str> {
+    if x.is_finite() && x <= 0.0 {
+        return Err("math domain error");
+    }
+    Ok(unsafe { host_log()(x) })
+}
+
 /// Python `max(a, b)` semantics: the FIRST argument on ties, NaN kept only
 /// if it is the current running maximum (Python's `if item > current`).
 /// Rust's `f64::max` is different (it propagates NaN both ways and prefers
