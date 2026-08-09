@@ -16,6 +16,7 @@
 
 pub mod force;
 pub mod graph;
+pub mod heuristics;
 pub mod numeric;
 pub mod placement;
 pub mod propagation;
@@ -26,7 +27,7 @@ mod bridge {
     use pyo3::IntoPyObjectExt;
     use pyo3::prelude::*;
 
-    use crate::{force, graph, placement, propagation, zone};
+    use crate::{force, graph, heuristics, placement, propagation, zone};
 
     /// Run a kernel with a panic guard at the pyo3 boundary (R1g): a Rust
     /// panic must surface as a Python exception, never unwind into CPython.
@@ -222,6 +223,61 @@ mod bridge {
         catch_unwind_py(|| zone::zone_backtrack(&candidates))
     }
 
+    // --- heuristics/ slice (Wave 4) ---
+
+    /// First overlapping placement; returns `(index, overlap)` or `None`.
+    #[pyfunction]
+    fn overlap_check(
+        x: f64,
+        y: f64,
+        width: f64,
+        height: f64,
+        boxes: Vec<(f64, f64, f64, f64)>,
+        min_spacing: f64,
+    ) -> PyResult<Option<(usize, f64)>> {
+        catch_unwind_py(|| heuristics::overlap_check(x, y, width, height, &boxes, min_spacing))
+    }
+
+    /// Ordered nudge candidates: the primary + the four fallback directions.
+    #[pyfunction]
+    #[allow(clippy::too_many_arguments)]
+    fn nudge_candidates(
+        x: f64,
+        y: f64,
+        cx: f64,
+        cy: f64,
+        overlap_mm: f64,
+        min_spacing: f64,
+    ) -> PyResult<Vec<(f64, f64)>> {
+        catch_unwind_py(|| heuristics::nudge_candidates(x, y, cx, cy, overlap_mm, min_spacing))
+    }
+
+    /// Feasibility arithmetic; returns `(fits, total_component_area,
+    /// total_zone_area)`.
+    #[pyfunction]
+    fn feasibility_check(
+        sizes: Vec<(f64, f64)>,
+        zone_dims: Vec<(f64, f64)>,
+        margin: f64,
+    ) -> PyResult<(Vec<bool>, f64, f64)> {
+        catch_unwind_py(|| heuristics::feasibility_check(&sizes, &zone_dims, margin))
+    }
+
+    /// Boundary clamp with numpy `np.clip` semantics (B12).
+    #[pyfunction]
+    #[allow(clippy::too_many_arguments)]
+    fn clamp_position(
+        x: f64,
+        y: f64,
+        width: f64,
+        height: f64,
+        board_w: f64,
+        board_h: f64,
+        margin: f64,
+    ) -> PyResult<(f64, f64)> {
+        catch_unwind_py(|| heuristics::clamp_position(x, y, width, height, board_w, board_h, margin))
+    }
+
     #[pymodule]
     fn temper_placement_topology(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m.add_function(wrap_pyfunction!(adjacency_cluster, m)?)?;
@@ -235,6 +291,10 @@ mod bridge {
         m.add_function(wrap_pyfunction!(place_components_in_zone, m)?)?;
         m.add_function(wrap_pyfunction!(place_cluster, m)?)?;
         m.add_function(wrap_pyfunction!(zone_backtrack, m)?)?;
+        m.add_function(wrap_pyfunction!(overlap_check, m)?)?;
+        m.add_function(wrap_pyfunction!(nudge_candidates, m)?)?;
+        m.add_function(wrap_pyfunction!(feasibility_check, m)?)?;
+        m.add_function(wrap_pyfunction!(clamp_position, m)?)?;
         Ok(())
     }
 }
