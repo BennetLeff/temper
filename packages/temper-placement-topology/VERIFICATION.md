@@ -475,3 +475,153 @@ None in behaviour. Two structural differences, both to *preserve* behaviour:
    (the search now lives in `zone.rs`). Both were private and had no caller
    outside the module; `_is_consistent` survives as a named seam in Rust so a
    future real consistency check is a local change.
+
+---
+
+# Heuristics slice (Wave 4) — Verification
+
+Migration of the remaining placement heuristics
+(`packages/temper-placer/src/temper_placer/heuristics/`): `conflict.py`,
+`topological_init.py`, `spectral.py`, `power_stage.py`, `mcu_subsystem.py`
+(1,189 LOC stated), under the R1 gate set. Kernels live in
+`src/heuristics.rs` and are exported as `temper_placement_topology.{overlap_check,
+nudge_candidates, feasibility_check, clamp_position}`.
+
+## Verdict per module
+
+| File | LOC | Verdict | What moved |
+|---|---|---|---|
+| `conflict.py` | 318 | MIGRATE | `ConflictResolver.check_conflict`'s per-pair overlap scan (`overlap_check`) and `_nudge_placement`'s candidate selection (`nudge_candidates`). The strategy branching, the `is_position_valid` trial loop, the `confidence * 0.9` reduction and every message string stay Python. |
+| `topological_init.py` | 387 | MIGRATE | `_check_feasibility`'s arithmetic: the per-component fit decision (both orientations, margin-eroded zone dims) and the two area totals (`feasibility_check`). Graph building, zone assignment and message formatting stay Python. |
+| `power_stage.py` | 262 | MIGRATE | Both heuristics' board-boundary clamp (`clamp_position`), carrying numpy `np.clip` semantics (B12). Template lookup, anchor resolution, offset selection and messages stay Python. |
+| `mcu_subsystem.py` | 56 | NO COMPUTE (structural proof) | `apply` is a one-call delegation to `place_power_stage_template`, which Phase 4 already routed through `temper_io_types.placer_place_power_stage_template` (`placer/deterministic.py`). Nothing to shim; the differential proves it structurally. |
+| `spectral.py` | 166 | **JUSTIFIED-KEEP** (networkx boundary) | See below. |
+
+## Spectral keep — evidence
+
+`SpectralPlacementHeuristic.apply`'s compute is `nx.spectral_layout(subgraph,
+weight="weight", dim=2)` — the eigenvector decomposition of the graph
+Laplacian via `np.linalg.eigh` (LAPACK `?syevd`) — plus a `np.random.uniform`
+fallback for failed decompositions (NumPy's PCG64 generator). Both are
+third-party library compute, not Temper code:
+
+1. **Bit-parity is unreachable for an eigensolver.** The eigenvector basis is
+   only defined up to sign and, in degenerate subspaces, up to an arbitrary
+   rotation, and LAPACK's `?syevd` output varies by backend (the same
+   platform-conditional reality the crate records for `np.linalg.norm`'s BLAS
+   reduction in §"Bit-parity"). No independent implementation reproduces it
+   bit-for-bit, so R1a cannot be met.
+2. **A Rust wrapper would prove nothing.** Re-calling `numpy.linalg.eigh` from
+   Rust adds a boundary crossing while computing nothing new — the exact
+   judgment the repo already recorded for the only other eigensolver in the
+   codebase (`netlist.compute_eigenvector_centrality`, R3 verdict, named
+   blocker, in `core/netlist.py`'s module docstring), and the PR #688
+   `yaml.safe_load` precedent.
+3. **The remaining code is orchestration over the spectral result.** The grid
+   layout, min/max scaling and the `np.clip`-free bounds check consume the
+   spectral coordinates; without the eigenvector kernel they have no
+   independent meaning, and moving them would be a half-migration that makes
+   the boundary crossing explicit without removing a dependency.
+
+The keep is machine-checked by
+`test_spectral_is_a_genuine_networkx_dependency` (asserts the module's
+`nx.spectral_layout` / `nx.connected_components` / `np.random.uniform`
+dependencies directly and cites the `netlist.py` precedent) and
+`test_spectral_module_is_unmodified` (byte-identical to the pin). Re-decidable
+if the networkx boundary is ever retired.
+
+## Message formatting stays in Python
+
+Every kernel returns operands, never formatted text: `overlap_check` returns
+`(index, overlap)` into the caller's own ref list; `feasibility_check` returns
+fit flags plus the two area totals; `clamp_position` returns coordinates. The
+shims render `f"Component {ref} ({cw:.1f}x{ch:.1f}mm) ..."` etc. with CPython's
+own float formatting, so no string can diverge.
+
+## Bit-parity notes
+
+- **`feasibility_check` uses `neumaier_sum`** (this crate's `numeric.rs`)
+  because the oracle computes `sum(w * h for w, h in ...)` and
+  `sum((w - 2*margin) * (h - 2*margin) ...)` with CPython 3.12's compensated
+  builtin `sum()` (B12). A naive accumulator diverges from `sum()` from n=8
+  upward — pinned by the Rust unit test
+  `feasibility_area_totals_are_neumaier_compensated` and by PBT P4's
+  naive-sum mutant. These totals gate control flow (the 70% packing threshold),
+  exactly like `place_components_in_zone`'s `total_area`.
+- **`clamp_position` is `np.clip`, not `f64::clamp`** (B12): NaN in any operand
+  propagates, and an inverted `lo > hi` band returns `hi` where `f64::clamp`
+  panics. Pinned by `clamp_inverted_bounds_returns_hi_like_np_clip_not_f64_clamp`
+  and `clamp_propagates_nan_from_any_operand`.
+- **`overlap_check` uses `py_min`** (CPython builtin `min` NaN asymmetry) for
+  the returned overlap, and the strict `> 0.0` conflict test is pinned by
+  `overlap_exactly_at_spacing_is_not_a_conflict`.
+- **Operation order preserved verbatim** (B7): `(half_w + other_half_w +
+  min_spacing) - dx`, `zw - 2 * margin`, `(w - 2*margin) * (h - 2*margin)`,
+  `margin + half_w` / `board_w - margin - half_w` are transcribed with the
+  oracle's grouping and evaluation order. The shims compute the plain additions
+  (`anchor[0] + offset[0]`, `x + nudge_x`) in Python so the `-0.0 + 0.0`
+  promotion edge stays in the oracle's language.
+
+## Proof by induction / structural proofs
+
+### Feasibility check (induction-free, per-element independence)
+
+The kernel is a map over independent elements: each component's fit flag
+depends only on that component's size and the zone list (no cross-element
+interaction), and each area total is an order-preserving fold over the
+caller-supplied sequence in caller order. The base case (zero sizes) returns
+`([], 0.0, 0.0)` matching `sum([])`; the per-element step is bit-identical to
+the oracle's expression (see Bit-parity notes). Hence the composed result is
+bit-identical. **Empirical verification:** `feasibility_check` differential
+cases (`test_feasibility_identical_*`) and PBT P4/P5 + MR4.
+
+### Overlap scan (structural)
+
+The scan is a left-to-right fold over the caller-ordered box list returning
+the first hit; per-element arithmetic is bit-identical (Bit-parity notes). The
+index is meaningful only through the caller's ref list, which the shim builds
+in the same `self.placements.items()` order. **Empirical verification:**
+`test_conflict_check_conflict_identical` (multi-box, min-spacing, self-skip),
+PBT P1/P2 + MR1/MR2.
+
+### Nudge-candidate selection (structural)
+
+`d = overlap + min_spacing`; the primary's axis/sign decision is a pure
+function of `|dx|` vs `|dy|` and the separation signs, and the four fallbacks
+are a fixed ordered compass rose. The trial loop (validity + re-conflict
+check) stays Python, so no float semantics are split across the boundary.
+**Empirical verification:** `test_conflict_resolve_nudge_identical` (full
+nudge + conflict log), PBT P3 + MR3.
+
+### clamp_position (projection)
+
+`np.clip` is a projection: `clip(clip(x)) == clip(x)` for ordered and inverted
+bands and for NaN. **Empirical verification:** PBT P7 + P6 (through the
+shipped template apply).
+
+### mcu_subsystem (structural, pure delegation)
+
+`MCUSubsystemHeuristic.apply` is a one-line call to
+`place_power_stage_template`, whose per-component compute Phase 4 moved to
+`temper_io_types.placer_place_power_stage_template` (see
+`placer/deterministic.py` and `packages/temper-io-types/VERIFICATION.md`).
+Nothing in `mcu_subsystem.py` computes; `load_template_from_yaml` is a
+`yaml.safe_load` seam (recorded in `placer/template.py`). No kernel needed.
+**Empirical verification:** `test_mcu_subsystem_apply_delegates_to_rust`
+(monkeypatches the Rust symbol; the sentinel propagates, then the real call
+succeeds).
+
+## Gate results
+
+| Gate | Result |
+|---|---|
+| R1a bit-identical differential | **32 assertions pass** in `tests/heuristics/test_heuristics_rust_differential.py` vs the four verbatim pinned oracles (`_conflict_py_oracle.py` @ cf2aad24, `_topological_init_py_oracle.py` @ b9c76605, `_power_stage_py_oracle.py` + `_mcu_subsystem_py_oracle.py` @ 5a17025b), all via `float.hex()`/type-carrying signatures, no tolerance. Includes the monkeypatched-kernel delegation tests proving the SHIPPED modules call the extension. |
+| R1c ≥5 properties | **7 properties** (P1–P7) over the three-module cluster, every module reached (module-to-property map in the PBT docstring), each with a `test_pN_fails_for_<mutant>` degenerate-kernel companion, plus `test_no_property_was_vacuous` reachability counters. |
+| R1d ≥3 metamorphic relations | **4**: MR1 power-of-two exact scaling, MR2 permutation-invariant conflict set, MR3 primary-nudge x-reflection mirror, MR4 feasibility monotonicity. |
+| R1e induction/structural proof | Above. |
+| R1f TDD, RED demonstrated | Oracle files + differential written first (red: the shims' kernel imports did not exist); green after the kernels landed. |
+| R1g Rust practice | `unwrap_used`/`expect_used` denied at the manifest level; every exported pyo3 function wrapped in `catch_unwind` via `temper-py-bridge`; `cargo clippy --all-features --all-targets -- -D warnings` clean; `cargo test --no-default-features`: 59 pass. |
+| R1h physics discipline | **N/A — not physics-gated.** These kernels compute overlap, fit flags, area sums and boundary clamps; no thermal/creepage/isolation quantity is derived. |
+
+`cargo test --no-default-features` (with the heuristics module): 59 pass.
+`cargo clippy --all-features --all-targets -- -D warnings`: clean.

@@ -1,20 +1,19 @@
-"""Topological initialization heuristic.
+"""Pinned Python oracle for Wave-4 heuristics/ -- topological_init.py.
 
-This heuristic generates initial placements from topological relationships
-(zone assignments, adjacency clusters) using force-directed refinement.
+DO NOT EDIT -- THIS IS THE REFERENCE.
+======================================
+Everything below the module docstring is a **verbatim** ``git show``
+extraction of commit ``b9c766059c34649c2947f04f89a578fdb48a2756`` (the last commit that touched this file;
+``origin/main`` at the time this migration was pulled remains at the same
+text -- see ``test_oracle_is_verbatim_copy``, which re-extracts the pinned
+commit via ``git show`` and compares byte-for-byte) of
+``packages/temper-placer/src/temper_placer/heuristics/topological_init.py``.
 
-It runs at INITIALIZATION priority (before other heuristics) to provide
-a good starting point for the placement optimization.
-
-Wave 4: the feasibility arithmetic of ``_check_feasibility`` (per-component
-fit decision over both orientations, the two compensated ``sum()`` area
-totals) is implemented in Rust in the ``temper-placement-topology`` crate
-(``temper_placement_topology.feasibility_check``); see
-``packages/temper-placement-topology/src/heuristics.rs``. Graph building,
-zone assignment and message formatting stay Python. Pinned oracle:
-``packages/temper-placer/tests/heuristics/_topological_init_py_oracle.py``;
-differential:
-``packages/temper-placer/tests/heuristics/test_heuristics_rust_differential.py``.
+Nothing below the marker line has been cleaned up, refactored,
+reformatted, or fixed -- not even the module docstring the original file
+itself carried (dropped here only because *this* file needs its own, to
+record the pin). Any drift fails ``test_oracle_is_verbatim_copy`` instead
+of passing quietly.
 """
 
 from __future__ import annotations
@@ -326,8 +325,6 @@ class TopologicalInitializationHeuristic(Heuristic):
         Returns:
             FeasibilityResult with is_feasible flag and conflicts
         """
-        from temper_placement_topology import feasibility_check
-
         conflicts: list[str] = []
 
         # Get component sizes
@@ -354,22 +351,30 @@ class TopologicalInitializationHeuristic(Heuristic):
         if context.constraints and hasattr(context.constraints, "board_margin_mm"):
             margin = context.constraints.board_margin_mm or 0.0
 
-        # The per-component fit decision (both orientations, margin-eroded
-        # zone dims) and the two compensated area totals are the Rust kernel;
-        # the netlist/zone extraction above and the message formatting below
-        # stay here, so CPython renders every float string.
-        fits, total_component_area, total_zone_area = feasibility_check(
-            list(component_sizes.values()), zone_bounds, margin
-        )
-
         # Check 1: Is any component larger than all zones?
-        for (ref, (cw, ch)), fits_in_any_zone in zip(component_sizes.items(), fits):
+        for ref, (cw, ch) in component_sizes.items():
+            fits_in_any_zone = False
+            for zw, zh in zone_bounds:
+                # Subtract margin from zone dimensions
+                available_w = zw - 2 * margin
+                available_h = zh - 2 * margin
+
+                # Check if component fits (either orientation)
+                if (cw <= available_w and ch <= available_h) or (
+                    ch <= available_w and cw <= available_h
+                ):
+                    fits_in_any_zone = True
+                    break
+
             if not fits_in_any_zone:
                 conflicts.append(
                     f"Component {ref} ({cw:.1f}x{ch:.1f}mm) is larger than available placement area"
                 )
 
         # Check 2: Total component area vs total zone area
+        total_component_area = sum(w * h for w, h in component_sizes.values())
+        total_zone_area = sum((w - 2 * margin) * (h - 2 * margin) for w, h in zone_bounds)
+
         # Use a packing efficiency estimate (70% is typical for rectangular packing)
         PACKING_EFFICIENCY = 0.7
         if total_component_area > total_zone_area * PACKING_EFFICIENCY:

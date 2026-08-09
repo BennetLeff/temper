@@ -1,24 +1,27 @@
-"""
-Power stage template heuristic for priority-based placement.
+"""Pinned Python oracle for Wave-4 heuristics/ -- power_stage.py.
 
-Places power stage components using fixed templates that encode
-correct topology for common power converter configurations.
+DO NOT EDIT -- THIS IS THE REFERENCE.
+======================================
+Everything below the module docstring is a **verbatim** ``git show``
+extraction of commit ``5a17025b15d01bf88116b569493d8ed483e1856f`` (the last commit that touched this file;
+``origin/main`` at the time this migration was pulled remains at the same
+text -- see ``test_oracle_is_verbatim_copy``, which re-extracts the pinned
+commit via ``git show`` and compares byte-for-byte) of
+``packages/temper-placer/src/temper_placer/heuristics/power_stage.py``.
 
-Wave 4: the board-boundary clamp of both heuristics (the ``np.clip(...)``
-boundary calls) is implemented in Rust in the ``temper-placement-topology``
-crate (``temper_placement_topology.clamp_position``) with numpy ``np.clip``
-semantics -- see ``packages/temper-placement-topology/src/heuristics.rs`` and
-the B12 row of ``docs/wave4-discipline-contract.md``. Template lookup, anchor
-resolution, offset selection and message formatting stay Python. Pinned
-oracle: ``packages/temper-placer/tests/heuristics/_power_stage_py_oracle.py``;
-differential:
-``packages/temper-placer/tests/heuristics/test_heuristics_rust_differential.py``.
+Nothing below the marker line has been cleaned up, refactored,
+reformatted, or fixed -- not even the module docstring the original file
+itself carried (dropped here only because *this* file needs its own, to
+record the pin). Any drift fails ``test_oracle_is_verbatim_copy`` instead
+of passing quietly.
 """
 
 from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
+
+import numpy as np
 
 from temper_placer.core.priority import (
     POWER_STAGE_TEMPLATES,
@@ -62,8 +65,6 @@ class PowerStageTemplateHeuristic(Heuristic):
 
     def apply(self, context: PlacementContext) -> HeuristicResult:
         """Apply power stage template placement."""
-        from temper_placement_topology import clamp_position
-
         result = HeuristicResult()
 
         # Get power stage config from constraints
@@ -112,9 +113,10 @@ class PowerStageTemplateHeuristic(Heuristic):
 
             # Clamp to board bounds
             margin = context.constraints.board_margin_mm
-            x, y = clamp_position(
-                x, y, comp.width, comp.height, context.board.width, context.board.height, margin
-            )
+            half_w = comp.width / 2
+            half_h = comp.height / 2
+            x = np.clip(x, margin + half_w, context.board.width - margin - half_w)
+            y = np.clip(y, margin + half_h, context.board.height - margin - half_h)
 
             # Create placement
             placement = ComponentPlacement(
@@ -172,8 +174,6 @@ class DriverProximityHeuristic(Heuristic):
 
     def apply(self, context: PlacementContext) -> HeuristicResult:
         """Apply driver proximity placement."""
-        from temper_placement_topology import clamp_position
-
         result = HeuristicResult()
 
         # Get driver phase config
@@ -235,9 +235,10 @@ class DriverProximityHeuristic(Heuristic):
 
             # Clamp to board
             margin = context.constraints.board_margin_mm
-            x, y = clamp_position(
-                x, y, comp.width, comp.height, context.board.width, context.board.height, margin
-            )
+            half_w = comp.width / 2
+            half_h = comp.height / 2
+            x = np.clip(x, margin + half_w, context.board.width - margin - half_w)
+            y = np.clip(y, margin + half_h, context.board.height - margin - half_h)
 
             placement = ComponentPlacement(
                 ref=ref,

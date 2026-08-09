@@ -1,18 +1,19 @@
-"""
-Conflict resolver for overlapping placement constraints.
+"""Pinned Python oracle for Wave-4 heuristics/ -- conflict.py.
 
-When multiple heuristics want to place components in conflicting positions,
-the ConflictResolver provides strategies for resolution.
+DO NOT EDIT -- THIS IS THE REFERENCE.
+======================================
+Everything below the module docstring is a **verbatim** ``git show``
+extraction of commit ``cf2aad24b9030cdc8e026db3fb2e0938bad30a84`` (the last commit that touched this file;
+``origin/main`` at the time this migration was pulled remains at the same
+text -- see ``test_oracle_is_verbatim_copy``, which re-extracts the pinned
+commit via ``git show`` and compares byte-for-byte) of
+``packages/temper-placer/src/temper_placer/heuristics/conflict.py``.
 
-Wave 4: the per-pair overlap scan (``check_conflict``) and the nudge-candidate
-selection (``_nudge_placement``'s dominant-axis primary + the four fallback
-directions) are implemented in Rust in the ``temper-placement-topology`` crate
-(``temper_placement_topology.overlap_check`` / ``nudge_candidates``); see
-``packages/temper-placement-topology/src/heuristics.rs``. This module keeps
-the public API, the strategy branching, the ``is_position_valid`` trial loop
-and all message formatting. Pinned oracle:
-``packages/temper-placer/tests/heuristics/_conflict_py_oracle.py``; differential:
-``packages/temper-placer/tests/heuristics/test_heuristics_rust_differential.py``.
+Nothing below the marker line has been cleaned up, refactored,
+reformatted, or fixed -- not even the module docstring the original file
+itself carried (dropped here only because *this* file needs its own, to
+record the pin). Any drift fails ``test_oracle_is_verbatim_copy`` instead
+of passing quietly.
 """
 
 from __future__ import annotations
@@ -114,17 +115,9 @@ class ConflictResolver:
         Returns:
             Tuple of (conflicting_ref, overlap_mm) or None if no conflict
         """
-        from temper_placement_topology import overlap_check
-
         x, y = placement.position
+        half_w, half_h = width / 2, height / 2
 
-        # Collect the existing placements in insertion order. The scan itself
-        # (per-pair overlap arithmetic, first-conflict selection) is the Rust
-        # kernel; this loop is object navigation (bounds lookup, position
-        # extraction) and the ref/index alignment that maps the kernel's first
-        # conflicting *index* back to a ref.
-        refs: list[str] = []
-        boxes: list[tuple[float, float, float, float]] = []
         for ref, existing in self.placements.items():
             if ref == placement.ref:
                 continue
@@ -132,14 +125,18 @@ class ConflictResolver:
             # Get existing component bounds
             comp = context.netlist.get_component(ref)
             other_w, other_h = comp.bounds
+            other_half_w, other_half_h = other_w / 2, other_h / 2
             ox, oy = existing.position
-            refs.append(ref)
-            boxes.append((ox, oy, other_w, other_h))
 
-        hit = overlap_check(x, y, width, height, boxes, self.min_spacing_mm)
-        if hit is not None:
-            idx, overlap = hit
-            return (refs[idx], overlap)
+            # Calculate overlap
+            dx = abs(x - ox)
+            dy = abs(y - oy)
+            overlap_x = (half_w + other_half_w + self.min_spacing_mm) - dx
+            overlap_y = (half_h + other_half_h + self.min_spacing_mm) - dy
+
+            if overlap_x > 0 and overlap_y > 0:
+                overlap = min(overlap_x, overlap_y)
+                return (ref, overlap)
 
         return None
 
@@ -233,36 +230,72 @@ class ConflictResolver:
 
         Tries 4 directions (up, down, left, right) and picks the first valid one.
         """
-        from temper_placement_topology import nudge_candidates
-
         x, y = placement.position
+        nudge_distance = overlap_mm + self.min_spacing_mm
 
         # Get conflicting component position to determine nudge direction
         conflicting_pos = self.placements[conflicting_ref].position
 
-        # Candidate selection (dominant-axis primary + the four fallback
-        # directions, in trial order) is the Rust kernel; the trial loop
-        # (validity check, confidence reduction, re-conflict scan) stays here,
-        # mirroring the sibling heuristics' "trial loop stays Python" split.
-        candidates = nudge_candidates(
-            x, y, conflicting_pos[0], conflicting_pos[1], overlap_mm, self.min_spacing_mm
-        )
+        # Try nudging away from the conflicting component
+        dx = x - conflicting_pos[0]
+        dy = y - conflicting_pos[1]
 
-        for nudge_x, nudge_y in candidates:
+        # Normalize and apply nudge
+        if abs(dx) > abs(dy):
+            # Nudge horizontally
+            nudge_x = nudge_distance if dx > 0 else -nudge_distance
+            nudge_y = 0.0
+        else:
+            # Nudge vertically
+            nudge_x = 0.0
+            nudge_y = nudge_distance if dy > 0 else -nudge_distance
+
+        new_x = x + nudge_x
+        new_y = y + nudge_y
+
+        # Check if new position is valid
+        if context.is_position_valid(new_x, new_y, width, height):
+            # Check if nudged position still conflicts
+            nudged = ComponentPlacement(
+                ref=placement.ref,
+                position=(new_x, new_y),
+                rotation=placement.rotation,
+                confidence=placement.confidence * 0.9,  # Reduce confidence for nudged placement
+                placed_by=placement.placed_by,
+            )
+
+            # Check for new conflicts (recursive, but should converge)
+            new_conflict = self.check_conflict(nudged, width, height, context)
+            if new_conflict is None:
+                conflict = Conflict(
+                    component_a=conflicting_ref,
+                    component_b=placement.ref,
+                    overlap_mm=overlap_mm,
+                    resolution="nudged",
+                    message=f"{placement.ref} nudged by ({nudge_x:.1f}, {nudge_y:.1f}) to avoid {conflicting_ref}",
+                )
+                self.conflicts.append(conflict)
+                return (nudged, conflict)
+
+        # Nudge failed, try other directions
+        for nudge_x, nudge_y in [
+            (nudge_distance, 0.0),
+            (-nudge_distance, 0.0),
+            (0.0, nudge_distance),
+            (0.0, -nudge_distance),
+        ]:
             new_x = x + nudge_x
             new_y = y + nudge_y
 
             if context.is_position_valid(new_x, new_y, width, height):
-                # Check if nudged position still conflicts
                 nudged = ComponentPlacement(
                     ref=placement.ref,
                     position=(new_x, new_y),
                     rotation=placement.rotation,
-                    confidence=placement.confidence * 0.9,  # Reduce confidence for nudged placement
+                    confidence=placement.confidence * 0.9,
                     placed_by=placement.placed_by,
                 )
 
-                # Check for new conflicts (recursive, but should converge)
                 new_conflict = self.check_conflict(nudged, width, height, context)
                 if new_conflict is None:
                     conflict = Conflict(
