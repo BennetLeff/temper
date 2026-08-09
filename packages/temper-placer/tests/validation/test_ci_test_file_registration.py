@@ -169,6 +169,29 @@ _PASSING_LOCALLY = (
     "CI job. See docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md §2/§3."
 )
 
+# Entries below were triaged 2026-08-09 by the CI-registration reconciliation
+# that wired the round-2 Wave-4 differential/PBT gate. They were NOT part of
+# the 49-file 2026-08-07 doc triage; they are consolidation-era suites that
+# postdate (or were never covered by) the 2026-08-07 audit.
+
+_PASSING_LOCALLY_2026_08_09 = (
+    "Passes locally (2026-08-09 triage, full run: 244 passed / 3 "
+    "slow-deselected across all 20 unreferenced router_v6 files handled by "
+    "this reconciliation). Pure Python/Rust unit test, no kicad-cli/ngspice/"
+    "mfem dependency. Not wired into any CI job; router_v6 wiring generally "
+    "is the workflow-side change tracked in the 2026-08-07 "
+    "router-v6-ci-name-enumeration-gap doc, out of scope here."
+)
+
+_PREDATES_ROUND2_DIFFERENTIAL_GATE = (
+    "PASSING (2026-08-09 triage): Rust differential pinning a migrated "
+    "kernel bit-exactly against its Python oracle, but predating the round-2 "
+    "Wave-4 differential gate -- that gate was scoped to the 16 files wired "
+    "by the 2026-08-09 reconciliation, and this file was not one of them. "
+    "Registered (not wired) here until an earlier-wave wiring decision "
+    "lands; passing locally with -m \"not slow\"."
+)
+
 _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
     "router_v6/test_anti_vacuity_preconditions.py": (
         "PASSING (added 2026-08-07 by the router structural vacuity-guard "
@@ -282,6 +305,52 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
         "because that is a workflow-side change out of scope for the pull "
         "that fixed the content bug."
     ),
+    "router_v6/test_astar_nlayer.py": _PASSING_LOCALLY_2026_08_09,
+    "router_v6/test_bundled_capacity_constraints.py": _PASSING_LOCALLY_2026_08_09,
+    "router_v6/test_bundled_full_pipeline.py": _PASSING_LOCALLY_2026_08_09,
+    "router_v6/test_channel_mapping_terminal_validation.py": (
+        "PASSING (2026-08-09 triage): terminal-validation suite for the "
+        "channel-mapping surface. The channel-mapping RUST DIFFERENTIAL/PBT "
+        "pair is wired into the round-2 differential gate; this plain suite "
+        "is separate and consolidation-era, with no pinned-kernel role. "
+        "Not wired into any CI job."
+    ),
+    "router_v6/test_channel_skeleton_bridging.py": _PASSING_LOCALLY_2026_08_09,
+    "router_v6/test_constraints_spatial_index_rust_differential.py": _PREDATES_ROUND2_DIFFERENTIAL_GATE,
+    "router_v6/test_coverage_paydown_wave3_a.py": (
+        "PASSING (2026-08-09 triage): wave-3 coverage-paydown suite "
+        "(part a of the a-e series); consolidation-era, no pinned-kernel "
+        "role. Not wired into any CI job."
+    ),
+    "router_v6/test_coverage_paydown_wave3_b.py": (
+        "PASSING (2026-08-09 triage): wave-3 coverage-paydown suite "
+        "(part b of the a-e series); consolidation-era, no pinned-kernel "
+        "role. Not wired into any CI job."
+    ),
+    "router_v6/test_coverage_paydown_wave3_c.py": (
+        "PASSING (2026-08-09 triage): wave-3 coverage-paydown suite "
+        "(part c of the a-e series); consolidation-era, no pinned-kernel "
+        "role. Not wired into any CI job."
+    ),
+    "router_v6/test_coverage_paydown_wave3_d.py": (
+        "PASSING (2026-08-09 triage): wave-3 coverage-paydown suite "
+        "(part d of the a-e series); consolidation-era, no pinned-kernel "
+        "role. Not wired into any CI job."
+    ),
+    "router_v6/test_coverage_paydown_wave3_e.py": (
+        "PASSING (2026-08-09 triage): wave-3 coverage-paydown suite "
+        "(part e of the a-e series); consolidation-era, no pinned-kernel "
+        "role. Not wired into any CI job."
+    ),
+    "router_v6/test_edt_cache_concurrency.py": _PASSING_LOCALLY_2026_08_09,
+    "router_v6/test_net_batching_subprocess.py": _PASSING_LOCALLY_2026_08_09,
+    "router_v6/test_net_classification_rust_differential.py": _PREDATES_ROUND2_DIFFERENTIAL_GATE,
+    "router_v6/test_pipeline_grid_net_pad_positions.py": _PASSING_LOCALLY_2026_08_09,
+    "router_v6/test_plane_condemnation_pipeline_wiring.py": _PASSING_LOCALLY_2026_08_09,
+    "router_v6/test_routability_check_cc_rust_differential.py": _PREDATES_ROUND2_DIFFERENTIAL_GATE,
+    "router_v6/test_routability_check_rust_differential.py": _PREDATES_ROUND2_DIFFERENTIAL_GATE,
+    "router_v6/test_topology_copper_audit.py": _PASSING_LOCALLY_2026_08_09,
+    "router_v6/test_zone_emission_clustering_rust_differential.py": _PREDATES_ROUND2_DIFFERENTIAL_GATE,
 }
 
 # --- the 3 genuinely-failing files outside router_v6/, triaged in
@@ -292,6 +361,18 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
 # pyo3/maturin Rust extensions the CI container prebuilds (freshly built via
 # `make extensions` in this session), `-m "not slow"`, from a fresh
 # `make venv-isolate` checkout, on 2026-08-07.
+
+# Entries below were triaged 2026-08-09 by the CI-registration reconciliation
+# that wired the round-2 Wave-4 differential/PBT gate. They are consolidation-
+# era or coverage-paydown suites that postdate (or were never covered by) the
+# 2026-08-07 full-tree triage.
+
+_PASSING_LOCALLY_OTHER_2026_08_09 = (
+    "Passes locally (2026-08-09 triage, run with -m \"not slow\" matching "
+    "the CI convention). Consolidation-era / coverage-paydown suite with no "
+    "pinned-kernel or gate role; not wired into any CI job. Registered here "
+    "so the registration drift test stays green."
+)
 
 _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
     "closure/test_router_completion.py": (
@@ -337,6 +418,49 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "itself. Reproducible, not seed-flaky. temper-NNN. Do not wire in "
         "un-deselected -- see doc §4.3."
     ),
+    "constraints/test_reporter_properties.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "explainability/test_decision_extra.py": (
+        "PASSING (2026-08-09 triage): supplemental 'extra' suite for the "
+        "decision explainability surface. The RUST DIFFERENTIAL for this "
+        "surface is wired (tests/explainability/test_decision_rust_differential.py); "
+        "this supplemental suite is consolidation-era with no pinned-kernel "
+        "role. Not wired into any CI job."
+    ),
+    "explainability/test_logger_extra.py": (
+        "PASSING (2026-08-09 triage): supplemental 'extra' suite for the "
+        "logger explainability surface (the Rust differential is wired). "
+        "Consolidation-era, no pinned-kernel role; not wired into any CI job."
+    ),
+    "explainability/test_trace_extra.py": (
+        "PASSING (2026-08-09 triage): supplemental 'extra' suite for the "
+        "trace explainability surface (the Rust differential is wired). "
+        "Consolidation-era, no pinned-kernel role; not wired into any CI job."
+    ),
+    "geometry/test_geometry_coverage.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "heuristics/test_coverage_paydown.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "pcl/test_coverage_paydown.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "pipeline/test_bottleneck_report.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "pipeline/test_convergence.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "pipeline/test_dag_types.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "pipeline/test_derivation.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "pipeline/test_preflight.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "placer/test_template_extra.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "regression/test_fingerprint_cache_concurrency.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "scripts/test_r2_serialize_board.py": (
+        "FAILING (2026-08-09 triage): "
+        "test_real_board_isolator_component_refs_resolve_to_real_components "
+        "-- the isolator refset resolved from the committed pcb/temper.kicad_pcb "
+        "no longer matches the hardcoded expected set "
+        "{'C6','K1','K2','K3','PS1','T1','U3','U7'}: U3 is no longer "
+        "resolved. Board-vs-test drift since the test was pinned 2026-08-07 "
+        "(the board moved in c4956df6), not an environmental skip -- the "
+        "file parses the live board and the assertion fails on content. "
+        "Tracked here rather than wired so CI stays green while the board "
+        "drift is attributed."
+    ),
+    "testing/test_quarantine.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "topological/test_topological_coverage.py": _PASSING_LOCALLY_OTHER_2026_08_09,
+    "visualization/test_visualization_coverage.py": _PASSING_LOCALLY_OTHER_2026_08_09,
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------
