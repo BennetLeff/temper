@@ -1,9 +1,7 @@
 from dataclasses import dataclass, field
 
-from shapely.affinity import rotate, translate
+import temper_geometry as _tg
 from shapely.geometry import Polygon
-
-from temper_placer.geometry.kicad_transform import shapely_rotation_angle_deg
 
 
 @dataclass
@@ -37,13 +35,20 @@ class Courtyard:
         origin (the common case: an axis-aligned rectangle centered on the
         footprint origin) the sign is a no-op; for an asymmetric/offset
         courtyard polygon it is not.
-        """
-        # Rotate first (relative to 0,0 center)
-        angle = rotation_idx * 90.0
-        rotated = rotate(self._polygon, shapely_rotation_angle_deg(angle), origin=(0, 0))
 
-        # Translate to global position
-        return translate(rotated, xoff=x, yoff=y)
+        Wave 4: the per-vertex rotate+translate affine transform runs in Rust
+        (``temper_geometry.courtyard_global_points``), reproducing shapely's
+        ``affinity.rotate`` then ``affinity.translate`` arithmetic exactly
+        (including the ``abs(cosp)<2.5e-16`` hard zeroing and the
+        ``angle * pi / 180.0`` degrees->radians conversion). The polygon
+        BOOLEAN (``intersects``/``touches`` in ``check_overlap``) stays with
+        GEOS here -- that is a geometry-engine library boundary, not a
+        kernel. See ``packages/temper-geometry/VERIFICATION.md``.
+        """
+        flat = [coord for pt in self.points for coord in pt]
+        out = _tg.courtyard_global_points_py(flat, rotation_idx, x, y)
+        pts = [(out[i], out[i + 1]) for i in range(0, len(out), 2)]
+        return Polygon(pts)
 
 
 def check_overlap(

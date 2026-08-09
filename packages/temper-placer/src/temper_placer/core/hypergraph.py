@@ -4,6 +4,15 @@ Physics-Aware Hypergraph representation for PCB placement.
 This module defines the core immutable data structures for the hypergraph.
 Uses Python dataclasses and a plain-array COO triplet container (JAX removed;
 scipy.sparse retired -- see ``Coo``'s docstring).
+
+Wave 4 (unit ``core_graph_cluster``): the one genuine compute kernel — the
+``Coo @ vector`` sparse matrix-vector product — is migrated to
+``packages/temper-geometry/src/core_graph_geometry.rs``
+(``hypergraph_coo_matvec``, replicating ``np.bincount`` scatter-add
+semantics bit-for-bit, including the ``minlength`` length extension and
+negative-column fancy-index wrapping). The container stays a Python
+dataclass; ``__matmul__`` delegates. Bit-exact parity is pinned by
+``tests/core/test_core_graph_cluster_rust_differential.py``.
 """
 
 from __future__ import annotations
@@ -12,6 +21,7 @@ from dataclasses import dataclass, field
 from typing import TypeAlias
 
 import numpy as np
+import temper_geometry as _tg
 from numpy.typing import NDArray
 
 Array: TypeAlias = NDArray  # type alias for sparse operations
@@ -57,16 +67,28 @@ class Coo:
 
         For each stored triplet ``(r, c, d)``, scatter-adds ``d *
         other[c]`` into ``result[r]``. The result does not depend on
-        triplet order -- ``np.bincount`` sums by group regardless of the
-        order its inputs arrive in -- matching the order-invariance
-        ``scipy.sparse.coo_matrix``'s matvec already provided (this class's
-        justification for dropping it).
+        triplet order -- summing by group regardless of the order its inputs
+        arrive in -- matching the order-invariance ``scipy.sparse.coo_matrix``'s
+        matvec already provided (this class's justification for dropping it).
+
+        The scatter-add itself (the ``np.bincount`` semantics: contributions
+        ``data * other[col]`` computed in triplet order, summed in triplet
+        order, output length ``max(shape[0], max(row)+1)``, negative ``col``
+        wrapping like numpy fancy indexing) runs in Rust via
+        ``temper_geometry.hypergraph_coo_matvec``, bit-identical to the
+        pre-migration numpy expression.
         """
         n_rows = self.shape[0]
         if self.nnz == 0:
             return np.zeros(n_rows, dtype=np.float64)
-        contributions = self.data.astype(np.float64) * other[self.col]
-        return np.bincount(self.row, weights=contributions, minlength=n_rows)
+        result = _tg.hypergraph_coo_matvec_py(
+            self.row.tolist(),
+            self.col.tolist(),
+            [float(d) for d in self.data],
+            n_rows,
+            [float(v) for v in other],
+        )
+        return np.array(result)
 
 
 @dataclass

@@ -126,6 +126,12 @@ pub mod style_geometry;
 pub use style_geometry::{radial_sector_positions_py, signal_chain_positions_py};
 pub mod audit;
 pub mod creepage_check;
+// Wave 4, core graph/geometry cluster: kernels for seven of the nine
+// core/{graph, hypergraph, pin_geometry, power_topology, topology,
+// courtyard, geometry_types}.py modules (community.py and loop_ownership.py
+// are JUSTIFIED-KEEP — see core_graph_geometry.rs's module doc and
+// VERIFICATION.md). One registration line covers all seven modules' kernels.
+pub mod core_graph_geometry;
 // Wave 4: placer/cp_sat/fixed_copper.py's pad-rotation/half-extent/item-
 // geometry/exact-clearance-oracle kernels, carved out of the placer/cp_sat/**
 // whole-subtree JUSTIFIED-KEEP per docs/evidence/2026-08-06-never-port-triage.md.
@@ -241,6 +247,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::diff_pair_inference::register(m)?;
     crate::trace_width_assignment::register(m)?;
     crate::dense_package_detection::register(m)?;
+    crate::core_graph_geometry::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     m.add_class::<crate::persistent_radius_index::RadiusIndex>()?;
     Ok(())
