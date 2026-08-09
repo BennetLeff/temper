@@ -57,6 +57,7 @@ from . import deterministic_phase as deterministic_phase
 from . import deterministic_leaves as deterministic_leaves
 from . import kicad_exporter_geometry as kicad_exporter_geometry
 from . import write_board_geometry as write_board_geometry
+from . import constraint_model as constraint_model
 
 from . import validation as validation
 def sha256_hex(bytes: bytes) -> str: ...
