@@ -470,7 +470,11 @@ all ledgered. Verified by running the gate in the worktree.
    8-field surface is inert today, and the #826 ledger is the mechanism to
    make that visible.
 5. ~~**Migrate `BusCohortConstraint` to close `DesignRules.bus_cohorts`
-   opacity**~~ — **PLANNED** (`docs/plans/2026-08-08-002-feat-buscohort-pyclass-migration-plan.md`).
+   opacity**~~ — **DONE 2026-08-08** (merge `dc479843`, branch
+   `migrate/buscohort`, plan `2026-08-08-002`): pyclass in
+   `bus_cohort_contracts.rs`, delegation shim, differential 32/32, PBT 13/13.
+   `bus_cohorts` reclassified STILL-NEEDED → INTENTIONAL; `config_loader.rs`
+   had no construction sites (R9 N/A).
    `bus_cohorts` (`design_rules.rs:354`) was excluded from Wave-C because its
    element type is pure Python; the plan migrates the dataclass to a pyclass
    (typed `Py<PyList>` elements, `get_bus_cohort_for_net` typed, config_loader

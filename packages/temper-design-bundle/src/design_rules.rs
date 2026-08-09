@@ -350,7 +350,7 @@ pub struct DesignRules {
     net_class_assignments: Py<PyDict>,
     /// List of `DifferentialPairConstraint` pyclasses (identity-mutable list).
     differential_pairs: Py<PyList>,
-    /// List of `BusCohortConstraint` (still unmigrated, held opaquely).
+    /// List of `BusCohortConstraint` pyclasses (identity-mutable list).
     bus_cohorts: Py<PyList>,
     /// Dict of net-name → `NetGraph` pyclass (identity-mutable dict).
     net_topologies: Py<PyDict>,
