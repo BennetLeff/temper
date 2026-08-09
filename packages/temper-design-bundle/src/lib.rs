@@ -71,6 +71,8 @@ mod net_graph_contracts;
 mod differential_pair_contracts;
 #[cfg(feature = "python")]
 mod bus_cohort_contracts;
+#[cfg(feature = "python")]
+mod decision_contracts;
 
 #[cfg(feature = "python")]
 mod board_contracts;
@@ -317,6 +319,7 @@ mod python {
         crate::net_graph_contracts::register(module)?;
         crate::differential_pair_contracts::register(module)?;
         crate::bus_cohort_contracts::register(module)?;
+        crate::decision_contracts::register(module)?;
         crate::board_contracts::register(module)?;
 
         // Wave 4 Phase 3 candidate 5: the config/reference loaders. The
