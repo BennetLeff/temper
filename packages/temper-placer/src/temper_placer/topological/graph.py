@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 import networkx as nx
-import temper_placement_topology as _rust
+import temper_geometry as _rust
 
 if TYPE_CHECKING:
     from temper_placer.pcl.parser import ConstraintCollection

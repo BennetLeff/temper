@@ -5,9 +5,9 @@ Places power stage components using fixed templates that encode
 correct topology for common power converter configurations.
 
 Wave 4: the board-boundary clamp of both heuristics (the ``np.clip(...)``
-boundary calls) is implemented in Rust in the ``temper-placement-topology``
-crate (``temper_placement_topology.clamp_position``) with numpy ``np.clip``
-semantics -- see ``packages/temper-placement-topology/src/heuristics.rs`` and
+boundary calls) is implemented in Rust in the ``temper-geometry``
+crate (``temper_geometry.clamp_position``) with numpy ``np.clip``
+semantics -- see ``packages/temper-geometry/src/heuristics.rs`` and
 the B12 row of ``docs/wave4-discipline-contract.md``. Template lookup, anchor
 resolution, offset selection and message formatting stay Python. Pinned
 oracle: ``packages/temper-placer/tests/heuristics/_power_stage_py_oracle.py``;
@@ -62,7 +62,7 @@ class PowerStageTemplateHeuristic(Heuristic):
 
     def apply(self, context: PlacementContext) -> HeuristicResult:
         """Apply power stage template placement."""
-        from temper_placement_topology import clamp_position
+        from temper_geometry import clamp_position
 
         result = HeuristicResult()
 
@@ -172,7 +172,7 @@ class DriverProximityHeuristic(Heuristic):
 
     def apply(self, context: PlacementContext) -> HeuristicResult:
         """Apply driver proximity placement."""
-        from temper_placement_topology import clamp_position
+        from temper_geometry import clamp_position
 
         result = HeuristicResult()
 

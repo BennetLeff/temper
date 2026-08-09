@@ -48,7 +48,7 @@ from __future__ import annotations
 from collections import Counter
 from random import Random
 
-import temper_placement_topology as _rust  # noqa: F401 -- Rust-backed guard
+import temper_geometry as _rust  # noqa: F401 -- Rust-backed guard
 from hypothesis import HealthCheck, event, given, settings
 from hypothesis import strategies as st
 

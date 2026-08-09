@@ -32,7 +32,7 @@ import pytest
 # pass vacuously, which is the exact failure mode the R1a gate exists to
 # prevent -- so the extension is imported directly and collection fails loudly
 # whenever the delegation is absent or has regressed.
-import temper_placement_topology as _rust
+import temper_geometry as _rust
 
 import tests.topological._force_refinement_py_oracle as fr_oracle
 import tests.topological._graph_py_oracle as graph_oracle
@@ -69,7 +69,7 @@ def test_live_package_is_rust_backed():
 
     for mod in (fr, gr, ip, pp, zs):
         assert getattr(mod, "_rust", None) is _rust, (
-            f"{mod.__name__} does not delegate to temper_placement_topology; "
+            f"{mod.__name__} does not delegate to temper_geometry; "
             "the differential would be vacuous"
         )
     # and the extension really exposes the kernels, not just a stub module
@@ -504,10 +504,10 @@ def test_norm_contract_holds_on_this_platform():
         want = math.sqrt(x * x + y * y)
         assert got.hex() == want.hex(), (
             "this platform's np.linalg.norm is not the unfused sqrt(x*x + y*y) "
-            f"that temper_placement_topology::numeric::norm2 implements: "
+            f"that temper_geometry::numeric::norm2 implements: "
             f"norm([{x!r}, {y!r}]) = {got.hex()} but sqrt(x*x + y*y) = "
             f"{want.hex()}. Force-refinement parity cannot hold here -- see "
-            "packages/temper-placement-topology/VERIFICATION.md."
+            "packages/temper-geometry/VERIFICATION.md."
         )
 
 

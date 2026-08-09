@@ -7,12 +7,12 @@ Scope: the five remaining placement-heuristic modules --
 * ``conflict.py``       -- MIGRATE: the per-pair overlap scan
   (``check_conflict``) and the nudge-candidate selection
   (``_nudge_placement``) moved to
-  ``temper_placement_topology.overlap_check`` / ``nudge_candidates``.
+  ``temper_geometry.overlap_check`` / ``nudge_candidates``.
 * ``topological_init.py`` -- MIGRATE: ``_check_feasibility``'s arithmetic
   (per-component fit decision, the two compensated ``sum()`` area totals)
-  moved to ``temper_placement_topology.feasibility_check``.
+  moved to ``temper_geometry.feasibility_check``.
 * ``power_stage.py``    -- MIGRATE: both heuristics' boundary clamp moved to
-  ``temper_placement_topology.clamp_position`` (numpy ``np.clip``
+  ``temper_geometry.clamp_position`` (numpy ``np.clip``
   semantics, B12).
 * ``mcu_subsystem.py``  -- NO COMPUTE TO MIGRATE: its ``apply`` is a
   one-call delegation to ``place_power_stage_template``, which Phase 4
@@ -41,7 +41,7 @@ Arms
   ``test_oracle_is_verbatim_copy``, which re-extracts and compares
   byte-for-byte).
 * **rust** -- the SHIPPED modules, which now delegate to
-  ``temper_placement_topology``. Comparing the shipped module against the
+  ``temper_geometry``. Comparing the shipped module against the
   oracle is strictly stronger than a synthetic adapter: it proves the
   production code path is bit-identical, not merely that some adapter that
   looks like it could be wired is. The monkeypatched-kernel tests at the
@@ -71,7 +71,7 @@ from temper_placer.io.config_loader import PlacementConstraints
 from tests.router_v6._pending_rust import missing_symbols, rust
 from tests.router_v6._signature import sig
 
-_RUST_MODULE = "temper_placement_topology"
+_RUST_MODULE = "temper_geometry"
 
 REQUIRED_RUST_SYMBOLS: tuple[str, ...] = (
     "overlap_check",
@@ -662,7 +662,7 @@ def test_spectral_module_is_unmodified():
 # the shipped entry point proves the production path was rewired.
 # ---------------------------------------------------------------------------
 
-import temper_placement_topology as _RUST  # noqa: E402
+import temper_geometry as _RUST  # noqa: E402
 
 import temper_placer.heuristics.conflict as shipped_conflict  # noqa: E402
 import temper_placer.heuristics.power_stage as shipped_power_stage  # noqa: E402
