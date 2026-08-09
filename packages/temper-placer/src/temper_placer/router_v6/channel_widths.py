@@ -299,7 +299,14 @@ def _evict_if_over_budget(max_entries: int = _EDT_CACHE_MAX_ENTRIES) -> None:
     try:
         entries = sorted(
             (p for p in _EDT_CACHE_DIR.glob("edt_*.npz") if p.is_file()),
-            key=lambda p: p.stat().st_mtime,
+            # Deterministic tie-break: files written inside one filesystem
+            # mtime tick share st_mtime, and Path.glob order is not stable
+            # across platforms -- sorting on (mtime, name) makes eviction
+            # deterministic instead of keeping an arbitrary subset of a
+            # tie group (measured 2026-08-08: the bounds test flaked on a
+            # burst of writes landing in one tick, evicting a newer entry
+            # while keeping an older one).
+            key=lambda p: (p.stat().st_mtime, p.name),
         )
     except OSError:
         return
