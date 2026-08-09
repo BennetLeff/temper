@@ -2867,3 +2867,75 @@ exact), M3 (cardinal-axis placement, exact), M4 (start point, exact).
 N/A — spatial/router kernels with no physics-gated threshold; the
 connectivity and capacity quantities are routing-analytic, not physics
 fields.  No Chebyshev-style soundness proof is required.
+
+## Bundle Analyzer — Verification by Induction (added 2026-08-09)
+
+`router_v6/bundle_analyzer.py`'s GEOS seam — `MultiPoint(pads).convex_hull`,
+`hull.buffer(m)`, and the `STRtree(points).query(footprint,
+predicate="contains")` edge-cover query — is transcribed into
+`bundle_analyzer.rs` (see that module's doc for the per-call verdicts and
+the spike `docs/evidence/2026-08-09-bundle-analyzer-geos-spike.md`).  The
+Rust ring's vertex *set* is asserted equal to shapely 2.1.2 / GEOS 3.13.1's
+bit-for-bit (canonicalized — ring start/orientation are GEOS emission
+artifacts, S1 §3.1, that do not change the region the predicate consumes).
+
+### Base case: 3-pad triangle
+
+For `pads = [(0,0), (10,0), (5,7)]`, `m = 1.5`:
+- `convex_hull_ring` emits the closed CW ring `[(0,0), (5,7), (10,0), (0,0)]`
+  — exactly GEOS's, vertex-for-vertex.
+- `hull_buffer_ring` emits 67 points: the first is the offset of the
+  closing edge at the first hull vertex `(0, -1.5)`, closure holds, and the
+  corner arcs reproduce GEOS's `addDirectedFillet` fillet (22 segments on
+  the 125.5° corner, `(int)(total/fillet + 0.5)` rounding, host-libm trig
+  with `Angle::sinCosSnap`) — the same ring shapely produced.
+
+### Induction hypothesis
+
+`hull_buffer_ring` reproduces GEOS's `buffer` region for any convex ring
+with n vertices.
+
+### Induction step
+
+The offset ring is built per hull vertex in ring order: each vertex's
+contribution is `p_in` (the offset of the previous edge at the vertex), the
+fillet arc, and `p_out` (the offset of the next edge), where every quantity
+(`offset_endpoints`'s `sqrt(dx²+dy²)` scaling, the `atan2` start/end angles,
+`nSegs`, the snapped `cos`/`sin` arc points) is a pure function of that
+vertex and its two adjacent edges — no cross-vertex interaction, no shared
+state beyond the running point list (which only dedups consecutive
+duplicates within the vertex-snap distance).  Adding a vertex appends an
+independent fillet block, so correctness for n vertices follows from
+correctness for n-1.  The hull (`convex_hull_ring`) is the same shape of
+argument: the Graham scan's pop decision is a pure orientation predicate
+on each triple, and `cleanRing` drops points per-triple — element-wise.
+
+### Empirical verification
+
+The differential suite
+(`packages/temper-placer/tests/router_v6/test_bundle_analyzer_rust_differential.py`)
+pins the kernels against VERBATIM pre-migration oracles ("do not edit — they
+are the reference"): hull vertex sets over 150 randomized pad sets plus
+duplicate/collinear/sub-polygon edge cases; buffer vertex sets over 150
+randomized `(pads, m)` pairs; the `buffer(0)` fast path; covered-edge id
+sets over 60 randomized footprints including boundary-exact probes (ring
+vertices, which `contains` must exclude); per-net edge covers; and the
+end-to-end consumed BundleManifest surface (the exact fields
+`_pipeline_route.py` serializes) over 40 randomized boards — all bit-exact.
+
+The PBT suite (`test_bundle_analyzer_pbt.py`) contributes 5 properties
+(hull contains its pads; buffer offset exactness at distance m; dilation
+soundness; contains-predicate parity with shapely; hull convexity) each
+with a mutation test proving a degenerate kernel violates it, plus 4 exact
+metamorphic relations (midpoint-permutation equivariance, pad-order
+permutation, ring reversal, duplicate pads).
+
+The S2 spike measured, on shapely 2.1.2 / GEOS 3.13.1 (the production
+pin): 400/400 random hulls with bit-identical buffer vertex sets, 0/2000
+near-degenerate hulls where the input simplifier fires, and 1,920,000
+contains probes (including 20,470 boundary-exact) with 0 disagreements.
+
+Validity boundary (documented, not guarded): f64-underflow edge separations
+(`|dx| < ~1e-162`) make GEOS itself emit NaN offsets that its noding drops;
+real pads never reach this regime and the suites constrain generators to
+float32 width.
