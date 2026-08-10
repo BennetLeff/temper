@@ -43,6 +43,43 @@ class ComponentClassification:
     confidence: float = 1.0  # 0.0-1.0
 
 
+def _classify_component_rust(component: Component) -> ComponentClassification | None:
+    """Classify via the Rust kernel when available; None on any failure.
+
+    The Rust kernel (``temper-rust-router-core/src/loop_extractor/
+    classify_py.rs``) is a bit-identical port of ``classify_component``
+    below, pinned by ``tests/core/test_loop_extractor_rust_differential.py``.
+    The Python body remains the reference and the fallback.
+
+    Error semantics are preserved: a malformed capacitance value makes the
+    Rust call raise ``ValueError`` (mirroring CPython ``float()``); this
+    helper catches it and returns None, so the Python body re-raises the
+    identical ``ValueError``.
+    """
+    try:
+        import json as _json
+
+        import temper_rust_router
+
+        payload = _json.dumps(
+            {
+                "ref": component.ref,
+                "footprint": component.footprint,
+                "value": component.attributes.get("value", ""),
+                "mpn": component.attributes.get("MPN", ""),
+            }
+        )
+        data = _json.loads(temper_rust_router.classify_component_rs(payload))
+        return ComponentClassification(
+            ref=data["ref"],
+            category=data["category"],
+            subcategory=data.get("subcategory"),
+            confidence=data["confidence"],
+        )
+    except Exception:
+        return None
+
+
 def classify_component(component: Component) -> ComponentClassification:
     """
     Classify a component based on ref, footprint, and attributes.
@@ -53,6 +90,12 @@ def classify_component(component: Component) -> ComponentClassification:
     Returns:
         ComponentClassification with detected role.
     """
+    # Rust backend first (R23: fallback) -- bit-identical, see the
+    # differential suite.
+    rs_classification = _classify_component_rust(component)
+    if rs_classification is not None:
+        return rs_classification
+
     ref = component.ref.upper()
     footprint = component.footprint.upper()
     value = component.attributes.get("value", "").upper()

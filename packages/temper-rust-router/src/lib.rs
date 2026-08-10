@@ -16,6 +16,10 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 
 use temper_rust_router_core::astar::AstarInput;
+use temper_rust_router_core::loop_extractor::classify::CompInfo;
+use temper_rust_router_core::loop_extractor::classify_py::{
+    classify_component_py, parse_capacitance_py, MalformedNumber,
+};
 use temper_rust_router_core::types as core_types;
 use temper_rust_router_core::types::{InternalConstraintModel, SolverStatus, TopologyResult};
 use temper_rust_router_core::{audit, combinator, encoding, extraction, solver};
@@ -302,6 +306,8 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(solve_topology_rust, m)?)?;
     m.add_function(wrap_pyfunction!(audit_result, m)?)?;
     m.add_function(wrap_pyfunction!(auto_extract_loops_rust, m)?)?;
+    m.add_function(wrap_pyfunction!(classify_component_rs, m)?)?;
+    m.add_function(wrap_pyfunction!(parse_capacitance_rs, m)?)?;
     m.add_function(wrap_pyfunction!(astar_kernel_3d_py, m)?)?;
     m.add_function(wrap_pyfunction!(line_of_sight_py, m)?)?;
 
@@ -491,4 +497,117 @@ fn auto_extract_loops_rust(
     json_str: &str,
 ) -> PyResult<String> {
     crate::loop_extractor::bridge::auto_extract_loops_rust(py, json_str)
+}
+
+// ---------------------------------------------------------------------------
+// Wave-4: Python-compatible classification kernel
+// (temper-rust-router-core/src/loop_extractor/classify_py.rs) -- the
+// bit-identical port of core/loop_extractor.py::classify_component and
+// _parse_capacitance, exposed for the delegation shim and the differential
+// suite (tests/core/test_loop_extractor_rust_differential.py).
+// ---------------------------------------------------------------------------
+
+/// A finite-or-saturating f64 for JSON: finite values serialize as JSON
+/// numbers; `inf`/`-inf` serialize as the strings `"inf"`/`"-inf"` (JSON
+/// has no infinity literal; CPython `float()` saturation is preserved).
+struct F64Json(f64);
+
+impl serde::Serialize for F64Json {
+    fn serialize<S: serde::Serializer>(&self, ser: S) -> Result<S::Ok, S::Error> {
+        if self.0.is_finite() {
+            ser.serialize_f64(self.0)
+        } else if self.0 > 0.0 {
+            ser.serialize_str("inf")
+        } else {
+            ser.serialize_str("-inf")
+        }
+    }
+}
+
+/// Python-callable: classify a component using the bit-identical port of
+/// `loop_extractor.classify_component`. Input: JSON dict
+/// `{"ref", "footprint", "value", "mpn"}`. Output: JSON dict
+/// `{"ref", "category", "subcategory", "confidence"}`. Raises `ValueError`
+/// for a malformed capacitance value, mirroring CPython `float()`.
+#[pyfunction]
+fn classify_component_rs(component_json: &str) -> PyResult<String> {
+    use serde::Deserialize;
+
+    #[derive(Deserialize)]
+    struct ClassifyInput {
+        r#ref: String,
+        #[serde(default)]
+        footprint: String,
+        #[serde(default)]
+        value: String,
+        #[serde(default)]
+        mpn: String,
+    }
+
+    #[derive(serde::Serialize)]
+    struct ClassifyOutput {
+        r#ref: String,
+        category: String,
+        subcategory: Option<String>,
+        confidence: f64,
+    }
+
+    let input: ClassifyInput = serde_json::from_str(component_json).map_err(|e| {
+        PyErr::new::<pyo3::exceptions::PyValueError, _>(format!(
+            "Failed to parse component JSON: {e}"
+        ))
+    })?;
+
+    let comp = CompInfo {
+        ref_des: input.r#ref,
+        footprint: input.footprint,
+        mpn: input.mpn,
+        value: input.value,
+    };
+
+    match classify_component_py(&comp) {
+        Ok(cls) => {
+            let out = ClassifyOutput {
+                r#ref: cls.component_ref,
+                category: cls.category,
+                subcategory: cls.subcategory,
+                confidence: cls.confidence,
+            };
+            Ok(serde_json::to_string(&out).map_err(|e| {
+                PyErr::new::<pyo3::exceptions::PyValueError, _>(format!(
+                    "serialize output: {e}"
+                ))
+            })?)
+        }
+        Err(MalformedNumber) => Err(pyo3::exceptions::PyValueError::new_err(
+            "could not convert string to float (malformed capacitance value)",
+        )),
+    }
+}
+
+/// Python-callable: parse a capacitance value (bit-identical port of
+/// `loop_extractor._parse_capacitance`). Output: JSON dict `{"uf": <f64>}`
+/// or `{"uf": null}`. Raises `ValueError` where CPython `float()` raises.
+#[pyfunction]
+fn parse_capacitance_rs(value: &str) -> PyResult<String> {
+    #[derive(serde::Serialize)]
+    struct ParseOut {
+        uf: Option<F64Json>,
+    }
+
+    match parse_capacitance_py(value) {
+        Ok(parsed) => {
+            let out = ParseOut {
+                uf: parsed.map(F64Json),
+            };
+            Ok(serde_json::to_string(&out).map_err(|e| {
+                PyErr::new::<pyo3::exceptions::PyValueError, _>(format!(
+                    "serialize output: {e}"
+                ))
+            })?)
+        }
+        Err(MalformedNumber) => Err(pyo3::exceptions::PyValueError::new_err(
+            "could not convert string to float (malformed capacitance value)",
+        )),
+    }
 }

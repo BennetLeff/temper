@@ -217,3 +217,104 @@ offsets with a wall border — a free border would change topology and is
 deliberately excluded), obstacle-add monotonicity and obstacle-removal
 path preservation (exact, derivative off), start/goal swap reachability
 symmetry, and re-execution determinism.
+
+---
+
+## Loop-Extractor Classify Kernel — Verification by Induction
+
+Wave-4 migration of the *residual* compute in
+`core/loop_extractor.py` (`packages/temper-placer`): `auto_extract_loops`
+already delegated to the Rust extractor (`extract.rs`), but the
+`classify_component` leaf that feeds `loop_ownership.classify_role` stayed
+Python. This crate now carries a **bit-identical** port of that leaf —
+`classify_py.rs` (`classify_component_py` + `parse_capacitance_py`) — wired
+through the `temper-rust-router` pyo3 bridge
+(`classify_component_rs` / `parse_capacitance_rs`, JSON in/out). The Python
+`classify_component` in `loop_extractor.py` is now a Rust-first delegation
+shim over the Python body (which remains the fallback and the reference).
+
+**This is deliberately NOT `classify.rs::classify_component`.** The
+existing extractor classifier is a different, more-elaborate three-tier
+chain whose behaviour the wired Rust extractor depends on; changing it
+would alter already-shipped extraction output. The new module is the
+Python-port kernel and must stay in lockstep with `loop_extractor.py`.
+
+### Base Case: the smallest meaningful classification
+
+A component whose ref has no power-electronics prefix (`ref = "X1"`,
+empty footprint/value/mpn) classifies as `("other", None, 0.0)` — the
+kernel's terminal fall-through. Bit-exact against the oracle (category,
+`subcategory is None`, `confidence.hex()`), pinned by the differential
+hand-crafted corpus (`test_classify_hand_crafted_corpus_bit_exact`).
+
+### Induction Hypothesis: correctness for the classification of a ref of length k
+
+**Hypothesis:** if the kernel classifies every ref up to length k
+identically to the oracle, it classifies a ref of length k+1 identically.
+
+**Proof of inductive step:**
+
+1. **Pure per-element string predicate.** `classify_component_py` maps a
+   single `CompInfo` (4 strings) to a `Classification` through a finite
+   chain of `starts_with` / `contains` predicates over the uppercased
+   inputs, plus one `parse_capacitance_py` call for `C`-refs. Extending the
+   ref string by one character can only change which branch fires; each
+   branch's output is a fixed tuple of literals (`category`,
+   `subcategory`, an exact f64 confidence). There is no cross-input state
+   and no arithmetic beyond the capacitance multiply, so a longer ref
+   either matches the same branch (identical output) or a branch whose
+   output is verified by the base corpus — the branch set is finite and
+   fully enumerated by the differential corpus.
+2. **Float bit-exactness is confined to one op.** The only float produced
+   is `numeric * multiplier` inside `parse_capacitance_py`, where
+   `numeric` is CPython-`float()`-parsed (same IEEE-754 double; overflow
+   saturates to `inf` exactly as CPython's `float()` does) and `multiplier`
+   is one of the literal `1e-6`/`1e-3`/`1.0`/`1e6` constants from the
+   oracle's table. The differential pins the corpus `float.hex()`-exact;
+   the PBT pins the unit scale (`test_p6_parse_unit_scaling`) and the
+   confidence literal set (`test_p2_...`). Confidence values are the same
+   f64 literals CPython parses (`0.0/0.7/0.8/0.9`), bit-identical by
+   construction.
+3. **No cross-call interaction.** Every call reads only its own `CompInfo`;
+   there is no shared state, so correctness over one component extends to
+   any number of components and any call sequence.
+
+### Known, recorded divergences (reported, not faked — contract §3)
+
+- **Non-ASCII decimal digits.** CPython `\d`/`float()` decode any Unicode
+  decimal digit (e.g. Arabic-Indic `١٠٠٠` or fullwidth `１０００`, both
+  → 1000.0); this kernel consumes ASCII digits only (`char::to_digit` is
+  ASCII-only), returning `None` for a leading non-ASCII digit. Capacitance
+  values in real netlists are ASCII; the differential corpus is ASCII and
+  this class is documented rather than chased.
+- **`ValueError` message text.** A malformed numeric part (e.g. `"1.2.3"`)
+  raises `ValueError` on both sides; the *message* is CPython's `float()`
+  internals and is not replicated (type parity only is asserted).
+- **Overflow of the numeric part** is handled (saturates to `inf` like
+  CPython) and pinned by
+  `test_overflow_saturates_like_cpython`; it is listed here only to record
+  that it was considered, not because it diverges.
+
+### Empirical Verification
+
+The differential suite
+(`packages/temper-placer/tests/core/test_loop_extractor_rust_differential.py`)
+asserts bit-identical parity between the Rust kernel and the VERBATIM
+pre-migration oracle (pinned in-file at commit `68ea250f`): a hand-crafted
+corpus covering every branch of the oracle, 300 randomized cases each for
+classify and parse, `float.hex()` comparisons (never a tolerance), and
+error-*type* parity where CPython raises `ValueError`. It also asserts the
+production delegation shim (`loop_extractor.classify_component`, which
+routes through Rust) reproduces the oracle on the full corpus.
+
+PBT (`packages/temper-placer/tests/core/test_loop_extractor_pbt.py`, 6
+properties, each with a vacuity guard proving a degenerate kernel violates
+it via `hypothesis.inner_test`): prefix→category coherence, confidence
+literal set + `other`⇒0.0, bit-exact determinism, large-capacitance→bus,
+gate-marker→gate-resistor, and unit scaling. Reachability is by
+construction — every generated example is fed directly to the kernel.
+Metamorphic relations (3, exact): case-folding invariance, capacitance-unit
+equivalence, and unrelated-attribute non-interference.
+
+Per the Wave-4 discipline contract: R24 (physics discipline) is
+**N/A** — string classification, no physics quantity is gated.
