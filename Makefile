@@ -244,6 +244,22 @@ wasm-runner:
 	cargo build --release --target wasm32-unknown-unknown --no-default-features \
 		--manifest-path $(WASM_RUNNER_MANIFEST)
 
+# temper-geometry on the same tier. A separate target rather than a flag on
+# `wasm-runner` because the two produce different modules and different result
+# sets: the expected-failure manifests are per-crate (run_wasm_tests.mjs exits
+# non-zero on a manifest entry naming no registered test, so a geometry-only
+# module cannot be judged against temper-drc-rs's manifest).
+#
+#   make wasm-geometry-test   # build + run all of temper-geometry's tests
+#                             # under Node, on wasm32-unknown-unknown
+wasm-geometry-test:
+	@echo "Building temper-wasm-test-runner with temper-geometry's registry..."
+	cargo build --release --target wasm32-unknown-unknown --no-default-features \
+		--features geometry-wasm-test-registry \
+		--manifest-path $(WASM_RUNNER_MANIFEST)
+	node tools/wasm/run_wasm_tests.mjs $(WASM_RUNNER_ARTIFACT) \
+		--expected-failures tools/wasm/wasm_expected_failures_geometry.json
+
 wasm-worker-stage: wasm-runner
 	@mkdir -p $(dir $(WORKER_STAGED_WASM))
 	cp $(WASM_RUNNER_ARTIFACT) $(WORKER_STAGED_WASM)

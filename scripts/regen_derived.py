@@ -78,20 +78,37 @@ def last_commit_touching(path: str) -> str:
     return out.strip() if code == 0 and out.strip() else "(no commit found)"
 
 
+# (script, label, extra args). The wasm test registry is per-crate: one
+# invocation per crate that has one, because `--check` only ever gates the
+# crate it was pointed at. Adding a crate here is the whole cost of putting it
+# on the wasm verification tier's drift gate.
+PURE_GENERATORS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
+    ("gen_repo_state.py", "gen_repo_state.py", ()),
+    ("gen_wasm_test_registry.py", "gen_wasm_test_registry.py [temper-drc-rs]", ()),
+    (
+        "gen_wasm_test_registry.py",
+        "gen_wasm_test_registry.py [temper-geometry]",
+        ("--crate", "temper-geometry"),
+    ),
+)
+
+
 def regen_pure(check: bool) -> int:
     """Artifacts that are pure functions of tracked source. Always safe."""
     problems = 0
-    for script, check_flag in (("gen_repo_state.py", "--check"),
-                               ("gen_wasm_test_registry.py", "--check")):
+    for script, label, extra in PURE_GENERATORS:
         if not (REPO_ROOT / "scripts" / script).exists():
             continue
-        code, out = run(py(script, check_flag) if check else py(script))
+        argv = [*extra, "--check"] if check else list(extra)
+        code, out = run(py(script, *argv))
         tail = out.strip().splitlines()[-1] if out.strip() else "(no output)"
-        if check and code != 0:
-            print(f"  DRIFT  {script}: {tail}")
+        if code != 0:
+            # A non-zero exit in write mode is not drift -- it is the
+            # unregistered-module arm, which regeneration cannot fix.
+            print(f"  {'DRIFT ' if check else 'ACTION'} {label}: {tail}")
             problems += 1
         else:
-            print(f"  ok     {script}: {tail}")
+            print(f"  ok     {label}: {tail}")
     return problems
 
 

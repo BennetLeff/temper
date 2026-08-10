@@ -1401,9 +1401,11 @@ scripts:
   - tempfile
   - typing
 - path: gen_wasm_test_registry.py
-  purpose: 'Generate packages/temper-drc-rs/src/wasm_test_registry.rs -- the flat (name, fn()) list that
-    lets a wasm32 entry point call each #[test] individually, since cargo test''s libtest harness cannot
-    target wasm32-unknown-unknown; --check fails closed on drift'
+  purpose: 'Generate a crate''s src/wasm_test_registry.rs -- the flat (name, fn()) list that lets a wasm32
+    entry point call each #[test] individually, since cargo test''s libtest harness cannot target
+    wasm32-unknown-unknown. --crate selects the crate (temper-drc-rs, temper-geometry); --check fails
+    closed on drift AND on a test module that could register but is not listed; --census explains every
+    exclusion'
   owner: pipeline
   last_run: '2026-08-06'
   category: keep

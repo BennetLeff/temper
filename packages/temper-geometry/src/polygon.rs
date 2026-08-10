@@ -497,8 +497,9 @@ pub fn rotate_polygon(vertices: &[Point], angle_rad: f64) -> Vec<Point> {
 // Tests
 // =============================================================================
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     const EPS: f64 = 1e-9;
@@ -525,14 +526,14 @@ mod tests {
     // -----------------------------------------------------------------
     // polygon_area / polygon_signed_area
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_polygon_area_square() {
         let sq = unit_square();
         let area = polygon_area(&sq);
         assert!((area - 1.0).abs() < EPS, "expected 1.0, got {area}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_polygon_signed_area_ccw() {
         let poly = vec![
             Point::new(0.0, 0.0),
@@ -545,7 +546,7 @@ mod tests {
         assert!((area - 1.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_polygon_signed_area_cw() {
         let poly = vec![
             Point::new(0.0, 0.0),
@@ -558,12 +559,12 @@ mod tests {
         assert!((area - (-1.0)).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_polygon_area_empty() {
         assert!((polygon_area(&[]) - 0.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_polygon_signed_area_less_than_3() {
         let poly = vec![Point::new(0.0, 0.0), Point::new(1.0, 0.0)];
         assert!((polygon_signed_area(&poly) - 0.0).abs() < EPS);
@@ -573,7 +574,7 @@ mod tests {
     // -----------------------------------------------------------------
     // triangle_area
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_triangle_area_basic() {
         let a = Point::new(0.0, 0.0);
         let b = Point::new(3.0, 0.0);
@@ -581,7 +582,7 @@ mod tests {
         assert!((triangle_area(&a, &b, &c) - 6.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_triangle_area_right_triangle() {
         let a = Point::new(0.0, 0.0);
         let b = Point::new(1.0, 0.0);
@@ -589,7 +590,7 @@ mod tests {
         assert!((triangle_area(&a, &b, &c) - 0.5).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_triangle_area_via_shoelace() {
         let tri = vec![
             Point::new(0.0, 0.0),
@@ -602,7 +603,7 @@ mod tests {
     // -----------------------------------------------------------------
     // polygon_centroid
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_centroid_square() {
         let sq = unit_square();
         let c = polygon_centroid(&sq);
@@ -610,7 +611,7 @@ mod tests {
         assert!((c.y - 0.5).abs() < EPS, "cy expected 0.5, got {}", c.y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_centroid_triangle() {
         let tri = vec![
             Point::new(0.0, 0.0),
@@ -622,7 +623,7 @@ mod tests {
         assert!((c.y - 2.0 / 3.0).abs() < EPS, "cy expected 2/3, got {}", c.y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_centroid_degenerate_fallback() {
         let collinear = vec![
             Point::new(0.0, 0.0),
@@ -637,7 +638,7 @@ mod tests {
     // -----------------------------------------------------------------
     // points_centroid_winding
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_points_centroid_winding_matches_centroid() {
         let sq = unit_square();
         let c1 = polygon_centroid(&sq);
@@ -649,25 +650,25 @@ mod tests {
     // -----------------------------------------------------------------
     // point_in_polygon_winding
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_in_polygon_inside() {
         let sq = unit_square();
         assert!(point_in_polygon_winding(&Point::new(0.5, 0.5), &sq));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_in_polygon_outside() {
         let sq = unit_square();
         assert!(!point_in_polygon_winding(&Point::new(2.0, 2.0), &sq));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_in_polygon_on_edge() {
         let sq = unit_square();
         assert!(point_in_polygon_winding(&Point::new(1.0, 0.5), &sq));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_in_polygon_on_vertex() {
         let sq = unit_square();
         assert!(point_in_polygon_winding(&Point::new(0.0, 0.0), &sq));
@@ -676,14 +677,14 @@ mod tests {
     // -----------------------------------------------------------------
     // point_in_polygon_soft
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_in_polygon_soft_inside() {
         let sq = unit_square();
         let r = point_in_polygon_soft(&Point::new(0.5, 0.5), &sq, 10.0);
         assert!(r > 0.99, "expected ~1 inside, got {r}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_in_polygon_soft_outside() {
         let sq = unit_square();
         let r = point_in_polygon_soft(&Point::new(2.0, 2.0), &sq, 10.0);
@@ -693,23 +694,23 @@ mod tests {
     // -----------------------------------------------------------------
     // point_in_rect / point_in_rect_soft
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_in_rect_inside() {
         assert!(point_in_rect(&Point::new(5.0, 5.0), &Rect::new(0.0, 0.0, 10.0, 10.0)));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_in_rect_outside() {
         assert!(!point_in_rect(&Point::new(20.0, 5.0), &Rect::new(0.0, 0.0, 10.0, 10.0)));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_in_rect_soft_inside() {
         let r = point_in_rect_soft(&Point::new(5.0, 5.0), &Rect::new(0.0, 0.0, 10.0, 10.0), 10.0);
         assert!(r > 0.99, "expected ~1 inside, got {r}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_in_rect_soft_outside() {
         let r = point_in_rect_soft(&Point::new(20.0, 5.0), &Rect::new(0.0, 0.0, 10.0, 10.0), 10.0);
         assert!(r < 0.01, "expected ~0 outside, got {r}");
@@ -718,7 +719,7 @@ mod tests {
     // -----------------------------------------------------------------
     // polygon_perimeter
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_perimeter_square() {
         assert!((polygon_perimeter(&unit_square()) - 4.0).abs() < EPS);
     }
@@ -726,23 +727,23 @@ mod tests {
     // -----------------------------------------------------------------
     // compute_loop_area / compute_loop_perimeter / loop_area_penalty
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_loop_area_matches_polygon_area() {
         assert!((compute_loop_area(&unit_square()) - polygon_area(&unit_square())).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_loop_perimeter_matches() {
         assert!((compute_loop_perimeter(&unit_square()) - polygon_perimeter(&unit_square())).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_loop_area_penalty_no_violation() {
         let p = loop_area_penalty(&unit_square(), 2.0, 1.0);
         assert!((p - 0.0).abs() < EPS, "expected 0, got {p}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_loop_area_penalty_with_violation() {
         // area = 1.0, max = 0.5, violation = 0.5, weight = 2, penalty = 2 * 0.25 = 0.5
         let p = loop_area_penalty(&unit_square(), 0.5, 2.0);
@@ -752,7 +753,7 @@ mod tests {
     // -----------------------------------------------------------------
     // polygon_bounding_box
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_bounding_box_square() {
         let bb = polygon_bounding_box(&unit_square());
         assert!((bb.x_min - 0.0).abs() < EPS);
@@ -764,7 +765,7 @@ mod tests {
     // -----------------------------------------------------------------
     // polygon_bounding_circle
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_bounding_circle_square() {
         let (center, radius) = polygon_bounding_circle(&unit_square());
         assert!((center.x - 0.5).abs() < EPS);
@@ -776,17 +777,17 @@ mod tests {
     // -----------------------------------------------------------------
     // is_convex
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_is_convex_square() {
         assert!(is_convex(&unit_square()), "square should be convex");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_is_convex_star() {
         assert!(!is_convex(&star_polygon()), "star should not be convex");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_is_convex_triangle() {
         let tri = vec![
             Point::new(0.0, 0.0),
@@ -799,7 +800,7 @@ mod tests {
     // -----------------------------------------------------------------
     // polygon_orientation
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_orientation_ccw() {
         let poly = vec![
             Point::new(0.0, 0.0),
@@ -810,7 +811,7 @@ mod tests {
         assert_eq!(polygon_orientation(&poly), 1);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_orientation_cw() {
         let poly = vec![
             Point::new(0.0, 0.0),
@@ -824,7 +825,7 @@ mod tests {
     // -----------------------------------------------------------------
     // nearest_point_on_segment
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_nearest_point_on_segment_midpoint() {
         let seg = Segment::new(Point::new(0.0, 0.0), Point::new(2.0, 0.0));
         let np = nearest_point_on_segment(&Point::new(1.0, 1.0), &seg);
@@ -832,7 +833,7 @@ mod tests {
         assert!((np.y - 0.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_nearest_point_on_segment_clamped() {
         let seg = Segment::new(Point::new(0.0, 0.0), Point::new(2.0, 0.0));
         let np = nearest_point_on_segment(&Point::new(5.0, 0.0), &seg);
@@ -842,7 +843,7 @@ mod tests {
     // -----------------------------------------------------------------
     // nearest_point_on_polygon
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_nearest_point_on_polygon_inside() {
         let sq = unit_square();
         let np = nearest_point_on_polygon(&Point::new(0.5, 0.5), &sq);
@@ -850,7 +851,7 @@ mod tests {
         assert!(d > 0.49 && d < 0.51, "expected ~0.5, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_nearest_point_on_polygon_outside() {
         let sq = unit_square();
         let np = nearest_point_on_polygon(&Point::new(2.0, 0.5), &sq);
@@ -858,7 +859,7 @@ mod tests {
         assert!((np.y - 0.5).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_nearest_point_on_polygon_empty() {
         let np = nearest_point_on_polygon(&Point::new(1.0, 2.0), &[]);
         assert!((np.x - 1.0).abs() < EPS);
@@ -868,7 +869,7 @@ mod tests {
     // -----------------------------------------------------------------
     // translate_polygon
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_translate_polygon() {
         let t = translate_polygon(&unit_square(), 2.0, 3.0);
         assert_eq!(t.len(), 4);
@@ -881,7 +882,7 @@ mod tests {
     // -----------------------------------------------------------------
     // scale_polygon
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_scale_polygon_uniform() {
         let scaled = scale_polygon(&unit_square(), 2.0, 2.0);
         assert_eq!(scaled.len(), 4);
@@ -893,7 +894,7 @@ mod tests {
     // -----------------------------------------------------------------
     // rotate_polygon: 90° of unit square
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotate_polygon_90_degrees() {
         let rotated = rotate_polygon(&unit_square(), std::f64::consts::FRAC_PI_2);
         assert_eq!(rotated.len(), 4);
@@ -910,10 +911,62 @@ mod tests {
     // -----------------------------------------------------------------
     // sigmoid helper
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sigmoid_zero() {
         assert!((sigmoid(0.0, 1.0) - 0.5).abs() < EPS);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("polygon::tests::test_polygon_area_square", test_polygon_area_square),
+        ("polygon::tests::test_polygon_signed_area_ccw", test_polygon_signed_area_ccw),
+        ("polygon::tests::test_polygon_signed_area_cw", test_polygon_signed_area_cw),
+        ("polygon::tests::test_polygon_area_empty", test_polygon_area_empty),
+        ("polygon::tests::test_polygon_signed_area_less_than_3", test_polygon_signed_area_less_than_3),
+        ("polygon::tests::test_triangle_area_basic", test_triangle_area_basic),
+        ("polygon::tests::test_triangle_area_right_triangle", test_triangle_area_right_triangle),
+        ("polygon::tests::test_triangle_area_via_shoelace", test_triangle_area_via_shoelace),
+        ("polygon::tests::test_centroid_square", test_centroid_square),
+        ("polygon::tests::test_centroid_triangle", test_centroid_triangle),
+        ("polygon::tests::test_centroid_degenerate_fallback", test_centroid_degenerate_fallback),
+        ("polygon::tests::test_points_centroid_winding_matches_centroid", test_points_centroid_winding_matches_centroid),
+        ("polygon::tests::test_point_in_polygon_inside", test_point_in_polygon_inside),
+        ("polygon::tests::test_point_in_polygon_outside", test_point_in_polygon_outside),
+        ("polygon::tests::test_point_in_polygon_on_edge", test_point_in_polygon_on_edge),
+        ("polygon::tests::test_point_in_polygon_on_vertex", test_point_in_polygon_on_vertex),
+        ("polygon::tests::test_point_in_polygon_soft_inside", test_point_in_polygon_soft_inside),
+        ("polygon::tests::test_point_in_polygon_soft_outside", test_point_in_polygon_soft_outside),
+        ("polygon::tests::test_point_in_rect_inside", test_point_in_rect_inside),
+        ("polygon::tests::test_point_in_rect_outside", test_point_in_rect_outside),
+        ("polygon::tests::test_point_in_rect_soft_inside", test_point_in_rect_soft_inside),
+        ("polygon::tests::test_point_in_rect_soft_outside", test_point_in_rect_soft_outside),
+        ("polygon::tests::test_perimeter_square", test_perimeter_square),
+        ("polygon::tests::test_loop_area_matches_polygon_area", test_loop_area_matches_polygon_area),
+        ("polygon::tests::test_loop_perimeter_matches", test_loop_perimeter_matches),
+        ("polygon::tests::test_loop_area_penalty_no_violation", test_loop_area_penalty_no_violation),
+        ("polygon::tests::test_loop_area_penalty_with_violation", test_loop_area_penalty_with_violation),
+        ("polygon::tests::test_bounding_box_square", test_bounding_box_square),
+        ("polygon::tests::test_bounding_circle_square", test_bounding_circle_square),
+        ("polygon::tests::test_is_convex_square", test_is_convex_square),
+        ("polygon::tests::test_is_convex_star", test_is_convex_star),
+        ("polygon::tests::test_is_convex_triangle", test_is_convex_triangle),
+        ("polygon::tests::test_orientation_ccw", test_orientation_ccw),
+        ("polygon::tests::test_orientation_cw", test_orientation_cw),
+        ("polygon::tests::test_nearest_point_on_segment_midpoint", test_nearest_point_on_segment_midpoint),
+        ("polygon::tests::test_nearest_point_on_segment_clamped", test_nearest_point_on_segment_clamped),
+        ("polygon::tests::test_nearest_point_on_polygon_inside", test_nearest_point_on_polygon_inside),
+        ("polygon::tests::test_nearest_point_on_polygon_outside", test_nearest_point_on_polygon_outside),
+        ("polygon::tests::test_nearest_point_on_polygon_empty", test_nearest_point_on_polygon_empty),
+        ("polygon::tests::test_translate_polygon", test_translate_polygon),
+        ("polygon::tests::test_scale_polygon_uniform", test_scale_polygon_uniform),
+        ("polygon::tests::test_rotate_polygon_90_degrees", test_rotate_polygon_90_degrees),
+        ("polygon::tests::test_sigmoid_zero", test_sigmoid_zero),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
 
 // ---------------------------------------------------------------------------
