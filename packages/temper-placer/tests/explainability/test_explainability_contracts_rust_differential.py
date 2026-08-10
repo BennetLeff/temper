@@ -148,8 +148,10 @@ def test_construction_defaults_shape():
     od = _doracle.Decision()
     assert len(d.id) == 8 and len(od.id) == 8
     assert isinstance(d.timestamp, datetime) and isinstance(od.timestamp, datetime)
-    assert d.phase == DecisionPhase.GEOMETRIC == od.phase
-    assert d.decision_type == DecisionType.POSITION_UPDATE == od.decision_type
+    assert d.phase == DecisionPhase.GEOMETRIC
+    assert d.decision_type == DecisionType.POSITION_UPDATE
+    assert od.phase == _doracle.DecisionPhase.GEOMETRIC
+    assert od.decision_type == _doracle.DecisionType.POSITION_UPDATE
     assert d.subject == od.subject == ""
     assert d.value is None and d.previous_value is None
     assert d.reason == od.reason == ""
@@ -498,15 +500,18 @@ def test_markdown_deterministic_string_golden():
     shim.final_metrics = {"total_loss": 1.25}
     shim.config_snapshot = {"clearance": 0.2}
 
+    oracle_trace = _markdown_oracle_trace([
+        _decision_kwargs("Q1", (10.0, 20.0), "Initial placement", counter=0),
+        _decision_kwargs("Q1", (12.5, 18.0), "Moved for thermal clearance",
+                         counter=1, constraint_refs=["thermal.edge"]),
+    ], end_time=datetime(2026, 8, 4, 12, 31, 0))
+    oracle_trace.final_positions = {"Q1": (12.5, 18.0)}
+    oracle_trace.final_metrics = {"total_loss": 1.25}
+    oracle_trace.config_snapshot = {"clearance": 0.2}
+
     report = render_markdown_report(shim)
     assert report == render_markdown_report(shim)
-    assert report == _moracle.render_markdown_report(
-        _markdown_oracle_trace([
-            _decision_kwargs("Q1", (10.0, 20.0), "Initial placement", counter=0),
-            _decision_kwargs("Q1", (12.5, 18.0), "Moved for thermal clearance",
-                             counter=1, constraint_refs=["thermal.edge"]),
-        ], end_time=datetime(2026, 8, 4, 12, 31, 0))
-    )
+    assert report == _moracle.render_markdown_report(oracle_trace)
     assert "# Placement Decision Report" in report
     assert "**Run ID**: `run-abc123`" in report
     assert "**Final Value**: (12.5, 18.0)" in report
