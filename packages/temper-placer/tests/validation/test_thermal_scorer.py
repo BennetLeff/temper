@@ -120,7 +120,7 @@ def test_falsifiability_high_contrast_disagreement():
     on the same h=0 PDE would produce identical fields.  The disagreement
     proves model independence (genuinely different boundary conditions).
 
-    U7 uses a sparse-direct solve (SuperLU), not an iterative solver.
+    U7 uses a sparse-direct solve (faer sparse LU), not an iterative solver.
     Falsifiability is driven by the convective boundary physics, not by
     a bounded iteration budget.
     """

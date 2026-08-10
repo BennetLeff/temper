@@ -15,9 +15,11 @@ Sections:
 - PBT (hypothesis): five non-vacuous properties of the migrated scorer.
 - Metamorphic relations: three scale/translation/symmetry invariants.
 
-The solve stays in scipy (SuperLU) per the KTD9 verdict — this suite pins
-the ASSEMBLY/compute parity; the falsifiability 1.0 deg-C threshold is a
-separate, preserved Python-side contract (never weakened here).
+The solve delegates to temper-thermal's faer sparse LU (KTD9 overturn,
+2026-08-09 — measured max 5.7e-12 K vs the retired scipy SuperLU path)
+— this suite pins the ASSEMBLY/compute parity and the scorer's physical
+contracts; the falsifiability 1.0 deg-C threshold is a separate,
+preserved Python-side contract (never weakened here).
 """
 
 from __future__ import annotations
@@ -565,14 +567,31 @@ def _coo_from_triplets(rows, cols, vals, b, n):
 
 def test_solve_independent_end_to_end_bit_exact():
     """The Rust-backed scorer's T_grid must be bit-identical to the
-    pre-migration oracle (same matrix + same SuperLU solve -> same result).
+    pre-migration oracle (same matrix + same faer solve -> same result).
 
     Patches ``_assemble_convective_system`` with the verbatim reference and
     compares against the migrated (Rust-delegating) path.
     """
     import temper_placer.validation.thermal_scorer as tscorer
-    from temper_placer.physics.thermal_fdm import ThermalFDMConfig
+    from temper_placer.physics.thermal_fdm import FdmSystem, ThermalFDMConfig
     from temper_placer.validation.thermal_scorer import ThermalScorer, ThermalScorerConfig
+
+    def _reference_assemble_as_fdm(config, k_field_, Q_field_, h_conv, h_field=None):
+        """The verbatim reference assembly, adapted to the retired-scipy
+        FdmSystem return contract (scipy CSR -> COO triplets)."""
+        A_ref, b_ref = _reference_assemble_convective_system(
+            config, k_field_, Q_field_, h_conv, h_field=h_field
+        )
+        coo = A_ref.tocoo()
+        return (
+            FdmSystem(
+                rows=np.asarray(coo.row, dtype=np.int64),
+                cols=np.asarray(coo.col, dtype=np.int64),
+                values=np.asarray(coo.data, dtype=np.float64),
+                shape=(coo.shape[0], coo.shape[1]),
+            ),
+            b_ref,
+        )
 
     rng = random.Random(99)
     for _ in range(6):
@@ -604,7 +623,7 @@ def test_solve_independent_end_to_end_bit_exact():
 
         original = tscorer._assemble_convective_system
         try:
-            tscorer._assemble_convective_system = _reference_assemble_convective_system
+            tscorer._assemble_convective_system = _reference_assemble_as_fdm
             t_ref, _, _ = scorer.solve_independent(
                 cfg,
                 devices=devices,

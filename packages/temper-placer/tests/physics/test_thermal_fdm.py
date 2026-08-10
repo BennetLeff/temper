@@ -182,8 +182,8 @@ def test_thermal_fdm_copper_offset():
 def test_thermal_fdm_determinism():
     """K4: Two runs with identical inputs produce bit-identical fields.
 
-    Uses scipy.sparse.linalg.spsolve (direct solver / SuperLU) for
-    bit-exact reproducibility.
+    Uses the deterministic sparse-direct solve (faer sparse LU in the
+    temper-thermal crate) for bit-exact reproducibility.
     """
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
 

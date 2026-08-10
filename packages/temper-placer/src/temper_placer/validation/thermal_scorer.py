@@ -3,9 +3,9 @@ U7: Independent thermal scorer (H6: **model**-independent method + falsifiabilit
 
 **Model independence axis**: Convective-boundary 2-D finite-difference model
 with Robin (convective) boundary conditions on the three non-heatsink edges,
-solved via sparse-direct ``spsolve`` (SuperLU).  U5 treats those edges as
-adiabatic Neumann — a genuinely different physical model, not just a different
-solver of the same PDE.
+solved via sparse-direct faer sparse LU (temper-thermal).  U5 treats those
+edges as adiabatic Neumann — a genuinely different physical model, not just
+a different solver of the same PDE.
 
 This scorer assembles the same 5-point harmonic-mean stencil as U5 for the
 in-plane conduction :math:`\\nabla\\cdot(k\\nabla T) = -Q`, but **adds a
@@ -14,10 +14,10 @@ the heatsink does NOT cover.  U5's adiabatic-Neumann boundary is the special
 case ``h = 0``, so the two models genuinely differ in their boundary physics.
 
 - U5: 5-point stencil, Dirichlet at heatsink edge, adiabatic Neumann
-  (zero-flux) at the other three edges → sparse-direct ``spsolve``
-  (``thermal_fdm.py:_assemble_system`` + ``spsolve``)
+  (zero-flux) at the other three edges → sparse-direct solve
+  (``thermal_fdm.py:_assemble_system`` + faer sparse LU)
 - U7: 5-point stencil, Dirichlet at heatsink edge, **convective (Robin)**
-  BC at the other three edges → sparse-direct ``spsolve``
+  BC at the other three edges → sparse-direct solve
   (``_convective_fdm_solve``)
 
 This is **model independence**, not just solver independence.  Two different
@@ -40,8 +40,12 @@ and per-cell copper fraction in [0, 1].  It assumes steady-state isotropic
 in-plane conduction; it does **not** handle anisotropic materials, via
 stitching, or time-dependent boundary conditions.
 
-**Determinism**: The sparse-direct solve via SuperLU is deterministic
-(same inputs → bit-identical output; no RNG, no iteration budget).
+**Determinism**: The sparse-direct solve via faer sparse LU is
+deterministic (same inputs → bit-identical output; no RNG, no iteration
+budget).  It is not bit-identical to the retired scipy SuperLU path, but
+the divergence is measured (max 5.7e-12 K over the FDM corpus) and sits
+far below every consumer tolerance — see
+``temper-thermal/VERIFICATION.md`` (KTD9 overturn, 2026-08-09).
 
 Public API
 ----------
@@ -69,8 +73,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
-    import scipy
-
     from temper_placer.fields.result import FieldResult
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig
 
@@ -120,8 +122,8 @@ INDEPENDENT_ASSUMPTIONS: list[str] = [
 
 STRUCTURAL_INDEPENDENCE_AXIS = (
     "Convective-boundary 2-D FDM with Robin BC on three non-heatsink edges "
-    "(h=10 W/(m^2.K), sparse-direct spsolve) vs U5's adiabatic-Neumann 2-D FDM "
-    "with Dirichlet only at the heatsink edge (sparse-direct spsolve).  Same "
+    "(h=10 W/(m^2.K), sparse-direct faer LU) vs U5's adiabatic-Neumann 2-D FDM "
+    "with Dirichlet only at the heatsink edge (sparse-direct faer LU).  Same "
     "5-point harmonic-mean stencil and same k_eff reconstruction, but genuinely "
     "different boundary physics: U5 assumes zero-flux at the three non-Dirichlet "
     "edges (h=0 limit), U7 adds a convective heat-loss term.  This is model "
@@ -486,7 +488,7 @@ def _assemble_convective_system(
     Q_field: np.ndarray,
     h_conv: float,
     h_field: np.ndarray | None = None,
-) -> tuple[scipy.sparse.csr_matrix, np.ndarray]:
+) -> tuple[FdmSystem, np.ndarray]:
     """Assemble the sparse linear system A*T = b for the convective-boundary FDM.
 
     Same 5-point harmonic-mean stencil as U5's ``_assemble_system``, PLUS a
@@ -500,13 +502,13 @@ def _assemble_convective_system(
 
     Assembly is computed in the ``temper-thermal`` Rust crate
     (``packages/temper-thermal/src/thermal_scorer.rs``) with the exact f64
-    operation order of the former pure-Python ``lil_matrix`` loop; the sparse
-    matrix is rebuilt here and the solve stays in scipy (SuperLU).
+    operation order of the former pure-Python ``lil_matrix`` loop; the matrix
+    is returned as COO triplets (``FdmSystem``).  The SOLVE is delegated to
+    the Rust crate too (``solve.rs``, faer sparse LU).
     """
     import temper_thermal as _tt
-    from scipy.sparse import coo_matrix
 
-    from temper_placer.physics.thermal_fdm import _heatsink_edge_code
+    from temper_placer.physics.thermal_fdm import FdmSystem, _heatsink_edge_code
 
     h = config.height_cells
     w = config.width_cells
@@ -526,8 +528,13 @@ def _assemble_convective_system(
         h_conv,
         _heatsink_edge_code(config.heatsink_edge),
     )
-    A = coo_matrix((values, (rows, cols)), shape=(n, n), dtype=np.float64).tocsr()
-    return A, np.asarray(b, dtype=np.float64)
+    system = FdmSystem(
+        rows=np.asarray(rows, dtype=np.int64),
+        cols=np.asarray(cols, dtype=np.int64),
+        values=np.asarray(values, dtype=np.float64),
+        shape=(n, n),
+    )
+    return system, np.asarray(b, dtype=np.float64)
 
 
 def _convective_fdm_solve(
@@ -537,22 +544,29 @@ def _convective_fdm_solve(
     scorer_config: ThermalScorerConfig,
     h_field: np.ndarray | None = None,
 ) -> tuple[np.ndarray, int, float]:
-    """Solve the convective-boundary FDM via sparse-direct SuperLU.
+    """Solve the convective-boundary FDM via sparse-direct faer sparse LU.
 
     Returns (T_grid, 0, 0.0) where the zero iterations and residual reflect
     the direct-solve nature (retained for backward compat with the
     solve_independent return signature).
     """
-    from scipy.sparse.linalg import spsolve
+    import temper_thermal as _tt
 
-    A, b = _assemble_convective_system(
+    system, b = _assemble_convective_system(
         config,
         k_field,
         Q_field,
         h_conv=scorer_config.h,
         h_field=h_field,
     )
-    T_flat: np.ndarray = spsolve(A, b)
+    raw = _tt.solve_sparse_lu_py(
+        system.rows.tolist(),
+        system.cols.tolist(),
+        system.values.tolist(),
+        np.ascontiguousarray(b, dtype=np.float64).tobytes(),
+        int(system.shape[0]),
+    )
+    T_flat: np.ndarray = np.frombuffer(raw, dtype=np.float64).copy()
     T_grid = T_flat.reshape(config.height_cells, config.width_cells)
     return T_grid, 0, 0.0
 

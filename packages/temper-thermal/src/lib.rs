@@ -25,8 +25,10 @@
 //! `VERIFICATION.md`.  `hostmath` holds the shared `dlsym`-resolved libm
 //! and the Python/numpy comparison semantics they depend on.
 //!
-//! The sparse SOLVE stays in scipy (SuperLU) — a Rust solver is gated
-//! on the KTD9 parity spike (see the migration roadmap).
+//! The sparse SOLVE is delegated to `solve::solve_sparse_lu_py` (faer
+//! sparse LU), closing the last two scipy imports in the product surface
+//! (`thermal_fdm.py` / `thermal_scorer.py`). The migration's measured
+//! tolerance is recorded in `VERIFICATION.md` (KTD9 overturn, 2026-08-09).
 //!
 //! All arithmetic mirrors the Python reference's exact f64 operation
 //! order so outputs are bit-identical (pinned by the differential
@@ -45,6 +47,7 @@ pub mod operating_point;
 pub mod parameter_bounds;
 pub mod rtd;
 pub mod safety;
+pub mod solve;
 pub mod thermal_edges;
 pub mod thermal_potential;
 pub mod thermal_scorer;
@@ -58,7 +61,7 @@ use pyo3::prelude::*;
 fn temper_thermal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(fdm::assemble_system_py, m)?)?;
     m.add_function(wrap_pyfunction!(fdm::trace_to_cell_coverage, m)?)?;
-    m.add_function(wrap_pyfunction!(fdm::solve_faer_py, m)?)?;
+    m.add_function(wrap_pyfunction!(solve::solve_sparse_lu_py, m)?)?;
     m.add_function(wrap_pyfunction!(rtd::rtd_resistance_to_code_py, m)?)?;
     m.add_function(wrap_pyfunction!(rtd::rtd_max31865_current_a_py, m)?)?;
     m.add_function(wrap_pyfunction!(rtd::rtd_max31865_voltage_v_py, m)?)?;

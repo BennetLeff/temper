@@ -21,6 +21,17 @@ if TYPE_CHECKING:
 
 from temper_placer.physics.thermal_fdm import ThermalFDMConfig, get_system_matrix
 
+
+def _as_lil(A):
+    """Convert an ``FdmSystem`` (COO triplets) to a scipy LIL matrix for the
+    fail-capable mutation tests.  The system matrix no longer arrives as a
+    scipy object (scipy retired from the product surface, 2026-08-09); the
+    tests that mutate it rebuild the scipy view themselves."""
+    from scipy.sparse import csr_matrix
+
+    return csr_matrix((A.values, (A.rows, A.cols)), shape=A.shape).tolil()
+
+
 # ---------------------------------------------------------------------------
 # Matrix property check helpers
 # ---------------------------------------------------------------------------
@@ -369,7 +380,7 @@ def test_perturbed_off_diagonal_trips_m_matrix_guard():
     )
     copper = np.full((h, w), 0.5, dtype=np.float64)
     A = get_system_matrix(config, copper_grid=copper)
-    A_lil = A.tolil()
+    A_lil = _as_lil(A)
 
     # Flip the sign of an off-diagonal: make it positive
     A_lil[0, 1] = abs(A_lil[0, 1])
@@ -392,7 +403,7 @@ def test_negative_diagonal_trips_pd_guard():
     )
     copper = np.full((h, w), 0.5, dtype=np.float64)
     A = get_system_matrix(config, copper_grid=copper)
-    A_lil = A.tolil()
+    A_lil = _as_lil(A)
 
     # Flip an interior diagonal to negative
     interior_idx = 0  # row 0, col 0 — not a Dirichlet row

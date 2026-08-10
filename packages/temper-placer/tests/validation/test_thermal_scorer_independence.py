@@ -446,8 +446,8 @@ def test_scorer_plugs_into_build_scorecard():
 
 def test_scorer_deterministic():
     """Determinism: Two runs of the independent scorer on the same inputs
-    produce bit-identical results.  The sparse-direct SuperLU solver has
-    no RNG, no iteration budget, no non-deterministic ordering."""
+    produce bit-identical results.  The sparse-direct faer sparse-LU solver
+    has no RNG, no iteration budget, no non-deterministic ordering."""
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
     from temper_placer.validation.thermal_scorer import ThermalScorer, ThermalScorerConfig
 

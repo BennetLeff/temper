@@ -189,17 +189,23 @@ def test_assembly_matches_reference_bit_exact(hs_edge):
 
 
 # ---------------------------------------------------------------------------
-# KTD9 spike: faer vs scipy solver parity (measured contract).
-# Executed 2026-07-31. Verdict: faer numerically viable (max|T_faer -
-# T_scipy| = 5.1e-13 K on the 2500-cell FDM matrix, residuals ~1e-15) but
-# adoption NOT warranted: no perf win (scipy spsolve is C-speed at these
-# sizes) and it would break bit-parity with the deterministic reference
-# for zero measured benefit. scipy stays; the contract below is the
-# recorded measurement for any future solver change.
+# KTD9 spike re-decision: faer vs scipy solver parity (measured contract).
+# The 2026-07-31 spike measured max|T_faer - T_scipy| = 5.1e-13 K on the
+# 2500-cell FDM matrix (residuals ~1e-15) and recorded a keep verdict:
+# no perf win at these sizes and a bit-parity break for zero measured
+# benefit. That verdict is OVERTURNED 2026-08-09 (see
+# temper-thermal/VERIFICATION.md "Sparse solve kernel" section): the
+# program now requires scipy to leave the product surface, and a fresh
+# 144-case corpus measured max|T_faer - T_scipy| = 5.7e-12 K — ~175x
+# below the tightest consumer tolerance (atol=1e-9). The solve now
+# delegates to temper_thermal.solve_sparse_lu_py (faer). The measured
+# bound below is the recorded tolerance contract for this migration.
 # ---------------------------------------------------------------------------
 
 
 def test_solve_thermal_fdm_end_to_end_identical():
+    from temper_placer.physics.thermal_fdm import FdmSystem
+
     rng = random.Random(3)
     cfg = _config(10, 14, cs=1.0, hs_edge="BOTTOM")
     k_field = np.asarray([0.3 + rng.random() for _ in range(140)]).reshape(10, 14)
@@ -208,9 +214,24 @@ def test_solve_thermal_fdm_end_to_end_identical():
 
     import temper_placer.physics.thermal_fdm as tfdm
 
+    def _reference_assemble_as_fdm(config, k_field_, Q_field_, h_field=None):
+        """The verbatim reference assembly, adapted to the retired-scipy
+        FdmSystem return contract (the scipy CSR -> COO triplets)."""
+        A_ref, b_ref = _reference_assemble(config, k_field_, Q_field_, h_field=h_field)
+        coo = A_ref.tocoo()
+        return (
+            FdmSystem(
+                rows=np.asarray(coo.row, dtype=np.int64),
+                cols=np.asarray(coo.col, dtype=np.int64),
+                values=np.asarray(coo.data, dtype=np.float64),
+                shape=(coo.shape[0], coo.shape[1]),
+            ),
+            b_ref,
+        )
+
     original = tfdm._assemble_system
     try:
-        tfdm._assemble_system = _reference_assemble
+        tfdm._assemble_system = _reference_assemble_as_fdm
         result_ref = solve_thermal_fdm(
             config=cfg, devices=devices, power_map=power_map, copper_grid=k_field
         )
