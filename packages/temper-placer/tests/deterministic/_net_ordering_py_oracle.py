@@ -1,0 +1,64 @@
+# ORACLE COPY -- DO NOT EDIT, DO NOT "FIX".
+#
+# Verbatim copy of the pre-migration source of
+#   packages/temper-placer/src/temper_placer/deterministic/stages/net_ordering.py
+# at the D1 dispatch base (origin/main, 58af20b9). Relative imports are
+# adapted to absolute paths so the oracle imports from the test tree; every
+# other line is the verbatim pre-migration source.
+#
+# This is the R1a behavioural oracle for the D1 Rust Stage-engine port in
+# packages/temper-orchestration (plan 2026-08-09-001, Phase D batch D1). It
+# must keep the ORIGINAL pure-Python semantics forever, including any warts.
+# If a differential test fails, the Rust side is wrong until proven
+# otherwise -- never edit this file to make a test pass.
+#
+# test_deterministic_d1_rust_differential.py recomputes the sha256 of
+# everything below the marker and fails if this file drifts.
+# --- BEGIN PINNED BODY ---
+from dataclasses import replace
+
+from temper_placer.core.loop import LoopCollection
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
+
+
+class NetOrderingStage(Stage):
+    """Stage that determines the order in which nets are routed.
+
+    EXP-6: Supports explicit net priorities from config to route
+    critical nets (USB, SPI) first when board is least congested.
+    """
+
+    def __init__(self, net_priority: dict[str, int] | None = None):
+        """Initialize net ordering stage.
+
+        Args:
+            net_priority: Optional dict mapping net names to priority (1=highest, 5=default).
+                         Lower numbers route first.
+        """
+        self.net_priority = net_priority or {}
+
+    @property
+    def name(self) -> str:
+        return "net_ordering"
+
+    def run(self, state: BoardState) -> BoardState:
+        if not state.netlist:
+            return state
+
+        loops = state.loops or LoopCollection()
+
+        # EXP-6: Pass net_priority config to order_nets
+        from temper_placer.router_v6.net_ordering import order_nets
+
+        ordered_nets = order_nets(state.netlist, loops, self.net_priority)
+
+        # Log if using config priorities
+        if self.net_priority:
+            prioritized = [n for n in ordered_nets if n in self.net_priority]
+            if prioritized:
+                print(
+                    f"  EXP-6: {len(prioritized)} nets with explicit priority: {prioritized[:5]}..."
+                )
+
+        return replace(state, net_order=tuple(ordered_nets))

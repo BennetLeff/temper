@@ -60,15 +60,19 @@
 // into CPython (the crate also sets `profile.release.panic = "unwind"` so
 // that catch is what runs).
 mod board_state;
+mod config_attach_stage;
 mod convergence;
 mod copper_length;
+mod d1_bridge;
 mod derivation_stage;
 mod explainability;
 mod feasibility;
 mod host_math;
+mod net_ordering_stage;
 mod pipeline;
 mod pipeline_state;
 mod preflight_stage;
+mod setup_stage;
 mod stage;
 mod timing;
 mod trace_filter;
@@ -77,9 +81,12 @@ mod trace_filter;
 // runner test in `tests/stages_runner.rs` and the Phase-C pipeline wiring).
 // Append-only per the U4 dispatch; the individual modules stay private.
 pub use board_state::BoardState;
+pub use config_attach_stage::ConfigAttachStage;
 pub use derivation_stage::DerivationStage;
+pub use net_ordering_stage::NetOrderingStage;
 pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
 pub use preflight_stage::PreflightStage;
+pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
 pub use stage::{Stage, StageError, StageErrorKind};
 
 #[cfg(feature = "python")]
@@ -121,6 +128,10 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<explainability::Trace>()?;
     m.add_function(wrap_pyfunction!(explainability::render_markdown_report, m)?)?;
     m.add_function(wrap_pyfunction!(explainability::render_component_report, m)?)?;
+    m.add_function(wrap_pyfunction!(config_attach_stage::run_config_attach, m)?)?;
+    m.add_function(wrap_pyfunction!(net_ordering_stage::run_net_ordering, m)?)?;
+    m.add_function(wrap_pyfunction!(setup_stage::run_drc_oracle_setup, m)?)?;
+    m.add_function(wrap_pyfunction!(setup_stage::run_net_class_setup, m)?)?;
     Ok(())
 }
 
