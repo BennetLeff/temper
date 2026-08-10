@@ -17,6 +17,7 @@ differential oracles.
 | `temper_placer/pipeline/convergence.py` | 391 | Wave-4 (feasibility): `record_loss`, `check_success`, `is_converged`, `check_routability_regression` (the net-set decision + state update). Phase-1 (orchestration engine): the four classes — `TerminationReason`, `ConvergenceCriteria`, `ConvergenceState`, `ConvergenceChecker` — as pyclasses | Wave-4: `feasibility.rs`; Phase-1: `convergence.rs` (+ `stage.rs`/`pipeline.rs`/`board_state.rs` engine scaffolding) | MIGRATE (full). Wave-4 moved the compute with the dataclasses/class orchestration staying Python; Phase-1 (plan 2026-08-09-001, U1) moved the classes themselves: `convergence.py` is now a delegation shim re-exporting the four Rust pyclasses + the module-level `is_converged` helper (public API unchanged; `test_convergence.py` passes through the shim). |
 | `temper_placer/pipeline/preflight.py` | 286 | `component_area_ratio`, `proximity_rule_impossible`, `zone_over_capacity`, `loop_area_violation`, `isolation_barrier_too_large` (the compensated product sum is the internal `py_builtin_sum`/`sum_product_areas_impl`, deliberately NOT a standalone export) | `feasibility.rs` | MIGRATE (compute) — `PreflightChecker.run` orchestration, the `len(k) == 4` / zone-name / ref-membership marshalling, the `PreflightReport` rendering and the constant/stub checks stay Python |
 | `temper_placer/pipeline/derivation.py` | 118 | `derive_emi_max_dist`, `derive_thermal_clearance`, `derive_si_max_placement_dist`, `mains_voltage_to_class_code`, `extract_min_clearance` | `feasibility.rs` | MIGRATE (compute) — the dict assembly, the code-to-`VoltageClass` mapping and the PCL `SeparatedConstraint` construction stay Python |
+| `temper_placer/pipeline/state.py` | 117 | U4 (orchestration engine): the data model — `PipelinePhase`, `PipelineConfig`, `PipelineState` — as pyclasses (plan 2026-08-09-001, U4); `PipelineError` stays Python | `pipeline_state.rs` | MIGRATE (full, minus `PipelineError`): `state.py` is now a delegation shim re-exporting the three Rust pyclasses + the Python exception (public API unchanged; `test_pipeline_state_rust_differential.py` + `test_pipeline_state_pbt.py` pin parity). `PipelineConfig` is the plan's U4 "PipelineState→Rust config" migration. |
 | `temper_placer/cli/drc_cli.py` | 319 | — | — | R3-style record (below) |
 | `temper_placer/cli/watch_commands.py` | 115 | — | — | R3-style record (below) |
 | `temper_placer/cli/andon_commands.py` | 26 | — | — | R3-style record (below) |
@@ -549,10 +550,14 @@ test that must fail).
 - **R1c** — >= 5 non-vacuous properties per verification unit: timing 6,
   trace_commands 6, route_and_measure 5, pipeline-feasibility CLUSTER 6
   (P1..P6, all G4-vacuity-guarded with reachability witnesses),
-  Phase-1 convergence 6 (P1..P6, each with two mutation guards + witnesses).
+  Phase-1 convergence 6 (P1..P6, each with two mutation guards + witnesses),
+  U4 pipeline-state 8 (P1..P8, each with mutation guards).
 - **R1d** — >= 3 metamorphic relations/unit: timing 4, trace_commands 3,
   route_and_measure 3, pipeline-feasibility cluster 4 (MR1..MR4, all
   bit-exact claims), Phase-1 convergence 4 (MR1..MR4, mutation-guarded).
+  U4: metamorphic relations are not claimed — the migrated surface is pure
+  data (dataclass semantics); the G4 properties and the randomized
+  differential arm cover it (recorded in the U4 section below).
 - **R1e** — this document: structural proof + explicit non-applicability
   note for induction.
 - **R1f** — TDD: the four differentials were written first and demonstrated
@@ -560,8 +565,189 @@ test that must fail).
   did not delegate), then GREEN. The pipeline-feasibility differential's RED
   commit (ede48808) predates its kernels' GREEN commit (6cc75679) in git
   history. The Phase-1 convergence differential's RED commit (5cfe4880)
-  predates its port's GREEN commit (571c84ca).
+  predates its port's GREEN commit (571c84ca). The U4 pipeline-state
+  differential's RED commit (0ba59658 — oracle + differential) predates its
+  port's GREEN commit (9a817982 — pyclasses + shim) in git history.
 - **R1g** — borrow over clone; no `unwrap` outside tests; `catch_unwind`
   at every pyo3 boundary (pyo3's `#[pyfunction]`/`#[pyclass]` expansion);
-  clippy `unwrap_used`/`expect_used` denied.
+  clippy `unwrap_used`/`expect_used` denied. U4 adds an explicit
+  `catch_unwind` stage guard (`stage_guard` in `derivation_stage.rs`): a
+  panic inside a stage body is converted to `StageError { kind: Fatal }`
+  rather than unwinding through the `Python::attach` frame (the plan's error
+  model; the runner test's panic path is covered by the stage error report).
 - **R1h** — not physics-gated (recorded above).
+
+## Rust orchestration engine — U4 (pipeline state + Stage wiring)
+
+The Rust Orchestration Engine plan (2026-08-09-001) ships its U4 unit here
+(depends on U0/U1 + the U2/U3 feasibility kernels): the
+`pipeline/state.py` data model migrates to `pipeline_state.rs` (the plan's
+Phase C row "PipelineState→Rust config"), and the Wave-4 feasibility
+kernels get their `Stage<BoardState>` wrappers (`derivation_stage.rs` +
+`preflight_stage.rs`).
+
+### What migrated
+
+- `PipelinePhase`, `PipelineConfig`, `PipelineState` — Rust pyclasses
+  bit-exact with the pre-migration `pipeline/state.py` (dataclass defaults,
+  field get/set, `__eq__`/`__repr__`, unhashability, per-instance
+  `default_factory` containers). `PipelineError` stays a Python exception
+  (the plan's U4 row names only `PipelineConfig`/`PipelinePhase` for the
+  Rust side; exceptions have no bit-exact pyclass mapping in scope).
+  `pipeline/state.py` is now a delegation shim (public API unchanged; the
+  four names re-exported by `temper_placer.pipeline` resolve identically).
+- `DerivationStage` — wraps the `derive_emi_max_dist` /
+  `derive_thermal_clearance` / `derive_si_max_placement_dist` /
+  `mains_voltage_to_class_code` kernels as `Stage<BoardState>` (mirroring
+  `derive_constraints_from_spec`).
+- `PreflightStage` — wraps `component_area_ratio` /
+  `proximity_rule_impossible` / `zone_over_capacity` /
+  `loop_area_violation` / `isolation_barrier_too_large` as
+  `Stage<BoardState>` (mirroring `PreflightChecker.run`'s five
+  kernel-backed checks).
+
+### G1 — differential oracle before Rust (TDD)
+
+The differential suite `test_pipeline_state_rust_differential.py` and its
+VERBATIM oracle `_pipeline_state_py_oracle.py` were committed first (RED:
+`0ba59658` — the anti-vacuity `__module__` assertions failed), then the
+implementation landed GREEN (`9a817982`). The oracle is the pre-migration
+`state.py` at `57c083c0` (the last commit touching the module was
+`0712b669`; the tree at the pin is byte-identical), pinned by sha256
+(`182239b2…`). The oracle body was diffed against the module and is
+byte-identical below the marker.
+
+### G2 — behavioural A/B (bit-exact)
+
+The differential drives BOTH arms with identical inputs and compares
+`repr()` of every whole object and every per-field signature bit-exact
+(repr is the exactest discriminator for Paths, Enum members, dicts with
+Enum keys and floats — `canon` cannot represent Path/Enum leaves). 18/18
+green: 16 phase members (value/name/repr/str/eq/hash), config defaults +
+40 randomized kwargs sets + eq + mutation + unhashability, state defaults +
+40 randomized kwargs sets + eq (incl. deep nested-config equality) +
+mutation + default-factory independence, `PipelineError` phase retention.
+
+### G3 — performance
+
+Pure-delegation carve-out: the pipeline-state classes are constructed once
+per pipeline run; the stage wrappers add a single FFI crossing per stage.
+No regression beyond noise is possible or claimed.
+
+### G4 — PBT (`test_pipeline_state_pbt.py`)
+
+Eight non-vacuous properties (P1 config defaults, P2 kwargs round-trip, P3
+repr self-describes, P4 eq symmetric + reflexive, P5 mutation observable,
+P6 state defaults, P7 default-factory independence, P8 phase members
+unique and self-equal), each with mutation guards via
+`hypothesis.inner_test` (degenerate stand-ins swapped through the `_IMPL`
+indirection). 22/22 green.
+
+### G5 — metamorphic relations
+
+Not claimed. The migrated surface is pure data (dataclass construction /
+equality / repr / mutation); there is no computation to relate. The G4
+properties plus the randomized differential arm cover the surface. (The
+Wave-4 feasibility cluster already carries MR1..MR4 for the kernels the
+stages delegate to.)
+
+### G6 — induction
+
+Not applicable — data-only module, no recursive computation. Structural
+proof below.
+
+### G7 — Rust bar
+
+`cargo test` 71/71 green (incl. the 4-test runner suite
+`tests/stages_runner.rs` sequencing both stages through
+`PipelineRunner<BoardState>`); `cargo clippy --all-features --all-targets --
+-D warnings` clean. No `unwrap`/`expect` in non-test code. Panic safety:
+pyo3's `#[pyclass]` expansion wraps the pyclass boundaries; the stage
+bodies additionally wrap `run()` in `stage_guard` (catch_unwind -> 
+`StageError::Fatal`).
+
+### G8 — R24 physics discipline
+
+Not applicable — the pipeline-state data model and the stage wrappers gate
+on no physics quantity (the kernels they delegate to are the Wave-4
+feasibility cluster, already recorded not-physics-gated).
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every field, constructor default and
+method of the three pyclasses, the Rust behaviour is bit-identical to the
+pinned pre-migration Python for every input in the differential suite's
+domains, with the documented boundary choices below.
+
+1. **repr by identity.** The dataclass `__repr__` renders every leaf via
+   CPython's repr engine; the Rust `__repr__` calls CPython `repr()` on
+   each field value (`format!`'s `{:.?}` diverges for float exponent
+   notation and `{:?}` uses double quotes for strings). Parity is by
+   identity, not by coincidence of formatter implementations.
+2. **eq by identity.** Dataclass equality is exact-class + field-wise `==`.
+   The Rust `__eq__` type-checks the other operand's type identity first,
+   then compares each field with Python `==` (object fields) or Rust `==`
+   (scalars; NaN != NaN and -0.0 == 0.0 behave identically in both).
+3. **Unhashability.** Dataclasses are unhashable (`eq=True`,
+   `frozen=False`); the Rust `__hash__` raises
+   `TypeError("unhashable type: '...'")`. `PipelinePhase` members stay
+   hashable (Enum singletons; equal members hash equally).
+4. **Per-instance default factories.** `loops` and `phase_timings` get a
+   FRESH `PyList`/`PyDict` per construction (the dataclass
+   `field(default_factory=...)`), pinned by the differential's
+   independence test.
+5. **Stage message parity by identity.** The preflight message f-strings
+   (`Fill ratio {ratio:.1%}`, `{min_d:.1f}`, `{max_d}`) are rendered by
+   calling CPython's `format()` / `str()` (David-Gay semantics Rust's
+   `{:.N}` does not reproduce bit-for-bit) — the documented boundary the
+   Wave-4 cluster already records.
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above):
+- `PipelineError` stays a Python exception on the shim.
+- The typed scalar fields (`epochs: i64`, `skip_*: bool`,
+  `max_movement_mm: f64`, …) reject type-unsafe assignment (e.g. setting a
+  `bool` field to an `int` raises TypeError) where the dataclass would
+  store it. The PBT's mutation property draws type-appropriate values.
+- An EXPLICIT `None` passed for `current_phase` / `loops` /
+  `phase_timings` is treated as the omitted sentinel (dataclass default)
+  rather than stored: all three fields are type-annotated containers/enums,
+  so a caller passing `None` is outside the declared type. The differential
+  never passes explicit `None` for them.
+- `PipelineState.config` / `current_phase` / `failed_phase` are stored as
+  `Py<PyAny>` (the dataclass does not type-enforce); the constructor
+  supplies the dataclass defaults.
+- The Stage wrappers' BoardState field mapping is a **Phase-C-pending
+  placeholder contract** (D2 — no field is tightened speculatively):
+  `DerivationStage` reads the `PcbSpecification` from `BoardState.config`
+  and writes the derived constraints dict back to `BoardState.config`;
+  `PreflightStage` reads board/netlist/constraints from
+  `BoardState.{board,netlist,config}` and writes a plain-data report dict
+  (the `PreflightReport` shape: `checks` + `overall` + `total_time_ms`)
+  into `BoardState.violations`. The Python `PreflightCheck`/`PreflightReport`
+  object construction is marshalling the Phase-C Python `run()` shim
+  performs (the plan's boundary: Rust stages write typed results, the
+  Python layer converts).
+- `PreflightStage` returns `Ok(state)` with the FAIL **in** the report
+  (matching `PreflightChecker.run`'s actual semantics). The plan's
+  `StageErrorKind::Infeasible` sketch for "the preflight checker's FAIL
+  result" is NOT adopted: it would diverge from the module's behaviour
+  (Python returns the report; it does not raise). Missing BoardState fields
+  are the stage's hard-error path (`Err(Fatal)` — exercised by the runner
+  test's halt case).
+- The derivation stage's `hv_lv_isolation_mm` safety-present path imports
+  `temper_placer.core.net_types` (always importable in the real pipeline);
+  the runner test exercises the no-safety 6.5mm fallback so the embedded
+  interpreter needs no venv site-packages. `mains_voltage_to_class_code`
+  is still exercised by the stage's safety path and by the Wave-4 kernel
+  unit tests. The Python `warnings.warn` on the fallback is observability,
+  not part of the derived dict, and is not reproduced.
+
+### Differential / PBT / runner suites (U4)
+
+| Suite | Location | Count |
+|---|---|---|
+| pipeline-state differential (oracle: `_pipeline_state_py_oracle.py`, sha256-pinned) | `packages/temper-placer/tests/pipeline/test_pipeline_state_rust_differential.py` | 18 |
+| pipeline-state PBT (P1..P8, mutation-guarded) | `packages/temper-placer/tests/pipeline/test_pipeline_state_pbt.py` | 22 |
+| stage runner (sequences DerivationStage + PreflightStage through `PipelineRunner<BoardState>`) | `packages/temper-orchestration/tests/stages_runner.rs` | 4 |
+| existing shim surface (all `tests/pipeline/*`, incl. convergence + feasibility differentials/PBT) | `packages/temper-placer/tests/pipeline/` | 506 |
