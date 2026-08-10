@@ -100,7 +100,7 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-protobuf==6.33.5
+protobuf==7.35.1
     # via ortools
 psutil==7.1.3
     # via temper-placer
