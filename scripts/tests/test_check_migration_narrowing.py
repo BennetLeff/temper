@@ -201,6 +201,57 @@ class TestCheckB:
         findings = gate.check_b(tmp_path)
         assert any(f.name == "rotation" for f in findings)
 
+    def test_does_not_flag_binding_shorter_than_min_name_len(self, tmp_path):
+        """A 1-character binding is a scratch variable, not a boundary field.
+
+        Regression pin for the 2026-08-10 tuning: `let v: i64` in
+        `drc_oracle_marshal.rs` (a generic `get_attr_opt_i64` helper) and in
+        `pcl_contracts.rs` (an enum's `.value`) both matched the `v` of
+        `[float(v) for v in board_bounds]` in an unrelated file's unrelated
+        crate. Four allowlist entries existed solely to suppress this shape.
+        The Rust below is deliberately the exact `float(v) for v in ...`
+        collision, so this test fails if the guard is removed.
+        """
+        _write(
+            tmp_path,
+            "packages/temper-geo/src/lib.rs",
+            "fn parse(obj: &Bound<'_, PyAny>) -> PyResult<()> {\n"
+            "    let v: i64 = obj.getattr(\"value\")?.extract()?;\n"
+            "    Ok(())\n"
+            "}\n",
+        )
+        _write(
+            tmp_path,
+            "packages/temper-placer/src/temper_placer/core/thing.py",
+            "def payload(board_bounds):\n"
+            "    return [float(v) for v in board_bounds]\n",
+        )
+        assert not [f for f in gate.check_b(tmp_path) if f.name == "v"]
+
+    def test_flags_binding_at_exactly_min_name_len(self, tmp_path):
+        """The guard is a floor, not a blanket short-name ban.
+
+        Pins the boundary: a 3-character name is still a plausible field
+        (`pad`, `via`, `net`) and must survive, so the guard can't be
+        loosened into discarding real boundary fields.
+        """
+        assert gate.MIN_CHECK_B_NAME_LEN == 3
+        _write(
+            tmp_path,
+            "packages/temper-geo/src/lib.rs",
+            "fn parse(pkg: &Bound<'_, PyAny>) -> PyResult<()> {\n"
+            "    let via: Option<i64> = pkg.get_item(1)?.extract()?;\n"
+            "    Ok(())\n"
+            "}\n",
+        )
+        _write(
+            tmp_path,
+            "packages/temper-placer/src/temper_placer/core/thing.py",
+            "def use(comp):\n"
+            "    return float(comp.via) * 2.0\n",
+        )
+        assert any(f.name == "via" for f in gate.check_b(tmp_path))
+
     def test_does_not_flag_when_python_has_no_float_admission(self, tmp_path):
         _write(
             tmp_path,

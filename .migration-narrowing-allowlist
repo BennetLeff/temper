@@ -39,11 +39,15 @@ CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|HV_PIN_PATTERNS|pac
 CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|CLOCK_PIN_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
 
 # --- CHECK B: short/common identifier collisions ----------------------------
-# `v`, `i`, `name` are common loop/scratch variable names. In each case the
-# matched Python `float(...)` usage is a different domain value that happens
-# to reuse the same short identifier in an unrelated function.
-CHECK_B|packages/temper-constraint-compiler/src/pyo3_bridge.rs|v|packages/temper-placer/src/temper_placer/constraints/_payload.py  # reason: Rust `v` here is a PyDict "dru_priority" scratch extraction (Option<u32> via i64); Python match is an unrelated list-comprehension var `float(v) for v in board_bounds` in _payload.py:59. Coincidental identifier collision.
-CHECK_B|packages/temper-constraint-compiler/src/pyo3_bridge.rs|v|packages/temper-placer/src/temper_placer/constraints/_payload.py  # reason: second `v: usize = value.extract()` scratch extraction in the same file (line 237, different dict key); same false match as above.
-CHECK_B|packages/temper-design-bundle/src/deterministic_leaves.rs|i|packages/temper-placer/src/temper_placer/router_v6/congestion.py  # reason: Rust `i` is a HashMap tuple-key coordinate (`(i64,i64)` grid index) in dict_index_to_rust; Python match is a docstring comment in congestion.py:42 ("utilization=float(i)") describing a synthetic Bottleneck row, not a real field. Coincidental identifier collision.
+# The four `v`/`i` entries that used to live here (pyo3_bridge.rs x2,
+# deterministic_leaves.rs, req_safe_01.rs) are GONE, not moved: every one of
+# them gave "coincidental identifier collision" as its own reason, and
+# `MIN_CHECK_B_NAME_LEN` in scripts/check_migration_narrowing.py now
+# generalizes that judgement instead of restating it once per pair. A binding
+# shorter than 3 characters carries no cross-language identity, so Check B no
+# longer emits those pairings at all and the entries went stale.
+#
+# `name` below survives the guard (4 characters) and is a genuinely different
+# failure -- a regex over-match on dict-literal syntax, not a short-name
+# collision -- so it still needs an explicit entry.
 CHECK_B|packages/temper-design-bundle/src/pcl_parse.rs|name|packages/temper-placer/src/temper_placer/metrics/physics.py  # reason: Rust `name` is a local match-arm binding for tier-int-to-string mapping (parse_tier) with no relation to geometry; Python match is a dict-literal `z.name: tuple(float(v) ...)` in physics.py:144, which the annotation-regex over-matches (dict-literal `key: value` syntax reads like a type annotation to the heuristic). Coincidental identifier collision + known regex limitation.
-CHECK_B|packages/temper-drc-rs/src/req_safe_01.rs|i|packages/temper-placer/src/temper_placer/router_v6/congestion.py  # reason: same coincidental match as deterministic_leaves.rs `i` above — an unrelated grid-index variable matching the congestion.py:42 docstring comment.

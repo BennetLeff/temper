@@ -55,6 +55,36 @@ allowlist file (``.migration-narrowing-allowlist``), where every entry
 requires a written reason. Do NOT allowlist a genuine capability narrowing —
 the allowlist is for coincidental name collisions only.
 
+KNOWN LIMITATION — CHECK A IS NOT WIREABLE AS A BLOCKING GATE YET.
+CHECK A cannot distinguish the defect it is looking for (a Python constant
+that production still reads, which the Rust port silently hardcoded — the
+``H_CONV_BACKGROUND`` shape) from a **retained differential oracle** (a
+pre-migration constant deliberately kept, unused in production, as the
+in-repo statement of the rule the Rust reproduces). The latter is not a
+defect: ``docs/migration-pipeline.md`` stage 3 *requires* every migration to
+pin the pre-migration implementation as an oracle, so a correctly executed
+migration produces exactly this shape on purpose. Both look identical to a
+name-matching scan — a Rust ``pub const`` and a same-named Python module
+constant that is not threaded through the delegate call.
+
+Measured on the 2026-08-10 tree, all 8 CHECK A findings were retained
+oracles, not defects — the 7 pattern sets in
+``router_v6/net_classification.py`` (whose own module docstring says the
+constants are "retained, unchanged and unused in production ... pinned
+oracle for test_net_classification_rust_differential.py") plus
+``CONTACT_TOLERANCE_MM`` in ``router_v6/connectivity.py``. Because the
+migration process mandates the oracle pattern, CHECK A's false-positive
+rate GROWS with every completed migration, which is backwards for a gate
+meant to protect the migration.
+
+The fix is production-reachability analysis: report a constant only when it
+is reachable from a production code path, not merely defined in a module
+whose functions delegate to Rust. ``scripts/check_unwired_kernels.py``
+already does AST-based production-vs-test caller analysis for the unwired-
+kernel ledger and is the machinery to reuse. Until that lands, run CHECK A
+manually and read its output as a worklist, not a verdict; only CHECK B is
+precise enough to gate on.
+
 Exit codes:
   0 - OK (no new findings outside the allowlist, no stale allowlist entries)
   3 - New finding(s) not covered by the allowlist
@@ -182,6 +212,21 @@ def find_rust_pub_constants(root: Path) -> list[RustConst]:
     return results
 
 
+# Check B pairs a Rust binding name with a same-named Python identifier by
+# scanning every placer `.py` line. Below a few characters that pairing
+# carries no cross-language identity: a one- or two-letter binding collides
+# with some comprehension's loop variable in essentially every file. Measured
+# on the 2026-08-10 tree, every sub-3-character binding was a false positive —
+# `let v: i64` in both `drc_oracle_marshal.rs:189` (a generic
+# `get_attr_opt_i64` helper) and `pcl_contracts.rs:396` (an enum's `.value`)
+# matched the `v` of `[float(v) for v in board_bounds]` in
+# `constraints/_payload.py:59`, an unrelated file in an unrelated crate.
+# The defect class this check exists for is always a NAMED field crossing the
+# boundary (`rotation`, `initial_rotation`), never a one-letter binding, so
+# the guard costs no real detection.
+MIN_CHECK_B_NAME_LEN = 3
+
+
 def find_rust_narrow_extracts(root: Path) -> list[RustExtract]:
     results: list[RustExtract] = []
     for rs in sorted(root.glob(ALL_RUST_GLOB)):
@@ -193,11 +238,15 @@ def find_rust_narrow_extracts(root: Path) -> list[RustExtract]:
         for lineno, line in enumerate(text.splitlines(), 1):
             m = RUST_EXTRACT_TYPED_RE.match(line)
             if m:
+                if len(m.group(1)) < MIN_CHECK_B_NAME_LEN:
+                    continue
                 narrow_type = m.group(2).replace(" ", "")
                 results.append(RustExtract(m.group(1), narrow_type, rel, lineno))
                 continue
             m = RUST_EXTRACT_TURBOFISH_RE.match(line)
             if m:
+                if len(m.group(1)) < MIN_CHECK_B_NAME_LEN:
+                    continue
                 # narrow type isn't captured by group here beyond presence;
                 # recover it from the turbofish text itself.
                 tf = re.search(r"extract::<\s*([^>]*(?:<[^>]*>)?[^>]*)>", line)
