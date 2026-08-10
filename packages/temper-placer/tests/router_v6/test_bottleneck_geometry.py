@@ -146,14 +146,14 @@ class TestBottleneckSynthetic:
         assert (0, 0, 1) in result.cut_cells
 
     def test_bottleneck_skips_non_capacity_failure(self) -> None:
-        """``failure_reason=TOPOLOGY`` → ``None``, no networkx call."""
+        """``failure_reason=TOPOLOGY`` → ``None``, no graph build."""
         netlist = _build_two_pad_netlist()
         grid = _small_grid()
         state = _make_state(netlist, grid)
         report = _make_report(FailureReason.TOPOLOGY)
 
         with patch(
-            "temper_placer.router_v6.bottleneck_geometry._build_capacitated_graph"
+            "temper_placer.router_v6.bottleneck_geometry._build_capacitated_graph_rust"
         ) as mock_build:
             result = analyze_bottleneck(grid, netlist.nets[0], state, report)
 
@@ -194,7 +194,7 @@ class TestBottleneckSynthetic:
     def test_bottleneck_build_failure_returns_aborted(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """When ``_build_capacitated_graph`` raises, return aborted_build_failure."""
+        """When ``_build_capacitated_graph_rust`` raises, return aborted_build_failure."""
         netlist = _build_two_pad_netlist()
         grid = _small_grid()
         state = _make_state(netlist, grid)
@@ -204,7 +204,7 @@ class TestBottleneckSynthetic:
             raise RuntimeError("simulated build failure")
 
         monkeypatch.setattr(
-            "temper_placer.router_v6.bottleneck_geometry._build_capacitated_graph",
+            "temper_placer.router_v6.bottleneck_geometry._build_capacitated_graph_rust",
             raise_runtime,
         )
 
