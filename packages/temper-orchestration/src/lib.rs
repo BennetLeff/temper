@@ -45,6 +45,14 @@
 //                     `proximity_rule_impossible`, `zone_over_capacity`,
 //                     `loop_area_violation`, `isolation_barrier_too_large`)
 //                     as a `Stage<BoardState>` implementor
+// - `explainability` — Phase-A U8: the explainability DATA CONTRACTS
+//                     (`Decision`, `Alternative`, `DecisionTrace`, `Entry`,
+//                     `Trace` pyclasses) and the `MarkdownReport` renderers
+//                     (`render_markdown_report` / `render_component_report`),
+//                     bit-exact with `explainability/{decision,trace,
+//                     markdown_report}.py` (oracles in the temper-placer test
+//                     tree); the NL-generation kernels stay single-source in
+//                     temper-io-types and are called back from the pyclasses
 //
 // Panic safety at the boundary (R1g): pyo3's `#[pyfunction]` expansion
 // wraps every exported body in `catch_unwind` and converts a Rust panic
@@ -55,6 +63,7 @@ mod board_state;
 mod convergence;
 mod copper_length;
 mod derivation_stage;
+mod explainability;
 mod feasibility;
 mod host_math;
 mod pipeline;
@@ -105,6 +114,13 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<pipeline_state::PipelinePhase>()?;
     m.add_class::<pipeline_state::PipelineConfig>()?;
     m.add_class::<pipeline_state::PipelineState>()?;
+    m.add_class::<explainability::Alternative>()?;
+    m.add_class::<explainability::Decision>()?;
+    m.add_class::<explainability::DecisionTrace>()?;
+    m.add_class::<explainability::Entry>()?;
+    m.add_class::<explainability::Trace>()?;
+    m.add_function(wrap_pyfunction!(explainability::render_markdown_report, m)?)?;
+    m.add_function(wrap_pyfunction!(explainability::render_component_report, m)?)?;
     Ok(())
 }
 
