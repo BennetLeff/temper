@@ -128,18 +128,25 @@ class TestPlacementToBoardDictShape:
         polygon}` CopperZone records. Before the fix, any populated
         `placement.zones` made `run_drc()` raise
         `ValueError: missing required key: net` -- unconditionally, for
-        every check, not just isolation-barrier ones."""
-        placement = _FakePlacement(
+        every check, not just isolation-barrier ones.
+
+        Phase-A U5: the marshaler is the typed `DrcBoardSnapshot`, which
+        reads the `Placement` pyclass (the `_FakePlacement` dataclass this
+        test used previously is no longer accepted by the typed path); the
+        zones-collision guard is asserted on the snapshot's `to_dict()`."""
+        from temper_placer.validation.drc_types import Placement
+
+        placement = Placement(
             zones={"power_zone": (0.0, 110.0, 100.0, 150.0)},
         )
-        board_dict = _placement_to_board_dict(placement)
+        snapshot = _placement_to_board_dict(placement)
 
-        assert "zones" not in board_dict, (
+        assert "zones" not in snapshot.to_dict(), (
             "placement-boundary zones must not collide with the "
             "CopperZone-shaped board_dict['zones'] key"
         )
         # Must not raise.
-        violations = temper_drc_rs.run_drc(board_dict, {"isolation_barriers": []})
+        violations = temper_drc_rs.run_drc(snapshot, {"isolation_barriers": []})
         assert violations == []
 
     def test_trace_placement_shape_matches_k1_schema_and_is_detected(self) -> None:
@@ -147,20 +154,26 @@ class TestPlacementToBoardDictShape:
         (not "net_name") and a "segments" list of [x1,y1,x2,y2] coordinate
         groups (not top-level "start"/"end"). This proves the corrected
         shape is not just non-crashing but semantically CORRECT: a trace
-        that genuinely crosses a configured barrier is caught end-to-end."""
-        placement = _FakePlacement(
-            trace_placement=_FakeTracePlacement(
+        that genuinely crosses a configured barrier is caught end-to-end.
+
+        Phase-A U5: the marshaler is the typed `DrcBoardSnapshot`, so the
+        placement is built from the real `Placement` pyclasses and the shape
+        is asserted on `to_dict()`."""
+        from temper_placer.validation.drc_types import Placement, TracePlacement, TraceSegment
+
+        placement = Placement(
+            trace_placement=TracePlacement(
                 segments=[
-                    _FakeSegment(
+                    TraceSegment(
                         net_name="gnd", layer="F.Cu", width=0.25,
                         start=(80.0, 100.0), end=(110.0, 100.0),
                     )
                 ]
             ),
         )
-        board_dict = _placement_to_board_dict(placement)
+        snapshot = _placement_to_board_dict(placement)
 
-        assert board_dict["traces"] == [
+        assert snapshot.to_dict()["traces"] == [
             {
                 "net": "gnd",
                 "layer": "F.Cu",
@@ -177,7 +190,7 @@ class TestPlacementToBoardDictShape:
                 }
             ],
         }
-        violations = temper_drc_rs.run_drc(board_dict, constraints_dict)
+        violations = temper_drc_rs.run_drc(snapshot, constraints_dict)
         assert len(violations) == 1
         assert violations[0]["code"] == "ROUTING_ISO_001"
 
@@ -190,7 +203,9 @@ class TestPlacementToBoardDictShape:
 class TestConstraintValueToPlain:
     def test_pydantic_model_becomes_plain_dict(self) -> None:
         barrier = _bent_barrier()
-        plain = _constraint_value_to_plain(barrier)
+        # Phase-A U5: _constraint_value_to_plain returns the typed
+        # ConstraintValue wrapper; to_python() renders the plain value.
+        plain = _constraint_value_to_plain(barrier).to_python()
         assert isinstance(plain, dict)
         # Every value must itself be JSON-primitive-shaped (no tuples --
         # PyO3's bridge only recognizes list, not tuple).
@@ -200,14 +215,14 @@ class TestConstraintValueToPlain:
         assert isinstance(plain["y_span"], list)
 
     def test_list_of_pydantic_models_becomes_list_of_plain_dicts(self) -> None:
-        plain = _constraint_value_to_plain([_bent_barrier(), _bent_barrier(name="B2")])
+        plain = _constraint_value_to_plain([_bent_barrier(), _bent_barrier(name="B2")]).to_python()
         assert plain == [p for p in plain if isinstance(p, dict)]
         assert [p["name"] for p in plain] == ["MAINS_SELV_ISOLATION_BARRIER", "B2"]
 
     def test_non_model_values_pass_through_unchanged(self) -> None:
-        assert _constraint_value_to_plain(None) is None
-        assert _constraint_value_to_plain(3.14) == 3.14
-        assert _constraint_value_to_plain("x") == "x"
+        assert _constraint_value_to_plain(None).to_python() is None
+        assert _constraint_value_to_plain(3.14).to_python() == 3.14
+        assert _constraint_value_to_plain("x").to_python() == "x"
 
 
 class TestBuildConstraintsDictEndToEnd:
@@ -234,7 +249,9 @@ class TestBuildConstraintsDictEndToEnd:
     def test_configured_polyline_barrier_reaches_the_check_and_rejects_a_crossing_zone(
         self,
     ) -> None:
-        constraints_dict = self._oracle()._build_constraints_dict(self._context(_bent_barrier()))
+        constraints_dict = self._oracle()._build_constraints_dict(
+            self._context(_bent_barrier())
+        ).to_dict()
 
         ib = constraints_dict["isolation_barriers"][0]
         assert isinstance(ib, dict), "must be a plain dict, not a pydantic object"
@@ -252,7 +269,7 @@ class TestBuildConstraintsDictEndToEnd:
         straight_only = _bent_barrier(points=[])
         constraints_dict = self._oracle()._build_constraints_dict(
             self._context(straight_only)
-        )
+        ).to_dict()
 
         violations = temper_drc_rs.run_drc(constraints_dict=constraints_dict, board_dict=_crossing_zone_board_dict())
         assert violations == []
@@ -272,7 +289,9 @@ class TestBuildConstraintsDictEndToEnd:
                 }
             ],
         }
-        constraints_dict = self._oracle()._build_constraints_dict(self._context(_bent_barrier()))
+        constraints_dict = self._oracle()._build_constraints_dict(
+            self._context(_bent_barrier())
+        ).to_dict()
 
         violations = temper_drc_rs.run_drc(constraints_dict=constraints_dict, board_dict=board_dict)
         assert violations == []

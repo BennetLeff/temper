@@ -108,7 +108,10 @@ fn constraint_value_to_plain_py<'py>(
 /// Phase 4 migration), but the dict builders need it internally and calling
 /// back into the module from Rust is unnecessary indirection.  The body here
 /// is the same keyword-first-match, case-insensitive substring search.
-fn infer_package_type(footprint: Option<&str>) -> &'static str {
+///
+/// `pub(crate)` since Phase-A U5 (`drc_marshal.rs`) reuses it for the typed
+/// `DrcBoardSnapshot` constructors.
+pub(crate) fn infer_package_type(footprint: Option<&str>) -> &'static str {
     let fp_lower = footprint.unwrap_or("").to_lowercase();
     let fp = fp_lower.as_str();
     if fp.contains("tht") || fp.contains("through") || fp.contains("pin") || fp.contains("dip") {
@@ -140,14 +143,14 @@ fn infer_package_type(footprint: Option<&str>) -> &'static str {
 // ---------------------------------------------------------------------------
 
 /// Get a required float attribute from a Python object.
-fn get_attr_f64(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<f64> {
+pub(crate) fn get_attr_f64(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<f64> {
     obj.getattr(name)?
         .extract::<f64>()
         .map_err(|e| PyValueError::new_err(format!(".{name} is not a float: {e}")))
 }
 
 /// Get an optional float attribute (None if absent or None).
-fn get_attr_opt_f64(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<f64>> {
+pub(crate) fn get_attr_opt_f64(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<f64>> {
     match obj.getattr(name) {
         Ok(val) if !val.is_none() => {
             let v: f64 = val.extract().map_err(|e| {
@@ -160,14 +163,14 @@ fn get_attr_opt_f64(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<f64>>
 }
 
 /// Get a required string attribute.
-fn get_attr_str(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<String> {
+pub(crate) fn get_attr_str(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<String> {
     obj.getattr(name)?
         .extract::<String>()
         .map_err(|e| PyValueError::new_err(format!(".{name} is not a string: {e}")))
 }
 
 /// Get an optional string attribute.
-fn get_attr_opt_str(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<String>> {
+pub(crate) fn get_attr_opt_str(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<String>> {
     match obj.getattr(name) {
         Ok(val) if !val.is_none() => {
             let v: String = val.extract().map_err(|e| {
@@ -180,7 +183,7 @@ fn get_attr_opt_str(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<Strin
 }
 
 /// Get an optional int attribute.
-fn get_attr_opt_i64(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<i64>> {
+pub(crate) fn get_attr_opt_i64(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<i64>> {
     match obj.getattr(name) {
         Ok(val) if !val.is_none() => {
             let v: i64 = val.extract().map_err(|e| {

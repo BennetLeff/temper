@@ -277,7 +277,7 @@ pub fn extract_opt_polygon(
 // Component extraction helpers
 // ---------------------------------------------------------------------------
 
-fn parse_board_side(s: &str) -> PyResult<BoardSide> {
+pub(crate) fn parse_board_side(s: &str) -> PyResult<BoardSide> {
     match s.to_lowercase().as_str() {
         "top" => Ok(BoardSide::Top),
         "bottom" => Ok(BoardSide::Bottom),
@@ -287,7 +287,7 @@ fn parse_board_side(s: &str) -> PyResult<BoardSide> {
     }
 }
 
-fn parse_package_type(s: &str) -> PyResult<PackageType> {
+pub(crate) fn parse_package_type(s: &str) -> PyResult<PackageType> {
     match s.to_lowercase().as_str() {
         "smd" => Ok(PackageType::Smd),
         "tht" => Ok(PackageType::Tht),

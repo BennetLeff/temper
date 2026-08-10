@@ -54,18 +54,18 @@ def _rs() -> Any:
 
 def _constraint_value_to_plain(value: Any) -> Any:
     """Convert a ``constraints_config`` field into the plain
-    dict/list/str/int/float/bool/None shape ``temper_drc_rs.run_drc()``
-    understands.
+    dict/list/str/int/float/bool/None shape the DRC engine understands.
 
-    Delegates to the Rust kernel ``temper_drc_rs.constraint_value_to_plain_py``
-    (Wave 4 marshalling-boundary migration).  Falls back to the verbatim
-    pure-Python implementation when the Rust extension is not available — the
-    module's graceful-degradation contract for extension-absent callers
-    (e.g. ``test_isolation_barrier_wiring.py`` in its
+    Phase-A U5: the marshalling body moved to Rust
+    (``temper_drc_rs.ConstraintValue.from_python`` — a typed wrapper around
+    the pinned ``_constraint_value_to_plain`` semantics).  Falls back to the
+    verbatim pure-Python implementation when the Rust extension is not
+    available — the module's graceful-degradation contract for
+    extension-absent callers (e.g. ``test_isolation_barrier_wiring.py`` in its
     ``pytest.importorskip``-absent path).
     """
     if _HAS_RUST_DRC:
-        return _rs().constraint_value_to_plain_py(value)
+        return _rs().ConstraintValue.from_python(value)
     # Pure-Python fallback (verbatim pre-migration body).
     from pydantic import BaseModel  # noqa: PLC0415
 
@@ -245,12 +245,12 @@ class DRCOracle:
             RunResult with per-check results and aggregate metrics.
         """
         if use_rust and _HAS_RUST_DRC:
-            board_dict = self._build_board_dict(positions, context)
-            constraints_dict = self._build_constraints_dict(context)
+            board_snapshot = self._build_board_dict(positions, context)
+            typed_constraints = self._build_constraints_dict(context)
             # @req(U9, R1): Call temper_drc_rs.run_drc() instead of Python CheckRunner
             violation_dicts = temper_drc_rs.run_drc(
-                board_dict,
-                constraints_dict,
+                board_snapshot,
+                typed_constraints,
                 categories=categories,
             )
             return self._violations_to_run_result(violation_dicts)
@@ -283,75 +283,72 @@ class DRCOracle:
         positions: Array,
         context: Any,
         parsed_pcb: Any = None,
-    ) -> dict[str, Any]:
-        """Build a K1-schema board dict from positions + context.
+    ) -> Any:
+        """Build a typed ``DrcBoardSnapshot`` from positions + context.
 
-        Delegates to the Rust kernel ``temper_drc_rs.build_board_dict_py``
-        or ``temper_drc_rs.build_board_dict_from_parsed_pcb_py`` (Wave 4
-        marshalling-boundary migration).
+        Phase-A U5: delegates to the Rust typed constructors
+        ``temper_drc_rs.DrcBoardSnapshot.from_netlist`` / ``.from_parsed_pcb``
+        (the K1-dict intermediate disappears — the kernel takes the typed
+        snapshot directly).
 
         When ``parsed_pcb`` is provided, delegates to the parsed-PCB path
         (ignoring positions/context).  This allows callers like
-        ``ci_closure_test.py`` to reuse the same dict builder for either
+        ``ci_closure_test.py`` to reuse the same builder for either
         placer output or a static KiCad-parsed board.
 
         Returns:
-            dict matching the K1 schema (see plan §K1).
+            A ``temper_drc_rs.DrcBoardSnapshot`` (accepted directly by
+            ``temper_drc_rs.run_drc``).
         """
         rs = _rs()
         if parsed_pcb is not None:
-            return dict(rs.build_board_dict_from_parsed_pcb_py(parsed_pcb))
-        return dict(
-            rs.build_board_dict_py(
-                positions=positions,
-                netlist=context.netlist,
-                board_width=float(context.board.width),
-                board_height=float(context.board.height),
-                board_margin=float(context.board_margin),
-                clearance_rules=context.clearance_rules,
-            )
+            return rs.DrcBoardSnapshot.from_parsed_pcb(parsed_pcb)
+        return rs.DrcBoardSnapshot.from_netlist(
+            positions=positions,
+            netlist=context.netlist,
+            board_width=float(context.board.width),
+            board_height=float(context.board.height),
+            board_margin=float(context.board_margin),
+            clearance_rules=context.clearance_rules,
         )
 
     @staticmethod
     def _build_board_dict_from_parsed_pcb(
         parsed_pcb: Any,
-    ) -> dict[str, Any]:
-        """Build a K1-schema board dict from a ParsedPCB object.
+    ) -> Any:
+        """Build a typed ``DrcBoardSnapshot`` from a ParsedPCB object.
 
-        Delegates to the Rust kernel
-        ``temper_drc_rs.build_board_dict_from_parsed_pcb_py`` (Wave 4
-        marshalling-boundary migration).
+        Phase-A U5: delegates to the Rust typed constructor
+        ``temper_drc_rs.DrcBoardSnapshot.from_parsed_pcb``.
 
         Args:
             parsed_pcb: A ``ParsedPCB`` instance (from
                 ``temper_placer.router_v6.stage0_data``).
 
         Returns:
-            dict matching the K1 schema.
+            A ``temper_drc_rs.DrcBoardSnapshot``.
         """
-        return dict(_rs().build_board_dict_from_parsed_pcb_py(parsed_pcb))
+        return _rs().DrcBoardSnapshot.from_parsed_pcb(parsed_pcb)
 
     def _build_constraints_dict(
         self,
         context: Any,
-    ) -> dict[str, Any]:
-        """Build a constraints dict for the Rust DRC engine.
+    ) -> Any:
+        """Build a typed ``TypedConstraintSet`` for the Rust DRC engine.
 
-        Delegates to the Rust kernel
-        ``temper_drc_rs.build_constraints_dict_py`` (Wave 4 marshalling-
-        boundary migration).
+        Phase-A U5: delegates to the Rust typed constructor
+        ``temper_drc_rs.TypedConstraintSet.from_context``.
 
         Returns:
-            dict matching the ConstraintSet serde schema.
+            A ``temper_drc_rs.TypedConstraintSet`` (accepted directly by
+            ``temper_drc_rs.run_drc``).
         """
         config = getattr(context, "constraints_config", None)
-        return dict(
-            _rs().build_constraints_dict_py(
-                clearance_rules=context.clearance_rules,
-                constraints_config=config,
-                board_width=float(context.board.width),
-                board_height=float(context.board.height),
-            )
+        return _rs().TypedConstraintSet.from_context(
+            clearance_rules=context.clearance_rules,
+            constraints_config=config,
+            board_width=float(context.board.width),
+            board_height=float(context.board.height),
         )
 
     @staticmethod

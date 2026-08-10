@@ -2,116 +2,36 @@
 KiCad DRC runner — programmatic interface to kicad-cli DRC and Rust CheckRunner.
 
 This module re-exports the kicad-cli DRC API from ``_drc_api`` (for backward
-compatibility) and provides the ``CheckRunner`` that delegates to the Rust
-DRC engine (``temper_drc_rs``).
+compatibility) and provides the ``CheckRunner`` whose data surface delegates
+to the Rust DRC engine (``temper_drc_rs``).
 
-.. _drc-runner-wave4-marshal:
+.. _drc-runner-u5-typed-marshal:
 
-Wave-4 Marshalling-Boundary Migration — JUSTIFIED-KEEP
--------------------------------------------------------
+Phase-A U5 (rust-orchestration-engine plan) — typed marshalling
+----------------------------------------------------------------
 
-The two marshalers in this module — ``_placement_to_board_dict`` and
-``_constraints_to_dict`` — are **JUSTIFIED-KEEP** under the Wave-4 residual
-decision procedure (``docs/wave4-discipline-contract.md`` §3). They stay
-Python for concrete blockers; this section is the recorded evidence.
+The two marshalers and the ``CheckRunner`` data surface are now Rust-side
+(``packages/temper-drc-rs/src/drc_marshal.rs``):
 
-**What they are (LOC: 210; consumers: 2)**
-  - ``_placement_to_board_dict(placement: Placement) -> dict`` (lines 68–181):
-    converts the Phase-2 ``Placement`` pyclass to the K1-schema board dict
-    consumed by ``temper_drc_rs.run_drc()`` and indirectly by
-    ``temper_drc_rs.serialize_board_state()`` (WASM tier).
-  - ``_constraints_to_dict(constraints: ConstraintSet) -> dict`` (lines 184–276):
-    converts the Phase-2 ``ConstraintSet`` pyclass to the serde-compatible
-    dict consumed by ``temper_drc_rs.run_drc()`` → ``build_constraint_set()``.
+- ``_placement_to_board_dict`` → ``temper_drc_rs.DrcBoardSnapshot.from_state``
+- ``_constraints_to_dict``     → ``temper_drc_rs.TypedConstraintSet.from_state``
+- ``CheckRunner`` dataclass    → ``temper_drc_rs.CheckRunner`` (checks list +
+  data methods), wrapped here so the public API (``.checks``, ``.add_check``,
+  ``.add_checks``, ``.clear``, ``.get_checks_by_category``, ``.check_names``,
+  ``.categories``, ``.summary``) is unchanged.
 
-**Consumers**
-  - ``CheckRunner.run()`` (this module, line 416–417) — primary.
-  - ``drc_result._run_check_via_rust()`` (deferred import, lines 292–299) —
-    secondary. A migration must update both call sites in the same PR, but
-    the fan-out isolation for this unit covers only ``drc_runner.py``, so
-    updating ``drc_result.py`` would cross session boundaries.
-  - ``temper_drc_rs.run_drc(board_dict, constraints_dict)`` — the Rust entry
-    point that deserializes these dicts via ``build_board_state()``
-    (``board_py_bridge.rs``, manual ``extract_*`` calls with
-    ``reject_unknown_keys`` guards) and ``build_constraint_set()``
-    (``constraints.rs``, ``serde_json::from_value`` with
-    ``#[serde(deny_unknown_fields)]``).
-  - ``temper_drc_rs.serialize_board_state(board_dict)`` — WASM-tier benchmark
-    helper that depends on the K1 dict format.
+**What stayed Python (with evidence):** ``CheckRunner.run()`` — it needs the
+Python ``RunResult``/``CheckResult``/``Issue`` contract classes
+(``drc_result.py``) and the kicad-cli subprocess path (``_drc_api.run_drc``),
+so the execution is kept here while the marshalling moved to Rust. The old
+dict-taking kernels (``temper_drc_rs.build_board_dict_py`` /
+``build_constraints_dict_py`` / ``constraint_value_to_plain_py``) are retained
+for the existing differential suite and external dict callers such as
+``drc_ratchet.py``; ``run_drc`` accepts both the dict wire format and the new
+typed structs.
 
-**Dependency surface**
-  - The pyclass contract types (``temper_drc_rs.Placement``,
-    ``temper_drc_rs.ConstraintSet``, ``temper_drc_rs.ComponentPlacement``,
-    via/trace sub-classes) are Phase-2 Rust pyclasses with ``Py<PyAny>``
-    scalar fields — accessing a field like ``comp.x`` in Rust requires the
-    same ``extract::<f64>()`` call that reading it from a dict key does.
-    The pyclass→K1-dict conversion carries *documented field-level
-    transformations* (e.g., ``layer: "F.Cu"`` → ``side: "top"``, via
-    ``position`` tuple → ``x``/``y`` keys, trace ``start``/``end`` → segments
-    list) that are currently in Python; duplicating them in Rust for the
-    ``build_board_state()`` path would leave two conversion sites to keep
-    in sync while ``drc_result.py`` still uses the old dict path.
-  - The K1-schema dict format is the **documented API** between Python and
-    Rust — the ``reject_unknown_keys`` guards were added (2026-08-08)
-    precisely to make this a hard, CI-enforced contract. The differential
-    test ``test_drc_runner_rust_differential.py`` pins the dict shapes
-    under G1 (``test_oracle_board_dict_shape_pinned`` /
-    ``test_oracle_constraints_dict_shape_pinned``).
-  - Third-party libraries: none — the marshalers use only Python builtins
-    and the pyclass objects; no ortools/kiutils/shapely/networkx/scipy.
-
-**Churn rate**: low — ``_placement_to_board_dict`` was last substantively
-  edited 2026-08-08 (three K1-schema key-mismatch fixes), ``_constraints_to_dict``
-  2026-08-08 (deny_unknown_fields hardening). Both are stable, well-commented,
-  and load-bearing.
-
-**Why a typed migration is blocked today (concrete blockers)**
-  1. **Cross-consumer coordination**: ``drc_result._run_check_via_rust()``
-     (``drc_result.py`` lines 292–309) also calls both marshalers and passes
-     the dicts to ``run_drc()``. Migrating this module alone would break
-     ``drc_result.py``. Updating both requires coordination across fan-out
-     session boundaries.
-  2. **Two distinct Rust type layers with field-level transformations**:
-     the pyclass ``Placement`` (contract layer, ``drc_contracts.rs``) and the
-     K1 ``BoardState`` (engine layer, ``board.rs``) are DIFFERENT structs.
-     ``ComponentPlacement`` has fields ``ref``/``footprint``/``layer``;
-     ``Component`` has ``refdes``/``side``/``net_class``. The conversion
-     between them (currently in Python's ``_placement_to_board_dict`` +
-     Rust's ``extract_component``) involves deriving ``side`` from ``layer``,
-     defaulting ``package_type: "smd"``, mapping via ``position`` tuples to
-     ``x``/``y`` scalars, and wrapping trace ``start``/``end`` into segments
-     lists. Moving this wholly into Rust means building the K1 struct from
-     pyclass fields *instead of* dict keys — different access pattern, same
-     transformation logic, no LOC reduction within Rust.
-  3. **WASM tier dependency**: ``serialize_board_state()`` takes a K1 dict
-     and produces JSON for the WASM benchmark pipeline. A typed migration
-     must either keep the dict path for this consumer (forking the entry
-     point) or add a parallel pyclass→JSON path — both increase surface,
-     not shrink it.
-  4. **The dict IS the schema contract**: the existing
-     ``reject_unknown_keys()`` / ``deny_unknown_fields`` guards, the
-     differential oracle tests, and the WASM test registry all depend on
-     the K1 dict as the stable wire format. Eliminating it eliminates the
-     common reference all these checks validate against.
-
-**Overturn trigger**
-  When (a) ``drc_result._run_check_via_rust()`` is migrated away from the
-  dict path (or deleted), (b) ``serialize_board_state()`` gains a pyclass
-  path, and (c) the ``build_board_state()``/``build_constraint_set()``
-  functions gain pyclass-constructor equivalents, the marshalers can be
-  retired. The dict-based ``run_drc()`` signature can then be deprecated
-  in favor of a typed ``run_drc_typed(placement, constraints)``.
-
-**Linked evidence**
-  - ``docs/evidence/2026-08-09-python-over-rust-interrogation.md`` §1.3, §5
-    item 1 — the marshalling boundary is classified as "pure overhead — no
-    value beyond bridge compat" (4,212 LOC across the repo), and the
-    per-kernel migration order is: marshalers → Rust structs (lowest risk).
-  - ``docs/wave4-discipline-contract.md`` §3 — residual decision procedure:
-    classify → decide → record evidence.
-  - Differential oracle pin: ``tests/validation/test_drc_runner_rust_differential.py``
-    ``test_oracle_board_dict_shape_pinned`` / ``test_oracle_constraints_dict_shape_pinned``
-    (G1, Wave-4 discipline contract R1a/R1f).
+The pre-migration marshaler bodies are pinned verbatim as ``_oracle_*`` blocks
+in ``tests/validation/test_drc_marshal_rust_differential.py`` (G1).
 """
 
 from __future__ import annotations
@@ -120,15 +40,12 @@ from __future__ import annotations
 #  CheckRunner — delegates to the Rust DRC engine (temper_drc_rs)
 #
 #  Formerly in temper_drc.core.runner.  Preserves the same public
-#  interface but calls ``temper_drc_rs.run_drc()`` under the hood.
-#  Converts Python ``Placement`` / ``ConstraintSet`` objects into the
-#  K1-schema dict format that the Rust engine expects, then maps
-#  returned violation dicts back to Python ``CheckResult`` / ``Issue``
-#  objects.
+#  interface but calls ``temper_drc_rs.run_drc()`` under the hood with
+#  the Phase-A U5 typed marshalling structs (DrcBoardSnapshot /
+#  TypedConstraintSet), then maps returned violation dicts back to Python
+#  ``CheckResult`` / ``Issue`` objects.
 # =========================================================================
 import time as _time
-from dataclasses import dataclass as _dataclass
-from dataclasses import field
 from typing import TYPE_CHECKING as _TYPE_CHECKING
 from typing import Any as _Any
 
@@ -173,215 +90,32 @@ _SEVERITY_MAP: dict[str, _Severity] = {
 }
 
 
-def _placement_to_board_dict(placement: _Placement) -> dict[str, _Any]:
-    """Convert a ``Placement`` to the K1-schema board dict."""
-    components: list[dict[str, _Any]] = []
-    for _ref, comp in placement.components.items():
-        side = "bottom" if comp.layer and "B" in (comp.layer or "") else "top"
-        components.append(
-            {
-                "ref": comp.ref,
-                "x": comp.x,
-                "y": comp.y,
-                "rot": comp.rotation,
-                "side": side,
-                "width": comp.width,
-                "height": comp.height,
-                "net_class": comp.net_class,
-                "voltage_domain": comp.voltage_domain,
-                "package_type": "smd",
-                "power_dissipation_w": None,
-                "is_magnetic": False,
-                "is_electrolytic": False,
-                "vent_direction": None,
-                "footprint_polygon": None,
-            }
-        )
+def _placement_to_board_dict(placement: _Placement) -> _Any:
+    """Convert a ``Placement`` to the typed ``DrcBoardSnapshot``.
 
-    # NOTE (Python<->Rust boundary schema fix, 2026-08-08): `board_dict`
-    # deliberately does NOT carry a "zones" key built from
-    # ``placement.zones``. ``Placement.zones`` is a *placement-boundary*
-    # map (``name -> (x0, y0, x1, y1)`` rectangles, e.g. the
-    # ``temper_constraints.yaml`` ``power_zone``/``driver_zone`` regions) --
-    # a completely different concept from the K1-schema ``board_dict["zones"]``
-    # key, which ``temper_drc_rs.board_py_bridge::extract_copper_zone``
-    # (`packages/temper-drc-rs/src/board_py_bridge.rs`) parses as
-    # ``CopperZone`` records: ``{net, layer, polygon}`` -- actual copper
-    # zone/pour geometry.
-    #
-    # Previously this function *did* populate "zones" from
-    # ``placement.zones`` as ``{"name": ..., "bounds": [...]}`` -- a key
-    # collision with the CopperZone shape. `extract_copper_zone` requires
-    # "net" (`board_py_bridge.rs::extract_str`), so any call through this
-    # path with a non-empty ``placement.zones`` (a legitimate, common state)
-    # raised ``ValueError: missing required key: net`` deep in the Rust
-    # deserializer, and ``CheckRunner.run()`` never returned a result at
-    # all -- not just for zone-aware checks, for every check. Reproduced
-    # live via ``temper_drc_rs.run_drc()`` before this fix.
-    #
-    # ``Placement`` carries no copper-pour geometry at all today, so there
-    # is nothing correct to put under "zones" here yet -- omitting the key
-    # (the K1 schema treats it as optional) is the fix, not a substitute
-    # shape.
-    board_dict: dict[str, _Any] = {
-        "board": {
-            "width_mm": placement.board_width,
-            "height_mm": placement.board_height,
-            "margin_mm": 3.0,
-        },
-        "components": components,
-        "nets": dict(placement.nets),
-        "net_classes": dict(placement.net_classes),
-    }
-
-    if placement.via_placement is not None:
-        # `extract_via` (`board_py_bridge.rs:378`) requires "net" (a
-        # required key, no default) plus "x"/"y" (each independently
-        # defaulted to 0.0 when absent -- so this bug's discard was
-        # *silent* for position, not just a hard "net" crash: an omitted
-        # or misspelled x/y key would not raise, it would quietly place
-        # every via at the origin) and reads pad diameter under "pad", not
-        # "diameter". The previous shape here sent "position"/"diameter"/
-        # "net_name" -- none of which `extract_via` reads -- so every
-        # placement with vias raised "missing required key: net" before
-        # any DRC rule ran. Fixed by sending the key names Rust actually
-        # reads; `via.diameter` maps to Rust's "pad" (outer pad/land
-        # diameter, not drill).
-        via_list: list[dict[str, _Any]] = []
-        for via in placement.via_placement.vias:
-            via_list.append(
-                {
-                    "net": via.net_name,
-                    "x": via.position[0],
-                    "y": via.position[1],
-                    "drill": via.drill,
-                    "pad": via.diameter,
-                    "from_layer": via.from_layer,
-                    "to_layer": via.to_layer,
-                }
-            )
-        board_dict["vias"] = via_list
-
-    if placement.trace_placement is not None:
-        # Same class of bug as "zones" above, on the same K1-schema
-        # boundary: `board_py_bridge.rs::extract_trace_segment` requires
-        # key "net" (not "net_name") and a "segments" list of
-        # ``[x1, y1, x2, y2]`` coordinate groups (not top-level
-        # "start"/"end" keys) -- see `board_py_bridge.rs:345-372`. The
-        # previous shape here raised the identical
-        # ``missing required key: net`` error whenever
-        # ``placement.trace_placement`` was set, independent of the
-        # "zones"/"vias" bugs above. One ``board_dict["traces"]`` entry
-        # per raw segment (a "segments" list of length 1 each) keeps this
-        # a minimal, cardinality-preserving fix rather than a regrouping.
-        seg_list: list[dict[str, _Any]] = []
-        for seg in placement.trace_placement.segments:
-            seg_list.append(
-                {
-                    "net": seg.net_name,
-                    "layer": seg.layer,
-                    "width": seg.width,
-                    "segments": [[seg.start[0], seg.start[1], seg.end[0], seg.end[1]]],
-                }
-            )
-        board_dict["traces"] = seg_list
-
-    return board_dict
-
-
-def _constraints_to_dict(constraints: _ConstraintSet) -> dict[str, _Any]:
-    """Convert a ``ConstraintSet`` to the dict format expected by ``temper_drc_rs``.
-
-    NOTE (Python<->Rust boundary schema fix, 2026-08-08): this dict is
-    deserialized by ``temper_drc_rs::constraints::build_constraint_set``
-    (`packages/temper-drc-rs/src/constraints.rs`) into its serde
-    ``ConstraintSet`` -- a *different* Rust type from the
-    ``temper_drc_rs.ConstraintSet`` pyclass this function reads its input
-    from (`drc_contracts.rs`, installed with dataclass-compat fields in
-    ``drc_types.py``). The two share a name but not a field set, and this
-    function is the marshalling point between them. It used to forward
-    several pyclass fields the serde struct has no matching field for --
-    each was a real, populated value that ``serde_json::from_value``
-    silently dropped (no ``deny_unknown_fields``, the exact defect class
-    this remediation closes):
-
-    - ``zones[].bounds`` / ``zones[].components``: the pyclass
-      ``ZoneDefinition`` has 4 fields (name, bounds, net_classes,
-      components); the serde ``ZoneDefinition`` actually consumed here
-      has only 2 (name, net_classes) -- confirmed no rule in
-      ``packages/temper-drc-rs/src/rules/`` reads zone bounds/components
-      from constraints at all (zone geometry reaches DRC rules via the K1
-      ``board_dict["zones"]`` ``CopperZone`` list instead, a wholly
-      separate mechanism -- see ``_placement_to_board_dict``'s "zones"
-      NOTE above). Dropped rather than invented on the Rust side.
-    - ``critical_loops[].description``: the serde ``LoopConstraint`` has
-      no ``description`` field; no violation message renders it. Dropped.
-    - ``component_groups``: the serde ``ConstraintSet`` has no matching
-      field at all (confirmed: zero references anywhere in
-      ``temper-drc-rs/src/``) -- component-group proximity constraints
-      are consumed by the CP-SAT placer's preflight path
-      (``_preflight_py_oracle.py``-style checks), never by the native DRC
-      engine. Always silently discarded before; not sent at all now.
-    - ``net_classes`` / ``voltage_domains`` (top-level): same -- no
-      matching serde field, no native-engine consumer.
-      ``voltage_domains`` mirrors the same documented native-schema gap
-      as per-component ``voltage_domain`` (see
-      ``rules/erc/power_domain.rs`` -- ``PowerDomainCheck`` is
-      deliberately deregistered for exactly this reason).
-    - ``board`` (nested ``{width_mm, height_mm}``): the serde
-      ``ConstraintSet`` wants flat ``board_width``/``board_height`` keys.
-      Dead either way today (no rule reads
-      ``constraints.board_width``/``board_height``), but sent in the
-      correct shape now instead of under a key the target struct doesn't
-      have.
-
-    None of the dropped keys were read by any native Rust DRC rule
-    (verified by grep across ``constraints.rs`` and ``rules/``), so this
-    is a shape correction, not a behavior change -- and it is what makes
-    it safe to add ``#[serde(deny_unknown_fields)]`` to the serde
-    ``ConstraintSet`` without breaking the production ``CheckRunner.run()``
-    path.
+    Phase-A U5: the marshalling body moved to Rust
+    (``temper_drc_rs.DrcBoardSnapshot.from_state``). The function is kept as
+    a compat shim for ``drc_result._run_check_via_rust()``; its return value
+    is accepted directly by the polymorphic ``temper_drc_rs.run_drc``.
     """
-    return {
-        "clearances": [
-            {
-                "from_class": r.from_class,
-                "to_class": r.to_class,
-                "clearance_mm": r.min_mm,
-                "description": r.description,
-            }
-            for r in constraints.clearances
-        ],
-        "zones": [
-            {
-                "name": z.name,
-                "net_classes": z.net_classes,
-            }
-            for z in constraints.zones
-        ],
-        "critical_loops": [
-            {
-                "name": l.name,
-                "nets": l.nets,
-                "max_area_mm2": l.max_area_mm2,
-                "weight": l.weight,
-            }
-            for l in constraints.critical_loops
-        ],
-        "thermal_constraints": [
-            {
-                "components": t.components,
-                "prefer_edge": t.prefer_edge,
-                "min_spacing_mm": t.min_spacing_mm,
-                "max_distance_from_edge_mm": t.max_distance_from_edge_mm,
-                "description": t.description,
-            }
-            for t in constraints.thermal_constraints
-        ],
-        "hv_clearance_mm": constraints.hv_clearance_mm,
-        "board_width": constraints.board_width,
-        "board_height": constraints.board_height,
-    }
+    import temper_drc_rs as _tdrc_mod  # type: ignore[import-untyped]
+
+    return _tdrc_mod.DrcBoardSnapshot.from_state(placement)
+
+
+def _constraints_to_dict(constraints: _ConstraintSet) -> _Any:
+    """Convert a ``ConstraintSet`` to the typed ``TypedConstraintSet``.
+
+    Phase-A U5: the marshalling body moved to Rust
+    (``temper_drc_rs.TypedConstraintSet.from_state``), including the
+    documented field drops (zone bounds/components, loop description,
+    component_groups, net_classes, voltage_domains — all fields the engine
+    serde ``ConstraintSet`` has no matching field for; see the pre-migration
+    body pinned in ``test_drc_marshal_rust_differential.py``).
+    """
+    import temper_drc_rs as _tdrc_mod  # type: ignore[import-untyped]
+
+    return _tdrc_mod.TypedConstraintSet.from_state(constraints)
 
 
 def _violations_to_run_result(
@@ -444,14 +178,21 @@ def _violations_to_run_result(
     return _RunResult(check_results=check_results, total_elapsed_ms=elapsed_ms)
 
 
-@_dataclass
+def _new_rust_runner() -> _Any:
+    """Construct the Rust ``CheckRunner`` data surface (lazy import)."""
+    import temper_drc_rs as _tdrc_mod  # type: ignore[import-untyped]
+
+    return _tdrc_mod.CheckRunner()
+
+
 class CheckRunner:
     """
     Orchestrates running multiple checks — delegates to the Rust DRC engine.
 
-    The runner preserves the same public interface as before but ignores
-    the Python ``Check`` subclasses (they are kept as import-compatibility
-    stubs).  Actual check execution is done by ``temper_drc_rs.run_drc()``.
+    Phase-A U5: the data surface (the ``checks`` list and its methods) is
+    the Rust ``temper_drc_rs.CheckRunner`` pyclass; this class is a thin
+    shim that preserves the public API. Actual check execution is done by
+    ``temper_drc_rs.run_drc()`` with the typed marshalling structs.
 
     Example::
 
@@ -463,26 +204,32 @@ class CheckRunner:
                 print(f"[{issue.code}] {issue.message}")
     """
 
-    checks: list[_Check] = field(default_factory=list)
+    def __init__(self) -> None:
+        self._runner = _new_rust_runner()
+
+    @property
+    def checks(self) -> _Any:
+        """The live checks list (the Rust runner's own list object)."""
+        return self._runner.checks
 
     def add_check(self, check: _Check) -> CheckRunner:
         """Add a single check (for import-compatibility; ignored by run)."""
-        self.checks.append(check)
+        self._runner.add_check(check)
         return self
 
     def add_checks(self, checks: list[_Check]) -> CheckRunner:
         """Add multiple checks (for import-compatibility; ignored by run)."""
-        self.checks.extend(checks)
+        self._runner.add_checks(checks)
         return self
 
     def clear(self) -> CheckRunner:
         """Remove all checks from the runner."""
-        self.checks.clear()
+        self._runner.clear()
         return self
 
     def get_checks_by_category(self, category: str) -> list[_Check]:
         """Get all checks in a specific category."""
-        return [c for c in self.checks if c.category == category]
+        return list(self._runner.get_checks_by_category(category))
 
     def run(  # noqa: ARG002
         self,
@@ -495,7 +242,8 @@ class CheckRunner:
         """
         Run DRC checks via the Rust engine.
 
-        Converts ``Placement`` / ``ConstraintSet`` to dicts, calls
+        Converts ``Placement`` / ``ConstraintSet`` to the Phase-A U5 typed
+        structs (``DrcBoardSnapshot`` / ``TypedConstraintSet``), calls
         ``temper_drc_rs.run_drc()``, and maps the returned violation dicts
         to Python ``CheckResult`` objects.
 
@@ -514,15 +262,10 @@ class CheckRunner:
         is scoped as a follow-up, not folded into a signature repair.
         """
         del modified_regions  # inherited unused arg (baseline debt)
-        try:
-            import temper_drc_rs  # type: ignore[import-untyped]
-        except ImportError as exc:
-            raise ImportError(
-                "The temper-drc Rust engine is required. Install it with: pip install temper-drc-rs"
-            ) from exc
+        import temper_drc_rs  # type: ignore[import-untyped]
 
-        board_dict = _placement_to_board_dict(placement)
-        constraints_dict = _constraints_to_dict(constraints)
+        snapshot = _placement_to_board_dict(placement)
+        typed_constraints = _constraints_to_dict(constraints)
 
         start_time = _time.time()
 
@@ -533,8 +276,8 @@ class CheckRunner:
             kwargs["check_names"] = check_names
 
         violation_dicts: list[dict[str, _Any]] = temper_drc_rs.run_drc(
-            board_dict,
-            constraints_dict,
+            snapshot,
+            typed_constraints,
             **kwargs,
         )
 
@@ -561,24 +304,13 @@ class CheckRunner:
     @property
     def check_names(self) -> list[str]:
         """List of all check names in this runner."""
-        return [c.name for c in self.checks]
+        return list(self._runner.check_names)
 
     @property
     def categories(self) -> set[str]:
         """Set of all categories represented in this runner."""
-        return {c.category for c in self.checks}
+        return set(self._runner.categories)
 
     def summary(self) -> str:
         """Get a summary of registered checks."""
-        lines = [f"CheckRunner with {len(self.checks)} checks:"]
-
-        by_category: dict[str, list[str]] = {}
-        for check in self.checks:
-            if check.category not in by_category:
-                by_category[check.category] = []
-            by_category[check.category].append(check.name)
-
-        for category, names in sorted(by_category.items()):
-            lines.append(f"  {category.upper()}: {', '.join(names)}")
-
-        return "\n".join(lines)
+        return self._runner.summary()
