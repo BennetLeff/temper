@@ -402,3 +402,163 @@ extension-module feature links a Python interpreter; the pure-Rust
 `constraints` unit tests (67 total incl. 15 new) run under
 `cargo test --lib` without linking Python and are validated through the
 pytest differential against the built wheel.
+
+## PCL contract objects — Wave 4, Phase 2/6 (`src/pcl_contracts.rs`)
+
+A second surface migrates into this crate: the pure-data contracts of
+`temper_placer/pcl/constraints.py` (872 LOC pre-migration) — the eight PCL
+constraint classes' data surface and `CompilationContext`. They become pyo3
+`#[pyclass]` objects: construction validation (`because` ≥10 chars, `targets`
+membership, `AlignedConstraint` ≥2 components, `AnchoredConstraint`
+region/position exclusivity), id generation, `involves_component`,
+`to_dict`, `escalate`, and the deterministic dataclass-style
+`__repr__`/`__eq__`/`__hash__` surface run in Rust. `pcl/constraints.py` is
+now a delegation shim.
+
+**Why this slice and not more.** The module carried an ortools-encoder
+entanglement: `BaseConstraint` (an ABC the tagged-constraint classes
+subclass) holds the class-level `backends` registry that
+`sat_bridge.py`/`drc_bridge.py` populate and `parser.py` dispatches through,
+and the tagged classes call `super().__init__` into it. That slice — and the
+value enums, which must stay Python `enum.Enum` for `for t in ConstraintType`
+and `ConstraintType(value)` — stays in Python per the Phase-1 ortools-encoder
+KEEP. The migrated classes are registered as **virtual subclasses** of
+`BaseConstraint` (`ABC.register`), so `isinstance(c, BaseConstraint)` — which
+`test_feedback` asserts on every feedback delta — keeps holding.
+
+## R1a — behavioural A/B, bit-identical
+
+`tests/pcl/test_constraints_rust_differential.py` (169 methods) drives
+identical inputs through the shim and the oracle block pinned in the same
+file. The oracle is the pre-migration `constraints.py` with one documented
+mechanical transformation: the eight concrete classes were *plain* classes
+whose `repr()` was the address-dependent `object at 0x...` form — not a
+pin-able contract — so the oracle re-declares them as
+`@dataclass(unsafe_hash=True)` (fields in the same order, `__init__` and
+method bodies verbatim; `BaseConstraint` as a plain ABC with a manual
+`__init__` so the dataclass subclasses can carry non-default fields;
+`CompilationContext` was already a dataclass and is copied as-is). The
+differential pins, per class: `repr()` byte-identical, structural `==`
+agreement, `__hash__`-agrees-with-equality, `to_dict()` (via the type-carrying
+`_pclsig` comparator), `involves_component`, id generation, the escalation
+ladder, the `ValueError` messages (`must be ≥10 chars`, `at least 2
+components`, `requires either region or position`, `cannot have both`),
+default values (`metric`/`margin_mm`/`tolerance_mm`/`max_distance_mm`),
+deepcopy and pickle round-trips (`__reduce__`), and enum **identity** — the
+getters hand back the very live `ConstraintTier`/`ConstraintType`/... 
+singletons the rest of the tree binds against.
+
+## R1c / R1d — properties and metamorphic relations
+
+`tests/pcl/test_constraints_pbt.py` (hypothesis, 200 examples each; all
+non-vacuously guarded):
+
+| # | Kind | Property |
+|---|---|---|
+| P1 | R1c | id is deterministic over identical inputs and non-empty |
+| P2 | R1c | a caller-supplied `id` wins over auto-generation |
+| P3 | R1c | `to_dict` serializes enum fields to `.value` and round-trips string fields |
+| P4 | R1c | `involves_component` is True for every named ref, False otherwise |
+| P5 | R1c | `escalate` is monotone, reaches HARD in ≤2 steps, HARD is a fixed point |
+| P6 | R1c | `deepcopy` is an exact clone (eq/repr/to_dict/id) |
+| MR1 | R1d | id is invariant under escalation |
+| MR2 | R1d | `to_dict` is invariant under deepcopy |
+| MR3 | R1d | escalate commutes with deepcopy |
+| MR4 | R1d | involvement answers are invariant under escalation |
+
+## R1e — induction applicability
+
+The migrated surface is finite flat data: each constraint object is a fixed
+set of fields whose derived behaviour (`id`, `to_dict`, `involves_component`,
+`escalate`, repr/eq/hash) is a pure function of those fields. Correctness
+lifts componentwise: every field is stored exactly as passed (no coercion)
+and every derived value is computed from the stored fields alone, so two
+objects that agree on all fields agree on all derived values — which is what
+the structural `__eq__` and the deterministic `repr` assert. The only
+recursion-like structure, the list fields (`inner`, `components`, `targets`),
+appears only in membership checks and serialization pass-through; the oracle
+and shim iterate them in the same order.
+
+## R1f — TDD
+
+RED first (commit `07e8ead6`): the differential was committed against the
+pre-migration module with 24 expected failures — the object-`repr` (11),
+identity-`hash` (11) and the `targets=` constructor rejection (2) — pinning
+exactly the delta the migration introduces. The Rust surface + shim landed in
+the following commit (`fe9e6fb5`) and turned all 165 differential methods
+green.
+
+## R1g — Rust practice
+
+- No `unwrap`/`expect` anywhere (the crate's clippy `unwrap_used`/
+  `expect_used` deny is satisfied); `cargo clippy --all-features
+  --all-targets -- -D warnings` is clean.
+- The constructors and `to_dict` entry points are wrapped in
+  `temper_py_bridge::catch_panic` (R1g catch_unwind at the boundary); panics
+  surface as `PyRuntimeError`, while non-panic errors (the `ValueError`
+  validations, pyo3 extraction `TypeError`s) pass through as their native
+  Python exception — the differential pins the `ValueError` messages
+  byte-for-byte.
+- Live Python enum singletons are cached once in a `PyOnceLock` and handed
+  back through the getters (no re-import per call).
+- `hash` is CPython's own tuple hash (`hash(tuple(...))`), not a replica.
+
+## R1h — physics gating
+
+**Not applicable** — PCL contract objects are declarative data, not
+physics-gated compute (no solver, no field quantities, no conservative-bound
+constraint). Stated explicitly per the gate.
+
+## Known, documented deviations
+
+- **`repr`/`==`/`hash` are a defined contract, not the pre-migration
+  behaviour.** The pre-migration classes were plain classes with
+  address-dependent `repr` and identity `==`/`hash`. The migration defines the
+  deterministic dataclass-style surface (the "contracts-as-pyo3-pyclasses"
+  pivot) and pins it against the re-declared oracle. No in-repo consumer
+  relied on the old repr/identity equality (grep-verified).
+- **`targets=` is accepted at construction (widening).** The pre-migration
+  concrete `__init__` signatures rejected it (`TypeError: unexpected keyword
+  argument 'targets'`); the migrated constructors accept the `BaseConstraint`
+  dataclass field and run its validation. No in-repo caller passes `targets=`
+  (grep-verified), and the oracle dataclass accepts it, so the differential
+  stays shim==oracle on every exercised path. The differential pins the exact
+  `ValueError` literal for an invalid target instead.
+- **`__hash__` covers the hashable field surface.** List/dict fields cannot
+  sit in a Python tuple, so the oracle dataclass's `unsafe_hash` is
+  *unhashable* for list-bearing classes. The shim keeps objects hashable (as
+  the pre-migration plain classes were) by hashing only the scalar fields —
+  equal objects share equal scalars, which is all the
+  equal-implies-equal-hash invariant needs.
+- **The value enums stay Python `enum.Enum`** (`ConstraintTier`,
+  `ConstraintType`, `DistanceMetric`, `Axis`, `BoardSide`, `EdgeType`,
+  `CompilationTarget`, `SemanticTag`): production does `for t in
+  ConstraintType` and `ConstraintType(value)`, which a `#[pyclass]` enum
+  cannot provide (the tag_dispatch precedent). Rust holds the members the
+  objects were constructed with and hands back the same singletons.
+- **`BaseConstraint` stays Python** (the tagged-constraint subclasses and the
+  sat/drc/rust bridge registration are the Phase-1 ortools-encoder KEEP);
+  the migrated pyclasses are virtual subclasses, so `isinstance` checks hold
+  but `super()`/`__mro__` traversal from a migrated instance is not the
+  Python-class path (no in-repo consumer does that).
+- **Non-str constructor fields.** The `because` field is extracted to `str`
+  for validation, so a non-str `because` raises pyo3's
+  `TypeError: argument 'because' must be str` instead of Python's
+  `TypeError: object of type '...' has no len()`. Realistic callers always
+  pass strings (the parser and every fixture do); recorded, not closed.
+- **`__reduce__` reconstructs via the constructor.** Pickle/deepcopy rebuild
+  from the constructor args (id included), which is byte-identical for
+  already-constructed objects.
+
+## Scorecard (PCL contract objects)
+
+| Gate | Status |
+|---|---|
+| R1a bit-identical A/B | ✓ 169 differential methods (repr/eq/hash/to_dict/involves/id/escalate/validation/defaults/deepcopy/pickle/enum identity/BaseConstraint compat) |
+| R1b perf A/B | ✓ not a benchmarked surface; contract objects are not a speedup candidate — stated, not manufactured |
+| R1c ≥5 properties | ✓ 6 (P1–P6, all non-vacuously guarded) |
+| R1d ≥3 metamorphic | ✓ 4 (MR1–MR4, bounds stated in-test) |
+| R1e verification entry | ✓ componentwise field-data induction (base asserted: empty/edge inputs in the differential) |
+| R1f TDD RED-first | ✓ differential committed RED (24 expected failures), went green with the Rust |
+| R1g Rust practice | ✓ catch_panic at every constructor/to_dict boundary, no unwrap/expect, clippy `-D warnings` clean |
+| R1h physics gating | ✓ N/A — declarative data, not physics-gated |

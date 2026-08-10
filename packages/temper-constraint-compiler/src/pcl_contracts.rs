@@ -283,7 +283,6 @@ fn escalate_tier(py: Python<'_>, tier: &mut Py<PyAny>) -> PyResult<()> {
     Ok(())
 }
 
-
 /// `__hash__` values — list/dict fields cannot sit in a Python tuple (the
 /// oracle dataclass's `unsafe_hash` is unhashable for list-bearing classes
 /// for the same reason), so they are excluded; equal objects share equal
@@ -299,7 +298,6 @@ fn hashable_fields(py: Python<'_>, values: Vec<Py<PyAny>>) -> PyResult<Vec<Py<Py
     }
     Ok(out)
 }
-
 
 /// A Python float (for constructor defaults the pre-migration spelled as
 /// literal values: margin_mm=0.0, tolerance_mm=0.5, max_distance_mm=5.0).
@@ -357,11 +355,21 @@ impl AdjacentConstraint {
                 Some(m) => m.unbind(),
                 None => enum_member(py, &constraint_types(py)?.distance_metric, "EDGE_TO_EDGE")?,
             };
-            let base = resolve_base_state(py, tier, because, id.as_ref(), targets.as_ref(), "ADJACENT", |py| {
-                Ok(PyString::new(py, &format!("adj_{}_{}", py_str(py, &a)?, py_str(py, &b)?))
-                    .into_any()
-                    .unbind())
-            })?;
+            let base = resolve_base_state(
+                py,
+                tier,
+                because,
+                id.as_ref(),
+                targets.as_ref(),
+                "ADJACENT",
+                |py| {
+                    Ok(
+                        PyString::new(py, &format!("adj_{}_{}", py_str(py, &a)?, py_str(py, &b)?))
+                            .into_any()
+                            .unbind(),
+                    )
+                },
+            )?;
             Ok(Self {
                 a: a.unbind(),
                 b: b.unbind(),
@@ -630,11 +638,21 @@ impl SeparatedConstraint {
                 Some(m) => m.unbind(),
                 None => enum_member(py, &constraint_types(py)?.distance_metric, "EDGE_TO_EDGE")?,
             };
-            let base = resolve_base_state(py, tier, because, id.as_ref(), targets.as_ref(), "SEPARATED", |py| {
-                Ok(PyString::new(py, &format!("sep_{}_{}", py_str(py, &a)?, py_str(py, &b)?))
-                    .into_any()
-                    .unbind())
-            })?;
+            let base = resolve_base_state(
+                py,
+                tier,
+                because,
+                id.as_ref(),
+                targets.as_ref(),
+                "SEPARATED",
+                |py| {
+                    Ok(
+                        PyString::new(py, &format!("sep_{}_{}", py_str(py, &a)?, py_str(py, &b)?))
+                            .into_any()
+                            .unbind(),
+                    )
+                },
+            )?;
             Ok(Self {
                 a: a.unbind(),
                 b: b.unbind(),
@@ -865,11 +883,19 @@ impl EnclosingConstraint {
                 Some(v) => v.unbind(),
                 None => default_float(py, 0.0)?,
             };
-            let base = resolve_base_state(py, tier, because, id.as_ref(), targets.as_ref(), "ENCLOSING", |py| {
-                Ok(PyString::new(py, &format!("enc_{}", py_str(py, &outer)?))
-                    .into_any()
-                    .unbind())
-            })?;
+            let base = resolve_base_state(
+                py,
+                tier,
+                because,
+                id.as_ref(),
+                targets.as_ref(),
+                "ENCLOSING",
+                |py| {
+                    Ok(PyString::new(py, &format!("enc_{}", py_str(py, &outer)?))
+                        .into_any()
+                        .unbind())
+                },
+            )?;
             Ok(Self {
                 outer: outer.unbind(),
                 inner: inner.unbind(),
@@ -1083,11 +1109,21 @@ impl KeepoutConstraint {
                 Some(v) => v.unbind(),
                 None => default_float(py, 0.0)?,
             };
-            let base = resolve_base_state(py, tier, because, id.as_ref(), targets.as_ref(), "KEEPOUT", |py| {
-                Ok(PyString::new(py, &format!("keepout_{}", py_str(py, &zone_name)?))
-                    .into_any()
-                    .unbind())
-            })?;
+            let base = resolve_base_state(
+                py,
+                tier,
+                because,
+                id.as_ref(),
+                targets.as_ref(),
+                "KEEPOUT",
+                |py| {
+                    Ok(
+                        PyString::new(py, &format!("keepout_{}", py_str(py, &zone_name)?))
+                            .into_any()
+                            .unbind(),
+                    )
+                },
+            )?;
             Ok(Self {
                 zone_name: zone_name.unbind(),
                 tier: base.tier,
@@ -1294,13 +1330,21 @@ impl AlignedConstraint {
                 Some(v) => v.unbind(),
                 None => default_float(py, 0.5)?,
             };
-            let base = resolve_base_state(py, tier, because, id.as_ref(), targets.as_ref(), "ALIGNED", |py| {
-                let axis_value = enum_value_str(py, &axis)?;
-                let comp_str = join_first_three(py, &components)?;
-                Ok(PyString::new(py, &format!("align_{axis_value}_{comp_str}"))
-                    .into_any()
-                    .unbind())
-            })?;
+            let base = resolve_base_state(
+                py,
+                tier,
+                because,
+                id.as_ref(),
+                targets.as_ref(),
+                "ALIGNED",
+                |py| {
+                    let axis_value = enum_value_str(py, &axis)?;
+                    let comp_str = join_first_three(py, &components)?;
+                    Ok(PyString::new(py, &format!("align_{axis_value}_{comp_str}"))
+                        .into_any()
+                        .unbind())
+                },
+            )?;
             Ok(Self {
                 components: components.unbind(),
                 axis: axis.unbind(),
@@ -1518,13 +1562,21 @@ impl OnSideConstraint {
                 Some(v) => v.unbind(),
                 None => default_float(py, 5.0)?,
             };
-            let base = resolve_base_state(py, tier, because, id.as_ref(), targets.as_ref(), "ON_SIDE", |py| {
-                let side_value = enum_value_str(py, &side)?;
-                let comp_str = join_first_three(py, &components)?;
-                Ok(PyString::new(py, &format!("side_{side_value}_{comp_str}"))
-                    .into_any()
-                    .unbind())
-            })?;
+            let base = resolve_base_state(
+                py,
+                tier,
+                because,
+                id.as_ref(),
+                targets.as_ref(),
+                "ON_SIDE",
+                |py| {
+                    let side_value = enum_value_str(py, &side)?;
+                    let comp_str = join_first_three(py, &components)?;
+                    Ok(PyString::new(py, &format!("side_{side_value}_{comp_str}"))
+                        .into_any()
+                        .unbind())
+                },
+            )?;
             Ok(Self {
                 components: components.unbind(),
                 side: side.unbind(),
@@ -1765,11 +1817,21 @@ impl AnchoredConstraint {
                     "AnchoredConstraint cannot have both region and position",
                 ));
             }
-            let base = resolve_base_state(py, tier, because, id.as_ref(), targets.as_ref(), "ANCHORED", |py| {
-                Ok(PyString::new(py, &format!("anchor_{}", py_str(py, &component)?))
-                    .into_any()
-                    .unbind())
-            })?;
+            let base = resolve_base_state(
+                py,
+                tier,
+                because,
+                id.as_ref(),
+                targets.as_ref(),
+                "ANCHORED",
+                |py| {
+                    Ok(
+                        PyString::new(py, &format!("anchor_{}", py_str(py, &component)?))
+                            .into_any()
+                            .unbind(),
+                    )
+                },
+            )?;
             Ok(Self {
                 component: component.unbind(),
                 tier: base.tier,
@@ -1983,11 +2045,21 @@ impl LoopAreaConstraint {
         targets: Option<Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         catch_panic(|| {
-            let base = resolve_base_state(py, tier, because, id.as_ref(), targets.as_ref(), "LOOP_AREA", |py| {
-                Ok(PyString::new(py, &format!("loop_{}", py_str(py, &loop_name)?))
-                    .into_any()
-                    .unbind())
-            })?;
+            let base = resolve_base_state(
+                py,
+                tier,
+                because,
+                id.as_ref(),
+                targets.as_ref(),
+                "LOOP_AREA",
+                |py| {
+                    Ok(
+                        PyString::new(py, &format!("loop_{}", py_str(py, &loop_name)?))
+                            .into_any()
+                            .unbind(),
+                    )
+                },
+            )?;
             Ok(Self {
                 loop_name: loop_name.unbind(),
                 max_area_mm2: max_area_mm2.unbind(),
