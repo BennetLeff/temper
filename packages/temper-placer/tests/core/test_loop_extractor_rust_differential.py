@@ -37,10 +37,10 @@ import json
 from dataclasses import dataclass
 
 import pytest
+import temper_rust_router
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-import temper_rust_router
 from temper_placer.core.netlist import Component
 
 # ===========================================================================
@@ -411,3 +411,23 @@ def test_overflow_saturates_like_cpython():
     rs = _rs_parse(huge)
     assert float(rs) == float("inf")
     assert float(rs).hex() == float("inf").hex()
+
+
+def test_delegated_classify_component_matches_oracle():
+    """The production delegation shim (core/loop_extractor.classify_component,
+    which routes through Rust first) must reproduce the pinned oracle
+    bit-identically on the hand-crafted corpus -- this guards the actual
+    wiring that loop_ownership.classify_role consumes, not just the kernel."""
+    from temper_placer.core.loop_extractor import classify_component as delegated
+
+    for ref, fp, value, mpn in _CLASSIFY_CASES:
+        comp = Component(ref, fp, (0.0, 0.0), attributes={"value": value, "MPN": mpn})
+        py = _oracle_classify_component(comp)
+        got = delegated(comp)
+        assert got.ref == py.ref
+        assert got.category == py.category
+        assert got.subcategory == py.subcategory
+        assert got.confidence.hex() == py.confidence.hex(), (
+            f"shim diverged for {ref!r} {fp!r} {value!r} {mpn!r}: "
+            f"{got.confidence!r} vs {py.confidence!r}"
+        )
