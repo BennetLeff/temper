@@ -74,6 +74,16 @@ mod bus_cohort_contracts;
 #[cfg(feature = "python")]
 mod decision_contracts;
 
+// Orchestration plan Phase A unit U7: the typed terminal-extraction wire
+// format (router_v6/terminal_extraction.py -> PinWire/ComponentWire/
+// StackupLayerWire) and the typed COO-triplet I/O boundary of the
+// hypergraph_coo_matvec kernel (core/hypergraph.py -> hypergraph_contracts::Coo)
+// -- see docs/plans/2026-08-09-001-feat-rust-orchestration-engine-plan.md.
+#[cfg(feature = "python")]
+mod terminal_wire_contracts;
+#[cfg(feature = "python")]
+mod hypergraph_contracts;
+
 // Wave 4 fan-out core-contracts migration: stackup pyclasses + impedance
 // kernel (temper_placer/core/stackup.py).
 #[cfg(feature = "python")]
@@ -346,6 +356,12 @@ mod python {
         crate::loop_ownership_contracts::register(module)?;
         crate::specification_contracts::register(module)?;
         crate::board_contracts::register(module)?;
+
+        // Orchestration plan Phase A unit U7: the typed terminal-extraction
+        // wire format and the typed Coo container (see the module docstrings
+        // and packages/temper-design-bundle/VERIFICATION.md).
+        crate::terminal_wire_contracts::register(module)?;
+        crate::hypergraph_contracts::register(module)?;
 
         // Wave 4 Phase 3 candidate 5: the config/reference loaders. The
         // preprocess transform, the load chain, and the downstream helpers

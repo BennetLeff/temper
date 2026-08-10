@@ -4694,3 +4694,115 @@ compare.
   tests (clippy `unwrap_used = deny` is crate-wide); `cargo clippy --features
   python --all-targets` clean.
 - R1h: not applicable — no physics-gated quantity (recorded N/A).
+
+---
+
+# Phase-A U7 — typed terminal-extraction wires + Coo container — Verification
+
+Rust-orchestration-engine plan (2026-08-09-001), Phase A unit U7: the two
+residual wire-format marshalers of `router_v6/terminal_extraction.py` and
+`core/hypergraph.py` become typed pyclasses in this crate.
+
+## What was migrated
+
+| Python marshaler | Rust type (this crate) | Python name |
+|---|---|---|
+| `terminal_extraction` `_pin_wire` (deleted in the Wave-4 pass; residual `getattr`-by-name extraction) | `terminal_wire_contracts::PinWire` | `PinWire` |
+| `_component_wire` (ditto) | `terminal_wire_contracts::ComponentWire` | `ComponentWire` |
+| `_stackup_layer_wire` (ditto) | `terminal_wire_contracts::StackupLayerWire` | `StackupLayerWire` |
+| `core/hypergraph.py` `Coo` dataclass (numpy container) | `hypergraph_contracts::Coo` | `Coo` |
+
+## Structural proof (bit-identical parity)
+
+- **Terminal wires** (`terminal_wire_contracts.rs`): each wire's fields are
+  exactly the attribute set the unchanged `temper_rust_router`
+  `extract_net_terminals_py` kernel reads by name (`component.ref`,
+  `.initial_position`, `.initial_rotation`, `.initial_side`, `.pins`, and per
+  pin `.name`/`.number`/`.position`/`.is_pth`/`.layer`, plus stackup
+  `.name`/`.index`/`.layer_type` — NOT `roundrect_ratio`/`shape`, the oracle's
+  documented "wire-format trap"). The `from_component`/`from_pin`/`from_layer`
+  classmethods perform the identical `getattr` + pyo3 extraction the kernel
+  performed, so a wire object consumed by the kernel is bit-identical to the
+  pre-migration pyobject (int→f64 position coercion is pyo3's, matching the
+  kernel's own `Option<(f64,f64)>` extraction; `layer=None` stays `None` and
+  the kernel's falsy→`"F.Cu"` default is untouched).
+- **Coo** (`hypergraph_contracts.rs`): storage is typed `Vec<i64>`/`Vec<f64>`;
+  the numpy-visible surface (`row`/`col` int64, `data` dtype-preserved
+  float32/float64, `@` result float64) is materialized *by calling numpy
+  itself* (`numpy.array(vec, dtype=...)`), so dtype/shape/tobytes are numpy's
+  own — the existing `test_hypergraph_factory_rust_differential.py`
+  `(dtype.str, shape, tobytes())` matrix key and the
+  `test_core_graph_cluster_*` suites pass unchanged against the Rust Coo.
+  `__matmul__` calls the existing `temper_geometry.hypergraph_coo_matvec_py`
+  through Python (not a Rust link) because the anti-vacuity mutation guards in
+  `test_core_graph_cluster_pbt.py` patch that Python-level attribute; a direct
+  Rust call would bypass the mutations and silently kill those vacuities. The
+  empty short-circuit (`nnz == 0` → `np.zeros`) happens before the kernel
+  call, matching the oracle.
+
+## Empirical verification
+
+- **G1/G2 differential** —
+  `tests/router_v6/test_terminal_extraction_wire_rust_differential.py`
+  (committed RED before the types landed, then GREEN): the typed wire path
+  vs the pinned terminal oracle, 12 corpus cases + 200-example randomized
+  sweep, compared at the kernel's wire-tuple level with no tolerance; plus
+  per-field construction parity pins.
+  `tests/core/test_hypergraph_coo_rust_differential.py`: the Rust `Coo`
+  matmul vs the verbatim `_oracle_coo_matmul` (byte-identical to the accepted
+  pin in `test_core_graph_cluster_rust_differential.py`), bit-exact via
+  `float.hex()`, covering length extension, negative-col wrap, nan/empty,
+  error parity (negative row → `ValueError`, out-of-bounds col →
+  `IndexError`), dtype preservation, `.T`, and frozen semantics.
+- **G4 PBT** — `tests/core/test_hypergraph_coo_pbt.py`: 7 properties, each
+  with a `test_pN_fails_for_<mutant>` vacuity guard patching the Python-level
+  kernel (zeros / double / column-scatter / wrap-ignoring / empty-reach /
+  length-mismatch mutants), plus container pins with by-construction
+  anti-vacuity. `tests/router_v6/test_terminal_extraction_wire_pbt.py`: 7
+  properties (translation law, falsy-layer default, PTH/SMD layer context,
+  missing-omission, stable sort, wire-field preservation, wire-transparency)
+  each with a kernel-mutation vacuity guard where reachable.
+- **G5 metamorphic** — Coo: 4 relations (triplet-order permutation within
+  1 ulp — stated, NOT bit-exact; power-of-two scaling bit-exact; double
+  transpose identity; degree-total conservation for integer weights
+  bit-exact). Terminal wires: 3 relations (component-order and net-pins-order
+  permutations bit-exact; stable-duplicate insertion).
+- **G6 induction** — N/A: both units are data-only marshalling (no recursive
+  computation). The only structural recursion in the cluster is the kernel's
+  triplet scatter-add, whose base case (empty → zeros) and step (per-triplet
+  multiply-add) are pinned by the P1/P2/P5 properties.
+- **G8 physics discipline** — N/A: pure marshalling, no physics quantity.
+
+## R1g Rust bar
+
+- `cargo clippy --all-features --all-targets -D warnings` clean on this
+  crate.
+- `cargo test --features python` (with libpython linked locally): the new
+  `hypergraph_contracts::tests` unit tests pass; the module is
+  `#[cfg(feature = "python")]`-gated like every contract module here, so CI's
+  default-features `cargo test` skips it (the pyo3 extension-module link
+  requires the host Python, exactly as documented for the sibling crates).
+- No `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint
+  `unwrap_used = deny`); `Coo::__matmul__` is wrapped in
+  `temper_py_bridge::catch_unwind` (G7).
+
+## Documented deviations (per R1, recorded here)
+
+- The `Coo` constructor is typed (`Vec<i64>`/`Vec<f64>` extraction), so a
+  non-numeric payload raises a pyo3 `TypeError` at construction where the
+  duck-typed dataclass accepted it and failed later (or never). Every in-repo
+  construction path passes int64/float32/float64 numpy arrays, which pyo3
+  extracts natively.
+- `Coo.__eq__`/`__hash__` reproduce the frozen dataclass faithfully:
+  equality compares the field tuples through Python (raising numpy's
+  ambiguous-truth `ValueError` for distinct array objects), and hashing
+  raises `TypeError: unhashable type: 'numpy.ndarray'`.
+- Kernel-added validation divergence (pre-existing, preserved): the kernel's
+  `validate_matvec` raises `ValueError` on row/col/data length mismatch where
+  the oracle's numpy broadcasting silently allows it — the Rust Coo keeps the
+  kernel's behavior, pinned by `test_coo_matmul_length_mismatch_raises`.
+- Wire types add a fourth constructor-form: the direct `PinWire(...)` /
+  `ComponentWire(...)` / `StackupLayerWire(...)` `#[new]` (for tests and
+  programmatic construction); production builds them via the `from_*`
+  classmethods. `repr`/`eq`/`hash` are dataclass-style (frozen value
+  semantics).

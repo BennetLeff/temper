@@ -2,17 +2,29 @@
 Physics-Aware Hypergraph representation for PCB placement.
 
 This module defines the core immutable data structures for the hypergraph.
-Uses Python dataclasses and a plain-array COO triplet container (JAX removed;
-scipy.sparse retired -- see ``Coo``'s docstring).
+The COO-triplet container lives in ``temper-design-bundle`` as a typed
+pyclass (``hypergraph_contracts.Coo``); ``HypergraphIncidence`` and
+``PhysicsHypergraph`` remain Python dataclasses over numpy arrays (scipy.sparse
+retired -- see the ``Coo`` docstring history below).
 
 Wave 4 (unit ``core_graph_cluster``): the one genuine compute kernel — the
 ``Coo @ vector`` sparse matrix-vector product — is migrated to
 ``packages/temper-geometry/src/core_graph_geometry.rs``
 (``hypergraph_coo_matvec``, replicating ``np.bincount`` scatter-add
 semantics bit-for-bit, including the ``minlength`` length extension and
-negative-column fancy-index wrapping). The container stays a Python
-dataclass; ``__matmul__`` delegates. Bit-exact parity is pinned by
-``tests/core/test_core_graph_cluster_rust_differential.py``.
+negative-column fancy-index wrapping). ``__matmul__`` delegates. Bit-exact
+parity is pinned by ``tests/core/test_core_graph_cluster_rust_differential.py``
+and ``tests/core/test_hypergraph_coo_rust_differential.py``.
+
+Orchestration plan Phase A unit U7
+(``docs/plans/2026-08-09-001-feat-rust-orchestration-engine-plan.md``): the
+``Coo`` container — the kernel's typed I/O boundary — moves to
+``temper-design-bundle`` (``packages/temper-design-bundle/src/hypergraph_contracts.rs``).
+Storage is typed Rust ``Vec`` fields; the numpy-visible surface (``row``/
+``col``/``data`` and the ``@`` result) is preserved exactly by materializing
+numpy arrays through numpy itself, and ``__matmul__`` still runs the
+pre-migration kernel code path. ``extraction/hypergraph_factory.py`` keeps
+its KTD9 numpy/set assembly and constructs the typed ``Coo`` unchanged.
 """
 
 from __future__ import annotations
@@ -21,80 +33,12 @@ from dataclasses import dataclass, field
 from typing import TypeAlias
 
 import numpy as np
-import temper_geometry as _tg
+import temper_design_bundle_python as _tdb
 from numpy.typing import NDArray
 
 Array: TypeAlias = NDArray  # type alias for sparse operations
 
-
-@dataclass(frozen=True)
-class Coo:
-    """Minimal COO-triplet container, replacing ``scipy.sparse.coo_matrix``.
-
-    ``extraction/hypergraph_factory.py`` builds this from triplets that are
-    already deduplicated per net (a Python ``set()`` over connected-component
-    indices, before construction -- see that module's docstring), so there is
-    no duplicate-entry summation semantics to reproduce: this is triplet
-    storage plus an order-invariant matrix-vector product, not an algorithm.
-    ``docs/evidence/2026-08-07-scipy-keeps-re-triage.md`` Sec 3 re-triaged
-    this call site and found the prior "sparse construction semantics are not
-    reimplementable" premise did not hold once checked against the actual
-    code and its sole consumer (``PhysicsHypergraph.compute_node_degrees``/
-    ``compute_edge_degrees``, an order-invariant ``H @ ones`` / ``H.T @
-    ones``).
-
-    Duck-types the handful of ``scipy.sparse.coo_matrix`` attributes this
-    codebase's call sites and tests actually use (``shape``, ``nnz``,
-    ``row``, ``col``, ``data``, ``.T``, ``@``) -- this is not a general
-    sparse-matrix replacement, only enough surface for those consumers.
-    """
-
-    row: Array  # (nnz,) int -- row index per stored triplet
-    col: Array  # (nnz,) int -- column index per stored triplet
-    data: Array  # (nnz,) -- value per stored triplet
-    shape: tuple[int, int]
-
-    @property
-    def nnz(self) -> int:
-        return int(self.data.shape[0])
-
-    @property
-    def T(self) -> Coo:  # noqa: N802 - matches scipy's `.T` attribute name
-        return Coo(row=self.col, col=self.row, data=self.data, shape=(self.shape[1], self.shape[0]))
-
-    def __matmul__(self, other: Array) -> Array:
-        """Sparse matrix-vector product ``self @ other``.
-
-        For each stored triplet ``(r, c, d)``, scatter-adds ``d *
-        other[c]`` into ``result[r]``. The result does not depend on
-        triplet order -- summing by group regardless of the order its inputs
-        arrive in -- matching the order-invariance ``scipy.sparse.coo_matrix``'s
-        matvec already provided (this class's justification for dropping it).
-
-        The scatter-add itself (the ``np.bincount`` semantics: contributions
-        ``data * other[col]`` computed in triplet order, summed in triplet
-        order, output length ``max(shape[0], max(row)+1)``, negative ``col``
-        wrapping like numpy fancy indexing) runs in Rust via
-        ``temper_geometry.hypergraph_coo_matvec``, bit-identical to the
-        pre-migration numpy expression.
-
-        Wave-4 marshalling migration: numpy arrays are passed directly to
-        the Rust kernel (``hypergraph_coo_matvec_py`` now accepts
-        ``numpy.ndarray`` args and returns a ``numpy.ndarray``), eliminating
-        the ``.tolist()`` / ``[float(d) for d in ...]`` / ``np.array()``
-        marshalling that used to convert between Python lists and numpy
-        arrays at the FFI boundary.
-        """
-        n_rows = self.shape[0]
-        if self.nnz == 0:
-            return np.zeros(n_rows, dtype=np.float64)
-        return np.array(_tg.hypergraph_coo_matvec_py(
-            self.row,
-            self.col,
-            self.data.astype(np.float64),
-            n_rows,
-            other,
-        ))
+Coo: TypeAlias = _tdb.hypergraph_contracts.Coo
 
 
 @dataclass

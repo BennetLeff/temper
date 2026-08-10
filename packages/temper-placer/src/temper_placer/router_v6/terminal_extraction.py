@@ -18,11 +18,17 @@ wire-format field list that oracle documents: ``pin.position``,
 ``layer_type`` -- NOT ``roundrect_ratio``/``shape`` (those only feed
 ``pin_world_radius``, which this module never calls).
 
-Wave-4 marshalling migration: the ``extract_net_terminals_py`` kernel now
-accepts the typed pyclass objects (``Component``, ``Pin``, stackup layer)
-directly and extracts their attributes by name internally.  The Python-side
-``_pin_wire`` / ``_component_wire`` / ``_stackup_layer_wire`` wire-format
-marshalling helpers are deleted.
+Orchestration plan Phase A unit U7
+(``docs/plans/2026-08-09-001-feat-rust-orchestration-engine-plan.md``): the
+wire-format boundary is now *typed*. ``PinWire`` / ``ComponentWire`` /
+``StackupLayerWire`` live in ``temper-design-bundle`` (see
+``packages/temper-design-bundle/src/terminal_wire_contracts.rs``); their
+``from_component`` / ``from_pin`` / ``from_layer`` classmethods perform the
+attribute extraction the kernel used to do by ``getattr`` on arbitrary
+pyobjects, and ``extract_net_terminals`` passes the typed wire objects to the
+unchanged ``extract_net_terminals_py`` kernel. The typed path is pinned
+bit-identical to the pre-migration oracle by
+``tests/router_v6/test_terminal_extraction_wire_rust_differential.py``.
 """
 
 from __future__ import annotations
@@ -30,10 +36,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+import temper_design_bundle_python as _tdb
 import temper_rust_router as _trr
 
 from temper_placer.router_v6.connectivity import PadIdentity
 from temper_placer.router_v6.constraints_geometry import Point
+
+_wire = _tdb.terminal_wire_contracts
+
+PinWire = _wire.PinWire
+ComponentWire = _wire.ComponentWire
+StackupLayerWire = _wire.StackupLayerWire
 
 
 @dataclass(frozen=True)
@@ -57,9 +70,14 @@ def extract_net_terminals(
     context comes only from declared signal/mixed stackup layers; an unknown
     SMD layer is retained textually but has no invented numeric layer index.
     """
-    components = list(getattr(pcb, "components", ()))
+    components = [
+        ComponentWire.from_component(c) for c in getattr(pcb, "components", ())
+    ]
     stackup = getattr(pcb, "stackup", None)
-    stackup_layers = list(getattr(stackup, "layers", ()) or ())
+    stackup_layers = [
+        StackupLayerWire.from_layer(layer)
+        for layer in (getattr(stackup, "layers", ()) or ())
+    ]
 
     rows = _trr.extract_net_terminals_py(net_name, list(net_pins), components, stackup_layers)
     return tuple(
