@@ -52,8 +52,10 @@ from temper_placer.pcl import constraints as live
 
 # The SAT/DRC bridges register into BaseConstraint.backends at import time;
 # pull them in so the registry is populated exactly as in production.
-from temper_placer.pcl import drc_bridge  # noqa: F401
-from temper_placer.pcl import sat_bridge  # noqa: F401
+from temper_placer.pcl import (
+    drc_bridge,  # noqa: F401
+    sat_bridge,  # noqa: F401
+)
 
 # ============================================================================
 # ORACLE -- pre-migration temper_placer/pcl/constraints.py pinned verbatim.
@@ -930,60 +932,60 @@ def _build_pair(cls_name, kwargs):
 _CONSTRUCTOR_CASES = [
     (
         "AdjacentConstraint",
-        dict(a="Q1", b="Q2", max_distance_mm=10.0, tier=live.ConstraintTier.HARD,
-             because="Minimize commutation loop area"),
+        {"a": "Q1", "b": "Q2", "max_distance_mm": 10.0, "tier": live.ConstraintTier.HARD,
+             "because": "Minimize commutation loop area"},
     ),
     (
         "AdjacentConstraint",
-        dict(a="U1", b="Q1", max_distance_mm=15.0, tier=live.ConstraintTier.STRONG,
-             because="Minimize gate drive loop inductance",
-             metric=live.DistanceMetric.PIN_TO_PIN, pin_a="OUT", pin_b="GATE"),
+        {"a": "U1", "b": "Q1", "max_distance_mm": 15.0, "tier": live.ConstraintTier.STRONG,
+             "because": "Minimize gate drive loop inductance",
+             "metric": live.DistanceMetric.PIN_TO_PIN, "pin_a": "OUT", "pin_b": "GATE"},
     ),
     (
         "SeparatedConstraint",
-        dict(a="HV_ZONE", b="MCU_ZONE", min_distance_mm=10.0, tier=live.ConstraintTier.HARD,
-             because="IEC 60335-1 reinforced isolation requirement"),
+        {"a": "HV_ZONE", "b": "MCU_ZONE", "min_distance_mm": 10.0, "tier": live.ConstraintTier.HARD,
+             "because": "IEC 60335-1 reinforced isolation requirement"},
     ),
     (
         "EnclosingConstraint",
-        dict(outer="HV_ZONE", inner=["Q1", "Q2", "D1", "C_DC"], tier=live.ConstraintTier.HARD,
-             because="All high voltage components must stay in HV safety zone", margin_mm=2.0),
+        {"outer": "HV_ZONE", "inner": ["Q1", "Q2", "D1", "C_DC"], "tier": live.ConstraintTier.HARD,
+             "because": "All high voltage components must stay in HV safety zone", "margin_mm": 2.0},
     ),
     (
         "KeepoutConstraint",
-        dict(zone_name="HV_KEEPOUT", tier=live.ConstraintTier.HARD,
-             because="No components allowed in HV keepout for safety isolation", margin_mm=1.5),
+        {"zone_name": "HV_KEEPOUT", "tier": live.ConstraintTier.HARD,
+             "because": "No components allowed in HV keepout for safety isolation", "margin_mm": 1.5},
     ),
     (
         "AlignedConstraint",
-        dict(components=["C1", "C2", "C3", "C4"], axis=live.Axis.X, tier=live.ConstraintTier.SOFT,
-             because="Align decoupling capacitors for visual consistency", tolerance_mm=0.8),
+        {"components": ["C1", "C2", "C3", "C4"], "axis": live.Axis.X, "tier": live.ConstraintTier.SOFT,
+             "because": "Align decoupling capacitors for visual consistency", "tolerance_mm": 0.8},
     ),
     (
         "OnSideConstraint",
-        dict(components=["J1", "J2"], side=live.BoardSide.LEFT, edge=live.EdgeType.FLUSH,
-             tier=live.ConstraintTier.HARD,
-             because="Connectors must be on left edge for external access", max_distance_mm=3.0),
+        {"components": ["J1", "J2"], "side": live.BoardSide.LEFT, "edge": live.EdgeType.FLUSH,
+             "tier": live.ConstraintTier.HARD,
+             "because": "Connectors must be on left edge for external access", "max_distance_mm": 3.0},
     ),
     (
         "AnchoredConstraint",
-        dict(component="J_AC_IN", region=(0, 0, 10, 10), tier=live.ConstraintTier.HARD,
-             because="AC inlet connector mechanically fixed by enclosure"),
+        {"component": "J_AC_IN", "region": (0, 0, 10, 10), "tier": live.ConstraintTier.HARD,
+             "because": "AC inlet connector mechanically fixed by enclosure"},
     ),
     (
         "AnchoredConstraint",
-        dict(component="DISPLAY", position=(50.0, 50.0), tier=live.ConstraintTier.HARD,
-             because="Display must be centered for UI requirements"),
+        {"component": "DISPLAY", "position": (50.0, 50.0), "tier": live.ConstraintTier.HARD,
+             "because": "Display must be centered for UI requirements"},
     ),
     (
         "LoopAreaConstraint",
-        dict(loop_name="commutation", max_area_mm2=500.0, tier=live.ConstraintTier.STRONG,
-             because="Minimize commutation loop to reduce voltage overshoot"),
+        {"loop_name": "commutation", "max_area_mm2": 500.0, "tier": live.ConstraintTier.STRONG,
+             "because": "Minimize commutation loop to reduce voltage overshoot"},
     ),
     (
         "LoopAreaConstraint",
-        dict(loop_name="bootstrap", max_area_mm2=25.0, tier=live.ConstraintTier.STRONG,
-             because="Minimize bootstrap loop for charge efficiency", id="custom_loop_id"),
+        {"loop_name": "bootstrap", "max_area_mm2": 25.0, "tier": live.ConstraintTier.STRONG,
+             "because": "Minimize bootstrap loop for charge efficiency", "id": "custom_loop_id"},
     ),
 ]
 
@@ -1123,16 +1125,16 @@ def test_default_field_values_match():
 @pytest.mark.parametrize(
     "cls_name,kwargs",
     [
-        ("EnclosingConstraint", dict(outer="HV_ZONE", inner=["Q1"], tier=live.ConstraintTier.HARD,
-                                     because="Default margin test for enclosing")),
-        ("KeepoutConstraint", dict(zone_name="HV_KEEPOUT", tier=live.ConstraintTier.HARD,
-                                   because="Default margin test for keepout")),
-        ("AlignedConstraint", dict(components=["C1", "C2"], axis=live.Axis.X,
-                                   tier=live.ConstraintTier.SOFT,
-                                   because="Default tolerance test")),
-        ("OnSideConstraint", dict(components=["J1", "J2"], side=live.BoardSide.LEFT,
-                                  edge=live.EdgeType.FLUSH, tier=live.ConstraintTier.HARD,
-                                  because="Default max distance test")),
+        ("EnclosingConstraint", {"outer": "HV_ZONE", "inner": ["Q1"], "tier": live.ConstraintTier.HARD,
+                                     "because": "Default margin test for enclosing"}),
+        ("KeepoutConstraint", {"zone_name": "HV_KEEPOUT", "tier": live.ConstraintTier.HARD,
+                                   "because": "Default margin test for keepout"}),
+        ("AlignedConstraint", {"components": ["C1", "C2"], "axis": live.Axis.X,
+                                   "tier": live.ConstraintTier.SOFT,
+                                   "because": "Default tolerance test"}),
+        ("OnSideConstraint", {"components": ["J1", "J2"], "side": live.BoardSide.LEFT,
+                                  "edge": live.EdgeType.FLUSH, "tier": live.ConstraintTier.HARD,
+                                  "because": "Default max distance test"}),
     ],
 )
 def test_constructor_float_defaults_match_the_dataclass(cls_name, kwargs):
