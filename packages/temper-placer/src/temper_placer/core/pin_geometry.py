@@ -1,21 +1,14 @@
 """
 Pad-position helpers - the canonical rotation-and-side-aware pad geometry.
 
-This module provides pure-Python free functions for computing pin world
-positions on the board, applying component rotation and side-mirror
-transforms matching standard KiCad semantics.
+Wave 4 fan-out: the Python orchestration surface (attribute access,
+None-handling, shim logic) has been migrated to pyfunctions in
+``temper-geometry`` (``core_graph_geometry.rs``). This module is now a
+pure-delegation shim — every function delegates directly to a Rust pyfunction.
 
-Use pin_world_position(pin, comp) as the single source of truth
-for all pad-position computation.
-
-Wave 4 (unit ``core_graph_cluster``): the arithmetic kernels are migrated to
-``packages/temper-geometry/src/core_graph_geometry.rs`` —
-``_normalize_rotation``'s integer path (``(i * PI) / 2.0``) and the
-mirror+rotate transform of ``pin_world_position_at`` (KiCad R(-theta) via
-host-libm cos/sin). ``pin_world_radius`` continues to delegate to
-``pad_geometry.pad_bounding_radius`` (already Rust-backed); ``pin_world_layer``
-is pure string logic. Bit-exact parity is pinned by
-``tests/core/test_core_graph_cluster_rust_differential.py``.
+Bit-exact parity is pinned by:
+- ``tests/core/test_core_graph_cluster_rust_differential.py`` (original kernels)
+- ``tests/core/test_pin_geometry_rust_differential.py`` (orchestration surface)
 """
 
 from typing import TYPE_CHECKING
@@ -25,20 +18,18 @@ import temper_geometry as _tg
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Component, Pin
 
+# All four functions delegate directly to their Rust counterparts in
+# temper-geometry's core_graph_geometry module. The pyfunctions handle
+# None/int/float dispatch, Python ``or`` semantics, and attribute access
+# on Pin/Component objects identically to the pre-migration Python code.
 
-def _normalize_rotation(rotation: int | float | None) -> float:
-    """Normalize a rotation value to radians.
+_normalize_rotation = _tg.normalize_rotation_py
 
-    int values are treated as rotation indices (0-3 -> 0/90/180/270 deg),
-    matching the convention used by Component.initial_rotation.
-    float values are treated as radians and used as-is.
-    None is treated as 0 (no rotation).
-    """
-    if rotation is None:
-        return 0.0
-    if isinstance(rotation, int):
-        return _tg.normalize_rotation_index_py(rotation)
-    return float(rotation)
+pin_world_position_at = _tg.pin_world_position_at_py
+
+pin_world_layer = _tg.pin_world_layer_py
+
+pin_world_radius = _tg.pin_world_radius_py
 
 
 def pin_world_position(
@@ -59,93 +50,3 @@ def pin_world_position(
         (x, y) tuple in mm, in board coordinates.
     """
     return pin_world_position_at(pin, comp)
-
-
-def pin_world_position_at(
-    pin: "Pin",
-    comp: "Component",
-    pos_override: tuple[float, float] | None = None,
-    rotation_override: int | None = None,
-) -> tuple[float, float]:
-    """Return the world (x, y) position of a pin, with optional overrides.
-
-    Like :func:`pin_world_position` but accepts an explicit `pos_override`
-    for the component's board position and/or `rotation_override` for the
-    component's rotation index (0-3). When an override is provided, it
-    replaces the corresponding ``comp.initial_*`` attribute.
-    When None, falls back to ``comp.initial_*``.
-
-    This is the canonical implementation; `pin_world_position` delegates to it.
-
-    Args:
-        pin: The pin whose world position to compute.
-        comp: The component the pin belongs to.
-        pos_override: Optional (x, y) tuple overriding the component position.
-            When None, uses ``comp.initial_position``.
-        rotation_override: Optional rotation index (0-3) overriding
-            ``comp.initial_rotation``. When None, uses ``comp.initial_rotation``.
-
-    Returns:
-        (x, y) tuple in mm, in board coordinates.
-    """
-    rot_source = rotation_override if rotation_override is not None else comp.initial_rotation
-    rotation_rad = _normalize_rotation(rot_source)
-    side = comp.initial_side or 0
-
-    px, py = pin.position
-
-    # Add component position (use override if provided)
-    cpos = pos_override if pos_override is not None else comp.initial_position or (0.0, 0.0)
-
-    # Rust kernel: mirror X if bottom side (KiCad behavior), then rotate with
-    # KiCad's R(-theta) convention, then translate. Mirror + rotation + the
-    # additions all happen inside the kernel in the oracle's exact order.
-    return _tg.pin_world_position_kernel_py(
-        px, py, side, rotation_rad, cpos[0], cpos[1]
-    )
-
-
-def pin_world_layer(pin: "Pin") -> str:
-    """Return the layer a pin lives on.
-
-    Returns `pin.layer` if set, otherwise `"F.Cu"` (the default for
-    surface-mount pads on the top layer).
-    """
-    return getattr(pin, "layer", None) or "F.Cu"
-
-
-def pin_world_radius(pin: "Pin") -> float:
-    """Return the effective pad radius for a pin -- a fast, rotation-invariant
-    conservative bound for the router's hot paths (A* grid cell sizing,
-    congestion, obstacle-map fallback, escape-via clearance), NOT a
-    shape-agnostic circle.
-
-    This used to be ``max(pin.width, pin.height) / 2.0`` for every pad shape,
-    which under-reports extent at the corners of a square/near-square
-    rect/roundrect pad (a circle never contains a rectangle) and
-    over-reports on the short axis of an elongated pad. It is now
-    ``pad_geometry.pad_bounding_radius()`` -- the pad's EXACT, tight,
-    rotation-invariant circumscribing radius (not a further approximation):
-    for any point on the true pad boundary, its distance from the pad
-    center never exceeds this value, and the bound is achieved exactly at
-    the pad's true corner direction. See
-    ``temper_placer.core.pad_geometry`` module docstring for the full
-    closed-form derivation and never-under-reports proof (R2), and for why
-    this isotropic bound needs no rotation argument (R3 is satisfied by
-    proving the bound is rotation-invariant, not by ignoring rotation).
-
-    If both dimensions are zero, returns 0.5 mm (a common default for
-    zero-sized pads, unchanged from the prior behaviour).
-
-    (Compute already Rust-backed via ``pad_geometry.pad_bounding_radius``;
-    the delegation is unchanged from before this cluster's migration.)
-    """
-    from temper_placer.core.pad_geometry import DEFAULT_ROUNDRECT_RATIO, pad_bounding_radius
-
-    w = getattr(pin, "width", 0.0) or 0.0
-    h = getattr(pin, "height", 0.0) or 0.0
-    if w == 0.0 and h == 0.0:
-        return 0.5
-    shape = getattr(pin, "shape", None) or "rect"
-    ratio = getattr(pin, "roundrect_ratio", None) or DEFAULT_ROUNDRECT_RATIO
-    return pad_bounding_radius(w, h, shape, ratio)

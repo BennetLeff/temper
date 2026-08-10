@@ -68,6 +68,8 @@ use pyo3::exceptions::{PyIndexError, PyValueError};
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
+use std::panic::AssertUnwindSafe;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 use crate::host_math;
@@ -368,7 +370,217 @@ pub fn pad_radius(width: f64, height: f64) -> f64 {
 }
 
 // =============================================================================
-// pyo3 bridge
+// pin_geometry.py — orchestration pyfunctions (shim replacement)
+// =============================================================================
+
+/// Replicate `_normalize_rotation`'s dispatch: None → 0.0, int → index*PI/2,
+/// float → as-is.
+///
+/// Called from the orchestration pyfunctions below (not exported to Python —
+/// `normalize_rotation_py` is the pyo3 wrapper).
+#[cfg(feature = "python")]
+fn rot_to_radians(rot: &Bound<'_, PyAny>) -> PyResult<f64> {
+    if rot.is_none() {
+        return Ok(0.0);
+    }
+    // `isinstance(rotation, int)` — True for bool too (bool is a subclass of int
+    // in Python, and pyo3 extracts `True` as i64(1)), matching the oracle.
+    if let Ok(index) = rot.extract::<i64>() {
+        return Ok(normalize_rotation_index(index));
+    }
+    // Otherwise (float, or anything that __float__ converts — NaN/inf included).
+    rot.extract::<f64>()
+}
+
+/// `catch_unwind` at every pyo3 boundary with `Bound<PyAny>` arguments
+/// (the `AssertUnwindSafe` wrapper satisfies `UnwindSafe` while the pyo3
+/// default panic handler surfaces panics as `pyo3_runtime.PanicException`).
+#[cfg(feature = "python")]
+fn guard<R>(body: impl FnOnce() -> PyResult<R>) -> PyResult<R> {
+    match temper_py_bridge::catch_unwind(AssertUnwindSafe(body)) {
+        Ok(result) => result,
+        Err(payload) => Err(temper_py_bridge::panic_to_err(payload)),
+    }
+}
+
+/// Python-exported `_normalize_rotation` replacement.
+///
+/// Takes a single argument (None, int, or float), returns radians. The Python
+/// delegation shim binds this as `_normalize_rotation`.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn normalize_rotation_py(rotation: &Bound<'_, PyAny>) -> PyResult<f64> {
+    guard(|| rot_to_radians(rotation))
+}
+
+/// Python-exported `pin_world_position_at` replacement.
+///
+/// Reads `comp.initial_rotation`, `comp.initial_side`, `pin.position`,
+/// `comp.initial_position` via Python attribute access, then calls the
+/// existing `pin_world_position_kernel` (mirror + R(-theta) transform).
+/// The `rotation_override` and `pos_override` parameters replicate the
+/// Python shim's optional-override semantics.
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (pin, comp, pos_override=None, rotation_override=None))]
+pub fn pin_world_position_at_py(
+    pin: &Bound<'_, PyAny>,
+    comp: &Bound<'_, PyAny>,
+    pos_override: Option<(f64, f64)>,
+    rotation_override: Option<&Bound<'_, PyAny>>,
+) -> PyResult<(f64, f64)> {
+    guard(|| {
+        // --- rotation ---
+        // `rot_source = rotation_override if rotation_override is not None
+        //  else comp.initial_rotation`
+        let rotation_rad: f64 = {
+            let rot_val: Option<Bound<'_, PyAny>> = match rotation_override {
+                Some(ro) if !ro.is_none() => Some(ro.clone()),
+                _ => comp.getattr("initial_rotation").ok(),
+            };
+            match rot_val {
+                Some(v) => rot_to_radians(&v)?,
+                None => 0.0, // None → 0.0 (no rotation)
+            }
+        };
+
+        // --- side ---
+        // `side = comp.initial_side or 0`
+        let side: i64 = match comp.getattr("initial_side") {
+            Ok(attr) => {
+                if attr.is_none() || !attr.is_truthy().unwrap_or(false) {
+                    0
+                } else {
+                    attr.extract::<i64>().unwrap_or(0)
+                }
+            }
+            Err(_) => 0,
+        };
+
+        // --- pin position ---
+        // `px, py = pin.position`
+        let pos_attr = pin.getattr("position")?;
+        let px: f64 = pos_attr.get_item(0)?.extract()?;
+        let py: f64 = pos_attr.get_item(1)?.extract()?;
+
+        // --- component position ---
+        // `cpos = pos_override if pos_override is not None
+        //  else comp.initial_position or (0.0, 0.0)`
+        let (cx, cy) = if let Some((cx, cy)) = pos_override {
+            (cx, cy)
+        } else {
+            match comp.getattr("initial_position") {
+                Ok(attr) => {
+                    if attr.is_none() || !attr.is_truthy().unwrap_or(false) {
+                        (0.0, 0.0)
+                    } else {
+                        let x: f64 = attr.get_item(0)?.extract()?;
+                        let y: f64 = attr.get_item(1)?.extract()?;
+                        (x, y)
+                    }
+                }
+                Err(_) => (0.0, 0.0),
+            }
+        };
+
+        Ok(pin_world_position_kernel(px, py, side, rotation_rad, cx, cy))
+    })
+}
+
+/// Python-exported `pin_world_layer` replacement.
+///
+/// `getattr(pin, "layer", None) or "F.Cu"` — exact Python semantics.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn pin_world_layer_py(pin: &Bound<'_, PyAny>) -> PyResult<String> {
+    guard(|| {
+        let layer = match pin.getattr("layer") {
+            Ok(attr) => {
+                if attr.is_none() || !attr.is_truthy().unwrap_or(false) {
+                    None
+                } else {
+                    Some(attr.extract::<String>()?)
+                }
+            }
+            Err(_) => None,
+        };
+        Ok(layer.unwrap_or_else(|| "F.Cu".to_string()))
+    })
+}
+
+/// Map a pad-shape string to the FFI int enum (shared with
+/// `pad_geometry.py`'s `shape_code()`).
+const DEFAULT_ROUNDRECT_RATIO: f64 = 0.25;
+
+fn shape_code(shape: &str) -> i64 {
+    match shape {
+        "circle" => 0,
+        "oval" => 1,
+        "rect" => 2,
+        "roundrect" => 3,
+        "thru_hole" => 4,
+        _ => 99, // SHAPE_UNKNOWN — safe r=0 fallback
+    }
+}
+
+/// Python-exported `pin_world_radius` replacement.
+///
+/// Reads `width`, `height`, `shape`, `roundrect_ratio` from the pin object,
+/// applies the same None/falsy → 0.0 defaults, and calls
+/// `pad_geometry::bounding_radius`.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn pin_world_radius_py(pin: &Bound<'_, PyAny>) -> PyResult<f64> {
+    guard(|| {
+        // `w = getattr(pin, "width", 0.0) or 0.0`
+        let w: f64 = match pin.getattr("width") {
+            Ok(attr) => {
+                if attr.is_none() || !attr.is_truthy().unwrap_or(false) { 0.0 }
+                else { attr.extract::<f64>().unwrap_or(0.0) }
+            }
+            Err(_) => 0.0,
+        };
+        // `h = getattr(pin, "height", 0.0) or 0.0`
+        let h: f64 = match pin.getattr("height") {
+            Ok(attr) => {
+                if attr.is_none() || !attr.is_truthy().unwrap_or(false) { 0.0 }
+                else { attr.extract::<f64>().unwrap_or(0.0) }
+            }
+            Err(_) => 0.0,
+        };
+        // Zero dimensions → 0.5 mm default
+        if w == 0.0 && h == 0.0 {
+            return Ok(0.5);
+        }
+        // `shape = getattr(pin, "shape", None) or "rect"`
+        let shape_str: String = match pin.getattr("shape") {
+            Ok(attr) => {
+                if attr.is_none() || !attr.is_truthy().unwrap_or(false) {
+                    "rect".to_string()
+                } else {
+                    attr.extract::<String>().unwrap_or_else(|_| "rect".to_string())
+                }
+            }
+            Err(_) => "rect".to_string(),
+        };
+        let shape_code = shape_code(&shape_str);
+        // `ratio = getattr(pin, "roundrect_ratio", None) or DEFAULT_ROUNDRECT_RATIO`
+        let ratio: f64 = match pin.getattr("roundrect_ratio") {
+            Ok(attr) => {
+                if attr.is_none() || !attr.is_truthy().unwrap_or(false) {
+                    DEFAULT_ROUNDRECT_RATIO
+                } else {
+                    attr.extract::<f64>().unwrap_or(DEFAULT_ROUNDRECT_RATIO)
+                }
+            }
+            Err(_) => DEFAULT_ROUNDRECT_RATIO,
+        };
+        Ok(crate::pad_geometry::bounding_radius(w, h, shape_code, ratio))
+    })
+}
+
+// =============================================================================
+// pyo3 bridge (existing compute kernels)
 // =============================================================================
 
 #[cfg(feature = "python")]
@@ -561,6 +773,11 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(hypergraph_coo_matvec_py, m)?)?;
     m.add_function(wrap_pyfunction!(normalize_rotation_index_py, m)?)?;
     m.add_function(wrap_pyfunction!(pin_world_position_kernel_py, m)?)?;
+    // Wave 4 fan-out: pin_geometry.py orchestration pyfunctions (shim replacement)
+    m.add_function(wrap_pyfunction!(normalize_rotation_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pin_world_position_at_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pin_world_layer_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pin_world_radius_py, m)?)?;
     m.add_function(wrap_pyfunction!(power_required_trace_width_py, m)?)?;
     m.add_function(wrap_pyfunction!(power_trace_width_py, m)?)?;
     m.add_function(wrap_pyfunction!(power_delivery_strategy_py, m)?)?;
