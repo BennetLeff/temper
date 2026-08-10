@@ -18,14 +18,33 @@
 //                     isolation_barrier_too_large, derive_* and the
 //                     min-clearance extraction (pipeline-feasibility slice)
 //
+// The Rust orchestration engine (Rust Orchestration Engine plan
+// 2026-08-09-001, U0 scaffolding + U1 convergence) lives here too:
+//
+// - `stage`        — the `Stage<S>` trait, `StageError`, `InvariantSpec`,
+//                     `DeclaredArtifact` (the migration interface)
+// - `pipeline`     — `PipelineRunner<S>`, `PipelineReport`/`StageReport`,
+//                     `PipelineObserver<S>`, `PipelineConfig`
+// - `board_state`  — the phased `BoardState` struct (D2: mostly
+//                     `Option<Py<PyAny>>` until Phase A marshalling types land)
+// - `convergence`  — the Phase-1 deliverable: `TerminationReason`,
+//                     `ConvergenceCriteria`, `ConvergenceState`,
+//                     `ConvergenceChecker` pyclasses bit-exact with
+//                     `pipeline/convergence.py`; `ConvergenceChecker` also
+//                     implements `Stage<BoardState>` (stub) [lands with the
+//                     U1 convergence migration]
+//
 // Panic safety at the boundary (R1g): pyo3's `#[pyfunction]` expansion
 // wraps every exported body in `catch_unwind` and converts a Rust panic
 // into `PyPanicException`, so no panic can unwind across the pyo3 frame
 // into CPython (the crate also sets `profile.release.panic = "unwind"` so
 // that catch is what runs).
+mod board_state;
 mod copper_length;
 mod feasibility;
 mod host_math;
+mod pipeline;
+mod stage;
 mod timing;
 mod trace_filter;
 
