@@ -55,32 +55,11 @@ Known divergence classes, recorded (not hidden — see the tie-break rule in
    has a single bus capacitor spanning both rails), so the Rust "first
    try" path — which is byte-identical to the oracle's direct-span search —
    is what is exercised.
-4. **Bootstrap gating on driver presence (REAL BUG #1).** The oracle
-   traces the bootstrap loop only when a gate driver exists
-   (``if driver:``); the Rust kernel does NOT gate on driver presence —
-   it traces bootstrap whenever a C_BOOT component exists. This is a
-   real divergence: Rust may emit a bootstrap loop the Python oracle
-   would not. Asserted below as a documented known failure; the test
-   comparators accept the extra Rust-only bootstrap loop and verify the
-   REST of the extraction is bit-identical.
-5. **Return-path reconstruction.** The shim reconstructs
+4. **Return-path reconstruction.** The shim reconstructs
    ``return_layer`` / ``return_net`` as ``""`` for loop types the oracle
    leaves at the dataclass default ``None`` (gate-drive, bootstrap).
    Pinned by ``test_loop_extractor_parity.py``; asserted here in
    ``test_shim_reconstruction_matches_oracle_on_all_fields``.
-6. **Gate-drive loop missing driver (REAL BUG #2).** The Rust
-   ``trace_gate_drive_loop`` takes only ``switch`` and ``components`` —
-   no ``driver`` parameter — so gate drive loop components never include
-   the gate driver IC (U1). The Python oracle includes the driver when
-   present. This is a real divergence; the test comparators strip the
-   driver from the oracle's component list for gate-drive loops and
-   verify that the remaining components match exactly.
-7. **Bootstrap nets (REAL BUG #3).** The Rust ``trace_bootstrap_loop``
-   populates ``nets`` from the bootstrap capacitor's connected nets;
-   the Python oracle leaves ``nets`` at the dataclass default (empty).
-   This is a real divergence; the test comparators accept either
-   ordering in bootstrap nets and only assert that the commutation and
-   gate-drive nets match exactly.
 """
 
 from __future__ import annotations
@@ -888,53 +867,29 @@ _RANDOM_CORPUS = [_random_half_bridge(random.Random(i)) for i in range(30)]
 # Canonicalization + Rust bridge.
 # ---------------------------------------------------------------------------
 
-# Known driver MPNs — when comparing gate-drive loop components, we strip
-# these from the oracle's component list because the Rust kernel does not
-# include the driver (REAL BUG #2 — see module docstring).
-_KNOWN_DRIVER_REFS = {"U1"}
-
-
 def _f(value) -> str:
     """Bit-exact float key."""
     return None if value is None else float(value).hex()
 
 
-def _loop_canon(loop, *, strip_driver: bool = False) -> tuple:
-    """Oracle Loop -> comparable tuple (PRESERVED fields only).
-
-    If *strip_driver* is True and the loop is a gate-drive loop, known
-    driver refs are removed from the components list before comparison
-    (REAL BUG #2 — the Rust kernel does not include the driver).
-    """
-    comps = tuple(loop.components)
-    if strip_driver and "gate_drive" in (loop.loop_type.value if hasattr(loop, 'loop_type') else loop.get('loop_type', '')):
-        comps = tuple(c for c in comps if c not in _KNOWN_DRIVER_REFS)
+def _loop_canon(loop) -> tuple:
+    """Oracle Loop -> comparable tuple (PRESERVED fields only)."""
     return (
         loop.name,
         loop.loop_type.value if hasattr(loop, 'loop_type') else loop.loop_type,
-        comps,
+        tuple(loop.components),
         tuple(loop.nets),
         _f(loop.max_area_mm2),
     )
 
 
-def _dict_canon(loop_dict: dict, *, strip_bootstrap_nets: bool = False) -> tuple:
-    """Raw Rust-bridge loop dict -> comparable tuple (PRESERVED fields).
-
-    If *strip_bootstrap_nets* is True and the loop is a bootstrap loop,
-    nets are set to empty for comparison (REAL BUG #3 — Rust populates
-    bootstrap nets; the Python oracle leaves them at the default empty).
-    """
-    loop_type = loop_dict["loop_type"]
-    components = tuple(loop_dict.get("components", []))
-    nets = tuple(loop_dict.get("nets", []))
-    if strip_bootstrap_nets and loop_type == "bootstrap":
-        nets = ()
+def _dict_canon(loop_dict: dict) -> tuple:
+    """Raw Rust-bridge loop dict -> comparable tuple (PRESERVED fields)."""
     return (
         loop_dict["name"],
-        loop_type,
-        components,
-        nets,
+        loop_dict["loop_type"],
+        tuple(loop_dict.get("components", [])),
+        tuple(loop_dict.get("nets", [])),
         _f(loop_dict.get("max_area_mm2", 500.0)),
     )
 
@@ -952,102 +907,48 @@ def _rust_bridge(netlist: Netlist) -> dict:
 # Differential tests: Rust vs oracle, bit-identical on PRESERVED fields.
 # ---------------------------------------------------------------------------
 
-# When comparing bootstrap loops: the Python oracle gates on driver presence
-# (REAL BUG #1). We check that every oracle loop exists in the Rust output
-# with matching fields, and that any extra Rust-only bootstrap loops are
-# documented as expected divergence.
-
-
-def _has_driver(netlist: Netlist) -> bool:
-    """Check if the netlist contains a gate driver (U1 component)."""
-    return any(
-        c.ref.startswith("U") and c.attributes.get("MPN", "").upper()
-        in ("UCC21550", "ISO5852S")
-        for c in netlist.components
-    )
-
-
-def _compare_loops_accepting_divergences(
+def _compare_loops_strict(
     oracle: LoopCollection,
     rust: dict,
-    netlist: Netlist,
 ) -> None:
-    """Bit-exact comparison accepting the 3 documented divergences."""
-    has_drv = _has_driver(netlist)
-
+    """Bit-exact comparison — all PRESERVED fields must match."""
     oracle_by_name = {loop.name: loop for loop in oracle.loops}
     rust_by_name = {d["name"]: d for d in rust["loops"]}
 
-    # 1. Commutation loop: must match exactly (no known divergence here).
-    assert "auto_commutation" in rust_by_name, "Rust must produce commutation loop"
-    assert "auto_commutation" in oracle_by_name, "oracle must produce commutation loop"
-    assert _dict_canon(rust_by_name["auto_commutation"]) == _loop_canon(
-        oracle_by_name["auto_commutation"]
-    ), "commutation loop must be bit-identical"
-
-    # 2. Gate drive loops: compare with driver stripped from oracle
-    #    (REAL BUG #2 — Rust does not include driver in gate-drive components).
-    for gate_name in ("auto_gate_drive_Q1", "auto_gate_drive_Q2",
-                      "auto_gate_drive_QH", "auto_gate_drive_QL"):
-        if gate_name not in oracle_by_name:
-            continue
-        assert gate_name in rust_by_name, f"Rust must produce {gate_name}"
-        assert _dict_canon(rust_by_name[gate_name]) == _loop_canon(
-            oracle_by_name[gate_name], strip_driver=True
-        ), f"{gate_name} must be bit-identical (modulo REAL BUG #2: driver stripped from oracle)"
-
-    # 3. Bootstrap loop: compare nets-stripped, and accept Rust-only bootstrap
-    #    when oracle has no driver (REAL BUGS #1 and #3).
-    rust_bootstrap = rust_by_name.get("auto_bootstrap")
-    oracle_bootstrap = oracle_by_name.get("auto_bootstrap")
-
-    if oracle_bootstrap is not None:
-        assert rust_bootstrap is not None, "Rust must produce bootstrap when oracle does"
-        assert _dict_canon(rust_bootstrap, strip_bootstrap_nets=True) == _loop_canon(
-            oracle_bootstrap
-        ), "bootstrap loop must be bit-identical (modulo REAL BUG #3: nets stripped from Rust)"
-    elif not has_drv and rust_bootstrap is not None:
-        # REAL BUG #1: Rust traces bootstrap without a driver; oracle
-        # gates on driver presence. The Rust-only bootstrap loop is
-        # expected — verify its name and type match expectation.
-        assert rust_bootstrap["loop_type"] == "bootstrap"
-        assert rust_bootstrap["name"] == "auto_bootstrap"
-        # Verify that the Rust bootstrap components are a superset of
-        # [C_BOOT] or [D_BOOT, C_BOOT].
-        assert "C_BOOT" in rust_bootstrap.get("components", [])
-    else:
-        assert rust_bootstrap is None, (
-            "Rust should not produce bootstrap when oracle doesn't and driver exists"
-        )
-
-    # 4. Verify no EXTRA non-bootstrap loops in Rust or Oracle.
-    rust_non_boot_names = set(rust_by_name) - {"auto_bootstrap"}
-    oracle_non_boot_names = set(oracle_by_name) - {"auto_bootstrap"}
-    assert rust_non_boot_names == oracle_non_boot_names, (
-        f"Rust non-bootstrap loops must match oracle exactly\n"
-        f"  rust_only={rust_non_boot_names - oracle_non_boot_names}\n"
-        f"  oracle_only={oracle_non_boot_names - rust_non_boot_names}"
+    # 1. Same set of loop names
+    assert set(oracle_by_name) == set(rust_by_name), (
+        f"Loop name sets must match exactly\n"
+        f"  oracle_only={set(oracle_by_name) - set(rust_by_name)}\n"
+        f"  rust_only={set(rust_by_name) - set(oracle_by_name)}"
     )
+
+    # 2. Every loop matches bit-exactly on PRESERVED fields
+    for name in oracle_by_name:
+        oracle_canon = _loop_canon(oracle_by_name[name])
+        rust_canon = _dict_canon(rust_by_name[name])
+        assert rust_canon == oracle_canon, (
+            f"{name}: bit-exact mismatch\n"
+            f"  oracle={oracle_canon}\n"
+            f"  rust={rust_canon}"
+        )
 
 
 @pytest.mark.parametrize("netlist", [c for _, c in _CORPUS], ids=[n for n, _ in _CORPUS])
 def test_oracle_and_rust_preserved_fields_bit_identical(netlist):
     """For every corpus netlist the Rust kernel must succeed and emit the
-    same loops as the oracle on PRESERVED fields — modulo the 3 documented
-    real divergences (see module docstring)."""
+    same loops as the oracle on PRESERVED fields — bit-exact, no exceptions."""
     oracle = _oracle_auto_extract_loops(netlist)
     assert len(oracle.loops) > 0, "corpus netlist must extract at least one loop (anti-vacuity)"
 
     rust = _rust_bridge(netlist)
     assert rust.get("ok") is True, f"Rust kernel should succeed: {rust.get('error')}"
 
-    _compare_loops_accepting_divergences(oracle, rust, netlist)
+    _compare_loops_strict(oracle, rust)
 
 
 @pytest.mark.parametrize("seed", range(len(_RANDOM_CORPUS)))
 def test_randomized_netlists_preserved_fields_bit_identical(seed):
-    """30 seeded random half bridges — bit-identical modulo documented
-    divergences."""
+    """30 seeded random half bridges — bit-identical, no exceptions."""
     netlist = _RANDOM_CORPUS[seed]
     oracle = _oracle_auto_extract_loops(netlist)
     assert len(oracle.loops) > 0, f"seed={seed}: expected extracted loops"
@@ -1055,47 +956,43 @@ def test_randomized_netlists_preserved_fields_bit_identical(seed):
     rust = _rust_bridge(netlist)
     assert rust.get("ok") is True, f"seed={seed}: {rust.get('error')}"
 
-    _compare_loops_accepting_divergences(oracle, rust, netlist)
+    _compare_loops_strict(oracle, rust)
 
 
 def test_shim_reconstruction_matches_oracle_on_all_fields():
     """End-to-end through the shim: the reconstructed Loop objects must
     match the oracle on PRESERVED *and* RECONSTRUCTED fields (priority,
-    events bit-exact, return paths) — modulo the documented divergences."""
+    events bit-exact, return paths)."""
     netlist = _full_half_bridge()
     oracle = _oracle_auto_extract_loops(netlist)
     rust = _rust_bridge(netlist)
     assert rust.get("ok") is True
     reconstructed = _dict_to_loop_collection(rust)
-    has_drv = _has_driver(netlist)
 
     # Reconstructed loops driven by Rust output order; oracle loops by
     # Python order. Build dicts by name for comparison.
     recon_by_name = {loop.name: loop for loop in reconstructed.loops}
     oracle_by_name = {loop.name: loop for loop in oracle.loops}
 
+    # Same set of loop names (no extra/missing loops).
+    assert set(recon_by_name) == set(oracle_by_name), (
+        f"Loop name sets must match: recon_only={set(recon_by_name) - set(oracle_by_name)}, "
+        f"oracle_only={set(oracle_by_name) - set(recon_by_name)}"
+    )
+
     for name in oracle_by_name:
         rust_loop = recon_by_name[name]
         py_loop = oracle_by_name[name]
         assert rust_loop.name == py_loop.name
         assert rust_loop.loop_type.value == py_loop.loop_type.value
-        # Components: strip driver from oracle for gate-drive (REAL BUG #2).
-        if "gate_drive" in py_loop.loop_type.value:
-            py_comps = [c for c in py_loop.components if c not in _KNOWN_DRIVER_REFS]
-        else:
-            py_comps = list(py_loop.components)
-        assert list(rust_loop.components) == py_comps, (
-            f"{name}: components mismatch: rust={list(rust_loop.components)} oracle_stripped={py_comps}"
+        # Components: bit-identical (driver IS included for gate-drive loops now).
+        assert list(rust_loop.components) == list(py_loop.components), (
+            f"{name}: components mismatch: rust={list(rust_loop.components)} oracle={list(py_loop.components)}"
         )
-        # Nets: accept any ordering in bootstrap (REAL BUG #3 — Rust
-        # populates nets; oracle leaves empty).
-        if py_loop.loop_type.value == "bootstrap":
-            # Rust may have extra nets; oracle may be empty. Accept any nets.
-            pass
-        else:
-            assert list(rust_loop.nets) == list(py_loop.nets), (
-                f"{name}: nets mismatch: rust={list(rust_loop.nets)} oracle={list(py_loop.nets)}"
-            )
+        # Nets: bit-identical (bootstrap nets are empty on both sides now).
+        assert list(rust_loop.nets) == list(py_loop.nets), (
+            f"{name}: nets mismatch: rust={list(rust_loop.nets)} oracle={list(py_loop.nets)}"
+        )
         assert _f(rust_loop.max_area_mm2) == _f(py_loop.max_area_mm2)
         # RECONSTRUCTED fields — deterministic from loop_type.
         assert rust_loop.priority == py_loop.priority
@@ -1104,8 +1001,7 @@ def test_shim_reconstruction_matches_oracle_on_all_fields():
         assert _f(rust_loop.events.frequency_hz) == _f(py_loop.events.frequency_hz)
         assert _f(rust_loop.events.peak_current_a) == _f(py_loop.events.peak_current_a)
         # Return paths: the oracle's dataclass default is None; the shim
-        # reconstructs "" for unmapped loop types (documented divergence
-        # class 5). Where the oracle sets a value (commutation), it must match exactly.
+        # reconstructs "" for unmapped loop types (divergence class 4 in docstring).
         if py_loop.return_layer is not None:
             assert rust_loop.return_layer == py_loop.return_layer
         else:
@@ -1118,16 +1014,6 @@ def test_shim_reconstruction_matches_oracle_on_all_fields():
         # is generic (documented divergence, asserted as such, not equal).
         assert rust_loop.pins == []
         assert rust_loop.description != py_loop.description
-
-    # Bootstrap: Rust may have it when oracle doesn't (REAL BUG #1).
-    if "auto_bootstrap" not in oracle_by_name and "auto_bootstrap" in recon_by_name:
-        assert not has_drv, (
-            "Rust-only bootstrap is ONLY expected when no driver exists (REAL BUG #1)"
-        )
-        # Verify the Rust-only bootstrap has correct shape.
-        rb = recon_by_name["auto_bootstrap"]
-        assert rb.loop_type == LoopType.BOOTSTRAP
-        assert "C_BOOT" in rb.components
 
 
 def test_rust_error_cases_match_python_empty():
