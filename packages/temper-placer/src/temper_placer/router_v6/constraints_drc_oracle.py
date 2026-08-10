@@ -27,11 +27,13 @@ triage and the bit-exactness notes.
 ``register_track(s)``/``register_via(s)``/``register_pad(s)``/``clear``
 (pure ``PCBGeometry`` glue), ``add_clearance_credit`` (axis validation +
 dict insert), ``_resolve_owner`` (``pin_owner`` may be a callable),
-``get_valid_via_sites`` (grid loop + Python sort key) and the f-string
-``reason`` message formatting stay Python -- the last because
-``{actual:.3f}`` rendering is a Python library semantic the kernels do not
-replicate (R1a); the kernels return the structured violation and this module
-builds the message from the same code the oracle ran.
+and the f-string ``reason`` message formatting stay Python -- the last
+because ``{actual:.3f}`` rendering is a Python library semantic the kernels
+do not replicate (R1a); the kernels return the structured violation and this
+module builds the message from the same code the oracle ran.
+``get_valid_via_sites`` is ported via ``drc_oracle_valid_via_sites_py``
+(raw-geometry kernel with internal clearance resolution -- the grid loop
+visits many points, each with a potentially different clearance context).
 """
 
 from __future__ import annotations
@@ -222,6 +224,47 @@ class DRCOracle:
         return [
             (cr, lv, hv, eff, hw, hl, smx, smy, axis)
             for (cr, lv, hv), (eff, hw, hl, smx, smy, axis) in self.clearance_credits.items()
+        ]
+
+    def _clearance_wire(self):
+        """Marshal the ClearanceMatrix surface for raw-geometry kernels:
+        net->class map, diff pairs, class-pair clearances, class
+        clearances, default, and zones (name, clearance, polygon)."""
+        zones = []
+        if self.rules.zone_manager is not None:
+            for z in self.rules.zone_manager.zones:
+                zones.append((z.name, z.clearance_mm, list(z.polygon)))
+        return (
+            list(self.rules._net_to_class.items()),
+            [(a, b, v) for (a, b), v in self.rules._differential_pairs.items()],
+            [(a, b, v) for (a, b), v in self.rules._clearances.items()],
+            [(n, r.clearance) for n, r in self.rules._net_class_rules.items()],
+            self.rules.default_clearance,
+            zones,
+        )
+
+    def _tracks_wire(self):
+        """Wire-format of all registered tracks for `valid_via_sites_kernel`."""
+        return [
+            (t.id, t.start.x, t.start.y, t.end.x, t.end.y, t.width, t.net,
+             t.layer, t.diff_pair_companion)
+            for t in self.geometry.tracks
+        ]
+
+    def _pads_wire(self):
+        """Wire-format of all registered pads for `valid_via_sites_kernel`."""
+        return [
+            (p.id, p.center.x, p.center.y, p.size[0], p.size[1], p.rotation,
+             p.net, p.layer, p.mask_expansion, p.is_pth,
+             self._resolve_owner(p.id))
+            for p in self.geometry.pads
+        ]
+
+    def _vias_wire(self):
+        """Wire-format of all registered vias for `valid_via_sites_kernel`."""
+        return [
+            (v.id, v.center.x, v.center.y, v.diameter, v.net)
+            for v in self.geometry.vias
         ]
 
     def _resolve_owner(self, pin_id: str) -> str | None:
@@ -596,42 +639,25 @@ class DRCOracle:
         Returns:
             List of valid (x, y) positions, sorted by distance from target
 
-        Wave 4: stays Python -- a grid loop over :meth:`can_place_via`
-        (itself Rust-backed) plus a Python sort key
-        (``(p[0]-target[0]) ** 2 + ...``, libm ``pow``, a sorting tuple
-        only).
+        Wave 4: delegates the grid sweep, circular filter, per-site DRC
+        check, and libm-``pow`` sort key to
+        ``temper_drc_rs.drc_oracle_valid_via_sites_py``.
         """
+        import temper_drc_rs as _temper_drc_rs
+
         via_diameter = self.rules.get_via_diameter(net)
-        valid_sites: list[tuple[float, float]] = []
-
-        # Generate candidate grid points
-        x_min = target[0] - search_radius
-        x_max = target[0] + search_radius
-        y_min = target[1] - search_radius
-        y_max = target[1] + search_radius
-
-        x_steps = int((x_max - x_min) / grid_step) + 1
-        y_steps = int((y_max - y_min) / grid_step) + 1
-
-        for i in range(x_steps):
-            x = x_min + i * grid_step
-            for j in range(y_steps):
-                y = y_min + j * grid_step
-
-                # Check if within search radius (circular)
-                dx = x - target[0]
-                dy = y - target[1]
-                if dx * dx + dy * dy > search_radius * search_radius:
-                    continue
-
-                # Check if valid placement
-                valid, _ = self.can_place_via((x, y), via_diameter, net)
-                if valid:
-                    valid_sites.append((x, y))
-
-        # Sort by distance from target
-        valid_sites.sort(key=lambda p: (p[0] - target[0]) ** 2 + (p[1] - target[1]) ** 2)
-        return valid_sites
+        return _temper_drc_rs.drc_oracle_valid_via_sites_py(
+            target[0],
+            target[1],
+            search_radius,
+            net,
+            grid_step,
+            via_diameter,
+            self._tracks_wire(),
+            self._pads_wire(),
+            self._vias_wire(),
+            self._clearance_wire(),
+        )
 
     def _enumerate_validate_pairs(self):
         """Enumerate ``validate_all``'s four pairwise checks in the oracle's
