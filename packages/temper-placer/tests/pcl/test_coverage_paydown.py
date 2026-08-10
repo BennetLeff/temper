@@ -3,8 +3,7 @@ Coverage paydown tests for PCL module — fills gaps in existing test coverage.
 
 Tests added for constraint properties, BaseConstraint.escalate,
 KeepoutConstraint, LintResult, lint_constraints, ConstraintCollection methods,
-DRC bridge, SAT bridge, rust bridge flags, tag dispatch, tagged constraints,
-and tiers/unsat compiler edge cases.
+SAT bridge, tag dispatch, tagged constraints, and unsat compiler edge cases.
 """
 
 import pytest
@@ -24,7 +23,6 @@ from temper_placer.pcl.constraints import (
     SemanticTag,
     SeparatedConstraint,
 )
-from temper_placer.pcl.drc_bridge import constraint_to_assertions
 from temper_placer.pcl.linter import LintResult, lint_constraints
 from temper_placer.pcl.parser import (
     ConstraintCollection,
@@ -33,20 +31,6 @@ from temper_placer.pcl.parser import (
     parse_pcl_file,
 )
 from temper_placer.pcl.sat_bridge import ConstraintOrigin
-from temper_placer.pcl.rust_bridge import (
-    has_rust_backend,
-    rust_version,
-    supported_constraint_types_rust,
-    tier_to_weight_rust,
-)
-from temper_placer.pcl.tiers import (
-    ConstraintStatus,
-    EscalationConfig,
-    EscalationReason,
-    TieredConstraintManager,
-    calculate_penalty,
-    check_hard_constraints,
-)
 from temper_placer.pcl.unsat_compiler import (
     InfeasibleConstraintSet,
     compile_unsat_to_pcl,
@@ -490,129 +474,6 @@ def test_validate_pcl_dict_missing_constraints():
 
 
 # ============================================================================
-# DRC bridge
-# ============================================================================
-
-
-def test_constraint_to_assertions_adjacent():
-    """constraint_to_assertions converts AdjacentConstraint."""
-    c = AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=10.0,
-        tier=ConstraintTier.HARD, because="Minimize commutation loop",
-    )
-    ctx = CompilationContext(netlist=None)  # type: ignore[arg-type]
-    assertions = constraint_to_assertions(c, ctx)
-    assert len(assertions) == 1
-    a = assertions[0]
-    assert a.check_type == "distance_max"
-    assert a.subjects == ["Q1", "Q2"]
-
-
-def test_constraint_to_assertions_separated():
-    """constraint_to_assertions converts SeparatedConstraint."""
-    c = SeparatedConstraint(
-        a="HV", b="LV", min_distance_mm=8.0,
-        tier=ConstraintTier.HARD, because="Safety isolation",
-    )
-    ctx = CompilationContext(netlist=None)  # type: ignore[arg-type]
-    assertions = constraint_to_assertions(c, ctx)
-    assert len(assertions) == 1
-    assert assertions[0].check_type == "distance_min"
-
-
-def test_constraint_to_assertions_enclosing():
-    """constraint_to_assertions converts EnclosingConstraint."""
-    c = EnclosingConstraint(
-        outer="ZONE1", inner=["Q1", "Q2"],
-        tier=ConstraintTier.HARD, because="Components in HV zone",
-    )
-    ctx = CompilationContext(netlist=None)  # type: ignore[arg-type]
-    assertions = constraint_to_assertions(c, ctx)
-    assert len(assertions) == 2  # one per inner component
-    assert all(a.check_type == "containment" for a in assertions)
-
-
-def test_constraint_to_assertions_aligned():
-    """constraint_to_assertions converts AlignedConstraint."""
-    from temper_placer.pcl.constraints import Axis
-    c = AlignedConstraint(
-        components=["C1", "C2"],
-        axis=Axis.X,
-        tier=ConstraintTier.SOFT,
-        because="Align decoupling caps",
-    )
-    ctx = CompilationContext(netlist=None)  # type: ignore[arg-type]
-    assertions = constraint_to_assertions(c, ctx)
-    assert len(assertions) == 1
-    assert assertions[0].check_type == "alignment"
-
-
-def test_constraint_to_assertions_onside():
-    """constraint_to_assertions converts OnSideConstraint."""
-    from temper_placer.pcl.constraints import BoardSide, EdgeType
-    c = OnSideConstraint(
-        components=["J1"],
-        side=BoardSide.LEFT, edge=EdgeType.FLUSH,
-        tier=ConstraintTier.HARD, because="Connector on edge",
-    )
-    ctx = CompilationContext(netlist=None)  # type: ignore[arg-type]
-    assertions = constraint_to_assertions(c, ctx)
-    assert len(assertions) == 1
-    assert assertions[0].check_type == "edge_proximity"
-
-
-def test_constraint_to_assertions_anchored_position():
-    """constraint_to_assertions converts AnchoredConstraint with position."""
-    c = AnchoredConstraint(
-        component="J1", position=(50, 50),
-        tier=ConstraintTier.HARD, because="Fixed position",
-    )
-    ctx = CompilationContext(netlist=None)  # type: ignore[arg-type]
-    assertions = constraint_to_assertions(c, ctx)
-    assert len(assertions) == 1
-    assert assertions[0].check_type == "position"
-
-
-def test_constraint_to_assertions_anchored_region():
-    """constraint_to_assertions converts AnchoredConstraint with region."""
-    c = AnchoredConstraint(
-        component="J1", region=(0, 0, 10, 10),
-        tier=ConstraintTier.HARD, because="Fixed region",
-    )
-    ctx = CompilationContext(netlist=None)  # type: ignore[arg-type]
-    assertions = constraint_to_assertions(c, ctx)
-    assert len(assertions) == 1
-
-
-def test_constraint_to_assertions_loop_area():
-    """constraint_to_assertions converts LoopAreaConstraint."""
-    c = LoopAreaConstraint(
-        loop_name="commutation", max_area_mm2=500.0,
-        tier=ConstraintTier.STRONG, because="Minimize loop area",
-    )
-    ctx = CompilationContext(netlist=None)  # type: ignore[arg-type]
-    assertions = constraint_to_assertions(c, ctx)
-    assert len(assertions) == 1
-    assert assertions[0].check_type == "area_max"
-
-
-def test_constraint_to_assertions_keepout_with_board():
-    """constraint_to_assertions converts KeepoutConstraint when board has zone."""
-    from temper_placer.core.board import Zone
-    board = Board(width=100.0, height=100.0, zones=[
-        Zone(name="KEEPOUT1", bounds=(0, 0, 10, 10), zone_type="keepout"),
-    ])
-    k = KeepoutConstraint(
-        zone_name="KEEPOUT1",
-        tier=ConstraintTier.HARD, because="Safety keepout",
-    )
-    ctx = CompilationContext(netlist=None, board=board)  # type: ignore[arg-type]
-    assertions = constraint_to_assertions(k, ctx)
-    assert len(assertions) == 1
-    assert assertions[0].check_type == "keepout"
-
-
-# ============================================================================
 # SAT bridge: ConstraintOrigin
 # ============================================================================
 
@@ -733,37 +594,6 @@ def test_register_handler_and_dispatch():
     # register_handler() is called at module load time in sat_bridge.py.
     # Just verify it doesn't error on call.
     register_handler(ConstraintType.ADJACENT, constraint_to_clauses)
-
-
-# ============================================================================
-# Rust bridge flags
-# ============================================================================
-
-
-def test_has_rust_backend_is_bool():
-    """has_rust_backend returns a bool."""
-    result = has_rust_backend()
-    assert isinstance(result, bool)
-
-
-def test_supported_constraint_types_rust_is_list():
-    """supported_constraint_types_rust returns a list."""
-    result = supported_constraint_types_rust()
-    assert isinstance(result, list)
-
-
-def test_rust_version_returns_string():
-    """rust_version returns None or a string."""
-    result = rust_version()
-    assert result is None or isinstance(result, str)
-
-
-def test_tier_to_weight_rust_falls_back():
-    """tier_to_weight_rust raises NotImplementedError when Rust not available."""
-    if not has_rust_backend():
-        with pytest.raises(NotImplementedError, match="Rust backend not available"):
-            tier_to_weight_rust(1)
-    # If Rust is available, this test would just run the function, which is fine.
 
 
 # ============================================================================
@@ -928,186 +758,6 @@ def test_tagged_onside_constraint():
     assert d["type"] == "on_side"
     exprs = tc.collect_tag_exprs()
     assert len(exprs) == 1
-
-
-# ============================================================================
-# Tiers: ConstraintStatus.check_escalation
-# ============================================================================
-
-
-def test_constraint_status_check_escalation_severity():
-    """check_escalation returns True when violation exceeds threshold."""
-    status = ConstraintStatus(
-        constraint_id="test-1",
-        original_tier=ConstraintTier.SOFT,
-        current_tier=ConstraintTier.SOFT,
-        violation_history=[],
-    )
-    config = EscalationConfig(
-        severity_thresholds={ConstraintTier.SOFT: 5.0},
-        persistence_window=3,
-    )
-    # Not enough for escalation yet
-    assert not status.check_escalation(config)
-    # Record a severe violation
-    status.record_violation(10.0)
-    assert status.check_escalation(config)
-    assert status.escalation_reason == EscalationReason.SEVERITY
-
-
-def test_constraint_status_check_escalation_persistence():
-    """check_escalation returns True when persistent violations exceed window."""
-    status = ConstraintStatus(
-        constraint_id="test-2",
-        original_tier=ConstraintTier.SOFT,
-        current_tier=ConstraintTier.SOFT,
-        violation_history=[],
-    )
-    config = EscalationConfig(
-        severity_thresholds={ConstraintTier.SOFT: 50.0},  # High threshold
-        persistence_window=3,
-    )
-    # Record 3 persistent (non-zero) violations below severity threshold
-    for _ in range(3):
-        status.record_violation(1.0)
-    assert status.check_escalation(config)
-    assert status.escalation_reason == EscalationReason.PERSISTENT
-
-
-def test_constraint_status_check_escalation_hard_no_escalate():
-    """check_escalation returns False when already at HARD tier."""
-    status = ConstraintStatus(
-        constraint_id="test-3",
-        original_tier=ConstraintTier.HARD,
-        current_tier=ConstraintTier.HARD,
-        violation_history=[],
-    )
-    config = EscalationConfig()
-    status.record_violation(100.0)
-    assert not status.check_escalation(config)
-
-
-# ============================================================================
-# Tiers: calculate_penalty, check_hard_constraints
-# ============================================================================
-
-
-def test_calculate_penalty_satisfied():
-    """calculate_penalty returns 0 when violation <= 0."""
-    c = AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=10.0,
-        tier=ConstraintTier.HARD, because="Penalty test",
-    )
-    status = ConstraintStatus(
-        constraint_id=c.id,
-        original_tier=c.tier,
-        current_tier=c.tier,
-        violation_history=[],
-    )
-    penalty = calculate_penalty(c, status, 0.0)
-    assert penalty == 0.0
-
-
-def test_calculate_penalty_soft_violation():
-    """calculate_penalty returns correct penalty for soft tier."""
-    c = AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=10.0,
-        tier=ConstraintTier.SOFT, because="Penalty test",
-    )
-    status = ConstraintStatus(
-        constraint_id=c.id,
-        original_tier=c.tier,
-        current_tier=c.tier,
-        violation_history=[],
-    )
-    penalty = calculate_penalty(c, status, 2.0)
-    # weight=10 * violation^2 = 10 * 4 = 40
-    assert penalty == 40.0
-
-
-def test_calculate_penalty_escalated():
-    """calculate_penalty doubles penalty for escalated constraints."""
-    c = AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=10.0,
-        tier=ConstraintTier.SOFT, because="Penalty test",
-    )
-    status = ConstraintStatus(
-        constraint_id=c.id,
-        original_tier=ConstraintTier.SOFT,
-        current_tier=ConstraintTier.STRONG,  # escalated
-        violation_history=[],
-    )
-    penalty = calculate_penalty(c, status, 2.0)
-    # weight=1000 * 4 * 2 = 8000
-    assert penalty == 8000.0
-
-
-def test_check_hard_constraints_all_pass():
-    """check_hard_constraints returns (True, []) when all hard constraints pass."""
-    c = AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=10.0,
-        tier=ConstraintTier.HARD, because="Hard constraint test",
-    )
-    status = ConstraintStatus(
-        constraint_id=c.id,
-        original_tier=c.tier,
-        current_tier=c.tier,
-        violation_history=[],
-    )
-    all_pass, failed = check_hard_constraints(
-        [c], {c.id: status}, {c.id: 0.0},
-    )
-    assert all_pass
-    assert failed == []
-
-
-def test_check_hard_constraints_one_fails():
-    """check_hard_constraints returns (False, [...]) when a hard constraint fails."""
-    c = AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=10.0,
-        tier=ConstraintTier.HARD, because="Hard constraint test",
-    )
-    status = ConstraintStatus(
-        constraint_id=c.id,
-        original_tier=c.tier,
-        current_tier=c.tier,
-        violation_history=[],
-    )
-    all_pass, failed = check_hard_constraints(
-        [c], {c.id: status}, {c.id: 0.001},
-    )
-    assert not all_pass
-    assert c.id in failed
-
-
-# ============================================================================
-# TieredConstraintManager
-# ============================================================================
-
-
-def test_tiered_constraint_manager_update():
-    """TieredConstraintManager.update records violations."""
-    c = AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=10.0,
-        tier=ConstraintTier.SOFT, because="Manager test",
-    )
-    config = EscalationConfig(severity_thresholds={ConstraintTier.SOFT: 5.0})
-    manager = TieredConstraintManager([c], config)
-    manager.update({c.id: 3.0})
-    status = manager.statuses[c.id]
-    assert status.violation_history == [3.0]
-
-
-def test_tiered_constraint_manager_get_penalty_weights():
-    """TieredConstraintManager.get_penalty_weights returns weight dict."""
-    c = AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=10.0,
-        tier=ConstraintTier.SOFT, because="Manager test",
-    )
-    manager = TieredConstraintManager([c], EscalationConfig())
-    weights = manager.get_penalty_weights()
-    assert c.id in weights
-    assert weights[c.id] == 10.0  # SOFT weight
 
 
 # ============================================================================

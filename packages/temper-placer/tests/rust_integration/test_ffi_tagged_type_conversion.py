@@ -24,7 +24,6 @@ import temper_geometry as _tg
 import temper_thermal as _tt
 
 from temper_placer.core.pad_geometry import SHAPE_CODES, SHAPE_UNKNOWN_CODE, shape_code
-from temper_placer.pcl.rust_bridge import _axis_code, _metric_code, _side_code
 from temper_placer.physics.thermal_fdm import _HEATSINK_EDGE_CODES, _heatsink_edge_code
 
 # ---------------------------------------------------------------------------
@@ -103,25 +102,9 @@ def test_heatsink_edge_code_semantics_reach_rust():
 
 
 # ---------------------------------------------------------------------------
-# Constraint metric/axis/side enums (rust_bridge.py -> temper_constraints lib.rs)
 # ---------------------------------------------------------------------------
-
-
-def test_metric_axis_side_codes():
-    assert _metric_code("edge_to_edge") == 0
-    assert _metric_code("center_to_center") == 1
-    assert _metric_code("pin_to_pin") == 2
-    assert _axis_code("x") == 0
-    assert _axis_code("y") == 1
-    assert _axis_code("major") == 2
-    assert _axis_code("minor") == 3
-    assert _side_code("top") == 0
-    assert _side_code("bottom") == 1
-    assert _side_code("left") == 2
-    assert _side_code("right") == 3
-    for bad, fn in [("bogus", _metric_code), ("z", _axis_code), ("center", _side_code)]:
-        with pytest.raises(ValueError):
-            fn(bad)
+# Constraint kernels keep their int-code FFI contract (metric codes).
+# ---------------------------------------------------------------------------
 
 
 def test_constraint_code_results_match_string_api():

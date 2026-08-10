@@ -52,7 +52,7 @@ objects hold the LIVE singletons and hand them back through the getters.
 
 ``BaseConstraint`` stays Python. It is the ABC the tagged-constraint classes
 subclass, and its ``backends`` registry is populated at import time by
-``sat_bridge.py`` / ``drc_bridge.py`` and dispatched by ``parser.py`` — the
+``sat_bridge.py`` and dispatched by ``parser.py`` — the
 Phase-1 ortools-encoder KEEP slice. The migrated pyclasses are registered as
 *virtual* subclasses so ``isinstance(c, BaseConstraint)`` keeps holding.
 

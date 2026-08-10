@@ -1,5 +1,5 @@
 # Type-check allowlist — monotonic-shrink baseline
-# 228 total errors across 41 files
+# 227 total errors across 40 files
 # <filepath> <max-allowed-error-count>
 # Do not increase these numbers. Fix the errors.
 
@@ -17,7 +17,6 @@ packages/temper-placer/src/temper_placer/deterministic/stages/_phase_validation.
 packages/temper-placer/src/temper_placer/deterministic/stages/_phase_zones.py 14
 packages/temper-placer/src/temper_placer/io/dsn_exporter.py 1
 packages/temper-placer/src/temper_placer/pcl/parser.py 1
-packages/temper-placer/src/temper_placer/pcl/tiers.py 1
 packages/temper-placer/src/temper_placer/pipeline/convergence.py 10
 packages/temper-placer/src/temper_placer/pipeline/derivation.py 6
 packages/temper-placer/src/temper_placer/pipeline/explainability.py 17
