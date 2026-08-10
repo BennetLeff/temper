@@ -77,6 +77,9 @@ pub(crate) fn to_python(
         let changed = match *name {
             "config" => py_opt_changed(orig, out, "config")?,
             "drc_oracle" => py_opt_changed(orig, out, "drc_oracle")?,
+            "zones" => py_opt_changed(orig, out, "zones")?,
+            "component_zone_map" => py_opt_changed(orig, out, "component_zone_map")?,
+            "zone_slots" => py_opt_changed(orig, out, "zone_slots")?,
             "net_order" => {
                 let orig_tuple = orig.getattr("net_order")?;
                 let orig_vec: Vec<String> = orig_tuple.extract()?;
@@ -100,6 +103,18 @@ pub(crate) fn to_python(
                 .drc_oracle
                 .clone()
                 .ok_or_else(|| PyValueError::new_err("drc_oracle field is None on write-back"))?,
+            "zones" => out
+                .zones
+                .clone()
+                .ok_or_else(|| PyValueError::new_err("zones field is None on write-back"))?,
+            "component_zone_map" => out
+                .component_zone_map
+                .clone()
+                .ok_or_else(|| PyValueError::new_err("component_zone_map field is None on write-back"))?,
+            "zone_slots" => out
+                .zone_slots
+                .clone()
+                .ok_or_else(|| PyValueError::new_err("zone_slots field is None on write-back"))?,
             "net_order" => PyTuple::new(py, out.net_order.iter().map(|s| s.as_str()))?
                 .into_any()
                 .unbind(),
@@ -138,6 +153,9 @@ fn py_opt_changed(
     let out_val: Option<&Py<PyAny>> = match name {
         "config" => out.config.as_ref(),
         "drc_oracle" => out.drc_oracle.as_ref(),
+        "zones" => out.zones.as_ref(),
+        "component_zone_map" => out.component_zone_map.as_ref(),
+        "zone_slots" => out.zone_slots.as_ref(),
         _ => return Ok(false),
     };
     match (orig_val.is_none(), out_val) {

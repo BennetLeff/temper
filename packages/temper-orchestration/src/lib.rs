@@ -73,9 +73,12 @@ mod pipeline;
 mod pipeline_state;
 mod preflight_stage;
 mod setup_stage;
+mod slot_generation_stage;
 mod stage;
 mod timing;
 mod trace_filter;
+mod zone_assignment_stage;
+mod zone_geometry_stage;
 
 // Public re-exports for the orchestration engine's Rust consumers (the
 // runner test in `tests/stages_runner.rs` and the Phase-C pipeline wiring).
@@ -87,7 +90,10 @@ pub use net_ordering_stage::NetOrderingStage;
 pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
 pub use preflight_stage::PreflightStage;
 pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
+pub use slot_generation_stage::SlotGenerationStage;
 pub use stage::{Stage, StageError, StageErrorKind};
+pub use zone_assignment_stage::ZoneAssignmentStage;
+pub use zone_geometry_stage::ZoneGeometryStage;
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
@@ -132,6 +138,9 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(net_ordering_stage::run_net_ordering, m)?)?;
     m.add_function(wrap_pyfunction!(setup_stage::run_drc_oracle_setup, m)?)?;
     m.add_function(wrap_pyfunction!(setup_stage::run_net_class_setup, m)?)?;
+    m.add_function(wrap_pyfunction!(zone_geometry_stage::run_zone_geometry, m)?)?;
+    m.add_function(wrap_pyfunction!(zone_assignment_stage::run_zone_assignment, m)?)?;
+    m.add_function(wrap_pyfunction!(slot_generation_stage::run_slot_generation, m)?)?;
     Ok(())
 }
 
