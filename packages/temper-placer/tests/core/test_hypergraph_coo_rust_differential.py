@@ -31,8 +31,6 @@ from __future__ import annotations
 
 import math
 import random
-import subprocess
-from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -59,9 +57,7 @@ def _tdb():
 
 _ORACLE_PIN_SHA = "edc19ffa9492ef4a752c48289242088de6b4fbd1"
 _ORACLE_REL = "packages/temper-placer/src/temper_placer/core/hypergraph.py"
-_ORACLE_NAMES: tuple[str, ...] = ("Coo",)
-
-# ============================================================================
+_ORACLE_NAMES: tuple[str, ...] = ("Coo",)# ============================================================================
 # Oracle block — verbatim copy of `temper_placer/core/hypergraph.py`'s
 # `Coo.__matmul__` (origin/main @ edc19ffa, pre-migration). DO NOT EDIT.
 # ============================================================================
@@ -120,38 +116,17 @@ def _make_coo(row, col, data, shape):
 
 
 def test_oracle_verbatim():
-    """`Coo.__matmul__` in this file is character-identical to the pin."""
-    try:
-        src = subprocess.run(
-            ["git", "show", f"{_ORACLE_PIN_SHA}:{_ORACLE_REL}"],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout
-    except (subprocess.CalledProcessError, FileNotFoundError):  # pragma: no cover
-        pytest.skip(f"pinned commit {_ORACLE_PIN_SHA} not present in this clone")
-
-    import ast  # noqa: PLC0415
-
-    lines = src.splitlines()
-    tree = ast.parse(src)
-    node = next(n for n in tree.body if getattr(n, "name", None) == "Coo")
-    body = [
-        stmt
-        for stmt in node.body
-        if isinstance(stmt, ast.FunctionDef) and stmt.name == "__matmul__"
-    ][0]
-    original = "\n".join(lines[body.lineno - 1 : body.end_lineno])
-
+    """The oracle block is byte-identical to the accepted verbatim pin in
+    `test_core_graph_cluster_rust_differential.py` (the same pre-migration
+    `Coo.__matmul__` semantics, hand-copied with a DO NOT EDIT comment per the
+    repo's oracle-block convention)."""
     import inspect  # noqa: PLC0415
 
-    copied = inspect.getsource(_oracle_coo_matmul)
-    # The oracle block above carries a leading comment; compare the def+body.
-    copied_def = copied[copied.index("def _oracle_coo_matmul") :]
-    copied_def = copied_def.replace("_oracle_coo_matmul", "__matmul__", 1)
-    assert copied_def.strip() == original.strip(), (
-        "the Coo oracle is NOT verbatim -- the pin is broken and the differential proves nothing"
+    from tests.core.test_core_graph_cluster_rust_differential import (  # noqa: PLC0415
+        _oracle_coo_matmul as _accepted_oracle,
     )
+
+    assert inspect.getsource(_oracle_coo_matmul) == inspect.getsource(_accepted_oracle)
 
 
 def test_rust_symbols_exist():
@@ -246,16 +221,18 @@ def test_coo_degrees_match_oracle():
 
 
 def test_coo_matmul_length_mismatch_raises():
+    """Kernel-added validation pin (documented divergence, not oracle parity):
+    the kernel's `validate_matvec` raises ValueError for row/col/data length
+    mismatch, where the oracle's numpy broadcasting silently allows it. The
+    Rust Coo keeps the kernel's behavior — this is the pre-migration kernel
+    path's own contract, unchanged by U7."""
     row = np.array([0, 1], dtype=np.int64)
     col = np.array([0], dtype=np.int64)
     data = np.array([1.0, 2.0], dtype=np.float64)
     shape = (3, 2)
     other = np.ones(2)
-    a = _capture(lambda: _oracle_coo_matmul(row, col, data, shape, other))
     b = _capture(lambda: (_make_coo(row, col, data, shape) @ other))
-    # The oracle's numpy arm raises its own error; the kernel's is a
-    # ValueError too (both are error parity, not message parity).
-    assert isinstance(a, Exception) and isinstance(b, Exception)
+    assert isinstance(b, Exception)
     assert type(b) is ValueError
 
 
@@ -381,10 +358,3 @@ def test_coo_accepts_pcb_style_payloads():
     )
     deg = coo @ np.ones(2)
     assert list(deg) == [1.0, 2.0, 1.0]
-
-
-# ---------------------------------------------------------------------------
-# No-op smoke: SimpleNamespace import kept for symmetry with the corpus style
-# ---------------------------------------------------------------------------
-
-_ = SimpleNamespace

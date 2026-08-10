@@ -41,8 +41,6 @@ from hypothesis import strategies as st
 
 import tests.router_v6._terminal_extraction_py_oracle as ORACLE
 from temper_placer.core.netlist import Component, Pin
-from temper_placer.router_v6.connectivity import PadIdentity
-from temper_placer.router_v6.constraints_geometry import Point
 
 # ===========================================================================
 # ADAPTER BLOCK -- the ONLY part of this file that knows the Rust arm exists.
@@ -96,7 +94,8 @@ def _build_wires(pcb) -> tuple[list, list]:
     ]
     stackup = getattr(pcb, "stackup", None)
     stackup_layers = [
-        wires.StackupLayerWire.from_layer(l) for l in (getattr(stackup, "layers", ()) or ())
+        wires.StackupLayerWire.from_layer(layer)
+        for layer in (getattr(stackup, "layers", ()) or ())
     ]
     return components, stackup_layers
 
@@ -374,11 +373,12 @@ def test_pin_wire_from_pin_parity():
 
 
 def test_pin_wire_none_layer_parity():
-    """pin.layer = None stays None in the wire (the kernel defaults it)."""
+    """pin.layer = None stays None in the wire (the kernel defaults it) —
+    exercised through a duck-typed pin because the netlist Pin pyclass
+    already defaults layer=None to 'F.Cu' at construction."""
     wires = _tdb()
-    u1 = Component("U1", "fp", (2, 2))
-    u1.pins = [Pin("1", "1", (0, 0), net="NET", layer=None)]
-    got = wires.PinWire.from_pin(u1.pins[0])
+    pin = SimpleNamespace(name="1", number="1", position=(0, 0), is_pth=False, layer=None)
+    got = wires.PinWire.from_pin(pin)
     assert got.layer is None
 
 
