@@ -567,6 +567,12 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "parity. Pure Python/Rust, no external binary. Not yet wired into any CI "
         "job — a concurrent migration that left the registration gate red."
     ),
+    "router_v6/test_congestion_gap_kernels_pbt.py": (
+        "PASSING locally (2026-08-10, congestion gap-closure kernels migration, "
+        "commit 33c25049): 16 PBT/metamorphic tests. Pure Python/Rust, no "
+        "external binary. Not yet wired into any CI job — a concurrent migration "
+        "that left the registration gate red."
+    ),
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------
