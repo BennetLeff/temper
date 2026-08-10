@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
-"""M1 -- static reachability of the ``nx.shortest_path`` call sites in
-``router_v6/channel_mapping.py`` (lines 339 and 343).
+"""M1 -- regression guard: ``networkx`` must stay absent from
+``router_v6/channel_mapping.py``.
 
-Spike S3.  The claim under test is a dominance argument:
+History.  Spike S3 (2026-08-04) originally proved a dominance argument:
+both ``nx.shortest_path`` calls lived inside ``_extract_waypoints``'s
+``if not channel_sequence:`` branch, that function had exactly one call
+site, and that call site was preceded by ``if not channel_sequence:
+return None`` with no rebinding in between -- so the branch was
+statically unreachable.  The spike's recommendation 2 was to delete the
+dead branch as a behaviour-preserving change (docs/evidence/
+2026-08-04-networkx-path-order-spike.md, SS8).
 
-    Both ``nx.shortest_path`` calls live inside
-    ``_extract_waypoints``'s ``if not channel_sequence:`` branch.
-    ``_extract_waypoints`` has exactly one call site in the repository.
-    That call site is preceded, in the same (unconditional) statement
-    list, by ``if not channel_sequence: return None``, and
-    ``channel_sequence`` is not rebound in between.
-    Therefore ``channel_sequence`` is truthy at every entry to
-    ``_extract_waypoints``, the ``if not channel_sequence:`` branch is
-    never taken, and lines 339/343 are unreachable.
-
-Every step is checked mechanically against the AST rather than asserted,
-and the script exits non-zero if any step fails -- so a future edit that
-breaks the dominance makes this measurement fail loudly instead of
-silently going stale.
+That deletion landed on 2026-08-10.  The invariant therefore flips from
+"the ``nx.shortest_path`` branch is unreachable" to "there is no
+``networkx`` in the module at all": no import, no ``nx.`` attribute
+call, no ``nx`` name reference.  Reintroducing any of them -- a port
+that resurrects the tie-sensitive path-selection code, which the spike
+measured as not a stable target even within Python -- makes this guard
+exit non-zero and fail loudly instead of silently re-opening the hazard
+(SS4, H2).
 
 Usage::
 
@@ -130,36 +131,43 @@ def main() -> int:
     checks: dict[str, object] = {}
     ok = True
 
-    # --- 1. where does nx.shortest_path get called? -----------------
-    fn = get_func(tree, FUNC_UNDER_TEST)
-    nx_calls = [
+    # --- 1. is there any networkx reference left in the module? -----
+    src = Path(TARGET).read_text(encoding="utf-8")
+    tree = ast.parse(src)
+    nx_imports = [
         n.lineno
-        for n in ast.walk(fn)
+        for n in ast.walk(tree)
+        if isinstance(n, ast.ImportFrom)
+        and n.module == "networkx"
+        or isinstance(n, ast.Import)
+        and any(a.name == "networkx" for a in n.names)
+    ]
+    nx_name_refs = [
+        n.lineno
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Name) and n.id == "nx"
+        or isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id == "nx"
+    ]
+    nx_attr_calls = [
+        n.lineno
+        for n in ast.walk(tree)
         if isinstance(n, ast.Call)
         and isinstance(n.func, ast.Attribute)
-        and n.func.attr == "shortest_path"
+        and isinstance(n.func.value, ast.Name)
+        and n.func.value.id == "nx"
     ]
-    checks["nx_shortest_path_lines"] = nx_calls
+    checks["networkx_import_lines"] = nx_imports
+    checks["nx_name_reference_lines"] = nx_name_refs
+    checks["nx_attribute_call_lines"] = nx_attr_calls
+    checks["module_has_no_networkx"] = not (nx_imports or nx_name_refs or nx_attr_calls)
+    ok = ok and checks["module_has_no_networkx"]
 
-    # Are they all inside the `if not channel_sequence:` branch?
-    guard_in_callee = next(
-        (s for s in fn.body if is_falsy_guard_block(s, GUARDED_VAR)),
-        None,
-    )
-    if guard_in_callee is None:
-        ok = False
-        checks["callee_guard_block"] = None
-    else:
-        span = (
-            guard_in_callee.lineno,
-            max(getattr(n, "lineno", 0) for n in ast.walk(guard_in_callee)),
-        )
-        checks["callee_guard_block"] = {"if_line": span[0], "last_line": span[1]}
-        inside = all(span[0] <= ln <= span[1] for ln in nx_calls)
-        checks["all_nx_calls_inside_empty_sequence_branch"] = inside
-        ok = ok and inside and bool(nx_calls)
-
-    # --- 2. how many call sites does _extract_waypoints have? -------
+    # --- 2. the dominance argument must still hold for the callers ----
+    # The guard chain that made the old nx branch unreachable is
+    # orthogonal to networkx's absence; it is what guarantees an empty
+    # ``channel_sequence`` never reaches ``_extract_waypoints`` at all.
+    # A future edit that re-introduces a caller without the guard would
+    # silently re-open the reachability question, so keep checking it.
     refs = find_references(root, FUNC_UNDER_TEST)
     call_sites = [r for r in refs if r["kind"] == "Name"]
     checks["all_references"] = refs
@@ -190,24 +198,11 @@ def main() -> int:
         checks["no_rebinding_between"] = not rebound
         ok = ok and dominates and not rebound
 
-    checks["VERDICT_nx_branch_statically_unreachable"] = ok
+    checks["VERDICT_module_has_no_networkx"] = ok
 
     args.out.write_text(json.dumps(checks, indent=2) + "\n")
     print(json.dumps(checks, indent=2))
     return 0 if ok else 1
-
-
-def is_falsy_guard_block(stmt: ast.stmt, var: str) -> bool:
-    """``if not <var>:`` with an arbitrary body (the callee's branch)."""
-    if not isinstance(stmt, ast.If):
-        return False
-    t = stmt.test
-    return (
-        isinstance(t, ast.UnaryOp)
-        and isinstance(t.op, ast.Not)
-        and isinstance(t.operand, ast.Name)
-        and t.operand.id == var
-    )
 
 
 if __name__ == "__main__":

@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-import networkx as nx
 import temper_geometry as _tg
 
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
@@ -409,30 +408,6 @@ def _extract_waypoints(
         List of (x, y) waypoints
     """
     waypoints = []
-
-    # If no channels specified, generate path through skeleton
-    if not channel_sequence:
-        if skeleton.graph.number_of_nodes() > 0:
-            # Use skeleton nodes directly
-            nodes = list(skeleton.graph.nodes())
-            # Find a reasonable path through the skeleton
-            if len(nodes) >= 2:
-                try:
-                    # Try to find a path from one end to another
-                    # Use the nodes with degree 1 (endpoints) or just use first/last
-                    endpoints = [n for n in nodes if skeleton.graph.degree(n) == 1]
-                    if len(endpoints) >= 2:
-                        # Find path between endpoints
-                        path = nx.shortest_path(skeleton.graph, endpoints[0], endpoints[1])
-                        return path
-                    else:
-                        # Use first and last nodes
-                        path = nx.shortest_path(skeleton.graph, nodes[0], nodes[-1])
-                        return path
-                except (nx.NetworkXNoPath, nx.NodeNotFound):
-                    # No path found, return subset of nodes
-                    return nodes[: min(5, len(nodes))]
-        return []
 
     import re
 
