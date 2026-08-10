@@ -84,6 +84,13 @@ mod terminal_wire_contracts;
 #[cfg(feature = "python")]
 mod hypergraph_contracts;
 
+// Orchestration plan Phase A unit U9: the typed loop-extraction marshalling
+// boundary (core/loop_extractor_rs.py -> LoopExtractionInput /
+// LoopExtractionOutput -- the wire format of the
+// temper_rust_router.auto_extract_loops_rust bridge).
+#[cfg(feature = "python")]
+mod loop_extraction_contracts;
+
 // Wave 4 fan-out core-contracts migration: stackup pyclasses + impedance
 // kernel (temper_placer/core/stackup.py).
 #[cfg(feature = "python")]
@@ -362,6 +369,11 @@ mod python {
         // and packages/temper-design-bundle/VERIFICATION.md).
         crate::terminal_wire_contracts::register(module)?;
         crate::hypergraph_contracts::register(module)?;
+
+        // Orchestration plan Phase A unit U9: the typed loop-extraction
+        // wire marshalers (see loop_extraction_contracts.rs and
+        // packages/temper-design-bundle/VERIFICATION.md).
+        crate::loop_extraction_contracts::register(module)?;
 
         // Wave 4 Phase 3 candidate 5: the config/reference loaders. The
         // preprocess transform, the load chain, and the downstream helpers

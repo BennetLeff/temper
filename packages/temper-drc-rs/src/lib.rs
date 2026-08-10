@@ -76,6 +76,11 @@ pub mod drc_marshal;
 // _placement_to_oracle_dict).
 #[cfg(feature = "python")]
 pub mod oracle_marshal;
+// Phase-A U9 (rust-orchestration-engine plan) — typed DRC-feedback wire
+// types Violation / DrcReport, migrated from
+// deterministic/feedback/{violation_mapper,drc_parser}.py.
+#[cfg(feature = "python")]
+pub mod violation_contracts;
 // Wave 4 — router_v6/constraints_drc_oracle.py DRCOracle decision kernels
 // (Violation.severity, the R3 clearance-credit spatial scoping,
 // can_place_via / can_place_track_segment, validate_all pairwise checks).
@@ -486,6 +491,9 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Phase-A U6 — typed quality-oracle marshalling types (OracleInput,
     // OracleOutput) from validation/human_reference_extractor.py.
     crate::oracle_marshal::register(m)?;
+    // Phase-A U9 — typed DRC-feedback wire types (Violation, DrcReport)
+    // from deterministic/feedback/{violation_mapper,drc_parser}.py.
+    crate::violation_contracts::register(m)?;
     // Wave 4 — router_v6/constraints_drc_oracle.py DRCOracle decision
     // kernels (drc_oracle.rs): severity, R3 clearance credits,
     // can_place_via / can_place_track_segment, validate_all pairwise checks.

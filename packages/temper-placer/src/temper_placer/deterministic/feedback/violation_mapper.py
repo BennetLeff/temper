@@ -1,24 +1,18 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 import temper_design_bundle_python as _tdb
+import temper_drc_rs as _tdrc
 
 _DH = _tdb.deterministic_hubs
 
-
-@dataclass
-class DRCViolation:
-    """Raw DRC violation data from KiCad."""
-
-    type: str
-    items: list[str] = field(default_factory=list)
-    severity: str = "error"
-    description: str = ""
-    pos: tuple[float, float] | None = None
-    required: float | None = None
-    actual: float | None = None
+# Phase-A U9 (rust-orchestration-engine plan): the DRCViolation dataclass
+# (the raw KiCad violation wire) is now the typed `temper_drc_rs.Violation`
+# pyclass. The public `DRCViolation` name is preserved as an alias (pinned
+# by tests/deterministic/test_violation_report_rust_differential.py).
+DRCViolation = _tdrc.Violation
 
 
 @dataclass
@@ -42,11 +36,11 @@ class ViolationComponentMapper:
     Wave 4, **Phase 5** (deterministic hubs slice): the regex compute of
     ``map_violation`` is implemented in Rust in the ``temper-design-bundle``
     crate (``temper_design_bundle_python.deterministic_hubs.map_violation_kernel``).
-    This class keeps the pre-migration public API unchanged and delegates.
-    ``DRCViolation``/``MappedViolation`` stay Python dataclasses; the
-    ``component_refs`` snapshot and the live ``zone_config`` (re-assigned by
-    the feedback orchestrator) stay Python-side and cross the boundary per
-    call.
+    Phase-A **U9**: the raw-violation wire type is the typed
+    ``temper_drc_rs.Violation`` pyclass (the ``DRCViolation`` alias).
+    ``MappedViolation`` stays a Python dataclass; the ``component_refs``
+    snapshot and the live ``zone_config`` (re-assigned by the feedback
+    orchestrator) stay Python-side and cross the boundary per call.
     """
 
     def __init__(self, netlist, zone_config: dict[str, Any] | None = None):

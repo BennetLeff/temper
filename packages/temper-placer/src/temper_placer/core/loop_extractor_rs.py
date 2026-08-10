@@ -4,6 +4,13 @@ Delegates to Rust `auto_extract_loops_rust` when the temper-rust-router
 extension is importable, and falls back to the existing Python extractor
 when unavailable. (R23)
 
+Phase-A U9 (rust-orchestration-engine plan): the wire-format builders moved
+to typed structs in temper-design-bundle (`LoopExtractionInput` for
+`_netlist_to_dict`, `LoopExtractionOutput` for the bridge-output parse);
+the loop-type reconstruction tables below stay Python (they map onto the
+`temper_placer.core.loop` Python-dataclass enums, outside this unit's
+scope).
+
 Schema contract — fields preserved vs reconstructed vs lost:
   PRESERVED: name, components, nets, max_area_mm2 (Rust computes these)
   RECONSTRUCTED: loop_type (string→enum), priority, events, return_layer,
@@ -70,36 +77,46 @@ _LOOP_TYPE_RETURN_NET: dict[LoopType, str] = {
 
 
 def _netlist_to_dict(netlist: Netlist) -> dict[str, Any]:
-    """Serialize a Netlist to a dict for crossing the Rust/Python boundary."""
-    return {
-        "components": [
-            {
-                "ref": c.ref,
-                "footprint": c.footprint,
-                "mpn": c.attributes.get("MPN", ""),
-                "value": c.attributes.get("value", ""),
-                "net_class": c.net_class,
-                "pins": [{"name": p.name, "net": p.net} for p in c.pins],
-            }
-            for c in netlist.components
-        ],
-        "nets": [
-            {"name": n.name, "pins": [[ref, name] for ref, name in n.pins]} for n in netlist.nets
-        ],
-    }
+    """Serialize a Netlist to a dict for crossing the Rust/Python boundary.
+
+    Phase-A U9: the marshalling body moved to Rust
+    (``temper_design_bundle_python.LoopExtractionInput`` -- a typed struct
+    whose ``to_dict()`` reproduces this dict bit-for-bit; pinned by
+    ``tests/core/test_loop_extraction_marshal_rust_differential.py``). The
+    ``temper_rust_router.auto_extract_loops_rust`` bridge still takes the
+    flat dict (JSON-serialized), so the shim round-trips through
+    ``to_dict()`` -- the kernel-signature tightening is a later phase in
+    the crate that owns those pyfunctions.
+    """
+    import temper_design_bundle_python as _tdb
+
+    return _tdb.LoopExtractionInput.from_netlist(netlist).to_dict()
 
 
 def _dict_to_loop_collection(data: dict[str, Any]) -> LoopCollection:
-    """Convert a Rust-produced dict to a LoopCollection."""
+    """Convert a Rust-produced output to a LoopCollection.
+
+    Phase-A U9: the wire parse is typed -- ``LoopExtractionOutput`` (a typed
+    struct in temper-design-bundle) carries ``ok``/``error``/``loops`` with
+    the documented defaults (missing ``loops`` -> empty, per-loop
+    ``components``/``nets`` -> [], ``loop_type`` -> "unknown", ``max_area_mm2``
+    -> 500.0). The loop-type reconstruction tables below stay Python (they
+    map onto the ``temper_placer.core.loop`` Python-dataclass enums, outside
+    this unit's scope); ``data`` may be a raw bridge dict or an already-parsed
+    ``LoopExtractionOutput``.
+    """
+    import temper_design_bundle_python as _tdb
+
+    output = (
+        _tdb.LoopExtractionOutput.from_dict(data) if isinstance(data, dict) else data
+    )
+
     from temper_placer.core.loop import Loop as PyLoop
     from temper_placer.core.loop import LoopEvent
 
     loops = []
-    for loop_dict in data.get("loops", []):
-        components = loop_dict.get("components", [])
-        nets = loop_dict.get("nets", [])
-        loop_type_str = loop_dict.get("loop_type", "unknown")
-        max_area = loop_dict.get("max_area_mm2", 500.0)
+    for loop in output.loops:
+        loop_type_str = loop.loop_type
 
         from temper_placer.core.loop import LoopType
 
@@ -109,14 +126,14 @@ def _dict_to_loop_collection(data: dict[str, Any]) -> LoopCollection:
             lt = LoopType.COMMUTATION
 
         py_loop = PyLoop(
-            name=loop_dict["name"],
+            name=loop.name,
             loop_type=lt,
-            description=f"Extracted via Rust: {loop_dict['name']}",
-            components=components,
+            description=f"Extracted via Rust: {loop.name}",
+            components=loop.components,
             pins=[],  # Pins not available from Rust (no pin-tracing concept yet)
-            nets=nets,
+            nets=loop.nets,
             priority=_LOOP_TYPE_PRIORITY.get(lt, LoopPriority.MEDIUM),
-            max_area_mm2=max_area,
+            max_area_mm2=loop.max_area_mm2,
             events=LoopEvent(**_LOOP_TYPE_EVENTS.get(lt, {})),
             return_layer=_LOOP_TYPE_RETURN_LAYER.get(lt, ""),
             return_net=_LOOP_TYPE_RETURN_NET.get(lt, ""),
@@ -141,18 +158,15 @@ def auto_extract_loops_rs(
         LoopCollection on success, None if Rust is unavailable.
     """
     try:
+        import temper_design_bundle_python as _tdb
         import temper_rust_router
 
-        netlist_dict = _netlist_to_dict(netlist)
-        if topology_hints:
-            netlist_dict["topology_hints"] = topology_hints
+        input_wire = _tdb.LoopExtractionInput.from_netlist(netlist, topology_hints)
+        result_json = temper_rust_router.auto_extract_loops_rust(input_wire.to_json())
 
-        json_str = json.dumps(netlist_dict)
-        result_json = temper_rust_router.auto_extract_loops_rust(json_str)
-
-        result = json.loads(result_json)
-        if not result.get("ok", False):
-            error_msg = result.get("error", "Unknown Rust extraction error")
+        result = _tdb.LoopExtractionOutput.from_json(result_json)
+        if not result.ok:
+            error_msg = result.error or "Unknown Rust extraction error"
             raise RuntimeError(f"Rust loop extraction failed: {error_msg}")
 
         return _dict_to_loop_collection(result)
