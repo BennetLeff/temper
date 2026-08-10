@@ -44,13 +44,41 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 #                                     it does not skip. (It formerly required
 #                                     CLOUDFLARE_API_TOKEN/ACCOUNT_ID secrets,
 #                                     which nothing it runs ever read; see the
-#                                     preflight step's comment.) Dispatches
-#                                     the 7 already-deployed per-family Workers
+#                                     preflight step's comment.) Checks the
+#                                     deployed corpus is not STALE (R5.1, see
+#                                     below), then dispatches the 7 deployed
+#                                     per-family Workers
 #                                     (tools/wasm/sweep_multi_worker.mjs),
 #                                     compares their verdicts against
 #                                     local-sweep-r19's native results
 #                                     (downloaded as an artifact), and fails
 #                                     the run on disagreement.
+#
+# R5.1 -- the staleness control (added 2026-08-10;
+# docs/plans/2026-08-10-001-feat-wasm-tier-phase5-plan.md D5.3).
+#
+# Reachability was never the whole precondition. From 2026-08-07 to 2026-08-10
+# all 8 Workers answered /health perfectly while carrying 147 tests, and
+# temper-drc-rs's suite had meanwhile grown to 1,708. This workflow reported
+# `agreement_rate: 1.0` every night of that window: r19_compare.py compares the
+# verdicts it is handed, and a test the deployed corpus does not contain is
+# `native_only`, not `disagree`. The tier was answering for an 8.4% sample and
+# saying so in green.
+#
+# The damning part is that BOTH JOBS BELOW ALREADY PUBLISHED THE DISCREPANCY.
+# local-sweep-r19's artifact said 1,708 registered; worker-dispatch-r19's said
+# 147. Same workflow, same run, two numbers that must be equal, and nothing
+# compared them. tools/wasm/check_deployed_freshness.mjs is that comparison,
+# and it is the cheapest possible one: local-sweep-r19 has ALREADY compiled the
+# commit's wasm32 module and recorded `summary.registered`, and this job
+# ALREADY downloads that artifact for the native comparison. No rebuild is
+# added -- the number was sitting in the artifact the whole time.
+#
+# It also checks that the 7 per-family shards' counts sum to exactly the built
+# count. The shards are what sweep_multi_worker.mjs dispatches; the
+# full-corpus Worker is not in that fan-out at all, so a fresh full-corpus
+# module over stale shards would leave the dispatched path stale behind a
+# correct-looking headline number.
 #
 # R5 (goal-set plan): every finding names the exact artifact it came from by
 # content hash. Both jobs compute pcb/temper.kicad_pcb's sha256 and thread it
@@ -64,7 +92,12 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 #
 # What this workflow deliberately does NOT do (mirrors board-regeneration.yml
 # §"Hard prohibitions" and this task's own constraints):
-# - Never deploys a Worker, never invokes `wrangler`.
+# - Never deploys a Worker, never invokes `wrangler`. Deploying is
+#   .github/workflows/wasm-tier-deploy.yml, which is `workflow_dispatch`-only
+#   and lives in its own file precisely so this prohibition stays literally
+#   true and no scheduled trigger can ever reach a `wrangler deploy`.
+# - Never makes any tier verdict a required PR context (D5.4): this workflow is
+#   scheduled + manual, and nothing here runs on `pull_request`.
 # - Never writes power_pcb_dataset/drc_ceiling.json or pcb/temper.kicad_pcb.
 # - Never opens a PR.
 # - `permissions: contents: read` only.
@@ -345,14 +378,52 @@ jobs:
           name: wasm-tier-nightly-local-${{ github.run_id }}
           path: /tmp/local-artifact
 
+      # ------------------------------------------------------------------
+      # R5.1 — the deployed corpus is the commit's corpus, or this job fails.
+      #
+      # Runs BEFORE the sweep on purpose: a sweep over a stale corpus produces
+      # an agreement number that is arithmetically true and epistemically
+      # worthless, and the run should not spend 1,708 HTTP round-trips
+      # computing one. See this workflow's header for the 147-vs-1,708 window
+      # this would have caught on 2026-08-09.
+      #
+      # The expected count is read from local-sweep-r19's own artifact
+      # (`summary.registered` = `temper_test_count()` of the wasm32 module that
+      # job built from THIS commit), which this job already downloads above.
+      # Rebuilding the module here was the alternative and was rejected: it
+      # would add a full `cargo build --release --target wasm32` to every
+      # nightly to recompute a number the previous job already wrote down, and
+      # a second build could differ from the compared-against one, which is a
+      # new failure mode rather than a check. Both jobs `actions/checkout@v7`
+      # the same ref, so the artifact is this commit's count by construction.
+      #
+      # If that artifact is missing or unparseable, the checker exits 2 and
+      # names why (local-sweep-r19 failed before running the registry). It does
+      # not pass on an unknown -- that is the whole bug being fixed here.
+      # ------------------------------------------------------------------
+      - name: Deployed-corpus staleness check (R5.1) — fails on count mismatch
+        run: |
+          set -euo pipefail
+          node tools/wasm/check_deployed_freshness.mjs \
+            --built-json /tmp/local-artifact/wasm_local.json \
+            --json /tmp/freshness.json
+
       # Fan out across the 7 deployed per-family Workers
-      # (temper-wasm-<family>.bennetleff.workers.dev). Known, documented scope
-      # gap (not fixed here — fixing it means deploying a new Worker, which
-      # this task is not authorized to do): 3 test families (dfm, types,
-      # integration; ~56 of ~147 registered tests per docs/evidence/2026-08-07-
-      # wasm-tier-phase2-4-status.md §0) have no per-family Worker yet, so
-      # they will legitimately show up as "native_only" below, not
-      # "disagree" — r19_compare.py already buckets that distinctly.
+      # (temper-wasm-<family>.bennetleff.workers.dev).
+      #
+      # A comment here used to claim a scope gap: "3 test families (dfm, types,
+      # integration; ~56 of ~147 registered tests) have no per-family Worker
+      # yet, so they will legitimately show up as native_only". That was never
+      # true. packages/temper-drc-rs/src/wasm_test_registry.rs assigns
+      # `crate::dfm::tests`, every `crate::types::*::tests`, and
+      # `crate::rules::integration_tests` to `wasm-registry-infra` — they ride
+      # the temper-wasm-infra shard. The seven shard features are exactly the
+      # members of `wasm-registry-all`, which IS `wasm-test-registry`, so the
+      # shards partition the full corpus by construction: 1510+15+12+25+18+18+
+      # 110 = 1708 today, and 1+14+9+0+12+2+109 = 147 on 2026-08-07, when the
+      # comment was written. The staleness step above now enforces that
+      # identity, so a genuine "family not deployed" gap fails the job loudly
+      # instead of being pre-excused as expected native_only noise.
       - name: Dispatch deployed Workers
         run: |
           set -euo pipefail
@@ -365,6 +436,16 @@ jobs:
         if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
+          # This step runs under `!cancelled()` so a failure in the dispatch
+          # step still gets compared where possible. When an earlier step
+          # failed hard enough that there is no sweep at all (the staleness
+          # check above, or a dispatch that produced no file), say so plainly
+          # rather than letting r19_compare.py fail on a missing path — the
+          # cause is above, not here.
+          if [ ! -f /tmp/worker_sweep.json ]; then
+            echo "::error::No deployed-Worker sweep to compare: /tmp/worker_sweep.json was never written, because an earlier step in this job failed (staleness check, or the dispatch itself). See that step's error. This step fails rather than reporting an agreement result for a sweep that did not happen."
+            exit 1
+          fi
           python3 tools/wasm/r19_compare.py \
             --native-file /tmp/local-artifact/native.txt \
             --wasm-json /tmp/worker_sweep.json \
@@ -383,6 +464,14 @@ jobs:
             echo "- commit: \`${COMMIT_SHA}\`"
             echo "- board sha256: \`${BOARD_SHA256}\` (\`pcb/temper.kicad_pcb\`)"
             echo ""
+            echo "#### Deployed-corpus freshness (R5.1)"
+            echo ""
+            echo '```'
+            cat /tmp/freshness.json 2>/dev/null || echo "(freshness census not produced — see the staleness step)"
+            echo '```'
+            echo ""
+            echo "#### R19 comparison"
+            echo ""
             echo '```'
             cat "/tmp/r19_worker_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" 2>/dev/null | head -c 4000 || echo "(comparison output not produced — see earlier failed step)"
             echo '```'
@@ -394,6 +483,7 @@ jobs:
         with:
           name: wasm-tier-nightly-worker-${{ github.run_id }}
           path: |
+            /tmp/freshness.json
             /tmp/worker_sweep.json
             /tmp/r19_worker_*.json
           retention-days: 30

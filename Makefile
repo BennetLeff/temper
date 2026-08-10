@@ -220,28 +220,56 @@ extensions:
 extensions-check:
 	uv run --no-sync python3 scripts/check_stale_extensions.py
 
-# WASM verification tier (Track D): build the wasm-test-runner artifact and
-# stage it beside the Worker source so `wrangler deploy` can bundle it via the
-# [wasm_modules] binding. Full flow in
-# docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md.
+# WASM verification tier (Track D): build the wasm-test-runner artifacts and
+# stage them beside the Worker source so `wrangler deploy` can bundle them via
+# the direct `.wasm` imports in packages/temper-worker/src/index.js. Full flow
+# in docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md.
 #
-#   make wasm-worker-stage   # build .wasm + copy to packages/temper-worker/src/
-#   make wasm-worker-deploy  # stage, then `wrangler deploy` (HUMAN step:
-#                            # requires a Cloudflare account + login/token)
+#   make wasm-runner         # build the full-corpus .wasm only
+#   make wasm-worker-stage   # build ALL EIGHT .wasm into packages/temper-worker/src/
+#   make wasm-worker-deploy  # stage, then `wrangler deploy` all 8 Workers
+#                            # (HUMAN step: requires a Cloudflare account +
+#                            # login/token with Workers Scripts:Edit)
 #
-# The staged copy is gitignored — never commit a built .wasm binary. Deploy is
-# deliberately not reachable from `make build`; it is a credentialed,
-# human-gated action.
+# CI equivalent, and the preferred path: the `workflow_dispatch`-only workflow
+# .github/workflows/wasm-tier-deploy.yml runs exactly these steps and then
+# VERIFIES the deployed corpus with tools/wasm/check_deployed_freshness.mjs.
+#
+# THREE BUGS FIXED HERE 2026-08-10 (Phase 5 U1, R5.2). All three made this
+# "one-command deploy" a trap rather than a path, and all three fed the
+# 2026-08-07..2026-08-10 staleness window this unit exists to close:
+#
+#  1. `wasm-runner` passed `--no-default-features` with no `--features`, which
+#     turns OFF `wasm-test-registry` -- the only thing enabling
+#     `temper-drc-rs/wasm-registry`, which gates `temper_drc_rs::
+#     wasm_test_registry` (temper-drc-rs/src/lib.rs:47). The target has not
+#     compiled at all since the family features landed; it fails with E0432
+#     `unresolved import`. Verified 2026-08-10 by running it. That is the same
+#     flag bug wasm-tier-nightly.yml's build step already carries a comment
+#     about; the Makefile copy of it was never fixed.
+#  2. `wasm-worker-stage` staged ONE module. `packages/temper-worker/src/
+#     index.js` imports all eight, so a deploy from that state cannot bundle.
+#     Worse, the seven per-family Workers -- the ones the tier actually
+#     dispatches -- were not built or deployed by this path at all, which is
+#     exactly how shards go stale while the full corpus looks current.
+#  3. `stat -f %z` is macOS syntax; on Linux `-f` selects filesystem info and
+#     prints garbage. Dropped in favour of `ls -lh` from the staging script.
+#
+# The staged copies are gitignored — never commit a built .wasm binary. Deploy
+# is deliberately not reachable from `make build`; it is a credentialed,
+# human-gated action, and nothing on the PR path can reach it.
 #
 # CARGO_TARGET_DIR (exported below) is the shared target dir, so this builds
 # incrementally against whatever the rest of the repo already compiled.
 WASM_RUNNER_MANIFEST = packages/temper-wasm-test-runner/Cargo.toml
 WASM_RUNNER_ARTIFACT = $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/temper_wasm_test_runner.wasm
 WORKER_STAGED_WASM = packages/temper-worker/src/temper_wasm_test_runner.wasm
+WASM_FAMILIES = drc emc erc safety placement routing infra
 
 wasm-runner:
 	@echo "Building temper-wasm-test-runner (wasm32-unknown-unknown)..."
 	cargo build --release --target wasm32-unknown-unknown --no-default-features \
+		--features wasm-test-registry \
 		--manifest-path $(WASM_RUNNER_MANIFEST)
 
 # temper-geometry on the same tier. A separate target rather than a flag on
@@ -260,15 +288,24 @@ wasm-geometry-test:
 	node tools/wasm/run_wasm_tests.mjs $(WASM_RUNNER_ARTIFACT) \
 		--expected-failures tools/wasm/wasm_expected_failures_geometry.json
 
-wasm-worker-stage: wasm-runner
-	@mkdir -p $(dir $(WORKER_STAGED_WASM))
-	cp $(WASM_RUNNER_ARTIFACT) $(WORKER_STAGED_WASM)
-	@echo "Staged $(WORKER_STAGED_WASM) ($$(stat -f %z $(WORKER_STAGED_WASM)) bytes)."
+# Delegates to the committed staging script rather than duplicating its build
+# matrix: one definition of "what the eight modules are", shared by this
+# target, the deploy workflow, and the runbook.
+wasm-worker-stage:
+	bash scripts/stage_wasm_families.sh
 	@echo "Local smoke test:  node tools/wasm/worker_local_server.mjs"
 
 wasm-worker-deploy: wasm-worker-stage
-	@echo "Deploying to Cloudflare Workers (requires account + login/token)..."
-	cd packages/temper-worker && npx wrangler deploy
+	@echo "Deploying 8 Workers to Cloudflare (requires account + login/token)..."
+	@for f in $(WASM_FAMILIES); do \
+		echo "=== deploy temper-wasm-$$f ==="; \
+		(cd packages/temper-worker/families/$$f && npx --yes wrangler@4 deploy) || exit 1; \
+	done
+	@echo "=== deploy temper-wasm-tier (full corpus) ==="
+	cd packages/temper-worker && npx --yes wrangler@4 deploy
+	@echo "Verifying the deployed corpus matches what was just built..."
+	node tools/wasm/run_wasm_tests.mjs $(WORKER_STAGED_WASM) --json /tmp/staged_census.json
+	node tools/wasm/check_deployed_freshness.mjs --built-json /tmp/staged_census.json
 
 # Regenerate every derived artifact, refusing where regeneration would hide a
 # defect (a hash-order NEW_SITE, or a drifted oracle pin). Run before pushing:
