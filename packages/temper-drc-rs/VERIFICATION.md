@@ -1464,3 +1464,63 @@ the kernels.
 - **R1g Rust practices** — `cargo check -p temper-drc-rs` clean with and
   without the `python` feature; no `unwrap`/`expect` outside `#[cfg(test)]`
   (crate clippy lint).
+
+---
+
+# Phase-A U5 — DRC marshalling types (`drc_marshal.rs`) — Verification
+
+Rust-orchestration-engine plan (2026-08-09-001), Phase A unit U5: the typed
+marshalling boundary replacing the flat K1 dicts the Python marshalers
+(`validation/drc_oracle.py`, `validation/drc_runner.py`) used to shuttle into
+the DRC kernels.
+
+## What was migrated
+
+| Python marshaler | Rust type (this crate) | Python name |
+|---|---|---|
+| `_placement_to_board_dict` | `drc_marshal::DrcBoardSnapshot` | `DrcBoardSnapshot` |
+| `_constraints_to_dict` / `_build_constraints_dict` | `drc_marshal::ConstraintSet` | `TypedConstraintSet` |
+| `_constraint_value_to_plain` | `drc_marshal::ConstraintValue` | `ConstraintValue` |
+| `CheckRunner` dataclass data surface | `drc_marshal::CheckRunner` | `CheckRunner` |
+
+Naming deviation (recorded in the module doc): the plan names the constraints
+type `ConstraintSet`, but that Python name is occupied by the Phase-2
+*contract* pyclass (`drc_contracts::ConstraintSet`, re-exported by
+`drc_types.py`; ~90 tests construct `_tdrc.ConstraintSet(...)`), so the
+marshalling pyclass registers as `TypedConstraintSet`.
+
+## Empirical verification
+
+- **G1/G2 differential** — `tests/validation/test_drc_marshal_rust_differential.py`
+  (committed RED before the Rust implementation, then GREEN): the
+  pre-migration marshaler bodies are pinned verbatim as `_oracle_*` blocks;
+  the typed `to_dict()` reproduces the pinned K1 dicts bit-exactly
+  (float-hex canonicalization). The placer/parsed-PCB constructors chain
+  against the already-oracle-validated dict kernels. Kernel-path equivalence:
+  `run_drc(DrcBoardSnapshot, TypedConstraintSet)` ==
+  `run_drc(K1 dicts, K1 dicts)` (affected_items sorted — the rules build it
+  from a `HashSet` whose order is a per-instance `RandomState` artifact; the
+  set is what the rules guarantee).
+- **G4 PBT** — `tests/validation/test_drc_marshal_pbt.py`: 6 properties
+  (P1 ConstraintValue plain round-trip, P2 pydantic `model_dump` unwrap,
+  P3 typed-vs-oracle-dict kernel equivalence on a tight board, P4 CheckRunner
+  data surface, P5 from_netlist input honouring, P6 from_state shape
+  invariants), each with a `test_pN_fails_for_<mutant>` vacuity guard and a
+  module→property map in the file docstring.
+- **G5 metamorphic** — 4 relations in the same file: order preservation,
+  structural recursion, all-`None`-config ≡ no-config, and power-of-two scale.
+- **G6 induction** — N/A for the marshalling boundary: the types are
+  data-only (no recursive computation); the only recursion is
+  `ConstraintValue`'s structural value-tree recursion, whose base case
+  (scalar pass-through) and step (element-wise list/dict conversion) are
+  pinned by the P1/P2 differential and the MR2 structural-recursion relation.
+- **G8 physics discipline** — N/A: pure marshalling, no physics quantity.
+
+## R1g Rust bar
+
+- `cargo clippy --all-features --all-targets -D warnings` clean.
+- `cargo test --features python` (with libpython linked for the test binary):
+  1792 tests green, including `drc_marshal::tests` (package-type/rule
+  defaults, trace-segment engine shape, constraint-value kind labels).
+- Every pyo3 entry point is wrapped in `guard()` (`catch_unwind`); no
+  `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
