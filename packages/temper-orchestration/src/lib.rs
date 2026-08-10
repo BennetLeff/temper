@@ -31,8 +31,7 @@
 //                     `ConvergenceCriteria`, `ConvergenceState`,
 //                     `ConvergenceChecker` pyclasses bit-exact with
 //                     `pipeline/convergence.py`; `ConvergenceChecker` also
-//                     implements `Stage<BoardState>` (stub) [lands with the
-//                     U1 convergence migration]
+//                     implements `Stage<BoardState>` (stub)
 //
 // Panic safety at the boundary (R1g): pyo3's `#[pyfunction]` expansion
 // wraps every exported body in `catch_unwind` and converts a Rust panic
@@ -40,6 +39,7 @@
 // into CPython (the crate also sets `profile.release.panic = "unwind"` so
 // that catch is what runs).
 mod board_state;
+mod convergence;
 mod copper_length;
 mod feasibility;
 mod host_math;
@@ -73,6 +73,10 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(feasibility::derive_si_max_placement_dist, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::mains_voltage_to_class_code, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::extract_min_clearance, m)?)?;
+    m.add_class::<convergence::ConvergenceChecker>()?;
+    m.add_class::<convergence::ConvergenceCriteria>()?;
+    m.add_class::<convergence::ConvergenceState>()?;
+    m.add_class::<convergence::TerminationReason>()?;
     Ok(())
 }
 
