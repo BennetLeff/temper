@@ -386,19 +386,16 @@ def _netlist_to_oracle_dict(netlist) -> dict:
     ``components`` (ref, footprint, width, height, voltage). The placer
     ``Component`` carries no voltage — the oracle defaults it to 0.0, which
     is unused by the current config/threshold logic.
+
+    Phase-A U6: the marshalling body moved to Rust
+    (``temper_drc_rs.OracleInput.from_netlist`` — a typed struct whose
+    ``to_dict()`` reproduces this dict bit-for-bit; pinned by
+    ``tests/validation/test_oracle_marshal_rust_differential.py``). The
+    ``temper_quality_oracle`` pyfunctions still take the flat dict, so the
+    shim round-trips through ``to_dict()`` — the kernel-signature tightening
+    is a later phase in the crate that owns those pyfunctions.
     """
-    return {
-        "nets": [{"name": net.name, "pins": [ref for ref, _ in net.pins]} for net in netlist.nets],
-        "components": [
-            {
-                "ref": comp.ref,
-                "footprint": comp.footprint,
-                "width": float(comp.bounds[0]),
-                "height": float(comp.bounds[1]),
-            }
-            for comp in netlist.components
-        ],
-    }
+    return _tdrc.OracleInput.from_netlist(netlist).to_dict()
 
 
 def _placement_to_oracle_dict(state: PlacementState, netlist, board) -> dict:
@@ -407,14 +404,14 @@ def _placement_to_oracle_dict(state: PlacementState, netlist, board) -> dict:
     Component refs must line up 1:1 with position rows; the extractor builds
     both from the netlist's component order, so the netlist refs are the
     source of truth here.
+
+    Phase-A U6: the marshalling body moved to Rust
+    (``temper_drc_rs.OracleOutput.from_state`` — the same typed-marshaler
+    pattern as ``_netlist_to_oracle_dict`` above; the float32→float64
+    ``positions.reshape(-1).tolist()`` conversion is reproduced by calling
+    the identical numpy operations from Rust, so the dict is bit-identical).
     """
-    positions = np.asarray(state.positions, dtype=np.float64)
-    return {
-        "positions": positions.reshape(-1).tolist(),
-        "component_refs": [c.ref for c in netlist.components],
-        "board_width_mm": float(board.width),
-        "board_height_mm": float(board.height),
-    }
+    return _tdrc.OracleOutput.from_state(state, netlist, board).to_dict()
 
 
 def _compute_quality_metrics(

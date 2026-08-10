@@ -70,6 +70,12 @@ pub mod drc_oracle_marshal;
 // validation/drc_oracle.py + validation/drc_runner.py.
 #[cfg(feature = "python")]
 pub mod drc_marshal;
+// Phase-A U6 (rust-orchestration-engine plan) — typed quality-oracle
+// marshalling types OracleInput / OracleOutput, migrated from
+// validation/human_reference_extractor.py (_netlist_to_oracle_dict /
+// _placement_to_oracle_dict).
+#[cfg(feature = "python")]
+pub mod oracle_marshal;
 // Wave 4 — router_v6/constraints_drc_oracle.py DRCOracle decision kernels
 // (Violation.severity, the R3 clearance-credit spatial scoping,
 // can_place_via / can_place_track_segment, validate_all pairwise checks).
@@ -477,6 +483,9 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Phase-A U5 — typed DRC marshalling types (DrcBoardSnapshot,
     // TypedConstraintSet, ConstraintValue) + the CheckRunner data surface.
     crate::drc_marshal::register(m)?;
+    // Phase-A U6 — typed quality-oracle marshalling types (OracleInput,
+    // OracleOutput) from validation/human_reference_extractor.py.
+    crate::oracle_marshal::register(m)?;
     // Wave 4 — router_v6/constraints_drc_oracle.py DRCOracle decision
     // kernels (drc_oracle.rs): severity, R3 clearance credits,
     // can_place_via / can_place_track_segment, validate_all pairwise checks.
