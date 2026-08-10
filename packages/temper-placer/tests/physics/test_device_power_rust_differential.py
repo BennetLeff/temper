@@ -217,10 +217,26 @@ def test_direct_single_device_power_known_values():
 def test_direct_mosfet_pow2_semantics():
     """`I_load_rms**2` is host-libm pow(x, 2.0), NOT x*x — pin a value where
     the two differ (measured: ~0.14% of random floats) so the Rust kernel
-    cannot silently regress to `x * x`."""
-    # 974.5535622665931**2 differs from x*x (see migration record)
-    x = 974.5535622665931
-    assert x**2 != x * x, "test input must discriminate pow(x,2.0) from x*x"
+    cannot silently regress to `x * x`.
+
+    The discriminator is SEARCHED at runtime, not hardcoded: whether a
+    given x satisfies `pow(x, 2.0) != x * x` depends on the host libm's
+    pow implementation (a correctly-rounded pow is bit-identical to x*x;
+    a log/exp-based pow differs in the last ulp).  The value
+    `974.5535622665931` recorded in the migration discriminated on the
+    2026-08-04 runtime but NOT on the current one (issue #927) — the
+    search below finds a live case on whichever libm is loaded, and
+    fails loudly if the loaded libm cannot discriminate at all."""
+    import struct
+
+    rng = random.Random(927)
+    x = None
+    for _ in range(200000):
+        cand = rng.uniform(1e-6, 1e6)
+        if struct.pack(">d", cand**2) != struct.pack(">d", cand * cand):
+            x = cand
+            break
+    assert x is not None, "no pow(x,2.0) vs x*x discriminator on this libm"
     mos = DeviceLossConfig(
         name="Q1", device_type="IGBT", V_ce_sat=0.0, R_ds_on=3.0,
         E_on=0.0, E_off=0.0, V_ce_sat_because="t", E_on_because="t",

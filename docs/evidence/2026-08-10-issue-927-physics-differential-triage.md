@@ -1,6 +1,6 @@
 # Issue #927 triage — 4 Rust-vs-oracle differential failures in `tests/physics/` (2026-08-10)
 
-<!-- provenance: commit=<set-at-push> dirty=false (triage recorded with the fixes in the same branch; re-measured after a clean release rebuild) -->
+<!-- provenance: commit=da07f2c226cebacd1b00493269dc9510f5c92fc2 dirty=false (triage recorded at this commit; re-measured after a clean release rebuild) -->
 <!-- provenance: worktree=<wt-927>, branch=fix/physics-differential-927 -->
 
 **What this is.** The triage record for the four pre-existing failures

@@ -291,8 +291,30 @@ mod tests {
     #[test]
     fn pow_is_not_multiplication() {
         // A measured input where CPython's `x ** 2` (libm pow) differs
-        // from `x * x`; the kernel must use `pow`.
-        let x = 974.553_562_266_593_1_f64;
+        // from `x * x`; the kernel must use `pow`.  The discriminator is
+        // SEARCHED on the loaded libm rather than hardcoded: whether
+        // `pow(x, 2.0) != x * x` holds is a property of the libm's pow
+        // implementation (a correctly-rounded `pow(x, 2.0)` is
+        // bit-identical to `x * x`), and the value pinned at migration
+        // (`974.5535622665931`) does NOT discriminate on the current
+        // libm (issue #927).  The search fails loudly if the loaded libm
+        // cannot discriminate at all.
+        let mut seed = 0x5eed_4f1d_u64;
+        let mut x = 1.0_f64;
+        let mut found = false;
+        for _ in 0..2_000_000 {
+            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            // Deterministic LCG over normal f64s spanning ~2^-1022..2^77
+            // (the band where pow(x, 2.0) and x*x stay finite and can
+            // differ by an ulp).
+            let e = 1 + (seed >> 53) % 1100;
+            x = f64::from_bits((e << 52) | (seed & ((1u64 << 52) - 1)));
+            if pow(x, 2.0) != x * x {
+                found = true;
+                break;
+            }
+        }
+        assert!(found, "no pow(x,2.0) vs x*x discriminator on this libm");
         assert_ne!(pow(x, 2.0), x * x);
     }
 

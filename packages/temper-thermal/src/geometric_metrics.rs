@@ -401,16 +401,31 @@ mod tests {
 
     #[test]
     fn pow_used_not_multiplication_in_hypot() {
-        // A measured input pair where `sqrt(x**2+y**2)` (pow) disagrees
-        // with `sqrt(x*x+y*y)` (multiplication) -- unlike a single
+        // An input pair where `sqrt(x**2+y**2)` (pow) disagrees with
+        // `sqrt(x*x+y*y)` (multiplication) -- unlike a single
         // `pow(x,2) != x*x` pin, sqrt's correct rounding can (and for
-        // many inputs does) collapse a 1-ulp pre-sqrt difference, so this
-        // pair was found by direct search rather than reusing hostmath's
-        // pre-sqrt pin.
-        let x = 261_393.185_393_277_38_f64;
-        let y = 353_085.386_809_846_7_f64;
-        let via_pow = hypot_pow(x, y);
-        let via_mul = (x * x + y * y).sqrt();
+        // many inputs does) collapse a 1-ulp pre-sqrt difference, so the
+        // pair is SEARCHED here rather than reusing hostmath's pre-sqrt
+        // pin.  The discriminator is also libm-dependent: the pair
+        // pinned at migration (`x = 261393.18539327738`,
+        // `y = 353085.3868098467`) does NOT discriminate on the current
+        // libm (issue #927); the search fails loudly if the loaded libm
+        // cannot discriminate at all.
+        let mut seed = 0x5eed_1a00_0000_u64;
+        let fixture = (0..5_000_000).find_map(|_| {
+            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            let e = 1 + (seed >> 53) % 1050;
+            let x = f64::from_bits((e << 52) | (seed & ((1u64 << 52) - 1)));
+            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            let e2 = 1 + (seed >> 53) % 1050;
+            let y = f64::from_bits((e2 << 52) | (seed & ((1u64 << 52) - 1)));
+            let via_pow = hypot_pow(x, y);
+            let via_mul = (x * x + y * y).sqrt();
+            (via_pow != via_mul).then_some((x, y, via_pow, via_mul))
+        });
+        let Some((_x, _y, via_pow, via_mul)) = fixture else {
+            panic!("no hypot pow-vs-mul discriminator on this libm");
+        };
         assert_ne!(via_pow, via_mul);
     }
 

@@ -1143,12 +1143,23 @@ applicable** in the induction form; structural argument recorded.
    `(-tau) * log(1.0 - threshold)` with the unary minus bound BEFORE the
    multiply (B7); `(comparator_delay_ns + mcu_latency_ns) * 1e-3`
    parenthesized; `hostmath::log` (B1).
-2. **Domain-error parity (the reference raises).** CPython `math.log(x)`
+2. **The unary minus is an opaque call (`negate`), not an inline
+   `-tau`.**  LLVM's DAGCombine sinks an inline `fneg` into the
+   innermost multiply (`(r * (-c)) * log`); for finite inputs that is
+   bit-identical, but for a NaN `tau` the compiled NaN payload SIGN
+   flips vs the oracle's `(-tau) * log(...)` (the hardware propagates
+   the NaN operand's own sign, and the NaN rides on `r`, whose sign was
+   never flipped).  `#[inline(never)]` keeps the sign-flip its own
+   instruction and reproduces the oracle's bits for all four non-finite
+   argument positions (issue #927, 2026-08-10).  If a future compiler
+   re-inlines `negate`, `test_direct_nan_inf_semantics` fails loudly —
+   re-verify, don't silence.
+3. **Domain-error parity (the reference raises).** CPython `math.log(x)`
    raises `ValueError("math domain error")` for `x <= 0.0` (incl. `-0.0`)
    but returns NaN for NaN.  The pyo3 bridge replicates this exactly in the
    reference's guard order (`r <= 0 || c <= 0` returns 0.0 first, then the
    raise).  Pinned by `test_direct_threshold_extremes`.
-3. **R24.** Safety-timing estimators, not constraint encoders — parity is
+4. **R24.** Safety-timing estimators, not constraint encoders — parity is
    the applicable contract.
 
 ### Empirical verification
@@ -1369,8 +1380,8 @@ is-mul / float-`** 2`-is-pow trap.)
 |---|---|---|---|
 | emi | 3 | randomized pins, pow-vs-mul discriminator, underflow guard | — |
 | safety | 2 | B7 order mutant → randomized pins + one-time-constant; domain-error raise-arm mutant → test_direct_threshold_extremes | — |
-| heat_removal | 5 | R_vert-skip pin, randomized pins, slice-wrap pin, off-by-one | pow→mul in h_bg → closed by the 1-ulp discriminator pin (cs=66.24771326355554) |
-| copper_coverage | 5 | rect axis, trace min-cap, NaN-discard | pow-for-offsets → closed by the mul-vs-pow offset discriminator; kr·kr-for-radius → closed by the radius pow-vs-mul discriminator |
+| heat_removal | 5 | R_vert-skip pin, randomized pins, slice-wrap pin, off-by-one | pow→mul in h_bg → closed by the 1-ulp discriminator pin (cs=66.24771326355554; the cs is now SEARCHED on the loaded libm, issue #927) |
+| copper_coverage | 5 | rect axis, trace min-cap, NaN-discard | pow-for-offsets → closed by the mul-vs-pow offset discriminator; kr·kr-for-radius → closed by the radius pow-vs-mul discriminator (the kr is now SEARCHED on the loaded libm, issue #927) |
 | tj_cross_check | 2 | NaN conservative-max pin, distance abs pin | — |
 | parameter_bounds | 2 | case-folding pin (P_LOSS dead code), worst-case selection pin | — |
 

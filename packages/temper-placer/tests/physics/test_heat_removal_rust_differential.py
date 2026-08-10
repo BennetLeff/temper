@@ -187,10 +187,24 @@ def test_direct_background_only() -> None:
 
 
 def test_direct_background_pow_vs_mul_discriminator() -> None:
-    # `(cs * 1e-3) ** 2` must be host-libm pow, never x*x: at this cs
-    # the two differ by 1 ulp in the h_bg value (measured 2026-08-04),
-    # so a mul-mutant shifts every cell and fails this pin.
-    cs = 66.24771326355554
+    # `(cs * 1e-3) ** 2` must be host-libm pow, never x*x: at a
+    # discriminating cs the two differ by 1 ulp in the h_bg value
+    # (measured 2026-08-04), so a mul-mutant shifts every cell and fails
+    # this pin.  The discriminating cs is SEARCHED at runtime, not
+    # hardcoded — whether `pow(x, 2.0) != x*x` holds for a given x is a
+    # property of the host libm's pow implementation, and the value
+    # `66.24771326355554` pinned at migration does NOT discriminate on
+    # the current libm (issue #927).  The search fails loudly if the
+    # loaded libm cannot discriminate at all.
+    rng = random.Random(927)
+    cs = None
+    for _ in range(200000):
+        cand = rng.uniform(1.0, 1e3)
+        x = cand * 1e-3
+        if (x**2).hex() != (x * x).hex():
+            cs = cand
+            break
+    assert cs is not None, "no pow(x,2.0) vs x*x discriminator on this libm"
     cfg = _cfg(2, 2, cs)
     devices: dict[str, tuple[float, float]] = {}
     device_thermal: dict[str, DeviceThermalConfig] = {}

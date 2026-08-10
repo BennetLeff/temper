@@ -32,6 +32,29 @@ use temper_py_bridge;
 
 use crate::hostmath;
 
+/// IEEE `fneg` as an opaque call so the optimizer cannot fold it into a
+/// neighboring multiply.
+///
+/// The oracle evaluates `(-tau) * log(1.0 - threshold)`: the unary minus
+/// is a standalone sign flip on `tau`, and only THEN is the product taken.
+/// LLVM reassociates `-tau * log(...)` into `(r * (-c)) * log(...)` when
+/// the negation is written inline (DAGCombine sinks the `fneg` into the
+/// innermost multiply).  For FINITE values the two are bit-identical (a
+/// sign flip commutes with a multiply), but for a NaN `tau` the compiled
+/// sign differs: the hardware propagates the NaN operand's own sign, so
+/// `(-tau) * log` yields a NEGATIVE NaN while `(r * (-c)) * log` yields a
+/// POSITIVE one (the NaN rides on `r`, whose sign was never flipped).
+/// CPython's `-tau * math.log(...)` executes the standalone flip, and the
+/// differential suite pins the resulting NaN sign bit.  `#[inline(never)]`
+/// keeps the `fneg` as its own instruction (x86: `xorpd` with the sign
+/// mask) at the call site; `-x` inlined would be re-folded and diverge
+/// again.  Measured 2026-08-10: only this structure reproduces the
+/// oracle's NaN payload sign for all four non-finite argument positions.
+#[inline(never)]
+fn negate(x: f64) -> f64 {
+    -x
+}
+
 /// Estimate the time delay of an RC low-pass filter.  Mirrors
 /// `estimate_filter_delay` verbatim: `tau = r * c`;
 /// `(-tau) * log(1.0 - threshold)` (B7); the `r <= 0 || c <= 0` guard
@@ -42,7 +65,7 @@ pub fn estimate_filter_delay(r_ohms: f64, c_farads: f64, threshold_fraction: f64
     }
 
     let tau = r_ohms * c_farads;
-    -tau * hostmath::log(1.0 - threshold_fraction)
+    negate(tau) * hostmath::log(1.0 - threshold_fraction)
 }
 
 /// Estimate the total time to trigger a safety interlock (µs).  Mirrors
