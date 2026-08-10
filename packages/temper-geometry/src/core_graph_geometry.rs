@@ -793,11 +793,12 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 // Tests
 // =============================================================================
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn clique_expand_basic() {
         let (s, t, w) = graph_clique_expand(&[vec![0, 1, 2]], &[0.5]);
         assert_eq!(s, vec![0, 0, 1]);
@@ -805,7 +806,7 @@ mod tests {
         assert_eq!(w, vec![0.5, 0.5, 0.5]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn clique_expand_empty() {
         let (s, t, w) = graph_clique_expand(&[], &[]);
         assert!(s.is_empty() && t.is_empty() && w.is_empty());
@@ -813,7 +814,7 @@ mod tests {
         assert!(s.is_empty() && t.is_empty() && w.is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn batch_concat_shifts_and_appends() {
         // two graphs: first 1 node (3 floats), second 2 nodes (6 floats)
         let nodes = vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0, 7.0, 8.0, 9.0]];
@@ -826,13 +827,13 @@ mod tests {
         assert_eq!(aw, vec![0.1, 0.2, 0.3]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn batch_concat_empty() {
         let (an, ae, aw) = graph_batch_concat(&[], &[], &[]);
         assert!(an.is_empty() && ae.is_empty() && aw.is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn coo_matvec_order_invariant_scatter() {
         // double triplet: 2 * data[i] must be accumulated exactly
         let row = [0, 1, 0];
@@ -843,13 +844,13 @@ mod tests {
         assert_eq!(r, vec![2.0 * 20.0 + 4.0 * 30.0, 3.0 * 10.0]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn coo_matvec_empty_and_zero_rows() {
         assert_eq!(hypergraph_coo_matvec(&[], &[], &[], 4, &[]), vec![0.0; 4]);
         assert_eq!(hypergraph_coo_matvec(&[], &[], &[], 0, &[]), Vec::<f64>::new());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn coo_matvec_length_extends_to_max_row() {
         // bincount minlength semantics: row 3 exceeds n_rows 2 -> length 4
         let row = [3];
@@ -861,7 +862,7 @@ mod tests {
         assert_eq!(r[3], 3.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn coo_matvec_negative_col_wraps() {
         let row = [0];
         let col = [-1];
@@ -870,7 +871,7 @@ mod tests {
         assert_eq!(hypergraph_coo_matvec(&row, &col, &data, 1, &other), vec![8.0]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn normalize_rotation_index_quadrants() {
         // (i * PI) / 2.0 grouping, not i * (PI / 2.0) — the kernel preserves
         // the oracle's exact division chain.
@@ -881,7 +882,7 @@ mod tests {
         assert_eq!(normalize_rotation_index(3), grouped);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pin_world_position_quadrant_anchors() {
         // R(-90): (1, 0) at origin -> (0, -1) per KiCad convention
         let (rx, ry) = pin_world_position_kernel(1.0, 0.0, 0, std::f64::consts::PI / 2.0, 0.0, 0.0);
@@ -893,7 +894,7 @@ mod tests {
         assert!((ry - 6.0).abs() < 1e-12, "ry={ry}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn power_topology_arithmetic() {
         assert_eq!(power_required_trace_width(1.0), 0.25);
         assert_eq!(power_trace_width(1.0, 1.0), 0.25);
@@ -907,7 +908,7 @@ mod tests {
         assert_eq!(power_delivery_strategy(3.0), 0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn topology_components_partition_and_order() {
         let nodes = vec!["a".into(), "b".into(), "c".into(), "d".into()];
         let ea = vec!["a".into(), "c".into()];
@@ -917,7 +918,7 @@ mod tests {
         assert_eq!(groups, vec![vec![0, 1], vec![2, 3]]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn topology_components_single_group_all() {
         let nodes = vec!["a".into(), "b".into(), "c".into()];
         let ea = vec!["a".into(), "b".into()];
@@ -926,14 +927,14 @@ mod tests {
         assert_eq!(groups, vec![vec![0, 1, 2]]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn topology_components_isolated() {
         let nodes = vec!["a".into(), "b".into()];
         let groups = topology_connected_components(&nodes, &["z".to_string()], &["w".to_string()]);
         assert_eq!(groups, vec![vec![0], vec![1]]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn courtyard_quadrant_vertices() {
         // 90deg: angle=90, rad=-pi/2 -> cosp=0, sinp=-1
         // x1 = (0*vx + (1)*vy) + 0 = vy ; y1 = (-1*vx + 0*vy) + 0 = -vx
@@ -944,7 +945,7 @@ mod tests {
         assert!((pts[0] - (-1.0)).abs() < 1e-12 && (pts[1] - 0.0).abs() < 1e-12, "got {pts:?}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn courtyard_zeroing_affects_bits() {
         // cosp at 90deg is ~6.1e-17, which shapely zeroes to exactly 0.0 —
         // the transform must use the zeroed value, not the raw cos.
@@ -954,7 +955,7 @@ mod tests {
         assert_eq!(pts[1].to_bits(), 3.0f64.to_bits());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn geometry_types_kernels() {
         assert_eq!(point_distance(0.0, 0.0, 3.0, 4.0), 5.0);
         assert_eq!(track_midpoint(0.0, 0.0, 2.0, 4.0), (1.0, 2.0));
@@ -966,4 +967,30 @@ mod tests {
         let expected = (2.0_f64.powf(2.0) + 3.0_f64.powf(2.0)).powf(0.5) / 2.0;
         assert_eq!(r, expected);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("core_graph_geometry::tests::clique_expand_basic", clique_expand_basic),
+        ("core_graph_geometry::tests::clique_expand_empty", clique_expand_empty),
+        ("core_graph_geometry::tests::batch_concat_shifts_and_appends", batch_concat_shifts_and_appends),
+        ("core_graph_geometry::tests::batch_concat_empty", batch_concat_empty),
+        ("core_graph_geometry::tests::coo_matvec_order_invariant_scatter", coo_matvec_order_invariant_scatter),
+        ("core_graph_geometry::tests::coo_matvec_empty_and_zero_rows", coo_matvec_empty_and_zero_rows),
+        ("core_graph_geometry::tests::coo_matvec_length_extends_to_max_row", coo_matvec_length_extends_to_max_row),
+        ("core_graph_geometry::tests::coo_matvec_negative_col_wraps", coo_matvec_negative_col_wraps),
+        ("core_graph_geometry::tests::normalize_rotation_index_quadrants", normalize_rotation_index_quadrants),
+        ("core_graph_geometry::tests::pin_world_position_quadrant_anchors", pin_world_position_quadrant_anchors),
+        ("core_graph_geometry::tests::power_topology_arithmetic", power_topology_arithmetic),
+        ("core_graph_geometry::tests::topology_components_partition_and_order", topology_components_partition_and_order),
+        ("core_graph_geometry::tests::topology_components_single_group_all", topology_components_single_group_all),
+        ("core_graph_geometry::tests::topology_components_isolated", topology_components_isolated),
+        ("core_graph_geometry::tests::courtyard_quadrant_vertices", courtyard_quadrant_vertices),
+        ("core_graph_geometry::tests::courtyard_zeroing_affects_bits", courtyard_zeroing_affects_bits),
+        ("core_graph_geometry::tests::geometry_types_kernels", geometry_types_kernels),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

@@ -204,8 +204,9 @@ pub fn project_onto_side(p: &Point, _board_w: f64, board_h: f64, side: &str) -> 
 // Tests
 // =============================================================================
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     const EPS: f64 = 1e-12;
@@ -213,7 +214,7 @@ mod tests {
     // -----------------------------------------------------------------
     // Identity projection
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_identity_projection_returns_same_point() {
         let p = Point::new(3.0, 4.0);
         let result = identity_projection(&p);
@@ -224,7 +225,7 @@ mod tests {
     // -----------------------------------------------------------------
     // project_onto_board
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_board_outside_clamped() {
         // Point outside board — should clamp to margin-bounded edge
         let result = project_onto_board(&Point::new(-10.0, 50.0), 100.0, 100.0, 5.0);
@@ -232,7 +233,7 @@ mod tests {
         assert!((result.y - 50.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_board_inside_unchanged() {
         // Point inside board — should remain unchanged
         let result = project_onto_board(&Point::new(50.0, 50.0), 100.0, 100.0, 5.0);
@@ -240,7 +241,7 @@ mod tests {
         assert!((result.y - 50.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_board_clamps_both_axes() {
         let result = project_onto_board(&Point::new(-20.0, 200.0), 100.0, 100.0, 10.0);
         assert!((result.x - 10.0).abs() < EPS);
@@ -250,7 +251,7 @@ mod tests {
     // -----------------------------------------------------------------
     // project_onto_zone
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_zone_outside_projected() {
         let zone = Rect::new(0.0, 0.0, 10.0, 10.0);
         // Point outside to the right — should clamp to right edge
@@ -259,7 +260,7 @@ mod tests {
         assert!((result.y - 5.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_zone_inside_unchanged() {
         let zone = Rect::new(0.0, 0.0, 10.0, 10.0);
         let result = project_onto_zone(&Point::new(5.0, 5.0), &zone);
@@ -267,7 +268,7 @@ mod tests {
         assert!((result.y - 5.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_zone_outside_both_axes() {
         let zone = Rect::new(0.0, 0.0, 10.0, 10.0);
         let result = project_onto_zone(&Point::new(15.0, 15.0), &zone);
@@ -275,7 +276,7 @@ mod tests {
         assert!((result.y - 10.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_zone_outside_left() {
         let zone = Rect::new(0.0, 0.0, 10.0, 10.0);
         let result = project_onto_zone(&Point::new(-5.0, 5.0), &zone);
@@ -286,7 +287,7 @@ mod tests {
     // -----------------------------------------------------------------
     // project_outside_keepout
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_outside_keepout_already_outside() {
         let keepout = Rect::new(0.0, 0.0, 10.0, 10.0);
         let result = project_outside_keepout(&Point::new(50.0, 50.0), &keepout, 0.0, 0.0);
@@ -294,7 +295,7 @@ mod tests {
         assert!((result.y - 50.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_outside_keepout_inside_snapped() {
         let keepout = Rect::new(0.0, 0.0, 10.0, 10.0);
         // Point at center of keepout — nearest edge is left or bottom (both at 0)
@@ -308,7 +309,7 @@ mod tests {
         assert!(on_edge, "result ({}, {}) not on keepout edge", result.x, result.y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_outside_keepout_with_half_size() {
         let keepout = Rect::new(0.0, 0.0, 10.0, 10.0);
         // With half_w=1, half_h=1, the expanded rect is (-1, -1, 11, 11)
@@ -324,7 +325,7 @@ mod tests {
     // -----------------------------------------------------------------
     // project_onto_half_plane
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_half_plane_already_feasible() {
         // Half-plane: y >= 5 (normal=(0,1), origin=(0,5))
         let origin = Point::new(0.0, 5.0);
@@ -334,7 +335,7 @@ mod tests {
         assert!((result.y - 10.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_half_plane_violating_reflected() {
         // Half-plane: y >= 5, point at y=0 — should project to y=5
         let origin = Point::new(0.0, 5.0);
@@ -344,7 +345,7 @@ mod tests {
         assert!((result.y - 5.0).abs() < EPS, "expected y=5.0, got {}", result.y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_half_plane_diagonal_normal() {
         // Half-plane: x >= y (normal=(1,-1), origin=(0,0))
         // Boundary line: x - y = 0. Feasible: x - y >= 0.
@@ -359,7 +360,7 @@ mod tests {
         assert!((result.y - (-4.0)).abs() < EPS, "expected y=-4.0, got {}", result.y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_half_plane_degenerate_normal() {
         let origin = Point::new(0.0, 5.0);
         let normal = Vec2 { x: 0.0, y: 0.0 };
@@ -371,7 +372,7 @@ mod tests {
     // -----------------------------------------------------------------
     // project_onto_edge_strip
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_edge_strip_inside_unchanged() {
         // Edge from (0, 0) to (0, 10), strip_width = 5
         // Point at (2, 5) is within the strip — should be unchanged
@@ -385,7 +386,7 @@ mod tests {
         assert!((result.y - 5.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_edge_strip_outside_clamped() {
         // Edge from (0, 0) to (0, 10), strip_width = 5
         // Point at (10, 5) is beyond strip_width — should clamp to (5, 5)
@@ -399,7 +400,7 @@ mod tests {
         assert!((result.y - 5.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_edge_strip_beyond_endpoint() {
         // Edge from (0, 0) to (10, 0), strip_width = 3
         // Point at (5, 10) — nearest on edge is (5, 0), dist=10 > 3, clamp to (5, 3)
@@ -416,21 +417,21 @@ mod tests {
     // -----------------------------------------------------------------
     // project_onto_side
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_side_top_inside() {
         let result = project_onto_side(&Point::new(10.0, 20.0), 100.0, 100.0, "top");
         assert!((result.x - 10.0).abs() < EPS);
         assert!((result.y - 20.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_side_bottom_inside() {
         let result = project_onto_side(&Point::new(10.0, 80.0), 100.0, 100.0, "bottom");
         assert!((result.x - 10.0).abs() < EPS);
         assert!((result.y - 80.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_side_top_from_bottom() {
         let result = project_onto_side(&Point::new(10.0, 80.0), 100.0, 100.0, "top");
         // midline = 50, clamp y to max 50
@@ -438,7 +439,7 @@ mod tests {
         assert!((result.y - 50.0).abs() < EPS, "expected y=50.0, got {}", result.y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_project_onto_side_bottom_from_top() {
         let result = project_onto_side(&Point::new(10.0, 20.0), 100.0, 100.0, "bottom");
         // midline = 50, clamp y to min 50
@@ -446,9 +447,41 @@ mod tests {
         assert!((result.y - 50.0).abs() < EPS, "expected y=50.0, got {}", result.y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     #[should_panic(expected = "Invalid side")]
     fn test_project_onto_side_invalid_panics() {
         project_onto_side(&Point::new(0.0, 0.0), 100.0, 100.0, "invalid");
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("projections::tests::test_identity_projection_returns_same_point", test_identity_projection_returns_same_point),
+        ("projections::tests::test_project_onto_board_outside_clamped", test_project_onto_board_outside_clamped),
+        ("projections::tests::test_project_onto_board_inside_unchanged", test_project_onto_board_inside_unchanged),
+        ("projections::tests::test_project_onto_board_clamps_both_axes", test_project_onto_board_clamps_both_axes),
+        ("projections::tests::test_project_onto_zone_outside_projected", test_project_onto_zone_outside_projected),
+        ("projections::tests::test_project_onto_zone_inside_unchanged", test_project_onto_zone_inside_unchanged),
+        ("projections::tests::test_project_onto_zone_outside_both_axes", test_project_onto_zone_outside_both_axes),
+        ("projections::tests::test_project_onto_zone_outside_left", test_project_onto_zone_outside_left),
+        ("projections::tests::test_project_outside_keepout_already_outside", test_project_outside_keepout_already_outside),
+        ("projections::tests::test_project_outside_keepout_inside_snapped", test_project_outside_keepout_inside_snapped),
+        ("projections::tests::test_project_outside_keepout_with_half_size", test_project_outside_keepout_with_half_size),
+        ("projections::tests::test_project_onto_half_plane_already_feasible", test_project_onto_half_plane_already_feasible),
+        ("projections::tests::test_project_onto_half_plane_violating_reflected", test_project_onto_half_plane_violating_reflected),
+        ("projections::tests::test_project_onto_half_plane_diagonal_normal", test_project_onto_half_plane_diagonal_normal),
+        ("projections::tests::test_project_onto_half_plane_degenerate_normal", test_project_onto_half_plane_degenerate_normal),
+        ("projections::tests::test_project_onto_edge_strip_inside_unchanged", test_project_onto_edge_strip_inside_unchanged),
+        ("projections::tests::test_project_onto_edge_strip_outside_clamped", test_project_onto_edge_strip_outside_clamped),
+        ("projections::tests::test_project_onto_edge_strip_beyond_endpoint", test_project_onto_edge_strip_beyond_endpoint),
+        ("projections::tests::test_project_onto_side_top_inside", test_project_onto_side_top_inside),
+        ("projections::tests::test_project_onto_side_bottom_inside", test_project_onto_side_bottom_inside),
+        ("projections::tests::test_project_onto_side_top_from_bottom", test_project_onto_side_top_from_bottom),
+        ("projections::tests::test_project_onto_side_bottom_from_top", test_project_onto_side_bottom_from_top),
+        ("projections::tests::test_project_onto_side_invalid_panics", test_project_onto_side_invalid_panics),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

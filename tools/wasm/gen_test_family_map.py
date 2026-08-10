@@ -76,6 +76,13 @@ MODULE_FAMILY: dict[tuple[str, str], str] = {
     ("board", "tests"): "types",
     ("board", "board_state_tests"): "types",
     ("dfm", "tests"): "dfm",
+    # IPC-2221/2152 current-capacity and minimum-trace-width kernels. `routing`
+    # rather than `dfm`: every one of these answers "how wide must this
+    # conductor be to carry its current", which is a trace-sizing decision the
+    # router makes, not a manufacturability limit like `dfm`'s annular-ring and
+    # thermal-via checks. (Registered 2026-08-10; the module had been missing
+    # from the registry since the temper-ipc crate-fold.)
+    ("ipc", "tests"): "routing",
     ("pyfmt", "tests"): "types",
     ("pymath", "tests"): "types",
     ("rules", "integration_tests"): "integration",

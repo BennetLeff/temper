@@ -2,7 +2,7 @@
 name = "temper-wasm-test-runner"
 version = "0.1.0"
 edition = "2024"
-description = "wasm32 entry point that runs temper-drc-rs unit tests one at a time from a host (Cloudflare Worker, Node, workerd)"
+description = "wasm32 entry point that runs Temper crates' unit tests one at a time from a host (Cloudflare Worker, Node, workerd)"
 publish = false
 
 [lib]
@@ -12,22 +12,42 @@ name = "temper_wasm_test_runner"
 crate-type = ["cdylib"]
 
 [features]
-# Default: full 147-test registry (backward-compatible with CI and run_wasm_tests.mjs).
+# Default: the full `temper-drc-rs` registry (backward-compatible with CI,
+# `make wasm-runner`, `scripts/stage_wasm_families.sh` and run_wasm_tests.mjs,
+# all of which pass the unprefixed feature names below by name).
 default = ["wasm-test-registry"]
-wasm-test-registry = ["temper-drc-rs/wasm-test-registry"]
+
+# --- temper-drc-rs -----------------------------------------------------------
+# `drc-registry` is what `src/lib.rs` actually tests for: a crate cannot write
+# `#[cfg(feature = "temper-drc-rs/wasm-registry")]`, so a dependency's feature
+# has to be mirrored locally to be visible to `cfg`. Every drc feature implies
+# it.
+drc-registry = []
+wasm-test-registry = ["drc-registry", "temper-drc-rs/wasm-test-registry"]
 # Per-family shards (Phase 1 U8): build a smaller .wasm for each Worker function.
-wasm-registry-drc = ["temper-drc-rs/wasm-registry-drc"]
-wasm-registry-emc = ["temper-drc-rs/wasm-registry-emc"]
-wasm-registry-erc = ["temper-drc-rs/wasm-registry-erc"]
-wasm-registry-safety = ["temper-drc-rs/wasm-registry-safety"]
-wasm-registry-placement = ["temper-drc-rs/wasm-registry-placement"]
-wasm-registry-routing = ["temper-drc-rs/wasm-registry-routing"]
-wasm-registry-infra = ["temper-drc-rs/wasm-registry-infra"]
+wasm-registry-drc = ["drc-registry", "temper-drc-rs/wasm-registry-drc"]
+wasm-registry-emc = ["drc-registry", "temper-drc-rs/wasm-registry-emc"]
+wasm-registry-erc = ["drc-registry", "temper-drc-rs/wasm-registry-erc"]
+wasm-registry-safety = ["drc-registry", "temper-drc-rs/wasm-registry-safety"]
+wasm-registry-placement = ["drc-registry", "temper-drc-rs/wasm-registry-placement"]
+wasm-registry-routing = ["drc-registry", "temper-drc-rs/wasm-registry-routing"]
+wasm-registry-infra = ["drc-registry", "temper-drc-rs/wasm-registry-infra"]
 # Build all families (same as default but explicit).
-wasm-registry-all = ["temper-drc-rs/wasm-registry-all"]
+wasm-registry-all = ["drc-registry", "temper-drc-rs/wasm-registry-all"]
+
+# --- temper-geometry ---------------------------------------------------------
+# `temper-geometry` is an *optional* dependency so a drc-only build's dependency
+# graph is byte-for-byte what it was: nothing about the existing shards changes
+# unless one of these is asked for.
+geometry-registry = ["dep:temper-geometry"]
+geometry-wasm-test-registry = ["geometry-registry", "temper-geometry/wasm-test-registry"]
 
 [dependencies]
 temper-drc-rs = { path = "../temper-drc-rs", default-features = false }
+# `default-features = false` for the same reason it is set on temper-drc-rs's
+# own temper-geometry dependency: the `python` default would pull pyo3 in and
+# fail the wasm32-unknown-unknown link step.
+temper-geometry = { path = "../temper-geometry", optional = true, default-features = false }
 
 [profile.release]
 opt-level = "z"

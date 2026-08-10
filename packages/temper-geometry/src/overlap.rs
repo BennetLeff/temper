@@ -376,15 +376,16 @@ pub fn get_worst_overlap(rects: &[Rect]) -> (usize, usize, f64) {
 // Tests
 // =============================================================================
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     // -----------------------------------------------------------------
     // box_box_distance
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_box_box_distance_overlapping() {
         // Two identical rects at the same position → fully overlapping
         let a = Rect::new(0.0, 0.0, 10.0, 10.0);
@@ -395,7 +396,7 @@ mod tests {
         assert!((d - (-10.0)).abs() < 1e-12);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_box_box_distance_touching() {
         // Two rects touching edge-to-edge
         let a = Rect::new(0.0, 0.0, 10.0, 10.0);
@@ -407,7 +408,7 @@ mod tests {
         assert!((d - 0.0).abs() < 1e-12, "touching rects should give distance 0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_box_box_distance_separated() {
         // Two rects separated along the x axis
         let a = Rect::new(0.0, 0.0, 10.0, 10.0);
@@ -424,7 +425,7 @@ mod tests {
     // box_box_distance_aabb
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_box_box_distance_aabb_overlapping() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(2.0, 2.0, 12.0, 12.0);
@@ -432,7 +433,7 @@ mod tests {
         assert!(d < 0.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_box_box_distance_aabb_separated() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(20.0, 0.0, 30.0, 10.0);
@@ -444,7 +445,7 @@ mod tests {
     // component_overlap_amount
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_component_overlap_amount_fully_overlapping() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(0.0, 0.0, 10.0, 10.0);
@@ -455,7 +456,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_component_overlap_amount_no_overlap() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(20.0, 0.0, 30.0, 10.0);
@@ -466,7 +467,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_component_overlap_amount_partial() {
         // 10x10 at (0,0) and 10x10 at (5,0) → overlap 5x10 = 50/100 = 0.5
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
@@ -478,7 +479,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_component_overlap_amount_contained() {
         // One box entirely inside the other
         let a = AABB::new(0.0, 0.0, 20.0, 20.0);
@@ -495,7 +496,7 @@ mod tests {
     // overlap_area_estimate
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_overlap_area_estimate_no_overlap() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(20.0, 20.0, 30.0, 30.0);
@@ -503,7 +504,7 @@ mod tests {
         assert!((area - 0.0).abs() < 1e-12);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_overlap_area_estimate_partial() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(5.0, 0.0, 15.0, 10.0);
@@ -515,20 +516,20 @@ mod tests {
     // compute_pairwise_distances
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_pairwise_distances_empty() {
         let d = compute_pairwise_distances(&[]);
         assert!(d.is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_pairwise_distances_single() {
         let d = compute_pairwise_distances(&[Rect::new(0.0, 0.0, 10.0, 10.0)]);
         assert_eq!(d.len(), 1);
         assert!((d[0] - 0.0).abs() < 1e-12);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_pairwise_distances_symmetric() {
         let rects = vec![
             Rect::new(0.0, 0.0, 10.0, 10.0),
@@ -551,7 +552,7 @@ mod tests {
     // compute_total_overlap
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_total_overlap_no_overlap() {
         let rects = vec![
             Rect::new(0.0, 0.0, 10.0, 10.0),
@@ -564,7 +565,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_total_overlap_one_pair() {
         // Two identical overlapping rects
         let rects = vec![
@@ -578,7 +579,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_total_overlap_separated() {
         // Four rects clearly separated with gaps
         let rects = vec![
@@ -594,7 +595,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_total_overlap_all_pairs() {
         // Three overlapping rects — every pair overlaps
         let rects = vec![
@@ -626,7 +627,7 @@ mod tests {
     // compute_overlap_penalty
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_overlap_penalty_zero_weight() {
         let rects = vec![
             Rect::new(0.0, 0.0, 10.0, 10.0),
@@ -636,7 +637,7 @@ mod tests {
         assert!((penalty - 0.0).abs() < 1e-12);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_overlap_penalty_nonzero() {
         let rects = vec![
             Rect::new(0.0, 0.0, 10.0, 10.0),
@@ -653,7 +654,7 @@ mod tests {
     // check_clearance_violation
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_check_clearance_violation_none() {
         let rects = vec![
             Rect::new(0.0, 0.0, 10.0, 10.0),
@@ -672,7 +673,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_check_clearance_violation_exists() {
         let rects = vec![
             Rect::new(0.0, 0.0, 10.0, 10.0),
@@ -690,14 +691,14 @@ mod tests {
     // compute_clearance_penalties
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_clearance_penalties_empty_clearances() {
         let rects = vec![Rect::new(0.0, 0.0, 10.0, 10.0)];
         let penalties = compute_clearance_penalties(&rects, &[]);
         assert!(penalties.is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_clearance_penalties_some() {
         let rects = vec![
             Rect::new(0.0, 0.0, 10.0, 10.0),
@@ -726,7 +727,7 @@ mod tests {
     // count_overlaps
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_count_overlaps_no_overlaps() {
         let rects = vec![
             Rect::new(0.0, 0.0, 10.0, 10.0),
@@ -736,7 +737,7 @@ mod tests {
         assert_eq!(count_overlaps(&rects), 0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_count_overlaps_all_overlapping() {
         let rects = vec![
             Rect::new(0.0, 0.0, 10.0, 10.0),
@@ -747,7 +748,7 @@ mod tests {
         assert_eq!(count_overlaps(&rects), 3);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_count_overlaps_partial() {
         let rects = vec![
             Rect::new(0.0, 0.0, 10.0, 10.0),  // overlaps with #1
@@ -762,12 +763,12 @@ mod tests {
         assert!(count >= 2, "expected at least 2 overlapping pairs, got {count}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_count_overlaps_empty() {
         assert_eq!(count_overlaps(&[]), 0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_count_overlaps_single() {
         assert_eq!(count_overlaps(&[Rect::new(0.0, 0.0, 10.0, 10.0)]), 0);
     }
@@ -776,7 +777,7 @@ mod tests {
     // get_worst_overlap
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_get_worst_overlap_no_overlap() {
         let rects = vec![
             Rect::new(0.0, 0.0, 10.0, 10.0),
@@ -789,7 +790,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_get_worst_overlap_finds_worst() {
         // Three rects: #0 and #1 slightly overlapping, #0 and #2 heavily overlapping
         // #0: Rect(0,0,10,10) → center (5,5)
@@ -816,7 +817,7 @@ mod tests {
     // Edge cases
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_box_box_distance_zero_dimensions() {
         // Zero-area rect
         let a = Rect::new(0.0, 0.0, 0.0, 0.0);
@@ -829,15 +830,58 @@ mod tests {
         assert!((d - 5.0).abs() < 1e-12);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_total_overlap_empty() {
         assert!((compute_total_overlap(&[]) - 0.0).abs() < 1e-12);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_compute_total_overlap_single() {
         assert!(
             (compute_total_overlap(&[Rect::new(0.0, 0.0, 10.0, 10.0)]) - 0.0).abs() < 1e-12
         );
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("overlap::tests::test_box_box_distance_overlapping", test_box_box_distance_overlapping),
+        ("overlap::tests::test_box_box_distance_touching", test_box_box_distance_touching),
+        ("overlap::tests::test_box_box_distance_separated", test_box_box_distance_separated),
+        ("overlap::tests::test_box_box_distance_aabb_overlapping", test_box_box_distance_aabb_overlapping),
+        ("overlap::tests::test_box_box_distance_aabb_separated", test_box_box_distance_aabb_separated),
+        ("overlap::tests::test_component_overlap_amount_fully_overlapping", test_component_overlap_amount_fully_overlapping),
+        ("overlap::tests::test_component_overlap_amount_no_overlap", test_component_overlap_amount_no_overlap),
+        ("overlap::tests::test_component_overlap_amount_partial", test_component_overlap_amount_partial),
+        ("overlap::tests::test_component_overlap_amount_contained", test_component_overlap_amount_contained),
+        ("overlap::tests::test_overlap_area_estimate_no_overlap", test_overlap_area_estimate_no_overlap),
+        ("overlap::tests::test_overlap_area_estimate_partial", test_overlap_area_estimate_partial),
+        ("overlap::tests::test_compute_pairwise_distances_empty", test_compute_pairwise_distances_empty),
+        ("overlap::tests::test_compute_pairwise_distances_single", test_compute_pairwise_distances_single),
+        ("overlap::tests::test_compute_pairwise_distances_symmetric", test_compute_pairwise_distances_symmetric),
+        ("overlap::tests::test_compute_total_overlap_no_overlap", test_compute_total_overlap_no_overlap),
+        ("overlap::tests::test_compute_total_overlap_one_pair", test_compute_total_overlap_one_pair),
+        ("overlap::tests::test_compute_total_overlap_separated", test_compute_total_overlap_separated),
+        ("overlap::tests::test_compute_total_overlap_all_pairs", test_compute_total_overlap_all_pairs),
+        ("overlap::tests::test_compute_overlap_penalty_zero_weight", test_compute_overlap_penalty_zero_weight),
+        ("overlap::tests::test_compute_overlap_penalty_nonzero", test_compute_overlap_penalty_nonzero),
+        ("overlap::tests::test_check_clearance_violation_none", test_check_clearance_violation_none),
+        ("overlap::tests::test_check_clearance_violation_exists", test_check_clearance_violation_exists),
+        ("overlap::tests::test_compute_clearance_penalties_empty_clearances", test_compute_clearance_penalties_empty_clearances),
+        ("overlap::tests::test_compute_clearance_penalties_some", test_compute_clearance_penalties_some),
+        ("overlap::tests::test_count_overlaps_no_overlaps", test_count_overlaps_no_overlaps),
+        ("overlap::tests::test_count_overlaps_all_overlapping", test_count_overlaps_all_overlapping),
+        ("overlap::tests::test_count_overlaps_partial", test_count_overlaps_partial),
+        ("overlap::tests::test_count_overlaps_empty", test_count_overlaps_empty),
+        ("overlap::tests::test_count_overlaps_single", test_count_overlaps_single),
+        ("overlap::tests::test_get_worst_overlap_no_overlap", test_get_worst_overlap_no_overlap),
+        ("overlap::tests::test_get_worst_overlap_finds_worst", test_get_worst_overlap_finds_worst),
+        ("overlap::tests::test_box_box_distance_zero_dimensions", test_box_box_distance_zero_dimensions),
+        ("overlap::tests::test_compute_total_overlap_empty", test_compute_total_overlap_empty),
+        ("overlap::tests::test_compute_total_overlap_single", test_compute_total_overlap_single),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

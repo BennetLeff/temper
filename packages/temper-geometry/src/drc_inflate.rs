@@ -225,8 +225,9 @@ pub fn drc_proxy_score(
 // Tests
 // =============================================================================
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     // -----------------------------------------------------------------
@@ -236,7 +237,7 @@ mod tests {
     /// The whole point of transcribing numpy's blocking is that it differs from
     /// naive accumulation. If it did not, this port would be pointless — so pin
     /// the disagreement, not just the agreement.
-    #[test]
+    #[cfg_attr(test, test)]
     fn pairwise_sum_differs_from_naive_accumulation() {
         // 0.1 is not representable in binary, so a long run of it accumulates
         // visible reassociation error.
@@ -249,7 +250,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pairwise_sum_small_inputs_are_naive() {
         for n in 0..8usize {
             let a: Vec<f64> = (0..n).map(|k| 0.1 + k as f64).collect();
@@ -258,7 +259,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pairwise_sum_exact_on_representable_values() {
         // Powers of two sum exactly regardless of order, so any correct
         // reduction lands on the same answer.
@@ -266,7 +267,7 @@ mod tests {
         assert_eq!(pairwise_sum(&a), 150.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pairwise_sum_empty_is_zero() {
         assert_eq!(pairwise_sum(&[]), 0.0);
     }
@@ -275,7 +276,7 @@ mod tests {
     // np_minimum / np_maximum
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn np_min_max_propagate_nan_from_either_operand() {
         assert!(np_minimum(f64::NAN, 1.0).is_nan());
         assert!(np_minimum(1.0, f64::NAN).is_nan());
@@ -285,7 +286,7 @@ mod tests {
         assert!(!f64::min(1.0, f64::NAN).is_nan());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn np_min_max_ordinary_values() {
         assert_eq!(np_minimum(-3.0, 2.0), -3.0);
         assert_eq!(np_maximum(-3.0, 2.0), 2.0);
@@ -296,7 +297,7 @@ mod tests {
     // round_to
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn round_to_f32_narrows_and_f64_does_not() {
         let v = 0.1f64;
         assert_ne!(round_to(true, v).to_bits(), v.to_bits());
@@ -307,7 +308,7 @@ mod tests {
     // smooth_relu_array
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn smooth_relu_array_matches_scalar_elementwise() {
         let xs = [-5.0, -0.5, 0.0, 0.5, 5.0, 70.0, -70.0];
         let got = smooth_relu_array(&xs, 10.0);
@@ -316,7 +317,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn smooth_relu_array_is_monotone_and_bounds_relu() {
         let xs: Vec<f64> = (-50..50).map(|k| k as f64 * 0.1).collect();
         let got = smooth_relu_array(&xs, 10.0);
@@ -328,7 +329,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn smooth_relu_array_empty() {
         assert!(smooth_relu_array(&[], 10.0).is_empty());
     }
@@ -337,14 +338,14 @@ mod tests {
     // inflated_half_dims_from_bounds
     // -----------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn half_dims_f64_closed_form() {
         let got = inflated_half_dims_from_bounds(&[10.0, 5.0], 0.25, false);
         assert_eq!(got[0].to_bits(), ((10.0 + 0.25) / 2.0f64).to_bits());
         assert_eq!(got[1].to_bits(), ((5.0 + 0.25) / 2.0f64).to_bits());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn half_dims_f32_narrows_the_intermediate() {
         // A width that is representable in f32 but whose inflated value is not.
         let b = 1.9658657312393188f64; // exactly an f32; chosen so the widths diverge
@@ -358,7 +359,7 @@ mod tests {
         assert_eq!(narrow[0].to_bits(), (((b as f32 + 0.25f32) / 2.0f32) as f64).to_bits());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn half_dims_narrows_the_trace_width_before_adding() {
         // 0.1 differs between f32 and f64; adding the wide literal and then
         // rounding is NOT the same as adding the narrow one.
@@ -371,7 +372,7 @@ mod tests {
         assert_ne!(correct.to_bits(), wrong.to_bits());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn half_dims_empty() {
         assert!(inflated_half_dims_from_bounds(&[], 0.25, true).is_empty());
     }
@@ -384,7 +385,7 @@ mod tests {
         (0..n).flat_map(|i| [i as f64 * spacing, 0.0]).collect()
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn proxy_score_fewer_than_two_components_is_zero() {
         assert_eq!(drc_proxy_score(&[], &[], &[], 0.2, 10.0, false, false, false), 0.0);
         assert_eq!(
@@ -393,7 +394,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn proxy_score_separated_components_are_near_zero() {
         let pos = grid(3, 100.0);
         let hw = vec![3.0; 3];
@@ -402,7 +403,7 @@ mod tests {
         assert!(s < 1e-6, "well-separated components scored {s}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn proxy_score_overlapping_components_are_positive() {
         let pos = [0.0, 0.0, 2.0, 0.0];
         let hw = [5.0, 5.0];
@@ -411,7 +412,7 @@ mod tests {
         assert!(s > 0.0, "overlapping components scored {s}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn proxy_score_is_monotone_in_separation() {
         let hw = [2.0, 2.0];
         let hh = [2.0, 2.0];
@@ -424,7 +425,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn proxy_score_is_translation_invariant() {
         let hw = [1.5, 2.5, 0.5];
         let hh = [0.5, 1.5, 2.5];
@@ -439,7 +440,7 @@ mod tests {
         assert_eq!(a.to_bits(), b.to_bits(), "integer translation must be exact");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn proxy_score_dtype_flags_change_the_answer() {
         // Values chosen so the f32 rounding is observable. If this ever stops
         // holding, the dtype plumbing has gone dead and the differential's
@@ -455,7 +456,7 @@ mod tests {
         assert_ne!(wide.to_bits(), narrow.to_bits());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn proxy_score_coincident_components_hit_the_overlap_branch() {
         let n = 4;
         let pos = vec![0.0; 2 * n];
@@ -469,7 +470,7 @@ mod tests {
         assert_eq!(s.to_bits(), expected.to_bits());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn proxy_score_uses_pairwise_not_naive_reduction() {
         // 40 components => 780 pairs, well past PW_BLOCKSIZE, so the blocked
         // reduction and a naive one land on different bits.
@@ -500,4 +501,35 @@ mod tests {
         assert_eq!(s.to_bits(), pairwise_sum(&squared).to_bits());
         assert_ne!(s.to_bits(), naive.to_bits(), "reduction order is not observable here");
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("drc_inflate::tests::pairwise_sum_differs_from_naive_accumulation", pairwise_sum_differs_from_naive_accumulation),
+        ("drc_inflate::tests::pairwise_sum_small_inputs_are_naive", pairwise_sum_small_inputs_are_naive),
+        ("drc_inflate::tests::pairwise_sum_exact_on_representable_values", pairwise_sum_exact_on_representable_values),
+        ("drc_inflate::tests::pairwise_sum_empty_is_zero", pairwise_sum_empty_is_zero),
+        ("drc_inflate::tests::np_min_max_propagate_nan_from_either_operand", np_min_max_propagate_nan_from_either_operand),
+        ("drc_inflate::tests::np_min_max_ordinary_values", np_min_max_ordinary_values),
+        ("drc_inflate::tests::round_to_f32_narrows_and_f64_does_not", round_to_f32_narrows_and_f64_does_not),
+        ("drc_inflate::tests::smooth_relu_array_matches_scalar_elementwise", smooth_relu_array_matches_scalar_elementwise),
+        ("drc_inflate::tests::smooth_relu_array_is_monotone_and_bounds_relu", smooth_relu_array_is_monotone_and_bounds_relu),
+        ("drc_inflate::tests::smooth_relu_array_empty", smooth_relu_array_empty),
+        ("drc_inflate::tests::half_dims_f64_closed_form", half_dims_f64_closed_form),
+        ("drc_inflate::tests::half_dims_f32_narrows_the_intermediate", half_dims_f32_narrows_the_intermediate),
+        ("drc_inflate::tests::half_dims_narrows_the_trace_width_before_adding", half_dims_narrows_the_trace_width_before_adding),
+        ("drc_inflate::tests::half_dims_empty", half_dims_empty),
+        ("drc_inflate::tests::proxy_score_fewer_than_two_components_is_zero", proxy_score_fewer_than_two_components_is_zero),
+        ("drc_inflate::tests::proxy_score_separated_components_are_near_zero", proxy_score_separated_components_are_near_zero),
+        ("drc_inflate::tests::proxy_score_overlapping_components_are_positive", proxy_score_overlapping_components_are_positive),
+        ("drc_inflate::tests::proxy_score_is_monotone_in_separation", proxy_score_is_monotone_in_separation),
+        ("drc_inflate::tests::proxy_score_is_translation_invariant", proxy_score_is_translation_invariant),
+        ("drc_inflate::tests::proxy_score_dtype_flags_change_the_answer", proxy_score_dtype_flags_change_the_answer),
+        ("drc_inflate::tests::proxy_score_coincident_components_hit_the_overlap_branch", proxy_score_coincident_components_hit_the_overlap_branch),
+        ("drc_inflate::tests::proxy_score_uses_pairwise_not_naive_reduction", proxy_score_uses_pairwise_not_naive_reduction),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

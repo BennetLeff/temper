@@ -1,14 +1,33 @@
-//! `wasm32` entry point that runs `temper-drc-rs` unit tests one at a time.
+//! `wasm32` entry point that runs Temper crates' unit tests one at a time.
 //!
 //! # Why this crate exists
 //!
 //! `cargo test`'s libtest harness cannot target `wasm32-unknown-unknown`: the
 //! target has no argv, no threads, and no `std::process::exit`, so there is no
-//! test *binary* to run.  `temper_drc_rs::wasm_test_registry` instead exposes
-//! every eligible `#[test]` as a `(&'static str, fn())` in a flat, indexable
-//! list, and this crate turns that list into a C ABI the host can drive:
-//! ask how many tests there are, read each name out of linear memory, then
-//! invoke them one index at a time.
+//! test *binary* to run.  Each participating crate's `wasm_test_registry`
+//! instead exposes every eligible `#[test]` as a `(&'static str, fn())` in a
+//! flat, indexable list, and this crate turns those lists into a C ABI the host
+//! can drive: ask how many tests there are, read each name out of linear
+//! memory, then invoke them one index at a time.
+//!
+//! # Why one runner for several crates
+//!
+//! A registry entry is a *structural* type — `(&'static str, fn())` — so
+//! `temper_drc_rs::wasm_test_registry::ALL` and
+//! `temper_geometry::wasm_test_registry::ALL` are already the same Rust type.
+//! Nothing has to be converted, wrapped, or duplicated to run both: the
+//! registries concatenate.  A second runner crate would have meant a second
+//! copy of the panic hook, the ABI constants, and the seven exports, kept in
+//! sync by hand — the version-skew bug `ABI_VERSION` exists to prevent, moved
+//! from the host boundary into this repo.  So the crate list is a *feature*
+//! (`drc-registry`, `geometry-registry`), and the exports are written once
+//! against the concatenation.
+//!
+//! Which crates are linked is therefore a build-time choice, and the module can
+//! carry one crate or several.  The host sees only a flat index either way; the
+//! test names it reads back are the crate-relative paths each registry baked in
+//! (`board::tests::…`, `smooth::tests::…`), so a results file is still
+//! attributable per test without the host knowing the feature set.
 //!
 //! # How failure is signalled
 //!
@@ -34,10 +53,63 @@
 use std::sync::Mutex;
 use std::sync::Once;
 
-use temper_drc_rs::wasm_test_registry;
+/// One test as every registry represents it: a fully qualified name and a
+/// nullary callable.  Structurally identical to each crate's own `WasmTest`
+/// alias, which is what lets the registries below concatenate.
+type WasmTest = (&'static str, fn());
+
+/// The registries linked into this module, in a stable order.
+///
+/// Each element is one crate's `ALL` — itself a list of per-module slices,
+/// individually `#[cfg]`-gated on that crate's family features.  Flattening is
+/// two levels deep, and empty slices (a family that was not selected) simply
+/// contribute nothing.
+///
+/// A module built with neither crate's feature has an empty registry and
+/// reports zero tests.  That is deliberate rather than a compile error:
+/// `make wasm-runner` builds `--no-default-features` to measure the floor cost
+/// of the ABI itself.  `temper_test_count` is how a host distinguishes that
+/// from a real run — a runner reporting everything green because it silently
+/// ran nothing is the failure mode that export exists to make detectable.
+const REGISTRIES: &[&[&[WasmTest]]] = &[
+    #[cfg(feature = "drc-registry")]
+    temper_drc_rs::wasm_test_registry::ALL,
+    #[cfg(feature = "geometry-registry")]
+    temper_geometry::wasm_test_registry::ALL,
+];
+
+/// How many tests are linked in, across every registry.
+fn registry_count() -> usize {
+    REGISTRIES
+        .iter()
+        .map(|crate_registry| {
+            crate_registry
+                .iter()
+                .map(|module| module.len())
+                .sum::<usize>()
+        })
+        .sum()
+}
+
+/// The test at `index` in the flattened concatenation of all registries.
+fn registry_get(index: usize) -> Option<&'static WasmTest> {
+    let mut remaining = index;
+    for crate_registry in REGISTRIES {
+        for module in *crate_registry {
+            if remaining < module.len() {
+                return Some(&module[remaining]);
+            }
+            remaining -= module.len();
+        }
+    }
+    None
+}
 
 /// Bumped whenever the meaning of an export changes, so a host built against
 /// an older module fails loudly instead of misreading linear memory.
+///
+/// Unchanged at 1 by the multi-crate change: every export means exactly what it
+/// did, because a host only ever saw a flat index and a name, never a crate.
 const ABI_VERSION: u32 = 1;
 
 /// `temper_run_test` returned normally: the test passed.
@@ -111,7 +183,7 @@ pub extern "C" fn temper_wasm_abi_version() -> u32 {
 pub extern "C" fn temper_test_count() -> u32 {
     // A registry larger than u32::MAX cannot occur (these are static arrays in
     // the binary), and saturating beats a panic in an infallible accessor.
-    u32::try_from(wasm_test_registry::count()).unwrap_or(u32::MAX)
+    u32::try_from(registry_count()).unwrap_or(u32::MAX)
 }
 
 /// Offset in linear memory of test `index`'s name, or 0 if out of range.
@@ -121,7 +193,7 @@ pub extern "C" fn temper_test_count() -> u32 {
 /// so it stays valid for the life of the instance and must not be freed.
 #[unsafe(no_mangle)]
 pub extern "C" fn temper_test_name_ptr(index: u32) -> u32 {
-    match wasm_test_registry::get(index as usize) {
+    match registry_get(index as usize) {
         Some((name, _)) => name.as_ptr() as u32,
         None => 0,
     }
@@ -130,7 +202,7 @@ pub extern "C" fn temper_test_name_ptr(index: u32) -> u32 {
 /// Byte length of test `index`'s name, or 0 if out of range.
 #[unsafe(no_mangle)]
 pub extern "C" fn temper_test_name_len(index: u32) -> u32 {
-    match wasm_test_registry::get(index as usize) {
+    match registry_get(index as usize) {
         Some((name, _)) => u32::try_from(name.len()).unwrap_or(0),
         None => 0,
     }
@@ -146,7 +218,7 @@ pub extern "C" fn temper_test_name_len(index: u32) -> u32 {
 #[unsafe(no_mangle)]
 pub extern "C" fn temper_run_test(index: u32) -> u32 {
     install_panic_hook();
-    match wasm_test_registry::get(index as usize) {
+    match registry_get(index as usize) {
         Some((_, test_fn)) => {
             test_fn();
             RUN_OK

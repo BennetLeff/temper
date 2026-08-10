@@ -337,8 +337,9 @@ pub fn get_beta_schedule(start_beta: f64, end_beta: f64, epochs: usize) -> Vec<f
 // Tests
 // =============================================================================
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     const EPS: f64 = 1e-9;
@@ -346,7 +347,7 @@ mod tests {
     // -----------------------------------------------------------------
     // logsumexp
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_logsumexp_basic() {
         // LSE([0, 1, 2]) = log(exp(0) + exp(1) + exp(2))
         let result = logsumexp(&[0.0, 1.0, 2.0]);
@@ -354,18 +355,18 @@ mod tests {
         assert!((result - expected).abs() < 1e-8, "expected {expected}, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_logsumexp_single() {
         assert!((logsumexp(&[5.0]) - 5.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_logsumexp_empty() {
         let result = logsumexp(&[]);
         assert!(result.is_infinite() && result.is_sign_negative());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_logsumexp_all_equal() {
         // LSE([3, 3, 3]) = log(3 * exp(3)) = 3 + ln(3)
         let result = logsumexp(&[3.0, 3.0, 3.0]);
@@ -373,7 +374,7 @@ mod tests {
         assert!((result - expected).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_logsumexp_large_values() {
         // Verify numerical stability with large inputs
         let result = logsumexp(&[1000.0, 1001.0, 1002.0]);
@@ -384,21 +385,21 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_max
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_slightly_above_true_max() {
         let result = smooth_max(5.0, 3.0, 10.0);
         assert!(result > 5.0, "should be slightly > true max (5.0), got {result}");
         assert!((result - 5.0).abs() < 0.01, "expected near 5.0, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_symmetric() {
         let ab = smooth_max(5.0, 3.0, 10.0);
         let ba = smooth_max(3.0, 5.0, 10.0);
         assert!((ab - ba).abs() < EPS, "smooth_max should be symmetric");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_convergence() {
         for alpha in [1.0, 10.0, 100.0, 1000.0] {
             let result = smooth_max(7.0, 2.0, alpha);
@@ -413,20 +414,20 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_high_alpha() {
         let result = smooth_max(10.0, 1.0, 1e6);
         assert!((result - 10.0).abs() < 1e-3, "expected ~10.0, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_equal_values() {
         // With equal inputs, the overestimate is ln(2) / alpha.
         let result = smooth_max(4.0, 4.0, 1000.0);
         assert!((result - 4.0).abs() < 1e-3, "expected ~4.0, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_negative_values() {
         let result = smooth_max(-5.0, -1.0, 1.0);
         assert!(result > -1.0);
@@ -436,32 +437,32 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_max_axis
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_axis_basic() {
         let result = smooth_max_axis(&[1.0, 5.0, 3.0, 2.0], 10.0);
         assert!(result > 5.0, "should be > true max (5.0)");
         assert!((result - 5.0).abs() < 0.01);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_axis_single() {
         assert!((smooth_max_axis(&[42.0], 10.0) - 42.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_axis_empty() {
         let result = smooth_max_axis(&[], 10.0);
         assert!(result.is_infinite() && result.is_sign_negative());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_axis_negative() {
         let result = smooth_max_axis(&[-10.0, -3.0, -7.0], 1.0);
         assert!(result > -3.0, "expected > -3.0, got {result}");
         assert!((result - (-3.0)).abs() < 0.1);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_axis_high_alpha() {
         let result = smooth_max_axis(&[0.0, 10.0, 5.0], 1e6);
         assert!((result - 10.0).abs() < 1e-3);
@@ -470,7 +471,7 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_max_pair
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_pair_basic() {
         let a = vec![1.0, 5.0, 3.0];
         let b = vec![4.0, 2.0, 6.0];
@@ -481,12 +482,12 @@ mod tests {
         assert!((result[2] - 6.0).abs() < 0.01);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_pair_empty() {
         assert!(smooth_max_pair(&[], &[], 10.0).is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     #[should_panic(expected = "must have equal length")]
     fn test_smooth_max_pair_mismatched_lengths() {
         smooth_max_pair(&[1.0, 2.0], &[3.0], 10.0);
@@ -495,21 +496,21 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_min
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_min_slightly_below_true_min() {
         let result = smooth_min(3.0, 5.0, 10.0);
         assert!(result < 3.0, "should be slightly < true min (3.0), got {result}");
         assert!((result - 3.0).abs() < 0.01);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_min_symmetric() {
         let ab = smooth_min(3.0, 5.0, 10.0);
         let ba = smooth_min(5.0, 3.0, 10.0);
         assert!((ab - ba).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_min_via_max_identity() {
         let a = 4.0;
         let b = 7.0;
@@ -521,25 +522,25 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_min_axis
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_min_axis_basic() {
         let result = smooth_min_axis(&[3.0, 1.0, 5.0, 2.0], 10.0);
         assert!(result < 1.0, "should be < true min (1.0)");
         assert!((result - 1.0).abs() < 0.01);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_min_axis_single() {
         assert!((smooth_min_axis(&[7.0], 10.0) - 7.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_min_axis_empty() {
         let result = smooth_min_axis(&[], 10.0);
         assert!(result.is_infinite() && result.is_sign_positive());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_min_axis_via_max_identity() {
         let arr = [3.0, 1.0, 5.0, 2.0];
         let direct = smooth_min_axis(&arr, 10.0);
@@ -551,7 +552,7 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_min_pair
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_min_pair_basic() {
         let a = vec![1.0, 5.0, 3.0];
         let b = vec![4.0, 2.0, 6.0];
@@ -562,12 +563,12 @@ mod tests {
         assert!((result[2] - 3.0).abs() < 0.01);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_min_pair_empty() {
         assert!(smooth_min_pair(&[], &[], 10.0).is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_min_pair_via_max_pair_identity() {
         let a = [1.0, 5.0, 3.0];
         let b = [4.0, 2.0, 6.0];
@@ -583,7 +584,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     #[should_panic(expected = "must have equal length")]
     fn test_smooth_min_pair_mismatched_lengths() {
         smooth_min_pair(&[1.0], &[2.0, 3.0], 10.0);
@@ -592,19 +593,19 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_relu
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_relu_positive() {
         let result = smooth_relu(3.0, 10.0);
         assert!(result > 2.9 && result < 3.1, "expected ~3.0, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_relu_negative() {
         let result = smooth_relu(-3.0, 10.0);
         assert!(result < 0.001, "expected ~0, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_relu_zero() {
         let result = smooth_relu(0.0, 10.0);
         // softplus(0) / 10 = log(2) / 10 ≈ 0.0693
@@ -612,7 +613,7 @@ mod tests {
         assert!((result - expected).abs() < 1e-8, "expected {expected}, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_relu_high_alpha() {
         let neg = smooth_relu(-2.0, 1e6);
         assert!(neg.abs() < 1e-6, "negative ~0 with high alpha, got {neg}");
@@ -623,20 +624,20 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_relu_penalty
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_relu_penalty_below_margin() {
         let result = smooth_relu_penalty(2.0, 10.0, 10.0);
         assert!(result.abs() < 0.01, "expected ~0 below margin, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_relu_penalty_above_margin() {
         let result = smooth_relu_penalty(12.0, 10.0, 10.0);
         // smooth_relu(2, 10) ≈ 2, penalty ≈ 4
         assert!((result - 4.0).abs() < 0.1, "expected ~4, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_relu_penalty_at_margin() {
         let result = smooth_relu_penalty(10.0, 10.0, 10.0);
         // smooth_relu(0, 10) = ln(2)/10, penalty = (ln(2)/10)^2
@@ -647,20 +648,20 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_leaky_relu
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_leaky_relu_positive() {
         let result = smooth_leaky_relu(3.0, 10.0, 0.01);
         assert!((result - 3.0).abs() < 0.01, "expected ~3.0, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_leaky_relu_negative() {
         let result = smooth_leaky_relu(-3.0, 10.0, 0.01);
         // ≈ 0.01 * (-3) = -0.03
         assert!((result - (-0.03)).abs() < 0.001, "expected ~-0.03, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_leaky_relu_zero_negative_slope() {
         // With negative_slope = 0, acts like standard relu
         let result = smooth_leaky_relu(-2.0, 10.0, 0.0);
@@ -670,29 +671,29 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_abs
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_abs_positive() {
         assert!((smooth_abs(5.0, 10.0) - 5.0).abs() < 0.01);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_abs_negative() {
         assert!((smooth_abs(-5.0, 10.0) - 5.0).abs() < 0.01);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_abs_symmetry() {
         assert!((smooth_abs(3.0, 10.0) - smooth_abs(-3.0, 10.0)).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_abs_at_zero() {
         let result = smooth_abs(0.0, 10.0);
         // sqrt(0 + 1/100) = sqrt(0.01) = 0.1
         assert!((result - 0.1).abs() < 1e-9);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_abs_high_alpha() {
         let result = smooth_abs(-3.0, 1e6);
         assert!((result - 3.0).abs() < 0.001);
@@ -701,25 +702,25 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_clip
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_clip_within_range() {
         let result = smooth_clip(5.0, 0.0, 10.0, 10.0);
         assert!((result - 5.0).abs() < 0.01);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_clip_below_min() {
         let result = smooth_clip(-5.0, 0.0, 10.0, 10.0);
         assert!((result - 0.0).abs() < 0.01, "expected ~0, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_clip_above_max() {
         let result = smooth_clip(15.0, 0.0, 10.0, 10.0);
         assert!((result - 10.0).abs() < 0.01, "expected ~10, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_clip_high_alpha() {
         let below = smooth_clip(-5.0, 0.0, 10.0, 1e6);
         assert!((below - 0.0).abs() < 1e-6);
@@ -727,7 +728,7 @@ mod tests {
         assert!((above - 10.0).abs() < 1e-6);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_clip_min_equals_max() {
         // When min == max, the result should converge to that value with high alpha.
         let result = smooth_clip(3.0, 5.0, 5.0, 1000.0);
@@ -737,25 +738,25 @@ mod tests {
     // -----------------------------------------------------------------
     // smooth_step
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_step_positive() {
         let result = smooth_step(2.0, 10.0);
         assert!(result > 0.99, "expected ~1, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_step_negative() {
         let result = smooth_step(-2.0, 10.0);
         assert!(result < 0.01, "expected ~0, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_step_zero() {
         let result = smooth_step(0.0, 10.0);
         assert!((result - 0.5).abs() < 1e-9);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_step_high_alpha() {
         let pos = smooth_step(1.0, 1e6);
         assert!((pos - 1.0).abs() < 1e-6);
@@ -763,7 +764,7 @@ mod tests {
         assert!(neg.abs() < 1e-6);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_step_output_in_01() {
         for x in -10..=10 {
             let s = smooth_step(x as f64, 5.0);
@@ -774,7 +775,7 @@ mod tests {
     // -----------------------------------------------------------------
     // hpwl_smooth
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_hpwl_smooth_basic() {
         let points = [(0.0, 0.0), (10.0, 5.0), (5.0, 10.0)];
         let result = hpwl_smooth(&points, 1.0);
@@ -783,13 +784,13 @@ mod tests {
         assert!((result - 20.0).abs() < 0.1, "expected ~20, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_hpwl_smooth_single_point() {
         let result = hpwl_smooth(&[(5.0, 7.0)], 10.0);
         assert!((result - 0.0).abs() < 0.01);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_hpwl_smooth_two_points() {
         let points = [(0.0, 0.0), (3.0, 4.0)];
         let result = hpwl_smooth(&points, 10.0);
@@ -797,12 +798,12 @@ mod tests {
         assert!((result - 7.0).abs() < 0.1, "expected ~7, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_hpwl_smooth_empty() {
         assert!((hpwl_smooth(&[], 10.0) - 0.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_hpwl_smooth_high_alpha() {
         let points = [(0.0, 0.0), (10.0, 10.0)];
         let result = hpwl_smooth(&points, 1e6);
@@ -812,24 +813,24 @@ mod tests {
     // -----------------------------------------------------------------
     // weighted_average_smooth
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_weighted_average_uniform() {
         let result = weighted_average_smooth(&[1.0, 2.0, 3.0], &[1.0, 1.0, 1.0], 1.0);
         assert!((result - 2.0).abs() < 1e-9);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_weighted_average_dominant_weight() {
         let result = weighted_average_smooth(&[1.0, 2.0, 3.0], &[0.001, 0.001, 1000.0], 1.0);
         assert!((result - 3.0).abs() < 0.01, "dominant weight should select 3, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_weighted_average_empty() {
         assert!(weighted_average_smooth(&[], &[], 1.0).is_nan());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_weighted_average_temperature_effect() {
         let values = [10.0, 20.0, 30.0];
         let weights = [1.0, 2.0, 3.0];
@@ -843,14 +844,14 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_weighted_average_high_temperature_uniform() {
         let result = weighted_average_smooth(&[10.0, 100.0], &[1.0, 100.0], 1e6);
         // Very high alpha → softmax ≈ uniform → average = 55.0
         assert!((result - 55.0).abs() < 0.1, "expected ~55, got {result}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     #[should_panic(expected = "must have equal length")]
     fn test_weighted_average_mismatched_lengths() {
         weighted_average_smooth(&[1.0, 2.0], &[1.0], 1.0);
@@ -859,7 +860,7 @@ mod tests {
     // -----------------------------------------------------------------
     // get_alpha_schedule
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_alpha_schedule_endpoints() {
         let schedule = get_alpha_schedule(1.0, 50.0, 10);
         assert_eq!(schedule.len(), 10);
@@ -871,7 +872,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_alpha_schedule_monotonic() {
         let schedule = get_alpha_schedule(1.0, 50.0, 20);
         for w in schedule.windows(2) {
@@ -879,19 +880,19 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_alpha_schedule_single_epoch() {
         let schedule = get_alpha_schedule(5.0, 10.0, 1);
         assert_eq!(schedule.len(), 1);
         assert!((schedule[0] - 5.0).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_alpha_schedule_zero_epochs() {
         assert!(get_alpha_schedule(1.0, 50.0, 0).is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_alpha_schedule_two_epochs() {
         let schedule = get_alpha_schedule(1.0, 10.0, 2);
         assert_eq!(schedule.len(), 2);
@@ -902,7 +903,7 @@ mod tests {
     // -----------------------------------------------------------------
     // get_beta_schedule
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_beta_schedule_matches_alpha() {
         let a = get_alpha_schedule(2.0, 100.0, 15);
         let b = get_beta_schedule(2.0, 100.0, 15);
@@ -912,7 +913,7 @@ mod tests {
     // -----------------------------------------------------------------
     // Cross-function consistency
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_max_min_bracket() {
         let a = 3.0;
         let b = 7.0;
@@ -923,7 +924,7 @@ mod tests {
         assert!(smin <= a + 0.1, "min near true min");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_pair_max_ge_min() {
         let a = [1.0, 4.0, 2.0];
         let b = [3.0, 2.0, 5.0];
@@ -934,7 +935,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_smooth_max_axis_via_logsumexp() {
         let arr = [1.0, 3.0, 2.0];
         let alpha = 5.0;
@@ -946,6 +947,90 @@ mod tests {
             "smooth_max_axis should match logsumexp/alpha: {result} vs {expected}"
         );
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("smooth::tests::test_logsumexp_basic", test_logsumexp_basic),
+        ("smooth::tests::test_logsumexp_single", test_logsumexp_single),
+        ("smooth::tests::test_logsumexp_empty", test_logsumexp_empty),
+        ("smooth::tests::test_logsumexp_all_equal", test_logsumexp_all_equal),
+        ("smooth::tests::test_logsumexp_large_values", test_logsumexp_large_values),
+        ("smooth::tests::test_smooth_max_slightly_above_true_max", test_smooth_max_slightly_above_true_max),
+        ("smooth::tests::test_smooth_max_symmetric", test_smooth_max_symmetric),
+        ("smooth::tests::test_smooth_max_convergence", test_smooth_max_convergence),
+        ("smooth::tests::test_smooth_max_high_alpha", test_smooth_max_high_alpha),
+        ("smooth::tests::test_smooth_max_equal_values", test_smooth_max_equal_values),
+        ("smooth::tests::test_smooth_max_negative_values", test_smooth_max_negative_values),
+        ("smooth::tests::test_smooth_max_axis_basic", test_smooth_max_axis_basic),
+        ("smooth::tests::test_smooth_max_axis_single", test_smooth_max_axis_single),
+        ("smooth::tests::test_smooth_max_axis_empty", test_smooth_max_axis_empty),
+        ("smooth::tests::test_smooth_max_axis_negative", test_smooth_max_axis_negative),
+        ("smooth::tests::test_smooth_max_axis_high_alpha", test_smooth_max_axis_high_alpha),
+        ("smooth::tests::test_smooth_max_pair_basic", test_smooth_max_pair_basic),
+        ("smooth::tests::test_smooth_max_pair_empty", test_smooth_max_pair_empty),
+        ("smooth::tests::test_smooth_max_pair_mismatched_lengths", test_smooth_max_pair_mismatched_lengths),
+        ("smooth::tests::test_smooth_min_slightly_below_true_min", test_smooth_min_slightly_below_true_min),
+        ("smooth::tests::test_smooth_min_symmetric", test_smooth_min_symmetric),
+        ("smooth::tests::test_smooth_min_via_max_identity", test_smooth_min_via_max_identity),
+        ("smooth::tests::test_smooth_min_axis_basic", test_smooth_min_axis_basic),
+        ("smooth::tests::test_smooth_min_axis_single", test_smooth_min_axis_single),
+        ("smooth::tests::test_smooth_min_axis_empty", test_smooth_min_axis_empty),
+        ("smooth::tests::test_smooth_min_axis_via_max_identity", test_smooth_min_axis_via_max_identity),
+        ("smooth::tests::test_smooth_min_pair_basic", test_smooth_min_pair_basic),
+        ("smooth::tests::test_smooth_min_pair_empty", test_smooth_min_pair_empty),
+        ("smooth::tests::test_min_pair_via_max_pair_identity", test_min_pair_via_max_pair_identity),
+        ("smooth::tests::test_smooth_min_pair_mismatched_lengths", test_smooth_min_pair_mismatched_lengths),
+        ("smooth::tests::test_smooth_relu_positive", test_smooth_relu_positive),
+        ("smooth::tests::test_smooth_relu_negative", test_smooth_relu_negative),
+        ("smooth::tests::test_smooth_relu_zero", test_smooth_relu_zero),
+        ("smooth::tests::test_smooth_relu_high_alpha", test_smooth_relu_high_alpha),
+        ("smooth::tests::test_relu_penalty_below_margin", test_relu_penalty_below_margin),
+        ("smooth::tests::test_relu_penalty_above_margin", test_relu_penalty_above_margin),
+        ("smooth::tests::test_relu_penalty_at_margin", test_relu_penalty_at_margin),
+        ("smooth::tests::test_leaky_relu_positive", test_leaky_relu_positive),
+        ("smooth::tests::test_leaky_relu_negative", test_leaky_relu_negative),
+        ("smooth::tests::test_leaky_relu_zero_negative_slope", test_leaky_relu_zero_negative_slope),
+        ("smooth::tests::test_smooth_abs_positive", test_smooth_abs_positive),
+        ("smooth::tests::test_smooth_abs_negative", test_smooth_abs_negative),
+        ("smooth::tests::test_smooth_abs_symmetry", test_smooth_abs_symmetry),
+        ("smooth::tests::test_smooth_abs_at_zero", test_smooth_abs_at_zero),
+        ("smooth::tests::test_smooth_abs_high_alpha", test_smooth_abs_high_alpha),
+        ("smooth::tests::test_smooth_clip_within_range", test_smooth_clip_within_range),
+        ("smooth::tests::test_smooth_clip_below_min", test_smooth_clip_below_min),
+        ("smooth::tests::test_smooth_clip_above_max", test_smooth_clip_above_max),
+        ("smooth::tests::test_smooth_clip_high_alpha", test_smooth_clip_high_alpha),
+        ("smooth::tests::test_smooth_clip_min_equals_max", test_smooth_clip_min_equals_max),
+        ("smooth::tests::test_smooth_step_positive", test_smooth_step_positive),
+        ("smooth::tests::test_smooth_step_negative", test_smooth_step_negative),
+        ("smooth::tests::test_smooth_step_zero", test_smooth_step_zero),
+        ("smooth::tests::test_smooth_step_high_alpha", test_smooth_step_high_alpha),
+        ("smooth::tests::test_smooth_step_output_in_01", test_smooth_step_output_in_01),
+        ("smooth::tests::test_hpwl_smooth_basic", test_hpwl_smooth_basic),
+        ("smooth::tests::test_hpwl_smooth_single_point", test_hpwl_smooth_single_point),
+        ("smooth::tests::test_hpwl_smooth_two_points", test_hpwl_smooth_two_points),
+        ("smooth::tests::test_hpwl_smooth_empty", test_hpwl_smooth_empty),
+        ("smooth::tests::test_hpwl_smooth_high_alpha", test_hpwl_smooth_high_alpha),
+        ("smooth::tests::test_weighted_average_uniform", test_weighted_average_uniform),
+        ("smooth::tests::test_weighted_average_dominant_weight", test_weighted_average_dominant_weight),
+        ("smooth::tests::test_weighted_average_empty", test_weighted_average_empty),
+        ("smooth::tests::test_weighted_average_temperature_effect", test_weighted_average_temperature_effect),
+        ("smooth::tests::test_weighted_average_high_temperature_uniform", test_weighted_average_high_temperature_uniform),
+        ("smooth::tests::test_weighted_average_mismatched_lengths", test_weighted_average_mismatched_lengths),
+        ("smooth::tests::test_alpha_schedule_endpoints", test_alpha_schedule_endpoints),
+        ("smooth::tests::test_alpha_schedule_monotonic", test_alpha_schedule_monotonic),
+        ("smooth::tests::test_alpha_schedule_single_epoch", test_alpha_schedule_single_epoch),
+        ("smooth::tests::test_alpha_schedule_zero_epochs", test_alpha_schedule_zero_epochs),
+        ("smooth::tests::test_alpha_schedule_two_epochs", test_alpha_schedule_two_epochs),
+        ("smooth::tests::test_beta_schedule_matches_alpha", test_beta_schedule_matches_alpha),
+        ("smooth::tests::test_max_min_bracket", test_max_min_bracket),
+        ("smooth::tests::test_pair_max_ge_min", test_pair_max_ge_min),
+        ("smooth::tests::test_smooth_max_axis_via_logsumexp", test_smooth_max_axis_via_logsumexp),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
 
 // ---------------------------------------------------------------------------

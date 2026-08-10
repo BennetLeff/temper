@@ -65,6 +65,23 @@ kodama = "0.3"
 # the mechanism that build relies on.
 default = []
 python = ["dep:pyo3", "dep:temper-py-bridge"]
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index -- `cargo test`'s libtest harness cannot
+# target `wasm32-unknown-unknown`.  Off by default; never enabled for the
+# Python extension module.  Mirrors `temper-drc-rs`'s feature set exactly, so
+# the shared runner wires both crates the same way.
+#
+# `wasm-registry` is the umbrella feature that gates module visibility; every
+# per-family feature implies it.  This crate is a flat set of independent
+# kernels with no rule-family taxonomy, so it declares one family
+# (`geometry`).  The per-family shape is kept rather than dropped because
+# `temper-drc-rs` has it and a size-driven split may later be wanted; see
+# `src/wasm_test_registry.rs`.
+wasm-registry = []
+wasm-registry-geometry = ["wasm-registry"]
+wasm-registry-all = ["wasm-registry-geometry"]
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # rand 0.8 -> rand_core 0.6 pulls getrandom 0.2, which needs an explicit
@@ -72,7 +89,20 @@ python = ["dep:pyo3", "dep:temper-py-bridge"]
 # (transform.rs) calls `rand::random` unconditionally, in a pure-kernel
 # function reachable with or without the `python` feature, so this is needed
 # for both wasm32 build configurations, not just --no-default-features.
-getrandom = { version = "0.2", features = ["js"] }
+#
+# `custom`, NOT `js`. `js` was here first and it compiles, but it links
+# getrandom's wasm-bindgen browser/Node shim, which emits ~27 imports from
+# `__wbindgen_placeholder__`. A wasm32 module with imports cannot be
+# instantiated without generated wasm-bindgen JS glue -- glue this repo has no
+# step that produces -- so `js` made the module un-instantiable in a bare
+# isolate, i.e. exactly not deployable to the tier it was added for. Measured:
+# `WebAssembly.instantiate(module, {})` throws
+# `Import #0 "__wbindgen_placeholder__": module is not an object or function`.
+#
+# `custom` lets the crate name its own source; `src/wasm_entropy.rs` registers
+# one that always fails, which is the truth on this target (see its module doc)
+# and leaves the module import-free.
+getrandom = { version = "0.2", features = ["custom"] }
 
 [dev-dependencies]
 proptest = "1"
