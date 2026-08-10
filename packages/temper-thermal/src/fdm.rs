@@ -335,52 +335,13 @@ fn parse_f64s(bytes: &[u8]) -> Vec<f64> {
 }
 
 // ---------------------------------------------------------------------------
-// KTD9 spike: faer sparse-LU solve as a scipy spsolve (SuperLU) candidate.
-// Parity is measured in Python (tests/physics/test_thermal_fdm_rust_differential.py
-// KTD9 section); adoption is gated on the spike verdict (roadmap KTD9).
+// Sparse solve: the KTD9 spike's `solve_faer_py` here was promoted to a
+// production kernel on 2026-08-09 — see `solve.rs` (`solve_sparse_lu_py`),
+// which now backs both U5 (`thermal_fdm.py`) and U7 (`thermal_scorer.py`).
+// The promotion overturns the KTD9 "keep scipy" verdict under the wave-4
+// re-decidable rule (recorded in VERIFICATION.md with the measured
+// 5.7e-12 K tolerance over the 144-case FDM corpus).
 // ---------------------------------------------------------------------------
-
-/// Solve A·x = b with faer's sparse LU (partial row pivoting), given the
-/// matrix as COO triplets. Returns the solution as f64 bytes.
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(signature = (rows, cols, values, b_bytes, n))]
-pub fn solve_faer_py(
-    py: Python<'_>,
-    rows: Vec<usize>,
-    cols: Vec<usize>,
-    values: Vec<f64>,
-    b_bytes: Vec<u8>,
-    n: usize,
-) -> PyResult<Bound<'_, PyBytes>> {
-    let x: Vec<f64> = temper_py_bridge::catch_unwind(|| -> Result<Vec<f64>, String> {
-        use faer::linalg::solvers::Solve;
-
-        let triplets: Vec<faer::sparse::Triplet<usize, usize, f64>> = rows
-            .iter()
-            .zip(cols.iter())
-            .zip(values.iter())
-            .map(|((&r, &c), &v)| faer::sparse::Triplet::new(r, c, v))
-            .collect();
-        let b = parse_f64s(&b_bytes);
-        let mat = faer::sparse::SparseColMat::<usize, f64>::try_new_from_triplets(n, n, &triplets)
-            .map_err(|e| format!("triplet construction: {e:?}"))?;
-        let rhs = faer::col::Col::from_fn(n, |i| b[i]);
-        let lu = mat.sp_lu().map_err(|e| format!("sp_lu factorization: {e:?}"))?;
-        let x = lu.solve(&rhs);
-        Ok((0..n).map(|i| x[i]).collect::<Vec<f64>>())
-    })
-    .map_err(temper_py_bridge::panic_to_err)?
-    .map_err(PyErr::new::<pyo3::exceptions::PyValueError, _>)?;
-    let mut out = Vec::with_capacity(x.len() * 8);
-    for v in x {
-        out.extend_from_slice(&v.to_le_bytes());
-    }
-    PyBytes::new_with(py, out.len(), |b| {
-        b.copy_from_slice(&out);
-        Ok(())
-    })
-}
 
 #[cfg(test)]
 mod tests {

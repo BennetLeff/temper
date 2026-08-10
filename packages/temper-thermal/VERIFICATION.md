@@ -22,9 +22,10 @@ U6 of the Python→Rust migration roadmap (docs/plans/2026-07-23-003),
 porting the assembly hot loops of
 `temper_placer/physics/thermal_fdm.py` (`_assemble_system`,
 `_trace_to_cell_coverage`, `_point_to_segment_distance`) to the
-`temper-thermal` crate. The sparse SOLVE stays in scipy (SuperLU) —
-a Rust solver is gated on the KTD9 parity spike (still outstanding;
-see the roadmap).
+`temper-thermal` crate. The sparse SOLVE was migrated to the crate too
+on 2026-08-09 (`solve.rs`, faer sparse LU), closing the last scipy
+imports in the product surface — see the "Sparse solve kernel (U5/U7)"
+section below (KTD9 overturn, documented tolerance 1e-10 K).
 
 ## Per-device power kernel — induction non-applicability note
 
@@ -335,7 +336,7 @@ pins:
   `assert_array_equal` — f64 bit equality).
 - `solve_thermal_fdm` end-to-end: Rust assembly vs reference assembly
   (monkeypatched) produce bit-identical temperature grids (same
-  matrix + same SuperLU solve → same result).
+  matrix + same faer solve → same result).
 - `_trace_to_cell_coverage` bit-exact against the reference
   supersampling loop on 25 random traces plus degenerate (zero-length)
   and off-grid cases.
@@ -371,6 +372,125 @@ reference for zero measured benefit. scipy stays; the measured contract
 above is the recorded tolerance for any future solver change. The
 assembly-side win (the roadmap's "10-50x matrix assembly" target) is
 delivered; the solve was never the Python hot loop.
+
+## Sparse solve kernel (U5/U7) — characterization and migration decision (2026-08-09)
+
+The KTD9 verdict above is **OVERTURNED under the contract's re-decidable
+rule** (docs/wave4-discipline-contract.md §3): the evidence changed in
+two ways — the program now requires the scipy dependency to leave the
+product surface (this migration drive is the change that makes the
+"solver boundary" a decision), and the measured divergence is four
+orders of magnitude below the tightest consumer tolerance. The verdict
+was correct on the evidence it had (no perf win, bit-parity break, zero
+measured benefit); the benefit is now dependency elimination. Recorded
+here alongside the original, per the contract's overturn convention.
+
+### Solve characterization
+
+**What matrix each assembler builds.** Both `_assemble_system` (U5,
+`thermal_fdm.py`) and `_assemble_convective_system` (U7,
+`thermal_scorer.py`) build the same symmetric 5-point Laplacian stencil
+with harmonic-mean interface conductivity `2/(1/k_a + 1/k_b)`, on grids
+up to `max_cells = 2500` cells (e.g. 50×50 or 25×100). U5 puts a
+Dirichlet face term (`2·k_c/dx²`, RHS `coeff·ambient`) at the heatsink
+edge and adiabatic Neumann on the other three edges; U7 puts the same
+Dirichlet face at the heatsink edge and a Robin convective term
+`h_conv·(T − T_amb)` on the other three edges. An optional per-cell
+vertical sink `h_cell` adds to the diagonal and `h_cell·ambient` to the
+RHS; `Q` is added last to the RHS. The result is an M-matrix (U5 SPD,
+symmetric; U7 symmetric but not necessarily SPD — the Robin faces add
+negative-definite contributions), with ~5·n nonzeros and **no duplicate
+COO triplets** (each ordered (row, col) is written exactly once).
+
+**Determinism.** Both solvers are deterministic given fixed matrix +
+flags: scipy `spsolve` (SuperLU, COLAMD ordering + partial pivoting)
+returns bit-identical results on repeated calls, and faer's sparse LU
+(partial row pivoting) is bit-identical on repeated calls (verified on
+the 2500-cell U5 matrix, 2026-08-09). Neither involves RNG or an
+iteration budget, so the "deterministic reference" property is preserved
+by the migration — determinism, not bit-parity with scipy, is the
+property the consumers rely on.
+
+**Bit-for-bit Rust match: not achievable, and not required.**
+SuperLU and faer use different pivoting and fill ordering, so factor
+entries and therefore the forward solution differ in the last ulp. A
+Rust solver reproducing SuperLU bit-for-bit is not a realistic target.
+The consumers decide whether that matters:
+
+**Consumer comparison mode.** No consumer of the solve output compares
+it bit-exactly. Every consumer is tolerance/physics-based:
+manufactured-solution convergence rates, `np.allclose(..., atol=1e-6)`,
+ambient-field checks `assert_allclose(atol=1e-9)` (the **tightest**
+tolerance in the suite), U5-vs-U7 relative-error thresholds (< 2%),
+peak-temperature assertions (0.1 K), the A·x − b residual energy-balance
+check, and the physical invariant battery (monotonicity, maximum
+principle, SPD — all at 1e-9/1e-10). A solver change that stays
+>10^3 below the tightest tolerance is invisible to every consumer.
+
+### Measured divergence (2026-08-09, faer 0.24.4 / scipy 1.16.3)
+
+Re-measured over a 144-case corpus: U5 and U7 systems, 9 grid sizes
+from 1×1 to the 25×100 / 50×50 max-cells ceiling (and beyond), all four
+heatsink edges, with and without the vertical-sink `h_field`, random
+k/Q fields:
+
+| Metric | Value |
+|---|---|
+| max\|T_faer − T_scipy\| over all 144 cases | **5.7e-12 K** (U5 25×100, LEFT edge, no sink) |
+| max relative residual of the faer solve | 3.5e-15 (machine precision) |
+
+The 5.7e-12 K divergence is ~175× below the tightest consumer tolerance
+(1e-9 K) and ~6 orders below the typical one (1e-6). Both solvers agree
+with an independent dense solve to ~1e-12 K (KTD9, 2026-07-31).
+
+### Decision
+
+**MIGRATE with a documented tolerance.** The solve call in both U5
+(`thermal_fdm.py`) and U7 (`thermal_scorer.py`) delegates to
+`temper_thermal.solve_sparse_lu_py` (faer sparse LU); the scipy
+`coo_matrix`/`spsolve` imports leave the product surface. Per the
+contract's §3 divergence-recording discipline, the differential suite
+(`tests/physics/test_thermal_solve_rust_differential.py`) pins the
+bound explicitly:
+
+> **Pinned bound: for every grid in the FDM corpus (U5 + U7, any
+> heatsink edge, with or without `h_field`, up to the 2500-cell
+> `max_cells` ceiling), `max|T_faer − T_scipy| ≤ 1e-10 K`** — 175× above
+> the observed 5.7e-12 K maximum, and still 10× below the tightest
+> consumer tolerance.
+
+### Empirical verification (solve kernel)
+
+- **Differential (G2, documented-tolerance):**
+  `tests/physics/test_thermal_solve_rust_differential.py` — the retired
+  scipy `coo_matrix → spsolve` path is the verbatim oracle; the pinned
+  bound `max|T_faer − T_scipy| ≤ 1e-10 K` is asserted over the full U5+U7
+  corpus (8 grid sizes up to the 2500-cell ceiling × 4 heatsink edges ×
+  ± h_field = 128 cases per solver kind), plus bit-identical determinism
+  of both solvers and a machine-precision regression case on small grids.
+- **PBT (G4):** `tests/physics/test_thermal_solve_rust_pbt.py` — 6
+  properties (P1 residual smallness, P2 discrete maximum principle, P3
+  no-source ambient exactness, P4 linearity in source, P5 bit-identical
+  determinism, P6 finiteness) each vacuity-guarded by a
+  `test_pN_fails_for_<mutant>` mutation test; every property assembles a
+  real FDM system and solves it through the kernel, so generated inputs
+  genuinely reach the solve (reachability is inherent).
+- **Metamorphic (G5):** 3 relations in the same suite — M1 ambient-shift
+  invariance (x(b + c·A·1) = x(b) + c), M2 positive-scaling invariance
+  (x(2A, 2b) = x(A, b)), M3 permutation covariance (x′(π(i)) = x(i)).
+- **Rust unit tests:** `solve.rs` `#[cfg(test)]` — 1×1 / 2×2 /
+  tridiagonal hand-solved systems, malformed-input rejection (length
+  mismatch, out-of-range triplets), singular-matrix behavior (returns
+  non-finite, matching scipy's non-raising warning-and-NaN), and
+  determinism.
+- **End-to-end suites over the migrated solve:** the full pre-existing
+  thermal verification surface (`test_thermal_fdm.py`,
+  `test_thermal_fdm_rust_differential.py`, `test_thermal_fdm_mms.py`,
+  `test_thermal_fdm_refinement.py`, `test_thermal_fdm_invariants_pbt.py`,
+  `test_thermal_fdm_matrix_class.py`, `test_heat_removal.py`,
+  `test_thermal_scorer*.py`) passes unchanged against the faer solve —
+  the assembly-parity bits, the physical invariant battery, the MMS
+  convergence, and the U5-vs-U7 falsifiability threshold all hold.
 
 ---
 
@@ -428,11 +548,12 @@ Wave 3 candidate #6 (`docs/plans/2026-07-31-001-feat-wave3-rust-migration-roadma
 the pure compute of `temper_placer/validation/thermal_scorer.py` — the
 second, INDEPENDENT convective-boundary (Robin BC) FDM T_j scorer whose
 repeated sparse assembly sits inside battery experiments — ported to
-`temper_thermal.thermal_scorer`. The sparse SOLVE stays in scipy
-(SuperLU) per the KTD9 verdict (two direct factorizations agree to
-~5e-13 K; scipy stays for the solve). The falsifiability assertion's
-1.0 deg-C threshold against the U5 field solver is a separate, PRESERVED
-Python-side contract and is untouched.
+`temper_thermal.thermal_scorer`. The sparse SOLVE is delegated to the
+`temper-thermal` crate's faer sparse LU (2026-08-09, `solve.rs` — see
+the "Sparse solve kernel (U5/U7)" section; the KTD9 keep is overturned
+there with the measured 5.7e-12 K tolerance). The falsifiability
+assertion's 1.0 deg-C threshold against the U5 field solver is a
+separate, PRESERVED Python-side contract and is untouched.
 
 ## Base Case: 1×1 Grid
 
@@ -511,9 +632,11 @@ API.
 
 **Kept in Python deliberately:** `ThermalScorer`/`ThermalScorerConfig`/
 `ThermalScoreResult`, `solve_independent`/`score` orchestration, the
-`spsolve` call (KTD9), the four boundary-predicate helpers (mirroring
+four boundary-predicate helpers (mirroring
 U5's retained helpers), and `falsifiability_assertion` with its 1.0 deg-C
-threshold (the preserved THM-adjacent cross-check contract).
+threshold (the preserved THM-adjacent cross-check contract). The
+`spsolve` call (the KTD9 keep) was migrated to `solve::solve_sparse_lu_py`
+on 2026-08-09.
 
 ## FFI Audit (spike C7, 2026-08-01) — tagged-type simplification
 
@@ -1142,8 +1265,11 @@ applicable**; structural argument recorded.
    `np.mean` is deliberately NOT migrated: numpy 2.3.5's SIMD reduction is
    not bit-reproducible by any Rust summation strategy (measured 2026-08-04
    on arm64 — naive, Neumaier, pairwise-128 and sequential-block pairwise
-   all disagree with np.sum/np.mean even for n=8).  Same discipline class
-   as the KTD9 scipy-spsolve keep — argued in-source at the call site.
+   all disagree with np.sum/np.mean even for n=8).  This is the genuine
+   measured-blocker class of keep — distinct from the scipy-spsolve keep,
+   which was overturned 2026-08-09 (see the "Sparse solve kernel" section)
+   because a measured parity result made the migration defensible; np.mean
+   has no such parity result.  Argued in-source at the call site.
 4. **R24.** Gate, not a constraint encoder: the T_j_max ceiling is gated
    on the CONSERVATIVE (higher) estimate so the optimistic model can never
    decide; corroborated-but-over-limit is still a VIOLATION.  Fail-closed

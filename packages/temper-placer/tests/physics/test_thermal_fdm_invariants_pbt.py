@@ -135,6 +135,16 @@ def _safe_solve(config, Q_field, copper_grid=None):
     return T, k_field
 
 
+def _as_lil(A):
+    """Convert an ``FdmSystem`` (COO triplets) to a scipy LIL matrix for the
+    fail-capable mutation loops.  The system matrix no longer arrives as a
+    scipy object (scipy retired from the product surface, 2026-08-09); the
+    tests that mutate it rebuild the scipy view themselves."""
+    from scipy.sparse import csr_matrix
+
+    return csr_matrix((A.values, (A.rows, A.cols)), shape=A.shape).tolil()
+
+
 # ---------------------------------------------------------------------------
 # Hypothesis strategies
 # ---------------------------------------------------------------------------
@@ -334,7 +344,7 @@ def test_r8_fail_capable_assembly_sign_error():
     A_correct, b1 = _assemble_system(config, k_field, Q1)
     _, b2 = _assemble_system(config, k_field, Q2)
 
-    A_lil = A_correct.tolil()
+    A_lil = _as_lil(A_correct)
     n_total = h * w
     for idx in range(n_total):
         row_sum = sum(abs(A_lil[idx, j]) for j in range(n_total))
@@ -425,7 +435,7 @@ def test_r9_fail_capable_bc_swap():
     k_field = _build_conductivity_field(config, copper_grid=copper)
     A_correct, b = _assemble_system(config, k_field, Q_field)
 
-    A_lil = A_correct.tolil()
+    A_lil = _as_lil(A_correct)
     n = h * w
     violated = False
     for idx in range(n):
@@ -491,7 +501,7 @@ def test_r10_fail_capable():
     assert _check_full_spd(A), "Expected SPD on correct matrix"
 
     # Perturb any diagonal (all rows are active now)
-    A_lil = A.tolil()
+    A_lil = _as_lil(A)
     n = h * w
     for idx in range(n):
         # Find the first interior row (any row with non-zero off-diagonals)

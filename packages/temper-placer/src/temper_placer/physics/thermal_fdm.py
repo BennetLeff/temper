@@ -5,8 +5,9 @@ Thermal FDM field solver (U5): finite-difference thermal solve of
 Produces a ``CostField`` wrapped in a ``FieldResult`` for downstream
 A* routing cost injection.
 
-Geometry-faithful, deterministic (sparse-direct solve via SuperLU), and
-fail-closed (UNMEASURED on any solve failure, never a silent flat field).
+Geometry-faithful, deterministic (sparse-direct solve via faer sparse LU
+in the temper-thermal crate), and fail-closed (UNMEASURED on any solve
+failure, never a silent flat field).
 
 Distinct from ``thermal_potential.py`` (kernel superposition heuristic)
 and ``thermal.py`` (lumped-parameter Tj model).  This module reads real
@@ -54,8 +55,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
-    import scipy
-
     from temper_placer.fields.result import FieldResult
 
 
@@ -280,6 +279,41 @@ def _build_heat_source_field(
 # ---------------------------------------------------------------------------
 
 
+@dataclass(frozen=True)
+class FdmSystem:
+    """Sparse linear system A·T = b in COO triplets (scipy retired).
+
+    ``rows``/``cols``/``values`` are the coordinate triplets produced by
+    the ``temper-thermal`` assembly kernels; the 5-point stencil writes
+    each ordered ``(row, col)`` exactly once, so the dense expansion and
+    matvec below are exact (the ``np.add.at`` accumulation matches
+    scipy's duplicate-summation semantics defensively even though the
+    current assembly emits none).
+
+    This is the replacement for the former ``scipy.sparse.coo_matrix``
+    return of ``_assemble_system`` — a minimal scipy-compatible surface
+    (``toarray()``, ``@``) for the consumers, following the repo's
+    ``core/hypergraph.py::Coo`` precedent for retiring scipy containers.
+    """
+
+    rows: np.ndarray  # (nnz,) int64 — row index per stored triplet
+    cols: np.ndarray  # (nnz,) int64 — column index per stored triplet
+    values: np.ndarray  # (nnz,) float64 — value per stored triplet
+    shape: tuple[int, int]
+
+    def toarray(self) -> np.ndarray:
+        """Dense ``(shape[0], shape[1])`` float64 matrix."""
+        out = np.zeros(self.shape, dtype=np.float64)
+        np.add.at(out, (self.rows, self.cols), self.values)
+        return out
+
+    def __matmul__(self, other: np.ndarray) -> np.ndarray:
+        """Sparse matrix-vector product ``A @ other`` (float64)."""
+        out = np.zeros(self.shape[0], dtype=np.float64)
+        np.add.at(out, self.rows, self.values * other[self.cols])
+        return out
+
+
 def _is_neumann_boundary(
     row: int,
     col: int,
@@ -330,7 +364,7 @@ def _assemble_system(
     k_field: np.ndarray,
     Q_field: np.ndarray,
     h_field: np.ndarray | None = None,
-) -> tuple[scipy.sparse.csr_matrix, np.ndarray]:
+) -> tuple[FdmSystem, np.ndarray]:
     """Assemble the sparse linear system A·T = b for the FDM discretisation.
 
     Uses the 5-point stencil with harmonic-mean interface conductivity
@@ -348,11 +382,12 @@ def _assemble_system(
 
     Assembly is computed in the ``temper-thermal`` Rust crate
     (``packages/temper-thermal/src/fdm.rs``) with the exact f64
-    operation order of the former pure-Python loop; the sparse matrix
-    is rebuilt here and the solve stays in scipy (SuperLU).
+    operation order of the former pure-Python loop; the matrix is
+    returned as COO triplets (``FdmSystem``).  The SOLVE is delegated
+    to the Rust crate too (``packages/temper-thermal/src/solve.rs``,
+    faer sparse LU) — scipy no longer appears in this module.
     """
     import temper_thermal as _tt
-    from scipy.sparse import coo_matrix
 
     h = config.height_cells
     w = config.width_cells
@@ -370,8 +405,13 @@ def _assemble_system(
         config.cell_size_mm,
         _heatsink_edge_code(config.heatsink_edge),
     )
-    A = coo_matrix((values, (rows, cols)), shape=(n, n), dtype=np.float64).tocsr()
-    return A, np.asarray(b, dtype=np.float64)
+    system = FdmSystem(
+        rows=np.asarray(rows, dtype=np.int64),
+        cols=np.asarray(cols, dtype=np.int64),
+        values=np.asarray(values, dtype=np.float64),
+        shape=(n, n),
+    )
+    return system, np.asarray(b, dtype=np.float64)
 
 
 # ---------------------------------------------------------------------------
@@ -384,13 +424,13 @@ def get_system_matrix(
     copper_grid: np.ndarray | None = None,
     traces: list | None = None,
     h_field: np.ndarray | None = None,
-) -> scipy.sparse.csr_matrix:
+) -> FdmSystem:
     """Return the assembled system matrix A for the isotropic FDM discretisation.
 
     This is a utility for verifying matrix-class properties (symmetry,
     positive-definiteness, M-matrix sign pattern).  It builds the
     conductivity field from *config* and *copper_grid*/*traces*, assembles
-    the sparse CSR system matrix, and returns it without solving.
+    the sparse COO system matrix, and returns it without solving.
 
     Args:
         config: Grid geometry and boundary conditions.
@@ -401,7 +441,7 @@ def get_system_matrix(
             ``W/(K·mm²)`` for through-plane heat removal (#141).
 
     Returns:
-        The ``scipy.sparse.csr_matrix`` system matrix A.
+        The system matrix A as COO triplets (``FdmSystem``).
     """
     k_field = _build_conductivity_field(config, copper_grid=copper_grid, traces=traces)
     h, w = config.height_cells, config.width_cells
@@ -482,14 +522,25 @@ def solve_thermal_fdm(
     Q_src = _build_heat_source_field(config, devices, power_map, Q_field=Q_field)
 
     # Assemble linear system
-    A, b = _assemble_system(config, k_field, Q_src, h_field=h_field)
+    system, b = _assemble_system(config, k_field, Q_src, h_field=h_field)
 
-    # Direct deterministic solve via SuperLU
-    from scipy.sparse.linalg import spsolve
+    # Direct deterministic solve via faer sparse LU (temper-thermal
+    # solve.rs) — the migration that retired scipy's spsolve/SuperLU.
+    # Measured vs SuperLU at max 5.7e-12 K over the FDM corpus; every
+    # consumer compares via a physics tolerance >= 1e-9 K (recorded in
+    # temper-thermal/VERIFICATION.md, KTD9 overturn 2026-08-09).
+    import temper_thermal as _tt
 
     t_start = time.monotonic()
     try:
-        T_flat = spsolve(A, b)
+        raw = _tt.solve_sparse_lu_py(
+            system.rows.tolist(),
+            system.cols.tolist(),
+            system.values.tolist(),
+            np.ascontiguousarray(b, dtype=np.float64).tobytes(),
+            int(system.shape[0]),
+        )
+        T_flat = np.frombuffer(raw, dtype=np.float64).copy()
     except Exception as exc:
         return FieldResult(
             gate_result=GateResult(
