@@ -53,12 +53,18 @@ class FatalStageDRCFailure(RuntimeError):
 
 
 def register_validator(name: str):
-    """Decorator to register a validator function for a specific stage."""
+    """Decorator to register a validator function for a specific stage.
+
+    Idempotent: re-registering the same function object (e.g. via a module
+    ``reload`` in tests) does not append a duplicate. Distinct functions for
+    the same stage name are all kept.
+    """
 
     def decorator(func: Callable):
         if name not in VALIDATOR_REGISTRY:
             VALIDATOR_REGISTRY[name] = []
-        VALIDATOR_REGISTRY[name].append(func)
+        if func not in VALIDATOR_REGISTRY[name]:
+            VALIDATOR_REGISTRY[name].append(func)
         return func
 
     return decorator
