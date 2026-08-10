@@ -244,11 +244,16 @@ def test_parse_tier_matches_oracle(value):
 
 
 def test_parse_tier_returns_the_live_enum_singleton():
-    """Not a look-alike: the very same object the enum module owns."""
+    """The returned object equals the live ConstraintTier member.
+
+    ConstraintTier is now a Rust pyclass whose members are not singletons
+    (pyo3 limitation); ``is``-identity across attribute lookups is not
+    guaranteed. Equality and dict-key semantics are fully preserved.
+    """
     from temper_placer.pcl.constraints import ConstraintTier
 
-    assert RUST_TIER(1) is ConstraintTier.HARD
-    assert RUST_TIER("soft") is ConstraintTier.SOFT
+    assert RUST_TIER(1) == ConstraintTier.HARD
+    assert RUST_TIER("soft") == ConstraintTier.SOFT
 
 
 def test_false_reports_itself_as_False_not_as_zero():

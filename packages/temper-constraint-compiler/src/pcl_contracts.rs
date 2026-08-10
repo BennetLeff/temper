@@ -59,6 +59,122 @@ use pyo3::types::{PyDict, PyList, PyString, PyTuple, PyType};
 use temper_py_bridge::catch_panic;
 
 // ---------------------------------------------------------------------------
+// ConstraintTier — the priority-tier enum (Python `Enum` with int values).
+// Migrated from `temper_placer/pcl/constraints.py` (Wave 4, tractable-slice).
+// ---------------------------------------------------------------------------
+
+/// Priority tiers for PCL constraints (mirrors `ConstraintTier` in
+/// `temper_placer/pcl/constraints.py`: `HARD = 1`, `STRONG = 2`, `SOFT = 3`).
+///
+/// This is a regular `Enum` (not `IntEnum`): `str()` renders the qualified
+/// member name (`"ConstraintTier.HARD"`), `repr()` renders
+/// `"<ConstraintTier.HARD: 1>"`, and a member never equals its int value
+/// (`ConstraintTier.HARD != 1`).
+///
+/// Known, documented deviations (see `VERIFICATION.md`):
+/// - A pyo3 `#[pyclass]` enum has no class-level iteration (`for t in
+///   ConstraintTier` fails), and members are not singletons (`is` identity
+///   between two attribute lookups is False) — the Python `Enum` metaclass
+///   provides both. No in-repo consumer iterates or `is`-compares
+///   `ConstraintTier` (verified 2026-08-09); `==`/`!=`/hash/dict-key usage is
+///   fully preserved.
+#[pyclass(frozen, eq, hash, from_py_object, module = "temper_placer.pcl.constraints")]
+// Variant names intentionally mirror the Python Enum member identifiers.
+#[allow(non_camel_case_types)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[allow(clippy::upper_case_acronyms)] // variant names are the Python API surface
+pub enum ConstraintTier {
+    HARD = 1,
+    STRONG = 2,
+    SOFT = 3,
+}
+
+#[pymethods]
+impl ConstraintTier {
+    /// Python `Enum(value)` mirror: resolve a member by its value, raising the
+    /// exact `ValueError` text CPython's `Enum` raises for unknown values
+    /// (`999 is not a valid ConstraintTier`).
+    #[new]
+    fn from_value(value: i64) -> PyResult<Self> {
+        match value {
+            1 => Ok(Self::HARD),
+            2 => Ok(Self::STRONG),
+            3 => Ok(Self::SOFT),
+            _ => Err(PyValueError::new_err(format!(
+                "{value} is not a valid ConstraintTier"
+            ))),
+        }
+    }
+
+    /// Python `Enum.name` mirror.
+    #[getter]
+    fn name(&self) -> &'static str {
+        match self {
+            Self::HARD => "HARD",
+            Self::STRONG => "STRONG",
+            Self::SOFT => "SOFT",
+        }
+    }
+
+    /// Python `Enum.value` mirror (the int value 1/2/3).
+    #[getter]
+    fn value(&self) -> i64 {
+        match self {
+            Self::HARD => 1,
+            Self::STRONG => 2,
+            Self::SOFT => 3,
+        }
+    }
+
+    /// Python `str(member)` mirror: `"ConstraintTier.HARD"` (the
+    /// `__qualname__`-qualified member name).
+    fn __str__(&self) -> String {
+        self.py_str()
+    }
+
+    /// Python `repr(member)` mirror: `"<ConstraintTier.HARD: 1>"`.
+    fn __repr__(&self) -> String {
+        self.py_repr()
+    }
+
+    /// `copy.copy` / `copy.deepcopy` support: the members are immutable
+    /// values, so a copy returns an equal member (Python `Enum` members are
+    /// singletons whose deepcopy returns the same object; the pyclass returns
+    /// a fresh value-equal object, which is indistinguishable under `==`/hash
+    /// — the `ConstraintCollection.copy()` deepcopy path needs this).
+    fn __copy__(&self) -> Self {
+        *self
+    }
+
+    fn __deepcopy__(&self, _memo: &Bound<'_, PyAny>) -> Self {
+        *self
+    }
+
+    /// `pickle` support: reconstruct via `ConstraintTier(value)`.
+    /// Python `Enum` members are pickled by reference (module + qualname);
+    /// the pyclass reconstructs from the int value through the `#[new]`
+    /// constructor, producing a value-equal member.
+    fn __reduce__(&self, py: Python<'_>) -> PyResult<(Py<PyAny>, Py<PyAny>)> {
+        let cls = py.get_type::<ConstraintTier>();
+        let args = PyTuple::new(py, [self.value()])?;
+        Ok((cls.clone().into_any().unbind(), args.into_any().unbind()))
+    }
+}
+
+impl ConstraintTier {
+    /// Rust-side `str(member)` rendering (callable from other pyclasses'
+    /// reprs — `__str__` is a pymethod, not a Rust fn).
+    fn py_str(&self) -> String {
+        format!("ConstraintTier.{}", self.name())
+    }
+
+    /// Rust-side `repr(member)` rendering.
+    fn py_repr(&self) -> String {
+        format!("<{}: {}>", self.py_str(), self.value())
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Cached Python handles (the live enums the objects must hand back).
 // ---------------------------------------------------------------------------
 
@@ -270,15 +386,18 @@ fn reduce_args(
 }
 
 /// `SOFT -> STRONG -> HARD` (replicating `BaseConstraint.escalate`).
+///
+/// Compares by the `.value` integer rather than Python `==` so the logic
+/// works regardless of whether the stored `tier` is a Python `Enum` member
+/// or a Rust `ConstraintTier` pyclass wrapper (whose `__eq__` returns
+/// `NotImplemented` across the two types).
 fn escalate_tier(py: Python<'_>, tier: &mut Py<PyAny>) -> PyResult<()> {
     let types = constraint_types(py)?;
-    let soft = types.constraint_tier.bind(py).getattr("SOFT")?;
-    let strong = types.constraint_tier.bind(py).getattr("STRONG")?;
-    let hard = types.constraint_tier.bind(py).getattr("HARD")?;
-    if tier.bind(py).eq(&soft)? {
-        *tier = strong.unbind();
-    } else if tier.bind(py).eq(&strong)? {
-        *tier = hard.unbind();
+    let v: i64 = tier.bind(py).getattr("value")?.extract()?;
+    if v == 3 {
+        *tier = types.constraint_tier.bind(py).getattr("STRONG")?.unbind();
+    } else if v == 2 {
+        *tier = types.constraint_tier.bind(py).getattr("HARD")?.unbind();
     }
     Ok(())
 }
@@ -2389,6 +2508,7 @@ impl PyCompilationContext {
 // ---------------------------------------------------------------------------
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<ConstraintTier>()?;
     m.add_class::<AdjacentConstraint>()?;
     m.add_class::<SeparatedConstraint>()?;
     m.add_class::<EnclosingConstraint>()?;

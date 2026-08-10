@@ -213,9 +213,9 @@ def test_p5_escalate_converges_to_hard_in_two_steps(spec):
     step1 = TIER_RANK[c.tier.name]
     assert step1 <= start, "escalate must never loosen"
     c.escalate()
-    assert c.tier is live.ConstraintTier.HARD
+    assert c.tier == live.ConstraintTier.HARD
     c.escalate()
-    assert c.tier is live.ConstraintTier.HARD
+    assert c.tier == live.ConstraintTier.HARD
 
 
 @given(spec=constraint_specs())
