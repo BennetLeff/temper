@@ -22,6 +22,21 @@ Covered divergence classes from the Wave-4 bit-exactness catalog:
 * **B7** operation order — `x ** 2` is libm `pow`, not `x * x`;
   `(...) ** 0.5` is libm `pow`, not `sqrt`.
 * **B8** denormals are preserved, never flushed.
+
+**R13 uniqueness re-pin (issue #928, 2026-08-10).** The uniqueness
+enforcement (`_enforce_unique_positions` / Rust
+`enforce_unique_positions_with`) was changed deliberately: the old
+single right-offset `min(xj + offset_mm, x_max)` could clamp a nudged
+anchor back ON TOP of an anchor already at `x_max` (two devices
+coinciding at (40.0, 21.0)), and its single pair scan never re-checked
+a pair the nudge had newly collided with a third anchor.  The new
+algorithm re-scans to a fixpoint, moving the later anchor to the first
+x-position on its row clear of every anchor (see the oracle's
+`_enforce_unique_positions` docstring).  The pinned oracle here was
+re-pinned in lock-step with the Rust kernel; both arms now implement
+the NEW behaviour and must remain bit-identical to *each other* — the
+differential no longer pins the old coincident-anchor behaviour.  The
+old behaviour produced coincident anchors; the new cannot.
 """
 
 from __future__ import annotations
