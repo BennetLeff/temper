@@ -22,6 +22,7 @@ Example of bug prevented by type system:
 from typing import NewType, TypeAlias
 
 import numpy as np
+import temper_geometry as _geometry
 import temper_io_types as _rs
 from numpy.typing import NDArray as Array
 
@@ -189,3 +190,69 @@ def is_valid_net_id(net_id: NetId) -> bool:
         True if net_id >= 0 (0 = no net, >0 = actual net)
     """
     return _rs.is_valid_net_id(net_id)
+
+
+# ============================================================================
+# Length Units: mm / mil / inch (Wave-4 Phase A, plan 2026-08-09-001)
+# ============================================================================
+#
+# The `Mm`/`Mil`/`Inch` newtype-wrappers-over-f64 marshalling surface is
+# implemented in Rust (packages/temper-geometry/src/units.rs). Each function
+# below is a delegation shim; bit-identical parity against the pinned
+# reference expressions is asserted by
+# tests/core/test_units_rust_differential.py and tests/core/test_units_pbt.py.
+# The conversion factors are the exact IEEE-754 doubles
+# temper-design-bundle's pcl_parse.rs pins (0.0254 mm/mil, 25.4 mm/in).
+#
+# Note: the existing `Millimeters` NewType above is a *type-level* annotation
+# (zero runtime behaviour); these functions are the runtime conversion
+# surface. Full `#[pyclass]` wrappers were deliberately NOT added — see the
+# Rust module doc for the recorded decision and evidence.
+
+
+def mil_to_mm(mil: float) -> float:
+    """Convert mils (thousandths of an inch) to millimetres.
+
+    Exact reference expression: ``mil * 0.0254`` (single rounding).
+    """
+    return _geometry.mil_to_mm(mil)
+
+
+def mm_to_mil(mm: float) -> float:
+    """Convert millimetres to mils.
+
+    Exact reference expression: ``mm / 0.0254`` (single rounding).
+    """
+    return _geometry.mm_to_mil(mm)
+
+
+def inch_to_mm(inch: float) -> float:
+    """Convert inches to millimetres.
+
+    Exact reference expression: ``inch * 25.4`` (single rounding).
+    """
+    return _geometry.inch_to_mm(inch)
+
+
+def mm_to_inch(mm: float) -> float:
+    """Convert millimetres to inches.
+
+    Exact reference expression: ``mm / 25.4`` (single rounding).
+    """
+    return _geometry.mm_to_inch(mm)
+
+
+def mil_to_inch(mil: float) -> float:
+    """Convert mils to inches.
+
+    Exact reference expression: ``mil / 1000.0`` (single rounding).
+    """
+    return _geometry.mil_to_inch(mil)
+
+
+def inch_to_mil(inch: float) -> float:
+    """Convert inches to mils.
+
+    Exact reference expression: ``inch * 1000.0`` (single rounding).
+    """
+    return _geometry.inch_to_mil(inch)

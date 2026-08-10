@@ -262,6 +262,11 @@ pub mod placement_topology;
 // placement_topology (this file's tail) so appends cannot rewrite a
 // parallel agent's lines.
 pub mod kicad_transform;
+// Wave 4 Phase A: core/units.py's `Mm`, `Mil`, `Inch` newtype wrappers and
+// the mm/mil/inch conversion kernels. See units.rs's module doc for why the
+// existing units.py kernels are NOT re-migrated here (they live in
+// temper-io-types) and the recorded Mm/Mil/Inch pyclass decision.
+pub mod units;
 
 #[cfg(feature = "python")]
 #[pymodule]
@@ -296,5 +301,6 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::bundle_analyzer::register(m)?;
     crate::placement_topology::register(m)?;
     crate::kicad_transform::register(m)?;
+    crate::units::register(m)?;
     Ok(())
 }
