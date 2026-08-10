@@ -1,27 +1,39 @@
-"""Differential test: the sanctioned pure-Python KiCad rotation convention
-(``temper_placer.geometry.kicad_transform``) vs. the separately-maintained
-Rust implementation of the same formula
-(``packages/temper-geometry/src/transform.rs``'s ``transform_pin_position``/
-``transform_pin_positions``, bound to Python as
-``temper_placer.geometry.transform.transform_pin_position``).
+"""Differential tests: the ``kicad_transform`` shim (Rust-backed via
+``temper_geometry.kicad_transform``) vs VERBATIM copies of the
+pre-migration pure-Python implementation.
 
-Why two implementations exist
--------------------------------
-``kicad_transform``'s own module docstring explains the decision: crossing
-the pyo3 FFI boundary for a two-line scalar rotation formula on every call
-(courtyard vertices, pad offsets, silkscreen labels, ...) is not worth the
-coupling a pure-Python implementation would otherwise avoid, and (at the
-time both were written) nothing in production actually calls the Rust
-entry point -- it exists for the ``temper_geometry`` crate's own
-consumers, not this repo's KiCad I/O paths. Rather than let the two
-formulas silently drift apart (exactly the failure mode that put the same
-formula, once wrong, in 12 independent places), this file pins them
-together: any change to either implementation that disagrees with the
-other fails here, not in a downstream PCB one day.
+What changed
+------------
+Before this migration, ``temper_placer.geometry.kicad_transform`` was a
+pure-Python module carrying the single sanctioned implementation of KiCad's
+footprint-child rotation convention (R(-theta)), and the ``temper_geometry``
+crate carried a separately-maintained Rust copy of the same formula
+(``transform.rs::transform_pin_position``), pinned to it only by
+tolerance-based tests. This migration replaces the pure-Python module with
+a thin shim delegating to new Rust kernels in
+``packages/temper-geometry/src/kicad_transform.rs`` (exposed as
+``temper_geometry.kicad_*_py``); the module's public names, docstrings and
+``__all__`` are unchanged, so the 12 consolidated call sites and the
+no-raw-rotation-trig lint keep working unchanged. There is now ONE
+implementation of the formula (in Rust); the Python side only forwards.
+
+Why the oracles exist
+---------------------
+Per the Wave-4 discipline contract (G1/G2), the differential pins the shim
+against a VERBATIM copy of the module AS COMMITTED before the migration —
+the ``_oracle_*`` blocks below, which must not be edited. The Rust kernels
+resolve ``cos``/``sin`` through the host process's libm (B1 — the dlsym
+pattern shared with ``pad_geometry.rs``), so every assertion is
+**bit-exact ``float.hex()`` equality**, not tolerance: a 1-ulp drift in
+either direction fails here. ``transform.rs``'s ``transform_pin_position``
+still uses the plain statically-bound ``f64::cos``/``f64::sin`` (a second,
+tolerance-pinned copy kept for the crate's own consumers — see
+``test_transform_pin_position_consistency`` below), which is why the two
+are NOT compared bit-exactly here.
 
 ``temper_geometry`` is an unconditional, non-optional dependency of
 ``temper_placer.geometry`` (imported at that package's module level, with
-no try/except fallback) -- unlike the optional Rust accelerators this repo
+no try/except fallback) — unlike the optional Rust accelerators this repo
 also has (``temper_drc_rs``, ``temper_rust_router``), there is no
 skip-if-missing story for this one; if it is not importable, essentially
 this entire package fails to import, so no skip guard is needed here.
@@ -34,91 +46,336 @@ import random
 
 import pytest
 
-from temper_placer.geometry.kicad_transform import place_local_to_world, rotate_local_to_world
+import temper_geometry as _tg
+from temper_placer.geometry.kicad_transform import (
+    place_local_to_world,
+    rotate_local_to_world,
+    rotate_local_to_world_deg,
+    rotate_world_to_local,
+    rotate_world_to_local_deg,
+    shapely_rotation_angle_deg,
+)
 from temper_placer.geometry.transform import transform_pin_position, transform_pin_positions
 
+# ---------------------------------------------------------------------------
+# The six kernels, exposed from temper_geometry under the kicad_ prefix
+# (the module's shim re-exports them under their public names). Binding
+# them here is the G1 import-time RED gate: these attributes do not exist
+# until the Rust kernels land, so this module fails to collect before then.
+# ---------------------------------------------------------------------------
+_RL2W = _tg.kicad_rotate_local_to_world_py
+_RL2WD = _tg.kicad_rotate_local_to_world_deg_py
+_RW2L = _tg.kicad_rotate_world_to_local_py
+_RW2LD = _tg.kicad_rotate_world_to_local_deg_py
+_PL2W = _tg.kicad_place_local_to_world_py
+_SRA = _tg.kicad_shapely_rotation_angle_deg_py
 
-def test_zero_rotation():
-    assert transform_pin_position(3.0, -2.0, 10.0, 20.0, 0.0) == pytest.approx(
-        place_local_to_world(3.0, -2.0, 10.0, 20.0, 0.0)
-    )
+# ---------------------------------------------------------------------------
+# Verbatim pre-migration oracles (copied from the module AS COMMITTED
+# before the Wave-4 migration; do not edit — they are the reference).
+# ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("angle_deg", [0.0, 90.0, 180.0, 270.0, -90.0, 45.0, 137.0])
-def test_matches_at_various_angles(angle_deg):
-    angle_rad = math.radians(angle_deg)
-    comp_x, comp_y = 12.5, -7.25
-    for pin_x, pin_y in [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (3.7, -2.1), (-5.0, 5.0)]:
-        rust = transform_pin_position(pin_x, pin_y, comp_x, comp_y, angle_rad)
-        python = place_local_to_world(pin_x, pin_y, comp_x, comp_y, angle_rad)
-        assert rust[0] == pytest.approx(python[0], abs=1e-9)
-        assert rust[1] == pytest.approx(python[1], abs=1e-9)
+def _oracle_rotate_local_to_world(x: float, y: float, theta_rad: float) -> tuple[float, float]:
+    """Rotate a local (footprint-relative) offset into world orientation.
+
+    This is R(-theta), KiCad's real footprint-child rotation convention —
+    see this module's docstring for the confirming evidence. ``theta_rad``
+    is the footprint/component's own board rotation, in radians.
+    """
+    c, s = math.cos(theta_rad), math.sin(theta_rad)
+    return (x * c + y * s, -x * s + y * c)
 
 
-# The solver's finite angle set (plan 011 U2): the differential must pin the
-# two sanctioned copies over the EXHAUSTIVE set, not just spot angles --
-# every (angle, offset) pair in the enumeration.
+def _oracle_rotate_local_to_world_deg(x: float, y: float, theta_deg: float) -> tuple[float, float]:
+    """Degrees convenience wrapper for :func:`_oracle_rotate_local_to_world`."""
+    return _oracle_rotate_local_to_world(x, y, math.radians(theta_deg))
+
+
+def _oracle_rotate_world_to_local(x: float, y: float, theta_rad: float) -> tuple[float, float]:
+    """Inverse of :func:`_oracle_rotate_local_to_world`: rotate a world-oriented
+    offset back into the footprint's local frame.
+
+    This is R(+theta) -- the transpose of R(-theta), which for a rotation
+    matrix is also its inverse.
+    """
+    c, s = math.cos(theta_rad), math.sin(theta_rad)
+    return (x * c - y * s, x * s + y * c)
+
+
+def _oracle_rotate_world_to_local_deg(x: float, y: float, theta_deg: float) -> tuple[float, float]:
+    """Degrees convenience wrapper for :func:`_oracle_rotate_world_to_local`."""
+    return _oracle_rotate_world_to_local(x, y, math.radians(theta_deg))
+
+
+def _oracle_place_local_to_world(
+    local_x: float,
+    local_y: float,
+    origin_x: float,
+    origin_y: float,
+    theta_rad: float,
+) -> tuple[float, float]:
+    """Rotate a local offset by ``theta_rad`` (KiCad convention) and
+    translate by ``(origin_x, origin_y)``.
+    """
+    rx, ry = _oracle_rotate_local_to_world(local_x, local_y, theta_rad)
+    return (origin_x + rx, origin_y + ry)
+
+
+def _oracle_shapely_rotation_angle_deg(theta_deg: float) -> float:
+    """The angle (degrees) to pass to ``shapely.affinity.rotate`` to apply
+    this module's KiCad rotation convention to a polygon."""
+    return -theta_deg
+
+
+# ---------------------------------------------------------------------------
+# Bit-exact comparison helper (G2: `==` via float.hex(), never tolerance)
+# ---------------------------------------------------------------------------
+
+
+def _assert_bit_exact(got, expected, ctx: str) -> None:
+    assert len(got) == len(expected), (ctx, got, expected)
+    for g, e in zip(got, expected):
+        assert float(g).hex() == float(e).hex(), f"{ctx}: {g!r}.hex()={float(g).hex()} != {e!r}.hex()={float(e).hex()}"
+
+
+# ---------------------------------------------------------------------------
+# Exhaustive finite angle set {0, 90, 180, 270} x offset set (plan 011 U2):
+# every (angle, offset) pair must agree bit-for-bit with the oracle.
+# ---------------------------------------------------------------------------
+
 _FINITE_ANGLE_SET_DEG = (0.0, 90.0, 180.0, 270.0)
 _EXHAUSTIVE_OFFSETS = ((0.5, 0.3), (2.0, -1.0), (5.0, 0.0), (3.7, -2.1), (-5.0, 5.0))
+_COMP_POSITIONS = ((12.5, -7.25), (0.0, 0.0), (-200.0, 300.0))
 
 
 @pytest.mark.parametrize("angle_deg", _FINITE_ANGLE_SET_DEG)
 @pytest.mark.parametrize("offset", _EXHAUSTIVE_OFFSETS)
-def test_matches_over_exhaustive_finite_angle_set(angle_deg, offset):
-    """Python ``kicad_transform`` and Rust ``transform_pin_position`` agree
-    for every (angle, offset) pair in the exhaustive enumeration of the
-    solver's finite angle set {0, 90, 180, 270} x the offset set. A sign
-    flip in either implementation fails here (the anchor values at 90/270
-    with asymmetric offsets differ between R(-theta) and R(+theta))."""
-    angle_rad = math.radians(angle_deg)
-    comp_x, comp_y = 12.5, -7.25
-    pin_x, pin_y = offset
-    rust = transform_pin_position(pin_x, pin_y, comp_x, comp_y, angle_rad)
-    python = place_local_to_world(pin_x, pin_y, comp_x, comp_y, angle_rad)
-    assert rust[0] == pytest.approx(python[0], abs=1e-9), (angle_deg, offset)
-    assert rust[1] == pytest.approx(python[1], abs=1e-9), (angle_deg, offset)
+def test_rotate_local_to_world_bit_exact_finite_angle_set(angle_deg, offset):
+    x, y = offset
+    theta = math.radians(angle_deg)
+    got = rotate_local_to_world(x, y, theta)
+    expected = _oracle_rotate_local_to_world(x, y, theta)
+    _assert_bit_exact(got, expected, f"rotate_local_to_world({x}, {y}, {angle_deg}deg)")
+    # the degrees wrapper agrees with the radians path bit-for-bit too
+    got_deg = rotate_local_to_world_deg(x, y, angle_deg)
+    _assert_bit_exact(got_deg, expected, f"rotate_local_to_world_deg({x}, {y}, {angle_deg})")
 
 
 @pytest.mark.parametrize("angle_deg", _FINITE_ANGLE_SET_DEG)
-def test_batch_matches_over_exhaustive_finite_angle_set(angle_deg):
-    """The batch form (``transform_pin_positions``) agrees with Python over
-    the same exhaustive enumeration."""
-    angle_rad = math.radians(angle_deg)
-    comp_x, comp_y = 12.5, -7.25
-    pins = list(_EXHAUSTIVE_OFFSETS)
-    flat = [c for p in pins for c in p]
-    rust_flat = transform_pin_positions(flat, comp_x, comp_y, angle_rad)
-    for i, (pin_x, pin_y) in enumerate(pins):
-        python = place_local_to_world(pin_x, pin_y, comp_x, comp_y, angle_rad)
-        assert rust_flat[2 * i] == pytest.approx(python[0], abs=1e-9), (angle_deg, (pin_x, pin_y))
-        assert rust_flat[2 * i + 1] == pytest.approx(python[1], abs=1e-9), (
-            angle_deg,
-            (pin_x, pin_y),
+@pytest.mark.parametrize("offset", _EXHAUSTIVE_OFFSETS)
+def test_rotate_world_to_local_bit_exact_finite_angle_set(angle_deg, offset):
+    x, y = offset
+    theta = math.radians(angle_deg)
+    got = rotate_world_to_local(x, y, theta)
+    expected = _oracle_rotate_world_to_local(x, y, theta)
+    _assert_bit_exact(got, expected, f"rotate_world_to_local({x}, {y}, {angle_deg}deg)")
+    got_deg = rotate_world_to_local_deg(x, y, angle_deg)
+    _assert_bit_exact(got_deg, expected, f"rotate_world_to_local_deg({x}, {y}, {angle_deg})")
+
+
+@pytest.mark.parametrize("angle_deg", _FINITE_ANGLE_SET_DEG)
+@pytest.mark.parametrize("offset", _EXHAUSTIVE_OFFSETS)
+@pytest.mark.parametrize("comp", _COMP_POSITIONS)
+def test_place_local_to_world_bit_exact_finite_angle_set(angle_deg, offset, comp):
+    lx, ly = offset
+    ox, oy = comp
+    theta = math.radians(angle_deg)
+    got = place_local_to_world(lx, ly, ox, oy, theta)
+    expected = _oracle_place_local_to_world(lx, ly, ox, oy, theta)
+    _assert_bit_exact(
+        got, expected, f"place_local_to_world({lx}, {ly}, {ox}, {oy}, {angle_deg}deg)"
+    )
+
+
+@pytest.mark.parametrize("angle_deg", _FINITE_ANGLE_SET_DEG)
+def test_shapely_rotation_angle_bit_exact_finite_angle_set(angle_deg):
+    assert shapely_rotation_angle_deg(angle_deg).hex() == (
+        _oracle_shapely_rotation_angle_deg(angle_deg).hex()
+    )
+
+
+# ---------------------------------------------------------------------------
+# Randomized bit-exact parity (G2): seeded PRNG sweep over board-scale and
+# extreme magnitudes. cos/sin are resolved through the host process's libm
+# on the Rust side, so even transcendental angles must match bit-for-bit.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("seed", range(40))
+def test_random_bit_exact_parity(seed):
+    rng = random.Random(seed * 104729 + 7)
+    for _ in range(30):
+        theta_rad = rng.uniform(-4 * math.pi, 4 * math.pi)
+        x = rng.uniform(-50.0, 50.0)
+        y = rng.uniform(-50.0, 50.0)
+        ox = rng.uniform(-200.0, 200.0)
+        oy = rng.uniform(-200.0, 200.0)
+        _assert_bit_exact(
+            rotate_local_to_world(x, y, theta_rad),
+            _oracle_rotate_local_to_world(x, y, theta_rad),
+            f"rl2w(seed {seed}, θ={theta_rad})",
         )
-
-
-def test_matches_batch():
-    comp_x, comp_y = 0.0, 0.0
-    angle_rad = math.radians(37.0)
-    pins = [(1.0, 0.0), (0.0, 1.0), (-3.0, 4.0), (2.5, -6.5)]
-    flat = [c for p in pins for c in p]
-    rust_flat = transform_pin_positions(flat, comp_x, comp_y, angle_rad)
-    for i, (px, py) in enumerate(pins):
-        python = place_local_to_world(px, py, comp_x, comp_y, angle_rad)
-        assert rust_flat[2 * i] == pytest.approx(python[0], abs=1e-9)
-        assert rust_flat[2 * i + 1] == pytest.approx(python[1], abs=1e-9)
+        _assert_bit_exact(
+            rotate_world_to_local(x, y, theta_rad),
+            _oracle_rotate_world_to_local(x, y, theta_rad),
+            f"rw2l(seed {seed}, θ={theta_rad})",
+        )
+        _assert_bit_exact(
+            place_local_to_world(x, y, ox, oy, theta_rad),
+            _oracle_place_local_to_world(x, y, ox, oy, theta_rad),
+            f"pl2w(seed {seed}, θ={theta_rad})",
+        )
+        theta_deg = rng.uniform(-720.0, 720.0)
+        assert shapely_rotation_angle_deg(theta_deg).hex() == (
+            _oracle_shapely_rotation_angle_deg(theta_deg).hex()
+        ), f"sra(seed {seed}, θ={theta_deg})"
 
 
 @pytest.mark.parametrize("seed", range(20))
-def test_random_property(seed):
-    rng = random.Random(seed * 7919 + 1)
-    angle_rad = rng.uniform(-4 * math.pi, 4 * math.pi)
-    px, py = rng.uniform(-50, 50), rng.uniform(-50, 50)
-    cx, cy = rng.uniform(-200, 200), rng.uniform(-200, 200)
+def test_random_degree_wrappers_bit_exact(seed):
+    rng = random.Random(seed * 7919 + 3)
+    for _ in range(20):
+        theta_deg = rng.uniform(-720.0, 720.0)
+        x = rng.uniform(-100.0, 100.0)
+        y = rng.uniform(-100.0, 100.0)
+        _assert_bit_exact(
+            rotate_local_to_world_deg(x, y, theta_deg),
+            _oracle_rotate_local_to_world_deg(x, y, theta_deg),
+            f"rl2wd(seed {seed}, θ={theta_deg})",
+        )
+        _assert_bit_exact(
+            rotate_world_to_local_deg(x, y, theta_deg),
+            _oracle_rotate_world_to_local_deg(x, y, theta_deg),
+            f"rw2ld(seed {seed}, θ={theta_deg})",
+        )
 
-    rust = transform_pin_position(px, py, cx, cy, angle_rad)
-    python_rx, python_ry = rotate_local_to_world(px, py, angle_rad)
-    python = (cx + python_rx, cy + python_ry)
 
-    assert rust[0] == pytest.approx(python[0], abs=1e-9)
-    assert rust[1] == pytest.approx(python[1], abs=1e-9)
+# ---------------------------------------------------------------------------
+# Crafted edge cases (G2): NaN / ±inf / signed zero / denormals / extremes.
+# The oracle and the kernel must agree bit-for-bit including the NaN and
+# signed-zero conventions.
+# ---------------------------------------------------------------------------
+
+_NUMERIC_EDGES = (
+    -0.0,
+    0.0,
+    1.0,
+    -1.0,
+    5e-324,          # smallest subnormal
+    2.2250738585072014e-308,  # largest subnormal
+    2.2250738585072014e-308 * 2.0,  # smallest normal
+    1e-300,
+    1e-18,
+    1e-10,
+    123456789.123,
+    -123456789.123,
+    1e200,
+    1e308,
+    -1e308,
+    float("inf"),
+    float("-inf"),
+    float("nan"),
+)
+
+_THETA_EDGES = (
+    -0.0,
+    0.0,
+    math.pi / 2,
+    math.pi,
+    3 * math.pi / 2,
+    -math.pi / 2,
+    2 * math.pi,
+    -2 * math.pi,
+    1e-300,
+    1e-12,
+    0.1,
+    -0.1,
+    1e6,
+    -1e6,
+    float("inf"),
+    float("-inf"),
+    float("nan"),
+)
+
+
+@pytest.mark.parametrize("x", _NUMERIC_EDGES)
+@pytest.mark.parametrize("y", _NUMERIC_EDGES)
+@pytest.mark.parametrize("theta_rad", _THETA_EDGES)
+def test_rotate_local_to_world_edge_cases_bit_exact(x, y, theta_rad):
+    _assert_bit_exact(
+        rotate_local_to_world(x, y, theta_rad),
+        _oracle_rotate_local_to_world(x, y, theta_rad),
+        f"rl2w edges ({x!r}, {y!r}, {theta_rad!r})",
+    )
+
+
+@pytest.mark.parametrize("x", _NUMERIC_EDGES)
+@pytest.mark.parametrize("y", _NUMERIC_EDGES)
+@pytest.mark.parametrize("theta_rad", _THETA_EDGES)
+def test_rotate_world_to_local_edge_cases_bit_exact(x, y, theta_rad):
+    _assert_bit_exact(
+        rotate_world_to_local(x, y, theta_rad),
+        _oracle_rotate_world_to_local(x, y, theta_rad),
+        f"rw2l edges ({x!r}, {y!r}, {theta_rad!r})",
+    )
+
+
+@pytest.mark.parametrize("lx", _NUMERIC_EDGES[:12])  # finite only: inf/nan origins
+@pytest.mark.parametrize("ly", _NUMERIC_EDGES[:12])
+@pytest.mark.parametrize("ox", _NUMERIC_EDGES[:12])
+@pytest.mark.parametrize("oy", _NUMERIC_EDGES[:12])
+@pytest.mark.parametrize("theta_rad", _THETA_EDGES[:10])  # finite + zero thetas
+def test_place_local_to_world_edge_cases_bit_exact(lx, ly, ox, oy, theta_rad):
+    _assert_bit_exact(
+        place_local_to_world(lx, ly, ox, oy, theta_rad),
+        _oracle_place_local_to_world(lx, ly, ox, oy, theta_rad),
+        f"pl2w edges ({lx!r}, {ly!r}, {ox!r}, {oy!r}, {theta_rad!r})",
+    )
+
+
+@pytest.mark.parametrize("theta_deg", (-0.0, 0.0, -1e-300, 1e-300, 90.0, 360.0, -720.0, float("nan")))
+def test_shapely_rotation_angle_edge_cases_bit_exact(theta_deg):
+    assert shapely_rotation_angle_deg(theta_deg).hex() == (
+        _oracle_shapely_rotation_angle_deg(theta_deg).hex()
+    ), f"sra edge ({theta_deg!r})"
+
+
+# ---------------------------------------------------------------------------
+# The pre-existing separate copy in transform.rs (`transform_pin_position`).
+# It is intentionally NOT bit-exact with the shim: it uses the plain
+# statically-bound `f64::cos`/`f64::sin` (B1: can differ from the host
+# runtime's libm by 1 ulp), and it is kept for the crate's own consumers,
+# not the KiCad I/O paths. The historical tolerance pin stays: the two must
+# never drift by more than float noise, so a sign flip in either is still
+# caught.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("angle_deg", _FINITE_ANGLE_SET_DEG)
+@pytest.mark.parametrize("offset", _EXHAUSTIVE_OFFSETS)
+@pytest.mark.parametrize("comp", _COMP_POSITIONS)
+def test_transform_pin_position_consistency(angle_deg, offset, comp):
+    """``transform.rs::transform_pin_position`` stays within float noise of
+    the shim's ``place_local_to_world`` (same R(-theta) convention). A sign
+    flip in either copy fails here (the anchors at 90/270 with asymmetric
+    offsets differ by O(1) between the two conventions)."""
+    lx, ly = offset
+    ox, oy = comp
+    theta = math.radians(angle_deg)
+    rust = transform_pin_position(lx, ly, ox, oy, theta)
+    python = place_local_to_world(lx, ly, ox, oy, theta)
+    assert rust[0] == pytest.approx(python[0], abs=1e-9), (angle_deg, offset, comp)
+    assert rust[1] == pytest.approx(python[1], abs=1e-9), (angle_deg, offset, comp)
+
+
+@pytest.mark.parametrize("angle_deg", _FINITE_ANGLE_SET_DEG)
+def test_transform_pin_positions_batch_consistency(angle_deg):
+    theta = math.radians(angle_deg)
+    comp = _COMP_POSITIONS[0]
+    flat = [c for p in _EXHAUSTIVE_OFFSETS for c in p]
+    rust_flat = transform_pin_positions(flat, comp[0], comp[1], theta)
+    for i, (lx, ly) in enumerate(_EXHAUSTIVE_OFFSETS):
+        python = place_local_to_world(lx, ly, comp[0], comp[1], theta)
+        assert rust_flat[2 * i] == pytest.approx(python[0], abs=1e-9), (angle_deg, (lx, ly))
+        assert rust_flat[2 * i + 1] == pytest.approx(python[1], abs=1e-9), (angle_deg, (lx, ly))
