@@ -317,7 +317,7 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     layer_assignment::register(m)?;
 
     // Wave-4: the router_v6 terminal-tree slice (terminal_extraction,
-    // terminal_tree, path_simplify).
+    // terminal_tree).
     terminal_planning::register(m)?;
     // Wave-4: the router_v6 Theta* cluster (_astar_theta_star).
     theta_star::register(m)?;

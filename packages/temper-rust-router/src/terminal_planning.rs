@@ -1,18 +1,18 @@
-//! Wave-4 terminal-tree slice: `router_v6/terminal_extraction`,
-//! `router_v6/terminal_tree`, and `router_v6/path_simplify` in Rust.
+//! Wave-4 terminal-tree slice: `router_v6/terminal_extraction` and
+//! `router_v6/terminal_tree` in Rust.
 //!
-//! Mirrors, bit for bit, the three pinned Python oracles:
+//! Mirrors, bit for bit, the two pinned Python oracles:
 //! `packages/temper-placer/tests/router_v6/_terminal_extraction_py_oracle.py`,
-//! `_terminal_tree_py_oracle.py`, `_path_simplify_py_oracle.py` -- each a
+//! `_terminal_tree_py_oracle.py` -- each a
 //! verbatim `git show` extraction of its module at
 //! `550cab2a3a0fcfd4a6c29063d30d3a83837ebcb5` (`origin/main`), which is
 //! character-identical to `origin/main` at the time this module was written
-//! (`git diff 550cab2a3a HEAD -- .../{terminal_extraction,terminal_tree,path_simplify}.py`
+//! (`git diff 550cab2a3a HEAD -- .../{terminal_extraction,terminal_tree}.py`
 //! is empty).
 //!
 //! Why this crate
 //! --------------
-//! All three modules are Router V6 topology/export planning, not shared
+//! Both modules are Router V6 topology/export planning, not shared
 //! geometry primitives -- `temper-rust-router` already owns
 //! `net_ordering.rs`, the closest sibling kernel (also a total-order
 //! comparator over router-local data), so this module follows the same
@@ -23,11 +23,6 @@
 //!
 //! Semantics that are NOT the obvious Rust ones
 //! ---------------------------------------------
-//! * `path_simplify.py`'s `GridCell` is all-`int` (`x`, `y`, `layer`) --
-//!   every comparison is exact and total, so [`simplify_path`] and
-//!   [`is_collinear`] need none of the float/NaN care the other two
-//!   kernels do. The one thing that DOES matter is iterating `cells` in
-//!   order and appending to a plain `Vec` -- never routing through a set.
 //! * `terminal_tree.py::plan_terminal_tree` builds `remaining = set(...)`
 //!   and iterates `connected`/`remaining` as Python `set`s (hash-order
 //!   dependent, PEP 456 salted per process) -- but the `min(key=...)`
@@ -70,70 +65,6 @@ use std::collections::HashMap;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyAny;
-
-// ===========================================================================
-// path_simplify.py
-// ===========================================================================
-
-/// `GridCell` -- all-`int` (`x`, `y`, `layer`), matching
-/// `router_v6/grid_converter.py`'s dataclass exactly.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct GridCell {
-    x: i64,
-    y: i64,
-    layer: i64,
-}
-
-/// `path_simplify.is_collinear`.
-fn is_collinear(p1: GridCell, p2: GridCell, p3: GridCell) -> bool {
-    if !(p1.layer == p2.layer && p2.layer == p3.layer) {
-        return false;
-    }
-    if p1.y == p2.y && p2.y == p3.y {
-        return true;
-    }
-    p1.x == p2.x && p2.x == p3.x
-}
-
-/// `path_simplify.simplify_path`.
-fn simplify_path(cells: &[GridCell]) -> Vec<GridCell> {
-    if cells.len() <= 2 {
-        return cells.to_vec();
-    }
-
-    let mut simplified: Vec<GridCell> = Vec::with_capacity(cells.len());
-    simplified.push(cells[0]);
-
-    for i in 1..cells.len() - 1 {
-        let prev = cells[i - 1];
-        let curr = cells[i];
-        let next_cell = cells[i + 1];
-
-        if curr.layer != prev.layer || curr.layer != next_cell.layer {
-            simplified.push(curr);
-            continue;
-        }
-
-        if !is_collinear(prev, curr, next_cell) {
-            simplified.push(curr);
-        }
-    }
-
-    simplified.push(cells[cells.len() - 1]);
-    simplified
-}
-
-/// `path_simplify.estimate_segment_count`.
-fn estimate_segment_count(cells: &[GridCell]) -> usize {
-    let simplified = simplify_path(cells);
-    let mut segment_count = 0usize;
-    for i in 1..simplified.len() {
-        if simplified[i].layer == simplified[i - 1].layer {
-            segment_count += 1;
-        }
-    }
-    segment_count
-}
 
 // ===========================================================================
 // terminal_tree.py
@@ -499,34 +430,6 @@ fn extract_net_terminals(
 // PyO3 surface
 // ===========================================================================
 
-/// `path_simplify.is_collinear`.
-#[pyfunction]
-pub fn is_collinear_py(p1: (i64, i64, i64), p2: (i64, i64, i64), p3: (i64, i64, i64)) -> bool {
-    is_collinear(cell_from_tuple(p1), cell_from_tuple(p2), cell_from_tuple(p3))
-}
-
-/// `path_simplify.simplify_path`.
-#[pyfunction]
-pub fn simplify_path_py(cells: Vec<(i64, i64, i64)>) -> Vec<(i64, i64, i64)> {
-    let cells: Vec<GridCell> = cells.into_iter().map(cell_from_tuple).collect();
-    simplify_path(&cells).into_iter().map(cell_to_tuple).collect()
-}
-
-/// `path_simplify.estimate_segment_count`.
-#[pyfunction]
-pub fn estimate_segment_count_py(cells: Vec<(i64, i64, i64)>) -> usize {
-    let cells: Vec<GridCell> = cells.into_iter().map(cell_from_tuple).collect();
-    estimate_segment_count(&cells)
-}
-
-fn cell_from_tuple(t: (i64, i64, i64)) -> GridCell {
-    GridCell { x: t.0, y: t.1, layer: t.2 }
-}
-
-fn cell_to_tuple(c: GridCell) -> (i64, i64, i64) {
-    (c.x, c.y, c.layer)
-}
-
 type IdentityTuple = (String, String, String, f64, f64, Vec<i64>);
 type PadWire = (String, String, String, f64, f64, Vec<i64>, f64, f64);
 
@@ -652,9 +555,6 @@ pub fn extract_net_terminals_py(
 }
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(is_collinear_py, m)?)?;
-    m.add_function(wrap_pyfunction!(simplify_path_py, m)?)?;
-    m.add_function(wrap_pyfunction!(estimate_segment_count_py, m)?)?;
     m.add_function(wrap_pyfunction!(plan_terminal_tree_py, m)?)?;
     m.add_function(wrap_pyfunction!(extract_net_terminals_py, m)?)?;
     Ok(())
@@ -663,39 +563,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    fn cell(x: i64, y: i64, layer: i64) -> GridCell {
-        GridCell { x, y, layer }
-    }
-
-    #[test]
-    fn collinear_horizontal_vertical_and_layer_mismatch() {
-        assert!(is_collinear(cell(0, 0, 0), cell(1, 0, 0), cell(2, 0, 0)));
-        assert!(is_collinear(cell(0, 0, 0), cell(0, 1, 0), cell(0, 2, 0)));
-        assert!(!is_collinear(cell(0, 0, 0), cell(1, 0, 0), cell(1, 1, 0)));
-        assert!(!is_collinear(cell(0, 0, 1), cell(1, 0, 0), cell(2, 0, 0)));
-    }
-
-    #[test]
-    fn simplify_path_collapses_straight_line_keeps_corner() {
-        let straight = vec![cell(0, 0, 0), cell(1, 0, 0), cell(2, 0, 0)];
-        assert_eq!(simplify_path(&straight), vec![cell(0, 0, 0), cell(2, 0, 0)]);
-
-        let corner = vec![cell(0, 0, 0), cell(1, 0, 0), cell(1, 1, 0)];
-        assert_eq!(simplify_path(&corner), corner);
-
-        let layer_change = vec![cell(0, 0, 0), cell(1, 0, 0), cell(1, 0, 1)];
-        assert_eq!(simplify_path(&layer_change), layer_change);
-    }
-
-    #[test]
-    fn estimate_segment_count_skips_layer_transitions() {
-        let via_chain = vec![cell(0, 0, 0), cell(0, 0, 1), cell(0, 0, 2)];
-        assert_eq!(estimate_segment_count(&via_chain), 0);
-
-        let straight = vec![cell(0, 0, 0), cell(1, 0, 0), cell(2, 0, 0)];
-        assert_eq!(estimate_segment_count(&straight), 1);
-    }
 
     fn pad(component_ref: &str, index: i64, x: f64, y: f64) -> TreePad {
         TreePad {
