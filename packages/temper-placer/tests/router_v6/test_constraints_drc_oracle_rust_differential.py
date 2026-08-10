@@ -55,6 +55,7 @@ from typing import TYPE_CHECKING, Literal
 import pytest
 
 from temper_placer.core.board import PLANE_LAYER_INDICES, LayerIndex
+from temper_placer.router_v6 import constraints_drc_oracle as SHIM
 from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix
 from temper_placer.router_v6.constraints_geometry import (
     LineSegment,
@@ -70,7 +71,6 @@ from temper_placer.router_v6.constraints_spatial_index import (
     Track,
     Via,
 )
-from temper_placer.router_v6 import constraints_drc_oracle as SHIM
 from tests.router_v6._signature import sig
 
 if TYPE_CHECKING:

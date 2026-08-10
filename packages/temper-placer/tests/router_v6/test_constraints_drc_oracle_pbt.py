@@ -116,7 +116,7 @@ def _make_oracle():
 # Strategy helpers
 # ---------------------------------------------------------------------------
 
-_FIN = dict(allow_nan=False, allow_infinity=False, width=64)
+_FIN = {"allow_nan": False, "allow_infinity": False, "width": 64}
 
 
 @st.composite
