@@ -49,7 +49,6 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(feasibility::zone_over_capacity, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::loop_area_violation, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::isolation_barrier_too_large, m)?)?;
-    m.add_function(wrap_pyfunction!(feasibility::builtin_sum, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::derive_emi_max_dist, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::derive_thermal_clearance, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::derive_si_max_placement_dist, m)?)?;

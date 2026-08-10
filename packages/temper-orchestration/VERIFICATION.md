@@ -15,7 +15,7 @@ differential oracles.
 | `temper_placer/cli/trace_commands.py` | 107 | `filter_decisions` (the `why` subject filter), `find_rejected_alternative` (the `why_not` nested scan) | `trace_filter.rs` | MIGRATE (compute) — the click surface stays Python; the `report` command stays Python (reconstructs `core.decision` objects, calls `pipeline.explainability` — other slices) |
 | `temper_workflow/routing/route_and_measure.py` | 96 | `measure_copper_length` (per-trace Euclidean accumulation) | `copper_length.rs` | MIGRATE (compute) — the `parse_kicad_pcb` call (Phase-3 `io/` surface) and the script `main()` (argparse, exit codes, file handling) stay Python |
 | `temper_placer/pipeline/convergence.py` | 391 | `record_loss`, `check_success`, `is_converged`, `check_routability_regression` (the net-set decision + state update) | `feasibility.rs` | MIGRATE (compute) — the `ConvergenceCriteria`/`ConvergenceState` dataclasses, the `ConvergenceChecker` class orchestration, time-based checks and the failure-message f-string rendering stay Python |
-| `temper_placer/pipeline/preflight.py` | 286 | `component_area_ratio`, `proximity_rule_impossible`, `zone_over_capacity`, `loop_area_violation`, `isolation_barrier_too_large`, `builtin_sum` | `feasibility.rs` | MIGRATE (compute) — `PreflightChecker.run` orchestration, the `len(k) == 4` / zone-name / ref-membership marshalling, the `PreflightReport` rendering and the constant/stub checks stay Python |
+| `temper_placer/pipeline/preflight.py` | 286 | `component_area_ratio`, `proximity_rule_impossible`, `zone_over_capacity`, `loop_area_violation`, `isolation_barrier_too_large` (the compensated product sum is the internal `py_builtin_sum`/`sum_product_areas_impl`, deliberately NOT a standalone export) | `feasibility.rs` | MIGRATE (compute) — `PreflightChecker.run` orchestration, the `len(k) == 4` / zone-name / ref-membership marshalling, the `PreflightReport` rendering and the constant/stub checks stay Python |
 | `temper_placer/pipeline/derivation.py` | 118 | `derive_emi_max_dist`, `derive_thermal_clearance`, `derive_si_max_placement_dist`, `mains_voltage_to_class_code`, `extract_min_clearance` | `feasibility.rs` | MIGRATE (compute) — the dict assembly, the code-to-`VoltageClass` mapping and the PCL `SeparatedConstraint` construction stay Python |
 | `temper_placer/cli/drc_cli.py` | 319 | — | — | R3-style record (below) |
 | `temper_placer/cli/watch_commands.py` | 115 | — | — | R3-style record (below) |
@@ -204,8 +204,13 @@ pinned by measurement or identity:
    `f_result += (double)0` no-op branch, so the mixed sequence sums exactly
    like the float products alone in order — pinned by the module-level
    `PreflightChecker.run` differential with a real mixed-length keepout list,
-   and `builtin_sum` is pinned directly against the builtin (incl. the
-   `sum([]) == int 0` type).
+   and by `test_compensated_summation_matches_python_sum` (the
+   `1e16 + 1 - 1e16` naive-vs-compensated discriminator plus 120 randomized
+   is_converged pairs against a Python `sum()`-based reference). The helper
+   is internal (`py_builtin_sum`) rather than an exported pyfunction — no
+   production path needs a raw sum exposed, and the unwired-kernel gate
+   rejects inert exports; its unit tests pin the `-0.0` seed and the
+   non-finite compensation guard directly.
 2. **CPython `min`/`max` positional semantics.** `py_min` is
    `if b < a { b } else { a }`, keeping the first argument on ties and NaN
    (proximity min-spacing, isolation `min(w, h)`), never `f64::min`.

@@ -7,7 +7,7 @@ Wave 4, pipeline slice: the feasibility/check compute of
 ``check_success`` / ``is_converged`` / ``check_routability_regression`` /
 ``component_area_ratio`` / ``proximity_rule_impossible`` /
 ``zone_over_capacity`` / ``loop_area_violation`` /
-``isolation_barrier_too_large`` / ``builtin_sum`` / ``derive_emi_max_dist`` /
+``isolation_barrier_too_large`` / ``derive_emi_max_dist`` /
 ``derive_thermal_clearance`` / ``derive_si_max_placement_dist`` /
 ``mains_voltage_to_class_code`` / ``extract_min_clearance``). The Python
 modules keep their full public API (dataclasses, enums, the
@@ -31,8 +31,10 @@ Numerical traps pinned here:
   float fast path's ``f_result += (double)value`` no-op branch, so the mixed
   sequence sums exactly like the float products alone, in order — the
   module-level ``PreflightChecker.run`` differential pins this with a
-  real mixed-length keepout list, and ``builtin_sum`` is pinned directly
-  against the builtin.
+  real mixed-length keepout list, and ``test_compensated_summation_matches_python_sum``
+  pins the compensated length sums through ``is_converged`` (the
+  ``1e16 + 1 - 1e16`` naive-vs-compensated discriminator plus randomized
+  pairs against a Python ``sum()``-based reference).
 - CPython ``min(a, b)`` is first-argument-kept: asymmetric on NaN and ties
   (catalog B5-adjacent) — the proximity and isolation kernels replicate it.
 - ``check_routability_regression`` is a stateful decision over net-set
@@ -70,7 +72,6 @@ RS_PROXIMITY_RULE = _to.proximity_rule_impossible
 RS_ZONE_OVER_CAPACITY = _to.zone_over_capacity
 RS_LOOP_AREA_VIOLATION = _to.loop_area_violation
 RS_ISOLATION_BARRIER = _to.isolation_barrier_too_large
-RS_BUILTIN_SUM = _to.builtin_sum
 RS_DERIVE_EMI = _to.derive_emi_max_dist
 RS_DERIVE_THERMAL = _to.derive_thermal_clearance
 RS_DERIVE_SI = _to.derive_si_max_placement_dist
@@ -341,24 +342,41 @@ def test_is_converged_bit_exact(current, previous):
     _assert_is_converged(current, previous)
 
 
-def test_builtin_sum_matches_python_sum() -> None:
-    """B12 direct pin: the compensated helper vs the builtin sum()."""
+def test_compensated_summation_matches_python_sum() -> None:
+    """B12 direct pin through the composite kernel: `is_converged`'s length
+    sums must behave exactly like Python's compensated builtin `sum()` —
+    including the classic naive-vs-compensated discriminator — so a kernel
+    that silently regressed to naive addition diverges.
+
+    The compensated helper itself (`py_builtin_sum`) is internal (not an
+    exported pyfunction — the unwired-kernel gate rejects inert exports); its
+    unit tests pin the `0 + first` -0.0 seed and the non-finite compensation
+    guard directly, and the preflight keepout run pins the mixed int-0/float
+    product-sum semantics at the module level.
+    """
+    # (1e16 + 1.0) - 1e16 == 1.0 exactly under compensated summation; naive
+    # addition would lose the 1.0 and answer 0.0, flipping the outcome.
+    current = [(False, 1.0e16), (False, 1.0), (False, -1.0e16)]
+    previous = [(False, 1.0e16), (False, 0.0), (False, -1.0e16)]
+    # Python's compensated sum(): curr_len 1.0 vs prev_len 0.0 -> NOT converged.
+    assert _ref_is_converged(current, previous) is False
+    assert RS_IS_CONVERGED(current, previous) is False
+    # identical pair lists -> converged under compensated summation.
+    assert _ref_is_converged(current, current) is True
+    assert RS_IS_CONVERGED(current, current) is True
+
     rng = random.Random(20260809)
-    values = [[rng.uniform(-1e6, 1e6) for _ in range(rng.randint(0, 12))] for _ in range(40)]
-    values += [
-        [],
-        [3.5],
-        [-0.0],
-        [-0.0, -0.0],
-        [1e16, 1.0, -1e16],
-        [1e308, 1e308, -1e308],
-    ]
-    for vs in values:
-        ref = canon(sum(vs))
-        got = canon(RS_BUILTIN_SUM(vs))
-        assert ref == got, f"builtin_sum mismatch for {vs!r}\n  ref={ref}\n  got={got}"
-    # single-element negative zero: CPython seeds `0 + (-0.0)` = +0.0
-    assert RS_BUILTIN_SUM([-0.0]).hex() == sum([-0.0]).hex() == (0.0).hex()
+    for _ in range(120):
+        n = rng.randint(1, 8)
+        current = [(False, rng.uniform(0.0, 1e12)) for _ in range(n)]
+        delta = rng.uniform(-1.0, 1.0)
+        previous = [(False, length + delta) for _, length in current]
+        ref = _ref_is_converged(current, previous)
+        got = RS_IS_CONVERGED(current, previous)
+        assert ref == got, (
+            f"compensated length sum diverged for current={current!r} previous={previous!r}\n"
+            f"  ref={ref}\n  got={got}"
+        )
 
 
 # ---------------------------------------------------------------------------

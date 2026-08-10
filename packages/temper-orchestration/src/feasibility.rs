@@ -83,21 +83,14 @@ pub fn py_builtin_sum(a: &[f64]) -> f64 {
     }
 }
 
-/// `sum_product_areas_impl` as an exported pyfunction — direct pin of the
-/// catalog-B12 compensated product sum against Python's builtin `sum()`.
-///
-/// CPython parity trap: `sum([])` returns the *integer* `0` (start is `0`),
-/// not `0.0` — the return carries Python's exact type.
-#[pyfunction]
-pub fn builtin_sum(py: Python<'_>, values: Vec<f64>) -> PyResult<Py<PyAny>> {
-    if values.is_empty() {
-        return Ok(0i64.into_pyobject(py)?.into_any().unbind());
-    }
-    Ok(py_builtin_sum(&values).into_pyobject(py)?.into_any().unbind())
-}
-
 /// `sum(w * h for (w, h) in dims)` — the compensated product sum used by the
 /// preflight area / zone / loop / isolation checks.
+///
+/// Not exported as a standalone `#[pyfunction]`: no production path needs a
+/// raw sum exposed, and the unwired-kernel gate would reject an inert export
+/// (the compensated semantics are pinned by the Rust unit tests below and by
+/// the composite-kernel differentials — `is_converged`'s `1e16 + 1 - 1e16`
+/// case and the preflight mixed-int-keepout run).
 fn sum_product_areas_impl(dims: &[(f64, f64)]) -> f64 {
     let products: Vec<f64> = dims.iter().map(|(w, h)| w * h).collect();
     py_builtin_sum(&products)
