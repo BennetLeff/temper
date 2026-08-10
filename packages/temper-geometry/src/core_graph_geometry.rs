@@ -444,6 +444,17 @@ pub fn graph_batch_concat_py(
     .map_err(temper_py_bridge::panic_to_err)?
 }
 
+/// `Coo @ other` — sparse matrix-vector product.
+///
+/// Wave-4 marshalling migration: pyo3's ``extract`` already handles numpy
+/// arrays -> ``Vec`` natively, so the Python-side ``.tolist()`` /
+/// ``[float(d) for d in ...]`` marshalling is eliminated -- the Python shim
+/// passes numpy arrays directly and pyo3 extracts to Vec on the Rust side
+/// without an intermediate Python list allocation.
+///
+/// ``data`` is extracted as ``Vec<f64>``; int numpy arrays are extracted as
+/// ``Vec<i64>`` and cast to f64, matching the oracle's
+/// ``data.astype(np.float64)``.
 #[cfg(feature = "python")]
 #[pyfunction]
 pub fn hypergraph_coo_matvec_py(
