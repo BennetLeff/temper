@@ -1593,3 +1593,93 @@ trigger firing.
   test binaries — the same pre-existing constraint as `drc_marshal::tests`).
 - Every pyo3 entry point is wrapped in `guard()` (`catch_unwind`); no
   `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
+
+# Phase-A U9 — typed DRC-feedback wire types (`violation_contracts.rs`) — Verification
+
+Rust-orchestration-engine plan (2026-08-09-001), Phase A unit U9: the
+wire-format types of `deterministic/feedback/{violation_mapper,drc_parser}.py`
+become typed pyclasses in this crate.
+
+## What was migrated
+
+| Python wire type | Rust type (this crate) | Python name |
+|---|---|---|
+| `DRCViolation` dataclass (feedback/violation_mapper.py) | `violation_contracts::Violation` | `Violation` |
+| `list[DRCViolation]` — `parse_kicad_drc` return (feedback/drc_parser.py) | `violation_contracts::DrcReport` | `DrcReport` |
+
+The `DRCViolation` name is preserved on the Python side as an alias
+(`feedback/violation_mapper.DRCViolation = _tdrc.Violation`), so the public
+API (`__init__.py` exports, the mapper's argument type, the oracle files)
+is unchanged.
+
+## What stays Python (and where the compute lives)
+
+The dict-traversal / clearance-regex compute (`process_drc_violation`,
+`map_violation_kernel`) remains in
+`temper_design_bundle_python.deterministic_hubs` (Wave-4 Phase 5 kernels,
+outside this unit's file ownership — `Violation` is the wire type those
+kernels' tuple output is marshalled into). `MappedViolation` (the mapper's
+zone/component output with live Python-side `zone_config`) also stays Python.
+
+## Structural proof (bit-identical parity)
+
+- **`Violation`** reproduces the mutable dataclass's full field surface:
+  `type`/`severity`/`description` are pass-through `Py<PyAny>` handles (the
+  parse kernel's documented non-str contract: `{"type": 5}` stays `5`);
+  `pos` preserves int-vs-float coordinates (the kernel's pass-through
+  contract, pinned by `test_int_pos_preserved`); `items` is the ordered
+  per-item description list; `required`/`actual` are the clearance floats.
+  All fields are settable — the pre-migration parser assigned `required`/
+  `actual` AFTER construction (`drc_v.required = float(...)`), so the pyclass
+  must accept the same mutation.
+- **`DrcReport`** is the typed container `parse_kicad_drc` returns with
+  list-compatible `__len__`/`__bool__`/`__iter__`, so the feedback
+  orchestrator's `if not raw_violations` / `len(raw_violations)` /
+  `[mapper.map_violation(v) for v in raw_violations]` consumption is
+  unchanged; iteration yields the contained `Violation` pyclasses.
+
+## Empirical verification
+
+- **G1/G2 differential** —
+  `tests/deterministic/test_violation_report_rust_differential.py`
+  (committed RED before the types landed, then GREEN): `Violation` vs the
+  pinned `_OracleDRCViolation` dataclass on the full field surface (defaults,
+  int-pos preservation, non-str pass-through, post-construction mutation);
+  the shim `_process_raw_violation` → typed `Violation` vs the pinned
+  `_oracle_process_raw_violation`; `DrcReport` + `parse_kicad_drc` vs the
+  pinned `_oracle_parse_kicad_drc` (violations-then-unconnected merge order,
+  empty-report semantics).
+- **G4 PBT** — `tests/deterministic/test_violation_report_pbt.py`: 6
+  properties (P1 totality + typed return, P2 shim↔oracle bit-parity, P3
+  defaults, P4 items-in-order, P5 clearance extraction bit-exact on both
+  pattern orders, P6 DrcReport container semantics), each with a
+  `test_pN_fails_for_<mutant>` vacuity guard patching a Python-level seam
+  (`_process_raw_violation`, `DrcReport.__iter__`), with a module→property
+  map in the file docstring.
+- **G5 metamorphic** — 4 relations in the same file: MR1 extraneous-key
+  independence, MR2 plain-description → clearance stays None, MR3
+  single-pos item-order invariance, MR4 report iteration/`.violations`
+  construction-order preservation.
+- **G6 induction** — N/A: data-only wire types, no recursive computation.
+- **G8 physics discipline** — N/A: pure marshalling, no physics quantity.
+
+## R1g Rust bar
+
+- `cargo clippy --all-features --all-targets -- -D warnings` clean (module
+  compiles under the `python` feature; default-features build unaffected).
+- `cargo test -p temper-drc-rs` (default features): 1750 tests green; the
+  module's pyo3 surface is exercised by the differential/PBT suites (the
+  `extension-module` feature leaves libpython unlinked in test binaries, the
+  same pre-existing constraint as `drc_marshal::tests`).
+- No `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
+
+## Documented deviations (per R1, recorded here)
+
+- `Violation.__repr__` renders the pre-migration class name
+  (`DRCViolation(...)`) to keep debug output stable for consumers that parse
+  reprs; the class name on the Python side is `Violation` (the alias
+  `DRCViolation` is a Python binding, not a class name).
+- The pyclass getters materialize fresh Python tuples for `pos` and a fresh
+  list for `items` per call (a pyclass cannot return live references to its
+  owned storage); identity of the *contained objects* (the int/float/str
+  values) is preserved.

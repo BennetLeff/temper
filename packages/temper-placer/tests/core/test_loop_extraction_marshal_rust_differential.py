@@ -37,6 +37,7 @@ from __future__ import annotations
 import json
 
 import temper_design_bundle_python as _tdb
+
 from tests.core._contract_canon import canon
 
 # Rust symbols under test -- must exist or this file fails to collect (RED).
@@ -57,7 +58,6 @@ from tests.core.test_loop_extractor_auto_extract_rust_differential import (  # n
     _RANDOM_CORPUS,
     _full_half_bridge,
 )
-
 
 # ---------------------------------------------------------------------------
 # Oracle 1 — _netlist_to_dict (loop_extractor_rs.py, verbatim)
@@ -312,11 +312,11 @@ def test_output_parse_applies_documented_defaults():
         _wire_result(loops=[{"name": "auto_x"}])
     )
     assert len(out.loops) == 1
-    l = out.loops[0]
-    assert list(l.components) == []
-    assert list(l.nets) == []
-    assert l.loop_type == "unknown"
-    assert _f(l.max_area_mm2) == _f(500.0)
+    loop = out.loops[0]
+    assert list(loop.components) == []
+    assert list(loop.nets) == []
+    assert loop.loop_type == "unknown"
+    assert _f(loop.max_area_mm2) == _f(500.0)
 
 
 # ---------------------------------------------------------------------------
@@ -331,13 +331,11 @@ def _loop_canon(loop):
         tuple(loop.nets),
         _f(loop.max_area_mm2),
         loop.priority,
-        tuple(
-            (
-                _f(loop.events.di_dt),
-                _f(loop.events.dv_dt),
-                _f(loop.events.frequency_hz),
-                _f(loop.events.peak_current_a),
-            )
+        (
+            _f(loop.events.di_dt),
+            _f(loop.events.dv_dt),
+            _f(loop.events.frequency_hz),
+            _f(loop.events.peak_current_a),
         ),
         loop.return_layer,
         loop.return_net,

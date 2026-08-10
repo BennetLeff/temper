@@ -49,7 +49,6 @@ from temper_placer.deterministic.feedback.drc_parser import (  # noqa: E402
     parse_kicad_drc,
 )
 
-
 # ---------------------------------------------------------------------------
 # Oracle 1 — DRCViolation dataclass (violation_mapper.py, verbatim)
 # ---------------------------------------------------------------------------

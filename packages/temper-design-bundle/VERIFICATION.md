@@ -4806,3 +4806,101 @@ residual wire-format marshalers of `router_v6/terminal_extraction.py` and
   programmatic construction); production builds them via the `from_*`
   classmethods. `repr`/`eq`/`hash` are dataclass-style (frozen value
   semantics).
+
+# Phase-A U9 — typed loop-extraction wire marshalers — Verification
+
+Rust-orchestration-engine plan (2026-08-09-001), Phase A unit U9: the two
+wire-format builders of `core/loop_extractor_rs.py` become typed pyclasses
+in this crate.
+
+## What was migrated
+
+| Python marshaler | Rust type (this crate) | Python name |
+|---|---|---|
+| `_netlist_to_dict` (netlist → bridge input dict) | `loop_extraction_contracts::LoopExtractionInput` | `LoopExtractionInput` |
+| `_dict_to_loop_collection` (bridge output dict → typed parse) | `loop_extraction_contracts::LoopExtractionOutput` + `ExtractedLoopWire` | `LoopExtractionOutput` |
+
+The `temper_rust_router.auto_extract_loops_rust` JSON bridge is outside this
+unit's file ownership, so the shim round-trips through
+`to_json()`/`from_json()`; the dict intermediate the marshaler *builds* moves
+to Rust (the U5 `DrcBoardSnapshot` / U6 `OracleInput` pattern).
+
+## Structural proof (bit-identical parity)
+
+- **`LoopExtractionInput.to_dict()`** inserts keys in the pre-migration dict
+  order — components then nets; per component `ref`/`footprint`/`mpn`/
+  `value`/`net_class`/`pins`; per pin `name`/`net` — and extracts `mpn`/
+  `value` from `attributes` with the oracle's `.get("MPN", "")` /
+  `.get("value", "")` defaults. `net` is carried as `Option<String>` so
+  `None` → JSON `null` (the bridge's `PinInput.net: Option<String>`) while
+  `""` stays `""`. The `net_class` key is included even though the bridge
+  ignores it (serde drops unknown fields) — it is part of the byte-identical
+  dict contract.
+- **`to_json()` delegates to CPython `json.dumps`** (the
+  `hypergraph_contracts.rs` numpy precedent), so separators/escaping/float
+  rendering are CPython's own — byte-identical to the pre-migration
+  `json.dumps(_netlist_to_dict(..))`.
+- **`LoopExtractionOutput.from_dict()`** applies the shim's documented wire
+  defaults: missing `loops` → empty, missing `ok` → `False`, per-loop
+  `components`/`nets` → `[]`, `loop_type` → `"unknown"`, `max_area_mm2` →
+  `500.0`, missing `name` → `KeyError` (the oracle's `loop_dict["name"]`).
+- **topology_hints truthiness**: the pre-migration shim added the key only
+  `if topology_hints:` (falsy `{}`/`""`/`None` did not). The typed
+  `from_netlist` mirrors that: a non-empty dict of strings adds the trailing
+  `topology_hints` key; empty/malformed → no key.
+
+## Empirical verification
+
+- **G1/G2 differential** —
+  `tests/core/test_loop_extraction_marshal_rust_differential.py` (committed
+  RED before the types landed, then GREEN): `LoopExtractionInput.to_dict()` /
+  `to_json()` byte-identical to the pinned `_oracle_netlist_to_dict` /
+  `json.dumps` over the 7-corpus + 30-random half-bridge sweep; the typed
+  output surface vs the raw bridge dict; and the full shim reconstruction
+  through the typed parse vs the pinned `_oracle_dict_to_loop_collection`
+  field-for-field (PRESERVED + RECONSTRUCTED, loop-type mapping pinned for
+  every topology, unknown-type fallback).
+- **G4 PBT** — `tests/core/test_loop_extraction_marshal_pbt.py`: 8
+  properties (P1 input-dict parity, P2 JSON byte-round-trip, P3
+  topology-hints presence, P4 component/pin wire shape, P5 net wire shape +
+  ordering, P6 output-reconstruction parity, P7 typed-parse fidelity, P8
+  reconstruction mapping pinned against the ORACLE tables — not the shim's
+  own), each with a `test_pN_fails_for_<mutant>` vacuity guard patching a
+  Python-level seam (`_netlist_to_dict`, `_dict_to_loop_collection`, the
+  `from_netlist`/`to_json`/`from_dict` pyclass methods, the
+  `_LOOP_TYPE_PRIORITY` table), with a module→property map in the file
+  docstring.
+- **G5 metamorphic** — 5 relations in the same file: MR1 component-order
+  permutation, MR2 pin-order permutation, MR3 net-order permutation, MR4
+  topology-hints addition leaves the wire body untouched, MR5 bridge-output
+  loop-order permutation preserved (compared by name).
+- **G6 induction** — N/A: data-only marshalling, no recursive computation.
+- **G8 physics discipline** — N/A: pure marshalling, no physics quantity.
+
+## R1g Rust bar
+
+- `cargo clippy --all-features --all-targets -- -D warnings` clean on this
+  crate.
+- `cargo test -p temper-design-bundle` (default features): 24 unit tests
+  green (`loop_extraction_contracts::tests`: wire-default / field-shape /
+  container pins). The module is `#[cfg(feature = "python")]`-gated like
+  every contract module here, so CI's default-features `cargo test` skips the
+  pyo3 surface (extension-module link requires the host Python, exactly as
+  documented for the sibling crates).
+- Every `#[pymethods]` entry point is wrapped in `guard()` (`catch_unwind`);
+  no `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
+
+## Documented deviations (per R1, recorded here)
+
+- The reconstruction tables (`_LOOP_TYPE_PRIORITY` / `_LOOP_TYPE_EVENTS` /
+  `_LOOP_TYPE_RETURN_*`) stay in the Python shim: they map onto the
+  `temper_placer.core.loop` Python-dataclass enums, which are a different
+  surface from this crate's `loops.rs` pyclasses and outside this unit's
+  scope. `LoopExtractionOutput` therefore carries the raw wire loop fields;
+  the reconstruction reads them. The tables are pinned on the Python side by
+  P8 (against the verbatim oracle copies) and by the differential suite.
+- Malformed topology_hints (truthy but not a str→str dict) are silently
+  treated as absent (pre-migration: passed through and failed at the bridge,
+  producing the same R23 fallback). The bridge's `topology_hints` field is
+  `#[allow(dead_code)]` — never consumed by the kernel — so the difference is
+  not observable through extraction.

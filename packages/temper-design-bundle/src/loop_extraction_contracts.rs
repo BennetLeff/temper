@@ -322,6 +322,18 @@ pub struct LoopExtractionOutput {
 
 #[pymethods]
 impl LoopExtractionOutput {
+    /// Direct construction from the typed fields (used by tests and PBT
+    /// vacuity mutants; production builds via `from_dict`/`from_json`).
+    #[new]
+    #[pyo3(signature = (ok=false, error=None, loops=None))]
+    fn new(ok: bool, error: Option<String>, loops: Option<Vec<Py<ExtractedLoopWire>>>) -> Self {
+        Self {
+            ok,
+            error,
+            loops: loops.unwrap_or_default(),
+        }
+    }
+
     #[staticmethod]
     fn from_dict(data: &Bound<'_, PyDict>) -> PyResult<LoopExtractionOutput> {
         guard(|| {

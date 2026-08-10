@@ -107,10 +107,9 @@ def _dict_to_loop_collection(data: dict[str, Any]) -> LoopCollection:
     """
     import temper_design_bundle_python as _tdb
 
-    if isinstance(data, dict):
-        output = _tdb.LoopExtractionOutput.from_dict(data)
-    else:
-        output = data
+    output = (
+        _tdb.LoopExtractionOutput.from_dict(data) if isinstance(data, dict) else data
+    )
 
     from temper_placer.core.loop import Loop as PyLoop
     from temper_placer.core.loop import LoopEvent
