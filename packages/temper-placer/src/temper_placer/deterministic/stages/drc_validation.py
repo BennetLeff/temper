@@ -1,7 +1,23 @@
-import logging
-from dataclasses import replace
+"""
+DRC validation stage.
 
-import temper_drc_rs as _drc
+Phase D batch D6 of the Rust Orchestration Engine plan (2026-08-09-001): the
+``run()`` orchestration (the no-oracle guard, the ``DRCOracle.validate_all()``
+call, the ``_log_summary`` through the temper-drc-rs ``summarize_violations_py``
+kernel, the ``threshold_decision_py`` raise decision and the
+``drc_violations=tuple(violations)`` write) is implemented in Rust
+(``temper-orchestration``'s ``DRCValidationStage`` /
+``run_drc_validation``), crossing the FFI once per stage call. This module
+keeps the public API unchanged: the ``DRCValidationStage`` Stage subclass, its
+constructor and ``name``, and the ``DRCValidationError`` exception -- the
+Rust-decision message is raised through the shim's exception type. The
+pre-migration implementation is pinned VERBATIM as
+``tests/deterministic/_drc_validation_run_py_oracle.py``.
+"""
+
+import logging
+
+import temper_orchestration as _to
 
 from ..state import BoardState
 from .base import Stage
@@ -35,38 +51,11 @@ class DRCValidationStage(Stage):
         return "drc_validation"
 
     def run(self, state: BoardState) -> BoardState:
-        if not state.drc_oracle:
-            logger.warning("No DRCOracle in state, skipping DRC validation")
-            return state
-
-        # Run full validation
-        violations = state.drc_oracle.validate_all()
-
-        # Log summary (count-by-type computed by the Rust kernel)
-        self._log_summary(violations)
-
-        # Check thresholds — the raise decision (should_raise + message) is
-        # the migrated Rust kernel (`threshold_decision`), so it cannot drift
-        # from the pinned oracle. The DRCValidationError raise itself stays
-        # Python.
-        should_raise, message = _drc.threshold_decision_py(
-            self.fail_on_violations, self.max_violations, len(violations)
+        """Run the full DRC validation in Rust (Phase D D6) and surface the
+        raise decision as the module's ``DRCValidationError``."""
+        out_state, message = _to.run_drc_validation(
+            state, self.fail_on_violations, self.max_violations
         )
-        if should_raise:
+        if message is not None:
             raise DRCValidationError(message)
-
-        # Store as tuple for immutability in frozen BoardState
-        return replace(state, drc_violations=tuple(violations))
-
-    def _log_summary(self, violations):
-        if not violations:
-            logger.info("DRC validation passed: 0 violations")
-            return
-
-        # Count by type — the kernel reproduces the oracle's counting and
-        # the descending-count sort (ties in first-seen type order).
-        total, by_type = _drc.summarize_violations_py(violations)
-
-        logger.warning(f"DRC validation: {total} violations")
-        for vtype, count in by_type:
-            logger.warning(f"  {vtype}: {count}")
+        return out_state

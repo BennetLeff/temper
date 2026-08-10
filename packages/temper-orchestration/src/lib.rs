@@ -105,10 +105,13 @@
 mod board_state;
 mod component_assignment_stage;
 mod config_attach_stage;
+mod connectivity_validation_stage;
 mod convergence;
 mod copper_length;
 mod d1_bridge;
+mod d6_util;
 mod derivation_stage;
+mod drc_validation_stage;
 mod explainability;
 mod feasibility;
 mod grid_fence;
@@ -136,7 +139,9 @@ mod zone_aware_slot_generation_stage;
 pub use board_state::BoardState;
 pub use component_assignment_stage::ComponentAssignmentStage;
 pub use config_attach_stage::ConfigAttachStage;
+pub use connectivity_validation_stage::ConnectivityValidationStage;
 pub use derivation_stage::DerivationStage;
+pub use drc_validation_stage::DRCValidationStage;
 pub use grid_stage::ClearanceGridStage;
 pub use net_ordering_stage::NetOrderingStage;
 pub use phased_assignment_stage::PhasedAssignmentStage;
@@ -206,6 +211,8 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(zone_aware_slot_generation_stage::run_zone_aware_slot_generation, m)?)?;
     m.add_function(wrap_pyfunction!(phased_assignment_stage::run_phased_assignment, m)?)?;
     m.add_function(wrap_pyfunction!(phased_assignment_stage::run_phase_select_best_slot, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_validation_stage::run_drc_validation, m)?)?;
+    m.add_function(wrap_pyfunction!(connectivity_validation_stage::run_connectivity_validation, m)?)?;
     Ok(())
 }
 
