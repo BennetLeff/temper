@@ -158,7 +158,10 @@ def test_build_constraints_dict_empty():
     """Empty clearance rules + no constraints_config → default dict."""
     ctx = _mock_context()
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_constraints_dict(ctx)
+    py_result = oracle._build_constraints_dict(ctx).to_dict()
+    # Phase-A U5 union dict: carries the engine's documented default
+    # `thermal_constraints` key, which build_constraints_dict_py never emits.
+    py_result.pop("thermal_constraints", None)
     rs_result = BUILD_CONSTRAINTS_DICT(
         clearance_rules=[],
         constraints_config=None,
@@ -176,7 +179,8 @@ def test_build_constraints_dict_with_clearance_rules():
     ]
     ctx = _mock_context(clearance_rules=rules)
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_constraints_dict(ctx)
+    py_result = oracle._build_constraints_dict(ctx).to_dict()
+    py_result.pop("thermal_constraints", None)
     rs_result = BUILD_CONSTRAINTS_DICT(
         clearance_rules=rules,
         constraints_config=None,
@@ -212,7 +216,8 @@ def test_build_constraints_dict_with_isolation_barriers():
     )
     ctx = _mock_context(constraints_config=config)
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_constraints_dict(ctx)
+    py_result = oracle._build_constraints_dict(ctx).to_dict()
+    py_result.pop("thermal_constraints", None)
     rs_result = BUILD_CONSTRAINTS_DICT(
         clearance_rules=[],
         constraints_config=config,
@@ -268,7 +273,7 @@ def test_build_board_dict_empty():
         clearance_rules=rules,
     )
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_board_dict(positions, ctx)
+    py_result = oracle._build_board_dict(positions, ctx).to_dict()
     rs_result = BUILD_BOARD_DICT(
         positions=positions,
         netlist=netlist,
@@ -300,7 +305,7 @@ def test_build_board_dict_with_components():
         clearance_rules=rules,
     )
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_board_dict(positions, ctx)
+    py_result = oracle._build_board_dict(positions, ctx).to_dict()
     rs_result = BUILD_BOARD_DICT(
         positions=positions,
         netlist=netlist,
@@ -332,7 +337,7 @@ def test_build_board_dict_with_rotation_and_side():
     ctx = SimpleNamespace(netlist=netlist, board=SimpleNamespace(width=100.0, height=200.0),
                           board_margin=3.0, clearance_rules=rules)
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_board_dict(positions, ctx)
+    py_result = oracle._build_board_dict(positions, ctx).to_dict()
     rs_result = BUILD_BOARD_DICT(
         positions=positions, netlist=netlist, board_width=100.0, board_height=200.0,
         board_margin=3.0, clearance_rules=rules,
@@ -362,7 +367,7 @@ def test_build_board_dict_with_nets():
     ctx = SimpleNamespace(netlist=netlist, board=SimpleNamespace(width=100.0, height=100.0),
                           board_margin=3.0, clearance_rules=rules)
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_board_dict(positions, ctx)
+    py_result = oracle._build_board_dict(positions, ctx).to_dict()
     rs_result = BUILD_BOARD_DICT(
         positions=positions, netlist=netlist, board_width=100.0, board_height=100.0,
         board_margin=3.0, clearance_rules=rules,
@@ -387,7 +392,7 @@ def test_build_board_dict_with_clearance_rules():
     ctx = SimpleNamespace(netlist=netlist, board=SimpleNamespace(width=100.0, height=100.0),
                           board_margin=3.0, clearance_rules=rules)
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_board_dict(positions, ctx)
+    py_result = oracle._build_board_dict(positions, ctx).to_dict()
     rs_result = BUILD_BOARD_DICT(
         positions=positions, netlist=netlist, board_width=100.0, board_height=100.0,
         board_margin=3.0, clearance_rules=rules,
@@ -408,7 +413,7 @@ def test_build_board_dict_mechanical_ref():
     ctx = SimpleNamespace(netlist=netlist, board=SimpleNamespace(width=100.0, height=100.0),
                           board_margin=3.0, clearance_rules=rules)
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_board_dict(positions, ctx)
+    py_result = oracle._build_board_dict(positions, ctx).to_dict()
     rs_result = BUILD_BOARD_DICT(
         positions=positions, netlist=netlist, board_width=100.0, board_height=100.0,
         board_margin=3.0, clearance_rules=rules,
@@ -456,7 +461,7 @@ def test_build_board_dict_from_parsed_pcb_empty():
         design_rules=SimpleNamespace(net_classes={}),
     )
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_board_dict_from_parsed_pcb(pcb)
+    py_result = oracle._build_board_dict_from_parsed_pcb(pcb).to_dict()
     rs_result = BUILD_BOARD_DICT_FROM_PARSED_PCB(pcb)
     assert _dicts_equal_bit_exact(py_result, rs_result)
 
@@ -476,7 +481,7 @@ def test_build_board_dict_from_parsed_pcb_with_components():
         design_rules=SimpleNamespace(net_classes={}),
     )
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_board_dict_from_parsed_pcb(pcb)
+    py_result = oracle._build_board_dict_from_parsed_pcb(pcb).to_dict()
     rs_result = BUILD_BOARD_DICT_FROM_PARSED_PCB(pcb)
     assert _dicts_equal_bit_exact(py_result, rs_result)
     comps_out = rs_result["components"]
@@ -501,7 +506,7 @@ def test_build_board_dict_from_parsed_pcb_with_nets():
         design_rules=SimpleNamespace(net_classes={}),
     )
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_board_dict_from_parsed_pcb(pcb)
+    py_result = oracle._build_board_dict_from_parsed_pcb(pcb).to_dict()
     rs_result = BUILD_BOARD_DICT_FROM_PARSED_PCB(pcb)
     assert _dicts_equal_bit_exact(py_result, rs_result)
     assert set(rs_result["nets"]["VCC"]) == {"C1", "C2"}
@@ -521,7 +526,7 @@ def test_build_board_dict_from_parsed_pcb_with_design_rules():
         }),
     )
     oracle = DRCOracle(runner=None, constraints=None, net_class_map={}, footprint_map={}, layer_map={})
-    py_result = oracle._build_board_dict_from_parsed_pcb(pcb)
+    py_result = oracle._build_board_dict_from_parsed_pcb(pcb).to_dict()
     rs_result = BUILD_BOARD_DICT_FROM_PARSED_PCB(pcb)
     assert _dicts_equal_bit_exact(py_result, rs_result)
     assert rs_result["net_class_rules"]["HV"]["trace_width_mm"] == 0.5

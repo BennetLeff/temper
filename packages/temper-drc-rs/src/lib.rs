@@ -64,6 +64,12 @@ pub mod clearance_matrix;
 // K1-schema dict builders migrated from validation/drc_oracle.py.
 #[cfg(feature = "python")]
 pub mod drc_oracle_marshal;
+// Phase-A U5 (rust-orchestration-engine plan) — typed DRC marshalling
+// types: DrcBoardSnapshot, ConstraintSet (pyclass TypedConstraintSet),
+// ConstraintValue and the CheckRunner data surface, migrated from
+// validation/drc_oracle.py + validation/drc_runner.py.
+#[cfg(feature = "python")]
+pub mod drc_marshal;
 // Wave 4 — router_v6/constraints_drc_oracle.py DRCOracle decision kernels
 // (Violation.severity, the R3 clearance-credit spatial scoping,
 // can_place_via / can_place_track_segment, validate_all pairwise checks).
@@ -84,7 +90,7 @@ use pyo3::exceptions::PyValueError;
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
-use pyo3::types::{PyDict, PyList};
+use pyo3::types::{PyAny, PyDict, PyList};
 #[cfg(feature = "python")]
 use pyo3::Py;
 
@@ -107,8 +113,8 @@ use crate::rules::{DrcCategory, Violation};
 ///
 /// | Parameter | Type | Description |
 /// |-----------|------|-------------|
-/// | `board_dict` | `dict` | Board state matching the K1 schema (plan §K1) |
-/// | `constraints_dict` | `dict` | Constraint configuration from YAML |
+/// | `board_dict` | `dict \| DrcBoardSnapshot` | Board state matching the K1 schema (plan §K1) — or the Phase-A U5 typed snapshot |
+/// | `constraints_dict` | `dict \| TypedConstraintSet` | Constraint configuration from YAML — or the Phase-A U5 typed set |
 /// | `categories` | `list[str] \| None` | Filter: only run checks in these categories |
 /// | `check_names` | `list[str] \| None` | Filter: only run these named checks |
 /// | `modified_regions` | `list[[x1,y1,x2,y2]] \| None` | Bboxes for incremental re-checking |
@@ -121,7 +127,8 @@ use crate::rules::{DrcCategory, Violation};
 ///
 /// # Errors
 ///
-/// - `PyValueError` if `board_dict` or `constraints_dict` are malformed.
+/// - `PyValueError` if `board_dict` or `constraints_dict` are malformed, or
+///   are neither a dict nor the typed Phase-A U5 struct.
 ///
 /// During the strangler-fig migration (U4–U6), this function is called
 /// alongside the Python `temper-drc` engine. After cutover, it becomes
@@ -131,19 +138,53 @@ use crate::rules::{DrcCategory, Violation};
 #[pyo3(signature = (board_dict, constraints_dict, categories = None, check_names = None, modified_regions = None))]
 fn run_drc(
     py: Python<'_>,
-    board_dict: &Bound<'_, PyDict>,
-    constraints_dict: &Bound<'_, PyDict>,
+    board_dict: &Bound<'_, PyAny>,
+    constraints_dict: &Bound<'_, PyAny>,
     categories: Option<Vec<String>>,
     check_names: Option<Vec<String>>,
     modified_regions: Option<Vec<(f64, f64, f64, f64)>>,
 ) -> PyResult<Py<PyAny>> {
     // ── 1. Deserialize ──────────────────────────────────────────────────
-    let board = build_board_state(board_dict).map_err(|e| {
-        PyValueError::new_err(format!("board deserialization error: {e}"))
-    })?;
-    let constraints = build_constraint_set(constraints_dict).map_err(|e| {
-        PyValueError::new_err(format!("constraint deserialization error: {e}"))
-    })?;
+    // Polymorphic entry: the caller may pass the K1-schema dict wire
+    // format (drc_ratchet.py and other dict-based consumers, plus the
+    // WASM serialize path) OR the Phase-A U5 typed structs
+    // (DrcBoardSnapshot / TypedConstraintSet) directly — the typed path
+    // converts without a dict round-trip.
+    let board_state = if let Ok(dict) = board_dict.cast::<PyDict>() {
+        build_board_state(dict).map_err(|e| {
+            PyValueError::new_err(format!("board deserialization error: {e}"))
+        })?
+    } else if board_dict.is_instance_of::<crate::drc_marshal::DrcBoardSnapshot>() {
+        board_dict
+            .cast::<crate::drc_marshal::DrcBoardSnapshot>()
+            .map_err(|e| PyValueError::new_err(format!("board is not a DrcBoardSnapshot: {e}")))?
+            .borrow()
+            .to_board_state()
+            .map_err(|e| {
+                PyValueError::new_err(format!("board snapshot conversion error: {e}"))
+            })?
+    } else {
+        return Err(PyValueError::new_err(
+            "board must be a K1-schema dict or a temper_drc_rs.DrcBoardSnapshot",
+        ));
+    };
+    let constraints_set = if let Ok(dict) = constraints_dict.cast::<PyDict>() {
+        build_constraint_set(dict).map_err(|e| {
+            PyValueError::new_err(format!("constraint deserialization error: {e}"))
+        })?
+    } else if constraints_dict.is_instance_of::<crate::drc_marshal::ConstraintSet>() {
+        constraints_dict
+            .cast::<crate::drc_marshal::ConstraintSet>()
+            .map_err(|e| {
+                PyValueError::new_err(format!("constraints is not a TypedConstraintSet: {e}"))
+            })?
+            .borrow()
+            .to_engine()
+    } else {
+        return Err(PyValueError::new_err(
+            "constraints must be a constraints dict or a temper_drc_rs.TypedConstraintSet",
+        ));
+    };
 
     // ── 2. Create registry with all default checks ──────────────────────
     let registry = create_default_registry();
@@ -160,7 +201,7 @@ fn run_drc(
                 )
             })
             .collect();
-        registry.run_incremental(&board, &constraints, &rects)
+        registry.run_incremental(&board_state, &constraints_set, &rects)
     } else if let Some(cats) = categories {
         // Category-filtered mode
         let parsed: Vec<DrcCategory> = cats
@@ -168,17 +209,17 @@ fn run_drc(
             .map(|c| parse_category(c))
             .collect::<Result<Vec<_>, _>>()
             .map_err(PyValueError::new_err)?;
-        registry.run_categories(&board, &constraints, &parsed)
+        registry.run_categories(&board_state, &constraints_set, &parsed)
     } else if let Some(names) = check_names {
         // Check-name-filtered mode
         registry
-            .run_all(&board, &constraints)
+            .run_all(&board_state, &constraints_set)
             .into_iter()
             .filter(|v| names.contains(&v.check_name))
             .collect()
     } else {
         // Full sweep
-        registry.run_all(&board, &constraints)
+        registry.run_all(&board_state, &constraints_set)
     };
 
     // ── 4. Convert violations to Python dicts ───────────────────────────
@@ -433,6 +474,9 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Wave 4 marshalling boundary — drc_oracle pydantic→plain + K1 dict
     // builders migrated from validation/drc_oracle.py.
     crate::drc_oracle_marshal::register(m)?;
+    // Phase-A U5 — typed DRC marshalling types (DrcBoardSnapshot,
+    // TypedConstraintSet, ConstraintValue) + the CheckRunner data surface.
+    crate::drc_marshal::register(m)?;
     // Wave 4 — router_v6/constraints_drc_oracle.py DRCOracle decision
     // kernels (drc_oracle.rs): severity, R3 clearance credits,
     // can_place_via / can_place_track_segment, validate_all pairwise checks.

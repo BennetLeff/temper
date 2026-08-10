@@ -35,9 +35,9 @@ DRC_BOARD_SNAPSHOT = _tdrc.DrcBoardSnapshot
 TYPED_CONSTRAINT_SET = _tdrc.TypedConstraintSet
 CONSTRAINT_VALUE = _tdrc.ConstraintValue
 
-from pydantic import BaseModel  # noqa: E402
+from pydantic import BaseModel  # noqa: E402, I001  (mid-file import block)
 
-from temper_placer.validation.drc_types import (  # noqa: E402
+from temper_placer.validation.drc_types import (  # noqa: E402, I001
     ComponentPlacement,
     Placement,
 )
@@ -197,6 +197,23 @@ def _float_hex_recursive(obj):
     return obj
 
 
+def _canon_violations(violations):
+    """Canonicalize run_drc violation dicts for cross-run comparison.
+
+    `affected_items` is sorted: the DRC rules build it from a Rust
+    `HashSet<&str>` (e.g. `emc::loop_area::components_on_nets`), whose
+    iteration order is a per-instance `RandomState` artifact — the *set* is
+    deterministic, the ordering is not. Sorting here asserts the set
+    equality that the rules actually guarantee.
+    """
+    out = []
+    for v in violations:
+        v = dict(v)
+        v["affected_items"] = sorted(v.get("affected_items", []))
+        out.append(_float_hex_recursive(v))
+    return out
+
+
 def _canon_board_dict(d):
     """Canonicalize a K1 board dict: sorted keys/lists, float→hex."""
     comps = sorted(d["components"], key=lambda c: c["ref"])
@@ -229,7 +246,7 @@ def _canon_constraints_dict(d):
         {
             "clearances": sorted(d["clearances"], key=lambda r: (r["from_class"], r["to_class"])),
             "zones": sorted(d["zones"], key=lambda z: z["name"]),
-            "critical_loops": sorted(d["critical_loops"], key=lambda l: l["name"]),
+            "critical_loops": sorted(d["critical_loops"], key=lambda x: x["name"]),
             "thermal_constraints": sorted(
                 d["thermal_constraints"], key=lambda t: tuple(t["components"])
             ),
@@ -346,10 +363,14 @@ def test_board_snapshot_bottom_side_derivation():
         components={
             "C1": ComponentPlacement(
                 ref="C1", footprint="0402", x=0.0, y=0.0, rotation=0.0,
-                layer="In1.Cu", width=1.0, height=1.0, net_class="Signal",
+                layer="B.Cu", width=1.0, height=1.0, net_class="Signal",
             ),
             "C2": ComponentPlacement(
                 ref="C2", footprint="0402", x=0.0, y=0.0, rotation=0.0,
+                layer="In1.Cu", width=1.0, height=1.0, net_class="Signal",
+            ),
+            "C3": ComponentPlacement(
+                ref="C3", footprint="0402", x=0.0, y=0.0, rotation=0.0,
                 layer=None, width=1.0, height=1.0, net_class="Signal",
             ),
         },
@@ -361,6 +382,7 @@ def test_board_snapshot_bottom_side_derivation():
     sides = {c["ref"]: c["side"] for c in snapshot.to_dict()["components"]}
     assert sides["C1"] == "bottom"
     assert sides["C2"] == "top"
+    assert sides["C3"] == "top"
     assert _canon_board_dict(snapshot.to_dict()) == _canon_board_dict(py_dict)
 
 
@@ -421,6 +443,177 @@ def test_constraint_value_from_python_matches_oracle():
 
 
 # ---------------------------------------------------------------------------
+# Differential — placer path: from_netlist / from_parsed_pcb / from_context
+#
+# The placer-path marshalers were already migrated to the Rust K1-dict
+# kernels build_board_dict_py / build_board_dict_from_parsed_pcb_py /
+# build_constraints_dict_py (validated against the pinned DRCOracle oracle
+# by test_drc_oracle_marshal_rust_differential.py). These tests chain the
+# new typed constructors against those validated kernels, so the oracle
+# chain is: pinned Python oracle -> validated dict kernel -> typed snapshot.
+# ---------------------------------------------------------------------------
+
+from types import SimpleNamespace  # noqa: E402, I001  (mid-file import block)
+from dataclasses import dataclass  # noqa: E402, I001
+
+import numpy as np  # noqa: E402
+
+
+@dataclass
+class _FakeClearanceRule:
+    net_class_a: str
+    net_class_b: str
+    min_clearance: float
+    because: str = ""
+
+
+@dataclass
+class _FakeComp:
+    ref: str
+    footprint: str
+    width: float
+    height: float
+    net_class: str
+    initial_rotation: int | None = None
+    initial_side: int | None = None
+
+
+@dataclass
+class _FakeNet:
+    name: str
+    net_class: str
+    pins: list  # list of (ref, pin_number)
+
+
+def _placer_context(clearance_rules=None, constraints_config=None, width=152.0, height=234.0):
+    return SimpleNamespace(
+        clearance_rules=clearance_rules or [],
+        board=SimpleNamespace(width=width, height=height),
+        board_margin=3.0,
+        constraints_config=constraints_config,
+    )
+
+
+def test_board_snapshot_from_netlist_matches_validated_kernel():
+    """DrcBoardSnapshot.from_netlist(...).to_dict() must reproduce the
+    validated build_board_dict_py K1 dict bit-exactly."""
+    rng = np.random.default_rng(7)
+    positions = rng.uniform(0.0, 100.0, (3, 2))
+    comps = [
+        _FakeComp("C1", "R_0603", 1.0, 0.5, "Signal", initial_rotation=2),
+        _FakeComp("C2", "TO-247", 5.0, 4.0, "HV", initial_side=1),
+        _FakeComp("MH1", "MountingHole", 3.0, 3.0, "GND"),
+    ]
+    nets = [
+        _FakeNet("N1", "Signal", [("C1", 1), ("C2", 1)]),
+        _FakeNet("N2", "HV", [("C2", 2), ("C1", 2)]),
+    ]
+    netlist = SimpleNamespace(components=comps, nets=nets)
+    rules = [_FakeClearanceRule("HV", "Signal", 8.0, "safety")]
+    kwargs = {
+        "positions": positions,
+        "netlist": netlist,
+        "board_width": 152.0,
+        "board_height": 234.0,
+        "board_margin": 3.0,
+        "clearance_rules": rules,
+    }
+    dict_result = _tdrc.build_board_dict_py(**kwargs)
+    snapshot = DRC_BOARD_SNAPSHOT.from_netlist(**kwargs)
+    assert _canon_board_dict(snapshot.to_dict()) == _canon_board_dict(dict_result)
+    sides = {c["ref"]: c["side"] for c in snapshot.to_dict()["components"]}
+    assert sides["C2"] == "bottom"
+    assert sides["C1"] == "top"
+    pkg = {c["ref"]: c["package_type"] for c in snapshot.to_dict()["components"]}
+    assert pkg["C2"] == "to247"
+    assert pkg["C1"] == "smd"
+    mech = {c["ref"]: c["is_mechanical"] for c in snapshot.to_dict()["components"]}
+    assert mech["MH1"] is True
+    assert mech["C1"] is False
+
+
+@dataclass
+class _FakeParsedComponent:
+    ref: str
+    footprint: str
+    width: float
+    height: float
+    net_class: str
+    initial_position: tuple | None = (1.0, 2.0)
+    initial_rotation: int | None = None
+    initial_side: int | None = None
+
+
+@dataclass
+class _FakeParsedNet:
+    name: str
+    net_class: str
+    pins: list
+
+
+@dataclass
+class _FakeRules:
+    trace_width_mm: float
+    clearance_mm: float
+
+
+def test_board_snapshot_from_parsed_pcb_matches_validated_kernel():
+    """DrcBoardSnapshot.from_parsed_pcb(...).to_dict() must reproduce the
+    validated build_board_dict_from_parsed_pcb_py K1 dict bit-exactly."""
+    parsed = SimpleNamespace(
+        components=[
+            _FakeParsedComponent("Q1", "TO-220", 4.0, 3.0, "HV", initial_rotation=1),
+            _FakeParsedComponent("R1", "R_0603", 1.0, 0.5, "Signal", initial_position=None),
+        ],
+        nets=[
+            _FakeParsedNet("N1", "HV", [("Q1", 1), ("R1", 1)]),
+        ],
+        design_rules=SimpleNamespace(
+            net_classes={"HV": _FakeRules(1.2, 6.0), "Signal": _FakeRules(0.2, 0.2)}
+        ),
+        board=SimpleNamespace(width=100.0, height=80.0),
+    )
+    dict_result = _tdrc.build_board_dict_from_parsed_pcb_py(parsed)
+    snapshot = DRC_BOARD_SNAPSHOT.from_parsed_pcb(parsed)
+    assert _canon_board_dict(snapshot.to_dict()) == _canon_board_dict(dict_result)
+    assert snapshot.to_dict()["board"]["margin_mm"] == 3.0
+
+
+def test_typed_constraints_from_context_matches_validated_kernel():
+    """TypedConstraintSet.from_context(...).to_dict() must reproduce the
+    validated build_constraints_dict_py dict bit-exactly (config values
+    converted through the model_dump(mode='json') plain path)."""
+    from temper_placer._constraint_types import IsolationBarrier
+
+    rules = [_FakeClearanceRule("HV", "LV", 8.0, "safety")]
+    barrier = IsolationBarrier(
+        name="IB1", x_mm=50.0, y_span=(0.0, 100.0),
+        points=[[50.0, 0.0], [50.0, 100.0]], layers="all", clearance_mm=8.0,
+    )
+    config = SimpleNamespace(
+        isolation_barriers=[barrier],
+        zones=None, critical_loops=None, noise_domains=None,
+        thermal_properties=None, matched_length_groups=None,
+        snubber_requirements=None, bleed_resistor=None,
+        skin_effect_derating=None,
+    )
+    kwargs = {
+        "clearance_rules": rules,
+        "constraints_config": config,
+        "board_width": 152.0,
+        "board_height": 234.0,
+    }
+    dict_result = _tdrc.build_constraints_dict_py(**kwargs)
+    cset = TYPED_CONSTRAINT_SET.from_context(**kwargs)
+    # The typed union dict carries `thermal_constraints` (the engine's
+    # documented default for the field) which build_constraints_dict_py
+    # never emitted; drop it for the bit-exact comparison.
+    typed_dict = {k: v for k, v in cset.to_dict().items() if k != "thermal_constraints"}
+    assert _float_hex_recursive(typed_dict) == _float_hex_recursive(dict_result)
+    assert cset.to_dict()["isolation_barriers"][0]["name"] == "IB1"
+
+
+# ---------------------------------------------------------------------------
 # Kernel-path equivalence — typed structs vs the dict wire format (G2)
 # ---------------------------------------------------------------------------
 
@@ -438,7 +631,7 @@ def test_run_drc_typed_matches_dict_path():
         _oracle_placement_to_board_dict(placement),
         _oracle_constraints_to_dict(constraints),
     )
-    assert _float_hex_recursive(typed_violations) == _float_hex_recursive(dict_violations)
+    assert _canon_violations(typed_violations) == _canon_violations(dict_violations)
 
 
 def test_run_drc_typed_categories_filter_matches_dict_path():
@@ -453,7 +646,7 @@ def test_run_drc_typed_categories_filter_matches_dict_path():
         _oracle_constraints_to_dict(constraints),
         categories=["drc"],
     )
-    assert _float_hex_recursive(typed) == _float_hex_recursive(dicted)
+    assert _canon_violations(typed) == _canon_violations(dicted)
 
 
 if __name__ == "__main__":

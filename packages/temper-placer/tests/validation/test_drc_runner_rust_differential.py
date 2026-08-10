@@ -11,9 +11,10 @@ Rust grouping logic. The pre-migration ``_violations_to_run_result`` body is
 pinned VERBATIM below (commit ``aece7c372``).
 
 The ``_placement_to_board_dict`` / ``_constraints_to_dict`` marshalling
-functions stay Python: they convert Phase-2 contract objects
-(Placement/ConstraintSet from ``drc_types``) into the K1-schema dicts —
-data marshalling over out-of-scope contracts, argued in-source.
+functions were Phase-A U5-migrated to the typed structs
+``temper_drc_rs.DrcBoardSnapshot`` / ``TypedConstraintSet`` (their K1-dict
+shapes, reproduced via ``to_dict()``, are still pinned by the shape tests at
+the bottom of this file).
 
 Comparison convention: floats bit-exact via ``float.hex()``; RunResult
 objects canonicalized into typed tuples.
@@ -635,11 +636,15 @@ def test_oracle_board_dict_shape_pinned() -> None:
     pinned — any change to the marshaler (field renames, new defaults,
     key additions/removals) must update this oracle. The canonical form
     (sorted, float→hex) is compared against a reference captured from the
-    marshaler at commit ``68ea250f``."""
+    marshaler at commit ``68ea250f``.
+
+    Phase-A U5: the marshaler now returns a typed ``DrcBoardSnapshot``;
+    the dict shape it pins is the snapshot's ``to_dict()`` reproduction of
+    the K1 wire format (the differential is unchanged in meaning)."""
     from temper_placer.validation.drc_runner import _placement_to_board_dict
 
     placement = _oracle_placement()
-    board_dict = _placement_to_board_dict(placement)
+    board_dict = _placement_to_board_dict(placement).to_dict()
     canon = _canon_board_dict(board_dict)
 
     # Assert structural invariants
@@ -677,11 +682,15 @@ def test_oracle_board_dict_shape_pinned() -> None:
 
 def test_oracle_constraints_dict_shape_pinned() -> None:
     """G1: the exact dict shape produced by _constraints_to_dict is
-    pinned — any change to the marshaler must update this oracle."""
+    pinned — any change to the marshaler must update this oracle.
+
+    Phase-A U5: the marshaler now returns a typed ``TypedConstraintSet``;
+    the dict shape it pins is the set's ``to_dict()`` reproduction of the
+    K1 wire format (the differential is unchanged in meaning)."""
     from temper_placer.validation.drc_runner import _constraints_to_dict
 
     constraints = _oracle_constraints()
-    constraints_dict = _constraints_to_dict(constraints)
+    constraints_dict = _constraints_to_dict(constraints).to_dict()
     canon = _canon_constraints_dict(constraints_dict)
 
     # Assert structural invariants

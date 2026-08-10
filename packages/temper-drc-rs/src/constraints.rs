@@ -371,8 +371,13 @@ fn py_list_to_json_value(py: &Bound<'_, PyList>) -> PyResult<serde_json::Value> 
     Ok(serde_json::Value::Array(arr))
 }
 
+/// Convert an arbitrary Python value to a `serde_json::Value`.
+///
+/// `pub(crate)` since Phase-A U5 (`drc_marshal.rs`) reuses it to fold
+/// pydantic-derived plain constraint-config values into the typed engine
+/// `ConstraintSet` via `serde_json::from_value`.
 #[cfg(feature = "python")]
-fn py_any_to_json_value(obj: &Bound<'_, PyAny>) -> PyResult<serde_json::Value> {
+pub(crate) fn py_any_to_json_value(obj: &Bound<'_, PyAny>) -> PyResult<serde_json::Value> {
     // Check bool first (Python bool is a subclass of int)
     if let Ok(v) = obj.extract::<bool>() {
         return Ok(serde_json::Value::Bool(v));
