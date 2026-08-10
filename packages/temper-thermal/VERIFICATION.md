@@ -736,10 +736,10 @@ row-major scan with a strict `<` update, so it returns the earliest cell
 attaining the minimum. Adding a device appends to `existing` and never
 rewrites an earlier anchor, so the hypothesis carries. The pass-2 loop is
 bounded by `MAX_ITERATIONS = 3` and terminates unconditionally; the
-`updated` flag can only shorten it. The final clamp and
-`enforce_unique_positions_with` are single passes over the ordered result,
-the latter mutating in place so later pairs observe earlier offsets —
-reproduced exactly.
+`updated` flag can only shorten it. The final clamp and `enforce_unique_positions_with` are single passes over
+the ordered result, the latter re-scanning to a fixpoint and mutating in
+place so later pairs observe earlier offsets — reproduced exactly
+(see the #928 note below for the deliberate re-pin of that behaviour).
 
 `OrderedAnchors` reproduces CPython `dict` semantics for the induction to
 be about the same object: re-assigning an existing key updates the value
@@ -769,8 +769,9 @@ recorded rather than hidden:
 * the final **clamp** may move an anchor off the arg-min cell when a zone
   or the board bounds exclude it — the reference logs a warning above
   2 mm and `AuditFinding::OutsideZone`/`OffGrid` surface it;
-* the **uniqueness nudge** (`_enforce_unique_positions`, +0.5 mm in x)
-  deliberately leaves the grid to break an exact tie; `AuditFinding::
+* the **uniqueness nudge** (`_enforce_unique_positions`, stepping
+  `±k·0.5 mm` in x within the board — see the #928 note below) deliberately
+  leaves the grid to break an exact tie; `AuditFinding::
   Duplicate` and property P7 both account for it explicitly.
 
 **2. BMC-exhaustive validation on small N.**
@@ -842,17 +843,62 @@ catch:
    carries **x** and the second **y**, the transpose of the `meshgrid`
    convention the rest of the module uses. Preserved.
 
+### R13 uniqueness enforcement — deliberate behavioural change (issue #928)
+
+The uniqueness nudge is the ONE deliberate behavioural change in this
+module, made 2026-08-10 because the old behaviour was a genuine R13 bug,
+not a reference quirk worth preserving:
+
+**Old behaviour (bit-pinned by the migration):** for each pair (i < j)
+closer than `tolerance_mm`, move `anchors[j]` to `min(xj + offset_mm,
+x_max)`.  Two failure modes, both confirmed by the flaky
+`test_p6_anchors_are_unique` counterexample `board=(0,0,40,21)` putting
+Q0 and Q3 BOTH at `(40.0, 21.0)`:
+1. When `xj` sat at `x_max`, the clamp landed the nudged anchor back ON
+   TOP of an anchor already at `x_max`, and the pair was never
+   re-checked.
+2. The single pair scan never revisited a pair the nudge had newly
+   collided with a third anchor.
+
+**New behaviour (both arms, bit-identical):** re-scan every pair until a
+full pass makes no move.  Each move places the later anchor on the first
+x-position on its row — `+offset_mm` outward, then `-offset_mm` inward,
+never beyond the board — that is at least `tolerance_mm` from *every*
+other anchor (`search_free_x`).  Because every move lands clear of all
+anchors, a move never re-creates a violation, so termination is
+guaranteed; a pair whose row is saturated (no in-bounds x-position
+clears it) is left as-is rather than clamped onto an anchor.  The R24
+soundness claim of §1 is unchanged in direction: the nudge still moves x
+only within the board, and for a TOP/BOTTOM edge strip the strip
+membership survives; the reachable set widens from `grid ± offset` to
+`grid ± k·offset` for any whole `k`, which P7 and `audit_anchor`'s
+callers account for.
+
+**Why re-pinned rather than preserved:** the differential's contract is
+bit-parity between the Rust kernel and the pinned pure-Python oracle.  A
+bug shared bit-for-bit by both arms is still a bug; the differential
+that existed to catch migration drift cannot catch a behaviour both arms
+got wrong together.  The oracle in
+`tests/physics/_thermal_potential_py_oracle.py` was therefore re-pinned
+to the new algorithm in lock-step with the Rust kernel, and the
+differential now asserts the two arms agree on the NEW behaviour (110
+tests, including the two BMC-exhaustive sweeps).  The file header there
+records the exception to its "verbatim" rule.
+
 ## Empirical Verification
 
 * `packages/temper-placer/tests/physics/test_thermal_potential_rust_differential.py`
-  — 109 tests: direct-kernel and module-level pins against the verbatim
+  — 110 tests: direct-kernel and module-level pins against the pinned
   oracle in `tests/physics/_thermal_potential_py_oracle.py`, compared
   through type-carrying `float.hex()` signatures
   (`tests/physics/_leafcmp.py`), plus the two BMC-exhaustive sweeps.
 * `packages/temper-placer/tests/physics/test_thermal_potential_rust_pbt.py`
-  — 30 tests: properties P1–P7, one vacuity guard per property (nine
+  — 34 tests: properties P1–P7 (P6 at 500 examples since the #928 fix),
+  one vacuity guard per property (nine
   mutants covering sign flip, constant field, dropped term, double
-  count, off-by-one, BC swap and off-grid), and metamorphic relations
+  count, off-by-one, BC swap, off-grid and non-multiple nudge), three
+  R13 regression tests (the x_max merge, the third-anchor collision, and
+  the exact #928 flake input end-to-end), and metamorphic relations
   MR1–MR5 (superposition, source permutation, airflow scaling, weight
   linearity, translation) with their exactness claims stated.
 * `packages/temper-placer/tests/physics/test_thermal_potential.py`

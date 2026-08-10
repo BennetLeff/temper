@@ -442,8 +442,21 @@ def _enforce_unique_positions(
 ) -> None:
     """Ensure no two anchors share the same position within tolerance_mm.
 
-    If a duplicate is found, offsets the second device by offset_mm along
-    the edge strip and re-checks. Mutates anchors in-place.
+    For every violating pair (i < j) the later anchor is moved to the
+    first x-position on its row -- stepping +offset_mm outward, then
+    -offset_mm inward, never beyond the board bounds -- that is at least
+    tolerance_mm from *every* other anchor, and the pair scan restarts
+    after each move.  This replaces the old single right-offset clamped
+    at x_max, which could land the nudged anchor exactly on another
+    anchor already at x_max (issue #928) and never re-checked a pair the
+    nudge had newly collided with a third anchor.  Mutates anchors
+    in-place.
+
+    The arithmetic is delegated bit-exactly to the Rust kernel
+    ``temper_thermal.thermal_potential_enforce_unique_py`` (the pinned
+    pure-Python oracle in ``tests/physics/_thermal_potential_py_oracle.py``
+    mirrors the same algorithm; the differential suite keeps them
+    bit-identical).
     """
     updated = _tt.thermal_potential_enforce_unique_py(
         [(ref, float(x), float(y)) for ref, (x, y) in anchors.items()],
