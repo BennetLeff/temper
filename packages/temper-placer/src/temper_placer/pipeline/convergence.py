@@ -3,11 +3,21 @@
 This module defines when the pipeline should stop iterating, including:
 - Success conditions (all phases pass, routing verified, manufacturing OK)
 - Failure conditions (max iterations, timeout, infeasibility, stagnation)
+
+The feasibility/check compute (``record_loss`` improvement arithmetic,
+``check_success`` thresholds, ``is_converged`` stagnation and
+``check_routability_regression`` net-set decision + state) delegates to the
+``temper-orchestration`` crate (``temper_orchestration.record_loss`` / ...
+``check_routability_regression``), pinned bit-identically by
+``tests/pipeline/test_pipeline_feasibility_rust_differential.py`` (oracle:
+``tests/pipeline/_pipeline_feasibility_py_oracle.py``).
 """
 
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+
+import temper_orchestration as _rs
 
 
 class TerminationReason(Enum):
@@ -177,19 +187,17 @@ class ConvergenceChecker:
         """
         self.state.loss_history.append(loss)
 
-        # Check if this is an improvement
-        if self.state.best_loss == float("inf"):
-            # First loss value
-            self.state.best_loss = loss
+        # The improvement arithmetic -- `(best_loss - loss) / best_loss`
+        # against `min_loss_improvement`, including the first-loss branch
+        # (`best_loss == inf`) -- is the Rust kernel `record_loss`.
+        new_best, improved = _rs.record_loss(
+            self.state.best_loss, loss, self.criteria.min_loss_improvement
+        )
+        self.state.best_loss = new_best
+        if improved:
             self.state.epochs_since_improvement = 0
         else:
-            # Check for meaningful improvement
-            improvement = (self.state.best_loss - loss) / self.state.best_loss
-            if improvement >= self.criteria.min_loss_improvement:
-                self.state.best_loss = loss
-                self.state.epochs_since_improvement = 0
-            else:
-                self.state.epochs_since_improvement += 1
+            self.state.epochs_since_improvement += 1
 
     def check_stagnation(self) -> bool:
         """Check if optimization has stagnated.
@@ -219,30 +227,26 @@ class ConvergenceChecker:
         Returns:
             True if all success thresholds are met.
         """
-        # Check overlap
+        # The dict defaults are resolved here (Python dict marshalling); the
+        # four threshold comparisons are the Rust kernel `check_success`.
         overlap = metrics.get("overlap_mm2", float("inf"))
-        if overlap > self.criteria.max_overlap_mm2:
-            return False
-
-        # Check boundary
         boundary = metrics.get("boundary_violation_mm", float("inf"))
-        if boundary > self.criteria.max_boundary_violation_mm:
-            return False
-
-        # Check routing
         routing = metrics.get("routing_completion", 0.0)
-        if routing < self.criteria.min_routing_completion:
-            return False
-
-        # Check manufacturing margin
         margin = metrics.get("manufacturing_margin_mm", 0.0)
-        if margin < self.criteria.min_manufacturing_margin_mm:
-            return False
-
-        # All thresholds passed
-        self.state.terminated = True
-        self.state.termination_reason = TerminationReason.SUCCESS
-        return True
+        ok = _rs.check_success(
+            float(overlap),
+            float(boundary),
+            float(routing),
+            float(margin),
+            self.criteria.max_overlap_mm2,
+            self.criteria.max_boundary_violation_mm,
+            self.criteria.min_routing_completion,
+            self.criteria.min_manufacturing_margin_mm,
+        )
+        if ok:
+            self.state.terminated = True
+            self.state.termination_reason = TerminationReason.SUCCESS
+        return ok
 
     def check_all(self) -> bool:
         """Check all termination conditions.
@@ -317,48 +321,65 @@ class ConvergenceChecker:
         Returns:
             True if the loop should terminate (regression or convergence).
         """
-        current_ratio = len(routed_nets) / max(total_nets, 1)
+        # The net-set decision and the best/stall state update are the Rust
+        # kernel `check_routability_regression`; the failure-message f-string
+        # rendering stays here (Python formatting). Net sets cross the
+        # boundary as sorted lists; the kernel treats them as sets.
+        #
+        # Attribute parity: the oracle only ever READS `_stall_count` on the
+        # identical-net-set path (`self.state._stall_count += 1`) and only
+        # READS `_best_routability` on the non-first-call path
+        # (`best_ratio = self.state._best_routability`); on the other paths
+        # it only WRITES them, so unset attributes must not raise there. The
+        # shim replicates both reads exactly (an unset attribute raises the
+        # identical AttributeError on exactly the paths the oracle reads it),
+        # and the kernel's post-call state is written back unconditionally.
+        best_routed_nets = self.state._best_routed_nets  # oracle reads first
+        best_routability = (
+            self.state._best_routability if best_routed_nets is not None else None
+        )
+        if (
+            previous_routed_nets is not None
+            and routed_nets == previous_routed_nets
+        ):
+            stall_count = self.state._stall_count  # oracle reads here
+        else:
+            stall_count = getattr(self.state, "_stall_count", 0)
+        out = _rs.check_routability_regression(
+            sorted(routed_nets),
+            total_nets,
+            sorted(previous_routed_nets) if previous_routed_nets is not None else None,
+            regression_threshold,
+            stall_limit,
+            sorted(best_routed_nets) if best_routed_nets is not None else None,
+            best_routability,
+            stall_count,
+        )
 
-        if self.state._best_routed_nets is None:
-            self.state._best_routed_nets = routed_nets
-            self.state._best_routability = current_ratio
-            self.state._stall_count = 0
-            return False
+        # Write back the kernel's post-call state.
+        if out["best_routed"] is not None:
+            self.state._best_routed_nets = frozenset(out["best_routed"])
+            self.state._best_routability = out["best_ratio"]
+        self.state._stall_count = out["stall_count"]
 
-        best_routed: frozenset[str] = self.state._best_routed_nets
-        best_ratio: float | None = self.state._best_routability
-
-        # Regression: routability ratio dropped below threshold
-        if current_ratio < best_ratio * regression_threshold:
-            lost_nets = best_routed - routed_nets
+        if out["outcome"] == "regression":
             self.state.terminated = True
             self.state.termination_reason = TerminationReason.ROUTABILITY_REGRESSION
+            lost = out["lost_nets"]
             self.state.failure_message = (
-                f"Routability regressed: {current_ratio:.3f} < "
-                f"{best_ratio * regression_threshold:.3f} (threshold). "
-                + (f"Lost nets: {sorted(lost_nets)}" if lost_nets else "")
+                f"Routability regressed: {out['current_ratio']:.3f} < "
+                f"{out['threshold_product']:.3f} (threshold). "
+                + (f"Lost nets: {lost}" if lost else "")
             )
             return True
-
-        # Convergence: identical net set for stall_limit consecutive iterations
-        if previous_routed_nets is not None and routed_nets == previous_routed_nets:
-            self.state._stall_count += 1
-            if self.state._stall_count >= stall_limit:
-                self.state.terminated = True
-                self.state.termination_reason = TerminationReason.ROUTABILITY_CONVERGED
-                self.state.failure_message = (
-                    f"Routability converged: {len(routed_nets)}/{total_nets} nets "
-                    f"routed with identical net set for {stall_limit} iterations"
-                )
-                return True
-        else:
-            self.state._stall_count = 0
-
-        # Improvement: update best
-        if current_ratio > (best_ratio or 0.0):
-            self.state._best_routed_nets = routed_nets
-            self.state._best_routability = current_ratio
-
+        if out["outcome"] == "converged":
+            self.state.terminated = True
+            self.state.termination_reason = TerminationReason.ROUTABILITY_CONVERGED
+            self.state.failure_message = (
+                f"Routability converged: {len(routed_nets)}/{total_nets} nets "
+                f"routed with identical net set for {stall_limit} iterations"
+            )
+            return True
         return False
 
 
@@ -380,12 +401,11 @@ def is_converged(current_results: dict, previous_results: dict | None) -> bool:
     if previous_results is None:
         return False
 
-    # 2. Check for stagnation (identical success rate and total length)
-    # Using length as proxy for path change
-    curr_len = sum(r.length for r in current_results.values())
-    prev_len = sum(r.length for r in previous_results.values())
-
-    curr_succ = sum(1 for r in current_results.values() if r.success)
-    prev_succ = sum(1 for r in previous_results.values() if r.success)
-
-    return bool(curr_succ == prev_succ and abs(curr_len - prev_len) < 1e-06)
+    # 2. Check for stagnation (identical success rate and total length).
+    # Using length as proxy for path change. The decision kernel
+    # `is_converged` replicates the oracle's compensated builtin `sum()`
+    # bit-exactly, so the (success, length) pairs cross in dict order
+    # (order is load-bearing for the compensated summation).
+    current_pairs = [(bool(r.success), float(r.length)) for r in current_results.values()]
+    previous_pairs = [(bool(r.success), float(r.length)) for r in previous_results.values()]
+    return bool(_rs.is_converged(current_pairs, previous_pairs))

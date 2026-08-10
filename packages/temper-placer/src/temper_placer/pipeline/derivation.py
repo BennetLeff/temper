@@ -3,13 +3,23 @@ Physics-based constraint derivation for PCB placement.
 
 This module derives geometric placement constraints from high-level
 physical performance specifications (EMI, Thermal, Signal Integrity).
+
+The derivation compute (EMI `sqrt(area) * 0.8`, thermal `power * 2.0`,
+signal-integrity `max_len / 1.5`, the mains-voltage classification
+boundaries and the `_min_clearance` key extraction) delegates to the
+``temper-orchestration`` crate (``temper_orchestration.derive_emi_max_dist``
+/ ``derive_thermal_clearance`` / ``derive_si_max_placement_dist`` /
+``mains_voltage_to_class_code`` / ``extract_min_clearance``), pinned
+bit-identically by ``tests/pipeline/test_pipeline_feasibility_rust_differential.py``
+(oracle: ``tests/pipeline/_pipeline_feasibility_py_oracle.py``).
 """
 
 from __future__ import annotations
 
-import math
 import warnings
 from typing import TYPE_CHECKING, Any
+
+import temper_orchestration as _rs
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
@@ -17,17 +27,24 @@ if TYPE_CHECKING:
 
 from temper_placer.core.net_types import VoltageClass
 
+# IEC 60335-1 voltage classes, indexed by `mains_voltage_to_class_code`
+# (0=LOW_VOLTAGE, 1=MAINS_120V, 2=MAINS_240V, 3=HIGH_VOLTAGE).
+_VOLTAGE_CLASS_BY_CODE = {
+    0: VoltageClass.LOW_VOLTAGE,
+    1: VoltageClass.MAINS_120V,
+    2: VoltageClass.MAINS_240V,
+    3: VoltageClass.HIGH_VOLTAGE,
+}
+
 
 def _mains_voltage_to_class(voltage_v: float) -> VoltageClass:
-    """Map a mains voltage in volts to the nearest IEC 60335-1 voltage class."""
-    if voltage_v <= 50:
-        return VoltageClass.LOW_VOLTAGE
-    elif voltage_v <= 130:
-        return VoltageClass.MAINS_120V
-    elif voltage_v <= 264:
-        return VoltageClass.MAINS_240V
-    else:
-        return VoltageClass.HIGH_VOLTAGE
+    """Map a mains voltage in volts to the nearest IEC 60335-1 voltage class.
+
+    The boundary comparisons (`<= 50` / `<= 130` / `<= 264`, NaN falling
+    through to HIGH_VOLTAGE) are the Rust kernel `mains_voltage_to_class_code`;
+    the code-to-pyclass mapping stays here.
+    """
+    return _VOLTAGE_CLASS_BY_CODE[_rs.mains_voltage_to_class_code(voltage_v)]
 
 
 def derive_constraints_from_spec(
@@ -43,11 +60,12 @@ def derive_constraints_from_spec(
 
     # 1. EMI -> Max Distance and Max Area
     for loop_name, max_area in spec.emi.max_loop_area_mm2.items():
-        # L = sqrt(Area). Max side length of a square loop.
-        max_side = math.sqrt(max_area)
-        # Conservative estimate for max component spacing (center-to-center)
-        # Assuming 20% routing overhead
-        derived[f"{loop_name}_max_dist"] = max_side * 0.8
+        # L = sqrt(Area). Max side length of a square loop. Conservative
+        # estimate for max component spacing (center-to-center), assuming
+        # 20% routing overhead. The `sqrt(area) * 0.8` expression is the
+        # Rust kernel `derive_emi_max_dist` (IEEE sqrt = CPython math.sqrt,
+        # then the same `* 0.8`).
+        derived[f"{loop_name}_max_dist"] = _rs.derive_emi_max_dist(float(max_area))
         # Store the max area directly for quality metric scoring
         derived[f"{loop_name}_max_area_mm2"] = max_area
 
@@ -57,13 +75,19 @@ def derive_constraints_from_spec(
     power_map = spec.thermal.power_dissipation
     for ref, power in power_map.items():
         # Heuristic: 2mm per Watt spacing
-        derived[f"{ref}_min_clearance"] = power * 2.0
+        # The `power * 2.0` product is the Rust kernel
+        # `derive_thermal_clearance`.
+        derived[f"{ref}_min_clearance"] = _rs.derive_thermal_clearance(float(power))
 
     # 3. Signal Integrity -> Max Length
     for net_name, max_len in spec.signal_integrity.max_length_mm.items():
         # Max placement distance should be less than max length
         # Assuming 1.5x routing overhead (Manhattan + detours)
-        derived[f"{net_name}_max_placement_dist"] = max_len / 1.5
+        # The `max_len / 1.5` quotient is the Rust kernel
+        # `derive_si_max_placement_dist`.
+        derived[f"{net_name}_max_placement_dist"] = _rs.derive_si_max_placement_dist(
+            float(max_len)
+        )
 
     # 4. Safety -> Isolation (Creepage/Clearance)
     if spec.safety is not None:
@@ -103,13 +127,18 @@ def apply_derived_constraints(
     from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
 
     for key, value in derived.items():
-        if key.endswith("_min_clearance"):
-            ref = key.replace("_min_clearance", "")
+        # The `_min_clearance` suffix test and the ref extraction
+        # (Python `str.replace` all-occurrence semantics) are the Rust
+        # kernel `extract_min_clearance`; the PCL object construction is
+        # Python IR marshalling.
+        extracted = _rs.extract_min_clearance(key, float(value))
+        if extracted is not None:
+            ref, min_distance = extracted
             pcl_constraints.add(
                 SeparatedConstraint(
                     a=ref,
                     b="*",
-                    min_distance_mm=float(value),
+                    min_distance_mm=float(min_distance),
                     tier=ConstraintTier.STRONG,
                     because=f"Derived from thermal spec: {ref} min clearance {value}mm",
                 )

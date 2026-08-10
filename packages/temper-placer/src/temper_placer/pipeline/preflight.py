@@ -3,12 +3,23 @@ Preflight feasibility checker (temper-l65.6).
 
 Performs fast feasibility checking without full optimization to catch
 infeasible designs early.
+
+The feasibility compute (component-area fill ratio, constraint
+satisfiability min-distance, zone capacity, loop-area and isolation
+feasibility) delegates to the ``temper-orchestration`` crate
+(``temper_orchestration.component_area_ratio`` / ``proximity_rule_impossible``
+/ ``zone_over_capacity`` / ``loop_area_violation`` /
+``isolation_barrier_too_large`` / ``builtin_sum``), pinned bit-identically by
+``tests/pipeline/test_pipeline_feasibility_rust_differential.py`` (oracle:
+``tests/pipeline/_pipeline_feasibility_py_oracle.py``).
 """
 
 import time
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Protocol
+
+import temper_orchestration as _rs
 
 
 class PreflightResult(Enum):
@@ -114,18 +125,27 @@ class PreflightChecker:
 
     def _check_component_area(self, board: BoardLike, netlist: NetlistLike) -> PreflightCheck:
         start = time.time()
-        total_area = sum(c.width * c.height for c in netlist.components)
-        board_area = board.width * board.height
-        keepout_area = sum(
-            k[2] * k[3] if len(k) == 4 else 0 for k in getattr(board, "keepouts", [])
+        # The fill-ratio arithmetic (compensated `sum(w*h)`, board minus
+        # keepout area, `total / usable if usable > 0 else 1.0` and the
+        # FAIL/WARN/PASS classification) is the Rust kernel
+        # `component_area_ratio`. Component and keepout dims cross the
+        # boundary as floats; the keepout `len(k) == 4` filter stays here
+        # (Python-object marshalling).
+        comp_dims = [(float(c.width), float(c.height)) for c in netlist.components]
+        keepout_dims = [
+            (float(k[2]), float(k[3]))
+            for k in getattr(board, "keepouts", [])
+            if len(k) == 4
+        ]
+        ratio, code = _rs.component_area_ratio(
+            comp_dims, float(board.width), float(board.height), keepout_dims
         )
-        usable_area = board_area - keepout_area
-        ratio = total_area / usable_area if usable_area > 0 else 1.0
-        result = (
-            PreflightResult.FAIL
-            if ratio > 0.85
-            else (PreflightResult.WARN if ratio > 0.7 else PreflightResult.PASS)
-        )
+        if code == 2:
+            result = PreflightResult.FAIL
+        elif code == 1:
+            result = PreflightResult.WARN
+        else:
+            result = PreflightResult.PASS
         return PreflightCheck(
             "Component Area",
             result,
@@ -147,11 +167,17 @@ class PreflightChecker:
             a, b = getattr(c, "component_a", ""), getattr(c, "component_b", "")
             max_d = getattr(c, "max_distance_mm", float("inf"))
             if a in comp_map and b in comp_map:
-                min_d = min(
-                    (comp_map[a].width + comp_map[b].width) / 2,
-                    (comp_map[a].height + comp_map[b].height) / 2,
+                # The `min((wa+wb)/2, (ha+hb)/2)` spacing and the
+                # `max_d < min_d` decision are the Rust kernel
+                # `proximity_rule_impossible`; the message f-string stays here.
+                min_d, imp = _rs.proximity_rule_impossible(
+                    float(comp_map[a].width),
+                    float(comp_map[a].height),
+                    float(comp_map[b].width),
+                    float(comp_map[b].height),
+                    float(max_d),
                 )
-                if max_d < min_d:
+                if imp:
                     impossible.append(f"{a}-{b}: max {max_d}mm < min {min_d:.1f}mm")
         result = PreflightResult.FAIL if impossible else PreflightResult.PASS
         if impossible:
@@ -171,13 +197,17 @@ class PreflightChecker:
             return PreflightCheck("Zone Capacity", PreflightResult.PASS, "No zones")
         violations = []
         for zone in board.zones:
-            cap = zone.width * zone.height
-            content = sum(
-                c.width * c.height
+            # The zone-name membership filter stays here; the compensated
+            # content sum and `content > cap * 0.9` comparison are the Rust
+            # kernel `zone_over_capacity`.
+            content_dims = [
+                (float(c.width), float(c.height))
                 for c in netlist.components
                 if getattr(c, "zone", "") == zone.name
-            )
-            if content > cap * 0.9:
+            ]
+            if _rs.zone_over_capacity(
+                float(zone.width), float(zone.height), content_dims
+            ):
                 violations.append(f"Zone {zone.name} over cap")
         result = PreflightResult.FAIL if violations else PreflightResult.PASS
         return PreflightCheck(
@@ -209,8 +239,19 @@ class PreflightChecker:
 
             if not refs:
                 continue
-            total_a = sum(comp_map[r].width * comp_map[r].height for r in refs if r in comp_map)
-            if max_a and max_a < total_a * 0.5:
+            # The ref-membership filter stays here; the compensated product
+            # sum and `max_a and max_a < total_a * 0.5` short-circuit are the
+            # Rust kernel `loop_area_violation` (with Python's `bool(max_a)`
+            # truthiness carried in).
+            content_dims = [
+                (float(comp_map[r].width), float(comp_map[r].height))
+                for r in refs
+                if r in comp_map
+            ]
+            truthy = bool(max_a)
+            if _rs.loop_area_violation(
+                float(max_a) if truthy else 0.0, truthy, content_dims
+            ):
                 violations.append(f"Loop {getattr(loop, 'name', 'unknown')} too small")
         result = PreflightResult.WARN if violations else PreflightResult.PASS
         return PreflightCheck(
@@ -227,9 +268,16 @@ class PreflightChecker:
         iso = 6.5
         hv = sum(1 for c in _netlist.components if getattr(c, "net_class", "") == "HighVoltage")
         if hv > 0:
-            barrier_a = min(board.width, board.height) * iso
-            total_a = sum(c.width * c.height for c in _netlist.components)
-            if total_a + barrier_a > board.width * board.height * 0.95:
+            # The `min(w, h) * iso` barrier area and the
+            # `total_a + barrier_a > board_area * 0.95` comparison are the
+            # Rust kernel `isolation_barrier_too_large`; the HV-present gate
+            # stays here.
+            comp_dims = [
+                (float(c.width), float(c.height)) for c in _netlist.components
+            ]
+            if _rs.isolation_barrier_too_large(
+                comp_dims, float(board.width), float(board.height), iso
+            ):
                 return PreflightCheck(
                     "Isolation Feasibility",
                     PreflightResult.FAIL,
