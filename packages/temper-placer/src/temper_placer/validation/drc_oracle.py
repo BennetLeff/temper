@@ -21,7 +21,6 @@ from __future__ import annotations
 from typing import TypeAlias
 
 import numpy as np
-from pydantic import BaseModel
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
@@ -54,36 +53,23 @@ def _rs() -> Any:
 
 
 def _constraint_value_to_plain(value: Any) -> Any:
-    """Recursively convert a ``constraints_config`` field into the plain
+    """Convert a ``constraints_config`` field into the plain
     dict/list/str/int/float/bool/None shape ``temper_drc_rs.run_drc()``
     understands.
 
-    ``context.constraints_config`` (``temper_placer._constraint_types.PlacementConstraints``)
-    fields such as ``isolation_barriers`` are lists of frozen pydantic
-    ``BaseModel`` instances (e.g. ``IsolationBarrier``), not dicts. The
-    PyO3 bridge on the Rust side
-    (``constraints::build_constraint_set``/``py_any_to_json_value`` in
-    ``packages/temper-drc-rs/src/constraints.rs``) only recognizes
-    dict/list/str/int/float/bool/None -- a raw pydantic object passed
-    through raises ``cannot convert Python value to JSON`` deep inside the
-    Rust boundary. Before this fix, that meant a YAML-configured
-    ``isolation_barriers`` entry could never reach ``IsolationBarrierCheck``
-    through this path even once the config schema/loader supported it: the
-    dict always carried objects `run_drc()` would reject, not the empty
-    default this code silently produced for every real run today (see
-    ``constraints::IsolationBarrier``'s doc comment in
-    ``packages/temper-drc-rs/src/constraints.rs``).
+    Delegates to the Rust kernel ``temper_drc_rs.constraint_value_to_plain_py``
+    (Wave 4 marshalling-boundary migration).  Falls back to the verbatim
+    pure-Python implementation when the Rust extension is not available — the
+    module's graceful-degradation contract for extension-absent callers
+    (e.g. ``test_isolation_barrier_wiring.py`` in its
+    ``pytest.importorskip``-absent path).
     """
+    if _HAS_RUST_DRC:
+        return _rs().constraint_value_to_plain_py(value)
+    # Pure-Python fallback (verbatim pre-migration body).
+    from pydantic import BaseModel  # noqa: PLC0415
+
     if isinstance(value, BaseModel):
-        # mode="json" is load-bearing, not cosmetic: several fields here
-        # (``y_span``, the new ``points``) are typed as ``tuple[...]`` on
-        # the pydantic model (the project's immutable-field convention),
-        # and PyO3's dict-to-JSON bridge on the Rust side only recognizes
-        # ``list``, not ``tuple`` -- ``model_dump()``'s default
-        # ``mode="python"`` would leave those as tuples and the same
-        # ``cannot convert Python value to JSON`` error would resurface
-        # one level down. ``mode="json"`` recursively coerces every
-        # nested tuple to a list.
         return value.model_dump(mode="json")
     if isinstance(value, (list, tuple)):
         return [_constraint_value_to_plain(v) for v in value]
@@ -300,12 +286,9 @@ class DRCOracle:
     ) -> dict[str, Any]:
         """Build a K1-schema board dict from positions + context.
 
-        Produces the dict format consumed by temper_drc_rs.run_drc():
-        - components: list of dicts with ref, x, y, rot, side, width, height, net_class, ...
-        - nets: net_name → list of component refs
-        - net_classes: net_name → class_name
-        - net_class_rules: class_name → rule dict
-        - board: {width_mm, height_mm, margin_mm}
+        Delegates to the Rust kernel ``temper_drc_rs.build_board_dict_py``
+        or ``temper_drc_rs.build_board_dict_from_parsed_pcb_py`` (Wave 4
+        marshalling-boundary migration).
 
         When ``parsed_pcb`` is provided, delegates to the parsed-PCB path
         (ignoring positions/context).  This allows callers like
@@ -315,77 +298,19 @@ class DRCOracle:
         Returns:
             dict matching the K1 schema (see plan §K1).
         """
+        rs = _rs()
         if parsed_pcb is not None:
-            return self._build_board_dict_from_parsed_pcb(parsed_pcb)
-
-        netlist = context.netlist
-
-        # --- Board dimensions ---
-        board_dict: dict[str, Any] = {
-            "width_mm": float(context.board.width),
-            "height_mm": float(context.board.height),
-            "margin_mm": float(context.board_margin),
-        }
-
-        # --- Components ---
-        components: list[dict[str, Any]] = []
-        for i, c in enumerate(netlist.components):
-            x = float(positions[i, 0])
-            y = float(positions[i, 1])
-            rotation = float(c.initial_rotation * 90) if c.initial_rotation is not None else 0.0
-            side = "bottom" if c.initial_side is not None and c.initial_side == 1 else "top"
-            package_type = _infer_package_type(c.footprint)
-            is_mechanical = c.ref.startswith("MH") or package_type == "MECHANICAL"
-            comp: dict[str, Any] = {
-                "ref": c.ref,
-                "x": x,
-                "y": y,
-                "rot": rotation,
-                "side": side,
-                "width": float(c.width),
-                "height": float(c.height),
-                "net_class": c.net_class,
-                "package_type": package_type,
-                "power_dissipation_w": None,
-                "is_magnetic": False,
-                "is_electrolytic": False,
-                "is_mechanical": is_mechanical,
-                "vent_direction": None,
-                "footprint_polygon": None,
-            }
-            components.append(comp)
-
-        # --- Nets ---
-        nets: dict[str, list[str]] = {}
-        net_classes: dict[str, str] = {}
-        for net in netlist.nets:
-            comp_refs = list({ref for ref, _ in net.pins})
-            nets[net.name] = comp_refs
-            net_classes[net.name] = net.net_class
-
-        # --- Net class rules ---
-        net_class_rules: dict[str, dict[str, Any]] = {}
-        for rule in context.clearance_rules:
-            for nc in (rule.net_class_a, rule.net_class_b):
-                if nc not in net_class_rules:
-                    net_class_rules[nc] = {
-                        "trace_width_mm": 0.2,
-                        "clearance_mm": rule.min_clearance,
-                        "creepage_mm": None,
-                        "voltage_v": None,
-                        "max_current_rating": None,
-                        "safety_category": None,
-                        "required_layer": None,
-                        "routing_strategy": None,
-                    }
-
-        return {
-            "board": board_dict,
-            "components": components,
-            "nets": nets,
-            "net_classes": net_classes,
-            "net_class_rules": net_class_rules,
-        }
+            return dict(rs.build_board_dict_from_parsed_pcb_py(parsed_pcb))
+        return dict(
+            rs.build_board_dict_py(
+                positions=positions,
+                netlist=context.netlist,
+                board_width=float(context.board.width),
+                board_height=float(context.board.height),
+                board_margin=float(context.board_margin),
+                clearance_rules=context.clearance_rules,
+            )
+        )
 
     @staticmethod
     def _build_board_dict_from_parsed_pcb(
@@ -393,9 +318,9 @@ class DRCOracle:
     ) -> dict[str, Any]:
         """Build a K1-schema board dict from a ParsedPCB object.
 
-        This is the static path used by ``ci_closure_test.py`` and other
-        callers that have a ``ParsedPCB`` (from ``parse_kicad_pcb_v6()``)
-        rather than a placer positions array.
+        Delegates to the Rust kernel
+        ``temper_drc_rs.build_board_dict_from_parsed_pcb_py`` (Wave 4
+        marshalling-boundary migration).
 
         Args:
             parsed_pcb: A ``ParsedPCB`` instance (from
@@ -404,65 +329,7 @@ class DRCOracle:
         Returns:
             dict matching the K1 schema.
         """
-        components: list[dict[str, Any]] = []
-        for c in parsed_pcb.components:
-            x, y = c.initial_position or (0.0, 0.0)
-            rotation = float(c.initial_rotation * 90) if c.initial_rotation is not None else 0.0
-            side = "bottom" if c.initial_side is not None and c.initial_side == 1 else "top"
-            package_type = _infer_package_type(c.footprint)
-            is_mechanical = c.ref.startswith("MH") or package_type == "MECHANICAL"
-            components.append(
-                {
-                    "ref": c.ref,
-                    "x": x,
-                    "y": y,
-                    "rot": rotation,
-                    "side": side,
-                    "width": float(c.width),
-                    "height": float(c.height),
-                    "net_class": c.net_class,
-                    "package_type": package_type,
-                    "power_dissipation_w": None,
-                    "is_magnetic": False,
-                    "is_electrolytic": False,
-                    "is_mechanical": is_mechanical,
-                    "vent_direction": None,
-                    "footprint_polygon": None,
-                }
-            )
-
-        nets: dict[str, list[str]] = {}
-        net_classes: dict[str, str] = {}
-        for net in parsed_pcb.nets:
-            comp_refs = list({ref for ref, _ in net.pins})
-            nets[net.name] = comp_refs
-            net_classes[net.name] = net.net_class
-
-        # Populate net_class_rules from parsed DesignRules
-        net_class_rules: dict[str, dict[str, Any]] = {}
-        for class_name, rules in parsed_pcb.design_rules.net_classes.items():
-            net_class_rules[class_name] = {
-                "trace_width_mm": rules.trace_width_mm,
-                "clearance_mm": rules.clearance_mm,
-                "creepage_mm": None,
-                "voltage_v": None,
-                "max_current_rating": None,
-                "safety_category": None,
-                "required_layer": None,
-                "routing_strategy": None,
-            }
-
-        return {
-            "board": {
-                "width_mm": float(parsed_pcb.board.width),
-                "height_mm": float(parsed_pcb.board.height),
-                "margin_mm": 3.0,
-            },
-            "components": components,
-            "nets": nets,
-            "net_classes": net_classes,
-            "net_class_rules": net_class_rules,
-        }
+        return dict(_rs().build_board_dict_from_parsed_pcb_py(parsed_pcb))
 
     def _build_constraints_dict(
         self,
@@ -470,84 +337,22 @@ class DRCOracle:
     ) -> dict[str, Any]:
         """Build a constraints dict for the Rust DRC engine.
 
-        Produces the dict format consumed by temper_drc_rs.build_constraint_set().
-        Every field that Rust's ``ConstraintSet`` (de)serializes via serde is
-        included with its default value, ensuring the JSON bridge never encounters
-        a missing key.
-
-        Fields that Rust expects as sequences (all default to ``[]``):
-        - ``clearances``: list of ``{"from_class": str, "to_class": str,
-          "clearance_mm": float, "description": str}``
-        - ``matched_length_groups``: list of ``{"name": str,
-          "tolerance_mm": float, "nets": [str]}``
-        - ``noise_domains``: list of ``{"emitters": [str], "victims": [str],
-          "max_parallel_run_mm": float}``
-        - ``isolation_barriers``: list of ``{"name": str, "x_mm": float,
-          "y_span": [float, float], "layers": str}``
-        - ``thermal_properties``: list of ``{"component": str,
-          "power_dissipation_w": float|None, "max_ambient_c": float|None}``
-        - ``snubber_requirements``: list of dicts
-
-        Optional singleton fields:
-        - ``bleed_resistor``: ``None`` or ``{"bus_voltage_v": float,
-          "target_voltage_v": float, "timeout_s": float}``
-        - ``skin_effect_derating``: ``None`` or ``{"frequency_hz": float,
-          "derating_factor": float}``
-
-        See also ``ConstraintSet`` in ``packages/temper-drc-rs/src/constraints.rs``.
+        Delegates to the Rust kernel
+        ``temper_drc_rs.build_constraints_dict_py`` (Wave 4 marshalling-
+        boundary migration).
 
         Returns:
             dict matching the ConstraintSet serde schema.
         """
-        constraints_dict: dict[str, Any] = {
-            "clearances": [],
-            "zones": [],
-            "critical_loops": [],
-            "noise_domains": [],
-            "isolation_barriers": [],
-            "thermal_properties": [],
-            "matched_length_groups": [],
-            "snubber_requirements": [],
-            "bleed_resistor": None,
-            "skin_effect_derating": None,
-            "hv_clearance_mm": 10.0,
-            "board_width": float(context.board.width),
-            "board_height": float(context.board.height),
-        }
-
-        # --- Clearance rules ---
-        for rule in context.clearance_rules:
-            constraints_dict["clearances"].append(
-                {
-                    "from_class": rule.net_class_a,
-                    "to_class": rule.net_class_b,
-                    "clearance_mm": rule.min_clearance,
-                    "description": getattr(rule, "because", ""),
-                }
-            )
-
-        # --- Merge constraints_config if present ---
-        # This carries the YAML-derived PlacementConstraints which may
-        # override the defaults above (noise_domains, isolation_barriers,
-        # thermal_properties, matched_length_groups, etc.)
         config = getattr(context, "constraints_config", None)
-        if config is not None:
-            for key in (
-                "zones",
-                "critical_loops",
-                "noise_domains",
-                "isolation_barriers",
-                "thermal_properties",
-                "matched_length_groups",
-                "snubber_requirements",
-                "bleed_resistor",
-                "skin_effect_derating",
-            ):
-                val = getattr(config, key, None)
-                if val is not None:
-                    constraints_dict[key] = _constraint_value_to_plain(val)
-
-        return constraints_dict
+        return dict(
+            _rs().build_constraints_dict_py(
+                clearance_rules=context.clearance_rules,
+                constraints_config=config,
+                board_width=float(context.board.width),
+                board_height=float(context.board.height),
+            )
+        )
 
     @staticmethod
     def _violations_to_run_result(
