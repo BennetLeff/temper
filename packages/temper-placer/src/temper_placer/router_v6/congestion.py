@@ -22,40 +22,53 @@ Example usage:
 
 Wave 4 Phase B (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
 ``CongestionGrid.from_board``/``get_utilization``/``get_overflow``,
-``Bottleneck.to_coordinates`` and ``CongestionResult.overflow_ratio`` delegate
-to ``temper_geometry`` (``congestion_grid_from_board_py`` and neighbours) --
-pure array/scalar math with no gap between the kernel's contract and this
-module's. Three entry points do **not** delegate, each for a reason verified
-against a real production call site rather than only against the
-differential (``tests/router_v6/test_congestion_rust_differential.py``,
-which never exercises any of these three call shapes):
+``Bottleneck.to_coordinates``, ``CongestionResult.overflow_ratio``,
+``estimate_net_demand`` and ``CongestionResult.get_top_bottlenecks`` all
+delegate to ``temper_geometry``. Two of those delegations close gaps this
+module's earlier wave-4 wiring had to document as blocking:
 
-* ``estimate_net_demand`` -- the Rust kernel (``congestion_estimate_net_demand_py``)
-  always builds a *fresh* zero-initialised grid from ``(width, height)``; it
-  has no parameter for an already-populated ``grid.demand``. This function's
-  only production caller (``analyze_congestion``'s per-net loop, below)
-  accumulates onto the SAME grid across many nets, so delegating here would
-  silently drop every net's demand but the first.
-* ``CongestionResult.get_top_bottlenecks`` -- the Rust kernel
-  (``congestion_result_top_bottlenecks_py``) takes only the list of
-  ``overflow`` floats and reconstructs synthetic ``Bottleneck(x=i, y=0,
-  utilization=float(i), ...)`` rows to match the differential's own test
-  fixture; it cannot sort real ``Bottleneck`` objects (arbitrary ``x``/``y``/
-  ``utilization``/``layer``) without discarding their true fields.
-* ``analyze_congestion`` -- the Rust kernel (``congestion_analyze_py``)
-  reimplements pin-position resolution via its own ``pin_world_position``,
-  which composes rotation only and omits the bottom-side mirror
-  (``if side == 1: px = -px``) that
-  ``core.pin_geometry.pin_world_position_at`` applies. The kernel's own
-  module doc names this omission deliberate: its corpus never sets
-  ``Component.initial_side``, so the mirror branch "never fires" there. Every
-  real caller (``metrics/physics.py``, ``pipeline/stages/routing_stage.py``,
-  ``router_v6/verifier.py``) analyzes netlists that may legitimately place
-  components on the bottom side, so wiring this kernel would silently
-  mis-place every bottom-side pin's demand contribution on any board that
-  uses one -- a regression invisible to the differential (whose corpus never
-  sets a side) and only reachable by inspecting the kernel's own
-  ``pin_world_position`` against ``pin_world_position_at``.
+* ``estimate_net_demand`` delegates to ``congestion_estimate_net_demand_py``
+  in its **accumulator** form (the trailing ``demand`` array). The kernel
+  used to always build a fresh zero-initialised grid from ``(width, height)``
+  with no parameter for an already-populated ``grid.demand``; this
+  function's only production caller (``analyze_congestion``'s per-net loop)
+  accumulates onto the SAME grid across many nets, so the plain form would
+  silently drop every net's demand but the first. The kernel now adds
+  ``demand_per_cell`` into the passed-in demand grid in place; the pinned
+  ``None`` form keeps the fresh-grid contract the single-net differential
+  binds.
+* ``CongestionResult.get_top_bottlenecks`` delegates to
+  ``congestion_result_top_bottlenecks_py``, which sorts REAL bottleneck
+  records -- ``(x, y, utilization, overflow, layer)``, the flattened
+  ``Bottleneck`` dataclass -- rather than reconstructing synthetic
+  ``Bottleneck(x=i, y=0, utilization=i, ...)`` rows from a bare list of
+  ``overflow`` floats (which discarded the true fields of any real record).
+
+``analyze_congestion`` keeps its orchestration in Python for a documented
+reason, not by accident. Its two optional parameters -- ``positions=`` and
+``layer_assignments=`` -- are NOT part of ``congestion_analyze_py``'s
+contract: that kernel (see ``packages/temper-geometry/src/congestion_analysis.rs``)
+is bound by its own differential with ``positions=None,
+layer_assignments=None`` always, resolves every net on layer 0, and assumes a
+``(0.0, 0.0)`` board origin. Every production caller uses the excluded
+shapes: ``metrics/physics.py`` passes ``positions=``,
+``router_v6/verifier.py`` passes ``positions=`` AND ``layer_assignments=``,
+and nothing constrains a real ``Board``'s origin to zero. Wiring the whole
+function to that kernel would silently mis-place every pin's demand on any
+board that uses one of those features -- the same defect class this module's
+wave-4 wiring exists to avoid (the kernel's own bottom-side mirror,
+``if side == 1: px = -px``, was the third instance of that class, fixed in
+#832 and pinned by the differential's ``mixed_side_mirror`` design). What
+``analyze_congestion`` DOES run is nonetheless delegated at every compute
+layer: the grid kernels, the per-net demand accumulation
+(``estimate_net_demand`` above), ``get_utilization``/``get_overflow``, and
+pin-position resolution (``pin_world_position_at`` already calls
+``pin_world_position_kernel_py``, which mirrors X before rotation for
+bottom-side components). The remaining Python is orchestration -- layer
+promotion, the per-net loop, and dataclass assembly -- exactly the seams the
+established migration pattern keeps on this side of the boundary
+(``congestion_analysis.py`` keeps its duck-typed route extraction,
+``routing_demand.py`` its dict/list marshalling).
 """
 
 from dataclasses import dataclass, field
@@ -252,14 +265,25 @@ class CongestionResult:
     def get_top_bottlenecks(self, n: int = 10) -> list[Bottleneck]:
         """Get the top N bottlenecks sorted by overflow.
 
+        Delegates to ``congestion_result_top_bottlenecks_py``, which sorts
+        REAL bottleneck records (``(x, y, utilization, overflow, layer)``) --
+        the flattened ``Bottleneck`` dataclass -- via Python's own ``sorted``
+        (timsort; NaN-key and signed-zero semantics pinned by the
+        differential) and a real ``[:n]`` slice (a NEGATIVE ``n`` drops the
+        last ``|n|``, exactly like the reference's ``sorted_bottlenecks[:n]``).
+
         Args:
             n: Maximum number of bottlenecks to return.
 
         Returns:
             List of up to n bottlenecks, sorted by overflow (descending).
         """
-        sorted_bottlenecks = sorted(self.bottlenecks, key=lambda b: b.overflow, reverse=True)
-        return sorted_bottlenecks[:n]
+        rows = [(b.x, b.y, b.utilization, b.overflow, b.layer) for b in self.bottlenecks]
+        out = _tg.congestion_result_top_bottlenecks_py(rows, n)
+        return [
+            Bottleneck(x=x, y=y, utilization=utilization, overflow=overflow, layer=layer)
+            for (x, y, utilization, overflow, layer) in out
+        ]
 
 
 def estimate_net_demand(
@@ -273,6 +297,13 @@ def estimate_net_demand(
     Uses bounding box estimation - all cells within the net's bounding box
     get a fraction of the demand based on likely routing paths.
 
+    Delegates to ``congestion_estimate_net_demand_py``'s **accumulator**
+    form: this module's only caller (``analyze_congestion``'s per-net loop)
+    accumulates onto the SAME grid across many nets, so the kernel must add
+    into an already-populated demand array rather than rebuild a fresh zero
+    one -- the accumulator parameter is what makes that delegation safe (see
+    the module docstring).
+
     Args:
         grid: CongestionGrid to update.
         pin_positions: List of (x, y) pin positions for the net.
@@ -285,60 +316,34 @@ def estimate_net_demand(
     if len(pin_positions) < 2:
         return grid
 
-    # Compute bounding box
-    xs = [p[0] for p in pin_positions]
-    ys = [p[1] for p in pin_positions]
-
-    min_x, max_x = min(xs), max(xs)
-    min_y, max_y = min(ys), max(ys)
-
-    # Convert to grid coordinates
-    cell_size = grid.cell_size_mm
-    origin_x, origin_y = grid.origin
-
-    col_min = max(0, int((min_x - origin_x) / cell_size))
-    col_max = min(grid.width_cells - 1, int((max_x - origin_x) / cell_size))
-    row_min = max(0, int((min_y - origin_y) / cell_size))
-    row_max = min(grid.height_cells - 1, int((max_y - origin_y) / cell_size))
-
-    # A net whose bounding box does not intersect the grid contributes no
-    # demand. Clamping each pair from one side only is not enough: a net
-    # entirely left of (or above) the board leaves col_max/row_max NEGATIVE,
-    # and `demand[0 : -3 + 1, 0 : -3 + 1]` is a *negative-index* slice -- it
-    # writes a real block of demand at the board ORIGIN. The far edge was
-    # already correct by accident (col_min > col_max yields an empty
-    # `[50:10]` slice), which is exactly what made the near edge visible.
-    if col_max < col_min or row_max < row_min:
+    # The kernel mutates the array it is given, so it gets a copy -- the
+    # caller's grid stays untouched, exactly as the pinned reference's
+    # `grid.demand.copy()` semantics require.
+    new_demand = grid.demand.copy()
+    out_demand, is_identity = _tg.congestion_estimate_net_demand_py(
+        grid.width_cells * grid.cell_size_mm,
+        grid.height_cells * grid.cell_size_mm,
+        grid.cell_size_mm,
+        grid.origin,
+        list(pin_positions),
+        layer,
+        demand_per_cell,
+        grid.num_layers,
+        new_demand,
+    )
+    # Identity return for the D3 guard (a net whose bounding box does not
+    # intersect the grid): the input grid object itself is handed back.
+    if is_identity:
         return grid
-
-    # Add demand to cells in bounding box
-    # Use half-perimeter estimation - weight cells along likely routing paths
-    if grid.num_layers == 1:
-        # 2D grid
-        new_demand = grid.demand.copy()
-        new_demand[row_min : row_max + 1, col_min : col_max + 1] += demand_per_cell
-        return CongestionGrid(
-            demand=new_demand,
-            supply=grid.supply,
-            cell_size_mm=grid.cell_size_mm,
-            width_cells=grid.width_cells,
-            height_cells=grid.height_cells,
-            num_layers=grid.num_layers,
-            origin=grid.origin,
-        )
-    else:
-        # 3D grid - add demand to specific layer
-        new_demand = grid.demand.copy()
-        new_demand[layer, row_min : row_max + 1, col_min : col_max + 1] += demand_per_cell
-        return CongestionGrid(
-            demand=new_demand,
-            supply=grid.supply,
-            cell_size_mm=grid.cell_size_mm,
-            width_cells=grid.width_cells,
-            height_cells=grid.height_cells,
-            num_layers=grid.num_layers,
-            origin=grid.origin,
-        )
+    return CongestionGrid(
+        demand=out_demand,
+        supply=grid.supply,
+        cell_size_mm=grid.cell_size_mm,
+        width_cells=grid.width_cells,
+        height_cells=grid.height_cells,
+        num_layers=grid.num_layers,
+        origin=grid.origin,
+    )
 
 
 def _get_pin_positions(

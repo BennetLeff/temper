@@ -930,23 +930,28 @@ def test_repaired_d3_offboard_net_contributes_nothing():
     negative coordinate) also makes the 49 cells go away, and additionally
     drops the *straddling* net that legitimately contributes 9 cells.  So the
     straddling case is asserted alongside.
+
+    **After the wave-4 delegation** the guard lives in the Rust kernel
+    (``congestion_estimate_net_demand_py``), not in the shipped Python -- the
+    shipped ``estimate_net_demand`` now hands the bbox to the kernel's
+    accumulator form.  The structural half therefore pins the delegation in
+    the shipped module AND the both-pairs guard in the kernel's source, so a
+    reverted delegation or a reverted/inverted guard still fails here.
     """
     fn = _shipped_function("congestion", "estimate_net_demand")
-    guards = [
-        ast.unparse(node.test)
-        for node in ast.walk(fn)
-        if isinstance(node, ast.If)
-        and any(isinstance(s, ast.Return) for s in node.body)
-        and "col_max" in ast.unparse(node.test)
-    ]
-    assert guards, (
-        "estimate_net_demand has no early-return guard mentioning col_max -- "
-        "the D3 repair has been reverted; re-derive D3 before trusting this test"
+    body = ast.unparse(fn)
+    assert "_tg.congestion_estimate_net_demand_py" in body, (
+        "estimate_net_demand no longer delegates to the congestion kernel -- "
+        "the D3 guard now lives in that kernel, so a reverted delegation "
+        "brings D3 back"
     )
-    assert any("col_min" in g and "row_min" in g for g in guards), (
-        f"the D3 guard compares col_max against a constant rather than against "
-        f"col_min/row_min: {guards} -- that also rejects legitimate nets whose "
-        "bounding box straddles the low edge"
+    kernel_src = (
+        _REPO_ROOT / "packages" / "temper-geometry" / "src" / "congestion.rs"
+    ).read_text(encoding="utf-8")
+    assert "col_max < col_min || row_max < row_min" in kernel_src, (
+        "the congestion kernel no longer carries D3's both-pairs guard "
+        "(`col_max < col_min || row_max < row_min`) -- the repair has been "
+        "reverted or inverted in Rust; re-derive D3 before trusting this test"
     )
 
     # --- behavioural half -------------------------------------------------
