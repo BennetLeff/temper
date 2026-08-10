@@ -1,4 +1,5 @@
 import temper_geometry as _tg
+import temper_orchestration as _to
 
 from temper_placer.core.board import (
     LAYER_IDX_TO_NAME,
@@ -63,6 +64,12 @@ def _layer_index_to_name(layer_idx: int, _layer_count: int) -> str:
 
 # @req(2026-06-23-005, R1): HV-pad identification. The set is the union of all
 # pads whose parent component is mapped to an HV exclusion zone.
+#
+# The orchestration is implemented in Rust (``temper-orchestration``'s
+# ``run_hv_pad_set``, Phase D batch D3): the zone-resolution loop (explicit
+# ``component_refdes`` first, then the spatial fallback via the
+# temper-geometry ``closest_component_for_zone_py`` kernel) and the pad-set
+# assembly move Rust-side; the ``ConfigError`` exception class stays here.
 def hv_pad_set(pads, hv_exclusion_zones, component_positions):
     """Identify the set of (component_ref, pin_name) pads that belong to HV components.
 
@@ -89,38 +96,4 @@ def hv_pad_set(pads, hv_exclusion_zones, component_positions):
             ``component_positions``, or if the spatial fallback finds no
             component within the zone bounds.
     """
-    hv_refs: set[str] = set()
-    for zone in hv_exclusion_zones:
-        ref = getattr(zone, "component_refdes", None)
-        if ref is not None:
-            if ref not in component_positions:
-                raise ConfigError(
-                    f"HV exclusion zone '{getattr(zone, 'name', '?')}' declares "
-                    f"component_refdes '{ref}' which is not present in the "
-                    f"placed netlist."
-                )
-            hv_refs.add(ref)
-            continue
-
-        zx, zy = zone.center
-        zw, zh = zone.size
-        half_w, half_h = zw / 2.0, zh / 2.0
-        # In-bounds filter + closest-by-squared-distance selection computed
-        # in temper-geometry (grid_raster.rs) with first-min tie-breaking,
-        # preserving Python's `min` semantics on the dict-insertion order of
-        # `component_positions.items()`.
-        closest_ref = _tg.closest_component_for_zone_py(
-            [(ref, pos[0], pos[1]) for ref, pos in component_positions.items()],
-            zx,
-            zy,
-            half_w,
-            half_h,
-        )
-        if closest_ref is None:
-            raise ConfigError(
-                f"HV exclusion zone '{getattr(zone, 'name', '?')}' centered at "
-                f"({zx}, {zy}) with size {zone.size} contains no placed component."
-            )
-        hv_refs.add(closest_ref)
-
-    return {(pad["ref"], pad["name"]) for pad in pads if pad["ref"] in hv_refs}
+    return _to.run_hv_pad_set(pads, hv_exclusion_zones, component_positions)

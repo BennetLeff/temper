@@ -298,8 +298,23 @@ def test_p4_fails_for_obstacle_mutant():
 
     import pytest
 
+    comp = Component(
+        ref="Q1",
+        footprint="FP",
+        bounds=(5.0, 5.0),
+        pins=[_pin("1", "NET_A", 0.0, 0.0)],
+        net_class="Signal",
+        initial_position=(10.0, 10.0),
+    )
+    state = BoardState(
+        board=Board(width=50.0, height=50.0),
+        netlist=Netlist(
+            components=[comp],
+            nets=[Net("NET_A", [("Q1", "1")], net_class="Signal")],
+        ),
+    )
     with pytest.raises(AssertionError):
-        _body_p4(mutant, (BoardState(board=Board(width=50.0, height=50.0)), 10.0, 40.0))
+        _body_p4(mutant, (state, 10.0, 40.0))
 
 
 # ---------------------------------------------------------------------------

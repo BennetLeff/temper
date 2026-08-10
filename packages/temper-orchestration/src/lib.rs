@@ -53,6 +53,21 @@
 //                     markdown_report}.py` (oracles in the temper-placer test
 //                     tree); the NL-generation kernels stay single-source in
 //                     temper-io-types and are called back from the pyclasses
+// - `grid_stage`    — Phase D batch D3: the deterministic clearance-grid
+//                     stage (`ClearanceGridStage` implements `Stage<BoardState>`,
+//                     mirroring `deterministic/stages/_grid_stage.py`: pad
+//                     collection, per-net blocking, HV creepage expansion,
+//                     fence invocation, EXP-13 exclusion zones; the
+//                     `ClearanceGrid` data type and the `_grid_hv`/`_grid_fence`
+//                     helpers stay Python)
+// - `grid_hv`       — Phase D batch D3: `run_hv_pad_set` (the
+//                     `_grid_hv.hv_pad_set` orchestration: zone -> HV
+//                     component resolution with the temper-geometry spatial
+//                     fallback, `ConfigError` raising, pad-set assembly)
+// - `grid_fence`    — Phase D batch D3: `run_grid_fence_check` + 
+//                     `run_grid_perf_budget` (the `_grid_fence`
+//                     conservatism-fence and perf-budget orchestration with
+//                     CPython-`__format__`-rendered messages)
 //
 // Panic safety at the boundary (R1g): pyo3's `#[pyfunction]` expansion
 // wraps every exported body in `catch_unwind` and converts a Rust panic
@@ -67,6 +82,9 @@ mod d1_bridge;
 mod derivation_stage;
 mod explainability;
 mod feasibility;
+mod grid_fence;
+mod grid_hv;
+mod grid_stage;
 mod host_math;
 mod net_ordering_stage;
 mod pipeline;
@@ -86,6 +104,7 @@ mod zone_geometry_stage;
 pub use board_state::BoardState;
 pub use config_attach_stage::ConfigAttachStage;
 pub use derivation_stage::DerivationStage;
+pub use grid_stage::ClearanceGridStage;
 pub use net_ordering_stage::NetOrderingStage;
 pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
 pub use preflight_stage::PreflightStage;
@@ -141,6 +160,10 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(zone_geometry_stage::run_zone_geometry, m)?)?;
     m.add_function(wrap_pyfunction!(zone_assignment_stage::run_zone_assignment, m)?)?;
     m.add_function(wrap_pyfunction!(slot_generation_stage::run_slot_generation, m)?)?;
+    m.add_function(wrap_pyfunction!(grid_stage::run_clearance_grid_stage, m)?)?;
+    m.add_function(wrap_pyfunction!(grid_hv::run_hv_pad_set, m)?)?;
+    m.add_function(wrap_pyfunction!(grid_fence::run_grid_fence_check, m)?)?;
+    m.add_function(wrap_pyfunction!(grid_fence::run_grid_perf_budget, m)?)?;
     Ok(())
 }
 
