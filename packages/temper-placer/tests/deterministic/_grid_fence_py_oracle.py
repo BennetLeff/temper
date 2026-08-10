@@ -1,5 +1,20 @@
-import temper_orchestration as _to
-
+# ORACLE COPY -- DO NOT EDIT, DO NOT "FIX".
+#
+# Verbatim copy of the pre-migration source of
+#   packages/temper-placer/src/temper_placer/deterministic/stages/_grid_fence.py
+# at the D3 dispatch base (origin/main, 15f8012d). Relative imports are
+# adapted to absolute paths so the oracle imports from the test tree; every
+# other line is the verbatim pre-migration source.
+#
+# This is the R1a behavioural oracle for the D3 Rust Stage-engine port in
+# packages/temper-orchestration (plan 2026-08-09-001, Phase D batch D3). It
+# must keep the ORIGINAL pure-Python semantics forever, including any warts.
+# If a differential test fails, the Rust side is wrong until proven
+# otherwise -- never edit this file to make a test pass.
+#
+# test_deterministic_d3_rust_differential.py recomputes the sha256 of
+# everything below the marker and fails if this file drifts.
+# --- BEGIN PINNED BODY ---
 class FenceViolation(RuntimeError):
     """Raised when the U3 clearance-grid fence detects a non-conservative expansion.
 
@@ -23,10 +38,6 @@ class FenceViolation(RuntimeError):
 #   (ref, pin_name, layer_idx, pos, shape, radius, size, eff_creep, cells_added)
 # where shape ∈ {"circle", "rect", "roundrect", "oval"} and `size` is the
 # bbox (w, h) for rect-shaped pads (or (0, 0) for circles).
-#
-# The Rust ClearanceGridStage writes into this list (cleared + appended per
-# run); the fence reads it. The list stays Python so the U3 tests and the
-# closure test can inspect it directly.
 _EXPANSION_LOG: list[tuple] = []
 
 
@@ -42,13 +53,6 @@ _EXPANSION_LOG: list[tuple] = []
 # samples at `boundary - cell/2` so the cell containing the sample is the
 # one just *inside* the boundary. This matches the ±0.5 cell tolerance in
 # the plan's R8 and the existing test scenarios.
-#
-# The orchestration is implemented in Rust (``temper-orchestration``'s
-# ``run_grid_fence_check``, Phase D batch D3): the entry unpacking, the
-# sample generation via the temper-geometry ``fence_samples_py`` kernel, the
-# per-sample ``grid.is_available`` check and the violation-dict assembly move
-# Rust-side; the ``FenceViolation`` exception and the ``_EXPANSION_LOG`` stay
-# here.
 def check_clearance_grid_conservatism(
     grid,
     expansion_log=None,
@@ -73,7 +77,59 @@ def check_clearance_grid_conservatism(
         ``xy``, and ``reason``. Empty list means conservative.
     """
     log = expansion_log if expansion_log is not None else _EXPANSION_LOG
-    return _to.run_grid_fence_check(grid, log, sample_count_circle)
+    violations: list[dict] = []
+
+    import temper_geometry as _tg
+
+    from temper_placer.core.pad_geometry import shape_code
+
+    cell = grid.cell_size_mm
+    inset = cell / 2.0  # ±0.5 cell tolerance per R8
+
+    for entry in log:
+        (ref, pin_name, layer_idx, pos, shape, pad_radius, pad_size, eff_creep, _cells_added) = (
+            entry
+        )
+        if layer_idx < 0 or layer_idx >= grid.layer_count:
+            continue
+
+        # Sample geometry computed in temper-geometry (grid_raster.rs) with
+        # the exact f64 operation order of the former pure-Python block:
+        # 8 samples for rect-shaped pads with non-zero size (4 corners + 4
+        # edge midpoints, expanded by eff = eff_creep - inset), else
+        # sample_count_circle points on the circle of radius
+        # pad_radius + eff_creep - inset (theta = 2*pi*i/n, libm cos/sin
+        # resolved via dlsym to match the host runtime bit-for-bit).
+        raw = _tg.fence_samples_py(
+            shape_code(shape),
+            pos[0],
+            pos[1],
+            pad_radius,
+            pad_size[0],
+            pad_size[1],
+            eff_creep,
+            inset,
+            sample_count_circle,
+        )
+        samples = [(raw[i], raw[i + 1]) for i in range(0, len(raw), 2)]
+
+        for x, y in samples:
+            if grid.is_available(x, y, layer=layer_idx):
+                violations.append(
+                    {
+                        "ref": ref,
+                        "pin_name": pin_name,
+                        "layer": layer_idx,
+                        "xy": (x, y),
+                        "reason": (
+                            f"cell at ({x:.3f}, {y:.3f}) on layer {layer_idx} is "
+                            f"unblocked but should be inside the expanded creepage "
+                            f"boundary for pad {ref}.{pin_name}"
+                        ),
+                    }
+                )
+
+    return violations
 
 
 def check_clearance_grid_perf_budget(
@@ -87,11 +143,14 @@ def check_clearance_grid_perf_budget(
     The fence is allowed to overrun the soft 20% budget; we emit a WARNING
     rather than a hard failure to keep CI flakes off critical path
     (per the plan's R4: "soft warning, not a hard gate").
-
-    The comparison and message rendering are implemented in Rust
-    (``run_grid_perf_budget``, Phase D batch D3); this shim keeps the public
-    API.
     """
-    return _to.run_grid_perf_budget(
-        fence_elapsed_ms, stage_elapsed_ms, budget_pct, floor_ms
-    )
+    if stage_elapsed_ms < floor_ms:
+        return False, None
+    overhead_pct = (fence_elapsed_ms / stage_elapsed_ms) * 100.0
+    if overhead_pct > budget_pct:
+        return True, (
+            f"fence overhead {overhead_pct:.1f}% exceeds budget "
+            f"{budget_pct:.1f}% (fence={fence_elapsed_ms:.1f}ms, "
+            f"stage={stage_elapsed_ms:.1f}ms)"
+        )
+    return False, None

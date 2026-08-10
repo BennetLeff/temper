@@ -77,6 +77,7 @@ pub(crate) fn to_python(
         let changed = match *name {
             "config" => py_opt_changed(orig, out, "config")?,
             "drc_oracle" => py_opt_changed(orig, out, "drc_oracle")?,
+            "grid" => grid_changed(orig, out)?,
             "zones" => py_opt_changed(orig, out, "zones")?,
             "component_zone_map" => py_opt_changed(orig, out, "component_zone_map")?,
             "zone_slots" => py_opt_changed(orig, out, "zone_slots")?,
@@ -103,6 +104,10 @@ pub(crate) fn to_python(
                 .drc_oracle
                 .clone()
                 .ok_or_else(|| PyValueError::new_err("drc_oracle field is None on write-back"))?,
+            "grid" => out
+                .grid
+                .clone()
+                .ok_or_else(|| PyValueError::new_err("grid field is None on write-back"))?,
             "zones" => out
                 .zones
                 .clone()
@@ -163,6 +168,25 @@ fn py_opt_changed(
         (false, None) => Ok(true),
         (false, Some(v)) => {
             let same = v.bind(orig.py()).eq(&orig_val)?;
+            Ok(!same)
+        }
+        (true, None) => Ok(false),
+    }
+}
+
+/// The `grid` write-back test: the stage either produces a NEW `ClearanceGrid`
+/// object (write it back) or returns the state unchanged on the no-board
+/// guard (leave it). Dataclass `==` cannot be used here -- `ClearanceGrid`
+/// `@dataclass` equality compares only the four constructor dimensions, so a
+/// fresh grid with equal dims (same board + cell size) would wrongly be
+/// skipped. Identity is the oracle-faithful signal.
+fn grid_changed(orig: &Bound<'_, PyAny>, out: &BoardState) -> PyResult<bool> {
+    let orig_val = orig.getattr("grid")?;
+    match (orig_val.is_none(), &out.grid) {
+        (true, Some(_)) => Ok(true),
+        (false, None) => Ok(true),
+        (false, Some(v)) => {
+            let same = v.bind(orig.py()).is(&orig_val);
             Ok(!same)
         }
         (true, None) => Ok(false),
