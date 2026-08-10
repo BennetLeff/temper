@@ -32,6 +32,19 @@
 //                     `ConvergenceChecker` pyclasses bit-exact with
 //                     `pipeline/convergence.py`; `ConvergenceChecker` also
 //                     implements `Stage<BoardState>` (stub)
+// - `pipeline_state` — the U4 deliverable: `PipelinePhase`, `PipelineConfig`,
+//                     `PipelineState` pyclasses bit-exact with
+//                     `pipeline/state.py` (PipelineError stays Python);
+//                     `PipelineConfig` is the U4 "PipelineState→Rust config"
+//                     migration of the plan's Phase C row
+// - `derivation_stage` — U4: `DerivationStage` wraps the derivation
+//                     feasibility kernels (`derive_*`) as a
+//                     `Stage<BoardState>` implementor
+// - `preflight_stage`  — U4: `PreflightStage` wraps the preflight
+//                     feasibility kernels (`component_area_ratio`,
+//                     `proximity_rule_impossible`, `zone_over_capacity`,
+//                     `loop_area_violation`, `isolation_barrier_too_large`)
+//                     as a `Stage<BoardState>` implementor
 //
 // Panic safety at the boundary (R1g): pyo3's `#[pyfunction]` expansion
 // wraps every exported body in `catch_unwind` and converts a Rust panic
@@ -41,12 +54,24 @@
 mod board_state;
 mod convergence;
 mod copper_length;
+mod derivation_stage;
 mod feasibility;
 mod host_math;
 mod pipeline;
+mod pipeline_state;
+mod preflight_stage;
 mod stage;
 mod timing;
 mod trace_filter;
+
+// Public re-exports for the orchestration engine's Rust consumers (the
+// runner test in `tests/stages_runner.rs` and the Phase-C pipeline wiring).
+// Append-only per the U4 dispatch; the individual modules stay private.
+pub use board_state::BoardState;
+pub use derivation_stage::DerivationStage;
+pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
+pub use preflight_stage::PreflightStage;
+pub use stage::{Stage, StageError, StageErrorKind};
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
@@ -77,6 +102,9 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<convergence::ConvergenceCriteria>()?;
     m.add_class::<convergence::ConvergenceState>()?;
     m.add_class::<convergence::TerminationReason>()?;
+    m.add_class::<pipeline_state::PipelinePhase>()?;
+    m.add_class::<pipeline_state::PipelineConfig>()?;
+    m.add_class::<pipeline_state::PipelineState>()?;
     Ok(())
 }
 
