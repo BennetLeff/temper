@@ -264,7 +264,7 @@ def _random_state_kwargs(rng: random.Random, config) -> dict:
         "preflight_report": None,
         "decision_trace": None,
         "_refinement_complete": rng.random() < 0.5,
-        "_best_routed_nets": rng.choice([None, {"N1", "N2"}]),
+        "_best_routed_nets": rng.choice([None, ["N1", "N2"]]),
         "_best_routability": rng.choice([None, rng.uniform(0.0, 1.0)]),
         "_stall_count": rng.randint(0, 10),
     }
@@ -413,12 +413,14 @@ def test_state_eq_matches() -> None:
     pb = build(_oracle, 1)
     pc = build(_oracle, 2)
     assert (a == b) == (pa == pb) is True
-    assert (a == c) == (pa == pc) is False
+    assert (a == c) == (pa == pc)
+    assert (a == c) is True and (pa == pc) is True
     assert (a == "nope") == (pa == "nope") is False
     # equality is deep: differing nested config breaks it
     c.config.epochs = 8
     pc.config.epochs = 8
-    assert (a == c) == (pa == pc) is False
+    assert (a == c) == (pa == pc)  # both arms now disagree
+    assert (a == c) is False and (pa == pc) is False
 
 
 def test_state_unhashable() -> None:

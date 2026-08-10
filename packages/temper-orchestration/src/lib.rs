@@ -32,6 +32,11 @@
 //                     `ConvergenceChecker` pyclasses bit-exact with
 //                     `pipeline/convergence.py`; `ConvergenceChecker` also
 //                     implements `Stage<BoardState>` (stub)
+// - `pipeline_state` — the U4 deliverable: `PipelinePhase`, `PipelineConfig`,
+//                     `PipelineState` pyclasses bit-exact with
+//                     `pipeline/state.py` (PipelineError stays Python);
+//                     `PipelineConfig` is the U4 "PipelineState→Rust config"
+//                     migration of the plan's Phase C row
 //
 // Panic safety at the boundary (R1g): pyo3's `#[pyfunction]` expansion
 // wraps every exported body in `catch_unwind` and converts a Rust panic
@@ -44,6 +49,7 @@ mod copper_length;
 mod feasibility;
 mod host_math;
 mod pipeline;
+mod pipeline_state;
 mod stage;
 mod timing;
 mod trace_filter;
@@ -77,6 +83,9 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<convergence::ConvergenceCriteria>()?;
     m.add_class::<convergence::ConvergenceState>()?;
     m.add_class::<convergence::TerminationReason>()?;
+    m.add_class::<pipeline_state::PipelinePhase>()?;
+    m.add_class::<pipeline_state::PipelineConfig>()?;
+    m.add_class::<pipeline_state::PipelineState>()?;
     Ok(())
 }
 
