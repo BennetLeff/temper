@@ -617,7 +617,7 @@ def test_mr4_fails_for_order_dependent_mutant(_restore_kernels):
     order-invariance relation (Random(7) permutes 3 elements non-trivially,
     so the shuffled and baseline orders genuinely differ)."""
     def order_dependent(row, col, data, n_rows, other):
-        n = max(n_rows, (max(row) + 1) if row else 0)
+        n = max(n_rows, (int(row.max()) + 1) if len(row) else 0)
         result = [0.0] * n
         for i in range(len(data)):
             result[row[i]] += data[i] * other[col[i]] * (i + 1)
