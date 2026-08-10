@@ -9,7 +9,25 @@ name = "temper_orchestration"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
+# `py-clone`: `Py<T>: Clone` (the plan's BoardState sketch `#[derive(Clone)]`
+# over `Option<Py<PyAny>>` fields is impossible without it — `Clone for Py<T>`
+# is cfg-gated behind this feature). The generated `clone()` panics if the
+# thread is not attached to the interpreter AND a non-empty `Py<T>` field is
+# cloned; BoardState instances with populated `Py<PyAny>` fields only exist
+# inside the Python-driven pipeline (GIL held), so that path is unreachable
+# for the Phase-1 scope — all-None clones (the pure-Rust unit tests) never
+# touch the interpreter.
+#
+# NOTE: `extension-module` is deliberately NOT a Cargo feature here — it is
+# supplied by the maturin build (`[tool.maturin] features` in pyproject.toml)
+# and nothing else. With `extension-module` in the Cargo features, `cargo
+# test`/`cargo clippy --all-targets` link the test binary against an
+# unlinked-libpython pyo3 and fail (rust-lld: undefined symbol: PyExc_...)
+# on toolchains whose CGU partitioning pulls pyo3 code into the test binary
+# (measured: rustc 1.97.1, 2026-07-14 — the pristine crate fails the same
+# way on `main`). Without it, the test build links libpython normally and
+# the maturin-produced cdylib still gets `extension-module`.
+pyo3 = { version = "0.29", features = ["py-clone"], optional = true }
 
 [features]
 default = ["python"]
