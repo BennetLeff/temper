@@ -29,6 +29,11 @@
 //!   companion-net skip, the R3 credit stack, the EXP-13 internal-layer
 //!   creepage factor (`required > 0.5` gate, then `* 0.30`), and the
 //!   `- 0.001` segment-track tolerance.
+//! - [`valid_via_sites_kernel`] — `get_valid_via_sites`: grid sweep, circular
+//!   filter, per-site DRC check, libm-`pow` sort key matching the Python
+//!   oracle's `lambda p: (p[0] - target[0]) ** 2 + ...`.  Uses raw geometry
+//!   wires and resolves clearances internally (the `ViaSiteClearanceArgs`
+//!   surface), since every grid point has a different clearance context.
 //! - [`validate_all`] — `validate_all`'s four pairwise checks (track-track
 //!   with `- 0.010` tolerance, via-via, track-pad, via-pad).  The Python
 //!   shim enumerates the pairs (spatial query + id/net/diff-pair filters +
@@ -40,10 +45,10 @@
 //! `register_track(s)`/`register_via(s)`/`register_pad(s)`/`clear` (pure
 //! `PCBGeometry` glue), `add_clearance_credit` (axis validation + dict
 //! insert), `_resolve_owner` (`pin_owner` may be a callable),
-//! `get_valid_via_sites` (grid loop + Python sort key), and the f-string
-//! `reason` message formatting (R1a: `str(float)`/`{:.3f}` rendering is a
-//! Python library semantic; the kernels return the structured violation and
-//! the shim builds the message from the same Python code the oracle ran).
+//! and the f-string `reason` message formatting (R1a: `str(float)`/`{:.3f}`
+//! rendering is a Python library semantic; the kernels return the structured
+//! violation and the shim builds the message from the same Python code the
+//! oracle ran).
 //!
 //! # Bit-exactness notes
 //!
@@ -76,11 +81,12 @@ use pyo3::prelude::*;
 use pyo3::types::PyModule;
 
 use temper_geometry::drc_constraints_geometry::{
-    point_to_rotated_rect_distance, point_to_segment_distance,
+    point_to_rotated_rect_distance, point_to_segment_distance, segment_midpoint,
     segment_to_rotated_rect_distance, segment_to_segment_distance,
 };
 
-use crate::pymath::{py_hypot, py_min};
+use crate::clearance_matrix::{get_clearance_kernel, point_in_polygon};
+use crate::pymath::{pow, py_hypot, py_min};
 
 /// `INTERNAL_LAYER_CREEPAGE_FACTOR` — the EXP-13 factor, as the double the
 /// Python module names `0.30`.
@@ -451,6 +457,262 @@ pub fn drc_oracle_can_place_track_py(
     can_place_track(
         sx, sy, ex, ey, &net, width, neckdown, &companion_net,
         apply_internal_creepage, &tracks, &pads, &vias,
+    )
+}
+
+// ---------------------------------------------------------------------------
+// get_valid_via_sites — raw-geometry kernel (resolves clearances internally)
+// ---------------------------------------------------------------------------
+
+/// Raw track record for `valid_via_sites_kernel`:
+/// `(id, sx, sy, ex, ey, width, net, layer, diff_pair_companion)`.
+type ViaSiteTrackRec = (String, f64, f64, f64, f64, f64, String, i64, Option<String>);
+
+/// Raw pad record: `(id, cx, cy, w, h, rotation, net, layer, mask_expansion,
+/// is_pth, owner)`.
+type ViaSitePadRec = (
+    String,
+    f64,
+    f64,
+    f64,
+    f64,
+    f64,
+    String,
+    i64,
+    f64,
+    bool,
+    Option<String>,
+);
+
+/// Raw via record: `(id, cx, cy, diameter, net)`.
+type ViaSiteViaRec = (String, f64, f64, f64, String);
+
+/// Clearance-matrix surface for raw-geometry kernels:
+/// `(net_to_class, diff_pairs, clearances, class_clearance,
+///   default_clearance, zones)`.
+type ViaSiteClearanceArgs = (
+    Vec<(String, String)>,
+    Vec<(String, String, f64)>,
+    Vec<(String, String, f64)>,
+    Vec<(String, f64)>,
+    f64,
+    Vec<(String, f64, Vec<(f64, f64)>)>,
+);
+
+/// Resolve `get_clearance(net_a, net_b, x, y)` from the raw clearance wire —
+/// the same kernel `ClearanceMatrix.get_clearance` delegates to, with zone
+/// resolution via `point_in_polygon`.
+fn clearance_for(
+    net_a: &str,
+    net_b: &str,
+    x: f64,
+    y: f64,
+    args: &ViaSiteClearanceArgs,
+) -> f64 {
+    let (net_to_class, pairs, clearances, class_clearance, default_clearance, zones) = args;
+    let class_a = net_to_class
+        .iter()
+        .find(|(n, _)| n == net_a)
+        .map(|(_, c)| c.as_str())
+        .unwrap_or("Default");
+    let class_b = net_to_class
+        .iter()
+        .find(|(n, _)| n == net_b)
+        .map(|(_, c)| c.as_str())
+        .unwrap_or("Default");
+    let zone = zones
+        .iter()
+        .position(|(_, _, poly)| point_in_polygon(x, y, poly))
+        .map(|i| (zones[i].0.as_str(), zones[i].1));
+    get_clearance_kernel(
+        net_a,
+        net_b,
+        class_a,
+        class_b,
+        pairs,
+        clearances,
+        class_clearance,
+        *default_clearance,
+        zone,
+    )
+}
+
+/// Filter geometry lists to items within `radius` of `(x, y)`, using the
+/// persistent-radius-index's membership rule (`dx*dx + dy*dy <=
+/// radius*radius`, boundary inclusive). Track membership is assessed at
+/// midpoints (the index indexes by midpoint).
+fn nearby_via_geometry<'a>(
+    x: f64,
+    y: f64,
+    via_radius: f64,
+    tracks: &'a [ViaSiteTrackRec],
+    pads: &'a [ViaSitePadRec],
+    vias: &'a [ViaSiteViaRec],
+) -> (Vec<&'a ViaSiteTrackRec>, Vec<&'a ViaSitePadRec>, Vec<&'a ViaSiteViaRec>) {
+    let radius = (via_radius + 3.0) * 1.5;
+    let radius_sq = radius * radius;
+    let mut ntracks = Vec::new();
+    for t in tracks {
+        let (mx, my) = segment_midpoint(t.1, t.2, t.3, t.4);
+        let dx = mx - x;
+        let dy = my - y;
+        if dx * dx + dy * dy <= radius_sq {
+            ntracks.push(t);
+        }
+    }
+    let mut npads = Vec::new();
+    for p in pads {
+        let dx = p.1 - x;
+        let dy = p.2 - y;
+        if dx * dx + dy * dy <= radius_sq {
+            npads.push(p);
+        }
+    }
+    let mut nvias = Vec::new();
+    for v in vias {
+        let dx = v.1 - x;
+        let dy = v.2 - y;
+        if dx * dx + dy * dy <= radius_sq {
+            nvias.push(v);
+        }
+    }
+    (ntracks, npads, nvias)
+}
+
+/// `can_place_via` on raw geometry (resolves clearances internally). Returns
+/// `true` when the via *can* be placed (no violation).
+#[allow(clippy::too_many_arguments)]
+fn can_place_via_raw(
+    x: f64,
+    y: f64,
+    diameter: f64,
+    net: &str,
+    neckdown: bool,
+    tracks: &[&ViaSiteTrackRec],
+    pads: &[&ViaSitePadRec],
+    vias: &[&ViaSiteViaRec],
+    clearance: &ViaSiteClearanceArgs,
+) -> bool {
+    let via_radius = diameter / 2.0;
+
+    for t in tracks {
+        if t.6.as_str() == net {
+            continue;
+        }
+        let required = clearance_for(net, &t.6, x, y, clearance);
+        let required = if neckdown { py_min(required, 0.08) } else { required };
+        let effective = required + via_radius + (t.5 / 2.0);
+        let actual = point_to_segment_distance(x, y, t.1, t.2, t.3, t.4);
+        if actual < effective {
+            return false;
+        }
+    }
+
+    for p in pads {
+        if p.6.as_str() == net {
+            continue;
+        }
+        let required = clearance_for(net, &p.6, x, y, clearance);
+        let required = if neckdown { py_min(required, 0.08) } else { required };
+        let effective = required + via_radius + p.8;
+        let actual = point_to_rotated_rect_distance(x, y, p.1, p.2, p.3, p.4, p.5);
+        if actual < effective {
+            return false;
+        }
+    }
+
+    for v in vias {
+        if v.4.as_str() == net {
+            continue;
+        }
+        let required = clearance_for(net, &v.4, x, y, clearance);
+        let required = if neckdown { py_min(required, 0.08) } else { required };
+        let effective = required + via_radius + (v.3 / 2.0);
+        let actual = py_hypot(x - v.1, y - v.2);
+        if actual < effective {
+            return false;
+        }
+    }
+
+    true
+}
+
+/// `DRCOracle.get_valid_via_sites`: grid sweep, circular filter,
+/// per-site DRC check, sort by distance from target. Sort key is
+/// `(x - tx) ** 2 + (y - ty) ** 2` (libm `pow`, B7) to match the
+/// Python oracle's `lambda p: (p[0] - target[0]) ** 2 + ...`.
+#[allow(clippy::too_many_arguments)]
+pub fn valid_via_sites_kernel(
+    target_x: f64,
+    target_y: f64,
+    search_radius: f64,
+    net: &str,
+    grid_step: f64,
+    via_diameter: f64,
+    tracks: &[ViaSiteTrackRec],
+    pads: &[ViaSitePadRec],
+    vias: &[ViaSiteViaRec],
+    clearance: &ViaSiteClearanceArgs,
+) -> Vec<(f64, f64)> {
+    let via_radius = via_diameter / 2.0;
+    let mut sites: Vec<(f64, f64)> = Vec::new();
+
+    let x_min = target_x - search_radius;
+    let x_max = target_x + search_radius;
+    let y_min = target_y - search_radius;
+    let y_max = target_y + search_radius;
+
+    let x_steps = ((x_max - x_min) / grid_step) as i64 + 1;
+    let y_steps = ((y_max - y_min) / grid_step) as i64 + 1;
+
+    for i in 0..x_steps {
+        let x = x_min + (i as f64) * grid_step;
+        for j in 0..y_steps {
+            let y = y_min + (j as f64) * grid_step;
+            let dx = x - target_x;
+            let dy = y - target_y;
+            if dx * dx + dy * dy > search_radius * search_radius {
+                continue;
+            }
+            let (ntracks, npads, nvias) =
+                nearby_via_geometry(x, y, via_radius, tracks, pads, vias);
+            if can_place_via_raw(
+                x, y, via_diameter, net, false, &ntracks, &npads, &nvias, clearance,
+            ) {
+                sites.push((x, y));
+            }
+        }
+    }
+
+    sites.sort_by_key(|(x, y)| (pow(x - target_x, 2.0) + pow(y - target_y, 2.0)).to_bits());
+    sites
+}
+
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+pub fn drc_oracle_valid_via_sites_py(
+    target_x: f64,
+    target_y: f64,
+    search_radius: f64,
+    net: String,
+    grid_step: f64,
+    via_diameter: f64,
+    tracks: Vec<ViaSiteTrackRec>,
+    pads: Vec<ViaSitePadRec>,
+    vias: Vec<ViaSiteViaRec>,
+    clearance: ViaSiteClearanceArgs,
+) -> Vec<(f64, f64)> {
+    valid_via_sites_kernel(
+        target_x,
+        target_y,
+        search_radius,
+        &net,
+        grid_step,
+        via_diameter,
+        &tracks,
+        &pads,
+        &vias,
+        &clearance,
     )
 }
 
@@ -891,6 +1153,7 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(drc_oracle_effective_clearance_py, module)?)?;
     module.add_function(wrap_pyfunction!(drc_oracle_can_place_via_py, module)?)?;
     module.add_function(wrap_pyfunction!(drc_oracle_can_place_track_py, module)?)?;
+    module.add_function(wrap_pyfunction!(drc_oracle_valid_via_sites_py, module)?)?;
     module.add_function(wrap_pyfunction!(drc_oracle_validate_all_py, module)?)?;
     module.add_class::<DrcOracleTrackPair>()?;
     module.add_class::<DrcOracleViaPair>()?;
