@@ -3555,6 +3555,106 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/gen_repo_state.py --check
 
+      # The OTHER member of scripts/regen_derived.py's `PURE_GENERATORS` table.
+      # That table lists the generators that are pure functions of tracked
+      # source and are safe to --check anywhere: `gen_repo_state.py` (the step
+      # above) and `gen_wasm_test_registry.py`, once per crate. Until this
+      # step, only the first was wired to anything.
+      # `grep -rn 'gen_wasm_test_registry|regen_derived|regen-check'
+      # .github/workflows/` returned NOTHING: the wasm registry gate existed
+      # only behind `make regen-check`, run by hand, despite its own docstring
+      # calling itself "the CI drift gate".
+      #
+      # WHAT IT PREVENTS, both arms:
+      #  1. DRIFT -- a `#[test]` added to an already-registered module does not
+      #     reach the WASM verification tier until the generated `WASM_TESTS`
+      #     const is regenerated and committed.
+      #  2. UNREGISTERED MODULES (`check_unregistered`, added by #937) -- a
+      #     whole test module that could register but is on no list. That arm
+      #     exists because `packages/temper-drc-rs/src/ipc.rs`'s 11 portable
+      #     tests had never registered and had never run on the tier
+      #     (docs/evidence/2026-08-10-wasm-tier-u3-native-only-classification
+      #     .md). It returns 1 in write mode too, because regenerating cannot
+      #     invent a list entry -- it needs a human.
+      #
+      # Modules with a STATED reason to stay out are not failures and do not
+      # trip arm 2 -- `pymath.rs::proptests` and friends are excluded as
+      # `[proptest-dev-dependency]`, visible in
+      # `gen_wasm_test_registry.py --census`. Verified: adding a `#[test]`
+      # there leaves this step green, while adding one to `pymath::tests`
+      # (registered) or removing `ipc.rs` from the eligible list turns it red.
+      # So "green" here means every module is either registered or excluded
+      # for a written reason -- not that nothing was looked at.
+      #
+      # Either way the tier would keep reporting agreement over a registry that
+      # silently lags the crate: the same generated-artifact-drift family as
+      # the deployed-Worker staleness control in wasm-tier-nightly.yml, one
+      # layer down. That one compares deployed Workers against the commit's
+      # registry; this one compares the registry against the crate's tests.
+      #
+      # WHY `regen_derived.py --check` IS NOT THE HANDLE. It bundles five
+      # further gates (oracles, hash-order, manifest, unwired, wire-format)
+      # whose verdicts are unrelated to registry drift. A gate that is red for
+      # unrelated reasons is a gate people learn to ignore.
+      #
+      # WHY THE CRATE LIST IS DISCOVERED, NOT HARD-CODED. `--crate` arrived
+      # with #937 and defaults to `temper-drc-rs`, so a bare `--check` would
+      # silently gate ONE of the two crates now on the tier and leave
+      # `temper-geometry`'s 724 tests unwatched -- the precise shape of the bug
+      # this step exists to prevent, reintroduced by the step itself. Reading
+      # `CRATES` from the script means a third crate is covered the day it is
+      # added, with no edit here. If that name ever moves, the import fails
+      # loudly below rather than quietly checking less.
+      #
+      # JOB-COUNT ARGUMENT (matching this workflow's own precedent and
+      # wasm-tier-nightly.yml:13-18): +0 jobs, +0 workflows -- one step in an
+      # existing job. It is a Python scan of the crates' .rs files with no
+      # cargo build, well under a second inside a job already budgeted 20
+      # minutes. It is NOT added to .github/required-checks.json: what blocks
+      # a merge is a maintainer decision, not this step's to make.
+      - name: WASM test registry matches committed (drift + unregistered gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          # No `-e`: exit codes are inspected here, not merely propagated.
+          set -uo pipefail
+
+          crates="$(uv run python - <<'PY'
+          import sys
+          sys.path.insert(0, "scripts")
+          import gen_wasm_test_registry as g
+          print(" ".join(sorted(g.CRATES)))
+          PY
+          )"
+          if [ -z "${crates}" ]; then
+            echo "::error::Could not read the crate list (CRATES) from scripts/gen_wasm_test_registry.py, so this step cannot know which registries to gate. Refusing to check a subset and report green. Fix the import in .github/workflows/python-tests.yml to match the script."
+            exit 1
+          fi
+          echo "registries under gate: ${crates}"
+
+          failed=""
+          for crate in ${crates}; do
+            echo "--- ${crate} ---"
+            uv run python scripts/gen_wasm_test_registry.py --check --crate "${crate}"
+            rc=$?
+            if [ "${rc}" -eq 2 ]; then
+              # argparse's usage-error code, and the only way this script exits
+              # 2 -- main() returns 0 or 1 and its SystemExit(str) paths exit 1.
+              # So this means the flag surface moved under this step. Failing
+              # loudly beats guessing at flags: a drift gate that silently
+              # stopped running is the exact failure this step was added to end.
+              echo "::error::scripts/gen_wasm_test_registry.py rejected '--check --crate ${crate}' as a usage error (exit 2). Its argument surface has changed; update this step's invocation in .github/workflows/python-tests.yml to match. Do NOT drop the step -- the gate was unwired for its entire existence before this."
+              exit 1
+            fi
+            if [ "${rc}" -ne 0 ]; then
+              failed="${failed} ${crate}"
+            fi
+          done
+
+          if [ -n "${failed}" ]; then
+            echo "::error::The committed wasm32 test registry is out of date for:${failed} (see the per-crate output above for which files, or which modules hold unregistered tests). That registry is what the WASM verification tier runs, so a stale one means the tier reports agreement over a corpus smaller than this commit's. FIX: for drift, run 'python3 scripts/gen_wasm_test_registry.py --crate <name>' and commit the regenerated files; for an unregistered module, add it to that script's eligible list (or give discover_eligible() a predicate naming why it cannot register)."
+            exit 1
+          fi
+
       # Validates known-failure-pins.yaml itself (see scripts/known_failure_pins.py
       # and docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md):
       # every pin must cite a real evidence/solutions doc, stay within its
