@@ -75,6 +75,7 @@
 // into CPython (the crate also sets `profile.release.panic = "unwind"` so
 // that catch is what runs).
 mod board_state;
+mod component_assignment_stage;
 mod config_attach_stage;
 mod convergence;
 mod copper_length;
@@ -87,6 +88,7 @@ mod grid_hv;
 mod grid_stage;
 mod host_math;
 mod net_ordering_stage;
+mod phased_component_assignment_validator_stage;
 mod pipeline;
 mod pipeline_state;
 mod preflight_stage;
@@ -102,11 +104,13 @@ mod zone_geometry_stage;
 // runner test in `tests/stages_runner.rs` and the Phase-C pipeline wiring).
 // Append-only per the U4 dispatch; the individual modules stay private.
 pub use board_state::BoardState;
+pub use component_assignment_stage::ComponentAssignmentStage;
 pub use config_attach_stage::ConfigAttachStage;
 pub use derivation_stage::DerivationStage;
 pub use grid_stage::ClearanceGridStage;
 pub use net_ordering_stage::NetOrderingStage;
 pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
+pub use phased_component_assignment_validator_stage::phased_validator_hv;
 pub use preflight_stage::PreflightStage;
 pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
 pub use slot_generation_stage::SlotGenerationStage;
@@ -164,6 +168,9 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(grid_hv::run_hv_pad_set, m)?)?;
     m.add_function(wrap_pyfunction!(grid_fence::run_grid_fence_check, m)?)?;
     m.add_function(wrap_pyfunction!(grid_fence::run_grid_perf_budget, m)?)?;
+    m.add_function(wrap_pyfunction!(component_assignment_stage::run_component_assignment, m)?)?;
+    m.add_function(wrap_pyfunction!(component_assignment_stage::run_component_assignment_kernel, m)?)?;
+    m.add_function(wrap_pyfunction!(phased_component_assignment_validator_stage::run_phased_validator_hv, m)?)?;
     Ok(())
 }
 

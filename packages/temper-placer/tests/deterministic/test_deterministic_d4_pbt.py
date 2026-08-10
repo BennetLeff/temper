@@ -195,13 +195,14 @@ def test_p3_fails_for_double_assign_mutant():
 
     def mutant(state, slot_spacing, fixed):  # noqa: ARG001
         out = _to.run_component_assignment(state, 12.0, {})
-        refs = [c.ref for c in state.netlist.components]
         items = list(dict(out.placements).items())
-        if len(items) < 2:
+        if not items:
             return out
         first = items[0]
+        # A phantom component sharing the first slot guarantees a duplicate
+        # regardless of the draw size.
         doubled = dict(items)
-        doubled[items[1][0]] = first[1]
+        doubled["PHANTOM"] = first[1]
         return replace(out, placements=frozenset(doubled.items()))
 
     state = assignment_input().example()
@@ -299,6 +300,24 @@ def test_p5_fails_for_fake_failure_mutant():
 # P6 / P7 -- validator degenerate creepage
 # ---------------------------------------------------------------------------
 
+def _rules_with_creepage(creepage_mm):
+    """Fresh DesignRules carrying exactly the drawn HV creepage (the
+    dataclass-compat surface is not ``dataclasses.replace``-able)."""
+    return DesignRules(
+        net_classes={
+            "HighVoltage": NetClassRules(
+                name="HighVoltage", trace_width=0.5, clearance=2.0,
+                dru_priority=10, creepage_mm=creepage_mm, safety_category="HV",
+            ),
+            "Power": NetClassRules(
+                name="Power", trace_width=0.25, clearance=0.2,
+                dru_priority=20, safety_category="LV",
+            ),
+        },
+        net_class_assignments={"DC_BUS+": "HighVoltage", "VCC": "Power"},
+    )
+
+
 def _body_p6(impl, state):
     out = impl(state)
     assert out == []
@@ -307,11 +326,8 @@ def _body_p6(impl, state):
 @given(validator_input())
 @settings(max_examples=20, deadline=None)
 def test_p6_zero_creepage_no_failures(state):
-    rules = state.design_rules
-    rules = replace(rules, net_classes=dict(rules.net_classes))
-    hv = rules.net_classes["HighVoltage"]
-    rules.net_classes["HighVoltage"] = replace(hv, creepage_mm=0.0)
-    _body_p6(_to.run_phased_validator_hv, replace(state, design_rules=rules))
+    state = replace(state, design_rules=_rules_with_creepage(0.0))
+    _body_p6(_to.run_phased_validator_hv, state)
 
 
 def test_p6_fails_for_report_mutant():
@@ -320,12 +336,8 @@ def test_p6_fails_for_report_mutant():
     def mutant(state):
         return [("used_slot_overclaim", (0.0, 0.0), "bogus")]
 
-    state = validator_input().example()
-    rules = state.design_rules
-    rules = replace(rules, net_classes=dict(rules.net_classes))
-    hv = rules.net_classes["HighVoltage"]
-    rules.net_classes["HighVoltage"] = replace(hv, creepage_mm=0.0)
-    _assert_mutant_detected(_body_p6, mutant, replace(state, design_rules=rules))
+    state = replace(validator_input().example(), design_rules=_rules_with_creepage(0.0))
+    _assert_mutant_detected(_body_p6, mutant, state)
 
 
 def _body_p7(impl, state):
@@ -336,11 +348,8 @@ def _body_p7(impl, state):
 @given(validator_input())
 @settings(max_examples=20, deadline=None)
 def test_p7_saturation_creepage_no_failures(state):
-    rules = state.design_rules
-    rules = replace(rules, net_classes=dict(rules.net_classes))
-    hv = rules.net_classes["HighVoltage"]
-    rules.net_classes["HighVoltage"] = replace(hv, creepage_mm=10_000.0)
-    _body_p7(_to.run_phased_validator_hv, replace(state, design_rules=rules))
+    state = replace(state, design_rules=_rules_with_creepage(10_000.0))
+    _body_p7(_to.run_phased_validator_hv, state)
 
 
 def test_p7_fails_for_report_mutant():
@@ -349,12 +358,8 @@ def test_p7_fails_for_report_mutant():
     def mutant(state):
         return [("used_slot_overclaim", (0.0, 0.0), "bogus")]
 
-    state = validator_input().example()
-    rules = state.design_rules
-    rules = replace(rules, net_classes=dict(rules.net_classes))
-    hv = rules.net_classes["HighVoltage"]
-    rules.net_classes["HighVoltage"] = replace(hv, creepage_mm=10_000.0)
-    _assert_mutant_detected(_body_p7, mutant, replace(state, design_rules=rules))
+    state = replace(validator_input().example(), design_rules=_rules_with_creepage(10_000.0))
+    _assert_mutant_detected(_body_p7, mutant, state)
 
 
 # ---------------------------------------------------------------------------
