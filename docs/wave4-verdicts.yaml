@@ -502,6 +502,20 @@ surfaces:
       gate to protect and no compute on any hot path, so a migration would
       carry the full R1 gate set for zero measured benefit. Re-decidable if
       profiling output ever becomes an input to a gate.
+  - pattern: packages/temper-placer/src/temper_placer/validation/spice.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      ngspice subprocess boundary + SPICE template orchestration (REQUIRED-PYTHON,
+      per the Wave-4 interrogation doc §1.4). This module invokes the external
+      ngspice binary via subprocess, manages temp files, parses text output with
+      regex, and orchestrates placement→SPICE-parameter conversion — none of which
+      is migratable to Rust (no ngspice FFI binding exists). Both compute kernels
+      (spice_infer_unit_py, spice_loop_inductance_py) are already in Rust
+      (temper-geometry/spice_estimators.rs) with bit-exact parity pinned by the
+      differential suite. The remaining 905 LOC is subprocess management,
+      SPICE-template string substitution (format boundary), and thin orchestration
+      calling into the Rust kernels. No pure-conversion marshalers remain to
+      migrate. Re-decidable when ngspice gains a Rust FFI binding.
   - pattern: packages/temper-placer/src/temper_placer/testing/**
     verdict: JUSTIFIED-KEEP
     blocker: >-
