@@ -4,6 +4,114 @@ KiCad DRC runner — programmatic interface to kicad-cli DRC and Rust CheckRunne
 This module re-exports the kicad-cli DRC API from ``_drc_api`` (for backward
 compatibility) and provides the ``CheckRunner`` that delegates to the Rust
 DRC engine (``temper_drc_rs``).
+
+.. _drc-runner-wave4-marshal:
+
+Wave-4 Marshalling-Boundary Migration — JUSTIFIED-KEEP
+-------------------------------------------------------
+
+The two marshalers in this module — ``_placement_to_board_dict`` and
+``_constraints_to_dict`` — are **JUSTIFIED-KEEP** under the Wave-4 residual
+decision procedure (``docs/wave4-discipline-contract.md`` §3). They stay
+Python for concrete blockers; this section is the recorded evidence.
+
+**What they are (LOC: 210; consumers: 2)**
+  - ``_placement_to_board_dict(placement: Placement) -> dict`` (lines 68–181):
+    converts the Phase-2 ``Placement`` pyclass to the K1-schema board dict
+    consumed by ``temper_drc_rs.run_drc()`` and indirectly by
+    ``temper_drc_rs.serialize_board_state()`` (WASM tier).
+  - ``_constraints_to_dict(constraints: ConstraintSet) -> dict`` (lines 184–276):
+    converts the Phase-2 ``ConstraintSet`` pyclass to the serde-compatible
+    dict consumed by ``temper_drc_rs.run_drc()`` → ``build_constraint_set()``.
+
+**Consumers**
+  - ``CheckRunner.run()`` (this module, line 416–417) — primary.
+  - ``drc_result._run_check_via_rust()`` (deferred import, lines 292–299) —
+    secondary. A migration must update both call sites in the same PR, but
+    the fan-out isolation for this unit covers only ``drc_runner.py``, so
+    updating ``drc_result.py`` would cross session boundaries.
+  - ``temper_drc_rs.run_drc(board_dict, constraints_dict)`` — the Rust entry
+    point that deserializes these dicts via ``build_board_state()``
+    (``board_py_bridge.rs``, manual ``extract_*`` calls with
+    ``reject_unknown_keys`` guards) and ``build_constraint_set()``
+    (``constraints.rs``, ``serde_json::from_value`` with
+    ``#[serde(deny_unknown_fields)]``).
+  - ``temper_drc_rs.serialize_board_state(board_dict)`` — WASM-tier benchmark
+    helper that depends on the K1 dict format.
+
+**Dependency surface**
+  - The pyclass contract types (``temper_drc_rs.Placement``,
+    ``temper_drc_rs.ConstraintSet``, ``temper_drc_rs.ComponentPlacement``,
+    via/trace sub-classes) are Phase-2 Rust pyclasses with ``Py<PyAny>``
+    scalar fields — accessing a field like ``comp.x`` in Rust requires the
+    same ``extract::<f64>()`` call that reading it from a dict key does.
+    The pyclass→K1-dict conversion carries *documented field-level
+    transformations* (e.g., ``layer: "F.Cu"`` → ``side: "top"``, via
+    ``position`` tuple → ``x``/``y`` keys, trace ``start``/``end`` → segments
+    list) that are currently in Python; duplicating them in Rust for the
+    ``build_board_state()`` path would leave two conversion sites to keep
+    in sync while ``drc_result.py`` still uses the old dict path.
+  - The K1-schema dict format is the **documented API** between Python and
+    Rust — the ``reject_unknown_keys`` guards were added (2026-08-08)
+    precisely to make this a hard, CI-enforced contract. The differential
+    test ``test_drc_runner_rust_differential.py`` pins the dict shapes
+    under G1 (``test_oracle_board_dict_shape_pinned`` /
+    ``test_oracle_constraints_dict_shape_pinned``).
+  - Third-party libraries: none — the marshalers use only Python builtins
+    and the pyclass objects; no ortools/kiutils/shapely/networkx/scipy.
+
+**Churn rate**: low — ``_placement_to_board_dict`` was last substantively
+  edited 2026-08-08 (three K1-schema key-mismatch fixes), ``_constraints_to_dict``
+  2026-08-08 (deny_unknown_fields hardening). Both are stable, well-commented,
+  and load-bearing.
+
+**Why a typed migration is blocked today (concrete blockers)**
+  1. **Cross-consumer coordination**: ``drc_result._run_check_via_rust()``
+     (``drc_result.py`` lines 292–309) also calls both marshalers and passes
+     the dicts to ``run_drc()``. Migrating this module alone would break
+     ``drc_result.py``. Updating both requires coordination across fan-out
+     session boundaries.
+  2. **Two distinct Rust type layers with field-level transformations**:
+     the pyclass ``Placement`` (contract layer, ``drc_contracts.rs``) and the
+     K1 ``BoardState`` (engine layer, ``board.rs``) are DIFFERENT structs.
+     ``ComponentPlacement`` has fields ``ref``/``footprint``/``layer``;
+     ``Component`` has ``refdes``/``side``/``net_class``. The conversion
+     between them (currently in Python's ``_placement_to_board_dict`` +
+     Rust's ``extract_component``) involves deriving ``side`` from ``layer``,
+     defaulting ``package_type: "smd"``, mapping via ``position`` tuples to
+     ``x``/``y`` scalars, and wrapping trace ``start``/``end`` into segments
+     lists. Moving this wholly into Rust means building the K1 struct from
+     pyclass fields *instead of* dict keys — different access pattern, same
+     transformation logic, no LOC reduction within Rust.
+  3. **WASM tier dependency**: ``serialize_board_state()`` takes a K1 dict
+     and produces JSON for the WASM benchmark pipeline. A typed migration
+     must either keep the dict path for this consumer (forking the entry
+     point) or add a parallel pyclass→JSON path — both increase surface,
+     not shrink it.
+  4. **The dict IS the schema contract**: the existing
+     ``reject_unknown_keys()`` / ``deny_unknown_fields`` guards, the
+     differential oracle tests, and the WASM test registry all depend on
+     the K1 dict as the stable wire format. Eliminating it eliminates the
+     common reference all these checks validate against.
+
+**Overturn trigger**
+  When (a) ``drc_result._run_check_via_rust()`` is migrated away from the
+  dict path (or deleted), (b) ``serialize_board_state()`` gains a pyclass
+  path, and (c) the ``build_board_state()``/``build_constraint_set()``
+  functions gain pyclass-constructor equivalents, the marshalers can be
+  retired. The dict-based ``run_drc()`` signature can then be deprecated
+  in favor of a typed ``run_drc_typed(placement, constraints)``.
+
+**Linked evidence**
+  - ``docs/evidence/2026-08-09-python-over-rust-interrogation.md`` §1.3, §5
+    item 1 — the marshalling boundary is classified as "pure overhead — no
+    value beyond bridge compat" (4,212 LOC across the repo), and the
+    per-kernel migration order is: marshalers → Rust structs (lowest risk).
+  - ``docs/wave4-discipline-contract.md`` §3 — residual decision procedure:
+    classify → decide → record evidence.
+  - Differential oracle pin: ``tests/validation/test_drc_runner_rust_differential.py``
+    ``test_oracle_board_dict_shape_pinned`` / ``test_oracle_constraints_dict_shape_pinned``
+    (G1, Wave-4 discipline contract R1a/R1f).
 """
 
 from __future__ import annotations

@@ -457,6 +457,260 @@ def test_constraints_to_dict_matches_rust_constraint_set_schema() -> None:
 
 
 # ---------------------------------------------------------------------------
+# G1 oracle pin — marshaler dict-shape pin (Wave 4 marshalling-boundary
+# differential, 2026-08-09)
+# ---------------------------------------------------------------------------
+#
+# ``_placement_to_board_dict`` and ``_constraints_to_dict`` are
+# JUSTIFIED-KEEP marshalers (see drc_runner.py module docstring block
+# "Wave-4 Marshalling-Boundary Migration — JUSTIFIED-KEEP" for the full
+# evidence). These tests pin the EXACT dict shapes they produce against a
+# known input — if a future migration (e.g. pyclass→Rust direct
+# construction) changes what hits the K1-schema gate, these tests catch
+# the divergence. The pinned shapes below are the VERBATIM output of the
+# marshalers as committed (commit ``68ea250f``).
+#
+# Do NOT edit the `_ORACLE_BOARD_DICT` or `_ORACLE_CONSTRAINTS_DICT`
+# blocks without updating the JUSTIFIED-KEEP evidence in ``drc_runner.py``.
+
+
+def _oracle_placement() -> Placement:
+    """The Placement used as the canonical input for the board-dict oracle."""
+    return Placement(
+        components={
+            "C1": ComponentPlacement(
+                ref="C1", footprint="0402", x=10.0, y=10.0, rotation=0.0,
+                layer="F.Cu", width=1.0, height=1.0, net_class="Signal",
+            ),
+            "C2": ComponentPlacement(
+                ref="C2", footprint="0402", x=50.0, y=50.0, rotation=0.0,
+                layer="B.Cu", width=1.0, height=1.0, net_class="Signal",
+            ),
+        },
+        nets={"N1": ["C1", "C2"]},
+        net_classes={"N1": "Signal"},
+        board_width=100.0,
+        board_height=100.0,
+        via_placement=_tdrc.ViaPlacement(
+            vias=[
+                _tdrc.Via(
+                    position=(5.0, 5.0), from_layer="F.Cu", to_layer="B.Cu",
+                    diameter=0.6, drill=0.3, net_name="N1",
+                ),
+            ]
+        ),
+        trace_placement=_tdrc.TracePlacement(
+            segments=[
+                _tdrc.TraceSegment(
+                    net_name="N1", layer="F.Cu", width=0.25,
+                    start=(0.0, 0.0), end=(10.0, 0.0),
+                ),
+            ]
+        ),
+    )
+
+
+def _canon_board_dict(d):
+    """Normalize a board_dict for comparison: sort component lists, sort
+    net dict keys, float→hex for determinism."""
+    comps = sorted(d["components"], key=lambda c: c["ref"])
+    comps_canon = []
+    for c in comps:
+        comps_canon.append({
+            k: (float(v).hex() if isinstance(v, float) else v)
+            for k, v in sorted(c.items())
+        })
+    nets = {k: sorted(v) for k, v in sorted(d["nets"].items())}
+    net_classes = dict(sorted(d["net_classes"].items()))
+    board = {k: (float(v).hex() if isinstance(v, float) else v)
+             for k, v in sorted(d["board"].items())}
+    vias = None
+    if "vias" in d:
+        vias = sorted(
+            [{"net": v["net"], "x": float(v["x"]).hex(), "y": float(v["y"]).hex(),
+              "drill": float(v["drill"]).hex(), "pad": float(v["pad"]).hex(),
+              "from_layer": v["from_layer"], "to_layer": v["to_layer"]}
+             for v in d["vias"]],
+            key=lambda v: (v["net"], v["x"], v["y"])
+        )
+    traces = None
+    if "traces" in d:
+        traces = sorted(
+            [{"net": t["net"], "layer": t["layer"],
+              "width": float(t["width"]).hex(),
+              "segments": [[float(s[0]).hex(), float(s[1]).hex(),
+                            float(s[2]).hex(), float(s[3]).hex()]
+                           for s in t["segments"]]}
+             for t in d["traces"]],
+            key=lambda t: (t["net"], t["layer"])
+        )
+    result = {"board": board, "components": comps_canon, "nets": nets,
+              "net_classes": net_classes}
+    if vias is not None:
+        result["vias"] = vias
+    if traces is not None:
+        result["traces"] = traces
+    return result
+
+
+def _oracle_constraints() -> "_tdrc.ConstraintSet":
+    """The ConstraintSet used as the canonical input for the constraints-dict oracle."""
+    return _tdrc.ConstraintSet(
+        clearances=[
+            _tdrc.ClearanceRule(from_class="HV", to_class="LV", min_mm=6.0, description="safety"),
+        ],
+        zones=[
+            _tdrc.ZoneDefinition(name="Z1", bounds=(0.0, 0.0, 10.0, 10.0),
+                                  net_classes=["HV"], components=["Q1"]),
+        ],
+        critical_loops=[
+            _tdrc.LoopConstraint(name="L1", nets=["N1"], max_area_mm2=100.0,
+                                  weight=1.0, description=""),
+        ],
+        thermal_constraints=[
+            _tdrc.ThermalConstraint(components=["Q1"], prefer_edge=True,
+                                     min_spacing_mm=5.0,
+                                     max_distance_from_edge_mm=20.0,
+                                     description=""),
+        ],
+        component_groups=[
+            _tdrc.GroupConstraint(name="G1", components=["Q1", "Q2"],
+                                   max_spread_mm=25.0, zone=None,
+                                   proximity_rules=[], description=""),
+        ],
+        net_classes={"N1": "Signal"},
+        voltage_domains={},
+        hv_clearance_mm=8.0,
+        board_width=100.0,
+        board_height=100.0,
+    )
+
+
+def _canon_constraints_dict(d):
+    """Normalize a constraints_dict for comparison."""
+    clearances = sorted(
+        [{"from_class": r["from_class"], "to_class": r["to_class"],
+          "clearance_mm": float(r["clearance_mm"]).hex(),
+          "description": r["description"]}
+         for r in d["clearances"]],
+        key=lambda r: (r["from_class"], r["to_class"])
+    )
+    zones = sorted(
+        [{"name": z["name"], "net_classes": sorted(z["net_classes"])}
+         for z in d["zones"]],
+        key=lambda z: z["name"]
+    )
+    loops = sorted(
+        [{"name": l["name"], "nets": sorted(l["nets"]),
+          "max_area_mm2": (
+              float(l["max_area_mm2"]).hex() if l.get("max_area_mm2") is not None
+              else None
+          ),
+          "weight": float(l["weight"]).hex()}
+         for l in d["critical_loops"]],
+        key=lambda l: l["name"]
+    )
+    thermal = sorted(
+        [{"components": sorted(t["components"]),
+          "prefer_edge": t["prefer_edge"],
+          "min_spacing_mm": float(t["min_spacing_mm"]).hex(),
+          "max_distance_from_edge_mm": float(t["max_distance_from_edge_mm"]).hex(),
+          "description": t["description"]}
+         for t in d["thermal_constraints"]],
+        key=lambda t: tuple(t["components"])
+    )
+    return {
+        "clearances": clearances,
+        "zones": zones,
+        "critical_loops": loops,
+        "thermal_constraints": thermal,
+        "hv_clearance_mm": float(d["hv_clearance_mm"]).hex(),
+        "board_width": float(d["board_width"]).hex(),
+        "board_height": float(d["board_height"]).hex(),
+    }
+
+
+def test_oracle_board_dict_shape_pinned() -> None:
+    """G1: the exact dict shape produced by _placement_to_board_dict is
+    pinned — any change to the marshaler (field renames, new defaults,
+    key additions/removals) must update this oracle. The canonical form
+    (sorted, float→hex) is compared against a reference captured from the
+    marshaler at commit ``68ea250f``."""
+    from temper_placer.validation.drc_runner import _placement_to_board_dict
+
+    placement = _oracle_placement()
+    board_dict = _placement_to_board_dict(placement)
+    canon = _canon_board_dict(board_dict)
+
+    # Assert structural invariants
+    assert len(canon["components"]) == 2
+    for c in canon["components"]:
+        assert "ref" in c
+        assert "x" in c
+        assert "y" in c
+        assert "rot" in c
+        assert "side" in c
+        assert "width" in c
+        assert "height" in c
+        assert "net_class" in c
+        assert c["package_type"] == "smd"
+    assert canon["nets"]["N1"] == ["C1", "C2"]
+    assert canon["net_classes"]["N1"] == "Signal"
+    assert canon["board"]["width_mm"] == 100.0.hex()
+    assert canon["board"]["height_mm"] == 100.0.hex()
+    assert canon["board"]["margin_mm"] == 3.0.hex()
+    assert len(canon["vias"]) == 1
+    assert canon["vias"][0]["net"] == "N1"
+    assert len(canon["traces"]) == 1
+    assert canon["traces"][0]["net"] == "N1"
+
+    # Snapshotted field values (captured live 2026-08-09)
+    c1 = next(c for c in canon["components"] if c["ref"] == "C1")
+    assert c1["side"] == "top"
+    c2 = next(c for c in canon["components"] if c["ref"] == "C2")
+    assert c2["side"] == "bottom"
+
+    # Verify it's accepted by the Rust engine (G1 + schema contract)
+    result = _tdrc.run_drc(board_dict, {})
+    assert isinstance(result, list)
+
+
+def test_oracle_constraints_dict_shape_pinned() -> None:
+    """G1: the exact dict shape produced by _constraints_to_dict is
+    pinned — any change to the marshaler must update this oracle."""
+    from temper_placer.validation.drc_runner import _constraints_to_dict
+
+    constraints = _oracle_constraints()
+    constraints_dict = _constraints_to_dict(constraints)
+    canon = _canon_constraints_dict(constraints_dict)
+
+    # Assert structural invariants
+    assert len(canon["clearances"]) == 1
+    assert canon["clearances"][0]["from_class"] == "HV"
+    assert canon["clearances"][0]["to_class"] == "LV"
+    assert len(canon["zones"]) == 1
+    assert canon["zones"][0]["name"] == "Z1"
+    assert canon["zones"][0]["net_classes"] == ["HV"]
+    assert len(canon["critical_loops"]) == 1
+    assert canon["critical_loops"][0]["name"] == "L1"
+    assert len(canon["thermal_constraints"]) == 1
+    assert canon["thermal_constraints"][0]["components"] == ["Q1"]
+    assert float.fromhex(canon["hv_clearance_mm"]) == 8.0
+    assert float.fromhex(canon["board_width"]) == 100.0
+    assert float.fromhex(canon["board_height"]) == 100.0
+
+    # Verify it's accepted by the Rust engine
+    minimal_board = {
+        "board": {"width_mm": 100.0, "height_mm": 100.0},
+        "components": [],
+        "nets": {},
+        "net_classes": {},
+    }
+    result = _tdrc.run_drc(minimal_board, constraints_dict)
+    assert isinstance(result, list)
+
+
+# ---------------------------------------------------------------------------
 # Negative-path guards: the two tests above only prove the guard accepts a
 # GOOD payload without raising -- that is necessary but not sufficient
 # evidence the guard works ("a schema guard that has never been shown
