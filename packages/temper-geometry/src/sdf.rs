@@ -309,8 +309,9 @@ pub fn sdf_gradient(p: &Point, sdf_fn: fn(&Point) -> f64, eps: f64) -> (f64, f64
 // Tests
 // =============================================================================
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     const EPS: f64 = 1e-9;
@@ -318,21 +319,21 @@ mod tests {
     // -----------------------------------------------------------------
     // sdf_circle
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_circle_center() {
         let p = Point::new(0.0, 0.0);
         let d = sdf_circle(&p, 0.0, 0.0, 5.0);
         assert!((d - (-5.0)).abs() < EPS, "center should be -r, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_circle_at_radius() {
         let p = Point::new(5.0, 0.0);
         let d = sdf_circle(&p, 0.0, 0.0, 5.0);
         assert!(d.abs() < EPS, "on boundary should be ~0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_circle_far() {
         let p = Point::new(10.0, 0.0);
         let d = sdf_circle(&p, 0.0, 0.0, 5.0);
@@ -342,7 +343,7 @@ mod tests {
     // -----------------------------------------------------------------
     // sdf_rectangle
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_rectangle_center() {
         // 10x6 rectangle centered at origin: nearest edge is 3 away
         let p = Point::new(0.0, 0.0);
@@ -351,7 +352,7 @@ mod tests {
         assert!((d - (-3.0)).abs() < EPS, "expected -3.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_rectangle_corner() {
         // 10x6 rect at origin, point just outside top-right corner
         let p = Point::new(6.0, 4.0);
@@ -364,7 +365,7 @@ mod tests {
     // -----------------------------------------------------------------
     // sdf_union
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_union_two_circles() {
         // Two overlapping circles at (-2,0) and (2,0), each r=3
         // Point (0,0) is distance 2 from each center → SDF = 2-3 = -1 for each
@@ -378,7 +379,7 @@ mod tests {
     // -----------------------------------------------------------------
     // sdf_to_mask
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_to_mask_all_inside() {
         // All well-inside (negative) distances → mask should be ~1.0
         // With threshold=0.1, d=-1 → 1/(1+exp(-10)) ≈ 0.99995
@@ -393,7 +394,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_to_mask_all_outside() {
         // All outside (positive) distances → mask should be ~0.0
         let distances = vec![1.0, 3.0, 5.0];
@@ -409,7 +410,7 @@ mod tests {
     // -----------------------------------------------------------------
     // sdf_box_2d
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_box_2d_center() {
         let center = Point::new(2.0, 3.0);
         let half = Point::new(5.0, 4.0);
@@ -418,7 +419,7 @@ mod tests {
         assert!((d - (-4.0)).abs() < EPS, "expected -4.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_box_2d_outside() {
         let center = Point::new(0.0, 0.0);
         let half = Point::new(3.0, 3.0);
@@ -430,7 +431,7 @@ mod tests {
     // -----------------------------------------------------------------
     // sdf_rounded_rectangle
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_rounded_rectangle_center() {
         let p = Point::new(0.0, 0.0);
         let d = sdf_rounded_rectangle(&p, 0.0, 0.0, 5.0, 3.0, 1.0);
@@ -441,7 +442,7 @@ mod tests {
     // -----------------------------------------------------------------
     // sdf_capsule
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_capsule_midpoint() {
         // Capsule from (0,0) to (0,10), radius 1
         // Point at (2, 5) should be distance 2-1 = 1 from capsule
@@ -452,7 +453,7 @@ mod tests {
         assert!((d - 1.0).abs() < EPS, "expected 1.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_capsule_on_surface() {
         let a = Point::new(0.0, 0.0);
         let b = Point::new(0.0, 10.0);
@@ -464,7 +465,7 @@ mod tests {
     // -----------------------------------------------------------------
     // sdf_polygon (triangle)
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_polygon_inside() {
         let tri = vec![
             Point::new(0.0, 0.0),
@@ -476,7 +477,7 @@ mod tests {
         assert!(d < 0.0, "inside should be negative, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_polygon_outside() {
         let tri = vec![
             Point::new(0.0, 0.0),
@@ -491,7 +492,7 @@ mod tests {
     // -----------------------------------------------------------------
     // sdf_convex_polygon
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_convex_polygon_inside() {
         let sq = vec![
             Point::new(0.0, 0.0),
@@ -506,7 +507,7 @@ mod tests {
         assert!((d - (-1.0)).abs() < EPS, "expected -1.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_convex_polygon_outside() {
         let sq = vec![
             Point::new(0.0, 0.0),
@@ -523,20 +524,20 @@ mod tests {
     // -----------------------------------------------------------------
     // Boolean operations
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_intersection() {
         let d = sdf_intersection(-3.0, -1.0);
         assert!((d - (-1.0)).abs() < EPS);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_subtraction() {
         // d1 - d2: inside d1 but outside d2
         let d = sdf_subtraction(-2.0, 3.0);
         assert!((d - (-2.0)).abs() < EPS, "expected -2.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_subtraction_clipped() {
         // If d2 is inside (negative), -d2 is positive, so max(d1, -d2) > d1
         let d = sdf_subtraction(-2.0, -1.0);
@@ -546,14 +547,14 @@ mod tests {
     // -----------------------------------------------------------------
     // Smooth operations
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_smooth_union_sharp_limit() {
         // As k → 0, smooth union → sharp union (min)
         let d = sdf_smooth_union(-3.0, -1.0, 0.001);
         assert!((d - (-3.0)).abs() < 0.01, "expected ~-3.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_smooth_intersection_sharp_limit() {
         let d = sdf_smooth_intersection(-3.0, -1.0, 0.001);
         assert!((d - (-1.0)).abs() < 0.01, "expected ~-1.0, got {d}");
@@ -562,25 +563,25 @@ mod tests {
     // -----------------------------------------------------------------
     // Modifications
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_offset_dilate() {
         let d = sdf_offset(-5.0, 2.0);
         assert!((d - (-7.0)).abs() < EPS, "offset dilate: expected -7.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_offset_erode() {
         let d = sdf_offset(-5.0, -2.0);
         assert!((d - (-3.0)).abs() < EPS, "offset erode: expected -3.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_round() {
         let d = sdf_round(-5.0, 1.0);
         assert!((d - (-6.0)).abs() < EPS, "expected -6.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_shell_inside() {
         // Inside a shape: shell thickness material centered at boundary
         // |-3| - 2/2 = 3 - 1 = 2 (still positive = inside shell material)
@@ -588,7 +589,7 @@ mod tests {
         assert!((d - 2.0).abs() < EPS, "expected 2.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_shell_outside() {
         let d = sdf_shell(5.0, 2.0);
         assert!((d - 4.0).abs() < EPS, "expected 4.0, got {d}");
@@ -597,7 +598,7 @@ mod tests {
     // -----------------------------------------------------------------
     // sdf_to_penalty
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_to_penalty_inside() {
         let distances = vec![-1.0, -5.0];
         let penalty = sdf_to_penalty(&distances, 10.0);
@@ -605,7 +606,7 @@ mod tests {
         assert!(penalty[1] > penalty[0], "deeper inside = larger penalty");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_to_penalty_outside() {
         let distances = vec![1.0, 5.0];
         let penalty = sdf_to_penalty(&distances, 10.0);
@@ -617,7 +618,7 @@ mod tests {
     // -----------------------------------------------------------------
     // sdf_gradient
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_gradient_circle() {
         // Gradient of sdf_circle at (3, 4) from origin should point radially outward
         let sdf_circle_at_origin = |p: &Point| sdf_circle(p, 0.0, 0.0, 5.0);
@@ -631,19 +632,19 @@ mod tests {
     // -----------------------------------------------------------------
     // Edge cases
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_polygon_empty() {
         let d = sdf_polygon(&Point::new(0.0, 0.0), &[]);
         assert!(d.is_infinite() && d > 0.0, "empty vertices should be INF");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_convex_polygon_empty() {
         let d = sdf_convex_polygon(&Point::new(0.0, 0.0), &[]);
         assert!(d.is_infinite() && d > 0.0, "empty vertices should be INF");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_capsule_degenerate() {
         // Degenerate capsule (start == end) should behave like a circle
         let a = Point::new(0.0, 0.0);
@@ -653,11 +654,54 @@ mod tests {
         assert!((d - 2.0).abs() < EPS, "expected 2.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sdf_rounded_rectangle_zero_radius() {
         let p = Point::new(0.0, 0.0);
         let d_round = sdf_rounded_rectangle(&p, 0.0, 0.0, 5.0, 3.0, 0.0);
         let d_rect = sdf_rectangle(&p, 0.0, 0.0, 5.0, 3.0);
         assert!((d_round - d_rect).abs() < EPS, "zero radius should match rect");
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("sdf::tests::test_sdf_circle_center", test_sdf_circle_center),
+        ("sdf::tests::test_sdf_circle_at_radius", test_sdf_circle_at_radius),
+        ("sdf::tests::test_sdf_circle_far", test_sdf_circle_far),
+        ("sdf::tests::test_sdf_rectangle_center", test_sdf_rectangle_center),
+        ("sdf::tests::test_sdf_rectangle_corner", test_sdf_rectangle_corner),
+        ("sdf::tests::test_sdf_union_two_circles", test_sdf_union_two_circles),
+        ("sdf::tests::test_sdf_to_mask_all_inside", test_sdf_to_mask_all_inside),
+        ("sdf::tests::test_sdf_to_mask_all_outside", test_sdf_to_mask_all_outside),
+        ("sdf::tests::test_sdf_box_2d_center", test_sdf_box_2d_center),
+        ("sdf::tests::test_sdf_box_2d_outside", test_sdf_box_2d_outside),
+        ("sdf::tests::test_sdf_rounded_rectangle_center", test_sdf_rounded_rectangle_center),
+        ("sdf::tests::test_sdf_capsule_midpoint", test_sdf_capsule_midpoint),
+        ("sdf::tests::test_sdf_capsule_on_surface", test_sdf_capsule_on_surface),
+        ("sdf::tests::test_sdf_polygon_inside", test_sdf_polygon_inside),
+        ("sdf::tests::test_sdf_polygon_outside", test_sdf_polygon_outside),
+        ("sdf::tests::test_sdf_convex_polygon_inside", test_sdf_convex_polygon_inside),
+        ("sdf::tests::test_sdf_convex_polygon_outside", test_sdf_convex_polygon_outside),
+        ("sdf::tests::test_sdf_intersection", test_sdf_intersection),
+        ("sdf::tests::test_sdf_subtraction", test_sdf_subtraction),
+        ("sdf::tests::test_sdf_subtraction_clipped", test_sdf_subtraction_clipped),
+        ("sdf::tests::test_sdf_smooth_union_sharp_limit", test_sdf_smooth_union_sharp_limit),
+        ("sdf::tests::test_sdf_smooth_intersection_sharp_limit", test_sdf_smooth_intersection_sharp_limit),
+        ("sdf::tests::test_sdf_offset_dilate", test_sdf_offset_dilate),
+        ("sdf::tests::test_sdf_offset_erode", test_sdf_offset_erode),
+        ("sdf::tests::test_sdf_round", test_sdf_round),
+        ("sdf::tests::test_sdf_shell_inside", test_sdf_shell_inside),
+        ("sdf::tests::test_sdf_shell_outside", test_sdf_shell_outside),
+        ("sdf::tests::test_sdf_to_penalty_inside", test_sdf_to_penalty_inside),
+        ("sdf::tests::test_sdf_to_penalty_outside", test_sdf_to_penalty_outside),
+        ("sdf::tests::test_sdf_gradient_circle", test_sdf_gradient_circle),
+        ("sdf::tests::test_sdf_polygon_empty", test_sdf_polygon_empty),
+        ("sdf::tests::test_sdf_convex_polygon_empty", test_sdf_convex_polygon_empty),
+        ("sdf::tests::test_sdf_capsule_degenerate", test_sdf_capsule_degenerate),
+        ("sdf::tests::test_sdf_rounded_rectangle_zero_radius", test_sdf_rounded_rectangle_zero_radius),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

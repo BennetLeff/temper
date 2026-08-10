@@ -1,0 +1,83 @@
+{
+  "_comment": [
+    "temper-geometry's expected-failure manifest, the sibling of wasm_expected_failures.json",
+    "(which covers temper-drc-rs). Same contract, same reasoning -- see that file's _comment",
+    "for why exclusions are LISTED and executed rather than deleted or cfg'd out.",
+    "",
+    "It is a separate file rather than more entries in the shared one because",
+    "run_wasm_tests.mjs exits non-zero on an ORPHAN EXCLUSION: a manifest entry naming no",
+    "registered test. That check is worth keeping -- it is what catches a renamed or deleted",
+    "test whose exclusion outlived it -- and it means a manifest can only describe a registry",
+    "that contains all of its names. Point the runner at this one with",
+    "`--expected-failures tools/wasm/wasm_expected_failures_geometry.json` when the module",
+    "carries temper-geometry alone; a module carrying BOTH crates needs a merged manifest.",
+    "",
+    "Native baseline, for contrast: `cargo test --no-default-features --lib` on",
+    "temper-geometry passes 779/779 on x86_64-unknown-linux-gnu, these 15 included. Every",
+    "entry below is therefore a genuine native-vs-wasm32 divergence, not a broken test.",
+    "",
+    "Measured 2026-08-10 against 722 registered tests: 707 pass, 15 expected-fail, 0 other."
+  ],
+  "expected_failures": {
+    "bottleneck_geometry::tests::test_graph_single_node_no_edges": {
+      "class": "no-clock",
+      "reason": "build_capacitated_graph (bottleneck_geometry.rs:222) calls std::time::Instant::now() unconditionally, to service its optional deadline_remaining_s budget. wasm32-unknown-unknown's std has no clock: Instant::now() panics with 'time not implemented on this platform'. The panic is in PRODUCTION code, not the test -- so this whole kernel is unrunnable on wasm32 today, and these eight entries are that fact's census, not eight independent test defects. Fixing it means making the clock read conditional on the deadline actually being set (the None arm never needs a timestamp), which is a code change and out of this unit's scope."
+    },
+    "bottleneck_geometry::tests::test_graph_full_grid_edges_and_order": {
+      "class": "no-clock",
+      "reason": "Same root cause: Instant::now() in build_capacitated_graph."
+    },
+    "bottleneck_geometry::tests::test_graph_obstacle_wall_splits_components": {
+      "class": "no-clock",
+      "reason": "Same root cause: Instant::now() in build_capacitated_graph."
+    },
+    "bottleneck_geometry::tests::test_graph_deadline_fires_only_at_stride": {
+      "class": "no-clock",
+      "reason": "Same root cause: Instant::now() in build_capacitated_graph. This one additionally asserts the deadline behaviour itself, which cannot exist without a clock."
+    },
+    "bottleneck_geometry::tests::test_graph_no_deadline_completes": {
+      "class": "no-clock",
+      "reason": "Same root cause: Instant::now() in build_capacitated_graph. Note it passes deadline_remaining_s = None and still traps -- the timestamp is taken before the option is inspected, which is precisely the bug this class points at."
+    },
+    "bottleneck_geometry::tests::test_min_cut_3x3_free_grid": {
+      "class": "no-clock",
+      "reason": "Same root cause, reached through min_cut, which builds the graph first."
+    },
+    "bottleneck_geometry::tests::test_min_cut_disconnected_islands": {
+      "class": "no-clock",
+      "reason": "Same root cause, reached through min_cut."
+    },
+    "bottleneck_geometry::tests::test_min_cut_deterministic_across_runs": {
+      "class": "no-clock",
+      "reason": "Same root cause, reached through min_cut."
+    },
+    "pad_geometry::tests::pow2_is_exact_where_powi_is_not": {
+      "class": "powi-overflow-divergence-absent",
+      "reason": "Opens with assert_eq!(2f64.powi(-1024), 0.0, \"powi still overflows-then-inverts\") -- a staleness guard asserting that the platform defect pow2() exists to route around is still present. On x86_64 LLVM lowers powi to repeated squaring, 2^1024 overflows to infinity, and the reciprocal is 0.0. On wasm32 the same expression evaluates to the exact subnormal 5.562684646268003e-309, i.e. wasm32 does not have the defect. Same shape as temper-drc-rs's b7-pow-divergence-absent entries: the test is correct and the property it pins is native-only. Everything after line 1 (pow2's own values) is untested here as a result, but pow2 is exercised by the rest of the module regardless."
+    },
+    "projections::tests::test_project_onto_side_invalid_panics": {
+      "class": "should-panic-traps",
+      "reason": "A #[should_panic(expected = \"Invalid side\")] test. It panics by design, and on wasm32-unknown-unknown a panic aborts into a trap -- indistinguishable over the runner's C ABI from a genuine failure, because #[should_panic] is libtest machinery and libtest is exactly what this tier cannot run. Listing it here preserves most of its meaning: the gate is bidirectional, so if the function ever STOPS panicking the runner reports an unexpected-pass. What is not checked on wasm32 is the expected-message match; the captured panic text was verified by hand to be 'Invalid side 'invalid'. Must be 'top' or 'bottom'.'"
+    },
+    "smooth::tests::test_smooth_max_pair_mismatched_lengths": {
+      "class": "should-panic-traps",
+      "reason": "#[should_panic(expected = \"must have equal length\")]. Same mechanism as above; captured panic text: 'smooth_max_pair: slices must have equal length'."
+    },
+    "smooth::tests::test_smooth_min_pair_mismatched_lengths": {
+      "class": "should-panic-traps",
+      "reason": "#[should_panic(expected = \"must have equal length\")]. Same mechanism as above; captured panic text: 'smooth_min_pair: slices must have equal length'."
+    },
+    "smooth::tests::test_weighted_average_mismatched_lengths": {
+      "class": "should-panic-traps",
+      "reason": "#[should_panic(expected = \"must have equal length\")]. Same mechanism as above; captured panic text: 'weighted_average_smooth: slices must have equal length'."
+    },
+    "transform::tests::test_gumbel_softmax_low_temp_argmax": {
+      "class": "no-entropy-source",
+      "reason": "gumbel_softmax draws rand::random::<f64>() per logit. wasm32-unknown-unknown has no OS RNG, and src/wasm_entropy.rs deliberately registers a getrandom source that reports UNSUPPORTED rather than substituting a fixed-seed PRNG -- a PRNG would make every isolate draw the identical 'random' sequence while the function's docs still promised randomness. rand::thread_rng() panics on the failed seed: 'could not initialize thread_rng: getrandom: this target is not supported'. A wasm32 caller that needs this kernel should thread a seed in explicitly."
+    },
+    "transform::tests::test_gumbel_softmax_high_temp_uniform": {
+      "class": "no-entropy-source",
+      "reason": "Same root cause as test_gumbel_softmax_low_temp_argmax. (test_gumbel_softmax_empty passes: an empty logit slice returns before the sampling loop, so it never asks for entropy.)"
+    }
+  }
+}

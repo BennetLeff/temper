@@ -736,10 +736,9 @@ pub fn min_cut_py(
     .map_err(temper_py_bridge::panic_to_err)?
 }
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used)]
-#[allow(clippy::expect_used)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     const TRACE: &[i32] = &[
@@ -757,7 +756,7 @@ mod tests {
         vec![v; 9]
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_capacity_baseline_is_four() {
         assert_eq!(
             cell_capacity(0, 1, 1, TRACE, PAD, &ranks(NO_CLASS_RANK), 3, 3, -1),
@@ -767,7 +766,7 @@ mod tests {
         assert_eq!(cell_capacity(0, 1, 1, TRACE, PAD, &ranks(0), 3, 3, 1), 4);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_capacity_out_of_bounds_row_col_is_zero() {
         assert_eq!(
             cell_capacity(0, 3, 1, TRACE, PAD, &ranks(NO_CLASS_RANK), 3, 3, -1),
@@ -779,7 +778,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_capacity_trace_saturation() {
         // cell + 3 of 4 neighbours traced -> capacity 0
         let mut trace = TRACE.to_vec();
@@ -793,7 +792,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_capacity_r4_discount_only_from_higher_category() {
         // pad to the north of the centre cell, class rank 2 (HV)
         let mut pad = PAD.to_vec();
@@ -814,7 +813,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_hard_blocked_markers() {
         let mut trace = TRACE.to_vec();
         let mut pad = PAD.to_vec();
@@ -828,7 +827,7 @@ mod tests {
         assert!(hard_blocked(2, 0, 0, &trace, &pad, 3, 3, 1)); // OOB layer
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_graph_single_node_no_edges() {
         let (nodes, edges) = build_capacitated_graph(
             TRACE,
@@ -847,7 +846,7 @@ mod tests {
         assert!(edges.is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_graph_full_grid_edges_and_order() {
         // 3x3 free grid: every cell a node; edges are the 4-neighbour
         // pairs with capacity min(4,4) = 4. Each undirected pair is
@@ -876,7 +875,7 @@ mod tests {
         assert_eq!(edges.len(), 2 * 12); // 12 undirected neighbour pairs
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_graph_obstacle_wall_splits_components() {
         // vertical wall of -2 in the trace grid at col 1. The reference
         // BFS seeds from BOTH source and sink cells, so the graph spans
@@ -910,7 +909,7 @@ mod tests {
         assert!(nodes.iter().any(|&n| n % 5 == 2));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_graph_deadline_fires_only_at_stride() {
         // 40x40 free grid: BFS pops 1600 cells >= 256 -> expired deadline
         // must abort.
@@ -947,7 +946,7 @@ mod tests {
         assert!(result.is_ok());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_graph_no_deadline_completes() {
         let free = vec![0i32; 400];
         let (nodes, edges) = build_capacitated_graph(
@@ -980,17 +979,17 @@ mod tests {
         min_cut_edmonds_karp(nodes, edges, src, sink).unwrap()
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_min_cut_source_not_in_set() {
         assert!(min_cut_edmonds_karp(&[0, 1], &[], 99, 1).is_err());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_min_cut_sink_not_in_set() {
         assert!(min_cut_edmonds_karp(&[0, 1], &[], 0, 99).is_err());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_min_cut_trivial_same_source_sink() {
         let (cut, reachable, non_reachable) =
             min_cut_ok(&[0, 1, 2], &[(0, 1, 4), (1, 0, 4), (1, 2, 4), (2, 1, 4)], 1, 1);
@@ -1001,7 +1000,7 @@ mod tests {
         assert!(non_reachable.contains(&2));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_min_cut_single_node_no_edges() {
         let (cut, reachable, non_reachable) = min_cut_ok(&[0], &[], 0, 0);
         assert_eq!(cut, 0);
@@ -1009,7 +1008,7 @@ mod tests {
         assert!(non_reachable.is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_min_cut_two_nodes_one_edge() {
         // single edge from 0 to 1 with capacity 4
         let (cut, reachable, non_reachable) = min_cut_ok(
@@ -1023,7 +1022,7 @@ mod tests {
         assert_eq!(non_reachable, vec![1]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_min_cut_3x3_free_grid() {
         // Build the same graph the kernel emits for a 3x3 free grid
         // (see test_graph_full_grid_edges_and_order above).
@@ -1054,7 +1053,7 @@ mod tests {
         assert!(non_reachable.contains(&8));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_min_cut_disconnected_islands() {
         // A 1x3 grid where the middle cell is hard-blocked (-2).
         // Source at (0,0,0)=0, sink at (0,0,2)=2.  Both are nodes
@@ -1084,7 +1083,7 @@ mod tests {
         assert_eq!(non_reachable, vec![2]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_min_cut_deterministic_across_runs() {
         let trace = vec![0i32; 25];
         let pad = vec![0i32; 25];
@@ -1105,4 +1104,31 @@ mod tests {
         let b = min_cut_ok(&nodes, &edges, 0, 24);
         assert_eq!(a, b);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("bottleneck_geometry::tests::test_capacity_baseline_is_four", test_capacity_baseline_is_four),
+        ("bottleneck_geometry::tests::test_capacity_out_of_bounds_row_col_is_zero", test_capacity_out_of_bounds_row_col_is_zero),
+        ("bottleneck_geometry::tests::test_capacity_trace_saturation", test_capacity_trace_saturation),
+        ("bottleneck_geometry::tests::test_capacity_r4_discount_only_from_higher_category", test_capacity_r4_discount_only_from_higher_category),
+        ("bottleneck_geometry::tests::test_hard_blocked_markers", test_hard_blocked_markers),
+        ("bottleneck_geometry::tests::test_graph_single_node_no_edges", test_graph_single_node_no_edges),
+        ("bottleneck_geometry::tests::test_graph_full_grid_edges_and_order", test_graph_full_grid_edges_and_order),
+        ("bottleneck_geometry::tests::test_graph_obstacle_wall_splits_components", test_graph_obstacle_wall_splits_components),
+        ("bottleneck_geometry::tests::test_graph_deadline_fires_only_at_stride", test_graph_deadline_fires_only_at_stride),
+        ("bottleneck_geometry::tests::test_graph_no_deadline_completes", test_graph_no_deadline_completes),
+        ("bottleneck_geometry::tests::test_min_cut_source_not_in_set", test_min_cut_source_not_in_set),
+        ("bottleneck_geometry::tests::test_min_cut_sink_not_in_set", test_min_cut_sink_not_in_set),
+        ("bottleneck_geometry::tests::test_min_cut_trivial_same_source_sink", test_min_cut_trivial_same_source_sink),
+        ("bottleneck_geometry::tests::test_min_cut_single_node_no_edges", test_min_cut_single_node_no_edges),
+        ("bottleneck_geometry::tests::test_min_cut_two_nodes_one_edge", test_min_cut_two_nodes_one_edge),
+        ("bottleneck_geometry::tests::test_min_cut_3x3_free_grid", test_min_cut_3x3_free_grid),
+        ("bottleneck_geometry::tests::test_min_cut_disconnected_islands", test_min_cut_disconnected_islands),
+        ("bottleneck_geometry::tests::test_min_cut_deterministic_across_runs", test_min_cut_deterministic_across_runs),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

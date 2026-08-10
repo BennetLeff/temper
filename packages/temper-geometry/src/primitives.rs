@@ -213,21 +213,22 @@ pub fn batch_point_distance(points_a: &[Point], points_b: &[Point]) -> Vec<f64> 
 // Tests
 // =============================================================================
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     // -----------------------------------------------------------------
     // point_distance
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_distance_zero() {
         let p = Point::new(3.0, 4.0);
         let d = point_distance(&p, &p);
         assert!(d <= 1e-6, "self-distance should be ~sqrt(eps), got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_distance_basic() {
         let a = Point::new(0.0, 0.0);
         let b = Point::new(3.0, 4.0);
@@ -235,7 +236,7 @@ mod tests {
         assert!((d - 5.0).abs() < 1e-9, "expected 5.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_distance_negative_coords() {
         let a = Point::new(-1.0, -1.0);
         let b = Point::new(2.0, 3.0);
@@ -246,7 +247,7 @@ mod tests {
     // -----------------------------------------------------------------
     // point_distance_squared
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_distance_squared() {
         let a = Point::new(0.0, 0.0);
         let b = Point::new(3.0, 4.0);
@@ -257,7 +258,7 @@ mod tests {
     // -----------------------------------------------------------------
     // point_midpoint
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_midpoint() {
         let a = Point::new(2.0, 4.0);
         let b = Point::new(6.0, 8.0);
@@ -269,14 +270,14 @@ mod tests {
     // -----------------------------------------------------------------
     // points_centroid
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_points_centroid_empty() {
         let c = points_centroid(&[]);
         assert!((c.x - 0.0).abs() < 1e-9);
         assert!((c.y - 0.0).abs() < 1e-9);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_points_centroid() {
         let pts = vec![
             Point::new(0.0, 0.0),
@@ -291,7 +292,7 @@ mod tests {
     // -----------------------------------------------------------------
     // point_to_line_distance
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_to_line_distance_perpendicular() {
         let p = Point::new(5.0, 3.0);
         let a = Point::new(5.0, 0.0);
@@ -300,7 +301,7 @@ mod tests {
         assert!(d <= 1e-6, "point on the line, expected ~sqrt(eps), got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_to_line_distance_offset() {
         let p = Point::new(0.0, 5.0);
         let a = Point::new(0.0, 0.0);
@@ -309,7 +310,7 @@ mod tests {
         assert!((d - 5.0).abs() < 1e-9, "expected 5.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_point_to_line_distance_clamped() {
         // Point is "before" segment start — distance should be to start point
         let p = Point::new(-5.0, 0.0);
@@ -322,7 +323,7 @@ mod tests {
     // -----------------------------------------------------------------
     // rect_from_center / rect_center / rect_dimensions / rect_area
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rect_from_center_and_center() {
         let r = rect_from_center(10.0, 20.0, 30.0, 40.0);
         assert!((r.x - (-20.0)).abs() < 1e-9, "x mismatch: {}", r.x);
@@ -335,7 +336,7 @@ mod tests {
         assert!((c.y - 20.0).abs() < 1e-9);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rect_dimensions_and_area() {
         let r = Rect::new(0.0, 0.0, 10.0, 5.0);
         let (w, h) = rect_dimensions(&r);
@@ -347,21 +348,21 @@ mod tests {
     // -----------------------------------------------------------------
     // rect_contains_point
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rect_contains_point_inside() {
         let r = Rect::new(0.0, 0.0, 100.0, 100.0);
         let p = Point::new(50.0, 50.0);
         assert!(rect_contains_point(&r, &p));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rect_contains_point_outside() {
         let r = Rect::new(0.0, 0.0, 100.0, 100.0);
         let p = Point::new(200.0, 50.0);
         assert!(!rect_contains_point(&r, &p));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rect_contains_point_on_edge() {
         let r = Rect::new(0.0, 0.0, 100.0, 100.0);
         let p = Point::new(100.0, 50.0);
@@ -371,7 +372,7 @@ mod tests {
     // -----------------------------------------------------------------
     // rect_corners
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rect_corners_ordered() {
         let r = Rect::new(10.0, 20.0, 30.0, 40.0);
         let corners = rect_corners(&r);
@@ -393,7 +394,7 @@ mod tests {
     // -----------------------------------------------------------------
     // aabb_from_points
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_aabb_from_points() {
         let pts = vec![
             Point::new(5.0, 10.0),
@@ -408,7 +409,7 @@ mod tests {
         assert!((bb.y_max - 25.0).abs() < 1e-9);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_aabb_from_points_single() {
         let pts = vec![Point::new(7.0, 8.0)];
         let bb = aabb_from_points(&pts);
@@ -421,21 +422,21 @@ mod tests {
     // -----------------------------------------------------------------
     // aabb_intersects
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_aabb_intersects_overlap() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(5.0, 5.0, 15.0, 15.0);
         assert!(aabb_intersects(&a, &b));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_aabb_intersects_disjoint() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(20.0, 20.0, 30.0, 30.0);
         assert!(!aabb_intersects(&a, &b));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_aabb_intersects_touching() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(10.0, 0.0, 20.0, 10.0);
@@ -443,7 +444,7 @@ mod tests {
                 "touching edges should intersect per AABB convention");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_aabb_intersects_contained() {
         let a = AABB::new(0.0, 0.0, 20.0, 20.0);
         let b = AABB::new(5.0, 5.0, 15.0, 15.0);
@@ -453,7 +454,7 @@ mod tests {
     // -----------------------------------------------------------------
     // aabb_overlap_area
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_aabb_overlap_area_partial() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(5.0, 5.0, 15.0, 15.0);
@@ -461,7 +462,7 @@ mod tests {
         assert!((area - 25.0).abs() < 1e-9, "expected 25.0, got {area}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_aabb_overlap_area_none() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(20.0, 20.0, 30.0, 30.0);
@@ -469,7 +470,7 @@ mod tests {
         assert!((area - 0.0).abs() < 1e-9, "expected 0.0, got {area}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_aabb_overlap_area_contained() {
         let a = AABB::new(0.0, 0.0, 20.0, 20.0);
         let b = AABB::new(5.0, 5.0, 15.0, 15.0);
@@ -480,7 +481,7 @@ mod tests {
     // -----------------------------------------------------------------
     // aabb_union
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_aabb_union() {
         let a = AABB::new(0.0, 0.0, 10.0, 10.0);
         let b = AABB::new(5.0, 5.0, 15.0, 15.0);
@@ -494,7 +495,7 @@ mod tests {
     // -----------------------------------------------------------------
     // aabb_expand
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_aabb_expand() {
         let a = AABB::new(5.0, 5.0, 15.0, 15.0);
         let e = aabb_expand(&a, 2.0);
@@ -507,7 +508,7 @@ mod tests {
     // -----------------------------------------------------------------
     // distance_to_rect_edge
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_distance_to_rect_edge_inside() {
         let r = Rect::new(0.0, 0.0, 100.0, 100.0);
         let p = Point::new(50.0, 50.0);
@@ -515,7 +516,7 @@ mod tests {
         assert!((d - 50.0).abs() < 1e-9, "expected 50.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_distance_to_rect_edge_center() {
         let r = Rect::new(0.0, 0.0, 100.0, 200.0);
         // center is (50, 100); nearest edge is left/right at 50
@@ -524,7 +525,7 @@ mod tests {
         assert!((d - 50.0).abs() < 1e-9, "expected 50.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_distance_to_rect_edge_outside() {
         let r = Rect::new(0.0, 0.0, 100.0, 100.0);
         let p = Point::new(200.0, 50.0);
@@ -535,7 +536,7 @@ mod tests {
     // -----------------------------------------------------------------
     // distance_to_specific_edge
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_distance_to_specific_edge_left() {
         let r = Rect::new(10.0, 20.0, 100.0, 50.0);
         let p = Point::new(30.0, 40.0);
@@ -543,7 +544,7 @@ mod tests {
         assert!((d - 20.0).abs() < 1e-9, "expected 20.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_distance_to_specific_edge_case_insensitive() {
         let r = Rect::new(0.0, 0.0, 100.0, 100.0);
         let p = Point::new(50.0, 50.0);
@@ -551,7 +552,7 @@ mod tests {
         assert!((d - 50.0).abs() < 1e-9, "expected 50.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_distance_to_specific_edge_fallback() {
         let r = Rect::new(0.0, 0.0, 100.0, 100.0);
         let p = Point::new(50.0, 50.0);
@@ -562,7 +563,7 @@ mod tests {
     // -----------------------------------------------------------------
     // distance_to_board_boundary
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_distance_to_board_boundary_inside() {
         let p = Point::new(50.0, 50.0);
         let d = distance_to_board_boundary(&p, 100.0, 100.0, 10.0);
@@ -570,21 +571,21 @@ mod tests {
         assert!((d - 40.0).abs() < 1e-9, "expected 40.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_distance_to_board_boundary_on_margin() {
         let p = Point::new(10.0, 50.0);
         let d = distance_to_board_boundary(&p, 100.0, 100.0, 10.0);
         assert!(d.abs() < 1e-9, "expected 0.0 on margin edge, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_distance_to_board_boundary_outside() {
         let p = Point::new(0.0, 50.0);
         let d = distance_to_board_boundary(&p, 100.0, 100.0, 10.0);
         assert!(d < 0.0, "outside should be negative, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_distance_to_board_boundary_zero_margin() {
         let p = Point::new(50.0, 50.0);
         let d = distance_to_board_boundary(&p, 100.0, 100.0, 0.0);
@@ -595,13 +596,13 @@ mod tests {
     // -----------------------------------------------------------------
     // pairwise_distances
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_pairwise_distances_empty() {
         let d = pairwise_distances(&[]);
         assert!(d.is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_pairwise_distances_single() {
         let pts = vec![Point::new(3.0, 4.0)];
         let d = pairwise_distances(&pts);
@@ -609,7 +610,7 @@ mod tests {
         assert!(d[0] <= 1e-6, "self-distance should be ~sqrt(eps)");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_pairwise_distances_two_points() {
         let pts = vec![Point::new(0.0, 0.0), Point::new(3.0, 4.0)];
         let d = pairwise_distances(&pts);
@@ -624,7 +625,7 @@ mod tests {
         assert!(d[3] <= 1e-6, "self-distance 1");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_pairwise_distances_symmetry() {
         let pts = vec![
             Point::new(0.0, 0.0),
@@ -648,7 +649,7 @@ mod tests {
     // -----------------------------------------------------------------
     // pairwise_distances_squared
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_pairwise_distances_squared() {
         let pts = vec![Point::new(0.0, 0.0), Point::new(3.0, 4.0)];
         let d = pairwise_distances_squared(&pts);
@@ -662,7 +663,7 @@ mod tests {
     // -----------------------------------------------------------------
     // batch_point_distance
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_batch_point_distance() {
         let a = vec![Point::new(0.0, 0.0), Point::new(1.0, 1.0)];
         let b = vec![Point::new(3.0, 4.0), Point::new(4.0, 5.0)];
@@ -672,7 +673,7 @@ mod tests {
         assert!((d[1] - 5.0).abs() < 1e-9);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_batch_point_distance_unequal_lengths() {
         let a = vec![Point::new(0.0, 0.0), Point::new(1.0, 1.0), Point::new(2.0, 2.0)];
         let b = vec![Point::new(3.0, 4.0)];
@@ -680,4 +681,57 @@ mod tests {
         assert_eq!(d.len(), 1);
         assert!((d[0] - 5.0).abs() < 1e-9);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("primitives::tests::test_point_distance_zero", test_point_distance_zero),
+        ("primitives::tests::test_point_distance_basic", test_point_distance_basic),
+        ("primitives::tests::test_point_distance_negative_coords", test_point_distance_negative_coords),
+        ("primitives::tests::test_point_distance_squared", test_point_distance_squared),
+        ("primitives::tests::test_point_midpoint", test_point_midpoint),
+        ("primitives::tests::test_points_centroid_empty", test_points_centroid_empty),
+        ("primitives::tests::test_points_centroid", test_points_centroid),
+        ("primitives::tests::test_point_to_line_distance_perpendicular", test_point_to_line_distance_perpendicular),
+        ("primitives::tests::test_point_to_line_distance_offset", test_point_to_line_distance_offset),
+        ("primitives::tests::test_point_to_line_distance_clamped", test_point_to_line_distance_clamped),
+        ("primitives::tests::test_rect_from_center_and_center", test_rect_from_center_and_center),
+        ("primitives::tests::test_rect_dimensions_and_area", test_rect_dimensions_and_area),
+        ("primitives::tests::test_rect_contains_point_inside", test_rect_contains_point_inside),
+        ("primitives::tests::test_rect_contains_point_outside", test_rect_contains_point_outside),
+        ("primitives::tests::test_rect_contains_point_on_edge", test_rect_contains_point_on_edge),
+        ("primitives::tests::test_rect_corners_ordered", test_rect_corners_ordered),
+        ("primitives::tests::test_aabb_from_points", test_aabb_from_points),
+        ("primitives::tests::test_aabb_from_points_single", test_aabb_from_points_single),
+        ("primitives::tests::test_aabb_intersects_overlap", test_aabb_intersects_overlap),
+        ("primitives::tests::test_aabb_intersects_disjoint", test_aabb_intersects_disjoint),
+        ("primitives::tests::test_aabb_intersects_touching", test_aabb_intersects_touching),
+        ("primitives::tests::test_aabb_intersects_contained", test_aabb_intersects_contained),
+        ("primitives::tests::test_aabb_overlap_area_partial", test_aabb_overlap_area_partial),
+        ("primitives::tests::test_aabb_overlap_area_none", test_aabb_overlap_area_none),
+        ("primitives::tests::test_aabb_overlap_area_contained", test_aabb_overlap_area_contained),
+        ("primitives::tests::test_aabb_union", test_aabb_union),
+        ("primitives::tests::test_aabb_expand", test_aabb_expand),
+        ("primitives::tests::test_distance_to_rect_edge_inside", test_distance_to_rect_edge_inside),
+        ("primitives::tests::test_distance_to_rect_edge_center", test_distance_to_rect_edge_center),
+        ("primitives::tests::test_distance_to_rect_edge_outside", test_distance_to_rect_edge_outside),
+        ("primitives::tests::test_distance_to_specific_edge_left", test_distance_to_specific_edge_left),
+        ("primitives::tests::test_distance_to_specific_edge_case_insensitive", test_distance_to_specific_edge_case_insensitive),
+        ("primitives::tests::test_distance_to_specific_edge_fallback", test_distance_to_specific_edge_fallback),
+        ("primitives::tests::test_distance_to_board_boundary_inside", test_distance_to_board_boundary_inside),
+        ("primitives::tests::test_distance_to_board_boundary_on_margin", test_distance_to_board_boundary_on_margin),
+        ("primitives::tests::test_distance_to_board_boundary_outside", test_distance_to_board_boundary_outside),
+        ("primitives::tests::test_distance_to_board_boundary_zero_margin", test_distance_to_board_boundary_zero_margin),
+        ("primitives::tests::test_pairwise_distances_empty", test_pairwise_distances_empty),
+        ("primitives::tests::test_pairwise_distances_single", test_pairwise_distances_single),
+        ("primitives::tests::test_pairwise_distances_two_points", test_pairwise_distances_two_points),
+        ("primitives::tests::test_pairwise_distances_symmetry", test_pairwise_distances_symmetry),
+        ("primitives::tests::test_pairwise_distances_squared", test_pairwise_distances_squared),
+        ("primitives::tests::test_batch_point_distance", test_batch_point_distance),
+        ("primitives::tests::test_batch_point_distance_unequal_lengths", test_batch_point_distance_unequal_lengths),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

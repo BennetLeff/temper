@@ -366,14 +366,15 @@ pub const ROTATION_ANGLES_DEG: [f64; 4] = [0.0, 90.0, 180.0, 270.0];
 // Tests
 // =============================================================================
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     // -----------------------------------------------------------------
     // get_rotation_matrix
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_get_rotation_matrix_0() {
         let m = get_rotation_matrix(0.0);
         assert!((m[0][0] - 1.0).abs() < 1e-15);
@@ -382,7 +383,7 @@ mod tests {
         assert!((m[1][1] - 1.0).abs() < 1e-15);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_get_rotation_matrix_90() {
         let m = get_rotation_matrix(std::f64::consts::FRAC_PI_2);
         assert!((m[0][0] - 0.0).abs() < 1e-15);
@@ -394,7 +395,7 @@ mod tests {
     // -----------------------------------------------------------------
     // rotate_point: 90°, 180°, 270° rotation of (1, 0)
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotate_point_90() {
         // (1, 0) rotated 90° CCW about origin → (0, 1)
         let p = Point::new(1.0, 0.0);
@@ -403,7 +404,7 @@ mod tests {
         assert!((r.y - 1.0).abs() < 1e-15, "expected 1, got {}", r.y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotate_point_180() {
         // (1, 0) rotated 180° CCW about origin → (-1, 0)
         let p = Point::new(1.0, 0.0);
@@ -412,7 +413,7 @@ mod tests {
         assert!((r.y - 0.0).abs() < 1e-15, "expected 0, got {}", r.y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotate_point_270() {
         // (1, 0) rotated 270° CCW about origin → (0, -1)
         let p = Point::new(1.0, 0.0);
@@ -421,7 +422,7 @@ mod tests {
         assert!((r.y - (-1.0)).abs() < 1e-15, "expected -1, got {}", r.y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotate_point_about_center() {
         // Rotate (2, 1) 90° CCW about (1, 1)
         // Relative vector: (1, 0) → rotated: (0, 1) → final: (1, 2)
@@ -432,7 +433,7 @@ mod tests {
         assert!((r.y - 2.0).abs() < 1e-15, "expected 2, got {}", r.y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotate_point_noop() {
         let p = Point::new(3.0, 4.0);
         let r = rotate_point(&p, 0.0, None);
@@ -443,13 +444,13 @@ mod tests {
     // -----------------------------------------------------------------
     // rotate_points
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotate_points_empty() {
         let result = rotate_points(&[], 1.0, None);
         assert!(result.is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotate_points_batch() {
         let pts = vec![Point::new(1.0, 0.0), Point::new(0.0, 1.0)];
         let result = rotate_points(&pts, std::f64::consts::FRAC_PI_2, None);
@@ -470,7 +471,7 @@ mod tests {
         Rect::new(-1.0, -1.0, 2.0, 2.0)
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_get_rotated_bounds_0() {
         let r = square_at_origin();
         let bb = get_rotated_bounds(&r, 0.0);
@@ -480,7 +481,7 @@ mod tests {
         assert!((bb.y_max - 1.0).abs() < 1e-15);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_get_rotated_bounds_45() {
         // 2×2 square rotated 45° about its center → AABB side = 2√2 ≈ 2.828
         let r = square_at_origin();
@@ -493,7 +494,7 @@ mod tests {
         assert!((bb.width() - (2.0 * half_diag)).abs() < 1e-14);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_get_rotated_bounds_90() {
         // 2×2 square rotated 90° → same AABB (square)
         let r = square_at_origin();
@@ -507,7 +508,7 @@ mod tests {
     // -----------------------------------------------------------------
     // rotate_rectangle_corners
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotate_rectangle_corners_no_rotation() {
         let r = Rect::new(0.0, 0.0, 2.0, 2.0);
         let center = r.center();
@@ -530,7 +531,7 @@ mod tests {
     // -----------------------------------------------------------------
     // get_rotated_aabb
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_get_rotated_aabb_from_vertices() {
         let vertices = vec![
             Point::new(2.0, 3.0),
@@ -547,7 +548,7 @@ mod tests {
     // -----------------------------------------------------------------
     // transform_pin_position
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_transform_pin_position_no_rotation() {
         // Pin offset (1, 0) at component center (10, 20), 0° rotation → (11, 20)
         let result = transform_pin_position(&Point::new(1.0, 0.0), &Point::new(10.0, 20.0), 0.0);
@@ -555,7 +556,7 @@ mod tests {
         assert!((result.y - 20.0).abs() < 1e-15);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_transform_pin_position_rotated() {
         // Pin offset (1, 0) at (10, 20), 90° rotation.
         //
@@ -575,7 +576,7 @@ mod tests {
     // -----------------------------------------------------------------
     // transform_pin_positions
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_transform_pin_positions_empty() {
         let result = transform_pin_positions(&[], &Point::new(0.0, 0.0), 0.0);
         assert!(result.is_empty());
@@ -584,13 +585,13 @@ mod tests {
     // -----------------------------------------------------------------
     // batch_get_rotated_bounds
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_batch_get_rotated_bounds_empty() {
         let result = batch_get_rotated_bounds(&[], &[]);
         assert!(result.is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_batch_get_rotated_bounds() {
         let rects = vec![Rect::new(0.0, 0.0, 2.0, 2.0), Rect::new(0.0, 0.0, 4.0, 2.0)];
         let angles = vec![0.0, std::f64::consts::FRAC_PI_2];
@@ -606,7 +607,7 @@ mod tests {
     // -----------------------------------------------------------------
     // batch_rotate_points: N=5
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_batch_rotate_points_n5() {
         let points = vec![
             Point::new(1.0, 0.0),
@@ -656,13 +657,13 @@ mod tests {
     // -----------------------------------------------------------------
     // rotation_index_to_onehot
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotation_index_to_onehot() {
         let v = rotation_index_to_onehot(1, 4);
         assert_eq!(v, vec![0.0, 1.0, 0.0, 0.0]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotation_index_to_onehot_out_of_range() {
         let v = rotation_index_to_onehot(10, 4);
         assert_eq!(v, vec![0.0, 0.0, 0.0, 0.0]);
@@ -671,20 +672,20 @@ mod tests {
     // -----------------------------------------------------------------
     // rotation_degrees_to_onehot
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotation_degrees_to_onehot_exact() {
         let v = rotation_degrees_to_onehot(90.0, &ROTATION_ANGLES_DEG);
         assert_eq!(v, vec![0.0, 1.0, 0.0, 0.0]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotation_degrees_to_onehot_normalized() {
         // 450° → 90°
         let v = rotation_degrees_to_onehot(450.0, &ROTATION_ANGLES_DEG);
         assert_eq!(v, vec![0.0, 1.0, 0.0, 0.0]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotation_degrees_to_onehot_rounded() {
         // 91° → nearest is 90°
         let v = rotation_degrees_to_onehot(91.0, &ROTATION_ANGLES_DEG);
@@ -694,31 +695,31 @@ mod tests {
     // -----------------------------------------------------------------
     // onehot_to_rotation_degrees round-trip
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_onehot_to_rotation_degrees_0() {
         let deg = onehot_to_rotation_degrees(&[1.0, 0.0, 0.0, 0.0], &ROTATION_ANGLES_DEG);
         assert!((deg - 0.0).abs() < 1e-15);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_onehot_to_rotation_degrees_90() {
         let deg = onehot_to_rotation_degrees(&[0.0, 1.0, 0.0, 0.0], &ROTATION_ANGLES_DEG);
         assert!((deg - 90.0).abs() < 1e-15);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_onehot_to_rotation_degrees_180() {
         let deg = onehot_to_rotation_degrees(&[0.0, 0.0, 1.0, 0.0], &ROTATION_ANGLES_DEG);
         assert!((deg - 180.0).abs() < 1e-15);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_onehot_to_rotation_degrees_270() {
         let deg = onehot_to_rotation_degrees(&[0.0, 0.0, 0.0, 1.0], &ROTATION_ANGLES_DEG);
         assert!((deg - 270.0).abs() < 1e-15);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_onehot_round_trip() {
         // round-trip: degree → onehot → degree
         let allowed = &[0.0, 90.0, 180.0, 270.0];
@@ -734,7 +735,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_onehot_round_trip_soft() {
         // Soft one-hot (e.g. from Gumbel-Softmax) → weighted average
         let soft = [0.1, 0.7, 0.1, 0.1];
@@ -746,7 +747,7 @@ mod tests {
     // -----------------------------------------------------------------
     // onehot_to_rotation_radians
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_onehot_to_rotation_radians() {
         let rad = onehot_to_rotation_radians(
             &[0.0, 1.0, 0.0, 0.0],
@@ -758,7 +759,7 @@ mod tests {
     // -----------------------------------------------------------------
     // gumbel_softmax: with low temperature → argmax
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_gumbel_softmax_low_temp_argmax() {
         // With very low temperature, the result should approximate a
         // one-hot at the argmax position (index 2 has the largest logit).
@@ -782,7 +783,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_gumbel_softmax_high_temp_uniform() {
         // With high temperature, the output approaches uniform.
         let logits = vec![1.0, 2.0, 3.0, 4.0];
@@ -798,7 +799,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_gumbel_softmax_empty() {
         let result = gumbel_softmax(&[], 1.0);
         assert!(result.is_empty());
@@ -807,20 +808,20 @@ mod tests {
     // -----------------------------------------------------------------
     // sample_rotation
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sample_rotation_argmax() {
         let logits = vec![-2.0, 5.0, -1.0, 3.0];
         let idx = sample_rotation(&logits);
         assert_eq!(idx, 1); // index 1 has logit 5.0
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sample_rotation_empty() {
         let idx = sample_rotation(&[]);
         assert_eq!(idx, 0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sample_rotation_tie() {
         // Ties resolve to first occurrence
         let logits = vec![3.0, 1.0, 3.0, 0.0];
@@ -831,7 +832,7 @@ mod tests {
     // -----------------------------------------------------------------
     // sample_rotation_batch
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_sample_rotation_batch() {
         let batch = vec![
             vec![0.0, 10.0, 0.0, 0.0],
@@ -845,7 +846,7 @@ mod tests {
     // -----------------------------------------------------------------
     // Constants
     // -----------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotation_angles_constants() {
         assert!((ROTATION_ANGLES_RAD[0] - 0.0).abs() < 1e-15);
         assert!((ROTATION_ANGLES_RAD[1] - std::f64::consts::FRAC_PI_2).abs() < 1e-15);
@@ -905,7 +906,7 @@ mod tests {
     const TEST_OFFSETS: [(f64, f64); 5] =
         [(0.5, 0.3), (2.0, -1.0), (5.0, 0.0), (3.7, -2.1), (-5.0, 5.0)];
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotate_point_composition_closes_over_finite_angle_set() {
         // R(θ1)(R(θ2)(p)) == R(θ1+θ2)(p) mod 2π for all 16 pairs over
         // ROTATION_ANGLES_RAD and every offset.
@@ -935,7 +936,7 @@ mod tests {
         assert_eq!(n_checked, 16 * TEST_OFFSETS.len());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotate_point_inverse_round_trip_over_finite_angle_set() {
         // R(-θ)(R(θ)(p)) == p for every angle in the finite set. `rotate_point`
         // is the CCW R(+θ) family, so its inverse is rotate_point(p, -θ).
@@ -950,7 +951,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_transform_pin_position_convention_anchor_over_finite_angle_set() {
         // transform_pin_position's R(-theta) convention anchored at every
         // angle of the finite set with asymmetric offsets, against the
@@ -978,7 +979,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_transform_pin_positions_batch_convention_anchor() {
         // The batch form must satisfy the same anchors as the single form.
         let origin = Point::zero();
@@ -1000,7 +1001,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_rotation_encoding_round_trip_over_finite_angle_set() {
         // index -> one-hot -> degrees and degrees -> one-hot -> degrees are
         // both the identity on the finite set.
@@ -1021,7 +1022,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_transform_pin_position_sign_flip_discriminates_at_90_and_270() {
         // Falsifier: prove the convention anchors actually discriminate.
         // At 90° and 270°, transform_pin_position (R(-θ)) must differ from
@@ -1042,7 +1043,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_transform_pin_position_composition_discriminates_only_non_masking_pairs() {
         // Falsifier: composition R(-θ1)·R(-θ2) discriminates a sign flip
         // only when θ1+θ2 ∉ {0, 180} mod 360. The 8 non-masking pairs must
@@ -1084,4 +1085,60 @@ mod tests {
         assert_eq!(non_masking, 8 * 4);
         assert_eq!(masking, 8 * 4);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("transform::tests::test_get_rotation_matrix_0", test_get_rotation_matrix_0),
+        ("transform::tests::test_get_rotation_matrix_90", test_get_rotation_matrix_90),
+        ("transform::tests::test_rotate_point_90", test_rotate_point_90),
+        ("transform::tests::test_rotate_point_180", test_rotate_point_180),
+        ("transform::tests::test_rotate_point_270", test_rotate_point_270),
+        ("transform::tests::test_rotate_point_about_center", test_rotate_point_about_center),
+        ("transform::tests::test_rotate_point_noop", test_rotate_point_noop),
+        ("transform::tests::test_rotate_points_empty", test_rotate_points_empty),
+        ("transform::tests::test_rotate_points_batch", test_rotate_points_batch),
+        ("transform::tests::test_get_rotated_bounds_0", test_get_rotated_bounds_0),
+        ("transform::tests::test_get_rotated_bounds_45", test_get_rotated_bounds_45),
+        ("transform::tests::test_get_rotated_bounds_90", test_get_rotated_bounds_90),
+        ("transform::tests::test_rotate_rectangle_corners_no_rotation", test_rotate_rectangle_corners_no_rotation),
+        ("transform::tests::test_get_rotated_aabb_from_vertices", test_get_rotated_aabb_from_vertices),
+        ("transform::tests::test_transform_pin_position_no_rotation", test_transform_pin_position_no_rotation),
+        ("transform::tests::test_transform_pin_position_rotated", test_transform_pin_position_rotated),
+        ("transform::tests::test_transform_pin_positions_empty", test_transform_pin_positions_empty),
+        ("transform::tests::test_batch_get_rotated_bounds_empty", test_batch_get_rotated_bounds_empty),
+        ("transform::tests::test_batch_get_rotated_bounds", test_batch_get_rotated_bounds),
+        ("transform::tests::test_batch_rotate_points_n5", test_batch_rotate_points_n5),
+        ("transform::tests::test_rotation_index_to_onehot", test_rotation_index_to_onehot),
+        ("transform::tests::test_rotation_index_to_onehot_out_of_range", test_rotation_index_to_onehot_out_of_range),
+        ("transform::tests::test_rotation_degrees_to_onehot_exact", test_rotation_degrees_to_onehot_exact),
+        ("transform::tests::test_rotation_degrees_to_onehot_normalized", test_rotation_degrees_to_onehot_normalized),
+        ("transform::tests::test_rotation_degrees_to_onehot_rounded", test_rotation_degrees_to_onehot_rounded),
+        ("transform::tests::test_onehot_to_rotation_degrees_0", test_onehot_to_rotation_degrees_0),
+        ("transform::tests::test_onehot_to_rotation_degrees_90", test_onehot_to_rotation_degrees_90),
+        ("transform::tests::test_onehot_to_rotation_degrees_180", test_onehot_to_rotation_degrees_180),
+        ("transform::tests::test_onehot_to_rotation_degrees_270", test_onehot_to_rotation_degrees_270),
+        ("transform::tests::test_onehot_round_trip", test_onehot_round_trip),
+        ("transform::tests::test_onehot_round_trip_soft", test_onehot_round_trip_soft),
+        ("transform::tests::test_onehot_to_rotation_radians", test_onehot_to_rotation_radians),
+        ("transform::tests::test_gumbel_softmax_low_temp_argmax", test_gumbel_softmax_low_temp_argmax),
+        ("transform::tests::test_gumbel_softmax_high_temp_uniform", test_gumbel_softmax_high_temp_uniform),
+        ("transform::tests::test_gumbel_softmax_empty", test_gumbel_softmax_empty),
+        ("transform::tests::test_sample_rotation_argmax", test_sample_rotation_argmax),
+        ("transform::tests::test_sample_rotation_empty", test_sample_rotation_empty),
+        ("transform::tests::test_sample_rotation_tie", test_sample_rotation_tie),
+        ("transform::tests::test_sample_rotation_batch", test_sample_rotation_batch),
+        ("transform::tests::test_rotation_angles_constants", test_rotation_angles_constants),
+        ("transform::tests::test_rotate_point_composition_closes_over_finite_angle_set", test_rotate_point_composition_closes_over_finite_angle_set),
+        ("transform::tests::test_rotate_point_inverse_round_trip_over_finite_angle_set", test_rotate_point_inverse_round_trip_over_finite_angle_set),
+        ("transform::tests::test_transform_pin_position_convention_anchor_over_finite_angle_set", test_transform_pin_position_convention_anchor_over_finite_angle_set),
+        ("transform::tests::test_transform_pin_positions_batch_convention_anchor", test_transform_pin_positions_batch_convention_anchor),
+        ("transform::tests::test_rotation_encoding_round_trip_over_finite_angle_set", test_rotation_encoding_round_trip_over_finite_angle_set),
+        ("transform::tests::test_transform_pin_position_sign_flip_discriminates_at_90_and_270", test_transform_pin_position_sign_flip_discriminates_at_90_and_270),
+        ("transform::tests::test_transform_pin_position_composition_discriminates_only_non_masking_pairs", test_transform_pin_position_composition_discriminates_only_non_masking_pairs),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
