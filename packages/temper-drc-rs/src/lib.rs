@@ -64,6 +64,11 @@ pub mod clearance_matrix;
 // K1-schema dict builders migrated from validation/drc_oracle.py.
 #[cfg(feature = "python")]
 pub mod drc_oracle_marshal;
+// Wave 4 — router_v6/constraints_drc_oracle.py DRCOracle decision kernels
+// (Violation.severity, the R3 clearance-credit spatial scoping,
+// can_place_via / can_place_track_segment, validate_all pairwise checks).
+#[cfg(feature = "python")]
+pub mod drc_oracle;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
@@ -419,5 +424,9 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Wave 4 marshalling boundary — drc_oracle pydantic→plain + K1 dict
     // builders migrated from validation/drc_oracle.py.
     crate::drc_oracle_marshal::register(m)?;
+    // Wave 4 — router_v6/constraints_drc_oracle.py DRCOracle decision
+    // kernels (drc_oracle.rs): severity, R3 clearance credits,
+    // can_place_via / can_place_track_segment, validate_all pairwise checks.
+    crate::drc_oracle::register(m)?;
     Ok(())
 }

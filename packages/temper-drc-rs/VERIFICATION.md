@@ -1248,3 +1248,128 @@ R1e, a **structural proof** is recorded instead.
 - R1g: borrow-over-clone; no `unwrap` outside tests; pyo3 default
   `catch_unwind` at the boundary (per the crate's documented convention).
 - R1h: not applicable — no physics-gated quantity (recorded N/A).
+
+# DRCOracle decision kernels (`drc_oracle.rs`) — Verification (Wave 4)
+
+The `router_v6/constraints_drc_oracle.py::DRCOracle` numeric/decision bodies
+(2026-08-09). The oracle is the verbatim pre-migration module pinned in
+`tests/router_v6/test_constraints_drc_oracle_rust_differential.py`'s
+`_oracle_*` block (commit `2e205228`); the shipped module is a delegation
+shim.
+
+## Candidate scorecard — home-crate decision
+
+The DRCOracle is DRC-check compute, so it lives in **temper-drc-rs**
+(`drc_oracle.rs`). The object itself stays Python (a pickled `BoardState`
+field, geometry held in the Python-visible `PCBGeometry`/`RadiusIndex`
+R-tree); the spatial queries stay Python (their result order *is* the
+oracle's iteration order) and the per-element numeric/decision bodies are
+the Rust kernels. Ported: `Violation.severity`, the `@req(2026-06-23-007,
+R3)` clearance-credit spatial scoping (`get_pad_credit` /
+`get_effective_clearance`), `can_place_via`, `can_place_track_segment`
+(neckdown, companion-net skip, R3 credit stack, EXP-13 internal-layer
+creepage factor), and `validate_all`'s four pairwise checks. Not ported
+(recorded in the differential's docstring): registration glue,
+`add_clearance_credit` (axis validation + dict insert), `_resolve_owner`
+(`pin_owner` may be a callable), `get_valid_via_sites` (grid loop + Python
+sort), and the `{actual:.3f}` reason strings (CPython `__format__`
+rendering stays in the shim, which builds them from the kernel's structured
+`(kind, id, actual, effective)` return).
+
+## Induction applicability
+
+Mathematical induction is **not applicable** to any kernel: none is
+recursive, and none iterates over a dimension whose correctness depends on
+a size parameter — every loop over a caller-provided collection is a
+bounded, per-element-independent scan (the `can_place_*` loops short-circuit
+on the first violation but each element's arithmetic is independent of the
+collection size; `validate_all`'s four pairwise loops are likewise
+size-independent and emission-ordered). Per R1e, a **structural proof** is
+recorded instead.
+
+## Structural proof (bit-identical parity)
+
+1. **Distance primitives are the same functions by construction.** The four
+   distances (`point_to_segment_distance`,
+   `segment_to_segment_distance`, `point_to_rotated_rect_distance`,
+   `segment_to_rotated_rect_distance`, and `Via`-center distance via
+   `math.hypot` → `py_hypot`) are the exact kernels the Python arm
+   delegates to — the Python oracle and the Rust kernel call one function,
+   not two copies. The differential corpus therefore exercises the oracle's
+   own boundary behaviour (1-ulp edges, degenerate segments) and both arms
+   agree by construction.
+2. **`min(required, 0.08)` under `neckdown` is CPython builtin `min`**
+   (first-argument survives a NaN — B5), replicated via `crate::pymath::py_min`,
+   never `f64::min`. Pinned by `test_can_place_neckdown_keeps_nan`, whose
+   geometry (via 0.2mm from a track, 0.08-based effective 0.48) is
+   constructed so an `f64::min` kernel would flag a violation the oracle
+   does not.
+3. **Arithmetic grouping preserved verbatim (B7).** `effective = required +
+   via_radius + (width/2)` evaluates as `(required + via_radius) +
+   (width/2)`; the EXP-13 factor is one `* 0.30` multiply; the tolerances
+   are the oracle's exact `effective - 0.001` / `effective - 0.010`
+   subtractions. The differential pins the 1µm and 10µm boundary bands
+   (`test_can_place_track_segment_1um_tolerance_boundary`,
+   `test_validate_all_track_track_10um_tolerance_boundary`).
+4. **The R3 credit kernels preserve dict iteration order.** The shim
+   marshals `clearance_credits.items()` in insertion order (first match
+   wins); the kernel iterates the wire list in that order. The axis-gated
+   AABB band test is a verbatim transcription (chained-comparison `&&`
+   semantics, `half_w_band = hw + 0.5`), and the pin-pair test is genuine
+   Python 2-element-set equality (`set2_eq`, singleton collapse included).
+5. **`validate_all` emission order is the oracle's.** The shim enumerates
+   the pairs in `geometry.tracks`/`vias`/`pads` list order and spatial-index
+   query order (applying the `id_a >= id_b` / net / diff-pair filters), and
+   the kernel emits in the four-loop order (track-track, via-via, track-pad,
+   via-pad). `test_validate_all_violation_order_preserved` crafts a board
+   where each of the four check types fires exactly once and pins the exact
+   order plus location fields.
+6. **The can_place short-circuit is order-faithful.** The kernels return the
+   first violation in the marshalled (index-query) order; the oracle returns
+   on the first violation in the same loop order. `test_can_place_via_reports_first_violation_in_query_order`
+   pins the order-sensitive choice.
+7. **`LayerIndex` / callable-owner glue stays Python.** `LayerIndex(layer)
+   in INTERNAL_LAYERS` (an IntEnum that is deliberately not migrated) is
+   evaluated by the shim and passed as `apply_internal_creepage`;
+   `_resolve_owner` (callable or dict) stays Python, so only the resolved
+   `owner`/`pin` cross the boundary. The `required > 0.5` creepage gate and
+   the `credit < required` stack order are inside the kernel, exactly where
+   the oracle applied them.
+
+## Empirical verification
+
+- **Differential (R1a).** `tests/router_v6/test_constraints_drc_oracle_rust_differential.py`
+  — 65 tests driving identical boards through the verbatim oracle and the
+  shim; every comparison via `sig()` (`float.hex()`-exact, type-carrying,
+  no tolerance). Includes NaN/inf severity cases, the neckdown-NaN trap, the
+  rotated-pad distance, the credit axis gate / either-orientation `None` /
+  cross-component rejection / callable owner, the first-violation order, the
+  companion skip, internal-layer creepage and credit stacking, `get_valid_via_sites`,
+  `validate_all` (order + all four types), and the per-kernel wiring proof.
+- **PBT (R1c/R1d).** `tests/router_v6/test_constraints_drc_oracle_pbt.py` —
+  P1..P6 (6 non-vacuous properties, each with a `test_pN_fails_for_<mutant>`
+  vacuity guard that re-runs the full property under a degenerate compiled
+  kernel and requires an `AssertionError`, and each with measured
+  reachability `calls >= 50` / `outcomes >= 2` at the Rust boundary) plus
+  four metamorphic relations (M1 dyadic translation, M2 x-reflection,
+  M3 180° rotation — each exact, since every distance is a difference of f64
+  coordinates and dyadic translation / sign flips preserve every f64 bit —
+  and M4 registration-order permutation, which preserves the *existence* of
+  a violation), with anti-vacuity sanity tests proving the transforms are
+  not identity and the M4 board genuinely violates.
+- **Regression (R1b).** `tests/deterministic/test_isolation_slots_in_slot_generation.py`,
+  `tests/deterministic/stages/test_setup.py`,
+  `tests/deterministic/stages/test_drc_validation.py`, and
+  `tests/router_v6/test_constraints_spatial_index_rust_differential.py` stay
+  green (31 passed, 1 skipped). Pure-delegation carve-out: no regression
+  beyond CI noise expected.
+- **R1f TDD.** The differential's first commit (`8f795bfa`) failed
+  `test_required_rust_symbols_present` (the `drc_oracle_*` symbols did not
+  exist) before the kernels landed.
+- **R1g.** Borrow-over-clone throughout; no `unwrap`/`expect` outside
+  `#[cfg(test)]` (crate clippy lint); pyo3 default `catch_unwind` at every
+  `#[pyfunction]` boundary (the crate's documented convention); `cargo
+  clippy --all-features --all-targets -- -D warnings` and
+  `--no-default-features` `cargo test` clean.
+- **R1h.** Not applicable — none of these kernels gate a CP-SAT constraint
+  on a physics quantity (recorded N/A).
