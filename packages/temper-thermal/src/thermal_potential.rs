@@ -69,16 +69,6 @@ pub const COPPER_GRID_RES: usize = 50;
 /// `phi_copper`'s conductance epsilon (`eps = 1e-12`).
 const COPPER_EPS: f64 = 1e-12;
 
-/// CPython's builtin `min(a, b)` — first argument wins on NaN.
-#[inline]
-fn py_min(a: f64, b: f64) -> f64 {
-    if b < a {
-        b
-    } else {
-        a
-    }
-}
-
 /// The heatsink edge, pre-normalised by the Python caller.
 ///
 /// Normalisation (`edge.upper().strip()`) stays in Python so CPython's
@@ -676,26 +666,104 @@ fn find_min_valid(
     best_xy
 }
 
+/// The farthest useful nudge step on anchor `j`'s row: the offset that
+/// reaches the far board bound, or `None` when `offset_mm` is not
+/// positive (the search is stationary and can never clear a collision).
+///
+/// The old single right-offset clamped at `x_max`, which could land the
+/// nudged anchor exactly on another anchor already sitting at `x_max`
+/// (issue #928: two devices coinciding at (40.0, 21.0)), and it never
+/// revisited a pair the nudge might have newly collided with a third
+/// anchor.  `search_free_x` replaces the clamp with a bounded two-way
+/// scan for the first x-position on the row that is at least
+/// `tolerance_mm` from *every* other anchor.
+fn search_free_x(
+    anchors: &[(String, (f64, f64))],
+    j: usize,
+    x_min: f64,
+    x_max: f64,
+    tolerance_mm: f64,
+    offset_mm: f64,
+) -> Option<(f64, f64)> {
+    let (xj, yj) = anchors[j].1;
+    let mut k: usize = 1;
+    loop {
+        let koff = (k as f64) * offset_mm;
+        // Stop once both directions are out of bounds (or the offset is
+        // not positive): every further candidate is farther from the
+        // row's span and cannot clear the collision either.
+        if !(offset_mm > 0.0 && (xj + koff <= x_max || xj - koff >= x_min)) {
+            return None;
+        }
+        for sign in [1.0_f64, -1.0_f64] {
+            // `xj + sign * koff` mirrors CPython's `xj + sign * koff`
+            // (int `sign` times the float `koff`): the sign multiply is
+            // an exact sign flip, so the bit sequence is identical.
+            let cx = xj + sign * koff;
+            if cx < x_min || cx > x_max {
+                continue;
+            }
+            // B7: `(...) ** 2` / `(...) ** 0.5` are libm `pow`, not
+            // `x * x` / `sqrt`, exactly as in the pair scan.
+            let clear = anchors.iter().enumerate().all(|(m, &(_, (ex, ey)))| {
+                m == j || pow(pow(cx - ex, 2.0) + pow(yj - ey, 2.0), 0.5) >= tolerance_mm
+            });
+            if clear {
+                return Some((cx, yj));
+            }
+        }
+        k += 1;
+    }
+}
+
 /// `_enforce_unique_positions`, mutating in place exactly as the
-/// reference does (later pairs observe earlier offsets).
+/// reference does.
+///
+/// Re-scans every pair until a full pass makes no move.  Each move lands
+/// the later anchor on a position at least `tolerance_mm` from every
+/// other anchor, so a move never re-creates a violation and the process
+/// terminates; a pair whose row is saturated (no x-position within the
+/// board clears it) is left as-is rather than clamped onto an existing
+/// anchor.
 pub fn enforce_unique_positions_with(
     anchors: &mut [(String, (f64, f64))],
     bounds: Rect,
     tolerance_mm: f64,
     offset_mm: f64,
 ) {
-    let (_, _, x_max, _) = bounds;
-    for i in 0..anchors.len() {
-        for j in (i + 1)..anchors.len() {
-            let (xi, yi) = anchors[i].1;
-            let (xj, yj) = anchors[j].1;
-            // B7: `(...) ** 0.5` is libm pow(·, 0.5), not sqrt.
-            let dist = pow(pow(xi - xj, 2.0) + pow(yi - yj, 2.0), 0.5);
-            if dist < tolerance_mm {
-                // B5: CPython's builtin `min` keeps the first argument
-                // on NaN.
-                anchors[j].1 = (py_min(xj + offset_mm, x_max), yj);
+    let (x_min, _, x_max, _) = bounds;
+    loop {
+        let mut moved = false;
+        for i in 0..anchors.len() {
+            for j in (i + 1)..anchors.len() {
+                let (xi, yi) = anchors[i].1;
+                let (xj, yj) = anchors[j].1;
+                // B7: `(...) ** 0.5` is libm pow(·, 0.5), not sqrt.
+                let dist = pow(pow(xi - xj, 2.0) + pow(yi - yj, 2.0), 0.5);
+                if dist >= tolerance_mm {
+                    continue;
+                }
+                match search_free_x(anchors, j, x_min, x_max, tolerance_mm, offset_mm) {
+                    None => {
+                        // Row saturated: no x-position on this row clears
+                        // every other anchor.  Leave the pair and carry
+                        // on scanning (a later move cannot unblock this
+                        // row, so it would just be re-found).
+                        continue;
+                    }
+                    Some(pos) => {
+                        anchors[j].1 = pos;
+                        moved = true;
+                        break;
+                    }
+                }
             }
+            if moved {
+                break;
+            }
+        }
+        if !moved {
+            break;
         }
     }
 }
@@ -1678,6 +1746,98 @@ mod tests {
             (0.5, 0.0),
             "the pow form must treat these as duplicates and nudge B; `sqrt` would not"
         );
+    }
+
+    // --- R13 uniqueness regressions (issue #928) ------------------------
+    //
+    // The old enforcement nudged the later anchor to `min(xj + offset,
+    // x_max)`.  Two failure modes:
+    //
+    // 1. When `xj` sat at `x_max` the clamp put the nudged anchor back ON
+    //    TOP of an anchor already at `x_max` — the (40.0, 21.0) corner
+    //    flake reproduced end-to-end by `test_p6_anchors_are_unique`.
+    // 2. The pair scan visited each pair once, so a nudge that collided
+    //    with a THIRD anchor was never re-checked.
+    //
+    // `enforce_unique_positions_with` now re-scans to a fixpoint and each
+    // move lands on a position clear of every anchor, so both modes are
+    // closed.
+
+    #[test]
+    fn uniqueness_never_merges_onto_an_anchor_at_x_max() {
+        let mut anchors = vec![
+            ("A".to_owned(), (40.0, 21.0)),
+            ("B".to_owned(), (40.0, 21.0)),
+        ];
+        enforce_unique_positions_with(&mut anchors, (0.0, 0.0, 40.0, 21.0), 0.1, 0.5);
+        assert_eq!(
+            anchors[1].1,
+            (39.5, 21.0),
+            "the +x nudge clamps at x_max=40.0; the search must step inward to xj - offset"
+        );
+        let (ax, ay) = anchors[0].1;
+        let (bx, by) = anchors[1].1;
+        assert!(
+            pow(pow(ax - bx, 2.0) + pow(ay - by, 2.0), 0.5) >= 0.1,
+            "anchors still coincide at {:?} / {:?}",
+            anchors[0].1,
+            anchors[1].1
+        );
+    }
+
+    #[test]
+    fn uniqueness_restarts_after_a_third_anchor_collision() {
+        // The rightward nudge of B would land it exactly on C, so the
+        // first candidate is rejected and the search steps on to the next
+        // free position (x_max of the scan here is 100.0).
+        let mut anchors = vec![
+            ("A".to_owned(), (0.0, 0.0)),
+            ("B".to_owned(), (0.05, 0.0)),
+            ("C".to_owned(), (0.5, 0.0)),
+        ];
+        enforce_unique_positions_with(&mut anchors, (0.0, 0.0, 100.0, 100.0), 0.1, 0.5);
+        assert_eq!(
+            anchors[1].1,
+            (1.05, 0.0),
+            "B's +offset candidate xj+0.5 = 0.55 sits 0.05 from C; the search must step on"
+        );
+        for i in 0..anchors.len() {
+            for j in (i + 1)..anchors.len() {
+                let (xi, yi) = anchors[i].1;
+                let (xj, yj) = anchors[j].1;
+                assert!(
+                    pow(pow(xi - xj, 2.0) + pow(yi - yj, 2.0), 0.5) >= 0.1,
+                    "anchors {i}/{j} coincide at {:?} / {:?}",
+                    anchors[i].1,
+                    anchors[j].1
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn uniqueness_left_nudge_then_right_nudge_both_within_bounds() {
+        // B sits at x_min: the +x nudge is taken; C sits against B's old
+        // site so it must nudge too.  Exercises both signs and the
+        // fixpoint re-scan in one fixture.
+        let mut anchors = vec![
+            ("A".to_owned(), (0.0, 0.0)),
+            ("B".to_owned(), (0.0, 0.0)),
+            ("C".to_owned(), (0.0, 0.0)),
+        ];
+        enforce_unique_positions_with(&mut anchors, (0.0, 0.0, 100.0, 100.0), 0.1, 0.5);
+        for i in 0..anchors.len() {
+            for j in (i + 1)..anchors.len() {
+                let (xi, yi) = anchors[i].1;
+                let (xj, yj) = anchors[j].1;
+                assert!(
+                    pow(pow(xi - xj, 2.0) + pow(yi - yj, 2.0), 0.5) >= 0.1,
+                    "anchors {i}/{j} coincide at {:?} / {:?}",
+                    anchors[i].1,
+                    anchors[j].1
+                );
+            }
+        }
     }
 
     // --- provably unobservable mutations (recorded no-ops) -------------

@@ -11,6 +11,20 @@ Only the pure compute is copied.  The safety gates
 (``validate_heatsink_edge`` / ``validate_tj_safety`` /
 ``validate_stackup_for_anchoring``) are policy and logging, are not
 migrated, and are therefore not duplicated here.
+
+**One deliberate behavioural change (issue #928, 2026-08-10):**
+``_enforce_unique_positions`` here has been updated to the post-fix
+algorithm, in lock-step with the Rust kernel it mirrors.  The migration
+pinned the OLD single right-offset ``min(xj + offset_mm, x_max)``
+bit-exactly — including its two R13 bugs: the x_max clamp could land the
+nudged anchor on top of an anchor already at x_max, and the single pair
+scan never revisited a pair the nudge had newly collided with a third
+anchor.  The new algorithm (see the function's docstring) re-scans to a
+fixpoint and each move lands on a position clear of every anchor.  The
+differential that used this file as the pinned reference now asserts the
+Rust kernel and this file agree on the NEW behaviour, which is the point
+of re-pinning: the two implementations must remain bit-identical to each
+other, not bit-identical to the bug.
 """
 
 from __future__ import annotations
@@ -563,18 +577,79 @@ def _enforce_unique_positions(
 ) -> None:
     """Ensure no two anchors share the same position within tolerance_mm.
 
-    If a duplicate is found, offsets the second device by offset_mm along
-    the edge strip and re-checks. Mutates anchors in-place.
+    For every violating pair (i < j) in scan order the later anchor is
+    moved to the first x-position on its row -- stepping +offset_mm
+    outward, then -offset_mm inward, never beyond the board bounds --
+    that is at least tolerance_mm from *every* other anchor.  The pair
+    scan restarts after each move, so a nudge that collides with a third
+    anchor is revisited.  Each move lands on a position clear of all
+    anchors, so a move never re-creates a violation and a full pass with
+    no moves terminates.  A pair whose row is saturated (no x-position
+    within the board clears it) is left as-is.
+
+    This replaces the old single right-offset clamped at x_max, which
+    could land the nudged anchor exactly on another anchor already at
+    x_max (issue #928: two devices coinciding at (40.0, 21.0)) and never
+    re-checked a pair the nudge had newly collided with a third anchor.
+
+    Mutates anchors in-place.
     """
+    x_min, y_min, x_max, y_max = board_bounds
+    del y_min, y_max  # the search moves x only; y is read per-anchor
     refs = list(anchors.keys())
-    for i in range(len(refs)):
-        for j in range(i + 1, len(refs)):
-            ri, rj = refs[i], refs[j]
-            xi, yi = anchors[ri]
-            xj, yj = anchors[rj]
-            dist = ((xi - xj) ** 2 + (yi - yj) ** 2) ** 0.5
-            if dist < tolerance_mm:
-                # Offset rj by offset_mm along x (clamped to board bounds)
-                _, _, x_max, _ = board_bounds
-                new_x = min(xj + offset_mm, x_max)
-                anchors[rj] = (new_x, yj)
+    n = len(refs)
+    while True:
+        moved = False
+        for i in range(n):
+            for j in range(i + 1, n):
+                ri, rj = refs[i], refs[j]
+                xi, yi = anchors[ri]
+                xj, yj = anchors[rj]
+                dist = ((xi - xj) ** 2 + (yi - yj) ** 2) ** 0.5
+                if dist >= tolerance_mm:
+                    continue
+                found = _find_free_x(anchors, refs, j, x_min, x_max, tolerance_mm, offset_mm)
+                if found is None:
+                    # Row saturated: no x-position on this row clears
+                    # every other anchor.  Leave the pair and carry on.
+                    continue
+                anchors[rj] = found
+                moved = True
+                break
+            if moved:
+                break
+        if not moved:
+            break
+
+
+def _find_free_x(
+    anchors: dict[str, tuple[float, float]],
+    refs: list[str],
+    j: int,
+    x_min: float,
+    x_max: float,
+    tolerance_mm: float,
+    offset_mm: float,
+) -> tuple[float, float] | None:
+    """First x-position on anchor ``j``'s row, at least ``tolerance_mm``
+    from every other anchor, or None if the row is saturated."""
+    xj, yj = anchors[refs[j]]
+    k = 1
+    while offset_mm > 0.0 and (xj + k * offset_mm <= x_max or xj - k * offset_mm >= x_min):
+        for sign in (+1, -1):
+            koff = k * offset_mm
+            cx = xj + sign * koff
+            if cx < x_min or cx > x_max:
+                continue
+            clear = True
+            for m in range(len(refs)):
+                if m == j:
+                    continue
+                ex, ey = anchors[refs[m]]
+                if ((cx - ex) ** 2 + (yj - ey) ** 2) ** 0.5 < tolerance_mm:
+                    clear = False
+                    break
+            if clear:
+                return (cx, yj)
+        k += 1
+    return None

@@ -177,10 +177,19 @@ def _prop_p7_anchors_are_grid_minima(board, devices, assign=None):
     x, y = mod.build_potential_grid(board, resolution)
     x_flat, y_flat = x.ravel(), y.ravel()
     _, _, _, y_max = board
-    offset_mm = 0.5  # _enforce_unique_positions' documented nudge
+    offset_mm = 0.5  # _enforce_unique_positions' documented nudge step
     for ref, (ax, ay) in anchors.items():
         on_grid = bool(np.any((x_flat == ax) & (y_flat == ay)))
-        nudged = bool(np.any((x_flat == ax - offset_mm) & (y_flat == ay)))
+        # The uniqueness nudge moves x only, by whole multiples of
+        # offset_mm off a grid cell, never beyond the board (issue #928:
+        # the old single +offset clamped at x_max and could land back on
+        # top of an anchor there, so the nudge is no longer one-sided).
+        # An off-grid anchor must therefore sit on a grid row whose x
+        # differs from some cell by an exact multiple of offset_mm.
+        on_row = y_flat == ay
+        nudged = bool(np.any(on_row)) and bool(
+            np.any(((x_flat[on_row] - ax) % offset_mm) == 0.0)
+        )
         assert on_grid or nudged, (
             f"{ref} anchored at ({ax}, {ay}) -- neither a grid cell nor a "
             f"{offset_mm} mm uniqueness nudge off one"
@@ -230,7 +239,7 @@ def test_p5_anchors_stay_inside_the_board(board, devices):
 
 
 @given(board=boards(), devices=device_lists())
-@settings(max_examples=25, deadline=None)
+@settings(max_examples=500, deadline=None)
 def test_p6_anchors_are_unique(board, devices):
     _prop_p6_anchors_are_unique(board, devices)
 
@@ -363,6 +372,80 @@ def test_p7_fails_for_off_grid_assignment():
         _prop_p7_anchors_are_grid_minima(
             (0.0, 0.0, 100.0, 150.0), [("Q1", 10.0)], assign=off_grid
         )
+
+
+def test_p7_fails_for_a_non_nudge_off_grid_anchor():
+    """The generalized nudge clause must still reject an off-grid anchor
+    whose x is NOT a whole multiple of offset_mm from any cell of its row
+    (e.g. 0.3 mm off instead of 0.5)."""
+    def off_grid_frac(board, edge, devices, config=None, **kwargs):
+        anchors = mod.assign_thermal_anchors(board, edge, devices, config=config, **kwargs)
+        return {ref: (x + 0.3, y) for ref, (x, y) in anchors.items()}
+
+
+    with pytest.raises(AssertionError):
+        _prop_p7_anchors_are_grid_minima(
+            (0.0, 0.0, 100.0, 150.0), [("Q1", 10.0)], assign=off_grid_frac
+        )
+
+
+# ---------------------------------------------------------------------------
+# R13 uniqueness regression (issue #928)
+# ---------------------------------------------------------------------------
+#
+# The old enforcement nudged the later anchor to `min(xj + offset, x_max)`.
+# When `xj` sat at `x_max` the clamp put the nudged anchor back ON TOP of
+# an anchor already at `x_max` (the (40.0, 21.0) corner flake), and the
+# single pair scan never re-checked a pair the nudge had newly collided
+# with a third anchor.  The two constructions below are the exact failure
+# modes, asserted through the delegating module (which runs the Rust
+# kernel).
+
+
+def _assert_pairwise_distinct(anchors, tolerance_mm=0.1):
+    positions = list(anchors.values())
+    for i in range(len(positions)):
+        for j in range(i + 1, len(positions)):
+            dx = positions[i][0] - positions[j][0]
+            dy = positions[i][1] - positions[j][1]
+            assert (dx * dx + dy * dy) ** 0.5 >= tolerance_mm, (
+                f"anchors {i} and {j} coincide at {positions[i]}"
+            )
+
+
+def test_p6_regression_x_max_clamp_cannot_merge_two_anchors():
+    """Issue #928: an anchor at x_max plus a second anchor whose +offset
+    would clamp onto it must end up distinct.  Before the fix the nudge
+    `min(40.0 + 0.5, 40.0)` put the second anchor exactly back on the
+    first (the (40.0, 21.0) corner coincidence)."""
+    anchors = {"A": (40.0, 21.0), "B": (40.0, 21.0)}
+    mod._enforce_unique_positions(anchors, (0.0, 0.0, 40.0, 21.0))
+    assert anchors["B"] == (39.5, 21.0), anchors
+    _assert_pairwise_distinct(anchors)
+
+
+def test_p6_regression_nudge_skips_an_anchor_already_at_the_target():
+    """The old scan visited each pair once, so a nudge landing on a third
+    anchor was never re-checked.  B's +offset target (0.55) sits 0.05 from
+    C, so the search must step on to the next free x."""
+    anchors = {"A": (0.0, 0.0), "B": (0.05, 0.0), "C": (0.5, 0.0)}
+    mod._enforce_unique_positions(anchors, (0.0, 0.0, 100.0, 100.0))
+    assert anchors["B"] == (1.05, 0.0), anchors
+    _assert_pairwise_distinct(anchors)
+
+
+def test_p6_regression_exact_flake_input_is_unique_end_to_end():
+    """The hypothesis counterexample from the #928 flake, byte-for-byte:
+    board (0,0,40,21), five devices.  Before the fix Q0 and Q3 BOTH landed
+    at (40.0, 21.0)."""
+    board = (0.0, 0.0, 40.0, 21.0)
+    devices = [("Q0", 0.0), ("Q1", 0.0), ("Q2", 1.0), ("Q3", 0.0), ("Q4", 1.0)]
+    anchors = mod.assign_thermal_anchors(
+        board, "TOP", devices, config=mod.ThermalPotentialConfig(grid_resolution=10)
+    )
+    _assert_pairwise_distinct(anchors)
+    assert all(board[0] <= ax <= board[2] for ax, _ in anchors.values())
+    assert all(board[1] <= ay <= board[3] for _, ay in anchors.values())
 
 
 def test_the_property_input_class_is_discriminating():
