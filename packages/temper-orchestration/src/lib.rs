@@ -86,6 +86,16 @@
 //                     kernels stay single-source in design-bundle, the D5
 //                     mixin helpers are called on a `__new__`-constructed
 //                     stage exactly like the oracle)
+// - `zone_aware_slot_generation_stage` — Phase D batch D5: the
+//                     `ZoneAwareSlotGenerationStage` `Stage<BoardState>` impl
+//                     (mirroring `deterministic/stages/zone_aware_slot_generation.py`:
+//                     the `_isolation_filter` + K4 reclaim, `_get_copper_zones`,
+//                     the per-zone copper + isolation-cutout slot walk and the
+//                     `zone_slots` / `reclaim_by_pin_pair` writes; the
+//                     slot-grid / ray-casting / AABB leaf kernels, the
+//                     `POWER_NET_NAMES` classification set and the
+//                     `isolation_slot_aabb` stay single-source in
+//                     design-bundle / Python and are driven through FFI)
 //
 // Panic safety at the boundary (R1g): pyo3's `#[pyfunction]` expansion
 // wraps every exported body in `catch_unwind` and converts a Rust panic
@@ -117,6 +127,7 @@ mod timing;
 mod trace_filter;
 mod zone_assignment_stage;
 mod zone_geometry_stage;
+mod zone_aware_slot_generation_stage;
 
 // Public re-exports for the orchestration engine's Rust consumers (the
 // runner test in `tests/stages_runner.rs` and the Phase-C pipeline wiring).
@@ -135,6 +146,7 @@ pub use slot_generation_stage::SlotGenerationStage;
 pub use stage::{Stage, StageError, StageErrorKind};
 pub use zone_assignment_stage::ZoneAssignmentStage;
 pub use zone_geometry_stage::ZoneGeometryStage;
+pub use zone_aware_slot_generation_stage::ZoneAwareSlotGenerationStage;
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
@@ -189,6 +201,7 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(component_assignment_stage::run_component_assignment, m)?)?;
     m.add_function(wrap_pyfunction!(component_assignment_stage::run_component_assignment_kernel, m)?)?;
     m.add_function(wrap_pyfunction!(phased_component_assignment_validator_stage::run_phased_validator_hv, m)?)?;
+    m.add_function(wrap_pyfunction!(zone_aware_slot_generation_stage::run_zone_aware_slot_generation, m)?)?;
     Ok(())
 }
 

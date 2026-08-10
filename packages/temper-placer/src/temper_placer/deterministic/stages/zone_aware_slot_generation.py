@@ -13,31 +13,46 @@ ray casting, ``_slot_intersects_iso`` AABB, and the
 ``RoutingChannelAwareSlotStage`` ``_point_to_segment_distance`` /
 ``_min_distance_to_polygon``) are implemented in Rust in the
 ``temper-design-bundle`` crate (``temper_design_bundle_python.deterministic_phase``).
-This module keeps the pre-migration public API unchanged and delegates; the
-zone walking, the bounds-margin branch, the K4 reclaim formula and the
-isolation-slot AABB building stay Python.
+
+Phase D batch D5 of the Rust Orchestration Engine plan (2026-08-09-001): the
+**stage orchestration** is implemented in Rust (``temper-orchestration``'s
+``ZoneAwareSlotGenerationStage``): the ``_isolation_filter`` + K4 reclaim
+formula, ``_get_copper_zones`` (YAML + board.copper_zones + the board.zones
+net-class scan over ``POWER_NET_NAMES``), the per-zone slot walk with the
+copper-zone and isolation-cutout filters, the F.Cu / statistics log lines
+and the ``zone_slots`` / ``reclaim_by_pin_pair`` writes all run Rust-side,
+crossing the FFI once per stage call. This module keeps the public API (the
+``ZoneAwareSlotGenerationStage`` / ``RoutingChannelAwareSlotStage`` Stage
+subclasses, their constructors and ``name``, the ``POWER_NET_NAMES``
+classification set and the Phase-5 leaf-kernel delegation helpers) and
+delegates ``run`` across the FFI. The differential oracle for the
+pre-migration implementation is pinned VERBATIM in
+``tests/deterministic/_zone_aware_slot_generation_run_py_oracle.py``.
 
 Bit-exactness: the Rust kernels replicate the oracle's ray-casting half-open
 edge semantics, the inclusive AABB test, and the ``** 0.5`` (libm ``pow``,
 NOT ``sqrt``) segment-distance close. Verified by
 ``tests/deterministic/stages/test_zone_aware_slot_generation_rust_differential.py``
-(oracle: ``tests/deterministic/stages/_zone_aware_slot_generation_py_oracle.py``);
-the structural proof lives in ``packages/temper-design-bundle/VERIFICATION.md``.
+(the Phase-5 geometry leaves) and
+``tests/deterministic/test_deterministic_d5_rust_differential.py`` (the D5
+stage orchestration); the structural proofs live in
+``packages/temper-design-bundle/VERIFICATION.md`` and
+``packages/temper-orchestration/VERIFICATION.md``.
 """
 
 import logging
-import re
-from dataclasses import replace
 
 import temper_design_bundle_python as _tdb
+import temper_orchestration as _to
 
-from ...io.isolation_slot_geometry import isolation_slot_aabb
 from ..state import BoardState
 from .slot_generation import SlotGenerationStage
 
 logger = logging.getLogger(__name__)
 
-# @req(2026-06-23-007, R2/K4): K4 reclaim formula constants.
+# @req(2026-06-23-007, R2/K4): K4 reclaim formula constants. The Rust stage
+# (zone_aware_slot_generation_stage.rs) mirrors these; the differential pins
+# them bit-exactly.
 # perpendicular_clearance_budget is the minimum straight-line distance the
 # creepage path needs outside the slot; original_requirement is the HV
 # clearance without isolation-slot credit. Both are overridden by net_class_rules
@@ -52,7 +67,8 @@ _K4_ORIGINAL_REQUIREMENT_MM = 6.0  # allow-safety-constant: K4 HV clearance base
 # non-TO-247 packages get correct K4 reclaim values automatically.
 _K4_TO247_PIN_PITCH_DEFAULT_MM = 5.45
 
-# Common power net names that indicate copper fill zones
+# Common power net names that indicate copper fill zones (SSOT for the
+# copper-zone net-class classification; the Rust stage reads it through FFI).
 POWER_NET_NAMES = {
     "GND",
     "PGND",
@@ -100,61 +116,6 @@ def _point_in_polygon(x: float, y: float, polygon: list[tuple[float, float]]) ->
     return _tdb.deterministic_phase.point_in_polygon_py(x, y, polygon)
 
 
-def _get_copper_zones(board, yaml_zones: list | None = None) -> list:
-    """
-    Extract copper zones from board and/or YAML configuration.
-
-    Copper zones are different from placement zones - they are
-    filled areas (GND plane, VCC plane) that block routing.
-
-    Args:
-        board: Board object with zones attribute
-        yaml_zones: Optional list of zones from YAML config (supplements PCB zones)
-
-    Returns:
-        List of copper zone objects with polygon data
-    """
-    if board is None and not yaml_zones:
-        return []
-
-    copper_zones = []
-
-    # Add YAML-defined zones first (if provided)
-    if yaml_zones:
-        copper_zones.extend(yaml_zones)
-        logger.debug(f"Added {len(yaml_zones)} copper zones from YAML config")
-
-    if board is None:
-        return copper_zones
-
-    # Option 1: board.copper_zones (explicit copper zone list)
-    if hasattr(board, "copper_zones") and board.copper_zones:
-        copper_zones.extend(board.copper_zones)
-        logger.debug(f"Added {len(board.copper_zones)} from board.copper_zones")
-
-    # Option 2: board.zones (may contain both placement and copper zones)
-    if hasattr(board, "zones") and board.zones:
-        for zone in board.zones:
-            # Filter for copper zones (have net_classes like GND, VCC, etc.)
-            if hasattr(zone, "net_classes") and zone.net_classes:
-                # Check if any net class matches power nets
-                for net_class in zone.net_classes:
-                    if net_class.upper() in POWER_NET_NAMES:
-                        copper_zones.append(zone)
-                        logger.debug(
-                            f"Found copper zone: {zone.name if hasattr(zone, 'name') else 'unnamed'} with net_classes={zone.net_classes}"
-                        )
-                        break
-            # Fallback: check for polygon attribute (copper zones have fill polygons)
-            elif hasattr(zone, "polygon") and zone.polygon and zone not in copper_zones:
-                copper_zones.append(zone)
-                logger.debug(
-                    f"Found copper zone with polygon: {zone.name if hasattr(zone, 'name') else 'unnamed'}"
-                )
-
-    return copper_zones
-
-
 class ZoneAwareSlotGenerationStage(SlotGenerationStage):
     """
     Slot generation that avoids copper zone coverage.
@@ -194,218 +155,24 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
         return "zone_aware_slot_generation"
 
     def run(self, state: BoardState) -> BoardState:
-        """Generate slots, filtering out those covered by copper zones or isolation cutouts."""
-        # @req(2026-06-23-007, R2): Always run the isolation filter so the
-        # K4 reclaim dict is produced even when state.zones is empty.
-        # _isolation_filter is cheap when yaml_isolation_slots is empty
-        # (it returns ([], {})), so running it unconditionally is the
-        # simplest way to avoid dropping the reclaim on the early-return
-        # path. The downstream U3 bridge consumes the reclaim without
-        # needing zone-based slot filtering.
-        iso_aabbs, reclaim = self._isolation_filter(state)
+        """Generate slots, filtering out those covered by copper zones or
+        isolation cutouts.
 
-        if not state.zones:
-            return replace(state, reclaim_by_pin_pair=reclaim or None)
-
-        # Get copper zones from board AND YAML config
-        copper_zones = _get_copper_zones(state.board, self.yaml_copper_zones)
-
-        if not copper_zones and not iso_aabbs:
-            # Neither filter applies — generate slots without filtering.
-            logger.info("No copper zones or isolation slots, using standard slot generation")
-            zone_slots_list = []
-            for zone in state.zones:
-                slots = self._generate_slots_for_zone(zone, self.slot_spacing_mm)
-                zone_slots_list.append((zone.name, tuple(slots)))
-            return replace(
-                state,
-                zone_slots=frozenset(zone_slots_list),
-                reclaim_by_pin_pair=None,
-            )
-
-        if copper_zones:
-            logger.info(f"Found {len(copper_zones)} copper zones, filtering slots")
-
-            # Log which zones apply to F.Cu (placement layer)
-            fcu_zones = []
-            other_zones = []
-            for cz in copper_zones:
-                zone_name = getattr(cz, "name", "unnamed")
-                zone_layers = getattr(cz, "layers", None)
-                if zone_layers:
-                    if isinstance(zone_layers, str):
-                        zone_layers = [zone_layers]
-                    if "F.Cu" in zone_layers:
-                        fcu_zones.append(zone_name)
-                    else:
-                        other_zones.append(f"{zone_name}({zone_layers})")
-                else:
-                    fcu_zones.append(f"{zone_name}(no layer)")
-
-            if other_zones:
-                logger.info(f"Skipping {len(other_zones)} copper zones not on F.Cu: {other_zones}")
-            if fcu_zones:
-                logger.info(f"Filtering slots for {len(fcu_zones)} F.Cu copper zones: {fcu_zones}")
-
-        # Build list of (zone_name, tuple_of_slots) for storage
-        zone_slots_list = []
-        total_slots = 0
-        copper_filtered = 0
-        iso_filtered = 0
-
-        for zone in state.zones:
-            all_slots = self._generate_slots_for_zone(zone, self.slot_spacing_mm)
-
-            # Apply both filters
-            valid_slots = []
-            for slot in all_slots:
-                if self._is_slot_in_copper_zone(slot, copper_zones):
-                    copper_filtered += 1
-                    continue
-                # @req(2026-06-23-007, R2): Reject candidate slots whose AABB
-                # intersects any isolation-slot cutout.
-                if self._slot_intersects_iso(slot, iso_aabbs):
-                    iso_filtered += 1
-                    continue
-                valid_slots.append(slot)
-
-            total_slots += len(all_slots)
-            zone_slots_list.append((zone.name, tuple(valid_slots)))
-
-        # @req(2026-06-23-007, R6): Log filter counts and total reclaim.
-        if copper_zones:
-            logger.info(
-                f"Slot filtering: copper_zone_filtered={copper_filtered} "
-                f"of {total_slots} total "
-                f"({100 * copper_filtered / max(1, total_slots):.1f}%)"
-            )
-        if iso_aabbs:
-            logger.info(
-                f"Slot filtering: isolation_slot_filtered={iso_filtered} "
-                f"of {total_slots} total "
-                f"({100 * iso_filtered / max(1, total_slots):.1f}%)"
-            )
-            total_reclaim = sum(reclaim.values()) if reclaim else 0.0
-            logger.info(f"Isolation slots reclaim {total_reclaim:.2f}mm of routing channel")
-
-        return replace(
+        The full run orchestration (the isolation filter + K4 reclaim, the
+        copper-zone collection, the per-zone slot walk with the copper and
+        isolation-cutout filters, the log lines and the ``zone_slots`` /
+        ``reclaim_by_pin_pair`` writes) is implemented in Rust (Phase D D5);
+        this method crosses the FFI once per stage call.
+        """
+        return _to.run_zone_aware_slot_generation(
             state,
-            zone_slots=frozenset(zone_slots_list),
-            reclaim_by_pin_pair=reclaim if reclaim else None,
+            self.slot_spacing_mm,
+            self.copper_zone_margin,
+            self.min_routing_channel,
+            self.yaml_copper_zones,
+            self.yaml_isolation_slots,
+            self.net_class_rules,
         )
-
-    def _isolation_filter(
-        self, state: BoardState
-    ) -> tuple[
-        list[tuple[tuple[float, float], tuple[float, float]]], dict[tuple[str, str, str], float]
-    ]:
-        """Compute isolation-slot AABBs (board coords) and the reclaim dict.
-
-        Returns (iso_aabbs, reclaim_by_pin_pair). AABBs are axis-aligned and
-        exclude slots whose owning component has no initial_position. Reclaim
-        is keyed by (component_ref, lv_pin, hv_pin) and uses the K4 formula
-        with values drawn from net_class_rules (HV class) when available.
-        """
-        if not self.yaml_isolation_slots:
-            return [], {}
-
-        # Build a {ref -> (x, y)} lookup from the netlist. If the netlist
-        # is missing, we cannot localize slots, so the filter is a no-op.
-        comp_pos: dict[str, tuple[float, float]] = {}
-        comp_by_ref: dict[str, object] = {}
-        if state.netlist is not None:
-            for comp in state.netlist.components:
-                comp_by_ref[comp.ref] = comp
-                if comp.initial_position is not None:
-                    comp_pos[comp.ref] = (comp.initial_position[0], comp.initial_position[1])
-
-        perp_budget, original_req = self._hv_clearance_overrides(state)
-
-        aabbs: list[tuple[tuple[float, float], tuple[float, float]]] = []
-        reclaim: dict[tuple[str, str, str], float] = {}
-        for slot in self.yaml_isolation_slots:
-            comp_xy = comp_pos.get(slot.component_ref)
-            if comp_xy is None:
-                continue
-            aabbs.append(isolation_slot_aabb(slot, comp_xy))
-            # @req(2026-06-23-007, R2): K4 reclaim formula. Pin pitch is
-            # per-slot (resolved from the placed component's pin offsets)
-            # so non-TO-247 packages aren't silently forced into the
-            # TO-247 geometry. The TO-247 default is the fallback when
-            # the netlist component or its lv/hv pin entries are missing.
-            pin_pitch_mm = self._resolve_pin_pitch_mm(
-                comp_by_ref.get(slot.component_ref),
-                slot.lv_pin,
-                slot.hv_pin,
-            )
-            raw = slot.width_mm / 2.0 + perp_budget - pin_pitch_mm
-            upper = max(0.0, original_req - 0.5)
-            reclaim_value = max(0.0, min(raw, upper))
-            reclaim[(slot.component_ref, slot.lv_pin, slot.hv_pin)] = reclaim_value
-
-        return aabbs, reclaim
-
-    @staticmethod
-    def _resolve_pin_pitch_mm(
-        comp: object | None,
-        lv_pin: str,
-        hv_pin: str,
-    ) -> float:
-        """Return the placed component's pin-1 to pin-2 pitch, or the TO-247 default.
-
-        Pin offsets are component-local, so the distance between them is
-        translation-invariant — we don't need the component's absolute
-        position to compute the pitch. When the component or either pin
-        entry is missing we fall back to the TO-247 default that earlier
-        versions of this stage hard-coded.
-        """
-        if comp is None or not lv_pin or not hv_pin:
-            return _K4_TO247_PIN_PITCH_DEFAULT_MM
-        get_pin = getattr(comp, "get_pin", None)
-        if get_pin is None:
-            return _K4_TO247_PIN_PITCH_DEFAULT_MM
-        lv = get_pin(lv_pin)
-        hv = get_pin(hv_pin)
-        if lv is None or hv is None:
-            return _K4_TO247_PIN_PITCH_DEFAULT_MM
-        lx, ly = lv.position
-        hx, hy = hv.position
-        return ((hx - lx) ** 2 + (hy - ly) ** 2) ** 0.5
-
-    def _hv_clearance_overrides(self, _state: BoardState) -> tuple[float, float]:
-        """Return (perpendicular_clearance_budget, original_requirement) from net_class_rules.
-
-        Falls back to the hard-coded K4 defaults when no HV net class is
-        declared. The HV class is identified by name containing 'HV' or
-        matching 'HighVoltage' (case-insensitive); this mirrors the
-        config's conventional class naming and keeps the test surface
-        predictable.
-        """
-        defaults = (
-            _K4_PERPENDICULAR_CLEARANCE_BUDGET_MM,
-            _K4_ORIGINAL_REQUIREMENT_MM,
-        )
-
-        # @req(2026-06-23-007, R2): Prefer rules injected at construction time.
-        rules = self.net_class_rules
-        if not rules:
-            return defaults
-
-        for class_name, rule in rules.items():
-            key = str(class_name).upper()
-            # Word-boundary match (delimited by "_" or start/end of the
-            # uppercased class name) -- found by
-            # scripts/check_net_classification.py auditing every net/class
-            # name classifier for the same substring-match defect class
-            # confirmed elsewhere in this repo (see
-            # docs/evidence/2026-07-27-net-classification-gate.md). Bare
-            # "HV" as a substring risked matching any net-class name
-            # merely containing those two letters.
-            if re.search(r"(?:^|_)HV(?:$|[\d_])", key) or "HIGHVOLTAGE" in key:
-                clearance = getattr(rule, "clearance_mm", None)
-                if isinstance(clearance, (int, float)) and clearance > 0:
-                    return float(clearance), float(clearance)
-        return defaults
 
     @staticmethod
     def _slot_intersects_iso(
@@ -431,6 +198,9 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
 
         Returns:
             True if slot is covered by a copper zone on the same layer
+
+        Kept as a public helper; the D5 Rust stage run() drives the identical
+        predicate through FFI.
         """
         x, y = slot
 

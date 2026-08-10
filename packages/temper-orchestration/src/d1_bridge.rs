@@ -55,6 +55,7 @@ pub(crate) fn from_python(_py: Python<'_>, state: &Bound<'_, PyAny>) -> PyResult
     bs.component_zone_map = attr_opt(state, "component_zone_map")?;
     bs.zone_slots = attr_opt(state, "zone_slots")?;
     bs.layer_assignments = attr_opt(state, "layer_assignments")?;
+    bs.reclaim_by_pin_pair = attr_opt(state, "reclaim_by_pin_pair")?;
     bs.net_order = state.getattr("net_order")?.extract::<Vec<String>>()?;
     Ok(bs)
 }
@@ -82,6 +83,9 @@ pub(crate) fn to_python(
             "component_zone_map" => py_opt_changed(orig, out, "component_zone_map")?,
             "zone_slots" => py_opt_changed(orig, out, "zone_slots")?,
             "placements" => py_opt_changed(orig, out, "placements")?,
+            "used_slots" => py_opt_changed(orig, out, "used_slots")?,
+            "design_rules" => py_opt_changed(orig, out, "design_rules")?,
+            "reclaim_by_pin_pair" => py_opt_changed(orig, out, "reclaim_by_pin_pair")?,
             "net_order" => {
                 let orig_tuple = orig.getattr("net_order")?;
                 let orig_vec: Vec<String> = orig_tuple.extract()?;
@@ -97,34 +101,16 @@ pub(crate) fn to_python(
             continue;
         }
         let value: Py<PyAny> = match *name {
-            "config" => out
-                .config
-                .clone()
-                .ok_or_else(|| PyValueError::new_err("config field is None on write-back"))?,
-            "drc_oracle" => out
-                .drc_oracle
-                .clone()
-                .ok_or_else(|| PyValueError::new_err("drc_oracle field is None on write-back"))?,
-            "grid" => out
-                .grid
-                .clone()
-                .ok_or_else(|| PyValueError::new_err("grid field is None on write-back"))?,
-            "zones" => out
-                .zones
-                .clone()
-                .ok_or_else(|| PyValueError::new_err("zones field is None on write-back"))?,
-            "component_zone_map" => out
-                .component_zone_map
-                .clone()
-                .ok_or_else(|| PyValueError::new_err("component_zone_map field is None on write-back"))?,
-            "zone_slots" => out
-                .zone_slots
-                .clone()
-                .ok_or_else(|| PyValueError::new_err("zone_slots field is None on write-back"))?,
-            "placements" => out
-                .placements
-                .clone()
-                .ok_or_else(|| PyValueError::new_err("placements field is None on write-back"))?,
+            "config" => opt_value(py, &out.config),
+            "drc_oracle" => opt_value(py, &out.drc_oracle),
+            "grid" => opt_value(py, &out.grid),
+            "zones" => opt_value(py, &out.zones),
+            "component_zone_map" => opt_value(py, &out.component_zone_map),
+            "zone_slots" => opt_value(py, &out.zone_slots),
+            "placements" => opt_value(py, &out.placements),
+            "used_slots" => opt_value(py, &out.used_slots),
+            "design_rules" => opt_value(py, &out.design_rules),
+            "reclaim_by_pin_pair" => opt_value(py, &out.reclaim_by_pin_pair),
             "net_order" => PyTuple::new(py, out.net_order.iter().map(|s| s.as_str()))?
                 .into_any()
                 .unbind(),
@@ -151,6 +137,17 @@ fn attr_opt(state: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<Py<PyAny>>>
     }
 }
 
+/// The Python value to write back for an `Option<Py>` field: the value
+/// itself, or Python `None` when the stage cleared the field (a changed
+/// field -- original Some -> Rust None -- writes an explicit None, matching
+/// the Python stage's `dataclasses.replace(field=None)`).
+fn opt_value(py: Python<'_>, opt: &Option<Py<PyAny>>) -> Py<PyAny> {
+    match opt {
+        Some(v) => v.clone(),
+        None => py.None(),
+    }
+}
+
 /// Whether the Rust output value for an `Option<Py>` field differs from the
 /// original Python attribute value. `None` in either position counts as
 /// different (a stage populating a previously-empty field must write it).
@@ -167,6 +164,9 @@ fn py_opt_changed(
         "component_zone_map" => out.component_zone_map.as_ref(),
         "zone_slots" => out.zone_slots.as_ref(),
         "placements" => out.placements.as_ref(),
+        "used_slots" => out.used_slots.as_ref(),
+        "design_rules" => out.design_rules.as_ref(),
+        "reclaim_by_pin_pair" => out.reclaim_by_pin_pair.as_ref(),
         _ => return Ok(false),
     };
     match (orig_val.is_none(), out_val) {
