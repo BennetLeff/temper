@@ -38,18 +38,16 @@ from __future__ import annotations
 from dataclasses import replace
 
 import pytest
-import temper_orchestration as _to
 from hypothesis import given, settings
 from hypothesis import strategies as st
-from shapely.geometry import Polygon
 
 from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Component, Netlist, Pin
-from temper_placer.deterministic.stages.zone_aware_slot_generation import (
-    ZoneAwareSlotGenerationStage as _shim_zone_aware,
-)
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage as _shim_phased,
+)
+from temper_placer.deterministic.stages.zone_aware_slot_generation import (
+    ZoneAwareSlotGenerationStage as _shim_zone_aware,
 )
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints

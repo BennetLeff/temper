@@ -11,6 +11,7 @@ import math
 from typing import TYPE_CHECKING
 
 import temper_orchestration as _to
+
 from temper_placer.constraints.compiler import ConstraintCompiler
 from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
 

@@ -48,10 +48,10 @@ import inspect
 from dataclasses import replace
 from pathlib import Path
 
-import pytest
 import temper_orchestration as _to
 import tests.deterministic._phased_assignment_py_oracle as _orc_phased
 import tests.deterministic._zone_aware_slot_generation_run_py_oracle as _orc_zone_aware
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages import (
@@ -205,14 +205,14 @@ def _zone_aware_args(
     yaml_isolation_slots=None,
     net_class_rules=None,
 ):
-    return dict(
-        slot_spacing_mm=slot_spacing_mm,
-        copper_zone_margin=copper_zone_margin,
-        min_routing_channel=min_routing_channel,
-        yaml_copper_zones=yaml_copper_zones,
-        yaml_isolation_slots=yaml_isolation_slots,
-        net_class_rules=net_class_rules,
-    )
+    return {
+        "slot_spacing_mm": slot_spacing_mm,
+        "copper_zone_margin": copper_zone_margin,
+        "min_routing_channel": min_routing_channel,
+        "yaml_copper_zones": yaml_copper_zones,
+        "yaml_isolation_slots": yaml_isolation_slots,
+        "net_class_rules": net_class_rules,
+    }
 
 
 def _run_zone_aware_both(state: BoardState, **kw) -> tuple[BoardState, BoardState]:
@@ -278,14 +278,14 @@ def _run_phased_both(
     fixed_placements=None,
 ) -> tuple[BoardState, BoardState]:
     c = constraints or PlacementConstraints()
-    kw = dict(
-        slot_spacing=slot_spacing,
-        design_rules=design_rules,
-        use_isolation_slots=use_isolation_slots,
-        w_r=w_r,
-        channel_map=channel_map,
-        fixed_placements=fixed_placements,
-    )
+    kw = {
+        "slot_spacing": slot_spacing,
+        "design_rules": design_rules,
+        "use_isolation_slots": use_isolation_slots,
+        "w_r": w_r,
+        "channel_map": channel_map,
+        "fixed_placements": fixed_placements,
+    }
     orc = _orc_phased.PhasedComponentAssignmentStage(c, **kw).run(state)
     port = _shim_phased(c, **kw).run(state)
     return orc, port
@@ -342,7 +342,7 @@ def test_zone_aware_copper_zone_polygon_filter() -> None:
     cz = _copper_zone(name="GND", polygon=polygon, layers="F.Cu")
     orc, port = _run_zone_aware_both(state, yaml_copper_zones=[cz])
     _assert_zone_aware_equal(orc, port)
-    for name, slots in port.zone_slots:
+    for _name, slots in port.zone_slots:
         for (x, y) in slots:
             assert not _point_in_poly(x, y, polygon), f"slot ({x},{y}) inside GND zone"
 
@@ -595,6 +595,7 @@ def test_phased_chain_from_d2_slots() -> None:
     import tests.deterministic._slot_generation_py_oracle as _orc_slot_generation
     import tests.deterministic._zone_assignment_py_oracle as _orc_zone_assignment
     import tests.deterministic._zone_geometry_py_oracle as _orc_zone_geometry
+
     from temper_placer.deterministic.stages import (
         slot_generation as _shim_slot_generation,
     )

@@ -38,8 +38,7 @@ import temper_design_bundle_python as _tdb
 import temper_orchestration as _to
 
 if TYPE_CHECKING:
-    from temper_placer.core.component import Component
-    from temper_placer.core.netlist import Netlist
+    pass
 
 
 class _PhasePlacementMixin:
