@@ -441,4 +441,125 @@ mod tests {
             Ok(vec![1.0000000000000003e-05; 16])
         );
     }
+
+    // --- proptest: heat_removal structural properties ---
+
+    mod proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        use super::*;
+        use proptest::prelude::*;
+
+        fn cs() -> impl Strategy<Value = f64> {
+            0.1f64..10.0f64
+        }
+
+        fn moderate_coord() -> impl Strategy<Value = f64> {
+            0.0f64..500.0f64
+        }
+
+        fn r_val() -> impl Strategy<Value = f64> {
+            0.1f64..10.0f64
+        }
+
+        proptest! {
+            // --------------------------------------------------------------
+            // Property H1: build_h_field returns height_cells * width_cells
+            // elements for valid inputs.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_h_field_dimensions(
+                cell_size in cs(),
+                h in 1usize..=10usize,
+                w in 1usize..=10usize,
+            ) {
+                let field = build_h_field(
+                    cell_size, 0.0, 0.0, h, w,
+                    &[], &[], &[], &[], H_CONV_BACKGROUND,
+                ).unwrap();
+                prop_assert_eq!(field.len(), h * w);
+            }
+
+            // --------------------------------------------------------------
+            // Property H2: For empty devices, all cells equal the background
+            // value (uniform field).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_h_field_uniform_when_empty(
+                cell_size in cs(),
+                h in 1usize..=10usize,
+                w in 1usize..=10usize,
+            ) {
+                let field = build_h_field(
+                    cell_size, 0.0, 0.0, h, w,
+                    &[], &[], &[], &[], H_CONV_BACKGROUND,
+                ).unwrap();
+                let bg = field[0];
+                for &v in &field {
+                    prop_assert_eq!(v.to_bits(), bg.to_bits());
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property H3: When devices are present, each cell is >= the
+            // uniform background value (accumulation is additive).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_h_field_cells_at_least_background(
+                cell_size in cs(),
+                h in 2usize..=8usize,
+                w in 2usize..=8usize,
+            ) {
+                let bg_field = build_h_field(
+                    cell_size, 0.0, 0.0, h, w,
+                    &[], &[], &[], &[], H_CONV_BACKGROUND,
+                ).unwrap();
+                let bg = bg_field[0];
+                // Place one device in the centre of the grid.
+                let cx = 0.5 * (w as f64) * cell_size;
+                let cy = 0.5 * (h as f64) * cell_size;
+                let field = build_h_field(
+                    cell_size, 0.0, 0.0, h, w,
+                    &[cx], &[cy], &[0.25], &[1.0], H_CONV_BACKGROUND,
+                ).unwrap();
+                for &v in &field {
+                    prop_assert!(v >= bg - 1e-15,
+                        "cell value {:e} < bg {:e}", v, bg);
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property H4: All cells are finite for finite inputs.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_h_field_all_finite(
+                cell_size in cs(),
+                xs in proptest::collection::vec(moderate_coord(), 0..=5),
+                ys in proptest::collection::vec(moderate_coord(), 0..=5),
+                rcs in proptest::collection::vec(r_val(), 0..=5),
+                rsas in proptest::collection::vec(r_val(), 0..=5),
+                h in 2usize..=10usize,
+                w in 2usize..=10usize,
+            ) {
+                let n = xs.len().min(ys.len()).min(rcs.len()).min(rsas.len());
+                let field = build_h_field(
+                    cell_size, 0.0, 0.0, h, w,
+                    &xs[..n], &ys[..n], &rcs[..n], &rsas[..n],
+                    H_CONV_BACKGROUND,
+                ).unwrap();
+                for &v in &field {
+                    prop_assert!(v.is_finite());
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property H5: cs == 0.0 raises DivisionByZero.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_h_field_zero_cs_raises(h in 1usize..=5usize, w in 1usize..=5usize) {
+                let result = build_h_field(0.0, 0.0, 0.0, h, w, &[], &[], &[], &[], H_CONV_BACKGROUND);
+                prop_assert_eq!(result, Err(BuildHFieldError::DivisionByZero));
+            }
+        }
+    }
 }

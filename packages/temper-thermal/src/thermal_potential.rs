@@ -1951,4 +1951,227 @@ mod tests {
             }
         }
     }
+
+    // --- proptest: field component structural properties ---
+
+    mod field_proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        use super::*;
+        use proptest::prelude::*;
+
+        fn moderate_f64() -> impl Strategy<Value = f64> {
+            (0.0f64..1000.0f64).prop_map(|x| x)
+        }
+
+        fn width_height() -> impl Strategy<Value = f64> {
+            1.0f64..500.0f64
+        }
+
+        fn resolution() -> impl Strategy<Value = usize> {
+            2usize..=20usize
+        }
+
+        proptest! {
+            // --------------------------------------------------------------
+            // Property F1: phi_edge returns non-negative finite values
+            // for finite inputs and a non-zero decay.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_phi_edge_non_negative_finite(
+                w in width_height(),
+                h in width_height(),
+                decay in 0.1f64..100.0f64,
+                res in resolution(),
+            ) {
+                let bounds = (0.0, 0.0, w, h);
+                let (xg, yg) = build_potential_grid(bounds, res);
+                let field = phi_edge(&xg, &yg, bounds, Edge::Top, decay);
+                for &v in &field {
+                    prop_assert!(v.is_finite());
+                    prop_assert!(v >= 0.0);
+                    prop_assert!(v <= 1.0);
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property F2: phi_edge top row is minimal (closest to TOP edge).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_phi_edge_top_row_is_minimal(
+                w in width_height(),
+                h in width_height(),
+                decay in 1.0f64..50.0f64,
+                res in 4usize..=20usize,
+            ) {
+                let bounds = (0.0, 0.0, w, h);
+                let (xg, yg) = build_potential_grid(bounds, res);
+                let field = phi_edge(&xg, &yg, bounds, Edge::Top, decay);
+                let top_row_start = res * (res - 1);
+                for j in 0..res {
+                    for row in 0..(res - 1) {
+                        prop_assert!(
+                            field[top_row_start + j] <= field[row * res + j],
+                            "top-row cell exceeds cell in row {}", row
+                        );
+                    }
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property F3: phi_coupling empty devices is all zero.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_phi_coupling_empty_is_zero(
+                w in width_height(),
+                h in width_height(),
+                res in resolution(),
+            ) {
+                let bounds = (0.0, 0.0, w, h);
+                let (xg, yg) = build_potential_grid(bounds, res);
+                let field = phi_coupling(&xg, &yg, &[], 50.0);
+                for &v in &field {
+                    prop_assert_eq!(v, 0.0);
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property F4: phi_coupling returns finite, non-negative values.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_phi_coupling_finite_for_moderate_power(
+                px in 0.0f64..500.0f64,
+                py in 0.0f64..500.0f64,
+                power in 0.0f64..100.0f64,
+                sigma_factor in 1.0f64..200.0f64,
+                res in resolution(),
+            ) {
+                let bounds = (0.0, 0.0, px + 10.0, py + 10.0);
+                let (xg, yg) = build_potential_grid(bounds, res);
+                let field = phi_coupling(&xg, &yg, &[((px, py), power)], sigma_factor);
+                for &v in &field {
+                    prop_assert!(v.is_finite());
+                    prop_assert!(v >= 0.0);
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property F5: phi_coupling peak is at the device position.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_phi_coupling_peaks_at_device(
+                px in moderate_f64(),
+                py in moderate_f64(),
+                power in 1.0f64..50.0f64,
+                sigma_factor in 10.0f64..100.0f64,
+            ) {
+                let bounds = (0.0, 0.0, px + 50.0, py + 50.0);
+                let (xg, yg) = build_potential_grid(bounds, 7);
+                let field = phi_coupling(&xg, &yg, &[((px, py), power)], sigma_factor);
+                let peak = field.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+                prop_assert!(peak.is_finite() && peak > 0.0);
+                for &v in &field {
+                    prop_assert!(v <= peak * (1.0 + 1e-12));
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property F6: phi_exclusion returns non-negative, finite values.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_phi_exclusion_non_negative(
+                w in width_height(),
+                h in width_height(),
+                res in resolution(),
+            ) {
+                let bounds = (0.0, 0.0, w, h);
+                let (xg, yg) = build_potential_grid(bounds, res);
+                let field = phi_exclusion(&xg, &yg, &[(w / 2.0, h / 2.0)], 10.0, 1e6, 20.0);
+                for &v in &field {
+                    prop_assert!(v >= 0.0);
+                    prop_assert!(v.is_finite());
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property F7: phi_convection with NaN magnitude is all-NaN.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_phi_convection_nan_magnitude_is_nan_field(
+                w in width_height(),
+                h in width_height(),
+                res in resolution(),
+            ) {
+                let bounds = (0.0, 0.0, w, h);
+                let (xg, yg) = build_potential_grid(bounds, res);
+                let field = phi_convection(&xg, &yg, Some((f64::NAN, 45.0)));
+                for &v in &field {
+                    prop_assert!(v.is_nan());
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property F8: phi_convection with magnitude <= 0 returns zero.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_phi_convection_zero_or_negative_is_zero(
+                w in width_height(),
+                h in width_height(),
+                mag in -100.0f64..=0.0f64,
+                deg in 0.0f64..360.0f64,
+                res in resolution(),
+            ) {
+                let bounds = (0.0, 0.0, w, h);
+                let (xg, yg) = build_potential_grid(bounds, res);
+                let field = phi_convection(&xg, &yg, Some((mag, deg)));
+                for &v in &field {
+                    prop_assert_eq!(v, 0.0);
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property F9: build_potential_grid has correct dimensions.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_build_potential_grid_dimensions(
+                w in width_height(),
+                h in width_height(),
+                res in resolution(),
+            ) {
+                let bounds = (0.0, 0.0, w, h);
+                let (xg, yg) = build_potential_grid(bounds, res);
+                let n = res * res;
+                prop_assert_eq!(xg.len(), n);
+                prop_assert_eq!(yg.len(), n);
+            }
+
+            // --------------------------------------------------------------
+            // Property F10: build_potential_grid has correct xy convention.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_build_potential_grid_xy_convention(
+                x_min in 0.0f64..100.0f64,
+                x_max in 101.0f64..500.0f64,
+                y_min in 0.0f64..100.0f64,
+                y_max in 101.0f64..500.0f64,
+                res in 3usize..=10usize,
+            ) {
+                let bounds = (x_min, y_min, x_max, y_max);
+                let (xg, yg) = build_potential_grid(bounds, res);
+                // y is uniform within each row.
+                for row in 0..res {
+                    let base = row * res;
+                    for col in 1..res {
+                        prop_assert_eq!(yg[base + col], yg[base]);
+                    }
+                }
+                // x is uniform within each column.
+                for col in 0..res {
+                    for row in 1..res {
+                        prop_assert_eq!(xg[col], xg[row * res + col]);
+                    }
+                }
+            }
+        }
+    }
 }

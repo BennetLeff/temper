@@ -292,4 +292,105 @@ mod tests {
             min_hv_lv_clearance_mm: 4.0,
         }
     }
+
+    // --- proptest: threshold evaluation structural properties ---
+
+    mod proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        use super::*;
+        use proptest::prelude::*;
+
+        fn ref_names() -> impl Strategy<Value = String> {
+            proptest::string::string_regex("[A-Z]+[0-9]+").unwrap()
+        }
+
+        proptest! {
+            // --------------------------------------------------------------
+            // Property Th1: Empty config produces empty violations for any
+            // valid placement and metrics.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_empty_config_never_violates(
+                x in 0.0f64..1000.0f64,
+                y in 0.0f64..1000.0f64,
+            ) {
+                let config = empty_config();
+                let placement = PlacementState {
+                    positions: vec![(x, y)],
+                    component_refs: vec!["U1".into()],
+                    board_width_mm: 1000.0,
+                    board_height_mm: 1000.0,
+                };
+                let metrics = crate::tests_common::dummy_metrics();
+                let violations = evaluate(&config, &placement, &metrics, &empty_spec(), &[]);
+                prop_assert!(violations.is_empty());
+            }
+
+            // --------------------------------------------------------------
+            // Property Th2: Violation count is bounded by the number of
+            // component pairs checked for clearance violations.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_clearance_count_bounded(
+                hv_names in proptest::collection::vec(ref_names(), 0..=5),
+                lv_names in proptest::collection::vec(ref_names(), 0..=5),
+            ) {
+                let all_names: Vec<String> = hv_names.iter()
+                    .chain(lv_names.iter())
+                    .cloned()
+                    .collect();
+                if all_names.is_empty() {
+                    return Ok(());
+                }
+                let placement = PlacementState {
+                    positions: all_names.iter().map(|_| (0.0, 0.0)).collect(),
+                    component_refs: all_names,
+                    board_width_mm: 1000.0,
+                    board_height_mm: 1000.0,
+                };
+                let hv_set: BTreeSet<String> = hv_names.iter().cloned().collect();
+                let lv_set: BTreeSet<String> = lv_names.iter().cloned().collect();
+
+                // Deduplicate overlapping hv/lv components (self-check).
+                let hv_clean: BTreeSet<String> = hv_set.difference(&lv_set).cloned().collect();
+                let max_clearance_violations = hv_clean.len() * lv_set.len();
+
+                let config = QualityConfig {
+                    hv_components: hv_clean,
+                    lv_components: lv_set,
+                    min_hv_lv_clearance_mm: 1e9, // impossibly large so no violation triggers
+                    ..empty_config()
+                };
+                let violations = evaluate(&config, &placement, &dummy_metrics(), &empty_spec(), &[]);
+                prop_assert!((violations.len() as u64) <= max_clearance_violations as u64);
+            }
+
+            // --------------------------------------------------------------
+            // Property Th3: Thermal check with < 2 components yields no
+            // violations.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_thermal_single_or_empty_yields_no_violations(
+                thermal_names in proptest::collection::vec(ref_names(), 0..=1),
+            ) {
+                let placement = PlacementState {
+                    positions: thermal_names.iter().map(|_| (5.0, 5.0)).collect(),
+                    component_refs: thermal_names.clone(),
+                    board_width_mm: 1000.0,
+                    board_height_mm: 1000.0,
+                };
+                let config = QualityConfig {
+                    thermal_components: thermal_names.iter().cloned().collect(),
+                    ..empty_config()
+                };
+                let violations = evaluate(&config, &placement, &dummy_metrics(), &empty_spec(), &[]);
+                // With 0 or 1 thermal components, no pairs to check -> no violations.
+                let thermal_violations: Vec<_> = violations.iter()
+                    .filter(|v| v.violation_type == ViolationType::ThermalClearanceViolated)
+                    .collect();
+                prop_assert!(thermal_violations.is_empty());
+            }
+        }
+    }
 }

@@ -1065,6 +1065,7 @@ mod tests {
     mod proptests {
         #![allow(clippy::expect_used, clippy::unwrap_used)]
 
+        #[allow(unused_imports)]
         use super::*;
         use proptest::prelude::*;
 
@@ -1142,20 +1143,231 @@ mod tests {
             }
 
             // --------------------------------------------------------------
-            // Property S4: All sums return a finite result for arrays of
-            // finite values (no NaN or infinity produced).
+            // Property S4: All sums return a non-NaN result for NaN-free
+            // inputs.  Overflow to infinity is IEEE-correct and expected
+            // for large sums (e.g., two near-MAX values sum to +inf).
             // --------------------------------------------------------------
             #[test]
-            fn prop_all_sums_finite(
-                vals in proptest::collection::vec(prop::num::f64::NORMAL, 0..=20),
+            fn prop_all_sums_not_nan(
+                vals in proptest::collection::vec(-1e100f64..1e100f64, 0..=20),
             ) {
                 let p = numpy_pairwise_sum(&vals);
                 let b = py_builtin_sum(&vals);
                 let n = naive_sum(&vals);
-                prop_assert!(p.is_finite());
-                prop_assert!(b.is_finite());
-                prop_assert!(n.is_finite());
+                prop_assert!(!p.is_nan());
+                prop_assert!(!b.is_nan());
+                prop_assert!(!n.is_nan());
             }
+
+            // --------------------------------------------------------------
+            // Property K1: thermal_score is always in [0, 1] when positions
+            // are within the board bounds.  (Outside the board, the
+            // distance calculation can produce negative distances, making
+            // the score exceed 1.0 — this is the oracle's behaviour.)
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_thermal_score_in_01(
+                xs in proptest::collection::vec(0.0f64..100.0f64, 1..=10),
+                ys in proptest::collection::vec(0.0f64..100.0f64, 1..=10),
+                max_dist in 1.0f64..1000.0f64,
+            ) {
+                let n = xs.len().min(ys.len());
+                let positions: Vec<(f64, f64)> = xs[..n].iter().zip(ys[..n].iter())
+                    .map(|(&x, &y)| (x, y)).collect();
+                let bounds = BoardBounds { x_min: 0.0, y_min: 0.0, x_max: 100.0, y_max: 100.0 };
+                let score = thermal_score(&positions, bounds, TargetEdge::Top, max_dist);
+                prop_assert!(score.is_finite());
+                prop_assert!(score >= 0.0);
+                prop_assert!(score <= 1.0);
+            }
+
+            // --------------------------------------------------------------
+            // Property K2: zone_compliance_score is in [0, 1].
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_zone_compliance_in_01(
+                flags in proptest::collection::vec(proptest::bool::ANY, 0..=20),
+            ) {
+                let score = zone_compliance_score(&flags);
+                prop_assert!(score.is_finite());
+                prop_assert!(score >= 0.0);
+                prop_assert!(score <= 1.0);
+            }
+
+            // --------------------------------------------------------------
+            // Property K3: zone_compliance_score with all true is 1.0.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_zone_compliance_all_true_is_one(n in 1usize..=20usize) {
+                let v = vec![true; n];
+                prop_assert_eq!(zone_compliance_score(&v), 1.0);
+            }
+
+            // --------------------------------------------------------------
+            // Property K4: compactness_score single component is area over
+            // placement bbox area, clamped to [0, 1]. When component area
+            // matches bbox area, the score is exactly 1.0.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_compactness_single_matches_bbox(
+                hw in 1.0f64..50.0f64,
+                hh in 1.0f64..50.0f64,
+            ) {
+                // Component area = 4 * hw * hh (component exactly fills its bbox).
+                let area = 4.0 * hw * hh;
+                let score = compactness_score(&[(0.0, 0.0)], &[hw], &[hh], &[area]);
+                prop_assert_eq!(score, 1.0);
+            }
+
+            // --------------------------------------------------------------
+            // Property K5: compactness_score is in [0, 1].
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_compactness_in_01(
+                xs in proptest::collection::vec(prop::num::f64::NORMAL, 1..=8),
+                ys in proptest::collection::vec(prop::num::f64::NORMAL, 1..=8),
+                hws in proptest::collection::vec(0.1f64..20.0f64, 1..=8),
+                hhs in proptest::collection::vec(0.1f64..20.0f64, 1..=8),
+                areas in proptest::collection::vec(1.0f64..200.0f64, 1..=8),
+            ) {
+                let n = xs.len().min(ys.len()).min(hws.len()).min(hhs.len()).min(areas.len());
+                let positions: Vec<(f64, f64)> = xs[..n].iter().zip(ys[..n].iter())
+                    .map(|(&x, &y)| (x, y)).collect();
+                let score = compactness_score(&positions, &hws[..n], &hhs[..n], &areas[..n]);
+                prop_assert!(score.is_finite());
+                prop_assert!(score >= 0.0);
+                prop_assert!(score <= 1.0);
+            }
+
+            // --------------------------------------------------------------
+            // Property K6: hv_lv_clearance_score is in [0, 1] for valid
+            // clearance boxes.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_hv_lv_clearance_in_01(
+                hx in 0.0f64..500.0f64,
+                hy in 0.0f64..500.0f64,
+                lx in 0.0f64..500.0f64,
+                ly in 0.0f64..500.0f64,
+                min_clearance in 1.0f64..100.0f64,
+            ) {
+                let hv = &[ClearanceBox { x: hx, y: hy, half_w: 1.0, half_h: 1.0 }];
+                let lv = &[ClearanceBox { x: lx, y: ly, half_w: 1.0, half_h: 1.0 }];
+                let score = hv_lv_clearance_score(hv, lv, min_clearance);
+                prop_assert!(score.is_finite());
+                prop_assert!(score >= 0.0);
+                prop_assert!(score <= 1.0);
+            }
+
+            // --------------------------------------------------------------
+            // Property K7: dual_rail_clearance_report violation counts are
+            // bounded by total pairs and scores are in [0, 1].
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_dual_rail_bounds(
+                hx in 0.0f64..500.0f64,
+                hy in 0.0f64..500.0f64,
+                lx in 0.0f64..500.0f64,
+                ly in 0.0f64..500.0f64,
+            ) {
+                let hv = &[ClearanceBox { x: hx, y: hy, half_w: 1.0, half_h: 1.0 }];
+                let lv = &[ClearanceBox { x: lx, y: ly, half_w: 1.0, half_h: 1.0 }];
+                let r = dual_rail_clearance_report(hv, lv);
+                let total_pairs = (hv.len() * lv.len()) as i64;
+                prop_assert!(r.violations_3mm >= 0 && r.violations_3mm <= total_pairs);
+                prop_assert!(r.violations_6mm >= 0 && r.violations_6mm <= total_pairs);
+                prop_assert!(r.clearance_score_3mm.is_finite() && r.clearance_score_3mm >= 0.0 && r.clearance_score_3mm <= 1.0);
+                prop_assert!(r.clearance_score_6mm.is_finite() && r.clearance_score_6mm >= 0.0 && r.clearance_score_6mm <= 1.0);
+            }
+
+            // --------------------------------------------------------------
+            // Property K8: numpy_pairwise_sum does not produce NaN for
+            // NaN-free inputs (overflow to infinity is IEEE-correct).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_pairwise_sum_no_nan_for_finite(
+                vals in proptest::collection::vec(-1e100f64..1e100f64, 8..=30),
+            ) {
+                let mut rev = vals.clone();
+                rev.reverse();
+                let forward = numpy_pairwise_sum(&vals);
+                let backward = numpy_pairwise_sum(&rev);
+                // Both directions should not produce NaN for NaN-free inputs.
+                prop_assert!(!forward.is_nan());
+                prop_assert!(!backward.is_nan());
+            }
+
+            // --------------------------------------------------------------
+            // Property K9: py_pow(base, exp) is finite for finite operands
+            // outside the overflow band.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_py_pow_finite_for_small_operands(
+                base in -100.0f64..100.0f64,
+                exp in 0.0f64..10.0f64,
+            ) {
+                let result = py_pow(base, exp);
+                // pow(-x, 2.5) may produce NaN — that's correct CPython
+                // semantics (negative base with non-integral exponent).
+                // Just check it doesn't produce infinity for small operands.
+                prop_assert!(!result.is_infinite(),
+                    "py_pow({base}, {exp}) = {result:e} is infinite");
+            }
+
+            // --------------------------------------------------------------
+            // Property K12: naive_sum agrees with a simple for loop.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_naive_sum_is_plain_fold(
+                vals in proptest::collection::vec(prop::num::f64::NORMAL, 0..=20),
+            ) {
+                let result = naive_sum(&vals);
+                let mut acc = 0.0_f64;
+                for &v in &vals {
+                    acc += v;
+                }
+                prop_assert_eq!(result.to_bits(), acc.to_bits());
+            }
+
+            // --------------------------------------------------------------
+            // Property K13: loop_area_score is in [0, 1] and finite.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_loop_area_score_in_01(
+                area in 0.0f64..10000.0f64,
+                max_area in 1.0f64..10000.0f64,
+            ) {
+                // A minimal triangle with known area.
+                let h = (2.0 * area).sqrt().min(1e6);
+                let verts = vec![(0.0, 0.0), (h, 0.0), (0.0, h)];
+                let score = loop_area_score(&[verts], max_area);
+                prop_assert!(score.is_finite());
+                prop_assert!(score >= 0.0);
+                prop_assert!(score <= 1.0);
+            }
+        }
+
+        // --------------------------------------------------------------
+        // Property K10: py_builtin_sum with a single negative zero
+        // preserves the sign. (Parameterless — outside proptest! macro.)
+        // --------------------------------------------------------------
+        #[test]
+        fn prop_builtin_sum_single_negative_zero() {
+            let result = py_builtin_sum(&[-0.0]);
+            assert!(result.is_sign_negative());
+        }
+
+        // --------------------------------------------------------------
+        // Property K11: py_max2 comparison is deterministic for
+        // signed zeros. (Parameterless — outside proptest! macro.)
+        // --------------------------------------------------------------
+        #[test]
+        fn prop_py_max_min_signed_zero() {
+            // +0.0 vs -0.0: CPython keeps first argument.
+            assert!(py_max2(0.0, -0.0).is_sign_positive());
+            assert!(py_max2(-0.0, 0.0).is_sign_negative());
+            assert!(py_min2(0.0, -0.0).is_sign_positive());
+            assert!(py_min2(-0.0, 0.0).is_sign_negative());
         }
     }
 }

@@ -5,3 +5,6 @@
 # It is recommended to check this file in to source control so that
 # everyone who runs the test benefits from these saved cases.
 cc 59e2abe65bff988e648dc424266734840ee27b79f8dd687ee9128470a2efcd6b # shrinks to vals = [4.157438237344013e102, 9.947333430542014e106, 1.1758997826689288e96]
+cc c32cbab05d5d32110858daa32ba2be2cff0ad95d8cee4694a93d74a2ce67946d # shrinks to x = 0.0, y = 0.0, hw = 25.273785465502407, hh = 4.398472147724046, area = 1.0
+cc 4185ebea7bded4c84492f81e731e0f620ea93cec0843f141edfc70e585de97d8 # shrinks to xs = [0.0], ys = [186.68109458750584], max_dist = 1.0
+cc c1d22964cade7b5deac07ab881668494dc9ae0ffe870ef9f0adf96c85de25a9f # shrinks to vals = [1.160108250946934e308, 8.058988288879204e307]
