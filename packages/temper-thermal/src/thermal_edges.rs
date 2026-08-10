@@ -321,4 +321,133 @@ mod tests {
     fn pairwise_sum_f32_empty_is_zero() {
         assert_eq!(numpy_pairwise_sum_f32(&[]), 0.0);
     }
+
+    // --- proptest: thermal_edges structural properties ---
+
+    mod proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        #[allow(unused_imports)]
+        use super::*;
+        use proptest::prelude::*;
+
+        fn pos_f32() -> impl Strategy<Value = f32> {
+            (0.0f32..1000.0f32).prop_map(|x| x)
+        }
+
+        fn power_f64() -> impl Strategy<Value = f64> {
+            1.0f64..50.0f64
+        }
+
+        fn any_f32() -> impl Strategy<Value = f32> {
+            // f32::ANY includes ±inf and NaN — we want only finite values
+            // for the "finite inputs → finite result" property.
+            (-1e30f32..1e30f32).prop_map(|x| x)
+        }
+
+        proptest! {
+            // --------------------------------------------------------------
+            // Property T1: numpy_pairwise_sum_f32 agrees with naive sum for
+            // arrays of length < 8 (the naive branch).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_pairwise_sum_f32_agrees_naive_below_8(
+                vals in proptest::collection::vec(any_f32(), 1..=7),
+            ) {
+                let p = numpy_pairwise_sum_f32(&vals);
+                let mut n = 0.0_f32;
+                for &v in &vals {
+                    n += v;
+                }
+                prop_assert_eq!(p.to_bits(), n.to_bits());
+            }
+
+            // --------------------------------------------------------------
+            // Property T3: numpy_pairwise_sum_f32 is finite for finite inputs.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_pairwise_sum_f32_finite_for_finite(
+                vals in proptest::collection::vec(any_f32(), 0..=30),
+            ) {
+                let sum = numpy_pairwise_sum_f32(&vals);
+                prop_assert!(sum.is_finite());
+            }
+
+            // --------------------------------------------------------------
+            // Property T4: measure_thermal_edges with empty inputs returns
+            // ambient temp and 0.0 edge distance.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_measure_empty_returns_ambient(
+                ambient in 0.0f64..100.0f64,
+            ) {
+                let (max_tj, avg) = measure_thermal_edges(&[], &[], &[], (0.0, 0.0), 100.0, 100.0, ambient);
+                prop_assert_eq!(max_tj, ambient);
+                prop_assert_eq!(avg, 0.0);
+            }
+
+            // --------------------------------------------------------------
+            // Property T5: measure_thermal_edges returns finite values for
+            // finite inputs.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_measure_finite_for_finite_inputs(
+                xs in proptest::collection::vec(pos_f32(), 1..=5),
+                ys in proptest::collection::vec(pos_f32(), 1..=5),
+                powers in proptest::collection::vec(power_f64(), 1..=5),
+                ambient in 0.0f64..100.0f64,
+            ) {
+                let n = xs.len().min(ys.len()).min(powers.len());
+                let (max_tj, avg) = measure_thermal_edges(
+                    &xs[..n], &ys[..n], &powers[..n],
+                    (0.0, 0.0), 200.0, 200.0, ambient,
+                );
+                prop_assert!(max_tj.is_finite());
+                prop_assert!(avg.is_finite());
+            }
+
+            // --------------------------------------------------------------
+            // Property T6: max_tj is at least ambient (junction temp cannot
+            // be lower than ambient).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_max_tj_at_least_ambient(
+                xs in proptest::collection::vec(pos_f32(), 1..=5),
+                ys in proptest::collection::vec(pos_f32(), 1..=5),
+                powers in proptest::collection::vec(power_f64(), 1..=5),
+                ambient in 0.0f64..100.0f64,
+            ) {
+                let n = xs.len().min(ys.len()).min(powers.len());
+                let (max_tj, _avg) = measure_thermal_edges(
+                    &xs[..n], &ys[..n], &powers[..n],
+                    (0.0, 0.0), 200.0, 200.0, ambient,
+                );
+                prop_assert!(max_tj >= ambient,
+                    "max_tj {max_tj} < ambient {ambient}");
+            }
+
+            // --------------------------------------------------------------
+            // Property T7: measure_thermal_edges is deterministic.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_measure_deterministic(
+                xs in proptest::collection::vec(pos_f32(), 1..=5),
+                ys in proptest::collection::vec(pos_f32(), 1..=5),
+                powers in proptest::collection::vec(power_f64(), 1..=5),
+                ambient in 0.0f64..100.0f64,
+            ) {
+                let n = xs.len().min(ys.len()).min(powers.len());
+                let a = measure_thermal_edges(
+                    &xs[..n], &ys[..n], &powers[..n],
+                    (0.0, 0.0), 200.0, 200.0, ambient,
+                );
+                let b = measure_thermal_edges(
+                    &xs[..n], &ys[..n], &powers[..n],
+                    (0.0, 0.0), 200.0, 200.0, ambient,
+                );
+                prop_assert_eq!(a.0.to_bits(), b.0.to_bits());
+                prop_assert_eq!(a.1.to_bits(), b.1.to_bits());
+            }
+        }
+    }
 }

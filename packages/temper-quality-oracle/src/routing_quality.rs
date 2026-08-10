@@ -113,4 +113,110 @@ mod tests {
         }
         assert!(max <= 100.0);
     }
+
+    // --- proptest: routing_quality structural properties ---
+
+    mod proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        use super::*;
+        use proptest::prelude::*;
+
+        proptest! {
+            // --------------------------------------------------------------
+            // Property R1: Score is always in [0, 100] for valid inputs.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_score_in_0_100(
+                completion in 0.0f64..1.0f64,
+                via_count in 0i64..1000i64,
+                drc_errors in 0i64..100i64,
+                net_count in 0i64..100i64,
+            ) {
+                let score = routing_quality_score(completion, via_count, drc_errors, net_count);
+                prop_assert!(score.is_finite());
+                prop_assert!(score >= 0.0);
+                prop_assert!(score <= 100.0);
+            }
+
+            // --------------------------------------------------------------
+            // Property R2: With zero DRC errors, the score is at least
+            // the drc component (20.0). The maximum is 100 (60+20+20).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_drc_clean_score_in_20_100(
+                completion in 0.0f64..1.0f64,
+                via_count in 0i64..1000i64,
+                net_count in 1i64..100i64,
+            ) {
+                let score = routing_quality_score(completion, via_count, 0, net_count);
+                prop_assert!(score >= 20.0);
+                prop_assert!(score <= 100.0);
+            }
+
+            // --------------------------------------------------------------
+            // Property R3: Monotonic in completion_rate: higher completion
+            // should yield higher score for fixed other parameters.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_monotonic_in_completion(
+                c1 in 0.0f64..1.0f64,
+                c2 in 0.0f64..1.0f64,
+                via_count in 0i64..500i64,
+                drc in 0i64..10i64,
+                net_count in 1i64..50i64,
+            ) {
+                let (c1, c2) = if c1 <= c2 { (c1, c2) } else { (c2, c1) };
+                let s1 = routing_quality_score(c1, via_count, drc, net_count);
+                let s2 = routing_quality_score(c2, via_count, drc, net_count);
+                prop_assert!(s2 >= s1,
+                    "score not monotonic: completion {c1}->{s1}, {c2}->{s2}");
+            }
+
+            // --------------------------------------------------------------
+            // Property R4: Zero nets yield full efficiency points (20).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_zero_nets_full_efficiency(
+                completion in 0.0f64..1.0f64,
+                drc in 0i64..10i64,
+            ) {
+                let score = routing_quality_score(completion, 100, drc, 0);
+                let drc_part: f64 = if drc == 0 { 20.0 } else { 0.0 };
+                let expected = completion * 60.0 + drc_part + 20.0;
+                prop_assert!((score - expected).abs() < 1e-12,
+                    "score {score} != expected {expected}");
+            }
+
+            // --------------------------------------------------------------
+            // Property R5: DRC errors flip the drc_score from 20 to 0.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_drc_errors_zero_drc_points(
+                completion in 0.0f64..1.0f64,
+                via_count in 0i64..500i64,
+                net_count in 1i64..50i64,
+            ) {
+                let clean = routing_quality_score(completion, via_count, 0, net_count);
+                let dirty = routing_quality_score(completion, via_count, 1, net_count);
+                prop_assert!(clean > dirty || (clean - dirty).abs() < 1e-12,
+                    "clean score {clean} should be >= dirty score {dirty}");
+            }
+
+            // --------------------------------------------------------------
+            // Property R6: Score is deterministic (same inputs, same output).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_routing_deterministic(
+                completion in 0.0f64..1.0f64,
+                via_count in 0i64..1000i64,
+                drc in 0i64..100i64,
+                net_count in 0i64..100i64,
+            ) {
+                let a = routing_quality_score(completion, via_count, drc, net_count);
+                let b = routing_quality_score(completion, via_count, drc, net_count);
+                prop_assert_eq!(a.to_bits(), b.to_bits());
+            }
+        }
+    }
 }

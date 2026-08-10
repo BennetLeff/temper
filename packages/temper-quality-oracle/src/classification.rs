@@ -125,4 +125,88 @@ mod tests {
         assert_eq!(classes[1].class, NetClass::Power);
         assert_eq!(classes[2].class, NetClass::Signal);
     }
+
+    // --- proptest: classification structural properties ---
+
+    mod proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        use super::*;
+        use proptest::prelude::*;
+
+        proptest! {
+            // --------------------------------------------------------------
+            // Property C1: classify_net_name always returns a valid NetClass
+            // for any string input (the function never panics).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_classify_net_name_never_panics(name in ".*") {
+                let class = classify_net_name(&name);
+                // The returned class should be one of the 7 variants.
+                // This implicitly validates that the function doesn't panic.
+                let _ = class.as_str(); // would panic if not a valid variant
+            }
+
+            // --------------------------------------------------------------
+            // Property C2: classify_nets preserves input length.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_classify_nets_preserves_length(
+                names in proptest::collection::vec(".*", 0..=20),
+            ) {
+                let netlist = Netlist {
+                    nets: names.iter().map(|n| NetInfo {
+                        name: n.clone(),
+                        pins: vec![],
+                    }).collect(),
+                    components: vec![],
+                };
+                let classes = classify_nets(&netlist);
+                prop_assert_eq!(classes.len(), names.len());
+            }
+
+            // --------------------------------------------------------------
+            // Property C3: classify_nets preserves net names.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_classify_nets_preserves_names(
+                names in proptest::collection::vec(".*", 0..=10),
+            ) {
+                let netlist = Netlist {
+                    nets: names.iter().map(|n| NetInfo {
+                        name: n.clone(),
+                        pins: vec![],
+                    }).collect(),
+                    components: vec![],
+                };
+                let classes = classify_nets(&netlist);
+                for (i, c) in classes.iter().enumerate() {
+                    prop_assert_eq!(&c.net_name, &names[i]);
+                }
+            }
+
+            // --------------------------------------------------------------
+            // Property C4: Deterministic — same input gives same output.
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_classify_deterministic(
+                names in proptest::collection::vec(".*", 0..=10),
+            ) {
+                let netlist = Netlist {
+                    nets: names.iter().map(|n| NetInfo {
+                        name: n.clone(),
+                        pins: vec![],
+                    }).collect(),
+                    components: vec![],
+                };
+                let a = classify_nets(&netlist);
+                let b = classify_nets(&netlist);
+                prop_assert_eq!(a.len(), b.len());
+                for (ac, bc) in a.iter().zip(b.iter()) {
+                    prop_assert_eq!(ac.class, bc.class);
+                    prop_assert_eq!(&ac.net_name, &bc.net_name);
+                }
+            }
+        }
+    }
 }
