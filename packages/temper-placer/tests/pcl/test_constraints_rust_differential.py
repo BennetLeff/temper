@@ -861,7 +861,6 @@ class LoopAreaConstraint(BaseConstraint):
 # ---------------------------------------------------------------------------
 
 SIMPLE_ENUMS = [
-    (live.ConstraintTier, ConstraintTier),
     (live.DistanceMetric, DistanceMetric),
     (live.Axis, Axis),
     (live.BoardSide, BoardSide),
@@ -876,6 +875,22 @@ def test_enum_member_names_and_values_unchanged(pair):
     live_enum, oracle_enum = pair
     assert [m.name for m in live_enum] == [m.name for m in oracle_enum]
     assert [m.value for m in live_enum] == [m.value for m in oracle_enum]
+
+
+# ConstraintTier is a Rust pyclass — class-level iteration is not supported
+# (pyo3 limitation; documented in `pcl_contracts.rs`). Test member parity
+# explicitly against the oracle instead of iterating.
+_CONSTRAINT_TIER_MEMBERS = ["HARD", "STRONG", "SOFT"]
+
+
+@pytest.mark.parametrize("name", _CONSTRAINT_TIER_MEMBERS)
+def test_constraint_tier_member_names_and_values_unchanged(name):
+    live_member = getattr(live.ConstraintTier, name)
+    oracle_member = getattr(ConstraintTier, name)
+    assert live_member.name == oracle_member.name
+    assert live_member.value == oracle_member.value
+    assert str(live_member) == str(oracle_member)
+    assert repr(live_member) == repr(oracle_member)
 
 
 def test_constraint_type_members_are_unchanged():
@@ -1093,7 +1108,9 @@ def test_enum_identity_returned_by_getters(cls_name, kwargs):
         "AnchoredConstraint": "ANCHORED",
         "LoopAreaConstraint": "LOOP_AREA",
     }[cls_name]
-    assert lv.tier is getattr(live.ConstraintTier, kwargs["tier"].name)
+    # ConstraintTier is now a Rust pyclass whose members are not singletons;
+    # `is`-identity is not guaranteed across attribute lookups. Use `==`.
+    assert lv.tier == getattr(live.ConstraintTier, kwargs["tier"].name)
     assert lv.constraint_type is getattr(live.ConstraintType, constraint_type_name)
     if "metric" in kwargs:
         assert lv.metric is getattr(live.DistanceMetric, kwargs["metric"].name)
@@ -1296,9 +1313,9 @@ def test_escalate_soft_to_strong():
         a="Q1", b="Q2", max_distance_mm=10.0, tier=live.ConstraintTier.SOFT,
         because="Escalation test",
     )
-    assert c.tier is live.ConstraintTier.SOFT
+    assert c.tier == live.ConstraintTier.SOFT
     c.escalate()
-    assert c.tier is live.ConstraintTier.STRONG
+    assert c.tier == live.ConstraintTier.STRONG
 
 
 def test_escalate_strong_to_hard():
@@ -1307,7 +1324,7 @@ def test_escalate_strong_to_hard():
         because="Escalation test",
     )
     c.escalate()
-    assert c.tier is live.ConstraintTier.HARD
+    assert c.tier == live.ConstraintTier.HARD
 
 
 def test_escalate_hard_stays_hard():
@@ -1316,7 +1333,7 @@ def test_escalate_hard_stays_hard():
         because="Escalation test",
     )
     c.escalate()
-    assert c.tier is live.ConstraintTier.HARD
+    assert c.tier == live.ConstraintTier.HARD
 
 
 def test_min_distance_mm_is_mutable_like_the_plain_class():

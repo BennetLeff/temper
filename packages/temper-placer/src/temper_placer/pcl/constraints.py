@@ -44,11 +44,13 @@ pivot. Construction validation, id generation, ``involves_component``,
 surface run in Rust; this module is the delegation shim that keeps every
 existing import path working.
 
-The value enums (``ConstraintTier``, ``ConstraintType``, ``DistanceMetric``,
+The value enums (``ConstraintType``, ``DistanceMetric``,
 ``Axis``, ``BoardSide``, ``EdgeType``, ``CompilationTarget``, ``SemanticTag``)
 stay Python ``enum.Enum``: production does ``for t in ConstraintType`` and
-``ConstraintType(value)``, which a ``#[pyclass]`` enum cannot provide. The Rust
-objects hold the LIVE singletons and hand them back through the getters.
+``ConstraintType(value)``, which a ``#[pyclass]`` enum cannot provide.
+``ConstraintTier`` is a Rust pyclass (it has no class-level iteration
+anywhere — the one enum that IS tractable). The Rust objects hold the LIVE
+singletons/Python enum members and hand them back through the getters.
 
 ``BaseConstraint`` stays Python. It is the ABC the tagged-constraint classes
 subclass, and its ``backends`` registry is populated at import time by
@@ -105,19 +107,24 @@ class SemanticTag(Enum):
     ALIGNMENT = "alignment"
 
 
-class ConstraintTier(Enum):
-    """
-    Priority tier for a constraint.
+ConstraintTier = _rust.ConstraintTier
+"""Priority tier for a constraint (HARD=1, STRONG=2, SOFT=3).
 
-    Tiers determine the penalty weight in the optimization objective:
-    - HARD (1): weight=1e6 (Must be satisfied)
-    - STRONG (2): weight=1e3 (Should be satisfied)
-    - SOFT (3): weight=1e1 (Nice to have)
-    """
+Migrated to the Rust ``ConstraintTier`` pyclass in
+``temper-constraint-compiler`` (``src/pcl_contracts.rs``) — Wave 4,
+tractable-slice unit. The pre-migration Python ``Enum`` is pinned in
+``tests/pcl/test_constraints_rust_differential.py`` as the ``_oracle_*``
+reference.
 
-    HARD = 1  # Never violate, fail if impossible
-    STRONG = 2  # Heavy penalty (electrical, thermal, EMI)
-    SOFT = 3  # Light penalty (aesthetics, convention)
+Differences from a Python ``Enum``:
+- Members are not singletons: ``ConstraintTier.HARD is ConstraintTier.HARD``
+  is False (pyo3 limitation — each attribute lookup returns a fresh wrapper).
+  Use ``==`` for comparisons.
+- There is no class-level iteration: ``for t in ConstraintTier`` fails. No
+  in-repo consumer iterates ``ConstraintTier``.
+
+Every other semantic (value/name/str/repr/==/hash/dict-key) is preserved.
+"""
 
 
 class ConstraintType(Enum):

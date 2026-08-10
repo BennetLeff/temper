@@ -105,7 +105,8 @@ mechanical/test_sensor_mount.py
 parity/test_lv_only_parity.py
 pcl/test_bridge_registration.py
 pcl/test_constraints.py
-pcl/test_drc_bridge.py
+pcl/test_constraints_pbt.py
+pcl/test_constraints_rust_differential.py
 pcl/test_e2e_netclass_ssot.py
 pcl/test_linter.py
 pcl/test_netclass_constraints.py
@@ -119,11 +120,14 @@ pcl/test_schema.py
 pcl/test_tag_dispatch_pbt.py
 pcl/test_tag_dispatch_rust_differential.py
 pcl/test_tag_metamorphic_pbt.py
-pcl/test_tiers.py
 pcl/test_unsat_compiler.py
 pipeline/test_dag_expr_perf.py
 pipeline/test_dag_expr_properties.py
 pipeline/test_dag_expr_rust_differential.py
+pipeline/test_convergence_pbt.py
+pipeline/test_convergence_rust_differential.py
+pipeline/test_pipeline_feasibility_pbt.py
+pipeline/test_pipeline_feasibility_rust_differential.py
 placer/test_adjustment.py
 placer/test_deterministic_unit.py
 placer/test_parametric_template.py
@@ -155,6 +159,8 @@ regression/test_schema_validator_rust_differential.py
 requirements/test_clearance_pbt.py
 requirements/test_clearance_rust_differential.py
 requirements/validators/test_points.py
+router_v6/test_constraints_drc_oracle_pbt.py
+router_v6/test_constraints_drc_oracle_rust_differential.py
 scripts/test_check_physics_provenance.py
 scripts/test_physics_soundness_register_gate.py
 test_board_state_snapshot.py
