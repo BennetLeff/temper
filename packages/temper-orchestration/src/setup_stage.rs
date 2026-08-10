@@ -22,7 +22,7 @@ use std::borrow::Cow;
 
 use pyo3::exceptions::PyAttributeError;
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList};
+use pyo3::types::{PyDict, PyTuple};
 
 use crate::board_state::BoardState;
 use crate::config_attach_stage::to_pyerr;
@@ -187,7 +187,7 @@ fn build_matrix<'py>(
                 kwargs.set_item("via_drill", rules.getattr("via_drill_mm")?)?;
                 kwargs.set_item("via_template", rules.getattr("via_template")?)?;
                 kwargs.set_item("creepage_mm", rules.getattr("creepage_mm")?)?;
-                let dru_priority = getattr_default(py, rules, "dru_priority", py.None())?;
+                let dru_priority = getattr_default(py, rules, "dru_priority", py_int(py, 0))?;
                 kwargs.set_item("dru_priority", dru_priority)?;
                 let ncr = ncr_cls.call((), Some(&kwargs))?;
                 matrix.call_method1("add_net_class_rules", (ncr,))?;
@@ -356,8 +356,14 @@ fn register_netlist_pads(
             continue;
         }
 
-        let rot_idx: i64 = getattr_default(py, &component, "initial_rotation", py_int(py, 0))?
-            .extract()?;
+        let rot_idx: i64 = {
+            let rot = getattr_default(py, &component, "initial_rotation", py.None())?;
+            if rot.is_none() {
+                0
+            } else {
+                rot.extract()?
+            }
+        };
         let rotation = rot_idx as f64 * 90.0;
 
         let pins = component.getattr("pins")?;
@@ -399,7 +405,7 @@ fn register_netlist_pads(
 
             let width: f64 = getattr_default(py, &pin, "width", py_float(py, 1.0))?.extract()?;
             let height: f64 = getattr_default(py, &pin, "height", py_float(py, 1.0))?.extract()?;
-            let size = PyList::new(py, [width, height])?;
+            let size = PyTuple::new(py, [width, height])?;
 
             let component_ref: String = component.getattr("ref")?.extract()?;
             let number: String = pin.getattr("number")?.extract()?;
