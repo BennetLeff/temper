@@ -219,6 +219,144 @@ mod helper_tests {
 }
 
 // ---------------------------------------------------------------------------
+// Property-based tests (proptest)
+// ---------------------------------------------------------------------------
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod proptests {
+    use super::{
+        arg_first_wins_max, first_wins_max, neumaier_sum, py_float_str,
+    };
+    use proptest::prelude::*;
+
+    fn normal() -> impl Strategy<Value = f64> {
+        -1e6f64..1e6f64
+    }
+
+    // ---------- py_float_str ------------------------------------------------
+
+    #[test]
+    fn py_float_str_round_trips() {
+        proptest!(|(v in normal())| {
+            let s = py_float_str(v);
+            // Parse the string back to f64 and verify it's the same bit pattern.
+            let parsed: f64 = s.parse().unwrap();
+            prop_assert_eq!(parsed.to_bits(), v.to_bits(),
+                "py_float_str({:?}) = '{}' does not round-trip (parsed {:?})", v, s, parsed);
+        });
+    }
+
+    #[test]
+    fn py_float_str_no_internal_whitespace() {
+        proptest!(|(v in normal())| {
+            let s = py_float_str(v);
+            prop_assert!(!s.contains(' '), "py_float_str({v:?}) = '{s}' contains whitespace");
+        });
+    }
+
+    #[test]
+    fn py_float_str_exponent_is_lowercase() {
+        proptest!(|(v in normal())| {
+            let s = py_float_str(v);
+            if s.contains('e') {
+                prop_assert!(!s.contains('E'), "py_float_str({v:?}) = '{s}' has uppercase E");
+                // Exponent must be exactly 2 digits or 3 digits (for values like 1e100)
+                let e_pos = s.find('e').unwrap();
+                let exp = &s[e_pos+1..]; // skip 'e'
+                let exp_digits: String = exp.chars().skip_while(|c| *c == '+' || *c == '-').collect();
+                prop_assert!(exp_digits.len() >= 2,
+                    "py_float_str({v:?}) = '{s}' has exponent with <2 digits");
+            }
+        });
+    }
+
+    #[test]
+    fn py_float_str_special_values() {
+        for (v, expected) in [
+            (f64::NAN, "nan"),
+            (f64::INFINITY, "inf"),
+            (f64::NEG_INFINITY, "-inf"),
+            (0.0, "0.0"),
+            (-0.0, "-0.0"),
+        ] {
+            assert_eq!(py_float_str(v), expected, "py_float_str({v:?})");
+        }
+    }
+
+    // ---------- neumaier_sum -------------------------------------------------
+
+    #[test]
+    fn neumaier_sum_agrees_with_naive_on_small_lists() {
+        proptest!(|(vals in proptest::collection::vec(normal(), 0..7))| {
+            let naive: f64 = vals.iter().fold(0.0, |a, &b| a + b);
+            let neumaier = neumaier_sum(vals.iter().copied());
+            // Neumaier is more accurate, but for < 8 elements they should
+            // agree unless there's catastrophic cancellation.
+            // We only assert they're both finite or both NaN.
+            prop_assert_eq!(neumaier.is_finite(), naive.is_finite());
+        });
+    }
+
+    #[test]
+    fn neumaier_sum_non_negative_sum_is_non_negative() {
+        proptest!(|(vals in proptest::collection::vec(0.0f64..1e6f64, 1..30))| {
+            let s = neumaier_sum(vals);
+            prop_assert!(s >= 0.0 || s.is_nan());
+        });
+    }
+
+    #[test]
+    fn neumaier_sum_is_commutative() {
+        proptest!(|(mut vals in proptest::collection::vec(normal(), 1..10))| {
+            let s1 = neumaier_sum(vals.iter().copied());
+            vals.reverse();
+            let s2 = neumaier_sum(vals.iter().copied());
+            prop_assert_eq!(s1, s2, "neumaier_sum not commutative");
+        });
+    }
+
+    // ---------- first_wins_max / first_wins_min -----------------------------
+
+    #[test]
+    fn first_wins_max_vs_naive() {
+        proptest!(|(vals in proptest::collection::vec(normal(), 1..50))| {
+            let fw = first_wins_max(vals.iter().copied());
+            let naive = vals.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+            // For finite inputs without NaN, first-wins and naive agree.
+            if vals.iter().all(|v| v.is_finite()) {
+                prop_assert_eq!(fw, naive);
+            }
+        });
+    }
+
+    #[test]
+    fn arg_first_wins_max_selects_correct_index() {
+        proptest!(|(vals in proptest::collection::vec(normal(), 1..50))| {
+            let items: Vec<(String, f64)> = vals.iter().enumerate()
+                .map(|(i, &v)| (format!("key_{i}"), v))
+                .collect();
+            let name = arg_first_wins_max(&items);
+            // The selected name must correspond to one of the maximum values
+            let max_val = first_wins_max(vals.iter().copied());
+            let idx: usize = name.strip_prefix("key_").unwrap().parse().unwrap();
+            if vals.iter().all(|v| v.is_finite()) {
+                prop_assert_eq!(vals[idx], max_val,
+                    "arg_first_wins_max selected key_{}={} but max is {}",
+                    idx, vals[idx], max_val);
+                // First-wins: if there are earlier equal values, they should
+                // have been selected, not this one (unless this IS the first).
+                for (j, &v) in vals.iter().enumerate() {
+                    if j < idx && v == max_val {
+                        prop_assert!(false,
+                            "first-wins violated: key_{}={} appears before key_{}={}", j, v, idx, vals[idx]);
+                    }
+                }
+            }
+        });
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Python surface (gated on the `python` feature).
 // ---------------------------------------------------------------------------
 

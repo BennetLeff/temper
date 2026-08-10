@@ -227,4 +227,109 @@ mod tests {
         let result = strip_control_chars(input);
         assert_eq!(result, "col1\tcol2\n");
     }
+
+    // ---------- proptest: normalize_dsn -------------------------------------
+
+    #[test]
+    fn normalize_dsn_is_idempotent() {
+        use proptest::prelude::*;
+        let line = "[a-zA-Z0-9 _,.;:()\\-]{0,40}";
+        proptest!(|(lines in proptest::collection::vec(line, 0..10))| {
+            let input = lines.join("\n") + "\n\n\n";
+            let once = normalize_dsn(&input);
+            let twice = normalize_dsn(&once);
+            prop_assert_eq!(once, twice, "normalize_dsn is not idempotent");
+        });
+    }
+
+    #[test]
+    fn normalize_dsn_preserves_data_lines() {
+        use proptest::prelude::*;
+        let line = "[a-zA-Z0-9]{1,20}";
+        proptest!(|(lines in proptest::collection::vec(line, 1..10))| {
+            let input = format!(";exported-at: today\n{}\n;tool-version: x\n", lines.join("\n"));
+            let output = normalize_dsn(&input);
+            for l in &lines {
+                prop_assert!(output.contains(l.as_str()),
+                    "normalize_dsn lost line '{}'", l);
+            }
+        });
+    }
+
+    #[test]
+    fn normalize_dsn_strips_crlf() {
+        let input = "line1\r\n;exported-at: 2024\r\nline2\r\n";
+        let result = normalize_dsn(input);
+        assert_eq!(result, "line1\nline2\n");
+    }
+
+    // ---------- proptest: strip_control_chars -------------------------------
+
+    #[test]
+    fn strip_control_chars_is_dsn_normalized_result() {
+        use proptest::prelude::*;
+        let any_char = proptest::char::any();
+        proptest!(|(ch in any_char)| {
+            let input = format!("x{ch}y\n");
+            let stripped = strip_control_chars(&input);
+            // After stripping, the result should contain only valid chars
+            // (printable + tab + newline).
+            for c in stripped.chars() {
+                prop_assert!(
+                    c == '\n' || c == '\t' || c as u32 >= 0x20,
+                    "strip_control_chars left control char U+{:04X}", c as u32
+                );
+            }
+        });
+    }
+
+    // ---------- proptest: is_dsn_normalized ---------------------------------
+
+    #[test]
+    fn normalize_dsn_produces_is_normalized_true() {
+        use proptest::prelude::*;
+        let line = "[a-zA-Z0-9]{1,40}";
+        proptest!(|(lines in proptest::collection::vec(line, 1..10))| {
+            let input = format!(";exported-at: now\n{}\n;path: /x\n\n", lines.join("\n"));
+            let normalized = normalize_dsn(&input);
+            prop_assert!(is_dsn_normalized(&normalized),
+                "normalize_dsn output is not is_dsn_normalized: {:?}", normalized);
+        });
+    }
+
+    // ---------- deterministic: compute_dsn_schema_hash ----------------------
+
+    #[test]
+    fn schema_hash_is_deterministic() {
+        let h1 = compute_dsn_schema_hash(
+            vec!["F.Cu".into(), "B.Cu".into()],
+            std::collections::HashMap::new(),
+            std::collections::HashMap::new(),
+            vec!["GND".into(), "VCC".into()],
+        );
+        let h2 = compute_dsn_schema_hash(
+            vec!["F.Cu".into(), "B.Cu".into()],
+            std::collections::HashMap::new(),
+            std::collections::HashMap::new(),
+            vec!["VCC".into(), "GND".into()],  // different net order
+        );
+        assert_eq!(h1, h2, "schema hash depends on net order");
+    }
+
+    #[test]
+    fn schema_hash_distinguishes_layer_counts() {
+        let h2 = compute_dsn_schema_hash(
+            vec!["F.Cu".into(), "B.Cu".into()],
+            std::collections::HashMap::new(),
+            std::collections::HashMap::new(),
+            vec![],
+        );
+        let h4 = compute_dsn_schema_hash(
+            vec!["F.Cu".into(), "B.Cu".into(), "In1.Cu".into(), "In2.Cu".into()],
+            std::collections::HashMap::new(),
+            std::collections::HashMap::new(),
+            vec![],
+        );
+        assert_ne!(h2, h4, "schema hash should distinguish 2 vs 4 layers");
+    }
 }

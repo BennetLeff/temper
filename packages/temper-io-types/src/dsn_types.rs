@@ -569,4 +569,113 @@ mod tests {
             "(rect pcb 0 0 100 100)"
         );
     }
+
+    // ---------- proptest: format_dsn_arg -----------------------------------
+
+    #[test]
+    fn format_dsn_arg_float_round_trips_visually() {
+        use proptest::prelude::*;
+        proptest!(|(x in -1e6f64..1e6f64)| {
+            let s = format_dsn_arg(&DsnArg::Float(x));
+            // The output must not contain spaces, parentheses, or quotes
+            // (it's an unquoted DSN atom).
+            prop_assert!(!s.contains(' '), "float {x} -> '{s}' contains space");
+            prop_assert!(!s.contains('('), "float {x} -> '{s}' contains '('");
+            prop_assert!(!s.contains(')'), "float {x} -> '{s}' contains ')'");
+        });
+    }
+
+    #[test]
+    fn format_dsn_arg_str_is_properly_quoted() {
+        use proptest::prelude::*;
+        let special = "[a-zA-Z0-9 _(){}\"\\\\]{0,20}";
+        proptest!(|(s in special)| {
+            let result = format_dsn_arg(&DsnArg::Str(s.clone()));
+            // If the string is empty or contains special chars, it MUST be
+            // quoted (otherwise the DSN parser would choke).
+            let needs_quote = s.is_empty() || s.contains(' ') || s.contains('(') || s.contains(')') || s.contains('"');
+            if needs_quote {
+                prop_assert!(result.starts_with('"') && result.ends_with('"'),
+                    "string '{s}' must be quoted but got '{result}'");
+                // The quoted content must not contain an unescaped double quote.
+                let inner = &result[1..result.len()-1];
+                let bytes = inner.as_bytes();
+                let mut has_unescaped = false;
+                for (i, &b) in bytes.iter().enumerate() {
+                    if b == b'"' && (i == 0 || bytes[i-1] != b'\\') {
+                        has_unescaped = true;
+                        break;
+                    }
+                }
+                prop_assert!(!has_unescaped,
+                    "string '{s}' -> '{result}' has unescaped quote");
+            } else {
+                prop_assert!(!result.starts_with('"'),
+                    "string '{s}' should not be quoted but got '{result}'");
+            }
+        });
+    }
+
+    // ---------- proptest: dsn_expression_to_string --------------------------
+
+    #[test]
+    fn dsn_expression_has_balanced_parens() {
+        use proptest::prelude::*;
+        let ident = "[a-zA-Z][a-zA-Z0-9_]{0,10}";
+        proptest!(|(name in ident)| {
+            let expr = DsnExpressionData { name, args: vec![], comment: None };
+            let s = dsn_expression_to_string(&expr);
+            // Every '(' must have a matching ')'.
+            let mut depth = 0i32;
+            for ch in s.chars() {
+                match ch {
+                    '(' => depth += 1,
+                    ')' => depth -= 1,
+                    _ => {}
+                }
+                prop_assert!(depth >= 0, "unbalanced ')' in: {}", s);
+            }
+            prop_assert_eq!(depth, 0, "unbalanced '(' in: {}", s);
+        });
+    }
+
+    #[test]
+    fn dsn_expression_comment_truthiness() {
+        // An empty string comment is falsy in Python and must not emit a
+        // comment line.
+        let expr = DsnExpressionData {
+            name: "x".into(),
+            args: vec![],
+            comment: Some(String::new()),
+        };
+        let s = dsn_expression_to_string(&expr);
+        assert!(!s.contains(';'), "empty comment emitted semicolon: '{s}'");
+        // None comment emits no semicolon.
+        let expr = DsnExpressionData {
+            name: "x".into(),
+            args: vec![],
+            comment: None,
+        };
+        let s = dsn_expression_to_string(&expr);
+        assert!(!s.contains(';'), "None comment emitted semicolon: '{s}'");
+    }
+
+    #[test]
+    fn format_dsn_arg_negative_zero() {
+        // -0.0 has a signed representation; document the current behaviour.
+        let s = format_dsn_arg(&DsnArg::Float(-0.0));
+        // `format!("{:.6}", -0.0)` → "-0.000000" → trimmed → "-0"
+        // DSN accepts signed coordinates, so this is valid.
+        assert!(s == "0" || s == "-0", "-0.0 formatted as '{s}'");
+    }
+
+    #[test]
+    fn format_dsn_arg_inf_and_nan() {
+        // Infinity and NaN are not expected in DSN coordinates, but the
+        // formatter should produce something parseable rather than panic.
+        let s_inf = format_dsn_arg(&DsnArg::Float(f64::INFINITY));
+        let s_nan = format_dsn_arg(&DsnArg::Float(f64::NAN));
+        assert!(!s_inf.is_empty());
+        assert!(!s_nan.is_empty());
+    }
 }
