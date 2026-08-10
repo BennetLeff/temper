@@ -23,11 +23,11 @@ as-is.
 Enum identity is asserted against the LIVE ``temper_placer.pcl.constraints``
 enums: the migrated classes must hand back the very same singletons the rest
 of the tree binds against (``unsat_compiler`` compares ``c.tier ==
-ConstraintTier.HARD``; ``drc_bridge`` keys on ``constraint.constraint_type``).
+ConstraintTier.HARD``; ``sat_bridge`` keys on ``constraint.constraint_type``).
 
 The encoder registry (``BaseConstraint.backends``) and ``BaseConstraint``
 itself stay Python (the tagged-constraint subclasses and the
-sat/drc/rust bridge registration are the Phase-1 ortools-encoder KEEP slice);
+sat bridge registration are the Phase-1 ortools-encoder KEEP slice);
 the differential pins that the registry survives and that the migrated
 classes are still ``isinstance``-compatible with ``BaseConstraint``.
 
@@ -50,10 +50,9 @@ from tests.pcl._pclsig import assert_same, call_signature
 
 from temper_placer.pcl import constraints as live
 
-# The SAT/DRC bridges register into BaseConstraint.backends at import time;
-# pull them in so the registry is populated exactly as in production.
+# The SAT bridge registers into BaseConstraint.backends at import time;
+# pull it in so the registry is populated exactly as in production.
 from temper_placer.pcl import (
-    drc_bridge,  # noqa: F401
     sat_bridge,  # noqa: F401
 )
 
@@ -1401,19 +1400,8 @@ def test_migrated_constraints_are_still_baseconstraint_instances(cls_name, kwarg
 def test_base_constraint_backends_registry_is_untouched():
     assert isinstance(live.BaseConstraint.backends, dict)
     assert "sat" in live.BaseConstraint.backends
-    assert "drc" in live.BaseConstraint.backends
-
-
-def test_constraint_type_value_used_as_dispatch_key():
-    """drc_bridge keys TYPE_HANDLERS on ConstraintType members."""
-    c = live.SeparatedConstraint(
-        a="HV_ZONE", b="MCU_ZONE", min_distance_mm=10.0, tier=live.ConstraintTier.HARD,
-        because="IEC 60335-1 reinforced isolation requirement",
-    )
-    from temper_placer.pcl.drc_bridge import TYPE_HANDLERS
-
-    handler = TYPE_HANDLERS.get(c.constraint_type)
-    assert handler is not None
+    # The DRC bridge was retired (2026-08-09); only sat remains.
+    assert "drc" not in live.BaseConstraint.backends
 
 
 def test_targets_membership_used_by_parser_compile():

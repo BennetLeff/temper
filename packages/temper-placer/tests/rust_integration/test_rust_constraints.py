@@ -4,7 +4,6 @@ Integration tests for the Rust PCL constraint engine.
 Covers:
 - R6: Loss values match Python implementation within 1e-6
 - R9: Positive test proving Rust backend is actually invoked
-- R10: Python fallback works when Rust is not available
 - R12: All constraint types exercised through both Rust and Python engines
 - R14: Rust engine never aborts process, returns Python exceptions
 """
@@ -507,51 +506,6 @@ class TestErrorHandling:
             1.0,
         )
         assert loss == 0.0
-
-
-# ============================================================================
-# R10: Python fallback works transparently
-# ============================================================================
-
-
-class TestPythonFallback:
-    """Test that the Python fallback bridge module works."""
-
-    def test_rust_bridge_imports(self):
-        """The rust_bridge wrapper module must be importable."""
-        from temper_placer.pcl import rust_bridge
-
-        assert hasattr(rust_bridge, "has_rust_backend")
-
-    def test_has_rust_backend_reports_correctly(self):
-        """has_rust_backend must report True when Rust is installed."""
-        from temper_placer.pcl import rust_bridge
-
-        result = rust_bridge.has_rust_backend()
-        assert result is HAS_RUST  # Should match the direct import check
-
-    @pytest.mark.benchmark
-    def test_rust_bridge_wrapper_functions_work(self):
-        """Rust bridge wrapper functions must delegate to Rust."""
-        require_rust()
-        from temper_placer.pcl import rust_bridge
-
-        loss = rust_bridge.compute_adjacent_loss_rust(
-            [0.0, 0.0, 20.0, 0.0],
-            0,
-            1,
-            10.0,
-            1.0,
-        )
-        assert abs(loss - 100.0) < 1e-6
-
-    def test_rust_version_via_bridge(self):
-        """Version must be retrievable via the bridge."""
-        require_rust()
-        from temper_placer.pcl import rust_bridge
-
-        version = rust_bridge.rust_version()
-        assert version == "0.1.0"
 
 
 # ============================================================================
