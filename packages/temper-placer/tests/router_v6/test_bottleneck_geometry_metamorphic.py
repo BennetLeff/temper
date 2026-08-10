@@ -27,11 +27,11 @@ from __future__ import annotations
 
 import random
 
-import networkx as nx
+import temper_geometry as _tg
 
 from temper_placer.deterministic.stages.clearance_grid import ClearanceGrid
 from temper_placer.router_v6.bottleneck_geometry import (
-    _build_capacitated_graph,
+    _build_capacitated_graph_rust,
     _compute_cell_capacity_batch,
 )
 
@@ -54,18 +54,25 @@ def _capacity(grid: ClearanceGrid, cells) -> dict:
 
 
 def _min_cut(grid: ClearanceGrid, source, sink) -> int | None:
-    g = _build_capacitated_graph(
+    """Min-cut value via the Rust kernel (canonical production path)."""
+    nodes, edges = _build_capacitated_graph_rust(
         grid=grid,
         source_cells=[source],
         sink_cells=[sink],
         net_class_rules=None,
-        board_state=object(),
-        net_name="NET",
-        deadline=None,
+        pad_net_classes=None,
+        current_net_class=None,
     )
-    if source not in g or sink not in g or source == sink:
+    node_to_flat: dict[tuple[int, int, int], int] = {cell: i for i, cell in enumerate(nodes)}
+    if source not in node_to_flat or sink not in node_to_flat or source == sink:
         return None
-    cut_value, _ = nx.minimum_cut(g, source, sink, capacity="capacity")
+    nodes_flat: list[int] = list(range(len(nodes)))
+    edges_flat: list[tuple[int, int, int]] = [
+        (node_to_flat[u], node_to_flat[v], cap) for u, v, cap in edges
+    ]
+    cut_value, _reachable, _non_reachable = _tg.min_cut_py(
+        nodes_flat, edges_flat, node_to_flat[source], node_to_flat[sink]
+    )
     return int(cut_value)
 
 

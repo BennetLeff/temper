@@ -18,7 +18,7 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from temper_placer.core.design_rules import NetClassRules
@@ -352,16 +352,15 @@ def is_hard_blocked(grid: ClearanceGrid, cell: tuple[int, int, int]) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Rust kernel delegation (Wave 3 #2)
+# Rust kernel delegation (Wave 3 #2 → Wave 4 min-cut)
 #
 # The compute kernels (per-cell capacity incl. the R4 creepage discount,
-# the hard-blocked check, and the capacitated-graph BFS + edge build) run
-# in ``temper-geometry``; the orchestration around them (pad resolution,
-# net-class rank derivation, networkx construction and min-cut) stays
-# here. The kernels are integer-only and preserve the reference's exact
-# node/edge order, so the networkx graph the wrapper builds is bit-identical
-# (including adjacency insertion order) to the pre-migration one. Pinned
-# by ``test_bottleneck_geometry_rust_differential.py``.
+# the hard-blocked check, capacitated-graph BFS + edge build, and the
+# Edmonds-Karp min-cut) run in ``temper-geometry``; the orchestration
+# around them (pad resolution, net-class rank derivation) stays here.
+# The kernels are integer-only and preserve the reference's exact
+# node/edge order. Pinned by
+# ``test_bottleneck_geometry_rust_differential.py``.
 # ---------------------------------------------------------------------------
 
 
@@ -510,9 +509,9 @@ def _build_capacitated_graph_rust(
     ``nodes`` is the sorted ``(layer, row, col)`` node set; ``edges`` is
     the ``((u, v, capacity), ...)`` list in the exact order the
     pre-migration reference added them (sorted node order, fixed
-    neighbour order, both directions per neighbour pair) — the caller
-    replays them into a ``networkx.DiGraph`` to get bit-identical
-    adjacency insertion order.
+    neighbour order, both directions per neighbour pair). The caller
+    feeds the flat-indexed output to ``temper_geometry.min_cut_py`` for
+    the Edmonds-Karp min-cut.
 
     ``deadline_remaining_s`` is the wall-clock budget still available
     when the call starts (``None`` disables the deadline); the kernel
@@ -572,101 +571,6 @@ def _mm_to_cell(grid: ClearanceGrid, x_mm: float, y_mm: float) -> tuple[int, int
     if col >= grid.cols:
         col = grid.cols - 1
     return row, col
-
-
-def _build_capacitated_graph(
-    grid: ClearanceGrid,
-    source_cells: list[tuple[int, int, int]],
-    sink_cells: list[tuple[int, int, int]],
-    net_class_rules: dict[str, NetClassRules] | None,
-    board_state: BoardState,
-    net_name: str,
-    deadline: float | None = None,
-    pad_net_classes: dict[tuple[int, int, int], str] | None = None,
-    current_net_class: str | None = None,
-) -> Any:  # networkx.DiGraph (avoids hard import in fast path)
-    """Build a directed capacitated graph for s-t min-cut.
-
-    Nodes are ``(layer, row, col)`` triples whose capacity is > 0 and
-    that are not hard-blocked. Edges connect 4-neighbour cells on the
-    same layer with weight ``min(src_capacity, dst_capacity)``.
-
-    Iterating cells in ``sorted()`` order keeps the function
-    deterministic across Python versions (Determinism Risk SC3 in plan).
-
-    Args:
-        grid: ``ClearanceGrid`` carrying occupancy data.
-        source_cells: Pad cells on the source side of the s-t partition.
-        sink_cells: Pad cells on the sink side.
-        net_class_rules: Optional mapping of net class name → rules;
-            passed through to ``_compute_cell_capacity``.
-        board_state: ``BoardState`` for context (zones, etc.). Currently
-            unused but reserved for future creepage halo lookups.
-        net_name: Net being analysed (forwarded to
-            ``_compute_cell_capacity``).
-        deadline: Optional wall-clock ``time.monotonic()`` deadline
-            (Fix #4). When provided, the BFS expansion and edge
-            construction loops check the deadline every
-            ``_DEADLINE_CHECK_STRIDE`` iterations and raise
-            ``TimeoutError`` once exceeded, so callers can surface an
-            ``aborted_timeout`` status without waiting for the full
-            graph build.
-        pad_net_classes: Optional mapping from
-            ``(layer, row, col)`` → net class name. Used by
-            ``_compute_cell_capacity`` for the R4
-            "category-HIGH on category-LOW" rule (Fix #5). When absent,
-            the function falls back to the historical "any non-zero
-            pad id" discount.
-        current_net_class: Optional name of the current net's class
-            (Fix #5). Used together with ``net_class_rules`` to
-            determine which neighbour pads are strictly
-            higher-safety. ``None`` preserves the historical
-            backward-compatible discount.
-
-    Returns:
-        A ``networkx.DiGraph`` whose edges carry a ``capacity`` attribute.
-
-    Raises:
-        TimeoutError: When the wall-clock deadline is exceeded during
-            graph construction. Callers should catch this and surface
-            an ``aborted_timeout`` ``BottleneckGeometry``.
-    """
-    import networkx as nx
-
-    del board_state  # reserved for future zone-based exclusion
-    del net_name  # reserved for future per-net overrides
-
-    # Fix #4: the deadline is enforced inside the Rust kernel with the
-    # same ``_DEADLINE_CHECK_STRIDE`` iteration semantics; the wrapper
-    # passes the budget remaining at call time, and the caller's
-    # post-build checks stay in Python.
-    deadline_remaining = None
-    if deadline is not None:
-        deadline_remaining = deadline - time.monotonic()
-
-    nodes, edges = _build_capacitated_graph_rust(
-        grid=grid,
-        source_cells=source_cells,
-        sink_cells=sink_cells,
-        net_class_rules=net_class_rules,
-        pad_net_classes=pad_net_classes,
-        current_net_class=current_net_class,
-        deadline_remaining_s=deadline_remaining,
-    )
-
-    # Replay the kernel's (nodes, edges) in order: the node list is
-    # already sorted and the edge list is in the reference's emission
-    # order (sorted nodes x fixed neighbour order, both directions), so
-    # the networkx graph — including adjacency insertion order, which
-    # ``minimum_cut``'s BFS iterates — is bit-identical to the
-    # pre-migration one (Determinism Risk SC3 in the plan).
-    g = nx.DiGraph()
-    for cell in nodes:
-        g.add_node(cell)
-    for u, v, edge_cap in edges:
-        g.add_edge(u, v, capacity=edge_cap)
-
-    return g
 
 
 def _resolve_pad_cells(

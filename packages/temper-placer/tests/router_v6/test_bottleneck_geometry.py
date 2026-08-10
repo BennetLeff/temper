@@ -22,7 +22,7 @@ from temper_placer.deterministic.stages.clearance_grid import ClearanceGrid
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.bottleneck_geometry import (
     BOTTLENECK_TIMEOUT_S,
-    _build_capacitated_graph,
+    _build_capacitated_graph_rust,
     analyze_bottleneck,
 )
 from temper_placer.router_v6.diagnostics import (
@@ -288,14 +288,13 @@ class TestBottleneckSynthetic:
                 assert getattr(results[1], attr) == getattr(results[2], attr)
 
     def test_graph_build_aborts_on_deadline(self, monkeypatch) -> None:
-        """Fix #4: ``_build_capacitated_graph`` must abort mid-loop
+        """Fix #4: ``_build_capacitated_graph_rust`` must abort mid-loop
         when the wall-clock deadline is exceeded (rather than running
         to completion and only failing the outer deadline check).
 
-        We patch ``time.monotonic`` so the deadline check inside the
-        BFS expansion fires after a small number of iterations, and
-        assert that ``_build_capacitated_graph`` raises ``TimeoutError``
-        with a graph that has not been fully built.
+        We pass an already-expired ``deadline_remaining_s`` so that the
+        kernel's first stride check fires immediately, and assert that
+        ``_build_capacitated_graph_rust`` raises ``TimeoutError``.
         """
 
         # 30×30 grid (900 cells) at 1.0 mm — enough that the BFS
@@ -305,33 +304,17 @@ class TestBottleneckSynthetic:
         # Source / sink far apart → BFS walks most of the grid.
         source = (0, 0, 0)
         sink = (0, 29, 29)
-        real_monotonic = time.monotonic
-        state = {"call": 0}
 
-        def fake_monotonic() -> float:
-            state["call"] += 1
-            # First call: return the deadline baseline. Subsequent
-            # calls: pretend ``BOTTLENECK_TIMEOUT_S + 1`` has elapsed,
-            # so any deadline check inside the loop fires.
-            if state["call"] == 1:
-                return real_monotonic()
-            return real_monotonic() + BOTTLENECK_TIMEOUT_S + 1.0
-
-        monkeypatch.setattr(
-            "temper_placer.router_v6.bottleneck_geometry.time.monotonic",
-            fake_monotonic,
-        )
-
-        deadline = real_monotonic()  # baseline
+        # Expired deadline: the kernel's first stride check fires.
         with pytest.raises(TimeoutError):
-            _build_capacitated_graph(
+            _build_capacitated_graph_rust(
                 grid=grid,
                 source_cells=[source],
                 sink_cells=[sink],
                 net_class_rules=None,
-                board_state=_make_state(_build_two_pad_netlist(), grid),
-                net_name="N",
-                deadline=deadline,
+                pad_net_classes=None,
+                current_net_class=None,
+                deadline_remaining_s=-1.0,
             )
 
     def test_partition_uses_grid_cell_size_not_board_default(self) -> None:

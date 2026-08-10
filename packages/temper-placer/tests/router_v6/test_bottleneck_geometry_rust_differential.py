@@ -35,7 +35,6 @@ from temper_placer.router_v6.bottleneck_geometry import (
     _DEADLINE_CHECK_STRIDE,
     _SAFETY_RANK,
     BOTTLENECK_TIMEOUT_S,
-    _build_capacitated_graph,
     _build_capacitated_graph_rust,
     _compute_cell_capacity_batch,
     _hard_blocked_batch,
@@ -746,37 +745,38 @@ def test_graph_kernel_deterministic_across_runs() -> None:
 
 
 def test_graph_deadline_aborts_at_stride_boundary() -> None:
-    """A 32x32 free grid (>= 256 BFS pops) with an already-expired deadline
-    must raise TimeoutError — the same stride-checked abort the reference
-    performs."""
+    """A 32x32 free grid (>= 256 BFS pops) with an already-expired
+    ``deadline_remaining_s`` must raise TimeoutError — the same
+    stride-checked abort the reference performs."""
     grid = ClearanceGrid(width_mm=32.0, height_mm=32.0, cell_size_mm=1.0, layer_count=1)
     with pytest.raises(TimeoutError):
-        _build_capacitated_graph(
+        _build_capacitated_graph_rust(
             grid=grid,
             source_cells=[(0, 0, 0)],
             sink_cells=[(0, 31, 31)],
             net_class_rules=None,
-            board_state=_BOARD_STATE_STUB,
-            net_name="NET_X",
-            deadline=time.monotonic() - 1.0,
+            pad_net_classes=None,
+            current_net_class=None,
+            deadline_remaining_s=-1.0,
         )
 
 
 def test_graph_deadline_never_fires_before_first_stride() -> None:
-    """A 5x5 grid (25 pops < 256) with an expired deadline must NOT raise
-    inside the build — the reference only checks at stride boundaries, and
-    the caller (analyze_bottleneck) owns the post-build check."""
+    """A 5x5 grid (25 pops < 256) with an expired ``deadline_remaining_s``
+    must NOT raise inside the build — the kernel only checks at stride
+    boundaries, and the caller (analyze_bottleneck) owns the post-build
+    check."""
     grid = ClearanceGrid(width_mm=5.0, height_mm=5.0, cell_size_mm=1.0, layer_count=1)
-    g = _build_capacitated_graph(
+    nodes, _edges = _build_capacitated_graph_rust(
         grid=grid,
         source_cells=[(0, 0, 0)],
         sink_cells=[(0, 4, 4)],
         net_class_rules=None,
-        board_state=_BOARD_STATE_STUB,
-        net_name="NET_X",
-        deadline=time.monotonic() - 1.0,
+        pad_net_classes=None,
+        current_net_class=None,
+        deadline_remaining_s=-1.0,
     )
-    assert len(g.nodes()) == 25
+    assert len(nodes) == 25
 
 
 def test_graph_deadline_aborts_edge_loop_when_bfs_finishes() -> None:
@@ -786,29 +786,29 @@ def test_graph_deadline_aborts_edge_loop_when_bfs_finishes() -> None:
     building edges."""
     grid = ClearanceGrid(width_mm=300.0, height_mm=1.0, cell_size_mm=1.0, layer_count=1)
     with pytest.raises(TimeoutError):
-        _build_capacitated_graph(
+        _build_capacitated_graph_rust(
             grid=grid,
             source_cells=[(0, 0, 0)],
             sink_cells=[(0, 0, 299)],
             net_class_rules=None,
-            board_state=_BOARD_STATE_STUB,
-            net_name="NET_X",
-            deadline=time.monotonic() - 1.0,
+            pad_net_classes=None,
+            current_net_class=None,
+            deadline_remaining_s=-1.0,
         )
 
 
 def test_graph_no_deadline_completes() -> None:
     grid = ClearanceGrid(width_mm=20.0, height_mm=20.0, cell_size_mm=1.0, layer_count=2)
-    g = _build_capacitated_graph(
+    nodes, _edges = _build_capacitated_graph_rust(
         grid=grid,
         source_cells=[(0, 0, 0)],
         sink_cells=[(1, 19, 19)],
         net_class_rules=None,
-        board_state=_BOARD_STATE_STUB,
-        net_name="NET_X",
-        deadline=None,
+        pad_net_classes=None,
+        current_net_class=None,
+        deadline_remaining_s=None,
     )
-    assert len(g.nodes()) == 2 * 20 * 20
+    assert len(nodes) == 2 * 20 * 20
 
 
 def test_graph_kernel_pins_stride_constant() -> None:

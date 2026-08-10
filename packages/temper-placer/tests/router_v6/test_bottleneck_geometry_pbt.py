@@ -19,16 +19,16 @@ from __future__ import annotations
 
 import random
 
-import networkx as nx
 import numpy as np
 import pytest
+import temper_geometry as _tg
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from temper_placer.deterministic.stages.clearance_grid import ClearanceGrid
 from temper_placer.router_v6 import bottleneck_geometry as bg
 from temper_placer.router_v6.bottleneck_geometry import (
-    _build_capacitated_graph,
+    _build_capacitated_graph_rust,
     _compute_cell_capacity_batch,
 )
 
@@ -69,21 +69,27 @@ def _capacity_field(grid: ClearanceGrid) -> np.ndarray:
 
 
 def _min_cut_value(grid: ClearanceGrid, source, sink) -> int | None:
-    """Min-cut value via networkx on the module-built graph (the exact
-    production pipeline). Returns None when the cut is not well-defined
-    (source/sink absent from the graph or identical)."""
-    g = _build_capacitated_graph(
+    """Min-cut value via the Rust kernel (canonical production path).
+    Returns None when the cut is not well-defined (source/sink absent
+    from the graph or identical)."""
+    nodes, edges = _build_capacitated_graph_rust(
         grid=grid,
         source_cells=[source],
         sink_cells=[sink],
         net_class_rules=None,
-        board_state=object(),
-        net_name="NET",
-        deadline=None,
+        pad_net_classes=None,
+        current_net_class=None,
     )
-    if source not in g or sink not in g or source == sink:
+    node_to_flat: dict[tuple[int, int, int], int] = {cell: i for i, cell in enumerate(nodes)}
+    if source not in node_to_flat or sink not in node_to_flat or source == sink:
         return None
-    cut_value, _ = nx.minimum_cut(g, source, sink, capacity="capacity")
+    nodes_flat: list[int] = list(range(len(nodes)))
+    edges_flat: list[tuple[int, int, int]] = [
+        (node_to_flat[u], node_to_flat[v], cap) for u, v, cap in edges
+    ]
+    cut_value, _reachable, _non_reachable = _tg.min_cut_py(
+        nodes_flat, edges_flat, node_to_flat[source], node_to_flat[sink]
+    )
     return int(cut_value)
 
 
@@ -151,37 +157,40 @@ def test_p2_capacity_monotonic_decreasing_in_obstacles(grid: ClearanceGrid) -> N
 @given(random_grid())
 @settings(max_examples=100, deadline=60000)
 def test_p3_graph_is_induced_min_cap_subgraph(grid: ClearanceGrid) -> None:
-    g = _build_capacitated_graph(
+    nodes, edges = _build_capacitated_graph_rust(
         grid=grid,
         source_cells=[(0, 0, 0)],
         sink_cells=[(grid.layer_count - 1, grid.rows - 1, grid.cols - 1)],
         net_class_rules=None,
-        board_state=object(),
-        net_name="NET",
-        deadline=None,
+        pad_net_classes=None,
+        current_net_class=None,
     )
     caps = dict(zip(_all_cells(grid), _compute_cell_capacity_batch(_all_cells(grid), grid, None, None, None)))
+    nodes_set = set(nodes)
+    edge_set: set[tuple[tuple[int, int, int], tuple[int, int, int], int]] = set(edges)
+    adj_out: dict[tuple[int, int, int], set[tuple[int, int, int]]] = {n: set() for n in nodes}
+    for u, v, _cap in edges:
+        adj_out[u].add(v)
 
     # every edge is labelled min endpoint capacity and is reciprocated
-    for u, v in g.edges():
+    for u, v, cap in edges:
         assert caps[u] >= 1 and caps[v] >= 1
-        assert g[u][v]["capacity"] == min(caps[u], caps[v])
-        assert v in g.adj[u]
-        assert g[v][u]["capacity"] == g[u][v]["capacity"]  # symmetric weights
+        assert cap == min(caps[u], caps[v])
+        # reciprocated: (v, u, same cap) also exists
+        assert (v, u, cap) in edge_set
 
     # round-trip: every 4-adjacent node pair with min-cap > 0 has the
     # edge, and no other edges exist (induced subgraph on the node set)
-    nodes = set(g.nodes())
-    for (l1, r1, c1) in nodes:
+    for (l1, r1, c1) in nodes_set:
         for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
             nb = (l1, r1 + dr, c1 + dc)
-            if nb not in nodes:
+            if nb not in nodes_set:
                 continue
             expected = min(caps[(l1, r1, c1)], caps[nb])
             if expected > 0:
-                assert g.has_edge((l1, r1, c1), nb), f"missing edge {(l1, r1, c1)} -> {nb}"
+                assert nb in adj_out[(l1, r1, c1)], f"missing edge {(l1, r1, c1)} -> {nb}"
             else:
-                assert not g.has_edge((l1, r1, c1), nb), f"unexpected zero edge {(l1, r1, c1)} -> {nb}"
+                assert nb not in adj_out[(l1, r1, c1)], f"unexpected zero edge {(l1, r1, c1)} -> {nb}"
 
 
 # ---------------------------------------------------------------------------
@@ -256,18 +265,17 @@ def test_p5_min_cut_nonnegative_and_bounded(grid: ClearanceGrid) -> None:
         cut = _min_cut_value(grid, source, sink)
         if cut is not None:
             assert cut >= 0
-            g = _build_capacitated_graph(
+            _nodes, edges = _build_capacitated_graph_rust(
                 grid=grid,
                 source_cells=[source],
                 sink_cells=[sink],
                 net_class_rules=None,
-                board_state=object(),
-                net_name="NET",
-                deadline=None,
+                pad_net_classes=None,
+                current_net_class=None,
             )
             # every edge carries capacity in [1, 4]; any s-t cut is a
             # subset of E, so cut_value <= 4 * |E|
-            assert cut <= 4 * g.number_of_edges()
+            assert cut <= 4 * len(edges)
 
 
 # ---------------------------------------------------------------------------
