@@ -25,7 +25,35 @@ if TYPE_CHECKING:
 
 _normalize_rotation = _tg.normalize_rotation_py
 
-pin_world_position_at = _tg.pin_world_position_at_py
+# `pin_world_position_at` stays a thin Python wrapper that calls the
+# low-level kernel `pin_world_position_kernel_py`, NOT the consolidated
+# `pin_world_position_at_py`. The core_graph_cluster PBT's vacuity guards
+# patch `_tg.pin_world_position_kernel_py` with mutants to prove P4 is
+# non-vacuous; a direct bind to `pin_world_position_at_py` would bypass the
+# patched symbol and the mutant would silently no-op (DID NOT RAISE).
+# Replicates the pre-migration function's arg-resolution exactly.
+def pin_world_position_at(
+    pin: "Pin",
+    comp: "Component",
+    pos_override: tuple[float, float] | None = None,
+    rotation_override: int | None = None,
+) -> tuple[float, float]:
+    """Return the world (x, y) position of a pin, with optional overrides.
+
+    Like :func:`pin_world_position` but accepts an explicit `pos_override`
+    for the component's board position and/or `rotation_override` for the
+    component's rotation index (0-3). When an override is provided, it
+    replaces the corresponding ``comp.initial_*`` attribute.
+    When None, falls back to ``comp.initial_*``.
+    """
+    rot_source = rotation_override if rotation_override is not None else comp.initial_rotation
+    rotation_rad = _normalize_rotation(rot_source)
+    side = comp.initial_side or 0
+    px, py = pin.position
+    cpos = pos_override if pos_override is not None else comp.initial_position or (0.0, 0.0)
+    return _tg.pin_world_position_kernel_py(
+        px, py, side, rotation_rad, cpos[0], cpos[1]
+    )
 
 pin_world_layer = _tg.pin_world_layer_py
 

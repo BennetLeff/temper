@@ -589,6 +589,22 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "ee37f950): Rust parity suite. Pure Python/Rust, no external binary. "
         "Not yet wired into any CI job — a concurrent migration."
     ),
+    "pipeline/test_metrics_observer.py": (
+        "PASSING locally (2026-08-10, coverage-allowlist paydown for "
+        "pipeline/): MetricsObserver ProgressObserver protocol hooks (9 tests). "
+        "Pure Python. Not yet wired into any CI job."
+    ),
+    "pipeline/test_terminal_dashboard.py": (
+        "PASSING locally (2026-08-10, coverage-allowlist paydown for "
+        "pipeline/): TerminalDashboardObserver lifecycle hooks + create "
+        "dashboard (16 tests). Pure Python. Not yet wired into any CI job."
+    ),
+    "pipeline/test_visualization_coverage.py": (
+        "PASSING locally (2026-08-10, coverage-allowlist paydown for "
+        "pipeline/): ProgressCallback/TerminalProgress/RichDashboard hooks "
+        "and layout/update helpers (36 tests). Pure Python. Not yet wired "
+        "into any CI job."
+    ),
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------
