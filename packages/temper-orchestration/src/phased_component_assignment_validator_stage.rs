@@ -540,3 +540,110 @@ fn update_radius<'py>(
 fn empty_dict<'py>(py: Python<'py>) -> Bound<'py, PyAny> {
     PyDict::new(py).into_any()
 }
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests {
+    use super::*;
+
+    // -- py_max ------------------------------------------------------------
+
+    /// CPython `max(NaN, x)` returns NaN; `max(x, NaN)` returns x.
+    #[test]
+    fn py_max_nan_first_argument_wins() {
+        assert!(py_max(f64::NAN, 1.0).is_nan());
+        assert_eq!(py_max(1.0, f64::NAN), 1.0);
+        assert!(py_max(f64::NAN, f64::NAN).is_nan());
+    }
+
+    /// CPython `max` keeps the first argument on tie, including -0.0 vs +0.0.
+    #[test]
+    fn py_max_ties_keep_first() {
+        assert_eq!(py_max(0.0, -0.0), 0.0);
+        let r = py_max(-0.0, 0.0);
+        assert!(r == -0.0 && r.is_sign_negative(),
+            "py_max(-0.0, 0.0) must return -0.0, got {r}");
+        assert_eq!(py_max(3.0, 3.0), 3.0);
+    }
+
+    /// CPython `max` on infinities.
+    #[test]
+    fn py_max_infinity() {
+        assert_eq!(py_max(f64::INFINITY, 0.0), f64::INFINITY);
+        assert_eq!(py_max(0.0, f64::INFINITY), f64::INFINITY);
+        assert_eq!(py_max(f64::NEG_INFINITY, 0.0), 0.0);
+    }
+
+    /// P1: py_max returns the conventional maximum for non-NaN values.
+    #[test]
+    fn p1_py_max_returns_larger() {
+        use proptest::prelude::*;
+        proptest!(|(a: f64, b: f64)| {
+            prop_assume!(!a.is_nan() && !b.is_nan());
+            let r = py_max(a, b);
+            assert!(r >= a && r >= b,
+                "py_max({a},{b})={r} not >= both");
+        });
+    }
+
+    /// P2: py_max returns one of its inputs bit-identically.
+    #[test]
+    fn p2_py_max_returns_one_of_inputs() {
+        use proptest::prelude::*;
+        proptest!(|(a: f64, b: f64)| {
+            let r = py_max(a, b);
+            if a.is_nan() {
+                // First arg is NaN -> result is NaN regardless of second arg.
+                assert!(r.is_nan());
+            } else if b.is_nan() {
+                // Second arg is NaN, first arg wins.
+                assert_eq!(r.to_bits(), a.to_bits());
+            } else {
+                assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits(),
+                    "py_max({a},{b})={r} neither a nor b");
+            }
+        });
+    }
+
+    /// P3: py_max is commutative for non-NaN inputs.
+    #[test]
+    fn p3_py_max_commutative_for_finite() {
+        use proptest::prelude::*;
+        proptest!(|(a: f64, b: f64)| {
+            prop_assume!(!a.is_nan() && !b.is_nan());
+            assert_eq!(py_max(a, b), py_max(b, a));
+        });
+    }
+
+    // -- is_hv_safety (requires GIL) ---------------------------------------
+
+    #[test]
+    fn is_hv_safety_true_for_hv_and_ac() {
+        Python::initialize();
+        Python::attach(|py| {
+            let hv = pyo3::types::PyString::new(py, "HV");
+            let ac = pyo3::types::PyString::new(py, "AC");
+            let lv = pyo3::types::PyString::new(py, "LV");
+            assert!(is_hv_safety(hv.as_any()).unwrap());
+            assert!(is_hv_safety(ac.as_any()).unwrap());
+            assert!(!is_hv_safety(lv.as_any()).unwrap());
+        });
+    }
+
+    #[test]
+    fn is_hv_safety_false_for_none_and_unknown() {
+        Python::initialize();
+        Python::attach(|py| {
+            let none = py.None();
+            assert!(!is_hv_safety(none.bind(py)).unwrap());
+            let empty = pyo3::types::PyString::new(py, "");
+            assert!(!is_hv_safety(empty.as_any()).unwrap());
+            let unknown = pyo3::types::PyString::new(py, "signal");
+            assert!(!is_hv_safety(unknown.as_any()).unwrap());
+        });
+    }
+}
