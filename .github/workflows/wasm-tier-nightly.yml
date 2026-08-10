@@ -38,11 +38,13 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 #                                     every verdict against the same commit's
 #                                     native `cargo test` run (both taken in
 #                                     this very job). Fails on disagreement.
-#   worker-dispatch-r19           -- requires CLOUDFLARE_API_TOKEN and
-#                                     CLOUDFLARE_ACCOUNT_ID as repository
-#                                     secrets. If either is absent, this job
-#                                     FAILS with an explicit error naming what
-#                                     is missing -- it does not skip. Dispatches
+#   worker-dispatch-r19           -- requires the 8 deployed Workers to answer
+#                                     /health. If any does not, this job FAILS
+#                                     with an explicit error naming which --
+#                                     it does not skip. (It formerly required
+#                                     CLOUDFLARE_API_TOKEN/ACCOUNT_ID secrets,
+#                                     which nothing it runs ever read; see the
+#                                     preflight step's comment.) Dispatches
 #                                     the 7 already-deployed per-family Workers
 #                                     (tools/wasm/sweep_multi_worker.mjs),
 #                                     compares their verdicts against
@@ -250,24 +252,33 @@ jobs:
       - uses: actions/checkout@v7
 
       # ------------------------------------------------------------------
-      # Fail loudly, never skip, when secrets are absent.
+      # Fail loudly, never skip, when the deployed path is not there.
       #
-      # This repo's Cloudflare account (03f642afe070f05b727f7cd31f02ef48) has
-      # no token provisioned as of this workflow's authorship (docs/evidence/
-      # 2026-08-07-phase1-u7-deploy-runbook.md §0: "CLOUDFLARE_API_TOKEN NOT
-      # set", "CLOUDFLARE_ACCOUNT_ID NOT set"). The 7 per-family Workers this
-      # job dispatches to are unauthenticated public HTTPS endpoints
-      # (packages/temper-worker/src/worker_core.js's /run-test handler takes
-      # no credential), so the HTTP calls below do not themselves consume
-      # either secret — but this repo treats these two named secrets as the
-      # canonical, single signal for "the deployed path is provisioned"
-      # throughout Phase 1's own evidence (U7, U8, and the phase2-4 status
-      # doc's blocker #6 all gate on exactly this pair). Absent that signal,
-      # this job must not report a misleadingly clean result for a path that
-      # was never actually exercised against a confirmed-live account — so it
-      # fails instead of silently skipping. A workflow that no-ops without
-      # credentials would report green while doing nothing, which is
-      # precisely the failure mode this workflow exists to rule out.
+      # This job used to gate on the PRESENCE of CLOUDFLARE_API_TOKEN and
+      # CLOUDFLARE_ACCOUNT_ID as repository secrets, treating that pair as the
+      # canonical signal for "the deployed path is provisioned" (Phase 1's own
+      # evidence — U7, U8, and the phase2-4 status doc's blocker #6 — all gate
+      # on exactly that pair). The intent was sound and is preserved below;
+      # the instrument was not.
+      #
+      # The 7 per-family Workers are unauthenticated public HTTPS endpoints
+      # (packages/temper-worker/src/worker_core.js's /run-test handler takes no
+      # credential) and tools/wasm/sweep_multi_worker.mjs contains zero
+      # `process.env` references — so nothing this job runs ever read either
+      # secret. The gate was a proxy that is neither necessary nor sufficient:
+      # a secret can be present while every Worker is deleted, and every Worker
+      # can be live while the secret is absent. The consequence was not
+      # theoretical — this job failed on every run from the day it landed
+      # (2026-08-09, 2026-08-10, and the 2026-08-10 manual dispatch) on a
+      # precondition that was never actually a precondition.
+      #
+      # The preflight below asks the Workers directly. That is the real
+      # precondition, it subsumes what the secret pair stood in for, and it
+      # keeps the fail-loud contract: a run that reports green while nothing
+      # was exercised is the failure mode this workflow exists to rule out.
+      # If the deployed path is later put behind Cloudflare Access or a
+      # wrangler-authenticated dispatch, the credential check belongs back —
+      # on the step that consumes the credential.
       #
       # Separately, `wrangler` itself (not invoked by this workflow — see the
       # header's hard prohibitions) additionally needs Node >=22; this job
@@ -275,20 +286,43 @@ jobs:
       # deploy-verification step, the runner is already correctly provisioned.
       # ------------------------------------------------------------------
 
-      - name: Verify Cloudflare credentials are configured
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Preflight — the deployed Workers answer (provisioning signal)
         run: |
           set -euo pipefail
-          missing=()
-          [ -z "${CLOUDFLARE_API_TOKEN}" ] && missing+=("CLOUDFLARE_API_TOKEN")
-          [ -z "${CLOUDFLARE_ACCOUNT_ID}" ] && missing+=("CLOUDFLARE_ACCOUNT_ID")
-          if [ "${#missing[@]}" -gt 0 ]; then
-            echo "::error::Missing required repository secret(s): ${missing[*]}. The deployed-Worker R19 dispatch cannot run without them, and this job FAILS rather than silently skipping — see .github/workflows/wasm-tier-nightly.yml's header comment for why. Add these under Settings > Secrets and variables > Actions (Cloudflare account 03f642afe070f05b727f7cd31f02ef48, docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md) to enable this job."
+          # This replaces a secret-presence check on CLOUDFLARE_API_TOKEN +
+          # CLOUDFLARE_ACCOUNT_ID. That check's INTENT was right and is kept
+          # here: the job must not report a clean result for a path that was
+          # never actually exercised, so it fails loudly rather than skipping.
+          # Its INSTRUMENT was wrong. As the comment above already conceded,
+          # neither secret is consumed by anything this job runs --
+          # tools/wasm/sweep_multi_worker.mjs contains zero `process.env`
+          # references and calls unauthenticated public `*.workers.dev`
+          # endpoints -- so the pair was a proxy for "provisioned", and one
+          # that is neither necessary nor sufficient: a secret can be present
+          # while every Worker is deleted, and every Worker can be live while
+          # the secret is absent. The job stayed red from the day it landed on
+          # exactly that false precondition.
+          #
+          # Asking the Workers whether they are there tests the real
+          # precondition directly and subsumes what the secret check stood in
+          # for. If the deployed path is ever put behind Cloudflare Access or
+          # a wrangler-authenticated dispatch, the credential requirement
+          # belongs back -- attached to the step that actually consumes it.
+          HOSTS="temper-wasm-tier temper-wasm-drc temper-wasm-emc temper-wasm-erc temper-wasm-safety temper-wasm-placement temper-wasm-routing temper-wasm-infra"
+          unreachable=""
+          for h in $HOSTS; do
+            code="$(curl -s -m 15 -o /dev/null -w '%{http_code}' "https://${h}.bennetleff.workers.dev/health" || echo 000)"
+            if [ "$code" != "200" ]; then
+              unreachable="${unreachable} ${h}(HTTP:${code})"
+            else
+              echo "ok   ${h}"
+            fi
+          done
+          if [ -n "${unreachable}" ]; then
+            echo "::error::Deployed Worker(s) not answering /health:${unreachable}. The R19 deployed-path comparison below would compare nothing or fail confusingly, so this job FAILS here rather than reporting a clean result for a path that was never exercised. Redeploy with 'bash scripts/stage_wasm_families.sh && wrangler deploy' (docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md)."
             exit 1
           fi
-          echo "Cloudflare credentials present — proceeding."
+          echo "All 8 Workers answering — proceeding."
 
       - name: Compute artifact identity (R5 — commit + board content hash)
         id: identity
