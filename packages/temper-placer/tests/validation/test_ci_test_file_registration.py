@@ -654,6 +654,12 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "concurrent migration commit; unregistered at merge. Not yet wired "
         "into any CI job."
     ),
+    "router_v6/test_path_graph_rust_differential.py": (
+        "PASSING locally (2026-08-10, fan-out 8): PathGraph/NetTopology/"
+        "TopologyGraph Rust migration differential (14 tests) — M6-asserted "
+        "nodes() first-seen-order parity vs networkx DiGraph, randomized. "
+        "Pure Python/Rust, no external binary. Not yet wired into any CI job."
+    ),
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------
