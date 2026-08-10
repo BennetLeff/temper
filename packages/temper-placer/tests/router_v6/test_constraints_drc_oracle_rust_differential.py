@@ -1244,7 +1244,7 @@ def test_can_place_track_segment_1um_tolerance_boundary():
     s_got2 = shim.can_place_track_segment(s2, e2, 0, "SIG_A", 0.2)
     assert sig(s_got2) == sig(o_got2)
     assert s_got2[0] is False, "gap < effective - 0.001 must violate"
-    assert "track" in s_got2[1]
+    assert "t2" in s_got2[1], "the violating track's id must be named in the reason"
 
     # Exact-boundary case: oracle and shim must agree bit-for-bit (this is
     # the fp-wobble-sensitive one, so only equality is asserted).
@@ -1413,25 +1413,41 @@ def test_validate_all_diff_pair_skipped():
 def test_validate_all_violation_order_preserved():
     """Violation order is the oracle's emission order (track-track, via-via,
     track-pad, via-pad), each in list/query order.  The shim must reproduce
-    it exactly, including the location fields."""
+    it exactly, including the location fields.  The board is crafted so all
+    four check types fire exactly once."""
     matrix = _make_matrix()
-    tracks, vias, pads = _crowded_board()
+    tracks = [
+        Track(Point(0.0, 0.0), Point(20.0, 0.0), width=0.2, net="SIG_A", layer=0, id="t1"),
+        Track(Point(0.0, 0.3), Point(20.0, 0.3), width=0.2, net="SIG_B", layer=0, id="t2"),
+        Track(Point(30.0, 30.0), Point(40.0, 30.0), width=0.2, net="SIG_A", layer=0, id="t3"),
+    ]
+    vias = [
+        Via(center=Point(5.0, 5.0), diameter=0.6, drill=0.3, net="SIG_A", id="v1"),
+        Via(center=Point(5.0, 5.3), diameter=0.6, drill=0.3, net="SIG_B", id="v2"),
+        Via(center=Point(45.0, 45.0), diameter=0.6, drill=0.3, net="SIG_A", id="v3"),
+    ]
+    pads = [
+        Pad(
+            center=Point(35.0, 30.2), shape="rect", size=(2.0, 2.0),
+            net="PWR", layer=0, id="p1", mask_expansion=0.1,
+        ),
+        Pad(
+            center=Point(45.0, 45.2), shape="rect", size=(2.0, 2.0),
+            net="PWR", layer=0, id="p2", mask_expansion=0.1,
+        ),
+    ]
     oracle = _build_oracle(DRCOracle, matrix=matrix, tracks=tracks, vias=vias, pads=pads)
     shim = _build_oracle(SHIM.DRCOracle, matrix=matrix, tracks=tracks, vias=vias, pads=pads)
     shim_v = shim.validate_all()
     oracle_v = oracle.validate_all()
-    assert len(shim_v) == len(oracle_v)
-    assert [v.type for v in shim_v] == [v.type for v in oracle_v]
     assert _sig_violations(shim_v) == _sig_violations(oracle_v)
-    if shim_v:
-        types = [v.type for v in shim_v]
-        first_track = types.index("track_clearance")
-        first_via = types.index("via_to_via") if "via_to_via" in types else len(types)
-        first_tp = types.index("track_pad_clearance") if "track_pad_clearance" in types else len(types)
-        first_vp = types.index("via_pad_clearance") if "via_pad_clearance" in types else len(types)
-        assert first_track < first_via < first_tp < first_vp, (
-            "violations must be emitted track-track, via-via, track-pad, via-pad"
-        )
+    types = [v.type for v in shim_v]
+    assert types == [
+        "track_clearance",
+        "via_to_via",
+        "track_pad_clearance",
+        "via_pad_clearance",
+    ], f"all four check types must fire once each, in emission order; got {types}"
 
 
 def test_validate_all_track_track_10um_tolerance_boundary():

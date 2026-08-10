@@ -5,6 +5,33 @@ Provides a queryable interface for routers to validate geometry placement
 before committing to the solution.
 
 Part of temper-lueu.3 and temper-lueu.4
+
+Wave 4 migration (router_v6 spatial-DRC cluster)
+------------------------------------------------
+Every numeric/decision body now delegates to ``temper_drc_rs``'s
+``drc_oracle.rs`` kernels (severity, the R3 clearance-credit spatial
+scoping, ``can_place_via`` / ``can_place_track_segment``, and
+``validate_all``'s four pairwise checks).  The *types* and the *state*
+deliberately stay Python: ``DRCOracle`` is a pickled ``BoardState`` field,
+its geometry lives in ``PCBGeometry`` over the Python-visible
+``temper_geometry.RadiusIndex`` R-tree, and ``Violation`` is a plain
+dataclass consumed by the deterministic stages.  The spatial queries stay
+Python (they are the index's own result order); the per-element numeric
+bodies moved to Rust as wire-format kernels.  See
+``packages/temper-drc-rs/src/drc_oracle.rs``'s module doc and the
+differential suite
+``tests/router_v6/test_constraints_drc_oracle_rust_differential.py``
+(verbatim pre-migration oracle, commit ``2e205228``) for the ported/not-ported
+triage and the bit-exactness notes.
+
+``register_track(s)``/``register_via(s)``/``register_pad(s)``/``clear``
+(pure ``PCBGeometry`` glue), ``add_clearance_credit`` (axis validation +
+dict insert), ``_resolve_owner`` (``pin_owner`` may be a callable),
+``get_valid_via_sites`` (grid loop + Python sort key) and the f-string
+``reason`` message formatting stay Python -- the last because
+``{actual:.3f}`` rendering is a Python library semantic the kernels do not
+replicate (R1a); the kernels return the structured violation and this module
+builds the message from the same code the oracle ran.
 """
 
 from __future__ import annotations
@@ -18,10 +45,6 @@ from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix
 from temper_placer.router_v6.constraints_geometry import (
     LineSegment,
     Point,
-    point_to_rotated_rect_distance,
-    point_to_segment_distance,
-    segment_to_rotated_rect_distance,
-    segment_to_segment_distance,
 )
 from temper_placer.router_v6.constraints_spatial_index import (
     Pad,
@@ -49,10 +72,17 @@ class Violation:
 
     @property
     def severity(self) -> float:
-        """How severe is this violation (0.0 = barely, 1.0+ = severe)."""
-        if self.clearance_required <= 0:
-            return 0.0
-        return 1.0 - (self.clearance_actual / self.clearance_required)
+        """How severe is this violation (0.0 = barely, 1.0+ = severe).
+
+        Wave 4: delegates the ``0.0 if required <= 0 else 1.0 -
+        (actual / required)`` conditional to ``temper_drc_rs``'s
+        ``drc_oracle_severity_py`` kernel.
+        """
+        import temper_drc_rs as _temper_drc_rs
+
+        return _temper_drc_rs.drc_oracle_severity_py(
+            self.clearance_actual, self.clearance_required
+        )
 
 
 # EXP-13: Internal layer indices for creepage reduction
@@ -91,6 +121,13 @@ class DRCOracle:
     component, the effective clearance is reduced to the credited value
     provided the segment between pad centers lies inside the slot's
     reclaimed band. Cross-component credit is rejected.
+
+    Wave 4: the numeric decision bodies delegate to ``temper_drc_rs``
+    (``drc_oracle.rs``); this class stays a stateful Python object (it is a
+    pickled ``BoardState`` field and its geometry index is the Python-visible
+    ``PCBGeometry``).  The spatial queries stay here -- the kernels receive
+    the pre-queried, index-ordered wire lists and short-circuit on the first
+    violation exactly as the oracle's loops did.
 
     Usage:
         oracle = DRCOracle(rules)
@@ -178,6 +215,15 @@ class DRCOracle:
             axis,
         )
 
+    def _credits_wire(self) -> list[tuple[str, str, str, float, float, float, float, float, str | None]]:
+        """Wire-format of ``clearance_credits`` in *insertion order* (the
+        oracle iterates ``dict.items()`` and the first matching credit
+        wins, so the order is part of the value)."""
+        return [
+            (cr, lv, hv, eff, hw, hl, smx, smy, axis)
+            for (cr, lv, hv), (eff, hw, hl, smx, smy, axis) in self.clearance_credits.items()
+        ]
+
     def _resolve_owner(self, pin_id: str) -> str | None:
         if callable(self.pin_owner):
             try:
@@ -213,6 +259,10 @@ class DRCOracle:
 
         Returns None otherwise — callers should fall back to the
         ClearanceMatrix baseline.
+
+        Wave 4: the owner resolution stays Python; the per-credit pin/set
+        match and the axis-gated AABB band test delegate to
+        ``temper_drc_rs.drc_oracle_effective_clearance_py``.
         """
         if not pad_a.id or not pad_b.id:
             return None
@@ -225,50 +275,18 @@ class DRCOracle:
         pin_b = pad_b.id.rsplit("-", 1)[-1]
         if not pin_a or not pin_b:
             return None
-        for (comp_ref, c_lv, c_hv), (
-            effective,
-            hw,
-            hl,
-            smx,
-            smy,
-            axis,
-        ) in self.clearance_credits.items():
-            if comp_ref != owner_a:
-                continue
-            if {pin_a, pin_b} != {c_lv, c_hv}:
-                continue
-            # @req(2026-06-23-007, R3): Spatial scope — both pad centers
-            # must lie inside the slot's reclaimed AABB. When the
-            # credit has a stored axis, the test is gated on that
-            # single orientation so the credit cannot leak into the
-            # perpendicular band. axis=None keeps the legacy
-            # "either orientation" check for older callers.
-            half_w_band = hw + 0.5
-            ax, ay = pad_a.center.x, pad_a.center.y
-            bx, by = pad_b.center.x, pad_b.center.y
-            inside_x_axis = (
-                smx - half_w_band <= ax <= smx + half_w_band
-                and smx - half_w_band <= bx <= smx + half_w_band
-                and smy - hl <= ay <= smy + hl
-                and smy - hl <= by <= smy + hl
-            )
-            inside_y_axis = (
-                smx - hl <= ax <= smx + hl
-                and smx - hl <= bx <= smx + hl
-                and smy - half_w_band <= ay <= smy + half_w_band
-                and smy - half_w_band <= by <= smy + half_w_band
-            )
-            if axis == "x":
-                if inside_x_axis:
-                    return effective
-                continue
-            if axis == "y":
-                if inside_y_axis:
-                    return effective
-                continue
-            if inside_x_axis or inside_y_axis:
-                return effective
-        return None
+        import temper_drc_rs as _temper_drc_rs
+
+        return _temper_drc_rs.drc_oracle_effective_clearance_py(
+            owner_a,
+            pin_a,
+            pad_a.center.x,
+            pad_a.center.y,
+            pin_b,
+            pad_b.center.x,
+            pad_b.center.y,
+            self._credits_wire(),
+        )
 
     def get_pad_credit(
         self,
@@ -279,6 +297,9 @@ class DRCOracle:
         Convenience hook for can_place_track_segment: when a track is being
         placed and a pad on a credited component is in range, return the
         reduced clearance (or None if the pad is outside the slot's band).
+
+        Wave 4: owner resolution stays Python; the credit lookup and band
+        test delegate to ``temper_drc_rs.drc_oracle_pad_credit_py``.
         """
         if not pad.id:
             return None
@@ -288,37 +309,11 @@ class DRCOracle:
         pin = pad.id.rsplit("-", 1)[-1]
         if not pin:
             return None
-        for (comp_ref, c_lv, c_hv), (
-            effective,
-            hw,
-            hl,
-            smx,
-            smy,
-            axis,
-        ) in self.clearance_credits.items():
-            if comp_ref != owner:
-                continue
-            if pin not in (c_lv, c_hv):
-                continue
-            half_w_band = hw + 0.5
-            px, py = pad.center.x, pad.center.y
-            inside_x_axis = (
-                smx - half_w_band <= px <= smx + half_w_band and smy - hl <= py <= smy + hl
-            )
-            inside_y_axis = (
-                smx - hl <= px <= smx + hl and smy - half_w_band <= py <= smy + half_w_band
-            )
-            if axis == "x":
-                if inside_x_axis:
-                    return effective
-                continue
-            if axis == "y":
-                if inside_y_axis:
-                    return effective
-                continue
-            if inside_x_axis or inside_y_axis:
-                return effective
-        return None
+        import temper_drc_rs as _temper_drc_rs
+
+        return _temper_drc_rs.drc_oracle_pad_credit_py(
+            owner, pin, pad.center.x, pad.center.y, self._credits_wire()
+        )
 
     def register_track(self, track: Track) -> str:
         """Add a track to the geometry index."""
@@ -373,6 +368,13 @@ class DRCOracle:
 
         Returns:
             (valid, reason) - True if valid, False with reason if not
+
+        Wave 4: the spatial queries stay here; the per-item neckdown
+        ``min``, effective-clearance arithmetic, distance, and strict-`<`
+        decision delegate to ``temper_drc_rs.drc_oracle_can_place_via_py``.
+        The kernel returns the first violation's ``(kind, id, actual,
+        effective)`` in index order; the message is built here from the
+        oracle's exact f-string.
         """
         p_center = Point(position[0], position[1])
         via_radius = diameter / 2
@@ -383,62 +385,78 @@ class DRCOracle:
         # Check against nearby tracks (single query, no layer filter -
         # vias are through-hole so clearance must hold on all layers)
         nearby_tracks = self.geometry.query_tracks_near(p_center, search_radius)
-        for track in nearby_tracks:
-            if track.net == net:
-                continue
-
-            required = self.rules.get_clearance(net, track.net, p_center.x, p_center.y)
-            if neckdown:
-                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
-            effective_clearance = required + via_radius + (track.width / 2)
-
-            actual = point_to_segment_distance(p_center, track.to_segment())
-            if actual < effective_clearance:
-                return (
-                    False,
-                    f"via-to-track clearance violation with {track.id}: "
-                    f"{actual:.3f}mm < {effective_clearance:.3f}mm required",
-                )
-
-        # Check against pads
         nearby_pads = self.geometry.query_pads_near(p_center, search_radius)
-        for pad in nearby_pads:
-            if pad.net == net:
-                continue
-            required = self.rules.get_clearance(net, pad.net, p_center.x, p_center.y)
-            if neckdown:
-                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
-
-            effective_clearance = required + via_radius + pad.mask_expansion
-            actual = point_to_rotated_rect_distance(p_center, pad.rot_rect)
-
-            if actual < effective_clearance:
-                return (
-                    False,
-                    f"via-to-pad clearance violation with {pad.id}: "
-                    f"{actual:.3f}mm < {effective_clearance:.3f}mm required",
-                )
-
-        # Check against other vias (via-to-via clearance)
         nearby_vias = self.geometry.query_vias_near(p_center, search_radius)
-        for via in nearby_vias:
-            if via.net == net:
-                continue
 
-            required = self.rules.get_clearance(net, via.net, p_center.x, p_center.y)
-            if neckdown:
-                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
-            effective_clearance = required + via_radius + (via.diameter / 2)
+        import temper_drc_rs as _temper_drc_rs
 
-            actual = p_center.distance_to(via.center)
-            if actual < effective_clearance:
-                return (
-                    False,
-                    f"via-to-via clearance violation with {via.id}: "
-                    f"{actual:.3f}mm < {effective_clearance:.3f}mm required",
+        violation = _temper_drc_rs.drc_oracle_can_place_via_py(
+            p_center.x,
+            p_center.y,
+            via_radius,
+            net,
+            neckdown,
+            [
+                (
+                    track.id,
+                    track.net,
+                    track.width,
+                    track.start.x,
+                    track.start.y,
+                    track.end.x,
+                    track.end.y,
+                    self.rules.get_clearance(net, track.net, p_center.x, p_center.y),
                 )
+                for track in nearby_tracks
+            ],
+            [
+                (
+                    pad.id,
+                    pad.net,
+                    pad.mask_expansion,
+                    pad.center.x,
+                    pad.center.y,
+                    pad.size[0],
+                    pad.size[1],
+                    pad.rotation,
+                    self.rules.get_clearance(net, pad.net, p_center.x, p_center.y),
+                )
+                for pad in nearby_pads
+            ],
+            [
+                (
+                    via.id,
+                    via.net,
+                    via.diameter,
+                    via.center.x,
+                    via.center.y,
+                    self.rules.get_clearance(net, via.net, p_center.x, p_center.y),
+                )
+                for via in nearby_vias
+            ],
+        )
 
-        return True, ""
+        if violation is None:
+            return True, ""
+
+        kind, item_id, actual, effective = violation
+        if kind == "track":
+            return (
+                False,
+                f"via-to-track clearance violation with {item_id}: "
+                f"{actual:.3f}mm < {effective:.3f}mm required",
+            )
+        if kind == "pad":
+            return (
+                False,
+                f"via-to-pad clearance violation with {item_id}: "
+                f"{actual:.3f}mm < {effective:.3f}mm required",
+            )
+        return (
+            False,
+            f"via-to-via clearance violation with {item_id}: "
+            f"{actual:.3f}mm < {effective:.3f}mm required",
+        )
 
     def can_place_track_segment(
         self,
@@ -465,6 +483,14 @@ class DRCOracle:
 
         Returns:
             (valid, reason) - True if valid, False with reason if not
+
+        Wave 4: the spatial queries stay here; the per-item decision
+        (neckdown ``min``, companion-net skip, R3 credit stack, EXP-13
+        internal-layer creepage factor, effective-clearance arithmetic,
+        distance, tolerances) delegates to
+        ``temper_drc_rs.drc_oracle_can_place_track_py``.  Each pad's credit
+        is pre-resolved via :meth:`get_pad_credit` (itself a Rust kernel);
+        the message is built here from the oracle's exact f-string.
         """
         p_start = Point(start[0], start[1])
         p_end = Point(end[0], end[1])
@@ -477,98 +503,80 @@ class DRCOracle:
         # For Temper, we need at least 3.0mm to be safe
         search_radius = (seg_length / 2 + 3.0) * 1.5
 
-        # Check against nearby tracks
+        # EXP-13: internal layers (In1.Cu, In2.Cu) get reduced creepage.
+        # The LayerIndex IntEnum construction stays Python.
+        apply_internal_creepage = (
+            self.enable_internal_layer_creepage and LayerIndex(layer) in INTERNAL_LAYERS
+        )
+
+        # Check against nearby geometry (layer filter stays in the queries)
         nearby_tracks = self.geometry.query_tracks_near(midpoint, search_radius, layer)
-        for track in nearby_tracks:
-            # Skip same-net tracks
-            if track.net == net:
-                continue
-            # Skip companion net tracks (for differential pair routing)
-            if companion_net and track.net == companion_net:
-                continue
-
-            required = self.rules.get_clearance(net, track.net, midpoint.x, midpoint.y)
-            if neckdown:
-                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
-            effective_clearance = required + (width / 2) + (track.width / 2)
-
-            actual = segment_to_segment_distance(segment, track.to_segment())
-            # Allow 1µm tolerance for floating point precision
-            if actual < effective_clearance - 0.001:
-                return (
-                    False,
-                    f"clearance violation with {track.id}: "
-                    f"{actual:.3f}mm < {effective_clearance:.3f}mm required",
-                )
-
-        # Check against nearby pads
         nearby_pads = self.geometry.query_pads_near(midpoint, search_radius, layer)
-        for pad in nearby_pads:
-            # Skip same-net pads
-            if pad.net == net:
-                continue
-            # Skip companion net pads (for differential pair routing)
-            if companion_net and pad.net == companion_net:
-                continue
-
-            required = self.rules.get_clearance(net, pad.net, midpoint.x, midpoint.y)
-            if neckdown:
-                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
-
-            # @req(2026-06-23-007, R3): Apply spatially-scoped clearance
-            # credit if the existing pad is on a credited component and
-            # lies inside the slot's reclaimed band. The credit stacks
-            # multiplicatively with the EXP-13 internal-layer factor (K5).
-            credit = self.get_pad_credit(pad)
-            if credit is not None and credit < required:
-                required = credit
-
-            # EXP-13: Apply internal layer creepage reduction for PTH pads
-            # When routing on internal layers (In1.Cu, In2.Cu) under a ground/power
-            # plane, the plane acts as a shield and creepage is effectively increased
-            # because arcing would need to travel through PCB substrate.
-            # This only applies to PTH pads (which appear on all layers).
-            if (
-                self.enable_internal_layer_creepage
-                and LayerIndex(layer) in INTERNAL_LAYERS
-                and pad.is_pth
-                and required > 0.5  # Only reduce creepage requirements, not basic clearance
-            ):
-                required = required * INTERNAL_LAYER_CREEPAGE_FACTOR
-
-            effective_clearance = required + (width / 2) + pad.mask_expansion
-            actual = segment_to_rotated_rect_distance(segment, pad.rot_rect)
-            if actual < effective_clearance:
-                return (
-                    False,
-                    f"clearance violation with {pad.id}: "
-                    f"{actual:.3f}mm < {effective_clearance:.3f}mm required",
-                )
-
-        # Check against nearby vias
         nearby_vias = self.geometry.query_vias_near(midpoint, search_radius)
-        for via in nearby_vias:
-            # Skip same-net vias
-            if via.net == net:
-                continue
-            # Skip companion net vias (for differential pair routing)
-            if companion_net and via.net == companion_net:
-                continue
 
-            required = self.rules.get_clearance(net, via.net, midpoint.x, midpoint.y)
-            if neckdown:
-                required = min(required, 0.08)  # Ultra-relaxed for plane stubs
-            effective_clearance = required + (width / 2) + (via.diameter / 2)
+        import temper_drc_rs as _temper_drc_rs
 
-            actual = point_to_segment_distance(via.center, segment)
-            if actual < effective_clearance:
-                return (
-                    False,
-                    f"clearance violation with {via.id}: "
-                    f"{actual:.3f}mm < {effective_clearance:.3f}mm required",
+        violation = _temper_drc_rs.drc_oracle_can_place_track_py(
+            p_start.x,
+            p_start.y,
+            p_end.x,
+            p_end.y,
+            net,
+            width,
+            neckdown,
+            companion_net,
+            apply_internal_creepage,
+            [
+                (
+                    track.id,
+                    track.net,
+                    track.width,
+                    track.start.x,
+                    track.start.y,
+                    track.end.x,
+                    track.end.y,
+                    self.rules.get_clearance(net, track.net, midpoint.x, midpoint.y),
                 )
+                for track in nearby_tracks
+            ],
+            [
+                (
+                    pad.id,
+                    pad.net,
+                    pad.mask_expansion,
+                    pad.is_pth,
+                    pad.center.x,
+                    pad.center.y,
+                    pad.size[0],
+                    pad.size[1],
+                    pad.rotation,
+                    self.get_pad_credit(pad),
+                    self.rules.get_clearance(net, pad.net, midpoint.x, midpoint.y),
+                )
+                for pad in nearby_pads
+            ],
+            [
+                (
+                    via.id,
+                    via.net,
+                    via.diameter,
+                    via.center.x,
+                    via.center.y,
+                    self.rules.get_clearance(net, via.net, midpoint.x, midpoint.y),
+                )
+                for via in nearby_vias
+            ],
+        )
 
-        return True, ""
+        if violation is None:
+            return True, ""
+
+        _kind, item_id, actual, effective = violation
+        return (
+            False,
+            f"clearance violation with {item_id}: "
+            f"{actual:.3f}mm < {effective:.3f}mm required",
+        )
 
     def get_valid_via_sites(
         self,
@@ -587,6 +595,11 @@ class DRCOracle:
 
         Returns:
             List of valid (x, y) positions, sorted by distance from target
+
+        Wave 4: stays Python -- a grid loop over :meth:`can_place_via`
+        (itself Rust-backed) plus a Python sort key
+        (``(p[0]-target[0]) ** 2 + ...``, libm ``pow``, a sorting tuple
+        only).
         """
         via_diameter = self.rules.get_via_diameter(net)
         valid_sites: list[tuple[float, float]] = []
@@ -620,13 +633,23 @@ class DRCOracle:
         valid_sites.sort(key=lambda p: (p[0] - target[0]) ** 2 + (p[1] - target[1]) ** 2)
         return valid_sites
 
-    def validate_all(self) -> list[Violation]:
-        """Validate all geometry and return list of violations.
+    def _enumerate_validate_pairs(self):
+        """Enumerate ``validate_all``'s four pairwise checks in the oracle's
+        iteration order (``geometry.tracks``/``vias``/``pads`` list order,
+        spatial-index query order), applying the id/net/diff-pair filters and
+        resolving each pair's ``required`` clearance, and marshal them into
+        the ``temper_drc_rs`` record pyclasses.
 
-        Uses spatial index for O(N log N) performance.
+        The enumeration is the spatial/glue half of ``validate_all`` -- the
+        per-pair arithmetic (effective clearance, distance, comparison,
+        violation emission) runs in ``drc_oracle_validate_all_py``.
         """
-        self.geometry.rebuild_index()
-        violations: list[Violation] = []
+        import temper_drc_rs as _temper_drc_rs
+
+        track_pairs = []
+        via_pairs = []
+        track_pad_pairs = []
+        via_pad_pairs = []
 
         # Check all track-to-track clearances
         for track_a in self.geometry.tracks:
@@ -647,23 +670,25 @@ class DRCOracle:
 
                 mid = seg_a.midpoint()
                 required = self.rules.get_clearance(track_a.net, track_b.net, mid.x, mid.y)
-                effective = required + (track_a.width / 2) + (track_b.width / 2)
-
-                actual = segment_to_segment_distance(seg_a, track_b.to_segment())
-                # Allow 10µm tolerance for floating point precision and manufacturing variation
-                if actual < effective - 0.010:
-                    violations.append(
-                        Violation(
-                            type="track_clearance",
-                            geometry_a_id=track_a.id,
-                            geometry_b_id=track_b.id,
-                            net_a=track_a.net,
-                            net_b=track_b.net,
-                            clearance_actual=actual,
-                            clearance_required=effective,
-                            location=mid,
-                        )
+                track_pairs.append(
+                    _temper_drc_rs.DrcOracleTrackPair(
+                        id_a=track_a.id,
+                        net_a=track_a.net,
+                        w_a=track_a.width,
+                        sx_a=seg_a.start.x,
+                        sy_a=seg_a.start.y,
+                        ex_a=seg_a.end.x,
+                        ey_a=seg_a.end.y,
+                        id_b=track_b.id,
+                        net_b=track_b.net,
+                        w_b=track_b.width,
+                        sx_b=track_b.start.x,
+                        sy_b=track_b.start.y,
+                        ex_b=track_b.end.x,
+                        ey_b=track_b.end.y,
+                        required=required,
                     )
+                )
 
         # Check all via-to-via clearances
         for via_a in self.geometry.vias:
@@ -679,22 +704,21 @@ class DRCOracle:
                 required = self.rules.get_clearance(
                     via_a.net, via_b.net, via_a.center.x, via_a.center.y
                 )
-                effective = required + (via_a.diameter / 2) + (via_b.diameter / 2)
-
-                actual = via_a.center.distance_to(via_b.center)
-                if actual < effective:
-                    violations.append(
-                        Violation(
-                            type="via_to_via",
-                            geometry_a_id=via_a.id,
-                            geometry_b_id=via_b.id,
-                            net_a=via_a.net,
-                            net_b=via_b.net,
-                            clearance_actual=actual,
-                            clearance_required=effective,
-                            location=via_a.center,
-                        )
+                via_pairs.append(
+                    _temper_drc_rs.DrcOracleViaPair(
+                        id_a=via_a.id,
+                        net_a=via_a.net,
+                        d_a=via_a.diameter,
+                        ax=via_a.center.x,
+                        ay=via_a.center.y,
+                        id_b=via_b.id,
+                        net_b=via_b.net,
+                        d_b=via_b.diameter,
+                        bx=via_b.center.x,
+                        by=via_b.center.y,
+                        required=required,
                     )
+                )
 
         # Check Track-to-Pad clearances
         for track in self.geometry.tracks:
@@ -712,22 +736,26 @@ class DRCOracle:
 
                 mid = seg.midpoint()
                 required = self.rules.get_clearance(track.net, pad.net, mid.x, mid.y)
-                effective = required + (track.width / 2) + pad.mask_expansion
-
-                actual = segment_to_rotated_rect_distance(seg, pad.rot_rect)
-                if actual < effective:
-                    violations.append(
-                        Violation(
-                            type="track_pad_clearance",
-                            geometry_a_id=track.id,
-                            geometry_b_id=pad.id,
-                            net_a=track.net,
-                            net_b=pad.net,
-                            clearance_actual=actual,
-                            clearance_required=effective,
-                            location=mid,
-                        )
+                track_pad_pairs.append(
+                    _temper_drc_rs.DrcOracleTrackPadPair(
+                        t_id=track.id,
+                        t_net=track.net,
+                        t_w=track.width,
+                        tsx=seg.start.x,
+                        tsy=seg.start.y,
+                        tex=seg.end.x,
+                        tey=seg.end.y,
+                        p_id=pad.id,
+                        p_net=pad.net,
+                        p_mask=pad.mask_expansion,
+                        p_cx=pad.center.x,
+                        p_cy=pad.center.y,
+                        p_w=pad.size[0],
+                        p_h=pad.size[1],
+                        p_rot=pad.rotation,
+                        required=required,
                     )
+                )
 
         # Check Via-to-Pad clearances
         for via in self.geometry.vias:
@@ -739,23 +767,58 @@ class DRCOracle:
                     continue
 
                 required = self.rules.get_clearance(via.net, pad.net, via.center.x, via.center.y)
-                effective = required + (via.diameter / 2) + pad.mask_expansion
-
-                actual = point_to_rotated_rect_distance(via.center, pad.rot_rect)
-                if actual < effective:
-                    violations.append(
-                        Violation(
-                            type="via_pad_clearance",
-                            geometry_a_id=via.id,
-                            geometry_b_id=pad.id,
-                            net_a=via.net,
-                            net_b=pad.net,
-                            clearance_actual=actual,
-                            clearance_required=effective,
-                            location=via.center,
-                        )
+                via_pad_pairs.append(
+                    _temper_drc_rs.DrcOracleViaPadPair(
+                        v_id=via.id,
+                        v_net=via.net,
+                        v_d=via.diameter,
+                        vx=via.center.x,
+                        vy=via.center.y,
+                        p_id=pad.id,
+                        p_net=pad.net,
+                        p_mask=pad.mask_expansion,
+                        p_cx=pad.center.x,
+                        p_cy=pad.center.y,
+                        p_w=pad.size[0],
+                        p_h=pad.size[1],
+                        p_rot=pad.rotation,
+                        required=required,
                     )
+                )
 
+        return track_pairs, via_pairs, track_pad_pairs, via_pad_pairs
+
+    def validate_all(self) -> list[Violation]:
+        """Validate all geometry and return list of violations.
+
+        Uses spatial index for O(N log N) performance.
+
+        Wave 4: the pairwise enumeration stays here (see
+        :meth:`_enumerate_validate_pairs`); the per-pair effective/actual
+        arithmetic, comparisons, and violation-record emission delegate to
+        ``temper_drc_rs.drc_oracle_validate_all_py``.  The kernel emits in
+        the oracle's order (track-track, via-via, track-pad, via-pad), and
+        the resulting records are wrapped back into ``Violation`` objects.
+        """
+        self.geometry.rebuild_index()
+        import temper_drc_rs as _temper_drc_rs
+
+        records = _temper_drc_rs.drc_oracle_validate_all_py(*self._enumerate_validate_pairs())
+
+        violations: list[Violation] = []
+        for vtype, id_a, id_b, net_a, net_b, actual, effective, lx, ly in records:
+            violations.append(
+                Violation(
+                    type=vtype,
+                    geometry_a_id=id_a,
+                    geometry_b_id=id_b,
+                    net_a=net_a,
+                    net_b=net_b,
+                    clearance_actual=actual,
+                    clearance_required=effective,
+                    location=Point(lx, ly),
+                )
+            )
         return violations
 
     def clear(self) -> None:
