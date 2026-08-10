@@ -732,6 +732,69 @@ mod tests {
         assert_eq!(x as f64, expected_x);
         assert_eq!(y as f64, expected_y);
     }
+
+    #[test]
+    fn congestion_fixed_components_untouched() {
+        let positions = vec![10.0, 20.0, 100.0, 200.0];
+        let fixed = vec![true, false];
+        let b = vec![(10.0, 20.0)];
+        let out = adjust_for_congestion(
+            &positions,
+            false,
+            &fixed,
+            &b,
+            5.0,
+            100.0,
+            &|dx, dy| -> Result<f64, ()> {
+                Ok((dx * dx + dy * dy).sqrt())
+            },
+            &|| Ok(1.0),
+            &cos_sin,
+        )
+        .unwrap();
+        assert_eq!(out[0], 10.0); // fixed component unchanged
+        assert_eq!(out[1], 20.0);
+    }
+
+    #[test]
+    fn congestion_outside_radius_is_noop() {
+        let positions = vec![50.0, 50.0];
+        let fixed = vec![false];
+        let b = vec![(0.0, 0.0)]; // bottleneck far away
+        let out = adjust_for_congestion(
+            &positions,
+            false,
+            &fixed,
+            &b,
+            5.0,
+            10.0, // influence radius only 10
+            &|dx, dy| -> Result<f64, ()> {
+                Ok((dx * dx + dy * dy).sqrt())
+            },
+            &|| Ok(1.0),
+            &cos_sin,
+        )
+        .unwrap();
+        // Distance from (50,50) to (0,0) is ~70.7 > 10, so no push.
+        assert_eq!(out, vec![50.0, 50.0]);
+    }
+
+    // ---------- place_in_zone_center zone clamp --------------------------
+
+    #[test]
+    fn zone_center_clamps_to_bounds() {
+        // A grid position outside the zone must be clamped.
+        let refs: Vec<String> = (0..10).map(|i| format!("C{i}")).collect();
+        let indices: Vec<Option<usize>> = refs.iter().enumerate().map(|(i, _)| Some(i)).collect();
+        let (pos, _, _) =
+            place_in_zone_center(10, &refs, &indices, 100.0, 100.0, (50.0, 50.0, 150.0, 150.0));
+        for i in 0..10 {
+            let x = pos[2 * i] as f64;
+            let y = pos[2 * i + 1] as f64;
+            assert!((50.0..=150.0).contains(&x), "x={x} outside zone for C{i}");
+            assert!((50.0..=150.0).contains(&y), "y={y} outside zone for C{i}");
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------

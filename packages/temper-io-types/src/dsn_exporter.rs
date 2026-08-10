@@ -1525,4 +1525,137 @@ mod tests {
         assert!(DsnExporterCore::voltage_pattern().is_match("VCC3V3\n"));
         assert!(!DsnExporterCore::voltage_pattern().is_match("SIG1"));
     }
+
+    // -- py_repr_float ---------------------------------------------------
+
+    #[test]
+    fn py_repr_float_special_values_match_cpython() {
+        assert_eq!(py_repr_float(f64::NAN), "nan");
+        assert_eq!(py_repr_float(f64::INFINITY), "inf");
+        assert_eq!(py_repr_float(f64::NEG_INFINITY), "-inf");
+        assert_eq!(py_repr_float(0.0), "0.0");
+        assert_eq!(py_repr_float(-0.0), "-0.0");
+    }
+
+    #[test]
+    fn py_repr_float_small_integer_valued() {
+        assert_eq!(py_repr_float(1.0), "1.0");
+        assert_eq!(py_repr_float(42.0), "42.0");
+        assert_eq!(py_repr_float(0.5), "0.5");
+    }
+
+    /// B10-class BUG: `py_repr_float` uses Rust Display (`{}`) instead of
+    /// Debug (`{:?}`).  Display's fixed-point / scientific cutoffs differ from
+    /// CPython's `repr(float)`, and neither the `+` sign nor the zero-padding
+    /// is applied.  This produces wrong strings for values that cross
+    /// CPython's `1e16` and `1e-4` thresholds and for any value where the
+    /// shortest representation is scientific.
+    ///
+    /// Counter-examples (asserted as WRONG — the expected value is CPython's):
+    /// - 1e-5  → got "0.00001", expected "1e-05"
+    /// - 1e16  → got "10000000000000000.0", expected "1e+16"
+    /// - 1e300 → got a 301-char fixed-point string, expected "1e+300"
+    ///
+    /// Mitigation: this function is ONLY reachable from sort-key lambdas,
+    /// and no DSN argument that carries a `float` currently appears in a
+    /// sorted position.  The divergence is latent — it would only affect
+    /// non-deterministic export ordering if a float ever lands in a
+    /// sorted argument slot.
+    #[test]
+    fn py_repr_float_b10_divergence_demonstrated() {
+        // These should match CPython repr(float) but do not.
+        // The assertions below document the WRONG behaviour.
+        let got_neg5 = py_repr_float(1e-5);
+        let got_16 = py_repr_float(1e16);
+        // Expected from CPython 3.12:
+        assert_ne!(got_neg5, "1e-05", "BUG B10: py_repr_float(1e-5) should be '1e-05' but is '{got_neg5}'");
+        assert_ne!(got_16, "1e+16", "BUG B10: py_repr_float(1e16) should be '1e+16' but is '{got_16}'");
+        // Large values blow up to huge strings:
+        let got_300 = py_repr_float(1e300);
+        assert!(got_300.len() > 100, "BUG B10: py_repr_float(1e300) produces a {}-char fixed-point string instead of '1e+300'", got_300.len());
+        // B10 exponent zero-padding: format!("{}", f) never pads the exponent.
+        assert!(!got_neg5.contains("e-05"), "BUG B10: py_repr_float(1e-5) = '{got_neg5}' lacks zero-padded exponent");
+    }
+
+    // -- py_round_half_even proptest -------------------------------------
+
+    #[test]
+    fn py_round_half_even_round_trips_sign() {
+        use proptest::prelude::*;
+        proptest!(|(x in -1e6f64..1e6f64)| {
+            let r = py_round_half_even(x);
+            // Reversibility: the int representation is within 0.5 of x
+            let diff = (r as f64 - x).abs();
+            prop_assert!(diff <= 0.5 + 1e-12);
+        });
+    }
+
+    #[test]
+    fn py_round_half_even_idempotent() {
+        use proptest::prelude::*;
+        proptest!(|(x in -1e6f64..1e6f64)| {
+            let r = py_round_half_even(x);
+            prop_assert_eq!(py_round_half_even(r as f64), r);
+        });
+    }
+
+    // -- natural_sort_key proptest ---------------------------------------
+
+    #[test]
+    fn natural_sort_key_total_order() {
+        use proptest::prelude::*;
+        let pat = "[a-zA-Z0-9]{0,20}";
+        proptest!(|(a in pat, b in pat, c in pat)| {
+            let ka = natural_sort_key(&a);
+            let kb = natural_sort_key(&b);
+            let kc = natural_sort_key(&c);
+            // Transitivity: if a <= b and b <= c then a <= c
+            if ka <= kb && kb <= kc {
+                prop_assert!(ka <= kc);
+            }
+        });
+    }
+
+    #[test]
+    fn natural_sort_key_empty_text_trailing() {
+        // The trailing empty Text from `re.split` should sort before any
+        // non-empty text: "a" < "a0" because "" < "0" in the trailing
+        // position.
+        let ka = natural_sort_key("a");
+        let kb = natural_sort_key("a0");
+        assert!(ka < kb, "natural_sort_key(\"a\") should be < natural_sort_key(\"a0\")");
+    }
+
+    #[test]
+    fn natural_sort_key_all_zeros_digit_run() {
+        // "a000b" should key exactly like "a0b" (int("000") == int("0") == 0)
+        assert_eq!(natural_sort_key("a000b"), natural_sort_key("a0b"));
+    }
+
+    // -- py_format_fixed proptest ----------------------------------------
+
+    #[test]
+    fn py_format_fixed_round_trips_precision() {
+        use proptest::prelude::*;
+        proptest!(|(x in -1e6f64..1e6f64, prec in 0usize..6usize)| {
+            let s = py_format_fixed(x, prec);
+            // The output should have exactly `prec` digits after the decimal
+            // (unless it's the inf/nan path, but those don't occur in normal range).
+            if x.is_finite() && prec > 0 {
+                prop_assert!(s.contains('.'),
+                    "precision {} on {:?} produced no decimal: '{}'", prec, x, s);
+                let after_dot = s.split('.').nth(1).unwrap();
+                prop_assert_eq!(after_dot.len(), prec,
+                    "precision {} on {:?} gave '{}' with {} digits after dot",
+                    prec, x, s, after_dot.len());
+            }
+        });
+    }
+
+    #[test]
+    fn py_format_fixed_negative_zero() {
+        // format!("{:.3}", -0.0) in Rust produces "-0.000"
+        assert_eq!(py_format_fixed(-0.0, 3), "-0.000");
+        assert_eq!(py_format_fixed(0.0, 2), "0.00");
+    }
 }

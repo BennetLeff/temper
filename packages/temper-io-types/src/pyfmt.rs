@@ -104,3 +104,70 @@ mod tests {
         assert_eq!(py_float_fmt_4(f64::INFINITY), "inf");
     }
 }
+
+// ---------------------------------------------------------------------------
+// Property-based tests (proptest)
+// ---------------------------------------------------------------------------
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn normal() -> impl Strategy<Value = f64> {
+        -1e6f64..1e6f64
+    }
+
+    #[test]
+    fn py_float_fmt_0_always_integer_form() {
+        proptest!(|(x in normal())| {
+            let s = py_float_fmt_0(x);
+            // Should never have a decimal point (precision 0).
+            prop_assert!(!s.contains('.'), "py_float_fmt_0({x:?}) = '{s}' has decimal");
+        });
+    }
+
+    #[test]
+    fn py_float_fmt_n_precision_exact() {
+        proptest!(|(x in normal())| {
+            for (prec, f) in [
+                (1usize, py_float_fmt_1 as fn(f64) -> String),
+                (2, py_float_fmt_2),
+                (3, py_float_fmt_3),
+                (4, py_float_fmt_4),
+            ] {
+                let s = f(x);
+                if s.contains('.') {
+                    let after = s.split('.').nth(1).unwrap();
+                    prop_assert_eq!(after.len(), prec,
+                        "py_float_fmt_{}({:?}) = '{}' has {} digits after dot",
+                        prec, x, s, after.len());
+                }
+            }
+        });
+    }
+
+    #[test]
+    fn py_float_fmt_special_values_are_lowercase() {
+        for v in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            for f in [
+                py_float_fmt_0 as fn(f64) -> String,
+                py_float_fmt_1,
+                py_float_fmt_2,
+                py_float_fmt_3,
+                py_float_fmt_4,
+            ] {
+                let s = f(v);
+                assert!(!s.contains(|c: char| c.is_uppercase()),
+                    "py_float_fmt_n({v:?}) = '{s}' has uppercase");
+            }
+        }
+    }
+
+    #[test]
+    fn py_float_fmt_negative_zero() {
+        assert_eq!(py_float_fmt_1(-0.0), "-0.0");
+        assert_eq!(py_float_fmt_2(-0.0), "-0.00");
+        assert_eq!(py_float_fmt_0(-0.0), "-0");
+    }
+}
