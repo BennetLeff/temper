@@ -3,6 +3,8 @@ pub mod desugar_tier0;
 pub mod desugar_tier1;
 pub mod ir_tier0;
 pub mod ir_tier1;
+#[cfg(feature = "python")]
+pub mod pcl_contracts;
 pub mod provenance;
 #[cfg(feature = "python")]
 pub mod pyo3_bridge;
@@ -185,5 +187,6 @@ fn temper_constraint_compiler(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(compile_pcl_constraints, m)?)?;
     m.add_class::<PyCompiler>()?;
     crate::constraints::py::register(m)?;
+    crate::pcl_contracts::register(m)?;
     Ok(())
 }

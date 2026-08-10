@@ -35,13 +35,43 @@ Example usage:
     >>>
     >>> constraint.involves_component("Q1")
     True
+
+The eight constraint classes and ``CompilationContext`` are pyo3 contract
+objects implemented in the ``temper-constraint-compiler`` crate
+(``src/pcl_contracts.rs``) — the Wave 4 Phase 2/6 "contracts-as-pyo3-pyclasses"
+pivot. Construction validation, id generation, ``involves_component``,
+``to_dict``, ``escalate`` and the dataclass-style ``repr``/``==``/``hash``
+surface run in Rust; this module is the delegation shim that keeps every
+existing import path working.
+
+The value enums (``ConstraintTier``, ``ConstraintType``, ``DistanceMetric``,
+``Axis``, ``BoardSide``, ``EdgeType``, ``CompilationTarget``, ``SemanticTag``)
+stay Python ``enum.Enum``: production does ``for t in ConstraintType`` and
+``ConstraintType(value)``, which a ``#[pyclass]`` enum cannot provide. The Rust
+objects hold the LIVE singletons and hand them back through the getters.
+
+``BaseConstraint`` stays Python. It is the ABC the tagged-constraint classes
+subclass, and its ``backends`` registry is populated at import time by
+``sat_bridge.py`` / ``drc_bridge.py`` and dispatched by ``parser.py`` — the
+Phase-1 ortools-encoder KEEP slice. The migrated pyclasses are registered as
+*virtual* subclasses so ``isinstance(c, BaseConstraint)`` keeps holding.
+
+Verification: bit-identical parity against the pinned pre-migration
+implementation is asserted by
+``tests/pcl/test_constraints_rust_differential.py`` (the oracle is pinned
+verbatim as deterministic dataclasses in that file); the structural argument
+lives in ``packages/temper-constraint-compiler/VERIFICATION.md``.
 """
+
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING
+
+import temper_constraint_compiler as _rust
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
@@ -188,23 +218,6 @@ class ConstraintType(Enum):
         return self._value_[2]
 
 
-@dataclass
-class CompilationContext:
-    """Context passed to backend compilation functions.
-
-    Each backend callable receives (constraint, context) and returns
-    backend-specific output (e.g., LossFunction, list[Constraint],
-    list[DRCAssertion]).
-    """
-
-    netlist: "Netlist"
-    board: "Board | None" = None
-    skeletons: "dict[str, ChannelSkeleton] | None" = None
-    channel_widths: "dict[str, ChannelWidths] | None" = None
-    design_rules: "DesignRules | None" = None
-    extra: dict = field(default_factory=dict)
-
-
 class DistanceMetric(Enum):
     """How to measure distance between components."""
 
@@ -311,562 +324,31 @@ class BaseConstraint(ABC):
 BaseConstraint.backends: dict[str, Callable] = {}  # type: ignore[attr-defined, misc]
 
 
-class AdjacentConstraint(BaseConstraint):
-    """Constraint requiring two components to be close together.
-
-    Used for:
-    - Minimizing critical current loop areas
-    - Reducing parasitic inductance in high-frequency paths
-    - Thermal coupling
-    - Short trace lengths
-
-    Attributes:
-        a: First component reference designator
-        b: Second component reference designator
-        max_distance_mm: Maximum allowed distance
-        tier: Priority tier for constraint
-        because: Mandatory rationale
-        metric: How to measure distance (default: edge-to-edge)
-        pin_a: Optional specific pin on component a
-        pin_b: Optional specific pin on component b
-        id: Optional unique identifier
-
-    Example:
-        >>> AdjacentConstraint(
-        ...     a="Q1", b="Q2",
-        ...     max_distance_mm=10.0,
-        ...     tier=ConstraintTier.HARD,
-        ...     because="Minimize commutation loop for half-bridge"
-        ... )
-    """
-
-    def __init__(
-        self,
-        a: str,
-        b: str,
-        max_distance_mm: float,
-        tier: ConstraintTier,
-        because: str,
-        metric: DistanceMetric = DistanceMetric.EDGE_TO_EDGE,
-        pin_a: str | None = None,
-        pin_b: str | None = None,
-        id: str = "",
-    ):
-        self.a = a
-        self.b = b
-        self.max_distance_mm = max_distance_mm
-        self.metric = metric
-        self.pin_a = pin_a
-        self.pin_b = pin_b
-
-        super().__init__(
-            constraint_type=ConstraintType.ADJACENT,
-            tier=tier,
-            because=because,
-            id=id,
-        )
-
-    def _generate_id(self) -> str:
-        """Generate ID like 'adj_Q1_Q2'."""
-        return f"adj_{self.a}_{self.b}"
-
-    def involves_component(self, component: str) -> bool:
-        """Check if constraint involves the component."""
-        return component == self.a or component == self.b
-
-    def to_dict(self) -> dict:
-        """Convert to dictionary."""
-        d = {
-            "type": self.constraint_type.value,
-            "a": self.a,
-            "b": self.b,
-            "max_distance_mm": self.max_distance_mm,
-            "metric": self.metric.value,
-            "tier": self.tier.value,
-            "because": self.because,
-        }
-        if self.pin_a:
-            d["pin_a"] = self.pin_a
-        if self.pin_b:
-            d["pin_b"] = self.pin_b
-        if self.id:
-            d["id"] = self.id
-        return d
-
-
-class SeparatedConstraint(BaseConstraint):
-    """Constraint requiring two components to be far apart.
-
-    Used for:
-    - Safety isolation (HV/LV separation)
-    - Thermal isolation (keep hot/cold apart)
-    - EMI reduction (separate noisy/sensitive)
-    - Crosstalk prevention
-
-    Attributes:
-        a: First component or zone reference
-        b: Second component or zone reference
-        min_distance_mm: Minimum required distance
-        tier: Priority tier
-        because: Mandatory rationale
-        metric: How to measure distance (default: edge-to-edge)
-        id: Optional unique identifier
-
-    Example:
-        >>> SeparatedConstraint(
-        ...     a="HV_ZONE", b="MCU_ZONE",
-        ...     min_distance_mm=10.0,
-        ...     tier=ConstraintTier.HARD,
-        ...     because="IEC 60335-1 reinforced isolation requirement"
-        ... )
-    """
-
-    def __init__(
-        self,
-        a: str,
-        b: str,
-        min_distance_mm: float,
-        tier: ConstraintTier,
-        because: str,
-        metric: DistanceMetric = DistanceMetric.EDGE_TO_EDGE,
-        id: str = "",
-    ):
-        self.a = a
-        self.b = b
-        self.min_distance_mm = min_distance_mm
-        self.metric = metric
-
-        super().__init__(
-            constraint_type=ConstraintType.SEPARATED,
-            tier=tier,
-            because=because,
-            id=id,
-        )
-
-    def _generate_id(self) -> str:
-        """Generate ID like 'sep_HV_LV'."""
-        return f"sep_{self.a}_{self.b}"
-
-    def involves_component(self, component: str) -> bool:
-        """Check if constraint involves the component."""
-        return component == self.a or component == self.b
-
-    def to_dict(self) -> dict:
-        """Convert to dictionary."""
-        return {
-            "type": self.constraint_type.value,
-            "a": self.a,
-            "b": self.b,
-            "min_distance_mm": self.min_distance_mm,
-            "metric": self.metric.value,
-            "tier": self.tier.value,
-            "because": self.because,
-            "id": self.id,
-        }
-
-
-class EnclosingConstraint(BaseConstraint):
-    """Constraint requiring components to be inside a zone.
-
-    Used for:
-    - Functional grouping (all gate drive components in gate zone)
-    - Safety zones (all HV components in HV zone)
-    - Thermal zones (all heat generators in thermal zone)
-    - Manufacturing constraints (all SMD in SMD zone)
-
-    Attributes:
-        outer: Zone reference (e.g., "HV_ZONE")
-        inner: List of component references that must be inside
-        tier: Priority tier
-        because: Mandatory rationale
-        margin_mm: Optional margin from zone boundary
-        id: Optional unique identifier
-
-    Example:
-        >>> EnclosingConstraint(
-        ...     outer="HV_ZONE",
-        ...     inner=["Q1", "Q2", "D1", "C_DC"],
-        ...     tier=ConstraintTier.HARD,
-        ...     because="All high voltage components must stay in HV safety zone"
-        ... )
-    """
-
-    def __init__(
-        self,
-        outer: str,
-        inner: list[str],
-        tier: ConstraintTier,
-        because: str,
-        margin_mm: float = 0.0,
-        id: str = "",
-    ):
-        self.outer = outer
-        self.inner = inner
-        self.margin_mm = margin_mm
-
-        super().__init__(
-            constraint_type=ConstraintType.ENCLOSING,
-            tier=tier,
-            because=because,
-            id=id,
-        )
-
-    def _generate_id(self) -> str:
-        """Generate ID like 'enc_HV_ZONE'."""
-        return f"enc_{self.outer}"
-
-    def involves_component(self, component: str) -> bool:
-        """Check if constraint involves the component."""
-        return component == self.outer or component in self.inner
-
-    def to_dict(self) -> dict:
-        """Convert to dictionary."""
-        return {
-            "type": self.constraint_type.value,
-            "outer": self.outer,
-            "inner": self.inner,
-            "margin_mm": self.margin_mm,
-            "tier": self.tier.value,
-            "because": self.because,
-            "id": self.id,
-        }
-
-
-class KeepoutConstraint(BaseConstraint):
-    """Constraint keeping components out of a keepout zone.
-
-    Used for:
-    - Safety isolation (no components in high-voltage zone)
-    - Thermal isolation (no sensitive parts near hot components)
-    - Mechanical clearance (no components near mounting holes)
-    - EMI management (no components in noisy zones)
-
-    Attributes:
-        zone_name: Keepout zone name (must have zone_type="keepout").
-        tier: Priority tier.
-        because: Mandatory rationale.
-        margin_mm: Optional additional margin beyond zone boundary.
-
-    Example:
-        >>> KeepoutConstraint(
-        ...     zone_name="HV_KEEPOUT",
-        ...     tier=ConstraintTier.HARD,
-        ...     because="No components allowed in HV keepout for safety isolation"
-        ... )
-    """
-
-    def __init__(
-        self,
-        zone_name: str,
-        tier: ConstraintTier,
-        because: str,
-        margin_mm: float = 0.0,
-        id: str = "",
-    ):
-        self.zone_name = zone_name
-        self.margin_mm = margin_mm
-
-        super().__init__(
-            constraint_type=ConstraintType.KEEPOUT,
-            tier=tier,
-            because=because,
-            id=id,
-        )
-
-    def _generate_id(self) -> str:
-        return f"keepout_{self.zone_name}"
-
-    def involves_component(self, component: str) -> bool:
-        return component == self.zone_name
-
-    def to_dict(self) -> dict:
-        return {
-            "type": self.constraint_type.value,
-            "zone_name": self.zone_name,
-            "margin_mm": self.margin_mm,
-            "tier": self.tier.value,
-            "because": self.because,
-            "id": self.id,
-        }
-
-
-class AlignedConstraint(BaseConstraint):
-    """Constraint requiring components to align on an axis.
-
-    Used for:
-    - Visual consistency
-    - Routing simplification (aligned pins)
-    - Signal flow (align along data path)
-    - Manufacturing (pick-and-place efficiency)
-
-    Attributes:
-        components: List of component references to align
-        axis: Alignment axis (X, Y, MAJOR, MINOR)
-        tier: Priority tier
-        because: Mandatory rationale
-        tolerance_mm: Allowed deviation from perfect alignment
-        id: Optional unique identifier
-
-    Example:
-        >>> AlignedConstraint(
-        ...     components=["C1", "C2", "C3", "C4"],
-        ...     axis=Axis.X,
-        ...     tier=ConstraintTier.SOFT,
-        ...     because="Align decoupling capacitors for visual consistency"
-        ... )
-    """
-
-    def __init__(
-        self,
-        components: list[str],
-        axis: Axis,
-        tier: ConstraintTier,
-        because: str,
-        tolerance_mm: float = 0.5,
-        id: str = "",
-    ):
-        if len(components) < 2:
-            raise ValueError("AlignedConstraint requires at least 2 components")
-
-        self.components = components
-        self.axis = axis
-        self.tolerance_mm = tolerance_mm
-
-        super().__init__(
-            constraint_type=ConstraintType.ALIGNED,
-            tier=tier,
-            because=because,
-            id=id,
-        )
-
-    def _generate_id(self) -> str:
-        """Generate ID like 'align_x_C1_C2_C3'."""
-        comp_str = "_".join(self.components[:3])  # First 3 components
-        return f"align_{self.axis.value}_{comp_str}"
-
-    def involves_component(self, component: str) -> bool:
-        """Check if constraint involves the component."""
-        return component in self.components
-
-    def to_dict(self) -> dict:
-        """Convert to dictionary."""
-        return {
-            "type": self.constraint_type.value,
-            "components": self.components,
-            "axis": self.axis.value,
-            "tolerance_mm": self.tolerance_mm,
-            "tier": self.tier.value,
-            "because": self.because,
-            "id": self.id,
-        }
-
-
-class OnSideConstraint(BaseConstraint):
-    """Constraint requiring components on a board edge.
-
-    Used for:
-    - Connector placement (must be on edge for access)
-    - Thermal management (heat sinks on edge)
-    - Mechanical mounting (edge-mounted components)
-    - User interface (buttons, LEDs on accessible edge)
-
-    Attributes:
-        components: List of component references
-        side: Board edge (TOP, BOTTOM, LEFT, RIGHT)
-        edge: How component relates to edge (FLUSH, NEAR, OVERHANG)
-        tier: Priority tier
-        because: Mandatory rationale
-        max_distance_mm: For NEAR edge type, max distance from edge
-        id: Optional unique identifier
-
-    Example:
-        >>> OnSideConstraint(
-        ...     components=["J1", "J2"],
-        ...     side=BoardSide.LEFT,
-        ...     edge=EdgeType.FLUSH,
-        ...     tier=ConstraintTier.HARD,
-        ...     because="Connectors must be on left edge for external access"
-        ... )
-    """
-
-    def __init__(
-        self,
-        components: list[str],
-        side: BoardSide,
-        edge: EdgeType,
-        tier: ConstraintTier,
-        because: str,
-        max_distance_mm: float = 5.0,
-        id: str = "",
-    ):
-        self.components = components
-        self.side = side
-        self.edge = edge
-        self.max_distance_mm = max_distance_mm
-
-        super().__init__(
-            constraint_type=ConstraintType.ON_SIDE,
-            tier=tier,
-            because=because,
-            id=id,
-        )
-
-    def _generate_id(self) -> str:
-        """Generate ID like 'side_left_J1_J2'."""
-        comp_str = "_".join(self.components[:3])
-        return f"side_{self.side.value}_{comp_str}"
-
-    def involves_component(self, component: str) -> bool:
-        """Check if constraint involves the component."""
-        return component in self.components
-
-    def to_dict(self) -> dict:
-        """Convert to dictionary."""
-        return {
-            "type": self.constraint_type.value,
-            "components": self.components,
-            "side": self.side.value,
-            "edge": self.edge.value,
-            "max_distance_mm": self.max_distance_mm,
-            "tier": self.tier.value,
-            "because": self.because,
-            "id": self.id,
-        }
-
-
-class AnchoredConstraint(BaseConstraint):
-    """Constraint fixing a component to a specific position or region.
-
-    Used for:
-    - Mechanical constraints (mounting holes, connectors)
-    - Thermal constraints (heat sink must be at specific location)
-    - User interface (display, buttons at specific positions)
-    - Critical components that can't move
-
-    Attributes:
-        component: Component reference
-        tier: Priority tier
-        because: Mandatory rationale
-        region: Rectangular region (x_min, y_min, x_max, y_max) in mm
-        position: Optional exact position (x, y) in mm
-        id: Optional unique identifier
-
-    Example:
-        >>> AnchoredConstraint(
-        ...     component="J_AC_IN",
-        ...     region=(0, 0, 10, 10),
-        ...     tier=ConstraintTier.HARD,
-        ...     because="AC inlet connector mechanically fixed by enclosure"
-        ... )
-    """
-
-    def __init__(
-        self,
-        component: str,
-        tier: ConstraintTier,
-        because: str,
-        region: tuple[float, float, float, float] | None = None,
-        position: tuple[float, float] | None = None,
-        id: str = "",
-    ):
-        if region is None and position is None:
-            raise ValueError("AnchoredConstraint requires either region or position")
-        if region is not None and position is not None:
-            raise ValueError("AnchoredConstraint cannot have both region and position")
-
-        self.component = component
-        self.region = region
-        self.position = position
-
-        super().__init__(
-            constraint_type=ConstraintType.ANCHORED,
-            tier=tier,
-            because=because,
-            id=id,
-        )
-
-    def _generate_id(self) -> str:
-        """Generate ID like 'anchor_J1'."""
-        return f"anchor_{self.component}"
-
-    def involves_component(self, component: str) -> bool:
-        """Check if constraint involves the component."""
-        return component == self.component
-
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary."""
-        d: dict[str, object] = {
-            "type": self.constraint_type.value,
-            "component": self.component,
-            "tier": self.tier.value,
-            "because": self.because,
-            "id": self.id,
-        }
-        if self.region:
-            d["region"] = self.region
-        if self.position:
-            d["position"] = self.position
-        return d
-
-
-class LoopAreaConstraint(BaseConstraint):
-    """Constraint limiting the area of a current loop.
-
-    This is the primary electrical constraint for power electronics. Minimizing
-    loop areas reduces:
-    - Parasitic inductance (reduces voltage overshoot)
-    - EMI emissions (smaller loop antenna)
-    - Crosstalk (smaller magnetic field)
-
-    Attributes:
-        loop_name: Reference to loop defined in loop model
-        max_area_mm2: Maximum allowed loop area in mm²
-        tier: Priority tier
-        because: Mandatory rationale
-        id: Optional unique identifier
-
-    Example:
-        >>> LoopAreaConstraint(
-        ...     loop_name="commutation",
-        ...     max_area_mm2=500.0,
-        ...     tier=ConstraintTier.STRONG,
-        ...     because="Minimize commutation loop to reduce voltage overshoot"
-        ... )
-    """
-
-    def __init__(
-        self,
-        loop_name: str,
-        max_area_mm2: float,
-        tier: ConstraintTier,
-        because: str,
-        id: str = "",
-    ):
-        self.loop_name = loop_name
-        self.max_area_mm2 = max_area_mm2
-
-        super().__init__(
-            constraint_type=ConstraintType.LOOP_AREA,
-            tier=tier,
-            because=because,
-            id=id,
-        )
-
-    def _generate_id(self) -> str:
-        """Generate ID like 'loop_commutation'."""
-        return f"loop_{self.loop_name}"
-
-    def involves_component(self, _component: str) -> bool:
-        """Loop constraints don't directly involve components."""
-        return False
-
-    def to_dict(self) -> dict:
-        """Convert to dictionary."""
-        return {
-            "type": self.constraint_type.value,
-            "loop_name": self.loop_name,
-            "max_area_mm2": self.max_area_mm2,
-            "tier": self.tier.value,
-            "because": self.because,
-            "id": self.id,
-        }
+# The constraint objects and CompilationContext are pyo3 contract classes in
+# temper-constraint-compiler (src/pcl_contracts.rs). Re-exported under their
+# original names so every existing `from temper_placer.pcl.constraints import
+# AdjacentConstraint` keeps working.
+AdjacentConstraint = _rust.AdjacentConstraint
+SeparatedConstraint = _rust.SeparatedConstraint
+EnclosingConstraint = _rust.EnclosingConstraint
+KeepoutConstraint = _rust.KeepoutConstraint
+AlignedConstraint = _rust.AlignedConstraint
+OnSideConstraint = _rust.OnSideConstraint
+AnchoredConstraint = _rust.AnchoredConstraint
+LoopAreaConstraint = _rust.LoopAreaConstraint
+CompilationContext = _rust.CompilationContext
+
+# The migrated pyclasses are not *real* subclasses of the Python
+# BaseConstraint (pyo3 classes cannot inherit an arbitrary Python base), but
+# `isinstance(c, BaseConstraint)` is load-bearing (test_feedback asserts it
+# on every feedback delta; the tagged-constraint classes subclass
+# BaseConstraint directly). Register them as virtual subclasses so the ABC's
+# isinstance/issubclass checks keep holding for the migrated objects.
+BaseConstraint.register(AdjacentConstraint)  # type: ignore[arg-type]
+BaseConstraint.register(SeparatedConstraint)  # type: ignore[arg-type]
+BaseConstraint.register(EnclosingConstraint)  # type: ignore[arg-type]
+BaseConstraint.register(KeepoutConstraint)  # type: ignore[arg-type]
+BaseConstraint.register(AlignedConstraint)  # type: ignore[arg-type]
+BaseConstraint.register(OnSideConstraint)  # type: ignore[arg-type]
+BaseConstraint.register(AnchoredConstraint)  # type: ignore[arg-type]
+BaseConstraint.register(LoopAreaConstraint)  # type: ignore[arg-type]

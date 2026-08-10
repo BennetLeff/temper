@@ -1120,6 +1120,27 @@ def test_default_field_values_match():
     assert adj.constraint_type is live.ConstraintType.ADJACENT
 
 
+@pytest.mark.parametrize(
+    "cls_name,kwargs",
+    [
+        ("EnclosingConstraint", dict(outer="HV_ZONE", inner=["Q1"], tier=live.ConstraintTier.HARD,
+                                     because="Default margin test for enclosing")),
+        ("KeepoutConstraint", dict(zone_name="HV_KEEPOUT", tier=live.ConstraintTier.HARD,
+                                   because="Default margin test for keepout")),
+        ("AlignedConstraint", dict(components=["C1", "C2"], axis=live.Axis.X,
+                                   tier=live.ConstraintTier.SOFT,
+                                   because="Default tolerance test")),
+        ("OnSideConstraint", dict(components=["J1", "J2"], side=live.BoardSide.LEFT,
+                                  edge=live.EdgeType.FLUSH, tier=live.ConstraintTier.HARD,
+                                  because="Default max distance test")),
+    ],
+)
+def test_constructor_float_defaults_match_the_dataclass(cls_name, kwargs):
+    """margin_mm=0.0 / tolerance_mm=0.5 / max_distance_mm=5.0 defaults."""
+    lv, ov = _build_pair(cls_name, kwargs)
+    assert repr(lv) == repr(ov), f"{cls_name} defaults diverged"
+
+
 def test_type_module_is_temper_placer_pcl_constraints():
     """pyo3 pyclasses declare the original module so error messages / type()
     identity stay put."""
@@ -1196,24 +1217,28 @@ def test_because_exactly_ten_chars_is_accepted():
 def test_invalid_targets_raise_the_same_valueerror():
     """``targets`` is part of the BaseConstraint data surface (the dataclass
     field); the migrated classes accept it at construction and validate it
-    exactly like the oracle dataclass."""
-    for bad in ("jax", "gpu", "SAT", "nonsense"):
-        got = call_signature(
-            live.AdjacentConstraint,
-            a="Q1", b="Q2", max_distance_mm=10.0, tier=live.ConstraintTier.HARD,
-            because="Invalid target test", targets=[bad],
-        )
-        want = call_signature(
-            AdjacentConstraint,
-            a="Q1", b="Q2", max_distance_mm=10.0, tier=ConstraintTier.HARD,
-            because="Invalid target test", targets=[bad],
-        )
-        assert got == want, f"targets={bad!r}"
-        assert got[0] == "raise" and got[2] == "ValueError"
+    exactly like the pre-migration ``__post_init__`` loop.
+
+    The oracle dataclass keeps the pre-migration concrete ``__init__``, which
+    never accepted a ``targets`` kwarg, so there is no oracle path to exercise
+    the validation — this pins the exact message literal instead (the
+    ``sorted(valid_targets)`` is a constant string sort). See VERIFICATION.md
+    for the widening record."""
+    got = call_signature(
+        live.AdjacentConstraint,
+        a="Q1", b="Q2", max_distance_mm=10.0, tier=live.ConstraintTier.HARD,
+        because="Invalid target test", targets=["gpu"],
+    )
+    assert got == (
+        "raise",
+        "builtins",
+        "ValueError",
+        "Invalid compilation target 'gpu'. Must be one of ['cp_sat', 'drc', 'jax', 'sat']",
+    )
 
 
-def test_valid_targets_are_accepted():
-    for targets in (["drc"], ["sat", "drc"], ["cp_sat"]):
+def test_all_valid_targets_are_accepted():
+    for targets in (["jax"], ["drc"], ["sat", "drc"], ["cp_sat"]):
         c = live.AdjacentConstraint(
             a="Q1", b="Q2", max_distance_mm=1.0, tier=live.ConstraintTier.HARD,
             because="Valid targets test", targets=targets,
