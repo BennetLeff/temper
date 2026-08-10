@@ -1,12 +1,17 @@
 """ConfigAttachStage — Attaches the parsed PlacementConstraints config to BoardState.
 
-Some downstream stages (HvLvPartitionStage in particular) read their own
-configuration block from `state.config`. The orchestrator keeps the raw config
-on the pipeline; this stage is a thin pass-through that copies it onto the
-state so the rest of the pipeline can read it as if it were always there.
+The stage's orchestration is implemented in Rust
+(``temper-orchestration``'s ``ConfigAttachStage``, Phase D batch D1 of the
+Rust Orchestration Engine plan 2026-08-09-001); this module keeps the
+public API (the ``Stage`` subclass, its constructor and ``name``) and
+delegates ``run`` across the FFI once per stage call. The differential
+oracle for the pre-migration implementation is pinned VERBATIM in
+``tests/deterministic/_config_attach_py_oracle.py``.
 """
 
 from __future__ import annotations
+
+import temper_orchestration as _to
 
 from ..state import BoardState
 from .base import Stage
@@ -29,8 +34,4 @@ class ConfigAttachStage(Stage):
         return "config_attach"
 
     def run(self, state: BoardState) -> BoardState:
-        if self._config is not None and not hasattr(state, "with_config"):
-            return state
-        if self._config is not None and getattr(state, "config", None) is None:
-            return state.with_config(self._config)
-        return state
+        return _to.run_config_attach(state, self._config)
