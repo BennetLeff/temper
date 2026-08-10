@@ -17,6 +17,12 @@ wire-format field list that oracle documents: ``pin.position``,
 ``component.initial_position``, and the stackup's ``name``/``index``/
 ``layer_type`` -- NOT ``roundrect_ratio``/``shape`` (those only feed
 ``pin_world_radius``, which this module never calls).
+
+Wave-4 marshalling migration: the ``extract_net_terminals_py`` kernel now
+accepts the typed pyclass objects (``Component``, ``Pin``, stackup layer)
+directly and extracts their attributes by name internally.  The Python-side
+``_pin_wire`` / ``_component_wire`` / ``_stackup_layer_wire`` wire-format
+marshalling helpers are deleted.
 """
 
 from __future__ import annotations
@@ -40,35 +46,6 @@ class ParsedTerminal:
     is_pth: bool
 
 
-def _pin_wire(pin: Any) -> tuple:
-    return (
-        pin.name,
-        pin.number,
-        tuple(pin.position),
-        bool(getattr(pin, "is_pth", False)),
-        getattr(pin, "layer", None),
-    )
-
-
-def _component_wire(component: Any) -> tuple:
-    pos = component.initial_position
-    return (
-        component.ref,
-        tuple(pos) if pos is not None else None,
-        component.initial_rotation,
-        component.initial_side,
-        [_pin_wire(pin) for pin in getattr(component, "pins", ())],
-    )
-
-
-def _stackup_layer_wire(layer: Any) -> tuple:
-    return (
-        getattr(layer, "name", None),
-        getattr(layer, "index", None),
-        getattr(layer, "layer_type", None),
-    )
-
-
 def extract_net_terminals(
     pcb: Any,
     net_name: str,
@@ -80,12 +57,11 @@ def extract_net_terminals(
     context comes only from declared signal/mixed stackup layers; an unknown
     SMD layer is retained textually but has no invented numeric layer index.
     """
-    components_wire = [_component_wire(c) for c in getattr(pcb, "components", ())]
+    components = list(getattr(pcb, "components", ()))
     stackup = getattr(pcb, "stackup", None)
-    stackup_layers = getattr(stackup, "layers", ()) or ()
-    stackup_wire = [_stackup_layer_wire(layer) for layer in stackup_layers]
+    stackup_layers = list(getattr(stackup, "layers", ()) or ())
 
-    rows = _trr.extract_net_terminals_py(net_name, list(net_pins), components_wire, stackup_wire)
+    rows = _trr.extract_net_terminals_py(net_name, list(net_pins), components, stackup_layers)
     return tuple(
         ParsedTerminal(
             identity=PadIdentity(ref, pad, net, x, y, tuple(layers)),
