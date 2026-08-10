@@ -372,6 +372,92 @@ above is the recorded tolerance for any future solver change. The
 assembly-side win (the roadmap's "10-50x matrix assembly" target) is
 delivered; the solve was never the Python hot loop.
 
+## Sparse solve kernel (U5/U7) — characterization and migration decision (2026-08-09)
+
+The KTD9 verdict above is **OVERTURNED under the contract's re-decidable
+rule** (docs/wave4-discipline-contract.md §3): the evidence changed in
+two ways — the program now requires the scipy dependency to leave the
+product surface (this migration drive is the change that makes the
+"solver boundary" a decision), and the measured divergence is four
+orders of magnitude below the tightest consumer tolerance. The verdict
+was correct on the evidence it had (no perf win, bit-parity break, zero
+measured benefit); the benefit is now dependency elimination. Recorded
+here alongside the original, per the contract's overturn convention.
+
+### Solve characterization
+
+**What matrix each assembler builds.** Both `_assemble_system` (U5,
+`thermal_fdm.py`) and `_assemble_convective_system` (U7,
+`thermal_scorer.py`) build the same symmetric 5-point Laplacian stencil
+with harmonic-mean interface conductivity `2/(1/k_a + 1/k_b)`, on grids
+up to `max_cells = 2500` cells (e.g. 50×50 or 25×100). U5 puts a
+Dirichlet face term (`2·k_c/dx²`, RHS `coeff·ambient`) at the heatsink
+edge and adiabatic Neumann on the other three edges; U7 puts the same
+Dirichlet face at the heatsink edge and a Robin convective term
+`h_conv·(T − T_amb)` on the other three edges. An optional per-cell
+vertical sink `h_cell` adds to the diagonal and `h_cell·ambient` to the
+RHS; `Q` is added last to the RHS. The result is an M-matrix (U5 SPD,
+symmetric; U7 symmetric but not necessarily SPD — the Robin faces add
+negative-definite contributions), with ~5·n nonzeros and **no duplicate
+COO triplets** (each ordered (row, col) is written exactly once).
+
+**Determinism.** Both solvers are deterministic given fixed matrix +
+flags: scipy `spsolve` (SuperLU, COLAMD ordering + partial pivoting)
+returns bit-identical results on repeated calls, and faer's sparse LU
+(partial row pivoting) is bit-identical on repeated calls (verified on
+the 2500-cell U5 matrix, 2026-08-09). Neither involves RNG or an
+iteration budget, so the "deterministic reference" property is preserved
+by the migration — determinism, not bit-parity with scipy, is the
+property the consumers rely on.
+
+**Bit-for-bit Rust match: not achievable, and not required.**
+SuperLU and faer use different pivoting and fill ordering, so factor
+entries and therefore the forward solution differ in the last ulp. A
+Rust solver reproducing SuperLU bit-for-bit is not a realistic target.
+The consumers decide whether that matters:
+
+**Consumer comparison mode.** No consumer of the solve output compares
+it bit-exactly. Every consumer is tolerance/physics-based:
+manufactured-solution convergence rates, `np.allclose(..., atol=1e-6)`,
+ambient-field checks `assert_allclose(atol=1e-9)` (the **tightest**
+tolerance in the suite), U5-vs-U7 relative-error thresholds (< 2%),
+peak-temperature assertions (0.1 K), the A·x − b residual energy-balance
+check, and the physical invariant battery (monotonicity, maximum
+principle, SPD — all at 1e-9/1e-10). A solver change that stays
+>10^3 below the tightest tolerance is invisible to every consumer.
+
+### Measured divergence (2026-08-09, faer 0.24.4 / scipy 1.16.3)
+
+Re-measured over a 144-case corpus: U5 and U7 systems, 9 grid sizes
+from 1×1 to the 25×100 / 50×50 max-cells ceiling (and beyond), all four
+heatsink edges, with and without the vertical-sink `h_field`, random
+k/Q fields:
+
+| Metric | Value |
+|---|---|
+| max\|T_faer − T_scipy\| over all 144 cases | **5.7e-12 K** (U5 25×100, LEFT edge, no sink) |
+| max relative residual of the faer solve | 3.5e-15 (machine precision) |
+
+The 5.7e-12 K divergence is ~175× below the tightest consumer tolerance
+(1e-9 K) and ~6 orders below the typical one (1e-6). Both solvers agree
+with an independent dense solve to ~1e-12 K (KTD9, 2026-07-31).
+
+### Decision
+
+**MIGRATE with a documented tolerance.** The solve call in both U5
+(`thermal_fdm.py`) and U7 (`thermal_scorer.py`) delegates to
+`temper_thermal.solve_sparse_lu_py` (faer sparse LU); the scipy
+`coo_matrix`/`spsolve` imports leave the product surface. Per the
+contract's §3 divergence-recording discipline, the differential suite
+(`tests/physics/test_thermal_solve_rust_differential.py`) pins the
+bound explicitly:
+
+> **Pinned bound: for every grid in the FDM corpus (U5 + U7, any
+> heatsink edge, with or without `h_field`, up to the 2500-cell
+> `max_cells` ceiling), `max|T_faer − T_scipy| ≤ 1e-10 K`** — 175× above
+> the observed 5.7e-12 K maximum, and still 10× below the tightest
+> consumer tolerance.
+
 ---
 
 # RTD Safety Model — Verification by Induction
