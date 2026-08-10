@@ -3674,3 +3674,79 @@ an ascending-sort / uncapped-sort mutation test.
 | G6 | Base cases + induction steps above. |
 | G7 | `cargo test --no-default-features`: 751 pass; `cargo clippy --all-features --all-targets -- -D warnings` clean; the new `demand` parameter is a `Bound` handle (`Option<Bound<'py, PyAny>>`), no unsafe. |
 | G8 | N/A — not physics-gated. |
+
+## kicad_transform — Verification by Induction
+
+`temper_placer.geometry.kicad_transform` (the single sanctioned KiCad
+footprint-child rotation convention, R(-theta)) was migrated to
+`kicad_transform.rs` in Wave 4; the Python module is now a shim over
+`temper_geometry.kicad_*_py` with unchanged public names, signatures and
+docstrings, so the 12 consolidated call sites and the
+no-raw-rotation-trig lint keep working unedited.
+
+**Kernels.** Six pure functions:
+`rotate_local_to_world` (R(-theta) = `[[c, s], [-s, c]]`), its degrees
+wrapper, `rotate_world_to_local` (R(+theta), the transpose — the exact
+inverse of a rotation matrix), its degrees wrapper,
+`place_local_to_world` (rotate then translate), and
+`shapely_rotation_angle_deg` (negation). `cos`/`sin` resolve through the
+host process's libm via `pad_geometry::math_cos_sin` (the B1 dlsym
+pattern), so all values are bit-identical to the pre-migration module's
+`math.cos`/`math.sin` on the host runtime; the degrees wrappers preserve
+CPython `math.radians`'s exact expression shape `t * (PI / 180.0)`
+(B2/B7, not `f64::to_radians`).
+
+**Base case.** The smallest meaningful input — a single offset rotated at
+`theta == 0.0` — is an exact identity: `math.cos(0.0) == 1.0` and
+`math.sin(0.0) == 0.0` exactly, so `x*c + y*s == x` and `-x*s + y*c == y`
+bit-for-bit (pinned in `test_zero_rotation_is_exact_identity`, and in the
+differential's `test_rotate_local_to_world_bit_exact_finite_angle_set`
+for the (0°, 0.5, 0.3) case). The quadrant anchors (90°/270° on
+asymmetric offsets, `(y, -x)`/`(-y, x)`) are pinned in Rust
+(`test_rotate_local_to_world_quadrant_anchors`) and exhaustively in the
+differential.
+
+**Induction step.** Every kernel is a pointwise function of its scalar
+inputs with no cross-element state: the `x` and `y` coordinates are each
+transformed by the same two-term linear combination of `c` and `s`
+(computed once per angle), so correctness on a single coordinate pair
+extends to any pair of coordinates independently — there is no
+iteration, accumulation, or ordering on which a larger input could
+depend. Composition of rotations follows the group law
+`R(-θ1)·R(-θ2) = R(-(θ1+θ2))` exactly in exact arithmetic; the pinned
+finite-angle-set instances carry the FP error band (see PBT P4). The
+degrees wrappers reduce to the radians kernels by a single scalar
+multiply, so they carry no additional error beyond `math.radians`'s own
+correctly-rounded multiply.
+
+**Empirical verification.** The differential suite
+(`tests/geometry/test_kicad_transform_rust_differential.py`) pins the
+shim against VERBATIM `_oracle_*` copies of the pre-migration module:
+`float.hex()` equality over the exhaustive finite angle set × offset set,
+40 seeded randomized sweeps, curated NaN/±inf/signed-zero/subnormal/
+extreme edge cases, and the CPython `ValueError("math domain error")`
+raise for infinite theta on both sides (replicated at the pyo3 boundary —
+libm's NaN-plus-EDOM becomes the exception exactly as in the module's
+`math.cos`). The PBT suite
+(`tests/geometry/test_kicad_transform_pbt.py`) holds 6 non-vacuous
+properties (P1 quadrant anchor, P2 exact rotate-then-translate
+decomposition, P3 inverse round-trip, P4 quadrant-anchored composition
+closure — anchored so a sign flip falsifies it, P5 degree-wrapper
+bit-exactness, P6 isometry), each with a degenerate-kernel mutation
+companion, plus 3 metamorphic relations (MR1 zero-angle identity —
+bit-exact for nonzero coordinates, with the signed-zero sign-flip pinned
+bit-for-bit against the oracle in the differential; MR2 odd symmetry of
+`shapely_rotation_angle_deg`, exact; MR3 pairwise-distance preservation
+under rotation, tolerance-stated).
+
+### Gate results
+
+| Gate | Result |
+|---|---|
+| G1 | Differential written FIRST (RED: the six `temper_geometry.kicad_*_py` imports did not exist), commit `1c57e844` predating the kernels' `963503eb`. |
+| G2 | Bit-identical `float.hex()` parity — 2 266 assertions green, no tolerance except the documented `transform.rs::transform_pin_position` cross-copy pin (separately-bound libm, within 1 ulp) and the raised-domain-error cases. |
+| G4 | 6 properties (P1-P6) + 6 `test_pN_fails_for_<mutant>` mutation companions, all through the shipped shim; reachability proven by the mutation outcome changes. |
+| G5 | 3 metamorphic relations (MR1-MR3), exactness claims stated per relation. |
+| G6 | Base case + induction step above. |
+| G7 | `cargo test -p temper-geometry`: 758 pass (7 new); `cargo clippy --all-features --all-targets -- -D warnings` clean; every exported pyo3 function wrapped in `catch_unwind` via `temper-py-bridge`; no `unwrap`/`expect` outside tests. |
+| G8 | N/A — not physics-gated. |
