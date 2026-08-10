@@ -65,17 +65,10 @@ def parse_kicad_pcb(
     return result
 
 
-def extract_footprint_positions(content: str) -> dict[str, dict]:
-    """Extract component positions from raw KiCad PCB content without kiutils.
-
-    Args:
-        content: Raw KiCad PCB file content as string.
-
-    Returns:
-        Dict mapping component reference to position info:
-        {"U1": {"x": 50.5, "y": 75.25, "rotation": 90.0}, ...}
-    """
-    return _rs.extract_footprint_positions(content)
+# Collapsed to one-liner: pure-delegation shim -> Rust parse_engine.
+# Docstring lives on the Rust pyfunction; the Python wrapper existed only
+# to re-document what the Rust side owns.
+extract_footprint_positions = _rs.extract_footprint_positions
 
 
 def parse_kicad_pcb_v6(pcb_path: Path, *, use_declared_layer_roles: bool = False) -> ParsedPCB:
