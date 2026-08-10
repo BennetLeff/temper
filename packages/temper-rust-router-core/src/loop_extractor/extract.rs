@@ -303,6 +303,7 @@ pub fn trace_commutation_loop(
 pub fn trace_gate_drive_loop(
     switch: &Component,
     components: &[Component],
+    driver: Option<&Component>,
 ) -> Result<Loop, ExtractionError> {
     let gate_net = get_pin_net(switch, &["GATE", "1"]);
     let gate_net = match gate_net {
@@ -329,6 +330,12 @@ pub fn trace_gate_drive_loop(
                 break;
             }
         }
+    }
+
+    // Insert gate driver at position 0 when present (matches Python oracle:
+    // driver is inserted first, before gate resistor and switch).
+    if let Some(drv) = driver {
+        comp_refs.insert(0, drv.ref_des.clone());
     }
 
     Ok(Loop {
@@ -369,7 +376,7 @@ pub fn trace_bootstrap_loop(
         name: "auto_bootstrap".into(),
         loop_type: "bootstrap".into(),
         components: comp_refs,
-        nets: cap_nets.into_iter().map(String::from).collect(),
+        nets: vec![],
         max_area_mm2: 50.0,
     })
 }
@@ -387,20 +394,28 @@ pub fn auto_extract_loops(
 
     let hb = detect_half_bridge(components, &classifications)?;
 
+    // Find gate driver (matches Python oracle's find_gate_drivers + drivers[0]).
+    let driver_idx = classifications.iter().position(|c| c.category == "gate_driver");
+    let driver: Option<&Component> = driver_idx.map(|i| &components[i]);
+
     let mut loops = Vec::new();
 
     let comm = trace_commutation_loop(&hb, components, &classifications, nets)?;
     loops.push(comm);
 
-    if let Ok(gate_hi) = trace_gate_drive_loop(&hb.switch_high, components) {
+    if let Ok(gate_hi) = trace_gate_drive_loop(&hb.switch_high, components, driver) {
         loops.push(gate_hi);
     }
-    if let Ok(gate_lo) = trace_gate_drive_loop(&hb.switch_low, components) {
+    if let Ok(gate_lo) = trace_gate_drive_loop(&hb.switch_low, components, driver) {
         loops.push(gate_lo);
     }
 
-    if let Some(boot) = trace_bootstrap_loop(components) {
-        loops.push(boot);
+    // Bootstrap: only when a gate driver is present (matches Python oracle's
+    // `if driver:` gating in auto_extract_loops).
+    if driver.is_some() {
+        if let Some(boot) = trace_bootstrap_loop(components) {
+            loops.push(boot);
+        }
     }
 
     // Merge: manual overrides auto (R13)
