@@ -12,6 +12,7 @@ oracle for the pre-migration implementation is pinned VERBATIM in
 ``tests/deterministic/_slot_generation_py_oracle.py``.
 """
 
+import temper_design_bundle_python as _tdb
 import temper_orchestration as _to
 
 from ..state import BoardState
@@ -28,3 +29,14 @@ class SlotGenerationStage(Stage):
 
     def run(self, state: BoardState) -> BoardState:
         return _to.run_slot_generation(state, self.slot_spacing_mm)
+
+    def _generate_slots_for_zone(self, zone, spacing: float) -> list[tuple[float, float]]:
+        """Generate a regular grid of placement slots within a zone.
+
+        Kept as a delegation helper: ``ZoneAwareSlotGenerationStage``
+        subclasses ``SlotGenerationStage`` and calls this method directly
+        from its own ``run`` (bypassing this stage's ``run``)."""
+        (x_min, y_min), (x_max, y_max) = zone.bounds
+        return list(
+            _tdb.deterministic_stages.generate_slots_for_zone(x_min, y_min, x_max, y_max, spacing)
+        )
