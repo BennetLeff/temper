@@ -54,6 +54,10 @@ pub struct BoardState {
     pub component_zone_map: Option<pyo3::Py<PyAny>>,
     pub zone_slots: Option<pyo3::Py<PyAny>>,
     pub layer_assignments: Option<pyo3::Py<PyAny>>,
+    // D5: the per-(component, lv_pin, hv_pin) clearance reclaim dict emitted
+    // by ZoneAwareSlotGenerationStage (Python value may also be None -- a
+    // None Python value maps to Rust None, like every other field).
+    pub reclaim_by_pin_pair: Option<pyo3::Py<PyAny>>,
 }
 
 impl BoardState {
@@ -83,6 +87,7 @@ impl BoardState {
             component_zone_map: None,
             zone_slots: None,
             layer_assignments: None,
+            reclaim_by_pin_pair: None,
         }
     }
 

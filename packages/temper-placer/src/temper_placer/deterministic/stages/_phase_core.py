@@ -1,16 +1,16 @@
 """Core orchestration for phased component assignment.
 
 Contains the :class:`_PhaseCoreMixin` with __init__, name, invariants, run,
-phase dispatch (_phased_placement), domain lookups, and shared utility methods.
+and the shared utility methods.
 """
 
 from __future__ import annotations
 
 import logging
 import math
-from collections.abc import Mapping
-from dataclasses import replace
 from typing import TYPE_CHECKING
+
+import temper_orchestration as _to
 
 from temper_placer.constraints.compiler import ConstraintCompiler
 from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
@@ -19,10 +19,7 @@ from ..channels import ChannelMap
 from ..state import BoardState
 
 if TYPE_CHECKING:
-    from shapely.geometry import Polygon
-
     from temper_placer.core.component import Component
-    from temper_placer.core.netlist import Netlist
 
 
 CRITICAL_BOTTLENECK_INVARIANT: str = "no_component_center_in_critical_bottleneck"
@@ -40,8 +37,22 @@ class PhasedComponentAssignmentError(Exception):
 class _PhaseCoreMixin:
     """Core orchestration mixin for phased component placement.
 
-    Provides __init__, name, invariants, run, phase dispatch,
-    and shared utility methods.
+    Provides __init__, name, invariants, run, and shared utility methods.
+
+    The run() orchestration (Phase D batch D5 of the Rust Orchestration
+    Engine plan 2026-08-09-001) is implemented in Rust (``temper-orchestration``'s
+    ``PhasedAssignmentStage``): the state guards, ``compiler.validate``, the
+    design-rules attach, ``_domain_lookups``, the phase dispatch and the
+    template/proximity/optimize placement methods, the HV ghost-pad
+    reservation and the ``frozenset`` writes all run Rust-side, crossing the
+    FFI once per stage call with the stage instance as the config carrier.
+    This module keeps the public API (the constructor, ``name``,
+    ``invariants`` and the ``_get_footprint_radius`` helper the D4 validator
+    calls) and delegates ``run``. The router_v6 DRC-fence call-back
+    (``register_validator`` / ``run_validators``) stays Python (router_v6
+    surface -- the D4 ``StageDRCFailure`` convention). The differential oracle
+    for the pre-migration implementation is pinned VERBATIM in
+    ``tests/deterministic/_phased_assignment_py_oracle.py``.
     """
 
     _HV_SAFETY_CATEGORIES: set[str] = {"HV", "AC"}
@@ -127,40 +138,23 @@ class _PhaseCoreMixin:
         )
 
     def run(self, state: BoardState) -> BoardState:
-        """Execute phased placement."""
-        if not state.netlist or not state.component_zone_map or not state.zone_slots:
-            return state
-        assert state.netlist is not None
-        assert state.component_zone_map is not None
-        assert state.zone_slots is not None
+        """Execute phased placement.
+
+        The orchestration is implemented in Rust (Phase D D5); this method
+        crosses the FFI once, then runs the router_v6 DRC-fence validator
+        call-back (which stays Python -- the router_v6 surface).
+        """
+        new_state = _to.run_phased_assignment(state, self)
+        self._run_phased_drc_fence(new_state)
+        return new_state
+
+    def _run_phased_drc_fence(self, new_state: BoardState) -> None:
+        """The router_v6 DRC-fence call-back (register + run the HV
+        validator on the new state). Stays Python: the validator and the
+        ``stage_validators`` registry are router_v6 surface (the D4
+        ``StageDRCFailure`` convention). ImportError is swallowed exactly
+        like the pre-migration run() body."""
         logger = logging.getLogger(__name__)
-
-        errors = self.compiler.validate(state.board, state.netlist)
-        if errors:
-            for error in errors:
-                logger.warning(f"Constraint validation: {error}")
-
-        if self.design_rules is not None and getattr(state, "design_rules", None) is None:
-            state = replace(state, design_rules=self.design_rules)
-
-        domain_for_ref, domain_regions = self._domain_lookups(state)
-
-        assert state.netlist is not None, "Netlist must be set in BoardState"
-        placements, used_slots = self._phased_placement(
-            state,
-            state.netlist,
-            dict(state.component_zone_map),
-            dict(state.zone_slots),
-            domain_for_ref,
-            domain_regions,
-        )
-
-        new_state = replace(
-            state,
-            placements=frozenset(placements.items()),
-            used_slots=frozenset(used_slots),
-        )
-
         try:
             from temper_placer.deterministic.stages.phased_component_assignment_validator import (
                 validate_phased_component_assignment_hv,
@@ -175,129 +169,6 @@ class _PhaseCoreMixin:
                     logger.warning(f"DRC fence failure: {f}")
         except ImportError:
             pass
-
-        return new_state
-
-    @staticmethod
-    def _domain_lookups(
-        state: BoardState,
-    ) -> tuple[dict[str, str], dict[str, Polygon]]:
-        domain_for_ref: dict[str, str] = {}
-        domain_regions: dict[str, Polygon] = {}
-        if not state.component_domain_map or not state.domain_regions:
-            return domain_for_ref, domain_regions
-        for ref, domain in state.component_domain_map:
-            domain_for_ref[ref] = domain
-        regions = state.domain_regions
-        if len(regions) >= 2:
-            domain_regions["HV_edge"] = regions[0]
-            domain_regions["LV_interior"] = regions[1]
-        elif len(regions) == 1:
-            domain_regions["LV_interior"] = regions[0]
-        return domain_for_ref, domain_regions
-
-    def _phased_placement(
-        self,
-        _state: BoardState,
-        netlist: Netlist,
-        component_zone_map: dict[str, str],
-        zone_slots: dict[str, tuple],
-        domain_for_ref: Mapping[str, str] | None = None,
-        domain_regions: Mapping[str, Polygon] | None = None,
-    ) -> tuple[dict[str, tuple[float, float]], set[tuple[float, float]]]:
-        """Execute placement in priority-defined phases.
-
-        Returns:
-            Tuple of (placements dict, used_slots set)
-        """
-        placements: dict[str, tuple[float, float]] = {}
-        used_slots: set[tuple[float, float]] = set()
-
-        comp_by_ref = {c.ref: c for c in netlist.components}
-        net_pins = self._build_net_pins(netlist)
-        all_slots = self._flatten_slots(zone_slots)
-
-        phases = self.constraints.placement_priority
-
-        if not phases:
-            return self._simple_greedy_placement(netlist, component_zone_map, zone_slots)
-
-        placed_refs: set[str] = set()
-
-        for phase_name, phase_config in phases.items():
-            method = phase_config.get("method", "optimize")
-            components = phase_config.get("components", [])
-
-            if method == "auto" or not components:
-                components = [c.ref for c in netlist.components if c.ref not in placed_refs]
-
-            components = [
-                ref for ref in components if ref in comp_by_ref and ref not in placed_refs
-            ]
-
-            if not components:
-                continue
-
-            if method == "template":
-                phase_placements = self._place_template(
-                    components,
-                    phase_config,
-                    comp_by_ref,
-                    all_slots,
-                    used_slots,
-                    current_placements=placements,
-                    netlist=netlist,
-                )
-            elif method == "proximity":
-                phase_placements = self._place_proximity(
-                    components,
-                    phase_config,
-                    comp_by_ref,
-                    placements,
-                    zone_slots,
-                    used_slots,
-                    all_slots,
-                    net_pins,
-                    netlist=netlist,
-                )
-            elif method == "optimize" or method == "auto":
-                phase_placements = self._place_optimize(
-                    components,
-                    comp_by_ref,
-                    component_zone_map,
-                    zone_slots,
-                    placements,
-                    used_slots,
-                    all_slots,
-                    net_pins,
-                    netlist=netlist,
-                    domain_for_ref=domain_for_ref,
-                    domain_regions=domain_regions,
-                )
-            else:
-                logging.getLogger(__name__).warning(
-                    f"Unknown placement method '{method}' in phase '{phase_name}'"
-                )
-                continue
-
-            placements.update(phase_placements)
-            placed_refs.update(phase_placements.keys())
-
-        return placements, used_slots
-
-    def _build_net_pins(self, netlist: Netlist) -> dict[str, list]:
-        """Build net_name -> [(comp_ref, pin_name), ...] map."""
-        net_pins = {}
-        for net in netlist.nets:
-            net_pins[net.name] = list(net.pins)
-        return net_pins
-
-    def _flatten_slots(self, zone_slots: dict[str, tuple]) -> list[tuple[float, float]]:
-        """Flatten zone_slots to single list of all slots."""
-        all_slots: list[tuple[float, float]] = []
-        for slots in zone_slots.values():
-            all_slots.extend(slots)
-        return all_slots
 
     def _get_footprint_radius(self, component: Component) -> float:
         """Get minimum radius to enclose component footprint."""

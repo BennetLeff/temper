@@ -1388,6 +1388,209 @@ D5 carrier); `_absolute_hv_pins` / `_creepage_mm` stay Python module API
 | D4 stage runner (ComponentAssignmentStage alone, with fixed placements, with a domain filter, and the `phased_validator_hv` kernel, through `PipelineRunner<BoardState>` / the Rust-callable kernel with sys.modules-registered fakes incl. a fake greedy kernel + shapely stub) | `packages/temper-orchestration/tests/d4_stages_runner.rs` | 5 |
 | pre-existing assignment/validator/ghost-pad suites (the Phase-5 kernel differentials/PBT, the U3 validator scenarios, the phased-placer suites, the ghost-pad property) | `packages/temper-placer/tests/deterministic/stages/` + `tests/property/` | 84 |
 
+## Rust orchestration engine — Phase D batch D5 (zone-aware slot generation + phased component assignment)
+
+Phase D batch D5 of the Rust Orchestration Engine plan (2026-08-09-001): the
+deterministic zone-aware batch (`deterministic/stages/zone_aware_slot_generation.py`,
+567 LOC, and the phased-component-assignment mixins `_phase_core.py` 326 +
+`_phase_zones.py` 410 + `_phase_rotation.py` 259 + `_phase_validation.py` 195,
+~1,757 LOC) moves to `temper-orchestration`. `ZoneAwareSlotGenerationStage`
+becomes a `Stage<BoardState>` implementor (`zone_aware_slot_generation_stage.rs`);
+`PhasedAssignmentStage` (`phased_assignment_stage.rs`) transcribes the
+`PhasedComponentAssignmentStage` run() orchestration that the D4 note flagged
+as living in the D5 mixins. Depends on D1 (the conversion seam + Stage
+pattern), D2/D3 (the populated `zones` / `zone_slots` fields) and D4 (the
+`placements`/`used_slots` write-back surface).
+
+### What migrated
+
+| Python module | Rust entity | Reads from BoardState | Writes to BoardState |
+|---|---|---|---|
+| `zone_aware_slot_generation.py` (567) | `ZoneAwareSlotGenerationStage` (Stage impl) + `run_zone_aware_slot_generation` pyfunction | `zones`, `board`, `netlist` (+ the stage-config `slot_spacing_mm` / `copper_zone_margin` / `yaml_copper_zones` / `yaml_isolation_slots` / `net_class_rules`) | `zone_slots` (frozenset), `reclaim_by_pin_pair` (K4 reclaim dict or None) |
+| `_phase_core.py` (326) | `PhasedAssignmentStage` (Stage impl) `run()` body: guards, `compiler.validate` warnings, design-rules attach, `_domain_lookups`, phase dispatch, frozenset writes | `netlist`, `component_zone_map`, `zone_slots`, `board`, `design_rules`, `component_domain_map`, `domain_regions` (+ the Python stage instance as the config carrier) | `design_rules`, `placements`, `used_slots` |
+| `_phase_zones.py` (410) | `_place_template` / `_place_proximity` / `_place_optimize` / `_simple_greedy_placement` / `_filter_by_domain` / the `_select_best_slot` scoring loop (+ `run_phase_select_best_slot` FFI) | — | — |
+| `_phase_rotation.py` (259) | `_reserve_slots_with_hv` / `_reserve_slots` (footprint + HV creepage rings) | — | — |
+| `_phase_validation.py` (195) | `_apply_bottleneck_filter` is CALLED back on the stage (seed-filter surface stays Python) | — | — |
+
+The Rust stages transcribe the pre-migration orchestration wholesale:
+`zone_aware` runs the isolation-slot filter (netlist `comp_pos`/`comp_by_ref`,
+the K4 reclaim formula with `_hv_clearance_overrides` driven through CPython
+`re` and the pow-arithmetic pin pitch), `_get_copper_zones` (YAML +
+`board.copper_zones` + the `board.zones` net-class scan over
+`POWER_NET_NAMES`), the no-filter plain-generation branch, the per-zone slot
+walk with the copper + isolation-cutout filters, the F.Cu / statistics log
+lines (CPython `str.format`) and the `zone_slots` / `reclaim_by_pin_pair`
+writes. `phased` drives the state guards (identity-preserving), the phase
+dispatch over `constraints.placement_priority`, the three placement methods,
+the footprint-size sort (CPython tuple-key semantics), the cross-zone
+fallback, the seed-filter call-back, the shapely domain filter, the best-slot
+scoring (CPython `min` first-minimum-wins) and the footprint + HV ghost-pad
+reservation (with the nearest-other-HV-pin reduction through
+`_effective_ghost_pad_radius`). The `d1_bridge.rs` write-back gains the
+`reclaim_by_pin_pair` field and the `used_slots` / `design_rules` candidates,
+with a faithful clear-a-field write-back (a changed field whose Rust value is
+None writes Python None).
+
+**What stays Python (evidence)**: the design-bundle leaf kernels — the
+slot-grid walk (`generate_slots_for_zone`), the ray casting
+(`point_in_polygon_py`), the AABB test (`slot_intersects_iso_py`), the HPWL
+kernel (`compute_wirelength_py`), the U2 reduction
+(`effective_ghost_pad_radius_py`) and the bottleneck kernel
+(`find_critical_bottleneck_violations_py`) — stay single-source and are
+driven through FFI (the D2–D5 delegation boundary). `isolation_slot_aabb`
+(`temper_placer.io.isolation_slot_geometry`, re-exported from
+temper-io-types) stays Python. The `POWER_NET_NAMES` classification set stays
+a module constant (the Rust stage reads it through FFI). The constraint
+compiler (`self.slot_filter` / `self.slot_scorer`), the shapely
+`_filter_by_domain` predicate, `routability_penalty` and the `_hv_clearance_overrides`
+regex all stay single-source and are driven from Rust. The mixin helpers
+`_get_footprint_radius` / `_effective_ghost_pad_radius` /
+`_compute_wirelength` / `_apply_bottleneck_filter` / `_is_hv_ref` stay Python
+methods (public API, directly exercised by the pre-existing suites) and are
+called back on the stage — the D4 `__new__`-construction pattern. The
+router_v6 DRC-fence call-back (`register_validator` / `run_validators`) stays
+Python in the shim's `run()` (router_v6 surface, the D4 `StageDRCFailure`
+convention), and `_check_critical_bottlenecks` / `find_critical_bottleneck_violations`
+stay Python (the `is_drc_fence_fail_enabled` SSOT source test
+`test_phased_drc_fence_flip.py` requires the former's body). All interpolated
+log messages render through CPython `str.format` (David-Gay `:.1f`/`:.2f` and
+list reprs).
+
+### G1 — differential oracle before Rust (TDD)
+
+The pre-migration modules are pinned VERBATIM as
+`tests/deterministic/_zone_aware_slot_generation_run_py_oracle.py` (the run
+orchestration, isolation filter, copper-zone collection, K4 helpers) and
+`tests/deterministic/_phased_assignment_py_oracle.py` (the four `_phase_*`
+mixins + the `phased_component_assignment.py` aggregation, concatenated into
+one module; only relative imports rewritten to absolute paths); each body's
+sha256 is pinned in the differential, which fails on any drift. The RED
+commit (`4333e62d`) landed the oracles + differential + PBT with the
+anti-vacuity tripwire failing (the shims did not yet delegate); the GREEN
+commits (`274b7cd4` zone-aware, `5dec4ca7` phased) landed the ports.
+
+### G2 — behavioural A/B (bit-exact)
+
+`tests/deterministic/test_deterministic_d5_rust_differential.py`: 24 tests
+drive both arms with identical BoardState inputs and stage constructor args
+and compare bit-exactly — `zone_slots` and `reclaim_by_pin_pair` projected
+through `float.hex()`, `placements` + `used_slots` through the same canon, the
+identity-preserving guards, the no-zones reclaim write, the copper-zone
+polygon / bounds-margin / wrong-layer filtering, the isolation-cutout + K4
+reclaim (with the net-class override and the per-slot pin pitch), the phased
+template / proximity / optimize / domain-filter / no-phases-fallback paths,
+the HV ghost-pad rings, the design-rules attach, the unknown-phase-method
+warning path, the D2→D5 pipeline chain and a cross-batch zone-aware→phased
+run. `float.hex()` pins the libm-`pow` squares and `f64::sqrt` distances
+bit-for-bit.
+
+### G3 — performance
+
+Pure-delegation carve-out: each stage crosses the FFI once per `run()`; the
+slot-grid / ray-casting / AABB / wirelength / reduction / bottleneck kernels,
+the constraint compiler and shapely are unchanged. No regression beyond the
+single FFI crossing is possible or claimed.
+
+### G4 — PBT (`tests/deterministic/test_deterministic_d5_pbt.py`)
+
+Seven non-vacuous properties (P1 no-zones path writes the reclaim, P2 copper
+filter + determinism, P3 K4 reclaim clamp, P4 no-netlist guard identity, P5
+every component placed on a generous grid with unique slots + determinism, P6
+HV creepage rings land in `used_slots` when the ring overlaps the grid, P7
+cross-run determinism), each with a fails-for-mutant companion re-running the
+SAME body against a degenerate stand-in — the established U4/D1-D4 PBT
+vacuity-guard pattern. 14 tests green.
+
+### G5 — metamorphic
+
+Not claimed: the D5 surface is orchestration over stateful Python objects
+(and the leaf kernels it delegates to are already metamorphic-covered), not
+pure functions; the differential and PBT arms pin the behavioural surface.
+Recorded as N/A per the plan's per-module G5 discretion (same ruling as D1–D4).
+
+### G6 — induction
+
+Non-applicability note: the stages are finite loops over caller-provided
+collections (zones, slots, netlist components/pins, phases); no recursive or
+size-parameterized computation. Structural proof instead: bit-exactness
+verified by the differential and the PBT vacuity mutants.
+
+### G7 — Rust bar
+
+No `unwrap`/`expect` outside tests (clippy `unwrap_used`/`expect_used` = deny
+in the lib target; the runner test file carries the tests-only allow).
+`cargo test` 100/100 green (71 lib + 5 D1 + 5 D2 + 5 D3 + 5 D4 + 5 D5 + 4 U4
+runner); `cargo clippy --all-features --all-targets -- -D warnings` clean.
+Panic safety: both stages wrap their bodies in `stage_guard`
+(`catch_unwind` — a Rust panic becomes a Python RuntimeError instead of
+unwinding through the pyo3 frame), and pyo3's `#[pyfunction]` expansion
+additionally wraps every exported body.
+
+### G8 — R24 physics
+
+N/A — the stages gate on no physics quantity; the creepage clearances are
+configuration constants threaded through the already-tested design-bundle
+kernels. Recorded explicitly.
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every input in the differential
+suites' domains, the Rust stages produce outputs bit-identical to the pinned
+pre-migration oracle's. The load-bearing equivalences:
+
+1. **libm `pow` squares.** `(a - b) ** 2` in `_reserve_slots`,
+   `_distance`, `_resolve_pin_pitch_mm` and the nearest-HV-pin scan is
+   CPython `float ** float` = libm `pow` — routed through `host_math::pow`
+   (the same dlsym-resolved host libm `copper_length` uses); `** 0.5` in the
+   K4 pin pitch is `pow(x, 0.5)`, not `sqrt`. `math.sqrt` is the
+   correctly-rounded IEEE sqrt == `f64::sqrt`.
+2. **CPython `max`/`min`.** `py_max`/`py_min` reproduce first-arg-wins on
+   ties/NaN; the best-slot and nearest-HV-pin `min` scans keep the first
+   element on ties (strict `<`).
+3. **Sort key semantics.** The footprint-size sort is CPython `sorted` on
+   `(-size, ref)` tuple keys: stable, with the first element compared by
+   Python `<`-then-`==` (so `-0.0`/`0.0` ties and NaN fall through to the
+   ref string exactly like CPython tuple comparison).
+4. **Dict/list insertion order.** The phase-dispatch order, the cumulative
+   `{**a, **b}` placement merges, the `net_pins`/`zone_slots`/`all_slots`
+   orders and the reclaim dict's insertion order are reproduced by building
+   the same Python dicts/lists through FFI in the same sequence.
+5. **Mixin helpers are called, not reimplemented.** `_get_footprint_radius`,
+   `_effective_ghost_pad_radius`, `_compute_wirelength`,
+   `_apply_bottleneck_filter` and `_is_hv_ref` are invoked on the Python
+   stage instance (the D4 `__new__`-construction pattern), so the constraint
+   compiler, the design-bundle wirelength/reduction kernels and the R6
+   seed-filter logging stay single-source.
+6. **Leaf kernels via FFI.** The slot-grid walk, the ray casting, the AABB
+   test and `isolation_slot_aabb` are called through the design-bundle /
+   io-types / Python modules — identical calls, identical order, so parity is
+   by construction.
+7. **CPython rendering.** Every log line's interpolated message renders
+   through CPython `str.format` (David-Gay `:.1f`/`:.2f`, list reprs), and the
+   `_hv_clearance_overrides` regex runs through CPython `re`.
+8. **Write-back fidelity.** `d1_bridge.rs` writes a candidate field only when
+   it actually changed (equality on the original Python objects), returning
+   the ORIGINAL state object when nothing changed (identity preserved on the
+   guard paths); a changed field whose Rust value is None writes an explicit
+   Python None — matching the Python stages' `dataclasses.replace(field=None)`.
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above): the constraint compiler, shapely, the router_v6
+DRC-fence call-back, the seed-filter surface, the directly-tested mixin
+helpers and the design-bundle/io-types leaf kernels stay single-source; the
+pre-populated-reclaim clear path (a state that already carries a reclaim dict
+when the stage computes an empty one) is value-identical through the faithful
+None write-back.
+
+### Differential / PBT / runner suites (D5)
+
+| Suite | Location | Count |
+|---|---|---|
+| D5 differential (oracles: `_zone_aware_slot_generation_run_py_oracle.py` + `_phased_assignment_py_oracle.py`, sha256-pinned) | `packages/temper-placer/tests/deterministic/test_deterministic_d5_rust_differential.py` | 24 |
+| D5 PBT (P1..P7, mutation-guarded) | `packages/temper-placer/tests/deterministic/test_deterministic_d5_pbt.py` | 14 |
+| D5 stage runner (ZoneAwareSlotGenerationStage no-zones/with-zones + PhasedAssignmentStage guard/end-to-end/HV rings through `PipelineRunner<BoardState>` with sys.modules-registered fakes incl. fake design-bundle + channels modules) | `packages/temper-orchestration/tests/d5_stages_runner.rs` | 5 |
+| pre-existing zone-aware / phase / phased / ghost-pad suites (the Phase-5 kernel differentials + PBT, the phased-placer scenarios, the seed-filter integration, the DRC-fence flip, the ghost-pad property, the channel-integration tests) | `packages/temper-placer/tests/deterministic/` + `tests/property/` + `tests/parity/` | 1335+ |
+
 ## Rust orchestration engine — U8 (explainability data contracts + MarkdownReport)
 
 The Rust Orchestration Engine plan (2026-08-09-001) ships its Phase-A U8 unit
