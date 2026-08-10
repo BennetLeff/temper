@@ -666,9 +666,10 @@ fn find_min_valid(
     best_xy
 }
 
-/// The farthest useful nudge step on anchor `j`'s row: the offset that
-/// reaches the far board bound, or `None` when `offset_mm` is not
-/// positive (the search is stationary and can never clear a collision).
+/// The first x-position on anchor `j`'s row that clears every other
+/// anchor by `tolerance_mm`, or `None` when no such position exists
+/// within the board (`offset_mm` not positive leaves the search
+/// stationary, so it reports `None` immediately).
 ///
 /// The old single right-offset clamped at `x_max`, which could land the
 /// nudged anchor exactly on another anchor already sitting at `x_max`
