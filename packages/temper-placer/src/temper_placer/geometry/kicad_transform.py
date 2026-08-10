@@ -19,7 +19,7 @@ hand-built minimal board -- not inferred from re-reading this repo's own
 Sec. 2 for the experiment and its ground-truth DRC output.
 
 Why this module exists
------------------------
+----------------------
 Before it did, this exact two-line formula was independently written out,
 by hand, in 12 places across this repo -- including
 ``requirements/validators/_copper.py::_rotate``, which REQ-SAFE-01 uses to
@@ -52,7 +52,7 @@ error, not yet consolidated, before this module existed) were:
   9. ``placer/template.py`` (two call sites: ``ParametricTemplate``,
      ``ComponentTemplate``)
   10. ``requirements/validators/_copper.py`` (``_rotate`` -- the REQ-SAFE-01
-      copper-position site)
+       copper-position site)
   11. ``scripts/check_isolation_keepout.py`` (``_rotate``)
 
 ...plus a 13th, pre-existing, independently-authored-and-*already-correct*
@@ -68,24 +68,34 @@ Do not reimplement it. A lint
 above (the repo's proven-vulnerable set), to fail loudly if any of them
 regresses back to a local, independently-typed copy of this formula.
 
-The Rust crate
----------------
-``packages/temper-geometry/src/transform.rs`` (bound to Python as
-``temper_placer.geometry.transform.transform_pin_position`` /
-``transform_pin_positions``) carries its own, separately-maintained copy of
-this same R(-theta) formula. It is not reachable from here -- crossing the
-pyo3 FFI boundary for a two-line scalar formula on every call is not worth
-the coupling this pure-Python module would otherwise take on, and (at the
-time this module was written) nothing in production actually calls the
-Rust entry point; it exists for the ``temper_geometry`` crate's own
-consumers. Rather than let it silently drift from this module's
-convention, the two are pinned together by a differential test:
-``packages/temper-placer/tests/geometry/test_kicad_transform_rust_differential.py``.
+The Rust implementation (Wave 4 migration)
+------------------------------------------
+Since the Wave 4 migration, the implementation lives in ONE place: the Rust
+kernel ``packages/temper-geometry/src/kicad_transform.rs``, exposed to
+Python as ``temper_geometry.kicad_*_py``. This module is now a thin shim
+delegating each public function there; the public names, signatures,
+docstrings and ``__all__`` are unchanged, so the 12 call sites and the lint
+above keep working without edits. The Rust kernels resolve ``cos``/``sin``
+through the host process's libm (the B1 dlsym pattern), so the results are
+bit-identical to what this module computed with CPython's ``math.cos``/
+``math.sin``; the differential suite
+(``packages/temper-placer/tests/geometry/test_kicad_transform_rust_differential.py``)
+pins the shim against VERBATIM copies of the pre-migration Python
+(``_oracle_*`` blocks) with ``float.hex()`` equality.
+
+Two older Rust copies of the same convention still exist outside this
+shim, both pinned rather than consolidated (they are the crate's own
+consumers, not the KiCad I/O paths, and touching their callers is out of
+scope here): ``transform.rs::transform_pin_position`` (statically-bound
+``f64::cos``/``f64::sin``, so within 1 ulp rather than bit-identical --
+see the tolerance pin in the differential suite) and
+``clearance_geometry.rs::rotate_local_to_world`` (already host-libm,
+bit-identical, used by ``requirements/validators/_copper.py``).
 """
 
 from __future__ import annotations
 
-import math
+import temper_geometry as _tg
 
 __all__ = [
     "rotate_local_to_world",
@@ -104,13 +114,12 @@ def rotate_local_to_world(x: float, y: float, theta_rad: float) -> tuple[float, 
     see this module's docstring for the confirming evidence. ``theta_rad``
     is the footprint/component's own board rotation, in radians.
     """
-    c, s = math.cos(theta_rad), math.sin(theta_rad)
-    return (x * c + y * s, -x * s + y * c)
+    return _tg.kicad_rotate_local_to_world_py(x, y, theta_rad)
 
 
 def rotate_local_to_world_deg(x: float, y: float, theta_deg: float) -> tuple[float, float]:
     """Degrees convenience wrapper for :func:`rotate_local_to_world`."""
-    return rotate_local_to_world(x, y, math.radians(theta_deg))
+    return _tg.kicad_rotate_local_to_world_deg_py(x, y, theta_deg)
 
 
 def rotate_world_to_local(x: float, y: float, theta_rad: float) -> tuple[float, float]:
@@ -123,13 +132,12 @@ def rotate_world_to_local(x: float, y: float, theta_rad: float) -> tuple[float, 
     transform (this task's own brief: "expose local->world placement ...
     plus its inverse") so a future caller does not have to re-derive it.
     """
-    c, s = math.cos(theta_rad), math.sin(theta_rad)
-    return (x * c - y * s, x * s + y * c)
+    return _tg.kicad_rotate_world_to_local_py(x, y, theta_rad)
 
 
 def rotate_world_to_local_deg(x: float, y: float, theta_deg: float) -> tuple[float, float]:
     """Degrees convenience wrapper for :func:`rotate_world_to_local`."""
-    return rotate_world_to_local(x, y, math.radians(theta_deg))
+    return _tg.kicad_rotate_world_to_local_deg_py(x, y, theta_deg)
 
 
 def place_local_to_world(
@@ -144,8 +152,7 @@ def place_local_to_world(
     a component's origin, then place at the component's board position"
     pattern used throughout this repo's KiCad I/O, in one call.
     """
-    rx, ry = rotate_local_to_world(local_x, local_y, theta_rad)
-    return (origin_x + rx, origin_y + ry)
+    return _tg.kicad_place_local_to_world_py(local_x, local_y, origin_x, origin_y, theta_rad)
 
 
 def shapely_rotation_angle_deg(theta_deg: float) -> float:
@@ -161,4 +168,4 @@ def shapely_rotation_angle_deg(theta_deg: float) -> float:
     rotates every vertex of ``poly`` exactly as :func:`rotate_local_to_world_deg`
     would rotate that vertex individually.
     """
-    return -theta_deg
+    return _tg.kicad_shapely_rotation_angle_deg_py(theta_deg)

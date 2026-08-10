@@ -254,6 +254,12 @@ pub mod propagation;
 pub mod zone;
 #[cfg(feature = "python")]
 pub mod placement_topology;
+// Wave 4, kicad_transform migration: the sanctioned KiCad footprint-child
+// rotation convention (R(-theta)) — the pure kernels behind
+// temper_placer.geometry.kicad_transform (now a shim). Declared after
+// placement_topology (this file's tail) so appends cannot rewrite a
+// parallel agent's lines.
+pub mod kicad_transform;
 
 #[cfg(feature = "python")]
 #[pymodule]
@@ -287,5 +293,6 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::obstacle_map_kernels::register(m)?;
     crate::bundle_analyzer::register(m)?;
     crate::placement_topology::register(m)?;
+    crate::kicad_transform::register(m)?;
     Ok(())
 }

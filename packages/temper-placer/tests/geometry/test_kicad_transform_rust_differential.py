@@ -298,10 +298,44 @@ _THETA_EDGES = (
     float("nan"),
 )
 
+# ±inf thetas are excluded from the value-level edge sweep: CPython
+# `math.cos(±inf)`/`math.sin(±inf)` RAISE `ValueError("math domain error")`
+# (libm returns NaN and sets errno=EDOM, which the math_1 wrapper converts
+# to an exception), so the oracle has no value to compare — the raise is
+# pinned separately in `test_infinite_theta_raises_math_domain_error[_deg]`.
+_FINITE_THETA_EDGES: tuple[float, ...] = tuple(
+    t for t in _THETA_EDGES if not (t == float("inf") or t == float("-inf"))
+)
 
-@pytest.mark.parametrize("x", _NUMERIC_EDGES)
-@pytest.mark.parametrize("y", _NUMERIC_EDGES)
-@pytest.mark.parametrize("theta_rad", _THETA_EDGES)
+# Curated (x, y, theta) triples covering every edge class without the
+# combinatorial blow-up of a full cross product: each theta edge crossed
+# with a small set of coordinate shapes, plus each coordinate edge crossed
+# with representative thetas.
+_RL2W_EDGE_CASES: tuple[tuple[float, float, float], ...] = tuple(
+    [(1.0, -2.0, theta) for theta in _FINITE_THETA_EDGES]
+    + [(-0.0, 0.0, theta) for theta in _FINITE_THETA_EDGES]
+    + [(1e-308, -1e-308, theta) for theta in _FINITE_THETA_EDGES]
+    + [(1e300, -1e300, theta) for theta in _FINITE_THETA_EDGES]
+    + [(x, x, theta) for x in _NUMERIC_EDGES for theta in (0.0, math.pi / 4, float("nan"))]
+    + [(x, -x, theta) for x in _NUMERIC_EDGES for theta in (0.0, math.pi / 4, float("nan"))]
+    + [(x, y, float("nan")) for x in _NUMERIC_EDGES for y in _NUMERIC_EDGES]
+)
+
+# Curated (lx, ly, ox, oy, theta) 5-tuples for the placement kernel.
+_PL2W_EDGE_CASES: tuple[tuple[float, float, float, float, float], ...] = tuple(
+    [(2.0, -1.0, ox, oy, theta) for theta in _FINITE_THETA_EDGES[:12] for ox in _NUMERIC_EDGES[:12] for oy in (0.0, -0.0)]
+    + [(x, y, ox, oy, 0.0) for x in _NUMERIC_EDGES[:12] for y in (0.0, 1.0) for ox in _NUMERIC_EDGES[:12] for oy in (0.0, 0.0)]
+    + [
+        (0.5, 0.3, 12.5, -7.25, theta)
+        for theta in (0.0, math.pi / 2, -math.pi / 2, 2 * math.pi)
+    ]
+)
+
+
+@pytest.mark.parametrize(
+    ("x", "y", "theta_rad"),
+    _RL2W_EDGE_CASES,
+)
 def test_rotate_local_to_world_edge_cases_bit_exact(x, y, theta_rad):
     _assert_bit_exact(
         rotate_local_to_world(x, y, theta_rad),
@@ -310,9 +344,10 @@ def test_rotate_local_to_world_edge_cases_bit_exact(x, y, theta_rad):
     )
 
 
-@pytest.mark.parametrize("x", _NUMERIC_EDGES)
-@pytest.mark.parametrize("y", _NUMERIC_EDGES)
-@pytest.mark.parametrize("theta_rad", _THETA_EDGES)
+@pytest.mark.parametrize(
+    ("x", "y", "theta_rad"),
+    _RL2W_EDGE_CASES,
+)
 def test_rotate_world_to_local_edge_cases_bit_exact(x, y, theta_rad):
     _assert_bit_exact(
         rotate_world_to_local(x, y, theta_rad),
@@ -321,11 +356,10 @@ def test_rotate_world_to_local_edge_cases_bit_exact(x, y, theta_rad):
     )
 
 
-@pytest.mark.parametrize("lx", _NUMERIC_EDGES[:12])  # finite only: inf/nan origins
-@pytest.mark.parametrize("ly", _NUMERIC_EDGES[:12])
-@pytest.mark.parametrize("ox", _NUMERIC_EDGES[:12])
-@pytest.mark.parametrize("oy", _NUMERIC_EDGES[:12])
-@pytest.mark.parametrize("theta_rad", _THETA_EDGES[:10])  # finite + zero thetas
+@pytest.mark.parametrize(
+    ("lx", "ly", "ox", "oy", "theta_rad"),
+    _PL2W_EDGE_CASES,
+)
 def test_place_local_to_world_edge_cases_bit_exact(lx, ly, ox, oy, theta_rad):
     _assert_bit_exact(
         place_local_to_world(lx, ly, ox, oy, theta_rad),
@@ -339,6 +373,48 @@ def test_shapely_rotation_angle_edge_cases_bit_exact(theta_deg):
     assert shapely_rotation_angle_deg(theta_deg).hex() == (
         _oracle_shapely_rotation_angle_deg(theta_deg).hex()
     ), f"sra edge ({theta_deg!r})"
+
+
+# ---------------------------------------------------------------------------
+# Infinite-theta domain error (CPython behavior parity)
+# ---------------------------------------------------------------------------
+
+# CPython `math.cos(±inf)` / `math.sin(±inf)` raise
+# `ValueError("math domain error")` (libm NaN + errno=EDOM, converted to
+# an exception by the math_1 wrapper). The pre-migration module therefore
+# RAISED for an infinite rotation; the shim must too — a silent NaN where
+# the old code raised loudly would be a behavioral regression. NaN, by
+# contrast, passes through as NaN on both sides (pinned bit-exactly above).
+
+
+@pytest.mark.parametrize("theta_rad", [float("inf"), float("-inf")])
+def test_infinite_theta_raises_math_domain_error(theta_rad):
+    # the ORACLE raises — this is the pre-migration behavior being pinned
+    with pytest.raises(ValueError, match="math domain error"):
+        _oracle_rotate_local_to_world(1.0, -2.0, theta_rad)
+    with pytest.raises(ValueError, match="math domain error"):
+        _oracle_rotate_world_to_local(1.0, -2.0, theta_rad)
+    with pytest.raises(ValueError, match="math domain error"):
+        _oracle_place_local_to_world(0.5, 0.3, 12.5, -7.25, theta_rad)
+    # ...and the shim must raise identically
+    with pytest.raises(ValueError, match="math domain error"):
+        rotate_local_to_world(1.0, -2.0, theta_rad)
+    with pytest.raises(ValueError, match="math domain error"):
+        rotate_world_to_local(1.0, -2.0, theta_rad)
+    with pytest.raises(ValueError, match="math domain error"):
+        place_local_to_world(0.5, 0.3, 12.5, -7.25, theta_rad)
+
+
+@pytest.mark.parametrize("theta_deg", [float("inf"), float("-inf")])
+def test_infinite_theta_deg_raises_math_domain_error(theta_deg):
+    with pytest.raises(ValueError, match="math domain error"):
+        _oracle_rotate_local_to_world_deg(1.0, -2.0, theta_deg)
+    with pytest.raises(ValueError, match="math domain error"):
+        _oracle_rotate_world_to_local_deg(1.0, -2.0, theta_deg)
+    with pytest.raises(ValueError, match="math domain error"):
+        rotate_local_to_world_deg(1.0, -2.0, theta_deg)
+    with pytest.raises(ValueError, match="math domain error"):
+        rotate_world_to_local_deg(1.0, -2.0, theta_deg)
 
 
 # ---------------------------------------------------------------------------
