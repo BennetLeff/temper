@@ -87,16 +87,55 @@ fn py_min(xs: &[f64]) -> f64 {
 // Geometry: pin_world_position  (core/pin_geometry.py + geometry/kicad_transform.py)
 // ===========================================================================
 
-/// `core/pin_geometry._normalize_rotation` for the integer-index branch.
+/// `core/pin_geometry._normalize_rotation`'s **integer-index** branch:
+/// a quarter-turn index becomes radians.
 ///
-/// `Component.initial_rotation` is a rotation *index* (0-3), and the oracle's
-/// `isinstance(rotation, int)` branch computes `rotation * math.pi / 2.0`.
-/// `None` is 0.0 rad.
-fn normalize_rotation(rotation: Option<i64>) -> f64 {
-    match rotation {
-        None => 0.0,
-        Some(r) => (r as f64) * std::f64::consts::PI / 2.0,
+/// Out-of-range indices (`5`, `-1`) keep multiplying without validation,
+/// because the oracle does.
+fn normalize_rotation_index(index: i64) -> f64 {
+    (index as f64) * std::f64::consts::PI / 2.0
+}
+
+/// `core/pin_geometry._normalize_rotation`, whole dispatch.
+///
+/// Mirrors `temper_geometry`'s `rot_to_radians`, the canonical implementation
+/// the Python shim binds as `_normalize_rotation`:
+///
+/// ```text
+/// None  -> 0.0
+/// int   -> index * PI / 2      (a quarter-turn INDEX)
+/// float -> as-is               (already RADIANS)
+/// ```
+///
+/// The int and float branches mean different things, and that is the whole
+/// subtlety. This kernel used to bind the value as `Option<i64>`, which the
+/// migration-narrowing gate flagged: pyo3 REJECTS a non-integral float on an
+/// `i64` extract rather than truncating, so a fractional rotation raised
+/// `TypeError` where the Python arm returned an angle -- the same defect
+/// already fixed in `escape_via.rs`.
+///
+/// Widening the binding to `Option<f64>` does NOT fix it. That accepts the
+/// float but then multiplies it by PI/2, treating radians as an index; the
+/// supplemental regression caught the resulting divergence
+/// (`0x1.6a09e667f3bccp+0` vs `0x1.5b64e20408024p+0` at `rotation=0.5`).
+/// Reproducing the dispatch is the fix; widening alone just trades a loud
+/// `TypeError` for a quiet wrong number.
+///
+/// `bool` extracts as `i64` in pyo3 and so takes the index branch, matching
+/// the oracle's `isinstance(rotation, int)` being True for `bool`.
+///
+/// Duplicated rather than imported: `temper-rust-router` does not depend on
+/// `temper-geometry`, and adding that edge for one 8-line dispatch is a
+/// heavier change than this comment. If the canonical version changes, this
+/// must change with it.
+fn rot_to_radians(rot: &Bound<'_, PyAny>) -> PyResult<f64> {
+    if rot.is_none() {
+        return Ok(0.0);
     }
+    if let Ok(index) = rot.extract::<i64>() {
+        return Ok(normalize_rotation_index(index));
+    }
+    rot.extract::<f64>()
 }
 
 /// `geometry/kicad_transform.rotate_local_to_world` -- R(-theta).
@@ -119,7 +158,7 @@ fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
 /// this kernel can see", which was true of the corpus and false of any real
 /// board with a back-side component.
 fn pin_world_position(pin_pos: (f64, f64), comp: &CompRow) -> (f64, f64) {
-    let rotation_rad = normalize_rotation(comp.rotation);
+    let rotation_rad = comp.rotation_rad;
     // `side = comp.initial_side or 0`, then mirror X BEFORE rotation --
     // KiCad's bottom-side convention, and the order matters: mirroring after
     // rotation gives a different point for any non-zero rotation.
@@ -144,7 +183,11 @@ struct PinRow {
 
 struct CompRow {
     position: Option<(f64, f64)>,
-    rotation: Option<i64>,
+    /// `_normalize_rotation(initial_rotation)` -- RESOLVED RADIANS, not the
+    /// raw index. Resolution happens at parse time (`rot_to_radians`) because
+    /// the int/float dispatch needs the live Python object, which is gone by
+    /// the time this struct exists.
+    rotation_rad: f64,
     /// `Component.initial_side`. Optional so a 4-tuple row still parses.
     side: Option<i64>,
     pins: Vec<PinRow>,
@@ -156,7 +199,7 @@ fn parse_components(components: &Bound<'_, PyAny>) -> PyResult<Vec<CompRow>> {
     for row in components.try_iter()? {
         let row = row?;
         let position: Option<(f64, f64)> = row.get_item(1)?.extract()?;
-        let rotation: Option<i64> = row.get_item(2)?.extract()?;
+        let rotation_rad = rot_to_radians(&row.get_item(2)?)?;
         // 5th element is optional: a 4-tuple row keeps the old shape and is
         // treated as front-side, which is what every pre-existing corpus row
         // relies on.
@@ -174,7 +217,7 @@ fn parse_components(components: &Bound<'_, PyAny>) -> PyResult<Vec<CompRow>> {
         }
         out.push(CompRow {
             position,
-            rotation,
+            rotation_rad,
             side,
             pins,
         });
@@ -1280,7 +1323,7 @@ mod tests {
 
     #[test]
     fn quadrant_rotation_is_not_an_exact_axis_swap() {
-        let (x, y) = rotate_local_to_world(0.9375, 0.0, normalize_rotation(Some(1)));
+        let (x, y) = rotate_local_to_world(0.9375, 0.0, normalize_rotation_index(1));
         assert_ne!(x, 0.0, "cos(pi/2) residue was optimised away");
         assert_eq!(y, -0.9375);
         assert_eq!(x, 0.9375 * std::f64::consts::FRAC_PI_2.cos());

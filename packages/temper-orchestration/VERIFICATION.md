@@ -860,6 +860,128 @@ numeric bodies they delegate to are already-differential-tested kernels.
 | D1 PBT (P1..P6, mutation-guarded) | `packages/temper-placer/tests/deterministic/test_deterministic_d1_pbt.py` | 12 |
 | D1 stage runner (sequences ConfigAttachStage + NetOrderingStage + DrcOracleSetupStage + NetClassSetupStage through `PipelineRunner<BoardState>`, with sys.modules-registered fakes for the venv-only Python modules) | `packages/temper-orchestration/tests/d1_stages_runner.rs` | 5 |
 
+## Rust orchestration engine — D2 (deterministic zone stages)
+
+Phase D batch D2 of the Rust Orchestration Engine plan (2026-08-09-001):
+the orchestration of the three deterministic zone stages
+(`deterministic/stages/{zone_geometry,zone_assignment,slot_generation}.py`,
+~213 LOC) moves to `temper-orchestration` as `Stage<BoardState>` implementors
+(`zone_geometry_stage.rs` + `zone_assignment_stage.rs` +
+`slot_generation_stage.rs`, with the Python↔Rust BoardState conversion seam
+extended in `d1_bridge.rs`). Depends on D1 (the same conversion seam and
+Stage pattern).
+
+### What migrated
+
+| Python stage | Rust stage | Reads from BoardState | Writes to BoardState |
+|---|---|---|---|
+| `zone_geometry.py` (105) | `ZoneGeometryStage` | `board` (width/height) | `zones` (frozenset of `Zone`) |
+| `zone_assignment.py` (54) | `ZoneAssignmentStage` | `netlist` | `component_zone_map` (frozenset of `(ref, zone)`) |
+| `slot_generation.py` (54) | `SlotGenerationStage` | `zones` | `zone_slots` (frozenset of `(zone_name, slots_tuple)`) |
+
+The stages read the `Py<PyAny>` BoardState fields via py.getattr (D2: no
+field is tightened speculatively — the `d1_bridge.rs` conversion stays a
+pure Py pass-through) and write the changed fields back through
+`dataclasses.replace` from Rust. The Python shims stay thin: `run(state)`
+crosses the FFI once per stage through the exported pyfunctions
+(`run_zone_geometry` / `run_zone_assignment` / `run_slot_generation`).
+The `Zone` dataclass stays Python (kept by the shim; the stage constructs
+its `Zone` objects by importing it) and `SlotGenerationStage.
+_generate_slots_for_zone` stays as a leaf-delegation helper because
+`ZoneAwareSlotGenerationStage` subclasses `SlotGenerationStage` and calls it
+from its own `run` (a real consumer that bypasses this stage's `run`).
+
+**What stays Python (evidence)**: the leaf kernels
+(`temper_design_bundle_python.deterministic_stages.define_zone_layout` /
+`scale_zone_bounds` / `assign_component_zones` / `generate_slots_for_zone`)
+are the already-migrated Phase-5 first-slice kernels, called from the Rust
+stages as thin delegation (bit-exactness of that delegation is exactly what
+the differential pins). The `Zone` dataclass and the subclass-visible
+`_generate_slots_for_zone` helper stay Python. No new Python API is
+invented.
+
+### G1 — differential oracle before Rust (TDD)
+
+The three pre-migration modules are pinned VERBATIM as
+`tests/deterministic/_zone_geometry_py_oracle.py`,
+`_zone_assignment_py_oracle.py`, `_slot_generation_py_oracle.py` (only
+relative imports rewritten to absolute paths; each body's sha256 is pinned
+in the differential, which fails on any drift — the bodies were diffed
+against `git show origin/main:<module>` and are byte-identical below the
+marker).
+
+### G2 — behavioural A/B (bit-exact)
+
+`tests/deterministic/test_deterministic_d2_rust_differential.py`: 21 tests
+drive both arms with identical BoardState inputs and compare every
+observable output bit-exactly — `state.zones` (projected to `(name,
+bounds)` and canoned with `float.hex()`, keeping int-vs-float distinct),
+`state.component_zone_map`, and `state.zone_slots` across the guards, the
+default 4-zone layout (int and float boards), dict configs (with and
+without `bounds_ratio`), CopperZone objects (flat 4-tuple Rect bounds
+nested), mixed configs incl. the unknown-format `print` warning (stdout
+captured and compared byte-for-byte), empty configs, the empty-zones
+no-clobber path, spacing that produces the naive `+=` drift (0.1mm), and a
+zone→assignment→slots chain. Notable pinned semantics: the identity-
+preserving guards (both arms return the state object unchanged on a guard
+hit, including the `frozenset()` BoardState defaults — the truthiness guard
+fires on an EMPTY `zones` too, so pre-populated `zone_slots` survive an
+empty-zones pass), the dict-branch default `[0, 0, 1, 1]`, the int-vs-float
+type-carrying bounds, and the `dict(pairs)` → `frozenset(dict.items())`
+insertion-order-preserving wrap.
+
+### G3 — performance
+
+Pure-delegation carve-out: each stage crosses the FFI once per `run()`; the
+compute is unchanged (already-Rust kernels). No regression beyond the single
+FFI crossing is possible or claimed.
+
+### G4 — PBT (`tests/deterministic/test_deterministic_d2_pbt.py`)
+
+Seven non-vacuous properties (P1 zone-geometry no-board guard, P2 the
+4-zone layout covering the full board, P3 dict-config ratio scaling, P4
+zone-assignment coverage with valid zones, P5 no-netlist guard, P6
+slot-grids strictly inside their bounds with the half-cell anchor, P7
+no-zones guard), each with a fails-for-mutant companion re-running the same
+body against a degenerate stand-in and asserting the property trips — the
+established U4 PBT vacuity-guard pattern. 14 tests green.
+
+### G5 — metamorphic
+
+Not claimed: the D2 stages are orchestration over stateful Python objects
+(and their leaf compute is already metamorphic-covered by the Phase-5
+kernels), not pure functions; the differential and PBT arms pin the
+behavioural surface. Recorded as N/A per the plan's per-module G5
+discretion (same ruling as D1).
+
+### G6 — induction
+
+Non-applicability note: the stages are finite loops over caller-provided
+collections (zone configs, netlist components, zone frozensets); no
+recursive or size-parameterized computation. Structural proof instead:
+bit-exactness verified by the differential and the PBT vacuity mutants.
+
+### G7 — Rust bar
+
+No `unwrap` outside tests (clippy `unwrap_used`/`expect_used` = deny in the
+lib target; the runner test file carries the tests-only allow). Every stage
+body is wrapped in `stage_guard` (`catch_unwind` → `StageError::Fatal`).
+Clippy clean on `--all-targets -- -D warnings`; `cargo test` 85/85 green
+(71 lib + 5 D1 runner + 5 D2 runner + 4 U4 runner).
+
+### G8 — R24 physics
+
+N/A — the stages gate on no physics quantity; the leaf kernels they delegate
+to are already-differential-tested Phase-5 kernels.
+
+### Differential / PBT / runner suites (D2)
+
+| Suite | Location | Count |
+|---|---|---|
+| D2 differential (oracles: `_*_py_oracle.py`, sha256-pinned) | `packages/temper-placer/tests/deterministic/test_deterministic_d2_rust_differential.py` | 21 |
+| D2 PBT (P1..P7, mutation-guarded) | `packages/temper-placer/tests/deterministic/test_deterministic_d2_pbt.py` | 14 |
+| D2 stage runner (sequences ZoneGeometryStage + ZoneAssignmentStage + SlotGenerationStage through `PipelineRunner<BoardState>`, with sys.modules-registered fakes for the venv-only Python modules) | `packages/temper-orchestration/tests/d2_stages_runner.rs` | 5 |
+
 ## Rust orchestration engine — U8 (explainability data contracts + MarkdownReport)
 
 The Rust Orchestration Engine plan (2026-08-09-001) ships its Phase-A U8 unit

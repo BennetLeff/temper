@@ -142,7 +142,25 @@ jobs:
       - name: Build temper-wasm-test-runner for wasm32
         run: |
           set -euo pipefail
+          # `--features wasm-test-registry` is REQUIRED, not decorative.
+          # `--no-default-features` here turns off the runner's own default,
+          # which IS `wasm-test-registry` -- and that feature is the only
+          # thing that turns on `temper-drc-rs/wasm-test-registry`, which
+          # implies the `wasm-registry` feature gating
+          # `temper_drc_rs::wasm_test_registry` (temper-drc-rs/src/lib.rs:47).
+          # Without it the runner's `use temper_drc_rs::wasm_test_registry`
+          # fails to compile with E0432 and the whole nightly is red -- which
+          # is exactly what happened on every run of this workflow from the
+          # day it landed (2026-08-09, 2026-08-10) until this fix.
+          #
+          # `--no-default-features` is kept rather than dropped so the flag
+          # pair states the intent explicitly: no implicit features, exactly
+          # the registry we name. The runner's dependency on temper-drc-rs is
+          # already `default-features = false` in its manifest, so pyo3 is not
+          # pulled in by this line (see issue #872 for the separate
+          # feature-unification problem that does pull it in).
           cargo build --release --target wasm32-unknown-unknown --no-default-features \
+            --features wasm-test-registry \
             --manifest-path packages/temper-wasm-test-runner/Cargo.toml
 
       - name: Run wasm32 test registry (Node host)

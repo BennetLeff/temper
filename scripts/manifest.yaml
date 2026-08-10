@@ -586,6 +586,26 @@ scripts:
   - pathlib
   - sys
   - typing
+- path: check_migration_narrowing.py
+  purpose: 'CI gate: detect a Rust port silently narrowing a Python capability -- const-ification of a
+    module-level Python constant that stops reaching the delegate call (H_CONV_BACKGROUND), or numeric
+    narrowing at the pyo3 boundary (Option<i64> extraction where Python applies float()) -- neither shape
+    is visible to differential suites since they compare on generated inputs, not perturbed constants or
+    fractional values (2026-08-04/07 triage, fix/main-triage)'
+  owner: bennet
+  last_run: '2026-08-07'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+  - _lib.repo
+  - _lib.github_summary
 - path: check_net_classification.py
   purpose: 'CI gate: fail when safety-relevant net classification (HV/SELV) is decided by plain substring
     match against a hand-maintained keyword list, in parallel to elec/domain_manifest.yaml -- the defect
