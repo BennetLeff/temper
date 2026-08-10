@@ -494,6 +494,248 @@ pub fn build_capacitated_graph_py(
     .map_err(temper_py_bridge::panic_to_err)?
 }
 
+// ---------------------------------------------------------------------------
+// Edmonds-Karp min-cut (Wave 4 migration — networkx → Rust)
+//
+// Replicates networkx's `minimum_cut(..., flow_func=edmonds_karp)` exactly:
+// same BFS iteration order (adjacency insertion order), same augmenting-path
+// selection (shortest via BFS), same residual-graph semantics
+// (`build_residual_network` with symmetric edge pairs). The reachable
+// partition is bit-identical to the Python reference's — pinned by
+// `test_bottleneck_geometry_rust_differential.py`.
+// ---------------------------------------------------------------------------
+
+use std::collections::{HashMap, VecDeque};
+
+/// Residual edge in the Edmonds-Karp flow network.
+struct ResEdge {
+    to: usize,
+    cap: i64,
+    flow: i64,
+    rev: usize, // index of the reverse edge in `graph[to]`
+}
+
+/// Run Edmonds-Karp s-t min-cut on the capacitated graph.
+///
+/// `node_flat_indices`: sorted flat grid indices of nodes in the graph
+///   (the `nodes` vector from `build_capacitated_graph`).
+/// `edges`: `(u_flat, v_flat, capacity)` in the reference's emission order
+///   (the `edges` vector from `build_capacitated_graph`).
+/// `source_flat`: flat grid index of the source cell.
+/// `sink_flat`: flat grid index of the sink cell.
+///
+/// Returns `(max_flow, reachable_flat_indices, non_reachable_flat_indices)`.
+/// The reachable partition is bit-identical to networkx's `minimum_cut`
+/// partition: the residual network is built in edge insertion order, BFS
+/// iterates neighbours in that same order, and the final reachable-set BFS
+/// also iterates in insertion order.
+#[allow(clippy::unwrap_used)]
+fn min_cut_edmonds_karp(
+    node_flat_indices: &[i64],
+    edges: &[(i64, i64, i64)],
+    source_flat: i64,
+    sink_flat: i64,
+) -> Result<(i64, Vec<i64>, Vec<i64>), &'static str> {
+    // Map flat grid indices -> contiguous 0..N internal indices.
+    let flat_to_idx: HashMap<i64, usize> = node_flat_indices
+        .iter()
+        .enumerate()
+        .map(|(i, &f)| (f, i))
+        .collect();
+
+    let n = node_flat_indices.len();
+    let source = *flat_to_idx
+        .get(&source_flat)
+        .ok_or("source cell not in node set")?;
+    let sink = *flat_to_idx
+        .get(&sink_flat)
+        .ok_or("sink cell not in node set")?;
+
+    if source == sink {
+        // Trivial: source and sink are the same cell → cut value 0,
+        // reachable = {source}, non-reachable = everything else.
+        let reachable: Vec<i64> = vec![source_flat];
+        let non_reachable: Vec<i64> = node_flat_indices
+            .iter()
+            .copied()
+            .filter(|&f| f != source_flat)
+            .collect();
+        return Ok((0, reachable, non_reachable));
+    }
+
+    // Build residual graph in the reference's edge insertion order.
+    // Every forward edge (cap > 0) gets a reverse edge (cap = 0) for
+    // flow cancellation — matching `build_residual_network` semantics.
+    let mut graph: Vec<Vec<ResEdge>> = (0..n).map(|_| Vec::new()).collect();
+
+    for &(u_flat, v_flat, cap) in edges {
+        if cap <= 0 {
+            continue;
+        }
+        let u = flat_to_idx[&u_flat];
+        let v = flat_to_idx[&v_flat];
+
+        // Compute reverse indices before pushing (avoids borrowing graph[u]
+        // and graph[v] simultaneously).
+        let rev_u_idx = graph[v].len();
+        let rev_v_idx = graph[u].len();
+
+        graph[u].push(ResEdge {
+            to: v,
+            cap,
+            flow: 0,
+            rev: rev_u_idx,
+        });
+        graph[v].push(ResEdge {
+            to: u,
+            cap: 0,
+            flow: 0,
+            rev: rev_v_idx,
+        });
+    }
+
+    // Edmonds-Karp: BFS for shortest augmenting path, matching
+    // networkx's `edmonds_karp_core` (list.pop(0) = FIFO,
+    // iteration in insertion order).
+    loop {
+        let mut pred_node: Vec<Option<usize>> = vec![None; n];
+        let mut pred_edge: Vec<Option<usize>> = vec![None; n];
+        let mut queue = VecDeque::new();
+
+        queue.push_back(source);
+        pred_node[source] = Some(source); // marker (value not used)
+
+        while let Some(u) = queue.pop_front() {
+            for (ei, e) in graph[u].iter().enumerate() {
+                if pred_node[e.to].is_none() && e.cap > e.flow {
+                    pred_node[e.to] = Some(u);
+                    pred_edge[e.to] = Some(ei);
+                    if e.to == sink {
+                        break;
+                    }
+                    queue.push_back(e.to);
+                }
+            }
+            if pred_node[sink].is_some() {
+                break;
+            }
+        }
+
+        if pred_node[sink].is_none() {
+            break; // no augmenting path → max flow reached
+        }
+
+        // Find bottleneck capacity along the augmenting path.
+        let mut bottleneck = i64::MAX;
+        let mut v = sink;
+        while v != source {
+            let u = pred_node[v].unwrap();
+            let ei = pred_edge[v].unwrap();
+            bottleneck = bottleneck.min(graph[u][ei].cap - graph[u][ei].flow);
+            v = u;
+        }
+
+        // Augment flow along the path (forward +edge, reverse -edge).
+        v = sink;
+        while v != source {
+            let u = pred_node[v].unwrap();
+            let ei = pred_edge[v].unwrap();
+            graph[u][ei].flow += bottleneck;
+            let rev = graph[u][ei].rev;
+            graph[v][rev].flow -= bottleneck;
+            v = u;
+        }
+    }
+
+    // Max flow = net flow out of source (sum of flows on all edges
+    // incident from source — forward pushes minus reverse cancellations).
+    let max_flow: i64 = graph[source].iter().map(|e| e.flow).sum();
+
+    // Partition via networkx's `minimum_cut` algorithm exactly:
+    // 1. Remove saturated edges (capacity == flow).
+    // 2. Find all nodes that can REACH THE SINK via unsaturated edges
+    //    (reverse BFS from sink).  Those are the *non-reachable*
+    //    (sink-side) partition.  Every other node is *reachable*
+    //    (source-side).
+    //
+    // This is NOT a forward BFS from source — a saturated forward edge
+    // blocks source → neighbour forward reachability even when the
+    // reverse edge has positive residual (e.g. flow == -1 on a 0-cap
+    // reverse).  Networkx's `minimum_cut` makes the sink the root of
+    // the search, and only unsaturated edges matter.
+    //
+    // Build reverse adjacency of unsaturated edges for the sink-side BFS.
+    let mut reverse_adj: Vec<Vec<usize>> = vec![Vec::new(); n];
+    for (u, edges) in graph.iter().enumerate() {
+        for e in edges {
+            if e.cap > e.flow {
+                reverse_adj[e.to].push(u);
+            }
+        }
+    }
+
+    // BFS from sink in the *reverse* graph — nodes that can reach the
+    // sink via unsaturated paths.
+    let mut can_reach_sink = vec![false; n];
+    let mut queue = VecDeque::new();
+    can_reach_sink[sink] = true;
+    queue.push_back(sink);
+
+    while let Some(v) = queue.pop_front() {
+        for &u in &reverse_adj[v] {
+            if !can_reach_sink[u] {
+                can_reach_sink[u] = true;
+                queue.push_back(u);
+            }
+        }
+    }
+
+    // non_reachable = sink-side partition (can reach sink)
+    // reachable = source-side partition (cannot reach sink)
+    let non_reachable_flat: Vec<i64> = (0..n)
+        .filter(|&i| can_reach_sink[i])
+        .map(|i| node_flat_indices[i])
+        .collect();
+
+    let reachable_flat: Vec<i64> = (0..n)
+        .filter(|&i| !can_reach_sink[i])
+        .map(|i| node_flat_indices[i])
+        .collect();
+
+    Ok((max_flow, reachable_flat, non_reachable_flat))
+}
+
+// ---------------------------------------------------------------------------
+// PyO3 wrapper for the min-cut kernel
+// ---------------------------------------------------------------------------
+
+/// Run Edmonds-Karp min-cut on the capacitated graph emitted by
+/// `build_capacitated_graph_py`.
+///
+/// `node_flat_indices`: sorted flat grid indices of nodes.
+/// `edges`: `(u_flat, v_flat, capacity)` in the reference's emission order.
+/// `source_flat`: flat grid index of the source cell.
+/// `sink_flat`: flat grid index of the sink cell.
+///
+/// Returns `(cut_value, reachable_flat_indices, non_reachable_flat_indices)`.
+/// Raises `ValueError` when source or sink is not in the node set.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn min_cut_py(
+    node_flat_indices: Vec<i64>,
+    edges: Vec<(i64, i64, i64)>,
+    source_flat: i64,
+    sink_flat: i64,
+) -> PyResult<(i64, Vec<i64>, Vec<i64>)> {
+    temper_py_bridge::catch_unwind(|| -> PyResult<(i64, Vec<i64>, Vec<i64>)> {
+        match min_cut_edmonds_karp(&node_flat_indices, &edges, source_flat, sink_flat) {
+            Ok(result) => Ok(result),
+            Err(msg) => Err(pyo3::exceptions::PyValueError::new_err(msg)),
+        }
+    })
+    .map_err(temper_py_bridge::panic_to_err)?
+}
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 #[allow(clippy::expect_used)]
@@ -723,5 +965,144 @@ mod tests {
         .unwrap();
         assert_eq!(nodes.len(), 400);
         assert_eq!(edges.len(), 2 * (19 * 20 + 19 * 20)); // horizontal + vertical adjacencies
+    }
+
+    // -----------------------------------------------------------------------
+    // Min-cut tests
+    // -----------------------------------------------------------------------
+
+    fn min_cut_ok(
+        nodes: &[i64],
+        edges: &[(i64, i64, i64)],
+        src: i64,
+        sink: i64,
+    ) -> (i64, Vec<i64>, Vec<i64>) {
+        min_cut_edmonds_karp(nodes, edges, src, sink).unwrap()
+    }
+
+    #[test]
+    fn test_min_cut_source_not_in_set() {
+        assert!(min_cut_edmonds_karp(&[0, 1], &[], 99, 1).is_err());
+    }
+
+    #[test]
+    fn test_min_cut_sink_not_in_set() {
+        assert!(min_cut_edmonds_karp(&[0, 1], &[], 0, 99).is_err());
+    }
+
+    #[test]
+    fn test_min_cut_trivial_same_source_sink() {
+        let (cut, reachable, non_reachable) =
+            min_cut_ok(&[0, 1, 2], &[(0, 1, 4), (1, 0, 4), (1, 2, 4), (2, 1, 4)], 1, 1);
+        assert_eq!(cut, 0);
+        assert_eq!(reachable, vec![1]);
+        assert_eq!(non_reachable.len(), 2);
+        assert!(non_reachable.contains(&0));
+        assert!(non_reachable.contains(&2));
+    }
+
+    #[test]
+    fn test_min_cut_single_node_no_edges() {
+        let (cut, reachable, non_reachable) = min_cut_ok(&[0], &[], 0, 0);
+        assert_eq!(cut, 0);
+        assert_eq!(reachable, vec![0]);
+        assert!(non_reachable.is_empty());
+    }
+
+    #[test]
+    fn test_min_cut_two_nodes_one_edge() {
+        // single edge from 0 to 1 with capacity 4
+        let (cut, reachable, non_reachable) = min_cut_ok(
+            &[0, 1],
+            &[(0, 1, 4), (1, 0, 4)],
+            0,
+            1,
+        );
+        assert_eq!(cut, 4);
+        assert_eq!(reachable, vec![0]);
+        assert_eq!(non_reachable, vec![1]);
+    }
+
+    #[test]
+    fn test_min_cut_3x3_free_grid() {
+        // Build the same graph the kernel emits for a 3x3 free grid
+        // (see test_graph_full_grid_edges_and_order above).
+        let trace = vec![0i32; 9];
+        let pad = vec![0i32; 9];
+        let (nodes, edges) = build_capacitated_graph(
+            &trace,
+            &pad,
+            &ranks(NO_CLASS_RANK),
+            3,
+            3,
+            1,
+            &[(0, 0, 0)],
+            &[(0, 2, 2)],
+            -1,
+            None,
+        )
+        .unwrap();
+        // source (0,0,0)=0, sink (0,2,2)=8
+        let (cut, reachable, non_reachable) = min_cut_ok(&nodes, &edges, 0, 8);
+        // The min-cut of a 3x3 grid graph (4-neighbour) between opposite
+        // corners is at least 4 (two parallel paths of capacity 4 each).
+        // Reachable set should NOT be all nodes.
+        assert!(cut >= 4);
+        assert!(!reachable.is_empty());
+        assert!(!non_reachable.is_empty());
+        assert!(reachable.contains(&0));
+        assert!(non_reachable.contains(&8));
+    }
+
+    #[test]
+    fn test_min_cut_disconnected_islands() {
+        // A 1x3 grid where the middle cell is hard-blocked (-2).
+        // Source at (0,0,0)=0, sink at (0,0,2)=2.  Both are nodes
+        // (capacity 4 each), but no edge connects them because the
+        // middle cell is not a node.  Min-cut = 0.
+        let mut trace = vec![0i32; 3];
+        trace[1] = -2; // middle cell hard-blocked
+        let pad = vec![0i32; 3];
+        let (nodes, edges) = build_capacitated_graph(
+            &trace,
+            &pad,
+            &ranks(NO_CLASS_RANK),
+            1,
+            3,
+            1,
+            &[(0, 0, 0)],
+            &[(0, 0, 2)],
+            -1,
+            None,
+        )
+        .unwrap();
+        assert_eq!(nodes, vec![0, 2]);
+        assert!(edges.is_empty());
+        let (cut, reachable, non_reachable) = min_cut_ok(&nodes, &edges, 0, 2);
+        assert_eq!(cut, 0);
+        assert_eq!(reachable, vec![0]);
+        assert_eq!(non_reachable, vec![2]);
+    }
+
+    #[test]
+    fn test_min_cut_deterministic_across_runs() {
+        let trace = vec![0i32; 25];
+        let pad = vec![0i32; 25];
+        let (nodes, edges) = build_capacitated_graph(
+            &trace,
+            &pad,
+            &ranks(NO_CLASS_RANK),
+            5,
+            5,
+            1,
+            &[(0, 0, 0)],
+            &[(0, 4, 4)],
+            -1,
+            None,
+        )
+        .unwrap();
+        let a = min_cut_ok(&nodes, &edges, 0, 24);
+        let b = min_cut_ok(&nodes, &edges, 0, 24);
+        assert_eq!(a, b);
     }
 }
