@@ -95,6 +95,24 @@ to `x * x` in optimized code (probe-verified), which is exactly why
 ## Verify (on a clean release rebuild)
 
 - `cargo test -p temper-thermal` — 188 passed; clippy clean.
-- `tests/physics/` — 1028 passed (was 4 failed).
+- `tests/physics/` — 1028 passed in the post-fix full run.
 - `tests/validation/test_thermal_scorer*.py` — 47 passed.
-- `import_linter_gate.py` and `make regen-check` — see gates below.
+- `import_linter_gate.py` and `make regen-check` — green.
+
+## Discovered, pre-existing, OUT of scope: flaky `test_p6_anchors_are_unique`
+
+While re-running the full `tests/physics/` dir, hypothesis falsified
+`test_thermal_potential_rust_pbt.py::test_p6_anchors_are_unique`:
+`board=(0, 0, 40, 21)`, `devices=[('Q0',0.0),('Q1',0.0),('Q2',1.0),
+('Q3',0.0),('Q4',1.0)]` puts Q0 and Q3 BOTH at `(40.0, 21.0)` — the
+top-right corner.  `assign_thermal_anchors` nudges colliding devices by
+`offset_mm` toward `+x` and clamps at `x_max`; when two devices are both
+pushed into the same corner the clamp makes them coincide, violating R13
+("no two anchors within 0.1 mm").  Verified **not** introduced by this
+change: calling `assign_thermal_anchors` with the identical input on a
+pristine `main` build (325e4458, no #927 changes) returns the byte-identical
+coincident anchors.  The PBT is flaky run-to-run (hypothesis randomness:
+the first post-fix full run passed it, the second found the counterexample,
+which the per-worktree `.hypothesis` DB then replays deterministically).
+Left as a separate follow-up — it is a real pre-existing R13 violation in
+`thermal_potential`, unrelated to the #927 pow/NaN differentials.
