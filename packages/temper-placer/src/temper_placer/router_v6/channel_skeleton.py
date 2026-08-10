@@ -13,7 +13,6 @@ import networkx as nx
 import numpy as np
 import shapely
 import temper_geometry as _tg
-from scipy.spatial import cKDTree
 from shapely.geometry import LineString, MultiPolygon, Polygon
 
 from temper_placer.core.pin_geometry import pin_world_position
@@ -177,7 +176,7 @@ def extract_channel_skeleton(
                 pads_added += 1
 
         if pads_added > 0:
-            print(f"  Added {pads_added} pad anchor nodes to skeleton")
+            pass
 
     return ChannelSkeleton(
         graph=G,
@@ -214,7 +213,6 @@ def _extract_medial_axis(
         # Combine skeletons from all polygons
         for p in polys:
             lines = _extract_medial_axis_single(p, simplify_tolerance)
-            print(f"  Extracted {len(lines)} skeleton lines")
             all_lines.extend(lines)
         return all_lines
     elif isinstance(polygon_or_multipolygon, Polygon):
@@ -340,6 +338,41 @@ def _bridge_validity_mask(
     return shapely.contains(buffered, line_arr)
 
 
+def _radius_pairs(positions: np.ndarray, radius: float) -> np.ndarray:
+    """All unordered index pairs ``(i, j)``, ``i < j``, within ``radius`` of
+    each other, delegating to ``temper_geometry.radius_pairs_transform``
+    (Rust, ``rstar`` R*-tree).
+
+    Matches the pair SET ``scipy.spatial.cKDTree(positions).query_pairs(r=radius,
+    output_type="ndarray")`` computes -- exactly (see
+    ``packages/temper-geometry/src/radius_pairs.rs``'s differential-corpus
+    tests and ``tests/router_v6/test_channel_skeleton_radius_pairs_rust_differential.py``).
+    This function's own pair ORDER is not part of its contract and is not
+    guaranteed to match scipy's: the caller (``_ensure_skeleton_connectivity``)
+    sorts candidates by an explicit ``(distance, i, j)`` key before consuming
+    them, precisely so that which spatial-index implementation produced the
+    unordered candidate set never affects the resulting MST -- see that
+    function's docstring, "Spatial-index migration" section, for why this
+    matters.
+
+    ``positions`` must be ``(N, 2)`` float64. Returns an ``(P, 2)`` int64
+    array (``P`` = number of pairs found), empty (shape ``(0, 2)``) when
+    there are none.
+
+    R19: the pre-migration ``scipy.spatial.cKDTree.query_pairs`` call is
+    retained, unused here, as the differential's pinned oracle in
+    ``tests/router_v6/test_channel_skeleton_radius_pairs_rust_differential.py``.
+    """
+    n = len(positions)
+    if n < 2:
+        return np.empty((0, 2), dtype=np.int64)
+    positions_c = np.ascontiguousarray(positions, dtype=np.float64)
+    out_bytes = _tg.radius_pairs_transform(positions_c.tobytes(), n, float(radius))
+    if len(out_bytes) == 0:
+        return np.empty((0, 2), dtype=np.int64)
+    return np.frombuffer(out_bytes, dtype="<i8").reshape(-1, 2)
+
+
 def _ensure_skeleton_connectivity(
     G: nx.Graph,
     max_bridge_distance: float = 5.0,
@@ -383,17 +416,24 @@ def _ensure_skeleton_connectivity(
     answer).
 
     Implementation:
-      - ``scipy.spatial.cKDTree.query_pairs(r=max_bridge_distance)`` finds
-        *every* node pair within the bridging radius in one call --
+      - ``_radius_pairs`` (``temper_geometry.radius_pairs_transform``, Rust
+        ``rstar`` R*-tree -- see ``packages/temper-geometry/src/radius_pairs.rs``)
+        finds *every* node pair within the bridging radius in one call --
         O(N log N + P) where P is the number of pairs within the radius
         (output-sensitive: bounded by local point density around each
         node, not by N^2; measured 44.1M pairs for N=41,271 nodes in 1.2s
-        on F.Cu, see the perf evidence doc). This is deliberately exact,
-        not a K-nearest-neighbour approximation: an approximate top-K
+        on F.Cu using the pre-migration ``scipy.spatial.cKDTree.query_pairs``
+        -- this call was migrated off scipy after that measurement, same
+        asymptotic bound). This is deliberately exact, not a
+        K-nearest-neighbour approximation: an approximate top-K
         candidate set was tried first and rejected -- see "Rejected
         alternatives" below.
       - Pairs are filtered to cross-component ones (O(P)), distances
-        computed vectorized (O(P)), then sorted ascending (O(P log P)).
+        computed vectorized (O(P)), then sorted ascending by an explicit
+        ``(distance, i, j)`` key (O(P log P)) -- the tie-break is
+        index-based rather than relying on whichever order the candidate
+        pairs originally arrived in, so which spatial-index backend
+        produced the set never affects the resulting MST.
       - Every cross-component candidate's geometry is validated against
         ``available_area`` in **one vectorized batch call**
         (``_bridge_validity_mask``: ``shapely.linestrings`` to construct
@@ -491,7 +531,6 @@ def _ensure_skeleton_connectivity(
     if n_components <= 1:
         return G  # Already connected
 
-    print(f"DEBUG: Skeleton has {n_components} disconnected islands, bridging...")
 
     nodes = list(G.nodes())
     positions = np.asarray(nodes, dtype=float)
@@ -505,8 +544,7 @@ def _ensure_skeleton_connectivity(
     uf = _UnionFind(n_components)
     merges = 0
 
-    tree = cKDTree(positions)
-    pairs = tree.query_pairs(r=max_bridge_distance, output_type="ndarray")
+    pairs = _radius_pairs(positions, max_bridge_distance)
 
     if len(pairs) > 0:
         ci_all = comp_id[pairs[:, 0]]
@@ -518,7 +556,12 @@ def _ensure_skeleton_connectivity(
             cand_dist = np.linalg.norm(
                 positions[cross_pairs[:, 0]] - positions[cross_pairs[:, 1]], axis=1
             )
-            order = np.argsort(cand_dist, kind="stable")
+            # Canonical tie-break: sort by (distance, i, j), not distance
+            # alone. `_radius_pairs` already guarantees i < j per pair (see
+            # its own docstring), so this is a total order with no ties --
+            # deterministic and independent of which spatial-index backend
+            # produced the candidate set.
+            order = np.lexsort((cross_pairs[:, 1], cross_pairs[:, 0], cand_dist))
             cross_pairs = cross_pairs[order]
             cand_dist = cand_dist[order]
 
@@ -547,17 +590,11 @@ def _ensure_skeleton_connectivity(
                 G.add_edge(a, b, weight=d)
                 uf.union(ci, cj)
                 merges += 1
-                print(f"DEBUG: Added bridge: {d:.2f}mm")
                 if merges == n_components - 1:
                     break
 
     if merges < n_components - 1:
         n_remaining = len({uf.find(c) for c in comp_id})
-        print(
-            f"DEBUG: Warning: Cannot bridge all islands within "
-            f"{max_bridge_distance}mm ({n_remaining} groups remain)"
-        )
-
     return G
 
 
