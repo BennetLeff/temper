@@ -116,6 +116,7 @@ mod grid_hv;
 mod grid_stage;
 mod host_math;
 mod net_ordering_stage;
+mod phased_assignment_stage;
 mod phased_component_assignment_validator_stage;
 mod pipeline;
 mod pipeline_state;
@@ -138,6 +139,7 @@ pub use config_attach_stage::ConfigAttachStage;
 pub use derivation_stage::DerivationStage;
 pub use grid_stage::ClearanceGridStage;
 pub use net_ordering_stage::NetOrderingStage;
+pub use phased_assignment_stage::PhasedAssignmentStage;
 pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
 pub use phased_component_assignment_validator_stage::phased_validator_hv;
 pub use preflight_stage::PreflightStage;
@@ -202,6 +204,8 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(component_assignment_stage::run_component_assignment_kernel, m)?)?;
     m.add_function(wrap_pyfunction!(phased_component_assignment_validator_stage::run_phased_validator_hv, m)?)?;
     m.add_function(wrap_pyfunction!(zone_aware_slot_generation_stage::run_zone_aware_slot_generation, m)?)?;
+    m.add_function(wrap_pyfunction!(phased_assignment_stage::run_phased_assignment, m)?)?;
+    m.add_function(wrap_pyfunction!(phased_assignment_stage::run_phase_select_best_slot, m)?)?;
     Ok(())
 }
 

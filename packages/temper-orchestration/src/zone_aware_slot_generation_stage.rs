@@ -594,7 +594,7 @@ fn slot_intersects_iso<'py>(
         .import("temper_design_bundle_python")?
         .getattr("deterministic_phase")?
         .getattr("slot_intersects_iso_py")?;
-    Ok(f.call1((slot, iso_aabbs))?.extract()?)
+    f.call1((slot, iso_aabbs))?.extract()
 }
 
 /// `_hv_clearance_overrides`: the HV word-boundary regex scan of the
