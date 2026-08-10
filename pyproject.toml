@@ -37,7 +37,6 @@ dev = [
     "sympy>=1.12",
     "python-sat>=1.9.dev5",
     "temper-geometry",
-    "temper-ipc",
     "temper-io-types",
     "temper-design-bundle",
     "temper-orchestration",
@@ -65,7 +64,6 @@ temper-placer = { workspace = true }
 temper-workflow = { workspace = true }
 temper-drc-rs = { workspace = true }
 temper-geometry = { workspace = true }
-temper-ipc = { workspace = true }
 temper-io-types = { workspace = true }
 temper-design-bundle = { workspace = true }
 temper-orchestration = { workspace = true }

@@ -128,7 +128,6 @@
         "packages/temper-py-bridge/**",
         "packages/temper-py-bridge-derive/**",
         "elec/**",
-        "packages/temper-ipc/**",
         "packages/temper-io-types/**",
         "packages/temper-constraint-compiler/**"
       ]
@@ -141,7 +140,6 @@
         "packages/temper-drc-rs/**",
         "packages/temper-geometry/**",
         "packages/temper-io-types/**",
-        "packages/temper-ipc/**",
         "packages/temper-pcl-ir/**",
         "packages/temper-placer/temper-constraints/**",
         "packages/temper-py-bridge/**",
@@ -191,7 +189,6 @@
         "packages/temper-drc-rs/**",
         "elec/**",
         "pcb/**",
-        "packages/temper-ipc/**",
         "packages/temper-io-types/**",
         "packages/temper-constraint-compiler/**"
       ]

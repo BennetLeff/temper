@@ -1373,3 +1373,94 @@ recorded instead.
   `--no-default-features` `cargo test` clean.
 - **R1h.** Not applicable — none of these kernels gate a CP-SAT constraint
   on a physics quantity (recorded N/A).
+
+# IPC standard calculations (`ipc.rs`) — Verification
+
+The IPC-2221/2152 current-capacity and trace-width scalar slice
+(`src/ipc.rs`) was consolidated from the deleted `temper-ipc` crate
+(2026-08-09, third crate-fold of the consolidation program; precedents:
+`placement-topology` → `geometry`, `dsn` → `io-types`). `ipc.rs` carries the
+pure kernels and their unit/property tests verbatim from
+`temper-ipc/src/core.rs`; `ipc_pyo3.rs` is the wholly-pyo3 surface that
+exposes them on `temper_drc_rs`, exactly as the old crate's inline bridge did
+for `temper_ipc`. The Python consumers (`temper_placer/core/ipc2221.py`,
+`ipc2152.py`) were repointed import-only, bodies unchanged. The `temper-ipc`
+crate had no `VERIFICATION.md` to carry over, so this section records the
+kernels' verification state from first principles.
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** No kernel is
+recursive, and none iterates over a dimension whose correctness depends on a
+size parameter:
+
+- `estimate_trace_current` / `estimate_current_from_net_class` /
+  `calculate_min_trace_width` are closed-form evaluations of the IPC-2221 /
+  IPC-2152 power law (`I = k·ΔT^0.44·A^0.725`) on a fixed number of scalar
+  inputs.
+- `get_net_current` / `net_currents` perform a bounded substring lookup over
+  the fixed 9-entry W2 current table; the lookup result is order-dependent
+  only when a net name matches more than one key (a documented, pinned
+  divergence — see the differential test), never size-dependent.
+
+Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every ported symbol, the Rust behaviour
+is bit-identical to the pre-migration Rust behaviour — these kernels moved
+between crates verbatim, so the claim is trivially carried: the fold commit
+kept the body of every function and every test byte-for-byte (only the module
+doc block was rewritten), and the pyo3 wrappers delegate to the same
+functions with the same argument order, defaults, and `PyResult` plumbing.
+
+*Proof by structural cases.*
+
+1. **Forward ampacity.** `estimate_trace_current` applies the IPC-2221 power
+   law with `k = 0.024` (internal) / `0.048` (external); the unit tests pin
+   the known reference values (external 0.25 mm / 1 oz / 10 °C → ~0.87 A,
+   internal → ~0.44 A).
+2. **Inverse width.** `calculate_min_trace_width` is the algebraic inverse of
+   the forward law (same `k`, same exponent, thickness carried through);
+   unit tests pin the round-trip and the documented doctest values
+   (external 0.5 A → 0.1160 mm, internal 0.5 A → 0.3019 mm, external 2 A →
+   0.784 mm).
+3. **Net-current resolution.** `get_net_current` uppercases the input and
+   scans `net_currents()` for the first containing key, falling back to
+   `DEFAULT_SIGNAL_CURRENT` (0.1 A). The W2 table's 9 keys and the 0.1 A
+   default are unchanged from the source crate.
+4. **Module constants.** `NET_CURRENTS` and `DEFAULT_SIGNAL_CURRENT` are
+   re-exported by `ipc_pyo3::register` exactly as `temper_ipc` exposed them,
+   so `core/ipc2152.py`'s `from temper_drc_rs import (...)` re-export line
+   keeps its shape.
+
+## R24 physics-gate state applicability
+
+**N/A.** These kernels compute a current-carrying-capacity *scalar* from a
+trace width (and its inverse); they do not gate any CP-SAT constraint on a
+physics quantity, and the differential/PBT suite carries the verification
+evidence below. The pre-existing P1–P9 property suite (non-negativity,
+monotonicity in width/temp-rise/current, internal-vs-external ordering, and
+the round-trip identity within 1% relative tolerance) was ported along with
+the kernels.
+
+## Evidence
+
+- **Unit tests** — 11 tests carried verbatim in `ipc.rs`'s `#[cfg(test)]`
+  module (`test_estimate_external_1oz_10c`, `test_estimate_internal_conservative`,
+  `test_estimate_from_net_class`, `test_min_trace_width_roundtrip`,
+  `test_ipc2152_min_width_basic`, `test_ipc2152_current_capacity_roundtrip`,
+  `test_get_net_current_*` ×4, `test_get_net_current_zero_current`).
+- **Proptests** — 9 properties (P1–P9) carried verbatim: non-negativity,
+  monotonicity in width/temp-rise/current, external-carries-more /
+  internal-needs-wider, the ≤1% round-trip identity, and the always-non-
+  negative net-current lookup.
+- **Python coverage** — `tests/core/test_ipc2221.py` +
+  `tests/core/test_ipc2152.py` exercise the shims through the repointed
+  module; `tests/placer/cp_sat/test_net_currents_rust_differential.py`
+  pins the exact-vs-substring divergence against the StackupGate Python
+  authority; `tests/placer/cp_sat/test_ipc2152_pbt.py` /
+  `test_ipc2152_rust_differential.py` pin the placer gate consumers.
+- **R1g Rust practices** — `cargo check -p temper-drc-rs` clean with and
+  without the `python` feature; no `unwrap`/`expect` outside `#[cfg(test)]`
+  (crate clippy lint).
