@@ -45,12 +45,30 @@
 //!   (`cos(pi/2)` is `6.123233995736766e-17`, not exactly `0`) --
 //!   preserved exactly as `net_ordering.rs`'s sibling copy of this same
 //!   formula documents.
-//! * `Component.initial_rotation` is typed `int | None`
-//!   (`core/netlist.py`'s installed dataclass contract) -- the
-//!   float-radians branch of `_normalize_rotation` is unreachable through
-//!   the real object model, so [`normalize_rotation`] takes `Option<i64>`,
-//!   exactly like `net_ordering.rs`'s `pin_world_position` for the
-//!   identical reason.
+//! * `Component.initial_rotation` is typed `int | None` in
+//!   `core/netlist.py`'s installed dataclass contract, but
+//!   [`rot_to_radians`] reproduces `_normalize_rotation`'s full three-way
+//!   dispatch anyway, as does `net_ordering.rs`'s sibling copy: `None` is
+//!   `0.0`, an **int is a quarter-turn INDEX** scaled by `PI/2`, and a
+//!   **float is already RADIANS** and passes through untouched.
+//!
+//!   This module used to argue the reverse -- that the float branch is
+//!   unreachable through the real object model, so binding the value as
+//!   `Option<i64>` was safe. The contract claim is true; the conclusion was
+//!   not, because the CANONICAL kernel (`temper_geometry`'s
+//!   `normalize_rotation_py` / `rot_to_radians`) takes `&Bound<'_, PyAny>`
+//!   and accepts "None, int, or float" -- so the declared contract and the
+//!   canonical implementation disagree, and this kernel was quietly siding
+//!   with the narrower one. `escape_via.rs` made exactly that bet and lost:
+//!   pyo3 REJECTS a non-integral float rather than truncating, so a
+//!   fractional rotation raised `TypeError` instead of producing an angle.
+//!
+//!   Note that merely WIDENING the binding to `Option<f64>` does not fix
+//!   this -- it accepts the float and then multiplies it by `PI/2`, reading
+//!   radians as an index. That substitutes a quiet wrong number for a loud
+//!   `TypeError`; the supplemental regression in
+//!   `test_net_ordering_rust_supplemental.py` catches it. Reproducing the
+//!   dispatch is what actually fixes it.
 //! * `sorted(terminals, key=lambda t: t.identity)` in
 //!   `extract_net_terminals` is CPython's stable timsort. This module uses
 //!   `Vec::sort_by`, which the Rust standard library also guarantees
@@ -256,7 +274,9 @@ struct PinRow {
 struct ComponentRow {
     component_ref: String,
     initial_position: Option<(f64, f64)>,
-    initial_rotation: Option<i64>,
+    /// `_normalize_rotation(initial_rotation)` -- RESOLVED RADIANS, not the
+    /// raw index; the int/float dispatch needs the live Python object.
+    initial_rotation_rad: f64,
     initial_side: Option<i64>,
     pins: Vec<PinRow>,
 }
@@ -278,15 +298,37 @@ struct TerminalRow {
     is_pth: bool,
 }
 
-/// `core/pin_geometry._normalize_rotation`'s int-index branch. `None` is
-/// `0.0` rad. See this module's docstring: the float-radians branch is
-/// unreachable through `Component.initial_rotation`'s real `int | None`
-/// contract, so it is not modelled here.
-fn normalize_rotation(rotation: Option<i64>) -> f64 {
-    match rotation {
-        None => 0.0,
-        Some(r) => (r as f64) * std::f64::consts::PI / 2.0,
+/// `core/pin_geometry._normalize_rotation`'s **integer-index** branch.
+fn normalize_rotation_index(index: i64) -> f64 {
+    (index as f64) * std::f64::consts::PI / 2.0
+}
+
+/// `core/pin_geometry._normalize_rotation`, whole dispatch. Mirrors
+/// `temper_geometry`'s `rot_to_radians` -- see `net_ordering.rs`'s copy of
+/// this function for the full reasoning, which applies here identically:
+///
+/// ```text
+/// None  -> 0.0
+/// int   -> index * PI / 2      (a quarter-turn INDEX)
+/// float -> as-is               (already RADIANS)
+/// ```
+///
+/// This module previously bound the value as `Option<i64>`, arguing the float
+/// branch was "unreachable through `Component.initial_rotation`'s real
+/// `int | None` contract". The contract claim is true -- `core/netlist.py`
+/// does declare it -- but the canonical kernel accepts float anyway, so the
+/// declared contract and the canonical implementation disagreed and this
+/// kernel sided with the narrower one. pyo3 REJECTS a non-integral float on an
+/// `i64` extract rather than truncating, which is how the same shape became a
+/// real `TypeError` defect in `escape_via.rs`.
+fn rot_to_radians(rot: &Bound<'_, PyAny>) -> PyResult<f64> {
+    if rot.is_none() {
+        return Ok(0.0);
     }
+    if let Ok(index) = rot.extract::<i64>() {
+        return Ok(normalize_rotation_index(index));
+    }
+    rot.extract::<f64>()
 }
 
 /// `geometry/kicad_transform.rotate_local_to_world` -- R(-theta), KiCad's
@@ -307,7 +349,7 @@ fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
 /// `comp.initial_position or (0.0, 0.0)` only ever fires on `None` -- a
 /// non-`None` 2-tuple, even `(0.0, 0.0)` itself, is never falsy in Python.
 fn pin_world_position(pin: &PinRow, comp: &ComponentRow) -> (f64, f64) {
-    let rotation_rad = normalize_rotation(comp.initial_rotation);
+    let rotation_rad = comp.initial_rotation_rad;
     let side = comp.initial_side.unwrap_or(0);
     let (mut px, py) = pin.position;
     if side == 1 {
@@ -504,7 +546,7 @@ pub fn extract_net_terminals_py(
         let row = row?;
         let component_ref: String = row.getattr("ref")?.extract()?;
         let initial_position: Option<(f64, f64)> = row.getattr("initial_position")?.extract()?;
-        let initial_rotation: Option<i64> = row.getattr("initial_rotation")?.extract()?;
+        let initial_rotation_rad = rot_to_radians(&row.getattr("initial_rotation")?)?;
         let initial_side: Option<i64> = row.getattr("initial_side")?.extract()?;
         let mut pins: Vec<PinRow> = Vec::new();
         for prow in row.getattr("pins")?.try_iter()? {
@@ -520,7 +562,7 @@ pub fn extract_net_terminals_py(
         comp_rows.push(ComponentRow {
             component_ref,
             initial_position,
-            initial_rotation,
+            initial_rotation_rad,
             initial_side,
             pins,
         });
@@ -605,7 +647,7 @@ mod tests {
         let comp = ComponentRow {
             component_ref: "U1".to_string(),
             initial_position: Some((0.0, 0.0)),
-            initial_rotation: None,
+            initial_rotation_rad: 0.0,
             initial_side: None,
             pins: vec![PinRow {
                 name: "1".to_string(),
@@ -630,7 +672,7 @@ mod tests {
         let comp = ComponentRow {
             component_ref: "U1".to_string(),
             initial_position: Some((5.0, 5.0)),
-            initial_rotation: None,
+            initial_rotation_rad: 0.0,
             initial_side: Some(1),
             pins: vec![PinRow {
                 name: "1".to_string(),
