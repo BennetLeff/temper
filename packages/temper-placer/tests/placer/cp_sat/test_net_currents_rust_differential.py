@@ -1,9 +1,10 @@
-"""Differential test: temper_ipc ``get_net_current`` vs the StackupGate table.
+"""Differential test: temper_drc_rs ``get_net_current`` vs the StackupGate table.
 
 Wave 4 follow-up, Unit 2 — the "smallest stopped-at-differential-green" case.
 
-``temper_ipc.get_net_current`` (the Rust kernel in ``packages/temper-ipc``)
-resolves expected current by CASE-INSENSITIVE SUBSTRING matching against the
+``temper_drc_rs.get_net_current`` (the Rust kernel consolidated from
+``packages/temper-ipc`` into ``packages/temper-drc-rs``) resolves expected
+current by CASE-INSENSITIVE SUBSTRING matching against the
 ``NET_CURRENTS`` table; ``StackupGate._DEFAULT_NET_CURRENTS`` (the Python
 exact-match ``dict.get`` authority) holds the SAME 9 keys and the SAME
 ``_DEFAULT_CURRENT`` (0.1 A) fallback. This file pins the lookup against the
@@ -35,7 +36,7 @@ delegation is the wiring, the divergence is the documented gap.
 from __future__ import annotations
 
 import pytest
-import temper_ipc
+import temper_drc_rs
 from temper_placer.placer.cp_sat.gates import StackupGate
 
 # The Python exact-match authority under test.
@@ -54,13 +55,13 @@ def _python_lookup(net_name: str) -> float:
 
 @pytest.mark.parametrize("key", sorted(TABLE))
 def test_every_table_key_matches(key):
-    rust = float(temper_ipc.get_net_current(key))
+    rust = float(temper_drc_rs.get_net_current(key))
     assert rust == TABLE[key], f"Rust {key!r} -> {rust}, table {TABLE[key]}"
 
 
 def test_unknown_nets_agree_on_default():
     for name in ("SOME_RANDOM_NET", "", "NONEXISTENT"):
-        assert float(temper_ipc.get_net_current(name)) == DEFAULT
+        assert float(temper_drc_rs.get_net_current(name)) == DEFAULT
         assert _python_lookup(name) == DEFAULT
 
 
@@ -89,7 +90,7 @@ def test_unknown_nets_agree_on_default():
 def test_divergence_pinned_rust_widens_python(name):
     """Rust's case-insensitive substring match returns a table value where the
     Python exact table falls back to the default -- documented, not flipped."""
-    rust = float(temper_ipc.get_net_current(name))
+    rust = float(temper_drc_rs.get_net_current(name))
     py = _python_lookup(name)
     assert rust != py
     assert py == DEFAULT
