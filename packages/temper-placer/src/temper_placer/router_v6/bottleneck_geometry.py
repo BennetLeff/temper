@@ -1109,22 +1109,29 @@ def analyze_bottleneck(
     if current_net_class is None:
         current_net_class = getattr(net, "net_class", None)
 
-    # Build the capacitated graph (with timeout awareness). The
-    # ``deadline`` argument (Fix #4) lets the inner BFS and edge
-    # loops abort early on tight deadlines. ``TimeoutError`` is
-    # surfaced here as ``aborted_timeout`` to keep the closure
-    # test's diagnostic envelope stable.
+    # Build the capacitated graph and compute the s-t min-cut in one
+    # Rust kernel call (Wave 4 migration — networkx `minimum_cut` →
+    # Edmonds-Karp in Rust).  The kernel returns the cut value plus
+    # reachable / non-reachable partitions bit-identical to
+    # `nx.minimum_cut(..., flow_func=edmonds_karp)`.
+    #
+    # Deadline awareness (Fix #4): the Rust graph-build kernel enforces
+    # the 256-iteration stride deadline; the min-cut itself is fast
+    # (Edmonds-Karp is polynomial) and is checked with a post-cut
+    # wall-clock guard.
+    deadline_remaining = None
+    if deadline is not None:
+        deadline_remaining = deadline - time.monotonic()
+
     try:
-        g = _build_capacitated_graph(
+        nodes, edges = _build_capacitated_graph_rust(
             grid=grid,
             source_cells=source_cells,
             sink_cells=sink_cells,
             net_class_rules=net_class_rules,
-            board_state=board_state,
-            net_name=getattr(net, "name", ""),
-            deadline=deadline,
             pad_net_classes=pad_net_classes,
             current_net_class=current_net_class,
+            deadline_remaining_s=deadline_remaining,
         )
     except TimeoutError as exc:
         logger.debug("analyze_bottleneck graph build timeout: %s", exc)
@@ -1145,25 +1152,31 @@ def analyze_bottleneck(
             message=f"{getattr(net, 'name', '?')}: graph build exceeded budget",
         )
 
-    # Choose a representative source / sink cell.
+    # Choose a representative source / sink cell and check they are in
+    # the node set.
     src = source_cells[0]
     sink = sink_cells[0]
-    if src not in g or sink not in g:
+    node_to_flat: dict[tuple[int, int, int], int] = {cell: i for i, cell in enumerate(nodes)}
+    if src not in node_to_flat or sink not in node_to_flat:
         return _empty_bottleneck(
             "aborted_no_sink",
             message=f"{getattr(net, 'name', '?')}: pad not in graph",
         )
 
-    # Compute the s-t min-cut.
-    try:
-        import networkx as nx
+    # Flatten edges: the Rust min-cut kernel works with flat (layer *
+    # rows*cols + row*cols + col) indices for performance; our `nodes`
+    # list is already sorted and each node's flat index is its position.
+    src_flat = node_to_flat[src]
+    sink_flat = node_to_flat[sink]
+    nodes_flat: list[int] = list(range(len(nodes)))
+    edges_flat: list[tuple[int, int, int]] = [
+        (node_to_flat[u], node_to_flat[v], cap) for u, v, cap in edges
+    ]
 
-        cut_value, (reachable, non_reachable) = nx.minimum_cut(
-            g,
-            src,
-            sink,
-            capacity="capacity",
-            flow_func=nx.algorithms.flow.edmonds_karp,
+    # Run Edmonds-Karp min-cut in Rust (bit-identical to networkx).
+    try:
+        cut_value, reachable_flat, non_reachable_flat = _tg.min_cut_py(
+            nodes_flat, edges_flat, src_flat, sink_flat
         )
     except Exception as exc:  # noqa: BLE001
         logger.debug("analyze_bottleneck flow failure: %s", exc)
@@ -1178,15 +1191,18 @@ def analyze_bottleneck(
             message=f"{getattr(net, 'name', '?')}: min-cut exceeded budget",
         )
 
+    # Unflatten reachable / non-reachable partitions back to cell tuples.
+    reachable: set[tuple[int, int, int]] = {nodes[i] for i in reachable_flat}
+    non_reachable: set[tuple[int, int, int]] = {nodes[i] for i in non_reachable_flat}
+
     # Identify the cut cells: nodes on the reachable side with at least
-    # one edge crossing to the non-reachable side. The cut cells are
-    # reported as (layer, row, col) triples.
-    cut_cells: list[tuple[int, int, int]] = []
-    for cell in sorted(reachable):
-        for neighbor in sorted(g.successors(cell)):  # type: ignore[attr-defined]
-            if neighbor in non_reachable:
-                cut_cells.append(cell)
-                break
+    # one edge crossing to the non-reachable side. Compute from the edge
+    # list rather than graph.successors (which no longer exists).
+    cut_cells_set: set[tuple[int, int, int]] = set()
+    for u, v, _cap in edges:
+        if u in reachable and v in non_reachable:
+            cut_cells_set.add(u)
+    cut_cells: list[tuple[int, int, int]] = sorted(cut_cells_set)
 
     # Classify partition. Pass the grid so board-edge / keepout
     # classification uses the correct ``cell_size_mm`` (the

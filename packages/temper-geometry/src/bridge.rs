@@ -6,7 +6,9 @@
 // PyO3 bridge functions mirror Python function signatures 1:1.
 
 use pyo3::prelude::*;
-use crate::bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py};
+use crate::bottleneck_geometry::{
+    build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py, min_cut_py,
+};
 use crate::audit::{bbox_from_center_py, chebyshev_gap_py, dist_py};
 use crate::channel_widths::edt_width_lookup_batch;
 use crate::connected_components::connected_components_8_transform;
@@ -1536,6 +1538,8 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(cell_capacity_batch_py, m)?)?;
     m.add_function(wrap_pyfunction!(hard_blocked_batch_py, m)?)?;
     m.add_function(wrap_pyfunction!(build_capacitated_graph_py, m)?)?;
+    // Wave 4 migration: networkx min-cut → Rust (Edmonds-Karp)
+    m.add_function(wrap_pyfunction!(min_cut_py, m)?)?;
 
     // clearance geometry (Wave 3: REQ-SAFE-01 validator geometry)
     m.add_function(wrap_pyfunction!(rotate_local_to_world_py, m)?)?;

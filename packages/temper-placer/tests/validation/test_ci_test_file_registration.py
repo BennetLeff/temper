@@ -573,6 +573,22 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "external binary. Not yet wired into any CI job — a concurrent migration "
         "that left the registration gate red."
     ),
+    "router_v6/test_coverage_paydown_wave4_g.py": (
+        "PASSING locally (2026-08-10, coverage-allowlist paydown for "
+        "router_v6/): CongestionGrid/CongestionResult/Track/Via/TestBoard "
+        "helpers (22 tests). Pure Python/Rust, no external binary. Not yet "
+        "wired into any CI job."
+    ),
+    "pipeline/test_pipeline_state_pbt.py": (
+        "PASSING locally (2026-08-10, pipeline-state PBT, commit ee37f950): "
+        "P1..P8 property suite. Pure Python/Rust, no external binary. Not yet "
+        "wired into any CI job — a concurrent migration."
+    ),
+    "pipeline/test_pipeline_state_rust_differential.py": (
+        "PASSING locally (2026-08-10, pipeline-state differential, commit "
+        "ee37f950): Rust parity suite. Pure Python/Rust, no external binary. "
+        "Not yet wired into any CI job — a concurrent migration."
+    ),
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------
