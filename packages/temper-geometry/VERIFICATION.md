@@ -3674,3 +3674,68 @@ an ascending-sort / uncapped-sort mutation test.
 | G6 | Base cases + induction steps above. |
 | G7 | `cargo test --no-default-features`: 751 pass; `cargo clippy --all-features --all-targets -- -D warnings` clean; the new `demand` parameter is a `Bound` handle (`Option<Bound<'py, PyAny>>`), no unsafe. |
 | G8 | N/A — not physics-gated. |
+
+## Units (mm/mil/inch) — Verification by Structural Induction
+
+Wave 4 Phase A (plan `docs/plans/2026-08-09-001-...`, `core/units.py` row:
+`Mm`, `Mil`, `Inch` newtype wrappers over f64). New module
+`src/units.rs`: the six length conversions behind `Mm`/`Mil`/`Inch`
+newtype structs over f64, exposed as pyfunctions marshalled through the
+typed newtype layer.
+
+**Scope decision (recorded):** the existing `units.py` kernels (`deg_to_rad`,
+`rad_to_deg`, `mm_to_cell`, `cell_to_mm`, `distance_mm`,
+`manhattan_distance_mm`, `is_valid_layer`, `is_valid_net_id`) are NOT
+re-migrated here — they already live in `temper-io-types/src/placer_core/
+units.rs`, pinned by the `tests/wave4_phase2/test_core_contracts_*` suite
+against the verbatim `_core_py_oracle.py`. A second Rust copy would be a
+second source of truth that can drift. Full `#[pyclass]` wrappers for
+`Mm`/`Mil`/`Inch` were rejected: the Python NewTypes are type-annotation
+only (zero runtime behaviour, per `units.py`'s own docstring), nothing
+constructs a runtime `Mm` object, and there is no Python object whose
+behaviour a pyclass differential could pin. The Rust newtypes + f64
+conversion pyfunctions are the port.
+
+**Base case:** a single value — `mil_to_mm(x) = x * 0.0254` is one
+correctly-rounded f64 multiply against the exact factor double that
+`temper-design-bundle/src/pcl_parse.rs` pins (`0x1.a027525460aa6p-6`); the
+differential's crafted edges pin 0, ±0.0 (sign preserved), ±inf, NaN,
+denormals, and the anchor values 5 mil→0.127 mm, 0.1 in→2.54 mm,
+1000 mil→1 in.
+
+**Induction step:** every kernel is a pure single-op function of one f64 —
+no state, no cross-element interaction, no dimension dependence — so
+correctness on the base value extends to every input by IEEE-754
+determinism (the same rounding, the same result). Composition is NOT
+claimed exact: `mm_to_mil(mil_to_mm(x))` double-rounds, and the PBT pins
+the two-rounding bound (2.3e-16 relative) instead of the identity. G6 is
+otherwise a structural non-applicability note: these are data-conversion
+kernels, not a loop over a structure.
+
+**Empirical verification:** the differential
+(`tests/core/test_units_rust_differential.py`) asserts `float.hex()`
+bit-identity over crafted edges (incl. the B8 denormal band and signed
+zeros) plus 1 500 randomized bit-pattern values per kernel — 213 cases.
+PBT (`tests/core/test_units_pbt.py`): 7 properties (P1–P7) each with a
+mutation test (constant / `x*40.0` shortcut / wrong factor /
+multiplicative-inverse / scale-insensitive / non-monotone / identity round
+trip) and 4 metamorphic relations (M1 sign symmetry EXACT, M2 power-of-two
+scale EXACT, M3 composition triangle within the 3.4e-16 band, M4
+round-trip-not-identity bounded with a pinned witness). All six kernels are
+reached (module→property map in the PBT docstring). The Rust side carries
+13 unit/proptest cases (factor bit patterns, anchors, signed zero, NaN,
+newtype method delegation, monotonicity, round-trip bound, power-of-two
+scale).
+
+### Gate results
+
+| Gate | Result |
+|---|---|
+| G1 | Differential written and committed FIRST (RED, 212 failures on the missing kernels), kernels implemented after, all green. |
+| G2 | Bit-identical via `float.hex()` (distinguishes −0.0/+0.0; NaNs both render `'nan'`), 213 differential cases; existing `tests/core/test_units.py` (29) green through the shim. |
+| G3 | N/A — pure delegation surface, no compute pipeline; the R2 carve-out applies. |
+| G4 | 7 properties (P1–P7) + 7 mutation tests re-running each property via `hypothesis.inner_test` against a mutated kernel seam; vacuity proven per property. |
+| G5 | 4 metamorphic relations (M1–M4) with exactness claims stated (M1/M2 EXACT, M3 3.4e-16 band, M4 bounded non-identity + witness). |
+| G6 | Structural induction + single-op base case above; data-module structural proof. |
+| G7 | `cargo test -p temper-geometry` green (13 units cases); `cargo clippy --all-features --all-targets -- -D warnings` clean; no `unwrap` outside tests; `catch_unwind` at every pyo3 boundary; append-only lib.rs registration. |
+| G8 | N/A — not physics-gated. |
