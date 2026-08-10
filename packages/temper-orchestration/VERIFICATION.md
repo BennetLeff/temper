@@ -14,7 +14,7 @@ differential oracles.
 | `temper_placer/cli/timing.py` | 832 | `compare_stage` (the `timing_check` delta/pct/effective-baseline/threshold/passed block), `p95` (the `wall_ms_p95` expression) | `timing.rs` | MIGRATE (compute) — the click surface, YAML manifest I/O, `git` subprocess calls and the `profiling.timing_gate` / `regression.metrics_recorder` call-backs stay Python (surfaces owned by other Phase-4/5 slices) |
 | `temper_placer/cli/trace_commands.py` | 107 | `filter_decisions` (the `why` subject filter), `find_rejected_alternative` (the `why_not` nested scan) | `trace_filter.rs` | MIGRATE (compute) — the click surface stays Python; the `report` command stays Python (reconstructs `core.decision` objects, calls `pipeline.explainability` — other slices) |
 | `temper_workflow/routing/route_and_measure.py` | 96 | `measure_copper_length` (per-trace Euclidean accumulation) | `copper_length.rs` | MIGRATE (compute) — the `parse_kicad_pcb` call (Phase-3 `io/` surface) and the script `main()` (argparse, exit codes, file handling) stay Python |
-| `temper_placer/pipeline/convergence.py` | 391 | `record_loss`, `check_success`, `is_converged`, `check_routability_regression` (the net-set decision + state update) | `feasibility.rs` | MIGRATE (compute) — the `ConvergenceCriteria`/`ConvergenceState` dataclasses, the `ConvergenceChecker` class orchestration, time-based checks and the failure-message f-string rendering stay Python |
+| `temper_placer/pipeline/convergence.py` | 391 | Wave-4 (feasibility): `record_loss`, `check_success`, `is_converged`, `check_routability_regression` (the net-set decision + state update). Phase-1 (orchestration engine): the four classes — `TerminationReason`, `ConvergenceCriteria`, `ConvergenceState`, `ConvergenceChecker` — as pyclasses | Wave-4: `feasibility.rs`; Phase-1: `convergence.rs` (+ `stage.rs`/`pipeline.rs`/`board_state.rs` engine scaffolding) | MIGRATE (full). Wave-4 moved the compute with the dataclasses/class orchestration staying Python; Phase-1 (plan 2026-08-09-001, U1) moved the classes themselves: `convergence.py` is now a delegation shim re-exporting the four Rust pyclasses + the module-level `is_converged` helper (public API unchanged; `test_convergence.py` passes through the shim). |
 | `temper_placer/pipeline/preflight.py` | 286 | `component_area_ratio`, `proximity_rule_impossible`, `zone_over_capacity`, `loop_area_violation`, `isolation_barrier_too_large` (the compensated product sum is the internal `py_builtin_sum`/`sum_product_areas_impl`, deliberately NOT a standalone export) | `feasibility.rs` | MIGRATE (compute) — `PreflightChecker.run` orchestration, the `len(k) == 4` / zone-name / ref-membership marshalling, the `PreflightReport` rendering and the constant/stub checks stay Python |
 | `temper_placer/pipeline/derivation.py` | 118 | `derive_emi_max_dist`, `derive_thermal_clearance`, `derive_si_max_placement_dist`, `mains_voltage_to_class_code`, `extract_min_clearance` | `feasibility.rs` | MIGRATE (compute) — the dict assembly, the code-to-`VoltageClass` mapping and the PCL `SeparatedConstraint` construction stay Python |
 | `temper_placer/cli/drc_cli.py` | 319 | — | — | R3-style record (below) |
@@ -286,6 +286,178 @@ zone zero-product append no-op (a `0.0 * h` product enters the compensated
 sum without changing hi or the compensation), MR3 component-area-ratio
 power-of-two scaling, MR4 thermal-clearance output doubling.
 
+## Rust orchestration engine — U0 scaffolding + U1 convergence (Phase-1)
+
+The Rust Orchestration Engine plan (2026-08-09-001) ships its Phase-1
+deliverable here: the engine scaffolding (U0: `stage.rs`, `pipeline.rs`,
+`board_state.rs`) and the first migrated pipeline module on it (U1:
+`convergence.rs` — `TerminationReason`, `ConvergenceCriteria`,
+`ConvergenceState`, `ConvergenceChecker` as pyclasses, bit-exact with the
+pre-migration `pipeline/convergence.py`).
+
+### What changed vs. the Wave-4 feasibility slice
+
+Wave-4 migrated only the *compute* of convergence (the `record_loss` /
+`check_success` / `is_converged` / `check_routability_regression` kernels in
+`feasibility.rs`), keeping the dataclasses/class orchestration in Python.
+Phase-1 migrates the classes themselves: the shim now re-exports the four
+Rust pyclasses from `temper-orchestration` and keeps the module-level
+`is_converged` helper (delegating to the Wave-4 kernel). The `ConvergenceChecker`
+pyclass additionally implements `Stage<BoardState>` — the first concrete
+`Stage` on the new engine (a Phase-1 stub: reads nothing, returns the state
+unchanged; full `BoardState` integration is Phase C).
+
+### G1 — differential oracle before Rust (TDD)
+
+The differential suite `test_convergence_rust_differential.py` and its
+VERBATIM oracle `_convergence_py_oracle.py` were committed first (RED:
+`5cfe4880` — the anti-vacuity `__module__` assertions failed, the port was
+not Rust), then the implementation landed GREEN (`571c84ca`). The oracle is
+the pre-migration `convergence.py` at `68ea250f`, byte-identical to the
+convergence section of the already content-hash-pinned
+`_pipeline_feasibility_py_oracle.py` (verified via `diff` against
+`git show 68ea250f:.../convergence.py`), pinned by sha256.
+
+### G2 — behavioural A/B (bit-exact)
+
+The differential drives BOTH arms with identical inputs and compares every
+return value and every post-op state snapshot bit-exact (floats via
+`float.hex()` via `canon`, error parity via `canon_call`): termination-member
+values, criteria defaults and 40 randomized kwargs sets, deterministic
+`record_loss` / `check_success` / `check_routability_regression` /
+termination-flag sequences, the three rendered `failure_message` scenarios,
+`ZeroDivisionError` parity on a zero best, and **120 randomized trials**
+(random criteria + random state + random op sequences — the G2 100+
+randomized-input arm). 15/15 green.
+
+### G3 — performance
+
+Pure-delegation carve-out: the convergence checker is <1ms per check; the
+only overhead added is the FFI crossing + pyclass construction for the four
+classes. No regression beyond noise is possible or claimed.
+
+### G4 / G5 — PBT + metamorphic (`test_convergence_pbt.py`)
+
+Six non-vacuous properties (P1 iteration-limit threshold, P2 timeout budget,
+P3 success thresholds, P4 stagnation needs history AND epochs, P5
+record_loss epoch monotonicity, P6 check_all preserves an existing reason),
+each with a reachability witness and TWO mutation guards via
+`hypothesis.inner_test`; four metamorphic relations (MR1 monotonic iteration,
+MR2 loss-improvement resets stall, MR3 criteria permutation invariance of
+the stagnation decision, MR4 routability stall increment/reset), each with a
+mutation guard. MR1/MR4 claimed bit-exact; MR2/MR3 boolean parity over
+bit-exact state. 27/27 green.
+
+The plan's example property table is re-expressed over the real pre-migration
+API: the plan's invented `check()` method never existed in the module (the
+real surface is `check_all`/`check_iteration_limit`/`check_success`/
+`check_stagnation`/`record_loss`/`check_routability_regression`), so the
+properties target that surface; the plan's intent (monotonicity, priority
+order, no-stagnation-without-history, NaN never panics) is preserved.
+
+### G6 — induction
+
+Not applicable — the convergence module is data-only (fixed-step arithmetic
+and bounded state transitions); no recursive computation. A structural proof
+is recorded below instead (per R1e).
+
+### G7 — Rust bar
+
+`cargo test` 65/65 green; `cargo clippy --all-features --all-targets --
+-D warnings` clean. No `unwrap`/`expect` anywhere (crate denies both). No
+`catch_unwind` needed at the pyo3 boundary for the pyclasses: pyo3's
+`#[pyclass]`/`#[pymethod]` expansion wraps every exported body in
+`catch_unwind` and converts a Rust panic into `PyPanicException` (the crate
+sets `profile.release.panic = "unwind"` so that catch is what runs) — the
+same mechanism the module docstring already documents for `#[pyfunction]`.
+
+Two Cargo.toml notes, both deliberate:
+- `pyo3/py-clone` is enabled — the plan's `BoardState` `#[derive(Clone)]`
+  over `Option<Py<PyAny>>` fields is impossible without it (`Clone for Py<T>`
+  is cfg-gated behind it). The generated `clone()` panics only when a
+  NON-EMPTY `Py<T>` field is cloned from a non-attached thread; `BoardState`
+  instances with populated fields only exist inside the Python-driven
+  pipeline (GIL held), and the all-None clones in pure-Rust unit tests never
+  touch the interpreter. Unreachable for the Phase-1 scope.
+- `pyo3/extension-module` was REMOVED from the Cargo features (it stays in
+  pyproject.toml's `[tool.maturin] features`, so the maturin-produced cdylib
+  is unchanged) — with it in Cargo features, `cargo test`/`cargo clippy
+  --all-targets` link the test binary against an unlinked-libpython pyo3 and
+  fail on toolchains whose CGU partitioning pulls pyo3 code into the test
+  binary (measured: rustc 1.97.1 — the pristine crate at `main` fails the
+  same way). Without it, the test build links libpython normally. This
+  fixes a latent CI gap (the `cargo test` step would fail on newer
+  toolchains).
+
+### G8 — R24 physics discipline
+
+Not applicable — convergence is pure data (no clearance, temperature,
+loop-area or thermal involvement). Recorded explicitly.
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every method and state transition of
+the four pyclasses, the Rust behaviour is bit-identical to the pinned
+pre-migration Python for every input in the differential suite's domains,
+with the documented boundary choices below.
+
+1. **`record_loss` zero-best raises (ZeroDivisionError).** `(best - loss) /
+   best` with `best == 0.0` (incl. `-0.0`) raises
+   `ZeroDivisionError("float division by zero")` in CPython where IEEE
+   division returns ±inf; the pyclass raises the identical exception, and
+   the loss is appended to `loss_history` BEFORE the raise on both sides
+   (pinned by `test_record_loss_zero_best_error_parity`).
+2. **`check_success` dict-defaulting and NaN semantics.** `metrics.get(key,
+   default)` resolves missing keys to the oracle's defaults (`inf` for
+   overlap/boundary, `0.0` for routing/margin); NaN values never FAIL a
+   comparison (`NaN > x`/`NaN < x` are both False) — pinned by the metric
+   sets incl. NaN cases. A Python int metric coerces exactly like the
+   pre-migration shim's `float(...)`.
+3. **Rendered `failure_message` parity is by identity.** The regression /
+   convergence f-strings format floats with `:.3f` (David-Gay-dtoa semantics
+   that Rust's `{:.3}` does not reproduce bit-for-bit in general) and render
+   `sorted(lost_nets)` via Python list-`str`; the pyclass calls CPython's
+   `format()` builtin and `str(list)`, so parity is by identity, not by
+   coincidence of formatter implementations.
+4. **`check_routability_regression` reuses the Wave-4 kernel.** The net-set
+   decision + best/stall state update is the exported `feasibility.rs`
+   kernel (BTreeSet set semantics; `lost_nets` sorted); the post-call state
+   is written back onto `self.state` exactly as the Wave-4 shim did.
+5. **Time checks are wall-clock.** `start_time` is a float-seconds epoch
+   timestamp (the plan's Rust API — documented deviation from the Python
+   `datetime` field); `get_elapsed_seconds`/`check_timeout` compare the same
+   quantity. The differential pins `timeout_seconds` to `{0.0}` (always
+   fires: elapsed >= 0) or `>= 60` (never fires: elapsed is milliseconds),
+   so both arms agree deterministically.
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above):
+- `ConvergenceState.start_time` is a float-seconds timestamp, not a Python
+  `datetime` (the plan's Rust API; nothing in the Phase-1 surface constructs
+  `ConvergenceState` from a datetime).
+- `_best_routed_nets` / `_best_routability` / `_stall_count` are DECLARED
+  optional fields (None/0 defaults) rather than the oracle's lazily-created
+  dynamic attributes. A truly-fresh oracle state raises AttributeError on the
+  first `check_routability_regression` call; the Rust state treats it as a
+  first call. Every caller pre-initializes these attributes (the differential's
+  `_preinit` mirrors the callers), so the divergence is unreachable on
+  exercised paths — recorded, not hidden.
+- `ConvergenceChecker`'s `reset()` drops the lazily-created `_best_*` attrs
+  on the oracle; the differential re-initializes after every `reset`
+  exactly like the callers do.
+- The four classes keep the pre-migration method surface exactly; the plan
+  sketch's invented `check(state)` method is NOT added (it never existed in
+  the module — see the G4 note).
+
+### Differential suites (Phase-1)
+
+| Suite | Location | Count |
+|---|---|---|
+| convergence differential (oracle: `_convergence_py_oracle.py`, sha256-pinned) | `packages/temper-placer/tests/pipeline/test_convergence_rust_differential.py` | 15 |
+| convergence PBT + metamorphic (P1..P6 + MR1..MR4, mutation-guarded) | `packages/temper-placer/tests/pipeline/test_convergence_pbt.py` | 27 |
+| existing shim surface (`test_convergence.py` through the delegation shim) | `packages/temper-placer/tests/pipeline/test_convergence.py` | 32 |
+| pipeline-feasibility suites (still green against the shim) | `tests/pipeline/test_pipeline_feasibility_*.py` | 93 |
+
 ## Differential suites
 
 | Suite | Location | Count |
@@ -362,6 +534,9 @@ test that must fail).
 - **R1a** — bit-identical differentials vs verbatim oracles: green (120
   differential assertions across 4 modules/clusters; floats via
   `float.hex()`, type carried on every leaf, error parity via `canon_call`).
+  Phase-1 convergence adds the 15-assertion differential suite (120
+  randomized ConvergenceState trials plus explicit deterministic sequences)
+  with the anti-vacuity port-is-Rust tripwire.
 - **R1b** — performance/no-regression arm: the migrated compute is invoked
   per CLI command (once per stage-entry), not in any hot loop; per the
   guide, this is the no-regression-beyond-noise arm. The rust kernels are
@@ -369,20 +544,24 @@ test that must fail).
   made. (The pr-perf-check baseline covers the CLI surfaces' wall time via
   the timing-gate itself.) The pipeline-feasibility compute is preflight /
   convergence / derivation — invoked once per pipeline run, never hot.
+  Phase-1 convergence is a pure-delegation carve-out (<1ms per check; FFI
+  crossing + pyclass construction is the only added overhead).
 - **R1c** — >= 5 non-vacuous properties per verification unit: timing 6,
   trace_commands 6, route_and_measure 5, pipeline-feasibility CLUSTER 6
-  (P1..P6, all G4-vacuity-guarded with reachability witnesses).
+  (P1..P6, all G4-vacuity-guarded with reachability witnesses),
+  Phase-1 convergence 6 (P1..P6, each with two mutation guards + witnesses).
 - **R1d** — >= 3 metamorphic relations/unit: timing 4, trace_commands 3,
   route_and_measure 3, pipeline-feasibility cluster 4 (MR1..MR4, all
-  bit-exact claims).
+  bit-exact claims), Phase-1 convergence 4 (MR1..MR4, mutation-guarded).
 - **R1e** — this document: structural proof + explicit non-applicability
   note for induction.
 - **R1f** — TDD: the four differentials were written first and demonstrated
   RED (collection failure — `temper_orchestration` did not exist / the shims
   did not delegate), then GREEN. The pipeline-feasibility differential's RED
   commit (ede48808) predates its kernels' GREEN commit (6cc75679) in git
-  history.
+  history. The Phase-1 convergence differential's RED commit (5cfe4880)
+  predates its port's GREEN commit (571c84ca).
 - **R1g** — borrow over clone; no `unwrap` outside tests; `catch_unwind`
-  at every pyo3 boundary (pyo3's `#[pyfunction]` expansion); clippy
-  `unwrap_used`/`expect_used` denied.
+  at every pyo3 boundary (pyo3's `#[pyfunction]`/`#[pyclass]` expansion);
+  clippy `unwrap_used`/`expect_used` denied.
 - **R1h** — not physics-gated (recorded above).
