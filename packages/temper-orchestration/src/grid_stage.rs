@@ -806,3 +806,113 @@ fn get_clearance_for_net<'py>(
     }
     Ok(clearance)
 }
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests {
+    use super::*;
+
+    // -- py_max ------------------------------------------------------------
+
+    /// CPython `max(NaN, x)` returns NaN; `max(x, NaN)` returns x.
+    /// Replicate exactly: first arg wins on NaN.
+    #[test]
+    fn py_max_nan_first_argument_wins() {
+        assert!(py_max(f64::NAN, 1.0).is_nan());
+        assert_eq!(py_max(1.0, f64::NAN), 1.0);
+        assert!(py_max(f64::NAN, f64::NAN).is_nan());
+    }
+
+    /// CPython `max` keeps the first argument on tie, including -0.0 vs +0.0.
+    #[test]
+    fn py_max_ties_keep_first() {
+        assert_eq!(py_max(0.0, -0.0), 0.0);
+        // -0.0 is the first argument -> returned
+        let r = py_max(-0.0, 0.0);
+        assert!(r == -0.0 && r.is_sign_negative(),
+            "py_max(-0.0, 0.0) must return -0.0, got {r}");
+        assert_eq!(py_max(3.0, 3.0), 3.0);
+        assert_eq!(py_max(-0.0, -0.0).to_bits(), (-0.0f64).to_bits());
+    }
+
+    /// CPython `max` on infinity works like the conventional max.
+    #[test]
+    fn py_max_infinity() {
+        assert_eq!(py_max(f64::INFINITY, 0.0), f64::INFINITY);
+        assert_eq!(py_max(0.0, f64::INFINITY), f64::INFINITY);
+        assert_eq!(py_max(f64::NEG_INFINITY, 0.0), 0.0);
+        assert_eq!(py_max(0.0, f64::NEG_INFINITY), 0.0);
+        // CPython max(-inf, NaN) -> -inf (first arg wins when second is NaN)
+        assert_eq!(py_max(f64::NEG_INFINITY, f64::NAN), f64::NEG_INFINITY);
+        // CPython max(NaN, -inf) -> NaN (first arg is NaN)
+        assert!(py_max(f64::NAN, f64::NEG_INFINITY).is_nan());
+    }
+
+    /// P1: py_max returns the conventional maximum for non-NaN f64 values.
+    #[test]
+    fn p1_py_max_returns_larger() {
+        use proptest::prelude::*;
+        proptest!(|(a: f64, b: f64)| {
+            prop_assume!(!a.is_nan() && !b.is_nan());
+            let r = py_max(a, b);
+            assert!(r >= a && r >= b,
+                "py_max({a},{b})={r} not >= both");
+        });
+    }
+
+    /// P2: py_max returns one of its arguments (bit-identical).
+    #[test]
+    fn p2_py_max_returns_one_of_inputs() {
+        use proptest::prelude::*;
+        proptest!(|(a: f64, b: f64)| {
+            let r = py_max(a, b);
+            // For NaN inputs, either both are NaN (then r is NaN, bits match)
+            // or first-arg-wins (a.is_nan() => r.is_nan(), !b.is_nan() => r bits==b bits).
+            if a.is_nan() {
+                // First arg is NaN -> result is NaN regardless of second arg.
+                assert!(r.is_nan());
+            } else if b.is_nan() {
+                // Second arg is NaN, first arg wins.
+                assert_eq!(r.to_bits(), a.to_bits());
+            } else {
+                assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits(),
+                    "py_max({a},{b})={r} neither a nor b");
+            }
+        });
+    }
+
+    /// P3: For non-NaN inputs, py_max is commutative.
+    #[test]
+    fn p3_py_max_commutative_for_finite() {
+        use proptest::prelude::*;
+        proptest!(|(a: f64, b: f64)| {
+            prop_assume!(!a.is_nan() && !b.is_nan());
+            assert_eq!(py_max(a, b), py_max(b, a));
+        });
+    }
+
+    /// `is_inner_layer` helper (inline in get_clearance_for_net).
+    fn is_inner_layer(layer: i64, layer_count: i64) -> bool {
+        0 < layer && layer < layer_count - 1
+    }
+
+    #[test]
+    fn inner_layer_logic() {
+        // 2-layer: no inner
+        assert!(!is_inner_layer(0, 2));
+        assert!(!is_inner_layer(1, 2));
+        // 4-layer: layers 1 and 2 are inner
+        assert!(!is_inner_layer(0, 4));
+        assert!(is_inner_layer(1, 4));
+        assert!(is_inner_layer(2, 4));
+        assert!(!is_inner_layer(3, 4));
+        // degenerate
+        assert!(!is_inner_layer(0, 1));
+        assert!(!is_inner_layer(0, 0));
+        assert!(!is_inner_layer(1, 0));
+    }
+}

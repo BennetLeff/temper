@@ -174,3 +174,84 @@ pub(crate) fn str_py(py: Python<'_>, s: &str) -> Py<PyAny> {
 pub(crate) fn py_float(py: Python<'_>, f: f64) -> Py<PyAny> {
     pyo3::types::PyFloat::new(py, f).into_any().unbind()
 }
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests {
+    use pyo3::types::{PyDict, PyString};
+    use super::*;
+
+    /// Helper: create a plain Python object with attributes set.
+    fn make_obj(py: Python<'_>, attrs: &[(&str, i64)]) -> PyResult<Py<PyAny>> {
+        // Use a simple Python class defined inline.
+        let code = std::ffi::CString::new(
+            "class _TestObj:\n    pass\n_test_obj = _TestObj()\n"
+        ).unwrap();
+        let ns = PyDict::new(py);
+        py.run(code.as_c_str(), Some(&ns), Some(&ns))?;
+        let obj: Py<PyAny> = ns.get_item("_test_obj")?.unwrap().unbind();
+        for (name, val) in attrs {
+            obj.bind(py).setattr(*name, *val)?;
+        }
+        Ok(obj)
+    }
+
+    #[test]
+    fn getattr_default_returns_value_when_present() {
+        Python::initialize();
+        Python::attach(|py| {
+            let obj = make_obj(py, &[("key", 42)]).unwrap();
+            let v = getattr_default(py, obj.bind(py), "key", py.None()).unwrap();
+            assert_eq!(v.extract::<i64>().unwrap(), 42);
+        });
+    }
+
+    #[test]
+    fn getattr_default_returns_default_on_missing() {
+        Python::initialize();
+        Python::attach(|py| {
+            let obj = make_obj(py, &[]).unwrap();
+            let default = PyString::new(py, "fallback").into_any().unbind();
+            let v = getattr_default(py, obj.bind(py), "missing", default).unwrap();
+            assert_eq!(v.extract::<String>().unwrap(), "fallback");
+        });
+    }
+
+    #[test]
+    fn getattr_default_returns_default_on_nonexistent_method() {
+        Python::initialize();
+        Python::attach(|py| {
+            let s = PyString::new(py, "hello").into_any();
+            let v = getattr_default(py, &s, "nonexistent", py.None()).unwrap();
+            assert!(v.is_none());
+        });
+    }
+
+    #[test]
+    fn getattr_default_returns_actual_falsey_value_not_default() {
+        Python::initialize();
+        Python::attach(|py| {
+            let obj = make_obj(py, &[("key", 0)]).unwrap();
+            let v = getattr_default(py, obj.bind(py), "key", py.None()).unwrap();
+            assert_eq!(v.extract::<i64>().unwrap(), 0);
+        });
+    }
+
+    // -- str_of sanity -----------------------------------------------------
+
+    #[test]
+    fn str_of_wraps_cpython_str() {
+        Python::initialize();
+        Python::attach(|py| {
+            let s = PyString::new(py, "abc");
+            assert_eq!(str_of(s.as_any()).unwrap(), "abc");
+            let n: i64 = 42;
+            let obj = n.into_pyobject(py).unwrap().into_any();
+            assert_eq!(str_of(&obj).unwrap(), "42");
+        });
+    }
+}
