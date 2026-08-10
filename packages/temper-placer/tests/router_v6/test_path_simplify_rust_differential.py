@@ -14,6 +14,9 @@ Arms
   ``550cab2a3a0fcfd4a6c29063d30d3a83837ebcb5`` (``origin/main``).
 * **rust** -- the pyfunctions the migration adds, listed in
   :data:`REQUIRED_RUST_SYMBOLS` and bound in the adapter block below.
+  Resolved from ``temper_geometry`` (``via_clearance.rs``), the Wave-4
+  home crate for router_v6 geometry; the duplicate ``temper-rust-router``
+  copies were deleted in the cross-crate kernel dedupe.
 
 Comparison is by type-carrying signature (``tests/router_v6/_signature``).
 **No tolerance anywhere.** Both arms are compared at the wire-tuple level
@@ -47,7 +50,7 @@ from tests.router_v6._signature import sig
 # Phase B binds these; no assertion and no corpus row below changes.
 # ===========================================================================
 
-_RUST_MODULE = "temper_rust_router"
+_RUST_MODULE = "temper_geometry"
 
 REQUIRED_RUST_SYMBOLS: tuple[str, ...] = (
     "is_collinear_py",

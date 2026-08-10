@@ -10,9 +10,9 @@ Wave 4 (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``)
 ``estimate_segment_count_py`` in ``via_clearance.rs``). These kernels were
 first migrated to ``temper-rust-router`` (#856); this tier **re-homes** them
 into ``temper-geometry``, the Wave-4 home crate for router_v6 geometry
-(the ``temper-rust-router`` copies remain pinned by
-``tests/router_v6/test_path_simplify_rust_differential.py``; the
-``temper-geometry`` copies are pinned by the same oracle through
+(the duplicate ``temper-rust-router`` copies were deleted in the cross-crate
+kernel dedupe; ``temper-geometry`` is the sole copy, pinned by both
+``tests/router_v6/test_path_simplify_rust_differential.py`` and
 ``tests/router_v6/test_via_clearance_tier2_rust_differential.py``).
 """
 
