@@ -3583,3 +3583,94 @@ succeeds).
 
 `cargo test --no-default-features` (with the heuristics module): 59 pass.
 `cargo clippy --all-features --all-targets -- -D warnings`: clean.
+
+## Congestion gap closure — accumulator demand + real-record bottlenecks (2026-08-09)
+
+Closes the three congestion-migration gaps `router_v6/congestion.py`'s module
+docstring documented as blocking delegation. Gap 3's kernel half (the
+bottom-side X mirror in `congestion_analysis.rs::pin_world_position`) was
+already applied and pinned (#832, differential design `mixed_side_mirror` in
+`_congestion_cases.py::ANALYZE_DESIGNS`); this change adds gaps 1 and 2 to
+`congestion.rs`.
+
+### Accumulator demand kernel (`congestion_estimate_net_demand_py`)
+
+`estimate_net_demand`'s only production caller (`analyze_congestion`'s
+per-net loop) accumulates onto the SAME grid across many nets; the kernel
+previously always rebuilt a fresh zero grid and would silently drop every
+net's demand but the first. The kernel now takes an optional trailing
+`demand` array: when present it IS the accumulator — the grid dims come from
+the array's own `shape`, `demand_per_cell` is added into the bounding-box
+region in place, and the two early returns (fewer than two pins; D3's
+both-pairs off-board guard) hand the accumulator back unchanged with the
+identity flag. When absent the historical fresh-zero contract is unchanged.
+
+**Base case:** a 1×1 region on an already-populated grid — the kernel reads
+the single cell, computes `old + demand_per_cell` exactly, and writes it
+back; the differential's `overlap` case pins the two-cell non-overlapping and
+one-cell overlapping accumulation `1.0 + 1.0 == 2.0` bit-for-bit.
+
+**Induction step:** the write is a per-cell independent elementwise add over
+a closed bbox `[row_min, row_max] × [col_min, col_max]`; every cell's new
+value is a pure function of its own old value and `demand_per_cell`, with no
+cross-cell interaction, so correctness on an n-cell region extends by
+induction to any region, and pre-existing demand in every cell survives
+exactly because the kernel never touches cells outside the bbox. The delta
+is independent of the pre-populated content (integer-valued sums are exact
+below 2^53), which is what the PBT property P1 pins.
+
+**Empirical verification:** the differential
+(`tests/router_v6/test_congestion_rust_differential.py`) pins the fresh form
+exactly as before (`test_estimate_net_demand_bit_exact` /
+`_random_sweep`) and adds `test_estimate_net_demand_accumulates_bit_exact`
+(9 accumulation cases: disjoint, overlapping, mid-accumulation one-pin and
+off-board nets, fractional and NaN `demand_per_cell`, 3-D per-layer
+accumulation, non-zero origin, triple overlap). The shipped
+`estimate_net_demand` delegates to the accumulator form and is pinned
+bit-identical to the oracle on the accumulation shape; the D3 regression
+pin's structural half now reads the kernel source for the both-pairs guard.
+PBT (`tests/router_v6/test_congestion_gap_kernels_pbt.py`): P1
+(delta-independence), P2 (pre-existing demand monotone), P3 (net-count
+monotone with strict witness), each with a mutation test replacing the
+accumulator kernel with the pre-migration fresh-zero-grid kernel, plus
+M1/M2 bit-exact translation and power-of-two scaling.
+
+### Real-record bottleneck sort (`congestion_result_top_bottlenecks_py`)
+
+The kernel previously accepted only a flat list of `overflow` floats and
+reconstructed synthetic `Bottleneck(x=i, y=0, utilization=i)` rows to match
+its own fixture; it could not sort real records without discarding `x`/`y`/
+`utilization`/`layer`. It now takes real `(x, y, utilization, overflow,
+layer)` records and sorts by `overflow` descending. The sort and the slice
+are delegated to Python's own `sorted` (timsort — stable, with the pinned
+NaN-key and signed-zero semantics) and a real `[:n]` slice (negative `n`
+drops the last `|n|`), so no ordering semantics are re-derived in Rust.
+
+**Base case:** a single record — `sorted` returns it and `[:n]` returns it
+for any positive `n`; the differential's one-record cases pin this.
+
+**Induction step:** timsort's output for n records is a pure function of the
+records and the key — there is no kernel state and no interaction between
+positions — so a correct n-record sort extends to n+1 records by the
+comparator's own induction; the per-record fields are copied through
+verbatim because the rows are the values being sorted, not reconstructions.
+
+**Empirical verification:** the differential's `test_top_bottlenecks_bit_exact`
+Rust arm now passes the oracle's own records, and
+`test_top_bottlenecks_real_records_bit_exact` adds 11 cases with arbitrary
+fields, overflow ties (stability), NaN/inf keys, signed zeros, empty input,
+`n=0`, `n>len`, and negative `n`. PBT: P4 (sorted/capped/fields-preserving
+selection), P5 (cap and negative-`n` boundary), M3 (tie stability), each with
+an ascending-sort / uncapped-sort mutation test.
+
+### Gate results
+
+| Gate | Result |
+|---|---|
+| G1 | Differential extended FIRST (9 accumulation + 11 real-record cases, plus the D3 structural pin moved onto the kernel): 19 failed against the base kernels, all green after. |
+| G2 | Bit-identical via `sig()` (`float.hex()` + dtype/shape), 596 differential tests green; shipped delegation checked bit-identical to the pinned oracle on the accumulation shape. |
+| G4 | 6 properties (P1-P6) + 6 mutation tests, all through the shipped delegation; the `test_congestion_pbt.py` oracle suite (8 properties) remains green. |
+| G5 | 3 metamorphic relations (M1-M3), exactness claims stated per relation. |
+| G6 | Base cases + induction steps above. |
+| G7 | `cargo test --no-default-features`: 751 pass; `cargo clippy --all-features --all-targets -- -D warnings` clean; the new `demand` parameter is a `Bound` handle (`Option<Bound<'py, PyAny>>`), no unsafe. |
+| G8 | N/A — not physics-gated. |

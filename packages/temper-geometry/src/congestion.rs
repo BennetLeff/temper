@@ -222,12 +222,23 @@ pub(crate) fn int_trunc(v: f64) -> PyResult<i64> {
 /// ORIGIN. A mirror that returns a fresh copy carrying an empty write is
 /// indistinguishable from the repair unless the identity is signed.
 ///
-/// The grid is built fresh from the scalars the differential passes, so its
-/// demand starts as `np.zeros`; `0.0 + demand_per_cell` is exact for every
-/// finite, infinite and NaN `demand_per_cell`, so the rectangle can be filled
-/// directly rather than copy-then-add.
+/// # The accumulator form (`demand` is not `None`)
+///
+/// The fresh-grid form builds the demand as `np.zeros` from the board
+/// scalars, which is the contract the single-net differential pins
+/// (`test_estimate_net_demand_bit_exact` / `_random_sweep`). But
+/// `analyze_congestion`'s per-net loop accumulates onto the SAME grid across
+/// many nets — delegating the fresh form there would silently drop every
+/// net's demand but the first (the module docstring's first gap). When
+/// `demand` is passed, it IS the accumulator: the grid dims come from the
+/// array's own shape (so `width`/`height`/`cell_size_mm` are pass-throughs
+/// for that form), the function adds `demand_per_cell` into the region in
+/// place, and `0.0 + demand_per_cell` is exact for every finite, infinite
+/// and NaN `demand_per_cell`, so the rectangle can be filled directly rather
+/// than copy-then-add. The identity flag still distinguishes the two early
+/// returns, so the shipped wrapper can hand back the input grid object.
 #[pyfunction]
-#[pyo3(signature = (width, height, cell_size_mm, origin, pins, layer, demand_per_cell, num_layers))]
+#[pyo3(signature = (width, height, cell_size_mm, origin, pins, layer, demand_per_cell, num_layers, demand=None))]
 #[allow(clippy::too_many_arguments)]
 pub fn congestion_estimate_net_demand_py<'py>(
     py: Python<'py>,
@@ -239,17 +250,37 @@ pub fn congestion_estimate_net_demand_py<'py>(
     layer: i64,
     demand_per_cell: f64,
     num_layers: i64,
+    demand: Option<Bound<'py, PyAny>>,
 ) -> PyResult<Bound<'py, PyAny>> {
-    let width_cells = ceil_to_int(width / cell_size_mm)?;
-    let height_cells = ceil_to_int(height / cell_size_mm)?;
-
     let np = py.import("numpy")?;
-    let shape_2d = (height_cells, width_cells);
-    let shape_3d = (num_layers, height_cells, width_cells);
-    let zeros = if num_layers == 1 {
-        np.call_method1("zeros", (shape_2d,))?
-    } else {
-        np.call_method1("zeros", (shape_3d,))?
+
+    let (width_cells, height_cells, zeros) = match &demand {
+        Some(arr) => {
+            // Accumulator form: the array's shape is the grid. `num_layers`
+            // picks the branch exactly as the fresh form does (`== 1` is the
+            // 2-D test, not `<= 1`), so the shape indexing below matches the
+            // arrays `np.zeros` would have built.
+            if num_layers == 1 {
+                let (h, w): (i64, i64) = arr.getattr("shape")?.extract()?;
+                (w, h, arr.clone())
+            } else {
+                let (l, h, w): (i64, i64, i64) = arr.getattr("shape")?.extract()?;
+                debug_assert_eq!(l, num_layers);
+                (w, h, arr.clone())
+            }
+        }
+        None => {
+            let wc = ceil_to_int(width / cell_size_mm)?;
+            let hc = ceil_to_int(height / cell_size_mm)?;
+            let shape_2d = (hc, wc);
+            let shape_3d = (num_layers, hc, wc);
+            let z = if num_layers == 1 {
+                np.call_method1("zeros", (shape_2d,))?
+            } else {
+                np.call_method1("zeros", (shape_3d,))?
+            };
+            (wc, hc, z)
+        }
     };
 
     // `len(pin_positions) < 2` -- identity return, before any arithmetic, so a
@@ -273,8 +304,10 @@ pub fn congestion_estimate_net_demand_py<'py>(
         return Ok((zeros, true).into_pyobject(py)?.into_any());
     }
 
-    // Fill the rectangle. `zeros` is this function's own array, so mutating it
-    // in place is equivalent to the reference's `demand.copy()` then `+=`.
+    // Fill the rectangle. In the fresh form `zeros` is this function's own
+    // array, so mutating it in place is equivalent to the reference's
+    // `demand.copy()` then `+=`; in the accumulator form the caller's array
+    // is the working array and `set_item` accumulates into it in place.
     let py_slice = py
         .import("builtins")?
         .getattr("slice")?;
@@ -351,6 +384,14 @@ pub fn congestion_result_overflow_ratio_py(
 
 /// `CongestionResult.get_top_bottlenecks`.
 ///
+/// Sorts REAL bottleneck records — `(x, y, utilization, overflow, layer)`,
+/// the flattened `Bottleneck` dataclass — by `overflow` descending and
+/// returns the top `n`. This is the module docstring's second gap: the
+/// kernel used to accept only a list of `overflow` floats and reconstruct
+/// synthetic `Bottleneck(x=i, y=0, utilization=i, layer=0)` rows to match
+/// the differential's own fixture; it could not sort real records (arbitrary
+/// `x`/`y`/`utilization`/`layer`) without discarding their true fields.
+///
 /// Delegates to Python's `sorted` and to a real slice object rather than
 /// re-deriving either:
 ///
@@ -362,20 +403,14 @@ pub fn congestion_result_overflow_ratio_py(
 /// * `[:n]` with a NEGATIVE n is `[:-1]` — it drops the last element. It is
 ///   NOT an empty list, which is what a naive `take(n.max(0))` would give.
 #[pyfunction]
+#[pyo3(signature = (records, n))]
 pub fn congestion_result_top_bottlenecks_py<'py>(
     py: Python<'py>,
-    overflows: Vec<f64>,
+    records: Vec<(i64, i64, f64, f64, i64)>,
     n: i64,
 ) -> PyResult<Bound<'py, PyAny>> {
     let builtins = py.import("builtins")?;
-    // `Bottleneck(x=i, y=0, utilization=float(i), overflow=o)`, flattened to
-    // the tuple the differential projects.
-    let rows: Vec<(i64, i64, f64, f64, i64)> = overflows
-        .iter()
-        .enumerate()
-        .map(|(i, &o)| (i as i64, 0i64, i as f64, o, 0i64))
-        .collect();
-    let list = rows.into_pyobject(py)?;
+    let list = records.into_pyobject(py)?;
 
     let operator = py.import("operator")?;
     let key = operator.call_method1("itemgetter", (3i64,))?;
