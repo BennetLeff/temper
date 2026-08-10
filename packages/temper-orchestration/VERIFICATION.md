@@ -14,6 +14,9 @@ differential oracles.
 | `temper_placer/cli/timing.py` | 832 | `compare_stage` (the `timing_check` delta/pct/effective-baseline/threshold/passed block), `p95` (the `wall_ms_p95` expression) | `timing.rs` | MIGRATE (compute) — the click surface, YAML manifest I/O, `git` subprocess calls and the `profiling.timing_gate` / `regression.metrics_recorder` call-backs stay Python (surfaces owned by other Phase-4/5 slices) |
 | `temper_placer/cli/trace_commands.py` | 107 | `filter_decisions` (the `why` subject filter), `find_rejected_alternative` (the `why_not` nested scan) | `trace_filter.rs` | MIGRATE (compute) — the click surface stays Python; the `report` command stays Python (reconstructs `core.decision` objects, calls `pipeline.explainability` — other slices) |
 | `temper_workflow/routing/route_and_measure.py` | 96 | `measure_copper_length` (per-trace Euclidean accumulation) | `copper_length.rs` | MIGRATE (compute) — the `parse_kicad_pcb` call (Phase-3 `io/` surface) and the script `main()` (argparse, exit codes, file handling) stay Python |
+| `temper_placer/pipeline/convergence.py` | 391 | `record_loss`, `check_success`, `is_converged`, `check_routability_regression` (the net-set decision + state update) | `feasibility.rs` | MIGRATE (compute) — the `ConvergenceCriteria`/`ConvergenceState` dataclasses, the `ConvergenceChecker` class orchestration, time-based checks and the failure-message f-string rendering stay Python |
+| `temper_placer/pipeline/preflight.py` | 286 | `component_area_ratio`, `proximity_rule_impossible`, `zone_over_capacity`, `loop_area_violation`, `isolation_barrier_too_large` (the compensated product sum is the internal `py_builtin_sum`/`sum_product_areas_impl`, deliberately NOT a standalone export) | `feasibility.rs` | MIGRATE (compute) — `PreflightChecker.run` orchestration, the `len(k) == 4` / zone-name / ref-membership marshalling, the `PreflightReport` rendering and the constant/stub checks stay Python |
+| `temper_placer/pipeline/derivation.py` | 118 | `derive_emi_max_dist`, `derive_thermal_clearance`, `derive_si_max_placement_dist`, `mains_voltage_to_class_code`, `extract_min_clearance` | `feasibility.rs` | MIGRATE (compute) — the dict assembly, the code-to-`VoltageClass` mapping and the PCL `SeparatedConstraint` construction stay Python |
 | `temper_placer/cli/drc_cli.py` | 319 | — | — | R3-style record (below) |
 | `temper_placer/cli/watch_commands.py` | 115 | — | — | R3-style record (below) |
 | `temper_placer/cli/andon_commands.py` | 26 | — | — | R3-style record (below) |
@@ -80,6 +83,14 @@ size parameter:
 - `measure_copper_length` accumulates per-segment; the accumulation order is
   load-bearing (naive summation) but each step is the same IEEE add
   regardless of length.
+- The pipeline-feasibility kernels are fixed-step arithmetic (`record_loss`,
+  `check_success`, the derivation scalars, `component_area_ratio`), indexed
+  decisions (`mains_voltage_to_class_code`), or finite loops whose per-step
+  operation is size-independent — the compensated `sum`/`sum_product_areas`
+  iterate caller-provided collections with each step the same IEEE
+  add-and-compensate regardless of length (order is load-bearing, pinned by
+  the differential's dict-order cases). `check_routability_regression` is a
+  bounded state machine with no size parameter.
 
 Per R1e, a **structural proof** is recorded instead (bit-exactness is
 verified by the differential suites and the mutation campaign).
@@ -161,6 +172,120 @@ subprocess calls, `profiling.timing_gate`/`regression` call-backs, the
 expression raises `IndexError` on empty; the guard is a call-site policy,
 not part of the kernel contract — pinned as such by the differential).
 
+## Pipeline-feasibility slice (Wave 4, cluster)
+
+The feasibility/check compute of `temper_placer.pipeline.{convergence,preflight,derivation}`
+(795 LOC combined) is migrated to `feasibility.rs`. The three Python modules
+keep their full public API (dataclasses, enums, the
+`ConvergenceChecker`/`PreflightChecker` classes and the module-level
+functions) and delegate the compute across the pyo3 boundary. The
+pre-migration modules are pinned VERBATIM as the oracle
+(`tests/pipeline/_pipeline_feasibility_py_oracle.py`, content-hashed below
+its PINNED BODY marker; the only documented rewrite is derivation.py's
+future-import hoist).
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every migrated kernel, the Rust
+behaviour is bit-identical to the pinned pre-migration Python for every input
+in the differential suites' domains. The load-bearing equivalences, each
+pinned by measurement or identity:
+
+1. **Compensated builtin `sum` (B12).** CPython 3.12's `sum()` over floats is
+   the improved Kahan-Babuska (Neumaier) algorithm. `py_builtin_sum`
+   transcribes `builtin_sum_impl` in `bltinmodule.c` (v3.12.13) INCLUDING two
+   details the quality-oracle copy omits: (a) the seed is `0 + first`
+   (`PyNumber_Add(0, first)`), which makes `sum([-0.0])` equal **+0.0** — IEEE
+   round-to-nearest — not the first element's `-0.0`; and (b) the final flush
+   guard is `if (c != 0.0 && c.is_finite()) hi + c else hi`, matching the C
+   `if (c && Py_IS_FINITE(c))`, so an overflowed/NaN compensation is dropped
+   rather than producing `inf + -inf = NaN`. The preflight keepout sum mixes
+   int `0` entries with float products; in the C float fast path those hit the
+   `f_result += (double)0` no-op branch, so the mixed sequence sums exactly
+   like the float products alone in order — pinned by the module-level
+   `PreflightChecker.run` differential with a real mixed-length keepout list,
+   and by `test_compensated_summation_matches_python_sum` (the
+   `1e16 + 1 - 1e16` naive-vs-compensated discriminator plus 120 randomized
+   is_converged pairs against a Python `sum()`-based reference). The helper
+   is internal (`py_builtin_sum`) rather than an exported pyfunction — no
+   production path needs a raw sum exposed, and the unwired-kernel gate
+   rejects inert exports; its unit tests pin the `-0.0` seed and the
+   non-finite compensation guard directly.
+2. **CPython `min`/`max` positional semantics.** `py_min` is
+   `if b < a { b } else { a }`, keeping the first argument on ties and NaN
+   (proximity min-spacing, isolation `min(w, h)`), never `f64::min`.
+3. **`record_loss` zero-best raises.** `(best_loss - loss) / best_loss` with
+   `best_loss == 0.0` (incl. `-0.0`) raises `ZeroDivisionError("float division
+   by zero")` in Python where IEEE division returns ±inf; the kernel raises
+   the identical exception (message parity pinned via `canon_call`).
+4. **`check_routability_regression` state parity.** The kernel is pure and
+   returns the post-call best/stall state; the shim writes it back. Attribute
+   reads replicate the oracle exactly: `_best_routed_nets` is always read
+   (AttributeError parity on a fresh state), `_best_routability` only on the
+   non-first-call path, `_stall_count` only on the identical-net-set path.
+   Net sets are deduped + sorted into `BTreeSet`s (set semantics for `len`/
+   `==`/difference; `lost_nets` comes out sorted); the claimed domain is the
+   oracle's own `frozenset[str]` contract. The rendered `failure_message`s use
+   the shim's original f-strings on the kernel-returned values (same IEEE
+   bits → identical text).
+5. **`is_converged` order-sensitive compensated lengths.** The success count
+   is exact int arithmetic; the length sums are compensated and therefore
+   element-order-sensitive — the shim preserves dict insertion order.
+6. **Derivation scalars.** `sqrt(area) * 0.8` (IEEE sqrt), `power * 2.0` and
+   `max_len / 1.5` are direct transcriptions; the voltage-class boundary chain
+   and the `str.replace`-all-occurrence `_min_clearance` extraction are
+   reproduced exactly (`str::replace`, not `removesuffix`).
+
+**Documented boundary choices** (kept Python, argued in-source and above):
+`ConvergenceChecker`'s time-based checks (`check_timeout`,
+`get_elapsed_seconds`) and `check_iteration_limit`/`check_stagnation` are
+trivial comparisons with no float math; `PreflightChecker.run` orchestration
+and the `_check_layer_count`/`_check_stackup_quality`/stub checks are
+marshalling or call-backs into the manufacturing surface; the preflight
+message f-strings (`Fill ratio {ratio:.1%}`, `{min_d:.1f}`) and the
+`PreflightReport.summary()` rendering stay Python (Python-format exactness
+would not be reproducible in Rust's `{:.N}`); the PCL `SeparatedConstraint`
+construction is Python IR marshalling. A `max_distance_mm=None` proximity rule
+raises `TypeError` in both arms but with different messages (pinned as a
+witnessed divergence).
+
+### Differential suites
+
+| Suite | Location | Count |
+|---|---|---|
+| timing differential | `packages/temper-placer/tests/cli/test_timing_rust_differential.py` | 14 |
+| trace_commands differential (incl. CLI-surface A/B) | `packages/temper-placer/tests/cli/test_trace_commands_rust_differential.py` | 18 |
+| route_and_measure differential | `packages/temper-workflow/tests/test_route_and_measure_rust_differential.py` | 19 |
+| pipeline-feasibility differential (cluster: convergence + preflight + derivation) | `packages/temper-placer/tests/pipeline/test_pipeline_feasibility_rust_differential.py` | 69 |
+| timing PBT (+G4 mutants) | `packages/temper-placer/tests/cli/test_timing_pbt.py` | 16 |
+| trace_commands PBT (+G4 mutants) | `packages/temper-placer/tests/cli/test_trace_commands_pbt.py` | 15 |
+| route_and_measure PBT (+G4 mutants) | `packages/temper-workflow/tests/test_route_and_measure_pbt.py` | 13 |
+| pipeline-feasibility PBT + metamorphic (P1..P6 with mutation guards, MR1..MR4) | `packages/temper-placer/tests/pipeline/test_pipeline_feasibility_pbt.py` | 24 |
+
+Oracles (VERBATIM pre-migration copies, byte-verified):
+`tests/cli/_timing_py_oracle.py`, `tests/cli/_trace_commands_py_oracle.py`,
+`tests/_route_and_measure_py_oracle.py`, and — for this slice —
+`tests/pipeline/_pipeline_feasibility_py_oracle.py` (content-hash-pinned by
+`test_oracle_body_matches_pinned_digest`; byte-verified section-by-section
+against the three modules at origin/main `68ea250f`). The timing oracle's
+relative import `from ._io import console` is rewritten to its absolute form
+(document in its header) so it is importable from the test tree; the trace
+oracle had no module docstring and gains one; everything else is
+byte-identical to the pinned commit (origin/main `15110fecc`).
+
+### G4 / G5 status for the pipeline-feasibility cluster
+
+The verification unit is the CLUSTER (per the 2026-08-05 G4 ruling: one
+pinned oracle, one shared corpus). Six non-vacuous properties (P1..P6) reach
+all three modules — convergence.py via P1/P2/P3, preflight.py via P4/P5,
+derivation.py via P6 — each with a degenerate-kernel mutation guard
+(`test_pN_fails_for_<mutant>` via `hypothesis.inner_test`) and a reachability
+witness test. Four metamorphic relations (MR1..MR4) cover all three modules
+and are claimed BIT-EXACT: MR1 record_loss power-of-two scale invariance, MR2
+zone zero-product append no-op (a `0.0 * h` product enters the compensated
+sum without changing hi or the compensation), MR3 component-area-ratio
+power-of-two scaling, MR4 thermal-clearance output doubling.
+
 ## Differential suites
 
 | Suite | Location | Count |
@@ -234,24 +359,29 @@ test that must fail).
 
 ## R1 gate status
 
-- **R1a** — bit-identical differentials vs verbatim oracles: green (51
-  differential assertions across 3 modules; floats via `float.hex()`, type
-  carried on every leaf, error parity via `canon_call`).
+- **R1a** — bit-identical differentials vs verbatim oracles: green (120
+  differential assertions across 4 modules/clusters; floats via
+  `float.hex()`, type carried on every leaf, error parity via `canon_call`).
 - **R1b** — performance/no-regression arm: the migrated compute is invoked
   per CLI command (once per stage-entry), not in any hot loop; per the
   guide, this is the no-regression-beyond-noise arm. The rust kernels are
   trivially faster or equal for the per-call work; no speedup claim is
   made. (The pr-perf-check baseline covers the CLI surfaces' wall time via
-  the timing-gate itself.)
-- **R1c** — >= 5 non-vacuous properties/module: timing 6, trace_commands 6,
-  route_and_measure 5 (all G4-vacuity-guarded).
-- **R1d** — >= 3 metamorphic relations/module: timing 4, trace_commands 3,
-  route_and_measure 3.
+  the timing-gate itself.) The pipeline-feasibility compute is preflight /
+  convergence / derivation — invoked once per pipeline run, never hot.
+- **R1c** — >= 5 non-vacuous properties per verification unit: timing 6,
+  trace_commands 6, route_and_measure 5, pipeline-feasibility CLUSTER 6
+  (P1..P6, all G4-vacuity-guarded with reachability witnesses).
+- **R1d** — >= 3 metamorphic relations/unit: timing 4, trace_commands 3,
+  route_and_measure 3, pipeline-feasibility cluster 4 (MR1..MR4, all
+  bit-exact claims).
 - **R1e** — this document: structural proof + explicit non-applicability
   note for induction.
-- **R1f** — TDD: the three differentials were written first and demonstrated
-  RED (collection failure — `temper_orchestration` did not exist), then
-  GREEN.
+- **R1f** — TDD: the four differentials were written first and demonstrated
+  RED (collection failure — `temper_orchestration` did not exist / the shims
+  did not delegate), then GREEN. The pipeline-feasibility differential's RED
+  commit (ede48808) predates its kernels' GREEN commit (6cc75679) in git
+  history.
 - **R1g** — borrow over clone; no `unwrap` outside tests; `catch_unwind`
   at every pyo3 boundary (pyo3's `#[pyfunction]` expansion); clippy
   `unwrap_used`/`expect_used` denied.

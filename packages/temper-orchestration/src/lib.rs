@@ -10,6 +10,13 @@
 //                     find_rejected_alternative
 // - `copper_length` — temper-workflow routing/route_and_measure.py:
 //                     measure_copper_length
+// - `feasibility`   — pipeline/convergence.py + pipeline/preflight.py +
+//                     pipeline/derivation.py: record_loss, check_success,
+//                     is_converged, check_routability_regression,
+//                     component_area_ratio, proximity_rule_impossible,
+//                     zone_over_capacity, loop_area_violation,
+//                     isolation_barrier_too_large, derive_* and the
+//                     min-clearance extraction (pipeline-feasibility slice)
 //
 // Panic safety at the boundary (R1g): pyo3's `#[pyfunction]` expansion
 // wraps every exported body in `catch_unwind` and converts a Rust panic
@@ -17,6 +24,7 @@
 // into CPython (the crate also sets `profile.release.panic = "unwind"` so
 // that catch is what runs).
 mod copper_length;
+mod feasibility;
 mod host_math;
 mod timing;
 mod trace_filter;
@@ -32,6 +40,20 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(trace_filter::filter_decisions, m)?)?;
     m.add_function(wrap_pyfunction!(trace_filter::find_rejected_alternative, m)?)?;
     m.add_function(wrap_pyfunction!(copper_length::measure_copper_length, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::record_loss, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::check_success, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::is_converged, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::check_routability_regression, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::component_area_ratio, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::proximity_rule_impossible, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::zone_over_capacity, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::loop_area_violation, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::isolation_barrier_too_large, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::derive_emi_max_dist, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::derive_thermal_clearance, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::derive_si_max_placement_dist, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::mains_voltage_to_class_code, m)?)?;
+    m.add_function(wrap_pyfunction!(feasibility::extract_min_clearance, m)?)?;
     Ok(())
 }
 
