@@ -70,6 +70,15 @@ pub mod drc_oracle_marshal;
 #[cfg(feature = "python")]
 pub mod drc_oracle;
 
+// Crate-fold 3 (2026-08-09): IPC-2221/2152 current-capacity and trace-width
+// scalar kernels, consolidated from the deleted temper-ipc crate. `ipc` holds
+// the pure kernels and their unit tests (unconditional, like the other DRC
+// kernels); `ipc_pyo3` is the wholly-pyo3 surface exposing them on
+// temper_drc_rs (see its module doc).
+pub mod ipc;
+#[cfg(feature = "python")]
+pub mod ipc_pyo3;
+
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
 #[cfg(feature = "python")]
@@ -428,5 +437,8 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // kernels (drc_oracle.rs): severity, R3 clearance credits,
     // can_place_via / can_place_track_segment, validate_all pairwise checks.
     crate::drc_oracle::register(m)?;
+    // Crate-fold 3 (2026-08-09) — IPC-2221/2152 current-capacity and
+    // trace-width kernels (from temper-ipc).
+    crate::ipc_pyo3::register(m)?;
     Ok(())
 }

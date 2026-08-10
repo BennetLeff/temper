@@ -1,4 +1,4 @@
-import temper_ipc as _tipc
+import temper_drc_rs as _tipc
 
 
 def estimate_trace_current(

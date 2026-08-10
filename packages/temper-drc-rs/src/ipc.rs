@@ -1,6 +1,12 @@
 //! Pure-Rust IPC standard calculations for PCB design.
 //!
-//! Tests live here.  The pyo3 wrappers in `lib.rs` are thin adapters.
+//! IPC-2221/2152 current-capacity and trace-width scalar kernels,
+//! consolidated from the deleted `temper-ipc` crate (third crate-fold of the
+//! consolidation program; precedents: `placement-topology` → `geometry`,
+//! `dsn` → `io-types`, 2026-08-09). The kernels and their unit tests are
+//! carried verbatim from `temper-ipc/src/core.rs`; the pyo3 wrappers that
+//! expose them on `temper_drc_rs` live in the sibling `ipc_pyo3` module,
+//! exactly as the old crate's inline bridge did for `temper_ipc`.
 
 use std::collections::HashMap;
 use std::sync::LazyLock;

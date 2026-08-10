@@ -8,7 +8,6 @@ The `packages/` directory contains the temper EDA pipeline — placement, routin
 | `temper-design-bundle` | Validated, provenance-carrying Atopile and PCL design boundary | Python + Rust | partial |
 | `temper-drc-rs` | Rust DRC engine — PCB design rule checks with geo + rstar spatial indexing | Python + Rust | done |
 | `temper-geometry` | 2D geometry math functions for temper PCB placement | Python + Rust | done |
-| `temper-ipc` | IPC standard calculations for PCB design (current capacity, trace width) | Python + Rust | done |
 | `temper-pcl-ir` | Shared typed PCL intermediate representation | Python + Rust | done |
 | `temper-placer` | CP-SAT-based PCB placement optimizer for the Temper induction cooker | Python | N/A |
 | `temper-quality-oracle` | Typed quality oracle for PCB placement — implements the full six-layer quality pipeline as a pure Rust function | Python + Rust | done |

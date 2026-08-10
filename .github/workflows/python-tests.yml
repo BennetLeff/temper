@@ -887,7 +887,6 @@ jobs:
                        packages/temper-drc-rs/Cargo.toml \
                        packages/temper-geometry/Cargo.toml \
                        packages/temper-io-types/Cargo.toml \
-                       packages/temper-ipc/Cargo.toml \
                        packages/temper-orchestration/Cargo.toml \
                        packages/temper-pcl-ir/Cargo.toml \
                        packages/temper-py-bridge/Cargo.toml \

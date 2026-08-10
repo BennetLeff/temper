@@ -1,10 +1,10 @@
 """
 IPC-2152 inverse ampacity: minimum trace width from expected current.
 
-Delegates core computation to the temper_ipc Rust extension.
+Delegates core computation to the temper_drc_rs Rust extension.
 """
 
-from temper_ipc import (  # noqa: F401 — re-export
+from temper_drc_rs import (  # noqa: F401 — re-export
     DEFAULT_SIGNAL_CURRENT,
     NET_CURRENTS,
     get_net_current,
