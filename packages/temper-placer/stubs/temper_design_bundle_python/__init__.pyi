@@ -64,6 +64,12 @@ from . import decision_contracts as decision_contracts
 from . import loop_ownership_contracts as loop_ownership_contracts
 from . import stackup_contracts as stackup_contracts
 
+# Orchestration plan Phase A unit U7: the typed terminal-extraction wire
+# format and the typed Coo container (see
+# packages/temper-design-bundle/src/{terminal_wire_contracts,hypergraph_contracts}.rs).
+from . import terminal_wire_contracts as terminal_wire_contracts
+from . import hypergraph_contracts as hypergraph_contracts
+
 from . import validation as validation
 def sha256_hex(bytes: bytes) -> str: ...
 
