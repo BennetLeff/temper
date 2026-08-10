@@ -1,5 +1,6 @@
 # Issue #928 fix — R13 anchor uniqueness: re-scanned fixpoint replaces the x_max clamp (2026-08-10)
 
+<!-- provenance: commit=9d1777705cb3656f5c941596b56f3f6f99a7d227 dirty=false (fix recorded at this commit; measured after the rebuilt extension and full physics sweep) -->
 <!-- provenance: worktree=<wt-anchor>, branch=fix/anchor-uniqueness-928 -->
 
 **What this is.** The root-cause record and behavioural change note for
