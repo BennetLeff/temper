@@ -79,6 +79,11 @@ mod decision_contracts;
 #[cfg(feature = "python")]
 mod stackup_contracts;
 
+// Wave C core-contracts migration: geometry_types pyclasses
+// (Point, Track, Via, Pad) — see geometry_types_contracts.rs.
+#[cfg(feature = "python")]
+mod geometry_types_contracts;
+
 // Wave 4 fan-out migration: loop_ownership data contracts
 // (see fanout/migrate-core-3 branch).
 #[cfg(feature = "python")]
@@ -337,6 +342,7 @@ mod python {
         crate::bus_cohort_contracts::register(module)?;
         crate::decision_contracts::register(module)?;
         crate::stackup_contracts::register(module)?;
+        crate::geometry_types_contracts::register(module)?;
         crate::loop_ownership_contracts::register(module)?;
         crate::specification_contracts::register(module)?;
         crate::board_contracts::register(module)?;
