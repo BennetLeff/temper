@@ -19,24 +19,26 @@
 # in obstacle_map.py) — those are intentionally NOT listed below; they are
 # real findings, not false positives, and should stay failing until fixed.
 
-# --- CHECK A: net_classification.py pattern-set constants ------------------
-# These frozensets (GROUND_NET_PATTERNS, POWER_NET_PATTERNS, etc.) are NOT
-# runtime parameters threaded into a Rust call — the Rust classifiers
-# (`_rs.is_ground_net(name)` etc.) take only `name` and hard-code the same
-# literal pattern sets internally. The Python constants exist so
-# `tests/wave4_phase2/test_core_contracts_differential.py` can cross-check
-# `oracle.GROUND_NET_PATTERNS` (etc.) against the Rust predicates'
-# behaviour independently — i.e. there IS a differential guard here, just
-# not a call-site argument. Confirmed by reading net_classification.py and
-# its differential test; no call site exists where these could be threaded
-# through as an argument in the first place.
-CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|GROUND_NET_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: pattern-set constant hard-coded identically in the Rust classifier, not a threadable per-call parameter; cross-checked by test_core_contracts_differential.py.
-CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|POWER_NET_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
-CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|HV_NET_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
-CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|GROUND_PIN_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
-CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|POWER_PIN_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
-CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|HV_PIN_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
-CHECK_A|packages/temper-io-types/src/placer_core/netclass.rs|CLOCK_PIN_PATTERNS|packages/temper-placer/src/temper_placer/core/net_classification.py  # reason: same as GROUND_NET_PATTERNS above — hard-coded pattern set, not a call-site parameter, cross-checked by test_core_contracts_differential.py.
+# --- CHECK A: (empty) -------------------------------------------------------
+# The seven net_classification.py pattern-set entries that used to live here
+# are GONE, and no CHECK_A entry replaced them. They were all one shape -- a
+# pre-migration constant retained, unused in production, as the pinned oracle
+# for a differential suite -- which migration-pipeline.md stage 3 REQUIRES
+# every migration to produce. Suppressing them one by one meant re-deriving
+# "this is the oracle pattern" by hand for each constant, forever, once per
+# migration.
+#
+# `is_live_config_surface` in scripts/check_migration_narrowing.py now decides
+# it structurally instead: Check A reports a constant only when a production
+# module other than the definer actually reads it, which is what makes it a
+# configuration surface that const-ification could silently break. The oracle
+# constants are read by nobody, so they are no longer reported and these
+# entries went stale.
+#
+# An empty section is the expected steady state. A new CHECK_A entry here
+# should be treated as suspicious: it means a constant IS read across module
+# boundaries and the Rust hardcodes it anyway, which is the H_CONV_BACKGROUND
+# defect and wants a fix, not a suppression.
 
 # --- CHECK B: short/common identifier collisions ----------------------------
 # The four `v`/`i` entries that used to live here (pyo3_bridge.rs x2,

@@ -34,6 +34,20 @@ def _write(root: Path, rel: str, content: str) -> Path:
     return p
 
 
+# A Check A finding requires the constant to be a LIVE configuration surface:
+# some production module other than the definer must actually read it (see
+# `is_live_config_surface`). Fixtures that want a Check A finding must model
+# that consumer; without one `check_a` correctly reports nothing, because a
+# constant nobody reads cannot be silently de-configured by const-ification.
+_CONSUMER_OF_NAME_PY = (
+    "from temper_placer.physics.widget import NAME\n"
+    "\n"
+    "def scaled():\n"
+    "    return NAME / 1e6\n"
+)
+_CONSUMER_REL = "packages/temper-placer/src/temper_placer/physics/consumer.py"
+
+
 # ---------------------------------------------------------------------------
 # Check A: const-ification
 # ---------------------------------------------------------------------------
@@ -41,6 +55,13 @@ def _write(root: Path, rel: str, content: str) -> Path:
 
 class TestCheckA:
     def test_flags_unthreaded_constant(self, tmp_path):
+        """The H_CONV_BACKGROUND defect shape: live surface, hardcoded in Rust.
+
+        The consumer module is load-bearing, not scenery. Check A reports only
+        constants some OTHER production module reads (`is_live_config_surface`),
+        because a constant nobody reads is not configurable and const-ifying it
+        breaks nothing. Drop `consumer.py` and this stops being a defect.
+        """
         _write(
             tmp_path,
             "packages/temper-widget/src/lib.rs",
@@ -56,9 +77,127 @@ class TestCheckA:
             "def build(cs, ox):\n"
             "    return _tw.build_py(cs, ox)\n",
         )
+        _write(
+            tmp_path,
+            "packages/temper-placer/src/temper_placer/physics/consumer.py",
+            "from temper_placer.physics.widget import H_CONV_BACKGROUND\n"
+            "\n"
+            "def scaled():\n"
+            "    return H_CONV_BACKGROUND / 1e6\n",
+        )
         findings = gate.check_a(tmp_path)
         names = {f.name for f in findings}
         assert "H_CONV_BACKGROUND" in names
+
+    def test_does_not_flag_retained_differential_oracle(self, tmp_path):
+        """A constant kept as a pinned oracle, read by nobody, is not a defect.
+
+        This is the shape `migration-pipeline.md` stage 3 REQUIRES every
+        migration to produce, and it is structurally identical to the defect
+        above except that no other module reads the constant. Without the
+        liveness filter Check A fires here, and its false-positive rate then
+        grows with every completed migration.
+
+        Modelled on `router_v6/net_classification.py`, whose docstring says the
+        constants are "retained, unchanged and unused in production".
+        """
+        _write(
+            tmp_path,
+            "packages/temper-widget/src/lib.rs",
+            'pub const GROUND_NET_PATTERNS: [&str; 1] = ["GND"];\n',
+        )
+        _write(
+            tmp_path,
+            "packages/temper-placer/src/temper_placer/router_v6/netclass.py",
+            "import temper_widget as _tw\n"
+            "\n"
+            "GROUND_NET_PATTERNS = frozenset({'GND'})\n"
+            "\n"
+            "def _matches_any(name, patterns):\n"
+            "    return name in patterns\n"
+            "\n"
+            "def _oracle(name):\n"
+            "    return _matches_any(name, GROUND_NET_PATTERNS)\n"
+            "\n"
+            "def is_ground_net(name):\n"
+            "    return _tw.is_ground_net(name)\n",
+        )
+        findings = gate.check_a(tmp_path)
+        assert not [f for f in findings if f.name == "GROUND_NET_PATTERNS"]
+
+    def test_does_not_treat_a_same_named_constant_elsewhere_as_a_reference(
+        self, tmp_path
+    ):
+        """Another module DEFINING the same name is not a reference to this one.
+
+        `core/net_classification.py` and `router_v6/net_classification.py`
+        independently define seven identically-named pattern sets. Counting
+        Store-context names as references makes each one look cross-referenced
+        and resurrects all seven false positives.
+        """
+        _write(
+            tmp_path,
+            "packages/temper-widget/src/lib.rs",
+            'pub const HV_NET_PATTERNS: [&str; 1] = ["PE"];\n',
+        )
+        _write(
+            tmp_path,
+            "packages/temper-placer/src/temper_placer/router_v6/netclass.py",
+            "import temper_widget as _tw\n"
+            "\n"
+            "HV_NET_PATTERNS = frozenset({'PE'})\n"
+            "\n"
+            "def is_hv_net(name):\n"
+            "    return _tw.is_hv_net(name)\n",
+        )
+        # A DIFFERENT module with its own same-named constant, which it reads.
+        _write(
+            tmp_path,
+            "packages/temper-placer/src/temper_placer/core/netclass.py",
+            "HV_NET_PATTERNS = frozenset({'PE'})\n"
+            "\n"
+            "def check(name):\n"
+            "    return name in HV_NET_PATTERNS\n",
+        )
+        findings = gate.check_a(tmp_path)
+        assert not [f for f in findings if f.name == "HV_NET_PATTERNS"]
+
+    def test_flags_constant_reached_by_patch_object_string(self, tmp_path):
+        """`mock.patch.object(mod, "NAME", ...)` is a real configuration read.
+
+        This is how `validation/dead_parameter_probe.py` reaches
+        `heat_removal.H_CONV_BACKGROUND` -- the constant's name appears only as
+        a string literal, so identifier matching alone misses it and the
+        original defect goes unreported.
+        """
+        _write(
+            tmp_path,
+            "packages/temper-widget/src/lib.rs",
+            'pub const H_CONV_BACKGROUND: f64 = 10.0;\n',
+        )
+        _write(
+            tmp_path,
+            "packages/temper-placer/src/temper_placer/physics/widget.py",
+            "import temper_widget as _tw\n"
+            "\n"
+            "H_CONV_BACKGROUND = 10.0\n"
+            "\n"
+            "def build(cs, ox):\n"
+            "    return _tw.build_py(cs, ox)\n",
+        )
+        _write(
+            tmp_path,
+            "packages/temper-placer/src/temper_placer/validation/probe.py",
+            "from unittest import mock\n"
+            "\n"
+            "from temper_placer.physics import widget\n"
+            "\n"
+            "def probe(value):\n"
+            "    with mock.patch.object(widget, 'H_CONV_BACKGROUND', value):\n"
+            "        return widget.build(None, None)\n",
+        )
+        findings = gate.check_a(tmp_path)
+        assert any(f.name == "H_CONV_BACKGROUND" for f in findings)
 
     def test_does_not_flag_when_name_is_passed(self, tmp_path):
         _write(
@@ -136,6 +275,15 @@ class TestCheckA:
             "\n"
             "def build(cs):\n"
             "    return build_py(cs)\n",
+        )
+        # Consumer required: Check A reports only live configuration surfaces.
+        _write(
+            tmp_path,
+            "packages/temper-placer/src/temper_placer/physics/consumer.py",
+            "from temper_placer.physics.widget import H_CONV_BACKGROUND\n"
+            "\n"
+            "def scaled():\n"
+            "    return H_CONV_BACKGROUND / 1e6\n",
         )
         findings = gate.check_a(tmp_path)
         assert {f.name for f in findings} == {"H_CONV_BACKGROUND"}
@@ -359,6 +507,7 @@ class TestMainExitCodes:
             "packages/temper-placer/src/temper_placer/physics/widget.py",
             "import temper_widget as _tw\nNAME = 1.0\n\ndef build(cs):\n    return _tw.build_py(cs)\n",
         )
+        _write(root, _CONSUMER_REL, _CONSUMER_OF_NAME_PY)
         allowlist_path = root / ".migration-narrowing-allowlist"
         allowlist_path.write_text("")
 
@@ -376,6 +525,7 @@ class TestMainExitCodes:
             py_rel,
             "import temper_widget as _tw\nNAME = 1.0\n\ndef build(cs):\n    return _tw.build_py(cs)\n",
         )
+        _write(root, _CONSUMER_REL, _CONSUMER_OF_NAME_PY)
         allowlist_path = root / ".migration-narrowing-allowlist"
         allowlist_path.write_text(
             f"CHECK_A|packages/temper-widget/src/lib.rs|NAME|{py_rel}  # reason: test fixture\n"
@@ -408,6 +558,7 @@ class TestMainExitCodes:
             "packages/temper-placer/src/temper_placer/physics/widget.py",
             "import temper_widget as _tw\nNAME = 1.0\n\ndef build(cs):\n    return _tw.build_py(cs)\n",
         )
+        _write(root, _CONSUMER_REL, _CONSUMER_OF_NAME_PY)
         allowlist_path = root / ".migration-narrowing-allowlist"
 
         monkeypatch.setattr(gate, "REPO_ROOT", root)

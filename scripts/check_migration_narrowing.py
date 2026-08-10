@@ -55,35 +55,49 @@ allowlist file (``.migration-narrowing-allowlist``), where every entry
 requires a written reason. Do NOT allowlist a genuine capability narrowing —
 the allowlist is for coincidental name collisions only.
 
-KNOWN LIMITATION — CHECK A IS NOT WIREABLE AS A BLOCKING GATE YET.
-CHECK A cannot distinguish the defect it is looking for (a Python constant
-that production still reads, which the Rust port silently hardcoded — the
-``H_CONV_BACKGROUND`` shape) from a **retained differential oracle** (a
-pre-migration constant deliberately kept, unused in production, as the
-in-repo statement of the rule the Rust reproduces). The latter is not a
-defect: ``docs/migration-pipeline.md`` stage 3 *requires* every migration to
-pin the pre-migration implementation as an oracle, so a correctly executed
-migration produces exactly this shape on purpose. Both look identical to a
-name-matching scan — a Rust ``pub const`` and a same-named Python module
-constant that is not threaded through the delegate call.
+CHECK A'S RETAINED-ORACLE FILTER (``is_live_config_surface``).
+The name-matching part of Check A cannot, on its own, distinguish the defect
+it hunts (a Python constant that production still reads, which the Rust port
+silently hardcoded — the ``H_CONV_BACKGROUND`` shape) from a **retained
+differential oracle** (a pre-migration constant deliberately kept, unused in
+production, as the in-repo statement of the rule the Rust reproduces). Both
+present identically to a scan: a Rust ``pub const`` plus a same-named Python
+module constant that is not threaded through the delegate call.
 
-Measured on the 2026-08-10 tree, all 8 CHECK A findings were retained
-oracles, not defects — the 7 pattern sets in
-``router_v6/net_classification.py`` (whose own module docstring says the
-constants are "retained, unchanged and unused in production ... pinned
-oracle for test_net_classification_rust_differential.py") plus
-``CONTACT_TOLERANCE_MM`` in ``router_v6/connectivity.py``. Because the
-migration process mandates the oracle pattern, CHECK A's false-positive
-rate GROWS with every completed migration, which is backwards for a gate
-meant to protect the migration.
+That distinction is not a nicety. ``docs/migration-pipeline.md`` stage 3
+*requires* every migration to pin the pre-migration implementation as an
+oracle, so a correctly executed migration produces the oracle shape on
+purpose — and an unfiltered Check A therefore gets NOISIER with every
+completed migration, which is backwards for a gate meant to protect the
+migration. Measured on the 2026-08-10 tree, all 8 raw Check A hits were
+retained oracles: the 7 pattern sets in ``router_v6/net_classification.py``
+(whose module docstring says outright that the constants are "retained,
+unchanged and unused in production ... pinned oracle for
+test_net_classification_rust_differential.py") plus ``CONTACT_TOLERANCE_MM``
+in ``router_v6/connectivity.py``.
 
-The fix is production-reachability analysis: report a constant only when it
-is reachable from a production code path, not merely defined in a module
-whose functions delegate to Rust. ``scripts/check_unwired_kernels.py``
-already does AST-based production-vs-test caller analysis for the unwired-
-kernel ledger and is the machinery to reuse. Until that lands, run CHECK A
-manually and read its output as a worklist, not a verdict; only CHECK B is
-precise enough to gate on.
+So Check A additionally requires that the constant be a **live configuration
+surface**: some production module other than the definer actually reads it,
+by ``from <defining.module> import NAME`` or by reading the module object and
+the name (the ``mock.patch.object(heat_removal, "H_CONV_BACKGROUND", ...)``
+shape in ``validation/dead_parameter_probe.py``). The reasoning is that a
+constant no other module reads is not configurable in the first place: there
+is no caller whose behaviour could silently stop depending on it, so
+const-ifying it in Rust breaks nothing. A constant another module imports or
+patches IS such a surface, and const-ifying that is exactly the defect.
+
+Matching is AST-based and Load-context only, because both cheaper versions
+are wrong here: a text scan reads this module's own docstring mentions of
+``H_CONV_BACKGROUND`` as references, and counting Store-context names makes
+every duplicated constant look cross-referenced (``core/net_classification.py``
+and ``router_v6/net_classification.py`` define seven of the same names
+independently). Whole string literals count, never substrings — the live
+shape above names the constant only as a string.
+
+Effect on the 2026-08-10 tree: Check A drops from 8 findings to 0, and all
+seven CHECK_A allowlist entries became unnecessary and were deleted. On the
+2026-08-07 tree, where ``H_CONV_BACKGROUND`` was still unfixed, Check A still
+reports it — the filter removes the oracle class without blunting the check.
 
 Exit codes:
   0 - OK (no new findings outside the allowlist, no stale allowlist entries)
@@ -325,6 +339,144 @@ def analyze_python_file(path: Path) -> _PyModuleInfo | None:
     return info
 
 
+PRODUCTION_PY_ROOTS = ("packages", "scripts", "tools")
+
+
+def _is_test_path(p: str) -> bool:
+    return "/tests/" in p or "/test_" in p or p.endswith("_test.py")
+
+
+def _is_excluded_path(p: str) -> bool:
+    return "/.venv/" in p or "/target" in p or "/_py_oracle" in p
+
+
+def production_py_files(root: Path) -> list[Path]:
+    """Every non-test Python source, matching check_unwired_kernels.py's roots.
+
+    Classification is done on the path RELATIVE to `root`, never the absolute
+    path. An absolute-path match silently depends on what the checkout's parent
+    directories are called: pytest names `tmp_path` after the test function, so
+    every fixture tree in this gate's own suite lives under a directory
+    beginning `test_`, and an absolute `"/test_" in p` check classifies the
+    entire fixture as test code and skips it. The filter then has nothing to
+    scan, reports every constant as unreferenced, and Check A goes vacuously
+    silent -- passing the "does not flag" tests for the wrong reason while
+    failing every "flags" test.
+    """
+    out: list[Path] = []
+    for r in PRODUCTION_PY_ROOTS:
+        base = root / r
+        if not base.is_dir():
+            continue
+        for py in base.rglob("*.py"):
+            rel = "/" + py.relative_to(root).as_posix()
+            if _is_test_path(rel) or _is_excluded_path(rel):
+                continue
+            out.append(py)
+    return sorted(out)
+
+
+def python_module_path(py_file: Path, root: Path) -> str | None:
+    """`packages/<pkg>/src/temper_placer/physics/heat_removal.py`
+    -> `temper_placer.physics.heat_removal`."""
+    rel = py_file.relative_to(root).as_posix()
+    m = re.match(r"packages/[^/]+/src/(.+)\.py$", rel)
+    if not m:
+        return None
+    return m.group(1).replace("/", ".")
+
+
+def _loaded_identifiers(tree: ast.AST) -> set[str]:
+    """Names this module READS -- Load-context names, attributes, aliases, and
+    whole string literals.
+
+    Store-context names are deliberately excluded: a module-level
+    ``GROUND_NET_PATTERNS = frozenset(...)`` is a *definition* of that module's
+    own constant, not a reference to some other module's. Without that
+    distinction every duplicated constant name in the repo reads as a
+    cross-module reference (``core/net_classification.py`` and
+    ``router_v6/net_classification.py`` define seven of the same names).
+
+    Whole string literals are included because the live-configuration shape
+    this check exists for is written that way: ``dead_parameter_probe.py`` does
+    ``mock.patch.object(heat_removal, "H_CONV_BACKGROUND", ...)``, where the
+    constant's name never appears as an identifier node at all. Matching whole
+    strings only -- never substrings -- is what keeps prose out; this mirrors
+    ``check_unwired_kernels.code_identifiers`` and its recorded reasoning.
+    """
+    names: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute):
+            names.add(node.attr)
+        elif isinstance(node, ast.Name):
+            if isinstance(node.ctx, ast.Load):
+                names.add(node.id)
+        elif isinstance(node, ast.alias):
+            names.add(node.name.rsplit(".", 1)[-1])
+            if node.asname:
+                names.add(node.asname)
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
+            v = node.value.strip()
+            if v:
+                names.add(v)
+    return names
+
+
+def is_live_config_surface(
+    name: str, defining_py: Path, root: Path, cache: dict[Path, ast.AST | None]
+) -> bool:
+    """True when a production module OTHER THAN the definer reads `name` from it.
+
+    This is the discriminator between the defect Check A hunts and the
+    retained differential oracle it must not flag (see the module docstring).
+    A constant that no other module reads is not a configuration surface at
+    all: there is no caller whose behaviour could silently stop depending on
+    it, so const-ifying it in Rust breaks nothing. A constant another module
+    imports or patches IS such a surface, and const-ifying it silently makes
+    that caller's override dead -- exactly the H_CONV_BACKGROUND defect.
+
+    Two reference shapes count, matching the two ways this repo actually
+    reaches another module's constant:
+
+      (a) ``from <defining.module> import NAME`` -- a direct from-import,
+          resolved against the defining module's real dotted path so a
+          same-named constant in an unrelated module cannot satisfy it.
+      (b) the file reads the defining module's own name AND reads NAME --
+          the ``import heat_removal`` + ``patch.object(heat_removal,
+          "H_CONV_BACKGROUND")`` shape, where (a) never fires.
+    """
+    mod_path = python_module_path(defining_py, root)
+    if mod_path is None:
+        # Not an importable package module; no other module can read from it.
+        return False
+    mod_tail = mod_path.rsplit(".", 1)[-1]
+
+    for other in production_py_files(root):
+        if other == defining_py:
+            continue
+        if other not in cache:
+            try:
+                cache[other] = ast.parse(other.read_text(encoding="utf-8"))
+            except (SyntaxError, UnicodeDecodeError, OSError, ValueError):
+                cache[other] = None
+        tree = cache[other]
+        if tree is None:
+            continue
+
+        # (a) explicit from-import out of the defining module
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.module == mod_path:
+                if any(a.name == name for a in node.names):
+                    return True
+
+        # (b) module-object access: reads the module AND reads the name
+        loaded = _loaded_identifiers(tree)
+        if mod_tail in loaded and name in loaded:
+            return True
+
+    return False
+
+
 def check_a(root: Path) -> list[FindingA]:
     consts = find_rust_pub_constants(root)
     if not consts:
@@ -332,6 +484,7 @@ def check_a(root: Path) -> list[FindingA]:
 
     py_files = sorted(root.glob(PLACER_PY_GLOB))
     py_cache: dict[Path, _PyModuleInfo | None] = {}
+    ast_cache: dict[Path, ast.AST | None] = {}
 
     def get_info(p: Path) -> _PyModuleInfo | None:
         if p not in py_cache:
@@ -350,6 +503,12 @@ def check_a(root: Path) -> list[FindingA]:
             if not delegate_calls:
                 continue
             if any(const.name in arg_names for _, arg_names, _ in delegate_calls):
+                continue
+            # Retained-oracle filter. Everything above this line is satisfied
+            # by a correctly executed migration (migration-pipeline.md stage 3
+            # requires pinning the pre-migration implementation as an oracle),
+            # so without this the check fires on the process working.
+            if not is_live_config_surface(const.name, py_file, root, ast_cache):
                 continue
             findings.append(
                 FindingA(
