@@ -1173,6 +1173,221 @@ not invalidate either — a faithful wart).
 | D3 stage runner (ClearanceGridStage alone and in a zone→grid chain through `PipelineRunner<BoardState>`, with sys.modules-registered fakes for the venv-only Python modules incl. a tuple-indexable fake grid) | `packages/temper-orchestration/tests/d3_stages_runner.rs` | 5 |
 | pre-existing grid suites (leaf-kernel differentials/PBT, `test_clearance_grid.py` incl. the fence monkey-patch test, `test_clearance_expansion_regression.py`, the njit-fallback test) | `packages/temper-placer/tests/deterministic/` | 172 |
 
+## Rust orchestration engine — D4 (deterministic assignment stages)
+
+Phase D batch D4 of the Rust Orchestration Engine plan (2026-08-09-001):
+the deterministic assignment batch (`deterministic/stages/component_assignment.py`,
+247 LOC, and the DRC fence validator of
+`phased_component_assignment_validator.py`, 353 LOC) moves to
+`temper-orchestration`. `ComponentAssignmentStage` becomes a
+`Stage<BoardState>` implementor (`component_assignment_stage.rs`); the
+validator's coverage / non-over-claim compute becomes a Rust kernel
+(`run_phased_validator_hv` in `phased_component_assignment_validator_stage.rs`)
+returning `(field, value, reason)` triples that the Python shim wraps in the
+router_v6 `StageDRCFailure`. `phased_component_assignment.py` (49 LOC) is a
+mixin aggregation with zero standalone orchestration — its `run()` lives in
+the D5 mixins, so D4 leaves it as the D5 carrier and migrates its
+D4-visible consumer, the validator. Depends on D1 (the conversion seam +
+Stage pattern), D2/D3 (the populated `component_zone_map` / `zone_slots`
+fields the stage reads).
+
+### What migrated
+
+| Python module | Rust entity | Reads from BoardState | Writes to BoardState |
+|---|---|---|---|
+| `component_assignment.py` (247) | `ComponentAssignmentStage` (Stage impl) + `run_component_assignment` / `run_component_assignment_kernel` pyfunctions | `netlist`, `component_zone_map`, `zone_slots`, `component_domain_map`, `domain_regions` (+ the stage-config `slot_spacing` / `fixed_placements`) | `placements` (frozenset of `(ref, (x, y))`) |
+| `phased_component_assignment_validator.py` (353) | `run_phased_validator_hv` / `phased_validator_hv` (coverage + non-over-claim scans; `(field, value, reason)` triples) | `netlist`, `design_rules`, `placements`, `used_slots`, `zone_slots` | — (DRC-fence validator; the shim wraps the triples in `StageDRCFailure`) |
+| `phased_component_assignment.py` (49) | — | the class aggregation stays Python as the D5 carrier (see below) | — |
+
+The Rust stage transcribes `component_assignment.py`'s `run()` orchestration:
+the identity-preserving state guards, `_domain_lookups` (the per-ref domain
+map + the HV_edge/LV_interior region dict), the GEOS domain filter
+PRECOMPUTED into the per-ref `domain_ok` slot set (the loop structure, the
+netlist-order `seen_refs` de-duplication and the `region.covers(Point(x, y))`
+predicate all driven Rust-side through the shapely objects at runtime), the
+sheetpath-first/ref-fallback fixed-placement resolution, the greedy-kernel
+call (`temper_design_bundle_python.deterministic_leaves.assign_components_to_slots`
+via runtime `PyModule::import`), the `dict(...)` wrap and the
+`frozenset(placements.items())` write. The validator kernel reproduces the
+whole `validate_phased_component_assignment_hv` orchestration: `_creepage_mm`
+(max across HV/AC net classes, CPython `max` first-arg-wins), `_absolute_hv_pins`
+(the net-class + safety resolution and the absolute `placed + pin_relative`
+positions), `_flatten_slots`, the saturation short-circuit (`math.hypot`
+called via the math module), the fallback `used_slots` recompute AND the
+legitimate-origin set through the D5 mixin helpers (`_get_footprint_radius` /
+`_effective_ghost_pad_radius` called on a `PhasedComponentAssignmentStage`
+instance constructed via `__new__` exactly like the oracle), and the two
+failure scans. The bucketed slot-index kernels (`infer_slot_spacing_py` /
+`build_slot_index_py` / `slots_within_radius_py`) stay single-source in
+`temper-design-bundle` and are called through it. The stage reads the
+`Py<PyAny>` BoardState fields via py.getattr (D2: no field is tightened
+speculatively) and writes the `placements` field back through the
+`d1_bridge.rs` write-back (frozenset `==`-comparison: an unchanged stage on
+the guard returns the ORIGINAL state object — identity preserved).
+
+**What stays Python (evidence)**: the shapely/GEOS domain filter itself
+(`region.covers(Point)`) — the Rust stage drives the predicate through the
+shapely objects, the same calls in the same order as the oracle; the greedy
+kernel and the slot-grid kernels stay single-source in design-bundle. In the
+validator, the router_v6 `StageDRCFailure` construction stays Python (the
+kernel returns plain triples — the shim's `validate_phased_component_assignment_hv`
+wraps them), and the D5 mixin methods `_get_footprint_radius` /
+`_effective_ghost_pad_radius` (and the `PhasedComponentAssignmentStage`
+aggregation in `phased_component_assignment.py` — its `run()` orchestration
+is the D5 `_phase_*` mixins, out of scope for D4) stay Python. The small
+state-extraction bindings `_absolute_hv_pins` / `_creepage_mm` stay Python
+(public module API exercised by `tests/property/test_ghost_pad_injection.py`);
+the Rust kernel inlines the same computation, so the two are kept honest by
+the differential. `phased_component_assignment.py` (49 LOC) is a mixin
+aggregation with zero standalone orchestration — migrating it would mean
+moving the D5 mixin `run()`; D4 records it as the D5 carrier. The
+`math.hypot` saturation check and the failure reason f-strings render via
+CPython (the `str.format` calls and the math module), so David-Gay float
+repr / tuple str / hypot semantics are identical by construction.
+
+### G1 — differential oracle before Rust (TDD)
+
+The two pre-migration modules are pinned VERBATIM as
+`tests/deterministic/_component_assignment_py_oracle.py` and
+`_phased_component_assignment_validator_py_oracle.py` (only the two relative
+imports of `component_assignment.py` rewritten to absolute paths so the
+oracle imports from the test tree; each body's sha256 is pinned in the
+differential, which fails on any drift). The RED commit (`2546d5e9`) landed
+the oracles + differential + PBT with the anti-vacuity tripwire failing (the
+shims did not yet delegate); the GREEN commit (`81f4c19e`) landed the port.
+
+### G2 — behavioural A/B (bit-exact)
+
+`tests/deterministic/test_deterministic_d4_rust_differential.py`: 25 tests
+drive both arms with identical BoardState inputs and compare bit-exactly —
+the `placements` frozenset through `float.hex()` (content; the ordering
+semantics pinned through who-won-the-best-slot), the identity-preserving
+guards, the sheetpath-first fixed-placement resolution (dict and list forms,
+unknown keys skipped), the cross-zone fallback, the GEOS domain filter
+(confinement, the empty-covered-set-unfiltered semantics, the
+`covers`-keeps-boundary case), and — for the validator — the `StageDRCFailure`
+lists projected to `(field, value.hex, reason)` IN ORDER with the reason
+strings byte-for-byte (coverage failures in pin order then slot order,
+over-claim failures in the `used_slots` set-iteration order reproduced by
+building the same Python `set`), the degenerate paths (no netlist, zero
+creepage, saturation creepage, empty zone slots), the fallback recompute
+path, the used_slots-attr precedence, and a full end-to-end run of the D5
+Python phased placer whose output both validator arms must judge identically.
+A zone→assignment→slots→component-assignment pipeline chain closes the batch.
+
+### G3 — performance
+
+Pure-delegation carve-out: the stage crosses the FFI once per `run()`; the
+greedy assignment, the GEOS filter and the slot-grid kernels are unchanged.
+No regression beyond the single FFI crossing is possible or claimed.
+
+### G4 — PBT (`tests/deterministic/test_deterministic_d4_pbt.py`)
+
+Eight non-vacuous properties (P1 no-netlist guard identity, P2 every
+component placed on a generous grid, P3 unique slots + determinism, P4
+domain-filter confinement, P5 no-netlist no-failures, P6 zero-creepage
+no-failures, P7 saturation-creepage no-failures, P8 a coverage gap is
+reported), each with a fails-for-mutant companion re-running the SAME body
+against a degenerate stand-in and asserting the property trips — the
+established U4/D2/D3 PBT vacuity-guard pattern. Every migrated surface is
+reached by at least one property. 16 tests green.
+
+### G5 — metamorphic
+
+Not claimed: the D4 surface is orchestration over stateful Python objects
+(and the leaf kernels it delegates to are already metamorphic-covered), not
+pure functions; the differential and PBT arms pin the behavioural surface.
+Recorded as N/A per the plan's per-module G5 discretion (same ruling as D1/D2/D3).
+
+### G6 — induction
+
+Non-applicability note: the stage and the validator kernel are finite loops
+over caller-provided collections (netlist components/pins, zone slots,
+fixed-placement entries, HV pins); no recursive or size-parameterized
+computation. Structural proof instead: bit-exactness verified by the
+differential and the PBT vacuity mutants.
+
+### G7 — Rust bar
+
+No `unwrap`/`expect` outside tests (clippy `unwrap_used`/`expect_used` =
+deny in the lib target; the runner test file carries the tests-only allow).
+`cargo test` 95/95 green (71 lib + 5 D1 + 5 D2 + 5 D3 + 5 D4 + 4 U4 runner);
+`cargo clippy --all-features --all-targets -- -D warnings` clean. Panic
+safety: the stage's `Stage::run` wraps its body in `stage_guard`
+(`catch_unwind` — a Rust panic becomes a Python RuntimeError instead of
+unwinding through the pyo3 frame), and pyo3's `#[pyfunction]` expansion
+additionally wraps every exported body (the validator kernel returns
+`PyResult` directly).
+
+### G8 — R24 physics
+
+N/A — the stage and the validator kernel gate on no physics quantity; the
+creepage clearances are configuration constants threaded through the
+already-tested design-bundle kernels. Recorded explicitly.
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every input in the differential
+suites' domains, the Rust stage / validator kernel produce outputs
+bit-identical to the pinned pre-migration oracle's. The load-bearing
+equivalences:
+
+1. **Zone-dict insertion order.** `dict(state.component_zone_map)` /
+   `dict(state.zone_slots)` are built via the builtins `dict()` over the
+   ORIGINAL frozenset objects, so the dict insertion order is the
+   frozenset's iteration order exactly like the oracle — order is load-bearing
+   for the kernel's cross-zone fallback (first non-empty other zone wins).
+2. **`domain_ok` keying.** Keyed in netlist component order with explicit
+   `seen_refs` de-duplication; each entry's covered slot set is built by
+   iterating `zone_slots.items()` in dict order and calling the SAME
+   `region.covers(Point(x, y))` predicate — the GEOS filter stays Python and
+   the Rust stage drives it, so parity is by construction. The empty-covered
+   set leaves a ref out of `domain_ok`, which the kernel treats as unfiltered
+   (the migrated semantics, pinned by the Phase-5 differential too).
+3. **Fixed-placement resolution.** sheetpath-first then ref fallback, both
+   the dict (`{"position": [...]}`) and bare list/tuple forms, `float()`
+   conversions via pyo3 f64 extraction (int→float exact); unknown keys are
+   skipped — pinned by the sheetpath-first and unknown-key tests.
+4. **Failure reasons by identity.** The f-strings render via CPython
+   `str.format` on the ORIGINAL slot / creepage / pin objects (David-Gay
+   float repr and tuple str semantics); the `field` prefixes are plain str
+   concatenation. The `math.hypot` saturation check is called through the
+   math module, not reimplemented in Rust.
+5. **Failure ORDER.** Coverage failures in pin order then per-pin slot-list
+   order; over-claim failures in the `used_slots` Python-set iteration order.
+   The Rust kernel builds `used_slots` / `legitimate_origin` as real Python
+   `set`s with the same insertion sequence as the oracle, then iterates them
+   via FFI — identical table order by construction.
+6. **`max(max_creepage, candidate)` is CPython `max`** (first-arg-wins on
+   NaN/ties), never `f64::max`.
+7. **The mixin helpers are called, not reimplemented.** `_get_footprint_radius`
+   / `_effective_ghost_pad_radius` are invoked on a
+   `PhasedComponentAssignmentStage` instance built via `__new__` with
+   `use_isolation_slots = False` — the identical construction the oracle
+   uses, so the D5-surface helpers (and the `use_isolation_slots = False ⇒
+   ring = creepage` invariant) stay single-source.
+8. **The `_effective_ghost_pad_radius` creepage argument is a fresh Python
+   float** of the computed `_creepage_mm` value (bit-identical to the
+   oracle's `creepage`), and the pin centers `(cx, cy)` are rebuilt tuples
+   of the extracted values, exactly like the oracle's unpack-and-rebuild.
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above): shapely/GEOS stays Python (driven through FFI);
+the slot-grid and greedy kernels stay single-source in design-bundle; the
+router_v6 `StageDRCFailure` construction stays Python; the D5 mixin methods
+and the `phased_component_assignment.py` class aggregation stay Python (the
+D5 carrier); `_absolute_hv_pins` / `_creepage_mm` stay Python module API
+(the kernel inlines the same computation).
+
+### Differential / PBT / runner suites (D4)
+
+| Suite | Location | Count |
+|---|---|---|
+| D4 differential (oracles: `_component_assignment_py_oracle.py` + `_phased_component_assignment_validator_py_oracle.py`, sha256-pinned) | `packages/temper-placer/tests/deterministic/test_deterministic_d4_rust_differential.py` | 25 |
+| D4 PBT (P1..P8, mutation-guarded) | `packages/temper-placer/tests/deterministic/test_deterministic_d4_pbt.py` | 16 |
+| D4 stage runner (ComponentAssignmentStage alone, with fixed placements, with a domain filter, and the `phased_validator_hv` kernel, through `PipelineRunner<BoardState>` / the Rust-callable kernel with sys.modules-registered fakes incl. a fake greedy kernel + shapely stub) | `packages/temper-orchestration/tests/d4_stages_runner.rs` | 5 |
+| pre-existing assignment/validator/ghost-pad suites (the Phase-5 kernel differentials/PBT, the U3 validator scenarios, the phased-placer suites, the ghost-pad property) | `packages/temper-placer/tests/deterministic/stages/` + `tests/property/` | 84 |
+
 ## Rust orchestration engine — U8 (explainability data contracts + MarkdownReport)
 
 The Rust Orchestration Engine plan (2026-08-09-001) ships its Phase-A U8 unit
