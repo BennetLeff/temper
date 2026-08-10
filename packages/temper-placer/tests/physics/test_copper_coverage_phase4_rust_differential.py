@@ -341,23 +341,40 @@ def test_masks_hole_mul_vs_pow_discriminator():
 
 def test_masks_hole_radius_pow_vs_mul_discriminator():
     # The circle test's radius term `kr**2` is a PYTHON float `** 2` →
-    # host libm pow (NOT kr*kr — the two differ by 1 ulp at this kr,
-    # and the cell offset is constructed so the distance squared equals
-    # exactly the SMALLER of the two).  A kr*kr kernel flips the keepout
-    # bit; the reference (and this kernel) use pow.  Measured
-    # 2026-08-04.
+    # host libm pow (NOT kr*kr — the two differ by 1 ulp at a
+    # discriminating kr, and the cell offset is constructed so the
+    # distance squared equals exactly the SMALLER of the two).  A kr*kr
+    # kernel flips the keepout bit; the reference (and this kernel) use
+    # pow.
+    #
+    # The discriminating kr is SEARCHED at runtime, not hardcoded:
+    # whether `pow(kr, 2.0) != kr*kr` holds for a given kr — and whether
+    # `sqrt(mn)` round-trips exactly — is a property of the host libm,
+    # and `kr = 2.882033520478047` (measured 2026-08-04) no longer
+    # discriminates on the current libm (issue #927).  The search fails
+    # loudly if the loaded libm cannot discriminate at all.
     import math
     import struct
 
-    kr = 2.882033520478047
-    p = (kr**2)  # libm pow
-    m = kr * kr
-    assert struct.pack(">d", p) != struct.pack(">d", m)
-    mn = min(p, m)
-    dx = math.sqrt(mn)
-    assert struct.pack(">d", dx * dx) == struct.pack(">d", mn)  # d2 == min exactly
+    rng = random.Random(99)
+    found = None
+    for _ in range(500000):
+        kr = rng.uniform(0.5, 10.0)
+        p = kr**2  # libm pow
+        m = kr * kr
+        if struct.pack(">d", p) == struct.pack(">d", m):
+            continue
+        mn = min(p, m)
+        dx = math.sqrt(mn)
+        if struct.pack(">d", dx * dx) == struct.pack(">d", mn):
+            found = (kr, p, m, dx)
+            break
+    assert found is not None, "no pow(kr,2.0) vs kr*kr discriminator on this libm"
+    kr, p, m, dx = found
     d2 = dx * dx
-    assert (d2 < p) and not (d2 < m)  # pow: inside; mul: outside
+    # d2 == min(p, m) exactly, so the pow and mul interpretations land on
+    # OPPOSITE sides of the threshold — the discriminator is live.
+    assert (d2 < p) != (d2 < m)
     h, w, cs = 1, 1, 1.0
     mx = 0.5 - dx
     my = 0.5
@@ -365,7 +382,11 @@ def test_masks_hole_radius_pow_vs_mul_discriminator():
     got_k = np.frombuffer(ko, dtype=np.bool_).reshape((h, w))
     want_k = _oracle_masks(h, w, 0.0, 0.0, cs, 1.0, 1.0, None, [], [(mx, my, kr)])[1]
     assert np.array_equal(got_k, want_k)
-    assert bool(got_k[0, 0]) is True  # pow radius: inside the keepout
+    # The oracle uses pow(kr, 2.0) for the radius; a kr*kr kernel flips
+    # the keepout bit — pin is discriminating.
+    oracle_bit = bool(want_k[0, 0])
+    assert oracle_bit == (d2 < p)
+    assert oracle_bit != (d2 < m)
 
 
 # ---------------------------------------------------------------------------

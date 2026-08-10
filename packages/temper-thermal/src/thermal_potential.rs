@@ -1610,14 +1610,38 @@ mod tests {
 
     #[test]
     fn separation_test_uses_pow_not_multiplication() {
-        // pow(dx,2) + pow(dy,2) = 1404.2480961863134
-        //   dx*dx   +   dy*dy   = 1404.2480961863137
-        // With min_dist2 exactly the second value, `sum < min_dist2` is
-        // TRUE for the pow form and FALSE for the multiply form.
-        let dx = 37.413_044_759_936_99_f64;
-        let dy = 2.124_188_780_985_585_7_f64;
-        let min_dist2 = 1_404.248_096_186_313_7_f64;
-        assert!(pow(dx, 2.0) + pow(dy, 2.0) < min_dist2, "fixture is not discriminating");
+        // `pow(dx,2) + pow(dy,2)` must be libm pow per term, never
+        // `dx*dx + dy*dy`: with min_dist2 set to the (larger) multiply
+        // sum, `sum < min_dist2` is TRUE for the pow form and FALSE for
+        // the multiply form.  The fixture is SEARCHED rather than
+        // hardcoded: whether the two sums differ is a property of the
+        // loaded libm's pow, and the values pinned at migration
+        // (`dx = 37.41304475993699`, `dy = 2.1241887809855857`) do NOT
+        // discriminate on the current libm (issue #927).  The search
+        // fails loudly if the loaded libm cannot discriminate at all.
+        let mut seed = 0x5eed_1e00_0000_u64;
+        let mut dx = 1.0_f64;
+        let mut dy = 1.0_f64;
+        let mut pw = 2.0_f64;
+        let mut ml = 2.0_f64;
+        let mut found = false;
+        for _ in 0..5_000_000 {
+            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            let e = 1 + (seed >> 53) % 1050;
+            dx = f64::from_bits((e << 52) | (seed & ((1u64 << 52) - 1)));
+            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            let e2 = 1 + (seed >> 53) % 1050;
+            dy = f64::from_bits((e2 << 52) | (seed & ((1u64 << 52) - 1)));
+            pw = pow(dx, 2.0) + pow(dy, 2.0);
+            ml = dx * dx + dy * dy;
+            if pw < ml {
+                found = true;
+                break;
+            }
+        }
+        assert!(found, "no pow-sum vs mul-sum discriminator on this libm");
+        let min_dist2 = ml;
+        assert!(pw < min_dist2, "fixture is not discriminating");
         assert!(dx * dx + dy * dy >= min_dist2, "fixture is not discriminating");
 
         // A 1-cell grid at exactly (dx, dy), inside a BOTTOM edge strip,
