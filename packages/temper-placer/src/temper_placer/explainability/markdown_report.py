@@ -3,12 +3,13 @@
 This module generates human-readable markdown reports from DecisionTrace objects,
 providing clear documentation of all placement decisions for review and debugging.
 
-Wave 4, Phase 5: the whole rendering pipeline now lives in the
-``temper-io-types`` Rust crate (``explain.rs``); this module is a delegation
-shim. Timestamp ``strftime`` and ``datetime`` arithmetic stay Python — the
-shim pre-formats the two timestamp strings and the duration — everything
-downstream is Rust. The pre-migration implementation is pinned verbatim as
-``tests/explainability/explain_oracle/markdown_report_oracle.py``.
+Phase A, U8 (plan ``2026-08-09-001``): the markdown renderers are the
+``MarkdownReport`` deliverable in ``temper-orchestration`` (re-exported
+here); the render output is a deterministic string, pinned byte-identical by
+the differential suites. Timestamp ``strftime`` and ``datetime`` arithmetic
+stay Python — the shim pre-formats the two timestamp strings and the
+duration — everything downstream is Rust. The pre-migration implementation is
+pinned verbatim as ``tests/explainability/explain_oracle/markdown_report_oracle.py``.
 
 Example:
     >>> from temper_placer.explainability import DecisionTrace, Decision
@@ -25,7 +26,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import temper_io_types as _rust
+from temper_orchestration import (
+    render_component_report as _render_component_report,
+    render_markdown_report as _render_markdown_report,
+)
 
 from temper_placer.explainability.decision import (
     DecisionTrace,
@@ -52,7 +56,7 @@ def render_markdown_report(
     start_str = trace.start_time.strftime("%Y-%m-%d %H:%M:%S")
     end_str = trace.end_time.strftime("%Y-%m-%d %H:%M:%S") if trace.end_time else None
     duration = (trace.end_time - trace.start_time).total_seconds() if trace.end_time else None
-    return _rust.explain_render_markdown_report(
+    return _render_markdown_report(
         trace, include_config, include_positions, start_str, end_str, duration,
         _max_decisions_per_component,
     )
@@ -68,7 +72,7 @@ def render_component_report(trace: DecisionTrace, subject: str) -> str:
     Returns:
         Markdown report for just that component
     """
-    return _rust.explain_render_component_report(trace, subject)
+    return _render_component_report(trace, subject)
 
 
 def save_markdown_report(trace: DecisionTrace, path: Path | str) -> None:

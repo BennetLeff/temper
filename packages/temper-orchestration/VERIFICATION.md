@@ -751,3 +751,189 @@ argued in-source and above):
 | pipeline-state PBT (P1..P8, mutation-guarded) | `packages/temper-placer/tests/pipeline/test_pipeline_state_pbt.py` | 22 |
 | stage runner (sequences DerivationStage + PreflightStage through `PipelineRunner<BoardState>`) | `packages/temper-orchestration/tests/stages_runner.rs` | 4 |
 | existing shim surface (all `tests/pipeline/*`, incl. convergence + feasibility differentials/PBT) | `packages/temper-placer/tests/pipeline/` | 506 |
+
+## Rust orchestration engine — U8 (explainability data contracts + MarkdownReport)
+
+The Rust Orchestration Engine plan (2026-08-09-001) ships its Phase-A U8 unit
+here: the `explainability/{decision,trace,serialization,markdown_report}.py`
+row (886 LOC) — the explainability **data contracts** migrate to
+`explainability.rs` pyclasses (`Decision`, `Alternative`, `DecisionTrace`,
+`Entry`, `Trace`) and the **markdown report generation** becomes the
+`MarkdownReport` pyfunctions (`render_markdown_report` /
+`render_component_report`). The three Python shims collapse to re-exports.
+`DecisionPhase` / `DecisionType` stay Python `Enum` classes; the
+NL-generation kernels (`why` / `why_not` / `history` / `summary`) stay
+single-source in `temper-io-types` and are called back from the pyclasses.
+
+### What migrated
+
+- `decision.py` — the `Alternative` / `Decision` / `DecisionTrace`
+  dataclasses become pyclasses (field get/set, per-instance
+  `default_factory` containers, `uuid`/`datetime` defaults invoked from the
+  Rust constructors, `to_dict` / `query_*` / `finalize` / `add` /
+  `__len__` / `__iter__` / `__eq__` / `__repr__`). `DecisionPhase` /
+  `DecisionType` stay Python Enums (redefined in the shim).
+- `trace.py` — the `Entry` / `Trace` frozen dataclasses become pyclasses
+  (the immutable monoid: `empty` / `add` / `__add__` / `for_subject` /
+  `__len__` / `__bool__` / `__eq__` / `__hash__` / `__repr__`).
+- `markdown_report.py` — the renderers are the `MarkdownReport` deliverable
+  ported into `explainability.rs` (byte-pinned against the verbatim oracle);
+  the shim keeps only the `strftime` timestamp pre-formatting, the
+  `duration` datetime arithmetic and `save_markdown_report` file I/O.
+- `logger.py`, `pipeline.py`, `traced_loss.py`, `serialization.py` stay
+  Python unchanged (orchestration over Python callables / stdlib file-I/O /
+  numpy; the logger's `explain_log_*`, `explain_should_log`,
+  `explain_significant_change`, `explain_compose_traces`,
+  `explain_constraint_subject`, `explain_trace_threshold` and the
+  serialize/deserialize dict-shapes stay wired in `temper-io-types`).
+
+### Boundaries (argued in `explainability.rs` and here)
+
+- **Enums stay Python.** `DecisionPhase` / `DecisionType` keep their Enum
+  identity, value construction (`DecisionPhase(x)`) and class iteration
+  (`list(DecisionPhase)`) — Python runtime semantics that pyo3 cannot
+  reproduce (no metaclass hook for class iteration). The pyclass fields hold
+  the Python enum members as `Py<PyAny>`.
+- **`uuid` / `datetime` defaults stay Python runtime semantics.** The pyclass
+  constructors call Python's `uuid.uuid4()` / `datetime.now()` for the
+  defaults (never reimplemented); the differential pins the SHAPE (8-char /
+  12-char ids, `datetime` instances), not the values.
+- **NL-generation stays single-source in `temper-io-types`.** `why` /
+  `why_not` / `history` / `summary` / `Trace.why` call the io-types kernels
+  back across the boundary (the pyclass instances expose the exact attribute
+  surface those kernels read). The five io-types kernels are ledgered as
+  wired-but-invisible-to-the-Python-AST-scan (the gate cannot see
+  cross-extension Rust→Python `PyModule::import` calls). The two markdown
+  renderers ARE ported (the plan's `MarkdownReport` deliverable) and are
+  ledgered as orphaned/superseded.
+- **Per-instance default factories.** `constraint_refs` / `alternatives` /
+  `config_snapshot` / `decisions` / `final_positions` / `final_metrics` get a
+  FRESH `PyList`/`PyDict` per construction (the dataclass
+  `field(default_factory=...)`), pinned by the differential's independence
+  test.
+- **`loss_contribution` is `Py<PyAny>`.** An int stays an int (the logger
+  differential's `test_log_heuristic_int_confidence_type_preserved` pins it);
+  the dataclass does not type-enforce.
+- **`subject` / `reason` / `id` are typed `String`** — a non-str argument
+  raises TypeError where the dataclass would store it (the U4 typed-boundary
+  precedent; no caller in the differential/PBT corpora passes non-str).
+
+### G1 — differential oracle before Rust (TDD)
+
+The U8 differential `test_explainability_contracts_rust_differential.py`
+(23 tests) and its RED arm were committed first (`4a603144` — the
+`__module__ == "temper_orchestration"` assertions failed, the shims were not
+collapsed), then the implementation landed GREEN (`438352c1`). The oracle is
+the verbatim pre-migration module copies in
+`tests/explainability/explain_oracle/` (already byte-pinned by the Wave-4
+suites).
+
+### G2 — behavioural A/B (bit-exact)
+
+The 23-test differential drives BOTH arms with identical inputs and compares
+every observable bit-exact: construction defaults (uuid/datetime shapes),
+`to_dict` shapes (repr-compared), `query_*` results (Decision reprs),
+`finalize`, `summary`/`why`/`why_not`/`history` (via the delegated kernels),
+the Trace monoid (`empty`/`add`/`+`/`for_subject`/`why`/repr) and the
+markdown reports byte-identical across 15 randomized fixtures × the
+include_config/include_positions matrix. The pre-existing Wave-4 suites
+(`test_decision_rust_differential.py`, `test_trace_rust_differential.py`,
+`test_serialization_rust_differential.py`, `test_markdown_rust_differential.py`,
+`test_logger_rust_differential.py`, `test_traced_loss_pipeline_rust_differential.py`,
+`test_explainability_pbt.py`, `test_*_extra.py`) now drive the **pyclasses**
+through the collapsed shims and stay green — 138 explainability tests.
+
+### G3 — performance
+
+Pure-delegation carve-out: the data contracts are constructed once per
+decision, the renderers run once per report; the only overhead added is the
+pyclass construction / FFI crossing. No regression beyond noise is possible
+or claimed.
+
+### G4 / G5 — PBT + metamorphic (`test_explainability_contracts_pbt.py`)
+
+Six non-vacuous properties (P1 Trace monoid identity, P2 `add` appends
+exactly one entry, P3 `Decision.to_dict`→`deserialize_decision` round-trip,
+P4 `summary` aggregation consistency, P5 `query_subject` chronological
+filter, P6 markdown determinism), each with a degenerate-kernel mutation
+guard via `hypothesis.inner_test`. Four metamorphic relations (MR1
+composition order-preservation, MR2 monoid identity invisible to `why` output,
+MR3 component report monotone in the appended final value, MR4 summary scale
+invariance under decision duplication), each mutation-guarded. 20/20 green.
+
+### G6 — induction
+
+Not applicable — the migrated surface is data contracts plus fixed-sequence
+rendering; no recursive computation. A structural proof is recorded below.
+
+### G7 — Rust bar
+
+`cargo test` 75/75 green (71 lib + 4 runner; the 4 new
+`explainability.rs` unit tests pin `truncate`'s negative-stop clamp,
+`py_title`, and the `py_float_fmt` NaN/inf/round-half-even seam);
+`cargo clippy --all-features --all-targets -- -D warnings` clean. No
+`unwrap`/`expect` anywhere (crate denies both). Panic safety: pyo3's
+`#[pyclass]`/`#[pyfunction]` expansion wraps every exported body in
+`catch_unwind` (the crate sets `profile.release.panic = "unwind"` so that
+catch is what runs).
+
+### G8 — R24 physics discipline
+
+Not applicable — the explainability surface gates on no physics quantity
+(data records + text rendering). Recorded explicitly.
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every constructor, field, method and
+renderer of the migrated pyclasses, the Rust behaviour is bit-identical to
+the pinned pre-migration Python for every input in the differential suites'
+domains, with the documented boundary choices above.
+
+1. **repr by identity.** The dataclass `__repr__` renders every leaf via
+   CPython's repr engine (Enums as `<DecisionPhase.GEOMETRIC: 'geometric'>`,
+   datetimes as `datetime.datetime(...)`, floats with David-Gay semantics);
+   the Rust `__repr__` calls CPython `repr()` on each field value. Parity by
+   identity, not by coincidence of formatter implementations (U4 precedent).
+2. **eq by identity.** Dataclass equality is exact-class + field-wise `==`.
+   The Rust `__eq__` type-checks the other operand's type first, then
+   compares every field with Python `==` — the enum members, datetimes,
+   tuples, numpy leaves and nested `Alternative`/`Decision` lists all compare
+   with Python equality, exactly like the dataclass.
+3. **Unhashability / hashability.** `Decision` / `DecisionTrace` are
+   unhashable (`eq=True`, `frozen=False` — `__hash__` raises TypeError);
+   `Entry` / `Trace` are frozen dataclasses and hashable (hash of the field
+   tuple / entries tuple).
+4. **Per-instance default factories.** Fresh `PyList`/`PyDict` per
+   construction, pinned by the differential's independence test.
+5. **Markdown float/truncation seams.** The renderers go through the ported
+   `py_float_fmt` seam (NaN/inf lowercase, round-half-even) and `truncate`
+   (CPython negative-stop slicing clamp for max_len < 3) — the same seams
+   io-types pins, re-pinned here by unit tests and the byte-identical
+   differential (incl. the deterministic-string golden test).
+6. **`finalize` truthiness.** `if positions:` / `if metrics:` skip empty
+   (`falsy`) dicts exactly like the oracle (pinned by the differential).
+7. **Delegated NL-generation by single-source.** `why` / `why_not` /
+   `history` / `summary` / `Trace.why` call the same io-types kernels the
+   pre-migration shims called, so parity is by construction (the kernels
+   read the pyclass attribute surface, which matches the dataclass surface
+   bit-for-bit).
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above):
+- `DecisionPhase` / `DecisionType` stay Python Enum classes.
+- `uuid` / `datetime` defaults are Python runtime semantics invoked from the
+  constructors (shape-pinned, never value-pinned).
+- The `subject` / `reason` / `id` / `rejection_reason` fields are typed
+  `String` (reject type-unsafe assignment where the dataclass would store
+  it).
+- The NL-generation compute stays in `temper-io-types` (single-source;
+  ledgered as wired-but-scan-invisible); the two superseded io-types markdown
+  renderers are ledgered as orphaned.
+
+### Differential / PBT suites (U8)
+
+| Suite | Location | Count |
+|---|---|---|
+| U8 contracts differential (oracle: `explain_oracle/{decision,trace,markdown_report}_oracle.py`) | `packages/temper-placer/tests/explainability/test_explainability_contracts_rust_differential.py` | 23 |
+| U8 PBT + metamorphic (P1..P6, MR1..MR4, mutation-guarded) | `packages/temper-placer/tests/explainability/test_explainability_contracts_pbt.py` | 20 |
+| pre-existing explainability suites (Wave-4 differentials/PBT/extra, now driving the pyclasses) | `packages/temper-placer/tests/explainability/` | 138 |
