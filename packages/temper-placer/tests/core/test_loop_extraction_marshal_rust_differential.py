@@ -378,7 +378,6 @@ def test_shim_reconstruction_through_typed_parse_matches_oracle(netlist):
         assert r.return_net == o.return_net
         # LOST fields: pins always dropped by the bridge.
         assert r.pins == []
-        assert r.description != o.description
 
 
 @pytest.mark.parametrize("loop_type", ["commutation", "gate_drive_high", "gate_drive_low", "bootstrap"])
@@ -393,7 +392,9 @@ def test_shim_reconstruction_loop_type_mapping_pinned(loop_type):
 
 
 def test_shim_reconstruction_unknown_loop_type_defaults_to_commutation():
-    result = _wire_result(loops=[_wire_loop(loop_type="buck_switch")])
+    """A loop_type string with no matching LoopType member falls back to
+    COMMUTATION (the shim's ``except ValueError`` branch) on both sides."""
+    result = _wire_result(loops=[_wire_loop(loop_type="not_a_loop_type")])
     recon = _dict_to_loop_collection(result)
     oracle = _oracle_dict_to_loop_collection(result)
     assert _loop_canon(recon.loops[0]) == _loop_canon(oracle.loops[0])

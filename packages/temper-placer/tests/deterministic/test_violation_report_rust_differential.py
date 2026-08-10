@@ -310,7 +310,10 @@ def test_parse_kicad_drc_report_iteration_feeds_mapper(tmp_path):
     pyclasses whose field surface the mapper reads."""
     data = {
         "violations": [
-            {"type": "clearance", "items": [{"description": "of Q2"}], "pos": {"x": 10.0, "y": 5.0}}
+            {
+                "type": "clearance",
+                "items": [{"description": "of Q2", "pos": {"x": 10.0, "y": 5.0}}],
+            }
         ]
     }
     path = tmp_path / "drc.json"
