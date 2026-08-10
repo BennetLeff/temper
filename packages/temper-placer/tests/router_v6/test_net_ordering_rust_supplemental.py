@@ -188,3 +188,54 @@ def test_production_module_is_untouched_by_this_migration():
     assert sig(prod.compute_hpwl("N1", build_netlist(components))) == sig(
         ORACLE.compute_hpwl("N1", build_netlist(components))
     )
+
+
+# ---------------------------------------------------------------------------
+# Migration-narrowing regression: fractional `initial_rotation`
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("rotation", [0.5, 1.5, -0.5, 2.25])
+def test_fractional_rotation_agrees_with_the_oracle(rotation):
+    """A non-integral rotation must produce an angle, not a ``TypeError``.
+
+    Found by ``scripts/check_migration_narrowing.py`` (Check B): the Rust
+    kernel bound ``rotation`` as ``Option<i64>`` while the Python path does
+    ``float(comp.initial_rotation) * math.pi / 2.0``. pyo3 REJECTS a
+    non-integral float on an ``i64`` extract rather than truncating, so this
+    input raised ``TypeError`` on the Rust arm and returned an angle on the
+    Python arm -- the exact shape of the already-fixed ``escape_via.rs``
+    defect, which the corpus cannot reach because every pinned row uses an
+    integer rotation index.
+
+    Asserting agreement with the oracle rather than just "does not raise" is
+    deliberate: widening the binding to ``f64`` would also be satisfied by a
+    kernel that silently truncated to the integer index, and that would be a
+    different, quieter version of the same bug.
+    """
+    components = [
+        ("U0", (0.0, 0.0), rotation, [("1", (1.0, 0.5), "A"), ("2", (2.0, 0.5), "A")])
+    ]
+
+    rust_hpwl = _rust("net_compute_hpwl_py")("A", components)
+    oracle_hpwl = ORACLE.compute_hpwl("A", build_netlist(components))
+
+    assert type(rust_hpwl) is float
+    assert sig(rust_hpwl) == sig(oracle_hpwl)
+
+
+def test_integer_rotation_is_unchanged_by_the_widening(): 
+    """The widening must not perturb the integer-index path it inherited.
+
+    ``Option<i64>`` -> ``Option<f64>`` changes the multiply from
+    ``(r as f64) * PI / 2.0`` to ``r * PI / 2.0``. For an integral ``r`` the
+    two are the same value, and this pins that rather than assuming it --
+    every pinned corpus row depends on it.
+    """
+    for rotation in (0, 1, 2, 3, 5, -1):
+        components = [
+            ("U0", (0.0, 0.0), rotation, [("1", (1.0, 0.5), "A"), ("2", (2.0, 0.5), "A")])
+        ]
+        rust_hpwl = _rust("net_compute_hpwl_py")("A", components)
+        oracle_hpwl = ORACLE.compute_hpwl("A", build_netlist(components))
+        assert sig(rust_hpwl) == sig(oracle_hpwl), f"diverged at rotation={rotation}"
