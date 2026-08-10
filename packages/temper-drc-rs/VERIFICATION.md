@@ -1524,3 +1524,72 @@ marshalling pyclass registers as `TypedConstraintSet`.
   defaults, trace-segment engine shape, constraint-value kind labels).
 - Every pyo3 entry point is wrapped in `guard()` (`catch_unwind`); no
   `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
+
+---
+
+# Phase-A U6 — oracle marshalers (`oracle_marshal.rs`) — Verification
+
+Rust-orchestration-engine plan (2026-08-09-001), Phase A unit U6: the typed
+marshalling boundary for `validation/human_reference_extractor.py`'s
+quality-oracle marshalers.
+
+## What was migrated
+
+| Python marshaler | Rust type (this crate) | Python name |
+|---|---|---|
+| `_netlist_to_oracle_dict` | `oracle_marshal::OracleInput` | `OracleInput` |
+| `_placement_to_oracle_dict` | `oracle_marshal::OracleOutput` | `OracleOutput` |
+
+Both pyclasses register under the plan's names without deviation (no
+`TypedConstraintSet`-style rename was needed — no `OracleInput`/`OracleOutput`
+name existed in `temper_drc_rs`). The Python shims collapse to
+`_tdrc.OracleInput.from_netlist(netlist).to_dict()` /
+`_tdrc.OracleOutput.from_state(state, netlist, board).to_dict()` — the
+dict-building tax moves to Rust. The consuming kernel
+(`temper_quality_oracle.prepare_quality_py` / `evaluate_prepared_py`) still
+takes the flat dict (a separate crate, outside this unit's file ownership);
+the kernel-signature tightening is a later phase, and the shim round-trips
+through `to_dict()` in the meantime. The JUSTIFIED-KEEP record
+(`docs/solutions/architecture-patterns/quality-oracle-marshalers-justified-keep-2026-08-09.md`)
+predated the rust-orchestration-engine plan; this unit is its re-decidable
+trigger firing.
+
+## Empirical verification
+
+- **G1/G2 differential** —
+  `tests/validation/test_oracle_marshal_rust_differential.py` (committed RED
+  before the Rust implementation, then GREEN): the pre-migration marshaler
+  bodies are pinned verbatim as `_oracle_*` blocks (from
+  `human_reference_extractor.py` lines 382–417 at `edc19ffa`); the typed
+  `to_dict()` reproduces the pinned dicts bit-exactly (float-hex
+  canonicalization). Hand-built cases cover empty netlist/positions, no-pin
+  nets, duplicate pin refs (no dedup), float32→float64 upcast exactness,
+  float64 pass-through, and component-order preservation.
+- **G4 PBT** — `tests/validation/test_oracle_marshal_pbt.py`: 6 properties
+  (P1 netlist dict ≡ pinned oracle, P2 placement dict ≡ pinned oracle, P3
+  per-net pins ref-only/in-order, P4 component bounds→float shape, P5
+  cross-marshaler 1:1 ref alignment with positions, P6 board dims), each with
+  a `test_pN_fails_for_<mutant>` vacuity guard and a module→property map in
+  the file docstring. The position-flattening property (P2/P5) exercises the
+  `np.asarray(..., dtype=np.float64).reshape(-1).tolist()` path through both
+  float32 and float64 inputs.
+- **G5 metamorphic** — 4 relations in the same file: MR1 component-order
+  preservation (front insertion), MR2 input↔output ref consistency, MR3
+  power-of-two scale (bit-exact by construction), MR4 duplicate-pin-ref
+  preservation.
+- **G6 induction** — N/A for the marshalling boundary: the types are
+  data-only, with no recursive computation.
+- **G8 physics discipline** — N/A: pure marshalling, no physics quantity.
+
+## R1g Rust bar
+
+- `cargo clippy --all-features --all-targets -- -D warnings` clean (module
+  compiles under the `python` feature; default-features build unaffected).
+- `cargo test -p temper-drc-rs` (default features): 1750 tests green.
+  `oracle_marshal::tests` (pure-data field-shape tests) compile under
+  `--all-features --all-targets`; like the rest of the crate's pyo3-gated
+  test modules they need a libpython-linked binary to execute, which CI does
+  not provide (the `extension-module` feature leaves libpython unlinked in
+  test binaries — the same pre-existing constraint as `drc_marshal::tests`).
+- Every pyo3 entry point is wrapped in `guard()` (`catch_unwind`); no
+  `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
