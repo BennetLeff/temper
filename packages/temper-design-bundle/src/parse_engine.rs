@@ -3064,6 +3064,14 @@ fn parse_kicad_pcb(py: Python<'_>, pcb_content: &str, normalize: bool) -> PyResu
     parse_kicad_pcb_impl(py, pcb_content, normalize)
 }
 
+/// Extract component positions from raw KiCad PCB content without kiutils.
+///
+/// Args:
+///     content: Raw KiCad PCB file content as string.
+///
+/// Returns:
+///     Dict mapping component reference to position info:
+///     ``{"U1": {"x": 50.5, "y": 75.25, "rotation": 90.0}, ...}``
 #[pyfunction]
 fn extract_footprint_positions(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     let positions = extract_footprint_positions_pure(content);
