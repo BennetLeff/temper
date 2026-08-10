@@ -2359,4 +2359,176 @@ mod tests {
             }
         }
     }
+
+    // --- proptest: anchor uniqueness enforcement (search_free_x +
+    //     enforce_unique_positions_with) ---
+    //
+    // The field proptests exercise the full pipeline (phi_* + anchor
+    // assignment), and the unit tests above exercise the R13 regression
+    // fixtures.  These proptests exercise `search_free_x` directly
+    // (previously only reachable through the fixpoint loop) and the
+    // enforcement termination invariant across randomized inputs.
+
+    mod uniqueness_proptests {
+        #![allow(clippy::expect_used, clippy::unwrap_used)]
+
+        use super::*;
+        use proptest::prelude::*;
+
+        fn tolerance() -> impl Strategy<Value = f64> {
+            0.01f64..2.0f64
+        }
+
+        #[test]
+        fn prop_search_free_x_non_positive_offset_returns_none() {
+            let mut runner = proptest::test_runner::TestRunner::default();
+            runner.run(
+                &(-10.0f64..=0.0f64, tolerance(), 0.0f64..50.0f64, 51.0f64..100.0f64,
+                  10.0f64..90.0f64, 10.0f64..90.0f64),
+                |(offset, tol, x_min, x_max, xj, yj)| {
+                    let anchors = vec![("A".to_owned(), (xj, yj))];
+                    let got = search_free_x(&anchors, 0, x_min, x_max, tol, offset);
+                    prop_assert!(got.is_none(), "non-positive offset {offset} must return None");
+                    Ok(())
+                },
+            ).unwrap();
+        }
+
+        #[test]
+        fn prop_search_free_x_nan_offset_returns_none() {
+            let mut runner = proptest::test_runner::TestRunner::default();
+            runner.run(
+                &(tolerance(), 0.0f64..50.0f64, 51.0f64..100.0f64,
+                  10.0f64..90.0f64, 10.0f64..90.0f64),
+                |(tol, x_min, x_max, xj, yj)| {
+                    let anchors = vec![("A".to_owned(), (xj, yj))];
+                    let got = search_free_x(&anchors, 0, x_min, x_max, tol, f64::NAN);
+                    prop_assert!(got.is_none(), "NaN offset must return None");
+                    Ok(())
+                },
+            ).unwrap();
+        }
+
+        #[test]
+        fn prop_search_free_x_found_within_bounds() {
+            let mut runner = proptest::test_runner::TestRunner::default();
+            runner.run(
+                &(0.0f64..100.0f64, 0.0f64..100.0f64, 0.0f64..10.0f64, 90.0f64..100.0f64,
+                  0.1f64..2.0f64, 0.01f64..0.2f64),
+                |(xj, yj, x_min, x_max, offset, tol)| {
+                    let anchors = vec![("A".to_owned(), (xj, yj))];
+                    let got = search_free_x(&anchors, 0, x_min, x_max, tol, offset);
+                    if let Some((cx, cy)) = got {
+                        prop_assert!(cx >= x_min && cx <= x_max,
+                            "found x outside bounds");
+                        prop_assert!((cy - yj).abs() < 1e-15,
+                            "found y differs from anchor y");
+                    }
+                    Ok(())
+                },
+            ).unwrap();
+        }
+
+        #[test]
+        fn prop_enforce_unique_no_violations() {
+            let mut runner = proptest::test_runner::TestRunner::default();
+            runner.run(
+                &(2usize..=8usize, 0.0f64..10.0f64, 50.0f64..100.0f64,
+                  0.1f64..2.0f64, 0.01f64..0.2f64),
+                |(n_anchors, x_min, x_max, offset, tol)| {
+                    let xj = (x_min + x_max) / 2.0;
+                    let yj = 50.0;
+                    let mut anchors: Vec<(String, (f64, f64))> = (0..n_anchors)
+                        .map(|i| (format!("A{i}"), (xj, yj)))
+                        .collect();
+                    enforce_unique_positions_with(&mut anchors,
+                        (x_min, 0.0, x_max, 100.0), tol, offset);
+                    prop_assert_eq!(anchors.len(), n_anchors,
+                        "anchor count changed during enforcement");
+                    for i in 0..anchors.len() {
+                        for j in (i + 1)..anchors.len() {
+                            let (xi, yi) = anchors[i].1;
+                            let (xj2, yj2) = anchors[j].1;
+                            let dist = pow(pow(xi - xj2, 2.0) + pow(yi - yj2, 2.0), 0.5);
+                            prop_assert!(
+                                dist >= tol,
+                                "anchors {i}/{j} at {dist} < tolerance {tol}"
+                            );
+                        }
+                    }
+                    Ok(())
+                },
+            ).unwrap();
+        }
+
+        #[test]
+        fn prop_enforce_unique_noop_when_already_unique() {
+            let mut runner = proptest::test_runner::TestRunner::default();
+            runner.run(
+                &(0.0f64..100.0f64, 0.0f64..100.0f64, 0.01f64..0.2f64),
+                |(x0, x1, tol)| {
+                    if (x0 - x1).abs() < tol + 0.1 {
+                        return Ok(());
+                    }
+                    let mut anchors: Vec<(String, (f64, f64))> = vec![
+                        ("A".to_owned(), (x0, 50.0)),
+                        ("B".to_owned(), (x1, 50.0)),
+                    ];
+                    let before = anchors.clone();
+                    enforce_unique_positions_with(&mut anchors,
+                        (0.0, 0.0, 100.0, 100.0), tol, 0.5);
+                    prop_assert_eq!(anchors, before,
+                        "already-unique anchors must not be modified");
+                    Ok(())
+                },
+            ).unwrap();
+        }
+
+        #[test]
+        fn prop_enforce_unique_stays_in_bounds() {
+            let mut runner = proptest::test_runner::TestRunner::default();
+            runner.run(
+                &(2usize..=5usize, 0.0f64..20.0f64, 80.0f64..100.0f64,
+                  0.1f64..2.0f64, 0.01f64..0.2f64),
+                |(n_anchors, x_min, x_max, offset, tol)| {
+                    let yj = 50.0;
+                    let mut anchors: Vec<(String, (f64, f64))> = (0..n_anchors)
+                        .map(|i| (format!("A{i}"), ((x_min + x_max) / 2.0, yj)))
+                        .collect();
+                    enforce_unique_positions_with(&mut anchors,
+                        (x_min, 0.0, x_max, 100.0), tol, offset);
+                    for (name, (cx, _cy)) in &anchors {
+                        prop_assert!(
+                            *cx >= x_min && *cx <= x_max,
+                            "anchor {name} x={cx} outside [{x_min}, {x_max}]"
+                        );
+                    }
+                    Ok(())
+                },
+            ).unwrap();
+        }
+
+        /// Vacuity guard: the distance check must use `pow`, not `sqrt`
+        /// — the fixture discriminates on THIS host libm.
+        #[test]
+        fn uniqueness_distance_uses_pow_not_sqrt_proptest() {
+            let dx = 0.179_050_385_249_757_8_f64;
+            let dy = 0.144_493_925_399_294_26_f64;
+            let s = pow(dx, 2.0) + pow(dy, 2.0);
+            let tol = s.sqrt();
+            if pow(s, 0.5) >= tol {
+                return; // libm does not discriminate; skip
+            }
+            let mut anchors = vec![
+                ("A".to_owned(), (dx, dy)),
+                ("B".to_owned(), (0.0, 0.0)),
+            ];
+            enforce_unique_positions_with(&mut anchors,
+                (0.0, 0.0, 100.0, 100.0), tol, 0.5);
+            assert_ne!(
+                anchors[1].1, (0.0, 0.0),
+                "B must be nudged when dist < tol via pow"
+            );
+        }
+    }
 }
