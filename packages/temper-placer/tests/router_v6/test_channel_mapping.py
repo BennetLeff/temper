@@ -15,7 +15,11 @@ from temper_placer.router_v6.channel_mapping import (
     map_topology_to_channels,
 )
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
-from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
+from temper_placer.router_v6.topology_extraction import (
+    NetTopology,
+    PathGraph,
+    TopologyGraph,
+)
 
 
 def test_map_empty_topology():
@@ -32,7 +36,7 @@ def test_map_with_channels():
     """Test mapping topology with channel usage."""
     net_topo = NetTopology(
         net_name="NET1",
-        path_graph=nx.DiGraph(),
+        path_graph=PathGraph([]),
         uses_channels=["CH1", "CH2", "CH3"],
         total_length_estimate=30.0,
     )
@@ -52,9 +56,7 @@ def test_map_with_channels():
 
 def test_map_with_path_graph():
     """Test mapping topology with path graph."""
-    graph = nx.DiGraph()
-    graph.add_edge("A", "B")
-    graph.add_edge("B", "C")
+    graph = PathGraph([("A", "B"), ("B", "C")])
 
     net_topo = NetTopology(
         net_name="NET2",
@@ -147,7 +149,7 @@ def test_waypoint_generation():
 
     net_topo = NetTopology(
         net_name="NET3",
-        path_graph=nx.DiGraph(),
+        path_graph=PathGraph([]),
         uses_channels=["CH1", "CH2"],
         total_length_estimate=15.0,
     )

@@ -131,8 +131,6 @@ from multiprocessing.connection import Connection
 from pathlib import Path
 from typing import Any
 
-import networkx as nx
-
 from temper_placer.core.netlist import Net
 from temper_placer.router_v6._pipeline_types import Stage2Output, Stage3Output
 from temper_placer.router_v6.channel_widths import ChannelWidths
@@ -143,7 +141,7 @@ from temper_placer.router_v6.constraint_model import (
 )
 from temper_placer.router_v6.diff_pair_inference import DiffPair, infer_differential_pairs
 from temper_placer.router_v6.stage0_data import ParsedPCB
-from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
+from temper_placer.router_v6.topology_extraction import NetTopology, PathGraph, TopologyGraph
 
 #: Default wall-clock budget, per subprocess launch (one full batch attempt,
 #: or one singleton retry attempt), before the parent gives up waiting and
@@ -359,8 +357,7 @@ def _topology_from_rust_result(rust_result: dict[str, Any]) -> dict[str, NetTopo
     for net_name, topo_data in rust_result.get("topology_graph", {}).items():
         path_edges = list(topo_data.get("path_graph", []))
         if path_edges:
-            pg = nx.DiGraph()
-            pg.add_edges_from(path_edges)
+            pg = PathGraph(path_edges)
         else:
             pg = None
         out[net_name] = NetTopology(

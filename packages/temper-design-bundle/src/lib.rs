@@ -101,6 +101,12 @@ mod stackup_contracts;
 #[cfg(feature = "python")]
 mod geometry_types_contracts;
 
+// Wave 4 fanout: path_graph + NetTopology + TopologyGraph pyclasses
+// (replaces networkx.DiGraph surface in router_v6) — see
+// topology_extraction_contracts.rs.
+#[cfg(feature = "python")]
+mod topology_extraction_contracts;
+
 // Wave 4 fan-out migration: loop_ownership data contracts
 // (see fanout/migrate-core-3 branch).
 #[cfg(feature = "python")]
@@ -360,6 +366,7 @@ mod python {
         crate::decision_contracts::register(module)?;
         crate::stackup_contracts::register(module)?;
         crate::geometry_types_contracts::register(module)?;
+        crate::topology_extraction_contracts::register(module)?;
         crate::loop_ownership_contracts::register(module)?;
         crate::specification_contracts::register(module)?;
         crate::board_contracts::register(module)?;

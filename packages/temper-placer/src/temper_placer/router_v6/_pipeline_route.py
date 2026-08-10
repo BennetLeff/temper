@@ -37,7 +37,11 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.routing_results import compile_routing_results
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage4_orchestrator import Stage4Orchestrator
-from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
+from temper_placer.router_v6.topology_extraction import (
+    NetTopology,
+    PathGraph,
+    TopologyGraph,
+)
 from temper_placer.router_v6.topology_solver import SolverStatus, TopologicalSolution
 from temper_placer.router_v6.trace_width_assignment import assign_trace_widths
 from temper_placer.router_v6.via_placement import place_vias
@@ -380,14 +384,11 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
                 unsat_core_names.append(clause_origin[idx])
         solution.unsat_core = unsat_core_names
 
-    import networkx as nx
-
     topology_graph = TopologyGraph(net_topologies={})
     for net_name, topo_data in rust_result.get("topology_graph", {}).items():
         path_edges = list(topo_data.get("path_graph", []))
         if path_edges:
-            pg = nx.DiGraph()
-            pg.add_edges_from(path_edges)
+            pg = PathGraph(path_edges)
         else:
             pg = None
 

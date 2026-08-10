@@ -7,17 +7,20 @@ Part of temper-8qm8
 ``_pipeline_route`` builds ``TopologyGraph`` / ``NetTopology`` directly from the
 Rust solver result -- so the four tests that drove that parsing are gone.  These
 two cover the dataclasses, which are still live.
+
+PathGraph has replaced networkx.DiGraph for the ``path_graph`` field.
 """
 
-import networkx as nx
-
-from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
+from temper_placer.router_v6.topology_extraction import (
+    NetTopology,
+    PathGraph,
+    TopologyGraph,
+)
 
 
 def test_net_topology_dataclass():
     """Test NetTopology dataclass."""
-    graph = nx.DiGraph()
-    graph.add_edge("A", "B")
+    graph = PathGraph([("A", "B")])
 
     net_topo = NetTopology(
         net_name="TEST_NET",
@@ -34,10 +37,10 @@ def test_net_topology_dataclass():
 
 def test_topology_graph_dataclass():
     """Test TopologyGraph dataclass."""
-    net1_graph = nx.DiGraph()
+    net1_graph = PathGraph([])
     net1_topo = NetTopology("NET1", net1_graph, [], 10.0)
 
-    net2_graph = nx.DiGraph()
+    net2_graph = PathGraph([])
     net2_topo = NetTopology("NET2", net2_graph, [], 15.0)
 
     topology = TopologyGraph(
