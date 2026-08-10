@@ -982,6 +982,197 @@ to are already-differential-tested Phase-5 kernels.
 | D2 PBT (P1..P7, mutation-guarded) | `packages/temper-placer/tests/deterministic/test_deterministic_d2_pbt.py` | 14 |
 | D2 stage runner (sequences ZoneGeometryStage + ZoneAssignmentStage + SlotGenerationStage through `PipelineRunner<BoardState>`, with sys.modules-registered fakes for the venv-only Python modules) | `packages/temper-orchestration/tests/d2_stages_runner.rs` | 5 |
 
+## Rust orchestration engine — D3 (deterministic clearance-grid stages)
+
+Phase D batch D3 of the Rust Orchestration Engine plan (2026-08-09-001):
+the clearance-grid batch (`deterministic/stages/_grid_stage.py`, 416 LOC, is
+the migrated stage; the differential oracles also pin
+`_grid_{core,hv,fence}.py` — 747 LOC of helper/data surface — verbatim so
+the whole batch is behaviourally anchored) moves to `temper-orchestration`
+as a `Stage<BoardState>` implementor (`grid_stage.rs`, with the `_grid_hv`
+and `_grid_fence` helper orchestrations as Rust kernels in `grid_hv.rs` /
+`grid_fence.rs` and the Python↔Rust BoardState conversion seam extended in
+`d1_bridge.rs`). Depends on D1 (the conversion seam + Stage pattern).
+
+### What migrated
+
+| Python module | Rust entity | Reads from BoardState | Writes to BoardState |
+|---|---|---|---|
+| `_grid_stage.py` (416) | `ClearanceGridStage` (Stage impl) | `board` (width/height), `netlist`, `placements` | `grid` (a `ClearanceGrid` Python object) |
+| `_grid_hv.py` (126) | `run_hv_pad_set` (grid_hv.rs) | — (called by the stage; returns the HV-pad `(ref, pin)` set) | — |
+| `_grid_fence.py` (139) | `run_grid_fence_check` + `run_grid_perf_budget` (grid_fence.rs) | — (called by the stage / public shims) | — |
+| `_grid_core.py` (482) | — | the `ClearanceGrid` DATA TYPE stays Python (see below) | — |
+
+The Rust stage transcribes `_grid_stage.py`'s `run()` orchestration: the
+pad-collection loop (net → pads mapping, per-pad geometry via
+`pin_world_position` + `pad_sizes`), the per-net blocking pass
+(net-class-aware clearance with the inner-layer cap), the pre-route HV
+creepage-expansion pass (HV-pad resolution via `_grid_hv.hv_pad_set`,
+per-layer `effective_creepage`, rect/circle Minkowski expansion,
+`_grid_fence._EXPANSION_LOG` append), the U3 fence invocation and the EXP-13
+exclusion-zone blocking (direct `arr[row, col] = -2` numpy writes). The
+stage reads the `Py<PyAny>` BoardState fields via py.getattr (D2: no field
+is tightened speculatively) and writes the `grid` field back through the
+`d1_bridge.rs` write-back (identity-based: the dataclass `==` compares only
+the four constructor dims, so a fresh equal-dims grid would otherwise be
+skipped; the stage either produces a NEW grid object or returns the state
+unchanged on the guard). The Python shim stays thin: `run(state)` crosses
+the FFI once per stage through `run_clearance_grid_stage`.
+
+**What stays Python (evidence)**: the `ClearanceGrid` data type
+(`_grid_core.py`, 482 LOC) is NOT orchestration — it is the numpy-backed
+grid container whose cell-rasterisation compute (`block_circle_into_grid_py`
+/ `block_segment_into_grid_py` / `block_rect_into_grid_py` /
+`clear_circle_from_grid_py` / `occupancy_bitmap_row_py`) is already Rust
+in temper-geometry's `grid_raster.rs`, plus the matplotlib
+`export_visualization` and `export_stats`. It is the marshalling-pending
+type of `BoardState.grid`, consumed by downstream Python routing code; it
+stays Python exactly like `board.py`/`netlist.py` (Phase 2 residual
+decisions). The `ConfigError` / `FenceViolation` exception classes stay
+Python (raised from the Rust kernels via the Python classes; the FFI
+wrapper re-raises the ORIGINAL exception type, so `pytest.raises(FenceViolation)`
+and callers that catch `ConfigError` see the real class, not a RuntimeError
+wrapper — the D3-only refinement: `run_clearance_grid_stage` calls
+`run_guarded` which threads the raw `PyErr` instead of `stage_guard`'s
+StageError conversion). The `_EXPANSION_LOG` module-level list stays Python
+(the stage clears+appends it via FFI so the U3 tests and the U4a closure
+test can inspect it). `effective_creepage` / `_layer_index_to_name` /
+`_STANDARD_LAYER_NAMES` / `OUTER_COPPER_LAYERS` stay Python (leaf helpers
+and board constants). No new Python API is invented.
+
+### G1 — differential oracle before Rust (TDD)
+
+The four pre-migration modules are pinned VERBATIM as
+`tests/deterministic/_grid_core_py_oracle.py`, `_grid_hv_py_oracle.py`,
+`_grid_fence_py_oracle.py`, `_grid_stage_py_oracle.py` (only relative
+imports rewritten to absolute paths so the oracle stage uses the oracle
+helpers; each body's sha256 is pinned in the differential, which fails on
+any drift). The RED commit (`af630131`) landed the oracles + differential +
+PBT with the anti-vacuity tripwire failing (the shims did not yet delegate);
+the GREEN commit (`68d37377`) landed the port.
+
+### G2 — behavioural A/B (bit-exact)
+
+`tests/deterministic/test_deterministic_d3_rust_differential.py`: 23 tests
+drive both arms with identical BoardState inputs and compare the FULL grid
+internal state bit-exactly — the int32 trace and pad net-id arrays (via
+`numpy.ndarray.tolist()`), the net registration maps (pinning the net-id
+ASSIGNMENT ORDER), the dimensions, the `_EXPANSION_LOG` side effect
+entry-for-entry, and every exclusion-zone print (stdout captured and
+compared byte-for-byte). Notable pinned semantics: the identity-preserving
+no-board guard; the placements gate (a component present in `placements`
+with `initial_position=None` is processed, an absent one is skipped — the
+pad position itself comes from `pin_world_position`, not the placement);
+PTH all-layer vs layer-mapped target layers; rect-blocking rotation 0/90
+swaps; the mechanical (empty-net) zero-clearance blocking; the HV expansion
+circle/rect branches, the inner-layer 0.30 factor and the spatial
+zone→component fallback; `ConfigError` parity on both unresolvable-zone
+messages; `FenceViolation` parity via a patched fence on BOTH arms; the
+fence violation dicts (reasons with `:.3f` rendered via CPython
+`__format__` — bit-exact by construction); and a zone→assignment→slots→grid
+pipeline chain.
+
+### G3 — performance
+
+Pure-delegation carve-out: the stage crosses the FFI once per `run()`; the
+grid rasterisation and creepage compute are unchanged (already-Rust
+kernels). No regression beyond the single FFI crossing is possible or
+claimed.
+
+### G4 — PBT (`tests/deterministic/test_deterministic_d3_pbt.py`)
+
+Eight non-vacuous properties (P1 no-board guard, P2 empty-netlist empty
+grid, P3 pads block their own location, P4 cross-net mutual blocking with
+own-net transparency, P5 net ids assigned in pin-first-seen order 1..N, P6
+`hv_pad_set` explicit-refdes resolution, P7 perf-budget floor exemption +
+overrun message, P8 the HV expansion strictly grows the blocked count), each
+with a fails-for-mutant companion re-running the same body against a
+degenerate stand-in and asserting the property trips — the established U4
+PBT vacuity-guard pattern. 16 tests green.
+
+### G5 — metamorphic
+
+Not claimed: the D3 surface is orchestration over stateful Python objects
+(and the leaf kernels it delegates to are already metamorphic-covered), not
+pure functions; the differential and PBT arms pin the behavioural surface.
+Recorded as N/A per the plan's per-module G5 discretion (same ruling as D1/D2).
+
+### G6 — induction
+
+Non-applicability note: the stage is a finite loop over caller-provided
+collections (netlist components/pins, pad layers, HV zones, expansion-log
+entries); no recursive or size-parameterized computation. Structural proof
+instead: bit-exactness verified by the differential and the PBT vacuity
+mutants.
+
+### G7 — Rust bar
+
+No `unwrap`/`expect` outside tests (clippy `unwrap_used`/`expect_used` =
+deny in the lib target; the runner test file carries the tests-only allow).
+`cargo test` 90/90 green (71 lib + 5 D1 + 5 D2 + 5 D3 + 4 U4 runner);
+`cargo clippy --all-features --all-targets -- -D warnings` clean. Panic
+safety: `run_guarded` wraps the stage body in `catch_unwind` (a Rust panic
+becomes a Python RuntimeError instead of unwinding through the pyo3 frame),
+and pyo3's `#[pyfunction]` expansion additionally wraps every exported body.
+
+### G8 — R24 physics
+
+N/A — the stage gates on no physics quantity; the creepage clearances it
+applies are configuration constants threaded through the already-tested
+temper-geometry kernels. Recorded explicitly.
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every input in the differential
+suites' domains, the Rust stage produces a `BoardState.grid` bit-identical
+to the pinned pre-migration oracle's. The load-bearing equivalences:
+
+1. **Net-id registration order.** The grid's `get_net_id` calls happen in
+   blocking-call order; the Rust stage reproduces the exact iteration order
+   (components → pins → nets in first-seen order → exclusion-zone nets in
+   zone order), pinned by the canon's net-map projection.
+2. **`int(round(rotation)) % 180` is CPython's `round`** (banker's rounding)
+   applied to the ORIGINAL rotation object — Rust `f64::round` is
+   half-away-from-zero and diverges on `.5` boundaries.
+3. **`max(size.X, size.Y)` is CPython `max`** (first-arg-wins on NaN/ties),
+   not `f64::max`.
+4. **F-string messages by identity.** The fence `reason` (`:.3f`) and perf
+   warning (`:.1f`) render via CPython `__format__` on the exact sample /
+   f64 values (David-Gay dtoa is not reproducible from Rust `{:.N}`); the
+   `ConfigError` messages render via CPython `str()` on the original
+   objects (int-vs-float type-carrying preserved); the exclusion-zone
+   prints via `str()` of the original zone attributes.
+5. **Exception type propagation.** `FenceViolation` / `ConfigError` are
+   raised through their Python classes and re-raised by the FFI wrapper with
+   the original type (`run_guarded` threads the raw `PyErr`), matching the
+   oracle's raise — pinned by the error-parity tests and the existing
+   `test_fence_pipeline_halts_on_violation` (which monkey-patches the fence
+   module and expects `pytest.raises(FenceViolation)`).
+6. **Fence called through the Python module at runtime.** The stage invokes
+   `_grid_fence.check_clearance_grid_conservatism` / `_grid_fence`'s
+   `_EXPANSION_LOG` / `_grid_hv.hv_pad_set` via `PyModule::import` at
+   runtime — the monkey-patch seam the U3 tests depend on, and the reason
+   the temper-geometry leaf kernels `closest_component_for_zone_py` /
+   `fence_samples_py` are ledgered as wired-but-scan-invisible in
+   `.unwired-kernel-inventory` (the Python AST scan cannot see
+   cross-extension Rust→Python calls).
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above): `_grid_core.py`'s `ClearanceGrid` data type
+stays Python (JUSTIFIED-KEEP data type, like `board.py`/`netlist.py`); the
+exception classes and `_EXPANSION_LOG` stay Python; the exclusion-zone
+writes reproduce the oracle's missing `_invalidate_cache()` (the stage does
+not invalidate either — a faithful wart).
+
+### Differential / PBT / runner suites (D3)
+
+| Suite | Location | Count |
+|---|---|---|
+| D3 differential (oracles: `_grid_{core,hv,fence,stage}_py_oracle.py`, sha256-pinned) | `packages/temper-placer/tests/deterministic/test_deterministic_d3_rust_differential.py` | 23 |
+| D3 PBT (P1..P8, mutation-guarded) | `packages/temper-placer/tests/deterministic/test_deterministic_d3_pbt.py` | 16 |
+| D3 stage runner (ClearanceGridStage alone and in a zone→grid chain through `PipelineRunner<BoardState>`, with sys.modules-registered fakes for the venv-only Python modules incl. a tuple-indexable fake grid) | `packages/temper-orchestration/tests/d3_stages_runner.rs` | 5 |
+| pre-existing grid suites (leaf-kernel differentials/PBT, `test_clearance_grid.py` incl. the fence monkey-patch test, `test_clearance_expansion_regression.py`, the njit-fallback test) | `packages/temper-placer/tests/deterministic/` | 172 |
+
 ## Rust orchestration engine — U8 (explainability data contracts + MarkdownReport)
 
 The Rust Orchestration Engine plan (2026-08-09-001) ships its Phase-A U8 unit
