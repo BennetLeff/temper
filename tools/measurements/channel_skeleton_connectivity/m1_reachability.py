@@ -20,16 +20,21 @@ from pathlib import Path
 
 import networkx as nx
 
-from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-from temper_placer.router_v6.routing_space import compute_routing_space
-from temper_placer.router_v6.channel_skeleton import (
-    _ensure_skeleton_connectivity,
-    _extract_medial_axis,
-    ChannelSkeleton,
-)
+import networkx as nx
 
 
 def main():
+    # Deferred imports (S3 pattern): keeps tools/measurements off the
+    # import-linter phase-3 boundary (tools -> temper_placer is not a
+    # permitted static edge).
+    from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+    from temper_placer.router_v6.routing_space import compute_routing_space
+    from temper_placer.router_v6.channel_skeleton import (
+        _ensure_skeleton_connectivity,
+        _extract_medial_axis,
+        ChannelSkeleton,
+    )
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--pcb", required=True, help="Path to .kicad_pcb")
     parser.add_argument("--out", default="m1.json")

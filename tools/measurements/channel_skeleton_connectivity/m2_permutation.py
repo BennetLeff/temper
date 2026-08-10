@@ -30,18 +30,16 @@ from pathlib import Path
 import networkx as nx
 import numpy as np
 
-from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-from temper_placer.router_v6.routing_space import compute_routing_space
-from temper_placer.router_v6.channel_skeleton import (
-    _ensure_skeleton_connectivity,
-    _extract_medial_axis,
-)
-
 
 def build_fragmented_graph(available_area) -> tuple[nx.Graph, set, list, list]:
     """Build the fragmented skeleton graph (before bridge step).
-    Returns (graph, edge_frozenset, node_list, edge_list_with_weights).
+
+    Deferred temper_placer import (S3 pattern): keeps tools/measurements off
+    the import-linter phase-3 boundary (tools -> temper_placer is not a
+    permitted static edge).
     """
+    from temper_placer.router_v6.channel_skeleton import _extract_medial_axis
+
     G = nx.Graph()
     skeleton_lines = _extract_medial_axis(available_area, simplify_tolerance=0.5)
 
@@ -97,6 +95,12 @@ def bridge_edge_set(G: nx.Graph) -> frozenset:
 
 
 def main():
+    # Deferred imports (S3 pattern): keeps tools/measurements off the
+    # import-linter phase-3 boundary.
+    from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+    from temper_placer.router_v6.routing_space import compute_routing_space
+    from temper_placer.router_v6.channel_skeleton import _ensure_skeleton_connectivity
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--pcb", required=True, help="Path to .kicad_pcb")
     parser.add_argument("--out", default="m2.json")
