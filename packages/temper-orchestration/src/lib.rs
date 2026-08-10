@@ -111,6 +111,7 @@ mod copper_length;
 mod d1_bridge;
 mod d6_util;
 mod derivation_stage;
+mod drc_sweep_stage;
 mod drc_validation_stage;
 mod explainability;
 mod feasibility;
@@ -129,6 +130,7 @@ mod slot_generation_stage;
 mod stage;
 mod timing;
 mod trace_filter;
+mod via_validation_stage;
 mod zone_assignment_stage;
 mod zone_geometry_stage;
 mod zone_aware_slot_generation_stage;
@@ -141,6 +143,7 @@ pub use component_assignment_stage::ComponentAssignmentStage;
 pub use config_attach_stage::ConfigAttachStage;
 pub use connectivity_validation_stage::ConnectivityValidationStage;
 pub use derivation_stage::DerivationStage;
+pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
 pub use drc_validation_stage::DRCValidationStage;
 pub use grid_stage::ClearanceGridStage;
 pub use net_ordering_stage::NetOrderingStage;
@@ -151,6 +154,7 @@ pub use preflight_stage::PreflightStage;
 pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
 pub use slot_generation_stage::SlotGenerationStage;
 pub use stage::{Stage, StageError, StageErrorKind};
+pub use via_validation_stage::{ViaDeduplicationStage, ViaValidationStage};
 pub use zone_assignment_stage::ZoneAssignmentStage;
 pub use zone_geometry_stage::ZoneGeometryStage;
 pub use zone_aware_slot_generation_stage::ZoneAwareSlotGenerationStage;
@@ -213,6 +217,11 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(phased_assignment_stage::run_phase_select_best_slot, m)?)?;
     m.add_function(wrap_pyfunction!(drc_validation_stage::run_drc_validation, m)?)?;
     m.add_function(wrap_pyfunction!(connectivity_validation_stage::run_connectivity_validation, m)?)?;
+    m.add_function(wrap_pyfunction!(via_validation_stage::run_via_validation, m)?)?;
+    m.add_function(wrap_pyfunction!(via_validation_stage::run_via_deduplication, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_sweep_stage::run_drc_sweep, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_sweep_stage::run_track_deduplication, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_sweep_stage::run_short_circuit_detection, m)?)?;
     Ok(())
 }
 

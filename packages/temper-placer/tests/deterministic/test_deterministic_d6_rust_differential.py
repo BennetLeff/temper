@@ -621,16 +621,21 @@ def test_vv_guard_no_vias_identity() -> None:
 
 def test_vv_keeps_valid_removes_dangling() -> None:
     vias = [
-        _via((1.0, 1.0), net="NET_A"),                       # has trace endpoint
+        _via((1.0, 1.0), net="NET_A"),                       # endpoint on both F.Cu+B.Cu
         _via((30.0, 30.0), net="NET_B"),                     # no connection
     ]
-    routes = [_trace((1.0, 1.0), (2.0, 1.0), net="NET_A")]
+    routes = [
+        _trace((1.0, 1.0), (2.0, 1.0), net="NET_A"),
+        _trace((1.0, 1.0), (2.0, 1.0), net="NET_A", layer="B.Cu"),
+    ]
     state = _vv_state(vias=vias, routes=routes)
     orc = _orc_vv.ViaValidationStage().run(state)
     port = _shim_vv().run(state)
     assert _vias_canon(orc.vias) == _vias_canon(port.vias)
     assert len(port.vias) == 1
-    assert ("NET_B",) in [c[:1] for c in _vias_canon(port.vias)]
+    nets_kept = {c[0] for c in _vias_canon(port.vias)}
+    assert nets_kept == {"NET_A"}  # the two-layer-connected via survives
+    assert "NET_B" not in nets_kept  # the dangling via is removed
 
 
 def test_vv_plane_net_single_connection_kept() -> None:
@@ -646,7 +651,10 @@ def test_vv_plane_net_single_connection_kept() -> None:
 
 def test_vv_plane_net_no_connection_removed() -> None:
     vias = [_via((7.0, 7.0), net="GND")]
-    state = _vv_state(vias=vias)
+    # A dummy route keeps the state guard from returning early; the GND via
+    # has no trace/pin connection on either layer, so it is removed.
+    routes = [_trace((50.0, 50.0), (51.0, 50.0), net="DUMMY")]
+    state = _vv_state(vias=vias, routes=routes)
     orc = _orc_vv.ViaValidationStage().run(state)
     port = _shim_vv().run(state)
     assert _vias_canon(orc.vias) == _vias_canon(port.vias)
@@ -693,8 +701,39 @@ def test_vv_stdout_messages(capsys) -> None:
     port = _shim_vv().run(state)
     port_out = capsys.readouterr().out
     assert orc_out == port_out
-    assert "Removed 2 dangling vias" in port_out
-    assert "Affected nets: NET_B" in port_out
+    # All three vias connect on at most one layer (require_both_layers=True).
+    assert "Removed 3 dangling vias" in port_out
+    assert "Affected nets: NET_A, NET_B" in port_out
+
+
+def test_vv_plane_vias_removed_stdout(capsys) -> None:
+    """The plane-vias debug block: a GND via with no connection is removed and
+    the 'Removed plane vias' lines print net/pos/layers/connected."""
+    vias = [_via((7.0, 7.0), net="GND")]
+    routes = [_trace((50.0, 50.0), (51.0, 50.0), net="DUMMY")]
+    state = _vv_state(vias=vias, routes=routes)
+    _orc_vv.ViaValidationStage().run(state)
+    orc_out = capsys.readouterr().out
+    _shim_vv().run(state)
+    port_out = capsys.readouterr().out
+    assert orc_out == port_out
+    assert "Plane vias: 0/1 kept" in port_out
+    assert "Removed plane vias (first 5):" in port_out
+    assert "GND at (7.0, 7.0) layers=('F.Cu', 'B.Cu') connected=0" in port_out
+
+
+def test_vv_plane_vias_kept_stdout(capsys) -> None:
+    """A GND via with one F.Cu connection survives via the plane special case."""
+    vias = [_via((5.0, 5.0), net="GND")]
+    routes = [_trace((5.0, 5.0), (6.0, 5.0), net="GND"), _trace((5.0, 5.0), (6.0, 5.0), net="GND", layer="B.Cu")]
+    state = _vv_state(vias=vias, routes=routes)
+    _orc_vv.ViaValidationStage().run(state)
+    orc_out = capsys.readouterr().out
+    port = _shim_vv().run(state)
+    port_out = capsys.readouterr().out
+    assert orc_out == port_out
+    assert "Plane vias: 1/1 kept" in port_out
+    assert len(port.vias) == 1
 
 
 def test_vvd_dedup_removes_duplicates() -> None:
@@ -720,7 +759,7 @@ def test_vvd_guard_no_vias_identity() -> None:
 
 
 def test_vvd_stdout_message(capsys) -> None:
-    vias = [_via((1.0, 1.0)), _via((1.0, 1.0))]
+    vias = [_via((1.0, 1.0)), _via((1.01, 1.0))]
     state = _vv_state(vias=vias)
     _orc_vv.ViaDeduplicationStage().run(state)
     orc_out = capsys.readouterr().out
@@ -823,7 +862,7 @@ def test_td_non_trace_pass_through_and_stdout(capsys) -> None:
               _trace((10.0, 0.0), (0.0, 0.0), net="A"),
               via_in_routes]
     state = _ds_state(routes=routes)
-    _orc_ds.TrackDeduplicationStage().run(state)
+    orc = _orc_ds.TrackDeduplicationStage().run(state)
     orc_out = capsys.readouterr().out
     port = _shim_td().run(state)
     port_out = capsys.readouterr().out
