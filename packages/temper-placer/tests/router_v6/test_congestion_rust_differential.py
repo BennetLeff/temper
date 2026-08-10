@@ -515,7 +515,53 @@ def test_top_bottlenecks_bit_exact(overflows, n):
         f"get_top_bottlenecks({overflows}, n={n})",
         _oracle,
         "congestion_result_top_bottlenecks_py",
-        lambda fn: fn(overflows, n),
+        # The kernel's contract is REAL bottleneck records -- the oracle's own
+        # fixtures flattened -- not a bare list of `overflow` floats.  The
+        # synthetic `(x=i, y=0, utilization=i, layer=0)` reconstruction the
+        # kernel used to build from a flat list matched this fixture exactly,
+        # which is precisely why it could not see the gap (arbitrary records).
+        lambda fn: fn([(i, 0, float(i), o, 0) for i, o in enumerate(overflows)], n),
+    )
+
+
+# Real bottleneck records with arbitrary x/y/utilization/layer -- the shape
+# the shipped `CongestionResult.get_top_bottlenecks` actually sorts.  The
+# synthetic-form fixture above pins x=i/y=0/utilization=i/layer=0 only, so it
+# cannot see a kernel that drops any of those fields.
+_BOTTLENECK_RECORDS: list[tuple[list[tuple[int, int, float, float, int]], int]] = [
+    # arbitrary coordinates / utilization / layers
+    ([(2, 3, 0.5, 1.5, 1), (0, 0, 0.25, 0.5, 0)], 10),
+    ([(5, 1, 1.0, 2.0, 0), (1, 2, 0.9, 2.0, 0), (3, 4, 0.8, 1.0, 1)], 2),
+    ([(4, 4, 0.1, 1.0, 2), (0, 0, 0.2, 3.0, 1), (1, 1, 0.3, 2.0, 0)], -1),  # negative n -> `[:-1]`
+    ([], 5),
+    ([(2, 2, 0.5, 1.0, 0)], 0),
+    ([(2, 2, 0.5, 1.0, 0)], 100),
+    # an overflow TIE with unequal secondary fields: only timsort stability
+    # decides, so the secondary fields must survive into the output verbatim
+    ([(3, 3, 0.1, 2.0, 0), (1, 1, 0.9, 2.0, 1), (2, 2, 0.5, 2.0, 0)], 3),
+    # NaN in the sort key
+    ([(1, 1, 0.5, float("nan"), 0), (2, 2, 0.5, 5.0, 0), (3, 3, 0.5, 1.0, 0)], 3),
+    # infinities sort to the edges
+    ([(1, 1, 0.5, float("inf"), 0), (2, 2, 0.5, -float("inf"), 0), (3, 3, 0.5, 0.0, 0)], 3),
+    # signed zeros compare equal -> stability decides
+    ([(0, 0, 0.0, 1.0, 0), (0, 0, 0.0, -0.0, 0)], 2),
+    # a full tie across every record
+    ([(0, 0, 0.0, 1.0, 0), (1, 1, 0.0, 1.0, 1), (2, 2, 0.0, 1.0, 2)], 2),
+]
+
+
+@pytest.mark.parametrize("records,n", _BOTTLENECK_RECORDS)
+def test_top_bottlenecks_real_records_bit_exact(records, n):
+    def _oracle():
+        bs = [ORACLE.Bottleneck(x=x, y=y, utilization=u, overflow=o, layer=l) for (x, y, u, o, l) in records]
+        result = ORACLE.CongestionResult(grid=build_grid(ORACLE, [0.0], [1.0]), bottlenecks=bs)
+        return [(b.x, b.y, b.utilization, b.overflow, b.layer) for b in result.get_top_bottlenecks(n)]
+
+    _assert_same(
+        f"get_top_bottlenecks(records={records}, n={n})",
+        _oracle,
+        "congestion_result_top_bottlenecks_py",
+        lambda fn: fn(list(records), n),
     )
 
 
@@ -565,6 +611,82 @@ def test_estimate_net_demand_random_sweep(seed):
             "congestion_estimate_net_demand_py",
             lambda fn, p=pins: fn(10.0, 10.0, 1.0, (0.0, 0.0), p, 0, 1.0, 1),
         )
+
+
+# The ACCUMULATION shape -- the reason `estimate_net_demand` could not
+# delegate (see the module docstring's first gap).  `analyze_congestion`'s
+# per-net loop accumulates onto the SAME grid across many nets; a kernel that
+# always rebuilds a fresh zero grid silently drops every net's demand but the
+# first.  Each case here accumulates several nets onto ONE grid, so the
+# pre-existing demand must survive.
+#   (w, h, cell, origin, layers, [(pins, layer, demand_per_cell), ...])
+_ACCUMULATION_CASES: list[tuple] = [
+    # two disjoint nets -- the second must NOT erase the first
+    (10.0, 10.0, 1.0, (0.0, 0.0), 1,
+     [([(1.0, 1.0), (3.0, 3.0)], 0, 1.0), ([(5.0, 5.0), (7.0, 7.0)], 0, 1.0)]),
+    # overlapping bboxes: the shared cells read 2.0, not 1.0 -- the crux case
+    (10.0, 10.0, 1.0, (0.0, 0.0), 1,
+     [([(1.0, 1.0), (6.0, 6.0)], 0, 1.0), ([(3.0, 3.0), (8.0, 8.0)], 0, 1.0)]),
+    # a < 2-pin net mid-accumulation contributes nothing but leaves the rest
+    (10.0, 10.0, 1.0, (0.0, 0.0), 1,
+     [([(1.0, 1.0), (3.0, 3.0)], 0, 1.0), ([(2.0, 2.0)], 0, 1.0), ([(5.0, 5.0), (6.0, 6.0)], 0, 1.0)]),
+    # an off-board net mid-accumulation (D3's guard) likewise adds nothing
+    (10.0, 10.0, 1.0, (0.0, 0.0), 1,
+     [([(1.0, 1.0), (3.0, 3.0)], 0, 1.0), ([(50.0, 50.0), (60.0, 60.0)], 0, 1.0), ([(5.0, 5.0), (6.0, 6.0)], 0, 1.0)]),
+    # fractional demand_per_cell: the overlap accumulates 0.5 + 0.5
+    (10.0, 10.0, 1.0, (0.0, 0.0), 1,
+     [([(1.0, 1.0), (6.0, 6.0)], 0, 0.5), ([(3.0, 3.0), (8.0, 8.0)], 0, 0.5)]),
+    # NaN demand_per_cell: `0.0 + NaN` is NaN and NaN stays NaN under `NaN + 1.0`
+    (10.0, 10.0, 1.0, (0.0, 0.0), 1,
+     [([(1.0, 1.0), (3.0, 3.0)], 0, float("nan")), ([(2.0, 2.0), (4.0, 4.0)], 0, 1.0)]),
+    # 3D: two nets on different layers accumulate independently
+    (10.0, 10.0, 1.0, (0.0, 0.0), 2,
+     [([(1.0, 1.0), (3.0, 3.0)], 0, 1.0), ([(1.0, 1.0), (3.0, 3.0)], 1, 1.0)]),
+    # non-zero grid origin participates in the bbox math
+    (10.0, 10.0, 1.0, (-5.0, -5.0), 1,
+     [([(-4.0, -4.0), (0.0, 0.0)], 0, 1.0), ([(1.0, 1.0), (2.0, 2.0)], 0, 1.0)]),
+    # three overlapping nets accumulate 1.0 + 1.0 + 1.0 in the centre
+    (10.0, 10.0, 1.0, (0.0, 0.0), 1,
+     [([(2.0, 2.0), (4.0, 4.0)], 0, 1.0), ([(3.0, 3.0), (5.0, 5.0)], 0, 1.0), ([(2.0, 2.0), (5.0, 5.0)], 0, 1.0)]),
+]
+
+
+@pytest.mark.parametrize(
+    "case",
+    _ACCUMULATION_CASES,
+    ids=["disjoint", "overlap", "one_pin_middle", "offboard_middle", "fractional", "nan", "layers", "origin", "triple"],
+)
+def test_estimate_net_demand_accumulates_bit_exact(case):
+    w, h, cell, origin, layers, nets = case
+
+    def _oracle():
+        grid = ORACLE.CongestionGrid.from_board(
+            build_board(w, h, origin), cell_size_mm=cell, num_layers=layers
+        )
+        for pins, layer, per_cell in nets:
+            grid = ORACLE.estimate_net_demand(grid, pins, layer=layer, demand_per_cell=per_cell)
+        return grid.demand
+
+    def _rust(fn):
+        # The initial accumulator is the fresh grid's own zero array.  `ceil`
+        # here is the kernel's own `ceil_to_int` formula (`math.ceil(w/cell)`),
+        # so the shape matches `CongestionGrid.from_board`'s exactly; the
+        # accumulator form of the kernel derives its cells from the ARRAY
+        # shape, so w/h/cell below are pass-throughs for that form.
+        height_cells = math.ceil(h / cell)
+        width_cells = math.ceil(w / cell)
+        shape = (height_cells, width_cells) if layers == 1 else (layers, height_cells, width_cells)
+        demand = np.zeros(shape)
+        for pins, layer, per_cell in nets:
+            demand, _is_identity = fn(w, h, cell, origin, pins, layer, per_cell, layers, demand)
+        return demand
+
+    _assert_same(
+        f"estimate_net_demand_accumulates[{w},{h},{cell},{origin},{layers}]",
+        _oracle,
+        "congestion_estimate_net_demand_py",
+        _rust,
+    )
 
 
 @pytest.mark.parametrize("design", ANALYZE_DESIGNS, ids=lambda d: d["label"])
