@@ -752,6 +752,114 @@ argued in-source and above):
 | stage runner (sequences DerivationStage + PreflightStage through `PipelineRunner<BoardState>`) | `packages/temper-orchestration/tests/stages_runner.rs` | 4 |
 | existing shim surface (all `tests/pipeline/*`, incl. convergence + feasibility differentials/PBT) | `packages/temper-placer/tests/pipeline/` | 506 |
 
+## Rust orchestration engine — D1 (deterministic setup stages)
+
+Phase D batch D1 of the Rust Orchestration Engine plan (2026-08-09-001):
+the orchestration of the three deterministic setup stages
+(`deterministic/stages/{setup,net_ordering,config_attach}.py`, ~330 LOC)
+moves to `temper-orchestration` as `Stage<BoardState>` implementors
+(`setup_stage.rs` + `net_ordering_stage.rs` + `config_attach_stage.rs`, with
+the Python↔Rust BoardState conversion seam in `d1_bridge.rs`).
+
+### What migrated
+
+| Python stage | Rust stage | Reads from BoardState | Writes to BoardState |
+|---|---|---|---|
+| `config_attach.py` (36) | `ConfigAttachStage` | `config` | `config` (only when absent) |
+| `net_ordering.py` (47) | `NetOrderingStage` | `netlist`, `loops` | `net_order` |
+| `setup.py` (250) | `DrcOracleSetupStage` + `NetClassSetupStage` | `board`, `netlist`, `placements` | `drc_oracle` (netlist mutated in place by NetClassSetupStage) |
+
+The stages read the `Py<PyAny>` BoardState fields via py.getattr (D2: no
+field is tightened speculatively — the conversion in `d1_bridge.rs` is a
+pure Py pass-through, `net_order` being the one owned `tuple[str, ...] ↔
+Vec<String>` field) and write the changed fields back through
+`dataclasses.replace` from Rust. The Python shims stay thin: `run(state)`
+crosses the FFI once per stage through the exported pyfunctions
+(`run_drc_oracle_setup` / `run_net_class_setup` / `run_net_ordering` /
+`run_config_attach`).
+
+**What stays Python (evidence)**: the leaf objects the stages construct —
+`ClearanceMatrix`, `DRCOracle`, `Pad`, `Point`, `NetClassRules`, and the
+`order_nets` wire-marshalling shim — are Python classes whose numeric
+bodies are already Rust kernels (temper-drc-rs / temper-geometry /
+temper-rust-router); they are called from the Rust stage as thin delegation
+(bit-exactness of that delegation is exactly what the differential pins).
+The `Netlist.apply_net_class_mapping` call is the already-Rust pyclass
+method. No new Python API is invented.
+
+### G1 — differential oracle before Rust (TDD)
+
+The three pre-migration modules are pinned VERBATIM as
+`tests/deterministic/_setup_py_oracle.py`, `_net_ordering_py_oracle.py`,
+`_config_attach_py_oracle.py` (only relative imports rewritten to absolute
+paths — the compute bodies are byte-identical; each body's sha256 is pinned
+in the differential, which fails on any drift).
+
+### G2 — behavioural A/B (bit-exact)
+
+`tests/deterministic/test_deterministic_d1_rust_differential.py`: 20 tests
+drive both arms with identical BoardState inputs and compare every
+observable output bit-exactly — `state.config` (identity-preserving attach
+semantics), `state.net_order`, the DRCOracle's registered-pad list and the
+ClearanceMatrix state (defaults, `_net_class_rules`, `_net_to_class`,
+`_differential_pairs`) across all branches (default / board-parse /
+netlist-fallback / placements / duck-typed config / DesignRules /
+differential-pairs / parsed-pads layer+PTH+shape+net-sentinel mapping), and
+the per-net class after `NetClassSetupStage` (mutate + no-op paths).
+Notable pinned semantics: the empty-net sentinel `__UNCONNECTED__`, the
+layer mapping (`B.Cu`→3 / `In1.Cu`→1 / `In2.Cu`→2 / else→0), PTH detection
+(drill > 0 or `.diameter`), unknown-shape normalization to `rect`, the
+`R(-theta)` rotation convention, and the identity-preserving no-op paths.
+
+### G3 — performance
+
+Pure-delegation carve-out: each stage crosses the FFI once per `run()`; the
+compute is unchanged (already-Rust kernels). No regression beyond the single
+FFI crossing is possible or claimed.
+
+### G4 — PBT (`tests/deterministic/test_deterministic_d1_pbt.py`)
+
+Six non-vacuous properties (P1 config-None no-op, P2 config identity-attach,
+P3 net-order permutation, P4 no-netlist preservation, P5 parsed-pad order +
+layer mapping, P6 mapping-only-touches-named-nets), each with a
+fails-for-mutant companion re-running the same body against a degenerate
+stand-in and asserting the property trips — the established U4 PBT
+vacuity-guard pattern.
+
+### G5 — metamorphic
+
+Not claimed: the D1 stages are orchestration over stateful Python objects,
+not pure functions; the differential and PBT arms already pin the
+behavioural surface. Recorded as N/A per the plan's per-module G5
+discretion.
+
+### G6 — induction
+
+Non-applicability note: the stages are finite loops over caller-provided
+collections (design_rules dicts, PadData lists, netlist components/pins);
+no recursive or size-parameterized computation. Structural proof instead:
+bit-exactness verified by the differential and the mutation campaign.
+
+### G7 — Rust bar
+
+No `unwrap` outside tests (clippy `unwrap_used`/`expect_used` = deny in the
+lib target; the runner test file carries the tests-only allow). Every stage
+body is wrapped in `stage_guard` (`catch_unwind` → `StageError::Fatal`).
+Clippy clean on `--all-targets`.
+
+### G8 — R24 physics
+
+N/A — the stages gate on no physics quantity; the ClearanceMatrix/DRCOracle
+numeric bodies they delegate to are already-differential-tested kernels.
+
+### Differential / PBT / runner suites (D1)
+
+| Suite | Location | Count |
+|---|---|---|
+| D1 differential (oracles: `_*_py_oracle.py`, sha256-pinned) | `packages/temper-placer/tests/deterministic/test_deterministic_d1_rust_differential.py` | 20 |
+| D1 PBT (P1..P6, mutation-guarded) | `packages/temper-placer/tests/deterministic/test_deterministic_d1_pbt.py` | 12 |
+| D1 stage runner (sequences ConfigAttachStage + NetOrderingStage + DrcOracleSetupStage + NetClassSetupStage through `PipelineRunner<BoardState>`, with sys.modules-registered fakes for the venv-only Python modules) | `packages/temper-orchestration/tests/d1_stages_runner.rs` | 5 |
+
 ## Rust orchestration engine — U8 (explainability data contracts + MarkdownReport)
 
 The Rust Orchestration Engine plan (2026-08-09-001) ships its Phase-A U8 unit
