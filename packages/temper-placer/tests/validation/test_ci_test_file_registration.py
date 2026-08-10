@@ -561,6 +561,12 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "apply_force_refinement edge case. Pure Python. Not yet wired into "
         "any CI job."
     ),
+    "router_v6/test_channel_skeleton_radius_pairs_rust_differential.py": (
+        "PASSING locally (2026-08-09, channel_skeleton cKDTree->rstar radius_pairs "
+        "migration, commit 46658f6d): 85 differential tests, bit-exact radius-pair "
+        "parity. Pure Python/Rust, no external binary. Not yet wired into any CI "
+        "job — a concurrent migration that left the registration gate red."
+    ),
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------
