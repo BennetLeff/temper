@@ -605,6 +605,55 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "and layout/update helpers (36 tests). Pure Python. Not yet wired "
         "into any CI job."
     ),
+    "router_v6/test_coverage_paydown_wave7a.py": (
+        "PASSING locally (2026-08-10, coverage-allowlist paydown for "
+        "router_v6/+validation/): CongestionMap, OccupancyGrid, "
+        "ClearanceMatrix, zone_emission, corridor, clearance_engine, "
+        "routability helpers (63 tests). Pure Python/Rust, no external "
+        "binary. Not yet wired into any CI job."
+    ),
+    "heuristics/test_coverage_paydown_wave2.py": (
+        "PASSING locally (2026-08-10, coverage-allowlist paydown for "
+        "heuristics/): .apply() for 14 heuristic classes + Pipeline/"
+        "ConflictResolver/PlacementContext helpers (62 tests). Pure Python. "
+        "Not yet wired into any CI job."
+    ),
+    "visualization/test_visualization_coverage_wave3.py": (
+        "PASSING locally (2026-08-10, coverage-allowlist paydown for "
+        "visualization/): board_renderer, loss_plots, loop_viz, live, "
+        "server, validation, model (99 tests). Uses matplotlib Agg backend. "
+        "Not yet wired into any CI job."
+    ),
+    "regression/test_coverage_paydown_v4.py": (
+        "PASSING locally (2026-08-10, coverage-allowlist paydown for "
+        "regression/+pcl/): fingerprint, SchemaValidator, DrcRatchet, "
+        "noise-headroom, DrcCategoryFailure (49 tests). Pure Python. Not "
+        "yet wired into any CI job."
+    ),
+    "explainability/test_explainability_contracts_pbt.py": (
+        "PASSING locally (2026-08-10): explainability contracts PBT. "
+        "Pure Python/Rust, no external binary. Landed via a concurrent "
+        "migration commit; unregistered at merge. Not yet wired into any "
+        "CI job."
+    ),
+    "explainability/test_explainability_contracts_rust_differential.py": (
+        "PASSING locally (2026-08-10): explainability contracts Rust "
+        "differential. Pure Python/Rust, no external binary. Landed via a "
+        "concurrent migration commit; unregistered at merge. Not yet wired "
+        "into any CI job."
+    ),
+    "router_v6/test_terminal_extraction_wire_pbt.py": (
+        "PASSING locally (2026-08-10): terminal-extraction wire PBT. "
+        "Pure Python/Rust, no external binary. Landed via a concurrent "
+        "migration commit; unregistered at merge. Not yet wired into any "
+        "CI job."
+    ),
+    "router_v6/test_terminal_extraction_wire_rust_differential.py": (
+        "PASSING locally (2026-08-10): terminal-extraction wire Rust "
+        "differential. Pure Python/Rust, no external binary. Landed via a "
+        "concurrent migration commit; unregistered at merge. Not yet wired "
+        "into any CI job."
+    ),
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------

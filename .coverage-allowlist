@@ -149,16 +149,6 @@ temper_placer/deterministic/state.py::BoardState.is_route_locked  # TODO: temper
 temper_placer/deterministic/state.py::BoardState.with_config  # TODO: temper-xxx
 temper_placer/deterministic/state.py::BoardState.with_locked_route  # TODO: temper-xxx
 temper_placer/deterministic/state.py::BoardState.with_locked_routes  # TODO: temper-xxx
-temper_placer/explainability/decision.py::Decision.to_dict  # TODO: temper-xxx
-temper_placer/explainability/decision.py::DecisionTrace.history  # TODO: temper-xxx
-temper_placer/explainability/decision.py::DecisionTrace.query_constraint  # TODO: temper-xxx
-temper_placer/explainability/decision.py::DecisionTrace.query_phase  # TODO: temper-xxx
-temper_placer/explainability/decision.py::DecisionTrace.query_subject  # TODO: temper-xxx
-temper_placer/explainability/decision.py::DecisionTrace.query_type  # TODO: temper-xxx
-temper_placer/explainability/decision.py::DecisionTrace.summary  # TODO: temper-xxx
-temper_placer/explainability/decision.py::DecisionTrace.to_dict  # TODO: temper-xxx
-temper_placer/explainability/decision.py::DecisionTrace.why  # TODO: temper-xxx
-temper_placer/explainability/decision.py::DecisionTrace.why_not  # TODO: temper-xxx
 temper_placer/explainability/logger.py::DecisionLogger.disable  # TODO: temper-xxx
 temper_placer/explainability/logger.py::DecisionLogger.enable  # TODO: temper-xxx
 temper_placer/explainability/logger.py::DecisionLogger.epoch  # TODO: temper-xxx
@@ -173,8 +163,6 @@ temper_placer/explainability/logger.py::DecisionLogger.set_iteration  # TODO: te
 temper_placer/explainability/logger.py::DecisionLogger.set_phase  # TODO: temper-xxx
 temper_placer/explainability/logger.py::DecisionLogger.should_log  # TODO: temper-xxx
 temper_placer/explainability/logger.py::DecisionLogger.significant_change  # TODO: temper-xxx
-temper_placer/explainability/trace.py::Trace.for_subject  # TODO: temper-xxx
-temper_placer/explainability/trace.py::Trace.why  # TODO: temper-xxx
 temper_placer/fields/interface.py::FieldGate.check  # TODO: temper-xxx
 temper_placer/fields/interface.py::FieldGate.compute_field  # TODO: temper-xxx
 temper_placer/fixtures/synthetic.py::ComponentDistribution.total  # TODO: temper-xxx
