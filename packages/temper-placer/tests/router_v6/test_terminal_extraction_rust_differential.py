@@ -78,45 +78,16 @@ def _capture(fn):
 
 
 # ---------------------------------------------------------------------------
-# Wire marshalling (mirrors the shipped module's planned delegation)
+# Object-passing helpers (replaces the deleted wire-marshalling helpers)
 # ---------------------------------------------------------------------------
 
 
-def _pin_wire(pin) -> tuple:
-    return (
-        pin.name,
-        pin.number,
-        tuple(pin.position),
-        bool(getattr(pin, "is_pth", False)),
-        getattr(pin, "layer", None),
-    )
-
-
-def _component_wire(component) -> tuple:
-    pos = component.initial_position
-    return (
-        component.ref,
-        tuple(pos) if pos is not None else None,
-        component.initial_rotation,
-        component.initial_side,
-        [_pin_wire(p) for p in getattr(component, "pins", ())],
-    )
-
-
-def _stackup_layer_wire(layer) -> tuple:
-    return (
-        getattr(layer, "name", None),
-        getattr(layer, "index", None),
-        getattr(layer, "layer_type", None),
-    )
-
-
-def _pcb_wire(pcb) -> tuple[list[tuple], list[tuple]]:
-    components_wire = [_component_wire(c) for c in getattr(pcb, "components", ())]
+def _pcb_parts(pcb) -> tuple[list, list]:
+    """Extract components and stackup layers as lists for the Rust kernel."""
+    components = list(getattr(pcb, "components", ()))
     stackup = getattr(pcb, "stackup", None)
-    stackup_layers = getattr(stackup, "layers", ()) or ()
-    stackup_wire = [_stackup_layer_wire(layer) for layer in stackup_layers]
-    return components_wire, stackup_wire
+    stackup_layers = list(getattr(stackup, "layers", ()) or ())
+    return components, stackup_layers
 
 
 def _terminal_wire(t) -> tuple:
@@ -342,12 +313,12 @@ CASES: tuple[tuple[str, SimpleNamespace, str, list[tuple[str, str]]], ...] = (
 @pytest.mark.parametrize("case", CASES, ids=lambda c: c[0])
 def test_extract_net_terminals_bit_exact(case):
     _label, pcb, net_name, net_pins = case
-    components_wire, stackup_wire = _pcb_wire(pcb)
+    components, stackup_layers = _pcb_parts(pcb)
     _assert_same(
         f"extract_net_terminals[{_label}]",
         lambda: tuple(_terminal_wire(t) for t in ORACLE.extract_net_terminals(pcb, net_name, net_pins)),
         "extract_net_terminals_py",
-        lambda fn: tuple(fn(net_name, list(net_pins), components_wire, stackup_wire)),
+        lambda fn: tuple(fn(net_name, list(net_pins), components, stackup_layers)),
     )
 
 
@@ -378,10 +349,10 @@ def test_pin_world_position_random_sweep(rotation, side, comp_pos, pin_pos):
         components=[u1],
         stackup=SimpleNamespace(layers=[SimpleNamespace(name="F.Cu", index=0, layer_type="signal")]),
     )
-    components_wire, stackup_wire = _pcb_wire(pcb)
+    components, stackup_layers = _pcb_parts(pcb)
     _assert_same(
         "extract_net_terminals[random pin_world_position]",
         lambda: tuple(_terminal_wire(t) for t in ORACLE.extract_net_terminals(pcb, "NET", [("U1", "1")])),
         "extract_net_terminals_py",
-        lambda fn: tuple(fn("NET", [("U1", "1")], components_wire, stackup_wire)),
+        lambda fn: tuple(fn("NET", [("U1", "1")], components, stackup_layers)),
     )

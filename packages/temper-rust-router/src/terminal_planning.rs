@@ -574,12 +574,21 @@ type TerminalTuple = (String, String, String, f64, f64, Vec<i64>, Vec<Option<Str
 
 /// `terminal_extraction.extract_net_terminals`.
 ///
-/// `components` is `[(ref, initial_position, initial_rotation,
-/// initial_side, pins), ...]` where each pin is `(name, number, position,
-/// is_pth, layer)`. `stackup_layers` is `[(name, index, layer_type),
-/// ...]`. Returns a list of `(component_ref, pad, net, x, y, layers,
-/// layer_names, is_pth)` rows, sorted exactly as the oracle's
-/// `sorted(terminals, key=...)`.
+/// `components` is a list of ``temper_design_bundle_python.Component``
+/// pyclass instances (each with `.ref`, `.initial_position`,
+/// `.initial_rotation`, `.initial_side`, `.pins` attributes).  Each
+/// pin is a ``temper_design_bundle_python.Pin`` pyclass (`.name`,
+/// `.number`, `.position`, `.is_pth`, `.layer`).  `stackup_layers`
+/// is a list of layer objects (each with `.name`, `.index`,
+/// `.layer_type` attributes).  Returns a list of
+/// `(component_ref, pad, net, x, y, layers, layer_names, is_pth)`
+/// rows, sorted exactly as the oracle's `sorted(terminals, key=...)`.
+///
+/// Wave-4 marshalling migration: this function now accepts the
+/// typed pyclass objects directly and extracts their attributes by
+/// name (``.getattr("ref")`` etc.), eliminating the Python-side
+/// ``_pin_wire`` / ``_component_wire`` / ``_stackup_layer_wire``
+/// wire-format marshalling helpers.
 #[pyfunction]
 pub fn extract_net_terminals_py(
     net_name: &str,
@@ -590,19 +599,19 @@ pub fn extract_net_terminals_py(
     let mut comp_rows: Vec<ComponentRow> = Vec::new();
     for row in components.try_iter()? {
         let row = row?;
-        let component_ref: String = row.get_item(0)?.extract()?;
-        let initial_position: Option<(f64, f64)> = row.get_item(1)?.extract()?;
-        let initial_rotation: Option<i64> = row.get_item(2)?.extract()?;
-        let initial_side: Option<i64> = row.get_item(3)?.extract()?;
+        let component_ref: String = row.getattr("ref")?.extract()?;
+        let initial_position: Option<(f64, f64)> = row.getattr("initial_position")?.extract()?;
+        let initial_rotation: Option<i64> = row.getattr("initial_rotation")?.extract()?;
+        let initial_side: Option<i64> = row.getattr("initial_side")?.extract()?;
         let mut pins: Vec<PinRow> = Vec::new();
-        for prow in row.get_item(4)?.try_iter()? {
+        for prow in row.getattr("pins")?.try_iter()? {
             let prow = prow?;
             pins.push(PinRow {
-                name: prow.get_item(0)?.extract()?,
-                number: prow.get_item(1)?.extract()?,
-                position: prow.get_item(2)?.extract()?,
-                is_pth: prow.get_item(3)?.extract()?,
-                layer: prow.get_item(4)?.extract()?,
+                name: prow.getattr("name")?.extract()?,
+                number: prow.getattr("number")?.extract()?,
+                position: prow.getattr("position")?.extract()?,
+                is_pth: prow.getattr("is_pth")?.extract()?,
+                layer: prow.getattr("layer")?.extract()?,
             });
         }
         comp_rows.push(ComponentRow {
@@ -618,9 +627,9 @@ pub fn extract_net_terminals_py(
     for row in stackup_layers.try_iter()? {
         let row = row?;
         stackup_rows.push(StackupLayerRow {
-            name: row.get_item(0)?.extract()?,
-            index: row.get_item(1)?.extract()?,
-            layer_type: row.get_item(2)?.extract()?,
+            name: row.getattr("name")?.extract()?,
+            index: row.getattr("index")?.extract()?,
+            layer_type: row.getattr("layer_type")?.extract()?,
         });
     }
 

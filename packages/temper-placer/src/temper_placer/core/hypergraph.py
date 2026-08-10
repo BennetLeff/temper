@@ -77,18 +77,24 @@ class Coo:
         wrapping like numpy fancy indexing) runs in Rust via
         ``temper_geometry.hypergraph_coo_matvec``, bit-identical to the
         pre-migration numpy expression.
+
+        Wave-4 marshalling migration: numpy arrays are passed directly to
+        the Rust kernel (``hypergraph_coo_matvec_py`` now accepts
+        ``numpy.ndarray`` args and returns a ``numpy.ndarray``), eliminating
+        the ``.tolist()`` / ``[float(d) for d in ...]`` / ``np.array()``
+        marshalling that used to convert between Python lists and numpy
+        arrays at the FFI boundary.
         """
         n_rows = self.shape[0]
         if self.nnz == 0:
             return np.zeros(n_rows, dtype=np.float64)
-        result = _tg.hypergraph_coo_matvec_py(
-            self.row.tolist(),
-            self.col.tolist(),
-            [float(d) for d in self.data],
+        return np.array(_tg.hypergraph_coo_matvec_py(
+            self.row,
+            self.col,
+            self.data.astype(np.float64),
             n_rows,
-            [float(v) for v in other],
-        )
-        return np.array(result)
+            other,
+        ))
 
 
 @dataclass
