@@ -3748,5 +3748,5 @@ under rotation, tolerance-stated).
 | G4 | 6 properties (P1-P6) + 6 `test_pN_fails_for_<mutant>` mutation companions, all through the shipped shim; reachability proven by the mutation outcome changes. |
 | G5 | 3 metamorphic relations (MR1-MR3), exactness claims stated per relation. |
 | G6 | Base case + induction step above. |
-| G7 | `cargo test -p temper-geometry`: 758 pass (7 new); `cargo clippy --all-features --all-targets -- -D warnings` clean; every exported pyo3 function wrapped in `catch_unwind` via `temper-py-bridge`; no `unwrap`/`expect` outside tests. |
+| G7 | `cargo test -p temper-geometry`: 766 pass (7 new; +8 more from the concurrently merged min-cut migration); `cargo clippy --all-features --all-targets -- -D warnings` clean; every exported pyo3 function wrapped in `catch_unwind` via `temper-py-bridge`; no `unwrap`/`expect` outside tests. |
 | G8 | N/A — not physics-gated. |
