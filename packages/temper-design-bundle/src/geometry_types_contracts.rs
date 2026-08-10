@@ -47,6 +47,7 @@
 //! call the oracle makes, tested bit-identically via the differential suite.
 
 use pyo3::prelude::*;
+use pyo3::types::{PyAnyMethods, PyTuple};
 
 use crate::netlist_contracts::{
     dataclass_eq, dataclass_hash, dataclass_repr, opt_or, repr_of, same, unhashable,
@@ -73,7 +74,7 @@ fn numpy_module(py: Python<'_>) -> PyResult<Bound<'_, PyModule>> {
 /// A 2D point (mirrors ``Point`` in ``temper_placer/core/geometry_types.py``).
 ///
 /// ``frozen=True`` — hashable, immutable fields.
-#[pyclass(dict, module = "temper_design_bundle_python.geometry_contracts")]
+#[pyclass(dict, name = "Point", module = "temper_design_bundle_python.geometry_contracts")]
 #[derive(Debug)]
 pub struct GeometryPoint {
     #[pyo3(get)]
@@ -146,6 +147,19 @@ impl GeometryPoint {
         let py = slf.py();
         dataclass_hash(py, &slf.borrow().fields(py))
     }
+
+    /// ``pickle`` / ``copy.copy`` / ``copy.deepcopy`` support — the router
+    /// stores these on Pad/Track objects it pickles and deepcopies
+    /// (constraints_geometry.py's PR #724 vacuity contract).  Rebuild from
+    /// the constructor with the stored field values; `fields()` returns them
+    /// in `#[new]` argument order.
+    fn __reduce__<'py>(
+        slf: &Bound<'py, Self>,
+    ) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyTuple>)> {
+        let py = slf.py();
+        let args = PyTuple::new(py, slf.borrow().fields(py))?;
+        Ok((slf.get_type().into_any(), args))
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -156,8 +170,8 @@ impl GeometryPoint {
 /// ``temper_placer/core/geometry_types.py``).
 ///
 /// Mutable (not frozen). The ``start`` and ``end`` fields store ``Point``
-/// instances (which become ``GeometryPoint`` after migration).
-#[pyclass(dict, module = "temper_design_bundle_python.geometry_contracts")]
+/// instances (the ``GeometryPoint`` pyclass, which presents as ``Point``).
+#[pyclass(dict, name = "Track", module = "temper_design_bundle_python.geometry_contracts")]
 #[derive(Debug)]
 pub struct GeometryTrack {
     #[pyo3(get, set)]
@@ -241,7 +255,7 @@ impl GeometryTrack {
     }
 
     /// Get the midpoint of the track — delegates to
-    /// ``temper_geometry.track_midpoint_py`` and constructs a new ``GeometryPoint``.
+    /// ``temper_geometry.track_midpoint_py`` and constructs a new ``Point``.
     fn midpoint<'py>(&self, py: Python<'py>) -> PyResult<Py<PyAny>> {
         let tg = temper_geometry_module(py)?;
         let sx: f64 = self.start.bind(py).getattr("x")?.extract()?;
@@ -251,11 +265,11 @@ impl GeometryTrack {
         let result = tg.call_method1("track_midpoint_py", (sx, sy, ex, ey))?;
         let mx: f64 = result.get_item(0)?.extract()?;
         let my: f64 = result.get_item(1)?.extract()?;
-        // Construct a new GeometryPoint — get the class from our own type's module
+        // Construct a new Point — get the class from our own type's module
         let point_cls = py
             .import("temper_design_bundle_python")?
             .getattr("geometry_contracts")?
-            .getattr("GeometryPoint")?;
+            .getattr("Point")?;
         Ok(point_cls.call1((mx, my))?.unbind())
     }
 
@@ -286,6 +300,16 @@ impl GeometryTrack {
     fn __hash__(&self) -> PyResult<isize> {
         Err(unhashable("Track"))
     }
+
+    /// ``pickle`` / ``copy.copy`` / ``copy.deepcopy`` support — see
+    /// `GeometryPoint::__reduce__`.
+    fn __reduce__<'py>(
+        slf: &Bound<'py, Self>,
+    ) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyTuple>)> {
+        let py = slf.py();
+        let args = PyTuple::new(py, slf.borrow().fields(py))?;
+        Ok((slf.get_type().into_any(), args))
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -294,7 +318,7 @@ impl GeometryTrack {
 
 /// A via connecting layers (mirrors ``Via`` in
 /// ``temper_placer/core/geometry_types.py``).
-#[pyclass(dict, module = "temper_design_bundle_python.geometry_contracts")]
+#[pyclass(dict, name = "Via", module = "temper_design_bundle_python.geometry_contracts")]
 #[derive(Debug)]
 pub struct GeometryVia {
     #[pyo3(get, set)]
@@ -367,6 +391,16 @@ impl GeometryVia {
     fn __hash__(&self) -> PyResult<isize> {
         Err(unhashable("Via"))
     }
+
+    /// ``pickle`` / ``copy.copy`` / ``copy.deepcopy`` support — see
+    /// `GeometryPoint::__reduce__`.
+    fn __reduce__<'py>(
+        slf: &Bound<'py, Self>,
+    ) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyTuple>)> {
+        let py = slf.py();
+        let args = PyTuple::new(py, slf.borrow().fields(py))?;
+        Ok((slf.get_type().into_any(), args))
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -375,7 +409,7 @@ impl GeometryVia {
 
 /// A component pad for DRC/spatial queries (mirrors ``Pad`` in
 /// ``temper_placer/core/geometry_types.py``).
-#[pyclass(dict, module = "temper_design_bundle_python.geometry_contracts")]
+#[pyclass(dict, name = "Pad", module = "temper_design_bundle_python.geometry_contracts")]
 #[derive(Debug)]
 pub struct GeometryPad {
     #[pyo3(get, set)]
@@ -492,6 +526,16 @@ impl GeometryPad {
     /// ``eq=True, frozen=False`` — sets ``__hash__ = None``.
     fn __hash__(&self) -> PyResult<isize> {
         Err(unhashable("Pad"))
+    }
+
+    /// ``pickle`` / ``copy.copy`` / ``copy.deepcopy`` support — see
+    /// `GeometryPoint::__reduce__`.
+    fn __reduce__<'py>(
+        slf: &Bound<'py, Self>,
+    ) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyTuple>)> {
+        let py = slf.py();
+        let args = PyTuple::new(py, slf.borrow().fields(py))?;
+        Ok((slf.get_type().into_any(), args))
     }
 }
 
