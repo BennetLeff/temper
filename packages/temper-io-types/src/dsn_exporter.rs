@@ -177,22 +177,17 @@ fn py_str_of_arg(arg: &DsnArg) -> String {
 /// Only reachable from the sort-key lambdas, and only if a float ever lands in
 /// a sorted-on position (none do today: the sorted positions carry `round()`
 /// ints and `str`s). Kept exact anyway so the key function is total.
+///
+/// Delegates to `crate::stackup_validator::py_float_str`, the
+/// empirically-verified CPython `repr(float)` replica (Debug `{:?}` shortest
+/// round-trip + B10 exponent `+` sign and zero-padding). A local Display
+/// (`{}`) implementation was previously used and diverged from CPython at
+/// the `1e16` / `1e-4` fixed-point boundaries — `1e-5` rendered `"0.00001"`
+/// instead of `"1e-05"`, `1e16` rendered `"10000000000000000.0"` instead of
+/// `"1e+16"` (B10 bug, found by the 2026-08-10 io-types correctness sweep;
+/// counter-examples pinned in `py_repr_float_b10_divergence_demonstrated`).
 fn py_repr_float(f: f64) -> String {
-    if f.is_nan() {
-        return "nan".to_string();
-    }
-    if f.is_infinite() {
-        return if f > 0.0 { "inf" } else { "-inf" }.to_string();
-    }
-    if f == f.trunc() && f.abs() < 1e16 {
-        return format!("{:.1}", f);
-    }
-    let s = format!("{}", f);
-    if s.contains(['.', 'e', 'E']) {
-        s
-    } else {
-        format!("{}.0", s)
-    }
+    crate::stackup_validator::py_float_str(f)
 }
 
 // ---------------------------------------------------------------------------
@@ -1544,37 +1539,50 @@ mod tests {
         assert_eq!(py_repr_float(0.5), "0.5");
     }
 
-    /// B10-class BUG: `py_repr_float` uses Rust Display (`{}`) instead of
-    /// Debug (`{:?}`).  Display's fixed-point / scientific cutoffs differ from
-    /// CPython's `repr(float)`, and neither the `+` sign nor the zero-padding
-    /// is applied.  This produces wrong strings for values that cross
-    /// CPython's `1e16` and `1e-4` thresholds and for any value where the
-    /// shortest representation is scientific.
+    /// B10-class BUG (fixed 2026-08-10): `py_repr_float` used to be a local
+    /// Rust Display (`{}`) implementation.  Display's fixed-point /
+    /// scientific cutoffs differ from CPython's `repr(float)`, and neither
+    /// the `+` sign nor the zero-padding is applied.  This produced wrong
+    /// strings for values that cross CPython's `1e16` and `1e-4` thresholds
+    /// and for any value where the shortest representation is scientific.
     ///
-    /// Counter-examples (asserted as WRONG — the expected value is CPython's):
+    /// Counter-examples (the values that were wrong):
     /// - 1e-5  → got "0.00001", expected "1e-05"
     /// - 1e16  → got "10000000000000000.0", expected "1e+16"
     /// - 1e300 → got a 301-char fixed-point string, expected "1e+300"
     ///
-    /// Mitigation: this function is ONLY reachable from sort-key lambdas,
-    /// and no DSN argument that carries a `float` currently appears in a
-    /// sorted position.  The divergence is latent — it would only affect
-    /// non-deterministic export ordering if a float ever lands in a
-    /// sorted argument slot.
+    /// The function now delegates to `py_float_str` (the empirically-verified
+    /// CPython `repr(float)` replica), so the values below MUST match CPython
+    /// 3.12 exactly.  They are asserted positively — a regression back to
+    /// the Display path fails here.
+    ///
+    /// Mitigation context: the function is only reachable from sort-key
+    /// lambdas, and no DSN argument that carries a `float` currently appears
+    /// in a sorted position, so the bug was latent — it would only have
+    /// affected export ordering if a float ever landed in a sorted slot.
     #[test]
-    fn py_repr_float_b10_divergence_demonstrated() {
-        // These should match CPython repr(float) but do not.
-        // The assertions below document the WRONG behaviour.
+    fn py_repr_float_b10_matches_cpython() {
+        // These must now match CPython repr(float) exactly.
         let got_neg5 = py_repr_float(1e-5);
+        assert_eq!(got_neg5, "1e-05", "py_repr_float(1e-5) = '{got_neg5}'");
         let got_16 = py_repr_float(1e16);
-        // Expected from CPython 3.12:
-        assert_ne!(got_neg5, "1e-05", "BUG B10: py_repr_float(1e-5) should be '1e-05' but is '{got_neg5}'");
-        assert_ne!(got_16, "1e+16", "BUG B10: py_repr_float(1e16) should be '1e+16' but is '{got_16}'");
-        // Large values blow up to huge strings:
+        assert_eq!(got_16, "1e+16", "py_repr_float(1e16) = '{got_16}'");
         let got_300 = py_repr_float(1e300);
-        assert!(got_300.len() > 100, "BUG B10: py_repr_float(1e300) produces a {}-char fixed-point string instead of '1e+300'", got_300.len());
-        // B10 exponent zero-padding: format!("{}", f) never pads the exponent.
-        assert!(!got_neg5.contains("e-05"), "BUG B10: py_repr_float(1e-5) = '{got_neg5}' lacks zero-padded exponent");
+        assert_eq!(got_300, "1e+300", "py_repr_float(1e300) = '{got_300}'");
+        // Fixed-point threshold values stay fixed (CPython repr switches to
+        // scientific only at 1e16 / 1e-5).
+        assert_eq!(py_repr_float(1e15), "1000000000000000.0");
+        assert_eq!(py_repr_float(999999999999999.0), "999999999999999.0");
+        assert_eq!(py_repr_float(1e-4), "0.0001");
+        // B10 exponent zero-padding: the exponent must be two digits.
+        assert!(py_repr_float(1e-5).contains("e-05"));
+        // Special values still round-trip.
+        assert_eq!(py_repr_float(f64::NAN), "nan");
+        assert_eq!(py_repr_float(f64::INFINITY), "inf");
+        assert_eq!(py_repr_float(f64::NEG_INFINITY), "-inf");
+        assert_eq!(py_repr_float(0.0), "0.0");
+        assert_eq!(py_repr_float(-0.0), "-0.0");
+        assert_eq!(py_repr_float(42.0), "42.0");
     }
 
     // -- py_round_half_even proptest -------------------------------------
