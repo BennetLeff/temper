@@ -1,0 +1,55 @@
+# Migration-narrowing gate allowlist.
+#
+# Format: CHECK_A|<rust_file>|<NAME>|<python_file>  # reason: <why this
+# is a coincidental name collision, not a real capability narrowing>
+#
+# Every entry MUST carry a written reason and MUST be a coincidental
+# name/identifier collision, not a real defect. Do NOT allowlist a genuine
+# capability-narrowing defect (a Rust port silently dropping a
+# parameter/precision the Python had) — that is the exact defect class this
+# gate exists to catch. See scripts/check_migration_narrowing.py module
+# docstring for the two seeded historical instances (H_CONV_BACKGROUND,
+# escape_via.rs rotation).
+#
+# Seeded 2026-08-07 from a real `--init` run against origin/main
+# (63ec4e756). At seed time this run additionally surfaced two more, not
+# previously catalogued, live instances of the same defect class
+# (net_ordering.rs `rotation` and terminal_planning.rs `initial_rotation`,
+# both `Option<i64>` mirroring `float(comp.initial_rotation) * math.pi / 2.0`
+# in obstacle_map.py) — those are intentionally NOT listed below; they are
+# real findings, not false positives, and should stay failing until fixed.
+
+# --- CHECK A: (empty) -------------------------------------------------------
+# The seven net_classification.py pattern-set entries that used to live here
+# are GONE, and no CHECK_A entry replaced them. They were all one shape -- a
+# pre-migration constant retained, unused in production, as the pinned oracle
+# for a differential suite -- which migration-pipeline.md stage 3 REQUIRES
+# every migration to produce. Suppressing them one by one meant re-deriving
+# "this is the oracle pattern" by hand for each constant, forever, once per
+# migration.
+#
+# `is_live_config_surface` in scripts/check_migration_narrowing.py now decides
+# it structurally instead: Check A reports a constant only when a production
+# module other than the definer actually reads it, which is what makes it a
+# configuration surface that const-ification could silently break. The oracle
+# constants are read by nobody, so they are no longer reported and these
+# entries went stale.
+#
+# An empty section is the expected steady state. A new CHECK_A entry here
+# should be treated as suspicious: it means a constant IS read across module
+# boundaries and the Rust hardcodes it anyway, which is the H_CONV_BACKGROUND
+# defect and wants a fix, not a suppression.
+
+# --- CHECK B: short/common identifier collisions ----------------------------
+# The four `v`/`i` entries that used to live here (pyo3_bridge.rs x2,
+# deterministic_leaves.rs, req_safe_01.rs) are GONE, not moved: every one of
+# them gave "coincidental identifier collision" as its own reason, and
+# `MIN_CHECK_B_NAME_LEN` in scripts/check_migration_narrowing.py now
+# generalizes that judgement instead of restating it once per pair. A binding
+# shorter than 3 characters carries no cross-language identity, so Check B no
+# longer emits those pairings at all and the entries went stale.
+#
+# `name` below survives the guard (4 characters) and is a genuinely different
+# failure -- a regex over-match on dict-literal syntax, not a short-name
+# collision -- so it still needs an explicit entry.
+CHECK_B|packages/temper-design-bundle/src/pcl_parse.rs|name|packages/temper-placer/src/temper_placer/metrics/physics.py  # reason: Rust `name` is a local match-arm binding for tier-int-to-string mapping (parse_tier) with no relation to geometry; Python match is a dict-literal `z.name: tuple(float(v) ...)` in physics.py:144, which the annotation-regex over-matches (dict-literal `key: value` syntax reads like a type annotation to the heuristic). Coincidental identifier collision + known regex limitation.
