@@ -59,6 +59,10 @@ from . import kicad_exporter_geometry as kicad_exporter_geometry
 from . import write_board_geometry as write_board_geometry
 from . import constraint_model as constraint_model
 from . import hv_lv_partition as hv_lv_partition
+from . import specification_contracts as specification_contracts
+from . import decision_contracts as decision_contracts
+from . import loop_ownership_contracts as loop_ownership_contracts
+from . import stackup_contracts as stackup_contracts
 
 from . import validation as validation
 def sha256_hex(bytes: bytes) -> str: ...
