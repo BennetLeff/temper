@@ -22,9 +22,10 @@ U6 of the Python→Rust migration roadmap (docs/plans/2026-07-23-003),
 porting the assembly hot loops of
 `temper_placer/physics/thermal_fdm.py` (`_assemble_system`,
 `_trace_to_cell_coverage`, `_point_to_segment_distance`) to the
-`temper-thermal` crate. The sparse SOLVE stays in scipy (SuperLU) —
-a Rust solver is gated on the KTD9 parity spike (still outstanding;
-see the roadmap).
+`temper-thermal` crate. The sparse SOLVE was migrated to the crate too
+on 2026-08-09 (`solve.rs`, faer sparse LU), closing the last scipy
+imports in the product surface — see the "Sparse solve kernel (U5/U7)"
+section below (KTD9 overturn, documented tolerance 1e-10 K).
 
 ## Per-device power kernel — induction non-applicability note
 
@@ -335,7 +336,7 @@ pins:
   `assert_array_equal` — f64 bit equality).
 - `solve_thermal_fdm` end-to-end: Rust assembly vs reference assembly
   (monkeypatched) produce bit-identical temperature grids (same
-  matrix + same SuperLU solve → same result).
+  matrix + same faer solve → same result).
 - `_trace_to_cell_coverage` bit-exact against the reference
   supersampling loop on 25 random traces plus degenerate (zero-length)
   and off-grid cases.
@@ -458,6 +459,39 @@ bound explicitly:
 > the observed 5.7e-12 K maximum, and still 10× below the tightest
 > consumer tolerance.
 
+### Empirical verification (solve kernel)
+
+- **Differential (G2, documented-tolerance):**
+  `tests/physics/test_thermal_solve_rust_differential.py` — the retired
+  scipy `coo_matrix → spsolve` path is the verbatim oracle; the pinned
+  bound `max|T_faer − T_scipy| ≤ 1e-10 K` is asserted over the full U5+U7
+  corpus (8 grid sizes up to the 2500-cell ceiling × 4 heatsink edges ×
+  ± h_field = 128 cases per solver kind), plus bit-identical determinism
+  of both solvers and a machine-precision regression case on small grids.
+- **PBT (G4):** `tests/physics/test_thermal_solve_rust_pbt.py` — 6
+  properties (P1 residual smallness, P2 discrete maximum principle, P3
+  no-source ambient exactness, P4 linearity in source, P5 bit-identical
+  determinism, P6 finiteness) each vacuity-guarded by a
+  `test_pN_fails_for_<mutant>` mutation test; every property assembles a
+  real FDM system and solves it through the kernel, so generated inputs
+  genuinely reach the solve (reachability is inherent).
+- **Metamorphic (G5):** 3 relations in the same suite — M1 ambient-shift
+  invariance (x(b + c·A·1) = x(b) + c), M2 positive-scaling invariance
+  (x(2A, 2b) = x(A, b)), M3 permutation covariance (x′(π(i)) = x(i)).
+- **Rust unit tests:** `solve.rs` `#[cfg(test)]` — 1×1 / 2×2 /
+  tridiagonal hand-solved systems, malformed-input rejection (length
+  mismatch, out-of-range triplets), singular-matrix behavior (returns
+  non-finite, matching scipy's non-raising warning-and-NaN), and
+  determinism.
+- **End-to-end suites over the migrated solve:** the full pre-existing
+  thermal verification surface (`test_thermal_fdm.py`,
+  `test_thermal_fdm_rust_differential.py`, `test_thermal_fdm_mms.py`,
+  `test_thermal_fdm_refinement.py`, `test_thermal_fdm_invariants_pbt.py`,
+  `test_thermal_fdm_matrix_class.py`, `test_heat_removal.py`,
+  `test_thermal_scorer*.py`) passes unchanged against the faer solve —
+  the assembly-parity bits, the physical invariant battery, the MMS
+  convergence, and the U5-vs-U7 falsifiability threshold all hold.
+
 ---
 
 # RTD Safety Model — Verification by Induction
@@ -514,11 +548,12 @@ Wave 3 candidate #6 (`docs/plans/2026-07-31-001-feat-wave3-rust-migration-roadma
 the pure compute of `temper_placer/validation/thermal_scorer.py` — the
 second, INDEPENDENT convective-boundary (Robin BC) FDM T_j scorer whose
 repeated sparse assembly sits inside battery experiments — ported to
-`temper_thermal.thermal_scorer`. The sparse SOLVE stays in scipy
-(SuperLU) per the KTD9 verdict (two direct factorizations agree to
-~5e-13 K; scipy stays for the solve). The falsifiability assertion's
-1.0 deg-C threshold against the U5 field solver is a separate, PRESERVED
-Python-side contract and is untouched.
+`temper_thermal.thermal_scorer`. The sparse SOLVE is delegated to the
+`temper-thermal` crate's faer sparse LU (2026-08-09, `solve.rs` — see
+the "Sparse solve kernel (U5/U7)" section; the KTD9 keep is overturned
+there with the measured 5.7e-12 K tolerance). The falsifiability
+assertion's 1.0 deg-C threshold against the U5 field solver is a
+separate, PRESERVED Python-side contract and is untouched.
 
 ## Base Case: 1×1 Grid
 
@@ -597,9 +632,11 @@ API.
 
 **Kept in Python deliberately:** `ThermalScorer`/`ThermalScorerConfig`/
 `ThermalScoreResult`, `solve_independent`/`score` orchestration, the
-`spsolve` call (KTD9), the four boundary-predicate helpers (mirroring
+four boundary-predicate helpers (mirroring
 U5's retained helpers), and `falsifiability_assertion` with its 1.0 deg-C
-threshold (the preserved THM-adjacent cross-check contract).
+threshold (the preserved THM-adjacent cross-check contract). The
+`spsolve` call (the KTD9 keep) was migrated to `solve::solve_sparse_lu_py`
+on 2026-08-09.
 
 ## FFI Audit (spike C7, 2026-08-01) — tagged-type simplification
 
@@ -1228,8 +1265,11 @@ applicable**; structural argument recorded.
    `np.mean` is deliberately NOT migrated: numpy 2.3.5's SIMD reduction is
    not bit-reproducible by any Rust summation strategy (measured 2026-08-04
    on arm64 — naive, Neumaier, pairwise-128 and sequential-block pairwise
-   all disagree with np.sum/np.mean even for n=8).  Same discipline class
-   as the KTD9 scipy-spsolve keep — argued in-source at the call site.
+   all disagree with np.sum/np.mean even for n=8).  This is the genuine
+   measured-blocker class of keep — distinct from the scipy-spsolve keep,
+   which was overturned 2026-08-09 (see the "Sparse solve kernel" section)
+   because a measured parity result made the migration defensible; np.mean
+   has no such parity result.  Argued in-source at the call site.
 4. **R24.** Gate, not a constraint encoder: the T_j_max ceiling is gated
    on the CONSERVATIVE (higher) estimate so the optimistic model can never
    decide; corroborated-but-over-limit is still a VIOLATION.  Fail-closed

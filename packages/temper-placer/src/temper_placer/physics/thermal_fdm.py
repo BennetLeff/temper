@@ -301,10 +301,6 @@ class FdmSystem:
     values: np.ndarray  # (nnz,) float64 — value per stored triplet
     shape: tuple[int, int]
 
-    @property
-    def nnz(self) -> int:
-        return int(self.values.shape[0])
-
     def toarray(self) -> np.ndarray:
         """Dense ``(shape[0], shape[1])`` float64 matrix."""
         out = np.zeros(self.shape, dtype=np.float64)

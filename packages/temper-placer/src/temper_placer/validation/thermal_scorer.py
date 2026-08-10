@@ -76,6 +76,7 @@ if TYPE_CHECKING:
     from temper_placer.fields.result import FieldResult
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig
 
+from temper_placer.physics.thermal_fdm import FdmSystem
 
 # ---------------------------------------------------------------------------
 # Convection coefficient — physically grounded fixed value
@@ -508,7 +509,7 @@ def _assemble_convective_system(
     """
     import temper_thermal as _tt
 
-    from temper_placer.physics.thermal_fdm import FdmSystem, _heatsink_edge_code
+    from temper_placer.physics.thermal_fdm import _heatsink_edge_code
 
     h = config.height_cells
     w = config.width_cells
