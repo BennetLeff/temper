@@ -3655,6 +3655,73 @@ jobs:
             exit 1
           fi
 
+      # The sibling of the step above, one layer further out, and unwired for
+      # exactly the same reason: `grep -rn 'gen_test_family_map'
+      # .github/workflows/` returned NOTHING, despite that script's own
+      # docstring calling `--check` "the CI drift gate".
+      #
+      # The step above keeps `wasm_test_registry.rs` honest about the crate's
+      # `#[test]` functions. This one keeps `tools/wasm/test_family_map.json`
+      # -- the nine-family classification `tools/wasm/coverage_report.py` joins
+      # against a run's results to produce the R7/R8 per-family non-vacuity
+      # report -- honest about that registry.
+      #
+      # WHAT BEING UNWIRED COST. The gate was not merely unrun, it was BROKEN:
+      # `rules/drc/property_campaigns.rs` (1,504 tests, 87% of the crate's
+      # corpus) landed unclassified, so `--check` could not even produce a map
+      # to compare, and six further modules behind it -- `rules::drc::
+      # zone_containment`, the three `rules::safety` rules, `rules::placement::
+      # thermal_constraint`, `rules::routing::isolation_barrier` -- were equally
+      # unclassified and invisible. The committed map stood at 147 tests against
+      # a live registry of 1,719: 1,573 registered tests, and every `safety`
+      # rule module, absent from every coverage report built on it. Nothing
+      # reported that, because nothing ran it. That is what this step ends.
+      #
+      # WHY NO `--crate` LOOP, unlike the step above. That script takes
+      # `--crate` and gates six registries, so hard-coding one would have been
+      # the bug it exists to prevent. This one has no such flag and cannot: it
+      # imports `ELIGIBLE`/`SRC` from `gen_wasm_test_registry` at module scope,
+      # which are bound to `temper-drc-rs`, and the nine rule families are a
+      # `temper-drc-rs` taxonomy that the other five crates (each a single
+      # degenerate family named after itself) have no analogue for. A bare
+      # `--check` is therefore its full surface, not a subset of it. The other
+      # crates' tests are not silently mis-filed by this: `coverage_report.py`
+      # buckets anything the map does not name under `unmapped` and lists every
+      # one of them in an "Unmapped Tests" section.
+      #
+      # It exits 0 (in sync), or 1 for any of: drift between the committed map
+      # and a fresh regeneration, a registered module with no family, a map
+      # entry for a module that is no longer registered, a family assignment
+      # that contradicts the `wasm-registry-<family>` Cargo shard the module
+      # actually compiles into, or a `canary_defects` entry naming a test that
+      # no longer exists.
+      #
+      # JOB-COUNT ARGUMENT (same as the step above): +0 jobs, +0 workflows --
+      # one step in an existing job, a Python scan of already-read .rs files,
+      # well under a second. NOT added to .github/required-checks.json: what
+      # blocks a merge is a maintainer decision, not this step's to make.
+      - name: WASM test family map matches the registry
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          # No `-e`: the exit code is inspected here, not merely propagated.
+          set -uo pipefail
+
+          uv run python tools/wasm/gen_test_family_map.py --check
+          rc=$?
+          if [ "${rc}" -eq 2 ]; then
+            # argparse's usage-error code, and the only way this script exits 2
+            # -- main() returns 0 or 1 and its SystemExit(str) paths exit 1. So
+            # this means the flag surface moved under this step. Failing loudly
+            # beats guessing at flags: a drift gate that silently stopped
+            # running is the exact failure this step was added to end.
+            echo "::error::tools/wasm/gen_test_family_map.py rejected '--check' as a usage error (exit 2). Its argument surface has changed; update this step's invocation in .github/workflows/python-tests.yml to match. Do NOT drop the step -- the gate was unwired, and broken, for its entire existence before this."
+            exit 1
+          fi
+          if [ "${rc}" -ne 0 ]; then
+            echo "::error::tools/wasm/test_family_map.json disagrees with the live wasm32 test registry (see the output above for which tests or modules). That map is what tools/wasm/coverage_report.py uses to decide which rule family each tier result counts towards, so a stale one means the per-family non-vacuity report describes a corpus this commit does not have. FIX: run 'python3 tools/wasm/gen_test_family_map.py' and commit the result; if it names an unclassified module, add that module to MODULE_FAMILY in the same file first."
+            exit 1
+          fi
+
       # Validates known-failure-pins.yaml itself (see scripts/known_failure_pins.py
       # and docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md):
       # every pin must cite a real evidence/solutions doc, stay within its
