@@ -3,6 +3,40 @@ Router V6 Stage 2.4: Compute Channel Widths
 
 Measures channel width (clearance) at each point along the skeleton.
 Part of temper-7qu7 (Stage 2 - Channel Analysis)
+
+Phase E batch E4 (Rust Orchestration Engine plan 2026-08-09-001): the EDT
+production path's ORCHESTRATION — the per-edge interior sampling, the
+all-points assembly, the batched ``temper-geometry.edt_width_lookup_batch``
+dispatch, the node/edge-width assembly and the min/max/avg statistics —
+moved to ``temper-orchestration``'s ``channel_mapping.rs``
+(``run_channel_widths_edt``).  This module keeps its full public API as a
+thin FFI delegation: the shim computes the rasterised EDT grid / interior
+mask / bounds Python-side and marshals the skeleton nodes/edges, then wraps
+the Rust results back into the ``ChannelWidths`` dataclass (unchanged).
+
+**The shapely-blocked portions stay Python (evidence).** The pieces this
+module still owns have no Rust equivalent, measured in the E4 scoping:
+
+- ``_rasterize_boundary_mask`` — ``shapely.contains_xy`` (the C-level array
+  ``contains`` predicate over the grid; the module docstring's boundary
+  semantics proof relies on shapely's exact predicate).
+- ``_compute_width_at_point`` — shapely prepared-geometry ``Point.distance``
+  to the exterior/interior rings (GEOS distance, the per-point reference
+  path).
+- ``_compute_board_fingerprint`` — the routing polygon's ``wkb``
+  serialization (shapely) hashed for the EDT disk cache.
+- ``_build_edt`` / ``_atomic_write_npz`` / ``_evict_if_over_budget`` — the
+  rasterise + npz disk-cache lifecycle (shapely + numpy file I/O).
+- The ``available_area.is_empty`` guard and the ``MultiPolygon``
+  decomposition / prepared-geometry caches (shapely objects).
+- The per-point reference path (``use_edt=False``) — entirely
+  ``_compute_width_at_point``.
+
+The ``ChannelWidthsStage`` pipeline stage and ``validate_channel_widths``
+validator stay Python unchanged (BoardState orchestration + the
+``StageDRCFailure`` DRC-fence convention).  The oracle is pinned verbatim as
+``tests/router_v6/_channel_ops_py_oracle.py`` (content-hash registered in
+``scripts/oracle_hashes.json``).
 """
 
 from __future__ import annotations
@@ -18,6 +52,7 @@ from typing import cast
 
 import numpy as np
 import temper_geometry as _tg
+import temper_orchestration as _to
 
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
@@ -324,10 +359,6 @@ def _exact_edt(mask: np.ndarray) -> np.ndarray:
     ``docs/evidence/2026-08-07-exact-edt-rust-spike.md``.  ``mask`` must
     already be the desired ``uint8``/bool array at the call site; this
     function does not renormalize dtype or semantics.
-
-    R19: the pre-migration ``scipy.ndimage.distance_transform_edt`` call is
-    retained, unused here, as the differential's pinned oracle in
-    ``tests/router_v6/test_channel_widths_rust_differential.py``.
     """
     h, w = mask.shape
     mask_u8 = np.ascontiguousarray(mask, dtype=np.uint8)
@@ -453,53 +484,29 @@ def compute_channel_widths(
         )
 
     if _edt_grid is not None and _edt_mask is not None and _edt_bounds is not None:
-        # Batched EDT path: collect every sample point, resolve all widths
-        # in one FFI crossing (bit-identical per point to the per-point
-        # reference pinned in the differential test suites), then assemble
-        # node/edge widths.
+        # Batched EDT path: the edge sampling, the all-points assembly, the
+        # batch width lookup and the node/edge-width + statistics assembly
+        # run in temper-orchestration (channel_mapping.rs), bit-identical
+        # per point to the reference pinned in the differential suites.
         _node_points = list(skeleton.graph.nodes)
+        _edge_list = list(skeleton.graph.edges)
 
-        _edge_samples: list[tuple[object, object, list[tuple[float, float]]]] = []
-        for u, v in skeleton.graph.edges:
-            dx = v[0] - u[0]
-            dy = v[1] - u[1]
-            edge_length = (dx**2 + dy**2) ** 0.5
-            if edge_length > sample_distance:
-                num_samples = int(edge_length / sample_distance)
-                _edge_samples.append(
-                    (
-                        u,
-                        v,
-                        [
-                            (u[0] + (i / num_samples) * dx, u[1] + (i / num_samples) * dy)
-                            for i in range(1, num_samples)
-                        ],
-                    )
-                )
-            else:
-                _edge_samples.append((u, v, []))
-
-        _all_points = _node_points + [p for (_, _, pts) in _edge_samples for p in pts]
-        if _all_points:
-            _widths = _edt_width_lookup_batch(
-                np.asarray([p[0] for p in _all_points], dtype=np.float64),
-                np.asarray([p[1] for p in _all_points], dtype=np.float64),
-                _edt_grid,
-                _edt_mask,
+        node_widths_out, edge_widths_out, min_width, max_width, avg_width = (
+            _to.run_channel_widths_edt(
+                _node_points,
+                _edge_list,
+                np.ascontiguousarray(_edt_grid, dtype=np.float64).tobytes(),
+                np.ascontiguousarray(_edt_mask).tobytes(),
+                _edt_grid.shape[0],
+                _edt_grid.shape[1],
                 _edt_bounds,
                 _edt_cell,
+                sample_distance,
             )
-        else:
-            _widths = np.zeros(0, dtype=np.float64)
+        )
 
-        node_widths = dict(zip(_node_points, _widths[: len(_node_points)]))
-        _sample_offset = len(_node_points)
-        for u, v, pts in _edge_samples:
-            widths_along_edge = [node_widths[u], node_widths[v]]
-            for k in range(len(pts)):
-                widths_along_edge.append(float(_widths[_sample_offset + k]))
-            _sample_offset += len(pts)
-            edge_widths[(cast(tuple[float, float], u), cast(tuple[float, float], v))] = min(widths_along_edge) if widths_along_edge else 0.0
+        node_widths = dict(((x, y), w) for (x, y, w) in node_widths_out)
+        edge_widths = dict(((u, v), w) for u, v, w in edge_widths_out)
     else:
         # Reference path: per-point width sampling (EDT disabled or
         # unavailable).  Keep the original loop untouched for parity.
@@ -528,15 +535,14 @@ def compute_channel_widths(
 
             edge_widths[(cast(tuple[float, float], u), cast(tuple[float, float], v))] = min(widths_along_edge) if widths_along_edge else 0.0
 
-    # Compute statistics
-    all_widths = list(node_widths.values()) + list(edge_widths.values())
-
-    if all_widths:
-        min_width = min(all_widths)
-        max_width = max(all_widths)
-        avg_width = sum(all_widths) / len(all_widths)
-    else:
-        min_width = max_width = avg_width = 0.0
+        # Compute statistics (the reference path's own assembly).
+        all_widths = list(node_widths.values()) + list(edge_widths.values())
+        if all_widths:
+            min_width = min(all_widths)
+            max_width = max(all_widths)
+            avg_width = sum(all_widths) / len(all_widths)
+        else:
+            min_width = max_width = avg_width = 0.0
 
     return ChannelWidths(
         layer_name=routing_space.layer_name,
@@ -548,9 +554,9 @@ def compute_channel_widths(
             dict[tuple[tuple[float, float], tuple[float, float]], float],
             edge_widths,
         ),
-        min_width=min_width,
-        max_width=max_width,
-        avg_width=avg_width,
+        min_width=float(min_width),
+        max_width=float(max_width),
+        avg_width=float(avg_width),
     )
 
 
