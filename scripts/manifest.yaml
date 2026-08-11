@@ -1346,6 +1346,22 @@ scripts:
   - sys
   - typing
   - yaml
+- path: gen_oracle_freeze.py
+  purpose: 'FREEZE oracle-retirement generator (U4, migration-pipeline wire-and-retire plan): run a
+    _py_oracle.py differential oracle over a declared corpus, bake golden vectors into a Rust
+    regression test with a non-vacuity guard, and (via --check) gate drift. --spec selects one of
+    scripts/oracle_freeze_specs/*.py; --list enumerates them; --all runs every registered spec'
+  owner: pipeline
+  last_run: '2026-08-11'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - importlib
+  - pathlib
+  - pkgutil
+  - sys
 - path: gen_pcb_skeleton.py
   purpose: Generate a production KiCad PCB skeleton from the atopile netlist (CI-gate --check mode)
   owner: bennet
