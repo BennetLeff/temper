@@ -63,8 +63,14 @@ const topology = loadTopology();
  * 121, safety 25, placement 18, routing 18, emc 15, erc 12 = 1719,
  * temper-wasm-geometry's 722, temper-wasm-thermal's 143,
  * temper-wasm-router-core's 111, temper-wasm-constraint-compiler's 69,
- * temper-wasm-design-bundle's 24, temper-wasm-quality-oracle's 125 and
- * temper-wasm-io-types's 144. Eight tiers, 3057 tests.
+ * temper-wasm-design-bundle's 24, temper-wasm-quality-oracle's 125,
+ * temper-wasm-io-types's 144 and temper-wasm-pcl-ir's 2. Nine tiers, 3059
+ * tests. (These are FIXTURE values for exercising the checker's comparisons,
+ * not a live census -- temper-geometry's real registered/executable counts
+ * have since moved with the #961 property campaign; see
+ * wasm_tier_topology.json's own header for why that drift cannot make this
+ * checker wrong. This file only needs its own fixture to be internally
+ * consistent, which it is.)
  */
 const DRC_SHARDS = {
   drc: 1510,
@@ -132,6 +138,12 @@ const CONSTRAINT_COMPILER_BUILT = 69;
 //                          entry in this crate carries its own cfg.
 const QUALITY_ORACLE_BUILT = 125;
 const IO_TYPES_BUILT = 144;
+// temper-pcl-ir, the ninth tier (job: "deploy the last registered crate with
+// no Worker"). registered 2, executable 2 -- no cfg-gated exclusion, the same
+// shape as temper-design-bundle's 24/24 and temper-io-types's 144/144. See
+// packages/temper-pcl-ir/src/wasm_test_registry.rs's own header ("No
+// exclusion classes apply here").
+const PCL_IR_BUILT = 2;
 
 /**
  * Content-hash identity (issue #945), one fixed fake digest per full-corpus
@@ -152,6 +164,7 @@ const ROUTER_CORE_SHA = "sha-router-core-fresh";
 const CONSTRAINT_COMPILER_SHA = "sha-constraint-compiler-fresh";
 const QUALITY_ORACLE_SHA = "sha-quality-oracle-fresh";
 const IO_TYPES_SHA = "sha-io-types-fresh";
+const PCL_IR_SHA = "sha-pcl-ir-fresh";
 
 function freshCensus() {
   const census = {
@@ -187,6 +200,11 @@ function freshCensus() {
     abi_version: 1,
     module_sha256: IO_TYPES_SHA,
   };
+  census["temper-wasm-pcl-ir"] = {
+    test_count: PCL_IR_BUILT,
+    abi_version: 1,
+    module_sha256: PCL_IR_SHA,
+  };
   return census;
 }
 
@@ -215,6 +233,7 @@ const BUILT_CONSTRAINT_COMPILER = builtJson(
 );
 const BUILT_QUALITY_ORACLE = builtJson("built_quality_oracle", QUALITY_ORACLE_BUILT, QUALITY_ORACLE_SHA);
 const BUILT_IO_TYPES = builtJson("built_io_types", IO_TYPES_BUILT, IO_TYPES_SHA);
+const BUILT_PCL_IR = builtJson("built_pcl_ir", PCL_IR_BUILT, PCL_IR_SHA);
 
 /**
  * The full, correct argument set: one built count per tier in the topology.
@@ -249,6 +268,8 @@ const ALL_BUILT = [
   BUILT_QUALITY_ORACLE,
   "--built-json-io-types",
   BUILT_IO_TYPES,
+  "--built-json-pcl-ir",
+  BUILT_PCL_IR,
 ];
 
 /**
@@ -319,7 +340,8 @@ console.log(
   `fresh census: drc=${DRC_BUILT} (7 shards), geometry=${GEOMETRY_BUILT}, ` +
     `thermal=${THERMAL_BUILT}, design-bundle=${DESIGN_BUNDLE_BUILT}, ` +
     `router-core=${ROUTER_CORE_BUILT}, constraint-compiler=${CONSTRAINT_COMPILER_BUILT}, ` +
-    `quality-oracle=${QUALITY_ORACLE_BUILT}, io-types=${IO_TYPES_BUILT}\n`,
+    `quality-oracle=${QUALITY_ORACLE_BUILT}, io-types=${IO_TYPES_BUILT}, ` +
+    `pcl-ir=${PCL_IR_BUILT}\n`,
 );
 
 // ---------------------------------------------------------------------------
@@ -328,7 +350,7 @@ console.log(
 // ---------------------------------------------------------------------------
 console.log("A. correct counts -> green");
 expect(
-  "all eight tiers current",
+  "all nine tiers current",
   run(ALL_BUILT, freshCensus()),
   0,
   "every tier's deployed corpus matches",
@@ -547,6 +569,34 @@ console.log("\nB. a stale deployed count -> red, per crate");
     run(ALL_BUILT, stale),
     1,
     "are not in this commit's temper-io-types build",
+  );
+}
+{
+  // temper-pcl-ir's own bite: the ninth tier, and the smallest corpus on the
+  // whole wasm tier at 2 tests -- exactly the shape the union-check argument
+  // in section C exists to rule out (a corpus this small is well inside the
+  // noise of a 4500+-test total). Deployed 1 short: the smallest possible
+  // drift, same reasoning as the router-core case above.
+  const stale = freshCensus();
+  stale["temper-wasm-pcl-ir"] = { test_count: PCL_IR_BUILT - 1, abi_version: 1 };
+  expect(
+    "temper-pcl-ir deployed 1 short",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE DEPLOYED CORPUS (temper-pcl-ir)",
+  );
+}
+{
+  // The degenerate-shard trap again, at temper-pcl-ir: its shard set is the
+  // singleton {itself}, so a wrong count must produce BOTH the count failure
+  // above and the partition failure here.
+  const stale = freshCensus();
+  stale["temper-wasm-pcl-ir"] = { test_count: PCL_IR_BUILT - 1, abi_version: 1 };
+  expect(
+    "  ...and its singleton shard set is reported as non-partitioning too",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE OR NON-PARTITIONING FAMILY SHARDS (temper-pcl-ir)",
   );
 }
 
@@ -823,6 +873,31 @@ expect(
   2,
   "No expected test count available for tier temper-io-types",
 );
+// The walk continues one tier further: temper-pcl-ir, the ninth tier and this
+// PR's own addition. Same property restated at nine tiers — a caller that has
+// caught up to exactly yesterday's eight-tier argument set is still exit 2,
+// naming the new tier by itself rather than passing over it.
+expect(
+  "  ...+ io-types: now pcl-ir is named",
+  run(
+    [
+      ...YESTERDAYS_ARGS,
+      "--built-json-design-bundle",
+      BUILT_DESIGN_BUNDLE,
+      "--built-json-rust-router-core",
+      BUILT_ROUTER_CORE,
+      "--built-json-constraint-compiler",
+      BUILT_CONSTRAINT_COMPILER,
+      "--built-json-quality-oracle",
+      BUILT_QUALITY_ORACLE,
+      "--built-json-io-types",
+      BUILT_IO_TYPES,
+    ],
+    freshCensus(),
+  ),
+  2,
+  "No expected test count available for tier temper-pcl-ir",
+);
 
 // ---------------------------------------------------------------------------
 // 5. Unreachable and ABI-mismatched Workers still fail rather than being
@@ -949,6 +1024,26 @@ console.log("\nE. unreachable / wrong ABI -> red");
     "ABI mismatch",
   );
 }
+{
+  // The state THIS PR (job 2 — "deploy temper-pcl-ir") leaves the tier in
+  // until the operator deploys: temper-wasm-pcl-ir is in the topology and
+  // does not exist yet.
+  const census = freshCensus();
+  delete census["temper-wasm-pcl-ir"];
+  const res = run(ALL_BUILT, census);
+  expect("temper-wasm-pcl-ir not deployed yet", res, 1, "did not report a usable /health census");
+  expect("  ...and it is named in the failure", res, 1, "temper-wasm-pcl-ir (HTTP 404)");
+}
+{
+  const census = freshCensus();
+  census["temper-wasm-pcl-ir"] = { test_count: PCL_IR_BUILT, abi_version: 2 };
+  expect(
+    "temper-wasm-pcl-ir speaks ABI 2",
+    run(ALL_BUILT, census),
+    1,
+    "ABI mismatch",
+  );
+}
 
 // ---------------------------------------------------------------------------
 // 6. --expected-count overrides behave per tier.
@@ -965,6 +1060,7 @@ function allCounts(overrides = {}) {
     "temper-constraint-compiler": CONSTRAINT_COMPILER_BUILT,
     "temper-quality-oracle": QUALITY_ORACLE_BUILT,
     "temper-io-types": IO_TYPES_BUILT,
+    "temper-pcl-ir": PCL_IR_BUILT,
   };
   return Object.entries({ ...base, ...overrides }).flatMap(([crate, n]) => [
     // temper-drc-rs is additionally reachable as the unsuffixed flag, and this
@@ -1021,6 +1117,12 @@ expect(
   run(allCounts({ "temper-io-types": 999 }), freshCensus()),
   1,
   "STALE DEPLOYED CORPUS (temper-io-types)",
+);
+expect(
+  "pcl-ir override NOT matching the deployed count",
+  run(allCounts({ "temper-pcl-ir": 999 }), freshCensus()),
+  1,
+  "STALE DEPLOYED CORPUS (temper-pcl-ir)",
 );
 
 // ---------------------------------------------------------------------------
@@ -1099,6 +1201,24 @@ console.log("\nG. content hash (issue #945): count alone is not identity");
     res,
     1,
     "STALE DEPLOYED CORPUS (temper-io-types)",
+  );
+}
+{
+  // WRONG DIGEST on temper-pcl-ir, the ninth tier and this PR's own addition
+  // — proves the digest check applies to a brand-new tier from the moment it
+  // joins the topology, not just to the six/eight tiers that existed when
+  // issue #945 was fixed.
+  const stale = freshCensus();
+  stale["temper-wasm-pcl-ir"] = {
+    test_count: PCL_IR_BUILT,
+    abi_version: 1,
+    module_sha256: "sha-pcl-ir-WRONG",
+  };
+  expect(
+    "temper-pcl-ir: wrong digest -> red",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE DEPLOYED MODULE CONTENT (temper-pcl-ir, issue #945)",
   );
 }
 {

@@ -6,73 +6,276 @@ name: WASM Tier Deploy (operator-triggered)
 #
 # THE WORKER LIST IS NOT IN THIS FILE. It is tools/wasm/wasm_tier_topology.json,
 # which scripts/stage_wasm_families.sh, tools/wasm/sweep_multi_worker.mjs and
-# tools/wasm/check_deployed_freshness.mjs also read. Thirteen Workers today: the
+# tools/wasm/check_deployed_freshness.mjs also read. Sixteen Workers today: the
 # temper-drc-rs tier (temper-wasm-tier + 7 family shards) plus one script each
 # for temper-geometry, temper-thermal, temper-design-bundle,
-# temper-rust-router-core and temper-constraint-compiler — each of those five a
-# single script that is both its tier's full-corpus Worker and its only shard.
-# Adding a fourteenth is a one-object edit to that file, and — this is the
-# point — it is not POSSIBLE to add one that gets deployed but not
-# staleness-checked, which is how the tier would grow its way back into the
-# window described below one Worker at a time. THREE Workers were added on
-# 2026-08-11 and this file's deploy loop, census loop and verification step
-# needed no edit at all; the only lines that changed are these comments. Even
-# the per-tier `--built-json-*` arguments below are generated from that file
+# temper-rust-router-core, temper-constraint-compiler, temper-quality-oracle,
+# temper-io-types and temper-pcl-ir — each of those eight a single script that
+# is both its tier's full-corpus Worker and its only shard. Adding a
+# seventeenth is a one-object edit to that file, and — this is the point — it
+# is not POSSIBLE to add one that gets deployed but not staleness-checked,
+# which is how the tier would grow its way back into the window described
+# below one Worker at a time. Every Worker added since this workflow was
+# written (nine of the sixteen above) needed no edit to this file's deploy
+# loop, census loop or verification step — only to these comments. Even the
+# per-tier `--built-json-*` arguments below are generated from that file
 # rather than typed out, so the verification step cannot fall a tier behind the
 # deploy loop.
 #
 # WHY THIS EXISTS. The 2026-08-07 -> 2026-08-10 staleness window (the deployed
 # Workers carried 147 tests while temper-drc-rs's suite had grown to 1,708, and
 # wasm-tier-nightly.yml reported agreement_rate: 1.0 throughout) happened
-# because redeploying was a manual step nobody owned. The nightly's new R5.1
-# staleness check now DETECTS that state; this workflow is how it gets FIXED,
-# and the failure message from that check names this workflow by file.
+# because redeploying was a manual step nobody owned. The nightly's R5.1
+# staleness check DETECTS that state; this workflow is how it gets FIXED. Until
+# the trigger below, "gets fixed" still meant a human clicking the button —
+# and that recurred: a second multi-day window when a property campaign took
+# temper-geometry from 724 to 2,232 registered tests (#961), and a single
+# night in between that needed six separate manual deploy runs to catch every
+# crate back up. Detection was solved; remediation was not.
+#
+# ---------------------------------------------------------------------------
+# AUTOMATIC DEPLOY (this PR) — WHY A GATE JOB, PUSH + SCHEDULE, NOT A NAIVE
+# "DEPLOY ON EVERY PUSH"
+# ---------------------------------------------------------------------------
+#
+# The two trigger options this repo's own precedent argues between:
+#
+#   push, path-filtered    reacts within minutes of the commit that actually
+#                           changes the corpus. But ~80 commits land on main
+#                           some days, and this job's own timeout (45 minutes:
+#                           nine `cargo build --release --target
+#                           wasm32-unknown-unknown` invocations plus sixteen
+#                           `wrangler deploy`s) means a deploy-per-push under
+#                           any real burst either queues for hours behind
+#                           `concurrency: cancel-in-progress: false` (kept
+#                           below, unchanged, because cancelling mid-`wrangler
+#                           deploy` is exactly the mixed-Cloudflare-state risk
+#                           that setting exists to prevent — see the
+#                           concurrency block's own comment) or, if
+#                           cancel-in-progress were flipped to make the queue
+#                           tractable, cancels a deploy mid-upload and
+#                           produces precisely that mixed state.
+#   schedule only          matches board-regeneration.yml's and
+#                           wasm-tier-nightly.yml's own precedent ("a scheduled
+#                           job does not contend with push-triggered jobs for
+#                           the account's ~24 concurrent runner ceiling" —
+#                           wasm-tier-nightly.yml:4-6) and the wasm-verification
+#                           plan's D3 (containers-as-runners rejected
+#                           specifically because "running 10^6 checks inside a
+#                           ~24-slot pool is not possible at any scheduling" —
+#                           docs/plans/2026-08-03-002-...md:47). But on its own
+#                           it reintroduces exactly the latency the 2026-08-07
+#                           incident measured in days: a corpus change lands at
+#                           04:41 UTC, one minute after this file's schedule
+#                           fires, and answers for nothing new until the SAME
+#                           time the next day.
+#
+# So: BOTH, and a THIRD piece — a `gate` job — that makes the push arm cheap
+# enough to run on every qualifying push without the queueing or
+# cancel-in-progress hazard above.
+#
+# THE GATE. `gate` runs before `deploy`, decides `should_deploy`, and is the
+# ONLY new job:
+#   - `schedule` / `workflow_dispatch` -> always `true`. Nothing to debounce;
+#     these are not part of a push burst.
+#   - `push` -> compares `github.sha` (the commit THIS run was queued for)
+#     against main's CURRENT tip via the GitHub API, checked out only, no
+#     Cloudflare access. If they differ, main has already moved past this
+#     commit — a newer push is on the way and will perform its own,
+#     up-to-date deploy — so this run sets `should_deploy=false` and `deploy`
+#     never starts. If they still match, this is (as far as this run can
+#     tell) the newest push, and `deploy` proceeds for real.
+# `gate` carries its OWN concurrency group (`wasm-tier-deploy-gate`,
+# cancel-in-progress: true) precisely because cancelling IT mid-flight is
+# harmless — it is a read-only comparison, it never touches Cloudflare, and
+# cancelling a superseded gate run is the debounce working as intended, not a
+# hazard. `deploy` keeps ITS existing group (`wasm-tier-deploy`,
+# cancel-in-progress: false, unchanged) and gains `needs: gate` /
+# `if: needs.gate.outputs.should_deploy == 'true'`.
+#
+# WHAT THIS BUYS UNDER AN 80-COMMIT DAY. A burst of N corpus-touching pushes
+# landing faster than one 45-minute deploy cycle collapses to AT MOST ONE
+# `deploy` run completing a real build+deploy per cycle: every push in the
+# burst except the one that turns out to still be HEAD when its `gate` job
+# runs pays only the cost of `gate` (a few seconds, no `cargo`, no
+# `wrangler`) before bowing out. This is the same reasoning
+# wasm-tier-pr.yml's `cancel-in-progress: true` PR-concurrency group already
+# uses for an analogous cost ("a superseded run's sweep is ... invocations
+# that nobody will read, so cancelling it is a cost decision as much as a CI
+# one") — restated here for `gate` instead of the whole job, because unlike
+# that sweep, the expensive half of THIS workflow must never be the thing
+# that gets cancelled.
+#
+# WHY THE SCHEDULE STAYS, GIVEN THE PUSH ARM. Belt and suspenders against
+# exactly the two things the push+gate design does not cover: a push whose
+# `gate`/`deploy` run failed outright (a transient runner or Cloudflare-edge
+# error) with no later push to trigger a retry, and a corpus that drifted for
+# a reason this file's `paths:` filter does not name (see the filter's own
+# comment below for what is and is not in it). `- cron: '30 3 * * *'`, clear
+# of python-tests' 03:00 (python-tests.yml:298) and with roughly 70 minutes of
+# buffer before r9-evidence's 04:15 (r9-evidence.yml:17) and wasm-tier-
+# nightly's own 04:40 sweep (wasm-tier-nightly.yml:159) — enough headroom for
+# a full 45-minute deploy to finish and for Cloudflare's edge to propagate
+# before the nightly's R5.1 freshness check reads the result. A scheduled run
+# always deploys (never dry-run: `inputs.dry_run` is unset on `schedule` and
+# `push`, and `!inputs.dry_run` is `true` when unset, exactly as it already is
+# for a `workflow_dispatch` run that left the box unchecked).
+#
+# WHY NOT A DIFF-GATED "ONLY DEPLOY IF THE CORPUS ACTUALLY CHANGED SINCE THE
+# LAST DEPLOY" SCHEDULE, THE OTHER OBVIOUS REFINEMENT. It would need a
+# reliable pointer to "the commit the currently-live Workers were built from"
+# — the natural candidate is the last successful non-dry-run run of THIS
+# workflow, but the GitHub API's run list does not expose which `inputs` a
+# past run carried without a second API call per candidate run, and getting
+# that wrong (crediting a dry run as a real deploy, say) means SKIPPING a
+# needed redeploy silently — the exact failure mode this whole PR exists to
+# close, reintroduced by the optimization meant to reduce its cost. The
+# staging + census + smoke-test + `wrangler deploy` + R5.1-verify path this
+# workflow already runs is idempotent (redeploying byte-identical content is
+# not unsafe, merely occasionally unnecessary) and costs about what
+# wasm-tier-nightly.yml's `local-sweep-r19` job already spends nightly
+# rebuilding the same nine crates for wasm32 — so an unconditional scheduled
+# deploy trades a small, already-precedented, bounded (once/day) CI cost for
+# not depending on run-history bookkeeping being right. The push+gate arm
+# above is the one that matters for latency; the schedule is the backstop, and
+# a backstop that can itself skip silently defeats the purpose.
 #
 # WHY A SEPARATE FILE rather than a job in wasm-tier-nightly.yml. That
 # workflow's header states a hard prohibition -- "Never deploys a Worker, never
-# invokes `wrangler`" -- and its `on:` includes `schedule`. A deploy job there
-# would either falsify the prohibition or survive only behind a permanent
-# `if: github.event_name == 'workflow_dispatch'` guard, i.e. a scheduled
-# trigger held off a `wrangler deploy` by one expression. Here the trigger
-# surface is the guarantee: `workflow_dispatch` is the only entry, so there is
-# no push, no schedule, and no pull_request path into a deploy.
+# invokes `wrangler`" -- and folding a deploy job in there would either falsify
+# it or survive only behind a permanent event-name guard. Kept here instead,
+# and the guarantee this PR must preserve is narrower than "workflow_dispatch
+# is the only entry" (now false: `push` and `schedule` join it) — it is that
+# `pull_request` is NEVER an entry, on any branch, from any fork. CF_TOKEN is
+# read by the `deploy` step only, and nothing in this file's `on:` block can
+# reach that step from a `pull_request` trigger; see the CF_TOKEN paragraph
+# below for the mechanism this actually rests on.
 #
 # WHAT THIS WORKFLOW DELIBERATELY DOES NOT DO:
 # - Not a required PR check, and not reachable from `pull_request` at all
 #   (D5.4: R22/R23 durability gates merge authority; this phase does not cross
-#   it). Every tier verdict stays advisory.
+#   it). Every tier verdict stays advisory. `push`/`schedule` do not change
+#   this: neither is `pull_request`, and a fork's PR never lands a commit on
+#   THIS repository's `main` branch, so a fork PR can never itself cause this
+#   workflow's `push` trigger to fire — only a merge (a maintainer action) can.
 # - Never writes power_pcb_dataset/drc_ceiling.json or pcb/temper.kicad_pcb.
-# - Never opens a PR. `permissions: contents: read` only.
+# - Never opens a PR. `permissions: contents: read` only (`gate` needs nothing
+#   more — the GitHub API read it performs is covered by the same token).
+#
+# CF_TOKEN NEVER REACHES A FORK. This was already true (`workflow_dispatch`
+# cannot be invoked by an untrusted fork without a collaborator's action) and
+# stays true under the new triggers for a different, simpler reason each:
+# `push` here is filtered to `branches: [main]`, and a fork's own commits are
+# never pushed to THIS repository's `main` — only a maintainer's merge does
+# that, at which point the code is no longer "a fork's". `schedule` runs
+# against the default branch only, by GitHub's own design, with no PR
+# involved at all. Neither trigger is `pull_request` or `pull_request_target`,
+# so the fork-secrets exposure this constraint exists to prevent (a fork
+# supplying the workflow file, or the code CF_TOKEN's credentials run
+# against) never arises.
 #
 # JOB-COUNT ARGUMENT (matching board-regeneration.yml:6-13,
-# wasm-tier-nightly.yml's own header): +1 workflow, +1 job, +0 push-contended
-# jobs and +0 scheduled jobs. It consumes a runner only when a human clicks
-# it, so it contends with nothing on the ~24-concurrent-runner ceiling in the
-# steady state.
+# wasm-tier-nightly.yml's own header): +1 job (`gate`) on this existing
+# workflow, +0 new workflow files, +1 scheduled trigger. `gate` is
+# push-contended (it must be, to debounce a push burst), but it is minutes-not-
+# hours of runner time per invocation and self-limits under load via its own
+# `cancel-in-progress: true` group — the busier the push stream, the MORE
+# superseded `gate` runs get cancelled before they cost anything, not fewer.
+# `deploy` remains contended only by real corpus-affecting pushes (the `paths:`
+# filter below) that survive the gate, plus one scheduled run nightly — not by
+# every push to `main`.
 #
 # WHAT dry_run=true PROVES. It is the only pre-merge validation available for a
-# change to this workflow — nobody should be merging a deploy change whose first
-# execution is the real deploy — so it deliberately exercises every step that
-# does not require the credential: it stages all thirteen .wasm modules, runs
-# ALL SIX crates' registries under Node (so a module that does not work is
-# caught before anyone clicks the real button), and BUNDLES all thirteen Workers
-# with `wrangler deploy --dry-run`, which is what would catch a bad import path,
-# a missing .wasm, or a malformed wrangler.toml. What it cannot prove is
-# anything about the currently deployed Workers; it says so in its own output.
+# change to this workflow — nobody should be merging a deploy change whose
+# first execution is the real deploy — so it deliberately exercises every step
+# that does not require the credential: it stages all sixteen .wasm modules,
+# runs ALL NINE crates' registries under Node (so a module that does not work
+# is caught before anyone clicks the real button), and BUNDLES all sixteen
+# Workers with `wrangler deploy --dry-run`, which is what would catch a bad
+# import path, a missing .wasm, or a malformed wrangler.toml. What it cannot
+# prove is anything about the currently deployed Workers; it says so in its
+# own output. `dry_run` is a `workflow_dispatch`-only input — `push` and
+# `schedule` runs always attempt a real deploy, which is the entire point of
+# automating them.
 #
-# For the three families added on 2026-08-11 (design-bundle, router-core,
-# constraint-compiler) the dry run is doing real work rather than ceremony, as
-# it was for thermal before them: each families/<name>/index.js is a NEW entry
-# point importing a NEW staged module and a NEW JSON manifest, and every one of
-# those three imports per Worker is a path that only esbuild resolves.
-# dry_run=true is the only thing that executes those nine resolutions before the
-# operator's first real click. It is also the only pre-merge exercise of the
-# NEW WRANGLER CONFIGS: a `name` typo in one of those wrangler.toml files would
-# deploy a correct module under a script name the freshness checker has never
-# heard of, and the checker would then report the intended name as a 404 — a
-# failure whose cause is two files away from where it surfaces.
+# For the families added on 2026-08-11 and after (design-bundle, router-core,
+# constraint-compiler, then quality-oracle, io-types, then temper-pcl-ir in
+# this PR) the dry run does real work rather than ceremony, as it was for
+# thermal before them: each families/<name>/index.js is a NEW entry point
+# importing a NEW staged module and a NEW JSON manifest, and every one of
+# those imports per Worker is a path that only esbuild resolves. dry_run=true
+# is the only thing that executes those resolutions before the operator's
+# first real click (or, now, before the first automatic `push`/`schedule`
+# deploy). It is also the only pre-merge exercise of the NEW WRANGLER CONFIGS:
+# a `name` typo in one of those wrangler.toml files would deploy a correct
+# module under a script name the freshness checker has never heard of, and the
+# checker would then report the intended name as a 404 — a failure whose cause
+# is two files away from where it surfaces.
 
 on:
+  push:
+    branches: [main]
+    # Corpus-affecting paths only — see the AUTOMATIC DEPLOY section above for
+    # why this is `push` at all rather than schedule-only, and `gate`/`deploy`
+    # for what actually happens when one of these matches.
+    #
+    # ONE ENTRY PER TIER'S CRATE DIRECTORY, DELIBERATELY, NOT A GLOB.
+    # `packages/*/src/**` looks tempting (and is what this comment first
+    # tried) — it is wrong: this is a monorepo, and that glob also matches
+    # `packages/temper-placer/src/**`, a large, frequently-changed Python
+    # package that carries none of the nine wasm-tier crates and is not read
+    # by any wasm32 registry. `node -e "path.matchesGlob(...)"` against
+    # `packages/temper-placer/src/temper_placer/placer/cp_sat/priority.py`
+    # confirms it: `true` under the glob, and this workflow would then have
+    # auto-deployed on every temper-placer commit — a large fraction of a
+    # busy day's ~80, defeating the whole cost argument the gate job exists
+    # to make. Caught by tools/wasm/test_deploy_trigger_paths.mjs (this PR's
+    # anti-vacuity evidence for the filter, which extracts the `paths:` list
+    # below straight out of this file so the two cannot drift) before merge
+    # rather than by watching push volume after it. `paths:` is evaluated by
+    # GitHub at TRIGGER time,
+    # before any code runs, so it CANNOT read
+    # `tools/wasm/wasm_tier_topology.json` the way every other consumer in
+    # this repo does — some duplication of the tier list is unavoidable here,
+    # unlike the four runtime consumers #940/#943/#956 collapsed onto that
+    # file. Kept as small as that constraint allows: one line per tier's
+    # crate directory (whole directory, not just `src/`, so a Cargo.toml
+    # feature-flag edit like the one in #958's temper-pcl-ir registration
+    # commit still counts), plus the shared infra paths also present in
+    # wasm-tier-pr.yml's own (dynamically computed, at RUN time rather than
+    # trigger time — `paths:` cannot be) corpus-path set:
+    # `packages/temper-wasm-test-runner/`, `packages/temper-worker/`,
+    # `scripts/gen_wasm_test_registry.py`, `tools/wasm/wasm_tier_topology.json`.
+    #
+    # DRIFT RISK, NAMED RATHER THAN HIDDEN: a tier added to the topology
+    # without a matching line added here will not auto-deploy on its own
+    # pushes — only on the next `schedule` run (at most ~24h later, the same
+    # bound this whole PR exists to install in place of "however long until a
+    # human notices"). That is a real gap and worth restating precisely: it
+    # degrades the LATENCY this PR buys, not the CORRECTNESS the pre-existing
+    # R5.1 freshness check already guarantees — a tier missing from this list
+    # is still caught by the nightly's freshness check and still gets
+    # redeployed by the very next scheduled run, exactly as if this whole
+    # `push` arm did not exist.
+    paths:
+      - 'packages/temper-drc-rs/**'
+      - 'packages/temper-geometry/**'
+      - 'packages/temper-thermal/**'
+      - 'packages/temper-design-bundle/**'
+      - 'packages/temper-rust-router-core/**'
+      - 'packages/temper-constraint-compiler/**'
+      - 'packages/temper-quality-oracle/**'
+      - 'packages/temper-io-types/**'
+      - 'packages/temper-pcl-ir/**'
+      - 'packages/temper-wasm-test-runner/**'
+      - 'packages/temper-worker/**'
+      - 'scripts/gen_wasm_test_registry.py'
+      - 'tools/wasm/wasm_tier_topology.json'
+  schedule:
+    # 70ish minutes ahead of wasm-tier-nightly's 04:40 sweep — see the
+    # AUTOMATIC DEPLOY section above ("WHY THE SCHEDULE STAYS") for the exact
+    # gap accounting against the other nightly cron jobs.
+    - cron: '30 3 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -84,18 +287,62 @@ on:
 permissions:
   contents: read
 
-# Two concurrent deploys would race on the Cloudflare scripts and leave the tier
-# in a mixed state that the R5.1 partition check would then report as a
-# non-partitioning shard set. Serialize; never cancel a deploy mid-flight.
-concurrency:
-  group: wasm-tier-deploy
-  cancel-in-progress: false
-
 jobs:
+  # ---------------------------------------------------------------------------
+  # Debounce a push burst; pass schedule/workflow_dispatch straight through.
+  # NEVER touches Cloudflare — see the AUTOMATIC DEPLOY section above ("THE
+  # GATE") for why that is what makes its own `cancel-in-progress: true`
+  # concurrency group safe where `deploy`'s must stay `false`.
+  # ---------------------------------------------------------------------------
+  gate:
+    name: Gate — debounce push bursts, pass schedule/dispatch straight through
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: wasm-tier-deploy-gate
+      cancel-in-progress: true
+    outputs:
+      should_deploy: ${{ steps.decide.outputs.should_deploy }}
+    steps:
+      - name: Decide whether this run still owns the deploy
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "push" ]; then
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+            echo "event is '${{ github.event_name }}', not 'push' -- nothing to debounce, always deploys"
+            exit 0
+          fi
+          THIS_SHA="${{ github.sha }}"
+          MAIN_TIP="$(gh api "repos/${{ github.repository }}/commits/main" --jq .sha)"
+          echo "this push's commit: ${THIS_SHA}"
+          echo "main's current tip: ${MAIN_TIP}"
+          if [ "${THIS_SHA}" = "${MAIN_TIP}" ]; then
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+            echo "still the tip of main -- this run performs the deploy"
+          else
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+            echo "superseded by ${MAIN_TIP} -- a later push already landed and will deploy the" \
+                 "up-to-date corpus, so this run skips rather than spending a ~45-minute build" \
+                 "cycle on a commit main has already moved past"
+          fi
+
   deploy:
     name: Stage + deploy every WASM-tier Worker
+    needs: gate
+    if: ${{ needs.gate.outputs.should_deploy == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    # Two concurrent deploys would race on the Cloudflare scripts and leave the
+    # tier in a mixed state that the R5.1 partition check would then report as
+    # a non-partitioning shard set. Serialize; never cancel a deploy mid-flight
+    # — unchanged by the triggers added in this PR; `gate` above is what keeps
+    # a push burst from stacking up runs behind this group in the first place.
+    concurrency:
+      group: wasm-tier-deploy
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v7
 
@@ -133,18 +380,18 @@ jobs:
       # test), so a module that does not work is not deployed.
       #
       # ONE CENSUS PER TIER, and each against ITS OWN expected-failure manifest.
-      # temper-geometry's fifteen native-vs-wasm32 divergences and
-      # temper-thermal's four are not in temper-drc-rs's manifest and vice
-      # versa; crossing them would report N unexplained failures for one crate
-      # and N orphan exclusions for the other. Three of the six manifests are
-      # EMPTY (design-bundle, router-core after #947, constraint-compiler) and
-      # that changes nothing about the argument: run_wasm_tests.mjs exits
-      # non-zero on an orphan exclusion, so pointing one of those modules at
-      # temper-drc-rs's manifest would report every drc entry as an orphan. The
-      # tier list and the manifest paths both come from the topology file, so a
-      # new tier is censused without editing this step — temper-thermal added
-      # none of the lines below, and neither did the three tiers added
-      # 2026-08-11.
+      # temper-geometry's eight native-vs-wasm32 divergences (down from fifteen
+      # after #941's clock-bug fix) and temper-thermal's four are not in
+      # temper-drc-rs's manifest and vice versa; crossing them would report N
+      # unexplained failures for one crate and N orphan exclusions for the
+      # other. Six of the eight non-drc manifests are EMPTY (design-bundle,
+      # router-core after #947, constraint-compiler, quality-oracle, io-types,
+      # pcl-ir) and that changes nothing about the argument: run_wasm_tests.mjs
+      # exits non-zero on an orphan exclusion, so pointing one of those modules
+      # at temper-drc-rs's manifest would report every drc entry as an orphan.
+      # The tier list and the manifest paths both come from the topology file,
+      # so a new tier is censused without editing this step — temper-thermal
+      # added none of the lines below, and neither did any tier added since.
       - name: Census + smoke-run every staged full-corpus module
         run: |
           set -euo pipefail
@@ -190,7 +437,7 @@ jobs:
       # The deploy list comes from tools/wasm/wasm_tier_topology.json, already
       # deduplicated (each single-family tier's one script is both its tier's
       # full-corpus Worker and its only shard, and must be uploaded once, not
-      # twice — five such scripts today).
+      # twice — eight such scripts today).
       - name: Compute the deploy list from the topology
         run: |
           set -euo pipefail

@@ -788,8 +788,22 @@ jobs:
             echo "::error::Swept ${ran} of ${expected} tiers — the loop ended early, so some deployed tier was never dispatched."
             exit 1
           fi
-          # Historical path, as in local-sweep-r19.
-          cp /tmp/worker_sweep_drc-rs.json /tmp/worker_sweep.json 2>/dev/null || true
+          # NO unsuffixed /tmp/worker_sweep.json alias here (audited 2026-08-11:
+          # nothing reads it -- not wasm-tier-pr.yml, not the Makefile, not
+          # r19_compare.py, not check_deployed_freshness.mjs -- grep the repo for
+          # `worker_sweep` and this file is the only hit). Before this change the
+          # upload step's `worker_sweep*.json` glob below picked up BOTH this
+          # alias and /tmp/worker_sweep_drc-rs.json in the same artifact: same
+          # tier, same family list, same 1719-test total, uploaded twice under
+          # two names. Anyone summing every file matching that glob (a
+          # plausible reading of "add up the sweep artifacts") double-counts
+          # drc-rs and gets 6017 instead of 4567. The per-tier files
+          # (worker_sweep_<suffix>.json, one per tools/wasm/wasm_tier_topology.json
+          # entry) were always the ones every consumer in this job actually reads
+          # (see the `--json "/tmp/worker_sweep_${suffix}.json"` above and the R19
+          # comparison step below) -- the alias was a backward-compat leftover
+          # from before this step became a topology-driven loop, and was already
+          # redundant with those the day it stopped being the only file written.
           if [ -n "${failed}" ]; then
             echo "::error::Deployed-Worker sweep reported failures for:${failed}. sweep_multi_worker.mjs exits 1 on any fail/error verdict and 2 when it could not enumerate a family's corpus at all — see its output above. The comparison step below still runs on whatever sweeps were written."
             exit 1
