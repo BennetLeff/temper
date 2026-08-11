@@ -1,94 +1,35 @@
-"""Differential: `_copper_reach_mm` oracle vs the temper_geometry kernel.
+"""Wiring check: `io/real_board.py::_copper_reach_mm` production shim.
 
-The NaN cases are the point of this suite. The reference is CPython's builtin
-`max()`, which keeps the FIRST NaN and lets nothing displace it; `f64::max`
-discards NaN and would report a finite reach for a component whose pad offset
-is unparseable. That difference is reachable from real boards, not theoretical,
-so it is pinned here rather than left to a property test to stumble on.
+FROZEN 2026-08-11 (U4/U5 of `docs/plans/2026-08-11-003-feat-migration-
+pipeline-wire-and-retire-plan.md`): the oracle-comparison half of this
+differential (the pinned `_copper_reach_py_oracle.py` and the tests that
+compared it against `temper_geometry.copper_reach_mm_py`, including the
+NaN/Infinity cases) has been retired. That comparison is now a Rust
+golden-vector regression test — `frozen_copper_reach_matches_golden_corpus`
+and its non-vacuity guard `frozen_copper_reach_corpus_is_non_vacuous` in
+`packages/temper-geometry/src/copper_reach.rs`'s own `mod tests` — produced
+by `scripts/gen_oracle_freeze.py --spec copper_reach`
+(`scripts/oracle_freeze_specs/copper_reach.py` records the full provenance:
+oracle pinned at `d7a22b5d16d4db7d47be39f9d7580921eb9e5263`, unchanged 863
+commits; kernel unchanged 182 commits — both far past the plan's
+10-consecutive-commit retirement bar). That Rust test carries the same
+regression signal this file used to and, unlike this file, is
+wasm32-tier-executable (no CPython, no pyo3).
+
+What remains here is NOT part of the oracle differential: it is the
+production-wiring check (migration-pipeline.md Stage 7 concern, not Stage
+8/retire) that the shipped Python module actually calls into Rust rather
+than silently keeping a dead Python fallback. FREEZE does not touch this.
 """
 
 from __future__ import annotations
 
-import math
-
 import pytest
-from temper_placer.core.pad_geometry import shape_code
-from temper_placer.io import real_board as shipped
 
-from tests.io import _copper_reach_py_oracle as oracle
+from temper_placer.io import real_board as shipped
 
 pytest.importorskip("temper_geometry")
 import temper_geometry as _tg  # noqa: E402
-
-
-def _wire(pads):
-    """The kernel's row contract: (ox, oy, w, h, shape_code, roundrect_ratio)."""
-    return [
-        (
-            p["offset"][0],
-            p["offset"][1],
-            p["width"],
-            p["height"],
-            shape_code(p["shape"]),
-            p["roundrect_ratio"],
-        )
-        for p in pads
-    ]
-
-
-def _pad(ox, oy, w=1.0, h=2.0, shape="rect", ratio=0.25):
-    return {
-        "offset": (ox, oy),
-        "width": w,
-        "height": h,
-        "shape": shape,
-        "roundrect_ratio": ratio,
-    }
-
-
-CASES = {
-    "empty": [],
-    "single_at_origin": [_pad(0.0, 0.0)],
-    "single_offset": [_pad(3.0, 4.0)],
-    "two_pads_second_further": [_pad(1.0, 0.0), _pad(10.0, 0.0)],
-    "two_pads_first_further": [_pad(10.0, 0.0), _pad(1.0, 0.0)],
-    "negative_offsets": [_pad(-3.0, -4.0)],
-    "circle_shape": [_pad(1.0, 1.0, shape="circle")],
-    "oval_shape": [_pad(1.0, 1.0, shape="oval")],
-    "roundrect_shape": [_pad(1.0, 1.0, shape="roundrect", ratio=0.4)],
-    "unknown_shape_falls_back": [_pad(1.0, 1.0, shape="not-a-shape")],
-    "zero_size_pad": [_pad(2.0, 0.0, w=0.0, h=0.0)],
-    "tie_between_pads": [_pad(3.0, 4.0), _pad(4.0, 3.0)],
-}
-
-
-@pytest.mark.parametrize("name", sorted(CASES))
-def test_matches_oracle(name):
-    pads = CASES[name]
-    assert _tg.copper_reach_mm_py(_wire(pads)) == oracle.copper_reach_mm(pads, 0.0)
-
-
-def test_nan_offset_is_kept_not_discarded():
-    """CPython `max` keeps the first NaN; `f64::max` would discard it."""
-    pads = [_pad(math.nan, 0.0), _pad(10.0, 0.0)]
-    want = oracle.copper_reach_mm(pads, 0.0)
-    got = _tg.copper_reach_mm_py(_wire(pads))
-    assert math.isnan(want), "oracle should produce NaN here"
-    assert math.isnan(got), "kernel discarded a NaN CPython's max would keep"
-
-
-def test_nan_arriving_second_does_not_displace_a_finite_max():
-    """A NaN AFTER the running max loses the `>` test, in both languages."""
-    pads = [_pad(10.0, 0.0), _pad(math.nan, 0.0)]
-    want = oracle.copper_reach_mm(pads, 0.0)
-    got = _tg.copper_reach_mm_py(_wire(pads))
-    assert (math.isnan(want) and math.isnan(got)) or want == got
-
-
-def test_infinity_beats_nan():
-    """py_hypot returns inf as soon as a coordinate is infinite, even with NaN."""
-    pads = [_pad(math.inf, math.nan)]
-    assert _tg.copper_reach_mm_py(_wire(pads)) == oracle.copper_reach_mm(pads, 0.0)
 
 
 def test_shipped_module_delegates_to_rust():
@@ -98,7 +39,15 @@ def test_shipped_module_delegates_to_rust():
     whether or not production delegates -- this is the assertion that catches
     the RUST-EXISTS-UNWIRED state.
     """
-    pads = [_pad(3.0, 4.0)]
+    pads = [
+        {
+            "offset": (3.0, 4.0),
+            "width": 1.0,
+            "height": 2.0,
+            "shape": "rect",
+            "roundrect_ratio": 0.25,
+        }
+    ]
     sentinel = RuntimeError("REACHED_RUST")
 
     def boom(*_a, **_k):
