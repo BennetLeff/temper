@@ -888,6 +888,7 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "sha2",
+ "temper-geometry",
  "temper-pcl-ir",
  "thiserror 2.0.19",
 ]
