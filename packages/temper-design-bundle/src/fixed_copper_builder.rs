@@ -145,17 +145,6 @@ fn getattr_opt_str<'py>(
     py_getattr(py, obj, name, none)?.extract()
 }
 
-/// `getattr(obj, name, default)` with a `(f64, f64)` default (the
-/// `position` read).
-fn getattr_pos<'py>(
-    py: Python<'py>,
-    obj: &Bound<'py, PyAny>,
-    name: &str,
-    default: (f64, f64),
-) -> PyResult<(f64, f64)> {
-    py_getattr(py, obj, name, default)?.extract()
-}
-
 /// `str(getattr(obj, name, default))` — the pre-migration
 /// `str(getattr(pin, "number", ""))` pattern.
 fn getattr_py_str(
@@ -227,7 +216,12 @@ pub struct PadRectLocal {
     #[pyo3(get)]
     pub net: Option<String>,
     layers: Py<PyFrozenSet>,
-    center: (f64, f64),
+    /// The pad's offset from the component placement centre. Stored OPAQUE
+    /// (as the original Python ``position`` tuple) so integral coordinates
+    /// stay integral — the oracle stores ``tuple(getattr(pin, "position",
+    /// ...))`` verbatim and the type-carrying differential discriminates an
+    /// ``int`` from a ``float``.
+    center: Py<PyAny>,
     half: (f64, f64),
 }
 
@@ -239,11 +233,11 @@ impl PadRectLocal {
         number: String,
         net: Option<String>,
         layers: Bound<'_, PyAny>,
-        center: (f64, f64),
+        center: Bound<'_, PyAny>,
         half: (f64, f64),
     ) -> PyResult<Self> {
         let layers = layers.extract::<Py<PyFrozenSet>>()?;
-        Ok(Self { number, net, layers, center, half })
+        Ok(Self { number, net, layers, center: center.unbind(), half })
     }
 
     #[getter]
@@ -252,8 +246,8 @@ impl PadRectLocal {
     }
 
     #[getter]
-    fn center(&self) -> (f64, f64) {
-        self.center
+    fn center(&self, py: Python<'_>) -> Py<PyAny> {
+        self.center.clone_ref(py)
     }
 
     #[getter]
@@ -569,17 +563,24 @@ impl FixedCopperBuilder {
         let net = net_classes.first().cloned();
         let name: String = zone.getattr("name")?.extract()?;
 
-        let polygon_list = PyList::new(py, polygon.iter().copied())?;
+        // The kernel calls take the polygon as a list; the `exact` dict
+        // stores `list(polygon)` — a SHALLOW COPY of the original, so
+        // integral coordinates stay integral (the oracle's `exact={"polygon":
+        // list(polygon)}` is type-preserving and the type-carrying
+        // differential discriminates `int` from `float`).
+        let polygon_copy = PyModule::import(py, "builtins")?
+            .getattr("list")?
+            .call1((polygon_obj,))?;
         let edges = tg(py)?
             .getattr("fixed_copper_convex_polygon_edges_py")?
-            .call1((polygon_list.clone(), margin))?
+            .call1((polygon_copy.clone(), margin))?
             .extract::<Option<Py<PyAny>>>()?;
         let rect: (f64, f64, f64, f64) = tg(py)?
             .getattr("fixed_copper_zone_item_rect_py")?
-            .call1((polygon_list.clone(), margin))?
+            .call1((polygon_copy.clone(), margin))?
             .extract()?;
         let exact = PyDict::new(py);
-        exact.set_item("polygon", polygon_list)?;
+        exact.set_item("polygon", polygon_copy)?;
         let label = format!("zone {} net={}", name, self.label_net(&net));
         Ok(Some(Py::new(
             py,
@@ -715,14 +716,14 @@ impl FixedCopperBuilder {
                     let (hw, hh) = self.local_pad_half(py, &pin)?;
                     let number: String = getattr_py_str(py, &pin, "number", "")?;
                     let net = getattr_opt_str(py, &pin, "net")?;
-                    let center = getattr_pos(py, &pin, "position", (0.0, 0.0))?;
+                    let center = py_getattr(py, &pin, "position", (0.0, 0.0))?;
                     let pad = Py::new(
                         py,
                         PadRectLocal {
                             number,
                             net,
                             layers: layers.unbind(),
-                            center,
+                            center: center.unbind(),
                             half: (hw, hh),
                         },
                     )?;
@@ -857,7 +858,9 @@ impl FixedCopperBuilder {
             let pads_by_ref = pads_by_ref.cast::<PyDict>()?;
             for (ref_obj, pads) in pads_by_ref.iter() {
                 let ref_str: String = ref_obj.extract()?;
-                let center: Option<(f64, f64)> = resolved_positions_mm.get_item(ref_str.as_str())?.extract()?;
+                let center: Option<(f64, f64)> = resolved_positions_mm
+                    .call_method1("get", (ref_str.as_str(),))?
+                    .extract()?;
                 let Some(center) = center else {
                     violations.append(Py::new(
                         py,
@@ -874,7 +877,9 @@ impl FixedCopperBuilder {
                     )?)?;
                     continue;
                 };
-                let rot_raw: Option<f64> = resolved_rotations.get_item(ref_str.as_str())?.extract()?;
+                let rot_raw: Option<f64> = resolved_rotations
+                    .call_method1("get", (ref_str.as_str(),))?
+                    .extract()?;
                 let rot_idx = rot_raw.map(|r| r as i64).unwrap_or(0);
                 let pads = pads.cast::<PyList>()?;
                 let mut comp_nets: HashSet<String> = HashSet::new();
@@ -888,7 +893,7 @@ impl FixedCopperBuilder {
                 for p in pads.iter() {
                     let p = p.cast::<PadRectLocal>()?;
                     let p = p.borrow();
-                    let (lx, ly) = p.center;
+                    let (lx, ly): (f64, f64) = p.center.bind(py).extract()?;
                     let (hw, hh) = p.half;
                     let rect: (f64, f64, f64, f64) = tg(py)?
                         .getattr("fixed_copper_pad_world_rect_py")?
@@ -1016,12 +1021,13 @@ mod tests {
                 number: "1".into(),
                 net: Some("NET_A".into()),
                 layers: layers.unbind(),
-                center: (0.0, 0.0),
+                center: (0.0, 0.0).into_pyobject(py).unwrap().into_any().unbind(),
                 half: (0.5, 0.5),
             };
             assert_eq!(pad.number, "1");
             assert_eq!(pad.net.as_deref(), Some("NET_A"));
-            assert_eq!(pad.center, (0.0, 0.0));
+            let center: (f64, f64) = pad.center.bind(py).extract().unwrap();
+            assert_eq!(center, (0.0, 0.0));
             assert_eq!(pad.half, (0.5, 0.5));
             assert_eq!(pad.layers.bind(py).len(), 1);
         })

@@ -246,20 +246,57 @@ and ``.vias`` are raw board coordinates. ``build_fixed_copper_items``
 therefore subtracts ``board.origin`` from every trace and via before
 building items, so all items live in the solver's normalized frame. This
 is load-bearing; see the evidence doc.
+
+---
+
+**Phase E batch E2 (rust-orchestration-engine plan 2026-08-09-001):** the
+build orchestration — ``build_free_component_pads`` /
+``build_fixed_copper_items`` / ``audit_fixed_copper`` — and the
+``PadRectLocal`` / ``FixedCopperItem`` / ``FixedCopperAuditViolation``
+contract dataclasses move to ``temper-design-bundle`` (the
+``temper_design_bundle_python.fixed_copper_builder`` submodule) as the
+``FixedCopperBuilder`` pyclass plus the three contract pyclasses. This
+module keeps the pre-migration public API (``__all__``) unchanged and
+re-exports the pyclasses (the pure-delegation pattern, mirroring
+``core/net_types.py``). See the ``fixed_copper_builder.rs`` module docstring
+for the full split.
+
+What stays Python (the ortools boundary, plan D4 KEEP verdict):
+
+- ``encode_fixed_copper_constraints`` / ``_pad_rotation_tables_with`` /
+  ``_add_no_overlap`` — they build ``ortools.CpModel`` calls directly
+  (``NewBoolVar`` / ``AddBoolOr`` / ``OnlyEnforceIf`` / ``AddElement`` via
+  ``CpSatModel.model_ref``); that is the CP-SAT solver boundary.
+- The pure geometry predicates (``pad_world_rect`` /
+  ``encoded_pad_world_rect`` / ``exact_clearance_mm`` / ``exact_overlap`` /
+  ``encoded_overlap`` / ``encoded_overlap_edges`` / ``segment_slack_mm``)
+  — one-line delegations to the pinned ``temper-geometry`` kernels, kept
+  here so the encode path and the BMC tests consume the same object API.
 """
 
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
+import temper_design_bundle_python as _tdb
 import temper_geometry as _tg
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.model import CpSatModel
 
 logger = logging.getLogger(__name__)
+
+# Phase E batch E2: the contract pyclasses + build orchestration live in the
+# Rust `fixed_copper_builder` submodule; these names re-export the pyclasses
+# (the pure-delegation pattern). Attribute access rather than `import
+# temper_design_bundle_python.fixed_copper_builder` — the submodule is
+# registered as a parent attribute, not inserted into `sys.modules` (the
+# established convention across this crate's shims).
+_fcb = _tdb.fixed_copper_builder
+FixedCopperAuditViolation = _fcb.FixedCopperAuditViolation
+FixedCopperItem = _fcb.FixedCopperItem
+PadRectLocal = _fcb.PadRectLocal
 
 # The four copper layers of the temper 4-layer stackup (KiCad names).
 COPPER_LAYERS = frozenset({"F.Cu", "B.Cu", "In1.Cu", "In2.Cu"})
@@ -341,95 +378,6 @@ def _mm_to_fine_units(mm: float) -> int:
     return _tg.fixed_copper_mm_to_fine_units_py(mm)
 
 
-@dataclass(frozen=True)
-class PadRectLocal:
-    """One pad of a *free* component, in the component's local (pre-
-    rotation) placement frame.
-
-    ``center`` is the pad's offset from the component placement centre (mm,
-    solver frame) and ``half`` its local half-extents (mm). ``layers`` is
-    the set of copper layers the pad occupies (all four for THT pads).
-    """
-
-    number: str
-    net: str | None
-    layers: frozenset[str]
-    center: tuple[float, float]
-    half: tuple[float, float]
-
-
-@dataclass(frozen=True)
-class FixedCopperItem:
-    """One fixed-copper obstacle.
-
-    ``rect`` is the *encoded* obstacle: the conservative axis-aligned box,
-    already expanded by the margin, in mm. ``exact`` is the raw copper
-    geometry consumed by the oracle/audit (see ``exact_clearance_mm``).
-    ``slack_mm`` is the documented worst-case conservatism this item's box
-    introduces over its exact shape (see module docstring).
-    """
-
-    kind: str  # "segment" | "via" | "zone" | "pad"
-    net: str | None
-    layers: frozenset[str]
-    rect: tuple[float, float, float, float]  # (x0, y0, x1, y1) expanded, mm
-    exact: Any
-    slack_mm: float
-    margin_mm: float
-    label: str = ""
-    # Optional polygon-exact zone encoding. ``edges`` holds one entry per
-    # polygon edge for a CONVEX zone polygon (any orientation -- diagonal
-    # edges allowed; issue #651): a pad is disjoint from the convex polygon
-    # iff it lies wholly outside AT LEAST ONE edge half-plane, encoded as a
-    # single BoolOr over one literal per edge (the direct analogue of the
-    # 4-way bbox disjunction).
-    #
-    # Two entry formats coexist:
-    #   ("x"|"y", coord, sign) -- axis-aligned edge (the #567 form). ``coord``
-    #     is in mm (already shifted by margin), ``sign`` encodes which side
-    #     of the edge line the polygon interior lies AWAY from, i.e. the side
-    #     the pad must be on to be separated:
-    #       ("x", c, +1) -> pad.x_min >= c   (interior is at x < c)
-    #       ("x", c, -1) -> pad.x_max <= c   (interior is at x > c)
-    #       ("y", c, +1) -> pad.y_min >= c   (interior is at y < c)
-    #       ("y", c, -1) -> pad.y_max <= c   (interior is at y > c)
-    #   ("n", a, b, r) -- diagonal edge (issue #651). The pad clears iff its
-    #     minimum of the outward linear form is beyond the shifted offset:
-    #         min over pad of (a*x + b*y) >= r
-    #     where (a, b) = (dy, -dx) are the edge's direction components in
-    #     MODEL UNITS (integers; CP-SAT needs integer coefficients) and ``r``
-    #     is the integer RHS in model units = ceil(D0 + (margin + headroom)*L)
-    #     with D0 = a*x0u + b*y0u, L the edge length in units -- rounded UP
-    #     (conservative) and embedding the integer-grid headroom.
-    #
-    # For a CONVEX polygon the encoding is exact in the #567 sense for
-    # rectilinear zones and sound-but-conservative for diagonal-edge zones
-    # (chamfer-corner + large-pad conservatism, documented in the module
-    # docstring). For a non-convex polygon the edge half-planes describe the
-    # CONVEX HULL: encoded-clear then implies the pad is outside the hull,
-    # hence outside the polygon -- still SOUND, but the bbox fallback is
-    # used instead (edges=None) to keep the hull-minus-polygon reach out of
-    # the picture.
-    # ``rect`` remains the bbox for the encoded_overlap BMC mirror and the
-    # slack bookkeeping.
-    edges: tuple | None = None
-
-
-@dataclass
-class FixedCopperAuditViolation:
-    """A post-solve mismatch: an encoded-clear placement whose exact
-    pad-to-copper clearance is below the margin (an encoding bug)."""
-
-    ref: str
-    pad_number: str
-    item_label: str
-    item_kind: str
-    item_net: str | None
-    required_mm: float
-    actual_mm: float
-    reason: str
-
-
 __all__ = [
     "COPPER_LAYERS",
     "DEFAULT_MARGIN_MM",
@@ -450,34 +398,119 @@ __all__ = [
 
 
 # ---------------------------------------------------------------------------
-# Pad geometry
+# Pad geometry (pure predicates — one-line delegations to the pinned
+# temper-geometry kernels)
 # ---------------------------------------------------------------------------
 
 
-def _pin_copper_layers(pin: Any) -> frozenset[str]:
-    """The copper layers a parsed Pin occupies.
+def _rotated(pad: PadRectLocal, rot_idx: int) -> tuple[float, float, float, float]:
+    """World-frame (offset_x, offset_y, half_w, half_h) of a pad under one
+    of the model's four quadrant rotations.
 
-    Through-hole pads (``layer == "all"`` or ``is_pth``) sit on all four
-    copper layers; SMD pads on their declared copper layer.
+    Uses the exact hand-unrolled closed form of the repo's sanctioned KiCad
+    R(−θ) convention (``geometry/kicad_transform.py``;
+    ``isolation_barrier.py::_project_onto_barrier_axis``) so the integer
+    model never sees ``cos(90°)=6.1e-17``-style float noise:
+        rot 0: (lx, ly), halves (hw, hh)
+        rot 1: (ly, −lx), halves (hh, hw)
+        rot 2: (−lx, −ly), halves (hw, hh)
+        rot 3: (−ly, lx), halves (hh, hw)
+
+    Computed in the ``temper-geometry`` Rust crate.
     """
-    is_pth = getattr(pin, "is_pth", False)
-    layer = getattr(pin, "layer", None)
-    return frozenset(_tg.fixed_copper_pin_copper_layers_py(is_pth, layer))
+    lx, ly = pad.center
+    hw, hh = pad.half
+    return _tg.fixed_copper_rotated_py(lx, ly, hw, hh, rot_idx)
 
 
-def _local_pad_half(pin: Any) -> tuple[float, float]:
-    """Conservative local half-extents (hw, hh) of one pin's copper,
-    accounting for the pad's own intrinsic rotation.
+def pad_world_rect(
+    pad: PadRectLocal, center_mm: tuple[float, float], rot_idx: int
+) -> tuple[float, float, float, float]:
+    """The pad's world axis-aligned rectangle (x0, y0, x1, y1) in mm for a
+    component placed at ``center_mm`` with quadrant rotation ``rot_idx``.
 
-    For an axis-aligned local rectangle the half-extents are exactly
-    ``(width/2, height/2)``. If the pad carries a non-zero intrinsic
-    rotation (``pad_rotation_deg``), the *axis-aligned bounding box* of the
-    rotated rectangle is used — a conservative superset of the real copper.
+    This is the exact geometry the post-solve audit re-derives from resolved
+    coordinates; the CP-SAT encoding below encodes the same rectangle
+    affinely (offset + half-extent tables) so the two cannot drift.
+
+    Computed in the ``temper-geometry`` Rust crate.
     """
-    width = float(getattr(pin, "width", 1.0))
-    height = float(getattr(pin, "height", 1.0))
-    pad_rotation_deg = float(getattr(pin, "pad_rotation_deg", 0.0))
-    return _tg.fixed_copper_local_pad_half_py(width, height, pad_rotation_deg)
+    lx, ly = pad.center
+    hw, hh = pad.half
+    cx, cy = center_mm
+    return _tg.fixed_copper_pad_world_rect_py(lx, ly, hw, hh, rot_idx, cx, cy)
+
+
+def encoded_pad_world_rect(
+    pad: PadRectLocal, center_mm: tuple[float, float], rot_idx: int
+) -> tuple[float, float, float, float]:
+    """The pad's world rectangle as the CP-SAT ENCODER represents it (mm).
+
+    Identical to ``pad_world_rect`` except the half-extents are clamped to
+    ``_MIN_HALF_MM`` (0.01 mm) before the world transform, mirroring
+    ``_pad_rotation_tables_with``'s ``max(_MIN_HALF_UNITS, ...)`` exactly.
+    The BMC soundness sweep must evaluate the *encoded* predicate (this
+    rect) against the *exact* oracle (``exact_clearance_mm`` on
+    ``pad_world_rect``), so a degenerate pad is a 0.02 mm box in the
+    encoding but a point in the oracle -- and the clamp is precisely what
+    keeps the encoded predicate sound at the boundary (the point sits at
+    exactly the margin distance and the clamped box still overlaps).
+
+    Computed in the ``temper-geometry`` Rust crate.
+    """
+    lx, ly = pad.center
+    hw, hh = pad.half
+    cx, cy = center_mm
+    return _tg.fixed_copper_encoded_pad_world_rect_py(lx, ly, hw, hh, rot_idx, cx, cy)
+
+
+def segment_slack_mm(p0, p1, width, margin) -> float:
+    """Exact worst-case conservatism of a segment's bbox encoding (mm).
+
+    The encoded box is ``bbox(segment) ⊕ (width/2 + margin)``. A point in
+    the box that is *not* within the stadium (the exact copper swept by a
+    disc of radius ``width/2``) can have its exact clearance measured above
+    the margin by up to ``dist(point, segment) − width/2 − margin``. The
+    maximum over all points in the box is achieved at a box corner
+    (distance to a convex set is convex, and the box is a convex polygon,
+    so the max is at a vertex). This returns that exact per-segment
+    maximum, so the documented slack is truthful for every orientation —
+    including diagonal segments, where the axis-aligned-only closed form
+    ``(√2 − 1)·(width/2 + margin)`` under-reports (see module docstring).
+
+    Computed in the ``temper-geometry`` Rust crate.
+    """
+    return _tg.fixed_copper_segment_slack_mm_py(p0, p1, width, margin)
+
+
+def _rectilinear_convex_edges(
+    polygon: list[tuple[float, float]], margin: float
+) -> tuple | None:
+    """Return per-edge half-plane separations for a convex axis-aligned
+    polygon, or ``None`` if the polygon is not rectilinear/convex.
+
+    Computed in the ``temper-geometry`` Rust crate (``fixed_copper.rs``)
+    with the exact winding/convexity/edge-classification logic of the
+    former pure-Python body.
+    """
+    return _tg.fixed_copper_rectilinear_convex_edges_py(list(polygon), margin)
+
+
+def _convex_polygon_edges(
+    polygon: list[tuple[float, float]], margin_mm: float
+) -> tuple | None:
+    """Per-edge half-plane separations for ANY convex polygon — axis-aligned
+    or diagonal edges — or ``None`` if the polygon is non-convex/degenerate.
+
+    Computed in the ``temper-geometry`` Rust crate (``fixed_copper.rs``).
+    """
+    return _tg.fixed_copper_convex_polygon_edges_py(list(polygon), margin_mm)
+
+
+# ---------------------------------------------------------------------------
+# Fixed-copper build orchestration — Phase E batch E2: delegates to the Rust
+# FixedCopperBuilder pyclass (temper_design_bundle_python.fixed_copper_builder).
+# ---------------------------------------------------------------------------
 
 
 def build_free_component_pads(
@@ -497,308 +530,18 @@ def build_free_component_pads(
 
     Returns:
         ``{ref: [PadRectLocal, ...]}`` for the free refs (order stable).
+
+    Phase E batch E2: the orchestration runs in Rust
+    (``FixedCopperBuilder::build_free_component_pads``); the returned pads
+    are the design-bundle ``PadRectLocal`` pyclass, exposing the identical
+    fields.
     """
-    pads_by_ref: dict[str, list[PadRectLocal]] = {}
-    for comp in netlist.components:
-        ref = comp.ref
-        if ref not in free_refs:
-            continue
-        pads: list[PadRectLocal] = []
-        for pin in comp.pins:
-            layers = _pin_copper_layers(pin) & copper_layers
-            if not layers:
-                continue
-            hw, hh = _local_pad_half(pin)
-            pads.append(
-                PadRectLocal(
-                    number=str(getattr(pin, "number", "")),
-                    net=getattr(pin, "net", None),
-                    layers=layers,
-                    center=tuple(getattr(pin, "position", (0.0, 0.0))),
-                    half=(hw, hh),
-                )
-            )
-        pads_by_ref[ref] = pads
-    return pads_by_ref
-
-
-def _rotated(pad: PadRectLocal, rot_idx: int) -> tuple[float, float, float, float]:
-    """World-frame (offset_x, offset_y, half_w, half_h) of a pad under one
-    of the model's four quadrant rotations.
-
-    Uses the exact hand-unrolled closed form of the repo's sanctioned KiCad
-    R(−θ) convention (``geometry/kicad_transform.py``;
-    ``isolation_barrier.py::_project_onto_barrier_axis``) so the integer
-    model never sees ``cos(90°)=6.1e-17``-style float noise:
-        rot 0: (lx, ly), halves (hw, hh)
-        rot 1: (ly, −lx), halves (hh, hw)
-        rot 2: (−lx, −ly), halves (hw, hh)
-        rot 3: (−ly, lx), halves (hh, hw)
-    """
-    lx, ly = pad.center
-    hw, hh = pad.half
-    return _tg.fixed_copper_rotated_py(lx, ly, hw, hh, rot_idx)
-
-
-def pad_world_rect(
-    pad: PadRectLocal, center_mm: tuple[float, float], rot_idx: int
-) -> tuple[float, float, float, float]:
-    """The pad's world axis-aligned rectangle (x0, y0, x1, y1) in mm for a
-    component placed at ``center_mm`` with quadrant rotation ``rot_idx``.
-
-    This is the exact geometry the post-solve audit re-derives from resolved
-    coordinates; the CP-SAT encoding below encodes the same rectangle
-    affinely (offset + half-extent tables) so the two cannot drift.
-    """
-    lx, ly = pad.center
-    hw, hh = pad.half
-    cx, cy = center_mm
-    return _tg.fixed_copper_pad_world_rect_py(lx, ly, hw, hh, rot_idx, cx, cy)
-
-
-def _clamped_half_mm(half_mm: float) -> float:
-    """The half-extent (mm) the CP-SAT encoder actually encodes for a pad of
-    local half-extent ``half_mm``.
-
-    ``_pad_rotation_tables_with`` clamps every half-extent to a minimum of
-    ``_MIN_HALF_UNITS`` model units (0.01 mm) so the encoded interval stays
-    strictly non-degenerate (CP-SAT intervals require positive size). A
-    genuinely degenerate pad (zero-size rectangle) therefore encodes as a
-    0.02 mm-wide box, NOT a point -- strictly more conservative than the
-    exact geometry. This function mirrors that clamp in mm so the BMC
-    test's encoded predicate and the encoder cannot drift apart.
-    """
-    return max(_MIN_HALF_MM, half_mm)
-
-
-def encoded_pad_world_rect(
-    pad: PadRectLocal, center_mm: tuple[float, float], rot_idx: int
-) -> tuple[float, float, float, float]:
-    """The pad's world rectangle as the CP-SAT ENCODER represents it (mm).
-
-    Identical to ``pad_world_rect`` except the half-extents are clamped to
-    ``_MIN_HALF_MM`` (0.01 mm) before the world transform, mirroring
-    ``_pad_rotation_tables_with``'s ``max(_MIN_HALF_UNITS, ...)`` exactly.
-    The BMC soundness sweep must evaluate the *encoded* predicate (this
-    rect) against the *exact* oracle (``exact_clearance_mm`` on
-    ``pad_world_rect``), so a degenerate pad is a 0.02 mm box in the
-    encoding but a point in the oracle -- and the clamp is precisely what
-    keeps the encoded predicate sound at the boundary (the point sits at
-    exactly the margin distance and the clamped box still overlaps).
-    """
-    lx, ly = pad.center
-    hw, hh = pad.half
-    cx, cy = center_mm
-    return _tg.fixed_copper_encoded_pad_world_rect_py(lx, ly, hw, hh, rot_idx, cx, cy)
-
-
-# ---------------------------------------------------------------------------
-# Fixed-copper item building
-# ---------------------------------------------------------------------------
-
-
-def segment_slack_mm(p0, p1, width, margin) -> float:
-    """Exact worst-case conservatism of a segment's bbox encoding (mm).
-
-    The encoded box is ``bbox(segment) ⊕ (width/2 + margin)``. A point in
-    the box that is *not* within the stadium (the exact copper swept by a
-    disc of radius ``width/2``) can have its exact clearance measured above
-    the margin by up to ``dist(point, segment) − width/2 − margin``. The
-    maximum over all points in the box is achieved at a box corner
-    (distance to a convex set is convex, and the box is a convex polygon,
-    so the max is at a vertex). This returns that exact per-segment
-    maximum, so the documented slack is truthful for every orientation —
-    including diagonal segments, where the axis-aligned-only closed form
-    ``(√2 − 1)·(width/2 + margin)`` under-reports (see module docstring).
-
-    Computed in the ``temper-geometry`` Rust crate, using THIS module's own
-    point-segment-distance convention (exact ``dx == 0.0 and dy == 0.0``
-    degenerate check -- see the crate's module header for why it is a
-    deliberately separate function from the rest of the crate's
-    point-to-segment kernels).
-    """
-    return _tg.fixed_copper_segment_slack_mm_py(p0, p1, width, margin)
-
-
-def _segment_item(start, end, width, net, layers, margin) -> FixedCopperItem:
-    """Conservative box for a thick trace segment (see module docstring).
-
-    The encoded box adds ``_GRID_HEADROOM_MM`` beyond the physical margin:
-    ``bbox(segment) ⊕ (width/2 + margin + headroom)``. The headroom is the
-    integer-grid soundness term (see its definition) -- without it, the
-    round-half-even unit conversion of the pad edges and item edges can
-    erode up to 1.5 units (0.015 mm) of the encoded margin, letting a
-    feasible solve place a pad 0.04 mm (not 0.05 mm) from copper (measured
-    on the real board; the R24 audit caught it). ``item.exact`` keeps the
-    raw copper for the oracle/audit, which still compares against the
-    *physical* ``margin``.
-    """
-    (x1a, y1a), (x2a, y2a) = (float(start[0]), float(start[1])), (float(end[0]), float(end[1]))
-    (x0, y0, x1, y1), slack_mm = _tg.fixed_copper_segment_item_geom_py(
-        (x1a, y1a), (x2a, y2a), width, margin
-    )
-    return FixedCopperItem(
-        kind="segment",
-        net=net,
-        layers=layers,
-        rect=(x0, y0, x1, y1),
-        exact={"p0": (x1a, y1a), "p1": (x2a, y2a), "width": width},
-        slack_mm=slack_mm,
-        margin_mm=margin,
-        label=f"segment {net} ({x1a:.2f},{y1a:.2f})-({x2a:.2f},{y2a:.2f})",
-    )
-
-
-def _via_item(position, diameter, net, layers, margin) -> FixedCopperItem:
-    x, y = float(position[0]), float(position[1])
-    (x0, y0, x1, y1), slack_mm = _tg.fixed_copper_via_item_geom_py((x, y), diameter, margin)
-    return FixedCopperItem(
-        kind="via",
-        net=net,
-        layers=layers,
-        rect=(x0, y0, x1, y1),
-        exact={"center": (x, y), "diameter": diameter},
-        slack_mm=slack_mm,
-        margin_mm=margin,
-        label=f"via {net} ({x:.2f},{y:.2f}) d={diameter:.2f}",
-    )
-
-
-
-def _rectilinear_convex_edges(
-    polygon: list[tuple[float, float]], margin: float
-) -> tuple | None:
-    """Return per-edge half-plane separations for a convex axis-aligned
-    polygon, or ``None`` if the polygon is not rectilinear/convex.
-
-    Each edge is returned as (axis, coord, sign) per ``FixedCopperItem.edges``
-    -- the half-plane the polygon interior lies strictly on one side of,
-    with ``sign`` pointing AWAY from the interior (the side a pad must be on
-    to be separated). Edges are shifted outward by ``margin`` so a pad at
-    exactly the margin distance is accepted. For a CONVEX polygon the
-    encoding is exact: a pad is disjoint from the polygon iff it clears at
-    least one edge half-plane (one BoolOr over the per-edge literals).
-
-    Computed in the ``temper-geometry`` Rust crate (``fixed_copper.rs``)
-    with the exact winding/convexity/edge-classification logic of the
-    former pure-Python body.
-    """
-    return _tg.fixed_copper_rectilinear_convex_edges_py(list(polygon), margin)
-
-
-def _convex_polygon_edges(
-    polygon: list[tuple[float, float]], margin_mm: float
-) -> tuple | None:
-    """Per-edge half-plane separations for ANY convex polygon — axis-aligned
-    or diagonal edges — or ``None`` if the polygon is non-convex/degenerate.
-
-    Generalizes ``_rectilinear_convex_edges`` (#567) to general convex
-    polygons (issue #651). A convex polygon is the intersection of its edge
-    half-planes, so a pad is disjoint from it iff it lies wholly outside at
-    least one edge half-plane — one ``BoolOr`` over one literal per edge
-    (see ``FixedCopperItem.edges`` for the two entry formats).
-
-    * Axis-aligned edges keep the #567 ``("x"|"y", coord, sign)`` form
-      (mm, margin-shifted) so convex rectilinear zones behave exactly as
-      before.
-    * Diagonal edges are ``("n", a, b, r)``: the pad clears iff
-      ``min over pad of (a*x + b*y) >= r`` with x, y the pad's world rect
-      in model units, ``(a, b) = 100*(dy, -dx)`` the edge direction scaled
-      to integer model-unit coefficients, and ``r = ceil(D0 + (margin +
-      headroom) * L)`` where ``D0 = dy*x0 + (-dx)*y0`` and ``L`` is the
-      edge length -- all at 100x model resolution (0.0001 mm) so short
-      edges keep their true slope (quantizing to the 0.01 mm model grid
-      rotates the half-plane of a sub-0.1 mm edge enough to exclude
-      polygon vertices -- the unsoundness fixed 2026-08-04). The RHS is
-      rounded UP (a larger RHS is a stricter separation -- the conservative
-      direction) and embeds the integer-grid headroom so the quantization
-      of the vertices and pad edges can never push the guaranteed clearance
-      below the physical margin.
-
-    The polygon is normalized to CCW winding first; the interior of a CCW
-    polygon is LEFT of every directed edge, so the outward (exterior) side
-    is RIGHT and the pad must satisfy ``(dy, -dx) . p >= edge offset``.
-    Soundness and conservatism are documented in the module docstring
-    (convex-zone soundness section).
-
-    Computed in the ``temper-geometry`` Rust crate (``fixed_copper.rs``),
-    including the delegation to ``_rectilinear_convex_edges`` for a purely
-    rectilinear polygon.
-    """
-    return _tg.fixed_copper_convex_polygon_edges_py(list(polygon), margin_mm)
-
-
-
-def _zone_item(zone, margin) -> FixedCopperItem | None:
-    """Conservative box for a zone (pour) outline.
-
-    Returns ``None`` for zones with no usable polygon (degenerate/empty).
-    """
-    polygon = zone.polygon
-    if not polygon or len(polygon) < 3:
-        return None
-    margin = float(margin)
-    layers = frozenset(zone.layers) & COPPER_LAYERS
-    if not layers:
-        return None
-    net = zone.net_classes[0] if zone.net_classes else None
-    edges = _convex_polygon_edges(polygon, margin)
-    if edges is None:
-        # Non-convex or degenerate polygon: fall back to the documented bbox
-        # encoding (sound; slack unbounded by construction, see docstring).
-        # On the production board all 96 zone items are convex, so this
-        # fallback is unreachable there (verified 2026-08-04).
-        edges = None
-    # The bbox corner overhang vs the polygon is not bounded analytically
-    # for an arbitrary outline (a long diagonal pour's bbox corner can be
-    # arbitrarily far from the polygon), so slack is recorded as
-    # unbounded-by-construction and the conservatism is documented, not
-    # bounded. The soundness direction (bbox ⊇ polygon ⊕ margin) is what
-    # the proof needs; the slack bound is the documented future tightening.
-    return FixedCopperItem(
-        kind="zone",
-        net=net,
-        layers=layers,
-        rect=_tg.fixed_copper_zone_item_rect_py(list(polygon), margin),
-        exact={"polygon": list(polygon)},
-        slack_mm=float("inf"),
-        margin_mm=margin,
-        label=f"zone {zone.name} net={net}",
-        edges=edges,
-    )
-
-
-def _other_component_pad_item(
-    comp: Any, pin: Any, margin: float, copper_layers: frozenset[str]
-) -> FixedCopperItem | None:
-    """One pinned component's pad as a fixed obstacle, in the solver frame.
-
-    Uses the pinned component's ``initial_position``/``initial_rotation``
-    (its solver-fixed placement), the same frame ``build_free_component_pads``
-    uses for free components' pads.
-    """
-    layers = _pin_copper_layers(pin) & copper_layers
-    if not layers:
-        return None
-    center = comp.initial_position
-    if center is None:
-        return None
-    rot_idx = int(comp.initial_rotation or 0)
-    hw, hh = _local_pad_half(pin)
-    lx, ly = (float(pin.position[0]), float(pin.position[1]))
-    cx, cy = float(center[0]), float(center[1])
-    rect, encoded_rect, slack_mm = _tg.fixed_copper_other_pad_item_geom_py(
-        lx, ly, hw, hh, rot_idx, cx, cy, margin
-    )
-    return FixedCopperItem(
-        kind="pad",
-        net=getattr(pin, "net", None),
-        layers=layers,
-        rect=encoded_rect,
-        exact={"rect": rect},
-        slack_mm=slack_mm,
-        margin_mm=margin,
-        label=f"pad {comp.ref}.{pin.number} net={pin.net}",
+    return (
+        _fcb.FixedCopperBuilder(
+            netlist=netlist,
+            free_refs=free_refs,
+            copper_layers=copper_layers,
+        ).build_free_component_pads()
     )
 
 
@@ -836,52 +579,26 @@ def build_fixed_copper_items(
     Returns:
         List of ``FixedCopperItem`` in a stable order (traces, vias, zones,
         then other pads).
+
+    Phase E batch E2: the orchestration runs in Rust
+    (``FixedCopperBuilder::build_fixed_copper_items``); the returned items
+    are the design-bundle ``FixedCopperItem`` pyclass, exposing the
+    identical fields.
     """
-    board = parse_result.board
-    origin = tuple(board.origin) if board is not None else (0.0, 0.0)
-    ox0, oy0 = float(origin[0]), float(origin[1])
-
-    items: list[FixedCopperItem] = []
-
-    # Traces (raw frame -> normalized).
-    for t in parse_result.traces:
-        if t.layer not in copper_layers:
-            continue
-        start = (t.start[0] - ox0, t.start[1] - oy0)
-        end = (t.end[0] - ox0, t.end[1] - oy0)
-        items.append(
-            _segment_item(start, end, t.width, t.net, frozenset({t.layer}), margin_mm)
-        )
-
-    # Vias (raw frame -> normalized).
-    for v in parse_result.vias:
-        layers = frozenset(v.layers) & copper_layers
-        if not layers:
-            continue
-        pos = (v.position[0] - ox0, v.position[1] - oy0)
-        items.append(_via_item(pos, v.diameter, v.net, layers, margin_mm))
-
-    # Zones (already normalized).
-    for z in board.zones if board is not None else []:
-        item = _zone_item(z, margin_mm)
-        if item is not None:
-            items.append(item)
-
-    # Pinned components' pads.
-    if include_other_pads:
-        for comp in netlist.components:
-            if comp.ref in free_refs:
-                continue
-            for pin in comp.pins:
-                item = _other_component_pad_item(comp, pin, margin_mm, copper_layers)
-                if item is not None:
-                    items.append(item)
-
-    return items
+    return (
+        _fcb.FixedCopperBuilder(
+            netlist=netlist,
+            free_refs=free_refs,
+            parse_result=parse_result,
+            margin_mm=margin_mm,
+            include_other_pads=include_other_pads,
+            copper_layers=copper_layers,
+        ).build_fixed_copper_items()
+    )
 
 
 # ---------------------------------------------------------------------------
-# CP-SAT encoding
+# CP-SAT encoding — the ortools boundary (plan D4 KEEP verdict); stays Python.
 # ---------------------------------------------------------------------------
 
 
@@ -900,6 +617,9 @@ def encode_fixed_copper_constraints(
 
     Returns:
         The assumption labels created (one per free component with pads).
+
+    Phase E batch E2: this is the ortools-coupled surface that stays Python
+    (see the module docstring's split note).
     """
     refs = free_refs if free_refs is not None else set(pads_by_ref)
     labels: list[str] = []
@@ -1033,69 +753,15 @@ def _add_no_overlap(
 # ---------------------------------------------------------------------------
 
 
-def _point_segment_distance(p: tuple[float, float], a: tuple[float, float], b: tuple[float, float]) -> float:
-    """Euclidean distance from a point to a segment.
-
-    Computed in the ``temper-geometry`` Rust crate, using THIS module's own
-    ``dx == 0.0 and dy == 0.0`` degenerate check (see that crate's module
-    header for why it is a deliberately separate function from the rest of
-    the crate's point-to-segment kernels).
-    """
-    return _tg.fixed_copper_point_segment_distance_py(p, a, b)
-
-
-def _point_rect_distance(p: tuple[float, float], rect: tuple[float, float, float, float]) -> float:
-    """Euclidean distance from a point to an axis-aligned rectangle (0 if inside).
-
-    Computed in the ``temper-geometry`` Rust crate.
-    """
-    return _tg.fixed_copper_point_rect_distance_py(p, rect)
-
-
-def _segments_intersect(a0, a1, b0, b1) -> bool:
-    """True if segments a0-a1 and b0-b1 properly or improperly intersect.
-
-    Computed in the ``temper-geometry`` Rust crate.
-    """
-    return _tg.fixed_copper_segments_intersect_py(a0, a1, b0, b1)
-
-
-def _rect_segment_distance(rect: tuple[float, float, float, float], a, b) -> float:
-    """Euclidean distance from an axis-aligned rect to a segment (0 if they
-    intersect). Exact for convex sets: check intersection, then min over
-    vertex-to-opposite-set distances.
-
-    Computed in the ``temper-geometry`` Rust crate.
-    """
-    return _tg.fixed_copper_rect_segment_distance_py(rect, a, b)
-
-
-def _rect_rect_gap(ra: tuple[float, float, float, float], rb: tuple[float, float, float, float]) -> float:
-    """Gap (edge-to-edge) between two axis-aligned rectangles; 0 if they
-    overlap or touch.
-
-    Computed in the ``temper-geometry`` Rust crate.
-    """
-    return _tg.fixed_copper_rect_rect_gap_py(ra, rb)
-
-
 def exact_clearance_mm(pad_rect: tuple[float, float, float, float], item: FixedCopperItem) -> float:
     """The exact copper-to-copper clearance between a pad's world rectangle
     and an item's raw copper shape (mm), 0 if they touch/overlap.
 
     This is the truthful oracle the BMC test and the post-solve audit share.
 
-    Computed in the ``temper-geometry`` Rust crate for all four item kinds,
-    including ``zone`` (a from-scratch point-in-polygon + per-edge
-    rect-segment-distance kernel, NOT a reimplementation of shapely/GEOS's
-    internal distance algorithm bit-for-bit -- see that crate's module
-    header for the one documented gap, the ``poly.buffer(0)``
-    self-intersection repair for an invalid/self-intersecting polygon,
-    which is out of scope for a from-scratch Rust port). This module's own
-    ``TestFixedCopperSoundnessBMC``/``TestZonePolygonExactBMC``/
-    ``TestZoneGeneralConvexBMC`` (150k+ cases against the production board
-    and synthetic zone shapes) is the authoritative soundness/conservatism
-    proof for the zone kernel.
+    Computed in the ``temper-geometry`` Rust crate for all four item kinds
+    (see the module docstring for the zone kernel's one documented gap vs
+    shapely).
     """
     if item.kind == "segment":
         p0, p1 = item.exact["p0"], item.exact["p1"]
@@ -1198,49 +864,12 @@ def audit_fixed_copper(
     Returns:
         List of violations; empty means every pad clears every applicable
         item by at least the item's margin.
+
+    Phase E batch E2: the audit orchestration runs in Rust
+    (``FixedCopperBuilder::audit_fixed_copper``); the returned violations
+    are the design-bundle ``FixedCopperAuditViolation`` pyclass, exposing
+    the identical fields.
     """
-    violations: list[FixedCopperAuditViolation] = []
-    for ref, pads in pads_by_ref.items():
-        center = resolved_positions_mm.get(ref)
-        if center is None:
-            violations.append(
-                FixedCopperAuditViolation(
-                    ref=ref,
-                    pad_number="",
-                    item_label="",
-                    item_kind="",
-                    item_net=None,
-                    required_mm=0.0,
-                    actual_mm=float("nan"),
-                    reason=f"missing resolved position for {ref}",
-                )
-            )
-            continue
-        rot_idx = int(resolved_rotations.get(ref, 0))
-        comp_nets = {p.net for p in pads if p.net}
-        for pad in pads:
-            rect = pad_world_rect(pad, center, rot_idx)
-            for item in items:
-                if not (pad.layers & item.layers):
-                    continue
-                if item.net is not None and item.net in comp_nets:
-                    continue
-                actual = exact_clearance_mm(rect, item)
-                if actual < item.margin_mm:
-                    violations.append(
-                        FixedCopperAuditViolation(
-                            ref=ref,
-                            pad_number=pad.number,
-                            item_label=item.label,
-                            item_kind=item.kind,
-                            item_net=item.net,
-                            required_mm=item.margin_mm,
-                            actual_mm=actual,
-                            reason=(
-                                f"{ref} pad {pad.number} is {actual:.4f}mm from "
-                                f"{item.kind} ({item.net}) but {item.margin_mm}mm "
-                                f"is required"
-                            ),
-                        )
-                    )
-    return violations
+    return _fcb.FixedCopperBuilder.audit_fixed_copper(
+        pads_by_ref, items, resolved_positions_mm, resolved_rotations
+    )
