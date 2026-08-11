@@ -144,6 +144,33 @@ const IO_TYPES_BUILT = 144;
 // packages/temper-pcl-ir/src/wasm_test_registry.rs's own header ("No
 // exclusion classes apply here").
 const PCL_IR_BUILT = 2;
+// The last three tiers (job: "deploy the last three registered-but-
+// undeployed crates", closing out gen_wasm_test_registry.py's CRATES dict).
+// All EXECUTABLE counts, measured 2026-08-11 with `node tools/wasm/
+// run_wasm_tests.mjs` against the actual build -- see
+// wasm_tier_topology.json's own header for the full registered/executable
+// derivation of each:
+//
+//   temper-constraints    registered 30, executable 29. The 30th,
+//                         ipc::tests::host_libm_symbols_actually_resolve,
+//                         carries `#[cfg(not(target_arch = "wasm32"))]` --
+//                         the same shape as temper-constraint-compiler's
+//                         70/69 gap.
+//   temper-rust-router    registered 20, executable 20 -- coincide, like
+//                         temper-design-bundle's 24/24 and
+//                         temper-io-types's 144/144.
+//   temper-orchestration  registered 91, executable 83 -- the largest gap
+//                         on the tier, two exclusion classes stacking: 1
+//                         `#[cfg(not(target_arch = "wasm32"))]` test
+//                         (host_math::tests::host_libm_symbols_actually_
+//                         resolve) plus 7 individually `#[cfg(feature =
+//                         "python")]`-gated tests scattered across three
+//                         otherwise-eligible modules (absent from BOTH the
+//                         native and wasm32 `--no-default-features`
+//                         builds identically, so not a divergence).
+const CONSTRAINTS_BUILT = 29;
+const RUST_ROUTER_BUILT = 20;
+const ORCHESTRATION_BUILT = 83;
 
 /**
  * Content-hash identity (issue #945), one fixed fake digest per full-corpus
@@ -165,6 +192,9 @@ const CONSTRAINT_COMPILER_SHA = "sha-constraint-compiler-fresh";
 const QUALITY_ORACLE_SHA = "sha-quality-oracle-fresh";
 const IO_TYPES_SHA = "sha-io-types-fresh";
 const PCL_IR_SHA = "sha-pcl-ir-fresh";
+const CONSTRAINTS_SHA = "sha-constraints-fresh";
+const RUST_ROUTER_SHA = "sha-rust-router-fresh";
+const ORCHESTRATION_SHA = "sha-orchestration-fresh";
 
 function freshCensus() {
   const census = {
@@ -205,6 +235,21 @@ function freshCensus() {
     abi_version: 1,
     module_sha256: PCL_IR_SHA,
   };
+  census["temper-wasm-constraints"] = {
+    test_count: CONSTRAINTS_BUILT,
+    abi_version: 1,
+    module_sha256: CONSTRAINTS_SHA,
+  };
+  census["temper-wasm-rust-router"] = {
+    test_count: RUST_ROUTER_BUILT,
+    abi_version: 1,
+    module_sha256: RUST_ROUTER_SHA,
+  };
+  census["temper-wasm-orchestration"] = {
+    test_count: ORCHESTRATION_BUILT,
+    abi_version: 1,
+    module_sha256: ORCHESTRATION_SHA,
+  };
   return census;
 }
 
@@ -234,6 +279,9 @@ const BUILT_CONSTRAINT_COMPILER = builtJson(
 const BUILT_QUALITY_ORACLE = builtJson("built_quality_oracle", QUALITY_ORACLE_BUILT, QUALITY_ORACLE_SHA);
 const BUILT_IO_TYPES = builtJson("built_io_types", IO_TYPES_BUILT, IO_TYPES_SHA);
 const BUILT_PCL_IR = builtJson("built_pcl_ir", PCL_IR_BUILT, PCL_IR_SHA);
+const BUILT_CONSTRAINTS = builtJson("built_constraints", CONSTRAINTS_BUILT, CONSTRAINTS_SHA);
+const BUILT_RUST_ROUTER = builtJson("built_rust_router", RUST_ROUTER_BUILT, RUST_ROUTER_SHA);
+const BUILT_ORCHESTRATION = builtJson("built_orchestration", ORCHESTRATION_BUILT, ORCHESTRATION_SHA);
 
 /**
  * The full, correct argument set: one built count per tier in the topology.
@@ -270,6 +318,12 @@ const ALL_BUILT = [
   BUILT_IO_TYPES,
   "--built-json-pcl-ir",
   BUILT_PCL_IR,
+  "--built-json-constraints",
+  BUILT_CONSTRAINTS,
+  "--built-json-rust-router",
+  BUILT_RUST_ROUTER,
+  "--built-json-orchestration",
+  BUILT_ORCHESTRATION,
 ];
 
 /**
@@ -341,7 +395,8 @@ console.log(
     `thermal=${THERMAL_BUILT}, design-bundle=${DESIGN_BUNDLE_BUILT}, ` +
     `router-core=${ROUTER_CORE_BUILT}, constraint-compiler=${CONSTRAINT_COMPILER_BUILT}, ` +
     `quality-oracle=${QUALITY_ORACLE_BUILT}, io-types=${IO_TYPES_BUILT}, ` +
-    `pcl-ir=${PCL_IR_BUILT}\n`,
+    `pcl-ir=${PCL_IR_BUILT}, constraints=${CONSTRAINTS_BUILT}, ` +
+    `rust-router=${RUST_ROUTER_BUILT}, orchestration=${ORCHESTRATION_BUILT}\n`,
 );
 
 // ---------------------------------------------------------------------------
@@ -597,6 +652,83 @@ console.log("\nB. a stale deployed count -> red, per crate");
     run(ALL_BUILT, stale),
     1,
     "STALE OR NON-PARTITIONING FAMILY SHARDS (temper-pcl-ir)",
+  );
+}
+{
+  // temper-constraints's own bite: deployed short.
+  const stale = freshCensus();
+  stale["temper-wasm-constraints"] = { test_count: CONSTRAINTS_BUILT - 1, abi_version: 1 };
+  expect(
+    "temper-constraints deployed 1 short",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE DEPLOYED CORPUS (temper-constraints)",
+  );
+}
+{
+  // Registered-vs-executable on temper-constraints: the registry names 30,
+  // the wasm32 build carries 29 (ipc::tests::host_libm_symbols_actually_
+  // resolve is `#[cfg(not(target_arch = "wasm32"))]`). 30 is the number a
+  // reader gets by counting the registry file -- the same trap temper-
+  // constraint-compiler (70 vs 69) and temper-quality-oracle (126 vs 125)
+  // already pin.
+  const stale = freshCensus();
+  expect(
+    "constraints built count given as 30 registered, not 29 executable",
+    run(withOverride("--expected-count-constraints", "30"), stale),
+    1,
+    "STALE DEPLOYED CORPUS (temper-constraints)",
+  );
+}
+{
+  // temper-rust-router's own bite: deployed short.
+  const stale = freshCensus();
+  stale["temper-wasm-rust-router"] = { test_count: RUST_ROUTER_BUILT - 1, abi_version: 1 };
+  expect(
+    "temper-rust-router deployed 1 short",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE DEPLOYED CORPUS (temper-rust-router)",
+  );
+}
+{
+  // The other direction on temper-rust-router: deployed LONG (e.g. the
+  // Worker still serves a build carrying the proptest module by mistake).
+  const stale = freshCensus();
+  stale["temper-wasm-rust-router"] = { test_count: RUST_ROUTER_BUILT + 3, abi_version: 1 };
+  expect(
+    "temper-rust-router deployed 3 long (deleted tests still live)",
+    run(ALL_BUILT, stale),
+    1,
+    "are not in this commit's temper-rust-router build",
+  );
+}
+{
+  // temper-orchestration's own bite: the largest single-family tier by
+  // registered count (91) on the whole topology, and the one with the
+  // biggest registered/executable gap (91 -> 83, two exclusion classes
+  // stacking). Deployed short.
+  const stale = freshCensus();
+  stale["temper-wasm-orchestration"] = { test_count: ORCHESTRATION_BUILT - 5, abi_version: 1 };
+  expect(
+    "temper-orchestration deployed 5 short",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE DEPLOYED CORPUS (temper-orchestration)",
+  );
+}
+{
+  // Registered-vs-executable on temper-orchestration, the sharpest version of
+  // this trap on the tier: 91 registered, only 83 executable -- an 8-test
+  // gap, more than double temper-quality-oracle's 1-test gap or temper-
+  // constraint-compiler's 1-test gap. Handing the checker 91 is the natural
+  // mistake reading wasm_test_registry.rs invites.
+  const stale = freshCensus();
+  expect(
+    "orchestration built count given as 91 registered, not 83 executable",
+    run(withOverride("--expected-count-orchestration", "91"), stale),
+    1,
+    "STALE DEPLOYED CORPUS (temper-orchestration)",
   );
 }
 
@@ -898,6 +1030,54 @@ expect(
   2,
   "No expected test count available for tier temper-pcl-ir",
 );
+// The walk continues three tiers further: temper-orchestration, temper-
+// constraints, temper-rust-router -- this PR's own addition, in the exact
+// topology order they were appended (see wasm_tier_topology.json's `tiers`
+// array). Same property restated at twelve tiers -- a caller that has caught
+// up to exactly yesterday's nine-tier argument set is still exit 2, naming
+// each new tier by itself, one flag at a time, never passing over any of them.
+const NINE_TIER_ARGS = [
+  ...YESTERDAYS_ARGS,
+  "--built-json-design-bundle",
+  BUILT_DESIGN_BUNDLE,
+  "--built-json-rust-router-core",
+  BUILT_ROUTER_CORE,
+  "--built-json-constraint-compiler",
+  BUILT_CONSTRAINT_COMPILER,
+  "--built-json-quality-oracle",
+  BUILT_QUALITY_ORACLE,
+  "--built-json-io-types",
+  BUILT_IO_TYPES,
+  "--built-json-pcl-ir",
+  BUILT_PCL_IR,
+];
+expect(
+  "  ...+ pcl-ir: now orchestration is named",
+  run(NINE_TIER_ARGS, freshCensus()),
+  2,
+  "No expected test count available for tier temper-orchestration",
+);
+expect(
+  "  ...+ orchestration: now constraints is named",
+  run([...NINE_TIER_ARGS, "--built-json-orchestration", BUILT_ORCHESTRATION], freshCensus()),
+  2,
+  "No expected test count available for tier temper-constraints",
+);
+expect(
+  "  ...+ constraints: now rust-router is named",
+  run(
+    [
+      ...NINE_TIER_ARGS,
+      "--built-json-orchestration",
+      BUILT_ORCHESTRATION,
+      "--built-json-constraints",
+      BUILT_CONSTRAINTS,
+    ],
+    freshCensus(),
+  ),
+  2,
+  "No expected test count available for tier temper-rust-router",
+);
 
 // ---------------------------------------------------------------------------
 // 5. Unreachable and ABI-mismatched Workers still fail rather than being
@@ -1044,6 +1224,53 @@ console.log("\nE. unreachable / wrong ABI -> red");
     "ABI mismatch",
   );
 }
+{
+  // The state THIS PR (job: "deploy the last three registered crates")
+  // leaves the tier in until the operator deploys: temper-wasm-orchestration,
+  // temper-wasm-constraints and temper-wasm-rust-router are all in the
+  // topology and none of them exists yet. All three must be named in one
+  // failure, same as the three-Worker case above for design-bundle/
+  // router-core/constraint-compiler.
+  const census = freshCensus();
+  delete census["temper-wasm-orchestration"];
+  delete census["temper-wasm-constraints"];
+  delete census["temper-wasm-rust-router"];
+  const res = run(ALL_BUILT, census);
+  expect("none of the three newest Workers deployed yet", res, 1, "did not report a usable /health census");
+  expect("  ...orchestration named", res, 1, "temper-wasm-orchestration (HTTP 404)");
+  expect("  ...constraints named", res, 1, "temper-wasm-constraints (HTTP 404)");
+  expect("  ...rust-router named", res, 1, "temper-wasm-rust-router (HTTP 404)");
+}
+{
+  const census = freshCensus();
+  census["temper-wasm-orchestration"] = { test_count: ORCHESTRATION_BUILT, abi_version: 2 };
+  expect(
+    "temper-wasm-orchestration speaks ABI 2",
+    run(ALL_BUILT, census),
+    1,
+    "ABI mismatch",
+  );
+}
+{
+  const census = freshCensus();
+  census["temper-wasm-constraints"] = { test_count: CONSTRAINTS_BUILT, abi_version: 2 };
+  expect(
+    "temper-wasm-constraints speaks ABI 2",
+    run(ALL_BUILT, census),
+    1,
+    "ABI mismatch",
+  );
+}
+{
+  const census = freshCensus();
+  census["temper-wasm-rust-router"] = { test_count: RUST_ROUTER_BUILT, abi_version: 2 };
+  expect(
+    "temper-wasm-rust-router speaks ABI 2",
+    run(ALL_BUILT, census),
+    1,
+    "ABI mismatch",
+  );
+}
 
 // ---------------------------------------------------------------------------
 // 6. --expected-count overrides behave per tier.
@@ -1061,6 +1288,9 @@ function allCounts(overrides = {}) {
     "temper-quality-oracle": QUALITY_ORACLE_BUILT,
     "temper-io-types": IO_TYPES_BUILT,
     "temper-pcl-ir": PCL_IR_BUILT,
+    "temper-orchestration": ORCHESTRATION_BUILT,
+    "temper-constraints": CONSTRAINTS_BUILT,
+    "temper-rust-router": RUST_ROUTER_BUILT,
   };
   return Object.entries({ ...base, ...overrides }).flatMap(([crate, n]) => [
     // temper-drc-rs is additionally reachable as the unsuffixed flag, and this
@@ -1123,6 +1353,24 @@ expect(
   run(allCounts({ "temper-pcl-ir": 999 }), freshCensus()),
   1,
   "STALE DEPLOYED CORPUS (temper-pcl-ir)",
+);
+expect(
+  "orchestration override NOT matching the deployed count",
+  run(allCounts({ "temper-orchestration": 999 }), freshCensus()),
+  1,
+  "STALE DEPLOYED CORPUS (temper-orchestration)",
+);
+expect(
+  "constraints override NOT matching the deployed count",
+  run(allCounts({ "temper-constraints": 999 }), freshCensus()),
+  1,
+  "STALE DEPLOYED CORPUS (temper-constraints)",
+);
+expect(
+  "rust-router override NOT matching the deployed count",
+  run(allCounts({ "temper-rust-router": 999 }), freshCensus()),
+  1,
+  "STALE DEPLOYED CORPUS (temper-rust-router)",
 );
 
 // ---------------------------------------------------------------------------
@@ -1219,6 +1467,65 @@ console.log("\nG. content hash (issue #945): count alone is not identity");
     run(ALL_BUILT, stale),
     1,
     "STALE DEPLOYED MODULE CONTENT (temper-pcl-ir, issue #945)",
+  );
+}
+{
+  // WRONG DIGEST on temper-orchestration, this PR's own addition and the
+  // tier with the largest registered/executable gap (91/83) -- proves the
+  // digest check catches a behaviour change independent of that trap too:
+  // count right, digest wrong.
+  const stale = freshCensus();
+  stale["temper-wasm-orchestration"] = {
+    test_count: ORCHESTRATION_BUILT,
+    abi_version: 1,
+    module_sha256: "sha-orchestration-WRONG",
+  };
+  const res = run(ALL_BUILT, stale);
+  expect(
+    "temper-orchestration: count right, digest wrong -> red",
+    res,
+    1,
+    "STALE DEPLOYED MODULE CONTENT (temper-orchestration, issue #945)",
+  );
+  if (res.out.includes("STALE DEPLOYED CORPUS (temper-orchestration)")) {
+    failures += 1;
+    console.log(
+      "  FAIL   count-right-digest-wrong case also tripped the COUNT check — the two checks are not independent",
+    );
+  } else {
+    console.log("  PASS   ...and confirmed: STALE DEPLOYED CORPUS (temper-orchestration) did NOT fire");
+  }
+}
+{
+  // WRONG DIGEST on temper-constraints.
+  const stale = freshCensus();
+  stale["temper-wasm-constraints"] = {
+    test_count: CONSTRAINTS_BUILT,
+    abi_version: 1,
+    module_sha256: "sha-constraints-WRONG",
+  };
+  expect(
+    "temper-constraints: wrong digest -> red",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE DEPLOYED MODULE CONTENT (temper-constraints, issue #945)",
+  );
+}
+{
+  // WRONG DIGEST on temper-rust-router, the twelfth and last tier added --
+  // proves the digest check applies from the moment a tier joins the
+  // topology, not just to tiers that existed when issue #945 was fixed.
+  const stale = freshCensus();
+  stale["temper-wasm-rust-router"] = {
+    test_count: RUST_ROUTER_BUILT,
+    abi_version: 1,
+    module_sha256: "sha-rust-router-WRONG",
+  };
+  expect(
+    "temper-rust-router: wrong digest -> red",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE DEPLOYED MODULE CONTENT (temper-rust-router, issue #945)",
   );
 }
 {

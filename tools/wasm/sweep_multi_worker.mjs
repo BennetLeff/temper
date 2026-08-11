@@ -13,11 +13,17 @@
  * Usage:
  *   node tools/wasm/sweep_multi_worker.mjs [--concurrency 64] [--json out.json]
  *     [--board-sha256 <hex>] [--warmup] [--tier temper-drc-rs]
+ *     [--request-timeout-ms 20000] [--max-retries 2] [--retry-backoff-ms 200]
+ *     [--dead-letter-json path] [--replica-json path] [--replica-log path]
+ *     [--replica-flush-every 25] [--topology path]
  *
  * The Worker inventory is NOT hardcoded here: it is read from
  * tools/wasm/wasm_tier_topology.json, the same file the staging script, the
  * deploy workflow and the freshness checker read, so a Worker cannot be swept
- * without also being built, deployed and checked.
+ * without also being built, deployed and checked. `--topology` overrides that
+ * path — used by tools/wasm/test_sweep_durability.mjs to point this script at
+ * a small fixture topology instead of the real 3000+-test one, so fault
+ * injection cases run in milliseconds; production callers never pass it.
  *
  * ## --tier, and why the default is not what CI should use
  *
@@ -37,16 +43,39 @@
  * own header for why an absolute total is not worth pinning here). So
  * wasm-tier-nightly.yml passes `--tier` explicitly, in a loop over the
  * topology, and compares each tier against its own crate's native run.
+ *
+ * ## Durability (R22/R23)
+ *
+ * See tools/wasm/sweep_durability.mjs's module header for the full design.
+ * In one line: every dispatched (family, index) gets bounded retries on
+ * delivery failure, an idempotent ledger so a retry cannot double-count or
+ * silently overwrite a verdict, a reconciliation pass that fails the sweep
+ * loudly if dispatched != accounted-for, a dead-letter file naming exactly
+ * what to re-run, and a second on-disk copy of the results (plus an
+ * incrementally-flushed NDJSON log) so a crash does not erase a completed
+ * run. All of it is on by default the moment `--json` is passed — no new
+ * flag is required for the two existing CI callers
+ * (wasm-tier-nightly.yml, wasm-tier-pr.yml) to get it.
  */
 
 import { loadTopology, tierByCrate, workerUrl } from "./tier_topology.mjs";
+import {
+  workKey,
+  ResultLedger,
+  reconcile,
+  fetchJsonWithRetry,
+  ReplicaLog,
+  writeReplicatedSummary,
+  writeDeadLetter,
+} from "./sweep_durability.mjs";
 
 function arg(name, dflt) {
   const i = process.argv.indexOf(name);
   return i === -1 ? dflt : process.argv[i + 1];
 }
 
-const topology = loadTopology();
+const TOPOLOGY_ARG = arg("--topology", null);
+const topology = TOPOLOGY_ARG ? loadTopology(TOPOLOGY_ARG) : loadTopology();
 const BASE_DOMAIN = topology.base_domain;
 const TIER_ARG = arg("--tier", null);
 const SELECTED_TIERS = TIER_ARG ? [tierByCrate(topology, TIER_ARG)] : topology.tiers;
@@ -70,6 +99,30 @@ const WARMUP = process.argv.includes("--warmup");
 // scheduled run's artifact is traceable to the exact pcb/temper.kicad_pcb
 // bytes the sweep ran alongside, even though no single verdict depends on it.
 const BOARD_SHA256 = arg("--board-sha256", null);
+
+// --- R22/R23 durability knobs -----------------------------------------
+const REQUEST_TIMEOUT_MS = parseInt(arg("--request-timeout-ms", "20000"), 10);
+const MAX_RETRIES = Math.max(0, parseInt(arg("--max-retries", "2"), 10));
+const RETRY_BACKOFF_MS = Math.max(0, parseInt(arg("--retry-backoff-ms", "200"), 10));
+const REPLICA_FLUSH_EVERY = Math.max(1, parseInt(arg("--replica-flush-every", "25"), 10));
+// Defaults derived from --json so the two existing CI callers (which only
+// ever pass --json) get durability outputs for free, with no workflow edit
+// required. Explicit flags always win.
+const DEAD_LETTER_JSON = arg("--dead-letter-json", JSON_OUT ? `${JSON_OUT}.dead-letter.json` : null);
+const REPLICA_JSON = arg("--replica-json", JSON_OUT ? `${JSON_OUT}.replica.json` : null);
+const REPLICA_LOG = arg("--replica-log", JSON_OUT ? `${JSON_OUT}.replica.ndjson` : null);
+// A dead-letter file is only "somewhere recoverable" (R22) if something can
+// actually replay it. --only takes a comma-separated list of workKey()s
+// (family#index -- exactly the "key" field tools/wasm/sweep_durability.mjs's
+// writeDeadLetter() writes into delivery_failed[]/missing_from_ledger[]), and
+// restricts the work queue to just those, so:
+//   node tools/wasm/sweep_multi_worker.mjs --tier <crate> \
+//     --only "$(node -e '...' dead-letter.json)"
+// re-dispatches precisely the lost tests instead of the whole corpus. See
+// tools/wasm/test_sweep_durability.mjs's F9 case for this loop exercised
+// end-to-end against an injected fault.
+const ONLY_ARG = arg("--only", null);
+const ONLY_KEYS = ONLY_ARG ? new Set(ONLY_ARG.split(",").map((s) => s.trim()).filter(Boolean)) : null;
 
 async function run() {
   const workerUrls = {};
@@ -133,47 +186,118 @@ async function run() {
   }
 
   // Phase 2: Build work queue — one entry per (family, index)
-  const work = [];
+  let work = [];
   for (const [fam, info] of Object.entries(families)) {
     if (info.count === 0) continue;
     for (let i = 0; i < info.count; i++) {
-      work.push({ family: fam, url: info.url, index: i });
+      work.push({ family: fam, url: info.url, index: i, key: workKey(fam, i) });
     }
   }
 
-  // Phase 3: Fan out with bounded concurrency.
-  const results = [];
+  if (ONLY_KEYS) {
+    const before = work.length;
+    const fullWork = work;
+    work = fullWork.filter((w) => ONLY_KEYS.has(w.key));
+    const found = new Set(work.map((w) => w.key));
+    const unknown = [...ONLY_KEYS].filter((k) => !found.has(k));
+    if (unknown.length) {
+      console.error(
+        `::error::--only named ${unknown.length} key(s) not present in this tier's census (typo, or a ` +
+          `dead-letter file from a different corpus/tier): ${unknown.join(", ")}. Refusing to silently ` +
+          "run a partial replay of the wrong set.",
+      );
+      process.exit(2);
+    }
+    console.error(`--only: replaying ${work.length} of ${before} dispatched tests: ${[...ONLY_KEYS].join(", ")}`);
+  }
+  const dispatchedKeys = work.map((w) => w.key);
+  // The count this RUN actually dispatches -- equal to `total` (the full
+  // census) unless --only narrowed the queue to a replay subset. Used for
+  // progress logging and throughput below so a --only replay of 1 test does
+  // not report a throughput computed against the whole corpus's `total`.
+  const dispatchedTotal = work.length;
+
+  // Phase 3: Fan out with bounded concurrency. Results land in an idempotent
+  // ledger (R22) keyed by (family, index), not a plain array — a retry whose
+  // original attempt's response arrives late cannot inflate the tally or
+  // silently clobber an already-recorded verdict with a different one (see
+  // sweep_durability.mjs's ResultLedger).
+  const ledger = new ResultLedger();
+  const replicaLog = new ReplicaLog(REPLICA_LOG, { flushEvery: REPLICA_FLUSH_EVERY });
+  const deadLetterEntries = [];
   let done = 0;
   const t0 = Date.now();
 
   async function runOne(task) {
     let body;
+    let deliveryFailed = false;
+    let attempts = 1;
     try {
-      const r = await fetch(`${task.url}/run-test`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(
-          BOARD_SHA256
-            ? { index: task.index, boardSha256: BOARD_SHA256 }
-            : { index: task.index },
-        ),
-      });
-      body = await r.json();
-      body._family = task.family;
-      body._status = r.status;
+      const delivered = await fetchJsonWithRetry(
+        `${task.url}/run-test`,
+        BOARD_SHA256 ? { index: task.index, boardSha256: BOARD_SHA256 } : { index: task.index },
+        { timeoutMs: REQUEST_TIMEOUT_MS, maxRetries: MAX_RETRIES, backoffMs: RETRY_BACKOFF_MS },
+      );
+      attempts = delivered.attempts;
+      if (delivered.ok) {
+        body = delivered.body;
+        body._family = task.family;
+        body._status = 200;
+      } else {
+        // Dead-letter case (R22): every retry failed to deliver an
+        // authoritative outcome. Still recorded as a terminal "error"
+        // verdict -- accounted-for, never simply absent -- and separately
+        // named in the dead-letter file so it can be re-run precisely.
+        deliveryFailed = true;
+        body = {
+          verdict: "error",
+          index: task.index,
+          name: null,
+          message: `delivery failed after ${attempts} attempt(s): ${delivered.error}`,
+          _family: task.family,
+          _status: 0,
+        };
+      }
     } catch (e) {
+      // Belt-and-suspenders: fetchJsonWithRetry itself is fully guarded, but
+      // if something outside it still throws (a bug, not a network fault),
+      // this still records a terminal outcome rather than letting the work
+      // item vanish from the ledger -- the case reconcile() exists to catch
+      // if this guard is ever wrong.
+      deliveryFailed = true;
       body = {
         verdict: "error",
         index: task.index,
         name: null,
-        message: e.message,
+        message: `unexpected failure in runOne: ${e.message || e}`,
         _family: task.family,
         _status: 0,
       };
     }
-    results.push(body);
+
+    const record = {
+      index: body.index ?? task.index,
+      name: body.name ?? null,
+      status: body.verdict,
+      family: task.family,
+      raw: body,
+    };
+    const outcome = ledger.record(task.key, record);
+    if (deliveryFailed && outcome !== "duplicate") {
+      deadLetterEntries.push({
+        key: task.key,
+        family: task.family,
+        index: task.index,
+        attempts,
+        message: body.message,
+      });
+    }
+    if (outcome !== "duplicate") {
+      replicaLog.append({ ts: new Date().toISOString(), key: task.key, outcome, ...record });
+    }
+
     done += 1;
-    if (done % 20 === 0) console.error(`  ${done}/${total}`);
+    if (done % 20 === 0) console.error(`  ${done}/${dispatchedTotal}`);
   }
 
   let cursor = 0;
@@ -185,18 +309,68 @@ async function run() {
     if (tasks.length) await Promise.all(tasks);
   }
   while (cursor < work.length) await pump();
+  replicaLog.flush();
 
   const wallMs = Date.now() - t0;
   const wallSec = (wallMs / 1000).toFixed(2);
 
-  // Tally
+  // ---------------------------------------------------------------------
+  // Reconciliation pass (R22): dispatched == accounted-for, checked, not
+  // assumed. Under this file's retry/dead-letter design `missing` should
+  // always be empty -- every code path that can fail to deliver still
+  // records a terminal "error" outcome -- so a non-empty result here means
+  // that guarantee broke somewhere, and the sweep must not report a verdict
+  // for a corpus it cannot account for in full. A conflicting verdict for
+  // the same (family, index) is the same class of problem: the tally can no
+  // longer be trusted to mean what it claims.
+  // ---------------------------------------------------------------------
+  const missing = reconcile(dispatchedKeys, ledger);
+  const conflicts = ledger.conflicts;
+  const reconciliationOk = missing.length === 0 && conflicts.length === 0;
+
+  if (missing.length) {
+    console.error(
+      `::error::RECONCILIATION FAILURE: ${missing.length} of ${dispatchedKeys.length} dispatched ` +
+        `test(s) have NO recorded outcome at all: ${missing.slice(0, 10).join(", ")}` +
+        `${missing.length > 10 ? ", ..." : ""}. This sweep dispatched requests it never accounted ` +
+        "for -- pass, fail, or explicitly-errored -- and reporting a tally over the remainder would " +
+        "be a false green over an incomplete corpus. FAILING rather than reporting on what happened " +
+        "to arrive.",
+    );
+  }
+  if (conflicts.length) {
+    console.error(
+      `::error::RECONCILIATION FAILURE: ${conflicts.length} test(s) received two DIFFERENT verdicts ` +
+        `for the same (family, index): ${conflicts.slice(0, 5).map((c) => c.key).join(", ")}` +
+        `${conflicts.length > 5 ? ", ..." : ""}. The tally cannot be trusted when a key resolves to ` +
+        "more than one outcome. FAILING.",
+    );
+  }
+
+  if (DEAD_LETTER_JSON) {
+    writeDeadLetter(DEAD_LETTER_JSON, {
+      deliveryFailed: deadLetterEntries,
+      missing: missing.map((key) => ({ key })),
+      conflicts,
+    });
+    if (deadLetterEntries.length || missing.length || conflicts.length) {
+      console.error(
+        `dead-letter: ${deadLetterEntries.length} delivery failure(s), ${missing.length} missing, ` +
+          `${conflicts.length} conflict(s) written to ${DEAD_LETTER_JSON}`,
+      );
+    }
+  }
+
+  // Tally, from the idempotent ledger -- one entry per (family, index), so a
+  // retry or a duplicate delivery cannot inflate any count here.
+  const results = ledger.values();
   const tally = { pass: 0, "expected-fail": 0, fail: 0, "bad-index": 0, error: 0, other: 0 };
   const failures = [];
   for (const r of results) {
-    const v = r.verdict;
+    const v = r.status;
     if (v in tally) tally[v] += 1;
-    else { tally.other += 1; failures.push(r); }
-    if (v === "fail" || v === "error") failures.push(r);
+    else { tally.other += 1; failures.push(r.raw); }
+    if (v === "fail" || v === "error") failures.push(r.raw);
   }
 
   // Per-family breakdown
@@ -205,23 +379,21 @@ async function run() {
     perFamily[fam] = { pass: 0, "expected-fail": 0, fail: 0, "bad-index": 0, error: 0, other: 0 };
   }
   for (const r of results) {
-    const fam = r._family || "?";
+    const fam = r.family || "?";
     if (!perFamily[fam]) perFamily[fam] = { pass: 0, "expected-fail": 0, fail: 0, "bad-index": 0, error: 0, other: 0 };
-    const v = r.verdict;
+    const v = r.status;
     if (v in perFamily[fam]) perFamily[fam][v] += 1;
     else perFamily[fam].other += 1;
   }
 
   // Full per-test verdict list, in the {name, status} shape r19_compare.py's
   // --wasm-json consumes (same convention run_wasm_tests.mjs's --json output
-  // already uses). "verdict" is renamed to "status" here to match that
-  // schema; nothing upstream is renamed, so run_wasm_tests.mjs's own JSON
-  // output is unaffected.
+  // already uses).
   const fullResults = results.map((r) => ({
     index: r.index,
     name: r.name,
-    status: r.verdict,
-    family: r._family,
+    status: r.status,
+    family: r.family,
   }));
 
   const summary = {
@@ -231,9 +403,11 @@ async function run() {
     warmup: WARMUP,
     board_sha256: BOARD_SHA256,
     total,
+    only: ONLY_KEYS ? [...ONLY_KEYS] : null,
+    dispatched_total: dispatchedTotal,
     wall_ms: wallMs,
     wall_sec: wallSec,
-    throughput_per_s: (total / (wallMs / 1000)).toFixed(1),
+    throughput_per_s: (dispatchedTotal / (wallMs / 1000)).toFixed(1),
     families: Object.fromEntries(
       Object.entries(families).map(([k, v]) => [k, v.count ?? v.error ?? "?"])
     ),
@@ -242,9 +416,31 @@ async function run() {
     results: fullResults,
     failures,
     worker_urls: workerUrls,
+    // R22/R23 durability report.
+    durability: {
+      dispatched: dispatchedKeys.length,
+      accounted_for: ledger.size(),
+      reconciliation_ok: reconciliationOk,
+      missing,
+      conflicts,
+      duplicates_ignored: ledger.duplicatesIgnored,
+      dead_letter_count: deadLetterEntries.length,
+      dead_letter_json: DEAD_LETTER_JSON,
+      replica_json: REPLICA_JSON,
+      replica_log: REPLICA_LOG,
+      request_timeout_ms: REQUEST_TIMEOUT_MS,
+      max_retries: MAX_RETRIES,
+    },
   };
   console.log(JSON.stringify(summary, null, 2));
-  if (JSON_OUT) (await import("node:fs")).writeFileSync(JSON_OUT, JSON.stringify(summary, null, 2));
+  writeReplicatedSummary(JSON_OUT, REPLICA_JSON, summary);
+
+  // Reconciliation failure is a harness-level failure -- distinct from (and
+  // more severe than) a test genuinely failing, the same way an
+  // unenumerable census is (see the exit(2) above): the sweep could not
+  // establish what happened to every dispatched request, so it exits 2
+  // rather than reporting a tally computed over an incomplete accounting.
+  if (!reconciliationOk) process.exit(2);
 
   process.exit(failures.length ? 1 : 0);
 }
