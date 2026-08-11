@@ -128,6 +128,13 @@ ELIGIBLE_DRC_RS: list[tuple[str, str]] = [
     # against the registry, and a module *missing from the list* is not drift.
     # `check_unregistered` (below) is the arm that closes that hole.
     ("ipc.rs", "tests"),
+    # Added 2026-08-11 with `manufacturing.rs` itself (Phase 2 U1, the
+    # `FabricationEnvelope` type). Registered in the same change that
+    # introduces the module, rather than after the fact -- `ipc.rs` above is
+    # the record of what happens otherwise, and `check_unregistered` fired
+    # here on exactly this module before this line existed, which is the arm
+    # working as designed.
+    ("manufacturing.rs", "tests"),
     ("pyfmt.rs", "tests"),
     ("pymath.rs", "tests"),
     ("rules/mod.rs", "integration_tests"),
