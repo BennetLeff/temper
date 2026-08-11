@@ -17,6 +17,11 @@
 // - `timing`        — cli/timing.py: compare_stage, p95
 // - `trace_filter`  — cli/trace_commands.py: filter_decisions,
 //                     find_rejected_alternative
+// - `stage_ledger`  — router_v6/stage_ledger.py: snapshot_cardinality
+//                     (the `_snapshot` counting), diff_cardinality (the
+//                     `_diff` compare), CardinalitySnapshot (the
+//                     `_CardinalitySnapshot` dataclass) — the final portable
+//                     router_v6 orchestration module
 // - `copper_length` — temper-workflow routing/route_and_measure.py:
 //                     measure_copper_length
 // - `feasibility`   — pipeline/convergence.py + pipeline/preflight.py +
@@ -198,6 +203,7 @@ mod preflight_stage;
 mod setup_stage;
 mod slot_generation_stage;
 pub(crate) mod stage;
+pub(crate) mod stage_ledger;
 pub(crate) mod timing;
 mod trace_filter;
 mod via_validation_stage;
@@ -423,6 +429,15 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<metrics::MetricsObserver>()?;
     m.add("CrossValidationError", m.py().get_type::<metrics::CrossValidationError>())?;
     m.add("CanaryCheckError", m.py().get_type::<metrics::CanaryCheckError>())?;
+    // The final router_v6 orchestration slice (Rust Orchestration Engine plan
+    // 2026-08-09-001): the stage_ledger cardinality compute —
+    // `snapshot_cardinality` (`_snapshot`), `diff_cardinality` (`_diff`) and
+    // the `CardinalitySnapshot` pyclass (`_CardinalitySnapshot`). The shim
+    // wires all three; the stateful `StageLedger` orchestration and the
+    // presentation stay Python. Append-only per the U4 dispatch.
+    m.add_class::<stage_ledger::CardinalitySnapshot>()?;
+    m.add_function(wrap_pyfunction!(stage_ledger::snapshot_cardinality, m)?)?;
+    m.add_function(wrap_pyfunction!(stage_ledger::diff_cardinality, m)?)?;
     Ok(())
 }
 

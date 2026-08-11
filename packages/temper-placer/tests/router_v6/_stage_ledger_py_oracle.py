@@ -8,23 +8,6 @@ and validates that cardinality changes are expected and consistent.
 Follows the ``fail_on_violation=True`` pattern from DRCFence:
 ``StageLedgerImbalanceError`` is raised when an imbalance is detected
 and the ledger is in strict mode.
-
-This module is a delegation shim. The portable cardinality compute moved to
-``temper-orchestration``'s ``stage_ledger.rs`` (Rust Orchestration Engine plan
-2026-08-09-001, the final portable router_v6 orchestration module):
-``snapshot_cardinality`` (the pre-migration ``_snapshot`` counting),
-``diff_cardinality`` (the pre-migration ``_diff`` compare) and the
-``CardinalitySnapshot`` pyclass (the ``_CardinalitySnapshot`` dataclass). The
-stateful orchestration stays here — the ``StageLedger`` state machine
-(``_pre``/``_post`` snapshot storage, the ``checkin``/``checkout``/``verify``
-flow, the ``fail_on_imbalance`` raise decision and the logger emission) — as
-does the presentation: ``LedgerReport`` + its ``__str__``, the checkout
-message rendering (the human-readable rendering of the diff list, the same
-family as ``LedgerReport.__str__``), and the ``StageLedgerImbalanceError``
-exception class. The public API is unchanged. The pre-migration module is
-pinned VERBATIM as ``tests/router_v6/_stage_ledger_py_oracle.py``
-(content-hash registered in ``scripts/oracle_hashes.json``); bit-identical
-parity is pinned by ``tests/router_v6/test_stage_ledger_rust_differential.py``.
 """
 
 from __future__ import annotations
@@ -32,8 +15,6 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from typing import Any
-
-import temper_orchestration as _to
 
 _logger = logging.getLogger(__name__)
 
@@ -58,10 +39,15 @@ class LedgerReport:
         return f"[LedgerReport {status}] {self.stage_name}: {self.message}"
 
 
-# The Rust cardinality snapshot pyclass (the pre-migration
-# ``_CardinalitySnapshot`` dataclass, moved to temper-orchestration as
-# ``CardinalitySnapshot``). Stored in ``_pre``/``_post``.
-_CardinalitySnapshot = _to.CardinalitySnapshot
+@dataclass
+class _CardinalitySnapshot:
+    """Internal snapshot of tracked object counts."""
+
+    net_count: int = 0
+    component_count: int = 0
+    channel_count: int = 0
+    via_count: int = 0
+    segment_count: int = 0
 
 
 @dataclass
@@ -89,11 +75,11 @@ class StageLedger:
     # ------------------------------------------------------------------
     def checkin(self, state_or_pcb: Any) -> None:
         """Snapshot cardinality before a stage runs."""
-        self._pre = _to.snapshot_cardinality(state_or_pcb)
+        self._pre = _snapshot(state_or_pcb)
 
     def checkout(self, stage_name: str, state_or_pcb: Any) -> LedgerReport:
         """Snapshot cardinality after the stage ran and produce a report."""
-        self._post = _to.snapshot_cardinality(state_or_pcb)
+        self._post = _snapshot(state_or_pcb)
         pre = self._pre
         post = self._post
 
@@ -103,7 +89,7 @@ class StageLedger:
             self._raise_if_needed(report)
             return report
 
-        imbalances = _to.diff_cardinality(pre, post)
+        imbalances = _diff(pre, post)
         if imbalances:
             lines = [f"Stage '{stage_name}' introduced cardinality imbalance:"]
             for field_name, before, after in imbalances:
@@ -136,3 +122,72 @@ class StageLedger:
             raise StageLedgerImbalanceError(str(report))
         if not report.is_balanced:
             _logger.warning(str(report))
+
+
+# ------------------------------------------------------------------
+def _snapshot(state_or_pcb: Any) -> _CardinalitySnapshot:
+    """Extract cardinality counts from a BoardState, ParsedPCB, or
+    pipeline result object."""
+    snap = _CardinalitySnapshot()
+
+    # BoardState (temper_placer.deterministic.state)
+    if hasattr(state_or_pcb, "_parsed_pcb"):
+        pcb = state_or_pcb._parsed_pcb
+        if pcb is not None:
+            if hasattr(pcb, "nets"):
+                snap.net_count = len(pcb.nets)
+            if hasattr(pcb, "components"):
+                snap.component_count = len(pcb.components)
+        if state_or_pcb.channel_skeletons:
+            snap.channel_count = sum(
+                len(getattr(s, "channels", [])) for s in state_or_pcb.channel_skeletons.values()
+            )
+        escape_vias = getattr(state_or_pcb, "_escape_vias", None) or ()
+        snap.via_count = len(escape_vias)
+        return snap
+
+    # ParsedPCB
+    if hasattr(state_or_pcb, "nets"):
+        snap.net_count = len(state_or_pcb.nets)
+    if hasattr(state_or_pcb, "components"):
+        snap.component_count = len(state_or_pcb.components)
+
+    # Channel dicts (routing_spaces, skeletons)
+    for attr in ("routing_spaces",):
+        val = getattr(state_or_pcb, attr, None)
+        if isinstance(val, dict):
+            for v in val.values():
+                if hasattr(v, "channels"):
+                    snap.channel_count += len(v.channels)
+
+    # Segment count from routing results
+    results = getattr(state_or_pcb, "routing_results", None)
+    if results is not None and hasattr(results, "compiled_routes"):
+        for route in results.compiled_routes.values():
+            path = getattr(route, "path", None)
+            if hasattr(path, "segments"):  # type: ignore[union-attr]
+                snap.segment_count += len(path.segments)  # type: ignore[union-attr]
+            elif hasattr(path, "coordinates"):  # type: ignore[union-attr]
+                snap.segment_count += max(0, len(path.coordinates) - 1)  # type: ignore[union-attr]
+
+    return snap
+
+
+def _diff(
+    pre: _CardinalitySnapshot,
+    post: _CardinalitySnapshot,
+) -> list[tuple[str, int, int]]:
+    """Return list of (field, before, after) for any count that changed."""
+    diffs: list[tuple[str, int, int]] = []
+    for field_name in (
+        "net_count",
+        "component_count",
+        "channel_count",
+        "via_count",
+        "segment_count",
+    ):
+        before = getattr(pre, field_name)
+        after = getattr(post, field_name)
+        if before != after:
+            diffs.append((field_name, before, after))
+    return diffs

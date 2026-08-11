@@ -18,6 +18,7 @@ differential oracles.
 | `temper_placer/pipeline/preflight.py` | 286 | `component_area_ratio`, `proximity_rule_impossible`, `zone_over_capacity`, `loop_area_violation`, `isolation_barrier_too_large` (the compensated product sum is the internal `py_builtin_sum`/`sum_product_areas_impl`, deliberately NOT a standalone export) | `feasibility.rs` | MIGRATE (compute) — `PreflightChecker.run` orchestration, the `len(k) == 4` / zone-name / ref-membership marshalling, the `PreflightReport` rendering and the constant/stub checks stay Python |
 | `temper_placer/pipeline/derivation.py` | 118 | `derive_emi_max_dist`, `derive_thermal_clearance`, `derive_si_max_placement_dist`, `mains_voltage_to_class_code`, `extract_min_clearance` | `feasibility.rs` | MIGRATE (compute) — the dict assembly, the code-to-`VoltageClass` mapping and the PCL `SeparatedConstraint` construction stay Python |
 | `temper_placer/pipeline/state.py` | 117 | U4 (orchestration engine): the data model — `PipelinePhase`, `PipelineConfig`, `PipelineState` — as pyclasses (plan 2026-08-09-001, U4); `PipelineError` stays Python | `pipeline_state.rs` | MIGRATE (full, minus `PipelineError`): `state.py` is now a delegation shim re-exporting the three Rust pyclasses + the Python exception (public API unchanged; `test_pipeline_state_rust_differential.py` + `test_pipeline_state_pbt.py` pin parity). `PipelineConfig` is the plan's U4 "PipelineState→Rust config" migration. |
+| `temper_placer/router_v6/stage_ledger.py` | 193 | `snapshot_cardinality` (the `_snapshot` cardinality counting), `diff_cardinality` (the `_diff` five-field compare), `CardinalitySnapshot` (the `_CardinalitySnapshot` dataclass) — the final portable router_v6 orchestration module | `stage_ledger.rs` | MIGRATE (compute) — the stateful `StageLedger` orchestration (`_pre`/`_post` storage, the `checkin`/`checkout`/`verify` flow, the `fail_on_imbalance` raise decision, the logger emission), `LedgerReport` + `__str__`, the checkout message rendering (presentation of the diff list) and `StageLedgerImbalanceError` stay Python (see the slice section below) |
 | `temper_placer/cli/drc_cli.py` | 319 | — | — | R3-style record (below) |
 | `temper_placer/cli/watch_commands.py` | 115 | — | — | R3-style record (below) |
 | `temper_placer/cli/andon_commands.py` | 26 | — | — | R3-style record (below) |
@@ -2819,3 +2820,103 @@ pipeline-integrity invariants, not physics bounds.
   origin/main (unrelated to this slice; not touched here).
 - `check_unwired_kernels.py` — no new unwired kernel: every new pyclass is
   referenced by its delegating shim, so the Python AST scan sees it wired.
+
+## Rust orchestration engine — stage_ledger (the final portable router_v6 module)
+
+Rust Orchestration Engine plan 2026-08-09-001, the last router_v6
+ORCHESTRATION slice: the `router_v6/stage_ledger.py` cardinality compute moves
+to `src/stage_ledger.rs` as the `snapshot_cardinality` (the pre-migration
+`_snapshot` counting over duck-typed BoardState / ParsedPCB / routing-result
+shapes) and `diff_cardinality` (the pre-migration `_diff` five-field compare)
+pyfunctions plus the `CardinalitySnapshot` pyclass (the `_CardinalitySnapshot`
+dataclass). The pre-migration module is pinned VERBATIM as
+`tests/router_v6/_stage_ledger_py_oracle.py` (content-hash registered in
+`scripts/oracle_hashes.json` AND by the differential's own per-body digest for
+`_snapshot`/`_diff`). The production caller (`_pipeline_core.py`'s
+`StageLedger(fail_on_imbalance=False)`, wired at
+`_pipeline_core.py:259`) is untouched.
+
+### The Python-side split (what stays, with evidence)
+
+- **The stateful orchestration** — `StageLedger` itself: the `_pre`/`_post`
+  snapshot storage, the `checkin`/`checkout`/`verify` flow, the
+  `fail_on_imbalance` raise decision and the `_logger` emission. This is
+  state plus side effects (logging, raising the module's own exception type);
+  exceptions stay Python per the crate-wide convention.
+- **The presentation** — `LedgerReport` + its `__str__`, and the checkout
+  message rendering (`Stage '{stage}' introduced cardinality imbalance:` plus
+  the `  field: before -> after` lines). This is the human-readable rendering
+  of the diff list, the same family as `LedgerReport.__str__` — presentation,
+  not compute. The differential pins it bit-exactly anyway, because the shim
+  keeps the oracle's exact orchestration over the Rust-returned diff.
+- **`StageLedgerImbalanceError`** — the exception class.
+
+The migrated compute feeds the shim through three wired symbols
+(`CardinalitySnapshot` is stored in `_pre`/`_post`; `snapshot_cardinality` is
+called by `checkin`/`checkout`; `diff_cardinality` by `checkout`), so the
+unwired-kernel gate sees every new export referenced by production Python.
+
+### Bit-exactness traps pinned in the module
+
+- `hasattr` swallows only `AttributeError` — `has_attr` propagates every other
+  exception exactly like CPython's `hasattr` (pinned by the `len(object())`
+  TypeError differential case).
+- `if state_or_pcb.channel_skeletons:` and `getattr(..., None) or ()` are
+  TRUTHINESS tests — replicated with `PyAny::is_truthy()`, so a custom
+  `__bool__` behaves identically.
+- The three dict-shaped walks (`channel_skeletons`, `routing_spaces`,
+  `compiled_routes`) iterate `.values()` exactly like the oracle — the first
+  cut iterated dict keys and the differential caught it immediately.
+- `isinstance(val, dict)` is subtype-aware (`PyObject_TypeCheck`), so a dict
+  subclass in `routing_spaces` is still counted.
+- `max(0, len(coordinates) - 1)` for an empty coordinates list is
+  `len().saturating_sub(1)`.
+
+### Differential / PBT / metamorphic suite
+
+`tests/router_v6/test_stage_ledger_rust_differential.py` (25 tests): the two
+oracle bodies are content-hash pinned (sha256 in the suite + registered in
+`scripts/oracle_hashes.json`); the port is proven distinct from the shim
+(`__module__` binding, recording-stub delegation proofs for both pyfunctions);
+every differential assertion is bit-exact (`repr()` equality for snapshots —
+the Rust `__repr__` reproduces the `_CardinalitySnapshot` dataclass string —
+field-level equality, exact `_diff` list/tuple equality, `LedgerReport`
+field/`str()` equality across the shim-vs-oracle arms, exception-message
+equality). Seven non-vacuous Hypothesis properties (differential over random
+count vectors for both kernels and both report paths, self-diff emptiness,
+exactly-the-changed-fields, common-shift delta preservation) and five
+metamorphic relations (swap-flips-before-after, common-shift, balance
+transitivity, verify idempotence, snapshot purity). The 7 pre-existing
+`test_stage_ledger.py` tests pass unchanged through the delegating shim.
+
+### Structural proof (bit-identical parity)
+
+The migrated compute is a direct transcription of the oracle's two functions
+with the load-bearing equivalences above, each pinned by the differential.
+Wherever the oracle's semantics are Python value semantics (`hasattr`,
+`len()`, `isinstance`, truthiness, `__bool__`, exceptions), the Rust side
+calls back into CPython (`PyObject_Size` for `len`, `PyObject_TypeCheck` for
+`isinstance`, `is_truthy`, AttributeError-scoped probing) so parity is by
+identity; the control flow (branching, the fixed five-field iteration order,
+the counting) is Rust.
+
+### G8 physics discipline
+
+Not physics-gated (R1h): cardinality counting and comparison gates on no
+physics quantity. The R24 discipline does not apply.
+
+### Gates
+
+- `cargo test -p temper-orchestration` — lib suite green (incl. the
+  python-gated `stage_ledger::tests` unit tests: pure `diff_counts` pins +
+  the repr/eq dataclass-shape pins).
+- `cargo clippy --all-features --all-targets -- -D warnings` clean.
+- `cargo build --no-default-features` and `--features wasm-test-registry`
+  clean (the `stage_ledger::tests` module is census-classified
+  `[python-gated]`, so no registry regeneration is needed).
+- `import_linter_gate.py` — PASSED, 0 new violations.
+- `make regen-check` — oracle registry 159/159 OK; all derived artifacts
+  consistent.
+- `check_unwired_kernels.py` — no new unwired kernel: every new pyclass /
+  pyfunction is referenced by its delegating shim, so the Python AST scan
+  sees it wired.
