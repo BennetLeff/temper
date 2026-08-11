@@ -14,6 +14,7 @@
     ".github/workflows/required-checks.yml",
     ".github/required-checks.json",
     ".loc-allowlist.txt",
+    ".unwired-kernel-inventory",
     "scripts/deadcode-baseline.py",
     "scripts/vulture_gate.py",
     "scripts/trace_invocations.py",

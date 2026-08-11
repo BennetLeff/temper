@@ -95,6 +95,7 @@ on:
       - '.github/workflows/required-checks.yml'
       - '.github/required-checks.json'
       - '.loc-allowlist.txt'
+      - '.unwired-kernel-inventory'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -201,6 +202,7 @@ on:
       - '.github/workflows/required-checks.yml'
       - '.github/required-checks.json'
       - '.loc-allowlist.txt'
+      - '.unwired-kernel-inventory'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -2241,6 +2243,27 @@ jobs:
       - name: Wave 4 verdict coverage gate (R7)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_verdict_coverage.py
+
+      # 2026-08-11: this gate (scripts/check_unwired_kernels.py) previously
+      # ran ONLY in trunk-health.yml -- a post-merge/hourly canary that, by
+      # its own module docstring, "deliberately gates nothing... must not
+      # become a required context... it reports on main, it does not judge
+      # pull requests." That is precisely why a Rust kernel could land fully
+      # verified (registered, differential green) and never get wired to a
+      # production call site without any PR ever seeing red for it: the one
+      # check built to catch exactly that state only spoke up after the
+      # merge, on a workflow explicitly barred from blocking anything. See
+      # docs/evidence/2026-08-06-router-v6-status-reconciliation.md for the
+      # 4,096-LOC backlog that accumulated behind this gap. Running the same
+      # AST/regex scan here, in a required context, closes it: a PR that
+      # ships a new unwired kernel (or leaves a paid-down one stale in the
+      # ledger) now fails before merge instead of after. The scan itself
+      # needs no built extensions -- it parses .rs/.py source text -- so it
+      # is safe to run unconditionally alongside the verdict-coverage gate
+      # above rather than gated on the maturin builds earlier in this job.
+      - name: No unwired Rust kernels (shim-rewiring gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_unwired_kernels.py
 
       # requirements-ci.txt is baked into the CI image's pre-installed venv
       # (.github/docker/ci.Dockerfile). If it drifts from uv.lock, the image
