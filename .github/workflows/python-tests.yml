@@ -1870,6 +1870,74 @@ jobs:
         id: setup
         run: echo "setup complete; gates below report independently"
 
+      # --- Correspondence gates (docs/evidence/2026-08-11-correspondence-gates.md) ---
+      # Three gates for the same failure shape: an artifact declares something
+      # and nothing verifies the rest of the system honours the declaration.
+      # All three are advisory (continue-on-error) today because their real
+      # motivating inputs on origin/main currently violate them -- see the
+      # evidence doc for the exact, named path to blocking for each. The
+      # gate scripts themselves are NOT softened: each computes and prints a
+      # real violation/clean verdict and a real exit code; only this CI
+      # step's `continue-on-error` prevents that verdict from failing the
+      # build while the underlying config/source defects remain unfixed.
+
+      - name: PCL config <-> board correspondence gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_pcl_config_board_correspondence.py -v --tb=short
+
+      - name: PCL config <-> board correspondence gate (Gate 1)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # ADVISORY: packages/temper-placer/configs/constraints/temper_induction_cooker.yaml
+        # is still broken on origin/main (PR #1026 landed the loader fix, not
+        # the config -- 5 component references with no safe mechanical
+        # resolution, 3 zones outside the real board outline). Path to
+        # blocking: fix the config (drop/re-target J_AC_IN/J_COIL/J_DEBUG/
+        # Q1/Q2 references, resize the zones to the real 152x234mm board),
+        # confirm this step goes clean, then remove continue-on-error.
+        continue-on-error: true
+        run: uv run python scripts/check_pcl_config_board_correspondence.py
+
+      - name: Declared <-> emitted layer gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_layer_plane_emission_coverage.py -v --tb=short
+
+      - name: Declared <-> emitted layer gate (Gate 2)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # ADVISORY: both underlying bugs are still live on origin/main --
+        # parse_engine.rs's raw_board_from_tree discards the layer-role
+        # token (index 2), and router_v6/_zone_pour_stitch.py's
+        # _zone_layers_for_net can only ever emit ["F.Cu", "B.Cu"]. Path to
+        # blocking: capture the role token in RawBoard (parse_engine.rs),
+        # and give _zone_layers_for_net a real per-net-class layer
+        # resolution that can reach In1.Cu/In2.Cu (or wire
+        # router_v6/power_plane.py's already-correct plane geometry into
+        # route_pcb's emitted content instead of only _pipeline_verify.py's
+        # report), then remove continue-on-error.
+        continue-on-error: true
+        run: uv run python scripts/check_layer_plane_emission_coverage.py
+
+      - name: Net-class map <-> board correspondence gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_netclass_map_board_correspondence.py -v --tb=short
+
+      - name: Net-class map <-> board correspondence gate (Gate 3)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # ADVISORY: four hand-maintained net_classes: YAML maps
+        # (configs/temper_deterministic_config.yaml,
+        # configs/temper_production_config.yaml,
+        # packages/temper-placer/configs/temper_constraints.yaml,
+        # packages/temper-placer/configs/gate_driver_constraints.yaml) each
+        # have at least one key that matches no real board net (stale
+        # +340V_BUS, case-mismatched AC_L/AC_N, or non-existent
+        # GATE_H/GATE_L/CGND/VCC_BOOT). Path to blocking: reconcile each
+        # broken key against the real board net table (some are safe
+        # mechanical renames, others need the same kind of human
+        # reconciliation temper_constraints.references.yaml required for
+        # Gate 1's component references -- see the evidence doc), then
+        # remove continue-on-error.
+        continue-on-error: true
+        run: uv run python scripts/check_netclass_map_board_correspondence.py
+
       - name: Check domain model codegen drift
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python3 scripts/gen_domain_models.py --check
