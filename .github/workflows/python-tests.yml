@@ -949,9 +949,33 @@ jobs:
       # --no-default-features runs the pure-Rust core -- 514 tests, which is
       # the ~500 this step was added to protect -- and is the same
       # configuration the wasm32 build below uses.
-      - name: Test temper-geometry (cargo test)
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: cargo test --manifest-path packages/temper-geometry/Cargo.toml --no-default-features
+      #
+      # REMOVED 2026-08-11 (cost policy: the deployed WASM tier should run
+      # ONLY there, not also in GitHub Actions). This step ran temper-
+      # geometry's FULL native suite on every PR -- duplicating, per test,
+      # per push, exactly what the deployed tier already covers:
+      # docs/evidence/2026-08-11-native-only-classification-all-crates.md
+      # measured the tier covering the large majority of temper-geometry's
+      # registered tests, with 89 native-only at that snapshot (proptest,
+      # `tests/` integration targets, two `#[cfg(not(target_arch =
+      # "wasm32"))]` host-libm guards, one doctest).
+      #
+      # Where the tier-covered tests now run on the PR path: this repo's
+      # own tier PR verdict, .github/workflows/wasm-tier-pr.yml (scoped to
+      # the tiers a PR's diff touches -- see that file's header). It is
+      # advisory (D5.4), not a required check, same as before this change.
+      #
+      # Where the 89 native-only tests now run: NOT on the PR path any more
+      # -- they lose PR-time native execution, same as the geometry-crate
+      # part of this task's remit for wasm-tier-nightly.yml's own native
+      # arm. They still execute natively whenever temper-geometry comes up
+      # in that workflow's R19 rotation (full cycle every 9 nights, under
+      # 1.5 weeks -- see that file's header, "R19 NATIVE-ARM ROTATION"),
+      # because a rotation night runs the crate's ordinary, unfiltered
+      # `cargo test`, not a tier-scoped subset.
+      #
+      # The WASM32 build+clippy guard immediately below (a link/lint check,
+      # not a test run) is UNCHANGED and still covers temper-geometry.
 
       # ---- WASM32 regression guard (plan 2026-08-03-002, U3) --------------
       # These steps verify that the wasm32 substrate (R1) has not silently
@@ -2389,10 +2413,27 @@ jobs:
         # for this container's CPU (that contention is fine: together they
         # cost well under a minute, so it was never the source of the
         # timeout risk cp-sat was).
+        #
+        # `cargo test --manifest-path packages/temper-design-bundle/Cargo.toml`
+        # REMOVED from BUNDLE_PID's chain 2026-08-11 (cost policy: the
+        # deployed WASM tier should run ONLY there, not also in GitHub
+        # Actions). This job runs on every push to main / nightly / manual
+        # dispatch (`if: github.event_name != 'pull_request'` on the job
+        # itself, above) -- not on PRs -- but it still re-ran the crate's
+        # FULL native suite on every one of those trunk events, duplicating
+        # what the deployed tier already covers: docs/evidence/2026-08-11-
+        # native-only-classification-all-crates.md measured the tier
+        # covering 24 of temper-design-bundle's 26 registered tests, with 2
+        # native-only (both `tests/temper_bundle.rs` integration targets).
+        # Those 2 now execute natively only when temper-design-bundle comes
+        # up in wasm-tier-nightly.yml's R19 rotation (full cycle every 9
+        # nights -- see that file's header). The python-import check below
+        # is UNCHANGED and does not depend on `cargo test` having run --
+        # `temper_design_bundle_python` is built by the earlier `uv sync
+        # --all-packages` step in this job's setup, not by this suite.
         run: |
           set +e
-          (cargo test --manifest-path packages/temper-design-bundle/Cargo.toml && \
-           uv run python3 -c "import temper_design_bundle_python; print('temper_design_bundle_python loaded OK')") &
+          (uv run python3 -c "import temper_design_bundle_python; print('temper_design_bundle_python loaded OK')") &
           BUNDLE_PID=$!
 
           (cd packages/temper-workflow && uv run pytest tests/ -v --tb=short) &
