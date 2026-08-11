@@ -658,6 +658,25 @@ mod properties {
         (s.0 * k, s.1 * k, s.2 * k, s.3 * k, s.4 * k, s.5 * k, s.6 * k, s.7 * k)
     }
 
+    // --- P6-P12 helper strategies (used inside the proptest! block) ---
+
+    /// A wider coordinate range for the point-to-segment kernel
+    /// itself, since it models board geometry in mm and the
+    /// canonical 200 mm board fits comfortably here.
+    fn wide_coord() -> impl Strategy<Value = f64> {
+        -200.0f64..200.0f64
+    }
+
+    /// A non-degenerate segment (endpoints at least 1 µm apart).
+    fn non_degenerate_seg() -> impl Strategy<Value = (f64, f64, f64, f64)> {
+        (wide_coord(), wide_coord(), wide_coord(), wide_coord())
+            .prop_filter("segment too short", |&(x1, y1, x2, y2)| {
+                let dx = x2 - x1;
+                let dy = y2 - y1;
+                dx * dx + dy * dy >= 1e-6
+            })
+    }
+
     proptest! {
         #![proptest_config(ProptestConfig { cases: 2000, ..ProptestConfig::default() })]
 
@@ -763,5 +782,247 @@ mod properties {
                 "scaling by {k}: expected {expected}, got {after}"
             );
         }
+
+        // --------------------------------------------------------------
+        // P6-P12: direct properties of the canonical
+        // point_to_segment_distance kernel (issue #987 — the 4-copy
+        // dedupe unified A/B/C onto the py_hypot contract).  These are
+        // new allocations rather than renumbering the existing set so
+        // the correspondence tables stay stable.
+        // --------------------------------------------------------------
+
+        /// P6. point_to_segment_distance is never negative for finite
+        /// inputs.
+        #[test]
+        fn p6_ptsd_is_non_negative(
+            px in wide_coord(), py in wide_coord(),
+            x1 in wide_coord(), y1 in wide_coord(),
+            x2 in wide_coord(), y2 in wide_coord(),
+        ) {
+            let d = point_to_segment_distance(px, py, x1, y1, x2, y2);
+            prop_assert!(d >= 0.0, "negative distance {}", d);
+        }
+
+        /// P7. A point lying on the segment interior has distance zero.
+        #[test]
+        fn p7_ptsd_zero_on_segment_interior(
+            seg in non_degenerate_seg(), t in 0.0f64..1.0f64,
+        ) {
+            let (x1, y1, x2, y2) = seg;
+            let px = x1 + t * (x2 - x1);
+            let py = y1 + t * (y2 - y1);
+            let d = point_to_segment_distance(px, py, x1, y1, x2, y2);
+            prop_assert!(
+                d < 1e-10,
+                "distance to point on segment interior is {} (should be 0)", d
+            );
+        }
+
+        /// P8. A zero-length (degenerate) segment returns the
+        /// point-to-point distance computed by py_hypot — not by sqrt,
+        /// not by pow.
+        #[test]
+        fn p8_ptsd_degenerate_is_py_hypot(
+            px in wide_coord(), py in wide_coord(),
+            sx in wide_coord(), sy in wide_coord(),
+        ) {
+            let got = point_to_segment_distance(px, py, sx, sy, sx, sy);
+            let expected = crate::pad_geometry::py_hypot(px - sx, py - sy);
+            // Bit-exact — the degenerate arm literally calls py_hypot.
+            prop_assert_eq!(got, expected,
+                "degenerate-segment distance mismatch");
+        }
+
+        /// P9. The distance to a segment never exceeds the distance to
+        /// either endpoint (the projection shortens or keeps the same).
+        #[test]
+        fn p9_ptsd_bounded_by_endpoints(
+            px in wide_coord(), py in wide_coord(),
+            seg in non_degenerate_seg(),
+        ) {
+            let (x1, y1, x2, y2) = seg;
+            let d = point_to_segment_distance(px, py, x1, y1, x2, y2);
+            let de1 = crate::pad_geometry::py_hypot(px - x1, py - y1);
+            let de2 = crate::pad_geometry::py_hypot(px - x2, py - y2);
+            let bound = de1.min(de2);
+            prop_assert!(
+                d <= bound + 1e-12,
+                "ptsd={} > min(de1={}, de2={})",
+                d, de1, de2
+            );
+        }
+
+        /// P10. Reversing the segment direction yields the same distance
+        /// within floating-point rounding.  (NOT bit-exact — the
+        /// projection formula `x1 + t*dx` rounds slightly differently
+        /// from `x2 + (1-t)*(-dx)` when the point is nearly collinear.)
+        #[test]
+        fn p10_ptsd_segment_reversal_preserves_distance(
+            px in wide_coord(), py in wide_coord(),
+            x1 in wide_coord(), y1 in wide_coord(),
+            x2 in wide_coord(), y2 in wide_coord(),
+        ) {
+            let forward = point_to_segment_distance(px, py, x1, y1, x2, y2);
+            let reversed = point_to_segment_distance(px, py, x2, y2, x1, y1);
+            prop_assert!(
+                (forward - reversed).abs() <= 1e-12,
+                "forward {} ≠ reversed {} (diff {})",
+                forward, reversed, (forward - reversed).abs()
+            );
+        }
+
+        /// P11. Translating the point and segment by the same vector
+        /// preserves the distance (within floating-point rounding).
+        #[test]
+        fn p11_ptsd_translation_invariant(
+            px in wide_coord(), py in wide_coord(),
+            x1 in wide_coord(), y1 in wide_coord(),
+            x2 in wide_coord(), y2 in wide_coord(),
+            tx in -100.0f64..100.0f64, ty in -100.0f64..100.0f64,
+        ) {
+            let before = point_to_segment_distance(px, py, x1, y1, x2, y2);
+            let after = point_to_segment_distance(
+                px + tx, py + ty, x1 + tx, y1 + ty, x2 + tx, y2 + ty,
+            );
+            prop_assert!((after - before).abs() < 1e-6, "{} -> {} after translation", before, after);
+        }
+
+        /// P12. A point and segment that are collinear but the point is
+        /// BEYOND the segment (projection clamps to the nearer endpoint)
+        /// yields exactly the endpoint distance.
+        #[test]
+        fn p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance(
+            seg in non_degenerate_seg(),
+            beyond_factor in proptest::strategy::Union::new(vec![
+                proptest::strategy::Just(-1.0),
+                proptest::strategy::Just(2.0),
+            ]).boxed(),
+        ) {
+            let (x1, y1, x2, y2) = seg;
+            let dx = x2 - x1;
+            let dy = y2 - y1;
+            let px = x1 + beyond_factor * dx;
+            let py = y1 + beyond_factor * dy;
+            let d = point_to_segment_distance(px, py, x1, y1, x2, y2);
+            // The nearer endpoint is either (x1,y1) or (x2,y2).
+            let de1 = crate::pad_geometry::py_hypot(px - x1, py - y1);
+            let de2 = crate::pad_geometry::py_hypot(px - x2, py - y2);
+            let expected = de1.min(de2);
+            prop_assert!(
+                (d - expected).abs() < 1e-12,
+                "collinear-beyond: got {} vs endpoint min {}",
+                d, expected
+            );
+        }
+    }
+
+
+
+    // ------------------------------------------------------------------
+    // Edge-case tests for the canonical point_to_segment_distance kernel.
+    // These are NOT proptest-driven; they are targeted fixes for the
+    // failure classes the spike identified (inf segments, NaN points,
+    // denormal magnitudes, large coordinates).  Every assertion pins the
+    // canonical py_hypot contract — a sqrt- or pow-close reimplementation
+    // would diverge on at least one of these.
+    // ------------------------------------------------------------------
+
+    /// The degenerate branch fires on `!denom.is_finite()` as well as
+    /// `denom == 0.0`.  An infinite segment endpoint makes `denom` either
+    /// `inf` or `NaN`, both of which are !finite — the canonical kernel
+    /// falls through to the point-to-point arm (py_hypot), returning
+    /// `inf` rather than `NaN`.  Copy A (constraint_model) only checked
+    /// `== 0` and would return `NaN` here.
+    #[test]
+    fn ptsd_infinite_segment_uses_py_hypot_degenerate_arm() {
+        // inf segment endpoint → denom = inf (dx = inf - 0 = inf → dx² = inf)
+        let d = point_to_segment_distance(5.0, 3.0, 0.0, 0.0, f64::INFINITY, 0.0);
+        // py_hypot(5-0, 3-0) = hypot(5,3) ≈ 5.830951894845301
+        assert!(d.is_finite(), "infinite-segment distance should be finite, got {d}");
+        assert!((d - 5.830951894845301).abs() < 1e-12, "got {d}");
+
+        // -inf segment endpoint — same branch.
+        let d2 = point_to_segment_distance(5.0, 3.0, 0.0, 0.0, f64::NEG_INFINITY, 0.0);
+        assert!(d2.is_finite(), "-inf-segment distance should be finite, got {d2}");
+        assert!((d2 - 5.830951894845301).abs() < 1e-12, "got {d2}");
+    }
+
+    /// A NaN point coordinate propagates: the clamped projection lands
+    /// on the far endpoint (NaN `t` → py_min(1,NaN)=1 → py_max(0,1)=1),
+    /// then `py_hypot(NaN - proj_x, ...)` returns NaN.
+    #[test]
+    fn ptsd_nan_point_yields_nan() {
+        let d = point_to_segment_distance(f64::NAN, 0.0, 0.0, 0.0, 10.0, 0.0);
+        assert!(d.is_nan(), "NaN-px should yield NaN, got {d}");
+
+        let d2 = point_to_segment_distance(5.0, f64::NAN, 0.0, 0.0, 10.0, 0.0);
+        assert!(d2.is_nan(), "NaN-py should yield NaN, got {d2}");
+    }
+
+    /// A finite point with a NaN segment endpoint triggers the
+    /// degenerate arm (denom is NaN → !finite), returning py_hypot of
+    /// the finite point to the finite endpoint → NaN (because one leg
+    /// of the hypot is NaN).  All three copies agree here; this pins
+    /// that the canonical kernel preserves that behavior.
+    #[test]
+    fn ptsd_nan_segment_endpoint_yields_nan() {
+        let d = point_to_segment_distance(5.0, 0.0, f64::NAN, 0.0, 10.0, 0.0);
+        assert!(d.is_nan(), "NaN-seg-endpoint should yield NaN, got {d}");
+    }
+
+    /// Very large (but finite) coordinates: the canonical kernel must
+    /// not overflow intermediate `dx*dx` where a naive `sqrt(dx²+dy²)`
+    /// would (Copy A's failure mode).  `py_hypot`'s Dekker double-double
+    /// rescales before squaring, so `denom = dx²+dy²` may overflow to
+    /// `inf` — but the canonical kernel then falls through to the
+    /// `!denom.is_finite()` degenerate arm and calls `py_hypot` on the
+    /// point-to-endpoint vector, which also rescales internally.
+    ///
+    /// The point is offset by 1e150 from the segment — enough to survive
+    /// f64 precision at this magnitude (ULP ≈ 1e134).  A sqrt-based
+    /// reimplementation would overflow to inf here; the canonical
+    /// returns a finite result.
+    #[test]
+    fn ptsd_large_coordinates_stay_finite() {
+        let big = 1e150_f64;
+        // Segment from (0,0) to (2*big, 0) — dx = 2e150, dx² overflows.
+        let seg_x2 = 2.0 * big;
+        // Point at (big, big) — well off the segment, offset = 1e150.
+        let d = point_to_segment_distance(big, big, 0.0, 0.0, seg_x2, 0.0);
+        // denom = dx² = (2e150)² overflows to inf → degenerate arm →
+        // py_hypot(big - 0, big - 0) = hypot(1e150, 1e150) ≈ 1.414e150.
+        assert!(d.is_finite(), "large-coordinate distance should be finite, got {d}");
+        assert!(d > 1e149, "expected ~1.4e150, got {d}");
+    }
+
+    /// Denormal-magnitude inputs: the canonical kernel uses py_hypot
+    /// which preserves subnormals.  Copy A (`sqrt(dx²+dy²)`) flushes
+    /// intermediates to zero.  This is the spike's definitive
+    /// discriminator — any sqrt-based reimplementation would fail this.
+    #[test]
+    fn ptsd_denormal_inputs_preserved_by_py_hypot() {
+        let tiny = 1e-200_f64;
+        let d = point_to_segment_distance(tiny, tiny, 0.0, 0.0, tiny, 0.0);
+        // Degenerate segment (denom ≈ 1e-400, too small for f64 → 0.0),
+        // so py_hypot(tiny-0, tiny-0) = hypot(tiny, tiny) ≈ 1.4e-200.
+        assert!(d > 0.0, "denormal distance should be > 0, got {d}");
+        assert!(d < 1e-100, "denormal distance should be tiny, got {d}");
+        assert!(d.is_finite(), "denormal distance should be finite, got {d}");
+    }
+
+    /// Point EXACTLY at the segment endpoint: distance should be 0.0
+    /// (bit-exact, not merely ~0).
+    #[test]
+    fn ptsd_point_at_segment_endpoint_is_zero() {
+        assert_eq!(
+            point_to_segment_distance(0.0, 0.0, 0.0, 0.0, 10.0, 5.0),
+            0.0,
+            "point at start endpoint"
+        );
+        assert_eq!(
+            point_to_segment_distance(10.0, 5.0, 0.0, 0.0, 10.0, 5.0),
+            0.0,
+            "point at far endpoint"
+        );
     }
 }
