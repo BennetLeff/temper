@@ -413,6 +413,33 @@ class TestValidateRaiseEvidence:
         problems = DrcRatchet(Path("dummy.json")).validate_raise_evidence(old, new, tmp_path)
         assert problems == []
 
+    def test_under_sampled_creepage_only_raise_fails(self, tmp_path):
+        """2026-08-11 fix: the sample-count check used to be hardcoded to
+        ``"clearance" in nondet``, so a raise whose ONLY nondeterministic
+        category was something else (e.g. ``creepage``, the category that
+        has actually been chronically nondeterministic on this board since
+        the #602 K3 swap) sailed through with zero samples required. This
+        reproduces that exact shape -- a creepage-only nondeterministic
+        block, undersampled -- and asserts it is now caught."""
+        old = _base_ceiling()
+        new, _board = _compliant_new_ceiling(tmp_path)
+        new["boards"][0]["nondeterministic_error_types"] = {
+            "creepage": {"observed": [182, 183, 184], "samples": 40, "note": "only nondeterministic category"}
+        }
+        new["boards"][0]["provenance"]["sample_count"] = 40
+        problems = DrcRatchet(Path("dummy.json")).validate_raise_evidence(old, new, tmp_path)
+        assert any("40" in p and "at least 120" in p and "creepage" in p for p in problems)
+
+    def test_sufficiently_sampled_creepage_only_raise_passes(self, tmp_path):
+        old = _base_ceiling()
+        new, _board = _compliant_new_ceiling(tmp_path)
+        new["boards"][0]["nondeterministic_error_types"] = {
+            "creepage": {"observed": [182, 183, 184], "samples": 134, "note": "only nondeterministic category"}
+        }
+        new["boards"][0]["provenance"]["sample_count"] = 134
+        problems = DrcRatchet(Path("dummy.json")).validate_raise_evidence(old, new, tmp_path)
+        assert problems == []
+
     def test_stale_input_hash_fails(self, tmp_path):
         old = _base_ceiling()
         new, board_file = _compliant_new_ceiling(tmp_path)

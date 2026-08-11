@@ -315,6 +315,29 @@ class NoiseHeadroomViolation:
     ceiling-exceeded FAIL on a board that did not regress. This dataclass
     is what ``check_noise_headroom`` reports when that invariant does not
     hold; it does not itself re-measure anything.
+
+    2026-08-11 correction -- this was not hypothetical, it was live: every
+    ``creepage`` record in ``drc_ceiling.json`` from the #602 K3 swap
+    onward (6 consecutive re-measurements, 2026-08-02 through 2026-08-11)
+    carried exactly this failure -- a measured spread of 2 (three distinct
+    values: 185-187, then 169-171, then 182-184 as the board changed)
+    against a mechanically-applied ``max + 1`` ceiling, because every
+    re-measurement in that window copied the ``+1`` convention forward
+    without re-checking it against ITS OWN invariant above. The convention
+    a human (or agent) setting a ceiling for a category newly added to
+    ``nondeterministic_error_types`` should actually follow is
+    ``max(observed) + spread``, i.e. exactly enough headroom to satisfy
+    this dataclass's own ``headroom >= spread`` check -- ``+ 1`` is only
+    correct when the measured spread happens to be 1 (true for creepage's
+    very first characterization, 199-200, false ever since). Run
+    ``check_noise_headroom`` (or ``scripts/ci_check_drc.py``) against the
+    candidate ceiling BEFORE committing a re-measurement, rather than
+    trusting the arithmetic convention blindly -- the check is cheap
+    (no DRC run) and exists precisely to catch this. See
+    docs/evidence/2026-08-11-creepage-noise-headroom-guard-fix.md for the
+    full incident, the multi-campaign spread measurement, and why the
+    fix widens headroom by exactly the measured spread rather than by an
+    arbitrary safety buffer.
     """
 
     board_id: str
@@ -859,9 +882,11 @@ class DrcRatchet:
               block must be a measured-live record -- source
               ``"measured-live"``, a resolvable ``measured_at_commit``, a
               clean tree (``dirty`` false), a concrete recorded kicad-cli
-              version, at least 120 samples for the nondeterministic
-              ``clearance`` category (structured ``sample_count`` or
-              ``measured_via`` prose), and an input hash that still matches
+              version, at least 120 samples whenever ANY category is
+              declared nondeterministic (structured ``sample_count`` or
+              ``measured_via`` prose) -- not only ``clearance``; see the
+              2026-08-11 fix note inline below for why this is
+              category-generic now -- and an input hash that still matches
               ``pcb/temper.kicad_pcb``'s current content.
 
         Each violation is reported as one problem string naming the failing
@@ -983,16 +1008,32 @@ class DrcRatchet:
                     "contract tool (run_drc with --all-track-errors)"
                 )
 
-            # Sample count: >= 120 when clearance is the declared
-            # nondeterministic category -- the one category whose ceiling is
-            # an observed-max-plus-headroom number, which is only meaningful
+            # Sample count: >= 120 whenever ANY category is declared
+            # nondeterministic -- every such category's ceiling is an
+            # observed-max-plus-headroom number, which is only meaningful
             # when the observation actually sampled the run-to-run spread.
+            #
+            # This used to check only ``"clearance" in nondet`` -- literally
+            # true when clearance was this file's one chronically-scattering
+            # category, but it silently stopped enforcing anything the
+            # moment a DIFFERENT category (``creepage``, since the #602 K3
+            # swap) became the one carrying real run-to-run noise: a
+            # creepage-only raise sailed through this check with zero
+            # samples required, because the string "clearance" just wasn't
+            # in its ``nondeterministic_error_types`` keys. Found while
+            # fixing the creepage noise-headroom guard (2026-08-11) -- the
+            # same discipline this file's docstring already claims
+            # ("at least 120 samples for the nondeterministic clearance
+            # category") was never actually category-generic in code. Now
+            # checked once per declared-nondeterministic category, not once
+            # for a single hardcoded name.
             nondet = record.get("nondeterministic_error_types")
-            if isinstance(nondet, dict) and "clearance" in nondet:
+            if isinstance(nondet, dict) and nondet:
                 sample_count = _provenance_sample_count(prov)
                 if sample_count is None or sample_count < 120:
+                    categories = ", ".join(sorted(nondet))
                     problems.append(
-                        f"{board_id}: clearance is declared nondeterministic but the "
+                        f"{board_id}: {categories} declared nondeterministic but the "
                         f"provenance records {sample_count!r} sample(s) -- the "
                         "measurement contract requires at least 120 samples "
                         "(provenance.sample_count, or measured_via prose on "
