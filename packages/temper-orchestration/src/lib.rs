@@ -155,6 +155,7 @@
 // into CPython (the crate also sets `profile.release.panic = "unwind"` so
 // that catch is what runs).
 mod board_state;
+mod apply_placements_stage;
 mod component_assignment_stage;
 mod config_attach_stage;
 mod connectivity_validation_stage;
@@ -168,16 +169,20 @@ mod drc_sweep_stage;
 mod drc_validation_stage;
 mod explainability;
 mod feasibility;
+mod fine_pitch_escape_stage;
 mod grid_fence;
 mod grid_hv;
 mod grid_stage;
 mod host_math;
+mod hv_lv_partition_stage;
+mod layer_assignment_stage;
 mod net_ordering_stage;
 mod phased_assignment_stage;
 mod phased_component_assignment_validator_stage;
 mod pipeline;
 mod pipeline_state;
 mod placement_validation_stage;
+mod power_plane_stage;
 mod preflight_stage;
 mod setup_stage;
 mod slot_generation_stage;
@@ -192,6 +197,7 @@ mod zone_aware_slot_generation_stage;
 // Public re-exports for the orchestration engine's Rust consumers (the
 // runner test in `tests/stages_runner.rs` and the Phase-C pipeline wiring).
 // Append-only per the U4 dispatch; the individual modules stay private.
+pub use apply_placements_stage::ApplyPlacementsStage;
 pub use board_state::BoardState;
 pub use component_assignment_stage::ComponentAssignmentStage;
 pub use config_attach_stage::ConfigAttachStage;
@@ -200,12 +206,16 @@ pub use courtyard_check_stage::CourtyardCheckStage;
 pub use derivation_stage::DerivationStage;
 pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
 pub use drc_validation_stage::DRCValidationStage;
+pub use fine_pitch_escape_stage::FinePitchEscapeStage;
 pub use grid_stage::ClearanceGridStage;
+pub use hv_lv_partition_stage::HvLvPartitionStage;
+pub use layer_assignment_stage::LayerAssignmentStage;
 pub use net_ordering_stage::NetOrderingStage;
 pub use phased_assignment_stage::PhasedAssignmentStage;
 pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
 pub use phased_component_assignment_validator_stage::phased_validator_hv;
 pub use placement_validation_stage::PlacementValidationStage;
+pub use power_plane_stage::PowerPlaneStage;
 pub use preflight_stage::PreflightStage;
 pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
 pub use slot_generation_stage::SlotGenerationStage;
@@ -280,6 +290,11 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(drc_sweep_stage::run_short_circuit_detection, m)?)?;
     m.add_function(wrap_pyfunction!(placement_validation_stage::run_placement_validation, m)?)?;
     m.add_function(wrap_pyfunction!(courtyard_check_stage::run_courtyard_check, m)?)?;
+    m.add_function(wrap_pyfunction!(fine_pitch_escape_stage::run_fine_pitch_escape, m)?)?;
+    m.add_function(wrap_pyfunction!(hv_lv_partition_stage::run_hv_lv_partition, m)?)?;
+    m.add_function(wrap_pyfunction!(power_plane_stage::run_power_plane, m)?)?;
+    m.add_function(wrap_pyfunction!(layer_assignment_stage::run_layer_assignment, m)?)?;
+    m.add_function(wrap_pyfunction!(apply_placements_stage::run_apply_placements, m)?)?;
     Ok(())
 }
 
