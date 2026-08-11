@@ -366,24 +366,28 @@ def test_shim_delegates_to_rust() -> None:
 
 _NET_NAMES = ["GND", "+3V3", "SW_NODE", "12V", "AC_L"]
 _LAYERS = ["F.Cu", "B.Cu", "In1.Cu"]
+# Every plain line is individually paren-balanced (a balanced generator is a
+# precondition of the balance-preservation property, and the shuffle-based
+# MR needs balanced items), and none contains a `(segment `/`(via `/`(zone `
+# substring.
 _PLAIN_LINES = st.sampled_from([
-    "(kicad_pcb (version 20211014) (generator kiutils)",
     "  (general (thickness 1.6))",
     '  (net 1 "GND")',
     '  (gr_line (start 0 0) (end 10 0) (layer "Edge.Cuts") (width 0.05))',
-    '  (footprint "R_SMD:R_0603" (at 50 40) (layer "F.Cu")',
-    '    (fp_text reference "R1" (at 0 0) (layer "F.SilkS"))',
-    "  )",
+    '  (footprint "R_SMD:R_0603" (at 50 40) (layer "F.Cu") (attr smd))',
     '  (gr_text "board" (at 5 5) (layer "F.SilkS"))',
+    '  (gr_rect (start 0 0) (end 100 80) (layer "Edge.Cuts") (width 0.05))',
     "",
 ])
 
 
 @st.composite
-def _block(draw):
+def _block(draw, kw=None):
     """A well-formed top-level ``(segment|via|zone)`` block: single-line for
-    segment/via, multi-line with a nested polygon for zone."""
-    kw = draw(st.sampled_from(["segment", "via", "zone"]))
+    segment/via, multi-line with a nested polygon for zone.  Every block is
+    paren-balanced, so stripping it (net paren contribution zero) preserves
+    document balance."""
+    kw = draw(st.sampled_from(["segment", "via", "zone"])) if kw is None else kw
     net = draw(st.integers(0, 20))
     net_name = draw(st.sampled_from(_NET_NAMES))
     layer = draw(st.sampled_from(_LAYERS))
@@ -424,10 +428,17 @@ def _block(draw):
     )
 
 
+def _assemble(items):
+    """Wrap a top-level item list in a balanced board header/footer (the
+    ``(kicad_pcb`` root opens once and the final ``)`` closes it, so the
+    whole document is paren-balanced)."""
+    return "\n".join(["(kicad_pcb"] + items + [")", ""])
+
+
 @st.composite
 def _content(draw):
-    """A board-like document: a header line, 0..6 top-level items each either
-    a plain balanced line or a keyword block, and a footer line."""
+    """A board-like document: a header, 0..6 top-level items each either a
+    plain balanced line or a keyword block, and a footer."""
     items = draw(
         st.lists(
             st.one_of(_PLAIN_LINES, _block()),
@@ -435,7 +446,49 @@ def _content(draw):
             max_size=6,
         )
     )
-    return "\n".join(["(kicad_pcb (version 20211014)"] + items + [")", ""])
+    return _assemble(items)
+
+
+@st.composite
+def _content_with_blocks(draw, min_blocks=1):
+    """Guaranteed >= ``min_blocks`` keyword blocks (non-vacuous fixture)."""
+    n_blocks = draw(st.integers(min_blocks, 5))
+    blocks = draw(st.lists(_block(), min_size=n_blocks, max_size=n_blocks))
+    plains = draw(st.lists(_PLAIN_LINES, min_size=0, max_size=3))
+    items = blocks + plains
+    draw(st.permutations(items))
+    return _assemble(items)
+
+
+@st.composite
+def _content_mixed(draw):
+    """Guaranteed >= 1 zone AND >= 1 segment/via (non-vacuous fixture for the
+    zones-vs-copper properties and the decomposition MR)."""
+    segvia_kw = draw(st.sampled_from(["segment", "via"]))
+    zone = draw(_block(kw="zone"))
+    segvia = draw(_block(kw=segvia_kw))
+    extras = draw(
+        st.lists(
+            st.one_of(_PLAIN_LINES, _block()),
+            min_size=0,
+            max_size=4,
+        )
+    )
+    items = [zone, segvia] + extras
+    draw(st.permutations(items))
+    return _assemble(items)
+
+
+@st.composite
+def _content_with_permutation(draw):
+    """Returns ``(content, permuted)`` where ``permuted`` is a
+    guaranteed-different ordering of the same top-level items (blocks first in
+    one, plains first in the other -- concatenation order, so they can never
+    coincide when at least one of each is present)."""
+    n_blocks = draw(st.integers(1, 4))
+    blocks = draw(st.lists(_block(), min_size=n_blocks, max_size=n_blocks))
+    plains = draw(st.lists(_PLAIN_LINES, min_size=1, max_size=3))
+    return _assemble(blocks + plains), _assemble(plains + blocks)
 
 
 def _count_blocks(content: str, keywords: tuple[str, ...]) -> int:
@@ -479,8 +532,9 @@ def test_p1_removed_count_is_exact(c) -> None:
 @settings(max_examples=40, deadline=None)
 @given(c=st.data())
 def test_p2_paren_balance_preserved(c) -> None:
-    content = c.draw(_content())
+    content = c.draw(_content_with_blocks())
     assert content.count("(") == content.count(")"), "generator produced unbalanced content"
+    assert _count_blocks(content, ("segment", "via", "zone")) >= 1, "vacuity"
     cleaned, removed = _RS_COPPER(content)
     assert removed >= 1, "vacuity: property needs at least one block to strip"
     assert cleaned.count("(") == cleaned.count(")")
@@ -489,10 +543,11 @@ def test_p2_paren_balance_preserved(c) -> None:
 @settings(max_examples=40, deadline=None)
 @given(c=st.data())
 def test_p3_no_target_keyword_block_survives(c) -> None:
-    content = c.draw(_content())
-    assert _count_blocks(content, ("segment", "via", "zone")) >= 1
+    content = c.draw(_content_with_blocks())
+    n_blocks = _count_blocks(content, ("segment", "via", "zone"))
+    assert n_blocks >= 1, "vacuity"
     cleaned, removed = _RS_COPPER(content)
-    assert removed >= 1
+    assert removed == n_blocks
     assert "(segment " not in cleaned
     assert "(via " not in cleaned
     assert "(zone " not in cleaned
@@ -501,7 +556,7 @@ def test_p3_no_target_keyword_block_survives(c) -> None:
 @settings(max_examples=40, deadline=None)
 @given(c=st.data())
 def test_p4_strip_is_idempotent(c) -> None:
-    content = c.draw(_content())
+    content = c.draw(_content_with_blocks())
     cleaned_once, removed_first = _RS_COPPER(content)
     assert removed_first >= 1, "vacuity: property needs a block to strip"
     cleaned_twice, removed_second = _RS_COPPER(cleaned_once)
@@ -512,18 +567,15 @@ def test_p4_strip_is_idempotent(c) -> None:
 @settings(max_examples=40, deadline=None)
 @given(c=st.data())
 def test_p5_zones_strip_leaves_segments_and_vias_untouched(c) -> None:
-    content = c.draw(_content())
+    content = c.draw(_content_mixed())
     n_zones = _count_blocks(content, ("zone",))
-    n_copper_others = _count_blocks(content, ("segment", "via"))
-    assert n_zones >= 1 and n_copper_others >= 1, (
-        "vacuity: property needs both a zone and a segment/via to say anything"
-    )
+    assert n_zones >= 1
     cleaned, removed = _RS_ZONES(content)
     assert removed == n_zones
     segment_via_lines = [
         line for line in content.split("\n") if _count_blocks(line, ("segment", "via")) > 0
     ]
-    assert segment_via_lines
+    assert segment_via_lines, "vacuity: needs a segment/via line"
     for line in segment_via_lines:
         assert line in cleaned, f"zone strip lost a segment/via line: {line!r}"
 
@@ -537,8 +589,8 @@ def test_p5_zones_strip_leaves_segments_and_vias_untouched(c) -> None:
 @given(c=st.data())
 def test_mr1_zones_strip_is_idempotent(c) -> None:
     """Second application removes nothing and changes nothing."""
-    content = c.draw(_content())
-    assert _count_blocks(content, ("zone",)) >= 1
+    content = c.draw(_content_mixed())
+    assert _count_blocks(content, ("zone",)) >= 1, "vacuity"
     once, removed_first = _RS_ZONES(content)
     assert removed_first >= 1
     twice, removed_second = _RS_ZONES(once)
@@ -551,12 +603,9 @@ def test_mr1_zones_strip_is_idempotent(c) -> None:
 def test_mr2_strip_is_permutation_invariant(c) -> None:
     """Reordering non-overlapping top-level items changes neither the removal
     count nor the multiset of surviving lines."""
-    content = c.draw(_content())
-    assert _count_blocks(content, ("segment", "via", "zone")) >= 1
-    items = content.split("\n")[1:-2]
-    assert len(items) >= 2
-    permuted = "\n".join(["(kicad_pcb (version 20211014)"] + items[::-1] + [")", ""])
-    assert permuted != content, "vacuity: permutation must differ from the input"
+    content, permuted = c.draw(_content_with_permutation())
+    assert content != permuted, "vacuity: permutation must differ from the input"
+    assert _count_blocks(content, ("segment", "via", "zone")) >= 1, "vacuity"
     a_clean, a_removed = _RS_COPPER(content)
     b_clean, b_removed = _RS_COPPER(permuted)
     assert a_removed == b_removed
@@ -566,17 +615,19 @@ def test_mr2_strip_is_permutation_invariant(c) -> None:
 @settings(max_examples=40, deadline=None)
 @given(c=st.data())
 def test_mr3_zones_then_copper_decomposes(c) -> None:
-    """Copper stripping = stripping zones first, then stripping the
-    remaining segments/vias.  Concretely: copper(X) is unchanged by an
-    extra pre-strip of zones, and an extra post-strip of zones on copper(X)
-    is a no-op -- zone removal is subsumed by copper removal."""
-    content = c.draw(_content())
-    assert _count_blocks(content, ("zone",)) >= 1
-    assert _count_blocks(content, ("segment", "via")) >= 1
+    """Copper stripping decomposes: stripping zones first then copper leaves
+    the same content as copper alone, and the copper count is the zones count
+    plus the remaining segments/vias count.  Conversely, zones on already-
+    copper-stripped content is a no-op -- zone removal is subsumed by copper
+    removal."""
+    content = c.draw(_content_mixed())
+    assert _count_blocks(content, ("zone",)) >= 1, "vacuity"
+    assert _count_blocks(content, ("segment", "via")) >= 1, "vacuity"
     copper = _RS_COPPER(content)
-    copper_after_zones = _RS_COPPER(_RS_ZONES(content)[0])
+    zones = _RS_ZONES(content)
+    copper_after_zones = _RS_COPPER(zones[0])
     assert copper[0] == copper_after_zones[0]
-    assert copper[1] == copper_after_zones[1]
+    assert copper[1] == copper_after_zones[1] + zones[1]
     zones_after_copper = _RS_ZONES(copper[0])
     assert zones_after_copper[0] == copper[0]
     assert zones_after_copper[1] == 0

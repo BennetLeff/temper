@@ -25,51 +25,27 @@ not: a real zone (see ``pcb/temper.kicad_pcb``) spans dozens of lines --
 line-anchored regex simply never matches a zone's opening line (it is not
 the whole line), so the old function silently left every zone untouched --
 it was never a zone-shaped bug fix, just an unexercised gap for zones
-specifically. This module strips all three block kinds uniformly by
+specifically. The strip logic removes all three block kinds uniformly by
 tracking parenthesis depth from each block's opening line to the line where
 that depth returns to zero, which is correct for both single-line and
 arbitrarily-nested multi-line blocks.
+
+Wave 4 (PORT): the strip kernel now lives in Rust --
+``temper-io-types``'s ``strip_copper`` module (pure-Rust ``strip_blocks``,
+exposed as ``temper_io_types.strip_existing_copper`` /
+``strip_existing_zones``), ported verbatim from this module's pre-migration
+body. This file is a pure-delegation shim re-exporting the Rust compute; the
+pre-migration implementation is pinned verbatim as the differential oracle in
+``tests/router_v6/test_strip_copper_rust_differential.py`` (see the crate
+``VERIFICATION.md`` for the parity proof). ``strip_existing_copper`` /
+``strip_existing_zones`` are the only public names, unchanged.
 """
 
 from __future__ import annotations
 
-import re
+import temper_io_types as _rs
 
 __all__ = ["strip_existing_copper", "strip_existing_zones"]
-
-
-def _strip_blocks(content: str, keywords: tuple[str, ...]) -> tuple[str, int]:
-    """Remove every top-level ``(keyword ...)`` block for each *keywords*
-    entry, tracking paren depth from each block's opening line.
-
-    A block "opens" on the first line (after leading whitespace) that
-    matches ``(keyword ``. From there, every ``(``/``)`` on subsequent
-    lines (including the opening line itself) adjusts a running depth
-    counter; the block ends on the line where that counter returns to
-    zero (or below, defensively). This is correct whether the whole block
-    is on one line (``(segment ...)``, ``(via ...)``) or spans many
-    (``(zone ...)``).
-
-    Returns ``(cleaned_content, blocks_removed)``.
-    """
-    pattern = re.compile(r"^\s*\((" + "|".join(re.escape(k) for k in keywords) + r")\s")
-    lines = content.split("\n")
-    out: list[str] = []
-    removed = 0
-    depth = 0
-    in_block = False
-    for line in lines:
-        if not in_block and pattern.match(line):
-            in_block = True
-            depth = 0
-            removed += 1
-        if in_block:
-            depth += line.count("(") - line.count(")")
-            if depth <= 0:
-                in_block = False
-            continue
-        out.append(line)
-    return "\n".join(out), removed
 
 
 def strip_existing_copper(content: str) -> tuple[str, int]:
@@ -84,8 +60,10 @@ def strip_existing_copper(content: str) -> tuple[str, int]:
 
     Returns ``(cleaned_content, blocks_removed)`` where ``blocks_removed``
     counts segments + vias + zones together.
+
+    Delegates to ``temper_io_types.strip_existing_copper``.
     """
-    return _strip_blocks(content, ("segment", "via", "zone"))
+    return _rs.strip_existing_copper(content)
 
 
 def strip_existing_zones(content: str) -> tuple[str, int]:
@@ -99,5 +77,7 @@ def strip_existing_zones(content: str) -> tuple[str, int]:
     caller already stripped zones from the routing input.
 
     Returns ``(cleaned_content, zones_removed)``.
+
+    Delegates to ``temper_io_types.strip_existing_zones``.
     """
-    return _strip_blocks(content, ("zone",))
+    return _rs.strip_existing_zones(content)

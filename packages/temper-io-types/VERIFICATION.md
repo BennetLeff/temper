@@ -1498,3 +1498,128 @@ to.
   clean (0 warnings); no `unwrap`/`expect` outside `#[cfg(test)]` (the one
   `#[expect(clippy::expect_used)]` in `static_regex` is carried from the
   source crate).
+
+# Paren-balanced copper strip (`strip_copper.rs`) — Verification
+
+The paren-balanced removal of committed copper s-expression blocks
+(`src/strip_copper.rs`, exposed as
+`temper_io_types.strip_existing_copper` /
+`temper_io_types.strip_existing_zones`) is the Wave-4 PORT of
+`temper_placer/router_v6/_strip_copper.py` (103 LOC) — the last
+production-path Python with real string-manipulation logic. The Python
+module is now a pure-delegation shim; the pre-migration implementation is
+pinned VERBATIM as the `_oracle_*` block inside
+`packages/temper-placer/tests/router_v6/test_strip_copper_rust_differential.py`
+(origin/main `28de4543d`, the migration base). The TDD-RED commit is
+`e4b8bbb5b` (the file fails to collect with `AttributeError: module
+'temper_io_types' has no attribute 'strip_existing_copper'` until the Rust
+surface landed; GREEN landed with `5a18a0b40`).
+
+Consumers, byte-identical through the shim: `_adapter_convert.py`'s
+`_write_routes_to_content` (`strip_existing_zones`, the R7 replace-don't-
+append write path), `scripts/route_board.py`'s clean re-route path
+(`strip_existing_copper`), `test_topology_copper_audit.py`, and the
+`_adapter_convert_py_oracle.py` pinned oracle.
+
+## Induction applicability
+
+**Mathematical induction is not applicable.** `strip_blocks` is a single
+linear pass over the line list; each line's decision (open / accumulate
+depth / emit) is independent of the line count and of any size parameter.
+No recursion anywhere. Per the plan's R1e, a **structural proof** is
+recorded instead.
+
+## Structural proof
+
+**Claim (byte-identical parity).** For both entry points, the Rust output
+is byte-identical to the pinned pre-migration Python implementation, and
+`removed` counts agree exactly, for every input in the differential suites'
+domains (fixtures + hypothesis-generated boards + the real
+`pcb/temper.kicad_pcb`).
+
+*Proof by structural cases.*
+
+1. **Opening-line matching.** CPython `re.match(r"^\s*\((...kw...)\s")`
+   on each `content.split("\n")` line is reproduced by
+   `opening_pattern`: `^` = start of haystack (each line is its own
+   haystack), the keyword alternation is `regex::escape`d (for the three
+   ASCII keywords escaping is the identity), and the keyword must be
+   followed by a whitespace character — `(zone)`, `(zonex ...)`,
+   `(segment)` never open a block. The leading `\s*` and trailing `\s` use
+   `PY_WS = [\s\x1c-\x1f]`: the `regex` crate's `\s` is Unicode
+   White_Space, which omits U+001C..=U+001F that CPython's (str) `\s`
+   includes, so the union reproduces CPython's class exactly rather than
+   relying on the two classes coinciding. Pinned by the no-trailing-space
+   and tab-indent fixtures and the U+001C-adjacent class equivalence (the
+   `\x1c-\x1f` difference is closed in code, not merely tested).
+2. **The depth loop.** `line.count("(") - line.count(")")` is
+   `line.matches('(').count() - line.matches(')').count()` — both count
+   every paren character including those inside quoted strings (shared
+   naive behaviour, not a fix: the net-negative `"(GND("` fixture pins
+   both sides swallowing the same lines). The block opens with `depth = 0`
+   reset, counts its own opening line, and closes on the line where the
+   running depth returns to `<= 0` (the defensive negative-depth close is
+   pinned by `(zone )`/`(zone ))` single-line closes and the
+   unbalanced-depth swallow fixture). Once inside a block, lines are
+   consumed without further opening-line tests, so a `(segment ...)` nested
+   inside a zone's span is removed with the zone and not counted
+   independently (`removed == 2`, not 3, in the nested-segment fixture).
+3. **Line splitting / joining.** `content.split("\n")` keeps a trailing
+   `\r` on each CRLF line (the CRLF fixture pins surviving lines keeping
+   their `\r` byte-for-byte and the block spans closing at the same
+   points); `"\n".join(out)` is reproduced by `out.join("\n")`, so the
+   trailing `""` element of a `\n`-terminated document survives exactly as
+   in Python (a stripped `...\n` board keeps its `\n`).
+4. **Counting.** `removed` increments exactly once per block, at its
+   opening line, and blocks close independently — the count is the number
+   of opened blocks, identical to the oracle's counter (P1 pins exact
+   counts for copper and zones over generated boards).
+
+## What migrated vs stayed Python
+
+| Piece | Verdict |
+|---|---|
+| `_strip_blocks` paren-depth loop | migrated (`strip_blocks`, pure-Rust, wasm32-safe) |
+| `strip_existing_copper` / `strip_existing_zones` | migrated (pyo3 wrappers over `strip_blocks` with the fixed keyword lists) |
+| regex constants / keyword lists (`segment`,`via`,`zone`) | migrated (built once per call from the fixed lists; `regex::escape` reproduces `re.escape` for these ASCII keywords) |
+| the public API shape (`__all__`, docstrings, tuple return) | stays Python in the shim — the two public functions are the consumers' contract, unchanged |
+| nothing else | — `_strip_copper.py` had no other Python-only seams (no regex needs CPython, no `str.strip` semantics, no mutable session state); the whole module crosses |
+
+## R1 gate status
+
+| Gate | Status | Evidence |
+|---|---|---|
+| R1a behavioural A/B | PASS | 46 tests in `test_strip_copper_rust_differential.py`: both publics vs the verbatim oracle over 17 fixtures (nested span, unbalanced depth, quoted parens balanced + net-negative, CRLF, no-trailing-space, tab indent, empty/no-trailing-newline) + a hypothesis random-sweep differential + a full parity run on the real `pcb/temper.kicad_pcb` (2290 segments + 48 vias + 96 zones). Byte-exact string + exact count comparison. |
+| R1b no-regression arm | N/A, recorded | `pr_perf_compare` has no rows for this surface and none is added: the strip is invoked once or twice per board write path on content already in memory; a per-call A/B would measure the pyo3 boundary, not the kernel. No speedup is claimed. |
+| R1c ≥5 non-vacuous properties | PASS | 5 hypothesis properties (P1 exact removed count with the zero-block arm; P2 paren balance preserved; P3 no target keyword block survives; P4 strip idempotent; P5 zones strip leaves segments/vias), each with an in-test vacuity guard that hard-asserts its fixture exercises the claim. |
+| R1d ≥3 MRs | PASS | 3 metamorphic relations (MR1 zones idempotence; MR2 permutation invariance — removal count + surviving-line multiset unchanged under a guaranteed-different ordering; MR3 zones-then-copper decomposition — `copper(X)` content == `copper(zones(X))` content, counts additive, post-copper zone strip a no-op). |
+| R1e VERIFICATION.md | PASS | this section |
+| R1f TDD | PASS | RED `e4b8bbb5b` — the differential file fails to collect (`AttributeError: no attribute 'strip_existing_copper'`); GREEN `5a18a0b40` with the Rust surface. |
+| R1g Rust practice | PASS | no `unwrap`/`expect` outside `#[cfg(test)]` (one `#[expect]` on the infallible escaped-literal regex construction); both pyo3 boundaries wrapped in `temper_py_bridge::catch_panic` (panic → `RuntimeError`); borrows over clones; `cargo clippy --all-features --all-targets -- -D warnings` clean. |
+| R1h R24 | N/A | string rewriting only — no physics quantity is computed, asserted, or gated, so the R24 Chebyshev/BMC/post-solve obligations have no referent. |
+
+## Mutation spot-check
+
+Two mutants were applied to `strip_copper.rs`, rebuilt, run against the
+suite, confirmed caught, and reverted with `git diff` verified EMPTY before
+the next: M1 the defensive close `depth <= 0` → `depth < 0` (29 failures),
+M2 the `removed += 1` increment deleted (30 failures). The differential/PBT
+suites are fail-capable on the two behaviours most likely to drift.
+
+## Documented bounds (per R1, recorded here)
+
+1. **`usize` count bound.** `removed` is a `usize`; CPython's `int` is
+   unbounded. A document with more than `usize::MAX` blocks is
+   unconstructable in memory; unreachable in practice, recorded rather
+   than defended.
+2. **`isize` depth.** The running depth is `isize`; the per-line
+   difference is bounded by the line length, and content length is bounded
+   by memory. Same reachability note.
+3. **`\x1c-\x1f` whitespace.** Closed in code via `PY_WS` (not merely
+   tested), so this is an exactness note, not a deviation.
+4. **Quoted-paren counting is shared, not fixed.** A net-negative paren
+   inside a quoted string shifts both implementations identically (pinned
+   by the `"(GND("` fixture); real KiCad output never contains unbalanced
+   parens inside quoted strings, and the existing production-board
+   regression (`test_strip_copper.py`, 2434 blocks) proves the real input
+   space is unaffected.

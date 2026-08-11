@@ -354,6 +354,17 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
         "See doc §2."
     ),
     "router_v6/test_strip_copper.py": _PASSING_LOCALLY,
+    "router_v6/test_strip_copper_rust_differential.py": (
+        "PASSING locally (2026-08-11, strip-copper migration, "
+        "migrate/strip-copper): differential (rust vs the verbatim "
+        "_oracle_strip_blocks/_oracle_strip_existing_copper/"
+        "_oracle_strip_existing_zones pre-migration pins, incl. a full "
+        "pcb/temper.kicad_pcb parity run) + 5 non-vacuous PBT properties + 3 "
+        "metamorphic relations over generated KiCad snippets. Pure "
+        "Python/Rust, no external binary. Not yet wired into any CI job -- "
+        "the router_v6 CI wiring is the workflow-side change tracked in "
+        "docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md."
+    ),
     "router_v6/test_terminal_extraction_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_terminal_tree_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_tree_grid_layer_mismatch.py": _PASSING_LOCALLY,
