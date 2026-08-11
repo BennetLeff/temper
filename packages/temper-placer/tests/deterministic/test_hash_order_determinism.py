@@ -182,8 +182,9 @@ _CHANNEL_SNIPPET = """
 import networkx as nx
 
 from temper_placer.router_v6.channel_mapping import (
-    _extract_waypoints,
-    _parse_channel_coordinate,
+    _is_near_skeleton,
+    _nearest_skeleton_node,
+    _nearest_terminal_order,
 )
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 
@@ -198,23 +199,26 @@ def skeleton():
 
 
 sk = skeleton()
-unparseable = ["ch_A", "ch_B", "ch_C", "seg-north", "seg-south"]
 print("RESULT " + repr({
-    # Strategy 3 with no parseable coordinate: no position to report.
-    "unparseable": [_parse_channel_coordinate(c, sk) for c in unparseable],
-    # Strategy 3 with a parseable but off-skeleton coordinate: snap to the
-    # nearest skeleton node.
-    "snapped": _parse_channel_coordinate("far_100.0_100.0", sk),
-    # The insertion-order fallback in _extract_waypoints.
-    "fallback": _extract_waypoints(["ch_A", "ch_B"], sk),
+    # A far coordinate snaps to the nearest skeleton node (Wave 4: the
+    # coordinate resolution that used to live in _parse_channel_coordinate /
+    # _extract_waypoints now delegates to temper-geometry's
+    # nearest_skeleton_node_py / is_near_skeleton_py / nearest_terminal_order_py).
+    "snapped": _nearest_skeleton_node((100.0, 100.0), sk),
+    # A coordinate near the skeleton is detected as such.
+    "near": _is_near_skeleton((0.5, 1.0), sk),
+    # The greedy nearest-terminal ordering over a pad list (the fallback path).
+    "fallback": _nearest_terminal_order((0.0, 0.0), [(5.0, 10.0), (1.0, 2.0), (3.0, 6.0)]),
 }))
 """
 
 
 def test_channel_coordinate_is_seed_independent():
     out = _assert_seed_independent(_CHANNEL_SNIPPET, "channel_mapping coordinate resolution")
-    # Non-vacuity: the snap and the fallback must both have produced geometry.
-    assert "'snapped': (" in out, out
+    # Non-vacuity: the snap, the near check, and the ordering must all have
+    # produced geometry.
+    assert "'snapped': (7.0, 14.0)" in out, out
+    assert "'near': True" in out, out
     assert "'fallback': [(" in out, out
 
 
@@ -236,7 +240,7 @@ import random
 
 import networkx as nx
 
-from temper_placer.router_v6.channel_mapping import _extract_waypoints
+from temper_placer.router_v6.channel_mapping import _nearest_skeleton_node
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 
 PTS = [(float(i), float(i) * 2.0) for i in range(8)]
@@ -253,14 +257,14 @@ def skeleton(perm_seed):
     return ChannelSkeleton(graph=g, layer_name="F.Cu", total_length=7.0)
 
 
-outs = {repr(_extract_waypoints(["a", "b"], skeleton(p))) for p in range(16)}
+outs = {repr(_nearest_skeleton_node((100.0, 100.0), skeleton(p))) for p in range(16)}
 print("RESULT " + repr(sorted(outs)))
 """
     out = _run_under_seed(snippet, 0)
-    assert out.count("[(") == 1, (
-        f"_extract_waypoints' skeleton fallback still depends on networkx insertion order: {out}"
+    assert out.count("(7.0, 14.0)") == 1, (
+        f"_nearest_skeleton_node still depends on networkx insertion order: {out}"
     )
-    assert "(0.0, 0.0)" in out, f"cell produced no waypoints: {out}"
+    assert "(7.0, 14.0)" in out, f"snap produced no node: {out}"
 
 
 # ---------------------------------------------------------------------------
