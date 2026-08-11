@@ -1,0 +1,49 @@
+{
+  "_comment": [
+    "temper-thermal's expected-failure manifest, the sibling of wasm_expected_failures.json",
+    "(temper-drc-rs) and wasm_expected_failures_geometry.json. Same contract, same reasoning --",
+    "see wasm_expected_failures.json's _comment for why divergences are LISTED and executed",
+    "rather than deleted or cfg'd out.",
+    "",
+    "It is a separate file rather than more entries in a shared one because",
+    "run_wasm_tests.mjs exits non-zero on an ORPHAN EXCLUSION: a manifest entry naming no",
+    "registered test. Point the runner at this one with",
+    "`--expected-failures tools/wasm/wasm_expected_failures_thermal.json` when the module",
+    "carries temper-thermal alone (`make wasm-thermal-test` does).",
+    "",
+    "Native baseline, for contrast: `cargo test --manifest-path packages/temper-thermal/Cargo.toml`",
+    "passes 198/198 on x86_64-unknown-linux-gnu, these four included. Every entry below is",
+    "therefore a genuine native-vs-wasm32 divergence, not a broken test.",
+    "",
+    "Measured 2026-08-10 against 143 registered tests: 139 pass, 4 expected-fail, 0 other.",
+    "",
+    "All four are one class and one root cause. This crate's bit-exactness discipline rests",
+    "on catalog entry B1/B7: CPython's `x ** 2` is libm `pow(x, 2.0)`, NOT `x * x`, and",
+    "`x ** 0.5` is `pow(x, 0.5)`, NOT `sqrt(x)` -- they disagree in the last ulp on ~0.14% of",
+    "f64 on a glibc/macOS libm. hostmath.rs resolves those symbols through `dlsym` so the",
+    "crate matches the host Python's libm exactly. wasm32-unknown-unknown has no dynamic",
+    "loader, so hostmath falls back to `f64::powf`, whose wasm32 lowering agrees with `x * x`",
+    "and with `sqrt` on every sample these tests draw (2M-5M each). The kernels are still",
+    "correct there -- what disappears is the DIVERGENCE the tests exist to prove is still",
+    "present, so each fails on its own staleness guard. Identical in kind to temper-drc-rs's",
+    "three b7-pow-divergence-absent entries."
+  ],
+  "expected_failures": {
+    "hostmath::tests::pow_is_not_multiplication": {
+      "class": "b7-pow-divergence-absent",
+      "reason": "Searches up to 2000000 LCG-drawn normal f64 for one where hostmath::pow(x, 2.0) != x * x, and panics with 'no pow(x,2.0) vs x*x discriminator on this libm' if the loaded libm has none. On wasm32 hostmath::pow IS f64::powf (no dlsym), which agrees with the multiply for every sample -- the search exhausts and the guard fires. The test is correct; the platform property it pins is native-only. This is the root entry: the other three are the same fact reached through different kernels."
+    },
+    "geometric_metrics::tests::pow_used_not_multiplication_in_hypot": {
+      "class": "b7-pow-divergence-absent",
+      "reason": "Same root cause, one level up: searches 5000000 pairs for one where sqrt(pow(x,2)+pow(y,2)) differs from sqrt(x*x+y*y), i.e. a pre-sqrt 1-ulp difference that the sqrt does not collapse. With pow == multiply on wasm32 the difference is identically zero, so no pair discriminates and the search panics."
+    },
+    "thermal_potential::tests::separation_test_uses_pow_not_multiplication": {
+      "class": "b7-pow-divergence-absent",
+      "reason": "Same root cause. Searches 5000000 pairs for one where pow(dx,2)+pow(dy,2) < dx*dx+dy*dy, then feeds that fixture to find_min_valid to show the anchor separation test rejects a cell the multiply form would accept. Zero divergence on wasm32, so the fixture search fails first."
+    },
+    "thermal_potential::tests::uniqueness_distance_uses_pow_not_sqrt": {
+      "class": "b7-pow-divergence-absent",
+      "reason": "The pow-vs-SQRT half of the same class, and the only one of the four with a hard-coded fixture rather than a search: it pins dx/dy such that pow(s, 0.5) < sqrt(s) and asserts enforce_unique_positions_with therefore treats two anchors as duplicates and nudges the second to (0.5, 0.0). On wasm32 pow(s, 0.5) == sqrt(s), the distance is not below tolerance, no nudge happens, and the assertion reports the un-nudged (0.0, 0.0). Because the fixture is fixed rather than searched, this one fails on the OUTCOME assertion instead of on a 'not discriminating' guard -- same cause, different surface."
+    }
+  }
+}

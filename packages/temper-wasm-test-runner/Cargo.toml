@@ -42,12 +42,23 @@ wasm-registry-all = ["drc-registry", "temper-drc-rs/wasm-registry-all"]
 geometry-registry = ["dep:temper-geometry"]
 geometry-wasm-test-registry = ["geometry-registry", "temper-geometry/wasm-test-registry"]
 
+# --- temper-thermal ----------------------------------------------------------
+# Optional for the same reason `temper-geometry` is: a build that does not ask
+# for thermal has exactly the dependency graph it had before this crate was
+# added.
+thermal-registry = ["dep:temper-thermal"]
+thermal-wasm-test-registry = ["thermal-registry", "temper-thermal/wasm-test-registry"]
+
 [dependencies]
 temper-drc-rs = { path = "../temper-drc-rs", default-features = false }
 # `default-features = false` for the same reason it is set on temper-drc-rs's
 # own temper-geometry dependency: the `python` default would pull pyo3 in and
 # fail the wasm32-unknown-unknown link step.
 temper-geometry = { path = "../temper-geometry", optional = true, default-features = false }
+# `default-features = false` is load-bearing here: temper-thermal's default
+# feature IS `python`, which pulls pyo3 (and faer) in and fails the
+# wasm32-unknown-unknown build.
+temper-thermal = { path = "../temper-thermal", optional = true, default-features = false }
 
 [profile.release]
 opt-level = "z"

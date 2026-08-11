@@ -19,6 +19,20 @@ default = ["python"]
 # ever reached from that pyo3-gated wrapper, so it rides the same feature
 # rather than being compiled unconditionally.
 python = ["dep:pyo3", "dep:temper-py-bridge", "dep:faer"]
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index -- `cargo test`'s libtest harness cannot
+# target `wasm32-unknown-unknown`.  Off by default; never enabled for the
+# Python extension module.  Mirrors `temper-geometry`'s feature set exactly, so
+# the shared runner wires both crates the same way.
+#
+# `wasm-registry` is the umbrella feature that gates module visibility; every
+# per-family feature implies it.  This crate is a flat set of physics kernels
+# with no rule-family taxonomy, so it declares one family (`thermal`).
+wasm-registry = []
+wasm-registry-thermal = ["wasm-registry"]
+wasm-registry-all = ["wasm-registry-thermal"]
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 
 [dev-dependencies]
 proptest = "1"

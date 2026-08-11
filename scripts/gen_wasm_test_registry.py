@@ -180,7 +180,19 @@ DRC_RS_FAMILIES = ["drc", "emc", "erc", "safety", "placement", "routing", "infra
 # a deployment reason for it) without touching the renderer.
 GEOMETRY_FAMILIES = ["geometry"]
 
+# `temper-thermal` is the same shape as `temper-geometry`: a flat set of
+# physics kernels with no rule-family taxonomy, so one family.
+THERMAL_FAMILIES = ["thermal"]
+
 TEST_FN = re.compile(r"^(\s*)#\[(?:test|cfg_attr\(test, test\))\]\s*$")
+
+# A *use* of the `proptest` dev-dependency: the `proptest!` macro or a
+# `proptest::` path.  Deliberately not a bare substring search -- a module that
+# merely says the word in a comment ("--- proptest: structural properties ---",
+# or a note explaining why a nested module is gated) does not depend on the
+# crate, and excluding it on that basis would drop real tests from the tier for
+# a spelling.
+PROPTEST_USE = re.compile(r"(?:^|[^A-Za-z0-9_])proptest\s*(?:!|::)")
 FN_NAME = re.compile(r"^\s*(?:pub\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(")
 
 
@@ -245,6 +257,64 @@ def looks_test_gated(lines: list[str], decl_idx: int) -> bool:
     return False
 
 
+def nested_gated_mask(body: list[str]) -> list[bool]:
+    """Which lines of ``body`` belong to a *nested* test-gated submodule.
+
+    A test module can hold another test module::
+
+        #[cfg(test)]
+        mod tests {
+            #[test] fn a() {}
+
+            #[cfg(test)]
+            mod proptests { proptest! { #[test] fn p(..) {} } }
+        }
+
+    The inner module is its own census entry (:func:`discover_eligible` finds
+    it in the same sweep, because it carries its own gate), so its tests are
+    *not* the outer module's.  Without this mask the outer module would both
+    inherit the inner one's ``proptest`` exclusion and emit registry entries
+    naming functions that are not in its scope -- neither of which compiles or
+    counts correctly.
+
+    Only submodules carrying their own gate are masked.  An ungated helper
+    ``mod`` inside a test module is not a separate entry, so it stays part of
+    its parent exactly as before -- which is why this cannot change what
+    ``temper-drc-rs`` or ``temper-geometry`` already generate.
+
+    Caveat, shared with :func:`attr_block`: an attribute is recognised only
+    when it is written on ONE line.  Splitting ``#[allow(a, b, c)]`` across
+    lines hides the gate from the scan, and the nested module's tests get
+    attributed to its parent -- which does not compile (the parent cannot name
+    them), so the failure is loud rather than silent, but keep such attributes
+    on one line.
+    """
+    mask = [False] * len(body)
+    i = 0
+    while i < len(body):
+        m = MOD_DECL.match(body[i])
+        if m and m.group(2) == "{" and any(
+            is_test_gate(a) for a in attr_block(body, i)
+        ):
+            depth = 0
+            end = len(body) - 1
+            for j in range(i, len(body)):
+                depth += body[j].count("{") - body[j].count("}")
+                mask[j] = True
+                if depth == 0:
+                    end = j
+                    break
+            i = end + 1
+        else:
+            i += 1
+    return mask
+
+
+def own_lines(body: list[str]) -> list[str]:
+    """``body`` with every nested test-gated submodule removed."""
+    return [ln for ln, hidden in zip(body, nested_gated_mask(body)) if not hidden]
+
+
 def module_body(lines: list[str], decl_idx: int) -> list[str]:
     """The brace-balanced body of the inline module declared at ``decl_idx``."""
     depth = 0
@@ -304,6 +374,10 @@ def discover_eligible(src: Path) -> list[Discovered]:
                 # File module (`mod tests;`): the body is `<stem>/<ident>.rs`.
                 body_path = src / rel[: -len(".rs")] / f"{ident}.rs"
                 body = body_path.read_text().splitlines() if body_path.exists() else []
+            # A nested test-gated submodule is its own entry in this same
+            # sweep, so its tests (and its dev-dependency imports) belong to
+            # it, not to the module lexically containing it.
+            body = own_lines(body)
             tests = sum(1 for ln in body if TEST_FN.match(ln))
             attrs = attr_block(lines, i)
 
@@ -313,7 +387,7 @@ def discover_eligible(src: Path) -> list[Discovered]:
             ):
                 # The module does not exist in a wasm32 build at all.
                 reason = "python-gated"
-            elif any("proptest" in ln for ln in body):
+            elif any(PROPTEST_USE.search(ln.split("//")[0]) for ln in body):
                 # `proptest` is a dev-dependency: present under `cargo test`,
                 # absent from the ordinary (non-test) build the registry is
                 # compiled into.  Same exclusion `temper-drc-rs` makes by
@@ -400,6 +474,38 @@ CRATES: dict[str, CrateSpec] = {
             "//! failure.  Those tests stay registered and are listed in",
             "//! `tools/wasm/wasm_expected_failures_geometry.json`, whose gate is",
             "//! bidirectional: one that stops panicking is reported, not ignored.",
+        ],
+    ),
+    "temper-thermal": CrateSpec(
+        name="temper-thermal",
+        eligible=None,  # discovered, same as temper-geometry
+        families=THERMAL_FAMILIES,
+        family_of=lambda _rel: "thermal",
+        census_note="cannot be registered here at all",
+        sharding_note=[
+            "//! ## Families",
+            "//!",
+            "//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`",
+            "//! feature, as in `temper-drc-rs`.  This crate is a flat set of",
+            "//! physics kernels with no rule-family taxonomy, so it declares a",
+            "//! single family (`thermal`); the mechanism is in place if a",
+            "//! size-driven split is ever wanted.",
+        ],
+        extra_notes=[
+            "//! Two exclusion classes apply here, both structural:",
+            "//!",
+            '//! * `#[cfg(feature = "python")]` modules -- `solve`, whose sparse-LU',
+            "//!   kernel and its pyo3 bridge are one surface and which carries the",
+            "//!   `faer` dependency, so neither exists in a",
+            "//!   `--no-default-features` build.",
+            "//! * `proptest` modules use a dev-dependency, which is not linked into",
+            "//!   the ordinary (non-test) build this registry compiles into.  Unlike",
+            "//!   `temper-geometry`, this crate nests them *inside* its `tests`",
+            "//!   modules; each carries its own `#[cfg(test)]` and is censused",
+            "//!   separately, so nesting costs the enclosing module nothing.",
+            "//!",
+            "//! `scripts/gen_wasm_test_registry.py --crate temper-thermal --census`",
+            "//! prints the full module census with per-module counts.",
         ],
     ),
 }
@@ -662,8 +768,12 @@ def rewrite_module(text: str, rel: str, ident: str) -> tuple[str, str | None, li
         # File module: the body lives in `<stem>/<ident>.rs`.
         body_path = SRC / rel[: -len(".rs")] / f"{ident}.rs"
         body_lines = strip_generated(body_path.read_text().splitlines(), ident)
-        body_lines = [keep_test_fn(ln) for ln in body_lines]
-        fns = collect_test_fns(body_lines)
+        hidden = nested_gated_mask(body_lines)
+        body_lines = [
+            ln if nested else keep_test_fn(ln)
+            for ln, nested in zip(body_lines, hidden)
+        ]
+        fns = collect_test_fns(own_lines(body_lines))
         block = generated_block("", module_path(rel), ident, fns)
         while body_lines and not body_lines[-1].strip():
             body_lines.pop()
@@ -671,10 +781,15 @@ def rewrite_module(text: str, rel: str, ident: str) -> tuple[str, str | None, li
         new_lines = lines[:attr_start] + header + [decl] + lines[decl_idx + 1 :]
         return "\n".join(new_lines) + "\n", body_text, fns
 
-    body = [keep_test_fn(ln) for ln in lines[decl_idx + 1 : body_end]]
+    body = lines[decl_idx + 1 : body_end]
+    hidden = nested_gated_mask(body)
+    # A nested test-gated submodule keeps its `#[test]` attributes verbatim:
+    # it is not compiled into the registry build, and rewriting inside a
+    # `proptest!` invocation would change what that macro sees.
+    body = [ln if nested else keep_test_fn(ln) for ln, nested in zip(body, hidden)]
     while body and not body[-1].strip():
         body.pop()  # keep regeneration idempotent
-    fns = collect_test_fns(body)
+    fns = collect_test_fns(own_lines(body))
     block = generated_block(indent + "    ", module_path(rel), ident, fns)
     new_lines = (
         lines[:attr_start]
