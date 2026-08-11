@@ -9,13 +9,31 @@
 # `_comment` for why the list used to live in four places and why that was a
 # latent staleness bug rather than a tidiness complaint.
 #
-# Today that yields thirteen modules: temper-drc-rs's full corpus plus its seven
+# Today that yields fifteen modules: temper-drc-rs's full corpus plus its seven
 # family shards, and one single-family corpus each for temper-geometry,
-# temper-thermal, temper-design-bundle, temper-rust-router-core and
-# temper-constraint-compiler.  Duplicates are collapsed by the topology loader:
-# a single-family tier's full corpus and its only shard are the same module and
-# are compiled once -- so those five contribute five builds, not ten.  Three of
-# them were added on 2026-08-11 and this script needed no edit.
+# temper-thermal, temper-design-bundle, temper-rust-router-core,
+# temper-constraint-compiler, temper-quality-oracle and temper-io-types.
+# Duplicates are collapsed by the topology loader: a single-family tier's full
+# corpus and its only shard are the same module and are compiled once -- so
+# those seven contribute seven builds, not fourteen.  None of the tiers added
+# since this script was written needed an edit to it.
+#
+# Alongside each staged `<module>.wasm`, this script also writes
+# `<module>.wasm.sha256.json` -- `{"sha256": "<hex>"}`, the sha256 of the exact
+# bytes just staged. That sidecar is imported by the Worker entry points
+# (families/*/index.js, src/index.js) next to the .wasm module itself and the
+# expected-failure manifest, and returned from `/health` as `module_sha256`.
+# It exists because a TEST COUNT is a weak proxy for "is this the same
+# content": PR #941 fixed a clock bug that moved 7 temper-geometry tests from
+# trapping to passing on wasm32 while the registered count stayed 722 both
+# before and after, and check_deployed_freshness.mjs (which only ever compared
+# counts) reported the stale pre-#941 module "fresh" for four commits -- see
+# issue #945. The digest is computed here, not inside the Worker, because a
+# deployed Worker only ever gets a COMPILED `WebAssembly.Module` (Cloudflare's
+# bundler consumes the raw bytes at upload time) and there is no supported way
+# to recover the original bytes from a compiled Module to hash them at
+# request time; hashing at stage time, over the same bytes `cp` just staged,
+# is the one point in the pipeline that still has the raw file.
 set -euo pipefail
 
 WASM_DIR="target-shared/wasm32-unknown-unknown/release"
@@ -51,7 +69,15 @@ while IFS=$'\t' read -r crate features staged; do
         --no-default-features --features "$features" \
         --manifest-path "$CRATE"
     cp "$WASM_DIR/temper_wasm_test_runner.wasm" "$STAGE_DIR/$staged"
+    # sha256 of the exact bytes just staged -- see the header comment above
+    # ("Alongside each staged...") for why this happens here rather than in
+    # the Worker.
+    DIGEST="$(sha256sum "$STAGE_DIR/$staged" | cut -d' ' -f1)"
+    printf '{"sha256":"%s"}\n' "$DIGEST" > "$STAGE_DIR/$staged.sha256.json"
+    echo "    sha256 ${DIGEST}"
 done <<< "$MATRIX"
 
 echo "=== Staged modules ==="
 ls -lh "$STAGE_DIR"/temper_wasm_test_runner*.wasm
+echo "=== Staged digests ==="
+ls -lh "$STAGE_DIR"/temper_wasm_test_runner*.wasm.sha256.json

@@ -156,6 +156,7 @@
 // that catch is what runs).
 mod board_state;
 mod apply_placements_stage;
+mod clearance;
 mod component_assignment_stage;
 mod config_attach_stage;
 mod connectivity_validation_stage;
@@ -199,6 +200,10 @@ mod zone_aware_slot_generation_stage;
 // Append-only per the U4 dispatch; the individual modules stay private.
 pub use apply_placements_stage::ApplyPlacementsStage;
 pub use board_state::BoardState;
+pub use clearance::{
+    ClearanceCheckStage, ClearanceEngineStage, CreepageCheckStage, DomainClearanceStage,
+    IsolationBarrierStage,
+};
 pub use component_assignment_stage::ComponentAssignmentStage;
 pub use config_attach_stage::ConfigAttachStage;
 pub use connectivity_validation_stage::ConnectivityValidationStage;
@@ -295,6 +300,16 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(power_plane_stage::run_power_plane, m)?)?;
     m.add_function(wrap_pyfunction!(layer_assignment_stage::run_layer_assignment, m)?)?;
     m.add_function(wrap_pyfunction!(apply_placements_stage::run_apply_placements, m)?)?;
+    m.add_function(wrap_pyfunction!(clearance::get_clearance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(clearance::run_clearance_check, m)?)?;
+    m.add_function(wrap_pyfunction!(clearance::run_creepage_check, m)?)?;
+    m.add_function(wrap_pyfunction!(clearance::classify_domain_partition_py, m)?)?;
+    m.add_function(wrap_pyfunction!(clearance::project_onto_barrier_axis_py, m)?)?;
+    m.add_function(wrap_pyfunction!(clearance::evaluate_isolator_feasibility_py, m)?)?;
+    m.add_function(wrap_pyfunction!(clearance::domain_clearance_constraints_py, m)?)?;
+    m.add_function(wrap_pyfunction!(clearance::keepaway_constraints_py, m)?)?;
+    m.add_function(wrap_pyfunction!(clearance::intra_footprint_conflicts_py, m)?)?;
+    m.add_function(wrap_pyfunction!(clearance::audit_domain_clearance_py, m)?)?;
     Ok(())
 }
 

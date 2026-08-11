@@ -13,10 +13,11 @@ of producing a domain-clearance-compliant board; this module is the fix.
 ``IEC60335_REQUIREMENTS`` — the matrix of clearance/creepage minimums per
 (domain_a, domain_b, insulation_type) — and the pairing logic that walks a
 placement's components against that matrix
-(``_nets_domain_map``/``_domain_boundary_pairs``) are all imported directly
-from ``tests/requirements/validators/clearance.py``, the safety validator
-that the fixed board must satisfy. This constraint generator and the
-validator that checks it share one classifier; they cannot drift apart by
+(``_nets_domain_map``/``_domain_boundary_pairs``, themselves Rust-backed in
+``temper-drc-rs``) are the shared classifier with
+``tests/requirements/validators/clearance.py``, the safety validator that
+the fixed board must satisfy. This constraint generator and the validator
+that checks it share one classifier; they cannot drift apart by
 construction, because the second one *is* the first one, imported.
 
 This is a real cross-layer import (``src`` depending on ``tests``), which is
@@ -188,6 +189,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+import temper_orchestration as _to
+
 from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
 
 logger = logging.getLogger(__name__)
@@ -201,9 +204,6 @@ logger = logging.getLogger(__name__)
 from temper_placer.requirements.validators.clearance import (
     IEC60335_REQUIREMENTS,
     VoltageDomain,
-    _components_in_domain,
-    _domain_boundary_pairs,
-    _nets_domain_map,
 )
 
 __all__ = [
@@ -238,6 +238,28 @@ def required_margin_mm(requirements: dict[str, float]) -> float:
     return _tc.required_margin_mm_py(
         requirements["min_clearance_mm"], requirements["min_creepage_mm"]
     )
+
+
+def _matrix_rows() -> list[tuple[str, str, str, float, float, float]]:
+    """The IEC60335_REQUIREMENTS matrix marshalled into the flat row shape
+    ``temper-orchestration``'s ``clearance`` module consumes: ``(domain_a.value,
+    domain_b.value, insulation_type.value, min_clearance_mm, min_creepage_mm,
+    design_value_mm)``. The matrix stays the Python SSOT; the marshalling
+    happens once per call, in dict order (the generator's reason dedup is
+    order-sensitive only within a pair, and the emitted constraint order is
+    the sorted canonical pair order either way).
+    """
+    return [
+        (
+            domain_a.value,
+            domain_b.value,
+            insulation_type.value,
+            requirements["min_clearance_mm"],
+            requirements["min_creepage_mm"],
+            requirements["design_value_mm"],
+        )
+        for (domain_a, domain_b, insulation_type), requirements in IEC60335_REQUIREMENTS.items()
+    ]
 
 
 # The single margin the unclassified-near-HV keep-away constraints (and the
@@ -305,60 +327,32 @@ def generate_domain_clearance_constraints(
         lists every matrix row that matched the pair (see the inline
         comment in the body for the measured duplicate-emission wart this
         canonicalization fixes).
+
+    Phase E batch E3 (plan 2026-08-09-001): the matrix walk, the
+    canonicalization + margin/reason dedup and the sorted emission run in
+    ``temper-orchestration``'s ``clearance::domain_clearance_constraints_py``
+    (the ``DomainClearanceStage``); this function marshals the matrix rows
+    (:func:`_matrix_rows`), rebuilds the ``SeparatedConstraint`` dataclass
+    from the returned tuples, and keeps the logging (the intra-footprint
+    warning — logging stays Python). The pairing kernels
+    (``req_safe_01_nets_domain_map`` / ``req_safe_01_domain_boundary_pairs``)
+    stay single-source in temper-drc-rs.
     """
-    nets_domain = _nets_domain_map(placement, voltage_domains)
+    rows = _matrix_rows()
+    refs = sorted(component_refs) if component_refs is not None else None
+    out = _to.domain_clearance_constraints_py(placement, voltage_domains, rows, refs)
 
-    # (a, b) -> margin, canonicalized so the dict has AT MOST one entry per
-    # unordered pair. Keys must be order-independent: two matrix rows can
-    # pair the same two refs in opposite order -- e.g. the
-    # LV_CONTROL<->LV_CONTROL row draws both refs from the LV_CONTROL group
-    # (a pair like (C11, C6)) while the DC_BUS<->LV_CONTROL rows draw the
-    # straddler C6 from the DC_BUS group ((C6, C11)). With an ordered
-    # (ref_a, ref_b) key those land in two dict entries and the generator
-    # emits the same physical pair twice at two different margins -- measured
-    # 451 duplicate emissions on the production board (12,022 constraints /
-    # 11,571 unique unordered pairs), see
-    # docs/evidence/2026-08-01-domain-constraint-dedup.md. Sorting the refs
-    # into a canonical key merges every matching row onto one entry; the
-    # emitted constraint's a/b (and therefore its deterministic
-    # ``domain_clearance_{a}_{b}`` id) are that canonical, lexicographic
-    # order, so ids never depend on matrix-row iteration order.
-    pair_margin: dict[tuple[str, str], float] = {}
-    pair_reasons: dict[tuple[str, str], list[str]] = {}
-
-    for (domain_a, domain_b, insulation_type), requirements in IEC60335_REQUIREMENTS.items():
-        margin = required_margin_mm(requirements)
-        for comp_a, comp_b in _domain_boundary_pairs(placement, domain_a, domain_b, nets_domain):
-            ra, rb = comp_a.get("ref"), comp_b.get("ref")
-            if not isinstance(ra, str) or not isinstance(rb, str):
-                continue
-            if component_refs is not None and (ra not in component_refs or rb not in component_refs):
-                continue
-            key = (ra, rb) if ra <= rb else (rb, ra)
-            if margin > pair_margin.get(key, 0.0):
-                pair_margin[key] = margin
-            reason = (
-                f"IEC 60335-2-6 {domain_a.value}<->{domain_b.value} "
-                f"({insulation_type.value}): {margin}mm "
-                f"(max of clearance={requirements['min_clearance_mm']}mm, "
-                f"creepage={requirements['min_creepage_mm']}mm)"
-            )
-            reasons = pair_reasons.setdefault(key, [])
-            if reason not in reasons:
-                reasons.append(reason)
-
-    constraints: list[SeparatedConstraint] = []
-    for (ra, rb), margin in sorted(pair_margin.items()):
-        constraints.append(
-            SeparatedConstraint(
-                a=ra,
-                b=rb,
-                min_distance_mm=margin,
-                tier=ConstraintTier.HARD,
-                because="; ".join(pair_reasons[(ra, rb)]),
-                id=f"domain_clearance_{ra}_{rb}",
-            )
+    constraints: list[SeparatedConstraint] = [
+        SeparatedConstraint(
+            a=a,
+            b=b,
+            min_distance_mm=margin,
+            tier=ConstraintTier.HARD,
+            because=because,
+            id=id_,
         )
+        for (a, b, margin, because, id_) in out
+    ]
 
     logger.info(
         "Generated %d domain-clearance SEPARATED constraints from %d matrix rows",
@@ -452,48 +446,50 @@ def generate_unclassified_hv_keepaway_constraints(
         pair, ``id`` prefix ``keepaway_unclassified_`` so the R24 post-solve
         audit (which filters on ``domain_clearance_``) can be extended to
         them the same way if desired.
+
+    Phase E batch E3 (plan 2026-08-09-001): the classified/HV walk and the
+    sorted emission run in ``temper-orchestration``'s
+    ``clearance::keepaway_constraints_py`` (the ``DomainClearanceStage``);
+    the domain classifier kernel (``req_safe_01_nets_domain_map``) stays
+    single-source in temper-drc-rs. The exempt pairs are marshalled as flat
+    (a, b) tuples (order-independent membership, matching ``frozenset``
+    equality).
     """
     exempt: set[frozenset[str]] = exempt_pairs if exempt_pairs is not None else set()
     domains: set[VoltageDomain] = hv_domains if hv_domains is not None else _HV_DOMAINS
     margin = margin_mm if margin_mm is not None else MAX_IEC_MARGIN_MM
 
-    nets_domain = _nets_domain_map(placement, voltage_domains)
-    classified_refs: set[str] = set()
-    hv_refs: set[str] = set()
-    for comp in placement.get("components", []):
-        ref = comp.get("ref")
-        if not isinstance(ref, str):
-            continue
-        classified_refs.add(ref)
-        if any(nets_domain.get(net) in domains for net in comp.get("nets", [])):
-            hv_refs.add(ref)
+    exempt_flat: list[tuple[str, str]] = []
+    # Deterministic iteration (the hash-order gate): the frozensets are
+    # sorted by their (sorted) elements so PYTHONHASHSEED cannot leak into
+    # the flattened pair list. The Rust side only tests membership.
+    for pair in sorted(exempt, key=lambda fs: tuple(sorted(fs))):
+        items = sorted(pair)
+        if len(items) == 1:
+            exempt_flat.append((items[0], items[0]))
+        elif len(items) == 2:
+            exempt_flat.append((items[0], items[1]))
+        # len 0 / len > 2 cannot equal a {u, h} unordered pair; skipped.
 
-    unclassified_refs = sorted(component_refs - classified_refs)
-    constraints: list[SeparatedConstraint] = []
-    for u_ref in unclassified_refs:
-        for h_ref in sorted(hv_refs):
-            if u_ref == h_ref:
-                continue
-            if frozenset({u_ref, h_ref}) in exempt:
-                continue
-            constraints.append(
-                SeparatedConstraint(
-                    a=u_ref,
-                    b=h_ref,
-                    min_distance_mm=margin,
-                    tier=ConstraintTier.HARD,
-                    because=(
-                        f"unclassified {u_ref} must stay {margin}mm (largest IEC "
-                        f"margin) from HV-classified {h_ref}: no classified net "
-                        f"gives the domain-clearance generator a handle on it, "
-                        f"so this keep-away is the only hard guarantee that a "
-                        f"repair solve does not regress the fail-closed "
-                        f"unclassified-near-HV proximity check"
-                    ),
-                    id=f"keepaway_unclassified_{u_ref}_{h_ref}",
-                )
-            )
-    return constraints
+    out = _to.keepaway_constraints_py(
+        placement,
+        voltage_domains,
+        sorted(component_refs),
+        exempt_flat,
+        [d.value for d in sorted(domains, key=lambda d: d.value)],
+        margin,
+    )
+    return [
+        SeparatedConstraint(
+            a=a,
+            b=b,
+            min_distance_mm=ret_margin,
+            tier=ConstraintTier.HARD,
+            because=because,
+            id=id_,
+        )
+        for (a, b, ret_margin, because, id_) in out
+    ]
 
 
 @dataclass
@@ -545,41 +541,27 @@ def find_intra_footprint_domain_conflicts(
         the strictest (max) margin, matching
         ``generate_domain_clearance_constraints``'s own per-pair margin
         selection.
+
+    Phase E batch E3 (plan 2026-08-09-001): the matrix walk and the
+    worst-margin selection run in ``temper-orchestration``'s
+    ``clearance::intra_footprint_conflicts_py`` (the ``DomainClearanceStage``);
+    this function rebuilds the ``IntraFootprintDomainConflict`` dataclass
+    (``VoltageDomain(domain.value)`` reconstructs the str-mixin enum
+    members).
     """
-    nets_domain = _nets_domain_map(placement, voltage_domains)
-    worst: dict[str, IntraFootprintDomainConflict] = {}
-
-    for (domain_a, domain_b, insulation_type), requirements in IEC60335_REQUIREMENTS.items():
-        if domain_a == domain_b:
-            continue  # a same-domain row can't be "straddled" by definition
-        margin = required_margin_mm(requirements)
-        group_a = _components_in_domain(placement, domain_a, nets_domain)
-        group_b_refs = {
-            c.get("ref") for c in _components_in_domain(placement, domain_b, nets_domain)
-        }
-        for comp in group_a:
-            ref = comp.get("ref")
-            if not isinstance(ref, str) or ref not in group_b_refs:
-                continue
-            if component_refs is not None and ref not in component_refs:
-                continue
-            prior = worst.get(ref)
-            if prior is None or margin > prior.margin_mm:
-                worst[ref] = IntraFootprintDomainConflict(
-                    ref=ref,
-                    domain_a=domain_a,
-                    domain_b=domain_b,
-                    margin_mm=margin,
-                    reason=(
-                        f"{ref} carries a net classified {domain_a.value} and a net "
-                        f"classified {domain_b.value} on the same footprint -- "
-                        f"IEC 60335-2-6 {domain_a.value}<->{domain_b.value} "
-                        f"({insulation_type.value}) requires {margin}mm, which no "
-                        f"placement can supply between two pads of one rigid part."
-                    ),
-                )
-
-    return sorted(worst.values(), key=lambda c: c.ref)
+    rows = _matrix_rows()
+    refs = sorted(component_refs) if component_refs is not None else None
+    out = _to.intra_footprint_conflicts_py(placement, voltage_domains, rows, refs)
+    return [
+        IntraFootprintDomainConflict(
+            ref=ref,
+            domain_a=VoltageDomain(domain_a_value),
+            domain_b=VoltageDomain(domain_b_value),
+            margin_mm=margin,
+            reason=reason,
+        )
+        for (ref, domain_a_value, domain_b_value, margin, reason) in out
+    ]
 
 
 @dataclass
@@ -626,39 +608,25 @@ def audit_domain_clearance(
     Returns:
         List of violations; empty means every audited constraint's real
         distance met or exceeded its required minimum.
-    """
-    violations: list[DomainClearanceAuditViolation] = []
-    for c in constraints:
-        if not c.id.startswith("domain_clearance_"):
-            continue
-        pos_a = resolved_positions_mm.get(c.a)
-        pos_b = resolved_positions_mm.get(c.b)
-        if pos_a is None or pos_b is None:
-            violations.append(
-                DomainClearanceAuditViolation(
-                    ref_a=c.a,
-                    ref_b=c.b,
-                    required_mm=c.min_distance_mm,
-                    actual_mm=float("nan"),
-                    reason=f"missing resolved position for {c.a if pos_a is None else c.b}",
-                )
-            )
-            continue
-        # CPython math.dist semantics, computed in the temper-geometry
-        # Rust crate (audit.rs::dist_py, backed by the replicated
-        # Dekker vector_norm); pinned bit-exactly by
-        # tests/placer/cp_sat/test_domain_clearance_dist_rust_differential.py.
-        import temper_geometry as _tg
 
-        actual = _tg.dist_py(pos_a[0], pos_a[1], pos_b[0], pos_b[1])
-        if actual < c.min_distance_mm:
-            violations.append(
-                DomainClearanceAuditViolation(
-                    ref_a=c.a,
-                    ref_b=c.b,
-                    required_mm=c.min_distance_mm,
-                    actual_mm=actual,
-                    reason=c.because,
-                )
-            )
-    return violations
+    Phase E batch E3 (plan 2026-08-09-001): the audit loop runs in
+    ``temper-orchestration``'s ``clearance::audit_domain_clearance_py`` (the
+    ``DomainClearanceStage``); the Euclidean-distance kernel stays
+    single-source in ``temper-geometry`` (``audit.rs::dist_py``, driven
+    through FFI). The live ``SeparatedConstraint`` objects are passed
+    through (their ``id``/``a``/``b``/``min_distance_mm``/``because``
+    attributes are read via FFI); the returned tuples are rebuilt into the
+    ``DomainClearanceAuditViolation`` dataclass. A missing resolved
+    position is reported with ``actual_mm = NaN`` exactly like the Python.
+    """
+    out = _to.audit_domain_clearance_py(constraints, resolved_positions_mm)
+    return [
+        DomainClearanceAuditViolation(
+            ref_a=ref_a,
+            ref_b=ref_b,
+            required_mm=required_mm,
+            actual_mm=actual_mm,
+            reason=reason,
+        )
+        for (ref_a, ref_b, required_mm, actual_mm, reason) in out
+    ]
