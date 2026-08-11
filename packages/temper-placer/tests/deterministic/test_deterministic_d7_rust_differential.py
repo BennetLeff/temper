@@ -50,20 +50,27 @@ from pathlib import Path
 
 import pytest
 import temper_orchestration as _to
-
+import tests.deterministic._apply_placements_run_py_oracle as _orc_ap
 import tests.deterministic._fine_pitch_escape_run_py_oracle as _orc_fpe
 import tests.deterministic._hv_lv_partition_run_py_oracle as _orc_hlp
-import tests.deterministic._power_plane_run_py_oracle as _orc_pp
 import tests.deterministic._layer_assignment_run_py_oracle as _orc_la
-import tests.deterministic._apply_placements_run_py_oracle as _orc_ap
+import tests.deterministic._power_plane_run_py_oracle as _orc_pp
 
 from temper_placer.core.board import Via
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages import (
     ApplyPlacementsStage as _shim_ap,
+)
+from temper_placer.deterministic.stages import (
     FinePitchEscapeStage as _shim_fpe,
+)
+from temper_placer.deterministic.stages import (
     HvLvPartitionStage as _shim_hlp,
+)
+from temper_placer.deterministic.stages import (
     LayerAssignmentStage as _shim_la,
+)
+from temper_placer.deterministic.stages import (
     PowerPlaneStage as _shim_pp,
 )
 from temper_placer.deterministic.state import BoardState

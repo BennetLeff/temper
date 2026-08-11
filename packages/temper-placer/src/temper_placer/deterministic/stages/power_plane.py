@@ -11,30 +11,22 @@ Temper Board Layer Strategy:
 - In2.Cu: Power islands (+5V, +3V3, +15V, VCC_BOOT)
 - B.Cu (Bottom): Vertical signals + escape vias
 
-The pure reassignment compute is implemented in Rust in the
-``temper-design-bundle`` crate (Wave 4 **Phase 5, batch 2** — deterministic
-leaf stages): ``PowerPlaneStage.run``'s three-pass reassignment loop delegates
-to ``temper_design_bundle_python.deterministic_leaves.recompute_plane_assignments``;
-the ``run`` orchestration (the ``state.netlist`` guard and the ``frozenset``
-wrap) stays Python, as do the two module-level plane-net tables (data, not
-compute). ``LayerAssignment`` is the crate's pyclass.
-
-Bit-exactness: the existing-upgrade / new-plane-nets / remaining-nets passes,
-the ``plane_layers.get(net_name, 1)`` default, and the emission order are
-reproduced identically. Verified by
-``tests/deterministic/stages/test_power_plane_rust_differential.py`` (oracle:
-``tests/deterministic/stages/_power_plane_py_oracle.py``) and the PBT suite
-``test_power_plane_pbt.py``; the structural proof lives in
-``packages/temper-design-bundle/VERIFICATION.md``.
+Phase D batch D7 of the Rust Orchestration Engine plan (2026-08-09-001): the
+**run orchestration** (the ``state.netlist`` guard, the existing-assignment
+``list(...)`` conversion, the netlist net-name collection and the
+``frozenset`` write) is implemented in Rust (``temper-orchestration``'s
+``PowerPlaneStage`` / ``run_power_plane``), crossing the FFI once per stage
+call. The pure reassignment kernel stays single-source in
+``temper_design_bundle_python`` (``recompute_plane_assignments``); the two
+module-level plane-net tables (data, not compute) and the ``LayerAssignment``
+pyclass re-export stay Python. The pre-migration implementation is pinned
+VERBATIM in ``tests/deterministic/_power_plane_run_py_oracle.py``.
 """
 
-from dataclasses import replace
-
-import temper_design_bundle_python as _tdb
+import temper_orchestration as _to
 
 from ..state import BoardState
 from .base import Stage
-from .layer_assignment import LayerAssignment
 
 # Temper board plane nets
 # NOTE: Only include nets that should use plane connectivity (vias to copper pours).
@@ -120,7 +112,8 @@ class PowerPlaneStage(Stage):
 
     def run(self, state: BoardState) -> BoardState:
         """
-        Process layer assignments and mark plane nets.
+        Run the power-plane orchestration in Rust (Phase D D7); crosses the
+        FFI once per stage call.
 
         If layer_assignments exist, updates them.
         If not, creates new assignments for plane nets.
@@ -131,18 +124,4 @@ class PowerPlaneStage(Stage):
         Returns:
             Updated board state with plane nets marked
         """
-        if not state.netlist:
-            return state
-
-        # Get existing assignments or create empty list
-        existing_assignments = list(state.layer_assignments) if state.layer_assignments else []
-
-        # Get all net names from netlist
-        all_nets = [net.name for net in state.netlist.nets]
-
-        # Process plane nets
-        new_assignments = _tdb.deterministic_leaves.recompute_plane_assignments(
-            existing_assignments, self.plane_nets, self.plane_layers, all_nets
-        )
-
-        return replace(state, layer_assignments=frozenset(new_assignments))
+        return _to.run_power_plane(state, self)

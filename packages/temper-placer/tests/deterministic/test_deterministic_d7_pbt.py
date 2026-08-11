@@ -40,9 +40,17 @@ from hypothesis import strategies as st
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages import (
     ApplyPlacementsStage as _shim_ap,
+)
+from temper_placer.deterministic.stages import (
     FinePitchEscapeStage as _shim_fpe,
+)
+from temper_placer.deterministic.stages import (
     HvLvPartitionStage as _shim_hlp,
+)
+from temper_placer.deterministic.stages import (
     LayerAssignmentStage as _shim_la,
+)
+from temper_placer.deterministic.stages import (
     PowerPlaneStage as _shim_pp,
 )
 from temper_placer.deterministic.state import BoardState
@@ -250,7 +258,6 @@ def _body_p4(impl, state):
     assert len(by_net) == len(state.netlist.nets), "one assignment per net"
     for net in state.netlist.nets:
         assert net.name in by_net
-    plane_nets = set(state.netlist.nets and [n.name for n in state.netlist.nets])
     # Every net that the TEMPER_PLANE_NETS default marks as plane must be
     # is_plane in the output (the plane_layers default has an entry).
     from temper_placer.deterministic.stages import TEMPER_PLANE_LAYERS
@@ -393,7 +400,7 @@ def _body_p6_ok(impl, state):
     domains = dict(out1.component_domain_map)
     refs = {c.ref for c in state.netlist.components}
     assert refs == set(domains), "every component gets exactly one domain"
-    for ref, domain in domains.items():
+    for domain in domains.values():
         assert domain in {"HV_edge", "LV_interior"}, f"unknown domain {domain}"
     state = hlp_ok_input().example()
     _body_p6_ok(_shim_hlp().run, state)
