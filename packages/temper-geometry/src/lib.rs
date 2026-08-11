@@ -63,6 +63,14 @@ pub use clearance_geometry::{
 #[cfg(feature = "python")]
 pub use spice_estimators::{spice_infer_unit_py, spice_loop_inductance_py};
 pub mod corridor;
+// Config-space corridor erosion for width-aware A* routing (spike:
+// docs/evidence/2026-08-11-corridor-aware-astar-spike.md). Pure module
+// (unconditional) so its erosion kernel is wasm32-testable; the pyo3
+// bridge function is gated below like the rest of this crate's mixed
+// pure/python modules.
+pub mod corridor_erosion;
+#[cfg(feature = "python")]
+pub use corridor_erosion::corridor_mask_for_net_py;
 pub mod copper_coverage;
 pub mod channel_widths;
 // KTD8 spike (docs/plans/2026-08-06-001-docs-python-removal-retriage-plan.md):

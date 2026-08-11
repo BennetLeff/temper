@@ -66,6 +66,7 @@ def _dispatch_search(
     thermal_flat=None,
     thermal_weight: float = 0.0,
     net_id: int = -1,
+    corridor_mask=None,
 ):
     if use_lazy_theta_star:
         return _astar_search_lazy_theta_star(
@@ -92,7 +93,7 @@ def _dispatch_search(
         # The Rust kernel consumes a binary validity tensor and cannot
         # distinguish committed copper belonging to this net.  Tree edges use
         # the reference search so same-net attachment remains legal.
-        return _astar_search(start, goal, grid, net_id=net_id)
+        return _astar_search(start, goal, grid, net_id=net_id, corridor_mask=corridor_mask)
 
     from temper_placer.router_v6.astar_core_rust import (
         _astar_search_rust,
@@ -126,8 +127,18 @@ def _segment_search(
     thermal_flat=None,
     thermal_weight: float = 0.0,
     net_id: int = -1,
+    corridor_mask=None,
 ) -> tuple[list | None, OccupancyGrid, int]:
     """Run A* between two world-coordinate waypoints on ``grid``.
+
+    Args:
+        corridor_mask: Optional ``(height_cells, width_cells)`` boolean
+            mask, forwarded to ``_dispatch_search``/``_astar_search`` for
+            ``net_id >= 0`` searches only (see ``_astar_search``'s own
+            docstring). Not consulted by the coarse-to-fine branch below
+            (that branch is itself gated to ``net_id < 0``) or by the
+            Theta*/Lazy-Theta* search variants, which have no corridor
+            support. Spike: docs/evidence/2026-08-11-corridor-aware-astar-spike.md.
 
     Returns ``(path, grid, fallback_count)`` where ``path`` is a list
     of grid cells or ``None``, ``grid`` is the grid searched, and
@@ -167,6 +178,7 @@ def _segment_search(
         thermal_flat=thermal_flat,
         thermal_weight=thermal_weight,
         net_id=net_id,
+        corridor_mask=corridor_mask,
     )
     return path, grid, 0
 
@@ -255,9 +267,16 @@ def _astar_route(
     thermal_weight: float = 0.0,
     allow_forced_segments: bool = True,
     net_id: int = -1,
+    corridor_mask=None,
 ) -> tuple[RoutePath | None, int]:
     """
     Route a single net using A* or Theta* pathfinding.
+
+    Args:
+        corridor_mask: Optional width-aware corridor mask (see
+            ``_segment_search``'s docstring), forwarded unchanged to every
+            waypoint segment. Spike:
+            docs/evidence/2026-08-11-corridor-aware-astar-spike.md.
 
     Returns:
         (RoutePath or None, coarse_to_fine_fallback_count)
@@ -288,6 +307,7 @@ def _astar_route(
             thermal_flat=thermal_flat,
             thermal_weight=thermal_weight,
             net_id=net_id,
+            corridor_mask=corridor_mask,
         )
         fallback_count += fb
 
