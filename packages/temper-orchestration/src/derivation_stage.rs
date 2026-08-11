@@ -22,15 +22,23 @@
 // (recorded in VERIFICATION.md): `config` is read AND written by this
 // stage. Field types are NOT tightened (D2 — never speculatively).
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyDict;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::feasibility;
-use crate::stage::{Stage, StageError, StageErrorKind};
+#[cfg(feature = "python")]
+use crate::stage::Stage;
+use crate::stage::{StageError, StageErrorKind};
 
+#[cfg(feature = "python")]
 /// Shared stage panic guard: a Rust panic inside a stage body is converted
 /// to `StageError { kind: Fatal }` instead of unwinding into a caller (the
 /// plan's error model). The stages call `Python::with_gil` internally, so a
@@ -57,6 +65,7 @@ pub(crate) fn missing_field(stage: &str, field: &str) -> StageError {
     )
 }
 
+#[cfg(feature = "python")]
 pub(crate) fn pyerr_stage(stage_name: &str, err: pyo3::PyErr) -> StageError {
     StageError::new(stage_name, err.to_string(), StageErrorKind::Fatal)
 }
@@ -66,6 +75,7 @@ pub(crate) fn pyerr_stage(stage_name: &str, err: pyo3::PyErr) -> StageError {
 #[derive(Debug, Clone, Copy, Default)]
 pub struct DerivationStage;
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for DerivationStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("derive_constraints")
@@ -89,6 +99,7 @@ impl Stage<BoardState> for DerivationStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// The `derive_constraints_from_spec` body: EMI -> `*_max_dist` +
 /// `*_max_area_mm2`, thermal -> `*_min_clearance`, signal-integrity ->
 /// `*_max_placement_dist`, safety -> `hv_lv_isolation_mm`.
@@ -144,6 +155,7 @@ fn derive_from_spec(
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// The `_VOLTAGE_CLASS_BY_CODE` mapping (derivation.py's code -> pyclass
 /// member table) resolved through the `VoltageClass` pyclass.
 fn voltage_class_member<'py>(
@@ -161,6 +173,7 @@ fn voltage_class_member<'py>(
     voltage_class.getattr(name)
 }
 
+#[cfg(feature = "python")]
 /// Iterate a Python dict's items in insertion order (order is load-bearing
 /// for the derived dict's key order).
 fn dict_items<'py>(

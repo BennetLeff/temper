@@ -122,6 +122,15 @@ rust-router-wasm-test-registry = [
   "temper-rust-router/wasm-test-registry",
 ]
 
+# --- temper-orchestration -----------------------------------------------------
+# Optional, same reason again. Its default feature is `python`, so the
+# dependency below carries `default-features = false`.
+orchestration-registry = ["dep:temper-orchestration"]
+orchestration-wasm-test-registry = [
+  "orchestration-registry",
+  "temper-orchestration/wasm-test-registry",
+]
+
 [dependencies]
 temper-drc-rs ={ path = "../temper-drc-rs", default-features = false }
 # `default-features = false` for the same reason it is set on temper-drc-rs's
@@ -158,6 +167,10 @@ temper-constraints = { path = "../temper-placer/temper-constraints", optional = 
 # forwards to `temper-rust-router-core` (a C++ solver with no
 # wasm32-unknown-unknown build either).
 temper-rust-router = { path = "../temper-rust-router", optional = true, default-features = false }
+# `default-features = false` is load-bearing: temper-orchestration's default
+# feature IS `python`, which pulls pyo3 in and fails the wasm32-unknown-unknown
+# build.
+temper-orchestration = { path = "../temper-orchestration", optional = true, default-features = false }
 
 [profile.release]
 opt-level = "z"

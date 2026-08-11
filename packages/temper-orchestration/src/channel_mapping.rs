@@ -48,25 +48,33 @@
 // `Stage` impls run under `stage_guard` — no panic crosses the boundary.
 // No `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 use std::cmp::Ordering;
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::{PyKeyError, PyValueError};
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::derivation_stage::stage_guard;
 use crate::host_math;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 // ---------------------------------------------------------------------------
 // temper-geometry FFI
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 fn tg(py: Python<'_>) -> PyResult<Bound<'_, pyo3::types::PyModule>> {
     py.import("temper_geometry")
 }
 
+#[cfg(feature = "python")]
 /// `temper_geometry.channel_path_length_py(flatten(waypoints))` — the
 /// already-Rust path-length kernel (naive `+=` fold of libm-pow segment
 /// lengths, pinned by the Wave-4 kernel differential).
@@ -79,6 +87,7 @@ fn tg_channel_path_length(py: Python<'_>, waypoints: &[(f64, f64)]) -> PyResult<
     tg(py)?.call_method1("channel_path_length_py", (flat,))?.extract()
 }
 
+#[cfg(feature = "python")]
 /// `temper_geometry.is_near_skeleton_py(x, y, flatten(nodes), tolerance)` —
 /// the existential `dx*dx + dy*dy <= tolerance*tolerance` kernel.
 fn tg_is_near_skeleton(
@@ -98,6 +107,7 @@ fn tg_is_near_skeleton(
         .extract()
 }
 
+#[cfg(feature = "python")]
 /// `temper_geometry.nearest_skeleton_node_py(x, y, flatten(nodes))` — the
 /// argmin-over-`((n - coord)**2, n)` kernel.
 fn tg_nearest_skeleton_node(
@@ -116,6 +126,7 @@ fn tg_nearest_skeleton_node(
         .extract()
 }
 
+#[cfg(feature = "python")]
 /// `temper_geometry.nearest_terminal_order_py(x, y, flatten(pads))` — the
 /// greedy nearest-by-Manhattan ordering over the de-duplicated pad set.
 fn tg_nearest_terminal_order(
@@ -134,6 +145,7 @@ fn tg_nearest_terminal_order(
         .extract()
 }
 
+#[cfg(feature = "python")]
 /// `temper_geometry.edt_width_lookup_batch(...)` — the batched bilinear
 /// EDT width lookup (one FFI crossing for all sample points).
 #[allow(clippy::too_many_arguments)]
@@ -171,28 +183,33 @@ fn tg_edt_width_lookup_batch(
 // already short-circuit on it internally)
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 fn net_classification(py: Python<'_>) -> PyResult<Bound<'_, pyo3::types::PyModule>> {
     py.import("temper_placer.router_v6.net_classification")
 }
 
+#[cfg(feature = "python")]
 fn net_class_is_power(py: Python<'_>, net_name: &str) -> PyResult<bool> {
     net_classification(py)?
         .call_method1("is_power_net", (net_name,))?
         .extract()
 }
 
+#[cfg(feature = "python")]
 fn net_class_is_ground(py: Python<'_>, net_name: &str) -> PyResult<bool> {
     net_classification(py)?
         .call_method1("is_ground_net", (net_name,))?
         .extract()
 }
 
+#[cfg(feature = "python")]
 fn net_class_is_hv(py: Python<'_>, net_name: &str) -> PyResult<bool> {
     net_classification(py)?
         .call_method1("is_hv_net", (net_name,))?
         .extract()
 }
 
+#[cfg(feature = "python")]
 fn net_class_single_layer_mode(py: Python<'_>) -> PyResult<bool> {
     net_classification(py)?
         .call_method0("get_single_layer_mode")?
@@ -235,6 +252,7 @@ type WidthsOut = (Vec<NodeWidth>, Vec<EdgeWidth>, f64, f64, f64);
 /// One edge's interior samples `((u), (v), sample_points)`.
 type EdgeSamples = ((f64, f64), (f64, f64), Vec<(f64, f64)>);
 
+#[cfg(feature = "python")]
 fn py_float(py: Python<'_>, s: &str) -> PyResult<f64> {
     py.import("builtins")?.getattr("float")?.call1((s,))?.extract()
 }
@@ -314,6 +332,7 @@ fn sort_coordinate_order(nodes: &mut [(f64, f64)]) {
 // guarded identity — the runner-test path that needs no venv.
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// The channel-mapping stage: topology + skeleton -> the per-net
 /// `(channel_sequence, waypoints, total_length, preferred_layer)` results.
 #[derive(Debug, Clone)]
@@ -323,6 +342,7 @@ pub struct ChannelMappingStage {
     pub payload: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ChannelMappingStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("channel_mapping")
@@ -349,6 +369,7 @@ impl Stage<BoardState> for ChannelMappingStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// The channel-widths stage: the EDT-branch measurement of
 /// `compute_channel_widths` (the sample/assembly/stats orchestration).
 #[derive(Debug, Clone)]
@@ -359,6 +380,7 @@ pub struct ChannelWidthsStage {
     pub payload: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ChannelWidthsStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("channel_widths")
@@ -400,6 +422,7 @@ impl Stage<BoardState> for ChannelWidthsStage {
 // map_topology_to_channels — the pyfunction + compute
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `channel_mapping.map_topology_to_channels`: the per-net topology ->
 /// channel sequence -> waypoints -> length -> layer orchestration.
 ///
@@ -436,6 +459,7 @@ pub fn run_channel_mapping(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// `channel_mapping._map_net_to_channels` — the single-net mapping. The SAT
 /// `uses_channels` sequence is authoritative; the path-graph node fallback
 /// fires only when the sequence is empty; an empty result is unmappable.
@@ -506,6 +530,7 @@ fn find_paren_groups(s: &str) -> Vec<String> {
     out
 }
 
+#[cfg(feature = "python")]
 /// `channel_mapping._extract_waypoints` — the per-channel-ID coordinate
 /// parse, then the skeleton coordinate-order fallback slice.
 fn extract_waypoints_impl(
@@ -557,6 +582,7 @@ fn extract_waypoints_impl(
     Ok(vec![])
 }
 
+#[cfg(feature = "python")]
 /// `channel_mapping._parse_channel_coordinate` — the three parsing
 /// strategies (x_y near-skeleton, "(x, y)" / "x,y", and the off-skeleton
 /// snap under the <= 20 node gate).
@@ -610,6 +636,7 @@ fn parse_channel_coordinate_impl(
 // _assign_layer + _ssot_layer_for_net — the layer assignment
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `channel_mapping._assign_layer`: single-layer mode -> F.Cu; else the
 /// power/ground/HV heuristic; the SSOT override from `layer_constraints`.
 fn assign_layer_impl(
@@ -634,6 +661,7 @@ fn assign_layer_impl(
     Ok(heuristic)
 }
 
+#[cfg(feature = "python")]
 /// `channel_mapping._ssot_layer_for_net`: the explicit-netclass (non-Default)
 /// routable outer-layer resolution; `None` defers to the heuristic.
 fn ssot_layer_for_net_impl(
@@ -694,6 +722,7 @@ fn ssot_layer_for_net_impl(
 // fallback_channel_path — the pyfunction + compute
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `channel_mapping.fallback_channel_path`: the direct-A*-fallback waypoints
 /// (two-pad historical order / `sorted(pads)` / `[pads[0], pads[-1]]`) plus
 /// the preferred layer. The shim wraps the result in a `ChannelPath` with
@@ -725,6 +754,7 @@ pub fn run_fallback_channel_path(
 // expander pyfunctions
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `channel_mapping._validated_two_pad_terminals`: the two true pads are
 /// assigned to the path's first/last waypoint by whichever pairing
 /// (identity or swap) minimizes total displacement; `None` means the
@@ -785,6 +815,7 @@ fn dist(p: (f64, f64), q: (f64, f64)) -> f64 {
     )
 }
 
+#[cfg(feature = "python")]
 /// `channel_mapping.expand_channel_path_terminals`'s all-pad-tree branch:
 /// absent pad centres appended in the greedy nearest-by-Manhattan order;
 /// `None` means no pads were missing (identity). The `total_length` is
@@ -816,6 +847,7 @@ pub fn run_expand_all_pad_tree(
     Ok(Some((combined, total_length)))
 }
 
+#[cfg(feature = "python")]
 /// `channel_mapping._assign_layer` as a public pyfunction (kept for the
 /// shim's `_assign_layer` module API, exercised by the pre-existing suites).
 #[pyfunction]
@@ -855,6 +887,7 @@ pub fn run_assign_layer(
     cell_size,
     sample_distance,
 ))]
+#[cfg(feature = "python")]
 pub fn run_channel_widths_edt(
     py: Python<'_>,
     nodes: Vec<(f64, f64)>,
@@ -881,6 +914,7 @@ pub fn run_channel_widths_edt(
     )
 }
 
+#[cfg(feature = "python")]
 #[allow(clippy::too_many_arguments)]
 fn run_channel_widths_edt_impl(
     py: Python<'_>,
@@ -983,6 +1017,7 @@ fn run_channel_widths_edt_impl(
     Ok((node_widths, edge_widths, min_width, max_width, avg_width))
 }
 
+#[cfg(feature = "python")]
 /// The `node_widths[u]` dict lookup replicated over the aligned node list
 /// (tuple equality; a missing node key raises `KeyError` exactly like the
 /// oracle's dict access).
@@ -994,11 +1029,12 @@ fn node_width_lookup(node_widths: &[(f64, f64, f64)], key: (f64, f64)) -> PyResu
         .ok_or_else(|| PyKeyError::new_err(format!("{key:?}")))
 }
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn find_paren_groups_matches_regex_semantics() {
         // re.findall(r"\(([^)]+)\)", s) — leftmost, non-overlapping.
         assert_eq!(find_paren_groups(""), Vec::<String>::new());
@@ -1014,7 +1050,7 @@ mod tests {
         assert_eq!(find_paren_groups("(x,y)"), vec!["x,y"]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn tuple_lt_matches_cpython_pairwise() {
         // (0, 1) < (1, 0); equal x falls through to y; -0.0 == 0.0 ties.
         assert!(tuple_lt((0.0, 1.0), (1.0, 0.0)));
@@ -1028,7 +1064,7 @@ mod tests {
         assert!(!tuple_lt((f64::NAN, 1.0), (f64::NAN, 2.0)));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn sort_coordinate_order_is_stable_lexicographic() {
         let mut nodes = vec![(10.0, 0.0), (0.0, 5.0), (0.0, 1.0), (5.0, 5.0), (-0.0, 2.0)];
         let want = vec![(0.0, 1.0), (-0.0, 2.0), (0.0, 5.0), (5.0, 5.0), (10.0, 0.0)];
@@ -1040,7 +1076,7 @@ mod tests {
         assert_eq!(t, vec![(0.0, 0.0), (-0.0, 0.0)]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_min_max_first_wins_and_nan_keeps_incumbent() {
         assert_eq!(py_min_iter(&[2.0, 1.0, 3.0]), 1.0);
         assert_eq!(py_max_iter(&[2.0, 3.0, 1.0]), 3.0);
@@ -1049,7 +1085,7 @@ mod tests {
         assert_eq!(py_max_iter(&[1.0, f64::NAN]), 1.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn two_pad_decision_minimizes_displacement() {
         // identity pairing (0,0)->(0,0) + (10,0)->(10,0) = 0 wins.
         let wps = [(0.0, 0.0), (10.0, 0.0)];
@@ -1067,10 +1103,25 @@ mod tests {
         assert_eq!(corrected, vec![(0.0, 0.0), (10.0, 0.0)]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn two_pad_interior_waypoints_untouched() {
         let wps = [(0.0, 0.0), (5.0, 5.0), (10.0, 0.0)];
         let corrected = validated_two_pad_terminals_impl(&wps, &[(0.0, 0.0), (10.0, 0.0)]);
         assert_eq!(corrected, vec![(0.0, 0.0), (5.0, 5.0), (10.0, 0.0)]);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("channel_mapping::tests::find_paren_groups_matches_regex_semantics", find_paren_groups_matches_regex_semantics),
+        ("channel_mapping::tests::tuple_lt_matches_cpython_pairwise", tuple_lt_matches_cpython_pairwise),
+        ("channel_mapping::tests::sort_coordinate_order_is_stable_lexicographic", sort_coordinate_order_is_stable_lexicographic),
+        ("channel_mapping::tests::py_min_max_first_wins_and_nan_keeps_incumbent", py_min_max_first_wins_and_nan_keeps_incumbent),
+        ("channel_mapping::tests::two_pad_decision_minimizes_displacement", two_pad_decision_minimizes_displacement),
+        ("channel_mapping::tests::two_pad_interior_waypoints_untouched", two_pad_interior_waypoints_untouched),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

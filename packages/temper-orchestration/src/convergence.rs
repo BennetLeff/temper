@@ -37,15 +37,22 @@
 //   Python `datetime`; `get_elapsed_seconds` / `check_timeout` compare the
 //   same wall-clock quantity.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyZeroDivisionError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyFrozenSet, PyList};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::feasibility::check_routability_regression;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 /// Monotonic-ish wall-clock seconds since the Unix epoch (the float-seconds
@@ -66,7 +73,7 @@ fn now_secs() -> f64 {
 /// (the repo's `Severity` precedent — pyo3 has no metaclass hook, so
 /// `TerminationReason.SUCCESS` etc. are class attributes constructed on
 /// access). `__eq__` compares by value; `__hash__` is a stable name hash.
-#[pyclass(skip_from_py_object, module = "temper_orchestration", name = "TerminationReason")]
+#[cfg_attr(feature = "python", pyclass(skip_from_py_object, module = "temper_orchestration", name = "TerminationReason"))]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TerminationReason {
     value: &'static str,
@@ -94,6 +101,7 @@ impl TerminationReason {
     }
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl TerminationReason {
     #[classattr]
@@ -178,8 +186,9 @@ impl TerminationReason {
 // ConvergenceCriteria
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// Mirror of Python `pipeline.convergence.ConvergenceCriteria` (dataclass).
-#[pyclass(dict, from_py_object, module = "temper_orchestration", name = "ConvergenceCriteria")]
+#[cfg_attr(feature = "python", pyclass(dict, from_py_object, module = "temper_orchestration", name = "ConvergenceCriteria"))]
 #[derive(Clone, Debug)]
 pub struct ConvergenceCriteria {
     #[pyo3(get, set)]
@@ -204,6 +213,7 @@ pub struct ConvergenceCriteria {
     pub stagnation_epochs: usize,
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl ConvergenceCriteria {
     /// The dataclass defaults, exactly.
@@ -274,6 +284,7 @@ impl ConvergenceCriteria {
 // ConvergenceState
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// Mirror of Python `pipeline.convergence.ConvergenceState` (dataclass).
 ///
 /// `start_time` is a float-seconds epoch timestamp (the plan's Rust API),
@@ -307,6 +318,7 @@ pub struct ConvergenceState {
     pub _stall_count: usize,
 }
 
+#[cfg(feature = "python")]
 impl ConvergenceState {
     /// Fresh state with `start_time = now` — the checker's constructor and
     /// `reset()` entry point.
@@ -327,6 +339,7 @@ impl ConvergenceState {
     }
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl ConvergenceState {
     /// The dataclass requires `start_time`; here it is the float-seconds
@@ -341,6 +354,7 @@ impl ConvergenceState {
     }
 }
 
+#[cfg(feature = "python")]
 /// Set `terminated` + `termination_reason` (the oracle's repeated write).
 fn set_termination(
     state: &mut ConvergenceState,
@@ -356,6 +370,7 @@ fn set_termination(
 // ConvergenceChecker
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// Mirror of Python `pipeline.convergence.ConvergenceChecker`.
 ///
 /// After migration this also implements `Stage<BoardState>` for use in the
@@ -367,6 +382,7 @@ pub struct ConvergenceChecker {
     state: Py<ConvergenceState>,
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl ConvergenceChecker {
     #[new]
@@ -619,6 +635,7 @@ impl ConvergenceChecker {
     }
 }
 
+#[cfg(feature = "python")]
 /// `metrics.get(key, default)` — the oracle's dict defaulting (missing key
 /// -> the default; present value extracted as float, accepting Python ints
 /// exactly like the pre-migration shim's `float(metrics.get(...))`).
@@ -629,6 +646,7 @@ fn metric_or(metrics: &Bound<'_, PyDict>, key: &str, default: f64) -> PyResult<f
     }
 }
 
+#[cfg(feature = "python")]
 /// Extract a required dict item (the routability kernel always sets every
 /// key; a missing key is a kernel contract violation, not a user error).
 fn dict_require<T>(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<T>
@@ -640,6 +658,7 @@ where
         .extract()
 }
 
+#[cfg(feature = "python")]
 /// A Python iterable of strings -> sorted `Vec<String>` (set semantics for
 /// the net sets; sorted for deterministic kernel input).
 fn collect_sorted(any: &Bound<'_, PyAny>) -> PyResult<Vec<String>> {
@@ -651,6 +670,7 @@ fn collect_sorted(any: &Bound<'_, PyAny>) -> PyResult<Vec<String>> {
     Ok(items)
 }
 
+#[cfg(feature = "python")]
 /// CPython `format(value, spec)` — the exact `f"{value:.3f}"` rendering.
 fn py_format_float(py: Python<'_>, value: f64, spec: &str) -> PyResult<String> {
     let builtins = py.import("builtins")?;
@@ -660,6 +680,7 @@ fn py_format_float(py: Python<'_>, value: f64, spec: &str) -> PyResult<String> {
         .extract::<String>()
 }
 
+#[cfg(feature = "python")]
 /// CPython `str(list)` — the `"['N3', 'N4', 'N5']"` rendering the oracle's
 /// `f"Lost nets: {sorted(lost_nets)}"` produces.
 fn py_list_str(py: Python<'_>, items: &[String]) -> PyResult<String> {
@@ -671,6 +692,7 @@ fn py_list_str(py: Python<'_>, items: &[String]) -> PyResult<String> {
 // Stage integration (Phase-1 stub)
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// The first concrete `Stage` on the Rust engine.
 ///
 /// Phase-1 stub: the convergence stage reads scalar fields from `BoardState`

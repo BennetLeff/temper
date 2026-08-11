@@ -45,21 +45,31 @@
 //   cumulative-placement merges, the `net_pins` / `zone_slots` orders) and is
 //   reproduced by building the same Python dicts/lists through FFI.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyFloat, PyList, PySet, PyString, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::config_attach_stage::to_pyerr;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::grid_hv::getattr_default;
+#[cfg(feature = "python")]
 use crate::host_math;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 const STAGE_NAME: &str = "phased_component_assignment";
 const CORE_LOGGER_NAME: &str = "temper_placer.deterministic.stages._phase_core";
 
+#[cfg(feature = "python")]
 /// The phased component-assignment stage: netlist + zone maps + slot grid ->
 /// `placements` (frozenset of `(ref, (x, y))`) + `used_slots` (frozenset of
 /// grid slots, footprint + HV creepage rings).
@@ -73,6 +83,7 @@ pub struct PhasedAssignmentStage {
     pub stage: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for PhasedAssignmentStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -88,6 +99,7 @@ impl Stage<BoardState> for PhasedAssignmentStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl PhasedAssignmentStage {
     /// The stage body. The guards return the state unchanged (identity
     /// preserved).
@@ -161,6 +173,7 @@ impl PhasedAssignmentStage {
 // Phase dispatch
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `_phased_placement`: `comp_by_ref` + `net_pins` + flattened slots, then
 /// the placement_priority phase loop. Returns `(placements dict, used_slots
 /// set)`.
@@ -267,6 +280,7 @@ fn phased_placement<'py>(
     Ok((placements, used_slots))
 }
 
+#[cfg(feature = "python")]
 /// `_build_net_pins`: `net.name -> list(net.pins)` in netlist order.
 fn build_net_pins<'py>(
     py: Python<'py>,
@@ -282,6 +296,7 @@ fn build_net_pins<'py>(
     Ok(net_pins)
 }
 
+#[cfg(feature = "python")]
 /// `_flatten_slots`: every zone's slot list in zone-dict order.
 fn flatten_slots<'py>(
     py: Python<'py>,
@@ -294,6 +309,7 @@ fn flatten_slots<'py>(
     Ok(all)
 }
 
+#[cfg(feature = "python")]
 /// `_domain_lookups`: the per-ref domain dict + the HV_edge / LV_interior
 /// region dict from `state.domain_regions`.
 fn domain_lookups<'py>(
@@ -324,6 +340,7 @@ fn domain_lookups<'py>(
     Ok((domain_for_ref, domain_regions))
 }
 
+#[cfg(feature = "python")]
 /// `dict(obj)` -- the builtin dict constructor over an iterable of pairs.
 fn builtins_dict<'py>(
     py: Python<'py>,
@@ -338,6 +355,7 @@ fn builtins_dict<'py>(
 // Placement methods
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `_place_template`: anchor + `i * 10.0` offsets, footprint+HV reservation.
 #[allow(clippy::too_many_arguments)]
 fn place_template<'py>(
@@ -372,6 +390,7 @@ fn place_template<'py>(
     Ok(placements)
 }
 
+#[cfg(feature = "python")]
 /// `_place_proximity`: slots within `max_distance_mm` of the reference's
 /// position, best-slot selected; the missing-reference / missing-placement
 /// fallback delegates to `_place_optimize` WITHOUT netlist or domain args.
@@ -457,6 +476,7 @@ fn place_proximity<'py>(
     Ok(placements)
 }
 
+#[cfg(feature = "python")]
 /// `_place_optimize`: footprint-size sort (largest first), zone slot list
 /// with the cross-zone fallback, seed-filter call-back, domain filter,
 /// best-slot selection and footprint+HV reservation.
@@ -552,6 +572,7 @@ fn place_optimize<'py>(
     Ok(placements)
 }
 
+#[cfg(feature = "python")]
 /// `_filter_by_domain`: keep the slots whose slot-point the component's
 /// domain region covers (shapely driven through FFI).
 fn filter_by_domain<'py>(
@@ -605,6 +626,7 @@ fn filter_by_domain<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// `_select_best_slot` (shared by the Rust run and the `_select_best_slot`
 /// shim delegation): slot_filter + slot_scorer + wirelength + routability
 /// scoring with CPython `min` first-minimum-wins semantics.
@@ -679,6 +701,7 @@ fn select_best_slot<'py>(
     })
 }
 
+#[cfg(feature = "python")]
 /// `_simple_greedy_placement`: the no-phases fallback (wirelength-only,
 /// no HV rings).
 fn simple_greedy_placement<'py>(
@@ -756,6 +779,7 @@ fn simple_greedy_placement<'py>(
 // HV creepage / slot reservation
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `_reserve_slots_with_hv`: the footprint ring, then the HV creepage rings
 /// (base radius from the HV/AC net classes, per-pin absolute positions, the
 /// nearest-other-HV-pin reduction through `_effective_ghost_pad_radius`).
@@ -906,6 +930,7 @@ fn reserve_slots_with_hv<'py>(
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// `_reserve_slots`: `math.sqrt((sx - cx) ** 2 + (sy - cy) ** 2) <= radius`
 /// over every slot, added to the used set.
 fn reserve_slots<'py>(
@@ -928,6 +953,7 @@ fn reserve_slots<'py>(
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// `_distance`: `math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)`.
 fn distance<'py>(
     _py: Python<'py>,
@@ -945,6 +971,7 @@ fn distance<'py>(
 // Helpers
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `max(comp.bounds)` for a ref-resolved component (or 0).
 fn get_size<'py>(
     py: Python<'py>,
@@ -958,6 +985,7 @@ fn get_size<'py>(
     get_size_of(py, &comp)
 }
 
+#[cfg(feature = "python")]
 /// `max(comp.bounds)` (or 0) for a component object.
 fn get_size_of<'py>(py: Python<'py>, comp: &Bound<'py, PyAny>) -> PyResult<f64> {
     if !comp.hasattr("bounds")? {
@@ -982,6 +1010,7 @@ fn py_tuple_key_cmp(a: &f64, a_ref: &str, b: &f64, b_ref: &str) -> std::cmp::Ord
     }
 }
 
+#[cfg(feature = "python")]
 /// `next((c for c in netlist.components if c.ref == ref), None)`.
 fn find_by_ref<'py>(
     py: Python<'py>,
@@ -999,6 +1028,7 @@ fn find_by_ref<'py>(
     Ok(None)
 }
 
+#[cfg(feature = "python")]
 /// `{**a, **b}` -- dict merge in a-then-b order (insertion order is
 /// load-bearing for the cumulative placement views).
 fn merge_dicts<'py>(
@@ -1016,6 +1046,7 @@ fn merge_dicts<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// The HV/AC safety categories (the `_HV_SAFETY_CATEGORIES` set membership).
 fn is_hv_safety(safety: &Bound<'_, PyAny>) -> PyResult<bool> {
     if safety.is_none() {
@@ -1034,6 +1065,7 @@ fn py_max(a: f64, b: f64) -> f64 {
     }
 }
 
+#[cfg(feature = "python")]
 /// CPython `str.format(template, *args)`.
 fn py_format<'py>(
     py: Python<'py>,
@@ -1044,6 +1076,7 @@ fn py_format<'py>(
     s.call_method1("format", PyTuple::new(py, args)?)
 }
 
+#[cfg(feature = "python")]
 /// `logging.getLogger(name).<level>(message)`.
 fn log_msg(py: Python<'_>, logger_name: &str, level: &str, msg: &Bound<'_, PyAny>) -> PyResult<()> {
     let logger = py.import("logging")?.call_method1("getLogger", (logger_name,))?;
@@ -1051,6 +1084,7 @@ fn log_msg(py: Python<'_>, logger_name: &str, level: &str, msg: &Bound<'_, PyAny
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// A dict's `items()` in insertion order.
 fn dict_items<'py>(
     py: Python<'py>,
@@ -1066,6 +1100,7 @@ fn dict_items<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_phased_assignment(state, stage)` --
 /// `stage` is the Python `PhasedComponentAssignmentStage` instance (the
 /// config carrier).
@@ -1089,6 +1124,7 @@ pub fn run_phased_assignment(
     )
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim's `_select_best_slot`:
 /// `run_phase_select_best_slot(stage, component_ref, candidate_slots,
 /// current_placements, phase_placements, net_pins)` -- the scoring kernel
@@ -1123,26 +1159,21 @@ pub fn run_phase_select_best_slot(
 // Tests
 // ---------------------------------------------------------------------------
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
-    use proptest::prelude::*;
-
-    fn normal_f64() -> impl Strategy<Value = f64> {
-        prop::num::f64::NORMAL
-    }
 
     // -- py_max ------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_nan_first_argument_wins() {
         assert!(py_max(f64::NAN, 1.0).is_nan());
         assert_eq!(py_max(1.0, f64::NAN), 1.0);
         assert!(py_max(f64::NAN, f64::NAN).is_nan());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_ties_keep_first() {
         assert_eq!(py_max(0.0, -0.0), 0.0);
         let r = py_max(-0.0, 0.0);
@@ -1151,7 +1182,7 @@ mod tests {
         assert_eq!(py_max(3.0, 3.0), 3.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_infinity() {
         assert_eq!(py_max(f64::INFINITY, 0.0), f64::INFINITY);
         assert_eq!(py_max(0.0, f64::INFINITY), f64::INFINITY);
@@ -1159,32 +1190,9 @@ mod tests {
         assert!(py_max(f64::NAN, f64::NEG_INFINITY).is_nan());
     }
 
-    proptest! {
-        /// P1: For non-NaN f64, py_max returns the conventional maximum.
-        #[test]
-        fn p1_py_max_returns_larger(a in normal_f64(), b in normal_f64()) {
-            let r = py_max(a, b);
-            let expected = if a >= b { a } else { b };
-            prop_assert_eq!(r, expected);
-        }
-
-        /// P2: py_max returns one of its inputs bit-identically.
-        #[test]
-        fn p2_py_max_returns_one_of_inputs(a in normal_f64(), b in normal_f64()) {
-            let r = py_max(a, b);
-            prop_assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits());
-        }
-
-        /// P3: Commutative for non-NaN inputs.
-        #[test]
-        fn p3_py_max_commutative(a in normal_f64(), b in normal_f64()) {
-            prop_assert_eq!(py_max(a, b), py_max(b, a));
-        }
-    }
-
     // -- py_tuple_key_cmp --------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn tuple_cmp_normal_floats() {
         // Larger negative (more negative) = smaller
         assert_eq!(py_tuple_key_cmp(&-5.0, "A", &-3.0, "B"), std::cmp::Ordering::Less);
@@ -1195,7 +1203,7 @@ mod tests {
         assert_eq!(py_tuple_key_cmp(&-3.0, "A", &-3.0, "A"), std::cmp::Ordering::Equal);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn tuple_cmp_nan_falls_through_to_ref() {
         // CPython NaN-vs-normal: both < are False, == is False -> returns
         // False without checking remaining elements. In a stable sort, this
@@ -1222,7 +1230,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn tuple_cmp_negative_zero_vs_zero() {
         // -0.0 and 0.0 are equal in partial_cmp -> fall through to ref
         // First element ties, string comparison decides.
@@ -1245,14 +1253,69 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn tuple_cmp_infinity() {
         assert_eq!(py_tuple_key_cmp(&f64::INFINITY, "A", &1.0, "B"), std::cmp::Ordering::Greater);
         assert_eq!(py_tuple_key_cmp(&f64::NEG_INFINITY, "A", &1.0, "B"), std::cmp::Ordering::Less);
         assert_eq!(py_tuple_key_cmp(&f64::INFINITY, "A", &f64::INFINITY, "B"), std::cmp::Ordering::Less);
     }
 
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("phased_assignment_stage::tests::py_max_nan_first_argument_wins", py_max_nan_first_argument_wins),
+        ("phased_assignment_stage::tests::py_max_ties_keep_first", py_max_ties_keep_first),
+        ("phased_assignment_stage::tests::py_max_infinity", py_max_infinity),
+        ("phased_assignment_stage::tests::tuple_cmp_normal_floats", tuple_cmp_normal_floats),
+        ("phased_assignment_stage::tests::tuple_cmp_nan_falls_through_to_ref", tuple_cmp_nan_falls_through_to_ref),
+        ("phased_assignment_stage::tests::tuple_cmp_negative_zero_vs_zero", tuple_cmp_negative_zero_vs_zero),
+        ("phased_assignment_stage::tests::tuple_cmp_infinity", tuple_cmp_infinity),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
+}
+
+// `proptest` is a dev-dependency (present under `cargo test`, absent from the
+// ordinary non-test build `wasm_test_registry.rs` compiles into), so these
+// six properties live in their own `#[cfg(test)]` sibling module -- exactly
+// the split `copper_length.rs`/`timing.rs`/`host_math.rs` already use --
+// rather than inline inside `tests` above, so `gen_wasm_test_registry.py`'s
+// per-module `proptest-dev-dependency` exclusion only drops these six
+// properties instead of the whole module's otherwise-pure `py_max` /
+// `py_tuple_key_cmp` unit tests.
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn normal_f64() -> impl Strategy<Value = f64> {
+        prop::num::f64::NORMAL
+    }
+
     proptest! {
+        /// P1: For non-NaN f64, py_max returns the conventional maximum.
+        #[test]
+        fn p1_py_max_returns_larger(a in normal_f64(), b in normal_f64()) {
+            let r = py_max(a, b);
+            let expected = if a >= b { a } else { b };
+            prop_assert_eq!(r, expected);
+        }
+
+        /// P2: py_max returns one of its inputs bit-identically.
+        #[test]
+        fn p2_py_max_returns_one_of_inputs(a in normal_f64(), b in normal_f64()) {
+            let r = py_max(a, b);
+            prop_assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits());
+        }
+
+        /// P3: Commutative for non-NaN inputs.
+        #[test]
+        fn p3_py_max_commutative(a in normal_f64(), b in normal_f64()) {
+            prop_assert_eq!(py_max(a, b), py_max(b, a));
+        }
+
         /// P4: For non-NaN, non-infinite floats, py_tuple_key_cmp ordering
         /// matches the numeric ordering of the first element, with the ref
         /// breaking ties.

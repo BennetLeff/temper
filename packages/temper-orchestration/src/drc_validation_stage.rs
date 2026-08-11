@@ -23,14 +23,21 @@
 // `write_back_or_raise` channel hands the message to the shim, which raises
 // its module's `DRCValidationError`.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyList;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::d6_util;
+#[cfg(feature = "python")]
 use crate::derivation_stage::stage_guard;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError, StageErrorKind};
 
 const STAGE_NAME: &str = "drc_validation";
@@ -44,6 +51,7 @@ pub struct DRCValidationStage {
     pub max_violations: i64,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for DRCValidationStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -54,6 +62,7 @@ impl Stage<BoardState> for DRCValidationStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl DRCValidationStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> Result<BoardState, StageError> {
         let oracle = match &state.drc_oracle {
@@ -133,6 +142,7 @@ impl DRCValidationStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_drc_validation(state,
 /// fail_on_violations, max_violations)` -> `(state, message)`.
 #[pyfunction]

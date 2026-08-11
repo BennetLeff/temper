@@ -10,14 +10,21 @@
 // `frozenset(dict.items())` into `BoardState.component_zone_map`. The
 // `state.netlist` guard returns the state unchanged (identity preserved).
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyDict;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::config_attach_stage::to_pyerr;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 /// The zone-assignment stage: netlist -> `component_zone_map` (frozenset of
@@ -25,6 +32,7 @@ use crate::stage::{Stage, StageError};
 #[derive(Debug, Clone)]
 pub struct ZoneAssignmentStage;
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ZoneAssignmentStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("zone_assignment")
@@ -72,6 +80,7 @@ impl Stage<BoardState> for ZoneAssignmentStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_zone_assignment(state)`.
 #[pyfunction]
 pub fn run_zone_assignment(

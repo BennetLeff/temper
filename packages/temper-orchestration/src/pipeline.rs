@@ -20,6 +20,50 @@
 
 use crate::stage::{Stage, StageError, StageErrorKind};
 
+/// A wall-clock instant for stage-timing instrumentation, degrading to a
+/// constant zero on a target with no clock.
+///
+/// `std::time::Instant::now()` panics on `wasm32-unknown-unknown` ("time not
+/// implemented on this platform") -- there is no host clock to read. This
+/// runner is plain generic Rust (`S` is a type parameter; `BoardState` is
+/// only the production instantiation), exercised directly by this module's
+/// own `#[cfg(test)]` unit tests rather than gated behind `python`, so the
+/// panic is not avoidable by cfg-ing the caller away -- unlike
+/// `temper-geometry`'s `bottleneck_geometry` deadline check (see its module
+/// doc), which reads the clock only when a caller opts in, `run()` always
+/// times every stage. Timing degrades to a constant `0.0` ms on `wasm32`
+/// instead: honest (0.0 is not a plausible wall-clock reading and is
+/// documented here) rather than a trap. Every other target is unchanged.
+#[cfg(not(target_arch = "wasm32"))]
+#[derive(Clone, Copy)]
+struct ClockPoint(std::time::Instant);
+
+#[cfg(not(target_arch = "wasm32"))]
+impl ClockPoint {
+    fn now() -> Self {
+        Self(std::time::Instant::now())
+    }
+
+    fn elapsed_ms(&self) -> f64 {
+        self.0.elapsed().as_secs_f64() * 1000.0
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+#[derive(Clone, Copy)]
+struct ClockPoint;
+
+#[cfg(target_arch = "wasm32")]
+impl ClockPoint {
+    fn now() -> Self {
+        Self
+    }
+
+    fn elapsed_ms(&self) -> f64 {
+        0.0
+    }
+}
+
 /// Observability hook called between stages.
 ///
 /// Mirror of Python `pipeline.metrics_observer.MetricsObserver`
@@ -100,7 +144,7 @@ impl<S: Clone> PipelineRunner<S> {
     pub fn run(&mut self, initial_state: S) -> (S, PipelineReport) {
         let mut state = initial_state;
         let mut reports = Vec::new();
-        let start = std::time::Instant::now();
+        let start = ClockPoint::now();
 
         for stage in &self.stages {
             let name = stage.name().into_owned();
@@ -117,9 +161,9 @@ impl<S: Clone> PipelineRunner<S> {
                 obs.on_stage_start(&name, &state);
             }
 
-            let stage_start = std::time::Instant::now();
+            let stage_start = ClockPoint::now();
             let result = stage.run(state.clone());
-            let elapsed = stage_start.elapsed().as_secs_f64() * 1000.0;
+            let elapsed = stage_start.elapsed_ms();
 
             for obs in &mut self.observers {
                 obs.on_stage_complete(&name, &result, elapsed);
@@ -149,7 +193,7 @@ impl<S: Clone> PipelineRunner<S> {
                             state,
                             PipelineReport {
                                 stage_reports: reports,
-                                total_elapsed_ms: start.elapsed().as_secs_f64() * 1000.0,
+                                total_elapsed_ms: start.elapsed_ms(),
                                 halted_early: true,
                             },
                         );
@@ -162,15 +206,16 @@ impl<S: Clone> PipelineRunner<S> {
             state,
             PipelineReport {
                 stage_reports: reports,
-                total_elapsed_ms: start.elapsed().as_secs_f64() * 1000.0,
+                total_elapsed_ms: start.elapsed_ms(),
                 halted_early: false,
             },
         )
     }
 }
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use std::sync::{Arc, Mutex};
 
     use super::*;
@@ -264,7 +309,7 @@ mod tests {
         runner
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn run_sequences_stages_in_order() {
         let mut runner = runner_with(vec![
             AddStage::new("a", 1),
@@ -286,7 +331,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn run_skips_inactive_stages() {
         let mut runner = runner_with(vec![
             AddStage::new("a", 1),
@@ -304,7 +349,7 @@ mod tests {
         assert_eq!(report.stage_reports[1].elapsed_ms, 0.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn fatal_error_halts_and_preserves_last_successful_state() {
         let mut runner = runner_with(vec![
             AddStage::new("a", 5),
@@ -321,7 +366,7 @@ mod tests {
         ));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn infeasible_halts_by_default() {
         let mut runner = runner_with(vec![
             AddStage::failing("infeasible", StageErrorKind::Infeasible),
@@ -332,7 +377,7 @@ mod tests {
         assert_eq!(report.stage_reports.len(), 1);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn continue_on_error_collects_and_continues() {
         let config = PipelineConfig {
             halt_on_error: false,
@@ -358,7 +403,7 @@ mod tests {
         ));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn warning_does_not_halt_even_with_halt_on_error() {
         let mut runner = runner_with(vec![
             AddStage::failing("warn", StageErrorKind::Warning),
@@ -370,7 +415,7 @@ mod tests {
         assert_eq!(report.stage_reports.len(), 2);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn observers_are_called_between_stages() {
         let log = Arc::new(Mutex::new(Vec::new()));
         let mut runner = runner_with(vec![
@@ -394,7 +439,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn empty_runner_returns_initial_state() {
         let mut runner = PipelineRunner::new(PipelineConfig::default());
         let (state, report) = runner.run(42u32);
@@ -403,7 +448,7 @@ mod tests {
         assert!(!report.halted_early);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn stage_count_observable() {
         // A stage that is a `&dyn`-style object can still be counted by the
         // runner via `is_active` only; this pins that `add_stage` grows the
@@ -415,7 +460,7 @@ mod tests {
         assert_eq!(report.stage_reports.len(), 2);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn state_type_is_generic_not_boardstate() {
         // Cross-check: `S` can be any Clone type, not just BoardState or u32.
         struct LenStage {
@@ -445,4 +490,23 @@ mod tests {
             StageOutcome::Completed
         ));
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("pipeline::tests::run_sequences_stages_in_order", run_sequences_stages_in_order),
+        ("pipeline::tests::run_skips_inactive_stages", run_skips_inactive_stages),
+        ("pipeline::tests::fatal_error_halts_and_preserves_last_successful_state", fatal_error_halts_and_preserves_last_successful_state),
+        ("pipeline::tests::infeasible_halts_by_default", infeasible_halts_by_default),
+        ("pipeline::tests::continue_on_error_collects_and_continues", continue_on_error_collects_and_continues),
+        ("pipeline::tests::warning_does_not_halt_even_with_halt_on_error", warning_does_not_halt_even_with_halt_on_error),
+        ("pipeline::tests::observers_are_called_between_stages", observers_are_called_between_stages),
+        ("pipeline::tests::empty_runner_returns_initial_state", empty_runner_returns_initial_state),
+        ("pipeline::tests::stage_count_observable", stage_count_observable),
+        ("pipeline::tests::state_type_is_generic_not_boardstate", state_type_is_generic_not_boardstate),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

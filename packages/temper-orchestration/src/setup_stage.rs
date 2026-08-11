@@ -18,17 +18,26 @@
 // via the already-Rust `Netlist.apply_net_class_mapping` pyclass method
 // (netlist is mutated in place; the stage returns the state unchanged).
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyAttributeError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::config_attach_stage::to_pyerr;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
+#[cfg(feature = "python")]
 /// The DRC-oracle setup stage: design_rules/board -> populated DRCOracle.
 #[derive(Debug, Clone)]
 pub struct DrcOracleSetupStage {
@@ -36,6 +45,7 @@ pub struct DrcOracleSetupStage {
     pub parsed_pads: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for DrcOracleSetupStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("drc_oracle_setup")
@@ -77,12 +87,14 @@ impl Stage<BoardState> for DrcOracleSetupStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// `NetClassSetupStage`: apply the net-class mapping early in the pipeline.
 #[derive(Debug, Clone)]
 pub struct NetClassSetupStage {
     pub net_classes: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for NetClassSetupStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("net_class_setup")
@@ -116,6 +128,7 @@ impl Stage<BoardState> for NetClassSetupStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_drc_oracle_setup(state,
 /// design_rules, parsed_pads)`.
 #[pyfunction]
@@ -137,6 +150,7 @@ pub fn run_drc_oracle_setup(
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["drc_oracle"])
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_net_class_setup(state, net_classes)`.
 #[pyfunction]
 #[pyo3(signature = (state, net_classes=None))]
@@ -159,6 +173,7 @@ pub fn run_net_class_setup(
 // ClearanceMatrix construction
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// The `run()` matrix branch: design_rules object -> populated
 /// ClearanceMatrix, else `ClearanceMatrix.parse(state.board)`, else
 /// `DesignRulesParser.create_default()`.
@@ -230,6 +245,7 @@ fn build_matrix<'py>(
 // Pad registration
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `if self.parsed_pads:` branch -- register pads from PadData objects.
 fn register_parsed_pads(
     py: Python<'_>,
@@ -301,6 +317,7 @@ fn register_parsed_pads(
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// `elif state.board and state.netlist:` branch -- register pads computed
 /// from netlist components/pins.
 fn register_netlist_pads(
@@ -437,6 +454,7 @@ fn register_netlist_pads(
 // Python-object helpers
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// Construct a `Pad` Python object with the same kwargs the Python shim
 /// used (`constraints_spatial_index.Pad` dataclass).
 #[allow(clippy::too_many_arguments)]
@@ -466,6 +484,7 @@ fn build_pad<'py>(
     pad_cls.call((), Some(&kwargs))
 }
 
+#[cfg(feature = "python")]
 /// `getattr(obj, name, default)` with AttributeError fallback.
 fn getattr_default<'py>(
     py: Python<'py>,
@@ -480,6 +499,7 @@ fn getattr_default<'py>(
     }
 }
 
+#[cfg(feature = "python")]
 /// Iterate a dict's items in insertion order, returning owned `(key,
 /// value)` pairs.
 fn dict_items(
@@ -498,6 +518,7 @@ fn dict_items(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// The Python `drill is not None and ((isinstance(drill, (int, float)) and
 /// drill > 0) or (hasattr(drill, "diameter") and drill.diameter and
 /// drill.diameter > 0))` PTH test.
@@ -527,20 +548,24 @@ fn drill_has_hole(py: Python<'_>, drill: &Bound<'_, PyAny>) -> PyResult<bool> {
     Ok(false)
 }
 
+#[cfg(feature = "python")]
 fn str_py(py: Python<'_>, s: &str) -> Py<PyAny> {
     pyo3::types::PyString::new(py, s).into_any().unbind()
 }
 
+#[cfg(feature = "python")]
 fn py_float(py: Python<'_>, f: f64) -> Py<PyAny> {
     pyo3::types::PyFloat::new(py, f).into_any().unbind()
 }
 
+#[cfg(feature = "python")]
 fn py_int(py: Python<'_>, i: i64) -> Py<PyAny> {
     i.into_pyobject(py)
         .map(|b| b.into_any().unbind())
         .unwrap_or_else(|_| py.None())
 }
 
+#[cfg(feature = "python")]
 fn py_bool(py: Python<'_>, b: bool) -> Py<PyAny> {
     let name = if b { "True" } else { "False" };
     py.import("builtins")

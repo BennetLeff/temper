@@ -10,9 +10,12 @@
 // builtins.isinstance) so message rendering, decimal formatting and set/sort
 // semantics stay bit-identical to the pre-migration Python by construction.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyString;
 
+#[cfg(feature = "python")]
 /// CPython `print(*args)` (writes to `sys.stdout`, captured by pytest).
 pub(crate) fn py_print(py: Python<'_>, args: &[Bound<'_, PyAny>]) -> PyResult<()> {
     let print = py.import("builtins")?.getattr("print")?;
@@ -20,6 +23,7 @@ pub(crate) fn py_print(py: Python<'_>, args: &[Bound<'_, PyAny>]) -> PyResult<()
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// CPython `str.format(template, *args)` -- the only message renderer
 /// (David-Gay `:.1f`/`:.2f`, int/str interpolation) stays CPython.
 pub(crate) fn py_format<'py>(
@@ -30,6 +34,7 @@ pub(crate) fn py_format<'py>(
     PyString::new(py, template).call_method1("format", pyo3::types::PyTuple::new(py, args)?)
 }
 
+#[cfg(feature = "python")]
 /// `logging.getLogger(logger_name).<level>(message)`.
 pub(crate) fn log_msg(
     py: Python<'_>,
@@ -42,6 +47,7 @@ pub(crate) fn log_msg(
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// The shared D6 write-back + raise channel: the pyfunctions that mirror a
 /// raising Python stage (`PlacementValidationStage`, `DRCValidationStage`,
 /// `ConnectivityValidationStage`) return `(state, message)` -- the written-back

@@ -21,12 +21,17 @@
 // unchanged (identity preserved -- matching the Python stages' `return
 // state` paths). A field whose Rust value is `None` is never written back.
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
 
+#[cfg(feature = "python")]
 /// Read the Python BoardState attributes the D1 stages consume into a Rust
 /// `BoardState`. Python `None` maps to Rust `None`; a non-None value
 /// (including a non-empty default like `placements=frozenset()`) maps to
@@ -60,6 +65,7 @@ pub(crate) fn from_python(_py: Python<'_>, state: &Bound<'_, PyAny>) -> PyResult
     Ok(bs)
 }
 
+#[cfg(feature = "python")]
 /// Write the changed candidate fields of a Rust `BoardState` back onto the
 /// Python BoardState via `dataclasses.replace(state, **kwargs)`. Each
 /// candidate field is written back ONLY if the original Python value differs
@@ -152,6 +158,7 @@ pub(crate) fn to_python(
     Ok(replace.call((orig,), Some(&kwargs))?.unbind())
 }
 
+#[cfg(feature = "python")]
 fn attr_opt(state: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<Py<PyAny>>> {
     let value = state.getattr(name)?;
     if value.is_none() {
@@ -161,6 +168,7 @@ fn attr_opt(state: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<Py<PyAny>>>
     }
 }
 
+#[cfg(feature = "python")]
 /// The Python value to write back for an `Option<Py>` field: the value
 /// itself, or Python `None` when the stage cleared the field (a changed
 /// field -- original Some -> Rust None -- writes an explicit None, matching
@@ -172,6 +180,7 @@ fn opt_value(py: Python<'_>, opt: &Option<Py<PyAny>>) -> Py<PyAny> {
     }
 }
 
+#[cfg(feature = "python")]
 /// Whether the Rust output value for an `Option<Py>` field differs from the
 /// original Python attribute value. `None` in either position counts as
 /// different (a stage populating a previously-empty field must write it).
@@ -214,6 +223,7 @@ fn py_opt_changed(
     }
 }
 
+#[cfg(feature = "python")]
 /// The `grid` write-back test: the stage either produces a NEW `ClearanceGrid`
 /// object (write it back) or returns the state unchanged on the no-board
 /// guard (leave it). Dataclass `==` cannot be used here -- `ClearanceGrid`

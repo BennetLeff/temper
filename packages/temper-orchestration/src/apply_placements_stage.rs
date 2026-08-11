@@ -13,13 +13,19 @@
 // (identity preserved); the write-back in `d1_bridge.rs` compares the new
 // netlist against the original so an unchanged stage is never rewritten.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::derivation_stage::stage_guard;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 /// The apply-placements stage: netlist + placements -> netlist with
@@ -27,6 +33,7 @@ use crate::stage::{Stage, StageError};
 #[derive(Debug, Clone, Default)]
 pub struct ApplyPlacementsStage;
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ApplyPlacementsStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("apply_placements")
@@ -42,6 +49,7 @@ impl Stage<BoardState> for ApplyPlacementsStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl ApplyPlacementsStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         // `if not state.netlist or not state.placements: return state`.
@@ -93,6 +101,7 @@ impl ApplyPlacementsStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_apply_placements(state)`.
 #[pyfunction]
 pub fn run_apply_placements(

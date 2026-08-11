@@ -10,20 +10,27 @@
 // observable behavior: config present AND `state.config` None -> set it,
 // otherwise the state is returned unchanged (identity preserved).
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::derivation_stage::stage_guard;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
+#[cfg(feature = "python")]
 /// The config pass-through stage: raw config -> `BoardState.config`.
 #[derive(Debug, Clone)]
 pub struct ConfigAttachStage {
     pub config: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ConfigAttachStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("config_attach")
@@ -44,6 +51,7 @@ impl Stage<BoardState> for ConfigAttachStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_config_attach(state, config)`.
 #[pyfunction]
 #[pyo3(signature = (state, config))]
@@ -62,6 +70,7 @@ pub fn run_config_attach(
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["config"])
 }
 
+#[cfg(feature = "python")]
 pub(crate) fn to_pyerr(e: &StageError) -> PyErr {
     pyo3::exceptions::PyRuntimeError::new_err(e.message.clone())
 }
