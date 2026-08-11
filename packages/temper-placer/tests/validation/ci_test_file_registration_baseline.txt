@@ -74,13 +74,10 @@ geometry/test_kicad_transform_rust_differential.py
 geometry/test_transform_algebra_pcbnew_oracle.py
 heuristics/test_base.py
 heuristics/test_conflict.py
-heuristics/test_graph_heuristics.py
-heuristics/test_graph_utils.py
 heuristics/test_hash_seed_determinism.py
 heuristics/test_mcu_subsystem.py
 heuristics/test_organizational_rust_differential.py
 heuristics/test_pipeline.py
-heuristics/test_spectral.py
 heuristics/test_structural_rust_differential.py
 heuristics/test_style_rust_differential.py
 heuristics/test_topological_integration.py
