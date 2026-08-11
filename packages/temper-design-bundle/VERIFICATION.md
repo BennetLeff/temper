@@ -4059,7 +4059,7 @@ mixins and the zone-aware slot geometry moved here
 | critical-bottleneck violations | `deterministic/stages/_phase_validation.py` → `_PhaseValidationMixin.find_critical_bottleneck_violations` | `find_critical_bottleneck_violations` |
 | ray-casting containment | `deterministic/stages/zone_aware_slot_generation.py` → `_point_in_polygon` | `point_in_polygon` |
 | AABB cutout test | same → `_slot_intersects_iso` | `slot_intersects_iso` |
-| point-to-segment distance | same → `_point_to_segment_distance` | `point_to_segment_distance` |
+| point-to-segment distance | same → `_point_to_segment_distance` | **delegated** to `temper-geometry::creepage_check::point_to_segment_distance` (issue #987; the Wave-4 `pow`-`** 0.5` reimplementation was deleted) |
 | min polygon distance | same → `_min_distance_to_polygon` | `min_distance_to_polygon` |
 
 The Python modules are delegation shims; the orchestration (the NFR4
@@ -4139,12 +4139,17 @@ campaign:
    using `py_min`/`py_max` (first-argument-on-ties). Mutant M9 (top edge open)
    killed by `test_pip_boundary_semantics`.
 7. **`** 2` / `** 0.5` are libm `pow`, NOT `*`/`sqrt`.**
-   `point_to_segment_distance` closes with
-   `pow(pow(px-proj_x, 2.0) + pow(py-proj_y, 2.0), 0.5)` in both the `l2 == 0`
-   branch and the general close; `pow(s, 0.5)` and `sqrt(s)` differ by 1 ulp
-   on a measurable input class. Mutant M10 (sqrt) is killed by
-   `test_ptsd_pow_vs_sqrt_discriminating_operand`. The `t` clamp is
-   `py_max(0.0, py_min(1.0, ...))`.
+   (RETIRED 2026-08-11, issue #987): the `point_to_segment_distance`
+   reimplementation that closed with
+   `pow(pow(px-proj_x, 2.0) + pow(py-proj_y, 2.0), 0.5)` was deleted in the
+   point-to-segment dedupe; `min_distance_to_polygon` now delegates to
+   temper-geometry's canonical `creepage_check::point_to_segment_distance`
+   (CPython-`math.hypot` Dekker close, `denom==0` OR non-finite degenerate
+   arm). The ≤1-ulp divergence from the old `pow` close is decision-immune
+   on real inputs (0 flips in 6000, measured in the spike). The differential's
+   `test_ptsd_degenerate_uses_canonical_hypot_contract` pins the new
+   contract on a hypot-vs-`sqrt(pow+pow)` discriminating operand. The `t`
+   clamp inside the canonical kernel is `py_max(0.0, py_min(1.0, ...))`.
 8. **`min_distance_to_polygon`'s `inf` sentinel.** `len(polygon) < 2` → `inf`;
    the fold is `py_min` over edges in polygon order. `slot_intersects_iso` is
    an inclusive AABB test (boundary = hit).
@@ -4496,7 +4501,7 @@ Six compute kernels from `temper_placer/router_v6/constraint_model.py`
 |---|---|---|
 | `_edge_endpoint_key` | `edge_endpoint_key` | 6-decimal-quantised `(x, y)` string identity |
 | `canonical_channel_edges` | `canonical_channel_edges` | quantised-key-sorted edge-identity generator |
-| `_point_to_segment_distance` | `point_to_segment_distance` | clamped projection; exact `len_sq == 0.0` degenerate arm |
+| `_point_to_segment_distance` | **delegated** to `temper-geometry::creepage_check::point_to_segment_distance` (issue #987) | clamped projection; the Wave-4 `sqrt`/`if-elif-else` reimplementation was deleted |
 | `_pin_span` | `pin_span` | max pairwise `sqrt(pow + pow)` distance |
 | `_dist_min_edge_to_pins` | `dist_min_edge_to_pins` | min over pins; empty → `inf` |
 | `_is_candidate_edge` | `is_candidate_edge` | `dist_min <= max(k*span, m_min)` pruning predicate |
@@ -4513,11 +4518,14 @@ and `ModelBuilder`'s orchestration (`_create_*` loops over skeletons/nets/
 PCB objects, the `ConstraintModel` registry, the `esl()` closures, the
 pipeline stage) stays Python. Not `temper-rust-router-core` (where the
 `pruning` module holds its own `point_to_segment_distance` /
-`is_candidate_edge` — this module's docstrings call them "exact Python
-replicas" of that Rust for cross-checking, and the differential here pins
-*this* module's Python as the oracle, not the other crate) and not
-`temper-geometry` (whose `_point_to_segment_distance` uses the different
-`len2 < 1e-12` degenerate threshold — deliberately not de-duped).
+`is_candidate_edge` — a separate pre-existing Rust kernel, out of the
+2026-08-11 dedupe's scope; this module's docstrings once called them "exact
+Python replicas" of that Rust for cross-checking) and not a bespoke
+`temper-geometry` copy: since issue #987 `dist_min_edge_to_pins` delegates
+to `temper-geometry::creepage_check::point_to_segment_distance`, the repo's
+canonical point-to-segment kernel. (The pre-dedupe state is documented in
+`docs/evidence/2026-08-11-point-to-segment-distance-dedupe-spike.md`; the
+dedupe itself in the `-execution.md` follow-up.)
 
 ## Structural proof (bit-identical parity)
 
@@ -4535,10 +4543,13 @@ replicas" of that Rust for cross-checking, and the differential here pins
   `**` = `host_math::pow` (the deterministic-leaf precedent).
 - **B5 (builtin `max` keeps the first argument)**: `_is_candidate_edge`'s
   `max(k_factor * span, m_min)` → `host_math::py_max`.
-- **NaN clamp semantics**: `point_to_segment_distance`'s `if t < 0.0 / elif
-  t > 1.0 / else` is preserved verbatim (a NaN `t` falls through to `else`
-  and propagates). `clippy::manual_clamp` is suppressed with a comment — the
-  oracle is deliberately NOT a `t.clamp(0.0, 1.0)` (which panics on NaN).
+- **Point-to-segment NaN semantics (RETIRED 2026-08-11, issue #987)**: the
+  old `point_to_segment_distance`'s `if t < 0.0 / elif t > 1.0 / else`
+  (NaN `t` fell through to `else` and propagated) was deleted in the dedupe;
+  the canonical temper-geometry kernel clamps NaN `t` to 1.0 via its
+  builtin-`min`/`max` replication and produces a NaN only through the final
+  `hypot` — strictly more correct on non-real inputs (finite instead of
+  NaN/inf), ≤1-ulp and decision-immune on real ones.
 - **Stable sort**: `canonical_channel_edges`'s key sort is stable on both
   sides; the only construction-order dependence (the `_E{i}_` index tie-break
   for distinct edges quantising to identical keys) is preserved because the

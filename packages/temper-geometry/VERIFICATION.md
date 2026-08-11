@@ -720,6 +720,20 @@ HV-net word-boundary classifier (creepage_check.py).  Route-object
 extraction (`_extract_segments`) and the per-net report orchestration
 (`verify_creepage`) stay in Python.
 
+**Canonical point-to-segment kernel (issue #987, 2026-08-11):**
+`creepage_check::point_to_segment_distance` was promoted to `pub` and is
+now the repo-wide single source of truth for point-to-segment distance —
+the three Wave-4 reimplementations in `temper-design-bundle`
+(`constraint_model.rs`, `deterministic_phase.rs`) and `temper-drc-rs`
+(`deterministic_leaf_drc.rs`) were deleted and their callers repointed at
+it. Body unchanged; only the visibility promotion. The ≤1-ulp divergence
+from the deleted `sqrt`/`pow` closes is decision-immune on real inputs
+(spike measured 0 flips in 6000; see
+`docs/evidence/2026-08-11-point-to-segment-distance-dedupe-spike.md` and
+the `-execution.md` follow-up). Distinct functions with their own
+thresholds (`drc_constraints_geometry.rs`, `geometry_kernels.rs`,
+`temper-rust-router-core::pruning.rs`) remain separate and documented.
+
 **Base case:** two zero-length segments (points) — the
 `denom == 0` arm returns the point-to-point distance
 (`math.hypot`, CPython's Dekker double-double `vector_norm`, shared
