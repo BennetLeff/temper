@@ -263,6 +263,9 @@ on:
           - temper-quality-oracle
           - temper-io-types
           - temper-pcl-ir
+          - temper-orchestration
+          - temper-constraints
+          - temper-rust-router
 
 permissions:
   contents: read
