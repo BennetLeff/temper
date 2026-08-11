@@ -24,17 +24,24 @@ authority:
 # board/export would have been noticed. `inputs[].sha256` below is pinned to
 # the two files' content AS OF `measured_at_commit` (via `git show
 # <sha>:<path>`), not today's tree -- that is what makes a future drift
-# detectable at all. As of this backfill, `pcb/temper.kicad_pcb` has already
+# detectable at all. As of this backfill, `pcb/temper.kicad_pcb` had already
 # drifted since this reconciliation was measured (the board changed after
 # 3f1744ca; the source export did not) -- see the gate's STALE report; this
-# is a finding, not swallowed by re-hashing today's board into a
+# was a finding, not swallowed by re-hashing today's board into a
 # false-fresh record.
+# Re-recorded 2026-08-11 (fix/references-record-current-board): the drift
+# since 3f1744ca is commit c4956df66 "fix(pcb): declare In1.Cu/In2.Cu as
+# power-plane layers, not signal" -- a 2-line layer-declaration change that
+# moved ZERO components (`(at ` line count unchanged), so every alias below
+# (source designator -> board reference, matched by KiCad sheetpath) is
+# verified unaffected. The board hash is re-pinned to today's content; the
+# source export hash is unchanged.
 provenance:
   measured_at_commit: 3f1744ca3abfc14f8c80df78e8d359c264a46917
   dirty: UNKNOWN
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 0fff888a456ba652d24b417f9f49211e356b32b548d48970d274d396cde6fea5
+      sha256: 6928b7c8950a732f1991578f5ff7c080104c0847bf438ccd8bf2c75150544b64
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
