@@ -12,25 +12,45 @@
  *
  * Usage:
  *   node tools/wasm/sweep_multi_worker.mjs [--concurrency 64] [--json out.json]
- *     [--board-sha256 <hex>] [--warmup]
+ *     [--board-sha256 <hex>] [--warmup] [--tier temper-drc-rs]
  *
- * Worker inventory (deployed 2026-08-07, Phase 1 U8 multi-worker):
- *   drc       https://temper-wasm-drc.bennetleff.workers.dev       1 test    77 KB
- *   emc       https://temper-wasm-emc.bennetleff.workers.dev      14 tests  120 KB
- *   erc       https://temper-wasm-erc.bennetleff.workers.dev       9 tests   51 KB
- *   safety    https://temper-wasm-safety.bennetleff.workers.dev    0 tests   17 KB
- *   placement https://temper-wasm-placement.bennetleff.workers.dev 12 tests   83 KB
- *   routing   https://temper-wasm-routing.bennetleff.workers.dev   2 tests   41 KB
- *   infra     https://temper-wasm-infra.bennetleff.workers.dev   109 tests 1197 KB
+ * The Worker inventory is NOT hardcoded here: it is read from
+ * tools/wasm/wasm_tier_topology.json, the same file the staging script, the
+ * deploy workflow and the freshness checker read, so a Worker cannot be swept
+ * without also being built, deployed and checked.
+ *
+ * ## --tier, and why the default is not what CI should use
+ *
+ * The tier carries two crates (temper-drc-rs and temper-geometry). With no
+ * `--tier` this sweeps every shard of every tier, which is the right thing for
+ * an ad-hoc "is the whole thing up?" run and the wrong thing for R19: the
+ * output feeds tools/wasm/r19_compare.py, which joins wasm32 verdicts against
+ * ONE `cargo test` invocation's verdicts by test name. Handing it a sweep that
+ * mixes both crates would leave the other crate's tests as `wasm32_only` --
+ * counted nowhere, failing nothing, which is precisely the "reports green over
+ * a corpus nobody compared" failure this tier exists to rule out. So
+ * wasm-tier-nightly.yml passes `--tier` explicitly and compares each tier
+ * against its own crate's native run.
  */
 
-const BASE_DOMAIN = "bennetleff.workers.dev";
-const FAMILIES = ["drc", "emc", "erc", "safety", "placement", "routing", "infra"];
+import { loadTopology, tierByCrate, workerUrl } from "./tier_topology.mjs";
 
 function arg(name, dflt) {
   const i = process.argv.indexOf(name);
   return i === -1 ? dflt : process.argv[i + 1];
 }
+
+const topology = loadTopology();
+const BASE_DOMAIN = topology.base_domain;
+const TIER_ARG = arg("--tier", null);
+const SELECTED_TIERS = TIER_ARG ? [tierByCrate(topology, TIER_ARG)] : topology.tiers;
+// Shards, deduplicated by family across the selected tiers. A family name is
+// unique across the topology (validated in tier_topology.mjs), so the family
+// remains a usable key in the per-family breakdown below.
+const SHARDS = SELECTED_TIERS.flatMap((t) =>
+  t.shards.map((s) => ({ ...s, crate: t.crate })),
+);
+const FAMILIES = SHARDS.map((s) => s.family);
 const CONCURRENCY = Math.max(1, parseInt(arg("--concurrency", "64"), 10));
 const JSON_OUT = arg("--json", null);
 const WARMUP = process.argv.includes("--warmup");
@@ -47,14 +67,16 @@ const BOARD_SHA256 = arg("--board-sha256", null);
 
 async function run() {
   const workerUrls = {};
-  for (const fam of FAMILIES) {
-    workerUrls[fam] = `https://temper-wasm-${fam}.${BASE_DOMAIN}`;
+  for (const shard of SHARDS) {
+    workerUrls[shard.family] = workerUrl(topology, shard.worker);
   }
 
   // Phase 1: fetch health from each family to discover test counts.
   const families = {};
   let total = 0;
-  console.error("=== Family census ===");
+  console.error(
+    `=== Family census (tiers: ${SELECTED_TIERS.map((t) => t.crate).join(", ")}) ===`,
+  );
   for (const fam of FAMILIES) {
     try {
       const r = await (await fetch(`${workerUrls[fam]}/health`)).json();
@@ -68,6 +90,32 @@ async function run() {
     }
   }
   console.error(`  total: ${total} tests across ${FAMILIES.length} families`);
+
+  // A census failure used to be survivable here: an unreachable family got
+  // `count: 0`, contributed no work items, and if that happened to every family
+  // the work queue was empty, `failures` was empty, and this script exited 0
+  // having dispatched nothing -- a green sweep over zero tests, which is the
+  // exact failure mode the R5.1 staleness check was added to close one layer up.
+  // wasm-tier-nightly.yml does run that check first, so this was latent rather
+  // than live, but a tool must not depend on its caller to keep it honest.
+  const censusErrors = Object.entries(families).filter(([, v]) => v.error);
+  if (censusErrors.length) {
+    console.error(
+      `::error::Family census failed for: ${censusErrors.map(([f, v]) => `${f} (${v.error})`).join(", ")}. ` +
+        "Those families' tests would silently contribute nothing to the tally below, so this " +
+        "sweep FAILS rather than reporting a verdict for a corpus it could not enumerate.",
+    );
+    process.exit(2);
+  }
+  if (total === 0) {
+    console.error(
+      "::error::Every family reported 0 tests. A sweep of an empty corpus dispatches nothing and " +
+        "would otherwise exit 0 with a clean tally — a green result for zero work. Check that the " +
+        "deployed modules carry a registry (tools/wasm/check_deployed_freshness.mjs is the control " +
+        "that compares their counts against the commit under test).",
+    );
+    process.exit(2);
+  }
 
   if (WARMUP) {
     // One warm-up request per family to amortize cold-start.
@@ -172,6 +220,7 @@ async function run() {
 
   const summary = {
     mode: "multi-worker-parallel",
+    tiers: SELECTED_TIERS.map((t) => t.crate),
     concurrency: CONCURRENCY,
     warmup: WARMUP,
     board_sha256: BOARD_SHA256,

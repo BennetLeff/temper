@@ -38,7 +38,8 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 #                                     every verdict against the same commit's
 #                                     native `cargo test` run (both taken in
 #                                     this very job). Fails on disagreement.
-#   worker-dispatch-r19           -- requires the 8 deployed Workers to answer
+#                                     Does this ONCE PER TIER -- see below.
+#   worker-dispatch-r19           -- requires the deployed Workers to answer
 #                                     /health. If any does not, this job FAILS
 #                                     with an explicit error naming which --
 #                                     it does not skip. (It formerly required
@@ -74,11 +75,34 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 # ALREADY downloads that artifact for the native comparison. No rebuild is
 # added -- the number was sitting in the artifact the whole time.
 #
-# It also checks that the 7 per-family shards' counts sum to exactly the built
-# count. The shards are what sweep_multi_worker.mjs dispatches; the
+# It also checks that a tier's per-family shard counts sum to exactly its built
+# count. The shards are what sweep_multi_worker.mjs dispatches; a tier's
 # full-corpus Worker is not in that fan-out at all, so a fresh full-corpus
 # module over stale shards would leave the dispatched path stale behind a
 # correct-looking headline number.
+#
+# TWO CRATES, TWO TIERS, ONE INVARIANT PER TIER (2026-08-10).
+#
+# The tier now serves temper-drc-rs (temper-wasm-tier + 7 family shards) and
+# temper-geometry (temper-wasm-geometry, both its tier's full-corpus Worker and
+# its only shard, because that crate declares one family). The Worker list lives
+# in tools/wasm/wasm_tier_topology.json and every step below reads it.
+#
+# Everything downstream is done PER TIER, and that is a correctness requirement
+# rather than tidiness. r19_compare.py joins wasm32 verdicts against ONE
+# `cargo test` invocation's verdicts BY TEST NAME, and scores a name it cannot
+# find on the native side as `wasm32_only` -- counted nowhere, failing nothing.
+# So a single merged sweep compared against temper-drc-rs's native run would
+# silently absolve all 722 geometry verdicts, which is the same "green over a
+# corpus nobody compared" failure the R5.1 check exists to rule out, rebuilt
+# one crate later. Hence: one native `cargo test` per crate, one wasm32 module
+# per crate, one expected-failure manifest per crate, one comparison per crate.
+#
+# Likewise the staleness check is stated per crate rather than over the union:
+# a union check would let a +11 drift in one crate cancel a -11 drift in the
+# other and pass with two stale modules. See check_deployed_freshness.mjs's
+# header for that argument in full, and for the rule that every tier MUST be
+# given a built count -- there is no flag that skips one.
 #
 # R5 (goal-set plan): every finding names the exact artifact it came from by
 # content hash. Both jobs compute pcb/temper.kicad_pcb's sha256 and thread it
@@ -174,6 +198,33 @@ jobs:
             --manifest-path packages/temper-drc-rs/Cargo.toml 2>&1 | tee /tmp/native_raw.txt
           grep '^test ' /tmp/native_raw.txt > /tmp/native.txt
 
+      # temper-geometry's native arm. A DIFFERENT `cargo test` invocation, not a
+      # bigger one: the two crates' registries are disjoint and each wasm32
+      # module is compared only against its own crate's native verdicts.
+      #
+      # DEBUG, NOT RELEASE, and that is load-bearing. Measured 2026-08-10 on
+      # x86_64-unknown-linux-gnu: `cargo test --no-default-features` passes
+      # 779/779, while `cargo test --release --no-default-features` fails 1 --
+      # pad_geometry::tests::pow2_is_exact_where_powi_is_not, which asserts that
+      # powi(2, -1024) still overflows-then-inverts to 0.0. At opt-level 3 LLVM
+      # folds it to the exact subnormal instead, i.e. release x86_64 acquires
+      # the very wasm32 behaviour that test is a staleness guard against. Run
+      # this arm in release and the test fails on BOTH sides, r19_compare.py
+      # scores agree_fail, and a real divergence stops being reported as one.
+      #
+      # This also runs 31 integration tests (tests/*.rs) and 1 doctest that the
+      # wasm32 registry does not carry -- gen_wasm_test_registry.py registers
+      # `#[cfg(test)]` modules inside src/ only. Those, plus the ~55 lib tests
+      # the generator excludes, land in r19_compare.py's `native_only` bucket:
+      # reported in the matrix, not silently dropped, and correctly not counted
+      # as agreement.
+      - name: Native cargo test (temper-geometry, --no-default-features)
+        run: |
+          set -euo pipefail
+          cargo test --no-default-features \
+            --manifest-path packages/temper-geometry/Cargo.toml 2>&1 | tee /tmp/native_geometry_raw.txt
+          grep '^test ' /tmp/native_geometry_raw.txt > /tmp/native_geometry.txt
+
       - name: Build temper-wasm-test-runner for wasm32
         run: |
           set -euo pipefail
@@ -205,6 +256,26 @@ jobs:
           node tools/wasm/run_wasm_tests.mjs \
             target-shared/wasm32-unknown-unknown/release/temper_wasm_test_runner.wasm \
             --json /tmp/wasm_local.json
+
+      # temper-geometry's wasm32 arm. `geometry-wasm-test-registry` implies
+      # `geometry-registry`, which is `dep:temper-geometry` -- the dependency is
+      # OPTIONAL precisely so this feature is the only thing that pulls the
+      # crate into the graph and a drc-only build is byte-for-byte unchanged.
+      # The two builds write the same output filename, so this one is copied
+      # aside before the census; the staging script does the same thing for the
+      # deploy path.
+      - name: Build + run temper-geometry's wasm32 registry (Node host)
+        run: |
+          set -euo pipefail
+          cargo build --release --target wasm32-unknown-unknown --no-default-features \
+            --features geometry-wasm-test-registry \
+            --manifest-path packages/temper-wasm-test-runner/Cargo.toml
+          cp target-shared/wasm32-unknown-unknown/release/temper_wasm_test_runner.wasm \
+             /tmp/temper_wasm_test_runner_geometry.wasm
+          node tools/wasm/run_wasm_tests.mjs \
+            /tmp/temper_wasm_test_runner_geometry.wasm \
+            --expected-failures tools/wasm/wasm_expected_failures_geometry.json \
+            --json /tmp/wasm_local_geometry.json
 
       - name: Anti-vacuity — inject a disagreement (workflow_dispatch only)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.inject_disagreement == 'flip_one_verdict' }}
@@ -238,6 +309,22 @@ jobs:
             --output "/tmp/r19_local_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" \
             --fail-on-disagree
 
+      # Separate step, not `if: always()` folded into the one above: a
+      # temper-drc-rs disagreement and a temper-geometry disagreement are
+      # different findings and each must be able to fail the job on its own.
+      - name: R19 comparison (native vs local wasm32, temper-geometry)
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          python3 tools/wasm/r19_compare.py \
+            --native-file /tmp/native_geometry.txt \
+            --wasm-json /tmp/wasm_local_geometry.json \
+            --expected-failures tools/wasm/wasm_expected_failures_geometry.json \
+            --commit "${COMMIT_SHA}" \
+            --board-sha256 "${BOARD_SHA256}" \
+            --output "/tmp/r19_local_geometry_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" \
+            --fail-on-disagree
+
       - name: Write job summary
         if: ${{ !cancelled() }}
         run: |
@@ -247,8 +334,16 @@ jobs:
             echo "- commit: \`${COMMIT_SHA}\`"
             echo "- board sha256: \`${BOARD_SHA256}\` (\`pcb/temper.kicad_pcb\`)"
             echo ""
+            echo "#### temper-drc-rs"
+            echo ""
             echo '```'
             cat "/tmp/r19_local_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" 2>/dev/null | head -c 4000 || echo "(comparison output not produced — see earlier failed step)"
+            echo '```'
+            echo ""
+            echo "#### temper-geometry"
+            echo ""
+            echo '```'
+            cat "/tmp/r19_local_geometry_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" 2>/dev/null | head -c 4000 || echo "(comparison output not produced — see earlier failed step)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -261,6 +356,9 @@ jobs:
             /tmp/native.txt
             /tmp/native_raw.txt
             /tmp/wasm_local.json
+            /tmp/native_geometry.txt
+            /tmp/native_geometry_raw.txt
+            /tmp/wasm_local_geometry.json
             /tmp/r19_local_*.json
           retention-days: 30
           if-no-files-found: error
@@ -283,6 +381,14 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7
+
+      # Before the preflight, not after: the preflight now reads the Worker list
+      # from tools/wasm/wasm_tier_topology.json with `node`, and relying on
+      # whatever node the runner image happens to ship is how a job starts
+      # depending on the image instead of on its own setup.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
 
       # ------------------------------------------------------------------
       # Fail loudly, never skip, when the deployed path is not there.
@@ -341,10 +447,26 @@ jobs:
           # for. If the deployed path is ever put behind Cloudflare Access or
           # a wrangler-authenticated dispatch, the credential requirement
           # belongs back -- attached to the step that actually consumes it.
-          HOSTS="temper-wasm-tier temper-wasm-drc temper-wasm-emc temper-wasm-erc temper-wasm-safety temper-wasm-placement temper-wasm-routing temper-wasm-infra"
+          #
+          # The host list comes from tools/wasm/wasm_tier_topology.json rather
+          # than being spelled out here, so a Worker added to the tier is
+          # preflighted without anyone remembering to edit this string.
+          node -e '
+            import("./tools/wasm/tier_topology.mjs").then(({ loadTopology }) => {
+              const t = loadTopology();
+              const scripts = [...new Set(t.tiers.flatMap((x) => [x.full_corpus_worker, ...x.shards.map((s) => s.worker)]))];
+              console.log(scripts.map((s) => `${s}.${t.base_domain}`).join(" "));
+            }).catch((e) => { console.error(e.message); process.exit(1); });
+          ' > /tmp/preflight_hosts.txt
+          HOSTS="$(cat /tmp/preflight_hosts.txt)"
+          # An empty host list would make the loop below a no-op and report
+          # "all Workers answering" having asked none.
+          [ -n "${HOSTS}" ]
           unreachable=""
+          n=0
           for h in $HOSTS; do
-            code="$(curl -s -m 15 -o /dev/null -w '%{http_code}' "https://${h}.bennetleff.workers.dev/health" || echo 000)"
+            n=$((n + 1))
+            code="$(curl -s -m 15 -o /dev/null -w '%{http_code}' "https://${h}/health" || echo 000)"
             if [ "$code" != "200" ]; then
               unreachable="${unreachable} ${h}(HTTP:${code})"
             else
@@ -352,10 +474,10 @@ jobs:
             fi
           done
           if [ -n "${unreachable}" ]; then
-            echo "::error::Deployed Worker(s) not answering /health:${unreachable}. The R19 deployed-path comparison below would compare nothing or fail confusingly, so this job FAILS here rather than reporting a clean result for a path that was never exercised. Redeploy with 'bash scripts/stage_wasm_families.sh && wrangler deploy' (docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md)."
+            echo "::error::Deployed Worker(s) not answering /health:${unreachable}. The R19 deployed-path comparison below would compare nothing or fail confusingly, so this job FAILS here rather than reporting a clean result for a path that was never exercised. Redeploy with 'gh workflow run wasm-tier-deploy.yml' (docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md)."
             exit 1
           fi
-          echo "All 8 Workers answering — proceeding."
+          echo "All ${n} Workers answering — proceeding."
 
       - name: Compute artifact identity (R5 — commit + board content hash)
         id: identity
@@ -367,10 +489,6 @@ jobs:
           echo "BOARD_SHA256=${BOARD_SHA256}" >> "$GITHUB_ENV"
           echo "commit:        ${COMMIT_SHA}"
           echo "board sha256:  ${BOARD_SHA256}  (pcb/temper.kicad_pcb)"
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: '22'
 
       - name: Download native results from local-sweep-r19
         uses: actions/download-artifact@v6
@@ -401,11 +519,17 @@ jobs:
       # names why (local-sweep-r19 failed before running the registry). It does
       # not pass on an unknown -- that is the whole bug being fixed here.
       # ------------------------------------------------------------------
+      #
+      # One census per tier, both required. Omitting --built-json-geometry does
+      # not narrow the check to temper-drc-rs, it exits 2 naming the tier that
+      # has no count -- see check_deployed_freshness.mjs's header for why a
+      # check that can be switched off by dropping an argument eventually is.
       - name: Deployed-corpus staleness check (R5.1) — fails on count mismatch
         run: |
           set -euo pipefail
           node tools/wasm/check_deployed_freshness.mjs \
             --built-json /tmp/local-artifact/wasm_local.json \
+            --built-json-geometry /tmp/local-artifact/wasm_local_geometry.json \
             --json /tmp/freshness.json
 
       # Fan out across the 7 deployed per-family Workers
@@ -424,13 +548,32 @@ jobs:
       # comment was written. The staleness step above now enforces that
       # identity, so a genuine "family not deployed" gap fails the job loudly
       # instead of being pre-excused as expected native_only noise.
-      - name: Dispatch deployed Workers
+      #
+      # ONE SWEEP PER TIER, with `--tier` passed explicitly. The default (no
+      # --tier) sweeps every shard of every tier into one file, which is right
+      # for an ad-hoc liveness check and wrong here: r19_compare.py joins by
+      # test name against ONE crate's native run and scores the other crate's
+      # names as `wasm32_only`, which fails nothing. A merged sweep would
+      # therefore report agreement over temper-drc-rs while silently absolving
+      # every temper-geometry verdict.
+      - name: Dispatch deployed Workers (temper-drc-rs tier)
         run: |
           set -euo pipefail
           node tools/wasm/sweep_multi_worker.mjs \
+            --tier temper-drc-rs \
             --concurrency 64 \
             --board-sha256 "${BOARD_SHA256}" \
             --json /tmp/worker_sweep.json
+
+      - name: Dispatch deployed Workers (temper-geometry tier)
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          node tools/wasm/sweep_multi_worker.mjs \
+            --tier temper-geometry \
+            --concurrency 64 \
+            --board-sha256 "${BOARD_SHA256}" \
+            --json /tmp/worker_sweep_geometry.json
 
       - name: R19 comparison (native vs deployed Workers) — fails on disagreement
         if: ${{ !cancelled() }}
@@ -455,6 +598,23 @@ jobs:
             --output "/tmp/r19_worker_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" \
             --fail-on-disagree
 
+      - name: R19 comparison (native vs deployed Workers, temper-geometry)
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          if [ ! -f /tmp/worker_sweep_geometry.json ]; then
+            echo "::error::No deployed-Worker sweep for temper-geometry: /tmp/worker_sweep_geometry.json was never written, because an earlier step in this job failed (staleness check, or the dispatch itself). See that step's error. This step fails rather than reporting an agreement result for a sweep that did not happen."
+            exit 1
+          fi
+          python3 tools/wasm/r19_compare.py \
+            --native-file /tmp/local-artifact/native_geometry.txt \
+            --wasm-json /tmp/worker_sweep_geometry.json \
+            --expected-failures tools/wasm/wasm_expected_failures_geometry.json \
+            --commit "${COMMIT_SHA}" \
+            --board-sha256 "${BOARD_SHA256}" \
+            --output "/tmp/r19_worker_geometry_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" \
+            --fail-on-disagree
+
       - name: Write job summary
         if: ${{ !cancelled() }}
         run: |
@@ -464,16 +624,22 @@ jobs:
             echo "- commit: \`${COMMIT_SHA}\`"
             echo "- board sha256: \`${BOARD_SHA256}\` (\`pcb/temper.kicad_pcb\`)"
             echo ""
-            echo "#### Deployed-corpus freshness (R5.1)"
+            echo "#### Deployed-corpus freshness (R5.1, per tier)"
             echo ""
             echo '```'
             cat /tmp/freshness.json 2>/dev/null || echo "(freshness census not produced — see the staleness step)"
             echo '```'
             echo ""
-            echo "#### R19 comparison"
+            echo "#### R19 comparison — temper-drc-rs"
             echo ""
             echo '```'
             cat "/tmp/r19_worker_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" 2>/dev/null | head -c 4000 || echo "(comparison output not produced — see earlier failed step)"
+            echo '```'
+            echo ""
+            echo "#### R19 comparison — temper-geometry"
+            echo ""
+            echo '```'
+            cat "/tmp/r19_worker_geometry_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" 2>/dev/null | head -c 4000 || echo "(comparison output not produced — see earlier failed step)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -485,6 +651,7 @@ jobs:
           path: |
             /tmp/freshness.json
             /tmp/worker_sweep.json
+            /tmp/worker_sweep_geometry.json
             /tmp/r19_worker_*.json
           retention-days: 30
           if-no-files-found: warn
