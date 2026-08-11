@@ -266,6 +266,163 @@ def test_generate_escape_vias_random_sweep(seed):
 
 
 # ---------------------------------------------------------------------------
+# Migration-narrowing regression: a fractional `initial_rotation`  (#931)
+#
+# Rows live here rather than in `_escape_via_cases.py` because
+# `PACKAGES`/`BENCH_PACKAGES` are shared with the PBT and benchmark arms,
+# whose quadrant-rotation properties are stated for the 0-3 index only.  The
+# comparison is the same `_assert_same` every corpus row uses.
+# ---------------------------------------------------------------------------
+
+#: The rotations `PACKAGES` cannot reach: every pinned row uses an integer
+#: index (or `None`).  ``2.25`` is deliberately > 2 so an implementation that
+#: "helpfully" range-checked would be caught too.
+_FRACTIONAL_ROTATIONS = [0.5, 1.5, -0.5, 2.25]
+
+#: A 2x2 grid at the corpus's feasible 1.27 mm pitch -- the same shape
+#: ``_grid_pins`` builds, written out so this regression owns its own data.
+#: Pads are OFF the component origin on both axes, so the pad transform is a
+#: real rotation rather than the identity: a row of origin-coincident pads
+#: would make the whole regression vacuous.
+_FRACTIONAL_PINS = [
+    ("1", (0.0, 0.0), "N0", 0.4, 0.4, "circle"),
+    ("2", (1.27, 0.0), "N1", 0.4, 0.4, "circle"),
+    ("3", (0.0, 1.27), "N2", 0.4, 0.4, "circle"),
+    ("4", (1.27, 1.27), "N3", 0.4, 0.4, "circle"),
+]
+
+
+def _rotated_package(rotation):
+    """A `PACKAGES`-shaped row that differs from the corpus only in rotation."""
+    return ("fractional_rotation", (10.0, 20.0), rotation, 0, 1.27, "BGA", _FRACTIONAL_PINS)
+
+
+@pytest.mark.parametrize("rotation", _FRACTIONAL_ROTATIONS)
+@pytest.mark.parametrize("strategy", ["dog-bone", "via-in-pad"])
+def test_fractional_rotation_agrees_with_the_oracle(rotation, strategy):
+    """A non-integral rotation must produce the ORACLE's angle (#931).
+
+    ``escape_via.rs`` bound ``initial_rotation`` as ``Option<i64>`` at first;
+    pyo3 REJECTS a non-integral float on an ``i64`` extract rather than
+    truncating, so a fractional rotation raised ``TypeError`` on the Rust arm
+    while the Python arm returned an angle.  The repair widened the binding to
+    ``Option<f64>`` and kept the unconditional ``* PI / 2`` -- which accepted
+    the float and then read RADIANS as a quarter-turn INDEX.
+
+    Asserting **agreement with the oracle** rather than "does not raise" is
+    the whole point: the widened kernel does not raise, and is wrong.  #930
+    measured the identical divergence in ``net_ordering.rs`` at
+    ``rotation=0.5`` (``0x1.6a09e667f3bccp+0`` vs ``0x1.5b64e20408024p+0``).
+
+    Both strategies are swept because the generator resolves the rotation
+    *twice, differently* -- see
+    :func:`test_fractional_rotation_is_resolved_twice_under_different_rules`.
+    ``via-in-pad`` exercises only the pad transform; ``dog-bone`` exercises
+    the pad transform *and* the local ``angle`` that rotates the candidate
+    offsets.
+    """
+    case = _rotated_package(rotation)
+    _assert_same(
+        f"generate_escape_vias[rotation={rotation!r}, {strategy}]",
+        lambda: _vias_as_data(
+            ORACLE.generate_escape_vias(
+                build_dense_package(case), build_design_rules(RULE_SETS[0]), strategy
+            )
+        ),
+        "escape_generate_vias_py",
+        lambda fn: fn(case[1:], RULE_SETS[0][1:], strategy),
+    )
+
+
+def test_fractional_rotation_is_resolved_twice_under_different_rules():
+    """``generate_escape_vias`` reads ``initial_rotation`` under TWO rules.
+
+    This is why a single ``normalize_rotation`` helper cannot serve both call
+    sites, and it is the part of #931 that is specific to this kernel:
+
+    * pad world positions go through ``pin_world_position`` ->
+      ``_normalize_rotation``, whose dispatch is ``None -> 0.0``,
+      ``int -> index * PI/2``, ``float -> as-is (already radians)``;
+    * the dog-bone candidate offsets are rotated by the generator's own local
+      ``angle = float(component.initial_rotation) * math.pi / 2.0``, which
+      calls ``float()`` first and then scales **unconditionally**.
+
+    The two coincide on every integer index -- which is exactly why the pinned
+    corpus never separated them -- and diverge on every fractional one.
+    Pinned so that "just share the helper" is a change that fails here first.
+    """
+    from temper_placer.core.pin_geometry import _normalize_rotation
+
+    for rotation in (None, 0, 1, 2, 3, 5, -1, True):
+        local_angle = (
+            0.0 if rotation is None else float(rotation) * math.pi / 2.0
+        )
+        assert sig(_normalize_rotation(rotation)) == sig(local_angle), (
+            f"the two resolutions disagree at the integer index {rotation!r} -- "
+            f"the corpus rows depend on their coinciding there"
+        )
+
+    for rotation in _FRACTIONAL_ROTATIONS:
+        pad_angle = _normalize_rotation(rotation)
+        local_angle = float(rotation) * math.pi / 2.0
+        assert pad_angle == rotation, (
+            "_normalize_rotation stopped passing a float through as radians"
+        )
+        assert pad_angle != local_angle, (
+            f"the two resolutions agreed at rotation={rotation!r} -- this "
+            f"regression is vacuous and #931 needs re-deriving"
+        )
+
+
+@pytest.mark.parametrize("rotation", [None, 0, 1, 2, 3, 5, -1, True])
+@pytest.mark.parametrize("strategy", ["dog-bone", "via-in-pad"])
+def test_integer_rotation_path_is_unperturbed(rotation, strategy):
+    """Reproducing the dispatch must not move the integer-index path.
+
+    Every pinned corpus row goes through that path, so this pins it directly
+    rather than leaving it to be inferred from the corpus staying green.
+    ``5`` and ``-1`` are the out-of-range indices the corpus already carries
+    (the module multiplies without validating); ``True`` is included because
+    ``isinstance(True, int)`` is True in Python and pyo3 extracts a ``bool``
+    as ``i64``, so it must take the INDEX branch, not the float one.
+    """
+    case = _rotated_package(rotation)
+    _assert_same(
+        f"generate_escape_vias[rotation={rotation!r}, {strategy}]",
+        lambda: _vias_as_data(
+            ORACLE.generate_escape_vias(
+                build_dense_package(case), build_design_rules(RULE_SETS[0]), strategy
+            )
+        ),
+        "escape_generate_vias_py",
+        lambda fn: fn(case[1:], RULE_SETS[0][1:], strategy),
+    )
+
+
+def test_a_float_rotation_is_reachable_through_the_real_object_model():
+    """``Component(initial_rotation=0.5)`` is CONSTRUCTIBLE, so #931 is live.
+
+    ``core/netlist.py`` declares ``initial_rotation`` as ``int | None`` via
+    ``_contract_field``, and #930 records ``terminal_planning.rs`` using that
+    contract to justify an ``Option<i64>`` binding.  The contract is an
+    **annotation only** -- ``install_dataclass_fields`` installs
+    ``__dataclass_fields__`` for introspection parity and "the pyclasses coerce
+    nothing".  A float is accepted and stored as a float, so the float branch
+    of ``_normalize_rotation`` is reachable, not merely latent.
+
+    Pinned as a fact about the object model: if ``Component`` ever starts
+    enforcing its annotation, this test says so, and the fractional rows above
+    become the pin on a narrower contract instead.
+    """
+    comp = build_component(
+        (10.0, 20.0), 0.5, 0, [("1", (1.0, 0.5), "N0", 0.4, 0.4, "circle")]
+    )
+    assert comp.initial_rotation == 0.5
+    assert isinstance(comp.initial_rotation, float)
+    assert not isinstance(comp.initial_rotation, int)
+
+
+# ---------------------------------------------------------------------------
 # _is_position_valid
 # ---------------------------------------------------------------------------
 
