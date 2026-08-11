@@ -43,7 +43,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 144 eligible tests, in a stable order.  Each entry is
+/// All 1833 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -67,6 +67,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-io-types")] crate::placer_core::pyrepr::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::placer_core::rect::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::placer_core::units::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-io-types")] crate::property_campaigns::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::provenance::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::pyfmt::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::stackup_validator::helper_tests::WASM_TESTS,

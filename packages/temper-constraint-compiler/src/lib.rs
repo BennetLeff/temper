@@ -5,6 +5,7 @@ pub mod ir_tier0;
 pub mod ir_tier1;
 #[cfg(feature = "python")]
 pub mod pcl_contracts;
+pub mod property_campaigns;
 pub mod provenance;
 #[cfg(feature = "python")]
 pub mod pyo3_bridge;

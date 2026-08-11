@@ -71,6 +71,13 @@ pub mod kicad_write_geometry;
 // adjacency builder). See placer_core/mod.rs for what is deliberately
 // not here and why.
 pub mod placer_core;
+// Property campaign (R7 / WASM-tier volume): metamorphic/invariant
+// properties over three pure, deterministic kernels -- placer_core::netclass's
+// classification precedence and case-folding contract,
+// placer_core::adjacency's build_adjacency_matrix, and
+// placer_core::pyrepr's CPython-exact float repr(). See that module's doc
+// comment. Declared after placer_core (which it depends on).
+pub mod property_campaigns;
 pub mod provenance;
 pub mod pyfmt;
 // Wholly a pyo3 surface: `ReferenceAliasManifest` is a `#[pyclass]` and the
