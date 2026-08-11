@@ -2297,12 +2297,21 @@ jobs:
   extended-bundle-workflow-checks:
     name: Extended Test Suites (bundle / workflow / checks)
     # Trunk-only. This job's sole substantive step carries continue-on-error,
-    # so on a PR it consumes a runner slot (~4 min + ~4 min of setup) while
-    # being structurally incapable of failing the build. Capacity is the
-    # binding constraint -- measured 2026-08-03: ~24 concurrent jobs available,
-    # ~40 requested per push, 8-13 min per-job queue waits. It still runs on
-    # every push to main and nightly, so trunk coverage is unchanged.
-    if: ${{ github.event_name != 'pull_request' }}
+    # so it is structurally incapable of failing the build on ANY trigger --
+    # not just a PR. It is not in .github/required-checks.json's
+    # required_contexts, so nothing polls it and nothing merges on its verdict.
+    #
+    # NARROWED 2026-08-11 (docs/evidence/2026-08-11-python-ci-load-inventory.md):
+    # was `if: github.event_name != 'pull_request'`, so it ran on every push to
+    # main IN ADDITION to nightly/workflow_dispatch -- measured ~159
+    # jobs-that-actually-execute/week at this repo's push rate (many concurrent
+    # agent worktrees push to main directly), ~5.4 min each, for a step whose
+    # result nothing can ever act on. Nightly (cron `0 3 * * *` in this
+    # workflow's `on:`) already gives this the same informational cadence a
+    # human would want from a masked suite; workflow_dispatch covers on-demand.
+    # Removing the push trigger removes ~860 job-minutes/week and changes zero
+    # gating behavior (there was none to change).
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2560,10 +2569,16 @@ jobs:
   #   budget for a suite of the same "well under a minute" shape.
   extended-cpsat:
     name: Extended Test Suites (cp-sat, fast)
-    # Trunk-only -- masked test step, cannot fail a PR. See the note on
-    # extended-bundle-workflow-checks. This was the longest job in the run
-    # (6.9 min) and gated nothing.
-    if: ${{ github.event_name != 'pull_request' }}
+    # Masked test step (continue-on-error below), cannot fail any build --
+    # not in required-checks.json's required_contexts. This was the longest
+    # job in the run (6.9 min) and gated nothing.
+    #
+    # NARROWED 2026-08-11 (docs/evidence/2026-08-11-python-ci-load-inventory.md):
+    # was `if: github.event_name != 'pull_request'` (every push to main, not
+    # just PRs). Moved to schedule/workflow_dispatch only -- see the identical
+    # reasoning on extended-bundle-workflow-checks, above. ~159 executing
+    # pushes/week x ~6.2 min removed; nightly cadence unchanged.
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2869,9 +2884,18 @@ jobs:
 
   invariant-router-v6-1:
     name: Invariant tests (router_v6 group 1)
-    # Trunk-only -- masked test step, cannot fail a PR. Group 3 stays on the
-    # PR path: it is the only unmasked shard, i.e. the only real gate.
-    if: ${{ github.event_name != 'pull_request' }}
+    # Masked test step (continue-on-error below, kept for a real, tracked
+    # occupancy_grid.py bug -- see that step's comment), cannot fail any
+    # build. Group 3 stays on the PR path: it is the only unmasked shard,
+    # i.e. the only real gate; groups 2 and 4 were unmasked separately
+    # (2026-08-07) and are NOT touched by this change.
+    #
+    # NARROWED 2026-08-11 (docs/evidence/2026-08-11-python-ci-load-inventory.md):
+    # was `if: github.event_name != 'pull_request'` (every push to main, not
+    # just PRs, ~159 executing pushes/week x ~6.5 min for a step nothing can
+    # act on). Moved to schedule/workflow_dispatch only; nightly cadence
+    # unchanged.
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -3439,11 +3463,17 @@ jobs:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
     timeout-minutes: 20
-    # Trunk-only. Its sole substantive step carries continue-on-error, so on a
-    # PR it held a runner slot without being able to fail the build. Still runs
-    # on every push to main; the previous condition also excluded `schedule`,
-    # which this one restores.
-    if: ${{ github.event_name != 'pull_request' }}
+    # Its sole substantive step carries continue-on-error, so it cannot fail
+    # any build on any trigger. Not in required-checks.json's
+    # required_contexts.
+    #
+    # NARROWED 2026-08-11 (docs/evidence/2026-08-11-python-ci-load-inventory.md):
+    # was `if: github.event_name != 'pull_request'` (every push to main, not
+    # just PRs -- ~159 executing pushes/week x ~11 min, the single most
+    # expensive masked job in this workflow, for a step nothing can act on).
+    # Moved to schedule/workflow_dispatch only; nightly cadence (and the
+    # artifact upload below, still `if: always()`) unchanged.
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     env:
       VIRTUAL_ENV: /_temper-venv
       UV_PROJECT_ENVIRONMENT: /_temper-venv
