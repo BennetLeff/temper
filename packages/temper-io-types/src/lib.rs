@@ -112,6 +112,11 @@ pub mod zone_filler;
 // surface (see its module doc).
 #[cfg(feature = "python")]
 pub mod dsn_pyo3;
+// Pure-Rust paren-balanced removal of committed copper s-expression blocks
+// (segment/via/zone) from KiCad board content -- the
+// router_v6/_strip_copper.py migration (see VERIFICATION.md). Pure core
+// (wasm32-safe) with a thin pyo3 boundary, following the `isolation` shape.
+pub mod strip_copper;
 
 #[cfg(feature = "python")]
 mod pymodule_def {
@@ -342,6 +347,10 @@ mod pymodule_def {
 
         // Wave 4 Phase 3 tail — DSN format utilities (from temper-dsn).
         crate::dsn_pyo3::register(m)?;
+
+        // Wave 4 — paren-balanced copper/zone strip kernels
+        // (router_v6/_strip_copper.py migration).
+        crate::strip_copper::register(m)?;
 
         Ok(())
     }
