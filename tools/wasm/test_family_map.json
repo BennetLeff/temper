@@ -1,6 +1,6 @@
 {
   "_comment": [
-    "Static mapping from each of the 147 wasm32-registered temper-drc-rs tests",
+    "Static mapping from each of the 1719 wasm32-registered temper-drc-rs tests",
     "to the rule family (or families) it exercises.",
     "",
     "Families: drc, emc, erc, safety, placement, routing, dfm, types, integration",
@@ -156,6 +156,39 @@
     "dfm::tests::via_teardrop_width_min_can_never_see_a_nan": [
       "dfm"
     ],
+    "ipc::tests::test_estimate_external_1oz_10c": [
+      "routing"
+    ],
+    "ipc::tests::test_estimate_from_net_class": [
+      "routing"
+    ],
+    "ipc::tests::test_estimate_internal_conservative": [
+      "routing"
+    ],
+    "ipc::tests::test_get_net_current_case_insensitive": [
+      "routing"
+    ],
+    "ipc::tests::test_get_net_current_exact": [
+      "routing"
+    ],
+    "ipc::tests::test_get_net_current_fallback": [
+      "routing"
+    ],
+    "ipc::tests::test_get_net_current_substring": [
+      "routing"
+    ],
+    "ipc::tests::test_get_net_current_zero_current": [
+      "routing"
+    ],
+    "ipc::tests::test_ipc2152_current_capacity_roundtrip": [
+      "routing"
+    ],
+    "ipc::tests::test_ipc2152_min_width_basic": [
+      "routing"
+    ],
+    "ipc::tests::test_min_trace_width_roundtrip": [
+      "routing"
+    ],
     "pyfmt::tests::py_float_fmt_matches_cpython": [
       "types"
     ],
@@ -183,10 +216,4540 @@
     "rules::drc::clearance::tests::clearance_at_exact_threshold_flagged": [
       "drc"
     ],
+    "rules::drc::property_campaigns::tests::gen_case_is_deterministic_in_seed": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::gen_case_varies_with_seed": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_closest_agrees_on_disjoint_unit_squares": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_closest_zero_for_touching_squares": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000000": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000001": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000002": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000003": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000004": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000005": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000006": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000007": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000008": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000009": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000010": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000011": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000012": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000013": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000014": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000015": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000016": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000017": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000018": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000019": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000020": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000021": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000022": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000023": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000024": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000025": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000026": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000027": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000028": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000029": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000030": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000031": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000032": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000033": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000034": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000035": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000036": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000037": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000038": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000039": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000040": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000041": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000042": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000043": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000044": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000045": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000046": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000047": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000048": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000049": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000050": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000051": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000052": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000053": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000054": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000055": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000056": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000057": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000058": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000059": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000060": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000061": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000062": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000063": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000064": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000065": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000066": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000067": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000068": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000069": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000070": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000071": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000072": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000073": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000074": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000075": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000076": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000077": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000078": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000079": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000080": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000081": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000082": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000083": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000084": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000085": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000086": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000087": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000088": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000089": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000090": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000091": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000092": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000093": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000094": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000095": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000096": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000097": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000098": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000099": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000100": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000101": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000102": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000103": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000104": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000105": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000106": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000107": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000108": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000109": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000110": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000111": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000112": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000113": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000114": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000115": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000116": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000117": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000118": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000119": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000120": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000121": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000122": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000123": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000124": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000125": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000126": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000127": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000128": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000129": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000130": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000131": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000132": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000133": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000134": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000135": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000136": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000137": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000138": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000139": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000140": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000141": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000142": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000143": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000144": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000145": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000146": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000147": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000148": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000149": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000150": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000151": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000152": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000153": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000154": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000155": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000156": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000157": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000158": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000159": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000160": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000161": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000162": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000163": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000164": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000165": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000166": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000167": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000168": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000169": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000170": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000171": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000172": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000173": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000174": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000175": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000176": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000177": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000178": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000179": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000180": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000181": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000182": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000183": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000184": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000185": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000186": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000187": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000188": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000189": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000190": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000191": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000192": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000193": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000194": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000195": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000196": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000197": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000198": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000199": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000200": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000201": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000202": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000203": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000204": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000205": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000206": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000207": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000208": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000209": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000210": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000211": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000212": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000213": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000214": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000215": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000216": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000217": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000218": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000219": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000220": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000221": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000222": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000223": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000224": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000225": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000226": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000227": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000228": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000229": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000230": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000231": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000232": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000233": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000234": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000235": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000236": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000237": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000238": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000239": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000240": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000241": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000242": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000243": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000244": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000245": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000246": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000247": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000248": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000249": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000250": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000251": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000252": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000253": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000254": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000255": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000256": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000257": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000258": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000259": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000260": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000261": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000262": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000263": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000264": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000265": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000266": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000267": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000268": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000269": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000270": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000271": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000272": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000273": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000274": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000275": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000276": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000277": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000278": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000279": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000280": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000281": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000282": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000283": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000284": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000285": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000286": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000287": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000288": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000289": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000290": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000291": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000292": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000293": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000294": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000295": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000296": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000297": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000298": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000299": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000000": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000001": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000002": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000003": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000004": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000005": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000006": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000007": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000008": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000009": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000010": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000011": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000012": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000013": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000014": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000015": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000016": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000017": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000018": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000019": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000020": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000021": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000022": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000023": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000024": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000025": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000026": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000027": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000028": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000029": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000030": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000031": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000032": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000033": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000034": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000035": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000036": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000037": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000038": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000039": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000040": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000041": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000042": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000043": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000044": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000045": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000046": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000047": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000048": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000049": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000050": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000051": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000052": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000053": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000054": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000055": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000056": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000057": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000058": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000059": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000060": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000061": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000062": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000063": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000064": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000065": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000066": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000067": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000068": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000069": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000070": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000071": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000072": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000073": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000074": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000075": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000076": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000077": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000078": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000079": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000080": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000081": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000082": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000083": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000084": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000085": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000086": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000087": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000088": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000089": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000090": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000091": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000092": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000093": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000094": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000095": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000096": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000097": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000098": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000099": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000100": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000101": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000102": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000103": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000104": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000105": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000106": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000107": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000108": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000109": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000110": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000111": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000112": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000113": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000114": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000115": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000116": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000117": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000118": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000119": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000120": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000121": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000122": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000123": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000124": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000125": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000126": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000127": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000128": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000129": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000130": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000131": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000132": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000133": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000134": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000135": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000136": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000137": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000138": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000139": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000140": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000141": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000142": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000143": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000144": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000145": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000146": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000147": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000148": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000149": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000150": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000151": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000152": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000153": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000154": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000155": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000156": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000157": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000158": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000159": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000160": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000161": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000162": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000163": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000164": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000165": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000166": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000167": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000168": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000169": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000170": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000171": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000172": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000173": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000174": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000175": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000176": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000177": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000178": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000179": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000180": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000181": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000182": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000183": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000184": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000185": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000186": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000187": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000188": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000189": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000190": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000191": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000192": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000193": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000194": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000195": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000196": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000197": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000198": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000199": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000200": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000201": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000202": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000203": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000204": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000205": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000206": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000207": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000208": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000209": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000210": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000211": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000212": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000213": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000214": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000215": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000216": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000217": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000218": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000219": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000220": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000221": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000222": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000223": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000224": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000225": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000226": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000227": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000228": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000229": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000230": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000231": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000232": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000233": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000234": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000235": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000236": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000237": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000238": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000239": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000240": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000241": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000242": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000243": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000244": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000245": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000246": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000247": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000248": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000249": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000250": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000251": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000252": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000253": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000254": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000255": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000256": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000257": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000258": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000259": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000260": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000261": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000262": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000263": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000264": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000265": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000266": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000267": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000268": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000269": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000270": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000271": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000272": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000273": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000274": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000275": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000276": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000277": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000278": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000279": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000280": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000281": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000282": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000283": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000284": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000285": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000286": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000287": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000288": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000289": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000290": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000291": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000292": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000293": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000294": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000295": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000296": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000297": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000298": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::rotation_invariant_seed_000299": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000000": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000001": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000002": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000003": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000004": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000005": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000006": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000007": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000008": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000009": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000010": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000011": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000012": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000013": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000014": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000015": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000016": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000017": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000018": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000019": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000020": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000021": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000022": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000023": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000024": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000025": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000026": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000027": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000028": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000029": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000030": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000031": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000032": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000033": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000034": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000035": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000036": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000037": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000038": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000039": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000040": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000041": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000042": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000043": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000044": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000045": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000046": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000047": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000048": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000049": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000050": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000051": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000052": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000053": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000054": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000055": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000056": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000057": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000058": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000059": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000060": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000061": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000062": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000063": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000064": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000065": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000066": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000067": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000068": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000069": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000070": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000071": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000072": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000073": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000074": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000075": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000076": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000077": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000078": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000079": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000080": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000081": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000082": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000083": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000084": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000085": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000086": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000087": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000088": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000089": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000090": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000091": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000092": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000093": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000094": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000095": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000096": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000097": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000098": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000099": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000100": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000101": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000102": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000103": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000104": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000105": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000106": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000107": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000108": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000109": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000110": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000111": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000112": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000113": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000114": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000115": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000116": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000117": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000118": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000119": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000120": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000121": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000122": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000123": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000124": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000125": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000126": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000127": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000128": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000129": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000130": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000131": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000132": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000133": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000134": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000135": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000136": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000137": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000138": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000139": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000140": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000141": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000142": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000143": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000144": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000145": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000146": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000147": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000148": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000149": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000150": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000151": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000152": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000153": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000154": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000155": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000156": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000157": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000158": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000159": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000160": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000161": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000162": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000163": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000164": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000165": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000166": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000167": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000168": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000169": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000170": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000171": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000172": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000173": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000174": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000175": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000176": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000177": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000178": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000179": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000180": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000181": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000182": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000183": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000184": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000185": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000186": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000187": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000188": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000189": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000190": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000191": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000192": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000193": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000194": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000195": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000196": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000197": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000198": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000199": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000200": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000201": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000202": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000203": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000204": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000205": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000206": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000207": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000208": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000209": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000210": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000211": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000212": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000213": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000214": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000215": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000216": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000217": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000218": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000219": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000220": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000221": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000222": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000223": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000224": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000225": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000226": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000227": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000228": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000229": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000230": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000231": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000232": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000233": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000234": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000235": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000236": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000237": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000238": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000239": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000240": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000241": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000242": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000243": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000244": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000245": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000246": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000247": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000248": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000249": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000250": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000251": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000252": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000253": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000254": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000255": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000256": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000257": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000258": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000259": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000260": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000261": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000262": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000263": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000264": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000265": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000266": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000267": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000268": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000269": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000270": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000271": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000272": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000273": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000274": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000275": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000276": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000277": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000278": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000279": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000280": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000281": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000282": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000283": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000284": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000285": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000286": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000287": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000288": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000289": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000290": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000291": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000292": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000293": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000294": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000295": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000296": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000297": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000298": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::scale_invariant_seed_000299": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000000": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000001": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000002": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000003": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000004": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000005": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000006": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000007": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000008": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000009": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000010": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000011": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000012": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000013": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000014": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000015": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000016": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000017": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000018": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000019": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000020": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000021": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000022": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000023": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000024": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000025": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000026": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000027": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000028": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000029": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000030": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000031": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000032": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000033": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000034": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000035": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000036": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000037": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000038": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000039": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000040": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000041": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000042": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000043": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000044": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000045": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000046": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000047": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000048": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000049": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000050": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000051": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000052": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000053": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000054": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000055": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000056": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000057": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000058": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000059": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000060": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000061": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000062": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000063": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000064": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000065": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000066": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000067": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000068": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000069": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000070": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000071": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000072": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000073": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000074": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000075": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000076": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000077": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000078": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000079": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000080": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000081": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000082": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000083": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000084": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000085": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000086": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000087": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000088": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000089": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000090": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000091": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000092": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000093": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000094": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000095": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000096": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000097": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000098": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000099": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000100": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000101": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000102": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000103": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000104": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000105": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000106": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000107": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000108": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000109": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000110": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000111": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000112": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000113": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000114": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000115": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000116": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000117": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000118": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000119": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000120": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000121": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000122": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000123": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000124": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000125": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000126": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000127": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000128": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000129": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000130": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000131": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000132": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000133": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000134": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000135": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000136": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000137": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000138": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000139": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000140": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000141": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000142": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000143": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000144": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000145": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000146": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000147": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000148": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000149": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000150": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000151": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000152": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000153": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000154": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000155": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000156": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000157": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000158": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000159": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000160": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000161": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000162": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000163": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000164": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000165": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000166": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000167": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000168": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000169": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000170": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000171": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000172": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000173": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000174": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000175": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000176": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000177": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000178": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000179": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000180": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000181": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000182": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000183": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000184": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000185": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000186": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000187": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000188": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000189": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000190": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000191": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000192": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000193": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000194": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000195": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000196": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000197": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000198": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000199": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000200": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000201": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000202": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000203": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000204": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000205": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000206": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000207": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000208": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000209": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000210": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000211": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000212": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000213": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000214": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000215": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000216": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000217": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000218": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000219": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000220": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000221": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000222": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000223": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000224": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000225": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000226": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000227": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000228": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000229": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000230": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000231": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000232": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000233": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000234": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000235": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000236": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000237": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000238": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000239": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000240": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000241": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000242": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000243": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000244": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000245": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000246": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000247": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000248": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000249": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000250": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000251": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000252": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000253": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000254": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000255": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000256": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000257": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000258": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000259": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000260": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000261": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000262": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000263": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000264": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000265": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000266": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000267": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000268": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000269": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000270": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000271": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000272": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000273": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000274": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000275": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000276": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000277": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000278": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000279": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000280": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000281": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000282": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000283": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000284": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000285": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000286": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000287": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000288": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000289": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000290": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000291": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000292": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000293": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000294": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000295": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000296": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000297": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000298": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::symmetric_seed_000299": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000000": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000001": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000002": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000003": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000004": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000005": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000006": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000007": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000008": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000009": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000010": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000011": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000012": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000013": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000014": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000015": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000016": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000017": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000018": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000019": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000020": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000021": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000022": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000023": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000024": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000025": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000026": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000027": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000028": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000029": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000030": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000031": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000032": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000033": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000034": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000035": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000036": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000037": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000038": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000039": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000040": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000041": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000042": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000043": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000044": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000045": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000046": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000047": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000048": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000049": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000050": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000051": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000052": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000053": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000054": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000055": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000056": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000057": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000058": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000059": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000060": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000061": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000062": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000063": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000064": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000065": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000066": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000067": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000068": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000069": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000070": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000071": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000072": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000073": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000074": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000075": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000076": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000077": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000078": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000079": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000080": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000081": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000082": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000083": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000084": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000085": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000086": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000087": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000088": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000089": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000090": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000091": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000092": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000093": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000094": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000095": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000096": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000097": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000098": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000099": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000100": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000101": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000102": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000103": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000104": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000105": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000106": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000107": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000108": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000109": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000110": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000111": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000112": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000113": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000114": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000115": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000116": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000117": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000118": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000119": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000120": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000121": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000122": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000123": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000124": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000125": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000126": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000127": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000128": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000129": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000130": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000131": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000132": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000133": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000134": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000135": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000136": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000137": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000138": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000139": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000140": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000141": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000142": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000143": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000144": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000145": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000146": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000147": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000148": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000149": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000150": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000151": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000152": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000153": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000154": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000155": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000156": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000157": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000158": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000159": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000160": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000161": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000162": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000163": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000164": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000165": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000166": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000167": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000168": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000169": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000170": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000171": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000172": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000173": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000174": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000175": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000176": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000177": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000178": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000179": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000180": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000181": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000182": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000183": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000184": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000185": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000186": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000187": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000188": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000189": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000190": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000191": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000192": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000193": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000194": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000195": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000196": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000197": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000198": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000199": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000200": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000201": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000202": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000203": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000204": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000205": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000206": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000207": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000208": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000209": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000210": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000211": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000212": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000213": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000214": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000215": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000216": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000217": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000218": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000219": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000220": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000221": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000222": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000223": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000224": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000225": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000226": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000227": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000228": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000229": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000230": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000231": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000232": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000233": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000234": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000235": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000236": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000237": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000238": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000239": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000240": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000241": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000242": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000243": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000244": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000245": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000246": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000247": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000248": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000249": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000250": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000251": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000252": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000253": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000254": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000255": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000256": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000257": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000258": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000259": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000260": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000261": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000262": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000263": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000264": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000265": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000266": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000267": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000268": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000269": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000270": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000271": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000272": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000273": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000274": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000275": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000276": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000277": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000278": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000279": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000280": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000281": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000282": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000283": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000284": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000285": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000286": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000287": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000288": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000289": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000290": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000291": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000292": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000293": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000294": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000295": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000296": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000297": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000298": [
+      "drc"
+    ],
+    "rules::drc::property_campaigns::tests::translation_invariant_seed_000299": [
+      "drc"
+    ],
+    "rules::drc::zone_containment::tests::zone_containment_empty_board_no_violations": [
+      "drc"
+    ],
+    "rules::drc::zone_containment::tests::zone_containment_inside_zone_no_violation": [
+      "drc"
+    ],
+    "rules::drc::zone_containment::tests::zone_containment_no_polygon_data_advisory_not_false_positive": [
+      "drc"
+    ],
+    "rules::drc::zone_containment::tests::zone_containment_outside_zone_violation": [
+      "drc"
+    ],
+    "rules::drc::zone_containment::tests::zone_containment_unrelated_net_class_no_violation": [
+      "drc"
+    ],
     "rules::emc::ground_plane::tests::ground_plane_empty_board_no_violations": [
       "emc"
     ],
     "rules::emc::ground_plane::tests::ground_plane_multiple_zones_noisy_in_one": [
+      "emc"
+    ],
+    "rules::emc::ground_plane::tests::ground_plane_no_gnd_zone_configured_no_false_positive": [
       "emc"
     ],
     "rules::emc::ground_plane::tests::ground_plane_noisy_in_ground_zone_no_violation": [
@@ -243,7 +4806,16 @@
     "rules::erc::net_connectivity::tests::net_connectivity_empty_board_no_violations": [
       "erc"
     ],
-    "rules::erc::net_connectivity::tests::net_connectivity_placeholder_compiles_and_runs": [
+    "rules::erc::net_connectivity::tests::net_connectivity_mixed_nets_only_undersized_flagged": [
+      "erc"
+    ],
+    "rules::erc::net_connectivity::tests::net_connectivity_single_component_net_violation": [
+      "erc"
+    ],
+    "rules::erc::net_connectivity::tests::net_connectivity_two_component_net_no_violation": [
+      "erc"
+    ],
+    "rules::erc::net_connectivity::tests::net_connectivity_zero_component_net_violation": [
       "erc"
     ],
     "rules::erc::power_domain::tests::power_domain_empty_board_no_violations": [
@@ -257,6 +4829,27 @@
     ],
     "rules::integration_tests::incremental_check_equals_full_check_for_same_region": [
       "integration"
+    ],
+    "rules::integration_tests::no_registered_rule_is_vacuous_across_varied_fixtures": [
+      "integration"
+    ],
+    "rules::placement::thermal_constraint::tests::thermal_constraint_edge_satisfied_no_violation": [
+      "placement"
+    ],
+    "rules::placement::thermal_constraint::tests::thermal_constraint_edge_violation": [
+      "placement"
+    ],
+    "rules::placement::thermal_constraint::tests::thermal_constraint_empty_no_violations": [
+      "placement"
+    ],
+    "rules::placement::thermal_constraint::tests::thermal_constraint_missing_component_advisory": [
+      "placement"
+    ],
+    "rules::placement::thermal_constraint::tests::thermal_constraint_spacing_satisfied_no_violation": [
+      "placement"
+    ],
+    "rules::placement::thermal_constraint::tests::thermal_constraint_spacing_violation": [
+      "placement"
     ],
     "rules::placement::thermal_via_count::tests::thermal_via_count_empty_vias_no_violations": [
       "placement"
@@ -294,11 +4887,134 @@
     "rules::placement::wave_solder_keepout::tests::wave_solder_no_bottom_smd_no_violations": [
       "placement"
     ],
+    "rules::routing::isolation_barrier::tests::barrier_scoped_to_outer_layers_ignores_inner_layer_crossing": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::barrier_spanning_all_layers_catches_inner_layer_crossing": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::catches_geometric_analog_of_star_point_ground_bridge_removed_by_6976ef44": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::configured_barrier_with_real_zones_evaluates_a_nonzero_number_of_them": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::empty_board_no_violations": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::multiple_straight_barriers_already_express_a_stepped_boundary_without_points": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::no_barriers_no_violations": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::polyline_barrier_catches_pour_that_straight_line_barrier_would_miss": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::polyline_barrier_zone_compliant_with_margin_is_accepted": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::polyline_barrier_zone_crossing_is_rejected": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::straight_line_barrier_misses_pour_that_bent_polyline_would_catch": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::trace_crossing_barrier_is_rejected": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::zero_clearance_barrier_only_flags_actual_crossings": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::zone_pour_crossing_barrier_is_rejected": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::zone_pour_respecting_barrier_with_margin_is_accepted": [
+      "routing"
+    ],
+    "rules::routing::isolation_barrier::tests::zone_pour_within_clearance_but_not_crossing_is_rejected": [
+      "routing"
+    ],
     "rules::routing::power_pad_teardrop::tests::test_distance_to_rect_edge_inside": [
       "routing"
     ],
     "rules::routing::power_pad_teardrop::tests::test_distance_to_rect_edge_outside": [
       "routing"
+    ],
+    "rules::safety::creepage::tests::boundary_exact_threshold_is_compliant": [
+      "safety"
+    ],
+    "rules::safety::creepage::tests::boundary_just_above_threshold_does_not_fire": [
+      "safety"
+    ],
+    "rules::safety::creepage::tests::boundary_just_below_threshold_fires": [
+      "safety"
+    ],
+    "rules::safety::creepage::tests::declared_safety_category_iso_is_honored_without_keyword_match": [
+      "safety"
+    ],
+    "rules::safety::creepage::tests::declared_safety_category_overrides_keyword_match": [
+      "safety"
+    ],
+    "rules::safety::creepage::tests::does_not_fire_for_non_iso_component": [
+      "safety"
+    ],
+    "rules::safety::creepage::tests::does_not_fire_for_oversized_iso_component": [
+      "safety"
+    ],
+    "rules::safety::creepage::tests::fires_for_undersized_iso_component": [
+      "safety"
+    ],
+    "rules::safety::creepage::tests::uses_max_of_width_and_height_not_sum_or_min": [
+      "safety"
+    ],
+    "rules::safety::hv_lv_separation::tests::boundary_exact_threshold_gap_is_compliant": [
+      "safety"
+    ],
+    "rules::safety::hv_lv_separation::tests::boundary_just_above_threshold_does_not_fire": [
+      "safety"
+    ],
+    "rules::safety::hv_lv_separation::tests::boundary_just_below_threshold_fires": [
+      "safety"
+    ],
+    "rules::safety::hv_lv_separation::tests::declared_safety_category_ac_is_treated_as_hv": [
+      "safety"
+    ],
+    "rules::safety::hv_lv_separation::tests::declared_safety_category_hv_and_lv_are_honored_without_keywords": [
+      "safety"
+    ],
+    "rules::safety::hv_lv_separation::tests::does_not_fire_for_hv_hv_pair_regardless_of_gap": [
+      "safety"
+    ],
+    "rules::safety::hv_lv_separation::tests::does_not_fire_for_lv_lv_pair_regardless_of_gap": [
+      "safety"
+    ],
+    "rules::safety::hv_lv_separation::tests::does_not_fire_for_unclassified_net_classes": [
+      "safety"
+    ],
+    "rules::safety::hv_lv_separation::tests::does_not_fire_when_true_edge_gap_exceeds_threshold": [
+      "safety"
+    ],
+    "rules::safety::hv_lv_separation::tests::fires_on_true_edge_gap_even_though_centers_are_far_apart": [
+      "safety"
+    ],
+    "rules::safety::isolation::tests::bug_fires_regardless_of_component_position_no_spatial_containment_check": [
+      "safety"
+    ],
+    "rules::safety::isolation::tests::does_not_fire_for_iso_device_even_when_its_net_class_matches": [
+      "safety"
+    ],
+    "rules::safety::isolation::tests::does_not_fire_when_net_class_is_not_declared_on_the_zone": [
+      "safety"
+    ],
+    "rules::safety::isolation::tests::does_not_fire_when_zone_name_has_no_isolation_keyword": [
+      "safety"
+    ],
+    "rules::safety::isolation::tests::fires_for_non_iso_component_whose_net_class_matches_the_zone": [
+      "safety"
+    ],
+    "rules::safety::isolation::tests::no_iso_zones_declared_yields_no_violations": [
+      "safety"
     ],
     "types::clock::tests::test_point_to_point_branched": [
       "placement"
@@ -461,15 +5177,15 @@
     ]
   },
   "family_counts": {
-    "drc": 15,
-    "emc": 30,
-    "erc": 9,
-    "safety": 13,
-    "placement": 22,
-    "routing": 2,
+    "drc": 1524,
+    "emc": 31,
+    "erc": 12,
+    "safety": 38,
+    "placement": 28,
+    "routing": 29,
     "dfm": 38,
     "types": 16,
-    "integration": 2
+    "integration": 3
   },
   "canary_defects": {
     "drc": {

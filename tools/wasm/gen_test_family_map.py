@@ -22,12 +22,47 @@ coverage gaps the Phase 1 U4 verdict had named as a Phase 2 precondition
 that growth -- there was no generator to run. This script is that generator,
 so the map can never again silently fall behind the registry it classifies.
 
+...which is what it did anyway, because nothing ran the generator either.
+``rules/drc/property_campaigns.rs`` joined the registry with 1,504 generated
+property cases and no ``MODULE_FAMILY`` entry, so ``--check`` could not build a
+map at all; six further modules behind it (``rules::drc::zone_containment``,
+all three ``rules::safety`` rules, ``rules::placement::thermal_constraint``,
+``rules::routing::isolation_barrier``) were equally unclassified and invisible
+behind the first one's error. The committed map sat at 147 tests against a live
+registry of 1,719 -- every ``safety`` rule module among the 1,573 missing --
+and no CI job noticed, because ``grep -rn gen_test_family_map
+.github/workflows/`` matched nothing. Repaired 2026-08-10, which also wired
+``--check`` into ``python-tests.yml``'s ``fast-gates`` job next to its sibling
+registry gate, replaced the classify-time one-module-at-a-time failure with
+:func:`check_module_coverage` (which names all of them at once), and added
+:func:`check_feature_agreement` so a family assigned here can no longer
+contradict the ``wasm-registry-<family>`` shard the module compiles into.
+
 Classification source of truth
 -------------------------------
 Every eligible module (``scripts/gen_wasm_test_registry.py``'s ``ELIGIBLE``
 list) maps to exactly one family, by module identity -- e.g.
 ``rules::emc::ground_plane`` -> ``emc``, ``types::fuse`` -> ``safety``,
-``dfm::tests`` -> ``dfm``. The one exception is ``validation_kernels``, whose
+``dfm::tests`` -> ``dfm``. The classification principle is *which rule domain
+does this kernel serve*, not which file it happens to live in -- that is why
+``types::fuse`` is ``safety`` rather than ``types``.
+
+Agreement with the Cargo-feature split
+---------------------------------------
+The nine families here are a **refinement** of the six-bucket
+``wasm-registry-<family>`` split that actually shards the deployed Workers
+(``gen_wasm_test_registry.py``'s ``drc_rs_family``: ``rules/<family>/`` ->
+that family, everything else -> ``infra``). Refinement means the two must
+agree wherever the coarse split has an opinion: a module under
+``rules/<family>/`` is *compiled into* the ``wasm-registry-<family>`` shard,
+so classifying it as anything else here would credit its tests to a family
+whose shard never runs them, and the coverage report and the deployed shard
+counts would silently describe different corpora. ``check_feature_agreement``
+enforces that; ``infra`` modules are where this map is free to say something
+the feature split cannot (``types::fuse`` -> ``safety``, ``ipc`` ->
+``routing``, and the per-kernel ``validation_kernels`` split below).
+
+The one exception to per-module classification is ``validation_kernels``, whose
 tests exercise five *portable kernels* extracted from ``validation.rs``, each
 individually classified in that module's own doc comment (the ``| Kernel |
 Python origin | Family |`` table at the top of
@@ -55,7 +90,12 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
-from gen_wasm_test_registry import ELIGIBLE, SRC, module_path  # noqa: E402
+from gen_wasm_test_registry import (  # noqa: E402
+    ELIGIBLE,
+    FAMILY_BY_ENTRY,
+    SRC,
+    module_path,
+)
 
 OUT_PATH = REPO_ROOT / "tools" / "wasm" / "test_family_map.json"
 
@@ -76,25 +116,65 @@ MODULE_FAMILY: dict[tuple[str, str], str] = {
     ("board", "tests"): "types",
     ("board", "board_state_tests"): "types",
     ("dfm", "tests"): "dfm",
-    # IPC-2221/2152 current-capacity and minimum-trace-width kernels. `routing`
-    # rather than `dfm`: every one of these answers "how wide must this
-    # conductor be to carry its current", which is a trace-sizing decision the
-    # router makes, not a manufacturability limit like `dfm`'s annular-ring and
-    # thermal-via checks. (Registered 2026-08-10; the module had been missing
-    # from the registry since the temper-ipc crate-fold.)
+    # IPC-2221/2152 current-capacity and minimum-trace-width kernels, 11 tests.
+    # `routing` rather than `dfm` or `safety`: every one of these answers "how
+    # wide must this conductor be to carry its current", a trace-sizing
+    # decision, not a manufacturability limit like `dfm`'s annular-ring and
+    # thermal-via checks. Confirmed against the consumer rather than by the
+    # name: the only gate built on these kernels is `StackupGate` in
+    # `temper_placer/placer/cp_sat/gates.py`, which declares
+    # `stage = GateStage.ROUTING` and raises `ViolationType.CURRENT_DENSITY`
+    # from `_check_current_density`, comparing each *routed* trace's width
+    # against `_min_width_ipc2152`; `_resolve_net_current` calls the Rust
+    # `get_net_current` these tests cover. Safety-relevant, but the decision it
+    # informs is a routing one. (Registered 2026-08-10 by #937; the module had
+    # been missing from the registry since the temper-ipc crate-fold. #937 could
+    # not regenerate this map to confirm the classification -- the generator was
+    # broken -- so it is verified here rather than inherited.)
+    #
+    # `ipc.rs` is not under `rules/`, so its Cargo-feature bucket is `infra` and
+    # `check_feature_agreement` has no opinion: this is a judgement the coarse
+    # split cannot make, which is what the nine-family map is for.
     ("ipc", "tests"): "routing",
     ("pyfmt", "tests"): "types",
     ("pymath", "tests"): "types",
     ("rules", "integration_tests"): "integration",
     ("rules::drc::clearance", "tests"): "drc",
+    # 1,504 tests -- 87% of this crate's whole registered corpus -- from four
+    # hand-written cases plus 5 properties x 300 seeds of generated cases over
+    # `Component::edge_distance_to` / `Component::overlaps`, the courtyard
+    # separation kernel. `drc` for two independent reasons that agree:
+    #
+    #  * By subject: these are metamorphic relations over component-to-component
+    #    clearance geometry -- the property-based counterpart of
+    #    `rules::drc::clearance::tests` next door, not a new domain. The kernel
+    #    under test is defined in `board.rs`, but `board::tests` -> `types`
+    #    classifies *board infrastructure* tests; these exercise the clearance
+    #    rule the infrastructure exists to serve (same principle that puts
+    #    `types::fuse` under `safety`).
+    #  * By construction: the module is under `rules/drc/`, so it compiles into
+    #    the `wasm-registry-drc` shard and no other. Any other family here would
+    #    credit 1,504 tests to a family whose deployed Worker never runs them.
+    #    `check_feature_agreement` now makes that a hard error rather than a
+    #    judgement call.
+    #
+    # Consequence worth knowing when reading a coverage report: `drc` is now
+    # ~89% of the map, and its pass ratio is dominated by this one campaign.
+    ("rules::drc::property_campaigns", "tests"): "drc",
+    ("rules::drc::zone_containment", "tests"): "drc",
     ("rules::emc::ground_plane", "tests"): "emc",
     ("rules::emc::loop_area", "tests"): "emc",
     ("rules::emc::noise_coupling", "tests"): "emc",
     ("rules::erc::floating_pins", "tests"): "erc",
     ("rules::erc::net_connectivity", "tests"): "erc",
     ("rules::erc::power_domain", "tests"): "erc",
+    ("rules::safety::creepage", "tests"): "safety",
+    ("rules::safety::hv_lv_separation", "tests"): "safety",
+    ("rules::safety::isolation", "tests"): "safety",
+    ("rules::placement::thermal_constraint", "tests"): "placement",
     ("rules::placement::thermal_via_count", "tests"): "placement",
     ("rules::placement::wave_solder_keepout", "tests"): "placement",
+    ("rules::routing::isolation_barrier", "tests"): "routing",
     ("rules::routing::power_pad_teardrop", "tests"): "routing",
     ("types::clock", "tests"): "placement",
     ("types::esd", "tests"): "emc",
@@ -117,6 +197,79 @@ VALIDATION_KERNEL_FAMILY: list[tuple[str, str]] = [
     ("tht_hole_collisions", "drc"),
     ("trace_length", "drc"),
 ]
+
+
+def check_module_coverage() -> None:
+    """Fail naming *every* eligible module with no ``MODULE_FAMILY`` entry.
+
+    :func:`classify` also refuses an unclassified module, but it does so on the
+    first *test* it cannot place, so it names one module per run. That is the
+    difference between "add these seven entries" and seven regenerate-read-edit
+    rounds, and this gate spent its whole existence broken by exactly this
+    shape: ``rules::drc::property_campaigns`` landed unclassified, ``--check``
+    reported only that one, and the six further unclassified modules behind it
+    (``rules::drc::zone_containment``, the three ``rules::safety`` rules,
+    ``rules::placement::thermal_constraint``, ``rules::routing::
+    isolation_barrier``) were invisible until it was fixed.
+
+    Also catches the reverse: a ``MODULE_FAMILY`` key naming a module that is no
+    longer eligible, which would otherwise sit here forever classifying nothing.
+    """
+    eligible = {(module_path(rel), ident) for rel, ident in ELIGIBLE}
+    missing = sorted(
+        key for key in eligible if key[0] != "validation_kernels" and key not in MODULE_FAMILY
+    )
+    if missing:
+        listed = "\n".join(f'    ("{mod}", "{ident}"): "<family>",' for mod, ident in missing)
+        raise SystemExit(
+            f"no family classification for {len(missing)} registered module(s) -- add "
+            f"an entry to MODULE_FAMILY in tools/wasm/gen_test_family_map.py:\n{listed}\n"
+            f"  (families: {', '.join(FAMILIES)})"
+        )
+
+    stale = sorted(key for key in MODULE_FAMILY if key not in eligible)
+    if stale:
+        raise SystemExit(
+            "MODULE_FAMILY classifies module(s) that are no longer in the wasm32 "
+            f"registry's eligible list: {stale} -- drop them from "
+            "tools/wasm/gen_test_family_map.py"
+        )
+
+    unknown = sorted((key, fam) for key, fam in MODULE_FAMILY.items() if fam not in FAMILIES)
+    if unknown:
+        raise SystemExit(
+            f"MODULE_FAMILY names {len(unknown)} family/families outside FAMILIES "
+            f"({', '.join(FAMILIES)}): {unknown}"
+        )
+
+
+def check_feature_agreement() -> None:
+    """This map must refine the ``wasm-registry-<family>`` split, not contradict it.
+
+    ``FAMILY_BY_ENTRY`` is ``gen_wasm_test_registry.py``'s per-module verdict for
+    the Cargo feature that actually shards the deployed Workers: a module under
+    ``rules/<family>/`` compiles into ``wasm-registry-<family>`` and nowhere
+    else; everything else lands in ``infra``.
+
+    Where the coarse split has an opinion, disagreeing with it is not a matter
+    of taste -- it means the per-family coverage report attributes a test to a
+    family whose deployed shard does not contain it, so the two accountings of
+    the same corpus diverge while both look healthy. ``infra`` carries no
+    opinion, so those modules are free (that freedom is the whole point of the
+    nine-family map: ``types::fuse`` -> ``safety``, ``ipc`` -> ``routing``).
+    """
+    for key, fine in sorted(MODULE_FAMILY.items()):
+        coarse = FAMILY_BY_ENTRY[key]  # key set already validated above
+        if coarse != "infra" and fine != coarse:
+            mod, ident = key
+            raise SystemExit(
+                f"family map disagrees with the Cargo feature split for "
+                f"{mod}::{ident}: this map says {fine!r}, but the module is under "
+                f"rules/{coarse}/ so it is compiled into the wasm-registry-{coarse} "
+                f"shard and no other. Either classify it {coarse!r} here, or move the "
+                "module -- a test cannot be reported under a family whose Worker "
+                "never runs it."
+            )
 
 
 def _read_generated_block(rel: str, ident: str) -> str:
@@ -183,6 +336,8 @@ def classify(mod_path: str, ident: str, name: str) -> str:
 
 
 def build_map() -> dict:
+    check_module_coverage()
+    check_feature_agreement()
     live = live_registered_tests()
     per_test: dict[str, list[str]] = {}
     for mod_path, ident, name in live:
