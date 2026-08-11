@@ -121,9 +121,9 @@ explores its strategy's space stochastically, generating different cases run ove
 on failure; a mirror runs the *same* N cases every time) even when it is exactly as strict
 per-case. **A deterministic mirror is substantively equivalent to the proptest it mirrors, not the
 same guarantee.** A mirror can be green forever while missing an input region a proptest would
-eventually sample into. This is not a hypothetical caveat — §7 below documents two cases in this
-exact codebase where a mirror's *first* sampling strategy had precisely this failure, caught by
-mutation testing before being fixed.
+eventually sample into. This is not a hypothetical caveat — §7 below documents three cases in this
+exact codebase where a mirror's sampling strategy had precisely this failure (two caught by mutation
+testing and fixed, one avoided by design up front).
 
 ## 3. Method
 
@@ -201,14 +201,25 @@ Four classes, applied to every native-only test:
 | `temper-thermal` | 48 | 46 | 0 | 2 (1 dlsym + 1 deliberately-unmirrored) | 0 | — |
 | `temper-design-bundle` | 2 | 0 | 0 | 0 | 2 | — |
 | `temper-rust-router-core` | 32 | 16 | **2** (in `tests/`, see below) | 0 | 9 (2 of which are the 2 unmirrored) | — |
-| `temper-constraint-compiler` | 24 | 9 + 13 (integration, substance-mirrored) | 0 | 1 (dlsym) | 14 (13 substance-mirrored + 1 trivial scaffold) | — |
+| `temper-constraint-compiler` | 24 | 8 + 13 (integration, substance-mirrored) | **1** | 1 (dlsym) | 14 (13 substance-mirrored + 1 trivial scaffold) | — |
 | `temper-quality-oracle` | 41 | 40 | 0 | 1 (dlsym) | 0 | — |
 | `temper-io-types` | 55 | 48 | **7** | 0 | 0 | — |
 | `temper-constraints` | 13 | 0 | **9** | 1 (dlsym) | 12 (9 of which are the 9 unmirrored; 3 plain) | — |
 | `temper-rust-router` | 3 | 0 | **3** | 0 | 0 | — |
 | `temper-pcl-ir` | 0 | 0 | 0 | 0 | 0 | — |
 | `temper-orchestration` | 46 | 45 | 0 | 1 (dlsym) | 0 (native_only) | 51 (real, pyo3-bound, never compared) |
-| **total** | **385** | **248** | **76** | **9** | (see note) | **51** |
+| **total** | **385** | **247** | **77** | **9** | (see note) | **51** |
+
+**Correction to `temper-constraint-compiler`: `type_lattice::proptests` is 8/9 mirrored, not 9/9.** Kernel 1's own
+header (`property_campaigns.rs:36-38`) narrates all nine properties including
+`p10_safety_category_display_parse_roundtrip`, which reads as a claim of full coverage the same way
+`temper-io-types`'s header did — but only eight `tl_*_impl` mirror functions exist in the file
+(`tl_join_idempotent_impl`, `tl_meet_idempotent_impl`, `tl_join_commutative_impl`, `tl_meet_commutative_impl`,
+`tl_join_associative_impl`, `tl_meet_associative_impl`, `tl_absorption_impl`, `tl_join_dominates_inputs_impl` —
+`p1`-`p8`), confirmed by grepping the whole file for `Display`, `FromStr`, and `round_trip`/`roundtrip`: no
+`Display`/`FromStr` round-trip logic exists anywhere in `property_campaigns.rs`, though the source proptest itself
+(`type_lattice.rs:643`, inside the `proptest!` block at `:526-650`) is real. `p10_safety_category_display_parse_roundtrip`
+is genuinely unmirrored — added to the ranked list below as its own entry.
 
 **Correction to `temper-io-types`, found by counting mirror functions directly rather than trusting the campaign
 file's own header claim.** `property_campaigns.rs`'s header states its second pass "mirrors those six files' own
@@ -324,7 +335,13 @@ INTEGRATION-TARGET, so even a mirror would not make them reachable directly; the
 to land as a new in-`src/` property (the pattern this crate's own `property_campaigns.rs` already
 uses for its other integration-target proptests, `encoding.rs`'s 5 and `pruning.rs`'s 10).
 
-**Total genuinely-uncovered: 76 properties across 5 crates** (55 + 9 + 7 + 3 + 2). This is the number
+### 6. `temper-constraint-compiler` — 1 property
+
+`type_lattice::proptests::p10_safety_category_display_parse_roundtrip` — see §4's correction for the
+verification. The other eight `type_lattice` properties (`p1`-`p8`) are mirrored; this is the crate's
+only gap.
+
+**Total genuinely-uncovered: 77 properties across 6 crates** (55 + 9 + 7 + 3 + 2 + 1). This is the number
 that should drive the next round of mirroring work — not 385, and not any single crate's raw
 `native_only` count. Ranked by risk as well as count: `temper-geometry`'s 55 include
 `creepage_check::properties` and `via_clearance::properties` — HV/LV electrical-isolation clearance
@@ -370,12 +387,13 @@ one-line fix `58d869ae3` already demonstrated for `encoding.rs` in this same cra
 not fixed, per this task's documentation-only scope; the fix is mechanical and the precedent for it
 already exists in this crate's own history.
 
-## 7. Uniform-sampling blind spot: checked, found twice, both already fixed with proof
+## 7. Uniform-sampling blind spot: checked, found three times, two already fixed with proof
 
 The task asked whether any mirror exercises only a trivial branch — a mirror that always passes is
-worse than no mirror, because it reports green forever while proving nothing. This repo has two
-documented, in-source instances of exactly this trap, both already caught (by mutation testing,
-not by inspection) and fixed. Both are cited with file:line, not summarized from memory:
+worse than no mirror, because it reports green forever while proving nothing. This repo has three
+documented, in-source instances of exactly this trap. Two are already caught (by mutation testing,
+not by inspection) and fixed; a third is a preventive design applied while writing new mirrors,
+not a fix to an existing miss. All are cited with file:line, not summarized from memory:
 
 **`temper-geometry`'s keepout property**
 (`property_campaigns_2.rs:924`, `pj_keepout_feasible_and_idempotent_impl`, mirroring
@@ -402,6 +420,17 @@ overlapping pairs and a deliberately broken `overlap_area_mm2 -= ox * oy` mutati
 by this property**." The fix: narrow the position domain to `[0, 80)` against footprint
 half-widths up to 25mm, so a meaningful fraction of drawn pairs actually overlap.
 
+**`temper-quality-oracle`'s IPC-2221 clearance-bracket property**
+(`property_campaigns.rs:707-741`, Kernel 5, `ipc2221.rs`, mirroring `prop_clearance_monotonic`, one
+of the crate's 40 MIRRORED properties). Caught the same way as the overlap-area fix — empirically,
+by mutation testing: the file's own comment states "a deliberately broken 100V bracket went
+undetected by 24 uniform draws" (`:717-718`, restated `:732-734`) when voltage pairs were drawn by
+fully independent, uniform `ip_gen_voltage()` calls. The fix: both the generator and the mirror
+were rewritten to boundary-bias roughly half their draws — within ±5-8V of one of the 10
+`IPC2221_BRACKETS` boundaries, or forcing both draws onto the same adjacent boundary pair — so a
+meaningful fraction of cases actually straddle or sit near a bracket edge, the branch the property
+exists to check.
+
 **A related, more subtle case, found in the same sweep: a deliberate non-mirror to avoid a
 vacuous pass.** `temper-thermal`'s `uniqueness_distance_uses_pow_not_sqrt_proptest`
 (`thermal_potential.rs:2539`) is the one property in an otherwise-fully-mirrored module
@@ -415,29 +444,31 @@ unmirrored rather than mirrored-and-vacuous. This is exactly the class of judgme
 carve-out language ("host-libm-sensitive assertions") anticipates, applied here to a mirror rather
 than to the original proptest.
 
-**What this does not establish:** this is not an exhaustive audit of every one of the 248 MIRRORED
+**What this does not establish:** this is not an exhaustive audit of every one of the 247 MIRRORED
 properties' sampling domains for the same trap — it is a report of what turned up while reading
 each campaign file's own doc comments for mirror claims (§3, Method, above), plus one direct
-count-by-count check (`temper-io-types`, §4's correction) that found a third instance of the same
+count-by-count check (`temper-io-types`, §4's correction) that found a fourth instance of the same
 underlying failure by counting rather than by doc-comment reading alone — a hint that a mirror's own
-header claiming "one-for-one" coverage is not sufficient evidence that it is. Three instances found,
-two already fixed (by mutation testing) and one found here (by counting, not yet fixed), is evidence
-the pattern is *recognized but not systematically checked for* in this codebase (the two fixes read
-as informed by the same lesson, and the crate authors' own commit messages for `temper-orchestration`
-explicitly invoke it: "Deliberately avoided the uniform-sampling trap that has bitten this tier
-before," commit `7201c4205` — yet `temper-io-types`'s gap sat undetected through a header comment
-claiming full coverage). It is not evidence that no fourth, undetected instance exists among
-the other 241 properties this document did not independently re-derive sampling-domain reasoning
-for. **Flagged as an open risk**, not resolved: the cheap, general check available to close it
-is not source reading (this document's method) but running each campaign against a deliberately
-broken kernel and confirming red — the same mutation-testing standard the `overlap_area` fix's own
-citation used, not yet applied tier-wide.
+header claiming "one-for-one" coverage is not sufficient evidence that it is. Four instances found —
+`temper-geometry`'s keepout property (reasoned through in advance, no fix needed), `temper-thermal`'s
+overlap-area and `temper-quality-oracle`'s voltage-bracket properties (both caught empirically by
+mutation testing and fixed), and `temper-io-types`'s signed-zero/special-value gap (found here, by
+counting, not yet fixed) — is evidence the pattern is *recognized but not systematically checked for*
+in this codebase (three of the four read as informed by the same lesson, and the crate authors' own
+commit messages for `temper-orchestration` explicitly invoke it: "Deliberately avoided the
+uniform-sampling trap that has bitten this tier before," commit `7201c4205` — yet
+`temper-io-types`'s gap sat undetected through a header comment claiming full coverage). It is not
+evidence that no fifth, undetected instance exists among the other 240 properties this document did
+not independently re-derive sampling-domain reasoning for. **Flagged as an open risk**, not resolved:
+the cheap, general check available to close it is not source reading (this document's method) but
+running each campaign against a deliberately broken kernel and confirming red — the same
+mutation-testing standard the `overlap_area` fix's own citation used, not yet applied tier-wide.
 
 ## 8. What this does and does not license
 
 **Does:** establish that `native_only` (385, live at this snapshot, twelve crates) overstates the
 tier's genuine coverage gap by roughly 5x. The real gap, MIRRORED-excluded and
-registry-defect-excluded, is **76 properties across 5 crates** (§5), plus a separate, small,
+registry-defect-excluded, is **77 properties across 6 crates** (§5), plus a separate, small,
 mechanical registry-fix opportunity (7 tests, §6) that costs no new mirroring work.
 
 **Does not:** license removing any crate's native `cargo test` step from GitHub Actions. R24's
@@ -447,19 +478,20 @@ substantively equivalent, not the same guarantee, and per
 `docs/evidence/2026-08-11-u6-sustained-agreement-batch-1.md` §4 / batch-2 §4, most of these twelve
 crates have no PR-gating native step to remove today regardless.
 
-**Does not:** claim the 76-property ranked list or the 248-property MIRRORED list is exhaustive of
+**Does not:** claim the 77-property ranked list or the 247-property MIRRORED list is exhaustive of
 every possible registry-generator defect in this tier — `discover_eligible()`'s module-granularity
 exclusion has now produced three confirmed instances of the same "plain test poisoned by an
 ungated proptest sibling" bug in one crate alone (`encoding.rs`, fixed; `classify_py.rs` and
 `pruning.rs`, found here, unfixed); a targeted sweep for this specific mechanism across the other
 eleven crates was not performed and would be cheap, mechanical follow-up work. Nor is the
-248-property MIRRORED count itself guaranteed complete — it was derived by reading each campaign
-file's own claims plus, for `temper-io-types` only, an independent function-count check that found
-that file's own claim wrong; the other eleven crates' MIRRORED counts were not re-verified by the
-same count-by-count method, only by name/doc-comment matching.
+247-property MIRRORED count itself guaranteed complete — it was derived by reading each campaign
+file's own claims plus, for `temper-io-types` and `temper-constraint-compiler`, an independent
+function-count check that found each file's own header claim wrong by exactly one small gap; the
+other ten crates' MIRRORED counts were not re-verified by the same count-by-count method, only by
+name/doc-comment matching.
 
 **Does not:** resolve the uniform-sampling open risk (§7) beyond reporting what was found by
-reading doc comments and one count-by-count check. A mutation-testing sweep of all 248 MIRRORED
+reading doc comments and two count-by-count checks. A mutation-testing sweep of all 247 MIRRORED
 properties' sampling domains is not performed here.
 
 **Does not:** touch `.github/workflows/*`, `tools/wasm/wasm_tier_topology.json`, or
