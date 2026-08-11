@@ -19,11 +19,20 @@ docs/plans/2026-07-08-004-feat-4-layer-functional-stackup-plan.md
 Wave 4 migration note: the pure-geometry kernels (rect corners, pour-strip
 partition, thermal-via NxN grid) now delegate to ``temper_geometry``'s
 ``power_plane`` kernels (``packages/temper-geometry/src/power_plane.rs``);
-this module keeps its original public API. ``_board_bounds`` /
-``_component_center`` stay Python (Board/Component object access), as do the
-``diameter_mm <= drill_mm`` validation (its message interpolates floats, so
-it is raised here to stay CPython-exact). See
-``packages/temper-geometry/VERIFICATION.md`` for the full writeup.
+this module keeps its original public API. ``_component_center`` stays
+Python (Component object access), as does the ``diameter_mm <= drill_mm``
+validation (its message interpolates floats, so it is raised here to stay
+CPython-exact). See ``packages/temper-geometry/VERIFICATION.md`` for the
+full writeup.
+
+``_board_bounds`` delegates to ``temper_drc_rs.dfm_board_bounds_py`` (PR
+#749's DFM cluster differential, ``tests/router_v6/test_dfm_rust_differential.py
+::test_board_bounds_identical``) -- the kernel is pure scalar addition with
+no Board/object access (the shim still reads ``board.origin`` /
+``board.width`` / ``board.height`` in Python and passes the four floats
+across), verified bit-identical against this module's pre-migration body
+and proven, registered, but left unwired until this pass (see
+``.unwired-kernel-inventory``).
 """
 
 from __future__ import annotations
@@ -32,6 +41,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+import temper_drc_rs as _drc
 import temper_geometry as _tg
 
 from temper_placer.core.board import Via
@@ -108,7 +118,7 @@ class PowerPlaneGeometry:
 def _board_bounds(board: Board) -> tuple[float, float, float, float]:
     """Return the board copper extent as (x_min, y_min, x_max, y_max)."""
     ox, oy = board.origin
-    return (ox, oy, ox + board.width, oy + board.height)
+    return _drc.dfm_board_bounds_py(ox, oy, board.width, board.height)
 
 
 def _rect_polygon(
