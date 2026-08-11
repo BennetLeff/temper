@@ -604,7 +604,7 @@ will now trigger HV/LV separation checks.
 ### Scope (Phase 2)
 
 The coverage gate currently applies to all public functions in `temper_placer/`
-except `_constraint_types/` (generated type stubs) and `profiling/` (production
+except `_constraint_types/` (pydantic `BaseModel` types — hand-written, R7-resolved JUSTIFIED-KEEP 2026-08-11) and `profiling/` (production
 diagnostics). These subpackages are permanently excluded via `[tool.coverage.run]
 omit` in `pyproject.toml` and `--cov-config` in CI. The gate catches public
 functions (module-level `def` not prefixed with `_`, and methods of public classes
@@ -658,7 +658,7 @@ permanently excluded via `[tool.coverage.run] omit`.
 
 ### Excluded Subpackages
 
-- `temper_placer/_constraint_types/` — generated constraint type stubs.
+- `temper_placer/_constraint_types/` — pydantic `BaseModel` constraint types (hand-written, not generated — R7 resolution 2026-08-11: JUSTIFIED-KEEP, see `docs/evidence/2026-08-11-r7-constraint-types-resolution.md`).
 - `temper_placer/profiling/` — production diagnostics, wall-clock instrumentation.
 These are excluded via `omit = ["*/_constraint_types/*", "*/profiling/*"]`
 in `[tool.coverage.run]` (root `pyproject.toml`) and via

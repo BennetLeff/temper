@@ -71,11 +71,19 @@ surfaces:
     phase: 2
     note: PCL constraints are contract objects; temper-pcl-ir is the Rust seed.
   - pattern: packages/temper-placer/src/temper_placer/_constraint_types/**
-    verdict: MIGRATE
+    verdict: JUSTIFIED-KEEP
     phase: 2
     note: >-
-      Contract types. Excluded from the plan's measured LOC baseline but not
-      from its scope -- R7 admits no pre-exclusions.
+      RESOLVED 2026-08-11 (R7 axis conflict closed, product authority):
+      justified-keep with evidence -- docs/evidence/2026-08-11-r7-constraint-types-resolution.md.
+      The "generated stubs" framing was factually wrong (hand-written pydantic
+      BaseModel, no generator exists). Not ortools-coupled. The real blocker:
+      config_loader.rs (already Rust) calls PlacementConstraints.model_validate
+      back into Python as "final authority, never reimplemented in Rust" -- a
+      pyclass migration breaks the exception type + validation semantics, and
+      the gen_config_reference CI gate reads model_fields. No compute to port
+      (34 models / 5 methods / one float expression; value types already
+      pyclasses, compute already Rust).
   # NOTE (2026-08-06, close-out audit -> recommendation recorded, NOT decided):
   # the MIGRATE entry above conflicts with a merged record. Both sides are
   # recorded here so the product authority can decide; the verdict is NOT
