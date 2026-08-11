@@ -1788,6 +1788,213 @@ stays as directly-exercised public API); the differential pins the two agree.
 | D6 stage runner (DRCSweep / ViaDedup / DRCValidation / Courtyard / ConnectivityValidation through `PipelineRunner<BoardState>` with sys.modules-registered fakes incl. fake temper-drc-rs + core.board + pin_geometry + net_classification modules) | `packages/temper-orchestration/tests/d6_stages_runner.rs` | 5 |
 | pre-existing deterministic suites (the stage kernels differentials + PBT, the D1-D5 differentials, the coverage paydown, the phase/ghost-pad/channel suites) | `packages/temper-placer/tests/deterministic/` | 1389 |
 
+## Rust orchestration engine — Phase D batch D7 (routing-adjacent stages + Phase D completion)
+
+Phase D batch D7 of the Rust Orchestration Engine plan (2026-08-09-001) is
+the **FINAL Phase D batch**: the deterministic routing-adjacent batch
+(`deterministic/stages/{fine_pitch_escape,hv_lv_partition,power_plane,
+layer_assignment,apply_placements}.py`, ~830 LOC) moves to
+`temper-orchestration` as five `Stage<BoardState>` implementors, `base.py` is
+retired as the D7 stage base (kept as a minimal shim — evidence below), and
+`clearance_grid.py` is recorded as already shim-only (D3 migrated
+`_grid_stage`). Depends on D1-D6 (the conversion seam, the Stage pattern, and
+the populated `netlist`/`placements`/`vias`/`layer_assignments` fields).
+
+### What migrated
+
+| Python module | Rust entity | Reads from BoardState | Writes to BoardState |
+|---|---|---|---|
+| `fine_pitch_escape.py` (319) | `FinePitchEscapeStage` (Stage impl) + `run_fine_pitch_escape` | `netlist`, `placements`, `vias` (+ the stage instance as the config carrier) | `vias` (frozenset) |
+| `hv_lv_partition.py` (181) | `HvLvPartitionStage` (Stage impl) + `run_hv_lv_partition` | `config`, `board`, `netlist`, `drc_oracle` | `component_domain_map`, `routing_corridors`, `domain_regions` |
+| `power_plane.py` (148) | `PowerPlaneStage` (Stage impl) + `run_power_plane` | `netlist`, `layer_assignments` (+ stage config) | `layer_assignments` (frozenset) |
+| `layer_assignment.py` (79) | `LayerAssignmentStage` (Stage impl) + `run_layer_assignment` | `netlist` (+ stage config) | `layer_assignments` (frozenset) |
+| `apply_placements.py` (33) | `ApplyPlacementsStage` (Stage impl) + `run_apply_placements` | `netlist`, `placements` | `netlist` |
+| `base.py` | RETIRED as the D7 stage base; kept as a minimal shim (the Python `Stage` ABC is still subclassed by 15 `router_v6/*` stage classes, `adapters/deterministic_adapter.py`, the `deterministic`/`deterministic.stages` re-export seams and the D1-D7 Python shims) | — | — |
+| `clearance_grid.py` | already shim-only (D3 migrated `_grid_stage`); D7 records the shim-only status | — | — |
+
+The Rust stages transcribe the pre-migration orchestration wholesale:
+`fine_pitch_escape` runs the fine-pitch detection passes (the
+`min_pin_pitch_py` kernel, the net collection), the escape-via placement loop
+(the `placements.get(ref, initial_position)` resolution, the
+CPython-`round(x, 3)` via-position dedup, the `escape_layer_for_net_py`
+layer selection, the `Via` construction), the debug prints and the Phase-5
+escape validation + auto-generation; `hv_lv_partition` runs the config load +
+guards, the `_rules_by_net` reading (INLINED — the D6
+`_get_component_positions` precedent; the duck-typed read cannot be called
+back without the Python state, and the differential pins the two agree), the
+`rules_marshalled` / `components_nets` marshalling, the design-bundle
+`hv_lv_classify` / `hv_lv_area_check` calls, the decision dispatch and the
+domain/corridor/region write; `power_plane` / `layer_assignment` run their
+guards, the design-bundle kernel calls and the frozenset writes;
+`apply_placements` runs the guards and the per-component
+`dataclasses.replace(initial_position=...)` reconstruction through FFI. The
+`d1_bridge.rs` write-back gains the `netlist` / `layer_assignments` /
+`component_domain_map` / `routing_corridors` / `domain_regions` candidates.
+
+**What stays Python (evidence)**: the design-bundle leaf kernels
+(`min_pin_pitch_py` / `escape_layer_for_net_py` / `assign_layers` /
+`recompute_plane_assignments` / `hv_lv_classify` / `hv_lv_area_check`), the
+`LayerAssignment` / `Via` pyclasses and `pin_world_position_at` stay
+single-source and are driven through FFI. The pydantic `HvLvGuardConfig` +
+`load_guard_config`, the shapely `_outline` + `compute_guard_strip` GEOS
+surface and the duck-typed `_nets` / `_area` readers stay Python call-backs.
+The `PartitionError` exception class stays Python (the raise decisions
+construct it through the module class, so the `{:.2f}` message is bit-exact
+by identity and `pytest.raises(PartitionError)` sees the real class —
+`run_guarded` threads the raw `PyErr`, the D3 pattern). The module-level
+`TEMPER_PLANE_NETS` / `TEMPER_PLANE_LAYERS` tables (data, not compute) and
+the directly-exercised `_calculate_min_pin_pitch` /
+`_get_escape_layer_for_net` / `_assign_layer_by_net_class` helpers stay
+Python. No new Python API is invented.
+
+### G1 — differential oracle before Rust (TDD)
+
+The five pre-migration modules are pinned VERBATIM as
+`tests/deterministic/_<module>_run_py_oracle.py` (only relative imports
+rewritten to absolute paths); each body's sha256 is pinned in the
+differential, which fails on any drift. The RED commit (`f5625f98`) landed
+the oracles + differential + PBT with the anti-vacuity tripwire failing (the
+shims did not yet delegate); the GREEN commits (`6a25c3cc` Rust ports +
+runner) landed the ports.
+
+### G2 — behavioural A/B (bit-exact)
+
+`tests/deterministic/test_deterministic_d7_rust_differential.py`: 30 tests
+drive both arms with identical BoardState inputs and stage constructor args
+and compare bit-exactly — `state.vias` frozensets (via `float.hex()`) and the
+captured stdout (the fine-pitch detection / layer-distribution / no-detection
+messages byte-for-byte), `state.component_domain_map` / `routing_corridors` /
+`domain_regions` (shapely compared by `wkt`), the `PartitionError` raise
+(message equality), the log messages (`caplog`), `state.layer_assignments`
+frozensets and `state.netlist`'s replaced-component positions. The identity
+preserving guards (no netlist / no placements / disabled config / skip_empty /
+skip_zero / fallback) assert `out is state` on both arms.
+
+### G3 — performance
+
+Pure-delegation carve-out: each stage crosses the FFI once per `run()`; the
+leaf kernels, the pin geometry, the shapely/GEOS surface and the
+`dataclasses.replace` calls are unchanged. No regression beyond the single
+FFI crossing is possible or claimed.
+
+### G4 — PBT (`tests/deterministic/test_deterministic_d7_pbt.py`)
+
+Seven non-vacuous properties (P1 fine-pitch escape-via coverage of every
+netted fine-pitch pin + determinism, P2 no vias for a non-fine-pitch-only
+layout, P3 layer-assignment coverage of every net + valid layers, P4 plane
+nets marked `is_plane` + one assignment per net, P5 apply-placements applied
++ unplaced preserved, P6 hv_lv guards preserve identity + the ok path writes
+exactly one domain per component, P7 fine-pitch vias unique per rounded
+position), each with a fails-for-mutant companion re-running the SAME body
+against a degenerate stand-in — the established U4/D1-D6 PBT vacuity-guard
+pattern. Every D7 module is reached by at least one property. 16 tests green.
+
+### G5 — metamorphic
+
+Not claimed: the D7 surface is orchestration over stateful Python objects
+(and the leaf kernels it delegates to are already metamorphic-covered), not
+pure functions; the differential and PBT arms pin the behavioural surface.
+Recorded as N/A per the plan's per-module G5 discretion (same ruling as D1–D6).
+
+### G6 — induction
+
+Non-applicability note: the stages are finite loops over caller-provided
+collections (components, pins, nets, zone configs, placements); no recursive
+or size-parameterized computation. Structural proof instead: bit-exactness
+verified by the differential and the PBT vacuity mutants.
+
+### G7 — Rust bar
+
+No `unwrap`/`expect` outside tests (clippy `unwrap_used`/`expect_used` = deny
+in the lib target; the runner test files carry the tests-only allow).
+`cargo test` 130/130 green (91 lib + d1..d7 runner suites, 5 d7 runner
+tests); `cargo clippy --all-features --all-targets -- -D warnings` clean.
+Panic safety: every stage body wraps in `stage_guard` / `run_guarded`
+(`catch_unwind` — a Rust panic becomes a `StageError::Fatal` / Python
+RuntimeError instead of unwinding through the pyo3 frame), and pyo3's
+`#[pyfunction]` expansion additionally wraps every exported body.
+
+### G8 — R24 physics
+
+N/A — the stages gate on no physics quantity; the clearances are
+configuration constants threaded through the already-tested design-bundle
+kernels. Recorded explicitly.
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every input in the differential suites'
+domains, the Rust stages produce outputs bit-identical to the pinned
+pre-migration oracle's. The load-bearing equivalences:
+
+1. **CPython `round(x, 3)` keys.** The fine-pitch via-position dedup keys
+   round through CPython's `round` builtin (round-half-to-even) via FFI —
+   never Rust `f64::round`. The same applies to the escape-validation /
+   auto-generation position keys.
+2. **CPython rendering.** Every fine-pitch `print` message renders through
+   CPython `str.format` (David-Gay `:.2f`, float `str()`, `sorted()` list
+   reprs); the hv_lv `logger` messages render through CPython `str.format`
+   for the interpolated text (`%s` of a float == `{}` of a float) and CPython
+   `logging` for the record. Parity by identity, not by coincidence of
+   formatter implementations.
+3. **The `PartitionError` message is by identity.** Both raise points
+   construct the ORIGINAL exception through the module class (its `__init__`
+   renders `{:.2f}` via CPython) — bit-exact by construction; the `PyErr`
+   threads through `run_guarded` so the class survives the FFI (the D3
+   `FenceViolation`/`ConfigError` pattern).
+4. **Duck-typed reads are called back or pinned.** `_outline` /
+   `compute_guard_strip` / `load_guard_config` / `_nets` / `_area` are
+   invoked through their Python modules in the same order as the oracle;
+   `_rules_by_net` is inlined (the D6 `_get_component_positions` precedent)
+   and the differential pins the two agree.
+5. **Kernels via FFI.** `min_pin_pitch_py` / `escape_layer_for_net_py` /
+   `assign_layers` / `recompute_plane_assignments` / `hv_lv_classify` /
+   `hv_lv_area_check` and `pin_world_position_at` are called through their
+   Python modules — identical calls, identical order, so parity is by
+   construction.
+6. **`dataclasses.replace` by identity.** The apply-placements component /
+   netlist reconstruction calls the Python `dataclasses.replace` on the
+   pyclass objects via FFI — the exact operation the oracle performs. The
+   `placements.get(ref, initial_position)` resolution is `dict.get` with the
+   eagerly-evaluated default, exactly like the oracle's two-argument call.
+7. **Write-back fidelity.** `d1_bridge.rs` writes a candidate field only when
+   it actually changed (equality on the original Python objects), returning
+   the ORIGINAL state object when nothing changed (identity preserved on the
+   guard paths); the raise path writes nothing back (the oracle raises before
+   `dataclasses.replace`).
+
+**Documented boundary choices** (kept Python / deliberately different, argued
+in-source and above): the fine-pitch Phase-5 missing-escape auto-generation
+path is transcribed faithfully but is unreachable in the differential's
+domain (every fine-pitch pin's rounded key is covered by the pass-2 dedup —
+a latent wart the oracle shares); the `_rules_by_net` helper stays Python as
+directly-pinned module API while the port inlines the same computation.
+
+### base.py retirement evidence
+
+`git grep 'deterministic.stages.base import Stage'` at the D7 base
+(`3a7dd1d9`): the `Stage` ABC is imported by the 15 `router_v6/*` stage
+modules, `adapters/deterministic_adapter.py`, `temper_placer.deterministic`
+(public re-export), `temper_placer.deterministic.stages` (public re-export)
+and every D1-D7 stage shim. The Rust `Stage` trait (`stage.rs`) replaces the
+ABC **for the migrated deterministic batch** — the D7 stage classes no longer
+carry any run() logic in their Python bodies — but the Python class cannot be
+deleted while the router_v6 stage classes subclass it (Phase E). The module
+stays as a minimal shim whose class surface is unchanged; its header records
+this decision and the consumer evidence.
+
+### Differential / PBT / runner suites (D7)
+
+| Suite | Location | Count |
+|---|---|---|
+| D7 differential (oracles: the five `tests/deterministic/_*_run_py_oracle.py`, sha256-pinned) | `packages/temper-placer/tests/deterministic/test_deterministic_d7_rust_differential.py` | 30 |
+| D7 PBT (P1..P7, mutation-guarded) | `packages/temper-placer/tests/deterministic/test_deterministic_d7_pbt.py` | 16 |
+| D7 stage runner (FinePitchEscape / HvLvPartition / PowerPlane / LayerAssignment / ApplyPlacements through `PipelineRunner<BoardState>` with sys.modules-registered fakes incl. fake design-bundle + pin_geometry + hv_lv_partition modules) | `packages/temper-orchestration/tests/d7_stages_runner.rs` | 5 |
+| pre-existing deterministic suites (the stage kernels differentials + PBT, the D1-D6 differentials/PBT, the phase/ghost-pad/channel suites) | `packages/temper-placer/tests/deterministic/` | 1389 |
+
+With D7 landed, **Phase D is complete** per the plan: all seven batches
+(D1 setup → D7 routing-adjacent) are migrated, and the plan's Phase D table
+rows (27 stage files, ~7,800 LOC) are exhausted.
+
 ## Rust orchestration engine — U8 (explainability data contracts + MarkdownReport)
 
 The Rust Orchestration Engine plan (2026-08-09-001) ships its Phase-A U8 unit

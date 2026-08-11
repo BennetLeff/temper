@@ -45,8 +45,17 @@ const RUN_BAD_INDEX = 1;
 // Expected-failure manifest — hand-maintained, bundled with the Worker.
 // Kept in sync with tools/wasm/wasm_expected_failures.json; the bidirectional
 // gate in tools/wasm/run_wasm_tests.mjs fails a run when a listed test passes.
+//
+// This one covers temper-drc-rs, and it is the DEFAULT rather than the only
+// manifest. A Worker carrying a different crate must pass its own — see
+// `createWorker`'s second parameter and families/geometry/index.js. Applying
+// this manifest to another crate's module would be worse than applying none:
+// every entry would be an orphan (naming no registered test) and every genuine
+// divergence in that crate would come back as a bare `fail`, which
+// tools/wasm/r19_compare.py scores as a DISAGREEMENT against the crate's own
+// manifest — a red run whose cause is two files away from the message.
 
-const EXPECTED_FAILURES = {
+const DRC_EXPECTED_FAILURES = {
   "_comment": [
     "Tests that execute on wasm32 and legitimately FAIL there, because they",
     "assert a property of the native host that wasm32 does not have.",
@@ -123,10 +132,15 @@ function text(body, status = 200) {
  * with the CI run_wasm_tests.mjs flow and for the local Node smoke test.
  *
  * @param {WebAssembly.Module} wasmModule compiled once at startup
+ * @param {object} [expectedFailures] the crate's expected-failure manifest, in
+ *        the `{ _comment?, expected_failures: { name: {class, reason} } }` shape
+ *        of tools/wasm/wasm_expected_failures*.json. Defaults to
+ *        temper-drc-rs's, which is what every caller meant before a second
+ *        crate joined the tier.
  * @returns {{ fetch: (request: Request, env: object) => Promise<Response> }}
  */
-export function createWorker(wasmModule) {
-  return createMultiFamilyWorker({ default: wasmModule });
+export function createWorker(wasmModule, expectedFailures = DRC_EXPECTED_FAILURES) {
+  return createMultiFamilyWorker({ default: wasmModule }, expectedFailures);
 }
 
 // ---------------------------------------------------------------------------
@@ -143,10 +157,14 @@ export function createWorker(wasmModule) {
  *        e.g. { drc: moduleDrc, emc: moduleEmc, ... }
  *        Must include a "default" key for backward-compatible /run-test
  *        without a `family` field, and for /health.
+ * @param {object} [expectedFailures] see `createWorker`. One manifest per
+ *        Worker, not per family: every family in a single Worker comes from one
+ *        crate's registry (the tier shards a crate, never mixes two).
  * @returns {{ fetch: (request: Request, env: object) => Promise<Response> }}
  */
-export function createMultiFamilyWorker(familyModules) {
+export function createMultiFamilyWorker(familyModules, expectedFailures = DRC_EXPECTED_FAILURES) {
   const families = new Set(Object.keys(familyModules));
+  const EXPECTED_FAILURES = expectedFailures;
 
   // Per-family cached instances (lazy, one per family per isolate).
   const instances = Object.create(null);
@@ -381,7 +399,7 @@ export function createMultiFamilyWorker(familyModules) {
       const result = await runTest(family, index, expectedAbi);
 
       // Reclassify against the expected-failure manifest
-      const expected = EXPECTED_FAILURES.expected_failures[result.name];
+      const expected = (EXPECTED_FAILURES?.expected_failures ?? {})[result.name];
       if (expected) {
         result.expected_failure_class = expected.class;
         result.expected_failure_reason = expected.reason;

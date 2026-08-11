@@ -1372,12 +1372,14 @@ pub fn thermal_potential_assign_anchors_py(
     ))
 }
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     // The crate denies `unwrap`/`expect` in production code (Cargo.toml
     // `[lints.clippy]`); a failing unwrap in a test IS the test failure,
-    // which is the documented carve-out in the Wave-4 G7 bar.
-    #![allow(clippy::expect_used, clippy::unwrap_used)]
+    // which is the documented carve-out in the Wave-4 G7 bar.  The lift is
+    // the generated outer `#[allow(...)]` above -- an inner `#![allow]`
+    // repeating it is a `clippy::duplicated_attributes` error.
 
     use super::*;
 
@@ -1401,7 +1403,7 @@ mod tests {
 
     // --- linspace ------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn linspace_base_cases() {
         assert!(linspace(0.0, 1.0, 0).is_empty());
         assert_eq!(linspace(3.0, 9.0, 1), vec![3.0]);
@@ -1409,7 +1411,7 @@ mod tests {
         assert_eq!(linspace(0.0, 4.0, 5), vec![0.0, 1.0, 2.0, 3.0, 4.0]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn linspace_endpoint_is_exact() {
         // The endpoint is assigned, never computed — so it is bit-exact
         // even when `i * step + start` would not be.
@@ -1418,7 +1420,7 @@ mod tests {
         assert_eq!(v[0], 0.1);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn linspace_degenerate_step_zero_branch() {
         // start == stop makes step exactly 0.0; numpy switches to the
         // `(i / div) * delta + start` form.
@@ -1428,7 +1430,7 @@ mod tests {
 
     // --- grid ----------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn meshgrid_orientation_is_xy() {
         let (xg, yg) = build_potential_grid((0.0, 0.0, 3.0, 2.0), 3);
         // x varies along the row (second index), y along the column.
@@ -1440,7 +1442,7 @@ mod tests {
 
     // --- phi_edge ------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn phi_edge_is_zero_on_the_edge_and_rises_inward() {
         let (xg, yg) = build_potential_grid(square_bounds(), 5);
         let f = phi_edge(&xg, &yg, square_bounds(), Edge::Top, 10.0);
@@ -1450,7 +1452,7 @@ mod tests {
         assert!(f.iter().all(|v| *v >= 0.0));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn phi_edge_unknown_edge_is_all_zero() {
         let (xg, yg) = build_potential_grid(square_bounds(), 4);
         let f = phi_edge(&xg, &yg, square_bounds(), Edge::Unknown, 10.0);
@@ -1459,20 +1461,20 @@ mod tests {
 
     // --- phi_copper ----------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn phi_copper_uniform_without_zones() {
         let got = phi_copper(square_bounds(), 0, &[]).expect("no zones");
         assert_eq!(got, CopperField::Uniform(0.5));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn phi_copper_degenerate_board_is_uniform() {
         let got = phi_copper((0.0, 0.0, 0.0, 10.0), 1, &[(0.0, 0.0, 1.0, 1.0)])
             .expect("degenerate board");
         assert_eq!(got, CopperField::Uniform(0.5));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn phi_copper_non_empty_list_with_no_usable_zones_still_builds_a_grid() {
         // zone_count > 0 but no extracted bounds: the reference still
         // enters the grid branch and returns 1/eps everywhere.
@@ -1486,7 +1488,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn phi_copper_rejects_nan_and_infinite_zone_bounds() {
         assert_eq!(
             phi_copper(square_bounds(), 1, &[(f64::NAN, 0.0, 1.0, 1.0)]),
@@ -1500,13 +1502,13 @@ mod tests {
 
     // --- phi_coupling / phi_exclusion / phi_convection ------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn phi_coupling_empty_is_zero() {
         let (xg, yg) = build_potential_grid(square_bounds(), 4);
         assert!(phi_coupling(&xg, &yg, &[], 50.0).iter().all(|v| *v == 0.0));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn phi_coupling_peaks_at_the_device() {
         let (xg, yg) = build_potential_grid((0.0, 0.0, 4.0, 4.0), 5);
         let f = phi_coupling(&xg, &yg, &[((2.0, 2.0), 10.0)], 50.0);
@@ -1514,13 +1516,13 @@ mod tests {
         assert!(f.iter().all(|v| *v <= at_device));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn phi_exclusion_empty_is_zero() {
         let (xg, yg) = build_potential_grid(square_bounds(), 4);
         assert!(phi_exclusion(&xg, &yg, &[], 10.0, 1e6, 20.0).iter().all(|v| *v == 0.0));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn phi_convection_none_and_non_positive_are_zero() {
         let (xg, yg) = build_potential_grid(square_bounds(), 4);
         assert!(phi_convection(&xg, &yg, None).iter().all(|v| *v == 0.0));
@@ -1528,7 +1530,7 @@ mod tests {
         assert!(phi_convection(&xg, &yg, Some((-1.0, 45.0))).iter().all(|v| *v == 0.0));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn phi_convection_nan_magnitude_falls_through() {
         // `NaN <= 0` is False in Python, so the ramp is computed.
         let (xg, yg) = build_potential_grid(square_bounds(), 3);
@@ -1538,7 +1540,7 @@ mod tests {
 
     // --- superposition -------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn superpose_all_weights_zero_is_zero() {
         let (xg, yg) = build_potential_grid(square_bounds(), 4);
         let cfg = FieldConfig {
@@ -1570,7 +1572,7 @@ mod tests {
         assert!(out.iter().all(|v| *v == 0.0));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn superpose_reports_the_copper_broadcast_mismatch() {
         let (xg, yg) = build_potential_grid(square_bounds(), 4);
         let err = superpose(
@@ -1618,13 +1620,13 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn no_devices_returns_no_anchors() {
         let out = assign_thermal_anchors(&anchor_inputs(&[], 20)).expect("empty");
         assert!(out.anchors.is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn anchors_are_deterministic() {
         let devices = [device("Q1", 50.0), device("Q2", 45.0)];
         let a = assign_thermal_anchors(&anchor_inputs(&devices, 20)).expect("run a");
@@ -1632,7 +1634,7 @@ mod tests {
         assert_eq!(a.anchors, b.anchors);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn anchors_are_unique_within_tolerance() {
         let devices = [device("Q1", 50.0), device("Q2", 45.0), device("Q3", 40.0)];
         let out = assign_thermal_anchors(&anchor_inputs(&devices, 20)).expect("run");
@@ -1647,7 +1649,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn unknown_edge_yields_no_feasible_cells() {
         let devices = [device("Q1", 50.0)];
         let mut inputs = anchor_inputs(&devices, 8);
@@ -1657,7 +1659,7 @@ mod tests {
         assert_eq!(out.skipped, vec!["Q1".to_string()]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn duplicate_reference_keeps_one_key() {
         // CPython dict semantics: the second insert overwrites and keeps
         // the key's original position.
@@ -1677,7 +1679,7 @@ mod tests {
     // Both values were found by an exhaustive search over the host libm
     // (recorded in the migration PR).
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn separation_test_uses_pow_not_multiplication() {
         // `pow(dx,2) + pow(dy,2)` must be libm pow per term, never
         // `dx*dx + dy*dy`: with min_dist2 set to the (larger) multiply
@@ -1725,7 +1727,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn uniqueness_distance_uses_pow_not_sqrt() {
         // s = pow(dx,2) + pow(dy,2); pow(s, 0.5) = 0.23008158321643976
         //                            sqrt(s)     = 0.2300815832164398
@@ -1764,7 +1766,7 @@ mod tests {
     // move lands on a position clear of every anchor, so both modes are
     // closed.
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn uniqueness_never_merges_onto_an_anchor_at_x_max() {
         let mut anchors = vec![
             ("A".to_owned(), (40.0, 21.0)),
@@ -1786,7 +1788,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn uniqueness_restarts_after_a_third_anchor_collision() {
         // The rightward nudge of B would land it exactly on C, so the
         // first candidate is rejected and the search steps on to the next
@@ -1816,7 +1818,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn uniqueness_left_nudge_then_right_nudge_both_within_bounds() {
         // B sits at x_min: the +x nudge is taken; C sits against B's old
         // site so it must nudge too.  Exercises both signs and the
@@ -1843,7 +1845,7 @@ mod tests {
 
     // --- provably unobservable mutations (recorded no-ops) -------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_choice_is_unobservable_in_phi_coupling() {
         // Mutation M3 in the migration PR (`py_max` -> `f64::max`)
         // survived the differential.  It is not a test gap: the two
@@ -1874,7 +1876,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn zone_clamp_is_unreachable_for_the_bounds_that_discriminate_clip() {
         // Mutation M19 in the migration PR (`np_clip` -> `f64::clamp` on
         // the ZONE clamp) survived.  Not a test gap: `np_clip` and
@@ -1956,7 +1958,7 @@ mod tests {
         (bounds, xg, yg, phi)
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn audit_accepts_the_search_result() {
         let resolution = 9;
         let (bounds, xg, yg, phi) = audit_fixture(resolution);
@@ -1971,7 +1973,7 @@ mod tests {
         assert!(findings.is_empty(), "clean anchor audited dirty: {findings:?}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn audit_rejects_a_feasible_but_non_minimal_anchor() {
         let resolution = 9;
         let (bounds, xg, yg, phi) = audit_fixture(resolution);
@@ -2010,7 +2012,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn audit_flags_an_off_grid_anchor() {
         let resolution = 6;
         let (xg, yg) = build_potential_grid(square_bounds(), resolution);
@@ -2022,7 +2024,7 @@ mod tests {
         assert_eq!(findings, vec![AuditFinding::OffGrid]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn audit_flags_a_keepout_and_a_duplicate() {
         let resolution = 6;
         let (xg, yg) = build_potential_grid(square_bounds(), resolution);
@@ -2039,8 +2041,20 @@ mod tests {
 
     // --- proptest: linspace structural properties ---
 
+    // `#[cfg(test)]` is redundant under `cargo test` (the parent module
+    // already carries it) and load-bearing everywhere else: the wasm32 test
+    // registry compiles the parent into an ordinary build, where the
+    // `proptest` dev-dependency is not linked.  Same gate `hostmath.rs`'s
+    // nested proptest module already carries.
+    //
+    // `items_after_test_module` is allowed because the item after this
+    // module is the generated `WASM_TESTS` const of the *enclosing*
+    // module, which is appended at the end of that module's body by
+    // design; the lint's "move it above the test module" advice would
+    // move a generated block above hand-written code.
+    #[cfg(test)]
+    #[allow(clippy::items_after_test_module, clippy::expect_used, clippy::unwrap_used)]
     mod linspace_proptests {
-        #![allow(clippy::expect_used, clippy::unwrap_used)]
 
         use super::*;
         use proptest::prelude::*;
@@ -2139,8 +2153,11 @@ mod tests {
 
     // --- proptest: field component structural properties ---
 
+    // See `linspace_proptests` above for why the redundant `#[cfg(test)]`
+    // and the `items_after_test_module` allow.
+    #[cfg(test)]
+    #[allow(clippy::items_after_test_module, clippy::expect_used, clippy::unwrap_used)]
     mod field_proptests {
-        #![allow(clippy::expect_used, clippy::unwrap_used)]
 
         use super::*;
         use proptest::prelude::*;
@@ -2369,8 +2386,11 @@ mod tests {
     // (previously only reachable through the fixpoint loop) and the
     // enforcement termination invariant across randomized inputs.
 
+    // See `linspace_proptests` above for why the redundant `#[cfg(test)]`
+    // and the `items_after_test_module` allow.
+    #[cfg(test)]
+    #[allow(clippy::items_after_test_module, clippy::expect_used, clippy::unwrap_used)]
     mod uniqueness_proptests {
-        #![allow(clippy::expect_used, clippy::unwrap_used)]
 
         use super::*;
         use proptest::prelude::*;
@@ -2531,4 +2551,46 @@ mod tests {
             );
         }
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("thermal_potential::tests::linspace_base_cases", linspace_base_cases),
+        ("thermal_potential::tests::linspace_endpoint_is_exact", linspace_endpoint_is_exact),
+        ("thermal_potential::tests::linspace_degenerate_step_zero_branch", linspace_degenerate_step_zero_branch),
+        ("thermal_potential::tests::meshgrid_orientation_is_xy", meshgrid_orientation_is_xy),
+        ("thermal_potential::tests::phi_edge_is_zero_on_the_edge_and_rises_inward", phi_edge_is_zero_on_the_edge_and_rises_inward),
+        ("thermal_potential::tests::phi_edge_unknown_edge_is_all_zero", phi_edge_unknown_edge_is_all_zero),
+        ("thermal_potential::tests::phi_copper_uniform_without_zones", phi_copper_uniform_without_zones),
+        ("thermal_potential::tests::phi_copper_degenerate_board_is_uniform", phi_copper_degenerate_board_is_uniform),
+        ("thermal_potential::tests::phi_copper_non_empty_list_with_no_usable_zones_still_builds_a_grid", phi_copper_non_empty_list_with_no_usable_zones_still_builds_a_grid),
+        ("thermal_potential::tests::phi_copper_rejects_nan_and_infinite_zone_bounds", phi_copper_rejects_nan_and_infinite_zone_bounds),
+        ("thermal_potential::tests::phi_coupling_empty_is_zero", phi_coupling_empty_is_zero),
+        ("thermal_potential::tests::phi_coupling_peaks_at_the_device", phi_coupling_peaks_at_the_device),
+        ("thermal_potential::tests::phi_exclusion_empty_is_zero", phi_exclusion_empty_is_zero),
+        ("thermal_potential::tests::phi_convection_none_and_non_positive_are_zero", phi_convection_none_and_non_positive_are_zero),
+        ("thermal_potential::tests::phi_convection_nan_magnitude_falls_through", phi_convection_nan_magnitude_falls_through),
+        ("thermal_potential::tests::superpose_all_weights_zero_is_zero", superpose_all_weights_zero_is_zero),
+        ("thermal_potential::tests::superpose_reports_the_copper_broadcast_mismatch", superpose_reports_the_copper_broadcast_mismatch),
+        ("thermal_potential::tests::no_devices_returns_no_anchors", no_devices_returns_no_anchors),
+        ("thermal_potential::tests::anchors_are_deterministic", anchors_are_deterministic),
+        ("thermal_potential::tests::anchors_are_unique_within_tolerance", anchors_are_unique_within_tolerance),
+        ("thermal_potential::tests::unknown_edge_yields_no_feasible_cells", unknown_edge_yields_no_feasible_cells),
+        ("thermal_potential::tests::duplicate_reference_keeps_one_key", duplicate_reference_keeps_one_key),
+        ("thermal_potential::tests::separation_test_uses_pow_not_multiplication", separation_test_uses_pow_not_multiplication),
+        ("thermal_potential::tests::uniqueness_distance_uses_pow_not_sqrt", uniqueness_distance_uses_pow_not_sqrt),
+        ("thermal_potential::tests::uniqueness_never_merges_onto_an_anchor_at_x_max", uniqueness_never_merges_onto_an_anchor_at_x_max),
+        ("thermal_potential::tests::uniqueness_restarts_after_a_third_anchor_collision", uniqueness_restarts_after_a_third_anchor_collision),
+        ("thermal_potential::tests::uniqueness_left_nudge_then_right_nudge_both_within_bounds", uniqueness_left_nudge_then_right_nudge_both_within_bounds),
+        ("thermal_potential::tests::py_max_choice_is_unobservable_in_phi_coupling", py_max_choice_is_unobservable_in_phi_coupling),
+        ("thermal_potential::tests::zone_clamp_is_unreachable_for_the_bounds_that_discriminate_clip", zone_clamp_is_unreachable_for_the_bounds_that_discriminate_clip),
+        ("thermal_potential::tests::audit_accepts_the_search_result", audit_accepts_the_search_result),
+        ("thermal_potential::tests::audit_rejects_a_feasible_but_non_minimal_anchor", audit_rejects_a_feasible_but_non_minimal_anchor),
+        ("thermal_potential::tests::audit_flags_an_off_grid_anchor", audit_flags_an_off_grid_anchor),
+        ("thermal_potential::tests::audit_flags_a_keepout_and_a_duplicate", audit_flags_a_keepout_and_a_duplicate),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

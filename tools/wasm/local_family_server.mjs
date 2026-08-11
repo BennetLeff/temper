@@ -23,6 +23,14 @@ function loadModule(name) {
   return new WebAssembly.Module(buf);
 }
 
+// Mirrors packages/temper-worker/src/index.js — the temper-wasm-tier Worker —
+// and so deliberately does NOT include `geometry`. temper-geometry is its own
+// tier and its own Worker (packages/temper-worker/families/geometry), carrying
+// its own expected-failure manifest; folding it in here would model a Worker
+// that does not exist and would judge geometry's tests against temper-drc-rs's
+// manifest. Serve it with `tools/wasm/worker_local_server.mjs` against
+// temper_wasm_test_runner_geometry.wasm instead. See
+// tools/wasm/wasm_tier_topology.json.
 const FAMILY_ORDER = ["drc", "emc", "erc", "safety", "placement", "routing", "infra"];
 const modules = {
   default: loadModule("temper_wasm_test_runner.wasm"),

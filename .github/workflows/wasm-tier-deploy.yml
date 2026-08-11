@@ -1,8 +1,18 @@
 name: WASM Tier Deploy (operator-triggered)
 
 # R5.2 (docs/plans/2026-08-10-001-feat-wasm-tier-phase5-plan.md) — the deploy
-# of the 8 WASM-tier Workers, reproducible from a committed definition instead
+# of the WASM-tier Workers, reproducible from a committed definition instead
 # of an operator's shell history.
+#
+# THE WORKER LIST IS NOT IN THIS FILE. It is tools/wasm/wasm_tier_topology.json,
+# which scripts/stage_wasm_families.sh, tools/wasm/sweep_multi_worker.mjs and
+# tools/wasm/check_deployed_freshness.mjs also read. Nine Workers today: the
+# temper-drc-rs tier (temper-wasm-tier + 7 family shards) and the
+# temper-geometry tier (temper-wasm-geometry, which is both its tier's
+# full-corpus Worker and its only shard). Adding a tenth is a one-line edit to
+# that file, and — this is the point — it is not POSSIBLE to add one that gets
+# deployed but not staleness-checked, which is how the tier would grow its way
+# back into the window described below one Worker at a time.
 #
 # WHY THIS EXISTS. The 2026-08-07 -> 2026-08-10 staleness window (the deployed
 # Workers carried 147 tests while temper-drc-rs's suite had grown to 1,708, and
@@ -32,12 +42,22 @@ name: WASM Tier Deploy (operator-triggered)
 # jobs and +0 scheduled jobs. It consumes a runner only when a human clicks
 # it, so it contends with nothing on the ~24-concurrent-runner ceiling in the
 # steady state.
+#
+# WHAT dry_run=true PROVES. It is the only pre-merge validation available for a
+# change to this workflow — nobody should be merging a deploy change whose first
+# execution is the real deploy — so it deliberately exercises every step that
+# does not require the credential: it stages all nine .wasm modules, runs BOTH
+# crates' registries under Node (so a module that does not work is caught before
+# anyone clicks the real button), and BUNDLES all nine Workers with
+# `wrangler deploy --dry-run`, which is what would catch a bad import path, a
+# missing .wasm, or a malformed wrangler.toml. What it cannot prove is anything
+# about the currently deployed Workers; it says so in its own output.
 
 on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Build and census the 8 modules but do NOT deploy (validates the build path without a Cloudflare token)'
+        description: 'Build, census and bundle every Worker but do NOT deploy (validates the whole build+bundle path without a Cloudflare token)'
         required: false
         type: boolean
         default: false
@@ -45,7 +65,7 @@ on:
 permissions:
   contents: read
 
-# Two concurrent deploys would race on 8 Cloudflare scripts and leave the tier
+# Two concurrent deploys would race on the Cloudflare scripts and leave the tier
 # in a mixed state that the R5.1 partition check would then report as a
 # non-partitioning shard set. Serialize; never cancel a deploy mid-flight.
 concurrency:
@@ -54,7 +74,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Stage + deploy the 8 WASM-tier Workers
+    name: Stage + deploy every WASM-tier Worker
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -79,25 +99,53 @@ jobs:
         with:
           node-version: '22'
 
-      # The committed build definition. Produces all 8 .wasm into
-      # packages/temper-worker/src/ (gitignored — .gitignore:141), which is
-      # where both wrangler.toml entry points import them from.
-      - name: Stage the 8 WASM modules (scripts/stage_wasm_families.sh)
+      # The committed build definition. Produces every .wasm named in
+      # tools/wasm/wasm_tier_topology.json into packages/temper-worker/src/
+      # (gitignored — .gitignore:141), which is where the wrangler.toml entry
+      # points import them from.
+      - name: Stage the WASM modules (scripts/stage_wasm_families.sh)
         run: bash scripts/stage_wasm_families.sh
 
-      # Census before deploy, for two reasons. (1) It is the number the
+      # Census before deploy, for two reasons. (1) These are the numbers the
       # post-deploy verification compares against, taken from the very bytes
       # about to be uploaded. (2) run_wasm_tests.mjs actually RUNS the suite
-      # under Node and exits non-zero on unexpected failures or a vacuous
-      # registry, so a module that does not work is not deployed.
-      - name: Census + smoke-run the staged full-corpus module
+      # under Node and exits non-zero on unexpected failures, a vacuous
+      # registry, or an ORPHAN EXCLUSION (a manifest entry naming no registered
+      # test), so a module that does not work is not deployed.
+      #
+      # ONE CENSUS PER TIER, and each against ITS OWN expected-failure manifest.
+      # temper-geometry's fifteen native-vs-wasm32 divergences are not in
+      # temper-drc-rs's manifest and vice versa; crossing them would report
+      # fifteen unexplained failures for one crate and fifteen orphan exclusions
+      # for the other. The tier list and the manifest paths both come from the
+      # topology file, so a new tier is censused without editing this step.
+      - name: Census + smoke-run every staged full-corpus module
         run: |
           set -euo pipefail
-          node tools/wasm/run_wasm_tests.mjs \
-            packages/temper-worker/src/temper_wasm_test_runner.wasm \
-            --json /tmp/staged_census.json
-          echo "staged full-corpus registry size:"
-          node -e "console.log(require('/tmp/staged_census.json').summary.registered)"
+          node -e '
+            import("./tools/wasm/tier_topology.mjs").then(({ loadTopology }) => {
+              for (const t of loadTopology().tiers) {
+                console.log([t.crate, t.staged_module, t.expected_failures].join("\t"));
+              }
+            }).catch((e) => { console.error(e.message); process.exit(1); });
+          ' > /tmp/tiers.tsv
+          test -s /tmp/tiers.tsv  # an empty tier list must not census nothing and pass
+          # `< /dev/null` on every child: a child that reads stdin would consume
+          # the rest of this loop's input and the loop would silently stop after
+          # one iteration, censusing one tier and reporting success.
+          while IFS=$'\t' read -r crate staged manifest; do
+            echo "=== census ${crate} (${staged}) ==="
+            node tools/wasm/run_wasm_tests.mjs \
+              "packages/temper-worker/src/${staged}" \
+              --expected-failures "${manifest}" \
+              --json "/tmp/staged_census_${crate}.json" < /dev/null
+            node -e "const s=require('/tmp/staged_census_${crate}.json').summary; console.log('${crate}: registered', s.registered, '| passed', s.passed, '| expected-fail', s.expectedFail);" < /dev/null
+          done < /tmp/tiers.tsv
+          # One census file per tier, or the loop above stopped early.
+          test "$(ls -1 /tmp/staged_census_*.json | wc -l)" = "$(wc -l < /tmp/tiers.tsv)"
+          # Kept at its historical path so any reader or tool that knows this
+          # file by name still finds temper-drc-rs's census where it was.
+          cp /tmp/staged_census_temper-drc-rs.json /tmp/staged_census.json
 
       # ------------------------------------------------------------------
       # The credential lives HERE, on the step that consumes it — PR #932's
@@ -113,7 +161,26 @@ jobs:
       # silently expand to the empty string and every deploy would fail on an
       # auth error whose cause is a typo two files away.
       # ------------------------------------------------------------------
-      - name: Deploy the 7 per-family Workers + the full-corpus Worker
+      # The deploy list comes from tools/wasm/wasm_tier_topology.json, already
+      # deduplicated (temper-wasm-geometry is both its tier's full-corpus Worker
+      # and its only shard, and must be uploaded once, not twice).
+      - name: Compute the deploy list from the topology
+        run: |
+          set -euo pipefail
+          node -e '
+            import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, deployTargets }) => {
+              for (const d of deployTargets(loadTopology())) {
+                console.log([d.script, d.wrangler_dir].join("\t"));
+              }
+            }).catch((e) => { console.error(e.message); process.exit(1); });
+          ' > /tmp/deploy_targets.tsv
+          # An empty list here would make the deploy loop below a no-op that
+          # exits 0 — a deploy that deployed nothing and said it succeeded.
+          test -s /tmp/deploy_targets.tsv
+          echo "will deploy $(wc -l < /tmp/deploy_targets.tsv) Workers:"
+          cat /tmp/deploy_targets.tsv
+
+      - name: Deploy every Worker in the topology
         if: ${{ !inputs.dry_run }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_TOKEN }}
@@ -123,12 +190,24 @@ jobs:
             echo "::error::CLOUDFLARE_API_TOKEN is empty, so every 'wrangler deploy' below would fail on authentication. This step maps it from the repository secret CF_TOKEN — the secret is NOT named CLOUDFLARE_API_TOKEN, wrangler only reads the latter from the environment. Set repository secret CF_TOKEN to a Cloudflare API token with the 'Workers Scripts:Edit' permission on account 03f642afe070f05b727f7cd31f02ef48 (docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md). Re-run with dry_run=true to validate the build path without a token."
             exit 1
           fi
-          for f in drc emc erc safety placement routing infra; do
-            echo "=== deploy temper-wasm-${f} ==="
-            (cd "packages/temper-worker/families/${f}" && npx --yes wrangler@4 deploy)
-          done
-          echo "=== deploy temper-wasm-tier (full corpus) ==="
-          (cd packages/temper-worker && npx --yes wrangler@4 deploy)
+          # `< /dev/null` is load-bearing, not defensive noise: `npx`/`wrangler`
+          # inheriting this loop's stdin would swallow the remaining lines of
+          # deploy_targets.tsv, and the loop would exit 0 after deploying only
+          # the first Worker — a partial deploy that reports success. (The R5.1
+          # verification below would still catch it, which is the point of
+          # having both, but a partial deploy should not be routine.)
+          deployed=0
+          while IFS=$'\t' read -r script dir; do
+            echo "=== deploy ${script} (${dir}) ==="
+            (cd "${dir}" && npx --yes wrangler@4 deploy < /dev/null)
+            deployed=$((deployed + 1))
+          done < /tmp/deploy_targets.tsv
+          expected="$(wc -l < /tmp/deploy_targets.tsv)"
+          if [ "${deployed}" != "${expected}" ]; then
+            echo "::error::Deployed ${deployed} of ${expected} Workers — the deploy loop ended early. The tier is now in a MIXED state (some scripts from this commit, some from whatever was there before), which is exactly what the R5.1 partition check reports as a non-partitioning shard set. Re-run this workflow."
+            exit 1
+          fi
+          echo "deployed ${deployed} Workers"
 
       # The deploy is not done until the deployed corpus answers with the count
       # that was just built. This is the same control wasm-tier-nightly.yml
@@ -139,29 +218,65 @@ jobs:
       #
       # The retry loop covers Cloudflare's edge propagation only; it does not
       # weaken the check, which still fails after the last attempt.
+      #
+      # One --built-json per tier, and the checker REQUIRES all of them: leaving
+      # one off is exit 2 with the tier named, not a quietly narrower check.
       - name: Verify the deployed corpus is what was just built (R5.1)
         if: ${{ !inputs.dry_run }}
         run: |
           set -euo pipefail
           for attempt in 1 2 3 4; do
             if node tools/wasm/check_deployed_freshness.mjs \
-                 --built-json /tmp/staged_census.json \
+                 --built-json /tmp/staged_census_temper-drc-rs.json \
+                 --built-json-geometry /tmp/staged_census_temper-geometry.json \
                  --json /tmp/freshness_postdeploy.json; then
               exit 0
             fi
             echo "attempt ${attempt} failed; the edge may still be propagating — retrying in 20s"
             sleep 20
           done
-          echo "::error::The deployed Workers still do not report the corpus that was just built (see the census above). The deploy did not take effect, or took effect on only some of the 8 scripts."
+          echo "::error::The deployed Workers still do not report the corpus that was just built (see the census above). The deploy did not take effect, or took effect on only some of the scripts in tools/wasm/wasm_tier_topology.json."
           exit 1
 
-      - name: Dry run — report what WOULD have been deployed
+      # ------------------------------------------------------------------
+      # dry_run's real work. `wrangler deploy --dry-run` runs the entire upload
+      # path except the upload: it resolves wrangler.toml, runs esbuild over the
+      # entry point, follows every import (including the .wasm modules staged
+      # above and families/geometry/index.js's import of the geometry
+      # expected-failure JSON), and reports the bundle size. It needs no
+      # credential, which is exactly why it is the pre-merge proof for a change
+      # to this file: a broken import path or a missing module fails HERE, on a
+      # PR, instead of on the operator's first real click.
+      # ------------------------------------------------------------------
+      - name: Dry run — bundle every Worker without deploying
         if: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
-          echo "dry_run=true: the 8 modules were built and the full-corpus module was smoke-run, but NOTHING was deployed."
-          echo "The currently deployed Workers are therefore untouched, and this run proves nothing about their freshness."
+          echo "dry_run=true: NOTHING will be deployed. The currently deployed Workers are"
+          echo "untouched, and this run proves nothing about their freshness — only that this"
+          echo "commit builds, runs and bundles."
+          echo ""
           ls -lh packages/temper-worker/src/temper_wasm_test_runner*.wasm
+          echo ""
+          failed=""
+          bundled=0
+          while IFS=$'\t' read -r script dir; do
+            echo "=== bundle ${script} (${dir}) ==="
+            if ! (cd "${dir}" && npx --yes wrangler@4 deploy --dry-run --outdir "/tmp/dryrun/${script}" < /dev/null); then
+              failed="${failed} ${script}"
+            fi
+            bundled=$((bundled + 1))
+          done < /tmp/deploy_targets.tsv
+          expected="$(wc -l < /tmp/deploy_targets.tsv)"
+          if [ "${bundled}" != "${expected}" ]; then
+            echo "::error::Bundled ${bundled} of ${expected} Workers — the loop ended early, so this dry run did not validate every Worker and must not be read as if it had."
+            exit 1
+          fi
+          if [ -n "${failed}" ]; then
+            echo "::error::Worker(s) failed to bundle:${failed}. A real deploy would have failed on the same error, after uploading the Workers that came before it and leaving the tier in a mixed state. Fix before deploying."
+            exit 1
+          fi
+          echo "All Workers bundled."
 
       - name: Write job summary
         if: ${{ !cancelled() }}
@@ -173,10 +288,13 @@ jobs:
             echo "- board sha256: \`${BOARD_SHA256}\` (\`pcb/temper.kicad_pcb\`)"
             echo "- dry run: \`${{ inputs.dry_run }}\`"
             echo ""
-            echo "#### Staged module census"
+            echo "#### Staged module census (one per tier)"
             echo ""
             echo '```'
-            node -e "const s=require('/tmp/staged_census.json').summary; console.log('registered', s.registered); console.log('passed', s.passed); console.log('failed', s.failed); console.log('expectedFail', s.expectedFail);" 2>/dev/null || echo "(census not produced — see the staging step)"
+            for f in /tmp/staged_census_*.json; do
+              [ -e "$f" ] || { echo "(census not produced — see the staging step)"; break; }
+              node -e "const s=require('$f').summary; console.log('$f'.replace(/.*staged_census_|\.json/g,'').padEnd(16), 'registered', s.registered, '| passed', s.passed, '| failed', s.failed, '| expected-fail', s.expectedFail, '| unexpected-pass', s.unexpectedPass);" 2>/dev/null || echo "(unreadable: $f)"
+            done
             echo '```'
             echo ""
             echo "#### Post-deploy freshness verification"
@@ -193,6 +311,8 @@ jobs:
           name: wasm-tier-deploy-${{ github.run_id }}
           path: |
             /tmp/staged_census.json
+            /tmp/staged_census_*.json
+            /tmp/deploy_targets.tsv
             /tmp/freshness_postdeploy.json
           retention-days: 30
           if-no-files-found: warn

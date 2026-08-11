@@ -76,6 +76,8 @@ const REGISTRIES: &[&[&[WasmTest]]] = &[
     temper_drc_rs::wasm_test_registry::ALL,
     #[cfg(feature = "geometry-registry")]
     temper_geometry::wasm_test_registry::ALL,
+    #[cfg(feature = "thermal-registry")]
+    temper_thermal::wasm_test_registry::ALL,
 ];
 
 /// How many tests are linked in, across every registry.

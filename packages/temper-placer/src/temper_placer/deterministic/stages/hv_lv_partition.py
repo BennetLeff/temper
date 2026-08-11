@@ -4,14 +4,12 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Mapping
-from dataclasses import replace
 from typing import Any
 
-import temper_design_bundle_python as _tdb
+import temper_orchestration as _to
 from pydantic import BaseModel, ConfigDict
 from shapely.geometry import Polygon
 
-from ..geometry.guard_strip import compute_guard_strip
 from ..state import BoardState
 from .base import Stage
 
@@ -104,78 +102,23 @@ class HvLvPartitionStage(Stage):
     def run(self, state: BoardState) -> BoardState:
         """Partition components into HV-edge / LV-interior domains.
 
-        The pure decision (safety-category classification + creepage max,
-        width resolution, per-bucket area check) delegates to
-        ``temper_design_bundle_python.hv_lv_partition``; the ``run``
-        orchestration stays Python: the state/netlist guards, the
-        ``_rules_by_net`` / ``_nets`` reading, the ``_area`` marshalling, the
-        shapely outline + ``compute_guard_strip`` GEOS surface, the
-        ``PartitionError`` construction, and the ``dataclasses.replace``
-        wrap. The pre-migration implementation is pinned VERBATIM as the
-        differential oracle (``tests/deterministic/_hv_lv_partition_py_oracle.py``).
+        Phase D batch D7 of the Rust Orchestration Engine plan (2026-08-09-001):
+        the **run orchestration** (the config load + guards, the
+        ``_rules_by_net`` / ``_nets`` / ``_area`` reading, the design-bundle
+        ``hv_lv_classify`` / ``hv_lv_area_check`` kernel calls, the decision
+        dispatch, the ``PartitionError`` raise decisions and the
+        ``component_domain_map`` / ``routing_corridors`` / ``domain_regions``
+        write) is implemented in Rust (``temper-orchestration``'s
+        ``HvLvPartitionStage`` / ``run_hv_lv_partition``), crossing the FFI
+        once per stage call. The `PartitionError` class, the pydantic guard
+        config, the shapely outline + ``compute_guard_strip`` GEOS surface
+        and the ``_rules_by_net`` / ``_nets`` / ``_area`` duck-typed readers
+        stay Python (the Rust stage calls the helpers back; ``_rules_by_net``
+        is inlined and pinned by the differential). The pre-migration
+        implementation is pinned VERBATIM in
+        ``tests/deterministic/_hv_lv_partition_run_py_oracle.py``.
         """
-        cfg = load_guard_config(state.config)
-        if not cfg.enabled or state.board is None or state.netlist is None:
-            return state
-        rules = _rules_by_net(state)
-        rules_marshalled = {
-            name: (getattr(r, "safety_category", None) or "", float(getattr(r, "creepage_mm", 0.0) or 0.0))
-            for name, r in rules.items()
-        }
-        components_nets = [(c.ref, _nets(state.netlist, c.ref)) for c in state.netlist.components]
-        decision, hv, lv, creepage, width, dual = _tdb.hv_lv_partition.hv_lv_classify(
-            components_nets, rules_marshalled, cfg.width_mm
-        )
-        for ref in dual:
-            logger.warning("dual-domain %s -> LV bucket", ref)
-        if decision == "skip_empty":
-            logger.info("empty HV/LV bucket (hv=%d lv=%d); skipping", len(hv), len(lv))
-            return state
-        if decision == "skip_zero":
-            return state
-        if cfg.width_mm is not None and cfg.width_mm < creepage:
-            logger.warning(
-                "hv_lv_guard_strip.width_mm=%s below creepage %s, using creepage",
-                cfg.width_mm,
-                creepage,
-            )
-        outline = _outline(state.board)
-        if outline.exterior is None or not outline.exterior.is_closed:
-            raise PartitionError("geometry", "outline", 0.0, 0.0)
-        try:
-            hv_poly, lv_poly, corridor = compute_guard_strip(outline, width)
-        except ValueError as exc:
-            raise PartitionError("geometry", "outline", 0.0, 0.0) from exc
-        comp = {c.ref: c for c in state.netlist.components}
-        areas = {ref: _area(comp[ref]) for ref in hv + lv}
-        outcome, bucket, largest, region_area, required_area = _tdb.hv_lv_partition.hv_lv_area_check(
-            hv,
-            lv,
-            areas,
-            float(hv_poly.area),
-            bool(hv_poly.is_empty),
-            float(lv_poly.area),
-            bool(lv_poly.is_empty),
-            cfg.fallback_to_unconstrained,
-        )
-        if outcome == "fallback":
-            logger.warning(
-                "insufficient %s bucket area: %s requires %.2fmm^2, region has %.2fmm^2",
-                bucket,
-                largest,
-                required_area,
-                region_area,
-            )
-            return state
-        if outcome == "raise":
-            raise PartitionError(bucket, largest, region_area, required_area)
-        domain = [(r, "HV_edge") for r in hv] + [(r, "LV_interior") for r in lv]
-        return replace(
-            state,
-            component_domain_map=frozenset(domain),
-            routing_corridors=(corridor,),
-            domain_regions=(hv_poly, lv_poly),
-        )
+        return _to.run_hv_lv_partition(state)
 
 
 __all__ = ["PartitionError", "HvLvGuardConfig", "load_guard_config", "HvLvPartitionStage"]

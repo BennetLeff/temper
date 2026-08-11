@@ -5,30 +5,27 @@ closer than a threshold) and places escape vias at their pins to enable
 inner-layer routing. This solves the problem of overlapping clearance zones
 on the surface layer that block routing.
 
-The two pure kernels are implemented in Rust in the ``temper-design-bundle``
-crate (Wave 4 **Phase 5, batch 2** — deterministic leaf stages):
-``_calculate_min_pin_pitch`` delegates to
-``temper_design_bundle_python.deterministic_leaves.min_pin_pitch_py`` and
-``_get_escape_layer_for_net`` to ``...escape_layer_for_net_py``. The ``run``
-orchestration (the fine-pitch detection passes, via construction, and the
-escape validation) stays Python.
-
-Bit-exactness: the min-pin-pitch kernel reproduces the oracle's ``dx*dx``
-direct multiplication and ``math.sqrt`` bit-for-bit (``float.hex()``
-differential) and the ``None``/fewer-than-two-pins semantics; the escape
-layer selection reproduces the layer-3-first / layer-2 / default precedence
-with the configured primary/secondary layers. Verified by
-``tests/deterministic/stages/test_fine_pitch_escape_rust_differential.py``
-(oracle: ``tests/deterministic/stages/_fine_pitch_escape_py_oracle.py``) and
-the PBT suite; the structural proof lives in
-``packages/temper-design-bundle/VERIFICATION.md``.
+Phase D batch D7 of the Rust Orchestration Engine plan (2026-08-09-001): the
+**run orchestration** (the fine-pitch detection passes, the escape-via
+placement loop, the debug prints and the Phase-5 escape validation) is
+implemented in Rust (``temper-orchestration``'s ``FinePitchEscapeStage`` /
+``run_fine_pitch_escape``), crossing the FFI once per stage call. This module
+keeps the public API: the ``FinePitchEscapeStage`` dataclass (constructor
+surface, the ``name`` property and the two leaf methods
+``_calculate_min_pin_pitch`` / ``_get_escape_layer_for_net`` -- pinned by
+``test_fine_pitch_escape_rust_differential.py``) stays as the pre-D7 bodies.
+The two pure kernels stay single-source in ``temper_design_bundle_python``
+(``min_pin_pitch_py`` / ``escape_layer_for_net_py``); ``pin_world_position_at``
+and the ``Via`` pyclass stay Python and are driven through FFI by the port.
+The pre-migration implementation is pinned VERBATIM in
+``tests/deterministic/_fine_pitch_escape_run_py_oracle.py``.
 """
 
 from dataclasses import dataclass, field
 
 import temper_design_bundle_python as _tdb
+import temper_orchestration as _to
 
-from ...core.pin_geometry import pin_world_position_at
 from ..state import BoardState
 from .base import Stage
 
@@ -101,211 +98,9 @@ class FinePitchEscapeStage(Stage):
         )
 
     def run(self, state: BoardState) -> BoardState:
-        """Detect fine-pitch components and place escape vias."""
-        if not state.netlist:
-            return state
-
-        from dataclasses import replace
-
-        from ...core.board import Via
-
-        placements = dict(state.placements) if state.placements else {}
-        vias = list(state.vias) if state.vias else []
-
-        # Track fine-pitch components for debug output
-        fine_pitch_components = []
-        layer1_vias = 0
-        layer2_vias = 0
-        layer3_vias = 0  # EXP-9: Track B.Cu escape vias
-
-        # First pass: identify fine-pitch components and collect their nets
-        fine_pitch_refs = set()
-        fine_pitch_nets = set()  # Nets that touch fine-pitch components
-
-        for component in state.netlist.components:
-            min_pitch = self._calculate_min_pin_pitch(component)
-            if min_pitch is not None and min_pitch < self.pin_pitch_threshold_mm:
-                fine_pitch_refs.add(component.ref)
-                fine_pitch_components.append((component.ref, min_pitch, len(component.pins)))
-                # Collect all nets that touch this fine-pitch component
-                for pin in component.pins:
-                    if pin.net:
-                        fine_pitch_nets.add(pin.net)
-
-        # Track positions where we've placed vias to avoid duplicates
-        via_positions = set()
-
-        # Second pass: place escape vias for ALL pins on nets that touch fine-pitch components
-        # This ensures both endpoints of a net can route on inner layers
-        for component in state.netlist.components:
-            comp_pos = placements.get(component.ref, component.initial_position)
-            if comp_pos is None:
-                continue
-
-            for pin in component.pins:
-                if not pin.net:
-                    continue  # Skip NC pins
-
-                # Place escape via if:
-                # 1. This component is fine-pitch, OR
-                # 2. This pin's net touches a fine-pitch component
-                if component.ref not in fine_pitch_refs and pin.net not in fine_pitch_nets:
-                    continue
-
-                # Calculate absolute pin position
-                pin_x, pin_y = pin_world_position_at(pin, component, comp_pos)
-
-                # Skip if we already have a via at this position
-                pos_key = (round(pin_x, 3), round(pin_y, 3))
-                if pos_key in via_positions:
-                    continue
-                via_positions.add(pos_key)
-
-                # EXP-6b: Determine escape layer based on net
-                escape_layer_num, escape_layer_name = self._get_escape_layer_for_net(pin.net)
-
-                # Create escape via (F.Cu to selected escape layer)
-                via = Via(
-                    position=(pin_x, pin_y),
-                    drill=self.via_drill_mm,
-                    width=self.via_diameter_mm,
-                    layers=("F.Cu", escape_layer_name),
-                    net=pin.net,
-                )
-                vias.append(via)
-
-                if escape_layer_num == 1:
-                    layer1_vias += 1
-                elif escape_layer_num == 2:
-                    layer2_vias += 1
-                else:  # layer 3 (B.Cu)
-                    layer3_vias += 1
-
-        # Debug output
-        if fine_pitch_components:
-            print(f"  Fine-pitch components detected: {len(fine_pitch_components)}")
-            for ref, pitch, pin_count in fine_pitch_components:
-                # Count netted pins correctly
-                comp = next((c for c in state.netlist.components if c.ref == ref), None)
-                if comp:
-                    netted_pins = sum(1 for pin in comp.pins if pin.net)
-                    print(
-                        f"    {ref}: min_pitch={pitch:.2f}mm, {netted_pins}/{pin_count} pins with nets"
-                    )
-            print(f"  Nets touching fine-pitch components: {len(fine_pitch_nets)}")
-            # EXP-6b/EXP-9: Show layer distribution
-            print(
-                f"  Escape vias: {layer1_vias} to In1.Cu, {layer2_vias} to In2.Cu, {layer3_vias} to B.Cu"
-            )
-            if self.layer2_nets:
-                print(f"  Layer 2 nets: {sorted(self.layer2_nets)}")
-            if self.layer3_nets:
-                print(f"  Layer 3 (B.Cu) nets: {sorted(self.layer3_nets)}")
-        else:
-            print(
-                f"  No fine-pitch components detected (threshold: {self.pin_pitch_threshold_mm}mm)"
-            )
-
-        # ========== PHASE 5: ESCAPE VALIDATION ==========
-        # Validate that ALL fine-pitch component pins have escape vias.
-        # Auto-generate any missing escapes.
-
-        if fine_pitch_refs:
-            missing_escapes = []
-            current_via_positions = {
-                (round(v.position[0], 3), round(v.position[1], 3)) for v in vias
-            }
-
-            for component in state.netlist.components:
-                if component.ref not in fine_pitch_refs:
-                    continue
-
-                comp_pos = placements.get(component.ref, component.initial_position)
-                if comp_pos is None:
-                    continue
-
-                for pin in component.pins:
-                    if not pin.net:
-                        continue  # Skip NC pins
-
-                    # Calculate absolute pin position
-                    pin_x, pin_y = pin_world_position_at(pin, component, comp_pos)
-
-                    # Check if escape via exists within tolerance
-                    pos_key = (round(pin_x, 3), round(pin_y, 3))
-                    if pos_key not in current_via_positions:
-                        missing_escapes.append(
-                            {
-                                "ref": component.ref,
-                                "pin": pin.name,
-                                "net": pin.net,
-                                "pos": (pin_x, pin_y),
-                            }
-                        )
-
-            if missing_escapes:
-                print(
-                    f"\n  [EscapeValidation] Found {len(missing_escapes)} fine-pitch pins missing escape vias"
-                )
-
-                # Group by net for clearer output
-                by_net: dict[str, list[dict]] = {}
-                for m in missing_escapes:
-                    net = m["net"]
-                    if net not in by_net:
-                        by_net[net] = []  # type: ignore[index]
-                    by_net[net].append(m)  # type: ignore[index]
-
-                for net, pins_list in sorted(by_net.items(), key=lambda x: -len(x[1]))[:10]:
-                    pin_list = ", ".join(f"{p['ref']}.{p['pin']}" for p in pins_list[:3])
-                    if len(pins_list) > 3:
-                        pin_list += f" (+{len(pins_list) - 3} more)"
-                    print(f"    {net}: {pin_list}")
-
-                # Auto-generate missing escapes
-                print(
-                    f"\n  [EscapeValidation] Auto-generating {len(missing_escapes)} missing escape vias..."
-                )
-
-                generated_count = 0
-                for m in missing_escapes:
-                    pin_pos = m["pos"]
-                    net_name = m["net"]
-
-                    # Skip if position already has a via (shouldn't happen but safety check)
-                    pos_key = (round(pin_pos[0], 3), round(pin_pos[1], 3))  # type: ignore[call-overload]
-                    if pos_key in current_via_positions:
-                        continue
-
-                    # Determine escape layer
-                    escape_layer_num, escape_layer_name = self._get_escape_layer_for_net(net_name)  # type: ignore[arg-type]
-
-                    via = Via(
-                        position=pin_pos,  # type: ignore[arg-type]
-                        drill=self.via_drill_mm,
-                        width=self.via_diameter_mm,
-                        layers=("F.Cu", escape_layer_name),
-                        net=net_name,  # type: ignore[arg-type]
-                    )
-                    vias.append(via)
-                    current_via_positions.add(pos_key)
-                    generated_count += 1
-
-                    if escape_layer_num == 1:
-                        layer1_vias += 1
-                    elif escape_layer_num == 2:
-                        layer2_vias += 1
-                    elif escape_layer_num == 3:
-                        layer3_vias += 1
-
-                print(f"    Added {generated_count} escape vias")
-                print(
-                    f"  Updated totals: {layer1_vias} to In1.Cu, {layer2_vias} to In2.Cu, {layer3_vias} to B.Cu"
-                )
-
-        # ========== END PHASE 5 ==========
-
-        return replace(state, vias=frozenset(vias))
+        """Run the fine-pitch escape orchestration in Rust (Phase D D7);
+        crosses the FFI once per stage call."""
+        return _to.run_fine_pitch_escape(state, self)
 
     def _calculate_min_pin_pitch(self, component):
         """Calculate minimum pin-to-pin distance for a component.

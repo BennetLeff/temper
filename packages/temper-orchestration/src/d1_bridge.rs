@@ -93,6 +93,13 @@ pub(crate) fn to_python(
             "drc_violations" => py_opt_changed(orig, out, "drc_violations")?,
             "placement_violations" => py_opt_changed(orig, out, "placement_violations")?,
             "connectivity_violations" => py_opt_changed(orig, out, "connectivity_violations")?,
+            // D7 (routing-adjacent stages): the domain/assignment/netlist
+            // fields the D7 stages write back.
+            "layer_assignments" => py_opt_changed(orig, out, "layer_assignments")?,
+            "netlist" => py_opt_changed(orig, out, "netlist")?,
+            "component_domain_map" => py_opt_changed(orig, out, "component_domain_map")?,
+            "routing_corridors" => py_opt_changed(orig, out, "routing_corridors")?,
+            "domain_regions" => py_opt_changed(orig, out, "domain_regions")?,
             "net_order" => {
                 let orig_tuple = orig.getattr("net_order")?;
                 let orig_vec: Vec<String> = orig_tuple.extract()?;
@@ -123,6 +130,11 @@ pub(crate) fn to_python(
             "drc_violations" => opt_value(py, &out.drc_violations),
             "placement_violations" => opt_value(py, &out.placement_violations),
             "connectivity_violations" => opt_value(py, &out.connectivity_violations),
+            "layer_assignments" => opt_value(py, &out.layer_assignments),
+            "netlist" => opt_value(py, &out.netlist),
+            "component_domain_map" => opt_value(py, &out.component_domain_map),
+            "routing_corridors" => opt_value(py, &out.routing_corridors),
+            "domain_regions" => opt_value(py, &out.domain_regions),
             "net_order" => PyTuple::new(py, out.net_order.iter().map(|s| s.as_str()))?
                 .into_any()
                 .unbind(),
@@ -184,6 +196,11 @@ fn py_opt_changed(
         "drc_violations" => out.drc_violations.as_ref(),
         "placement_violations" => out.placement_violations.as_ref(),
         "connectivity_violations" => out.connectivity_violations.as_ref(),
+        "layer_assignments" => out.layer_assignments.as_ref(),
+        "netlist" => out.netlist.as_ref(),
+        "component_domain_map" => out.component_domain_map.as_ref(),
+        "routing_corridors" => out.routing_corridors.as_ref(),
+        "domain_regions" => out.domain_regions.as_ref(),
         _ => return Ok(false),
     };
     match (orig_val.is_none(), out_val) {

@@ -90,6 +90,11 @@ PURE_GENERATORS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
         "gen_wasm_test_registry.py [temper-geometry]",
         ("--crate", "temper-geometry"),
     ),
+    (
+        "gen_wasm_test_registry.py",
+        "gen_wasm_test_registry.py [temper-thermal]",
+        ("--crate", "temper-thermal"),
+    ),
 )
 
 
