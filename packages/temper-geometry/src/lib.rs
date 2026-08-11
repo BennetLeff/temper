@@ -278,6 +278,16 @@ pub mod property_campaigns;
 // after `property_campaigns` and before `units` (this file's tail) so
 // appends cannot rewrite a parallel agent's lines.
 pub mod property_campaigns_2;
+// Third property campaign (R7 / WASM-tier volume): metamorphic/invariant
+// properties over four pure, deterministic kernels neither earlier campaign
+// covers -- edt.rs's exact Euclidean distance transform, pad_geometry.rs's
+// shared pad-radius model, copper_reach.rs's per-component copper extent,
+// and obstacle_map_kernels.rs's GEOS-exact circle-buffer ring. A separate
+// module from both `property_campaigns` and `property_campaigns_2` for the
+// same merge-collision reason the second module's own doc comment gives.
+// Declared after `property_campaigns_2` and before `units` (this file's
+// tail) so appends cannot rewrite a parallel agent's lines.
+pub mod property_campaigns_3;
 // Wave 4 Phase A: core/units.py's `Mm`, `Mil`, `Inch` newtype wrappers and
 // the mm/mil/inch conversion kernels. See units.rs's module doc for why the
 // existing units.py kernels are NOT re-migrated here (they live in
