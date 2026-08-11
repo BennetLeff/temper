@@ -9,10 +9,13 @@
 # `_comment` for why the list used to live in four places and why that was a
 # latent staleness bug rather than a tidiness complaint.
 #
-# Today that yields ten modules: temper-drc-rs's full corpus plus its seven
-# family shards, temper-geometry's single-family corpus, and temper-thermal's.
-# Duplicates are collapsed by the topology loader: a single-family tier's full
-# corpus and its only shard are the same module and are compiled once.
+# Today that yields thirteen modules: temper-drc-rs's full corpus plus its seven
+# family shards, and one single-family corpus each for temper-geometry,
+# temper-thermal, temper-design-bundle, temper-rust-router-core and
+# temper-constraint-compiler.  Duplicates are collapsed by the topology loader:
+# a single-family tier's full corpus and its only shard are the same module and
+# are compiled once -- so those five contribute five builds, not ten.  Three of
+# them were added on 2026-08-11 and this script needed no edit.
 set -euo pipefail
 
 WASM_DIR="target-shared/wasm32-unknown-unknown/release"

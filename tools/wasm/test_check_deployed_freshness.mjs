@@ -59,9 +59,11 @@ const topology = loadTopology();
 /**
  * The census the tier reports when everything is current, derived from the
  * topology so this file does not carry its own copy of the Worker list.
- * Per-shard numbers are today's deployed reality (2026-08-10): drc 1510, infra
+ * Per-shard numbers are today's deployed reality (2026-08-11): drc 1510, infra
  * 121, safety 25, placement 18, routing 18, emc 15, erc 12 = 1719,
- * temper-wasm-geometry's 722, and temper-wasm-thermal's 143.
+ * temper-wasm-geometry's 722, temper-wasm-thermal's 143,
+ * temper-wasm-router-core's 111, temper-wasm-constraint-compiler's 69 and
+ * temper-wasm-design-bundle's 24. Six tiers, 2788 tests.
  */
 const DRC_SHARDS = {
   drc: 1510,
@@ -84,6 +86,36 @@ const GEOMETRY_BUILT = 722;
 // that has nothing to do with staleness, which is exactly the confusion the
 // geometry 724-vs-722 gap already caused once.
 const THERMAL_BUILT = 143;
+// The three tiers added 2026-08-11, all EXECUTABLE counts (`summary.registered`
+// from run_wasm_tests.mjs, i.e. `temper_test_count()` of the built module), for
+// the same reason THERMAL_BUILT is:
+//
+//   temper-design-bundle        24 registered, 24 executable -- the one tier
+//                               where the two coincide, because its registry
+//                               has no `cfg`-carrying entry. Pinned here so
+//                               that stops being an assumption.
+//   temper-rust-router-core    111 registered, 111 executable, 111 passing.
+//                               This number is the sharpest available
+//                               illustration of issue #945, the known
+//                               limitation of this control: on 2026-08-10 the
+//                               same 111 was 88 pass + 23 expected-fail
+//                               (`no-clock`), on 2026-08-11 #947 made the
+//                               rewrite trace clock lazy and all 23 became
+//                               passes -- and THIS CHECK CANNOT SEE THAT. It
+//                               was 111 before and 111 after. Verdict changes
+//                               are run_wasm_tests.mjs's job (an
+//                               unexpected-pass is a non-zero exit) and
+//                               r19_compare.py's; a count check is blind to
+//                               them by construction, which is exactly what
+//                               #945 says and why it is not papered over here.
+//   temper-constraint-compiler  70 registered, 69 executable. The 70th,
+//                               constraints::tests::
+//                               host_libm_symbols_actually_resolve, carries
+//                               `#[cfg(not(target_arch = "wasm32"))]`, so it is
+//                               compiled out rather than skipped.
+const DESIGN_BUNDLE_BUILT = 24;
+const ROUTER_CORE_BUILT = 111;
+const CONSTRAINT_COMPILER_BUILT = 69;
 
 function freshCensus() {
   const census = { "temper-wasm-tier": { test_count: DRC_BUILT, abi_version: 1 } };
@@ -92,6 +124,12 @@ function freshCensus() {
   }
   census["temper-wasm-geometry"] = { test_count: GEOMETRY_BUILT, abi_version: 1 };
   census["temper-wasm-thermal"] = { test_count: THERMAL_BUILT, abi_version: 1 };
+  census["temper-wasm-design-bundle"] = { test_count: DESIGN_BUNDLE_BUILT, abi_version: 1 };
+  census["temper-wasm-router-core"] = { test_count: ROUTER_CORE_BUILT, abi_version: 1 };
+  census["temper-wasm-constraint-compiler"] = {
+    test_count: CONSTRAINT_COMPILER_BUILT,
+    abi_version: 1,
+  };
   return census;
 }
 
@@ -105,6 +143,12 @@ function builtJson(name, registered) {
 const BUILT_DRC = builtJson("built_drc", DRC_BUILT);
 const BUILT_GEOMETRY = builtJson("built_geometry", GEOMETRY_BUILT);
 const BUILT_THERMAL = builtJson("built_thermal", THERMAL_BUILT);
+const BUILT_DESIGN_BUNDLE = builtJson("built_design_bundle", DESIGN_BUNDLE_BUILT);
+const BUILT_ROUTER_CORE = builtJson("built_router_core", ROUTER_CORE_BUILT);
+const BUILT_CONSTRAINT_COMPILER = builtJson(
+  "built_constraint_compiler",
+  CONSTRAINT_COMPILER_BUILT,
+);
 
 /**
  * The full, correct argument set: one built count per tier in the topology.
@@ -112,6 +156,15 @@ const BUILT_THERMAL = builtJson("built_thermal", THERMAL_BUILT);
  * one edit here — and so the cases in section D, which deliberately drop one
  * flag, are visibly the exception rather than indistinguishable from an
  * oversight.
+ *
+ * The flag suffixes are `tierFlagSuffix(crate)` — the crate name minus the
+ * leading `temper-`, `-` kept. Note `--built-json-rust-router-core` rather than
+ * `--built-json-router-core`: the crate is `temper-rust-router-core` while its
+ * Worker, family and staged module are all `router-core`. Writing the shorter
+ * one is the natural mistake, and it is not a silent one — the checker would
+ * exit 2 saying temper-rust-router-core has no count, which is the guard-rail
+ * working. The COVERAGE ASSERTION below derives the crate names from these
+ * flags, so it would catch it here too.
  */
 const ALL_BUILT = [
   "--built-json",
@@ -120,6 +173,12 @@ const ALL_BUILT = [
   BUILT_GEOMETRY,
   "--built-json-thermal",
   BUILT_THERMAL,
+  "--built-json-design-bundle",
+  BUILT_DESIGN_BUNDLE,
+  "--built-json-rust-router-core",
+  BUILT_ROUTER_CORE,
+  "--built-json-constraint-compiler",
+  BUILT_CONSTRAINT_COMPILER,
 ];
 
 /**
@@ -148,6 +207,19 @@ const ALL_BUILT = [
   }
 }
 
+/**
+ * ALL_BUILT plus one `--expected-count-<suffix>` override. The checker lets an
+ * explicit count win over the census file for that tier (and says so on stderr),
+ * so this exercises a wrong count for ONE tier while every other tier is still
+ * supplied — which is what makes the resulting failure attributable to the
+ * count rather than to a missing argument. Dropping the tier's --built-json
+ * instead would work too, but then a regression that made the checker skip
+ * unsupplied tiers would show up as a PASS here rather than in section D.
+ */
+function withOverride(flag, value) {
+  return [...ALL_BUILT, flag, value];
+}
+
 function run(args, census) {
   const res = spawnSync(process.execPath, ["--import", STUB, CHECKER, ...args], {
     env: { ...process.env, FAKE_HEALTH_CENSUS: JSON.stringify(census) },
@@ -174,7 +246,9 @@ function expect(label, { code, out }, wantCode, wantSubstring) {
 console.log(`checker: ${CHECKER}`);
 console.log(`topology tiers: ${topology.tiers.map((t) => t.crate).join(", ")}`);
 console.log(
-  `fresh census: drc=${DRC_BUILT} (7 shards), geometry=${GEOMETRY_BUILT}, thermal=${THERMAL_BUILT}\n`,
+  `fresh census: drc=${DRC_BUILT} (7 shards), geometry=${GEOMETRY_BUILT}, ` +
+    `thermal=${THERMAL_BUILT}, design-bundle=${DESIGN_BUNDLE_BUILT}, ` +
+    `router-core=${ROUTER_CORE_BUILT}, constraint-compiler=${CONSTRAINT_COMPILER_BUILT}\n`,
 );
 
 // ---------------------------------------------------------------------------
@@ -183,7 +257,7 @@ console.log(
 // ---------------------------------------------------------------------------
 console.log("A. correct counts -> green");
 expect(
-  "all three tiers current",
+  "all six tiers current",
   run(ALL_BUILT, freshCensus()),
   0,
   "every tier's deployed corpus matches",
@@ -255,19 +329,101 @@ console.log("\nB. a stale deployed count -> red, per crate");
   );
 }
 {
-  // Registered-vs-executable, the trap this tier has now hit twice: geometry
-  // registers 724 and executes 722, thermal registers 145 and executes 143.
-  // Handing the checker the REGISTERED number is the natural mistake, and it
-  // must be a loud failure rather than a rounding difference nobody notices.
+  // Registered-vs-executable, the trap this tier has now hit three times:
+  // geometry registers 724 and executes 722, thermal 145/143, and
+  // constraint-compiler 70/69. Handing the checker the REGISTERED number is the
+  // natural mistake, and it must be a loud failure rather than a rounding
+  // difference nobody notices.
   const stale = freshCensus();
   expect(
     "thermal built count given as 145 registered, not 143 executable",
-    run(
-      ["--built-json", BUILT_DRC, "--built-json-geometry", BUILT_GEOMETRY, "--expected-count-thermal", "145"],
-      stale,
-    ),
+    run(withOverride("--expected-count-thermal", "145"), stale),
     1,
     "STALE DEPLOYED CORPUS (temper-thermal)",
+  );
+}
+{
+  // The same trap on the newest tier to carry it: temper-constraint-compiler's
+  // registry names 70 tests and the wasm32 module carries 69, because
+  // constraints::tests::host_libm_symbols_actually_resolve is
+  // `#[cfg(not(target_arch = "wasm32"))]` and is compiled out. 70 is the number
+  // a reader gets by counting the registry file, which is why this case exists.
+  const stale = freshCensus();
+  expect(
+    "constraint-compiler built count given as 70 registered, not 69 executable",
+    run(withOverride("--expected-count-constraint-compiler", "70"), stale),
+    1,
+    "STALE DEPLOYED CORPUS (temper-constraint-compiler)",
+  );
+}
+{
+  // temper-design-bundle's own bite. This is the smallest tier on the wasm
+  // tier (24 tests), and small is the point: a 24-test corpus is well inside
+  // the noise of a 2788-test total, so if the invariant were ever restated over
+  // a union this whole crate could go stale without moving the headline enough
+  // to notice. Per tier, 4 missing tests out of 24 is a named failure.
+  const stale = freshCensus();
+  stale["temper-wasm-design-bundle"] = {
+    test_count: DESIGN_BUNDLE_BUILT - 4,
+    abi_version: 1,
+  };
+  expect(
+    "temper-design-bundle deployed 4 short",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE DEPLOYED CORPUS (temper-design-bundle)",
+  );
+}
+{
+  // The degenerate-shard trap, at the one place it could bite: for a
+  // single-family tier the shard IS the full-corpus Worker, so a wrong count
+  // must produce BOTH failures for that tier rather than one. If a future
+  // refactor deduplicated the two checks by script name instead of by tier, the
+  // partition message would silently stop being emitted, and the day one of
+  // these crates is sharded by size that check would be gone.
+  const stale = freshCensus();
+  stale["temper-wasm-design-bundle"] = {
+    test_count: DESIGN_BUNDLE_BUILT - 4,
+    abi_version: 1,
+  };
+  expect(
+    "  ...and its singleton shard set is reported as non-partitioning too",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE OR NON-PARTITIONING FAMILY SHARDS (temper-design-bundle)",
+  );
+}
+{
+  // temper-rust-router-core deployed one test short. 1, not 4, deliberately:
+  // the smallest possible drift must fail exactly as loudly as a large one,
+  // because the realistic drift is "someone added a test and did not redeploy"
+  // and the newest test is the one the tier has never run.
+  const stale = freshCensus();
+  stale["temper-wasm-router-core"] = { test_count: ROUTER_CORE_BUILT - 1, abi_version: 1 };
+  const res = run(ALL_BUILT, stale);
+  expect(
+    "temper-rust-router-core deployed 1 short",
+    res,
+    1,
+    "STALE DEPLOYED CORPUS (temper-rust-router-core)",
+  );
+  // ...and the singular/plural branch in the message is exercised by it.
+  expect("  ...and the message says '1 ... is missing', not '1 tests are'", res, 1, "is missing from");
+}
+{
+  // temper-constraint-compiler deployed LONG: a Worker still carrying tests
+  // this commit no longer builds. Deleting a test and not redeploying is as
+  // much a staleness bug as adding one.
+  const stale = freshCensus();
+  stale["temper-wasm-constraint-compiler"] = {
+    test_count: CONSTRAINT_COMPILER_BUILT + 5,
+    abi_version: 1,
+  };
+  expect(
+    "temper-constraint-compiler deployed 5 long (deleted tests still live)",
+    run(ALL_BUILT, stale),
+    1,
+    "are not in this commit's temper-constraint-compiler build",
   );
 }
 
@@ -301,6 +457,68 @@ console.log("\nC. offsetting drift across crates -> still red (no cancellation)"
   expect("three-way cancellation, union unchanged", res, 1, "STALE DEPLOYED CORPUS (temper-drc-rs)");
   expect("  ...geometry named", res, 1, "STALE DEPLOYED CORPUS (temper-geometry)");
   expect("  ...thermal named", res, 1, "STALE DEPLOYED CORPUS (temper-thermal)");
+}
+{
+  // The six-crate version, and the one that shows why adding tiers makes a
+  // union check WORSE rather than merely no better. Every tier drifts, the
+  // signs are chosen so the union total is identical (-156 +22 +7 -24 +111 +40
+  // = 0), and two of the drifts are a whole crate's corpus: temper-design-
+  // bundle's Worker is serving an EMPTY registry (24 -> 0) and
+  // temper-wasm-router-core is serving DOUBLE its corpus (111 -> 222). A union
+  // check passes this. Per tier, all six must be named, and a tier whose shard
+  // set is the singleton {itself} must additionally be named as
+  // non-partitioning.
+  const stale = freshCensus();
+  stale["temper-wasm-tier"] = { test_count: DRC_BUILT - 156, abi_version: 1 };
+  stale["temper-wasm-drc"] = { test_count: DRC_SHARDS.drc - 156, abi_version: 1 };
+  stale["temper-wasm-geometry"] = { test_count: GEOMETRY_BUILT + 22, abi_version: 1 };
+  stale["temper-wasm-thermal"] = { test_count: THERMAL_BUILT + 7, abi_version: 1 };
+  stale["temper-wasm-design-bundle"] = { test_count: 0, abi_version: 1 };
+  stale["temper-wasm-router-core"] = { test_count: ROUTER_CORE_BUILT * 2, abi_version: 1 };
+  stale["temper-wasm-constraint-compiler"] = {
+    test_count: CONSTRAINT_COMPILER_BUILT + 40,
+    abi_version: 1,
+  };
+  // The arithmetic this case rests on, asserted rather than trusted: if a
+  // future edit changed one of the numbers above the case would quietly stop
+  // being a cancellation and would pass for the wrong reason.
+  const builtTotal =
+    DRC_BUILT + GEOMETRY_BUILT + THERMAL_BUILT + DESIGN_BUNDLE_BUILT + ROUTER_CORE_BUILT +
+    CONSTRAINT_COMPILER_BUILT;
+  const deployedTotal = [
+    "temper-wasm-tier",
+    "temper-wasm-geometry",
+    "temper-wasm-thermal",
+    "temper-wasm-design-bundle",
+    "temper-wasm-router-core",
+    "temper-wasm-constraint-compiler",
+  ].reduce((a, s) => a + stale[s].test_count, 0);
+  if (builtTotal !== deployedTotal) {
+    console.error(
+      `six-way cancellation case is malformed: built total ${builtTotal} != deployed total ` +
+        `${deployedTotal}. The case is only meaningful if a union check would PASS it; as ` +
+        "written a union check would fail it too, and it would prove nothing about per-tier.",
+    );
+    process.exit(1);
+  }
+  const res = run(ALL_BUILT, stale);
+  expect(
+    `six-way cancellation, union total identical at ${builtTotal}`,
+    res,
+    1,
+    "STALE DEPLOYED CORPUS (temper-drc-rs)",
+  );
+  expect("  ...geometry named", res, 1, "STALE DEPLOYED CORPUS (temper-geometry)");
+  expect("  ...thermal named", res, 1, "STALE DEPLOYED CORPUS (temper-thermal)");
+  expect("  ...design-bundle named (deployed corpus is empty)", res, 1, "STALE DEPLOYED CORPUS (temper-design-bundle)");
+  expect("  ...router-core named (deployed corpus is double)", res, 1, "STALE DEPLOYED CORPUS (temper-rust-router-core)");
+  expect("  ...constraint-compiler named", res, 1, "STALE DEPLOYED CORPUS (temper-constraint-compiler)");
+  expect(
+    "  ...and design-bundle's singleton shard set is non-partitioning too",
+    res,
+    1,
+    "STALE OR NON-PARTITIONING FAMILY SHARDS (temper-design-bundle)",
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -355,6 +573,92 @@ expect(
   2,
   "Cannot read the built-corpus census for temper-thermal",
 );
+// THE CASE THIS PR IS. Yesterday's complete argument set -- drc + geometry +
+// thermal, which is exactly what wasm-tier-nightly.yml passed before this
+// change -- against a topology that now has six tiers. It must be exit 2, and
+// it must name a tier, not check three crates in green. Tiers are evaluated in
+// topology order and the first miss is fatal, so design-bundle is the one
+// named; the two cases below walk the caller forward one flag at a time and
+// show that each remaining tier is named in turn rather than the check quietly
+// narrowing once "most" of the flags are present.
+const YESTERDAYS_ARGS = [
+  "--built-json",
+  BUILT_DRC,
+  "--built-json-geometry",
+  BUILT_GEOMETRY,
+  "--built-json-thermal",
+  BUILT_THERMAL,
+];
+expect(
+  "the pre-existing three-tier argument set against a six-tier topology",
+  run(YESTERDAYS_ARGS, freshCensus()),
+  2,
+  "No expected test count available for tier temper-design-bundle",
+);
+expect(
+  "  ...+ design-bundle: now router-core is named",
+  run([...YESTERDAYS_ARGS, "--built-json-design-bundle", BUILT_DESIGN_BUNDLE], freshCensus()),
+  2,
+  "No expected test count available for tier temper-rust-router-core",
+);
+expect(
+  "  ...+ router-core: now constraint-compiler is named",
+  run(
+    [
+      ...YESTERDAYS_ARGS,
+      "--built-json-design-bundle",
+      BUILT_DESIGN_BUNDLE,
+      "--built-json-rust-router-core",
+      BUILT_ROUTER_CORE,
+    ],
+    freshCensus(),
+  ),
+  2,
+  "No expected test count available for tier temper-constraint-compiler",
+);
+// The flag-name trap this tier's naming makes available: the crate is
+// `temper-rust-router-core` but its Worker, family and staged module are all
+// `router-core`, so `--built-json-router-core` is the natural thing to type and
+// is NOT a flag. It must fail as a missing count for the real crate rather than
+// being silently accepted for something.
+expect(
+  "--built-json-router-core (the plausible wrong suffix) is not a flag",
+  run(
+    [
+      ...YESTERDAYS_ARGS,
+      "--built-json-design-bundle",
+      BUILT_DESIGN_BUNDLE,
+      "--built-json-router-core",
+      BUILT_ROUTER_CORE,
+      "--built-json-constraint-compiler",
+      BUILT_CONSTRAINT_COMPILER,
+    ],
+    freshCensus(),
+  ),
+  2,
+  "No expected test count available for tier temper-rust-router-core",
+);
+// An unreadable census file, on the newest tier: wasm-tier-nightly.yml passes
+// paths into a downloaded artifact, and if local-sweep-r19 died before building
+// router-core's module that path does not exist. It must not become
+// "router-core is fine".
+expect(
+  "--built-json-rust-router-core pointing at a file that does not exist",
+  run(
+    [
+      ...YESTERDAYS_ARGS,
+      "--built-json-design-bundle",
+      BUILT_DESIGN_BUNDLE,
+      "--built-json-rust-router-core",
+      join(TMP, "nope.json"),
+      "--built-json-constraint-compiler",
+      BUILT_CONSTRAINT_COMPILER,
+    ],
+    freshCensus(),
+  ),
+  2,
+  "Cannot read the built-corpus census for temper-rust-router-core",
+);
 
 // ---------------------------------------------------------------------------
 // 5. Unreachable and ABI-mismatched Workers still fail rather than being
@@ -403,36 +707,108 @@ console.log("\nE. unreachable / wrong ABI -> red");
     "ABI mismatch",
   );
 }
+{
+  // The state THIS PR leaves the tier in until the operator deploys: all three
+  // of the new Workers are in the topology and none of them exists. All three
+  // must be named in one failure — not just the first — because an operator
+  // reading "temper-wasm-design-bundle (HTTP 404)" and deploying only that one
+  // would be back here twice more. This is also the run that proves the change
+  // is live: on this branch, against the real tier, the checker exits 1 saying
+  // exactly this.
+  const census = freshCensus();
+  delete census["temper-wasm-design-bundle"];
+  delete census["temper-wasm-router-core"];
+  delete census["temper-wasm-constraint-compiler"];
+  const res = run(ALL_BUILT, census);
+  expect("none of the three new Workers deployed yet", res, 1, "did not report a usable /health census");
+  expect("  ...design-bundle named", res, 1, "temper-wasm-design-bundle (HTTP 404)");
+  expect("  ...router-core named", res, 1, "temper-wasm-router-core (HTTP 404)");
+  expect("  ...constraint-compiler named", res, 1, "temper-wasm-constraint-compiler (HTTP 404)");
+}
+{
+  // An unreachable Worker must beat a stale count to the failure, and must not
+  // be silently downgraded to one: the census is incomplete, so no comparison
+  // is available at all. design-bundle is absent AND router-core is stale here;
+  // the run must fail on the census, not report a partial verdict.
+  const census = freshCensus();
+  delete census["temper-wasm-design-bundle"];
+  census["temper-wasm-router-core"] = { test_count: 1, abi_version: 1 };
+  const res = run(ALL_BUILT, census);
+  expect(
+    "an unreachable Worker fails the whole census, not just its tier",
+    res,
+    1,
+    "The staleness comparison cannot be made",
+  );
+}
+{
+  const census = freshCensus();
+  census["temper-wasm-router-core"] = { test_count: ROUTER_CORE_BUILT, abi_version: 2 };
+  expect(
+    "temper-wasm-router-core speaks ABI 2",
+    run(ALL_BUILT, census),
+    1,
+    "ABI mismatch",
+  );
+}
 
 // ---------------------------------------------------------------------------
 // 6. --expected-count overrides behave per tier.
 // ---------------------------------------------------------------------------
 console.log("\nF. --expected-count overrides, per tier");
-const ALL_COUNTS = [
-  "--expected-count",
-  String(DRC_BUILT),
-  "--expected-count-geometry",
-  String(GEOMETRY_BUILT),
-  "--expected-count-thermal",
-  String(THERMAL_BUILT),
-];
+/** Every tier's count as an explicit override, with one substituted. */
+function allCounts(overrides = {}) {
+  const base = {
+    "temper-drc-rs": DRC_BUILT,
+    "temper-geometry": GEOMETRY_BUILT,
+    "temper-thermal": THERMAL_BUILT,
+    "temper-design-bundle": DESIGN_BUNDLE_BUILT,
+    "temper-rust-router-core": ROUTER_CORE_BUILT,
+    "temper-constraint-compiler": CONSTRAINT_COMPILER_BUILT,
+  };
+  return Object.entries({ ...base, ...overrides }).flatMap(([crate, n]) => [
+    // temper-drc-rs is additionally reachable as the unsuffixed flag, and this
+    // uses the SUFFIXED one for every tier including it — so these cases prove
+    // the general form works, not just the two grandfathered aliases.
+    `--expected-count-${crate.replace(/^temper-/, "")}`,
+    String(n),
+  ]);
+}
 expect(
   "overrides matching the deployed counts",
-  run(ALL_COUNTS, freshCensus()),
+  run(allCounts(), freshCensus()),
   0,
   "every tier's deployed corpus matches",
 );
 expect(
   "geometry override NOT matching the deployed count",
-  run(["--expected-count", String(DRC_BUILT), "--expected-count-geometry", "999", "--expected-count-thermal", String(THERMAL_BUILT)], freshCensus()),
+  run(allCounts({ "temper-geometry": 999 }), freshCensus()),
   1,
   "STALE DEPLOYED CORPUS (temper-geometry)",
 );
 expect(
   "thermal override NOT matching the deployed count",
-  run(["--expected-count", String(DRC_BUILT), "--expected-count-geometry", String(GEOMETRY_BUILT), "--expected-count-thermal", "999"], freshCensus()),
+  run(allCounts({ "temper-thermal": 999 }), freshCensus()),
   1,
   "STALE DEPLOYED CORPUS (temper-thermal)",
+);
+expect(
+  "design-bundle override NOT matching the deployed count",
+  run(allCounts({ "temper-design-bundle": 999 }), freshCensus()),
+  1,
+  "STALE DEPLOYED CORPUS (temper-design-bundle)",
+);
+expect(
+  "router-core override NOT matching the deployed count",
+  run(allCounts({ "temper-rust-router-core": 999 }), freshCensus()),
+  1,
+  "STALE DEPLOYED CORPUS (temper-rust-router-core)",
+);
+expect(
+  "constraint-compiler override NOT matching the deployed count",
+  run(allCounts({ "temper-constraint-compiler": 999 }), freshCensus()),
+  1,
+  "STALE DEPLOYED CORPUS (temper-constraint-compiler)",
 );
 
 console.log(

@@ -30,12 +30,13 @@
  * than it was, not looser.
  * ---------------------------------------------------------------------------
  *
- * The tier now carries three crates: temper-drc-rs (temper-wasm-tier + 7 family
- * shards), temper-geometry (temper-wasm-geometry) and temper-thermal
- * (temper-wasm-thermal). The latter two each declare exactly one family, so
- * each of their single scripts is simultaneously its tier's full-corpus Worker
- * and its only shard. They are three separate `cargo build` invocations
- * producing three .wasm files with three independent counts, and
+ * The tier now carries six crates: temper-drc-rs (temper-wasm-tier + 7 family
+ * shards, 1719), temper-geometry (722), temper-thermal (143),
+ * temper-rust-router-core (111), temper-constraint-compiler (69) and
+ * temper-design-bundle (24). The latter five each declare exactly one family,
+ * so each of their single scripts is simultaneously its tier's full-corpus
+ * Worker and its only shard. They are six separate `cargo build` invocations
+ * producing six .wasm files with six independent counts, and
  * tools/wasm/wasm_tier_topology.json is the committed description of that shape.
  *
  * The naive generalisation -- "all deployed Workers sum to the total built
@@ -45,7 +46,11 @@
  * modules. Per tier, each crate's deployed count must equal ITS OWN built
  * count, so nothing cancels and the 11-test gap this control caught on
  * 2026-08-10 still fails exactly as it did. Each crate added widens the surface
- * a union check could hide drift across; it does not widen this one.
+ * a union check could hide drift across; it does not widen this one. The 2788
+ * total is now large enough that an ENTIRE TIER could vanish inside a union
+ * check's noise -- temper-design-bundle's whole corpus is 24 tests, twice the
+ * gap that already went unnoticed for three days -- which is the argument for
+ * per-tier restated at the size the tier has actually reached.
  *
  * The second anti-weakening rule is here in code, not in a comment: EVERY tier
  * in the topology must be given a built count. There is no flag that skips a
@@ -55,16 +60,24 @@
  * that will eventually be disabled by leaving out an argument. That rule is
  * also why adding a tier to the topology is a COMPLETE change on its own: every
  * caller that does not learn to pass the new flag fails loudly on the next run
- * rather than silently checking one crate fewer.
+ * rather than silently checking one crate fewer. Verified again on 2026-08-11,
+ * when the topology went from three tiers to six: a caller still passing the
+ * old three flags exits 2 naming the first tier it has no count for (the tiers
+ * are checked in topology order and the first miss is fatal, so a caller
+ * catching up flag-by-flag gets one named tier per run until all six are
+ * supplied -- never a quieter check). That is why the three new Workers cannot
+ * be deployed and swept while being proven current by nothing.
  *
- * Usage:
+ * Usage (one --built-json per tier in the topology; ALL of them required):
  *   node tools/wasm/check_deployed_freshness.mjs \
- *     --built-json <path>              # temper-drc-rs census (run_wasm_tests.mjs --json)
- *     --built-json-geometry <path>     # temper-geometry census
- *     --built-json-thermal <path>      # temper-thermal census
- *     [--expected-count N]             # override for temper-drc-rs; wins over --built-json
- *     [--expected-count-geometry N]    # override for temper-geometry
- *     [--expected-count-thermal N]     # override for temper-thermal
+ *     --built-json <path>                        # temper-drc-rs census (run_wasm_tests.mjs --json)
+ *     --built-json-geometry <path>               # temper-geometry census
+ *     --built-json-thermal <path>                # temper-thermal census
+ *     --built-json-design-bundle <path>          # temper-design-bundle census
+ *     --built-json-rust-router-core <path>       # temper-rust-router-core census
+ *     --built-json-constraint-compiler <path>    # temper-constraint-compiler census
+ *     [--expected-count N]                       # override for temper-drc-rs; wins over --built-json
+ *     [--expected-count-<suffix> N]              # the same override, per tier
  *     [--base-domain bennetleff.workers.dev]
  *     [--abi-version 1]
  *     [--json out.json]
@@ -226,9 +239,9 @@ async function health(script) {
   }
 }
 
-// Deduplicated: temper-wasm-geometry and temper-wasm-thermal are each both
-// their tier's full-corpus Worker and its only shard, and asking one twice
-// would be two round-trips for one answer.
+// Deduplicated: each of the five single-family tiers' one script is both its
+// tier's full-corpus Worker and its only shard, and asking one twice would be
+// two round-trips for one answer.
 const scripts = [
   ...new Set(
     topology.tiers.flatMap((t) => [t.full_corpus_worker, ...t.shards.map((s) => s.worker)]),
