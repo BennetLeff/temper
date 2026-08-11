@@ -99,6 +99,17 @@ struct ModelSpec {
     constraints: Vec<Value>,
     #[serde(default)]
     minimize_displacement_to: Option<HashMap<String, (f64, f64)>>,
+    // HPWL wirelength objective (2026-08-11 real-budget spike, docs/evidence/
+    // 2026-08-11-pumpkin-real-budget-spike.md): net name -> member component
+    // refs. For each net with >=2 members present in this model, adds
+    // (max(cx) - min(cx)) + (max(cy) - min(cy)) to the minimised objective,
+    // over component CENTERS (matches docs/plans/2026-08-11-002-feat-placer-
+    // wirelength-and-hv-separation-plan.md R2's box-level-granularity
+    // choice). Reuses the exact `pumpkin_solver::minimum`/`maximum` idiom
+    // already present in this file's `loop_area` handler below -- no new
+    // Pumpkin primitive needed.
+    #[serde(default)]
+    hpwl_nets: Option<HashMap<String, Vec<String>>>,
     seed: u64,
     timeout_ms: u64,
 }
@@ -475,6 +486,46 @@ fn main() {
                 obj_terms.push(dx);
                 obj_terms.push(dy);
             }
+        }
+    }
+
+    // HPWL objective: for each net, span_x = max(cx) - min(cx) over members,
+    // span_y likewise, both added to obj_terms (weight 1, matches D1's
+    // un-weighted first-landing default in the wirelength plan). Nets with
+    // fewer than 2 members present in this model contribute nothing (a
+    // single-pin net's span is definitionally 0).
+    if let Some(nets) = &spec.hpwl_nets {
+        let mut net_names: Vec<&String> = nets.keys().collect();
+        net_names.sort(); // deterministic variable-creation order across runs
+        for name in net_names {
+            let member_refs = &nets[name];
+            let member_vars: Vec<CompVars> =
+                member_refs.iter().filter_map(|r| vars.get(r).copied()).collect();
+            if member_vars.len() < 2 {
+                continue;
+            }
+            let cxs: Vec<DomainId> = member_vars.iter().map(|v| v.cx).collect();
+            let cys: Vec<DomainId> = member_vars.iter().map(|v| v.cy).collect();
+
+            let min_cx = solver.new_bounded_integer(0, board_w);
+            let max_cx = solver.new_bounded_integer(0, board_w);
+            let min_cy = solver.new_bounded_integer(0, board_h);
+            let max_cy = solver.new_bounded_integer(0, board_h);
+            pumpkin_solver::minimum(cxs.clone(), min_cx, tag).post(&mut solver);
+            pumpkin_solver::maximum(cxs, max_cx, tag).post(&mut solver);
+            pumpkin_solver::minimum(cys.clone(), min_cy, tag).post(&mut solver);
+            pumpkin_solver::maximum(cys, max_cy, tag).post(&mut solver);
+
+            let span_x = solver.new_bounded_integer(0, board_w);
+            let span_y = solver.new_bounded_integer(0, board_h);
+            // span_x - max_cx + min_cx = 0  =>  span_x = max_cx - min_cx
+            pumpkin_solver::equals(vec![span_x.scaled(1), max_cx.scaled(-1), min_cx.scaled(1)], 0, tag)
+                .post(&mut solver);
+            pumpkin_solver::equals(vec![span_y.scaled(1), max_cy.scaled(-1), min_cy.scaled(1)], 0, tag)
+                .post(&mut solver);
+
+            obj_terms.push(span_x);
+            obj_terms.push(span_y);
         }
     }
 
