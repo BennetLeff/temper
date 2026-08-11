@@ -600,7 +600,7 @@ jobs:
 
       - name: Upload deploy artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wasm-tier-deploy-${{ github.run_id }}
           path: |
