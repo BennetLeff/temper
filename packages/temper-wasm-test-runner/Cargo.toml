@@ -105,6 +105,23 @@ pcl-ir-wasm-test-registry = [
   "temper-pcl-ir/wasm-test-registry",
 ]
 
+# --- temper-constraints --------------------------------------------------------
+# Optional, same reason again. `default-features = false` turns off `python`.
+constraints-registry = ["dep:temper-constraints"]
+constraints-wasm-test-registry = [
+  "constraints-registry",
+  "temper-constraints/wasm-test-registry",
+]
+
+# --- temper-rust-router ---------------------------------------------------------
+# Optional, same reason again. `default-features = false` turns off `python`
+# (and, transitively through it, `temper-rust-router-core/sat`).
+rust-router-registry = ["dep:temper-rust-router"]
+rust-router-wasm-test-registry = [
+  "rust-router-registry",
+  "temper-rust-router/wasm-test-registry",
+]
+
 [dependencies]
 temper-drc-rs ={ path = "../temper-drc-rs", default-features = false }
 # `default-features = false` for the same reason it is set on temper-drc-rs's
@@ -133,6 +150,14 @@ temper-io-types = { path = "../temper-io-types", optional = true, default-featur
 # `default-features = false` written out for consistency with the rest of the
 # tier; this crate has no default features to turn off.
 temper-pcl-ir = { path = "../temper-pcl-ir", optional = true, default-features = false }
+# `default-features = false` turns off `python` (pyo3), which has no
+# wasm32-unknown-unknown build.
+temper-constraints = { path = "../temper-placer/temper-constraints", optional = true, default-features = false }
+# `default-features = false` turns off `python`, which has no
+# wasm32-unknown-unknown build -- and, transitively, the `sat` feature it
+# forwards to `temper-rust-router-core` (a C++ solver with no
+# wasm32-unknown-unknown build either).
+temper-rust-router = { path = "../temper-rust-router", optional = true, default-features = false }
 
 [profile.release]
 opt-level = "z"

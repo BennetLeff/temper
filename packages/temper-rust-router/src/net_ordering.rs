@@ -48,8 +48,11 @@
 
 use std::collections::HashMap;
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyBool, PyDict, PyFloat, PyString, PyTuple};
 
 // ===========================================================================
@@ -128,6 +131,7 @@ fn normalize_rotation_index(index: i64) -> f64 {
 /// `temper-geometry`, and adding that edge for one 8-line dispatch is a
 /// heavier change than this comment. If the canonical version changes, this
 /// must change with it.
+#[cfg(feature = "python")]
 fn rot_to_radians(rot: &Bound<'_, PyAny>) -> PyResult<f64> {
     if rot.is_none() {
         return Ok(0.0);
@@ -194,6 +198,7 @@ struct CompRow {
 }
 
 /// `[(ref, initial_position, rotation, [(pin_number, (px, py), net)])]`.
+#[cfg(feature = "python")]
 fn parse_components(components: &Bound<'_, PyAny>) -> PyResult<Vec<CompRow>> {
     let mut out = Vec::new();
     for row in components.try_iter()? {
@@ -317,6 +322,7 @@ fn priority_to_criticality(priority: &str) -> i64 {
 /// (`temper-design-bundle/src/loops.rs`), and the corpus's `dup_loop` row
 /// exercises it -- the differential captures the exception and compares it as
 /// a value, so the message text is part of the contract.
+#[cfg(feature = "python")]
 fn parse_loops(loop_specs: &Bound<'_, PyAny>) -> PyResult<Vec<LoopRow>> {
     let mut out: Vec<LoopRow> = Vec::new();
     for row in loop_specs.try_iter()? {
@@ -430,6 +436,7 @@ fn py_key_eq(a: &[KeyElem], b: &[KeyElem]) -> bool {
 /// Element 2 goes through `NetClass(nc)` in the oracle, which raises
 /// `ValueError` for a value that is not a member -- reproduced here so error
 /// parity holds for inputs outside the corpus.
+#[cfg(feature = "python")]
 fn parse_key_tuple(t: &Bound<'_, PyAny>) -> PyResult<Vec<KeyElem>> {
     let cp = t.get_item(0)?;
     let is_bool = cp.is_instance_of::<PyBool>();
@@ -460,6 +467,7 @@ fn parse_key_tuple(t: &Bound<'_, PyAny>) -> PyResult<Vec<KeyElem>> {
     ])
 }
 
+#[cfg(feature = "python")]
 fn key_to_py<'py>(py: Python<'py>, key: &[KeyElem]) -> PyResult<Bound<'py, PyTuple>> {
     let mut items: Vec<Bound<'py, PyAny>> = Vec::with_capacity(key.len());
     for e in key {
@@ -1130,6 +1138,7 @@ struct NetRow {
 /// A `None` net class becomes `"Signal"`: the builder leaves `Net.net_class`
 /// at its dataclass default, which *is* `"Signal"`, and the oracle's
 /// `getattr(net, "net_class", None) or "Signal"` then keeps it.
+#[cfg(feature = "python")]
 fn parse_nets(nets: &Bound<'_, PyAny>) -> PyResult<Vec<NetRow>> {
     let mut out = Vec::new();
     for row in nets.try_iter()? {
@@ -1183,12 +1192,14 @@ fn order_key(
 // ===========================================================================
 
 /// `net_ordering.get_net_class_from_string(s).value`.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn net_class_from_string_py(s: &str) -> i64 {
     net_class_from_string(s)
 }
 
 /// `net_ordering.get_loop_criticality(net, build_loops(loop_specs))`.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn net_loop_criticality_py(net: &str, loop_specs: &Bound<'_, PyAny>) -> PyResult<i64> {
     let loops = parse_loops(loop_specs)?;
@@ -1196,6 +1207,7 @@ pub fn net_loop_criticality_py(net: &str, loop_specs: &Bound<'_, PyAny>) -> PyRe
 }
 
 /// `net_ordering.compute_hpwl(net, build_netlist(components))`.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn net_compute_hpwl_py(net: &str, components: &Bound<'_, PyAny>) -> PyResult<f64> {
     let comps = parse_components(components)?;
@@ -1203,6 +1215,7 @@ pub fn net_compute_hpwl_py(net: &str, components: &Bound<'_, PyAny>) -> PyResult
 }
 
 /// `net_ordering.compute_bbox_area(net, build_netlist(components))`.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn net_compute_bbox_area_py(net: &str, components: &Bound<'_, PyAny>) -> PyResult<f64> {
     let comps = parse_components(components)?;
@@ -1210,6 +1223,7 @@ pub fn net_compute_bbox_area_py(net: &str, components: &Bound<'_, PyAny>) -> PyR
 }
 
 /// `NetPriority(*key)._key()` -- type-preserving.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn net_priority_key_py<'py>(
     py: Python<'py>,
@@ -1221,6 +1235,7 @@ pub fn net_priority_key_py<'py>(
 
 /// The eight comparison outcomes `net_priority_lt_py` reports, in the order
 /// the differential signs them.
+#[cfg(feature = "python")]
 type ComparisonOutcomes = (bool, bool, bool, bool, bool, bool, bool, bool);
 
 /// The eight comparison outcomes the differential signs:
@@ -1232,6 +1247,7 @@ type ComparisonOutcomes = (bool, bool, bool, bool, bool, bool, bool, bool);
 /// `a >= b` is `not a < b`.  The last two entries are always `True` -- the
 /// oracle's `__lt__`/`__eq__` return `NotImplemented` for a non-`NetPriority`
 /// operand -- and are asserted rather than assumed.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn net_priority_lt_py(
     left: &Bound<'_, PyAny>,
@@ -1256,6 +1272,7 @@ pub fn net_priority_lt_py(
 
 /// `net_ordering.order_nets(build_order_netlist(components, nets),
 /// build_loops(loop_specs), config)`.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn order_nets_py(
     components: &Bound<'_, PyAny>,
@@ -1289,6 +1306,7 @@ pub fn order_nets_py(
     Ok(keyed.into_iter().map(|(_, name)| name).collect())
 }
 
+#[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(net_class_from_string_py, m)?)?;
     m.add_function(wrap_pyfunction!(net_loop_criticality_py, m)?)?;
@@ -1300,11 +1318,12 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_is_a_left_to_right_scan_not_f64_max() {
         assert!(py_max(&[f64::NAN, 5.0, 1.0]).is_nan());
         assert_eq!(py_max(&[5.0, f64::NAN, 1.0]), 5.0);
@@ -1321,7 +1340,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn quadrant_rotation_is_not_an_exact_axis_swap() {
         let (x, y) = rotate_local_to_world(0.9375, 0.0, normalize_rotation_index(1));
         assert_ne!(x, 0.0, "cos(pi/2) residue was optimised away");
@@ -1329,7 +1348,7 @@ mod tests {
         assert_eq!(x, 0.9375 * std::f64::consts::FRAC_PI_2.cos());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn minrun_matches_cpython() {
         assert_eq!(merge_compute_minrun(3), 3);
         assert_eq!(merge_compute_minrun(63), 63);
@@ -1339,7 +1358,7 @@ mod tests {
         assert_eq!(merge_compute_minrun(1024), 32);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn count_run_reverses_only_strictly_descending_runs() {
         let lt = |a: &i32, b: &i32| a < b;
         let mut a = vec![3, 2, 1, 5];
@@ -1351,7 +1370,7 @@ mod tests {
         assert_eq!(b, vec![1, 1, 2, 0]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn binarysort_is_stable() {
         let lt = |a: &(i32, char), b: &(i32, char)| a.0 < b.0;
         let mut a = vec![(1, 'a'), (1, 'b'), (0, 'c'), (1, 'd')];
@@ -1361,7 +1380,7 @@ mod tests {
 
     /// The oracle's measured answer for the `nan_wirelength` corpus row and
     /// its 6 permutations: 4 distinct orderings, captured from CPython.
-    #[test]
+    #[cfg_attr(test, test)]
     fn nan_keys_reproduce_cpython_sort_placement() {
         let key = |wl: f64, name: &str| {
             vec![
@@ -1393,7 +1412,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn net_class_lookup_is_exact_match_only() {
         assert_eq!(net_class_from_string("GND"), 5);
         assert_eq!(net_class_from_string("gnd"), 4, "case-insensitive lookup");
@@ -1402,7 +1421,7 @@ mod tests {
         assert_eq!(net_class_from_string(""), 4);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn identity_shortcut_makes_the_same_nan_object_equal() {
         let same = KeyElem::Float(f64::NAN, Some(0xdead));
         let other = KeyElem::Float(f64::NAN, Some(0xdead));
@@ -1414,4 +1433,21 @@ mod tests {
         assert!(!py_eq_elem(&no_ids_a, &no_ids_b), "None ids must not alias");
         assert!(!py_eq_elem(&distinct_a, &distinct_b));
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("net_ordering::tests::py_max_is_a_left_to_right_scan_not_f64_max", py_max_is_a_left_to_right_scan_not_f64_max),
+        ("net_ordering::tests::quadrant_rotation_is_not_an_exact_axis_swap", quadrant_rotation_is_not_an_exact_axis_swap),
+        ("net_ordering::tests::minrun_matches_cpython", minrun_matches_cpython),
+        ("net_ordering::tests::count_run_reverses_only_strictly_descending_runs", count_run_reverses_only_strictly_descending_runs),
+        ("net_ordering::tests::binarysort_is_stable", binarysort_is_stable),
+        ("net_ordering::tests::nan_keys_reproduce_cpython_sort_placement", nan_keys_reproduce_cpython_sort_placement),
+        ("net_ordering::tests::net_class_lookup_is_exact_match_only", net_class_lookup_is_exact_match_only),
+        ("net_ordering::tests::identity_shortcut_makes_the_same_nan_object_equal", identity_shortcut_makes_the_same_nan_object_equal),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

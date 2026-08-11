@@ -12,11 +12,36 @@ name = "temper_rust_router"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-temper-rust-router-core = { path = "../temper-rust-router-core" }
-pyo3 = { version = "0.29", features = ["extension-module"] }
+# `default-features = false` turns off `sat` (rustsat-cadical, a C++ solver
+# with no `wasm32-unknown-unknown` build) by default; the `python` feature
+# below forwards it back on, since `solve_topology_rust` (behind `python`)
+# is the only consumer of `temper_rust_router_core::solver`.
+temper-rust-router-core = { path = "../temper-rust-router-core", default-features = false }
+pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 regex = "1"
+
+[features]
+default = ["python"]
+python = ["dep:pyo3", "temper-rust-router-core/sat"]
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index -- `cargo test`'s libtest harness cannot
+# target `wasm32-unknown-unknown`.  Off by default; never enabled for the
+# Python extension module.  Mirrors `temper-io-types`/`temper-quality-oracle`'s
+# feature set exactly, so the shared runner wires every crate on the tier the
+# same way.
+#
+# `wasm-registry` is the umbrella feature that gates module visibility; every
+# per-family feature implies it.  The three surviving modules
+# (`layer_assignment`, `terminal_planning`, `net_ordering`) are a flat set of
+# pure topology kernels with no rule-family taxonomy to shard along, so this
+# crate declares one family (`rust-router`).
+wasm-registry = []
+wasm-registry-rust-router = ["wasm-registry"]
+wasm-registry-all = ["wasm-registry-rust-router"]
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 
 [profile.release]
 panic = "unwind"

@@ -9,6 +9,48 @@
 //  - Re-exports of FromPyDict / ToPyDict derive macros
 //
 // =============================================================================
+//
+// wasm32 tier audit (2026-08-10): NOT REGISTERED, and there is no meaningful
+// pure-Rust subset to register.
+//
+// This is the third of three unregistered crates surveyed alongside
+// `temper-placer/temper-constraints` (registered) and `temper-rust-router`
+// (registered); see `scripts/gen_wasm_test_registry.py`'s `CRATES` dict for
+// both. Unlike them, this crate has no pure kernel underneath a pyo3 skin --
+// pyo3 is not a dependency this crate happens to use, it IS what this crate
+// is. Every public item's signature carries a pyo3 type: `panic_to_err` and
+// `catch_panic` return `PyErr`/`PyResult`, `py_runtime_err`/`py_value_err`
+// construct `PyErr`, and the `FromPyDict`/`ToPyDict` derive macros this crate
+// re-exports generate code against `pyo3::types::PyDict` directly. There is
+// no `Result<_, String>`-shaped kernel to peel pyo3 off of, the way
+// `temper-constraints/src/encoder.rs`'s `UnitConversionError` let that crate's
+// `mm_to_units` decouple from `PyErr` -- this crate's entire surface AREA is
+// the Python boundary.
+//
+// The crate's own `Cargo.toml` makes `pyo3` a hard (non-optional) dependency,
+// and cross-compiling it to `wasm32-unknown-unknown` fails at the
+// `pyo3-ffi` build script before any of this crate's own code is even
+// reached (`PYO3_CROSS_PYTHON_VERSION or ... must be specified when
+// cross-compiling`) -- confirmed empirically with `cargo check --target
+// wasm32-unknown-unknown --no-default-features` against an unmodified
+// checkout. Making `pyo3` `optional` here (the fix applied to
+// `temper-constraints`/`temper-rust-router`/five earlier crates) would not
+// help: every one of this crate's 34 `#[test]`s in `mod tests` below calls
+// `pyo3::Python::initialize()` before exercising the function under test --
+// they are integration tests of the embedded-CPython boundary itself, not
+// unit tests of logic that happens to sit near it. A `wasm32-unknown-unknown`
+// build has no libpython, no dynamic linker, and no CPython interpreter to
+// initialize; there is no target for these tests to run against, gated or
+// not. Two tests (`catch_unwind_success`, `catch_unwind_panic_caught`) do not
+// call `Python::initialize()` and exercise only `std::panic::catch_unwind`,
+// but registering two tests of a five-line std-library wrapper, with no
+// caller of the wrapper's own crate-defining purpose reachable on this
+// target, would not advance the tier -- it exists to prove pyo3-shaped Rust
+// runs in a bare isolate, and these two tests prove nothing about that.
+//
+// Following `temper-design-bundle`'s precedent (its `lib.rs` records the same
+// verdict for all 28 of its `proptest` blocks): this finding is recorded here
+// so it does not need to be rediscovered by a future audit of this crate.
 
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
