@@ -130,7 +130,27 @@ def test_mr2_pow2_scale(base, cx, cy, nx, ny, slots, n):
 @given(_RADIUS, _COORD, _COORD, _COORD, _COORD, st.lists(_SLOT, max_size=4), _COORD, _COORD)
 @settings(max_examples=100, deadline=None)
 def test_mr3_translation_invariance(base, cx, cy, nx, ny, slots, tx, ty):
+    import math
+
     s = _slots(slots)
+    # Domain guard: effective_ghost_pad_radius's reduction uses a strict
+    # ``projection > 0.0`` threshold per slot. A slot whose projection onto
+    # the pin-pin direction is within ~1 ulp of 0 can flip across that
+    # threshold under translation (IEEE (a+t)-(b+t) != a-b), discretely
+    # adding or removing the slot's full projection from the reduction. The
+    # translation invariance holds only away from that boundary, so skip
+    # configs with a near-perpendicular slot.
+    dx = nx - cx
+    dy = ny - cy
+    d_len = math.hypot(dx, dy)
+    if d_len > 0.0:
+        ux = dx / d_len
+        uy = dy / d_len
+        for (sx0, sy0, sx1, sy1) in s:
+            proj = (sx1 - sx0) * ux + (sy1 - sy0) * uy
+            if abs(proj) <= 1e-9 * max(1.0, abs(sx1 - sx0) + abs(sy1 - sy0)):
+                return  # boundary case -- invariant not defined there
+
     exp = RS(base, (cx, cy), (nx, ny), s)
     shifted = [(a + tx, b + ty, c + tx, d + ty) for (a, b, c, d) in s]
     got = RS(base, (cx + tx, cy + ty), (nx + tx, ny + ty), shifted)
