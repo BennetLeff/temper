@@ -16,6 +16,11 @@ The kernels migrated to ``temper-geometry`` (Wave 3 #2):
   but the exact node/edge INSERTION ORDER the Python side feeds to
   ``networkx.minimum_cut``, so min-cut parity is preserved by
   construction.
+- ``min_cut_py`` (Wave 4, commit 39711680e) — the Edmonds-Karp s-t
+  min-cut itself moved to the Rust kernel. Pinned bit-exact (cut value
+  AND the reachable/non-reachable partition) against
+  ``networkx.minimum_cut(..., flow_func=edmonds_karp)`` on randomized,
+  tie-rich, and production-scale grids.
 
 All comparisons are bit-exact (capacities are integers; there is no
 floating-point arithmetic in any kernel).
@@ -29,6 +34,8 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+
+import temper_geometry as _tg
 
 from temper_placer.deterministic.stages.clearance_grid import ClearanceGrid
 from temper_placer.router_v6.bottleneck_geometry import (
@@ -816,3 +823,186 @@ def test_graph_kernel_pins_stride_constant() -> None:
     deadline with the same period the reference used."""
     assert _DEADLINE_CHECK_STRIDE == 256
     assert BOTTLENECK_TIMEOUT_S == 0.5
+
+
+# ---------------------------------------------------------------------------
+# min-cut: Rust Edmonds-Karp vs networkx `minimum_cut(flow_func=edmonds_karp)`
+#
+# Wave 4 migrated `analyze_bottleneck`'s `nx.minimum_cut` call to the Rust
+# kernel `temper_geometry.min_cut_py` (commit 39711680e). The graph build was
+# already pinned insertion-order-identical above, so min-cut parity is what
+# remains to pin. networkx 3.6.1's `edmonds_karp_core` selects augmenting
+# paths with a *bidirectional* BFS; the Rust kernel uses a plain forward
+# FIFO BFS. The max-flow VALUE is algorithm-invariant, but the partition is
+# flow-assignment-dependent — it must be measured, not assumed. These tests
+# pin (value, reachable, non-reachable) bit-exact against networkx on the
+# production graph family. Measured divergence on a wider sample (spike
+# 2026-08-11): 0/395 + 0/42 + 0/3000+ graph comparisons.
+# ---------------------------------------------------------------------------
+
+
+def _mincut_pair(
+    grid: ClearanceGrid,
+    source_cells: list[tuple[int, int, int]],
+    sink_cells: list[tuple[int, int, int]],
+    net_class_rules: dict[str, Any] | None,
+    pad_net_classes: dict[tuple[int, int, int], str] | None,
+    current_net_class: str | None,
+) -> tuple[int, set[Any], set[Any], int, set[Any], set[Any]] | None:
+    """(rust_cut, rust_reachable, rust_nonreachable, nx_cut, nx_reachable,
+    nx_nonreachable) on the SAME graph, or None on the aborted path (empty
+    graph / pad not in node set — production returns aborted_no_sink there
+    and never calls a flow function)."""
+    import networkx as nx
+
+    nodes, edges = _build_capacitated_graph_rust(
+        grid, source_cells, sink_cells, net_class_rules, pad_net_classes, current_net_class
+    )
+    if not nodes:
+        return None
+    node_to_flat = {cell: i for i, cell in enumerate(nodes)}
+    src = source_cells[0]
+    sink = sink_cells[0]
+    if src not in node_to_flat or sink not in node_to_flat:
+        return None
+    edges_flat = [(node_to_flat[u], node_to_flat[v], cap) for u, v, cap in edges]
+    cut, reach_flat, nonreach_flat = _tg.min_cut_py(
+        list(range(len(nodes))), edges_flat, node_to_flat[src], node_to_flat[sink]
+    )
+    reach = {nodes[i] for i in reach_flat}
+    nonreach = {nodes[i] for i in nonreach_flat}
+
+    g = nx.DiGraph()
+    for cell in nodes:
+        g.add_node(cell)
+    for u, v, cap in edges:
+        g.add_edge(u, v, capacity=cap)
+    nx_cut, (nx_reach, nx_nonreach) = nx.minimum_cut(
+        g, src, sink, capacity="capacity", flow_func=nx.algorithms.flow.edmonds_karp
+    )
+    return cut, reach, nonreach, int(nx_cut), set(nx_reach), set(nx_nonreach)
+
+
+def test_min_cut_value_and_partition_match_networkx_randomized() -> None:
+    """Randomized grid graphs (the production shape): cut value AND the
+    reachable/non-reachable partition must be bit-exact vs networkx."""
+    rng = random.Random(20260811)
+    compared = 0
+    for _ in range(2000):
+        if rng.random() < 0.5:
+            grid = _random_grid(rng)
+        else:
+            # Sparse grid: fewer obstacles → more connected graphs actually
+            # reaching the min-cut comparison (the dense ``_random_grid``
+            # aborts often on empty/disconnected graphs).
+            rows = rng.choice([3, 5, 8, 12, 16])
+            cols = rng.choice([3, 5, 9, 12, 16])
+            layers = rng.choice([1, 2])
+            grid = ClearanceGrid(
+                width_mm=float(cols), height_mm=float(rows), cell_size_mm=1.0, layer_count=layers
+            )
+            for layer in range(layers):
+                for r in range(rows):
+                    for c in range(cols):
+                        v = rng.random()
+                        if v < 0.12:
+                            grid._trace_net_ids[layer][r, c] = -2
+                        elif v < 0.25:
+                            grid._trace_net_ids[layer][r, c] = 1
+                        elif v < 0.3:
+                            grid._pad_net_ids[layer][r, c] = 1
+        net_class_rules, pad_net_classes, current_net_class = _random_params(rng, grid)
+        source_cells = [
+            (rng.randrange(grid.layer_count), rng.randrange(grid.rows), rng.randrange(grid.cols))
+        ]
+        sink_cells = [
+            (rng.randrange(grid.layer_count), rng.randrange(grid.rows), rng.randrange(grid.cols))
+        ]
+        if source_cells[0] == sink_cells[0]:
+            # Degenerate: the Rust kernel returns cut=0 (reachable={src});
+            # networkx RAISES NetworkXError for s==t. Documented divergence —
+            # not a flow parity case; skip.
+            continue
+        res = _mincut_pair(
+            grid, source_cells, sink_cells, net_class_rules, pad_net_classes, current_net_class
+        )
+        if res is None:
+            continue  # aborted graph path
+        cut, reach, nonreach, nx_cut, nx_reach, nx_nonreach = res
+        compared += 1
+        assert cut == nx_cut, f"cut value differs: rust={cut} nx={nx_cut}"
+        assert reach == nx_reach, f"reachable partition differs: rust-only={sorted(reach - nx_reach)[:8]} nx-only={sorted(nx_reach - reach)[:8]}"
+        assert nonreach == nx_nonreach, "non-reachable partition differs"
+    assert compared >= 150, f"expected >= 150 compared graphs, got {compared}"
+
+
+def test_min_cut_tierich_uniform_grids_match_networkx() -> None:
+    """All-free grids: every cell capacity 4 — the maximum tie density, the
+    hardest case for augmenting-path-order-dependent partitions."""
+    for rows, cols, layers in [(5, 5, 1), (9, 9, 1), (16, 16, 2)]:
+        grid = ClearanceGrid(
+            width_mm=float(cols), height_mm=float(rows), cell_size_mm=1.0, layer_count=layers
+        )
+        corner_pairs = [
+            ((0, 0, 0), (0, rows - 1, cols - 1)),
+            ((0, 0, 0), (0, 0, cols - 1)),
+            ((0, 0, 0), (0, rows - 1, 0)),
+            ((0, 0, cols - 1), (0, rows - 1, cols - 1)),
+        ]
+        for src, sink in corner_pairs:
+            res = _mincut_pair(grid, [src], [sink], None, None, None)
+            assert res is not None
+            cut, reach, nonreach, nx_cut, nx_reach, nx_nonreach = res
+            assert cut == nx_cut, f"{rows}x{cols}x{layers} {src}->{sink}: rust={cut} nx={nx_cut}"
+            assert reach == nx_reach, f"partition differs on {rows}x{cols}x{layers} {src}->{sink}"
+            assert nonreach == nx_nonreach
+
+
+def test_min_cut_production_scale_grids_match_networkx() -> None:
+    """Production-scale (Temper PCB is 152x234mm @1mm) and beyond. Fewer
+    samples — networkx is slow here — but the boundary is the same kernel."""
+    rng = random.Random(4242)
+    compared = 0
+    for rows, cols, layers in [(40, 40, 1), (76, 117, 2), (152, 234, 1)]:
+        for _ in range(4):
+            grid = ClearanceGrid(
+                width_mm=float(cols), height_mm=float(rows), cell_size_mm=1.0, layer_count=layers
+            )
+            for layer in range(layers):
+                for r in range(rows):
+                    for c in range(cols):
+                        v = rng.random()
+                        if v < 0.1:
+                            grid._trace_net_ids[layer][r, c] = -2
+                        elif v < 0.25:
+                            grid._trace_net_ids[layer][r, c] = 1
+            src = (rng.randrange(layers), rng.randrange(rows), rng.randrange(cols))
+            sink = (rng.randrange(layers), rng.randrange(rows), rng.randrange(cols))
+            if src == sink:
+                continue
+            res = _mincut_pair(grid, [src], [sink], None, None, None)
+            if res is None:
+                continue
+            cut, reach, nonreach, nx_cut, nx_reach, nx_nonreach = res
+            compared += 1
+            assert cut == nx_cut, f"{rows}x{cols}x{layers}: rust={cut} nx={nx_cut}"
+            assert reach == nx_reach, f"partition differs on {rows}x{cols}x{layers}"
+            assert nonreach == nx_nonreach
+    assert compared >= 3, f"expected >= 3 compared production-scale graphs, got {compared}"
+
+def test_min_cut_kernel_deterministic_across_runs() -> None:
+    """The Rust min-cut kernel returns the same (value, partition) on
+    repeated identical inputs."""
+    rng = random.Random(7)
+    grid = _random_grid(rng)
+    net_class_rules, pad_net_classes, current_net_class = _random_params(rng, grid)
+    source_cells = [(0, 0, 0)]
+    sink_cells = [(1, grid.rows - 1, grid.cols - 1)]
+    res_a = _mincut_pair(
+        grid, source_cells, sink_cells, net_class_rules, pad_net_classes, current_net_class
+    )
+    res_b = _mincut_pair(
+        grid, source_cells, sink_cells, net_class_rules, pad_net_classes, current_net_class
+    )
+    assert res_a is not None
+    assert res_a[:4] == res_b[:4], "kernel output not deterministic across runs"
