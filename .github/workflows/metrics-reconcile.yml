@@ -1,8 +1,21 @@
 name: Metrics Reconcile
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"
+  # NARROWED 2026-08-11 (docs/evidence/2026-08-11-python-ci-load-inventory.md):
+  # dropped `schedule: "*/30 * * * *"`. This job's only reason to exist is
+  # folding freshly-uploaded `pipeline-metrics-*` artifacts into
+  # power_pcb_dataset/metrics/pipeline_metrics.jsonl, and `workflow_run` below
+  # already fires every time "Metrics Record" completes (success or failure --
+  # no `conclusion:` filter) -- i.e. every time new artifacts could exist. The
+  # 30-minute cron was therefore a blind poll of a strict subset of what the
+  # event trigger already covers: it can only ever find work when
+  # `workflow_run` would also have found it, just later. Measured: 100 runs
+  # over 33.9h (~495 runs/week), 70% workflow_run / 30% schedule; the
+  # `concurrency: cancel-in-progress: false` group processes them serially, so
+  # the cron leg was pure queued wait ahead of the next real event, not
+  # additional coverage. Removing it drops ~149 runs/week x ~6.65min with no
+  # reconciliation gap: every push that produces metrics still triggers this
+  # job the moment "Metrics Record" finishes.
   workflow_dispatch:
   workflow_run:
     workflows: ["Metrics Record"]

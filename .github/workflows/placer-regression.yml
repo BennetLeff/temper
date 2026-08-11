@@ -38,10 +38,24 @@ jobs:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        board: ${{ github.event_name == 'pull_request' && fromJson('["temper"]') || fromJson('["temper", "minimal", "rp2040_designguide", "bitaxe_ultra", "piantor_right"]') }}
+    # NARROWED 2026-08-11 (docs/evidence/2026-08-11-python-ci-load-inventory.md):
+    # this job used to fan out over a 5-board matrix (1 board on PR, 5 on push
+    # to main -- temper, minimal, rp2040_designguide, bitaxe_ultra,
+    # piantor_right), each a full container + `uv sync` setup. The step that
+    # motivated the per-board fan-out (a corpus regression run keyed on
+    # ${{ matrix.board }}) was RETIRED 2026-07-27 (see the comments at the
+    # bottom of this file) when its JAX/benders_loop backend was removed from
+    # the codebase; the matrix itself was never collapsed afterward. The one
+    # step that remains, "Check for baseline changes without approval", is a
+    # `git diff`/`git log` check against the PR's own commit range -- it does
+    # not reference `matrix.board` and produces an identical verdict on every
+    # board. Measured on 5 recent push runs: all 5 per-board jobs ran
+    # 6m07s-6m42s, confirming they were doing the same work 5 times over.
+    # Collapsing to a single job removes 4x redundant container-pull +
+    # `uv sync` setup on every push to main (~140 push runs/week measured),
+    # with zero coverage loss -- the surviving check's result does not vary
+    # by board, so four of the five copies were never anything but the same
+    # answer computed four extra times.
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
 
