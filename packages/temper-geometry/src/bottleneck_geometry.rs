@@ -29,6 +29,13 @@
 // deadline trips is timing-dependent in both implementations). Below the
 // first stride the deadline never fires — matching the reference, which
 // only checks at stride boundaries; the caller owns the post-build check.
+//
+// The start timestamp is acquired lazily, only when `deadline_remaining_s`
+// is `Some`. That is a portability property, not a behavioural one: on
+// wasm32-unknown-unknown `std::time::Instant::now()` panics ("time not
+// implemented on this platform"), so a no-deadline call must not touch the
+// clock at all. With a deadline set, the timestamp is taken at the same
+// point in the function as before and every check is unchanged.
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyIndexError;
@@ -219,12 +226,22 @@ fn build_capacitated_graph(
     deadline_remaining_s: Option<f64>,
 ) -> Result<GraphResult, DeadlineSite> {
     let n_cells = (rows * cols * layer_count) as usize;
-    let start = std::time::Instant::now();
+    // The start timestamp is taken ONLY when a deadline was actually
+    // requested. `Instant::now()` is a host-clock read, and
+    // wasm32-unknown-unknown's std has no clock -- it panics with "time not
+    // implemented on this platform". Acquiring it unconditionally therefore
+    // made this whole kernel unrunnable on wasm32 even for the `None` arm,
+    // which never reads the timestamp. Binding it to the Option keeps the
+    // clock read on exactly the path that needs it; the `Some` path is
+    // unchanged -- same program point for `now()`, same stride, same
+    // comparison, same abort sites.
+    let deadline: Option<(std::time::Instant, f64)> =
+        deadline_remaining_s.map(|remaining| (std::time::Instant::now(), remaining));
 
     let deadline_expired = |iters: i64| -> bool {
-        match deadline_remaining_s {
+        match deadline {
             None => false,
-            Some(remaining) => {
+            Some((start, remaining)) => {
                 iters % DEADLINE_CHECK_STRIDE == 0 && start.elapsed().as_secs_f64() >= remaining
             }
         }
