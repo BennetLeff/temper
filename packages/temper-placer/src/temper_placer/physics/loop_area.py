@@ -105,7 +105,7 @@ def _compute_area_from_traces(traces: Sequence[_TraceLike]) -> float | None:
     if len(points_set) < 3:
         return None
 
-    return _convex_hull_area(list(points_set))
+    return _convex_hull_area(sorted(points_set))
 
 
 def _shoelace_area(vertices: np.ndarray) -> float:
