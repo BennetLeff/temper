@@ -49,8 +49,8 @@ export function loadTopology(path = TOPOLOGY_PATH) {
  * were listed as a shard of two different tiers, one Worker's count would be
  * counted toward two crates' built counts and each tier could pass while only
  * one module was actually fresh. A Worker may serve as both the full-corpus
- * Worker AND a shard of the SAME tier (that is exactly temper-wasm-geometry),
- * but never across tiers.
+ * Worker AND a shard of the SAME tier (that is exactly temper-wasm-geometry and
+ * temper-wasm-thermal), but never across tiers.
  */
 function validate(t, path) {
   if (!Array.isArray(t?.tiers) || t.tiers.length === 0) {
@@ -88,6 +88,36 @@ export function workerUrl(topology, script) {
   return `https://${script}.${topology.base_domain}`;
 }
 
+/**
+ * The command-line flag suffix a tier's per-crate arguments carry: the crate
+ * name with the leading `temper-` dropped and any remaining `-` kept
+ * (`temper-geometry` -> `geometry`, `temper-drc-rs` -> `drc-rs`).
+ *
+ * Exported rather than redefined per caller because it is a CONTRACT between
+ * two files that never import each other: check_deployed_freshness.mjs derives
+ * the flag names it accepts from it, and the deploy workflow / Makefile derive
+ * the flag names they PASS from it. A private copy in each would let the two
+ * drift, and the drift's symptom is the worst available one — the checker exits
+ * 2 saying a tier has no built count while the caller is certain it passed one.
+ */
+export function tierFlagSuffix(crate) {
+  return crate.replace(/^temper-/, "");
+}
+
+/**
+ * Every `--built-json-<suffix> <path>` argument check_deployed_freshness.mjs
+ * requires, given a function from crate name to that crate's census file. One
+ * per tier, always — the checker exits 2 on a tier with no count, so a caller
+ * that builds this list from the topology cannot narrow the check by forgetting
+ * a crate, which is the whole reason the flags are generated rather than typed.
+ */
+export function freshnessArgs(topology, censusPathFor) {
+  return topology.tiers.flatMap((t) => [
+    `--built-json-${tierFlagSuffix(t.crate)}`,
+    censusPathFor(t.crate),
+  ]);
+}
+
 /** Pick one tier by crate name; throws listing the valid names. */
 export function tierByCrate(topology, crate) {
   const tier = topology.tiers.find((t) => t.crate === crate);
@@ -101,8 +131,8 @@ export function tierByCrate(topology, crate) {
 
 /**
  * Every distinct (cargo_features → staged_module) build the staging script must
- * perform, deduplicated: temper-geometry's full corpus and its only shard are
- * the same module and must not be compiled twice.
+ * perform, deduplicated: temper-geometry's (and temper-thermal's) full corpus
+ * and only shard are the same module and must not be compiled twice.
  */
 export function buildTargets(topology) {
   const seen = new Set();

@@ -30,12 +30,13 @@
  * than it was, not looser.
  * ---------------------------------------------------------------------------
  *
- * The tier now carries two crates: temper-drc-rs (temper-wasm-tier + 7 family
- * shards) and temper-geometry (temper-wasm-geometry, which is simultaneously
- * its tier's full-corpus Worker and its only shard). They are two separate
- * `cargo build` invocations producing two .wasm files with two independent
- * counts, and tools/wasm/wasm_tier_topology.json is the committed description
- * of that shape.
+ * The tier now carries three crates: temper-drc-rs (temper-wasm-tier + 7 family
+ * shards), temper-geometry (temper-wasm-geometry) and temper-thermal
+ * (temper-wasm-thermal). The latter two each declare exactly one family, so
+ * each of their single scripts is simultaneously its tier's full-corpus Worker
+ * and its only shard. They are three separate `cargo build` invocations
+ * producing three .wasm files with three independent counts, and
+ * tools/wasm/wasm_tier_topology.json is the committed description of that shape.
  *
  * The naive generalisation -- "all deployed Workers sum to the total built
  * count" -- would have been a REAL WEAKENING and is not what this does. Summing
@@ -43,30 +44,39 @@
  * temper-geometry is deployed 11 long, and a union check passes with two stale
  * modules. Per tier, each crate's deployed count must equal ITS OWN built
  * count, so nothing cancels and the 11-test gap this control caught on
- * 2026-08-10 still fails exactly as it did.
+ * 2026-08-10 still fails exactly as it did. Each crate added widens the surface
+ * a union check could hide drift across; it does not widen this one.
  *
  * The second anti-weakening rule is here in code, not in a comment: EVERY tier
  * in the topology must be given a built count. There is no flag that skips a
- * tier and no default that assumes one. Omitting `--built-json-geometry` does
- * not quietly check drc alone -- it exits 2 and says which tier has no count.
- * A check that can be disabled by leaving out an argument is a check that will
- * eventually be disabled by leaving out an argument.
+ * tier and no default that assumes one. Omitting `--built-json-thermal` does
+ * not quietly check the other two -- it exits 2 and says which tier has no
+ * count. A check that can be disabled by leaving out an argument is a check
+ * that will eventually be disabled by leaving out an argument. That rule is
+ * also why adding a tier to the topology is a COMPLETE change on its own: every
+ * caller that does not learn to pass the new flag fails loudly on the next run
+ * rather than silently checking one crate fewer.
  *
  * Usage:
  *   node tools/wasm/check_deployed_freshness.mjs \
  *     --built-json <path>              # temper-drc-rs census (run_wasm_tests.mjs --json)
  *     --built-json-geometry <path>     # temper-geometry census
+ *     --built-json-thermal <path>      # temper-thermal census
  *     [--expected-count N]             # override for temper-drc-rs; wins over --built-json
  *     [--expected-count-geometry N]    # override for temper-geometry
+ *     [--expected-count-thermal N]     # override for temper-thermal
  *     [--base-domain bennetleff.workers.dev]
  *     [--abi-version 1]
  *     [--json out.json]
  *     [--timeout-ms 15000]
  *
  * The per-tier flag suffix is the crate name with the leading `temper-` dropped
- * and `-` kept (`temper-geometry` -> `--built-json-geometry`). temper-drc-rs is
- * additionally reachable as the unsuffixed `--built-json` / `--expected-count`,
- * because it is the tier those flags meant before this file grew a second one.
+ * and `-` kept (`temper-geometry` -> `--built-json-geometry`), computed by
+ * `tierFlagSuffix` in tier_topology.mjs -- the same export the deploy workflow
+ * and the Makefile use to GENERATE these flags, so the two sides cannot drift.
+ * temper-drc-rs is additionally reachable as the unsuffixed `--built-json` /
+ * `--expected-count`, because it is the tier those flags meant before this file
+ * grew a second one.
  *
  * Exit codes:
  *   0  every tier's deployed corpus matches its built corpus, and its shards
@@ -77,7 +87,7 @@
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { loadTopology, workerUrl } from "./tier_topology.mjs";
+import { loadTopology, workerUrl, tierFlagSuffix } from "./tier_topology.mjs";
 
 function arg(name, dflt = null) {
   const i = process.argv.indexOf(name);
@@ -104,11 +114,6 @@ const EXPECTED_ABI = parseInt(arg("--abi-version", String(topology.abi_version ?
 const TIMEOUT_MS = parseInt(arg("--timeout-ms", "15000"), 10);
 const JSON_OUT = arg("--json");
 
-/** The flag suffix a tier's per-crate arguments carry. */
-function tierSuffix(crate) {
-  return crate.replace(/^temper-/, "");
-}
-
 /** The fix, named in every failure message. Staleness is only actionable if
  *  the reader is told what to run. */
 const DEPLOY_DIRS = topology.tiers
@@ -132,7 +137,7 @@ const FIX =
 // silently skipped tier. See the header's second anti-weakening rule.
 // ---------------------------------------------------------------------------
 function builtCountFor(tier) {
-  const suffix = tierSuffix(tier.crate);
+  const suffix = tierFlagSuffix(tier.crate);
   const isDefaultTier = tier.crate === "temper-drc-rs";
   const builtJsonFlag = `--built-json-${suffix}`;
   const countFlag = `--expected-count-${suffix}`;
@@ -221,8 +226,9 @@ async function health(script) {
   }
 }
 
-// Deduplicated: temper-wasm-geometry is both its tier's full-corpus Worker and
-// its only shard, and asking it twice would be two round-trips for one answer.
+// Deduplicated: temper-wasm-geometry and temper-wasm-thermal are each both
+// their tier's full-corpus Worker and its only shard, and asking one twice
+// would be two round-trips for one answer.
 const scripts = [
   ...new Set(
     topology.tiers.flatMap((t) => [t.full_corpus_worker, ...t.shards.map((s) => s.worker)]),
@@ -237,9 +243,9 @@ for (const tier of topology.tiers) {
   console.log(`  built corpus:  ${b.count} tests`);
   console.log(`  source:        ${b.source}`);
   console.log("  deployed census:");
-  // Deduplicated for the same reason the fetches are: temper-wasm-geometry is
-  // both its tier's full-corpus Worker and its only shard, and listing one
-  // Cloudflare script twice reads as two Workers.
+  // Deduplicated for the same reason the fetches are: a single-family tier's
+  // one script is both its full-corpus Worker and its only shard, and listing
+  // one Cloudflare script twice reads as two Workers.
   for (const script of new Set([tier.full_corpus_worker, ...tier.shards.map((s) => s.worker)])) {
     const h = byScript[script];
     console.log(

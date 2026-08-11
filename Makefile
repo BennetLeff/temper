@@ -232,10 +232,11 @@ extensions-check:
 #                            # login/token with Workers Scripts:Edit)
 #
 # "Every" is defined by tools/wasm/wasm_tier_topology.json, not by a list in
-# this file. Nine Workers today across two tiers (temper-drc-rs: temper-wasm-
-# tier + 7 family shards; temper-geometry: temper-wasm-geometry). This target
-# used to carry its own copy of the family list, which is bug #2 below repeating
-# itself one crate later — the whole reason that file exists.
+# this file. Ten Workers today across three tiers (temper-drc-rs: temper-wasm-
+# tier + 7 family shards; temper-geometry: temper-wasm-geometry;
+# temper-thermal: temper-wasm-thermal). This target used to carry its own copy
+# of the family list, which is bug #2 below repeating itself one crate later —
+# the whole reason that file exists.
 #
 # CI equivalent, and the preferred path: the `workflow_dispatch`-only workflow
 # .github/workflows/wasm-tier-deploy.yml runs exactly these steps and then
@@ -269,8 +270,10 @@ extensions-check:
 # incrementally against whatever the rest of the repo already compiled.
 WASM_RUNNER_MANIFEST = packages/temper-wasm-test-runner/Cargo.toml
 WASM_RUNNER_ARTIFACT = $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/temper_wasm_test_runner.wasm
-WORKER_STAGED_WASM = packages/temper-worker/src/temper_wasm_test_runner.wasm
-WORKER_GEOMETRY_STAGED_WASM = packages/temper-worker/src/temper_wasm_test_runner_geometry.wasm
+# Deliberately NOT one variable per tier. `wasm-worker-deploy`'s verification
+# reads the staged filenames out of tools/wasm/wasm_tier_topology.json, so a
+# third crate needed no third variable here — which is the point, and is why the
+# per-crate ones were dropped rather than extended.
 
 wasm-runner:
 	@echo "Building temper-wasm-test-runner (wasm32-unknown-unknown)..."
@@ -329,13 +332,22 @@ wasm-worker-deploy: wasm-worker-stage
 		(cd $$dir && npx --yes wrangler@4 deploy < /dev/null) || exit 1; \
 	done < /tmp/temper_deploy_targets.tsv
 	@echo "Verifying the deployed corpus matches what was just built..."
-	node tools/wasm/run_wasm_tests.mjs $(WORKER_STAGED_WASM) --json /tmp/staged_census.json
-	node tools/wasm/run_wasm_tests.mjs $(WORKER_GEOMETRY_STAGED_WASM) \
-		--expected-failures tools/wasm/wasm_expected_failures_geometry.json \
-		--json /tmp/staged_census_geometry.json
+	@# One census per tier, each against ITS OWN expected-failure manifest, and
+	@# the freshness flags GENERATED from the topology rather than typed. Both
+	@# loops used to be a hand-written per-crate list here; that list is the
+	@# thing tools/wasm/wasm_tier_topology.json exists to abolish, and it is the
+	@# one place a new tier could have been deployed by this target while being
+	@# verified by nothing.
+	@node -e 'import("./tools/wasm/tier_topology.mjs").then(({loadTopology})=>{for(const t of loadTopology().tiers)console.log([t.crate,t.staged_module,t.expected_failures].join("\t"));}).catch(e=>{console.error(e.message);process.exit(1);})' > /tmp/temper_tiers.tsv
+	@test -s /tmp/temper_tiers.tsv
+	@while IFS=$$'\t' read -r crate staged manifest; do \
+		echo "=== census $$crate ($$staged) ==="; \
+		node tools/wasm/run_wasm_tests.mjs "packages/temper-worker/src/$$staged" \
+			--expected-failures "$$manifest" \
+			--json "/tmp/staged_census_$$crate.json" < /dev/null || exit 1; \
+	done < /tmp/temper_tiers.tsv
 	node tools/wasm/check_deployed_freshness.mjs \
-		--built-json /tmp/staged_census.json \
-		--built-json-geometry /tmp/staged_census_geometry.json
+		$$(node -e 'import("./tools/wasm/tier_topology.mjs").then(({loadTopology,freshnessArgs})=>{console.log(freshnessArgs(loadTopology(),(c)=>"/tmp/staged_census_"+c+".json").join(" "));}).catch(e=>{console.error(e.message);process.exit(1);})')
 
 # Regenerate every derived artifact, refusing where regeneration would hide a
 # defect (a hash-order NEW_SITE, or a drifted oracle pin). Run before pushing:
