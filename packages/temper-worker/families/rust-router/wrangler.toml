@@ -1,0 +1,16 @@
+# temper-wasm-rust-router — the temper-rust-router tier's only Worker.
+# See tools/wasm/wasm_tier_topology.json for the tier model.
+name = "temper-wasm-rust-router"
+main = "index.js"
+compatibility_date = "2026-08-01"
+
+# NOTE the ordering: `account_id` is a TOP-LEVEL key and must appear BEFORE any
+# table header, or TOML puts it inside that table. This file, like
+# families/geometry, families/thermal, families/constraint-compiler,
+# families/io-types and families/pcl-ir, places it here rather than after
+# `[vars]` (which would make it the var `env.account_id` and leave the real
+# account_id unset).
+account_id = "03f642afe070f05b727f7cd31f02ef48"
+
+[vars]
+ABI_VERSION = "1"
