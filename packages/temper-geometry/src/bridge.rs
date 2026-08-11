@@ -18,6 +18,7 @@ use crate::convex_hull::convex_hull_area_py;
 use crate::nearest_neighbor::nearest_neighbor_transform;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
+use crate::corridor_erosion::corridor_mask_for_net_py;
 use crate::occupancy_raster::{
     blocking_net_ids_py, downsample_or_blocks_py, mark_path_rect_into_grid_py,
     mark_segment_rect_into_grid_py, mark_via_circle_into_grid_py, unmark_path_rect_into_grid_py,
@@ -1470,6 +1471,7 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // corridor
     m.add_function(wrap_pyfunction!(extract_corridor_mask, m)?)?;
+    m.add_function(wrap_pyfunction!(corridor_mask_for_net_py, m)?)?;
 
     // pad geometry (Wave 2: isolation barrier)
     m.add_function(wrap_pyfunction!(pad_corner_radius_py, m)?)?;

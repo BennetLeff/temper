@@ -228,6 +228,7 @@ def _astar_search(
     thermal_flat: np.ndarray | None = None,
     thermal_weight: float = 0.0,
     net_id: int = -1,
+    corridor_mask: np.ndarray | None = None,
 ) -> list[tuple[int, int]] | None:
     """
     A* search algorithm for pathfinding.
@@ -246,6 +247,17 @@ def _astar_search(
             float32 cost field.  Added to step-cost alongside
             congestion.
         thermal_weight: U8 multiplier on per-cell thermal cost.
+        corridor_mask: Optional ``(height_cells, width_cells)`` boolean
+            mask (e.g. ``corridor_erosion.corridor_mask_for_net``) --
+            when supplied AND ``net_id >= 0``, a destination cell outside
+            the corridor is invalid regardless of raw occupancy. This is
+            the ``net_id >= 0`` inline-occupancy-check counterpart of
+            ``neighbor_tensor``'s existing ``corridor_mask`` support: the
+            ``net_id >= 0`` branch below does its own occupancy check
+            rather than consulting ``neighbor_tensor`` (see the branch
+            below), so a corridor constraint for a real, net-aware search
+            has to be threaded through here directly. Spike:
+            docs/evidence/2026-08-11-corridor-aware-astar-spike.md.
 
     Returns:
         List of cells or None if no path found
@@ -315,6 +327,8 @@ def _astar_search(
             is_same_net = False
             if net_id >= 0:
                 if not in_bounds(nx, ny, grid.width_cells, grid.height_cells):
+                    continue
+                if corridor_mask is not None and not corridor_mask[ny, nx]:
                     continue
                 cell_value = grid.grid[ny, nx]
                 if cell_value != 0 and cell_value != net_id:
