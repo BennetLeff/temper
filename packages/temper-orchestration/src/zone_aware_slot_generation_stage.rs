@@ -727,6 +727,153 @@ fn dict_items<'py>(
     Ok(out)
 }
 
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod tests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn normal_f64() -> impl Strategy<Value = f64> {
+        prop::num::f64::NORMAL
+    }
+
+    // -- py_max ------------------------------------------------------------
+
+    #[test]
+    fn py_max_nan_first_argument_wins() {
+        assert!(py_max(f64::NAN, 1.0).is_nan());
+        assert_eq!(py_max(1.0, f64::NAN), 1.0);
+        assert!(py_max(f64::NAN, f64::NAN).is_nan());
+    }
+
+    #[test]
+    fn py_max_ties_keep_first() {
+        assert_eq!(py_max(0.0, -0.0), 0.0);
+        // -0.0 first: must return -0.0, not 0.0
+        let r = py_max(-0.0, 0.0);
+        assert_eq!(r.to_bits(), (-0.0f64).to_bits(),
+            "py_max(-0.0, 0.0) must return -0.0, got {r}");
+        assert_eq!(py_max(3.0, 3.0), 3.0);
+        assert_eq!(py_max(-0.0, -0.0).to_bits(), (-0.0f64).to_bits());
+    }
+
+    #[test]
+    fn py_max_infinity() {
+        assert_eq!(py_max(f64::INFINITY, 0.0), f64::INFINITY);
+        assert_eq!(py_max(0.0, f64::INFINITY), f64::INFINITY);
+        assert_eq!(py_max(f64::NEG_INFINITY, 0.0), 0.0);
+        assert_eq!(py_max(0.0, f64::NEG_INFINITY), 0.0);
+        // NaN first-arg-wins with infinities too: -inf vs NaN -> keeps -inf
+        assert_eq!(py_max(f64::NEG_INFINITY, f64::NAN), f64::NEG_INFINITY);
+        // NaN first: returns NaN
+        assert!(py_max(f64::NAN, f64::NEG_INFINITY).is_nan());
+    }
+
+    #[test]
+    fn py_max_normal_cases() {
+        assert_eq!(py_max(5.0, 3.0), 5.0);
+        assert_eq!(py_max(3.0, 5.0), 5.0);
+        assert_eq!(py_max(-5.0, 3.0), 3.0);
+        assert_eq!(py_max(3.0, -5.0), 3.0);
+    }
+
+    proptest! {
+        /// P1: For non-NaN f64, py_max returns the conventional maximum.
+        #[test]
+        fn p1_py_max_returns_larger(a in normal_f64(), b in normal_f64()) {
+            let r = py_max(a, b);
+            let expected = if a >= b { a } else { b };
+            prop_assert_eq!(r, expected,
+                "py_max({}, {}) = {} != f64::max = {}", a, b, r, expected);
+        }
+
+        /// P2: py_max returns one of its two arguments bit-identically.
+        #[test]
+        fn p2_py_max_returns_one_of_inputs(a in normal_f64(), b in normal_f64()) {
+            let r = py_max(a, b);
+            prop_assert!(
+                r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits(),
+                "py_max({}, {}) = {} is neither a nor b", a, b, r);
+        }
+
+        /// P3: For non-NaN inputs, py_max is commutative.
+        #[test]
+        fn p3_py_max_commutative_for_finite(a in normal_f64(), b in normal_f64()) {
+            prop_assert_eq!(py_max(a, b), py_max(b, a));
+        }
+    }
+
+    // -- py_min ------------------------------------------------------------
+
+    #[test]
+    fn py_min_nan_first_argument_wins() {
+        assert!(py_min(f64::NAN, 1.0).is_nan());
+        assert_eq!(py_min(1.0, f64::NAN), 1.0);
+        assert!(py_min(f64::NAN, f64::NAN).is_nan());
+    }
+
+    #[test]
+    fn py_min_ties_keep_first() {
+        assert_eq!(py_min(0.0, -0.0), 0.0);
+        // -0.0 first: must return -0.0
+        let r = py_min(-0.0, 0.0);
+        assert_eq!(r.to_bits(), (-0.0f64).to_bits(),
+            "py_min(-0.0, 0.0) must return -0.0, got {r}");
+        assert_eq!(py_min(3.0, 3.0), 3.0);
+        assert_eq!(py_min(-0.0, -0.0).to_bits(), (-0.0f64).to_bits());
+    }
+
+    #[test]
+    fn py_min_infinity() {
+        assert_eq!(py_min(f64::INFINITY, 0.0), 0.0);
+        assert_eq!(py_min(0.0, f64::INFINITY), 0.0);
+        assert_eq!(py_min(f64::NEG_INFINITY, 0.0), f64::NEG_INFINITY);
+        assert_eq!(py_min(0.0, f64::NEG_INFINITY), f64::NEG_INFINITY);
+        // NaN first-arg-wins: -inf vs NaN -> keeps -inf
+        assert_eq!(py_min(f64::NEG_INFINITY, f64::NAN), f64::NEG_INFINITY);
+        // NaN first: returns NaN
+        assert!(py_min(f64::NAN, f64::NEG_INFINITY).is_nan());
+    }
+
+    #[test]
+    fn py_min_normal_cases() {
+        assert_eq!(py_min(5.0, 3.0), 3.0);
+        assert_eq!(py_min(3.0, 5.0), 3.0);
+        assert_eq!(py_min(-5.0, 3.0), -5.0);
+        assert_eq!(py_min(3.0, -5.0), -5.0);
+    }
+
+    proptest! {
+        /// P4: For non-NaN f64, py_min returns the conventional minimum.
+        #[test]
+        fn p4_py_min_returns_smaller(a in normal_f64(), b in normal_f64()) {
+            let r = py_min(a, b);
+            let expected = if a <= b { a } else { b };
+            prop_assert_eq!(r, expected,
+                "py_min({}, {}) = {} != f64::min = {}", a, b, r, expected);
+        }
+
+        /// P5: py_min returns one of its two arguments bit-identically.
+        #[test]
+        fn p5_py_min_returns_one_of_inputs(a in normal_f64(), b in normal_f64()) {
+            let r = py_min(a, b);
+            prop_assert!(
+                r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits(),
+                "py_min({}, {}) = {} is neither a nor b", a, b, r);
+        }
+
+        /// P6: For non-NaN inputs, py_min is commutative.
+        #[test]
+        fn p6_py_min_commutative_for_finite(a in normal_f64(), b in normal_f64()) {
+            prop_assert_eq!(py_min(a, b), py_min(b, a));
+        }
+    }
+}
+
 /// FFI entry for the Python shim: `run_zone_aware_slot_generation(state,
 /// slot_spacing_mm, copper_zone_margin, min_routing_channel,
 /// yaml_copper_zones, yaml_isolation_slots, net_class_rules)`.

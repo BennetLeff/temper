@@ -1118,3 +1118,190 @@ pub fn run_phase_select_best_slot(
     )?;
     Ok(result.unbind())
 }
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod tests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn normal_f64() -> impl Strategy<Value = f64> {
+        prop::num::f64::NORMAL
+    }
+
+    // -- py_max ------------------------------------------------------------
+
+    #[test]
+    fn py_max_nan_first_argument_wins() {
+        assert!(py_max(f64::NAN, 1.0).is_nan());
+        assert_eq!(py_max(1.0, f64::NAN), 1.0);
+        assert!(py_max(f64::NAN, f64::NAN).is_nan());
+    }
+
+    #[test]
+    fn py_max_ties_keep_first() {
+        assert_eq!(py_max(0.0, -0.0), 0.0);
+        let r = py_max(-0.0, 0.0);
+        assert_eq!(r.to_bits(), (-0.0f64).to_bits(),
+            "py_max(-0.0, 0.0) must return -0.0, got {r}");
+        assert_eq!(py_max(3.0, 3.0), 3.0);
+    }
+
+    #[test]
+    fn py_max_infinity() {
+        assert_eq!(py_max(f64::INFINITY, 0.0), f64::INFINITY);
+        assert_eq!(py_max(0.0, f64::INFINITY), f64::INFINITY);
+        assert_eq!(py_max(f64::NEG_INFINITY, 0.0), 0.0);
+        assert!(py_max(f64::NAN, f64::NEG_INFINITY).is_nan());
+    }
+
+    proptest! {
+        /// P1: For non-NaN f64, py_max returns the conventional maximum.
+        #[test]
+        fn p1_py_max_returns_larger(a in normal_f64(), b in normal_f64()) {
+            let r = py_max(a, b);
+            let expected = if a >= b { a } else { b };
+            prop_assert_eq!(r, expected);
+        }
+
+        /// P2: py_max returns one of its inputs bit-identically.
+        #[test]
+        fn p2_py_max_returns_one_of_inputs(a in normal_f64(), b in normal_f64()) {
+            let r = py_max(a, b);
+            prop_assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits());
+        }
+
+        /// P3: Commutative for non-NaN inputs.
+        #[test]
+        fn p3_py_max_commutative(a in normal_f64(), b in normal_f64()) {
+            prop_assert_eq!(py_max(a, b), py_max(b, a));
+        }
+    }
+
+    // -- py_tuple_key_cmp --------------------------------------------------
+
+    #[test]
+    fn tuple_cmp_normal_floats() {
+        // Larger negative (more negative) = smaller
+        assert_eq!(py_tuple_key_cmp(&-5.0, "A", &-3.0, "B"), std::cmp::Ordering::Less);
+        assert_eq!(py_tuple_key_cmp(&-3.0, "A", &-5.0, "B"), std::cmp::Ordering::Greater);
+        // Equal floats fall through to string comparison
+        assert_eq!(py_tuple_key_cmp(&-3.0, "A", &-3.0, "B"), std::cmp::Ordering::Less);
+        assert_eq!(py_tuple_key_cmp(&-3.0, "B", &-3.0, "A"), std::cmp::Ordering::Greater);
+        assert_eq!(py_tuple_key_cmp(&-3.0, "A", &-3.0, "A"), std::cmp::Ordering::Equal);
+    }
+
+    #[test]
+    fn tuple_cmp_nan_falls_through_to_ref() {
+        // CPython NaN-vs-normal: both < are False, == is False -> returns
+        // False without checking remaining elements. In a stable sort, this
+        // is equivalent to Equal (original order preserved). Our fn returns
+        // Equal for all NaN comparisons (the conservative choice).
+        assert_eq!(
+            py_tuple_key_cmp(&f64::NAN, "A", &5.0, "B"),
+            std::cmp::Ordering::Equal
+        );
+        assert_eq!(
+            py_tuple_key_cmp(&f64::NAN, "B", &5.0, "A"),
+            std::cmp::Ordering::Equal
+        );
+        // NaN vs NaN: CPython falls through to ref if the SAME object,
+        // returns False (equal for sort) if different objects. We can't
+        // distinguish, so Equal is the conservative choice.
+        assert_eq!(
+            py_tuple_key_cmp(&f64::NAN, "A", &f64::NAN, "B"),
+            std::cmp::Ordering::Equal
+        );
+        assert_eq!(
+            py_tuple_key_cmp(&f64::NAN, "A", &f64::NAN, "A"),
+            std::cmp::Ordering::Equal
+        );
+    }
+
+    #[test]
+    fn tuple_cmp_negative_zero_vs_zero() {
+        // -0.0 and 0.0 are equal in partial_cmp -> fall through to ref
+        // First element ties, string comparison decides.
+        assert_eq!(
+            py_tuple_key_cmp(&-0.0, "A", &0.0, "B"),
+            std::cmp::Ordering::Less
+        );
+        assert_eq!(
+            py_tuple_key_cmp(&0.0, "B", &-0.0, "A"),
+            std::cmp::Ordering::Greater
+        );
+        // Both -0.0 or both 0.0 -> equal
+        assert_eq!(
+            py_tuple_key_cmp(&-0.0, "X", &-0.0, "X"),
+            std::cmp::Ordering::Equal
+        );
+        assert_eq!(
+            py_tuple_key_cmp(&0.0, "X", &0.0, "X"),
+            std::cmp::Ordering::Equal
+        );
+    }
+
+    #[test]
+    fn tuple_cmp_infinity() {
+        assert_eq!(py_tuple_key_cmp(&f64::INFINITY, "A", &1.0, "B"), std::cmp::Ordering::Greater);
+        assert_eq!(py_tuple_key_cmp(&f64::NEG_INFINITY, "A", &1.0, "B"), std::cmp::Ordering::Less);
+        assert_eq!(py_tuple_key_cmp(&f64::INFINITY, "A", &f64::INFINITY, "B"), std::cmp::Ordering::Less);
+    }
+
+    proptest! {
+        /// P4: For non-NaN, non-infinite floats, py_tuple_key_cmp ordering
+        /// matches the numeric ordering of the first element, with the ref
+        /// breaking ties.
+        #[test]
+        fn p4_tuple_cmp_matches_numeric_order(
+            a in normal_f64(), b in normal_f64(),
+            ref_a in "[A-Z][0-9]", ref_b in "[A-Z][0-9]",
+        ) {
+            let ord = py_tuple_key_cmp(&a, &ref_a, &b, &ref_b);
+            match a.partial_cmp(&b) {
+                Some(std::cmp::Ordering::Equal) => {
+                    prop_assert_eq!(ord, ref_a.cmp(&ref_b));
+                }
+                Some(o) => {
+                    prop_assert_eq!(ord, o);
+                }
+                None => {
+                    prop_assert_eq!(ord, ref_a.cmp(&ref_b));
+                }
+            }
+        }
+
+        /// P5: Equal first elements always defer to the ref comparison.
+        #[test]
+        fn p5_equal_floats_defer_to_ref(
+            x in normal_f64(),
+            ref_a in "[A-Z][0-9]", ref_b in "[A-Z][0-9]",
+        ) {
+            prop_assert_eq!(
+                py_tuple_key_cmp(&x, &ref_a, &x, &ref_b),
+                ref_a.cmp(&ref_b)
+            );
+        }
+
+        /// P6: py_tuple_key_cmp is transitive for non-NaN floats (the sort
+        /// must produce a total order).
+        #[test]
+        fn p6_transitive(
+            a in normal_f64(), b in normal_f64(), c in normal_f64(),
+            ra in "[A-Z][0-9]", rb in "[A-Z][0-9]", rc in "[A-Z][0-9]",
+        ) {
+            let ab = py_tuple_key_cmp(&a, &ra, &b, &rb);
+            let bc = py_tuple_key_cmp(&b, &rb, &c, &rc);
+            if ab == std::cmp::Ordering::Less && bc == std::cmp::Ordering::Less {
+                let ac = py_tuple_key_cmp(&a, &ra, &c, &rc);
+                prop_assert!(ac != std::cmp::Ordering::Greater,
+                    "transitivity violated: ({}, {}) < ({}, {}) and ({}, {}) < ({}, {}) but ({}, {}) > ({}, {})",
+                    a, ra, b, rb, b, rb, c, rc, a, ra, c, rc);
+            }
+        }
+    }
+}
