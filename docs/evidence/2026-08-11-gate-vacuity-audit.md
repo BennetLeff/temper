@@ -1,6 +1,6 @@
 # Gate vacuity audit: are the rest of this repo's gates measuring what they claim?
 
-<!-- provenance: commit=15919a964c52bd3f0f4cb31891efe589e0be49c4 dirty=false (HEAD at audit time, branch docs/gate-vacuity-audit; this PR adds only this file). No repo file was modified during the audit — every falsification was run against a scratch copy or a synthetic input outside the working tree. -->
+<!-- provenance: commit=a13edb35227f82daaa92613e8598ed43172e19e8 dirty=false (HEAD at second-pass audit time, branch docs/gate-vacuity-audit; the first pass was measured at 15919a964c52bd3f0f4cb31891efe589e0be49c4, this file's parent commit). This PR adds only this file. No repo file was modified during either pass — every falsification was run against a scratch copy or a synthetic input outside the working tree. -->
 
 **Date:** 2026-08-11
 **Branch:** `docs/gate-vacuity-audit`
@@ -9,24 +9,42 @@ files other agents are actively editing.
 
 ## Summary — the count first
 
-**83 gate/checker/ratchet units audited** across `scripts/check_*.py`,
+**94 gate/checker/ratchet units audited** across `scripts/check_*.py`,
 `scripts/*_gate.py`, `packages/temper-placer/src/temper_placer/regression/`,
 the `.github/workflows/` steps that invoke them (all 70 `continue-on-error`
-sites, and `required_contexts` vs. every real job name), and the
-mutation-testing machinery that is supposed to prove the other gates fail
-when the guarded thing breaks.
+sites, and `required_contexts` vs. every real job name **in all 31 workflow
+files**), and the mutation-testing machinery that is supposed to prove the
+other gates fail when the guarded thing breaks.
 
 | Class | Count | |
 |---|---|---|
 | **SOUND** | 76 | genuinely checks what it claims |
-| **VACUOUS** | 4 | cannot fail, or cannot fail for the reason claimed |
-| **MISNAMED** | 2 | measures something real, but not what the name/docstring promises |
-| **MISCALIBRATED** | 1 | fires on a threshold with enough slack to miss the thing it exists to catch |
+| **VACUOUS** | 9 | cannot fail, or cannot fail for the reason claimed |
+| **MISCALIBRATED** | 6 | fires on the wrong threshold, category, extension, or scan set |
+| **MISNAMED** | 3 | measures something real, but not what the name/docstring promises |
 
-Plus **6 unverified leads**, recorded below and deliberately *not* counted
-as findings.
+Plus **3 CI wiring gaps** (findings 11, 12, 21) — not a property of any one
+script, but of how correct gates are connected — and **9 unverified leads**,
+recorded below and deliberately *not* counted as findings.
 
-**The headline is the 76, not the 7.** This machinery is overwhelmingly
+> **Note on this document's history.** The first pass (findings 1–7, §9)
+> audited 83 units. A second pass re-audited the regression, mutation and
+> bookkeeping layers at greater depth, enumerated the 11
+> `regression/` modules the first pass had not listed individually, and
+> widened the `required_contexts` cross-check from two workflow files to all
+> 31 — adding findings 8–21. The second pass therefore deepened the same
+> population far more than it widened it; 94 is the union, not 83 + 29.
+>
+> **The second pass falsified one of the first pass's reassuring claims** —
+> see finding 21 and the amended bullet under "What the audit did not find."
+> The correction is called out rather than quietly edited, because the
+> mechanism by which the first pass got it wrong — cross-checking
+> `required_contexts` against only the two workflow files that happened to
+> contain the required jobs — is itself an instance of the failure class this
+> document is about: a sound check reporting a confident negative over a scan
+> set narrower than its claim.
+
+**The headline is the 76, not the 18.** This machinery is overwhelmingly
 sound, and it is sound in a specific and unusual way: gates here
 consistently *fail closed* on the exact edge cases that produced today's
 seven incidents. `check_domain_partition.py` carries explicit
@@ -41,8 +59,8 @@ their docstrings and explain what was changed. Today's seven were largely
 the unlucky tail of a body of work that has already internalized this
 failure class.
 
-That said, the seven-that-were-found were not the whole tail. Seven more
-survive. The top two are directly on the safety path — an HV net-integrity
+That said, the seven-that-were-found were not the whole tail. Eighteen more
+survive, plus three wiring gaps. The top two are directly on the safety path — an HV net-integrity
 gate and the regenerated-board DRC acceptance gate — and both are CI-wired,
 hard-gating, and green today.
 
@@ -53,6 +71,19 @@ the logic is fine — it is that a gate's *input set* silently went to zero
 underneath it while the gate kept reporting on the empty set. **Three
 separate gates share this exact blind spot** (§9), which is the single most
 actionable thing in this document.
+
+The second pass sharpens that framing rather than replacing it. Its findings
+divide into the same two mechanisms — **an empty or stale input set**
+(findings 13, 14, 16, 17) and **a correct gate whose verdict goes nowhere**
+(findings 11, 12, 20, 21). The second mechanism is the one that dominates the
+second pass, and it is worth naming separately: these are failures of
+*wiring and labeling*, not of logic. Reading the script tells you nothing,
+because the script is fine. You have to read the script *and* the workflow
+*and* `required-checks.json` *and* the manifest to see it. The measurable
+form of that, and finding 12's mechanism in one number: **11 of the 86
+scripts labeled `disposition: ci-gate` in `scripts/manifest.yaml` do not run
+in any live CI step** (12.8%), two of them present only inside commented-out
+blocks.
 
 ---
 
@@ -472,6 +503,633 @@ invisible.
 
 ---
 
+### 8. `constraint_mutation_gate.py` — a required, merge-blocking gate that cannot fail when the encoder it guards is emptied (CP-SAT / mains-board keepout)
+
+This is the highest-consequence finding in the document, and it is a
+*different* defect from the empty-scan one §9 describes in the same file.
+§9 covers the gate's **reverse** direction (stale register entries that no
+longer resolve). This is the **forward** direction: the thing the gate exists
+to assert.
+
+**Claims** (docstring): "every CP-SAT constraint encoding must carry a
+registered, non-empty kill set (**the R4 bug-class mutations its own defenses
+catch**)". The name and the R32 framing both promise that each encoder's
+*defenses* were shown to kill injected bugs.
+
+**Wiring:** `python-tests.yml:2380`, job **`Repo Hygiene & Import Gates`** —
+which **is** in `required_contexts`. No `continue-on-error`. This is one of
+the eight checks that actually block a merge.
+
+**Mechanism.** The gate never runs a mutation. It AST-scans for a
+`@register_handler` decorator and then reads a static YAML file:
+
+```
+$ grep -n "subprocess\|import_module\|exec(\|runpy\|constraint_mutation_runner" scripts/constraint_mutation_gate.py
+(no output)
+```
+
+Its only inputs are the decorator's presence and
+`power_pcb_dataset/constraint_kill_sets.yaml` — a register regenerated solely
+by `constraint_mutation_runner.py`, which no workflow invokes on any cadence
+(`grep -rn constraint_mutation_runner .github/workflows/` → nothing;
+`scripts/manifest.yaml` records `last_run: '2026-08-02'`). The workflow's own
+comment states the design — "the runner that regenerates the register is
+invoked manually/periodically" — but nothing enforces the "periodically", so
+the register is free to drift arbitrarily far from the code it certifies.
+
+**Proof.** A scratch tree containing the real gate, the real
+`handlers/keepout.py`, and the matching register entry. Baseline:
+
+```
+$ .venv/bin/python cmg_mine/scripts/constraint_mutation_gate.py
+[MUTATION-GATE] OK: 1 handler surface(s) with non-empty, triaged kill sets; 0 router-V6 class(es) registered
+BASELINE EXIT: 0
+```
+
+Then every enforcement line of `encode_keepout` is deleted — including the
+`AddNoOverlap2D` call that is the sole mechanism keeping components out of
+the isolation keepout zone on a mains-voltage board — leaving only the
+decorator and `return []`:
+
+```
+$ grep -c "AddNoOverlap2D" .../handlers/keepout.py
+0
+$ .venv/bin/python cmg_mine/scripts/constraint_mutation_gate.py
+[MUTATION-GATE] OK: 1 handler surface(s) with non-empty, triaged kill sets; 0 router-V6 class(es) registered
+EXIT AFTER GUTTING: 0
+```
+
+The gate passes, unchanged, on an encoder with no enforcement left in it. The
+register still testifies that eleven R4 mutations were killed by defenses that
+no longer exist. What the gate actually verifies is **register bookkeeping**;
+what its name, docstring and R32 framing claim is **that the defenses hold**.
+
+**Second defect, same file: it is red today for a reason unrelated to any of
+this.** Confirmed on `main`, not merely locally:
+
+```
+$ .venv/bin/python scripts/constraint_mutation_gate.py            ; EXIT=3
+  CapacityConstraint: register entry resolves to no router-V6 class      (x4)
+
+$ gh run view 31541582172 --json jobs --jq '...'
+{"conclusion":"failure","name":"Repo Hygiene & Import Gates"}
+$ gh run view 31541582172 --log-failed | grep MUTATION-GATE
+Repo Hygiene & Import Gates  Constraint mutation gate (kill-set register)  [MUTATION-GATE] ... FAILED: 4 violation(s)
+```
+
+Root cause is §9's migration (`8dce8f8ae`, 2026-08-08): the four classes are
+now `X = _mb.X` re-exports, invisible to an `ast.ClassDef` scan, though they
+exist and are registered in `ESL_REGISTRY` (`constraint_model.py:155`). So a
+**required** check has been red on `main` for three days, for a false-positive
+reason, while being structurally unable to fail for its real one. Both halves
+of the pattern this audit is about, in one file.
+
+**One-line fix** (not applied): resolve the classes by importing the module
+and walking `ESL_REGISTRY`, rather than AST-scanning for `class X(Constraint)`
+— which also fixes §9's other two gates. The forward-direction vacuity needs
+the runner wired to a cadence, which is a maintainer call.
+
+---
+
+### 9. `generate_kicad_dru.py` omits an HV net class from trace-width rule emission — and the coverage gate that exists to catch exactly this cannot see it
+
+**Mechanism.** `TEMPER_NET_CLASSES` (`core/design_rules.py:222`) declares
+**11** net classes. `generate_kicad_dru.py`'s trace-width section iterates a
+hand-maintained literal, `class_order` (`scripts/generate_kicad_dru.py:1012`),
+listing **10**:
+
+```
+$ .venv/bin/python prove_dru_gap.py core/design_rules.py scripts/generate_kicad_dru.py
+TEMPER_NET_CLASSES declares 11 classes:   ... HighVoltageIsolated
+generate_kicad_dru.py class_order lists 10
+>>> declared but NO trace-width rule emitted: ['HighVoltageIsolated']
+>>> listed but not declared (would KeyError): []
+
+HighVoltageIsolated declares: ['trace_width=2.0,', 'safety_category="HV",']
+```
+
+`HighVoltageIsolated` is the gate-drive floating bootstrap supply
+(`+5V_ISO`, `VBOOT_H/L`), `safety_category="HV"`, declared `trace_width=2.0`
+mm. It is the 11th and last entry — appended to the SSOT after `class_order`
+was written. No `(rule "HighVoltageIsolated trace width" ...)` is ever
+emitted, so DRC enforces nothing above the board default for it.
+
+This is **live on every CI DRC run**, not a stale artifact:
+`pcb/temper.kicad_dru` is gitignored and `ci_check_drc.py:94` regenerates it
+from this generator before every kicad-cli measurement.
+
+The neighbouring comment is the sharp detail. `class_order` carries a warning
+added by the 2026-07-28 `GateDrive` split — "both halves must be listed **or
+this loop KeyErrors**". The guard rail was written for the direction that
+crashes loudly (a *removed* class) and not for the direction that fails
+silently (an *added* one). `prove_dru_gap.py`'s second line confirms the
+KeyError direction is clean today; only the silent direction is broken.
+
+**Why no gate caught it.** `check_hv_netclass_coverage.py` exists to catch
+class-list drift — its own motivating incident was that same `GateDrive`
+split. But its coverage test is "≥1 positive rule of *any* kind":
+
+```python
+def positively_referenced_classes(dru_content) -> set[str]:   # :267
+    return set(_NETCLASS_EQ_RE.findall(dru_content))
+def check_netclass_rule_coverage(declared, kicad_class_name_fn, referenced):
+    return sorted(k for k in declared if kicad_class_name_fn(k) not in referenced)
+```
+
+Fed a DRU with `HighVoltageIsolated` clearance rules (which the generator
+*does* emit, rules 4a/4b) but zero trace-width rules, the **real** functions
+report full coverage:
+
+```
+$ .venv/bin/python prove_coverage_blind.py scripts/check_hv_netclass_coverage.py
+DRU under test contains, for HighVoltageIsolated:
+   clearance rules : YES (2)
+   trace-width rule: NO  (0)   <-- the guarded thing is BROKEN
+positively_referenced_classes() -> ['ACMains', 'HighVoltageIsolated']
+check_netclass_rule_coverage()  -> missing = []
+VERDICT: gate reports FULL COVERAGE.
+```
+
+`HighVoltageIsolated` is "covered" by its clearance rules, so its empty
+trace-width category is invisible. The blindness is symmetric and not
+specific to trace width: three classes (`FinePitch`, `Signal`,
+`HighCurrent`) are positively referenced *only* by loop-emitted trace-width
+rules, so an omitted **clearance** rule for one of them would pass the same
+way.
+
+**Consequence, stated honestly.** The missing constraint is *ampacity*, not
+isolation — `HighVoltageIsolated`'s clearance and creepage rules are emitted
+correctly, and the class carries low current, so the direct physical risk is
+moderate rather than severe. The finding that matters is the second one: a
+gate named "netclass **coverage**" that measures rule *existence* would hide
+an omitted clearance rule just as completely.
+
+**One-line fix** (not applied): iterate `TEMPER_NET_CLASSES` instead of
+`class_order`; separately, make coverage per-constraint-category.
+
+---
+
+### 10. `metrics-trend-check.yml` — the drift branch is unreachable shell, and the two checks after it call subcommands that do not exist
+
+**Claims:** a weekly job that detects pipeline-metrics drift and files a
+GitHub issue. Schedule-only; not in `required_contexts`, so no merge is
+blocked — consequence is bounded to "the alerting never fires."
+
+**Defect A — `$?` after `|| true` is always 0** (`metrics-trend-check.yml:57-60`):
+
+```bash
+result=$(uv run python scripts/pipeline_metrics.py trend ... --json 2>&1) || true
+exit_code=$?
+if [ "$exit_code" = "1" ]; then DRIFT_FOUND=true; ...
+```
+
+`cmd || true` always terminates 0, so `exit_code` is unconditionally 0 and
+the `DRIFT_FOUND` branch is dead code. The exit code is the only drift
+channel: `cmd_trend` returns `1 if result.get("has_regression") else 0`
+(`pipeline_metrics.py:138`).
+
+Driving the **real** `_compute_trends` with a genuinely drifted series, then
+running it under the workflow's own idiom:
+
+```
+### Baseline: what the detector actually reports
+  wall_clock_seconds: latest=500.0 mean=136.77 drift=3.0151s status=REGRESSION
+  has_regression = True
+detector standalone exit = 1  (1 == REGRESSION detected)
+
+### Now under the workflow's idiom (metrics-trend-check.yml:57-60)
+captured exit_code = 0
+drift_found=false   <-- this is what feeds $GITHUB_OUTPUT
+
+### Consequence
+'Create drift issue' guard: if: steps.trend.outputs.drift_found == 'true'
+=> drift issue is NEVER filed, despite a real 3.0-sigma REGRESSION
+```
+
+The contrast is in the same file: the **next** step (`Run SPC check`, line 76)
+uses the correct idiom, `|| SPC_EXIT=$?`, which does capture the status. One
+step gets it right and the one above it does not. Introduced 2026-06-22
+(`b42d15391`) — dead for 50 days.
+
+**Defect B — `spc` and `slo` subcommands were never implemented:**
+
+```
+$ .venv/bin/python scripts/pipeline_metrics.py spc --board temper --window 20 --json
+usage: pipeline_metrics [-h] {trend,record} ...
+pipeline_metrics: error: argument command: invalid choice: 'spc' (choose from 'trend', 'record')
+EXIT: 2
+```
+
+The step captures that usage error into `spc-result.json` and `json.load()`s
+it, which raises under Actions' default `bash -e`. `spc_rules.py` and
+`slo_evaluator.py` are real, unit-tested libraries reachable only from their
+own tests. Because "Run SPC check" is ordered **before** "Create drift
+issue", this aborts the job first — so the drift issue is unreachable by two
+independent defects at once, and the SPC/SLO alerting has never run.
+
+---
+
+### 11. Two real safety gates are not in `required_contexts` — a second gap, beyond the one AGENTS.md documents
+
+This **corrects a claim made earlier in this document's first pass** (see
+"What the audit did not find", now amended). `required_contexts` contains 8
+entries, all jobs of `python-tests.yml`. Two non-`python-tests.yml` jobs are
+genuine hard gates that are neither `continue-on-error`-masked nor
+trunk/nightly-only:
+
+| Workflow | Job / check name | Triggers | Masked? | In `required_contexts`? |
+|---|---|---|---|---|
+| `erc-gate.yml:44` | `ERC ratchet (kicad-cli sch erc)` | `push: main` **and** `pull_request` | no | **no** |
+| `firmware-tests.yml:37` | `test` (job id, no `name:`) | `push`/`pull_request` on `firmware/**`, `pcb/**` | no | **no** |
+
+`erc-gate.yml`'s own header describes it as closing a real gap — "runs ERC on
+both schematics on every push/PR that touches them and **hard-fails on any
+ERC error**" — and its single step carries the comment "No `continue-on-error`
+here, and none should be added: a gate that cannot run must exit non-zero."
+It is a real electrical-rules gate on a mains board whose red run does not
+block a merge. `firmware-tests.yml`'s `test` job likewise carries the
+state-machine reachability (R28), invariant proofs (R29), transition-table
+mutation sweep and SIL fault-injection coverage.
+
+This is the same class as the `Board, Provenance & Requirements Gates` gap
+AGENTS.md already documents — a gate that runs, reports red, and still does
+not block — but these two are not recorded anywhere. Whether to add them is a
+maintainer call (it changes what blocks every PR), which is precisely why
+AGENTS.md leaves the known one unapplied too.
+
+---
+
+### 12. `scripts/manifest.yaml`'s `disposition: ci-gate` is read by nothing — the mechanism behind findings 4, 5 and 7
+
+Findings 4, 5 and 7 each report a script labelled `ci-gate` that no workflow
+runs. That is not three coincidences; it is one missing check:
+
+```
+$ grep -rn "ci-gate" --include=*.py --include=*.yml --include=*.yaml . | grep -v scripts/manifest.yaml
+docs/wave4-verdicts.yaml:672  (prose)
+scripts/tests/test_trace_invocations_manifest.py:38  (a fixture literal)
+```
+
+No code reads the field. `check_manifest_gate.py` validates that an entry
+*exists* and `check_script_sunset.py` ages `last_run`, but nothing asserts
+that a script claiming to be a CI gate is reachable from CI. A deliberately
+generous reachability scan — counting a script as wired if its name appears
+in any workflow, the `Makefile`, `conftest.py`, `pyproject.toml`, or if a
+`scripts/tests/test_<name>.py` exists under the pytest sweep — still leaves:
+
+```
+declared ci-gate : 86
+  reachable from CI: 79
+  NOT reachable    : 7
+bmc_adoption_gate.py, check_ceiling_raise_evidence_corpus.py,
+check_component_defect_corpus.py, check_corpus_specificity.py,
+gen_pcb_skeleton.py, update_regression_cache.py, verify_proofs.py
+```
+
+(The first pass's stricter scan, which also counts scripts present only
+inside commented-out workflow blocks, put the figure at 11/86 — 12.8%. Both
+counts are lower bounds on the same defect; the 7 above survive the most
+generous reading.) Two of the seven — `gen_pcb_skeleton.py` and
+`update_regression_cache.py` — look like generators mislabelled as gates, a
+manifest error rather than a missing gate. The rest are findings 4 and 5 and
+the three already-documented corpus runners.
+
+**One-line fix** (not applied): a check that every `disposition: ci-gate`
+entry appears in a live workflow step — which would have failed the moment
+each of these went dark, instead of an audit finding them one at a time.
+
+---
+
+### 13. `quarantine_report.py` in `regression.yml` — reports on a manifest nothing in that workflow writes
+
+`regression.yml:214` runs a "Quarantine Report" step after the round-trip,
+metamorphic-oracle, CP-SAT and zone-pour tests. The only writer of
+`power_pcb_dataset/quarantine/manifest.json` is `batch_pipeline_validate.py`
+(via `temper_placer.testing.quarantine`), which runs **only** in the weekly
+`corpus-batch.yml`. None of `regression.yml`'s own steps write it:
+
+```
+$ ls power_pcb_dataset/quarantine/
+baseline.json                       # no manifest.json
+$ .venv/bin/python scripts/quarantine_report.py
+Quarantine entries: 0
+
+Quarantine empty — no entries.
+EXIT: 0
+```
+
+`corpus-batch.yml` already carries an in-file comment conceding this shape
+for its own usage ("has never had anything to fail on"); the identical step
+in `regression.yml` is undocumented. Low consequence — it is a reporter, not
+a gate — but it reads as quarantine coverage that does not exist.
+
+---
+
+### 14. `drc_clearance_pass_pct` cannot distinguish "DRC ran clean" from "DRC never ran" — VACUOUS (board safety)
+
+`packages/temper-placer/src/temper_placer/regression/closure_test.py:372-393`
+initializes `drc_errors = 0` before Step 4 and puts `stages_exercised += 1`
+*inside* the `try`. Every DRC failure path — kicad-cli missing (`ImportError`),
+crash, timeout (`except Exception`) — is caught and logged as a **warning**
+without ever touching `drc_errors`. Four stages already increment before DRC
+(lines 261, 281, 330, 358), so `stages_exercised` reaches 4 regardless.
+
+The scoring rule in `measure_closure.py:106` then reads
+`compute_drc_clearance_pass_pct(stages_exercised, drc_errors)`, whose first
+branch is `100.0 if stages_exercised >= 4 and drc_errors == 0`.
+
+**Proof**, against the real compiled kernel:
+
+```
+$ .venv/bin/python -c "import temper_design_bundle_python as t; f=t.compute_drc_clearance_pass_pct
+print('DRC ran clean  (4,0):', f(4,0)); print('DRC never ran  (4,0):', f(4,0)); print('1 real error   (4,1):', f(4,1))"
+DRC ran clean  (4,0): 100.0
+DRC never ran  (4,0): 100.0     <-- indistinguishable
+1 real error   (4,1): 90.0
+```
+
+A DRC step that never executed scores a **perfect** 100.0 — identical to one
+that ran and found zero violations. The consumer,
+`tests/closure/test_router_completion.py:270`, guards only
+`assert candidate.drc_clearance_pass_pct > 0.0`, which 100.0 sails through;
+and the committed baseline fixture (`tests/closure/fixtures/baseline_closure.json`)
+itself records `100.0`, so the companion `>= baseline` comparison is trivially
+satisfied by "DRC didn't run" too.
+
+This is the closure-pipeline mirror of the anti-pattern `runner.py` was
+explicitly hardened against
+(`docs/solutions/best-practices/stale-absolute-baseline-vs-mutable-board-2026-07-29.md`:
+*"falling back to a fabricated 0 would always pass… turning a genuine ratchet
+into a vacuous one"*) — except here the fabricated value is a *perfect* score
+rather than 0, which is strictly worse: it also satisfies every `>=` comparison
+downstream.
+
+**One-line fix:** initialize `drc_errors = None` and treat `None` as a hard
+failure of the closure measurement rather than as zero errors.
+
+---
+
+---
+
+### 15. `check_vacuous_gates.py` misses the negated form of the idiom it exists to catch — MISCALIBRATED (meta)
+
+`AGGREGATORS = {"all"}` (`scripts/check_vacuous_gates.py:236`). The docstring
+deliberately and *correctly* excludes bare `any()`: over an empty collection it
+returns `False`, which is already fail-closed. **But `not any(...)` inverts that
+to `True` — fail-open — and is semantically identical to an unguarded
+`all()`.** The docstring's justification does not cover the negated form, and
+the detector does not look for it.
+
+Nine live sites, in the exact validator files the gate's own docstring names as
+in-scope:
+
+```
+$ grep -n "not any(" packages/temper-placer/tests/requirements/validators/{isolation,emi_filter}.py
+isolation.py:442:   passed = not any(v.severity == "error" for v in violations)
+emi_filter.py:201:  passed = not any(v.severity == "error" for v in violations)
+   ... (7 more in emi_filter.py: 236, 314, 386, 485, 543, 612, 666)
+```
+
+Called with empty inputs, these report a clean pass having measured nothing:
+
+```
+check_filter_component_order({})       -> passed=True, violations=[]
+check_filter_signal_flow({}, (0,0))    -> passed=True, violations=[]
+check_power_domain_separation({}, [])  -> passed=True, violations=[]
+```
+
+A full run of the gate never mentions either file:
+
+```
+$ .venv/bin/python scripts/check_vacuous_gates.py > /tmp/vg.txt; echo "EXIT=$?"
+EXIT=1
+$ grep -c "isolation.py\|emi_filter.py" /tmp/vg.txt
+0
+```
+
+**Second, independent gap in the same script:** `_preceding_guard` matches
+`assert len(EXPR)` as a bare textual substring regardless of the comparison
+that follows, so `assert len(results) == len(MUTATIONS)` — true when both are 0
+— is accepted as a non-emptiness guard. Neither gap has a test in
+`scripts/tests/test_check_vacuous_gates.py`.
+
+This is the recursive gap
+`docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md` predicted in its own
+Coverage section: *"worth noting `check_vacuous_gates.py` exists and its own
+vacuity was not checked here, which would be a fittingly recursive gap to close
+next."*
+
+**One-line fix:** extend the detector to `UnaryOp(Not, Call(any, ...))`, and
+require the `len()` guard's comparison to be against a literal rather than
+another `len()`.
+
+---
+
+---
+
+### 16. `should_skip()`'s source fingerprint hashes a deleted directory and is blind to the crate holding the real constraint logic — MISCALIBRATED
+
+`packages/temper-placer/src/temper_placer/regression/fingerprint.py:44`:
+
+```python
+SOURCE_FINGERPRINT_DIRS = ["packages/temper-placer/src", "packages/temper-drc/src"]
+```
+
+`packages/temper-drc` does not exist — it was removed in `f438ca0e4`
+("remove deprecated temper-drc package"); only `temper-drc-rs`, a different
+package, remains. `compute_source_fingerprint` silently `continue`s past
+missing directories, so in practice only `temper-placer/src`'s 469 `.py` files
+are hashed.
+
+Meanwhile `packages/temper-placer/temper-constraints/src/*.rs` — the CP-SAT
+loss/constraint crate imported by `cp_sat/model.py`, `domain_clearance.py`,
+`gates.py`, `handlers/keepout.py`, `core/design_rules.py`, and
+`router_v6/_zone_pour_stitch.py` — is covered by **neither** the directory list
+**nor** the `*.py` glob. A change to the placer's actual constraint/loss logic
+therefore leaves `source_fingerprint` byte-identical, so `--skip-unchanged`
+(consumed by `corpus_runner.py`) serves a stale cached "pass" for a board whose
+constraint behavior genuinely changed.
+
+Same mechanism as §9's empty-scan-set family, one level up: the scan set did
+not go to zero, it went *stale* — one entry pointing at a deleted tree, and the
+language the logic migrated *to* excluded by the glob.
+
+---
+
+---
+
+### 17. `phase5_hubs_mutations.py` always exits 0 regardless of catch rate — VACUOUS
+
+`main()`'s only non-zero return path is an infrastructure check ("suites still
+failing after reverting every mutation", lines 198-201), unrelated to mutation
+outcomes. The per-mutation `caught` / `SURVIVED` / `UNEXPECTED` classification
+is computed and printed (lines 187-206) but never gates the return value —
+line 207 is an unconditional `return 0`, reached even when all 11 mutations
+SURVIVED or every verdict was UNEXPECTED. Checking `echo $?`, the natural way
+to consume it, always reports success.
+
+Its sibling `phase5_cli_adapters_workflow_mutations.py:200-210` has a related
+but distinct defect, and is the file that demonstrates finding 15's second gap:
+
+```python
+assert len(results) == len(MUTATIONS), (...)   # true even when both == 0
+return 0 if all(k for _, k, _ in results) else 1   # vacuously True over empty results
+```
+
+The comment above it explicitly cites `check_vacuous_gates.py` as the reason
+the guard is there. The guard does not work, and the linter it cites cannot see
+that it does not work. Not currently exploited — `MUTATIONS` has 11 real
+entries — but broken by construction. **(MISCALIBRATED)**
+
+---
+
+---
+
+### 18. `check_script_sunset.py`'s `has_caller` signal is provably stale — MISCALIBRATED
+
+The script's own exit-code discipline is honest (`sys.exit(0)` always,
+warnings-only, documented). The defect is upstream: `has_caller` comes from
+`scripts/invocation_graph.json`, built by a static regex scan
+(`trace_invocations.py`'s `SCRIPT_RE`) that does **not** cover `scripts/*.py` or
+`scripts/tests/*.py`, despite the module docstring claiming otherwise.
+
+```
+$ python3 -c "import json; print(json.load(open('scripts/invocation_graph.json'))['check_netlist_stage_checks.py'])"
+[]
+```
+
+— zero callers recorded for a script wired into `python-tests.yml` and gating
+every PR. The graph was last committed 2026-08-07 15:49; that wiring landed at
+16:10 the same day (`9c8a7aae`). `trace_invocations.py` does re-run in CI, but
+only on `push`, and **`check_script_sunset.py` runs at `python-tests.yml:2296`,
+before the rebuild step at line 2337** — so even the CI run reads the stale
+committed file, which is never committed back.
+
+`--update-manifest` is invoked nowhere in any workflow, so `last_run` across all
+142 manifest entries is a hand-typed field, never verified against real
+invocation. `check_netlist_stage_checks.py` will misfire a false "verify it is
+still needed" warning on 2026-09-06.
+
+---
+
+---
+
+### 19. Two hardcoded-filter gates, same shape as the R27 bug — MISCALIBRATED
+
+**(a) `check_workflow_pr_triggers.py:102` globs `*.yml` only.** GitHub Actions
+fully supports `.yaml`. Proven on a scratch directory: a push-only,
+no-PR-trigger, no-opt-out workflow named `rogue.yaml` — exactly the issue-#315
+failure mode this gate exists to catch — yields
+
+```
+Workflow PR trigger check passed — 0 file(s) checked, all compliant
+```
+
+Latent only because every file in `.github/workflows/` happens to use `.yml`
+today. *Fix:* `glob("*.yml")` → `glob("*.y*ml")`. (Separately: unparseable
+workflow files are excluded from the compliance count with only a stderr
+warning.)
+
+**(b) `check_wire_format_fidelity.py`'s `OWN_COPY` regex** hardcodes three
+function names (`pin_world_position|world_radius|pad_world_position`) to decide
+which Rust files are scanned at all.
+`packages/temper-geometry/src/pad_geometry.rs::bounding_radius` matches the
+gate's own documented trigger (`bounding_radius|pad_bounding`) and takes `shape`
+and `ratio` as explicit parameters — but is never scanned, because its *name*
+is not one of the three. Not a live false-pass (that file already references
+`roundrect_ratio`/`shape`), but the detection mechanism is a name allowlist with
+the same structural weakness as the R27 category allowlist, and would silently
+skip any newly-named radius-reimplementing kernel.
+
+---
+
+---
+
+### 20. `check_component_defect_corpus.py` — MISNAMED disposition
+
+`scripts/manifest.yaml:2181` declares `disposition: ci-gate`;
+`grep -rn "check_component_defect_corpus" .github/workflows/` returns nothing.
+Internal logic is sound (independent re-parse self-verification, real-gate
+invocation, an anti-vacuity clean-fixture control). Independently corroborated
+the same day in
+`docs/evidence/2026-08-11-phase3-mutation-state-of-play.md:108`. Same class as
+findings 4, 5, 7 and 12 — listed for completeness of the count.
+
+Also in this class, proven but low-severity: **`check_board_containment.py`'s
+Rust-bundle bypass catches only `ImportError`**, while a stale build raises
+`AttributeError` (via `temper_placer/__init__.py`), so the documented fallback
+never fires under the exact failure it was written for. Reproduced live. **Not**
+a false pass — the script still exits non-zero — so this is robustness, not
+safety.
+
+---
+
+### 21. Finding 11, widened: five workflows are unrequired, not two — and the documented gap's blast radius is larger than AGENTS.md states
+
+Finding 11 above cross-referenced `required_contexts` against `erc-gate.yml`
+and `firmware-tests.yml`. Extending the same check to **all 31** workflow
+files finds three more of the same shape. None of the five is
+`continue-on-error`-masked; all five trigger on `pull_request` against `main`
+with hard-failing steps (verified by reading each file's `on:` block):
+
+| Workflow | `name:` | Guards |
+|---|---|---|
+| `regression.yml` | `Regression Suite` | the live kicad-cli DRC-vs-ceiling truth gate |
+| `erc-gate.yml` | `ERC Gate` | `ci_check_erc.py` on mains schematics (finding 11) |
+| `golden-check.yml` | `Golden Regression Check` | the golden-board regression |
+| `placer-regression.yml` | `Placer Regression` | corpus baseline changes without `Ceiling-Approval:` |
+| `firmware-tests.yml` | `Firmware Tests` | R29 invariant proofs, R28 exhaustive state-machine reachability, fault-list consistency (finding 11) |
+
+Two details sharpen this.
+
+**(a) `scripts/ci_check_drc.py` runs in exactly one place repo-wide** — and it
+is not the job most readers would assume:
+
+```
+$ grep -rn "ci_check_drc.py" .github/workflows/
+.github/workflows/regression.yml:190:  run: uv run python scripts/ci_check_drc.py --backend kicad-cli
+   (plus two path-trigger lines in the same file)
+```
+
+It is **not** in `python-tests.yml`'s `board-provenance-requirements-gates`
+job, which runs only the provenance/trailer bookkeeping
+(`check_measurement_provenance.py`, `check_drc_ceiling_approval.py`). So the
+one CI step that actually re-runs kicad-cli DRC and compares it against
+`drc_ceiling.json` — the ratchet AGENTS.md describes at length, and the
+subject of two of today's seven — has no path to blocking a merge.
+`regression.yml:49-51` says so itself: *"'Regression Suite' is not in
+`.github/required-checks.json`'s `required_contexts`, so neither copy can
+block a merge."*
+
+**(b) The `Board, Provenance & Requirements Gates` gap AGENTS.md documents has
+a materially larger blast radius than AGENTS.md states.** AGENTS.md records
+that job's exclusion in the context of the DRC-ceiling and
+measurement-provenance checks. But *every* invocation of
+`check_isolation_keepout.py` (whose docstring calls the mains↔SELV barrier
+"the single most safety-critical property of this board's layout"),
+`check_domain_partition.py` (galvanic-isolation graph reachability),
+`check_hv_netclass_coverage.py`, `check_copper_net_consistency.py`,
+`check_pad_orientation.py` (intra-component copper shorts) and
+`check_board_containment.py` — both the live-board run *and* its unit tests —
+falls inside that same job (`python-tests.yml` lines 1174–1767) and nowhere
+else. A PR that shorted the isolation barrier, corrupted a net ordinal, or
+reintroduced the rotated-pad-body short would show a red ❌ and remain
+mergeable.
+
+Of the five, `firmware-tests.yml` is arguably the sharpest: exhaustive
+reachability proofs for the ESP32-S3 state machine controlling a mains
+induction cooker, written explicitly as hard gates ("No continue-on-error"),
+with no path to blocking a merge.
+
+**Fix** (a maintainer call, not applied here — it changes what blocks every
+PR): add the relevant contexts to `required_contexts`. Read lead 9 first:
+`regression.yml` and `placer-regression.yml` both post a check run named
+`regression`, so adding that bare string without first giving each job a
+distinguishing `name:` would let the aggregator observe the wrong workflow's
+verdict.
+
+---
+
 ## Unverified leads (not findings)
 
 Listed so they are not lost, explicitly **not** proven:
@@ -512,6 +1170,38 @@ Listed so they are not lost, explicitly **not** proven:
    (`docs/evidence/2026-08-07-gate-mutation-sweep.md:70` cites `1.0000`),
    and a `0/0 → 1.00` is exactly the kind of number that survives being
    copied out of context. Reporting-only; not a gate defect.
+7. **`physics_oracle.py`'s thresholds are invisible to the provenance gate.**
+   `_CLEARANCE_PASS_THRESHOLD = 0.95` — the pass/fail threshold for the HV/LV
+   clearance score on a mains board — carries no `# source:` citation, and
+   `check_physics_provenance.py` defaults to `temper_placer/physics/`, a
+   sibling directory that does not include `regression/`. Its AST scan only
+   walks `physics_dir.rglob("*.py")`, so this constant and the function-default
+   thresholds (`max_heatspread_mm=10.0`, `hv_lv_threshold_mm=6.5`,
+   `max_loop_area_mm2=100.0`) are structurally invisible to the one gate meant
+   to catch exactly this. Separately, `score_placement()` hardcodes
+   `min_clearance=8.0` where `run_physics_oracle()` uses the spec-derived 6.5mm.
+   **Why only a lead:** no live caller of `score_placement` was found, so the
+   impact of the inconsistency is unconfirmed.
+8. **`check_required_checks.py`'s static lint covers only 7 of the 8 required
+   contexts.** `validate_job_conditions` cross-checks only contexts that have
+   `job_triggers` entries, so `Fast Gates` (unconditional, no entry) and
+   `PR Performance Comparison` (owned by `pr-perf-check.yml`, reached via
+   `context_triggers`) are never verified to correspond to a real job `name:`.
+   Both match today (`python-tests.yml:3739`, `pr-perf-check.yml:84`). **Why
+   only a lead, and why it is mild:** the *runtime* path is sound — a missing
+   context is treated as neither passed nor skipped, and the poll loop fails
+   closed after ~2h45m rather than passing by omission — so a future silent
+   rename produces a stalled-then-red PR, not a false green.
+9. **Job-name collision between `regression.yml` and `placer-regression.yml`.**
+   Both declare a job keyed `regression:` with no job-level `name:`
+   (`regression.yml:85`, `placer-regression.yml:35`), so both post a check run
+   named `regression` on the same commit. `check_required_checks.py:526-536`
+   dedups purely by `run.name`, taking whichever has the later
+   `(updated_at, run_id)`, with no per-workflow discriminator. Inert today —
+   neither is required — but this is a live hazard for the finding-21 fix: adding the
+   bare string `"regression"` to `required_contexts` without first giving each
+   job a distinguishing `name:` would let the aggregator observe the wrong
+   workflow's verdict.
 
 ## Already documented elsewhere — cross-referenced, not re-reported
 
@@ -530,16 +1220,29 @@ Test job's `continue-on-error` masking is documented inline and in
 
 Worth stating plainly, because absence of these is the reassuring result:
 
-- **No second `required_contexts` gap.** All 8 required contexts resolve to
-  real job names (cross-checked against every `name:` in `python-tests.yml`
-  and `pr-perf-check.yml`). Every job *not* listed is either
-  `continue-on-error`-masked or trunk/nightly-only behind an explicit `if:`
-  — consistent with the documented design.
-- **No exit-code swallowing in workflow steps.** All 70 `continue-on-error`
-  sites were enumerated; ~10 non-obvious ones read in full. Every one
-  carries an inline comment naming a specific reason, and each is genuinely
-  advisory for that reason. No `|| true`, no `set +e`, no bare `exit 0`, no
-  pipe-through-`tail` masking a real gate was found.
+- ~~**No second `required_contexts` gap.**~~ **AMENDED by finding 11 — this
+  claim was wrong.** The first pass cross-checked the 8 required contexts
+  against every `name:` in `python-tests.yml` and `pr-perf-check.yml` and
+  concluded that every unlisted job was either `continue-on-error`-masked or
+  trunk/nightly-only. That conclusion held only *within the two workflows
+  checked*. Extending the cross-reference to all 31 workflow files finds two
+  unmasked, PR-triggered hard gates outside them — `erc-gate.yml`'s ERC
+  ratchet and `firmware-tests.yml`'s `test` job — neither masked, neither
+  nightly-only, neither required. **Finding 21 widens this again: it is five
+  workflows, not two** — `Regression Suite`, `Golden Regression Check` and
+  `Placer Regression` are in the same position, and the `Regression Suite`
+  one carries the repo's only invocation of `scripts/ci_check_drc.py`. The
+  original claim is left visible rather than deleted: a scope-limited check
+  reported as a general negative is the same failure mode this document is
+  about, and it happened here — twice, at two different scopes.
+- ~~**No exit-code swallowing in workflow steps.**~~ **AMENDED by finding 10
+  — also wrong, for the same reason.** All 70 `continue-on-error` sites were
+  enumerated and each is genuinely advisory, which is true and worth keeping.
+  But the accompanying "no `|| true`, no `set +e`" claim was not verified
+  across all workflows: `metrics-trend-check.yml:58` contains exactly the
+  `|| true` construct the sentence denies, and it makes that step's drift
+  detection unreachable. What survives is the narrower, verified statement:
+  **no `continue-on-error` site masks a gate that was meant to block.**
 - **No vacuity in the mutation-testing machinery itself** beyond finding 3's
   cousin in `constraint_mutation_gate.py` (§9). This was the layer worth
   worrying about most — a vacuous mutation gate would have let every other
@@ -660,6 +1363,21 @@ Coverage, and its limits, stated honestly:
   ~10 read in full, and `required_contexts` cross-checked against every
   `name:` in `python-tests.yml` and `pr-perf-check.yml`.
 
+Added by the second pass (findings 8–21):
+
+- **11** `temper_placer/regression/` modules the first pass counted in bulk
+  but did not enumerate individually: `cli`, `closure_test`,
+  `cp_sat_comparison`, `fingerprint`, `manifest`, `measure_closure`,
+  `metrics_recorder`, `physics_oracle`, `reporter`, `runner`,
+  `schema_validator`. These 11 are what takes the total from 83 to **94**;
+  everything else the second pass touched was already inside the first
+  pass's 83, re-audited at greater depth rather than added.
+- The workflow-wiring unit was **re-run against all 31 workflow files**
+  rather than two, which is what produced findings 11 and 21.
+- A systematic `scripts/manifest.yaml` sweep: every entry marked
+  `disposition: ci-gate` was matched against uncommented workflow and
+  Makefile lines (finding 12's 11-of-86 figure).
+
 Depth was not uniform. Roughly two-thirds were read end-to-end or executed;
 the remainder were read for decision logic and CI wiring, with targeted
 greps for the specific anti-patterns in today's seven (swallowed exception,
@@ -668,5 +1386,13 @@ gate marked SOUND here means "no instance of this failure class found,"
 not "formally verified."
 
 The seven already-confirmed instances from 2026-08-11 were excluded from
-the audit set and are not counted in the 83. `scripts/check_unwired_kernels.py`
+the audit set and are not counted in the 94. `scripts/check_unwired_kernels.py`
 (#1020) was likewise excluded as already documented.
+
+**Not reached, stated plainly:** the ~12 lower-priority `routing/` Rust rules
+that `docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md` also left
+unreached; `router_v6/constraints_drc_oracle.py`'s internal
+`INTERNAL_LAYER_CREEPAGE_FACTOR` creepage model; the
+`requirements/validators/` Python modules beyond the nine `not any(...)` sites
+named in finding 15; and `firmware/` C-level test helpers. The
+`check_unwired_kernels.py` false-positive rate was not re-measured.
