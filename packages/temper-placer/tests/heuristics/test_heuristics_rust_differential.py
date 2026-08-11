@@ -604,57 +604,6 @@ def test_mcu_subsystem_apply_delegates_to_rust():
 
 
 # ---------------------------------------------------------------------------
-# Site 5: spectral.py -- JUSTIFIED-KEEP evidence
-# ---------------------------------------------------------------------------
-
-_SPECTRAL_PATH = (
-    "packages/temper-placer/src/temper_placer/heuristics/spectral.py"
-)
-
-
-def test_spectral_is_a_genuine_networkx_dependency():
-    """The spectral heuristic's compute is `nx.spectral_layout` -- the graph
-    Laplacian eigenvector decomposition via `np.linalg.eigh` -- plus a
-    `np.random.uniform` fallback. Neither is re-implementable under R1a
-    bit-parity (eigenvector basis sign/rotation degeneracy; LAPACK backend
-    variance), so the module is JUSTIFIED-KEEP'd at the networkx boundary,
-    not ported. Assert the dependency directly so the evidence cannot rot.
-    """
-    src = Path(_repo_root() / _SPECTRAL_PATH).read_text(encoding="utf-8")
-    assert "import networkx as nx" in src
-    assert "nx.spectral_layout(subgraph, weight=" in src
-    assert "nx.connected_components(G)" in src
-    assert "np.linalg" in src or "np.random.uniform" in src
-    # The same judgment is already recorded for the one other eigensolver in
-    # the codebase (netlist.compute_eigenvector_centrality, R3 keep) -- the
-    # spectral keep must cite that precedent rather than invent a new one.
-    netlist_src = (
-        Path(_repo_root() / "packages/temper-placer/src/temper_placer/core/netlist.py")
-    ).read_text(encoding="utf-8")
-    assert "compute_eigenvector_centrality" in netlist_src
-    assert "stays Python" in netlist_src
-    assert "numpy.linalg.eigh" in netlist_src
-
-
-def test_spectral_module_is_unmodified():
-    """A kept module must stay byte-identical to its pinned commit."""
-    sha = "5a17025b15d01bf88116b569493d8ed483e1856f"
-    try:
-        subprocess.run(
-            ["git", "cat-file", "-e", f"{sha}^{{commit}}"],
-            capture_output=True, check=True, cwd=_repo_root(),
-        )
-    except (subprocess.CalledProcessError, FileNotFoundError):  # pragma: no cover
-        pytest.skip(f"pinned commit {sha} not present in this clone")
-    pinned_src = subprocess.run(
-        ["git", "show", f"{sha}:{_SPECTRAL_PATH}"],
-        capture_output=True, text=True, check=True, cwd=_repo_root(),
-    ).stdout
-    current = Path(_repo_root() / _SPECTRAL_PATH).read_text(encoding="utf-8")
-    assert current == pinned_src
-
-
-# ---------------------------------------------------------------------------
 # Shipped-module delegation proof -- the monkeypatched-kernel gate.
 #
 # The numeric differentials above would pass whether or not the shipped

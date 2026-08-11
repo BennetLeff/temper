@@ -1132,16 +1132,6 @@ wheels = [
 ]
 
 [[package]]
-name = "python-louvain"
-version = "0.16"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "networkx" },
-    { name = "numpy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/7c/0d/8787b021d52eb8764c0bb18ab95f720cf554902044c6a5cb1865daf45763/python-louvain-0.16.tar.gz", hash = "sha256:b7ba2df5002fd28d3ee789a49532baad11fe648e4f2117cf0798e7520a1da56b", size = 204641, upload-time = "2022-01-29T15:53:03.532Z" }
-
-[[package]]
 name = "python-sat"
 version = "1.9.dev5"
 source = { registry = "https://pypi.org/simple" }
@@ -1566,7 +1556,6 @@ dependencies = [
     { name = "plotly" },
     { name = "psutil" },
     { name = "pydantic" },
-    { name = "python-louvain" },
     { name = "pyyaml" },
     { name = "rich" },
     { name = "scipy" },
@@ -1614,7 +1603,6 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.13.4" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
-    { name = "python-louvain", specifier = ">=0.16" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "rich", specifier = ">=13.0.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.6" },

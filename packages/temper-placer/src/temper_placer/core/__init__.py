@@ -23,7 +23,7 @@ from temper_placer.core.board import (
 from temper_placer.core.bus_cohort import BusCohortConstraint, BusRegistry
 
 # Component community detection
-from temper_placer.core.community import Community, detect_communities
+from temper_placer.core.community import Community
 from temper_placer.core.courtyard import Courtyard, check_overlap
 from temper_placer.core.decision import Alternative, Decision, DecisionTrace
 
@@ -175,7 +175,6 @@ __all__ = [
     "NetClassRules",
     # Community
     "Community",
-    "detect_communities",
     # Courtyard
     "Courtyard",
     "check_overlap",
