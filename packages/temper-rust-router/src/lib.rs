@@ -4,6 +4,7 @@
 
 pub mod layer_assignment;
 pub mod loop_extractor;
+pub mod net_batching;
 pub mod net_ordering;
 pub mod terminal_planning;
 pub mod theta_star;
@@ -321,6 +322,10 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     terminal_planning::register(m)?;
     // Wave-4: the router_v6 Theta* cluster (_astar_theta_star).
     theta_star::register(m)?;
+
+    // Phase E E5 (Rust Orchestration Engine plan 2026-08-09-001): the
+    // net-batching batch-loop orchestration primitives.
+    net_batching::register(m)?;
     Ok(())
 }
 

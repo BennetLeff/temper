@@ -41,7 +41,7 @@ from tests.router_v6 import _net_batching_py_oracle as _oracle
 
 
 def _make_net(name: str, pin_count: int) -> Net:
-    return Net(name=name, pins=[(f"U{i}", f"P{j}") for j in range(pin_count)])
+    return Net(name=name, pins=[(f"U{j}", f"P{j}") for j in range(pin_count)])
 
 
 def _net_topo(name: str, uses_channels: list[str]) -> NetTopology:
@@ -174,7 +174,9 @@ def test_mr3_shrink_decomposes_over_disjoint_consumed_sets():
     # the two arms agree bit-exact
     o = _shrunk(_oracle, widths, {**consumed_a, **consumed_b}, lookup)
     s = _shrunk(_shim, widths, {**consumed_a, **consumed_b}, lookup)
-    assert {l: cw.edge_widths for l, cw in o.items()} == {l: cw.edge_widths for l, cw in s.items()}
+    assert {layer: cw.edge_widths for layer, cw in o.items()} == {
+        layer: cw.edge_widths for layer, cw in s.items()
+    }
 
 
 # ---------------------------------------------------------------------------

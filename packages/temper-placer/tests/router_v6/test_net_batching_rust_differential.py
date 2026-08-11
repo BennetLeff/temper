@@ -108,7 +108,12 @@ def test_shim_delegates_to_rust(monkeypatch) -> None:
     ):
         calls: list = []
         real = getattr(_rtr, py_name)
-        monkeypatch.setattr(_rtr, py_name, lambda *a, **k: (calls.append(a), real(*a, **k))[1])
+
+        def _counting(*a, _calls=calls, _real=real, **k):
+            _calls.append(a)
+            return _real(*a, **k)
+
+        monkeypatch.setattr(_rtr, py_name, _counting)
         shim_fn(*args)
         assert calls, f"{shim_fn.__name__} did not call temper_rust_router.{py_name}"
 
@@ -119,7 +124,7 @@ def test_shim_delegates_to_rust(monkeypatch) -> None:
 
 
 def _make_net(name: str, pin_count: int, hub_ref: str | None = None) -> Net:
-    pins = [(f"U{i}", f"P{j}") for j in range(pin_count)]
+    pins = [(f"U{j}", f"P{j}") for j in range(pin_count)]
     if hub_ref is not None:
         pins.append((hub_ref, "P0"))
     return Net(name=name, pins=pins)
@@ -149,6 +154,19 @@ def _net_topo(name: str, uses_channels: list[str]) -> NetTopology:
     )
 
 
+def _widths_surface(channel_widths: dict[str, ChannelWidths]):
+    """Bit-exact surface of a ``channel_widths`` dict: per layer, the
+    ``edge_widths`` content (the only field ``_shrink_channel_widths``
+    changes) canonicalised through ``canon``'s float.hex().  ``canon``
+    itself cannot take a ``ChannelWidths`` (it is not in its hand-curated
+    ``FIELDS`` registry), so the dict is projected down to the edge-width
+    surface before comparison."""
+    return (
+        tuple(channel_widths.keys()),
+        tuple((layer, canon(cw.edge_widths)) for layer, cw in channel_widths.items()),
+    )
+
+
 def _fake_rules(widths: dict[str, tuple[float, float]]) -> SimpleNamespace:
     """Duck-typed design-rules stand-in: get_rules_for_net(name) ->
     (trace_width_mm, clearance_mm) via a SimpleNamespace rule."""
@@ -175,7 +193,6 @@ def _random_nets(rng: random.Random, n: int) -> list[Net]:
 
 def _random_nets_with_pairs(rng: random.Random, n_pairs: int) -> list[Net]:
     nets = []
-    base = 0
     for p in range(n_pairs):
         nets.append(_make_net(f"PAIR{p}_P", rng.randint(1, 6)))
         nets.append(_make_net(f"PAIR{p}_N", rng.randint(1, 6)))
@@ -279,7 +296,7 @@ def test_shrink_channel_widths_matches_oracle(seed: int) -> None:
 
     expected = _oracle._shrink_channel_widths(channel_widths, consumed, edge_lookup)
     got = _shim._shrink_channel_widths(channel_widths, consumed, edge_lookup)
-    assert canon(expected) == canon(got)
+    assert _widths_surface(expected) == _widths_surface(got)
 
 
 def test_shrink_channel_widths_empty_consumed_is_identity() -> None:
@@ -299,7 +316,7 @@ def test_shrink_channel_widths_reversed_edge_matches_oracle() -> None:
     consumed = {"e1": 0.7}
     expected = _oracle._shrink_channel_widths(widths, consumed, edge_lookup)
     got = _shim._shrink_channel_widths(widths, consumed, edge_lookup)
-    assert canon(expected) == canon(got)
+    assert _widths_surface(expected) == _widths_surface(got)
 
 
 def test_shrink_channel_widths_unknown_layer_and_edge_skipped() -> None:
@@ -311,7 +328,7 @@ def test_shrink_channel_widths_unknown_layer_and_edge_skipped() -> None:
     consumed = {"e1": 1.0, "e2": 2.0}
     expected = _oracle._shrink_channel_widths(widths, consumed, edge_lookup)
     got = _shim._shrink_channel_widths(widths, consumed, edge_lookup)
-    assert canon(expected) == canon(got)
+    assert _widths_surface(expected) == _widths_surface(got)
 
 
 # ---------------------------------------------------------------------------

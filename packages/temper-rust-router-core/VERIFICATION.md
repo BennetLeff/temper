@@ -318,3 +318,98 @@ equivalence, and unrelated-attribute non-interference.
 
 Per the Wave-4 discipline contract: R24 (physics discipline) is
 **N/A** — string classification, no physics quantity is gated.
+
+## Net-Batching Batch-Loop Orchestration — Verification (Phase E E5)
+
+Rust Orchestration Engine plan 2026-08-09-001, Phase E E5: the PORTABLE
+batch-loop orchestration of
+`packages/temper-placer/src/temper_placer/router_v6/net_batching.py` moves
+to `temper-rust-router-core::net_batching` (pure logic; the pyo3 surface is
+`temper-rust-router::net_batching`, registered append-only in that crate's
+`lib.rs`). The Python module keeps its full public API as a delegation shim
+(`order_nets_for_batching` / `_chunks` / `_shrink_channel_widths` /
+`_consume_capacity` now delegate; `run_net_batched_stage3`, the subprocess
+driver, `_solve_subset` and the `NetBatchResult` evidence stay Python). The
+pre-migration implementation is pinned VERBATIM as
+`packages/temper-placer/tests/router_v6/_net_batching_py_oracle.py`
+(content-hash registered in `scripts/oracle_hashes.json`).
+
+**G1 — differential oracle first (bit-identical).** The oracle (byte-identical
+to origin/main cfc9415c1) and the shims are driven with IDENTICAL inputs;
+every assertion is bit-exact (`float.hex()` via `canon`). Covered: net
+grouping (`order_nets_for_batching`, including hub-block handling through a
+temp `.kicad_pcb` fixture and the diff-pair post-pass), batch construction
+(`_chunks`, including the degenerate `size <= 0` CPython-slice behaviour),
+capacity shrink (`_shrink_channel_widths`, including the reversed-
+orientation edge match, the unknown-layer/unknown-edge skip, and the
+empty-consumed identity fast path) and capacity consume (`_consume_capacity`,
+including the incremental cross-batch shape and the `design_rules is None`
+no-op). Anti-vacuity is double-barrelled: the shim functions are distinct
+objects from the oracle's (`is not`), and each shim is monkeypatched to
+PROVE it invokes its `temper_rust_router` pyfunction (not a hidden
+re-implementation).
+
+**G4 — PBT (8 non-vacuous properties).** `test_net_batching_rust_pbt.py`:
+P1 the order is a permutation of every net index; P2 the LAST inferred
+diff pair's second net immediately follows its partner (the sharpest
+guarantee the post-pass provides — a later pair can move earlier ones);
+P3 chunking partitions the order (concat == order, chunk length <= size,
+no empty chunk for size >= 1); P4 `size <= 1` follows CPython slice
+semantics (size 1 → singletons, size 0 → empty slices, both pinned against
+the oracle); P5 shrink is monotone non-increasing and floored at 0; P6
+shrink is a pure function (inputs never mutated); P7 consume is exact per
+edge (the subset filter and per-net width both matter); P8 consume
+accumulates across batches (A then B == union). Every property has a
+`test_pN_guard_*` companion demonstrating the discriminator is live.
+
+**G5 — metamorphic (4 relations).** `test_net_batching_rust_metamorphic.py`,
+each verified on BOTH arms and required to agree: MR1 the order (as a name
+sequence) is invariant under a permutation of the net list; MR2 chunking
+merges (pairing `chunk(order, s)` == `chunk(order, 2s)` for a full
+last-chunk); MR3 shrink decomposes over disjoint consumed sets (sequential
+shrink == combined shrink, exactly, because the (u, v) keys are disjoint so
+float subtraction order cannot diverge); MR4 consume decomposes by batch.
+
+**G6 — induction.** Non-applicability note: none of the four primitives is
+recursive — `order_nets` is a stable sort plus a bounded linear post-pass,
+`chunk_indices` a bounded loop, `shrink_channel_widths` / `consume_capacity`
+single passes over ordered maps. No inductive invariant is claimed; the
+batch loop's cross-batch invariant (capacity carry-forward) is instead
+pinned by the differential's incremental-consume case, P8 and MR4.
+
+**G7 — Rust bar.** `cargo clippy --all-features --all-targets -- -D warnings`
+is clean on both crates; no `unwrap`/`expect` outside `#[cfg(test)]` (the
+crates deny `unwrap_used`/`expect_used` crate-wide; test modules exempt
+them, matching the existing core-crate pattern). The pyo3 boundary uses
+`PyResult` only where the oracle raises (`net_batch_order_py` mirrors the
+oracle's `order.index(p_i)` `ValueError`); the other three functions are
+total. `catch_unwind` is not needed here: none of the four kernels can
+panic on any marshalled input (all indexing is bounds-checked via
+`position`/`clamp`/`min`; the one `order[lo..hi]` slice is guarded by
+`lo < hi`), matching the crate convention that panicking pyfunctions get
+caught at the Python shim's normal exception boundary.
+
+**G8 — R24 (physics discipline).** **N/A** — budget/capacity accounting on
+a channel-edge width map is arithmetic over the constraint model's own
+input quantities, not a gate on a physics quantity; the CPython semantics
+(the float `==` key matching, the accumulation order, the `max(1, size)`
+floor) are the contract, and they are pinned bit-exactly by the
+differential rather than by a soundness bound.
+
+**The E5 boundary (what stays Python, with the reason).** The subprocess-
+per-batch driver (`_run_target_in_subprocess` / `_batch_worker_entry` /
+`_write_shared_context` / `_watch_peak_rss_kb` / `_run_subset_subprocess`)
+is `multiprocessing` orchestration — the plan's "No subprocess-wrapper
+migration" non-goal (the same carve-out `channel_mapping.rs` cites for its
+shapely-boundary pieces). `_solve_subset` (-> `ModelBuilder` +
+`solve_topology_rust`) is a callback into Python-only routing glue; the
+constraint-model build is the E1 surface, not this batch's. `run_net_batched_stage3`
+itself sequences those callbacks and the subprocess launches — porting it
+would mean crossing FFI back into Python per batch, the exact shape the
+task's "callbacks into Python-only routing glue stay Python" carve-out
+describes. The evidence records (`NetBatchResult`, trace lines) are
+measurement, not orchestration. The raw-text `_extract_ref_to_block` /
+`_net_touches_hub` re-derivation (regex over the `.kicad_pcb` file) stays
+Python — it is the same "re-derive evidence from the board file" pattern the
+pre-migration module already documented, and only its *consumer* (the
+name-based order) is differential surface.

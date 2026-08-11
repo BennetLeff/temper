@@ -41,17 +41,16 @@ property is falsifiable (the discriminator is live on a degenerate input).
 
 from __future__ import annotations
 
-import random
 from types import SimpleNamespace
 
 import hypothesis.strategies as st
-import pytest
 from hypothesis import given, settings
 
 from temper_placer.core.netlist import Net
 from temper_placer.router_v6 import net_batching as _shim
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.topology_extraction import NetTopology
+from tests.router_v6 import _net_batching_py_oracle as _oracle
 
 _SETTINGS = settings(max_examples=60, deadline=10000, suppress_health_check=[])
 
@@ -59,7 +58,7 @@ _NAMES = st.text(min_size=1, max_size=12, alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ01
 
 
 def _make_net(name: str, pin_count: int, hub_ref: str | None = None) -> Net:
-    pins = [(f"U{i}", f"P{j}") for j in range(pin_count)]
+    pins = [(f"U{j}", f"P{j}") for j in range(pin_count)]
     if hub_ref is not None:
         pins.append((hub_ref, "P0"))
     return Net(name=name, pins=pins)
@@ -125,35 +124,23 @@ def test_p1_guard_dropped_net_discriminates():
 
 
 @given(
-    st.lists(
-        st.tuples(_NAMES, _NAMES),
-        min_size=1,
-        max_size=3,
-        unique_by=lambda t: t[0],
-    )
+    st.lists(_NAMES, min_size=1, max_size=4, unique=True),
 )
 @_SETTINGS
-def test_p2_last_diff_pair_adjacent(pairs):
+def test_p2_last_diff_pair_adjacent(bases):
     nets = []
-    for p, n in pairs:
-        nets.append(_make_net(f"{p}_P", 2))
-        nets.append(_make_net(f"{n}_N", 1))
-    # Avoid auto-inferred pairs colliding with the crafted ones: use names
-    # that temper-geometry will NOT read as a pair.
+    for b in bases:
+        # A real differential pair shares a base: {b}_P / {b}_N.
+        nets.append(_make_net(f"{b}_P", 2))
+        nets.append(_make_net(f"{b}_N", 1))
     order = _shim.order_nets_for_batching(nets, None)
     names = [nets[i].name for i in order]
-    # The crafted pair names are e.g. "X_P"/"X_N" which the inference kernel
-    # may or may not group; only assert the property for the last pair the
-    # kernel actually inferred.
-    all_names = [n for pair in pairs for n in (f"{pair[0]}_P", f"{pair[1]}_N")]
     from temper_placer.router_v6.diff_pair_inference import infer_differential_pairs
 
-    inferred = infer_differential_pairs(all_names)
+    inferred = infer_differential_pairs([n.name for n in nets])
     if not inferred:
         return  # nothing inferred -> property vacuous for this input
     last = inferred[-1]
-    if last.p_net not in names or last.n_net not in names:
-        return
     pos_p = names.index(last.p_net)
     pos_n = names.index(last.n_net)
     assert pos_n == pos_p + 1
@@ -202,22 +189,29 @@ def test_p3_guard_overlong_chunk_discriminates():
 
 
 # ---------------------------------------------------------------------------
-# P4 — size <= 1 chunks as singletons
+# P4 — size <= 1 follows CPython's slice semantics
 # ---------------------------------------------------------------------------
 
 
 @given(st.lists(st.integers(min_value=0, max_value=20), min_size=0, max_size=25))
 @_SETTINGS
-def test_p4_size_at_most_one_yields_singletons(order):
-    for size in (0, 1):
-        chunks = list(_shim._chunks(order, size))
-        assert [len(c) for c in chunks] == [1] * len(order)
+def test_p4_size_at_most_one_follows_python_slices(order):
+    # size 1: singletons.
+    assert [len(c) for c in _shim._chunks(order, 1)] == [1] * len(order)
+    # size 0: every chunk is the empty slice seq[i:i] (CPython).
+    chunks = list(_shim._chunks(order, 0))
+    assert [len(c) for c in chunks] == [0] * len(order)
+    # Both sides of the size<=1 floor agree with the pinned oracle.
+    assert list(_shim._chunks(order, 1)) == list(_oracle._chunks(order, 1))
+    assert list(_shim._chunks(order, 0)) == list(_oracle._chunks(order, 0))
 
 
-def test_p4_guard_singleton_floor_discriminates():
+def test_p4_guard_slice_floor_discriminates():
     order = [10, 20, 30]
-    assert [len(c) for c in _shim._chunks(order, 0)] == [1, 1, 1]
+    # size 1 -> singletons; size 0 -> empty slices. A kernel that yielded
+    # one giant chunk for size<=1 would fail both.
     assert [len(c) for c in _shim._chunks(order, 1)] == [1, 1, 1]
+    assert [len(c) for c in _shim._chunks(order, 0)] == [0, 0, 0]
 
 
 # ---------------------------------------------------------------------------
@@ -238,7 +232,7 @@ _PT = st.tuples(
 @_SETTINGS
 def test_p5_shrink_is_monotone_and_floored(edges, widths):
     widths = (widths + [1.0] * len(edges))[: len(edges)]
-    spec = {"F.Cu": {edge: w for edge, w in zip(edges, widths)}}
+    spec = {"F.Cu": dict(zip(edges, widths))}
     edge_widths = spec["F.Cu"]
     channel_widths = _make_widths(spec)
     edge_lookup = {f"e{i}": ("F.Cu", u, v) for i, ((u, v), _) in enumerate(edge_widths.items())}
@@ -268,11 +262,11 @@ def test_p5_guard_width_increase_discriminates():
 )
 @_SETTINGS
 def test_p6_shrink_does_not_mutate_inputs(edges):
-    spec = {"F.Cu": {edge: 2.5 for edge in edges}}
+    spec = {"F.Cu": dict.fromkeys(edges, 2.5)}
     channel_widths = _make_widths(spec)
     edge_lookup = {f"e{i}": ("F.Cu", u, v) for i, (u, v) in enumerate(edges)}
     consumed = {f"e{i}": 0.7 for i in range(len(edges))}
-    before_widths = {l: dict(cw.edge_widths) for l, cw in channel_widths.items()}
+    before_widths = {layer: dict(cw.edge_widths) for layer, cw in channel_widths.items()}
     before_consumed = dict(consumed)
     before_lookup = dict(edge_lookup)
     _shim._shrink_channel_widths(channel_widths, consumed, edge_lookup)
@@ -301,7 +295,7 @@ def test_p6_guard_mutation_discriminates():
 @_SETTINGS
 def test_p7_consume_is_exact(names, counts):
     counts = (counts + [1] * len(names))[: len(names)]
-    rules = _fake_rules({n: (0.3, 0.2) for n in names})
+    rules = _fake_rules(dict.fromkeys(names, (0.3, 0.2)))
     topo = {n: _net_topo(n, [f"e{i % 5}" for i in range(c)]) for n, c in zip(names, counts)}
     nets = [_make_net(n, 1) for n in names]
     consumed: dict[str, float] = {}
