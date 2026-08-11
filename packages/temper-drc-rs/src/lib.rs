@@ -29,6 +29,10 @@ pub mod req_safe_01;
 pub mod dfm;
 #[cfg(feature = "python")]
 pub mod dfm_py;
+// U1 of docs/plans/2026-08-11-001-feat-wasm-tier-phase2-plan.md — the
+// portable FabricationEnvelope type. Plain data, no pyo3: unconditional
+// like ipc.rs, so it is present in a `--no-default-features` wasm32 build.
+pub mod manufacturing;
 pub mod pymath;
 pub mod validation_kernels;
 #[cfg(feature = "python")]
