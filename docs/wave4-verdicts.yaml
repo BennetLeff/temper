@@ -1013,6 +1013,14 @@ removal_surfaces:
       bar to port against, so the R1 target is direct HTML/Plotly-JS emission
       from Rust, not a translated plotly.py. Re-triage plan Sec 5,
       6,086 LOC.
+      DEPRECATED 2026-08-11 (chore/deprecate-visualization): the package had
+      zero production consumers -- nothing outside the package imported it.
+      The only external use was a requirements/safety test oracle that pinned
+      the R(-theta) rendering convention (Rectangle.corners / get_pad_shapes),
+      now validated directly against kicad_transform + pcbnew. The 11-file
+      package (5,508 LOC) + its sole-for tests were deleted; pipeline/
+      terminal_dashboard.py + visualization.py (rich/click, live via the watch
+      CLI) are unaffected.
   - paths:
       - packages/temper-placer/src/temper_placer/router_v6/benchmark.py
       - packages/temper-placer/src/temper_placer/router_v6/diagnostics.py

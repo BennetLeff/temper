@@ -130,7 +130,6 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["ARG001", "ARG002"]
 "**/cli/**/*.py" = ["ARG001"]  # click decorators bind params
-"**/visualization/routing_health.py" = ["E701", "E702", "F821"]  # compact routing debug logic
 "**/validation/drc_runner.py" = ["E741"]  # loop variable in listcomp
 "**/pcl/tag_dispatch.py" = ["UP007"]  # Optional for compat
 # Wave-4 differential oracles are VERBATIM copies of the pre-migration
