@@ -37,7 +37,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 70 eligible tests, in a stable order.  Each entry is
+/// All 1648 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -49,6 +49,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-constraint-compiler")] crate::desugar_tier1::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-constraint-compiler")] crate::ir_tier0::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-constraint-compiler")] crate::ir_tier1::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-constraint-compiler")] crate::property_campaigns::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-constraint-compiler")] crate::provenance::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-constraint-compiler")] crate::type_lattice::tests::WASM_TESTS,
 ];
