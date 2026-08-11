@@ -2,7 +2,41 @@
 // kernel (`Component::edge_distance_to` / `Component::overlaps`, board.rs),
 // seeded from real footprint courtyard geometry extracted from
 // `pcb/temper.kicad_pcb` (read-only extraction; that file is never touched
-// by this module or its generator).
+// by this module or its generator), plus three more portable kernels each
+// with its own `#[cfg(test)] mod proptests` that -- same reason as this
+// module's own geometry kernel -- cannot be registered directly because
+// `proptest` is a dev-dependency absent from the ordinary (non-test) build
+// the `wasm-registry` feature compiles into:
+//
+//   * `ipc.rs` -- IPC-2221/2152 current-capacity and trace-width kernels
+//     (`estimate_trace_current`, `calculate_min_trace_width`,
+//     `get_net_current`); mirrors `ipc::proptests`' nine properties (P1-P9).
+//   * `pymath.rs` -- CPython float-semantics kernels (`py_max`, `py_min`,
+//     `py_round_to_int`, `py_hypot`); mirrors `pymath::proptests`' fifteen
+//     *structural* properties (P1-P15) -- monotonicity, symmetry, NaN
+//     handling, tie-breaking. `pymath::pow`/`cos`/`sin`/`acos`/`sqrt` are
+//     NOT mirrored here: those resolve the *host CPython interpreter's*
+//     libm via `dlsym` on native and fall back to the statically-bound
+//     `f64::*` on `wasm32` (no dynamic loader there), so a property
+//     asserting their agreement with a captured CPython reference value
+//     would pass vacuously on `wasm32` regardless of whether the kernel is
+//     actually right -- see `pymath.rs`'s module doc and its own
+//     `pow_is_not_a_multiply_or_a_sqrt`/`host_libm_symbols_actually_resolve`
+//     tests (already registered, non-`proptest`, and among this crate's
+//     `b7-pow-divergence-absent` catalogued wasm32 expected-failures).
+//     `pymath::proptests` itself, read in full below, does not contain such
+//     a property -- none of its fifteen properties call `pow`, `cos`,
+//     `sin`, `acos`, or `sqrt` -- so nothing was excluded here; this note
+//     records that the check was made, not a skip.
+//   * `validation_kernels.rs` -- portable DRC validation kernels
+//     (`infer_package_type`, `tht_hole_collisions`, `min_hv_lv_trace_clearance`,
+//     `issue_fingerprint`); mirrors `validation_kernels::proptests`' seven
+//     properties (P1-P7). These kernels square through `pymath::pow`
+//     internally (`tht_hole_collisions`, via CPython's `** 2`), but no
+//     mirrored property compares the result against a captured CPython
+//     value -- each is a structural relation (non-negativity, symmetry,
+//     message contents) that holds under either the dlsym'd host libm or
+//     the `wasm32` `f64::powf` fallback, so all seven mirror cleanly.
 //
 // Why this exists (R7 / the WASM-tier volume payload)
 // -----------------------------------------------------------------------
@@ -45,6 +79,11 @@
 // layer `F.CrtYd`/`B.CrtYd`. No `pcb/temper.kicad_pcb` byte was written.
 
 use crate::board::{BoardSide, Component, ComponentRef, NetClassName, PackageType};
+use crate::ipc::{calculate_min_trace_width, estimate_trace_current, get_net_current};
+use crate::pymath::{py_hypot, py_max, py_min, py_round_to_int};
+use crate::validation_kernels::{
+    infer_package_type, issue_fingerprint, min_hv_lv_trace_clearance, tht_hole_collisions,
+};
 use geo::{Coord, LineString, Point, Polygon};
 
 // ---------------------------------------------------------------------------
@@ -714,6 +753,541 @@ pub fn replay_seed(seed: u64) -> (Component, Component) {
     gen_case(seed)
 }
 
+// ===========================================================================
+// Kernel: ipc.rs -- IPC-2221/2152 current-capacity and trace-width kernels.
+// Mirrors `ipc::proptests`' nine properties (P1-P9).
+// ===========================================================================
+
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn ipc_positive_width(rng: &mut SplitMix64) -> f64 {
+    rng.range(0.01, 100.0)
+}
+
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn ipc_positive_current(rng: &mut SplitMix64) -> f64 {
+    rng.range(0.01, 50.0)
+}
+
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn ipc_reasonable_temp_rise(rng: &mut SplitMix64) -> f64 {
+    rng.range(1.0, 100.0)
+}
+
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn ipc_copper_oz(rng: &mut SplitMix64) -> f64 {
+    rng.range(0.5, 4.0)
+}
+
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn ipc_gen_bool(rng: &mut SplitMix64) -> bool {
+    rng.index(2) == 0
+}
+
+/// A net-name-shaped string: `[A-Za-z0-9_+]{1,32}`, matching
+/// `ipc::proptests::p9_net_current_non_negative`'s strategy.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn ipc_gen_net_name(rng: &mut SplitMix64) -> String {
+    const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_+";
+    let len = 1 + rng.index(32);
+    (0..len).map(|_| ALPHABET[rng.index(ALPHABET.len())] as char).collect()
+}
+
+/// P1. Current capacity is always non-negative for non-negative inputs.
+///
+/// Bug this would catch: a sign error or an unguarded `powf` on a negative
+/// intermediate turning the k*ΔT^0.44*A^0.725 formula negative.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn ipc_p1_current_capacity_non_negative_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let w = ipc_positive_width(&mut rng);
+    let oz = ipc_copper_oz(&mut rng);
+    let tr = ipc_reasonable_temp_rise(&mut rng);
+    let internal = ipc_gen_bool(&mut rng);
+    let i = estimate_trace_current(w, oz, tr, internal);
+    assert!(i >= 0.0, "current should be >= 0, got {i} (seed={seed})");
+}
+
+/// P2. Current capacity is strictly monotone in trace width: wider traces
+/// carry more current (all else equal).
+///
+/// Bug this would catch: an inverted or misapplied exponent on the area
+/// term (`area_mils2.powf(0.725)`).
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn ipc_p2_current_capacity_monotone_in_width_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let w1 = ipc_positive_width(&mut rng);
+    let delta = rng.range(0.01, 50.0);
+    let oz = ipc_copper_oz(&mut rng);
+    let tr = ipc_reasonable_temp_rise(&mut rng);
+    let internal = ipc_gen_bool(&mut rng);
+    let w2 = w1 + delta;
+    let i1 = estimate_trace_current(w1, oz, tr, internal);
+    let i2 = estimate_trace_current(w2, oz, tr, internal);
+    assert!(
+        i2 > i1,
+        "wider trace ({w2} > {w1}) should carry more current, got {i2} <= {i1} (seed={seed})"
+    );
+}
+
+/// P3. Higher temperature rise allows more current (more headroom).
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn ipc_p3_current_capacity_monotone_in_temp_rise_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let w = ipc_positive_width(&mut rng);
+    let oz = ipc_copper_oz(&mut rng);
+    let tr1 = ipc_reasonable_temp_rise(&mut rng);
+    let delta = rng.range(1.0, 50.0);
+    let internal = ipc_gen_bool(&mut rng);
+    let tr2 = tr1 + delta;
+    let i1 = estimate_trace_current(w, oz, tr1, internal);
+    let i2 = estimate_trace_current(w, oz, tr2, internal);
+    assert!(
+        i2 > i1,
+        "higher temp rise ({tr2} > {tr1}) should allow more current (seed={seed})"
+    );
+}
+
+/// P4. External layers carry more current than internal for the same
+/// parameters (`k_external = 0.048 > k_internal = 0.024`).
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn ipc_p4_external_carries_more_than_internal_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let w = ipc_positive_width(&mut rng);
+    let oz = ipc_copper_oz(&mut rng);
+    let tr = ipc_reasonable_temp_rise(&mut rng);
+    let i_ext = estimate_trace_current(w, oz, tr, false);
+    let i_int = estimate_trace_current(w, oz, tr, true);
+    assert!(i_ext > i_int, "external should carry more current: {i_ext} <= {i_int} (seed={seed})");
+}
+
+/// P5. Minimum trace width is non-negative for any positive current.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn ipc_p5_min_trace_width_non_negative_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let cur = ipc_positive_current(&mut rng);
+    let oz = ipc_copper_oz(&mut rng);
+    let tr = ipc_reasonable_temp_rise(&mut rng);
+    let internal = ipc_gen_bool(&mut rng);
+    let w = calculate_min_trace_width(cur, oz, tr, internal);
+    assert!(w >= 0.0, "min trace width should be >= 0, got {w} (seed={seed})");
+}
+
+/// P6. Higher current demands wider traces (monotone in current).
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn ipc_p6_min_trace_width_monotone_in_current_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let cur1 = ipc_positive_current(&mut rng);
+    let delta = rng.range(0.1, 30.0);
+    let oz = ipc_copper_oz(&mut rng);
+    let tr = ipc_reasonable_temp_rise(&mut rng);
+    let internal = ipc_gen_bool(&mut rng);
+    let cur2 = cur1 + delta;
+    let w1 = calculate_min_trace_width(cur1, oz, tr, internal);
+    let w2 = calculate_min_trace_width(cur2, oz, tr, internal);
+    assert!(
+        w2 > w1,
+        "higher current ({cur2} > {cur1}) should require wider trace, got {w2} <= {w1} (seed={seed})"
+    );
+}
+
+/// P7. Internal layers require wider traces than external for the same
+/// current.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn ipc_p7_internal_needs_wider_than_external_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let cur = ipc_positive_current(&mut rng);
+    let oz = ipc_copper_oz(&mut rng);
+    let tr = ipc_reasonable_temp_rise(&mut rng);
+    let w_ext = calculate_min_trace_width(cur, oz, tr, false);
+    let w_int = calculate_min_trace_width(cur, oz, tr, true);
+    assert!(w_int > w_ext, "internal should need wider trace: {w_int} <= {w_ext} (seed={seed})");
+}
+
+/// P8. Width -> current -> width is approximate identity (within 2%
+/// relative tolerance for typical values).
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn ipc_p8_trace_width_round_trip_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let w = rng.range(0.1, 10.0);
+    let oz = ipc_copper_oz(&mut rng);
+    let tr = ipc_reasonable_temp_rise(&mut rng);
+    let internal = ipc_gen_bool(&mut rng);
+    let cur = estimate_trace_current(w, oz, tr, internal);
+    let w2 = calculate_min_trace_width(cur, oz, tr, internal);
+    let rel_err = if w > 0.0 { (w2 - w).abs() / w } else { 0.0 };
+    assert!(
+        rel_err < 0.02,
+        "round-trip error too large: w={w}, cur={cur}, w2={w2}, rel_err={rel_err} (seed={seed})"
+    );
+}
+
+/// P9. `get_net_current` always returns a non-negative value.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn ipc_p9_net_current_non_negative_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let name = ipc_gen_net_name(&mut rng);
+    let cur = get_net_current(&name);
+    assert!(cur >= 0.0, "net current should be >= 0 for '{name}', got {cur} (seed={seed})");
+}
+
+// ===========================================================================
+// Kernel: pymath.rs -- CPython float-semantics kernels. Mirrors
+// `pymath::proptests`' fifteen *structural* properties (P1-P15). Does NOT
+// mirror `pymath::pow`/`cos`/`sin`/`acos`/`sqrt` bit-exactness against a
+// captured CPython value -- see this file's module doc for why (the dlsym
+// indirection is absent on `wasm32`, so such a property would pass
+// vacuously there) and confirmation that `pymath::proptests` contains no
+// such property to skip.
+// ===========================================================================
+
+/// A normal (finite, nonzero, non-subnormal) `f64`: rejection-samples raw
+/// bit patterns until the exponent field is neither all-zero (subnormal or
+/// zero) nor all-one (inf/NaN), matching `proptest::num::f64::NORMAL`'s
+/// domain -- full sign/mantissa range, no NaN or infinity special cases.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn pm_gen_normal(rng: &mut SplitMix64) -> f64 {
+    loop {
+        let bits = rng.next_u64();
+        let exp = (bits >> 52) & 0x7FF;
+        if exp != 0 && exp != 0x7FF {
+            return f64::from_bits(bits);
+        }
+    }
+}
+
+/// P1. `py_max(a,b)` returns the larger of two non-NaN values.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p1_py_max_returns_larger_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let a = pm_gen_normal(&mut rng);
+    let b = pm_gen_normal(&mut rng);
+    let r = py_max(a, b);
+    let expected = a.max(b);
+    assert_eq!(r, expected, "py_max({a},{b})={r} != max={expected} (seed={seed})");
+}
+
+/// P2. `py_max` returns one of its two arguments (identity for all non-NaN
+/// inputs).
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p2_py_max_returns_one_of_inputs_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let a = pm_gen_normal(&mut rng);
+    let b = pm_gen_normal(&mut rng);
+    let r = py_max(a, b);
+    assert!(
+        r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits(),
+        "py_max({a},{b})={r} is neither a nor b (seed={seed})"
+    );
+}
+
+/// P3. When the first argument is NaN, `py_max` returns NaN (CPython `max`
+/// keeps the first argument).
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p3_py_max_nan_first_returns_nan_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let b = pm_gen_normal(&mut rng);
+    assert!(py_max(f64::NAN, b).is_nan(), "seed={seed}");
+}
+
+/// P4. When only the second argument is NaN, `py_max` keeps the first
+/// (non-NaN) argument.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p4_py_max_nan_second_returns_first_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let a = pm_gen_normal(&mut rng);
+    assert_eq!(py_max(a, f64::NAN), a, "seed={seed}");
+}
+
+/// P5. `py_min(a,b)` returns the smaller of two non-NaN values.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p5_py_min_returns_smaller_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let a = pm_gen_normal(&mut rng);
+    let b = pm_gen_normal(&mut rng);
+    let r = py_min(a, b);
+    let expected = a.min(b);
+    assert_eq!(r, expected, "py_min({a},{b})={r} != min={expected} (seed={seed})");
+}
+
+/// P6. `py_min` returns one of its two arguments.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p6_py_min_returns_one_of_inputs_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let a = pm_gen_normal(&mut rng);
+    let b = pm_gen_normal(&mut rng);
+    let r = py_min(a, b);
+    assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits(), "seed={seed}");
+}
+
+/// P7. NaN first: `py_min(NaN, x)` is NaN.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p7_py_min_nan_first_returns_nan_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let b = pm_gen_normal(&mut rng);
+    assert!(py_min(f64::NAN, b).is_nan(), "seed={seed}");
+}
+
+/// P8. NaN second: `py_min(x, NaN)` keeps x.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p8_py_min_nan_second_returns_first_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let a = pm_gen_normal(&mut rng);
+    assert_eq!(py_min(a, f64::NAN), a, "seed={seed}");
+}
+
+/// P9. `py_round_to_int(x)` is an exact integer (fractional part 0).
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p9_py_round_to_int_is_integer_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let x = pm_gen_normal(&mut rng);
+    let r = py_round_to_int(x);
+    assert_eq!(r.trunc(), r, "py_round_to_int({x})={r} has fractional part (seed={seed})");
+}
+
+/// P10. `py_round_to_int(x)` differs from `x` by at most 0.5.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p10_py_round_to_int_diff_at_most_half_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let x = pm_gen_normal(&mut rng);
+    let r = py_round_to_int(x);
+    assert!(
+        (r - x).abs() <= 0.5 + 1e-12,
+        "py_round_to_int({x})={r} differs by {} > 0.5 (seed={seed})",
+        (r - x).abs()
+    );
+}
+
+/// P11. Round-half-to-even: for exactly-representable `n + 0.5`,
+/// `py_round_to_int` lands on an even integer.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p11_py_round_to_int_ties_to_even_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    // |n| < 1_000_000 << 2^52, so n + 0.5 is always exactly representable
+    // (matching the original proptest's `prop_assume!` filter, guaranteed
+    // here by construction rather than filtered post hoc).
+    let n: i64 = -1_000_000 + (rng.next_u64() % 2_000_001) as i64;
+    let x = n as f64 + 0.5;
+    let r = py_round_to_int(x);
+    assert_eq!(r % 2.0, 0.0, "round({x})={r}, not even (seed={seed})");
+}
+
+/// P12. `py_hypot` is non-negative.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p12_py_hypot_non_negative_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let a = pm_gen_normal(&mut rng);
+    let b = pm_gen_normal(&mut rng);
+    assert!(py_hypot(a, b) >= 0.0, "seed={seed}");
+}
+
+/// P13. `py_hypot` is symmetric.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p13_py_hypot_symmetric_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let a = pm_gen_normal(&mut rng);
+    let b = pm_gen_normal(&mut rng);
+    assert_eq!(py_hypot(a, b), py_hypot(b, a), "seed={seed}");
+}
+
+/// P14. `py_hypot(a, b) >= max(|a|, |b|)`.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p14_py_hypot_ge_max_abs_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let a = pm_gen_normal(&mut rng);
+    let b = pm_gen_normal(&mut rng);
+    let h = py_hypot(a, b);
+    let m = a.abs().max(b.abs());
+    assert!(h >= m, "py_hypot({a},{b})={h} < max={m} (seed={seed})");
+}
+
+/// P15. `py_hypot(0, x) == |x|` for non-NaN x.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn pm_p15_py_hypot_zero_returns_abs_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let x = pm_gen_normal(&mut rng);
+    assert_eq!(py_hypot(0.0, x), x.abs(), "seed={seed}");
+    assert_eq!(py_hypot(x, 0.0), x.abs(), "seed={seed}");
+}
+
+// ===========================================================================
+// Kernel: validation_kernels.rs -- portable DRC validation kernels. Mirrors
+// `validation_kernels::proptests`' seven properties (P1-P7). These kernels
+// square through `pymath::pow` internally, but no mirrored property
+// compares against a captured CPython value (each is a structural relation
+// that holds under either libm), so all seven mirror without exclusion.
+// ===========================================================================
+
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn vk_gen_val(rng: &mut SplitMix64) -> f64 {
+    rng.range(-1e4, 1e4)
+}
+
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn vk_gen_trace_seg(rng: &mut SplitMix64) -> (f64, f64, f64, f64) {
+    (vk_gen_val(rng), vk_gen_val(rng), vk_gen_val(rng), vk_gen_val(rng))
+}
+
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn vk_gen_trace_segs(rng: &mut SplitMix64, min_len: usize, max_len: usize) -> Vec<(f64, f64, f64, f64)> {
+    let n = min_len + rng.index(max_len - min_len + 1);
+    (0..n).map(|_| vk_gen_trace_seg(rng)).collect()
+}
+
+/// A footprint-name-shaped string: `[A-Za-z0-9_-]*` (may be empty), matching
+/// `validation_kernels::proptests::p1_infer_package_type_is_known`.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn vk_gen_footprint_name(rng: &mut SplitMix64) -> String {
+    const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+    let len = rng.index(24);
+    (0..len).map(|_| ALPHABET[rng.index(ALPHABET.len())] as char).collect()
+}
+
+/// A component-ref-shaped string: `[A-Z][a-z]?`.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn vk_gen_ref(rng: &mut SplitMix64) -> String {
+    const UPPER: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const LOWER: &[u8] = b"abcdefghijklmnopqrstuvwxyz";
+    let mut s = String::new();
+    s.push(UPPER[rng.index(UPPER.len())] as char);
+    if rng.index(2) == 0 {
+        s.push(LOWER[rng.index(LOWER.len())] as char);
+    }
+    s
+}
+
+/// A DRC-code-shaped string: `[A-Z_]+` (at least one char).
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn vk_gen_code(rng: &mut SplitMix64) -> String {
+    const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+    let len = 1 + rng.index(8);
+    (0..len).map(|_| ALPHABET[rng.index(ALPHABET.len())] as char).collect()
+}
+
+/// A message-shaped string: `[a-z ]+` (at least one char).
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn vk_gen_message(rng: &mut SplitMix64) -> String {
+    const ALPHABET: &[u8] = b"abcdefghijklmnopqrstuvwxyz ";
+    let len = 1 + rng.index(12);
+    (0..len).map(|_| ALPHABET[rng.index(ALPHABET.len())] as char).collect()
+}
+
+/// An item-shaped string: `[A-Za-z0-9.]+` (at least one char).
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn vk_gen_item(rng: &mut SplitMix64) -> String {
+    const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.";
+    let len = 1 + rng.index(8);
+    (0..len).map(|_| ALPHABET[rng.index(ALPHABET.len())] as char).collect()
+}
+
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+fn vk_gen_items(rng: &mut SplitMix64, max_len: usize) -> Vec<String> {
+    let n = rng.index(max_len + 1);
+    (0..n).map(|_| vk_gen_item(rng)).collect()
+}
+
+/// P1. `infer_package_type` always returns one of the known package-type
+/// strings.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn vk_p1_infer_package_type_is_known_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let name = vk_gen_footprint_name(&mut rng);
+    let result = infer_package_type(Some(name));
+    let known = ["smd", "tht", "to247", "to220", "bga", "qfn", "qfp", "dpak"];
+    assert!(known.contains(&result.as_str()), "unknown result '{result}' (seed={seed})");
+}
+
+/// P2. Violation count is 0 when the distance between holes exceeds the
+/// required clearance by a large margin.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn vk_p2_tht_no_violations_when_distant_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let x1 = vk_gen_val(&mut rng);
+    let y1 = vk_gen_val(&mut rng);
+    let r1 = rng.range(0.0, 1.0);
+    let r2 = rng.range(0.0, 1.0);
+    let holes = vec![
+        ("A".to_string(), "1".to_string(), x1, y1, r1),
+        ("B".to_string(), "1".to_string(), x1 + 1000.0, y1 + 1000.0, r2),
+    ];
+    let violations = tht_hole_collisions(holes, 10.0);
+    assert!(violations.is_empty(), "distant holes should not collide: {violations:?} (seed={seed})");
+}
+
+/// P3. Each violation message references both component refs.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn vk_p3_tht_violation_message_has_both_refs_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let mut ref_a = vk_gen_ref(&mut rng);
+    let mut ref_b = vk_gen_ref(&mut rng);
+    // The original proptest's `prop_assume!(ref_a != ref_b)` -- guaranteed
+    // by construction instead of filtered, so no case is thrown away.
+    if ref_a == ref_b {
+        ref_b.push('Z');
+        ref_a.push('Y');
+    }
+    let x = vk_gen_val(&mut rng);
+    let y = vk_gen_val(&mut rng);
+    let holes = vec![
+        (ref_a.clone(), "1".to_string(), x, y, 5.0),
+        (ref_b.clone(), "1".to_string(), x, y, 5.0),
+    ];
+    let violations = tht_hole_collisions(holes, 1.0);
+    for msg in &violations {
+        assert!(msg.contains(&ref_a), "message '{msg}' missing ref '{ref_a}' (seed={seed})");
+        assert!(msg.contains(&ref_b), "message '{msg}' missing ref '{ref_b}' (seed={seed})");
+    }
+}
+
+/// P4. `min_hv_lv_trace_clearance` is never negative for non-empty inputs.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn vk_p4_min_clearance_non_negative_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let hv = vk_gen_trace_segs(&mut rng, 1, 4);
+    let lv = vk_gen_trace_segs(&mut rng, 1, 4);
+    let d = min_hv_lv_trace_clearance(&hv, &lv);
+    assert!(d >= 0.0, "negative clearance {d} (seed={seed})");
+}
+
+/// P5. `min_hv_lv_trace_clearance` is symmetric: swapping `hv` and `lv`
+/// gives the same result.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn vk_p5_min_clearance_symmetric_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let hv = vk_gen_trace_segs(&mut rng, 0, 4);
+    let lv = vk_gen_trace_segs(&mut rng, 0, 4);
+    let d1 = min_hv_lv_trace_clearance(&hv, &lv);
+    let d2 = min_hv_lv_trace_clearance(&lv, &hv);
+    assert_eq!(d1, d2, "asymmetric: hv/lv={d1}, lv/hv={d2} (seed={seed})");
+}
+
+/// P6. `issue_fingerprint` contains the code and message strings.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn vk_p6_fingerprint_contains_code_and_message_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let code = vk_gen_code(&mut rng);
+    let message = vk_gen_message(&mut rng);
+    let items = vk_gen_items(&mut rng, 5);
+    let fp = issue_fingerprint(&code, &message, items);
+    let expected_start = format!("{code}:");
+    let expected_mid = format!(":{message}:");
+    assert!(fp.starts_with(&expected_start), "seed={seed}");
+    assert!(fp.contains(&expected_mid), "seed={seed}");
+}
+
+/// P7. The fingerprint is invariant under reordering of items.
+#[allow(dead_code)] // reachable only via tests::WASM_TESTS
+pub(crate) fn vk_p7_fingerprint_order_invariant_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let code = vk_gen_code(&mut rng);
+    let message = vk_gen_message(&mut rng);
+    let mut items = vk_gen_items(&mut rng, 5);
+    let fp1 = issue_fingerprint(&code, &message, items.clone());
+    items.reverse();
+    let fp2 = issue_fingerprint(&code, &message, items);
+    assert_eq!(fp1, fp2, "fingerprint not invariant: '{fp1}' vs '{fp2}' (seed={seed})");
+}
+
+
 #[cfg(any(test, feature = "wasm-registry"))]
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
@@ -750,6 +1324,45 @@ pub(crate) mod tests {
         let b = [(1.0, 0.0), (2.0, 0.0), (2.0, 1.0), (1.0, 1.0), (1.0, 0.0)];
         let (d, _, _) = naive_closest(&a, &b);
         assert!(d < 1e-9, "expected ~0.0, got {d}");
+    }
+
+    #[cfg_attr(test, test)]
+    fn ipc_p8_generators_are_deterministic_in_seed() {
+        let mut a = SplitMix64::new(4242);
+        let mut b = SplitMix64::new(4242);
+        assert_eq!(ipc_gen_net_name(&mut a), ipc_gen_net_name(&mut b));
+    }
+
+    #[cfg_attr(test, test)]
+    fn pm_gen_normal_is_deterministic_in_seed() {
+        let mut a = SplitMix64::new(1337);
+        let mut b = SplitMix64::new(1337);
+        assert_eq!(pm_gen_normal(&mut a).to_bits(), pm_gen_normal(&mut b).to_bits());
+    }
+
+    #[cfg_attr(test, test)]
+    fn pm_gen_normal_excludes_nan_inf_subnormal_zero() {
+        let mut rng = SplitMix64::new(99);
+        for _ in 0..2000 {
+            let x = pm_gen_normal(&mut rng);
+            assert!(x.is_finite(), "pm_gen_normal produced non-finite {x}");
+            assert!(x != 0.0, "pm_gen_normal produced zero");
+            assert!(x.is_normal(), "pm_gen_normal produced a subnormal {x}");
+        }
+    }
+
+    #[cfg_attr(test, test)]
+    fn vk_gen_ref_matches_regex_shape() {
+        let mut rng = SplitMix64::new(2222);
+        for _ in 0..200 {
+            let r = vk_gen_ref(&mut rng);
+            assert!(r.len() == 1 || r.len() == 2, "unexpected ref length: '{r}'");
+            let first = r.as_bytes()[0];
+            assert!(first.is_ascii_uppercase(), "ref '{r}' does not start uppercase");
+            if r.len() == 2 {
+                assert!(r.as_bytes()[1].is_ascii_lowercase(), "ref '{r}' second char not lowercase");
+            }
+        }
     }
 
     // --- BEGIN generated seeded property wrappers (tools/wasm/gen_property_campaign.py) ---
@@ -3754,6 +4367,3137 @@ pub(crate) mod tests {
     fn naive_reference_agreement_seed_000298() { edge_distance_naive_reference_agreement_impl(298); }
     #[cfg_attr(test, test)]
     fn naive_reference_agreement_seed_000299() { edge_distance_naive_reference_agreement_impl(299); }
+    // --- ipc_p1_current_capacity_non_negative: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000000() { ipc_p1_current_capacity_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000001() { ipc_p1_current_capacity_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000002() { ipc_p1_current_capacity_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000003() { ipc_p1_current_capacity_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000004() { ipc_p1_current_capacity_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000005() { ipc_p1_current_capacity_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000006() { ipc_p1_current_capacity_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000007() { ipc_p1_current_capacity_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000008() { ipc_p1_current_capacity_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000009() { ipc_p1_current_capacity_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000010() { ipc_p1_current_capacity_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000011() { ipc_p1_current_capacity_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000012() { ipc_p1_current_capacity_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000013() { ipc_p1_current_capacity_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000014() { ipc_p1_current_capacity_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000015() { ipc_p1_current_capacity_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000016() { ipc_p1_current_capacity_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000017() { ipc_p1_current_capacity_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000018() { ipc_p1_current_capacity_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000019() { ipc_p1_current_capacity_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000020() { ipc_p1_current_capacity_non_negative_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000021() { ipc_p1_current_capacity_non_negative_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000022() { ipc_p1_current_capacity_non_negative_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000023() { ipc_p1_current_capacity_non_negative_impl(23); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000024() { ipc_p1_current_capacity_non_negative_impl(24); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000025() { ipc_p1_current_capacity_non_negative_impl(25); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000026() { ipc_p1_current_capacity_non_negative_impl(26); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000027() { ipc_p1_current_capacity_non_negative_impl(27); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000028() { ipc_p1_current_capacity_non_negative_impl(28); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000029() { ipc_p1_current_capacity_non_negative_impl(29); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000030() { ipc_p1_current_capacity_non_negative_impl(30); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000031() { ipc_p1_current_capacity_non_negative_impl(31); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000032() { ipc_p1_current_capacity_non_negative_impl(32); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000033() { ipc_p1_current_capacity_non_negative_impl(33); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000034() { ipc_p1_current_capacity_non_negative_impl(34); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000035() { ipc_p1_current_capacity_non_negative_impl(35); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000036() { ipc_p1_current_capacity_non_negative_impl(36); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000037() { ipc_p1_current_capacity_non_negative_impl(37); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000038() { ipc_p1_current_capacity_non_negative_impl(38); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000039() { ipc_p1_current_capacity_non_negative_impl(39); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000040() { ipc_p1_current_capacity_non_negative_impl(40); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000041() { ipc_p1_current_capacity_non_negative_impl(41); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000042() { ipc_p1_current_capacity_non_negative_impl(42); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000043() { ipc_p1_current_capacity_non_negative_impl(43); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000044() { ipc_p1_current_capacity_non_negative_impl(44); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000045() { ipc_p1_current_capacity_non_negative_impl(45); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000046() { ipc_p1_current_capacity_non_negative_impl(46); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000047() { ipc_p1_current_capacity_non_negative_impl(47); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000048() { ipc_p1_current_capacity_non_negative_impl(48); }
+    #[cfg_attr(test, test)]
+    fn ipc_p1_current_capacity_non_negative_seed_000049() { ipc_p1_current_capacity_non_negative_impl(49); }
+    // --- ipc_p2_current_capacity_monotone_in_width: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000000() { ipc_p2_current_capacity_monotone_in_width_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000001() { ipc_p2_current_capacity_monotone_in_width_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000002() { ipc_p2_current_capacity_monotone_in_width_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000003() { ipc_p2_current_capacity_monotone_in_width_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000004() { ipc_p2_current_capacity_monotone_in_width_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000005() { ipc_p2_current_capacity_monotone_in_width_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000006() { ipc_p2_current_capacity_monotone_in_width_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000007() { ipc_p2_current_capacity_monotone_in_width_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000008() { ipc_p2_current_capacity_monotone_in_width_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000009() { ipc_p2_current_capacity_monotone_in_width_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000010() { ipc_p2_current_capacity_monotone_in_width_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000011() { ipc_p2_current_capacity_monotone_in_width_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000012() { ipc_p2_current_capacity_monotone_in_width_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000013() { ipc_p2_current_capacity_monotone_in_width_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000014() { ipc_p2_current_capacity_monotone_in_width_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000015() { ipc_p2_current_capacity_monotone_in_width_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000016() { ipc_p2_current_capacity_monotone_in_width_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000017() { ipc_p2_current_capacity_monotone_in_width_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000018() { ipc_p2_current_capacity_monotone_in_width_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000019() { ipc_p2_current_capacity_monotone_in_width_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000020() { ipc_p2_current_capacity_monotone_in_width_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000021() { ipc_p2_current_capacity_monotone_in_width_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000022() { ipc_p2_current_capacity_monotone_in_width_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000023() { ipc_p2_current_capacity_monotone_in_width_impl(23); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000024() { ipc_p2_current_capacity_monotone_in_width_impl(24); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000025() { ipc_p2_current_capacity_monotone_in_width_impl(25); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000026() { ipc_p2_current_capacity_monotone_in_width_impl(26); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000027() { ipc_p2_current_capacity_monotone_in_width_impl(27); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000028() { ipc_p2_current_capacity_monotone_in_width_impl(28); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000029() { ipc_p2_current_capacity_monotone_in_width_impl(29); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000030() { ipc_p2_current_capacity_monotone_in_width_impl(30); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000031() { ipc_p2_current_capacity_monotone_in_width_impl(31); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000032() { ipc_p2_current_capacity_monotone_in_width_impl(32); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000033() { ipc_p2_current_capacity_monotone_in_width_impl(33); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000034() { ipc_p2_current_capacity_monotone_in_width_impl(34); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000035() { ipc_p2_current_capacity_monotone_in_width_impl(35); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000036() { ipc_p2_current_capacity_monotone_in_width_impl(36); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000037() { ipc_p2_current_capacity_monotone_in_width_impl(37); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000038() { ipc_p2_current_capacity_monotone_in_width_impl(38); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000039() { ipc_p2_current_capacity_monotone_in_width_impl(39); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000040() { ipc_p2_current_capacity_monotone_in_width_impl(40); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000041() { ipc_p2_current_capacity_monotone_in_width_impl(41); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000042() { ipc_p2_current_capacity_monotone_in_width_impl(42); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000043() { ipc_p2_current_capacity_monotone_in_width_impl(43); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000044() { ipc_p2_current_capacity_monotone_in_width_impl(44); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000045() { ipc_p2_current_capacity_monotone_in_width_impl(45); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000046() { ipc_p2_current_capacity_monotone_in_width_impl(46); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000047() { ipc_p2_current_capacity_monotone_in_width_impl(47); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000048() { ipc_p2_current_capacity_monotone_in_width_impl(48); }
+    #[cfg_attr(test, test)]
+    fn ipc_p2_current_capacity_monotone_in_width_seed_000049() { ipc_p2_current_capacity_monotone_in_width_impl(49); }
+    // --- ipc_p3_current_capacity_monotone_in_temp_rise: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000000() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000001() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000002() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000003() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000004() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000005() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000006() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000007() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000008() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000009() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000010() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000011() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000012() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000013() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000014() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000015() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000016() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000017() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000018() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000019() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000020() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000021() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000022() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000023() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(23); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000024() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(24); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000025() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(25); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000026() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(26); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000027() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(27); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000028() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(28); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000029() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(29); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000030() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(30); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000031() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(31); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000032() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(32); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000033() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(33); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000034() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(34); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000035() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(35); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000036() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(36); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000037() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(37); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000038() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(38); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000039() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(39); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000040() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(40); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000041() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(41); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000042() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(42); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000043() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(43); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000044() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(44); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000045() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(45); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000046() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(46); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000047() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(47); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000048() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(48); }
+    #[cfg_attr(test, test)]
+    fn ipc_p3_current_capacity_monotone_in_temp_rise_seed_000049() { ipc_p3_current_capacity_monotone_in_temp_rise_impl(49); }
+    // --- ipc_p4_external_carries_more_than_internal: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000000() { ipc_p4_external_carries_more_than_internal_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000001() { ipc_p4_external_carries_more_than_internal_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000002() { ipc_p4_external_carries_more_than_internal_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000003() { ipc_p4_external_carries_more_than_internal_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000004() { ipc_p4_external_carries_more_than_internal_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000005() { ipc_p4_external_carries_more_than_internal_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000006() { ipc_p4_external_carries_more_than_internal_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000007() { ipc_p4_external_carries_more_than_internal_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000008() { ipc_p4_external_carries_more_than_internal_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000009() { ipc_p4_external_carries_more_than_internal_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000010() { ipc_p4_external_carries_more_than_internal_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000011() { ipc_p4_external_carries_more_than_internal_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000012() { ipc_p4_external_carries_more_than_internal_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000013() { ipc_p4_external_carries_more_than_internal_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000014() { ipc_p4_external_carries_more_than_internal_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000015() { ipc_p4_external_carries_more_than_internal_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000016() { ipc_p4_external_carries_more_than_internal_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000017() { ipc_p4_external_carries_more_than_internal_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000018() { ipc_p4_external_carries_more_than_internal_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000019() { ipc_p4_external_carries_more_than_internal_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000020() { ipc_p4_external_carries_more_than_internal_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000021() { ipc_p4_external_carries_more_than_internal_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000022() { ipc_p4_external_carries_more_than_internal_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000023() { ipc_p4_external_carries_more_than_internal_impl(23); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000024() { ipc_p4_external_carries_more_than_internal_impl(24); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000025() { ipc_p4_external_carries_more_than_internal_impl(25); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000026() { ipc_p4_external_carries_more_than_internal_impl(26); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000027() { ipc_p4_external_carries_more_than_internal_impl(27); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000028() { ipc_p4_external_carries_more_than_internal_impl(28); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000029() { ipc_p4_external_carries_more_than_internal_impl(29); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000030() { ipc_p4_external_carries_more_than_internal_impl(30); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000031() { ipc_p4_external_carries_more_than_internal_impl(31); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000032() { ipc_p4_external_carries_more_than_internal_impl(32); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000033() { ipc_p4_external_carries_more_than_internal_impl(33); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000034() { ipc_p4_external_carries_more_than_internal_impl(34); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000035() { ipc_p4_external_carries_more_than_internal_impl(35); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000036() { ipc_p4_external_carries_more_than_internal_impl(36); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000037() { ipc_p4_external_carries_more_than_internal_impl(37); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000038() { ipc_p4_external_carries_more_than_internal_impl(38); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000039() { ipc_p4_external_carries_more_than_internal_impl(39); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000040() { ipc_p4_external_carries_more_than_internal_impl(40); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000041() { ipc_p4_external_carries_more_than_internal_impl(41); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000042() { ipc_p4_external_carries_more_than_internal_impl(42); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000043() { ipc_p4_external_carries_more_than_internal_impl(43); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000044() { ipc_p4_external_carries_more_than_internal_impl(44); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000045() { ipc_p4_external_carries_more_than_internal_impl(45); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000046() { ipc_p4_external_carries_more_than_internal_impl(46); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000047() { ipc_p4_external_carries_more_than_internal_impl(47); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000048() { ipc_p4_external_carries_more_than_internal_impl(48); }
+    #[cfg_attr(test, test)]
+    fn ipc_p4_external_carries_more_than_internal_seed_000049() { ipc_p4_external_carries_more_than_internal_impl(49); }
+    // --- ipc_p5_min_trace_width_non_negative: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000000() { ipc_p5_min_trace_width_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000001() { ipc_p5_min_trace_width_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000002() { ipc_p5_min_trace_width_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000003() { ipc_p5_min_trace_width_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000004() { ipc_p5_min_trace_width_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000005() { ipc_p5_min_trace_width_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000006() { ipc_p5_min_trace_width_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000007() { ipc_p5_min_trace_width_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000008() { ipc_p5_min_trace_width_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000009() { ipc_p5_min_trace_width_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000010() { ipc_p5_min_trace_width_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000011() { ipc_p5_min_trace_width_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000012() { ipc_p5_min_trace_width_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000013() { ipc_p5_min_trace_width_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000014() { ipc_p5_min_trace_width_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000015() { ipc_p5_min_trace_width_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000016() { ipc_p5_min_trace_width_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000017() { ipc_p5_min_trace_width_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000018() { ipc_p5_min_trace_width_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000019() { ipc_p5_min_trace_width_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000020() { ipc_p5_min_trace_width_non_negative_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000021() { ipc_p5_min_trace_width_non_negative_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000022() { ipc_p5_min_trace_width_non_negative_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000023() { ipc_p5_min_trace_width_non_negative_impl(23); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000024() { ipc_p5_min_trace_width_non_negative_impl(24); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000025() { ipc_p5_min_trace_width_non_negative_impl(25); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000026() { ipc_p5_min_trace_width_non_negative_impl(26); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000027() { ipc_p5_min_trace_width_non_negative_impl(27); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000028() { ipc_p5_min_trace_width_non_negative_impl(28); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000029() { ipc_p5_min_trace_width_non_negative_impl(29); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000030() { ipc_p5_min_trace_width_non_negative_impl(30); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000031() { ipc_p5_min_trace_width_non_negative_impl(31); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000032() { ipc_p5_min_trace_width_non_negative_impl(32); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000033() { ipc_p5_min_trace_width_non_negative_impl(33); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000034() { ipc_p5_min_trace_width_non_negative_impl(34); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000035() { ipc_p5_min_trace_width_non_negative_impl(35); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000036() { ipc_p5_min_trace_width_non_negative_impl(36); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000037() { ipc_p5_min_trace_width_non_negative_impl(37); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000038() { ipc_p5_min_trace_width_non_negative_impl(38); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000039() { ipc_p5_min_trace_width_non_negative_impl(39); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000040() { ipc_p5_min_trace_width_non_negative_impl(40); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000041() { ipc_p5_min_trace_width_non_negative_impl(41); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000042() { ipc_p5_min_trace_width_non_negative_impl(42); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000043() { ipc_p5_min_trace_width_non_negative_impl(43); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000044() { ipc_p5_min_trace_width_non_negative_impl(44); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000045() { ipc_p5_min_trace_width_non_negative_impl(45); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000046() { ipc_p5_min_trace_width_non_negative_impl(46); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000047() { ipc_p5_min_trace_width_non_negative_impl(47); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000048() { ipc_p5_min_trace_width_non_negative_impl(48); }
+    #[cfg_attr(test, test)]
+    fn ipc_p5_min_trace_width_non_negative_seed_000049() { ipc_p5_min_trace_width_non_negative_impl(49); }
+    // --- ipc_p6_min_trace_width_monotone_in_current: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000000() { ipc_p6_min_trace_width_monotone_in_current_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000001() { ipc_p6_min_trace_width_monotone_in_current_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000002() { ipc_p6_min_trace_width_monotone_in_current_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000003() { ipc_p6_min_trace_width_monotone_in_current_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000004() { ipc_p6_min_trace_width_monotone_in_current_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000005() { ipc_p6_min_trace_width_monotone_in_current_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000006() { ipc_p6_min_trace_width_monotone_in_current_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000007() { ipc_p6_min_trace_width_monotone_in_current_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000008() { ipc_p6_min_trace_width_monotone_in_current_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000009() { ipc_p6_min_trace_width_monotone_in_current_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000010() { ipc_p6_min_trace_width_monotone_in_current_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000011() { ipc_p6_min_trace_width_monotone_in_current_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000012() { ipc_p6_min_trace_width_monotone_in_current_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000013() { ipc_p6_min_trace_width_monotone_in_current_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000014() { ipc_p6_min_trace_width_monotone_in_current_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000015() { ipc_p6_min_trace_width_monotone_in_current_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000016() { ipc_p6_min_trace_width_monotone_in_current_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000017() { ipc_p6_min_trace_width_monotone_in_current_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000018() { ipc_p6_min_trace_width_monotone_in_current_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000019() { ipc_p6_min_trace_width_monotone_in_current_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000020() { ipc_p6_min_trace_width_monotone_in_current_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000021() { ipc_p6_min_trace_width_monotone_in_current_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000022() { ipc_p6_min_trace_width_monotone_in_current_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000023() { ipc_p6_min_trace_width_monotone_in_current_impl(23); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000024() { ipc_p6_min_trace_width_monotone_in_current_impl(24); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000025() { ipc_p6_min_trace_width_monotone_in_current_impl(25); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000026() { ipc_p6_min_trace_width_monotone_in_current_impl(26); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000027() { ipc_p6_min_trace_width_monotone_in_current_impl(27); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000028() { ipc_p6_min_trace_width_monotone_in_current_impl(28); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000029() { ipc_p6_min_trace_width_monotone_in_current_impl(29); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000030() { ipc_p6_min_trace_width_monotone_in_current_impl(30); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000031() { ipc_p6_min_trace_width_monotone_in_current_impl(31); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000032() { ipc_p6_min_trace_width_monotone_in_current_impl(32); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000033() { ipc_p6_min_trace_width_monotone_in_current_impl(33); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000034() { ipc_p6_min_trace_width_monotone_in_current_impl(34); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000035() { ipc_p6_min_trace_width_monotone_in_current_impl(35); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000036() { ipc_p6_min_trace_width_monotone_in_current_impl(36); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000037() { ipc_p6_min_trace_width_monotone_in_current_impl(37); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000038() { ipc_p6_min_trace_width_monotone_in_current_impl(38); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000039() { ipc_p6_min_trace_width_monotone_in_current_impl(39); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000040() { ipc_p6_min_trace_width_monotone_in_current_impl(40); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000041() { ipc_p6_min_trace_width_monotone_in_current_impl(41); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000042() { ipc_p6_min_trace_width_monotone_in_current_impl(42); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000043() { ipc_p6_min_trace_width_monotone_in_current_impl(43); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000044() { ipc_p6_min_trace_width_monotone_in_current_impl(44); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000045() { ipc_p6_min_trace_width_monotone_in_current_impl(45); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000046() { ipc_p6_min_trace_width_monotone_in_current_impl(46); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000047() { ipc_p6_min_trace_width_monotone_in_current_impl(47); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000048() { ipc_p6_min_trace_width_monotone_in_current_impl(48); }
+    #[cfg_attr(test, test)]
+    fn ipc_p6_min_trace_width_monotone_in_current_seed_000049() { ipc_p6_min_trace_width_monotone_in_current_impl(49); }
+    // --- ipc_p7_internal_needs_wider_than_external: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000000() { ipc_p7_internal_needs_wider_than_external_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000001() { ipc_p7_internal_needs_wider_than_external_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000002() { ipc_p7_internal_needs_wider_than_external_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000003() { ipc_p7_internal_needs_wider_than_external_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000004() { ipc_p7_internal_needs_wider_than_external_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000005() { ipc_p7_internal_needs_wider_than_external_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000006() { ipc_p7_internal_needs_wider_than_external_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000007() { ipc_p7_internal_needs_wider_than_external_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000008() { ipc_p7_internal_needs_wider_than_external_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000009() { ipc_p7_internal_needs_wider_than_external_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000010() { ipc_p7_internal_needs_wider_than_external_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000011() { ipc_p7_internal_needs_wider_than_external_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000012() { ipc_p7_internal_needs_wider_than_external_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000013() { ipc_p7_internal_needs_wider_than_external_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000014() { ipc_p7_internal_needs_wider_than_external_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000015() { ipc_p7_internal_needs_wider_than_external_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000016() { ipc_p7_internal_needs_wider_than_external_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000017() { ipc_p7_internal_needs_wider_than_external_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000018() { ipc_p7_internal_needs_wider_than_external_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000019() { ipc_p7_internal_needs_wider_than_external_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000020() { ipc_p7_internal_needs_wider_than_external_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000021() { ipc_p7_internal_needs_wider_than_external_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000022() { ipc_p7_internal_needs_wider_than_external_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000023() { ipc_p7_internal_needs_wider_than_external_impl(23); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000024() { ipc_p7_internal_needs_wider_than_external_impl(24); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000025() { ipc_p7_internal_needs_wider_than_external_impl(25); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000026() { ipc_p7_internal_needs_wider_than_external_impl(26); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000027() { ipc_p7_internal_needs_wider_than_external_impl(27); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000028() { ipc_p7_internal_needs_wider_than_external_impl(28); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000029() { ipc_p7_internal_needs_wider_than_external_impl(29); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000030() { ipc_p7_internal_needs_wider_than_external_impl(30); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000031() { ipc_p7_internal_needs_wider_than_external_impl(31); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000032() { ipc_p7_internal_needs_wider_than_external_impl(32); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000033() { ipc_p7_internal_needs_wider_than_external_impl(33); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000034() { ipc_p7_internal_needs_wider_than_external_impl(34); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000035() { ipc_p7_internal_needs_wider_than_external_impl(35); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000036() { ipc_p7_internal_needs_wider_than_external_impl(36); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000037() { ipc_p7_internal_needs_wider_than_external_impl(37); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000038() { ipc_p7_internal_needs_wider_than_external_impl(38); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000039() { ipc_p7_internal_needs_wider_than_external_impl(39); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000040() { ipc_p7_internal_needs_wider_than_external_impl(40); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000041() { ipc_p7_internal_needs_wider_than_external_impl(41); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000042() { ipc_p7_internal_needs_wider_than_external_impl(42); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000043() { ipc_p7_internal_needs_wider_than_external_impl(43); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000044() { ipc_p7_internal_needs_wider_than_external_impl(44); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000045() { ipc_p7_internal_needs_wider_than_external_impl(45); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000046() { ipc_p7_internal_needs_wider_than_external_impl(46); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000047() { ipc_p7_internal_needs_wider_than_external_impl(47); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000048() { ipc_p7_internal_needs_wider_than_external_impl(48); }
+    #[cfg_attr(test, test)]
+    fn ipc_p7_internal_needs_wider_than_external_seed_000049() { ipc_p7_internal_needs_wider_than_external_impl(49); }
+    // --- ipc_p8_trace_width_round_trip: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000000() { ipc_p8_trace_width_round_trip_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000001() { ipc_p8_trace_width_round_trip_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000002() { ipc_p8_trace_width_round_trip_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000003() { ipc_p8_trace_width_round_trip_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000004() { ipc_p8_trace_width_round_trip_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000005() { ipc_p8_trace_width_round_trip_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000006() { ipc_p8_trace_width_round_trip_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000007() { ipc_p8_trace_width_round_trip_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000008() { ipc_p8_trace_width_round_trip_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000009() { ipc_p8_trace_width_round_trip_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000010() { ipc_p8_trace_width_round_trip_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000011() { ipc_p8_trace_width_round_trip_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000012() { ipc_p8_trace_width_round_trip_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000013() { ipc_p8_trace_width_round_trip_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000014() { ipc_p8_trace_width_round_trip_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000015() { ipc_p8_trace_width_round_trip_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000016() { ipc_p8_trace_width_round_trip_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000017() { ipc_p8_trace_width_round_trip_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000018() { ipc_p8_trace_width_round_trip_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000019() { ipc_p8_trace_width_round_trip_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000020() { ipc_p8_trace_width_round_trip_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000021() { ipc_p8_trace_width_round_trip_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000022() { ipc_p8_trace_width_round_trip_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000023() { ipc_p8_trace_width_round_trip_impl(23); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000024() { ipc_p8_trace_width_round_trip_impl(24); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000025() { ipc_p8_trace_width_round_trip_impl(25); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000026() { ipc_p8_trace_width_round_trip_impl(26); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000027() { ipc_p8_trace_width_round_trip_impl(27); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000028() { ipc_p8_trace_width_round_trip_impl(28); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000029() { ipc_p8_trace_width_round_trip_impl(29); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000030() { ipc_p8_trace_width_round_trip_impl(30); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000031() { ipc_p8_trace_width_round_trip_impl(31); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000032() { ipc_p8_trace_width_round_trip_impl(32); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000033() { ipc_p8_trace_width_round_trip_impl(33); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000034() { ipc_p8_trace_width_round_trip_impl(34); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000035() { ipc_p8_trace_width_round_trip_impl(35); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000036() { ipc_p8_trace_width_round_trip_impl(36); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000037() { ipc_p8_trace_width_round_trip_impl(37); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000038() { ipc_p8_trace_width_round_trip_impl(38); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000039() { ipc_p8_trace_width_round_trip_impl(39); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000040() { ipc_p8_trace_width_round_trip_impl(40); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000041() { ipc_p8_trace_width_round_trip_impl(41); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000042() { ipc_p8_trace_width_round_trip_impl(42); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000043() { ipc_p8_trace_width_round_trip_impl(43); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000044() { ipc_p8_trace_width_round_trip_impl(44); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000045() { ipc_p8_trace_width_round_trip_impl(45); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000046() { ipc_p8_trace_width_round_trip_impl(46); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000047() { ipc_p8_trace_width_round_trip_impl(47); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000048() { ipc_p8_trace_width_round_trip_impl(48); }
+    #[cfg_attr(test, test)]
+    fn ipc_p8_trace_width_round_trip_seed_000049() { ipc_p8_trace_width_round_trip_impl(49); }
+    // --- ipc_p9_net_current_non_negative: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000000() { ipc_p9_net_current_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000001() { ipc_p9_net_current_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000002() { ipc_p9_net_current_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000003() { ipc_p9_net_current_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000004() { ipc_p9_net_current_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000005() { ipc_p9_net_current_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000006() { ipc_p9_net_current_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000007() { ipc_p9_net_current_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000008() { ipc_p9_net_current_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000009() { ipc_p9_net_current_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000010() { ipc_p9_net_current_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000011() { ipc_p9_net_current_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000012() { ipc_p9_net_current_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000013() { ipc_p9_net_current_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000014() { ipc_p9_net_current_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000015() { ipc_p9_net_current_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000016() { ipc_p9_net_current_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000017() { ipc_p9_net_current_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000018() { ipc_p9_net_current_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000019() { ipc_p9_net_current_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000020() { ipc_p9_net_current_non_negative_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000021() { ipc_p9_net_current_non_negative_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000022() { ipc_p9_net_current_non_negative_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000023() { ipc_p9_net_current_non_negative_impl(23); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000024() { ipc_p9_net_current_non_negative_impl(24); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000025() { ipc_p9_net_current_non_negative_impl(25); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000026() { ipc_p9_net_current_non_negative_impl(26); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000027() { ipc_p9_net_current_non_negative_impl(27); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000028() { ipc_p9_net_current_non_negative_impl(28); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000029() { ipc_p9_net_current_non_negative_impl(29); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000030() { ipc_p9_net_current_non_negative_impl(30); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000031() { ipc_p9_net_current_non_negative_impl(31); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000032() { ipc_p9_net_current_non_negative_impl(32); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000033() { ipc_p9_net_current_non_negative_impl(33); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000034() { ipc_p9_net_current_non_negative_impl(34); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000035() { ipc_p9_net_current_non_negative_impl(35); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000036() { ipc_p9_net_current_non_negative_impl(36); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000037() { ipc_p9_net_current_non_negative_impl(37); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000038() { ipc_p9_net_current_non_negative_impl(38); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000039() { ipc_p9_net_current_non_negative_impl(39); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000040() { ipc_p9_net_current_non_negative_impl(40); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000041() { ipc_p9_net_current_non_negative_impl(41); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000042() { ipc_p9_net_current_non_negative_impl(42); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000043() { ipc_p9_net_current_non_negative_impl(43); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000044() { ipc_p9_net_current_non_negative_impl(44); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000045() { ipc_p9_net_current_non_negative_impl(45); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000046() { ipc_p9_net_current_non_negative_impl(46); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000047() { ipc_p9_net_current_non_negative_impl(47); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000048() { ipc_p9_net_current_non_negative_impl(48); }
+    #[cfg_attr(test, test)]
+    fn ipc_p9_net_current_non_negative_seed_000049() { ipc_p9_net_current_non_negative_impl(49); }
+    // --- pm_p1_py_max_returns_larger: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000000() { pm_p1_py_max_returns_larger_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000001() { pm_p1_py_max_returns_larger_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000002() { pm_p1_py_max_returns_larger_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000003() { pm_p1_py_max_returns_larger_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000004() { pm_p1_py_max_returns_larger_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000005() { pm_p1_py_max_returns_larger_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000006() { pm_p1_py_max_returns_larger_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000007() { pm_p1_py_max_returns_larger_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000008() { pm_p1_py_max_returns_larger_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000009() { pm_p1_py_max_returns_larger_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000010() { pm_p1_py_max_returns_larger_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000011() { pm_p1_py_max_returns_larger_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000012() { pm_p1_py_max_returns_larger_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000013() { pm_p1_py_max_returns_larger_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000014() { pm_p1_py_max_returns_larger_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000015() { pm_p1_py_max_returns_larger_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000016() { pm_p1_py_max_returns_larger_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000017() { pm_p1_py_max_returns_larger_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000018() { pm_p1_py_max_returns_larger_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000019() { pm_p1_py_max_returns_larger_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000020() { pm_p1_py_max_returns_larger_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000021() { pm_p1_py_max_returns_larger_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000022() { pm_p1_py_max_returns_larger_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000023() { pm_p1_py_max_returns_larger_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000024() { pm_p1_py_max_returns_larger_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000025() { pm_p1_py_max_returns_larger_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000026() { pm_p1_py_max_returns_larger_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000027() { pm_p1_py_max_returns_larger_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000028() { pm_p1_py_max_returns_larger_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000029() { pm_p1_py_max_returns_larger_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000030() { pm_p1_py_max_returns_larger_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000031() { pm_p1_py_max_returns_larger_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000032() { pm_p1_py_max_returns_larger_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000033() { pm_p1_py_max_returns_larger_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000034() { pm_p1_py_max_returns_larger_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000035() { pm_p1_py_max_returns_larger_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000036() { pm_p1_py_max_returns_larger_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000037() { pm_p1_py_max_returns_larger_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000038() { pm_p1_py_max_returns_larger_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000039() { pm_p1_py_max_returns_larger_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000040() { pm_p1_py_max_returns_larger_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000041() { pm_p1_py_max_returns_larger_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000042() { pm_p1_py_max_returns_larger_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000043() { pm_p1_py_max_returns_larger_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000044() { pm_p1_py_max_returns_larger_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000045() { pm_p1_py_max_returns_larger_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000046() { pm_p1_py_max_returns_larger_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000047() { pm_p1_py_max_returns_larger_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000048() { pm_p1_py_max_returns_larger_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p1_py_max_returns_larger_seed_000049() { pm_p1_py_max_returns_larger_impl(49); }
+    // --- pm_p2_py_max_returns_one_of_inputs: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000000() { pm_p2_py_max_returns_one_of_inputs_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000001() { pm_p2_py_max_returns_one_of_inputs_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000002() { pm_p2_py_max_returns_one_of_inputs_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000003() { pm_p2_py_max_returns_one_of_inputs_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000004() { pm_p2_py_max_returns_one_of_inputs_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000005() { pm_p2_py_max_returns_one_of_inputs_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000006() { pm_p2_py_max_returns_one_of_inputs_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000007() { pm_p2_py_max_returns_one_of_inputs_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000008() { pm_p2_py_max_returns_one_of_inputs_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000009() { pm_p2_py_max_returns_one_of_inputs_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000010() { pm_p2_py_max_returns_one_of_inputs_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000011() { pm_p2_py_max_returns_one_of_inputs_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000012() { pm_p2_py_max_returns_one_of_inputs_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000013() { pm_p2_py_max_returns_one_of_inputs_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000014() { pm_p2_py_max_returns_one_of_inputs_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000015() { pm_p2_py_max_returns_one_of_inputs_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000016() { pm_p2_py_max_returns_one_of_inputs_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000017() { pm_p2_py_max_returns_one_of_inputs_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000018() { pm_p2_py_max_returns_one_of_inputs_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000019() { pm_p2_py_max_returns_one_of_inputs_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000020() { pm_p2_py_max_returns_one_of_inputs_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000021() { pm_p2_py_max_returns_one_of_inputs_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000022() { pm_p2_py_max_returns_one_of_inputs_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000023() { pm_p2_py_max_returns_one_of_inputs_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000024() { pm_p2_py_max_returns_one_of_inputs_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000025() { pm_p2_py_max_returns_one_of_inputs_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000026() { pm_p2_py_max_returns_one_of_inputs_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000027() { pm_p2_py_max_returns_one_of_inputs_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000028() { pm_p2_py_max_returns_one_of_inputs_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000029() { pm_p2_py_max_returns_one_of_inputs_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000030() { pm_p2_py_max_returns_one_of_inputs_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000031() { pm_p2_py_max_returns_one_of_inputs_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000032() { pm_p2_py_max_returns_one_of_inputs_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000033() { pm_p2_py_max_returns_one_of_inputs_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000034() { pm_p2_py_max_returns_one_of_inputs_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000035() { pm_p2_py_max_returns_one_of_inputs_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000036() { pm_p2_py_max_returns_one_of_inputs_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000037() { pm_p2_py_max_returns_one_of_inputs_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000038() { pm_p2_py_max_returns_one_of_inputs_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000039() { pm_p2_py_max_returns_one_of_inputs_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000040() { pm_p2_py_max_returns_one_of_inputs_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000041() { pm_p2_py_max_returns_one_of_inputs_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000042() { pm_p2_py_max_returns_one_of_inputs_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000043() { pm_p2_py_max_returns_one_of_inputs_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000044() { pm_p2_py_max_returns_one_of_inputs_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000045() { pm_p2_py_max_returns_one_of_inputs_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000046() { pm_p2_py_max_returns_one_of_inputs_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000047() { pm_p2_py_max_returns_one_of_inputs_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000048() { pm_p2_py_max_returns_one_of_inputs_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p2_py_max_returns_one_of_inputs_seed_000049() { pm_p2_py_max_returns_one_of_inputs_impl(49); }
+    // --- pm_p3_py_max_nan_first_returns_nan: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000000() { pm_p3_py_max_nan_first_returns_nan_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000001() { pm_p3_py_max_nan_first_returns_nan_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000002() { pm_p3_py_max_nan_first_returns_nan_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000003() { pm_p3_py_max_nan_first_returns_nan_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000004() { pm_p3_py_max_nan_first_returns_nan_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000005() { pm_p3_py_max_nan_first_returns_nan_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000006() { pm_p3_py_max_nan_first_returns_nan_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000007() { pm_p3_py_max_nan_first_returns_nan_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000008() { pm_p3_py_max_nan_first_returns_nan_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000009() { pm_p3_py_max_nan_first_returns_nan_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000010() { pm_p3_py_max_nan_first_returns_nan_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000011() { pm_p3_py_max_nan_first_returns_nan_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000012() { pm_p3_py_max_nan_first_returns_nan_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000013() { pm_p3_py_max_nan_first_returns_nan_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000014() { pm_p3_py_max_nan_first_returns_nan_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000015() { pm_p3_py_max_nan_first_returns_nan_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000016() { pm_p3_py_max_nan_first_returns_nan_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000017() { pm_p3_py_max_nan_first_returns_nan_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000018() { pm_p3_py_max_nan_first_returns_nan_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000019() { pm_p3_py_max_nan_first_returns_nan_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000020() { pm_p3_py_max_nan_first_returns_nan_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000021() { pm_p3_py_max_nan_first_returns_nan_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000022() { pm_p3_py_max_nan_first_returns_nan_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000023() { pm_p3_py_max_nan_first_returns_nan_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000024() { pm_p3_py_max_nan_first_returns_nan_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000025() { pm_p3_py_max_nan_first_returns_nan_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000026() { pm_p3_py_max_nan_first_returns_nan_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000027() { pm_p3_py_max_nan_first_returns_nan_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000028() { pm_p3_py_max_nan_first_returns_nan_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000029() { pm_p3_py_max_nan_first_returns_nan_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000030() { pm_p3_py_max_nan_first_returns_nan_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000031() { pm_p3_py_max_nan_first_returns_nan_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000032() { pm_p3_py_max_nan_first_returns_nan_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000033() { pm_p3_py_max_nan_first_returns_nan_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000034() { pm_p3_py_max_nan_first_returns_nan_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000035() { pm_p3_py_max_nan_first_returns_nan_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000036() { pm_p3_py_max_nan_first_returns_nan_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000037() { pm_p3_py_max_nan_first_returns_nan_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000038() { pm_p3_py_max_nan_first_returns_nan_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000039() { pm_p3_py_max_nan_first_returns_nan_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000040() { pm_p3_py_max_nan_first_returns_nan_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000041() { pm_p3_py_max_nan_first_returns_nan_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000042() { pm_p3_py_max_nan_first_returns_nan_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000043() { pm_p3_py_max_nan_first_returns_nan_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000044() { pm_p3_py_max_nan_first_returns_nan_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000045() { pm_p3_py_max_nan_first_returns_nan_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000046() { pm_p3_py_max_nan_first_returns_nan_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000047() { pm_p3_py_max_nan_first_returns_nan_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000048() { pm_p3_py_max_nan_first_returns_nan_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p3_py_max_nan_first_returns_nan_seed_000049() { pm_p3_py_max_nan_first_returns_nan_impl(49); }
+    // --- pm_p4_py_max_nan_second_returns_first: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000000() { pm_p4_py_max_nan_second_returns_first_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000001() { pm_p4_py_max_nan_second_returns_first_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000002() { pm_p4_py_max_nan_second_returns_first_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000003() { pm_p4_py_max_nan_second_returns_first_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000004() { pm_p4_py_max_nan_second_returns_first_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000005() { pm_p4_py_max_nan_second_returns_first_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000006() { pm_p4_py_max_nan_second_returns_first_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000007() { pm_p4_py_max_nan_second_returns_first_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000008() { pm_p4_py_max_nan_second_returns_first_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000009() { pm_p4_py_max_nan_second_returns_first_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000010() { pm_p4_py_max_nan_second_returns_first_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000011() { pm_p4_py_max_nan_second_returns_first_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000012() { pm_p4_py_max_nan_second_returns_first_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000013() { pm_p4_py_max_nan_second_returns_first_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000014() { pm_p4_py_max_nan_second_returns_first_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000015() { pm_p4_py_max_nan_second_returns_first_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000016() { pm_p4_py_max_nan_second_returns_first_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000017() { pm_p4_py_max_nan_second_returns_first_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000018() { pm_p4_py_max_nan_second_returns_first_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000019() { pm_p4_py_max_nan_second_returns_first_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000020() { pm_p4_py_max_nan_second_returns_first_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000021() { pm_p4_py_max_nan_second_returns_first_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000022() { pm_p4_py_max_nan_second_returns_first_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000023() { pm_p4_py_max_nan_second_returns_first_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000024() { pm_p4_py_max_nan_second_returns_first_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000025() { pm_p4_py_max_nan_second_returns_first_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000026() { pm_p4_py_max_nan_second_returns_first_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000027() { pm_p4_py_max_nan_second_returns_first_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000028() { pm_p4_py_max_nan_second_returns_first_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000029() { pm_p4_py_max_nan_second_returns_first_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000030() { pm_p4_py_max_nan_second_returns_first_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000031() { pm_p4_py_max_nan_second_returns_first_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000032() { pm_p4_py_max_nan_second_returns_first_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000033() { pm_p4_py_max_nan_second_returns_first_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000034() { pm_p4_py_max_nan_second_returns_first_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000035() { pm_p4_py_max_nan_second_returns_first_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000036() { pm_p4_py_max_nan_second_returns_first_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000037() { pm_p4_py_max_nan_second_returns_first_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000038() { pm_p4_py_max_nan_second_returns_first_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000039() { pm_p4_py_max_nan_second_returns_first_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000040() { pm_p4_py_max_nan_second_returns_first_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000041() { pm_p4_py_max_nan_second_returns_first_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000042() { pm_p4_py_max_nan_second_returns_first_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000043() { pm_p4_py_max_nan_second_returns_first_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000044() { pm_p4_py_max_nan_second_returns_first_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000045() { pm_p4_py_max_nan_second_returns_first_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000046() { pm_p4_py_max_nan_second_returns_first_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000047() { pm_p4_py_max_nan_second_returns_first_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000048() { pm_p4_py_max_nan_second_returns_first_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p4_py_max_nan_second_returns_first_seed_000049() { pm_p4_py_max_nan_second_returns_first_impl(49); }
+    // --- pm_p5_py_min_returns_smaller: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000000() { pm_p5_py_min_returns_smaller_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000001() { pm_p5_py_min_returns_smaller_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000002() { pm_p5_py_min_returns_smaller_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000003() { pm_p5_py_min_returns_smaller_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000004() { pm_p5_py_min_returns_smaller_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000005() { pm_p5_py_min_returns_smaller_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000006() { pm_p5_py_min_returns_smaller_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000007() { pm_p5_py_min_returns_smaller_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000008() { pm_p5_py_min_returns_smaller_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000009() { pm_p5_py_min_returns_smaller_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000010() { pm_p5_py_min_returns_smaller_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000011() { pm_p5_py_min_returns_smaller_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000012() { pm_p5_py_min_returns_smaller_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000013() { pm_p5_py_min_returns_smaller_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000014() { pm_p5_py_min_returns_smaller_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000015() { pm_p5_py_min_returns_smaller_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000016() { pm_p5_py_min_returns_smaller_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000017() { pm_p5_py_min_returns_smaller_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000018() { pm_p5_py_min_returns_smaller_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000019() { pm_p5_py_min_returns_smaller_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000020() { pm_p5_py_min_returns_smaller_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000021() { pm_p5_py_min_returns_smaller_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000022() { pm_p5_py_min_returns_smaller_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000023() { pm_p5_py_min_returns_smaller_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000024() { pm_p5_py_min_returns_smaller_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000025() { pm_p5_py_min_returns_smaller_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000026() { pm_p5_py_min_returns_smaller_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000027() { pm_p5_py_min_returns_smaller_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000028() { pm_p5_py_min_returns_smaller_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000029() { pm_p5_py_min_returns_smaller_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000030() { pm_p5_py_min_returns_smaller_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000031() { pm_p5_py_min_returns_smaller_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000032() { pm_p5_py_min_returns_smaller_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000033() { pm_p5_py_min_returns_smaller_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000034() { pm_p5_py_min_returns_smaller_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000035() { pm_p5_py_min_returns_smaller_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000036() { pm_p5_py_min_returns_smaller_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000037() { pm_p5_py_min_returns_smaller_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000038() { pm_p5_py_min_returns_smaller_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000039() { pm_p5_py_min_returns_smaller_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000040() { pm_p5_py_min_returns_smaller_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000041() { pm_p5_py_min_returns_smaller_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000042() { pm_p5_py_min_returns_smaller_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000043() { pm_p5_py_min_returns_smaller_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000044() { pm_p5_py_min_returns_smaller_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000045() { pm_p5_py_min_returns_smaller_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000046() { pm_p5_py_min_returns_smaller_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000047() { pm_p5_py_min_returns_smaller_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000048() { pm_p5_py_min_returns_smaller_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p5_py_min_returns_smaller_seed_000049() { pm_p5_py_min_returns_smaller_impl(49); }
+    // --- pm_p6_py_min_returns_one_of_inputs: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000000() { pm_p6_py_min_returns_one_of_inputs_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000001() { pm_p6_py_min_returns_one_of_inputs_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000002() { pm_p6_py_min_returns_one_of_inputs_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000003() { pm_p6_py_min_returns_one_of_inputs_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000004() { pm_p6_py_min_returns_one_of_inputs_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000005() { pm_p6_py_min_returns_one_of_inputs_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000006() { pm_p6_py_min_returns_one_of_inputs_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000007() { pm_p6_py_min_returns_one_of_inputs_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000008() { pm_p6_py_min_returns_one_of_inputs_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000009() { pm_p6_py_min_returns_one_of_inputs_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000010() { pm_p6_py_min_returns_one_of_inputs_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000011() { pm_p6_py_min_returns_one_of_inputs_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000012() { pm_p6_py_min_returns_one_of_inputs_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000013() { pm_p6_py_min_returns_one_of_inputs_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000014() { pm_p6_py_min_returns_one_of_inputs_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000015() { pm_p6_py_min_returns_one_of_inputs_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000016() { pm_p6_py_min_returns_one_of_inputs_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000017() { pm_p6_py_min_returns_one_of_inputs_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000018() { pm_p6_py_min_returns_one_of_inputs_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000019() { pm_p6_py_min_returns_one_of_inputs_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000020() { pm_p6_py_min_returns_one_of_inputs_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000021() { pm_p6_py_min_returns_one_of_inputs_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000022() { pm_p6_py_min_returns_one_of_inputs_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000023() { pm_p6_py_min_returns_one_of_inputs_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000024() { pm_p6_py_min_returns_one_of_inputs_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000025() { pm_p6_py_min_returns_one_of_inputs_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000026() { pm_p6_py_min_returns_one_of_inputs_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000027() { pm_p6_py_min_returns_one_of_inputs_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000028() { pm_p6_py_min_returns_one_of_inputs_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000029() { pm_p6_py_min_returns_one_of_inputs_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000030() { pm_p6_py_min_returns_one_of_inputs_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000031() { pm_p6_py_min_returns_one_of_inputs_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000032() { pm_p6_py_min_returns_one_of_inputs_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000033() { pm_p6_py_min_returns_one_of_inputs_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000034() { pm_p6_py_min_returns_one_of_inputs_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000035() { pm_p6_py_min_returns_one_of_inputs_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000036() { pm_p6_py_min_returns_one_of_inputs_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000037() { pm_p6_py_min_returns_one_of_inputs_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000038() { pm_p6_py_min_returns_one_of_inputs_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000039() { pm_p6_py_min_returns_one_of_inputs_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000040() { pm_p6_py_min_returns_one_of_inputs_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000041() { pm_p6_py_min_returns_one_of_inputs_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000042() { pm_p6_py_min_returns_one_of_inputs_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000043() { pm_p6_py_min_returns_one_of_inputs_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000044() { pm_p6_py_min_returns_one_of_inputs_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000045() { pm_p6_py_min_returns_one_of_inputs_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000046() { pm_p6_py_min_returns_one_of_inputs_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000047() { pm_p6_py_min_returns_one_of_inputs_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000048() { pm_p6_py_min_returns_one_of_inputs_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p6_py_min_returns_one_of_inputs_seed_000049() { pm_p6_py_min_returns_one_of_inputs_impl(49); }
+    // --- pm_p7_py_min_nan_first_returns_nan: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000000() { pm_p7_py_min_nan_first_returns_nan_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000001() { pm_p7_py_min_nan_first_returns_nan_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000002() { pm_p7_py_min_nan_first_returns_nan_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000003() { pm_p7_py_min_nan_first_returns_nan_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000004() { pm_p7_py_min_nan_first_returns_nan_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000005() { pm_p7_py_min_nan_first_returns_nan_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000006() { pm_p7_py_min_nan_first_returns_nan_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000007() { pm_p7_py_min_nan_first_returns_nan_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000008() { pm_p7_py_min_nan_first_returns_nan_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000009() { pm_p7_py_min_nan_first_returns_nan_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000010() { pm_p7_py_min_nan_first_returns_nan_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000011() { pm_p7_py_min_nan_first_returns_nan_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000012() { pm_p7_py_min_nan_first_returns_nan_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000013() { pm_p7_py_min_nan_first_returns_nan_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000014() { pm_p7_py_min_nan_first_returns_nan_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000015() { pm_p7_py_min_nan_first_returns_nan_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000016() { pm_p7_py_min_nan_first_returns_nan_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000017() { pm_p7_py_min_nan_first_returns_nan_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000018() { pm_p7_py_min_nan_first_returns_nan_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000019() { pm_p7_py_min_nan_first_returns_nan_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000020() { pm_p7_py_min_nan_first_returns_nan_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000021() { pm_p7_py_min_nan_first_returns_nan_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000022() { pm_p7_py_min_nan_first_returns_nan_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000023() { pm_p7_py_min_nan_first_returns_nan_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000024() { pm_p7_py_min_nan_first_returns_nan_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000025() { pm_p7_py_min_nan_first_returns_nan_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000026() { pm_p7_py_min_nan_first_returns_nan_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000027() { pm_p7_py_min_nan_first_returns_nan_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000028() { pm_p7_py_min_nan_first_returns_nan_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000029() { pm_p7_py_min_nan_first_returns_nan_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000030() { pm_p7_py_min_nan_first_returns_nan_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000031() { pm_p7_py_min_nan_first_returns_nan_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000032() { pm_p7_py_min_nan_first_returns_nan_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000033() { pm_p7_py_min_nan_first_returns_nan_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000034() { pm_p7_py_min_nan_first_returns_nan_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000035() { pm_p7_py_min_nan_first_returns_nan_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000036() { pm_p7_py_min_nan_first_returns_nan_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000037() { pm_p7_py_min_nan_first_returns_nan_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000038() { pm_p7_py_min_nan_first_returns_nan_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000039() { pm_p7_py_min_nan_first_returns_nan_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000040() { pm_p7_py_min_nan_first_returns_nan_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000041() { pm_p7_py_min_nan_first_returns_nan_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000042() { pm_p7_py_min_nan_first_returns_nan_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000043() { pm_p7_py_min_nan_first_returns_nan_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000044() { pm_p7_py_min_nan_first_returns_nan_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000045() { pm_p7_py_min_nan_first_returns_nan_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000046() { pm_p7_py_min_nan_first_returns_nan_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000047() { pm_p7_py_min_nan_first_returns_nan_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000048() { pm_p7_py_min_nan_first_returns_nan_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p7_py_min_nan_first_returns_nan_seed_000049() { pm_p7_py_min_nan_first_returns_nan_impl(49); }
+    // --- pm_p8_py_min_nan_second_returns_first: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000000() { pm_p8_py_min_nan_second_returns_first_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000001() { pm_p8_py_min_nan_second_returns_first_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000002() { pm_p8_py_min_nan_second_returns_first_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000003() { pm_p8_py_min_nan_second_returns_first_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000004() { pm_p8_py_min_nan_second_returns_first_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000005() { pm_p8_py_min_nan_second_returns_first_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000006() { pm_p8_py_min_nan_second_returns_first_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000007() { pm_p8_py_min_nan_second_returns_first_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000008() { pm_p8_py_min_nan_second_returns_first_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000009() { pm_p8_py_min_nan_second_returns_first_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000010() { pm_p8_py_min_nan_second_returns_first_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000011() { pm_p8_py_min_nan_second_returns_first_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000012() { pm_p8_py_min_nan_second_returns_first_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000013() { pm_p8_py_min_nan_second_returns_first_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000014() { pm_p8_py_min_nan_second_returns_first_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000015() { pm_p8_py_min_nan_second_returns_first_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000016() { pm_p8_py_min_nan_second_returns_first_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000017() { pm_p8_py_min_nan_second_returns_first_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000018() { pm_p8_py_min_nan_second_returns_first_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000019() { pm_p8_py_min_nan_second_returns_first_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000020() { pm_p8_py_min_nan_second_returns_first_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000021() { pm_p8_py_min_nan_second_returns_first_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000022() { pm_p8_py_min_nan_second_returns_first_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000023() { pm_p8_py_min_nan_second_returns_first_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000024() { pm_p8_py_min_nan_second_returns_first_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000025() { pm_p8_py_min_nan_second_returns_first_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000026() { pm_p8_py_min_nan_second_returns_first_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000027() { pm_p8_py_min_nan_second_returns_first_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000028() { pm_p8_py_min_nan_second_returns_first_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000029() { pm_p8_py_min_nan_second_returns_first_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000030() { pm_p8_py_min_nan_second_returns_first_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000031() { pm_p8_py_min_nan_second_returns_first_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000032() { pm_p8_py_min_nan_second_returns_first_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000033() { pm_p8_py_min_nan_second_returns_first_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000034() { pm_p8_py_min_nan_second_returns_first_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000035() { pm_p8_py_min_nan_second_returns_first_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000036() { pm_p8_py_min_nan_second_returns_first_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000037() { pm_p8_py_min_nan_second_returns_first_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000038() { pm_p8_py_min_nan_second_returns_first_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000039() { pm_p8_py_min_nan_second_returns_first_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000040() { pm_p8_py_min_nan_second_returns_first_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000041() { pm_p8_py_min_nan_second_returns_first_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000042() { pm_p8_py_min_nan_second_returns_first_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000043() { pm_p8_py_min_nan_second_returns_first_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000044() { pm_p8_py_min_nan_second_returns_first_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000045() { pm_p8_py_min_nan_second_returns_first_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000046() { pm_p8_py_min_nan_second_returns_first_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000047() { pm_p8_py_min_nan_second_returns_first_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000048() { pm_p8_py_min_nan_second_returns_first_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p8_py_min_nan_second_returns_first_seed_000049() { pm_p8_py_min_nan_second_returns_first_impl(49); }
+    // --- pm_p9_py_round_to_int_is_integer: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000000() { pm_p9_py_round_to_int_is_integer_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000001() { pm_p9_py_round_to_int_is_integer_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000002() { pm_p9_py_round_to_int_is_integer_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000003() { pm_p9_py_round_to_int_is_integer_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000004() { pm_p9_py_round_to_int_is_integer_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000005() { pm_p9_py_round_to_int_is_integer_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000006() { pm_p9_py_round_to_int_is_integer_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000007() { pm_p9_py_round_to_int_is_integer_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000008() { pm_p9_py_round_to_int_is_integer_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000009() { pm_p9_py_round_to_int_is_integer_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000010() { pm_p9_py_round_to_int_is_integer_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000011() { pm_p9_py_round_to_int_is_integer_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000012() { pm_p9_py_round_to_int_is_integer_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000013() { pm_p9_py_round_to_int_is_integer_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000014() { pm_p9_py_round_to_int_is_integer_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000015() { pm_p9_py_round_to_int_is_integer_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000016() { pm_p9_py_round_to_int_is_integer_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000017() { pm_p9_py_round_to_int_is_integer_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000018() { pm_p9_py_round_to_int_is_integer_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000019() { pm_p9_py_round_to_int_is_integer_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000020() { pm_p9_py_round_to_int_is_integer_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000021() { pm_p9_py_round_to_int_is_integer_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000022() { pm_p9_py_round_to_int_is_integer_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000023() { pm_p9_py_round_to_int_is_integer_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000024() { pm_p9_py_round_to_int_is_integer_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000025() { pm_p9_py_round_to_int_is_integer_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000026() { pm_p9_py_round_to_int_is_integer_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000027() { pm_p9_py_round_to_int_is_integer_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000028() { pm_p9_py_round_to_int_is_integer_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000029() { pm_p9_py_round_to_int_is_integer_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000030() { pm_p9_py_round_to_int_is_integer_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000031() { pm_p9_py_round_to_int_is_integer_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000032() { pm_p9_py_round_to_int_is_integer_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000033() { pm_p9_py_round_to_int_is_integer_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000034() { pm_p9_py_round_to_int_is_integer_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000035() { pm_p9_py_round_to_int_is_integer_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000036() { pm_p9_py_round_to_int_is_integer_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000037() { pm_p9_py_round_to_int_is_integer_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000038() { pm_p9_py_round_to_int_is_integer_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000039() { pm_p9_py_round_to_int_is_integer_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000040() { pm_p9_py_round_to_int_is_integer_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000041() { pm_p9_py_round_to_int_is_integer_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000042() { pm_p9_py_round_to_int_is_integer_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000043() { pm_p9_py_round_to_int_is_integer_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000044() { pm_p9_py_round_to_int_is_integer_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000045() { pm_p9_py_round_to_int_is_integer_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000046() { pm_p9_py_round_to_int_is_integer_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000047() { pm_p9_py_round_to_int_is_integer_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000048() { pm_p9_py_round_to_int_is_integer_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p9_py_round_to_int_is_integer_seed_000049() { pm_p9_py_round_to_int_is_integer_impl(49); }
+    // --- pm_p10_py_round_to_int_diff_at_most_half: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000000() { pm_p10_py_round_to_int_diff_at_most_half_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000001() { pm_p10_py_round_to_int_diff_at_most_half_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000002() { pm_p10_py_round_to_int_diff_at_most_half_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000003() { pm_p10_py_round_to_int_diff_at_most_half_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000004() { pm_p10_py_round_to_int_diff_at_most_half_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000005() { pm_p10_py_round_to_int_diff_at_most_half_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000006() { pm_p10_py_round_to_int_diff_at_most_half_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000007() { pm_p10_py_round_to_int_diff_at_most_half_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000008() { pm_p10_py_round_to_int_diff_at_most_half_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000009() { pm_p10_py_round_to_int_diff_at_most_half_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000010() { pm_p10_py_round_to_int_diff_at_most_half_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000011() { pm_p10_py_round_to_int_diff_at_most_half_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000012() { pm_p10_py_round_to_int_diff_at_most_half_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000013() { pm_p10_py_round_to_int_diff_at_most_half_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000014() { pm_p10_py_round_to_int_diff_at_most_half_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000015() { pm_p10_py_round_to_int_diff_at_most_half_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000016() { pm_p10_py_round_to_int_diff_at_most_half_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000017() { pm_p10_py_round_to_int_diff_at_most_half_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000018() { pm_p10_py_round_to_int_diff_at_most_half_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000019() { pm_p10_py_round_to_int_diff_at_most_half_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000020() { pm_p10_py_round_to_int_diff_at_most_half_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000021() { pm_p10_py_round_to_int_diff_at_most_half_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000022() { pm_p10_py_round_to_int_diff_at_most_half_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000023() { pm_p10_py_round_to_int_diff_at_most_half_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000024() { pm_p10_py_round_to_int_diff_at_most_half_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000025() { pm_p10_py_round_to_int_diff_at_most_half_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000026() { pm_p10_py_round_to_int_diff_at_most_half_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000027() { pm_p10_py_round_to_int_diff_at_most_half_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000028() { pm_p10_py_round_to_int_diff_at_most_half_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000029() { pm_p10_py_round_to_int_diff_at_most_half_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000030() { pm_p10_py_round_to_int_diff_at_most_half_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000031() { pm_p10_py_round_to_int_diff_at_most_half_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000032() { pm_p10_py_round_to_int_diff_at_most_half_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000033() { pm_p10_py_round_to_int_diff_at_most_half_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000034() { pm_p10_py_round_to_int_diff_at_most_half_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000035() { pm_p10_py_round_to_int_diff_at_most_half_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000036() { pm_p10_py_round_to_int_diff_at_most_half_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000037() { pm_p10_py_round_to_int_diff_at_most_half_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000038() { pm_p10_py_round_to_int_diff_at_most_half_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000039() { pm_p10_py_round_to_int_diff_at_most_half_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000040() { pm_p10_py_round_to_int_diff_at_most_half_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000041() { pm_p10_py_round_to_int_diff_at_most_half_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000042() { pm_p10_py_round_to_int_diff_at_most_half_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000043() { pm_p10_py_round_to_int_diff_at_most_half_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000044() { pm_p10_py_round_to_int_diff_at_most_half_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000045() { pm_p10_py_round_to_int_diff_at_most_half_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000046() { pm_p10_py_round_to_int_diff_at_most_half_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000047() { pm_p10_py_round_to_int_diff_at_most_half_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000048() { pm_p10_py_round_to_int_diff_at_most_half_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p10_py_round_to_int_diff_at_most_half_seed_000049() { pm_p10_py_round_to_int_diff_at_most_half_impl(49); }
+    // --- pm_p11_py_round_to_int_ties_to_even: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000000() { pm_p11_py_round_to_int_ties_to_even_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000001() { pm_p11_py_round_to_int_ties_to_even_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000002() { pm_p11_py_round_to_int_ties_to_even_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000003() { pm_p11_py_round_to_int_ties_to_even_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000004() { pm_p11_py_round_to_int_ties_to_even_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000005() { pm_p11_py_round_to_int_ties_to_even_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000006() { pm_p11_py_round_to_int_ties_to_even_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000007() { pm_p11_py_round_to_int_ties_to_even_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000008() { pm_p11_py_round_to_int_ties_to_even_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000009() { pm_p11_py_round_to_int_ties_to_even_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000010() { pm_p11_py_round_to_int_ties_to_even_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000011() { pm_p11_py_round_to_int_ties_to_even_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000012() { pm_p11_py_round_to_int_ties_to_even_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000013() { pm_p11_py_round_to_int_ties_to_even_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000014() { pm_p11_py_round_to_int_ties_to_even_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000015() { pm_p11_py_round_to_int_ties_to_even_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000016() { pm_p11_py_round_to_int_ties_to_even_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000017() { pm_p11_py_round_to_int_ties_to_even_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000018() { pm_p11_py_round_to_int_ties_to_even_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000019() { pm_p11_py_round_to_int_ties_to_even_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000020() { pm_p11_py_round_to_int_ties_to_even_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000021() { pm_p11_py_round_to_int_ties_to_even_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000022() { pm_p11_py_round_to_int_ties_to_even_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000023() { pm_p11_py_round_to_int_ties_to_even_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000024() { pm_p11_py_round_to_int_ties_to_even_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000025() { pm_p11_py_round_to_int_ties_to_even_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000026() { pm_p11_py_round_to_int_ties_to_even_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000027() { pm_p11_py_round_to_int_ties_to_even_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000028() { pm_p11_py_round_to_int_ties_to_even_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000029() { pm_p11_py_round_to_int_ties_to_even_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000030() { pm_p11_py_round_to_int_ties_to_even_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000031() { pm_p11_py_round_to_int_ties_to_even_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000032() { pm_p11_py_round_to_int_ties_to_even_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000033() { pm_p11_py_round_to_int_ties_to_even_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000034() { pm_p11_py_round_to_int_ties_to_even_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000035() { pm_p11_py_round_to_int_ties_to_even_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000036() { pm_p11_py_round_to_int_ties_to_even_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000037() { pm_p11_py_round_to_int_ties_to_even_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000038() { pm_p11_py_round_to_int_ties_to_even_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000039() { pm_p11_py_round_to_int_ties_to_even_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000040() { pm_p11_py_round_to_int_ties_to_even_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000041() { pm_p11_py_round_to_int_ties_to_even_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000042() { pm_p11_py_round_to_int_ties_to_even_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000043() { pm_p11_py_round_to_int_ties_to_even_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000044() { pm_p11_py_round_to_int_ties_to_even_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000045() { pm_p11_py_round_to_int_ties_to_even_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000046() { pm_p11_py_round_to_int_ties_to_even_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000047() { pm_p11_py_round_to_int_ties_to_even_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000048() { pm_p11_py_round_to_int_ties_to_even_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p11_py_round_to_int_ties_to_even_seed_000049() { pm_p11_py_round_to_int_ties_to_even_impl(49); }
+    // --- pm_p12_py_hypot_non_negative: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000000() { pm_p12_py_hypot_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000001() { pm_p12_py_hypot_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000002() { pm_p12_py_hypot_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000003() { pm_p12_py_hypot_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000004() { pm_p12_py_hypot_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000005() { pm_p12_py_hypot_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000006() { pm_p12_py_hypot_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000007() { pm_p12_py_hypot_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000008() { pm_p12_py_hypot_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000009() { pm_p12_py_hypot_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000010() { pm_p12_py_hypot_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000011() { pm_p12_py_hypot_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000012() { pm_p12_py_hypot_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000013() { pm_p12_py_hypot_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000014() { pm_p12_py_hypot_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000015() { pm_p12_py_hypot_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000016() { pm_p12_py_hypot_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000017() { pm_p12_py_hypot_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000018() { pm_p12_py_hypot_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000019() { pm_p12_py_hypot_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000020() { pm_p12_py_hypot_non_negative_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000021() { pm_p12_py_hypot_non_negative_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000022() { pm_p12_py_hypot_non_negative_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000023() { pm_p12_py_hypot_non_negative_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000024() { pm_p12_py_hypot_non_negative_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000025() { pm_p12_py_hypot_non_negative_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000026() { pm_p12_py_hypot_non_negative_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000027() { pm_p12_py_hypot_non_negative_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000028() { pm_p12_py_hypot_non_negative_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000029() { pm_p12_py_hypot_non_negative_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000030() { pm_p12_py_hypot_non_negative_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000031() { pm_p12_py_hypot_non_negative_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000032() { pm_p12_py_hypot_non_negative_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000033() { pm_p12_py_hypot_non_negative_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000034() { pm_p12_py_hypot_non_negative_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000035() { pm_p12_py_hypot_non_negative_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000036() { pm_p12_py_hypot_non_negative_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000037() { pm_p12_py_hypot_non_negative_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000038() { pm_p12_py_hypot_non_negative_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000039() { pm_p12_py_hypot_non_negative_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000040() { pm_p12_py_hypot_non_negative_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000041() { pm_p12_py_hypot_non_negative_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000042() { pm_p12_py_hypot_non_negative_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000043() { pm_p12_py_hypot_non_negative_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000044() { pm_p12_py_hypot_non_negative_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000045() { pm_p12_py_hypot_non_negative_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000046() { pm_p12_py_hypot_non_negative_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000047() { pm_p12_py_hypot_non_negative_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000048() { pm_p12_py_hypot_non_negative_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p12_py_hypot_non_negative_seed_000049() { pm_p12_py_hypot_non_negative_impl(49); }
+    // --- pm_p13_py_hypot_symmetric: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000000() { pm_p13_py_hypot_symmetric_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000001() { pm_p13_py_hypot_symmetric_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000002() { pm_p13_py_hypot_symmetric_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000003() { pm_p13_py_hypot_symmetric_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000004() { pm_p13_py_hypot_symmetric_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000005() { pm_p13_py_hypot_symmetric_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000006() { pm_p13_py_hypot_symmetric_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000007() { pm_p13_py_hypot_symmetric_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000008() { pm_p13_py_hypot_symmetric_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000009() { pm_p13_py_hypot_symmetric_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000010() { pm_p13_py_hypot_symmetric_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000011() { pm_p13_py_hypot_symmetric_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000012() { pm_p13_py_hypot_symmetric_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000013() { pm_p13_py_hypot_symmetric_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000014() { pm_p13_py_hypot_symmetric_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000015() { pm_p13_py_hypot_symmetric_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000016() { pm_p13_py_hypot_symmetric_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000017() { pm_p13_py_hypot_symmetric_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000018() { pm_p13_py_hypot_symmetric_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000019() { pm_p13_py_hypot_symmetric_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000020() { pm_p13_py_hypot_symmetric_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000021() { pm_p13_py_hypot_symmetric_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000022() { pm_p13_py_hypot_symmetric_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000023() { pm_p13_py_hypot_symmetric_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000024() { pm_p13_py_hypot_symmetric_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000025() { pm_p13_py_hypot_symmetric_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000026() { pm_p13_py_hypot_symmetric_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000027() { pm_p13_py_hypot_symmetric_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000028() { pm_p13_py_hypot_symmetric_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000029() { pm_p13_py_hypot_symmetric_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000030() { pm_p13_py_hypot_symmetric_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000031() { pm_p13_py_hypot_symmetric_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000032() { pm_p13_py_hypot_symmetric_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000033() { pm_p13_py_hypot_symmetric_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000034() { pm_p13_py_hypot_symmetric_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000035() { pm_p13_py_hypot_symmetric_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000036() { pm_p13_py_hypot_symmetric_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000037() { pm_p13_py_hypot_symmetric_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000038() { pm_p13_py_hypot_symmetric_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000039() { pm_p13_py_hypot_symmetric_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000040() { pm_p13_py_hypot_symmetric_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000041() { pm_p13_py_hypot_symmetric_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000042() { pm_p13_py_hypot_symmetric_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000043() { pm_p13_py_hypot_symmetric_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000044() { pm_p13_py_hypot_symmetric_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000045() { pm_p13_py_hypot_symmetric_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000046() { pm_p13_py_hypot_symmetric_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000047() { pm_p13_py_hypot_symmetric_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000048() { pm_p13_py_hypot_symmetric_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p13_py_hypot_symmetric_seed_000049() { pm_p13_py_hypot_symmetric_impl(49); }
+    // --- pm_p14_py_hypot_ge_max_abs: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000000() { pm_p14_py_hypot_ge_max_abs_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000001() { pm_p14_py_hypot_ge_max_abs_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000002() { pm_p14_py_hypot_ge_max_abs_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000003() { pm_p14_py_hypot_ge_max_abs_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000004() { pm_p14_py_hypot_ge_max_abs_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000005() { pm_p14_py_hypot_ge_max_abs_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000006() { pm_p14_py_hypot_ge_max_abs_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000007() { pm_p14_py_hypot_ge_max_abs_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000008() { pm_p14_py_hypot_ge_max_abs_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000009() { pm_p14_py_hypot_ge_max_abs_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000010() { pm_p14_py_hypot_ge_max_abs_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000011() { pm_p14_py_hypot_ge_max_abs_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000012() { pm_p14_py_hypot_ge_max_abs_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000013() { pm_p14_py_hypot_ge_max_abs_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000014() { pm_p14_py_hypot_ge_max_abs_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000015() { pm_p14_py_hypot_ge_max_abs_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000016() { pm_p14_py_hypot_ge_max_abs_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000017() { pm_p14_py_hypot_ge_max_abs_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000018() { pm_p14_py_hypot_ge_max_abs_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000019() { pm_p14_py_hypot_ge_max_abs_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000020() { pm_p14_py_hypot_ge_max_abs_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000021() { pm_p14_py_hypot_ge_max_abs_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000022() { pm_p14_py_hypot_ge_max_abs_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000023() { pm_p14_py_hypot_ge_max_abs_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000024() { pm_p14_py_hypot_ge_max_abs_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000025() { pm_p14_py_hypot_ge_max_abs_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000026() { pm_p14_py_hypot_ge_max_abs_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000027() { pm_p14_py_hypot_ge_max_abs_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000028() { pm_p14_py_hypot_ge_max_abs_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000029() { pm_p14_py_hypot_ge_max_abs_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000030() { pm_p14_py_hypot_ge_max_abs_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000031() { pm_p14_py_hypot_ge_max_abs_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000032() { pm_p14_py_hypot_ge_max_abs_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000033() { pm_p14_py_hypot_ge_max_abs_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000034() { pm_p14_py_hypot_ge_max_abs_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000035() { pm_p14_py_hypot_ge_max_abs_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000036() { pm_p14_py_hypot_ge_max_abs_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000037() { pm_p14_py_hypot_ge_max_abs_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000038() { pm_p14_py_hypot_ge_max_abs_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000039() { pm_p14_py_hypot_ge_max_abs_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000040() { pm_p14_py_hypot_ge_max_abs_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000041() { pm_p14_py_hypot_ge_max_abs_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000042() { pm_p14_py_hypot_ge_max_abs_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000043() { pm_p14_py_hypot_ge_max_abs_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000044() { pm_p14_py_hypot_ge_max_abs_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000045() { pm_p14_py_hypot_ge_max_abs_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000046() { pm_p14_py_hypot_ge_max_abs_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000047() { pm_p14_py_hypot_ge_max_abs_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000048() { pm_p14_py_hypot_ge_max_abs_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p14_py_hypot_ge_max_abs_seed_000049() { pm_p14_py_hypot_ge_max_abs_impl(49); }
+    // --- pm_p15_py_hypot_zero_returns_abs: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000000() { pm_p15_py_hypot_zero_returns_abs_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000001() { pm_p15_py_hypot_zero_returns_abs_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000002() { pm_p15_py_hypot_zero_returns_abs_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000003() { pm_p15_py_hypot_zero_returns_abs_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000004() { pm_p15_py_hypot_zero_returns_abs_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000005() { pm_p15_py_hypot_zero_returns_abs_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000006() { pm_p15_py_hypot_zero_returns_abs_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000007() { pm_p15_py_hypot_zero_returns_abs_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000008() { pm_p15_py_hypot_zero_returns_abs_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000009() { pm_p15_py_hypot_zero_returns_abs_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000010() { pm_p15_py_hypot_zero_returns_abs_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000011() { pm_p15_py_hypot_zero_returns_abs_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000012() { pm_p15_py_hypot_zero_returns_abs_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000013() { pm_p15_py_hypot_zero_returns_abs_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000014() { pm_p15_py_hypot_zero_returns_abs_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000015() { pm_p15_py_hypot_zero_returns_abs_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000016() { pm_p15_py_hypot_zero_returns_abs_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000017() { pm_p15_py_hypot_zero_returns_abs_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000018() { pm_p15_py_hypot_zero_returns_abs_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000019() { pm_p15_py_hypot_zero_returns_abs_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000020() { pm_p15_py_hypot_zero_returns_abs_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000021() { pm_p15_py_hypot_zero_returns_abs_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000022() { pm_p15_py_hypot_zero_returns_abs_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000023() { pm_p15_py_hypot_zero_returns_abs_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000024() { pm_p15_py_hypot_zero_returns_abs_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000025() { pm_p15_py_hypot_zero_returns_abs_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000026() { pm_p15_py_hypot_zero_returns_abs_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000027() { pm_p15_py_hypot_zero_returns_abs_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000028() { pm_p15_py_hypot_zero_returns_abs_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000029() { pm_p15_py_hypot_zero_returns_abs_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000030() { pm_p15_py_hypot_zero_returns_abs_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000031() { pm_p15_py_hypot_zero_returns_abs_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000032() { pm_p15_py_hypot_zero_returns_abs_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000033() { pm_p15_py_hypot_zero_returns_abs_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000034() { pm_p15_py_hypot_zero_returns_abs_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000035() { pm_p15_py_hypot_zero_returns_abs_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000036() { pm_p15_py_hypot_zero_returns_abs_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000037() { pm_p15_py_hypot_zero_returns_abs_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000038() { pm_p15_py_hypot_zero_returns_abs_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000039() { pm_p15_py_hypot_zero_returns_abs_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000040() { pm_p15_py_hypot_zero_returns_abs_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000041() { pm_p15_py_hypot_zero_returns_abs_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000042() { pm_p15_py_hypot_zero_returns_abs_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000043() { pm_p15_py_hypot_zero_returns_abs_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000044() { pm_p15_py_hypot_zero_returns_abs_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000045() { pm_p15_py_hypot_zero_returns_abs_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000046() { pm_p15_py_hypot_zero_returns_abs_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000047() { pm_p15_py_hypot_zero_returns_abs_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000048() { pm_p15_py_hypot_zero_returns_abs_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pm_p15_py_hypot_zero_returns_abs_seed_000049() { pm_p15_py_hypot_zero_returns_abs_impl(49); }
+    // --- vk_p1_infer_package_type_is_known: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000000() { vk_p1_infer_package_type_is_known_impl(0); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000001() { vk_p1_infer_package_type_is_known_impl(1); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000002() { vk_p1_infer_package_type_is_known_impl(2); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000003() { vk_p1_infer_package_type_is_known_impl(3); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000004() { vk_p1_infer_package_type_is_known_impl(4); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000005() { vk_p1_infer_package_type_is_known_impl(5); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000006() { vk_p1_infer_package_type_is_known_impl(6); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000007() { vk_p1_infer_package_type_is_known_impl(7); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000008() { vk_p1_infer_package_type_is_known_impl(8); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000009() { vk_p1_infer_package_type_is_known_impl(9); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000010() { vk_p1_infer_package_type_is_known_impl(10); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000011() { vk_p1_infer_package_type_is_known_impl(11); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000012() { vk_p1_infer_package_type_is_known_impl(12); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000013() { vk_p1_infer_package_type_is_known_impl(13); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000014() { vk_p1_infer_package_type_is_known_impl(14); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000015() { vk_p1_infer_package_type_is_known_impl(15); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000016() { vk_p1_infer_package_type_is_known_impl(16); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000017() { vk_p1_infer_package_type_is_known_impl(17); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000018() { vk_p1_infer_package_type_is_known_impl(18); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000019() { vk_p1_infer_package_type_is_known_impl(19); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000020() { vk_p1_infer_package_type_is_known_impl(20); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000021() { vk_p1_infer_package_type_is_known_impl(21); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000022() { vk_p1_infer_package_type_is_known_impl(22); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000023() { vk_p1_infer_package_type_is_known_impl(23); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000024() { vk_p1_infer_package_type_is_known_impl(24); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000025() { vk_p1_infer_package_type_is_known_impl(25); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000026() { vk_p1_infer_package_type_is_known_impl(26); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000027() { vk_p1_infer_package_type_is_known_impl(27); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000028() { vk_p1_infer_package_type_is_known_impl(28); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000029() { vk_p1_infer_package_type_is_known_impl(29); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000030() { vk_p1_infer_package_type_is_known_impl(30); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000031() { vk_p1_infer_package_type_is_known_impl(31); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000032() { vk_p1_infer_package_type_is_known_impl(32); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000033() { vk_p1_infer_package_type_is_known_impl(33); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000034() { vk_p1_infer_package_type_is_known_impl(34); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000035() { vk_p1_infer_package_type_is_known_impl(35); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000036() { vk_p1_infer_package_type_is_known_impl(36); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000037() { vk_p1_infer_package_type_is_known_impl(37); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000038() { vk_p1_infer_package_type_is_known_impl(38); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000039() { vk_p1_infer_package_type_is_known_impl(39); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000040() { vk_p1_infer_package_type_is_known_impl(40); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000041() { vk_p1_infer_package_type_is_known_impl(41); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000042() { vk_p1_infer_package_type_is_known_impl(42); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000043() { vk_p1_infer_package_type_is_known_impl(43); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000044() { vk_p1_infer_package_type_is_known_impl(44); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000045() { vk_p1_infer_package_type_is_known_impl(45); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000046() { vk_p1_infer_package_type_is_known_impl(46); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000047() { vk_p1_infer_package_type_is_known_impl(47); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000048() { vk_p1_infer_package_type_is_known_impl(48); }
+    #[cfg_attr(test, test)]
+    fn vk_p1_infer_package_type_is_known_seed_000049() { vk_p1_infer_package_type_is_known_impl(49); }
+    // --- vk_p2_tht_no_violations_when_distant: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000000() { vk_p2_tht_no_violations_when_distant_impl(0); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000001() { vk_p2_tht_no_violations_when_distant_impl(1); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000002() { vk_p2_tht_no_violations_when_distant_impl(2); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000003() { vk_p2_tht_no_violations_when_distant_impl(3); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000004() { vk_p2_tht_no_violations_when_distant_impl(4); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000005() { vk_p2_tht_no_violations_when_distant_impl(5); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000006() { vk_p2_tht_no_violations_when_distant_impl(6); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000007() { vk_p2_tht_no_violations_when_distant_impl(7); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000008() { vk_p2_tht_no_violations_when_distant_impl(8); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000009() { vk_p2_tht_no_violations_when_distant_impl(9); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000010() { vk_p2_tht_no_violations_when_distant_impl(10); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000011() { vk_p2_tht_no_violations_when_distant_impl(11); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000012() { vk_p2_tht_no_violations_when_distant_impl(12); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000013() { vk_p2_tht_no_violations_when_distant_impl(13); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000014() { vk_p2_tht_no_violations_when_distant_impl(14); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000015() { vk_p2_tht_no_violations_when_distant_impl(15); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000016() { vk_p2_tht_no_violations_when_distant_impl(16); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000017() { vk_p2_tht_no_violations_when_distant_impl(17); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000018() { vk_p2_tht_no_violations_when_distant_impl(18); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000019() { vk_p2_tht_no_violations_when_distant_impl(19); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000020() { vk_p2_tht_no_violations_when_distant_impl(20); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000021() { vk_p2_tht_no_violations_when_distant_impl(21); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000022() { vk_p2_tht_no_violations_when_distant_impl(22); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000023() { vk_p2_tht_no_violations_when_distant_impl(23); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000024() { vk_p2_tht_no_violations_when_distant_impl(24); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000025() { vk_p2_tht_no_violations_when_distant_impl(25); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000026() { vk_p2_tht_no_violations_when_distant_impl(26); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000027() { vk_p2_tht_no_violations_when_distant_impl(27); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000028() { vk_p2_tht_no_violations_when_distant_impl(28); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000029() { vk_p2_tht_no_violations_when_distant_impl(29); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000030() { vk_p2_tht_no_violations_when_distant_impl(30); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000031() { vk_p2_tht_no_violations_when_distant_impl(31); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000032() { vk_p2_tht_no_violations_when_distant_impl(32); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000033() { vk_p2_tht_no_violations_when_distant_impl(33); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000034() { vk_p2_tht_no_violations_when_distant_impl(34); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000035() { vk_p2_tht_no_violations_when_distant_impl(35); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000036() { vk_p2_tht_no_violations_when_distant_impl(36); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000037() { vk_p2_tht_no_violations_when_distant_impl(37); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000038() { vk_p2_tht_no_violations_when_distant_impl(38); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000039() { vk_p2_tht_no_violations_when_distant_impl(39); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000040() { vk_p2_tht_no_violations_when_distant_impl(40); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000041() { vk_p2_tht_no_violations_when_distant_impl(41); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000042() { vk_p2_tht_no_violations_when_distant_impl(42); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000043() { vk_p2_tht_no_violations_when_distant_impl(43); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000044() { vk_p2_tht_no_violations_when_distant_impl(44); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000045() { vk_p2_tht_no_violations_when_distant_impl(45); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000046() { vk_p2_tht_no_violations_when_distant_impl(46); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000047() { vk_p2_tht_no_violations_when_distant_impl(47); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000048() { vk_p2_tht_no_violations_when_distant_impl(48); }
+    #[cfg_attr(test, test)]
+    fn vk_p2_tht_no_violations_when_distant_seed_000049() { vk_p2_tht_no_violations_when_distant_impl(49); }
+    // --- vk_p3_tht_violation_message_has_both_refs: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000000() { vk_p3_tht_violation_message_has_both_refs_impl(0); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000001() { vk_p3_tht_violation_message_has_both_refs_impl(1); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000002() { vk_p3_tht_violation_message_has_both_refs_impl(2); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000003() { vk_p3_tht_violation_message_has_both_refs_impl(3); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000004() { vk_p3_tht_violation_message_has_both_refs_impl(4); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000005() { vk_p3_tht_violation_message_has_both_refs_impl(5); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000006() { vk_p3_tht_violation_message_has_both_refs_impl(6); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000007() { vk_p3_tht_violation_message_has_both_refs_impl(7); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000008() { vk_p3_tht_violation_message_has_both_refs_impl(8); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000009() { vk_p3_tht_violation_message_has_both_refs_impl(9); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000010() { vk_p3_tht_violation_message_has_both_refs_impl(10); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000011() { vk_p3_tht_violation_message_has_both_refs_impl(11); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000012() { vk_p3_tht_violation_message_has_both_refs_impl(12); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000013() { vk_p3_tht_violation_message_has_both_refs_impl(13); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000014() { vk_p3_tht_violation_message_has_both_refs_impl(14); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000015() { vk_p3_tht_violation_message_has_both_refs_impl(15); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000016() { vk_p3_tht_violation_message_has_both_refs_impl(16); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000017() { vk_p3_tht_violation_message_has_both_refs_impl(17); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000018() { vk_p3_tht_violation_message_has_both_refs_impl(18); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000019() { vk_p3_tht_violation_message_has_both_refs_impl(19); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000020() { vk_p3_tht_violation_message_has_both_refs_impl(20); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000021() { vk_p3_tht_violation_message_has_both_refs_impl(21); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000022() { vk_p3_tht_violation_message_has_both_refs_impl(22); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000023() { vk_p3_tht_violation_message_has_both_refs_impl(23); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000024() { vk_p3_tht_violation_message_has_both_refs_impl(24); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000025() { vk_p3_tht_violation_message_has_both_refs_impl(25); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000026() { vk_p3_tht_violation_message_has_both_refs_impl(26); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000027() { vk_p3_tht_violation_message_has_both_refs_impl(27); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000028() { vk_p3_tht_violation_message_has_both_refs_impl(28); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000029() { vk_p3_tht_violation_message_has_both_refs_impl(29); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000030() { vk_p3_tht_violation_message_has_both_refs_impl(30); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000031() { vk_p3_tht_violation_message_has_both_refs_impl(31); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000032() { vk_p3_tht_violation_message_has_both_refs_impl(32); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000033() { vk_p3_tht_violation_message_has_both_refs_impl(33); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000034() { vk_p3_tht_violation_message_has_both_refs_impl(34); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000035() { vk_p3_tht_violation_message_has_both_refs_impl(35); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000036() { vk_p3_tht_violation_message_has_both_refs_impl(36); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000037() { vk_p3_tht_violation_message_has_both_refs_impl(37); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000038() { vk_p3_tht_violation_message_has_both_refs_impl(38); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000039() { vk_p3_tht_violation_message_has_both_refs_impl(39); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000040() { vk_p3_tht_violation_message_has_both_refs_impl(40); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000041() { vk_p3_tht_violation_message_has_both_refs_impl(41); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000042() { vk_p3_tht_violation_message_has_both_refs_impl(42); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000043() { vk_p3_tht_violation_message_has_both_refs_impl(43); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000044() { vk_p3_tht_violation_message_has_both_refs_impl(44); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000045() { vk_p3_tht_violation_message_has_both_refs_impl(45); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000046() { vk_p3_tht_violation_message_has_both_refs_impl(46); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000047() { vk_p3_tht_violation_message_has_both_refs_impl(47); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000048() { vk_p3_tht_violation_message_has_both_refs_impl(48); }
+    #[cfg_attr(test, test)]
+    fn vk_p3_tht_violation_message_has_both_refs_seed_000049() { vk_p3_tht_violation_message_has_both_refs_impl(49); }
+    // --- vk_p4_min_clearance_non_negative: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000000() { vk_p4_min_clearance_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000001() { vk_p4_min_clearance_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000002() { vk_p4_min_clearance_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000003() { vk_p4_min_clearance_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000004() { vk_p4_min_clearance_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000005() { vk_p4_min_clearance_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000006() { vk_p4_min_clearance_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000007() { vk_p4_min_clearance_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000008() { vk_p4_min_clearance_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000009() { vk_p4_min_clearance_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000010() { vk_p4_min_clearance_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000011() { vk_p4_min_clearance_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000012() { vk_p4_min_clearance_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000013() { vk_p4_min_clearance_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000014() { vk_p4_min_clearance_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000015() { vk_p4_min_clearance_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000016() { vk_p4_min_clearance_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000017() { vk_p4_min_clearance_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000018() { vk_p4_min_clearance_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000019() { vk_p4_min_clearance_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000020() { vk_p4_min_clearance_non_negative_impl(20); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000021() { vk_p4_min_clearance_non_negative_impl(21); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000022() { vk_p4_min_clearance_non_negative_impl(22); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000023() { vk_p4_min_clearance_non_negative_impl(23); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000024() { vk_p4_min_clearance_non_negative_impl(24); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000025() { vk_p4_min_clearance_non_negative_impl(25); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000026() { vk_p4_min_clearance_non_negative_impl(26); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000027() { vk_p4_min_clearance_non_negative_impl(27); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000028() { vk_p4_min_clearance_non_negative_impl(28); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000029() { vk_p4_min_clearance_non_negative_impl(29); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000030() { vk_p4_min_clearance_non_negative_impl(30); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000031() { vk_p4_min_clearance_non_negative_impl(31); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000032() { vk_p4_min_clearance_non_negative_impl(32); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000033() { vk_p4_min_clearance_non_negative_impl(33); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000034() { vk_p4_min_clearance_non_negative_impl(34); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000035() { vk_p4_min_clearance_non_negative_impl(35); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000036() { vk_p4_min_clearance_non_negative_impl(36); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000037() { vk_p4_min_clearance_non_negative_impl(37); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000038() { vk_p4_min_clearance_non_negative_impl(38); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000039() { vk_p4_min_clearance_non_negative_impl(39); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000040() { vk_p4_min_clearance_non_negative_impl(40); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000041() { vk_p4_min_clearance_non_negative_impl(41); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000042() { vk_p4_min_clearance_non_negative_impl(42); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000043() { vk_p4_min_clearance_non_negative_impl(43); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000044() { vk_p4_min_clearance_non_negative_impl(44); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000045() { vk_p4_min_clearance_non_negative_impl(45); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000046() { vk_p4_min_clearance_non_negative_impl(46); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000047() { vk_p4_min_clearance_non_negative_impl(47); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000048() { vk_p4_min_clearance_non_negative_impl(48); }
+    #[cfg_attr(test, test)]
+    fn vk_p4_min_clearance_non_negative_seed_000049() { vk_p4_min_clearance_non_negative_impl(49); }
+    // --- vk_p5_min_clearance_symmetric: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000000() { vk_p5_min_clearance_symmetric_impl(0); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000001() { vk_p5_min_clearance_symmetric_impl(1); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000002() { vk_p5_min_clearance_symmetric_impl(2); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000003() { vk_p5_min_clearance_symmetric_impl(3); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000004() { vk_p5_min_clearance_symmetric_impl(4); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000005() { vk_p5_min_clearance_symmetric_impl(5); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000006() { vk_p5_min_clearance_symmetric_impl(6); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000007() { vk_p5_min_clearance_symmetric_impl(7); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000008() { vk_p5_min_clearance_symmetric_impl(8); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000009() { vk_p5_min_clearance_symmetric_impl(9); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000010() { vk_p5_min_clearance_symmetric_impl(10); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000011() { vk_p5_min_clearance_symmetric_impl(11); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000012() { vk_p5_min_clearance_symmetric_impl(12); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000013() { vk_p5_min_clearance_symmetric_impl(13); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000014() { vk_p5_min_clearance_symmetric_impl(14); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000015() { vk_p5_min_clearance_symmetric_impl(15); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000016() { vk_p5_min_clearance_symmetric_impl(16); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000017() { vk_p5_min_clearance_symmetric_impl(17); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000018() { vk_p5_min_clearance_symmetric_impl(18); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000019() { vk_p5_min_clearance_symmetric_impl(19); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000020() { vk_p5_min_clearance_symmetric_impl(20); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000021() { vk_p5_min_clearance_symmetric_impl(21); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000022() { vk_p5_min_clearance_symmetric_impl(22); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000023() { vk_p5_min_clearance_symmetric_impl(23); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000024() { vk_p5_min_clearance_symmetric_impl(24); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000025() { vk_p5_min_clearance_symmetric_impl(25); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000026() { vk_p5_min_clearance_symmetric_impl(26); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000027() { vk_p5_min_clearance_symmetric_impl(27); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000028() { vk_p5_min_clearance_symmetric_impl(28); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000029() { vk_p5_min_clearance_symmetric_impl(29); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000030() { vk_p5_min_clearance_symmetric_impl(30); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000031() { vk_p5_min_clearance_symmetric_impl(31); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000032() { vk_p5_min_clearance_symmetric_impl(32); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000033() { vk_p5_min_clearance_symmetric_impl(33); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000034() { vk_p5_min_clearance_symmetric_impl(34); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000035() { vk_p5_min_clearance_symmetric_impl(35); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000036() { vk_p5_min_clearance_symmetric_impl(36); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000037() { vk_p5_min_clearance_symmetric_impl(37); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000038() { vk_p5_min_clearance_symmetric_impl(38); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000039() { vk_p5_min_clearance_symmetric_impl(39); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000040() { vk_p5_min_clearance_symmetric_impl(40); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000041() { vk_p5_min_clearance_symmetric_impl(41); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000042() { vk_p5_min_clearance_symmetric_impl(42); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000043() { vk_p5_min_clearance_symmetric_impl(43); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000044() { vk_p5_min_clearance_symmetric_impl(44); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000045() { vk_p5_min_clearance_symmetric_impl(45); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000046() { vk_p5_min_clearance_symmetric_impl(46); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000047() { vk_p5_min_clearance_symmetric_impl(47); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000048() { vk_p5_min_clearance_symmetric_impl(48); }
+    #[cfg_attr(test, test)]
+    fn vk_p5_min_clearance_symmetric_seed_000049() { vk_p5_min_clearance_symmetric_impl(49); }
+    // --- vk_p6_fingerprint_contains_code_and_message: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000000() { vk_p6_fingerprint_contains_code_and_message_impl(0); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000001() { vk_p6_fingerprint_contains_code_and_message_impl(1); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000002() { vk_p6_fingerprint_contains_code_and_message_impl(2); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000003() { vk_p6_fingerprint_contains_code_and_message_impl(3); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000004() { vk_p6_fingerprint_contains_code_and_message_impl(4); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000005() { vk_p6_fingerprint_contains_code_and_message_impl(5); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000006() { vk_p6_fingerprint_contains_code_and_message_impl(6); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000007() { vk_p6_fingerprint_contains_code_and_message_impl(7); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000008() { vk_p6_fingerprint_contains_code_and_message_impl(8); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000009() { vk_p6_fingerprint_contains_code_and_message_impl(9); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000010() { vk_p6_fingerprint_contains_code_and_message_impl(10); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000011() { vk_p6_fingerprint_contains_code_and_message_impl(11); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000012() { vk_p6_fingerprint_contains_code_and_message_impl(12); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000013() { vk_p6_fingerprint_contains_code_and_message_impl(13); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000014() { vk_p6_fingerprint_contains_code_and_message_impl(14); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000015() { vk_p6_fingerprint_contains_code_and_message_impl(15); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000016() { vk_p6_fingerprint_contains_code_and_message_impl(16); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000017() { vk_p6_fingerprint_contains_code_and_message_impl(17); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000018() { vk_p6_fingerprint_contains_code_and_message_impl(18); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000019() { vk_p6_fingerprint_contains_code_and_message_impl(19); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000020() { vk_p6_fingerprint_contains_code_and_message_impl(20); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000021() { vk_p6_fingerprint_contains_code_and_message_impl(21); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000022() { vk_p6_fingerprint_contains_code_and_message_impl(22); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000023() { vk_p6_fingerprint_contains_code_and_message_impl(23); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000024() { vk_p6_fingerprint_contains_code_and_message_impl(24); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000025() { vk_p6_fingerprint_contains_code_and_message_impl(25); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000026() { vk_p6_fingerprint_contains_code_and_message_impl(26); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000027() { vk_p6_fingerprint_contains_code_and_message_impl(27); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000028() { vk_p6_fingerprint_contains_code_and_message_impl(28); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000029() { vk_p6_fingerprint_contains_code_and_message_impl(29); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000030() { vk_p6_fingerprint_contains_code_and_message_impl(30); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000031() { vk_p6_fingerprint_contains_code_and_message_impl(31); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000032() { vk_p6_fingerprint_contains_code_and_message_impl(32); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000033() { vk_p6_fingerprint_contains_code_and_message_impl(33); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000034() { vk_p6_fingerprint_contains_code_and_message_impl(34); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000035() { vk_p6_fingerprint_contains_code_and_message_impl(35); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000036() { vk_p6_fingerprint_contains_code_and_message_impl(36); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000037() { vk_p6_fingerprint_contains_code_and_message_impl(37); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000038() { vk_p6_fingerprint_contains_code_and_message_impl(38); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000039() { vk_p6_fingerprint_contains_code_and_message_impl(39); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000040() { vk_p6_fingerprint_contains_code_and_message_impl(40); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000041() { vk_p6_fingerprint_contains_code_and_message_impl(41); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000042() { vk_p6_fingerprint_contains_code_and_message_impl(42); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000043() { vk_p6_fingerprint_contains_code_and_message_impl(43); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000044() { vk_p6_fingerprint_contains_code_and_message_impl(44); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000045() { vk_p6_fingerprint_contains_code_and_message_impl(45); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000046() { vk_p6_fingerprint_contains_code_and_message_impl(46); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000047() { vk_p6_fingerprint_contains_code_and_message_impl(47); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000048() { vk_p6_fingerprint_contains_code_and_message_impl(48); }
+    #[cfg_attr(test, test)]
+    fn vk_p6_fingerprint_contains_code_and_message_seed_000049() { vk_p6_fingerprint_contains_code_and_message_impl(49); }
+    // --- vk_p7_fingerprint_order_invariant: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000000() { vk_p7_fingerprint_order_invariant_impl(0); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000001() { vk_p7_fingerprint_order_invariant_impl(1); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000002() { vk_p7_fingerprint_order_invariant_impl(2); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000003() { vk_p7_fingerprint_order_invariant_impl(3); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000004() { vk_p7_fingerprint_order_invariant_impl(4); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000005() { vk_p7_fingerprint_order_invariant_impl(5); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000006() { vk_p7_fingerprint_order_invariant_impl(6); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000007() { vk_p7_fingerprint_order_invariant_impl(7); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000008() { vk_p7_fingerprint_order_invariant_impl(8); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000009() { vk_p7_fingerprint_order_invariant_impl(9); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000010() { vk_p7_fingerprint_order_invariant_impl(10); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000011() { vk_p7_fingerprint_order_invariant_impl(11); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000012() { vk_p7_fingerprint_order_invariant_impl(12); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000013() { vk_p7_fingerprint_order_invariant_impl(13); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000014() { vk_p7_fingerprint_order_invariant_impl(14); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000015() { vk_p7_fingerprint_order_invariant_impl(15); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000016() { vk_p7_fingerprint_order_invariant_impl(16); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000017() { vk_p7_fingerprint_order_invariant_impl(17); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000018() { vk_p7_fingerprint_order_invariant_impl(18); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000019() { vk_p7_fingerprint_order_invariant_impl(19); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000020() { vk_p7_fingerprint_order_invariant_impl(20); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000021() { vk_p7_fingerprint_order_invariant_impl(21); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000022() { vk_p7_fingerprint_order_invariant_impl(22); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000023() { vk_p7_fingerprint_order_invariant_impl(23); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000024() { vk_p7_fingerprint_order_invariant_impl(24); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000025() { vk_p7_fingerprint_order_invariant_impl(25); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000026() { vk_p7_fingerprint_order_invariant_impl(26); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000027() { vk_p7_fingerprint_order_invariant_impl(27); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000028() { vk_p7_fingerprint_order_invariant_impl(28); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000029() { vk_p7_fingerprint_order_invariant_impl(29); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000030() { vk_p7_fingerprint_order_invariant_impl(30); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000031() { vk_p7_fingerprint_order_invariant_impl(31); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000032() { vk_p7_fingerprint_order_invariant_impl(32); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000033() { vk_p7_fingerprint_order_invariant_impl(33); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000034() { vk_p7_fingerprint_order_invariant_impl(34); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000035() { vk_p7_fingerprint_order_invariant_impl(35); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000036() { vk_p7_fingerprint_order_invariant_impl(36); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000037() { vk_p7_fingerprint_order_invariant_impl(37); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000038() { vk_p7_fingerprint_order_invariant_impl(38); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000039() { vk_p7_fingerprint_order_invariant_impl(39); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000040() { vk_p7_fingerprint_order_invariant_impl(40); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000041() { vk_p7_fingerprint_order_invariant_impl(41); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000042() { vk_p7_fingerprint_order_invariant_impl(42); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000043() { vk_p7_fingerprint_order_invariant_impl(43); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000044() { vk_p7_fingerprint_order_invariant_impl(44); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000045() { vk_p7_fingerprint_order_invariant_impl(45); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000046() { vk_p7_fingerprint_order_invariant_impl(46); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000047() { vk_p7_fingerprint_order_invariant_impl(47); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000048() { vk_p7_fingerprint_order_invariant_impl(48); }
+    #[cfg_attr(test, test)]
+    fn vk_p7_fingerprint_order_invariant_seed_000049() { vk_p7_fingerprint_order_invariant_impl(49); }
     // --- END generated seeded property wrappers ---
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
@@ -3766,6 +7510,10 @@ pub(crate) mod tests {
         ("rules::drc::property_campaigns::tests::gen_case_varies_with_seed", gen_case_varies_with_seed),
         ("rules::drc::property_campaigns::tests::naive_closest_agrees_on_disjoint_unit_squares", naive_closest_agrees_on_disjoint_unit_squares),
         ("rules::drc::property_campaigns::tests::naive_closest_zero_for_touching_squares", naive_closest_zero_for_touching_squares),
+        ("rules::drc::property_campaigns::tests::ipc_p8_generators_are_deterministic_in_seed", ipc_p8_generators_are_deterministic_in_seed),
+        ("rules::drc::property_campaigns::tests::pm_gen_normal_is_deterministic_in_seed", pm_gen_normal_is_deterministic_in_seed),
+        ("rules::drc::property_campaigns::tests::pm_gen_normal_excludes_nan_inf_subnormal_zero", pm_gen_normal_excludes_nan_inf_subnormal_zero),
+        ("rules::drc::property_campaigns::tests::vk_gen_ref_matches_regex_shape", vk_gen_ref_matches_regex_shape),
         ("rules::drc::property_campaigns::tests::symmetric_seed_000000", symmetric_seed_000000),
         ("rules::drc::property_campaigns::tests::symmetric_seed_000001", symmetric_seed_000001),
         ("rules::drc::property_campaigns::tests::symmetric_seed_000002", symmetric_seed_000002),
@@ -5266,6 +9014,1556 @@ pub(crate) mod tests {
         ("rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000297", naive_reference_agreement_seed_000297),
         ("rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000298", naive_reference_agreement_seed_000298),
         ("rules::drc::property_campaigns::tests::naive_reference_agreement_seed_000299", naive_reference_agreement_seed_000299),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000000", ipc_p1_current_capacity_non_negative_seed_000000),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000001", ipc_p1_current_capacity_non_negative_seed_000001),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000002", ipc_p1_current_capacity_non_negative_seed_000002),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000003", ipc_p1_current_capacity_non_negative_seed_000003),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000004", ipc_p1_current_capacity_non_negative_seed_000004),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000005", ipc_p1_current_capacity_non_negative_seed_000005),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000006", ipc_p1_current_capacity_non_negative_seed_000006),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000007", ipc_p1_current_capacity_non_negative_seed_000007),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000008", ipc_p1_current_capacity_non_negative_seed_000008),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000009", ipc_p1_current_capacity_non_negative_seed_000009),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000010", ipc_p1_current_capacity_non_negative_seed_000010),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000011", ipc_p1_current_capacity_non_negative_seed_000011),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000012", ipc_p1_current_capacity_non_negative_seed_000012),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000013", ipc_p1_current_capacity_non_negative_seed_000013),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000014", ipc_p1_current_capacity_non_negative_seed_000014),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000015", ipc_p1_current_capacity_non_negative_seed_000015),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000016", ipc_p1_current_capacity_non_negative_seed_000016),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000017", ipc_p1_current_capacity_non_negative_seed_000017),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000018", ipc_p1_current_capacity_non_negative_seed_000018),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000019", ipc_p1_current_capacity_non_negative_seed_000019),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000020", ipc_p1_current_capacity_non_negative_seed_000020),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000021", ipc_p1_current_capacity_non_negative_seed_000021),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000022", ipc_p1_current_capacity_non_negative_seed_000022),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000023", ipc_p1_current_capacity_non_negative_seed_000023),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000024", ipc_p1_current_capacity_non_negative_seed_000024),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000025", ipc_p1_current_capacity_non_negative_seed_000025),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000026", ipc_p1_current_capacity_non_negative_seed_000026),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000027", ipc_p1_current_capacity_non_negative_seed_000027),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000028", ipc_p1_current_capacity_non_negative_seed_000028),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000029", ipc_p1_current_capacity_non_negative_seed_000029),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000030", ipc_p1_current_capacity_non_negative_seed_000030),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000031", ipc_p1_current_capacity_non_negative_seed_000031),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000032", ipc_p1_current_capacity_non_negative_seed_000032),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000033", ipc_p1_current_capacity_non_negative_seed_000033),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000034", ipc_p1_current_capacity_non_negative_seed_000034),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000035", ipc_p1_current_capacity_non_negative_seed_000035),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000036", ipc_p1_current_capacity_non_negative_seed_000036),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000037", ipc_p1_current_capacity_non_negative_seed_000037),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000038", ipc_p1_current_capacity_non_negative_seed_000038),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000039", ipc_p1_current_capacity_non_negative_seed_000039),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000040", ipc_p1_current_capacity_non_negative_seed_000040),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000041", ipc_p1_current_capacity_non_negative_seed_000041),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000042", ipc_p1_current_capacity_non_negative_seed_000042),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000043", ipc_p1_current_capacity_non_negative_seed_000043),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000044", ipc_p1_current_capacity_non_negative_seed_000044),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000045", ipc_p1_current_capacity_non_negative_seed_000045),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000046", ipc_p1_current_capacity_non_negative_seed_000046),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000047", ipc_p1_current_capacity_non_negative_seed_000047),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000048", ipc_p1_current_capacity_non_negative_seed_000048),
+        ("rules::drc::property_campaigns::tests::ipc_p1_current_capacity_non_negative_seed_000049", ipc_p1_current_capacity_non_negative_seed_000049),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000000", ipc_p2_current_capacity_monotone_in_width_seed_000000),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000001", ipc_p2_current_capacity_monotone_in_width_seed_000001),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000002", ipc_p2_current_capacity_monotone_in_width_seed_000002),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000003", ipc_p2_current_capacity_monotone_in_width_seed_000003),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000004", ipc_p2_current_capacity_monotone_in_width_seed_000004),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000005", ipc_p2_current_capacity_monotone_in_width_seed_000005),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000006", ipc_p2_current_capacity_monotone_in_width_seed_000006),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000007", ipc_p2_current_capacity_monotone_in_width_seed_000007),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000008", ipc_p2_current_capacity_monotone_in_width_seed_000008),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000009", ipc_p2_current_capacity_monotone_in_width_seed_000009),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000010", ipc_p2_current_capacity_monotone_in_width_seed_000010),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000011", ipc_p2_current_capacity_monotone_in_width_seed_000011),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000012", ipc_p2_current_capacity_monotone_in_width_seed_000012),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000013", ipc_p2_current_capacity_monotone_in_width_seed_000013),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000014", ipc_p2_current_capacity_monotone_in_width_seed_000014),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000015", ipc_p2_current_capacity_monotone_in_width_seed_000015),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000016", ipc_p2_current_capacity_monotone_in_width_seed_000016),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000017", ipc_p2_current_capacity_monotone_in_width_seed_000017),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000018", ipc_p2_current_capacity_monotone_in_width_seed_000018),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000019", ipc_p2_current_capacity_monotone_in_width_seed_000019),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000020", ipc_p2_current_capacity_monotone_in_width_seed_000020),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000021", ipc_p2_current_capacity_monotone_in_width_seed_000021),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000022", ipc_p2_current_capacity_monotone_in_width_seed_000022),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000023", ipc_p2_current_capacity_monotone_in_width_seed_000023),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000024", ipc_p2_current_capacity_monotone_in_width_seed_000024),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000025", ipc_p2_current_capacity_monotone_in_width_seed_000025),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000026", ipc_p2_current_capacity_monotone_in_width_seed_000026),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000027", ipc_p2_current_capacity_monotone_in_width_seed_000027),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000028", ipc_p2_current_capacity_monotone_in_width_seed_000028),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000029", ipc_p2_current_capacity_monotone_in_width_seed_000029),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000030", ipc_p2_current_capacity_monotone_in_width_seed_000030),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000031", ipc_p2_current_capacity_monotone_in_width_seed_000031),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000032", ipc_p2_current_capacity_monotone_in_width_seed_000032),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000033", ipc_p2_current_capacity_monotone_in_width_seed_000033),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000034", ipc_p2_current_capacity_monotone_in_width_seed_000034),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000035", ipc_p2_current_capacity_monotone_in_width_seed_000035),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000036", ipc_p2_current_capacity_monotone_in_width_seed_000036),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000037", ipc_p2_current_capacity_monotone_in_width_seed_000037),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000038", ipc_p2_current_capacity_monotone_in_width_seed_000038),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000039", ipc_p2_current_capacity_monotone_in_width_seed_000039),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000040", ipc_p2_current_capacity_monotone_in_width_seed_000040),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000041", ipc_p2_current_capacity_monotone_in_width_seed_000041),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000042", ipc_p2_current_capacity_monotone_in_width_seed_000042),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000043", ipc_p2_current_capacity_monotone_in_width_seed_000043),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000044", ipc_p2_current_capacity_monotone_in_width_seed_000044),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000045", ipc_p2_current_capacity_monotone_in_width_seed_000045),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000046", ipc_p2_current_capacity_monotone_in_width_seed_000046),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000047", ipc_p2_current_capacity_monotone_in_width_seed_000047),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000048", ipc_p2_current_capacity_monotone_in_width_seed_000048),
+        ("rules::drc::property_campaigns::tests::ipc_p2_current_capacity_monotone_in_width_seed_000049", ipc_p2_current_capacity_monotone_in_width_seed_000049),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000000", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000000),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000001", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000001),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000002", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000002),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000003", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000003),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000004", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000004),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000005", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000005),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000006", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000006),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000007", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000007),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000008", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000008),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000009", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000009),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000010", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000010),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000011", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000011),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000012", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000012),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000013", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000013),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000014", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000014),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000015", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000015),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000016", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000016),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000017", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000017),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000018", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000018),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000019", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000019),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000020", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000020),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000021", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000021),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000022", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000022),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000023", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000023),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000024", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000024),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000025", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000025),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000026", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000026),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000027", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000027),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000028", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000028),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000029", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000029),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000030", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000030),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000031", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000031),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000032", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000032),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000033", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000033),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000034", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000034),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000035", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000035),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000036", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000036),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000037", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000037),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000038", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000038),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000039", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000039),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000040", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000040),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000041", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000041),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000042", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000042),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000043", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000043),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000044", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000044),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000045", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000045),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000046", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000046),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000047", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000047),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000048", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000048),
+        ("rules::drc::property_campaigns::tests::ipc_p3_current_capacity_monotone_in_temp_rise_seed_000049", ipc_p3_current_capacity_monotone_in_temp_rise_seed_000049),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000000", ipc_p4_external_carries_more_than_internal_seed_000000),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000001", ipc_p4_external_carries_more_than_internal_seed_000001),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000002", ipc_p4_external_carries_more_than_internal_seed_000002),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000003", ipc_p4_external_carries_more_than_internal_seed_000003),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000004", ipc_p4_external_carries_more_than_internal_seed_000004),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000005", ipc_p4_external_carries_more_than_internal_seed_000005),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000006", ipc_p4_external_carries_more_than_internal_seed_000006),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000007", ipc_p4_external_carries_more_than_internal_seed_000007),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000008", ipc_p4_external_carries_more_than_internal_seed_000008),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000009", ipc_p4_external_carries_more_than_internal_seed_000009),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000010", ipc_p4_external_carries_more_than_internal_seed_000010),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000011", ipc_p4_external_carries_more_than_internal_seed_000011),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000012", ipc_p4_external_carries_more_than_internal_seed_000012),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000013", ipc_p4_external_carries_more_than_internal_seed_000013),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000014", ipc_p4_external_carries_more_than_internal_seed_000014),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000015", ipc_p4_external_carries_more_than_internal_seed_000015),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000016", ipc_p4_external_carries_more_than_internal_seed_000016),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000017", ipc_p4_external_carries_more_than_internal_seed_000017),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000018", ipc_p4_external_carries_more_than_internal_seed_000018),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000019", ipc_p4_external_carries_more_than_internal_seed_000019),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000020", ipc_p4_external_carries_more_than_internal_seed_000020),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000021", ipc_p4_external_carries_more_than_internal_seed_000021),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000022", ipc_p4_external_carries_more_than_internal_seed_000022),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000023", ipc_p4_external_carries_more_than_internal_seed_000023),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000024", ipc_p4_external_carries_more_than_internal_seed_000024),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000025", ipc_p4_external_carries_more_than_internal_seed_000025),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000026", ipc_p4_external_carries_more_than_internal_seed_000026),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000027", ipc_p4_external_carries_more_than_internal_seed_000027),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000028", ipc_p4_external_carries_more_than_internal_seed_000028),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000029", ipc_p4_external_carries_more_than_internal_seed_000029),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000030", ipc_p4_external_carries_more_than_internal_seed_000030),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000031", ipc_p4_external_carries_more_than_internal_seed_000031),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000032", ipc_p4_external_carries_more_than_internal_seed_000032),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000033", ipc_p4_external_carries_more_than_internal_seed_000033),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000034", ipc_p4_external_carries_more_than_internal_seed_000034),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000035", ipc_p4_external_carries_more_than_internal_seed_000035),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000036", ipc_p4_external_carries_more_than_internal_seed_000036),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000037", ipc_p4_external_carries_more_than_internal_seed_000037),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000038", ipc_p4_external_carries_more_than_internal_seed_000038),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000039", ipc_p4_external_carries_more_than_internal_seed_000039),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000040", ipc_p4_external_carries_more_than_internal_seed_000040),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000041", ipc_p4_external_carries_more_than_internal_seed_000041),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000042", ipc_p4_external_carries_more_than_internal_seed_000042),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000043", ipc_p4_external_carries_more_than_internal_seed_000043),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000044", ipc_p4_external_carries_more_than_internal_seed_000044),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000045", ipc_p4_external_carries_more_than_internal_seed_000045),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000046", ipc_p4_external_carries_more_than_internal_seed_000046),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000047", ipc_p4_external_carries_more_than_internal_seed_000047),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000048", ipc_p4_external_carries_more_than_internal_seed_000048),
+        ("rules::drc::property_campaigns::tests::ipc_p4_external_carries_more_than_internal_seed_000049", ipc_p4_external_carries_more_than_internal_seed_000049),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000000", ipc_p5_min_trace_width_non_negative_seed_000000),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000001", ipc_p5_min_trace_width_non_negative_seed_000001),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000002", ipc_p5_min_trace_width_non_negative_seed_000002),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000003", ipc_p5_min_trace_width_non_negative_seed_000003),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000004", ipc_p5_min_trace_width_non_negative_seed_000004),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000005", ipc_p5_min_trace_width_non_negative_seed_000005),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000006", ipc_p5_min_trace_width_non_negative_seed_000006),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000007", ipc_p5_min_trace_width_non_negative_seed_000007),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000008", ipc_p5_min_trace_width_non_negative_seed_000008),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000009", ipc_p5_min_trace_width_non_negative_seed_000009),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000010", ipc_p5_min_trace_width_non_negative_seed_000010),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000011", ipc_p5_min_trace_width_non_negative_seed_000011),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000012", ipc_p5_min_trace_width_non_negative_seed_000012),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000013", ipc_p5_min_trace_width_non_negative_seed_000013),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000014", ipc_p5_min_trace_width_non_negative_seed_000014),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000015", ipc_p5_min_trace_width_non_negative_seed_000015),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000016", ipc_p5_min_trace_width_non_negative_seed_000016),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000017", ipc_p5_min_trace_width_non_negative_seed_000017),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000018", ipc_p5_min_trace_width_non_negative_seed_000018),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000019", ipc_p5_min_trace_width_non_negative_seed_000019),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000020", ipc_p5_min_trace_width_non_negative_seed_000020),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000021", ipc_p5_min_trace_width_non_negative_seed_000021),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000022", ipc_p5_min_trace_width_non_negative_seed_000022),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000023", ipc_p5_min_trace_width_non_negative_seed_000023),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000024", ipc_p5_min_trace_width_non_negative_seed_000024),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000025", ipc_p5_min_trace_width_non_negative_seed_000025),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000026", ipc_p5_min_trace_width_non_negative_seed_000026),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000027", ipc_p5_min_trace_width_non_negative_seed_000027),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000028", ipc_p5_min_trace_width_non_negative_seed_000028),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000029", ipc_p5_min_trace_width_non_negative_seed_000029),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000030", ipc_p5_min_trace_width_non_negative_seed_000030),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000031", ipc_p5_min_trace_width_non_negative_seed_000031),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000032", ipc_p5_min_trace_width_non_negative_seed_000032),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000033", ipc_p5_min_trace_width_non_negative_seed_000033),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000034", ipc_p5_min_trace_width_non_negative_seed_000034),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000035", ipc_p5_min_trace_width_non_negative_seed_000035),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000036", ipc_p5_min_trace_width_non_negative_seed_000036),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000037", ipc_p5_min_trace_width_non_negative_seed_000037),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000038", ipc_p5_min_trace_width_non_negative_seed_000038),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000039", ipc_p5_min_trace_width_non_negative_seed_000039),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000040", ipc_p5_min_trace_width_non_negative_seed_000040),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000041", ipc_p5_min_trace_width_non_negative_seed_000041),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000042", ipc_p5_min_trace_width_non_negative_seed_000042),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000043", ipc_p5_min_trace_width_non_negative_seed_000043),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000044", ipc_p5_min_trace_width_non_negative_seed_000044),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000045", ipc_p5_min_trace_width_non_negative_seed_000045),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000046", ipc_p5_min_trace_width_non_negative_seed_000046),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000047", ipc_p5_min_trace_width_non_negative_seed_000047),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000048", ipc_p5_min_trace_width_non_negative_seed_000048),
+        ("rules::drc::property_campaigns::tests::ipc_p5_min_trace_width_non_negative_seed_000049", ipc_p5_min_trace_width_non_negative_seed_000049),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000000", ipc_p6_min_trace_width_monotone_in_current_seed_000000),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000001", ipc_p6_min_trace_width_monotone_in_current_seed_000001),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000002", ipc_p6_min_trace_width_monotone_in_current_seed_000002),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000003", ipc_p6_min_trace_width_monotone_in_current_seed_000003),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000004", ipc_p6_min_trace_width_monotone_in_current_seed_000004),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000005", ipc_p6_min_trace_width_monotone_in_current_seed_000005),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000006", ipc_p6_min_trace_width_monotone_in_current_seed_000006),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000007", ipc_p6_min_trace_width_monotone_in_current_seed_000007),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000008", ipc_p6_min_trace_width_monotone_in_current_seed_000008),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000009", ipc_p6_min_trace_width_monotone_in_current_seed_000009),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000010", ipc_p6_min_trace_width_monotone_in_current_seed_000010),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000011", ipc_p6_min_trace_width_monotone_in_current_seed_000011),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000012", ipc_p6_min_trace_width_monotone_in_current_seed_000012),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000013", ipc_p6_min_trace_width_monotone_in_current_seed_000013),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000014", ipc_p6_min_trace_width_monotone_in_current_seed_000014),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000015", ipc_p6_min_trace_width_monotone_in_current_seed_000015),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000016", ipc_p6_min_trace_width_monotone_in_current_seed_000016),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000017", ipc_p6_min_trace_width_monotone_in_current_seed_000017),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000018", ipc_p6_min_trace_width_monotone_in_current_seed_000018),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000019", ipc_p6_min_trace_width_monotone_in_current_seed_000019),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000020", ipc_p6_min_trace_width_monotone_in_current_seed_000020),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000021", ipc_p6_min_trace_width_monotone_in_current_seed_000021),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000022", ipc_p6_min_trace_width_monotone_in_current_seed_000022),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000023", ipc_p6_min_trace_width_monotone_in_current_seed_000023),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000024", ipc_p6_min_trace_width_monotone_in_current_seed_000024),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000025", ipc_p6_min_trace_width_monotone_in_current_seed_000025),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000026", ipc_p6_min_trace_width_monotone_in_current_seed_000026),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000027", ipc_p6_min_trace_width_monotone_in_current_seed_000027),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000028", ipc_p6_min_trace_width_monotone_in_current_seed_000028),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000029", ipc_p6_min_trace_width_monotone_in_current_seed_000029),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000030", ipc_p6_min_trace_width_monotone_in_current_seed_000030),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000031", ipc_p6_min_trace_width_monotone_in_current_seed_000031),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000032", ipc_p6_min_trace_width_monotone_in_current_seed_000032),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000033", ipc_p6_min_trace_width_monotone_in_current_seed_000033),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000034", ipc_p6_min_trace_width_monotone_in_current_seed_000034),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000035", ipc_p6_min_trace_width_monotone_in_current_seed_000035),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000036", ipc_p6_min_trace_width_monotone_in_current_seed_000036),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000037", ipc_p6_min_trace_width_monotone_in_current_seed_000037),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000038", ipc_p6_min_trace_width_monotone_in_current_seed_000038),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000039", ipc_p6_min_trace_width_monotone_in_current_seed_000039),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000040", ipc_p6_min_trace_width_monotone_in_current_seed_000040),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000041", ipc_p6_min_trace_width_monotone_in_current_seed_000041),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000042", ipc_p6_min_trace_width_monotone_in_current_seed_000042),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000043", ipc_p6_min_trace_width_monotone_in_current_seed_000043),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000044", ipc_p6_min_trace_width_monotone_in_current_seed_000044),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000045", ipc_p6_min_trace_width_monotone_in_current_seed_000045),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000046", ipc_p6_min_trace_width_monotone_in_current_seed_000046),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000047", ipc_p6_min_trace_width_monotone_in_current_seed_000047),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000048", ipc_p6_min_trace_width_monotone_in_current_seed_000048),
+        ("rules::drc::property_campaigns::tests::ipc_p6_min_trace_width_monotone_in_current_seed_000049", ipc_p6_min_trace_width_monotone_in_current_seed_000049),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000000", ipc_p7_internal_needs_wider_than_external_seed_000000),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000001", ipc_p7_internal_needs_wider_than_external_seed_000001),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000002", ipc_p7_internal_needs_wider_than_external_seed_000002),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000003", ipc_p7_internal_needs_wider_than_external_seed_000003),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000004", ipc_p7_internal_needs_wider_than_external_seed_000004),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000005", ipc_p7_internal_needs_wider_than_external_seed_000005),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000006", ipc_p7_internal_needs_wider_than_external_seed_000006),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000007", ipc_p7_internal_needs_wider_than_external_seed_000007),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000008", ipc_p7_internal_needs_wider_than_external_seed_000008),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000009", ipc_p7_internal_needs_wider_than_external_seed_000009),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000010", ipc_p7_internal_needs_wider_than_external_seed_000010),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000011", ipc_p7_internal_needs_wider_than_external_seed_000011),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000012", ipc_p7_internal_needs_wider_than_external_seed_000012),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000013", ipc_p7_internal_needs_wider_than_external_seed_000013),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000014", ipc_p7_internal_needs_wider_than_external_seed_000014),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000015", ipc_p7_internal_needs_wider_than_external_seed_000015),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000016", ipc_p7_internal_needs_wider_than_external_seed_000016),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000017", ipc_p7_internal_needs_wider_than_external_seed_000017),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000018", ipc_p7_internal_needs_wider_than_external_seed_000018),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000019", ipc_p7_internal_needs_wider_than_external_seed_000019),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000020", ipc_p7_internal_needs_wider_than_external_seed_000020),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000021", ipc_p7_internal_needs_wider_than_external_seed_000021),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000022", ipc_p7_internal_needs_wider_than_external_seed_000022),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000023", ipc_p7_internal_needs_wider_than_external_seed_000023),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000024", ipc_p7_internal_needs_wider_than_external_seed_000024),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000025", ipc_p7_internal_needs_wider_than_external_seed_000025),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000026", ipc_p7_internal_needs_wider_than_external_seed_000026),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000027", ipc_p7_internal_needs_wider_than_external_seed_000027),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000028", ipc_p7_internal_needs_wider_than_external_seed_000028),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000029", ipc_p7_internal_needs_wider_than_external_seed_000029),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000030", ipc_p7_internal_needs_wider_than_external_seed_000030),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000031", ipc_p7_internal_needs_wider_than_external_seed_000031),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000032", ipc_p7_internal_needs_wider_than_external_seed_000032),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000033", ipc_p7_internal_needs_wider_than_external_seed_000033),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000034", ipc_p7_internal_needs_wider_than_external_seed_000034),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000035", ipc_p7_internal_needs_wider_than_external_seed_000035),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000036", ipc_p7_internal_needs_wider_than_external_seed_000036),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000037", ipc_p7_internal_needs_wider_than_external_seed_000037),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000038", ipc_p7_internal_needs_wider_than_external_seed_000038),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000039", ipc_p7_internal_needs_wider_than_external_seed_000039),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000040", ipc_p7_internal_needs_wider_than_external_seed_000040),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000041", ipc_p7_internal_needs_wider_than_external_seed_000041),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000042", ipc_p7_internal_needs_wider_than_external_seed_000042),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000043", ipc_p7_internal_needs_wider_than_external_seed_000043),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000044", ipc_p7_internal_needs_wider_than_external_seed_000044),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000045", ipc_p7_internal_needs_wider_than_external_seed_000045),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000046", ipc_p7_internal_needs_wider_than_external_seed_000046),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000047", ipc_p7_internal_needs_wider_than_external_seed_000047),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000048", ipc_p7_internal_needs_wider_than_external_seed_000048),
+        ("rules::drc::property_campaigns::tests::ipc_p7_internal_needs_wider_than_external_seed_000049", ipc_p7_internal_needs_wider_than_external_seed_000049),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000000", ipc_p8_trace_width_round_trip_seed_000000),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000001", ipc_p8_trace_width_round_trip_seed_000001),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000002", ipc_p8_trace_width_round_trip_seed_000002),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000003", ipc_p8_trace_width_round_trip_seed_000003),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000004", ipc_p8_trace_width_round_trip_seed_000004),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000005", ipc_p8_trace_width_round_trip_seed_000005),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000006", ipc_p8_trace_width_round_trip_seed_000006),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000007", ipc_p8_trace_width_round_trip_seed_000007),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000008", ipc_p8_trace_width_round_trip_seed_000008),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000009", ipc_p8_trace_width_round_trip_seed_000009),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000010", ipc_p8_trace_width_round_trip_seed_000010),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000011", ipc_p8_trace_width_round_trip_seed_000011),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000012", ipc_p8_trace_width_round_trip_seed_000012),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000013", ipc_p8_trace_width_round_trip_seed_000013),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000014", ipc_p8_trace_width_round_trip_seed_000014),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000015", ipc_p8_trace_width_round_trip_seed_000015),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000016", ipc_p8_trace_width_round_trip_seed_000016),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000017", ipc_p8_trace_width_round_trip_seed_000017),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000018", ipc_p8_trace_width_round_trip_seed_000018),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000019", ipc_p8_trace_width_round_trip_seed_000019),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000020", ipc_p8_trace_width_round_trip_seed_000020),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000021", ipc_p8_trace_width_round_trip_seed_000021),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000022", ipc_p8_trace_width_round_trip_seed_000022),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000023", ipc_p8_trace_width_round_trip_seed_000023),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000024", ipc_p8_trace_width_round_trip_seed_000024),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000025", ipc_p8_trace_width_round_trip_seed_000025),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000026", ipc_p8_trace_width_round_trip_seed_000026),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000027", ipc_p8_trace_width_round_trip_seed_000027),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000028", ipc_p8_trace_width_round_trip_seed_000028),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000029", ipc_p8_trace_width_round_trip_seed_000029),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000030", ipc_p8_trace_width_round_trip_seed_000030),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000031", ipc_p8_trace_width_round_trip_seed_000031),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000032", ipc_p8_trace_width_round_trip_seed_000032),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000033", ipc_p8_trace_width_round_trip_seed_000033),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000034", ipc_p8_trace_width_round_trip_seed_000034),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000035", ipc_p8_trace_width_round_trip_seed_000035),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000036", ipc_p8_trace_width_round_trip_seed_000036),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000037", ipc_p8_trace_width_round_trip_seed_000037),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000038", ipc_p8_trace_width_round_trip_seed_000038),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000039", ipc_p8_trace_width_round_trip_seed_000039),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000040", ipc_p8_trace_width_round_trip_seed_000040),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000041", ipc_p8_trace_width_round_trip_seed_000041),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000042", ipc_p8_trace_width_round_trip_seed_000042),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000043", ipc_p8_trace_width_round_trip_seed_000043),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000044", ipc_p8_trace_width_round_trip_seed_000044),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000045", ipc_p8_trace_width_round_trip_seed_000045),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000046", ipc_p8_trace_width_round_trip_seed_000046),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000047", ipc_p8_trace_width_round_trip_seed_000047),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000048", ipc_p8_trace_width_round_trip_seed_000048),
+        ("rules::drc::property_campaigns::tests::ipc_p8_trace_width_round_trip_seed_000049", ipc_p8_trace_width_round_trip_seed_000049),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000000", ipc_p9_net_current_non_negative_seed_000000),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000001", ipc_p9_net_current_non_negative_seed_000001),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000002", ipc_p9_net_current_non_negative_seed_000002),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000003", ipc_p9_net_current_non_negative_seed_000003),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000004", ipc_p9_net_current_non_negative_seed_000004),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000005", ipc_p9_net_current_non_negative_seed_000005),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000006", ipc_p9_net_current_non_negative_seed_000006),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000007", ipc_p9_net_current_non_negative_seed_000007),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000008", ipc_p9_net_current_non_negative_seed_000008),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000009", ipc_p9_net_current_non_negative_seed_000009),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000010", ipc_p9_net_current_non_negative_seed_000010),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000011", ipc_p9_net_current_non_negative_seed_000011),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000012", ipc_p9_net_current_non_negative_seed_000012),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000013", ipc_p9_net_current_non_negative_seed_000013),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000014", ipc_p9_net_current_non_negative_seed_000014),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000015", ipc_p9_net_current_non_negative_seed_000015),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000016", ipc_p9_net_current_non_negative_seed_000016),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000017", ipc_p9_net_current_non_negative_seed_000017),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000018", ipc_p9_net_current_non_negative_seed_000018),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000019", ipc_p9_net_current_non_negative_seed_000019),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000020", ipc_p9_net_current_non_negative_seed_000020),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000021", ipc_p9_net_current_non_negative_seed_000021),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000022", ipc_p9_net_current_non_negative_seed_000022),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000023", ipc_p9_net_current_non_negative_seed_000023),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000024", ipc_p9_net_current_non_negative_seed_000024),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000025", ipc_p9_net_current_non_negative_seed_000025),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000026", ipc_p9_net_current_non_negative_seed_000026),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000027", ipc_p9_net_current_non_negative_seed_000027),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000028", ipc_p9_net_current_non_negative_seed_000028),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000029", ipc_p9_net_current_non_negative_seed_000029),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000030", ipc_p9_net_current_non_negative_seed_000030),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000031", ipc_p9_net_current_non_negative_seed_000031),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000032", ipc_p9_net_current_non_negative_seed_000032),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000033", ipc_p9_net_current_non_negative_seed_000033),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000034", ipc_p9_net_current_non_negative_seed_000034),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000035", ipc_p9_net_current_non_negative_seed_000035),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000036", ipc_p9_net_current_non_negative_seed_000036),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000037", ipc_p9_net_current_non_negative_seed_000037),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000038", ipc_p9_net_current_non_negative_seed_000038),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000039", ipc_p9_net_current_non_negative_seed_000039),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000040", ipc_p9_net_current_non_negative_seed_000040),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000041", ipc_p9_net_current_non_negative_seed_000041),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000042", ipc_p9_net_current_non_negative_seed_000042),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000043", ipc_p9_net_current_non_negative_seed_000043),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000044", ipc_p9_net_current_non_negative_seed_000044),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000045", ipc_p9_net_current_non_negative_seed_000045),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000046", ipc_p9_net_current_non_negative_seed_000046),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000047", ipc_p9_net_current_non_negative_seed_000047),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000048", ipc_p9_net_current_non_negative_seed_000048),
+        ("rules::drc::property_campaigns::tests::ipc_p9_net_current_non_negative_seed_000049", ipc_p9_net_current_non_negative_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000000", pm_p1_py_max_returns_larger_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000001", pm_p1_py_max_returns_larger_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000002", pm_p1_py_max_returns_larger_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000003", pm_p1_py_max_returns_larger_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000004", pm_p1_py_max_returns_larger_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000005", pm_p1_py_max_returns_larger_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000006", pm_p1_py_max_returns_larger_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000007", pm_p1_py_max_returns_larger_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000008", pm_p1_py_max_returns_larger_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000009", pm_p1_py_max_returns_larger_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000010", pm_p1_py_max_returns_larger_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000011", pm_p1_py_max_returns_larger_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000012", pm_p1_py_max_returns_larger_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000013", pm_p1_py_max_returns_larger_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000014", pm_p1_py_max_returns_larger_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000015", pm_p1_py_max_returns_larger_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000016", pm_p1_py_max_returns_larger_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000017", pm_p1_py_max_returns_larger_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000018", pm_p1_py_max_returns_larger_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000019", pm_p1_py_max_returns_larger_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000020", pm_p1_py_max_returns_larger_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000021", pm_p1_py_max_returns_larger_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000022", pm_p1_py_max_returns_larger_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000023", pm_p1_py_max_returns_larger_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000024", pm_p1_py_max_returns_larger_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000025", pm_p1_py_max_returns_larger_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000026", pm_p1_py_max_returns_larger_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000027", pm_p1_py_max_returns_larger_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000028", pm_p1_py_max_returns_larger_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000029", pm_p1_py_max_returns_larger_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000030", pm_p1_py_max_returns_larger_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000031", pm_p1_py_max_returns_larger_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000032", pm_p1_py_max_returns_larger_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000033", pm_p1_py_max_returns_larger_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000034", pm_p1_py_max_returns_larger_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000035", pm_p1_py_max_returns_larger_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000036", pm_p1_py_max_returns_larger_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000037", pm_p1_py_max_returns_larger_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000038", pm_p1_py_max_returns_larger_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000039", pm_p1_py_max_returns_larger_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000040", pm_p1_py_max_returns_larger_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000041", pm_p1_py_max_returns_larger_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000042", pm_p1_py_max_returns_larger_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000043", pm_p1_py_max_returns_larger_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000044", pm_p1_py_max_returns_larger_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000045", pm_p1_py_max_returns_larger_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000046", pm_p1_py_max_returns_larger_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000047", pm_p1_py_max_returns_larger_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000048", pm_p1_py_max_returns_larger_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p1_py_max_returns_larger_seed_000049", pm_p1_py_max_returns_larger_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000000", pm_p2_py_max_returns_one_of_inputs_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000001", pm_p2_py_max_returns_one_of_inputs_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000002", pm_p2_py_max_returns_one_of_inputs_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000003", pm_p2_py_max_returns_one_of_inputs_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000004", pm_p2_py_max_returns_one_of_inputs_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000005", pm_p2_py_max_returns_one_of_inputs_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000006", pm_p2_py_max_returns_one_of_inputs_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000007", pm_p2_py_max_returns_one_of_inputs_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000008", pm_p2_py_max_returns_one_of_inputs_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000009", pm_p2_py_max_returns_one_of_inputs_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000010", pm_p2_py_max_returns_one_of_inputs_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000011", pm_p2_py_max_returns_one_of_inputs_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000012", pm_p2_py_max_returns_one_of_inputs_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000013", pm_p2_py_max_returns_one_of_inputs_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000014", pm_p2_py_max_returns_one_of_inputs_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000015", pm_p2_py_max_returns_one_of_inputs_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000016", pm_p2_py_max_returns_one_of_inputs_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000017", pm_p2_py_max_returns_one_of_inputs_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000018", pm_p2_py_max_returns_one_of_inputs_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000019", pm_p2_py_max_returns_one_of_inputs_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000020", pm_p2_py_max_returns_one_of_inputs_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000021", pm_p2_py_max_returns_one_of_inputs_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000022", pm_p2_py_max_returns_one_of_inputs_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000023", pm_p2_py_max_returns_one_of_inputs_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000024", pm_p2_py_max_returns_one_of_inputs_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000025", pm_p2_py_max_returns_one_of_inputs_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000026", pm_p2_py_max_returns_one_of_inputs_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000027", pm_p2_py_max_returns_one_of_inputs_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000028", pm_p2_py_max_returns_one_of_inputs_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000029", pm_p2_py_max_returns_one_of_inputs_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000030", pm_p2_py_max_returns_one_of_inputs_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000031", pm_p2_py_max_returns_one_of_inputs_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000032", pm_p2_py_max_returns_one_of_inputs_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000033", pm_p2_py_max_returns_one_of_inputs_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000034", pm_p2_py_max_returns_one_of_inputs_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000035", pm_p2_py_max_returns_one_of_inputs_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000036", pm_p2_py_max_returns_one_of_inputs_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000037", pm_p2_py_max_returns_one_of_inputs_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000038", pm_p2_py_max_returns_one_of_inputs_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000039", pm_p2_py_max_returns_one_of_inputs_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000040", pm_p2_py_max_returns_one_of_inputs_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000041", pm_p2_py_max_returns_one_of_inputs_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000042", pm_p2_py_max_returns_one_of_inputs_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000043", pm_p2_py_max_returns_one_of_inputs_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000044", pm_p2_py_max_returns_one_of_inputs_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000045", pm_p2_py_max_returns_one_of_inputs_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000046", pm_p2_py_max_returns_one_of_inputs_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000047", pm_p2_py_max_returns_one_of_inputs_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000048", pm_p2_py_max_returns_one_of_inputs_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p2_py_max_returns_one_of_inputs_seed_000049", pm_p2_py_max_returns_one_of_inputs_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000000", pm_p3_py_max_nan_first_returns_nan_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000001", pm_p3_py_max_nan_first_returns_nan_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000002", pm_p3_py_max_nan_first_returns_nan_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000003", pm_p3_py_max_nan_first_returns_nan_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000004", pm_p3_py_max_nan_first_returns_nan_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000005", pm_p3_py_max_nan_first_returns_nan_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000006", pm_p3_py_max_nan_first_returns_nan_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000007", pm_p3_py_max_nan_first_returns_nan_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000008", pm_p3_py_max_nan_first_returns_nan_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000009", pm_p3_py_max_nan_first_returns_nan_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000010", pm_p3_py_max_nan_first_returns_nan_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000011", pm_p3_py_max_nan_first_returns_nan_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000012", pm_p3_py_max_nan_first_returns_nan_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000013", pm_p3_py_max_nan_first_returns_nan_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000014", pm_p3_py_max_nan_first_returns_nan_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000015", pm_p3_py_max_nan_first_returns_nan_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000016", pm_p3_py_max_nan_first_returns_nan_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000017", pm_p3_py_max_nan_first_returns_nan_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000018", pm_p3_py_max_nan_first_returns_nan_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000019", pm_p3_py_max_nan_first_returns_nan_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000020", pm_p3_py_max_nan_first_returns_nan_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000021", pm_p3_py_max_nan_first_returns_nan_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000022", pm_p3_py_max_nan_first_returns_nan_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000023", pm_p3_py_max_nan_first_returns_nan_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000024", pm_p3_py_max_nan_first_returns_nan_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000025", pm_p3_py_max_nan_first_returns_nan_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000026", pm_p3_py_max_nan_first_returns_nan_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000027", pm_p3_py_max_nan_first_returns_nan_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000028", pm_p3_py_max_nan_first_returns_nan_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000029", pm_p3_py_max_nan_first_returns_nan_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000030", pm_p3_py_max_nan_first_returns_nan_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000031", pm_p3_py_max_nan_first_returns_nan_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000032", pm_p3_py_max_nan_first_returns_nan_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000033", pm_p3_py_max_nan_first_returns_nan_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000034", pm_p3_py_max_nan_first_returns_nan_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000035", pm_p3_py_max_nan_first_returns_nan_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000036", pm_p3_py_max_nan_first_returns_nan_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000037", pm_p3_py_max_nan_first_returns_nan_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000038", pm_p3_py_max_nan_first_returns_nan_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000039", pm_p3_py_max_nan_first_returns_nan_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000040", pm_p3_py_max_nan_first_returns_nan_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000041", pm_p3_py_max_nan_first_returns_nan_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000042", pm_p3_py_max_nan_first_returns_nan_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000043", pm_p3_py_max_nan_first_returns_nan_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000044", pm_p3_py_max_nan_first_returns_nan_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000045", pm_p3_py_max_nan_first_returns_nan_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000046", pm_p3_py_max_nan_first_returns_nan_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000047", pm_p3_py_max_nan_first_returns_nan_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000048", pm_p3_py_max_nan_first_returns_nan_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p3_py_max_nan_first_returns_nan_seed_000049", pm_p3_py_max_nan_first_returns_nan_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000000", pm_p4_py_max_nan_second_returns_first_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000001", pm_p4_py_max_nan_second_returns_first_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000002", pm_p4_py_max_nan_second_returns_first_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000003", pm_p4_py_max_nan_second_returns_first_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000004", pm_p4_py_max_nan_second_returns_first_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000005", pm_p4_py_max_nan_second_returns_first_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000006", pm_p4_py_max_nan_second_returns_first_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000007", pm_p4_py_max_nan_second_returns_first_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000008", pm_p4_py_max_nan_second_returns_first_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000009", pm_p4_py_max_nan_second_returns_first_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000010", pm_p4_py_max_nan_second_returns_first_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000011", pm_p4_py_max_nan_second_returns_first_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000012", pm_p4_py_max_nan_second_returns_first_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000013", pm_p4_py_max_nan_second_returns_first_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000014", pm_p4_py_max_nan_second_returns_first_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000015", pm_p4_py_max_nan_second_returns_first_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000016", pm_p4_py_max_nan_second_returns_first_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000017", pm_p4_py_max_nan_second_returns_first_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000018", pm_p4_py_max_nan_second_returns_first_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000019", pm_p4_py_max_nan_second_returns_first_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000020", pm_p4_py_max_nan_second_returns_first_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000021", pm_p4_py_max_nan_second_returns_first_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000022", pm_p4_py_max_nan_second_returns_first_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000023", pm_p4_py_max_nan_second_returns_first_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000024", pm_p4_py_max_nan_second_returns_first_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000025", pm_p4_py_max_nan_second_returns_first_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000026", pm_p4_py_max_nan_second_returns_first_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000027", pm_p4_py_max_nan_second_returns_first_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000028", pm_p4_py_max_nan_second_returns_first_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000029", pm_p4_py_max_nan_second_returns_first_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000030", pm_p4_py_max_nan_second_returns_first_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000031", pm_p4_py_max_nan_second_returns_first_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000032", pm_p4_py_max_nan_second_returns_first_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000033", pm_p4_py_max_nan_second_returns_first_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000034", pm_p4_py_max_nan_second_returns_first_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000035", pm_p4_py_max_nan_second_returns_first_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000036", pm_p4_py_max_nan_second_returns_first_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000037", pm_p4_py_max_nan_second_returns_first_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000038", pm_p4_py_max_nan_second_returns_first_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000039", pm_p4_py_max_nan_second_returns_first_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000040", pm_p4_py_max_nan_second_returns_first_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000041", pm_p4_py_max_nan_second_returns_first_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000042", pm_p4_py_max_nan_second_returns_first_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000043", pm_p4_py_max_nan_second_returns_first_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000044", pm_p4_py_max_nan_second_returns_first_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000045", pm_p4_py_max_nan_second_returns_first_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000046", pm_p4_py_max_nan_second_returns_first_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000047", pm_p4_py_max_nan_second_returns_first_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000048", pm_p4_py_max_nan_second_returns_first_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p4_py_max_nan_second_returns_first_seed_000049", pm_p4_py_max_nan_second_returns_first_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000000", pm_p5_py_min_returns_smaller_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000001", pm_p5_py_min_returns_smaller_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000002", pm_p5_py_min_returns_smaller_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000003", pm_p5_py_min_returns_smaller_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000004", pm_p5_py_min_returns_smaller_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000005", pm_p5_py_min_returns_smaller_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000006", pm_p5_py_min_returns_smaller_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000007", pm_p5_py_min_returns_smaller_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000008", pm_p5_py_min_returns_smaller_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000009", pm_p5_py_min_returns_smaller_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000010", pm_p5_py_min_returns_smaller_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000011", pm_p5_py_min_returns_smaller_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000012", pm_p5_py_min_returns_smaller_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000013", pm_p5_py_min_returns_smaller_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000014", pm_p5_py_min_returns_smaller_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000015", pm_p5_py_min_returns_smaller_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000016", pm_p5_py_min_returns_smaller_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000017", pm_p5_py_min_returns_smaller_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000018", pm_p5_py_min_returns_smaller_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000019", pm_p5_py_min_returns_smaller_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000020", pm_p5_py_min_returns_smaller_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000021", pm_p5_py_min_returns_smaller_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000022", pm_p5_py_min_returns_smaller_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000023", pm_p5_py_min_returns_smaller_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000024", pm_p5_py_min_returns_smaller_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000025", pm_p5_py_min_returns_smaller_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000026", pm_p5_py_min_returns_smaller_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000027", pm_p5_py_min_returns_smaller_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000028", pm_p5_py_min_returns_smaller_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000029", pm_p5_py_min_returns_smaller_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000030", pm_p5_py_min_returns_smaller_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000031", pm_p5_py_min_returns_smaller_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000032", pm_p5_py_min_returns_smaller_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000033", pm_p5_py_min_returns_smaller_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000034", pm_p5_py_min_returns_smaller_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000035", pm_p5_py_min_returns_smaller_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000036", pm_p5_py_min_returns_smaller_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000037", pm_p5_py_min_returns_smaller_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000038", pm_p5_py_min_returns_smaller_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000039", pm_p5_py_min_returns_smaller_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000040", pm_p5_py_min_returns_smaller_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000041", pm_p5_py_min_returns_smaller_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000042", pm_p5_py_min_returns_smaller_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000043", pm_p5_py_min_returns_smaller_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000044", pm_p5_py_min_returns_smaller_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000045", pm_p5_py_min_returns_smaller_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000046", pm_p5_py_min_returns_smaller_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000047", pm_p5_py_min_returns_smaller_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000048", pm_p5_py_min_returns_smaller_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p5_py_min_returns_smaller_seed_000049", pm_p5_py_min_returns_smaller_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000000", pm_p6_py_min_returns_one_of_inputs_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000001", pm_p6_py_min_returns_one_of_inputs_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000002", pm_p6_py_min_returns_one_of_inputs_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000003", pm_p6_py_min_returns_one_of_inputs_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000004", pm_p6_py_min_returns_one_of_inputs_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000005", pm_p6_py_min_returns_one_of_inputs_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000006", pm_p6_py_min_returns_one_of_inputs_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000007", pm_p6_py_min_returns_one_of_inputs_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000008", pm_p6_py_min_returns_one_of_inputs_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000009", pm_p6_py_min_returns_one_of_inputs_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000010", pm_p6_py_min_returns_one_of_inputs_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000011", pm_p6_py_min_returns_one_of_inputs_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000012", pm_p6_py_min_returns_one_of_inputs_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000013", pm_p6_py_min_returns_one_of_inputs_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000014", pm_p6_py_min_returns_one_of_inputs_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000015", pm_p6_py_min_returns_one_of_inputs_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000016", pm_p6_py_min_returns_one_of_inputs_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000017", pm_p6_py_min_returns_one_of_inputs_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000018", pm_p6_py_min_returns_one_of_inputs_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000019", pm_p6_py_min_returns_one_of_inputs_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000020", pm_p6_py_min_returns_one_of_inputs_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000021", pm_p6_py_min_returns_one_of_inputs_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000022", pm_p6_py_min_returns_one_of_inputs_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000023", pm_p6_py_min_returns_one_of_inputs_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000024", pm_p6_py_min_returns_one_of_inputs_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000025", pm_p6_py_min_returns_one_of_inputs_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000026", pm_p6_py_min_returns_one_of_inputs_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000027", pm_p6_py_min_returns_one_of_inputs_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000028", pm_p6_py_min_returns_one_of_inputs_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000029", pm_p6_py_min_returns_one_of_inputs_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000030", pm_p6_py_min_returns_one_of_inputs_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000031", pm_p6_py_min_returns_one_of_inputs_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000032", pm_p6_py_min_returns_one_of_inputs_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000033", pm_p6_py_min_returns_one_of_inputs_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000034", pm_p6_py_min_returns_one_of_inputs_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000035", pm_p6_py_min_returns_one_of_inputs_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000036", pm_p6_py_min_returns_one_of_inputs_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000037", pm_p6_py_min_returns_one_of_inputs_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000038", pm_p6_py_min_returns_one_of_inputs_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000039", pm_p6_py_min_returns_one_of_inputs_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000040", pm_p6_py_min_returns_one_of_inputs_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000041", pm_p6_py_min_returns_one_of_inputs_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000042", pm_p6_py_min_returns_one_of_inputs_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000043", pm_p6_py_min_returns_one_of_inputs_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000044", pm_p6_py_min_returns_one_of_inputs_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000045", pm_p6_py_min_returns_one_of_inputs_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000046", pm_p6_py_min_returns_one_of_inputs_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000047", pm_p6_py_min_returns_one_of_inputs_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000048", pm_p6_py_min_returns_one_of_inputs_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p6_py_min_returns_one_of_inputs_seed_000049", pm_p6_py_min_returns_one_of_inputs_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000000", pm_p7_py_min_nan_first_returns_nan_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000001", pm_p7_py_min_nan_first_returns_nan_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000002", pm_p7_py_min_nan_first_returns_nan_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000003", pm_p7_py_min_nan_first_returns_nan_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000004", pm_p7_py_min_nan_first_returns_nan_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000005", pm_p7_py_min_nan_first_returns_nan_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000006", pm_p7_py_min_nan_first_returns_nan_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000007", pm_p7_py_min_nan_first_returns_nan_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000008", pm_p7_py_min_nan_first_returns_nan_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000009", pm_p7_py_min_nan_first_returns_nan_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000010", pm_p7_py_min_nan_first_returns_nan_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000011", pm_p7_py_min_nan_first_returns_nan_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000012", pm_p7_py_min_nan_first_returns_nan_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000013", pm_p7_py_min_nan_first_returns_nan_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000014", pm_p7_py_min_nan_first_returns_nan_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000015", pm_p7_py_min_nan_first_returns_nan_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000016", pm_p7_py_min_nan_first_returns_nan_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000017", pm_p7_py_min_nan_first_returns_nan_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000018", pm_p7_py_min_nan_first_returns_nan_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000019", pm_p7_py_min_nan_first_returns_nan_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000020", pm_p7_py_min_nan_first_returns_nan_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000021", pm_p7_py_min_nan_first_returns_nan_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000022", pm_p7_py_min_nan_first_returns_nan_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000023", pm_p7_py_min_nan_first_returns_nan_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000024", pm_p7_py_min_nan_first_returns_nan_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000025", pm_p7_py_min_nan_first_returns_nan_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000026", pm_p7_py_min_nan_first_returns_nan_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000027", pm_p7_py_min_nan_first_returns_nan_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000028", pm_p7_py_min_nan_first_returns_nan_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000029", pm_p7_py_min_nan_first_returns_nan_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000030", pm_p7_py_min_nan_first_returns_nan_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000031", pm_p7_py_min_nan_first_returns_nan_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000032", pm_p7_py_min_nan_first_returns_nan_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000033", pm_p7_py_min_nan_first_returns_nan_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000034", pm_p7_py_min_nan_first_returns_nan_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000035", pm_p7_py_min_nan_first_returns_nan_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000036", pm_p7_py_min_nan_first_returns_nan_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000037", pm_p7_py_min_nan_first_returns_nan_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000038", pm_p7_py_min_nan_first_returns_nan_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000039", pm_p7_py_min_nan_first_returns_nan_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000040", pm_p7_py_min_nan_first_returns_nan_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000041", pm_p7_py_min_nan_first_returns_nan_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000042", pm_p7_py_min_nan_first_returns_nan_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000043", pm_p7_py_min_nan_first_returns_nan_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000044", pm_p7_py_min_nan_first_returns_nan_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000045", pm_p7_py_min_nan_first_returns_nan_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000046", pm_p7_py_min_nan_first_returns_nan_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000047", pm_p7_py_min_nan_first_returns_nan_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000048", pm_p7_py_min_nan_first_returns_nan_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p7_py_min_nan_first_returns_nan_seed_000049", pm_p7_py_min_nan_first_returns_nan_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000000", pm_p8_py_min_nan_second_returns_first_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000001", pm_p8_py_min_nan_second_returns_first_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000002", pm_p8_py_min_nan_second_returns_first_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000003", pm_p8_py_min_nan_second_returns_first_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000004", pm_p8_py_min_nan_second_returns_first_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000005", pm_p8_py_min_nan_second_returns_first_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000006", pm_p8_py_min_nan_second_returns_first_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000007", pm_p8_py_min_nan_second_returns_first_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000008", pm_p8_py_min_nan_second_returns_first_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000009", pm_p8_py_min_nan_second_returns_first_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000010", pm_p8_py_min_nan_second_returns_first_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000011", pm_p8_py_min_nan_second_returns_first_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000012", pm_p8_py_min_nan_second_returns_first_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000013", pm_p8_py_min_nan_second_returns_first_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000014", pm_p8_py_min_nan_second_returns_first_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000015", pm_p8_py_min_nan_second_returns_first_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000016", pm_p8_py_min_nan_second_returns_first_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000017", pm_p8_py_min_nan_second_returns_first_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000018", pm_p8_py_min_nan_second_returns_first_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000019", pm_p8_py_min_nan_second_returns_first_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000020", pm_p8_py_min_nan_second_returns_first_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000021", pm_p8_py_min_nan_second_returns_first_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000022", pm_p8_py_min_nan_second_returns_first_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000023", pm_p8_py_min_nan_second_returns_first_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000024", pm_p8_py_min_nan_second_returns_first_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000025", pm_p8_py_min_nan_second_returns_first_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000026", pm_p8_py_min_nan_second_returns_first_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000027", pm_p8_py_min_nan_second_returns_first_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000028", pm_p8_py_min_nan_second_returns_first_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000029", pm_p8_py_min_nan_second_returns_first_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000030", pm_p8_py_min_nan_second_returns_first_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000031", pm_p8_py_min_nan_second_returns_first_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000032", pm_p8_py_min_nan_second_returns_first_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000033", pm_p8_py_min_nan_second_returns_first_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000034", pm_p8_py_min_nan_second_returns_first_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000035", pm_p8_py_min_nan_second_returns_first_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000036", pm_p8_py_min_nan_second_returns_first_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000037", pm_p8_py_min_nan_second_returns_first_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000038", pm_p8_py_min_nan_second_returns_first_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000039", pm_p8_py_min_nan_second_returns_first_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000040", pm_p8_py_min_nan_second_returns_first_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000041", pm_p8_py_min_nan_second_returns_first_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000042", pm_p8_py_min_nan_second_returns_first_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000043", pm_p8_py_min_nan_second_returns_first_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000044", pm_p8_py_min_nan_second_returns_first_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000045", pm_p8_py_min_nan_second_returns_first_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000046", pm_p8_py_min_nan_second_returns_first_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000047", pm_p8_py_min_nan_second_returns_first_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000048", pm_p8_py_min_nan_second_returns_first_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p8_py_min_nan_second_returns_first_seed_000049", pm_p8_py_min_nan_second_returns_first_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000000", pm_p9_py_round_to_int_is_integer_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000001", pm_p9_py_round_to_int_is_integer_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000002", pm_p9_py_round_to_int_is_integer_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000003", pm_p9_py_round_to_int_is_integer_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000004", pm_p9_py_round_to_int_is_integer_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000005", pm_p9_py_round_to_int_is_integer_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000006", pm_p9_py_round_to_int_is_integer_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000007", pm_p9_py_round_to_int_is_integer_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000008", pm_p9_py_round_to_int_is_integer_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000009", pm_p9_py_round_to_int_is_integer_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000010", pm_p9_py_round_to_int_is_integer_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000011", pm_p9_py_round_to_int_is_integer_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000012", pm_p9_py_round_to_int_is_integer_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000013", pm_p9_py_round_to_int_is_integer_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000014", pm_p9_py_round_to_int_is_integer_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000015", pm_p9_py_round_to_int_is_integer_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000016", pm_p9_py_round_to_int_is_integer_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000017", pm_p9_py_round_to_int_is_integer_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000018", pm_p9_py_round_to_int_is_integer_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000019", pm_p9_py_round_to_int_is_integer_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000020", pm_p9_py_round_to_int_is_integer_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000021", pm_p9_py_round_to_int_is_integer_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000022", pm_p9_py_round_to_int_is_integer_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000023", pm_p9_py_round_to_int_is_integer_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000024", pm_p9_py_round_to_int_is_integer_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000025", pm_p9_py_round_to_int_is_integer_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000026", pm_p9_py_round_to_int_is_integer_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000027", pm_p9_py_round_to_int_is_integer_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000028", pm_p9_py_round_to_int_is_integer_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000029", pm_p9_py_round_to_int_is_integer_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000030", pm_p9_py_round_to_int_is_integer_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000031", pm_p9_py_round_to_int_is_integer_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000032", pm_p9_py_round_to_int_is_integer_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000033", pm_p9_py_round_to_int_is_integer_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000034", pm_p9_py_round_to_int_is_integer_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000035", pm_p9_py_round_to_int_is_integer_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000036", pm_p9_py_round_to_int_is_integer_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000037", pm_p9_py_round_to_int_is_integer_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000038", pm_p9_py_round_to_int_is_integer_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000039", pm_p9_py_round_to_int_is_integer_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000040", pm_p9_py_round_to_int_is_integer_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000041", pm_p9_py_round_to_int_is_integer_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000042", pm_p9_py_round_to_int_is_integer_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000043", pm_p9_py_round_to_int_is_integer_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000044", pm_p9_py_round_to_int_is_integer_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000045", pm_p9_py_round_to_int_is_integer_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000046", pm_p9_py_round_to_int_is_integer_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000047", pm_p9_py_round_to_int_is_integer_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000048", pm_p9_py_round_to_int_is_integer_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p9_py_round_to_int_is_integer_seed_000049", pm_p9_py_round_to_int_is_integer_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000000", pm_p10_py_round_to_int_diff_at_most_half_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000001", pm_p10_py_round_to_int_diff_at_most_half_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000002", pm_p10_py_round_to_int_diff_at_most_half_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000003", pm_p10_py_round_to_int_diff_at_most_half_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000004", pm_p10_py_round_to_int_diff_at_most_half_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000005", pm_p10_py_round_to_int_diff_at_most_half_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000006", pm_p10_py_round_to_int_diff_at_most_half_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000007", pm_p10_py_round_to_int_diff_at_most_half_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000008", pm_p10_py_round_to_int_diff_at_most_half_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000009", pm_p10_py_round_to_int_diff_at_most_half_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000010", pm_p10_py_round_to_int_diff_at_most_half_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000011", pm_p10_py_round_to_int_diff_at_most_half_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000012", pm_p10_py_round_to_int_diff_at_most_half_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000013", pm_p10_py_round_to_int_diff_at_most_half_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000014", pm_p10_py_round_to_int_diff_at_most_half_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000015", pm_p10_py_round_to_int_diff_at_most_half_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000016", pm_p10_py_round_to_int_diff_at_most_half_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000017", pm_p10_py_round_to_int_diff_at_most_half_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000018", pm_p10_py_round_to_int_diff_at_most_half_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000019", pm_p10_py_round_to_int_diff_at_most_half_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000020", pm_p10_py_round_to_int_diff_at_most_half_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000021", pm_p10_py_round_to_int_diff_at_most_half_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000022", pm_p10_py_round_to_int_diff_at_most_half_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000023", pm_p10_py_round_to_int_diff_at_most_half_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000024", pm_p10_py_round_to_int_diff_at_most_half_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000025", pm_p10_py_round_to_int_diff_at_most_half_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000026", pm_p10_py_round_to_int_diff_at_most_half_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000027", pm_p10_py_round_to_int_diff_at_most_half_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000028", pm_p10_py_round_to_int_diff_at_most_half_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000029", pm_p10_py_round_to_int_diff_at_most_half_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000030", pm_p10_py_round_to_int_diff_at_most_half_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000031", pm_p10_py_round_to_int_diff_at_most_half_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000032", pm_p10_py_round_to_int_diff_at_most_half_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000033", pm_p10_py_round_to_int_diff_at_most_half_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000034", pm_p10_py_round_to_int_diff_at_most_half_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000035", pm_p10_py_round_to_int_diff_at_most_half_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000036", pm_p10_py_round_to_int_diff_at_most_half_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000037", pm_p10_py_round_to_int_diff_at_most_half_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000038", pm_p10_py_round_to_int_diff_at_most_half_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000039", pm_p10_py_round_to_int_diff_at_most_half_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000040", pm_p10_py_round_to_int_diff_at_most_half_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000041", pm_p10_py_round_to_int_diff_at_most_half_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000042", pm_p10_py_round_to_int_diff_at_most_half_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000043", pm_p10_py_round_to_int_diff_at_most_half_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000044", pm_p10_py_round_to_int_diff_at_most_half_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000045", pm_p10_py_round_to_int_diff_at_most_half_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000046", pm_p10_py_round_to_int_diff_at_most_half_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000047", pm_p10_py_round_to_int_diff_at_most_half_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000048", pm_p10_py_round_to_int_diff_at_most_half_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p10_py_round_to_int_diff_at_most_half_seed_000049", pm_p10_py_round_to_int_diff_at_most_half_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000000", pm_p11_py_round_to_int_ties_to_even_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000001", pm_p11_py_round_to_int_ties_to_even_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000002", pm_p11_py_round_to_int_ties_to_even_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000003", pm_p11_py_round_to_int_ties_to_even_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000004", pm_p11_py_round_to_int_ties_to_even_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000005", pm_p11_py_round_to_int_ties_to_even_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000006", pm_p11_py_round_to_int_ties_to_even_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000007", pm_p11_py_round_to_int_ties_to_even_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000008", pm_p11_py_round_to_int_ties_to_even_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000009", pm_p11_py_round_to_int_ties_to_even_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000010", pm_p11_py_round_to_int_ties_to_even_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000011", pm_p11_py_round_to_int_ties_to_even_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000012", pm_p11_py_round_to_int_ties_to_even_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000013", pm_p11_py_round_to_int_ties_to_even_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000014", pm_p11_py_round_to_int_ties_to_even_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000015", pm_p11_py_round_to_int_ties_to_even_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000016", pm_p11_py_round_to_int_ties_to_even_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000017", pm_p11_py_round_to_int_ties_to_even_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000018", pm_p11_py_round_to_int_ties_to_even_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000019", pm_p11_py_round_to_int_ties_to_even_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000020", pm_p11_py_round_to_int_ties_to_even_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000021", pm_p11_py_round_to_int_ties_to_even_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000022", pm_p11_py_round_to_int_ties_to_even_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000023", pm_p11_py_round_to_int_ties_to_even_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000024", pm_p11_py_round_to_int_ties_to_even_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000025", pm_p11_py_round_to_int_ties_to_even_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000026", pm_p11_py_round_to_int_ties_to_even_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000027", pm_p11_py_round_to_int_ties_to_even_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000028", pm_p11_py_round_to_int_ties_to_even_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000029", pm_p11_py_round_to_int_ties_to_even_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000030", pm_p11_py_round_to_int_ties_to_even_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000031", pm_p11_py_round_to_int_ties_to_even_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000032", pm_p11_py_round_to_int_ties_to_even_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000033", pm_p11_py_round_to_int_ties_to_even_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000034", pm_p11_py_round_to_int_ties_to_even_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000035", pm_p11_py_round_to_int_ties_to_even_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000036", pm_p11_py_round_to_int_ties_to_even_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000037", pm_p11_py_round_to_int_ties_to_even_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000038", pm_p11_py_round_to_int_ties_to_even_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000039", pm_p11_py_round_to_int_ties_to_even_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000040", pm_p11_py_round_to_int_ties_to_even_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000041", pm_p11_py_round_to_int_ties_to_even_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000042", pm_p11_py_round_to_int_ties_to_even_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000043", pm_p11_py_round_to_int_ties_to_even_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000044", pm_p11_py_round_to_int_ties_to_even_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000045", pm_p11_py_round_to_int_ties_to_even_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000046", pm_p11_py_round_to_int_ties_to_even_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000047", pm_p11_py_round_to_int_ties_to_even_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000048", pm_p11_py_round_to_int_ties_to_even_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p11_py_round_to_int_ties_to_even_seed_000049", pm_p11_py_round_to_int_ties_to_even_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000000", pm_p12_py_hypot_non_negative_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000001", pm_p12_py_hypot_non_negative_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000002", pm_p12_py_hypot_non_negative_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000003", pm_p12_py_hypot_non_negative_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000004", pm_p12_py_hypot_non_negative_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000005", pm_p12_py_hypot_non_negative_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000006", pm_p12_py_hypot_non_negative_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000007", pm_p12_py_hypot_non_negative_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000008", pm_p12_py_hypot_non_negative_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000009", pm_p12_py_hypot_non_negative_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000010", pm_p12_py_hypot_non_negative_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000011", pm_p12_py_hypot_non_negative_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000012", pm_p12_py_hypot_non_negative_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000013", pm_p12_py_hypot_non_negative_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000014", pm_p12_py_hypot_non_negative_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000015", pm_p12_py_hypot_non_negative_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000016", pm_p12_py_hypot_non_negative_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000017", pm_p12_py_hypot_non_negative_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000018", pm_p12_py_hypot_non_negative_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000019", pm_p12_py_hypot_non_negative_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000020", pm_p12_py_hypot_non_negative_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000021", pm_p12_py_hypot_non_negative_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000022", pm_p12_py_hypot_non_negative_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000023", pm_p12_py_hypot_non_negative_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000024", pm_p12_py_hypot_non_negative_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000025", pm_p12_py_hypot_non_negative_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000026", pm_p12_py_hypot_non_negative_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000027", pm_p12_py_hypot_non_negative_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000028", pm_p12_py_hypot_non_negative_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000029", pm_p12_py_hypot_non_negative_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000030", pm_p12_py_hypot_non_negative_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000031", pm_p12_py_hypot_non_negative_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000032", pm_p12_py_hypot_non_negative_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000033", pm_p12_py_hypot_non_negative_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000034", pm_p12_py_hypot_non_negative_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000035", pm_p12_py_hypot_non_negative_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000036", pm_p12_py_hypot_non_negative_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000037", pm_p12_py_hypot_non_negative_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000038", pm_p12_py_hypot_non_negative_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000039", pm_p12_py_hypot_non_negative_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000040", pm_p12_py_hypot_non_negative_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000041", pm_p12_py_hypot_non_negative_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000042", pm_p12_py_hypot_non_negative_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000043", pm_p12_py_hypot_non_negative_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000044", pm_p12_py_hypot_non_negative_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000045", pm_p12_py_hypot_non_negative_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000046", pm_p12_py_hypot_non_negative_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000047", pm_p12_py_hypot_non_negative_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000048", pm_p12_py_hypot_non_negative_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p12_py_hypot_non_negative_seed_000049", pm_p12_py_hypot_non_negative_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000000", pm_p13_py_hypot_symmetric_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000001", pm_p13_py_hypot_symmetric_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000002", pm_p13_py_hypot_symmetric_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000003", pm_p13_py_hypot_symmetric_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000004", pm_p13_py_hypot_symmetric_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000005", pm_p13_py_hypot_symmetric_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000006", pm_p13_py_hypot_symmetric_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000007", pm_p13_py_hypot_symmetric_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000008", pm_p13_py_hypot_symmetric_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000009", pm_p13_py_hypot_symmetric_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000010", pm_p13_py_hypot_symmetric_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000011", pm_p13_py_hypot_symmetric_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000012", pm_p13_py_hypot_symmetric_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000013", pm_p13_py_hypot_symmetric_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000014", pm_p13_py_hypot_symmetric_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000015", pm_p13_py_hypot_symmetric_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000016", pm_p13_py_hypot_symmetric_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000017", pm_p13_py_hypot_symmetric_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000018", pm_p13_py_hypot_symmetric_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000019", pm_p13_py_hypot_symmetric_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000020", pm_p13_py_hypot_symmetric_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000021", pm_p13_py_hypot_symmetric_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000022", pm_p13_py_hypot_symmetric_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000023", pm_p13_py_hypot_symmetric_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000024", pm_p13_py_hypot_symmetric_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000025", pm_p13_py_hypot_symmetric_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000026", pm_p13_py_hypot_symmetric_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000027", pm_p13_py_hypot_symmetric_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000028", pm_p13_py_hypot_symmetric_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000029", pm_p13_py_hypot_symmetric_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000030", pm_p13_py_hypot_symmetric_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000031", pm_p13_py_hypot_symmetric_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000032", pm_p13_py_hypot_symmetric_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000033", pm_p13_py_hypot_symmetric_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000034", pm_p13_py_hypot_symmetric_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000035", pm_p13_py_hypot_symmetric_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000036", pm_p13_py_hypot_symmetric_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000037", pm_p13_py_hypot_symmetric_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000038", pm_p13_py_hypot_symmetric_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000039", pm_p13_py_hypot_symmetric_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000040", pm_p13_py_hypot_symmetric_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000041", pm_p13_py_hypot_symmetric_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000042", pm_p13_py_hypot_symmetric_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000043", pm_p13_py_hypot_symmetric_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000044", pm_p13_py_hypot_symmetric_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000045", pm_p13_py_hypot_symmetric_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000046", pm_p13_py_hypot_symmetric_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000047", pm_p13_py_hypot_symmetric_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000048", pm_p13_py_hypot_symmetric_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p13_py_hypot_symmetric_seed_000049", pm_p13_py_hypot_symmetric_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000000", pm_p14_py_hypot_ge_max_abs_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000001", pm_p14_py_hypot_ge_max_abs_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000002", pm_p14_py_hypot_ge_max_abs_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000003", pm_p14_py_hypot_ge_max_abs_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000004", pm_p14_py_hypot_ge_max_abs_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000005", pm_p14_py_hypot_ge_max_abs_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000006", pm_p14_py_hypot_ge_max_abs_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000007", pm_p14_py_hypot_ge_max_abs_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000008", pm_p14_py_hypot_ge_max_abs_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000009", pm_p14_py_hypot_ge_max_abs_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000010", pm_p14_py_hypot_ge_max_abs_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000011", pm_p14_py_hypot_ge_max_abs_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000012", pm_p14_py_hypot_ge_max_abs_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000013", pm_p14_py_hypot_ge_max_abs_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000014", pm_p14_py_hypot_ge_max_abs_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000015", pm_p14_py_hypot_ge_max_abs_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000016", pm_p14_py_hypot_ge_max_abs_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000017", pm_p14_py_hypot_ge_max_abs_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000018", pm_p14_py_hypot_ge_max_abs_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000019", pm_p14_py_hypot_ge_max_abs_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000020", pm_p14_py_hypot_ge_max_abs_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000021", pm_p14_py_hypot_ge_max_abs_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000022", pm_p14_py_hypot_ge_max_abs_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000023", pm_p14_py_hypot_ge_max_abs_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000024", pm_p14_py_hypot_ge_max_abs_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000025", pm_p14_py_hypot_ge_max_abs_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000026", pm_p14_py_hypot_ge_max_abs_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000027", pm_p14_py_hypot_ge_max_abs_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000028", pm_p14_py_hypot_ge_max_abs_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000029", pm_p14_py_hypot_ge_max_abs_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000030", pm_p14_py_hypot_ge_max_abs_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000031", pm_p14_py_hypot_ge_max_abs_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000032", pm_p14_py_hypot_ge_max_abs_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000033", pm_p14_py_hypot_ge_max_abs_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000034", pm_p14_py_hypot_ge_max_abs_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000035", pm_p14_py_hypot_ge_max_abs_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000036", pm_p14_py_hypot_ge_max_abs_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000037", pm_p14_py_hypot_ge_max_abs_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000038", pm_p14_py_hypot_ge_max_abs_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000039", pm_p14_py_hypot_ge_max_abs_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000040", pm_p14_py_hypot_ge_max_abs_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000041", pm_p14_py_hypot_ge_max_abs_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000042", pm_p14_py_hypot_ge_max_abs_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000043", pm_p14_py_hypot_ge_max_abs_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000044", pm_p14_py_hypot_ge_max_abs_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000045", pm_p14_py_hypot_ge_max_abs_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000046", pm_p14_py_hypot_ge_max_abs_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000047", pm_p14_py_hypot_ge_max_abs_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000048", pm_p14_py_hypot_ge_max_abs_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p14_py_hypot_ge_max_abs_seed_000049", pm_p14_py_hypot_ge_max_abs_seed_000049),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000000", pm_p15_py_hypot_zero_returns_abs_seed_000000),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000001", pm_p15_py_hypot_zero_returns_abs_seed_000001),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000002", pm_p15_py_hypot_zero_returns_abs_seed_000002),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000003", pm_p15_py_hypot_zero_returns_abs_seed_000003),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000004", pm_p15_py_hypot_zero_returns_abs_seed_000004),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000005", pm_p15_py_hypot_zero_returns_abs_seed_000005),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000006", pm_p15_py_hypot_zero_returns_abs_seed_000006),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000007", pm_p15_py_hypot_zero_returns_abs_seed_000007),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000008", pm_p15_py_hypot_zero_returns_abs_seed_000008),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000009", pm_p15_py_hypot_zero_returns_abs_seed_000009),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000010", pm_p15_py_hypot_zero_returns_abs_seed_000010),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000011", pm_p15_py_hypot_zero_returns_abs_seed_000011),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000012", pm_p15_py_hypot_zero_returns_abs_seed_000012),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000013", pm_p15_py_hypot_zero_returns_abs_seed_000013),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000014", pm_p15_py_hypot_zero_returns_abs_seed_000014),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000015", pm_p15_py_hypot_zero_returns_abs_seed_000015),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000016", pm_p15_py_hypot_zero_returns_abs_seed_000016),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000017", pm_p15_py_hypot_zero_returns_abs_seed_000017),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000018", pm_p15_py_hypot_zero_returns_abs_seed_000018),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000019", pm_p15_py_hypot_zero_returns_abs_seed_000019),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000020", pm_p15_py_hypot_zero_returns_abs_seed_000020),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000021", pm_p15_py_hypot_zero_returns_abs_seed_000021),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000022", pm_p15_py_hypot_zero_returns_abs_seed_000022),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000023", pm_p15_py_hypot_zero_returns_abs_seed_000023),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000024", pm_p15_py_hypot_zero_returns_abs_seed_000024),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000025", pm_p15_py_hypot_zero_returns_abs_seed_000025),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000026", pm_p15_py_hypot_zero_returns_abs_seed_000026),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000027", pm_p15_py_hypot_zero_returns_abs_seed_000027),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000028", pm_p15_py_hypot_zero_returns_abs_seed_000028),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000029", pm_p15_py_hypot_zero_returns_abs_seed_000029),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000030", pm_p15_py_hypot_zero_returns_abs_seed_000030),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000031", pm_p15_py_hypot_zero_returns_abs_seed_000031),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000032", pm_p15_py_hypot_zero_returns_abs_seed_000032),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000033", pm_p15_py_hypot_zero_returns_abs_seed_000033),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000034", pm_p15_py_hypot_zero_returns_abs_seed_000034),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000035", pm_p15_py_hypot_zero_returns_abs_seed_000035),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000036", pm_p15_py_hypot_zero_returns_abs_seed_000036),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000037", pm_p15_py_hypot_zero_returns_abs_seed_000037),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000038", pm_p15_py_hypot_zero_returns_abs_seed_000038),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000039", pm_p15_py_hypot_zero_returns_abs_seed_000039),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000040", pm_p15_py_hypot_zero_returns_abs_seed_000040),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000041", pm_p15_py_hypot_zero_returns_abs_seed_000041),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000042", pm_p15_py_hypot_zero_returns_abs_seed_000042),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000043", pm_p15_py_hypot_zero_returns_abs_seed_000043),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000044", pm_p15_py_hypot_zero_returns_abs_seed_000044),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000045", pm_p15_py_hypot_zero_returns_abs_seed_000045),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000046", pm_p15_py_hypot_zero_returns_abs_seed_000046),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000047", pm_p15_py_hypot_zero_returns_abs_seed_000047),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000048", pm_p15_py_hypot_zero_returns_abs_seed_000048),
+        ("rules::drc::property_campaigns::tests::pm_p15_py_hypot_zero_returns_abs_seed_000049", pm_p15_py_hypot_zero_returns_abs_seed_000049),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000000", vk_p1_infer_package_type_is_known_seed_000000),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000001", vk_p1_infer_package_type_is_known_seed_000001),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000002", vk_p1_infer_package_type_is_known_seed_000002),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000003", vk_p1_infer_package_type_is_known_seed_000003),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000004", vk_p1_infer_package_type_is_known_seed_000004),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000005", vk_p1_infer_package_type_is_known_seed_000005),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000006", vk_p1_infer_package_type_is_known_seed_000006),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000007", vk_p1_infer_package_type_is_known_seed_000007),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000008", vk_p1_infer_package_type_is_known_seed_000008),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000009", vk_p1_infer_package_type_is_known_seed_000009),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000010", vk_p1_infer_package_type_is_known_seed_000010),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000011", vk_p1_infer_package_type_is_known_seed_000011),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000012", vk_p1_infer_package_type_is_known_seed_000012),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000013", vk_p1_infer_package_type_is_known_seed_000013),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000014", vk_p1_infer_package_type_is_known_seed_000014),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000015", vk_p1_infer_package_type_is_known_seed_000015),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000016", vk_p1_infer_package_type_is_known_seed_000016),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000017", vk_p1_infer_package_type_is_known_seed_000017),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000018", vk_p1_infer_package_type_is_known_seed_000018),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000019", vk_p1_infer_package_type_is_known_seed_000019),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000020", vk_p1_infer_package_type_is_known_seed_000020),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000021", vk_p1_infer_package_type_is_known_seed_000021),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000022", vk_p1_infer_package_type_is_known_seed_000022),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000023", vk_p1_infer_package_type_is_known_seed_000023),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000024", vk_p1_infer_package_type_is_known_seed_000024),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000025", vk_p1_infer_package_type_is_known_seed_000025),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000026", vk_p1_infer_package_type_is_known_seed_000026),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000027", vk_p1_infer_package_type_is_known_seed_000027),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000028", vk_p1_infer_package_type_is_known_seed_000028),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000029", vk_p1_infer_package_type_is_known_seed_000029),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000030", vk_p1_infer_package_type_is_known_seed_000030),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000031", vk_p1_infer_package_type_is_known_seed_000031),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000032", vk_p1_infer_package_type_is_known_seed_000032),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000033", vk_p1_infer_package_type_is_known_seed_000033),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000034", vk_p1_infer_package_type_is_known_seed_000034),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000035", vk_p1_infer_package_type_is_known_seed_000035),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000036", vk_p1_infer_package_type_is_known_seed_000036),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000037", vk_p1_infer_package_type_is_known_seed_000037),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000038", vk_p1_infer_package_type_is_known_seed_000038),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000039", vk_p1_infer_package_type_is_known_seed_000039),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000040", vk_p1_infer_package_type_is_known_seed_000040),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000041", vk_p1_infer_package_type_is_known_seed_000041),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000042", vk_p1_infer_package_type_is_known_seed_000042),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000043", vk_p1_infer_package_type_is_known_seed_000043),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000044", vk_p1_infer_package_type_is_known_seed_000044),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000045", vk_p1_infer_package_type_is_known_seed_000045),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000046", vk_p1_infer_package_type_is_known_seed_000046),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000047", vk_p1_infer_package_type_is_known_seed_000047),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000048", vk_p1_infer_package_type_is_known_seed_000048),
+        ("rules::drc::property_campaigns::tests::vk_p1_infer_package_type_is_known_seed_000049", vk_p1_infer_package_type_is_known_seed_000049),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000000", vk_p2_tht_no_violations_when_distant_seed_000000),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000001", vk_p2_tht_no_violations_when_distant_seed_000001),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000002", vk_p2_tht_no_violations_when_distant_seed_000002),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000003", vk_p2_tht_no_violations_when_distant_seed_000003),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000004", vk_p2_tht_no_violations_when_distant_seed_000004),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000005", vk_p2_tht_no_violations_when_distant_seed_000005),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000006", vk_p2_tht_no_violations_when_distant_seed_000006),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000007", vk_p2_tht_no_violations_when_distant_seed_000007),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000008", vk_p2_tht_no_violations_when_distant_seed_000008),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000009", vk_p2_tht_no_violations_when_distant_seed_000009),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000010", vk_p2_tht_no_violations_when_distant_seed_000010),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000011", vk_p2_tht_no_violations_when_distant_seed_000011),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000012", vk_p2_tht_no_violations_when_distant_seed_000012),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000013", vk_p2_tht_no_violations_when_distant_seed_000013),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000014", vk_p2_tht_no_violations_when_distant_seed_000014),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000015", vk_p2_tht_no_violations_when_distant_seed_000015),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000016", vk_p2_tht_no_violations_when_distant_seed_000016),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000017", vk_p2_tht_no_violations_when_distant_seed_000017),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000018", vk_p2_tht_no_violations_when_distant_seed_000018),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000019", vk_p2_tht_no_violations_when_distant_seed_000019),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000020", vk_p2_tht_no_violations_when_distant_seed_000020),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000021", vk_p2_tht_no_violations_when_distant_seed_000021),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000022", vk_p2_tht_no_violations_when_distant_seed_000022),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000023", vk_p2_tht_no_violations_when_distant_seed_000023),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000024", vk_p2_tht_no_violations_when_distant_seed_000024),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000025", vk_p2_tht_no_violations_when_distant_seed_000025),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000026", vk_p2_tht_no_violations_when_distant_seed_000026),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000027", vk_p2_tht_no_violations_when_distant_seed_000027),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000028", vk_p2_tht_no_violations_when_distant_seed_000028),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000029", vk_p2_tht_no_violations_when_distant_seed_000029),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000030", vk_p2_tht_no_violations_when_distant_seed_000030),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000031", vk_p2_tht_no_violations_when_distant_seed_000031),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000032", vk_p2_tht_no_violations_when_distant_seed_000032),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000033", vk_p2_tht_no_violations_when_distant_seed_000033),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000034", vk_p2_tht_no_violations_when_distant_seed_000034),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000035", vk_p2_tht_no_violations_when_distant_seed_000035),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000036", vk_p2_tht_no_violations_when_distant_seed_000036),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000037", vk_p2_tht_no_violations_when_distant_seed_000037),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000038", vk_p2_tht_no_violations_when_distant_seed_000038),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000039", vk_p2_tht_no_violations_when_distant_seed_000039),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000040", vk_p2_tht_no_violations_when_distant_seed_000040),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000041", vk_p2_tht_no_violations_when_distant_seed_000041),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000042", vk_p2_tht_no_violations_when_distant_seed_000042),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000043", vk_p2_tht_no_violations_when_distant_seed_000043),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000044", vk_p2_tht_no_violations_when_distant_seed_000044),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000045", vk_p2_tht_no_violations_when_distant_seed_000045),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000046", vk_p2_tht_no_violations_when_distant_seed_000046),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000047", vk_p2_tht_no_violations_when_distant_seed_000047),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000048", vk_p2_tht_no_violations_when_distant_seed_000048),
+        ("rules::drc::property_campaigns::tests::vk_p2_tht_no_violations_when_distant_seed_000049", vk_p2_tht_no_violations_when_distant_seed_000049),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000000", vk_p3_tht_violation_message_has_both_refs_seed_000000),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000001", vk_p3_tht_violation_message_has_both_refs_seed_000001),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000002", vk_p3_tht_violation_message_has_both_refs_seed_000002),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000003", vk_p3_tht_violation_message_has_both_refs_seed_000003),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000004", vk_p3_tht_violation_message_has_both_refs_seed_000004),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000005", vk_p3_tht_violation_message_has_both_refs_seed_000005),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000006", vk_p3_tht_violation_message_has_both_refs_seed_000006),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000007", vk_p3_tht_violation_message_has_both_refs_seed_000007),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000008", vk_p3_tht_violation_message_has_both_refs_seed_000008),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000009", vk_p3_tht_violation_message_has_both_refs_seed_000009),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000010", vk_p3_tht_violation_message_has_both_refs_seed_000010),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000011", vk_p3_tht_violation_message_has_both_refs_seed_000011),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000012", vk_p3_tht_violation_message_has_both_refs_seed_000012),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000013", vk_p3_tht_violation_message_has_both_refs_seed_000013),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000014", vk_p3_tht_violation_message_has_both_refs_seed_000014),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000015", vk_p3_tht_violation_message_has_both_refs_seed_000015),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000016", vk_p3_tht_violation_message_has_both_refs_seed_000016),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000017", vk_p3_tht_violation_message_has_both_refs_seed_000017),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000018", vk_p3_tht_violation_message_has_both_refs_seed_000018),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000019", vk_p3_tht_violation_message_has_both_refs_seed_000019),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000020", vk_p3_tht_violation_message_has_both_refs_seed_000020),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000021", vk_p3_tht_violation_message_has_both_refs_seed_000021),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000022", vk_p3_tht_violation_message_has_both_refs_seed_000022),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000023", vk_p3_tht_violation_message_has_both_refs_seed_000023),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000024", vk_p3_tht_violation_message_has_both_refs_seed_000024),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000025", vk_p3_tht_violation_message_has_both_refs_seed_000025),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000026", vk_p3_tht_violation_message_has_both_refs_seed_000026),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000027", vk_p3_tht_violation_message_has_both_refs_seed_000027),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000028", vk_p3_tht_violation_message_has_both_refs_seed_000028),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000029", vk_p3_tht_violation_message_has_both_refs_seed_000029),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000030", vk_p3_tht_violation_message_has_both_refs_seed_000030),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000031", vk_p3_tht_violation_message_has_both_refs_seed_000031),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000032", vk_p3_tht_violation_message_has_both_refs_seed_000032),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000033", vk_p3_tht_violation_message_has_both_refs_seed_000033),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000034", vk_p3_tht_violation_message_has_both_refs_seed_000034),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000035", vk_p3_tht_violation_message_has_both_refs_seed_000035),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000036", vk_p3_tht_violation_message_has_both_refs_seed_000036),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000037", vk_p3_tht_violation_message_has_both_refs_seed_000037),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000038", vk_p3_tht_violation_message_has_both_refs_seed_000038),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000039", vk_p3_tht_violation_message_has_both_refs_seed_000039),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000040", vk_p3_tht_violation_message_has_both_refs_seed_000040),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000041", vk_p3_tht_violation_message_has_both_refs_seed_000041),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000042", vk_p3_tht_violation_message_has_both_refs_seed_000042),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000043", vk_p3_tht_violation_message_has_both_refs_seed_000043),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000044", vk_p3_tht_violation_message_has_both_refs_seed_000044),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000045", vk_p3_tht_violation_message_has_both_refs_seed_000045),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000046", vk_p3_tht_violation_message_has_both_refs_seed_000046),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000047", vk_p3_tht_violation_message_has_both_refs_seed_000047),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000048", vk_p3_tht_violation_message_has_both_refs_seed_000048),
+        ("rules::drc::property_campaigns::tests::vk_p3_tht_violation_message_has_both_refs_seed_000049", vk_p3_tht_violation_message_has_both_refs_seed_000049),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000000", vk_p4_min_clearance_non_negative_seed_000000),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000001", vk_p4_min_clearance_non_negative_seed_000001),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000002", vk_p4_min_clearance_non_negative_seed_000002),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000003", vk_p4_min_clearance_non_negative_seed_000003),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000004", vk_p4_min_clearance_non_negative_seed_000004),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000005", vk_p4_min_clearance_non_negative_seed_000005),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000006", vk_p4_min_clearance_non_negative_seed_000006),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000007", vk_p4_min_clearance_non_negative_seed_000007),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000008", vk_p4_min_clearance_non_negative_seed_000008),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000009", vk_p4_min_clearance_non_negative_seed_000009),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000010", vk_p4_min_clearance_non_negative_seed_000010),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000011", vk_p4_min_clearance_non_negative_seed_000011),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000012", vk_p4_min_clearance_non_negative_seed_000012),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000013", vk_p4_min_clearance_non_negative_seed_000013),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000014", vk_p4_min_clearance_non_negative_seed_000014),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000015", vk_p4_min_clearance_non_negative_seed_000015),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000016", vk_p4_min_clearance_non_negative_seed_000016),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000017", vk_p4_min_clearance_non_negative_seed_000017),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000018", vk_p4_min_clearance_non_negative_seed_000018),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000019", vk_p4_min_clearance_non_negative_seed_000019),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000020", vk_p4_min_clearance_non_negative_seed_000020),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000021", vk_p4_min_clearance_non_negative_seed_000021),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000022", vk_p4_min_clearance_non_negative_seed_000022),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000023", vk_p4_min_clearance_non_negative_seed_000023),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000024", vk_p4_min_clearance_non_negative_seed_000024),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000025", vk_p4_min_clearance_non_negative_seed_000025),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000026", vk_p4_min_clearance_non_negative_seed_000026),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000027", vk_p4_min_clearance_non_negative_seed_000027),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000028", vk_p4_min_clearance_non_negative_seed_000028),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000029", vk_p4_min_clearance_non_negative_seed_000029),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000030", vk_p4_min_clearance_non_negative_seed_000030),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000031", vk_p4_min_clearance_non_negative_seed_000031),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000032", vk_p4_min_clearance_non_negative_seed_000032),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000033", vk_p4_min_clearance_non_negative_seed_000033),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000034", vk_p4_min_clearance_non_negative_seed_000034),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000035", vk_p4_min_clearance_non_negative_seed_000035),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000036", vk_p4_min_clearance_non_negative_seed_000036),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000037", vk_p4_min_clearance_non_negative_seed_000037),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000038", vk_p4_min_clearance_non_negative_seed_000038),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000039", vk_p4_min_clearance_non_negative_seed_000039),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000040", vk_p4_min_clearance_non_negative_seed_000040),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000041", vk_p4_min_clearance_non_negative_seed_000041),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000042", vk_p4_min_clearance_non_negative_seed_000042),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000043", vk_p4_min_clearance_non_negative_seed_000043),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000044", vk_p4_min_clearance_non_negative_seed_000044),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000045", vk_p4_min_clearance_non_negative_seed_000045),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000046", vk_p4_min_clearance_non_negative_seed_000046),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000047", vk_p4_min_clearance_non_negative_seed_000047),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000048", vk_p4_min_clearance_non_negative_seed_000048),
+        ("rules::drc::property_campaigns::tests::vk_p4_min_clearance_non_negative_seed_000049", vk_p4_min_clearance_non_negative_seed_000049),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000000", vk_p5_min_clearance_symmetric_seed_000000),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000001", vk_p5_min_clearance_symmetric_seed_000001),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000002", vk_p5_min_clearance_symmetric_seed_000002),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000003", vk_p5_min_clearance_symmetric_seed_000003),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000004", vk_p5_min_clearance_symmetric_seed_000004),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000005", vk_p5_min_clearance_symmetric_seed_000005),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000006", vk_p5_min_clearance_symmetric_seed_000006),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000007", vk_p5_min_clearance_symmetric_seed_000007),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000008", vk_p5_min_clearance_symmetric_seed_000008),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000009", vk_p5_min_clearance_symmetric_seed_000009),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000010", vk_p5_min_clearance_symmetric_seed_000010),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000011", vk_p5_min_clearance_symmetric_seed_000011),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000012", vk_p5_min_clearance_symmetric_seed_000012),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000013", vk_p5_min_clearance_symmetric_seed_000013),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000014", vk_p5_min_clearance_symmetric_seed_000014),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000015", vk_p5_min_clearance_symmetric_seed_000015),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000016", vk_p5_min_clearance_symmetric_seed_000016),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000017", vk_p5_min_clearance_symmetric_seed_000017),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000018", vk_p5_min_clearance_symmetric_seed_000018),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000019", vk_p5_min_clearance_symmetric_seed_000019),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000020", vk_p5_min_clearance_symmetric_seed_000020),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000021", vk_p5_min_clearance_symmetric_seed_000021),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000022", vk_p5_min_clearance_symmetric_seed_000022),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000023", vk_p5_min_clearance_symmetric_seed_000023),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000024", vk_p5_min_clearance_symmetric_seed_000024),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000025", vk_p5_min_clearance_symmetric_seed_000025),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000026", vk_p5_min_clearance_symmetric_seed_000026),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000027", vk_p5_min_clearance_symmetric_seed_000027),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000028", vk_p5_min_clearance_symmetric_seed_000028),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000029", vk_p5_min_clearance_symmetric_seed_000029),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000030", vk_p5_min_clearance_symmetric_seed_000030),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000031", vk_p5_min_clearance_symmetric_seed_000031),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000032", vk_p5_min_clearance_symmetric_seed_000032),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000033", vk_p5_min_clearance_symmetric_seed_000033),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000034", vk_p5_min_clearance_symmetric_seed_000034),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000035", vk_p5_min_clearance_symmetric_seed_000035),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000036", vk_p5_min_clearance_symmetric_seed_000036),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000037", vk_p5_min_clearance_symmetric_seed_000037),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000038", vk_p5_min_clearance_symmetric_seed_000038),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000039", vk_p5_min_clearance_symmetric_seed_000039),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000040", vk_p5_min_clearance_symmetric_seed_000040),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000041", vk_p5_min_clearance_symmetric_seed_000041),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000042", vk_p5_min_clearance_symmetric_seed_000042),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000043", vk_p5_min_clearance_symmetric_seed_000043),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000044", vk_p5_min_clearance_symmetric_seed_000044),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000045", vk_p5_min_clearance_symmetric_seed_000045),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000046", vk_p5_min_clearance_symmetric_seed_000046),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000047", vk_p5_min_clearance_symmetric_seed_000047),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000048", vk_p5_min_clearance_symmetric_seed_000048),
+        ("rules::drc::property_campaigns::tests::vk_p5_min_clearance_symmetric_seed_000049", vk_p5_min_clearance_symmetric_seed_000049),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000000", vk_p6_fingerprint_contains_code_and_message_seed_000000),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000001", vk_p6_fingerprint_contains_code_and_message_seed_000001),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000002", vk_p6_fingerprint_contains_code_and_message_seed_000002),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000003", vk_p6_fingerprint_contains_code_and_message_seed_000003),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000004", vk_p6_fingerprint_contains_code_and_message_seed_000004),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000005", vk_p6_fingerprint_contains_code_and_message_seed_000005),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000006", vk_p6_fingerprint_contains_code_and_message_seed_000006),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000007", vk_p6_fingerprint_contains_code_and_message_seed_000007),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000008", vk_p6_fingerprint_contains_code_and_message_seed_000008),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000009", vk_p6_fingerprint_contains_code_and_message_seed_000009),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000010", vk_p6_fingerprint_contains_code_and_message_seed_000010),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000011", vk_p6_fingerprint_contains_code_and_message_seed_000011),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000012", vk_p6_fingerprint_contains_code_and_message_seed_000012),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000013", vk_p6_fingerprint_contains_code_and_message_seed_000013),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000014", vk_p6_fingerprint_contains_code_and_message_seed_000014),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000015", vk_p6_fingerprint_contains_code_and_message_seed_000015),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000016", vk_p6_fingerprint_contains_code_and_message_seed_000016),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000017", vk_p6_fingerprint_contains_code_and_message_seed_000017),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000018", vk_p6_fingerprint_contains_code_and_message_seed_000018),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000019", vk_p6_fingerprint_contains_code_and_message_seed_000019),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000020", vk_p6_fingerprint_contains_code_and_message_seed_000020),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000021", vk_p6_fingerprint_contains_code_and_message_seed_000021),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000022", vk_p6_fingerprint_contains_code_and_message_seed_000022),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000023", vk_p6_fingerprint_contains_code_and_message_seed_000023),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000024", vk_p6_fingerprint_contains_code_and_message_seed_000024),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000025", vk_p6_fingerprint_contains_code_and_message_seed_000025),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000026", vk_p6_fingerprint_contains_code_and_message_seed_000026),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000027", vk_p6_fingerprint_contains_code_and_message_seed_000027),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000028", vk_p6_fingerprint_contains_code_and_message_seed_000028),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000029", vk_p6_fingerprint_contains_code_and_message_seed_000029),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000030", vk_p6_fingerprint_contains_code_and_message_seed_000030),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000031", vk_p6_fingerprint_contains_code_and_message_seed_000031),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000032", vk_p6_fingerprint_contains_code_and_message_seed_000032),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000033", vk_p6_fingerprint_contains_code_and_message_seed_000033),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000034", vk_p6_fingerprint_contains_code_and_message_seed_000034),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000035", vk_p6_fingerprint_contains_code_and_message_seed_000035),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000036", vk_p6_fingerprint_contains_code_and_message_seed_000036),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000037", vk_p6_fingerprint_contains_code_and_message_seed_000037),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000038", vk_p6_fingerprint_contains_code_and_message_seed_000038),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000039", vk_p6_fingerprint_contains_code_and_message_seed_000039),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000040", vk_p6_fingerprint_contains_code_and_message_seed_000040),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000041", vk_p6_fingerprint_contains_code_and_message_seed_000041),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000042", vk_p6_fingerprint_contains_code_and_message_seed_000042),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000043", vk_p6_fingerprint_contains_code_and_message_seed_000043),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000044", vk_p6_fingerprint_contains_code_and_message_seed_000044),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000045", vk_p6_fingerprint_contains_code_and_message_seed_000045),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000046", vk_p6_fingerprint_contains_code_and_message_seed_000046),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000047", vk_p6_fingerprint_contains_code_and_message_seed_000047),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000048", vk_p6_fingerprint_contains_code_and_message_seed_000048),
+        ("rules::drc::property_campaigns::tests::vk_p6_fingerprint_contains_code_and_message_seed_000049", vk_p6_fingerprint_contains_code_and_message_seed_000049),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000000", vk_p7_fingerprint_order_invariant_seed_000000),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000001", vk_p7_fingerprint_order_invariant_seed_000001),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000002", vk_p7_fingerprint_order_invariant_seed_000002),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000003", vk_p7_fingerprint_order_invariant_seed_000003),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000004", vk_p7_fingerprint_order_invariant_seed_000004),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000005", vk_p7_fingerprint_order_invariant_seed_000005),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000006", vk_p7_fingerprint_order_invariant_seed_000006),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000007", vk_p7_fingerprint_order_invariant_seed_000007),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000008", vk_p7_fingerprint_order_invariant_seed_000008),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000009", vk_p7_fingerprint_order_invariant_seed_000009),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000010", vk_p7_fingerprint_order_invariant_seed_000010),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000011", vk_p7_fingerprint_order_invariant_seed_000011),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000012", vk_p7_fingerprint_order_invariant_seed_000012),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000013", vk_p7_fingerprint_order_invariant_seed_000013),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000014", vk_p7_fingerprint_order_invariant_seed_000014),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000015", vk_p7_fingerprint_order_invariant_seed_000015),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000016", vk_p7_fingerprint_order_invariant_seed_000016),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000017", vk_p7_fingerprint_order_invariant_seed_000017),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000018", vk_p7_fingerprint_order_invariant_seed_000018),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000019", vk_p7_fingerprint_order_invariant_seed_000019),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000020", vk_p7_fingerprint_order_invariant_seed_000020),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000021", vk_p7_fingerprint_order_invariant_seed_000021),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000022", vk_p7_fingerprint_order_invariant_seed_000022),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000023", vk_p7_fingerprint_order_invariant_seed_000023),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000024", vk_p7_fingerprint_order_invariant_seed_000024),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000025", vk_p7_fingerprint_order_invariant_seed_000025),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000026", vk_p7_fingerprint_order_invariant_seed_000026),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000027", vk_p7_fingerprint_order_invariant_seed_000027),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000028", vk_p7_fingerprint_order_invariant_seed_000028),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000029", vk_p7_fingerprint_order_invariant_seed_000029),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000030", vk_p7_fingerprint_order_invariant_seed_000030),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000031", vk_p7_fingerprint_order_invariant_seed_000031),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000032", vk_p7_fingerprint_order_invariant_seed_000032),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000033", vk_p7_fingerprint_order_invariant_seed_000033),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000034", vk_p7_fingerprint_order_invariant_seed_000034),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000035", vk_p7_fingerprint_order_invariant_seed_000035),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000036", vk_p7_fingerprint_order_invariant_seed_000036),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000037", vk_p7_fingerprint_order_invariant_seed_000037),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000038", vk_p7_fingerprint_order_invariant_seed_000038),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000039", vk_p7_fingerprint_order_invariant_seed_000039),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000040", vk_p7_fingerprint_order_invariant_seed_000040),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000041", vk_p7_fingerprint_order_invariant_seed_000041),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000042", vk_p7_fingerprint_order_invariant_seed_000042),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000043", vk_p7_fingerprint_order_invariant_seed_000043),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000044", vk_p7_fingerprint_order_invariant_seed_000044),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000045", vk_p7_fingerprint_order_invariant_seed_000045),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000046", vk_p7_fingerprint_order_invariant_seed_000046),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000047", vk_p7_fingerprint_order_invariant_seed_000047),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000048", vk_p7_fingerprint_order_invariant_seed_000048),
+        ("rules::drc::property_campaigns::tests::vk_p7_fingerprint_order_invariant_seed_000049", vk_p7_fingerprint_order_invariant_seed_000049),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

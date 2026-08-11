@@ -1,9 +1,11 @@
-// Property-based campaigns over three independent, pure, deterministic
+// Property-based campaigns over four independent, pure, deterministic
 // temper-constraint-compiler kernels: the `SafetyCategory` type lattice
 // (`type_lattice.rs`), PCL-to-Tier-1 desugaring (`desugar_tier0.rs`'s
-// `compile_tier0_to_tier1`), and Tier-1-to-Tier-2 desugaring plus constraint
+// `compile_tier0_to_tier1`), Tier-1-to-Tier-2 desugaring plus constraint
 // merging (`desugar_tier1.rs`'s `compile_tier1_to_tier2` /
-// `augment_constraint_model`).
+// `augment_constraint_model`), and the append-only provenance ledger
+// (`provenance.rs`'s `ProvenanceMap::push`/`get`/`link_clause` and
+// `reverse_map_unsat_core`).
 //
 // Why this exists (R7 / the WASM-tier volume payload)
 // -----------------------------------------------------------------------
@@ -44,6 +46,19 @@
 // safety-critical HV/LV/AC/Iso lattice that today only runs under
 // `cargo test`.
 //
+// A note on the other three `proptest`-only files this module mirrors:
+// `desugar_tier0.rs` (Kernel 2, `tests/proptest_tier0_to_tier1.rs`),
+// `desugar_tier1.rs` (Kernel 3, `tests/proptest_tier1_to_tier2.rs`), and
+// `provenance.rs` (Kernel 4 below, `tests/proptest_provenance.rs`)
+// are each `cargo test` *integration test* crates -- separate compilation
+// units linked against this crate as a dependency, so they cannot be
+// registered directly even discounting the `proptest` dev-dependency. Kernel
+// 4 re-derives `tests/proptest_provenance.rs`'s five properties (P1-P5:
+// push/get round-trip, monotonic indices, out-of-bounds `get`,
+// `link_clause`+`reverse_map_unsat_core` agreement, and the empty-core case)
+// without proptest, closing the last of this crate's four proptest-only
+// families.
+//
 // Every item below (down to `mod tests`) is reachable ONLY from that
 // module's `#[test]` functions -- which `scripts/gen_wasm_test_registry.py`
 // turns into `pub(crate)` and reaches indirectly through
@@ -61,7 +76,7 @@ use crate::ir_tier1::{
     Channel, ChannelTopology, ComponentResolver, ResolvedConstraint, ResolvedConstraintModel,
     ZoneResolver,
 };
-use crate::provenance::ProvenanceMap;
+use crate::provenance::{ProvenanceMap, reverse_map_unsat_core};
 use crate::type_lattice::{NetClassMetadata, SafetyCategory, TypeLattice};
 use temper_rust_router_core::types::InternalConstraint;
 
@@ -1029,6 +1044,163 @@ pub(crate) fn dt1_append_monotonic_impl(seed: u64) {
     );
 }
 
+// ===========================================================================
+// Kernel 4: provenance.rs -- `ProvenanceMap::push`/`get`/`link_clause` and
+// `reverse_map_unsat_core`, the append-only bookkeeping ledger that lets a
+// SAT-level unsat core be reverse-mapped back to the PCL constraints that
+// produced it. Mirrors `tests/proptest_provenance.rs`'s five properties
+// (P1-P5) -- this crate's fourth and last `proptest`-only property family.
+// ===========================================================================
+
+/// A short lowercase identifier -- stands in for `proptest`'s
+/// `"[a-z0-9_]{4,12}"` / `"[A-Z][a-z]{4,12}"` / `"[a-z_]{6,16}"` string
+/// strategies. `ProvenanceMap` treats every field as an opaque `String`, so
+/// one alphabet suffices for all of them; only the length range varies by
+/// call site, matching each original strategy's bounds.
+fn pv_gen_ident(rng: &mut SplitMix64, min_len: usize, max_len: usize) -> String {
+    const ALPHABET: &[u8] = b"abcdefghijklmnopqrstuvwxyz0123456789_";
+    let len = min_len + rng.index(max_len - min_len + 1);
+    (0..len).map(|_| ALPHABET[rng.index(ALPHABET.len())] as char).collect()
+}
+
+fn pv_gen_tier(rng: &mut SplitMix64) -> ConstraintTier {
+    if rng.index(2) == 0 { ConstraintTier::Hard } else { ConstraintTier::Soft }
+}
+
+/// P1. `push` returns a reference that `get` retrieves correctly, preserving
+/// all six fields.
+///
+/// Bug this would catch: a `push` that stores fields in the wrong slots (a
+/// `desugar_rule_t0`/`desugar_rule_t1` swap, say), or a `get` that reads a
+/// different entry than the one `push` just wrote.
+pub(crate) fn pv_push_get_round_trip_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let pcl_id = pv_gen_ident(&mut rng, 4, 12);
+    let t0_type = pv_gen_ident(&mut rng, 4, 12);
+    let rule_t0 = pv_gen_ident(&mut rng, 6, 16);
+    let rule_t1 = pv_gen_ident(&mut rng, 6, 16);
+    let rationale = pv_gen_ident(&mut rng, 4, 20);
+    let tier = pv_gen_tier(&mut rng);
+
+    let mut prov = ProvenanceMap::new();
+    let idx = prov.push(
+        pcl_id.clone(),
+        t0_type.clone(),
+        rule_t0.clone(),
+        rule_t1.clone(),
+        rationale.clone(),
+        tier,
+    );
+    let entry = match prov.get(idx) {
+        Some(e) => e,
+        None => panic!("push then get(idx) returned None (seed={seed})"),
+    };
+    assert_eq!(entry.pcl_constraint_id, pcl_id, "pcl_constraint_id mismatch (seed={seed})");
+    assert_eq!(entry.tier0_type, t0_type, "tier0_type mismatch (seed={seed})");
+    assert_eq!(entry.desugar_rule_t0, rule_t0, "desugar_rule_t0 mismatch (seed={seed})");
+    assert_eq!(entry.desugar_rule_t1, rule_t1, "desugar_rule_t1 mismatch (seed={seed})");
+    assert_eq!(entry.rationale, rationale, "rationale mismatch (seed={seed})");
+    assert_eq!(entry.tier, tier, "tier mismatch (seed={seed})");
+}
+
+/// P2. Sequential pushes yield monotonically increasing indices.
+///
+/// Bug this would catch: an index scheme that reuses or resets indices
+/// instead of always returning `entries.len()` before the push.
+pub(crate) fn pv_push_indices_monotonic_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let count = 1 + rng.index(20);
+    let mut prov = ProvenanceMap::new();
+    let mut prev: Option<usize> = None;
+    for i in 0..count {
+        let idx = prov.push(
+            format!("pcl_{i}"),
+            "Adjacent".into(),
+            "r0".into(),
+            "r1".into(),
+            "reason".into(),
+            ConstraintTier::Hard,
+        );
+        if let Some(p) = prev {
+            assert!(idx > p, "index not monotonic: {idx} <= {p} (seed={seed})");
+        }
+        prev = Some(idx);
+    }
+}
+
+/// P3. `get` with an out-of-bounds index returns `None`.
+///
+/// Bug this would catch: a `get` that panics or wraps instead of bounds-
+/// checking (`Vec::get` does this correctly; a hand-rolled index into
+/// `entries[idx]` would not).
+pub(crate) fn pv_get_out_of_bounds_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let count = rng.index(11);
+    let mut prov = ProvenanceMap::new();
+    for i in 0..count {
+        prov.push(format!("pcl_{i}"), "Adjacent".into(), "r0".into(), "r1".into(), "test".into(), ConstraintTier::Hard);
+    }
+    let n = prov.entries.len();
+    assert!(prov.get(n).is_none(), "get(len)=Some, expected None (seed={seed})");
+    assert!(prov.get(n + 1000).is_none(), "get(len+1000)=Some, expected None (seed={seed})");
+}
+
+/// P4. Linking each pushed entry to its own clause, then reverse-mapping
+/// every one of those clause indices as the unsat core, yields at least one
+/// diagnostic and never more than were pushed.
+///
+/// Bug this would catch: `link_clause` losing a link, or
+/// `reverse_map_unsat_core` failing to look a clause index back up (empty
+/// result) or duplicating an entry per clause instead of per PCL constraint
+/// id (over-count).
+pub(crate) fn pv_link_clause_then_reverse_map_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let count = 1 + rng.index(10);
+    let mut prov = ProvenanceMap::new();
+    let mut refs = Vec::with_capacity(count);
+    for i in 0..count {
+        let idx = prov.push(
+            format!("pcl_{i}"),
+            "Adjacent".into(),
+            "r0".into(),
+            "r1".into(),
+            "reason".into(),
+            ConstraintTier::Hard,
+        );
+        refs.push(idx);
+    }
+    for (clause_idx, &r) in refs.iter().enumerate() {
+        prov.link_clause(clause_idx, r);
+    }
+    let core: Vec<usize> = (0..refs.len()).collect();
+    let diags = reverse_map_unsat_core(&core, &prov);
+    assert!(!diags.is_empty(), "expected at least one diagnostic (seed={seed})");
+    assert!(
+        diags.len() <= count,
+        "diagnostics {} exceed pushed count {} (seed={seed})",
+        diags.len(),
+        count
+    );
+}
+
+/// P5. An empty unsat core produces an empty diagnostic list, even when the
+/// ledger holds linked entries.
+///
+/// Bug this would catch: `reverse_map_unsat_core` iterating
+/// `prov.clause_to_provenance` directly instead of the (empty) `core` it was
+/// given.
+pub(crate) fn pv_empty_core_empty_diagnostics_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let count = rng.index(11);
+    let mut prov = ProvenanceMap::new();
+    for i in 0..count {
+        let idx = prov.push(format!("pcl_{i}"), "Adjacent".into(), "r0".into(), "r1".into(), "test".into(), ConstraintTier::Hard);
+        prov.link_clause(i, idx);
+    }
+    let diags = reverse_map_unsat_core(&[], &prov);
+    assert!(diags.is_empty(), "expected empty diagnostics for empty core (seed={seed})");
+}
+
 #[cfg(any(test, feature = "wasm-registry"))]
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
@@ -1143,6 +1315,36 @@ pub(crate) mod tests {
         let lowered = vec![InternalConstraint::LayerRestriction { var_name: "b".into(), allowed: false }];
         let augmented = augment_constraint_model(existing.clone(), lowered.clone());
         assert_eq!(augmented, vec![existing[0].clone(), lowered[0].clone()]);
+    }
+
+    #[cfg_attr(test, test)]
+    fn pv_gen_ident_is_deterministic_in_seed() {
+        let mut a = SplitMix64::new(2024);
+        let mut b = SplitMix64::new(2024);
+        assert_eq!(pv_gen_ident(&mut a, 4, 12), pv_gen_ident(&mut b, 4, 12));
+    }
+
+    #[cfg_attr(test, test)]
+    fn pv_push_get_hand_worked_example() {
+        // Same fixture as `provenance::tests::test_push_and_get` and
+        // `tests/proptest_provenance.rs`'s P1 -- a concrete oracle check
+        // alongside the generated cases below.
+        let mut prov = ProvenanceMap::new();
+        let idx = prov.push(
+            "pcl_1".into(),
+            "Adjacent".into(),
+            "desugar_adjacent".into(),
+            "desugar_adjacency_to_diffpair".into(),
+            "half-bridge pairing".into(),
+            ConstraintTier::Hard,
+        );
+        assert_eq!(idx, 0);
+        let entry = match prov.get(idx) {
+            Some(e) => e,
+            None => panic!("push then get(0) returned None"),
+        };
+        assert_eq!(entry.pcl_constraint_id, "pcl_1");
+        assert_eq!(entry.tier, ConstraintTier::Hard);
     }
 
     // --- tl_join_idempotent: 50 generated cases ---
@@ -4305,6 +4507,511 @@ pub(crate) mod tests {
     fn dt1_append_monotonic_seed_000098() { dt1_append_monotonic_impl(98); }
     #[cfg_attr(test, test)]
     fn dt1_append_monotonic_seed_000099() { dt1_append_monotonic_impl(99); }
+    // --- pv_push_get_round_trip: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000000() { pv_push_get_round_trip_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000001() { pv_push_get_round_trip_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000002() { pv_push_get_round_trip_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000003() { pv_push_get_round_trip_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000004() { pv_push_get_round_trip_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000005() { pv_push_get_round_trip_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000006() { pv_push_get_round_trip_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000007() { pv_push_get_round_trip_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000008() { pv_push_get_round_trip_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000009() { pv_push_get_round_trip_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000010() { pv_push_get_round_trip_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000011() { pv_push_get_round_trip_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000012() { pv_push_get_round_trip_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000013() { pv_push_get_round_trip_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000014() { pv_push_get_round_trip_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000015() { pv_push_get_round_trip_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000016() { pv_push_get_round_trip_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000017() { pv_push_get_round_trip_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000018() { pv_push_get_round_trip_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000019() { pv_push_get_round_trip_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000020() { pv_push_get_round_trip_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000021() { pv_push_get_round_trip_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000022() { pv_push_get_round_trip_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000023() { pv_push_get_round_trip_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000024() { pv_push_get_round_trip_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000025() { pv_push_get_round_trip_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000026() { pv_push_get_round_trip_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000027() { pv_push_get_round_trip_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000028() { pv_push_get_round_trip_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000029() { pv_push_get_round_trip_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000030() { pv_push_get_round_trip_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000031() { pv_push_get_round_trip_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000032() { pv_push_get_round_trip_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000033() { pv_push_get_round_trip_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000034() { pv_push_get_round_trip_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000035() { pv_push_get_round_trip_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000036() { pv_push_get_round_trip_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000037() { pv_push_get_round_trip_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000038() { pv_push_get_round_trip_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000039() { pv_push_get_round_trip_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000040() { pv_push_get_round_trip_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000041() { pv_push_get_round_trip_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000042() { pv_push_get_round_trip_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000043() { pv_push_get_round_trip_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000044() { pv_push_get_round_trip_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000045() { pv_push_get_round_trip_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000046() { pv_push_get_round_trip_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000047() { pv_push_get_round_trip_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000048() { pv_push_get_round_trip_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pv_push_get_round_trip_seed_000049() { pv_push_get_round_trip_impl(49); }
+    // --- pv_push_indices_monotonic: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000000() { pv_push_indices_monotonic_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000001() { pv_push_indices_monotonic_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000002() { pv_push_indices_monotonic_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000003() { pv_push_indices_monotonic_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000004() { pv_push_indices_monotonic_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000005() { pv_push_indices_monotonic_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000006() { pv_push_indices_monotonic_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000007() { pv_push_indices_monotonic_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000008() { pv_push_indices_monotonic_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000009() { pv_push_indices_monotonic_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000010() { pv_push_indices_monotonic_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000011() { pv_push_indices_monotonic_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000012() { pv_push_indices_monotonic_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000013() { pv_push_indices_monotonic_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000014() { pv_push_indices_monotonic_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000015() { pv_push_indices_monotonic_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000016() { pv_push_indices_monotonic_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000017() { pv_push_indices_monotonic_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000018() { pv_push_indices_monotonic_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000019() { pv_push_indices_monotonic_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000020() { pv_push_indices_monotonic_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000021() { pv_push_indices_monotonic_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000022() { pv_push_indices_monotonic_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000023() { pv_push_indices_monotonic_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000024() { pv_push_indices_monotonic_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000025() { pv_push_indices_monotonic_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000026() { pv_push_indices_monotonic_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000027() { pv_push_indices_monotonic_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000028() { pv_push_indices_monotonic_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000029() { pv_push_indices_monotonic_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000030() { pv_push_indices_monotonic_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000031() { pv_push_indices_monotonic_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000032() { pv_push_indices_monotonic_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000033() { pv_push_indices_monotonic_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000034() { pv_push_indices_monotonic_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000035() { pv_push_indices_monotonic_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000036() { pv_push_indices_monotonic_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000037() { pv_push_indices_monotonic_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000038() { pv_push_indices_monotonic_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000039() { pv_push_indices_monotonic_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000040() { pv_push_indices_monotonic_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000041() { pv_push_indices_monotonic_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000042() { pv_push_indices_monotonic_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000043() { pv_push_indices_monotonic_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000044() { pv_push_indices_monotonic_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000045() { pv_push_indices_monotonic_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000046() { pv_push_indices_monotonic_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000047() { pv_push_indices_monotonic_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000048() { pv_push_indices_monotonic_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pv_push_indices_monotonic_seed_000049() { pv_push_indices_monotonic_impl(49); }
+    // --- pv_get_out_of_bounds: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000000() { pv_get_out_of_bounds_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000001() { pv_get_out_of_bounds_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000002() { pv_get_out_of_bounds_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000003() { pv_get_out_of_bounds_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000004() { pv_get_out_of_bounds_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000005() { pv_get_out_of_bounds_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000006() { pv_get_out_of_bounds_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000007() { pv_get_out_of_bounds_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000008() { pv_get_out_of_bounds_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000009() { pv_get_out_of_bounds_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000010() { pv_get_out_of_bounds_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000011() { pv_get_out_of_bounds_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000012() { pv_get_out_of_bounds_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000013() { pv_get_out_of_bounds_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000014() { pv_get_out_of_bounds_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000015() { pv_get_out_of_bounds_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000016() { pv_get_out_of_bounds_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000017() { pv_get_out_of_bounds_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000018() { pv_get_out_of_bounds_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000019() { pv_get_out_of_bounds_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000020() { pv_get_out_of_bounds_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000021() { pv_get_out_of_bounds_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000022() { pv_get_out_of_bounds_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000023() { pv_get_out_of_bounds_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000024() { pv_get_out_of_bounds_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000025() { pv_get_out_of_bounds_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000026() { pv_get_out_of_bounds_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000027() { pv_get_out_of_bounds_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000028() { pv_get_out_of_bounds_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000029() { pv_get_out_of_bounds_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000030() { pv_get_out_of_bounds_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000031() { pv_get_out_of_bounds_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000032() { pv_get_out_of_bounds_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000033() { pv_get_out_of_bounds_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000034() { pv_get_out_of_bounds_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000035() { pv_get_out_of_bounds_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000036() { pv_get_out_of_bounds_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000037() { pv_get_out_of_bounds_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000038() { pv_get_out_of_bounds_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000039() { pv_get_out_of_bounds_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000040() { pv_get_out_of_bounds_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000041() { pv_get_out_of_bounds_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000042() { pv_get_out_of_bounds_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000043() { pv_get_out_of_bounds_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000044() { pv_get_out_of_bounds_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000045() { pv_get_out_of_bounds_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000046() { pv_get_out_of_bounds_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000047() { pv_get_out_of_bounds_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000048() { pv_get_out_of_bounds_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pv_get_out_of_bounds_seed_000049() { pv_get_out_of_bounds_impl(49); }
+    // --- pv_link_clause_then_reverse_map: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000000() { pv_link_clause_then_reverse_map_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000001() { pv_link_clause_then_reverse_map_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000002() { pv_link_clause_then_reverse_map_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000003() { pv_link_clause_then_reverse_map_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000004() { pv_link_clause_then_reverse_map_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000005() { pv_link_clause_then_reverse_map_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000006() { pv_link_clause_then_reverse_map_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000007() { pv_link_clause_then_reverse_map_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000008() { pv_link_clause_then_reverse_map_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000009() { pv_link_clause_then_reverse_map_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000010() { pv_link_clause_then_reverse_map_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000011() { pv_link_clause_then_reverse_map_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000012() { pv_link_clause_then_reverse_map_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000013() { pv_link_clause_then_reverse_map_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000014() { pv_link_clause_then_reverse_map_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000015() { pv_link_clause_then_reverse_map_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000016() { pv_link_clause_then_reverse_map_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000017() { pv_link_clause_then_reverse_map_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000018() { pv_link_clause_then_reverse_map_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000019() { pv_link_clause_then_reverse_map_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000020() { pv_link_clause_then_reverse_map_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000021() { pv_link_clause_then_reverse_map_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000022() { pv_link_clause_then_reverse_map_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000023() { pv_link_clause_then_reverse_map_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000024() { pv_link_clause_then_reverse_map_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000025() { pv_link_clause_then_reverse_map_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000026() { pv_link_clause_then_reverse_map_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000027() { pv_link_clause_then_reverse_map_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000028() { pv_link_clause_then_reverse_map_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000029() { pv_link_clause_then_reverse_map_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000030() { pv_link_clause_then_reverse_map_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000031() { pv_link_clause_then_reverse_map_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000032() { pv_link_clause_then_reverse_map_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000033() { pv_link_clause_then_reverse_map_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000034() { pv_link_clause_then_reverse_map_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000035() { pv_link_clause_then_reverse_map_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000036() { pv_link_clause_then_reverse_map_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000037() { pv_link_clause_then_reverse_map_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000038() { pv_link_clause_then_reverse_map_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000039() { pv_link_clause_then_reverse_map_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000040() { pv_link_clause_then_reverse_map_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000041() { pv_link_clause_then_reverse_map_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000042() { pv_link_clause_then_reverse_map_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000043() { pv_link_clause_then_reverse_map_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000044() { pv_link_clause_then_reverse_map_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000045() { pv_link_clause_then_reverse_map_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000046() { pv_link_clause_then_reverse_map_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000047() { pv_link_clause_then_reverse_map_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000048() { pv_link_clause_then_reverse_map_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pv_link_clause_then_reverse_map_seed_000049() { pv_link_clause_then_reverse_map_impl(49); }
+    // --- pv_empty_core_empty_diagnostics: 50 generated cases ---
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000000() { pv_empty_core_empty_diagnostics_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000001() { pv_empty_core_empty_diagnostics_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000002() { pv_empty_core_empty_diagnostics_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000003() { pv_empty_core_empty_diagnostics_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000004() { pv_empty_core_empty_diagnostics_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000005() { pv_empty_core_empty_diagnostics_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000006() { pv_empty_core_empty_diagnostics_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000007() { pv_empty_core_empty_diagnostics_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000008() { pv_empty_core_empty_diagnostics_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000009() { pv_empty_core_empty_diagnostics_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000010() { pv_empty_core_empty_diagnostics_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000011() { pv_empty_core_empty_diagnostics_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000012() { pv_empty_core_empty_diagnostics_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000013() { pv_empty_core_empty_diagnostics_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000014() { pv_empty_core_empty_diagnostics_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000015() { pv_empty_core_empty_diagnostics_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000016() { pv_empty_core_empty_diagnostics_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000017() { pv_empty_core_empty_diagnostics_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000018() { pv_empty_core_empty_diagnostics_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000019() { pv_empty_core_empty_diagnostics_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000020() { pv_empty_core_empty_diagnostics_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000021() { pv_empty_core_empty_diagnostics_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000022() { pv_empty_core_empty_diagnostics_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000023() { pv_empty_core_empty_diagnostics_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000024() { pv_empty_core_empty_diagnostics_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000025() { pv_empty_core_empty_diagnostics_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000026() { pv_empty_core_empty_diagnostics_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000027() { pv_empty_core_empty_diagnostics_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000028() { pv_empty_core_empty_diagnostics_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000029() { pv_empty_core_empty_diagnostics_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000030() { pv_empty_core_empty_diagnostics_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000031() { pv_empty_core_empty_diagnostics_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000032() { pv_empty_core_empty_diagnostics_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000033() { pv_empty_core_empty_diagnostics_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000034() { pv_empty_core_empty_diagnostics_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000035() { pv_empty_core_empty_diagnostics_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000036() { pv_empty_core_empty_diagnostics_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000037() { pv_empty_core_empty_diagnostics_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000038() { pv_empty_core_empty_diagnostics_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000039() { pv_empty_core_empty_diagnostics_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000040() { pv_empty_core_empty_diagnostics_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000041() { pv_empty_core_empty_diagnostics_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000042() { pv_empty_core_empty_diagnostics_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000043() { pv_empty_core_empty_diagnostics_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000044() { pv_empty_core_empty_diagnostics_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000045() { pv_empty_core_empty_diagnostics_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000046() { pv_empty_core_empty_diagnostics_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000047() { pv_empty_core_empty_diagnostics_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000048() { pv_empty_core_empty_diagnostics_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pv_empty_core_empty_diagnostics_seed_000049() { pv_empty_core_empty_diagnostics_impl(49); }
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
@@ -4320,6 +5027,8 @@ pub(crate) mod tests {
         ("property_campaigns::tests::dt1_gen_model_is_deterministic", dt1_gen_model_is_deterministic),
         ("property_campaigns::tests::dt1_hand_built_hard_adjacency_emits_diffpair", dt1_hand_built_hard_adjacency_emits_diffpair),
         ("property_campaigns::tests::dt1_augment_prefix_hand_example", dt1_augment_prefix_hand_example),
+        ("property_campaigns::tests::pv_gen_ident_is_deterministic_in_seed", pv_gen_ident_is_deterministic_in_seed),
+        ("property_campaigns::tests::pv_push_get_hand_worked_example", pv_push_get_hand_worked_example),
         ("property_campaigns::tests::tl_join_idempotent_seed_000000", tl_join_idempotent_seed_000000),
         ("property_campaigns::tests::tl_join_idempotent_seed_000001", tl_join_idempotent_seed_000001),
         ("property_campaigns::tests::tl_join_idempotent_seed_000002", tl_join_idempotent_seed_000002),
@@ -5890,6 +6599,256 @@ pub(crate) mod tests {
         ("property_campaigns::tests::dt1_append_monotonic_seed_000097", dt1_append_monotonic_seed_000097),
         ("property_campaigns::tests::dt1_append_monotonic_seed_000098", dt1_append_monotonic_seed_000098),
         ("property_campaigns::tests::dt1_append_monotonic_seed_000099", dt1_append_monotonic_seed_000099),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000000", pv_push_get_round_trip_seed_000000),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000001", pv_push_get_round_trip_seed_000001),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000002", pv_push_get_round_trip_seed_000002),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000003", pv_push_get_round_trip_seed_000003),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000004", pv_push_get_round_trip_seed_000004),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000005", pv_push_get_round_trip_seed_000005),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000006", pv_push_get_round_trip_seed_000006),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000007", pv_push_get_round_trip_seed_000007),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000008", pv_push_get_round_trip_seed_000008),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000009", pv_push_get_round_trip_seed_000009),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000010", pv_push_get_round_trip_seed_000010),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000011", pv_push_get_round_trip_seed_000011),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000012", pv_push_get_round_trip_seed_000012),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000013", pv_push_get_round_trip_seed_000013),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000014", pv_push_get_round_trip_seed_000014),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000015", pv_push_get_round_trip_seed_000015),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000016", pv_push_get_round_trip_seed_000016),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000017", pv_push_get_round_trip_seed_000017),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000018", pv_push_get_round_trip_seed_000018),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000019", pv_push_get_round_trip_seed_000019),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000020", pv_push_get_round_trip_seed_000020),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000021", pv_push_get_round_trip_seed_000021),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000022", pv_push_get_round_trip_seed_000022),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000023", pv_push_get_round_trip_seed_000023),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000024", pv_push_get_round_trip_seed_000024),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000025", pv_push_get_round_trip_seed_000025),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000026", pv_push_get_round_trip_seed_000026),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000027", pv_push_get_round_trip_seed_000027),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000028", pv_push_get_round_trip_seed_000028),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000029", pv_push_get_round_trip_seed_000029),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000030", pv_push_get_round_trip_seed_000030),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000031", pv_push_get_round_trip_seed_000031),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000032", pv_push_get_round_trip_seed_000032),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000033", pv_push_get_round_trip_seed_000033),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000034", pv_push_get_round_trip_seed_000034),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000035", pv_push_get_round_trip_seed_000035),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000036", pv_push_get_round_trip_seed_000036),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000037", pv_push_get_round_trip_seed_000037),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000038", pv_push_get_round_trip_seed_000038),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000039", pv_push_get_round_trip_seed_000039),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000040", pv_push_get_round_trip_seed_000040),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000041", pv_push_get_round_trip_seed_000041),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000042", pv_push_get_round_trip_seed_000042),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000043", pv_push_get_round_trip_seed_000043),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000044", pv_push_get_round_trip_seed_000044),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000045", pv_push_get_round_trip_seed_000045),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000046", pv_push_get_round_trip_seed_000046),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000047", pv_push_get_round_trip_seed_000047),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000048", pv_push_get_round_trip_seed_000048),
+        ("property_campaigns::tests::pv_push_get_round_trip_seed_000049", pv_push_get_round_trip_seed_000049),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000000", pv_push_indices_monotonic_seed_000000),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000001", pv_push_indices_monotonic_seed_000001),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000002", pv_push_indices_monotonic_seed_000002),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000003", pv_push_indices_monotonic_seed_000003),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000004", pv_push_indices_monotonic_seed_000004),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000005", pv_push_indices_monotonic_seed_000005),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000006", pv_push_indices_monotonic_seed_000006),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000007", pv_push_indices_monotonic_seed_000007),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000008", pv_push_indices_monotonic_seed_000008),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000009", pv_push_indices_monotonic_seed_000009),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000010", pv_push_indices_monotonic_seed_000010),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000011", pv_push_indices_monotonic_seed_000011),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000012", pv_push_indices_monotonic_seed_000012),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000013", pv_push_indices_monotonic_seed_000013),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000014", pv_push_indices_monotonic_seed_000014),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000015", pv_push_indices_monotonic_seed_000015),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000016", pv_push_indices_monotonic_seed_000016),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000017", pv_push_indices_monotonic_seed_000017),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000018", pv_push_indices_monotonic_seed_000018),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000019", pv_push_indices_monotonic_seed_000019),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000020", pv_push_indices_monotonic_seed_000020),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000021", pv_push_indices_monotonic_seed_000021),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000022", pv_push_indices_monotonic_seed_000022),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000023", pv_push_indices_monotonic_seed_000023),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000024", pv_push_indices_monotonic_seed_000024),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000025", pv_push_indices_monotonic_seed_000025),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000026", pv_push_indices_monotonic_seed_000026),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000027", pv_push_indices_monotonic_seed_000027),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000028", pv_push_indices_monotonic_seed_000028),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000029", pv_push_indices_monotonic_seed_000029),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000030", pv_push_indices_monotonic_seed_000030),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000031", pv_push_indices_monotonic_seed_000031),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000032", pv_push_indices_monotonic_seed_000032),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000033", pv_push_indices_monotonic_seed_000033),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000034", pv_push_indices_monotonic_seed_000034),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000035", pv_push_indices_monotonic_seed_000035),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000036", pv_push_indices_monotonic_seed_000036),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000037", pv_push_indices_monotonic_seed_000037),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000038", pv_push_indices_monotonic_seed_000038),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000039", pv_push_indices_monotonic_seed_000039),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000040", pv_push_indices_monotonic_seed_000040),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000041", pv_push_indices_monotonic_seed_000041),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000042", pv_push_indices_monotonic_seed_000042),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000043", pv_push_indices_monotonic_seed_000043),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000044", pv_push_indices_monotonic_seed_000044),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000045", pv_push_indices_monotonic_seed_000045),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000046", pv_push_indices_monotonic_seed_000046),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000047", pv_push_indices_monotonic_seed_000047),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000048", pv_push_indices_monotonic_seed_000048),
+        ("property_campaigns::tests::pv_push_indices_monotonic_seed_000049", pv_push_indices_monotonic_seed_000049),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000000", pv_get_out_of_bounds_seed_000000),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000001", pv_get_out_of_bounds_seed_000001),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000002", pv_get_out_of_bounds_seed_000002),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000003", pv_get_out_of_bounds_seed_000003),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000004", pv_get_out_of_bounds_seed_000004),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000005", pv_get_out_of_bounds_seed_000005),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000006", pv_get_out_of_bounds_seed_000006),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000007", pv_get_out_of_bounds_seed_000007),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000008", pv_get_out_of_bounds_seed_000008),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000009", pv_get_out_of_bounds_seed_000009),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000010", pv_get_out_of_bounds_seed_000010),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000011", pv_get_out_of_bounds_seed_000011),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000012", pv_get_out_of_bounds_seed_000012),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000013", pv_get_out_of_bounds_seed_000013),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000014", pv_get_out_of_bounds_seed_000014),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000015", pv_get_out_of_bounds_seed_000015),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000016", pv_get_out_of_bounds_seed_000016),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000017", pv_get_out_of_bounds_seed_000017),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000018", pv_get_out_of_bounds_seed_000018),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000019", pv_get_out_of_bounds_seed_000019),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000020", pv_get_out_of_bounds_seed_000020),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000021", pv_get_out_of_bounds_seed_000021),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000022", pv_get_out_of_bounds_seed_000022),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000023", pv_get_out_of_bounds_seed_000023),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000024", pv_get_out_of_bounds_seed_000024),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000025", pv_get_out_of_bounds_seed_000025),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000026", pv_get_out_of_bounds_seed_000026),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000027", pv_get_out_of_bounds_seed_000027),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000028", pv_get_out_of_bounds_seed_000028),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000029", pv_get_out_of_bounds_seed_000029),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000030", pv_get_out_of_bounds_seed_000030),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000031", pv_get_out_of_bounds_seed_000031),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000032", pv_get_out_of_bounds_seed_000032),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000033", pv_get_out_of_bounds_seed_000033),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000034", pv_get_out_of_bounds_seed_000034),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000035", pv_get_out_of_bounds_seed_000035),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000036", pv_get_out_of_bounds_seed_000036),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000037", pv_get_out_of_bounds_seed_000037),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000038", pv_get_out_of_bounds_seed_000038),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000039", pv_get_out_of_bounds_seed_000039),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000040", pv_get_out_of_bounds_seed_000040),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000041", pv_get_out_of_bounds_seed_000041),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000042", pv_get_out_of_bounds_seed_000042),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000043", pv_get_out_of_bounds_seed_000043),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000044", pv_get_out_of_bounds_seed_000044),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000045", pv_get_out_of_bounds_seed_000045),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000046", pv_get_out_of_bounds_seed_000046),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000047", pv_get_out_of_bounds_seed_000047),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000048", pv_get_out_of_bounds_seed_000048),
+        ("property_campaigns::tests::pv_get_out_of_bounds_seed_000049", pv_get_out_of_bounds_seed_000049),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000000", pv_link_clause_then_reverse_map_seed_000000),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000001", pv_link_clause_then_reverse_map_seed_000001),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000002", pv_link_clause_then_reverse_map_seed_000002),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000003", pv_link_clause_then_reverse_map_seed_000003),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000004", pv_link_clause_then_reverse_map_seed_000004),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000005", pv_link_clause_then_reverse_map_seed_000005),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000006", pv_link_clause_then_reverse_map_seed_000006),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000007", pv_link_clause_then_reverse_map_seed_000007),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000008", pv_link_clause_then_reverse_map_seed_000008),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000009", pv_link_clause_then_reverse_map_seed_000009),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000010", pv_link_clause_then_reverse_map_seed_000010),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000011", pv_link_clause_then_reverse_map_seed_000011),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000012", pv_link_clause_then_reverse_map_seed_000012),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000013", pv_link_clause_then_reverse_map_seed_000013),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000014", pv_link_clause_then_reverse_map_seed_000014),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000015", pv_link_clause_then_reverse_map_seed_000015),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000016", pv_link_clause_then_reverse_map_seed_000016),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000017", pv_link_clause_then_reverse_map_seed_000017),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000018", pv_link_clause_then_reverse_map_seed_000018),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000019", pv_link_clause_then_reverse_map_seed_000019),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000020", pv_link_clause_then_reverse_map_seed_000020),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000021", pv_link_clause_then_reverse_map_seed_000021),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000022", pv_link_clause_then_reverse_map_seed_000022),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000023", pv_link_clause_then_reverse_map_seed_000023),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000024", pv_link_clause_then_reverse_map_seed_000024),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000025", pv_link_clause_then_reverse_map_seed_000025),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000026", pv_link_clause_then_reverse_map_seed_000026),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000027", pv_link_clause_then_reverse_map_seed_000027),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000028", pv_link_clause_then_reverse_map_seed_000028),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000029", pv_link_clause_then_reverse_map_seed_000029),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000030", pv_link_clause_then_reverse_map_seed_000030),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000031", pv_link_clause_then_reverse_map_seed_000031),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000032", pv_link_clause_then_reverse_map_seed_000032),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000033", pv_link_clause_then_reverse_map_seed_000033),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000034", pv_link_clause_then_reverse_map_seed_000034),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000035", pv_link_clause_then_reverse_map_seed_000035),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000036", pv_link_clause_then_reverse_map_seed_000036),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000037", pv_link_clause_then_reverse_map_seed_000037),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000038", pv_link_clause_then_reverse_map_seed_000038),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000039", pv_link_clause_then_reverse_map_seed_000039),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000040", pv_link_clause_then_reverse_map_seed_000040),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000041", pv_link_clause_then_reverse_map_seed_000041),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000042", pv_link_clause_then_reverse_map_seed_000042),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000043", pv_link_clause_then_reverse_map_seed_000043),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000044", pv_link_clause_then_reverse_map_seed_000044),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000045", pv_link_clause_then_reverse_map_seed_000045),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000046", pv_link_clause_then_reverse_map_seed_000046),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000047", pv_link_clause_then_reverse_map_seed_000047),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000048", pv_link_clause_then_reverse_map_seed_000048),
+        ("property_campaigns::tests::pv_link_clause_then_reverse_map_seed_000049", pv_link_clause_then_reverse_map_seed_000049),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000000", pv_empty_core_empty_diagnostics_seed_000000),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000001", pv_empty_core_empty_diagnostics_seed_000001),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000002", pv_empty_core_empty_diagnostics_seed_000002),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000003", pv_empty_core_empty_diagnostics_seed_000003),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000004", pv_empty_core_empty_diagnostics_seed_000004),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000005", pv_empty_core_empty_diagnostics_seed_000005),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000006", pv_empty_core_empty_diagnostics_seed_000006),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000007", pv_empty_core_empty_diagnostics_seed_000007),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000008", pv_empty_core_empty_diagnostics_seed_000008),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000009", pv_empty_core_empty_diagnostics_seed_000009),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000010", pv_empty_core_empty_diagnostics_seed_000010),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000011", pv_empty_core_empty_diagnostics_seed_000011),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000012", pv_empty_core_empty_diagnostics_seed_000012),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000013", pv_empty_core_empty_diagnostics_seed_000013),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000014", pv_empty_core_empty_diagnostics_seed_000014),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000015", pv_empty_core_empty_diagnostics_seed_000015),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000016", pv_empty_core_empty_diagnostics_seed_000016),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000017", pv_empty_core_empty_diagnostics_seed_000017),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000018", pv_empty_core_empty_diagnostics_seed_000018),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000019", pv_empty_core_empty_diagnostics_seed_000019),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000020", pv_empty_core_empty_diagnostics_seed_000020),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000021", pv_empty_core_empty_diagnostics_seed_000021),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000022", pv_empty_core_empty_diagnostics_seed_000022),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000023", pv_empty_core_empty_diagnostics_seed_000023),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000024", pv_empty_core_empty_diagnostics_seed_000024),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000025", pv_empty_core_empty_diagnostics_seed_000025),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000026", pv_empty_core_empty_diagnostics_seed_000026),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000027", pv_empty_core_empty_diagnostics_seed_000027),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000028", pv_empty_core_empty_diagnostics_seed_000028),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000029", pv_empty_core_empty_diagnostics_seed_000029),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000030", pv_empty_core_empty_diagnostics_seed_000030),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000031", pv_empty_core_empty_diagnostics_seed_000031),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000032", pv_empty_core_empty_diagnostics_seed_000032),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000033", pv_empty_core_empty_diagnostics_seed_000033),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000034", pv_empty_core_empty_diagnostics_seed_000034),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000035", pv_empty_core_empty_diagnostics_seed_000035),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000036", pv_empty_core_empty_diagnostics_seed_000036),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000037", pv_empty_core_empty_diagnostics_seed_000037),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000038", pv_empty_core_empty_diagnostics_seed_000038),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000039", pv_empty_core_empty_diagnostics_seed_000039),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000040", pv_empty_core_empty_diagnostics_seed_000040),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000041", pv_empty_core_empty_diagnostics_seed_000041),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000042", pv_empty_core_empty_diagnostics_seed_000042),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000043", pv_empty_core_empty_diagnostics_seed_000043),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000044", pv_empty_core_empty_diagnostics_seed_000044),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000045", pv_empty_core_empty_diagnostics_seed_000045),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000046", pv_empty_core_empty_diagnostics_seed_000046),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000047", pv_empty_core_empty_diagnostics_seed_000047),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000048", pv_empty_core_empty_diagnostics_seed_000048),
+        ("property_campaigns::tests::pv_empty_core_empty_diagnostics_seed_000049", pv_empty_core_empty_diagnostics_seed_000049),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
