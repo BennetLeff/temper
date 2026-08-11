@@ -16,6 +16,7 @@ pub mod encoding;
 pub mod esl;
 pub mod extraction;
 pub mod loop_extractor;
+pub mod property_campaigns;
 pub mod provenance;
 pub mod pruning;
 pub mod theta_star;
