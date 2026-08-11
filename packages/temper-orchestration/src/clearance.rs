@@ -615,25 +615,29 @@ pub fn classify_domain_partition_py(
 /// `isolation_barrier._project_onto_barrier_axis`: the exact hand-unrolled
 /// integer-only 4-rotation table (see the Python module docstring — the
 /// `math.cos`/`sin` route is deliberately NOT used at exact 90-degree
-/// multiples).
+/// multiples). A rotation outside 0..=3 raises `KeyError`, exactly like the
+/// pre-migration `{0: ..., 1: ..., 2: ..., 3: ...}[rot_value]` table.
 #[pyfunction]
 pub fn project_onto_barrier_axis_py(
     local_x: f64,
     local_y: f64,
     rot_value: i64,
     barrier_axis: i64,
-) -> f64 {
+) -> PyResult<f64> {
+    project_onto_barrier_axis_impl(local_x, local_y, rot_value, barrier_axis)
+        .ok_or_else(|| PyKeyError::new_err(rot_value))
+}
+
+/// The pure 4-rotation table; `None` for a rotation outside 0..=3.
+fn project_onto_barrier_axis_impl(local_x: f64, local_y: f64, rot_value: i64, barrier_axis: i64) -> Option<f64> {
     let (gx, gy) = match rot_value {
+        0 => (local_x, local_y),
         1 => (local_y, -local_x),
         2 => (-local_x, -local_y),
         3 => (-local_y, local_x),
-        _ => (local_x, local_y),
+        _ => return None,
     };
-    if barrier_axis == 0 {
-        gx
-    } else {
-        gy
-    }
+    Some(if barrier_axis == 0 { gx } else { gy })
 }
 
 /// `isolation_barrier.evaluate_isolator_feasibility`: the true achievable
@@ -1036,7 +1040,17 @@ mod tests {
             (1.0, 2.0, 3, 1, 1.0),
         ];
         for (x, y, rot, axis, want) in cases {
-            assert_eq!(project_onto_barrier_axis_py(x, y, rot, axis), want);
+            assert_eq!(project_onto_barrier_axis_impl(x, y, rot, axis), Some(want));
+        }
+    }
+
+    #[test]
+    fn project_onto_barrier_axis_out_of_range_is_none() {
+        // The pre-migration `{...}[rot_value]` dict raises KeyError for a
+        // rotation outside 0..=3 — the port must not silently fall back to
+        // rot=0.
+        for rot in [-1, 4, 5, 100] {
+            assert_eq!(project_onto_barrier_axis_impl(1.0, 2.0, rot, 0), None);
         }
     }
 

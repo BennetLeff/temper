@@ -41,7 +41,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import temper_constraints as _tc
-import temper_drc_rs as _tdrc
 import temper_geometry as _tg
 
 from temper_placer.core.net_types import VoltageClass

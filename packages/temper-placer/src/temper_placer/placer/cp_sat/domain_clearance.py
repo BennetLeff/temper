@@ -339,7 +339,7 @@ def generate_domain_clearance_constraints(
     stay single-source in temper-drc-rs.
     """
     rows = _matrix_rows()
-    refs = list(component_refs) if component_refs is not None else None
+    refs = sorted(component_refs) if component_refs is not None else None
     out = _to.domain_clearance_constraints_py(placement, voltage_domains, rows, refs)
 
     constraints: list[SeparatedConstraint] = [
@@ -460,7 +460,10 @@ def generate_unclassified_hv_keepaway_constraints(
     margin = margin_mm if margin_mm is not None else MAX_IEC_MARGIN_MM
 
     exempt_flat: list[tuple[str, str]] = []
-    for pair in exempt:
+    # Deterministic iteration (the hash-order gate): the frozensets are
+    # sorted by their (sorted) elements so PYTHONHASHSEED cannot leak into
+    # the flattened pair list. The Rust side only tests membership.
+    for pair in sorted(exempt, key=lambda fs: tuple(sorted(fs))):
         items = sorted(pair)
         if len(items) == 1:
             exempt_flat.append((items[0], items[0]))
@@ -471,9 +474,9 @@ def generate_unclassified_hv_keepaway_constraints(
     out = _to.keepaway_constraints_py(
         placement,
         voltage_domains,
-        list(component_refs),
+        sorted(component_refs),
         exempt_flat,
-        [d.value for d in domains],
+        [d.value for d in sorted(domains, key=lambda d: d.value)],
         margin,
     )
     return [
@@ -547,7 +550,7 @@ def find_intra_footprint_domain_conflicts(
     members).
     """
     rows = _matrix_rows()
-    refs = list(component_refs) if component_refs is not None else None
+    refs = sorted(component_refs) if component_refs is not None else None
     out = _to.intra_footprint_conflicts_py(placement, voltage_domains, rows, refs)
     return [
         IntraFootprintDomainConflict(

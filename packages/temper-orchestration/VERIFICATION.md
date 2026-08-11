@@ -2180,3 +2180,153 @@ argued in-source and above):
 | U8 contracts differential (oracle: `explain_oracle/{decision,trace,markdown_report}_oracle.py`) | `packages/temper-placer/tests/explainability/test_explainability_contracts_rust_differential.py` | 23 |
 | U8 PBT + metamorphic (P1..P6, MR1..MR4, mutation-guarded) | `packages/temper-placer/tests/explainability/test_explainability_contracts_pbt.py` | 20 |
 | pre-existing explainability suites (Wave-4 differentials/PBT/extra, now driving the pyclasses) | `packages/temper-placer/tests/explainability/` | 138 |
+
+## Rust orchestration engine — Phase E batch E3 (clearance-family stages)
+
+Rust Orchestration Engine plan 2026-08-09-001 Phase E E3: the five
+clearance-family modules' ORCHESTRATION moves to `src/clearance.rs` as
+`Stage<BoardState>` impls plus the pyfunction FFI surface the router_v6 /
+cp_sat shims delegate to. The pre-migration orchestration is pinned VERBATIM
+as `tests/router_v6/_clearance_family_py_oracle.py` (byte-exact snapshot at
+the dispatch base, content-hash pinned in `scripts/oracle_hashes.json` AND
+by the differential's own body digest).
+
+### The Python-side split (what stays, with evidence)
+
+- **`clearance_engine.get_clearance`** — `clearance::get_clearance_py`: the
+  five-standard candidates, the conservative max and the IEC 60664-1
+  internal-layer reduction. The leaf tables stay single-source in
+  temper-geometry (`safety_distances_py` / `net_class_to_voltage_class_py` /
+  `calculate_required_creepage_py`) and the `VoltageClass`
+  `get_clearance_mm`/`get_creepage_mm` methods stay on the design-bundle
+  pyclass, all driven through FFI; `calculate_safety_distances`,
+  `SafetyDistances`, the `VoltageClass` enum mapping and the private
+  keyword/class helpers stay Python.
+- **`creepage_check.verify_creepage`** — `clearance::run_creepage_check`:
+  the HV-net pair loop, the required-distance decision (default override or
+  the IPC-2221 kernel) and the per-pair min-clearance sweep. The duck-typed
+  route extraction (`_extract_segments`) and the report construction stay
+  Python; the shim preserves the pre-migration LAZY contract — a board with
+  no HV net reports zero checks without inspecting any route (pinned by
+  `test_empty_data_edge_cases`). `_find_clearance_violations` and the
+  geometry delegations stay (differential-test API).
+- **`clearance_check.verify_clearance`** — `clearance::run_clearance_check`:
+  the production rust path (min-clearance validation with CPython float
+  repr, the temper-drc-rs `verify_route_clearance` delegation, the
+  `total_checks` accounting). The pure-Python reference
+  (`_verify_clearance_python` + its geometry helpers) stays Python as the
+  `backend="python"` oracle; `_route_to_rust_tuple`/`_all_routes`
+  marshalling and the report construction stay.
+- **`isolation_barrier`** — `clearance::classify_domain_partition_py` /
+  `project_onto_barrier_axis_py` / `evaluate_isolator_feasibility_py`: the
+  component partition (exact-name pin-net membership, never substring), the
+  integer 4-rotation table (out-of-range rotation raises KeyError exactly
+  like the pre-migration dict) and the isolator feasibility assembly over
+  the temper-geometry axis-gap / best-rotation kernels. The ortools
+  `add_isolation_barrier_to_model` wiring stays Python untouched (plan D4
+  boundary); `compute_pad_groups`, the `Pad`/`IsolatorPadGroups` dataclasses
+  and `_pad_tuple` marshalling stay.
+- **`domain_clearance`** — `clearance::domain_clearance_constraints_py` /
+  `keepaway_constraints_py` / `intra_footprint_conflicts_py` /
+  `audit_domain_clearance_py`: the IEC60335_REQUIREMENTS matrix walk, the
+  (a, b) canonicalization + margin/reason dedup, the sorted emission, the
+  keep-away and intra-footprint walks and the R24 post-solve audit. The
+  matrix stays the Python SSOT (marshalled once per call via the shim's
+  `_matrix_rows`); the pairing/domain kernels stay single-source in
+  temper-drc-rs (`req_safe_01_*`); the `SeparatedConstraint` construction
+  and the logging stay Python (pcl is Python-owned; the `because` reason
+  strings render through CPython `str.format` from Rust, bit-exact).
+
+### Structural proof (bit-identical parity)
+
+- **Kernel reuse**: every geometry/table/margin kernel is the pinned
+  temper-geometry / temper-drc-rs / temper-constraints function driven
+  through FFI — the same kernels the oracle calls, so the orchestration
+  differential inherits the existing bit-exact kernel proofs.
+- **Reason-string fidelity**: `because` strings embed floats (`{margin}mm`,
+  `clearance={...}mm`); Rust renders them via CPython `str.format` (the
+  `py_format` helper), so `4.0` renders `"4.0"` — Rust `format!("{}")`
+  would render `"4"`.
+- **Python-max semantics**: `get_clearance`'s conservative max is a
+  first-maximum fold (`x > best`), never Rust `f64::max` (NaN semantics
+  differ); a NaN-voltage board degrades to the 0.5 mm safe default exactly
+  like the Python `if not candidates`.
+- **Eager/lazy fidelity**: `run_creepage_check` receives segments only for
+  the routes the pre-migration pair loop would have touched (the shim
+  marshals lazily when no HV net exists), and `run_clearance_check` keeps
+  the `min_clearance` NaN/inf `ValueError` message byte-identical (CPython
+  `repr`).
+- **KeyError table**: `project_onto_barrier_axis_py` raises `KeyError` for a
+  rotation outside 0..=3 (the pre-migration `{...}[rot]` dict), pinned by
+  the metamorphic companion and the Rust unit tests.
+
+### Empirical Verification
+
+- **Differential suite**: `test_clearance_family_rust_differential.py` (72
+  tests, all green) — the oracle is content-hash-pinned; the shims bind to
+  `temper_orchestration` pyfunctions (anti-vacuity assert), the oracle stays
+  pure Python. `get_clearance` is compared bit-exact (`float.hex()`) over
+  25x40 randomized net-class/voltage/layer/design-rule cases incl. NaN;
+  `verify_creepage` field-by-field over deterministic + 15 randomized route
+  sets incl. the default-creepage override; `verify_clearance`'s rust path
+  against the pure-Python reference over deterministic + 10 randomized
+  route sets; isolation-barrier partition/feasibility/rotation table
+  field-by-field; domain-clearance generator/keep-away/conflicts/audit
+  field-by-field incl. the `component_refs` filter, exempt pairs and the
+  missing-position NaN case.
+- **PBT suite**: `test_clearance_family_rust_pbt.py` (14 tests, all green) —
+  seven non-vacuous properties (P1 design-rule-candidate absorption, P2
+  internal-layer exact factor, P3 creepage lazy contract, P4 creepage
+  threshold monotonicity, P5 clearance C(n,2) pair accounting, P6 partition
+  totals/disjointness, P7 audit soundness), each with a discriminating
+  vacuity guard.
+- **Metamorphic suite**: `test_clearance_family_rust_metamorphic.py` (11
+  tests, all green) — five relations (MR1 engine symmetry, MR2 threshold
+  superset, MR3 partition ref covariance, MR4 audit monotone in separation,
+  MR5 rotation table in-domain + out-of-domain KeyError), each with a
+  discriminating companion.
+- **Runner suite**: `tests/e3_stages_runner.rs` (4 tests, all green) — the
+  five E3 stages sequence through `PipelineRunner<BoardState>` in
+  declaration order, every `run()` completes without panicking (guarded
+  identity on empty payloads; the FFI kernels are exercised by the Python
+  differential), and the read-only stages preserve the state.
+- **Consumer suites**: the full pre-existing clearance-family surface stays
+  green with the delegating shims — `test_clearance_check.py`,
+  `test_creepage_check.py`, `test_isolation_barrier.py`,
+  `test_domain_clearance.py`, the rust-kernel differentials
+  (`test_clearance_rust_differential.py`,
+  `test_creepage_check_rust_differential.py`,
+  `test_isolation_barrier_rust_differential.py`,
+  `test_domain_clearance_dist_rust_differential.py`),
+  `test_via_clearance_tier2_rust_differential.py` / `_pbt.py`,
+  `test_clearance_boundary.py` / `test_creepage_boundary.py`,
+  `test_creepage_properties.py` / `test_creepage_geometry_pbt.py`,
+  `test_empty_data_edge_cases.py` (the lazy-contract pin),
+  `test_manufacturing_report*.py` / `test_manufacturing_drc_integration.py`,
+  `test_validator_audit.py`, `test_router_v6_drc_invariants_pbt.py`,
+  `test_encoder_rust_differential.py` — all green.
+- **Rust unit tests**: `clearance.rs` carries `#[cfg(test)]` unit tests
+  (the rotation table + out-of-range, the partition buckets + substring
+  anti-match); like every pyo3-gated module here they compile under
+  `--features python` only, so the Python differential is the authoritative
+  gate.
+- **Clippy**: `cargo clippy --all-features --all-targets -- -D warnings` —
+  clean.
+- **Wiring**: `check_unwired_kernels.py` reports no new unwired kernel
+  (`dist_py` is ledgered as wired-from-Rust-FFI, the E3 delegation boundary;
+  every other kernel's Python delegation wrapper stays).
+- **G6 induction** — N/A: every migrated orchestration is a bounded loop
+  nest over board/route/component inputs with size-independent per-step
+  operations; the R24 post-solve audit is a linear scan with a fixed
+  comparison.
+- **G8 physics discipline** — N/A for the migrated orchestration: it
+  assembles/counts/computes from already-physics-gated values (the
+  clearance/creepage requirement tables were physics-gated when the kernels
+  landed; their R24 proofs live with the kernels and the validator). The
+  `domain_clearance` soundness proof is unchanged and lives in the module
+  docstring (R24 item 1) — the encoded `SeparatedConstraint` margin is the
+  matrix value, only the walk moved to Rust.
+- **R1g Rust bar**: every `#[pyfunction]` body is wrapped in `catch_unwind`
+  by pyo3's macro expansion (the crate sets `profile.release.panic =
+  "unwind"`); the `Stage` run() bodies run under `stage_guard`; no
+  `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).

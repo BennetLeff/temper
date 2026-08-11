@@ -233,7 +233,7 @@ def classify_domain_partition(
     """
     marshalled = [(c.ref, [p.net for p in c.pins]) for c in components]
     hv_only, selv_only, isolators, unclassified = _to.classify_domain_partition_py(
-        marshalled, list(hv_nets), list(selv_nets)
+        marshalled, sorted(hv_nets), sorted(selv_nets)
     )
     return DomainPartition(
         hv_only=hv_only,
