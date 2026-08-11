@@ -1,4 +1,4 @@
-<!-- provenance: commit=753da757781f227019c4ef95a4508ed320de7051 dirty=true (working tree carries this task's own uncommitted tools/wasm/ changes at authoring time; committed in the same PR this document ships in) -->
+<!-- provenance: commit=0c7e74324e4d7ddda52b7ac97c30c8ab0d3ce6ea dirty=false (the fault-injection results in this document were measured against tools/wasm/sweep_durability.mjs, sweep_multi_worker.mjs and test_sweep_durability.mjs exactly as committed here) -->
 
 # WASM tier — R22/R23 result durability, implemented and fault-injected
 
