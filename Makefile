@@ -226,10 +226,16 @@ extensions-check:
 # in docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md.
 #
 #   make wasm-runner         # build the full-corpus .wasm only
-#   make wasm-worker-stage   # build ALL EIGHT .wasm into packages/temper-worker/src/
-#   make wasm-worker-deploy  # stage, then `wrangler deploy` all 8 Workers
+#   make wasm-worker-stage   # build EVERY .wasm into packages/temper-worker/src/
+#   make wasm-worker-deploy  # stage, then `wrangler deploy` every Worker
 #                            # (HUMAN step: requires a Cloudflare account +
 #                            # login/token with Workers Scripts:Edit)
+#
+# "Every" is defined by tools/wasm/wasm_tier_topology.json, not by a list in
+# this file. Nine Workers today across two tiers (temper-drc-rs: temper-wasm-
+# tier + 7 family shards; temper-geometry: temper-wasm-geometry). This target
+# used to carry its own copy of the family list, which is bug #2 below repeating
+# itself one crate later — the whole reason that file exists.
 #
 # CI equivalent, and the preferred path: the `workflow_dispatch`-only workflow
 # .github/workflows/wasm-tier-deploy.yml runs exactly these steps and then
@@ -248,7 +254,7 @@ extensions-check:
 #     flag bug wasm-tier-nightly.yml's build step already carries a comment
 #     about; the Makefile copy of it was never fixed.
 #  2. `wasm-worker-stage` staged ONE module. `packages/temper-worker/src/
-#     index.js` imports all eight, so a deploy from that state cannot bundle.
+#     index.js` imports all of them, so a deploy from that state cannot bundle.
 #     Worse, the seven per-family Workers -- the ones the tier actually
 #     dispatches -- were not built or deployed by this path at all, which is
 #     exactly how shards go stale while the full corpus looks current.
@@ -264,7 +270,7 @@ extensions-check:
 WASM_RUNNER_MANIFEST = packages/temper-wasm-test-runner/Cargo.toml
 WASM_RUNNER_ARTIFACT = $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/temper_wasm_test_runner.wasm
 WORKER_STAGED_WASM = packages/temper-worker/src/temper_wasm_test_runner.wasm
-WASM_FAMILIES = drc emc erc safety placement routing infra
+WORKER_GEOMETRY_STAGED_WASM = packages/temper-worker/src/temper_wasm_test_runner_geometry.wasm
 
 wasm-runner:
 	@echo "Building temper-wasm-test-runner (wasm32-unknown-unknown)..."
@@ -289,23 +295,32 @@ wasm-geometry-test:
 		--expected-failures tools/wasm/wasm_expected_failures_geometry.json
 
 # Delegates to the committed staging script rather than duplicating its build
-# matrix: one definition of "what the eight modules are", shared by this
-# target, the deploy workflow, and the runbook.
+# matrix: one definition of "what the modules are", shared by this target, the
+# deploy workflow, and the runbook. That script reads
+# tools/wasm/wasm_tier_topology.json.
 wasm-worker-stage:
 	bash scripts/stage_wasm_families.sh
 	@echo "Local smoke test:  node tools/wasm/worker_local_server.mjs"
 
+# The deploy list is read from the topology for the same reason. `< /dev/null`
+# on wrangler so it cannot consume the loop's stdin and end the loop early,
+# leaving a partial deploy that reports success.
 wasm-worker-deploy: wasm-worker-stage
-	@echo "Deploying 8 Workers to Cloudflare (requires account + login/token)..."
-	@for f in $(WASM_FAMILIES); do \
-		echo "=== deploy temper-wasm-$$f ==="; \
-		(cd packages/temper-worker/families/$$f && npx --yes wrangler@4 deploy) || exit 1; \
-	done
-	@echo "=== deploy temper-wasm-tier (full corpus) ==="
-	cd packages/temper-worker && npx --yes wrangler@4 deploy
+	@echo "Deploying every Worker in tools/wasm/wasm_tier_topology.json to Cloudflare (requires account + login/token)..."
+	@node -e 'import("./tools/wasm/tier_topology.mjs").then(({loadTopology,deployTargets})=>{for(const d of deployTargets(loadTopology()))console.log(d.script+"\t"+d.wrangler_dir);}).catch(e=>{console.error(e.message);process.exit(1);})' > /tmp/temper_deploy_targets.tsv
+	@test -s /tmp/temper_deploy_targets.tsv
+	@while IFS=$$'\t' read -r script dir; do \
+		echo "=== deploy $$script ($$dir) ==="; \
+		(cd $$dir && npx --yes wrangler@4 deploy < /dev/null) || exit 1; \
+	done < /tmp/temper_deploy_targets.tsv
 	@echo "Verifying the deployed corpus matches what was just built..."
 	node tools/wasm/run_wasm_tests.mjs $(WORKER_STAGED_WASM) --json /tmp/staged_census.json
-	node tools/wasm/check_deployed_freshness.mjs --built-json /tmp/staged_census.json
+	node tools/wasm/run_wasm_tests.mjs $(WORKER_GEOMETRY_STAGED_WASM) \
+		--expected-failures tools/wasm/wasm_expected_failures_geometry.json \
+		--json /tmp/staged_census_geometry.json
+	node tools/wasm/check_deployed_freshness.mjs \
+		--built-json /tmp/staged_census.json \
+		--built-json-geometry /tmp/staged_census_geometry.json
 
 # Regenerate every derived artifact, refusing where regeneration would hide a
 # defect (a hash-order NEW_SITE, or a drifted oracle pin). Run before pushing:

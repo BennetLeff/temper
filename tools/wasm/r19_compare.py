@@ -36,6 +36,23 @@ def parse_native_output(lines: list[str]) -> list[dict[str, str]]:
         test pymath::tests::host_libm_symbols_actually_resolve ... ok
 
     We strip the leading ``test `` and map ``ok`` / ``FAILED`` to ``pass`` / ``fail``.
+
+    ``#[should_panic]`` tests are rendered by libtest with a decorated name::
+
+        test smooth::tests::test_smooth_max_pair_mismatched_lengths - should panic ... ok
+
+    That suffix is part of libtest's presentation, not of the test's path, and it
+    must be stripped or the name never joins against the wasm32 registry (which
+    records the bare module path). Left unstripped, such a test appears as BOTH
+    ``native_only`` (under the decorated name) and ``wasm32_only`` (under the
+    real one) -- and since ``run_comparison`` only consults the expected-failure
+    manifest for names present on both sides, its verdict is then compared
+    against nothing and an ``unexpected-pass`` on it cannot fail
+    ``--fail-on-disagree``. temper-drc-rs has no ``#[should_panic]`` tests in its
+    registry, which is why this went unnoticed; temper-geometry has four, and
+    all four are manifest entries whose entire remaining value on wasm32 IS the
+    bidirectional gate (a trap is indistinguishable from a real failure there,
+    so "it stopped panicking" is the only thing left to detect).
     """
     results: list[dict[str, str]] = []
     for line in lines:
@@ -48,6 +65,8 @@ def parse_native_output(lines: list[str]) -> list[dict[str, str]]:
             continue
         name, raw_status = parts
         name = name.strip()
+        if name.endswith(" - should panic"):
+            name = name[: -len(" - should panic")]
         raw_status = raw_status.strip()
         if raw_status == "ok":
             status = "pass"
@@ -72,6 +91,7 @@ def run_comparison(
     expected_failures: dict[str, dict[str, str]],
     commit_sha: str,
     board_sha256: str | None = None,
+    expected_failures_path: str = "tools/wasm/wasm_expected_failures.json",
 ) -> dict[str, Any]:
     """Join native and wasm32 results on test name and produce the comparison matrix.
 
@@ -204,7 +224,13 @@ def run_comparison(
             "native_only_detail": native_only,
             "wasm32_only_detail": wasm32_only,
         },
-        "expected_failure_manifest": "tools/wasm/wasm_expected_failures.json",
+        # The manifest ACTUALLY used, not a constant. There are now two
+        # (tools/wasm/wasm_expected_failures.json for temper-drc-rs,
+        # ..._geometry.json for temper-geometry), so a matrix that always named
+        # the first would mislabel every temper-geometry comparison -- and this
+        # field's only job is telling a reader which exclusions were in force
+        # when the verdicts below were classified.
+        "expected_failure_manifest": expected_failures_path,
     }
 
 
@@ -270,7 +296,12 @@ def main() -> int:
 
     # Run comparison
     matrix = run_comparison(
-        native_results, wasm_results, expected_failures, args.commit, args.board_sha256
+        native_results,
+        wasm_results,
+        expected_failures,
+        args.commit,
+        args.board_sha256,
+        args.expected_failures,
     )
 
     with open(args.output, "w") as f:
