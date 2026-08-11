@@ -9,11 +9,32 @@ name = "temper_constraints"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-pyo3 = { version = "0.29", features = ["extension-module"] }
+pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
 nalgebra = "0.33"
 rayon = "1.10"
 serde = { version = "1", features = ["derive"] }
 temper-pcl-ir = { path = "../../temper-pcl-ir" }
+
+[features]
+default = ["python"]
+python = ["dep:pyo3"]
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index -- `cargo test`'s libtest harness cannot
+# target `wasm32-unknown-unknown`.  Off by default; never enabled for the
+# Python extension module.  Mirrors `temper-io-types`/`temper-quality-oracle`'s
+# feature set exactly, so the shared runner wires every crate on the tier the
+# same way.
+#
+# `wasm-registry` is the umbrella feature that gates module visibility; every
+# per-family feature implies it.  The three surviving modules (`loss`,
+# `encoder`, `ipc`) are a flat set of pure loss/geometry/ampacity kernels with
+# no rule-family taxonomy to shard along, so this crate declares one family
+# (`constraints`).
+wasm-registry = []
+wasm-registry-constraints = ["wasm-registry"]
+wasm-registry-all = ["wasm-registry-constraints"]
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 
 [profile.release]
 panic = "unwind"
