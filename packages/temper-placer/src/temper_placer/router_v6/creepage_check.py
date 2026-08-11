@@ -16,8 +16,12 @@ Validates clearance distances for high-voltage isolation.
 The pure geometry (point/segment distance, segment intersection,
 same-layer min-clearance aggregation, the IPC-2221 voltage table, and
 the HV-net word-boundary classifier) lives in the ``temper-geometry``
-Rust crate (``creepage_check.rs``); route extraction and the per-net
-report orchestration stay here.
+Rust crate (``creepage_check.rs``). Phase E batch E3 (plan 2026-08-09-001)
+moved the ``verify_creepage`` orchestration — the HV-net pair loop, the
+required-distance decision and the per-pair min-clearance sweep — to
+``temper-orchestration``'s ``clearance::run_creepage_check``
+(the ``CreepageCheckStage``); the duck-typed route extraction
+(:func:`_extract_segments`) and the report construction stay here.
 
 Part of temper-ytm8 (Stage 5 - Manufacturing DRC)
 """
@@ -28,6 +32,7 @@ import math
 from dataclasses import dataclass
 
 import temper_geometry as _tg
+import temper_orchestration as _to
 
 from temper_placer.router_v6._check_report_base import BaseCheckReport
 from temper_placer.router_v6.routing_results import RoutingResults
@@ -106,10 +111,14 @@ def verify_creepage(
         >>> report = verify_creepage(results)
         >>> report.violation_count >= 0
         True
-    """
-    violations: list[CreepageViolation] = []
-    total_checks = 0
 
+    Phase E batch E3 (plan 2026-08-09-001): the pair-loop orchestration runs
+    in ``temper-orchestration``'s ``run_creepage_check`` (the
+    ``CreepageCheckStage``). The routes are marshalled to ``(net,
+    segments)`` pairs here (:func:`_extract_segments` — the duck-typed route
+    extraction stays Python); the flat violations returned are wrapped in
+    the ``CreepageViolation``/``CreepageReport`` dataclasses unchanged.
+    """
     if voltage_ratings is None:
         voltage_ratings = {}
 
@@ -118,35 +127,29 @@ def verify_creepage(
     ):
         raise ValueError(f"default_creepage must be a finite number, got {default_creepage!r}")
 
-    # Identify every HV net
-    hv_nets = [net for net in routing_results.compiled_routes if _is_high_voltage_net(net)]
-
-    for hv_net in hv_nets:
-        hv_route = routing_results.compiled_routes[hv_net]
-
-        for other_net, other_route in routing_results.compiled_routes.items():
-            if other_net == hv_net:
-                continue
-
-            total_checks += 1
-
-            # ---- required distance -----------------------------------
-            if default_creepage is not None:
-                required_distance = default_creepage
-            else:
-                hv_voltage = voltage_ratings.get(hv_net, 230.0)
-                required_distance = _calculate_required_creepage(hv_voltage)
-
-            # ---- find *all* violating segment pairs ------------------
-            pair_violations = _find_clearance_violations(
-                hv_route,
-                other_route,
-                required_distance,
-                hv_net,
-                other_net,
-            )
-            violations.extend(pair_violations)
-
+    # The pair loop only ever touches a route's geometry when at least one
+    # HV net exists (the pre-migration lazy contract: a board with no HV net
+    # reports zero checks without inspecting any route, so a non-HV route
+    # with a degenerate path must not crash the check). When an HV net does
+    # exist, EVERY route is a potential partner and is extracted.
+    if any(_is_high_voltage_net(net) for net in routing_results.compiled_routes):
+        routes = [
+            (net, _extract_segments(route))
+            for net, route in routing_results.compiled_routes.items()
+        ]
+    else:
+        routes = []
+    raw_violations, total_checks = _to.run_creepage_check(routes, voltage_ratings, default_creepage)
+    violations = [
+        CreepageViolation(
+            hv_net=hv_net,
+            lv_net=lv_net,
+            location=(loc_x, loc_y),
+            actual_distance=actual_distance,
+            required_distance=required_distance,
+        )
+        for (hv_net, lv_net, loc_x, loc_y, actual_distance, required_distance) in raw_violations
+    ]
     return CreepageReport(violations=violations, total_checks=total_checks)
 
 

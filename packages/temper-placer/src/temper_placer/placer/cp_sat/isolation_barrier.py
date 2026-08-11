@@ -114,6 +114,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import temper_geometry as _tg
+import temper_orchestration as _to
 
 from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM
 from temper_placer.core.pad_geometry import shape_code
@@ -221,20 +222,25 @@ def classify_domain_partition(
     hv_nets: frozenset[str],
     selv_nets: frozenset[str],
 ) -> DomainPartition:
-    """Classify every component by which domain(s) its pins touch."""
-    partition = DomainPartition()
-    for comp in components:
-        touches_hv = any(p.net in hv_nets for p in comp.pins)
-        touches_selv = any(p.net in selv_nets for p in comp.pins)
-        if touches_hv and touches_selv:
-            partition.isolators.append(comp.ref)
-        elif touches_hv:
-            partition.hv_only.append(comp.ref)
-        elif touches_selv:
-            partition.selv_only.append(comp.ref)
-        else:
-            partition.unclassified.append(comp.ref)
-    return partition
+    """Classify every component by which domain(s) its pins touch.
+
+    Phase E batch E3 (plan 2026-08-09-001): the classification compute runs
+    in ``temper-orchestration``'s ``clearance::classify_domain_partition_py``
+    (the ``IsolationBarrierStage``); this function marshals the components
+    to ``(ref, [pin nets])`` pairs and rebuilds the ``DomainPartition``
+    dataclass. Exact-name membership only (never substring — the
+    net-classification bug history).
+    """
+    marshalled = [(c.ref, [p.net for p in c.pins]) for c in components]
+    hv_only, selv_only, isolators, unclassified = _to.classify_domain_partition_py(
+        marshalled, list(hv_nets), list(selv_nets)
+    )
+    return DomainPartition(
+        hv_only=hv_only,
+        selv_only=selv_only,
+        isolators=isolators,
+        unclassified=unclassified,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -372,14 +378,12 @@ def _project_onto_barrier_axis(local_x: float, local_y: float, rot_value: int, b
         rot=1:  (gx, gy) = ( ly, -lx)
         rot=2:  (gx, gy) = (-lx, -ly)
         rot=3:  (gx, gy) = (-ly,  lx)
+
+    Phase E batch E3 (plan 2026-08-09-001): the exact table moved to
+    ``temper-orchestration``'s ``clearance::project_onto_barrier_axis_py``
+    (the ``IsolationBarrierStage``); this is a thin delegation.
     """
-    gx, gy = {
-        0: (local_x, local_y),
-        1: (local_y, -local_x),
-        2: (-local_x, -local_y),
-        3: (-local_y, local_x),
-    }[rot_value]
-    return gx if barrier_axis == 0 else gy
+    return _to.project_onto_barrier_axis_py(local_x, local_y, rot_value, barrier_axis)
 
 
 def _best_rotation_for_barrier(
@@ -456,21 +460,29 @@ def evaluate_isolator_feasibility(
     side convention is in force) -- useful for reporting, but
     ``achievable_gap_mm``/``feasible`` are what ``add_isolation_barrier_to_model``
     actually encodes and must be checked for a specific corridor.
+
+    Phase E batch E3 (plan 2026-08-09-001): the feasibility compute — the
+    axis-gap kernels plus the best-rotation assembly — runs in
+    ``temper-orchestration``'s ``clearance::evaluate_isolator_feasibility_py``
+    (the ``IsolationBarrierStage``); this function marshals the pad groups
+    to the kernel ``PadTuple`` shape and rebuilds the ``IsolatorFeasibility``
+    dataclass. The ``ValueError`` for a non-isolator (empty HV or SELV
+    cluster) is raised from Rust with the identical message.
     """
     if not pad_groups.hv_pads or not pad_groups.selv_pads:
         raise ValueError(
             f"{pad_groups.ref}: not a real isolator -- missing an HV or SELV pad "
             "(caller should not have classified this as an isolator)"
         )
-    gap_x = _axis_gap(pad_groups.hv_pads, pad_groups.selv_pads, 0)
-    gap_y = _axis_gap(pad_groups.hv_pads, pad_groups.selv_pads, 1)
-
-    rot_value, achievable_gap, hv_is_lo = _best_rotation_for_barrier(
-        pad_groups.hv_pads, pad_groups.selv_pads, barrier_axis
+    gap_x, gap_y, achievable_gap, rot_value, feasible_axis, hv_is_lo = (
+        _to.evaluate_isolator_feasibility_py(
+            pad_groups.ref,
+            [_pad_tuple(p) for p in pad_groups.hv_pads],
+            [_pad_tuple(p) for p in pad_groups.selv_pads],
+            corridor_width_mm,
+            barrier_axis,
+        )
     )
-    # rot in {0, 2} projects local X onto the barrier axis; {1, 3} projects
-    # local Y -- see _project_onto_barrier_axis's table.
-    feasible_axis = 0 if rot_value in (0, 2) else 1
 
     return IsolatorFeasibility(
         ref=pad_groups.ref,
@@ -480,7 +492,7 @@ def evaluate_isolator_feasibility(
         barrier_axis=barrier_axis,
         achievable_gap_mm=achievable_gap,
         chosen_rotation=rot_value,
-        feasible_axis=feasible_axis if achievable_gap >= corridor_width_mm else None,
+        feasible_axis=feasible_axis,
         hv_is_lo=hv_is_lo,
     )
 

@@ -37,10 +37,15 @@ Wave-4 migration note: the leaf kernels now run in the ``temper-geometry``
 crate (``via_clearance.rs``) — the IEC 60950-1 tables
 (``safety_distances_py``), the word-boundary keyword matcher
 (``kw_boundary_match_py``) and the IEC 60335-1 net-class classification
-(``net_class_to_voltage_class_py``).  The ``get_clearance`` orchestration,
-the ``SafetyDistances`` dataclass, and the ``VoltageClass`` enum mapping
-stay here.  Bit-identical parity is pinned by
-``tests/router_v6/test_via_clearance_tier2_rust_differential.py``.
+(``net_class_to_voltage_class_py``).  The ``get_clearance`` orchestration
+itself — the five-standard candidates, the conservative max and the IEC
+60664-1 internal-layer reduction — moved to ``temper-orchestration``'s
+``clearance::get_clearance_py`` in Phase E batch E3 (plan 2026-08-09-001,
+the ``ClearanceEngineStage``); the ``SafetyDistances`` dataclass, the
+``VoltageClass`` enum mapping and this module's public API stay here.
+Bit-identical parity is pinned by
+``tests/router_v6/test_via_clearance_tier2_rust_differential.py`` and the
+E3 clearance-family differential.
 """
 
 from __future__ import annotations
@@ -48,9 +53,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import temper_geometry as _tg
+import temper_orchestration as _to
 
 from temper_placer.core.net_types import VoltageClass
-from temper_placer.router_v6.creepage_check import _calculate_required_creepage
 
 # ---------------------------------------------------------------------------
 # Per-standard imports
@@ -180,53 +185,21 @@ def get_clearance(
     float
         Required clearance in mm.  This is the **maximum** of every
         standard consulted, ensuring the design satisfies all of them.
+
+    Phase E batch E3 (plan 2026-08-09-001): the five-standard orchestration
+    runs in ``temper-orchestration``'s ``clearance::get_clearance_py`` (the
+    ``ClearanceEngineStage``); this function delegates unchanged. The
+    leaf tables stay single-source in ``temper-geometry`` (driven through
+    FFI from Rust) and the ``VoltageClass`` pyclass methods stay on the
+    design-bundle pyclass.
     """
-    candidates: list[float] = []
-
-    # ---- IEC 60950-1 ---------------------------------------------------
-    try:
-        iec60950 = calculate_safety_distances(
-            voltage_v=voltage,
-            pollution_degree=pollution_degree,
-            _material_group=material_group,
-            overvoltage_category=overvoltage_category,
-        )
-        candidates.append(iec60950.clearance_mm)
-        candidates.append(iec60950.creepage_mm)
-    except Exception:
-        pass  # Degrade gracefully if the table somehow fails
-
-    # ---- IEC 60335-1 (VoltageClass tables) ----------------------------
-    try:
-        vc_a = _net_class_to_voltage_class(net_class_a)
-        vc_b = _net_class_to_voltage_class(net_class_b)
-        # Use the more demanding of the two net classes
-        for vc in (vc_a, vc_b):
-            candidates.append(vc.get_clearance_mm(pollution_degree))
-            candidates.append(vc.get_creepage_mm())
-    except Exception:
-        pass
-
-    # ---- IPC-2221 (generic PCB creepage table) ------------------------
-    try:
-        ipc = _calculate_required_creepage(voltage)
-        candidates.append(ipc)
-    except Exception:
-        pass
-
-    # ---- IEC 62368-1 (design-rule creepage from NetClassRules) --------
-    if design_rule_creepage is not None and design_rule_creepage > 0.0:
-        candidates.append(design_rule_creepage)
-
-    # ---- Compute base conservative value -------------------------------
-    if not candidates:
-        # All standards failed — return a safe default
-        return 0.5
-
-    result = max(candidates)
-
-    # ---- IEC 60664-1 internal-layer reduction -------------------------
-    if layer_type == "internal" and result > 0.5:
-        result = result * INTERNAL_LAYER_CREEPAGE_FACTOR
-
-    return result
+    return _to.get_clearance_py(
+        net_class_a,
+        net_class_b,
+        voltage,
+        layer_type,
+        pollution_degree,
+        material_group,
+        overvoltage_category,
+        design_rule_creepage,
+    )

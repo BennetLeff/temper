@@ -25,6 +25,14 @@ except ImportError:  # pragma: no cover - exercised only without the Rust wheel
     _temper_drc_rs = None
     _HAS_RUST_CLEARANCE = False
 
+try:
+    import temper_orchestration as _to
+
+    _HAS_RUN_CLEARANCE_CHECK = hasattr(_to, "run_clearance_check")
+except ImportError:  # pragma: no cover - exercised only without the orchestration wheel
+    _to = None
+    _HAS_RUN_CLEARANCE_CHECK = False
+
 
 @dataclass
 class ClearanceViolation:
@@ -78,12 +86,13 @@ def verify_clearance(
         voltage_ratings: Optional dict of net_name -> voltage (V).
             Used to determine voltage-dependent HV clearance.
         backend: ``"auto"`` (default) uses the Rust engine
-            (``temper_drc_rs.verify_route_clearance``) when the wheel is
-            importable, falling back to the pure-Python implementation
-            otherwise. ``"python"`` forces the reference implementation
-            (used by the differential test and as a documented fallback);
-            ``"rust"`` forces the Rust engine and raises ``RuntimeError``
-            if it is unavailable.  See
+            (``temper_orchestration.run_clearance_check`` — the Phase E E3
+            stage — backed by ``temper_drc_rs.verify_route_clearance``) when
+            the wheels are importable, falling back to the pure-Python
+            implementation otherwise. ``"python"`` forces the reference
+            implementation (used by the differential test and as a
+            documented fallback); ``"rust"`` forces the Rust engine and
+            raises ``RuntimeError`` if it is unavailable.  See
             docs/evidence/2026-07-26-clearance-rust-port.md for the
             differential-equivalence evidence backing this switch.
 
@@ -100,14 +109,18 @@ def verify_clearance(
     if backend not in ("auto", "python", "rust"):
         raise ValueError(f"backend must be 'auto', 'python', or 'rust', got {backend!r}")
 
-    if backend == "rust" and not _HAS_RUST_CLEARANCE:
+    if backend == "rust" and not (_HAS_RUST_CLEARANCE and _HAS_RUN_CLEARANCE_CHECK):
         raise RuntimeError(
-            "backend='rust' requested but temper_drc_rs.verify_route_clearance is "
-            "not available. Install/build the temper-drc-rs wheel, or use "
-            "backend='auto' (falls back to Python) / backend='python'."
+            "backend='rust' requested but the Rust clearance engine is not "
+            "available (needs both temper_drc_rs.verify_route_clearance and "
+            "temper_orchestration.run_clearance_check). Install/build the "
+            "temper-drc-rs / temper-orchestration wheels, or use backend='auto' "
+            "(falls back to Python) / backend='python'."
         )
 
-    use_rust = backend == "rust" or (backend == "auto" and _HAS_RUST_CLEARANCE)
+    use_rust = backend == "rust" or (
+        backend == "auto" and _HAS_RUST_CLEARANCE and _HAS_RUN_CLEARANCE_CHECK
+    )
     if use_rust:
         return _verify_clearance_rust(routing_results, min_clearance, voltage_ratings)
     return _verify_clearance_python(routing_results, min_clearance, voltage_ratings)
@@ -251,33 +264,24 @@ def _verify_clearance_rust(
 ) -> ClearanceReport:
     """Rust-backed implementation of :func:`verify_clearance`.
 
-    Delegates the full algorithm (geometry + the unified multi-standard
-    required-clearance computation) to
-    ``temper_drc_rs.verify_route_clearance``, ported line-for-line from this
-    module. See docs/evidence/2026-07-26-clearance-rust-port.md for the
-    differential-equivalence evidence against :func:`_verify_clearance_python`.
-
-    Passes ``_load_manifest_hv_net_names()`` through to the Rust engine as
-    its optional 4th (``hv_net_names``) argument. Before this, the manifest
-    fix (docs/evidence/2026-07-27-clearance-copper-balance.md Part B) had
-    been applied only to :func:`_get_required_clearance` /
-    :func:`_classify_net_class` (the Python reference path) -- ``verify_clearance``'s
-    own ``backend="auto"`` default prefers this Rust path whenever
-    ``temper_drc_rs`` is importable (true in every shipping environment),
-    so the fix was dead code in production until this call site threaded
-    the manifest names through. See ``is_hv_gate_named``/
-    ``classify_net_class_named`` in ``router_clearance.rs`` for the Rust
-    side of this fix.
+    Phase E batch E3 (plan 2026-08-09-001): the production orchestration —
+    min-clearance validation, the ``temper_drc_rs.verify_route_clearance``
+    delegation and the ``total_checks`` accounting — runs in
+    ``temper-orchestration``'s ``clearance::run_clearance_check`` (the
+    ``ClearanceCheckStage``). This function keeps the duck-typed route
+    marshalling (:func:`_route_to_rust_tuple`) and the report construction;
+    the flat violation tuples returned are wrapped in the dataclasses
+    unchanged. See docs/evidence/2026-07-26-clearance-rust-port.md for the
+    differential-equivalence evidence and
+    docs/evidence/2026-07-27-clearance-copper-balance.md for the manifest
+    HV-net-name fix (Part B) that the ``hv_net_names`` argument carries.
     """
     if voltage_ratings is None:
         voltage_ratings = {}
 
-    if math.isnan(min_clearance) or not math.isfinite(min_clearance):
-        raise ValueError(f"min_clearance must be a finite number, got {min_clearance!r}")
-
     routes = [_route_to_rust_tuple(net_name, route) for net_name, route in _all_routes(routing_results)]
 
-    raw_violations, total_checks = _temper_drc_rs.verify_route_clearance(
+    raw_violations, total_checks = _to.run_clearance_check(
         routes, min_clearance, voltage_ratings, sorted(_load_manifest_hv_net_names())
     )
 
