@@ -1,0 +1,32 @@
+{
+  "_comment": [
+    "temper-orchestration's expected-failure manifest, the sibling of wasm_expected_failures.json",
+    "(temper-drc-rs), wasm_expected_failures_geometry.json and wasm_expected_failures_thermal.json.",
+    "Same contract, same reasoning -- see wasm_expected_failures.json's _comment for why",
+    "divergences are LISTED and executed rather than deleted or cfg'd out.",
+    "",
+    "It is a separate file rather than more entries in a shared one because",
+    "run_wasm_tests.mjs exits non-zero on an ORPHAN EXCLUSION: a manifest entry naming no",
+    "registered test. Point the runner at this one with",
+    "`--expected-failures tools/wasm/wasm_expected_failures_orchestration.json` when the module",
+    "carries temper-orchestration alone.",
+    "",
+    "Currently empty. `pipeline::tests::*` (all 10 of the crate's `PipelineRunner` unit tests)",
+    "hit exactly this class of divergence during development -- `PipelineRunner::run()` read",
+    "`std::time::Instant::now()` unconditionally for stage-timing instrumentation, which panics",
+    "('time not implemented on this platform') on wasm32-unknown-unknown, the same class of bug",
+    "`temper-geometry`'s `bottleneck_geometry` deadline check documents and works around (see",
+    "that module's doc). Unlike that case, `PipelineRunner::run()` cannot avoid the clock read by",
+    "not being called -- it is plain generic Rust exercised directly by this crate's own",
+    "`#[cfg(test)]` unit tests, not gated behind `python` -- so the fix landed in `pipeline.rs`",
+    "itself (a `ClockPoint` type that is `std::time::Instant` on every other target and a",
+    "constant `0.0`ms reading on `wasm32`) rather than as a catalogued expected failure here.",
+    "Native behaviour (every other target) is unchanged; this is a genuine wasm32 platform",
+    "divergence closed at the source, in the same spirit as the `#941`/`#946` clock-bug fixes",
+    "this catalogue's sibling files reference.",
+    "",
+    "Native baseline, for contrast: `cargo test --manifest-path packages/temper-orchestration/Cargo.toml`",
+    "passes 141/141 on x86_64-unknown-linux-gnu."
+  ],
+  "expected_failures": {}
+}

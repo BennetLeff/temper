@@ -27,14 +27,21 @@
 // `FenceViolation`/`ConfigError` pattern) instead of converting to a
 // `StageError`.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList, PyString, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::d6_util;
+#[cfg(feature = "python")]
 use crate::derivation_stage::pyerr_stage;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 const STAGE_NAME: &str = "hv_lv_partition";
@@ -46,6 +53,7 @@ const LOGGER_NAME: &str = "temper_placer.deterministic.stages.hv_lv_partition";
 #[derive(Debug, Clone, Default)]
 pub struct HvLvPartitionStage;
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for HvLvPartitionStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -56,6 +64,7 @@ impl Stage<BoardState> for HvLvPartitionStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl HvLvPartitionStage {
     /// Panic-guarded `run_inner`: a Rust panic becomes a Python RuntimeError;
     /// the inner result carries the ORIGINAL Python `PyErr` so the
@@ -309,6 +318,7 @@ impl HvLvPartitionStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// `raise PartitionError("geometry", "outline", 0.0, 0.0)` -- constructed
 /// through the Python class so the message is bit-exact by identity.
 fn partition_geometry_error(module: &Bound<'_, PyAny>) -> PyErr {
@@ -321,6 +331,7 @@ fn partition_geometry_error(module: &Bound<'_, PyAny>) -> PyErr {
     }
 }
 
+#[cfg(feature = "python")]
 /// `_rules_by_net(state)` inlined: the `state.drc_oracle.design_rules`
 /// net-class / net-class-assignment / `get_rules_for_net` resolution over
 /// `state.netlist.nets`. The differential pins this against the Python
@@ -369,6 +380,7 @@ fn rules_by_net<'py>(
     Ok(out.into_any())
 }
 
+#[cfg(feature = "python")]
 /// `getattr(obj, name, {}) or {}` -- missing or falsy -> a fresh empty dict.
 fn attr_or_empty<'py>(
     py: Python<'py>,
@@ -386,6 +398,7 @@ fn attr_or_empty<'py>(
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_hv_lv_partition(state)`.
 #[pyfunction]
 pub fn run_hv_lv_partition(py: Python<'_>, state: Py<PyAny>) -> PyResult<Py<PyAny>> {

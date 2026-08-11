@@ -926,6 +926,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "temper-orchestration"
+version = "0.1.0"
+
+[[package]]
 name = "temper-pcl-ir"
 version = "0.1.0"
 dependencies = [
@@ -974,6 +978,7 @@ dependencies = [
  "temper-drc-rs",
  "temper-geometry",
  "temper-io-types",
+ "temper-orchestration",
  "temper-pcl-ir",
  "temper-quality-oracle",
  "temper-rust-router",

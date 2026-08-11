@@ -50,12 +50,17 @@
 //   pin order then slot-list order, then over-claim failures in the
 //   ``used_slots`` set iteration order.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyFloat, PyList, PySet, PyString, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::grid_hv::{getattr_default, str_of};
 
+#[cfg(feature = "python")]
 /// The HV/AC safety categories (``_HV_SAFETY_CATEGORIES``).
 fn is_hv_safety(safety: &Bound<'_, PyAny>) -> PyResult<bool> {
     if safety.is_none() {
@@ -65,6 +70,7 @@ fn is_hv_safety(safety: &Bound<'_, PyAny>) -> PyResult<bool> {
     Ok(s == "HV" || s == "AC")
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: ``run_phased_validator_hv(state)`` ->
 /// a list of ``(field, value, reason)`` triples the shim wraps in
 /// ``StageDRCFailure`` objects.
@@ -76,12 +82,14 @@ pub fn run_phased_validator_hv(py: Python<'_>, state: Py<PyAny>) -> PyResult<Py<
     phased_validator_hv(py, rust_state)
 }
 
+#[cfg(feature = "python")]
 /// Rust-callable form of ``run_phased_validator_hv`` (the runner test drives
 /// the kernel on a Rust ``BoardState`` without the Python shim).
 pub fn phased_validator_hv(py: Python<'_>, state: BoardState) -> PyResult<Py<PyAny>> {
     validate(py, &state).map(|list| list.into_any().unbind())
 }
 
+#[cfg(feature = "python")]
 /// The whole ``validate_phased_component_assignment_hv`` orchestration.
 fn validate<'py>(py: Python<'py>, state: &BoardState) -> PyResult<Bound<'py, PyList>> {
     let failures = PyList::empty(py);
@@ -286,6 +294,7 @@ fn validate<'py>(py: Python<'py>, state: &BoardState) -> PyResult<Bound<'py, PyL
     Ok(failures)
 }
 
+#[cfg(feature = "python")]
 /// ``_creepage_mm``: the max ``creepage_mm`` across the HV/AC net classes.
 fn creepage_mm(py: Python<'_>, state: &BoardState) -> PyResult<f64> {
     let rules = match &state.design_rules {
@@ -322,6 +331,7 @@ fn py_max(a: f64, b: f64) -> f64 {
     }
 }
 
+#[cfg(feature = "python")]
 /// ``_flatten_slots``: every grid slot from every zone in ``state.zone_slots``
 /// (a frozenset of ``(zone, slots)`` pairs).
 fn flatten_slots<'py>(
@@ -341,6 +351,7 @@ fn flatten_slots<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// ``_absolute_hv_pins``: absolute ``(x, y, comp_ref, pin_name)`` for every
 /// HV/AC pin of every placed component.
 fn absolute_hv_pins<'py>(
@@ -421,6 +432,7 @@ fn absolute_hv_pins<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// One footprint ring + per-HV-pin creepage-ring update over every placement
 /// -- the loop shared by the fallback ``used_slots`` recompute and the
 /// ``legitimate_origin`` set.
@@ -519,6 +531,7 @@ fn rings_update<'py>(
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// ``used_slots.update(_slots_within_radius(center, radius, index, spacing))``.
 fn update_radius<'py>(
     py: Python<'py>,
@@ -537,6 +550,7 @@ fn update_radius<'py>(
     Ok(())
 }
 
+#[cfg(feature = "python")]
 fn empty_dict<'py>(py: Python<'py>) -> Bound<'py, PyAny> {
     PyDict::new(py).into_any()
 }
@@ -545,15 +559,15 @@ fn empty_dict<'py>(py: Python<'py>) -> Bound<'py, PyAny> {
 // Tests
 // ---------------------------------------------------------------------------
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     // -- py_max ------------------------------------------------------------
 
     /// CPython `max(NaN, x)` returns NaN; `max(x, NaN)` returns x.
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_nan_first_argument_wins() {
         assert!(py_max(f64::NAN, 1.0).is_nan());
         assert_eq!(py_max(1.0, f64::NAN), 1.0);
@@ -561,7 +575,7 @@ mod tests {
     }
 
     /// CPython `max` keeps the first argument on tie, including -0.0 vs +0.0.
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_ties_keep_first() {
         assert_eq!(py_max(0.0, -0.0), 0.0);
         let r = py_max(-0.0, 0.0);
@@ -571,17 +585,73 @@ mod tests {
     }
 
     /// CPython `max` on infinities.
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_infinity() {
         assert_eq!(py_max(f64::INFINITY, 0.0), f64::INFINITY);
         assert_eq!(py_max(0.0, f64::INFINITY), f64::INFINITY);
         assert_eq!(py_max(f64::NEG_INFINITY, 0.0), 0.0);
     }
 
+    // -- is_hv_safety (requires GIL) ---------------------------------------
+
+    #[cfg(feature = "python")]
+    #[cfg_attr(test, test)]
+    fn is_hv_safety_true_for_hv_and_ac() {
+        Python::initialize();
+        Python::attach(|py| {
+            let hv = pyo3::types::PyString::new(py, "HV");
+            let ac = pyo3::types::PyString::new(py, "AC");
+            let lv = pyo3::types::PyString::new(py, "LV");
+            assert!(is_hv_safety(hv.as_any()).unwrap());
+            assert!(is_hv_safety(ac.as_any()).unwrap());
+            assert!(!is_hv_safety(lv.as_any()).unwrap());
+        });
+    }
+
+    #[cfg(feature = "python")]
+    #[cfg_attr(test, test)]
+    fn is_hv_safety_false_for_none_and_unknown() {
+        Python::initialize();
+        Python::attach(|py| {
+            let none = py.None();
+            assert!(!is_hv_safety(none.bind(py)).unwrap());
+            let empty = pyo3::types::PyString::new(py, "");
+            assert!(!is_hv_safety(empty.as_any()).unwrap());
+            let unknown = pyo3::types::PyString::new(py, "signal");
+            assert!(!is_hv_safety(unknown.as_any()).unwrap());
+        });
+    }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("phased_component_assignment_validator_stage::tests::py_max_nan_first_argument_wins", py_max_nan_first_argument_wins),
+        ("phased_component_assignment_validator_stage::tests::py_max_ties_keep_first", py_max_ties_keep_first),
+        ("phased_component_assignment_validator_stage::tests::py_max_infinity", py_max_infinity),
+        #[cfg(feature = "python")] ("phased_component_assignment_validator_stage::tests::is_hv_safety_true_for_hv_and_ac", is_hv_safety_true_for_hv_and_ac),
+        #[cfg(feature = "python")] ("phased_component_assignment_validator_stage::tests::is_hv_safety_false_for_none_and_unknown", is_hv_safety_false_for_none_and_unknown),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
+}
+
+// `proptest` is a dev-dependency (present under `cargo test`, absent from the
+// ordinary non-test build `wasm_test_registry.rs` compiles into), so these
+// three properties live in their own `#[cfg(test)]` sibling module -- exactly
+// the split `copper_length.rs`/`timing.rs`/`host_math.rs` already use --
+// rather than inline inside `tests` above, so `gen_wasm_test_registry.py`'s
+// per-module `proptest-dev-dependency` exclusion only drops these three
+// properties instead of the whole module's otherwise-pure `py_max` tests.
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
     /// P1: py_max returns the conventional maximum for non-NaN values.
     #[test]
     fn p1_py_max_returns_larger() {
-        use proptest::prelude::*;
         proptest!(|(a: f64, b: f64)| {
             prop_assume!(!a.is_nan() && !b.is_nan());
             let r = py_max(a, b);
@@ -593,7 +663,6 @@ mod tests {
     /// P2: py_max returns one of its inputs bit-identically.
     #[test]
     fn p2_py_max_returns_one_of_inputs() {
-        use proptest::prelude::*;
         proptest!(|(a: f64, b: f64)| {
             let r = py_max(a, b);
             if a.is_nan() {
@@ -612,38 +681,9 @@ mod tests {
     /// P3: py_max is commutative for non-NaN inputs.
     #[test]
     fn p3_py_max_commutative_for_finite() {
-        use proptest::prelude::*;
         proptest!(|(a: f64, b: f64)| {
             prop_assume!(!a.is_nan() && !b.is_nan());
             assert_eq!(py_max(a, b), py_max(b, a));
-        });
-    }
-
-    // -- is_hv_safety (requires GIL) ---------------------------------------
-
-    #[test]
-    fn is_hv_safety_true_for_hv_and_ac() {
-        Python::initialize();
-        Python::attach(|py| {
-            let hv = pyo3::types::PyString::new(py, "HV");
-            let ac = pyo3::types::PyString::new(py, "AC");
-            let lv = pyo3::types::PyString::new(py, "LV");
-            assert!(is_hv_safety(hv.as_any()).unwrap());
-            assert!(is_hv_safety(ac.as_any()).unwrap());
-            assert!(!is_hv_safety(lv.as_any()).unwrap());
-        });
-    }
-
-    #[test]
-    fn is_hv_safety_false_for_none_and_unknown() {
-        Python::initialize();
-        Python::attach(|py| {
-            let none = py.None();
-            assert!(!is_hv_safety(none.bind(py)).unwrap());
-            let empty = pyo3::types::PyString::new(py, "");
-            assert!(!is_hv_safety(empty.as_any()).unwrap());
-            let unknown = pyo3::types::PyString::new(py, "signal");
-            assert!(!is_hv_safety(unknown.as_any()).unwrap());
         });
     }
 }

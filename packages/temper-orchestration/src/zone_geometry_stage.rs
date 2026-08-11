@@ -26,22 +26,31 @@
 // `y_min` are Python `int` `0`, board-dims pass through with their original
 // type) is preserved exactly as the oracle stores it.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::config_attach_stage::to_pyerr;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
+#[cfg(feature = "python")]
 /// The zone-geometry stage: board -> `zones` (frozenset of Zone objects).
 #[derive(Debug, Clone)]
 pub struct ZoneGeometryStage {
     pub zone_config: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ZoneGeometryStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("zone_geometry")
@@ -93,6 +102,7 @@ impl Stage<BoardState> for ZoneGeometryStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_zone_geometry(state, zone_config)`.
 #[pyfunction]
 #[pyo3(signature = (state, zone_config=None))]
@@ -113,6 +123,7 @@ pub fn run_zone_geometry(
 // Zone construction
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// The `_define_zone_layout` branch: `define_zone_layout(board_width,
 /// board_height)` rows are unpacked (`name, x_min, y_min, x_max, y_max`)
 /// and each becomes `Zone(name=name, bounds=((x_min, y_min),
@@ -142,6 +153,7 @@ fn define_zone_layout_zones<'py>(
     frozenset_of(py, &zones)
 }
 
+#[cfg(feature = "python")]
 /// The `_define_zones_from_config` branch: for each config entry, the
 /// Zone-object passthrough, the dict `bounds_ratio` scaling, or the
 /// unknown-format warning; the list is wrapped in a `frozenset`.
@@ -199,6 +211,7 @@ fn define_zones_from_config<'py>(
     frozenset_of(py, &zones)
 }
 
+#[cfg(feature = "python")]
 /// `((x_min, y_min), (x_max, y_max))` from the four scalar values (their
 /// concrete Python types — int vs float — pass through untouched).
 fn nested_bounds<'py>(
@@ -213,6 +226,7 @@ fn nested_bounds<'py>(
     PyTuple::new(py, [lo.into_any(), hi.into_any()])
 }
 
+#[cfg(feature = "python")]
 /// `frozenset(list)` — the oracle's wrap.
 fn frozenset_of<'py>(
     py: Python<'py>,

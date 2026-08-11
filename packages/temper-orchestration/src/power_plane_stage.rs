@@ -14,17 +14,24 @@
 // the module tables `TEMPER_PLANE_NETS` / `TEMPER_PLANE_LAYERS`) are read
 // back off it.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyList;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::derivation_stage::stage_guard;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 const STAGE_NAME: &str = "power_plane";
 
+#[cfg(feature = "python")]
 /// The power-plane stage: netlist + layer_assignments -> plane-marked
 /// `BoardState.layer_assignments`.
 #[derive(Debug, Clone)]
@@ -32,6 +39,7 @@ pub struct PowerPlaneStage {
     pub stage: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for PowerPlaneStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -47,6 +55,7 @@ impl Stage<BoardState> for PowerPlaneStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl PowerPlaneStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let netlist = match &state.netlist {
@@ -90,6 +99,7 @@ impl PowerPlaneStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_power_plane(state, stage)`.
 #[pyfunction]
 pub fn run_power_plane(

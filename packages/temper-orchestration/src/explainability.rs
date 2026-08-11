@@ -48,8 +48,11 @@
 // - `truncate` reproduces CPython's negative-stop slicing clamp for
 //   max_len < 3 (pinned by the same unit test explain.rs carries).
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyKeyError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyFloat, PyList, PySet, PyString, PyTuple};
 
 // ---------------------------------------------------------------------------
@@ -57,16 +60,19 @@ use pyo3::types::{PyDict, PyFloat, PyList, PySet, PyString, PyTuple};
 // pyfmt.rs — same seams, argued there).
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// Python `float(obj)` — `__float__` (ints and floats both work).
 fn to_f64(obj: &Bound<'_, PyAny>) -> PyResult<f64> {
     obj.call_method0("__float__")?.extract::<f64>()
 }
 
+#[cfg(feature = "python")]
 /// Python `str(obj)`.
 fn py_str(obj: &Bound<'_, PyAny>) -> PyResult<String> {
     Ok(obj.str()?.to_string())
 }
 
+#[cfg(feature = "python")]
 /// Iterate a Python iterable's items.
 fn iter_items<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Vec<Bound<'py, PyAny>>> {
     let mut out = Vec::new();
@@ -76,11 +82,13 @@ fn iter_items<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Vec<Bound<'py, PyAny>>> 
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// Python `isinstance(v, (list, tuple))` — both PyList and PyTuple.
 fn is_seq(v: &Bound<'_, PyAny>) -> bool {
     v.is_instance_of::<PyList>() || v.is_instance_of::<PyTuple>()
 }
 
+#[cfg(feature = "python")]
 /// `seq[i]` — Python-level `__getitem__` (ANY indexable sequence).
 fn seq_index<'py>(seq: &Bound<'py, PyAny>, i: usize) -> PyResult<Bound<'py, PyAny>> {
     seq.get_item(i)
@@ -109,16 +117,19 @@ fn py_float_fmt_4(x: f64) -> String {
     py_float_fmt(x, 4)
 }
 
+#[cfg(feature = "python")]
 /// CPython `repr(obj)`.
 fn repr_obj(obj: &Bound<'_, PyAny>) -> PyResult<String> {
     obj.repr()?.extract::<String>()
 }
 
+#[cfg(feature = "python")]
 /// CPython `repr(s)` for a Rust str (adds the quotes).
 fn repr_str(py: Python<'_>, s: &str) -> PyResult<String> {
     repr_obj(&PyString::new(py, s).into_any())
 }
 
+#[cfg(feature = "python")]
 /// CPython `repr(None)`-rendering for a Python `None`-or-object field.
 fn repr_opt_obj(obj: &Bound<'_, PyAny>) -> PyResult<String> {
     if obj.is_none() {
@@ -132,6 +143,7 @@ fn repr_opt_obj(obj: &Bound<'_, PyAny>) -> PyResult<String> {
 // Default factories (Python runtime semantics, never reimplemented).
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `str(uuid.uuid4())[:n]` — the dataclass id/run_id default factory.
 fn uuid_prefix(py: Python<'_>, n: usize) -> PyResult<String> {
     let uuid_mod = PyModule::import(py, "uuid")?;
@@ -140,6 +152,7 @@ fn uuid_prefix(py: Python<'_>, n: usize) -> PyResult<String> {
     Ok(s.chars().take(n).collect())
 }
 
+#[cfg(feature = "python")]
 /// `datetime.now()` — the dataclass timestamp/start_time default factory.
 fn datetime_now(py: Python<'_>) -> PyResult<Py<PyAny>> {
     let dt_mod = PyModule::import(py, "datetime")?;
@@ -147,6 +160,7 @@ fn datetime_now(py: Python<'_>) -> PyResult<Py<PyAny>> {
     Ok(now.unbind())
 }
 
+#[cfg(feature = "python")]
 /// The default Enum member (`DecisionPhase.GEOMETRIC` etc.). The enums stay
 /// Python in `temper_placer.explainability.decision`; the constructor imports
 /// the (already-loaded) module to fetch the singleton.
@@ -156,11 +170,13 @@ fn enum_member(py: Python<'_>, enum_name: &str, member: &str) -> PyResult<Py<PyA
     Ok(e.getattr(member)?.unbind())
 }
 
+#[cfg(feature = "python")]
 /// Python `None` (the sentinel default for the nullable `Any` fields).
 fn py_none(py: Python<'_>) -> Py<PyAny> {
     py.None()
 }
 
+#[cfg(feature = "python")]
 /// A fresh Python `[]` (the dataclass `default_factory=list` containers).
 fn fresh_list(py: Python<'_>) -> Py<PyAny> {
     PyList::empty(py).into_any().unbind()
@@ -170,6 +186,7 @@ fn fresh_list(py: Python<'_>) -> Py<PyAny> {
 // Alternative
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// Mirror of Python `explainability.decision.Alternative`.
 #[pyclass(dict, module = "temper_orchestration", name = "Alternative")]
 pub struct Alternative {
@@ -183,6 +200,7 @@ pub struct Alternative {
     pub loss_if_chosen: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl Alternative {
     #[new]
@@ -240,6 +258,7 @@ impl Alternative {
 // Decision
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// Mirror of Python `explainability.decision.Decision`.
 ///
 /// The `value` / `previous_value` / `loss_contribution` / `epoch` /
@@ -276,6 +295,7 @@ pub struct Decision {
     pub iteration: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl Decision {
     #[allow(clippy::too_many_arguments)] // mirrors the dataclass constructor
@@ -446,6 +466,7 @@ impl Decision {
 // DecisionTrace
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// Mirror of Python `explainability.decision.DecisionTrace`.
 #[pyclass(dict, module = "temper_orchestration", name = "DecisionTrace")]
 pub struct DecisionTrace {
@@ -465,11 +486,13 @@ pub struct DecisionTrace {
     pub final_metrics: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 /// A fresh Python `{}` (the dataclass `default_factory=dict` containers).
 fn fresh_dict(py: Python<'_>) -> Py<PyAny> {
     PyDict::new(py).into_any().unbind()
 }
 
+#[cfg(feature = "python")]
 /// Call a temper-io-types kernel with the trace's own state.
 fn io_types_call<'py>(
     py: Python<'py>,
@@ -480,6 +503,7 @@ fn io_types_call<'py>(
     m.getattr(name)?.call1(args)
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl DecisionTrace {
     #[allow(clippy::too_many_arguments)] // mirrors the dataclass constructor
@@ -744,6 +768,7 @@ impl DecisionTrace {
 // Entry
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// Mirror of Python `explainability.trace.Entry` (frozen dataclass).
 #[pyclass(frozen, module = "temper_orchestration", name = "Entry")]
 pub struct Entry {
@@ -755,6 +780,7 @@ pub struct Entry {
     pub because: String,
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl Entry {
     #[new]
@@ -812,6 +838,7 @@ impl Entry {
 // Trace
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// Mirror of Python `explainability.trace.Trace` — the immutable, composable
 /// monoid over `Entry` tuples.
 #[pyclass(frozen, module = "temper_orchestration", name = "Trace")]
@@ -820,6 +847,7 @@ pub struct Trace {
     pub entries: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl Trace {
     #[new]
@@ -929,6 +957,7 @@ impl Trace {
 // temper-io-types explain.rs; byte-pinned by the differential suites).
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `_format_value` — position tuples, position+rotation, dicts, floats.
 fn format_value_impl(value: &Bound<'_, PyAny>) -> PyResult<String> {
     if value.is_none() {
@@ -1006,6 +1035,7 @@ fn py_title(s: &str) -> String {
         .join(" ")
 }
 
+#[cfg(feature = "python")]
 fn count_by_phase_impl<'py>(
     py: Python<'py>,
     decisions: &Bound<'py, PyAny>,
@@ -1033,6 +1063,7 @@ fn count_by_phase_impl<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 fn count_by_type_impl<'py>(
     py: Python<'py>,
     decisions: &Bound<'py, PyAny>,
@@ -1054,6 +1085,7 @@ fn count_by_type_impl<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 fn render_component_section_impl(
     _py: Python<'_>,
     subject: &str,
@@ -1174,6 +1206,7 @@ struct MarkdownRenderOpts<'a> {
     max_decisions_per_component: usize,
 }
 
+#[cfg(feature = "python")]
 fn render_markdown_report_impl(
     py: Python<'_>,
     trace: &Bound<'_, PyAny>,
@@ -1320,6 +1353,7 @@ fn render_markdown_report_impl(
     Ok(lines.join("\n"))
 }
 
+#[cfg(feature = "python")]
 /// `filter_by_subject` — chronological filter (shared with the component
 /// sections).
 fn filter_by_subject<'py>(
@@ -1336,6 +1370,7 @@ fn filter_by_subject<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// `render_markdown_report` — the shim pre-formats the two timestamp strings
 /// and the duration (strftime / datetime arithmetic stay Python).
 #[allow(clippy::too_many_arguments)] // mirrors markdown_report.render_markdown_report's signature
@@ -1365,6 +1400,7 @@ pub fn render_markdown_report(
     )
 }
 
+#[cfg(feature = "python")]
 /// `render_component_report` — max_decisions=50, no timestamps needed.
 #[pyfunction]
 pub fn render_component_report(
@@ -1395,11 +1431,12 @@ pub fn render_component_report(
     Ok(lines.join("\n"))
 }
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn truncate_matches_cpython_negative_stop() {
         assert_eq!(truncate("abcdefghij", 2), "abcdefghi...");
         assert_eq!(truncate("abcdefghij", 1), "abcdefgh...");
@@ -1413,7 +1450,7 @@ mod tests {
         assert_eq!(truncate("abcdefghij", 3), "...");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_title_matches_enum_titles() {
         assert_eq!(py_title("geometric"), "Geometric");
         assert_eq!(py_title("position_update"), "Position Update");
@@ -1421,7 +1458,7 @@ mod tests {
         assert_eq!(py_title(""), "");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_float_fmt_nan_inf_lowercase() {
         assert_eq!(py_float_fmt_1(f64::NAN), "nan");
         assert_eq!(py_float_fmt_1(f64::INFINITY), "inf");
@@ -1431,11 +1468,24 @@ mod tests {
         assert_eq!(py_float_fmt_2(1.23456), "1.23");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_float_fmt_round_half_even() {
         assert_eq!(py_float_fmt_1(3.25), "3.2");
         assert_eq!(py_float_fmt_1(-0.0), "-0.0");
         assert_eq!(py_float_fmt_1(2.55), "2.5");
         assert_eq!(py_float_fmt_1(2.65), "2.6");
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("explainability::tests::truncate_matches_cpython_negative_stop", truncate_matches_cpython_negative_stop),
+        ("explainability::tests::py_title_matches_enum_titles", py_title_matches_enum_titles),
+        ("explainability::tests::py_float_fmt_nan_inf_lowercase", py_float_fmt_nan_inf_lowercase),
+        ("explainability::tests::py_float_fmt_round_half_even", py_float_fmt_round_half_even),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

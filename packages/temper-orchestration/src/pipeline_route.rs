@@ -49,16 +49,24 @@
 // `Stage` impl runs under `stage_guard` — no panic crosses the boundary.
 // No `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 use std::collections::HashMap;
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::{PyTypeError, PyValueError};
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList, PyString};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::d6_util;
+#[cfg(feature = "python")]
 use crate::derivation_stage::stage_guard;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 /// The deterministic KiCad `tstamp` UUIDv5 namespace
@@ -195,7 +203,7 @@ fn uuid5(namespace: &[u8; 16], name: &str) -> String {
 /// pin count. The shim marshals `[(net.name, len(net.pins))]`; the dict
 /// semantics (first-insertion order, last writer wins) and the stable sort
 /// replicate CPython exactly.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn run_select_sat_nets(
     nets: Vec<(String, usize)>,
     max_sat_nets: Option<usize>,
@@ -225,6 +233,7 @@ pub fn run_select_sat_nets(
 // _pipeline_route._build_clause_origin
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `router_v6/_pipeline_route._build_clause_origin`: the CNF clause-index ->
 /// constraint-name registry. The shim passes the `ConstraintModel` object; the
 /// duck-typed attribute walk (`hasattr` / truthiness / `len`) mirrors the
@@ -265,6 +274,7 @@ pub fn run_build_clause_origin(py: Python<'_>, model: Option<Py<PyAny>>) -> PyRe
 // _pipeline_route.select_routing_grids
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `router_v6/_pipeline_route.select_routing_grids`: the (primary, alternate)
 /// occupancy-grid pick. The `or` fallback is a truthiness test (not
 /// `is not None`), the alternate is selected by excluding the PRIMARY's
@@ -296,6 +306,7 @@ pub fn run_select_routing_grids(
     Ok((primary.unbind(), alternate))
 }
 
+#[cfg(feature = "python")]
 fn first_dict_value<'py>(grids: &Bound<'py, PyDict>) -> PyResult<Bound<'py, PyAny>> {
     let mut iter = grids.iter();
     let (_, value) = iter.next().ok_or_else(|| {
@@ -304,6 +315,7 @@ fn first_dict_value<'py>(grids: &Bound<'py, PyDict>) -> PyResult<Bound<'py, PyAn
     Ok(value)
 }
 
+#[cfg(feature = "python")]
 fn first_value_with_key_ne(
     grids: &Bound<'_, PyDict>,
     layer: &str,
@@ -323,6 +335,7 @@ fn first_value_with_key_ne(
 // _adapter_convert._next_tstamp
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `router_v6/_adapter_convert._next_tstamp`: consume the shared
 /// `tstamp_counter` list and return the next deterministic UUIDv5. The
 /// counter mutation (`counter[0] = n + 1`) happens BEFORE the UUID is
@@ -333,6 +346,7 @@ pub fn run_next_tstamp(py: Python<'_>, counter: Py<PyAny>) -> PyResult<String> {
     next_tstamp_internal(counter)
 }
 
+#[cfg(feature = "python")]
 fn next_tstamp_internal(counter: &Bound<'_, PyAny>) -> PyResult<String> {
     let n: i64 = counter.get_item(0)?.extract()?;
     counter.set_item(0, n + 1)?;
@@ -346,6 +360,7 @@ fn next_tstamp_internal(counter: &Bound<'_, PyAny>) -> PyResult<String> {
 // _adapter_convert._to_stage0_netclass_rules
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `router_v6/_adapter_convert._to_stage0_netclass_rules`: the netclass
 /// SSOT->stage0 conversion boundary. Resolves each mapped field through its
 /// alias list (raising `TypeError` with the CPython-rendered message when
@@ -440,6 +455,7 @@ pub fn run_to_stage0_netclass_rules(
     ))
 }
 
+#[cfg(feature = "python")]
 /// The `_resolve(name, *aliases)` explicit attribute check: the first alias
 /// present wins; a fully-missing field raises `TypeError` with the message
 /// rendered through CPython `str.format` (`{!r}` of the type name, `{}` of
@@ -473,6 +489,7 @@ fn resolve_attr(
 // _adapter_convert._write_routes_to_content -- the segment/via emission core
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `router_v6/_adapter_convert._write_routes_to_content`'s emission core: the
 /// collinear-step merge (consecutive same-direction same-layer steps collapse;
 /// a layer change or a coincident point pair is skipped, never emitted) and
@@ -498,6 +515,7 @@ pub fn run_write_route_segments(
     Ok(segments)
 }
 
+#[cfg(feature = "python")]
 fn emit_route(
     py: Python<'_>,
     segments: &mut Vec<String>,
@@ -582,6 +600,7 @@ fn emit_route(
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// CPython `"{:.4f}".format(f)` -- David-Gay `:.4f` rendering, bit-exact by
 /// identity (Rust `{:.4}` shares the rounding but the crate's convention is
 /// to route every rendered float through CPython).
@@ -593,6 +612,7 @@ fn py_fmt4(py: Python<'_>, f: f64) -> PyResult<String> {
 // The Stage<BoardState> impl (the runner-test surface)
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// The pipeline-route stage. With a `(routes, tstamp_counter)` payload it
 /// runs the segment/via emission core; with `None` it is a guarded identity
 /// (the runner test's no-venv path).
@@ -601,6 +621,7 @@ pub struct PipelineRouteStage {
     pub payload: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for PipelineRouteStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("pipeline_route")
@@ -620,11 +641,12 @@ impl Stage<BoardState> for PipelineRouteStage {
     }
 }
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn sha1_matches_rfc_3174_test_vectors() {
         // The canonical RFC 3174 vectors. The uuid5 differential pins the
         // byte-exact CPython `uuid.uuid5` equivalence on top of these.
@@ -642,7 +664,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn sha1_padding_handles_multiblock_inputs() {
         // A 55-byte input pads inside one block; a 56/57-byte input crosses
         // the block boundary (the 0x80 padding + big-endian bit-length tail
@@ -659,7 +681,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn uuid5_namespace_produces_the_python_expected_shape() {
         // The namespace UUIDv5 is the SHA-1 of the 16-byte namespace + name
         // with the version-5/variant bits. Format-level check here; the
@@ -672,7 +694,7 @@ mod tests {
         assert!(s.as_bytes()[8] == b'-' && s.as_bytes()[13] == b'-');
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn uuid5_is_deterministic_and_name_sensitive() {
         let a = uuid5(&TSTAMP_NAMESPACE, "temper-router-v6-tstamp-7");
         let b = uuid5(&TSTAMP_NAMESPACE, "temper-router-v6-tstamp-7");
@@ -681,7 +703,7 @@ mod tests {
         assert_ne!(a, c);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn select_sat_nets_bounds_and_stable_order() {
         let nets = vec![
             ("A".to_string(), 5usize),
@@ -704,7 +726,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn select_sat_nets_duplicate_name_last_writer_wins() {
         // A duplicated name keeps first-insertion position with the LAST
         // pin count: {"N": 4, "M": 2} sorts ["M", "N"].
@@ -718,4 +740,19 @@ mod tests {
             Some(vec!["M".to_string()])
         );
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("pipeline_route::tests::sha1_matches_rfc_3174_test_vectors", sha1_matches_rfc_3174_test_vectors),
+        ("pipeline_route::tests::sha1_padding_handles_multiblock_inputs", sha1_padding_handles_multiblock_inputs),
+        ("pipeline_route::tests::uuid5_namespace_produces_the_python_expected_shape", uuid5_namespace_produces_the_python_expected_shape),
+        ("pipeline_route::tests::uuid5_is_deterministic_and_name_sensitive", uuid5_is_deterministic_and_name_sensitive),
+        ("pipeline_route::tests::select_sat_nets_bounds_and_stable_order", select_sat_nets_bounds_and_stable_order),
+        ("pipeline_route::tests::select_sat_nets_duplicate_name_last_writer_wins", select_sat_nets_duplicate_name_last_writer_wins),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

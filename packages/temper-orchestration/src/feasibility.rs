@@ -29,7 +29,9 @@
 //   claimed domain is `frozenset[str]` inputs (the oracle's own contract),
 //   where `len()`, `==` and set difference are all set semantics.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyDict;
 use std::collections::BTreeSet;
 
@@ -100,6 +102,7 @@ fn sum_product_areas_impl(dims: &[(f64, f64)]) -> f64 {
 // convergence.py
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `ConvergenceChecker.record_loss` compute: whether `loss` counts as a
 /// meaningful improvement over `best_loss`, and what the new best is.
 ///
@@ -153,7 +156,7 @@ pub fn record_loss(
 /// result makes the shim set `terminated = True`,
 /// `termination_reason = SUCCESS`.
 #[allow(clippy::too_many_arguments)] // one arg per metric + per criterion, mirroring the oracle's call
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn check_success(
     overlap_mm2: f64,
     boundary_violation_mm: f64,
@@ -200,7 +203,7 @@ pub fn check_success(
 /// The shim extracts each result's `(success, length)` in dict order; the
 /// compensated `sum` makes element order load-bearing, so the shim preserves
 /// dict insertion order.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn is_converged(current: Vec<(bool, f64)>, previous: Option<Vec<(bool, f64)>>) -> bool {
     if current.is_empty() {
         return false;
@@ -324,6 +327,7 @@ fn routability_regression_core(
     }
 }
 
+#[cfg(feature = "python")]
 #[allow(clippy::too_many_arguments)] // net/criteria/state fields mirror the oracle's method signature
 #[pyfunction]
 pub fn check_routability_regression(
@@ -382,7 +386,7 @@ pub fn check_routability_regression(
 /// `len(k) == 4` test is Python-object marshalling); the int-`0` entries for
 /// the rest are no-ops in the compensated float sum (see the module
 /// docstring). Returns `(ratio, code)` with `code` 0=PASS, 1=WARN, 2=FAIL.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn component_area_ratio(
     component_dims: Vec<(f64, f64)>,
     board_width: f64,
@@ -423,7 +427,7 @@ pub fn component_area_ratio(
 /// ```
 /// `min_d` is returned so the shim can render `"{min_d:.1f}"` in the
 /// message; the membership checks (`a in comp_map`) stay Python.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn proximity_rule_impossible(
     comp_a_width: f64,
     comp_a_height: f64,
@@ -450,7 +454,7 @@ pub fn proximity_rule_impossible(
 /// ```
 /// The shim filters the matching components (the zone-name comparison is
 /// Python-object marshalling) and passes their dims.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn zone_over_capacity(
     zone_width: f64,
     zone_height: f64,
@@ -475,7 +479,7 @@ pub fn zone_over_capacity(
 /// boundary; the kernel still reproduces the short-circuit exactly. The
 /// matched components' dims are passed in (the ref-membership filter is the
 /// shim's marshalling); the kernel computes the compensated product sum.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn loop_area_violation(
     max_area_mm2: f64,
     max_area_truthy: bool,
@@ -497,7 +501,7 @@ pub fn loop_area_violation(
 /// ```
 /// The HV-present gate (`hv > 0`) and `iso = 6.5` stay in the shim; the
 /// component dims are passed in and the compensated product sum computed here.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn isolation_barrier_too_large(
     component_dims: Vec<(f64, f64)>,
     board_width: f64,
@@ -514,19 +518,19 @@ pub fn isolation_barrier_too_large(
 // ---------------------------------------------------------------------------
 
 /// `derive_constraints_from_spec` EMI compute: `math.sqrt(area) * 0.8`.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn derive_emi_max_dist(max_area_mm2: f64) -> f64 {
     max_area_mm2.sqrt() * 0.8
 }
 
 /// `derive_constraints_from_spec` thermal compute: `power * 2.0`.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn derive_thermal_clearance(power_dissipation_w: f64) -> f64 {
     power_dissipation_w * 2.0
 }
 
 /// `derive_constraints_from_spec` signal-integrity compute: `max_len / 1.5`.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn derive_si_max_placement_dist(max_length_mm: f64) -> f64 {
     max_length_mm / 1.5
 }
@@ -535,7 +539,7 @@ pub fn derive_si_max_placement_dist(max_length_mm: f64) -> f64 {
 /// onto the `VoltageClass` pyclass (0=LOW_VOLTAGE, 1=MAINS_120V, 2=MAINS_240V,
 /// 3=HIGH_VOLTAGE). NaN falls through every comparison to HIGH_VOLTAGE,
 /// exactly like the oracle's if/elif/else chain.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn mains_voltage_to_class_code(voltage_v: f64) -> i64 {
     if voltage_v <= 50.0 {
         0
@@ -551,7 +555,7 @@ pub fn mains_voltage_to_class_code(voltage_v: f64) -> i64 {
 /// `apply_derived_constraints` per-key compute: the ref behind a
 /// `_min_clearance`-suffixed key (Python `str.replace` removes ALL
 /// occurrences, so `str::replace` is used, not `removesuffix`).
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn extract_min_clearance(key: String, value: f64) -> Option<(String, f64)> {
     if key.ends_with("_min_clearance") {
         Some((key.replace("_min_clearance", ""), value))
@@ -560,11 +564,12 @@ pub fn extract_min_clearance(key: String, value: f64) -> Option<(String, f64)> {
     }
 }
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn builtin_sum_is_compensated_not_naive() {
         // a classic case where naive summation loses a ulp.
         let a = [1.0e16, 1.0, -1.0e16];
@@ -574,7 +579,7 @@ mod tests {
         assert_ne!(naive, comp);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn builtin_sum_negative_zero_seed_is_cpython() {
         // CPython `sum([-0.0])` seeds `0 + (-0.0)` = `+0.0` (IEEE RN), so
         // the single-element negative-zero case returns +0.0, not -0.0.
@@ -582,13 +587,13 @@ mod tests {
         assert!(py_builtin_sum(&[-0.0, -0.0]).is_sign_positive());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn builtin_sum_single_and_empty() {
         assert_eq!(py_builtin_sum(&[]), 0.0);
         assert_eq!(py_builtin_sum(&[3.5]), 3.5);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn builtin_sum_nonfinite_compensation_guard() {
         // c == 0.0 (and non-finite c) must return hi unchanged: an
         // overflowed result stays inf instead of becoming inf + (-inf) = NaN.
@@ -596,7 +601,7 @@ mod tests {
         assert_eq!(hi_overflow, f64::INFINITY);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_min_is_asymmetric_on_nan_and_ties() {
         let nan = f64::NAN;
         assert!(py_min(nan, 1.0).is_nan());
@@ -606,7 +611,8 @@ mod tests {
         assert_eq!(py_min(2.0, 1.0), 1.0);
     }
 
-    #[test]
+    #[cfg(feature = "python")]
+    #[cfg_attr(test, test)]
     fn record_loss_first_call_is_improvement() {
         match record_loss(f64::INFINITY, 100.0, 0.001) {
             Ok((best, improved)) => {
@@ -617,7 +623,8 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg(feature = "python")]
+    #[cfg_attr(test, test)]
     fn record_loss_improvement_threshold() {
         match record_loss(100.0, 90.0, 0.01) {
             Ok((best, improved)) => {
@@ -643,7 +650,8 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg(feature = "python")]
+    #[cfg_attr(test, test)]
     fn record_loss_zero_best_raises_like_cpython() {
         // CPython `(best - loss) / best` with best == 0.0 (incl. -0.0)
         // raises ZeroDivisionError; IEEE division would return inf. (The
@@ -657,7 +665,7 @@ mod tests {
         assert!(record_loss(100.0, 90.0, 0.01).is_ok());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn check_success_order_and_defaults() {
         assert!(check_success(0.0, 0.0, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05));
         assert!(!check_success(1.0, 0.0, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05));
@@ -671,7 +679,7 @@ mod tests {
         assert!(check_success(0.0, f64::NAN, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn is_converged_paths() {
         assert!(!is_converged(vec![], None));
         assert!(is_converged(vec![(true, 100.0), (true, 200.0)], None));
@@ -691,7 +699,7 @@ mod tests {
         ));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn routability_first_call_seeds_state() {
         let r = routability_regression_core(
             vec!["N1".into(), "N2".into()],
@@ -719,7 +727,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn routability_regression_detected() {
         let r = routability_regression_core(
             vec!["N1".into()],
@@ -739,7 +747,7 @@ mod tests {
         assert_eq!(r.stall_count, 0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn routability_converged_after_stall_limit() {
         let routed = vec!["N1".into(), "N2".into()];
         // First identical-iteration stall: count goes 0 -> 1, no termination.
@@ -770,7 +778,7 @@ mod tests {
         assert_eq!(r2.stall_count, 2);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn routability_improvement_updates_best() {
         let r = routability_regression_core(
             vec!["N1".into(), "N2".into()],
@@ -795,7 +803,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn mains_voltage_class_boundaries() {
         assert_eq!(mains_voltage_to_class_code(0.0), 0);
         assert_eq!(mains_voltage_to_class_code(50.0), 0);
@@ -808,7 +816,7 @@ mod tests {
         assert_eq!(mains_voltage_to_class_code(f64::NEG_INFINITY), 0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn extract_min_clearance_suffix_and_all_occurrences() {
         assert_eq!(
             extract_min_clearance("U1_min_clearance".into(), 5.0),
@@ -820,4 +828,29 @@ mod tests {
         );
         assert_eq!(extract_min_clearance("loop1_max_dist".into(), 8.0), None);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("feasibility::tests::builtin_sum_is_compensated_not_naive", builtin_sum_is_compensated_not_naive),
+        ("feasibility::tests::builtin_sum_negative_zero_seed_is_cpython", builtin_sum_negative_zero_seed_is_cpython),
+        ("feasibility::tests::builtin_sum_single_and_empty", builtin_sum_single_and_empty),
+        ("feasibility::tests::builtin_sum_nonfinite_compensation_guard", builtin_sum_nonfinite_compensation_guard),
+        ("feasibility::tests::py_min_is_asymmetric_on_nan_and_ties", py_min_is_asymmetric_on_nan_and_ties),
+        #[cfg(feature = "python")] ("feasibility::tests::record_loss_first_call_is_improvement", record_loss_first_call_is_improvement),
+        #[cfg(feature = "python")] ("feasibility::tests::record_loss_improvement_threshold", record_loss_improvement_threshold),
+        #[cfg(feature = "python")] ("feasibility::tests::record_loss_zero_best_raises_like_cpython", record_loss_zero_best_raises_like_cpython),
+        ("feasibility::tests::check_success_order_and_defaults", check_success_order_and_defaults),
+        ("feasibility::tests::is_converged_paths", is_converged_paths),
+        ("feasibility::tests::routability_first_call_seeds_state", routability_first_call_seeds_state),
+        ("feasibility::tests::routability_regression_detected", routability_regression_detected),
+        ("feasibility::tests::routability_converged_after_stall_limit", routability_converged_after_stall_limit),
+        ("feasibility::tests::routability_improvement_updates_best", routability_improvement_updates_best),
+        ("feasibility::tests::mains_voltage_class_boundaries", mains_voltage_class_boundaries),
+        ("feasibility::tests::extract_min_clearance_suffix_and_all_occurrences", extract_min_clearance_suffix_and_all_occurrences),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

@@ -212,6 +212,12 @@ PCL_IR_FAMILIES = ["pcl-ir"]
 CONSTRAINTS_FAMILIES = ["constraints"]
 RUST_ROUTER_FAMILIES = ["rust-router"]
 
+# `temper-orchestration` is the same shape again: what survives
+# `--no-default-features` is a flat set of pure kernels (timing, feasibility,
+# copper-length, the runner scaffolding) with no rule-family taxonomy, so one
+# family named after the crate.
+ORCHESTRATION_FAMILIES = ["orchestration"]
+
 TEST_FN = re.compile(r"^(\s*)#\[(?:test|cfg_attr\(test, test\))\]\s*$")
 
 # A *use* of the `proptest` dev-dependency: the `proptest!` macro or a
@@ -901,6 +907,55 @@ CRATES: dict[str, CrateSpec] = {
             "//!   exclusion every other crate on the tier makes.",
             "//!",
             "//! `scripts/gen_wasm_test_registry.py --crate temper-rust-router",
+            "//! --census` prints the full module census with per-module counts.",
+        ],
+    ),
+    "temper-orchestration": CrateSpec(
+        name="temper-orchestration",
+        eligible=None,  # discovered
+        families=ORCHESTRATION_FAMILIES,
+        family_of=lambda _rel: "orchestration",
+        census_note="cannot be registered here at all",
+        sharding_note=[
+            "//! ## Families",
+            "//!",
+            "//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`",
+            "//! feature, as in `temper-drc-rs`.  One family (`orchestration`): what",
+            "//! survives `--no-default-features` is a flat set of pure kernels",
+            "//! (timing, feasibility, copper-length, the `Stage`/`PipelineRunner`",
+            "//! scaffolding) with no rule-family taxonomy to shard along.",
+        ],
+        extra_notes=[
+            "//! Three exclusion classes apply here, all structural:",
+            "//!",
+            '//! * `#[cfg(feature = "python")]` items.  Unlike the other crates on',
+            "//!   this tier, the gate here is mostly per-*item* rather than",
+            "//!   per-*module*: almost every stage module wraps the shared",
+            "//!   `BoardState` type (`board_state.rs`), whose fields are",
+            "//!   `Option<pyo3::Py<PyAny>>` placeholders (Phase A marshalling has",
+            "//!   not landed yet -- see `board_state.rs`'s doc), so `BoardState`",
+            "//!   itself, the `Stage<BoardState>` impls, and every `#[pyfunction]`",
+            "//!   FFI entry point built on it do not exist in a",
+            "//!   `--no-default-features` build. A handful of `#[test]` functions",
+            "//!   are individually `#[cfg(feature = \"python\")]`-gated alongside",
+            "//!   otherwise-pure sibling tests in the same module, for the same",
+            "//!   reason at function scope (`feasibility::record_loss` mirrors a",
+            "//!   CPython `ZeroDivisionError` through `PyResult`;",
+            "//!   `phased_component_assignment_validator_stage::is_hv_safety` and",
+            "//!   `grid_hv`'s whole `tests` module attach a live interpreter via",
+            "//!   `Python::attach` to exercise real CPython attribute-lookup",
+            "//!   semantics; `pipeline_state::PipelinePhase`'s tests call its",
+            "//!   `#[pymethods]` `__hash__`).",
+            "//! * `proptest` modules use a dev-dependency, which is not linked into",
+            "//!   the ordinary (non-test) build this registry compiles into.",
+            "//! * `Stage<S>` itself has no default type parameter in a",
+            "//!   `--no-default-features` build (`stage.rs` declares a second,",
+            "//!   parameter-free definition under `#[cfg(not(feature = \"python\"))]`",
+            "//!   since the default -- `BoardState` -- does not exist), which is",
+            "//!   why `stage::tests` (the trivial `Stage<u32>` pin) registers fully:",
+            "//!   nothing in it depends on the default.",
+            "//!",
+            "//! `scripts/gen_wasm_test_registry.py --crate temper-orchestration",
             "//! --census` prints the full module census with per-module counts.",
         ],
     ),

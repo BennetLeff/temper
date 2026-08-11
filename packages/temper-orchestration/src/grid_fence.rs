@@ -22,9 +22,12 @@
 // stage, not here) and the module-level `_EXPANSION_LOG` (the stage writes
 // it; this kernel only reads the passed-in list).
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList, PyTuple};
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_grid_fence_check(grid, log, count)`.
 /// Returns the list of violation dicts (empty == conservative).
 #[pyfunction]
@@ -102,6 +105,7 @@ pub fn run_grid_fence_check(
     Ok(violations.into_any().unbind())
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_grid_perf_budget(...)`. Returns the
 /// `(over_budget, warning_message | None)` tuple.
 #[pyfunction]
@@ -135,6 +139,7 @@ pub fn run_grid_perf_budget(
     fence_tuple(py, false, None)
 }
 
+#[cfg(feature = "python")]
 fn fence_tuple(
     py: Python<'_>,
     over_budget: bool,

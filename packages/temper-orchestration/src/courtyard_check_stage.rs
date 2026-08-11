@@ -19,19 +19,28 @@
 // - the temper-drc-rs `_clamp_position` kernel,
 // - `print` / `str.format` for every interpolated message.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyTuple;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::d6_util;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::host_math;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 const STAGE_NAME: &str = "courtyard_check";
 
+#[cfg(feature = "python")]
 /// The courtyard-overlap resolution stage: `placements` -> `placements`
 /// (overlapping courtyards nudged apart and clamped to the board bounds).
 #[derive(Debug, Clone)]
@@ -39,6 +48,7 @@ pub struct CourtyardCheckStage {
     pub stage: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for CourtyardCheckStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -54,6 +64,7 @@ impl Stage<BoardState> for CourtyardCheckStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl CourtyardCheckStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let placements = match &state.placements {
@@ -160,6 +171,7 @@ impl CourtyardCheckStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_courtyard_check(state, stage)` (the
 /// stage instance carries the courtyards / board dims / iteration config and
 /// the `_find_collisions` / `_clamp_position` call-backs).

@@ -94,6 +94,8 @@ const REGISTRIES: &[&[&[WasmTest]]] = &[
     temper_constraints::wasm_test_registry::ALL,
     #[cfg(feature = "rust-router-registry")]
     temper_rust_router::wasm_test_registry::ALL,
+    #[cfg(feature = "orchestration-registry")]
+    temper_orchestration::wasm_test_registry::ALL,
 ];
 
 /// How many tests are linked in, across every registry.

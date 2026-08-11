@@ -18,14 +18,21 @@
 // result tuple has exactly the kernel's values (builtin tuple, not a Rust
 // re-wrap).
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyList, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::config_attach_stage::to_pyerr;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 /// The slot-generation stage: zones -> `zone_slots` (frozenset of
@@ -35,6 +42,7 @@ pub struct SlotGenerationStage {
     pub slot_spacing_mm: f64,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for SlotGenerationStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("slot_generation")
@@ -76,6 +84,7 @@ impl Stage<BoardState> for SlotGenerationStage {
 // Slot-grid generation
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// The `for zone in state.zones` loop body: each zone's bounds are unpacked
 /// (`(x_min, y_min), (x_max, y_max)`), the kernel generates the slots, the
 /// per-zone entry `(zone.name, tuple(slots))` is appended, and the whole
@@ -111,6 +120,7 @@ fn generate_all_zone_slots<'py>(
     Ok(frozenset.into_any().unbind())
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_slot_generation(state,
 /// slot_spacing_mm)`.
 #[pyfunction]

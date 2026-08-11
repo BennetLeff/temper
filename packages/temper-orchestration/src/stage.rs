@@ -23,8 +23,10 @@
 use std::borrow::Cow;
 use std::fmt;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
 
+#[cfg(feature = "python")]
 /// A single pipeline stage that transforms a typed state.
 ///
 /// The migration endpoint for the Python `Stage(ABC).run(BoardState) ->
@@ -32,6 +34,63 @@ use crate::board_state::BoardState;
 /// becomes a Rust `Stage` implementation over time; `PipelineRunner`
 /// sequences `Box<dyn Stage<S>>` instances.
 pub trait Stage<S = BoardState> {
+    /// Human-readable stage name (used in reports/traces).
+    fn name(&self) -> Cow<'static, str>;
+
+    /// Optional DRC invariants this stage must satisfy.
+    /// Default empty — most stages have no invariants.
+    fn invariants(&self) -> &[InvariantSpec] {
+        &[]
+    }
+
+    /// Bounding boxes of regions this stage modified, if known.
+    /// Used by incremental DRC to skip re-checking untouched areas.
+    fn last_modified_regions(&self) -> Option<&[(f64, f64, f64, f64)]> {
+        None
+    }
+
+    /// Artifacts this stage promises to produce.
+    /// Used by the artifact-contract checker (bottleneck_report.py).
+    fn declared_writes(&self) -> &[DeclaredArtifact] {
+        &[]
+    }
+
+    /// Artifacts this stage requires from prior stages.
+    fn declared_reads(&self) -> &[DeclaredArtifact] {
+        &[]
+    }
+
+    /// Whether this stage runs in the current pipeline configuration.
+    /// When `false`, the runner skips the stage AND its contract obligations.
+    fn is_active(&self) -> bool {
+        true
+    }
+
+    /// Execute the stage and return the new state.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(StageError)` if the stage cannot complete — a hard
+    /// failure that halts the pipeline unless the runner is configured to
+    /// continue-on-error.
+    fn run(&self, state: S) -> Result<S, StageError>;
+}
+
+// wasm32 tier (`--no-default-features`): `BoardState` requires pyo3's
+// `Py<PyAny>` fields and is therefore not compiled, so `Stage` has no
+// default type parameter in this configuration -- every implementor must
+// specify `S` explicitly, exactly like the `#[cfg(test)] AddStage: Stage<u32>`
+// unit test below already does. The trait body is otherwise identical to the
+// `python`-feature definition above (kept as a second definition rather than
+// a shared macro so the two stay trivially diffable).
+#[cfg(not(feature = "python"))]
+/// A single pipeline stage that transforms a typed state.
+///
+/// The migration endpoint for the Python `Stage(ABC).run(BoardState) ->
+/// BoardState` pattern. Every deterministic stage and router_v6 check
+/// becomes a Rust `Stage` implementation over time; `PipelineRunner`
+/// sequences `Box<dyn Stage<S>>` instances.
+pub trait Stage<S> {
     /// Human-readable stage name (used in reports/traces).
     fn name(&self) -> Cow<'static, str>;
 
@@ -135,6 +194,7 @@ impl StageError {
     }
 }
 
+#[cfg(feature = "python")]
 /// A Python error raised inside a stage body becomes a `Fatal` `StageError`
 /// (the `stage_name` is filled in by the stage's own wrapper when the run()
 /// result is observed; the FFI path only reads `message`). This lets stage
@@ -154,8 +214,9 @@ impl fmt::Display for StageError {
 
 impl std::error::Error for StageError {}
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     /// A trivial stage over `u32` used to pin the trait's shape.
@@ -177,7 +238,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn stage_run_transforms_state() {
         let stage = AddStage {
             name: "add_one",
@@ -189,7 +250,7 @@ mod tests {
         assert!(stage.is_active());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn stage_defaults_are_empty() {
         let stage = AddStage {
             name: "minimal",
@@ -202,7 +263,7 @@ mod tests {
         assert!(stage.declared_reads().is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn stage_error_roundtrip_and_display() {
         let err = StageError::new("convergence_check", "boom", StageErrorKind::Fatal);
         assert_eq!(err.stage_name, "convergence_check");
@@ -212,10 +273,30 @@ mod tests {
         assert!(text.contains("boom"));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn stage_error_kind_semantics() {
         assert_ne!(StageErrorKind::Warning, StageErrorKind::Fatal);
         assert_ne!(StageErrorKind::Infeasible, StageErrorKind::Warning);
-        assert_eq!(StageErrorKind::Fatal, StageErrorKind::Fatal);
+        // Reflexivity: a `StageErrorKind` equals a separately-constructed
+        // value of the same variant. Bound through a variable (rather than
+        // repeating `StageErrorKind::Fatal` literally on both sides) so this
+        // reads as two independent values to both the reader and
+        // `clippy::eq_op`, which otherwise flags identical-looking operands
+        // as a likely copy-paste mistake.
+        let fatal = StageErrorKind::Fatal;
+        assert_eq!(fatal, StageErrorKind::Fatal);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("stage::tests::stage_run_transforms_state", stage_run_transforms_state),
+        ("stage::tests::stage_defaults_are_empty", stage_defaults_are_empty),
+        ("stage::tests::stage_error_roundtrip_and_display", stage_error_roundtrip_and_display),
+        ("stage::tests::stage_error_kind_semantics", stage_error_kind_semantics),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

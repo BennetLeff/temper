@@ -19,9 +19,12 @@
 // non-iterable `decisions` (TypeError with CPython's message) comes from
 // `PyObject_GetIter` on the Rust side, i.e. by identity.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyIterator, PyList};
 
+#[cfg(feature = "python")]
 /// The `why` subject filter, returned as the ORIGINAL indices of the
 /// matching decisions (the shim's access pattern for printing):
 ///
@@ -47,6 +50,7 @@ pub fn filter_decisions<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// The `why_not` nested scan: within the first subject-matching decision,
 /// the first alternative whose ``str(alt.get("value")) == value``. Returns
 /// the ORIGINAL decision index and the alternative index, or None.

@@ -10,21 +10,29 @@
 // glue; the ordering decision itself is the Rust kernel), and writes the
 // resulting order back into `BoardState.net_order`.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::config_attach_stage::to_pyerr;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
+#[cfg(feature = "python")]
 /// The net-ordering stage: netlist + loops -> `net_order`.
 #[derive(Debug, Clone)]
 pub struct NetOrderingStage {
     pub net_priority: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for NetOrderingStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("net_ordering")
@@ -73,6 +81,7 @@ impl Stage<BoardState> for NetOrderingStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_net_ordering(state, net_priority)`.
 #[pyfunction]
 #[pyo3(signature = (state, net_priority=None))]

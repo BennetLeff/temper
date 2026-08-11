@@ -19,11 +19,16 @@
 // `OUTER_COPPER_LAYERS`/`_STANDARD_LAYER_NAMES`/`INTERNAL_LAYER_CREEPAGE_FACTOR`
 // constants (board configuration).
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyAttributeError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyList;
+#[cfg(feature = "python")]
 use std::collections::HashSet;
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_hv_pad_set(pads, zones, positions)`.
 /// Returns the Python `set` of `(ref, pin_name)` tuples for HV pads.
 #[pyfunction]
@@ -48,6 +53,7 @@ pub fn run_hv_pad_set(
     Ok(result.into_any().unbind())
 }
 
+#[cfg(feature = "python")]
 /// The zone-resolution loop of `hv_pad_set`: collect the set of HV component
 /// refs, raising the Python `ConfigError` on an unresolvable zone with the
 /// identical message the oracle builds.
@@ -139,6 +145,7 @@ fn resolve_hv_refs<'py>(
     Ok(hv_refs)
 }
 
+#[cfg(feature = "python")]
 /// Build the Python `ConfigError` exception and return it as a `PyErr`.
 fn config_error(
     py: Python<'_>,
@@ -148,6 +155,7 @@ fn config_error(
     PyErr::from_value(cls.call1((message,)).unwrap_or_else(|e| e.value(py).clone().into_any()))
 }
 
+#[cfg(feature = "python")]
 /// `getattr(obj, name, default)` with AttributeError fallback.
 pub(crate) fn getattr_default<'py>(
     py: Python<'py>,
@@ -162,15 +170,18 @@ pub(crate) fn getattr_default<'py>(
     }
 }
 
+#[cfg(feature = "python")]
 /// CPython `str()` of an object.
 pub(crate) fn str_of(obj: &Bound<'_, PyAny>) -> PyResult<String> {
     obj.str()?.extract()
 }
 
+#[cfg(feature = "python")]
 pub(crate) fn str_py(py: Python<'_>, s: &str) -> Py<PyAny> {
     pyo3::types::PyString::new(py, s).into_any().unbind()
 }
 
+#[cfg(feature = "python")]
 pub(crate) fn py_float(py: Python<'_>, f: f64) -> Py<PyAny> {
     pyo3::types::PyFloat::new(py, f).into_any().unbind()
 }
@@ -179,7 +190,19 @@ pub(crate) fn py_float(py: Python<'_>, f: f64) -> Py<PyAny> {
 // Tests
 // ---------------------------------------------------------------------------
 
+// wasm32 tier (`--no-default-features`): every test in this module builds a
+// live Python object via `Python::attach` to exercise `getattr_default` /
+// `str_of` against real CPython attribute-lookup semantics -- there is no
+// pure kernel underneath to test without an attached interpreter, so the
+// whole module stays python-only (see the module doc for why `getattr_default`
+// / `str_of` / `py_float` themselves cannot be made pure). Two separate `cfg`
+// attributes (rather than one `cfg(all(test, feature = "python"))`) so
+// `scripts/gen_wasm_test_registry.py`'s discovery -- which recognises a
+// module as test-gated only via a literal `#[cfg(test)]` attribute -- still
+// finds and censuses this module (as `python`-gated) instead of missing it
+// silently.
 #[cfg(test)]
+#[cfg(feature = "python")]
 #[allow(clippy::unwrap_used)]
 mod tests {
     use pyo3::types::{PyDict, PyString};

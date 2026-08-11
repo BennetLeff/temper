@@ -32,17 +32,26 @@
 // - `frozenset(placements.items())` goes through the builtins `frozenset`
 //   on the kernel's dict-items view.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
+#[cfg(feature = "python")]
 use std::collections::HashSet;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PySet, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::config_attach_stage::to_pyerr;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
+#[cfg(feature = "python")]
 /// The component-assignment stage: netlist + zone maps + slot grid ->
 /// `BoardState.placements` (frozenset of `(ref, (x, y))`).
 #[derive(Debug, Clone)]
@@ -51,6 +60,7 @@ pub struct ComponentAssignmentStage {
     pub fixed_placements: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ComponentAssignmentStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("component_assignment")
@@ -66,6 +76,7 @@ impl Stage<BoardState> for ComponentAssignmentStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl ComponentAssignmentStage {
     /// The stage body. Returns the state unchanged (identity preserved) when
     /// the guard fires.
@@ -115,6 +126,7 @@ impl ComponentAssignmentStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// `_domain_lookups`: the per-ref domain map and the HV_edge/LV_interior
 /// region dict. Both stay EMPTY dicts when the partition stage was disabled
 /// (empty `component_domain_map` / `domain_regions` on the state).
@@ -150,6 +162,7 @@ fn domain_lookups<'py>(
     Ok((domain_for_ref.into_any(), domain_regions.into_any()))
 }
 
+#[cfg(feature = "python")]
 /// The `_assign_components_to_slots` orchestration: precompute the per-ref
 /// `domain_ok` slot set (the GEOS filter), resolve fixed placements
 /// (sheetpath-first, ref fallback) and call the greedy kernel. Returns the
@@ -282,6 +295,7 @@ fn assign_inner<'py>(
     builtins_dict(py, &result)
 }
 
+#[cfg(feature = "python")]
 /// `dict(obj)` -- the builtin dict constructor over an iterable of pairs.
 fn builtins_dict<'py>(
     py: Python<'py>,
@@ -292,6 +306,7 @@ fn builtins_dict<'py>(
         .call1((obj,))
 }
 
+#[cfg(feature = "python")]
 /// `dict.items()` in insertion order.
 fn dict_items<'py>(
     py: Python<'py>,
@@ -307,6 +322,7 @@ fn dict_items<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_component_assignment(state,
 /// slot_spacing, fixed_placements)`.
 #[pyfunction]
@@ -328,6 +344,7 @@ pub fn run_component_assignment(
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["placements"])
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim's `_assign_components_to_slots`:
 /// ``run_component_assignment_kernel(netlist, component_zone_map,
 /// zone_slots, fixed_placements, domain_for_ref, domain_regions,
