@@ -324,7 +324,13 @@ jobs:
           # day-of-year is computed here, in the shell, and handed to node as
           # an env var. `%-j` (no leading zeros) avoids bash's octal parsing
           # of a plain `%j` value like `008`.
-          DAY_OF_YEAR="$(date -u +%-j)"
+          # `export`, not a plain assignment: the `node -e` child below reads
+          # this via `process.env.DAY_OF_YEAR`, and a non-exported shell var is
+          # invisible to it. Without the export, `Number(undefined)` is NaN,
+          # `tiers[NaN]` is undefined, and the step dies on `picked.crate` --
+          # which is exactly how this shipped, because every verification run
+          # used the `r19_tier` override and took the `forced` branch instead.
+          export DAY_OF_YEAR="$(date -u +%-j)"
           node -e '
             import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, tierFlagSuffix }) => {
               const tiers = loadTopology().tiers;
