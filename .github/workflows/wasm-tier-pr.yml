@@ -1,0 +1,716 @@
+name: WASM Tier PR Verdict (advisory)
+
+# U2 of docs/plans/2026-08-10-001-feat-wasm-tier-phase5-plan.md (R5.3, D5.1,
+# D5.2, D5.4): the deployed WASM tier gets a PR-path verdict.
+#
+# ---------------------------------------------------------------------------
+# THE GAP THIS CLOSES
+# ---------------------------------------------------------------------------
+#
+# `temper-drc-rs`'s 1,719 tests run on NO PR-path CI machine. Grep
+# .github/workflows/ for `cargo test`: the only invocation that touches that
+# crate is wasm-tier-nightly.yml's, and the nightly is scheduled, not
+# per-change. `temper-thermal`'s tests run nowhere at all -- not on the PR
+# path, and before wasm-tier-nightly.yml grew a thermal arm on 2026-08-10, not
+# in any workflow whatsoever. The three crates that DO get a PR-path
+# `cargo test` are temper-design-bundle, temper-geometry and
+# temper-orchestration; the rest of the Rust workspace flies blind until merge.
+#
+# Meanwhile the deployed tier already serves 2,584 tests across three tiers
+# (temper-drc-rs 1,719 across 7 Worker shards; temper-geometry 722;
+# temper-thermal 143 -- 10 Cloudflare scripts, tools/wasm/wasm_tier_topology.json)
+# and the nightly sweeps all of them in ~2.5 seconds of wall time at roughly
+# 1,000 tests/sec. The execution capacity was already bought and paid for. This
+# workflow points it at pull requests.
+#
+# D5.2: this is ADDITIVE, not substitutive. No `cargo test` step is removed
+# anywhere by this file; nothing that runs today stops running. Suite removal
+# is U4 and is sequenced after this deliberately.
+#
+# ---------------------------------------------------------------------------
+# WHY TIER-ONLY, AND NOT A NATIVE ARM (plan O1, answered)
+# ---------------------------------------------------------------------------
+#
+# The nightly runs both arms -- `cargo test` natively and the same corpus on
+# wasm32 -- and compares them (R19). This job runs only the tier arm. That is a
+# decision, not an omission, and the measurement is on the nightly itself:
+#
+#   native arm    ~39s of `cargo` (25s temper-drc-rs + 14s temper-geometry),
+#                 on a GitHub Actions runner, per PR, plus a toolchain and a
+#                 cold-ish build cache.
+#   tier dispatch ~20s of wall time and ZERO `cargo`. It curls Workers and
+#                 compares JSON.
+#
+# The 39s is exactly the cost D12 wanted off the PR path, and the two arms are
+# not answering the same question:
+#
+#   "Did any test fail on wasm32?"      <- the coverage gap above. A tier-only
+#                                         verdict answers it completely, and a
+#                                         failing test here is a REAL failure,
+#                                         not a comparison artefact.
+#   "Do wasm32 and native agree?"       <- R19 equivalence. That is a property
+#                                         SUSTAINED OVER TIME, and the nightly
+#                                         already establishes it every night by
+#                                         running both arms over the same
+#                                         commit.
+#
+# Paying 39s of `cargo` on every PR to re-derive an equivalence a nightly
+# already sustains buys very little. So: no native arm here, and consequently
+# no `cargo` on the PR path. If a step in this file ever starts building
+# something, that decision has been quietly reversed and should be re-argued in
+# the open.
+#
+# THE RESIDUAL RISK, STATED PLAINLY. A PR that breaks wasm32/native
+# equivalence -- a change that makes a test pass on wasm32 and fail natively,
+# or vice versa -- produces a MISLEADING-BUT-PASSING tier verdict here, and
+# stays that way for up to 24 hours until the nightly's R19 comparison catches
+# it. This job cannot see it, because it has nothing to compare against.
+#
+# That is acceptable only while the verdict is ADVISORY. It stops being
+# acceptable at exactly the moment a tier verdict is proposed as a required
+# context -- which is the same moment R22/R23 durability comes due (D5.4,
+# restating D10). The two thresholds coincide, and that is tidy rather than
+# coincidental: a verdict nobody can merge past is a verdict that must be able
+# to answer for the commit it is judging, which means the native arm comes back
+# (or the deploy becomes per-commit) in the same change that makes it required.
+#
+# ---------------------------------------------------------------------------
+# ADVISORY, DELIBERATELY (D5.4)
+# ---------------------------------------------------------------------------
+#
+# This workflow is NOT in .github/required-checks.json and MUST NOT BE ADDED TO
+# IT. Making a tier verdict a required PR context crosses R22/R23 -- the
+# dead-letter, idempotency and reconciliation machinery that is unbuilt BY
+# DESIGN under D10 -- and the plan's Scope Boundaries put that out of scope for
+# the whole of Phase 5. A red X here is information for a human reviewer. It
+# does not block a merge, and nothing in this file should be read as trying to.
+#
+# ---------------------------------------------------------------------------
+# FRESHNESS FIRST, AND WHAT FRESHNESS CANNOT SEE
+# ---------------------------------------------------------------------------
+#
+# A verdict computed against a stale deployed corpus is worse than no verdict:
+# it reports green over tests that were never run. From 2026-08-07 to
+# 2026-08-10 the Workers carried 147 tests while temper-drc-rs's suite had
+# grown to 1,708, and the nightly reported `agreement_rate: 1.0` every night of
+# that window (wasm-tier-nightly.yml's header tells that story in full). So the
+# freshness check runs BEFORE the sweep here, exactly as it does there, and a
+# failure stops the job before it spends 2,584 HTTP round-trips computing a
+# number that would be arithmetically true and epistemically worthless.
+#
+# tools/wasm/check_deployed_freshness.mjs wants a BUILT count per tier --
+# `temper_test_count()` of the wasm32 module compiled from the commit under
+# test. Compiling it is `cargo`, which this job does not do. So the counts come
+# from the last successful wasm-tier-nightly.yml run's own freshness census
+# artifact, via the checker's documented `--expected-count-<tier>` override.
+# That is not a weaker check than the nightly's, it is a DIFFERENT one, and the
+# two compose:
+#
+#   the nightly proved     deployed corpus == built(BASELINE_SHA)
+#   this job proves        deployed corpus == the same counts, right now
+#   the drift step reports whether the corpus-affecting sources changed
+#                          between BASELINE_SHA and this PR's head
+#
+# So a Worker redeployed, broken, or rolled back since the baseline fails here
+# loudly; and a PR that changes the registered corpus is reported as such
+# rather than being quietly answered for by a corpus that predates it.
+#
+# The drift step REPORTS rather than fails, and that is a judgement call worth
+# defending. Deploys are operator-triggered (wasm-tier-deploy.yml is
+# `workflow_dispatch`-only), so any PR that adds a test drifts by construction.
+# Hard-failing on drift would paint a red X on precisely the PRs whose code the
+# tier is most useful on, and an advisory check that is red by default is a
+# check nobody reads -- "produces numbers nobody reads" is the failure mode
+# wasm-tier-nightly.yml's header opens with. What this job will NOT do is stay
+# silent about it: the drift list and the baseline commit are printed in the
+# job summary, so the scope of the verdict is stated, never implied.
+#
+# INHERITED BLIND SPOT (issue #945). The freshness control compares COUNTS. A
+# behaviour change that leaves the count stable is invisible to it, and this
+# PR-path verdict inherits that blind spot whole. It is not hypothetical: on
+# 2026-08-11 nightly run 31449478989 went red with 7 real temper-geometry
+# disagreements while every count matched, because the deployed module's
+# behaviour had moved and its registry size had not. Read this job's green tick
+# as "no test in the deployed corpus failed on wasm32", not as "the deployed
+# corpus is byte-identical to this commit's". #945 is the fix for that and it
+# belongs in the shared checker, not in a per-workflow workaround here.
+#
+# ---------------------------------------------------------------------------
+# FAIL LOUDLY, NEVER SKIP
+# ---------------------------------------------------------------------------
+#
+# The tier's whole discipline is that a run reporting green while nothing
+# executed is the failure mode to rule out -- and that is not a theoretical
+# worry about this particular toolchain. tools/wasm/sweep_multi_worker.mjs had
+# exactly that bug: an unreachable family got `count: 0`, contributed no work
+# items, and if every Worker was unreachable the queue was empty, the failure
+# list was empty, and the sweep exited 0 having dispatched nothing. #940 fixed
+# it in the tool. This job adds its own belt to that braces, in the final
+# "Tier verdict" step, which recomputes the tally FROM THE PER-TEST RESULTS and
+# fails when:
+#
+#   - a sweep file is missing or unparseable (an earlier step died);
+#   - a sweep reports zero tests;
+#   - the number of per-test verdicts does not equal the deployed corpus size
+#     the freshness census just established -- a sweep that silently covered a
+#     subset is not a pass;
+#   - any verdict is `fail` or `error`, or is a status this job does not know
+#     how to score (unknown statuses are counted as failures, never ignored).
+#
+# There is no `continue-on-error` in this file and no step that turns a missing
+# precondition into a skip.
+#
+# ---------------------------------------------------------------------------
+# THE TOPOLOGY IS THE SINGLE SOURCE OF TRUTH -- NO NEW WORKER LIST
+# ---------------------------------------------------------------------------
+#
+# Every Worker name, tier, shard and crate path used below is read from
+# tools/wasm/wasm_tier_topology.json through tools/wasm/tier_topology.mjs. Six
+# hand-maintained copies of that list were collapsed onto it in #940 and two
+# more were removed in #943, for a concrete reason: a Worker that is built,
+# deployed and swept but missing from ONE of those lists is a Worker nothing
+# proves is current -- the 2026-08-07 staleness window, reintroduced one Worker
+# at a time. This file adds no seventh list. The tier names passed to `--tier`
+# below are the only crate strings written out here, and an unknown one makes
+# sweep_multi_worker.mjs throw with the valid names.
+#
+# ---------------------------------------------------------------------------
+# FORK PULL REQUESTS
+# ---------------------------------------------------------------------------
+#
+# This job runs on them, unmodified, and needs no secret to do it. The deployed
+# Workers are unauthenticated public HTTPS endpoints -- packages/temper-worker's
+# `/run-test` handler takes no credential, and neither
+# tools/wasm/sweep_multi_worker.mjs nor tools/wasm/check_deployed_freshness.mjs
+# contains a single `process.env` reference. CF_TOKEN (the repo secret; note
+# `wrangler` wants it as CLOUDFLARE_API_TOKEN) is a DEPLOY credential and this
+# workflow never deploys. That matters because secrets are not exposed to
+# `pull_request` runs from forks: a job that needed one could not run there at
+# all, and the coverage gap this closes would silently re-open for exactly the
+# contributors with the least context to notice.
+#
+# The one privileged-ish thing this job does need is `actions: read`, to list
+# the nightly's runs and download its freshness census. `pull_request` grants a
+# read-only GITHUB_TOKEN scoped to the BASE repository on fork runs, which
+# covers both. No `pull_request_target`, no checkout of untrusted code with a
+# writable token, and nothing here evaluates PR-controlled text as code.
+#
+# ---------------------------------------------------------------------------
+# COST
+# ---------------------------------------------------------------------------
+#
+# One short job, no `cargo`, no build cache, ~2,584 Worker invocations per
+# push. Against D3's $5-7/month basis that is small, but it is not free and it
+# scales with push frequency, so: `paths` filters keep doc-only PRs from
+# spending it, and `cancel-in-progress` means a force-push replaces the run in
+# flight rather than stacking a second sweep on top of it. The Workers are
+# public endpoints on a shared account budget (the plan's Dependencies section
+# names that as a thing to decide before the tier carries merge authority);
+# this job's dispatch rate is the reason to keep that on the list.
+#
+# ---------------------------------------------------------------------------
+# WHAT THIS WORKFLOW DELIBERATELY DOES NOT DO
+# ---------------------------------------------------------------------------
+# - Never runs `cargo`. See "why tier-only" above; a build step here is the
+#   reversal of that decision.
+# - Never deploys a Worker, never invokes `wrangler`, never reads CF_TOKEN.
+#   Deploying is .github/workflows/wasm-tier-deploy.yml, `workflow_dispatch`
+#   only.
+# - Never becomes a required check (D5.4). Not in .github/required-checks.json.
+# - Never writes to the repository, never opens a PR, never comments.
+# - `contents: read` + `actions: read`, nothing else.
+
+on:
+  pull_request:
+    # Doc-only and Python-only PRs cannot change what the wasm32 corpus does,
+    # and this job costs ~2,584 Worker invocations, so they do not pay for it.
+    # Advisory-only status is what makes filtering safe: a required check with
+    # `paths` can leave a PR waiting forever for a context that will never
+    # report, which is why required-checks.json carries its own trigger_paths
+    # list instead.
+    paths:
+      - 'packages/**'
+      - 'tools/wasm/**'
+      - 'scripts/gen_wasm_test_registry.py'
+      - '.github/workflows/wasm-tier-pr.yml'
+  workflow_dispatch:
+    inputs:
+      inject_failure:
+        description: 'Anti-vacuity: flip one swept verdict pass -> fail before the verdict step, to prove this job goes red when a test fails'
+        required: false
+        type: choice
+        default: 'none'
+        options:
+          - none
+          - fail_one_verdict
+
+permissions:
+  contents: read
+  # Read the last successful nightly run and download its freshness census.
+  # Nothing else in this job is privileged.
+  actions: read
+
+# PR runs grouped per PR number and cancelled when superseded; manual runs
+# grouped per SHA and never cancelled. Matches lint-workflows.yml and
+# python-tests.yml. A superseded run's sweep is 2,584 Worker invocations that
+# nobody will read, so cancelling it is a cost decision as much as a CI one.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  tier-verdict:
+    name: Deployed WASM tier verdict (advisory — 2,584 tests, no cargo)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      # Pinned rather than inherited from the runner image, for the reason
+      # wasm-tier-nightly.yml's worker-dispatch job pins it: every step below
+      # runs an ESM tool out of tools/wasm/, and a job that depends on whatever
+      # node the image happens to ship is a job that breaks on an image bump.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      # ------------------------------------------------------------------
+      # 1. The freshness baseline.
+      #
+      # The deployed corpus was proved equal to a built corpus by the R5.1
+      # control the last time wasm-tier-nightly.yml went green. This step finds
+      # that run and takes its commit and its per-tier built counts as the
+      # baseline the checks below are anchored to.
+      #
+      # It fails loudly when there is no such run, or when its census artifact
+      # has aged out (30-day retention). "No baseline" is not "assume fresh":
+      # the counts would then come from nowhere, and a freshness check whose
+      # expected value is unknown is the vacuous gate this whole control exists
+      # to rule out.
+      # ------------------------------------------------------------------
+      - name: Resolve freshness baseline (last green wasm-tier-nightly)
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # `--method GET` is load-bearing: `gh api` switches to POST as soon
+          # as any `-f` parameter is passed, and POSTing to this endpoint is a
+          # 404 that looks exactly like "the workflow does not exist".
+          gh api --method GET \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/wasm-tier-nightly.yml/runs" \
+            -f status=success -f branch=main -f per_page=1 \
+            > /tmp/baseline_runs.json
+          RUN_ID="$(jq -r '.workflow_runs[0].id // empty' /tmp/baseline_runs.json)"
+          RUN_SHA="$(jq -r '.workflow_runs[0].head_sha // empty' /tmp/baseline_runs.json)"
+          RUN_AT="$(jq -r '.workflow_runs[0].created_at // empty' /tmp/baseline_runs.json)"
+          if [ -z "${RUN_ID}" ]; then
+            echo "::error::No successful wasm-tier-nightly.yml run on main to anchor the deployed corpus to. Without one there is no built test count for any tier, so the freshness check below would have nothing to compare the deployed Workers against — and this job FAILS here rather than sweeping a corpus nobody has shown is current. Fix: run the nightly (\`gh workflow run wasm-tier-nightly.yml\`), or redeploy (\`gh workflow run wasm-tier-deploy.yml\`) if it is red because the deployment is stale."
+            exit 1
+          fi
+          {
+            echo "run_id=${RUN_ID}"
+            echo "sha=${RUN_SHA}"
+            echo "created_at=${RUN_AT}"
+          } >> "$GITHUB_OUTPUT"
+          echo "BASELINE_RUN_ID=${RUN_ID}" >> "$GITHUB_ENV"
+          echo "BASELINE_SHA=${RUN_SHA}" >> "$GITHUB_ENV"
+          echo "BASELINE_AT=${RUN_AT}" >> "$GITHUB_ENV"
+          echo "baseline nightly run: ${RUN_ID}"
+          echo "baseline commit:      ${RUN_SHA}"
+          echo "baseline ran at:      ${RUN_AT}"
+
+      - name: Download the baseline freshness census
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # The artifact name embeds the producing run's id; see
+          # wasm-tier-nightly.yml's upload step.
+          if ! gh run download "${BASELINE_RUN_ID}" \
+                --name "wasm-tier-nightly-worker-${BASELINE_RUN_ID}" \
+                --dir /tmp/baseline; then
+            echo "::error::Could not download wasm-tier-nightly-worker-${BASELINE_RUN_ID} from run ${BASELINE_RUN_ID}. That artifact carries the per-tier built counts this job compares the deployed Workers against; without it there is no expected value and no check. Most likely it aged out (30-day retention) while no newer nightly went green. Fix: \`gh workflow run wasm-tier-nightly.yml\`."
+            exit 1
+          fi
+          test -s /tmp/baseline/freshness.json
+          echo "baseline census (from run ${BASELINE_RUN_ID}, commit ${BASELINE_SHA}):"
+          cat /tmp/baseline/freshness.json
+
+      # ------------------------------------------------------------------
+      # 2. Freshness, before the sweep (R5.1).
+      #
+      # The `--expected-count-<tier>` flags are GENERATED from the topology,
+      # not typed out. That is the same rule the checker itself enforces from
+      # the other side: it exits 2 on any tier it was given no count for, so a
+      # tier added to wasm_tier_topology.json and forgotten here fails this job
+      # loudly on the next PR instead of quietly checking one crate fewer. The
+      # generator below fails just as loudly when the baseline census has no
+      # entry for a tier -- a newly added tier's first PR run says "the nightly
+      # has not censused this crate yet", which is true and actionable.
+      # ------------------------------------------------------------------
+      - name: Deployed-corpus freshness (R5.1) — fails on count mismatch
+        id: freshness
+        run: |
+          set -euo pipefail
+          cat > /tmp/expected_counts.cjs <<'NODE'
+          const fs = require("node:fs");
+          // Resolved against the checkout, not against this script's own
+          // directory: a bare "./tools/..." in a file under /tmp resolves
+          // relative to /tmp and fails with a module-not-found that reads like
+          // the tool is missing from the repo.
+          const TOPOLOGY = require("node:url").pathToFileURL(
+            require("node:path").resolve("tools/wasm/tier_topology.mjs"),
+          ).href;
+          import(TOPOLOGY)
+            .then(({ loadTopology, tierFlagSuffix }) => {
+              const baseline = JSON.parse(fs.readFileSync("/tmp/baseline/freshness.json", "utf8"));
+              const byCrate = new Map((baseline.tiers || []).map((t) => [t.crate, t.built_count]));
+              const args = [];
+              for (const tier of loadTopology().tiers) {
+                const n = byCrate.get(tier.crate);
+                if (typeof n !== "number") {
+                  console.error(
+                    `::error::The baseline nightly census has no built count for tier ${tier.crate}. ` +
+                      "Every tier in tools/wasm/wasm_tier_topology.json must be given one — there is " +
+                      "deliberately no flag that skips a tier — so this job fails rather than reporting " +
+                      "the deployed corpus fresh while one crate is compared against nothing. If this " +
+                      "tier is new, the nightly has not censused it yet: run wasm-tier-nightly.yml.",
+                  );
+                  process.exit(2);
+                }
+                args.push(`--expected-count-${tierFlagSuffix(tier.crate)}`, String(n));
+              }
+              console.log(args.join(" "));
+            })
+            .catch((e) => {
+              console.error(`::error::${e.message}`);
+              process.exit(2);
+            });
+          NODE
+          COUNT_ARGS="$(node /tmp/expected_counts.cjs)"
+          echo "expected counts (from nightly ${BASELINE_RUN_ID} @ ${BASELINE_SHA}): ${COUNT_ARGS}"
+          # Word-splitting is intended: COUNT_ARGS is a generated flag list.
+          # shellcheck disable=SC2086
+          node tools/wasm/check_deployed_freshness.mjs ${COUNT_ARGS} --json /tmp/freshness.json
+
+      # ------------------------------------------------------------------
+      # 3. Corpus drift between the baseline commit and this PR.
+      #
+      # Reports, does not fail — see the header for why. What it buys is that
+      # the verdict's scope is stated: "no deployed test failed" means the
+      # corpus deployed at BASELINE_SHA, and if this PR adds, renames or
+      # deletes tests, those specific tests are NOT in what ran below.
+      #
+      # The crate directories come from the topology's `native_test_args`
+      # manifest paths, so a tier added there is watched here automatically.
+      # ------------------------------------------------------------------
+      - name: Corpus drift vs the baseline commit (reported, not fatal)
+        if: ${{ !cancelled() && steps.freshness.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          cat > /tmp/corpus_paths.cjs <<'NODE'
+          const TOPOLOGY = require("node:url").pathToFileURL(
+            require("node:path").resolve("tools/wasm/tier_topology.mjs"),
+          ).href;
+          import(TOPOLOGY)
+            .then(({ loadTopology }) => {
+              const paths = new Set([
+                "packages/temper-wasm-test-runner/",
+                "packages/temper-worker/",
+                "scripts/gen_wasm_test_registry.py",
+                "tools/wasm/wasm_tier_topology.json",
+              ]);
+              for (const tier of loadTopology().tiers) {
+                const i = tier.native_test_args.indexOf("--manifest-path");
+                if (i !== -1) paths.add(tier.native_test_args[i + 1].replace(/Cargo\.toml$/, ""));
+              }
+              console.log([...paths].join("\n"));
+            })
+            .catch((e) => {
+              console.error(e.message);
+              process.exit(2);
+            });
+          NODE
+          node /tmp/corpus_paths.cjs > /tmp/corpus_paths.txt
+          echo "corpus-affecting paths:"
+          cat /tmp/corpus_paths.txt
+          DRIFT_STATE=unknown
+          DRIFT_COUNT=0
+          if git fetch --no-tags --depth=1 origin "${BASELINE_SHA}" 2>/dev/null; then
+            # Two-dot: everything that differs between the commit the deployed
+            # corpus was proved against and the commit under test, whether it
+            # arrived via this PR or via main since the baseline. Both make the
+            # deployed corpus older than the code.
+            xargs -a /tmp/corpus_paths.txt \
+              git diff --name-only "${BASELINE_SHA}" HEAD -- > /tmp/corpus_drift.txt
+            DRIFT_COUNT="$(wc -l < /tmp/corpus_drift.txt | tr -d ' ')"
+            DRIFT_STATE=$([ "${DRIFT_COUNT}" -eq 0 ] && echo none || echo drifted)
+          else
+            : > /tmp/corpus_drift.txt
+            echo "::warning::Could not fetch baseline commit ${BASELINE_SHA} (force-push, or it aged out of the shallow clone), so corpus drift between it and this commit is UNKNOWN. The freshness check above still ran — the deployed Workers still carry the counts the nightly proved — but the scope note below cannot say whether this PR changes the registered corpus."
+          fi
+          echo "DRIFT_STATE=${DRIFT_STATE}" >> "$GITHUB_ENV"
+          echo "DRIFT_COUNT=${DRIFT_COUNT}" >> "$GITHUB_ENV"
+          echo "drift vs ${BASELINE_SHA}: ${DRIFT_STATE} (${DRIFT_COUNT} file(s))"
+          cat /tmp/corpus_drift.txt
+
+      # ------------------------------------------------------------------
+      # 4. The sweep. One dispatch per tier, `--tier` always passed.
+      #
+      # Not one merged sweep: sweep_multi_worker.mjs's default fans out across
+      # every tier at once, which is right for an ad-hoc liveness check and
+      # wrong for a per-crate verdict, because the resulting file cannot say
+      # which crate a failure belongs to without re-deriving it. Per tier, each
+      # step's exit code IS that crate's verdict, and each can go red on its
+      # own.
+      #
+      # `--tier` also documents membership: an unknown crate name throws with
+      # the list of valid ones rather than silently sweeping nothing.
+      #
+      # The tool exits 1 on any failing or erroring test, so a genuine wasm32
+      # regression fails the job HERE, at the crate that owns it. The verdict
+      # step below is a second, independent guard, not the only one.
+      # ------------------------------------------------------------------
+      - name: Sweep deployed Workers — temper-drc-rs (1,719 tests, 7 shards)
+        id: sweep_drc
+        if: ${{ !cancelled() && steps.freshness.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          node tools/wasm/sweep_multi_worker.mjs \
+            --tier temper-drc-rs \
+            --concurrency 64 \
+            --json /tmp/pr_sweep_drc.json > /dev/null
+
+      - name: Sweep deployed Workers — temper-geometry (722 tests)
+        if: ${{ !cancelled() && steps.freshness.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          node tools/wasm/sweep_multi_worker.mjs \
+            --tier temper-geometry \
+            --concurrency 64 \
+            --json /tmp/pr_sweep_geometry.json > /dev/null
+
+      - name: Sweep deployed Workers — temper-thermal (143 tests)
+        if: ${{ !cancelled() && steps.freshness.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          node tools/wasm/sweep_multi_worker.mjs \
+            --tier temper-thermal \
+            --concurrency 64 \
+            --json /tmp/pr_sweep_thermal.json > /dev/null
+
+      # ------------------------------------------------------------------
+      # 5. Anti-vacuity (manual dispatch only).
+      #
+      # Precedent: wasm-tier-nightly.yml's `inject_disagreement` input exists
+      # for exactly this -- a gate nobody has ever seen bite is a gate nobody
+      # has any evidence about. This flips one PASSING verdict to `fail` in the
+      # temper-drc-rs sweep AFTER the dispatch, so the verdict step below must
+      # be the thing that catches it, and it fails if there is no passing
+      # verdict to flip (which would mean the sweep produced nothing and the
+      # demonstration proved nothing).
+      #
+      # It runs on `workflow_dispatch` only and is a no-op on every PR.
+      # ------------------------------------------------------------------
+      - name: Anti-vacuity — inject a failing verdict (workflow_dispatch only)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.inject_failure == 'fail_one_verdict' }}
+        run: |
+          set -euo pipefail
+          node -e '
+            const fs = require("node:fs");
+            const path = "/tmp/pr_sweep_drc.json";
+            const data = JSON.parse(fs.readFileSync(path, "utf8"));
+            const hit = (data.results || []).find((r) => r.status === "pass");
+            if (!hit) {
+              console.error("::error::no passing verdict to flip — the sweep produced none, so this would demonstrate nothing");
+              process.exit(1);
+            }
+            console.log(`injecting failure: ${hit.name} (index ${hit.index}, family ${hit.family}) pass -> fail`);
+            hit.status = "fail";
+            fs.writeFileSync(path, JSON.stringify(data, null, 2));
+          '
+
+      # ------------------------------------------------------------------
+      # 6. The verdict.
+      #
+      # Recomputed from the per-test results rather than read off each sweep's
+      # own `tally`, and cross-checked against the freshness census, so this
+      # step is an independent answer to "did the tests this job claims to have
+      # run actually run?" -- see the header's fail-loudly section for the
+      # exit-0-over-an-empty-queue bug (#940) that makes that worth spending a
+      # step on.
+      # ------------------------------------------------------------------
+      - name: Tier verdict — fails on any failing test, or on a vacuous sweep
+        id: verdict
+        if: ${{ !cancelled() && steps.freshness.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          cat > /tmp/verdict.cjs <<'NODE'
+          const fs = require("node:fs");
+
+          const SWEEPS = [
+            ["temper-drc-rs", "/tmp/pr_sweep_drc.json"],
+            ["temper-geometry", "/tmp/pr_sweep_geometry.json"],
+            ["temper-thermal", "/tmp/pr_sweep_thermal.json"],
+          ];
+          // Verdicts that mean "this test was executed and did not report a
+          // problem". Anything else -- including a status this job has never
+          // heard of -- is counted as a failure, because the alternative is to
+          // pass over verdicts nobody scored.
+          const OK = new Set(["pass", "expected-fail"]);
+
+          const census = JSON.parse(fs.readFileSync("/tmp/freshness.json", "utf8"));
+          const expected = new Map(census.tiers.map((t) => [t.crate, t.deployed_full_corpus]));
+
+          const problems = [];
+          const rows = [];
+          let ran = 0;
+          let failed = 0;
+
+          for (const [crate, path] of SWEEPS) {
+            let sweep;
+            try {
+              sweep = JSON.parse(fs.readFileSync(path, "utf8"));
+            } catch (e) {
+              problems.push(
+                `${crate}: no usable sweep at ${path} (${e.message}). An earlier step failed, so ` +
+                  "there is no verdict for this crate. Reporting green here would be a result for a " +
+                  "sweep that did not happen.",
+              );
+              rows.push({ crate, ran: 0, failing: null, wall_sec: null, throughput_per_s: null });
+              continue;
+            }
+
+            const results = sweep.results || [];
+            const want = expected.get(crate);
+            const bad = results.filter((r) => !OK.has(r.status));
+
+            if (results.length === 0) {
+              problems.push(
+                `${crate}: the sweep carries zero per-test verdicts. A verdict over an empty corpus ` +
+                  "is the exact 'green while nothing executed' failure this job exists to rule out.",
+              );
+            } else if (typeof want === "number" && results.length !== want) {
+              problems.push(
+                `${crate}: swept ${results.length} tests but the deployed corpus carries ${want} ` +
+                  "(per the freshness census taken minutes ago). A sweep that covered a subset is " +
+                  "not a pass — some Worker answered for fewer tests than it holds.",
+              );
+            }
+
+            for (const r of bad) {
+              problems.push(
+                `${crate}: ${r.name ?? "(unnamed)"} [index ${r.index}, family ${r.family}] -> ${r.status}`,
+              );
+            }
+
+            ran += results.length;
+            failed += bad.length;
+            rows.push({
+              crate,
+              ran: results.length,
+              failing: bad.length,
+              wall_sec: sweep.wall_sec ?? null,
+              throughput_per_s: sweep.throughput_per_s ?? null,
+            });
+          }
+
+          const lines = [
+            "| tier | tests run | failing | sweep wall (s) | tests/s |",
+            "| --- | ---: | ---: | ---: | ---: |",
+            ...rows.map(
+              (r) =>
+                `| \`${r.crate}\` | ${r.ran} | ${r.failing === null ? "—" : r.failing} | ` +
+                `${r.wall_sec ?? "—"} | ${r.throughput_per_s ?? "—"} |`,
+            ),
+            `| **total** | **${ran}** | **${failed}** | | |`,
+          ];
+          fs.writeFileSync("/tmp/verdict_table.md", lines.join("\n") + "\n");
+          fs.writeFileSync(
+            "/tmp/verdict.json",
+            JSON.stringify({ ok: problems.length === 0, tests_run: ran, failing: failed, tiers: rows, problems }, null, 2),
+          );
+          console.log(lines.join("\n"));
+
+          if (problems.length) {
+            // Failing verdicts and coverage problems are counted separately on
+            // purpose: "0 failing over 10 tests" is not a near-pass when the
+            // corpus holds 722, and a headline that conflated them would read
+            // like one.
+            const coverage = problems.length - failed;
+            console.error(
+              `::error::WASM tier verdict: ${failed} failing verdict(s) over ${ran} test(s) executed ` +
+                `on wasm32 by the deployed Workers` +
+                (coverage > 0
+                  ? `, plus ${coverage} coverage problem(s) — a sweep that did not cover the corpus ` +
+                    "is not a pass"
+                  : "") +
+                ". This check is ADVISORY (D5.4) and does not block the merge, but a failure here is " +
+                "a real failure: these tests ran, on this corpus, and reported a problem.",
+            );
+            for (const p of problems) console.error(`  - ${p}`);
+            process.exit(1);
+          }
+          console.log(`\nOK — ${ran} tests executed on wasm32 by the deployed Workers, 0 failing.`);
+          NODE
+          node /tmp/verdict.cjs
+
+      - name: Write job summary
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Deployed WASM tier verdict — advisory (D5.4), not a required check"
+            echo ""
+            echo "Tier-only: no native \`cargo test\` arm and no \`cargo\` on this path at all."
+            echo "A failure below is a real wasm32 failure. R19 wasm/native *equivalence* is"
+            echo "sustained by \`wasm-tier-nightly.yml\`, which runs both arms — so a PR that"
+            echo "breaks equivalence can still pass here, for up to 24h. See this workflow's"
+            echo "header."
+            echo ""
+            cat /tmp/verdict_table.md 2>/dev/null || echo "_(no verdict table — see the failed step above)_"
+            echo ""
+            echo "#### Freshness (R5.1) — checked before the sweep"
+            echo ""
+            echo "- baseline: nightly run [\`${BASELINE_RUN_ID:-unresolved}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${BASELINE_RUN_ID:-0}) at \`${BASELINE_SHA:-unresolved}\` (${BASELINE_AT:-unresolved})"
+            echo "- the deployed counts were compared against that run's per-tier built counts"
+            echo "- **blind spot (issue #945):** the check compares *counts*. A behaviour change with a stable count is invisible to it — nightly \`31449478989\` was 7 real disagreements with every count matching."
+            echo ""
+            echo '```'
+            cat /tmp/freshness.json 2>/dev/null || echo "(freshness census not produced — see the freshness step)"
+            echo '```'
+            echo ""
+            echo "#### Scope of this verdict — corpus drift vs \`${BASELINE_SHA:-unresolved}\`"
+            echo ""
+            case "${DRIFT_STATE:-unknown}" in
+              none)
+                echo "No corpus-affecting file changed between the baseline commit and this commit, so the deployed corpus is this commit's corpus."
+                ;;
+              drifted)
+                echo "\`${DRIFT_COUNT:-?}\` corpus-affecting file(s) changed since the baseline commit. The tier answers for the corpus deployed at \`${BASELINE_SHA:-unresolved}\`; **tests added or renamed by this PR did not run below.** Redeploy with \`gh workflow run wasm-tier-deploy.yml\` to close that gap for this commit."
+                echo ""
+                echo '```'
+                cat /tmp/corpus_drift.txt 2>/dev/null | head -50 || true
+                echo '```'
+                ;;
+              *)
+                echo "Drift vs the baseline commit could not be determined (the baseline commit was not fetchable). The freshness check still passed, but the scope of this verdict is unstated."
+                ;;
+            esac
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload verdict artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: wasm-tier-pr-verdict-${{ github.run_id }}
+          path: |
+            /tmp/verdict.json
+            /tmp/freshness.json
+            /tmp/corpus_drift.txt
+            /tmp/pr_sweep_drc.json
+            /tmp/pr_sweep_geometry.json
+            /tmp/pr_sweep_thermal.json
+          retention-days: 14
+          if-no-files-found: warn
