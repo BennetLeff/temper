@@ -46,45 +46,46 @@ The four kernels were written independently, pre-migration, in four different Py
 
 ## Divergence magnitude (measured 2026-08-11, Python mirrors of all four Rust kernels)
 
-Reproducible driver (scratch, not committed — mirrors each kernel's exact expression order, `pow`/`sqrt`/`hypot` from host libm):
+Reproducible driver (scratch, not committed — mirrors each kernel's exact expression order, `pow`/`sqrt`/`hypot` from host libm; `OverflowError` mapped to `inf` because Rust libm `pow` returns `inf` where CPython raises):
 
 ```python
 import math, random
-def py_min(a,b): return b if b < a else a
-def py_max(a,b): return b if b > a else b
-def geom(px,py,x1,y1,x2,y2):
-    dx,dy = x2-x1, y2-y1; d = dx*dx+dy*dy
-    if d == 0.0 or not math.isfinite(d): return math.hypot(px-x1, py-y1)
-    t = py_max(0.0, py_min(1.0, ((px-x1)*dx + (py-y1)*dy)/d))
+def py_min(a, b): return b if b < a else a          # Python builtin min (first arg on ties)
+def py_max(a, b): return b if b > a else a          # Python builtin max (first arg on ties)
+def geom(px,py,x1,y1,x2,y2):                        # creepage_check.rs (canonical)
+    dx,dy = x2-x1, y2-y1; denom = dx*dx + dy*dy
+    if denom == 0.0 or not math.isfinite(denom): return math.hypot(px-x1, py-y1)
+    t = py_min(1.0, ((px-x1)*dx + (py-y1)*dy)/denom); t = py_max(0.0, t)
     return math.hypot(px-(x1+t*dx), py-(y1+t*dy))
-def cm(px,py,x1,y1,x2,y2):
-    dx,dy = x2-x1, y2-y1; d = dx*dx+dy*dy
-    if d == 0.0: return math.sqrt((px-x1)**2 + (py-y1)**2)   # x*x exact squares
-    t = ((px-x1)*dx + (py-y1)*dy)/d
-    tc = 0.0 if t < 0.0 else 1.0 if t > 1.0 else t
-    return math.sqrt((px-(x1+tc*dx))**2 + (py-(y1+tc*dy))**2)
-def dr(px,py,x1,y1,x2,y2):
-    dx,dy = x2-x1, y2-y1; d = dx*dx+dy*dy
-    if d == 0.0: return math.sqrt(math.pow(px-x1,2.0)+math.pow(py-y1,2.0))
-    t = py_max(0.0, py_min(1.0, ((px-x1)*dx + (py-y1)*dy)/d))
+def cm(px,py,x1,y1,x2,y2):                          # constraint_model.rs (x*x squares)
+    dx,dy = x2-x1, y2-y1; len_sq = dx*dx + dy*dy
+    if len_sq == 0.0:
+        dx_p, dy_p = px-x1, py-y1; return math.sqrt(dx_p*dx_p + dy_p*dy_p)
+    t = ((px-x1)*dx + (py-y1)*dy)/len_sq
+    tc = 0.0 if t < 0.0 else (1.0 if t > 1.0 else t)
+    dx_p, dy_p = px-(x1+tc*dx), py-(y1+tc*dy); return math.sqrt(dx_p*dx_p + dy_p*dy_p)
+def dr(px,py,x1,y1,x2,y2):                          # deterministic_leaf_drc.rs (pow squares)
+    dx,dy = x2-x1, y2-y1; len_sq = dx*dx + dy*dy
+    if len_sq == 0.0: return math.sqrt(math.pow(px-x1,2.0)+math.pow(py-y1,2.0))
+    t = py_max(0.0, py_min(1.0, ((px-x1)*dx + (py-y1)*dy)/len_sq))
     return math.sqrt(math.pow(px-(x1+t*dx),2.0)+math.pow(py-(y1+t*dy),2.0))
-def dp(px,py,x1,y1,x2,y2):
-    dx,dy = x2-x1, y2-y1; d = dx*dx+dy*dy
-    if d == 0.0: return math.pow(math.pow(px-x1,2.0)+math.pow(py-y1,2.0), 0.5)
-    t = py_max(0.0, py_min(1.0, ((px-x1)*dx + (py-y1)*dy)/d))
+def dp(px,py,x1,y1,x2,y2):                          # deterministic_phase.rs (pow+pow, ^0.5)
+    dx,dy = x2-x1, y2-y1; l2 = dx*dx + dy*dy
+    if l2 == 0.0: return math.pow(math.pow(px-x1,2.0)+math.pow(py-y1,2.0), 0.5)
+    t = py_max(0.0, py_min(1.0, ((px-x1)*dx + (py-y1)*dy)/l2))
     return math.pow(math.pow(px-(x1+t*dx),2.0)+math.pow(py-(y1+t*dy),2.0), 0.5)
 # compare geom-vs-{cm,dr,dp} over corpora; count bit-mismatch, then classify:
 #  1ulp-class = relative diff <= 1e-15,  catastrophic = larger,  nan/inf-flip = non-finite
 ```
 
-Results (corpora and exact counts in the trace below):
+Verified output (2026-08-11, Python 3.12, host glibc libm):
 
-| corpus | geom-vs-each mismatches | class |
+| corpus | geom-vs-{cm,dr,dp} mismatches | class |
 |---|---|---|
-| uniform `[-100,100]`, 3000 pts/segments | ≈1190–1193 / 3000 (≈40%) | **all ≤1-ulp** |
-| board-like 200 mm, 3000 | ≈1156–1159 / 3000 (≈39%) | **all ≤1-ulp** |
-| adversarial NaN/inf/1e308/denormal, 588 | ≈301–307 / 588 | ~12 ≤1-ulp, ~23 catastrophic, ~266–272 NaN/inf-flip |
-| denormal-magnitude `[-1e-200,1e-200]`, 3000 | 3000 / 3000 | **all catastrophic** (geom → tiny finite; others flush to 0.0) |
+| uniform `[-100,100]`, 3000 | 1193 / 1192 / 1192 | **all ≤1-ulp** (0 catastrophic, 0 nan/inf) |
+| board-like 200 mm, 3000 | 1159 / 1158 / 1156 | **all ≤1-ulp** |
+| adversarial NaN/inf/1e308/denormal, 588 | 307 / 301 / 301 | 12 ≤1-ulp, 23 catastrophic, 272 / 266 nan/inf-flip |
+| denormal-magnitude `[-1e-200,1e-200]`, 3000 | 3000 / 3000 / 3000 | **all catastrophic** (geom → tiny finite; others flush to 0.0) |
 
 (issue #918's "524/3024" is the same 1-ulp class at a different corpus density; the *class* is what matters and is confirmed here.)
 
