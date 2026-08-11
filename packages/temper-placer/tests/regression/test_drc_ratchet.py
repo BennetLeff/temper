@@ -1110,3 +1110,44 @@ class TestNoiseHeadroomAntiVacuity:
             by_type={"creepage": 189},
         )
         assert check_noise_headroom("b", safe_entry) == []
+
+
+def _repo_root() -> Path:
+    p = Path(__file__).resolve()
+    while not (p / ".git").exists() and p != p.parent:
+        p = p.parent
+    return p
+
+
+class TestRealCeilingFileNoiseHeadroom:
+    """Regression test against the ACTUAL committed
+    ``power_pcb_dataset/drc_ceiling.json`` -- every other test in this
+    module drives ``check_noise_headroom`` against synthetic fixtures.
+    This one loads the real file so a future re-measurement that
+    reintroduces the 2026-08-11 bug (a nondeterministic category's ceiling
+    headroom copied forward as ``max + 1`` without checking it against its
+    own measured spread -- the mistake every creepage record made from the
+    #602 K3 swap through 2026-08-11) fails an existing test immediately,
+    rather than only being caught by CI's separate ``ci_check_drc.py``
+    invocation (which additionally requires a live kicad-cli).
+
+    Before the 2026-08-11 fix, this test failed for real: creepage's
+    committed ceiling was 185 (observed max 184 + 1), against a measured
+    spread of 2 (observed [182, 183, 184]) -- headroom 1 < spread 2.
+    """
+
+    def test_committed_ceiling_file_has_no_noise_headroom_violations(self):
+        repo_root = _repo_root()
+        ceiling_path = repo_root / "power_pcb_dataset" / "drc_ceiling.json"
+        assert ceiling_path.exists(), f"expected {ceiling_path} to exist"
+
+        ratchet = DrcRatchet(ceiling_path, backend="kicad-cli")
+        ratchet.load()
+        assert ratchet.entries, "expected at least one board entry"
+
+        violations = ratchet.check_noise_headroom()
+        assert violations == [], (
+            "the committed drc_ceiling.json has a nondeterministic category "
+            "whose ceiling headroom is smaller than its own measured spread "
+            f"-- scripts/ci_check_drc.py would FAIL on this: {[v.message for v in violations]}"
+        )

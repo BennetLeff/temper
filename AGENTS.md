@@ -55,9 +55,31 @@ notice later.
 
 Re-measure with the same tool, flags, and sample count every prior entry in
 the file's own `_march` log used (read that log before touching a number --
-it documents "observed max + 1 headroom" for the one genuinely
-nondeterministic category, `clearance`, and the reasoning behind every prior
-ceiling move):
+it documents an "observed max + headroom" convention for every category
+whose count moves on a byte-identical board, and the reasoning behind every
+prior ceiling move). **`clearance` is not the only such category any more --
+`creepage` has been the chronically-scattering one since the #602 K3 swap
+(2026-08-02), and both can be nondeterministic on the same board at once.**
+Check `nondeterministic_error_types` in the CURRENT record, not this
+sentence, for which categories apply today.
+
+**The headroom you pick is not free to choose -- it must satisfy
+`ceiling - max(observed) >= max(observed) - min(observed)`
+(`scripts/ci_check_drc.py`'s noise-headroom guard,
+`DrcRatchet.check_noise_headroom`).** A blind `max + 1` is only correct
+when the measured spread is 1; if a category visits 3 distinct values (a
+spread of 2), `max + 1` gives 1 unit of headroom against a 2-unit spread and
+the guard fails -- correctly, since a single future CI sample can then land
+above the ceiling from noise alone. This is not hypothetical: every
+`creepage` record from 2026-08-02 through 2026-08-11 (6 consecutive
+re-measurements) carried exactly this bug, because each one copied `+ 1`
+forward without checking it against the guard. Run
+`python3 scripts/ci_check_drc.py --backend kicad-cli` (or call
+`DrcRatchet.check_noise_headroom()` directly -- it costs nothing, no DRC run)
+against your candidate ceiling BEFORE committing it. See
+`docs/evidence/2026-08-11-creepage-noise-headroom-guard-fix.md` for the
+full incident and the argument for `max(observed) + spread` as the correct
+convention over a wider, arbitrary buffer.
 
     export PYTHONPATH="$(pwd)/packages/temper-placer/src"
     python3 -c "
@@ -70,7 +92,8 @@ ceiling move):
     # Run 120 times and take the observed range per category, not one sample.
     # Record the count in provenance: the structured sample_count field, or
     # measured_via prose on legacy records -- the approval gate requires
-    # >= 120 for the nondeterministic clearance category.
+    # >= 120 samples whenever ANY category is declared nondeterministic
+    # (not just clearance -- see the 2026-08-11 creepage-guard fix).
     "
 
 Then, in `power_pcb_dataset/drc_ceiling.json`:
@@ -94,9 +117,10 @@ non-empty `_march` entry naming the cause -- the `_march` log is the single
 cause authority, there is no trailer-body grammar; and (3) a fresh
 measured-live `provenance` record on the raised board: `source:
 "measured-live"`, a resolvable `measured_at_commit`, `dirty: false`, a
-recorded kicad-cli version, at least 120 samples for the nondeterministic
-`clearance` category (structured `provenance.sample_count`, or the legacy
-`measured_via` prose on records that predate the field), and an input hash
+recorded kicad-cli version, at least 120 samples whenever ANY category is
+declared nondeterministic -- not only `clearance` (structured
+`provenance.sample_count`, or the legacy `measured_via` prose on records
+that predate the field), and an input hash
 still matching `pcb/temper.kicad_pcb`'s current content. A raise that
 fails any of these is an unapproved raise, mechanically. Existing `_march`
 entries and records are grandfathered; the contract applies to new raises.
