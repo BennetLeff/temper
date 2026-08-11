@@ -3,7 +3,10 @@
 The per-migration pipeline for the Wave-4 full-migration program
 (docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md).
 Every migration runs through all stages; a candidate is not landed
-until the final stage passes. Stages run in order.
+until stage 6 passes. Stages run in order; stage 7 (wire) follows
+immediately, and stage 8 (retire) follows once the retirement bar in
+Hard rules is met — it may trail stage 6 by many commits, but it is
+owed, not optional.
 
 ## Pipeline stages
 
@@ -59,6 +62,37 @@ until the final stage passes. Stages run in order.
    merge with admin when the only red check is a documented
    pre-existing state.
 
+7. **wire** — repoint the production caller at the Rust kernel; the
+   oracle is not touched at this stage:
+   - Repoint the production call site(s) to the Rust kernel/pyfunction.
+     Stage 3 already proved the kernel correct; this stage proves it
+     used.
+   - Delete the now-dead Python *implementation* — not the oracle,
+     which stage 8 disposes of separately.
+   - Prove it via `scripts/check_unwired_kernels.py` (PR-blocking as of
+     #1004): the kernel drops off `.unwired-kernel-inventory`, or, for
+     a legitimate never-wire-by-design entry, the ledger reason is
+     added or corrected instead.
+   - Commit + push per stage 3's worktree discipline; the orchestrator
+     merges and verifies.
+
+8. **retire** — once the differential has held for the retirement bar
+   (Hard rules), dispose of the oracle and delete the differential's
+   Python dependency:
+   - Classify the oracle: FREEZE / REIMPLEMENT / KEEP (Hard rules).
+     FREEZE is the default.
+   - FREEZE: snapshot the oracle's outputs over a fixed input corpus
+     into golden vectors, delete the Python oracle, keep the
+     differential running against the frozen vectors.
+   - REIMPLEMENT: write an independent Rust oracle from the
+     specification — never from the Rust implementation under test,
+     which yields two copies of the same bug and reports green.
+   - KEEP: retain the Python oracle, with a written reason recorded
+     alongside it.
+   - Never retire by bulk import-scan deletion (Hard rules).
+   - Commit + push per stage 3's worktree discipline; the orchestrator
+     merges and verifies.
+
 ## Hard rules
 
 - Stage 2 is the only stage that reviews the plan artifact; never
@@ -77,3 +111,32 @@ until the final stage passes. Stages run in order.
   docs commit onto a fresh clean branch if the shared checkout has
   drifted (the Wave-4 plan PR lost its mergeability exactly this way —
   24 stale commits inherited from the shared worktree).
+- Oracle disposition (stage 8) is exactly one of three routes; there is
+  no default to "leave it":
+
+  | route | when | effect |
+  |---|---|---|
+  | **FREEZE** | default; the kernel is deterministic and its input domain is enumerable or samplable | golden vectors from a fixed corpus, Python deleted, differential becomes wasm32-tier-executable |
+  | **REIMPLEMENT** | continuous adversarial differential value is high: safety kernels (creepage, clearance, via/keepout geometry) | independent Rust oracle written from the specification; costs a genuine second implementation |
+  | **KEEP** | CPython itself is the reference (a Python library's exact semantics, or a host-libm/`dlsym` property) | no change; must carry a written reason |
+
+  Translating a Python oracle into Rust *from the Rust implementation*
+  is never a valid route under any of the three — it yields two copies
+  of the same bug and reports green, which is strictly worse than no
+  oracle.
+- Retirement bar: **R19 sustained agreement** — the same shape and
+  number the WASM tier uses to license a crate's native suite off
+  GitHub Actions (`tools/wasm/u6_campaign.sh`): 100% differential
+  agreement across 10 consecutive `origin/main` commits, zero
+  disagreements. REIMPLEMENT-class safety kernels are exempt — they
+  keep a live differential indefinitely by design.
+- Bulk import-scan deletion is never the retirement mechanism for a
+  kernel's dead Python or its oracle. Commit `47349a50d` (2026-08-08)
+  deleted `router_v6/pad_connectivity_audit.py` — the project's own
+  declared PRIMARY routing-completion metric — because its import scan
+  covered `src/` and `tests/` but not `scripts/`; `scripts/route_board.py:269`
+  calls it unconditionally, so `make route` died with `ImportError` and
+  true completion was unmeasurable for three days, until PR #1008
+  restored it. Per-kernel retirement (stage 8) is safer than bulk
+  deletion because at retirement time the pipeline knows exactly which
+  Python the Rust replaced; a later import scan does not.
