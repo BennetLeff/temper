@@ -1011,6 +1011,7 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
+    use proptest::prelude::*;
     use super::*;
 
     #[test]
@@ -1112,5 +1113,42 @@ mod tests {
                 .unwrap();
             assert_eq!(v, 5);
         })
+    }
+
+    // -----------------------------------------------------------------------
+    // proptest: net_display matches Python f-string
+    // -----------------------------------------------------------------------
+
+    proptest! {
+        /// `net_display(Some(s))` is exactly `s` for any string, matching
+        /// an f-string `{s}`.
+        #[test]
+        fn net_display_round_trips(s in "\\PC*") {
+            assert_eq!(net_display(&Some(s.clone())), s);
+        }
+
+        /// `net_display` never crashes on any input (no unwrap/panic).
+        #[test]
+        fn net_display_never_panics(s in "\\PC*") {
+            let _ = net_display(&Some(s));
+            let _ = net_display(&None);
+        }
+    }
+
+    /// `net_display(None)` is always `"None"`, matching an f-string
+    /// interpolating `None`.
+    #[test]
+    fn net_display_none_is_literal_none() {
+        assert_eq!(net_display(&None), "None");
+    }
+
+    /// `net_display` handles empty strings, whitespace, unicode.
+    #[test]
+    fn net_display_edge_cases() {
+        assert_eq!(net_display(&Some(String::new())), "");
+        assert_eq!(net_display(&Some(" ".into())), " ");
+        assert_eq!(net_display(&Some("NET_B".into())), "NET_B");
+        assert_eq!(net_display(&Some("äöü".into())), "äöü");
+        assert_eq!(net_display(&Some("None".into())), "None");
     }
 }
