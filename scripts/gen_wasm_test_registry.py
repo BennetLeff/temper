@@ -192,6 +192,7 @@ THERMAL_FAMILIES = ["thermal"]
 DESIGN_BUNDLE_FAMILIES = ["design-bundle"]
 ROUTER_CORE_FAMILIES = ["router-core"]
 CONSTRAINT_COMPILER_FAMILIES = ["constraint-compiler"]
+QUALITY_ORACLE_FAMILIES = ["quality-oracle"]
 
 TEST_FN = re.compile(r"^(\s*)#\[(?:test|cfg_attr\(test, test\))\]\s*$")
 
@@ -484,6 +485,15 @@ class CrateSpec:
     )
     # Crate-specific paragraphs inserted before the sharding section.
     extra_notes: list[str] = field(default_factory=list)
+    # `(declaring file, module ident)` for *test-support* modules: `#[cfg(test)]`
+    # modules that hold no `#[test]` of their own but whose helpers registered
+    # test modules call (`temper-quality-oracle`'s `tests_common`, shared by
+    # `oracle::tests` and `thresholds::tests`).  They get the same gate widening
+    # and visibility raise a registered module gets, and nothing else -- they
+    # contribute no registry entries, so the census still calls them
+    # `no-test-functions`.  Omitting one that is needed does not fail silently:
+    # the `wasm-registry` build cannot resolve `crate::tests_common` and stops.
+    test_support: list[tuple[str, str]] = field(default_factory=list)
 
 
 CRATES: dict[str, CrateSpec] = {
@@ -656,6 +666,46 @@ CRATES: dict[str, CrateSpec] = {
             "//!   the ordinary (non-test) build this registry compiles into.",
             "//!",
             "//! `scripts/gen_wasm_test_registry.py --crate temper-constraint-compiler",
+            "//! --census` prints the full module census with per-module counts.",
+        ],
+    ),
+    "temper-quality-oracle": CrateSpec(
+        name="temper-quality-oracle",
+        eligible=None,  # discovered
+        families=QUALITY_ORACLE_FAMILIES,
+        family_of=lambda _rel: "quality-oracle",
+        census_note="cannot be registered here at all",
+        # `tests_common` is `#[cfg(test)] #[path = "tests_common.rs"] mod` at the
+        # crate root and holds no test of its own -- only the shared
+        # `empty_spec` / `empty_placement` / `dummy_metrics` / `valid_metrics`
+        # constructors that `oracle::tests` and `thresholds::tests` call.  It is
+        # the first shared test-support module on the tier, so it is the first
+        # entry this field has ever had.
+        test_support=[("lib.rs", "tests_common")],
+        sharding_note=[
+            "//! ## Families",
+            "//!",
+            "//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`",
+            "//! feature, as in `temper-drc-rs`.  One family (`quality-oracle`):",
+            "//! the six-layer pipeline is a flat sequence of pure scoring",
+            "//! kernels with no rule-family taxonomy to shard along.",
+        ],
+        extra_notes=[
+            "//! Two exclusion classes apply here, both structural:",
+            "//!",
+            '//! * `#[cfg(feature = "python")]` modules -- `cluster_f::bindings`,',
+            "//!   the pyo3 boundary for the cluster-F quality metrics, which does",
+            "//!   not exist in a `--no-default-features` build.",
+            "//! * `proptest` modules use a dev-dependency, which is not linked into",
+            "//!   the ordinary (non-test) build this registry compiles into.",
+            "//!",
+            "//! One module is *not* an exclusion class but is worth naming:",
+            "//! `tests_common` is a `#[cfg(test)]` module with no `#[test]` of its",
+            "//! own, holding fixture constructors that two registered modules call.",
+            "//! Its gate is widened alongside theirs (`CrateSpec.test_support`) so",
+            "//! the registry build can see it; it contributes no entries.",
+            "//!",
+            "//! `scripts/gen_wasm_test_registry.py --crate temper-quality-oracle",
             "//! --census` prints the full module census with per-module counts.",
         ],
     ),
@@ -1080,6 +1130,16 @@ def main() -> int:
             pending[decl_path] = widen_mod_gate(
                 widen_mod_decl(decl_text, mod_ident), mod_ident
             )
+
+    # Test-support modules: same gate widening and visibility raise, no entries.
+    # Done after the loop so a crate that both registers a module in a file and
+    # names a support module in it accumulates both edits through `pending`.
+    for decl_file, mod_ident in CRATE_SPEC.test_support:
+        decl_path = SRC / decl_file
+        decl_text = pending.get(decl_path) or decl_path.read_text()
+        pending[decl_path] = widen_mod_gate(
+            widen_mod_decl(decl_text, mod_ident), mod_ident
+        )
 
     pending[SRC / "wasm_test_registry.rs"] = render_root(entries)
 

@@ -92,188 +92,202 @@ pub fn evaluate_quality(
     evaluate_prepared(&prepared, placement, precomputed)
 }
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
     use crate::tests_common::{empty_placement, empty_spec, valid_metrics};
     use crate::types::{ComponentInfo, NetInfo};
-    use proptest::prelude::*;
 
     fn empty_netlist() -> Netlist {
         Netlist { nets: vec![], components: vec![] }
     }
 
-    proptest! {
-        #[test]
-        fn pbt_oracle_empty_board_always_passes(
-            metrics in prop::array::uniform7(0.0f64..1.0f64),
-            wirelength in 0.0f64..10000.0f64,
-        ) {
-            let pre = PrecomputedMetrics {
-                thermal_score: metrics[0],
-                zone_compliance_score: metrics[1],
-                hv_lv_clearance_score: metrics[2],
-                loop_area_score: metrics[3],
-                congestion_score: metrics[4],
-                compactness_score: metrics[5],
-                connectivity_clustering_score: metrics[6],
-                total_wirelength_mm: wirelength,
-            };
-            let verdict = evaluate_quality(
-                &empty_spec(),
-                &empty_netlist(),
-                &empty_placement(),
-                &pre,
-            );
-            prop_assert!(verdict.is_pass());
-        }
+    // The properties live in their own `#[cfg(test)] mod proptests`, as in
+    // `classification.rs` and the crate's five other property suites.  The
+    // gate is redundant under `cargo test` but load-bearing for the wasm32
+    // tier: it lets `scripts/gen_wasm_test_registry.py` census the `proptest`
+    // dev-dependency separately, so it excludes only these properties and
+    // not this module's plain `#[test]`s.
+    #[cfg(test)]
+    #[allow(clippy::items_after_test_module, clippy::expect_used, clippy::unwrap_used)]
+    mod proptests {
 
-        #[test]
-        fn pbt_oracle_deterministic(
-            metrics in prop::array::uniform7(0.0f64..1.0f64),
-        ) {
-            let pre = PrecomputedMetrics {
-                thermal_score: metrics[0],
-                zone_compliance_score: metrics[1],
-                hv_lv_clearance_score: metrics[2],
-                loop_area_score: metrics[3],
-                congestion_score: metrics[4],
-                compactness_score: metrics[5],
-                connectivity_clustering_score: metrics[6],
-                total_wirelength_mm: 100.0,
-            };
-            let v1 = evaluate_quality(&empty_spec(), &empty_netlist(), &empty_placement(), &pre);
-            let v2 = evaluate_quality(&empty_spec(), &empty_netlist(), &empty_placement(), &pre);
-            prop_assert_eq!(v1.is_pass(), v2.is_pass());
-        }
+        use super::*;
+        use proptest::prelude::*;
 
-        #[test]
-        fn pbt_oracle_rejects_invalid_scores(
-            bad_score in prop::num::f64::NORMAL,
-        ) {
-            prop_assume!(!(0.0..=1.0).contains(&bad_score) || bad_score.is_nan());
-            let pre = PrecomputedMetrics {
-                thermal_score: bad_score,
-                ..valid_metrics()
-            };
-            let verdict = evaluate_quality(
-                &empty_spec(),
-                &empty_netlist(),
-                &empty_placement(),
-                &pre,
-            );
-            prop_assert!(!verdict.is_pass());
-        }
-
-        #[test]
-        fn pbt_clearance_monotonicity_adding_component(
-            mut positions in prop::collection::vec((-50.0f64..150.0f64, -50.0f64..150.0f64), 2..8),
-            extra_x in -100.0f64..200.0f64,
-            extra_y in -100.0f64..200.0f64,
-        ) {
-            let hv_prefixes = ["Q", "D", "TR", "U"];
-            let refs: Vec<String> = (1..=positions.len())
-                .map(|i| format!("{}{i}", hv_prefixes[i % hv_prefixes.len()]))
-                .collect();
-            let mut components: Vec<ComponentInfo> = refs.iter().map(|r| ComponentInfo {
-                ref_des: r.clone(),
-                footprint: "R0805".into(),
-                width_mm: 2.0,
-                height_mm: 1.2,
-                voltage: 0.0,
-            }).collect();
-            let len = components.len();
-            components[0].voltage = 230.0;
-            components[0].footprint = "TO-247".into();
-            if len > 1 {
-                components[1].voltage = 3.3;
-                components[1].footprint = "SOIC-8".into();
+        proptest! {
+            #[test]
+            fn pbt_oracle_empty_board_always_passes(
+                metrics in prop::array::uniform7(0.0f64..1.0f64),
+                wirelength in 0.0f64..10000.0f64,
+            ) {
+                let pre = PrecomputedMetrics {
+                    thermal_score: metrics[0],
+                    zone_compliance_score: metrics[1],
+                    hv_lv_clearance_score: metrics[2],
+                    loop_area_score: metrics[3],
+                    congestion_score: metrics[4],
+                    compactness_score: metrics[5],
+                    connectivity_clustering_score: metrics[6],
+                    total_wirelength_mm: wirelength,
+                };
+                let verdict = evaluate_quality(
+                    &empty_spec(),
+                    &empty_netlist(),
+                    &empty_placement(),
+                    &pre,
+                );
+                prop_assert!(verdict.is_pass());
             }
 
-            let netlist = Netlist { nets: vec![], components: components.clone() };
-            let placement_before = PlacementState {
-                positions: positions.clone(),
-                component_refs: refs.clone(),
-                board_width_mm: 100.0,
-                board_height_mm: 100.0,
-            };
+            #[test]
+            fn pbt_oracle_deterministic(
+                metrics in prop::array::uniform7(0.0f64..1.0f64),
+            ) {
+                let pre = PrecomputedMetrics {
+                    thermal_score: metrics[0],
+                    zone_compliance_score: metrics[1],
+                    hv_lv_clearance_score: metrics[2],
+                    loop_area_score: metrics[3],
+                    congestion_score: metrics[4],
+                    compactness_score: metrics[5],
+                    connectivity_clustering_score: metrics[6],
+                    total_wirelength_mm: 100.0,
+                };
+                let v1 = evaluate_quality(&empty_spec(), &empty_netlist(), &empty_placement(), &pre);
+                let v2 = evaluate_quality(&empty_spec(), &empty_netlist(), &empty_placement(), &pre);
+                prop_assert_eq!(v1.is_pass(), v2.is_pass());
+            }
 
-            let verdict_before = evaluate_quality(
-                &empty_spec(), &netlist, &placement_before, &valid_metrics(),
-            );
-            let violations_before = match &verdict_before {
-                QualityVerdict::Fail { violations, .. } => violations.len(),
-                QualityVerdict::Pass { .. } => 0,
-            };
+            #[test]
+            fn pbt_oracle_rejects_invalid_scores(
+                bad_score in prop::num::f64::NORMAL,
+            ) {
+                prop_assume!(!(0.0..=1.0).contains(&bad_score) || bad_score.is_nan());
+                let pre = PrecomputedMetrics {
+                    thermal_score: bad_score,
+                    ..valid_metrics()
+                };
+                let verdict = evaluate_quality(
+                    &empty_spec(),
+                    &empty_netlist(),
+                    &empty_placement(),
+                    &pre,
+                );
+                prop_assert!(!verdict.is_pass());
+            }
 
-            positions.push((extra_x, extra_y));
-            let mut refs_after = refs.clone();
-            refs_after.push("EXTRA".into());
-            let mut components_after = components;
-            components_after.push(ComponentInfo {
-                ref_des: "EXTRA".into(), footprint: "R0805".into(),
-                width_mm: 2.0, height_mm: 1.2, voltage: 0.0,
-            });
-            let netlist_after = Netlist { nets: vec![], components: components_after };
-            let placement_after = PlacementState {
-                positions,
-                component_refs: refs_after,
-                board_width_mm: 100.0,
-                board_height_mm: 100.0,
-            };
+            #[test]
+            fn pbt_clearance_monotonicity_adding_component(
+                mut positions in prop::collection::vec((-50.0f64..150.0f64, -50.0f64..150.0f64), 2..8),
+                extra_x in -100.0f64..200.0f64,
+                extra_y in -100.0f64..200.0f64,
+            ) {
+                let hv_prefixes = ["Q", "D", "TR", "U"];
+                let refs: Vec<String> = (1..=positions.len())
+                    .map(|i| format!("{}{i}", hv_prefixes[i % hv_prefixes.len()]))
+                    .collect();
+                let mut components: Vec<ComponentInfo> = refs.iter().map(|r| ComponentInfo {
+                    ref_des: r.clone(),
+                    footprint: "R0805".into(),
+                    width_mm: 2.0,
+                    height_mm: 1.2,
+                    voltage: 0.0,
+                }).collect();
+                let len = components.len();
+                components[0].voltage = 230.0;
+                components[0].footprint = "TO-247".into();
+                if len > 1 {
+                    components[1].voltage = 3.3;
+                    components[1].footprint = "SOIC-8".into();
+                }
 
-            let verdict_after = evaluate_quality(
-                &empty_spec(), &netlist_after, &placement_after, &valid_metrics(),
-            );
-            let violations_after = match &verdict_after {
-                QualityVerdict::Fail { violations, .. } => violations.len(),
-                QualityVerdict::Pass { .. } => 0,
-            };
+                let netlist = Netlist { nets: vec![], components: components.clone() };
+                let placement_before = PlacementState {
+                    positions: positions.clone(),
+                    component_refs: refs.clone(),
+                    board_width_mm: 100.0,
+                    board_height_mm: 100.0,
+                };
 
-            prop_assert!(violations_after >= violations_before,
-                "adding a component must not reduce clearance violation count: before={violations_before}, after={violations_after}"
-            );
-        }
+                let verdict_before = evaluate_quality(
+                    &empty_spec(), &netlist, &placement_before, &valid_metrics(),
+                );
+                let violations_before = match &verdict_before {
+                    QualityVerdict::Fail { violations, .. } => violations.len(),
+                    QualityVerdict::Pass { .. } => 0,
+                };
 
-        #[test]
-        fn pbt_roundtrip_no_panic(
-            n_components in 0usize..10,
-            metrics in prop::array::uniform7(0.0f64..1.0f64),
-        ) {
-            let refs: Vec<String> = (0..n_components).map(|i| format!("C{i}")).collect();
-            let positions: Vec<(f64, f64)> = (0..n_components)
-                .map(|i| (i as f64 * 10.0, 0.0))
-                .collect();
-            let components: Vec<ComponentInfo> = refs.iter().map(|r| ComponentInfo {
-                ref_des: r.clone(),
-                footprint: "R0805".into(),
-                width_mm: 2.0, height_mm: 1.2, voltage: 0.0,
-            }).collect();
-            let netlist = Netlist {
-                nets: refs.iter().map(|r| NetInfo { name: r.clone(), pins: vec![r.clone()] }).collect(),
-                components,
-            };
-            let placement = PlacementState {
-                positions,
-                component_refs: refs,
-                board_width_mm: 200.0,
-                board_height_mm: 200.0,
-            };
-            let pre = PrecomputedMetrics {
-                thermal_score: metrics[0],
-                zone_compliance_score: metrics[1],
-                hv_lv_clearance_score: metrics[2],
-                loop_area_score: metrics[3],
-                congestion_score: metrics[4],
-                compactness_score: metrics[5],
-                connectivity_clustering_score: metrics[6],
-                total_wirelength_mm: 100.0,
-            };
-            let _verdict = evaluate_quality(&empty_spec(), &netlist, &placement, &pre);
+                positions.push((extra_x, extra_y));
+                let mut refs_after = refs.clone();
+                refs_after.push("EXTRA".into());
+                let mut components_after = components;
+                components_after.push(ComponentInfo {
+                    ref_des: "EXTRA".into(), footprint: "R0805".into(),
+                    width_mm: 2.0, height_mm: 1.2, voltage: 0.0,
+                });
+                let netlist_after = Netlist { nets: vec![], components: components_after };
+                let placement_after = PlacementState {
+                    positions,
+                    component_refs: refs_after,
+                    board_width_mm: 100.0,
+                    board_height_mm: 100.0,
+                };
+
+                let verdict_after = evaluate_quality(
+                    &empty_spec(), &netlist_after, &placement_after, &valid_metrics(),
+                );
+                let violations_after = match &verdict_after {
+                    QualityVerdict::Fail { violations, .. } => violations.len(),
+                    QualityVerdict::Pass { .. } => 0,
+                };
+
+                prop_assert!(violations_after >= violations_before,
+                    "adding a component must not reduce clearance violation count: before={violations_before}, after={violations_after}"
+                );
+            }
+
+            #[test]
+            fn pbt_roundtrip_no_panic(
+                n_components in 0usize..10,
+                metrics in prop::array::uniform7(0.0f64..1.0f64),
+            ) {
+                let refs: Vec<String> = (0..n_components).map(|i| format!("C{i}")).collect();
+                let positions: Vec<(f64, f64)> = (0..n_components)
+                    .map(|i| (i as f64 * 10.0, 0.0))
+                    .collect();
+                let components: Vec<ComponentInfo> = refs.iter().map(|r| ComponentInfo {
+                    ref_des: r.clone(),
+                    footprint: "R0805".into(),
+                    width_mm: 2.0, height_mm: 1.2, voltage: 0.0,
+                }).collect();
+                let netlist = Netlist {
+                    nets: refs.iter().map(|r| NetInfo { name: r.clone(), pins: vec![r.clone()] }).collect(),
+                    components,
+                };
+                let placement = PlacementState {
+                    positions,
+                    component_refs: refs,
+                    board_width_mm: 200.0,
+                    board_height_mm: 200.0,
+                };
+                let pre = PrecomputedMetrics {
+                    thermal_score: metrics[0],
+                    zone_compliance_score: metrics[1],
+                    hv_lv_clearance_score: metrics[2],
+                    loop_area_score: metrics[3],
+                    congestion_score: metrics[4],
+                    compactness_score: metrics[5],
+                    connectivity_clustering_score: metrics[6],
+                    total_wirelength_mm: 100.0,
+                };
+                let _verdict = evaluate_quality(&empty_spec(), &netlist, &placement, &pre);
+            }
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_oracle_empty_board_passes() {
         let verdict = evaluate_quality(
             &empty_spec(),
@@ -284,7 +298,7 @@ mod tests {
         assert!(verdict.is_pass());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_prepare_evaluate_matches_evaluate_quality() {
         let spec = empty_spec();
         let netlist = Netlist {
@@ -324,7 +338,7 @@ mod tests {
         assert!(!split.is_pass(), "HV-LV pair 1mm apart should fail");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_oracle_deterministic() {
         let verdict1 = evaluate_quality(
             &empty_spec(),
@@ -345,7 +359,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_oracle_rejects_invalid_metrics() {
         let bad = PrecomputedMetrics {
             thermal_score: 1.5,
@@ -360,7 +374,7 @@ mod tests {
         assert!(!verdict.is_pass(), "must fail on out-of-range score");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_oracle_single_component_passes() {
         let spec = empty_spec();
         let netlist = Netlist {
@@ -383,7 +397,7 @@ mod tests {
         assert!(verdict.is_pass());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_oracle_hv_lv_violation_detected() {
         let spec = empty_spec();
         let netlist = Netlist {
@@ -421,4 +435,19 @@ mod tests {
             }));
         }
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("oracle::tests::test_oracle_empty_board_passes", test_oracle_empty_board_passes),
+        ("oracle::tests::test_prepare_evaluate_matches_evaluate_quality", test_prepare_evaluate_matches_evaluate_quality),
+        ("oracle::tests::test_oracle_deterministic", test_oracle_deterministic),
+        ("oracle::tests::test_oracle_rejects_invalid_metrics", test_oracle_rejects_invalid_metrics),
+        ("oracle::tests::test_oracle_single_component_passes", test_oracle_single_component_passes),
+        ("oracle::tests::test_oracle_hv_lv_violation_detected", test_oracle_hv_lv_violation_detected),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
