@@ -553,6 +553,26 @@ scripts:
   - temper_placer.core.isolation_constants
   - temper_placer.core.pad_geometry
   - temper_placer.geometry.kicad_transform
+- path: check_layer_plane_emission_coverage.py
+  purpose: 'CI gate: assert every layer pcb/temper.kicad_pcb declares with a power-plane role has both (1) a
+    parser that preserves the role token (parse_engine.rs raw_board_from_tree) and (2) a zone-emission code
+    path reachable from route_pcb that can actually target it (router_v6/_zone_pour_stitch.py
+    _zone_layers_for_net) -- catches the In1.Cu/In2.Cu declared-but-never-poured defect (commit c4956df66;
+    docs/evidence/2026-08-11-correspondence-gates.md). Advisory (continue-on-error) until both underlying
+    bugs are fixed -- see the evidence doc for the exact path to blocking.'
+  owner: bennet
+  last_run: '2026-08-11'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_manifest_gate.py
   purpose: 'CI gate: enforce scripts/manifest.yaml <-> filesystem consistency'
   owner: pipeline
@@ -625,6 +645,30 @@ scripts:
   - fnmatch
   - pathlib
   - sys
+- path: check_netclass_map_board_correspondence.py
+  purpose: 'CI gate: assert every net-name key in a hand-maintained top-level net_classes: YAML mapping
+    (discovered under configs/*.yaml and packages/temper-placer/configs/*.yaml) is a real net name on
+    pcb/temper.kicad_pcb -- the generalisation of the netclass_assignments-drift defect class (#1023/#1025
+    fixed the kicad_pro<->TEMPER_NET_ASSIGNMENTS pair; this gate covers the OTHER hand-maintained copies
+    found by survey: configs/temper_deterministic_config.yaml, configs/temper_production_config.yaml,
+    packages/temper-placer/configs/temper_constraints.yaml, packages/temper-placer/configs/
+    gate_driver_constraints.yaml all currently have stale/case-mismatched keys that silently no-op on
+    Netlist.apply_net_class_mapping''s exact-key lookup) (docs/evidence/2026-08-11-correspondence-gates.md).
+    Advisory (continue-on-error) until the four files are fixed.'
+  owner: bennet
+  last_run: '2026-08-11'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: check_netlist_board_reconciliation.py
   purpose: 'Netlist<->board reconciliation CI gate (plan 2026-08-02-021, R16): compares the netlist extracted
     from pcb/temper.kicad_pcb against the compiled design netlist keyed by instance path (Sheetpath) and
@@ -749,6 +793,30 @@ scripts:
   - re
   - sys
   - temper_placer.geometry.kicad_transform
+- path: check_pcl_config_board_correspondence.py
+  purpose: 'CI gate: assert every component reference in a PCL placement-constraint config (default
+    packages/temper-placer/configs/constraints/temper_induction_cooker.yaml) resolves to a real board
+    component (direct match, or via temper_constraints.references.yaml component_aliases -- with
+    unresolved_components taking precedence over a coincidental direct match, e.g. Q1/Q2), and every
+    declared zone lies within pcb/temper.kicad_pcb''s own Edge.Cuts outline -- catches nonexistent
+    connector references and off-board zone geometry (PR #1026; docs/evidence/2026-08-11-correspondence-gates.md).
+    Advisory (continue-on-error) until the config is fixed -- see the evidence doc for the exact path to
+    blocking.'
+  owner: bennet
+  last_run: '2026-08-11'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+  - typing
+  - yaml
 - path: check_physics_provenance.py
   purpose: 'Physics provenance gate: require # source: comments on module-level float constants in physics/'
   owner: pipeline
