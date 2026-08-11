@@ -48,7 +48,7 @@
 /// on a well-founded measure.
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::io::Write;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use thiserror::Error;
 
@@ -62,22 +62,73 @@ use crate::types::{InternalConstraint, InternalConstraintModel};
 ///
 /// Added to verify (not assume) where full-board rewrite time goes -- see
 /// docs/evidence/2026-07-27-stage3-model-and-rewrite.md.
+///
+/// # The clock is acquired only when tracing is on
+///
+/// `start` is an `Option<Instant>` rather than a `bool` beside an `Instant`
+/// so that the enable decision and the timestamp are the *same* value: there
+/// is no representable state in which tracing is off and the host clock has
+/// been read. This is a portability property, not a behavioural one --
+/// `wasm32-unknown-unknown`'s std has no clock, and `Instant::now()` there
+/// panics with "time not implemented on this platform"
+/// (`library/std/src/sys/time/unsupported.rs:13`). Constructing this struct
+/// unconditionally read the clock, so `rewrite()` trapped on that target in
+/// its default (untraced) configuration. Same defect, same shape, and same
+/// fix as `temper-geometry`'s `build_capacitated_graph` (#941).
+///
+/// The same rule governs everything downstream: [`RewriteTrace::timer`] hands
+/// out a [`Timer`] that is empty when tracing is off, and [`RewriteTrace::log`]
+/// takes a *closure* rather than a formatted `&str`, so the `format!` calls --
+/// several of which read `elapsed()` -- are never evaluated on the disabled
+/// path. A `&str` argument would be built by the caller before `log` could
+/// consult `enabled`, which is exactly how the clock kept being read.
 struct RewriteTrace {
-    enabled: bool,
-    start: Instant,
+    /// `Some(t0)` iff `TEMPER_REWRITE_TRACE` is set; `None` means tracing is
+    /// off *and* no clock has been touched.
+    start: Option<Instant>,
+}
+
+/// A start timestamp that exists only when tracing is on.
+///
+/// `elapsed()` returns `Duration::ZERO` for a disabled timer. That value is
+/// only ever reachable from inside a `log` closure, which does not run when
+/// tracing is off, so no trace line can print a zero from this path.
+#[derive(Clone, Copy)]
+struct Timer(Option<Instant>);
+
+impl Timer {
+    fn elapsed(&self) -> Duration {
+        self.0.map_or(Duration::ZERO, |t| t.elapsed())
+    }
 }
 
 impl RewriteTrace {
     fn new() -> Self {
         Self {
-            enabled: std::env::var("TEMPER_REWRITE_TRACE").is_ok(),
-            start: Instant::now(),
+            start: std::env::var("TEMPER_REWRITE_TRACE")
+                .is_ok()
+                .then(Instant::now),
         }
     }
 
-    fn log(&self, msg: &str) {
-        if self.enabled {
-            eprintln!("[rewrite-trace t={:.3}s] {msg}", self.start.elapsed().as_secs_f64());
+    fn enabled(&self) -> bool {
+        self.start.is_some()
+    }
+
+    /// Take a start timestamp for a sub-measurement, reading the clock only
+    /// when tracing is on.
+    fn timer(&self) -> Timer {
+        Timer(self.start.map(|_| Instant::now()))
+    }
+
+    /// Emit one trace line. `msg` is a closure so that nothing it touches --
+    /// `format!` allocations, `Timer::elapsed()` reads -- is evaluated when
+    /// tracing is off. It is evaluated before the `t=` stamp is taken, which
+    /// is the order the previous eagerly-formatted `&str` argument produced.
+    fn log(&self, msg: impl FnOnce() -> String) {
+        if let Some(start) = self.start {
+            let msg = msg();
+            eprintln!("[rewrite-trace t={:.3}s] {msg}", start.elapsed().as_secs_f64());
             let _ = std::io::stderr().flush();
         }
     }
@@ -123,13 +174,15 @@ pub enum RewriteError {
 /// structural contradiction is detected.
 pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintModel, RewriteError> {
     let trace = RewriteTrace::new();
-    let clone_start = Instant::now();
+    let clone_start = trace.timer();
     let mut constraints = model.constraints.clone();
-    trace.log(&format!(
-        "model.constraints.clone(): {:?}, {} constraints",
-        clone_start.elapsed(),
-        constraints.len()
-    ));
+    trace.log(|| {
+        format!(
+            "model.constraints.clone(): {:?}, {} constraints",
+            clone_start.elapsed(),
+            constraints.len()
+        )
+    });
     let mut changed = true;
     let max_iterations = constraints.len() * 2;
     let mut iteration = 0;
@@ -137,13 +190,13 @@ pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintMode
     while changed && iteration < max_iterations {
         changed = false;
         iteration += 1;
-        let iter_start = Instant::now();
+        let iter_start = trace.timer();
 
         // RW7. LayerConflict (must fire first — detects UNSAT)
         detect_layer_conflict(&constraints)?;
 
         // RW5. DiffPairDedup
-        let t = Instant::now();
+        let t = trace.timer();
         let before = constraints.len();
         constraints = dedup_diff_pairs(constraints);
         let t_dedup_dp = t.elapsed();
@@ -152,7 +205,7 @@ pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintMode
         }
 
         // RW6. LayerDedup
-        let t = Instant::now();
+        let t = trace.timer();
         let before = constraints.len();
         constraints = dedup_layers(constraints);
         let t_dedup_layers = t.elapsed();
@@ -161,7 +214,7 @@ pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintMode
         }
 
         // RW3. LayerPropagate (true unit clause removes var from Capacity, K-1)
-        let t = Instant::now();
+        let t = trace.timer();
         let before_len = constraints.len();
         constraints = propagate_layer_true(constraints);
         let t_prop_true = t.elapsed();
@@ -170,7 +223,7 @@ pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintMode
         }
 
         // RW4. LayerPropagateFalse (false unit clause removes var, K unchanged)
-        let t = Instant::now();
+        let t = trace.timer();
         let before_len = constraints.len();
         constraints = propagate_layer_false(constraints);
         let t_prop_false = t.elapsed();
@@ -179,7 +232,7 @@ pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintMode
         }
 
         // RW1. CapSubsume
-        let t = Instant::now();
+        let t = trace.timer();
         let before_len = constraints.len();
         constraints = subsume_capacity(constraints, &trace)?;
         let t_subsume = t.elapsed();
@@ -188,7 +241,7 @@ pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintMode
         }
 
         // RW2. CapEliminate
-        let t = Instant::now();
+        let t = trace.timer();
         let before = constraints.len();
         constraints = eliminate_trivial_capacity(constraints);
         let t_elim = t.elapsed();
@@ -196,20 +249,24 @@ pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintMode
             changed = true;
         }
 
-        trace.log(&format!(
-            "iter={iteration} len={} changed={changed} \
-             dedup_dp={t_dedup_dp:?} dedup_layers={t_dedup_layers:?} \
-             prop_true={t_prop_true:?} prop_false={t_prop_false:?} \
-             subsume={t_subsume:?} elim={t_elim:?} iter_total={:?}",
-            constraints.len(),
-            iter_start.elapsed()
-        ));
+        trace.log(|| {
+            format!(
+                "iter={iteration} len={} changed={changed} \
+                 dedup_dp={t_dedup_dp:?} dedup_layers={t_dedup_layers:?} \
+                 prop_true={t_prop_true:?} prop_false={t_prop_false:?} \
+                 subsume={t_subsume:?} elim={t_elim:?} iter_total={:?}",
+                constraints.len(),
+                iter_start.elapsed()
+            )
+        });
     }
 
-    trace.log(&format!(
-        "rewrite() done: iterations={iteration} (max_iterations={max_iterations}) final_len={}",
-        constraints.len()
-    ));
+    trace.log(|| {
+        format!(
+            "rewrite() done: iterations={iteration} (max_iterations={max_iterations}) final_len={}",
+            constraints.len()
+        )
+    });
 
     Ok(InternalConstraintModel {
         variables: model.variables.clone(),
@@ -499,7 +556,7 @@ fn subsume_capacity(
     constraints: Vec<InternalConstraint>,
     trace: &RewriteTrace,
 ) -> Result<Vec<InternalConstraint>, RewriteError> {
-    let fn_start = Instant::now();
+    let fn_start = trace.timer();
     // Separate capacity constraints from others.
     let mut caps: Vec<(usize, String, f64, f64, Vec<(String, f64)>)> = Vec::new();
     let mut others: Vec<InternalConstraint> = Vec::new();
@@ -558,29 +615,31 @@ fn subsume_capacity(
             .push(i);
     }
 
-    if trace.enabled {
+    if trace.enabled() {
         let group_count = channel_groups.len();
         let max_group_size = channel_groups.values().map(|v| v.len()).max().unwrap_or(0);
         let mut size_histogram: HashMap<usize, usize> = HashMap::new();
         for v in channel_groups.values() {
             *size_histogram.entry(v.len()).or_insert(0) += 1;
         }
-        trace.log(&format!(
-            "subsume_capacity: cap_infos_build={:?} groups={group_count} max_group_size={max_group_size} \
-             size_histogram(size->num_groups, top 10)={:?}",
-            fn_start.elapsed(),
-            {
-                let mut v: Vec<(usize, usize)> = size_histogram.into_iter().collect();
-                v.sort_unstable_by_key(|a| std::cmp::Reverse(a.1));
-                v.truncate(10);
-                v
-            }
-        ));
+        trace.log(|| {
+            format!(
+                "subsume_capacity: cap_infos_build={:?} groups={group_count} max_group_size={max_group_size} \
+                 size_histogram(size->num_groups, top 10)={:?}",
+                fn_start.elapsed(),
+                {
+                    let mut v: Vec<(usize, usize)> = size_histogram.into_iter().collect();
+                    v.sort_unstable_by_key(|a| std::cmp::Reverse(a.1));
+                    v.truncate(10);
+                    v
+                }
+            )
+        });
     }
 
     let mut tight_k: Vec<Option<usize>> = cap_infos.iter().map(|info| Some(info.max_nets)).collect();
     let mut comparisons: u64 = 0u64;
-    let loop_start = Instant::now();
+    let loop_start = trace.timer();
 
     // For each channel group, do pairwise subsumption.
     for indices in channel_groups.values() {
@@ -591,11 +650,13 @@ fn subsume_capacity(
             for &i in indices.iter() {
                 for &j in indices.iter() {
                     comparisons += 1;
-                    if trace.enabled && comparisons.is_multiple_of(5_000_000) {
-                        trace.log(&format!(
-                            "subsume_capacity progress: comparisons={comparisons} elapsed={:?}",
-                            loop_start.elapsed()
-                        ));
+                    if trace.enabled() && comparisons.is_multiple_of(5_000_000) {
+                        trace.log(|| {
+                            format!(
+                                "subsume_capacity progress: comparisons={comparisons} elapsed={:?}",
+                                loop_start.elapsed()
+                            )
+                        });
                     }
                     if i == j {
                         continue;
@@ -641,11 +702,13 @@ fn subsume_capacity(
         }
     }
 
-    if trace.enabled {
-        trace.log(&format!(
-            "subsume_capacity: pairwise loop done, comparisons={comparisons} elapsed={:?}",
-            loop_start.elapsed()
-        ));
+    if trace.enabled() {
+        trace.log(|| {
+            format!(
+                "subsume_capacity: pairwise loop done, comparisons={comparisons} elapsed={:?}",
+                loop_start.elapsed()
+            )
+        });
     }
 
     // Rebuild capacity constraints with tightened bounds.
@@ -662,7 +725,7 @@ fn subsume_capacity(
     // rewrite.md) to be the actual dominant full-board rewrite cost, not
     // the pairwise loop above (which is O(n) here because every
     // channel_id is unique, so every channel group has size 1).
-    let rebuild_start = Instant::now();
+    let rebuild_start = trace.timer();
     let mut dedup_map: HashMap<BTreeSet<String>, (usize, usize)> = HashMap::new();
     // var_set → (orig_idx, tight_k)
 
@@ -710,12 +773,14 @@ fn subsume_capacity(
         });
     }
 
-    if trace.enabled {
-        trace.log(&format!(
-            "subsume_capacity: rebuild loop done, elapsed={:?}, total_fn={:?}",
-            rebuild_start.elapsed(),
-            fn_start.elapsed()
-        ));
+    if trace.enabled() {
+        trace.log(|| {
+            format!(
+                "subsume_capacity: rebuild loop done, elapsed={:?}, total_fn={:?}",
+                rebuild_start.elapsed(),
+                fn_start.elapsed()
+            )
+        });
     }
 
     Ok(result)
