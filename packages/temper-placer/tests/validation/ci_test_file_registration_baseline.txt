@@ -158,6 +158,7 @@ requirements/test_clearance_rust_differential.py
 requirements/validators/test_points.py
 router_v6/test_constraints_drc_oracle_pbt.py
 router_v6/test_constraints_drc_oracle_rust_differential.py
+router_v6/test_corridor_erosion.py
 router_v6/test_pad_connectivity_audit.py
 router_v6/test_stage_ledger_rust_differential.py
 scripts/test_check_physics_provenance.py
