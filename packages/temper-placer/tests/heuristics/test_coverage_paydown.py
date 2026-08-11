@@ -384,29 +384,6 @@ class TestPowerStageHeuristic:
         assert isinstance(h.priority, HeuristicPriority)
 
 
-class TestSpectralHeuristic:
-    """Tests for spectral.py."""
-
-    def test_spectral_placement_name(self):
-        """SpectralPlacementHeuristic.name returns a string."""
-        from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
-        h = SpectralPlacementHeuristic()
-        assert isinstance(h.name, str)
-
-    def test_spectral_placement_priority(self):
-        """SpectralPlacementHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
-        from temper_placer.heuristics.base import HeuristicPriority
-        h = SpectralPlacementHeuristic()
-        assert isinstance(h.priority, HeuristicPriority)
-
-    def test_spectral_placement_description(self):
-        """SpectralPlacementHeuristic.description returns a string."""
-        from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
-        h = SpectralPlacementHeuristic()
-        assert isinstance(h.description, str)
-
-
 class TestTopologicalInitialization:
     """Tests for topological_init.py."""
 
@@ -453,16 +430,9 @@ class TestHeuristicPipeline:
 
     def test_create_default_pipeline_returns_pipeline(self):
         """create_default_pipeline returns a HeuristicPipeline."""
-        from temper_placer.heuristics.pipeline import create_default_pipeline
+        from temper_placer.heuristics import create_default_pipeline
         from temper_placer.heuristics.pipeline import HeuristicPipeline
         pipeline = create_default_pipeline()
-        assert isinstance(pipeline, HeuristicPipeline)
-
-    def test_create_priority_pipeline_returns_pipeline(self):
-        """create_priority_pipeline returns a HeuristicPipeline."""
-        from temper_placer.heuristics.pipeline import create_priority_pipeline
-        from temper_placer.heuristics.pipeline import HeuristicPipeline
-        pipeline = create_priority_pipeline()
         assert isinstance(pipeline, HeuristicPipeline)
 
     def test_heuristic_pipeline_register_and_run(self, simple_netlist, simple_board, rng_key):
@@ -498,7 +468,8 @@ class TestHeuristicPipeline:
 
     def test_heuristic_pipeline_register_all(self):
         """HeuristicPipeline.register_all registers default heuristics."""
-        from temper_placer.heuristics.pipeline import HeuristicPipeline, create_default_pipeline
+        from temper_placer.heuristics import create_default_pipeline
+        from temper_placer.heuristics.pipeline import HeuristicPipeline
         pipeline = HeuristicPipeline()
         default = create_default_pipeline()
         pipeline.register_all(default.heuristics)
@@ -575,23 +546,6 @@ class TestConflictResolver:
         resolved, conflict = cr.resolve(p1, 1.6, 0.8, ctx)
         assert resolved is not None
         assert isinstance(resolved, ComponentPlacement)
-
-
-# ============================================================================
-# graph_utils tests
-# ============================================================================
-
-
-class TestGraphUtils:
-    """Tests for graph_utils.py."""
-
-    def test_graph_builder_build_graph(self, simple_netlist):
-        """GraphBuilder.build_graph returns a graph structure."""
-        from temper_placer.heuristics.graph_utils import GraphBuilder
-        builder = GraphBuilder(simple_netlist)
-        graph = builder.build_graph()
-        # graph is a dict or networkx graph
-        assert graph is not None
 
 
 # ============================================================================

@@ -828,25 +828,21 @@ def test_pad_radius_bit_exact_random():
 
 
 # ============================================================================
-# Kept modules — community.py / loop_ownership.py stay Python (R3
-# JUSTIFIED-KEEP, see VERIFICATION.md). These smoke tests guard that the kept
-# modules still import and run through the unchanged Python path.
+# Kept modules — loop_ownership.py stays Python (R3 JUSTIFIED-KEEP, see
+# VERIFICATION.md). These smoke tests guard that the kept modules still import
+# and run through the unchanged Python path.
+# (community.py detection functions were deleted in Spike S6, 2026-08-11.)
+# Community dataclass is kept as a public export.
 # ============================================================================
 
 
-def test_community_detect_communities_still_runs():
-    from temper_placer.core.community import detect_communities
-
-    comps = [Component(ref=f"C{i}", footprint="0603", bounds=(1.0, 2.0)) for i in range(6)]
-    for c in comps:
-        c.pins.extend([None, None])
-    nets = [
-        Net(name="N0", pins=[("C0", "1"), ("C1", "1"), ("C2", "1")]),
-        Net(name="N1", pins=[("C3", "1"), ("C4", "1"), ("C5", "1")]),
-    ]
-    nl = Netlist(components=comps, nets=nets)
-    communities = detect_communities(nl)
-    assert isinstance(communities, list)
+def test_community_dataclass_constructs():
+    """Community dataclass is still importable and constructable."""
+    from temper_placer.core.community import Community
+    c = Community(name="test", component_refs=["U1", "C1"], modularity_score=0.5)
+    assert c.name == "test"
+    assert c.component_refs == ["U1", "C1"]
+    assert c.modularity_score == 0.5
 
 
 def test_loop_ownership_build_map_still_runs():

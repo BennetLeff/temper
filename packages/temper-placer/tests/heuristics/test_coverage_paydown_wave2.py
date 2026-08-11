@@ -436,38 +436,6 @@ class TestPowerStageApply:
 
 
 # ============================================================================
-# spectral.py — heuristic apply() method
-# ============================================================================
-
-
-class TestSpectralApply:
-    """Tests for .apply() method on SpectralPlacementHeuristic."""
-
-    def test_spectral_apply(self):
-        from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
-        netlist = _make_medium_netlist()
-        ctx = _make_basic_context(netlist=netlist)
-        h = SpectralPlacementHeuristic()
-        result = h.apply(ctx)
-        assert isinstance(result, HeuristicResult)
-
-    def test_spectral_name(self):
-        from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
-        h = SpectralPlacementHeuristic()
-        assert isinstance(h.name, str)
-
-    def test_spectral_priority(self):
-        from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
-        h = SpectralPlacementHeuristic()
-        assert isinstance(h.priority, HeuristicPriority)
-
-    def test_spectral_description(self):
-        from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
-        h = SpectralPlacementHeuristic()
-        assert isinstance(h.description, str)
-
-
-# ============================================================================
 # topological_init.py — heuristic apply() and properties
 # ============================================================================
 
@@ -539,7 +507,8 @@ class TestPipelineGetRegisteredHeuristics:
         assert registered == []
 
     def test_get_registered_with_heuristics(self):
-        from temper_placer.heuristics.pipeline import HeuristicPipeline, create_default_pipeline
+        from temper_placer.heuristics import create_default_pipeline
+        from temper_placer.heuristics.pipeline import HeuristicPipeline
         pipeline = create_default_pipeline()
         registered = pipeline.get_registered_heuristics()
         assert len(registered) > 0
@@ -553,7 +522,8 @@ class TestPipelineClear:
     """Cover clear (stale on allowlist)."""
 
     def test_pipeline_clear(self):
-        from temper_placer.heuristics.pipeline import HeuristicPipeline, create_default_pipeline
+        from temper_placer.heuristics import create_default_pipeline
+        from temper_placer.heuristics.pipeline import HeuristicPipeline
         pipeline = create_default_pipeline()
         assert len(pipeline.heuristics) > 0
         pipeline.clear()
