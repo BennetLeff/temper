@@ -514,7 +514,7 @@ jobs:
       # It runs on `workflow_dispatch` only and is a no-op on every PR.
       # ------------------------------------------------------------------
       - name: Anti-vacuity — inject a failing verdict (workflow_dispatch only)
-        if: ${{ !cancelled() && steps.freshness.outcome == 'success' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.inject_failure == 'fail_one_verdict' }}
         run: |
           set -euo pipefail
           node -e '
