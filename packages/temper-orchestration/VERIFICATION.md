@@ -2703,3 +2703,119 @@ invocation stay Python (the ortools / temper-rust-router boundary).
   by pyo3's macro expansion (the crate sets `profile.release.panic =
   "unwind"`); the `Stage` run() body runs under `stage_guard`; no
   `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
+
+## Rust orchestration engine — Phase C residual (pipeline contract tail)
+
+The plan's Phase C "What Python is removed: ~1,550 LOC of pipeline
+orchestration" is nearly complete (U1–U4 landed); this section records the
+residual tail — the four pipeline-contract modules — migrated as pyclasses,
+each with a differential against a VERBATIM pre-migration oracle in the
+temper-placer test tree:
+
+| Python module | Home (module in this crate) | Migrated | Kept Python |
+|---|---|---|---|
+| `pipeline/dag_types.py` | `dag_types.rs` | `StageResult` (dataclass contract) | `DAGError` hierarchy (incl. `DAGExprError`/`DAGExprSyntaxError`), `DataContext` alias, `PipelineState`/`StageHandler` Protocols |
+| `pipeline/dag_observability.py` | `dag.rs` | `StageEvent`, `PipelineExecutionLog` (incl. the asdict `to_dict` serialization) | `ProgressObserver` Protocol, `write_execution_log_json` (stdlib I/O + `json.dump` over the Rust `to_dict()`) |
+| `pipeline/bottleneck_report.py` | `bottleneck.rs` | `BottleneckNetEntry`, `BottleneckRegion`, `CongestionHeatmapData`, `BottleneckReport`, `DeclaredArtifact` (full serialization surface) | nothing |
+| `pipeline/metrics_observer.py` | `metrics.rs` | `MetricsObserver` (the cross-validation + canary decisions), `CanaryCheckError`, `CrossValidationError` (pyo3 exceptions subclassing `ValueError`) | `SchemaValidator` + `PipelineMetricsRecord`/`record_metrics` call-backs (owned by `regression/`), `time.monotonic()`/`time.time()` runtime semantics |
+
+`dag_expr.py`'s predicate parser already lives in `temper-io-types`
+(out of scope); the DAG exception classes that module's shim needs stay on
+the Python `dag_types` shim, so no parser logic was duplicated.
+
+### Boundaries (argued in the module headers, reproduced here)
+
+- **Exceptions**: `DAGError`/`DAGExprError`/`DAGExprSyntaxError` stay Python
+  (the U4 `PipelineError` precedent — no bit-exact pyclass mapping for
+  exception hierarchies in scope). The metrics exceptions are the ONE
+  exception: the plan's Phase C table explicitly names `CanaryCheckError` /
+  `CrossValidationError` in the migrated column, so they are pyo3 exceptions
+  subclassing `ValueError` (the `issubclass(e, ValueError)` contract holds;
+  `__module__ == "temper_orchestration"`).
+- **Protocols/type aliases** (`ProgressObserver`, `PipelineState`,
+  `StageHandler`, `DataContext`): typing-only constructs — pyo3 has no
+  Protocol/typing-only mapping, so there is no runtime value to migrate.
+- **`dataclasses.asdict` semantics**: `PipelineExecutionLog.to_dict()`'s
+  event transform is a 1:1 port of CPython's `dataclasses._asdict_inner`
+  (dataclass instances → dicts in definition order, namedtuples keep their
+  type, list/tuple/dict recurse element-wise, every other leaf via
+  `copy.deepcopy`). The deepcopy leaf is a stdlib library semantic and is
+  delegated to CPython — reimplementing `copy.deepcopy` bit-exactly is the
+  "library semantics" trap the R3 records name. `asdict` cannot run on the
+  pyclasses themselves (`__dataclass_fields__` requirement), which is why the
+  algorithm is ported rather than called. ClassVar-bearing user dataclasses
+  and dict/list subclasses are a documented boundary (the declared types are
+  plain containers).
+- **Type identity is load-bearing in bottleneck_report**: the dataclasses
+  store EXACTLY the value passed to the constructor (int stays int, repr
+  `0`), so the numeric-ish fields are `Py<PyAny>` raw, NOT Rust scalars.
+  `BottleneckReport.from_dict` coerces `float()`/`int()` exactly where the
+  oracle does; the differential pins the int-vs-float cases explicitly.
+- **Rendered strings go through CPython**: `to_json` uses `json.dumps(...,
+  indent=2)`, `write` delegates to the path's `write_text`, the metrics
+  exception messages render floats through the `py_float_fmt` seam and every
+  other leaf through CPython `str()` — David-Gay formatting parity by
+  identity, the d6_util precedent. `wall_time_ms = int(duration_s * 1000)`
+  computes through CPython `int()` (Python raises `OverflowError` for
+  non-finite / out-of-range, Rust casts saturate — delegated, not
+  reimplemented).
+- **`time.time()`/`time.monotonic()`** stay CPython runtime semantics (never
+  reimplemented in Rust; the U8 default-factory precedent).
+- **Documented constructor boundaries** (exercised by the differential, which
+  drives the declared types only): an EXPLICIT `None` passed to a
+  container-typed constructor argument is treated as the omitted sentinel
+  (fresh container); `StageEvent.timestamp` / `MetricsObserver.canary_value`
+  explicit `None` is treated as the omitted default; scalar fields coerce to
+  `f64` on assignment (`5` → `5.0`); `StageResult` / `BottleneckReport`
+  constructors substitute their dataclass defaults for an omitted argument.
+- **The mock seam is preserved**: `MetricsObserver.on_stage_complete`
+  dispatches `_validate_schema` / `_cross_validate_against` / `_check_canary`
+  / `_write` through Python attribute lookup on the instance
+  (`#[pyclass(dict)]`), so the pre-existing `test_metrics_observer.py`
+  `mock.patch.object` tests intercept exactly as they did on the pure-Python
+  class; `_stage_start_times` is a real Python dict.
+- **No duplication of the dag_expr parser**: the DAG `dag_types` shim keeps
+  the exception classes and the type alias only; the parser/evaluator stays
+  single-source in `temper-io-types::dag_expr` (pinned by the existing
+  `test_dag_expr_rust_differential.py`).
+
+### Differential / PBT / metamorphic suite
+
+`tests/pipeline/test_phase_c_tail_rust_differential.py` (52 tests): the four
+oracle bodies are content-hash pinned (sha256 in the suite + registered in
+`scripts/oracle_hashes.json`), the port is proven distinct from the shim
+(`__module__`), every differential assertion is bit-exact (`repr()` equality
+for whole objects and per-field signatures, JSONL byte-equality for the
+metrics write path under a frozen metrics timestamp, exception-message
+equality for the cross-validation/canary failure paths). Six non-vacuous PBT
+properties (each with a `test_pN_fails_for_*_mutant` guard) and four
+metamorphic relations. The 37 pre-existing pipeline tests
+(`test_dag_types`, `test_dag_observability`, `test_bottleneck_report`,
+`test_metrics_observer`) pass unchanged through the delegating shims.
+
+### Structural proof (bit-identical parity)
+
+Bit-exactness is established by the differential suites (G4-companion):
+every migrated surface either (a) delegates the stdlib formatting / deep-copy
+/ time / json / int-coercion leaves to CPython so parity is by identity, or
+(b) is a finite, order-preserving recursion over caller-provided containers
+whose per-step operation is size-independent (`asdict_inner`, the
+`to_dict`/`from_dict` walks), pinned across the input shapes the differential
+drives.
+
+### G8 physics discipline
+
+Not physics-gated (R1h): none of the migrated surfaces gates on a physics
+quantity. The R24 discipline does not apply; the canary/timing checks are
+pipeline-integrity invariants, not physics bounds.
+
+### Gates
+
+- `cargo test -p temper-orchestration` — 141 lib + runner suites green.
+- `cargo clippy --all-features --all-targets -- -D warnings` clean.
+- `import_linter_gate.py` — PASSED, 0 new violations.
+- `make regen-check` — oracle registry 158/158 OK; the only `regen-check`
+  REFUSE is the pre-existing `loop_area.py:108` hash-order NEW_SITE on
+  origin/main (unrelated to this slice; not touched here).
+- `check_unwired_kernels.py` — no new unwired kernel: every new pyclass is
+  referenced by its delegating shim, so the Python AST scan sees it wired.

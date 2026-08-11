@@ -1,13 +1,26 @@
-"""Observability: progress observers, stage events, and execution log."""
+"""Observability: progress observers, stage events, and execution log.
+
+This module is a delegation shim. ``StageEvent`` and ``PipelineExecutionLog``
+are Rust pyclasses in the ``temper-orchestration`` crate (Phase-C residual of
+the Rust orchestration engine, plan 2026-08-09-001, module home ``dag``;
+bit-identical parity pinned by ``tests/pipeline/test_phase_c_tail_rust_differential.py``
+against the verbatim pre-migration oracle
+``tests/pipeline/_dag_observability_py_oracle.py``). ``ProgressObserver``
+stays a Python Protocol (typing-only), and ``write_execution_log_json`` stays
+Python (stdlib file-I/O + ``json.dump`` over the Rust ``to_dict()`` shape —
+the ``explainability`` logger precedent). The public API is unchanged.
+"""
 
 from __future__ import annotations
 
-import dataclasses
 import json
-import time
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
+
+import temper_orchestration as _rs
+
+StageEvent = _rs.StageEvent
+PipelineExecutionLog = _rs.PipelineExecutionLog
 
 
 class ProgressObserver(Protocol):
@@ -27,49 +40,6 @@ class ProgressObserver(Protocol):
     ) -> None: ...
 
     def on_epoch(self, stage_name: str, epoch: int, loss: float) -> None: ...
-
-
-@dataclass
-class StageEvent:
-    name: str
-    kind: str
-    iteration: int = 0
-    duration_s: float = 0.0
-    reason: str = ""
-    outputs: dict[str, Any] | None = None
-    error: str | None = None
-    feedback_contract: str | None = None
-    feedback_attempt: int | None = None
-    timestamp: float = field(default_factory=time.time)
-
-
-@dataclass
-class PipelineExecutionLog:
-    dag_topology: list[dict[str, Any]] = field(default_factory=list)
-    stage_order: list[str] = field(default_factory=list)
-    stage_timings: dict[str, float] = field(default_factory=dict)
-    retry_counts: dict[str, int] = field(default_factory=dict)
-    feedback_activations: list[dict[str, Any]] = field(default_factory=list)
-    success: bool = False
-    total_duration_s: float = 0.0
-    events: list[StageEvent] = field(default_factory=list)
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "dag_topology": self.dag_topology,
-            "stage_order": self.stage_order,
-            "stage_timings": self.stage_timings,
-            "retry_counts": self.retry_counts,
-            "feedback_activations": self.feedback_activations,
-            "success": self.success,
-            "total_duration_s": self.total_duration_s,
-            "events": [_event_to_dict(e) for e in self.events],
-        }
-
-
-def _event_to_dict(event: StageEvent) -> dict[str, Any]:
-    d = dataclasses.asdict(event)
-    return {k: v for k, v in d.items() if v is not None}
 
 
 def write_execution_log_json(exec_log: PipelineExecutionLog, output_dir: Path) -> Path:

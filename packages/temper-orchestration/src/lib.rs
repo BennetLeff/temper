@@ -222,6 +222,26 @@ pub mod wasm_test_registry;
 // per the U4 dispatch.
 pub(crate) mod pipeline_route;
 
+// Phase C residual (Rust Orchestration Engine plan 2026-08-09-001, U4-style
+// dispatch): the pipeline-contract tail — `pipeline/dag_types.py` →
+// `dag_types` (the `StageResult` dataclass), `pipeline/dag_observability.py`
+// → `dag` (the `StageEvent` / `PipelineExecutionLog` observability
+// dataclasses + the asdict `to_dict` serialization), `pipeline/
+// bottleneck_report.py` → `bottleneck` (`BottleneckNetEntry` /
+// `BottleneckRegion` / `CongestionHeatmapData` / `BottleneckReport` /
+// `DeclaredArtifact`), `pipeline/metrics_observer.py` → `metrics`
+// (`MetricsObserver` + `CanaryCheckError` + `CrossValidationError`). Each
+// Python module is a thin delegation shim re-exporting these pyclasses;
+// bit-identical parity is pinned by
+// `tests/pipeline/test_phase_c_tail_rust_differential.py` against the
+// verbatim pre-migration oracles. `dag_expr.py`'s parser already lives in
+// temper-io-types (out of scope here); the DAG exception classes the shim
+// needs stay Python. Append-only per the U4 dispatch.
+pub(crate) mod bottleneck;
+pub(crate) mod dag;
+pub(crate) mod dag_types;
+pub(crate) mod metrics;
+
 // Public re-exports for the orchestration engine's Rust consumers (the
 // runner test in `tests/stages_runner.rs` and the Phase-C pipeline wiring).
 // Append-only per the U4 dispatch; the individual modules stay private.
@@ -370,6 +390,19 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(pipeline_route::run_next_tstamp, m)?)?;
     m.add_function(wrap_pyfunction!(pipeline_route::run_to_stage0_netclass_rules, m)?)?;
     m.add_function(wrap_pyfunction!(pipeline_route::run_write_route_segments, m)?)?;
+    // Phase C residual (append-only per the U4 dispatch): the pipeline
+    // contract tail — dag_types / dag / bottleneck / metrics.
+    m.add_class::<dag_types::StageResult>()?;
+    m.add_class::<dag::StageEvent>()?;
+    m.add_class::<dag::PipelineExecutionLog>()?;
+    m.add_class::<bottleneck::BottleneckNetEntry>()?;
+    m.add_class::<bottleneck::BottleneckRegion>()?;
+    m.add_class::<bottleneck::CongestionHeatmapData>()?;
+    m.add_class::<bottleneck::BottleneckReport>()?;
+    m.add_class::<bottleneck::DeclaredArtifact>()?;
+    m.add_class::<metrics::MetricsObserver>()?;
+    m.add("CrossValidationError", m.py().get_type::<metrics::CrossValidationError>())?;
+    m.add("CanaryCheckError", m.py().get_type::<metrics::CanaryCheckError>())?;
     Ok(())
 }
 
