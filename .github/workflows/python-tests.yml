@@ -814,8 +814,9 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 28 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 51 --
           tests/testing/test_quarantine_rust_differential.py
+          tests/regression/test_manifest_rust_differential.py
           -v --tb=short -p no:cacheprovider --maxfail=10
         env:
           RUST_BACKTRACE: full

@@ -1722,3 +1722,97 @@ to the pinned oracle's.
    by reimplementation.
 3. **`usize` fingerprint fields.** `size_bytes`/`lines` are `usize`;
    CPython's `int` is unbounded. Unreachable in practice for real files.
+
+# Regression golden-manifest path sets (`manifest.rs`) — Verification
+
+The Wave-4 tail-tooling migration of `temper_placer/regression/manifest.py`
+(83 LOC): the golden-manifest path-set rules move to `src/manifest.rs`,
+exposed as `temper_io_types.resolve_board_path_py` /
+`baseline_yaml_path_py` / `baseline_pcb_path_py` / `validate_board_paths`.
+The pre-migration module is pinned VERBATIM as
+`packages/temper-placer/tests/regression/_manifest_py_oracle.py`
+(content-hash registered in `scripts/oracle_hashes.json`).
+
+## Home-crate decision
+
+The migrated compute is *path-set construction and validation* — the
+manifest/hashing family, homed in `temper-io-types` (the task's per-module
+home decision: io-types = hashing/manifest surface; orchestration = the
+reporting slice). The kernels are pure (wasm32-safe); the pyo3 boundary is a
+thin adapter.
+
+## What migrated vs stayed Python
+
+| Piece | Verdict |
+|---|---|
+| `GoldenBoard.resolve_path` (`repo_root / board.path`) | migrated (`resolve_board_path`, pure) |
+| `GoldenBoard.baseline_yaml_path` / `baseline_pcb_path` (the fixed `power_pcb_dataset/baselines` rules) | migrated (`baseline_yaml_path` / `baseline_pcb_path`, pure) |
+| `GoldenManifest.validate` per-board missing-PCB check + error-message construction | migrated (`validate_pcb_paths` — `Path::exists` + the `"Board '<id>': PCB file not found at <resolved>"` f-string, `PathBuf::display`) |
+| `GoldenManifest.load` (the `yaml.safe_load` ingestion) | stays Python (the same Python-YAML boundary `reference_aliases` keeps; a Rust `safe_load` reimplementation for a 30-line loader is net-negative marshalling) |
+| `validate`'s `baselines_dir.mkdir(parents=True, exist_ok=True)` side effect | stays Python in the shim (orchestration side effect, not compute) |
+| `get_board` linear lookup | stays Python (trivial membership orchestration over the dataclass list) |
+
+## Induction applicability
+
+**Mathematical induction is not applicable.** Path joins and the per-board
+validation scan are single-step operations with no recursion or size
+parameter. A **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every input in the differential
+domains (documented cases + Hypothesis-generated relative manifest paths and
+board ids), the four exported functions return values bit-identical to the
+pinned oracle's `GoldenBoard` methods and `GoldenManifest.validate`.
+
+*Proof by structural cases.*
+
+1. **Path joins.** `repo_root.join(board_path)` reproduces pathlib's
+   `repo_root / board.path` for relative paths (the real manifest domain):
+   same component-wise `/` join, same `..`/`.` normalization, and — pinned
+   by the explicit corner test — the same absolute-path *replacement*
+   semantics (`Path('/repo') / '/x'` == `/x`, matched by `join`).
+2. **Baseline rules.** `baseline_yaml_path` / `baseline_pcb_path` are the
+   fixed two-level `power_pcb_dataset/baselines` joins with the id embedded
+   via `format!` — bit-identical to the f-strings (`{id}_baseline.yaml` /
+   `{id}.kicad_pcb`).
+3. **Validation.** `validate_pcb_paths` iterates the `(id, path)` pairs in
+   order, resolves each, `exists()`-probes it, and emits the oracle's exact
+   `"Board '<id>': PCB file not found at <resolved>"` string via
+   `PathBuf::display` (POSIX: identical to `str(Path)`).
+
+## R1 gate status
+
+| Gate | Status | Evidence |
+|---|---|---|
+| R1a behavioural A/B | PASS | `tests/regression/test_manifest_rust_differential.py` (22 tests): both arms over documented cases (4 board/path shapes × 3 roots, missing/existing PCBs, empty manifest, absolute-path replacement, load/get_board pins) + the oracle body digests pinned in-suite and in `scripts/oracle_hashes.json`. |
+| R1b no-regression arm | N/A, recorded | path sets run once per regression-suite invocation; no speedup is claimed. |
+| R1c ≥5 non-vacuous properties | PASS | 5 hypothesis properties (resolve-path differential, baseline-yaml differential, baseline-pcb differential, validate differential over generated board lists against a real empty temp repo, resolve-path root-prefix invariant). |
+| R1d ≥3 MRs | PASS | 4 metamorphic relations (validate reports exactly the missing boards in order; baseline paths embed the id in the fixed layout; validate is idempotent; resolve-path root trailing-slash stability matches the oracle). |
+| R1e VERIFICATION.md | PASS | this section |
+| R1f TDD | PASS | the differential file was authored against the not-yet-registered surface; delegation proven by recording stubs; the oracle stays distinct (`__module__` + source-scan assertions) |
+| R1g Rust practice | PASS | no `unwrap`/`expect` outside `#[cfg(test)]`; pyo3 boundary catch_unwind-wrapped by `#[pyfunction]` expansion; `cargo clippy --all-features --all-targets -- -D warnings` clean. |
+| R1h R24 | N/A | no physics quantity is computed, asserted, or gated. |
+
+## Documented bounds (per R1, recorded here)
+
+1. **Trailing-separator paths are out of domain.** For a board path like
+   `pcb/x/`, pathlib strips the trailing separator while
+   `PathBuf::display` preserves it: the shim's `Path(...)` wrapper
+   normalizes `resolve_path` to full parity, but `validate_board_paths`
+   messages would keep the trailing `/` where the oracle strips it. Real
+   golden manifests never carry trailing separators (the differential/PBT
+   domains are constrained to that), and the divergence is pinned as a fact
+   by `test_trailing_separator_divergence_is_documented_bound`.
+2. **Redundant separators are out of domain.** pathlib collapses empty and
+   `.` components on join (`'0//0'` → `'0/0'`, `'a/./b'` → `'a/b'`) while
+   `PathBuf` preserves them literally; same public-API-parity-vs-validate-
+   message split as bound 1. Pinned by
+   `test_redundant_separator_divergence_is_documented_bound`; real manifest
+   paths use clean relative components.
+3. **Absolute board paths.** A manifest entry whose `path` is absolute
+   *replaces* the repo root in both arms (pathlib and `PathBuf::join`
+   agree); real manifests use relative paths.
+4. **`..` components are preserved, not resolved.** Both arms keep `..`
+   literally (`repo_root / 'a/../b'` resolves to nothing), so parity holds
+   there; real manifests don't use `..`.

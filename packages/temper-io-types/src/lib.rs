@@ -65,6 +65,13 @@ pub mod footprint_spec;
 pub mod golden_serializers;
 pub mod isolation;
 pub mod kicad_write_geometry;
+// Wave-4 tail-tooling migration: the regression golden-manifest path sets
+// and validation (temper_placer/regression/manifest.py) — the path-set
+// rules (resolve_path / baseline_yaml_path / baseline_pcb_path) and the
+// missing-PCB validation. Pure core (wasm32-safe); the pyo3 boundary lives
+// behind the python feature. See the module doc for the migrated-vs-kept
+// split (YAML ingestion and get_board stay Python).
+pub mod manifest;
 // Wave-4 Phase 2: the placer's core/ CONTRACT layer (Rect, PinInfo,
 // PlacementViolation, FabPreset + the pure kernels of units,
 // net_classification, manufacturing, placement_drc and the netlist
@@ -216,6 +223,12 @@ mod pymodule_def {
         m.add_function(wrap_pyfunction!(crate::quarantine::classify_error, m)?)?;
         m.add_function(wrap_pyfunction!(crate::quarantine::compute_stack_hash, m)?)?;
         m.add_function(wrap_pyfunction!(crate::quarantine::compute_fingerprint, m)?)?;
+        // Wave-4 tail-tooling — regression golden-manifest path sets
+        // (regression/manifest.py).
+        m.add_function(wrap_pyfunction!(crate::manifest::resolve_board_path_py, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::manifest::baseline_yaml_path_py, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::manifest::baseline_pcb_path_py, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::manifest::validate_board_paths, m)?)?;
         m.add_function(wrap_pyfunction!(
             crate::footprint_library::load_footprint_library,
             m
