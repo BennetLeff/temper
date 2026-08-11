@@ -196,6 +196,14 @@ mod zone_assignment_stage;
 mod zone_geometry_stage;
 mod zone_aware_slot_generation_stage;
 
+// Phase E batch E6 (Rust Orchestration Engine plan 2026-08-09-001): the
+// pipeline-route orchestration — the router_v6/_pipeline_route.py and
+// router_v6/_adapter_convert.py shims delegate to the `run_*` pyfunctions
+// here; the Stage impl is the E6 runner surface (see `pipeline_route.rs`'s
+// header for the migrated/kept-Python split and the E6 boundary). Append-only
+// per the U4 dispatch.
+mod pipeline_route;
+
 // Public re-exports for the orchestration engine's Rust consumers (the
 // runner test in `tests/stages_runner.rs` and the Phase-C pipeline wiring).
 // Append-only per the U4 dispatch; the individual modules stay private.
@@ -222,6 +230,7 @@ pub use phased_assignment_stage::PhasedAssignmentStage;
 pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
 pub use phased_component_assignment_validator_stage::phased_validator_hv;
 pub use placement_validation_stage::PlacementValidationStage;
+pub use pipeline_route::PipelineRouteStage;
 pub use power_plane_stage::PowerPlaneStage;
 pub use preflight_stage::PreflightStage;
 pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
@@ -318,6 +327,12 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(channel_mapping::run_expand_all_pad_tree, m)?)?;
     m.add_function(wrap_pyfunction!(channel_mapping::run_assign_layer, m)?)?;
     m.add_function(wrap_pyfunction!(channel_mapping::run_channel_widths_edt, m)?)?;
+    m.add_function(wrap_pyfunction!(pipeline_route::run_select_sat_nets, m)?)?;
+    m.add_function(wrap_pyfunction!(pipeline_route::run_build_clause_origin, m)?)?;
+    m.add_function(wrap_pyfunction!(pipeline_route::run_select_routing_grids, m)?)?;
+    m.add_function(wrap_pyfunction!(pipeline_route::run_next_tstamp, m)?)?;
+    m.add_function(wrap_pyfunction!(pipeline_route::run_to_stage0_netclass_rules, m)?)?;
+    m.add_function(wrap_pyfunction!(pipeline_route::run_write_route_segments, m)?)?;
     Ok(())
 }
 

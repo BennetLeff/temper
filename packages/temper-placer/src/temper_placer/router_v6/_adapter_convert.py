@@ -12,6 +12,8 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+import temper_orchestration as _to
+
 from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.router_v6._adapter_types import (
     CongestionRegion,
@@ -35,6 +37,27 @@ from temper_placer.router_v6._zone_pour_stitch import (  # noqa: F401
     _zone_params_for_net,
 )
 
+# Phase E batch E6 (Rust Orchestration Engine plan 2026-08-09-001): the
+# portable adapter orchestration — ``_next_tstamp`` (the deterministic UUIDv5
+# tstamp sequence), ``_to_stage0_netclass_rules`` (the netclass SSOT->stage0
+# conversion boundary) and ``_write_routes_to_content``'s segment/via
+# emission core (the collinear-step merge + ``(segment ...)``/``(via ...)``
+# rendering with the shared tstamp counter) — moved to ``temper-orchestration``'s
+# ``pipeline_route.rs``; this module keeps its public API as a thin FFI
+# delegation. What stays Python (the E6 boundary): ``route_pcb`` /
+# ``_build_routing_result`` / ``_apply_placements_to_pcb`` /
+# ``_reorient_pads_in_footprint_block`` — the pipeline-invocation glue, the
+# failure-extraction assembly and the ``re``-based s-expression text rewriting
+# (no regex engine in the crate; the PAD-AT rewrite is a Perl-5-flavoured
+# regex state machine), argued in VERIFICATION.md. The chamfer
+# (``_chamfer_path_points``), the tree-route folding
+# (``TreeRouteGeometry.iter_segments``), the zone-pour emission
+# (``_emit_zone_pours``) and the s-expression injection stay Python
+# single-source; the Rust core is driven per compiled route so the shared
+# tstamp counter's increment order stays byte-identical. The oracle is pinned
+# verbatim as ``tests/router_v6/_adapter_convert_py_oracle.py`` (content-hash
+# registered in ``scripts/oracle_hashes.json``).
+
 logger = logging.getLogger(__name__)
 
 __all__ = [
@@ -52,6 +75,21 @@ __all__ = [
 # Fixed namespace for deriving synthetic KiCad ``tstamp`` UUIDs
 # deterministically (see ``_next_tstamp`` below).
 _TSTAMP_NAMESPACE = uuid.UUID("f8b1a2b0-6c4e-4a3a-9b7a-1a2b3c4d5e6f")
+
+# R1b: Netclass fields with no stage0 equivalent, warned on when explicitly
+# set (marshalled into ``run_to_stage0_netclass_rules`` by the E6 shim --
+# the table stays the Python SSOT).
+_UNREPRESENTED_WARN = (
+    ("voltage_v", "Voltage rating", 0.0),
+    ("routing_strategy", "Routing strategy", None),
+    ("via_cost_multiplier", "Via cost multiplier", 1.0),
+    ("layer_costs", "Layer cost overrides", None),
+    ("via_template", "Via template", None),
+    ("target_impedance", "Target impedance", None),
+    ("required_layer", "Required KiCad layer", None),
+    ("layer", "KiCad layer", None),
+    ("dru_priority", "DRU priority", 0),
+)
 
 
 def _next_tstamp(counter: list[int]) -> str:
@@ -81,10 +119,15 @@ def _next_tstamp(counter: list[int]) -> str:
     walks a plain ``dict`` in insertion order, not a ``set``/``HashMap``
     in hash order), so a monotonic counter over that order is sufficient;
     it is not itself a tie-break.
+
+    Phase E E6: the UUIDv5 computation moved to
+    ``temper_orchestration.pipeline_route::run_next_tstamp`` (RFC 1321 MD5
+    hand-rolled, byte-pinned against CPython ``uuid.uuid5`` by the
+    differential); the shared counter list is mutated in place exactly like
+    the oracle so the segment/via/zone-pour emission order keeps a single
+    sequence.
     """
-    n = counter[0]
-    counter[0] = n + 1
-    return str(uuid.uuid5(_TSTAMP_NAMESPACE, f"temper-router-v6-tstamp-{n}"))
+    return _to.run_next_tstamp(counter)
 
 
 def _to_stage0_netclass_rules(rules: Any) -> Any:
@@ -98,69 +141,29 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
     Explicit attribute checking replaces the previous ``getattr(rules, attr,
     default)`` duck-type approach: unrecognized shapes raise ``TypeError``
     rather than silently returning defaults.
+
+    Phase E E6: the conversion orchestration moved to
+    ``temper_orchestration.pipeline_route::run_to_stage0_netclass_rules``
+    (the explicit alias checking, the TypeError message rendered through
+    CPython ``str.format``, the unrepresented-field warnings through THIS
+    module's logger); the ``_UNREPRESENTED_WARN`` table stays the Python SSOT
+    and is marshalled once per call. This shim wraps the returned values in
+    the ``stage0_data.NetClassRules`` dataclass (which stays Python
+    single-source).
     """
     from temper_placer.router_v6.stage0_data import NetClassRules as Stage0NetClassRules
 
-    # --- Resolve each mapped field with explicit shape checking ---
-
-    def _resolve(name: str, *aliases: str) -> Any:
-        """Return the first attribute of *aliases* that exists on *rules*."""
-        del name  # kept for call-site symmetry; only *aliases* are consulted
-        for alias in aliases:
-            if hasattr(rules, alias):
-                return getattr(rules, alias)
-        raise TypeError(
-            f"Cannot convert {type(rules).__name__!r} to stage0 NetClassRules: "
-            f"no attribute matching any of {list(aliases)} found"
-        )
-
-    name = _resolve("name", "name")
-    clearance_mm = _resolve("clearance", "clearance", "clearance_mm")
-    trace_width_mm = _resolve("trace_width", "trace_width", "trace_width_mm")
-    via_diameter_mm = _resolve("via_diameter", "via_diameter", "via_diameter_mm")
-    via_drill_mm = _resolve("via_drill", "via_drill", "via_drill_mm")
-
-    # max_current_rating → current_rating_amps (R1 fix)
-    current_rating_amps: float | None = None
-    if hasattr(rules, "max_current_rating"):
-        current_rating_amps = rules.max_current_rating
-
-    # safety_category survives conversion (needed by R6 HV/AC forced-segment gate)
-    safety_category: str | None = None
-    if hasattr(rules, "safety_category"):
-        val = rules.safety_category
-        if val is not None:
-            safety_category = str(val)
-
-    # creepage_mm survives conversion: stage0_data.NetClassRules carries the
-    # field (default 0.0), and `_required_creepage_mm` reads it for the
-    # mains-adjacent bottleneck analysis -- dropping it here silently
-    # replaced a declared creepage (e.g. 6.0mm) with 0.0.
-    creepage_mm = getattr(rules, "creepage_mm", 0.0)
-
-    # --- R1b: Warn on unrepresented fields that are explicitly set ---
-    _UNREPRESENTED_WARN = (
-        ("voltage_v", "Voltage rating", 0.0),
-        ("routing_strategy", "Routing strategy", None),
-        ("via_cost_multiplier", "Via cost multiplier", 1.0),
-        ("layer_costs", "Layer cost overrides", None),
-        ("via_template", "Via template", None),
-        ("target_impedance", "Target impedance", None),
-        ("required_layer", "Required KiCad layer", None),
-        ("layer", "KiCad layer", None),
-        ("dru_priority", "DRU priority", 0),
-    )
-    for attr_name, human_label, default_val in _UNREPRESENTED_WARN:
-        val = getattr(rules, attr_name, None)
-        if val is not None and val != default_val:
-            logger.warning(
-                "_to_stage0_netclass_rules: dropping %s=%s for netclass %r "
-                "— no stage0 equivalent field exists",
-                human_label,
-                val,
-                name,
-            )
-
+    result = _to.run_to_stage0_netclass_rules(rules, _UNREPRESENTED_WARN)
+    (
+        name,
+        clearance_mm,
+        trace_width_mm,
+        via_diameter_mm,
+        via_drill_mm,
+        current_rating_amps,
+        safety_category,
+        creepage_mm,
+    ) = result
     return Stage0NetClassRules(
         name=name,
         clearance_mm=clearance_mm,
@@ -625,6 +628,15 @@ def _write_routes_to_content(
         net_num = net_name_to_number.get(net_name, 0)
         pads = pad_positions.get(net_name, [])
 
+        # Phase E E6: the path-coordinate extraction and the chamfer stay
+        # Python (duck-typed reads of the pathfinding dataclasses;
+        # `_chamfer_path_points` is single-source in _zone_pour_stitch.py);
+        # the collinear-step merge and the (segment ...)/(via ...) rendering
+        # move to temper_orchestration.run_write_route_segments (one payload
+        # per compiled route so the shared tstamp counter's increment order
+        # relative to the tree branch above stays byte-identical). The Rust
+        # core applies the `path_length > 0 and len(pads) >= 2` guard
+        # itself, exactly like the oracle.
         if path_length > 0 and len(pads) >= 2:
             # Real routed net: extract path coordinates with per-step layer
             path_points: list[tuple[float, float, str]] = []
@@ -648,69 +660,20 @@ def _write_routes_to_content(
             # orthogonal turn with a 45-degree diagonal, reducing both
             # shorting_items and tracks_crossing DRC violations.
             path_points = _chamfer_path_points(path_points, chamfer_offset=0.1)
+        else:
+            path_points = []
 
-            # Write path segments, collapsing consecutive same-direction
-            # same-layer steps to avoid A* grid-stepping staircasing.
-            # Each individual grid step (0.1mm) emitted as its own
-            # (segment ...) creates 8k+ micro-segments that KiCad DRC
-            # flags as clearance / shorting / masking violations because
-            # adjacent segments from different nets interleave with
-            # edge-to-edge gaps under the 0.2mm rule. Only merge
-            # consecutive steps that share the same layer -- a layer
-            # change always splits the merged chain.
-            i = 0
-            while i < len(path_points) - 1:
-                x1, y1, lyr = path_points[i]
-                x2, y2, l2 = path_points[i + 1]
-                if l2 != lyr or (x2 == x1 and y2 == y1):
-                    # Not a copper run on `lyr`, so it must not become a
-                    # (segment ...) -- the rule the tree-route branch above
-                    # already applies. A layer change IS the via crossing:
-                    # astar_core records it as the same (x, y) on two layers
-                    # and never merges that pair, and _chamfer_path_points
-                    # passes it through, so reading it as from-layer copper
-                    # emitted a start == end track (48 on the committed board,
-                    # one per via, each on a via position). Such a track joins
-                    # a node to itself: no connectivity (the via already ties
-                    # the layers) and no direction, which leaves its crossing
-                    # point undefined for DRC's tracks_crossing test. The
-                    # coincident-point half of the test is the same defect via
-                    # a duplicated same-layer point, guarded so "no zero-length
-                    # segment is emitted" holds outright, not as a consequence.
-                    i += 1
-                    continue
-                dx_prev = x2 - x1
-                dy_prev = y2 - y1
-                j = i + 2
-                while j < len(path_points):
-                    xm, ym, _ = path_points[j - 1]
-                    xn, yn, lyr_n = path_points[j]
-                    dx_cur = xn - xm
-                    dy_cur = yn - ym
-                    if (
-                        abs(dx_cur - dx_prev) < 1e-12
-                        and abs(dy_cur - dy_prev) < 1e-12
-                        and lyr_n == lyr
-                    ):
-                        x2, y2 = xn, yn
-                        j += 1
-                    else:
-                        break
-                seg_id = _next_tstamp(tstamp_counter)
-                segments.append(
-                    f"  (segment (start {x1:.4f} {y1:.4f}) (end {x2:.4f} {y2:.4f})"
-                    f' (width {width:.4f}) (layer "{lyr}") (net {net_num})'
-                    f' (tstamp "{seg_id}"))'
-                )
-                i = j - 1
-        # U5: emit real (via ...) s-expressions for each Via in the compiled route.
+        vias = []
         for via in getattr(compiled_route, "vias", []):
             vx, vy = via.position
-            segments.append(
-                f"  (via (at {vx:.4f} {vy:.4f}) (size {via.diameter:.4f})"
-                f' (drill {via.drill:.4f}) (layers "{via.from_layer}" "{via.to_layer}")'
-                f' (net {net_num}) (tstamp "{_next_tstamp(tstamp_counter)}"))'
+            vias.append((vx, vy, via.diameter, via.drill, via.from_layer, via.to_layer))
+
+        segments.extend(
+            _to.run_write_route_segments(
+                [(net_name, path_length, path_points, width, net_num, vias, len(pads))],
+                tstamp_counter,
             )
+        )
 
     if getattr(result, "enable_zone_pours", False):
         pcb_content, _ = strip_existing_zones(pcb_content)  # R7: replace, don't append
