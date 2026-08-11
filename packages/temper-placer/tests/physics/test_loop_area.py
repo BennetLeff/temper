@@ -2,11 +2,14 @@
 Tests for commutation-loop area computation (U1: loop_area.py).
 
 Validates:
-  - Shoelace area on synthetic closed-loop traces
-  - Convex-hull fallback for non-cyclic trace graphs
+  - Convex-hull area (sole computation path post-S5 — see
+    docs/evidence/2026-08-11-loop-area-cycle-basis-order-spike.md)
   - Measurement failure (None / empty / < 3 points)
   - Boundary condition at 2000 mm²
-  - Non-convex loop territory check (hull over-estimates, shoelace is accurate)
+  - Non-convex loop territory check (hull is a documented conservative
+    over-estimate; the shoelace-on-cycle path was deleted per S5)
+  - Shoelace area (retained as a directly-tested helper, not wired into
+    the production-area path)
 """
 
 from __future__ import annotations
@@ -159,21 +162,24 @@ def test_shoelace_rectangle_50x30():
 
 
 def test_rectangular_loop_1500mm2():
-    """Traces forming a clean 50×30 rectangle → shoelace area 1500 mm²."""
+    """Traces forming a clean 50×30 rectangle → area 1500 mm².
+    (Rectangle is convex, so hull area == true area.)"""
     traces = _make_rectangular_loop_traces(width=50.0, height=30.0)
     area = _compute_area_from_traces(traces)
     assert area == pytest.approx(1500.0)
 
 
 def test_rectangular_loop_2500mm2():
-    """Traces forming a clean 50×50 rectangle → shoelace area 2500 mm²."""
+    """Traces forming a clean 50×50 rectangle → area 2500 mm².
+    (Rectangle is convex, so hull area == true area.)"""
     traces = _make_rectangular_loop_traces(width=50.0, height=50.0)
     area = _compute_area_from_traces(traces)
     assert area == pytest.approx(2500.0)
 
 
 def test_rectangular_loop_boundary_2000mm2():
-    """Boundary: exactly 2000 mm² (50×40 mm)."""
+    """Boundary: exactly 2000 mm² (50×40 mm).
+    (Rectangle is convex, so hull area == true area.)"""
     traces = _make_rectangular_loop_traces(width=50.0, height=40.0)
     area = _compute_area_from_traces(traces)
     assert area == pytest.approx(2000.0)
@@ -193,15 +199,22 @@ def test_non_convex_loop_shoelace_lt_hull():
     )
 
 
-def test_non_convex_loop_uses_shoelace_not_hull():
-    """_compute_area_from_traces must return shoelace, not convex-hull."""
+def test_non_convex_loop_uses_hull_per_s5():
+    """_compute_area_from_traces returns convex-hull area (S5 spike verdict).
+
+    The cycle_basis / shoelace-on-cycle path was deleted per Spike S5
+    (docs/evidence/2026-08-11-loop-area-cycle-basis-order-spike.md):
+    the "longest-in-basis" heuristic was order-unstable (62-64/64 seeds),
+    underestimated true area up to 4×, and was unreachable on the
+    production board.  The convex-hull is now the sole area computation
+    — a documented conservative over-estimate for non-convex loops.
+    """
     traces = _make_non_convex_loop_traces()
     area = _compute_area_from_traces(traces)
-    true_area = _non_convex_true_area()
     hull_area = _non_convex_hull_area()
-    assert area == pytest.approx(true_area), f"expected shoelace {true_area:.1f}, got {area:.1f}"
-    # shoelace must be strictly less than the hull proxy
-    assert area < hull_area
+    assert area == pytest.approx(hull_area), (
+        f"expected convex-hull area {hull_area:.1f}, got {area:.1f}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -231,13 +244,14 @@ def test_three_collinear_points_returns_none():
 
 
 # ---------------------------------------------------------------------------
-# Convex-hull fallback
+# Convex-hull area (sole computation path post-S5)
 # ---------------------------------------------------------------------------
 
 
-def test_unclosable_traces_falls_back_to_convex_hull():
-    """Traces that don't form a cycle but have ≥3 non-collinear points
-    fall back to convex-hull area."""
+def test_unclosable_traces_uses_convex_hull():
+    """Traces with ≥3 non-collinear points → convex-hull area
+    (sole computation path post-S5; the cycle-basis/shoelace branch
+    was deleted per docs/evidence/2026-08-11-loop-area-cycle-basis-order-spike.md)."""
     traces = [
         _FakeTrace((0.0, 0.0), (10.0, 0.0), net="DC+"),
         _FakeTrace((10.0, 0.0), (10.0, 10.0), net="DC+"),

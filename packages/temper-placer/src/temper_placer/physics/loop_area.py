@@ -7,30 +7,28 @@ Q2 emitter → Q2 collector → DC_BUS−.
 
 The primary entry point is :func:`commutation_loop_area`, which accepts
 a path to a routed ``.kicad_pcb`` file.  Internally it uses
-:func:`auto_extract_loops` for topology and the shoelace formula on the
-routed trace graph for the true enclosed-polygon area.  When the trace
-graph does not produce a closable cycle, the convex-hull area is used
-as a conservative fallback.
+:func:`auto_extract_loops` for topology and the convex-hull area
+(``temper_geometry.convex_hull_area_py``, Rust QuickHull) as the sole
+area computation.
 
 .. note::
 
-   The convex-hull fallback is an over-estimate.  A tight non-convex
-   loop whose true area is under the threshold may still pass under the
-   hull proxy, but the *actual* gate check (U5) uses the shoelace area
-   when available (see plan requirement R1).
+   The convex-hull area is a documented conservative over-estimate for
+   non-convex loops (Spike S5,
+   ``docs/evidence/2026-08-11-loop-area-cycle-basis-order-spike.md``).
+   The prior shoelace-on-cycle path (``nx.cycle_basis`` + longest-in-basis
+   heuristic) was deleted: it was order-unstable (62-64/64 seeds), could
+   underestimate true area up to 4×, and was unreachable on the production
+   board.
 """
 
 from __future__ import annotations
 
-import math
 from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol
+from typing import Protocol
 
 import numpy as np
-
-if TYPE_CHECKING:
-    import networkx as nx
 
 
 class MeasurementError(Exception):
@@ -86,12 +84,15 @@ def commutation_loop_area(routed_pcb_path: Path) -> float | None:
 def _compute_area_from_traces(traces: Sequence[_TraceLike]) -> float | None:
     """Compute enclosed area from a collection of routed trace segments.
 
-    Builds a graph from trace endpoints, finds the main cycle, and
-    applies the shoelace formula.  Falls back to convex-hull area when
-    the cycle is not closable or fewer than 3 unique points exist.
+    Collects trace endpoints, rounds to 1 µm, and computes the convex-hull
+    area.  This is the sole computation path (Spike S5,
+    ``docs/evidence/2026-08-11-loop-area-cycle-basis-order-spike.md``):
+    the prior ``nx.cycle_basis`` / shoelace branch was deleted because it
+    was order-unstable, could underestimate true area up to 4×, and was
+    unreachable on the production board.
 
     Returns:
-        Area in mm², or None when no measurable geometry is present.
+        Area in mm², or None when fewer than 3 unique points exist.
     """
     if not traces:
         return None
@@ -104,109 +105,7 @@ def _compute_area_from_traces(traces: Sequence[_TraceLike]) -> float | None:
     if len(points_set) < 3:
         return None
 
-    import networkx as nx
-
-    G = _build_trace_graph(traces)
-
-    if G.number_of_nodes() == 0:
-        return None
-
-    largest_cc = max(nx.connected_components(G), key=len)
-    subgraph = G.subgraph(largest_cc).copy()
-
-    cycle = _find_main_cycle(subgraph)
-    if cycle is not None and len(cycle) >= 3:
-        return _shoelace_area(np.array(cycle, dtype=np.float64))
-
-    pts_list = list(largest_cc)
-    if len(pts_list) >= 3:
-        return _convex_hull_area(pts_list)
-
-    return None
-
-
-def _build_trace_graph(
-    traces: Sequence[_TraceLike],
-) -> nx.Graph:
-    """Build an undirected graph where nodes are unique trace endpoints.
-
-    Edges represent trace segments.  Coordinates are rounded to 3 decimal
-    places (1 µm) to account for floating-point noise in KiCad output.
-    """
-    import networkx as nx
-
-    G: nx.Graph = nx.Graph()
-    for t in traces:
-        u = (round(t.start[0], 3), round(t.start[1], 3))
-        v = (round(t.end[0], 3), round(t.end[1], 3))
-        if u == v:
-            continue
-        length = math.hypot(v[0] - u[0], v[1] - u[1])
-        G.add_edge(u, v, weight=length)
-    return G
-
-
-def _find_main_cycle(
-    graph: nx.Graph,
-) -> list[tuple[float, float]] | None:
-    """Find and order the longest cycle in *graph*.
-
-    Uses ``nx.cycle_basis`` (undirected cycle space basis) and picks the
-    longest cycle.  The vertices are then ordered so that sequential
-    vertices are adjacent in the graph.
-
-    Returns:
-        Ordered list of (x, y) vertices forming a closed loop, or None
-        when no cycle exists.
-    """
-    import networkx as _nx
-
-    cycles: list[list] = list(_nx.cycle_basis(graph))
-    if not cycles:
-        return None
-
-    longest_cycle: list = max(cycles, key=len)
-    if len(longest_cycle) < 3:
-        return None
-
-    return _order_cycle_vertices(graph, longest_cycle)
-
-
-def _order_cycle_vertices(
-    graph: nx.Graph,
-    cycle_vertices: list,
-) -> list[tuple[float, float]]:
-    """Produce an ordered walk around *cycle_vertices*.
-
-    Starting at the first vertex the function greedily walks to the
-    next cycle-vertex that is adjacent in *graph* and has not yet been
-    visited.  The walk stops when all cycle vertices are visited or
-    no unvisited neighbour remains.
-    """
-    if len(cycle_vertices) < 3:
-        return list(cycle_vertices)
-
-    cycle_set: set = set(cycle_vertices)
-
-    start: tuple = cycle_vertices[0]
-    ordered: list[tuple[float, float]] = [start]
-    visited: set[tuple[float, float]] = {start}
-    current: tuple[float, float] = start
-
-    while len(visited) < len(cycle_set):
-        next_v: tuple[float, float] | None = None
-        for n in graph.neighbors(current):
-            n_tuple: tuple[float, float] = (float(n[0]), float(n[1]))
-            if n_tuple in cycle_set and n_tuple not in visited:
-                next_v = n_tuple
-                break
-        if next_v is None:
-            break
-        ordered.append(next_v)
-        visited.add(next_v)
-        current = next_v
-
-    return ordered
+    return _convex_hull_area(list(points_set))
 
 
 def _shoelace_area(vertices: np.ndarray) -> float:
