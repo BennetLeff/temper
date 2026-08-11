@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import temper_drc_rs as _drc
+import temper_orchestration as _to
 
 from ..geometry.courtyard import Courtyard
 from ..state import BoardState
@@ -20,12 +21,18 @@ class CourtyardCheckStage(Stage):
     This prevents components from drifting outside the board area during
     overlap resolution, which would cause via_dangling DRC violations.
 
-    The pure ``_clamp_position`` kernel is implemented in Rust in the
-    ``temper-drc-rs`` crate (Wave 4 **Phase 5, batch 2** — deterministic leaf
-    stages) and delegates to ``temper_drc_rs.clamp_position_py``. The
-    collision detection (shapely/GEOS STRtree + intersects) and the
-    random-noise nudge orchestration stay Python — recorded R3-style in
-    ``VERIFICATION.md`` (GEOS is not bit-reproducible by any Rust port).
+    Phase D batch D6 of the Rust Orchestration Engine plan (2026-08-09-001):
+    the **run orchestration** (the iterative nudge loop, the coincident-center
+    branch, the clamping call-backs and the ``placements`` write) is
+    implemented in Rust (``temper-orchestration``'s ``CourtyardCheckStage`` /
+    ``run_courtyard_check``), crossing the FFI once per stage call; the
+    ``_find_collisions`` / ``_clamp_position`` methods are CALLED BACK on this
+    instance. The collision detection (shapely/GEOS STRtree + intersects), the
+    CPython ``random.random()`` nudge noise and the ``_clamp_position`` kernel
+    (``temper_drc_rs.clamp_position_py``) stay single-source (GEOS is not
+    bit-reproducible by any Rust port). The pre-migration implementation is
+    pinned VERBATIM in
+    ``tests/deterministic/_courtyard_check_run_py_oracle.py``.
     """
 
     courtyards: dict[str, Courtyard]
@@ -53,78 +60,9 @@ class CourtyardCheckStage(Stage):
         )
 
     def run(self, state: BoardState) -> BoardState:
-        if not state.placements:
-            return state
-
-        # Convert placements to mutable dict
-        placements = dict(state.placements)
-        list(placements.keys())
-
-        # Iterative resolution
-        for _ in range(self.max_iterations):
-            collisions = self._find_collisions(placements)
-
-            # Apply repulsive force
-            import logging
-
-            logging.getLogger(__name__)
-            if len(collisions) > 0:
-                print(
-                    f"DEBUG: CourtyardCheck Iteration {_}: Found {len(collisions)} overlapping pairs"
-                )
-
-            for ref1, ref2 in collisions:
-                pos1 = placements[ref1]
-                pos2 = placements[ref2]
-
-                # Vector from c1 to c2
-                dx = pos2[0] - pos1[0]
-                dy = pos2[1] - pos1[1]
-                dist = (dx**2 + dy**2) ** 0.5
-
-                if dist < 1e-6:
-                    # Overlapping centers - nudge strictly x/y
-                    dx, dy = 1.0, 0.0
-                    dist = 1.0
-
-                # Add small random noise to break limit cycles
-                import random
-
-                noise_x = (random.random() - 0.5) * 0.05
-                noise_y = (random.random() - 0.5) * 0.05
-
-                # Normalize force
-                fx = (dx / dist) * self.nudge_step + noise_x
-                fy = (dy / dist) * self.nudge_step + noise_y
-
-                # decay nudge step slightly? No, keep constant pressure for now
-
-                # Move ref1 away from ref2
-                # Check if locked? (Assuming dynamic components for now)
-
-                # Move ref1
-                placements[ref1] = (pos1[0] - fx, pos1[1] - fy)
-                # Move ref2
-                placements[ref2] = (pos2[0] + fx, pos2[1] + fy)
-
-                # Clamp positions to board bounds (DRC-FIX-4)
-                # This prevents components from drifting outside the board area
-                placements[ref1] = self._clamp_position(placements[ref1])
-                placements[ref2] = self._clamp_position(placements[ref2])
-
-        # Final check
-        final_collisions = self._find_collisions(placements)
-        if final_collisions:
-            print(
-                f"DEBUG: CourtyardCheck Failed to resolve {len(final_collisions)} pairs after {self.max_iterations} iterations"
-            )
-            for r1, r2 in final_collisions:
-                print(f"DEBUG: Conflict: {r1} <-> {r2}")
-
-        # Update state
-        from dataclasses import replace
-
-        return replace(state, placements=frozenset(placements.items()))
+        """Run the courtyard-overlap resolution orchestration in Rust (Phase D
+        D6); crosses the FFI once per stage call."""
+        return _to.run_courtyard_check(state, self)
 
     def _find_collisions(self, placements: dict[str, tuple[float, float]]) -> list[tuple[str, str]]:
         """Find courtyard collisions using spatial indexing for O(n log n) performance.

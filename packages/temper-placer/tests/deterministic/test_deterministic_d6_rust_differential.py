@@ -233,6 +233,7 @@ class _PVComp:
 class _PVBoard:
     def __init__(self, components):
         self.components = components
+        self.layer_stackup = None
 
 
 class _Prox:
@@ -287,8 +288,9 @@ def _prox_missing():
 
 
 def _sig_hv_ok():
+    # R1 sits at (60,5): its pins are ~30mm from the U1->Q1 segment (> 6mm).
     return _SigHv(
-        "S1", "U1", "15", "Q1", "1", "Q1", ["2", "3"],
+        "S1", "U1", "15", "Q1", "1", "R1", ["1", "2"],
         required_clearance_mm=6.0, max_path_length_mm=50.0, tier="hard",
     )
 

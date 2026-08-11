@@ -108,6 +108,7 @@ mod config_attach_stage;
 mod connectivity_validation_stage;
 mod convergence;
 mod copper_length;
+mod courtyard_check_stage;
 mod d1_bridge;
 mod d6_util;
 mod derivation_stage;
@@ -124,6 +125,7 @@ mod phased_assignment_stage;
 mod phased_component_assignment_validator_stage;
 mod pipeline;
 mod pipeline_state;
+mod placement_validation_stage;
 mod preflight_stage;
 mod setup_stage;
 mod slot_generation_stage;
@@ -142,6 +144,7 @@ pub use board_state::BoardState;
 pub use component_assignment_stage::ComponentAssignmentStage;
 pub use config_attach_stage::ConfigAttachStage;
 pub use connectivity_validation_stage::ConnectivityValidationStage;
+pub use courtyard_check_stage::CourtyardCheckStage;
 pub use derivation_stage::DerivationStage;
 pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
 pub use drc_validation_stage::DRCValidationStage;
@@ -150,6 +153,7 @@ pub use net_ordering_stage::NetOrderingStage;
 pub use phased_assignment_stage::PhasedAssignmentStage;
 pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
 pub use phased_component_assignment_validator_stage::phased_validator_hv;
+pub use placement_validation_stage::PlacementValidationStage;
 pub use preflight_stage::PreflightStage;
 pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
 pub use slot_generation_stage::SlotGenerationStage;
@@ -222,6 +226,8 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(drc_sweep_stage::run_drc_sweep, m)?)?;
     m.add_function(wrap_pyfunction!(drc_sweep_stage::run_track_deduplication, m)?)?;
     m.add_function(wrap_pyfunction!(drc_sweep_stage::run_short_circuit_detection, m)?)?;
+    m.add_function(wrap_pyfunction!(placement_validation_stage::run_placement_validation, m)?)?;
+    m.add_function(wrap_pyfunction!(courtyard_check_stage::run_courtyard_check, m)?)?;
     Ok(())
 }
 

@@ -20,15 +20,6 @@ pub(crate) fn py_print(py: Python<'_>, args: &[Bound<'_, PyAny>]) -> PyResult<()
     Ok(())
 }
 
-/// CPython `sep.join(iterable)`.
-pub(crate) fn py_join<'py>(
-    py: Python<'py>,
-    sep: &str,
-    items: &Bound<'py, PyAny>,
-) -> PyResult<Bound<'py, PyAny>> {
-    PyString::new(py, sep).call_method1("join", (items,))
-}
-
 /// CPython `str.format(template, *args)` -- the only message renderer
 /// (David-Gay `:.1f`/`:.2f`, int/str interpolation) stays CPython.
 pub(crate) fn py_format<'py>(
@@ -49,26 +40,6 @@ pub(crate) fn log_msg(
     let logger = py.import("logging")?.call_method1("getLogger", (logger_name,))?;
     logger.call_method1(level, (msg,))?;
     Ok(())
-}
-
-/// CPython `sorted(iterable)` (stable `<`-sort; floats/strings like Python).
-pub(crate) fn py_sorted<'py>(
-    py: Python<'py>,
-    iterable: &Bound<'py, PyAny>,
-) -> PyResult<Bound<'py, PyAny>> {
-    py.import("builtins")?.getattr("sorted")?.call1((iterable,))
-}
-
-/// CPython `isinstance(obj, cls)`.
-pub(crate) fn py_isinstance<'py>(
-    py: Python<'py>,
-    obj: &Bound<'py, PyAny>,
-    cls: &Bound<'py, PyAny>,
-) -> PyResult<bool> {
-    py.import("builtins")?
-        .getattr("isinstance")?
-        .call1((obj, cls))?
-        .extract()
 }
 
 /// The shared D6 write-back + raise channel: the pyfunctions that mirror a
