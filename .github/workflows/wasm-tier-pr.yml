@@ -16,12 +16,16 @@ name: WASM Tier PR Verdict (advisory)
 # `cargo test` are temper-design-bundle, temper-geometry and
 # temper-orchestration; the rest of the Rust workspace flies blind until merge.
 #
-# Meanwhile the deployed tier already serves 2,584 tests across three tiers
-# (temper-drc-rs 1,719 across 7 Worker shards; temper-geometry 722;
-# temper-thermal 143 -- 10 Cloudflare scripts, tools/wasm/wasm_tier_topology.json)
-# and the nightly sweeps all of them in ~2.5 seconds of wall time at roughly
-# 1,000 tests/sec. The execution capacity was already bought and paid for. This
-# workflow points it at pull requests.
+# Meanwhile the deployed tier already serves the whole nine-tier corpus
+# (tools/wasm/wasm_tier_topology.json; 4,567+ tests and growing -- see
+# docs/evidence/2026-08-11-wasm-tier-cost-at-scale.md, PR #971, for the live
+# measurement and the request-cost accounting that measurement made real) and
+# the nightly sweeps all of it every night. The execution capacity was already
+# bought and paid for. This workflow points it at pull requests -- SCOPED to
+# the tiers each PR's own diff touches (see "COST, AND WHY THE SWEEP IS
+# SCOPED..." below), which is what makes pointing the WHOLE tier at every PR
+# affordable rather than the three-tier subset this file originally shipped
+# with.
 #
 # D5.2: this is ADDITIVE, not substitutive. No `cargo test` step is removed
 # anywhere by this file; nothing that runs today stops running. Suite removal
@@ -95,8 +99,10 @@ name: WASM Tier PR Verdict (advisory)
 # grown to 1,708, and the nightly reported `agreement_rate: 1.0` every night of
 # that window (wasm-tier-nightly.yml's header tells that story in full). So the
 # freshness check runs BEFORE the sweep here, exactly as it does there, and a
-# failure stops the job before it spends 2,584 HTTP round-trips computing a
-# number that would be arithmetically true and epistemically worthless.
+# failure stops the job before it spends any of the (potentially thousands of,
+# per PR #971's live measurement) HTTP round-trips the sweep step(s) below
+# would otherwise spend computing a number that would be arithmetically true
+# and epistemically worthless.
 #
 # tools/wasm/check_deployed_freshness.mjs wants a BUILT count per tier --
 # `temper_test_count()` of the wasm32 module compiled from the commit under
@@ -196,17 +202,85 @@ name: WASM Tier PR Verdict (advisory)
 # writable token, and nothing here evaluates PR-controlled text as code.
 #
 # ---------------------------------------------------------------------------
-# COST
+# COST, AND WHY THE SWEEP IS SCOPED TO THE TIERS THIS PR'S DIFF TOUCHES
+# (docs/evidence/2026-08-11-wasm-tier-cost-at-scale.md, PR #971)
 # ---------------------------------------------------------------------------
 #
-# One short job, no `cargo`, no build cache, ~2,584 Worker invocations per
-# push. Against D3's $5-7/month basis that is small, but it is not free and it
-# scales with push frequency, so: `paths` filters keep doc-only PRs from
-# spending it, and `cancel-in-progress` means a force-push replaces the run in
-# flight rather than stacking a second sweep on top of it. The Workers are
-# public endpoints on a shared account budget (the plan's Dependencies section
-# names that as a thing to decide before the tier carries merge authority);
-# this job's dispatch rate is the reason to keep that on the list.
+# #971 measured this workflow's real request cost for the first time, live,
+# against the actual deployed tier (`packages/temper-worker/src/worker_core.js`
+# issues one HTTP request per test — R17, a code-level fact, not a policy).
+# Before #971 every prior cost claim in this repo traced to a 2026-08-03
+# estimate against a corpus 30x smaller than the one deployed today.
+#
+# THE FINDING THAT MATTERS HERE: this job, hardcoded to sweep
+# temper-drc-rs + temper-geometry + temper-thermal, cost 4,094 requests EVERY
+# run regardless of what the PR touched — including a PR that changed neither
+# of those three crates. #971's own measured trigger rate over this workflow's
+# first 2h20m of life was ~5.2 runs/hour (an 11-agent concurrent-development
+# burst, not claimed as steady state); sustained, that is ~15.3M requests/month
+# from this workflow ALONE — over the 10M/month included-request quota, before
+# nightly's own 137,010/month is even added. A calmer, commit-velocity-derived
+# estimate (15.3 triggering merges/day, #971 §2.3) gives ~1.88M/month (18.8% of
+# quota) — comfortable on its own, but with materially less than 5x headroom
+# left before Phase-2-scale test growth or a busier merge cadence crosses it.
+#
+# THE SECOND FINDING, LESS LOUD BUT EQUALLY REAL: the hardcoded three-tier list
+# was also a COVERAGE gap, not just a cost one. Six of the tier's nine crates
+# (temper-design-bundle, temper-rust-router-core, temper-constraint-compiler,
+# temper-quality-oracle, temper-io-types, temper-pcl-ir) got ZERO PR-path
+# verification — a regression in any of them would not surface here at all,
+# only up to 24h later in wasm-tier-nightly.yml. Uncapping the hardcoded three
+# to "every tier, every run" would have fixed coverage while making the cost
+# finding above WORSE (four of those six are now larger than temper-thermal).
+#
+# THE FIX: sweep only the tiers this PR's diff actually touches, computed from
+# `tools/wasm/wasm_tier_topology.json` against `git diff` vs the PR's base
+# commit (the "Determine which tiers..." step below) — full topology coverage
+# (all nine tiers reachable, closing the six-tier gap) at a cost that scales
+# with WHAT CHANGED rather than with a fixed, ever-growing hardcoded sum. A PR
+# touching one crate now costs roughly that crate's own corpus size instead of
+# always 4,094+; a PR touching a shared/topology-defining path (the runner
+# crate, the Worker sources, `wasm_tier_topology.json`,
+# `scripts/gen_wasm_test_registry.py`) still sweeps every tier, because such a
+# change genuinely can affect all of them — the scoping narrows the COMMON
+# case, not the worst case.
+#
+# COST AT CURRENT SCALE vs SCOPED. Old: every run, 4,094 requests, always,
+# whether or not the PR touched drc-rs/geometry/thermal at all. New: a PR
+# touching exactly one of the nine crates costs that crate's own corpus size
+# (as small as temper-pcl-ir's 2, as large as temper-geometry's 2,232 or
+# temper-constraint-compiler's growing property-campaign corpus); a PR
+# touching a shared path costs the sum across all nine (larger than 4,094
+# today, because it now correctly covers six previously-unswept tiers, and
+# this is the rare case rather than the common one). At the calmer
+# commit-velocity cadence (#971 §2.3, 15.3 triggering merges/day, most of
+# which touch exactly one crate) this turns a flat 1.88M req/month into
+# something bounded by the actually-changed corpus per merge — an
+# order-of-magnitude-class reduction for the common case, without giving up
+# any coverage the hardcoded list had. AT 3x TODAY'S CORPUS (a real trend --
+# temper-geometry alone went 722 -> 2,232 in one property campaign, and #971
+# was written the same day two more campaigns were queued): the OLD hardcoded
+# sweep would cost ~3x more EVERY run regardless of relevance (potentially
+# 12,000+ requests/run at the same 5.2 runs/hour burst rate, comfortably over
+# quota even at the calmer cadence); the SCOPED sweep's typical-PR cost grows
+# only when the SPECIFIC crate a PR touches grows, and the worst case
+# (shared-path PRs) is rare by construction (topology/runner/Worker-source
+# edits, not routine crate work) — the scoping is what keeps the common case
+# flat under exactly the growth pattern #971 observed, rather than merely
+# buying one-time headroom against today's numbers.
+#
+# One short job, no `cargo`, no build cache — the request-cost driver is
+# entirely the per-test HTTP fan-out in the sweep step(s), scoped as above.
+# The trigger-level `paths:` (below, UNCHANGED by this PR — still
+# `packages/**`, deliberately broad) is not where the cost lived: the job it
+# gates is cheap even when it runs (a handful of `/health` GETs for the
+# freshness census), so narrowing it would only shave job-count, not request
+# count. The fix belongs on the sweep, which is the one part of this job whose
+# cost scales with corpus size — narrowing the trigger would have been
+# treating the symptom (this job runs "too often") rather than the actual
+# cause (every run that DOES sweep, sweeps a fixed, uncapped amount regardless
+# of relevance). `cancel-in-progress` means a force-push replaces the run in
+# flight rather than stacking a second sweep on top of it.
 #
 # ---------------------------------------------------------------------------
 # WHAT THIS WORKFLOW DELIBERATELY DOES NOT DO
@@ -223,11 +297,15 @@ name: WASM Tier PR Verdict (advisory)
 on:
   pull_request:
     # Doc-only and Python-only PRs cannot change what the wasm32 corpus does,
-    # and this job costs ~2,584 Worker invocations, so they do not pay for it.
-    # Advisory-only status is what makes filtering safe: a required check with
-    # `paths` can leave a PR waiting forever for a context that will never
-    # report, which is why required-checks.json carries its own trigger_paths
-    # list instead.
+    # so they do not pay even the cheap freshness-census cost of starting this
+    # job (the sweep's own, much larger, per-test request cost is scoped
+    # separately below -- see the "COST, AND WHY THE SWEEP IS SCOPED..."
+    # section above; narrowing THIS filter would only save job starts, not
+    # requests, since the freshness census alone is inexpensive). Advisory-
+    # only status is what makes filtering safe: a required check with `paths`
+    # can leave a PR waiting forever for a context that will never report,
+    # which is why required-checks.json carries its own trigger_paths list
+    # instead.
     paths:
       - 'packages/**'
       - 'tools/wasm/**'
@@ -252,15 +330,19 @@ permissions:
 
 # PR runs grouped per PR number and cancelled when superseded; manual runs
 # grouped per SHA and never cancelled. Matches lint-workflows.yml and
-# python-tests.yml. A superseded run's sweep is 2,584 Worker invocations that
-# nobody will read, so cancelling it is a cost decision as much as a CI one.
+# python-tests.yml. A superseded run's sweep is Worker invocations (per test,
+# per tier touched -- see PR #971 and the "COST" section above for what that
+# actually totals) that nobody will read, so cancelling it is a cost decision
+# as much as a CI one. This is the mitigation for repeated pushes to the SAME
+# PR; it does not cover concurrent DIFFERENT PRs, which is exactly the gap the
+# sweep-scoping fix above targets instead.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   tier-verdict:
-    name: Deployed WASM tier verdict (advisory — 2,584 tests, no cargo)
+    name: Deployed WASM tier verdict (advisory — scoped to touched tiers, no cargo)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -275,6 +357,102 @@ jobs:
           node-version: '22'
 
       # ------------------------------------------------------------------
+      # 0. Scope: which tiers does THIS PR's diff actually touch? (PR #971 —
+      #    cost containment; see the "COST, AND WHY THE SWEEP IS SCOPED..."
+      #    section at the top of this file for the finding and the reasoning.)
+      #
+      # Runs before the freshness baseline is even resolved: if this PR's diff
+      # touches none of the nine tiers (or an unrelated `packages/**` path let
+      # the broad trigger filter through — e.g. temper-placer), there is no
+      # sweep to scope a baseline for, and the job says so and exits green
+      # without spending the baseline-resolution API calls either.
+      #
+      # `pull_request` gives a real base commit (`github.event.pull_request
+      # .base.sha`) to diff against — the SAME two-dot `git diff` shape the
+      # "Corpus drift" step below already uses for a DIFFERENT baseline (the
+      # last green nightly's commit, not this PR's). `workflow_dispatch` has
+      # no PR to diff, so it sweeps every tier — matching prior behaviour for
+      # that trigger and keeping the `inject_failure` demo below meaningful
+      # (it needs a `temper-drc-rs` sweep to flip a verdict in, and "always
+      # touched" guarantees one exists).
+      #
+      # SHARED PATHS (the runner crate, the Worker sources, the topology file
+      # itself, the registry generator) force EVERY tier rather than none of
+      # them, for the same reason wasm-tier-deploy.yml's push trigger treats
+      # them specially: a change to any of those can affect every tier's
+      # build, so scoping to "touches a shared path" -> "touches nothing
+      # tier-specific" would be silently wrong in the one case that most needs
+      # full coverage.
+      - name: Determine which tiers this PR's diff touches (cost containment, PR #971)
+        id: scope
+        run: |
+          set -euo pipefail
+          MODE="diff"
+          : > /tmp/pr_changed_files.txt
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            MODE="all"
+            echo "event is '${{ github.event_name }}', not 'pull_request' -- no PR diff to scope against, sweeping every tier"
+          else
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            if git fetch --no-tags --depth=1 origin "${BASE_SHA}" 2>/dev/null && git cat-file -e "${BASE_SHA}" 2>/dev/null; then
+              git diff --name-only "${BASE_SHA}" HEAD -- > /tmp/pr_changed_files.txt
+              echo "PR base: ${BASE_SHA}"
+              echo "changed files vs base:"
+              cat /tmp/pr_changed_files.txt
+            else
+              MODE="all"
+              echo "::warning::Could not fetch PR base ${BASE_SHA} (force-push, or it aged out of the shallow clone) -- sweeping every tier rather than guessing the diff. The freshness check below still runs; only the sweep's SCOPE is affected."
+            fi
+          fi
+          echo "${MODE}" > /tmp/scope_mode.txt
+
+          cat > /tmp/scope.cjs <<'NODE'
+          const fs = require("node:fs");
+          const TOPOLOGY = require("node:url").pathToFileURL(
+            require("node:path").resolve("tools/wasm/tier_topology.mjs"),
+          ).href;
+          import(TOPOLOGY)
+            .then(({ loadTopology, tierFlagSuffix }) => {
+              const topology = loadTopology();
+              const mode = fs.readFileSync("/tmp/scope_mode.txt", "utf8").trim();
+              const writeTiers = (tiers, reason) => {
+                const rows = tiers.map((t) => [t.crate, tierFlagSuffix(t.crate)].join("\t"));
+                fs.writeFileSync("/tmp/touched_tiers.tsv", rows.length ? rows.join("\n") + "\n" : "");
+                console.log(`swept tiers (${reason}): ${tiers.map((t) => t.crate).join(", ") || "(none)"}`);
+              };
+              if (mode === "all") {
+                writeTiers(topology.tiers, "mode=all");
+                return;
+              }
+              const changed = fs.readFileSync("/tmp/pr_changed_files.txt", "utf8").split("\n").filter(Boolean);
+              // Same shared-path set wasm-tier-deploy.yml's push trigger uses
+              // (its own comment explains why each one is here).
+              const SHARED = [
+                "packages/temper-wasm-test-runner/",
+                "packages/temper-worker/",
+                "scripts/gen_wasm_test_registry.py",
+                "tools/wasm/wasm_tier_topology.json",
+              ];
+              const sharedHit = changed.find((f) => SHARED.some((p) => f.startsWith(p)));
+              if (sharedHit) {
+                writeTiers(topology.tiers, `shared path touched: ${sharedHit}`);
+                return;
+              }
+              const touched = topology.tiers.filter((t) => {
+                const i = t.native_test_args.indexOf("--manifest-path");
+                const dir = i === -1 ? null : t.native_test_args[i + 1].replace(/Cargo\.toml$/, "");
+                return dir && changed.some((f) => f.startsWith(dir));
+              });
+              writeTiers(touched, "diff-scoped");
+            })
+            .catch((e) => { console.error(e.message); process.exit(1); });
+          NODE
+          node /tmp/scope.cjs
+          TOUCHED_COUNT="$(wc -l < /tmp/touched_tiers.tsv | tr -d ' ')"
+          echo "touched_count=${TOUCHED_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "touched ${TOUCHED_COUNT} tier(s)"
+
+      # ------------------------------------------------------------------
       # 1. The freshness baseline.
       #
       # The deployed corpus was proved equal to a built corpus by the R5.1
@@ -287,6 +465,11 @@ jobs:
       # the counts would then come from nowhere, and a freshness check whose
       # expected value is unknown is the vacuous gate this whole control exists
       # to rule out.
+      #
+      # Still resolved even when 0 tiers are touched: the freshness census
+      # itself is cheap (~16 `/health` GETs, not per-test) and its job summary
+      # is useful signal regardless of whether this PR's own diff needed a
+      # sweep.
       # ------------------------------------------------------------------
       - name: Resolve freshness baseline (last green wasm-tier-nightly)
         id: baseline
@@ -456,49 +639,59 @@ jobs:
           cat /tmp/corpus_drift.txt
 
       # ------------------------------------------------------------------
-      # 4. The sweep. One dispatch per tier, `--tier` always passed.
+      # 4. The sweep. One dispatch per TOUCHED tier (step 0's scope), `--tier`
+      #    always passed.
       #
       # Not one merged sweep: sweep_multi_worker.mjs's default fans out across
       # every tier at once, which is right for an ad-hoc liveness check and
       # wrong for a per-crate verdict, because the resulting file cannot say
-      # which crate a failure belongs to without re-deriving it. Per tier, each
-      # step's exit code IS that crate's verdict, and each can go red on its
-      # own.
+      # which crate a failure belongs to without re-deriving it. Per tier, one
+      # iteration's failure IS that crate's verdict, and each can go red on its
+      # own; failures are collected rather than fail-fast so one broken tier
+      # does not hide another's result.
       #
       # `--tier` also documents membership: an unknown crate name throws with
       # the list of valid ones rather than silently sweeping nothing.
+      #
+      # SCOPED TO /tmp/touched_tiers.tsv (step 0), which is either every tier
+      # in the topology (shared-path change, or no PR diff to scope against)
+      # or the subset this PR's diff actually touches — see the "COST, AND WHY
+      # THE SWEEP IS SCOPED..." section at the top of this file for why. A PR
+      # touching none of the nine tiers skips this step entirely (0 requests,
+      # not a 0-result failure — step 6 reports that state explicitly rather
+      # than as an absence).
       #
       # The tool exits 1 on any failing or erroring test, so a genuine wasm32
       # regression fails the job HERE, at the crate that owns it. The verdict
       # step below is a second, independent guard, not the only one.
       # ------------------------------------------------------------------
-      - name: Sweep deployed Workers — temper-drc-rs (1,719 tests, 7 shards)
-        id: sweep_drc
-        if: ${{ !cancelled() && steps.freshness.outcome == 'success' }}
+      - name: Sweep deployed Workers — tiers touched by this PR's diff
+        id: sweep
+        if: ${{ !cancelled() && steps.freshness.outcome == 'success' && steps.scope.outputs.touched_count != '0' }}
         run: |
           set -euo pipefail
-          node tools/wasm/sweep_multi_worker.mjs \
-            --tier temper-drc-rs \
-            --concurrency 64 \
-            --json /tmp/pr_sweep_drc.json > /dev/null
-
-      - name: Sweep deployed Workers — temper-geometry (722 tests)
-        if: ${{ !cancelled() && steps.freshness.outcome == 'success' }}
-        run: |
-          set -euo pipefail
-          node tools/wasm/sweep_multi_worker.mjs \
-            --tier temper-geometry \
-            --concurrency 64 \
-            --json /tmp/pr_sweep_geometry.json > /dev/null
-
-      - name: Sweep deployed Workers — temper-thermal (143 tests)
-        if: ${{ !cancelled() && steps.freshness.outcome == 'success' }}
-        run: |
-          set -euo pipefail
-          node tools/wasm/sweep_multi_worker.mjs \
-            --tier temper-thermal \
-            --concurrency 64 \
-            --json /tmp/pr_sweep_thermal.json > /dev/null
+          failed=""
+          ran=0
+          while IFS=$'\t' read -r crate suffix; do
+            echo "::group::sweep ${crate}"
+            node tools/wasm/sweep_multi_worker.mjs \
+              --tier "${crate}" \
+              --concurrency 64 \
+              --json "/tmp/pr_sweep_${suffix}.json" > /dev/null \
+              || failed="${failed} ${crate}"
+            ran=$((ran + 1))
+            echo "::endgroup::"
+          done < /tmp/touched_tiers.tsv
+          expected="${{ steps.scope.outputs.touched_count }}"
+          if [ "${ran}" != "${expected}" ]; then
+            echo "::error::Swept ${ran} of ${expected} touched tiers — the loop ended early, so some touched tier was never dispatched."
+            exit 1
+          fi
+          if [ -n "${failed}" ]; then
+            echo "::error::Deployed-Worker sweep reported failures for:${failed}. sweep_multi_worker.mjs exits 1 on any fail/error verdict. The verdict step below still runs on whatever sweeps were written."
+            exit 1
+          fi
+          echo "swept ${ran} tier(s)"
 
       # ------------------------------------------------------------------
       # 5. Anti-vacuity (manual dispatch only).
@@ -512,6 +705,9 @@ jobs:
       # demonstration proved nothing).
       #
       # It runs on `workflow_dispatch` only and is a no-op on every PR.
+      # `workflow_dispatch` has no PR diff to scope against (step 0), so it
+      # always sweeps every tier including temper-drc-rs — the file this step
+      # flips a verdict in is guaranteed to exist.
       # ------------------------------------------------------------------
       - name: Anti-vacuity — inject a failing verdict (workflow_dispatch only)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.inject_failure == 'fail_one_verdict' }}
@@ -519,7 +715,7 @@ jobs:
           set -euo pipefail
           node -e '
             const fs = require("node:fs");
-            const path = "/tmp/pr_sweep_drc.json";
+            const path = "/tmp/pr_sweep_drc-rs.json";
             const data = JSON.parse(fs.readFileSync(path, "utf8"));
             const hit = (data.results || []).find((r) => r.status === "pass");
             if (!hit) {
@@ -540,6 +736,12 @@ jobs:
       # run actually run?" -- see the header's fail-loudly section for the
       # exit-0-over-an-empty-queue bug (#940) that makes that worth spending a
       # step on.
+      #
+      # SWEEPS is read from /tmp/touched_tiers.tsv (step 0) rather than
+      # hardcoded, so this step's scope always matches what step 4 actually
+      # swept — a tier added to the topology (or dropped from a hand-written
+      # list here) cannot silently fall out of the verdict the way a fixed
+      # three-entry array could.
       # ------------------------------------------------------------------
       - name: Tier verdict — fails on any failing test, or on a vacuous sweep
         id: verdict
@@ -549,11 +751,36 @@ jobs:
           cat > /tmp/verdict.cjs <<'NODE'
           const fs = require("node:fs");
 
-          const SWEEPS = [
-            ["temper-drc-rs", "/tmp/pr_sweep_drc.json"],
-            ["temper-geometry", "/tmp/pr_sweep_geometry.json"],
-            ["temper-thermal", "/tmp/pr_sweep_thermal.json"],
-          ];
+          const SWEEPS = fs
+            .readFileSync("/tmp/touched_tiers.tsv", "utf8")
+            .split("\n")
+            .filter(Boolean)
+            .map((line) => {
+              const [crate, suffix] = line.split("\t");
+              return [crate, `/tmp/pr_sweep_${suffix}.json`];
+            });
+
+          if (SWEEPS.length === 0) {
+            // NOT the "green while nothing executed" failure mode this step
+            // otherwise exists to catch: step 0 determined, from this PR's own
+            // diff, that none of the nine tiers were touched, and step 4 never
+            // ran a sweep at all — a deliberate 0, not an accidental one. Said
+            // explicitly rather than falling through to "0 tests, 0 failing",
+            // which would read identically to a bug that swept nothing by
+            // mistake.
+            fs.writeFileSync(
+              "/tmp/verdict_table.md",
+              "_No wasm-tier crate directory was touched by this PR's diff — nothing swept. " +
+                "See the job summary's freshness section for the deployed tier's current state._\n",
+            );
+            fs.writeFileSync(
+              "/tmp/verdict.json",
+              JSON.stringify({ ok: true, tests_run: 0, failing: 0, tiers: [], problems: [], scope: "none-touched" }, null, 2),
+            );
+            console.log("OK — this PR's diff touched none of the nine wasm-tier crates; nothing to sweep.");
+            process.exit(0);
+          }
+
           // Verdicts that mean "this test was executed and did not report a
           // problem". Anything else -- including a status this job has never
           // heard of -- is counted as a failure, because the alternative is to
@@ -669,6 +896,17 @@ jobs:
             echo "breaks equivalence can still pass here, for up to 24h. See this workflow's"
             echo "header."
             echo ""
+            echo "**Scope (PR #971 cost containment):** swept only the tiers this PR's diff"
+            echo "touches, not the whole nine-tier corpus every run — see the header's \"COST,"
+            echo "AND WHY THE SWEEP IS SCOPED...\" section."
+            echo '```'
+            if [ -s /tmp/touched_tiers.tsv ]; then
+              cut -f1 /tmp/touched_tiers.tsv
+            else
+              echo "(none — this PR's diff touched no wasm-tier crate directory)"
+            fi
+            echo '```'
+            echo ""
             cat /tmp/verdict_table.md 2>/dev/null || echo "_(no verdict table — see the failed step above)_"
             echo ""
             echo "#### Freshness (R5.1) — checked before the sweep"
@@ -705,12 +943,18 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: wasm-tier-pr-verdict-${{ github.run_id }}
+          # Globbed rather than one hardcoded path per tier: the files are
+          # named from touched_tiers.tsv's per-tier suffixes (step 0), which
+          # varies per PR by design (PR #971 cost containment) — a fixed list
+          # here would silently stop matching whichever tiers a given run
+          # actually swept. `if-no-files-found: warn` (not `error`) because a
+          # PR that touched none of the nine tiers legitimately writes no
+          # /tmp/pr_sweep_*.json at all — see step 6's "none-touched" case.
           path: |
             /tmp/verdict.json
             /tmp/freshness.json
             /tmp/corpus_drift.txt
-            /tmp/pr_sweep_drc.json
-            /tmp/pr_sweep_geometry.json
-            /tmp/pr_sweep_thermal.json
+            /tmp/touched_tiers.tsv
+            /tmp/pr_sweep_*.json
           retention-days: 14
           if-no-files-found: warn
