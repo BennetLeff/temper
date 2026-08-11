@@ -29,12 +29,22 @@
  * is expected, which that script scores as a DISAGREEMENT — a red nightly whose
  * real cause is a stale JS literal. Importing the JSON the rest of the tooling
  * already reads makes the two copies one.
+ *
+ * # `module_sha256` (issue #945)
+ *
+ * `DIGEST_GEOMETRY` is `scripts/stage_wasm_families.sh`'s sha256 of the exact
+ * bytes staged into `WASM_GEOMETRY`, written as a sidecar JSON next to the
+ * `.wasm` file so it bundles the same way the expected-failure manifest does.
+ * It answers "is this the same content", which a test count alone cannot —
+ * see `worker_core.js`'s header for the full argument and
+ * `tools/wasm/check_deployed_freshness.mjs` for the comparison this feeds.
  */
 import WASM_GEOMETRY from "../../src/temper_wasm_test_runner_geometry.wasm";
 import EXPECTED_FAILURES_GEOMETRY from "../../../../tools/wasm/wasm_expected_failures_geometry.json";
+import DIGEST_GEOMETRY from "../../src/temper_wasm_test_runner_geometry.wasm.sha256.json";
 import { createWorker } from "../../src/worker_core.js";
 
-const worker = createWorker(WASM_GEOMETRY, EXPECTED_FAILURES_GEOMETRY);
+const worker = createWorker(WASM_GEOMETRY, EXPECTED_FAILURES_GEOMETRY, DIGEST_GEOMETRY.sha256);
 
 export default {
   async fetch(request, env, ctx) {

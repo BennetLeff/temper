@@ -31,6 +31,19 @@
  * `.wasm` import resolves to `undefined`.  The entry point falls back
  * to reading modules from disk via `node:fs`, matching the local dev
  * server convention from `tools/wasm/worker_local_server.mjs`.
+ *
+ * # `module_sha256` (issue #945)
+ *
+ * `DIGEST_FULL` is `scripts/stage_wasm_families.sh`'s sha256 of the exact
+ * bytes staged into `WASM_FULL` (the tier's full-corpus module), written as a
+ * sidecar JSON next to the `.wasm` file so it bundles the same way the
+ * expected-failure manifest does. Only the `default` family carries a digest
+ * here: `check_deployed_freshness.mjs` compares content hash against
+ * `full_corpus_worker` per tier, exactly as it compares built vs. deployed
+ * COUNT against the full-corpus Worker and leaves the count-based partition
+ * check (shards sum to the built count) as the seven shards' own,
+ * independent, unweakened control. See `worker_core.js`'s header for the full
+ * argument.
  */
 
 import WASM_FULL    from "./temper_wasm_test_runner.wasm";
@@ -41,6 +54,7 @@ import WASM_SAFETY  from "./temper_wasm_test_runner_safety.wasm";
 import WASM_PLACEMENT from "./temper_wasm_test_runner_placement.wasm";
 import WASM_ROUTING from "./temper_wasm_test_runner_routing.wasm";
 import WASM_INFRA   from "./temper_wasm_test_runner_infra.wasm";
+import DIGEST_FULL  from "./temper_wasm_test_runner.wasm.sha256.json";
 
 import { createMultiFamilyWorker } from "./worker_core.js";
 
@@ -58,7 +72,7 @@ let modules = {
   infra:     WASM_INFRA,
 };
 
-const worker = createMultiFamilyWorker(modules);
+const worker = createMultiFamilyWorker(modules, undefined, { default: DIGEST_FULL.sha256 });
 
 export default {
   async fetch(request, env, ctx) {

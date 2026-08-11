@@ -139,6 +139,10 @@ target-shared/
 # (see docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md). Built by cargo,
 # never committed — it is a reproducible build output.
 packages/temper-worker/src/*.wasm
+# sha256 sidecar of the staged artifact above (issue #945 — content-hash
+# freshness identity), written by scripts/stage_wasm_families.sh alongside
+# each .wasm it copies. Derived from the .wasm the same way, never committed.
+packages/temper-worker/src/*.wasm.sha256.json
 
 # Pruned root files (2026-06-23 purge)
 /*.pkl

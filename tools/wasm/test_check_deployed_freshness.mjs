@@ -62,8 +62,9 @@ const topology = loadTopology();
  * Per-shard numbers are today's deployed reality (2026-08-11): drc 1510, infra
  * 121, safety 25, placement 18, routing 18, emc 15, erc 12 = 1719,
  * temper-wasm-geometry's 722, temper-wasm-thermal's 143,
- * temper-wasm-router-core's 111, temper-wasm-constraint-compiler's 69 and
- * temper-wasm-design-bundle's 24. Six tiers, 2788 tests.
+ * temper-wasm-router-core's 111, temper-wasm-constraint-compiler's 69,
+ * temper-wasm-design-bundle's 24, temper-wasm-quality-oracle's 125 and
+ * temper-wasm-io-types's 144. Eight tiers, 3057 tests.
  */
 const DRC_SHARDS = {
   drc: 1510,
@@ -116,39 +117,104 @@ const THERMAL_BUILT = 143;
 const DESIGN_BUNDLE_BUILT = 24;
 const ROUTER_CORE_BUILT = 111;
 const CONSTRAINT_COMPILER_BUILT = 69;
+// The two tiers added after the six above (job: "deploy the last two
+// registered crates"). Both EXECUTABLE counts, for the same reason every
+// other BUILT constant above is:
+//
+//   temper-quality-oracle  126 registered, 125 executable. The 126th,
+//                          placement_metrics::tests::
+//                          py_pow_resolves_to_host_libm_not_sqrt, carries
+//                          `#[cfg(not(target_arch = "wasm32"))]` — same shape
+//                          as temper-geometry's 724/722 and
+//                          temper-constraint-compiler's 70/69 gaps.
+//   temper-io-types        144 registered, 144 executable — coincide, like
+//                          temper-design-bundle's 24/24, because no registry
+//                          entry in this crate carries its own cfg.
+const QUALITY_ORACLE_BUILT = 125;
+const IO_TYPES_BUILT = 144;
+
+/**
+ * Content-hash identity (issue #945), one fixed fake digest per full-corpus
+ * Worker. Not real sha256 hex — check_deployed_freshness.mjs never validates
+ * the shape of `summary.sha256` / `module_sha256`, only compares them for
+ * equality, so a readable tag serves the same purpose as a real hash and
+ * keeps the diffs in section G legible. Only full-corpus Workers get one:
+ * the digest check is scoped to `full_corpus_worker` per tier (see
+ * check_deployed_freshness.mjs's header, "CONTENT HASH" — the shard-sum
+ * partition check has no digest analogue), so temper-drc-rs's seven shards
+ * (drc, emc, erc, safety, placement, routing, infra) never carry one.
+ */
+const DRC_SHA = "sha-drc-rs-fresh";
+const GEOMETRY_SHA = "sha-geometry-fresh";
+const THERMAL_SHA = "sha-thermal-fresh";
+const DESIGN_BUNDLE_SHA = "sha-design-bundle-fresh";
+const ROUTER_CORE_SHA = "sha-router-core-fresh";
+const CONSTRAINT_COMPILER_SHA = "sha-constraint-compiler-fresh";
+const QUALITY_ORACLE_SHA = "sha-quality-oracle-fresh";
+const IO_TYPES_SHA = "sha-io-types-fresh";
 
 function freshCensus() {
-  const census = { "temper-wasm-tier": { test_count: DRC_BUILT, abi_version: 1 } };
+  const census = {
+    "temper-wasm-tier": { test_count: DRC_BUILT, abi_version: 1, module_sha256: DRC_SHA },
+  };
   for (const [family, count] of Object.entries(DRC_SHARDS)) {
     census[`temper-wasm-${family}`] = { test_count: count, abi_version: 1 };
   }
-  census["temper-wasm-geometry"] = { test_count: GEOMETRY_BUILT, abi_version: 1 };
-  census["temper-wasm-thermal"] = { test_count: THERMAL_BUILT, abi_version: 1 };
-  census["temper-wasm-design-bundle"] = { test_count: DESIGN_BUNDLE_BUILT, abi_version: 1 };
-  census["temper-wasm-router-core"] = { test_count: ROUTER_CORE_BUILT, abi_version: 1 };
+  census["temper-wasm-geometry"] = { test_count: GEOMETRY_BUILT, abi_version: 1, module_sha256: GEOMETRY_SHA };
+  census["temper-wasm-thermal"] = { test_count: THERMAL_BUILT, abi_version: 1, module_sha256: THERMAL_SHA };
+  census["temper-wasm-design-bundle"] = {
+    test_count: DESIGN_BUNDLE_BUILT,
+    abi_version: 1,
+    module_sha256: DESIGN_BUNDLE_SHA,
+  };
+  census["temper-wasm-router-core"] = {
+    test_count: ROUTER_CORE_BUILT,
+    abi_version: 1,
+    module_sha256: ROUTER_CORE_SHA,
+  };
   census["temper-wasm-constraint-compiler"] = {
     test_count: CONSTRAINT_COMPILER_BUILT,
     abi_version: 1,
+    module_sha256: CONSTRAINT_COMPILER_SHA,
+  };
+  census["temper-wasm-quality-oracle"] = {
+    test_count: QUALITY_ORACLE_BUILT,
+    abi_version: 1,
+    module_sha256: QUALITY_ORACLE_SHA,
+  };
+  census["temper-wasm-io-types"] = {
+    test_count: IO_TYPES_BUILT,
+    abi_version: 1,
+    module_sha256: IO_TYPES_SHA,
   };
   return census;
 }
 
-/** Write a run_wasm_tests.mjs-shaped census file and return its path. */
-function builtJson(name, registered) {
+/**
+ * Write a run_wasm_tests.mjs-shaped census file and return its path.
+ * `sha256`, when given, lands in `summary.sha256` exactly where
+ * check_deployed_freshness.mjs's `builtCountFor` reads it (issue #945) —
+ * omit it to exercise the "missing built digest" soft-pass path (section G).
+ */
+function builtJson(name, registered, sha256) {
   const path = join(TMP, `${name}.json`);
-  writeFileSync(path, JSON.stringify({ summary: { registered }, results: [] }));
+  const summary = sha256 !== undefined ? { registered, sha256 } : { registered };
+  writeFileSync(path, JSON.stringify({ summary, results: [] }));
   return path;
 }
 
-const BUILT_DRC = builtJson("built_drc", DRC_BUILT);
-const BUILT_GEOMETRY = builtJson("built_geometry", GEOMETRY_BUILT);
-const BUILT_THERMAL = builtJson("built_thermal", THERMAL_BUILT);
-const BUILT_DESIGN_BUNDLE = builtJson("built_design_bundle", DESIGN_BUNDLE_BUILT);
-const BUILT_ROUTER_CORE = builtJson("built_router_core", ROUTER_CORE_BUILT);
+const BUILT_DRC = builtJson("built_drc", DRC_BUILT, DRC_SHA);
+const BUILT_GEOMETRY = builtJson("built_geometry", GEOMETRY_BUILT, GEOMETRY_SHA);
+const BUILT_THERMAL = builtJson("built_thermal", THERMAL_BUILT, THERMAL_SHA);
+const BUILT_DESIGN_BUNDLE = builtJson("built_design_bundle", DESIGN_BUNDLE_BUILT, DESIGN_BUNDLE_SHA);
+const BUILT_ROUTER_CORE = builtJson("built_router_core", ROUTER_CORE_BUILT, ROUTER_CORE_SHA);
 const BUILT_CONSTRAINT_COMPILER = builtJson(
   "built_constraint_compiler",
   CONSTRAINT_COMPILER_BUILT,
+  CONSTRAINT_COMPILER_SHA,
 );
+const BUILT_QUALITY_ORACLE = builtJson("built_quality_oracle", QUALITY_ORACLE_BUILT, QUALITY_ORACLE_SHA);
+const BUILT_IO_TYPES = builtJson("built_io_types", IO_TYPES_BUILT, IO_TYPES_SHA);
 
 /**
  * The full, correct argument set: one built count per tier in the topology.
@@ -179,6 +245,10 @@ const ALL_BUILT = [
   BUILT_ROUTER_CORE,
   "--built-json-constraint-compiler",
   BUILT_CONSTRAINT_COMPILER,
+  "--built-json-quality-oracle",
+  BUILT_QUALITY_ORACLE,
+  "--built-json-io-types",
+  BUILT_IO_TYPES,
 ];
 
 /**
@@ -248,7 +318,8 @@ console.log(`topology tiers: ${topology.tiers.map((t) => t.crate).join(", ")}`);
 console.log(
   `fresh census: drc=${DRC_BUILT} (7 shards), geometry=${GEOMETRY_BUILT}, ` +
     `thermal=${THERMAL_BUILT}, design-bundle=${DESIGN_BUNDLE_BUILT}, ` +
-    `router-core=${ROUTER_CORE_BUILT}, constraint-compiler=${CONSTRAINT_COMPILER_BUILT}\n`,
+    `router-core=${ROUTER_CORE_BUILT}, constraint-compiler=${CONSTRAINT_COMPILER_BUILT}, ` +
+    `quality-oracle=${QUALITY_ORACLE_BUILT}, io-types=${IO_TYPES_BUILT}\n`,
 );
 
 // ---------------------------------------------------------------------------
@@ -257,7 +328,7 @@ console.log(
 // ---------------------------------------------------------------------------
 console.log("A. correct counts -> green");
 expect(
-  "all six tiers current",
+  "all eight tiers current",
   run(ALL_BUILT, freshCensus()),
   0,
   "every tier's deployed corpus matches",
@@ -424,6 +495,58 @@ console.log("\nB. a stale deployed count -> red, per crate");
     run(ALL_BUILT, stale),
     1,
     "are not in this commit's temper-constraint-compiler build",
+  );
+}
+{
+  // temper-quality-oracle's own bite: the last of the two crates this PR
+  // deploys a Worker for.
+  const stale = freshCensus();
+  stale["temper-wasm-quality-oracle"] = { test_count: QUALITY_ORACLE_BUILT - 3, abi_version: 1 };
+  expect(
+    "temper-quality-oracle deployed 3 short",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE DEPLOYED CORPUS (temper-quality-oracle)",
+  );
+}
+{
+  // Registered-vs-executable on temper-quality-oracle, the trap this tier has
+  // now hit four times: geometry 724/722, thermal 145/143,
+  // constraint-compiler 70/69, and this crate 126/125
+  // (placement_metrics::tests::py_pow_resolves_to_host_libm_not_sqrt carries
+  // its own `#[cfg(not(target_arch = "wasm32"))]`). Handing the checker the
+  // REGISTERED number is the natural mistake reading the registry file
+  // invites, and it must be a loud failure.
+  const stale = freshCensus();
+  expect(
+    "quality-oracle built count given as 126 registered, not 125 executable",
+    run(withOverride("--expected-count-quality-oracle", "126"), stale),
+    1,
+    "STALE DEPLOYED CORPUS (temper-quality-oracle)",
+  );
+}
+{
+  // temper-io-types deployed short. Registered and executable coincide at 144
+  // for this crate (like temper-design-bundle's 24/24), so this is a plain
+  // drift case rather than a registered-vs-executable trap.
+  const stale = freshCensus();
+  stale["temper-wasm-io-types"] = { test_count: IO_TYPES_BUILT - 2, abi_version: 1 };
+  expect(
+    "temper-io-types deployed 2 short",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE DEPLOYED CORPUS (temper-io-types)",
+  );
+}
+{
+  // The other direction on temper-io-types: deployed LONG.
+  const stale = freshCensus();
+  stale["temper-wasm-io-types"] = { test_count: IO_TYPES_BUILT + 6, abi_version: 1 };
+  expect(
+    "temper-io-types deployed 6 long (deleted tests still live)",
+    run(ALL_BUILT, stale),
+    1,
+    "are not in this commit's temper-io-types build",
   );
 }
 
@@ -659,6 +782,47 @@ expect(
   2,
   "Cannot read the built-corpus census for temper-rust-router-core",
 );
+// The walk continues past the original six-tier topology into the two
+// crates this PR adds: quality-oracle, then io-types. Same property as
+// above, restated at eight tiers -- a caller that has caught up to exactly
+// yesterday's complete flag set is still exit 2, one named tier at a time,
+// never a quiet pass over six of eight.
+expect(
+  "  ...+ constraint-compiler: now quality-oracle is named",
+  run(
+    [
+      ...YESTERDAYS_ARGS,
+      "--built-json-design-bundle",
+      BUILT_DESIGN_BUNDLE,
+      "--built-json-rust-router-core",
+      BUILT_ROUTER_CORE,
+      "--built-json-constraint-compiler",
+      BUILT_CONSTRAINT_COMPILER,
+    ],
+    freshCensus(),
+  ),
+  2,
+  "No expected test count available for tier temper-quality-oracle",
+);
+expect(
+  "  ...+ quality-oracle: now io-types is named",
+  run(
+    [
+      ...YESTERDAYS_ARGS,
+      "--built-json-design-bundle",
+      BUILT_DESIGN_BUNDLE,
+      "--built-json-rust-router-core",
+      BUILT_ROUTER_CORE,
+      "--built-json-constraint-compiler",
+      BUILT_CONSTRAINT_COMPILER,
+      "--built-json-quality-oracle",
+      BUILT_QUALITY_ORACLE,
+    ],
+    freshCensus(),
+  ),
+  2,
+  "No expected test count available for tier temper-io-types",
+);
 
 // ---------------------------------------------------------------------------
 // 5. Unreachable and ABI-mismatched Workers still fail rather than being
@@ -751,6 +915,40 @@ console.log("\nE. unreachable / wrong ABI -> red");
     "ABI mismatch",
   );
 }
+{
+  // The state THIS PR (job 1 — "deploy the last two registered crates") leaves
+  // the tier in until the operator deploys: temper-wasm-quality-oracle and
+  // temper-wasm-io-types are in the topology and neither exists yet. Both must
+  // be named in one failure, for the same reason the three-Worker case above
+  // names all three.
+  const census = freshCensus();
+  delete census["temper-wasm-quality-oracle"];
+  delete census["temper-wasm-io-types"];
+  const res = run(ALL_BUILT, census);
+  expect("neither of the two newest Workers deployed yet", res, 1, "did not report a usable /health census");
+  expect("  ...quality-oracle named", res, 1, "temper-wasm-quality-oracle (HTTP 404)");
+  expect("  ...io-types named", res, 1, "temper-wasm-io-types (HTTP 404)");
+}
+{
+  const census = freshCensus();
+  census["temper-wasm-quality-oracle"] = { test_count: QUALITY_ORACLE_BUILT, abi_version: 2 };
+  expect(
+    "temper-wasm-quality-oracle speaks ABI 2",
+    run(ALL_BUILT, census),
+    1,
+    "ABI mismatch",
+  );
+}
+{
+  const census = freshCensus();
+  census["temper-wasm-io-types"] = { test_count: IO_TYPES_BUILT, abi_version: 2 };
+  expect(
+    "temper-wasm-io-types speaks ABI 2",
+    run(ALL_BUILT, census),
+    1,
+    "ABI mismatch",
+  );
+}
 
 // ---------------------------------------------------------------------------
 // 6. --expected-count overrides behave per tier.
@@ -765,6 +963,8 @@ function allCounts(overrides = {}) {
     "temper-design-bundle": DESIGN_BUNDLE_BUILT,
     "temper-rust-router-core": ROUTER_CORE_BUILT,
     "temper-constraint-compiler": CONSTRAINT_COMPILER_BUILT,
+    "temper-quality-oracle": QUALITY_ORACLE_BUILT,
+    "temper-io-types": IO_TYPES_BUILT,
   };
   return Object.entries({ ...base, ...overrides }).flatMap(([crate, n]) => [
     // temper-drc-rs is additionally reachable as the unsuffixed flag, and this
@@ -810,6 +1010,168 @@ expect(
   1,
   "STALE DEPLOYED CORPUS (temper-constraint-compiler)",
 );
+expect(
+  "quality-oracle override NOT matching the deployed count",
+  run(allCounts({ "temper-quality-oracle": 999 }), freshCensus()),
+  1,
+  "STALE DEPLOYED CORPUS (temper-quality-oracle)",
+);
+expect(
+  "io-types override NOT matching the deployed count",
+  run(allCounts({ "temper-io-types": 999 }), freshCensus()),
+  1,
+  "STALE DEPLOYED CORPUS (temper-io-types)",
+);
+
+// ---------------------------------------------------------------------------
+// 7. CONTENT HASH (issue #945) — the fix this PR adds. `test_count` is a weak
+//    proxy for "is this the same content": PR #941's clock-bug fix moved 7
+//    temper-geometry tests from trapping to passing on wasm32 while the
+//    registered count stayed 722 both before and after, and the count-only
+//    check reported the stale pre-#941 module fresh for four commits. Every
+//    case below runs against ALL_BUILT / freshCensus(), where every full-
+//    corpus tier's built and deployed sha256 already match (section A already
+//    proved that passes) — each case here perturbs exactly one side of one
+//    tier's digest.
+// ---------------------------------------------------------------------------
+console.log("\nG. content hash (issue #945): count alone is not identity");
+{
+  // THE #945 CASE, restated as a pinned test: COUNT RIGHT, DIGEST WRONG. This
+  // is the exact shape count_check could not see and only R19 caught live.
+  // temper-thermal is picked because it also carries the registered-vs-
+  // executable gap (145/143), so this proves the digest check fires
+  // independently of that trap too.
+  const stale = freshCensus();
+  stale["temper-wasm-thermal"] = {
+    test_count: THERMAL_BUILT, // count matches exactly
+    abi_version: 1,
+    module_sha256: "sha-thermal-STALE-pre-941",
+  };
+  const res = run(ALL_BUILT, stale);
+  expect(
+    "temper-thermal: count right, digest wrong (the #945 case)",
+    res,
+    1,
+    "STALE DEPLOYED MODULE CONTENT (temper-thermal, issue #945)",
+  );
+  // Proves the digest check is independent, not riding the count failure:
+  // the count check must NOT also fire, or this case would not actually pin
+  // "digest catches what count cannot".
+  if (res.out.includes("STALE DEPLOYED CORPUS (temper-thermal)")) {
+    failures += 1;
+    console.log(
+      "  FAIL   count-right-digest-wrong case also tripped the COUNT check — the two checks are not independent",
+    );
+  } else {
+    console.log("  PASS   ...and confirmed: STALE DEPLOYED CORPUS (temper-thermal) did NOT fire");
+  }
+}
+{
+  // WRONG DIGEST, plain form, on a different tier: temper-quality-oracle,
+  // the newest tier with a registered-vs-executable gap of its own (126/125).
+  const stale = freshCensus();
+  stale["temper-wasm-quality-oracle"] = {
+    test_count: QUALITY_ORACLE_BUILT,
+    abi_version: 1,
+    module_sha256: "sha-quality-oracle-WRONG",
+  };
+  expect(
+    "temper-quality-oracle: wrong digest -> red",
+    run(ALL_BUILT, stale),
+    1,
+    "STALE DEPLOYED MODULE CONTENT (temper-quality-oracle, issue #945)",
+  );
+}
+{
+  // DIGEST PRESENT BUT COUNT WRONG. The digest check must not mask or
+  // suppress the count check: even with a well-formed (if now-mismatched,
+  // because the count moved) digest present on both sides, a count drift must
+  // still fail exactly as it always has.
+  const stale = freshCensus();
+  stale["temper-wasm-io-types"] = {
+    test_count: IO_TYPES_BUILT - 5,
+    abi_version: 1,
+    module_sha256: IO_TYPES_SHA, // digest still "matches" — count is what's wrong
+  };
+  const res = run(ALL_BUILT, stale);
+  expect(
+    "temper-io-types: digest present (and matching) but count wrong -> red",
+    res,
+    1,
+    "STALE DEPLOYED CORPUS (temper-io-types)",
+  );
+}
+{
+  // MISSING DEPLOYED DIGEST -> soft pass. The Worker predates issue #945 (or
+  // has not been redeployed since) and simply omits module_sha256 from
+  // /health. The run must still be green — the count/partition checks below
+  // are what's carrying it — and it must say so via a visible warning, not
+  // silently.
+  const stale = freshCensus();
+  delete stale["temper-wasm-router-core"].module_sha256;
+  const res = run(ALL_BUILT, stale);
+  expect(
+    "temper-rust-router-core: deployed /health has no module_sha256 -> still green",
+    res,
+    0,
+    "every tier's deployed corpus matches",
+  );
+  expect(
+    "  ...and it is a visible warning, not silent",
+    res,
+    0,
+    "content-hash check skipped for tier temper-rust-router-core",
+  );
+}
+{
+  // MISSING BUILT DIGEST -> soft pass, the other side. Simulates a built
+  // census produced by a run_wasm_tests.mjs that predates the sha256 field
+  // (or a census that was hand-written / from a cache without it).
+  const builtNoDigest = builtJson("built_constraint_compiler_no_digest", CONSTRAINT_COMPILER_BUILT);
+  const argsNoDigest = ALL_BUILT.map((a, i) =>
+    ALL_BUILT[i - 1] === "--built-json-constraint-compiler" ? builtNoDigest : a,
+  );
+  const res = run(argsNoDigest, freshCensus());
+  expect(
+    "temper-constraint-compiler: built census has no summary.sha256 -> still green",
+    res,
+    0,
+    "every tier's deployed corpus matches",
+  );
+  expect(
+    "  ...and it is a visible warning, not silent",
+    res,
+    0,
+    "content-hash check skipped for tier temper-constraint-compiler",
+  );
+}
+{
+  // BOTH SIDES MISSING -> soft pass, the rollout-day-one case: neither the
+  // build pipeline nor the deployed Worker has picked up issue #945's fix
+  // yet. Every OTHER tier still has its digest checked in the same run (this
+  // reuses freshCensus()/ALL_BUILT, where every other tier matches), which is
+  // the point: the soft pass is per tier, not a global escape hatch that
+  // disables the whole feature the moment one tier lags.
+  const builtNoDigest = builtJson("built_design_bundle_no_digest", DESIGN_BUNDLE_BUILT);
+  const argsNoDigest = ALL_BUILT.map((a, i) =>
+    ALL_BUILT[i - 1] === "--built-json-design-bundle" ? builtNoDigest : a,
+  );
+  const census = freshCensus();
+  delete census["temper-wasm-design-bundle"].module_sha256;
+  const res = run(argsNoDigest, census);
+  expect(
+    "temper-design-bundle: digest missing on BOTH sides -> still green",
+    res,
+    0,
+    "every tier's deployed corpus matches",
+  );
+  expect(
+    "  ...every OTHER tier's digest is still checked in the same run",
+    res,
+    0,
+    "temper-thermal",
+  );
+}
 
 console.log(
   failures === 0

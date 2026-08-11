@@ -44,12 +44,26 @@
  * is imported anyway rather than replaced with a `[]` literal, because the file
  * is where the first divergence will be recorded and the import is what makes
  * recording it a one-file change.
+ *
+ * # `module_sha256` (issue #945)
+ *
+ * `DIGEST_DESIGN_BUNDLE` is `scripts/stage_wasm_families.sh`'s sha256 of the
+ * exact bytes staged into `WASM_DESIGN_BUNDLE`, written as a sidecar JSON next
+ * to the `.wasm` file so it bundles the same way the expected-failure
+ * manifest does. It answers "is this the same content", which a test count
+ * alone cannot — see `worker_core.js`'s header for the full argument and
+ * `tools/wasm/check_deployed_freshness.mjs` for the comparison this feeds.
  */
 import WASM_DESIGN_BUNDLE from "../../src/temper_wasm_test_runner_design_bundle.wasm";
 import EXPECTED_FAILURES_DESIGN_BUNDLE from "../../../../tools/wasm/wasm_expected_failures_design_bundle.json";
+import DIGEST_DESIGN_BUNDLE from "../../src/temper_wasm_test_runner_design_bundle.wasm.sha256.json";
 import { createWorker } from "../../src/worker_core.js";
 
-const worker = createWorker(WASM_DESIGN_BUNDLE, EXPECTED_FAILURES_DESIGN_BUNDLE);
+const worker = createWorker(
+  WASM_DESIGN_BUNDLE,
+  EXPECTED_FAILURES_DESIGN_BUNDLE,
+  DIGEST_DESIGN_BUNDLE.sha256,
+);
 
 export default {
   async fetch(request, env, ctx) {

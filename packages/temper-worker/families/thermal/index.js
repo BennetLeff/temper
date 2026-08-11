@@ -37,12 +37,22 @@
  * of this crate's entries are `b7-pow-divergence-absent`, i.e. tests whose
  * whole job is to prove a libm divergence is still there; misclassifying them
  * is exactly the failure that would hide a genuine change to hostmath.rs.
+ *
+ * # `module_sha256` (issue #945)
+ *
+ * `DIGEST_THERMAL` is `scripts/stage_wasm_families.sh`'s sha256 of the exact
+ * bytes staged into `WASM_THERMAL`, written as a sidecar JSON next to the
+ * `.wasm` file so it bundles the same way the expected-failure manifest does.
+ * It answers "is this the same content", which a test count alone cannot —
+ * see `worker_core.js`'s header for the full argument and
+ * `tools/wasm/check_deployed_freshness.mjs` for the comparison this feeds.
  */
 import WASM_THERMAL from "../../src/temper_wasm_test_runner_thermal.wasm";
 import EXPECTED_FAILURES_THERMAL from "../../../../tools/wasm/wasm_expected_failures_thermal.json";
+import DIGEST_THERMAL from "../../src/temper_wasm_test_runner_thermal.wasm.sha256.json";
 import { createWorker } from "../../src/worker_core.js";
 
-const worker = createWorker(WASM_THERMAL, EXPECTED_FAILURES_THERMAL);
+const worker = createWorker(WASM_THERMAL, EXPECTED_FAILURES_THERMAL, DIGEST_THERMAL.sha256);
 
 export default {
   async fetch(request, env, ctx) {

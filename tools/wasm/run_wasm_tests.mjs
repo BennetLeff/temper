@@ -19,8 +19,17 @@
 // When absent, defaults to 1 (single run, same behaviour as before).
 //
 // Exits non-zero if any test fails, so it can gate CI.
+//
+// --json's `summary` carries `sha256`, the sha256 of `<module.wasm>`'s exact
+// bytes, alongside `registered` (issue #945). `tools/wasm/
+// check_deployed_freshness.mjs` reads both from the same file: `registered`
+// for the count/partition checks it always ran, `sha256` for the additional
+// content-identity check that catches a behaviour change a stable test count
+// cannot -- e.g. a bug fix that moves a test from failing to passing without
+// changing how many tests there are.
 
 import { readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 
 const ABI_VERSION = 1;
 const RUN_OK = 0;
@@ -56,6 +65,17 @@ try {
 }
 
 const bytes = readFileSync(wasmPath);
+
+// sha256 of the exact bytes this run compiled, over the same buffer
+// `WebAssembly.compile` consumes below -- the content identity issue #945
+// asks for. A test COUNT does not change when a test's body changes without
+// adding or removing a test (PR #941's clock-bug fix moved 7 tests from
+// trapping to passing on wasm32 while `summary.registered` stayed 722 both
+// before and after); a hash of the bytes does. This file's callers already
+// treat `summary.registered` as the built-corpus census
+// (tools/wasm/check_deployed_freshness.mjs's `--built-json-*`); `summary.sha256`
+// rides the same JSON so no new artifact or CLI flag is needed to compare it.
+const moduleSha256 = createHash("sha256").update(bytes).digest("hex");
 
 // ---------------------------------------------------------------- cold start
 //
@@ -284,6 +304,7 @@ const repPct = (p) => repWalls.length
 const summary = {
   module: wasmPath,
   moduleBytes: bytes.length,
+  sha256: moduleSha256,
   imports: imports.map((i) => `${i.module}.${i.name} (${i.kind})`),
   exportCount: exports.length,
   abi,
@@ -323,6 +344,7 @@ const summary = {
 console.log("=== module ===");
 console.log(`  file            ${wasmPath}`);
 console.log(`  size            ${bytes.length} bytes`);
+console.log(`  sha256          ${moduleSha256}`);
 console.log(`  imports         ${imports.length === 0 ? "NONE (deployable to a bare isolate)" : summary.imports.join(", ")}`);
 console.log(`  exports         ${exports.length}`);
 console.log("=== cold start ===");
