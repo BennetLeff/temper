@@ -1553,6 +1553,21 @@ Added by the second pass (findings 8–21):
   `disposition: ci-gate` was matched against uncommented workflow and
   Makefile lines (finding 12's 11-of-86 figure).
 
+Added by the third pass (findings 22–24):
+
+- The **33**-unit provenance / manifest / BOM / fault-tree slice was re-audited
+  file-by-file rather than in the bulk group above — `check_evidence_provenance`,
+  `check_verdict_coverage`, `vulture_gate`, `check_bom_source_reconciliation`,
+  `part_stress_gate`, `mpn_fabrication_gate`, `check_fault_list_consistency`,
+  `check_sil_coverage`, `capacity_budget_gate`, `check_oracle_hashes`, and the
+  rest. **21** of the 33 had not been individually examined before; those 21
+  take the total from 94 to **115**.
+- The shared `scripts/_lib/gate_allowlist.py` was audited as a unit in its own
+  right rather than per-consumer, which is what surfaced finding 22 — a single
+  regex branch that weakens the growth ratchet of four separate gates at once.
+- Every allowlist file was counted by entry provenance (placeholder vs. real
+  ticket), rather than checked only for well-formedness.
+
 Depth was not uniform. Roughly two-thirds were read end-to-end or executed;
 the remainder were read for decision logic and CI wiring, with targeted
 greps for the specific anti-patterns in today's seven (swallowed exception,
@@ -1561,7 +1576,7 @@ gate marked SOUND here means "no instance of this failure class found,"
 not "formally verified."
 
 The seven already-confirmed instances from 2026-08-11 were excluded from
-the audit set and are not counted in the 94. `scripts/check_unwired_kernels.py`
+the audit set and are not counted in the 115. `scripts/check_unwired_kernels.py`
 (#1020) was likewise excluded as already documented.
 
 **Not reached, stated plainly:** the ~12 lower-priority `routing/` Rust rules
