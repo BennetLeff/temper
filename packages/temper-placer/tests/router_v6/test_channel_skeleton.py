@@ -69,9 +69,9 @@ def test_skeleton_empty_routing_space():
 
 def test_skeleton_dataclass_properties():
     """Test ChannelSkeleton dataclass properties."""
-    import networkx as nx
+    import temper_design_bundle_python as _tdb
 
-    G = nx.Graph()
+    G = _tdb.channel_skeleton_contracts.SkeletonGraph()
     G.add_edge((0, 0), (10, 0), weight=10.0)
     G.add_edge((10, 0), (10, 10), weight=10.0)
 
@@ -146,16 +146,15 @@ def test_skeleton_graph_structure():
 
     skeleton = extract_channel_skeleton(routing_space)
 
-    # Check graph has expected NetworkX properties
+    # Check graph has expected properties
     assert hasattr(skeleton.graph, "nodes")
     assert hasattr(skeleton.graph, "edges")
 
-    # All nodes should have 'pos' attribute
-    for node in skeleton.graph.nodes():
+    # All nodes should be coordinate tuples
+    for node in skeleton.graph.nodes:
         assert isinstance(node, tuple)
         assert len(node) == 2  # (x, y) coordinates
 
-    # All edges should have 'weight' attribute
-    for u, v in skeleton.graph.edges():
-        assert "weight" in skeleton.graph[u][v]
-        assert skeleton.graph[u][v]["weight"] > 0
+    # All edges should have non-zero weight
+    for u, v, data in skeleton.graph.edges_with_data():
+        assert data.get("weight", 0) > 0

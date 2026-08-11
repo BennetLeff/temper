@@ -457,10 +457,10 @@ def compute_channel_widths(
         # in one FFI crossing (bit-identical per point to the per-point
         # reference pinned in the differential test suites), then assemble
         # node/edge widths.
-        _node_points = list(skeleton.graph.nodes())
+        _node_points = list(skeleton.graph.nodes)
 
         _edge_samples: list[tuple[object, object, list[tuple[float, float]]]] = []
-        for u, v in skeleton.graph.edges():
+        for u, v in skeleton.graph.edges:
             dx = v[0] - u[0]
             dy = v[1] - u[1]
             edge_length = (dx**2 + dy**2) ** 0.5
@@ -503,11 +503,11 @@ def compute_channel_widths(
     else:
         # Reference path: per-point width sampling (EDT disabled or
         # unavailable).  Keep the original loop untouched for parity.
-        for node in skeleton.graph.nodes():
+        for node in skeleton.graph.nodes:
             width = _width_at(node)
             node_widths[node] = width
 
-        for u, v in skeleton.graph.edges():
+        for u, v in skeleton.graph.edges:
             widths_along_edge = []
 
             widths_along_edge.append(node_widths[u])

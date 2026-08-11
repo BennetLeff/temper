@@ -213,12 +213,13 @@ def _boards(n: int = 12):
         yield seed, _routing_area(seed, 6 + (seed % 7))
 
 
-def _build_graph(lines) -> nx.Graph:
-    """Mirrors `extract_channel_skeleton`'s node/edge loop
-    (`channel_skeleton.py:96-115`, unchanged by this migration) plus the
+def _build_graph(lines):
+    """Mirrors `extract_channel_skeleton`'s node/edge loop plus the
     live `_ensure_skeleton_connectivity` pass, so both arms are compared as
     full skeleton graphs -- exactly what production builds."""
-    graph = nx.Graph()
+    import temper_design_bundle_python as _tdb
+
+    graph = _tdb.channel_skeleton_contracts.SkeletonGraph()
     for line in lines:
         coords = list(line.coords)
         for i in range(len(coords) - 1):

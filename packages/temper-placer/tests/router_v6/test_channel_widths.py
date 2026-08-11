@@ -147,6 +147,6 @@ def test_widths_node_lookup():
     widths = compute_channel_widths(routing_space, skeleton)
 
     # Should be able to look up width for actual nodes
-    for node in skeleton.graph.nodes():
+    for node in skeleton.graph.nodes:
         width = widths.get_node_width(node)
         assert width >= 0.0  # Width should be non-negative

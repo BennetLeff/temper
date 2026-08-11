@@ -6,7 +6,7 @@ Part of temper-qic1
 
 from types import SimpleNamespace
 
-import networkx as nx
+import temper_design_bundle_python as _tdb
 
 from temper_placer.router_v6.channel_mapping import (
     ChannelMapping,
@@ -14,7 +14,7 @@ from temper_placer.router_v6.channel_mapping import (
     _assign_layer,
     map_topology_to_channels,
 )
-from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
+from temper_placer.router_v6.channel_skeleton import ChannelSkeleton, SkeletonGraph
 from temper_placer.router_v6.topology_extraction import (
     NetTopology,
     PathGraph,
@@ -25,7 +25,7 @@ from temper_placer.router_v6.topology_extraction import (
 def test_map_empty_topology():
     """Test mapping empty topology."""
     topology = TopologyGraph(net_topologies={})
-    skeleton = ChannelSkeleton(nx.Graph(), "F.Cu", 0.0)
+    skeleton = ChannelSkeleton(SkeletonGraph(), "F.Cu", 0.0)
 
     mapping = map_topology_to_channels(topology, skeleton)
 
@@ -42,7 +42,7 @@ def test_map_with_channels():
     )
 
     topology = TopologyGraph(net_topologies={"NET1": net_topo})
-    skeleton = ChannelSkeleton(nx.Graph(), "F.Cu", 0.0)
+    skeleton = ChannelSkeleton(SkeletonGraph(), "F.Cu", 0.0)
 
     mapping = map_topology_to_channels(topology, skeleton)
 
@@ -66,7 +66,7 @@ def test_map_with_path_graph():
     )
 
     topology = TopologyGraph(net_topologies={"NET2": net_topo})
-    skeleton = ChannelSkeleton(nx.Graph(), "F.Cu", 0.0)
+    skeleton = ChannelSkeleton(SkeletonGraph(), "F.Cu", 0.0)
 
     mapping = map_topology_to_channels(topology, skeleton)
 
@@ -141,9 +141,9 @@ def test_explicit_routable_ssot_assignment_overrides_heuristic_layer():
 def test_waypoint_generation():
     """Test waypoint generation from skeleton."""
     # Create skeleton with nodes
-    skeleton_graph = nx.Graph()
-    skeleton_graph.add_node((10.0, 10.0))
-    skeleton_graph.add_node((20.0, 20.0))
+    skeleton_graph = SkeletonGraph()
+    skeleton_graph.add_node((10.0, 10.0), pos=(10.0, 10.0))
+    skeleton_graph.add_node((20.0, 20.0), pos=(20.0, 20.0))
 
     skeleton = ChannelSkeleton(skeleton_graph, "F.Cu", 30.0)
 

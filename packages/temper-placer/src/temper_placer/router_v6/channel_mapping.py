@@ -469,9 +469,9 @@ def _skeleton_nodes_in_coordinate_order(
     (x, y) positions"), so lexicographic tuple order is a total order derived
     from the board geometry rather than from how the graph was built. Callers
     that select nodes by position must use this instead of
-    ``list(graph.nodes())``, which yields networkx insertion order.
+    ``list(graph.nodes)``, which yields insertion order.
     """
-    return sorted(skeleton.graph.nodes())
+    return sorted(skeleton.graph.nodes)
 
 
 def _nearest_skeleton_node(
@@ -488,7 +488,7 @@ def _nearest_skeleton_node(
     bit-exactly.  The argmin is unique for distinct nodes, so converting the
     node view to a list cannot change the result.
     """
-    nodes = list(skeleton.graph.nodes())
+    nodes = list(skeleton.graph.nodes)
     return _tg.nearest_skeleton_node_py(coord[0], coord[1], _flatten(nodes))
 
 
@@ -502,7 +502,7 @@ def _is_near_skeleton(
     Wave 4: computed in ``temper-geometry`` (``channel_mapping.rs``), a
     per-node ``dx*dx + dy*dy <= tolerance*tolerance`` existential scan.
     """
-    nodes = list(skeleton.graph.nodes())
+    nodes = list(skeleton.graph.nodes)
     return _tg.is_near_skeleton_py(coord[0], coord[1], _flatten(nodes), tolerance)
 
 

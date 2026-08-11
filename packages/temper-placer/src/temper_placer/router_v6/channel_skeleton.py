@@ -9,9 +9,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
-import networkx as nx
 import numpy as np
 import shapely
+import temper_design_bundle_python as _tdb
 import temper_geometry as _tg
 from shapely.geometry import LineString, MultiPolygon, Polygon
 
@@ -25,29 +25,32 @@ from temper_placer.router_v6.stage_validators import (
     register_validator,
 )
 
+# Re-export the Rust pyclass under its public name.
+SkeletonGraph = _tdb.channel_skeleton_contracts.SkeletonGraph
+
 
 @dataclass
 class ChannelSkeleton:
     """Skeleton graph representing routing channels."""
 
-    graph: nx.Graph  # Nodes are (x, y) positions, edges are channel segments
+    graph: SkeletonGraph  # Nodes are (x, y) positions, edges are channel segments
     layer_name: str
     total_length: float  # Total channel length in mm
 
     @property
     def is_connected(self) -> bool:
         """Check if the channel graph is fully connected."""
-        return nx.is_connected(self.graph) if len(self.graph.nodes) > 0 else True
+        return self.graph.is_connected() if self.graph.number_of_nodes() > 0 else True
 
     @property
     def node_count(self) -> int:
         """Number of nodes in the skeleton."""
-        return len(self.graph.nodes)
+        return self.graph.number_of_nodes()
 
     @property
     def edge_count(self) -> int:
         """Number of edges in the skeleton."""
-        return len(self.graph.edges)
+        return self.graph.number_of_edges()
 
 
 def extract_channel_skeleton(
@@ -76,7 +79,7 @@ def extract_channel_skeleton(
         True
     """
     # Create graph
-    G = nx.Graph()
+    G = SkeletonGraph()
 
     # Get available routing area
     available_area = routing_space.available_area
@@ -111,8 +114,9 @@ def extract_channel_skeleton(
             dy = p2[1] - p1[1]
             length = (dx**2 + dy**2) ** 0.5
 
-            # Add edge with length weight
-            G.add_edge(p1, p2, weight=length)
+            # Add edge with length weight (deduped in Rust -- the
+            # duplicate add_edge call from the original code is now
+            # a no-op on the second call, matching networkx behaviour).
             G.add_edge(p1, p2, weight=length)
             total_length += length
 
@@ -148,7 +152,7 @@ def extract_channel_skeleton(
                     pad_positions.append(abs_pos)
 
         # Add pads as anchor nodes, connected to nearest skeleton node
-        skeleton_nodes = list(G.nodes())
+        skeleton_nodes = list(G.nodes)
         pads_added = 0
 
         for pad_pos in pad_positions:
@@ -272,7 +276,7 @@ def _extract_medial_axis_single(
 class _UnionFind:
     """Disjoint-set over small integer labels (component ids), path-compressed
     with union-by-rank. Used to track which islands have merged without
-    re-running ``nx.connected_components`` (an O(V+E) pass) after every edge."""
+    re-running ``connected_components`` (an O(V+E) pass) after every edge."""
 
     __slots__ = ("parent", "rank")
 
@@ -374,10 +378,10 @@ def _radius_pairs(positions: np.ndarray, radius: float) -> np.ndarray:
 
 
 def _ensure_skeleton_connectivity(
-    G: nx.Graph,
+    G,
     max_bridge_distance: float = 5.0,
     available_area: Polygon | MultiPolygon | None = None,
-) -> nx.Graph:
+):
     """
     Ensure skeleton graph is fully connected by adding bridge edges.
 
@@ -526,13 +530,13 @@ def _ensure_skeleton_connectivity(
     if G.number_of_nodes() == 0:
         return G
 
-    components = list(nx.connected_components(G))
+    components = G.connected_components()
     n_components = len(components)
     if n_components <= 1:
         return G  # Already connected
 
-
-    nodes = list(G.nodes())
+    # Wave 4: G.nodes is a property on SkeletonGraph (was list(G.nodes()) on nx.Graph).
+    nodes = list(G.nodes)
     positions = np.asarray(nodes, dtype=float)
     node_index = {node: i for i, node in enumerate(nodes)}
 

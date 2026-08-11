@@ -1,10 +1,9 @@
 """Property-based tests for ChannelSkeleton invariants."""
 
-import networkx as nx
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
+from temper_placer.router_v6.channel_skeleton import ChannelSkeleton, SkeletonGraph
 
 
 @given(
@@ -17,15 +16,18 @@ def test_channel_skeleton_node_edge_counts(num_nodes, num_edges, seed):
     """node_count and edge_count match graph properties."""
     import random
 
-    random.Random(seed)
-    G = nx.Graph()
+    rng = random.Random(seed)
+    G = SkeletonGraph()
     for i in range(num_nodes):
         G.add_node((float(i), float(i)), pos=(float(i), float(i)))
     # Add edges between consecutive nodes (creates a path)
+    existing_nodes = list(G.nodes)
     for i in range(min(num_edges, num_nodes - 1)):
         j = (i + 1) % num_nodes
-        if j != i and (i, j) not in G.edges:
-            G.add_edge((float(i), float(i)), (float(j), float(j)), weight=1.0)
+        if j != i and len(existing_nodes) > max(i, j):
+            a = existing_nodes[i]
+            b = existing_nodes[j]
+            G.add_edge(a, b, weight=1.0)
 
     sk = ChannelSkeleton(graph=G, layer_name="test", total_length=float(num_edges))
     assert sk.node_count == G.number_of_nodes()
@@ -41,16 +43,18 @@ def test_channel_skeleton_empty_graph(num_nodes, seed):
     """Empty graph gives node_count=0 and is_connected=True."""
     import random
 
-    random.Random(seed)
+    rng = random.Random(seed)
 
     # Create a connected path
-    G = nx.Graph()
+    G = SkeletonGraph()
     for i in range(num_nodes):
-        G.add_node((float(i), float(i)))
+        G.add_node((float(i), float(i)), pos=(float(i), float(i)))
     for i in range(num_nodes - 1):
         G.add_edge((float(i), float(i)), (float(i + 1), float(i + 1)), weight=1.0)
 
-    sk = ChannelSkeleton(graph=G, layer_name="test", total_length=float(max(0, num_nodes - 1)))
+    sk = ChannelSkeleton(
+        graph=G, layer_name="test", total_length=float(max(0, num_nodes - 1))
+    )
     if num_nodes <= 1:
         assert sk.is_connected
     else:
@@ -64,6 +68,6 @@ def test_channel_skeleton_empty_graph(num_nodes, seed):
 @settings(max_examples=100, deadline=30000)
 def test_channel_skeleton_total_length_non_negative(total_length):
     """total_length is non-negative."""
-    G = nx.Graph()
+    G = SkeletonGraph()
     sk = ChannelSkeleton(graph=G, layer_name="test", total_length=total_length)
     assert sk.total_length >= 0

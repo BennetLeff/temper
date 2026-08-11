@@ -183,7 +183,7 @@ class BundleAnalyzer:
     def _compute_median_edge_length(self) -> float:
         lengths = []
         for skeleton in self.skeletons.values():
-            for _u, _v, data in skeleton.graph.edges(data=True):  # type: ignore[attr-defined]
+            for _u, _v, data in skeleton.graph.edges_with_data():  # type: ignore[attr-defined]
                 w = data.get("weight", 1.0)
                 lengths.append(w)
         if not lengths:
