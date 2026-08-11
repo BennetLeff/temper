@@ -77,8 +77,16 @@ constraint-compiler-wasm-test-registry = [
   "temper-constraint-compiler/wasm-test-registry",
 ]
 
+# --- temper-quality-oracle ---------------------------------------------------
+# Optional, same reason again. `default-features = false` turns off `python`.
+quality-oracle-registry = ["dep:temper-quality-oracle"]
+quality-oracle-wasm-test-registry = [
+  "quality-oracle-registry",
+  "temper-quality-oracle/wasm-test-registry",
+]
+
 [dependencies]
-temper-drc-rs = { path = "../temper-drc-rs", default-features = false }
+temper-drc-rs ={ path = "../temper-drc-rs", default-features = false }
 # `default-features = false` for the same reason it is set on temper-drc-rs's
 # own temper-geometry dependency: the `python` default would pull pyo3 in and
 # fail the wasm32-unknown-unknown link step.
@@ -96,6 +104,9 @@ temper-design-bundle = { path = "../temper-design-bundle", optional = true, defa
 temper-rust-router-core = { path = "../temper-rust-router-core", optional = true, default-features = false }
 # `default-features = false` turns off both `python` (pyo3) and `sat`.
 temper-constraint-compiler = { path = "../temper-constraint-compiler", optional = true, default-features = false }
+# `default-features = false` turns off `python` (pyo3), which has no
+# wasm32-unknown-unknown build.
+temper-quality-oracle = { path = "../temper-quality-oracle", optional = true, default-features = false }
 
 [profile.release]
 opt-level = "z"

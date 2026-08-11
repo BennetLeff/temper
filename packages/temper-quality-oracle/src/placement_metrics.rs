@@ -745,8 +745,9 @@ const _: fn() = || {
     let _unused: Option<Cell<u8>> = None;
 };
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     fn boxes(v: &[(f64, f64, f64, f64)]) -> Vec<ClearanceBox> {
@@ -762,7 +763,7 @@ mod tests {
 
     // --- B5: CPython min/max argument-order semantics ---------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_keeps_first_argument_on_nan() {
         assert_eq!(py_max2(0.0, f64::NAN), 0.0);
         assert!(py_max2(f64::NAN, 0.0).is_nan());
@@ -770,7 +771,7 @@ mod tests {
         assert!(py_min2(f64::NAN, 1.0).is_nan());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_signed_zero_is_deterministic() {
         // CPython: `-0.0 > 0.0` is False -> max(0.0, -0.0) is +0.0.
         assert!(py_max2(0.0, -0.0).is_sign_positive());
@@ -780,13 +781,13 @@ mod tests {
 
     // --- B11: numpy pairwise summation ------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pairwise_sum_matches_naive_below_eight() {
         let a: Vec<f64> = (1..8).map(|i| i as f64 * 0.1).collect();
         assert_eq!(numpy_pairwise_sum(&a).to_bits(), naive_sum(&a).to_bits());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pairwise_sum_diverges_from_naive_at_eight() {
         // The whole reason B11 exists: at n == 8 numpy switches to the 8-way
         // unrolled accumulation and stops agreeing with naive addition.
@@ -796,7 +797,7 @@ mod tests {
 
     // --- B12: CPython 3.12 compensated `sum()` -----------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn builtin_sum_is_compensated_not_naive() {
         // Classic Neumaier case: the small terms are lost by naive addition
         // but recovered by the compensation accumulator.
@@ -806,7 +807,7 @@ mod tests {
         assert_ne!(py_builtin_sum(&a).to_bits(), naive_sum(&a).to_bits());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn builtin_sum_differs_from_pairwise_too() {
         // All three summation strategies are distinct; using the wrong one is
         // a silent 1-ulp bug, which is exactly how B12 was found.
@@ -817,19 +818,19 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn builtin_sum_preserves_negative_zero() {
         // CPython's `c == 0.0` exit guard exists for exactly this.
         assert!(py_builtin_sum(&[-0.0]).is_sign_negative());
         assert!(py_builtin_sum(&[-0.0, -0.0]).is_sign_negative());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn builtin_sum_single_element_is_exact() {
         assert_eq!(py_builtin_sum(&[3.5]), 3.5);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pairwise_sum_recurses_above_blocksize() {
         let a: Vec<f64> = (0..300).map(|i| (i as f64).sin()).collect();
         // Structural pin: the split is at the largest multiple of 8 <= n/2.
@@ -838,7 +839,7 @@ mod tests {
         assert_eq!(numpy_pairwise_sum(&a).to_bits(), expected.to_bits());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pairwise_sum_empty_is_zero() {
         assert_eq!(numpy_pairwise_sum(&[]), 0.0);
         assert_eq!(naive_sum(&[]), 0.0);
@@ -847,7 +848,7 @@ mod tests {
 
     // --- B1/B7: `**` is pow, not sqrt/x*x ---------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_pow_is_used_for_squares_and_roots() {
         // Both are exact for these operands, so this pins the *plumbing*
         // (that py_pow resolves and returns sane values), not the ulp.
@@ -855,8 +856,13 @@ mod tests {
         assert_eq!(py_pow(25.0, 0.5), 5.0);
     }
 
-    #[test]
+    // `#[cfg]` above the test attribute, not below it: the wasm32 registry
+    // generator collects a test's own `cfg`s from the contiguous attribute
+    // block *above* `#[test]` so it can repeat them on the registry entry.
+    // Below, the gate still erases the function but the entry naming it
+    // survives, and the `wasm-registry` build fails to resolve the name.
     #[cfg(not(target_arch = "wasm32"))]
+    #[cfg_attr(test, test)]
     fn py_pow_resolves_to_host_libm_not_sqrt() {
         // Anti-vacuity for the whole dlsym mechanism.  These operands were
         // found by search: CPython's `(dx**2 + dy**2) ** 0.5` and
@@ -877,7 +883,7 @@ mod tests {
 
     // --- Empty-input semantics (the vacuity class) -------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn every_aggregate_has_a_pinned_empty_input_value() {
         assert_eq!(
             thermal_score(
@@ -909,7 +915,7 @@ mod tests {
         assert_eq!(connectivity_clustering_score(&[], false), 1.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn hv_lv_empty_one_side_is_still_one() {
         let hv = boxes(&[(0.0, 0.0, 1.0, 1.0)]);
         assert_eq!(hv_lv_clearance_score(&hv, &[], 8.0), 1.0);
@@ -918,7 +924,7 @@ mod tests {
 
     // --- Kernel behaviour --------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn thermal_score_is_one_at_the_edge_and_zero_beyond_max_distance() {
         let b = BoardBounds {
             x_min: 0.0,
@@ -935,7 +941,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn thermal_score_accumulation_order_is_the_callers() {
         // Float addition is not associative; the kernel must not sort or
         // otherwise reorder what it is handed.
@@ -956,14 +962,14 @@ mod tests {
         assert!(fwd.is_finite() && bwd.is_finite());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn zone_compliance_counts_not_positions() {
         assert_eq!(zone_compliance_score(&[true, true]), 1.0);
         assert_eq!(zone_compliance_score(&[true, false]), 0.5);
         assert_eq!(zone_compliance_score(&[false, false]), 0.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn clearance_uses_diagonal_only_when_both_gaps_are_positive() {
         // Overlapping in y -> the kernel takes max(dx, dy), not the diagonal.
         let hv = boxes(&[(0.0, 0.0, 1.0, 1.0)]);
@@ -978,7 +984,7 @@ mod tests {
         assert!(hv_lv_clearance_score(&hv, &lv2, 12.0) < 1.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn dual_rail_counts_every_pair_below_each_threshold() {
         let hv = boxes(&[(0.0, 0.0, 0.5, 0.5)]);
         let lv = boxes(&[(2.0, 0.0, 0.5, 0.5), (20.0, 0.0, 0.5, 0.5)]);
@@ -991,7 +997,7 @@ mod tests {
         assert_eq!(r.clearance_score_6mm, 1.0 / 6.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn loop_area_score_uses_shoelace_and_is_orientation_agnostic() {
         // Unit square, area 1; max_area 100 -> 1 - 0.01 = 0.99
         let ccw = vec![(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)];
@@ -1001,13 +1007,13 @@ mod tests {
         assert_eq!(loop_area_score(&[cw], 100.0), 0.99);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn loop_area_score_saturates_at_zero_beyond_max_area() {
         let big = vec![(0.0, 0.0), (100.0, 0.0), (100.0, 100.0), (0.0, 100.0)];
         assert_eq!(loop_area_score(&[big], 100.0), 0.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn compactness_score_clamps_at_one_when_components_overlap() {
         // Two 10x10 parts stacked on the same point: bbox is 10x10 = 100,
         // component area is 200 -> utilization 2.0, clamped to 1.0.
@@ -1018,12 +1024,12 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn compactness_score_single_component_is_one() {
         assert_eq!(compactness_score(&[(3.0, 4.0)], &[1.0], &[1.0], &[4.0]), 1.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn connectivity_clustering_f32_flag_changes_the_low_bits() {
         // A separation that is not representable in f32 must round when the
         // source array is float32 — this is the whole reason for the flag.
@@ -1045,7 +1051,7 @@ mod tests {
         assert_ne!(as_f64.to_bits(), as_f32.to_bits());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn quality_report_overall_is_the_plain_mean() {
         assert_eq!(quality_report_overall(&[1.0; 7]), 1.0);
         assert_eq!(quality_report_overall(&[0.0; 7]), 0.0);
@@ -1053,7 +1059,7 @@ mod tests {
         assert_eq!(quality_report_overall(&mixed), 4.0 / 7.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn target_edge_parsing_is_case_sensitive_like_the_oracle() {
         assert_eq!(TargetEdge::from_str_exact("TOP"), TargetEdge::Top);
         assert_eq!(TargetEdge::from_str_exact("top"), TargetEdge::Unknown);
@@ -1062,8 +1068,15 @@ mod tests {
 
     // --- proptest: summation strategy properties ---
 
+    // Carries its own `#[cfg(test)]`, redundant under `cargo test` (the parent
+    // `tests` module already has one) but load-bearing for the wasm32 tier: it
+    // makes `scripts/gen_wasm_test_registry.py` census this module separately,
+    // so the `proptest` dev-dependency -- absent from the non-test build the
+    // registry compiles into -- excludes only these properties and not the
+    // parent module's plain `#[test]`s.  Same shape as `temper-thermal`'s.
+    #[cfg(test)]
+    #[allow(clippy::items_after_test_module, clippy::expect_used, clippy::unwrap_used)]
     mod proptests {
-        #![allow(clippy::expect_used, clippy::unwrap_used)]
 
         #[allow(unused_imports)]
         use super::*;
@@ -1370,4 +1383,39 @@ mod tests {
             assert!(py_min2(-0.0, 0.0).is_sign_negative());
         }
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("placement_metrics::tests::py_max_keeps_first_argument_on_nan", py_max_keeps_first_argument_on_nan),
+        ("placement_metrics::tests::py_max_signed_zero_is_deterministic", py_max_signed_zero_is_deterministic),
+        ("placement_metrics::tests::pairwise_sum_matches_naive_below_eight", pairwise_sum_matches_naive_below_eight),
+        ("placement_metrics::tests::pairwise_sum_diverges_from_naive_at_eight", pairwise_sum_diverges_from_naive_at_eight),
+        ("placement_metrics::tests::builtin_sum_is_compensated_not_naive", builtin_sum_is_compensated_not_naive),
+        ("placement_metrics::tests::builtin_sum_differs_from_pairwise_too", builtin_sum_differs_from_pairwise_too),
+        ("placement_metrics::tests::builtin_sum_preserves_negative_zero", builtin_sum_preserves_negative_zero),
+        ("placement_metrics::tests::builtin_sum_single_element_is_exact", builtin_sum_single_element_is_exact),
+        ("placement_metrics::tests::pairwise_sum_recurses_above_blocksize", pairwise_sum_recurses_above_blocksize),
+        ("placement_metrics::tests::pairwise_sum_empty_is_zero", pairwise_sum_empty_is_zero),
+        ("placement_metrics::tests::py_pow_is_used_for_squares_and_roots", py_pow_is_used_for_squares_and_roots),
+        #[cfg(not(target_arch = "wasm32"))] ("placement_metrics::tests::py_pow_resolves_to_host_libm_not_sqrt", py_pow_resolves_to_host_libm_not_sqrt),
+        ("placement_metrics::tests::every_aggregate_has_a_pinned_empty_input_value", every_aggregate_has_a_pinned_empty_input_value),
+        ("placement_metrics::tests::hv_lv_empty_one_side_is_still_one", hv_lv_empty_one_side_is_still_one),
+        ("placement_metrics::tests::thermal_score_is_one_at_the_edge_and_zero_beyond_max_distance", thermal_score_is_one_at_the_edge_and_zero_beyond_max_distance),
+        ("placement_metrics::tests::thermal_score_accumulation_order_is_the_callers", thermal_score_accumulation_order_is_the_callers),
+        ("placement_metrics::tests::zone_compliance_counts_not_positions", zone_compliance_counts_not_positions),
+        ("placement_metrics::tests::clearance_uses_diagonal_only_when_both_gaps_are_positive", clearance_uses_diagonal_only_when_both_gaps_are_positive),
+        ("placement_metrics::tests::dual_rail_counts_every_pair_below_each_threshold", dual_rail_counts_every_pair_below_each_threshold),
+        ("placement_metrics::tests::loop_area_score_uses_shoelace_and_is_orientation_agnostic", loop_area_score_uses_shoelace_and_is_orientation_agnostic),
+        ("placement_metrics::tests::loop_area_score_saturates_at_zero_beyond_max_area", loop_area_score_saturates_at_zero_beyond_max_area),
+        ("placement_metrics::tests::compactness_score_clamps_at_one_when_components_overlap", compactness_score_clamps_at_one_when_components_overlap),
+        ("placement_metrics::tests::compactness_score_single_component_is_one", compactness_score_single_component_is_one),
+        ("placement_metrics::tests::connectivity_clustering_f32_flag_changes_the_low_bits", connectivity_clustering_f32_flag_changes_the_low_bits),
+        ("placement_metrics::tests::quality_report_overall_is_the_plain_mean", quality_report_overall_is_the_plain_mean),
+        ("placement_metrics::tests::target_edge_parsing_is_case_sensitive_like_the_oracle", target_edge_parsing_is_case_sensitive_like_the_oracle),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

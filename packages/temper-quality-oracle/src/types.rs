@@ -260,20 +260,19 @@ pub struct ComponentInfo {
     pub voltage: f64,
 }
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
-    use proptest::prelude::*;
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_normalized_score_valid() {
         assert!(NormalizedScore::new(0.0).is_ok());
         assert!(NormalizedScore::new(0.73).is_ok());
         assert!(NormalizedScore::new(1.0).is_ok());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_normalized_score_out_of_range() {
         assert!(matches!(
             NormalizedScore::new(1.2),
@@ -285,43 +284,57 @@ mod tests {
         ));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_normalized_score_nan() {
         assert!(matches!(NormalizedScore::new(f64::NAN), Err(ScoreError::NaN)));
     }
 
-    proptest! {
-        #[test]
-        fn pbt_normalized_score_bounds(v in prop::num::f64::ANY) {
-            let result = NormalizedScore::new(v);
-            if v.is_nan() {
-                prop_assert!(result.is_err());
-            } else if !(0.0..=1.0).contains(&v) {
-                prop_assert!(result.is_err());
-            } else {
-                prop_assert!(result.is_ok());
-                prop_assert!((result.unwrap().value() - v).abs() < 1e-15);
-            }
-        }
+    // The properties live in their own `#[cfg(test)] mod proptests`, as in
+    // `classification.rs` and the crate's five other property suites.  The
+    // gate is redundant under `cargo test` but load-bearing for the wasm32
+    // tier: it lets `scripts/gen_wasm_test_registry.py` census the `proptest`
+    // dev-dependency separately, so it excludes only these properties and
+    // not this module's plain `#[test]`s.
+    #[cfg(test)]
+    #[allow(clippy::items_after_test_module, clippy::expect_used, clippy::unwrap_used)]
+    mod proptests {
 
-        #[test]
-        fn pbt_netclass_roundtrip(class in prop::sample::select(&[
-            NetClass::Ground, NetClass::Power, NetClass::HighVoltage,
-            NetClass::Differential, NetClass::HighCurrent, NetClass::GateDrive,
-            NetClass::Signal,
-        ])) {
-            let s = class.as_str();
-            let found: Vec<_> = [
+        use super::*;
+        use proptest::prelude::*;
+
+        proptest! {
+            #[test]
+            fn pbt_normalized_score_bounds(v in prop::num::f64::ANY) {
+                let result = NormalizedScore::new(v);
+                if v.is_nan() {
+                    prop_assert!(result.is_err());
+                } else if !(0.0..=1.0).contains(&v) {
+                    prop_assert!(result.is_err());
+                } else {
+                    prop_assert!(result.is_ok());
+                    prop_assert!((result.unwrap().value() - v).abs() < 1e-15);
+                }
+            }
+
+            #[test]
+            fn pbt_netclass_roundtrip(class in prop::sample::select(&[
                 NetClass::Ground, NetClass::Power, NetClass::HighVoltage,
                 NetClass::Differential, NetClass::HighCurrent, NetClass::GateDrive,
                 NetClass::Signal,
-            ].iter().filter(|c| c.as_str() == s).collect();
-            prop_assert_eq!(found.len(), 1);
-            prop_assert_eq!(*found[0], class);
+            ])) {
+                let s = class.as_str();
+                let found: Vec<_> = [
+                    NetClass::Ground, NetClass::Power, NetClass::HighVoltage,
+                    NetClass::Differential, NetClass::HighCurrent, NetClass::GateDrive,
+                    NetClass::Signal,
+                ].iter().filter(|c| c.as_str() == s).collect();
+                prop_assert_eq!(found.len(), 1);
+                prop_assert_eq!(*found[0], class);
+            }
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_quality_metrics_from_precomputed() {
         let pre = PrecomputedMetrics {
             thermal_score: 0.9,
@@ -338,7 +351,7 @@ mod tests {
         assert_eq!(metrics.total_wirelength_mm, 150.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_quality_metrics_rejects_bad_score() {
         let pre = PrecomputedMetrics {
             thermal_score: 1.5,
@@ -353,14 +366,14 @@ mod tests {
         assert!(QualityMetrics::from_precomputed(&pre).is_err());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_netclass_as_str() {
         assert_eq!(NetClass::Ground.as_str(), "ground");
         assert_eq!(NetClass::HighVoltage.as_str(), "high_voltage");
         assert_eq!(NetClass::Signal.as_str(), "signal");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_verdict_pass() {
         let metrics = QualityMetrics::from_precomputed(&PrecomputedMetrics {
             thermal_score: 0.5,
@@ -376,4 +389,20 @@ mod tests {
         assert!(verdict.is_pass());
         assert!((verdict.metrics().overall_score.value() - 0.5).abs() < 1e-10);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("types::tests::test_normalized_score_valid", test_normalized_score_valid),
+        ("types::tests::test_normalized_score_out_of_range", test_normalized_score_out_of_range),
+        ("types::tests::test_normalized_score_nan", test_normalized_score_nan),
+        ("types::tests::test_quality_metrics_from_precomputed", test_quality_metrics_from_precomputed),
+        ("types::tests::test_quality_metrics_rejects_bad_score", test_quality_metrics_rejects_bad_score),
+        ("types::tests::test_netclass_as_str", test_netclass_as_str),
+        ("types::tests::test_verdict_pass", test_verdict_pass),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
