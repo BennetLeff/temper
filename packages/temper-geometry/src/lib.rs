@@ -262,6 +262,13 @@ pub mod placement_topology;
 // placement_topology (this file's tail) so appends cannot rewrite a
 // parallel agent's lines.
 pub mod kicad_transform;
+// Property campaign (R7 / WASM-tier volume): metamorphic/invariant
+// properties over three pure, deterministic kernels -- kicad_transform's
+// rotation convention, convex_hull's hull area, and connected_components'
+// 8-connected labeling. See that module's doc comment. Declared after
+// kicad_transform (which it depends on) and before units (this file's
+// tail) so appends cannot rewrite a parallel agent's lines.
+pub mod property_campaigns;
 // Wave 4 Phase A: core/units.py's `Mm`, `Mil`, `Inch` newtype wrappers and
 // the mm/mil/inch conversion kernels. See units.rs's module doc for why the
 // existing units.py kernels are NOT re-migrated here (they live in
