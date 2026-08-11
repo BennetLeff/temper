@@ -2238,3 +2238,17 @@ scripts:
   category: keep
   disposition: utility
   imports: []
+- path: generate_ground_plane.py
+  purpose: "Ground-plane keepout-before-pour generation (router_v6._ground_plane)"
+  owner: bennet
+  last_run: "2026-08-11"
+  category: keep
+  disposition: utility
+  imports: []
+- path: spike_2026_08_11_inprocess_netbatch.py
+  purpose: "Spike: in-process net-batching measurement (2026-08-11)"
+  owner: bennet
+  last_run: "2026-08-11"
+  category: keep
+  disposition: spike
+  imports: []
