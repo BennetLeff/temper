@@ -8,7 +8,7 @@
 //! | `deterministic/stages/_phase_rotation.py` | [`effective_ghost_pad_radius`] |
 //! | `deterministic/stages/_phase_zones.py` | [`compute_wirelength`] |
 //! | `deterministic/stages/_phase_validation.py` | [`find_critical_bottleneck_violations`] |
-//! | `deterministic/stages/zone_aware_slot_generation.py` | [`point_in_polygon`], [`slot_intersects_iso`], [`point_to_segment_distance`], [`min_distance_to_polygon`] |
+//! | `deterministic/stages/zone_aware_slot_generation.py` | [`point_in_polygon`], [`slot_intersects_iso`], [`min_distance_to_polygon`] (over temper-geometry's canonical point-to-segment kernel, issue #987) |
 //!
 //! The pre-migration implementations are pinned VERBATIM as the differential
 //! oracles in `packages/temper-placer/tests/deterministic/stages/`
@@ -26,10 +26,14 @@
 //!   double-double `vector_norm`; [`effective_ghost_pad_radius`] uses
 //!   [`crate::host_math::hypot`], and the differential pins the known
 //!   last-ulp divergence operand pair.
-//! - **`** 0.5` is libm `pow`, NOT `sqrt`**: [`point_to_segment_distance`]
-//!   closes with `pow(pow(px-cx, 2.0) + pow(py-cy, 2.0), 0.5)`; `sqrt` and
-//!   `pow(_, 0.5)` differ by 1 ulp on a measurable input class (pinned by
-//!   `test_ptsd_pow_vs_sqrt_discriminating_operand`).
+//! - **`** 0.5` is libm `pow`, NOT `sqrt`**: the Wave-4
+//!   `point_to_segment_distance` reimplementation used to close with
+//!   `pow(pow(px-cx, 2.0) + pow(py-cy, 2.0), 0.5)`; `sqrt` and `pow(_, 0.5)`
+//!   differ by 1 ulp on a measurable input class (pinned by
+//!   `test_ptsd_pow_vs_sqrt_discriminating_operand`). That kernel was
+//!   DELETED on 2026-08-11 (issue #987); [`min_distance_to_polygon`] now
+//!   delegates to temper-geometry's canonical hypot contract (see
+//!   `docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md`).
 //! - **`bn.severity` reads the LAST bottleneck** in
 //!   [`find_critical_bottleneck_violations`]: the violation dict's `severity`
 //!   key is the first loop's trailing `bn`, NOT the matched cell — pinned
@@ -48,7 +52,7 @@ use pyo3::exceptions::{PyOverflowError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
 
-use crate::host_math::{pow, py_max, py_min};
+use crate::host_math::{py_max, py_min};
 
 /// Wrap a pyo3 boundary body so a Rust panic surfaces as a Python
 /// `RuntimeError` instead of aborting the interpreter (G7 / R1g
@@ -505,52 +509,15 @@ pub fn slot_intersects_iso_py(
     })
 }
 
-/// The `RoutingChannelAwareSlotStage._point_to_segment_distance` — projection
-/// onto the segment with the oracle's EXACT expression order.
-///
-/// Both the `l2 == 0` branch and the final close use `** 2` / `** 0.5`
-/// (libm `pow`), NOT `sqrt` — `pow(s, 0.5)` and `sqrt(s)` differ by 1 ulp on
-/// a measurable input class. `t` is clamped with `py_max(0.0, py_min(1.0, ...))`.
-pub fn point_to_segment_distance(
-    px: f64,
-    py: f64,
-    p1: (f64, f64),
-    p2: (f64, f64),
-) -> f64 {
-    let (x1, y1) = p1;
-    let (x2, y2) = p2;
-
-    let dx = x2 - x1;
-    let dy = y2 - y1;
-
-    let l2 = dx * dx + dy * dy;
-
-    if l2 == 0.0 {
-        return pow(pow(px - x1, 2.0) + pow(py - y1, 2.0), 0.5);
-    }
-
-    let t = py_max(0.0, py_min(1.0, ((px - x1) * dx + (py - y1) * dy) / l2));
-
-    let proj_x = x1 + t * dx;
-    let proj_y = y1 + t * dy;
-
-    pow(pow(px - proj_x, 2.0) + pow(py - proj_y, 2.0), 0.5)
-}
-
-/// Python-visible `point_to_segment_distance(px, py, seg_start, seg_end)`.
-#[pyfunction]
-pub fn point_to_segment_distance_py(
-    px: f64,
-    py: f64,
-    seg_start: (f64, f64),
-    seg_end: (f64, f64),
-) -> PyResult<f64> {
-    guard(|| Ok(point_to_segment_distance(px, py, seg_start, seg_end)))
-}
-
 /// The `RoutingChannelAwareSlotStage._min_distance_to_polygon` — min
 /// point-to-segment distance over the polygon edges in order; `float("inf")`
 /// sentinel and `len < 2` -> `inf`, matching the oracle.
+///
+/// The inner distance is temper-geometry's canonical point-to-segment kernel
+/// (issue #987); the Wave-4 reimplementation this module used to carry
+/// (`pow`/`** 0.5` close) was deleted — its ≤1-ulp divergence is documented
+/// in
+/// `docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md`.
 pub fn min_distance_to_polygon(x: f64, y: f64, polygon: &[(f64, f64)]) -> f64 {
     if polygon.len() < 2 {
         return f64::INFINITY;
@@ -562,7 +529,9 @@ pub fn min_distance_to_polygon(x: f64, y: f64, polygon: &[(f64, f64)]) -> f64 {
     for i in 0..n {
         let p1 = polygon[i];
         let p2 = polygon[(i + 1) % n];
-        let dist = point_to_segment_distance(x, y, p1, p2);
+        let dist = temper_geometry::creepage_check::point_to_segment_distance(
+            x, y, p1.0, p1.1, p2.0, p2.1,
+        );
         min_dist = py_min(min_dist, dist);
     }
 
@@ -601,7 +570,6 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(find_critical_bottleneck_violations_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(point_in_polygon_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(slot_intersects_iso_py, &sub)?)?;
-    sub.add_function(wrap_pyfunction!(point_to_segment_distance_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(min_distance_to_polygon_py, &sub)?)?;
     module.add_submodule(&sub)
 }
@@ -744,17 +712,6 @@ mod tests {
     fn point_in_polygon_degenerate() {
         assert!(!point_in_polygon(5.0, 5.0, &[(0.0, 0.0), (10.0, 10.0)]));
         assert!(!point_in_polygon(5.0, 5.0, &[]));
-    }
-
-    #[test]
-    fn point_to_segment_projection_clamps() {
-        assert_eq!(point_to_segment_distance(0.0, 1.0, (0.0, 0.0), (2.0, 0.0)), 1.0);
-        assert_eq!(point_to_segment_distance(-1.0, 1.0, (0.0, 0.0), (1.0, 0.0)), sqrt(2.0));
-    }
-
-    #[test]
-    fn point_to_segment_degenerate_segment() {
-        assert_eq!(point_to_segment_distance(3.0, 4.0, (0.0, 0.0), (0.0, 0.0)), 5.0);
     }
 
     #[test]
