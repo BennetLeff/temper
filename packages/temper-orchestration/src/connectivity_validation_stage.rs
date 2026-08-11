@@ -18,19 +18,27 @@
 // - the `ConnectivityViolation` dataclass and the router_v6 `Point` class,
 // - `logging` for the summary lines.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::d6_util;
+#[cfg(feature = "python")]
 use crate::derivation_stage::stage_guard;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError, StageErrorKind};
 
 const STAGE_NAME: &str = "connectivity_validation";
 const LOGGER_NAME: &str = "temper_placer.deterministic.stages.connectivity_validation";
 
+#[cfg(feature = "python")]
 /// A fresh `{"pads": [], "tracks": [], "vias": []}` per-net sub-dict (the
 /// oracle's grouping value).
 fn empty_sub<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
@@ -48,6 +56,7 @@ pub struct ConnectivityValidationStage {
     pub fail_on_violations: bool,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ConnectivityValidationStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -58,6 +67,7 @@ impl Stage<BoardState> for ConnectivityValidationStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl ConnectivityValidationStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> Result<BoardState, StageError> {
         let oracle = match &state.drc_oracle {
@@ -310,6 +320,7 @@ impl ConnectivityValidationStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_connectivity_validation(state,
 /// fail_on_violations)` -> `(state, message)`.
 #[pyfunction]

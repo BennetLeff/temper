@@ -27,16 +27,24 @@
 //   so the established monkey-patch tests keep working; the shims delegate
 //   to the Rust kernels in grid_fence.rs.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::derivation_stage::pyerr_stage;
+#[cfg(feature = "python")]
 use crate::grid_hv::{getattr_default, py_float, str_of};
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
+#[cfg(feature = "python")]
 /// The clearance-grid stage: board + netlist -> `BoardState.grid`.
 #[derive(Debug, Clone)]
 pub struct ClearanceGridStage {
@@ -53,6 +61,7 @@ pub struct ClearanceGridStage {
     pub default_trace_width_mm: f64,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ClearanceGridStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("clearance_grid")
@@ -63,6 +72,7 @@ impl Stage<BoardState> for ClearanceGridStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl ClearanceGridStage {
     /// Panic-guarded `run_inner`: a Rust panic is converted to a Python
     /// RuntimeError rather than unwinding through the pyo3 frame (the plan's
@@ -147,6 +157,7 @@ impl ClearanceGridStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_clearance_grid_stage(...)`.
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
@@ -186,6 +197,7 @@ pub fn run_clearance_grid_stage(
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["grid"])
 }
 
+#[cfg(feature = "python")]
 fn empty_or<'py>(
     py: Python<'py>,
     opt: &Option<Py<PyAny>>,
@@ -197,6 +209,7 @@ fn empty_or<'py>(
     }
 }
 
+#[cfg(feature = "python")]
 /// `dict(state.placements) if state.placements else {}` -- the placements
 /// lookup dict (an EMPTY dict, not None, on the falsy branch).
 fn placements_dict(py: Python<'_>, state: &BoardState) -> PyResult<Py<PyAny>> {
@@ -215,6 +228,7 @@ fn placements_dict(py: Python<'_>, state: &BoardState) -> PyResult<Py<PyAny>> {
 // Pad collection + per-net blocking
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// The `if state.netlist:` blocking block: build `net_pads` (net name ->
 /// list of pad dicts) and the `all_pads_for_expansion` list, then block
 /// every pad with its net-class-aware per-layer clearance. Returns the pad
@@ -401,6 +415,7 @@ fn block_pads<'py>(
 // HV creepage expansion pass
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// The pre-route creepage expansion: resolve the HV pad set, then re-block
 /// each HV pad with its per-layer effective creepage distance, appending an
 /// entry to `_grid_fence._EXPANSION_LOG`.
@@ -552,6 +567,7 @@ fn hv_expansion<'py>(
 // Fence + exclusion zones
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// The U3 fence block: call `_grid_fence.check_clearance_grid_conservatism`
 /// through the PYTHON module (the monkey-patch seam), raise `FenceViolation`
 /// on a miss, then the soft perf-budget warning.
@@ -593,6 +609,7 @@ fn run_fence(
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// EXP-13: block each excluded net's zone on all layers with direct numpy
 /// writes (`arr[row, col] = -2`, preserving the oracle's per-cell guard and
 /// its lack of cache invalidation).
@@ -665,6 +682,7 @@ fn exclusion_zones(
 // Helpers
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `dict.get(key)` -> the value or `None`.
 fn dict_get<'py>(
     py: Python<'py>,
@@ -679,6 +697,7 @@ fn dict_get<'py>(
     }
 }
 
+#[cfg(feature = "python")]
 /// `int(round(rotation)) % 180` -- CPython's `round` (banker's rounding),
 /// applied to the ORIGINAL rotation object, then truncated and reduced.
 fn py_round_mod180(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<i64> {
@@ -696,12 +715,14 @@ fn py_max(a: f64, b: f64) -> f64 {
     }
 }
 
+#[cfg(feature = "python")]
 fn py_int(py: Python<'_>, v: i64) -> Py<PyAny> {
     v.into_pyobject(py)
         .map(|b| b.into_any().unbind())
         .unwrap_or_else(|_| py.None())
 }
 
+#[cfg(feature = "python")]
 /// The oracle's `target_layers` selection from a pin.
 fn target_layers<'py>(
     py: Python<'py>,
@@ -736,6 +757,7 @@ fn target_layers<'py>(
     Ok(list)
 }
 
+#[cfg(feature = "python")]
 /// `dict.items()` in insertion order.
 fn dict_items(
     py: Python<'_>,
@@ -751,6 +773,7 @@ fn dict_items(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// The net-class-aware per-layer clearance lookup (with the inner-layer cap).
 #[allow(clippy::too_many_arguments)]
 fn get_clearance_for_net<'py>(
@@ -811,16 +834,16 @@ fn get_clearance_for_net<'py>(
 // Tests
 // ---------------------------------------------------------------------------
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     // -- py_max ------------------------------------------------------------
 
     /// CPython `max(NaN, x)` returns NaN; `max(x, NaN)` returns x.
     /// Replicate exactly: first arg wins on NaN.
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_nan_first_argument_wins() {
         assert!(py_max(f64::NAN, 1.0).is_nan());
         assert_eq!(py_max(1.0, f64::NAN), 1.0);
@@ -828,7 +851,7 @@ mod tests {
     }
 
     /// CPython `max` keeps the first argument on tie, including -0.0 vs +0.0.
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_ties_keep_first() {
         assert_eq!(py_max(0.0, -0.0), 0.0);
         // -0.0 is the first argument -> returned
@@ -840,7 +863,7 @@ mod tests {
     }
 
     /// CPython `max` on infinity works like the conventional max.
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_infinity() {
         assert_eq!(py_max(f64::INFINITY, 0.0), f64::INFINITY);
         assert_eq!(py_max(0.0, f64::INFINITY), f64::INFINITY);
@@ -852,10 +875,56 @@ mod tests {
         assert!(py_max(f64::NAN, f64::NEG_INFINITY).is_nan());
     }
 
+    /// `is_inner_layer` helper (inline in get_clearance_for_net).
+    fn is_inner_layer(layer: i64, layer_count: i64) -> bool {
+        0 < layer && layer < layer_count - 1
+    }
+
+    #[cfg_attr(test, test)]
+    fn inner_layer_logic() {
+        // 2-layer: no inner
+        assert!(!is_inner_layer(0, 2));
+        assert!(!is_inner_layer(1, 2));
+        // 4-layer: layers 1 and 2 are inner
+        assert!(!is_inner_layer(0, 4));
+        assert!(is_inner_layer(1, 4));
+        assert!(is_inner_layer(2, 4));
+        assert!(!is_inner_layer(3, 4));
+        // degenerate
+        assert!(!is_inner_layer(0, 1));
+        assert!(!is_inner_layer(0, 0));
+        assert!(!is_inner_layer(1, 0));
+    }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("grid_stage::tests::py_max_nan_first_argument_wins", py_max_nan_first_argument_wins),
+        ("grid_stage::tests::py_max_ties_keep_first", py_max_ties_keep_first),
+        ("grid_stage::tests::py_max_infinity", py_max_infinity),
+        ("grid_stage::tests::inner_layer_logic", inner_layer_logic),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
+}
+
+// `proptest` is a dev-dependency (present under `cargo test`, absent from the
+// ordinary non-test build `wasm_test_registry.rs` compiles into), so these
+// three properties live in their own `#[cfg(test)]` sibling module -- exactly
+// the split `copper_length.rs`/`timing.rs`/`host_math.rs` already use --
+// rather than inline inside `tests` above, so `gen_wasm_test_registry.py`'s
+// per-module `proptest-dev-dependency` exclusion only drops these three
+// properties instead of the whole module's otherwise-pure `py_max` tests.
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
     /// P1: py_max returns the conventional maximum for non-NaN f64 values.
     #[test]
     fn p1_py_max_returns_larger() {
-        use proptest::prelude::*;
         proptest!(|(a: f64, b: f64)| {
             prop_assume!(!a.is_nan() && !b.is_nan());
             let r = py_max(a, b);
@@ -867,7 +936,6 @@ mod tests {
     /// P2: py_max returns one of its arguments (bit-identical).
     #[test]
     fn p2_py_max_returns_one_of_inputs() {
-        use proptest::prelude::*;
         proptest!(|(a: f64, b: f64)| {
             let r = py_max(a, b);
             // For NaN inputs, either both are NaN (then r is NaN, bits match)
@@ -888,31 +956,9 @@ mod tests {
     /// P3: For non-NaN inputs, py_max is commutative.
     #[test]
     fn p3_py_max_commutative_for_finite() {
-        use proptest::prelude::*;
         proptest!(|(a: f64, b: f64)| {
             prop_assume!(!a.is_nan() && !b.is_nan());
             assert_eq!(py_max(a, b), py_max(b, a));
         });
-    }
-
-    /// `is_inner_layer` helper (inline in get_clearance_for_net).
-    fn is_inner_layer(layer: i64, layer_count: i64) -> bool {
-        0 < layer && layer < layer_count - 1
-    }
-
-    #[test]
-    fn inner_layer_logic() {
-        // 2-layer: no inner
-        assert!(!is_inner_layer(0, 2));
-        assert!(!is_inner_layer(1, 2));
-        // 4-layer: layers 1 and 2 are inner
-        assert!(!is_inner_layer(0, 4));
-        assert!(is_inner_layer(1, 4));
-        assert!(is_inner_layer(2, 4));
-        assert!(!is_inner_layer(3, 4));
-        // degenerate
-        assert!(!is_inner_layer(0, 1));
-        assert!(!is_inner_layer(0, 0));
-        assert!(!is_inner_layer(1, 0));
     }
 }

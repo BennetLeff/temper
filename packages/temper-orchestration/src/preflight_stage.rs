@@ -29,22 +29,32 @@
 // (recorded in VERIFICATION.md): `config` is the constraints carrier,
 // `violations` the report carrier. Field types are NOT tightened (D2).
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
+#[cfg(feature = "python")]
 use std::time::Instant;
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyAttributeError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyFloat, PyList, PyString};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{missing_field, pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::feasibility;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 /// The preflight stage: board + netlist + constraints -> preflight report.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct PreflightStage;
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for PreflightStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("preflight")
@@ -98,6 +108,7 @@ impl Stage<BoardState> for PreflightStage {
 // the five kernel-backed checks (each returns a report-check dict)
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `_check_component_area`: the `component_area_ratio` kernel + the Python
 /// message f-string (`Fill ratio {ratio:.1%}`, rendered by calling CPython's
 /// `format()` — parity by identity).
@@ -129,6 +140,7 @@ fn component_area_check(
     )
 }
 
+#[cfg(feature = "python")]
 /// `_check_constraint_satisfiability`: the `proximity_rule_impossible`
 /// kernel + the Python message/issue f-strings (CPython `str()` /
 /// `format()` for parity by identity).
@@ -203,6 +215,7 @@ fn constraint_satisfiability_check(
     )
 }
 
+#[cfg(feature = "python")]
 /// `_check_zone_capacity`: the `zone_over_capacity` kernel per zone.
 fn zone_capacity_check(
     py: Python<'_>,
@@ -249,6 +262,7 @@ fn zone_capacity_check(
     )
 }
 
+#[cfg(feature = "python")]
 /// `_check_loop_area_feasibility`: the `loop_area_violation` kernel per
 /// critical loop (WARN class, like the Python module).
 fn loop_area_feasibility_check(
@@ -320,6 +334,7 @@ fn loop_area_feasibility_check(
     )
 }
 
+#[cfg(feature = "python")]
 /// `_check_isolation_feasibility`: the `isolation_barrier_too_large` kernel
 /// behind the HV-present gate.
 fn isolation_feasibility_check(
@@ -374,6 +389,7 @@ fn isolation_feasibility_check(
 // marshalling helpers (Python-object semantics preserved by identity)
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// Build a check dict: `{name, result, message, details, time_ms}`.
 fn check_dict(
     py: Python<'_>,
@@ -395,6 +411,7 @@ fn check_dict(
     Ok(check.into_any().unbind())
 }
 
+#[cfg(feature = "python")]
 /// Assemble the PreflightReport-shaped dict and compute the overall verdict
 /// (FAIL if any FAIL, elif any WARN -> WARN, else PASS).
 fn build_report(py: Python<'_>, checks: Vec<Py<PyAny>>, total_time_ms: f64) -> PyResult<Py<PyAny>> {
@@ -416,6 +433,7 @@ fn build_report(py: Python<'_>, checks: Vec<Py<PyAny>>, total_time_ms: f64) -> P
     Ok(report.into_any().unbind())
 }
 
+#[cfg(feature = "python")]
 /// All component (width, height) dims, in netlist order.
 fn component_dims(py: Python<'_>, netlist: &Bound<'_, PyAny>) -> PyResult<Vec<(f64, f64)>> {
     let components = as_vec(&netlist.getattr("components")?)?;
@@ -430,6 +448,7 @@ fn component_dims(py: Python<'_>, netlist: &Bound<'_, PyAny>) -> PyResult<Vec<(f
         .collect()
 }
 
+#[cfg(feature = "python")]
 /// Length-4 keepout dims (the `len(k) == 4` filter stays here — Python
 /// object marshalling).
 fn keepout_dims(py: Python<'_>, board: &Bound<'_, PyAny>) -> PyResult<Vec<(f64, f64)>> {
@@ -444,6 +463,7 @@ fn keepout_dims(py: Python<'_>, board: &Bound<'_, PyAny>) -> PyResult<Vec<(f64, 
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// Component dims whose zone attribute equals `zone`'s name (the Python
 /// `getattr(c, "zone", "") == zone.name` filter).
 fn zone_content_dims(
@@ -465,6 +485,7 @@ fn zone_content_dims(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// Component dims for refs present in the comp map (the Python
 /// `[comp_map[r] for r in refs if r in comp_map]` filter).
 fn ref_content_dims(
@@ -484,6 +505,7 @@ fn ref_content_dims(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// Python iterable -> Vec of owned objects.
 fn as_vec(obj: &Bound<'_, PyAny>) -> PyResult<Vec<Py<PyAny>>> {
     let mut out = Vec::new();
@@ -493,6 +515,7 @@ fn as_vec(obj: &Bound<'_, PyAny>) -> PyResult<Vec<Py<PyAny>>> {
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// `hasattr`-flavoured getattr: `None` when the attribute is missing.
 fn opt_getattr<'py>(
     py: Python<'py>,
@@ -506,6 +529,7 @@ fn opt_getattr<'py>(
     }
 }
 
+#[cfg(feature = "python")]
 /// `getattr(obj, name, default)` — the Python defaulting.
 fn opt_getattr_default<'py>(
     py: Python<'py>,
@@ -520,19 +544,23 @@ fn opt_getattr_default<'py>(
     }
 }
 
+#[cfg(feature = "python")]
 fn py_string(py: Python<'_>, s: &str) -> Py<PyAny> {
     PyString::new(py, s).into_any().unbind()
 }
 
+#[cfg(feature = "python")]
 fn py_float(py: Python<'_>, f: f64) -> Py<PyAny> {
     PyFloat::new(py, f).into_any().unbind()
 }
 
+#[cfg(feature = "python")]
 /// CPython `str(value)` — the f-string `{value}` rendering.
 fn py_str(value: &Bound<'_, PyAny>) -> PyResult<String> {
     value.str()?.extract::<String>()
 }
 
+#[cfg(feature = "python")]
 /// CPython `format(value, spec)` — the exact `f"{value:.1%}"` / `:.1f`
 /// rendering (David-Gay semantics that Rust's `{:.N}` does not reproduce).
 fn py_format(py: Python<'_>, value: f64, spec: &str) -> PyResult<String> {
@@ -543,6 +571,7 @@ fn py_format(py: Python<'_>, value: f64, spec: &str) -> PyResult<String> {
         .extract::<String>()
 }
 
+#[cfg(feature = "python")]
 fn py_list(py: Python<'_>) -> Py<PyAny> {
     PyList::empty(py).into_any().unbind()
 }

@@ -35,10 +35,43 @@
 //! `tests/placer/cp_sat/test_encoder_rust_differential.py` and
 //! `test_encoder_rust_pbt.py` (Wave 3 #4).
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::{PyOverflowError, PyRuntimeError, PyValueError};
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use std::panic::{self};
 
+/// Non-finite or overflowing input to [`mm_to_units`] -- mirrors CPython
+/// `int(round(x))`'s own two failure modes (`OverflowError` for `±inf`,
+/// `ValueError` for `NaN`) as a plain Rust type, so the pure kernel does not
+/// need pyo3's exception types (and therefore does not need pyo3 itself) to
+/// report them.  The `#[cfg(feature = "python")]` wrappers below convert to
+/// the matching `PyErr`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum UnitConversionError {
+    /// Mirrors CPython `int(round(nan))` -> `ValueError`.
+    NotANumber,
+    /// Mirrors CPython `int(round(±inf))` -> `OverflowError`.
+    Overflow,
+}
+
+impl std::fmt::Display for UnitConversionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            UnitConversionError::NotANumber => {
+                write!(f, "cannot convert float NaN to integer")
+            }
+            UnitConversionError::Overflow => {
+                write!(f, "cannot convert float infinity to integer")
+            }
+        }
+    }
+}
+
+impl std::error::Error for UnitConversionError {}
+
+#[cfg(feature = "python")]
 fn catch_unwind<T>(f: impl FnOnce() -> PyResult<T>) -> PyResult<T> {
     match panic::catch_unwind(panic::AssertUnwindSafe(f)) {
         Ok(result) => result,
@@ -65,15 +98,13 @@ fn catch_unwind<T>(f: impl FnOnce() -> PyResult<T>) -> PyResult<T> {
 /// The even parity is REQUIRED by the model's midpoint constraint
 /// `x_start + x_end == 2 * x_center`: sizes must be even so
 /// `2 * x_start + x_size` is even, matching `2 * x_center`.
-fn mm_to_units(mm: f64, units_per_mm: i64) -> PyResult<i64> {
+fn mm_to_units(mm: f64, units_per_mm: i64) -> Result<i64, UnitConversionError> {
     if !mm.is_finite() {
         // CPython int(round(x)): inf -> OverflowError, NaN -> ValueError.
         if mm.is_nan() {
-            return Err(PyValueError::new_err("cannot convert float NaN to integer"));
+            return Err(UnitConversionError::NotANumber);
         }
-        return Err(PyOverflowError::new_err(
-            "cannot convert float infinity to integer",
-        ));
+        return Err(UnitConversionError::Overflow);
     }
     let scaled = mm * units_per_mm as f64;
     let rounded = scaled.round_ties_even();
@@ -82,9 +113,7 @@ fn mm_to_units(mm: f64, units_per_mm: i64) -> PyResult<i64> {
     // int).  `i64::MAX as f64` is exactly 2^63, so the comparison is
     // precise at the boundary.
     if !(rounded >= i64::MIN as f64 && rounded < i64::MAX as f64) {
-        return Err(PyOverflowError::new_err(
-            "integer conversion resulted in overflow",
-        ));
+        return Err(UnitConversionError::Overflow);
     }
     let raw = rounded as i64;
     // Python `raw - (raw % 2) if raw % 2 else raw`: `%` is *floor*
@@ -156,7 +185,7 @@ fn keepout_rect_units(
     zy_max: f64,
     margin_mm: f64,
     units_per_mm: i64,
-) -> PyResult<(i64, i64, i64, i64)> {
+) -> Result<(i64, i64, i64, i64), UnitConversionError> {
     let margin_u = mm_to_units(margin_mm, units_per_mm)?;
     let kx_s = mm_to_units(zx_min, units_per_mm)? - margin_u;
     let ky_s = mm_to_units(zy_min, units_per_mm)? - margin_u;
@@ -169,26 +198,43 @@ fn keepout_rect_units(
 // PyO3 bridge
 // ---------------------------------------------------------------------------
 
-#[pyfunction]
-pub fn mm_to_units_py(mm: f64, units_per_mm: i64) -> PyResult<i64> {
-    catch_unwind(|| mm_to_units(mm, units_per_mm))
+/// [`UnitConversionError`] -> the matching pyo3 exception type, at the one
+/// point the pure kernel's plain error crosses into the Python boundary.
+#[cfg(feature = "python")]
+impl From<UnitConversionError> for PyErr {
+    fn from(e: UnitConversionError) -> PyErr {
+        match e {
+            UnitConversionError::NotANumber => PyValueError::new_err(e.to_string()),
+            UnitConversionError::Overflow => PyOverflowError::new_err(e.to_string()),
+        }
+    }
 }
 
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn mm_to_units_py(mm: f64, units_per_mm: i64) -> PyResult<i64> {
+    catch_unwind(|| Ok(mm_to_units(mm, units_per_mm)?))
+}
+
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn units_to_mm_py(units: i64, units_per_mm: i64) -> PyResult<f64> {
     catch_unwind(|| Ok(units_to_mm(units, units_per_mm)))
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn courtyard_clearance_mm_py(default_clearance_mm: f64, mask_expansion_mm: f64) -> PyResult<f64> {
     catch_unwind(|| Ok(courtyard_clearance_mm(default_clearance_mm, mask_expansion_mm)))
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn required_margin_mm_py(clearance_mm: f64, creepage_mm: f64) -> PyResult<f64> {
     catch_unwind(|| Ok(required_margin_mm(clearance_mm, creepage_mm)))
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 pub fn keepout_rect_units_py(
@@ -199,15 +245,15 @@ pub fn keepout_rect_units_py(
     margin_mm: f64,
     units_per_mm: i64,
 ) -> PyResult<(i64, i64, i64, i64)> {
-    catch_unwind(|| keepout_rect_units(zx_min, zy_min, zx_max, zy_max, margin_mm, units_per_mm))
+    catch_unwind(|| Ok(keepout_rect_units(zx_min, zy_min, zx_max, zy_max, margin_mm, units_per_mm)?))
 }
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used)] // tests may unwrap; failures surface as test panics
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn mm_to_units_known_points() {
         assert_eq!(mm_to_units(10.0, 100).unwrap(), 1000);
         assert_eq!(mm_to_units(0.1, 100).unwrap(), 10);
@@ -216,7 +262,7 @@ mod tests {
         assert_eq!(mm_to_units(-3.0, 100).unwrap(), -300);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn mm_to_units_ties_round_half_even() {
         // mm*u exactly k+0.5 (mm = m/8, m odd): 12.5 -> 12, 37.5 -> 38.
         assert_eq!(mm_to_units(0.125, 100).unwrap(), 12);
@@ -224,7 +270,7 @@ mod tests {
         assert_eq!(mm_to_units(0.625, 100).unwrap(), 62);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn mm_to_units_odd_raw_even_adjusted() {
         // 31.25 -> round 31 -> odd -> 30; 0.155*100 = 15.5 exactly
         // (0.155 is stored just above 0.155, the product rounds to 15.5)
@@ -233,7 +279,7 @@ mod tests {
         assert_eq!(mm_to_units(0.155, 100).unwrap(), 16);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn mm_to_units_negative_uses_floor_modulo() {
         // Python floor-mod: -15 % 2 == 1, so -15 -> -16 (truncating %
         // would give -15 - (-1) = -14).
@@ -241,14 +287,14 @@ mod tests {
         assert_eq!(mm_to_units(-0.125, 100).unwrap(), -12);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn mm_to_units_non_finite_errors() {
         assert!(mm_to_units(f64::NAN, 100).is_err());
         assert!(mm_to_units(f64::INFINITY, 100).is_err());
         assert!(mm_to_units(f64::NEG_INFINITY, 100).is_err());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn units_to_mm_known_points() {
         assert_eq!(units_to_mm(1000, 100), 10.0);
         assert_eq!(units_to_mm(0, 100), 0.0);
@@ -257,7 +303,7 @@ mod tests {
         assert_eq!(units_to_mm(100, 100), 1.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn courtyard_clearance_known_points() {
         assert_eq!(courtyard_clearance_mm(0.2, 0.1), 0.4);
         assert_eq!(courtyard_clearance_mm(0.0, 0.0), 0.0);
@@ -266,7 +312,7 @@ mod tests {
         assert_eq!(courtyard_clearance_mm(0.0, 0.1), 0.2);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn required_margin_known_points() {
         assert_eq!(required_margin_mm(6.0, 8.0), 8.0);
         assert_eq!(required_margin_mm(8.0, 6.0), 8.0);
@@ -276,7 +322,7 @@ mod tests {
         assert_eq!(required_margin_mm(8.0, f64::NAN), 8.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn keepout_rect_known_points() {
         // Zone (10,10)-(20,20)mm, margin 0.5mm, u=100.
         assert_eq!(
@@ -290,7 +336,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn keepout_rect_converts_span_not_diff_of_conversions() {
         // zx_min=0.11599784954941361, zx_max=1.0148714663788405:
         // span-first gives +90, difference-of-conversions gives 88 — the
@@ -303,4 +349,23 @@ mod tests {
         let conv = |mm: f64| mm_to_units(mm, 100).unwrap_or(i64::MIN);
         assert_ne!(conv(1.0148714663788405) - conv(0.11599784954941361), 90);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("encoder::tests::mm_to_units_known_points", mm_to_units_known_points),
+        ("encoder::tests::mm_to_units_ties_round_half_even", mm_to_units_ties_round_half_even),
+        ("encoder::tests::mm_to_units_odd_raw_even_adjusted", mm_to_units_odd_raw_even_adjusted),
+        ("encoder::tests::mm_to_units_negative_uses_floor_modulo", mm_to_units_negative_uses_floor_modulo),
+        ("encoder::tests::mm_to_units_non_finite_errors", mm_to_units_non_finite_errors),
+        ("encoder::tests::units_to_mm_known_points", units_to_mm_known_points),
+        ("encoder::tests::courtyard_clearance_known_points", courtyard_clearance_known_points),
+        ("encoder::tests::required_margin_known_points", required_margin_known_points),
+        ("encoder::tests::keepout_rect_known_points", keepout_rect_known_points),
+        ("encoder::tests::keepout_rect_converts_span_not_diff_of_conversions", keepout_rect_converts_span_not_diff_of_conversions),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

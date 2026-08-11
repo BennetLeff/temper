@@ -15,16 +15,22 @@
 // `_assign_layer_by_net_class` helper stays a directly-exercised public
 // method on the Python shim.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::derivation_stage::stage_guard;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 const STAGE_NAME: &str = "layer_assignment";
 
+#[cfg(feature = "python")]
 /// The layer-assignment stage: netlist + manual/net-class config ->
 /// `BoardState.layer_assignments`.
 #[derive(Debug, Clone)]
@@ -32,6 +38,7 @@ pub struct LayerAssignmentStage {
     pub stage: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for LayerAssignmentStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -47,6 +54,7 @@ impl Stage<BoardState> for LayerAssignmentStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl LayerAssignmentStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let netlist = match &state.netlist {
@@ -73,6 +81,7 @@ impl LayerAssignmentStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_layer_assignment(state, stage)`.
 #[pyfunction]
 pub fn run_layer_assignment(

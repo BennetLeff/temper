@@ -191,11 +191,11 @@ def _per_point_rebuild(routing_space, skeleton, sample_distance: float) -> dict:
         node_widths: dict = {}
         edge_widths: dict = {}
         edt_grid, edt_mask, edt_bounds = _build_edt(routing_space, 0.1)
-        for node in skeleton.graph.nodes():
+        for node in skeleton.graph.nodes:
             node_widths[node] = _edt_width_lookup(
                 node[0], node[1], edt_grid, edt_mask, edt_bounds, 0.1
             )
-        for u, v in skeleton.graph.edges():
+        for u, v in skeleton.graph.edges:
             widths_along_edge = [node_widths[u], node_widths[v]]
             dx = v[0] - u[0]
             dy = v[1] - u[1]

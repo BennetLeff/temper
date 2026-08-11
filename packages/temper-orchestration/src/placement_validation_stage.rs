@@ -26,19 +26,27 @@
 // - `logging` for the summary lines,
 // - CPython string operations for the raise message.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyList;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::d6_util;
+#[cfg(feature = "python")]
 use crate::derivation_stage::stage_guard;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError, StageErrorKind};
 
 const STAGE_NAME: &str = "placement_validation";
 const LOGGER_NAME: &str = "temper_placer.deterministic.stages.placement_validation";
 
+#[cfg(feature = "python")]
 /// The placement-validation stage: board + constraints + parsed pads ->
 /// `placement_violations`, raising `PlacementValidationError` when hard-tier
 /// violations are present and `fail_on_hard_violations` is set.
@@ -47,6 +55,7 @@ pub struct PlacementValidationStage {
     pub stage: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for PlacementValidationStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -57,6 +66,7 @@ impl Stage<BoardState> for PlacementValidationStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl PlacementValidationStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> Result<BoardState, StageError> {
         let board = match &state.board {
@@ -141,6 +151,7 @@ impl PlacementValidationStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// `f"{len(hard)} hard placement violations found:\n" + "\n".join(...)` --
 /// rendered through CPython string operations (`str.format`, `+`, `join`).
 fn build_raise_message(py: Python<'_>, hard: &Bound<'_, PyAny>) -> PyResult<String> {
@@ -161,6 +172,7 @@ fn build_raise_message(py: Python<'_>, hard: &Bound<'_, PyAny>) -> PyResult<Stri
     full.str()?.extract()
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_placement_validation(state, stage)` ->
 /// `(state, message)`.
 #[pyfunction]

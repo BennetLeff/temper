@@ -22,16 +22,25 @@
 // - `print` / `str.format` for every interpolated message (David-Gay and
 //   tuple-repr rendering) and `sorted` for the removed-net preview.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::d6_util;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::grid_hv::getattr_default;
+#[cfg(feature = "python")]
 use crate::host_math;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 const STAGE_NAME: &str = "via_validation";
@@ -46,6 +55,7 @@ pub struct ViaValidationStage {
     pub require_both_layers: bool,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ViaValidationStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -61,6 +71,7 @@ impl Stage<BoardState> for ViaValidationStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl ViaValidationStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         // `if not state.vias or not state.routes: return state`
@@ -373,6 +384,7 @@ pub struct ViaDeduplicationStage {
     pub tolerance_mm: f64,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ViaDeduplicationStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME_DEDUP)
@@ -388,6 +400,7 @@ impl Stage<BoardState> for ViaDeduplicationStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl ViaDeduplicationStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let vias = match &state.vias {
@@ -430,6 +443,7 @@ impl ViaDeduplicationStage {
 // Helpers
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `_is_plane_net`: `is_ground_net(net) or is_power_net(net)` through FFI.
 fn is_plane_net<'py>(
     _py: Python<'py>,
@@ -445,6 +459,7 @@ fn is_plane_net<'py>(
     Ok(ground || power)
 }
 
+#[cfg(feature = "python")]
 /// Add `value` into `index[layer_name]` (creating the per-layer set).
 fn add_to_layer_set<'py>(
     _py: Python<'py>,
@@ -464,11 +479,13 @@ fn add_to_layer_set<'py>(
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// An empty CPython string (the no-extra part of the conditional f-string).
 fn empty_string<'py>(_py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     Ok(pyo3::types::PyString::new(_py, "").into_any())
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_via_validation(state, tolerance_mm,
 /// require_both_layers)`.
 #[pyfunction]
@@ -489,6 +506,7 @@ pub fn run_via_validation(
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["vias"])
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_via_deduplication(state,
 /// tolerance_mm)`.
 #[pyfunction]

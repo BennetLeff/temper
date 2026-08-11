@@ -25,18 +25,26 @@
 // - Every `print` message renders through CPython `str.format` (David-Gay
 //   `:.2f`, float `str()`, `sorted()` list reprs) -- parity by identity.
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList, PyString, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::d6_util;
+#[cfg(feature = "python")]
 use crate::derivation_stage::stage_guard;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 const STAGE_NAME: &str = "fine_pitch_escape";
 
+#[cfg(feature = "python")]
 /// The fine-pitch escape stage: netlist + placements -> `BoardState.vias`
 /// with the fine-pitch escape vias appended.
 #[derive(Debug, Clone)]
@@ -44,6 +52,7 @@ pub struct FinePitchEscapeStage {
     pub stage: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for FinePitchEscapeStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -59,6 +68,7 @@ impl Stage<BoardState> for FinePitchEscapeStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl FinePitchEscapeStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let netlist = match &state.netlist {
@@ -485,6 +495,7 @@ impl FinePitchEscapeStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// `print(str.format(template, *args))` -- the only message renderer
 /// (David-Gay `:.2f`, float `str()`, int/str interpolation, `sorted` list
 /// reprs) stays CPython.
@@ -497,6 +508,7 @@ fn py_print_fmt(
     d6_util::py_print(py, &[rendered])
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_fine_pitch_escape(state, stage)`.
 #[pyfunction]
 pub fn run_fine_pitch_escape(

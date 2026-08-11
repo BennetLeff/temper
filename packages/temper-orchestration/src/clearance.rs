@@ -33,17 +33,28 @@
 // `Stage` impls run under `stage_guard` — no panic crosses the boundary.
 // No `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
-use std::collections::{BTreeMap, HashMap, HashSet};
+#[cfg(feature = "python")]
+use std::collections::{BTreeMap, HashMap};
+use std::collections::HashSet;
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::{PyKeyError, PyValueError};
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyString;
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::d6_util;
+#[cfg(feature = "python")]
 use crate::derivation_stage::stage_guard;
+#[cfg(feature = "python")]
 use crate::grid_hv::getattr_default;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 /// A same-layer segment `(x1, y1, x2, y2, layer)` — the `Seg` shape the
@@ -73,10 +84,12 @@ type AuditOut = (String, String, f64, f64, String);
 // temper-geometry FFI
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 fn tg(py: Python<'_>) -> PyResult<Bound<'_, pyo3::types::PyModule>> {
     py.import("temper_geometry")
 }
 
+#[cfg(feature = "python")]
 /// CPython `repr(float)` — the renderer the pre-migration `ValueError`
 /// f-strings use (`{x!r}`). Rust `{:?}` differs for `nan`/`inf`/`-inf`.
 fn py_float_repr(py: Python<'_>, f: f64) -> PyResult<String> {
@@ -84,20 +97,24 @@ fn py_float_repr(py: Python<'_>, f: f64) -> PyResult<String> {
     py.import("builtins")?.getattr("repr")?.call1((obj,))?.extract()
 }
 
+#[cfg(feature = "python")]
 fn tg_high_voltage_net(py: Python<'_>, net: &str) -> PyResult<bool> {
     tg(py)?.call_method1("is_high_voltage_net_py", (net,))?.extract()
 }
 
+#[cfg(feature = "python")]
 fn tg_required_creepage(py: Python<'_>, voltage: f64) -> PyResult<f64> {
     tg(py)?.call_method1("calculate_required_creepage_py", (voltage,))?.extract()
 }
 
+#[cfg(feature = "python")]
 fn tg_min_clearance(py: Python<'_>, s1: &[Seg], s2: &[Seg]) -> PyResult<(f64, f64, f64)> {
     tg(py)?
         .call_method1("min_clearance_distance_py", (s1, s2))?
         .extract()
 }
 
+#[cfg(feature = "python")]
 fn tg_safety_distances(
     py: Python<'_>,
     voltage: f64,
@@ -112,28 +129,33 @@ fn tg_safety_distances(
         .extract()
 }
 
+#[cfg(feature = "python")]
 fn tg_net_class_to_voltage_class(py: Python<'_>, net_class: &str) -> PyResult<i64> {
     tg(py)?
         .call_method1("net_class_to_voltage_class_py", (net_class,))?
         .extract()
 }
 
+#[cfg(feature = "python")]
 fn tg_barrier_axis_gap(py: Python<'_>, hv: &[PadTuple], selv: &[PadTuple], axis: i64) -> PyResult<f64> {
     tg(py)?
         .call_method1("barrier_axis_gap_py", (hv, selv, axis))?
         .extract()
 }
 
+#[cfg(feature = "python")]
 fn tg_best_rotation(py: Python<'_>, hv: &[PadTuple], selv: &[PadTuple], axis: i64) -> PyResult<(i64, f64, bool)> {
     tg(py)?
         .call_method1("best_rotation_for_barrier_py", (hv, selv, axis))?
         .extract()
 }
 
+#[cfg(feature = "python")]
 fn tg_dist(py: Python<'_>, ax: f64, ay: f64, bx: f64, by: f64) -> PyResult<f64> {
     tg(py)?.call_method1("dist_py", (ax, ay, bx, by))?.extract()
 }
 
+#[cfg(feature = "python")]
 /// temper-drc-rs `req_safe_01_nets_domain_map(placement, overrides)` ->
 /// `{net: domain}` (net -> the domain's str value, since `VoltageDomain` is a
 /// str-mixin Enum and the encoder compares `.value` strings).
@@ -154,6 +176,7 @@ fn drc_nets_domain_map(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 fn drc_domain_boundary_pairs<'py>(
     py: Python<'py>,
     placement: &Bound<'py, PyAny>,
@@ -174,6 +197,7 @@ fn drc_domain_boundary_pairs<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 fn drc_components_in_domain<'py>(
     py: Python<'py>,
     placement: &Bound<'py, PyAny>,
@@ -192,17 +216,20 @@ fn drc_components_in_domain<'py>(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 fn tc_required_margin_mm(py: Python<'_>, min_clearance: f64, min_creepage: f64) -> PyResult<f64> {
     py.import("temper_constraints")?
         .call_method1("required_margin_mm_py", (min_clearance, min_creepage))?
         .extract()
 }
 
+#[cfg(feature = "python")]
 /// CPython `str()` of an object (a `str`-mixin Enum renders its `.value`).
 fn str_of(obj: &Bound<'_, PyAny>) -> PyResult<String> {
     obj.str()?.extract()
 }
 
+#[cfg(feature = "python")]
 fn py_str<'py>(py: Python<'py>, s: &str) -> Bound<'py, PyAny> {
     PyString::new(py, s).into_any()
 }
@@ -220,6 +247,7 @@ fn py_str<'py>(py: Python<'py>, s: &str) -> Bound<'py, PyAny> {
 // guarded identity — the runner-test path that needs no venv.
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// The clearance-engine stage: net classes + voltage -> the most-conservative
 /// clearance across all five standards.
 #[derive(Debug, Clone)]
@@ -229,6 +257,7 @@ pub struct ClearanceEngineStage {
     pub payload: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ClearanceEngineStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("clearance_engine")
@@ -249,6 +278,7 @@ impl Stage<BoardState> for ClearanceEngineStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// The route-clearance stage: routed copper -> the `ClearanceReport`
 /// violation list (production path of `clearance_check.verify_clearance`).
 #[derive(Debug, Clone)]
@@ -258,6 +288,7 @@ pub struct ClearanceCheckStage {
     pub routes: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ClearanceCheckStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("clearance_check")
@@ -278,6 +309,7 @@ impl Stage<BoardState> for ClearanceCheckStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// The creepage-check stage: routed copper -> the `CreepageReport` violation
 /// list (`creepage_check.verify_creepage`).
 #[derive(Debug, Clone)]
@@ -287,6 +319,7 @@ pub struct CreepageCheckStage {
     pub payload: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for CreepageCheckStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("creepage_check")
@@ -313,6 +346,7 @@ impl Stage<BoardState> for CreepageCheckStage {
 #[derive(Debug, Clone)]
 pub struct IsolationBarrierStage;
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for IsolationBarrierStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("isolation_barrier")
@@ -328,6 +362,7 @@ impl Stage<BoardState> for IsolationBarrierStage {
 #[derive(Debug, Clone)]
 pub struct DomainClearanceStage;
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for DomainClearanceStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed("domain_clearance")
@@ -362,6 +397,7 @@ impl Stage<BoardState> for DomainClearanceStage {
     overvoltage_category = 2,
     design_rule_creepage = None,
 ))]
+#[cfg(feature = "python")]
 pub fn get_clearance_py(
     py: Python<'_>,
     net_class_a: &str,
@@ -386,6 +422,7 @@ pub fn get_clearance_py(
     )
 }
 
+#[cfg(feature = "python")]
 #[allow(clippy::too_many_arguments)]
 fn get_clearance_impl(
     py: Python<'_>,
@@ -456,6 +493,7 @@ fn get_clearance_impl(
     Ok(result)
 }
 
+#[cfg(feature = "python")]
 /// The `_VC_FROM_VALUE[int] -> VoltageClass` mapping of `clearance_engine.py`
 /// (values 1..=5, `auto()` order). An unmapped value raises `KeyError` and
 /// is swallowed by the caller's IEC 60335-1 block, exactly like the Python
@@ -478,6 +516,7 @@ fn voltage_class_member<'py>(py: Python<'py>, value: i64) -> PyResult<Bound<'py,
 // creepage_check.verify_creepage — the pyfunction + compute
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `router_v6/creepage_check.verify_creepage`: every HV net against every
 /// other net, one closest-approach violation per (hv, lv) pair.
 ///
@@ -495,6 +534,7 @@ pub fn run_creepage_check(
     run_creepage_check_impl(py, &routes, &voltage_ratings, default_creepage)
 }
 
+#[cfg(feature = "python")]
 fn run_creepage_check_impl(
     py: Python<'_>,
     routes: &[(String, Vec<Seg>)],
@@ -543,6 +583,7 @@ fn run_creepage_check_impl(
 // clearance_check.verify_clearance — the production-path pyfunction
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `router_v6/clearance_check.verify_clearance` production path: min-clearance
 /// validation + the full algorithm delegation to
 /// `temper_drc_rs.verify_route_clearance` (the geometry + unified
@@ -581,7 +622,7 @@ pub fn run_clearance_check(
 /// exactly one of hv_only / selv_only / isolators / unclassified, by exact
 /// pin-net membership in the two declared domains (never substring — the
 /// net-classification bug history). The shim marshals `[(ref, [nets])]`.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn classify_domain_partition_py(
     components: Vec<(String, Vec<String>)>,
     hv_nets: Vec<String>,
@@ -612,6 +653,7 @@ pub fn classify_domain_partition_py(
     (hv_only, selv_only, isolators, unclassified)
 }
 
+#[cfg(feature = "python")]
 /// `isolation_barrier._project_onto_barrier_axis`: the exact hand-unrolled
 /// integer-only 4-rotation table (see the Python module docstring — the
 /// `math.cos`/`sin` route is deliberately NOT used at exact 90-degree
@@ -640,6 +682,7 @@ fn project_onto_barrier_axis_impl(local_x: f64, local_y: f64, rot_value: i64, ba
     Some(if barrier_axis == 0 { gx } else { gy })
 }
 
+#[cfg(feature = "python")]
 /// `isolation_barrier.evaluate_isolator_feasibility`: the true achievable
 /// HV/SELV cluster gap for a specific corridor — `gap_x`/`gap_y` from the
 /// order-agnostic axis kernels, then the best of the 4 model rotations
@@ -692,6 +735,7 @@ pub fn evaluate_isolator_feasibility_py(
 // domain_clearance.py — constraint generation + audit pyfunctions
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `domain_clearance.generate_domain_clearance_constraints`: one HARD
 /// SeparatedConstraint per domain-crossing (component_a, component_b) pair,
 /// canonicalized to a single entry per unordered pair (the measured
@@ -773,6 +817,7 @@ pub fn domain_clearance_constraints_py(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// `domain_clearance.generate_unclassified_hv_keepaway_constraints`: one HARD
 /// SeparatedConstraint per (unclassified ref, HV ref) pair at the largest IEC
 /// margin in the matrix. Returns the same tuple shape as
@@ -863,6 +908,7 @@ pub fn keepaway_constraints_py(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// `domain_clearance.find_intra_footprint_domain_conflicts`: refs classified
 /// into both sides of a matrix-covered domain boundary (worst margin kept).
 /// Returns `(ref, domain_a.value, domain_b.value, margin_mm, reason)` tuples;
@@ -941,6 +987,7 @@ pub fn intra_footprint_conflicts_py(
     Ok(out)
 }
 
+#[cfg(feature = "python")]
 /// `domain_clearance.audit_domain_clearance` (R24 item-3): recompute the real
 /// Euclidean center distance from the resolved placement for every
 /// `domain_clearance_`-id'd constraint, independent of the solver's claim.
@@ -995,6 +1042,7 @@ pub fn audit_domain_clearance_py(
 // FFI helpers
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// CPython `str.format(template, *args)` — the only reason-string renderer
 /// (float `{}` interpolation stays CPython so `4.0mm` renders `"4.0mm"`).
 fn py_format<'py>(
@@ -1005,6 +1053,7 @@ fn py_format<'py>(
     d6_util::py_format(py, template, args)?.extract()
 }
 
+#[cfg(feature = "python")]
 /// The `"ref"` member of a validator-shape component dict, or `None` when it
 /// is not a string (matching the Python `isinstance(ra, str)` guard).
 fn comp_opt_ref(comp: &Bound<'_, PyAny>) -> Option<String> {
@@ -1013,6 +1062,7 @@ fn comp_opt_ref(comp: &Bound<'_, PyAny>) -> Option<String> {
         .and_then(|r| r.extract::<String>().ok())
 }
 
+#[cfg(feature = "python")]
 /// Python `dict.get(key, [])`: the item or an empty list when the key is
 /// absent.
 fn dict_get<'py>(py: Python<'py>, dict: &Bound<'py, PyAny>, key: &str) -> PyResult<Bound<'py, PyAny>> {
@@ -1022,17 +1072,16 @@ fn dict_get<'py>(py: Python<'py>, dict: &Bound<'py, PyAny>, key: &str) -> PyResu
     }
 }
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
-mod tests {
-    use proptest::prelude::*;
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     // -----------------------------------------------------------------------
     // project_onto_barrier_axis_impl -- rotation table
     // -----------------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn project_onto_barrier_axis_is_the_integer_rotation_table() {
         // rot=0: (lx, ly); rot=1: (ly, -lx); rot=2: (-lx, -ly); rot=3: (-ly, lx).
         let cases = [
@@ -1050,7 +1099,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn project_onto_barrier_axis_out_of_range_is_none() {
         // The pre-migration `{...}[rot_value]` dict raises KeyError for a
         // rotation outside 0..=3 — the port must not silently fall back to
@@ -1060,7 +1109,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn classify_domain_partition_buckets_exactly() {
         let comps = vec![
             ("R1".to_string(), vec!["AC_L".to_string()]),
@@ -1079,7 +1128,7 @@ mod tests {
         assert_eq!(unclassified, vec!["R3"]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn classify_domain_partition_never_substring_matches() {
         // "AC_LINE_SENSE" merely CONTAINS "AC_L"; it must not classify HV.
         let comps = vec![("R9".to_string(), vec!["AC_LINE_SENSE".to_string()])];
@@ -1089,9 +1138,123 @@ mod tests {
         assert_eq!(unclassified, vec!["R9"]);
     }
 
-    // -----------------------------------------------------------------------
-    // proptest: classify_domain_partition_py invariants (G4 P6-style)
-    // -----------------------------------------------------------------------
+    /// NaN inputs propagate NaN through the rotation table.
+    #[cfg_attr(test, test)]
+    fn projection_preserves_nan() {
+        // rot=0 axis=0: gx = lx = NaN.
+        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 0, 0).unwrap();
+        assert!(v.is_nan());
+        // rot=0 axis=1: gy = ly = 1.0 (NOT NaN because ly is finite).
+        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 0, 1).unwrap();
+        assert!(!v.is_nan());
+        assert_eq!(v, 1.0);
+        // rot=1 axis=0: gx = ly = 1.0 (NOT NaN).
+        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 1, 0).unwrap();
+        assert!(!v.is_nan());
+        assert_eq!(v, 1.0);
+        // rot=1 axis=1: gy = -lx = -NaN = NaN.
+        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 1, 1).unwrap();
+        assert!(v.is_nan());
+    }
+
+    /// The `max` computation in `get_clearance_impl` must match Python's
+    /// builtin `max`: keep the first NaN, NaN never displaces a finite
+    /// incumbent, -0.0 and 0.0 preserve the first argument.
+    #[cfg_attr(test, test)]
+    fn max_computation_matches_python_builtin_max() {
+        // Replicate the exact max computation from get_clearance_impl.
+        fn py_style_max(v: &[f64]) -> f64 {
+            assert!(!v.is_empty());
+            let mut result = v[0];
+            for &c in &v[1..] {
+                if c > result {
+                    result = c;
+                }
+            }
+            result
+        }
+
+        // First argument NaN: max stays NaN (Python: max([nan, 5.0]) == nan).
+        assert!(py_style_max(&[f64::NAN, 5.0]).is_nan());
+        assert!(py_style_max(&[f64::NAN, f64::NAN]).is_nan());
+
+        // Finite first, NaN later: max stays finite (Python: max([5.0, nan]) == 5.0).
+        assert_eq!(py_style_max(&[5.0, f64::NAN]), 5.0);
+        assert_eq!(py_style_max(&[5.0, f64::NAN, 3.0]), 5.0);
+        assert_eq!(py_style_max(&[2.0, f64::NAN, 6.0]), 6.0);
+
+        // -0.0 vs 0.0: Python max([-0.0, 0.0]) == -0.0 (keeps first).
+        let v = py_style_max(&[-0.0_f64, 0.0]);
+        assert!(v == -0.0 && v.is_sign_negative());
+        let v = py_style_max(&[0.0_f64, -0.0]);
+        assert!(v == 0.0 && v.is_sign_positive());
+
+        // +inf / -inf.
+        assert!(py_style_max(&[f64::INFINITY, 1e300]).is_infinite()
+            && py_style_max(&[f64::INFINITY, 1e300]).is_sign_positive());
+        assert_eq!(py_style_max(&[f64::NEG_INFINITY, 0.0]), 0.0);
+        assert!(py_style_max(&[f64::NAN, f64::INFINITY]).is_nan());
+
+        // All finite, typical.
+        assert_eq!(py_style_max(&[1.0, 2.0, 3.0]), 3.0);
+        assert_eq!(py_style_max(&[3.0, 1.0, 2.0]), 3.0);
+    }
+
+    /// Empty partition: all empty input yields all-empty buckets.
+    #[cfg_attr(test, test)]
+    fn partition_empty_input_yields_empty_buckets() {
+        let (hv_only, selv_only, isolators, unclassified) =
+            classify_domain_partition_py(vec![], vec!["HV".into()], vec!["LV".into()]);
+        assert!(hv_only.is_empty());
+        assert!(selv_only.is_empty());
+        assert!(isolators.is_empty());
+        assert!(unclassified.is_empty());
+    }
+
+    /// A component with both HV and SELV nets is always an isolator.
+    #[cfg_attr(test, test)]
+    fn dual_net_component_is_isolator() {
+        let comps = vec![("ISO1".into(), vec!["HV_NET".into(), "GND".into()])];
+        let (hv_only, selv_only, isolators, _) =
+            classify_domain_partition_py(comps, vec!["HV_NET".into()], vec!["GND".into()]);
+        assert!(hv_only.is_empty());
+        assert!(selv_only.is_empty());
+        assert_eq!(isolators, vec!["ISO1"]);
+    }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("clearance::tests::project_onto_barrier_axis_is_the_integer_rotation_table", project_onto_barrier_axis_is_the_integer_rotation_table),
+        ("clearance::tests::project_onto_barrier_axis_out_of_range_is_none", project_onto_barrier_axis_out_of_range_is_none),
+        ("clearance::tests::classify_domain_partition_buckets_exactly", classify_domain_partition_buckets_exactly),
+        ("clearance::tests::classify_domain_partition_never_substring_matches", classify_domain_partition_never_substring_matches),
+        ("clearance::tests::projection_preserves_nan", projection_preserves_nan),
+        ("clearance::tests::max_computation_matches_python_builtin_max", max_computation_matches_python_builtin_max),
+        ("clearance::tests::partition_empty_input_yields_empty_buckets", partition_empty_input_yields_empty_buckets),
+        ("clearance::tests::dual_net_component_is_isolator", dual_net_component_is_isolator),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
+}
+
+// `proptest` is a dev-dependency (present under `cargo test`, absent from the
+// ordinary non-test build `wasm_test_registry.rs` compiles into), so these
+// three properties live in their own `#[cfg(test)]` sibling module -- exactly
+// the split `copper_length.rs`/`timing.rs`/`host_math.rs` already use --
+// rather than inline inside `tests` above, so `gen_wasm_test_registry.py`'s
+// per-module `proptest-dev-dependency` exclusion only drops these three
+// properties instead of the whole module's otherwise-pure unit tests.
+//
+// proptest: classify_domain_partition_py + project_onto_barrier_axis_impl
+// invariants (G4 P6-style).
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
 
     proptest! {
         /// Every component lands in exactly one bucket; the four buckets are
@@ -1191,89 +1354,5 @@ mod tests {
                 _ => unreachable!(),
             }
         }
-    }
-
-    /// NaN inputs propagate NaN through the rotation table.
-    #[test]
-    fn projection_preserves_nan() {
-        // rot=0 axis=0: gx = lx = NaN.
-        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 0, 0).unwrap();
-        assert!(v.is_nan());
-        // rot=0 axis=1: gy = ly = 1.0 (NOT NaN because ly is finite).
-        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 0, 1).unwrap();
-        assert!(!v.is_nan());
-        assert_eq!(v, 1.0);
-        // rot=1 axis=0: gx = ly = 1.0 (NOT NaN).
-        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 1, 0).unwrap();
-        assert!(!v.is_nan());
-        assert_eq!(v, 1.0);
-        // rot=1 axis=1: gy = -lx = -NaN = NaN.
-        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 1, 1).unwrap();
-        assert!(v.is_nan());
-    }
-
-    /// The `max` computation in `get_clearance_impl` must match Python's
-    /// builtin `max`: keep the first NaN, NaN never displaces a finite
-    /// incumbent, -0.0 and 0.0 preserve the first argument.
-    #[test]
-    fn max_computation_matches_python_builtin_max() {
-        // Replicate the exact max computation from get_clearance_impl.
-        fn py_style_max(v: &[f64]) -> f64 {
-            assert!(!v.is_empty());
-            let mut result = v[0];
-            for &c in &v[1..] {
-                if c > result {
-                    result = c;
-                }
-            }
-            result
-        }
-
-        // First argument NaN: max stays NaN (Python: max([nan, 5.0]) == nan).
-        assert!(py_style_max(&[f64::NAN, 5.0]).is_nan());
-        assert!(py_style_max(&[f64::NAN, f64::NAN]).is_nan());
-
-        // Finite first, NaN later: max stays finite (Python: max([5.0, nan]) == 5.0).
-        assert_eq!(py_style_max(&[5.0, f64::NAN]), 5.0);
-        assert_eq!(py_style_max(&[5.0, f64::NAN, 3.0]), 5.0);
-        assert_eq!(py_style_max(&[2.0, f64::NAN, 6.0]), 6.0);
-
-        // -0.0 vs 0.0: Python max([-0.0, 0.0]) == -0.0 (keeps first).
-        let v = py_style_max(&[-0.0_f64, 0.0]);
-        assert!(v == -0.0 && v.is_sign_negative());
-        let v = py_style_max(&[0.0_f64, -0.0]);
-        assert!(v == 0.0 && v.is_sign_positive());
-
-        // +inf / -inf.
-        assert!(py_style_max(&[f64::INFINITY, 1e300]).is_infinite()
-            && py_style_max(&[f64::INFINITY, 1e300]).is_sign_positive());
-        assert_eq!(py_style_max(&[f64::NEG_INFINITY, 0.0]), 0.0);
-        assert!(py_style_max(&[f64::NAN, f64::INFINITY]).is_nan());
-
-        // All finite, typical.
-        assert_eq!(py_style_max(&[1.0, 2.0, 3.0]), 3.0);
-        assert_eq!(py_style_max(&[3.0, 1.0, 2.0]), 3.0);
-    }
-
-    /// Empty partition: all empty input yields all-empty buckets.
-    #[test]
-    fn partition_empty_input_yields_empty_buckets() {
-        let (hv_only, selv_only, isolators, unclassified) =
-            classify_domain_partition_py(vec![], vec!["HV".into()], vec!["LV".into()]);
-        assert!(hv_only.is_empty());
-        assert!(selv_only.is_empty());
-        assert!(isolators.is_empty());
-        assert!(unclassified.is_empty());
-    }
-
-    /// A component with both HV and SELV nets is always an isolator.
-    #[test]
-    fn dual_net_component_is_isolator() {
-        let comps = vec![("ISO1".into(), vec!["HV_NET".into(), "GND".into()])];
-        let (hv_only, selv_only, isolators, _) =
-            classify_domain_partition_py(comps, vec!["HV_NET".into()], vec!["GND".into()]);
-        assert!(hv_only.is_empty());
-        assert!(selv_only.is_empty());
-        assert_eq!(isolators, vec!["ISO1"]);
     }
 }

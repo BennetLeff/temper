@@ -206,6 +206,18 @@ IO_TYPES_FAMILIES = ["io-types"]
 # PCL IR) with no rule-family taxonomy, so one family named after the crate.
 PCL_IR_FAMILIES = ["pcl-ir"]
 
+# `temper-constraints` and `temper-rust-router` are the same shape again: flat
+# sets of kernels with no rule-family taxonomy, so each declares one family
+# named after the crate.
+CONSTRAINTS_FAMILIES = ["constraints"]
+RUST_ROUTER_FAMILIES = ["rust-router"]
+
+# `temper-orchestration` is the same shape again: what survives
+# `--no-default-features` is a flat set of pure kernels (timing, feasibility,
+# copper-length, the runner scaffolding) with no rule-family taxonomy, so one
+# family named after the crate.
+ORCHESTRATION_FAMILIES = ["orchestration"]
+
 TEST_FN = re.compile(r"^(\s*)#\[(?:test|cfg_attr\(test, test\))\]\s*$")
 
 # A *use* of the `proptest` dev-dependency: the `proptest!` macro or a
@@ -492,6 +504,15 @@ class CrateSpec:
     eligible: list[tuple[str, str]] | None
     families: list[str]
     family_of: object  # Callable[[str], str]
+    # Path to the crate directory, relative to the repo root.  Defaults to
+    # `packages/{name}` (every crate so far lives there).  `temper-constraints`
+    # is the first exception: it is nested inside the `temper-placer` Python
+    # package directory (`packages/temper-placer/temper-constraints`) rather
+    # than directly under `packages/` -- a plain `packages/*` glob misses it
+    # entirely, which is exactly how it was missed before.  `None` means "use
+    # the default"; set explicitly for any crate whose `Cargo.toml` is not at
+    # `packages/{name}`.
+    crate_dir: str | None = None
     # Cargo features whose modules cannot exist in the `--no-default-features`
     # wasm32 build.  `python` always qualifies (pyo3 does not cross-compile);
     # a crate whose non-default surface needs a native-only dependency adds it
@@ -804,6 +825,140 @@ CRATES: dict[str, CrateSpec] = {
             "//! prints the full module census with per-module counts.",
         ],
     ),
+    "temper-constraints": CrateSpec(
+        name="temper-constraints",
+        eligible=None,  # discovered
+        families=CONSTRAINTS_FAMILIES,
+        family_of=lambda _rel: "constraints",
+        crate_dir="packages/temper-placer/temper-constraints",
+        census_note="cannot be registered here at all",
+        sharding_note=[
+            "//! ## Families",
+            "//!",
+            "//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`",
+            "//! feature, as in `temper-drc-rs`.  One family (`constraints`): the",
+            "//! three surviving modules (`loss`, `encoder`, `ipc`) are a flat set",
+            "//! of pure loss/geometry/ampacity kernels with no rule-family",
+            "//! taxonomy to shard along.",
+        ],
+        extra_notes=[
+            "//! Two exclusion classes apply here, both structural:",
+            "//!",
+            '//! * The `#[cfg(feature = "python")] mod py { .. }` block in `lib.rs`',
+            "//!   -- every `#[pyfunction]`/`#[pyclass]`/`#[pymodule]` item in the",
+            "//!   crate, gated as one unit rather than item-by-item.  `loss.rs` has",
+            "//!   zero pyo3 coupling; `encoder.rs`/`ipc.rs` keep their pure kernels'",
+            "//!   error types plain (`Result<_, encoder::UnitConversionError>` /",
+            "//!   `f64`) specifically so this one cfg boundary, at the wrapper",
+            "//!   layer, is sufficient -- no pyo3 type ever appears in a kernel",
+            "//!   signature. `constraints.rs` has no pyo3 references and no",
+            "//!   `#[test]` of its own (it is the exhaustive `Constraint`/",
+            "//!   `ConstraintTier`/etc. enum module `loss.rs` and `lib.rs`'s `mod",
+            "//!   py` both consume).",
+            "//! * `mod proptests` in `ipc.rs`'s sibling files use a dev-dependency,",
+            "//!   which is not linked into the ordinary (non-test) build this",
+            "//!   registry compiles into -- the same exclusion every other crate on",
+            "//!   the tier makes. (This crate has none itself; noted for parity.)",
+            "//!",
+            "//! `ipc.rs`'s `host_libm_symbols_actually_resolve` test carries its own",
+            "//! `#[cfg(not(target_arch = \"wasm32\"))]` -- the dlsym-based host-libm",
+            "//! lookup it exercises has no meaning on `wasm32` (no dynamic loader;",
+            "//! see the module doc comment on `dlsym_pow`), so the test stays",
+            "//! registered but does not execute there.  It is not evidence of a",
+            "//! wider divergence: `ipc2152_forward`/`min_width_ipc2152` themselves",
+            "//! are ordinary `f64` functions with no `#[cfg]` of their own.",
+            "//!",
+            "//! `scripts/gen_wasm_test_registry.py --crate temper-constraints",
+            "//! --census` prints the full module census with per-module counts.",
+        ],
+    ),
+    "temper-rust-router": CrateSpec(
+        name="temper-rust-router",
+        eligible=None,  # discovered
+        families=RUST_ROUTER_FAMILIES,
+        family_of=lambda _rel: "rust-router",
+        census_note="cannot be registered here at all",
+        sharding_note=[
+            "//! ## Families",
+            "//!",
+            "//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`",
+            "//! feature, as in `temper-drc-rs`.  One family (`rust-router`): the",
+            "//! three surviving modules (`layer_assignment`, `terminal_planning`,",
+            "//! `net_ordering`) are a flat set of pure topology kernels with no",
+            "//! rule-family taxonomy to shard along.",
+        ],
+        extra_notes=[
+            "//! Two exclusion classes apply here, both structural:",
+            "//!",
+            '//! * `#[cfg(feature = "python")]` modules -- `types`, `types_py_bridge`,',
+            "//!   `theta_star`, `loop_extractor` (whole files, gated at their `pub",
+            "//!   mod`/`mod` declaration in `lib.rs`), plus every `#[pyfunction]`/",
+            "//!   `#[pymodule]` item declared directly in `lib.rs` itself",
+            "//!   (`solve_topology_rust`, `audit_result`, `classify_component_rs`,",
+            "//!   `parse_capacitance_rs`, `astar_kernel_3d_py`, `line_of_sight_py`,",
+            "//!   the `#[pymodule] fn temper_rust_router`).  None of these have",
+            "//!   `#[test]` of their own that exercises anything beyond the pyo3",
+            "//!   boundary itself -- the pure kernels underneath",
+            "//!   (`classify_component_py`/`parse_capacitance_py`/`astar_kernel_3d`/",
+            "//!   etc.) already live in the registered `temper-rust-router-core`.",
+            "//! * `mod proptests` in `lib.rs` (`f32s_from_le_bytes`'s round-trip",
+            "//!   properties) uses a dev-dependency, which is not linked into the",
+            "//!   ordinary (non-test) build this registry compiles into -- the same",
+            "//!   exclusion every other crate on the tier makes.",
+            "//!",
+            "//! `scripts/gen_wasm_test_registry.py --crate temper-rust-router",
+            "//! --census` prints the full module census with per-module counts.",
+        ],
+    ),
+    "temper-orchestration": CrateSpec(
+        name="temper-orchestration",
+        eligible=None,  # discovered
+        families=ORCHESTRATION_FAMILIES,
+        family_of=lambda _rel: "orchestration",
+        census_note="cannot be registered here at all",
+        sharding_note=[
+            "//! ## Families",
+            "//!",
+            "//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`",
+            "//! feature, as in `temper-drc-rs`.  One family (`orchestration`): what",
+            "//! survives `--no-default-features` is a flat set of pure kernels",
+            "//! (timing, feasibility, copper-length, the `Stage`/`PipelineRunner`",
+            "//! scaffolding) with no rule-family taxonomy to shard along.",
+        ],
+        extra_notes=[
+            "//! Three exclusion classes apply here, all structural:",
+            "//!",
+            '//! * `#[cfg(feature = "python")]` items.  Unlike the other crates on',
+            "//!   this tier, the gate here is mostly per-*item* rather than",
+            "//!   per-*module*: almost every stage module wraps the shared",
+            "//!   `BoardState` type (`board_state.rs`), whose fields are",
+            "//!   `Option<pyo3::Py<PyAny>>` placeholders (Phase A marshalling has",
+            "//!   not landed yet -- see `board_state.rs`'s doc), so `BoardState`",
+            "//!   itself, the `Stage<BoardState>` impls, and every `#[pyfunction]`",
+            "//!   FFI entry point built on it do not exist in a",
+            "//!   `--no-default-features` build. A handful of `#[test]` functions",
+            "//!   are individually `#[cfg(feature = \"python\")]`-gated alongside",
+            "//!   otherwise-pure sibling tests in the same module, for the same",
+            "//!   reason at function scope (`feasibility::record_loss` mirrors a",
+            "//!   CPython `ZeroDivisionError` through `PyResult`;",
+            "//!   `phased_component_assignment_validator_stage::is_hv_safety` and",
+            "//!   `grid_hv`'s whole `tests` module attach a live interpreter via",
+            "//!   `Python::attach` to exercise real CPython attribute-lookup",
+            "//!   semantics; `pipeline_state::PipelinePhase`'s tests call its",
+            "//!   `#[pymethods]` `__hash__`).",
+            "//! * `proptest` modules use a dev-dependency, which is not linked into",
+            "//!   the ordinary (non-test) build this registry compiles into.",
+            "//! * `Stage<S>` itself has no default type parameter in a",
+            "//!   `--no-default-features` build (`stage.rs` declares a second,",
+            "//!   parameter-free definition under `#[cfg(not(feature = \"python\"))]`",
+            "//!   since the default -- `BoardState` -- does not exist), which is",
+            "//!   why `stage::tests` (the trivial `Stage<u32>` pin) registers fully:",
+            "//!   nothing in it depends on the default.",
+            "//!",
+            "//! `scripts/gen_wasm_test_registry.py --crate temper-orchestration",
+            "//! --census` prints the full module census with per-module counts.",
+        ],
+    ),
 }
 
 
@@ -818,7 +973,7 @@ def select_crate(name: str) -> CrateSpec:
     global CRATE_SPEC, CRATE, SRC, ELIGIBLE, FAMILIES, FAMILY_BY_ENTRY
     spec = CRATES[name]
     CRATE_SPEC = spec
-    CRATE = REPO_ROOT / "packages" / name
+    CRATE = REPO_ROOT / (spec.crate_dir or f"packages/{name}")
     SRC = CRATE / "src"
     if spec.eligible is not None:
         ELIGIBLE = list(spec.eligible)

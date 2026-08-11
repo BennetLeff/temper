@@ -21,15 +21,23 @@
 // - CPython `round(x, 2)`, `sorted`, `str.format` and `print` (the
 //   round-half-to-even keys and the `{px:.1f}` message rendering stay CPython).
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::d6_util;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::grid_hv::getattr_default;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 const STAGE_NAME: &str = "drc_sweep";
@@ -44,6 +52,7 @@ pub struct DRCSweepStage {
     pub tolerance: f64,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for DRCSweepStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -59,6 +68,7 @@ impl Stage<BoardState> for DRCSweepStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl DRCSweepStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let oracle = match &state.drc_oracle {
@@ -199,6 +209,7 @@ pub struct TrackDeduplicationStage {
     pub tolerance_mm: f64,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for TrackDeduplicationStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME_DEDUP)
@@ -214,6 +225,7 @@ impl Stage<BoardState> for TrackDeduplicationStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl TrackDeduplicationStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let routes = match &state.routes {
@@ -295,6 +307,7 @@ pub struct ShortCircuitDetectionStage {
     pub tolerance_mm: f64,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ShortCircuitDetectionStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME_SHORT)
@@ -310,6 +323,7 @@ impl Stage<BoardState> for ShortCircuitDetectionStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl ShortCircuitDetectionStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let netlist = match &state.netlist {
@@ -483,6 +497,7 @@ impl ShortCircuitDetectionStage {
     }
 }
 
+#[cfg(feature = "python")]
 /// `(ref, pin) in net.pins` -- membership via CPython `in` on the pins list.
 fn contains_pair<'py>(
     py: Python<'py>,
@@ -495,6 +510,7 @@ fn contains_pair<'py>(
     pins.call_method1("__contains__", (&pair,))?.extract()
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_drc_sweep(state, tolerance)`.
 #[pyfunction]
 pub fn run_drc_sweep(
@@ -510,6 +526,7 @@ pub fn run_drc_sweep(
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["routes", "vias"])
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_track_deduplication(state,
 /// tolerance_mm)`.
 #[pyfunction]
@@ -526,6 +543,7 @@ pub fn run_track_deduplication(
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["routes"])
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_short_circuit_detection(state,
 /// tolerance_mm)`.
 #[pyfunction]

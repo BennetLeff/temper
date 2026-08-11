@@ -32,6 +32,21 @@ pyo3 = { version = "0.29", features = ["py-clone"], optional = true }
 [features]
 default = ["python"]
 python = ["dep:pyo3"]
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index -- `cargo test`'s libtest harness cannot
+# target `wasm32-unknown-unknown`.  Off by default; never enabled for the
+# Python extension module.  Mirrors `temper-io-types`/`temper-quality-oracle`'s
+# feature set exactly, so the shared runner wires this crate the same way.
+#
+# `wasm-registry` is the umbrella feature that gates module visibility; every
+# per-family feature implies it.  What survives `--no-default-features` here
+# is a flat set of pure kernels with no rule-family taxonomy to shard along,
+# so it declares one family (`orchestration`).
+wasm-registry = []
+wasm-registry-orchestration = ["wasm-registry"]
+wasm-registry-all = ["wasm-registry-orchestration"]
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 
 [profile.release]
 panic = "unwind"

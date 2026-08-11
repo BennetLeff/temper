@@ -20,8 +20,10 @@
 // constructs the initial `BoardState` from Python objects (crossing FFI once
 // per pipeline, not per stage) by setting them directly.
 
+#[cfg(feature = "python")]
 use pyo3::PyAny;
 
+#[cfg(feature = "python")]
 /// Immutable snapshot of the board at a pipeline point.
 ///
 /// Cloning is cheap for the `Py<PyAny>` fields (a reference-count bump);
@@ -60,6 +62,7 @@ pub struct BoardState {
     pub reclaim_by_pin_pair: Option<pyo3::Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl BoardState {
     /// Create an empty state — all fields `None`.
     pub fn new() -> Self {
@@ -98,6 +101,7 @@ impl BoardState {
     }
 }
 
+#[cfg(feature = "python")]
 impl Default for BoardState {
     fn default() -> Self {
         Self::new()

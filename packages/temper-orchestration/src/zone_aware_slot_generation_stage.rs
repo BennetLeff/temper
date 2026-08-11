@@ -38,16 +38,25 @@
 //   `reclaim or None` (an empty dict -> Python None, value-identical to the
 //   oracle's `dataclasses.replace`).
 
+#[cfg(feature = "python")]
 use std::borrow::Cow;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyFloat, PyList, PyString, PyTuple};
 
+#[cfg(feature = "python")]
 use crate::board_state::BoardState;
+#[cfg(feature = "python")]
 use crate::config_attach_stage::to_pyerr;
+#[cfg(feature = "python")]
 use crate::derivation_stage::{pyerr_stage, stage_guard};
+#[cfg(feature = "python")]
 use crate::grid_hv::{getattr_default, str_py};
+#[cfg(feature = "python")]
 use crate::host_math;
+#[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
 const STAGE_NAME: &str = "zone_aware_slot_generation";
@@ -60,6 +69,7 @@ const K4_ORIGINAL_REQUIREMENT_MM: f64 = 6.0;
 // @req(2026-06-23-007, R2/K4): the TO-247 pin-1 to pin-2 pitch fallback.
 const K4_TO247_PIN_PITCH_DEFAULT_MM: f64 = 5.45;
 
+#[cfg(feature = "python")]
 /// The zone-aware slot-generation stage: zones + board + netlist ->
 /// `zone_slots` (frozenset of `(zone_name, tuple_of_slots)`, copper-zone and
 /// isolation-cutout filtered) + `reclaim_by_pin_pair` (the K4 reclaim dict,
@@ -73,6 +83,7 @@ pub struct ZoneAwareSlotGenerationStage {
     pub net_class_rules: Option<Py<PyAny>>,
 }
 
+#[cfg(feature = "python")]
 impl Stage<BoardState> for ZoneAwareSlotGenerationStage {
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(STAGE_NAME)
@@ -88,6 +99,7 @@ impl Stage<BoardState> for ZoneAwareSlotGenerationStage {
     }
 }
 
+#[cfg(feature = "python")]
 impl ZoneAwareSlotGenerationStage {
     /// The stage body. `state.zones` falsy -> the isolation filter still runs
     /// and the reclaim (or None) is written, exactly like the oracle.
@@ -526,6 +538,7 @@ impl ZoneAwareSlotGenerationStage {
 // Helpers
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 /// `reclaim or None`: an empty reclaim dict is falsy -> Python None.
 fn reclaim_or_none(py: Python<'_>, reclaim: Option<Py<PyAny>>) -> PyResult<Option<Py<PyAny>>> {
     match reclaim {
@@ -540,6 +553,7 @@ fn reclaim_or_none(py: Python<'_>, reclaim: Option<Py<PyAny>>) -> PyResult<Optio
     }
 }
 
+#[cfg(feature = "python")]
 /// The no-filter branch: `(zone.name, tuple(generate_slots_for_zone(...)))`
 /// per zone, wrapped in a frozenset.
 fn plain_generation<'py>(
@@ -564,6 +578,7 @@ fn plain_generation<'py>(
         .unbind())
 }
 
+#[cfg(feature = "python")]
 /// `list(_tdb.deterministic_stages.generate_slots_for_zone(x_min, y_min,
 /// x_max, y_max, spacing))` -- the Phase-5 slot-grid kernel call.
 fn generate_slots_for_zone<'py>(
@@ -584,6 +599,7 @@ fn generate_slots_for_zone<'py>(
     Ok(list)
 }
 
+#[cfg(feature = "python")]
 /// `_slot_intersects_iso` -- the design-bundle AABB kernel.
 fn slot_intersects_iso<'py>(
     py: Python<'py>,
@@ -597,6 +613,7 @@ fn slot_intersects_iso<'py>(
     f.call1((slot, iso_aabbs))?.extract()
 }
 
+#[cfg(feature = "python")]
 /// `_hv_clearance_overrides`: the HV word-boundary regex scan of the
 /// uppercased class names; `(perp_budget, original_req)` defaults on no match.
 fn hv_clearance_overrides(
@@ -638,6 +655,7 @@ fn hv_clearance_overrides(
     Ok(defaults)
 }
 
+#[cfg(feature = "python")]
 /// `_resolve_pin_pitch_mm`: the placed component's lv/hv pin pitch (pow
 /// arithmetic), or the TO-247 fallback.
 fn resolve_pin_pitch_mm<'py>(
@@ -694,6 +712,7 @@ fn py_min(a: f64, b: f64) -> f64 {
     }
 }
 
+#[cfg(feature = "python")]
 /// CPython `str.format(template, *args)` -- the only message renderer (David
 /// Gay `:.1f`/`:.2f`, list reprs, everything) stays CPython.
 fn py_format<'py>(
@@ -705,6 +724,7 @@ fn py_format<'py>(
     s.call_method1("format", PyTuple::new(py, args)?)
 }
 
+#[cfg(feature = "python")]
 /// `logging.getLogger(<module>).<level>(message)`.
 fn log_msg(py: Python<'_>, level: &str, msg: &Bound<'_, PyAny>) -> PyResult<()> {
     let logger = py.import("logging")?.call_method1("getLogger", (LOGGER_NAME,))?;
@@ -712,6 +732,7 @@ fn log_msg(py: Python<'_>, level: &str, msg: &Bound<'_, PyAny>) -> PyResult<()> 
     Ok(())
 }
 
+#[cfg(feature = "python")]
 /// A dict's `items()` in insertion order.
 fn dict_items<'py>(
     py: Python<'py>,
@@ -731,26 +752,21 @@ fn dict_items<'py>(
 // Tests
 // ---------------------------------------------------------------------------
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
-    use proptest::prelude::*;
-
-    fn normal_f64() -> impl Strategy<Value = f64> {
-        prop::num::f64::NORMAL
-    }
 
     // -- py_max ------------------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_nan_first_argument_wins() {
         assert!(py_max(f64::NAN, 1.0).is_nan());
         assert_eq!(py_max(1.0, f64::NAN), 1.0);
         assert!(py_max(f64::NAN, f64::NAN).is_nan());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_ties_keep_first() {
         assert_eq!(py_max(0.0, -0.0), 0.0);
         // -0.0 first: must return -0.0, not 0.0
@@ -761,7 +777,7 @@ mod tests {
         assert_eq!(py_max(-0.0, -0.0).to_bits(), (-0.0f64).to_bits());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_infinity() {
         assert_eq!(py_max(f64::INFINITY, 0.0), f64::INFINITY);
         assert_eq!(py_max(0.0, f64::INFINITY), f64::INFINITY);
@@ -773,12 +789,87 @@ mod tests {
         assert!(py_max(f64::NAN, f64::NEG_INFINITY).is_nan());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_max_normal_cases() {
         assert_eq!(py_max(5.0, 3.0), 5.0);
         assert_eq!(py_max(3.0, 5.0), 5.0);
         assert_eq!(py_max(-5.0, 3.0), 3.0);
         assert_eq!(py_max(3.0, -5.0), 3.0);
+    }
+
+    // -- py_min ------------------------------------------------------------
+
+    #[cfg_attr(test, test)]
+    fn py_min_nan_first_argument_wins() {
+        assert!(py_min(f64::NAN, 1.0).is_nan());
+        assert_eq!(py_min(1.0, f64::NAN), 1.0);
+        assert!(py_min(f64::NAN, f64::NAN).is_nan());
+    }
+
+    #[cfg_attr(test, test)]
+    fn py_min_ties_keep_first() {
+        assert_eq!(py_min(0.0, -0.0), 0.0);
+        // -0.0 first: must return -0.0
+        let r = py_min(-0.0, 0.0);
+        assert_eq!(r.to_bits(), (-0.0f64).to_bits(),
+            "py_min(-0.0, 0.0) must return -0.0, got {r}");
+        assert_eq!(py_min(3.0, 3.0), 3.0);
+        assert_eq!(py_min(-0.0, -0.0).to_bits(), (-0.0f64).to_bits());
+    }
+
+    #[cfg_attr(test, test)]
+    fn py_min_infinity() {
+        assert_eq!(py_min(f64::INFINITY, 0.0), 0.0);
+        assert_eq!(py_min(0.0, f64::INFINITY), 0.0);
+        assert_eq!(py_min(f64::NEG_INFINITY, 0.0), f64::NEG_INFINITY);
+        assert_eq!(py_min(0.0, f64::NEG_INFINITY), f64::NEG_INFINITY);
+        // NaN first-arg-wins: -inf vs NaN -> keeps -inf
+        assert_eq!(py_min(f64::NEG_INFINITY, f64::NAN), f64::NEG_INFINITY);
+        // NaN first: returns NaN
+        assert!(py_min(f64::NAN, f64::NEG_INFINITY).is_nan());
+    }
+
+    #[cfg_attr(test, test)]
+    fn py_min_normal_cases() {
+        assert_eq!(py_min(5.0, 3.0), 3.0);
+        assert_eq!(py_min(3.0, 5.0), 3.0);
+        assert_eq!(py_min(-5.0, 3.0), -5.0);
+        assert_eq!(py_min(3.0, -5.0), -5.0);
+    }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("zone_aware_slot_generation_stage::tests::py_max_nan_first_argument_wins", py_max_nan_first_argument_wins),
+        ("zone_aware_slot_generation_stage::tests::py_max_ties_keep_first", py_max_ties_keep_first),
+        ("zone_aware_slot_generation_stage::tests::py_max_infinity", py_max_infinity),
+        ("zone_aware_slot_generation_stage::tests::py_max_normal_cases", py_max_normal_cases),
+        ("zone_aware_slot_generation_stage::tests::py_min_nan_first_argument_wins", py_min_nan_first_argument_wins),
+        ("zone_aware_slot_generation_stage::tests::py_min_ties_keep_first", py_min_ties_keep_first),
+        ("zone_aware_slot_generation_stage::tests::py_min_infinity", py_min_infinity),
+        ("zone_aware_slot_generation_stage::tests::py_min_normal_cases", py_min_normal_cases),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
+}
+
+// `proptest` is a dev-dependency (present under `cargo test`, absent from the
+// ordinary non-test build `wasm_test_registry.rs` compiles into), so these
+// six properties live in their own `#[cfg(test)]` sibling module -- exactly
+// the split `copper_length.rs`/`timing.rs`/`host_math.rs` already use --
+// rather than inline inside `tests` above, so `gen_wasm_test_registry.py`'s
+// per-module `proptest-dev-dependency` exclusion only drops these six
+// properties instead of the whole module's otherwise-pure `py_max`/`py_min`
+// unit tests.
+#[cfg(test)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn normal_f64() -> impl Strategy<Value = f64> {
+        prop::num::f64::NORMAL
     }
 
     proptest! {
@@ -805,49 +896,7 @@ mod tests {
         fn p3_py_max_commutative_for_finite(a in normal_f64(), b in normal_f64()) {
             prop_assert_eq!(py_max(a, b), py_max(b, a));
         }
-    }
 
-    // -- py_min ------------------------------------------------------------
-
-    #[test]
-    fn py_min_nan_first_argument_wins() {
-        assert!(py_min(f64::NAN, 1.0).is_nan());
-        assert_eq!(py_min(1.0, f64::NAN), 1.0);
-        assert!(py_min(f64::NAN, f64::NAN).is_nan());
-    }
-
-    #[test]
-    fn py_min_ties_keep_first() {
-        assert_eq!(py_min(0.0, -0.0), 0.0);
-        // -0.0 first: must return -0.0
-        let r = py_min(-0.0, 0.0);
-        assert_eq!(r.to_bits(), (-0.0f64).to_bits(),
-            "py_min(-0.0, 0.0) must return -0.0, got {r}");
-        assert_eq!(py_min(3.0, 3.0), 3.0);
-        assert_eq!(py_min(-0.0, -0.0).to_bits(), (-0.0f64).to_bits());
-    }
-
-    #[test]
-    fn py_min_infinity() {
-        assert_eq!(py_min(f64::INFINITY, 0.0), 0.0);
-        assert_eq!(py_min(0.0, f64::INFINITY), 0.0);
-        assert_eq!(py_min(f64::NEG_INFINITY, 0.0), f64::NEG_INFINITY);
-        assert_eq!(py_min(0.0, f64::NEG_INFINITY), f64::NEG_INFINITY);
-        // NaN first-arg-wins: -inf vs NaN -> keeps -inf
-        assert_eq!(py_min(f64::NEG_INFINITY, f64::NAN), f64::NEG_INFINITY);
-        // NaN first: returns NaN
-        assert!(py_min(f64::NAN, f64::NEG_INFINITY).is_nan());
-    }
-
-    #[test]
-    fn py_min_normal_cases() {
-        assert_eq!(py_min(5.0, 3.0), 3.0);
-        assert_eq!(py_min(3.0, 5.0), 3.0);
-        assert_eq!(py_min(-5.0, 3.0), -5.0);
-        assert_eq!(py_min(3.0, -5.0), -5.0);
-    }
-
-    proptest! {
         /// P4: For non-NaN f64, py_min returns the conventional minimum.
         #[test]
         fn p4_py_min_returns_smaller(a in normal_f64(), b in normal_f64()) {
@@ -874,6 +923,7 @@ mod tests {
     }
 }
 
+#[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_zone_aware_slot_generation(state,
 /// slot_spacing_mm, copper_zone_margin, min_routing_channel,
 /// yaml_copper_zones, yaml_isolation_slots, net_class_rules)`.
