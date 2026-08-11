@@ -86,6 +86,8 @@ const REGISTRIES: &[&[&[WasmTest]]] = &[
     temper_constraint_compiler::wasm_test_registry::ALL,
     #[cfg(feature = "quality-oracle-registry")]
     temper_quality_oracle::wasm_test_registry::ALL,
+    #[cfg(feature = "io-types-registry")]
+    temper_io_types::wasm_test_registry::ALL,
 ];
 
 /// How many tests are linked in, across every registry.

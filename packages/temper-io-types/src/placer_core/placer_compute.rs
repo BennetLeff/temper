@@ -491,9 +491,14 @@ pub fn adjust_for_congestion<E>(
     Ok(result)
 }
 
-#[cfg(test)]
-mod tests {
-    #![allow(clippy::unwrap_used)] // test-only kernel-driving helpers; the lib surface has none
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
+    // test-only kernel-driving helpers; the lib surface has none.  The
+    // `unwrap_used` allow that licenses them is the generated OUTER attribute
+    // above; an inner `#![allow(clippy::unwrap_used)]` as well is what clippy
+    // calls `duplicated_attributes` + `mixed_attributes_style`, and CI runs
+    // clippy with `--all-features`, which now includes `wasm-registry`.
 
     use super::*;
 
@@ -506,7 +511,7 @@ mod tests {
         Ok((1.0, 0.0))
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_mod_floors_for_negative() {
         assert_eq!(py_mod(270 + 90, 360), 0);
         assert_eq!(py_mod(-90, 360), 270);
@@ -514,7 +519,7 @@ mod tests {
         assert_eq!(py_mod(45 + 359, 360), 44);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_min_max_first_arg_on_tie_and_nan() {
         // CPython: min(2.0, 2.0) == 2.0, min(2.0, nan) == 2.0,
         // max(2.0, nan) == 2.0 (comparisons with NaN are False).
@@ -528,7 +533,7 @@ mod tests {
         assert_eq!(py_max(1.0, 3.0), 3.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn rotation_zero_is_identity() {
         // At rotation=0 the oracle never calls trig; the rel offsets pass
         // through and the composite rotation is py_mod(0 + comp_rot, 360).
@@ -560,7 +565,7 @@ mod tests {
         assert_eq!(out[2].rotation, 90);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn negative_rotation_composite_modulo() {
         // rotation=-90 + comp.rotation=90 -> 0 (Python floored modulo), NOT
         // Rust's truncated -0 % 360 == 0 anyway; use -45 + 90 -> 45.
@@ -583,7 +588,7 @@ mod tests {
         assert_eq!(out[0].rotation, 180);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn proximity_spiral_runs_without_zone() {
         // The #763 contract: the zone_name=None path must place refs.
         let refs = vec!["C1".to_string()];
@@ -597,7 +602,7 @@ mod tests {
         assert_eq!(pos[1], 50.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn proximity_unknown_ref_unplaced() {
         let refs = vec!["C1".to_string(), "MISSING".to_string()];
         let indices = vec![Some(0), None];
@@ -607,7 +612,7 @@ mod tests {
         assert_eq!(unplaced, vec!["MISSING".to_string()]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn zone_center_grid_lays_out_around_center() {
         let refs = vec!["U1".to_string(), "C1".to_string()];
         let indices = vec![Some(0), Some(1)];
@@ -621,7 +626,7 @@ mod tests {
         assert_eq!(pos[3], 67.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn congestion_float64_normalized_push() {
         // dist = sqrt(pow(50.5-50.5,2) + pow(50.5-50.5,2)) = 0 < 1e-3 ->
         // random push. With a dist_cb that says dist is huge, no push.
@@ -644,7 +649,7 @@ mod tests {
         assert_eq!(out, positions);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn power_stage_duplicate_refs_resolve_to_last_index() {
         // The oracle's `ref_to_idx` is a last-wins dict: a duplicated ref
         // resolves to its LAST index, and both occurrences land there (and
@@ -666,7 +671,7 @@ mod tests {
         assert_eq!(out.unplaced, vec!["Q2".to_string()]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn power_stage_duplicate_template_ref_last_geometry_wins() {
         // The oracle's `placements` dict is last-wins on the TEMPLATE side
         // too: `placements[comp.ref] = ...` runs in template order, so a
@@ -695,7 +700,7 @@ mod tests {
         assert_eq!(out.rotations[0], 90.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn congestion_float32_chain_uses_f32_intermediates() {
         // A float32 input: dx = px - bx rounds to f32 (NEP-50), and the
         // normalized push chain is f32 arithmetic throughout.
@@ -733,7 +738,7 @@ mod tests {
         assert_eq!(y as f64, expected_y);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn congestion_fixed_components_untouched() {
         let positions = vec![10.0, 20.0, 100.0, 200.0];
         let fixed = vec![true, false];
@@ -756,7 +761,7 @@ mod tests {
         assert_eq!(out[1], 20.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn congestion_outside_radius_is_noop() {
         let positions = vec![50.0, 50.0];
         let fixed = vec![false];
@@ -781,7 +786,7 @@ mod tests {
 
     // ---------- place_in_zone_center zone clamp --------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn zone_center_clamps_to_bounds() {
         // A grid position outside the zone must be clamped.
         let refs: Vec<String> = (0..10).map(|i| format!("C{i}")).collect();
@@ -795,6 +800,29 @@ mod tests {
             assert!((50.0..=150.0).contains(&y), "y={y} outside zone for C{i}");
         }
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("placer_core::placer_compute::tests::py_mod_floors_for_negative", py_mod_floors_for_negative),
+        ("placer_core::placer_compute::tests::py_min_max_first_arg_on_tie_and_nan", py_min_max_first_arg_on_tie_and_nan),
+        ("placer_core::placer_compute::tests::rotation_zero_is_identity", rotation_zero_is_identity),
+        ("placer_core::placer_compute::tests::negative_rotation_composite_modulo", negative_rotation_composite_modulo),
+        ("placer_core::placer_compute::tests::proximity_spiral_runs_without_zone", proximity_spiral_runs_without_zone),
+        ("placer_core::placer_compute::tests::proximity_unknown_ref_unplaced", proximity_unknown_ref_unplaced),
+        ("placer_core::placer_compute::tests::zone_center_grid_lays_out_around_center", zone_center_grid_lays_out_around_center),
+        ("placer_core::placer_compute::tests::congestion_float64_normalized_push", congestion_float64_normalized_push),
+        ("placer_core::placer_compute::tests::power_stage_duplicate_refs_resolve_to_last_index", power_stage_duplicate_refs_resolve_to_last_index),
+        ("placer_core::placer_compute::tests::power_stage_duplicate_template_ref_last_geometry_wins", power_stage_duplicate_template_ref_last_geometry_wins),
+        ("placer_core::placer_compute::tests::congestion_float32_chain_uses_f32_intermediates", congestion_float32_chain_uses_f32_intermediates),
+        ("placer_core::placer_compute::tests::congestion_fixed_components_untouched", congestion_fixed_components_untouched),
+        ("placer_core::placer_compute::tests::congestion_outside_radius_is_noop", congestion_outside_radius_is_noop),
+        ("placer_core::placer_compute::tests::zone_center_clamps_to_bounds", zone_center_clamps_to_bounds),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
 
 // ---------------------------------------------------------------------------

@@ -18,6 +18,22 @@ temper-py-bridge = { path = "../temper-py-bridge", optional = true }
 [features]
 default = ["python"]
 python = ["dep:pyo3", "dep:temper-py-bridge"]
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index -- `cargo test`'s libtest harness cannot
+# target `wasm32-unknown-unknown`.  Off by default; never enabled for the
+# Python extension module.  Mirrors `temper-thermal`'s feature set exactly, so
+# the shared runner wires both crates the same way.
+#
+# `wasm-registry` is the umbrella feature that gates module visibility; every
+# per-family feature implies it.  What survives `--no-default-features` here is
+# a flat set of KiCad/DSN serialisers, parsers and the placer CONTRACT kernels,
+# with no rule-family taxonomy to shard along, so it declares one family
+# (`io-types`).
+wasm-registry = []
+wasm-registry-io-types = ["wasm-registry"]
+wasm-registry-all = ["wasm-registry-io-types"]
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 
 [profile.release]
 panic = "unwind"
