@@ -525,12 +525,14 @@ pub fn operating_point_audit_py(
     .map_err(temper_py_bridge::panic_to_err)
 }
 
-#[cfg(test)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     // See the note in `thermal_potential::tests`: the crate denies
     // unwrap/expect in production code, and a failing unwrap in a test
-    // IS the test failure.
-    #![allow(clippy::expect_used, clippy::unwrap_used)]
+    // IS the test failure.  The lift is the generated outer
+    // `#[allow(...)]` above; repeating it inner is a
+    // `clippy::duplicated_attributes` error.
 
     use super::*;
 
@@ -540,13 +542,13 @@ mod tests {
     const L_COIL: f64 = 100e-6;
     const L_LEAK: f64 = 10e-6;
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn l_eff_hits_the_endpoints_exactly() {
         assert_eq!(l_eff(L_COIL, L_LEAK, 0.0), L_COIL);
         assert_eq!(l_eff(L_COIL, L_LEAK, 1.0), L_LEAK);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn thermal_chain_matches_the_hand_computation() {
         // R = (0.6 + 0.25) + 1.0 = 1.85; T_j = 40 + 20*1.85 = 77.0
         let chain = thermal_chain(20.0, 40.0, 0.6, 0.25, 1.0, V_BR, DERATE);
@@ -555,7 +557,7 @@ mod tests {
         assert_eq!(chain.v_br_derated, 960.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn extreme_point_zero_numerator_yields_zero_ceiling() {
         // V_BR*derate <= V_bus -> num <= 0 -> L_loop_max is exactly 0.0
         let chain = thermal_chain(1.0, 40.0, 0.6, 0.25, 1.0, 300.0, 1.0);
@@ -564,7 +566,7 @@ mod tests {
         assert!(!p.feasible);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn feasibility_is_inclusive_at_the_exact_floor() {
         // Mutation M15 in the migration PR flipped `l_loop_max >=
         // min_feasible_L_loop` to `>`.  That is only observable when the
@@ -580,7 +582,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn zero_headroom_branch_choice_is_unobservable() {
         // Mutation M16 (`num <= 0.0` -> `num < 0.0`) survived the
         // differential.  Not a test gap: the two branches differ only at
@@ -603,7 +605,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn interior_k_grid_excludes_the_endpoints() {
         let ks = interior_k_grid(INTERIOR_GRID_POINTS);
         assert_eq!(ks.len(), INTERIOR_GRID_POINTS - 2);
@@ -613,7 +615,7 @@ mod tests {
         assert!(interior_k_grid(0).is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn interior_scan_is_silent_for_the_monotone_model() {
         let samples: Vec<(f64, f64)> = interior_k_grid(INTERIOR_GRID_POINTS)
             .into_iter()
@@ -625,14 +627,14 @@ mod tests {
         assert!(scan.samples.iter().all(|s| !s.worse_l_loop_max));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn interior_scan_returns_nothing_for_a_non_positive_endpoint() {
         let scan = interior_scan(V_BUS, V_BR, DERATE, 5e-9, 0.0, L_LEAK, &[(0.5, 1e-5)]);
         assert!(!scan.evaluated);
         assert!(scan.samples.is_empty());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn interior_scan_catches_a_non_monotone_model() {
         // A model that dips BELOW both endpoints in the interior gives a
         // higher di/dt than either endpoint -> unsound bounding.
@@ -651,7 +653,7 @@ mod tests {
     /// L_leakage`, several bus/breakdown ratios) crossed with an
     /// exhaustive `k` sweep at 1/1024 resolution, and assert the bound
     /// holds on every one — no sampling, no tolerance.
-    #[test]
+    #[cfg_attr(test, test)]
     fn bmc_interior_bounding_holds_exhaustively() {
         let inductances = [1e-9, 1e-6, 10e-6, 100e-6, 1e-3];
         let buses = [10.0, 325.0, 600.0];
@@ -694,7 +696,7 @@ mod tests {
 
     /// The BMC sweep above is only meaningful if the property CAN fail —
     /// a deliberately non-monotone model must break it (R4 fail-capable).
-    #[test]
+    #[cfg_attr(test, test)]
     fn bmc_property_is_fail_capable() {
         // A quadratic dip deep enough to push L_eff BELOW both endpoints
         // in a band around k = 0.5: at k = 0.5 the linear model gives
@@ -713,7 +715,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn audit_is_clean_for_a_consistent_report() {
         let chain = thermal_chain(20.0, 40.0, 0.6, 0.25, 1.0, V_BR, DERATE);
         let k0 = extreme_point(V_BUS, L_COIL, chain, 150.0, 5e-9);
@@ -729,7 +731,7 @@ mod tests {
         assert!(findings.is_empty(), "clean report audited dirty: {findings:?}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn audit_catches_a_tampered_report() {
         let chain = thermal_chain(20.0, 40.0, 0.6, 0.25, 1.0, V_BR, DERATE);
         let k0 = extreme_point(V_BUS, L_COIL, chain, 150.0, 5e-9);
@@ -748,11 +750,34 @@ mod tests {
         assert!(findings.contains(&AuditFinding::JunctionTemperatureMismatch));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_min_max_keep_the_first_argument_on_nan() {
         assert!(py_min(f64::NAN, 1.0).is_nan());
         assert_eq!(py_min(1.0, f64::NAN), 1.0);
         assert!(py_max(f64::NAN, 1.0).is_nan());
         assert_eq!(py_max(1.0, f64::NAN), 1.0);
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("operating_point::tests::l_eff_hits_the_endpoints_exactly", l_eff_hits_the_endpoints_exactly),
+        ("operating_point::tests::thermal_chain_matches_the_hand_computation", thermal_chain_matches_the_hand_computation),
+        ("operating_point::tests::extreme_point_zero_numerator_yields_zero_ceiling", extreme_point_zero_numerator_yields_zero_ceiling),
+        ("operating_point::tests::feasibility_is_inclusive_at_the_exact_floor", feasibility_is_inclusive_at_the_exact_floor),
+        ("operating_point::tests::zero_headroom_branch_choice_is_unobservable", zero_headroom_branch_choice_is_unobservable),
+        ("operating_point::tests::interior_k_grid_excludes_the_endpoints", interior_k_grid_excludes_the_endpoints),
+        ("operating_point::tests::interior_scan_is_silent_for_the_monotone_model", interior_scan_is_silent_for_the_monotone_model),
+        ("operating_point::tests::interior_scan_returns_nothing_for_a_non_positive_endpoint", interior_scan_returns_nothing_for_a_non_positive_endpoint),
+        ("operating_point::tests::interior_scan_catches_a_non_monotone_model", interior_scan_catches_a_non_monotone_model),
+        ("operating_point::tests::bmc_interior_bounding_holds_exhaustively", bmc_interior_bounding_holds_exhaustively),
+        ("operating_point::tests::bmc_property_is_fail_capable", bmc_property_is_fail_capable),
+        ("operating_point::tests::audit_is_clean_for_a_consistent_report", audit_is_clean_for_a_consistent_report),
+        ("operating_point::tests::audit_catches_a_tampered_report", audit_catches_a_tampered_report),
+        ("operating_point::tests::py_min_max_keep_the_first_argument_on_nan", py_min_max_keep_the_first_argument_on_nan),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

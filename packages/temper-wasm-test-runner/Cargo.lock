@@ -641,11 +641,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "temper-thermal"
+version = "0.1.0"
+
+[[package]]
 name = "temper-wasm-test-runner"
 version = "0.1.0"
 dependencies = [
  "temper-drc-rs",
  "temper-geometry",
+ "temper-thermal",
 ]
 
 [[package]]

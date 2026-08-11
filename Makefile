@@ -294,6 +294,21 @@ wasm-geometry-test:
 	node tools/wasm/run_wasm_tests.mjs $(WASM_RUNNER_ARTIFACT) \
 		--expected-failures tools/wasm/wasm_expected_failures_geometry.json
 
+# temper-thermal on the same tier, for the same reasons `wasm-geometry-test` is
+# its own target: a different module, a different result set, and a per-crate
+# expected-failure manifest that cannot judge a module built from another
+# crate's registry.
+#
+#   make wasm-thermal-test    # build + run all of temper-thermal's registered
+#                             # tests under Node, on wasm32-unknown-unknown
+wasm-thermal-test:
+	@echo "Building temper-wasm-test-runner with temper-thermal's registry..."
+	cargo build --release --target wasm32-unknown-unknown --no-default-features \
+		--features thermal-wasm-test-registry \
+		--manifest-path $(WASM_RUNNER_MANIFEST)
+	node tools/wasm/run_wasm_tests.mjs $(WASM_RUNNER_ARTIFACT) \
+		--expected-failures tools/wasm/wasm_expected_failures_thermal.json
+
 # Delegates to the committed staging script rather than duplicating its build
 # matrix: one definition of "what the modules are", shared by this target, the
 # deploy workflow, and the runbook. That script reads
