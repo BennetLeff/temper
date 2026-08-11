@@ -1260,6 +1260,348 @@ pub(crate) mod tests {
         assert_eq!(py_tuple_key_cmp(&f64::INFINITY, "A", &f64::INFINITY, "B"), std::cmp::Ordering::Less);
     }
 
+    // -----------------------------------------------------------------------
+    // Deterministic mirrors of `proptests`' six properties (P1-P6) below --
+    // `proptest` is a dev-dependency (the `proptest-dev-dependency` exclusion
+    // class), so its macro bodies cannot be registered directly; each
+    // property here reproduces the SAME assertion over a fixed, seeded
+    // `SplitMix64` corpus. The native, randomized proptest module is
+    // UNCHANGED and keeps exploring randomly.
+    //
+    // P6 (transitivity) constructs an increasing `a < b < c` chain directly
+    // from the seed rather than drawing three independent floats and hoping
+    // they land ordered (only ~1/6 of random triples would by chance) --
+    // the uniform-sampling trap this task's own brief warns about. Every
+    // seed below exercises the real transitivity check.
+    use crate::wasm_campaign_prng::SplitMix64;
+
+    fn campaign_normal_f64(rng: &mut SplitMix64) -> f64 {
+        rng.range(-1e6, 1e6)
+    }
+
+    /// P1: For non-NaN f64, py_max returns the conventional maximum.
+    fn p1_py_max_returns_larger_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let a = campaign_normal_f64(&mut rng);
+        let b = campaign_normal_f64(&mut rng);
+        let r = py_max(a, b);
+        let expected = if a >= b { a } else { b };
+        assert_eq!(r, expected, "seed={seed}");
+    }
+
+    /// P2: py_max returns one of its inputs bit-identically.
+    fn p2_py_max_returns_one_of_inputs_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let a = campaign_normal_f64(&mut rng);
+        let b = campaign_normal_f64(&mut rng);
+        let r = py_max(a, b);
+        assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits(), "seed={seed}");
+    }
+
+    /// P3: Commutative for non-NaN inputs.
+    fn p3_py_max_commutative_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let a = campaign_normal_f64(&mut rng);
+        let b = campaign_normal_f64(&mut rng);
+        assert_eq!(py_max(a, b), py_max(b, a), "seed={seed}");
+    }
+
+    /// P4: For non-NaN, non-infinite floats, py_tuple_key_cmp ordering
+    /// matches the numeric ordering of the first element, with the ref
+    /// breaking ties.
+    fn p4_tuple_cmp_matches_numeric_order_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let a = campaign_normal_f64(&mut rng);
+        let b = campaign_normal_f64(&mut rng);
+        let ref_a = rng.ref_like();
+        let ref_b = rng.ref_like();
+        let ord = py_tuple_key_cmp(&a, &ref_a, &b, &ref_b);
+        match a.partial_cmp(&b) {
+            Some(std::cmp::Ordering::Equal) => assert_eq!(ord, ref_a.cmp(&ref_b), "seed={seed}"),
+            Some(o) => assert_eq!(ord, o, "seed={seed}"),
+            None => assert_eq!(ord, ref_a.cmp(&ref_b), "seed={seed}"),
+        }
+    }
+
+    /// P5: Equal first elements always defer to the ref comparison.
+    fn p5_equal_floats_defer_to_ref_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let x = campaign_normal_f64(&mut rng);
+        let ref_a = rng.ref_like();
+        let ref_b = rng.ref_like();
+        assert_eq!(py_tuple_key_cmp(&x, &ref_a, &x, &ref_b), ref_a.cmp(&ref_b), "seed={seed}");
+    }
+
+    /// P6: py_tuple_key_cmp is transitive for non-NaN floats. Builds an
+    /// increasing `a < b < c` chain directly from the seed (see module note
+    /// above) so every seed exercises the real check.
+    fn p6_transitive_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let a = rng.range(-1e5, 1e5);
+        let delta1 = rng.range(1.0, 1e4);
+        let delta2 = rng.range(1.0, 1e4);
+        let b = a + delta1;
+        let c = b + delta2;
+        let ra = rng.ref_like();
+        let rb = rng.ref_like();
+        let rc = rng.ref_like();
+        assert!(b > a && c > b, "seed={seed}");
+        let ab = py_tuple_key_cmp(&a, &ra, &b, &rb);
+        let bc = py_tuple_key_cmp(&b, &rb, &c, &rc);
+        assert_eq!(ab, std::cmp::Ordering::Less, "seed={seed}");
+        assert_eq!(bc, std::cmp::Ordering::Less, "seed={seed}");
+        let ac = py_tuple_key_cmp(&a, &ra, &c, &rc);
+        assert_ne!(
+            ac,
+            std::cmp::Ordering::Greater,
+            "transitivity violated: ({a}, {ra}) < ({b}, {rb}) and ({b}, {rb}) < ({c}, {rc}) but ({a}, {ra}) > ({c}, {rc}) (seed={seed})"
+        );
+    }
+
+    // --- BEGIN generated seeded property-mirror wrappers (deterministic proptest mirrors, R19/U6) ---
+    // 6 properties x 20 seeds = 120 distinct-input wasm tests.
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_000() { p1_py_max_returns_larger_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_001() { p1_py_max_returns_larger_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_002() { p1_py_max_returns_larger_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_003() { p1_py_max_returns_larger_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_004() { p1_py_max_returns_larger_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_005() { p1_py_max_returns_larger_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_006() { p1_py_max_returns_larger_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_007() { p1_py_max_returns_larger_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_008() { p1_py_max_returns_larger_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_009() { p1_py_max_returns_larger_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_010() { p1_py_max_returns_larger_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_011() { p1_py_max_returns_larger_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_012() { p1_py_max_returns_larger_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_013() { p1_py_max_returns_larger_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_014() { p1_py_max_returns_larger_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_015() { p1_py_max_returns_larger_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_016() { p1_py_max_returns_larger_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_017() { p1_py_max_returns_larger_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_018() { p1_py_max_returns_larger_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_019() { p1_py_max_returns_larger_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_000() { p2_py_max_returns_one_of_inputs_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_001() { p2_py_max_returns_one_of_inputs_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_002() { p2_py_max_returns_one_of_inputs_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_003() { p2_py_max_returns_one_of_inputs_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_004() { p2_py_max_returns_one_of_inputs_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_005() { p2_py_max_returns_one_of_inputs_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_006() { p2_py_max_returns_one_of_inputs_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_007() { p2_py_max_returns_one_of_inputs_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_008() { p2_py_max_returns_one_of_inputs_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_009() { p2_py_max_returns_one_of_inputs_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_010() { p2_py_max_returns_one_of_inputs_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_011() { p2_py_max_returns_one_of_inputs_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_012() { p2_py_max_returns_one_of_inputs_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_013() { p2_py_max_returns_one_of_inputs_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_014() { p2_py_max_returns_one_of_inputs_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_015() { p2_py_max_returns_one_of_inputs_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_016() { p2_py_max_returns_one_of_inputs_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_017() { p2_py_max_returns_one_of_inputs_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_018() { p2_py_max_returns_one_of_inputs_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_019() { p2_py_max_returns_one_of_inputs_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_000() { p3_py_max_commutative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_001() { p3_py_max_commutative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_002() { p3_py_max_commutative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_003() { p3_py_max_commutative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_004() { p3_py_max_commutative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_005() { p3_py_max_commutative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_006() { p3_py_max_commutative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_007() { p3_py_max_commutative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_008() { p3_py_max_commutative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_009() { p3_py_max_commutative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_010() { p3_py_max_commutative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_011() { p3_py_max_commutative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_012() { p3_py_max_commutative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_013() { p3_py_max_commutative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_014() { p3_py_max_commutative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_015() { p3_py_max_commutative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_016() { p3_py_max_commutative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_017() { p3_py_max_commutative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_018() { p3_py_max_commutative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_019() { p3_py_max_commutative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_000() { p4_tuple_cmp_matches_numeric_order_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_001() { p4_tuple_cmp_matches_numeric_order_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_002() { p4_tuple_cmp_matches_numeric_order_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_003() { p4_tuple_cmp_matches_numeric_order_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_004() { p4_tuple_cmp_matches_numeric_order_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_005() { p4_tuple_cmp_matches_numeric_order_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_006() { p4_tuple_cmp_matches_numeric_order_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_007() { p4_tuple_cmp_matches_numeric_order_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_008() { p4_tuple_cmp_matches_numeric_order_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_009() { p4_tuple_cmp_matches_numeric_order_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_010() { p4_tuple_cmp_matches_numeric_order_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_011() { p4_tuple_cmp_matches_numeric_order_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_012() { p4_tuple_cmp_matches_numeric_order_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_013() { p4_tuple_cmp_matches_numeric_order_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_014() { p4_tuple_cmp_matches_numeric_order_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_015() { p4_tuple_cmp_matches_numeric_order_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_016() { p4_tuple_cmp_matches_numeric_order_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_017() { p4_tuple_cmp_matches_numeric_order_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_018() { p4_tuple_cmp_matches_numeric_order_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_019() { p4_tuple_cmp_matches_numeric_order_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_000() { p5_equal_floats_defer_to_ref_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_001() { p5_equal_floats_defer_to_ref_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_002() { p5_equal_floats_defer_to_ref_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_003() { p5_equal_floats_defer_to_ref_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_004() { p5_equal_floats_defer_to_ref_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_005() { p5_equal_floats_defer_to_ref_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_006() { p5_equal_floats_defer_to_ref_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_007() { p5_equal_floats_defer_to_ref_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_008() { p5_equal_floats_defer_to_ref_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_009() { p5_equal_floats_defer_to_ref_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_010() { p5_equal_floats_defer_to_ref_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_011() { p5_equal_floats_defer_to_ref_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_012() { p5_equal_floats_defer_to_ref_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_013() { p5_equal_floats_defer_to_ref_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_014() { p5_equal_floats_defer_to_ref_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_015() { p5_equal_floats_defer_to_ref_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_016() { p5_equal_floats_defer_to_ref_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_017() { p5_equal_floats_defer_to_ref_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_018() { p5_equal_floats_defer_to_ref_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_019() { p5_equal_floats_defer_to_ref_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_000() { p6_transitive_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_001() { p6_transitive_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_002() { p6_transitive_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_003() { p6_transitive_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_004() { p6_transitive_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_005() { p6_transitive_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_006() { p6_transitive_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_007() { p6_transitive_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_008() { p6_transitive_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_009() { p6_transitive_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_010() { p6_transitive_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_011() { p6_transitive_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_012() { p6_transitive_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_013() { p6_transitive_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_014() { p6_transitive_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_015() { p6_transitive_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_016() { p6_transitive_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_017() { p6_transitive_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_018() { p6_transitive_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_019() { p6_transitive_impl(19); }
+    // --- END generated seeded property-mirror wrappers ---
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -1273,6 +1615,126 @@ pub(crate) mod tests {
         ("phased_assignment_stage::tests::tuple_cmp_nan_falls_through_to_ref", tuple_cmp_nan_falls_through_to_ref),
         ("phased_assignment_stage::tests::tuple_cmp_negative_zero_vs_zero", tuple_cmp_negative_zero_vs_zero),
         ("phased_assignment_stage::tests::tuple_cmp_infinity", tuple_cmp_infinity),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_000", p1_py_max_returns_larger_seed_000),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_001", p1_py_max_returns_larger_seed_001),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_002", p1_py_max_returns_larger_seed_002),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_003", p1_py_max_returns_larger_seed_003),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_004", p1_py_max_returns_larger_seed_004),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_005", p1_py_max_returns_larger_seed_005),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_006", p1_py_max_returns_larger_seed_006),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_007", p1_py_max_returns_larger_seed_007),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_008", p1_py_max_returns_larger_seed_008),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_009", p1_py_max_returns_larger_seed_009),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_010", p1_py_max_returns_larger_seed_010),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_011", p1_py_max_returns_larger_seed_011),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_012", p1_py_max_returns_larger_seed_012),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_013", p1_py_max_returns_larger_seed_013),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_014", p1_py_max_returns_larger_seed_014),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_015", p1_py_max_returns_larger_seed_015),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_016", p1_py_max_returns_larger_seed_016),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_017", p1_py_max_returns_larger_seed_017),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_018", p1_py_max_returns_larger_seed_018),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_019", p1_py_max_returns_larger_seed_019),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_000", p2_py_max_returns_one_of_inputs_seed_000),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_001", p2_py_max_returns_one_of_inputs_seed_001),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_002", p2_py_max_returns_one_of_inputs_seed_002),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_003", p2_py_max_returns_one_of_inputs_seed_003),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_004", p2_py_max_returns_one_of_inputs_seed_004),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_005", p2_py_max_returns_one_of_inputs_seed_005),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_006", p2_py_max_returns_one_of_inputs_seed_006),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_007", p2_py_max_returns_one_of_inputs_seed_007),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_008", p2_py_max_returns_one_of_inputs_seed_008),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_009", p2_py_max_returns_one_of_inputs_seed_009),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_010", p2_py_max_returns_one_of_inputs_seed_010),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_011", p2_py_max_returns_one_of_inputs_seed_011),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_012", p2_py_max_returns_one_of_inputs_seed_012),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_013", p2_py_max_returns_one_of_inputs_seed_013),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_014", p2_py_max_returns_one_of_inputs_seed_014),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_015", p2_py_max_returns_one_of_inputs_seed_015),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_016", p2_py_max_returns_one_of_inputs_seed_016),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_017", p2_py_max_returns_one_of_inputs_seed_017),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_018", p2_py_max_returns_one_of_inputs_seed_018),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_019", p2_py_max_returns_one_of_inputs_seed_019),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_000", p3_py_max_commutative_seed_000),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_001", p3_py_max_commutative_seed_001),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_002", p3_py_max_commutative_seed_002),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_003", p3_py_max_commutative_seed_003),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_004", p3_py_max_commutative_seed_004),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_005", p3_py_max_commutative_seed_005),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_006", p3_py_max_commutative_seed_006),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_007", p3_py_max_commutative_seed_007),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_008", p3_py_max_commutative_seed_008),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_009", p3_py_max_commutative_seed_009),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_010", p3_py_max_commutative_seed_010),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_011", p3_py_max_commutative_seed_011),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_012", p3_py_max_commutative_seed_012),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_013", p3_py_max_commutative_seed_013),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_014", p3_py_max_commutative_seed_014),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_015", p3_py_max_commutative_seed_015),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_016", p3_py_max_commutative_seed_016),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_017", p3_py_max_commutative_seed_017),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_018", p3_py_max_commutative_seed_018),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_019", p3_py_max_commutative_seed_019),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_000", p4_tuple_cmp_matches_numeric_order_seed_000),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_001", p4_tuple_cmp_matches_numeric_order_seed_001),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_002", p4_tuple_cmp_matches_numeric_order_seed_002),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_003", p4_tuple_cmp_matches_numeric_order_seed_003),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_004", p4_tuple_cmp_matches_numeric_order_seed_004),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_005", p4_tuple_cmp_matches_numeric_order_seed_005),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_006", p4_tuple_cmp_matches_numeric_order_seed_006),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_007", p4_tuple_cmp_matches_numeric_order_seed_007),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_008", p4_tuple_cmp_matches_numeric_order_seed_008),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_009", p4_tuple_cmp_matches_numeric_order_seed_009),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_010", p4_tuple_cmp_matches_numeric_order_seed_010),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_011", p4_tuple_cmp_matches_numeric_order_seed_011),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_012", p4_tuple_cmp_matches_numeric_order_seed_012),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_013", p4_tuple_cmp_matches_numeric_order_seed_013),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_014", p4_tuple_cmp_matches_numeric_order_seed_014),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_015", p4_tuple_cmp_matches_numeric_order_seed_015),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_016", p4_tuple_cmp_matches_numeric_order_seed_016),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_017", p4_tuple_cmp_matches_numeric_order_seed_017),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_018", p4_tuple_cmp_matches_numeric_order_seed_018),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_019", p4_tuple_cmp_matches_numeric_order_seed_019),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_000", p5_equal_floats_defer_to_ref_seed_000),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_001", p5_equal_floats_defer_to_ref_seed_001),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_002", p5_equal_floats_defer_to_ref_seed_002),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_003", p5_equal_floats_defer_to_ref_seed_003),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_004", p5_equal_floats_defer_to_ref_seed_004),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_005", p5_equal_floats_defer_to_ref_seed_005),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_006", p5_equal_floats_defer_to_ref_seed_006),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_007", p5_equal_floats_defer_to_ref_seed_007),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_008", p5_equal_floats_defer_to_ref_seed_008),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_009", p5_equal_floats_defer_to_ref_seed_009),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_010", p5_equal_floats_defer_to_ref_seed_010),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_011", p5_equal_floats_defer_to_ref_seed_011),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_012", p5_equal_floats_defer_to_ref_seed_012),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_013", p5_equal_floats_defer_to_ref_seed_013),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_014", p5_equal_floats_defer_to_ref_seed_014),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_015", p5_equal_floats_defer_to_ref_seed_015),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_016", p5_equal_floats_defer_to_ref_seed_016),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_017", p5_equal_floats_defer_to_ref_seed_017),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_018", p5_equal_floats_defer_to_ref_seed_018),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_019", p5_equal_floats_defer_to_ref_seed_019),
+        ("phased_assignment_stage::tests::p6_transitive_seed_000", p6_transitive_seed_000),
+        ("phased_assignment_stage::tests::p6_transitive_seed_001", p6_transitive_seed_001),
+        ("phased_assignment_stage::tests::p6_transitive_seed_002", p6_transitive_seed_002),
+        ("phased_assignment_stage::tests::p6_transitive_seed_003", p6_transitive_seed_003),
+        ("phased_assignment_stage::tests::p6_transitive_seed_004", p6_transitive_seed_004),
+        ("phased_assignment_stage::tests::p6_transitive_seed_005", p6_transitive_seed_005),
+        ("phased_assignment_stage::tests::p6_transitive_seed_006", p6_transitive_seed_006),
+        ("phased_assignment_stage::tests::p6_transitive_seed_007", p6_transitive_seed_007),
+        ("phased_assignment_stage::tests::p6_transitive_seed_008", p6_transitive_seed_008),
+        ("phased_assignment_stage::tests::p6_transitive_seed_009", p6_transitive_seed_009),
+        ("phased_assignment_stage::tests::p6_transitive_seed_010", p6_transitive_seed_010),
+        ("phased_assignment_stage::tests::p6_transitive_seed_011", p6_transitive_seed_011),
+        ("phased_assignment_stage::tests::p6_transitive_seed_012", p6_transitive_seed_012),
+        ("phased_assignment_stage::tests::p6_transitive_seed_013", p6_transitive_seed_013),
+        ("phased_assignment_stage::tests::p6_transitive_seed_014", p6_transitive_seed_014),
+        ("phased_assignment_stage::tests::p6_transitive_seed_015", p6_transitive_seed_015),
+        ("phased_assignment_stage::tests::p6_transitive_seed_016", p6_transitive_seed_016),
+        ("phased_assignment_stage::tests::p6_transitive_seed_017", p6_transitive_seed_017),
+        ("phased_assignment_stage::tests::p6_transitive_seed_018", p6_transitive_seed_018),
+        ("phased_assignment_stage::tests::p6_transitive_seed_019", p6_transitive_seed_019),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
