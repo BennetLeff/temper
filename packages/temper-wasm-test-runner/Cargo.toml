@@ -94,6 +94,17 @@ io-types-wasm-test-registry = [
   "temper-io-types/wasm-test-registry",
 ]
 
+# --- temper-pcl-ir ------------------------------------------------------------
+# Optional, same reason again. This crate has no `python` feature (no pyo3
+# dependency at all), so `default-features = false` below is written out for
+# consistency with the rest of the tier rather than because it turns anything
+# off.
+pcl-ir-registry = ["dep:temper-pcl-ir"]
+pcl-ir-wasm-test-registry = [
+  "pcl-ir-registry",
+  "temper-pcl-ir/wasm-test-registry",
+]
+
 [dependencies]
 temper-drc-rs ={ path = "../temper-drc-rs", default-features = false }
 # `default-features = false` for the same reason it is set on temper-drc-rs's
@@ -119,6 +130,9 @@ temper-quality-oracle = { path = "../temper-quality-oracle", optional = true, de
 # `default-features = false` is load-bearing: temper-io-types's default feature
 # IS `python`, which pulls pyo3 in and fails the wasm32-unknown-unknown build.
 temper-io-types = { path = "../temper-io-types", optional = true, default-features = false }
+# `default-features = false` written out for consistency with the rest of the
+# tier; this crate has no default features to turn off.
+temper-pcl-ir = { path = "../temper-pcl-ir", optional = true, default-features = false }
 
 [profile.release]
 opt-level = "z"

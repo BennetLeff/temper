@@ -759,6 +759,7 @@ name = "temper-pcl-ir"
 version = "0.1.0"
 dependencies = [
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -791,6 +792,7 @@ dependencies = [
  "temper-drc-rs",
  "temper-geometry",
  "temper-io-types",
+ "temper-pcl-ir",
  "temper-quality-oracle",
  "temper-rust-router-core",
  "temper-thermal",
