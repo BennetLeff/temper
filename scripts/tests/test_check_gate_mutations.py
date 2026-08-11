@@ -294,6 +294,27 @@ class TestNotApplicable:
         result = report.results[0]
         assert result.verdict == runner.VERDICT_NOT_APPLICABLE
 
+    def test_not_applicable_only_sweep_fails_main(self, tmp_path, monkeypatch):
+        """A NOT_APPLICABLE-only sweep (no SURVIVED, no UNVERIFIED) must
+        still make ``main()`` exit non-zero -- the test name on the sibling
+        test above already claims "and_fails", but until this was fixed
+        (2026-08-11) that assertion was never actually checked: main()'s
+        `ok` computation tested `report.survived`/`report.unverified` but
+        not `report.not_applicable`, so a manifest whose ONLY drifted
+        triple was NOT_APPLICABLE reported EXIT_OK -- a locator that never
+        actually mutated anything was silently treated as passing evidence.
+        Reproduced pre-fix: this test failed (exit code 0) against the
+        `main()` body before the `and not report.not_applicable` clause was
+        added."""
+        repo_root = _write_tree(tmp_path, gate_source=GATE_SOURCE, canary_source=CANARY_SOURCE)
+        triple = _base_triple(function="does_not_exist")
+        manifest_path = _write_manifest(repo_root, [triple])
+        monkeypatch.setattr(runner, "REPO_ROOT", repo_root)
+
+        exit_code = runner.main(["--manifest", str(manifest_path), "--scratch-dir", str(tmp_path / "scratch")])
+
+        assert exit_code == runner.EXIT_FAIL
+
 
 class TestEquivalentDeclaration:
     def test_declared_equivalent_survivor_does_not_count_as_survived(self, tmp_path, monkeypatch):
