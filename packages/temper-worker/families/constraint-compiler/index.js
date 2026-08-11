@@ -43,12 +43,27 @@
  * wasm32), and it is imported anyway rather than replaced with a `[]` literal,
  * because the file is where the first divergence will be recorded and the
  * import is what makes recording it a one-file change.
+ *
+ * # `module_sha256` (issue #945)
+ *
+ * `DIGEST_CONSTRAINT_COMPILER` is `scripts/stage_wasm_families.sh`'s sha256 of
+ * the exact bytes staged into `WASM_CONSTRAINT_COMPILER`, written as a
+ * sidecar JSON next to the `.wasm` file so it bundles the same way the
+ * expected-failure manifest does. It answers "is this the same content",
+ * which a test count alone cannot — see `worker_core.js`'s header for the
+ * full argument and `tools/wasm/check_deployed_freshness.mjs` for the
+ * comparison this feeds.
  */
 import WASM_CONSTRAINT_COMPILER from "../../src/temper_wasm_test_runner_constraint_compiler.wasm";
 import EXPECTED_FAILURES_CONSTRAINT_COMPILER from "../../../../tools/wasm/wasm_expected_failures_constraint_compiler.json";
+import DIGEST_CONSTRAINT_COMPILER from "../../src/temper_wasm_test_runner_constraint_compiler.wasm.sha256.json";
 import { createWorker } from "../../src/worker_core.js";
 
-const worker = createWorker(WASM_CONSTRAINT_COMPILER, EXPECTED_FAILURES_CONSTRAINT_COMPILER);
+const worker = createWorker(
+  WASM_CONSTRAINT_COMPILER,
+  EXPECTED_FAILURES_CONSTRAINT_COMPILER,
+  DIGEST_CONSTRAINT_COMPILER.sha256,
+);
 
 export default {
   async fetch(request, env, ctx) {

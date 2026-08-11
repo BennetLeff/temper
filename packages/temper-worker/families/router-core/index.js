@@ -56,12 +56,22 @@
  * crate's built count, and `sweep_multi_worker.mjs` dispatches to it as family
  * `router-core`. One Cloudflare script, both roles. See
  * `tools/wasm/wasm_tier_topology.json` for the tier model.
+ *
+ * # `module_sha256` (issue #945)
+ *
+ * `DIGEST_ROUTER_CORE` is `scripts/stage_wasm_families.sh`'s sha256 of the
+ * exact bytes staged into `WASM_ROUTER_CORE`, written as a sidecar JSON next
+ * to the `.wasm` file so it bundles the same way the expected-failure
+ * manifest does. It answers "is this the same content", which a test count
+ * alone cannot — see `worker_core.js`'s header for the full argument and
+ * `tools/wasm/check_deployed_freshness.mjs` for the comparison this feeds.
  */
 import WASM_ROUTER_CORE from "../../src/temper_wasm_test_runner_router_core.wasm";
 import EXPECTED_FAILURES_ROUTER_CORE from "../../../../tools/wasm/wasm_expected_failures_router_core.json";
+import DIGEST_ROUTER_CORE from "../../src/temper_wasm_test_runner_router_core.wasm.sha256.json";
 import { createWorker } from "../../src/worker_core.js";
 
-const worker = createWorker(WASM_ROUTER_CORE, EXPECTED_FAILURES_ROUTER_CORE);
+const worker = createWorker(WASM_ROUTER_CORE, EXPECTED_FAILURES_ROUTER_CORE, DIGEST_ROUTER_CORE.sha256);
 
 export default {
   async fetch(request, env, ctx) {

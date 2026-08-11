@@ -25,14 +25,34 @@
  *                |  { "index": <number> }  |  { "name": "<string>" }
  *     → { verdict, index, name, message, abi_version, ms, family }
  *   GET  /manifest   → expected-failure manifest (bundled)
- *   GET  /health     → { status: "ok", abi_version, test_count }
- *   GET  /families   → { families: { <name>: { abi_version, test_count } } }
+ *   GET  /health     → { status: "ok", abi_version, test_count, module_sha256? }
+ *   GET  /families   → { families: { <name>: { abi_version, test_count, module_sha256? } } }
  *   GET  /<family>/health  → per-family health
  *
  * Per-request instantiation model: each HTTP request instantiates a fresh
  * `WebAssembly.Instance` from the compiled module, so a panicking test that
  * traps within its own instance cannot poison the next request. The module is
  * compiled once (Cloudflare: at upload time; Node: at server start).
+ *
+ * ## `module_sha256` (issue #945)
+ *
+ * `test_count` answers "how many tests does the deployed module carry", which
+ * is silent about a change that edits or fixes a test's BODY without moving
+ * the count -- PR #941 (a clock-bug fix) is the real incident: 7 tests moved
+ * from trapping to passing on wasm32, the registered count stayed 722 both
+ * before and after, and the count-based freshness check
+ * (tools/wasm/check_deployed_freshness.mjs) reported the stale pre-#941
+ * module "fresh" for four commits. `module_sha256`, when the caller supplies
+ * one, is the sha256 of the exact `.wasm` bytes `scripts/stage_wasm_families.sh`
+ * staged for this Worker (computed there, into a `<module>.sha256.json`
+ * sidecar imported alongside the module -- see families/thermal/index.js for
+ * the pattern). Two builds with the same test COUNT but different BEHAVIOUR
+ * produce different bytes and therefore different digests, which is exactly
+ * the case a count comparison cannot see. This is additive: `test_count`
+ * keeps its exact prior meaning and is still what the count/partition checks
+ * compare, because it produces a far more actionable message when it fires
+ * (it names how many tests, not just that the bytes differ) -- see
+ * check_deployed_freshness.mjs's header for why both are kept.
  */
 
 // ---------------------------------------------------------------------------
@@ -137,10 +157,16 @@ function text(body, status = 200) {
  *        of tools/wasm/wasm_expected_failures*.json. Defaults to
  *        temper-drc-rs's, which is what every caller meant before a second
  *        crate joined the tier.
+ * @param {string|null} [moduleDigest] sha256 (hex) of the exact `.wasm` bytes
+ *        `wasmModule` was compiled from, if the caller has one (see this
+ *        file's header, "module_sha256 (issue #945)"). Returned from
+ *        `/health` as `module_sha256`; omitted from the response when absent
+ *        so an older Worker or a caller mid-rollout is distinguishable from
+ *        one asserting a (wrong) digest.
  * @returns {{ fetch: (request: Request, env: object) => Promise<Response> }}
  */
-export function createWorker(wasmModule, expectedFailures = DRC_EXPECTED_FAILURES) {
-  return createMultiFamilyWorker({ default: wasmModule }, expectedFailures);
+export function createWorker(wasmModule, expectedFailures = DRC_EXPECTED_FAILURES, moduleDigest = null) {
+  return createMultiFamilyWorker({ default: wasmModule }, expectedFailures, { default: moduleDigest });
 }
 
 // ---------------------------------------------------------------------------
@@ -160,11 +186,24 @@ export function createWorker(wasmModule, expectedFailures = DRC_EXPECTED_FAILURE
  * @param {object} [expectedFailures] see `createWorker`. One manifest per
  *        Worker, not per family: every family in a single Worker comes from one
  *        crate's registry (the tier shards a crate, never mixes two).
+ * @param {Record<string, string|null>} [familyDigests] see `createWorker`'s
+ *        `moduleDigest` -- one sha256 (hex) per family, keyed the same as
+ *        `familyModules`. A family with no entry (or `null`/falsy) simply
+ *        omits `module_sha256` from its health responses; nothing requires
+ *        every family to carry one, which is what lets this roll out
+ *        Worker-by-Worker rather than needing a synchronized flag day.
  * @returns {{ fetch: (request: Request, env: object) => Promise<Response> }}
  */
-export function createMultiFamilyWorker(familyModules, expectedFailures = DRC_EXPECTED_FAILURES) {
+export function createMultiFamilyWorker(familyModules, expectedFailures = DRC_EXPECTED_FAILURES, familyDigests = {}) {
   const families = new Set(Object.keys(familyModules));
   const EXPECTED_FAILURES = expectedFailures;
+  const DIGESTS = familyDigests || {};
+
+  /** `module_sha256` field to splice into a health payload, or {} if none. */
+  function digestField(fam) {
+    const d = DIGESTS[fam];
+    return typeof d === "string" && d ? { module_sha256: d } : {};
+  }
 
   // Per-family cached instances (lazy, one per family per isolate).
   const instances = Object.create(null);
@@ -298,7 +337,7 @@ export function createMultiFamilyWorker(familyModules, expectedFailures = DRC_EX
         if (!inst) return json({ status: "error", message: "instantiation failed" }, 500);
         const abi = inst.exports.temper_wasm_abi_version();
         const count = inst.exports.temper_test_count();
-        return json({ status: "ok", abi_version: abi, test_count: count });
+        return json({ status: "ok", abi_version: abi, test_count: count, ...digestField("default") });
       } catch (err) {
         return json({ status: "error", message: `instantiation failed: ${err.message || err}` }, 500);
       }
@@ -316,6 +355,7 @@ export function createMultiFamilyWorker(familyModules, expectedFailures = DRC_EX
             result[fam] = {
               abi_version: inst.exports.temper_wasm_abi_version(),
               test_count: inst.exports.temper_test_count(),
+              ...digestField(fam),
             };
           }
         } catch (err) {
@@ -342,7 +382,7 @@ export function createMultiFamilyWorker(familyModules, expectedFailures = DRC_EX
         if (!inst) return json({ status: "error", message: "instantiation failed" }, 500);
         const abi = inst.exports.temper_wasm_abi_version();
         const count = inst.exports.temper_test_count();
-        return json({ status: "ok", family: fam, abi_version: abi, test_count: count });
+        return json({ status: "ok", family: fam, abi_version: abi, test_count: count, ...digestField(fam) });
       } catch (err) {
         return json({ status: "error", message: `instantiation failed: ${err.message || err}` }, 500);
       }

@@ -30,13 +30,14 @@
  * than it was, not looser.
  * ---------------------------------------------------------------------------
  *
- * The tier now carries six crates: temper-drc-rs (temper-wasm-tier + 7 family
+ * The tier now carries eight crates: temper-drc-rs (temper-wasm-tier + 7 family
  * shards, 1719), temper-geometry (722), temper-thermal (143),
- * temper-rust-router-core (111), temper-constraint-compiler (69) and
- * temper-design-bundle (24). The latter five each declare exactly one family,
- * so each of their single scripts is simultaneously its tier's full-corpus
- * Worker and its only shard. They are six separate `cargo build` invocations
- * producing six .wasm files with six independent counts, and
+ * temper-rust-router-core (111), temper-constraint-compiler (69),
+ * temper-design-bundle (24), temper-quality-oracle (125) and temper-io-types
+ * (144). The latter seven each declare exactly one family, so each of their
+ * single scripts is simultaneously its tier's full-corpus Worker and its only
+ * shard. They are eight separate `cargo build` invocations producing eight
+ * .wasm files with eight independent counts, and
  * tools/wasm/wasm_tier_topology.json is the committed description of that shape.
  *
  * The naive generalisation -- "all deployed Workers sum to the total built
@@ -46,7 +47,7 @@
  * modules. Per tier, each crate's deployed count must equal ITS OWN built
  * count, so nothing cancels and the 11-test gap this control caught on
  * 2026-08-10 still fails exactly as it did. Each crate added widens the surface
- * a union check could hide drift across; it does not widen this one. The 2788
+ * a union check could hide drift across; it does not widen this one. The 3057
  * total is now large enough that an ENTIRE TIER could vanish inside a union
  * check's noise -- temper-design-bundle's whole corpus is 24 tests, twice the
  * gap that already went unnoticed for three days -- which is the argument for
@@ -68,6 +69,64 @@
  * supplied -- never a quieter check). That is why the three new Workers cannot
  * be deployed and swept while being proven current by nothing.
  *
+ * ---------------------------------------------------------------------------
+ * CONTENT HASH (issue #945): a test COUNT is a weak proxy for "is this the
+ * same content", additive to the count check above, not a replacement for it.
+ * ---------------------------------------------------------------------------
+ *
+ * Live on 2026-08-11 (nightly `31449478989`): PR #941 fixed an unconditional
+ * `Instant::now()` in `build_capacitated_graph`, moving 7 temper-geometry
+ * tests from trapping to passing on wasm32. `summary.registered` was 722
+ * before the fix and 722 after -- same test COUNT, different test BEHAVIOUR --
+ * so the count check above reported the pre-#941 deployed module "fresh" for
+ * four commits. Only the independent R19 comparison (native vs. deployed
+ * verdicts) caught it, and issue #945 is explicit that a crate with no native
+ * arm to compare against would have had nothing catch it at all. Other shapes
+ * that leave a count untouched: a test renamed, a test's body edited, a kernel
+ * changed under an unchanged test, or one test added and one removed in the
+ * same commit -- the last is indistinguishable from a no-op under a count
+ * alone.
+ *
+ * The fix, per `scripts/check_measurement_provenance.py`'s module docstring
+ * making the identical argument for `power_pcb_dataset/drc_ceiling.json`
+ * (rejecting a commit SHA as primary freshness identity "for exactly this
+ * class of reason"): give the deployed module a CONTENT identity, not just a
+ * cardinality. `run_wasm_tests.mjs --json` already reads `<module>.wasm`'s
+ * bytes to instantiate it; it now also sha256s them into `summary.sha256`,
+ * riding the exact same `--built-json-<suffix>` file this script already
+ * requires for the count -- NO NEW CLI FLAG. `scripts/stage_wasm_families.sh`
+ * sha256s the same staged bytes into a `<module>.wasm.sha256.json` sidecar
+ * that each `families/<name>/index.js` imports and returns from `/health` as
+ * `module_sha256` (see `packages/temper-worker/src/worker_core.js`'s header
+ * for why the Worker cannot compute this itself: a deployed Worker only ever
+ * gets a compiled `WebAssembly.Module`, and there is no supported way to
+ * recover the original bytes from one to hash at request time).
+ *
+ * Scope: compared per tier against the FULL-CORPUS Worker only, mirroring the
+ * count check's primary bite (the shard-sum PARTITION check has no digest
+ * analogue -- hashes don't sum -- and stays exactly the count-only control it
+ * was; not weakened, not extended).
+ *
+ * MISSING DIGEST IS A SOFT PASS, NOT EXIT 2 -- the one place this check is
+ * deliberately looser than the count check, and the reason is rollout, not
+ * principle. Every tier existing before this change is deployed today without
+ * a `module_sha256` in its `/health` response; nothing here can retroactively
+ * bake a digest into an already-running Worker (this repo does not deploy --
+ * `wasm-tier-deploy.yml` is `workflow_dispatch`-only and run by an operator).
+ * If a missing digest were exit 2 the same way a missing built count is, this
+ * check would go from green to a hard failure on the commit that adds this
+ * feature, for every tier, until an operator happens to redeploy all of
+ * them -- punishing the PR that ships the fix rather than the staleness the
+ * fix exists to catch. So: digest present on BOTH sides and DIFFERENT is a
+ * hard failure (exit 1), exactly as loud as a count mismatch. Digest absent on
+ * either side is a warning (`::warning::`, visible, not silent) and the run
+ * proceeds on the count check alone -- the check this repo has always had,
+ * unweakened. Once every Worker has been redeployed at least once after this
+ * PR, every tier will have a digest on both sides and the soft path stops
+ * being exercised in practice; it is not removed, because a Worker can always
+ * be rolled back to a pre-digest wrangler bundle and rollout leniency should
+ * survive that too.
+ *
  * Usage (one --built-json per tier in the topology; ALL of them required):
  *   node tools/wasm/check_deployed_freshness.mjs \
  *     --built-json <path>                        # temper-drc-rs census (run_wasm_tests.mjs --json)
@@ -76,12 +135,20 @@
  *     --built-json-design-bundle <path>          # temper-design-bundle census
  *     --built-json-rust-router-core <path>       # temper-rust-router-core census
  *     --built-json-constraint-compiler <path>    # temper-constraint-compiler census
+ *     --built-json-quality-oracle <path>         # temper-quality-oracle census
+ *     --built-json-io-types <path>                # temper-io-types census
  *     [--expected-count N]                       # override for temper-drc-rs; wins over --built-json
  *     [--expected-count-<suffix> N]              # the same override, per tier
  *     [--base-domain bennetleff.workers.dev]
  *     [--abi-version 1]
  *     [--json out.json]
  *     [--timeout-ms 15000]
+ *
+ * There is no `--expected-sha256-*` override to match `--expected-count-*`:
+ * unlike a count, there is no legitimate reason to hand this script a digest
+ * by hand instead of letting it read `summary.sha256` from the same
+ * `--built-json` file, and adding one would be a second way to assert a
+ * digest that could disagree with the census file's own.
  *
  * The per-tier flag suffix is the crate name with the leading `temper-` dropped
  * and `-` kept (`temper-geometry` -> `--built-json-geometry`), computed by
@@ -92,9 +159,12 @@
  * grew a second one.
  *
  * Exit codes:
- *   0  every tier's deployed corpus matches its built corpus, and its shards
- *      partition it
- *   1  staleness / unreachable Worker / ABI mismatch -- the failure this exists for
+ *   0  every tier's deployed corpus matches its built corpus, its shards
+ *      partition it, and every tier with a digest on both sides matches (a
+ *      tier missing a digest on either side does not block this)
+ *   1  staleness / unreachable Worker / ABI mismatch / content-hash mismatch
+ *      (both sides had a digest and they differed) -- the failure this exists
+ *      for
  *   2  usage error (a tier with no expected count, unreadable --built-json,
  *     unreadable topology)
  */
@@ -160,6 +230,13 @@ function builtCountFor(tier) {
 
   let count = null;
   let source = null;
+  // sha256 of the exact bytes run_wasm_tests.mjs compiled, per issue #945 —
+  // see this file's header, "CONTENT HASH". null when the built-corpus census
+  // predates that field or was not supplied at all; a missing digest is a
+  // soft-pass note in the comparison below, never a reason to die(2) the way
+  // a missing count is — see the header for why the two are deliberately
+  // asymmetric.
+  let digest = null;
 
   if (builtJson) {
     let parsed;
@@ -187,6 +264,8 @@ function builtCountFor(tier) {
     }
     count = registered;
     source = `${builtJson} (summary.registered — temper_test_count() of the ${tier.crate} wasm32 module built from the commit under test)`;
+    const sha = parsed?.summary?.sha256;
+    digest = typeof sha === "string" && sha ? sha : null;
   }
 
   if (countArg !== null) {
@@ -216,7 +295,7 @@ function builtCountFor(tier) {
     );
   }
 
-  return { count, source };
+  return { count, source, digest };
 }
 
 const built = new Map(topology.tiers.map((t) => [t.crate, builtCountFor(t)]));
@@ -233,7 +312,12 @@ async function health(script) {
     if (typeof body?.test_count !== "number") {
       return { script, url, error: `/health lacks numeric test_count: ${JSON.stringify(body)}` };
     }
-    return { script, url, test_count: body.test_count, abi_version: body.abi_version };
+    // module_sha256 (issue #945): optional. A Worker deployed before this
+    // change, or a Worker whose Cargo.toml/wrangler.toml has not been
+    // redeployed since, simply omits it — see the header's "MISSING DIGEST"
+    // note for why that is a soft pass rather than an error here.
+    const digest = typeof body.module_sha256 === "string" && body.module_sha256 ? body.module_sha256 : null;
+    return { script, url, test_count: body.test_count, abi_version: body.abi_version, module_sha256: digest };
   } catch (e) {
     return { script, url, error: e.message || String(e) };
   }
@@ -255,6 +339,7 @@ for (const tier of topology.tiers) {
   console.log(`tier ${tier.crate}:`);
   console.log(`  built corpus:  ${b.count} tests`);
   console.log(`  source:        ${b.source}`);
+  console.log(`  built sha256:  ${b.digest ?? "(none supplied)"}`);
   console.log("  deployed census:");
   // Deduplicated for the same reason the fetches are: a single-family tier's
   // one script is both its full-corpus Worker and its only shard, and listing
@@ -264,7 +349,7 @@ for (const tier of topology.tiers) {
     console.log(
       h.error
         ? `    ${script.padEnd(24)} ERROR ${h.error}`
-        : `    ${script.padEnd(24)} ${String(h.test_count).padStart(5)} tests (abi=${h.abi_version})`,
+        : `    ${script.padEnd(24)} ${String(h.test_count).padStart(5)} tests (abi=${h.abi_version}) sha256=${h.module_sha256 ?? "(none reported)"}`,
     );
   }
 }
@@ -344,12 +429,77 @@ for (const tier of topology.tiers) {
     );
   }
 
+  // ---------------------------------------------------------------------
+  // Content hash (issue #945), additive to the count check above. Compared
+  // ONLY against the full-corpus Worker -- see the header's "CONTENT HASH"
+  // section for why the shard-sum partition check has no digest analogue.
+  //
+  // Both present and different: a hard failure, exactly as loud as a count
+  // mismatch (exit 1) -- this is the case the count check CANNOT see, because
+  // it is the whole reason this section exists. #941's clock-bug fix is the
+  // worked example: temper-geometry's registered count was 722 before and
+  // after, so only a content hash catches the deployed module still being the
+  // pre-fix build.
+  //
+  // Either side missing: a soft pass. Logged as a GitHub Actions `::warning::`
+  // (visible, not silent) rather than added to `failures`, and for a reason
+  // specific to rollout -- see the header's "MISSING DIGEST IS A SOFT PASS"
+  // paragraph. This never substitutes for the count check: a tier with a
+  // missing digest still has its count and partition checks run in full,
+  // unweakened, above.
+  // ---------------------------------------------------------------------
+  const builtDigest = built.get(tier.crate).digest;
+  const deployedDigest = byScript[tier.full_corpus_worker].module_sha256;
+  let digestChecked = false;
+  if (builtDigest && deployedDigest) {
+    digestChecked = true;
+    if (builtDigest !== deployedDigest) {
+      failures.push(
+        `STALE DEPLOYED MODULE CONTENT (${tier.crate}, issue #945): ` +
+          `${tier.full_corpus_worker} reports module_sha256=${deployedDigest}; the commit ` +
+          `under test builds ${tier.crate} to sha256=${builtDigest}. The TEST COUNT can ` +
+          "still match here — that is exactly the gap this check closes: a behaviour " +
+          "change (a bug fix, a renamed test, a kernel edited under an unchanged test " +
+          "name, or one test added and one removed in the same commit) can leave the " +
+          "count untouched while the deployed bytes are still the old build. This is " +
+          "the real 2026-08-11 incident (PR #941 fixed a clock bug in " +
+          "build_capacitated_graph; temper-geometry's registered count was 722 both " +
+          "before and after; only the independent R19 comparison caught the deployed " +
+          `module still being pre-#941). ${FIX}`,
+      );
+    }
+  } else if (!builtDigest && !deployedDigest) {
+    console.warn(
+      `::warning::content-hash check skipped for tier ${tier.crate}: neither the built ` +
+        `census nor ${tier.full_corpus_worker}'s /health reports a sha256. Falling back ` +
+        "to the count/partition check above for this tier (issue #945's fix has not " +
+        "reached this tier's build+deploy pipeline yet).",
+    );
+  } else if (!builtDigest) {
+    console.warn(
+      `::warning::content-hash check skipped for tier ${tier.crate}: the built census ` +
+        `(${built.get(tier.crate).source.split(" (")[0]}) has no summary.sha256. Produced ` +
+        "by an older run_wasm_tests.mjs, or the crate was censused before issue #945's " +
+        "fix. Falling back to the count/partition check above for this tier.",
+    );
+  } else {
+    console.warn(
+      `::warning::content-hash check skipped for tier ${tier.crate}: ` +
+        `${tier.full_corpus_worker}'s /health has no module_sha256. The deployed Worker ` +
+        "predates issue #945's fix and has not been redeployed since. Falling back to " +
+        "the count/partition check above for this tier.",
+    );
+  }
+
   tierReports.push({
     crate: tier.crate,
     built_count: builtCount,
     built_source: built.get(tier.crate).source,
+    built_sha256: builtDigest,
     full_corpus_worker: tier.full_corpus_worker,
     deployed_full_corpus: deployedFull,
+    deployed_sha256: deployedDigest,
+    content_hash_checked: digestChecked,
     deployed_shard_counts: shardCounts,
     deployed_shard_sum: shardSum,
     shard_check_is_degenerate: degenerate,
@@ -370,7 +520,10 @@ if (JSON_OUT) {
         // numbers, which is what these keys always meant.
         built_count: tierReports[0].built_count,
         built_source: tierReports[0].built_source,
+        built_sha256: tierReports[0].built_sha256,
         deployed_full_corpus: tierReports[0].deployed_full_corpus,
+        deployed_sha256: tierReports[0].deployed_sha256,
+        content_hash_checked: tierReports[0].content_hash_checked,
         deployed_family_counts: tierReports[0].deployed_shard_counts,
         deployed_family_sum: tierReports[0].deployed_shard_sum,
         abi_version: EXPECTED_ABI,
@@ -399,7 +552,10 @@ console.log(
           `shard sum=${r.deployed_shard_sum}, built=${r.built_count}` +
           (r.shard_check_is_degenerate
             ? " (single shard == full-corpus Worker; the shard sum restates the line above)"
-            : ""),
+            : "") +
+          (r.content_hash_checked
+            ? `, sha256 matches (${r.deployed_sha256})`
+            : ", sha256 not compared (missing on one side — see any ::warning:: above)"),
       )
       .join("\n"),
 );
