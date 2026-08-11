@@ -931,6 +931,55 @@ impl Netlist {
         Ok(updated)
     }
 
+    /// Strict variant of `apply_net_class_mapping`: every key in `mapping`
+    /// must name a real net on this `Netlist` (checked with an exact,
+    /// case-sensitive match against `self.nets`' own names), or the call
+    /// raises `ValueError` naming every unresolved key and updates NOTHING
+    /// -- as opposed to `apply_net_class_mapping`'s silent per-key skip on a
+    /// miss. The two methods coexist deliberately:
+    /// `apply_net_class_mapping` is an oracle-parity shim that must stay
+    /// bit-identical to `_netlist_py_oracle.py` (see this file's module
+    /// docstring), so its silent-skip behavior cannot change here; this is
+    /// an additive, opt-in call for sites that want the miss to be loud.
+    /// See `docs/evidence/2026-08-11-typed-net-refs-spike.md`.
+    fn apply_net_class_mapping_strict(
+        &self,
+        py: Python<'_>,
+        mapping: &Bound<'_, PyAny>,
+    ) -> PyResult<i64> {
+        let mut known_nets = std::collections::BTreeSet::new();
+        for net in self.nets.bind(py).try_iter()? {
+            let name: String = net?.getattr("name")?.extract()?;
+            known_nets.insert(name);
+        }
+        let raw: std::collections::BTreeMap<String, String> = mapping.extract()?;
+
+        let resolved = crate::net_class_validation::ValidatedNetClassMap::resolve(
+            &known_nets,
+            &raw,
+        )
+        .map_err(|errors| {
+            PyValueError::new_err(crate::net_class_validation::format_unresolved(&errors))
+        })?;
+
+        // Every key is now known-good against this Netlist's own net names
+        // (`resolve` cannot return `Ok` otherwise) -- unlike
+        // `apply_net_class_mapping`, nothing here can silently skip a
+        // caller-intended assignment.
+        let mut updated = 0_i64;
+        for net in self.nets.bind(py).try_iter()? {
+            let net = net?;
+            let name: String = net.getattr("name")?.extract()?;
+            if let Some(new_class) = resolved.get(&name)
+                && net.getattr("net_class")?.extract::<String>()?.as_str() != new_class
+            {
+                net.setattr("net_class", new_class)?;
+                updated += 1;
+            }
+        }
+        Ok(updated)
+    }
+
     /// Groups of topologically isomorphic components (Weisfeiler-Lehman).
     ///
     /// Transcribed from the oracle, including the `hashlib.md5` label digest

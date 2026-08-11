@@ -197,6 +197,11 @@ mod error;
 pub(crate) mod identity;
 pub(crate) mod kicad_pcb;
 mod model;
+// Not gated on `python`: pure resolve()/format_unresolved() logic, unit
+// tested directly (see the module docstring). netlist_contracts.rs's
+// python-gated `apply_net_class_mapping_strict` is the only pyo3-facing
+// consumer.
+pub(crate) mod net_class_validation;
 pub(crate) mod netlist;
 pub(crate) mod pcl;
 mod serialize;
