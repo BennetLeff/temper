@@ -36,7 +36,7 @@ from __future__ import annotations
 import dataclasses
 import hashlib
 import json
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
@@ -647,7 +647,7 @@ def _restore_impl():
 def test_p1_stage_result_success_truthiness(outputs):
     """P1. `success(outputs)` yields `outputs or {}` and duration 0.0."""
     sr = _IMPL["stage_result_success"](outputs)
-    assert _IMPL["stage_result_outputs"](sr) == ({} if not outputs else outputs)
+    assert _IMPL["stage_result_outputs"](sr) == (outputs if outputs else {})
     assert _IMPL["stage_result_duration"](sr) == 0.0
     if outputs:
         assert _IMPL["stage_result_outputs"](sr) is outputs
