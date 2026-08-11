@@ -924,7 +924,7 @@ class TestTopologicalGraph:
 
         tg = TopologicalGraph()
         tg.add_component("U1")
-        assert "U1" in tg.graph.nodes
+        assert "U1" in tg.graph.nodes()
 
     def test_add_group(self):
         from temper_placer.topological.graph import TopologicalGraph
@@ -933,7 +933,7 @@ class TestTopologicalGraph:
         tg.add_component("U1")
         tg.add_component("C1")
         tg.add_group("loop1", ["U1", "C1"])
-        assert "loop1" in tg.graph.nodes
+        assert "loop1" in tg.graph.nodes()
 
     def test_add_adjacency(self):
         from temper_placer.topological.graph import TopologicalGraph

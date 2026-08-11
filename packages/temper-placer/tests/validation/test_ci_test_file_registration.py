@@ -730,6 +730,12 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "nodes() first-seen-order parity vs networkx DiGraph, randomized. "
         "Pure Python/Rust, no external binary. Not yet wired into any CI job."
     ),
+    "topological/test_topological_graph_rust_differential.py": (
+        "PASSING locally (2026-08-11, fan-out 14 / S7): TopologicalGraphStore "
+        "Rust migration differential (19 tests) — insertion-order nodes/edges "
+        "parity vs nx.MultiDiGraph, has_edge/dedup, the final networkx removal. "
+        "Pure Python/Rust, no external binary. Not yet wired into any CI job."
+    ),
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------
