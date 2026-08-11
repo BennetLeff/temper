@@ -42,7 +42,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 145 eligible tests, in a stable order.  Each entry is
+/// All 1593 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -57,6 +57,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-thermal")] crate::junction_temp::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-thermal")] crate::operating_point::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-thermal")] crate::parameter_bounds::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-thermal")] crate::property_campaigns::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-thermal")] crate::rtd::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-thermal")] crate::safety::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-thermal")] crate::thermal_edges::tests::WASM_TESTS,

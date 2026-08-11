@@ -52,6 +52,12 @@ pub mod inductance;
 pub mod junction_temp;
 pub mod operating_point;
 pub mod parameter_bounds;
+// Property-based campaigns (metamorphic/invariant relations) over four of
+// this crate's pure kernels -- see the module doc comment for why it
+// exists and which relations it asserts. Not gated on `python`: it must
+// compile in the `--no-default-features` wasm32 build the registry below
+// targets, exactly like every other module in this list.
+pub mod property_campaigns;
 pub mod rtd;
 pub mod safety;
 // Wholly a faer + pyo3 surface: `solve_sparse_lu` is the sparse-LU call and
