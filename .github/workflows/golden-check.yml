@@ -17,6 +17,14 @@ on:
     paths:
       - 'packages/temper-placer/src/temper_placer/**'
       - 'power_pcb_dataset/goldens/**'
+  # Manual trigger, added alongside making this a required_contexts gate
+  # (see .github/required-checks.json): a PR that changes only the baseline
+  # YAML / required-checks manifest / this workflow file does not match any
+  # of the path filters above, so it gets no automatic run and no live
+  # confirmation the gate is actually green before landing. workflow_dispatch
+  # gives that a manual escape hatch without widening the path filters
+  # themselves (which would make every such PR pay for a run it doesn't need).
+  workflow_dispatch:
 
 jobs:
   golden-check:
