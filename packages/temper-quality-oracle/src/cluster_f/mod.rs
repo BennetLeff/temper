@@ -33,6 +33,7 @@ pub mod via_count;
 #[cfg(feature = "python")]
 pub mod bindings;
 
-#[cfg(test)]
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 #[path = "threshold_tests.rs"]
-mod threshold_tests;
+pub(crate) mod threshold_tests;

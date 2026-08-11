@@ -17,6 +17,21 @@ thiserror = "1"
 [features]
 default = ["python"]
 python = ["dep:pyo3", "dep:temper-py-bridge"]
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index -- `cargo test`'s libtest harness cannot
+# target `wasm32-unknown-unknown`.  Off by default; never enabled for the
+# Python extension module.  Mirrors `temper-thermal`'s feature set exactly, so
+# the shared runner wires every crate on the tier the same way.
+#
+# `wasm-registry` is the umbrella feature that gates module visibility; every
+# per-family feature implies it.  The six-layer quality pipeline is a flat
+# sequence of pure scoring kernels with no rule-family taxonomy, so this crate
+# declares one family (`quality-oracle`).
+wasm-registry = []
+wasm-registry-quality-oracle = ["wasm-registry"]
+wasm-registry-all = ["wasm-registry-quality-oracle"]
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 
 [profile.release]
 panic = "unwind"

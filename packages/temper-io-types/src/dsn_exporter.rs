@@ -1386,12 +1386,12 @@ mod py_bridge {
 #[cfg(feature = "python")]
 pub use py_bridge::PyDsnExporterCore;
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn round_is_half_to_even_not_half_away() {
         // The whole point: f64::round would give 1, 3, -1, -3 here.
         assert_eq!(py_round_half_even(0.5), 0);
@@ -1404,20 +1404,20 @@ mod tests {
         assert_eq!(py_round_half_even(1.6), 2);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn natural_key_orders_numerically_not_lexically() {
         let mut v = vec!["pin10", "pin2", "pin1"];
         v.sort_by_key(|a| natural_sort_key(a));
         assert_eq!(v, vec!["pin1", "pin2", "pin10"]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn natural_key_ignores_leading_zeros_like_int() {
         assert_eq!(natural_sort_key("a007b"), natural_sort_key("a7b"));
         assert!(natural_sort_key("a7b") < natural_sort_key("a08b"));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn natural_key_is_unbounded() {
         // Python's int() has no width limit; a u64/i64 parse would overflow.
         let big = "9".repeat(40);
@@ -1425,13 +1425,13 @@ mod tests {
         assert!(natural_sort_key(&big) < natural_sort_key(&bigger));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_lower_has_no_final_sigma_rule() {
         // str::to_lowercase would give "ας" for this.
         assert_eq!(py_lower("ΑΣ"), "ασ");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn insertion_map_iterates_in_insertion_order() {
         let mut m: InsertionMap<i32> = InsertionMap::new();
         m.insert("z".into(), 1);
@@ -1459,7 +1459,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn structure_matches_the_pinned_shape() {
         let core = DsnExporterCore::new(sample());
         let out = crate::dsn_types::dsn_expression_to_string(&core.export_structure(true));
@@ -1469,7 +1469,7 @@ mod tests {
         assert!(out.contains("(rule (width 13) (clearance 12))"));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn keepout_sort_is_string_not_numeric() {
         let mut inputs = sample();
         inputs.board.keepouts = (0..12).map(|i| (i as f64, 1.0, 2.0, 3.0)).collect();
@@ -1481,7 +1481,7 @@ mod tests {
         assert!(pos10 < pos2);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pcb_carries_schema_comment_only_when_deterministic() {
         let core = DsnExporterCore::new(sample());
         let out = crate::dsn_types::dsn_expression_to_string(&core.export_pcb(
@@ -1504,7 +1504,7 @@ mod tests {
         assert!(!out.starts_with(';'));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn empty_trace_list_emits_no_wiring_section() {
         let core = DsnExporterCore::new(sample());
         let out =
@@ -1512,7 +1512,7 @@ mod tests {
         assert!(!out.contains("(wiring"));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn voltage_pattern_matches_python_dollar_before_trailing_newline() {
         assert!(DsnExporterCore::voltage_pattern().is_match("VCC3V3"));
         assert!(DsnExporterCore::voltage_pattern().is_match("vcc3v3"));
@@ -1523,7 +1523,7 @@ mod tests {
 
     // -- py_repr_float ---------------------------------------------------
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_repr_float_special_values_match_cpython() {
         assert_eq!(py_repr_float(f64::NAN), "nan");
         assert_eq!(py_repr_float(f64::INFINITY), "inf");
@@ -1532,7 +1532,7 @@ mod tests {
         assert_eq!(py_repr_float(-0.0), "-0.0");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_repr_float_small_integer_valued() {
         assert_eq!(py_repr_float(1.0), "1.0");
         assert_eq!(py_repr_float(42.0), "42.0");
@@ -1560,7 +1560,7 @@ mod tests {
     /// lambdas, and no DSN argument that carries a `float` currently appears
     /// in a sorted position, so the bug was latent — it would only have
     /// affected export ordering if a float ever landed in a sorted slot.
-    #[test]
+    #[cfg_attr(test, test)]
     fn py_repr_float_b10_matches_cpython() {
         // These must now match CPython repr(float) exactly.
         let got_neg5 = py_repr_float(1e-5);
@@ -1584,6 +1584,70 @@ mod tests {
         assert_eq!(py_repr_float(-0.0), "-0.0");
         assert_eq!(py_repr_float(42.0), "42.0");
     }
+
+    #[cfg_attr(test, test)]
+    fn natural_sort_key_empty_text_trailing() {
+        // The trailing empty Text from `re.split` should sort before any
+        // non-empty text: "a" < "a0" because "" < "0" in the trailing
+        // position.
+        let ka = natural_sort_key("a");
+        let kb = natural_sort_key("a0");
+        assert!(ka < kb, "natural_sort_key(\"a\") should be < natural_sort_key(\"a0\")");
+    }
+
+    #[cfg_attr(test, test)]
+    fn natural_sort_key_all_zeros_digit_run() {
+        // "a000b" should key exactly like "a0b" (int("000") == int("0") == 0)
+        assert_eq!(natural_sort_key("a000b"), natural_sort_key("a0b"));
+    }
+
+    #[cfg_attr(test, test)]
+    fn py_format_fixed_negative_zero() {
+        // format!("{:.3}", -0.0) in Rust produces "-0.000"
+        assert_eq!(py_format_fixed(-0.0, 3), "-0.000");
+        assert_eq!(py_format_fixed(0.0, 2), "0.00");
+    }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("dsn_exporter::tests::round_is_half_to_even_not_half_away", round_is_half_to_even_not_half_away),
+        ("dsn_exporter::tests::natural_key_orders_numerically_not_lexically", natural_key_orders_numerically_not_lexically),
+        ("dsn_exporter::tests::natural_key_ignores_leading_zeros_like_int", natural_key_ignores_leading_zeros_like_int),
+        ("dsn_exporter::tests::natural_key_is_unbounded", natural_key_is_unbounded),
+        ("dsn_exporter::tests::py_lower_has_no_final_sigma_rule", py_lower_has_no_final_sigma_rule),
+        ("dsn_exporter::tests::insertion_map_iterates_in_insertion_order", insertion_map_iterates_in_insertion_order),
+        ("dsn_exporter::tests::structure_matches_the_pinned_shape", structure_matches_the_pinned_shape),
+        ("dsn_exporter::tests::keepout_sort_is_string_not_numeric", keepout_sort_is_string_not_numeric),
+        ("dsn_exporter::tests::pcb_carries_schema_comment_only_when_deterministic", pcb_carries_schema_comment_only_when_deterministic),
+        ("dsn_exporter::tests::empty_trace_list_emits_no_wiring_section", empty_trace_list_emits_no_wiring_section),
+        ("dsn_exporter::tests::voltage_pattern_matches_python_dollar_before_trailing_newline", voltage_pattern_matches_python_dollar_before_trailing_newline),
+        ("dsn_exporter::tests::py_repr_float_special_values_match_cpython", py_repr_float_special_values_match_cpython),
+        ("dsn_exporter::tests::py_repr_float_small_integer_valued", py_repr_float_small_integer_valued),
+        ("dsn_exporter::tests::py_repr_float_b10_matches_cpython", py_repr_float_b10_matches_cpython),
+        ("dsn_exporter::tests::natural_sort_key_empty_text_trailing", natural_sort_key_empty_text_trailing),
+        ("dsn_exporter::tests::natural_sort_key_all_zeros_digit_run", natural_sort_key_all_zeros_digit_run),
+        ("dsn_exporter::tests::py_format_fixed_negative_zero", py_format_fixed_negative_zero),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
+}
+
+// ---------------------------------------------------------------------------
+// Property-based tests (proptest)
+// ---------------------------------------------------------------------------
+// A sibling module rather than `#[test] fn`s mixed into `tests` above, matching
+// `pyfmt.rs`, `stackup_validator.rs`, `placer_core/units.rs` and
+// `placer_core/placer_compute.rs`.  `proptest` is a dev-dependency, so it is
+// absent from the ordinary (non-test) build the `wasm32` registry compiles
+// into; keeping these apart is what lets the deterministic tests above join
+// the tier instead of being excluded alongside them.
+#[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod proptests {
+    use super::*;
 
     // -- py_round_half_even proptest -------------------------------------
 
@@ -1624,22 +1688,6 @@ mod tests {
         });
     }
 
-    #[test]
-    fn natural_sort_key_empty_text_trailing() {
-        // The trailing empty Text from `re.split` should sort before any
-        // non-empty text: "a" < "a0" because "" < "0" in the trailing
-        // position.
-        let ka = natural_sort_key("a");
-        let kb = natural_sort_key("a0");
-        assert!(ka < kb, "natural_sort_key(\"a\") should be < natural_sort_key(\"a0\")");
-    }
-
-    #[test]
-    fn natural_sort_key_all_zeros_digit_run() {
-        // "a000b" should key exactly like "a0b" (int("000") == int("0") == 0)
-        assert_eq!(natural_sort_key("a000b"), natural_sort_key("a0b"));
-    }
-
     // -- py_format_fixed proptest ----------------------------------------
 
     #[test]
@@ -1658,12 +1706,5 @@ mod tests {
                     prec, x, s, after_dot.len());
             }
         });
-    }
-
-    #[test]
-    fn py_format_fixed_negative_zero() {
-        // format!("{:.3}", -0.0) in Rust produces "-0.000"
-        assert_eq!(py_format_fixed(-0.0, 3), "-0.000");
-        assert_eq!(py_format_fixed(0.0, 2), "0.00");
     }
 }

@@ -746,10 +746,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "temper-io-types"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "temper-pcl-ir"
 version = "0.1.0"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "temper-quality-oracle"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -773,6 +790,8 @@ dependencies = [
  "temper-design-bundle",
  "temper-drc-rs",
  "temper-geometry",
+ "temper-io-types",
+ "temper-quality-oracle",
  "temper-rust-router-core",
  "temper-thermal",
 ]

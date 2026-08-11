@@ -46,6 +46,17 @@
 //!   is what makes dog-bone placement fail below ~0.813 mm pitch.  Honouring
 //!   it would be "more correct" and would fail
 //!   `test_is_position_valid_ignores_its_ignore_net_argument`.
+//! * **The rotation is resolved TWICE, under different rules.**  Pad world
+//!   positions go through `pin_world_position` -> `_normalize_rotation`,
+//!   whose dispatch is `None -> 0.0`, `int -> index * PI/2`, `float -> as-is
+//!   (already RADIANS)`.  The dog-bone candidate offsets are rotated by the
+//!   generator's *own* local `angle = float(initial_rotation) * math.pi /
+//!   2.0`, which scales unconditionally.  The two coincide on every integer
+//!   index -- which is why the pinned corpus, all of whose rows carry an
+//!   index, never separated them -- and diverge on every fractional one.
+//!   Modelling both with one helper reads radians as a quarter-turn index
+//!   (#931); [`rot_to_radians`] and [`local_dogbone_angle`] are kept apart,
+//!   each faithful to its own call site.
 //! * **`rot * PI / 2.0`** is `(rot * PI) / 2.0`.  Division by 2.0 is exact, so
 //!   this agrees with `rot * FRAC_PI_2` on 0 of 20 000 random values
 //!   (measured; recorded in the oracle header as a *non*-divergence).  The
@@ -95,16 +106,93 @@ fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
     (x * c + y * s, -x * s + y * c)
 }
 
-/// `core/pin_geometry._normalize_rotation` for the integer-index branch.
+/// `core/pin_geometry._normalize_rotation`'s **integer-index** branch: a
+/// quarter-turn index becomes radians.
 ///
 /// `Component.initial_rotation` is a rotation *index*; the corpus carries
 /// out-of-range values (`5`, `-1`) precisely because the module multiplies
 /// without validating.
-fn normalize_rotation(rotation: Option<f64>) -> f64 {
-    match rotation {
-        None => 0.0,
-        Some(r) => r * std::f64::consts::PI / 2.0,
+///
+/// Written as `(index * PI) / 2.0`, not `index * (PI / 2.0)` and not
+/// `index * FRAC_PI_2` -- the same spelling
+/// [`crate::core_graph_geometry::normalize_rotation_index`] uses. All three
+/// agree here (division by `2.0` is exact; measured over 20 000 values by
+/// `test_trap_pi_over_two_is_exact_here`), so this is form-fidelity, not a
+/// divergence fix.
+fn normalize_rotation_index(index: f64) -> f64 {
+    index * std::f64::consts::PI / 2.0
+}
+
+/// `core/pin_geometry._normalize_rotation`, the WHOLE three-way dispatch --
+/// the rotation that reaches `pin_world_position`.
+///
+/// Mirrors [`crate::core_graph_geometry`]'s `rot_to_radians`, the canonical
+/// implementation that `core/pin_geometry.py` binds as `_normalize_rotation`
+/// and that the oracle therefore calls through `pin_world_position`:
+///
+/// ```text
+/// None  -> 0.0
+/// int   -> index * PI / 2      (a quarter-turn INDEX)
+/// float -> as-is               (already RADIANS)
+/// ```
+///
+/// The int and float branches mean **different things**, and that is the
+/// whole subtlety. This kernel originally bound the value as `Option<i64>`,
+/// which raised `TypeError` on a fractional rotation (pyo3 REJECTS a
+/// non-integral float on an `i64` extract rather than truncating). The repair
+/// widened the binding to `Option<f64>` and kept the unconditional `* PI/2`,
+/// which accepted the float and then read radians as an index -- trading a
+/// loud `TypeError` for a quiet wrong number (#931). #930 hit the identical
+/// shape in `net_ordering.rs`/`terminal_planning.rs` and measured the
+/// divergence at `rotation=0.5`: `0x1.6a09e667f3bccp+0` against the oracle's
+/// `0x1.5b64e20408024p+0`. Reproducing the dispatch is the fix.
+///
+/// A *guard* that rejected non-integral input would be wrong here: the
+/// canonical kernel accepts float and returns a defined answer, so raising
+/// would be a fresh divergence from the oracle rather than a repair of one.
+///
+/// `bool` extracts as `i64` in pyo3 and so takes the index branch, matching
+/// the oracle's `isinstance(rotation, int)` being `True` for `bool`.
+fn rot_to_radians(rot: &Bound<'_, PyAny>) -> PyResult<f64> {
+    if rot.is_none() {
+        return Ok(0.0);
     }
+    // `isinstance(rotation, int)`.
+    if let Ok(index) = rot.extract::<i64>() {
+        return Ok(normalize_rotation_index(index as f64));
+    }
+    // Otherwise (float, or anything `__float__` converts -- NaN/inf included).
+    rot.extract::<f64>()
+}
+
+/// The oracle's **local** `angle`, which is NOT `_normalize_rotation`:
+///
+/// ```python
+/// angle = 0.0
+/// if component.initial_rotation is not None:
+///     angle = float(component.initial_rotation) * math.pi / 2.0
+/// ```
+///
+/// `escape_via_generator` resolves the rotation *twice, differently*, and the
+/// two resolutions only coincide on the integer indices the corpus carries:
+///
+/// * pad world positions go through `pin_world_position` ->
+///   `_normalize_rotation` -> [`rot_to_radians`] (int is an index, float is
+///   already radians);
+/// * the dog-bone candidate offsets are rotated by this local `angle`, which
+///   calls `float()` first and then scales **unconditionally** -- so a float
+///   rotation is scaled here and passed through there.
+///
+/// Collapsing the two into one helper is what #931 is about. They are kept
+/// separate, each faithful to its own call site.
+fn local_dogbone_angle(rot: &Bound<'_, PyAny>) -> PyResult<f64> {
+    if rot.is_none() {
+        return Ok(0.0);
+    }
+    // `float(...)` -- pyo3's f64 extract is `PyFloat_AsDouble`, i.e. exactly
+    // Python's `float()`, so an int, a bool and a float all land here the way
+    // the oracle's `float()` does.
+    Ok(normalize_rotation_index(rot.extract::<f64>()?))
 }
 
 // ---------------------------------------------------------------------------
@@ -162,7 +250,16 @@ impl PadRow {
 
 struct CompRow {
     position: Option<(f64, f64)>,
-    rotation: Option<f64>,
+    /// `_normalize_rotation(initial_rotation)` -- RESOLVED RADIANS, not the
+    /// raw index, and resolved by [`rot_to_radians`] at parse time because the
+    /// int/float dispatch needs the live Python object, which is gone by the
+    /// time this struct exists. Read by [`CompRow::pad_world_position`].
+    pad_rotation_rad: f64,
+    /// The generator's own local `angle` -- `float(rot) * PI / 2.0`, scaled
+    /// unconditionally ([`local_dogbone_angle`]). Read ONLY when rotating the
+    /// dog-bone candidate offsets. Equal to `pad_rotation_rad` for every
+    /// integer index, which is why the corpus never separated them.
+    dogbone_angle_rad: f64,
     side: Option<i64>,
     pads: Vec<PadRow>,
 }
@@ -175,7 +272,7 @@ impl CompRow {
 
     /// `core/pin_geometry.pin_world_position`.
     fn pad_world_position(&self, pad: &PadRow) -> (f64, f64) {
-        let rotation_rad = normalize_rotation(self.rotation);
+        let rotation_rad = self.pad_rotation_rad;
         let (mut px, py) = pad.position;
         // Bottom-side pads mirror X *before* rotation (KiCad behaviour).
         if self.side() == 1 {
@@ -215,14 +312,20 @@ fn parse_pads(pins: &Bound<'_, PyAny>) -> PyResult<Vec<PadRow>> {
 /// package_type, pins)` -- the corpus `PACKAGES` row with its label dropped.
 fn parse_package(pkg: &Bound<'_, PyAny>) -> PyResult<(CompRow, f64)> {
     let position: Option<(f64, f64)> = pkg.get_item(0)?.extract()?;
-    let rotation: Option<f64> = pkg.get_item(1)?.extract()?;
+    // Resolved TWICE, deliberately -- see `rot_to_radians` and
+    // `local_dogbone_angle`. The two disagree for a non-integral rotation and
+    // the oracle really does compute both.
+    let rotation = pkg.get_item(1)?;
+    let pad_rotation_rad = rot_to_radians(&rotation)?;
+    let dogbone_angle_rad = local_dogbone_angle(&rotation)?;
     let side: Option<i64> = pkg.get_item(2)?.extract()?;
     let pitch: f64 = pkg.get_item(3)?.extract()?;
     let pads = parse_pads(&pkg.get_item(5)?)?;
     Ok((
         CompRow {
             position,
-            rotation,
+            pad_rotation_rad,
+            dogbone_angle_rad,
             side,
             pads,
         },
@@ -383,8 +486,11 @@ fn generate_escape_vias(
     // `angle` is the component's own board rotation.  `comp_x`/`comp_y` are
     // computed by the reference and then only handed to `_is_position_valid`'s
     // unused `_comp_pos`, so they are deliberately not modelled here.
-    // Same rule as `normalize_rotation`, which this used to duplicate inline.
-    let angle = normalize_rotation(comp.rotation);
+    // NOT the same rule as the pad transform: `float(rot) * PI / 2.0` scales
+    // unconditionally, while `pin_world_position` runs `_normalize_rotation`'s
+    // int/float dispatch. Identical for an integer index, different for a
+    // fractional one -- see `local_dogbone_angle` (#931).
+    let angle = comp.dogbone_angle_rad;
 
     for pad in &comp.pads {
         // `if not pin.net` -- both `None` and `""` are skipped.
@@ -517,7 +623,10 @@ pub fn escape_is_position_valid_py(
     }
     let comp = CompRow {
         position: Some((0.0, 0.0)),
-        rotation: Some(0.0),
+        // The probe corpus's component has rotation index `0`; both
+        // resolutions of index 0 are 0.0 rad.
+        pad_rotation_rad: 0.0,
+        dogbone_angle_rad: 0.0,
         side: None,
         pads: rows,
     };
@@ -536,7 +645,7 @@ mod tests {
 
     #[test]
     fn quadrant_rotation_is_not_an_exact_axis_swap() {
-        let (x, y) = rotate_local_to_world(0.9375, 0.0, normalize_rotation(Some(1.0)));
+        let (x, y) = rotate_local_to_world(0.9375, 0.0, normalize_rotation_index(1.0));
         assert_ne!(x, 0.0, "the cos(pi/2) residue was optimised away");
         assert_eq!(y, -0.9375);
     }
@@ -565,7 +674,8 @@ mod tests {
     fn nan_distance_is_accepted_not_rejected() {
         let comp = CompRow {
             position: Some((0.0, 0.0)),
-            rotation: Some(0.0),
+            pad_rotation_rad: 0.0,
+            dogbone_angle_rad: 0.0,
             side: None,
             pads: vec![PadRow {
                 number: "1".into(),
@@ -587,7 +697,8 @@ mod tests {
     fn empty_pad_list_is_always_valid() {
         let comp = CompRow {
             position: Some((0.0, 0.0)),
-            rotation: Some(0.0),
+            pad_rotation_rad: 0.0,
+            dogbone_angle_rad: 0.0,
             side: None,
             pads: vec![],
         };
