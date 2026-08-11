@@ -269,6 +269,15 @@ pub mod kicad_transform;
 // kicad_transform (which it depends on) and before units (this file's
 // tail) so appends cannot rewrite a parallel agent's lines.
 pub mod property_campaigns;
+// Second property campaign (R7 / WASM-tier volume): metamorphic/invariant
+// properties over four pure, deterministic kernels the first campaign does
+// not cover -- sdf.rs, polygon.rs, overlap.rs, and projections.rs. A
+// separate module from `property_campaigns` rather than an addition to it
+// (see that module's own doc comment for why: appending to a file another
+// concurrent agent may be mid-edit on risks a merge collision). Declared
+// after `property_campaigns` and before `units` (this file's tail) so
+// appends cannot rewrite a parallel agent's lines.
+pub mod property_campaigns_2;
 // Wave 4 Phase A: core/units.py's `Mm`, `Mil`, `Inch` newtype wrappers and
 // the mm/mil/inch conversion kernels. See units.rs's module doc for why the
 // existing units.py kernels are NOT re-migrated here (they live in
