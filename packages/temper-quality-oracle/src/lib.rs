@@ -23,6 +23,7 @@ pub mod config;
 pub mod thresholds;
 pub mod oracle;
 pub mod placement_metrics;
+pub mod property_campaigns;
 pub mod aesthetic;
 pub mod quality_score;
 pub mod routing_quality;
