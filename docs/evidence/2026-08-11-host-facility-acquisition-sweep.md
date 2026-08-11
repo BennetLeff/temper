@@ -1,4 +1,8 @@
 <!-- provenance: commit=04d3d2751188859fd274117f4b9b4b8bad32b2d0 dirty=false -->
+<!-- correction: PR #947 merged after this sweep was stamped and fixed all 12
+     LIVE defects (D1-D12, combinator/rewrite.rs, issue #946). The body below
+     is left unedited; see "Addendum" at the end for what changed and what
+     survives. The two LATENT defects are unaffected and still open. -->
 
 # Unconditional host-facility acquisition — a deliberate sweep of every Rust crate
 
@@ -445,3 +449,49 @@ rg -n -g '*.rs' 'Instant::now|SystemTime::now|UNIX_EPOCH|env::var|env::args|rand
 - `docs/evidence/2026-08-10-wasm-tier-u4-closure-deployed-full-corpus.md` — the
   tier this sweep measures against, and the precedent for "a control that is not
   re-run is not a control."
+
+---
+
+## Addendum — 2026-08-11, after PR #947
+
+This sweep was stamped at `04d3d275`. **PR #947 merged shortly afterwards and
+fixed every LIVE defect it found.** The body above is left unedited; this
+section records the delta.
+
+**D1–D12 (`combinator/rewrite.rs`, issue #946) are fixed.** The fix went
+further than making the timestamp lazy, and this sweep's own sizing is why
+that mattered: it corrected the manifest's "~10 `Instant::now()` sites" to
+**12 sites plus 2 unguarded `format!` call sites**, and the `format!` sites
+were the load-bearing part. `log()` took `&str`, so a caller built its message
+— reading the clock — *before* `log` could consult `enabled`. Making the
+timestamp `Option` alone would have left all 12 reads on the disabled path.
+#947 changed the signature to `impl FnOnce() -> String`, which moves the
+guarantee into the type where a new call site cannot sidestep it.
+
+Measured on the merged tree: `temper-rust-router-core` is now **111 registered
+/ 111 executed / 111 pass / 0 expected-fail / 0 unexpected-pass**, "no traps".
+All 23 entries in `wasm_expected_failures_router_core.json` were deleted;
+`expected_failures` is `{}`. The `no-clock` class no longer appears on any
+tier.
+
+**The two LATENT defects are unchanged and still open**, including this
+document's most severe finding — the ungated `dlsym` declaration at
+`packages/temper-placer/temper-constraints/src/ipc.rs:48`. Being latent is not
+the same as being harmless: it becomes live the moment anyone registers that
+crate, and its failure mode is whole-module non-instantiation rather than a
+per-test trap an expected-failure manifest could absorb. Two lines, copying
+`pymath.rs:99-101`.
+
+**What the negative result now says.** Before #947: 14 defects, 12 live, all in
+one file. After: 14 found, **0 live**, 2 latent in crates that do not build for
+wasm32 today. The class is bounded and, as of this commit, closed on every
+crate that actually runs on the tier — which is the claim this sweep existed to
+test, and it holds more strongly than when it was written.
+
+**One scoping correction, recorded because it caused a real miss.** An earlier
+ad-hoc portability survey run from the main session globbed `packages/temper-*/`
+and `crates/*/` and therefore never saw
+`packages/temper-placer/temper-constraints/` — a Rust crate nested inside a
+Python package directory. That crate holds this document's most severe finding.
+Any future sweep must enumerate crates by locating `Cargo.toml` files, not by
+directory glob.
