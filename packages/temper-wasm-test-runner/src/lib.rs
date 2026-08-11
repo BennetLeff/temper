@@ -78,6 +78,12 @@ const REGISTRIES: &[&[&[WasmTest]]] = &[
     temper_geometry::wasm_test_registry::ALL,
     #[cfg(feature = "thermal-registry")]
     temper_thermal::wasm_test_registry::ALL,
+    #[cfg(feature = "design-bundle-registry")]
+    temper_design_bundle::wasm_test_registry::ALL,
+    #[cfg(feature = "router-core-registry")]
+    temper_rust_router_core::wasm_test_registry::ALL,
+    #[cfg(feature = "constraint-compiler-registry")]
+    temper_constraint_compiler::wasm_test_registry::ALL,
 ];
 
 /// How many tests are linked in, across every registry.

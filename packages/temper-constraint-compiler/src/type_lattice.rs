@@ -223,9 +223,9 @@ pub fn propagate_through_topology(
     (constraints, warnings)
 }
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     fn make_metadata(
@@ -266,7 +266,7 @@ mod tests {
         ]
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_join_commutative() {
         let lattice = TypeLattice::new(temper_net_classes());
         let cats = [
@@ -286,7 +286,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_meet_commutative() {
         let lattice = TypeLattice::new(temper_net_classes());
         let cats = [
@@ -306,7 +306,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_join_specific_pairs() {
         let lattice = TypeLattice::new(temper_net_classes());
         assert_eq!(lattice.join(SafetyCategory::HV, SafetyCategory::HV), SafetyCategory::HV);
@@ -317,7 +317,7 @@ mod tests {
         assert_eq!(lattice.join(SafetyCategory::Iso, SafetyCategory::LV), SafetyCategory::Iso);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_meet_specific_pairs() {
         let lattice = TypeLattice::new(temper_net_classes());
         assert_eq!(lattice.meet(SafetyCategory::HV, SafetyCategory::HV), SafetyCategory::HV);
@@ -328,7 +328,7 @@ mod tests {
         assert_eq!(lattice.meet(SafetyCategory::Iso, SafetyCategory::LV), SafetyCategory::LV);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_join_idempotent() {
         let lattice = TypeLattice::new(temper_net_classes());
         for cat in &[SafetyCategory::HV, SafetyCategory::LV, SafetyCategory::AC, SafetyCategory::Iso] {
@@ -336,7 +336,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_meet_idempotent() {
         let lattice = TypeLattice::new(temper_net_classes());
         for cat in &[SafetyCategory::HV, SafetyCategory::LV, SafetyCategory::AC, SafetyCategory::Iso] {
@@ -344,7 +344,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_hv_hv_pair() {
         let lattice = TypeLattice::new(temper_net_classes());
         let result = lattice.infer("HighVoltage", "HighCurrent").unwrap();
@@ -352,7 +352,7 @@ mod tests {
         assert!(result.separation_required);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_hv_lv_pair() {
         let lattice = TypeLattice::new(temper_net_classes());
         let result = lattice.infer("HighVoltage", "Signal").unwrap();
@@ -360,7 +360,7 @@ mod tests {
         assert!(result.separation_required);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_lv_lv_pair() {
         let lattice = TypeLattice::new(temper_net_classes());
         let result = lattice.infer("Signal", "Power").unwrap();
@@ -368,7 +368,7 @@ mod tests {
         assert!(!result.separation_required);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_ac_lv_pair() {
         let lattice = TypeLattice::new(temper_net_classes());
         let result = lattice.infer("ACMains", "Signal").unwrap();
@@ -376,28 +376,28 @@ mod tests {
         assert!(result.separation_required);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_layer_restriction_hv_on_b_cu() {
         let lattice = TypeLattice::new(temper_net_classes());
         let result = lattice.infer("HighVoltage", "Signal").unwrap();
         assert_eq!(result.layer_restriction.as_deref(), Some("B.Cu"));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_no_layer_restriction_when_both_none() {
         let lattice = TypeLattice::new(temper_net_classes());
         let result = lattice.infer("Signal", "Power").unwrap();
         assert!(result.layer_restriction.is_none());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_net_class_map_miss_returns_none() {
         let lattice = TypeLattice::new(temper_net_classes());
         assert!(lattice.infer("NonExistent", "Signal").is_none());
         assert!(lattice.infer("Signal", "NonExistent").is_none());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_safety_category_none_returns_none() {
         let mut meta = make_metadata("Unclassified", "LV", 0.2, 0.0, None, 99);
         meta.safety_category = None;
@@ -408,7 +408,7 @@ mod tests {
         assert!(lattice.infer("Unclassified", "Signal").is_none());
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_skeleton_walk() {
         let lattice = TypeLattice::new(temper_net_classes());
         let mut net_class_map = HashMap::new();
@@ -442,7 +442,7 @@ mod tests {
         assert_eq!(hv_signal[0].clearance_floor_mm, 6.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_skeleton_walk_existing_net_indices_filter() {
         let lattice = TypeLattice::new(temper_net_classes());
         let mut net_class_map = HashMap::new();
@@ -465,7 +465,7 @@ mod tests {
         assert_eq!(constraints.len(), 1);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn test_net_class_map_miss_produces_warning() {
         let lattice = TypeLattice::new(temper_net_classes());
         let mut net_class_map = HashMap::new();
@@ -481,6 +481,32 @@ mod tests {
         assert!(constraints.is_empty());
         assert!(!warnings.is_empty());
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("type_lattice::tests::test_join_commutative", test_join_commutative),
+        ("type_lattice::tests::test_meet_commutative", test_meet_commutative),
+        ("type_lattice::tests::test_join_specific_pairs", test_join_specific_pairs),
+        ("type_lattice::tests::test_meet_specific_pairs", test_meet_specific_pairs),
+        ("type_lattice::tests::test_join_idempotent", test_join_idempotent),
+        ("type_lattice::tests::test_meet_idempotent", test_meet_idempotent),
+        ("type_lattice::tests::test_hv_hv_pair", test_hv_hv_pair),
+        ("type_lattice::tests::test_hv_lv_pair", test_hv_lv_pair),
+        ("type_lattice::tests::test_lv_lv_pair", test_lv_lv_pair),
+        ("type_lattice::tests::test_ac_lv_pair", test_ac_lv_pair),
+        ("type_lattice::tests::test_layer_restriction_hv_on_b_cu", test_layer_restriction_hv_on_b_cu),
+        ("type_lattice::tests::test_no_layer_restriction_when_both_none", test_no_layer_restriction_when_both_none),
+        ("type_lattice::tests::test_net_class_map_miss_returns_none", test_net_class_map_miss_returns_none),
+        ("type_lattice::tests::test_safety_category_none_returns_none", test_safety_category_none_returns_none),
+        ("type_lattice::tests::test_skeleton_walk", test_skeleton_walk),
+        ("type_lattice::tests::test_skeleton_walk_existing_net_indices_filter", test_skeleton_walk_existing_net_indices_filter),
+        ("type_lattice::tests::test_net_class_map_miss_produces_warning", test_net_class_map_miss_produces_warning),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
 
 #[cfg(test)]

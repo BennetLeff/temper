@@ -49,6 +49,34 @@ geometry-wasm-test-registry = ["geometry-registry", "temper-geometry/wasm-test-r
 thermal-registry = ["dep:temper-thermal"]
 thermal-wasm-test-registry = ["thermal-registry", "temper-thermal/wasm-test-registry"]
 
+# --- temper-design-bundle ----------------------------------------------------
+# Optional, same reason again.
+design-bundle-registry = ["dep:temper-design-bundle"]
+design-bundle-wasm-test-registry = [
+  "design-bundle-registry",
+  "temper-design-bundle/wasm-test-registry",
+]
+
+# --- temper-rust-router-core -------------------------------------------------
+# Optional, same reason again. Note the dependency below carries
+# `default-features = false` for a reason that is NOT `python`: this crate's
+# default feature is `sat`, which pulls `rustsat-cadical` -- a C++ solver with
+# no `wasm32-unknown-unknown` build.
+router-core-registry = ["dep:temper-rust-router-core"]
+router-core-wasm-test-registry = [
+  "router-core-registry",
+  "temper-rust-router-core/wasm-test-registry",
+]
+
+# --- temper-constraint-compiler ----------------------------------------------
+# Optional, same reason again. Its default features are `python` AND `sat`, so
+# `default-features = false` below turns off both.
+constraint-compiler-registry = ["dep:temper-constraint-compiler"]
+constraint-compiler-wasm-test-registry = [
+  "constraint-compiler-registry",
+  "temper-constraint-compiler/wasm-test-registry",
+]
+
 [dependencies]
 temper-drc-rs = { path = "../temper-drc-rs", default-features = false }
 # `default-features = false` for the same reason it is set on temper-drc-rs's
@@ -59,6 +87,15 @@ temper-geometry = { path = "../temper-geometry", optional = true, default-featur
 # feature IS `python`, which pulls pyo3 (and faer) in and fails the
 # wasm32-unknown-unknown build.
 temper-thermal = { path = "../temper-thermal", optional = true, default-features = false }
+# `temper-design-bundle`'s default feature set is already empty, but
+# `default-features = false` is written out anyway so every crate on the tier
+# reads the same and a later default cannot quietly reach pyo3.
+temper-design-bundle = { path = "../temper-design-bundle", optional = true, default-features = false }
+# `default-features = false` turns off `sat`, whose `rustsat-cadical` is a C++
+# solver with no wasm32-unknown-unknown build.
+temper-rust-router-core = { path = "../temper-rust-router-core", optional = true, default-features = false }
+# `default-features = false` turns off both `python` (pyo3) and `sat`.
+temper-constraint-compiler = { path = "../temper-constraint-compiler", optional = true, default-features = false }
 
 [profile.release]
 opt-level = "z"

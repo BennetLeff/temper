@@ -309,6 +309,41 @@ wasm-thermal-test:
 	node tools/wasm/run_wasm_tests.mjs $(WASM_RUNNER_ARTIFACT) \
 		--expected-failures tools/wasm/wasm_expected_failures_thermal.json
 
+# The 2026-08-10 additions, each its own target for the same reason
+# `wasm-geometry-test` is: a different module, a different result set, and a
+# per-crate expected-failure manifest that cannot judge a module built from
+# another crate's registry.
+#
+#   make wasm-design-bundle-test        # 24 tests, 24 pass
+#   make wasm-router-core-test          # 111 tests, 88 pass + 23 expected-fail
+#   make wasm-constraint-compiler-test  # 70 registered / 69 on wasm32, 69 pass
+wasm-design-bundle-test:
+	@echo "Building temper-wasm-test-runner with temper-design-bundle's registry..."
+	cargo build --release --target wasm32-unknown-unknown --no-default-features \
+		--features design-bundle-wasm-test-registry \
+		--manifest-path $(WASM_RUNNER_MANIFEST)
+	node tools/wasm/run_wasm_tests.mjs $(WASM_RUNNER_ARTIFACT) \
+		--expected-failures tools/wasm/wasm_expected_failures_design_bundle.json
+
+# `--no-default-features` is doing more work here than on the other crates: it
+# also turns OFF `sat`, whose rustsat-cadical is a C++ solver with no
+# wasm32-unknown-unknown build. See packages/temper-rust-router-core/Cargo.toml.
+wasm-router-core-test:
+	@echo "Building temper-wasm-test-runner with temper-rust-router-core's registry..."
+	cargo build --release --target wasm32-unknown-unknown --no-default-features \
+		--features router-core-wasm-test-registry \
+		--manifest-path $(WASM_RUNNER_MANIFEST)
+	node tools/wasm/run_wasm_tests.mjs $(WASM_RUNNER_ARTIFACT) \
+		--expected-failures tools/wasm/wasm_expected_failures_router_core.json
+
+wasm-constraint-compiler-test:
+	@echo "Building temper-wasm-test-runner with temper-constraint-compiler's registry..."
+	cargo build --release --target wasm32-unknown-unknown --no-default-features \
+		--features constraint-compiler-wasm-test-registry \
+		--manifest-path $(WASM_RUNNER_MANIFEST)
+	node tools/wasm/run_wasm_tests.mjs $(WASM_RUNNER_ARTIFACT) \
+		--expected-failures tools/wasm/wasm_expected_failures_constraint_compiler.json
+
 # Delegates to the committed staging script rather than duplicating its build
 # matrix: one definition of "what the modules are", shared by this target, the
 # deploy workflow, and the runbook. That script reads

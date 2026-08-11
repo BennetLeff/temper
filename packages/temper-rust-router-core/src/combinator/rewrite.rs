@@ -756,9 +756,9 @@ fn eliminate_trivial_capacity(constraints: Vec<InternalConstraint>) -> Vec<Inter
         .collect()
 }
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     fn capacity(
@@ -794,7 +794,7 @@ mod tests {
     // -----------------------------------------------------------------------
 
     /// AE3 from the plan: contradictory layer restrictions → UnsatPreSolve.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw7_layer_conflict_detected() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -808,7 +808,7 @@ mod tests {
     }
 
     /// No conflict when layer restrictions don't overlap.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw7_no_conflict_when_distinct_vars() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -826,7 +826,7 @@ mod tests {
     // -----------------------------------------------------------------------
 
     /// Two identical DiffPair constraints → one.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw5_dedup_identical_diffpairs() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -845,7 +845,7 @@ mod tests {
     }
 
     /// Different DiffPair constraints are preserved.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw5_preserves_different_diffpairs() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -863,7 +863,7 @@ mod tests {
     // -----------------------------------------------------------------------
 
     /// Duplicate layer restrictions → dedup.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw6_dedup_identical_layers() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -885,7 +885,7 @@ mod tests {
     // -----------------------------------------------------------------------
 
     /// AE2 from the plan: true unit clause removes var from Capacity, K-1.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw3_propagate_true_reduces_capacity() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -916,7 +916,7 @@ mod tests {
     }
 
     /// RW3 chain: K=0 after propagation → add unit clauses, drop Capacity.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw3_post_zero_k_adds_neg_unit() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -938,7 +938,7 @@ mod tests {
     }
 
     /// RW3: K=0 but terms remaining → add (not v) clauses.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw3_k_zero_adds_neg_unit_clauses() {
         // Capacity K=1 with vars [A,B]; A is true. After removing A, K becomes 0,
         // B must be false. Result: LayerRestriction(A=true) + LayerRestriction(B=false).
@@ -965,7 +965,7 @@ mod tests {
     // -----------------------------------------------------------------------
 
     /// False unit clause removes var from Capacity, K unchanged.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw4_propagate_false_removes_var() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -996,7 +996,7 @@ mod tests {
     // -----------------------------------------------------------------------
 
     /// RW1: tighter subset bound tightens looser superset bound.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw1_subsume_tightens_superset() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -1034,7 +1034,7 @@ mod tests {
     }
 
     /// RW1: after tightening, identical var sets → keep smaller K.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw1_dedup_identical_var_sets_after_tightening() {
         // Two identical Capacity constraints with different K.
         let model = InternalConstraintModel {
@@ -1062,7 +1062,7 @@ mod tests {
     // -----------------------------------------------------------------------
 
     /// RW2: K >= |V| → constraint eliminated.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw2_eliminate_trivial_capacity() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -1078,7 +1078,7 @@ mod tests {
     }
 
     /// RW2: K < |V| → constraint preserved.
-    #[test]
+    #[cfg_attr(test, test)]
     fn rw2_preserves_binding_constraint() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -1093,7 +1093,7 @@ mod tests {
     // -----------------------------------------------------------------------
     // TS2: overlapping capacity with subsumption (RW1 + RW2)
     // -----------------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn ts2_overlapping_capacity_subsume() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -1117,7 +1117,7 @@ mod tests {
     // -----------------------------------------------------------------------
     // TS3: layer propagation + chain reaction (RW3 → RW2)
     // -----------------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn ts3_layer_propagation_chain_reaction() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -1138,7 +1138,7 @@ mod tests {
     // -----------------------------------------------------------------------
     // TS1: no overlap → rewrite no-op
     // -----------------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn ts1_no_overlap_rewrite_noop() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -1156,7 +1156,7 @@ mod tests {
     // -----------------------------------------------------------------------
     // Fixpoint termination
     // -----------------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn fixpoint_termination() {
         // No rules fire → loop terminates in 1 iteration.
         let model = InternalConstraintModel {
@@ -1170,7 +1170,7 @@ mod tests {
     // -----------------------------------------------------------------------
     // No false UNSAT: when RW7 fires, verify the conflict is real.
     // -----------------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn no_false_unsat_conflict_is_real() {
         let model = InternalConstraintModel {
             variables: vec![],
@@ -1188,7 +1188,7 @@ mod tests {
     // -----------------------------------------------------------------------
     // Roundtrip: rewrite preserves SAT equivalence on small models
     // -----------------------------------------------------------------------
-    #[test]
+    #[cfg_attr(test, test)]
     fn exhaustive_rewrite_preserves_sat_n4() {
         // For n=4 variables, exhaustively verify rewrite preserves satisfiability
         // of capacity + layer combinations.
@@ -1233,4 +1233,32 @@ mod tests {
             }
         }
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("combinator::rewrite::tests::rw7_layer_conflict_detected", rw7_layer_conflict_detected),
+        ("combinator::rewrite::tests::rw7_no_conflict_when_distinct_vars", rw7_no_conflict_when_distinct_vars),
+        ("combinator::rewrite::tests::rw5_dedup_identical_diffpairs", rw5_dedup_identical_diffpairs),
+        ("combinator::rewrite::tests::rw5_preserves_different_diffpairs", rw5_preserves_different_diffpairs),
+        ("combinator::rewrite::tests::rw6_dedup_identical_layers", rw6_dedup_identical_layers),
+        ("combinator::rewrite::tests::rw3_propagate_true_reduces_capacity", rw3_propagate_true_reduces_capacity),
+        ("combinator::rewrite::tests::rw3_post_zero_k_adds_neg_unit", rw3_post_zero_k_adds_neg_unit),
+        ("combinator::rewrite::tests::rw3_k_zero_adds_neg_unit_clauses", rw3_k_zero_adds_neg_unit_clauses),
+        ("combinator::rewrite::tests::rw4_propagate_false_removes_var", rw4_propagate_false_removes_var),
+        ("combinator::rewrite::tests::rw1_subsume_tightens_superset", rw1_subsume_tightens_superset),
+        ("combinator::rewrite::tests::rw1_dedup_identical_var_sets_after_tightening", rw1_dedup_identical_var_sets_after_tightening),
+        ("combinator::rewrite::tests::rw2_eliminate_trivial_capacity", rw2_eliminate_trivial_capacity),
+        ("combinator::rewrite::tests::rw2_preserves_binding_constraint", rw2_preserves_binding_constraint),
+        ("combinator::rewrite::tests::ts2_overlapping_capacity_subsume", ts2_overlapping_capacity_subsume),
+        ("combinator::rewrite::tests::ts3_layer_propagation_chain_reaction", ts3_layer_propagation_chain_reaction),
+        ("combinator::rewrite::tests::ts1_no_overlap_rewrite_noop", ts1_no_overlap_rewrite_noop),
+        ("combinator::rewrite::tests::fixpoint_termination", fixpoint_termination),
+        ("combinator::rewrite::tests::no_false_unsat_conflict_is_real", no_false_unsat_conflict_is_real),
+        ("combinator::rewrite::tests::exhaustive_rewrite_preserves_sat_n4", exhaustive_rewrite_preserves_sat_n4),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

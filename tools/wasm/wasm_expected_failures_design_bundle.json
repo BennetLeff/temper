@@ -1,0 +1,27 @@
+{
+  "_comment": [
+    "temper-design-bundle's expected-failure manifest, the sibling of",
+    "wasm_expected_failures.json (temper-drc-rs), wasm_expected_failures_geometry.json,",
+    "wasm_expected_failures_thermal.json and wasm_expected_failures_router_core.json.",
+    "Same contract -- see wasm_expected_failures.json's _comment for why divergences are",
+    "LISTED and executed rather than deleted or cfg'd out.",
+    "",
+    "This one is EMPTY, and that is a result rather than an omission: measured 2026-08-10",
+    "against 24 registered tests, all 24 execute and all 24 pass on",
+    "wasm32-unknown-unknown. What survives --no-default-features here is s-expression and",
+    "netlist parsing, board identity, PCL constraint typing and constraint merging: no",
+    "clock, no dynamic loader, no entropy, no libm edge cases, so none of the four",
+    "established divergence classes has anything to attach to.",
+    "",
+    "The file still exists because run_wasm_tests.mjs defaults to the temper-drc-rs",
+    "manifest, and pointing a design-bundle-only module at THAT one would report every",
+    "drc entry as an orphan exclusion and exit non-zero. `make wasm-design-bundle-test`",
+    "passes this file. It is also where a future divergence gets recorded, so the shape",
+    "is already right when one appears.",
+    "",
+    "An empty manifest is NOT a weaker gate. run_wasm_tests.mjs still fails the run on any",
+    "unexpected failure, so with nothing excluded here every one of the 24 tests is",
+    "load-bearing: a regression on wasm32 turns the step red immediately."
+  ],
+  "expected_failures": {}
+}

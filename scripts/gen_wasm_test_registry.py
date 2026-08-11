@@ -184,6 +184,15 @@ GEOMETRY_FAMILIES = ["geometry"]
 # physics kernels with no rule-family taxonomy, so one family.
 THERMAL_FAMILIES = ["thermal"]
 
+# The three crates registered on 2026-08-10 are all the same shape again --
+# flat sets of kernels with no rule-family taxonomy -- so each declares one
+# family named after the crate.  Keeping the degenerate one-family map means
+# one renderer code path for every crate, and a size-driven split stays
+# available without touching the renderer.
+DESIGN_BUNDLE_FAMILIES = ["design-bundle"]
+ROUTER_CORE_FAMILIES = ["router-core"]
+CONSTRAINT_COMPILER_FAMILIES = ["constraint-compiler"]
+
 TEST_FN = re.compile(r"^(\s*)#\[(?:test|cfg_attr\(test, test\))\]\s*$")
 
 # A *use* of the `proptest` dev-dependency: the `proptest!` macro or a
@@ -325,19 +334,53 @@ def module_body(lines: list[str], decl_idx: int) -> list[str]:
     raise SystemExit(f"unbalanced braces at line {decl_idx + 1}")
 
 
-def python_gated_modules(src: Path) -> set[str]:
-    """Top-level module idents declared under ``#[cfg(feature = "python")]``.
+def submodule_path(src: Path, rel: str, ident: str) -> Path:
+    """Where the body of a file module ``mod <ident>;`` declared in ``rel`` lives.
 
-    Their whole file is absent from a ``--no-default-features`` build, so every
-    test inside is structurally unreachable on ``wasm32`` -- not skipped, not
-    failing: not compiled.
+    Rust resolves this against the *directory* the declaring file owns, and a
+    "mod-rs" file (``lib.rs``, ``foo/mod.rs``) owns the directory it sits in
+    while a plain ``foo.rs`` owns ``foo/``.  Getting that wrong is silent: the
+    body file simply is not found, the module is censused as having no tests,
+    and real tests drop off the tier without a word.  That is exactly what
+    happened to ``temper-rust-router-core``'s ``combinator/mod.rs``, whose
+    ``#[cfg(test)] mod integration;`` body is ``combinator/integration.rs``,
+    not ``combinator/mod/integration.rs``.
+    """
+    stem = rel[: -len(".rs")]
+    if stem in ("lib", "main"):
+        parent = ""
+    elif stem.endswith("/mod"):
+        parent = stem[: -len("/mod")]
+    else:
+        parent = stem
+    return src / parent / f"{ident}.rs"
+
+
+def feature_gated_modules(src: Path, features: tuple[str, ...]) -> dict[str, str]:
+    """Top-level module idents gated on a feature absent from the wasm32 build.
+
+    ``{ident: feature}``.  Their whole file is absent from a
+    ``--no-default-features`` build, so every test inside is structurally
+    unreachable on ``wasm32`` -- not skipped, not failing: not compiled.
+
+    ``python`` is the usual one (pyo3 does not cross-compile to
+    ``wasm32-unknown-unknown``), but it is not the only one: the
+    ``temper-rust-router-core`` modules behind ``sat`` need ``rustsat-cadical``,
+    a C++ solver that has no ``wasm32-unknown-unknown`` build either.  Which
+    features are absent is therefore per-crate (``CrateSpec.absent_features``)
+    rather than the single hard-coded ``python`` this used to assume.
     """
     lines = (src / "lib.rs").read_text().splitlines()
-    gated = set()
+    gated: dict[str, str] = {}
     for i, line in enumerate(lines):
         m = MOD_DECL.match(line)
-        if m and any('feature = "python"' in a for a in attr_block(lines, i)):
-            gated.add(m.group(1))
+        if not m:
+            continue
+        attrs = attr_block(lines, i)
+        for feature in features:
+            if any(f'feature = "{feature}"' in a for a in attrs):
+                gated[m.group(1)] = feature
+                break
     return gated
 
 
@@ -351,14 +394,16 @@ class Discovered:
     excluded: str | None  # None = eligible; otherwise the reason
 
 
-def discover_eligible(src: Path) -> list[Discovered]:
+def discover_eligible(
+    src: Path, absent_features: tuple[str, ...] = ("python",)
+) -> list[Discovered]:
     """Every ``#[cfg(test)]`` module under ``src``, each with its verdict.
 
     Exclusions are *predicates with reasons*, never a hand-kept deny-list, so
     a module that becomes eligible (say, its ``python`` gate is lifted) is
     picked up automatically instead of staying silently out of the tier.
     """
-    gated = python_gated_modules(src)
+    gated = feature_gated_modules(src, absent_features)
     out: list[Discovered] = []
     for path in sorted(src.rglob("*.rs")):
         rel = str(path.relative_to(src))
@@ -371,8 +416,8 @@ def discover_eligible(src: Path) -> list[Discovered]:
             if inline:
                 body = module_body(lines, i)
             else:
-                # File module (`mod tests;`): the body is `<stem>/<ident>.rs`.
-                body_path = src / rel[: -len(".rs")] / f"{ident}.rs"
+                # File module (`mod tests;`): the body is a separate file.
+                body_path = submodule_path(src, rel, ident)
                 body = body_path.read_text().splitlines() if body_path.exists() else []
             # A nested test-gated submodule is its own entry in this same
             # sweep, so its tests (and its dev-dependency imports) belong to
@@ -382,11 +427,14 @@ def discover_eligible(src: Path) -> list[Discovered]:
             attrs = attr_block(lines, i)
 
             reason: str | None = None
-            if rel[: -len(".rs")] in gated or any(
-                'feature = "python"' in a for a in attrs
-            ):
+            own_gate = next(
+                (f for f in absent_features if any(f'feature = "{f}"' in a for a in attrs)),
+                None,
+            )
+            file_gate = gated.get(rel[: -len(".rs")])
+            if own_gate or file_gate:
                 # The module does not exist in a wasm32 build at all.
-                reason = "python-gated"
+                reason = f"{own_gate or file_gate}-gated"
             elif any(PROPTEST_USE.search(ln.split("//")[0]) for ln in body):
                 # `proptest` is a dev-dependency: present under `cargo test`,
                 # absent from the ordinary (non-test) build the registry is
@@ -414,6 +462,12 @@ class CrateSpec:
     eligible: list[tuple[str, str]] | None
     families: list[str]
     family_of: object  # Callable[[str], str]
+    # Cargo features whose modules cannot exist in the `--no-default-features`
+    # wasm32 build.  `python` always qualifies (pyo3 does not cross-compile);
+    # a crate whose non-default surface needs a native-only dependency adds it
+    # here so those modules are excluded *with a stated reason* rather than
+    # registered into a build that cannot compile them.
+    absent_features: tuple[str, ...] = ("python",)
     # Tail of the "tests inside python-gated modules are absent" sentence.
     census_note: str = "are censused in the Phase 0 report instead"
     # The sharding section of the registry's module docstring.
@@ -508,6 +562,103 @@ CRATES: dict[str, CrateSpec] = {
             "//! prints the full module census with per-module counts.",
         ],
     ),
+    "temper-design-bundle": CrateSpec(
+        name="temper-design-bundle",
+        eligible=None,  # discovered
+        families=DESIGN_BUNDLE_FAMILIES,
+        family_of=lambda _rel: "design-bundle",
+        census_note="cannot be registered here at all",
+        sharding_note=[
+            "//! ## Families",
+            "//!",
+            "//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`",
+            "//! feature, as in `temper-drc-rs`.  This crate declares a single",
+            "//! family (`design-bundle`): what survives `--no-default-features`",
+            "//! is a flat set of parsers and validators with no taxonomy to shard",
+            "//! along.",
+        ],
+        extra_notes=[
+            "//! Two exclusion classes apply here, both structural:",
+            "//!",
+            '//! * `#[cfg(feature = "python")]` modules.  This crate is mostly a',
+            "//!   pyo3 boundary -- the great majority of its modules are declared",
+            "//!   under that gate in `lib.rs` -- so most of its `#[test]` functions",
+            "//!   do not exist in a `--no-default-features` build.  They are not",
+            "//!   skipped on `wasm32`: they are not compiled, exactly as they are",
+            "//!   not compiled by the crate's own default-feature `cargo test`.",
+            "//! * `proptest` modules use a dev-dependency, which is not linked into",
+            "//!   the ordinary (non-test) build this registry compiles into.",
+            "//!",
+            "//! `scripts/gen_wasm_test_registry.py --crate temper-design-bundle",
+            "//! --census` prints the full module census with per-module counts.",
+        ],
+    ),
+    "temper-rust-router-core": CrateSpec(
+        name="temper-rust-router-core",
+        eligible=None,  # discovered
+        families=ROUTER_CORE_FAMILIES,
+        family_of=lambda _rel: "router-core",
+        # `sat` joins `python` here: the modules behind it need
+        # `rustsat-cadical`, a C++ SAT solver with no wasm32-unknown-unknown
+        # build, so `--no-default-features` is the only configuration that
+        # cross-compiles and those modules are absent from it.
+        absent_features=("python", "sat"),
+        census_note="cannot be registered here at all",
+        sharding_note=[
+            "//! ## Families",
+            "//!",
+            "//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`",
+            "//! feature, as in `temper-drc-rs`.  One family (`router-core`): the",
+            "//! solver-free core is a flat set of graph and rewrite kernels.",
+        ],
+        extra_notes=[
+            "//! Three exclusion classes apply here, all structural:",
+            "//!",
+            '//! * `#[cfg(feature = "sat")]` modules -- `solver`, `bmc`,',
+            "//!   `equivalence`, `watchdog`.  `sat` is a *default* feature, but it",
+            "//!   pulls `rustsat-cadical`, a C++ solver with no",
+            "//!   `wasm32-unknown-unknown` build, so those modules cannot exist on",
+            "//!   this target at all.  This is the first crate on the tier whose",
+            "//!   absent feature is not `python`.",
+            '//! * `#[cfg(feature = "python")]` modules, as elsewhere on the tier.',
+            "//! * `proptest` modules use a dev-dependency, which is not linked into",
+            "//!   the ordinary (non-test) build this registry compiles into.",
+            "//!",
+            "//! `scripts/gen_wasm_test_registry.py --crate temper-rust-router-core",
+            "//! --census` prints the full module census with per-module counts.",
+        ],
+    ),
+    "temper-constraint-compiler": CrateSpec(
+        name="temper-constraint-compiler",
+        eligible=None,  # discovered
+        families=CONSTRAINT_COMPILER_FAMILIES,
+        family_of=lambda _rel: "constraint-compiler",
+        # `sat` here only forwards to `temper-rust-router-core/sat`, and this
+        # crate declares no module behind it, but naming it keeps the two
+        # crates' verdicts consistent if one ever appears.
+        absent_features=("python", "sat"),
+        census_note="cannot be registered here at all",
+        sharding_note=[
+            "//! ## Families",
+            "//!",
+            "//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`",
+            "//! feature, as in `temper-drc-rs`.  One family",
+            "//! (`constraint-compiler`): the lowering tiers are a flat pipeline",
+            "//! with no taxonomy to shard along.",
+        ],
+        extra_notes=[
+            "//! Two exclusion classes apply here, both structural:",
+            "//!",
+            '//! * `#[cfg(feature = "python")]` modules -- `pcl_contracts` and',
+            "//!   `pyo3_bridge`, plus `constraints::py`, which are the pyo3",
+            "//!   boundary and do not exist in a `--no-default-features` build.",
+            "//! * `proptest` modules use a dev-dependency, which is not linked into",
+            "//!   the ordinary (non-test) build this registry compiles into.",
+            "//!",
+            "//! `scripts/gen_wasm_test_registry.py --crate temper-constraint-compiler",
+            "//! --census` prints the full module census with per-module counts.",
+        ],
+    ),
 }
 
 
@@ -527,7 +678,11 @@ def select_crate(name: str) -> CrateSpec:
     if spec.eligible is not None:
         ELIGIBLE = list(spec.eligible)
     else:
-        ELIGIBLE = [(d.rel, d.ident) for d in discover_eligible(SRC) if not d.excluded]
+        ELIGIBLE = [
+            (d.rel, d.ident)
+            for d in discover_eligible(SRC, spec.absent_features)
+            if not d.excluded
+        ]
     FAMILIES = spec.families
     FAMILY_BY_ENTRY = {
         (module_path(rel), ident): spec.family_of(rel) for rel, ident in ELIGIBLE
@@ -734,8 +889,40 @@ def ancestor_decls(rel: str) -> list[tuple[str, str]]:
 
 def widen_mod_decl(text: str, ident: str) -> str:
     """Raise a private ``mod <ident>;`` to ``pub(crate)``; leave ``pub`` alone."""
-    pattern = re.compile(rf"^(\s*)mod\s+{re.escape(ident)}\s*;\s*$", re.MULTILINE)
+    # `[ \t]*$` rather than `\s*$`: `\s` spans newlines, so the looser form
+    # swallowed the blank line after the declaration it rewrote.
+    pattern = re.compile(rf"^([ \t]*)mod\s+{re.escape(ident)}[ \t]*;[ \t]*$", re.MULTILINE)
     return pattern.sub(rf"\g<1>pub(crate) mod {ident};", text)
+
+
+# `#[cfg(test)]` sitting directly above a file-module declaration
+# (`#[cfg(test)]\nmod integration;`), tolerating other attributes in between.
+def _mod_gate_pattern(ident: str) -> re.Pattern[str]:
+    return re.compile(
+        rf"^([ \t]*)"
+        + re.escape(TEST_GATE)
+        + r"([ \t]*\n(?:[ \t]*#\[[^\n]*\][ \t]*\n)*"
+        + rf"[ \t]*(?:pub(?:\([^)]*\))?[ \t]+)?mod[ \t]+{re.escape(ident)}[ \t]*;)",
+        re.MULTILINE,
+    )
+
+
+def widen_mod_gate(text: str, ident: str) -> str:
+    """Widen a ``#[cfg(test)]`` on the *declaration* of file module ``ident``.
+
+    Visibility is only half of what a registry entry needs: the declaration
+    itself can be test-gated, and then the whole file is absent from the
+    ordinary build the registry compiles into.  ``temper-rust-router-core``'s
+    ``combinator/mod.rs`` does exactly that with ``#[cfg(test)] mod
+    integration;`` -- its 8 round-trip tests live in a file that only exists
+    under ``cargo test``.
+
+    Widening the gate to the same ``GATE`` the test modules get keeps
+    ``cargo test`` identical (``any(test, ...)`` is still ``test``) and makes
+    the file present whenever ``wasm-registry`` is on.  Idempotent: ``GATE`` is
+    not ``#[cfg(test)]``, so a second pass matches nothing.
+    """
+    return _mod_gate_pattern(ident).sub(rf"\g<1>{GATE}\g<2>", text)
 
 
 def rewrite_module(text: str, rel: str, ident: str) -> tuple[str, str | None, list[str]]:
@@ -766,7 +953,7 @@ def rewrite_module(text: str, rel: str, ident: str) -> tuple[str, str | None, li
 
     if body_end == -1:
         # File module: the body lives in `<stem>/<ident>.rs`.
-        body_path = SRC / rel[: -len(".rs")] / f"{ident}.rs"
+        body_path = submodule_path(SRC, rel, ident)
         body_lines = strip_generated(body_path.read_text().splitlines(), ident)
         hidden = nested_gated_mask(body_lines)
         body_lines = [
@@ -822,7 +1009,7 @@ def check_unregistered() -> list[Discovered]:
     listed = set(ELIGIBLE)
     return [
         d
-        for d in discover_eligible(SRC)
+        for d in discover_eligible(SRC, CRATE_SPEC.absent_features)
         if not d.excluded and d.tests and (d.rel, d.ident) not in listed
     ]
 
@@ -835,7 +1022,7 @@ def print_census() -> None:
     but the list omits is called out, because that is the hole a hand-kept list
     has and the drift gate cannot see.
     """
-    found = discover_eligible(SRC)
+    found = discover_eligible(SRC, CRATE_SPEC.absent_features)
     listed = set(ELIGIBLE)
     for d in found:
         if CRATE_SPEC.eligible is not None and not d.excluded:
@@ -884,13 +1071,15 @@ def main() -> int:
         new_text, body_text, fns = rewrite_module(text, rel, ident)
         pending[path] = new_text
         if body_text is not None:
-            pending[SRC / rel[: -len(".rs")] / f"{ident}.rs"] = body_text
+            pending[submodule_path(SRC, rel, ident)] = body_text
         entries.append((module_path(rel), ident, len(fns)))
 
         for decl_file, mod_ident in ancestor_decls(rel):
             decl_path = SRC / decl_file
             decl_text = pending.get(decl_path) or decl_path.read_text()
-            pending[decl_path] = widen_mod_decl(decl_text, mod_ident)
+            pending[decl_path] = widen_mod_gate(
+                widen_mod_decl(decl_text, mod_ident), mod_ident
+            )
 
     pending[SRC / "wasm_test_registry.rs"] = render_root(entries)
 
