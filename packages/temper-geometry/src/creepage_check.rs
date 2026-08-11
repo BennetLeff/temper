@@ -577,6 +577,2012 @@ pub(crate) mod tests {
         }
     }
 
+
+    // ------------------------------------------------------------------
+    // Deterministic wasm32 mirrors of the 15 properties in `mod properties`
+    // below (P1-P5, M1-M3, P6-P12). `proptest` is a dev-dependency and does
+    // not link into this crate's `wasm-registry` (non-test) build (see
+    // `scripts/gen_wasm_test_registry.py`'s `PROPTEST_USE` exclusion), so
+    // the native `proptest!` block below is UNCHANGED and keeps exploring
+    // randomly on the native tier. These are a deterministic, seeded,
+    // `wasm32`-reachable sibling -- same shape as
+    // `temper-orchestration/src/clearance.rs`'s and
+    // `temper-drc-rs/src/rules/drc/property_campaigns.rs`'s mirrors.
+    //
+    // Every property here targets a private kernel of this module
+    // (`segment_to_segment_info`, `closest_point_on_segment`,
+    // `required_creepage_bracket`), so it cannot be reached from a sibling
+    // top-level campaign module the way `temper-geometry`'s existing
+    // `property_campaigns*.rs` reach only `pub` kernels -- it has to live
+    // here, inside this module's own `mod tests`, where `use super::*`
+    // already gives it access.
+    //
+    // The uniform-sampling trap (see this crate's own keepout-property
+    // precedent, and `temper-thermal`/`temper-quality-oracle`/
+    // `temper-io-types`'s versions of the same failure): a CLEARANCE
+    // property is exactly the shape that trap targets. Two segments drawn
+    // uniformly at random over a board-scale range are essentially always
+    // far apart, so a naive seeded mirror would report green forever
+    // without ever exercising the near-threshold / touching / crossing
+    // region the kernel exists to get right. Every generator below that
+    // feeds a clearance-relevant property (`cc_gen_seg_pair`,
+    // `cc_gen_point_seg_close`, `cc_gen_voltage_pair`) is deliberately
+    // biased toward that region, and each has its own coverage-guard test
+    // below that measures and asserts a minimum non-trivial hit rate
+    // instead of merely hoping for one -- see each guard's doc comment for
+    // the measured number.
+    //
+    // SplitMix64 is duplicated here rather than imported from a shared
+    // module -- this crate's own precedent (`property_campaigns_2.rs` /
+    // `property_campaigns_3.rs`'s doc comments) duplicates this same
+    // ~30-line PRNG per campaign file specifically so appending to one
+    // file can never collide with a concurrent agent's edits to another;
+    // the same reasoning applies to this file, which a concurrent agent
+    // mirroring `smooth.rs`/`polygon.rs`/`grid_raster.rs`/`units.rs` does
+    // not touch.
+    // ------------------------------------------------------------------
+    struct SplitMix64(u64);
+
+    impl SplitMix64 {
+        fn new(seed: u64) -> Self {
+            Self(seed)
+        }
+
+        fn next_u64(&mut self) -> u64 {
+            self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
+            let mut z = self.0;
+            z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+            z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+            z ^ (z >> 31)
+        }
+
+        /// Uniform float in `[0, 1)`.
+        fn next_f64(&mut self) -> f64 {
+            (self.next_u64() >> 11) as f64 * (1.0 / (1u64 << 53) as f64)
+        }
+
+        /// Uniform float in `[lo, hi)`.
+        fn range(&mut self, lo: f64, hi: f64) -> f64 {
+            lo + self.next_f64() * (hi - lo)
+        }
+
+        /// Uniform index in `[0, n)`.
+        fn index(&mut self, n: usize) -> usize {
+            (self.next_u64() % n as u64) as usize
+        }
+    }
+
+    /// A property-local PRNG stream, independent of the base-case
+    /// generator's own stream, so a property's extra randomized parameter
+    /// (translation, rotation, scale, step) never correlates with which
+    /// base case `seed` produced -- same pattern as
+    /// `temper-drc-rs/src/rules/drc/property_campaigns.rs`'s `sub_rng`.
+    fn sub_rng(seed: u64, salt: u64) -> SplitMix64 {
+        SplitMix64::new(seed.wrapping_mul(0x9E37_79B9_7F4A_7C15).wrapping_add(salt))
+    }
+
+    // --- Shared generator: seg_pair (feeds P1, P2, P4, M1, M2, M3) -----
+
+    type CcSeg8 = (f64, f64, f64, f64, f64, f64, f64, f64);
+
+    fn cc_dist(s: CcSeg8) -> f64 {
+        segment_to_segment_info(s.0, s.1, s.2, s.3, s.4, s.5, s.6, s.7).0
+    }
+
+    /// IPC-2221 bracket thresholds (mm) this module's own
+    /// `required_creepage_bracket` enforces, plus zero -- the separations
+    /// worth biasing toward for a segment-to-segment clearance kernel.
+    const CC_GAP_SCALE: [f64; 6] = [0.0, 0.13, 0.5, 1.6, 3.2, 8.0];
+
+    /// A segment pair over the native `coord()` board-scale domain
+    /// (-50..50mm). `seed % 3 == 0` draws two fully independent random
+    /// segments (the native strategy's own domain -- almost always far
+    /// apart: see `cc_seg_pair_coverage_guard_hits_close_and_crossing_cases`
+    /// for the measured rate). `seed % 3 == 1` deliberately builds a base
+    /// segment and a parallel twin offset by a small, creepage-scale gap.
+    /// `seed % 3 == 2` deliberately builds two segments that PROPERLY cross
+    /// (distance exactly 0 via the `segments_intersect` shortcut) by
+    /// constructing both through a shared interior point at transversal
+    /// angles.
+    fn cc_gen_seg_pair(seed: u64) -> CcSeg8 {
+        let mut rng = SplitMix64::new(seed);
+        match seed % 3 {
+            0 => (
+                rng.range(-50.0, 50.0), rng.range(-50.0, 50.0),
+                rng.range(-50.0, 50.0), rng.range(-50.0, 50.0),
+                rng.range(-50.0, 50.0), rng.range(-50.0, 50.0),
+                rng.range(-50.0, 50.0), rng.range(-50.0, 50.0),
+            ),
+            1 => {
+                let x1 = rng.range(-40.0, 40.0);
+                let y1 = rng.range(-40.0, 40.0);
+                let len = rng.range(1.0, 20.0);
+                let theta = rng.range(0.0, std::f64::consts::TAU);
+                let x2 = x1 + len * theta.cos();
+                let y2 = y1 + len * theta.sin();
+                let gap = CC_GAP_SCALE[rng.index(CC_GAP_SCALE.len())] + rng.range(0.0, 0.05);
+                let (perp_x, perp_y) = (-theta.sin(), theta.cos());
+                let x3 = x1 + perp_x * gap;
+                let y3 = y1 + perp_y * gap;
+                let x4 = x2 + perp_x * gap;
+                let y4 = y2 + perp_y * gap;
+                (x1, y1, x2, y2, x3, y3, x4, y4)
+            }
+            _ => {
+                let cx = rng.range(-40.0, 40.0);
+                let cy = rng.range(-40.0, 40.0);
+                let theta1 = rng.range(0.0, std::f64::consts::PI);
+                let a1 = rng.range(1.0, 15.0);
+                let b1 = rng.range(1.0, 15.0);
+                let x1 = cx - a1 * theta1.cos();
+                let y1 = cy - a1 * theta1.sin();
+                let x2 = cx + b1 * theta1.cos();
+                let y2 = cy + b1 * theta1.sin();
+                // A distinct, non-parallel, non-coincident second angle:
+                // the offset stays inside (0.15, PI - 0.15) so the two
+                // lines through (cx, cy) are never parallel (0) or the
+                // same line traversed the other way (PI).
+                let theta2 = theta1 + rng.range(0.15, std::f64::consts::PI - 0.15);
+                let a2 = rng.range(1.0, 15.0);
+                let b2 = rng.range(1.0, 15.0);
+                let x3 = cx - a2 * theta2.cos();
+                let y3 = cy - a2 * theta2.sin();
+                let x4 = cx + b2 * theta2.cos();
+                let y4 = cy + b2 * theta2.sin();
+                (x1, y1, x2, y2, x3, y3, x4, y4)
+            }
+        }
+    }
+
+    fn cc_p1_distance_is_non_negative_impl(seed: u64) {
+        let d = cc_dist(cc_gen_seg_pair(seed));
+        assert!(d >= 0.0, "seed={seed}: negative distance {d}");
+    }
+
+    fn cc_p2_swapping_segments_is_bit_exact_impl(seed: u64) {
+        let s = cc_gen_seg_pair(seed);
+        let swapped = (s.4, s.5, s.6, s.7, s.0, s.1, s.2, s.3);
+        assert_eq!(cc_dist(s), cc_dist(swapped), "seed={seed}");
+    }
+
+    fn cc_p4_distance_is_bounded_by_midpoints_impl(seed: u64) {
+        let s = cc_gen_seg_pair(seed);
+        let (m1x, m1y) = ((s.0 + s.2) / 2.0, (s.1 + s.3) / 2.0);
+        let (m2x, m2y) = ((s.4 + s.6) / 2.0, (s.5 + s.7) / 2.0);
+        let mid = ((m1x - m2x).powi(2) + (m1y - m2y).powi(2)).sqrt();
+        let d = cc_dist(s);
+        assert!(d <= mid + 1e-9, "seed={seed}: {d} > {mid}");
+    }
+
+    fn cc_m1_distance_invariant_under_translation_impl(seed: u64) {
+        let s = cc_gen_seg_pair(seed);
+        let mut rng = sub_rng(seed, 0xA1);
+        let tx = rng.range(-100.0, 100.0);
+        let ty = rng.range(-100.0, 100.0);
+        let translated = (
+            s.0 + tx, s.1 + ty, s.2 + tx, s.3 + ty,
+            s.4 + tx, s.5 + ty, s.6 + tx, s.7 + ty,
+        );
+        let before = cc_dist(s);
+        let after = cc_dist(translated);
+        assert!((after - before).abs() < 1e-6, "seed={seed}: {before} -> {after}");
+    }
+
+    fn cc_m2_distance_invariant_under_rotation_impl(seed: u64) {
+        let s = cc_gen_seg_pair(seed);
+        let mut rng = sub_rng(seed, 0xA2);
+        let theta = rng.range(0.0, std::f64::consts::TAU);
+        let (c, sn) = (theta.cos(), theta.sin());
+        let r = |x: f64, y: f64| (x * c - y * sn, x * sn + y * c);
+        let (a, b) = r(s.0, s.1);
+        let (cc, d) = r(s.2, s.3);
+        let (e, f) = r(s.4, s.5);
+        let (g, h) = r(s.6, s.7);
+        let rotated = (a, b, cc, d, e, f, g, h);
+        let before = cc_dist(s);
+        let after = cc_dist(rotated);
+        assert!((after - before).abs() < 1e-6, "seed={seed}: {before} -> {after}");
+    }
+
+    fn cc_m3_distance_scales_with_geometry_impl(seed: u64) {
+        let s = cc_gen_seg_pair(seed);
+        let mut rng = sub_rng(seed, 0xA3);
+        let k = rng.range(0.1, 10.0);
+        let scaled = (
+            s.0 * k, s.1 * k, s.2 * k, s.3 * k,
+            s.4 * k, s.5 * k, s.6 * k, s.7 * k,
+        );
+        let before = cc_dist(s);
+        let after = cc_dist(scaled);
+        let expected = before * k;
+        assert!(
+            (after - expected).abs() <= 1e-6 * expected.max(1.0),
+            "seed={seed}: scaling by {k}: expected {expected}, got {after}"
+        );
+    }
+
+    /// Measures the `cc_gen_seg_pair` corpus's own hit rate against the
+    /// two branches its comment claims: exact touching/crossing
+    /// (`dist == 0.0`) and creepage-relevant closeness (`dist < 5.0` mm).
+    /// Measured at N=50: 19/50 (38%) exactly 0.0 (the `seed % 3 == 2`
+    /// crossing branch), 40/50 (80%) within 5mm (crossing + the
+    /// `seed % 3 == 1` small-gap branch). Thresholds below are set with
+    /// headroom under those measured numbers so the guard fails loudly,
+    /// not flakily, if the generator regresses toward the
+    /// uniform-sampling trap this module's own doc comment warns about.
+    #[cfg_attr(test, test)]
+    fn cc_seg_pair_coverage_guard_hits_close_and_crossing_cases() {
+        let n = 50u64;
+        let mut close = 0u32;
+        let mut zero = 0u32;
+        for seed in 0..n {
+            let d = cc_dist(cc_gen_seg_pair(seed));
+            if d < 5.0 {
+                close += 1;
+            }
+            if d == 0.0 {
+                zero += 1;
+            }
+        }
+        assert!(close * 100 >= n as u32 * 40, "only {close}/{n} seeds landed within 5mm (close+crossing)");
+        assert!(zero * 100 >= n as u32 * 15, "only {zero}/{n} seeds landed exactly on a crossing/touching case");
+    }
+
+    // --- Shared generator: point_seg_close (feeds P3, P6, P9, P10, P11) --
+
+    /// A `(px, py, x1, y1, x2, y2)` case biased toward the point being
+    /// close to (or exactly on, or just past an endpoint of) the segment
+    /// -- the region where the clamped projection and the
+    /// `py_min`/`py_max` builtin-NaN-semantics branches actually matter.
+    /// `seed % 3 == 0` draws all six coordinates independently from
+    /// `wide_coord()` (the native strategy's own domain); see
+    /// `cc_point_seg_close_coverage_guard` for how rarely that alone lands
+    /// near the segment. The other two thirds place the point at a
+    /// parametric position along (or just past) the segment, offset
+    /// perpendicular by a small, creepage-scale distance.
+    fn cc_gen_point_seg_close(seed: u64) -> (f64, f64, f64, f64, f64, f64) {
+        let mut rng = SplitMix64::new(seed);
+        match seed % 3 {
+            0 => (
+                rng.range(-200.0, 200.0), rng.range(-200.0, 200.0),
+                rng.range(-200.0, 200.0), rng.range(-200.0, 200.0),
+                rng.range(-200.0, 200.0), rng.range(-200.0, 200.0),
+            ),
+            _ => {
+                let x1 = rng.range(-150.0, 150.0);
+                let y1 = rng.range(-150.0, 150.0);
+                let len = rng.range(1.0, 40.0);
+                let theta = rng.range(0.0, std::f64::consts::TAU);
+                let x2 = x1 + len * theta.cos();
+                let y2 = y1 + len * theta.sin();
+                // t in [-0.2, 1.2]: mostly interior, sometimes just past
+                // an endpoint -- the clamp region P12 targets explicitly
+                // and this shared generator exercises incidentally too.
+                let t = rng.range(-0.2, 1.2);
+                let along_x = x1 + t * len * theta.cos();
+                let along_y = y1 + t * len * theta.sin();
+                let offset = rng.range(0.0, 8.0);
+                let (perp_x, perp_y) = (-theta.sin(), theta.cos());
+                let px = along_x + perp_x * offset;
+                let py = along_y + perp_y * offset;
+                (px, py, x1, y1, x2, y2)
+            }
+        }
+    }
+
+    fn cc_p3_distance_is_monotonic_moving_away_impl(seed: u64) {
+        let (px, py, x1, y1, x2, y2) = cc_gen_point_seg_close(seed);
+        let mut rng = sub_rng(seed, 0xB3);
+        let step = rng.range(0.1, 10.0);
+        let near = point_to_segment_distance(px, py, x1, y1, x2, y2);
+        let (cx, cy) = closest_point_on_segment(px, py, x1, y1, x2, y2);
+        let (dx, dy) = (px - cx, py - cy);
+        let len = (dx * dx + dy * dy).sqrt();
+        if len <= 1e-9 {
+            // On the segment: "away" has no direction -- same skip the
+            // native proptest's `prop_assume!` makes.
+            return;
+        }
+        let far = point_to_segment_distance(
+            px + dx / len * step, py + dy / len * step, x1, y1, x2, y2,
+        );
+        assert!(far >= near - 1e-9, "seed={seed}: {far} < {near}");
+    }
+
+    fn cc_p6_ptsd_is_non_negative_impl(seed: u64) {
+        let (px, py, x1, y1, x2, y2) = cc_gen_point_seg_close(seed);
+        let d = point_to_segment_distance(px, py, x1, y1, x2, y2);
+        assert!(d >= 0.0, "seed={seed}: negative distance {d}");
+    }
+
+    fn cc_p9_ptsd_bounded_by_endpoints_impl(seed: u64) {
+        let (px, py, x1, y1, x2, y2) = cc_gen_point_seg_close(seed);
+        if (x2 - x1).powi(2) + (y2 - y1).powi(2) < 1e-6 {
+            return; // degenerate segment; same filter non_degenerate_seg applies
+        }
+        let d = point_to_segment_distance(px, py, x1, y1, x2, y2);
+        let de1 = crate::pad_geometry::py_hypot(px - x1, py - y1);
+        let de2 = crate::pad_geometry::py_hypot(px - x2, py - y2);
+        let bound = de1.min(de2);
+        assert!(d <= bound + 1e-12, "seed={seed}: ptsd={d} > min(de1={de1}, de2={de2})");
+    }
+
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_impl(seed: u64) {
+        let (px, py, x1, y1, x2, y2) = cc_gen_point_seg_close(seed);
+        let forward = point_to_segment_distance(px, py, x1, y1, x2, y2);
+        let reversed = point_to_segment_distance(px, py, x2, y2, x1, y1);
+        assert!(
+            (forward - reversed).abs() <= 1e-9,
+            "seed={seed}: forward {forward} != reversed {reversed} (diff {})",
+            (forward - reversed).abs()
+        );
+    }
+
+    fn cc_p11_ptsd_translation_invariant_impl(seed: u64) {
+        let (px, py, x1, y1, x2, y2) = cc_gen_point_seg_close(seed);
+        let mut rng = sub_rng(seed, 0xB1);
+        let tx = rng.range(-100.0, 100.0);
+        let ty = rng.range(-100.0, 100.0);
+        let before = point_to_segment_distance(px, py, x1, y1, x2, y2);
+        let after = point_to_segment_distance(px + tx, py + ty, x1 + tx, y1 + ty, x2 + tx, y2 + ty);
+        assert!((after - before).abs() < 1e-6, "seed={seed}: {before} -> {after} after translation");
+    }
+
+    /// Measures how often `cc_gen_point_seg_close` lands within 5mm of the
+    /// segment -- the region P3/P6/P9/P10/P11 need to actually exercise
+    /// the clamp/near-zero code paths rather than trivially passing on a
+    /// far-away point. Measured at N=50: 24/50 (48%) within 5mm.
+    #[cfg_attr(test, test)]
+    fn cc_point_seg_close_coverage_guard() {
+        let n = 50u64;
+        let mut near = 0u32;
+        for seed in 0..n {
+            let (px, py, x1, y1, x2, y2) = cc_gen_point_seg_close(seed);
+            let d = point_to_segment_distance(px, py, x1, y1, x2, y2);
+            if d < 5.0 {
+                near += 1;
+            }
+        }
+        assert!(near * 100 >= n as u32 * 40, "only {near}/{n} seeds landed within 5mm of the segment");
+    }
+
+    // --- P5: creepage bracket boundary straddling -----------------------
+
+    /// The 9 IPC-2221 bracket breakpoints `required_creepage_bracket`
+    /// switches on.
+    const CC_BRACKETS: [f64; 9] = [15.0, 30.0, 50.0, 100.0, 150.0, 170.0, 250.0, 300.0, 600.0];
+
+    /// A `(lo, hi)` voltage pair (`lo <= hi`). `seed % 3 == 0` draws
+    /// uniformly over the full 0..1200V range -- the native strategy's own
+    /// domain, where `lo` and `hi` land in the SAME bracket on most draws
+    /// (10 brackets spread unevenly over 1200V), making the monotonicity
+    /// check trivially true (`bracket(hi) == bracket(lo)`) without ever
+    /// exercising the actual step. The other two thirds deliberately
+    /// straddle one of the 9 breakpoints (by a random small margin, or
+    /// pinned exactly at the breakpoint on the low side) so the mirror
+    /// actually walks the step function.
+    fn cc_gen_voltage_pair(seed: u64) -> (f64, f64) {
+        let mut rng = SplitMix64::new(seed);
+        match seed % 3 {
+            0 => {
+                let a = rng.range(0.0, 1200.0);
+                let b = rng.range(0.0, 1200.0);
+                if a <= b { (a, b) } else { (b, a) }
+            }
+            1 => {
+                let bp = CC_BRACKETS[rng.index(CC_BRACKETS.len())];
+                let delta = rng.range(0.01, 5.0);
+                (bp - delta, bp + delta)
+            }
+            _ => {
+                let bp = CC_BRACKETS[rng.index(CC_BRACKETS.len())];
+                let delta = rng.range(0.001, 3.0);
+                (bp, bp + delta)
+            }
+        }
+    }
+
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(seed: u64) {
+        let (lo, hi) = cc_gen_voltage_pair(seed);
+        assert!(
+            required_creepage_bracket(hi) >= required_creepage_bracket(lo),
+            "seed={seed}: bracket({hi}) < bracket({lo})"
+        );
+    }
+
+    /// Measures how often `cc_gen_voltage_pair` actually straddles a
+    /// bracket boundary (`bracket(lo) != bracket(hi)`) rather than landing
+    /// in the same bracket on both sides. Measured at N=50: 42/50 (84%)
+    /// straddle a boundary.
+    #[cfg_attr(test, test)]
+    fn cc_p5_coverage_guard_straddles_a_bracket() {
+        let n = 50u64;
+        let mut straddle = 0u32;
+        for seed in 0..n {
+            let (lo, hi) = cc_gen_voltage_pair(seed);
+            if required_creepage_bracket(hi) != required_creepage_bracket(lo) {
+                straddle += 1;
+            }
+        }
+        assert!(straddle * 100 >= n as u32 * 40, "only {straddle}/{n} seeds crossed a bracket boundary");
+    }
+
+    // --- P7, P8, P12: already target the interesting region by ---------
+    // --- construction (on-segment / degenerate / collinear-beyond), so --
+    // --- no separate biased generator or coverage guard is needed: the --
+    // --- assertion IS the proof, on every seed. ------------------------
+
+    fn cc_p7_ptsd_zero_on_segment_interior_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let x1 = rng.range(-200.0, 200.0);
+        let y1 = rng.range(-200.0, 200.0);
+        let x2 = rng.range(-200.0, 200.0);
+        let y2 = rng.range(-200.0, 200.0);
+        if (x2 - x1).powi(2) + (y2 - y1).powi(2) < 1e-6 {
+            return;
+        }
+        let t = rng.range(0.0, 1.0);
+        let px = x1 + t * (x2 - x1);
+        let py = y1 + t * (y2 - y1);
+        let d = point_to_segment_distance(px, py, x1, y1, x2, y2);
+        assert!(d < 1e-10, "seed={seed}: distance to point on segment interior is {d} (should be 0)");
+    }
+
+    fn cc_p8_ptsd_degenerate_is_py_hypot_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let px = rng.range(-200.0, 200.0);
+        let py = rng.range(-200.0, 200.0);
+        let sx = rng.range(-200.0, 200.0);
+        let sy = rng.range(-200.0, 200.0);
+        let got = point_to_segment_distance(px, py, sx, sy, sx, sy);
+        let expected = crate::pad_geometry::py_hypot(px - sx, py - sy);
+        assert_eq!(got, expected, "seed={seed}: degenerate-segment distance mismatch");
+    }
+
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let x1 = rng.range(-200.0, 200.0);
+        let y1 = rng.range(-200.0, 200.0);
+        let x2 = rng.range(-200.0, 200.0);
+        let y2 = rng.range(-200.0, 200.0);
+        if (x2 - x1).powi(2) + (y2 - y1).powi(2) < 1e-6 {
+            return;
+        }
+        let dx = x2 - x1;
+        let dy = y2 - y1;
+        let beyond_factor = if seed % 2 == 0 { -1.0 } else { 2.0 };
+        let px = x1 + beyond_factor * dx;
+        let py = y1 + beyond_factor * dy;
+        let d = point_to_segment_distance(px, py, x1, y1, x2, y2);
+        let de1 = crate::pad_geometry::py_hypot(px - x1, py - y1);
+        let de2 = crate::pad_geometry::py_hypot(px - x2, py - y2);
+        let expected = de1.min(de2);
+        assert!(
+            (d - expected).abs() < 1e-12,
+            "seed={seed}: collinear-beyond: got {d} vs endpoint min {expected}"
+        );
+    }
+
+
+    // --- BEGIN generated seeded property-mirror wrappers (deterministic proptest mirrors) ---
+    // 15 properties x 50 seeds = 750 distinct-input wasm tests.
+    // --- cc_p1_distance_is_non_negative: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_000() { cc_p1_distance_is_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_001() { cc_p1_distance_is_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_002() { cc_p1_distance_is_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_003() { cc_p1_distance_is_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_004() { cc_p1_distance_is_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_005() { cc_p1_distance_is_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_006() { cc_p1_distance_is_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_007() { cc_p1_distance_is_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_008() { cc_p1_distance_is_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_009() { cc_p1_distance_is_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_010() { cc_p1_distance_is_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_011() { cc_p1_distance_is_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_012() { cc_p1_distance_is_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_013() { cc_p1_distance_is_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_014() { cc_p1_distance_is_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_015() { cc_p1_distance_is_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_016() { cc_p1_distance_is_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_017() { cc_p1_distance_is_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_018() { cc_p1_distance_is_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_019() { cc_p1_distance_is_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_020() { cc_p1_distance_is_non_negative_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_021() { cc_p1_distance_is_non_negative_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_022() { cc_p1_distance_is_non_negative_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_023() { cc_p1_distance_is_non_negative_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_024() { cc_p1_distance_is_non_negative_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_025() { cc_p1_distance_is_non_negative_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_026() { cc_p1_distance_is_non_negative_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_027() { cc_p1_distance_is_non_negative_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_028() { cc_p1_distance_is_non_negative_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_029() { cc_p1_distance_is_non_negative_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_030() { cc_p1_distance_is_non_negative_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_031() { cc_p1_distance_is_non_negative_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_032() { cc_p1_distance_is_non_negative_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_033() { cc_p1_distance_is_non_negative_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_034() { cc_p1_distance_is_non_negative_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_035() { cc_p1_distance_is_non_negative_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_036() { cc_p1_distance_is_non_negative_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_037() { cc_p1_distance_is_non_negative_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_038() { cc_p1_distance_is_non_negative_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_039() { cc_p1_distance_is_non_negative_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_040() { cc_p1_distance_is_non_negative_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_041() { cc_p1_distance_is_non_negative_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_042() { cc_p1_distance_is_non_negative_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_043() { cc_p1_distance_is_non_negative_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_044() { cc_p1_distance_is_non_negative_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_045() { cc_p1_distance_is_non_negative_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_046() { cc_p1_distance_is_non_negative_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_047() { cc_p1_distance_is_non_negative_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_048() { cc_p1_distance_is_non_negative_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p1_distance_is_non_negative_seed_049() { cc_p1_distance_is_non_negative_impl(49); }
+    // --- cc_p2_swapping_segments_is_bit_exact: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_000() { cc_p2_swapping_segments_is_bit_exact_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_001() { cc_p2_swapping_segments_is_bit_exact_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_002() { cc_p2_swapping_segments_is_bit_exact_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_003() { cc_p2_swapping_segments_is_bit_exact_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_004() { cc_p2_swapping_segments_is_bit_exact_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_005() { cc_p2_swapping_segments_is_bit_exact_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_006() { cc_p2_swapping_segments_is_bit_exact_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_007() { cc_p2_swapping_segments_is_bit_exact_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_008() { cc_p2_swapping_segments_is_bit_exact_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_009() { cc_p2_swapping_segments_is_bit_exact_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_010() { cc_p2_swapping_segments_is_bit_exact_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_011() { cc_p2_swapping_segments_is_bit_exact_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_012() { cc_p2_swapping_segments_is_bit_exact_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_013() { cc_p2_swapping_segments_is_bit_exact_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_014() { cc_p2_swapping_segments_is_bit_exact_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_015() { cc_p2_swapping_segments_is_bit_exact_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_016() { cc_p2_swapping_segments_is_bit_exact_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_017() { cc_p2_swapping_segments_is_bit_exact_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_018() { cc_p2_swapping_segments_is_bit_exact_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_019() { cc_p2_swapping_segments_is_bit_exact_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_020() { cc_p2_swapping_segments_is_bit_exact_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_021() { cc_p2_swapping_segments_is_bit_exact_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_022() { cc_p2_swapping_segments_is_bit_exact_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_023() { cc_p2_swapping_segments_is_bit_exact_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_024() { cc_p2_swapping_segments_is_bit_exact_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_025() { cc_p2_swapping_segments_is_bit_exact_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_026() { cc_p2_swapping_segments_is_bit_exact_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_027() { cc_p2_swapping_segments_is_bit_exact_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_028() { cc_p2_swapping_segments_is_bit_exact_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_029() { cc_p2_swapping_segments_is_bit_exact_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_030() { cc_p2_swapping_segments_is_bit_exact_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_031() { cc_p2_swapping_segments_is_bit_exact_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_032() { cc_p2_swapping_segments_is_bit_exact_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_033() { cc_p2_swapping_segments_is_bit_exact_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_034() { cc_p2_swapping_segments_is_bit_exact_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_035() { cc_p2_swapping_segments_is_bit_exact_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_036() { cc_p2_swapping_segments_is_bit_exact_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_037() { cc_p2_swapping_segments_is_bit_exact_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_038() { cc_p2_swapping_segments_is_bit_exact_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_039() { cc_p2_swapping_segments_is_bit_exact_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_040() { cc_p2_swapping_segments_is_bit_exact_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_041() { cc_p2_swapping_segments_is_bit_exact_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_042() { cc_p2_swapping_segments_is_bit_exact_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_043() { cc_p2_swapping_segments_is_bit_exact_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_044() { cc_p2_swapping_segments_is_bit_exact_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_045() { cc_p2_swapping_segments_is_bit_exact_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_046() { cc_p2_swapping_segments_is_bit_exact_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_047() { cc_p2_swapping_segments_is_bit_exact_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_048() { cc_p2_swapping_segments_is_bit_exact_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p2_swapping_segments_is_bit_exact_seed_049() { cc_p2_swapping_segments_is_bit_exact_impl(49); }
+    // --- cc_p3_distance_is_monotonic_moving_away: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_000() { cc_p3_distance_is_monotonic_moving_away_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_001() { cc_p3_distance_is_monotonic_moving_away_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_002() { cc_p3_distance_is_monotonic_moving_away_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_003() { cc_p3_distance_is_monotonic_moving_away_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_004() { cc_p3_distance_is_monotonic_moving_away_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_005() { cc_p3_distance_is_monotonic_moving_away_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_006() { cc_p3_distance_is_monotonic_moving_away_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_007() { cc_p3_distance_is_monotonic_moving_away_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_008() { cc_p3_distance_is_monotonic_moving_away_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_009() { cc_p3_distance_is_monotonic_moving_away_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_010() { cc_p3_distance_is_monotonic_moving_away_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_011() { cc_p3_distance_is_monotonic_moving_away_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_012() { cc_p3_distance_is_monotonic_moving_away_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_013() { cc_p3_distance_is_monotonic_moving_away_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_014() { cc_p3_distance_is_monotonic_moving_away_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_015() { cc_p3_distance_is_monotonic_moving_away_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_016() { cc_p3_distance_is_monotonic_moving_away_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_017() { cc_p3_distance_is_monotonic_moving_away_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_018() { cc_p3_distance_is_monotonic_moving_away_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_019() { cc_p3_distance_is_monotonic_moving_away_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_020() { cc_p3_distance_is_monotonic_moving_away_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_021() { cc_p3_distance_is_monotonic_moving_away_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_022() { cc_p3_distance_is_monotonic_moving_away_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_023() { cc_p3_distance_is_monotonic_moving_away_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_024() { cc_p3_distance_is_monotonic_moving_away_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_025() { cc_p3_distance_is_monotonic_moving_away_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_026() { cc_p3_distance_is_monotonic_moving_away_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_027() { cc_p3_distance_is_monotonic_moving_away_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_028() { cc_p3_distance_is_monotonic_moving_away_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_029() { cc_p3_distance_is_monotonic_moving_away_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_030() { cc_p3_distance_is_monotonic_moving_away_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_031() { cc_p3_distance_is_monotonic_moving_away_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_032() { cc_p3_distance_is_monotonic_moving_away_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_033() { cc_p3_distance_is_monotonic_moving_away_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_034() { cc_p3_distance_is_monotonic_moving_away_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_035() { cc_p3_distance_is_monotonic_moving_away_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_036() { cc_p3_distance_is_monotonic_moving_away_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_037() { cc_p3_distance_is_monotonic_moving_away_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_038() { cc_p3_distance_is_monotonic_moving_away_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_039() { cc_p3_distance_is_monotonic_moving_away_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_040() { cc_p3_distance_is_monotonic_moving_away_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_041() { cc_p3_distance_is_monotonic_moving_away_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_042() { cc_p3_distance_is_monotonic_moving_away_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_043() { cc_p3_distance_is_monotonic_moving_away_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_044() { cc_p3_distance_is_monotonic_moving_away_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_045() { cc_p3_distance_is_monotonic_moving_away_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_046() { cc_p3_distance_is_monotonic_moving_away_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_047() { cc_p3_distance_is_monotonic_moving_away_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_048() { cc_p3_distance_is_monotonic_moving_away_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p3_distance_is_monotonic_moving_away_seed_049() { cc_p3_distance_is_monotonic_moving_away_impl(49); }
+    // --- cc_p4_distance_is_bounded_by_midpoints: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_000() { cc_p4_distance_is_bounded_by_midpoints_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_001() { cc_p4_distance_is_bounded_by_midpoints_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_002() { cc_p4_distance_is_bounded_by_midpoints_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_003() { cc_p4_distance_is_bounded_by_midpoints_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_004() { cc_p4_distance_is_bounded_by_midpoints_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_005() { cc_p4_distance_is_bounded_by_midpoints_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_006() { cc_p4_distance_is_bounded_by_midpoints_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_007() { cc_p4_distance_is_bounded_by_midpoints_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_008() { cc_p4_distance_is_bounded_by_midpoints_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_009() { cc_p4_distance_is_bounded_by_midpoints_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_010() { cc_p4_distance_is_bounded_by_midpoints_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_011() { cc_p4_distance_is_bounded_by_midpoints_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_012() { cc_p4_distance_is_bounded_by_midpoints_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_013() { cc_p4_distance_is_bounded_by_midpoints_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_014() { cc_p4_distance_is_bounded_by_midpoints_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_015() { cc_p4_distance_is_bounded_by_midpoints_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_016() { cc_p4_distance_is_bounded_by_midpoints_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_017() { cc_p4_distance_is_bounded_by_midpoints_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_018() { cc_p4_distance_is_bounded_by_midpoints_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_019() { cc_p4_distance_is_bounded_by_midpoints_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_020() { cc_p4_distance_is_bounded_by_midpoints_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_021() { cc_p4_distance_is_bounded_by_midpoints_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_022() { cc_p4_distance_is_bounded_by_midpoints_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_023() { cc_p4_distance_is_bounded_by_midpoints_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_024() { cc_p4_distance_is_bounded_by_midpoints_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_025() { cc_p4_distance_is_bounded_by_midpoints_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_026() { cc_p4_distance_is_bounded_by_midpoints_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_027() { cc_p4_distance_is_bounded_by_midpoints_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_028() { cc_p4_distance_is_bounded_by_midpoints_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_029() { cc_p4_distance_is_bounded_by_midpoints_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_030() { cc_p4_distance_is_bounded_by_midpoints_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_031() { cc_p4_distance_is_bounded_by_midpoints_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_032() { cc_p4_distance_is_bounded_by_midpoints_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_033() { cc_p4_distance_is_bounded_by_midpoints_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_034() { cc_p4_distance_is_bounded_by_midpoints_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_035() { cc_p4_distance_is_bounded_by_midpoints_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_036() { cc_p4_distance_is_bounded_by_midpoints_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_037() { cc_p4_distance_is_bounded_by_midpoints_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_038() { cc_p4_distance_is_bounded_by_midpoints_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_039() { cc_p4_distance_is_bounded_by_midpoints_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_040() { cc_p4_distance_is_bounded_by_midpoints_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_041() { cc_p4_distance_is_bounded_by_midpoints_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_042() { cc_p4_distance_is_bounded_by_midpoints_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_043() { cc_p4_distance_is_bounded_by_midpoints_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_044() { cc_p4_distance_is_bounded_by_midpoints_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_045() { cc_p4_distance_is_bounded_by_midpoints_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_046() { cc_p4_distance_is_bounded_by_midpoints_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_047() { cc_p4_distance_is_bounded_by_midpoints_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_048() { cc_p4_distance_is_bounded_by_midpoints_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p4_distance_is_bounded_by_midpoints_seed_049() { cc_p4_distance_is_bounded_by_midpoints_impl(49); }
+    // --- cc_p5_creepage_bracket_is_monotonic_in_voltage: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_000() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_001() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_002() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_003() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_004() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_005() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_006() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_007() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_008() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_009() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_010() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_011() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_012() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_013() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_014() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_015() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_016() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_017() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_018() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_019() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_020() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_021() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_022() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_023() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_024() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_025() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_026() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_027() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_028() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_029() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_030() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_031() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_032() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_033() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_034() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_035() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_036() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_037() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_038() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_039() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_040() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_041() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_042() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_043() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_044() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_045() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_046() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_047() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_048() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_049() { cc_p5_creepage_bracket_is_monotonic_in_voltage_impl(49); }
+    // --- cc_m1_distance_invariant_under_translation: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_000() { cc_m1_distance_invariant_under_translation_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_001() { cc_m1_distance_invariant_under_translation_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_002() { cc_m1_distance_invariant_under_translation_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_003() { cc_m1_distance_invariant_under_translation_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_004() { cc_m1_distance_invariant_under_translation_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_005() { cc_m1_distance_invariant_under_translation_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_006() { cc_m1_distance_invariant_under_translation_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_007() { cc_m1_distance_invariant_under_translation_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_008() { cc_m1_distance_invariant_under_translation_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_009() { cc_m1_distance_invariant_under_translation_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_010() { cc_m1_distance_invariant_under_translation_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_011() { cc_m1_distance_invariant_under_translation_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_012() { cc_m1_distance_invariant_under_translation_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_013() { cc_m1_distance_invariant_under_translation_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_014() { cc_m1_distance_invariant_under_translation_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_015() { cc_m1_distance_invariant_under_translation_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_016() { cc_m1_distance_invariant_under_translation_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_017() { cc_m1_distance_invariant_under_translation_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_018() { cc_m1_distance_invariant_under_translation_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_019() { cc_m1_distance_invariant_under_translation_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_020() { cc_m1_distance_invariant_under_translation_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_021() { cc_m1_distance_invariant_under_translation_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_022() { cc_m1_distance_invariant_under_translation_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_023() { cc_m1_distance_invariant_under_translation_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_024() { cc_m1_distance_invariant_under_translation_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_025() { cc_m1_distance_invariant_under_translation_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_026() { cc_m1_distance_invariant_under_translation_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_027() { cc_m1_distance_invariant_under_translation_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_028() { cc_m1_distance_invariant_under_translation_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_029() { cc_m1_distance_invariant_under_translation_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_030() { cc_m1_distance_invariant_under_translation_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_031() { cc_m1_distance_invariant_under_translation_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_032() { cc_m1_distance_invariant_under_translation_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_033() { cc_m1_distance_invariant_under_translation_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_034() { cc_m1_distance_invariant_under_translation_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_035() { cc_m1_distance_invariant_under_translation_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_036() { cc_m1_distance_invariant_under_translation_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_037() { cc_m1_distance_invariant_under_translation_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_038() { cc_m1_distance_invariant_under_translation_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_039() { cc_m1_distance_invariant_under_translation_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_040() { cc_m1_distance_invariant_under_translation_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_041() { cc_m1_distance_invariant_under_translation_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_042() { cc_m1_distance_invariant_under_translation_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_043() { cc_m1_distance_invariant_under_translation_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_044() { cc_m1_distance_invariant_under_translation_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_045() { cc_m1_distance_invariant_under_translation_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_046() { cc_m1_distance_invariant_under_translation_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_047() { cc_m1_distance_invariant_under_translation_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_048() { cc_m1_distance_invariant_under_translation_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_m1_distance_invariant_under_translation_seed_049() { cc_m1_distance_invariant_under_translation_impl(49); }
+    // --- cc_m2_distance_invariant_under_rotation: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_000() { cc_m2_distance_invariant_under_rotation_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_001() { cc_m2_distance_invariant_under_rotation_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_002() { cc_m2_distance_invariant_under_rotation_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_003() { cc_m2_distance_invariant_under_rotation_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_004() { cc_m2_distance_invariant_under_rotation_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_005() { cc_m2_distance_invariant_under_rotation_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_006() { cc_m2_distance_invariant_under_rotation_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_007() { cc_m2_distance_invariant_under_rotation_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_008() { cc_m2_distance_invariant_under_rotation_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_009() { cc_m2_distance_invariant_under_rotation_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_010() { cc_m2_distance_invariant_under_rotation_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_011() { cc_m2_distance_invariant_under_rotation_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_012() { cc_m2_distance_invariant_under_rotation_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_013() { cc_m2_distance_invariant_under_rotation_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_014() { cc_m2_distance_invariant_under_rotation_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_015() { cc_m2_distance_invariant_under_rotation_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_016() { cc_m2_distance_invariant_under_rotation_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_017() { cc_m2_distance_invariant_under_rotation_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_018() { cc_m2_distance_invariant_under_rotation_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_019() { cc_m2_distance_invariant_under_rotation_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_020() { cc_m2_distance_invariant_under_rotation_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_021() { cc_m2_distance_invariant_under_rotation_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_022() { cc_m2_distance_invariant_under_rotation_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_023() { cc_m2_distance_invariant_under_rotation_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_024() { cc_m2_distance_invariant_under_rotation_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_025() { cc_m2_distance_invariant_under_rotation_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_026() { cc_m2_distance_invariant_under_rotation_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_027() { cc_m2_distance_invariant_under_rotation_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_028() { cc_m2_distance_invariant_under_rotation_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_029() { cc_m2_distance_invariant_under_rotation_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_030() { cc_m2_distance_invariant_under_rotation_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_031() { cc_m2_distance_invariant_under_rotation_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_032() { cc_m2_distance_invariant_under_rotation_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_033() { cc_m2_distance_invariant_under_rotation_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_034() { cc_m2_distance_invariant_under_rotation_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_035() { cc_m2_distance_invariant_under_rotation_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_036() { cc_m2_distance_invariant_under_rotation_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_037() { cc_m2_distance_invariant_under_rotation_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_038() { cc_m2_distance_invariant_under_rotation_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_039() { cc_m2_distance_invariant_under_rotation_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_040() { cc_m2_distance_invariant_under_rotation_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_041() { cc_m2_distance_invariant_under_rotation_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_042() { cc_m2_distance_invariant_under_rotation_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_043() { cc_m2_distance_invariant_under_rotation_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_044() { cc_m2_distance_invariant_under_rotation_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_045() { cc_m2_distance_invariant_under_rotation_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_046() { cc_m2_distance_invariant_under_rotation_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_047() { cc_m2_distance_invariant_under_rotation_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_048() { cc_m2_distance_invariant_under_rotation_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_m2_distance_invariant_under_rotation_seed_049() { cc_m2_distance_invariant_under_rotation_impl(49); }
+    // --- cc_m3_distance_scales_with_geometry: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_000() { cc_m3_distance_scales_with_geometry_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_001() { cc_m3_distance_scales_with_geometry_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_002() { cc_m3_distance_scales_with_geometry_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_003() { cc_m3_distance_scales_with_geometry_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_004() { cc_m3_distance_scales_with_geometry_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_005() { cc_m3_distance_scales_with_geometry_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_006() { cc_m3_distance_scales_with_geometry_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_007() { cc_m3_distance_scales_with_geometry_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_008() { cc_m3_distance_scales_with_geometry_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_009() { cc_m3_distance_scales_with_geometry_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_010() { cc_m3_distance_scales_with_geometry_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_011() { cc_m3_distance_scales_with_geometry_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_012() { cc_m3_distance_scales_with_geometry_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_013() { cc_m3_distance_scales_with_geometry_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_014() { cc_m3_distance_scales_with_geometry_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_015() { cc_m3_distance_scales_with_geometry_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_016() { cc_m3_distance_scales_with_geometry_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_017() { cc_m3_distance_scales_with_geometry_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_018() { cc_m3_distance_scales_with_geometry_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_019() { cc_m3_distance_scales_with_geometry_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_020() { cc_m3_distance_scales_with_geometry_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_021() { cc_m3_distance_scales_with_geometry_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_022() { cc_m3_distance_scales_with_geometry_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_023() { cc_m3_distance_scales_with_geometry_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_024() { cc_m3_distance_scales_with_geometry_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_025() { cc_m3_distance_scales_with_geometry_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_026() { cc_m3_distance_scales_with_geometry_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_027() { cc_m3_distance_scales_with_geometry_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_028() { cc_m3_distance_scales_with_geometry_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_029() { cc_m3_distance_scales_with_geometry_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_030() { cc_m3_distance_scales_with_geometry_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_031() { cc_m3_distance_scales_with_geometry_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_032() { cc_m3_distance_scales_with_geometry_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_033() { cc_m3_distance_scales_with_geometry_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_034() { cc_m3_distance_scales_with_geometry_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_035() { cc_m3_distance_scales_with_geometry_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_036() { cc_m3_distance_scales_with_geometry_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_037() { cc_m3_distance_scales_with_geometry_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_038() { cc_m3_distance_scales_with_geometry_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_039() { cc_m3_distance_scales_with_geometry_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_040() { cc_m3_distance_scales_with_geometry_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_041() { cc_m3_distance_scales_with_geometry_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_042() { cc_m3_distance_scales_with_geometry_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_043() { cc_m3_distance_scales_with_geometry_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_044() { cc_m3_distance_scales_with_geometry_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_045() { cc_m3_distance_scales_with_geometry_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_046() { cc_m3_distance_scales_with_geometry_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_047() { cc_m3_distance_scales_with_geometry_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_048() { cc_m3_distance_scales_with_geometry_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_m3_distance_scales_with_geometry_seed_049() { cc_m3_distance_scales_with_geometry_impl(49); }
+    // --- cc_p6_ptsd_is_non_negative: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_000() { cc_p6_ptsd_is_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_001() { cc_p6_ptsd_is_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_002() { cc_p6_ptsd_is_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_003() { cc_p6_ptsd_is_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_004() { cc_p6_ptsd_is_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_005() { cc_p6_ptsd_is_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_006() { cc_p6_ptsd_is_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_007() { cc_p6_ptsd_is_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_008() { cc_p6_ptsd_is_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_009() { cc_p6_ptsd_is_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_010() { cc_p6_ptsd_is_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_011() { cc_p6_ptsd_is_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_012() { cc_p6_ptsd_is_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_013() { cc_p6_ptsd_is_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_014() { cc_p6_ptsd_is_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_015() { cc_p6_ptsd_is_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_016() { cc_p6_ptsd_is_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_017() { cc_p6_ptsd_is_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_018() { cc_p6_ptsd_is_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_019() { cc_p6_ptsd_is_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_020() { cc_p6_ptsd_is_non_negative_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_021() { cc_p6_ptsd_is_non_negative_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_022() { cc_p6_ptsd_is_non_negative_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_023() { cc_p6_ptsd_is_non_negative_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_024() { cc_p6_ptsd_is_non_negative_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_025() { cc_p6_ptsd_is_non_negative_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_026() { cc_p6_ptsd_is_non_negative_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_027() { cc_p6_ptsd_is_non_negative_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_028() { cc_p6_ptsd_is_non_negative_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_029() { cc_p6_ptsd_is_non_negative_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_030() { cc_p6_ptsd_is_non_negative_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_031() { cc_p6_ptsd_is_non_negative_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_032() { cc_p6_ptsd_is_non_negative_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_033() { cc_p6_ptsd_is_non_negative_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_034() { cc_p6_ptsd_is_non_negative_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_035() { cc_p6_ptsd_is_non_negative_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_036() { cc_p6_ptsd_is_non_negative_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_037() { cc_p6_ptsd_is_non_negative_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_038() { cc_p6_ptsd_is_non_negative_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_039() { cc_p6_ptsd_is_non_negative_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_040() { cc_p6_ptsd_is_non_negative_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_041() { cc_p6_ptsd_is_non_negative_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_042() { cc_p6_ptsd_is_non_negative_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_043() { cc_p6_ptsd_is_non_negative_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_044() { cc_p6_ptsd_is_non_negative_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_045() { cc_p6_ptsd_is_non_negative_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_046() { cc_p6_ptsd_is_non_negative_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_047() { cc_p6_ptsd_is_non_negative_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_048() { cc_p6_ptsd_is_non_negative_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p6_ptsd_is_non_negative_seed_049() { cc_p6_ptsd_is_non_negative_impl(49); }
+    // --- cc_p7_ptsd_zero_on_segment_interior: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_000() { cc_p7_ptsd_zero_on_segment_interior_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_001() { cc_p7_ptsd_zero_on_segment_interior_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_002() { cc_p7_ptsd_zero_on_segment_interior_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_003() { cc_p7_ptsd_zero_on_segment_interior_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_004() { cc_p7_ptsd_zero_on_segment_interior_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_005() { cc_p7_ptsd_zero_on_segment_interior_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_006() { cc_p7_ptsd_zero_on_segment_interior_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_007() { cc_p7_ptsd_zero_on_segment_interior_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_008() { cc_p7_ptsd_zero_on_segment_interior_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_009() { cc_p7_ptsd_zero_on_segment_interior_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_010() { cc_p7_ptsd_zero_on_segment_interior_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_011() { cc_p7_ptsd_zero_on_segment_interior_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_012() { cc_p7_ptsd_zero_on_segment_interior_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_013() { cc_p7_ptsd_zero_on_segment_interior_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_014() { cc_p7_ptsd_zero_on_segment_interior_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_015() { cc_p7_ptsd_zero_on_segment_interior_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_016() { cc_p7_ptsd_zero_on_segment_interior_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_017() { cc_p7_ptsd_zero_on_segment_interior_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_018() { cc_p7_ptsd_zero_on_segment_interior_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_019() { cc_p7_ptsd_zero_on_segment_interior_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_020() { cc_p7_ptsd_zero_on_segment_interior_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_021() { cc_p7_ptsd_zero_on_segment_interior_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_022() { cc_p7_ptsd_zero_on_segment_interior_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_023() { cc_p7_ptsd_zero_on_segment_interior_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_024() { cc_p7_ptsd_zero_on_segment_interior_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_025() { cc_p7_ptsd_zero_on_segment_interior_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_026() { cc_p7_ptsd_zero_on_segment_interior_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_027() { cc_p7_ptsd_zero_on_segment_interior_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_028() { cc_p7_ptsd_zero_on_segment_interior_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_029() { cc_p7_ptsd_zero_on_segment_interior_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_030() { cc_p7_ptsd_zero_on_segment_interior_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_031() { cc_p7_ptsd_zero_on_segment_interior_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_032() { cc_p7_ptsd_zero_on_segment_interior_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_033() { cc_p7_ptsd_zero_on_segment_interior_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_034() { cc_p7_ptsd_zero_on_segment_interior_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_035() { cc_p7_ptsd_zero_on_segment_interior_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_036() { cc_p7_ptsd_zero_on_segment_interior_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_037() { cc_p7_ptsd_zero_on_segment_interior_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_038() { cc_p7_ptsd_zero_on_segment_interior_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_039() { cc_p7_ptsd_zero_on_segment_interior_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_040() { cc_p7_ptsd_zero_on_segment_interior_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_041() { cc_p7_ptsd_zero_on_segment_interior_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_042() { cc_p7_ptsd_zero_on_segment_interior_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_043() { cc_p7_ptsd_zero_on_segment_interior_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_044() { cc_p7_ptsd_zero_on_segment_interior_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_045() { cc_p7_ptsd_zero_on_segment_interior_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_046() { cc_p7_ptsd_zero_on_segment_interior_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_047() { cc_p7_ptsd_zero_on_segment_interior_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_048() { cc_p7_ptsd_zero_on_segment_interior_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p7_ptsd_zero_on_segment_interior_seed_049() { cc_p7_ptsd_zero_on_segment_interior_impl(49); }
+    // --- cc_p8_ptsd_degenerate_is_py_hypot: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_000() { cc_p8_ptsd_degenerate_is_py_hypot_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_001() { cc_p8_ptsd_degenerate_is_py_hypot_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_002() { cc_p8_ptsd_degenerate_is_py_hypot_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_003() { cc_p8_ptsd_degenerate_is_py_hypot_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_004() { cc_p8_ptsd_degenerate_is_py_hypot_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_005() { cc_p8_ptsd_degenerate_is_py_hypot_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_006() { cc_p8_ptsd_degenerate_is_py_hypot_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_007() { cc_p8_ptsd_degenerate_is_py_hypot_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_008() { cc_p8_ptsd_degenerate_is_py_hypot_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_009() { cc_p8_ptsd_degenerate_is_py_hypot_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_010() { cc_p8_ptsd_degenerate_is_py_hypot_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_011() { cc_p8_ptsd_degenerate_is_py_hypot_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_012() { cc_p8_ptsd_degenerate_is_py_hypot_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_013() { cc_p8_ptsd_degenerate_is_py_hypot_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_014() { cc_p8_ptsd_degenerate_is_py_hypot_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_015() { cc_p8_ptsd_degenerate_is_py_hypot_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_016() { cc_p8_ptsd_degenerate_is_py_hypot_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_017() { cc_p8_ptsd_degenerate_is_py_hypot_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_018() { cc_p8_ptsd_degenerate_is_py_hypot_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_019() { cc_p8_ptsd_degenerate_is_py_hypot_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_020() { cc_p8_ptsd_degenerate_is_py_hypot_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_021() { cc_p8_ptsd_degenerate_is_py_hypot_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_022() { cc_p8_ptsd_degenerate_is_py_hypot_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_023() { cc_p8_ptsd_degenerate_is_py_hypot_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_024() { cc_p8_ptsd_degenerate_is_py_hypot_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_025() { cc_p8_ptsd_degenerate_is_py_hypot_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_026() { cc_p8_ptsd_degenerate_is_py_hypot_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_027() { cc_p8_ptsd_degenerate_is_py_hypot_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_028() { cc_p8_ptsd_degenerate_is_py_hypot_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_029() { cc_p8_ptsd_degenerate_is_py_hypot_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_030() { cc_p8_ptsd_degenerate_is_py_hypot_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_031() { cc_p8_ptsd_degenerate_is_py_hypot_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_032() { cc_p8_ptsd_degenerate_is_py_hypot_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_033() { cc_p8_ptsd_degenerate_is_py_hypot_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_034() { cc_p8_ptsd_degenerate_is_py_hypot_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_035() { cc_p8_ptsd_degenerate_is_py_hypot_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_036() { cc_p8_ptsd_degenerate_is_py_hypot_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_037() { cc_p8_ptsd_degenerate_is_py_hypot_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_038() { cc_p8_ptsd_degenerate_is_py_hypot_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_039() { cc_p8_ptsd_degenerate_is_py_hypot_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_040() { cc_p8_ptsd_degenerate_is_py_hypot_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_041() { cc_p8_ptsd_degenerate_is_py_hypot_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_042() { cc_p8_ptsd_degenerate_is_py_hypot_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_043() { cc_p8_ptsd_degenerate_is_py_hypot_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_044() { cc_p8_ptsd_degenerate_is_py_hypot_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_045() { cc_p8_ptsd_degenerate_is_py_hypot_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_046() { cc_p8_ptsd_degenerate_is_py_hypot_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_047() { cc_p8_ptsd_degenerate_is_py_hypot_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_048() { cc_p8_ptsd_degenerate_is_py_hypot_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p8_ptsd_degenerate_is_py_hypot_seed_049() { cc_p8_ptsd_degenerate_is_py_hypot_impl(49); }
+    // --- cc_p9_ptsd_bounded_by_endpoints: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_000() { cc_p9_ptsd_bounded_by_endpoints_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_001() { cc_p9_ptsd_bounded_by_endpoints_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_002() { cc_p9_ptsd_bounded_by_endpoints_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_003() { cc_p9_ptsd_bounded_by_endpoints_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_004() { cc_p9_ptsd_bounded_by_endpoints_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_005() { cc_p9_ptsd_bounded_by_endpoints_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_006() { cc_p9_ptsd_bounded_by_endpoints_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_007() { cc_p9_ptsd_bounded_by_endpoints_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_008() { cc_p9_ptsd_bounded_by_endpoints_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_009() { cc_p9_ptsd_bounded_by_endpoints_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_010() { cc_p9_ptsd_bounded_by_endpoints_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_011() { cc_p9_ptsd_bounded_by_endpoints_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_012() { cc_p9_ptsd_bounded_by_endpoints_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_013() { cc_p9_ptsd_bounded_by_endpoints_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_014() { cc_p9_ptsd_bounded_by_endpoints_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_015() { cc_p9_ptsd_bounded_by_endpoints_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_016() { cc_p9_ptsd_bounded_by_endpoints_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_017() { cc_p9_ptsd_bounded_by_endpoints_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_018() { cc_p9_ptsd_bounded_by_endpoints_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_019() { cc_p9_ptsd_bounded_by_endpoints_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_020() { cc_p9_ptsd_bounded_by_endpoints_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_021() { cc_p9_ptsd_bounded_by_endpoints_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_022() { cc_p9_ptsd_bounded_by_endpoints_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_023() { cc_p9_ptsd_bounded_by_endpoints_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_024() { cc_p9_ptsd_bounded_by_endpoints_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_025() { cc_p9_ptsd_bounded_by_endpoints_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_026() { cc_p9_ptsd_bounded_by_endpoints_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_027() { cc_p9_ptsd_bounded_by_endpoints_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_028() { cc_p9_ptsd_bounded_by_endpoints_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_029() { cc_p9_ptsd_bounded_by_endpoints_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_030() { cc_p9_ptsd_bounded_by_endpoints_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_031() { cc_p9_ptsd_bounded_by_endpoints_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_032() { cc_p9_ptsd_bounded_by_endpoints_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_033() { cc_p9_ptsd_bounded_by_endpoints_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_034() { cc_p9_ptsd_bounded_by_endpoints_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_035() { cc_p9_ptsd_bounded_by_endpoints_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_036() { cc_p9_ptsd_bounded_by_endpoints_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_037() { cc_p9_ptsd_bounded_by_endpoints_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_038() { cc_p9_ptsd_bounded_by_endpoints_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_039() { cc_p9_ptsd_bounded_by_endpoints_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_040() { cc_p9_ptsd_bounded_by_endpoints_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_041() { cc_p9_ptsd_bounded_by_endpoints_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_042() { cc_p9_ptsd_bounded_by_endpoints_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_043() { cc_p9_ptsd_bounded_by_endpoints_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_044() { cc_p9_ptsd_bounded_by_endpoints_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_045() { cc_p9_ptsd_bounded_by_endpoints_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_046() { cc_p9_ptsd_bounded_by_endpoints_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_047() { cc_p9_ptsd_bounded_by_endpoints_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_048() { cc_p9_ptsd_bounded_by_endpoints_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p9_ptsd_bounded_by_endpoints_seed_049() { cc_p9_ptsd_bounded_by_endpoints_impl(49); }
+    // --- cc_p10_ptsd_segment_reversal_preserves_distance: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_000() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_001() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_002() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_003() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_004() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_005() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_006() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_007() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_008() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_009() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_010() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_011() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_012() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_013() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_014() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_015() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_016() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_017() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_018() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_019() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_020() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_021() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_022() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_023() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_024() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_025() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_026() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_027() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_028() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_029() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_030() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_031() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_032() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_033() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_034() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_035() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_036() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_037() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_038() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_039() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_040() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_041() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_042() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_043() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_044() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_045() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_046() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_047() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_048() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p10_ptsd_segment_reversal_preserves_distance_seed_049() { cc_p10_ptsd_segment_reversal_preserves_distance_impl(49); }
+    // --- cc_p11_ptsd_translation_invariant: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_000() { cc_p11_ptsd_translation_invariant_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_001() { cc_p11_ptsd_translation_invariant_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_002() { cc_p11_ptsd_translation_invariant_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_003() { cc_p11_ptsd_translation_invariant_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_004() { cc_p11_ptsd_translation_invariant_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_005() { cc_p11_ptsd_translation_invariant_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_006() { cc_p11_ptsd_translation_invariant_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_007() { cc_p11_ptsd_translation_invariant_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_008() { cc_p11_ptsd_translation_invariant_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_009() { cc_p11_ptsd_translation_invariant_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_010() { cc_p11_ptsd_translation_invariant_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_011() { cc_p11_ptsd_translation_invariant_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_012() { cc_p11_ptsd_translation_invariant_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_013() { cc_p11_ptsd_translation_invariant_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_014() { cc_p11_ptsd_translation_invariant_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_015() { cc_p11_ptsd_translation_invariant_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_016() { cc_p11_ptsd_translation_invariant_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_017() { cc_p11_ptsd_translation_invariant_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_018() { cc_p11_ptsd_translation_invariant_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_019() { cc_p11_ptsd_translation_invariant_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_020() { cc_p11_ptsd_translation_invariant_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_021() { cc_p11_ptsd_translation_invariant_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_022() { cc_p11_ptsd_translation_invariant_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_023() { cc_p11_ptsd_translation_invariant_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_024() { cc_p11_ptsd_translation_invariant_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_025() { cc_p11_ptsd_translation_invariant_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_026() { cc_p11_ptsd_translation_invariant_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_027() { cc_p11_ptsd_translation_invariant_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_028() { cc_p11_ptsd_translation_invariant_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_029() { cc_p11_ptsd_translation_invariant_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_030() { cc_p11_ptsd_translation_invariant_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_031() { cc_p11_ptsd_translation_invariant_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_032() { cc_p11_ptsd_translation_invariant_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_033() { cc_p11_ptsd_translation_invariant_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_034() { cc_p11_ptsd_translation_invariant_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_035() { cc_p11_ptsd_translation_invariant_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_036() { cc_p11_ptsd_translation_invariant_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_037() { cc_p11_ptsd_translation_invariant_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_038() { cc_p11_ptsd_translation_invariant_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_039() { cc_p11_ptsd_translation_invariant_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_040() { cc_p11_ptsd_translation_invariant_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_041() { cc_p11_ptsd_translation_invariant_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_042() { cc_p11_ptsd_translation_invariant_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_043() { cc_p11_ptsd_translation_invariant_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_044() { cc_p11_ptsd_translation_invariant_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_045() { cc_p11_ptsd_translation_invariant_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_046() { cc_p11_ptsd_translation_invariant_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_047() { cc_p11_ptsd_translation_invariant_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_048() { cc_p11_ptsd_translation_invariant_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p11_ptsd_translation_invariant_seed_049() { cc_p11_ptsd_translation_invariant_impl(49); }
+    // --- cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance: 50 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_000() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(0); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_001() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(1); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_002() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(2); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_003() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(3); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_004() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(4); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_005() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(5); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_006() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(6); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_007() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(7); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_008() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(8); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_009() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(9); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_010() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(10); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_011() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(11); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_012() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(12); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_013() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(13); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_014() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(14); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_015() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(15); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_016() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(16); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_017() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(17); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_018() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(18); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_019() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(19); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_020() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(20); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_021() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(21); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_022() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(22); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_023() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(23); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_024() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(24); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_025() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(25); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_026() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(26); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_027() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(27); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_028() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(28); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_029() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(29); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_030() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(30); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_031() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(31); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_032() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(32); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_033() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(33); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_034() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(34); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_035() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(35); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_036() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(36); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_037() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(37); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_038() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(38); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_039() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(39); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_040() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(40); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_041() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(41); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_042() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(42); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_043() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(43); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_044() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(44); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_045() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(45); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_046() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(46); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_047() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(47); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_048() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(48); }
+    #[cfg_attr(test, test)]
+    fn cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_049() { cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_impl(49); }
+    // --- END generated seeded property-mirror wrappers ---
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -596,6 +2602,759 @@ pub(crate) mod tests {
         ("creepage_check::tests::hv_word_boundary_negative", hv_word_boundary_negative),
         ("creepage_check::tests::hv_case_insensitive", hv_case_insensitive),
         ("creepage_check::tests::hv_non_ascii_does_not_crash", hv_non_ascii_does_not_crash),
+        ("creepage_check::tests::cc_seg_pair_coverage_guard_hits_close_and_crossing_cases", cc_seg_pair_coverage_guard_hits_close_and_crossing_cases),
+        ("creepage_check::tests::cc_point_seg_close_coverage_guard", cc_point_seg_close_coverage_guard),
+        ("creepage_check::tests::cc_p5_coverage_guard_straddles_a_bracket", cc_p5_coverage_guard_straddles_a_bracket),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_000", cc_p1_distance_is_non_negative_seed_000),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_001", cc_p1_distance_is_non_negative_seed_001),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_002", cc_p1_distance_is_non_negative_seed_002),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_003", cc_p1_distance_is_non_negative_seed_003),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_004", cc_p1_distance_is_non_negative_seed_004),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_005", cc_p1_distance_is_non_negative_seed_005),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_006", cc_p1_distance_is_non_negative_seed_006),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_007", cc_p1_distance_is_non_negative_seed_007),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_008", cc_p1_distance_is_non_negative_seed_008),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_009", cc_p1_distance_is_non_negative_seed_009),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_010", cc_p1_distance_is_non_negative_seed_010),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_011", cc_p1_distance_is_non_negative_seed_011),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_012", cc_p1_distance_is_non_negative_seed_012),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_013", cc_p1_distance_is_non_negative_seed_013),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_014", cc_p1_distance_is_non_negative_seed_014),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_015", cc_p1_distance_is_non_negative_seed_015),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_016", cc_p1_distance_is_non_negative_seed_016),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_017", cc_p1_distance_is_non_negative_seed_017),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_018", cc_p1_distance_is_non_negative_seed_018),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_019", cc_p1_distance_is_non_negative_seed_019),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_020", cc_p1_distance_is_non_negative_seed_020),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_021", cc_p1_distance_is_non_negative_seed_021),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_022", cc_p1_distance_is_non_negative_seed_022),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_023", cc_p1_distance_is_non_negative_seed_023),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_024", cc_p1_distance_is_non_negative_seed_024),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_025", cc_p1_distance_is_non_negative_seed_025),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_026", cc_p1_distance_is_non_negative_seed_026),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_027", cc_p1_distance_is_non_negative_seed_027),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_028", cc_p1_distance_is_non_negative_seed_028),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_029", cc_p1_distance_is_non_negative_seed_029),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_030", cc_p1_distance_is_non_negative_seed_030),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_031", cc_p1_distance_is_non_negative_seed_031),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_032", cc_p1_distance_is_non_negative_seed_032),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_033", cc_p1_distance_is_non_negative_seed_033),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_034", cc_p1_distance_is_non_negative_seed_034),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_035", cc_p1_distance_is_non_negative_seed_035),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_036", cc_p1_distance_is_non_negative_seed_036),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_037", cc_p1_distance_is_non_negative_seed_037),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_038", cc_p1_distance_is_non_negative_seed_038),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_039", cc_p1_distance_is_non_negative_seed_039),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_040", cc_p1_distance_is_non_negative_seed_040),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_041", cc_p1_distance_is_non_negative_seed_041),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_042", cc_p1_distance_is_non_negative_seed_042),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_043", cc_p1_distance_is_non_negative_seed_043),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_044", cc_p1_distance_is_non_negative_seed_044),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_045", cc_p1_distance_is_non_negative_seed_045),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_046", cc_p1_distance_is_non_negative_seed_046),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_047", cc_p1_distance_is_non_negative_seed_047),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_048", cc_p1_distance_is_non_negative_seed_048),
+        ("creepage_check::tests::cc_p1_distance_is_non_negative_seed_049", cc_p1_distance_is_non_negative_seed_049),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_000", cc_p2_swapping_segments_is_bit_exact_seed_000),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_001", cc_p2_swapping_segments_is_bit_exact_seed_001),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_002", cc_p2_swapping_segments_is_bit_exact_seed_002),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_003", cc_p2_swapping_segments_is_bit_exact_seed_003),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_004", cc_p2_swapping_segments_is_bit_exact_seed_004),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_005", cc_p2_swapping_segments_is_bit_exact_seed_005),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_006", cc_p2_swapping_segments_is_bit_exact_seed_006),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_007", cc_p2_swapping_segments_is_bit_exact_seed_007),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_008", cc_p2_swapping_segments_is_bit_exact_seed_008),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_009", cc_p2_swapping_segments_is_bit_exact_seed_009),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_010", cc_p2_swapping_segments_is_bit_exact_seed_010),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_011", cc_p2_swapping_segments_is_bit_exact_seed_011),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_012", cc_p2_swapping_segments_is_bit_exact_seed_012),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_013", cc_p2_swapping_segments_is_bit_exact_seed_013),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_014", cc_p2_swapping_segments_is_bit_exact_seed_014),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_015", cc_p2_swapping_segments_is_bit_exact_seed_015),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_016", cc_p2_swapping_segments_is_bit_exact_seed_016),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_017", cc_p2_swapping_segments_is_bit_exact_seed_017),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_018", cc_p2_swapping_segments_is_bit_exact_seed_018),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_019", cc_p2_swapping_segments_is_bit_exact_seed_019),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_020", cc_p2_swapping_segments_is_bit_exact_seed_020),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_021", cc_p2_swapping_segments_is_bit_exact_seed_021),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_022", cc_p2_swapping_segments_is_bit_exact_seed_022),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_023", cc_p2_swapping_segments_is_bit_exact_seed_023),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_024", cc_p2_swapping_segments_is_bit_exact_seed_024),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_025", cc_p2_swapping_segments_is_bit_exact_seed_025),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_026", cc_p2_swapping_segments_is_bit_exact_seed_026),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_027", cc_p2_swapping_segments_is_bit_exact_seed_027),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_028", cc_p2_swapping_segments_is_bit_exact_seed_028),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_029", cc_p2_swapping_segments_is_bit_exact_seed_029),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_030", cc_p2_swapping_segments_is_bit_exact_seed_030),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_031", cc_p2_swapping_segments_is_bit_exact_seed_031),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_032", cc_p2_swapping_segments_is_bit_exact_seed_032),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_033", cc_p2_swapping_segments_is_bit_exact_seed_033),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_034", cc_p2_swapping_segments_is_bit_exact_seed_034),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_035", cc_p2_swapping_segments_is_bit_exact_seed_035),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_036", cc_p2_swapping_segments_is_bit_exact_seed_036),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_037", cc_p2_swapping_segments_is_bit_exact_seed_037),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_038", cc_p2_swapping_segments_is_bit_exact_seed_038),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_039", cc_p2_swapping_segments_is_bit_exact_seed_039),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_040", cc_p2_swapping_segments_is_bit_exact_seed_040),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_041", cc_p2_swapping_segments_is_bit_exact_seed_041),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_042", cc_p2_swapping_segments_is_bit_exact_seed_042),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_043", cc_p2_swapping_segments_is_bit_exact_seed_043),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_044", cc_p2_swapping_segments_is_bit_exact_seed_044),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_045", cc_p2_swapping_segments_is_bit_exact_seed_045),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_046", cc_p2_swapping_segments_is_bit_exact_seed_046),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_047", cc_p2_swapping_segments_is_bit_exact_seed_047),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_048", cc_p2_swapping_segments_is_bit_exact_seed_048),
+        ("creepage_check::tests::cc_p2_swapping_segments_is_bit_exact_seed_049", cc_p2_swapping_segments_is_bit_exact_seed_049),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_000", cc_p3_distance_is_monotonic_moving_away_seed_000),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_001", cc_p3_distance_is_monotonic_moving_away_seed_001),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_002", cc_p3_distance_is_monotonic_moving_away_seed_002),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_003", cc_p3_distance_is_monotonic_moving_away_seed_003),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_004", cc_p3_distance_is_monotonic_moving_away_seed_004),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_005", cc_p3_distance_is_monotonic_moving_away_seed_005),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_006", cc_p3_distance_is_monotonic_moving_away_seed_006),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_007", cc_p3_distance_is_monotonic_moving_away_seed_007),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_008", cc_p3_distance_is_monotonic_moving_away_seed_008),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_009", cc_p3_distance_is_monotonic_moving_away_seed_009),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_010", cc_p3_distance_is_monotonic_moving_away_seed_010),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_011", cc_p3_distance_is_monotonic_moving_away_seed_011),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_012", cc_p3_distance_is_monotonic_moving_away_seed_012),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_013", cc_p3_distance_is_monotonic_moving_away_seed_013),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_014", cc_p3_distance_is_monotonic_moving_away_seed_014),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_015", cc_p3_distance_is_monotonic_moving_away_seed_015),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_016", cc_p3_distance_is_monotonic_moving_away_seed_016),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_017", cc_p3_distance_is_monotonic_moving_away_seed_017),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_018", cc_p3_distance_is_monotonic_moving_away_seed_018),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_019", cc_p3_distance_is_monotonic_moving_away_seed_019),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_020", cc_p3_distance_is_monotonic_moving_away_seed_020),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_021", cc_p3_distance_is_monotonic_moving_away_seed_021),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_022", cc_p3_distance_is_monotonic_moving_away_seed_022),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_023", cc_p3_distance_is_monotonic_moving_away_seed_023),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_024", cc_p3_distance_is_monotonic_moving_away_seed_024),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_025", cc_p3_distance_is_monotonic_moving_away_seed_025),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_026", cc_p3_distance_is_monotonic_moving_away_seed_026),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_027", cc_p3_distance_is_monotonic_moving_away_seed_027),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_028", cc_p3_distance_is_monotonic_moving_away_seed_028),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_029", cc_p3_distance_is_monotonic_moving_away_seed_029),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_030", cc_p3_distance_is_monotonic_moving_away_seed_030),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_031", cc_p3_distance_is_monotonic_moving_away_seed_031),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_032", cc_p3_distance_is_monotonic_moving_away_seed_032),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_033", cc_p3_distance_is_monotonic_moving_away_seed_033),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_034", cc_p3_distance_is_monotonic_moving_away_seed_034),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_035", cc_p3_distance_is_monotonic_moving_away_seed_035),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_036", cc_p3_distance_is_monotonic_moving_away_seed_036),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_037", cc_p3_distance_is_monotonic_moving_away_seed_037),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_038", cc_p3_distance_is_monotonic_moving_away_seed_038),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_039", cc_p3_distance_is_monotonic_moving_away_seed_039),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_040", cc_p3_distance_is_monotonic_moving_away_seed_040),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_041", cc_p3_distance_is_monotonic_moving_away_seed_041),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_042", cc_p3_distance_is_monotonic_moving_away_seed_042),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_043", cc_p3_distance_is_monotonic_moving_away_seed_043),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_044", cc_p3_distance_is_monotonic_moving_away_seed_044),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_045", cc_p3_distance_is_monotonic_moving_away_seed_045),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_046", cc_p3_distance_is_monotonic_moving_away_seed_046),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_047", cc_p3_distance_is_monotonic_moving_away_seed_047),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_048", cc_p3_distance_is_monotonic_moving_away_seed_048),
+        ("creepage_check::tests::cc_p3_distance_is_monotonic_moving_away_seed_049", cc_p3_distance_is_monotonic_moving_away_seed_049),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_000", cc_p4_distance_is_bounded_by_midpoints_seed_000),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_001", cc_p4_distance_is_bounded_by_midpoints_seed_001),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_002", cc_p4_distance_is_bounded_by_midpoints_seed_002),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_003", cc_p4_distance_is_bounded_by_midpoints_seed_003),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_004", cc_p4_distance_is_bounded_by_midpoints_seed_004),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_005", cc_p4_distance_is_bounded_by_midpoints_seed_005),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_006", cc_p4_distance_is_bounded_by_midpoints_seed_006),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_007", cc_p4_distance_is_bounded_by_midpoints_seed_007),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_008", cc_p4_distance_is_bounded_by_midpoints_seed_008),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_009", cc_p4_distance_is_bounded_by_midpoints_seed_009),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_010", cc_p4_distance_is_bounded_by_midpoints_seed_010),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_011", cc_p4_distance_is_bounded_by_midpoints_seed_011),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_012", cc_p4_distance_is_bounded_by_midpoints_seed_012),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_013", cc_p4_distance_is_bounded_by_midpoints_seed_013),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_014", cc_p4_distance_is_bounded_by_midpoints_seed_014),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_015", cc_p4_distance_is_bounded_by_midpoints_seed_015),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_016", cc_p4_distance_is_bounded_by_midpoints_seed_016),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_017", cc_p4_distance_is_bounded_by_midpoints_seed_017),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_018", cc_p4_distance_is_bounded_by_midpoints_seed_018),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_019", cc_p4_distance_is_bounded_by_midpoints_seed_019),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_020", cc_p4_distance_is_bounded_by_midpoints_seed_020),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_021", cc_p4_distance_is_bounded_by_midpoints_seed_021),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_022", cc_p4_distance_is_bounded_by_midpoints_seed_022),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_023", cc_p4_distance_is_bounded_by_midpoints_seed_023),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_024", cc_p4_distance_is_bounded_by_midpoints_seed_024),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_025", cc_p4_distance_is_bounded_by_midpoints_seed_025),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_026", cc_p4_distance_is_bounded_by_midpoints_seed_026),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_027", cc_p4_distance_is_bounded_by_midpoints_seed_027),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_028", cc_p4_distance_is_bounded_by_midpoints_seed_028),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_029", cc_p4_distance_is_bounded_by_midpoints_seed_029),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_030", cc_p4_distance_is_bounded_by_midpoints_seed_030),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_031", cc_p4_distance_is_bounded_by_midpoints_seed_031),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_032", cc_p4_distance_is_bounded_by_midpoints_seed_032),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_033", cc_p4_distance_is_bounded_by_midpoints_seed_033),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_034", cc_p4_distance_is_bounded_by_midpoints_seed_034),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_035", cc_p4_distance_is_bounded_by_midpoints_seed_035),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_036", cc_p4_distance_is_bounded_by_midpoints_seed_036),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_037", cc_p4_distance_is_bounded_by_midpoints_seed_037),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_038", cc_p4_distance_is_bounded_by_midpoints_seed_038),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_039", cc_p4_distance_is_bounded_by_midpoints_seed_039),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_040", cc_p4_distance_is_bounded_by_midpoints_seed_040),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_041", cc_p4_distance_is_bounded_by_midpoints_seed_041),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_042", cc_p4_distance_is_bounded_by_midpoints_seed_042),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_043", cc_p4_distance_is_bounded_by_midpoints_seed_043),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_044", cc_p4_distance_is_bounded_by_midpoints_seed_044),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_045", cc_p4_distance_is_bounded_by_midpoints_seed_045),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_046", cc_p4_distance_is_bounded_by_midpoints_seed_046),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_047", cc_p4_distance_is_bounded_by_midpoints_seed_047),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_048", cc_p4_distance_is_bounded_by_midpoints_seed_048),
+        ("creepage_check::tests::cc_p4_distance_is_bounded_by_midpoints_seed_049", cc_p4_distance_is_bounded_by_midpoints_seed_049),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_000", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_000),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_001", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_001),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_002", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_002),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_003", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_003),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_004", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_004),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_005", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_005),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_006", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_006),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_007", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_007),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_008", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_008),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_009", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_009),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_010", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_010),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_011", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_011),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_012", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_012),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_013", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_013),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_014", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_014),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_015", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_015),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_016", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_016),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_017", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_017),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_018", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_018),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_019", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_019),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_020", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_020),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_021", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_021),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_022", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_022),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_023", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_023),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_024", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_024),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_025", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_025),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_026", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_026),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_027", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_027),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_028", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_028),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_029", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_029),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_030", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_030),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_031", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_031),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_032", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_032),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_033", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_033),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_034", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_034),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_035", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_035),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_036", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_036),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_037", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_037),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_038", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_038),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_039", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_039),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_040", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_040),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_041", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_041),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_042", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_042),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_043", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_043),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_044", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_044),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_045", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_045),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_046", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_046),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_047", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_047),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_048", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_048),
+        ("creepage_check::tests::cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_049", cc_p5_creepage_bracket_is_monotonic_in_voltage_seed_049),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_000", cc_m1_distance_invariant_under_translation_seed_000),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_001", cc_m1_distance_invariant_under_translation_seed_001),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_002", cc_m1_distance_invariant_under_translation_seed_002),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_003", cc_m1_distance_invariant_under_translation_seed_003),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_004", cc_m1_distance_invariant_under_translation_seed_004),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_005", cc_m1_distance_invariant_under_translation_seed_005),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_006", cc_m1_distance_invariant_under_translation_seed_006),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_007", cc_m1_distance_invariant_under_translation_seed_007),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_008", cc_m1_distance_invariant_under_translation_seed_008),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_009", cc_m1_distance_invariant_under_translation_seed_009),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_010", cc_m1_distance_invariant_under_translation_seed_010),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_011", cc_m1_distance_invariant_under_translation_seed_011),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_012", cc_m1_distance_invariant_under_translation_seed_012),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_013", cc_m1_distance_invariant_under_translation_seed_013),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_014", cc_m1_distance_invariant_under_translation_seed_014),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_015", cc_m1_distance_invariant_under_translation_seed_015),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_016", cc_m1_distance_invariant_under_translation_seed_016),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_017", cc_m1_distance_invariant_under_translation_seed_017),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_018", cc_m1_distance_invariant_under_translation_seed_018),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_019", cc_m1_distance_invariant_under_translation_seed_019),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_020", cc_m1_distance_invariant_under_translation_seed_020),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_021", cc_m1_distance_invariant_under_translation_seed_021),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_022", cc_m1_distance_invariant_under_translation_seed_022),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_023", cc_m1_distance_invariant_under_translation_seed_023),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_024", cc_m1_distance_invariant_under_translation_seed_024),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_025", cc_m1_distance_invariant_under_translation_seed_025),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_026", cc_m1_distance_invariant_under_translation_seed_026),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_027", cc_m1_distance_invariant_under_translation_seed_027),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_028", cc_m1_distance_invariant_under_translation_seed_028),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_029", cc_m1_distance_invariant_under_translation_seed_029),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_030", cc_m1_distance_invariant_under_translation_seed_030),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_031", cc_m1_distance_invariant_under_translation_seed_031),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_032", cc_m1_distance_invariant_under_translation_seed_032),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_033", cc_m1_distance_invariant_under_translation_seed_033),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_034", cc_m1_distance_invariant_under_translation_seed_034),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_035", cc_m1_distance_invariant_under_translation_seed_035),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_036", cc_m1_distance_invariant_under_translation_seed_036),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_037", cc_m1_distance_invariant_under_translation_seed_037),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_038", cc_m1_distance_invariant_under_translation_seed_038),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_039", cc_m1_distance_invariant_under_translation_seed_039),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_040", cc_m1_distance_invariant_under_translation_seed_040),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_041", cc_m1_distance_invariant_under_translation_seed_041),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_042", cc_m1_distance_invariant_under_translation_seed_042),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_043", cc_m1_distance_invariant_under_translation_seed_043),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_044", cc_m1_distance_invariant_under_translation_seed_044),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_045", cc_m1_distance_invariant_under_translation_seed_045),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_046", cc_m1_distance_invariant_under_translation_seed_046),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_047", cc_m1_distance_invariant_under_translation_seed_047),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_048", cc_m1_distance_invariant_under_translation_seed_048),
+        ("creepage_check::tests::cc_m1_distance_invariant_under_translation_seed_049", cc_m1_distance_invariant_under_translation_seed_049),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_000", cc_m2_distance_invariant_under_rotation_seed_000),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_001", cc_m2_distance_invariant_under_rotation_seed_001),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_002", cc_m2_distance_invariant_under_rotation_seed_002),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_003", cc_m2_distance_invariant_under_rotation_seed_003),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_004", cc_m2_distance_invariant_under_rotation_seed_004),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_005", cc_m2_distance_invariant_under_rotation_seed_005),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_006", cc_m2_distance_invariant_under_rotation_seed_006),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_007", cc_m2_distance_invariant_under_rotation_seed_007),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_008", cc_m2_distance_invariant_under_rotation_seed_008),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_009", cc_m2_distance_invariant_under_rotation_seed_009),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_010", cc_m2_distance_invariant_under_rotation_seed_010),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_011", cc_m2_distance_invariant_under_rotation_seed_011),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_012", cc_m2_distance_invariant_under_rotation_seed_012),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_013", cc_m2_distance_invariant_under_rotation_seed_013),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_014", cc_m2_distance_invariant_under_rotation_seed_014),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_015", cc_m2_distance_invariant_under_rotation_seed_015),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_016", cc_m2_distance_invariant_under_rotation_seed_016),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_017", cc_m2_distance_invariant_under_rotation_seed_017),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_018", cc_m2_distance_invariant_under_rotation_seed_018),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_019", cc_m2_distance_invariant_under_rotation_seed_019),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_020", cc_m2_distance_invariant_under_rotation_seed_020),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_021", cc_m2_distance_invariant_under_rotation_seed_021),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_022", cc_m2_distance_invariant_under_rotation_seed_022),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_023", cc_m2_distance_invariant_under_rotation_seed_023),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_024", cc_m2_distance_invariant_under_rotation_seed_024),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_025", cc_m2_distance_invariant_under_rotation_seed_025),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_026", cc_m2_distance_invariant_under_rotation_seed_026),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_027", cc_m2_distance_invariant_under_rotation_seed_027),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_028", cc_m2_distance_invariant_under_rotation_seed_028),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_029", cc_m2_distance_invariant_under_rotation_seed_029),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_030", cc_m2_distance_invariant_under_rotation_seed_030),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_031", cc_m2_distance_invariant_under_rotation_seed_031),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_032", cc_m2_distance_invariant_under_rotation_seed_032),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_033", cc_m2_distance_invariant_under_rotation_seed_033),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_034", cc_m2_distance_invariant_under_rotation_seed_034),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_035", cc_m2_distance_invariant_under_rotation_seed_035),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_036", cc_m2_distance_invariant_under_rotation_seed_036),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_037", cc_m2_distance_invariant_under_rotation_seed_037),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_038", cc_m2_distance_invariant_under_rotation_seed_038),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_039", cc_m2_distance_invariant_under_rotation_seed_039),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_040", cc_m2_distance_invariant_under_rotation_seed_040),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_041", cc_m2_distance_invariant_under_rotation_seed_041),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_042", cc_m2_distance_invariant_under_rotation_seed_042),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_043", cc_m2_distance_invariant_under_rotation_seed_043),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_044", cc_m2_distance_invariant_under_rotation_seed_044),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_045", cc_m2_distance_invariant_under_rotation_seed_045),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_046", cc_m2_distance_invariant_under_rotation_seed_046),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_047", cc_m2_distance_invariant_under_rotation_seed_047),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_048", cc_m2_distance_invariant_under_rotation_seed_048),
+        ("creepage_check::tests::cc_m2_distance_invariant_under_rotation_seed_049", cc_m2_distance_invariant_under_rotation_seed_049),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_000", cc_m3_distance_scales_with_geometry_seed_000),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_001", cc_m3_distance_scales_with_geometry_seed_001),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_002", cc_m3_distance_scales_with_geometry_seed_002),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_003", cc_m3_distance_scales_with_geometry_seed_003),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_004", cc_m3_distance_scales_with_geometry_seed_004),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_005", cc_m3_distance_scales_with_geometry_seed_005),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_006", cc_m3_distance_scales_with_geometry_seed_006),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_007", cc_m3_distance_scales_with_geometry_seed_007),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_008", cc_m3_distance_scales_with_geometry_seed_008),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_009", cc_m3_distance_scales_with_geometry_seed_009),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_010", cc_m3_distance_scales_with_geometry_seed_010),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_011", cc_m3_distance_scales_with_geometry_seed_011),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_012", cc_m3_distance_scales_with_geometry_seed_012),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_013", cc_m3_distance_scales_with_geometry_seed_013),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_014", cc_m3_distance_scales_with_geometry_seed_014),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_015", cc_m3_distance_scales_with_geometry_seed_015),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_016", cc_m3_distance_scales_with_geometry_seed_016),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_017", cc_m3_distance_scales_with_geometry_seed_017),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_018", cc_m3_distance_scales_with_geometry_seed_018),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_019", cc_m3_distance_scales_with_geometry_seed_019),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_020", cc_m3_distance_scales_with_geometry_seed_020),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_021", cc_m3_distance_scales_with_geometry_seed_021),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_022", cc_m3_distance_scales_with_geometry_seed_022),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_023", cc_m3_distance_scales_with_geometry_seed_023),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_024", cc_m3_distance_scales_with_geometry_seed_024),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_025", cc_m3_distance_scales_with_geometry_seed_025),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_026", cc_m3_distance_scales_with_geometry_seed_026),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_027", cc_m3_distance_scales_with_geometry_seed_027),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_028", cc_m3_distance_scales_with_geometry_seed_028),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_029", cc_m3_distance_scales_with_geometry_seed_029),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_030", cc_m3_distance_scales_with_geometry_seed_030),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_031", cc_m3_distance_scales_with_geometry_seed_031),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_032", cc_m3_distance_scales_with_geometry_seed_032),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_033", cc_m3_distance_scales_with_geometry_seed_033),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_034", cc_m3_distance_scales_with_geometry_seed_034),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_035", cc_m3_distance_scales_with_geometry_seed_035),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_036", cc_m3_distance_scales_with_geometry_seed_036),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_037", cc_m3_distance_scales_with_geometry_seed_037),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_038", cc_m3_distance_scales_with_geometry_seed_038),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_039", cc_m3_distance_scales_with_geometry_seed_039),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_040", cc_m3_distance_scales_with_geometry_seed_040),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_041", cc_m3_distance_scales_with_geometry_seed_041),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_042", cc_m3_distance_scales_with_geometry_seed_042),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_043", cc_m3_distance_scales_with_geometry_seed_043),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_044", cc_m3_distance_scales_with_geometry_seed_044),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_045", cc_m3_distance_scales_with_geometry_seed_045),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_046", cc_m3_distance_scales_with_geometry_seed_046),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_047", cc_m3_distance_scales_with_geometry_seed_047),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_048", cc_m3_distance_scales_with_geometry_seed_048),
+        ("creepage_check::tests::cc_m3_distance_scales_with_geometry_seed_049", cc_m3_distance_scales_with_geometry_seed_049),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_000", cc_p6_ptsd_is_non_negative_seed_000),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_001", cc_p6_ptsd_is_non_negative_seed_001),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_002", cc_p6_ptsd_is_non_negative_seed_002),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_003", cc_p6_ptsd_is_non_negative_seed_003),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_004", cc_p6_ptsd_is_non_negative_seed_004),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_005", cc_p6_ptsd_is_non_negative_seed_005),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_006", cc_p6_ptsd_is_non_negative_seed_006),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_007", cc_p6_ptsd_is_non_negative_seed_007),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_008", cc_p6_ptsd_is_non_negative_seed_008),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_009", cc_p6_ptsd_is_non_negative_seed_009),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_010", cc_p6_ptsd_is_non_negative_seed_010),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_011", cc_p6_ptsd_is_non_negative_seed_011),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_012", cc_p6_ptsd_is_non_negative_seed_012),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_013", cc_p6_ptsd_is_non_negative_seed_013),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_014", cc_p6_ptsd_is_non_negative_seed_014),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_015", cc_p6_ptsd_is_non_negative_seed_015),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_016", cc_p6_ptsd_is_non_negative_seed_016),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_017", cc_p6_ptsd_is_non_negative_seed_017),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_018", cc_p6_ptsd_is_non_negative_seed_018),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_019", cc_p6_ptsd_is_non_negative_seed_019),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_020", cc_p6_ptsd_is_non_negative_seed_020),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_021", cc_p6_ptsd_is_non_negative_seed_021),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_022", cc_p6_ptsd_is_non_negative_seed_022),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_023", cc_p6_ptsd_is_non_negative_seed_023),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_024", cc_p6_ptsd_is_non_negative_seed_024),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_025", cc_p6_ptsd_is_non_negative_seed_025),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_026", cc_p6_ptsd_is_non_negative_seed_026),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_027", cc_p6_ptsd_is_non_negative_seed_027),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_028", cc_p6_ptsd_is_non_negative_seed_028),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_029", cc_p6_ptsd_is_non_negative_seed_029),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_030", cc_p6_ptsd_is_non_negative_seed_030),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_031", cc_p6_ptsd_is_non_negative_seed_031),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_032", cc_p6_ptsd_is_non_negative_seed_032),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_033", cc_p6_ptsd_is_non_negative_seed_033),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_034", cc_p6_ptsd_is_non_negative_seed_034),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_035", cc_p6_ptsd_is_non_negative_seed_035),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_036", cc_p6_ptsd_is_non_negative_seed_036),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_037", cc_p6_ptsd_is_non_negative_seed_037),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_038", cc_p6_ptsd_is_non_negative_seed_038),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_039", cc_p6_ptsd_is_non_negative_seed_039),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_040", cc_p6_ptsd_is_non_negative_seed_040),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_041", cc_p6_ptsd_is_non_negative_seed_041),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_042", cc_p6_ptsd_is_non_negative_seed_042),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_043", cc_p6_ptsd_is_non_negative_seed_043),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_044", cc_p6_ptsd_is_non_negative_seed_044),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_045", cc_p6_ptsd_is_non_negative_seed_045),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_046", cc_p6_ptsd_is_non_negative_seed_046),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_047", cc_p6_ptsd_is_non_negative_seed_047),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_048", cc_p6_ptsd_is_non_negative_seed_048),
+        ("creepage_check::tests::cc_p6_ptsd_is_non_negative_seed_049", cc_p6_ptsd_is_non_negative_seed_049),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_000", cc_p7_ptsd_zero_on_segment_interior_seed_000),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_001", cc_p7_ptsd_zero_on_segment_interior_seed_001),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_002", cc_p7_ptsd_zero_on_segment_interior_seed_002),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_003", cc_p7_ptsd_zero_on_segment_interior_seed_003),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_004", cc_p7_ptsd_zero_on_segment_interior_seed_004),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_005", cc_p7_ptsd_zero_on_segment_interior_seed_005),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_006", cc_p7_ptsd_zero_on_segment_interior_seed_006),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_007", cc_p7_ptsd_zero_on_segment_interior_seed_007),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_008", cc_p7_ptsd_zero_on_segment_interior_seed_008),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_009", cc_p7_ptsd_zero_on_segment_interior_seed_009),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_010", cc_p7_ptsd_zero_on_segment_interior_seed_010),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_011", cc_p7_ptsd_zero_on_segment_interior_seed_011),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_012", cc_p7_ptsd_zero_on_segment_interior_seed_012),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_013", cc_p7_ptsd_zero_on_segment_interior_seed_013),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_014", cc_p7_ptsd_zero_on_segment_interior_seed_014),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_015", cc_p7_ptsd_zero_on_segment_interior_seed_015),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_016", cc_p7_ptsd_zero_on_segment_interior_seed_016),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_017", cc_p7_ptsd_zero_on_segment_interior_seed_017),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_018", cc_p7_ptsd_zero_on_segment_interior_seed_018),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_019", cc_p7_ptsd_zero_on_segment_interior_seed_019),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_020", cc_p7_ptsd_zero_on_segment_interior_seed_020),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_021", cc_p7_ptsd_zero_on_segment_interior_seed_021),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_022", cc_p7_ptsd_zero_on_segment_interior_seed_022),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_023", cc_p7_ptsd_zero_on_segment_interior_seed_023),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_024", cc_p7_ptsd_zero_on_segment_interior_seed_024),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_025", cc_p7_ptsd_zero_on_segment_interior_seed_025),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_026", cc_p7_ptsd_zero_on_segment_interior_seed_026),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_027", cc_p7_ptsd_zero_on_segment_interior_seed_027),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_028", cc_p7_ptsd_zero_on_segment_interior_seed_028),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_029", cc_p7_ptsd_zero_on_segment_interior_seed_029),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_030", cc_p7_ptsd_zero_on_segment_interior_seed_030),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_031", cc_p7_ptsd_zero_on_segment_interior_seed_031),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_032", cc_p7_ptsd_zero_on_segment_interior_seed_032),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_033", cc_p7_ptsd_zero_on_segment_interior_seed_033),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_034", cc_p7_ptsd_zero_on_segment_interior_seed_034),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_035", cc_p7_ptsd_zero_on_segment_interior_seed_035),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_036", cc_p7_ptsd_zero_on_segment_interior_seed_036),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_037", cc_p7_ptsd_zero_on_segment_interior_seed_037),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_038", cc_p7_ptsd_zero_on_segment_interior_seed_038),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_039", cc_p7_ptsd_zero_on_segment_interior_seed_039),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_040", cc_p7_ptsd_zero_on_segment_interior_seed_040),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_041", cc_p7_ptsd_zero_on_segment_interior_seed_041),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_042", cc_p7_ptsd_zero_on_segment_interior_seed_042),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_043", cc_p7_ptsd_zero_on_segment_interior_seed_043),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_044", cc_p7_ptsd_zero_on_segment_interior_seed_044),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_045", cc_p7_ptsd_zero_on_segment_interior_seed_045),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_046", cc_p7_ptsd_zero_on_segment_interior_seed_046),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_047", cc_p7_ptsd_zero_on_segment_interior_seed_047),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_048", cc_p7_ptsd_zero_on_segment_interior_seed_048),
+        ("creepage_check::tests::cc_p7_ptsd_zero_on_segment_interior_seed_049", cc_p7_ptsd_zero_on_segment_interior_seed_049),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_000", cc_p8_ptsd_degenerate_is_py_hypot_seed_000),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_001", cc_p8_ptsd_degenerate_is_py_hypot_seed_001),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_002", cc_p8_ptsd_degenerate_is_py_hypot_seed_002),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_003", cc_p8_ptsd_degenerate_is_py_hypot_seed_003),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_004", cc_p8_ptsd_degenerate_is_py_hypot_seed_004),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_005", cc_p8_ptsd_degenerate_is_py_hypot_seed_005),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_006", cc_p8_ptsd_degenerate_is_py_hypot_seed_006),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_007", cc_p8_ptsd_degenerate_is_py_hypot_seed_007),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_008", cc_p8_ptsd_degenerate_is_py_hypot_seed_008),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_009", cc_p8_ptsd_degenerate_is_py_hypot_seed_009),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_010", cc_p8_ptsd_degenerate_is_py_hypot_seed_010),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_011", cc_p8_ptsd_degenerate_is_py_hypot_seed_011),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_012", cc_p8_ptsd_degenerate_is_py_hypot_seed_012),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_013", cc_p8_ptsd_degenerate_is_py_hypot_seed_013),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_014", cc_p8_ptsd_degenerate_is_py_hypot_seed_014),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_015", cc_p8_ptsd_degenerate_is_py_hypot_seed_015),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_016", cc_p8_ptsd_degenerate_is_py_hypot_seed_016),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_017", cc_p8_ptsd_degenerate_is_py_hypot_seed_017),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_018", cc_p8_ptsd_degenerate_is_py_hypot_seed_018),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_019", cc_p8_ptsd_degenerate_is_py_hypot_seed_019),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_020", cc_p8_ptsd_degenerate_is_py_hypot_seed_020),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_021", cc_p8_ptsd_degenerate_is_py_hypot_seed_021),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_022", cc_p8_ptsd_degenerate_is_py_hypot_seed_022),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_023", cc_p8_ptsd_degenerate_is_py_hypot_seed_023),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_024", cc_p8_ptsd_degenerate_is_py_hypot_seed_024),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_025", cc_p8_ptsd_degenerate_is_py_hypot_seed_025),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_026", cc_p8_ptsd_degenerate_is_py_hypot_seed_026),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_027", cc_p8_ptsd_degenerate_is_py_hypot_seed_027),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_028", cc_p8_ptsd_degenerate_is_py_hypot_seed_028),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_029", cc_p8_ptsd_degenerate_is_py_hypot_seed_029),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_030", cc_p8_ptsd_degenerate_is_py_hypot_seed_030),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_031", cc_p8_ptsd_degenerate_is_py_hypot_seed_031),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_032", cc_p8_ptsd_degenerate_is_py_hypot_seed_032),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_033", cc_p8_ptsd_degenerate_is_py_hypot_seed_033),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_034", cc_p8_ptsd_degenerate_is_py_hypot_seed_034),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_035", cc_p8_ptsd_degenerate_is_py_hypot_seed_035),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_036", cc_p8_ptsd_degenerate_is_py_hypot_seed_036),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_037", cc_p8_ptsd_degenerate_is_py_hypot_seed_037),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_038", cc_p8_ptsd_degenerate_is_py_hypot_seed_038),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_039", cc_p8_ptsd_degenerate_is_py_hypot_seed_039),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_040", cc_p8_ptsd_degenerate_is_py_hypot_seed_040),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_041", cc_p8_ptsd_degenerate_is_py_hypot_seed_041),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_042", cc_p8_ptsd_degenerate_is_py_hypot_seed_042),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_043", cc_p8_ptsd_degenerate_is_py_hypot_seed_043),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_044", cc_p8_ptsd_degenerate_is_py_hypot_seed_044),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_045", cc_p8_ptsd_degenerate_is_py_hypot_seed_045),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_046", cc_p8_ptsd_degenerate_is_py_hypot_seed_046),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_047", cc_p8_ptsd_degenerate_is_py_hypot_seed_047),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_048", cc_p8_ptsd_degenerate_is_py_hypot_seed_048),
+        ("creepage_check::tests::cc_p8_ptsd_degenerate_is_py_hypot_seed_049", cc_p8_ptsd_degenerate_is_py_hypot_seed_049),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_000", cc_p9_ptsd_bounded_by_endpoints_seed_000),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_001", cc_p9_ptsd_bounded_by_endpoints_seed_001),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_002", cc_p9_ptsd_bounded_by_endpoints_seed_002),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_003", cc_p9_ptsd_bounded_by_endpoints_seed_003),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_004", cc_p9_ptsd_bounded_by_endpoints_seed_004),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_005", cc_p9_ptsd_bounded_by_endpoints_seed_005),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_006", cc_p9_ptsd_bounded_by_endpoints_seed_006),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_007", cc_p9_ptsd_bounded_by_endpoints_seed_007),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_008", cc_p9_ptsd_bounded_by_endpoints_seed_008),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_009", cc_p9_ptsd_bounded_by_endpoints_seed_009),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_010", cc_p9_ptsd_bounded_by_endpoints_seed_010),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_011", cc_p9_ptsd_bounded_by_endpoints_seed_011),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_012", cc_p9_ptsd_bounded_by_endpoints_seed_012),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_013", cc_p9_ptsd_bounded_by_endpoints_seed_013),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_014", cc_p9_ptsd_bounded_by_endpoints_seed_014),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_015", cc_p9_ptsd_bounded_by_endpoints_seed_015),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_016", cc_p9_ptsd_bounded_by_endpoints_seed_016),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_017", cc_p9_ptsd_bounded_by_endpoints_seed_017),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_018", cc_p9_ptsd_bounded_by_endpoints_seed_018),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_019", cc_p9_ptsd_bounded_by_endpoints_seed_019),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_020", cc_p9_ptsd_bounded_by_endpoints_seed_020),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_021", cc_p9_ptsd_bounded_by_endpoints_seed_021),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_022", cc_p9_ptsd_bounded_by_endpoints_seed_022),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_023", cc_p9_ptsd_bounded_by_endpoints_seed_023),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_024", cc_p9_ptsd_bounded_by_endpoints_seed_024),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_025", cc_p9_ptsd_bounded_by_endpoints_seed_025),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_026", cc_p9_ptsd_bounded_by_endpoints_seed_026),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_027", cc_p9_ptsd_bounded_by_endpoints_seed_027),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_028", cc_p9_ptsd_bounded_by_endpoints_seed_028),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_029", cc_p9_ptsd_bounded_by_endpoints_seed_029),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_030", cc_p9_ptsd_bounded_by_endpoints_seed_030),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_031", cc_p9_ptsd_bounded_by_endpoints_seed_031),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_032", cc_p9_ptsd_bounded_by_endpoints_seed_032),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_033", cc_p9_ptsd_bounded_by_endpoints_seed_033),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_034", cc_p9_ptsd_bounded_by_endpoints_seed_034),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_035", cc_p9_ptsd_bounded_by_endpoints_seed_035),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_036", cc_p9_ptsd_bounded_by_endpoints_seed_036),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_037", cc_p9_ptsd_bounded_by_endpoints_seed_037),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_038", cc_p9_ptsd_bounded_by_endpoints_seed_038),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_039", cc_p9_ptsd_bounded_by_endpoints_seed_039),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_040", cc_p9_ptsd_bounded_by_endpoints_seed_040),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_041", cc_p9_ptsd_bounded_by_endpoints_seed_041),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_042", cc_p9_ptsd_bounded_by_endpoints_seed_042),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_043", cc_p9_ptsd_bounded_by_endpoints_seed_043),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_044", cc_p9_ptsd_bounded_by_endpoints_seed_044),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_045", cc_p9_ptsd_bounded_by_endpoints_seed_045),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_046", cc_p9_ptsd_bounded_by_endpoints_seed_046),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_047", cc_p9_ptsd_bounded_by_endpoints_seed_047),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_048", cc_p9_ptsd_bounded_by_endpoints_seed_048),
+        ("creepage_check::tests::cc_p9_ptsd_bounded_by_endpoints_seed_049", cc_p9_ptsd_bounded_by_endpoints_seed_049),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_000", cc_p10_ptsd_segment_reversal_preserves_distance_seed_000),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_001", cc_p10_ptsd_segment_reversal_preserves_distance_seed_001),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_002", cc_p10_ptsd_segment_reversal_preserves_distance_seed_002),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_003", cc_p10_ptsd_segment_reversal_preserves_distance_seed_003),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_004", cc_p10_ptsd_segment_reversal_preserves_distance_seed_004),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_005", cc_p10_ptsd_segment_reversal_preserves_distance_seed_005),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_006", cc_p10_ptsd_segment_reversal_preserves_distance_seed_006),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_007", cc_p10_ptsd_segment_reversal_preserves_distance_seed_007),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_008", cc_p10_ptsd_segment_reversal_preserves_distance_seed_008),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_009", cc_p10_ptsd_segment_reversal_preserves_distance_seed_009),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_010", cc_p10_ptsd_segment_reversal_preserves_distance_seed_010),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_011", cc_p10_ptsd_segment_reversal_preserves_distance_seed_011),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_012", cc_p10_ptsd_segment_reversal_preserves_distance_seed_012),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_013", cc_p10_ptsd_segment_reversal_preserves_distance_seed_013),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_014", cc_p10_ptsd_segment_reversal_preserves_distance_seed_014),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_015", cc_p10_ptsd_segment_reversal_preserves_distance_seed_015),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_016", cc_p10_ptsd_segment_reversal_preserves_distance_seed_016),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_017", cc_p10_ptsd_segment_reversal_preserves_distance_seed_017),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_018", cc_p10_ptsd_segment_reversal_preserves_distance_seed_018),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_019", cc_p10_ptsd_segment_reversal_preserves_distance_seed_019),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_020", cc_p10_ptsd_segment_reversal_preserves_distance_seed_020),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_021", cc_p10_ptsd_segment_reversal_preserves_distance_seed_021),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_022", cc_p10_ptsd_segment_reversal_preserves_distance_seed_022),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_023", cc_p10_ptsd_segment_reversal_preserves_distance_seed_023),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_024", cc_p10_ptsd_segment_reversal_preserves_distance_seed_024),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_025", cc_p10_ptsd_segment_reversal_preserves_distance_seed_025),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_026", cc_p10_ptsd_segment_reversal_preserves_distance_seed_026),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_027", cc_p10_ptsd_segment_reversal_preserves_distance_seed_027),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_028", cc_p10_ptsd_segment_reversal_preserves_distance_seed_028),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_029", cc_p10_ptsd_segment_reversal_preserves_distance_seed_029),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_030", cc_p10_ptsd_segment_reversal_preserves_distance_seed_030),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_031", cc_p10_ptsd_segment_reversal_preserves_distance_seed_031),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_032", cc_p10_ptsd_segment_reversal_preserves_distance_seed_032),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_033", cc_p10_ptsd_segment_reversal_preserves_distance_seed_033),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_034", cc_p10_ptsd_segment_reversal_preserves_distance_seed_034),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_035", cc_p10_ptsd_segment_reversal_preserves_distance_seed_035),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_036", cc_p10_ptsd_segment_reversal_preserves_distance_seed_036),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_037", cc_p10_ptsd_segment_reversal_preserves_distance_seed_037),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_038", cc_p10_ptsd_segment_reversal_preserves_distance_seed_038),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_039", cc_p10_ptsd_segment_reversal_preserves_distance_seed_039),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_040", cc_p10_ptsd_segment_reversal_preserves_distance_seed_040),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_041", cc_p10_ptsd_segment_reversal_preserves_distance_seed_041),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_042", cc_p10_ptsd_segment_reversal_preserves_distance_seed_042),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_043", cc_p10_ptsd_segment_reversal_preserves_distance_seed_043),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_044", cc_p10_ptsd_segment_reversal_preserves_distance_seed_044),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_045", cc_p10_ptsd_segment_reversal_preserves_distance_seed_045),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_046", cc_p10_ptsd_segment_reversal_preserves_distance_seed_046),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_047", cc_p10_ptsd_segment_reversal_preserves_distance_seed_047),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_048", cc_p10_ptsd_segment_reversal_preserves_distance_seed_048),
+        ("creepage_check::tests::cc_p10_ptsd_segment_reversal_preserves_distance_seed_049", cc_p10_ptsd_segment_reversal_preserves_distance_seed_049),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_000", cc_p11_ptsd_translation_invariant_seed_000),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_001", cc_p11_ptsd_translation_invariant_seed_001),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_002", cc_p11_ptsd_translation_invariant_seed_002),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_003", cc_p11_ptsd_translation_invariant_seed_003),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_004", cc_p11_ptsd_translation_invariant_seed_004),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_005", cc_p11_ptsd_translation_invariant_seed_005),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_006", cc_p11_ptsd_translation_invariant_seed_006),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_007", cc_p11_ptsd_translation_invariant_seed_007),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_008", cc_p11_ptsd_translation_invariant_seed_008),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_009", cc_p11_ptsd_translation_invariant_seed_009),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_010", cc_p11_ptsd_translation_invariant_seed_010),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_011", cc_p11_ptsd_translation_invariant_seed_011),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_012", cc_p11_ptsd_translation_invariant_seed_012),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_013", cc_p11_ptsd_translation_invariant_seed_013),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_014", cc_p11_ptsd_translation_invariant_seed_014),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_015", cc_p11_ptsd_translation_invariant_seed_015),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_016", cc_p11_ptsd_translation_invariant_seed_016),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_017", cc_p11_ptsd_translation_invariant_seed_017),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_018", cc_p11_ptsd_translation_invariant_seed_018),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_019", cc_p11_ptsd_translation_invariant_seed_019),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_020", cc_p11_ptsd_translation_invariant_seed_020),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_021", cc_p11_ptsd_translation_invariant_seed_021),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_022", cc_p11_ptsd_translation_invariant_seed_022),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_023", cc_p11_ptsd_translation_invariant_seed_023),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_024", cc_p11_ptsd_translation_invariant_seed_024),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_025", cc_p11_ptsd_translation_invariant_seed_025),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_026", cc_p11_ptsd_translation_invariant_seed_026),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_027", cc_p11_ptsd_translation_invariant_seed_027),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_028", cc_p11_ptsd_translation_invariant_seed_028),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_029", cc_p11_ptsd_translation_invariant_seed_029),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_030", cc_p11_ptsd_translation_invariant_seed_030),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_031", cc_p11_ptsd_translation_invariant_seed_031),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_032", cc_p11_ptsd_translation_invariant_seed_032),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_033", cc_p11_ptsd_translation_invariant_seed_033),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_034", cc_p11_ptsd_translation_invariant_seed_034),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_035", cc_p11_ptsd_translation_invariant_seed_035),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_036", cc_p11_ptsd_translation_invariant_seed_036),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_037", cc_p11_ptsd_translation_invariant_seed_037),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_038", cc_p11_ptsd_translation_invariant_seed_038),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_039", cc_p11_ptsd_translation_invariant_seed_039),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_040", cc_p11_ptsd_translation_invariant_seed_040),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_041", cc_p11_ptsd_translation_invariant_seed_041),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_042", cc_p11_ptsd_translation_invariant_seed_042),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_043", cc_p11_ptsd_translation_invariant_seed_043),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_044", cc_p11_ptsd_translation_invariant_seed_044),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_045", cc_p11_ptsd_translation_invariant_seed_045),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_046", cc_p11_ptsd_translation_invariant_seed_046),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_047", cc_p11_ptsd_translation_invariant_seed_047),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_048", cc_p11_ptsd_translation_invariant_seed_048),
+        ("creepage_check::tests::cc_p11_ptsd_translation_invariant_seed_049", cc_p11_ptsd_translation_invariant_seed_049),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_000", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_000),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_001", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_001),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_002", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_002),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_003", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_003),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_004", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_004),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_005", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_005),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_006", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_006),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_007", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_007),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_008", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_008),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_009", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_009),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_010", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_010),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_011", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_011),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_012", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_012),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_013", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_013),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_014", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_014),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_015", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_015),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_016", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_016),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_017", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_017),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_018", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_018),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_019", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_019),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_020", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_020),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_021", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_021),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_022", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_022),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_023", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_023),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_024", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_024),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_025", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_025),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_026", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_026),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_027", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_027),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_028", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_028),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_029", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_029),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_030", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_030),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_031", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_031),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_032", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_032),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_033", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_033),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_034", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_034),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_035", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_035),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_036", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_036),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_037", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_037),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_038", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_038),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_039", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_039),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_040", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_040),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_041", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_041),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_042", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_042),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_043", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_043),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_044", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_044),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_045", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_045),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_046", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_046),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_047", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_047),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_048", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_048),
+        ("creepage_check::tests::cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_049", cc_p12_ptsd_collinear_beyond_endpoint_yields_endpoint_distance_seed_049),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
