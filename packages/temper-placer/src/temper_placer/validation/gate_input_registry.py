@@ -594,6 +594,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_test_baseline_writes.py", "power_pcb_dataset/baselines/", "protected-artifact write detector; probe harness deferred"),
     ("check_typecheck_gate.py", "", "type-check artifact scan; probe harness deferred"),
     ("check_undeclared_imports.py", "", "source-tree import scan; probe harness deferred"),
+    ("check_unwired_kernels.py", "packages/", "Rust-kernel production-caller gate (#826); source-tree scan; probe harness deferred"),
     ("check_vacuous_gates.py", "", "source-tree scan; probe harness deferred"),
     ("check_verdict_coverage.py", "", "Wave-4 residual-verdict coverage gate (R7); source-tree scan; probe harness deferred"),
     ("ci_check_drc.py", "pcb/temper.kicad_pcb", "DRC ratchet; needs real board + kicad-cli"),

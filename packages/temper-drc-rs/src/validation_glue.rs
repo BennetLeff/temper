@@ -607,6 +607,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
 #[cfg(test)]
 mod tests {
+    use proptest::prelude::*;
     use super::*;
 
     /// Test-only helper to unwrap a `PyResult<GateVerdict>` without
@@ -616,6 +617,366 @@ mod tests {
         match r {
             Ok(v) => v,
             Err(e) => panic!("kernel error: {e}"),
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Strategies
+    // ------------------------------------------------------------------
+
+    /// Non-zero i64, bounded to avoid overflow in `b * q` product.
+    fn nonzero_i64() -> impl Strategy<Value = i64> {
+        prop_oneof![
+            1i64..=1_000_000i64,
+            (-1_000_000i64)..=-1i64,
+        ]
+    }
+
+    /// An i64 in a safe range where `a = b * q + r` won't overflow.
+    fn safe_i64() -> impl Strategy<Value = i64> {
+        -1_000_000i64..=1_000_000i64
+    }
+
+    /// A small i64 in a realistic epoch range.
+    fn epoch_like() -> impl Strategy<Value = i64> {
+        -100i64..=10000i64
+    }
+
+    /// A positive i64 for total_epochs, bounded.
+    fn positive() -> impl Strategy<Value = i64> {
+        1i64..=10_000i64
+    }
+
+    /// A non-negative i64, bounded.
+    fn nonneg() -> impl Strategy<Value = i64> {
+        0i64..=10_000i64
+    }
+
+    /// An f64 that is neither NaN nor infinite.
+    fn finite_f64() -> impl Strategy<Value = f64> {
+        prop_oneof![
+            -1e4f64..1e4f64,
+            (-1e-4f64..1e-4f64).prop_map(|x| x),
+        ]
+    }
+
+    // ------------------------------------------------------------------
+    // py_mod / py_floor_div properties
+    // ------------------------------------------------------------------
+
+    proptest! {
+        #[test]
+        fn prop_py_mod_identity(a in safe_i64(), b in nonzero_i64()) {
+            // a == b * floor_div(a, b) + mod(a, b)
+            let q = py_floor_div(a, b);
+            let r = py_mod(a, b);
+            assert_eq!(a, b * q + r,
+                "identity a = b*q + r failed: a={a}, b={b}, q={q}, r={r}");
+        }
+
+        #[test]
+        fn prop_py_mod_magnitude_less_than_divisor(a in safe_i64(), b in nonzero_i64()) {
+            let r = py_mod(a, b);
+            let abs_r = r.unsigned_abs();
+            let abs_b = b.unsigned_abs();
+            assert!(abs_r < abs_b,
+                "|r| < |b| failed: a={a}, b={b}, r={r}");
+        }
+
+        #[test]
+        fn prop_py_mod_sign_matches_divisor(a in safe_i64(), b in nonzero_i64()) {
+            let r = py_mod(a, b);
+            if r == 0 {
+                // 0 has no sign
+            } else if b > 0 {
+                assert!(r >= 0, "r must be >= 0 when b > 0: a={a}, b={b}, r={r}");
+            } else {
+                assert!(r <= 0, "r must be <= 0 when b < 0: a={a}, b={b}, r={r}");
+            }
+        }
+
+        #[test]
+        fn prop_py_mod_periodicity(a in safe_i64(), b in nonzero_i64(), k in 0i64..100i64) {
+            // py_mod repeats with period |b|, but a + k*|b| can overflow.
+            // Use checked arithmetic.
+            let abs_b = b.unsigned_abs() as i64;
+            if let Some(shifted) = a.checked_add(k * abs_b) {
+                let (a_check, b_check) = if b < 0 { (shifted, -b) } else { (shifted, b) };
+                // Only compare when both are computable without overflow.
+                let r_orig = py_mod(a, b);
+                // Re-derive for the shifted value safely.
+                let r_shift = {
+                    let q = py_floor_div(shifted, b);
+                    shifted - b * q
+                };
+                assert_eq!(r_orig, r_shift,
+                    "periodicity failed: a={a}, b={b}, k={k}, shifted={shifted}");
+                let _ = (a_check, b_check, r_orig, r_shift);
+            }
+        }
+
+        #[test]
+        fn prop_py_floor_div_rounds_down(a in safe_i64(), b in nonzero_i64()) {
+            // floor(a / b) <= a / b (as rational) < floor(a / b) + 1
+            let q = py_floor_div(a, b);
+            let r = py_mod(a, b);
+            // a = b * q + r, and |r| < |b|, and sign(r) matches sign(b) or r == 0
+            // So 0 <= r/b < 1 (when b > 0), and -1 < r/b <= 0 (when b < 0)
+            // In both cases: q <= a/b < q + 1
+            if b > 0 {
+                assert!(r >= 0);
+                // q * b <= a < (q + 1) * b
+                // Multiply by b (positive): no overflow if we check product.
+                if let (Some(low), Some(high)) =
+                    (q.checked_mul(b), (q + 1).checked_mul(b))
+                {
+                    assert!(low <= a, "floor div rounds down: a={a}, b={b}, q={q}, low={low}");
+                    assert!(a < high, "floor div upper bound: a={a}, b={b}, q={q}, high={high}");
+                }
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // extract_ref / extract_net regex invariants
+    // ------------------------------------------------------------------
+
+    proptest! {
+        #[test]
+        fn prop_extract_ref_none_for_non_matching(
+            s in "\\PC*"  // any printable ASCII string, including empty
+        ) {
+            // Patterns that should never extract a ref from a random string
+            // that doesn't look like a KiCad item description.
+            let result = extract_ref_impl(&s);
+            // If it extracts, the string should contain "Footprint " at start
+            // or "of " somewhere.
+            if let Some(ref r) = result {
+                assert!(
+                    s.starts_with("Footprint ") || s.contains("of "),
+                    "extracted ref '{r}' from unexpected input: '{s}'"
+                );
+            }
+        }
+
+        #[test]
+        fn prop_extract_net_none_for_non_matching(
+            s in "\\PC*"
+        ) {
+            let result = extract_net_impl(&s);
+            if let Some(ref n) = result {
+                assert!(
+                    s.contains('[') && s.contains(']'),
+                    "extracted net '{n}' from input without brackets: '{s}'"
+                );
+            }
+        }
+
+        #[test]
+        fn prop_strip_trailing_lf_idempotent(s in "\\PC*") {
+            let once = strip_trailing_lf(&s);
+            let twice = strip_trailing_lf(once);
+            assert_eq!(once, twice, "strip_trailing_lf not idempotent: s='{s}'");
+        }
+
+        #[test]
+        fn prop_strip_trailing_lf_only_strips_one_newline(s in "\\PC*") {
+            let stripped = strip_trailing_lf(&s);
+            if s.ends_with('\n') {
+                // The stripped version should NOT end with \n (or only if there are two)
+                assert!(
+                    !stripped.ends_with('\n') || s.ends_with("\n\n"),
+                    "strip_trailing_lf should only strip ONE \\n: s='{s}', stripped='{stripped}'"
+                );
+            } else {
+                assert_eq!(stripped, s, "unmodified when no trailing \\n");
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Gate decision invariants
+    // ------------------------------------------------------------------
+
+    proptest! {
+        #[test]
+        fn prop_placement_gate_pass_when_all_zero_and_converged(
+            conv in 1i64..10000i64
+        ) {
+            let (status, msg, failed) =
+                get_verdict(gate_placement_complete(0.0, 0.0, 0.0, 0.0, conv));
+            assert_eq!(status, "pass");
+            assert_eq!(msg, "All constraints met");
+            assert!(failed.is_empty());
+        }
+
+        #[test]
+        fn prop_placement_gate_fail_not_converged(
+            ol in finite_f64(), bl in finite_f64(),
+            hv in finite_f64(), zv in finite_f64(),
+        ) {
+            let (status, msg, failed) =
+                get_verdict(gate_placement_complete(ol, bl, hv, zv, 0));
+            if ol <= 0.01 && bl <= 0.01 && hv <= 0.0 && zv <= 0.0 {
+                // All metrics are within thresholds, but not converged.
+                // The convergence check dominates.
+                assert_eq!(status, "fail");
+                assert_eq!(msg, "Did not converge");
+                assert!(failed.is_empty());
+            } else {
+                // At least one metric fails, so the gate should fail for that reason.
+                assert_eq!(status, "fail");
+                assert!(!failed.is_empty() || msg == "Did not converge");
+            }
+        }
+
+        #[test]
+        fn prop_routing_gate_skip_when_negative(pct in (-1e4f64..0.0f64).prop_filter(
+            "exclude NaN and -0.0", |x| x.is_sign_negative() && *x < 0.0
+        ), drc in finite_f64()) {
+            let (status, msg, failed) = get_verdict(gate_routing_complete(pct, drc));
+            assert_eq!(status, "skip");
+            assert_eq!(msg, "Routing not measured");
+            assert!(failed.is_empty());
+        }
+
+        #[test]
+        fn prop_validated_gate_skip_when_none(
+            fr: Option<f64>, lc: Option<f64>
+        ) {
+            let (fr_param, lc_param) = (fr, lc);
+            let (status, msg, failed) = get_verdict(gate_validated(fr_param, lc_param));
+            if fr.is_none() || lc.is_none() {
+                assert_eq!(status, "skip");
+                assert_eq!(msg, "Statistical validation not performed");
+                assert!(failed.is_empty());
+            }
+        }
+
+        #[test]
+        fn prop_gate_status_is_valid_enum(
+            ol in finite_f64(), bl in finite_f64(),
+            hv in finite_f64(), zv in finite_f64(),
+            conv in 0i64..1000i64,
+            rp in finite_f64(), de in finite_f64(),
+            fr in proptest::option::of(finite_f64()),
+            lc in proptest::option::of(finite_f64()),
+        ) {
+            // Every gate output status is one of the three known values.
+            let valid = ["pass", "fail", "skip"];
+            let (s, _, _) = get_verdict(gate_placement_complete(ol, bl, hv, zv, conv));
+            assert!(valid.contains(&s.as_str()), "placement status: {s}");
+            let (s, _, _) = get_verdict(gate_routing_complete(rp, de));
+            assert!(valid.contains(&s.as_str()), "routing status: {s}");
+            let (s, _, _) = get_verdict(gate_production_ready(ol, bl, hv, zv, conv, rp, de));
+            assert!(valid.contains(&s.as_str()), "production status: {s}");
+            let (s, _, _) = get_verdict(gate_validated(fr, lc));
+            assert!(valid.contains(&s.as_str()), "validated status: {s}");
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Scheduler invariants
+    // ------------------------------------------------------------------
+
+    proptest! {
+        #[test]
+        fn prop_scheduler_is_final_phase_monotone(
+            total in 1i64..10000i64,
+            final_epochs in 0i64..5000i64,
+            e1 in epoch_like(),
+            e2 in epoch_like(),
+        ) {
+            // If e1 <= e2, then is_final_phase(e1) <= is_final_phase(e2)
+            let fp1 = scheduler_is_final_phase(e1, total, final_epochs);
+            let fp2 = scheduler_is_final_phase(e2, total, final_epochs);
+            if e1 <= e2 {
+                assert!(fp1 <= fp2 || (!fp1 && fp2),
+                    "final phase not monotone: e1={e1}, e2={e2}, total={total}, fin={final_epochs}");
+            }
+        }
+
+        #[test]
+        fn prop_scheduler_get_interval_returns_one_of_two(
+            epoch in epoch_like(),
+            total in positive(),
+            final_epochs in nonneg(),
+            interval in nonzero_i64().prop_map(|x| x.unsigned_abs()),
+            fpi in nonzero_i64().prop_map(|x| x.unsigned_abs()),
+        ) {
+            let got = scheduler_get_interval(epoch, total, final_epochs, interval as i64, fpi as i64);
+            assert!(got == interval as i64 || got == fpi as i64,
+                "interval must be one of the two configured: got={got}, interval={interval}, fpi={fpi}");
+        }
+
+        #[test]
+        fn prop_scheduler_should_run_disabled_always_false(
+            epoch in epoch_like(),
+            total in positive(),
+            final_epochs in nonneg(),
+            interval in nonzero_i64().prop_map(|x| x.unsigned_abs()),
+            fpi in nonzero_i64().prop_map(|x| x.unsigned_abs()),
+            enabled: bool,
+            kind_enabled: bool,
+            already_run: bool,
+        ) {
+            let result = scheduler_should_run(
+                epoch, total, final_epochs,
+                interval as i64, fpi as i64,
+                enabled, kind_enabled, already_run,
+            );
+            if let Ok(should) = result
+                && (!enabled || !kind_enabled || already_run)
+            {
+                assert!(!should,
+                    "should be false when disabled/already_run: enabled={enabled}, kind={kind_enabled}, already={already_run}");
+            }
+        }
+
+        #[test]
+        fn prop_scheduler_last_epoch_always_runs(
+            total in 1i64..10000i64,
+            final_epochs in nonneg(),
+            interval in nonzero_i64().prop_map(|x| x.unsigned_abs()),
+            fpi in nonzero_i64().prop_map(|x| x.unsigned_abs()),
+        ) {
+            let last = total - 1;
+            let result = scheduler_should_run(
+                last, total, final_epochs,
+                interval as i64, fpi as i64,
+                true, true, false,
+            );
+            match result {
+                Ok(should) => assert!(should,
+                    "last epoch must always run: total={total}, last={last}, interval={interval}, fpi={fpi}"),
+                Err(e) => {
+                    // interval might be 0, but that's an error condition — check it.
+                    let effective = if last >= total - final_epochs { fpi as i64 } else { interval as i64 };
+                    assert!(effective == 0,
+                        "only expect error when effective interval is 0: total={total}, effective={effective}");
+                    let _ = e;
+                }
+            }
+        }
+
+        #[test]
+        fn prop_scheduler_epoch_zero_runs_with_positive_interval(
+            total in 1i64..10000i64,
+            interval in 1i64..10000i64,
+        ) {
+            let result = scheduler_should_run(
+                0, total, 0,
+                interval, interval,
+                true, true, false,
+            );
+            match result {
+                Ok(should) => assert!(should,
+                    "epoch 0 must run with positive interval: total={total}, interval={interval}"),
+                Err(e) => {
+                    // interval is positive so this shouldn't error
+                    panic!("epoch 0 should not error: {e}");
+                }
+            }
         }
     }
 

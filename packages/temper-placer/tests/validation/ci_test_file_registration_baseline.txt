@@ -158,6 +158,8 @@ requirements/test_clearance_rust_differential.py
 requirements/validators/test_points.py
 router_v6/test_constraints_drc_oracle_pbt.py
 router_v6/test_constraints_drc_oracle_rust_differential.py
+router_v6/test_pad_connectivity_audit.py
+router_v6/test_stage_ledger_rust_differential.py
 scripts/test_check_physics_provenance.py
 scripts/test_physics_soundness_register_gate.py
 test_board_state_snapshot.py
@@ -186,16 +188,6 @@ topological/test_topological_metamorphic.py
 topological/test_topological_rust_differential.py
 topological/test_zone_solver.py
 unit/test_projections.py
-visualization/test_board_renderer.py
-visualization/test_coordinate_transforms.py
-visualization/test_live.py
-visualization/test_loop_viz.py
-visualization/test_loss_plots.py
-visualization/test_model.py
-visualization/test_render_output.py
-visualization/test_report.py
-visualization/test_server.py
-visualization/test_status.py
 wave4_phase2/test_core_contracts_differential.py
 wave4_phase2/test_core_contracts_metamorphic.py
 wave4_phase2/test_core_contracts_pbt.py

@@ -565,19 +565,11 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
     ),
     "testing/test_quarantine.py": _PASSING_LOCALLY_OTHER_2026_08_09,
     "topological/test_topological_coverage.py": _PASSING_LOCALLY_OTHER_2026_08_09,
-    "visualization/test_visualization_coverage.py": _PASSING_LOCALLY_OTHER_2026_08_09,
     "geometry/test_drc_inflate_coverage.py": (
         "PASSING locally (2026-08-09, coverage-allowlist paydown for "
         "geometry/): exercises precompute_from_pad_polygons + collateral "
         "(inflate_pad_polygon, precompute_inflated_dims) with a "
         "skip-if-no-shapely guard. Pure Python/Shapely, no external binary. "
-        "Not yet wired into any CI job."
-    ),
-    "visualization/test_visualization_coverage_wave2.py": (
-        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
-        "visualization/): TraceView/PadView to_dict, Plotly shape builders, "
-        "hover-data generators, board comparison render, loop summary, "
-        "LiveServer guard methods. Pure Python/Plotly, no external binary. "
         "Not yet wired into any CI job."
     ),
     "pipeline/test_dag_expr_simple.py": (
@@ -686,12 +678,6 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "PASSING locally (2026-08-10, coverage-allowlist paydown for "
         "heuristics/): .apply() for 14 heuristic classes + Pipeline/"
         "ConflictResolver/PlacementContext helpers (62 tests). Pure Python. "
-        "Not yet wired into any CI job."
-    ),
-    "visualization/test_visualization_coverage_wave3.py": (
-        "PASSING locally (2026-08-10, coverage-allowlist paydown for "
-        "visualization/): board_renderer, loss_plots, loop_viz, live, "
-        "server, validation, model (99 tests). Uses matplotlib Agg backend. "
         "Not yet wired into any CI job."
     ),
     "regression/test_coverage_paydown_v4.py": (
