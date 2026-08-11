@@ -270,7 +270,7 @@ jobs:
       # wasm-tier-nightly.yml's worker-dispatch job pins it: every step below
       # runs an ESM tool out of tools/wasm/, and a job that depends on whatever
       # node the image happens to ship is a job that breaks on an image bump.
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
 
