@@ -2515,3 +2515,191 @@ calls `skeleton.graph.nodes()` / `.edges()` as methods, but the SkeletonGraph
 pyclass exposes them as properties; the failure predates E4 (the CI-uncovered
 registry's `_PASSING_LOCALLY` entry is stale). E4 leaves the file untouched
 (not in scope) and records the rot here.
+
+## Rust orchestration engine — Phase E batch E6 (pipeline route + adapter)
+
+Rust Orchestration Engine plan 2026-08-09-001 Phase E E6: the pipeline-route
+ORCHESTRATION moves to `src/pipeline_route.rs` as the pyfunction FFI surface
+the `router_v6/_pipeline_route.py` and `router_v6/_adapter_convert.py` shims
+delegate to, plus the `PipelineRouteStage` `Stage<BoardState>` impl. The
+pre-migration orchestration is pinned VERBATIM as
+`tests/router_v6/_pipeline_route_py_oracle.py` and
+`tests/router_v6/_adapter_convert_py_oracle.py` (AST-extracted byte-identical
+bodies at the dispatch base, origin/main cfc9415c1; content-hash pinned in
+`scripts/oracle_hashes.json` AND by the differential's own per-body digest).
+
+### The Python-side split (what stays, with evidence)
+
+- **`_pipeline_route._select_sat_nets`** — `run_select_sat_nets`: the top-N
+  nets by ascending pin count (the dict first-insertion-order / last-writer-
+  wins semantics and the stable `sorted(..., key=)` replicate CPython
+  exactly). The shim marshals `[(net.name, len(net.pins))]`.
+- **`_pipeline_route._build_clause_origin`** — `run_build_clause_origin`: the
+  CNF clause-index -> constraint-name registry (the terms /
+  group_a_indices / p_var priority with `max(1, n*3)` clause counts). The
+  `ConstraintModel` is passed through; the duck-typed `hasattr` /
+  truthiness / `len` walk mirrors the oracle.
+- **`_pipeline_route.select_routing_grids`** — `run_select_routing_grids`:
+  the (primary, alternate) occupancy-grid pick (the `or` truthiness
+  fallback — pinned by a falsy-grid differential case — and the
+  alternate-excludes-the-PRIMARY-layer rule that fixed the plane-outer-board
+  double-primary bug). The original grid objects are returned.
+- **`_adapter_convert._next_tstamp`** — `run_next_tstamp`: the deterministic
+  KiCad `tstamp` UUIDv5 sequence. The RFC 4122 version-5 UUID is
+  `sha1(namespace.bytes + name)[..16]` — CPython 3.12's `uuid.uuid5` is the
+  SHA-1-based UUID (a first cut ported RFC 1321 MD5, which is UUIDv3's
+  algorithm, and the differential caught the divergence immediately); the
+  SHA-1 is hand-rolled (RFC 3174, pinned by the RFC test vectors + the
+  multiblock padding vectors) so the crate adds no digest dependency. The
+  shared counter list is mutated in place (`counter[0] = n+1` before the
+  UUID renders), preserving the single sequence across the Rust emission
+  core and the Python zone-pour emission.
+- **`_adapter_convert._to_stage0_netclass_rules`** — 
+  `run_to_stage0_netclass_rules`: the netclass SSOT->stage0 conversion
+  boundary (explicit alias checking with the TypeError message rendered
+  through CPython `str.format` — `{!r}` of the type name, `{}` of the alias
+  list — byte-identical; the unrepresented-field warnings through the
+  ORIGINAL module's logger, so `caplog` sees the same records). The
+  `_UNREPRESENTED_WARN` table stays the Python SSOT and is marshalled once
+  per call (the E3 `_matrix_rows` precedent); the shim wraps the returned
+  values in the `stage0_data.NetClassRules` dataclass (Python
+  single-source).
+- **`_adapter_convert._write_routes_to_content`'s emission core** —
+  `run_write_route_segments`: the collinear-step merge (the 1e-12 epsilon
+  comparison, the layer-change / coincident-point skips — "no zero-length
+  segment is emitted" holds outright) and the `(segment ...)` / `(via ...)`
+  s-expression rendering with CPython `{:.4f}` floats (David-Gay by identity,
+  not by formatter coincidence) and the shared tstamp counter. The shim
+  drives ONE payload per compiled route so the counter's increment order
+  relative to the (Python) tree-route branch stays byte-identical.
+
+**What stays Python (evidence)** — `_run_stage3` / `_run_stage4` /
+`_run_stage5` / `_augment_with_pcl_constraints` stay: they are the ortools /
+CP-SAT-boundary glue (the net-batching branch is batch E5's owner, the
+`temper_rust_router` solve invocation is that package's surface, the
+`ModelBuilder` / `BundleAnalyzer` / `TopologicalSolution` /
+`TopologyGraph` / `Stage4Orchestrator` wiring is dataclass-construction glue
+whose kernels are already Rust). `route_pcb` / `_build_routing_result` /
+`_apply_placements_to_pcb` / `_reorient_pads_in_footprint_block` stay: the
+pipeline-invocation glue, the failure-extraction assembly and the `re`-based
+s-expression text rewriting — the crate has no regex engine and the
+`_PAD_AT_RE` pad-reorientation rewrite is a Perl-5-flavoured regex state
+machine (backreferences, optional angle groups) that a hand-rolled parser
+would risk silently mis-porting. The chamfer (`_chamfer_path_points`), the
+tree-route folding (`TreeRouteGeometry.iter_segments`), the zone-pour
+emission (`_emit_zone_pours`), the s-expression injection and the net-number
+regex parsing stay Python single-source. No new Python API is invented; the
+two modules' public surfaces (`adapter.py` re-exports, the patched
+`RouterV6Pipeline._run_stage{3,4,5}` methods) are unchanged.
+
+### Structural proof (bit-identical parity)
+
+The differential drives both arms with identical inputs and compares every
+return value bit-exact (routed content byte-for-byte, `float.hex()` via
+`canon`, tstamp sequences as emitted). The load-bearing equivalences:
+
+- **uuid5 by algorithm, pinned by the differential.** CPython 3.12's
+  `uuid.uuid5(ns, name)` = SHA-1 of `namespace.bytes + name.utf-8`, first 16
+  bytes with the version-5 / variant bits, rendered as the lowercase
+  8-4-4-4-12 hex string. The ported SHA-1 is pinned by the RFC 3174 vectors,
+  the multiblock padding vectors (55/56/57-byte inputs crossing the block
+  boundary) and — decisively — by the differential's byte-exact tstamp
+  comparisons against the oracle's `uuid5` calls.
+- **CPython rendering.** The `{:.4f}` segment/via floats render through
+  CPython `str.format` (`py_fmt4`), the TypeError message through CPython
+  `str.format` (`{!r}` / `{}` conversions) and the unrepresented-field
+  warnings through CPython `logging` with the original module's logger — the
+  `%s`/`%r` formatting is CPython's. Parity by identity.
+- **Dict/`or`/len semantics.** `_select_sat_nets` replicates the dict
+  comprehension's first-insertion order / last-writer-wins and the stable
+  sort; `select_routing_grids`' `or` is a truthiness test (a falsy grid
+  object falls through, pinned), `dict.get` missing-key -> None, and the
+  alternate's key comparison is against the PRIMARY's layer name (never the
+  literal `"F.Cu"`).
+- **The emission merge is a straight transcription.** The inner `while j`
+  loop's `(abs(dx_cur - dx_prev) < 1e-12 ...)` epsilon comparisons and the
+  layer/coincident skips map 1:1; the `i = j - 1` advance is identical. The
+  width snap (`if not width or width <= 0.0`) reproduces Python's NaN
+  survival (NaN is truthy and never `<= 0.0`).
+- **The via loop is outside the path guard in both arms.** The oracle's
+  `net_num` is defined before the guard, so vias emit for every non-tree
+  route regardless of `path_length`; the Rust port resolves `net_num` per
+  route and does the same (the differential's randomized routes include
+  zero-length paths with vias).
+- **Per-route FFI preserves the counter order.** One `run_write_route_segments`
+  call per compiled route means the shared tstamp counter increments exactly
+  where the pre-migration loop did, interleaved with the Python tree-route
+  emission and followed by the Python zone-pour emission.
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above): the s-expression text rewriting
+(`_apply_placements_to_pcb` / `_reorient_pads_in_footprint_block`), the
+tree-route branch, the chamfer and the zone-pour path stay Python (no regex
+engine / shapely single-source / `TreeRouteGeometry.iter_segments` duck-
+typing); the Stage3/Stage4/Stage5 dispatch and the `route_pcb` pipeline
+invocation stay Python (the ortools / temper-rust-router boundary).
+
+### Empirical Verification
+
+- **Differential suite**: `test_pipeline_route_rust_differential.py` (41
+  tests, all green) — the oracles are content-hash-pinned (per-body digests
+  in the differential AND the registry); the shims bind to the
+  `temper_orchestration` pyfunctions (anti-vacuity assert), the oracles stay
+  pure Python. `_select_sat_nets` over the None/unbounded/bound/ties/
+  duplicates/max==len edges + 30 randomized; `_build_clause_origin` over the
+  terms / group / p_var / plain priority, the empty-terms fall-through and 30
+  randomized constraint sets; `select_routing_grids` over the F.Cu/B.Cu
+  preference, the plane-outer fallback, the alternate-excludes-layer rule,
+  the single-grid no-alternate case, a falsy grid and 30 randomized dicts;
+  `_next_tstamp` sequences (shared counters, nonzero start); 
+  `_to_stage0_netclass_rules` over full/alias/default/None-safety shapes, the
+  TypeError (bit-identical message), the unrepresented warnings (same logger,
+  same records) and 25 randomized real `NetClassRules` instances;
+  `_write_routes_to_content` over the no-routes / no-routing-results /
+  merged-segment / staircase+via / layer-change-split / coordinates-branch /
+  zero-length / single-pad / unknown-net / nonpositive-width edges and 20
+  randomized route sets — byte-identical content and pad_positions.
+- **PBT suite**: `test_pipeline_route_rust_pbt.py` (14 tests, all green) —
+  seven non-vacuous properties (P1 selection ordering + bound, P2
+  determinism + last-writer-wins, P3 clause-origin accounting, P4 grid-pick
+  contract, P5 tstamp determinism + UUIDv5 validity, P6 netclass totality,
+  P7 emission well-formedness — no zero-length formatted segment), each with
+  a discriminating vacuity guard.
+- **Metamorphic suite**: `test_pipeline_route_rust_metamorphic.py` (8 tests,
+  all green) — four relations (MR1 selection order-invariance, MR2 alias
+  equivalence, MR3 collinear sub-division invariance — the grid-staircase
+  collapse, MR4 B.Cu-removal covariance), each with a discriminating
+  companion.
+- **Runner suite**: `tests/e6_stages_runner.rs` (4 tests, all green) — the
+  `PipelineRouteStage` sequences through `PipelineRunner<BoardState>`,
+  completes without panicking (guarded identity on `None` payload), and the
+  read-only stage preserves the state.
+- **Consumer suites**: the full pre-existing pipeline-route + adapter surface
+  stays green with the delegating shims — `test_adapter.py` (97 passed, 1
+  skipped), `test_stage4_golden_parity.py`, `test_stage4_monolith_parity.py`,
+  `test_wave2_structural_small.py`, `test_astar_nlayer.py`,
+  `test_tree_grid_layer_mismatch.py`, `test_zero_length_segments.py` (131
+  passed, 3 skipped across those seven) — identical pass/fail signature to
+  the origin/main baseline. `test_bundled_full_pipeline.py`'s single failure
+  (`test_bundled_pipeline_reaches_rust_solve_boundary`, an
+  `edges_with_data` AttributeError) is pre-existing on origin/main
+  (reproduced in the main checkout before this batch).
+- **Rust unit tests**: `pipeline_route.rs` carries `#[cfg(test)]` unit tests
+  (the SHA-1 RFC 3174 vectors, the multiblock padding vectors, the uuid5
+  shape/determinism, the select-sat-nets bounds + stable order + duplicate
+  last-writer-wins). `cargo test` 141/141 lib green (+ the E1..E7 runner
+  suites); `cargo clippy --all-features --all-targets -- -D warnings` clean.
+- **Wiring**: `check_unwired_kernels.py` reports no new unwired kernel — the
+  six pyfunctions are referenced by the delegating shims, so the Python AST
+  scan sees them wired; `make regen-check` reports all derived artifacts
+  consistent (incl. the two new oracle pins).
+- **G6 induction** — N/A: every migrated orchestration is a bounded loop nest
+  over nets/constraints/grids/routes with size-independent per-step
+  operations; the merge loop advances monotonically. Structural proof above.
+- **G8 physics discipline** — N/A for the migrated orchestration: it
+  selects/counts/formats from already-physics-gated inputs; no new physics
+  quantity is gated.
+- **R1g Rust bar**: every `#[pyfunction]` body is wrapped in `catch_unwind`
+  by pyo3's macro expansion (the crate sets `profile.release.panic =
+  "unwind"`); the `Stage` run() body runs under `stage_guard`; no
+  `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
