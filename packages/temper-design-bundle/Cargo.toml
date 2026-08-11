@@ -11,6 +11,21 @@ crate-type = ["rlib", "cdylib"]
 [features]
 default = []
 python = ["dep:pyo3", "dep:temper-py-bridge"]
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index -- `cargo test`'s libtest harness cannot
+# target `wasm32-unknown-unknown`.  Off by default; never enabled for the
+# Python extension module.  Mirrors `temper-geometry`'s and `temper-thermal`'s
+# feature sets exactly, so the shared runner wires every crate the same way.
+#
+# `wasm-registry` is the umbrella feature that gates module visibility; every
+# per-family feature implies it.  What survives `--no-default-features` here is
+# a flat set of parsers and validators with no rule-family taxonomy, so it
+# declares one family (`design-bundle`); see `src/wasm_test_registry.rs`.
+wasm-registry = []
+wasm-registry-design-bundle = ["wasm-registry"]
+wasm-registry-all = ["wasm-registry-design-bundle"]
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

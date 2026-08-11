@@ -50,8 +50,8 @@ pub mod proofs;
 pub mod rewrite;
 pub mod types;
 
-#[cfg(test)]
-mod integration;
+#[cfg(any(test, feature = "wasm-registry"))]
+pub(crate) mod integration;
 
 // Public API re-exports — these are the canonical entry points for the
 // combinator module.  Currently consumed internally via `crate::combinator::*`

@@ -1,0 +1,136 @@
+{
+  "_comment": [
+    "temper-rust-router-core's expected-failure manifest, the sibling of",
+    "wasm_expected_failures.json (temper-drc-rs), wasm_expected_failures_geometry.json and",
+    "wasm_expected_failures_thermal.json. Same contract, same reasoning -- see",
+    "wasm_expected_failures.json's _comment for why divergences are LISTED and executed",
+    "rather than deleted or cfg'd out.",
+    "",
+    "It is a separate file rather than more entries in a shared one because",
+    "run_wasm_tests.mjs exits non-zero on an ORPHAN EXCLUSION: a manifest entry naming no",
+    "registered test. Point the runner at this one with",
+    "`--expected-failures tools/wasm/wasm_expected_failures_router_core.json` when the",
+    "module carries temper-rust-router-core alone (`make wasm-router-core-test` does).",
+    "",
+    "Native baseline, for contrast: `cargo test --manifest-path",
+    "packages/temper-rust-router-core/Cargo.toml` passes 154/155 (1 ignored) on",
+    "x86_64-unknown-linux-gnu, all 23 of these included. Every entry below is therefore a",
+    "genuine native-vs-wasm32 divergence, not a broken test.",
+    "",
+    "Measured 2026-08-10 against 111 registered tests: 88 pass, 23 expected-fail, 0 other.",
+    "",
+    "All 23 are ONE class and ONE root cause: the rewrite engine reads the clock. That is",
+    "the `no-clock` class temper-geometry already catalogues, and as there the panic is in",
+    "PRODUCTION code rather than in a test -- so the honest reading is 'combinator::rewrite",
+    "does not run on wasm32 yet', not '23 flaky tests'. Making it run means gating the",
+    "RewriteTrace timing behind a target that has a clock; that is a change to the rewrite",
+    "engine and is deliberately NOT bundled into a registration-only PR.",
+    "",
+    "THE FOLLOW-UP IS ALREADY PRECEDENTED. PR #941 did exactly this for temper-geometry:",
+    "build_capacitated_graph took its deadline Instant lazily (only when a deadline was",
+    "actually requested) and 7 of that crate's 8 `no-clock` entries turned into passes,",
+    "reconciled by #942. rewrite() is the same shape but a wider change: ~10 Instant::now()",
+    "sites whose Durations are consumed only by trace.log(), which is gated on the",
+    "TEMPER_REWRITE_TRACE env var -- but the format! arguments are evaluated eagerly, so",
+    "every reading happens even when tracing is off. Making them lazy is a refactor of the",
+    "SAT pipeline's rewrite engine and belongs in its own PR with its own A/B.",
+    "",
+    "The gate is bidirectional: if one of these starts passing (someone gives",
+    "RewriteTrace a wasm32 path), run_wasm_tests.mjs reports it as an UNEXPECTED PASS and",
+    "exits non-zero, so a stale exclusion cannot sit here unnoticed."
+  ],
+  "expected_failures": {
+    "combinator::integration::tests::roundtrip_modelbuilder_rewrite": {
+      "class": "no-clock",
+      "reason": "Drives the full model -> rewrite -> CNF pipeline, so it reaches the unconditional Instant::now() inside rewrite()'s RewriteTrace (see the combinator::rewrite entries below for the mechanism). Nothing about the test is wasm32-specific; it never gets past the first rewrite() call."
+    },
+    "combinator::integration::tests::audit_compatibility": {
+      "class": "no-clock",
+      "reason": "Same root cause: the audit round-trip calls rewrite(), which reads the clock before doing any work."
+    },
+    "combinator::integration::tests::no_regression_atmostk_standalone": {
+      "class": "no-clock",
+      "reason": "Same root cause: the at-most-k regression fixture is fed through rewrite()."
+    },
+    "combinator::integration::tests::no_regression_diffpair_only": {
+      "class": "no-clock",
+      "reason": "Same root cause: the differential-pair regression fixture is fed through rewrite()."
+    },
+    "combinator::rewrite::tests::rw7_layer_conflict_detected": {
+      "class": "no-clock",
+      "reason": "Calls combinator::rewrite::rewrite(), whose RewriteTrace::new() (combinator/rewrite.rs:73) evaluates `start: Instant::now()` unconditionally -- the struct is constructed on every call, before the `enabled` flag is consulted, so the TEMPER_REWRITE_TRACE env var does not gate it. rewrite() then takes six further Instant::now() readings for its per-rule timing breakdown. wasm32-unknown-unknown's std has no clock: Instant::now() panics with 'time not implemented on this platform' (library/std/src/sys/time/unsupported.rs:13). This is the root entry; the other rewrite entries are the same fact reached through different rules."
+    },
+    "combinator::rewrite::tests::rw7_no_conflict_when_distinct_vars": {
+      "class": "no-clock",
+      "reason": "Same root cause as rw7_layer_conflict_detected: rewrite()'s RewriteTrace reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::rw5_dedup_identical_diffpairs": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::rw5_preserves_different_diffpairs": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::rw6_dedup_identical_layers": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::rw3_propagate_true_reduces_capacity": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::rw3_post_zero_k_adds_neg_unit": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::rw3_k_zero_adds_neg_unit_clauses": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::rw4_propagate_false_removes_var": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::rw1_subsume_tightens_superset": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::rw1_dedup_identical_var_sets_after_tightening": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::rw2_eliminate_trivial_capacity": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::rw2_preserves_binding_constraint": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::ts2_overlapping_capacity_subsume": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::ts3_layer_propagation_chain_reaction": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::ts1_no_overlap_rewrite_noop": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs -- including on the no-op path, where the trace is constructed and no rule fires."
+    },
+    "combinator::rewrite::tests::fixpoint_termination": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs. rewrite()'s fixpoint loop takes a further Instant::now() per iteration (combinator/rewrite.rs:140)."
+    },
+    "combinator::rewrite::tests::no_false_unsat_conflict_is_real": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs."
+    },
+    "combinator::rewrite::tests::exhaustive_rewrite_preserves_sat_n4": {
+      "class": "no-clock",
+      "reason": "Same root cause: rewrite() reads the clock before any rule runs, once per enumerated model."
+    }
+  }
+}

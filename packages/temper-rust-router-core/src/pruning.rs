@@ -139,14 +139,14 @@ pub fn is_candidate_edge(net: &NetPins, edge: &Edge2D, params: &PruningParams) -
 // Unit tests — edge cases
 // ---------------------------------------------------------------------------
 
-#[cfg(test)]
-#[allow(clippy::unwrap_used)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     // --- Geometry helpers ---
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn point_to_segment_endpoint_when_projection_outside() {
         // Segment from (0,0) to (10,0). Point at (-5, 0) projects to x=-5,
         // which is outside the segment; distance should be to (0,0).
@@ -154,7 +154,7 @@ mod tests {
         assert!((d - 5.0).abs() < 1e-9, "expected 5.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn point_to_segment_perpendicular_midpoint() {
         // Segment from (0,0) to (10,0). Point at (5, 3) projects to (5,0),
         // distance = 3.
@@ -162,19 +162,19 @@ mod tests {
         assert!((d - 3.0).abs() < 1e-9, "expected 3.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn point_to_segment_degenerate_zero_length() {
         let d = point_to_segment_distance((3.0, 4.0), (0.0, 0.0), (0.0, 0.0));
         assert!((d - 5.0).abs() < 1e-9, "expected 5.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn point_to_segment_point_on_segment() {
         let d = point_to_segment_distance((5.0, 0.0), (0.0, 0.0), (10.0, 0.0));
         assert!(d < 1e-9, "point on segment should have distance 0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn point_to_segment_diagonal() {
         // Segment from (0,0) to (3,4). Point at (0,4) projects to (1.2, 1.6)?
         // Let's compute: dx=3, dy=4, len_sq=25.
@@ -187,24 +187,24 @@ mod tests {
 
     // --- Pin span ---
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pin_span_empty() {
         let pins: Vec<Point2D> = vec![];
         assert_eq!(pin_span(&pins), 0.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pin_span_single_pin() {
         assert_eq!(pin_span(&[(5.0, 5.0)]), 0.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pin_span_two_pins() {
         let d = pin_span(&[(0.0, 0.0), (3.0, 4.0)]);
         assert!((d - 5.0).abs() < 1e-9);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn pin_span_three_pins_max_not_adjacent() {
         // Pins at (0,0), (10,0), (0,10). Max span is diagonal: sqrt(200) ≈ 14.142.
         let d = pin_span(&[(0.0, 0.0), (10.0, 0.0), (0.0, 10.0)]);
@@ -213,7 +213,7 @@ mod tests {
 
     // --- Predicate edge cases ---
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn predicate_includes_edge_at_pin() {
         // Edge starts at the pin: distance = 0.
         let net = NetPins {
@@ -226,7 +226,7 @@ mod tests {
         assert!(is_candidate_edge(&net, &edge, &PruningParams::default()));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn predicate_excludes_edge_far_away() {
         // S_n = 100. M_n = max(2*100, 30) = 200.
         // Edge at (500, 0) — distance = 400 > 200, should be excluded.
@@ -244,7 +244,7 @@ mod tests {
         ));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn predicate_tiny_net_uses_m_min_floor() {
         // S_n = 1mm. M_n = max(2*1, 30) = 30.
         // Edge at distance 25mm: within 30 -> candidate.
@@ -273,7 +273,7 @@ mod tests {
         ));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn predicate_single_pin_net() {
         // S_n = 0. M_n = max(2*0, 30) = 30.
         // Edge at 20mm: candidate.
@@ -296,7 +296,7 @@ mod tests {
         assert!(!is_candidate_edge(&net, &far, &params));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn predicate_edge_exactly_at_margin() {
         // S_n = 10. M_n = max(2*10, 30) = 30.
         // Edge exactly at distance 30: candidate (≤, not <).
@@ -316,7 +316,7 @@ mod tests {
         ));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn predicate_margin_scales_with_span() {
         // S_n = 50. M_n = max(2*50, 30) = 100.
         // Edge at distance 90: candidate. At 110: excluded.
@@ -338,7 +338,7 @@ mod tests {
         assert!(!is_candidate_edge(&net, &far, &params));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn predicate_large_net_covers_wide_area() {
         // S_n = 80. M_n = max(2*80, 30) = 160.
         let net = NetPins {
@@ -354,7 +354,7 @@ mod tests {
         assert!(is_candidate_edge(&net, &edge, &params));
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn dist_min_to_multiple_pins_uses_closest() {
         // Pin A at (0,0), Pin B at (100, 0).
         // Edge at (0, 10)→(10, 10): distance to Pin A = 10, to Pin B ≈ 90.5.
@@ -368,7 +368,7 @@ mod tests {
         assert!((d - 10.0).abs() < 1e-9, "expected 10.0, got {d}");
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn custom_params_change_behavior() {
         let net = NetPins {
             positions: vec![(0.0, 0.0), (10.0, 0.0)], // S_n = 10
@@ -399,6 +399,33 @@ mod tests {
         };
         assert!(is_candidate_edge(&net, &edge, &wide));
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("pruning::tests::point_to_segment_endpoint_when_projection_outside", point_to_segment_endpoint_when_projection_outside),
+        ("pruning::tests::point_to_segment_perpendicular_midpoint", point_to_segment_perpendicular_midpoint),
+        ("pruning::tests::point_to_segment_degenerate_zero_length", point_to_segment_degenerate_zero_length),
+        ("pruning::tests::point_to_segment_point_on_segment", point_to_segment_point_on_segment),
+        ("pruning::tests::point_to_segment_diagonal", point_to_segment_diagonal),
+        ("pruning::tests::pin_span_empty", pin_span_empty),
+        ("pruning::tests::pin_span_single_pin", pin_span_single_pin),
+        ("pruning::tests::pin_span_two_pins", pin_span_two_pins),
+        ("pruning::tests::pin_span_three_pins_max_not_adjacent", pin_span_three_pins_max_not_adjacent),
+        ("pruning::tests::predicate_includes_edge_at_pin", predicate_includes_edge_at_pin),
+        ("pruning::tests::predicate_excludes_edge_far_away", predicate_excludes_edge_far_away),
+        ("pruning::tests::predicate_tiny_net_uses_m_min_floor", predicate_tiny_net_uses_m_min_floor),
+        ("pruning::tests::predicate_single_pin_net", predicate_single_pin_net),
+        ("pruning::tests::predicate_edge_exactly_at_margin", predicate_edge_exactly_at_margin),
+        ("pruning::tests::predicate_margin_scales_with_span", predicate_margin_scales_with_span),
+        ("pruning::tests::predicate_large_net_covers_wide_area", predicate_large_net_covers_wide_area),
+        ("pruning::tests::dist_min_to_multiple_pins_uses_closest", dist_min_to_multiple_pins_uses_closest),
+        ("pruning::tests::custom_params_change_behavior", custom_params_change_behavior),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
 
 // ---------------------------------------------------------------------------

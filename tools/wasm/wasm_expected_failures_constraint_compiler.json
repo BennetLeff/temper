@@ -1,0 +1,33 @@
+{
+  "_comment": [
+    "temper-constraint-compiler's expected-failure manifest, the sibling of",
+    "wasm_expected_failures.json (temper-drc-rs), wasm_expected_failures_geometry.json,",
+    "wasm_expected_failures_thermal.json, wasm_expected_failures_router_core.json and",
+    "wasm_expected_failures_design_bundle.json. Same contract -- see",
+    "wasm_expected_failures.json's _comment for why divergences are LISTED and executed",
+    "rather than deleted or cfg'd out.",
+    "",
+    "This one is EMPTY, and that is a result rather than an omission: measured 2026-08-10,",
+    "70 tests are registered, 69 of them exist on wasm32, and all 69 pass.",
+    "",
+    "THE 70th IS NOT AN EXCLUSION MADE HERE. constraints::tests::",
+    "host_libm_symbols_actually_resolve carries its own",
+    "`#[cfg(not(target_arch = \"wasm32\"))]` in constraints/mod.rs, written by the crate",
+    "long before this registry existed: it asserts that dlsym() resolves the host libm's",
+    "`pow`, and wasm32-unknown-unknown has no dynamic loader, so the function does not",
+    "exist on this target. gen_wasm_test_registry.py copies that cfg onto the registry",
+    "entry (see fn_cfgs()), so the test is absent rather than failing -- the same",
+    "`no-dynamic-loader` fact temper-drc-rs records as an expected failure, but reached",
+    "one step earlier, at compile time. It is counted in the PR's arithmetic as",
+    "'registered 70, executable 69'.",
+    "",
+    "The file still exists because run_wasm_tests.mjs defaults to the temper-drc-rs",
+    "manifest, and pointing a constraint-compiler-only module at THAT one would report",
+    "every drc entry as an orphan exclusion and exit non-zero. `make",
+    "wasm-constraint-compiler-test` passes this file.",
+    "",
+    "An empty manifest is NOT a weaker gate: with nothing excluded, all 69 executable",
+    "tests are load-bearing and any regression on wasm32 turns the step red."
+  ],
+  "expected_failures": {}
+}

@@ -18,6 +18,26 @@ thiserror = "1"
 [features]
 default = ["sat"]
 sat = ["dep:rustsat", "dep:rustsat-cadical"]
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index -- `cargo test`'s libtest harness cannot
+# target `wasm32-unknown-unknown`.  Off by default.  Mirrors
+# `temper-geometry`'s and `temper-thermal`'s feature sets exactly, so the
+# shared runner wires every crate the same way.
+#
+# `wasm-registry` is the umbrella feature that gates module visibility; every
+# per-family feature implies it.  One family (`router-core`): the solver-free
+# core is a flat set of graph and rewrite kernels.
+#
+# NOTE the interaction with `sat`, which is a *default* feature: it pulls
+# `rustsat-cadical`, a C++ solver with no `wasm32-unknown-unknown` build, so
+# the tier builds `--no-default-features --features wasm-test-registry` and the
+# `sat` modules' tests are structurally absent rather than skipped.  See
+# `src/wasm_test_registry.rs`.
+wasm-registry = []
+wasm-registry-router-core = ["wasm-registry"]
+wasm-registry-all = ["wasm-registry-router-core"]
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
 
 [profile.release]
 panic = "unwind"

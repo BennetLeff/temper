@@ -95,6 +95,21 @@ PURE_GENERATORS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
         "gen_wasm_test_registry.py [temper-thermal]",
         ("--crate", "temper-thermal"),
     ),
+    (
+        "gen_wasm_test_registry.py",
+        "gen_wasm_test_registry.py [temper-design-bundle]",
+        ("--crate", "temper-design-bundle"),
+    ),
+    (
+        "gen_wasm_test_registry.py",
+        "gen_wasm_test_registry.py [temper-rust-router-core]",
+        ("--crate", "temper-rust-router-core"),
+    ),
+    (
+        "gen_wasm_test_registry.py",
+        "gen_wasm_test_registry.py [temper-constraint-compiler]",
+        ("--crate", "temper-constraint-compiler"),
+    ),
 )
 
 
