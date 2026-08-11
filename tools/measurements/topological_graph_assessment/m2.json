@@ -1,0 +1,53 @@
+{
+  "surface": "nx.MultiDiGraph parallel-edge usage",
+  "static_add_edge_calls_production": 8,
+  "static_add_edge_calls_test": 0,
+  "static_add_edge_sites": [
+    {
+      "file": "heuristics/graph_utils.py",
+      "line": 83,
+      "args_count": 3
+    },
+    {
+      "file": "router_v6/channel_skeleton.py",
+      "line": 120,
+      "args_count": 3
+    },
+    {
+      "file": "router_v6/channel_skeleton.py",
+      "line": 178,
+      "args_count": 3
+    },
+    {
+      "file": "router_v6/channel_skeleton.py",
+      "line": 594,
+      "args_count": 3
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 151,
+      "args_count": 5
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 160,
+      "args_count": 5
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 183,
+      "args_count": 5
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 126,
+      "args_count": 4
+    }
+  ],
+  "dynamic_total_edges": 5,
+  "dynamic_duplicate_pairs": 0,
+  "dynamic_duplicates": {},
+  "has_parallel_edges": false,
+  "verdict": "NO_PARALLEL_EDGES",
+  "analysis": "add_adjacency creates (a,b)+(b,a) as separate directed pairs. add_separation and add_group create single directed edges. topological_init._build_graph guards with has_edge before add_adjacency. No code path in production creates two edges with the same (source, target). MultiDiGraph \u2192 DiGraph is a safe simplification."
+}

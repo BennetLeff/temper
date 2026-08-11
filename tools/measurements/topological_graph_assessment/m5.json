@@ -1,0 +1,253 @@
+{
+  "surface": "topological/graph.py networkx API census",
+  "total_graph_accesses": 31,
+  "production_graph_accesses": 31,
+  "test_graph_accesses": 0,
+  "oracle_graph_accesses": 0,
+  "live_methods": {
+    ".graph.add_edge": {
+      "production_sites": 4,
+      "test_sites": 0,
+      "oracle_sites": 0,
+      "live": true
+    },
+    ".graph.add_node": {
+      "production_sites": 2,
+      "test_sites": 0,
+      "oracle_sites": 0,
+      "live": true
+    },
+    ".graph.edges": {
+      "production_sites": 10,
+      "test_sites": 0,
+      "oracle_sites": 0,
+      "live": true
+    },
+    ".graph.edges_with_data": {
+      "production_sites": 1,
+      "test_sites": 0,
+      "oracle_sites": 0,
+      "live": true
+    },
+    ".graph.graph": {
+      "production_sites": 2,
+      "test_sites": 0,
+      "oracle_sites": 0,
+      "live": true
+    },
+    ".graph.has_edge": {
+      "production_sites": 1,
+      "test_sites": 0,
+      "oracle_sites": 0,
+      "live": true
+    },
+    ".graph.is_connected": {
+      "production_sites": 1,
+      "test_sites": 0,
+      "oracle_sites": 0,
+      "live": true
+    },
+    ".graph.nodes": {
+      "production_sites": 7,
+      "test_sites": 0,
+      "oracle_sites": 0,
+      "live": true
+    },
+    ".graph.number_of_edges": {
+      "production_sites": 1,
+      "test_sites": 0,
+      "oracle_sites": 0,
+      "live": true
+    },
+    ".graph.number_of_nodes": {
+      "production_sites": 2,
+      "test_sites": 0,
+      "oracle_sites": 0,
+      "live": true
+    }
+  },
+  "topological_graph_methods": {
+    "from_pcl": {
+      "line": 253,
+      "production_callers": 0,
+      "production_callers_list": [],
+      "live": false,
+      "is_constructor": false
+    }
+  },
+  "port_surface": {
+    "container_methods": {
+      ".graph.add_node": "add_node_with_attrs(ref, **attrs) \u2014 node insertion",
+      ".graph.add_edge": "add_edge_with_attrs(u, v, **attrs) \u2014 edge insertion",
+      ".graph.edges(data=True)": "iterate_edges() -> [(u, v, data_dict), ...] \u2014 insertion order",
+      ".graph.nodes()": "iterate_nodes() -> [node_id, ...] \u2014 insertion order",
+      ".graph.has_edge(u, v)": "has_edge(u, v) -> bool",
+      ".graph.number_of_nodes()": "node_count() -> int"
+    },
+    "dead_surfaces_not_needed": [
+      "get_neighbors (only called from tests + oracle)",
+      "find_separation_conflicts (only called from tests + oracle)",
+      "get_adjacency_cluster (only called from tests + oracle)",
+      "ConstraintPropagator (only called from tests + oracle)",
+      "from_pcl (only called from tests + oracle)",
+      "build_topological_graph (only called from tests + oracle)"
+    ]
+  },
+  "production_access_sites": [
+    {
+      "file": "heuristics/topological_init.py",
+      "line": 246,
+      "chain": ".graph.has_edge"
+    },
+    {
+      "file": "pcl/sat_bridge.py",
+      "line": 117,
+      "chain": ".graph.edges"
+    },
+    {
+      "file": "router_v6/bundle_analyzer.py",
+      "line": 186,
+      "chain": ".graph.edges_with_data"
+    },
+    {
+      "file": "router_v6/bundle_analyzer.py",
+      "line": 296,
+      "chain": ".graph.edges"
+    },
+    {
+      "file": "router_v6/channel_mapping.py",
+      "line": 241,
+      "chain": ".graph.nodes"
+    },
+    {
+      "file": "router_v6/channel_mapping.py",
+      "line": 288,
+      "chain": ".graph.nodes"
+    },
+    {
+      "file": "router_v6/channel_mapping.py",
+      "line": 302,
+      "chain": ".graph.nodes"
+    },
+    {
+      "file": "router_v6/channel_skeleton.py",
+      "line": 48,
+      "chain": ".graph.number_of_nodes"
+    },
+    {
+      "file": "router_v6/channel_skeleton.py",
+      "line": 53,
+      "chain": ".graph.number_of_edges"
+    },
+    {
+      "file": "router_v6/channel_skeleton.py",
+      "line": 43,
+      "chain": ".graph.is_connected"
+    },
+    {
+      "file": "router_v6/channel_skeleton.py",
+      "line": 43,
+      "chain": ".graph.number_of_nodes"
+    },
+    {
+      "file": "router_v6/channel_widths.py",
+      "line": 513,
+      "chain": ".graph.nodes"
+    },
+    {
+      "file": "router_v6/channel_widths.py",
+      "line": 517,
+      "chain": ".graph.edges"
+    },
+    {
+      "file": "router_v6/channel_widths.py",
+      "line": 491,
+      "chain": ".graph.nodes"
+    },
+    {
+      "file": "router_v6/channel_widths.py",
+      "line": 492,
+      "chain": ".graph.edges"
+    },
+    {
+      "file": "router_v6/constraint_model.py",
+      "line": 325,
+      "chain": ".graph.nodes"
+    },
+    {
+      "file": "topological/force_refinement.py",
+      "line": 197,
+      "chain": ".graph.edges"
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 103,
+      "chain": ".graph.add_node"
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 118,
+      "chain": ".graph.add_node"
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 151,
+      "chain": ".graph.add_edge"
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 160,
+      "chain": ".graph.add_edge"
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 183,
+      "chain": ".graph.add_edge"
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 206,
+      "chain": ".graph.edges"
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 126,
+      "chain": ".graph.add_edge"
+    },
+    {
+      "file": "topological/initial_placement.py",
+      "line": 167,
+      "chain": ".graph.edges"
+    },
+    {
+      "file": "topological/initial_placement.py",
+      "line": 125,
+      "chain": ".graph.edges"
+    },
+    {
+      "file": "topological/propagation.py",
+      "line": 99,
+      "chain": ".graph.edges"
+    },
+    {
+      "file": "topological/propagation.py",
+      "line": 121,
+      "chain": ".graph.edges"
+    },
+    {
+      "file": "topological/propagation.py",
+      "line": 87,
+      "chain": ".graph.nodes"
+    },
+    {
+      "file": "topological/propagation.py",
+      "line": 99,
+      "chain": ".graph.graph"
+    },
+    {
+      "file": "topological/propagation.py",
+      "line": 121,
+      "chain": ".graph.graph"
+    }
+  ]
+}

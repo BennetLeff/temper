@@ -1,0 +1,14 @@
+{
+  "experiment": "force_refinement_order",
+  "components": 12,
+  "adjacency_pairs": 16,
+  "separation_pairs": 3,
+  "seeds": 64,
+  "iterations": 100,
+  "seeds_divergent": 58,
+  "distinct_position_sets": 13,
+  "max_position_difference": 0.005044598831027258,
+  "falsifier_fired": true,
+  "identify_clusters_pairs_different": true,
+  "identify_clusters_same_edge_set": true
+}

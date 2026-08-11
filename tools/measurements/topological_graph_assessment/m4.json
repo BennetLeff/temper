@@ -1,0 +1,11 @@
+{
+  "experiment": "cluster_and_propagation_order",
+  "seeds": 64,
+  "cluster_diffs": 0,
+  "min_dist_diffs": 0,
+  "feasibility_diffs": 0,
+  "cluster_order_insensitive": true,
+  "min_dist_order_insensitive": true,
+  "propagation_order_insensitive": true,
+  "analysis": "identify_clusters uses union-find which is commutative \u2014 edge insertion order does not affect the resulting partition. place_cluster min_adjacency_dist is a min-reduction \u2014 commutative. propagate uses min/max reductions on bounds \u2014 commutative."
+}

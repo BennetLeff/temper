@@ -1,0 +1,40 @@
+{
+  "surface": "topological/graph.py::TopologicalGraph",
+  "imports_total": 8,
+  "imports_production": 8,
+  "imports_test_only": 0,
+  "production_importers": [
+    "heuristics/topological_init.py",
+    "topological/__init__.py",
+    "topological/__init__.py",
+    "topological/__init__.py",
+    "topological/__init__.py",
+    "topological/force_refinement.py",
+    "topological/initial_placement.py",
+    "topological/propagation.py"
+  ],
+  "production_constructors": [
+    {
+      "file": "heuristics/topological_init.py",
+      "line": 222,
+      "kind": "constructor"
+    },
+    {
+      "file": "topological/graph.py",
+      "line": 270,
+      "kind": "constructor"
+    }
+  ],
+  "reachable_in_production": true,
+  "notes": [
+    "ConstraintPropagator has 2 production callers"
+  ],
+  "pipeline_registered": true,
+  "pipeline_called": true,
+  "constraint_propagator_production_callers": 2,
+  "get_neighbors_callers": [],
+  "get_neighbors_production": [],
+  "find_separation_conflicts_production": [],
+  "get_adjacency_cluster_production": [],
+  "verdict": "LIVE"
+}
