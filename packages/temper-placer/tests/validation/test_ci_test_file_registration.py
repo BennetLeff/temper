@@ -275,6 +275,14 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
     "router_v6/test_pipeline_route_rust_metamorphic.py": _PASSING_LOCALLY,
     "router_v6/test_pipeline_route_rust_pbt.py": _PASSING_LOCALLY,
     "router_v6/test_net_batching_rust_pbt.py": _PASSING_LOCALLY,
+    "router_v6/test_ground_plane.py": (
+        "PASSING locally: ground-plane keepout-before-pour geometry/graph helpers
+        (mst_edges, compute_hv_selv_keepout) + a real-board pad-connectivity
+        audit integration test. CI-uncovered by design -- the router_v6 CI
+        wiring is the workflow-side change tracked in
+        docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md."
+    ),
+
     "router_v6/test_clearance_matrix_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_congestion_defects.py": _PASSING_LOCALLY,
     "router_v6/test_congestion_pbt.py": _PASSING_LOCALLY,
