@@ -1243,10 +1243,20 @@ Worth stating plainly, because absence of these is the reassuring result:
   `|| true` construct the sentence denies, and it makes that step's drift
   detection unreachable. What survives is the narrower, verified statement:
   **no `continue-on-error` site masks a gate that was meant to block.**
-- **No vacuity in the mutation-testing machinery itself** beyond finding 3's
-  cousin in `constraint_mutation_gate.py` (§9). This was the layer worth
-  worrying about most — a vacuous mutation gate would have let every other
-  vacuous gate through undetected — so it was exercised, not just read:
+- ~~**No vacuity in the mutation-testing machinery itself.**~~ **AMENDED —
+  the third and last of the first pass's reassuring claims to fall, and the
+  most consequential.** What survives is narrower but still real: the two
+  *corpus* runners below are genuinely sound, and were exercised rather than
+  read. What does not survive is the generalization to the whole layer.
+  Findings 8, 15 and 17 each break it: `constraint_mutation_gate.py` — a
+  **required, merge-blocking** check — passes unchanged on an encoder whose
+  entire enforcement body has been deleted (finding 8, proven by gutting it);
+  `phase5_hubs_mutations.py` returns 0 whether its mutations were caught or
+  survived (finding 17); and `check_vacuous_gates.py`, the repo's own
+  anti-vacuity linter, cannot see the negated form of the idiom it exists to
+  catch (finding 15). This was indeed "the layer worth worrying about most" —
+  the first pass's instinct was right and only its conclusion was wrong. The
+  sound parts, verified:
 
   ```
   $ .venv/bin/python scripts/check_gate_mutations.py    ; EXIT=1
