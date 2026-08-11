@@ -650,6 +650,15 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "ee37f950): Rust parity suite. Pure Python/Rust, no external binary. "
         "Not yet wired into any CI job — a concurrent migration."
     ),
+    "pipeline/test_phase_c_tail_rust_differential.py": (
+        "PASSING locally (2026-08-11, Phase-C-tail pipeline-contract "
+        "differential, migrate/phase-c-tail): the dag_types / dag / bottleneck "
+        "/ metrics contract differential against the four verbatim "
+        "_*_py_oracle.py files (content-hash pinned in scripts/oracle_hashes.json), "
+        "plus 6 non-vacuous PBT properties and 4 metamorphic relations (52 "
+        "tests). Pure Python/Rust, no external binary. Not yet wired into any "
+        "CI job."
+    ),
     "pipeline/test_metrics_observer.py": (
         "PASSING locally (2026-08-10, coverage-allowlist paydown for "
         "pipeline/): MetricsObserver ProgressObserver protocol hooks (9 tests). "
