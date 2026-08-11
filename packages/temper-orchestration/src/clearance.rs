@@ -1222,6 +1222,249 @@ pub(crate) mod tests {
         assert_eq!(isolators, vec!["ISO1"]);
     }
 
+    // -----------------------------------------------------------------------
+    // Deterministic mirrors of `proptests`' three properties (P1-P3) below.
+    // `proptest` is a dev-dependency (the `proptest-dev-dependency`
+    // exclusion class), so its macro bodies cannot be registered directly;
+    // each property here reproduces the SAME assertion over a fixed, seeded
+    // `SplitMix64` corpus. The native, randomized proptest module is
+    // UNCHANGED and keeps exploring randomly. Neither
+    // `classify_domain_partition_py` nor `project_onto_barrier_axis_impl`
+    // touches `host_math`/libm, so there is no host-math sensitivity to
+    // check here.
+    use crate::wasm_campaign_prng::SplitMix64;
+
+    /// P1's components are built from a FIXED, small net vocabulary (one HV
+    /// net, one SELV net, one regular net) cycled `i % 5` exactly like the
+    /// property's own construction -- not drawn randomly -- so every seed
+    /// (varying only the component COUNT and ref names) reliably populates
+    /// all four buckets (hv_only, selv_only, isolators, unclassified).
+    /// Randomizing the net vocabulary too would risk seeds that never
+    /// produce an isolator (a component touching BOTH the HV and SELV net),
+    /// silently degrading this into a trivial-branch-only campaign -- the
+    /// uniform-sampling trap this task's own brief warns about.
+    fn p1_partition_totals_and_disjointness_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let hv_net = "AC_L".to_string();
+        let selv_net = "SELV_0".to_string();
+        let regular_net = "NET_0".to_string();
+        let n = rng.range_i64(5, 20);
+
+        let mut comps: Vec<(String, Vec<String>)> = Vec::new();
+        for i in 0..n {
+            let ref_ = format!("R{i}");
+            let nets = match i % 5 {
+                0 => vec![hv_net.clone()],
+                1 => vec![selv_net.clone()],
+                2 => vec![hv_net.clone(), selv_net.clone()],
+                3 => vec![hv_net.clone(), regular_net.clone()],
+                _ => vec![regular_net.clone()],
+            };
+            comps.push((ref_, nets));
+        }
+
+        let hv_nets = vec![hv_net];
+        let selv_nets = vec![selv_net];
+        let (hv_only, selv_only, isolators, unclassified) =
+            classify_domain_partition_py(comps.clone(), hv_nets.clone(), selv_nets.clone());
+
+        let total = hv_only.len() + selv_only.len() + isolators.len() + unclassified.len();
+        assert_eq!(total, comps.len(), "seed={seed}: every component must be in exactly one bucket");
+
+        let mut all_refs = std::collections::HashSet::new();
+        for r in hv_only.iter().chain(&selv_only).chain(&isolators).chain(&unclassified) {
+            assert!(all_refs.insert(r.clone()), "seed={seed}: duplicate ref {r}");
+        }
+
+        for r in &hv_only {
+            let comp = comps.iter().find(|(ref_, _)| ref_ == r).unwrap();
+            assert!(!comp.1.iter().any(|n| selv_nets.contains(n)), "seed={seed}: HV-only component {r} has a SELV net");
+        }
+        for r in &selv_only {
+            let comp = comps.iter().find(|(ref_, _)| ref_ == r).unwrap();
+            assert!(!comp.1.iter().any(|n| hv_nets.contains(n)), "seed={seed}: SELV-only component {r} has an HV net");
+        }
+
+        // Every bucket is non-empty by construction (n >= 5 guarantees at
+        // least one component in each i % 5 class) -- the standing guard
+        // against the "buckets always empty" trap, not just a hope.
+        assert!(!hv_only.is_empty(), "seed={seed}: hv_only unexpectedly empty");
+        assert!(!selv_only.is_empty(), "seed={seed}: selv_only unexpectedly empty");
+        assert!(!isolators.is_empty(), "seed={seed}: isolators unexpectedly empty");
+        assert!(!unclassified.is_empty(), "seed={seed}: unclassified unexpectedly empty");
+    }
+
+    /// P2. rot 2 = -(rot 0), rot 3 = -(rot 1) for axis 0.
+    fn p2_rotation_negation_orthogonality_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let x = rng.range(-1e6, 1e6);
+        let y = rng.range(-1e6, 1e6);
+        let r0 = project_onto_barrier_axis_impl(x, y, 0, 0).unwrap();
+        let r2 = project_onto_barrier_axis_impl(x, y, 2, 0).unwrap();
+        assert_eq!(r0, -r2, "seed={seed}: rot-0 should be negation of rot-2");
+
+        let r1 = project_onto_barrier_axis_impl(x, y, 1, 0).unwrap();
+        let r3 = project_onto_barrier_axis_impl(x, y, 3, 0).unwrap();
+        assert_eq!(r1, -r3, "seed={seed}: rot-1 should be negation of rot-3");
+    }
+
+    /// P3. Rotation-table correctness against the documented mapping, for
+    /// all 8 (rot, axis) combinations. `rot` is `seed % 4` (deterministic
+    /// cycling), not drawn randomly, so a 20-seed corpus covers each of the
+    /// 4 rotation values exactly 5 times -- guaranteed full coverage of the
+    /// branch space, rather than leaving it to `index(4)`'s luck.
+    fn p3_rotation_table_correctness_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed);
+        let x = rng.range(-1e6, 1e6);
+        let y = rng.range(-1e6, 1e6);
+        let rot = (seed % 4) as i64;
+        let v0 = project_onto_barrier_axis_impl(x, y, rot, 0).unwrap();
+        let v1 = project_onto_barrier_axis_impl(x, y, rot, 1).unwrap();
+        match rot {
+            0 => {
+                assert!((v0 - x).abs() <= 0.0, "seed={seed} rot=0 axis=0");
+                assert!((v1 - y).abs() <= 0.0, "seed={seed} rot=0 axis=1");
+            }
+            1 => {
+                assert!((v0 - y).abs() <= 0.0, "seed={seed} rot=1 axis=0");
+                assert!((v1 + x).abs() <= 0.0, "seed={seed} rot=1 axis=1");
+            }
+            2 => {
+                assert!((v0 + x).abs() <= 0.0, "seed={seed} rot=2 axis=0");
+                assert!((v1 + y).abs() <= 0.0, "seed={seed} rot=2 axis=1");
+            }
+            3 => {
+                assert!((v0 + y).abs() <= 0.0, "seed={seed} rot=3 axis=0");
+                assert!((v1 - x).abs() <= 0.0, "seed={seed} rot=3 axis=1");
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    // --- BEGIN generated seeded property-mirror wrappers (deterministic proptest mirrors, R19/U6) ---
+    // 3 properties x 20 seeds = 60 distinct-input wasm tests.
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_000() { p1_partition_totals_and_disjointness_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_001() { p1_partition_totals_and_disjointness_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_002() { p1_partition_totals_and_disjointness_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_003() { p1_partition_totals_and_disjointness_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_004() { p1_partition_totals_and_disjointness_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_005() { p1_partition_totals_and_disjointness_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_006() { p1_partition_totals_and_disjointness_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_007() { p1_partition_totals_and_disjointness_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_008() { p1_partition_totals_and_disjointness_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_009() { p1_partition_totals_and_disjointness_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_010() { p1_partition_totals_and_disjointness_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_011() { p1_partition_totals_and_disjointness_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_012() { p1_partition_totals_and_disjointness_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_013() { p1_partition_totals_and_disjointness_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_014() { p1_partition_totals_and_disjointness_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_015() { p1_partition_totals_and_disjointness_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_016() { p1_partition_totals_and_disjointness_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_017() { p1_partition_totals_and_disjointness_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_018() { p1_partition_totals_and_disjointness_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p1_partition_totals_and_disjointness_seed_019() { p1_partition_totals_and_disjointness_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_000() { p2_rotation_negation_orthogonality_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_001() { p2_rotation_negation_orthogonality_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_002() { p2_rotation_negation_orthogonality_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_003() { p2_rotation_negation_orthogonality_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_004() { p2_rotation_negation_orthogonality_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_005() { p2_rotation_negation_orthogonality_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_006() { p2_rotation_negation_orthogonality_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_007() { p2_rotation_negation_orthogonality_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_008() { p2_rotation_negation_orthogonality_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_009() { p2_rotation_negation_orthogonality_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_010() { p2_rotation_negation_orthogonality_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_011() { p2_rotation_negation_orthogonality_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_012() { p2_rotation_negation_orthogonality_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_013() { p2_rotation_negation_orthogonality_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_014() { p2_rotation_negation_orthogonality_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_015() { p2_rotation_negation_orthogonality_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_016() { p2_rotation_negation_orthogonality_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_017() { p2_rotation_negation_orthogonality_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_018() { p2_rotation_negation_orthogonality_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p2_rotation_negation_orthogonality_seed_019() { p2_rotation_negation_orthogonality_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_000() { p3_rotation_table_correctness_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_001() { p3_rotation_table_correctness_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_002() { p3_rotation_table_correctness_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_003() { p3_rotation_table_correctness_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_004() { p3_rotation_table_correctness_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_005() { p3_rotation_table_correctness_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_006() { p3_rotation_table_correctness_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_007() { p3_rotation_table_correctness_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_008() { p3_rotation_table_correctness_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_009() { p3_rotation_table_correctness_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_010() { p3_rotation_table_correctness_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_011() { p3_rotation_table_correctness_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_012() { p3_rotation_table_correctness_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_013() { p3_rotation_table_correctness_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_014() { p3_rotation_table_correctness_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_015() { p3_rotation_table_correctness_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_016() { p3_rotation_table_correctness_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_017() { p3_rotation_table_correctness_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_018() { p3_rotation_table_correctness_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p3_rotation_table_correctness_seed_019() { p3_rotation_table_correctness_impl(19); }
+    // --- END generated seeded property-mirror wrappers ---
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -1236,6 +1479,66 @@ pub(crate) mod tests {
         ("clearance::tests::max_computation_matches_python_builtin_max", max_computation_matches_python_builtin_max),
         ("clearance::tests::partition_empty_input_yields_empty_buckets", partition_empty_input_yields_empty_buckets),
         ("clearance::tests::dual_net_component_is_isolator", dual_net_component_is_isolator),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_000", p1_partition_totals_and_disjointness_seed_000),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_001", p1_partition_totals_and_disjointness_seed_001),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_002", p1_partition_totals_and_disjointness_seed_002),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_003", p1_partition_totals_and_disjointness_seed_003),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_004", p1_partition_totals_and_disjointness_seed_004),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_005", p1_partition_totals_and_disjointness_seed_005),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_006", p1_partition_totals_and_disjointness_seed_006),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_007", p1_partition_totals_and_disjointness_seed_007),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_008", p1_partition_totals_and_disjointness_seed_008),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_009", p1_partition_totals_and_disjointness_seed_009),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_010", p1_partition_totals_and_disjointness_seed_010),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_011", p1_partition_totals_and_disjointness_seed_011),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_012", p1_partition_totals_and_disjointness_seed_012),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_013", p1_partition_totals_and_disjointness_seed_013),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_014", p1_partition_totals_and_disjointness_seed_014),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_015", p1_partition_totals_and_disjointness_seed_015),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_016", p1_partition_totals_and_disjointness_seed_016),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_017", p1_partition_totals_and_disjointness_seed_017),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_018", p1_partition_totals_and_disjointness_seed_018),
+        ("clearance::tests::p1_partition_totals_and_disjointness_seed_019", p1_partition_totals_and_disjointness_seed_019),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_000", p2_rotation_negation_orthogonality_seed_000),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_001", p2_rotation_negation_orthogonality_seed_001),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_002", p2_rotation_negation_orthogonality_seed_002),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_003", p2_rotation_negation_orthogonality_seed_003),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_004", p2_rotation_negation_orthogonality_seed_004),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_005", p2_rotation_negation_orthogonality_seed_005),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_006", p2_rotation_negation_orthogonality_seed_006),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_007", p2_rotation_negation_orthogonality_seed_007),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_008", p2_rotation_negation_orthogonality_seed_008),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_009", p2_rotation_negation_orthogonality_seed_009),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_010", p2_rotation_negation_orthogonality_seed_010),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_011", p2_rotation_negation_orthogonality_seed_011),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_012", p2_rotation_negation_orthogonality_seed_012),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_013", p2_rotation_negation_orthogonality_seed_013),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_014", p2_rotation_negation_orthogonality_seed_014),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_015", p2_rotation_negation_orthogonality_seed_015),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_016", p2_rotation_negation_orthogonality_seed_016),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_017", p2_rotation_negation_orthogonality_seed_017),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_018", p2_rotation_negation_orthogonality_seed_018),
+        ("clearance::tests::p2_rotation_negation_orthogonality_seed_019", p2_rotation_negation_orthogonality_seed_019),
+        ("clearance::tests::p3_rotation_table_correctness_seed_000", p3_rotation_table_correctness_seed_000),
+        ("clearance::tests::p3_rotation_table_correctness_seed_001", p3_rotation_table_correctness_seed_001),
+        ("clearance::tests::p3_rotation_table_correctness_seed_002", p3_rotation_table_correctness_seed_002),
+        ("clearance::tests::p3_rotation_table_correctness_seed_003", p3_rotation_table_correctness_seed_003),
+        ("clearance::tests::p3_rotation_table_correctness_seed_004", p3_rotation_table_correctness_seed_004),
+        ("clearance::tests::p3_rotation_table_correctness_seed_005", p3_rotation_table_correctness_seed_005),
+        ("clearance::tests::p3_rotation_table_correctness_seed_006", p3_rotation_table_correctness_seed_006),
+        ("clearance::tests::p3_rotation_table_correctness_seed_007", p3_rotation_table_correctness_seed_007),
+        ("clearance::tests::p3_rotation_table_correctness_seed_008", p3_rotation_table_correctness_seed_008),
+        ("clearance::tests::p3_rotation_table_correctness_seed_009", p3_rotation_table_correctness_seed_009),
+        ("clearance::tests::p3_rotation_table_correctness_seed_010", p3_rotation_table_correctness_seed_010),
+        ("clearance::tests::p3_rotation_table_correctness_seed_011", p3_rotation_table_correctness_seed_011),
+        ("clearance::tests::p3_rotation_table_correctness_seed_012", p3_rotation_table_correctness_seed_012),
+        ("clearance::tests::p3_rotation_table_correctness_seed_013", p3_rotation_table_correctness_seed_013),
+        ("clearance::tests::p3_rotation_table_correctness_seed_014", p3_rotation_table_correctness_seed_014),
+        ("clearance::tests::p3_rotation_table_correctness_seed_015", p3_rotation_table_correctness_seed_015),
+        ("clearance::tests::p3_rotation_table_correctness_seed_016", p3_rotation_table_correctness_seed_016),
+        ("clearance::tests::p3_rotation_table_correctness_seed_017", p3_rotation_table_correctness_seed_017),
+        ("clearance::tests::p3_rotation_table_correctness_seed_018", p3_rotation_table_correctness_seed_018),
+        ("clearance::tests::p3_rotation_table_correctness_seed_019", p3_rotation_table_correctness_seed_019),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

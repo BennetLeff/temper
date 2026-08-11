@@ -205,6 +205,26 @@ mod zone_assignment_stage;
 mod zone_geometry_stage;
 pub(crate) mod zone_aware_slot_generation_stage;
 
+// Deterministic SplitMix64 generator shared by the `proptest`-mirroring
+// campaigns added to `timing`/`host_math`/`copper_length`/`clearance`/
+// `grid_stage`/`phased_assignment_stage`/`zone_aware_slot_generation_stage`/
+// `phased_component_assignment_validator_stage`'s own `tests` submodules (R19
+// U6: mirror the 45 proptest-dev-dependency properties onto the wasm32 tier
+// -- see `wasm_campaign_prng.rs`'s own header). Declared UNCONDITIONALLY here
+// -- the file's own top-level `#![cfg(any(test, feature = "wasm-registry"))]`
+// attribute gates its content instead (it has no purpose in a plain `cargo
+// build --features python` release binary, but is needed under plain `cargo
+// test` too, since the mirror tests run natively as well as on wasm32 -- both
+// run, per this campaign's whole point). Gating THIS declaration line with
+// the identical `#[cfg(any(test, feature = "wasm-registry"))]` string instead
+// would make `scripts/gen_wasm_test_registry.py`'s census misread the
+// declaration itself as a second, contentless test module up for
+// registration (it pattern-matches that exact string as a test gate) --
+// harmless (an accepted `no-test-functions` exclusion, `--check` still
+// passes) but confusing noise in `--census` output, so the gate lives on the
+// file instead.
+pub(crate) mod wasm_campaign_prng;
+
 // NOT gated on `python`. The wasm32 tier builds with --no-default-features,
 // so an added `python` gate here would silently exclude the registry and the
 // runner would fail to compile against it. `wasm-registry` is implied by every
