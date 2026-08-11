@@ -8,6 +8,29 @@
 **Status:** DEPLOY-READY. Everything below is prepared and locally verified; the
 only blocker is a human with Cloudflare credentials.
 
+> **Update 2026-08-10 (Phase 5 U1, R5.2) — §2's "one-command deploy" was
+> superseded because it did not work.** Three defects, all verified by running
+> it: (a) `make wasm-runner`'s flags (`--no-default-features` with no
+> `--features`) turned off `wasm-test-registry` and the crate has failed to
+> compile with E0432 since the per-family features landed; (b) the target
+> staged and deployed ONE module, while `packages/temper-worker/src/index.js`
+> imports all eight and the seven per-family Workers — the ones the tier
+> actually dispatches — were never touched by this path; (c) `stat -f %z` is
+> macOS-only. The Makefile targets are fixed and now stage all eight via
+> `scripts/stage_wasm_families.sh` and deploy all eight.
+>
+> **The current deploy path is `.github/workflows/wasm-tier-deploy.yml`**
+> (`workflow_dispatch` only; `gh workflow run wasm-tier-deploy.yml`). It runs
+> the staging script, smoke-runs the full-corpus module, deploys all 8 Workers
+> with `CLOUDFLARE_API_TOKEN` mapped from the repository secret **`CF_TOKEN`**
+> (the secret is not named `CLOUDFLARE_API_TOKEN`), and then verifies the
+> result with `tools/wasm/check_deployed_freshness.mjs`. §0's table below is
+> the 2026-08-07 state and is no longer current: the account is provisioned,
+> `account_id` IS committed in `wrangler.toml`, and a token with
+> `Workers Scripts:Edit` is in `CF_TOKEN`.
+>
+> §§3–5 (local smoke test, deployed smoke test, rollback, cost) still apply.
+
 This runbook is the operational counterpart of
 `docs/evidence/2026-08-07-phase1-u7-worker-scaffold.md`. The scaffold recorded
 the Worker design and the local probe numbers; this document records how to get
