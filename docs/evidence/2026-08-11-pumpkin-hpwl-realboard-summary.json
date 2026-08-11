@@ -1,0 +1,189 @@
+{
+  "provenance": {
+    "note": "2026-08-11 real-budget spike, real board pcb/temper.kicad_pcb"
+  },
+  "n_components": 169,
+  "n_constraints": 14217,
+  "n_hpwl_nets": 97,
+  "seeds": [
+    0,
+    1,
+    7
+  ],
+  "results": [
+    {
+      "engine": "ortools",
+      "mode": "feasibility",
+      "seed": 0,
+      "timeout_ms": 30000,
+      "status": "unknown",
+      "objective_value": 0.0,
+      "solve_time_ms": 25438.421127037145
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "feasibility",
+      "seed": 0,
+      "timeout_ms": 30000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "solve_time_ms": 361.92094697616994
+    },
+    {
+      "engine": "ortools",
+      "mode": "feasibility",
+      "seed": 1,
+      "timeout_ms": 30000,
+      "status": "unknown",
+      "objective_value": 0.0,
+      "solve_time_ms": 24428.606846020557
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "feasibility",
+      "seed": 1,
+      "timeout_ms": 30000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "solve_time_ms": 247.4382150103338
+    },
+    {
+      "engine": "ortools",
+      "mode": "feasibility",
+      "seed": 7,
+      "timeout_ms": 30000,
+      "status": "unknown",
+      "objective_value": 0.0,
+      "solve_time_ms": 22863.543045008555
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "feasibility",
+      "seed": 7,
+      "timeout_ms": 30000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "solve_time_ms": 234.64175302069634
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl",
+      "seed": 0,
+      "timeout_ms": 5000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 1122.699443018064
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl",
+      "seed": 0,
+      "timeout_ms": 5000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 224.6182939852588
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl",
+      "seed": 1,
+      "timeout_ms": 5000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 1354.5966069796123
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl",
+      "seed": 1,
+      "timeout_ms": 5000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 239.59560395451263
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl",
+      "seed": 7,
+      "timeout_ms": 5000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 1254.2053110082634
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl",
+      "seed": 7,
+      "timeout_ms": 5000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 215.85566096473485
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl",
+      "seed": 0,
+      "timeout_ms": 30000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 1432.2245530202053
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl",
+      "seed": 0,
+      "timeout_ms": 30000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 232.57308499887586
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl",
+      "seed": 1,
+      "timeout_ms": 30000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 1181.4484299975447
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl",
+      "seed": 1,
+      "timeout_ms": 30000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 248.0672350502573
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl",
+      "seed": 7,
+      "timeout_ms": 30000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 1447.7586729917675
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl",
+      "seed": 7,
+      "timeout_ms": 30000,
+      "status": "infeasible",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 234.1008980292827
+    }
+  ]
+}
