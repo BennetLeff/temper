@@ -515,14 +515,35 @@ value, obstacle-doubling monotonicity (see the note there on why
 per-area s² scaling does not apply to a per-cell trace-count model),
 and higher-safety reclassification monotonicity.
 
-**Recorded remainder (not faked):** `nx.minimum_cut` itself (networkx's
-Edmonds–Karp) still runs in Python on the bit-identical graph. Porting
-it would require replicating networkx's residual-network construction
-and bidirectional-BFS augmentation order to reproduce the exact
-`reachable`/`non_reachable` partition (the cut VALUE alone is an
-algorithm-invariant and would be easy; the partition is not). This is a
-separate, lower-risk follow-up; the graph build and capacity loops — the
-documented pure-Python hotspot — are the kernels migrated here.
+**Recorded remainder (resolved, not faked):** `nx.minimum_cut` itself
+(formerly networkx's Edmonds–Karp in Python) was migrated in Wave 4
+(commit `39711680e`, 2026-08-10) to the Rust kernel `min_cut_edmonds_karp`
+/ `min_cut_py` in this file. The earlier note that "porting it would
+require replicating networkx's residual-network construction and
+bidirectional-BFS augmentation order" was the correct caution: the cut
+VALUE is an algorithm invariant, but the `reachable`/`non_reachable`
+partition is flow-assignment-dependent. The port therefore replicated the
+reference's residual convention (directed graph: reverse residual edges at
+capacity 0 — the directed branch of `build_residual_network`) and the
+`minimum_cut` partition rule (remove saturated edges, then sink-rooted
+reverse BFS over the unsaturated residual — `shortest_path_length(R,
+target=t)`), and the result is pinned **bit-exact (value AND partition)**
+against `nx.minimum_cut(..., flow_func=edmonds_karp)` on the production
+graph family by `test_min_cut_value_and_partition_match_networkx_randomized`
+(+ tie-rich, production-scale, and determinism pins) in
+`packages/temper-placer/tests/router_v6/test_bottleneck_geometry_rust_differential.py`.
+Note networkx 3.6.1's `edmonds_karp_core` selects augmenting paths with a
+bidirectional BFS; the Rust kernel's plain forward FIFO BFS yields a
+different flow assignment in general, yet empirically the same partition on
+this graph family — that is why the differential, not a "same algorithm"
+argument, is the parity authority. Measured: 2457+ graph comparisons
+across the spike samples (395 randomized incl. production-scale + 42
+adversarial + 20 full-pipeline + 2000 volume run), 0 value or partition
+divergences, plus the permanent CI differential. **petgraph was evaluated and rejected
+for the migration** (documented-KEEP): petgraph 0.7.x has no partition
+API (`edmonds_karp` was removed; only `ford_fulkerson` returns value +
+edge flows) and its traversal order differs from networkx's, so reproducing
+networkx's partition on top of petgraph would duplicate this kernel.
 ## PBT Properties Verified
 ## Clearance Validator Geometry (REQ-SAFE-01) — Verification by Induction (Wave 3, 2026-07-31)
 
