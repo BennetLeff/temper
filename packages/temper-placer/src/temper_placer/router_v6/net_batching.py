@@ -60,14 +60,23 @@ process:
   needs everything ``_solve_subset`` needs to build and solve one batch's
   model. The *static-across-the-whole-run* pieces -- the board's source
   path (each child re-parses it once, cheap: ~40ms measured on the
-  production board) plus the skeleton graphs and a precomputed per-net
-  trace-width/clearance snapshot -- are written to a temp pickle file
-  **once**, before the batch loop, and re-read by every child from that
-  path (:func:`_write_shared_context`; see its docstring for why this is
-  a source path and a rules *snapshot*, not the live ``ParsedPCB``/
-  ``DesignRules`` objects -- they turned out to be Rust pyo3 pyclasses
-  with no pickle support, discovered by this failing loudly rather than
-  assumed). The *per-batch* pieces that actually vary -- the net-name
+  production board), a *projection* of the skeleton graphs, and a
+  precomputed per-net trace-width/clearance snapshot -- are written to a
+  temp pickle file **once**, before the batch loop, and re-read by every
+  child from that path (:func:`_write_shared_context`; see its docstring
+  for why this is a source path and a rules *snapshot*, not the live
+  ``ParsedPCB``/``DesignRules`` objects -- they turned out to be Rust
+  pyo3 pyclasses with no pickle support, discovered by this failing
+  loudly rather than assumed). The skeleton graphs cross as a *projection*
+  (:func:`_project_skeletons`), not the live ``ChannelSkeleton``/
+  ``SkeletonGraph`` objects, for the same reason: ``SkeletonGraph`` (the
+  Rust pyclass that replaced ``networkx.Graph`` here) turned out to be
+  unpicklable too -- not for lack of a ``__reduce__`` (it has one) but
+  because the pyo3 submodule it lives in is never registered in
+  ``sys.modules``, which is what pickle needs to resolve the class back
+  on load. See :func:`_project_skeletons`'s docstring for the full
+  mechanism and why the projection is verified sufficient. The
+  *per-batch* pieces that actually vary -- the net-name
   subset, this batch's already-shrunk ``channel_widths``, and the batch's
   diff pairs -- are passed directly as ``Process`` args (small). The
   child sends back only a **small, plain-dict summary** -- topology
@@ -490,6 +499,89 @@ def _solve_subset(
 # --------------------------------------------------------------------------
 
 
+@dataclass
+class _SkeletonGraphProjection:
+    """Picklable projection of a Rust ``SkeletonGraph`` (``.graph`` on a
+    ``ChannelSkeleton``), exposing only ``.edges``/``.nodes`` -- see
+    :func:`_project_skeletons` for why this narrower substitute is
+    sufficient and how that was verified rather than assumed.
+    """
+
+    edges: list[tuple[tuple[float, float], tuple[float, float]]]
+    nodes: list[tuple[float, float]]
+
+
+@dataclass
+class _ChannelSkeletonProjection:
+    """Picklable stand-in for ``ChannelSkeleton``, carrying only ``.graph``
+    (see :class:`_SkeletonGraphProjection`) -- the one attribute
+    ``_solve_subset``'s codepath ever reads off a skeleton. ``layer_name``/
+    ``total_length`` are dropped: nothing reachable from ``_solve_subset``
+    reads either (``layer_name`` is already the ``skeletons`` dict key
+    everywhere it matters).
+    """
+
+    graph: _SkeletonGraphProjection
+
+
+def _project_skeletons(skeletons: dict[str, Any]) -> dict[str, _ChannelSkeletonProjection]:
+    """Build a plain, picklable projection of *skeletons* carrying only
+    what a batch worker actually reads.
+
+    **Why a projection instead of pickling the real ``ChannelSkeleton``/
+    ``SkeletonGraph`` objects.** ``SkeletonGraph`` (``temper_design_bundle
+    _python.channel_skeleton_contracts.SkeletonGraph``, the Rust pyclass
+    that replaced ``networkx.Graph`` here) already implements ``__reduce__``/
+    ``__getstate__``/``__setstate__`` -- but pickling an instance still
+    raises ``PicklingError: Can't pickle ... SkeletonGraph: import of
+    module 'temper_design_bundle_python.channel_skeleton_contracts' failed``
+    (confirmed by reproduction, not assumed). The cause is one level up
+    from the class itself: pickle resolves a ``__reduce__``-returned class
+    by ``__import__(obj.__module__)`` then ``getattr(..., obj.__qualname__)``,
+    and ``channel_skeleton_contracts`` is a **submodule registered via
+    pyo3's ``parent_module.add_submodule(&sub)``** -- which makes it
+    reachable as ``temper_design_bundle_python.channel_skeleton_contracts``
+    (an attribute lookup) without ever inserting it into ``sys.modules``,
+    so a plain ``import temper_design_bundle_python.channel_skeleton_
+    contracts`` fails even though ``tdb.channel_skeleton_contracts`` works
+    fine. This is a crate-wide packaging gap (every pyo3 submodule this
+    crate registers has the same shape -- ``board_contracts``,
+    ``geometry_contracts``, ``topological_graph_contracts``, and others all
+    reproduce it too), out of scope to fix generally here.
+
+    **Why the narrower substitute is sufficient.** Tracing every
+    ``skeleton.graph.`` / ``sk.graph.`` read reachable from
+    ``_solve_subset`` -- ``ModelBuilder`` in
+    ``packages/temper-design-bundle/src/model_builder.rs``
+    (``skeleton_edges`` reads ``graph.edges``; ``create_via_vars`` reads
+    ``graph.nodes``) and the Python-side ``TEMPER_MODEL_TRACE``/R10
+    non-emptiness check in ``constraint_model.py`` (``sk.graph.nodes``) --
+    shows exactly those two attributes are read, both already plain lists
+    of ``(x, y)``/``(u, v)`` float tuples once materialised (no ``weight``,
+    no ``is_connected``/``connected_components`` call on this path). So
+    each child gets a small duck-typed stand-in exposing only those two
+    lists, the same pattern :class:`_DesignRulesStub` already uses for
+    ``design_rules``, rather than either (a) pickling the real Rust object
+    (blocked by the packaging gap above) or (b) having every child
+    re-derive the skeleton from scratch (the medial-axis extraction +
+    ``_ensure_skeleton_connectivity`` bridging pass this projection skips
+    costs ~10s/layer on the production board per
+    ``_ensure_skeleton_connectivity``'s own docstring -- paying that again
+    on every one of up to ~11 + N-retry subprocess launches would be far
+    more expensive than the ~40ms ``pcb`` re-parse this function already
+    accepts for a different reason).
+    """
+    return {
+        layer_name: _ChannelSkeletonProjection(
+            graph=_SkeletonGraphProjection(
+                edges=[(u, v) for (u, v) in skeleton.graph.edges],
+                nodes=list(skeleton.graph.nodes),
+            )
+        )
+        for layer_name, skeleton in skeletons.items()
+    }
+
+
 def _write_shared_context(pcb: ParsedPCB, skeletons: dict[str, Any]) -> str:
     """Pickle the *static-across-the-run* inputs once, to a temp file, and
     return its path. Every batch's (and every singleton retry's) child
@@ -540,6 +632,18 @@ def _write_shared_context(pcb: ParsedPCB, skeletons: dict[str, Any]) -> str:
     (:func:`_batch_worker_entry`), so none of this depends on the child's
     re-parse producing ``nets`` in the same list order the parent's
     already-sorted ``pcb.nets`` is in.
+
+    **``skeletons`` crosses as a projection, not the live objects, for the
+    same "trace what's actually read, ship only that" reasoning applied
+    above to ``pcb``/``design_rules``.** See :func:`_project_skeletons`
+    for why: the live ``ChannelSkeleton``/``SkeletonGraph`` objects turned
+    out to be unpicklable too, but for a different, narrower reason than
+    ``pcb``/``design_rules`` (a pyo3 submodule-packaging gap, not a
+    missing ``__reduce__`` -- ``SkeletonGraph`` has one), discovered by
+    this failing loudly (a real ``PicklingError`` reproduced via
+    ``scripts/route_board.py --net-batching``) rather than assumed safe
+    just because the pre-Rust-migration ``networkx.Graph`` it replaced
+    pickled fine.
     """
     fd, path = tempfile.mkstemp(prefix="temper_batch_ctx_", suffix=".pkl")
     source_path = getattr(pcb, "source_path", None)
@@ -553,7 +657,7 @@ def _write_shared_context(pcb: ParsedPCB, skeletons: dict[str, Any]) -> str:
                 "net_rules": net_rules,
                 "default_trace_width_mm": float(pcb.design_rules.default_trace_width_mm),
                 "default_clearance_mm": float(pcb.design_rules.default_clearance_mm),
-                "skeletons": skeletons,
+                "skeletons": _project_skeletons(skeletons),
             },
             f,
             protocol=pickle.HIGHEST_PROTOCOL,
