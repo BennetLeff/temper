@@ -156,6 +156,7 @@
 // that catch is what runs).
 mod board_state;
 mod apply_placements_stage;
+mod channel_mapping;
 mod clearance;
 mod component_assignment_stage;
 mod config_attach_stage;
@@ -200,6 +201,7 @@ mod zone_aware_slot_generation_stage;
 // Append-only per the U4 dispatch; the individual modules stay private.
 pub use apply_placements_stage::ApplyPlacementsStage;
 pub use board_state::BoardState;
+pub use channel_mapping::{ChannelMappingStage, ChannelWidthsStage};
 pub use clearance::{
     ClearanceCheckStage, ClearanceEngineStage, CreepageCheckStage, DomainClearanceStage,
     IsolationBarrierStage,
@@ -310,6 +312,12 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(clearance::keepaway_constraints_py, m)?)?;
     m.add_function(wrap_pyfunction!(clearance::intra_footprint_conflicts_py, m)?)?;
     m.add_function(wrap_pyfunction!(clearance::audit_domain_clearance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(channel_mapping::run_channel_mapping, m)?)?;
+    m.add_function(wrap_pyfunction!(channel_mapping::run_fallback_channel_path, m)?)?;
+    m.add_function(wrap_pyfunction!(channel_mapping::run_validated_two_pad_terminals, m)?)?;
+    m.add_function(wrap_pyfunction!(channel_mapping::run_expand_all_pad_tree, m)?)?;
+    m.add_function(wrap_pyfunction!(channel_mapping::run_assign_layer, m)?)?;
+    m.add_function(wrap_pyfunction!(channel_mapping::run_channel_widths_edt, m)?)?;
     Ok(())
 }
 
