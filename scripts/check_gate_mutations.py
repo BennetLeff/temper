@@ -22,21 +22,30 @@ For every (gate, mutation, canary) triple in ``ci-corpus/mutations.yaml``:
                     cannot see the weakening. This is the finding R42
                     exists to surface: a blind spot in the gate's own
                     test coverage.
-       UNVERIFIED  the baseline itself did not match expectations, the
-                    mutation was NOT APPLICABLE (source drifted since the
-                    manifest entry was authored), or running the mutant
-                    raised an exception the canary did not anticipate.
+       UNVERIFIED  the baseline itself did not match expectations, or
+                    running the mutant raised an exception the canary did
+                    not anticipate.
+       NOT_APPLICABLE  the mutation's locator (function/index/line_hint)
+                    no longer matches the gate's current source -- the
+                    gate drifted since the manifest entry was authored, so
+                    the mutation was never actually applied and the triple
+                    proves nothing. Distinct from UNVERIFIED (whose gate
+                    imports fine but disagrees with the canary) so the two
+                    failure modes are triaged differently, but it fails
+                    the run exactly like UNVERIFIED does -- an entry that
+                    never mutated anything cannot be reported as evidence
+                    of anything.
        EQUIVALENT  the triple carries a manifest-declared
                     ``declared_equivalent`` justification: the mutation is
                     provably behavior-preserving for this canary and no
                     canary could ever kill it without becoming a
                     tautology. Never used to hide a real gap -- see KTD4.
 
-Any SURVIVED or UNVERIFIED verdict fails the run (exit 1), each printed by
-name with the mutation that survived and, where known, what a stronger
-canary would need to exercise to kill it. Zero registered triples is
-itself a failure (fail-closed, matching every other gate in this repo's
-inventory -- an empty manifest is not "0 survivors").
+Any SURVIVED, UNVERIFIED, or NOT_APPLICABLE verdict fails the run (exit 1),
+each printed by name with the mutation that survived and, where known, what
+a stronger canary would need to exercise to kill it. Zero registered
+triples is itself a failure (fail-closed, matching every other gate in this
+repo's inventory -- an empty manifest is not "0 survivors").
 
 This module never mutates a file the repository tracks: every mutant is
 written by ``scripts.gate_mutate.write_mutant`` to a fresh ``tempfile``
@@ -120,6 +129,10 @@ class SweepReport:
     @property
     def equivalent(self) -> list[TripleResult]:
         return [r for r in self.results if r.verdict == VERDICT_EQUIVALENT]
+
+    @property
+    def not_applicable(self) -> list[TripleResult]:
+        return [r for r in self.results if r.verdict == VERDICT_NOT_APPLICABLE]
 
     def mutation_score(self) -> float:
         """killed / (killed + survived) -- UNVERIFIED and EQUIVALENT are
@@ -365,12 +378,14 @@ def print_report(report: SweepReport) -> None:
         survived = sum(1 for r in results if r.verdict == VERDICT_SURVIVED)
         unverified = sum(1 for r in results if r.verdict == VERDICT_UNVERIFIED)
         equivalent = sum(1 for r in results if r.verdict == VERDICT_EQUIVALENT)
+        not_applicable = sum(1 for r in results if r.verdict == VERDICT_NOT_APPLICABLE)
         scored = killed + survived
         score = (killed / scored) if scored else 1.0
         print(f"=== {gate} -- mutation score {score:.2f} "
               f"({killed} killed / {scored} scored"
               f"{f', {equivalent} equivalent' if equivalent else ''}"
-              f"{f', {unverified} unverified' if unverified else ''}) ===")
+              f"{f', {unverified} unverified' if unverified else ''}"
+              f"{f', {not_applicable} not_applicable' if not_applicable else ''}) ===")
         for r in results:
             marker = {
                 VERDICT_KILLED: "PASS",
@@ -387,7 +402,8 @@ def print_report(report: SweepReport) -> None:
         print()
 
     print(f"OVERALL: {len(report.killed)} killed, {len(report.survived)} survived, "
-          f"{len(report.unverified)} unverified, {len(report.equivalent)} equivalent "
+          f"{len(report.unverified)} unverified, {len(report.equivalent)} equivalent, "
+          f"{len(report.not_applicable)} not_applicable "
           f"-- mutation score {report.mutation_score():.4f}")
 
     if report.survived:
@@ -397,8 +413,14 @@ def print_report(report: SweepReport) -> None:
             print(f"    {r.detail}")
 
     if report.unverified:
-        print("\nUNVERIFIED (baseline broken, mutation not applicable, or mutant crashed):")
+        print("\nUNVERIFIED (baseline broken or mutant crashed):")
         for r in report.unverified:
+            print(f"  {r.gate} :: {r.mutation_id}: {r.detail}")
+
+    if report.not_applicable:
+        print("\nNOT APPLICABLE (locator drifted -- mutation never actually applied, "
+              "re-locate before this triple can prove anything):")
+        for r in report.not_applicable:
             print(f"  {r.gate} :: {r.mutation_id}: {r.detail}")
 
 
@@ -428,6 +450,7 @@ def main(argv: list[str] | None = None) -> int:
         len(report.results) > 0
         and not report.survived
         and not report.unverified
+        and not report.not_applicable
     )
     return EXIT_OK if ok else EXIT_FAIL
 

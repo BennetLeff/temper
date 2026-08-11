@@ -1585,6 +1585,32 @@ jobs:
         # without kicad-cli or the compiled netlist).
         run: uv run python scripts/check_board_defect_corpus.py
 
+      - name: Gate-mutation sweep (R42 canary-flip oracle)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # docs/plans/2026-08-02-035-feat-gate-mutation-testing-plan.md. For
+        # every (gate, mutation, canary) triple in ci-corpus/mutations.yaml,
+        # weakens a fail-closed gate's own committed source (scratch tempfile
+        # only -- scripts/gate_mutate.py never touches the checked-out file)
+        # and asserts the gate's canary notices: KILLED, or SURVIVED (a real
+        # blind spot -- see scripts/check_gate_mutations.py's own docstring).
+        # This job already builds/installs everything this sweep needs
+        # (temper_placer -> temper_drc_rs) and already runs six of the seven
+        # targeted gates individually above, so no extra setup is required.
+        # Never `continue-on-error`, matching this file's convention and this
+        # gate's own exit-code contract (0 only when every triple is KILLED
+        # or a declared EQUIVALENT; any SURVIVED, UNVERIFIED, or NOT_APPLICABLE
+        # fails closed). First wired 2026-08-11 at 19/19 KILLED (mutation
+        # score 1.0000) -- see docs/evidence/2026-08-11-phase3-mutation-state-of-play.md,
+        # which also records a real regression found and fixed the same
+        # session: the trailer-check mutation had silently gone SURVIVED
+        # between 2026-08-07 and 2026-08-11 because a later, unrelated
+        # hardening of DrcRatchet.validate_raise_evidence (real git-commit
+        # resolvability, not just SHA shape) made this gate's own canary
+        # fixture's placeholder commit hash unresolvable, masking the
+        # trailer-check mutant behind a different, unrelated failure --
+        # fixed in the canary fixture, not the gate.
+        run: uv run python scripts/check_gate_mutations.py
+
   # Split out of Core Tests 2026-07-28. Gates that compare two representations
   # of the same fact and fail on drift: generated code vs its manifest, a
   # derived doc vs its source doc, firmware constants vs elec/src/main.ato,

@@ -48,6 +48,21 @@ def _git(args: list[str], cwd: Path) -> None:
     subprocess.run(["git", *args], cwd=str(cwd), check=True, capture_output=True, text=True)
 
 
+def _git_output(args: list[str], cwd: Path) -> str:
+    result = subprocess.run(["git", *args], cwd=str(cwd), check=True, capture_output=True, text=True)
+    return result.stdout.strip()
+
+
+def _head_sha(repo: Path) -> str:
+    """The real, resolvable commit SHA at HEAD of *repo* -- used by seed
+    fixtures that need a ``measured_at_commit`` provenance value the real
+    gate's git-cat-file resolvability check (``DrcRatchet.
+    validate_raise_evidence`` via ``_verify_commits_exist``) will actually
+    accept, as opposed to a syntactically-valid-but-dangling placeholder
+    like ``"a" * 40``."""
+    return _git_output(["rev-parse", "HEAD"], repo)
+
+
 def _init_repo(root: Path) -> Path:
     _git(["init", "-q", "-b", "work"], root)
     _git(["config", "user.email", "canary@example.com"], root)
@@ -122,10 +137,27 @@ def seed_unapproved_raise_with_valid_evidence(gate_module) -> str:
     EXIT_UNAPPROVED_RAISE, and the trailer inversion survives invisibly.
     With good evidence already in place, EXIT_OK vs EXIT_UNAPPROVED_RAISE
     depends on the trailer check alone.
+
+    ``measured_at_commit`` must be a REAL, resolvable commit SHA in *this*
+    throwaway repo, not merely 40 well-formed hex characters: re-located
+    2026-08-11 after `DrcRatchet.validate_raise_evidence` gained its own
+    `git cat-file --batch-check` resolvability check (previously that
+    verification lived only in `check_measurement_provenance.py` -- see
+    that gate's own `verify_commits_exist`, and the dangling-commit
+    incident AGENTS.md records). The placeholder `"a" * 40` this fixture
+    used before that landed satisfied the old shape-only check but is not
+    an object in ANY repo, so once resolvability started being enforced
+    here too, this seed started failing `validate_raise_evidence` for an
+    unrelated reason (an unresolvable commit) regardless of the trailer
+    mutation -- silently reopening exactly the "coarse oracle" blind spot
+    this fixture was written to close (see this module's own history:
+    `docs/evidence/2026-08-07-gate-mutation-sweep.md` finding 3). Using
+    the base commit's real HEAD sha restores the isolation.
     """
     with tempfile.TemporaryDirectory() as td:
         repo = Path(td)
         repo = _base_repo(repo)
+        real_commit_sha = _head_sha(repo)
         board_content = b"canary-board-content"
         board_path = repo / "pcb" / "temper.kicad_pcb"
         board_path.parent.mkdir(parents=True, exist_ok=True)
@@ -139,7 +171,7 @@ def seed_unapproved_raise_with_valid_evidence(gate_module) -> str:
             "clearance": {"observed": [499, 500, 501], "samples": 120, "note": "only nondeterministic category"}
         }
         entry["provenance"] = {
-            "measured_at_commit": "a" * 40,
+            "measured_at_commit": real_commit_sha,
             "dirty": False,
             "inputs": [{"path": "pcb/temper.kicad_pcb", "sha256": board_sha}],
             "tool_versions": {"kicad-cli": "10.0.4"},

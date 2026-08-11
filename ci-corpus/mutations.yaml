@@ -350,7 +350,20 @@ mutations:
     axis: condition-invert
     function: evaluate
     match: if-invert
-    index: 6
+    # Re-located 2026-08-11: `ast.walk`'s BFS order placed this at index 6
+    # when the mutation was first authored (2026-08-07), but re-running
+    # scripts/gate_mutate.py's own locator against HEAD reports this
+    # `if mismatches:` at index 5 -- a nested `if` earlier in the function
+    # (inside the artifact-loading loop) now sorts after it in `ast.walk`'s
+    # per-depth ordering, shifting every later top-level `if` in `evaluate`
+    # down by one. The target line's TEXT is unchanged (still verbatim
+    # `if mismatches:` at line 495); only its walk-order index drifted --
+    # confirmed by `check_gate_mutations.py` itself, which reported this
+    # entry NOT APPLICABLE (line_hint not found on the index-6 line, which
+    # had become `if not TICKET_PATTERN.search(comment):`) rather than
+    # silently mutating the wrong line, exactly as the drift guard is
+    # designed to do.
+    index: 5
     line_hint: "if mismatches:"
     description: >-
       Invert `if mismatches:` so a record with real content-hash
