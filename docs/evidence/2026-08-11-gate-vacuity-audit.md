@@ -9,7 +9,7 @@ files other agents are actively editing.
 
 ## Summary — the count first
 
-**94 gate/checker/ratchet units audited** across `scripts/check_*.py`,
+**115 gate/checker/ratchet units audited** across `scripts/check_*.py`,
 `scripts/*_gate.py`, `packages/temper-placer/src/temper_placer/regression/`,
 the `.github/workflows/` steps that invoke them (all 70 `continue-on-error`
 sites, and `required_contexts` vs. every real job name **in all 31 workflow
@@ -18,10 +18,10 @@ other gates fail when the guarded thing breaks.
 
 | Class | Count | |
 |---|---|---|
-| **SOUND** | 76 | genuinely checks what it claims |
+| **SOUND** | 94 | genuinely checks what it claims |
 | **VACUOUS** | 9 | cannot fail, or cannot fail for the reason claimed |
-| **MISCALIBRATED** | 6 | fires on the wrong threshold, category, extension, or scan set |
-| **MISNAMED** | 3 | measures something real, but not what the name/docstring promises |
+| **MISCALIBRATED** | 8 | fires on the wrong threshold, category, extension, or scan set |
+| **MISNAMED** | 4 | measures something real, but not what the name/docstring promises |
 
 Plus **3 CI wiring gaps** (findings 11, 12, 21) — not a property of any one
 script, but of how correct gates are connected — and **9 unverified leads**,
@@ -33,18 +33,23 @@ recorded below and deliberately *not* counted as findings.
 > `regression/` modules the first pass had not listed individually, and
 > widened the `required_contexts` cross-check from two workflow files to all
 > 31 — adding findings 8–21. The second pass therefore deepened the same
-> population far more than it widened it; 94 is the union, not 83 + 29.
+> population far more than it widened it; 94 was the union, not 83 + 29. A
+> third pass took the provenance / manifest / BOM / fault-tree slice (33
+> units, 21 of them not individually examined before) and added findings
+> 22–24.
 >
-> **The second pass falsified one of the first pass's reassuring claims** —
-> see finding 21 and the amended bullet under "What the audit did not find."
-> The correction is called out rather than quietly edited, because the
-> mechanism by which the first pass got it wrong — cross-checking
-> `required_contexts` against only the two workflow files that happened to
-> contain the required jobs — is itself an instance of the failure class this
-> document is about: a sound check reporting a confident negative over a scan
-> set narrower than its claim.
+> **Each pass falsified a reassuring claim the pass before it had made.** The
+> second broke "no second `required_contexts` gap" (finding 21) and "no
+> exit-code swallowing" (finding 10); the third, together with findings 8, 15
+> and 17, broke "no vacuity in the mutation-testing machinery itself." All
+> three are amended in place under "What the audit did not find" rather than
+> quietly edited, because the mechanism that produced each — a sound check
+> reporting a confident negative over a scan set narrower than its claim — is
+> itself the failure class this document is about. An audit of vacuous gates
+> is not exempt from being vacuous; it took three passes for that to stop
+> being an abstract worry.
 
-**The headline is the 76, not the 18.** This machinery is overwhelmingly
+**The headline is the 94, not the 21.** This machinery is overwhelmingly
 sound, and it is sound in a specific and unusual way: gates here
 consistently *fail closed* on the exact edge cases that produced today's
 seven incidents. `check_domain_partition.py` carries explicit
@@ -59,10 +64,12 @@ their docstrings and explain what was changed. Today's seven were largely
 the unlucky tail of a body of work that has already internalized this
 failure class.
 
-That said, the seven-that-were-found were not the whole tail. Eighteen more
-survive, plus three wiring gaps. The top two are directly on the safety path — an HV net-integrity
-gate and the regenerated-board DRC acceptance gate — and both are CI-wired,
-hard-gating, and green today.
+That said, the seven-that-were-found were not the whole tail. Twenty-one more
+survive, plus three wiring gaps. The top three are directly on the safety
+path — an HV net-integrity gate, the regenerated-board DRC acceptance gate,
+and a **required, merge-blocking** mutation gate that passes on an encoder
+whose enforcement has been deleted. The first two are CI-wired, hard-gating,
+and green today.
 
 A structural note that ties most of the findings together: **they are gates
 that scan for a Python construct the Rust migration removed, or gates that
@@ -560,9 +567,11 @@ EXIT AFTER GUTTING: 0
 ```
 
 The gate passes, unchanged, on an encoder with no enforcement left in it. The
-register still testifies that eleven R4 mutations were killed by defenses that
-no longer exist. What the gate actually verifies is **register bookkeeping**;
-what its name, docstring and R32 framing claim is **that the defenses hold**.
+register still testifies that `keepout`'s R4 mutation set was discharged — 1
+`killed`, 3 `non-applicable` — by defenses that no longer exist, and the
+non-empty `killed` list is the entire basis on which the gate reports OK.
+What the gate actually verifies is **register bookkeeping**; what its name,
+docstring and R32 framing claim is **that the defenses hold**.
 
 **Second defect, same file: it is red today for a reason unrelated to any of
 this.** Confirmed on `main`, not merely locally:
@@ -869,8 +878,6 @@ failure of the closure measurement rather than as zero errors.
 
 ---
 
----
-
 ### 15. `check_vacuous_gates.py` misses the negated form of the idiom it exists to catch — MISCALIBRATED (meta)
 
 `AGGREGATORS = {"all"}` (`scripts/check_vacuous_gates.py:236`). The docstring
@@ -925,8 +932,6 @@ another `len()`.
 
 ---
 
----
-
 ### 16. `should_skip()`'s source fingerprint hashes a deleted directory and is blind to the crate holding the real constraint logic — MISCALIBRATED
 
 `packages/temper-placer/src/temper_placer/regression/fingerprint.py:44`:
@@ -956,8 +961,6 @@ language the logic migrated *to* excluded by the glob.
 
 ---
 
----
-
 ### 17. `phase5_hubs_mutations.py` always exits 0 regardless of catch rate — VACUOUS
 
 `main()`'s only non-zero return path is an infrastructure check ("suites still
@@ -980,8 +983,6 @@ The comment above it explicitly cites `check_vacuous_gates.py` as the reason
 the guard is there. The guard does not work, and the linter it cites cannot see
 that it does not work. Not currently exploited — `MUTATIONS` has 11 real
 entries — but broken by construction. **(MISCALIBRATED)**
-
----
 
 ---
 
@@ -1012,8 +1013,6 @@ still needed" warning on 2026-09-06.
 
 ---
 
----
-
 ### 19. Two hardcoded-filter gates, same shape as the R27 bug — MISCALIBRATED
 
 **(a) `check_workflow_pr_triggers.py:102` globs `*.yml` only.** GitHub Actions
@@ -1040,8 +1039,6 @@ is not one of the three. Not a live false-pass (that file already references
 `roundrect_ratio`/`shape`), but the detection mechanism is a name allowlist with
 the same structural weakness as the R27 category allowlist, and would silently
 skip any newly-named radius-reimplementing kernel.
-
----
 
 ---
 
@@ -1080,9 +1077,47 @@ with hard-failing steps (verified by reading each file's `on:` block):
 | `placer-regression.yml` | `Placer Regression` | corpus baseline changes without `Ceiling-Approval:` |
 | `firmware-tests.yml` | `Firmware Tests` | R29 invariant proofs, R28 exhaustive state-machine reachability, fault-list consistency (finding 11) |
 
-Two details sharpen this.
+Three details sharpen this.
 
-**(a) `scripts/ci_check_drc.py` runs in exactly one place repo-wide** — and it
+**(a) `golden-check.yml` is not hypothetical — it is red right now, on a real
+regression, while PRs merge through it.** Confirmed live, not from a synthetic
+input:
+
+```
+$ gh run list --workflow=golden-check.yml --limit 8
+in_progress  ...  fix/netclass-assignments-full-sync   pull_request  ...
+completed  cancelled  ...  fix/netclass-assignments-full-sync   pull_request  ...
+completed  failure    fix(drc): correct creepage's noise-headroom ...   main    push  ...
+completed  failure    fix(drc): correct creepage's noise-headroom ...   fix/drc-creepage-noise-headroom  pull_request  ...
+completed  failure    fix(pcb): full sync of kicad_pro netclass_assignments ...  pull_request ...
+completed  failure    fix(pcb): correct kicad_pro netclass case/coverage mismatch ...  pull_request ...
+completed  failure    feat(router): first real In1.Cu ground-plane generator for gnd (#1022)  main  push  ...
+completed  failure    spike: keepout-before-pour ...  pull_request  ...
+```
+
+Every run in this window is `failure`, on both `pull_request` and `push:
+main`. The failure is real, not infrastructure — `gh run view <id>
+--log-failed`:
+
+```
+=== Regression Suite Results ===
+Total: 2, Passed: 0, Failed: 1, Skipped: 1
+  [FAIL] temper_production
+         REGRESSION: drc_warnings: 489.0 vs baseline 472.0 (+17.0)
+```
+
+The gate is doing exactly what it says on the tin — a real +17-warning DRC
+regression on the production board, correctly detected, correctly reported
+`failure`. And #1021, #1022, #1026 and #1027 all merged to `main` while this
+exact workflow was red on that same commit (confirmed: the `push: main` run
+for #1027's merge commit, `31541582210`, started three seconds after the PR
+merged and reported `failure` for the identical reason). This is the
+sharpest evidence in this document that finding 21's class is not a
+theoretical gap: a fail-closed, hard-gating, unmasked DRC check for the
+production mains board is failing in the open, continuously, and has no
+mechanical path to blocking anything.
+
+**(b) `scripts/ci_check_drc.py` runs in exactly one place repo-wide** — and it
 is not the job most readers would assume:
 
 ```
@@ -1101,7 +1136,7 @@ subject of two of today's seven — has no path to blocking a merge.
 `.github/required-checks.json`'s `required_contexts`, so neither copy can
 block a merge."*
 
-**(b) The `Board, Provenance & Requirements Gates` gap AGENTS.md documents has
+**(c) The `Board, Provenance & Requirements Gates` gap AGENTS.md documents has
 a materially larger blast radius than AGENTS.md states.** AGENTS.md records
 that job's exclusion in the context of the DRC-ceiling and
 measurement-provenance checks. But *every* invocation of
@@ -1127,6 +1162,136 @@ PR): add the relevant contexts to `required_contexts`. Read lead 9 first:
 `regression`, so adding that bare string without first giving each job a
 distinguishing `name:` would let the aggregator observe the wrong workflow's
 verdict.
+
+---
+
+### 22. `TICKET_PATTERN` accepts the placeholder the gates' own `--init` writes — the "allowlist cannot silently grow" claim is decorative
+
+**Claims.** `check_evidence_provenance.py`'s docstring (`:99-104`): every
+allowlist entry "must carry a `# TODO: temper-xxx` ticket reference — the
+allowlist cannot silently grow: `--check-shrink` fails any entry added since
+`origin/main` without a ticket." The same ticket requirement is stated by
+`check_coverage_gate.py` and `check_physics_provenance.py`.
+
+**Mechanism** — `scripts/_lib/gate_allowlist.py:14`:
+
+```python
+TICKET_PATTERN: re.Pattern[str] = re.compile(r"TODO:\s*temper-(?:\d+|xxx)")
+```
+
+The literal `temper-xxx` — the *placeholder*, not a ticket — is an accepted
+alternation branch. And it is precisely the string each gate's own `--init`
+emits (`check_coverage_gate.py:280,285`,
+`check_evidence_provenance.py:571,584`, `check_physics_provenance.py:33`). The
+requirement is satisfied by default, by the tooling, with no human ever
+opening a ticket.
+
+This is not theoretical drift; it is the steady state:
+
+```
+.coverage-allowlist              entries=  799  placeholder=798  real-ticket=  1
+.evidence-provenance-allowlist   entries=   58  placeholder= 58  real-ticket=  0
+```
+
+**Proof** — a brand-new unprovenanced evidence doc, admitted by a one-line
+placeholder entry, against the real script and scratch inputs:
+
+```
+$ cat tk/allowlist
+2026-08-11-brand-new-unprovenanced-claim.md  # TODO: temper-xxx
+
+$ .venv/bin/python scripts/check_evidence_provenance.py \
+      --evidence-dir tk/docs/evidence --allowlist tk/allowlist
+Scanned 1 file(s): 0 with real commit provenance, 1 allowlisted UNKNOWN, 0 violation(s).
+Evidence provenance gate PASSED
+exit = 0
+```
+
+Note what this does *not* say. `check_evidence_provenance.py` is otherwise
+the strongest gate in its slice — resolvable-SHA verification, tool-error on
+a shallow clone, tool-error on an empty directory. The seam is one regex
+branch shared by four gates. It is also the exact mechanism this repo already
+worried about in the abstract: a growth ratchet whose escape hatch is the
+default.
+
+**One-line fix** (not applied): drop `|xxx` from the alternation, and let
+`--init` emit a string that fails until a human replaces it.
+
+---
+
+### 23. `check_verdict_coverage.py`'s headline "R7 completion: 100.0%" is arithmetically incapable of reporting anything else
+
+**Mechanism** — `scripts/check_verdict_coverage.py:263-297`. Files matching no
+ledger entry go to `unmatched` and `continue` — they never enter
+`loc_by_verdict`. The headline is then computed over *matched* LOC only:
+
+```python
+total_loc = sum(loc_by_verdict.values())              # :286  matched LOC only
+decided   = total_loc - loc_by_verdict["UNDECIDED"]   # :296
+pct       = (decided / total_loc * 100) if total_loc  # :297
+```
+
+`docs/wave4-verdicts.yaml` declares zero `UNDECIDED` R7 surfaces, so the
+subtrahend is identically 0 and `pct` is identically 100.0 regardless of how
+much of the tree is covered. The docstring states the opposite rule —
+"anything unmatched is UNDECIDED" (`:8`) — and the *removal* half of the same
+file implements it correctly (`:336` `all_loc`, `:347` an explicit `unmatched`
+row). Only the R7 half does not.
+
+**Proof** (real ledger, real file inventory, surface list truncated in-process):
+
+```
+--- REAL ledger (58 surfaces):    1958 files ->  R7 completion: 100.0%   (2 unmatched)
+--- GUTTED ledger (1 surface):    1958 files ->  R7 completion: 100.0%   (1923 unmatched)
+--- EMPTY ledger (0 surfaces):    1958 files ->  R7 completion:   0.0%   (1958 unmatched)
+```
+
+1923 of 1958 files uncovered still reads **100.0%**.
+
+**Classification: MISNAMED metric, not a vacuous gate.** The exit code stays
+correct — unmatched files still fail the run (exit 1) — so nothing merges on
+the strength of this number. It earns a place here for the same reason
+`nets_carrying_copper()` did in today's original seven: "R7 completion:
+100.0%" is exactly the kind of figure that gets quoted into a plan or an
+evidence doc, where it will be read as "100% of the tree has a verdict"
+rather than its true meaning, "of the LOC that matched something, 100%
+matched something."
+
+---
+
+### 24. `vulture_gate.py`'s baseline suppresses dead code by identifier *name*, repo-wide
+
+**Mechanism** — `scripts/vulture_gate.py:160-171` computes
+`new = reported - baseline`, where `reported` is
+`vulture packages/ scripts/deadcode-baseline.py`. A vulture whitelist
+suppresses by **name**, globally — not by `(file, line)`. Any new dead item
+whose identifier collides with one of the 58 baselined names is absent from
+`reported` and can never enter `new`. The baselined names include
+`exc_type`, `exc_val`, `exc_tb`, `attempt`, `refresh`, `min_coverage`,
+`ordering_name`, `auto_group` — so, for instance, every future
+`__exit__(self, exc_type, exc_val, exc_tb)` with unused parameters is
+invisible to this gate anywhere in the repo.
+
+**Proof** (scratch package, real `scripts/deadcode-baseline.py`):
+
+```
+--- vulture packages/ --min-confidence 60                    (raw)
+newmod.py:4:  unused function 'leaks_a_name_already_in_the_baseline'
+newmod.py:8:  unused variable 'grad_norm'
+newmod.py:12: unused function 'leaks_a_novel_name'
+newmod.py:13: unused variable 'brand_new_dead_local'
+
+--- vulture packages/ baseline.py --min-confidence 60        (the `reported` run)
+newmod.py:4:  unused function 'leaks_a_name_already_in_the_baseline'
+newmod.py:12: unused function 'leaks_a_novel_name'
+newmod.py:13: unused variable 'brand_new_dead_local'
+```
+
+`grad_norm` — baselined at `cli/__init__.py:400`, a **different file** — is
+silently suppressed in a brand-new module. The ratchet's *shrink* side is
+exact (`stale = baseline - raw`), so the gate still pays down correctly; only
+the "no new dead code" side is widened, by however many names the baseline
+happens to contain.
 
 ---
 
