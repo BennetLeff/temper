@@ -46,7 +46,7 @@ from typing import Any
 
 import pytest
 import temper_drc_rs as _tdrc
-from hypothesis import given, settings
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 # Rust symbols under test — must exist or this file fails to collect (RED).
@@ -603,9 +603,34 @@ def item(draw):
 def violation(draw):
     n_items = draw(st.integers(min_value=0, max_value=4))
     return {
-        "type": draw(st.one_of(st.none(), st.sampled_from(["clearance", "shorting_items", "courtyards_overlap", "copper_edge_clearance", "track_width"]))),
-        "severity": draw(st.one_of(st.none(), st.sampled_from(["error", "warning", "ERROR", "WARNING"]))),
-        "description": draw(st.sampled_from(["Clearance violation", "Courtyards overlap", "Board edge clearance violation", "", "x"])),
+        "type": draw(
+            st.one_of(
+                st.none(),
+                st.sampled_from(
+                    [
+                        "clearance",
+                        "shorting_items",
+                        "courtyards_overlap",
+                        "copper_edge_clearance",
+                        "track_width",
+                    ]
+                ),
+            )
+        ),
+        "severity": draw(
+            st.one_of(st.none(), st.sampled_from(["error", "warning", "ERROR", "WARNING"]))
+        ),
+        "description": draw(
+            st.sampled_from(
+                [
+                    "Clearance violation",
+                    "Courtyards overlap",
+                    "Board edge clearance violation",
+                    "",
+                    "x",
+                ]
+            )
+        ),
         "items": [draw(item()) for _ in range(n_items)],
     }
 
@@ -655,15 +680,31 @@ def _build_schedule_pair(cfg: dict):
 def gate_metrics(draw):
     """A duck-typed metrics namespace covering every gate's fields."""
     return SimpleNamespace(
-        overlap_loss=draw(st.floats(min_value=-10.0, max_value=100.0, allow_nan=False, allow_infinity=False)),
-        boundary_loss=draw(st.floats(min_value=-10.0, max_value=100.0, allow_nan=False, allow_infinity=False)),
+        overlap_loss=draw(
+            st.floats(min_value=-10.0, max_value=100.0, allow_nan=False, allow_infinity=False)
+        ),
+        boundary_loss=draw(
+            st.floats(min_value=-10.0, max_value=100.0, allow_nan=False, allow_infinity=False)
+        ),
         hv_clearance_violations=draw(st.integers(min_value=0, max_value=20)),
         zone_violations=draw(st.integers(min_value=0, max_value=20)),
         convergence_epoch=draw(st.integers(min_value=0, max_value=1000)),
-        routing_completion_percent=draw(st.floats(min_value=-5.0, max_value=100.0, allow_nan=False, allow_infinity=False)),
+        routing_completion_percent=draw(
+            st.floats(min_value=-5.0, max_value=100.0, allow_nan=False, allow_infinity=False)
+        ),
         drc_errors=draw(st.integers(min_value=0, max_value=50)),
-        failure_rate=draw(st.one_of(st.none(), st.floats(min_value=0.0, max_value=50.0, allow_nan=False, allow_infinity=False))),
-        loss_cv=draw(st.one_of(st.none(), st.floats(min_value=0.0, max_value=2.0, allow_nan=False, allow_infinity=False))),
+        failure_rate=draw(
+            st.one_of(
+                st.none(),
+                st.floats(min_value=0.0, max_value=50.0, allow_nan=False, allow_infinity=False),
+            )
+        ),
+        loss_cv=draw(
+            st.one_of(
+                st.none(),
+                st.floats(min_value=0.0, max_value=2.0, allow_nan=False, allow_infinity=False),
+            )
+        ),
     )
 
 
@@ -723,7 +764,8 @@ def _canon_error(e):
         e.message,
         tuple(e.components),
         tuple(e.nets),
-        tuple(e.items),
+        # DrcWarning carries no `items` field (DrcError does).
+        tuple(getattr(e, "items", ())),
     )
 
 
@@ -750,8 +792,16 @@ def test_parse_drc_json_identical_on_curated_violations(tmp_path):
         {
             "description": "Clearance violation",
             "items": [
-                {"description": "Via [cs_n] on F.Cu - B.Cu", "pos": {"x": 10.0, "y": 20.0}, "uuid": "u1"},
-                {"description": "Via [sclk] on F.Cu - B.Cu", "pos": {"x": 12.0, "y": 20.0}, "uuid": "u2"},
+                {
+                    "description": "Via [cs_n] on F.Cu - B.Cu",
+                    "pos": {"x": 10.0, "y": 20.0},
+                    "uuid": "u1",
+                },
+                {
+                    "description": "Via [sclk] on F.Cu - B.Cu",
+                    "pos": {"x": 12.0, "y": 20.0},
+                    "uuid": "u2",
+                },
             ],
             "severity": "error",
             "type": "clearance",
@@ -760,7 +810,11 @@ def test_parse_drc_json_identical_on_curated_violations(tmp_path):
             "description": "Board edge clearance violation",
             "items": [
                 {"description": "Polygon on Edge.Cuts", "pos": {"x": 0.0, "y": 0.0}, "uuid": "u1"},
-                {"description": "Pad 1 [V_BUS_SENSE] of C35 on F.Cu", "pos": {"x": 100.385, "y": 60.23}, "uuid": "u2"},
+                {
+                    "description": "Pad 1 [V_BUS_SENSE] of C35 on F.Cu",
+                    "pos": {"x": 100.385, "y": 60.23},
+                    "uuid": "u2",
+                },
             ],
             "severity": "error",
             "type": "copper_edge_clearance",
@@ -793,7 +847,9 @@ def test_parse_drc_json_identical_on_curated_violations(tmp_path):
 
 
 @given(violation())
-@settings(max_examples=60, deadline=None)
+@settings(
+    max_examples=60, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture]
+)
 def test_parse_drc_json_identical_on_randomized_violations(tmp_path, v):
     path = _write_violations_json(tmp_path, [v])
     oracle = _oracle_parse_drc_json(path)
@@ -802,7 +858,9 @@ def test_parse_drc_json_identical_on_randomized_violations(tmp_path, v):
 
 
 @given(st.lists(violation(), min_size=0, max_size=6))
-@settings(max_examples=40, deadline=None)
+@settings(
+    max_examples=40, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture]
+)
 def test_parse_drc_json_identical_on_violation_lists(tmp_path, vs):
     path = _write_violations_json(tmp_path, list(vs))
     oracle = _oracle_parse_drc_json(path)
@@ -906,62 +964,107 @@ GATE_PAIRS = [
 @pytest.mark.parametrize("gate_kind", ["placement", "routing", "production", "validated"])
 def test_gate_identical_on_curated_metrics(gate_kind, monkeypatch):
     monkeypatch.setattr(time, "time", lambda: 1234.567)
-    oracle_gate = dict(GATE_PAIRS)[gate_kind][1]
-    shim_gate = dict(GATE_PAIRS)[gate_kind][2]
+    oracle_gate = {name: o for name, o, _s in GATE_PAIRS}[gate_kind]
+    shim_gate = {name: s for name, _o, s in GATE_PAIRS}[gate_kind]
     cases = [
         SimpleNamespace(
-            overlap_loss=0.0, boundary_loss=0.0, hv_clearance_violations=0,
-            zone_violations=0, convergence_epoch=100,
-            routing_completion_percent=100.0, drc_errors=0,
-            failure_rate=1.0, loss_cv=0.05,
+            overlap_loss=0.0,
+            boundary_loss=0.0,
+            hv_clearance_violations=0,
+            zone_violations=0,
+            convergence_epoch=100,
+            routing_completion_percent=100.0,
+            drc_errors=0,
+            failure_rate=1.0,
+            loss_cv=0.05,
         ),
         SimpleNamespace(
-            overlap_loss=0.05, boundary_loss=0.0, hv_clearance_violations=0,
-            zone_violations=0, convergence_epoch=100,
-            routing_completion_percent=100.0, drc_errors=0,
-            failure_rate=1.0, loss_cv=0.05,
+            overlap_loss=0.05,
+            boundary_loss=0.0,
+            hv_clearance_violations=0,
+            zone_violations=0,
+            convergence_epoch=100,
+            routing_completion_percent=100.0,
+            drc_errors=0,
+            failure_rate=1.0,
+            loss_cv=0.05,
         ),
         SimpleNamespace(
-            overlap_loss=0.0, boundary_loss=0.0, hv_clearance_violations=2,
-            zone_violations=0, convergence_epoch=100,
-            routing_completion_percent=100.0, drc_errors=0,
-            failure_rate=1.0, loss_cv=0.05,
+            overlap_loss=0.0,
+            boundary_loss=0.0,
+            hv_clearance_violations=2,
+            zone_violations=0,
+            convergence_epoch=100,
+            routing_completion_percent=100.0,
+            drc_errors=0,
+            failure_rate=1.0,
+            loss_cv=0.05,
         ),
         SimpleNamespace(
-            overlap_loss=0.0, boundary_loss=0.0, hv_clearance_violations=0,
-            zone_violations=0, convergence_epoch=0,
-            routing_completion_percent=100.0, drc_errors=0,
-            failure_rate=1.0, loss_cv=0.05,
+            overlap_loss=0.0,
+            boundary_loss=0.0,
+            hv_clearance_violations=0,
+            zone_violations=0,
+            convergence_epoch=0,
+            routing_completion_percent=100.0,
+            drc_errors=0,
+            failure_rate=1.0,
+            loss_cv=0.05,
         ),
         SimpleNamespace(
-            overlap_loss=0.0, boundary_loss=0.0, hv_clearance_violations=0,
-            zone_violations=0, convergence_epoch=100,
-            routing_completion_percent=-1.0, drc_errors=0,
-            failure_rate=1.0, loss_cv=0.05,
+            overlap_loss=0.0,
+            boundary_loss=0.0,
+            hv_clearance_violations=0,
+            zone_violations=0,
+            convergence_epoch=100,
+            routing_completion_percent=-1.0,
+            drc_errors=0,
+            failure_rate=1.0,
+            loss_cv=0.05,
         ),
         SimpleNamespace(
-            overlap_loss=0.0, boundary_loss=0.0, hv_clearance_violations=0,
-            zone_violations=0, convergence_epoch=100,
-            routing_completion_percent=50.0, drc_errors=3,
-            failure_rate=1.0, loss_cv=0.05,
+            overlap_loss=0.0,
+            boundary_loss=0.0,
+            hv_clearance_violations=0,
+            zone_violations=0,
+            convergence_epoch=100,
+            routing_completion_percent=50.0,
+            drc_errors=3,
+            failure_rate=1.0,
+            loss_cv=0.05,
         ),
         SimpleNamespace(
-            overlap_loss=0.0, boundary_loss=0.0, hv_clearance_violations=0,
-            zone_violations=0, convergence_epoch=100,
-            routing_completion_percent=100.0, drc_errors=0,
-            failure_rate=10.0, loss_cv=0.2,
+            overlap_loss=0.0,
+            boundary_loss=0.0,
+            hv_clearance_violations=0,
+            zone_violations=0,
+            convergence_epoch=100,
+            routing_completion_percent=100.0,
+            drc_errors=0,
+            failure_rate=10.0,
+            loss_cv=0.2,
         ),
         SimpleNamespace(
-            overlap_loss=0.0, boundary_loss=0.0, hv_clearance_violations=0,
-            zone_violations=0, convergence_epoch=100,
-            routing_completion_percent=100.0, drc_errors=0,
-            failure_rate=None, loss_cv=0.05,
+            overlap_loss=0.0,
+            boundary_loss=0.0,
+            hv_clearance_violations=0,
+            zone_violations=0,
+            convergence_epoch=100,
+            routing_completion_percent=100.0,
+            drc_errors=0,
+            failure_rate=None,
+            loss_cv=0.05,
         ),
         SimpleNamespace(
-            overlap_loss=0.0, boundary_loss=0.0, hv_clearance_violations=0,
-            zone_violations=0, convergence_epoch=100,
-            routing_completion_percent=100.0, drc_errors=0,
-            failure_rate=1.0, loss_cv=None,
+            overlap_loss=0.0,
+            boundary_loss=0.0,
+            hv_clearance_violations=0,
+            zone_violations=0,
+            convergence_epoch=100,
+            routing_completion_percent=100.0,
+            drc_errors=0,
+            failure_rate=1.0,
+            loss_cv=None,
         ),
     ]
     for m in cases:
@@ -971,7 +1074,9 @@ def test_gate_identical_on_curated_metrics(gate_kind, monkeypatch):
 
 
 @given(gate_metrics())
-@settings(max_examples=40, deadline=None)
+@settings(
+    max_examples=40, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture]
+)
 def test_gate_identical_on_randomized_metrics(monkeypatch, m):
     monkeypatch.setattr(time, "time", lambda: 1234.567)
     for _name, oracle_gate, shim_gate in GATE_PAIRS:

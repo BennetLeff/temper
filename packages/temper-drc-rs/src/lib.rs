@@ -99,6 +99,11 @@ pub mod drc_oracle;
 pub mod ipc;
 #[cfg(feature = "python")]
 pub mod ipc_pyo3;
+// Wave 4 — validation-glue kernels (port-inventory entry-5 cluster):
+// _drc_api.py parsing, scheduler.py decision logic, validation_gates.py
+// gate decisions.
+#[cfg(feature = "python")]
+pub mod validation_glue;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
@@ -505,5 +510,8 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Crate-fold 3 (2026-08-09) — IPC-2221/2152 current-capacity and
     // trace-width kernels (from temper-ipc).
     crate::ipc_pyo3::register(m)?;
+    // Wave 4 — validation-glue kernels (port-inventory entry-5 cluster):
+    // _drc_api.py parsing, scheduler.py decisions, validation_gates.py gates.
+    crate::validation_glue::register(m)?;
     Ok(())
 }

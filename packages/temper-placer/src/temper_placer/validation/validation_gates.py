@@ -6,6 +6,18 @@ This module implements validation gates defined in MEASUREMENT_SPEC.yaml:
 - routing_complete: Autorouter has finished
 - production_ready: Design can be sent to fabrication
 - validated: Design has been statistically validated
+
+Wave 4 entry-5 migration (port-inventory): the gate DECISION logic
+(threshold comparisons, failed-metric selection, message composition) runs
+in the ``temper_drc_rs`` ``validation_glue`` kernels
+(``gate_placement_complete`` / ``gate_routing_complete`` /
+``gate_production_ready`` / ``gate_validated``); the four ``check()``
+methods are delegation shims (the pre-migration bodies are pinned verbatim
+as the oracle in
+``tests/validation/test_validation_glue_rust_differential.py``). The
+wall-clock ``elapsed_ms``, the ``GateResult``/``GateStatus``/
+``ValidationGatesResult`` dataclasses, the ``ValidationGate`` ABC and
+``check_all_gates``/``check_gate`` orchestration stay Python.
 """
 
 from __future__ import annotations
@@ -22,6 +34,15 @@ class GateStatus(Enum):
     FAIL = "fail"
     SKIP = "skip"
     PENDING = "pending"
+
+
+# Kernel status string -> GateStatus (the kernels emit exactly these
+# values; pinned by test_validation_glue_rust_differential.py).
+_GATE_STATUS: dict[str, GateStatus] = {
+    "pass": GateStatus.PASS,
+    "fail": GateStatus.FAIL,
+    "skip": GateStatus.SKIP,
+}
 
 
 @dataclass
@@ -126,44 +147,27 @@ class PlacementCompleteGate(ValidationGate):
 
         start = time.time()
 
-        failed: dict[str, float] = {}
-        checks = [
-            ("overlap_loss", metrics.overlap_loss, 0.01),
-            ("boundary_loss", metrics.boundary_loss, 0.01),
-            ("hv_clearance_violations", metrics.hv_clearance_violations, 0),
-            ("zone_violations", metrics.zone_violations, 0),
-        ]
+        # Wave 4 entry-5: the threshold comparison, failed-metric selection
+        # and message composition run in ``temper_drc_rs.gate_placement_complete``
+        # (validation_glue.rs); elapsed_ms (wall-clock) is measured here.
+        import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
 
-        for name, value, threshold in checks:
-            if value > threshold:
-                failed[name] = value
+        status, message, failed = _tdrc.gate_placement_complete(
+            overlap_loss=float(metrics.overlap_loss),
+            boundary_loss=float(metrics.boundary_loss),
+            hv_clearance_violations=float(metrics.hv_clearance_violations),
+            zone_violations=float(metrics.zone_violations),
+            convergence_epoch=metrics.convergence_epoch,
+        )
 
         elapsed = (time.time() - start) * 1000
 
-        if failed:
-            return GateResult(
-                gate_name=self.name,
-                status=GateStatus.FAIL,
-                message=f"Failed {len(failed)} constraint(s)",
-                required_metrics=self.required_metrics,
-                failed_metrics=failed,
-                elapsed_ms=elapsed,
-            )
-
-        if metrics.convergence_epoch == 0:
-            return GateResult(
-                gate_name=self.name,
-                status=GateStatus.FAIL,
-                message="Did not converge",
-                required_metrics=self.required_metrics,
-                elapsed_ms=elapsed,
-            )
-
         return GateResult(
             gate_name=self.name,
-            status=GateStatus.PASS,
-            message="All constraints met",
+            status=_GATE_STATUS[status],
+            message=message,
             required_metrics=self.required_metrics,
+            failed_metrics=dict(failed),
             elapsed_ms=elapsed,
         )
 
@@ -186,40 +190,24 @@ class RoutingCompleteGate(ValidationGate):
         import time
 
         start = time.time()
+
+        # Wave 4 entry-5: see PlacementCompleteGate.check — the decision
+        # runs in ``temper_drc_rs.gate_routing_complete``.
+        import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
+
+        status, message, failed = _tdrc.gate_routing_complete(
+            routing_completion_percent=float(metrics.routing_completion_percent),
+            drc_errors=float(metrics.drc_errors),
+        )
+
         elapsed = (time.time() - start) * 1000
-
-        if metrics.routing_completion_percent < 0:
-            return GateResult(
-                gate_name=self.name,
-                status=GateStatus.SKIP,
-                message="Routing not measured",
-                required_metrics=self.required_metrics,
-                elapsed_ms=elapsed,
-            )
-
-        failed: dict[str, float] = {}
-
-        if metrics.routing_completion_percent < 90.0:
-            failed["routing_completion_percent"] = metrics.routing_completion_percent
-
-        if metrics.drc_errors > 0:
-            failed["drc_errors"] = metrics.drc_errors
-
-        if failed:
-            return GateResult(
-                gate_name=self.name,
-                status=GateStatus.FAIL,
-                message=f"Failed {len(failed)} requirement(s)",
-                required_metrics=self.required_metrics,
-                failed_metrics=failed,
-                elapsed_ms=elapsed,
-            )
 
         return GateResult(
             gate_name=self.name,
-            status=GateStatus.PASS,
-            message="Routing complete with 0 DRC errors",
+            status=_GATE_STATUS[status],
+            message=message,
             required_metrics=self.required_metrics,
+            failed_metrics=dict(failed),
             elapsed_ms=elapsed,
         )
 
@@ -253,45 +241,29 @@ class ProductionReadyGate(ValidationGate):
 
         start = time.time()
 
-        placement_gate = PlacementCompleteGate()
-        placement_result = placement_gate.check(metrics)
+        # Wave 4 entry-5: the placement-gate run (and, on a placement
+        # failure, the "Placement not ready: ..." propagation) happens
+        # inside ``temper_drc_rs.gate_production_ready``.
+        import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
 
-        if not placement_result.passed:
-            elapsed = (time.time() - start) * 1000
-            return GateResult(
-                gate_name=self.name,
-                status=GateStatus.FAIL,
-                message=f"Placement not ready: {placement_result.message}",
-                required_metrics=self.required_metrics,
-                failed_metrics=placement_result.failed_metrics,
-                elapsed_ms=elapsed,
-            )
-
-        failed: dict[str, float] = {}
-
-        if metrics.routing_completion_percent >= 0 and metrics.routing_completion_percent < 90.0:
-            failed["routing_completion_percent"] = metrics.routing_completion_percent
-
-        if metrics.drc_errors > 0:
-            failed["drc_errors"] = metrics.drc_errors
+        status, message, failed = _tdrc.gate_production_ready(
+            overlap_loss=float(metrics.overlap_loss),
+            boundary_loss=float(metrics.boundary_loss),
+            hv_clearance_violations=float(metrics.hv_clearance_violations),
+            zone_violations=float(metrics.zone_violations),
+            convergence_epoch=metrics.convergence_epoch,
+            routing_completion_percent=float(metrics.routing_completion_percent),
+            drc_errors=float(metrics.drc_errors),
+        )
 
         elapsed = (time.time() - start) * 1000
 
-        if failed:
-            return GateResult(
-                gate_name=self.name,
-                status=GateStatus.FAIL,
-                message=f"Failed {len(failed)} requirement(s)",
-                required_metrics=self.required_metrics,
-                failed_metrics=failed,
-                elapsed_ms=elapsed,
-            )
-
         return GateResult(
             gate_name=self.name,
-            status=GateStatus.PASS,
-            message="Production ready",
+            status=_GATE_STATUS[status],
+            message=message,
             required_metrics=self.required_metrics,
+            failed_metrics=dict(failed),
             elapsed_ms=elapsed,
         )
 
@@ -314,43 +286,27 @@ class ValidatedGate(ValidationGate):
         import time
 
         start = time.time()
-        elapsed = (time.time() - start) * 1000
+
+        # Wave 4 entry-5: see PlacementCompleteGate.check — the decision
+        # runs in ``temper_drc_rs.gate_validated``.
+        import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
 
         failure_rate = getattr(metrics, "failure_rate", None)
         loss_cv = getattr(metrics, "loss_cv", None)
 
-        if failure_rate is None or loss_cv is None:
-            return GateResult(
-                gate_name=self.name,
-                status=GateStatus.SKIP,
-                message="Statistical validation not performed",
-                required_metrics=self.required_metrics,
-                elapsed_ms=elapsed,
-            )
+        status, message, failed = _tdrc.gate_validated(
+            failure_rate if failure_rate is None else float(failure_rate),
+            loss_cv if loss_cv is None else float(loss_cv),
+        )
 
-        failed: dict[str, float] = {}
-
-        if failure_rate > 5.0:
-            failed["failure_rate"] = failure_rate
-
-        if loss_cv > 0.15:
-            failed["loss_cv"] = loss_cv
-
-        if failed:
-            return GateResult(
-                gate_name=self.name,
-                status=GateStatus.FAIL,
-                message=f"Failed {len(failed)} statistical requirement(s)",
-                required_metrics=self.required_metrics,
-                failed_metrics=failed,
-                elapsed_ms=elapsed,
-            )
+        elapsed = (time.time() - start) * 1000
 
         return GateResult(
             gate_name=self.name,
-            status=GateStatus.PASS,
-            message="Statistically validated",
+            status=_GATE_STATUS[status],
+            message=message,
             required_metrics=self.required_metrics,
+            failed_metrics=dict(failed),
             elapsed_ms=elapsed,
         )
 

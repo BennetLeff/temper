@@ -16,7 +16,6 @@ from __future__ import annotations
 import contextlib
 import json
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -399,22 +398,29 @@ def _get_drc_json_path(pcb_path: Path) -> Path:
 # correctly yield no ref rather than a wrong guess. See
 # docs/solutions/logic-errors/
 # drc-api-wrapper-components-and-location-always-empty.md.
-_FOOTPRINT_DESC_RE = re.compile(r"^Footprint (\S+)$")
-_OF_REF_DESC_RE = re.compile(r"\bof (\S+?)(?:\s+on\s+\S.*)?$")
-_NET_IN_BRACKETS_RE = re.compile(r"\[([^\]]+)\]")
+#
+# Wave 4 entry-5 migration (port-inventory): the regex extraction and the
+# per-violation aggregation below moved to the `temper_drc_rs`
+# `validation_glue` kernels (`drc_extract_ref`, `drc_extract_net`,
+# `drc_parse_violations`). The pre-migration bodies are pinned verbatim as
+# the oracle in
+# `tests/validation/test_validation_glue_rust_differential.py`. `run_drc`
+# and the `DrcResult` shape are unchanged -- the shim marshals the
+# kernel's parsed records into the untouched dataclasses.
 
 
 def _extract_ref_from_item_description(description: str) -> str | None:
     """Extract a component reference designator from a DRC item's
     free-text description, or None if the item isn't owned by a single
-    component (e.g. a via or a board-edge polygon)."""
-    match = _FOOTPRINT_DESC_RE.match(description)
-    if match:
-        return match.group(1)
-    match = _OF_REF_DESC_RE.search(description)
-    if match:
-        return match.group(1)
-    return None
+    component (e.g. a via or a board-edge polygon).
+
+    Wave 4 entry-5: the extraction runs in ``temper_drc_rs.drc_extract_ref``
+    (``validation_glue.rs``); this is a delegation shim so the public name
+    is unchanged.
+    """
+    import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
+
+    return _tdrc.drc_extract_ref(description)
 
 
 def _extract_net_from_item_description(description: str) -> str | None:
@@ -422,11 +428,15 @@ def _extract_net_from_item_description(description: str) -> str | None:
     None if it doesn't carry one. KiCad embeds net names in square
     brackets for net-owned items -- "Via [GND] on F.Cu - B.Cu",
     "Pad 2 [hb.gate_hs.driver-p2] of C22 on F.Cu" -- but not for
-    board-level features like "Polygon on Edge.Cuts"."""
-    match = _NET_IN_BRACKETS_RE.search(description)
-    if match:
-        return match.group(1)
-    return None
+    board-level features like "Polygon on Edge.Cuts".
+
+    Wave 4 entry-5: the extraction runs in ``temper_drc_rs.drc_extract_net``
+    (``validation_glue.rs``); this is a delegation shim so the public name
+    is unchanged.
+    """
+    import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
+
+    return _tdrc.drc_extract_net(description)
 
 
 def _parse_drc_json(json_path: Path) -> DrcResult:
@@ -442,70 +452,42 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
     with open(json_path) as f:
         data = json.load(f)
 
+    # Wave 4 entry-5: the per-violation parsing/aggregation loop (ref/net
+    # extraction, component/net dedup, the first-ref-position preference,
+    # the severity bucket split) runs in ``temper_drc_rs.drc_parse_violations``.
+    # This shim only marshals the parsed records into the unchanged
+    # ``DrcError``/``DrcWarning`` dataclasses; the counts are the record-list
+    # lengths, exactly as the pre-migration body computed them.
+    import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
+
+    error_records, warning_records = _tdrc.drc_parse_violations(data.get("violations", []))
+
     errors: list[DrcError] = []
+    for r in error_records:
+        errors.append(
+            DrcError(
+                rule=r["rule"],
+                severity=r["severity"],
+                location=r["location"],
+                message=r["message"],
+                components=r["components"],
+                nets=r["nets"],
+                items=r["items"],
+            )
+        )
+
     warnings: list[DrcWarning] = []
-
-    for violation in data.get("violations", []):
-        rule = violation.get("type", "unknown")
-        severity = violation.get("severity", "error")
-        message = violation.get("description", "")
-
-        items = violation.get("items", [])
-
-        # kicad-cli never emits a top-level "pos" on the violation itself
-        # -- only per-item "pos". Prefer the position of the first item
-        # that resolves to a real component ref (e.g. a pad or footprint)
-        # over a board-level feature's item -- for rules like
-        # copper_edge_clearance, item[0] is routinely "Polygon on
-        # Edge.Cuts" with a degenerate (0.0, 0.0) pos, while a later item
-        # (the actual offending pad) carries the real, useful position.
-        # Falls back to the first item's position if no item has an
-        # extractable ref (e.g. a via-to-via clearance violation).
-        location = (0.0, 0.0)
-        components: list[str] = []
-        nets: list[str] = []
-        raw_items: list[str] = []
-        location_set = False
-        for item in items:
-            description = item.get("description", "")
-            raw_items.append(description)
-            ref = _extract_ref_from_item_description(description)
-            if ref and ref not in components:
-                components.append(ref)
-            net = _extract_net_from_item_description(description)
-            if net and net not in nets:
-                nets.append(net)
-            if ref and not location_set:
-                pos = item.get("pos", {})
-                location = (pos.get("x", 0.0), pos.get("y", 0.0))
-                location_set = True
-        if not location_set and items:
-            pos = items[0].get("pos", {})
-            location = (pos.get("x", 0.0), pos.get("y", 0.0))
-
-        if severity == "warning":
-            warnings.append(
-                DrcWarning(
-                    rule=rule,
-                    severity=severity,
-                    location=location,
-                    message=message,
-                    components=components,
-                    nets=nets,
-                )
+    for r in warning_records:
+        warnings.append(
+            DrcWarning(
+                rule=r["rule"],
+                severity=r["severity"],
+                location=r["location"],
+                message=r["message"],
+                components=r["components"],
+                nets=r["nets"],
             )
-        else:
-            errors.append(
-                DrcError(
-                    rule=rule,
-                    severity=severity,
-                    location=location,
-                    message=message,
-                    components=components,
-                    nets=nets,
-                    items=raw_items,
-                )
-            )
+        )
 
     return DrcResult(
         error_count=len(errors),
