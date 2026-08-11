@@ -919,9 +919,130 @@ jobs:
       # specific libm result — the discriminator value in host_math.rs was
       # dual-platform-verified (darwin arm64 AND the Ubuntu CI container,
       # glibc 2.39) to yield the same value on both.
+      #
+      # NARROWED 2026-08-11 (docs/evidence/2026-08-11-u6-orchestration-sustained-agreement.md,
+      # docs/evidence/2026-08-11-native-cargo-test-duplication-inventory.md). This used
+      # to be `cargo test --manifest-path packages/temper-orchestration/Cargo.toml`
+      # (default features, i.e. pyo3 ON), which ran all 1,046 `#[cfg(test)]` lib
+      # tests plus all 51 `tests/*.rs` integration tests -- 1,097 total, ~17s.
+      #
+      # `python3 scripts/gen_wasm_test_registry.py --crate temper-orchestration --census`
+      # now registers 996 of those 1,046 lib tests onto the wasm32 tier, and a
+      # 10/10-commit R19 sustained-agreement campaign (the second evidence doc
+      # above) found 100% native/wasm32 verdict agreement on the intersection.
+      # Those 996 no longer need to run here -- they run on wasm-tier-pr.yml /
+      # wasm-tier-nightly.yml instead, under the same exact test name.
+      #
+      # This step is narrowed to its three structurally wasm32-ineligible
+      # residuals (measured, not guessed -- see the duplication-inventory doc
+      # for the counting method):
+      #
+      #   1. The 51 `tests/*.rs` integration tests. All 11 files import
+      #      `pyo3`/`Python::` -- genuinely CPython-bound, can never move to
+      #      the tier. NOTE: `cargo test --tests` looks like the obvious flag
+      #      here and is WRONG -- cargo's own `--help` says `--tests` means
+      #      "test all targets that have `test = true` set", which includes
+      #      the *library* target, not just `tests/*.rs` (confirmed by
+      #      running it: it printed "Running unittests src/lib.rs" and "1046
+      #      passed" first, exactly the full lib suite this step exists to
+      #      stop re-running). The step below instead discovers each
+      #      `tests/*.rs` file's target name at run time and selects each one
+      #      explicitly with `--test <name>`, which selects ONLY the named
+      #      integration-test binary, never the lib -- verified: this prints
+      #      zero "Running unittests" lines and exactly 51 test results.
+      #      Deriving the list from the directory listing (rather than
+      #      hardcoding the 11 names) means a future new `tests/*.rs` file is
+      #      picked up automatically instead of silently going untested.
+      #   2. `grid_hv.rs`'s 5-test `tests` module (`--lib "grid_hv::tests::"`).
+      #      Found during this narrowing, NOT in the two evidence docs above --
+      #      verify before trusting a prior inventory. It carries its own
+      #      `#[cfg(feature = "python")]` (not just `#[cfg(test)]`) and calls
+      #      `Python::attach`/`Python::initialize()` directly, so it cannot
+      #      compile under `--no-default-features` and the wasm registry
+      #      excludes it as `[python-gated]` -- confirmed via
+      #      `--census`, which lists it under "excluded", never "registered".
+      #      It is the only python-gated `tests` module in this crate (checked
+      #      every `mod tests` in `src/*.rs` for a `feature = "python"` guard
+      #      in its preceding attributes).
+      #   3. `host_math::tests::host_libm_symbols_actually_resolve`
+      #      (`--no-default-features --lib "host_math::tests::host_libm_symbols_actually_resolve"`).
+      #      A dlsym host-facility test asserting a native-host property
+      #      wasm32 does not have. Note this one is easy to miscount: the
+      #      census's per-module table reports `host_math.rs::tests` as fully
+      #      "registered" (143), because census counts source-level test
+      #      *declarations*, not what actually executes per target. This one
+      #      function individually carries `#[cfg(not(target_arch = "wasm32"))]`
+      #      inside host_math.rs's own `WASM_TESTS` array (see that file, the
+      #      entry immediately before the closing brace of the array), so it
+      #      silently disappears from the array on an actual wasm32 build --
+      #      "registered" in the census's source scan, but not present, let
+      #      alone executed, on the tier. It does not need default features
+      #      (no pyo3 in its cfg chain), so it runs `--no-default-features`,
+      #      same config as the wasm32 substrate build below -- and, unlike
+      #      residuals 1 and 2, it does not need libpython loadable at
+      #      runtime.
+      #
+      # 51 + 5 + 1 = 57 tests kept native; measured directly (all three
+      # commands run and counted, not projected):
+      #   `cargo test --manifest-path packages/temper-orchestration/Cargo.toml --test d1_stages_runner --test d2_stages_runner ... (11 --test flags, discovered from tests/*.rs)`
+      #     -> "5 passed" x7 (d1-d7) + "4 passed" x4 (e3,e4,e6,stages_runner) = 51, zero "Running unittests" lines
+      #   `cargo test --manifest-path packages/temper-orchestration/Cargo.toml --lib "grid_hv::tests::"`
+      #     -> "5 passed; ...; 1041 filtered out"
+      #   `cargo test --manifest-path packages/temper-orchestration/Cargo.toml --no-default-features --lib "host_math::tests::host_libm_symbols_actually_resolve"`
+      #     -> "1 passed; ...; 1033 filtered out"
+      #
+      # What is dropped from native execution here, and why each part is
+      # covered: 1,097 - 57 = 1,040 tests. Of those:
+      #   - 995 are `--census`-"registered" tests (996 registered minus the
+      #     host_math dlsym test counted above, which the census buckets
+      #     under "registered" despite residual 3's wasm32-exclusion) --
+      #     these run on the tier today under the SAME module::test_name,
+      #     verified by the R19 sustained-agreement campaign (10/10 commits,
+      #     agreement_rate 1.0, zero disagreements, on this exact crate).
+      #   - 45 are the crate's `*::proptests` modules (dev-dependency-gated,
+      #     `proptest` cannot compile into the tier's non-test build --
+      #     structural, not a registry gap). These are NOT on the tier under
+      #     their own name and r19_compare.py -- which matches by EXACT NAME
+      #     -- will report all 45 as `native_only` forever, the same way
+      #     `temper-drc-rs` has reported its 31 mirrored proptests as
+      #     native-only since long before this change. That is not a
+      #     regression here and not a metric this change can zero out.
+      #     Per #997, each has a deterministic `SplitMix64`-seeded mirror
+      #     living in the SAME file's sibling `tests` module (which IS
+      #     registered/tier-covered) -- e.g. host_math.rs::proptests' 7
+      #     properties (P1-P7, e.g. "pow(x, 0.0) = 1.0") each get a shared
+      #     `pN_..._impl(seed)` body called by 20 registered wrapper tests
+      #     `host_math.rs::tests::pN_..._seed_000`..`_seed_019` (7 x 20 = 140
+      #     of the 143 registered host_math.rs::tests tests) -- fixed seeds
+      #     standing in for proptest's random shrinking search. That is the
+      #     honest limit of this relief, stated plainly
+      #     per R27: a proptest explores a randomly-sampled input space every
+      #     run; a mirror runs the SAME fixed corpus of seeds every time.
+      #     They are substantively equivalent regression coverage for the
+      #     properties involved, not the same guarantee -- so this narrowing
+      #     is justified on substance (deterministic tier equivalents exist
+      #     and were sustained-agreement-tested), not on the native_only
+      #     count going to zero, because it structurally cannot.
       - name: Test temper-orchestration (cargo test)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: cargo test --manifest-path packages/temper-orchestration/Cargo.toml
+        run: |
+          set -eu
+          echo "=== residual 1/3: tests/*.rs integration tests (pyo3-bound, 51 tests) ==="
+          # `--tests` is NOT used here: it also selects the lib target (see
+          # comment above this step). Discover each tests/*.rs file's target
+          # name and select it explicitly with its own --test flag instead,
+          # so the lib never runs and a new integration-test file is picked
+          # up automatically.
+          test_args=""
+          for f in packages/temper-orchestration/tests/*.rs; do
+            name=$(basename "$f" .rs)
+            test_args="$test_args --test $name"
+          done
+          cargo test --manifest-path packages/temper-orchestration/Cargo.toml $test_args
+          echo "=== residual 2/3: grid_hv.rs's python-gated lib tests (pyo3-bound, 5 tests) ==="
+          cargo test --manifest-path packages/temper-orchestration/Cargo.toml --lib "grid_hv::tests::"
+          echo "=== residual 3/3: host_math dlsym host-facility test (native-host-only, 1 test) ==="
+          cargo test --manifest-path packages/temper-orchestration/Cargo.toml --no-default-features --lib "host_math::tests::host_libm_symbols_actually_resolve"
 
       # Same gap, same fix, one crate over: temper-geometry's `#[cfg(test)]`
       # modules ran nowhere. CI tested only temper-design-bundle and
