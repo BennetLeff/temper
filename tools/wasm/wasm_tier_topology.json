@@ -12,11 +12,33 @@
     "time. Every one of those four consumers now reads this file, so a Worker cannot be",
     "deployed without also being checked.",
     "",
-    "Fifteen Workers today: temper-drc-rs's full corpus + its 7 family shards (1719), and",
-    "one single-family Worker each for temper-geometry (722), temper-thermal (143),",
+    "Sixteen Workers today: temper-drc-rs's full corpus + its 7 family shards (1719), and",
+    "one single-family Worker each for temper-geometry, temper-thermal (143),",
     "temper-rust-router-core (111), temper-constraint-compiler (69), temper-design-bundle",
-    "(24), temper-quality-oracle (125) and temper-io-types (144). Eight tiers, 3057 deployed",
-    "wasm32 tests.",
+    "(24), temper-quality-oracle (125), temper-io-types (144) and temper-pcl-ir (2). Nine",
+    "tiers, 4569 deployed wasm32 tests (EXECUTABLE counts -- see the registered-vs-",
+    "executable note below).",
+    "",
+    "temper-geometry's own EXECUTABLE count is not a fixed number worth writing here: it was",
+    "722 when this file was first split into tiers (#940) and is 2232 as of the property",
+    "campaign registering +1510 kicad_transform/convex_hull/connected_components entries",
+    "(#961, 2026-08-11) -- the same growth this file's own header once warned about",
+    "elsewhere (\"the four-day 147-vs-1,708 window\"), reused here only as an illustration:",
+    "the checker in tools/wasm/check_deployed_freshness.mjs computes this LIVE from the",
+    "commit under test every run, so a stale number in this comment cannot make the check",
+    "wrong -- only make a reader's mental model wrong until the next redeploy. 4569 above is",
+    "current as of #961 landing; treat any absolute count in this file's prose as \"true when",
+    "written\", not as a value anything downstream reads.",
+    "",
+    "temper-pcl-ir was the only registered crate with no Worker (job 2 of the PR that added",
+    "this tier): registered 2, executable 2 (no cfg-gated exclusion, unlike geometry/thermal/",
+    "constraint-compiler/quality-oracle below). It mirrors temper-constraint-compiler's shape",
+    "exactly -- one family (`pcl-ir`), no python feature, no taxonomy to shard along -- so its",
+    "topology entry, Worker and wrangler.toml are copies of that crate's with the names",
+    "changed. Adding it required NO LOGIC CHANGE to check_deployed_freshness.mjs,",
+    "sweep_multi_worker.mjs or stage_wasm_families.sh -- only this one topology object and a",
+    "families/pcl-ir/{index.js,wrangler.toml} pair, which is the whole point of the topology",
+    "existing.",
     "",
     "temper-quality-oracle and temper-io-types were the last two crates in the registry",
     "(#950, #952) left with no Worker -- REGISTERED is not EXECUTABLE for either: quality-",
@@ -290,6 +312,18 @@
       "native_test_args": ["--no-default-features", "--manifest-path", "packages/temper-io-types/Cargo.toml"],
       "shards": [
         { "family": "io-types", "worker": "temper-wasm-io-types", "cargo_features": "io-types-wasm-test-registry", "staged_module": "temper_wasm_test_runner_io_types.wasm", "wrangler_dir": "packages/temper-worker/families/io-types" }
+      ]
+    },
+    {
+      "crate": "temper-pcl-ir",
+      "cargo_features": "pcl-ir-wasm-test-registry",
+      "staged_module": "temper_wasm_test_runner_pcl_ir.wasm",
+      "full_corpus_worker": "temper-wasm-pcl-ir",
+      "wrangler_dir": "packages/temper-worker/families/pcl-ir",
+      "expected_failures": "tools/wasm/wasm_expected_failures_pcl_ir.json",
+      "native_test_args": ["--no-default-features", "--manifest-path", "packages/temper-pcl-ir/Cargo.toml"],
+      "shards": [
+        { "family": "pcl-ir", "worker": "temper-wasm-pcl-ir", "cargo_features": "pcl-ir-wasm-test-registry", "staged_module": "temper_wasm_test_runner_pcl_ir.wasm", "wrangler_dir": "packages/temper-worker/families/pcl-ir" }
       ]
     }
   ]

@@ -1,0 +1,28 @@
+{
+  "_comment": [
+    "temper-pcl-ir's expected-failure manifest, the sibling of wasm_expected_failures.json",
+    "(temper-drc-rs), wasm_expected_failures_geometry.json, wasm_expected_failures_thermal.json,",
+    "wasm_expected_failures_design_bundle.json, wasm_expected_failures_router_core.json,",
+    "wasm_expected_failures_constraint_compiler.json, wasm_expected_failures_quality_oracle.json",
+    "and wasm_expected_failures_io_types.json. Same contract -- see wasm_expected_failures.json's",
+    "_comment for why divergences are LISTED and executed rather than deleted or cfg'd out.",
+    "",
+    "This one is EMPTY, and that is a result rather than an omission:",
+    "packages/temper-pcl-ir/src/wasm_test_registry.rs registers 2 tests (tests::WASM_TESTS,",
+    "key_tests::WASM_TESTS), both exist on wasm32, and both pass. Unlike temper-geometry",
+    "(724 registered / 722 executable), temper-thermal (145/143), temper-constraint-compiler",
+    "(70/69) and temper-quality-oracle (126/125), temper-pcl-ir has no",
+    "`#[cfg(not(target_arch = \"wasm32\"))]`-gated entry: registered and executable coincide at",
+    "2, the same shape as temper-design-bundle's 24/24 and temper-io-types's 144/144. See",
+    "packages/temper-pcl-ir/src/wasm_test_registry.rs's own header (\"No exclusion classes",
+    "apply here\").",
+    "",
+    "The file still exists because run_wasm_tests.mjs defaults to the temper-drc-rs manifest,",
+    "and pointing a pcl-ir-only module at THAT one would report both pcl-ir entries as orphan",
+    "exclusions and exit non-zero.",
+    "",
+    "An empty manifest is NOT a weaker gate: with nothing excluded, both executable tests are",
+    "load-bearing and any regression on wasm32 turns the step red."
+  ],
+  "expected_failures": {}
+}
