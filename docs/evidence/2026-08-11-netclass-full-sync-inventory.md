@@ -6,15 +6,15 @@
 `6928b7c8950a732f1991578f5ff7c080104c0847bf438ccd8bf2c75150544b64`, matching
 `power_pcb_dataset/drc_ceiling.json`'s recorded `provenance.inputs[0].sha256`
 exactly (verified fresh against `origin/main` at commit `4fca73177`).
-**Status:** kicad-cli was unavailable for the live-measurement half of this
-task while writing this (the sandbox's `kicad-10.0.5` install was wiped when
-a prior process exited, and it is being restored centrally to avoid three
-concurrent agents colliding on an extraction). This document is the
-measurement-independent half of the deliverable: the full diff, and for
-every entry, whether `pcb/temper.kicad_pro` was stale or `TEMPER_NET_ASSIGNMENTS`
-was wrong (it never was), and whether the fix is expected to move any DRC
-number at all. The `<=120`-sample live measurement is a separate follow-up
-once kicad-cli is back (tracked in this branch, not yet landed).
+**Status:** UPDATED 2026-08-11 (same day) once kicad-cli 10.0.5 was restored
+(a persistent install at `/home/bennet/.local/opt/kicad-10.0.5`, distinct
+from the wiped `/tmp` install this section originally referenced). The
+130-sample live measurement is complete and landed in the same PR
+(`power_pcb_dataset/drc_ceiling.json`'s `2026-08-11-netclass-full-sync`
+`_march` entry) — §6 below records the result against the structural
+prediction §2 made before measuring. This document's §2–§4 (the diff, the
+per-entry classification, and the `PWR_RTN` protection) were written and
+verified before the measurement ran and are unchanged by it.
 
 ## 1. Method
 
@@ -141,15 +141,67 @@ touches combined. Verified two ways, not just asserted:
    this against regression with a synthetic `kicad_pro` that *does*
    declare `GND`.
 
-## 5. What this document does not do
+## 5. What §2–§4 do not do (true as originally written; superseded by §6 below)
 
-It does not run kicad-cli, and therefore does not report a measured
-before/after per DRC category, does not update `power_pcb_dataset/
-drc_ceiling.json`, and does not carry a `Ceiling-Approval:` trailer. Per
-the R27 monotone contract (`scripts/check_drc_ceiling_approval.py`), a
-ceiling raise requires `>=120` fresh measured-live samples for the
-nondeterministic `creepage` category — that measurement is a separate,
-already-scoped follow-up once kicad-cli 10.0.5 is available again, not
-performed here. §2's "expected DRC impact" column is a structural
-prediction (glob-pattern match vs. true fall-through-to-Default), not a
-measured one, and should be read as exactly that.
+§2–§4 above were written before kicad-cli was available in this session and
+are a structural prediction (glob-pattern match vs. true
+fall-through-to-Default), not a measured one — kept verbatim as the
+falsifiable hypothesis §6 checks, per the standing instruction to report
+whether the measurement confirms it rather than silently overwrite the
+prediction with the answer.
+
+## 6. Measured result (130 samples, kicad-cli 10.0.5, `--all-track-errors`), checked against §2's prediction
+
+**Method, in order:**
+
+1. **Baseline control** — 15 samples on the OLD (pre-full-sync, post-#1023)
+   `kicad_pro` against the current, unchanged board. Reproduced the
+   committed record exactly: `clearance` 372/372 (deterministic), `creepage`
+   within the recorded 182–184 band. Confirms no drift and confirms the
+   newly-restored kicad-cli install (a different path/prefix than every
+   prior session's) measures this board identically to the committed
+   baseline for every error category.
+2. **Isolation control** — 15 samples with *only* the 5 glob-covered
+   entries added (`DC_BUS_RTN`/`GATE_HS`/`GATE_LS`/`PWM_HS`/`PWM_LS`),
+   nothing else. `clearance` 372/372 and `creepage` within 182–184 —
+   **byte-identical to the baseline control.** This is the direct,
+   empirical (not merely structural) answer to "do the glob-covered
+   entries move anything": **they do not.**
+3. **Fully-synced board** — 130 samples (all 23 corrections applied, DRU
+   regenerated from `scripts/generate_kicad_dru.py` first). `clearance` is
+   fully deterministic at 386/386 (**+14** over the control). `creepage` is
+   **unchanged**: `{182: 5, 183: 43, 184: 82}` over 130 samples — the same
+   182–184 band, because none of the 16 real corrections (the FinePitch/
+   Power reclassifications) are HV-domain nets, so the HV↔LV creepage rules
+   (`scripts/generate_kicad_dru.py`, keyed on `ACMains`/`HighVoltage`/
+   `HighVoltageIsolated`/`GateDriveHV` netclass names) never fire for them.
+   All 10 other error categories are byte-identical to the prior record.
+
+**Verdict against the §2 prediction: confirmed, and sharper than predicted.**
+§2 predicted 16 corrections would move "real DRC numbers" without
+predicting *which* category — the measurement shows the entire effect
+lands in a single category (`clearance`, +14), not spread across multiple
+rule types, and `creepage` is provably untouched. The 5 glob-covered
+entries and the 2 dead-alias corrections (`PWM_H`/`PWM_L`) are confirmed,
+empirically, to move nothing — not merely argued from the fact that their
+effective classification was structurally unchanged.
+
+`error_ceiling` 1252 → 1266 (+14, entirely the `clearance` delta).
+`warning_ceiling` is **not** updated by this measurement: the restored
+kicad-cli install has no `kicad-footprints` package (verified — zero
+`.pretty` directories under the install prefix), which makes
+`lib_footprint_issues`/`lib_footprint_mismatch` unreliable in this
+environment for both the old and new board content identically (an
+environment artifact, not a measured delta). The other 7 warning
+categories reproduced the committed values exactly across all three runs
+above, corroborating zero warning impact from this sync — but the two
+footprint-library-dependent categories are left exactly as committed
+rather than replaced with a number this environment cannot be trusted to
+produce.
+
+Landed in `power_pcb_dataset/drc_ceiling.json`'s `2026-08-11-netclass-full-sync`
+`_march` entry, with a fresh `measured-live` provenance record
+(`sample_count: 130`, input hash matching `pcb/temper.kicad_pcb`'s current
+content) and a `Ceiling-Approval:` trailer on the landing commit. Verified
+against `scripts/check_drc_ceiling_approval.py --base-ref origin/main`:
+PASS.
