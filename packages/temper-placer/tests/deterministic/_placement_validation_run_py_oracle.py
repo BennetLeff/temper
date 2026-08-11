@@ -1,44 +1,22 @@
-"""Placement validation stage for HV-signal clearance constraints.
+"""
+D6 run-orchestration oracle for `deterministic/stages/placement_validation.py`.
 
-This stage validates that component placements satisfy signal-to-HV clearance
-constraints before routing begins. This catches placement issues that would
-make safe routing geometrically impossible.
-
-EXP-11: Gate drive signals must route to MOSFET gates without approaching
-HV collector/emitter pins within 6mm (IEC 60335-1 creepage).
-
-The pure geometry + constraint kernels are implemented in Rust in the
-``temper-drc-rs`` crate (Wave 4 **Phase 5, batch 2** — deterministic leaf
-stages): ``_point_to_segment_distance``, ``_validate_proximity`` and
-``_validate_signal_hv`` delegate to ``temper_drc_rs``.
-
-Phase D batch D6 of the Rust Orchestration Engine plan (2026-08-09-001): the
-**run orchestration** (the no-board guard, the component-position extraction,
-the proximity / signal-HV constraint sweeps, the hard-violation filter, the
-``PlacementValidationError`` raise decision + message text and the
-``placement_violations`` write) is implemented in Rust
-(``temper-orchestration``'s ``PlacementValidationStage`` /
-``run_placement_validation``), crossing the FFI once per stage call. This
-module keeps the public API: the ``PlacementValidationStage`` /
-``PlacementViolation`` / ``PlacementValidationError`` names and the directly
-exercised per-constraint helper methods (``_validate_proximity`` /
-``_validate_signal_hv`` / ``_get_pin_position`` / ``_get_component_positions``
-/ ``_get_proximity_constraints`` / ``_get_signal_hv_constraints`` /
-``_point_to_segment_distance`` / ``_log_summary`` — pinned by
-``test_drc_leaf_rust_differential.py``) stay as the pre-D6 bodies; the Rust
-stage CALLS the validation helpers back on this instance (the D4/D5 mixin
-boundary). The pre-migration implementation is pinned VERBATIM in
-``tests/deterministic/_placement_validation_run_py_oracle.py``.
+Verbatim pre-D6 snapshot of the module at the D6 dispatch base (origin/main
+`13525f78`), with ONLY the documented relative-import rewrites below. The body
+below `# --- BEGIN PINNED BODY ---` is byte-identical to the module; the D6
+Rust port (`temper-orchestration::PlacementValidationStage`) is the
+differential subject, pinned by `test_deterministic_d6_rust_differential.py`.
 """
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import temper_drc_rs as _drc
-import temper_orchestration as _to
 
-from ..state import BoardState
-from .base import Stage
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
+
+# --- BEGIN PINNED BODY ---
 
 logger = logging.getLogger(__name__)
 
@@ -102,13 +80,40 @@ class PlacementValidationStage(Stage):
         return "placement_validation"
 
     def run(self, state: BoardState) -> BoardState:
-        """Run the placement-validation orchestration in Rust (Phase D D6);
-        crosses the FFI once per stage call and surfaces the raise decision as
-        the module's ``PlacementValidationError``."""
-        out_state, message = _to.run_placement_validation(state, self)
-        if message is not None:
-            raise PlacementValidationError(message)
-        return out_state
+        violations = []
+
+        # Get component positions from board
+        if not state.board:
+            logger.warning("No board in state, skipping placement validation")
+            return state
+
+        component_positions = self._get_component_positions(state)
+
+        # Validate proximity constraints
+        for constraint in self._get_proximity_constraints():
+            violation = self._validate_proximity(constraint, component_positions)
+            if violation:
+                violations.append(violation)
+
+        # Validate signal-to-HV clearance constraints
+        for constraint in self._get_signal_hv_constraints():
+            violation = self._validate_signal_hv(constraint, component_positions)
+            if violation:
+                violations.append(violation)
+
+        # Log results
+        self._log_summary(violations)
+
+        # Check for hard violations
+        hard_violations = [v for v in violations if v.severity == "error"]
+        if self.fail_on_hard_violations and hard_violations:
+            raise PlacementValidationError(
+                f"{len(hard_violations)} hard placement violations found:\n"
+                + "\n".join(f"  - {v.message}" for v in hard_violations)
+            )
+
+        # Store violations in state (convert to tuple for frozen dataclass)
+        return replace(state, placement_violations=tuple(violations))
 
     def _get_component_positions(self, state: BoardState) -> dict:
         """Extract component positions from board state."""

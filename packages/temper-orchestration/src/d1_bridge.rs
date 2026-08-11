@@ -86,6 +86,13 @@ pub(crate) fn to_python(
             "used_slots" => py_opt_changed(orig, out, "used_slots")?,
             "design_rules" => py_opt_changed(orig, out, "design_rules")?,
             "reclaim_by_pin_pair" => py_opt_changed(orig, out, "reclaim_by_pin_pair")?,
+            // D6 (validation stages): the validation-result and geometry
+            // fields the D6 stages write back.
+            "routes" => py_opt_changed(orig, out, "routes")?,
+            "vias" => py_opt_changed(orig, out, "vias")?,
+            "drc_violations" => py_opt_changed(orig, out, "drc_violations")?,
+            "placement_violations" => py_opt_changed(orig, out, "placement_violations")?,
+            "connectivity_violations" => py_opt_changed(orig, out, "connectivity_violations")?,
             "net_order" => {
                 let orig_tuple = orig.getattr("net_order")?;
                 let orig_vec: Vec<String> = orig_tuple.extract()?;
@@ -111,6 +118,11 @@ pub(crate) fn to_python(
             "used_slots" => opt_value(py, &out.used_slots),
             "design_rules" => opt_value(py, &out.design_rules),
             "reclaim_by_pin_pair" => opt_value(py, &out.reclaim_by_pin_pair),
+            "routes" => opt_value(py, &out.routes),
+            "vias" => opt_value(py, &out.vias),
+            "drc_violations" => opt_value(py, &out.drc_violations),
+            "placement_violations" => opt_value(py, &out.placement_violations),
+            "connectivity_violations" => opt_value(py, &out.connectivity_violations),
             "net_order" => PyTuple::new(py, out.net_order.iter().map(|s| s.as_str()))?
                 .into_any()
                 .unbind(),
@@ -167,6 +179,11 @@ fn py_opt_changed(
         "used_slots" => out.used_slots.as_ref(),
         "design_rules" => out.design_rules.as_ref(),
         "reclaim_by_pin_pair" => out.reclaim_by_pin_pair.as_ref(),
+        "routes" => out.routes.as_ref(),
+        "vias" => out.vias.as_ref(),
+        "drc_violations" => out.drc_violations.as_ref(),
+        "placement_violations" => out.placement_violations.as_ref(),
+        "connectivity_violations" => out.connectivity_violations.as_ref(),
         _ => return Ok(false),
     };
     match (orig_val.is_none(), out_val) {

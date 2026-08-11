@@ -1591,6 +1591,203 @@ None write-back.
 | D5 stage runner (ZoneAwareSlotGenerationStage no-zones/with-zones + PhasedAssignmentStage guard/end-to-end/HV rings through `PipelineRunner<BoardState>` with sys.modules-registered fakes incl. fake design-bundle + channels modules) | `packages/temper-orchestration/tests/d5_stages_runner.rs` | 5 |
 | pre-existing zone-aware / phase / phased / ghost-pad suites (the Phase-5 kernel differentials + PBT, the phased-placer scenarios, the seed-filter integration, the DRC-fence flip, the ghost-pad property, the channel-integration tests) | `packages/temper-placer/tests/deterministic/` + `tests/property/` + `tests/parity/` | 1335+ |
 
+## Rust orchestration engine — Phase D batch D6 (deterministic validation stages)
+
+Phase D batch D6 of the Rust Orchestration Engine plan (2026-08-09-001): the
+deterministic validation batch (`deterministic/stages/{placement_validation,
+via_validation,drc_sweep,drc_validation,connectivity_validation,
+courtyard_check}.py`, ~1,220 LOC) moves to `temper-orchestration` as nine
+`Stage<BoardState>` implementors. Depends on D4+D5 (placements populated).
+
+### What migrated
+
+| Python module | Rust entity | Reads from BoardState | Writes to BoardState |
+|---|---|---|---|
+| `placement_validation.py` (293) | `PlacementValidationStage` (Stage impl) + `run_placement_validation` pyfunction | `board` (+ the Python stage instance: `constraints` / `fail_on_hard_violations` / `parsed_pads`) | `placement_violations` (tuple) |
+| `via_validation.py` (261) | `ViaValidationStage` + `ViaDeduplicationStage` + `run_via_validation` / `run_via_deduplication` | `vias`, `routes`, `netlist`, `placements` | `vias` (frozenset) |
+| `drc_sweep.py` (257) | `DRCSweepStage` + `TrackDeduplicationStage` + `ShortCircuitDetectionStage` + `run_drc_sweep` / `run_track_deduplication` / `run_short_circuit_detection` | `drc_oracle`, `routes`, `vias`, `netlist`, `placements` | `routes` (frozenset), `vias` (frozenset) |
+| `drc_validation.py` (72) | `DRCValidationStage` + `run_drc_validation` | `drc_oracle` | `drc_violations` (tuple) |
+| `connectivity_validation.py` (145) | `ConnectivityValidationStage` + `run_connectivity_validation` | `drc_oracle`, `layer_assignments` | `connectivity_violations` (tuple) |
+| `courtyard_check.py` (192) | `CourtyardCheckStage` + `run_courtyard_check` | `placements` (+ the Python stage instance: `max_iterations` / `nudge_step`) | `placements` (frozenset) |
+
+The Rust stages transcribe the pre-migration orchestration wholesale:
+`placement_validation` runs the no-board guard, the component-position
+extraction, the proximity / signal-HV sweeps, the hard-violation filter, the
+raise message and the write; `via_validation` builds the trace-endpoint index
+(with the 0.5mm mid-trace sampling via libm-`pow` squares and `** 0.5`) and
+the pin-position index (PTH all-layers registration), runs the per-via
+validity sweep (diff-pair skip, plane-net special case) and the print
+messages; `drc_sweep` runs the oracle track/via sweep with the non-Trace
+pass-through, the Trace-only dedup marshalling + remap, and the pin_net_map
+build with CPython-`round(x, 2)` keys + endpoint short sweep; `drc_validation`
+runs the `validate_all` + summary + `threshold_decision_py` raise decision;
+`connectivity_validation` runs the geometry extraction + per-net grouping +
+plane/empty-net skips + UnionFind marshalling; `courtyard_check` runs the
+iterative nudge loop (libm-`pow` distance, the coincident-center branch, the
+`_clamp_position` call-backs). The `d1_bridge.rs` write-back gains the
+`routes` / `vias` / `drc_violations` / `placement_violations` /
+`connectivity_violations` candidates, and `stage.rs` gains a
+`From<PyErr> for StageError` conversion so stage bodies use `?` on `PyResult`
+values directly.
+
+**What stays Python (evidence)**: the temper-drc-rs leaf kernels
+(`validate_proximity_py`, `validate_signal_hv_py`, `count_connected_layers_py`,
+`dedup_via_positions_py`, `deduplicate_traces_py`, `threshold_decision_py`,
+`summarize_violations_py`, `connectivity_validate_net_py`, `clamp_position_py`)
+stay single-source and are driven through FFI. The DRCOracle methods
+(`validate_all`, `can_place_track_segment`, `get_valid_via_sites`, `.geometry`)
+and the `LAYER_NAME_TO_IDX` constant stay Python call-backs. The
+`pin_world_position` / `pin_world_position_at` geometry, the `is_ground_net` /
+`is_power_net` net-classification predicates and the `Trace` / `Via`
+pyclasses + `core.board` layer constants stay Python (driven through FFI). The
+`PlacementViolation` / `ConnectivityViolation` dataclasses, the router_v6
+`Point` class and the `PlacementValidationError` / `DRCValidationError` /
+`ConnectivityValidationError` exception classes stay Python: the raising
+stages return `Err(StageErrorKind::Infeasible)` and the shared
+`write_back_or_raise` channel hands `(state, message)` to the shim, which
+raises its module's exception type with the Rust-decided message text. The
+shapely/GEOS STRtree courtyard collision detection (`_find_collisions`) and
+the CPython `random.random()` nudge noise stay single-source and are called
+back on the Python stage instance (the D4/D5 mixin boundary); `_validate_proximity`
+/ `_validate_signal_hv` / `_get_pin_position` / `_get_component_positions` /
+`_get_proximity_constraints` / `_get_signal_hv_constraints` /
+`_point_to_segment_distance` / `_log_summary` stay Python methods directly
+exercised by `test_drc_leaf_rust_differential.py`, and the Rust run() calls
+the two validation helpers back. All interpolated log/print messages render
+through CPython (`print`, `str.format`, `sorted`, `round`, `logging`) -- the
+David-Gay `:.1f`, tuple-repr and round-half-to-even semantics stay CPython.
+
+### G1 — differential oracle before Rust (TDD)
+
+The pre-migration modules are pinned VERBATIM as
+`tests/deterministic/_<module>_run_py_oracle.py` (six oracles, only relative
+imports rewritten to absolute paths); each body's sha256 is pinned in the
+differential, which fails on any drift. The RED commit (`4a52a0fb`) landed the
+oracles + differential with the anti-vacuity tripwire failing (the shims did
+not yet delegate); the GREEN commits (`bcd089f0` drc/connectivity,
+`8cd8b651` via/drc-sweep, `acc9451a` placement/courtyard) landed the ports.
+
+### G2 — behavioural A/B (bit-exact)
+
+`tests/deterministic/test_deterministic_d6_rust_differential.py`: 54 tests
+drive both arms with identical BoardState inputs and stage constructor args
+and compare bit-exactly — `placement_violations` / `drc_violations` /
+`connectivity_violations` tuples projected through `float.hex()`, the
+`routes` / `vias` / `placements` frozensets through the same canon, the
+identity-preserving guards (no board / no vias-or-routes / no oracle / no
+placements), the `PlacementValidationError` / `DRCValidationError` /
+`ConnectivityValidationError` raise parity (message equality), the parsed-pads
+offset, the via-connectivity / plane-via / diff-pair / dedup sweeps, the
+drc-sweep / track-dedup / short-circuit filters, the connectivity net skips,
+and the courtyard nudge trajectories (the CPython `random` module seeded
+identically before each arm, so both consume the identical noise sequence;
+captured stdout compared bit-exact on every print-emitting stage).
+`float.hex()` pins the libm-`pow` squares and `** 0.5` distances bit-for-bit.
+
+### G3 — performance
+
+Pure-delegation carve-out: each stage crosses the FFI once per `run()`; the
+leaf kernels, the DRCOracle methods, shapely and `random` are unchanged. No
+regression beyond the single FFI crossing is possible or claimed.
+
+### G4 — PBT (`tests/deterministic/test_deterministic_d6_pbt.py`)
+
+Nine non-vacuous properties (P1 placement-violation invariants, P2 anchored
+via kept, P3 via-dedup separation, P4 track-dedup collapse, P5
+drc-violation preservation, P6 connectivity plane/empty-net skip, P7
+courtyard clean-layout preservation, P8 drc-sweep bad-geometry removal + non-
+Trace pass-through, P9 short-circuit wrong-net removal), each with a
+fails-for-mutant companion re-running the SAME body against a degenerate
+stand-in — the established U4/D1-D5 PBT vacuity-guard pattern. Every D6
+module is reached by at least one property. 18 tests green.
+
+### G5 — metamorphic
+
+Not claimed: the D6 surface is orchestration over stateful Python objects
+(and the leaf kernels it delegates to are already metamorphic-covered), not
+pure functions; the differential and PBT arms pin the behavioural surface.
+Recorded as N/A per the plan's per-module G5 discretion (same ruling as D1–D5).
+
+### G6 — induction
+
+Non-applicability note: the stages are finite loops over caller-provided
+collections (constraints, vias, routes, nets, iterations); no recursive or
+size-parameterized computation. Structural proof instead: bit-exactness
+verified by the differential and the PBT vacuity mutants.
+
+### G7 — Rust bar
+
+No `unwrap`/`expect` outside tests (clippy `unwrap_used`/`expect_used` = deny
+in the lib target; the runner test files carry the tests-only allow).
+`cargo test` 125/125 green (91 lib + d1..d6 runner suites, 5 d6 runner
+tests); `cargo clippy --all-features --all-targets -- -D warnings` clean.
+Panic safety: every stage body wraps in `stage_guard` (`catch_unwind`), and
+pyo3's `#[pyfunction]` expansion additionally wraps every exported body.
+
+### G8 — R24 physics
+
+N/A — the stages gate on no physics quantity; the creepage clearances and
+required distances are constraint/configuration values threaded through the
+already-tested temper-drc-rs kernels. Recorded explicitly.
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every input in the differential suites'
+domains, the Rust stages produce outputs bit-identical to the pinned
+pre-migration oracle's. The load-bearing equivalences:
+
+1. **libm `pow` squares and roots.** `(a - b) ** 2` in the via trace sampling,
+   the courtyard `dx**2 + dy**2` and the placement distances is CPython
+   `float ** float` = libm `pow` — routed through `host_math::pow`; `** 0.5`
+   is `pow(x, 0.5)`, NOT `sqrt`.
+2. **CPython `round(x, 2)` keys.** The short-circuit pin_net_map keys round
+   through CPython's `round` builtin (round-half-to-even) via FFI; the
+   `{px:.1f}` message rendering goes through CPython `__format__`.
+3. **CPython rendering.** Every log line and `print` message renders through
+   CPython `print` / `str.format` / `str.join` / `sorted` (David-Gay `:.1f`,
+   tuple reprs, removed-net previews) — parity by identity, not by coincidence
+   of formatter implementations.
+4. **Mixin helpers are called, not reimplemented.** `_validate_proximity` /
+   `_validate_signal_hv` (placement) and `_find_collisions` / `_clamp_position`
+   (courtyard) are invoked on the Python stage instance, so the constraint
+   kernels, the shapely/GEOS collision detection and the CPython
+   `random.random()` noise stay single-source. The courtyard differential
+   seeds `random` identically per arm, so both consume the identical noise
+   sequence.
+5. **Leaf kernels / oracle methods via FFI.** The temper-drc-rs kernels, the
+   DRCOracle methods and the geometry / classification helpers are called
+   through their Python modules — identical calls, identical order, so parity
+   is by construction.
+6. **Set/dict insertion order.** The via/drc-sweep removed-net accounting, the
+   connectivity per-net grouping (first-seen net order) and the courtyard
+   placements dict are built through CPython in the same sequence as the
+   oracle; the descending-count summary sort is a stable Rust sort keyed by
+   `Reverse(count)`, matching Python's `sorted(..., reverse=True)` tie order.
+7. **Write-back fidelity.** `d1_bridge.rs` writes a candidate field only when
+   it actually changed (equality on the original Python objects), returning
+   the ORIGINAL state object when nothing changed (identity preserved on the
+   guard paths); the `(state, message)` raise channel writes nothing back on
+   the raise path — the Python oracle raises before `dataclasses.replace`.
+
+**Documented boundary choices** (kept Python / deliberately different, argued
+in-source and above): the raising stages surface their decision through the
+shared `write_back_or_raise` channel (the shim raises the module's exception
+class; a non-raise internal PyErr becomes a `RuntimeError` from the
+pyfunction, exactly the D1-D5 `to_pyerr` convention). The placement /
+connectivity violation dataclasses and the courtyard/geometry objects stay
+Python single-source (constructed through FFI). The `_get_component_positions`
+component-position dict is built in Rust rather than called back (the method
+stays as directly-exercised public API); the differential pins the two agree.
+
+### Differential / PBT / runner suites (D6)
+
+| Suite | Location | Count |
+|---|---|---|
+| D6 differential (oracles: the six `tests/deterministic/_*_run_py_oracle.py`, sha256-pinned) | `packages/temper-placer/tests/deterministic/test_deterministic_d6_rust_differential.py` | 54 |
+| D6 PBT (P1..P9, mutation-guarded) | `packages/temper-placer/tests/deterministic/test_deterministic_d6_pbt.py` | 18 |
+| D6 stage runner (DRCSweep / ViaDedup / DRCValidation / Courtyard / ConnectivityValidation through `PipelineRunner<BoardState>` with sys.modules-registered fakes incl. fake temper-drc-rs + core.board + pin_geometry + net_classification modules) | `packages/temper-orchestration/tests/d6_stages_runner.rs` | 5 |
+| pre-existing deterministic suites (the stage kernels differentials + PBT, the D1-D5 differentials, the coverage paydown, the phase/ghost-pad/channel suites) | `packages/temper-placer/tests/deterministic/` | 1389 |
+
 ## Rust orchestration engine — U8 (explainability data contracts + MarkdownReport)
 
 The Rust Orchestration Engine plan (2026-08-09-001) ships its Phase-A U8 unit

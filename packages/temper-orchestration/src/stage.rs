@@ -135,6 +135,17 @@ impl StageError {
     }
 }
 
+/// A Python error raised inside a stage body becomes a `Fatal` `StageError`
+/// (the `stage_name` is filled in by the stage's own wrapper when the run()
+/// result is observed; the FFI path only reads `message`). This lets stage
+/// bodies use `?` on `PyResult` values directly while keeping the raise
+/// DECISION (the `Infeasible` kind) explicit.
+impl From<pyo3::PyErr> for StageError {
+    fn from(e: pyo3::PyErr) -> Self {
+        StageError::new("", e.to_string(), StageErrorKind::Fatal)
+    }
+}
+
 impl fmt::Display for StageError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}: {:?}: {}", self.stage_name, self.kind, self.message)

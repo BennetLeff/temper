@@ -96,6 +96,58 @@
 //                     `POWER_NET_NAMES` classification set and the
 //                     `isolation_slot_aabb` stay single-source in
 //                     design-bundle / Python and are driven through FFI)
+// - `placement_validation_stage` — Phase D batch D6: the
+//                     `PlacementValidationStage` `Stage<BoardState>` impl
+//                     (mirroring `deterministic/stages/placement_validation.py`:
+//                     the no-board guard, the component-position extraction,
+//                     the proximity / signal-HV sweeps calling the Python
+//                     `_validate_proximity` / `_validate_signal_hv` helpers
+//                     back, the hard-violation filter + raise message and the
+//                     `placement_violations` write)
+// - `via_validation_stage` — Phase D batch D6: the `ViaValidationStage` +
+//                     `ViaDeduplicationStage` `Stage<BoardState>` impls
+//                     (mirroring `deterministic/stages/via_validation.py`: the
+//                     guards, the trace-endpoint / pin-position index building,
+//                     the per-via validity sweep, the `print` messages and the
+//                     `vias` frozenset writes; the temper-drc-rs
+//                     count_connected_layers / dedup kernels stay single-source)
+// - `drc_sweep_stage` — Phase D batch D6: the `DRCSweepStage` +
+//                     `TrackDeduplicationStage` + `ShortCircuitDetectionStage`
+//                     `Stage<BoardState>` impls (mirroring
+//                     `deterministic/stages/drc_sweep.py`: the guards, the
+//                     oracle call-backs, the non-Trace pass-through, the
+//                     pin_net_map build with CPython `round(x, 2)` keys and
+//                     the routes/vias frozenset writes)
+// - `drc_validation_stage` — Phase D batch D6: the `DRCValidationStage`
+//                     `Stage<BoardState>` impl (mirroring
+//                     `deterministic/stages/drc_validation.py`: the
+//                     `validate_all` call-back, the count-by-type summary, the
+//                     `threshold_decision_py` raise decision and the
+//                     `drc_violations` write)
+// - `connectivity_validation_stage` — Phase D batch D6: the
+//                     `ConnectivityValidationStage` `Stage<BoardState>` impl
+//                     (mirroring `deterministic/stages/connectivity_validation.py`:
+//                     the geometry extraction + per-net grouping, the
+//                     plane-net / empty-net skips, the UnionFind kernel
+//                     marshalling and the `connectivity_violations` write)
+// - `courtyard_check_stage` — Phase D batch D6: the `CourtyardCheckStage`
+//                     `Stage<BoardState>` impl (mirroring
+//                     `deterministic/stages/courtyard_check.py`: the iterative
+//                     nudge loop with the libm-`pow` distance, the
+//                     `_find_collisions` / `_clamp_position` call-backs and
+//                     the `placements` write; the shapely/GEOS collision
+//                     detection and the CPython `random.random()` noise stay
+//                     single-source)
+//
+// The D6 stages share the `(state, message)` raise channel
+// (`d6_util::write_back_or_raise`): a run() that decides to raise returns
+// `Err(StageErrorKind::Infeasible)` and the pyfunction hands the message to
+// the shim, which raises its module's own exception type (the exception
+// classes stay Python; the decision + message are the migrated orchestration).
+// The shared helpers (`py_print` / `py_format` / `log_msg`) in `d6_util.rs`
+// route every rendered message through CPython (`print` / `str.format` /
+// `logging`), so David-Gay decimal formatting and tuple reprs stay
+// bit-identical to the pre-migration Python by construction.
 //
 // Panic safety at the boundary (R1g): pyo3's `#[pyfunction]` expansion
 // wraps every exported body in `catch_unwind` and converts a Rust panic
@@ -105,10 +157,15 @@
 mod board_state;
 mod component_assignment_stage;
 mod config_attach_stage;
+mod connectivity_validation_stage;
 mod convergence;
 mod copper_length;
+mod courtyard_check_stage;
 mod d1_bridge;
+mod d6_util;
 mod derivation_stage;
+mod drc_sweep_stage;
+mod drc_validation_stage;
 mod explainability;
 mod feasibility;
 mod grid_fence;
@@ -120,12 +177,14 @@ mod phased_assignment_stage;
 mod phased_component_assignment_validator_stage;
 mod pipeline;
 mod pipeline_state;
+mod placement_validation_stage;
 mod preflight_stage;
 mod setup_stage;
 mod slot_generation_stage;
 mod stage;
 mod timing;
 mod trace_filter;
+mod via_validation_stage;
 mod zone_assignment_stage;
 mod zone_geometry_stage;
 mod zone_aware_slot_generation_stage;
@@ -136,16 +195,22 @@ mod zone_aware_slot_generation_stage;
 pub use board_state::BoardState;
 pub use component_assignment_stage::ComponentAssignmentStage;
 pub use config_attach_stage::ConfigAttachStage;
+pub use connectivity_validation_stage::ConnectivityValidationStage;
+pub use courtyard_check_stage::CourtyardCheckStage;
 pub use derivation_stage::DerivationStage;
+pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
+pub use drc_validation_stage::DRCValidationStage;
 pub use grid_stage::ClearanceGridStage;
 pub use net_ordering_stage::NetOrderingStage;
 pub use phased_assignment_stage::PhasedAssignmentStage;
 pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
 pub use phased_component_assignment_validator_stage::phased_validator_hv;
+pub use placement_validation_stage::PlacementValidationStage;
 pub use preflight_stage::PreflightStage;
 pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
 pub use slot_generation_stage::SlotGenerationStage;
 pub use stage::{Stage, StageError, StageErrorKind};
+pub use via_validation_stage::{ViaDeduplicationStage, ViaValidationStage};
 pub use zone_assignment_stage::ZoneAssignmentStage;
 pub use zone_geometry_stage::ZoneGeometryStage;
 pub use zone_aware_slot_generation_stage::ZoneAwareSlotGenerationStage;
@@ -206,6 +271,15 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(zone_aware_slot_generation_stage::run_zone_aware_slot_generation, m)?)?;
     m.add_function(wrap_pyfunction!(phased_assignment_stage::run_phased_assignment, m)?)?;
     m.add_function(wrap_pyfunction!(phased_assignment_stage::run_phase_select_best_slot, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_validation_stage::run_drc_validation, m)?)?;
+    m.add_function(wrap_pyfunction!(connectivity_validation_stage::run_connectivity_validation, m)?)?;
+    m.add_function(wrap_pyfunction!(via_validation_stage::run_via_validation, m)?)?;
+    m.add_function(wrap_pyfunction!(via_validation_stage::run_via_deduplication, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_sweep_stage::run_drc_sweep, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_sweep_stage::run_track_deduplication, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_sweep_stage::run_short_circuit_detection, m)?)?;
+    m.add_function(wrap_pyfunction!(placement_validation_stage::run_placement_validation, m)?)?;
+    m.add_function(wrap_pyfunction!(courtyard_check_stage::run_courtyard_check, m)?)?;
     Ok(())
 }
 
