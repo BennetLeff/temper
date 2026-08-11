@@ -96,6 +96,58 @@
 //                     `POWER_NET_NAMES` classification set and the
 //                     `isolation_slot_aabb` stay single-source in
 //                     design-bundle / Python and are driven through FFI)
+// - `placement_validation_stage` — Phase D batch D6: the
+//                     `PlacementValidationStage` `Stage<BoardState>` impl
+//                     (mirroring `deterministic/stages/placement_validation.py`:
+//                     the no-board guard, the component-position extraction,
+//                     the proximity / signal-HV sweeps calling the Python
+//                     `_validate_proximity` / `_validate_signal_hv` helpers
+//                     back, the hard-violation filter + raise message and the
+//                     `placement_violations` write)
+// - `via_validation_stage` — Phase D batch D6: the `ViaValidationStage` +
+//                     `ViaDeduplicationStage` `Stage<BoardState>` impls
+//                     (mirroring `deterministic/stages/via_validation.py`: the
+//                     guards, the trace-endpoint / pin-position index building,
+//                     the per-via validity sweep, the `print` messages and the
+//                     `vias` frozenset writes; the temper-drc-rs
+//                     count_connected_layers / dedup kernels stay single-source)
+// - `drc_sweep_stage` — Phase D batch D6: the `DRCSweepStage` +
+//                     `TrackDeduplicationStage` + `ShortCircuitDetectionStage`
+//                     `Stage<BoardState>` impls (mirroring
+//                     `deterministic/stages/drc_sweep.py`: the guards, the
+//                     oracle call-backs, the non-Trace pass-through, the
+//                     pin_net_map build with CPython `round(x, 2)` keys and
+//                     the routes/vias frozenset writes)
+// - `drc_validation_stage` — Phase D batch D6: the `DRCValidationStage`
+//                     `Stage<BoardState>` impl (mirroring
+//                     `deterministic/stages/drc_validation.py`: the
+//                     `validate_all` call-back, the count-by-type summary, the
+//                     `threshold_decision_py` raise decision and the
+//                     `drc_violations` write)
+// - `connectivity_validation_stage` — Phase D batch D6: the
+//                     `ConnectivityValidationStage` `Stage<BoardState>` impl
+//                     (mirroring `deterministic/stages/connectivity_validation.py`:
+//                     the geometry extraction + per-net grouping, the
+//                     plane-net / empty-net skips, the UnionFind kernel
+//                     marshalling and the `connectivity_violations` write)
+// - `courtyard_check_stage` — Phase D batch D6: the `CourtyardCheckStage`
+//                     `Stage<BoardState>` impl (mirroring
+//                     `deterministic/stages/courtyard_check.py`: the iterative
+//                     nudge loop with the libm-`pow` distance, the
+//                     `_find_collisions` / `_clamp_position` call-backs and
+//                     the `placements` write; the shapely/GEOS collision
+//                     detection and the CPython `random.random()` noise stay
+//                     single-source)
+//
+// The D6 stages share the `(state, message)` raise channel
+// (`d6_util::write_back_or_raise`): a run() that decides to raise returns
+// `Err(StageErrorKind::Infeasible)` and the pyfunction hands the message to
+// the shim, which raises its module's own exception type (the exception
+// classes stay Python; the decision + message are the migrated orchestration).
+// The shared helpers (`py_print` / `py_format` / `log_msg`) in `d6_util.rs`
+// route every rendered message through CPython (`print` / `str.format` /
+// `logging`), so David-Gay decimal formatting and tuple reprs stay
+// bit-identical to the pre-migration Python by construction.
 //
 // Panic safety at the boundary (R1g): pyo3's `#[pyfunction]` expansion
 // wraps every exported body in `catch_unwind` and converts a Rust panic

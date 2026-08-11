@@ -154,7 +154,6 @@ impl ConnectivityValidationStage {
             let is_plane: bool = plane_nets.iter().any(|pn| {
                 pn.bind(py)
                     .eq(&net_name)
-                    .map(|eq| eq)
                     .unwrap_or(false)
             });
             if is_plane {
@@ -283,7 +282,10 @@ impl ConnectivityValidationStage {
                     None => order.push((vtype, 1)),
                 }
             }
-            order.sort_by(|a, b| b.1.cmp(&a.1));
+            // Descending by count, ties in first-seen type order (a stable
+            // sort -- `sort_by_key(Reverse(..))` keeps insertion order on
+            // ties exactly like Python's `sorted(..., reverse=True)`).
+            order.sort_by_key(|x| std::cmp::Reverse(x.1));
             order
         };
         let count = violations.len()?;
