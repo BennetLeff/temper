@@ -35,9 +35,32 @@ differential test. **Every migration therefore increases total code.** As of
 this plan: 293,983 LOC Rust against 172,119 LOC production Python (665 files,
 via `scripts/check_migration_narrowing.py::production_py_files`), with
 `router_v6/` alone still 30,617 LOC across 102 Python files, only 51 of which
-delegate to any Rust crate. 107 registered kernels sit in
-[`../../.unwired-kernel-inventory`](../../.unwired-kernel-inventory) with no
-production caller.
+delegate to any Rust crate.
+
+> **AMENDED 2026-08-11 after U2 (#1018) — this paragraph's original claim was
+> wrong.** It read: *"107 registered kernels sit in `.unwired-kernel-inventory`
+> with no production caller"*, and framed that as migration backlog. Triage of
+> all 107 against their real call sites returned **WIRE: 0**,
+> NEVER-WIRE-BY-DESIGN: 70, ORPHANED-DELETE: 37. There is no wiring backlog.
+> **38 of the 107 are in fact already wired** — through runtime
+> `PyModule::import` / `getattr` / pyo3 rename aliases that
+> `scripts/check_unwired_kernels.py`'s Python AST scan structurally cannot see.
+> The rest are deliberate non-callers (typed introspection and PBT surfaces) or
+> dead weight from completed shim retirements and marshaler collapses.
+>
+> So the ledger's headline number is substantially an artifact of the detector,
+> not a measure of unwired work. That does **not** invalidate the plan's core
+> thesis — the pipeline still has no wire stage and no retire stage, and stage 7
+> is still worth having for the migrations that come next. It does mean the
+> *evidence* for the thesis is the pipeline's own text (see the stage-3
+> checklist), not this count. The still-live consequence is U5's: 50,141+ LOC of
+> Python oracles with no retirement criterion.
+>
+> A secondary finding worth acting on separately: a gate with ~35% false
+> positives, made PR-blocking in #1004, will train readers to dismiss it. The
+> false positives are individually ledgered with reasons so they do not block a
+> merge, but the detector's blind spot to cross-extension and dynamic wiring
+> should be recorded in its own docstring.
 
 **Why this is urgent rather than tidy.** Because nothing retires per-kernel,
 cleanup has happened instead as periodic bulk deletion passes driven by import
@@ -113,10 +136,25 @@ safety kernels exempt — those keep a live differential indefinitely by design.
   a reason per entry, and encode the first two as inventory reasons so the
   distinction survives.
 
-- **U3 — Drain the WIRE partition.** One kernel per commit; each repoints its
+  **DONE 2026-08-11 (#1018). Result: WIRE 0 / NEVER-WIRE-BY-DESIGN 70 /
+  ORPHANED-DELETE 37.** Every entry is now tagged in the ledger with a legend in
+  its header. The five entries marked "needs triage" since #839
+  (`DrillDefinition`, `evaluate_quality_py`, `net_currents`, `py_sum`,
+  `tokenize`) plus `HypergraphBuildResult` were resolved against real call
+  sites, and every entry whose name merely *looked* wireable was re-checked
+  individually — `required_clearance_py` (its Python caller already delegates to
+  a different, already-wired kernel), `parse_capacitance_rs` (the Python it
+  would replace is a deliberate Rust-independent fallback; wiring it defeats the
+  fallback), the `via_*` family (no matching step exists in the real algorithm).
+  All resolved to NEVER-WIRE-BY-DESIGN.
+
+- **U3 — Drain the WIRE partition.** ~~One kernel per commit; each repoints its
   production caller, runs the kernel's existing differential, and removes the
-  now-dead Python implementation. `check_unwired_kernels.py` is shrink-only and
-  PR-blocking as of #1004, so progress is machine-visible in the ledger diff.
+  now-dead Python implementation.~~ **NO-OP — U2 found zero WIRE candidates.**
+  `check_unwired_kernels.py` reports the identical count before and after:
+  `1011 registered kernel(s); 107 unwired, all ledgered`. Nothing to repoint.
+  The unit is retained here rather than deleted so the next reader sees that it
+  was executed and returned empty, not skipped.
 
 - **U4 — Build the FREEZE tooling.** A generator that runs an oracle over a
   declared input corpus, writes golden vectors, and emits a Rust test asserting
@@ -154,10 +192,16 @@ safety kernels exempt — those keep a live differential indefinitely by design.
 
 - `scripts/check_unwired_kernels.py` is PR-blocking as of #1004 — U3's progress
   depends on that remaining true.
-- **Assumption to verify in U2, not assumed here:** that a meaningful fraction
+- ~~**Assumption to verify in U2, not assumed here:** that a meaningful fraction
   of the 107 are genuinely WIRE-able. If triage finds they are overwhelmingly
   never-wire-by-design, U3 shrinks to near nothing and the backlog framing in
-  this plan's Goal Capsule is wrong — say so and amend.
+  this plan's Goal Capsule is wrong — say so and amend.~~
+  **RESOLVED 2026-08-11 (#1018): the assumption was FALSE.** Zero of the 107 are
+  WIRE-able; 38 are already wired invisibly to an AST scan. The Goal Capsule has
+  been amended accordingly. Recorded here rather than deleted because the
+  assumption being wrong is the useful part — it is why U2 was written as a
+  triage gate in front of U3 instead of U3 being started directly, and the same
+  discipline should apply to the next count this plan family quotes.
 - FREEZE assumes deterministic kernels. Any kernel whose output depends on host
   facilities (`dlsym`/libm) or entropy is KEEP or REIMPLEMENT by construction —
   the WASM tier's existing exclusion classes (`no-entropy-source`,
