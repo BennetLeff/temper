@@ -45,7 +45,6 @@ source_modules =
     temper_placer.router_v6
     temper_placer.topological
     temper_placer.validation
-    temper_placer.visualization
 forbidden_modules =
     temper_placer.core.graph
     temper_placer.core.placement_drc
@@ -89,7 +88,6 @@ source_modules =
     temper_placer.regression
     temper_placer.topological
     temper_placer.validation
-    temper_placer.visualization
 forbidden_modules =
     temper_placer.router_v6.acid_trap_detection
     temper_placer.router_v6.adapter
