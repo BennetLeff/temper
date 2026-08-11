@@ -111,6 +111,33 @@ process:
   records the *original* batch-level outcome (``"crashed"``, distinct from
   ``"unsat"``) for reporting, even though the recovery *mechanism* applied
   next is now shared.
+**Phase E batch E5 (Rust Orchestration Engine plan 2026-08-09-001): the
+PORTABLE batch-loop orchestration moved to ``temper-rust-router``.**  The
+net grouping (``order_nets_for_batching``), batch construction (``_chunks``)
+and budget/capacity accounting (``_shrink_channel_widths`` /
+``_consume_capacity``) now delegate to ``temper_rust_router`` pyfunctions
+(pure logic in ``temper_rust_router_core::net_batching``); this module keeps
+its full public API.  What stays Python, with the E5 boundary argument in
+the crate's ``VERIFICATION.md`` and the shim header of ``channel_widths.py``
+(E4) as precedent:
+
+- The **subprocess-per-batch driver** (``_run_target_in_subprocess`` /
+  ``_batch_worker_entry`` / ``_write_shared_context`` / ``_watch_peak_rss_kb``
+  / ``_run_subset_subprocess``) — ``multiprocessing`` orchestration, the
+  plan's "No subprocess-wrapper migration" non-goal.
+- The **solve dispatch** (``_solve_subset`` -> ``ModelBuilder`` +
+  ``solve_topology_rust``) — a callback into Python-only routing glue
+  (the constraint-model build is the E1 surface, not this batch's).
+- ``run_net_batched_stage3`` itself — the loop that sequences those
+  callbacks and the subprocess launches.
+- The **evidence records** (``NetBatchResult``, the trace lines) and the
+  raw-text ``_extract_ref_to_block`` / ``_net_touches_hub`` re-derivation.
+
+The verbatim pre-migration oracle is pinned as
+``tests/router_v6/_net_batching_py_oracle.py`` (content-hash registered in
+``scripts/oracle_hashes.json``); the differential suite
+(``test_net_batching_rust_differential.py``) drives both arms bit-exact.
+
 """
 
 from __future__ import annotations
@@ -130,6 +157,8 @@ from dataclasses import dataclass, field, replace
 from multiprocessing.connection import Connection
 from pathlib import Path
 from typing import Any
+
+import temper_rust_router as _rtr
 
 from temper_placer.core.netlist import Net
 from temper_placer.router_v6._pipeline_types import Stage2Output, Stage3Output
@@ -256,37 +285,25 @@ def order_nets_for_batching(
     member), so keeping pairs adjacent is what makes the per-batch model
     actually enforce the pair's coupled-routing constraint instead of
     silently not applying it.
+
+    Phase E E5: the sort + diff-pair post-pass is the
+    ``temper_rust_router.net_batch_order_py`` kernel; the hub/pin-count
+    extraction (which needs ``Net.pins`` and the raw-PCB ``ref_to_block``
+    map, both Python-side) happens here and the name-based ordering moves.
     """
     ref_to_block = _extract_ref_to_block(pcb_source_path) if pcb_source_path else {}
-
-    def sort_key(i: int) -> tuple[bool, int, str]:
-        net = nets[i]
-        touches_hub = _net_touches_hub(net, ref_to_block, hub_blocks)
-        pin_count = len(getattr(net, "pins", None) or ())
-        return (touches_hub, pin_count, net.name)
-
-    order = sorted(range(len(nets)), key=sort_key)
-
-    name_to_idx = {net.name: i for i, net in enumerate(nets)}
-    diff_pairs = infer_differential_pairs([n.name for n in nets])
-    for pair in diff_pairs:
-        p_i = name_to_idx.get(pair.p_net)
-        n_i = name_to_idx.get(pair.n_net)
-        if p_i is None or n_i is None or p_i == n_i:
-            continue
-        try:
-            order.remove(n_i)
-        except ValueError:
-            continue
-        insert_at = order.index(p_i) + 1
-        order.insert(insert_at, n_i)
-
-    return order
+    names = [net.name for net in nets]
+    pin_counts = [len(getattr(net, "pins", None) or ()) for net in nets]
+    hub_flags = [_net_touches_hub(net, ref_to_block, hub_blocks) for net in nets]
+    diff_pairs = infer_differential_pairs(names)
+    return _rtr.net_batch_order_py(
+        names, pin_counts, hub_flags, [(p.p_net, p.n_net) for p in diff_pairs]
+    )
 
 
 def _chunks(seq: Sequence[int], size: int) -> Iterable[list[int]]:
-    for i in range(0, len(seq), max(1, size)):
-        yield list(seq[i : i + size])
+    # Phase E E5: ``range(0, len, max(1, size))`` slicing -> Rust.
+    return _rtr.chunk_indices_py(list(seq), size)
 
 
 def _build_edge_lookup(
@@ -317,38 +334,28 @@ def _shrink_channel_widths(
     thing ``constraint_model.py`` actually encodes as a cross-net SAT
     constraint — hold across batch boundaries and not just within one
     batch's model.
+
+    Phase E E5: the delta accumulation + sequential per-key reduction is
+    the ``temper_rust_router.shrink_channel_widths_py`` kernel (pure logic
+    in ``temper_rust_router_core::net_batching``); the ``ChannelWidths``
+    wrapping stays here.
     """
     if not consumed:
         return channel_widths
 
-    deltas_by_layer: dict[str, dict[tuple[float, float], tuple[float, float]] | Any] = {}
-    for edge_id, amount in consumed.items():
-        if amount <= 0:
-            continue
-        loc = edge_lookup.get(edge_id)
-        if loc is None:
-            continue
-        layer_name, u, v = loc
-        deltas_by_layer.setdefault(layer_name, {})[(u, v)] = (
-            deltas_by_layer.setdefault(layer_name, {}).get((u, v), 0.0) + amount
-        )
+    layers = [
+        (layer, [(u, v, w) for (u, v), w in channel_widths[layer].edge_widths.items()])
+        for layer in channel_widths
+    ]
+    consumed_list = list(consumed.items())
+    edge_lookup_list = [(eid, layer, u, v) for eid, (layer, u, v) in edge_lookup.items()]
+    rust_out = _rtr.shrink_channel_widths_py(layers, consumed_list, edge_lookup_list)
 
     new_widths = dict(channel_widths)
-    for layer_name, deltas in deltas_by_layer.items():
-        widths = channel_widths.get(layer_name)
-        if widths is None:
-            continue
-        new_edge_widths = dict(widths.edge_widths)
-        for (u, v), amount in deltas.items():
-            key = None
-            if (u, v) in new_edge_widths:
-                key = (u, v)
-            elif (v, u) in new_edge_widths:
-                key = (v, u)
-            if key is None:
-                continue
-            new_edge_widths[key] = max(0.0, new_edge_widths[key] - amount)
-        new_widths[layer_name] = replace(widths, edge_widths=new_edge_widths)
+    for layer, edges in rust_out:
+        new_widths[layer] = replace(
+            channel_widths[layer], edge_widths={(u, v): w for u, v, w in edges}
+        )
     return new_widths
 
 
@@ -377,15 +384,28 @@ def _consume_capacity(
 ) -> None:
     if design_rules is None:
         return
-    name_to_net = {n.name: n for n in nets_subset}
+
+    # Phase E E5: the per-edge accumulation is the
+    # ``temper_rust_router.consume_capacity_py`` kernel.  The name-to-net
+    # membership test and the ``trace_width_mm + clearance_mm`` width lookup
+    # (``design_rules.get_rules_for_net``) stay here — both are callbacks
+    # into Python objects the kernel must not reach into.  The kernel
+    # returns the resulting ``consumed`` in final Python-dict order; this
+    # applies it in place (``clear`` + ``update`` preserve the dict's
+    # identity, which the batch loop relies on).
+    subset_names = {n.name for n in nets_subset}
+    net_widths: list[tuple[str, float]] = []
+    topology: list[tuple[str, list[str]]] = []
     for net_name, ntopo in topo_by_net.items():
-        net = name_to_net.get(net_name)
-        if net is None:
+        if net_name not in subset_names:
             continue
-        rule = design_rules.get_rules_for_net(net.name)
-        net_width = rule.trace_width_mm + rule.clearance_mm
-        for edge_id in ntopo.uses_channels:
-            consumed[edge_id] = consumed.get(edge_id, 0.0) + net_width
+        rule = design_rules.get_rules_for_net(net_name)
+        net_widths.append((net_name, rule.trace_width_mm + rule.clearance_mm))
+        topology.append((net_name, list(ntopo.uses_channels)))
+
+    result = _rtr.consume_capacity_py(net_widths, topology, list(consumed.items()))
+    consumed.clear()
+    consumed.update(result)
 
 
 @dataclass
