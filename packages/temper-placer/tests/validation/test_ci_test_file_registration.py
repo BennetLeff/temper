@@ -247,6 +247,33 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
         "scope for the E5 pull."
     ),
     "router_v6/test_net_batching_rust_metamorphic.py": _PASSING_LOCALLY,
+    "router_v6/test_channel_skeleton_graph_rust_differential.py": (
+        "PASSING locally: the channel-skeleton graph-marshalling differential "
+        "landed with the Phase-4/5 channel work; CI-uncovered by design -- "
+        "the router_v6 CI wiring is the workflow-side change tracked in "
+        "docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md."
+    ),
+    "router_v6/test_constraint_model_builder_pbt.py": (
+        "PASSING locally (Phase E E1, plan 2026-08-09-001): ModelBuilder PBT "
+        "against the verbatim _constraint_model_builder_py_oracle.py "
+        "(content-hash pinned). CI-uncovered by design -- the router_v6 CI "
+        "wiring is the workflow-side change tracked in "
+        "docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md."
+    ),
+    "router_v6/test_constraint_model_builder_rust_differential.py": (
+        "PASSING locally (Phase E E1, plan 2026-08-09-001): ModelBuilder::build() "
+        "differential. CI-uncovered by design (router_v6 CI wiring gap, "
+        "docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md)."
+    ),
+    "router_v6/test_pipeline_route_rust_differential.py": (
+        "PASSING locally (Phase E E6, plan 2026-08-09-001): pipeline-route "
+        "orchestration differential against the verbatim _pipeline_route_py_oracle.py "
+        "(content-hash pinned). CI-uncovered by design -- the router_v6 CI "
+        "wiring is the workflow-side change tracked in "
+        "docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md."
+    ),
+    "router_v6/test_pipeline_route_rust_metamorphic.py": _PASSING_LOCALLY,
+    "router_v6/test_pipeline_route_rust_pbt.py": _PASSING_LOCALLY,
     "router_v6/test_net_batching_rust_pbt.py": _PASSING_LOCALLY,
     "router_v6/test_clearance_matrix_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_congestion_defects.py": _PASSING_LOCALLY,
