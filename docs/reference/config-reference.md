@@ -515,7 +515,7 @@ Noise coupling domain: emitters and victims that must not run parallel.
 
 ## isolation_barriers
 
-An isolation barrier line across the board.
+An isolation barrier across the board: a straight line (x_mm/y_span,
 
 - **Frozen**: True
 - **Extra keys**: ignore
@@ -523,9 +523,11 @@ An isolation barrier line across the board.
 | Field | Type | Default | Constraints | Description |
 |-------|------|---------|-------------|-------------|
 | `name` | `str` | PydanticUndefined | — | Barrier name |
-| `x_mm` | `float` | PydanticUndefined | — | X-position of the barrier in mm |
-| `y_span` | `tuple` | PydanticUndefined | — | (y_start, y_end) span of the barrier in mm |
+| `x_mm` | `float` | PydanticUndefined | — | X-position of the straight-line barrier, in mm |
+| `y_span` | `tuple` | PydanticUndefined | — | (y_start, y_end) span of the straight-line barrier, in mm |
+| `points` | `tuple` | () | — | Optional polyline vertices (mm), >= 2 to take effect. When present, replaces the x_mm/y_span straight-line barrier with the exact piecewise-linear polyline through these vertices. |
 | `layers` | `str | list[str]` | 'all' | — | Layer name(s) for the barrier |
+| `clearance_mm` | `float` | 0.0 | ge=0 | Minimum required clearance (mm) from copper to the barrier geometry, beyond which no violation is raised. 0.0 (default) preserves pure crossing-only semantics. A real barrier should set this to the applicable IEC 60335-1 creepage figure (e.g. 8.0mm REINFORCED). |
 
 ## snubber_requirements
 
