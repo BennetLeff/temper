@@ -280,6 +280,15 @@ class ValidationScheduler:
     - Total epochs (for final phase detection)
     - Configured intervals
 
+    Wave 4 entry-5 migration (port-inventory): the schedule DECISION logic
+    (``is_final_phase``, ``get_drc_interval``/``get_spice_interval``,
+    ``should_run_drc``/``should_run_spice``) runs in the ``temper_drc_rs``
+    ``validation_glue`` kernels; the methods below are delegation shims
+    (the pre-migration bodies are pinned verbatim as the oracle in
+    ``tests/validation/test_validation_glue_rust_differential.py``). The
+    mutable run-state (``_drc_epochs``/``_spice_epochs``), the config
+    object, YAML load/save, and ``summary()`` stay Python.
+
     Example usage:
 
         config = ValidationScheduleConfig.load("validation.yaml")
@@ -316,46 +325,65 @@ class ValidationScheduler:
 
     def is_final_phase(self, epoch: int) -> bool:
         """Check if we're in the final phase of training."""
-        final_start = self.total_epochs - self.config.final_phase_epochs
-        return epoch >= final_start
+        import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
+
+        return _tdrc.scheduler_is_final_phase(
+            epoch, self.total_epochs, self.config.final_phase_epochs
+        )
 
     def get_drc_interval(self, epoch: int) -> int:
         """Get DRC interval for current epoch."""
-        if self.is_final_phase(epoch):
-            return self.config.drc.final_phase_interval
-        return self.config.drc.interval
+        import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
+
+        return _tdrc.scheduler_get_interval(
+            epoch,
+            self.total_epochs,
+            self.config.final_phase_epochs,
+            self.config.drc.interval,
+            self.config.drc.final_phase_interval,
+        )
 
     def get_spice_interval(self, epoch: int) -> int:
         """Get SPICE interval for current epoch."""
-        if self.is_final_phase(epoch):
-            return self.config.spice.final_phase_interval
-        return self.config.spice.interval
+        import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
+
+        return _tdrc.scheduler_get_interval(
+            epoch,
+            self.total_epochs,
+            self.config.final_phase_epochs,
+            self.config.spice.interval,
+            self.config.spice.final_phase_interval,
+        )
 
     def should_run_drc(self, epoch: int) -> bool:
         """Check if DRC should run at this epoch."""
-        if not self.config.enabled or not self.config.drc.enabled:
-            return False
+        import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
 
-        if epoch in self._drc_epochs:
-            return False
-
-        interval = self.get_drc_interval(epoch)
-        should_run = epoch % interval == 0 or epoch == self.total_epochs - 1
-
-        return should_run
+        return _tdrc.scheduler_should_run(
+            epoch,
+            self.total_epochs,
+            self.config.final_phase_epochs,
+            self.config.drc.interval,
+            self.config.drc.final_phase_interval,
+            self.config.enabled,
+            self.config.drc.enabled,
+            epoch in self._drc_epochs,
+        )
 
     def should_run_spice(self, epoch: int) -> bool:
         """Check if SPICE should run at this epoch."""
-        if not self.config.enabled or not self.config.spice.enabled:
-            return False
+        import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
 
-        if epoch in self._spice_epochs:
-            return False
-
-        interval = self.get_spice_interval(epoch)
-        should_run = epoch % interval == 0 or epoch == self.total_epochs - 1
-
-        return should_run
+        return _tdrc.scheduler_should_run(
+            epoch,
+            self.total_epochs,
+            self.config.final_phase_epochs,
+            self.config.spice.interval,
+            self.config.spice.final_phase_interval,
+            self.config.enabled,
+            self.config.spice.enabled,
+            epoch in self._spice_epochs,
+        )
 
     def mark_drc_run(self, epoch: int) -> None:
         """Mark that DRC was run at this epoch."""

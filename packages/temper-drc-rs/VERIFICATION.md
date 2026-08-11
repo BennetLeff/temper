@@ -1697,3 +1697,203 @@ zone/component output with live Python-side `zone_config`) also stays Python.
   list for `items` per call (a pyclass cannot return live references to its
   owned storage); identity of the *contained objects* (the int/float/str
   values) is preserved.
+
+---
+
+# Validation-glue kernels — Verification (port-inventory entry-5 cluster)
+
+The entry-5 cluster migrates the portable compute of three
+`temper_placer/validation/` modules into `src/validation_glue.rs`:
+`scheduler.py` (schedule decisions), `validation_gates.py` (gate
+decisions), and the parsing half of `_drc_api.py`. The pre-migration
+bodies are pinned verbatim as `_oracle_*` blocks in
+`tests/validation/test_validation_glue_rust_differential.py` (commit
+`5b2a03cfe`). TDD-RED commit `70c4f554b` (the differential fails to collect
+until `temper_drc_rs.<kernel>` exists); GREEN `b5d1c5fee`.
+
+## Candidate scorecard — home-crate decision + what stays Python
+
+| Kernel | Python origin | Verdict |
+|---|---|---|
+| `drc_extract_ref` / `drc_extract_net` | `_drc_api._extract_ref_from_item_description` / `_extract_net_from_item_description` | migrated |
+| `drc_parse_violations` | `_drc_api._parse_drc_json` — the per-violation item loop | migrated |
+| `scheduler_is_final_phase` / `scheduler_get_interval` / `scheduler_should_run` | `scheduler.ValidationScheduler` decision methods | migrated |
+| `gate_placement_complete` / `gate_routing_complete` / `gate_production_ready` / `gate_validated` | `validation_gates`'s four gate `check()` decision kernels | migrated |
+| kicad-cli subprocess, `--all-track-errors` flag, `run_drc` signature + env/error handling, `DrcResult`/`DrcError`/`DrcWarning` shapes | `_drc_api.py` | **stays Python** — the DRC-ceiling re-measurement path requires byte-identical observable output; the shim marshals the kernel's records into the unchanged dataclasses (provenance-boundary evidence below) |
+| YAML load/save, `to_dict`/`from_dict`, the config dataclasses, `__post_init__` defaults | `scheduler.py` | **stays Python** — config/IO/object construction |
+| scheduler run-state sets (`_drc_epochs`/`_spice_epochs`), `mark_*`, `get_spice_config`, `get_enabled_spice_simulations`, `get_spice_weights`, `summary` | `scheduler.py` | **stays Python** — process-local mutable state + list/dict traversal + formatting |
+| `elapsed_ms` wall-clock, `GateResult`/`GateStatus`/`ValidationGatesResult`, `ValidationGate` ABC, `check_all_gates`/`check_gate` | `validation_gates.py` | **stays Python** — timing + result dataclasses + orchestration |
+| `ensure_resolvable_kicad_project`, `copy_kicad_project_sidecar`, `is_kicad_cli_available`, `get_kicad_cli_version`, the thread-pin machinery | `_drc_api.py` | **stays Python** — subprocess/env/file I/O |
+
+**Home-crate decision:** temper-drc-rs. Every `temper_placer/validation/`
+compute kernel already lives here (`validation.rs`, the drc_fence kernels,
+`rdl_sum`, and the regression slice's `ratchet_check`/`closure_test`/
+`physics_oracle`, hosted here per the #717/#761 validation-adjacent
+precedent). The gate decision kernels gate on DRC-adjacent metrics
+(`drc_errors`, `hv_clearance_violations`) and the DRC-report parsing is
+squarely DRC. temper-orchestration is the wrong home: it hosts pipeline
+*stages*, not leaf decision kernels, and splitting one cluster across two
+crates would double the boundary surface for no gain.
+
+## Induction applicability
+
+Not applicable — a structural proof is recorded instead (per R1e): no
+kernel is recursive, and every loop iterates over caller-provided
+collections with size-independent per-element operations (the parser's
+per-item work, the scheduler's scalar comparisons, the gates' fixed check
+lists) — the same shape as the earlier validation-slice verdict.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every input in the differential
+suites' domains, the Rust kernels reproduce the pinned pre-migration Python
+implementations bit-for-bit, with the documented narrowings below.
+
+*Proof by structural cases.*
+
+1. **DRC-report regex extraction.** The three patterns are byte-identical
+   transcriptions; `\S`, `\b`, `.` (no-newline), `[^...]` and lazy `\S+?`
+   behave identically in the `regex` crate and CPython `re` for these
+   patterns (both Unicode-aware by default), pinned by curated + adversarial
+   descriptions. The one engine difference: CPython's `$` also matches
+   immediately before a single trailing `\n`; the kernel strips one trailing
+   `\n` before matching the end-anchored ref patterns
+   (`strip_trailing_lf`), pinned by
+   `test_ref_extraction_trailing_newline_semantics`. A non-string
+   description raises `TypeError` on both arms (`re.match` on a non-str is
+   `TypeError`; pyo3's `&str` extraction is `TypeError`) —
+   `test_ref_extraction_non_string_raises_type_error`.
+2. **Per-violation aggregation.** `drc_parse_violations` preserves the
+   oracle's item order verbatim (raw descriptions in report order), the
+   `ref not in components` / `net not in nets` first-seen dedup, the
+   first-ref-position preference over a board-level feature's degenerate
+   `(0,0)` pos, the `items[0]` position fallback, and the
+   `severity == "warning"` bucket split (`None` or a non-string severity is
+   False, exactly like Python equality). `rule`/`severity`/`message` and
+   the location tuple are the RAW objects (`Mapping.get(key, default)`
+   semantics — the int stays int when the key exists, the `0.0` float
+   default when it does not), so int-vs-float is preserved by construction.
+   The counts are the record-list lengths, computed by the shim exactly as
+   the pre-migration body computed `len(errors)`/`len(warnings)`.
+3. **Scheduler decisions.** `scheduler_is_final_phase` is a single
+   threshold comparison; `scheduler_get_interval` selects the final-phase
+   interval; `scheduler_should_run` reproduces the enabled/already-run
+   guards, the final-phase interval selection, then `epoch % interval == 0
+   or epoch == total_epochs - 1`. The modulo is CPython's `%` (result
+   carries the DIVISOR's sign: `7 % -5 == -3`), implemented as
+   `a - b * py_floor_div(a, b)` — Rust's `%` (truncation toward zero) and
+   `rem_euclid` (always non-negative) are both different functions. `epoch
+   % 0` raises `ZeroDivisionError` with CPython's exact message. Pinned by
+   the Rust unit tests (the CPython sign table) and the differential's
+   `test_scheduler_zero_interval_raises_both_arms`.
+4. **Gate decisions.** Each kernel reproduces the threshold comparisons
+   (`> 0.01`, `> 0`, `< 90.0`, `0 <= p < 90.0`, `> 5.0`, `> 0.15`), the
+   check-order failed-metric selection, and the message composition
+   (`Failed {n} constraint(s)` / `requirement(s)` /
+   `statistical requirement(s)`, `Did not converge`, `All constraints met`,
+   `Routing not measured`, `Routing complete with 0 DRC errors`,
+   `Production ready`, `Statistically validated`, and the
+   `Placement not ready: {msg}` propagation). The status strings are exactly
+   the `GateStatus` values (lossless `_GATE_STATUS` mapping in the shim).
+   `elapsed_ms` is wall-clock and stays Python; the differential pins it to
+   a deterministic value on both arms by monkeypatching `time.time`.
+5. **Empty-input semantics.** `drc_parse_violations([])` → `([], [])` →
+   `DrcResult(0, 0, [], [])`; a missing `violations` key is an empty list;
+   a missing `items` key is an empty list; a missing `description`/`pos`
+   yields `""` / `(0.0, 0.0)`; a `None` `failure_rate`/`loss_cv` yields
+   SKIP. All pinned by the differential/PBT.
+6. **`run_drc` provenance boundary.** The public API, the `DrcResult`
+   shape, the `--all-track-errors` flag and the reproducibility contract
+   are byte-identical: the subprocess/env/error-handling body of `run_drc`
+   and every dataclass/helper were diffed function-by-function against the
+   pre-migration commit and are unchanged; only the private `_parse_drc_json`
+   delegates, and its output is pinned by the differential's DrcResult
+   field-by-field comparison.
+
+## run_drc provenance-boundary evidence
+
+`run_drc(pcb_path)` is the DRC-ceiling re-measurement path
+(`power_pcb_dataset/drc_ceiling.json` + `scripts/check_measurement_provenance.py`,
+AGENTS.md "Board Change -> DRC Ceiling Re-measurement"). Its observable
+output must not move. Evidence, verified on this branch:
+
+- `run_drc`, `ensure_resolvable_kicad_project`, `copy_kicad_project_sidecar`,
+  `is_kicad_cli_available`, `get_kicad_cli_version`, `_single_threaded_kicad_env`,
+  `_write_pinned_advanced_config`, `_kicad_settings_dirname`,
+  `_get_drc_json_path`, and the `DrcError`/`DrcWarning`/`DrcResult`/
+  `DrcRunnerError`/`DrcProjectContextError` dataclasses are **byte-identical**
+  to the pre-migration module (AST-function-level diff against `5b2a03cfe`,
+  recorded in the migration commit message).
+- The `--all-track-errors` flag, the `MaximumThreads=1` thread-pin machinery,
+  and the reproducibility comment block (the "69-88 shorting_items"
+  determinism-measurement lineage the AGENTS.md quote refers to) are
+  untouched.
+- The empty-report path (`{"violations": []}` → `DrcResult(0, 0, [], [])`)
+  is pinned by `test_drc_api_thread_pinning.py` (unchanged) and by
+  `test_run_drc_public_signature_and_result_shape_unchanged`.
+
+## Documented deviations (per R1, recorded here)
+
+- **`drc_parse_violations` takes a list of dicts.** pyo3 `Vec<Bound<PyDict>>`
+  extraction raises `TypeError` on a non-dict violation where the oracle
+  raises `AttributeError` at the first `.get` — both fail closed, and real
+  kicad-cli JSON is always a list of plain dicts. A non-list `violations`/
+  `items` value likewise raises `TypeError` on the kernel where the oracle
+  fails while iterating.
+- **Scheduler intervals/epochs must be ints.** pyo3's `i64` extraction
+  raises `TypeError` for a float interval where the oracle would compute a
+  float modulo. The config dataclasses declare `int` fields; real configs
+  are ints.
+- **Gate metrics are marshalled through `float()`.** The shims read
+  `float(metrics.<field>)`; the oracle compared the raw attribute. The
+  comparison results are identical for int/float/numpy-float inputs
+  (`2 > 0` ≡ `2.0 > 0.0`; NaN comparisons are False in both). The
+  `failed_metrics` VALUES are the kernel's f64 copies rather than the
+  original Python objects — dict equality is unaffected (`2 == 2.0`), and
+  no existing test asserts failed-metric value types or reprs. The
+  differential drives both arms through identical float namespaces.
+- **`convergence_epoch` must be an int.** pyo3's `i64` extraction raises
+  `TypeError` for a float `convergence_epoch` where the oracle's `== 0`
+  comparison accepts one; real RunMetrics carries an int.
+- **i64 domain.** Scheduler arithmetic is `i64`; CPython's
+  arbitrary-precision ints beyond i64 bounds are out of the differential
+  domain (real epoch counts are small).
+
+## R1 status
+
+- R1a: bit-identical differential — `test_validation_glue_rust_differential.py`
+  (19 tests): curated + hypothesis-randomized descriptions, violations
+  (single and lists), DrcResult field-by-field (rule, severity, location,
+  message, components, nets, items, counts), scheduler decisions across a
+  config/epoch grid incl. marked-runs and the `ZeroDivisionError` path,
+  all four gates across curated + randomized metrics (with `time.time`
+  pinned so `elapsed_ms` is deterministic on both arms), and the run_drc
+  empty-report shape.
+- R1b: not registered — per-call marshalling boundary; no speedup claim
+  (the R2 carve-out, same argument as the earlier validation slices).
+- R1c: 6 non-vacuous properties across the cluster — `test_validation_glue_pbt.py`
+  (P1 parser bucket partition, P2 parser items order/verbatim, P3 scheduler
+  equivalence, P4 placement gate equivalence, P5 validated None/thresholds,
+  P6 production-ready implies sub-gates pass), each with a mutation
+  companion (`test_pN_fails_for_<mutant>`) and a reachability note; every
+  module in the cluster is reached (module-to-property map in the file's
+  docstring).
+- R1d: 6 metamorphic relations (MR1 parser items-prefix, MR2 scheduler
+  final-phase monotone, MR3 placement clearance-passes, MR4 failure
+  ordered-superset, MR5 interval↔final-phase agreement, MR6 severity-flip
+  bucket move), each with an exactness claim and a vacuity guard.
+- R1e: this file (structural proof; induction N/A).
+- R1f: TDD — RED `70c4f554b` (the differential fails to collect:
+  `AttributeError: module 'temper_drc_rs' has no attribute
+  'drc_extract_ref'`); GREEN `b5d1c5fee`.
+- R1g: no `unwrap`/`expect` outside `#[cfg(test)]` (the regex compilations
+  carry `#[expect(clippy::unwrap_used)]` with a compile-time-constant
+  reason and a parse test; the crate's `[lints.clippy]` denies both on all
+  targets); every `#[pyfunction]` boundary relies on pyo3's default
+  `catch_unwind`; `cargo clippy --all-features --all-targets -D warnings`
+  clean; 13 new Rust unit tests (incl. the CPython `%` sign table and the
+  trailing-`\n` `$` semantics) plus the crate's full 3368-test suite pass.
+- R1h: **not physics-gated** — no CP-SAT constraint gates on a physics
+  quantity here, so the R24 discipline (soundness proof, BMC-exhaustive
+  validation, post-solve audit) does not apply. Stated explicitly because
+  the ledger requires it.
