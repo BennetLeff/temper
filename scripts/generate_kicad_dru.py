@@ -410,12 +410,42 @@ def generate_dru() -> str:
         " it did not"
     )
     lines.append("# exist in the generated file before this change.")
+    lines.append("#")
+    lines.append(
+        "# GateDriveHV EXCLUDED (2026-08-11): GATE_HS/GATE_LS float on"
+        " SW_NODE -- elec/domain_manifest.yaml declares them members of the"
+    )
+    lines.append(
+        "# SAME HV domain as ac_l/+170V_BUS/SW_NODE (secondary/HV side of"
+        " U7's own reinforced barrier, not a third domain -- see the RULE"
+    )
+    lines.append(
+        "# 4a/4b comment below for the identical reasoning already applied"
+        " to HighVoltageIsolated). Before this fix, GateDriveHV was not"
+    )
+    lines.append(
+        "# excluded from this rule's B-side, so it was silently treated as"
+        " if it were LV/SELV and charged the full 8.0mm reinforced"
+    )
+    lines.append(
+        "# creepage figure against its OWN same-side neighbours -- a false"
+        " positive, not a real cross-barrier hazard. See RULE 6a below,"
+    )
+    lines.append(
+        "# which supplies the correct functional (same-side) figure for"
+        " this pair instead. GateDriveSELV is deliberately NOT added here"
+    )
+    lines.append(
+        "# -- it is the genuinely SELV/primary-side half of the same"
+        " gate-driver split and still needs the full reinforced boundary."
+    )
     lines.append(_SEP)
     lines.append('(rule "AC Mains to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'ACMains'"
         " && B.NetClass != 'ACMains'"
-        " && B.NetClass != 'HighVoltage'\")"
+        " && B.NetClass != 'HighVoltage'"
+        " && B.NetClass != 'GateDriveHV'\")"
     )
     lines.append("   (constraint clearance (min 6.0mm))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
@@ -463,12 +493,50 @@ def generate_dru() -> str:
         " now enforces the"
     )
     lines.append("# same figure at the fab-authoritative KiCad DRC level.")
+    lines.append("#")
+    lines.append(
+        "# GateDriveHV EXCLUDED (2026-08-11): same reasoning as RULE 2's"
+        " own 2026-08-11 note above -- GATE_HS/GATE_LS are same-HV-domain,"
+    )
+    lines.append(
+        "# not LV/SELV; see RULE 6a for the functional same-side figure"
+        " this exclusion hands off to."
+    )
+    lines.append("#")
+    lines.append(
+        "# HighVoltageIsolated ALSO EXCLUDED (2026-08-11): this rule's"
+        " condition never excluded HighVoltageIsolated from its B-side,"
+    )
+    lines.append(
+        "# so a (A=HighVoltage, B=HighVoltageIsolated) pad pair matched"
+        " THIS rule (8.0mm creepage) even though the reverse ordering"
+    )
+    lines.append(
+        "# (A=HighVoltageIsolated, B=HighVoltage) already matches RULE 4a"
+        " below and gets only the functional 2.0mm same-side clearance --"
+    )
+    lines.append(
+        "# RULE 4a never declares a creepage constraint, so it could not"
+        " override this rule's 8.0mm for the other ordering. Measured"
+    )
+    lines.append(
+        "# directly against pcb/temper.kicad_pcb (kicad-cli 10.0.5): 9 of"
+        " the 186 creepage violations are exactly this"
+        " HighVoltage<->HighVoltageIsolated same-domain pairing (mostly"
+    )
+    lines.append(
+        "# U7's own DC_BUS_RTN/GATE_HS pins vs. its own"
+        " hb.gate_hs.driver-p1-1/-p2 pins) -- see"
+        " docs/evidence/2026-08-11-creepage-gatedrivehv-false-positive.md."
+    )
     lines.append(_SEP)
     lines.append('(rule "HV to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltage'"
         " && B.NetClass != 'HighVoltage'"
-        " && B.NetClass != 'ACMains'\")"
+        " && B.NetClass != 'ACMains'"
+        " && B.NetClass != 'GateDriveHV'"
+        " && B.NetClass != 'HighVoltageIsolated'\")"
     )
     lines.append("   (constraint clearance (min 2.0mm))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
@@ -631,6 +699,26 @@ def generate_dru() -> str:
         " rule, just keyed"
     )
     lines.append("# on HighVoltageIsolated instead of ACMains/HighVoltage.")
+    lines.append("#")
+    lines.append(
+        "# GateDriveHV EXCLUDED from 4b's B-side (2026-08-11), symmetrically"
+        " with RULE 2/4 above -- GATE_HS/GATE_LS are the same HV domain as"
+    )
+    lines.append(
+        "# HighVoltageIsolated's own nets (both float with SW_NODE per"
+        " elec/domain_manifest.yaml), so a GateDriveHV<->HighVoltageIsolated"
+    )
+    lines.append(
+        "# pair is same-side, not a reinforced boundary. 4a needs no"
+        " change -- its condition only ever matched B in {HighVoltage,"
+    )
+    lines.append(
+        "# ACMains}, so it was never matching GateDriveHV in the first"
+        " place; it simply never supplied this pair a same-side figure"
+    )
+    lines.append(
+        "# either, which is what the new RULE 6a below now does."
+    )
     lines.append(_SEP)
     # Matches RULE 4's existing "HV to LV" clearance figure (this file,
     # unchanged) -- not a new number, just this class's share of it.
@@ -648,7 +736,8 @@ def generate_dru() -> str:
         "   (condition \"A.NetClass == 'HighVoltageIsolated'"
         " && B.NetClass != 'HighVoltageIsolated'"
         " && B.NetClass != 'HighVoltage'"
-        " && B.NetClass != 'ACMains'\")"
+        " && B.NetClass != 'ACMains'"
+        " && B.NetClass != 'GateDriveHV'\")"
     )
     lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
@@ -763,6 +852,94 @@ def generate_dru() -> str:
     lines.append(
         "   (condition \"A.NetClass == 'GateDriveSELV'"
         " && B.NetClass == 'HighVoltage'\")"
+    )
+    lines.append("   (constraint clearance (min 0.5mm))")
+    lines.append(")")
+    lines.append("")
+    lines.append(_SEP)
+    lines.append(
+        "# RULE 6a/6b: GateDriveHV same side (ACMains, HighVoltageIsolated)"
+    )
+    lines.append("#")
+    lines.append(
+        "# GAP CLOSED (2026-08-11): GATE_HS/GATE_LS (netclass GateDriveHV,"
+        " pcb/temper.kicad_pro netclass_patterns 'GATE_*') are the UCC21550"
+    )
+    lines.append(
+        "# gate driver's own secondary-side gate outputs --"
+        " elec/domain_manifest.yaml lines ~111-116 declare them members of"
+    )
+    lines.append(
+        "# the SAME HV domain as ac_l/+170V_BUS/SW_NODE/hb.gate_hs.driver-"
+        "p1-1/-p2 (float WITH the switch node, one gate resistor"
+    )
+    lines.append(
+        "# downstream), and packages/temper-placer/configs/netclass_rules."
+        "yaml's own GateDriveHV class comment says the same thing in so"
+    )
+    lines.append(
+        "# many words. Before RULE 2/4/4b's 2026-08-11 GateDriveHV"
+        " exclusions above, none of the three existing 'to LV' rules"
+    )
+    lines.append(
+        "# treated GateDriveHV as same-side, so ACMains/HighVoltage/"
+        "HighVoltageIsolated vs. GateDriveHV pairs were charged the full"
+    )
+    lines.append(
+        "# 8.0mm reinforced creepage figure meant for a genuine mains/HV"
+        " <-> SELV boundary -- a false positive against the project's own"
+    )
+    lines.append(
+        "# domain model, not a real shock-hazard pair (both sides float at"
+        " the same potential relative to SW_NODE). Measured directly"
+    )
+    lines.append(
+        "# against pcb/temper.kicad_pcb (kicad-cli 10.0.5): 7 of the 186"
+        " creepage violations name a GATE_HS/GATE_LS net opposite an"
+    )
+    lines.append(
+        "# ACMains/HighVoltage/HighVoltageIsolated net -- see"
+        " docs/evidence/2026-08-11-creepage-gatedrivehv-false-positive.md."
+    )
+    lines.append("#")
+    lines.append(
+        "# This closes the gap the same way RULE 3 (\"AC Mains to HV\")"
+        " and RULE 4a (\"HighVoltageIsolated same side\") already closed"
+    )
+    lines.append(
+        "# it for their own same-side pairs: GateDriveHV vs. ACMains and"
+        " vs. HighVoltageIsolated now get RULE 6's own existing 0.5mm"
+    )
+    lines.append(
+        "# functional figure (the same number already accepted for"
+        " GateDriveHV vs. HighVoltage above -- not a new value) instead of"
+    )
+    lines.append(
+        "# falling through to the reinforced boundary. GateDriveSELV is"
+        " deliberately NOT given an equivalent pair here -- it is the real"
+    )
+    lines.append(
+        "# SELV/primary-side half of the same gate-driver split (elec/"
+        "domain_manifest.yaml keeps PWM_HS/PWM_LS out of every HV domain"
+    )
+    lines.append(
+        "# list) and still needs the full reinforced boundary against"
+        " ACMains/HighVoltage/HighVoltageIsolated -- RULE 2/4/4b apply to"
+    )
+    lines.append("# it unchanged, correctly.")
+    lines.append(_SEP)
+    lines.append('(rule "GateDriveHV to ACMains"')
+    lines.append(
+        "   (condition \"A.NetClass == 'GateDriveHV'"
+        " && B.NetClass == 'ACMains'\")"
+    )
+    lines.append("   (constraint clearance (min 0.5mm))")
+    lines.append(")")
+    lines.append("")
+    lines.append('(rule "GateDriveHV to HighVoltageIsolated"')
+    lines.append(
+        "   (condition \"A.NetClass == 'GateDriveHV'"
+        " && B.NetClass == 'HighVoltageIsolated'\")"
     )
     lines.append("   (constraint clearance (min 0.5mm))")
     lines.append(")")
