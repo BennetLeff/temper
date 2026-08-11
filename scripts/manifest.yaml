@@ -1982,6 +1982,21 @@ scripts:
   - pathlib
   - re
   - subprocess
+- path: sync_kicad_netclass_assignments.py
+  purpose: 'Sync pcb/temper.kicad_pro net_settings.netclass_assignments from
+    TEMPER_NET_ASSIGNMENTS (design_rules.py, the Python-side SSOT) -- generator
+    for the defect class PR #1023 hand-fixed four instances of and found ~15
+    more of, unmeasured; --check mode is the CI tripwire against future drift'
+  owner: bennet
+  last_run: '2026-08-11'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - json
+  - re
+  - pathlib
 - path: test_root_hygiene.py
   purpose: 'CI gate: reject root-level artifact files that should live in subdirectories'
   owner: pipeline
