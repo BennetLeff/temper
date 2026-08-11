@@ -4722,7 +4722,119 @@ Wave-4 kernel-migration commit).
   (crate clippy lint).
 
 
-# HV/LV guard-strip partitioning — Verification (Wave 4 follow-up)
+# `placer/cp_sat/fixed_copper.py` build orchestration — Verification (Phase E E2)
+
+Orchestration plan 2026-08-09-001 Phase E batch E2: the fixed-copper build
+orchestration in `placer/cp_sat/fixed_copper.py` (1,246 LOC — verified: no
+ortools import) moves to `src/fixed_copper_builder.rs` — the
+`FixedCopperBuilder` pyclass plus the `PadRectLocal` / `FixedCopperItem` /
+`FixedCopperAuditViolation` contract pyclasses, registered as the
+`temper_design_bundle_python.fixed_copper_builder` submodule. The
+pre-migration implementation is pinned VERBATIM as
+`tests/placer/cp_sat/_fixed_copper_py_oracle.py` (the Wave-4 kernel-migration
+oracle extracted at `1dd54e3f2cc58e9dd6cbc5b3c54d68b4d0374ae9` — a pure-Python
+snapshot that predates BOTH the temper-geometry kernel carve-out and this E2
+orchestration migration).
+
+## The Python-side split (what stays, with evidence)
+
+- **The build orchestration moves to Rust** — `build_free_component_pads`
+  (netlist → per-free-ref `PadRectLocal` lists), `build_fixed_copper_items`
+  (traces/vias/zones/other-pads → `FixedCopperItem` list, origin-normalized),
+  and `audit_fixed_copper` (R24 item-3 post-solve audit → violation list).
+- **The ortools encoder boundary stays Python untouched** —
+  `encode_fixed_copper_constraints` / `_pad_rotation_tables_with` /
+  `_add_no_overlap` build `ortools.CpModel` calls directly (`NewBoolVar` /
+  `AddBoolOr` / `OnlyEnforceIf` / `AddElement` via `CpSatModel.model_ref`);
+  that IS the CP-SAT solver boundary and the phase-1 spike's KEEP verdict on
+  `placer/cp_sat/{model,_encoder_solve,unsat}.py` (plan D4) is not reopened.
+  They consume the pyclasses through their exposed fields, unchanged.
+- **The pure geometry predicates stay Python one-liners** —
+  `pad_world_rect` / `encoded_pad_world_rect` / `exact_clearance_mm` /
+  `exact_overlap` / `encoded_overlap` / `encoded_overlap_edges` /
+  `segment_slack_mm` / `_mm_to_units` / `_convex_polygon_edges` /
+  `_rectilinear_convex_edges` / `_rotated` — delegating to the already-pinned
+  `temper-geometry` `fixed_copper_*_py` kernels (bit-exact, R1a-pinned by
+  `test_fixed_copper_rust_differential.py`); the encode path and the BMC
+  tests consume the same object API.
+
+## Structural proof (bit-identical parity)
+
+- **Iteration-order fidelity**: the Rust builder iterates the LIVE Python
+  lists (`netlist.components`, `comp.pins`, `parse_result.traces`,
+  `parse_result.vias`, `board.zones`, the pinned-component scan) so insertion
+  order is preserved wherever the oracle's output depends on it.
+- **Kernel reuse**: item geometry, pad world rect, exact-clearance and
+  edge-half-plane kernels are the pinned `temper-geometry` functions, driven
+  through FFI — the oracle's pure-Python geometry is pinned bit-exactly by the
+  existing 150k+-case BMC + R1a differential, so the orchestration differential
+  inherits that proof.
+- **B3 (banker's rounding, 2 decimals)**: the item labels
+  `f"({x:.2f},{y:.2f})"` / `f"d={d:.2f}"` are Rust `format!("{:.2}")`
+  (the B3 argument from `constraint_model.rs`, measured over 250,005
+  adversarial samples). A `None` net renders as the literal `"None"` exactly
+  like an f-string.
+- **Type preservation**: `FixedCopperItem.exact["polygon"]` stores a shallow
+  copy of the ORIGINAL `zone.polygon` (the production board carries 10
+  integral coordinates among its 4,036 zone-polygon coords; the type-carrying
+  differential discriminates `int` from `float`). `PadRectLocal.center` is
+  stored opaquely from the original `pin.position` tuple for the same reason.
+- **One documented zone-kernel gap, carried over**: the oracle's
+  `exact_clearance_mm` zone branch is SHAPELY (`pad.distance(poly)`); the
+  port's zone branch is the from-scratch `temper-geometry` zone kernel, proven
+  sound-by-BMC but not bit-for-bit with shapely (the documented gap in
+  `test_fixed_copper_rust_differential.py`). The audit differential compares
+  zone `actual_mm` within 1e-9 mm (measured 622 ulp ≈ 7e-15 mm on the real
+  board) while every other field — including the 4-decimal `reason` string,
+  stable across the gap — stays bit-exact.
+
+## Empirical Verification
+
+- **Differential suite**: `test_fixed_copper_builder_rust_differential.py`
+  (20 tests, all green) — the oracle is content-hash-pinned
+  (`d2caceaf...`); `test_shim_and_oracle_are_different_implementations`
+  asserts the shim binds `_fcb` to `temper_design_bundle_python.fixed_copper_builder`
+  while the oracle stays pure Python. Five configs (`empty`, `mixed`,
+  `copper_layers_bcu`, `no_other_pads`, `margin_big`) drive both arms with
+  identical inputs; pads / items / audit violations are compared field-by-field,
+  bit-exactly (`float.hex()`), including on the PRODUCTION board
+  (`pcb/temper.kicad_pcb` — 2,943 items, K2/K3/C27 free, audit at parsed
+  initial positions).
+- **PBT suite**: `test_fixed_copper_builder_pbt.py` (12 tests, all green) —
+  six non-vacuous properties (P1 pad identity, P2 item layer universe, P3
+  origin normalization, P4 audit soundness, P5 audit far-clearance, P6
+  other-pads opt-in), each with a vacuity guard.
+- **Metamorphic suite**: `test_fixed_copper_builder_metamorphic.py` (8 tests,
+  all green) — four relations (MR1 margin monotonicity, MR2 copper-layer
+  universe subset, MR3 origin-translation invariance — bit-exact on integer
+  coordinates, MR4 audit monotone in clearance), each with a discriminating
+  companion.
+- **Consumer suites**: the full existing fixed-copper surface stays green with
+  the delegating shim — `test_fixed_copper.py` (24 tests: BMC soundness sweep,
+  item building, post-solve audit, fail-capable solve),
+  `test_fixed_copper_rust_differential.py`, the encoder suites
+  (`test_encoder.py`, `test_encoder_rust_differential.py`,
+  `test_encoder_rust_pbt.py`), `test_model.py`, `test_validator_audit.py`,
+  `test_courtyard_edge.py` — all green.
+- **Rust unit tests**: `fixed_copper_builder.rs` carries `#[cfg(test)]` unit
+  tests (field shapes, NaN missing-position, `net_display` f-string parity,
+  kernel delegation); like every pyo3-gated module here they compile under
+  `--features python` only, so the Python differential is the authoritative
+  gate.
+- **Clippy**: `cargo clippy --all-features --all-targets -- -D warnings` —
+  clean.
+- **Wiring**: `check_unwired_kernels.py` reports no new unwired kernel (the
+  pyclasses are re-exported by the production shim).
+- **G6 induction** — N/A: the build orchestration is a bounded loop nest over
+  board/netlist inputs, no recursive computation.
+- **G8 physics discipline** — N/A: the builder assembles constraint objects
+  from already-computed geometry; the R24 item-2 BMC soundness proof and the
+  item-3 audit live with the existing `fixed_copper.py` docs and tests (the
+  audit is migrated here and its output is differentially pinned).
+- **R1g Rust bar**: every `#[pymethods]` entry point is wrapped in
+  `guard()` (`catch_unwind`); no `unwrap`/`expect` outside `#[cfg(test)]`
+  (crate clippy lint).
+
 
 `deterministic/stages/hv_lv_partition.py`'s pure decision compute moves to
 `src/hv_lv_partition.rs`, registered as the

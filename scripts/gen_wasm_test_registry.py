@@ -195,6 +195,10 @@ CONSTRAINT_COMPILER_FAMILIES = ["constraint-compiler"]
 QUALITY_ORACLE_FAMILIES = ["quality-oracle"]
 IO_TYPES_FAMILIES = ["io-types"]
 
+# `temper-pcl-ir` is the same shape again: a flat typed data model (the shared
+# PCL IR) with no rule-family taxonomy, so one family named after the crate.
+PCL_IR_FAMILIES = ["pcl-ir"]
+
 TEST_FN = re.compile(r"^(\s*)#\[(?:test|cfg_attr\(test, test\))\]\s*$")
 
 # A *use* of the `proptest` dev-dependency: the `proptest!` macro or a
@@ -214,11 +218,28 @@ def keep_test_fn(line: str) -> str:
 
 
 def module_path(rel: str) -> str:
-    """``types/vent.rs`` -> ``types::vent``; ``rules/mod.rs`` -> ``rules``."""
+    """``types/vent.rs`` -> ``types::vent``; ``rules/mod.rs`` -> ``rules``;
+    ``lib.rs``/``main.rs`` -> ``""`` (the crate root -- there is no module
+    literally named ``lib``, mirroring the ``stem in ("lib", "main")`` special
+    case :func:`submodule_path` already makes for the same file).
+
+    No crate registered before ``temper-pcl-ir`` had a ``#[cfg(test)]`` module
+    declared directly in its ``lib.rs`` (every discovered crate's tests live
+    in a submodule file, and the explicit ``temper-drc-rs`` list never names
+    ``lib.rs`` either), so this case was unreachable until then. Callers that
+    join the result with ``"::"`` must treat ``""`` as "nothing to join".
+    """
     p = rel[: -len(".rs")]
+    if p in ("lib", "main"):
+        return ""
     if p.endswith("/mod"):
         p = p[: -len("/mod")]
     return p.replace("/", "::")
+
+
+def qualify(mod_path: str, ident: str) -> str:
+    """``mod_path`` and ``ident`` joined by ``::``, skipping an empty root."""
+    return ident if not mod_path else f"{mod_path}::{ident}"
 
 
 MOD_DECL = re.compile(
@@ -743,6 +764,39 @@ CRATES: dict[str, CrateSpec] = {
             "//! --census` prints the full module census with per-module counts.",
         ],
     ),
+    "temper-pcl-ir": CrateSpec(
+        name="temper-pcl-ir",
+        eligible=None,  # discovered
+        families=PCL_IR_FAMILIES,
+        family_of=lambda _rel: "pcl-ir",
+        # No `python` feature exists in this crate at all -- it is a plain
+        # typed data model with no pyo3 boundary -- so there is nothing for
+        # `absent_features` to exclude on that basis; the default is kept
+        # anyway so `feature_gated_modules` has something well-defined to look
+        # for (and finds none).
+        census_note="cannot be registered here at all",
+        sharding_note=[
+            "//! ## Families",
+            "//!",
+            "//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`",
+            "//! feature, as in `temper-drc-rs`.  One family (`pcl-ir`): this crate",
+            "//! is a flat typed data model (the shared PCL IR) with no taxonomy to",
+            "//! shard along.",
+        ],
+        extra_notes=[
+            "//! No exclusion classes apply here.  This crate has no `python`",
+            "//! feature gate, and its one test-module dependency on `serde_json`",
+            "//! (`tests::all_pcl_kinds_round_trip_deterministically` round-trips",
+            "//! through JSON) is a normal, non-optional dependency rather than a",
+            "//! `dev-dependency`, so it links into the `--no-default-features`",
+            "//! build this registry compiles into -- the same promotion",
+            "//! `temper-drc-rs`/`temper-design-bundle`/`temper-io-types` make for",
+            "//! the same reason.",
+            "//!",
+            "//! `scripts/gen_wasm_test_registry.py --crate temper-pcl-ir --census`",
+            "//! prints the full module census with per-module counts.",
+        ],
+    ),
 }
 
 
@@ -901,7 +955,7 @@ def generated_block(
     indent: str, mod_path: str, ident: str, fns: list[tuple[str, list[str]]]
 ) -> list[str]:
     """The ``pub const`` that makes private ``#[test]`` fns reachable."""
-    q = f"{mod_path}::{ident}"
+    q = qualify(mod_path, ident)
     body = [
         f"{indent}{BEGIN.format(ident=ident)}",
         f"{indent}/// Every `#[test]` in this module, as a callable the `wasm32`",
@@ -954,7 +1008,7 @@ def render_root(entries: list[tuple[str, str, int]]) -> str:
         family = FAMILY_BY_ENTRY.get((mod_path, ident), "infra")
         lines.append(
             f"    #[cfg(feature = \"wasm-registry-{family}\")]"
-            f" crate::{mod_path}::{ident}::WASM_TESTS,"
+            f" crate::{qualify(mod_path, ident)}::WASM_TESTS,"
         )
     lines += [
         "];",

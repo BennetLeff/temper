@@ -462,6 +462,26 @@ U7/U8. **Blocks:** nothing in this plan structurally, but every phase's
 
 ## 4. Phase 2 — manufacturing variation
 
+> **SUPERSEDED, 2026-08-11, by
+> [`2026-08-11-001-feat-wasm-tier-phase2-plan.md`](./2026-08-11-001-feat-wasm-tier-phase2-plan.md).**
+> This section (U2.1–U2.5) is retained for its reasoning and as the record of
+> what was believed on 2026-08-07; the later plan is the live one for Phase 2.
+>
+> Why a replacement rather than an amendment: U2.1–U2.5 were never executed —
+> none of their named artifacts exists on `main` — and they leave open three
+> things Phase 2 cannot start without. The **128 MiB isolate ceiling** is the
+> binding constraint, not CPU (parent R2 measured 4 ns median per kernel case,
+> against an occupancy grid costing 24 MB at 0.1 mm and **2,400 MB at
+> 0.01 mm**), so any sweep that varies raster resolution is unbuildable — the
+> replacement states that as an explicit scope cut instead of an unstated risk.
+> The **dispatch mechanism** is now known: `rules::drc::property_campaigns`
+> turns one source `#[test]` into 1,504 registry entries, which is how an
+> envelope × rule cross-product becomes tier work. And the **burn-down route**
+> for a finding (parent D8) needed detail these units left open.
+>
+> Sections 5 (Phase 3) and 6 (Phase 4) are **not** superseded and remain the
+> live plans for those phases.
+
 ### Recap of the real blocker
 
 Phase 2's parent-plan text says it "requires a fabrication-envelope model

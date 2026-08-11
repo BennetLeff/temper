@@ -28,6 +28,12 @@ mod constraint_model;
 #[cfg(feature = "python")]
 mod model_builder;
 
+// Orchestration plan Phase E batch E2: the fixed-copper build orchestration
+// and the contract pyclasses (placer/cp_sat/fixed_copper.py) — see
+// fixed_copper_builder.rs's module docstring for the Python-side split.
+#[cfg(feature = "python")]
+mod fixed_copper_builder;
+
 // Wave 4 follow-up: the HV/LV guard-strip partitioning decision kernels
 // (safety-category classification + creepage max / width resolution /
 // bucket-area decision) — see hv_lv_partition.rs.
@@ -493,6 +499,9 @@ mod python {
         // Orchestration plan Phase E batch E1: the constraint-model builder
         // orchestration + contract pyclasses (see model_builder.rs).
         crate::model_builder::register(module)?;
+        // Orchestration plan Phase E batch E2: the fixed-copper builder
+        // orchestration + contract pyclasses (see fixed_copper_builder.rs).
+        crate::fixed_copper_builder::register(module)?;
         // Wave 4 follow-up: the hv_lv_partition stage's decision kernels
         // (see hv_lv_partition.rs). Registered after constraint_model.
         crate::hv_lv_partition::register(module)

@@ -43,6 +43,7 @@ use std::sync::OnceLock;
 
 type MathFn = unsafe extern "C" fn(f64, f64) -> f64;
 
+#[cfg(not(target_arch = "wasm32"))]
 fn dlsym_pow() -> Option<MathFn> {
     use std::ffi::c_char;
     unsafe extern "C" {
@@ -64,6 +65,25 @@ fn dlsym_pow() -> Option<MathFn> {
             Some(std::mem::transmute::<*mut c_char, MathFn>(p))
         }
     }
+}
+
+/// `wasm32` has no dynamic loader, so every lookup misses and the
+/// statically-bound `f64::powf` fallback below is used instead.
+///
+/// **This is a `cfg`, not a stub for convenience.** Declaring `dlsym` on
+/// `wasm32` emits an `env.dlsym` *import* into the module, and a module with a
+/// non-empty import list cannot be instantiated by a bare isolate — the host
+/// must supply JS glue for it. That is invisible to `cargo check` and even to
+/// `cargo build`: it only appears when something instantiates the module.
+///
+/// The semantics are right, not merely expedient (see `temper-drc-rs`'s
+/// `pymath.rs`, same pattern): the indirection exists to track *the host
+/// CPython interpreter's* libm, and in a Worker there is no interpreter to
+/// track — the module's own compiled-in libm is the only implementation
+/// present.
+#[cfg(target_arch = "wasm32")]
+fn dlsym_pow() -> Option<MathFn> {
+    None
 }
 
 unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
