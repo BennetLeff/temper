@@ -27,10 +27,18 @@ the ~140 `NetName`/`NetClassName`/`ComponentRef` construction sites already
 found across `temper-drc-rs` and `temper-design-bundle` alone (Sec. 1), and
 none of that guarantee would survive the pyo3 crossing back into Python
 undiminished (Sec. 4) -- Python can still mutate a validated `Net`'s `.name`
-field directly after the fact, demonstrated in Sec. 4. Sec. 5 gives the
-per-file cost to wire this into the other 3 broken config files' real call
-sites, and relates it to the `check_netclass_map_board_correspondence.py`
-gate that already catches the same defect at the data layer.
+field directly after the fact, demonstrated in Sec. 4. Sec. 1 also found a
+second, more dangerous instance of the identical defect shape, live and
+unconditional inside the CI-gating DRC path itself
+(`board_py_bridge.rs::build_board_state` / `drc_marshal.rs` silently
+default an unmatched net to class `"Unknown"` and the thinnest
+0.2 mm/0.2 mm rules, rather than erroring) -- Sec. 5 names it the
+highest-leverage next step, not fixed here because it is a behavior
+change to a CI gate and needs its own advisory-vs-blocking decision. Sec. 5
+also gives the per-file cost to wire this prototype into the other 3
+broken config files' real call sites, and relates it to the
+`check_netclass_map_board_correspondence.py` gate that already catches the
+same defect at the data layer.
 
 ---
 
@@ -68,8 +76,44 @@ one boundary. But it is not uniform. Two sub-populations exist:
    two crates that actually build a `BoardState`/`Netlist` from external
    input.
 
-**The actual defect's production path**, traced directly (not from the
-correspondence-gate doc, independently re-derived here):
+**A second, more dangerous instance of the identical defect shape, found
+while surveying `temper-drc-rs`**: `board_py_bridge.rs::build_board_state`
+(the deserializer behind `run_drc`, the actual CI DRC entry point) and
+`drc_marshal.rs` (lines 909-930, an independent, duplicated copy of the
+same join) both build each `Net` by joining the board's own net list
+against a `net_classes: HashMap<String, String>` extracted from the
+Python side:
+
+```rust
+// board_py_bridge.rs:696-709
+let class_name = net_classes_raw
+    .get(&name)
+    .map(|c| NetClassName(c.clone()))
+    .unwrap_or(NetClassName("Unknown".to_string()));
+let rules = net_class_rules
+    .get(&class_name)
+    .cloned()
+    .unwrap_or_else(|| NetClassRules { trace_width_mm: 0.2, clearance_mm: 0.2, ..Default::default() });
+```
+
+This is the same defect shape walked from the opposite direction: instead
+of "a config key matches no real net" (silently ignored, Sec. 1's main
+thread), this is "a real net matches no `net_classes` key" (silently
+defaulted to class `"Unknown"` and the thinnest, lowest-clearance rules in
+the system, 0.2 mm/0.2 mm). It is arguably *more* dangerous than the
+config-key miss: it is unconditional, fires on every `run_drc` call (the
+actual CI-gating DRC path), not an occasionally-run script, and it
+actively substitutes the least-safe class rather than merely leaving a
+previous assignment in place. Confirmed live in both files by direct
+read, not construction from the doc's prose. Both sites are real and
+unwired by this prototype -- `ValidatedNetClassMap`'s pattern (a net with
+no matching class should be a hard error, not a default) applies here at
+least as strongly as at the config-load boundary, and is the
+highest-leverage next step named in Sec. 5.
+
+**The actual defect's production path** (the config-key-miss direction),
+traced directly (not from the correspondence-gate doc, independently
+re-derived here):
 
 ```
 configs/temper_deterministic_config.yaml, packages/temper-placer/configs/temper_constraints.yaml,
@@ -404,6 +448,25 @@ objects themselves, because those remain exactly as dynamically typed as
 before. Saying otherwise would overstate what this prototype proves.
 
 ## 5. Cost of the rest, and relation to the correspondence gates
+
+**Highest-leverage next step, not this spike's prototype target:**
+`board_py_bridge.rs::build_board_state` and `drc_marshal.rs`'s
+"Unknown"-class defaulting (Sec. 1). Each site is ~15-20 lines and already
+has `NetName`/`NetClassName`/`NetClassRules` types in scope; a
+`ValidatedNetClassMap`-shaped fix (a net with no matching class is a hard
+error, not a silent `"Unknown"`/0.2 mm default) is a close structural
+cousin of this spike's prototype. It was not chosen as the prototype
+target itself because it is a **behavior change to the CI-gating DRC
+path** -- unlike the config-key miss (an occasionally-run script silently
+doing less than intended), flipping this to fail-closed changes what
+`run_drc` returns on every call today, which needs its own
+advisory-vs-blocking decision, exactly like the three correspondence
+gates already landed advisory for analogous reasons. Fixing it also
+requires first knowing how many real nets on the current board fall
+through to `"Unknown"` today -- not measured in this spike, since it
+would require running the full DRC marshalling path against production
+inputs, which the four-config-file boundary and this spike's one-path
+scope both argue against attempting here.
 
 **Wiring the other 3 broken config files' real call sites** (not done in
 this spike -- the four config files are explicitly out of bounds, and two
