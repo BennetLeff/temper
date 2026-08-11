@@ -214,6 +214,17 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
     "router_v6/test_channel_edge_identity_determinism.py": _PASSING_LOCALLY,
     "router_v6/test_channel_skeleton_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_channel_widths_rust_differential.py": _PASSING_LOCALLY,
+    "router_v6/test_clearance_family_rust_differential.py": (
+        "PASSING locally (Phase E E3, plan 2026-08-09-001): the clearance-family "
+        "orchestration differential against the verbatim "
+        "_clearance_family_py_oracle.py (content-hash pinned in "
+        "scripts/oracle_hashes.json). CI-uncovered by design -- the router_v6 "
+        "CI wiring is the workflow-side change tracked in "
+        "docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md, out of "
+        "scope for the E3 pull."
+    ),
+    "router_v6/test_clearance_family_rust_metamorphic.py": _PASSING_LOCALLY,
+    "router_v6/test_clearance_family_rust_pbt.py": _PASSING_LOCALLY,
     "router_v6/test_clearance_matrix_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_congestion_defects.py": _PASSING_LOCALLY,
     "router_v6/test_congestion_pbt.py": _PASSING_LOCALLY,
