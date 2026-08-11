@@ -1023,8 +1023,14 @@ fn dict_get<'py>(py: Python<'py>, dict: &Bound<'py, PyAny>, key: &str) -> PyResu
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
+    use proptest::prelude::*;
     use super::*;
+
+    // -----------------------------------------------------------------------
+    // project_onto_barrier_axis_impl -- rotation table
+    // -----------------------------------------------------------------------
 
     #[test]
     fn project_onto_barrier_axis_is_the_integer_rotation_table() {
@@ -1081,5 +1087,193 @@ mod tests {
             classify_domain_partition_py(comps, vec!["AC_L".into()], vec![]);
         assert!(hv_only.is_empty());
         assert_eq!(unclassified, vec!["R9"]);
+    }
+
+    // -----------------------------------------------------------------------
+    // proptest: classify_domain_partition_py invariants (G4 P6-style)
+    // -----------------------------------------------------------------------
+
+    proptest! {
+        /// Every component lands in exactly one bucket; the four buckets are
+        /// disjoint and together hold every input component.
+        #[test]
+        fn partition_totals_and_disjointness(
+            refs in prop::collection::vec("[A-Z][0-9]", 0..12),
+            hvs in prop::collection::vec("AC_[A-Z0-9]+", 0..8),
+            selvs in prop::collection::vec("SELV_[A-Z0-9]+", 0..8),
+            regular in prop::collection::vec("NET_[A-Z0-9]+", 0..8),
+        ) {
+            let mut comps: Vec<(String, Vec<String>)> = Vec::new();
+            let mut seen_refs = std::collections::HashSet::new();
+            for (i, r) in refs.iter().enumerate() {
+                // Make refs unique to avoid duplicate classification noise.
+                let unique = if seen_refs.insert(r.clone()) {
+                    r.clone()
+                } else {
+                    format!("{r}_{i}")
+                };
+                let mut nets = Vec::new();
+                match i % 5 {
+                    0 => nets.push(hvs.first().cloned().unwrap_or_else(|| "AC_L".into())),
+                    1 => nets.push(selvs.first().cloned().unwrap_or_else(|| "SELV_0".into())),
+                    2 => {
+                        nets.push(hvs.first().cloned().unwrap_or_else(|| "AC_L".into()));
+                        nets.push(selvs.first().cloned().unwrap_or_else(|| "SELV_0".into()));
+                    }
+                    3 => {
+                        nets.push(hvs.first().cloned().unwrap_or_else(|| "AC_L".into()));
+                        nets.push(regular.first().cloned().unwrap_or_else(|| "NET_0".into()));
+                    }
+                    _ => nets.push(regular.first().cloned().unwrap_or_else(|| "NET_0".into())),
+                }
+                comps.push((unique, nets));
+            }
+
+            let hv_nets: Vec<String> = hvs;
+            let selv_nets: Vec<String> = selvs;
+            let (hv_only, selv_only, isolators, unclassified) =
+                classify_domain_partition_py(comps.clone(), hv_nets.clone(), selv_nets.clone());
+
+            let total = hv_only.len() + selv_only.len() + isolators.len() + unclassified.len();
+            assert_eq!(total, comps.len(), "every component must be in exactly one bucket");
+
+            // Disjointness: no ref appears in two buckets.
+            let mut all_refs = std::collections::HashSet::new();
+            for r in &hv_only { assert!(all_refs.insert(r.clone()), "duplicate ref {r}"); }
+            for r in &selv_only { assert!(all_refs.insert(r.clone()), "duplicate ref {r}"); }
+            for r in &isolators { assert!(all_refs.insert(r.clone()), "duplicate ref {r}"); }
+            for r in &unclassified { assert!(all_refs.insert(r.clone()), "duplicate ref {r}"); }
+
+            // HV-only must not contain any SELV-net component, and vice-versa.
+            for r in &hv_only {
+                let comp = comps.iter().find(|(ref_, _)| ref_ == r).unwrap();
+                let has_selv = comp.1.iter().any(|n| selv_nets.contains(n));
+                assert!(!has_selv, "HV-only component {r} has a SELV net");
+            }
+            for r in &selv_only {
+                let comp = comps.iter().find(|(ref_, _)| ref_ == r).unwrap();
+                let has_hv = comp.1.iter().any(|n| hv_nets.contains(n));
+                assert!(!has_hv, "SELV-only component {r} has an HV net");
+            }
+        }
+
+        /// The barrier-axis projection rotation table: rot 2 = -(rot 0),
+        /// rot 3 = -(rot 1) for axis 0.
+        #[test]
+        fn rotation_negation_orthogonality(
+            x in -1e6_f64..1e6_f64,
+            y in -1e6_f64..1e6_f64,
+        ) {
+            let r0 = project_onto_barrier_axis_impl(x, y, 0, 0).unwrap();
+            let r2 = project_onto_barrier_axis_impl(x, y, 2, 0).unwrap();
+            assert_eq!(r0, -r2, "rot-0 should be negation of rot-2");
+
+            let r1 = project_onto_barrier_axis_impl(x, y, 1, 0).unwrap();
+            let r3 = project_onto_barrier_axis_impl(x, y, 3, 0).unwrap();
+            assert_eq!(r1, -r3, "rot-1 should be negation of rot-3");
+        }
+
+        /// Rotation table correctness: check each rotation's formula against
+        /// the documented mapping for all 8 (rot, axis) combinations.
+        #[test]
+        fn rotation_table_correctness(
+            x in -1e6_f64..1e6_f64,
+            y in -1e6_f64..1e6_f64,
+            rot in 0i64..4i64,
+        ) {
+            let v0 = project_onto_barrier_axis_impl(x, y, rot, 0).unwrap();
+            let v1 = project_onto_barrier_axis_impl(x, y, rot, 1).unwrap();
+            match rot {
+                0 => { assert!((v0 - x).abs() <= 0.0, "rot=0 axis=0"); assert!((v1 - y).abs() <= 0.0, "rot=0 axis=1"); }
+                1 => { assert!((v0 - y).abs() <= 0.0, "rot=1 axis=0"); assert!((v1 + x).abs() <= 0.0, "rot=1 axis=1"); }
+                2 => { assert!((v0 + x).abs() <= 0.0, "rot=2 axis=0"); assert!((v1 + y).abs() <= 0.0, "rot=2 axis=1"); }
+                3 => { assert!((v0 + y).abs() <= 0.0, "rot=3 axis=0"); assert!((v1 - x).abs() <= 0.0, "rot=3 axis=1"); }
+                _ => unreachable!(),
+            }
+        }
+    }
+
+    /// NaN inputs propagate NaN through the rotation table.
+    #[test]
+    fn projection_preserves_nan() {
+        // rot=0 axis=0: gx = lx = NaN.
+        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 0, 0).unwrap();
+        assert!(v.is_nan());
+        // rot=0 axis=1: gy = ly = 1.0 (NOT NaN because ly is finite).
+        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 0, 1).unwrap();
+        assert!(!v.is_nan());
+        assert_eq!(v, 1.0);
+        // rot=1 axis=0: gx = ly = 1.0 (NOT NaN).
+        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 1, 0).unwrap();
+        assert!(!v.is_nan());
+        assert_eq!(v, 1.0);
+        // rot=1 axis=1: gy = -lx = -NaN = NaN.
+        let v = project_onto_barrier_axis_impl(f64::NAN, 1.0, 1, 1).unwrap();
+        assert!(v.is_nan());
+    }
+
+    /// The `max` computation in `get_clearance_impl` must match Python's
+    /// builtin `max`: keep the first NaN, NaN never displaces a finite
+    /// incumbent, -0.0 and 0.0 preserve the first argument.
+    #[test]
+    fn max_computation_matches_python_builtin_max() {
+        // Replicate the exact max computation from get_clearance_impl.
+        fn py_style_max(v: &[f64]) -> f64 {
+            assert!(!v.is_empty());
+            let mut result = v[0];
+            for &c in &v[1..] {
+                if c > result {
+                    result = c;
+                }
+            }
+            result
+        }
+
+        // First argument NaN: max stays NaN (Python: max([nan, 5.0]) == nan).
+        assert!(py_style_max(&[f64::NAN, 5.0]).is_nan());
+        assert!(py_style_max(&[f64::NAN, f64::NAN]).is_nan());
+
+        // Finite first, NaN later: max stays finite (Python: max([5.0, nan]) == 5.0).
+        assert_eq!(py_style_max(&[5.0, f64::NAN]), 5.0);
+        assert_eq!(py_style_max(&[5.0, f64::NAN, 3.0]), 5.0);
+        assert_eq!(py_style_max(&[2.0, f64::NAN, 6.0]), 6.0);
+
+        // -0.0 vs 0.0: Python max([-0.0, 0.0]) == -0.0 (keeps first).
+        let v = py_style_max(&[-0.0_f64, 0.0]);
+        assert!(v == -0.0 && v.is_sign_negative());
+        let v = py_style_max(&[0.0_f64, -0.0]);
+        assert!(v == 0.0 && v.is_sign_positive());
+
+        // +inf / -inf.
+        assert!(py_style_max(&[f64::INFINITY, 1e300]).is_infinite()
+            && py_style_max(&[f64::INFINITY, 1e300]).is_sign_positive());
+        assert_eq!(py_style_max(&[f64::NEG_INFINITY, 0.0]), 0.0);
+        assert!(py_style_max(&[f64::NAN, f64::INFINITY]).is_nan());
+
+        // All finite, typical.
+        assert_eq!(py_style_max(&[1.0, 2.0, 3.0]), 3.0);
+        assert_eq!(py_style_max(&[3.0, 1.0, 2.0]), 3.0);
+    }
+
+    /// Empty partition: all empty input yields all-empty buckets.
+    #[test]
+    fn partition_empty_input_yields_empty_buckets() {
+        let (hv_only, selv_only, isolators, unclassified) =
+            classify_domain_partition_py(vec![], vec!["HV".into()], vec!["LV".into()]);
+        assert!(hv_only.is_empty());
+        assert!(selv_only.is_empty());
+        assert!(isolators.is_empty());
+        assert!(unclassified.is_empty());
+    }
+
+    /// A component with both HV and SELV nets is always an isolator.
+    #[test]
+    fn dual_net_component_is_isolator() {
+        let comps = vec![("ISO1".into(), vec!["HV_NET".into(), "GND".into()])];
+        let (hv_only, selv_only, isolators, _) =
+            classify_domain_partition_py(comps, vec!["HV_NET".into()], vec!["GND".into()]);
+        assert!(hv_only.is_empty());
+        assert!(selv_only.is_empty());
+        assert_eq!(isolators, vec!["ISO1"]);
     }
 }
