@@ -85,6 +85,15 @@ quality-oracle-wasm-test-registry = [
   "temper-quality-oracle/wasm-test-registry",
 ]
 
+# --- temper-io-types ---------------------------------------------------------
+# Optional, same reason again. Its default feature is `python`, so the
+# dependency below carries `default-features = false`.
+io-types-registry = ["dep:temper-io-types"]
+io-types-wasm-test-registry = [
+  "io-types-registry",
+  "temper-io-types/wasm-test-registry",
+]
+
 [dependencies]
 temper-drc-rs ={ path = "../temper-drc-rs", default-features = false }
 # `default-features = false` for the same reason it is set on temper-drc-rs's
@@ -107,6 +116,9 @@ temper-constraint-compiler = { path = "../temper-constraint-compiler", optional 
 # `default-features = false` turns off `python` (pyo3), which has no
 # wasm32-unknown-unknown build.
 temper-quality-oracle = { path = "../temper-quality-oracle", optional = true, default-features = false }
+# `default-features = false` is load-bearing: temper-io-types's default feature
+# IS `python`, which pulls pyo3 in and fails the wasm32-unknown-unknown build.
+temper-io-types = { path = "../temper-io-types", optional = true, default-features = false }
 
 [profile.release]
 opt-level = "z"

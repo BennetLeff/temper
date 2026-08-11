@@ -193,6 +193,7 @@ DESIGN_BUNDLE_FAMILIES = ["design-bundle"]
 ROUTER_CORE_FAMILIES = ["router-core"]
 CONSTRAINT_COMPILER_FAMILIES = ["constraint-compiler"]
 QUALITY_ORACLE_FAMILIES = ["quality-oracle"]
+IO_TYPES_FAMILIES = ["io-types"]
 
 TEST_FN = re.compile(r"^(\s*)#\[(?:test|cfg_attr\(test, test\))\]\s*$")
 
@@ -709,6 +710,39 @@ CRATES: dict[str, CrateSpec] = {
             "//! --census` prints the full module census with per-module counts.",
         ],
     ),
+    "temper-io-types": CrateSpec(
+        name="temper-io-types",
+        eligible=None,  # discovered
+        families=IO_TYPES_FAMILIES,
+        family_of=lambda _rel: "io-types",
+        census_note="cannot be registered here at all",
+        sharding_note=[
+            "//! ## Families",
+            "//!",
+            "//! Each module entry in `ALL` is gated on a `wasm-registry-<family>`",
+            "//! feature, as in `temper-drc-rs`.  One family (`io-types`): what",
+            "//! survives `--no-default-features` is a flat set of KiCad/DSN",
+            "//! serialisers, parsers and placer CONTRACT kernels with no",
+            "//! taxonomy to shard along.",
+        ],
+        extra_notes=[
+            "//! Two exclusion classes apply here, both structural:",
+            "//!",
+            '//! * `#[cfg(feature = "python")]` modules -- `explain`, `report`,',
+            "//!   `reference_aliases`, `footprint_library`, `dsn_pyo3` and",
+            "//!   `zone_filler`.  Each is a *whole* pyo3 surface: its entry",
+            "//!   points take and return `Bound<'_, PyAny>` and read Python",
+            "//!   runtime semantics (`str()`, `yaml.safe_load`, `str.strip`)",
+            "//!   back across the boundary, so there is no kernel underneath to",
+            "//!   compile without pyo3.  Their tests are not skipped on",
+            "//!   `wasm32`: they are not compiled.",
+            "//! * `proptest` modules use a dev-dependency, which is not linked into",
+            "//!   the ordinary (non-test) build this registry compiles into.",
+            "//!",
+            "//! `scripts/gen_wasm_test_registry.py --crate temper-io-types",
+            "//! --census` prints the full module census with per-module counts.",
+        ],
+    ),
 }
 
 
@@ -800,18 +834,46 @@ def fn_cfgs(lines: list[str], test_attr_idx: int) -> list[str]:
 
 
 def collect_test_fns(lines: list[str]) -> list[tuple[str, list[str]]]:
-    """``(fn name, its own #[cfg] attributes)`` for every test in ``lines``."""
+    """``(fn name, its own #[cfg] attributes)`` for every test in ``lines``.
+
+    The walk from ``#[test]`` down to its ``fn`` has to step over the
+    attributes in between, and an attribute is not necessarily one line.
+    ``temper-io-types``'s ``dag_expr::depth_boundary`` writes::
+
+        #[cfg_attr(test, test)]
+        #[allow(
+            clippy::expect_used,
+            reason = "..."
+        )]
+        fn rejects_the_first_frame_past_the_ceiling() {
+
+    An earlier version scanned a fixed five-line window and stopped at the
+    first line not *starting* with ``#[``, so the continuation line
+    ``clippy::expect_used,`` ended the walk and the function was dropped from
+    the registry — silently, because the drift arm regenerates through this
+    same function and so agrees with itself.  ``--census`` counts ``#[test]``
+    attributes directly and disagreed (144 vs 143), which is how it surfaced.
+
+    Bracket depth is tracked instead, so a multi-line attribute is stepped
+    over whole.  At depth 0 the walk still stops at the first line that is
+    neither an attribute, a comment, nor blank, so it can never run past its
+    own item into the next one.
+    """
     names: list[tuple[str, list[str]]] = []
     for i, line in enumerate(lines):
         if not TEST_FN.match(line):
             continue
-        for j in range(i + 1, min(i + 6, len(lines))):
-            m = FN_NAME.match(lines[j])
-            if m:
-                names.append((m.group(1), fn_cfgs(lines, i)))
-                break
-            if not lines[j].lstrip().startswith("#["):
-                break
+        depth = 0
+        for j in range(i + 1, len(lines)):
+            stripped = lines[j].strip()
+            if depth == 0:
+                m = FN_NAME.match(lines[j])
+                if m:
+                    names.append((m.group(1), fn_cfgs(lines, i)))
+                    break
+                if stripped and not stripped.startswith(("#[", "//")):
+                    break
+            depth = max(0, depth + lines[j].count("[") - lines[j].count("]"))
     return names
 
 

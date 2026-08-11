@@ -110,6 +110,11 @@ PURE_GENERATORS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
         "gen_wasm_test_registry.py [temper-constraint-compiler]",
         ("--crate", "temper-constraint-compiler"),
     ),
+    (
+        "gen_wasm_test_registry.py",
+        "gen_wasm_test_registry.py [temper-io-types]",
+        ("--crate", "temper-io-types"),
+    ),
 )
 
 
