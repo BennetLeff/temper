@@ -397,13 +397,11 @@ temper_placer/regression/physics_oracle.py::score_human_baseline  # TODO: temper
 temper_placer/regression/physics_oracle.py::score_placement  # TODO: temper-xxx
 temper_placer/regression/runner.py::RegressionRunner.run  # TODO: temper-xxx
 temper_placer/regression/schema_validator.py::SchemaValidator.validate  # TODO: temper-xxx
-temper_placer/router_v6/all_pad_evidence.py::validate_all_pad_baseline  # TODO: temper-xxx
 temper_placer/router_v6/annular_ring_check.py::check_annular_rings  # TODO: temper-xxx
 temper_placer/router_v6/astar_monitor.py::MonitorState.record_pop  # TODO: temper-xxx
 temper_placer/router_v6/astar_monitor.py::MonitorState.validate_cost_lower_bound  # TODO: temper-xxx
 temper_placer/router_v6/astar_monitor.py::MonitorState.validate_path_completeness  # TODO: temper-xxx
 temper_placer/router_v6/astar_monitor.py::get_monitor_state  # TODO: temper-xxx
-temper_placer/router_v6/audit_provenance.py::validate_via_routing_measurement  # TODO: temper-xxx
 temper_placer/router_v6/benchmark.py::main  # TODO: temper-xxx
 temper_placer/router_v6/benchmark.py::run_benchmark_suite  # TODO: temper-xxx
 temper_placer/router_v6/benchmark.py::run_resource_bound_benchmark  # TODO: temper-xxx
