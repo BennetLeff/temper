@@ -295,7 +295,7 @@ pub struct PipelineConfig {
     #[pyo3(get, set)]
     pub convergence_threshold: f64,
     #[pyo3(get, set)]
-    pub fab_preset: String,
+    pub fab_preset: Option<String>,
 }
 
 #[cfg(feature = "python")]
@@ -340,7 +340,7 @@ impl PipelineConfig {
         max_iterations: i64,
         routability_threshold: f64,
         convergence_threshold: f64,
-        fab_preset: &str,
+        fab_preset: Option<&str>,
     ) -> Self {
         Self {
             input_pcb,
@@ -359,7 +359,7 @@ impl PipelineConfig {
             max_iterations,
             routability_threshold,
             convergence_threshold,
-            fab_preset: fab_preset.to_owned(),
+            fab_preset: fab_preset.map(str::to_owned),
         }
     }
 
@@ -387,7 +387,10 @@ impl PipelineConfig {
             self.max_iterations,
             repr_float(py, self.routability_threshold)?,
             repr_float(py, self.convergence_threshold)?,
-            repr_str(py, &self.fab_preset)?,
+            match &self.fab_preset {
+                Some(s) => repr_str(py, s)?,
+                None => "None".to_owned(),
+            },
         ))
     }
 
