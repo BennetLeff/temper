@@ -97,26 +97,35 @@ def _kicad_cli_available() -> bool:
 
 
 def _load_pcl_constraints(config_path: Path) -> list:
-    """Load PCL constraints from a YAML config file."""
-    try:
-        from temper_placer.io.config_loader import load_constraints
+    """Load PCL constraints from a YAML config file.
 
-        constraints = load_constraints(config_path)
-        return list(getattr(constraints, "pcl_constraints", []))
-    except Exception:
-        return []
+    Deliberately does NOT catch and swallow load errors: a bare
+    ``except Exception: return []`` here previously made this gate silently
+    solve with zero PCL constraints active whenever ``load_constraints``
+    raised — from 2026-08-08 (`e557004d4`, the schema guard that started
+    rejecting this file's own `version`/`metadata`/`netclasses` top-level
+    keys) to 2026-08-11, while this module's own comments claimed "solve
+    placement with all constraints active." See
+    docs/evidence/2026-08-11-pumpkin-real-budget-spike.md §4.0. A config
+    that fails to load must fail this test, not silently degrade it.
+    """
+    from temper_placer.io.config_loader import load_constraints
+
+    constraints = load_constraints(config_path)
+    return list(getattr(constraints, "pcl_constraints", []))
 
 
 def _load_zones(config_path: Path) -> dict[str, tuple[float, float, float, float]]:
     """Load {zone_name: bounds} from a YAML config file (mirrors the
-    zones= wiring in cli/__init__.py's loop_runner.run() call)."""
-    try:
-        from temper_placer.io.config_loader import load_constraints
+    zones= wiring in cli/__init__.py's loop_runner.run() call).
 
-        constraints = load_constraints(config_path)
-        return {z.name: z.bounds for z in getattr(constraints, "zones", [])}
-    except Exception:
-        return {}
+    See :func:`_load_pcl_constraints` for why load errors are not swallowed
+    here either.
+    """
+    from temper_placer.io.config_loader import load_constraints
+
+    constraints = load_constraints(config_path)
+    return {z.name: z.bounds for z in getattr(constraints, "zones", [])}
 
 
 # VERIFIED 2026-07-18: PCL_CONFIG declares zones (HV_ZONE, MCU_ZONE,
