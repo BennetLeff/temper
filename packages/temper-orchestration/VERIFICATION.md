@@ -2330,3 +2330,188 @@ by the differential's own body digest).
   by pyo3's macro expansion (the crate sets `profile.release.panic =
   "unwind"`); the `Stage` run() bodies run under `stage_guard`; no
   `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
+
+## Rust orchestration engine — Phase E batch E4 (channel operations)
+
+Rust Orchestration Engine plan 2026-08-09-001 Phase E E4: the channel
+operations' ORCHESTRATION moves to `src/channel_mapping.rs` as
+`Stage<BoardState>` impls plus the pyfunction FFI surface the
+`router_v6/channel_mapping.py` and `router_v6/channel_widths.py` shims
+delegate to. The pre-migration orchestration is pinned VERBATIM as
+`tests/router_v6/_channel_ops_py_oracle.py` (byte-exact snapshot of the two
+modules' orchestration bodies at the dispatch base, origin/main d1b330b90;
+content-hash pinned in `scripts/oracle_hashes.json` AND by the differential's
+own body digest; the oracle bodies were AST-verified byte-identical to the
+committed modules).
+
+### What migrated
+
+| Python module | Rust entity | Migrated orchestration |
+|---|---|---|
+| `router_v6/channel_mapping.py` (639) | `channel_mapping.rs` | `map_topology_to_channels` / `_map_net_to_channels` / `_extract_waypoints` / `_parse_channel_coordinate` / `_skeleton_nodes_in_coordinate_order` / `_assign_layer` / `_ssot_layer_for_net` / `_validated_two_pad_terminals` / `expand_channel_path_terminals` / `fallback_channel_path` |
+| `router_v6/channel_widths.py` (694, shapely-blocked portions stay Python) | `channel_mapping.rs` | `compute_channel_widths`'s EDT production path: the per-edge interior sampling, the all-points assembly, the batched `edt_width_lookup_batch` dispatch, the node/edge-width assembly and the min/max/avg statistics |
+
+**What stays Python (evidence)** — the shapely-blocked channel_widths
+portions have no Rust equivalent (argued in the `channel_widths.py` shim
+header): `_rasterize_boundary_mask` (`shapely.contains_xy` — the module
+docstring's boundary-semantics proof depends on shapely's exact predicate),
+`_compute_width_at_point` (prepared-geometry `Point.distance` to the
+exterior/interior rings — the per-point reference path, `use_edt=False`),
+`_compute_board_fingerprint` (the routing polygon's WKB serialization hashed
+for the EDT disk cache), `_build_edt` / `_atomic_write_npz` /
+`_evict_if_over_budget` (the rasterise + npz disk-cache lifecycle), the
+`available_area.is_empty` guard and the `MultiPolygon` decomposition /
+prepared-geometry caches. The `ChannelWidthsStage` pipeline stage and the
+`validate_channel_widths` DRC-fence validator stay Python unchanged
+(BoardState orchestration + the `StageDRCFailure` convention). The
+channel-ID coordinate parsing calls CPython `float()` (Python float accepts
+whitespace / `inf` / underscore forms Rust's `f64::from_str` does not); the
+path-graph node fallback strings (`str(node)`) and their exception
+swallowing stay Python (CPython str semantics); the net-classification
+predicates are driven through the Python module at runtime (single-layer-mode
+is process-local mutable state). No new Python API is invented.
+
+### Structural proof (bit-identical parity)
+
+The differential drives both arms with identical inputs and compares every
+return value bit-exact (`float.hex()` via `canon`). The load-bearing
+equivalences:
+
+- **Kernel reuse**: every geometry kernel (`channel_path_length_py` /
+  `is_near_skeleton_py` / `nearest_skeleton_node_py` /
+  `nearest_terminal_order_py` / `edt_width_lookup_batch` in
+  temper-geometry) is the pinned function driven through FFI — the same
+  kernel the oracle calls, so the orchestration differential inherits the
+  existing bit-exact kernel proofs.
+- **The paren-group scan is the regex**: `re.findall(r"\(([^)]+)\)",
+  channel_id)` is leftmost-non-overlapping with `[^)]+` requiring at least
+  one non-`)` character; `find_paren_groups` reproduces it exactly (pinned
+  by the Rust unit tests: `"((a))"` → `["(a"]`, `"(a(b)c)"` → `["a(b"]`,
+  `"()"` → `[]`). The `match.split(",")` → `float()` → `(x, y)` parse goes
+  through CPython `float()`, matching the oracle's `ValueError` swallowing
+  (both parts must parse for the point to be emitted).
+- **Python tuple ordering**: the `sorted()` sorts (the skeleton
+  coordinate-order fallback and `fallback_channel_path -> sorted(pads)`) and
+  the `min()` over tuple lists (`min(missing)`) replicate CPython's
+  `==`-falls-through-`<` tuple comparison exactly — `-0.0`/`0.0` ties and
+  NaN compare equal and keep input order (stable), so the results are pure
+  functions of the node/pad SET, never of insertion order (the H1/H2
+  determinism hazards).
+- **`_assign_layer` via the Python module**: `get_single_layer_mode()` and
+  the `is_power_net`/`is_ground_net`/`is_hv_net` predicates are called back
+  through `temper_placer.router_v6.net_classification` (single-layer-mode
+  short-circuit semantics stay single-source); the single-layer early return
+  skips the SSOT lookup exactly like the oracle. `_ssot_layer_for_net`
+  reads `reason`/`primary_layer` via `getattr` with the `""` default, and
+  the `_LAYER_ENUM_TO_KICAD` lookup uses Python `eq` (so `1`/`1.0`/`True`
+  keys match, a `"1"` string does not — dict semantics, not i64 casting).
+- **`_validated_two_pad_terminals`**: the identity/swap displacement
+  decision uses libm `pow` for `(dx**2 + dy**2) ** 0.5` (host_math), the
+  `<=` tie-break is identity-preferring, and `corrected == waypoints` (float
+  equality) selects the identity return — the shim returns the ORIGINAL
+  object, preserving `terminal_tree`/`terminals` (identity parity is pinned
+  by the differential).
+- **The all-pad-tree `total_length` wart**: the length is recomputed over
+  `[*waypoints, *missing]` where `missing` is the pad-INPUT-order list (not
+  the deterministic `ordered_missing`) — a faithful reproduction of the
+  reference's quirk, pinned by a dedicated differential case that permutes
+  the pads and asserts the waypoints stay deterministic while the lengths
+  differ on both arms identically.
+- **EDT-branch statistics**: the reference's `sum(all_widths)` operates on a
+  list whose FIRST element is always `np.float64` (node widths come first),
+  so CPython's float-compensation fast path never engages — every add is
+  numpy-scalar arithmetic = plain naive IEEE accumulation in dict order; the
+  Rust replicates it as a naive f64 fold (`min`/`max` are the iterable
+  first-minimum/first-maximum semantics; a NaN never displaces the
+  incumbent). The edge sampling uses `pow` squares + `int(edge_length /
+  sample_distance)` truncation + `i / num_samples` true division in the
+  exact reference order; the batch lookup is called once with the same
+  byte-identical EDT/mask inputs.
+- **numpy-scalar normalisation in the differential**: the oracle's width
+  values are `np.float64` (numpy indexing) while the Rust path returns
+  Python floats; the differential compares `float(v).hex()` (exact
+  conversion), documenting that the IEEE bits are the contract, the numpy
+  wrapper is not.
+
+### Empirical Verification
+
+- **Differential suite**: `test_channel_ops_rust_differential.py` (87 tests,
+  all green) — the oracle is content-hash-pinned; the shims bind to
+  `temper_orchestration` pyfunctions (anti-vacuity assert), the oracle stays
+  pure Python. `map_topology_to_channels` is compared bit-exact over the
+  empty/None topologies, SAT channel sequences (coordinate / edge-ID /
+  underscore / plain IDs), the path-graph fallback, the layer-constraint
+  overrides (SimpleNamespace + `.value` enums + bare-string shims) and 20
+  randomized net/skeleton/constraint cases; `fallback_channel_path` /
+  `expand_channel_path_terminals` over the two-pad identity/swap/wrong-
+  endpoint/short-path/interior-preserved cases, the all-pad-tree append /
+  no-op / disabled / duplicates / empty-path cases and 10+10 randomized
+  cases (incl. the pad-input-order total_length wart); `compute_channel_widths`
+  over the EDT path (box, multipolygon, sample-distance sweep, diagonal
+  edges, empty skeleton, empty area, 8 randomized skeletons) and the
+  per-point reference path (`use_edt=False`).
+- **PBT suite**: `test_channel_ops_rust_pbt.py` (12 tests, all green) — six
+  non-vacuous properties (P1 SAT sequence authoritative, P2 path-graph
+  fallback, P3 fallback_channel_path determinism, P4 two-pad endpoint
+  correction, P5 width-stats consistency with the naive-sum reference, P6
+  edge-width bounded by its endpoints), each with a discriminating vacuity
+  guard.
+- **Metamorphic suite**: `test_channel_ops_rust_metamorphic.py` (8 tests,
+  all green) — four relations (MR1 two-pad expansion idempotence, MR2
+  pad-order endpoint closure + interior preservation with the exact-tie
+  identity-preference companion, MR3 all-pad-tree waypoint permutation
+  invariance, MR4 edge-width upper bound), each with a discriminating
+  companion.
+- **Runner suite**: `tests/e4_stages_runner.rs` (4 tests, all green) — the
+  two E4 stages sequence through `PipelineRunner<BoardState>` in declaration
+  order, every `run()` completes without panicking (guarded identity on
+  empty payloads; the FFI kernels are exercised by the Python differential),
+  and the read-only stages preserve the state.
+- **Consumer suites**: the full pre-existing channel surface stays green with
+  the delegating shims — `test_channel_mapping.py`,
+  `test_channel_widths.py`, `test_channel_mapping_pbt.py`,
+  `test_channel_mapping_rust_differential.py` (the four temper-geometry
+  kernels), `test_channel_mapping_terminal_validation.py`,
+  `test_channel_widths_pbt.py`, `test_channel_widths_edt.py`,
+  `test_astar_heuristics_rust_differential.py` (incl. the one-batch-call
+  pin), `test_all_pad_tree_routing.py`, `test_adapter.py`,
+  `test_wave3_skip_sat.py`, `test_astar_nlayer.py`,
+  `test_astar_pathfinding.py`, `test_astar_route_multilayer_via_fallback.py`,
+  `test_decline_reason_contract.py`, `test_demand_budget_pbt.py`,
+  `test_tree_grid_layer_mismatch.py` — all green (228 passed, 1 skipped on
+  the batch; identical pass/fail signature to origin/main).
+- **Rust unit tests**: `channel_mapping.rs` carries `#[cfg(test)]` unit
+  tests (the paren-group scan semantics, the CPython tuple `<` / stable
+  coordinate sort, the first-min/first-max iterable semantics, the two-pad
+  identity/swap decision and interior preservation).
+- **Clippy**: `cargo clippy --all-features --all-targets -- -D warnings` —
+  clean.
+- **Wiring**: `check_unwired_kernels.py` reports no new unwired kernel — the
+  temper-geometry kernels the Rust orchestration drives (`channel_path_length_py`
+  / `is_near_skeleton_py` / `nearest_skeleton_node_py` /
+  `nearest_terminal_order_py` / `edt_width_lookup_batch`) are still wired by
+  their Python delegation wrappers in the shims, so the Python AST scan sees
+  them wired.
+- **G6 induction** — N/A: every migrated orchestration is a bounded loop
+  nest over nets/skeleton nodes/edges/pads with size-independent per-step
+  operations; the sampling loop's arithmetic is per-sample fixed-step.
+  Structural proof above.
+- **G8 physics discipline** — N/A for the migrated orchestration: it maps /
+  measures from already-physics-gated inputs (the width/clearance values
+  come from the pinned temper-geometry kernels); no new physics quantity is
+  gated. The channel-width measurement itself is data (2x EDT distance), not
+  a constraint the solver optimises against.
+- **R1g Rust bar**: every `#[pyfunction]` body is wrapped in `catch_unwind`
+  by pyo3's macro expansion (the crate sets `profile.release.panic =
+  "unwind"`); the `Stage` run() bodies run under `stage_guard`; no
+  `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
+
+**Pre-existing finding (not introduced by E4)**: two tests in
+`test_channel_widths_rust_differential.py`
+(`test_compute_channel_widths_batch_matches_per_point` /
+`test_compute_channel_widths_multipolygon_batch_matches_per_point`) fail
+IDENTICALLY on origin/main — the pre-migration `_per_point_rebuild` oracle
+calls `skeleton.graph.nodes()` / `.edges()` as methods, but the SkeletonGraph
+pyclass exposes them as properties; the failure predates E4 (the CI-uncovered
+registry's `_PASSING_LOCALLY` entry is stale). E4 leaves the file untouched
+(not in scope) and records the rot here.
