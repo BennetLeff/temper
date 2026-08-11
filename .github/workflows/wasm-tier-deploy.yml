@@ -1,5 +1,16 @@
 name: WASM Tier Deploy (operator-triggered)
 
+# no-pr-trigger: this workflow DEPLOYS to production Cloudflare Workers. A
+# `pull_request` trigger would publish an unmerged branch's .wasm to the live
+# Workers that wasm-tier-nightly.yml's R5.1 freshness check then measures --
+# any PR could silently replace the deployed corpus with its own, and the
+# nightly would compare main's commit against a stranger's build. The pre-merge
+# validation this gate exists to guarantee is provided instead by
+# wasm-tier-pr.yml (which runs the tier's tests on the PR path, deploying
+# nothing) and by this workflow's own `workflow_dispatch` `dry_run` input,
+# which stages, builds and `wrangler deploy --dry-run`s every Worker without a
+# credential. See issue #315 for why the gate exists.
+#
 # R5.2 (docs/plans/2026-08-10-001-feat-wasm-tier-phase5-plan.md) — the deploy
 # of the WASM-tier Workers, reproducible from a committed definition instead
 # of an operator's shell history.
