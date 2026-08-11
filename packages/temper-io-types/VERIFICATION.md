@@ -1623,3 +1623,102 @@ suites are fail-capable on the two behaviours most likely to drift.
    parens inside quoted strings, and the existing production-board
    regression (`test_strip_copper.py`, 2434 blocks) proves the real input
    space is unaffected.
+
+# Dead-letter quarantine compute (`quarantine.rs`) — Verification
+
+The Wave-4 tail-tooling migration of `temper_placer/testing/quarantine.py`
+(188 LOC): the error-taxonomy decision table (`classify_error`), the
+stack-hash SHA-256-prefix reduction (`compute_stack_hash`) and the
+board-fingerprint content kernels (`compute_fingerprint` — line count +
+`(kicad_pcb` header probe) move to `src/quarantine.rs`, exposed as
+`temper_io_types.classify_error` / `compute_stack_hash` /
+`compute_fingerprint`. The pre-migration module is pinned VERBATIM as
+`packages/temper-placer/tests/testing/_quarantine_py_oracle.py`
+(content-hash registered in `scripts/oracle_hashes.json`).
+
+## Home-crate decision
+
+The compute is error/fingerprint *hashing* and content classification — the
+`temper-io-types` (hashing/manifest) family, not reporting/verdict
+orchestration. The three kernels are pure (wasm32-safe) functions; the pyo3
+boundary is a thin adapter. The regression reporter (a separate slice) is
+homed in `temper-orchestration`.
+
+## What migrated vs stayed Python
+
+| Piece | Verdict |
+|---|---|
+| `classify_error` decision table | migrated (`classify`, pure — stage + lowercased message + exception class name → taxonomy class; branch order preserved) |
+| `compute_stack_hash` sha256 prefix | migrated (`sha256_hex_prefix`, sha2 — byte-identical to `hashlib.sha256(...).hexdigest()[:12]`); the *traceback rendering* is CPython (`traceback.format_exception`) — rendering frames/source lines/chains is CPython semantics that cannot be bit-identical in Rust across Python versions (see the module doc's trap note) |
+| `compute_fingerprint` content kernels | migrated (`count_lines`, `has_kicad_header` — pure); the fs-backed dict builder is the pyo3 wrapper (`std::fs`, `errors="replace"` as `String::from_utf8_lossy`) |
+| `QuarantineEntry` + `to_dict`/`to_json` | stays Python (dataclass serialization, evidence) |
+| `quarantine_error` / `_update_manifest` / `load_manifest` / `quarantine_summary` | stays Python (dead-letter filesystem manifest management, evidence) |
+| `TAXONOMY_CLASSES` label table | stays Python (used by `to_dict`/`quarantine_summary`) |
+
+## Induction applicability
+
+**Mathematical induction is not applicable.** `classify` is a fixed finite
+decision table; `count_lines`/`has_kicad_header` are single-pass string
+functions with no recursion or size parameter. A **structural proof** is
+recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every input in the differential
+domains (documented cases + Hypothesis-generated ASCII keyword/message soup
++ generated board-ish content), `temper_io_types.classify_error`,
+`compute_stack_hash` and `compute_fingerprint` return values bit-identical
+to the pinned oracle's.
+
+*Proof by structural cases.*
+
+1. **`classify`.** The Rust decision table transcribes the Python
+   `if`-chain in order, so an earlier-precedence keyword always wins (a
+   message containing `version` classifies as `PARSE_KICAD_VERSION_MISMATCH`
+   even when it also contains `footprint`/`decode`). The message keyword
+   tests run on Rust `str::to_lowercase` — identical to CPython
+   `str.lower()` for the ASCII domain the pipeline produces (differential
+   and PBT pin that domain; exotic-Unicode lowercasing is out of scope and
+   recorded below). The class-name arm matches the exact tuple
+   `("SyntaxError", "ValueError", "KeyError")` via `matches!`.
+2. **`compute_stack_hash`.** Both arms render the traceback with the same
+   CPython `traceback.format_exception(type, exc, exc.__traceback__)` call,
+   so the input bytes are identical by construction; the reduction is the
+   same SHA-256 → 12-hex-prefix (sha2 vs hashlib — both the standard
+   SHA-256, pinned by the differential).
+3. **`compute_fingerprint`.** `exists()` and `metadata().len()` reproduce
+   `Path.exists()`/`stat().st_size`; `String::from_utf8_lossy` reproduces
+   `read_text(errors="replace")`'s U+FFFD substitution; `count_lines` is
+   `content.count("\n") + 1` (`matches('\n').count() + 1`); 
+   `has_kicad_header` slices the first 200 *code points* like `[:200]`,
+   lowercases, and probes `(kicad_pcb`. The `except Exception` unreadable
+   fallback (`readable: False`, no `lines`/`has_kicad_header` keys) is the
+   `Err(_)` match arm.
+
+## R1 gate status
+
+| Gate | Status | Evidence |
+|---|---|---|
+| R1a behavioural A/B | PASS | `tests/testing/test_quarantine_rust_differential.py` (28 tests): both publics vs the verbatim oracle over 13 documented classification cases, 4 raised/unraised/hostile stack-hash cases, 4 fingerprint filesystem cases (existing, missing, headerless, unreadable) and the end-to-end `quarantine_error`/manifest parity. Oracle bodies content-hash pinned in the suite AND in `scripts/oracle_hashes.json`. |
+| R1b no-regression arm | N/A, recorded | quarantine runs once per failed board on an error path already dominated by file I/O; no speedup is claimed and `pr_perf_compare` has no rows for this surface. |
+| R1c ≥5 non-vacuous properties | PASS | 8 hypothesis properties: classify differential over (stage, class, message); non-parse stages are fixed points; `version`-keyword wins; `decode`-keyword invariant; stack-hash differential; 12-hex-chars invariant; fingerprint differential over generated content; lines/header invariant. Each pins a real branch (the differentials are non-vacuous by construction against a distinct implementation). |
+| R1d ≥3 MRs | PASS | 4 metamorphic relations (suffix can only add classification precedence; appending `\n` increments `lines` by exactly 1; stack-hash determinism + distinctness; fingerprint purity under identical rewrite + line-growth direction). |
+| R1e VERIFICATION.md | PASS | this section |
+| R1f TDD | PASS | the differential file was authored against the not-yet-registered surface; the shim's delegation is proven by recording stubs, and the oracle stays distinct (`__module__` assertions) |
+| R1g Rust practice | PASS | no `unwrap`/`expect` outside `#[cfg(test)]`; the pyo3 boundary is catch_unwind-wrapped by pyo3's `#[pyfunction]` expansion (the crate sets `profile.release.panic = "unwind"`); `cargo clippy --all-features --all-targets -- -D warnings` clean. |
+| R1h R24 | N/A | no physics quantity is computed, asserted, or gated — the R24 Chebyshev/BMC/post-solve obligations have no referent. |
+
+## Documented bounds (per R1, recorded here)
+
+1. **Unicode lowercasing.** Rust `str::to_lowercase` and CPython
+   `str.lower()` agree on ASCII and diverge only on exotic Unicode (e.g.
+   Turkish dotted İ, `ß`); exception messages and board content in this
+   pipeline are ASCII by construction, and the differential/PBT suites
+   constrain their inputs to that domain.
+2. **Traceback rendering stays CPython.** The stack hash covers the
+   *formatted* traceback, whose rendering is CPython semantics; the portable
+   kernel under migration is the SHA-256 prefix. Rendering parity is by
+   construction (same `traceback.format_exception` call in both arms), not
+   by reimplementation.
+3. **`usize` fingerprint fields.** `size_bytes`/`lines` are `usize`;
+   CPython's `int` is unbounded. Unreachable in practice for real files.

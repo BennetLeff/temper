@@ -80,6 +80,13 @@ pub mod placer_core;
 pub mod property_campaigns;
 pub mod provenance;
 pub mod pyfmt;
+// Wave-4 tail-tooling migration: the dead-letter quarantine compute
+// (temper_placer/testing/quarantine.py) — `classify_error`, the
+// `compute_stack_hash` SHA-256 prefix and the `compute_fingerprint` content
+// kernels. Pure core (wasm32-safe); the pyo3 boundary and the fs-backed
+// fingerprint read live behind the python feature. See the module doc for
+// the migrated-vs-kept-Python split.
+pub mod quarantine;
 // Wholly a pyo3 surface: `ReferenceAliasManifest` is a `#[pyclass]` and the
 // loader reads its manifest through Python's `yaml.safe_load` and compares
 // names with Python `str.strip` semantics (the M4 divergence its own test
@@ -205,6 +212,10 @@ mod pymodule_def {
         )?)?;
         m.add_function(wrap_pyfunction!(crate::dsn_types::dsn_list, m)?)?;
         m.add_function(wrap_pyfunction!(crate::provenance::sha256_hex_py, m)?)?;
+        // Wave-4 tail-tooling — quarantine compute (testing/quarantine.py).
+        m.add_function(wrap_pyfunction!(crate::quarantine::classify_error, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::quarantine::compute_stack_hash, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::quarantine::compute_fingerprint, m)?)?;
         m.add_function(wrap_pyfunction!(
             crate::footprint_library::load_footprint_library,
             m

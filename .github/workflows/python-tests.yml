@@ -801,6 +801,26 @@ jobs:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
+      # Wave-4 tail-tooling anti-vacuity gate (PR merge path): the quarantine
+      # compute differential pins the migrated temper-io-types quarantine
+      # kernels (classify_error / compute_stack_hash / compute_fingerprint)
+      # bit-exactly against the verbatim pre-migration oracle
+      # (tests/testing/_quarantine_py_oracle.py, content-hash registered in
+      # scripts/oracle_hashes.json). pytest_guard floors the collection so a
+      # silently-shrunk suite fails instead of passing vacuously. Extended
+      # with the regression reporter/manifest differentials as those slices
+      # land on this branch.
+      - name: Run Wave-4 tail-tooling differentials (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 28 --
+          tests/testing/test_quarantine_rust_differential.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
       # Removed 2026-08-07: dead weight. The `run:` command already ends in
       # `|| echo "::warning ..."`, a shell fallback that makes the WHOLE
       # step exit 0 unconditionally (verified: `bash -c 'false || echo x;

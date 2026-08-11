@@ -1,4 +1,23 @@
-"""Dead-letter quarantine for pipeline failures with structured taxonomy.
+"""Pinned Python oracle for ``temper_placer/testing/quarantine.py``.
+
+VERBATIM copy of the pre-migration implementation of
+``temper_placer/testing/quarantine.py`` (as of ``origin/main`` commit
+``2426f5cf5``, the Wave-4 tail-tooling migration base). Do NOT edit the
+semantics: the differential suite
+(``tests/testing/test_quarantine_rust_differential.py``) compares the
+Rust kernels (``temper-io-types`` ``quarantine`` module) against this file
+byte-for-byte, and its content hash is registered in
+``scripts/oracle_hashes.json``. The migrated functions -- ``classify_error``,
+``compute_stack_hash``, ``compute_fingerprint`` -- stay here VERBATIM as
+evidence; the production ``quarantine.py`` is now a delegation shim whose
+filesystem manifest management (``quarantine_error``, ``_update_manifest``,
+``load_manifest``, ``quarantine_summary``, ``QuarantineEntry``) remains
+Python.
+
+Original module docstring (kept verbatim):
+-----------------------------------------
+
+Dead-letter quarantine for pipeline failures with structured taxonomy.
 
 Every board error (parse, stage, invariant) is routed to a quarantine
 directory with structured metadata.  Failures are auto-clustered by
@@ -6,31 +25,30 @@ similarity (exception class + stack hash + board fingerprint) so
 untested edge cases are surfaced systematically rather than buried in
 CI logs.
 
-This module is a delegation shim. The portable compute moved to
-``temper-io-types``'s ``quarantine`` module (Wave-4 tail-tooling migration):
-``classify_error`` (the taxonomy decision table), ``compute_stack_hash``
-(the ``sha256(...)[:12]`` stack-hash reduction) and ``compute_fingerprint``
-(the board fingerprint — existence/size/line-count/header-probe). The
-dead-letter filesystem management stays here — ``QuarantineEntry`` (+ its
-``to_dict``/``to_json`` serialization), ``quarantine_error`` (the
-date-directory + entry-file write orchestration), ``_update_manifest``,
-``load_manifest``, ``quarantine_summary`` (the presentation) and the
-``TAXONOMY_CLASSES`` label table. The public API is unchanged. The
-pre-migration module is pinned VERBATIM as
-``tests/testing/_quarantine_py_oracle.py`` (content-hash registered in
-``scripts/oracle_hashes.json``); bit-identical parity is pinned by
-``tests/testing/test_quarantine_rust_differential.py``.
+Taxonomy classes (TAXONOMY):
+    - PARSE_KICAD_VERSION_MISMATCH
+    - PARSE_UNSUPPORTED_SYNTAX
+    - PARSE_MISSING_FOOTPRINT_LIB
+    - PARSE_DECODE_ERROR
+    - PARSE_EMPTY_BOARD
+    - PARSE_UNKNOWN
+    - STAGE_PREFLIGHT_FAILED
+    - STAGE_GEOMETRIC_DIVERGED
+    - STAGE_ROUTING_FAILED
+    - STAGE_OUTPUT_FAILED
+    - INVARIANT_BROKEN
+    - UNKNOWN
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
+import traceback
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-
-import temper_io_types as _tio
 
 TAXONOMY_CLASSES: dict[str, str] = {
     "PARSE_KICAD_VERSION_MISMATCH": "KiCad version not supported by parser",
@@ -75,18 +93,50 @@ def classify_error(
     stage: str,
     error: Exception,
 ) -> str:
-    """Delegate to the Rust taxonomy decision table (``quarantine.rs``)."""
-    return _tio.classify_error(stage, error)
+    msg = str(error)
+    cls_name = type(error).__name__
+
+    if stage == "parse":
+        if "version" in msg.lower() or "format_version" in msg.lower():
+            return "PARSE_KICAD_VERSION_MISMATCH"
+        if "footprint" in msg.lower() or "lib" in msg.lower():
+            return "PARSE_MISSING_FOOTPRINT_LIB"
+        if "decode" in msg.lower() or "utf" in msg.lower() or "encoding" in msg.lower():
+            return "PARSE_DECODE_ERROR"
+        if "zero" in msg.lower() and ("component" in msg.lower() or "net" in msg.lower()):
+            return "PARSE_EMPTY_BOARD"
+        if cls_name in ("SyntaxError", "ValueError", "KeyError"):
+            return "PARSE_UNSUPPORTED_SYNTAX"
+        return "PARSE_UNKNOWN"
+
+    if stage == "preflight":
+        return "STAGE_PREFLIGHT_FAILED"
+    if stage == "geometric":
+        return "STAGE_GEOMETRIC_DIVERGED"
+    if stage == "routing":
+        return "STAGE_ROUTING_FAILED"
+    if stage == "output":
+        return "STAGE_OUTPUT_FAILED"
+
+    return "UNKNOWN"
 
 
 def compute_stack_hash(exc: Exception) -> str:
-    """Delegate to the Rust ``sha256(format_exception(...))[:12]`` kernel."""
-    return _tio.compute_stack_hash(exc)
+    tb = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+    return hashlib.sha256(tb.encode()).hexdigest()[:12]
 
 
 def compute_fingerprint(board_path: Path) -> dict[str, Any]:
-    """Delegate to the Rust filesystem fingerprint builder."""
-    return _tio.compute_fingerprint(str(board_path))
+    fp: dict[str, Any] = {"path": str(board_path), "exists": board_path.exists()}
+    if board_path.exists():
+        fp["size_bytes"] = board_path.stat().st_size
+        try:
+            content = board_path.read_text(encoding="utf-8", errors="replace")
+            fp["lines"] = content.count("\n") + 1
+            fp["has_kicad_header"] = "(kicad_pcb" in content.lower()[:200]
+        except Exception:
+            fp["readable"] = False
+    return fp
 
 
 def quarantine_error(
