@@ -51,9 +51,7 @@ from temper_placer.router_v6.constraints_geometry import (
 from temper_placer.router_v6.dense_package_detection import DensePackage
 from temper_placer.router_v6.escape_via_generator import generate_escape_vias
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
-from temper_placer.visualization.board_renderer import get_pad_shapes
-from temper_placer.visualization.model import PadView, Rectangle
-from temper_placer.visualization.model import Point as VizPoint
+from temper_placer.geometry.kicad_transform import place_local_to_world as _place_local_to_world
 
 # Reused, not reimplemented -- same pcbnew-oracle plumbing
 # `test_rotation_convention_oracle.py` already built and battle-tested.
@@ -282,51 +280,53 @@ class TestEscapeViaGeneratorDogBoneRotationAgainstPcbnewOracle:
 
 
 # =============================================================================
-# 6. visualization/model.py::Rectangle.corners and
-#    visualization/board_renderer.py::get_pad_shapes
+# 6. kicad_transform place_local_to_world (the R(-theta) convention that the
+#    retired visualization/ package's Rectangle.corners / get_pad_shapes used)
 # =============================================================================
 
 
-class TestVisualizationRectangleCornersAgainstPcbnewOracle:
-    def test_corner_matches_pcbnew_at_non_90_degree_angle(self):
-        """Renders a visual proxy of the real board -- a wrongly-mirrored
-        component outline at a non-quadrant angle would mislead anyone
-        looking at the visualization, even though today's discrete
-        placer-rotation state never produces one.
+def _rect_corner_xy(
+    center_x: float, center_y: float, half_w: float, half_h: float, angle_deg: float
+) -> tuple[float, float]:
+    """The (+half_w, +half_h) local corner placed by kicad_transform's
+    R(-theta) convention -- exactly what the retired visualization Rectangle
+    .corners[2] / get_pad_shapes rect path emitted."""
+    import math
+
+    return _place_local_to_world(
+        half_w, half_h, center_x, center_y, math.radians(angle_deg)
+    )
+
+
+class TestRotationConventionAgainstPcbnewOracle:
+    def test_rect_corner_matches_pcbnew_at_non_90_degree_angle(self):
+        """kicad_transform's R(-theta) local-to-world placement must match
+        real pcbnew -- the convention the retired visualization rendering
+        relied on for a wrongly-mirrored component outline at a non-quadrant
+        angle.
         """
         w, h = 1.0, 0.6
-        rect = Rectangle(
-            center=VizPoint(_ORIGIN_X, _ORIGIN_Y), width=w, height=h, rotation=_ANGLE_DEG
-        )
-        corners = rect.corners
         hw, hh = w / 2, h / 2
+        gx, gy = _rect_corner_xy(_ORIGIN_X, _ORIGIN_Y, hw, hh, _ANGLE_DEG)
         ox, oy = _oracle_world_point(hw, hh, _ANGLE_DEG)
         expected = (_ORIGIN_X + ox, _ORIGIN_Y + oy)
-        got = corners[2]  # (w/2, h/2) per corners_rel ordering
-        assert got.x == pytest.approx(expected[0], abs=_ORACLE_TOLERANCE_MM)
-        assert got.y == pytest.approx(expected[1], abs=_ORACLE_TOLERANCE_MM)
+        assert gx == pytest.approx(expected[0], abs=_ORACLE_TOLERANCE_MM)
+        assert gy == pytest.approx(expected[1], abs=_ORACLE_TOLERANCE_MM)
 
-
-class TestBoardRendererPadShapeAgainstPcbnewOracle:
-    def test_pad_rect_path_matches_pcbnew_at_non_90_degree_angle(self):
-        """``get_pad_shapes`` draws an SVG path for a rotated rect pad.
-        Extract the (hw, hh) corner from the emitted path string and check
-        it against real pcbnew placement for the same local offset and
-        pad rotation.
+    def test_pad_rect_path_corner_matches_pcbnew_at_non_90_degree_angle(self):
+        """The SVG path corner the retired board_renderer emitted for a
+        rotated rect pad (the (hw, hh) local corner) must match real pcbnew
+        placement for the same local offset and pad rotation.
         """
         w, h = 1.0, 0.6
         hw, hh = w / 2, h / 2
-        pad = PadView(
-            position=VizPoint(_ORIGIN_X, _ORIGIN_Y),
-            size=(w, h),
-            shape="rect",
-            rotation=_ANGLE_DEG,
-        )
-        shapes = get_pad_shapes((pad,))
-        assert len(shapes) == 1
-        path = shapes[0]["path"]
-        # Path is "M x0,y0 L x1,y1 L x2,y2 L x3,y3 Z"; third point (index 2,
-        # 0-based) is the (hw, hh) local corner per corners_rel ordering.
+        px, py = _ORIGIN_X, _ORIGIN_Y
+        corners_rel = [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
+        path = ""
+        for i, (dx, dy) in enumerate(corners_rel):
+            rx, ry = _place_local_to_world(dx, dy, px, py, _ANGLE_DEG)
+            path = f"M {rx},{ry}" if i == 0 else path + f" L {rx},{ry}"
+        path += " Z"
         points = [seg.split()[-1] for seg in path.replace("Z", "").split(" ") if "," in seg]
         gx, gy = (float(v) for v in points[2].split(","))
         ox, oy = _oracle_world_point(hw, hh, _ANGLE_DEG)
