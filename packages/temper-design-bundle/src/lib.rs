@@ -124,6 +124,11 @@ mod topology_extraction_contracts;
 #[cfg(feature = "python")]
 mod channel_skeleton_contracts;
 
+// Wave 4 fanout: TopologicalGraphStore pyclass (replaces networkx.MultiDiGraph
+// surface in topological/graph.py) — see topological_graph_contracts.rs.
+#[cfg(feature = "python")]
+mod topological_graph_contracts;
+
 // Wave 4 fan-out migration: loop_ownership data contracts
 // (see fanout/migrate-core-3 branch).
 #[cfg(feature = "python")]
@@ -414,6 +419,7 @@ mod python {
         crate::geometry_types_contracts::register(module)?;
         crate::topology_extraction_contracts::register(module)?;
         crate::channel_skeleton_contracts::register(module)?;
+        crate::topological_graph_contracts::register(module)?;
         crate::loop_ownership_contracts::register(module)?;
         crate::specification_contracts::register(module)?;
         crate::board_contracts::register(module)?;

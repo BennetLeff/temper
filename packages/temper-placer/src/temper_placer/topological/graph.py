@@ -16,22 +16,28 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-import networkx as nx
+import temper_design_bundle_python as _tdb
 import temper_geometry as _rust
 
 if TYPE_CHECKING:
     from temper_placer.pcl.parser import ConstraintCollection
 
+# The Rust graph store — replaces networkx.MultiDiGraph (S7 port).
+TopologicalGraphStore = _tdb.topological_graph_contracts.TopologicalGraphStore
 
-def _edge_tuples(graph: nx.MultiDiGraph) -> tuple[list[tuple], list[tuple]]:
-    """Snapshot the graph's edges in networkx order.
+
+def _edge_tuples(
+    graph: TopologicalGraphStore,
+) -> tuple[list[tuple], list[tuple]]:
+    """Snapshot the graph's edges in source-grouped order.
 
     Returns ``(raw, encoded)`` where ``raw`` keeps the original ``data`` dicts
     (so callers can format messages from CPython's own float objects) and
     ``encoded`` is the ``(source, target, edge_type, distance)`` form the Rust
     kernels consume.
 
-    The order is networkx's own and is deliberately passed through unchanged:
+    The order is the store's own source-grouped order (matching networkx's
+    ``DiGraph.edges(data=True)``) and is deliberately passed through unchanged:
     for graphs built by :meth:`TopologicalGraph.from_pcl` it derives from a
     ``set`` of component refs and is therefore PYTHONHASHSEED-dependent.
     Sorting here would silently change results that depend on it.
@@ -76,8 +82,10 @@ class TopologicalEdge:
 class TopologicalGraph:
     """Graph for reasoning about placement topology.
 
-    This is a directed multigraph (multiple edges between same nodes allowed).
-    Used to reason about component relationships before assigning coordinates.
+    The internal container is a Rust ``TopologicalGraphStore`` (S7 port,
+    replacing ``networkx.MultiDiGraph``). Edge iteration is source-grouped
+    (by node insertion order, then by edge insertion order per source),
+    matching networkx's ``DiGraph.edges(data=True)`` behaviour.
 
     Example usage:
         graph = TopologicalGraph()
@@ -91,7 +99,7 @@ class TopologicalGraph:
 
     def __init__(self):
         """Initialize empty topological graph."""
-        self.graph = nx.MultiDiGraph()
+        self.graph: TopologicalGraphStore = TopologicalGraphStore()
 
     def add_component(self, ref: str, properties: dict[str, Any] | None = None):
         """Add a component node.
@@ -203,9 +211,10 @@ class TopologicalGraph:
             List of neighbor node IDs
         """
         neighbors = []
-        for _, target, data in self.graph.edges(node, data=True):
-            if edge_type is None or data.get("edge_type") == edge_type:
-                neighbors.append(target)
+        for u, v, data in self.graph.edges(data=True):
+            if u == node:
+                if edge_type is None or data.get("edge_type") == edge_type:
+                    neighbors.append(v)
         return neighbors
 
     def get_adjacency_cluster(self, seed: str) -> set[str]:

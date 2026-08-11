@@ -121,13 +121,13 @@ class TestGraphInvariants:
             assert u in comps and v in comps
             adj = [
                 d["distance"]
-                for _, t, d in g.graph.edges(u, data=True)
-                if t == v and d.get("edge_type") == "adjacent"
+                for su, t, d in g.graph.edges(data=True)
+                if su == u and t == v and d.get("edge_type") == "adjacent"
             ]
             sep = [
                 d["distance"]
-                for _, t, d in g.graph.edges(u, data=True)
-                if t == v and d.get("edge_type") == "separated"
+                for su, t, d in g.graph.edges(data=True)
+                if su == u and t == v and d.get("edge_type") == "separated"
             ]
             assert adj and sep, "conflict reported without both edge kinds"
             assert min(adj) < max(sep)

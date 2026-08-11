@@ -80,11 +80,19 @@ class TestTopologicalEdge:
 class TestTopologicalGraph:
     """Tests for TopologicalGraph."""
 
+    def _edges_from(self, graph, node):
+        """Convenience: iterate edges from a specific source node."""
+        return [
+            (u, v, d)
+            for u, v, d in graph.graph.edges(data=True)
+            if u == node
+        ]
+
     def test_create_empty_graph(self):
         """Graph initializes empty."""
         graph = TopologicalGraph()
         assert len(list(graph.graph.nodes())) == 0
-        assert len(list(graph.graph.edges())) == 0
+        assert len(list(graph.graph.edges(data=True))) == 0
 
     def test_add_component(self):
         """Can add component nodes."""
@@ -92,7 +100,7 @@ class TestTopologicalGraph:
         graph.add_component("Q1", properties={"footprint": "TO-247"})
 
         assert "Q1" in graph.graph.nodes()
-        node_data = graph.graph.nodes["Q1"]
+        node_data = graph.graph.node_attrs("Q1")
         assert node_data["node_type"] == "component"
         assert node_data["properties"]["footprint"] == "TO-247"
 
@@ -119,7 +127,7 @@ class TestTopologicalGraph:
 
         # Group node exists
         assert "loop_commutation" in graph.graph.nodes()
-        node_data = graph.graph.nodes["loop_commutation"]
+        node_data = graph.graph.node_attrs("loop_commutation")
         assert node_data["node_type"] == "group"
         assert node_data["members"] == ["Q1", "Q2", "C1"]
 
@@ -137,7 +145,7 @@ class TestTopologicalGraph:
         graph.add_adjacency("Q1", "Q2", max_distance=5.0, constraint_id="c1")
 
         # Check forward edge
-        edges = list(graph.graph.edges("Q1", data=True))
+        edges = self._edges_from(graph, "Q1")
         adj_edges = [
             (u, v, d) for u, v, d in edges if d.get("edge_type") == "adjacent" and v == "Q2"
         ]
@@ -145,7 +153,7 @@ class TestTopologicalGraph:
         assert adj_edges[0][2]["distance"] == 5.0
 
         # Check reverse edge (adjacency is symmetric)
-        edges = list(graph.graph.edges("Q2", data=True))
+        edges = self._edges_from(graph, "Q2")
         adj_edges = [
             (u, v, d) for u, v, d in edges if d.get("edge_type") == "adjacent" and v == "Q1"
         ]
@@ -159,7 +167,7 @@ class TestTopologicalGraph:
 
         graph.add_separation("HV", "MCU", min_distance=10.0, constraint_id="c2")
 
-        edges = list(graph.graph.edges("HV", data=True))
+        edges = self._edges_from(graph, "HV")
         sep_edges = [(u, v, d) for u, v, d in edges if d.get("edge_type") == "separated"]
         assert len(sep_edges) == 1
         assert sep_edges[0][2]["distance"] == 10.0
