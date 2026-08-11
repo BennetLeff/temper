@@ -6,13 +6,16 @@ name: WASM Tier Deploy (operator-triggered)
 #
 # THE WORKER LIST IS NOT IN THIS FILE. It is tools/wasm/wasm_tier_topology.json,
 # which scripts/stage_wasm_families.sh, tools/wasm/sweep_multi_worker.mjs and
-# tools/wasm/check_deployed_freshness.mjs also read. Nine Workers today: the
-# temper-drc-rs tier (temper-wasm-tier + 7 family shards) and the
-# temper-geometry tier (temper-wasm-geometry, which is both its tier's
-# full-corpus Worker and its only shard). Adding a tenth is a one-line edit to
-# that file, and — this is the point — it is not POSSIBLE to add one that gets
-# deployed but not staleness-checked, which is how the tier would grow its way
-# back into the window described below one Worker at a time.
+# tools/wasm/check_deployed_freshness.mjs also read. Ten Workers today: the
+# temper-drc-rs tier (temper-wasm-tier + 7 family shards), the temper-geometry
+# tier (temper-wasm-geometry) and the temper-thermal tier (temper-wasm-thermal)
+# — each of the latter two a single script that is both its tier's full-corpus
+# Worker and its only shard. Adding an eleventh is a one-line edit to that file,
+# and — this is the point — it is not POSSIBLE to add one that gets deployed but
+# not staleness-checked, which is how the tier would grow its way back into the
+# window described below one Worker at a time. Even the per-tier
+# `--built-json-*` arguments below are generated from that file rather than
+# typed out, so the verification step cannot fall a tier behind the deploy loop.
 #
 # WHY THIS EXISTS. The 2026-08-07 -> 2026-08-10 staleness window (the deployed
 # Workers carried 147 tests while temper-drc-rs's suite had grown to 1,708, and
@@ -46,12 +49,18 @@ name: WASM Tier Deploy (operator-triggered)
 # WHAT dry_run=true PROVES. It is the only pre-merge validation available for a
 # change to this workflow — nobody should be merging a deploy change whose first
 # execution is the real deploy — so it deliberately exercises every step that
-# does not require the credential: it stages all nine .wasm modules, runs BOTH
-# crates' registries under Node (so a module that does not work is caught before
-# anyone clicks the real button), and BUNDLES all nine Workers with
+# does not require the credential: it stages all ten .wasm modules, runs ALL
+# THREE crates' registries under Node (so a module that does not work is caught
+# before anyone clicks the real button), and BUNDLES all ten Workers with
 # `wrangler deploy --dry-run`, which is what would catch a bad import path, a
 # missing .wasm, or a malformed wrangler.toml. What it cannot prove is anything
 # about the currently deployed Workers; it says so in its own output.
+#
+# For temper-thermal specifically the dry run is doing real work rather than
+# ceremony: families/thermal/index.js is a NEW entry point importing a NEW
+# staged module and a NEW JSON manifest, and every one of those three imports is
+# a path that only esbuild resolves. dry_run=true is the only thing that
+# executes that resolution before the operator's first real click.
 
 on:
   workflow_dispatch:
@@ -114,11 +123,13 @@ jobs:
       # test), so a module that does not work is not deployed.
       #
       # ONE CENSUS PER TIER, and each against ITS OWN expected-failure manifest.
-      # temper-geometry's fifteen native-vs-wasm32 divergences are not in
-      # temper-drc-rs's manifest and vice versa; crossing them would report
-      # fifteen unexplained failures for one crate and fifteen orphan exclusions
-      # for the other. The tier list and the manifest paths both come from the
-      # topology file, so a new tier is censused without editing this step.
+      # temper-geometry's fifteen native-vs-wasm32 divergences and
+      # temper-thermal's four are not in temper-drc-rs's manifest and vice
+      # versa; crossing them would report N unexplained failures for one crate
+      # and N orphan exclusions for the other. The tier list and the manifest
+      # paths both come from the topology file, so a new tier is censused
+      # without editing this step — temper-thermal added none of the lines
+      # below.
       - name: Census + smoke-run every staged full-corpus module
         run: |
           set -euo pipefail
@@ -221,14 +232,34 @@ jobs:
       #
       # One --built-json per tier, and the checker REQUIRES all of them: leaving
       # one off is exit 2 with the tier named, not a quietly narrower check.
+      #
+      # GENERATED, not typed. The census loop above already writes one file per
+      # tier in the topology, so writing the matching flags by hand would be a
+      # third place the tier list lives (after the topology and that loop) and
+      # the only one that can silently fall behind — the checker's exit 2 makes
+      # a MISSING flag loud, but nothing makes a STALE hand-written list loud
+      # except someone reading it. `freshnessArgs` derives both the flag names
+      # (via the same `tierFlagSuffix` the checker parses with) and the census
+      # paths from the one file. Adding a tier changes nothing here.
       - name: Verify the deployed corpus is what was just built (R5.1)
         if: ${{ !inputs.dry_run }}
         run: |
           set -euo pipefail
+          node -e '
+            import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, freshnessArgs }) => {
+              const args = freshnessArgs(loadTopology(), (crate) => `/tmp/staged_census_${crate}.json`);
+              console.log(args.join(" "));
+            }).catch((e) => { console.error(e.message); process.exit(1); });
+          ' > /tmp/freshness_args.txt
+          # Empty would make the checker exit 2 anyway, but failing here says why.
+          test -s /tmp/freshness_args.txt
+          FRESHNESS_ARGS="$(cat /tmp/freshness_args.txt)"
+          echo "freshness args: ${FRESHNESS_ARGS}"
           for attempt in 1 2 3 4; do
+            # Unquoted on purpose: this is a generated flag list, not one string.
+            # shellcheck disable=SC2086
             if node tools/wasm/check_deployed_freshness.mjs \
-                 --built-json /tmp/staged_census_temper-drc-rs.json \
-                 --built-json-geometry /tmp/staged_census_temper-geometry.json \
+                 ${FRESHNESS_ARGS} \
                  --json /tmp/freshness_postdeploy.json; then
               exit 0
             fi

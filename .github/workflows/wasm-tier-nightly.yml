@@ -81,12 +81,14 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 # module over stale shards would leave the dispatched path stale behind a
 # correct-looking headline number.
 #
-# TWO CRATES, TWO TIERS, ONE INVARIANT PER TIER (2026-08-10).
+# THREE CRATES, THREE TIERS, ONE INVARIANT PER TIER (2026-08-10).
 #
-# The tier now serves temper-drc-rs (temper-wasm-tier + 7 family shards) and
-# temper-geometry (temper-wasm-geometry, both its tier's full-corpus Worker and
-# its only shard, because that crate declares one family). The Worker list lives
-# in tools/wasm/wasm_tier_topology.json and every step below reads it.
+# The tier now serves temper-drc-rs (temper-wasm-tier + 7 family shards),
+# temper-geometry (temper-wasm-geometry) and temper-thermal
+# (temper-wasm-thermal) -- the latter two each a single script that is both its
+# tier's full-corpus Worker and its only shard, because each crate declares one
+# family. The Worker list lives in tools/wasm/wasm_tier_topology.json and every
+# step below reads it.
 #
 # Everything downstream is done PER TIER, and that is a correctness requirement
 # rather than tidiness. r19_compare.py joins wasm32 verdicts against ONE
@@ -97,6 +99,16 @@ name: WASM Tier Nightly Sweep (R19 Agreement)
 # corpus nobody compared" failure the R5.1 check exists to rule out, rebuilt
 # one crate later. Hence: one native `cargo test` per crate, one wasm32 module
 # per crate, one expected-failure manifest per crate, one comparison per crate.
+#
+# temper-thermal makes that argument concrete rather than hypothetical. Before
+# this workflow's thermal steps landed, that crate had NO `cargo test` step in
+# ANY workflow -- not here, not on the PR path (only temper-design-bundle,
+# temper-geometry and temper-orchestration get one there). So its 143 wasm32
+# verdicts had nothing to be compared against at all: a merged sweep would have
+# filed every one of them under `wasm32_only`, and the tier would have reported
+# on temper-thermal in green while comparing exactly none of it. The native arm
+# below is not a nicety attached to the deployed Worker; it is the other half of
+# the only claim the deployed Worker can make.
 #
 # Likewise the staleness check is stated per crate rather than over the union:
 # a union check would let a +11 drift in one crate cancel a -11 drift in the
@@ -225,6 +237,49 @@ jobs:
             --manifest-path packages/temper-geometry/Cargo.toml 2>&1 | tee /tmp/native_geometry_raw.txt
           grep '^test ' /tmp/native_geometry_raw.txt > /tmp/native_geometry.txt
 
+      # temper-thermal's native arm. This is the FIRST `cargo test` this crate
+      # has in any workflow -- the PR path runs one for temper-design-bundle,
+      # temper-geometry and temper-orchestration only -- so it is both the R19
+      # join partner for the 143 wasm32 verdicts and, incidentally, the first
+      # scheduled execution of temper-thermal's 191 native tests anywhere.
+      #
+      # `--no-default-features` is load-bearing here in a way it is not for the
+      # other two tiers: this crate's DEFAULT feature is `python`, which pulls
+      # pyo3 (`extension-module`) and faer into a plain `cargo test`. Measured
+      # 2026-08-10 on x86_64-unknown-linux-gnu: default passes 198/0,
+      # --no-default-features passes 191/0, and the 7-test difference is EXACTLY
+      # `solve::tests::*` -- a `#[cfg(feature = "python")]` module that is the
+      # faer sparse-LU call plus its pyo3 bridge, and which the wasm32 registry
+      # cannot contain. Nothing else differs in either direction, so those 7 are
+      # `native_only` under EITHER invocation. Paying a pyo3 + faer build every
+      # night to move 7 tests between native_only buckets buys no comparison
+      # coverage; all 143 wasm32 names are present natively either way
+      # (verified: 0 wasm32_only).
+      #
+      # DEBUG, NOT RELEASE, like the two arms above -- but for a weaker reason
+      # than geometry's, and the difference is worth stating rather than
+      # inheriting. Measured 2026-08-10: temper-thermal passes 191/0 in BOTH
+      # profiles, and all four b7-pow-divergence-absent guards pass in both.
+      # They survive -O3 because hostmath::pow is a `dlsym`-resolved function
+      # pointer, opaque to LLVM, so there is nothing to constant-fold -- unlike
+      # geometry's `powi` intrinsic, which release DOES fold, failing
+      # pad_geometry::tests::pow2_is_exact_where_powi_is_not natively and
+      # turning a real divergence into an agree_fail. That immunity is a
+      # property of hostmath.rs's current implementation, not a guarantee: the
+      # day hostmath falls back to `f64::powf` natively -- exactly what it
+      # already does on wasm32, and the reason those four tests are in the
+      # manifest at all -- release would fold and this crate would acquire
+      # geometry's failure mode. Debug is where the guards have headroom, it
+      # matches the other two arms, and it spares the job a second optimised
+      # x86_64 compile of the dependency graph. Nothing here wants release: no
+      # wasm32 verdict depends on the native profile, only the join does.
+      - name: Native cargo test (temper-thermal, --no-default-features)
+        run: |
+          set -euo pipefail
+          cargo test --no-default-features \
+            --manifest-path packages/temper-thermal/Cargo.toml 2>&1 | tee /tmp/native_thermal_raw.txt
+          grep '^test ' /tmp/native_thermal_raw.txt > /tmp/native_thermal.txt
+
       - name: Build temper-wasm-test-runner for wasm32
         run: |
           set -euo pipefail
@@ -277,6 +332,32 @@ jobs:
             --expected-failures tools/wasm/wasm_expected_failures_geometry.json \
             --json /tmp/wasm_local_geometry.json
 
+      # temper-thermal's wasm32 arm, mirroring geometry's exactly.
+      # `thermal-wasm-test-registry` implies `thermal-registry`, which is
+      # `dep:temper-thermal` -- optional precisely so this feature is the only
+      # thing that pulls the crate into the graph and a drc-only build is
+      # byte-for-byte unchanged. The runner's dependency additionally sets
+      # `default-features = false`, which is what keeps thermal's OWN default
+      # (`python` -> pyo3) out of a wasm32-unknown-unknown link that has no
+      # business seeing it.
+      #
+      # `summary.registered` from this step is what the deployed-corpus
+      # staleness check compares temper-wasm-thermal's /health against, so this
+      # is also where a thermal count that drifts from the deployed Worker
+      # becomes visible.
+      - name: Build + run temper-thermal's wasm32 registry (Node host)
+        run: |
+          set -euo pipefail
+          cargo build --release --target wasm32-unknown-unknown --no-default-features \
+            --features thermal-wasm-test-registry \
+            --manifest-path packages/temper-wasm-test-runner/Cargo.toml
+          cp target-shared/wasm32-unknown-unknown/release/temper_wasm_test_runner.wasm \
+             /tmp/temper_wasm_test_runner_thermal.wasm
+          node tools/wasm/run_wasm_tests.mjs \
+            /tmp/temper_wasm_test_runner_thermal.wasm \
+            --expected-failures tools/wasm/wasm_expected_failures_thermal.json \
+            --json /tmp/wasm_local_thermal.json
+
       - name: Anti-vacuity — inject a disagreement (workflow_dispatch only)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.inject_disagreement == 'flip_one_verdict' }}
         run: |
@@ -325,6 +406,30 @@ jobs:
             --output "/tmp/r19_local_geometry_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" \
             --fail-on-disagree
 
+      # Its own step for the same reason geometry's is: a temper-thermal
+      # disagreement is a distinct finding and must be able to fail the job
+      # whether or not the other two comparisons ran.
+      #
+      # Measured on this branch (2026-08-10): 139 agree-pass, 0 agree-fail,
+      # 4 expected-fail, 0 disagreements, 48 native-only, 0 wasm32-only,
+      # agreement 1.000000. All four expected-fails are
+      # b7-pow-divergence-absent. The 48 native-only are the proptest modules
+      # gen_wasm_test_registry.py excludes plus the tests inside them --
+      # reported in the matrix, not silently dropped, and correctly not counted
+      # as agreement.
+      - name: R19 comparison (native vs local wasm32, temper-thermal)
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          python3 tools/wasm/r19_compare.py \
+            --native-file /tmp/native_thermal.txt \
+            --wasm-json /tmp/wasm_local_thermal.json \
+            --expected-failures tools/wasm/wasm_expected_failures_thermal.json \
+            --commit "${COMMIT_SHA}" \
+            --board-sha256 "${BOARD_SHA256}" \
+            --output "/tmp/r19_local_thermal_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" \
+            --fail-on-disagree
+
       - name: Write job summary
         if: ${{ !cancelled() }}
         run: |
@@ -345,6 +450,12 @@ jobs:
             echo '```'
             cat "/tmp/r19_local_geometry_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" 2>/dev/null | head -c 4000 || echo "(comparison output not produced — see earlier failed step)"
             echo '```'
+            echo ""
+            echo "#### temper-thermal"
+            echo ""
+            echo '```'
+            cat "/tmp/r19_local_thermal_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" 2>/dev/null | head -c 4000 || echo "(comparison output not produced — see earlier failed step)"
+            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload local sweep artifacts
@@ -359,6 +470,9 @@ jobs:
             /tmp/native_geometry.txt
             /tmp/native_geometry_raw.txt
             /tmp/wasm_local_geometry.json
+            /tmp/native_thermal.txt
+            /tmp/native_thermal_raw.txt
+            /tmp/wasm_local_thermal.json
             /tmp/r19_local_*.json
           retention-days: 30
           if-no-files-found: error
@@ -520,16 +634,26 @@ jobs:
       # not pass on an unknown -- that is the whole bug being fixed here.
       # ------------------------------------------------------------------
       #
-      # One census per tier, both required. Omitting --built-json-geometry does
-      # not narrow the check to temper-drc-rs, it exits 2 naming the tier that
+      # One census per tier, ALL required. Omitting --built-json-thermal does
+      # not narrow the check to the other two, it exits 2 naming the tier that
       # has no count -- see check_deployed_freshness.mjs's header for why a
       # check that can be switched off by dropping an argument eventually is.
+      #
+      # Spelled out rather than generated (unlike wasm-tier-deploy.yml's
+      # post-deploy verification, which derives the same flags from the
+      # topology) because the paths here are not a function of the crate name:
+      # they are local-sweep-r19's artifact filenames, which predate the tier
+      # model and are kept at their historical names so anything that knows
+      # wasm_local.json by name still finds it. The safety net is the same
+      # either way -- a tier added to the topology and forgotten here exits 2 on
+      # the very next nightly rather than checking one crate fewer in green.
       - name: Deployed-corpus staleness check (R5.1) — fails on count mismatch
         run: |
           set -euo pipefail
           node tools/wasm/check_deployed_freshness.mjs \
             --built-json /tmp/local-artifact/wasm_local.json \
             --built-json-geometry /tmp/local-artifact/wasm_local_geometry.json \
+            --built-json-thermal /tmp/local-artifact/wasm_local_thermal.json \
             --json /tmp/freshness.json
 
       # Fan out across the 7 deployed per-family Workers
@@ -575,6 +699,16 @@ jobs:
             --board-sha256 "${BOARD_SHA256}" \
             --json /tmp/worker_sweep_geometry.json
 
+      - name: Dispatch deployed Workers (temper-thermal tier)
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          node tools/wasm/sweep_multi_worker.mjs \
+            --tier temper-thermal \
+            --concurrency 64 \
+            --board-sha256 "${BOARD_SHA256}" \
+            --json /tmp/worker_sweep_thermal.json
+
       - name: R19 comparison (native vs deployed Workers) — fails on disagreement
         if: ${{ !cancelled() }}
         run: |
@@ -615,6 +749,23 @@ jobs:
             --output "/tmp/r19_worker_geometry_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" \
             --fail-on-disagree
 
+      - name: R19 comparison (native vs deployed Workers, temper-thermal)
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          if [ ! -f /tmp/worker_sweep_thermal.json ]; then
+            echo "::error::No deployed-Worker sweep for temper-thermal: /tmp/worker_sweep_thermal.json was never written, because an earlier step in this job failed (staleness check, or the dispatch itself). See that step's error. This step fails rather than reporting an agreement result for a sweep that did not happen."
+            exit 1
+          fi
+          python3 tools/wasm/r19_compare.py \
+            --native-file /tmp/local-artifact/native_thermal.txt \
+            --wasm-json /tmp/worker_sweep_thermal.json \
+            --expected-failures tools/wasm/wasm_expected_failures_thermal.json \
+            --commit "${COMMIT_SHA}" \
+            --board-sha256 "${BOARD_SHA256}" \
+            --output "/tmp/r19_worker_thermal_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" \
+            --fail-on-disagree
+
       - name: Write job summary
         if: ${{ !cancelled() }}
         run: |
@@ -641,6 +792,12 @@ jobs:
             echo '```'
             cat "/tmp/r19_worker_geometry_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" 2>/dev/null | head -c 4000 || echo "(comparison output not produced — see earlier failed step)"
             echo '```'
+            echo ""
+            echo "#### R19 comparison — temper-thermal"
+            echo ""
+            echo '```'
+            cat "/tmp/r19_worker_thermal_${COMMIT_SHA:0:8}_${BOARD_SHA256:0:8}.json" 2>/dev/null | head -c 4000 || echo "(comparison output not produced — see earlier failed step)"
+            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload deployed-Worker sweep artifacts
@@ -652,6 +809,7 @@ jobs:
             /tmp/freshness.json
             /tmp/worker_sweep.json
             /tmp/worker_sweep_geometry.json
+            /tmp/worker_sweep_thermal.json
             /tmp/r19_worker_*.json
           retention-days: 30
           if-no-files-found: warn

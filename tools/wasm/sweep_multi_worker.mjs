@@ -21,8 +21,9 @@
  *
  * ## --tier, and why the default is not what CI should use
  *
- * The tier carries two crates (temper-drc-rs and temper-geometry). With no
- * `--tier` this sweeps every shard of every tier, which is the right thing for
+ * The tier carries three crates (temper-drc-rs, temper-geometry and
+ * temper-thermal). With no `--tier` this sweeps every shard of every tier,
+ * which is the right thing for
  * an ad-hoc "is the whole thing up?" run and the wrong thing for R19: the
  * output feeds tools/wasm/r19_compare.py, which joins wasm32 verdicts against
  * ONE `cargo test` invocation's verdicts by test name. Handing it a sweep that
