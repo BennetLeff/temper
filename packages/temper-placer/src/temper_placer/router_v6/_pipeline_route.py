@@ -3,6 +3,23 @@ Router V6 Pipeline: Routing dispatch (Stages 3-5).
 
 Extracted from ``_pipeline_stages.py`` — contains SAT topological
 routing, geometric realization, and post-processing.
+
+Phase E batch E6 (Rust Orchestration Engine plan 2026-08-09-001): the
+portable orchestration — ``_select_sat_nets`` /
+``_build_clause_origin`` / ``select_routing_grids`` — moved to
+``temper-orchestration``'s ``pipeline_route.rs`` as the ``run_select_sat_nets`` /
+``run_build_clause_origin`` / ``run_select_routing_grids`` pyfunctions; this
+module keeps its public API as a thin FFI delegation (the shim marshals the
+pcb/nets and model into the plain shapes the pyfunctions consume). The rest —
+``_run_stage3`` / ``_run_stage4`` / ``_run_stage5`` /
+``_augment_with_pcl_constraints`` — stays Python: it is the ortools /
+CP-SAT-boundary glue (the net-batching branch is batch E5's owner, the
+``temper_rust_router`` solve invocation is that package's surface, the
+``ModelBuilder`` / ``BundleAnalyzer`` / ``TopologicalSolution`` /
+``TopologyGraph`` / ``Stage4Orchestrator`` wiring is dataclass-construction
+glue whose kernels are already Rust), argued in VERIFICATION.md. The oracle is
+pinned verbatim as ``tests/router_v6/_pipeline_route_py_oracle.py``
+(content-hash registered in ``scripts/oracle_hashes.json``).
 """
 
 from __future__ import annotations
@@ -10,6 +27,8 @@ from __future__ import annotations
 import os
 from collections import defaultdict
 from typing import Any, cast
+
+import temper_orchestration as _to
 
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6._pipeline_types import (
@@ -48,12 +67,16 @@ from temper_placer.router_v6.via_placement import place_vias
 
 
 def _select_sat_nets(self, pcb: ParsedPCB) -> list[str] | None:
-    """Select top N nets by ascending pin count for selective SAT routing."""
-    if self.max_sat_nets is None or self.max_sat_nets >= len(pcb.nets):
-        return None
-    pin_counts = {net.name: len(net.pins) for net in pcb.nets}
-    scored = sorted(pin_counts, key=lambda n: pin_counts.get(n, 0))
-    return scored[: self.max_sat_nets]
+    """Select top N nets by ascending pin count for selective SAT routing.
+
+    Phase E E6: the selection orchestration moved to
+    ``temper_orchestration.pipeline_route::run_select_sat_nets`` (the dict
+    first-insertion-order / last-writer-wins semantics and the stable sort
+    replicate the oracle exactly); the shim marshals
+    ``[(net.name, len(net.pins))]``.
+    """
+    nets = [(net.name, len(net.pins)) for net in pcb.nets]
+    return _to.run_select_sat_nets(nets, self.max_sat_nets)
 
 
 def _augment_with_pcl_constraints(
@@ -199,23 +222,13 @@ def _build_clause_origin(model: ConstraintModel) -> list[str]:
 
     Returns:
         List where ``clause_origin[i]`` is the constraint name for clause i.
+
+    Phase E E6: the registry computation moved to
+    ``temper_orchestration.pipeline_route::run_build_clause_origin``; the
+    ``ConstraintModel`` is passed through and the duck-typed attribute walk
+    (``hasattr`` / truthiness / ``len``) mirrors the oracle exactly.
     """
-    origins: list[str] = []
-    if model is None:
-        return origins
-    for c in model.constraints:
-        if hasattr(c, "terms") and c.terms:
-            n = len(c.terms)
-            clause_count = max(1, n * 3)
-        elif hasattr(c, "group_a_indices") and c.group_a_indices:
-            n = len(c.group_a_indices) + len(c.group_b_indices)
-            clause_count = max(1, n * 3)
-        elif hasattr(c, "p_var") and hasattr(c, "n_var"):
-            clause_count = 2
-        else:
-            clause_count = 1
-        origins.extend([c.name] * clause_count)
-    return origins
+    return _to.run_build_clause_origin(model)
 
 
 def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
@@ -477,15 +490,14 @@ def select_routing_grids(
     actual layer — returned the primary grid a second time on exactly those
     plane-outer boards, so the router was handed one layer twice and the
     second real inner layer was dropped before pathfinding ever saw it.
+
+    Phase E E6: the selection orchestration moved to
+    ``temper_orchestration.pipeline_route::run_select_routing_grids`` (the
+    ``or`` truthiness fallback and the alternate-excludes-primary-LAYER rule
+    replicate the oracle exactly); the original grid objects are returned
+    unchanged.
     """
-    if not occupancy_grids:
-        raise ValueError("No occupancy grid available for A* pathfinding")
-    primary = occupancy_grids.get("F.Cu") or next(iter(occupancy_grids.values()))
-    alternate = occupancy_grids.get("B.Cu") or next(
-        (candidate for name, candidate in occupancy_grids.items() if name != primary.layer_name),
-        None,
-    )
-    return primary, alternate
+    return _to.run_select_routing_grids(occupancy_grids)
 
 
 def _run_stage4(
