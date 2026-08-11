@@ -442,6 +442,43 @@ const KNOWN_UNCONSUMED_PRODUCTION_KEYS: &[&str] = &[
     "via_array_overrides",
 ];
 
+/// Top-level sections present in the production PCL config
+/// `packages/temper-placer/configs/constraints/temper_induction_cooker.yaml`
+/// -- a distinct file from `temper_constraints.yaml` above, with its own
+/// top-level shape (`version`/`metadata`/`zones`/`constraints`/`netclasses`/
+/// `net_assignments`) -- that neither this function nor the pinned
+/// pre-migration Python oracle reads. Added 2026-08-11 fixing the defect
+/// documented in `docs/evidence/2026-08-11-pumpkin-real-budget-spike.md`
+/// §4.0: `reject_unknown_raw_keys` (added 2026-08-08, `e557004d4`) raised
+/// `ValueError` on this file for exactly these three keys, and
+/// `test_golden_board_drc_regression`'s own `_load_pcl_constraints`/
+/// `_load_zones` helpers (`tests/placer/cp_sat/test_regression_drc.py`)
+/// swallowed that `ValueError` behind a bare `except Exception: return []`/
+/// `{}`, so that CI-gating regression test ran with ZERO PCL constraints
+/// active from 2026-08-08 to 2026-08-11 despite the module's own comments
+/// claiming "solve placement with all constraints active." (The evidence
+/// doc's §4.0 also names `test_production_board_drc_regression` as
+/// similarly affected; verified false on inspection -- that test never
+/// calls `load_constraints`/these helpers, by design: its own docstring
+/// says it "does NOT run CP-SAT placement (infeasible at 168 components /
+/// 30s timeout)". See the fix's PR for the corrected accounting.)
+///
+/// - `version` (a string, e.g. `"1.0"`) and `metadata` (name/description/
+///   project/board_size/layer_count/author/date) are pure documentation --
+///   no rule anywhere reads either. Genuinely inert, like a comment.
+/// - `netclasses` (list of {name, clearance_mm, description}) is REAL,
+///   unconsumed data, the same class of gap as `hv_lv_separation` above:
+///   `grep -rn 'get_item("netclasses")\|contains("netclasses")'` across
+///   `packages/` turns up no consumer of this key anywhere in the config
+///   pipeline. The clearance figures it carries (e.g. `FinePitch: 0.1mm`)
+///   are not obviously safety-relevant the way `hv_lv_separation`'s
+///   creepage/clearance figures are (this is a *fine-pitch* clearance
+///   floor, not an HV/LV isolation one), but the same reasoning applies:
+///   allowlisting it here only stops it from being a hard load failure: it
+///   does not wire it to anything, and whether it should be is a human
+///   decision, not one this schema-hardening pass makes silently.
+const KNOWN_UNCONSUMED_PCL_CONFIG_KEYS: &[&str] = &["version", "metadata", "netclasses"];
+
 /// Top-level sections present in `packages/temper-placer/tests/fixtures/
 /// constraints_{minimal,medium,large}.yaml` -- real, load-bearing test
 /// fixtures exercised by `tests/test_fixtures.py`,
@@ -501,6 +538,7 @@ fn reject_unknown_raw_keys(raw: &Bound<'_, PyAny>) -> PyResult<()> {
         if !RAW_CONFIG_KEYS.contains(&key_str.as_str())
             && !KNOWN_UNCONSUMED_PRODUCTION_KEYS.contains(&key_str.as_str())
             && !KNOWN_UNCONSUMED_TEST_FIXTURE_KEYS.contains(&key_str.as_str())
+            && !KNOWN_UNCONSUMED_PCL_CONFIG_KEYS.contains(&key_str.as_str())
         {
             unknown.push(key_str);
         }
