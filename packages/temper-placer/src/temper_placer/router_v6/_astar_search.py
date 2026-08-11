@@ -19,7 +19,6 @@ from temper_placer.router_v6._astar_theta_star import (
 from temper_placer.router_v6.astar_core import (
     RoutePath,
     RoutePath3D,
-    _astar_search,
     _route_segment_3d,
     append_exact_terminal_point,
     append_grid_path_point,
@@ -89,12 +88,11 @@ def _dispatch_search(
     # 2D plain A*.  Delegate to the Rust-backed kernel
     # (astar_core_rust._astar_search_rust, cleanup C1).  Falls through
     # to the pure-Python _astar_search when the extension is missing.
-    if net_id >= 0:
-        # The Rust kernel consumes a binary validity tensor and cannot
-        # distinguish committed copper belonging to this net.  Tree edges use
-        # the reference search so same-net attachment remains legal.
-        return _astar_search(start, goal, grid, net_id=net_id, corridor_mask=corridor_mask)
-
+    #
+    # S8 (same-net wiring): net_id and corridor_mask are threaded
+    # through.  When net_id >= 0, the Rust kernel receives the raw
+    # occupancy grid and performs inline same-net occupancy checks
+    # with the 0.25x cost discount per expansion.
     from temper_placer.router_v6.astar_core_rust import (
         _astar_search_rust,
     )
@@ -102,6 +100,9 @@ def _dispatch_search(
     # U7 / R11: thread the optional congestion tensor through.  The
     # kernel reads it as a flat float32 array per expansion.
     kwargs = {"max_iterations": max_iter}
+    if net_id >= 0:
+        kwargs["net_id"] = net_id
+        kwargs["corridor_mask"] = corridor_mask
     if thermal_flat is not None:
         kwargs["thermal_flat"] = thermal_flat
         kwargs["thermal_weight"] = thermal_weight

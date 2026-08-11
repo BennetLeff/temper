@@ -102,12 +102,77 @@ def _astar_search_rust_kernel(
     max_congestion_cost: float = 100.0,
     thermal_flat: np.ndarray | None = None,
     thermal_weight: float = 0.0,
+    net_id: int = -1,
+    corridor_mask: np.ndarray | None = None,
 ) -> list | None:
     """Rust-backed A* front-end: mirrors :func:`_astar_search_rust`'s
     contract, calling the ported kernel in ``temper-rust-router``
-    (``temper_rust_router_core::astar::astar_kernel_3d``)."""
+    (``temper_rust_router_core::astar::astar_kernel_3d``).
+
+    S8 (same-net wiring): when ``net_id >= 0``, the raw occupancy grid
+    is passed to the Rust kernel instead of building a binary validity
+    tensor.  The kernel does inline bounds+occupancy+corridor checks
+    per expansion, including the 0.25× same-net cost discount.  When
+    ``net_id < 0`` (the default), behaviour is unchanged — the
+    validity-tensor path is used."""
     import temper_rust_router as _trr
 
+    rows = grid.height_cells
+    cols = grid.width_cells
+
+    start_idx = int(start[1]) * cols + int(start[0])
+    goal_idx = int(goal[1]) * cols + int(goal[0])
+
+    # S8: when net_id >= 0, pass the raw int8 grid and skip the
+    # validity-tensor build (which costs ~30ms on the production grid
+    # and cannot encode the same-net predicate — see the companion
+    # FFI-cost doc).
+    if net_id >= 0:
+        grid_contig = np.ascontiguousarray(grid.grid, dtype=np.int8)
+        grid_bytes: bytes = grid_contig.tobytes()
+        mask_bytes: bytes | None = None
+        if corridor_mask is not None:
+            mask_contig = np.ascontiguousarray(corridor_mask.astype(np.uint8))
+            mask_bytes = mask_contig.tobytes()
+
+        # When the grid is supplied, the kernel ignores the validity
+        # tensor.  We pass a minimal dummy (one byte of 1) so the FFI
+        # signature is satisfied; the kernel's `grid.is_some()` gate
+        # ensures it is never read.
+        dummy_validity = b"\x01"
+
+        congestion_arg = None
+        if congestion_flat is not None:
+            congestion_arg = np.ascontiguousarray(congestion_flat.astype(np.float32))
+        thermal_arg = None
+        if thermal_flat is not None:
+            thermal_arg = np.ascontiguousarray(thermal_flat.astype(np.float32))
+
+        t0_rust = time.perf_counter()
+        path_flat, _iters = _trr.astar_kernel_3d_py(
+            start_idx,
+            goal_idx,
+            rows,
+            cols,
+            dummy_validity,
+            max_iterations,
+            None if congestion_arg is None else congestion_arg.tobytes(),
+            np.float32(congestion_weight),
+            np.float32(max_congestion_cost),
+            None if thermal_arg is None else thermal_arg.tobytes(),
+            np.float32(thermal_weight),
+            grid_bytes,  # grid_bytes (Option<Vec<u8>>)
+            net_id,  # net_id (i64)
+            mask_bytes,  # corridor_mask_bytes (Option<Vec<u8>>)
+        )
+        _route_profile_stats.rust_time_ms += (time.perf_counter() - t0_rust) * 1000.0
+
+        if len(path_flat) == 0:
+            return None
+
+        return [(int(i % cols), int(i // cols)) for i in path_flat]
+
+    # net_id < 0: existing validity-tensor path (unchanged).
     if neighbor_tensor is None:
         from temper_placer.router_v6.neighbor_validity import (
             build_neighbor_validity_tensor_2d,
@@ -115,12 +180,7 @@ def _astar_search_rust_kernel(
 
         neighbor_tensor = build_neighbor_validity_tensor_2d(grid)
 
-    rows = grid.height_cells
-    cols = grid.width_cells
     validity_flat = np.ascontiguousarray(neighbor_tensor.astype(np.uint8).reshape(-1))
-
-    start_idx = int(start[1]) * cols + int(start[0])
-    goal_idx = int(goal[1]) * cols + int(goal[0])
 
     congestion_arg = None
     if congestion_flat is not None:
@@ -186,6 +246,8 @@ def _astar_search_rust(
     max_congestion_cost: float = 100.0,
     thermal_flat: np.ndarray | None = None,
     thermal_weight: float = 0.0,
+    net_id: int = -1,
+    corridor_mask: np.ndarray | None = None,
 ) -> list | None:
     """A* search front-end.
 
@@ -195,6 +257,12 @@ def _astar_search_rust(
     the pure-Python :func:`temper_placer.router_v6.astar_core._astar_search`
     only if the extension cannot be imported.  No caller sees an
     ImportError.
+
+    S8 (same-net wiring): ``net_id`` and ``corridor_mask`` are forwarded
+    to the Rust kernel.  When ``net_id >= 0``, the raw occupancy grid
+    is passed instead of building a validity tensor, and the Rust kernel
+    performs inline same-net occupancy checks with the 0.25× cost
+    discount per expansion.
 
     U7 / R11: optional ``congestion_flat`` is a flat
     ``(rows*cols,)`` float32 array of per-cell usage counts
@@ -226,6 +294,8 @@ def _astar_search_rust(
             max_congestion_cost=max_congestion_cost,
             thermal_flat=thermal_flat,
             thermal_weight=thermal_weight,
+            net_id=net_id,
+            corridor_mask=corridor_mask,
         )
         _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
         return result
@@ -236,7 +306,7 @@ def _astar_search_rust(
     t0 = time.perf_counter()
     from temper_placer.router_v6.astar_core import _astar_search
 
-    result = _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor)
+    result = _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor, net_id=net_id, corridor_mask=corridor_mask)
     _route_profile_stats.python_time_ms += (time.perf_counter() - t0) * 1000.0
     _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
     return result

@@ -17,6 +17,7 @@ pub struct AstarInput<'a> {
     pub rows: usize,
     pub cols: usize,
     /// (rows*cols*8,) uint8 neighbor-validity tensor.
+    /// Consulted only when `grid` is None (validity-tensor path).
     pub validity: &'a [u8],
     pub max_iterations: u64,
     /// (rows*cols,) float32 per-cell usage counts.
@@ -26,7 +27,23 @@ pub struct AstarInput<'a> {
     /// (rows*cols,) float32 thermal cost field.
     pub thermal: Option<&'a [f32]>,
     pub thermal_weight: f32,
+    /// (rows*cols,) int8 raw occupancy grid.  When supplied, the kernel
+    /// does inline bounds + occupancy checks per expansion instead of
+    /// consulting `validity`.  `net_id` controls the same-net predicate.
+    pub grid: Option<&'a [i8]>,
+    /// Net ID for same-net occupancy checks.  Cells with this value are
+    /// traversable (cost × 0.25); cells with any other non-zero value
+    /// are FOREIGN → BLOCKED.  Only consulted when `grid` is Some.
+    pub net_id: i64,
+    /// (rows*cols,) uint8 corridor mask (0=blocked, 1=allowed).
+    /// Only consulted when `grid` is Some and `net_id >= 0`.
+    pub corridor_mask: Option<&'a [u8]>,
 }
+
+/// Same-net cost discount — cells already occupied by the routed net
+/// cost a fraction of free cells so tree branches preferentially share
+/// copper space.  Mirrors `astar_core._SAME_NET_COST_DISCOUNT`.
+const SAME_NET_COST_DISCOUNT: f32 = 0.25f32;
 
 pub struct AstarOutput {
     /// Cell indices from start to goal inclusive; empty if no path.
@@ -92,8 +109,15 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
 
         let base = cur_i * 8;
         for d in 0..8usize {
-            if input.validity.get(base + d).copied().unwrap_or(0) == 0 {
-                continue;
+            // When the raw occupancy grid is supplied, the validity tensor
+            // is not consulted — occupancy is checked inline below (S8:
+            // same-net wiring).  Otherwise (grid is None), use the
+            // existing validity-tensor path (backward compat for
+            // net_id < 0 / coarse-to-fine callers).
+            if input.grid.is_none() {
+                if input.validity.get(base + d).copied().unwrap_or(0) == 0 {
+                    continue;
+                }
             }
             // Direction table (E, SE, S, SW, W, NW, N, NE)
             let (ndc, ndr) = match d {
@@ -111,8 +135,35 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
             }
             let n_idx = (ndr * input.cols as i64 + ndc) as usize;
 
+            // S8: when the raw occupancy grid is supplied, do inline
+            // occupancy + corridor + same-net checks per expansion.
+            // Mirrors astar_core.py:_astar_search lines 327-336.
+            if let Some(g) = input.grid {
+                let cell = g[n_idx] as i64;
+                // FREE (cell==0) and SAME-NET (cell==net_id) are
+                // traversable.  Foreign net IDs and -1 static sentinels
+                // are BLOCKED.
+                if cell != 0 && cell != input.net_id {
+                    continue;
+                }
+                if let Some(mask) = input.corridor_mask {
+                    if mask[n_idx] == 0 {
+                        continue;
+                    }
+                }
+            }
+
             // Octile step cost: straight 1.0, diagonal 1.4142135 (f32).
             let mut step: f32 = if d % 2 == 0 { 1.0 } else { std::f32::consts::SQRT_2 };
+
+            // Same-net cost discount: cells already committed for this
+            // net cost 0.25× of a free cell, so tree branches
+            // preferentially share copper space (D2 divergence source).
+            if let Some(g) = input.grid {
+                if g[n_idx] as i64 == input.net_id {
+                    step *= SAME_NET_COST_DISCOUNT;
+                }
+            }
 
             // U7/R11 congestion penalty — f32 log(1+raw), capped.
             if use_congestion {
@@ -235,6 +286,9 @@ pub(crate) mod tests {
             max_congestion_cost: 100.0,
             thermal: None,
             thermal_weight: 0.0,
+            grid: None,
+            net_id: -1,
+            corridor_mask: None,
         }
     }
 

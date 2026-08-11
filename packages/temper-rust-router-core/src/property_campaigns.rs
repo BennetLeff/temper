@@ -721,6 +721,9 @@ fn as_input<'a>(rows: usize, cols: usize, validity: &'a [u8], start: i64, goal: 
         max_congestion_cost: 100.0,
         thermal: None,
         thermal_weight: 0.0,
+        grid: None,
+        net_id: -1,
+        corridor_mask: None,
     }
 }
 

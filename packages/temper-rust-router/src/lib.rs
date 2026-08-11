@@ -446,11 +446,19 @@ mod py {
     /// kernel (`_astar_kernel_3d`). Inputs mirror the retired kernel's
     /// arguments; congestion/thermal fields are passed as little-
     /// endian float32 byte buffers (None = absent). Returns (path, iterations).
+    ///
+    /// S8 (same-net wiring): when `grid_bytes` is supplied, the kernel does
+    /// inline bounds + occupancy checks per expansion instead of consulting
+    /// the validity tensor.  `net_id` controls the same-net predicate
+    /// (cells with this value are traversable at 0.25× cost; foreign cells
+    /// with any other non-zero value are BLOCKED).  When `grid_bytes` is
+    /// None, behaviour is identical to before S8 (validity-tensor path).
     #[pyfunction]
     #[pyo3(signature = (
         start_idx, goal_idx, rows, cols, validity_bytes, max_iterations,
         congestion_bytes=None, congestion_weight=1.0, max_congestion_cost=100.0,
         thermal_bytes=None, thermal_weight=0.0,
+        grid_bytes=None, net_id=-1i64, corridor_mask_bytes=None,
     ))]
     #[expect(
         clippy::too_many_arguments,
@@ -468,10 +476,24 @@ mod py {
         max_congestion_cost: f32,
         thermal_bytes: Option<Vec<u8>>,
         thermal_weight: f32,
+        grid_bytes: Option<Vec<u8>>,
+        net_id: i64,
+        corridor_mask_bytes: Option<Vec<u8>>,
     ) -> (Vec<i32>, u64) {
         let n_cells = rows * cols;
         let congestion = congestion_bytes.map(|b| crate::f32s_from_le_bytes(&b, n_cells));
         let thermal = thermal_bytes.map(|b| crate::f32s_from_le_bytes(&b, n_cells));
+        // SAFETY: grid_bytes / corridor_mask_bytes are Vec<u8> owned by
+        // this frame; the AstarInput borrows them for the duration of
+        // astar_kernel_3d and they are dropped when this frame returns.
+        let grid_slice: Option<&[i8]> = grid_bytes.as_ref().map(|b| {
+            // Reinterpret the u8 bytes as i8 — both are single-byte, no
+            // alignment issues, and the source is a contiguous Vec<u8>.
+            // This is the same pattern line_of_sight_py already uses
+            // (grid_bytes is int8-encoded there too).
+            unsafe { std::slice::from_raw_parts(b.as_ptr() as *const i8, b.len()) }
+        });
+        let corridor_slice: Option<&[u8]> = corridor_mask_bytes.as_deref();
         let out = temper_rust_router_core::astar::astar_kernel_3d(&AstarInput {
             start_idx,
             goal_idx,
@@ -484,6 +506,9 @@ mod py {
             max_congestion_cost,
             thermal: thermal.as_deref(),
             thermal_weight,
+            grid: grid_slice,
+            net_id,
+            corridor_mask: corridor_slice,
         });
         (out.path, out.iterations)
     }
