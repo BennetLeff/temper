@@ -1,8 +1,29 @@
-// Property-based campaigns over four independent, pure, deterministic
+// Property-based campaigns over independent, pure, deterministic
 // temper-thermal kernels: junction-temperature estimation
 // (`junction_temp.rs`), parasitic loop/gate inductance
-// (`inductance.rs`), radiated-EMI prediction (`emi.rs`), and safety-
-// interlock timing (`safety.rs`).
+// (`inductance.rs`), radiated-EMI prediction (`emi.rs`), safety-
+// interlock timing (`safety.rs`), CPython/numpy max/min/clip semantics
+// (`hostmath.rs`), geometric-violation metrics (`geometric_metrics.rs`),
+// FDM heat-removal fields (`heat_removal.rs`), board-edge thermal
+// measurement (`thermal_edges.rs`), and `linspace`/potential-field/anchor-
+// uniqueness kernels (`thermal_potential.rs`).
+//
+// The last five kernels (Kernels 5-11 below) are deterministic MIRRORS of
+// this crate's `proptest`-only properties -- `proptest` is a
+// `[dev-dependencies]` entry, absent from the ordinary (non-test) build
+// this crate's `wasm-registry` feature compiles into, so those properties
+// never reached the wasm32 tier. Every mirrored property below states, in
+// its own doc comment, which `proptest!` property it mirrors. One
+// proptest property (`thermal_potential.rs`'s
+// `uniqueness_distance_uses_pow_not_sqrt_proptest`) is DELIBERATELY NOT
+// mirrored: it exists specifically to detect whether `pow(x, 0.5)`
+// diverges from `sqrt(x)` on the host libm, and on the real wasm32 build
+// that fold is exact (measured,
+// `docs/evidence/2026-08-06-wasm32-float-divergence.md`), so the property
+// would pass vacuously there -- it is a property *of the host*, not of
+// the kernel, and mirroring it would grow the test count while proving
+// nothing. See the PR body for the full per-property mirrored/skipped
+// accounting and mutation-testing evidence.
 //
 // Why this exists (R7 / the WASM-tier volume payload)
 // -----------------------------------------------------------------------
@@ -798,6 +819,878 @@ fn safe_threshold_monotonic_delay_impl(seed: u64) {
         d2 > d1 - tol,
         "seed={seed} a higher threshold must take at least as long to cross: r={r} c={c} th1={th1} th2={th2} d1={d1} d2={d2}"
     );
+}
+
+
+// ===========================================================================
+// Kernel 5: hostmath.rs -- `py_max`/`py_min` (CPython builtin max/min,
+// first-argument-wins-on-NaN semantics) and `np_maximum`/`np_clip` (numpy
+// NaN-propagating semantics). Mirrors `hostmath::tests::proptests` (9
+// properties over pure comparison functions; no libm call at all, so no
+// wasm32 divergence risk -- these are portable bit-for-bit). See the PR
+// body for mutation-testing evidence against `hostmath::py_max`/`py_min`/
+// `np_clip`/`np_maximum`.
+// ===========================================================================
+
+use crate::hostmath::{np_clip, np_maximum, py_max, py_min};
+
+const HM_SALT_B: u64 = 0xF1;
+const HM_SALT_C: u64 = 0xF2;
+const HM_SALT_LO_HI: u64 = 0xF3;
+
+/// A finite, non-extreme f64 -- wide range, never NaN/inf, mirroring
+/// `prop::num::f64::NORMAL`'s intent without needing that exact strategy.
+fn hm_gen_finite(seed: u64) -> f64 {
+    let mut rng = SplitMix64::new(seed);
+    rng.range(-1.0e15, 1.0e15)
+}
+
+/// Mirrors proptest property `prop_py_max_nan_semantics`: `py_max`/`py_min`
+/// keep the FIRST argument on NaN -- NaN-first wins as NaN, NaN-second
+/// falls through to the finite operand. This is CPython's builtin
+/// `max(a, b)` semantics (`b if b > a else a`), the opposite of
+/// `f64::max`'s NaN-discarding behaviour.
+///
+/// Bug this would catch: swapping to `f64::max` (which discards NaN
+/// unconditionally) breaks the NaN-first case for every seed.
+fn hm_py_max_nan_semantics_impl(seed: u64) {
+    let a = hm_gen_finite(seed);
+    assert!(py_max(f64::NAN, a).is_nan(), "seed={seed} py_max(NAN, {a}) must be NaN");
+    assert_eq!(py_max(a, f64::NAN), a, "seed={seed} py_max({a}, NAN) must equal {a}");
+}
+
+/// Mirrors proptest property `prop_py_min_nan_semantics`.
+fn hm_py_min_nan_semantics_impl(seed: u64) {
+    let a = hm_gen_finite(seed);
+    assert!(py_min(f64::NAN, a).is_nan(), "seed={seed} py_min(NAN, {a}) must be NaN");
+    assert_eq!(py_min(a, f64::NAN), a, "seed={seed} py_min({a}, NAN) must equal {a}");
+}
+
+/// Mirrors proptest property `prop_py_max_min_agree_on_finite`: for two
+/// finite non-NaN values, `py_max` returns the larger and `py_min` the
+/// smaller -- both bounded by, and equal to, one of the two inputs.
+fn hm_py_max_min_agree_on_finite_impl(seed: u64) {
+    let a = hm_gen_finite(seed);
+    let mut rng = sub_rng(seed, HM_SALT_B);
+    let b = rng.range(-1.0e15, 1.0e15);
+    let mx = py_max(a, b);
+    let mn = py_min(a, b);
+    assert!(mx >= a && mx >= b, "seed={seed} py_max not an upper bound: a={a} b={b} mx={mx}");
+    assert!(mn <= a && mn <= b, "seed={seed} py_min not a lower bound: a={a} b={b} mn={mn}");
+    assert!(mx == a || mx == b, "seed={seed} py_max not one of the inputs: {mx}");
+    assert!(mn == a || mn == b, "seed={seed} py_min not one of the inputs: {mn}");
+}
+
+/// Mirrors proptest property `prop_np_maximum_propagates_nan`: `np_maximum`
+/// propagates NaN from EITHER operand (unlike `py_max`, which only
+/// propagates from the first).
+fn hm_np_maximum_propagates_nan_impl(seed: u64) {
+    let a = hm_gen_finite(seed);
+    assert!(np_maximum(f64::NAN, a).is_nan(), "seed={seed} np_maximum(NAN, {a}) must be NaN");
+    assert!(np_maximum(a, f64::NAN).is_nan(), "seed={seed} np_maximum({a}, NAN) must be NaN");
+}
+
+/// Mirrors proptest property `prop_np_maximum_finite`.
+fn hm_np_maximum_finite_impl(seed: u64) {
+    let a = hm_gen_finite(seed);
+    let mut rng = sub_rng(seed, HM_SALT_B);
+    let b = rng.range(-1.0e15, 1.0e15);
+    let mx = np_maximum(a, b);
+    assert!(mx >= a && mx >= b, "seed={seed} np_maximum not an upper bound: a={a} b={b} mx={mx}");
+    assert!(mx == a || mx == b, "seed={seed} np_maximum not one of the inputs: {mx}");
+}
+
+/// Mirrors proptest property `prop_np_clip_bounded`: `np_clip(x, lo, hi)`
+/// with well-ordered bounds returns a finite value inside `[lo, hi]`.
+fn hm_np_clip_bounded_impl(seed: u64) {
+    let x = hm_gen_finite(seed);
+    let mut rng = sub_rng(seed, HM_SALT_LO_HI);
+    let p = rng.range(-1.0e15, 1.0e15);
+    let q = rng.range(-1.0e15, 1.0e15);
+    let (lo, hi) = if p <= q { (p, q) } else { (q, p) };
+    let y = np_clip(x, lo, hi);
+    assert!(y.is_finite(), "seed={seed} np_clip({x}, {lo}, {hi}) = {y} not finite");
+    assert!(y >= lo && y <= hi, "seed={seed} np_clip result {y} outside [{lo}, {hi}]");
+}
+
+/// Mirrors proptest property `prop_np_clip_inverted_returns_hi`: with
+/// INVERTED bounds (`lo > hi`), `np_clip` returns `hi` -- numpy's
+/// `_NPY_MIN(_NPY_MAX(x, lo), hi)` expansion, not a `[lo, hi]` clamp.
+fn hm_np_clip_inverted_returns_hi_impl(seed: u64) {
+    let x = hm_gen_finite(seed);
+    let mut rng = sub_rng(seed, HM_SALT_LO_HI);
+    let p = rng.range(-1.0e15, 1.0e15);
+    let q = rng.range(-1.0e15, 1.0e15);
+    // Strict inversion: lo = max, hi = min of two distinct-ordered draws.
+    let (lo, hi) = if p > q { (p, q) } else { (q, p) };
+    assert_eq!(np_clip(x, lo, hi), hi, "seed={seed} np_clip({x}, {lo}, {hi}) must equal hi={hi}");
+}
+
+/// Mirrors proptest property `prop_np_clip_nan_propagates`: a NaN anywhere
+/// among `x`/`lo`/`hi` returns NaN.
+fn hm_np_clip_nan_propagates_impl(seed: u64) {
+    let a = hm_gen_finite(seed);
+    let mut rng_b = sub_rng(seed, HM_SALT_B);
+    let b = rng_b.range(-1.0e15, 1.0e15);
+    let mut rng_c = sub_rng(seed, HM_SALT_C);
+    let c = rng_c.range(-1.0e15, 1.0e15);
+    assert!(np_clip(f64::NAN, b, c).is_nan(), "seed={seed} np_clip(NAN, {b}, {c}) must be NaN");
+    assert!(np_clip(a, f64::NAN, c).is_nan(), "seed={seed} np_clip({a}, NAN, {c}) must be NaN");
+    assert!(np_clip(a, b, f64::NAN).is_nan(), "seed={seed} np_clip({a}, {b}, NAN) must be NaN");
+}
+
+/// Mirrors proptest property `prop_py_max_min_idempotent`.
+fn hm_py_max_min_idempotent_impl(seed: u64) {
+    let a = hm_gen_finite(seed);
+    assert_eq!(py_max(a, a), a, "seed={seed} py_max({a}, {a}) must equal {a}");
+    assert_eq!(py_min(a, a), a, "seed={seed} py_min({a}, {a}) must equal {a}");
+}
+
+// ===========================================================================
+// Kernel 6: geometric_metrics.rs -- `measure_geometric`'s structural
+// invariants (overlap/boundary/zone-violation counts and areas). Uses
+// `hostmath::pow` internally (B1/B7) but every property here asserts only
+// a bound (non-negative, count <= n, a constant default) -- none compares
+// bit-exactly against an independently-computed reference, so none is
+// sensitive to which pow implementation (dlsym host libm vs the wasm32
+// `f64::powf` fallback) is active. Portable.
+// ===========================================================================
+
+use crate::geometric_metrics::measure_geometric;
+
+const GM_SALT_YS: u64 = 0x61;
+const GM_SALT_WS: u64 = 0x62;
+const GM_SALT_HS: u64 = 0x63;
+const GM_SALT_FLAG: u64 = 0x64;
+
+/// `n` positions in `[0, 1000)` (f32) and `n` positive dimensions in
+/// `[0, 50)` (f64), `n` drawn from `[0, max_n]`.
+fn gm_gen_case(seed: u64, max_n: usize) -> (Vec<f32>, Vec<f32>, Vec<f64>, Vec<f64>) {
+    let mut rng = SplitMix64::new(seed);
+    let n = rng.index(max_n + 1);
+    let xs: Vec<f32> = (0..n).map(|_| rng.range(0.0, 1000.0) as f32).collect();
+    let mut ys_rng = sub_rng(seed, GM_SALT_YS);
+    let ys: Vec<f32> = (0..n).map(|_| ys_rng.range(0.0, 1000.0) as f32).collect();
+    let mut ws_rng = sub_rng(seed, GM_SALT_WS);
+    let ws: Vec<f64> = (0..n).map(|_| ws_rng.range(0.0, 50.0)).collect();
+    let mut hs_rng = sub_rng(seed, GM_SALT_HS);
+    let hs: Vec<f64> = (0..n).map(|_| hs_rng.range(0.0, 50.0)).collect();
+    (xs, ys, ws, hs)
+}
+
+/// Positions confined to `[0, 80)` -- much tighter than `gm_gen_case`'s
+/// `[0, 1000)` -- so that with footprint half-widths up to 25 mm, a
+/// meaningful fraction of the drawn pairs actually overlap. The board-scale
+/// original proptest strategy (`pos_f32() = 0..1000`) relies on running
+/// hundreds of proptest cases per CI invocation to hit the overlapping
+/// branch often enough; this campaign runs a fixed, much smaller seed set,
+/// so the overlap property specifically needs a generator biased toward
+/// the branch it is checking -- confirmed empirically: with the wide
+/// range, 24 seeds produced zero overlapping pairs and a deliberately
+/// broken `overlap_area_mm2 -= ox * oy` mutation went undetected by this
+/// property (see the PR body's mutation-testing section).
+fn gm_gen_overlap_case(seed: u64) -> (Vec<f32>, Vec<f32>, Vec<f64>, Vec<f64>) {
+    let mut rng = SplitMix64::new(seed);
+    let n = rng.index(7);
+    let xs: Vec<f32> = (0..n).map(|_| rng.range(0.0, 80.0) as f32).collect();
+    let mut ys_rng = sub_rng(seed, GM_SALT_YS);
+    let ys: Vec<f32> = (0..n).map(|_| ys_rng.range(0.0, 80.0) as f32).collect();
+    let mut ws_rng = sub_rng(seed, GM_SALT_WS);
+    let ws: Vec<f64> = (0..n).map(|_| ws_rng.range(0.0, 50.0)).collect();
+    let mut hs_rng = sub_rng(seed, GM_SALT_HS);
+    let hs: Vec<f64> = (0..n).map(|_| hs_rng.range(0.0, 50.0)).collect();
+    (xs, ys, ws, hs)
+}
+
+/// Mirrors proptest property `prop_overlap_area_non_negative`.
+fn gm_overlap_area_non_negative_impl(seed: u64) {
+    let (xs, ys, ws, hs) = gm_gen_overlap_case(seed);
+    let n = xs.len();
+    let m = measure_geometric(
+        &xs, &ys, &ws, &hs, 0.0, &vec![None; n], (0.0, 0.0), 10000.0, 10000.0, &vec![false; n],
+    );
+    assert!(m.overlap_area_mm2 >= 0.0, "seed={seed} overlap_area_mm2={} < 0", m.overlap_area_mm2);
+    assert!(m.overlap_count >= 0, "seed={seed} overlap_count={} < 0", m.overlap_count);
+}
+
+/// Mirrors proptest property `prop_boundary_violation_count_bounded`.
+fn gm_boundary_violation_count_bounded_impl(seed: u64) {
+    let (xs, ys, ws, hs) = gm_gen_case(seed, 10);
+    let n = xs.len();
+    let m = measure_geometric(
+        &xs, &ys, &ws, &hs, 0.0, &vec![None; n], (0.0, 0.0), 1000.0, 1000.0, &vec![false; n],
+    );
+    assert!(m.boundary_violation_count >= 0, "seed={seed} count < 0");
+    assert!(
+        m.boundary_violation_count <= n as i64,
+        "seed={seed} count {} > n {n}",
+        m.boundary_violation_count
+    );
+}
+
+/// Mirrors proptest property `prop_hv_lv_clearance_default_when_empty_classes`.
+fn gm_hv_lv_clearance_default_when_empty_classes_impl(seed: u64) {
+    let (xs, ys, ws, hs) = gm_gen_case(seed, 5);
+    let n = xs.len();
+    let mut flag_rng = sub_rng(seed, GM_SALT_FLAG);
+    let all_hv = flag_rng.next_u64().is_multiple_of(2);
+    let is_hv = vec![all_hv; n];
+    let m = measure_geometric(
+        &xs, &ys, &ws, &hs, 0.0, &vec![None; n], (0.0, 0.0), 1000.0, 1000.0, &is_hv,
+    );
+    assert_eq!(m.min_hv_lv_clearance_mm, 1000.0, "seed={seed} expected default clearance");
+}
+
+/// Mirrors proptest property `prop_zone_violation_max_non_negative`.
+fn gm_zone_violation_max_non_negative_impl(seed: u64) {
+    let (xs, ys, ws, hs) = gm_gen_case(seed, 5);
+    let n = xs.len();
+    let zone = Some((0.0, 0.0, 500.0, 500.0));
+    let m = measure_geometric(
+        &xs, &ys, &ws, &hs, 0.0, &vec![zone; n], (0.0, 0.0), 2000.0, 2000.0, &vec![false; n],
+    );
+    assert!(m.zone_violation_max_mm >= 0.0, "seed={seed} zone_violation_max_mm < 0");
+    assert!(m.zone_violation_count >= 0, "seed={seed} zone_violation_count < 0");
+}
+
+// ===========================================================================
+// Kernel 7: heat_removal.rs -- `build_h_field`'s structural invariants.
+// `h_bg` (every cell's baseline) is `hostmath::pow(cs*1e-3, 2.0)`-derived,
+// but every property below compares a cell against OTHER CELLS FROM THE
+// SAME CALL (self-consistency) or checks a bound/finiteness -- never
+// against an independently-computed oracle value -- so it is exact
+// regardless of which pow implementation (host libm vs wasm32 fallback)
+// computed it. Portable.
+// ===========================================================================
+
+use crate::heat_removal::{build_h_field, BuildHFieldError, H_CONV_BACKGROUND};
+
+const HR_SALT_H: u64 = 0x71;
+const HR_SALT_W: u64 = 0x72;
+const HR_SALT_DEVICES: u64 = 0x73;
+
+fn hr_gen_cs(seed: u64) -> f64 {
+    let mut rng = SplitMix64::new(seed);
+    rng.range(0.1, 10.0)
+}
+
+fn hr_gen_hw(seed: u64, lo: usize, span: usize) -> (usize, usize) {
+    let mut h_rng = sub_rng(seed, HR_SALT_H);
+    let h = lo + h_rng.index(span);
+    let mut w_rng = sub_rng(seed, HR_SALT_W);
+    let w = lo + w_rng.index(span);
+    (h, w)
+}
+
+/// `build_h_field` returns `Result` only for the `cs == 0.0` case this
+/// module's own `hr_h_field_zero_cs_raises_impl` covers separately -- every
+/// OTHER campaign generator here draws `cs` from `hr_gen_cs`'s `0.1..10.0`
+/// range, so the `Err` arm is unreachable for them. A `match` here (not
+/// `.unwrap()`/`.expect()`, both `deny`d by this crate's `[lints.clippy]`)
+/// keeps that assumption visible and still panics loudly if it is ever
+/// violated.
+fn hr_unwrap(r: Result<Vec<f64>, BuildHFieldError>) -> Vec<f64> {
+    match r {
+        Ok(field) => field,
+        Err(e) => panic!("build_h_field failed unexpectedly: {e:?}"),
+    }
+}
+
+/// Mirrors proptest property `prop_h_field_dimensions`.
+fn hr_h_field_dimensions_impl(seed: u64) {
+    let cs = hr_gen_cs(seed);
+    let (h, w) = hr_gen_hw(seed, 1, 10);
+    let field = hr_unwrap(build_h_field(cs, 0.0, 0.0, h, w, &[], &[], &[], &[], H_CONV_BACKGROUND));
+    assert_eq!(field.len(), h * w, "seed={seed} field length mismatch");
+}
+
+/// Mirrors proptest property `prop_h_field_uniform_when_empty`.
+fn hr_h_field_uniform_when_empty_impl(seed: u64) {
+    let cs = hr_gen_cs(seed);
+    let (h, w) = hr_gen_hw(seed, 1, 10);
+    let field = hr_unwrap(build_h_field(cs, 0.0, 0.0, h, w, &[], &[], &[], &[], H_CONV_BACKGROUND));
+    let bg = field[0];
+    for &v in &field {
+        assert_eq!(v.to_bits(), bg.to_bits(), "seed={seed} non-uniform empty field");
+    }
+}
+
+/// Mirrors proptest property `prop_h_field_cells_at_least_background`.
+fn hr_h_field_cells_at_least_background_impl(seed: u64) {
+    let cs = hr_gen_cs(seed);
+    let (h, w) = hr_gen_hw(seed, 2, 7);
+    let bg_field = hr_unwrap(build_h_field(cs, 0.0, 0.0, h, w, &[], &[], &[], &[], H_CONV_BACKGROUND));
+    let bg = bg_field[0];
+    let cx = 0.5 * (w as f64) * cs;
+    let cy = 0.5 * (h as f64) * cs;
+    let field =
+        hr_unwrap(build_h_field(cs, 0.0, 0.0, h, w, &[cx], &[cy], &[0.25], &[1.0], H_CONV_BACKGROUND));
+    for &v in &field {
+        assert!(v >= bg - 1e-15, "seed={seed} cell {v:e} < bg {bg:e}");
+    }
+}
+
+/// Mirrors proptest property `prop_h_field_all_finite`.
+fn hr_h_field_all_finite_impl(seed: u64) {
+    let cs = hr_gen_cs(seed);
+    let (h, w) = hr_gen_hw(seed, 2, 9);
+    let mut rng = sub_rng(seed, HR_SALT_DEVICES);
+    let n = rng.index(6);
+    let xs: Vec<f64> = (0..n).map(|_| rng.range(0.0, 500.0)).collect();
+    let ys: Vec<f64> = (0..n).map(|_| rng.range(0.0, 500.0)).collect();
+    let rcs: Vec<f64> = (0..n).map(|_| rng.range(0.1, 10.0)).collect();
+    let rsas: Vec<f64> = (0..n).map(|_| rng.range(0.1, 10.0)).collect();
+    let field =
+        hr_unwrap(build_h_field(cs, 0.0, 0.0, h, w, &xs, &ys, &rcs, &rsas, H_CONV_BACKGROUND));
+    for &v in &field {
+        assert!(v.is_finite(), "seed={seed} non-finite cell {v:e}");
+    }
+}
+
+/// Mirrors proptest property `prop_h_field_zero_cs_raises`.
+fn hr_h_field_zero_cs_raises_impl(seed: u64) {
+    let (h, w) = hr_gen_hw(seed, 1, 5);
+    let result = build_h_field(0.0, 0.0, 0.0, h, w, &[], &[], &[], &[], H_CONV_BACKGROUND);
+    assert_eq!(result, Err(BuildHFieldError::DivisionByZero), "seed={seed}");
+}
+
+// ===========================================================================
+// Kernel 8: thermal_edges.rs -- `numpy_pairwise_sum_f32` and
+// `measure_thermal_edges`'s structural invariants. Uses `hostmath::py_max`
+// internally (a pure comparison, no libm) -- fully portable.
+// ===========================================================================
+
+use crate::thermal_edges::{measure_thermal_edges, numpy_pairwise_sum_f32};
+
+const TE_SALT_YS: u64 = 0x81;
+const TE_SALT_POWERS: u64 = 0x82;
+const TE_SALT_AMBIENT: u64 = 0x83;
+
+/// Mirrors proptest property `prop_pairwise_sum_f32_agrees_naive_below_8`.
+fn te_pairwise_sum_f32_agrees_naive_below_8_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let n = 1 + rng.index(7);
+    let vals: Vec<f32> = (0..n).map(|_| rng.range(-1.0e30, 1.0e30) as f32).collect();
+    let p = numpy_pairwise_sum_f32(&vals);
+    let mut n_sum = 0.0_f32;
+    for &v in &vals {
+        n_sum += v;
+    }
+    assert_eq!(p.to_bits(), n_sum.to_bits(), "seed={seed} pairwise/naive mismatch below 8");
+}
+
+/// Mirrors proptest property `prop_pairwise_sum_f32_finite_for_finite`.
+fn te_pairwise_sum_f32_finite_for_finite_impl(seed: u64) {
+    let mut rng = SplitMix64::new(seed);
+    let n = rng.index(31);
+    let vals: Vec<f32> = (0..n).map(|_| rng.range(-1.0e30, 1.0e30) as f32).collect();
+    let sum = numpy_pairwise_sum_f32(&vals);
+    assert!(sum.is_finite(), "seed={seed} non-finite sum {sum:e}");
+}
+
+fn te_gen_devices(seed: u64, max_n: usize) -> (Vec<f32>, Vec<f32>, Vec<f64>) {
+    let mut rng = SplitMix64::new(seed);
+    let n = 1 + rng.index(max_n);
+    let xs: Vec<f32> = (0..n).map(|_| rng.range(0.0, 1000.0) as f32).collect();
+    let mut ys_rng = sub_rng(seed, TE_SALT_YS);
+    let ys: Vec<f32> = (0..n).map(|_| ys_rng.range(0.0, 1000.0) as f32).collect();
+    let mut p_rng = sub_rng(seed, TE_SALT_POWERS);
+    let powers: Vec<f64> = (0..n).map(|_| p_rng.range(1.0, 50.0)).collect();
+    (xs, ys, powers)
+}
+
+fn te_gen_ambient(seed: u64) -> f64 {
+    let mut rng = sub_rng(seed, TE_SALT_AMBIENT);
+    rng.range(0.0, 100.0)
+}
+
+/// Mirrors proptest property `prop_measure_empty_returns_ambient`.
+fn te_measure_empty_returns_ambient_impl(seed: u64) {
+    let ambient = te_gen_ambient(seed);
+    let (max_tj, avg) = measure_thermal_edges(&[], &[], &[], (0.0, 0.0), 100.0, 100.0, ambient);
+    assert_eq!(max_tj, ambient, "seed={seed}");
+    assert_eq!(avg, 0.0, "seed={seed}");
+}
+
+/// Mirrors proptest property `prop_measure_finite_for_finite_inputs`.
+fn te_measure_finite_for_finite_inputs_impl(seed: u64) {
+    let (xs, ys, powers) = te_gen_devices(seed, 5);
+    let ambient = te_gen_ambient(seed);
+    let (max_tj, avg) = measure_thermal_edges(&xs, &ys, &powers, (0.0, 0.0), 200.0, 200.0, ambient);
+    assert!(max_tj.is_finite(), "seed={seed}");
+    assert!(avg.is_finite(), "seed={seed}");
+}
+
+/// Mirrors proptest property `prop_max_tj_at_least_ambient`.
+fn te_max_tj_at_least_ambient_impl(seed: u64) {
+    let (xs, ys, powers) = te_gen_devices(seed, 5);
+    let ambient = te_gen_ambient(seed);
+    let (max_tj, _avg) =
+        measure_thermal_edges(&xs, &ys, &powers, (0.0, 0.0), 200.0, 200.0, ambient);
+    assert!(max_tj >= ambient, "seed={seed} max_tj {max_tj} < ambient {ambient}");
+}
+
+/// Mirrors proptest property `prop_measure_deterministic`.
+fn te_measure_deterministic_impl(seed: u64) {
+    let (xs, ys, powers) = te_gen_devices(seed, 5);
+    let ambient = te_gen_ambient(seed);
+    let a = measure_thermal_edges(&xs, &ys, &powers, (0.0, 0.0), 200.0, 200.0, ambient);
+    let b = measure_thermal_edges(&xs, &ys, &powers, (0.0, 0.0), 200.0, 200.0, ambient);
+    assert_eq!(a.0.to_bits(), b.0.to_bits(), "seed={seed}");
+    assert_eq!(a.1.to_bits(), b.1.to_bits(), "seed={seed}");
+}
+
+// ===========================================================================
+// Kernel 9: thermal_potential.rs -- `linspace`'s structural invariants. No
+// libm call at all -- pure arithmetic, fully portable.
+// ===========================================================================
+
+use crate::thermal_potential::linspace;
+
+const LS_SALT_STOP: u64 = 0x91;
+const LS_SALT_NUM: u64 = 0x92;
+
+fn ls_signed(rng: &mut SplitMix64) -> f64 {
+    let mag = rng.range(1e-6, 1e12);
+    if rng.next_u64().is_multiple_of(2) {
+        mag
+    } else {
+        -mag
+    }
+}
+
+fn ls_gen_start(seed: u64) -> f64 {
+    let mut rng = SplitMix64::new(seed);
+    ls_signed(&mut rng)
+}
+
+fn ls_gen_stop(seed: u64) -> f64 {
+    let mut rng = sub_rng(seed, LS_SALT_STOP);
+    ls_signed(&mut rng)
+}
+
+fn ls_gen_num(seed: u64, max_num: usize) -> usize {
+    let mut rng = sub_rng(seed, LS_SALT_NUM);
+    rng.index(max_num + 1)
+}
+
+/// Mirrors proptest property `prop_linspace_length_correct`.
+fn ls_length_correct_impl(seed: u64) {
+    let start = ls_gen_start(seed);
+    let stop = ls_gen_stop(seed);
+    let num = ls_gen_num(seed, 100);
+    let v = linspace(start, stop, num);
+    assert_eq!(v.len(), num, "seed={seed}");
+}
+
+/// Mirrors proptest property `prop_linspace_endpoints_exact`.
+fn ls_endpoints_exact_impl(seed: u64) {
+    let start = ls_gen_start(seed);
+    let stop = ls_gen_stop(seed);
+    let num = 2 + ls_gen_num(seed, 98);
+    let v = linspace(start, stop, num);
+    assert_eq!(v[0], start, "seed={seed}");
+    assert_eq!(v[num - 1], stop, "seed={seed}");
+}
+
+/// Mirrors proptest property `prop_linspace_single_element_is_start`.
+fn ls_single_element_is_start_impl(seed: u64) {
+    let start = ls_gen_start(seed);
+    let v = linspace(start, 99.0, 1);
+    assert_eq!(v[0], start, "seed={seed}");
+}
+
+/// Mirrors proptest property `prop_linspace_monotonic_increasing`.
+fn ls_monotonic_increasing_impl(seed: u64) {
+    let a = ls_gen_start(seed);
+    let b = ls_gen_stop(seed);
+    let (start, stop) = if a < b { (a, b) } else { (b, a) };
+    let num = 3 + ls_gen_num(seed, 97);
+    let v = linspace(start, stop, num);
+    for i in 0..(num - 1) {
+        assert!(v[i] < v[i + 1], "seed={seed} not monotonic at i={i}");
+    }
+}
+
+/// Mirrors proptest property `prop_linspace_degenerate_constant`.
+fn ls_degenerate_constant_impl(seed: u64) {
+    let val = ls_gen_start(seed);
+    let num = 1 + ls_gen_num(seed, 49);
+    let v = linspace(val, val, num);
+    for &elem in &v {
+        assert_eq!(elem, val, "seed={seed}");
+    }
+}
+
+/// Mirrors proptest property `prop_linspace_all_finite`.
+fn ls_all_finite_impl(seed: u64) {
+    let start = ls_gen_start(seed);
+    let stop = ls_gen_stop(seed);
+    let num = ls_gen_num(seed, 50);
+    let v = linspace(start, stop, num);
+    for &elem in &v {
+        assert!(elem.is_finite(), "seed={seed} non-finite {elem:e}");
+    }
+}
+
+// ===========================================================================
+// Kernel 10: thermal_potential.rs -- `phi_edge`/`phi_coupling`/
+// `phi_exclusion`/`phi_convection`/`build_potential_grid` structural
+// invariants. These call `hostmath::pow`/`exp`/`cos`/`sin` (B1/B7)
+// internally, but every property below checks a bound, finiteness, a
+// relative ordering, or a self-consistency relation between grid cells
+// from the SAME call -- never a bit-exact comparison against an
+// independently-computed reference -- so none is sensitive to which
+// implementation of those functions (host libm vs the wasm32 fallback) is
+// active. Portable.
+// ===========================================================================
+
+use crate::thermal_potential::{
+    build_potential_grid, phi_convection, phi_coupling, phi_edge, phi_exclusion, Edge,
+};
+
+const FP_SALT_H: u64 = 0xA1;
+const FP_SALT_DECAY: u64 = 0xA2;
+const FP_SALT_RES: u64 = 0xA3;
+const FP_SALT_XMAX: u64 = 0xA4;
+const FP_SALT_YMIN: u64 = 0xA5;
+const FP_SALT_YMAX: u64 = 0xA6;
+const FP_SALT_POWER: u64 = 0xA7;
+const FP_SALT_SIGMA: u64 = 0xA8;
+const FP_SALT_MAG: u64 = 0xA9;
+const FP_SALT_DEG: u64 = 0xAA;
+const FP_SALT_PY: u64 = 0xAB;
+
+fn fp_gen_wh(seed: u64) -> (f64, f64) {
+    let mut rng = SplitMix64::new(seed);
+    let w = rng.range(1.0, 500.0);
+    let mut h_rng = sub_rng(seed, FP_SALT_H);
+    let h = h_rng.range(1.0, 500.0);
+    (w, h)
+}
+
+fn fp_gen_res(seed: u64, salt: u64, lo: usize, hi: usize) -> usize {
+    let mut rng = sub_rng(seed, salt);
+    lo + rng.index(hi - lo + 1)
+}
+
+/// Mirrors proptest property `prop_phi_edge_non_negative_finite`.
+fn fp_edge_non_negative_finite_impl(seed: u64) {
+    let (w, h) = fp_gen_wh(seed);
+    let mut decay_rng = sub_rng(seed, FP_SALT_DECAY);
+    let decay = decay_rng.range(0.1, 100.0);
+    let res = fp_gen_res(seed, FP_SALT_RES, 2, 20);
+    let bounds = (0.0, 0.0, w, h);
+    let (xg, yg) = build_potential_grid(bounds, res);
+    let field = phi_edge(&xg, &yg, bounds, Edge::Top, decay);
+    for &v in &field {
+        assert!(v.is_finite(), "seed={seed}");
+        assert!((0.0..=1.0).contains(&v), "seed={seed} phi_edge value {v} outside [0,1]");
+    }
+}
+
+/// Mirrors proptest property `prop_phi_edge_top_row_is_minimal`.
+fn fp_edge_top_row_is_minimal_impl(seed: u64) {
+    let (w, h) = fp_gen_wh(seed);
+    let mut decay_rng = sub_rng(seed, FP_SALT_DECAY);
+    let decay = decay_rng.range(1.0, 50.0);
+    let res = fp_gen_res(seed, FP_SALT_RES, 4, 20);
+    let bounds = (0.0, 0.0, w, h);
+    let (xg, yg) = build_potential_grid(bounds, res);
+    let field = phi_edge(&xg, &yg, bounds, Edge::Top, decay);
+    let top_row_start = res * (res - 1);
+    for j in 0..res {
+        for row in 0..(res - 1) {
+            assert!(
+                field[top_row_start + j] <= field[row * res + j],
+                "seed={seed} top-row cell exceeds row {row}"
+            );
+        }
+    }
+}
+
+/// Mirrors proptest property `prop_phi_coupling_empty_is_zero`.
+fn fp_coupling_empty_is_zero_impl(seed: u64) {
+    let (w, h) = fp_gen_wh(seed);
+    let res = fp_gen_res(seed, FP_SALT_RES, 2, 20);
+    let bounds = (0.0, 0.0, w, h);
+    let (xg, yg) = build_potential_grid(bounds, res);
+    let field = phi_coupling(&xg, &yg, &[], 50.0);
+    for &v in &field {
+        assert_eq!(v, 0.0, "seed={seed}");
+    }
+}
+
+/// Mirrors proptest property `prop_phi_coupling_finite_for_moderate_power`.
+fn fp_coupling_finite_for_moderate_power_impl(seed: u64) {
+    let mut px_rng = SplitMix64::new(seed);
+    let px = px_rng.range(0.0, 500.0);
+    let mut py_rng = sub_rng(seed, FP_SALT_H);
+    let py = py_rng.range(0.0, 500.0);
+    let mut power_rng = sub_rng(seed, FP_SALT_POWER);
+    let power = power_rng.range(0.0, 100.0);
+    let mut sigma_rng = sub_rng(seed, FP_SALT_SIGMA);
+    let sigma_factor = sigma_rng.range(1.0, 200.0);
+    let res = fp_gen_res(seed, FP_SALT_RES, 2, 20);
+    let bounds = (0.0, 0.0, px + 10.0, py + 10.0);
+    let (xg, yg) = build_potential_grid(bounds, res);
+    let field = phi_coupling(&xg, &yg, &[((px, py), power)], sigma_factor);
+    for &v in &field {
+        assert!(v.is_finite(), "seed={seed}");
+        assert!(v >= 0.0, "seed={seed}");
+    }
+}
+
+/// Mirrors proptest property `prop_phi_coupling_peaks_at_device`.
+fn fp_coupling_peaks_at_device_impl(seed: u64) {
+    let mut px_rng = SplitMix64::new(seed);
+    let px = px_rng.range(0.0, 1000.0);
+    let mut py_rng = sub_rng(seed, FP_SALT_H);
+    let py = py_rng.range(0.0, 1000.0);
+    let mut power_rng = sub_rng(seed, FP_SALT_POWER);
+    let power = power_rng.range(1.0, 50.0);
+    let mut sigma_rng = sub_rng(seed, FP_SALT_SIGMA);
+    let sigma_factor = sigma_rng.range(10.0, 100.0);
+    let bounds = (0.0, 0.0, px + 50.0, py + 50.0);
+    let (xg, yg) = build_potential_grid(bounds, 7);
+    let field = phi_coupling(&xg, &yg, &[((px, py), power)], sigma_factor);
+    let peak = field.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+    assert!(peak.is_finite() && peak > 0.0, "seed={seed}");
+    for &v in &field {
+        assert!(v <= peak * (1.0 + 1e-12), "seed={seed} value {v} exceeds peak {peak}");
+    }
+}
+
+/// Mirrors proptest property `prop_phi_exclusion_non_negative`.
+fn fp_exclusion_non_negative_impl(seed: u64) {
+    let (w, h) = fp_gen_wh(seed);
+    let res = fp_gen_res(seed, FP_SALT_RES, 2, 20);
+    let bounds = (0.0, 0.0, w, h);
+    let (xg, yg) = build_potential_grid(bounds, res);
+    let field = phi_exclusion(&xg, &yg, &[(w / 2.0, h / 2.0)], 10.0, 1e6, 20.0);
+    for &v in &field {
+        assert!(v >= 0.0, "seed={seed}");
+        assert!(v.is_finite(), "seed={seed}");
+    }
+}
+
+/// Mirrors proptest property `prop_phi_convection_nan_magnitude_is_nan_field`.
+fn fp_convection_nan_magnitude_is_nan_field_impl(seed: u64) {
+    let (w, h) = fp_gen_wh(seed);
+    let res = fp_gen_res(seed, FP_SALT_RES, 2, 20);
+    let bounds = (0.0, 0.0, w, h);
+    let (xg, yg) = build_potential_grid(bounds, res);
+    let field = phi_convection(&xg, &yg, Some((f64::NAN, 45.0)));
+    for &v in &field {
+        assert!(v.is_nan(), "seed={seed}");
+    }
+}
+
+/// Mirrors proptest property `prop_phi_convection_zero_or_negative_is_zero`.
+fn fp_convection_zero_or_negative_is_zero_impl(seed: u64) {
+    let (w, h) = fp_gen_wh(seed);
+    let res = fp_gen_res(seed, FP_SALT_RES, 2, 20);
+    let mut mag_rng = sub_rng(seed, FP_SALT_MAG);
+    let mag = -mag_rng.range(0.0, 100.0);
+    let mut deg_rng = sub_rng(seed, FP_SALT_DEG);
+    let deg = deg_rng.range(0.0, 360.0);
+    let bounds = (0.0, 0.0, w, h);
+    let (xg, yg) = build_potential_grid(bounds, res);
+    let field = phi_convection(&xg, &yg, Some((mag, deg)));
+    for &v in &field {
+        assert_eq!(v, 0.0, "seed={seed} mag={mag}");
+    }
+}
+
+/// Mirrors proptest property `prop_build_potential_grid_dimensions`.
+fn fp_grid_dimensions_impl(seed: u64) {
+    let (w, h) = fp_gen_wh(seed);
+    let res = fp_gen_res(seed, FP_SALT_RES, 2, 20);
+    let bounds = (0.0, 0.0, w, h);
+    let (xg, yg) = build_potential_grid(bounds, res);
+    let n = res * res;
+    assert_eq!(xg.len(), n, "seed={seed}");
+    assert_eq!(yg.len(), n, "seed={seed}");
+}
+
+/// Mirrors proptest property `prop_build_potential_grid_xy_convention`.
+fn fp_grid_xy_convention_impl(seed: u64) {
+    let mut xmin_rng = SplitMix64::new(seed);
+    let x_min = xmin_rng.range(0.0, 100.0);
+    let mut xmax_rng = sub_rng(seed, FP_SALT_XMAX);
+    let x_max = 101.0 + xmax_rng.range(0.0, 399.0);
+    let mut ymin_rng = sub_rng(seed, FP_SALT_YMIN);
+    let y_min = ymin_rng.range(0.0, 100.0);
+    let mut ymax_rng = sub_rng(seed, FP_SALT_YMAX);
+    let y_max = 101.0 + ymax_rng.range(0.0, 399.0);
+    let res = fp_gen_res(seed, FP_SALT_PY, 3, 10);
+    let bounds = (x_min, y_min, x_max, y_max);
+    let (xg, yg) = build_potential_grid(bounds, res);
+    for row in 0..res {
+        let base = row * res;
+        for col in 1..res {
+            assert_eq!(yg[base + col], yg[base], "seed={seed} row {row}");
+        }
+    }
+    for col in 0..res {
+        for row in 1..res {
+            assert_eq!(xg[col], xg[row * res + col], "seed={seed} col {col}");
+        }
+    }
+}
+
+// ===========================================================================
+// Kernel 11: thermal_potential.rs -- `search_free_x`/
+// `enforce_unique_positions_with` anchor-uniqueness invariants.  Both use
+// `hostmath::pow` for the distance check, but every property below checks
+// a bound or a no-op/count invariant on the OUTPUT, not a bit-exact
+// distance value -- portable with generous slack. The proptest sibling
+// `uniqueness_distance_uses_pow_not_sqrt_proptest` is DELIBERATELY NOT
+// mirrored here: it exists specifically to detect whether `pow(x, 0.5)`
+// discriminates from `sqrt(x)` on the host libm, and on wasm32 that fold
+// is exact (measured, `docs/evidence/2026-08-06-wasm32-float-divergence.md`)
+// so the property would pass vacuously there -- it is *about* the host,
+// not a property of the kernel. See the PR body.
+// ===========================================================================
+
+use crate::thermal_potential::{enforce_unique_positions_with, search_free_x};
+
+const UQ_SALT_TOL: u64 = 0xB1;
+const UQ_SALT_XMIN: u64 = 0xB2;
+const UQ_SALT_XMAX: u64 = 0xB3;
+const UQ_SALT_OFFSET: u64 = 0xB4;
+const UQ_SALT_N: u64 = 0xB5;
+
+fn uq_gen_tolerance(seed: u64) -> f64 {
+    let mut rng = sub_rng(seed, UQ_SALT_TOL);
+    rng.range(0.01, 0.2)
+}
+
+/// Mirrors proptest property `prop_search_free_x_non_positive_offset_returns_none`.
+fn uq_search_free_x_non_positive_offset_none_impl(seed: u64) {
+    let mut off_rng = SplitMix64::new(seed);
+    let offset = -off_rng.range(0.0, 10.0);
+    let tol = uq_gen_tolerance(seed);
+    let mut xmin_rng = sub_rng(seed, UQ_SALT_XMIN);
+    let x_min = xmin_rng.range(0.0, 50.0);
+    let mut xmax_rng = sub_rng(seed, UQ_SALT_XMAX);
+    let x_max = 51.0 + xmax_rng.range(0.0, 49.0);
+    let mut xj_rng = sub_rng(seed, UQ_SALT_OFFSET);
+    let xj = xj_rng.range(10.0, 90.0);
+    let anchors = vec![("A".to_owned(), (xj, 50.0))];
+    let got = search_free_x(&anchors, 0, x_min, x_max, tol, offset);
+    assert!(got.is_none(), "seed={seed} non-positive offset {offset} must return None");
+}
+
+/// Mirrors proptest property `prop_search_free_x_nan_offset_returns_none`.
+fn uq_search_free_x_nan_offset_none_impl(seed: u64) {
+    let tol = uq_gen_tolerance(seed);
+    let mut xmin_rng = sub_rng(seed, UQ_SALT_XMIN);
+    let x_min = xmin_rng.range(0.0, 50.0);
+    let mut xmax_rng = sub_rng(seed, UQ_SALT_XMAX);
+    let x_max = 51.0 + xmax_rng.range(0.0, 49.0);
+    let mut xj_rng = sub_rng(seed, UQ_SALT_OFFSET);
+    let xj = xj_rng.range(10.0, 90.0);
+    let anchors = vec![("A".to_owned(), (xj, 50.0))];
+    let got = search_free_x(&anchors, 0, x_min, x_max, tol, f64::NAN);
+    assert!(got.is_none(), "seed={seed} NaN offset must return None");
+}
+
+/// Mirrors proptest property `prop_search_free_x_found_within_bounds`.
+fn uq_search_free_x_found_within_bounds_impl(seed: u64) {
+    let mut xj_rng = SplitMix64::new(seed);
+    let xj = xj_rng.range(0.0, 100.0);
+    let mut yj_rng = sub_rng(seed, UQ_SALT_XMIN);
+    let yj = yj_rng.range(0.0, 100.0);
+    let mut xmin_rng = sub_rng(seed, UQ_SALT_XMAX);
+    let x_min = xmin_rng.range(0.0, 10.0);
+    let mut xmax_rng = sub_rng(seed, UQ_SALT_OFFSET);
+    let x_max = 90.0 + xmax_rng.range(0.0, 10.0);
+    let mut offset_rng = sub_rng(seed, UQ_SALT_TOL);
+    let offset = offset_rng.range(0.1, 2.0);
+    let mut tol_rng = sub_rng(seed, UQ_SALT_N);
+    let tol = tol_rng.range(0.01, 0.2);
+    let anchors = vec![("A".to_owned(), (xj, yj))];
+    let got = search_free_x(&anchors, 0, x_min, x_max, tol, offset);
+    if let Some((cx, cy)) = got {
+        assert!(cx >= x_min && cx <= x_max, "seed={seed} found x outside bounds");
+        assert!((cy - yj).abs() < 1e-15, "seed={seed} found y differs from anchor y");
+    }
+}
+
+/// Mirrors proptest property `prop_enforce_unique_no_violations`.
+fn uq_enforce_unique_no_violations_impl(seed: u64) {
+    let mut n_rng = SplitMix64::new(seed);
+    let n_anchors = 2 + n_rng.index(7);
+    let mut xmin_rng = sub_rng(seed, UQ_SALT_XMIN);
+    let x_min = xmin_rng.range(0.0, 20.0);
+    let mut xmax_rng = sub_rng(seed, UQ_SALT_XMAX);
+    let x_max = 80.0 + xmax_rng.range(0.0, 20.0);
+    let mut offset_rng = sub_rng(seed, UQ_SALT_OFFSET);
+    let offset = offset_rng.range(0.1, 2.0);
+    let tol = uq_gen_tolerance(seed);
+    let xj = (x_min + x_max) / 2.0;
+    let yj = 50.0;
+    let mut anchors: Vec<(String, (f64, f64))> =
+        (0..n_anchors).map(|i| (format!("A{i}"), (xj, yj))).collect();
+    enforce_unique_positions_with(&mut anchors, (x_min, 0.0, x_max, 100.0), tol, offset);
+    assert_eq!(anchors.len(), n_anchors, "seed={seed} anchor count changed");
+    for i in 0..anchors.len() {
+        for j in (i + 1)..anchors.len() {
+            let (xi, yi) = anchors[i].1;
+            let (xj2, yj2) = anchors[j].1;
+            let dx = xi - xj2;
+            let dy = yi - yj2;
+            let dist = (dx * dx + dy * dy).sqrt();
+            assert!(dist >= tol - 1e-9, "seed={seed} anchors {i}/{j} at {dist} < tol {tol}");
+        }
+    }
+}
+
+/// Mirrors proptest property `prop_enforce_unique_noop_when_already_unique`.
+fn uq_enforce_unique_noop_when_already_unique_impl(seed: u64) {
+    let mut x0_rng = SplitMix64::new(seed);
+    let x0 = x0_rng.range(0.0, 100.0);
+    let mut x1_rng = sub_rng(seed, UQ_SALT_XMIN);
+    let mut x1 = x1_rng.range(0.0, 100.0);
+    let tol = uq_gen_tolerance(seed);
+    // Force apart by at least tol + 0.1 (the proptest's reject condition,
+    // made unconditional instead of early-returning).
+    if (x0 - x1).abs() < tol + 0.1 {
+        x1 = (x0 + tol + 10.0).min(100.0);
+    }
+    if (x0 - x1).abs() < tol + 0.1 {
+        x1 = (x0 - tol - 10.0).max(0.0);
+    }
+    if (x0 - x1).abs() < tol + 0.1 {
+        return; // Degenerate seed on a tiny board; nothing to check.
+    }
+    let mut anchors: Vec<(String, (f64, f64))> =
+        vec![("A".to_owned(), (x0, 50.0)), ("B".to_owned(), (x1, 50.0))];
+    let before = anchors.clone();
+    enforce_unique_positions_with(&mut anchors, (0.0, 0.0, 100.0, 100.0), tol, 0.5);
+    assert_eq!(anchors, before, "seed={seed} already-unique anchors must not be modified");
+}
+
+/// Mirrors proptest property `prop_enforce_unique_stays_in_bounds`.
+fn uq_enforce_unique_stays_in_bounds_impl(seed: u64) {
+    let mut n_rng = SplitMix64::new(seed);
+    let n_anchors = 2 + n_rng.index(4);
+    let mut xmin_rng = sub_rng(seed, UQ_SALT_XMIN);
+    let x_min = xmin_rng.range(0.0, 20.0);
+    let mut xmax_rng = sub_rng(seed, UQ_SALT_XMAX);
+    let x_max = 80.0 + xmax_rng.range(0.0, 20.0);
+    let mut offset_rng = sub_rng(seed, UQ_SALT_OFFSET);
+    let offset = offset_rng.range(0.1, 2.0);
+    let tol = uq_gen_tolerance(seed);
+    let yj = 50.0;
+    let mut anchors: Vec<(String, (f64, f64))> = (0..n_anchors)
+        .map(|i| (format!("A{i}"), ((x_min + x_max) / 2.0, yj)))
+        .collect();
+    enforce_unique_positions_with(&mut anchors, (x_min, 0.0, x_max, 100.0), tol, offset);
+    for (name, (cx, _cy)) in &anchors {
+        assert!(*cx >= x_min && *cx <= x_max, "seed={seed} anchor {name} x={cx} outside bounds");
+    }
 }
 
 #[cfg(any(test, feature = "wasm-registry"))]
@@ -3818,6 +4711,2306 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn safe_threshold_monotonic_delay_seed_000059() { safe_threshold_monotonic_delay_impl(59); }
 
+    // --- hm_py_max_nan_semantics: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000000() { hm_py_max_nan_semantics_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000001() { hm_py_max_nan_semantics_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000002() { hm_py_max_nan_semantics_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000003() { hm_py_max_nan_semantics_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000004() { hm_py_max_nan_semantics_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000005() { hm_py_max_nan_semantics_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000006() { hm_py_max_nan_semantics_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000007() { hm_py_max_nan_semantics_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000008() { hm_py_max_nan_semantics_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000009() { hm_py_max_nan_semantics_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000010() { hm_py_max_nan_semantics_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000011() { hm_py_max_nan_semantics_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000012() { hm_py_max_nan_semantics_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000013() { hm_py_max_nan_semantics_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000014() { hm_py_max_nan_semantics_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000015() { hm_py_max_nan_semantics_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000016() { hm_py_max_nan_semantics_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000017() { hm_py_max_nan_semantics_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000018() { hm_py_max_nan_semantics_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000019() { hm_py_max_nan_semantics_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000020() { hm_py_max_nan_semantics_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000021() { hm_py_max_nan_semantics_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000022() { hm_py_max_nan_semantics_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_nan_semantics_seed_000023() { hm_py_max_nan_semantics_impl(23); }
+
+    // --- hm_py_min_nan_semantics: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000000() { hm_py_min_nan_semantics_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000001() { hm_py_min_nan_semantics_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000002() { hm_py_min_nan_semantics_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000003() { hm_py_min_nan_semantics_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000004() { hm_py_min_nan_semantics_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000005() { hm_py_min_nan_semantics_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000006() { hm_py_min_nan_semantics_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000007() { hm_py_min_nan_semantics_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000008() { hm_py_min_nan_semantics_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000009() { hm_py_min_nan_semantics_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000010() { hm_py_min_nan_semantics_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000011() { hm_py_min_nan_semantics_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000012() { hm_py_min_nan_semantics_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000013() { hm_py_min_nan_semantics_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000014() { hm_py_min_nan_semantics_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000015() { hm_py_min_nan_semantics_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000016() { hm_py_min_nan_semantics_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000017() { hm_py_min_nan_semantics_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000018() { hm_py_min_nan_semantics_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000019() { hm_py_min_nan_semantics_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000020() { hm_py_min_nan_semantics_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000021() { hm_py_min_nan_semantics_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000022() { hm_py_min_nan_semantics_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hm_py_min_nan_semantics_seed_000023() { hm_py_min_nan_semantics_impl(23); }
+
+    // --- hm_py_max_min_agree_on_finite: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000000() { hm_py_max_min_agree_on_finite_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000001() { hm_py_max_min_agree_on_finite_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000002() { hm_py_max_min_agree_on_finite_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000003() { hm_py_max_min_agree_on_finite_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000004() { hm_py_max_min_agree_on_finite_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000005() { hm_py_max_min_agree_on_finite_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000006() { hm_py_max_min_agree_on_finite_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000007() { hm_py_max_min_agree_on_finite_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000008() { hm_py_max_min_agree_on_finite_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000009() { hm_py_max_min_agree_on_finite_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000010() { hm_py_max_min_agree_on_finite_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000011() { hm_py_max_min_agree_on_finite_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000012() { hm_py_max_min_agree_on_finite_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000013() { hm_py_max_min_agree_on_finite_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000014() { hm_py_max_min_agree_on_finite_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000015() { hm_py_max_min_agree_on_finite_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000016() { hm_py_max_min_agree_on_finite_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000017() { hm_py_max_min_agree_on_finite_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000018() { hm_py_max_min_agree_on_finite_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000019() { hm_py_max_min_agree_on_finite_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000020() { hm_py_max_min_agree_on_finite_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000021() { hm_py_max_min_agree_on_finite_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000022() { hm_py_max_min_agree_on_finite_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_agree_on_finite_seed_000023() { hm_py_max_min_agree_on_finite_impl(23); }
+
+    // --- hm_np_maximum_propagates_nan: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000000() { hm_np_maximum_propagates_nan_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000001() { hm_np_maximum_propagates_nan_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000002() { hm_np_maximum_propagates_nan_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000003() { hm_np_maximum_propagates_nan_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000004() { hm_np_maximum_propagates_nan_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000005() { hm_np_maximum_propagates_nan_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000006() { hm_np_maximum_propagates_nan_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000007() { hm_np_maximum_propagates_nan_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000008() { hm_np_maximum_propagates_nan_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000009() { hm_np_maximum_propagates_nan_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000010() { hm_np_maximum_propagates_nan_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000011() { hm_np_maximum_propagates_nan_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000012() { hm_np_maximum_propagates_nan_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000013() { hm_np_maximum_propagates_nan_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000014() { hm_np_maximum_propagates_nan_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000015() { hm_np_maximum_propagates_nan_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000016() { hm_np_maximum_propagates_nan_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000017() { hm_np_maximum_propagates_nan_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000018() { hm_np_maximum_propagates_nan_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000019() { hm_np_maximum_propagates_nan_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000020() { hm_np_maximum_propagates_nan_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000021() { hm_np_maximum_propagates_nan_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000022() { hm_np_maximum_propagates_nan_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_propagates_nan_seed_000023() { hm_np_maximum_propagates_nan_impl(23); }
+
+    // --- hm_np_maximum_finite: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000000() { hm_np_maximum_finite_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000001() { hm_np_maximum_finite_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000002() { hm_np_maximum_finite_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000003() { hm_np_maximum_finite_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000004() { hm_np_maximum_finite_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000005() { hm_np_maximum_finite_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000006() { hm_np_maximum_finite_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000007() { hm_np_maximum_finite_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000008() { hm_np_maximum_finite_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000009() { hm_np_maximum_finite_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000010() { hm_np_maximum_finite_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000011() { hm_np_maximum_finite_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000012() { hm_np_maximum_finite_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000013() { hm_np_maximum_finite_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000014() { hm_np_maximum_finite_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000015() { hm_np_maximum_finite_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000016() { hm_np_maximum_finite_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000017() { hm_np_maximum_finite_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000018() { hm_np_maximum_finite_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000019() { hm_np_maximum_finite_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000020() { hm_np_maximum_finite_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000021() { hm_np_maximum_finite_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000022() { hm_np_maximum_finite_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hm_np_maximum_finite_seed_000023() { hm_np_maximum_finite_impl(23); }
+
+    // --- hm_np_clip_bounded: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000000() { hm_np_clip_bounded_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000001() { hm_np_clip_bounded_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000002() { hm_np_clip_bounded_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000003() { hm_np_clip_bounded_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000004() { hm_np_clip_bounded_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000005() { hm_np_clip_bounded_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000006() { hm_np_clip_bounded_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000007() { hm_np_clip_bounded_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000008() { hm_np_clip_bounded_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000009() { hm_np_clip_bounded_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000010() { hm_np_clip_bounded_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000011() { hm_np_clip_bounded_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000012() { hm_np_clip_bounded_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000013() { hm_np_clip_bounded_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000014() { hm_np_clip_bounded_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000015() { hm_np_clip_bounded_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000016() { hm_np_clip_bounded_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000017() { hm_np_clip_bounded_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000018() { hm_np_clip_bounded_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000019() { hm_np_clip_bounded_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000020() { hm_np_clip_bounded_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000021() { hm_np_clip_bounded_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000022() { hm_np_clip_bounded_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_bounded_seed_000023() { hm_np_clip_bounded_impl(23); }
+
+    // --- hm_np_clip_inverted_returns_hi: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000000() { hm_np_clip_inverted_returns_hi_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000001() { hm_np_clip_inverted_returns_hi_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000002() { hm_np_clip_inverted_returns_hi_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000003() { hm_np_clip_inverted_returns_hi_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000004() { hm_np_clip_inverted_returns_hi_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000005() { hm_np_clip_inverted_returns_hi_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000006() { hm_np_clip_inverted_returns_hi_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000007() { hm_np_clip_inverted_returns_hi_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000008() { hm_np_clip_inverted_returns_hi_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000009() { hm_np_clip_inverted_returns_hi_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000010() { hm_np_clip_inverted_returns_hi_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000011() { hm_np_clip_inverted_returns_hi_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000012() { hm_np_clip_inverted_returns_hi_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000013() { hm_np_clip_inverted_returns_hi_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000014() { hm_np_clip_inverted_returns_hi_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000015() { hm_np_clip_inverted_returns_hi_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000016() { hm_np_clip_inverted_returns_hi_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000017() { hm_np_clip_inverted_returns_hi_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000018() { hm_np_clip_inverted_returns_hi_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000019() { hm_np_clip_inverted_returns_hi_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000020() { hm_np_clip_inverted_returns_hi_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000021() { hm_np_clip_inverted_returns_hi_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000022() { hm_np_clip_inverted_returns_hi_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_inverted_returns_hi_seed_000023() { hm_np_clip_inverted_returns_hi_impl(23); }
+
+    // --- hm_np_clip_nan_propagates: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000000() { hm_np_clip_nan_propagates_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000001() { hm_np_clip_nan_propagates_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000002() { hm_np_clip_nan_propagates_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000003() { hm_np_clip_nan_propagates_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000004() { hm_np_clip_nan_propagates_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000005() { hm_np_clip_nan_propagates_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000006() { hm_np_clip_nan_propagates_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000007() { hm_np_clip_nan_propagates_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000008() { hm_np_clip_nan_propagates_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000009() { hm_np_clip_nan_propagates_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000010() { hm_np_clip_nan_propagates_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000011() { hm_np_clip_nan_propagates_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000012() { hm_np_clip_nan_propagates_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000013() { hm_np_clip_nan_propagates_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000014() { hm_np_clip_nan_propagates_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000015() { hm_np_clip_nan_propagates_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000016() { hm_np_clip_nan_propagates_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000017() { hm_np_clip_nan_propagates_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000018() { hm_np_clip_nan_propagates_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000019() { hm_np_clip_nan_propagates_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000020() { hm_np_clip_nan_propagates_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000021() { hm_np_clip_nan_propagates_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000022() { hm_np_clip_nan_propagates_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hm_np_clip_nan_propagates_seed_000023() { hm_np_clip_nan_propagates_impl(23); }
+
+    // --- hm_py_max_min_idempotent: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000000() { hm_py_max_min_idempotent_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000001() { hm_py_max_min_idempotent_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000002() { hm_py_max_min_idempotent_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000003() { hm_py_max_min_idempotent_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000004() { hm_py_max_min_idempotent_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000005() { hm_py_max_min_idempotent_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000006() { hm_py_max_min_idempotent_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000007() { hm_py_max_min_idempotent_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000008() { hm_py_max_min_idempotent_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000009() { hm_py_max_min_idempotent_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000010() { hm_py_max_min_idempotent_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000011() { hm_py_max_min_idempotent_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000012() { hm_py_max_min_idempotent_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000013() { hm_py_max_min_idempotent_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000014() { hm_py_max_min_idempotent_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000015() { hm_py_max_min_idempotent_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000016() { hm_py_max_min_idempotent_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000017() { hm_py_max_min_idempotent_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000018() { hm_py_max_min_idempotent_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000019() { hm_py_max_min_idempotent_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000020() { hm_py_max_min_idempotent_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000021() { hm_py_max_min_idempotent_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000022() { hm_py_max_min_idempotent_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hm_py_max_min_idempotent_seed_000023() { hm_py_max_min_idempotent_impl(23); }
+
+    // --- gm_overlap_area_non_negative: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000000() { gm_overlap_area_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000001() { gm_overlap_area_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000002() { gm_overlap_area_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000003() { gm_overlap_area_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000004() { gm_overlap_area_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000005() { gm_overlap_area_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000006() { gm_overlap_area_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000007() { gm_overlap_area_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000008() { gm_overlap_area_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000009() { gm_overlap_area_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000010() { gm_overlap_area_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000011() { gm_overlap_area_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000012() { gm_overlap_area_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000013() { gm_overlap_area_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000014() { gm_overlap_area_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000015() { gm_overlap_area_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000016() { gm_overlap_area_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000017() { gm_overlap_area_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000018() { gm_overlap_area_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000019() { gm_overlap_area_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000020() { gm_overlap_area_non_negative_impl(20); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000021() { gm_overlap_area_non_negative_impl(21); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000022() { gm_overlap_area_non_negative_impl(22); }
+    #[cfg_attr(test, test)]
+    fn gm_overlap_area_non_negative_seed_000023() { gm_overlap_area_non_negative_impl(23); }
+
+    // --- gm_boundary_violation_count_bounded: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000000() { gm_boundary_violation_count_bounded_impl(0); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000001() { gm_boundary_violation_count_bounded_impl(1); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000002() { gm_boundary_violation_count_bounded_impl(2); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000003() { gm_boundary_violation_count_bounded_impl(3); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000004() { gm_boundary_violation_count_bounded_impl(4); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000005() { gm_boundary_violation_count_bounded_impl(5); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000006() { gm_boundary_violation_count_bounded_impl(6); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000007() { gm_boundary_violation_count_bounded_impl(7); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000008() { gm_boundary_violation_count_bounded_impl(8); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000009() { gm_boundary_violation_count_bounded_impl(9); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000010() { gm_boundary_violation_count_bounded_impl(10); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000011() { gm_boundary_violation_count_bounded_impl(11); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000012() { gm_boundary_violation_count_bounded_impl(12); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000013() { gm_boundary_violation_count_bounded_impl(13); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000014() { gm_boundary_violation_count_bounded_impl(14); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000015() { gm_boundary_violation_count_bounded_impl(15); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000016() { gm_boundary_violation_count_bounded_impl(16); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000017() { gm_boundary_violation_count_bounded_impl(17); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000018() { gm_boundary_violation_count_bounded_impl(18); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000019() { gm_boundary_violation_count_bounded_impl(19); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000020() { gm_boundary_violation_count_bounded_impl(20); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000021() { gm_boundary_violation_count_bounded_impl(21); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000022() { gm_boundary_violation_count_bounded_impl(22); }
+    #[cfg_attr(test, test)]
+    fn gm_boundary_violation_count_bounded_seed_000023() { gm_boundary_violation_count_bounded_impl(23); }
+
+    // --- gm_hv_lv_clearance_default_when_empty_classes: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000000() { gm_hv_lv_clearance_default_when_empty_classes_impl(0); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000001() { gm_hv_lv_clearance_default_when_empty_classes_impl(1); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000002() { gm_hv_lv_clearance_default_when_empty_classes_impl(2); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000003() { gm_hv_lv_clearance_default_when_empty_classes_impl(3); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000004() { gm_hv_lv_clearance_default_when_empty_classes_impl(4); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000005() { gm_hv_lv_clearance_default_when_empty_classes_impl(5); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000006() { gm_hv_lv_clearance_default_when_empty_classes_impl(6); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000007() { gm_hv_lv_clearance_default_when_empty_classes_impl(7); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000008() { gm_hv_lv_clearance_default_when_empty_classes_impl(8); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000009() { gm_hv_lv_clearance_default_when_empty_classes_impl(9); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000010() { gm_hv_lv_clearance_default_when_empty_classes_impl(10); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000011() { gm_hv_lv_clearance_default_when_empty_classes_impl(11); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000012() { gm_hv_lv_clearance_default_when_empty_classes_impl(12); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000013() { gm_hv_lv_clearance_default_when_empty_classes_impl(13); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000014() { gm_hv_lv_clearance_default_when_empty_classes_impl(14); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000015() { gm_hv_lv_clearance_default_when_empty_classes_impl(15); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000016() { gm_hv_lv_clearance_default_when_empty_classes_impl(16); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000017() { gm_hv_lv_clearance_default_when_empty_classes_impl(17); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000018() { gm_hv_lv_clearance_default_when_empty_classes_impl(18); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000019() { gm_hv_lv_clearance_default_when_empty_classes_impl(19); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000020() { gm_hv_lv_clearance_default_when_empty_classes_impl(20); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000021() { gm_hv_lv_clearance_default_when_empty_classes_impl(21); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000022() { gm_hv_lv_clearance_default_when_empty_classes_impl(22); }
+    #[cfg_attr(test, test)]
+    fn gm_hv_lv_clearance_default_when_empty_classes_seed_000023() { gm_hv_lv_clearance_default_when_empty_classes_impl(23); }
+
+    // --- gm_zone_violation_max_non_negative: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000000() { gm_zone_violation_max_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000001() { gm_zone_violation_max_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000002() { gm_zone_violation_max_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000003() { gm_zone_violation_max_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000004() { gm_zone_violation_max_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000005() { gm_zone_violation_max_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000006() { gm_zone_violation_max_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000007() { gm_zone_violation_max_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000008() { gm_zone_violation_max_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000009() { gm_zone_violation_max_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000010() { gm_zone_violation_max_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000011() { gm_zone_violation_max_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000012() { gm_zone_violation_max_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000013() { gm_zone_violation_max_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000014() { gm_zone_violation_max_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000015() { gm_zone_violation_max_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000016() { gm_zone_violation_max_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000017() { gm_zone_violation_max_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000018() { gm_zone_violation_max_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000019() { gm_zone_violation_max_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000020() { gm_zone_violation_max_non_negative_impl(20); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000021() { gm_zone_violation_max_non_negative_impl(21); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000022() { gm_zone_violation_max_non_negative_impl(22); }
+    #[cfg_attr(test, test)]
+    fn gm_zone_violation_max_non_negative_seed_000023() { gm_zone_violation_max_non_negative_impl(23); }
+
+    // --- hr_h_field_dimensions: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000000() { hr_h_field_dimensions_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000001() { hr_h_field_dimensions_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000002() { hr_h_field_dimensions_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000003() { hr_h_field_dimensions_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000004() { hr_h_field_dimensions_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000005() { hr_h_field_dimensions_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000006() { hr_h_field_dimensions_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000007() { hr_h_field_dimensions_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000008() { hr_h_field_dimensions_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000009() { hr_h_field_dimensions_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000010() { hr_h_field_dimensions_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000011() { hr_h_field_dimensions_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000012() { hr_h_field_dimensions_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000013() { hr_h_field_dimensions_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000014() { hr_h_field_dimensions_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000015() { hr_h_field_dimensions_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000016() { hr_h_field_dimensions_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000017() { hr_h_field_dimensions_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000018() { hr_h_field_dimensions_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000019() { hr_h_field_dimensions_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000020() { hr_h_field_dimensions_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000021() { hr_h_field_dimensions_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000022() { hr_h_field_dimensions_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_dimensions_seed_000023() { hr_h_field_dimensions_impl(23); }
+
+    // --- hr_h_field_uniform_when_empty: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000000() { hr_h_field_uniform_when_empty_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000001() { hr_h_field_uniform_when_empty_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000002() { hr_h_field_uniform_when_empty_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000003() { hr_h_field_uniform_when_empty_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000004() { hr_h_field_uniform_when_empty_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000005() { hr_h_field_uniform_when_empty_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000006() { hr_h_field_uniform_when_empty_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000007() { hr_h_field_uniform_when_empty_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000008() { hr_h_field_uniform_when_empty_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000009() { hr_h_field_uniform_when_empty_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000010() { hr_h_field_uniform_when_empty_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000011() { hr_h_field_uniform_when_empty_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000012() { hr_h_field_uniform_when_empty_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000013() { hr_h_field_uniform_when_empty_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000014() { hr_h_field_uniform_when_empty_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000015() { hr_h_field_uniform_when_empty_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000016() { hr_h_field_uniform_when_empty_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000017() { hr_h_field_uniform_when_empty_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000018() { hr_h_field_uniform_when_empty_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000019() { hr_h_field_uniform_when_empty_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000020() { hr_h_field_uniform_when_empty_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000021() { hr_h_field_uniform_when_empty_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000022() { hr_h_field_uniform_when_empty_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_uniform_when_empty_seed_000023() { hr_h_field_uniform_when_empty_impl(23); }
+
+    // --- hr_h_field_cells_at_least_background: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000000() { hr_h_field_cells_at_least_background_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000001() { hr_h_field_cells_at_least_background_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000002() { hr_h_field_cells_at_least_background_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000003() { hr_h_field_cells_at_least_background_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000004() { hr_h_field_cells_at_least_background_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000005() { hr_h_field_cells_at_least_background_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000006() { hr_h_field_cells_at_least_background_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000007() { hr_h_field_cells_at_least_background_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000008() { hr_h_field_cells_at_least_background_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000009() { hr_h_field_cells_at_least_background_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000010() { hr_h_field_cells_at_least_background_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000011() { hr_h_field_cells_at_least_background_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000012() { hr_h_field_cells_at_least_background_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000013() { hr_h_field_cells_at_least_background_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000014() { hr_h_field_cells_at_least_background_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000015() { hr_h_field_cells_at_least_background_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000016() { hr_h_field_cells_at_least_background_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000017() { hr_h_field_cells_at_least_background_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000018() { hr_h_field_cells_at_least_background_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000019() { hr_h_field_cells_at_least_background_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000020() { hr_h_field_cells_at_least_background_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000021() { hr_h_field_cells_at_least_background_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000022() { hr_h_field_cells_at_least_background_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_cells_at_least_background_seed_000023() { hr_h_field_cells_at_least_background_impl(23); }
+
+    // --- hr_h_field_all_finite: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000000() { hr_h_field_all_finite_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000001() { hr_h_field_all_finite_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000002() { hr_h_field_all_finite_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000003() { hr_h_field_all_finite_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000004() { hr_h_field_all_finite_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000005() { hr_h_field_all_finite_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000006() { hr_h_field_all_finite_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000007() { hr_h_field_all_finite_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000008() { hr_h_field_all_finite_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000009() { hr_h_field_all_finite_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000010() { hr_h_field_all_finite_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000011() { hr_h_field_all_finite_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000012() { hr_h_field_all_finite_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000013() { hr_h_field_all_finite_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000014() { hr_h_field_all_finite_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000015() { hr_h_field_all_finite_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000016() { hr_h_field_all_finite_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000017() { hr_h_field_all_finite_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000018() { hr_h_field_all_finite_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000019() { hr_h_field_all_finite_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000020() { hr_h_field_all_finite_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000021() { hr_h_field_all_finite_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000022() { hr_h_field_all_finite_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_all_finite_seed_000023() { hr_h_field_all_finite_impl(23); }
+
+    // --- hr_h_field_zero_cs_raises: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000000() { hr_h_field_zero_cs_raises_impl(0); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000001() { hr_h_field_zero_cs_raises_impl(1); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000002() { hr_h_field_zero_cs_raises_impl(2); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000003() { hr_h_field_zero_cs_raises_impl(3); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000004() { hr_h_field_zero_cs_raises_impl(4); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000005() { hr_h_field_zero_cs_raises_impl(5); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000006() { hr_h_field_zero_cs_raises_impl(6); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000007() { hr_h_field_zero_cs_raises_impl(7); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000008() { hr_h_field_zero_cs_raises_impl(8); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000009() { hr_h_field_zero_cs_raises_impl(9); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000010() { hr_h_field_zero_cs_raises_impl(10); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000011() { hr_h_field_zero_cs_raises_impl(11); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000012() { hr_h_field_zero_cs_raises_impl(12); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000013() { hr_h_field_zero_cs_raises_impl(13); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000014() { hr_h_field_zero_cs_raises_impl(14); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000015() { hr_h_field_zero_cs_raises_impl(15); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000016() { hr_h_field_zero_cs_raises_impl(16); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000017() { hr_h_field_zero_cs_raises_impl(17); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000018() { hr_h_field_zero_cs_raises_impl(18); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000019() { hr_h_field_zero_cs_raises_impl(19); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000020() { hr_h_field_zero_cs_raises_impl(20); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000021() { hr_h_field_zero_cs_raises_impl(21); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000022() { hr_h_field_zero_cs_raises_impl(22); }
+    #[cfg_attr(test, test)]
+    fn hr_h_field_zero_cs_raises_seed_000023() { hr_h_field_zero_cs_raises_impl(23); }
+
+    // --- te_pairwise_sum_f32_agrees_naive_below_8: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000000() { te_pairwise_sum_f32_agrees_naive_below_8_impl(0); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000001() { te_pairwise_sum_f32_agrees_naive_below_8_impl(1); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000002() { te_pairwise_sum_f32_agrees_naive_below_8_impl(2); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000003() { te_pairwise_sum_f32_agrees_naive_below_8_impl(3); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000004() { te_pairwise_sum_f32_agrees_naive_below_8_impl(4); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000005() { te_pairwise_sum_f32_agrees_naive_below_8_impl(5); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000006() { te_pairwise_sum_f32_agrees_naive_below_8_impl(6); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000007() { te_pairwise_sum_f32_agrees_naive_below_8_impl(7); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000008() { te_pairwise_sum_f32_agrees_naive_below_8_impl(8); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000009() { te_pairwise_sum_f32_agrees_naive_below_8_impl(9); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000010() { te_pairwise_sum_f32_agrees_naive_below_8_impl(10); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000011() { te_pairwise_sum_f32_agrees_naive_below_8_impl(11); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000012() { te_pairwise_sum_f32_agrees_naive_below_8_impl(12); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000013() { te_pairwise_sum_f32_agrees_naive_below_8_impl(13); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000014() { te_pairwise_sum_f32_agrees_naive_below_8_impl(14); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000015() { te_pairwise_sum_f32_agrees_naive_below_8_impl(15); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000016() { te_pairwise_sum_f32_agrees_naive_below_8_impl(16); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000017() { te_pairwise_sum_f32_agrees_naive_below_8_impl(17); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000018() { te_pairwise_sum_f32_agrees_naive_below_8_impl(18); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000019() { te_pairwise_sum_f32_agrees_naive_below_8_impl(19); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000020() { te_pairwise_sum_f32_agrees_naive_below_8_impl(20); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000021() { te_pairwise_sum_f32_agrees_naive_below_8_impl(21); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000022() { te_pairwise_sum_f32_agrees_naive_below_8_impl(22); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_agrees_naive_below_8_seed_000023() { te_pairwise_sum_f32_agrees_naive_below_8_impl(23); }
+
+    // --- te_pairwise_sum_f32_finite_for_finite: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000000() { te_pairwise_sum_f32_finite_for_finite_impl(0); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000001() { te_pairwise_sum_f32_finite_for_finite_impl(1); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000002() { te_pairwise_sum_f32_finite_for_finite_impl(2); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000003() { te_pairwise_sum_f32_finite_for_finite_impl(3); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000004() { te_pairwise_sum_f32_finite_for_finite_impl(4); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000005() { te_pairwise_sum_f32_finite_for_finite_impl(5); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000006() { te_pairwise_sum_f32_finite_for_finite_impl(6); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000007() { te_pairwise_sum_f32_finite_for_finite_impl(7); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000008() { te_pairwise_sum_f32_finite_for_finite_impl(8); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000009() { te_pairwise_sum_f32_finite_for_finite_impl(9); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000010() { te_pairwise_sum_f32_finite_for_finite_impl(10); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000011() { te_pairwise_sum_f32_finite_for_finite_impl(11); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000012() { te_pairwise_sum_f32_finite_for_finite_impl(12); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000013() { te_pairwise_sum_f32_finite_for_finite_impl(13); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000014() { te_pairwise_sum_f32_finite_for_finite_impl(14); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000015() { te_pairwise_sum_f32_finite_for_finite_impl(15); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000016() { te_pairwise_sum_f32_finite_for_finite_impl(16); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000017() { te_pairwise_sum_f32_finite_for_finite_impl(17); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000018() { te_pairwise_sum_f32_finite_for_finite_impl(18); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000019() { te_pairwise_sum_f32_finite_for_finite_impl(19); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000020() { te_pairwise_sum_f32_finite_for_finite_impl(20); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000021() { te_pairwise_sum_f32_finite_for_finite_impl(21); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000022() { te_pairwise_sum_f32_finite_for_finite_impl(22); }
+    #[cfg_attr(test, test)]
+    fn te_pairwise_sum_f32_finite_for_finite_seed_000023() { te_pairwise_sum_f32_finite_for_finite_impl(23); }
+
+    // --- te_measure_empty_returns_ambient: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000000() { te_measure_empty_returns_ambient_impl(0); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000001() { te_measure_empty_returns_ambient_impl(1); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000002() { te_measure_empty_returns_ambient_impl(2); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000003() { te_measure_empty_returns_ambient_impl(3); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000004() { te_measure_empty_returns_ambient_impl(4); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000005() { te_measure_empty_returns_ambient_impl(5); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000006() { te_measure_empty_returns_ambient_impl(6); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000007() { te_measure_empty_returns_ambient_impl(7); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000008() { te_measure_empty_returns_ambient_impl(8); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000009() { te_measure_empty_returns_ambient_impl(9); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000010() { te_measure_empty_returns_ambient_impl(10); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000011() { te_measure_empty_returns_ambient_impl(11); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000012() { te_measure_empty_returns_ambient_impl(12); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000013() { te_measure_empty_returns_ambient_impl(13); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000014() { te_measure_empty_returns_ambient_impl(14); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000015() { te_measure_empty_returns_ambient_impl(15); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000016() { te_measure_empty_returns_ambient_impl(16); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000017() { te_measure_empty_returns_ambient_impl(17); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000018() { te_measure_empty_returns_ambient_impl(18); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000019() { te_measure_empty_returns_ambient_impl(19); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000020() { te_measure_empty_returns_ambient_impl(20); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000021() { te_measure_empty_returns_ambient_impl(21); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000022() { te_measure_empty_returns_ambient_impl(22); }
+    #[cfg_attr(test, test)]
+    fn te_measure_empty_returns_ambient_seed_000023() { te_measure_empty_returns_ambient_impl(23); }
+
+    // --- te_measure_finite_for_finite_inputs: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000000() { te_measure_finite_for_finite_inputs_impl(0); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000001() { te_measure_finite_for_finite_inputs_impl(1); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000002() { te_measure_finite_for_finite_inputs_impl(2); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000003() { te_measure_finite_for_finite_inputs_impl(3); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000004() { te_measure_finite_for_finite_inputs_impl(4); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000005() { te_measure_finite_for_finite_inputs_impl(5); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000006() { te_measure_finite_for_finite_inputs_impl(6); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000007() { te_measure_finite_for_finite_inputs_impl(7); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000008() { te_measure_finite_for_finite_inputs_impl(8); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000009() { te_measure_finite_for_finite_inputs_impl(9); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000010() { te_measure_finite_for_finite_inputs_impl(10); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000011() { te_measure_finite_for_finite_inputs_impl(11); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000012() { te_measure_finite_for_finite_inputs_impl(12); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000013() { te_measure_finite_for_finite_inputs_impl(13); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000014() { te_measure_finite_for_finite_inputs_impl(14); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000015() { te_measure_finite_for_finite_inputs_impl(15); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000016() { te_measure_finite_for_finite_inputs_impl(16); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000017() { te_measure_finite_for_finite_inputs_impl(17); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000018() { te_measure_finite_for_finite_inputs_impl(18); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000019() { te_measure_finite_for_finite_inputs_impl(19); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000020() { te_measure_finite_for_finite_inputs_impl(20); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000021() { te_measure_finite_for_finite_inputs_impl(21); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000022() { te_measure_finite_for_finite_inputs_impl(22); }
+    #[cfg_attr(test, test)]
+    fn te_measure_finite_for_finite_inputs_seed_000023() { te_measure_finite_for_finite_inputs_impl(23); }
+
+    // --- te_max_tj_at_least_ambient: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000000() { te_max_tj_at_least_ambient_impl(0); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000001() { te_max_tj_at_least_ambient_impl(1); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000002() { te_max_tj_at_least_ambient_impl(2); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000003() { te_max_tj_at_least_ambient_impl(3); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000004() { te_max_tj_at_least_ambient_impl(4); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000005() { te_max_tj_at_least_ambient_impl(5); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000006() { te_max_tj_at_least_ambient_impl(6); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000007() { te_max_tj_at_least_ambient_impl(7); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000008() { te_max_tj_at_least_ambient_impl(8); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000009() { te_max_tj_at_least_ambient_impl(9); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000010() { te_max_tj_at_least_ambient_impl(10); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000011() { te_max_tj_at_least_ambient_impl(11); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000012() { te_max_tj_at_least_ambient_impl(12); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000013() { te_max_tj_at_least_ambient_impl(13); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000014() { te_max_tj_at_least_ambient_impl(14); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000015() { te_max_tj_at_least_ambient_impl(15); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000016() { te_max_tj_at_least_ambient_impl(16); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000017() { te_max_tj_at_least_ambient_impl(17); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000018() { te_max_tj_at_least_ambient_impl(18); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000019() { te_max_tj_at_least_ambient_impl(19); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000020() { te_max_tj_at_least_ambient_impl(20); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000021() { te_max_tj_at_least_ambient_impl(21); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000022() { te_max_tj_at_least_ambient_impl(22); }
+    #[cfg_attr(test, test)]
+    fn te_max_tj_at_least_ambient_seed_000023() { te_max_tj_at_least_ambient_impl(23); }
+
+    // --- te_measure_deterministic: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000000() { te_measure_deterministic_impl(0); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000001() { te_measure_deterministic_impl(1); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000002() { te_measure_deterministic_impl(2); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000003() { te_measure_deterministic_impl(3); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000004() { te_measure_deterministic_impl(4); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000005() { te_measure_deterministic_impl(5); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000006() { te_measure_deterministic_impl(6); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000007() { te_measure_deterministic_impl(7); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000008() { te_measure_deterministic_impl(8); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000009() { te_measure_deterministic_impl(9); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000010() { te_measure_deterministic_impl(10); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000011() { te_measure_deterministic_impl(11); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000012() { te_measure_deterministic_impl(12); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000013() { te_measure_deterministic_impl(13); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000014() { te_measure_deterministic_impl(14); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000015() { te_measure_deterministic_impl(15); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000016() { te_measure_deterministic_impl(16); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000017() { te_measure_deterministic_impl(17); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000018() { te_measure_deterministic_impl(18); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000019() { te_measure_deterministic_impl(19); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000020() { te_measure_deterministic_impl(20); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000021() { te_measure_deterministic_impl(21); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000022() { te_measure_deterministic_impl(22); }
+    #[cfg_attr(test, test)]
+    fn te_measure_deterministic_seed_000023() { te_measure_deterministic_impl(23); }
+
+    // --- ls_length_correct: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000000() { ls_length_correct_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000001() { ls_length_correct_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000002() { ls_length_correct_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000003() { ls_length_correct_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000004() { ls_length_correct_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000005() { ls_length_correct_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000006() { ls_length_correct_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000007() { ls_length_correct_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000008() { ls_length_correct_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000009() { ls_length_correct_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000010() { ls_length_correct_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000011() { ls_length_correct_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000012() { ls_length_correct_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000013() { ls_length_correct_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000014() { ls_length_correct_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000015() { ls_length_correct_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000016() { ls_length_correct_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000017() { ls_length_correct_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000018() { ls_length_correct_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000019() { ls_length_correct_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000020() { ls_length_correct_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000021() { ls_length_correct_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000022() { ls_length_correct_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ls_length_correct_seed_000023() { ls_length_correct_impl(23); }
+
+    // --- ls_endpoints_exact: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000000() { ls_endpoints_exact_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000001() { ls_endpoints_exact_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000002() { ls_endpoints_exact_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000003() { ls_endpoints_exact_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000004() { ls_endpoints_exact_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000005() { ls_endpoints_exact_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000006() { ls_endpoints_exact_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000007() { ls_endpoints_exact_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000008() { ls_endpoints_exact_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000009() { ls_endpoints_exact_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000010() { ls_endpoints_exact_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000011() { ls_endpoints_exact_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000012() { ls_endpoints_exact_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000013() { ls_endpoints_exact_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000014() { ls_endpoints_exact_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000015() { ls_endpoints_exact_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000016() { ls_endpoints_exact_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000017() { ls_endpoints_exact_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000018() { ls_endpoints_exact_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000019() { ls_endpoints_exact_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000020() { ls_endpoints_exact_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000021() { ls_endpoints_exact_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000022() { ls_endpoints_exact_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ls_endpoints_exact_seed_000023() { ls_endpoints_exact_impl(23); }
+
+    // --- ls_single_element_is_start: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000000() { ls_single_element_is_start_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000001() { ls_single_element_is_start_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000002() { ls_single_element_is_start_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000003() { ls_single_element_is_start_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000004() { ls_single_element_is_start_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000005() { ls_single_element_is_start_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000006() { ls_single_element_is_start_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000007() { ls_single_element_is_start_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000008() { ls_single_element_is_start_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000009() { ls_single_element_is_start_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000010() { ls_single_element_is_start_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000011() { ls_single_element_is_start_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000012() { ls_single_element_is_start_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000013() { ls_single_element_is_start_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000014() { ls_single_element_is_start_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000015() { ls_single_element_is_start_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000016() { ls_single_element_is_start_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000017() { ls_single_element_is_start_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000018() { ls_single_element_is_start_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000019() { ls_single_element_is_start_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000020() { ls_single_element_is_start_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000021() { ls_single_element_is_start_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000022() { ls_single_element_is_start_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ls_single_element_is_start_seed_000023() { ls_single_element_is_start_impl(23); }
+
+    // --- ls_monotonic_increasing: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000000() { ls_monotonic_increasing_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000001() { ls_monotonic_increasing_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000002() { ls_monotonic_increasing_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000003() { ls_monotonic_increasing_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000004() { ls_monotonic_increasing_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000005() { ls_monotonic_increasing_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000006() { ls_monotonic_increasing_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000007() { ls_monotonic_increasing_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000008() { ls_monotonic_increasing_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000009() { ls_monotonic_increasing_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000010() { ls_monotonic_increasing_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000011() { ls_monotonic_increasing_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000012() { ls_monotonic_increasing_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000013() { ls_monotonic_increasing_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000014() { ls_monotonic_increasing_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000015() { ls_monotonic_increasing_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000016() { ls_monotonic_increasing_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000017() { ls_monotonic_increasing_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000018() { ls_monotonic_increasing_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000019() { ls_monotonic_increasing_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000020() { ls_monotonic_increasing_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000021() { ls_monotonic_increasing_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000022() { ls_monotonic_increasing_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ls_monotonic_increasing_seed_000023() { ls_monotonic_increasing_impl(23); }
+
+    // --- ls_degenerate_constant: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000000() { ls_degenerate_constant_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000001() { ls_degenerate_constant_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000002() { ls_degenerate_constant_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000003() { ls_degenerate_constant_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000004() { ls_degenerate_constant_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000005() { ls_degenerate_constant_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000006() { ls_degenerate_constant_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000007() { ls_degenerate_constant_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000008() { ls_degenerate_constant_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000009() { ls_degenerate_constant_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000010() { ls_degenerate_constant_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000011() { ls_degenerate_constant_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000012() { ls_degenerate_constant_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000013() { ls_degenerate_constant_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000014() { ls_degenerate_constant_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000015() { ls_degenerate_constant_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000016() { ls_degenerate_constant_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000017() { ls_degenerate_constant_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000018() { ls_degenerate_constant_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000019() { ls_degenerate_constant_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000020() { ls_degenerate_constant_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000021() { ls_degenerate_constant_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000022() { ls_degenerate_constant_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ls_degenerate_constant_seed_000023() { ls_degenerate_constant_impl(23); }
+
+    // --- ls_all_finite: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000000() { ls_all_finite_impl(0); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000001() { ls_all_finite_impl(1); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000002() { ls_all_finite_impl(2); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000003() { ls_all_finite_impl(3); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000004() { ls_all_finite_impl(4); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000005() { ls_all_finite_impl(5); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000006() { ls_all_finite_impl(6); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000007() { ls_all_finite_impl(7); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000008() { ls_all_finite_impl(8); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000009() { ls_all_finite_impl(9); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000010() { ls_all_finite_impl(10); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000011() { ls_all_finite_impl(11); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000012() { ls_all_finite_impl(12); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000013() { ls_all_finite_impl(13); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000014() { ls_all_finite_impl(14); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000015() { ls_all_finite_impl(15); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000016() { ls_all_finite_impl(16); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000017() { ls_all_finite_impl(17); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000018() { ls_all_finite_impl(18); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000019() { ls_all_finite_impl(19); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000020() { ls_all_finite_impl(20); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000021() { ls_all_finite_impl(21); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000022() { ls_all_finite_impl(22); }
+    #[cfg_attr(test, test)]
+    fn ls_all_finite_seed_000023() { ls_all_finite_impl(23); }
+
+    // --- fp_edge_non_negative_finite: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000000() { fp_edge_non_negative_finite_impl(0); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000001() { fp_edge_non_negative_finite_impl(1); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000002() { fp_edge_non_negative_finite_impl(2); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000003() { fp_edge_non_negative_finite_impl(3); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000004() { fp_edge_non_negative_finite_impl(4); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000005() { fp_edge_non_negative_finite_impl(5); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000006() { fp_edge_non_negative_finite_impl(6); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000007() { fp_edge_non_negative_finite_impl(7); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000008() { fp_edge_non_negative_finite_impl(8); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000009() { fp_edge_non_negative_finite_impl(9); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000010() { fp_edge_non_negative_finite_impl(10); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000011() { fp_edge_non_negative_finite_impl(11); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000012() { fp_edge_non_negative_finite_impl(12); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000013() { fp_edge_non_negative_finite_impl(13); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000014() { fp_edge_non_negative_finite_impl(14); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000015() { fp_edge_non_negative_finite_impl(15); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000016() { fp_edge_non_negative_finite_impl(16); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000017() { fp_edge_non_negative_finite_impl(17); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000018() { fp_edge_non_negative_finite_impl(18); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000019() { fp_edge_non_negative_finite_impl(19); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000020() { fp_edge_non_negative_finite_impl(20); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000021() { fp_edge_non_negative_finite_impl(21); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000022() { fp_edge_non_negative_finite_impl(22); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_non_negative_finite_seed_000023() { fp_edge_non_negative_finite_impl(23); }
+
+    // --- fp_edge_top_row_is_minimal: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000000() { fp_edge_top_row_is_minimal_impl(0); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000001() { fp_edge_top_row_is_minimal_impl(1); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000002() { fp_edge_top_row_is_minimal_impl(2); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000003() { fp_edge_top_row_is_minimal_impl(3); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000004() { fp_edge_top_row_is_minimal_impl(4); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000005() { fp_edge_top_row_is_minimal_impl(5); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000006() { fp_edge_top_row_is_minimal_impl(6); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000007() { fp_edge_top_row_is_minimal_impl(7); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000008() { fp_edge_top_row_is_minimal_impl(8); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000009() { fp_edge_top_row_is_minimal_impl(9); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000010() { fp_edge_top_row_is_minimal_impl(10); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000011() { fp_edge_top_row_is_minimal_impl(11); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000012() { fp_edge_top_row_is_minimal_impl(12); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000013() { fp_edge_top_row_is_minimal_impl(13); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000014() { fp_edge_top_row_is_minimal_impl(14); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000015() { fp_edge_top_row_is_minimal_impl(15); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000016() { fp_edge_top_row_is_minimal_impl(16); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000017() { fp_edge_top_row_is_minimal_impl(17); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000018() { fp_edge_top_row_is_minimal_impl(18); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000019() { fp_edge_top_row_is_minimal_impl(19); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000020() { fp_edge_top_row_is_minimal_impl(20); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000021() { fp_edge_top_row_is_minimal_impl(21); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000022() { fp_edge_top_row_is_minimal_impl(22); }
+    #[cfg_attr(test, test)]
+    fn fp_edge_top_row_is_minimal_seed_000023() { fp_edge_top_row_is_minimal_impl(23); }
+
+    // --- fp_coupling_empty_is_zero: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000000() { fp_coupling_empty_is_zero_impl(0); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000001() { fp_coupling_empty_is_zero_impl(1); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000002() { fp_coupling_empty_is_zero_impl(2); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000003() { fp_coupling_empty_is_zero_impl(3); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000004() { fp_coupling_empty_is_zero_impl(4); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000005() { fp_coupling_empty_is_zero_impl(5); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000006() { fp_coupling_empty_is_zero_impl(6); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000007() { fp_coupling_empty_is_zero_impl(7); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000008() { fp_coupling_empty_is_zero_impl(8); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000009() { fp_coupling_empty_is_zero_impl(9); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000010() { fp_coupling_empty_is_zero_impl(10); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000011() { fp_coupling_empty_is_zero_impl(11); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000012() { fp_coupling_empty_is_zero_impl(12); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000013() { fp_coupling_empty_is_zero_impl(13); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000014() { fp_coupling_empty_is_zero_impl(14); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000015() { fp_coupling_empty_is_zero_impl(15); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000016() { fp_coupling_empty_is_zero_impl(16); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000017() { fp_coupling_empty_is_zero_impl(17); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000018() { fp_coupling_empty_is_zero_impl(18); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000019() { fp_coupling_empty_is_zero_impl(19); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000020() { fp_coupling_empty_is_zero_impl(20); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000021() { fp_coupling_empty_is_zero_impl(21); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000022() { fp_coupling_empty_is_zero_impl(22); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_empty_is_zero_seed_000023() { fp_coupling_empty_is_zero_impl(23); }
+
+    // --- fp_coupling_finite_for_moderate_power: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000000() { fp_coupling_finite_for_moderate_power_impl(0); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000001() { fp_coupling_finite_for_moderate_power_impl(1); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000002() { fp_coupling_finite_for_moderate_power_impl(2); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000003() { fp_coupling_finite_for_moderate_power_impl(3); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000004() { fp_coupling_finite_for_moderate_power_impl(4); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000005() { fp_coupling_finite_for_moderate_power_impl(5); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000006() { fp_coupling_finite_for_moderate_power_impl(6); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000007() { fp_coupling_finite_for_moderate_power_impl(7); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000008() { fp_coupling_finite_for_moderate_power_impl(8); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000009() { fp_coupling_finite_for_moderate_power_impl(9); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000010() { fp_coupling_finite_for_moderate_power_impl(10); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000011() { fp_coupling_finite_for_moderate_power_impl(11); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000012() { fp_coupling_finite_for_moderate_power_impl(12); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000013() { fp_coupling_finite_for_moderate_power_impl(13); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000014() { fp_coupling_finite_for_moderate_power_impl(14); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000015() { fp_coupling_finite_for_moderate_power_impl(15); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000016() { fp_coupling_finite_for_moderate_power_impl(16); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000017() { fp_coupling_finite_for_moderate_power_impl(17); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000018() { fp_coupling_finite_for_moderate_power_impl(18); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000019() { fp_coupling_finite_for_moderate_power_impl(19); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000020() { fp_coupling_finite_for_moderate_power_impl(20); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000021() { fp_coupling_finite_for_moderate_power_impl(21); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000022() { fp_coupling_finite_for_moderate_power_impl(22); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_finite_for_moderate_power_seed_000023() { fp_coupling_finite_for_moderate_power_impl(23); }
+
+    // --- fp_coupling_peaks_at_device: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000000() { fp_coupling_peaks_at_device_impl(0); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000001() { fp_coupling_peaks_at_device_impl(1); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000002() { fp_coupling_peaks_at_device_impl(2); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000003() { fp_coupling_peaks_at_device_impl(3); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000004() { fp_coupling_peaks_at_device_impl(4); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000005() { fp_coupling_peaks_at_device_impl(5); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000006() { fp_coupling_peaks_at_device_impl(6); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000007() { fp_coupling_peaks_at_device_impl(7); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000008() { fp_coupling_peaks_at_device_impl(8); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000009() { fp_coupling_peaks_at_device_impl(9); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000010() { fp_coupling_peaks_at_device_impl(10); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000011() { fp_coupling_peaks_at_device_impl(11); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000012() { fp_coupling_peaks_at_device_impl(12); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000013() { fp_coupling_peaks_at_device_impl(13); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000014() { fp_coupling_peaks_at_device_impl(14); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000015() { fp_coupling_peaks_at_device_impl(15); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000016() { fp_coupling_peaks_at_device_impl(16); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000017() { fp_coupling_peaks_at_device_impl(17); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000018() { fp_coupling_peaks_at_device_impl(18); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000019() { fp_coupling_peaks_at_device_impl(19); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000020() { fp_coupling_peaks_at_device_impl(20); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000021() { fp_coupling_peaks_at_device_impl(21); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000022() { fp_coupling_peaks_at_device_impl(22); }
+    #[cfg_attr(test, test)]
+    fn fp_coupling_peaks_at_device_seed_000023() { fp_coupling_peaks_at_device_impl(23); }
+
+    // --- fp_exclusion_non_negative: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000000() { fp_exclusion_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000001() { fp_exclusion_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000002() { fp_exclusion_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000003() { fp_exclusion_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000004() { fp_exclusion_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000005() { fp_exclusion_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000006() { fp_exclusion_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000007() { fp_exclusion_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000008() { fp_exclusion_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000009() { fp_exclusion_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000010() { fp_exclusion_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000011() { fp_exclusion_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000012() { fp_exclusion_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000013() { fp_exclusion_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000014() { fp_exclusion_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000015() { fp_exclusion_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000016() { fp_exclusion_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000017() { fp_exclusion_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000018() { fp_exclusion_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000019() { fp_exclusion_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000020() { fp_exclusion_non_negative_impl(20); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000021() { fp_exclusion_non_negative_impl(21); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000022() { fp_exclusion_non_negative_impl(22); }
+    #[cfg_attr(test, test)]
+    fn fp_exclusion_non_negative_seed_000023() { fp_exclusion_non_negative_impl(23); }
+
+    // --- fp_convection_nan_magnitude_is_nan_field: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000000() { fp_convection_nan_magnitude_is_nan_field_impl(0); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000001() { fp_convection_nan_magnitude_is_nan_field_impl(1); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000002() { fp_convection_nan_magnitude_is_nan_field_impl(2); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000003() { fp_convection_nan_magnitude_is_nan_field_impl(3); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000004() { fp_convection_nan_magnitude_is_nan_field_impl(4); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000005() { fp_convection_nan_magnitude_is_nan_field_impl(5); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000006() { fp_convection_nan_magnitude_is_nan_field_impl(6); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000007() { fp_convection_nan_magnitude_is_nan_field_impl(7); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000008() { fp_convection_nan_magnitude_is_nan_field_impl(8); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000009() { fp_convection_nan_magnitude_is_nan_field_impl(9); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000010() { fp_convection_nan_magnitude_is_nan_field_impl(10); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000011() { fp_convection_nan_magnitude_is_nan_field_impl(11); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000012() { fp_convection_nan_magnitude_is_nan_field_impl(12); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000013() { fp_convection_nan_magnitude_is_nan_field_impl(13); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000014() { fp_convection_nan_magnitude_is_nan_field_impl(14); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000015() { fp_convection_nan_magnitude_is_nan_field_impl(15); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000016() { fp_convection_nan_magnitude_is_nan_field_impl(16); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000017() { fp_convection_nan_magnitude_is_nan_field_impl(17); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000018() { fp_convection_nan_magnitude_is_nan_field_impl(18); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000019() { fp_convection_nan_magnitude_is_nan_field_impl(19); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000020() { fp_convection_nan_magnitude_is_nan_field_impl(20); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000021() { fp_convection_nan_magnitude_is_nan_field_impl(21); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000022() { fp_convection_nan_magnitude_is_nan_field_impl(22); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_nan_magnitude_is_nan_field_seed_000023() { fp_convection_nan_magnitude_is_nan_field_impl(23); }
+
+    // --- fp_convection_zero_or_negative_is_zero: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000000() { fp_convection_zero_or_negative_is_zero_impl(0); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000001() { fp_convection_zero_or_negative_is_zero_impl(1); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000002() { fp_convection_zero_or_negative_is_zero_impl(2); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000003() { fp_convection_zero_or_negative_is_zero_impl(3); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000004() { fp_convection_zero_or_negative_is_zero_impl(4); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000005() { fp_convection_zero_or_negative_is_zero_impl(5); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000006() { fp_convection_zero_or_negative_is_zero_impl(6); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000007() { fp_convection_zero_or_negative_is_zero_impl(7); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000008() { fp_convection_zero_or_negative_is_zero_impl(8); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000009() { fp_convection_zero_or_negative_is_zero_impl(9); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000010() { fp_convection_zero_or_negative_is_zero_impl(10); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000011() { fp_convection_zero_or_negative_is_zero_impl(11); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000012() { fp_convection_zero_or_negative_is_zero_impl(12); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000013() { fp_convection_zero_or_negative_is_zero_impl(13); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000014() { fp_convection_zero_or_negative_is_zero_impl(14); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000015() { fp_convection_zero_or_negative_is_zero_impl(15); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000016() { fp_convection_zero_or_negative_is_zero_impl(16); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000017() { fp_convection_zero_or_negative_is_zero_impl(17); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000018() { fp_convection_zero_or_negative_is_zero_impl(18); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000019() { fp_convection_zero_or_negative_is_zero_impl(19); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000020() { fp_convection_zero_or_negative_is_zero_impl(20); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000021() { fp_convection_zero_or_negative_is_zero_impl(21); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000022() { fp_convection_zero_or_negative_is_zero_impl(22); }
+    #[cfg_attr(test, test)]
+    fn fp_convection_zero_or_negative_is_zero_seed_000023() { fp_convection_zero_or_negative_is_zero_impl(23); }
+
+    // --- fp_grid_dimensions: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000000() { fp_grid_dimensions_impl(0); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000001() { fp_grid_dimensions_impl(1); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000002() { fp_grid_dimensions_impl(2); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000003() { fp_grid_dimensions_impl(3); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000004() { fp_grid_dimensions_impl(4); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000005() { fp_grid_dimensions_impl(5); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000006() { fp_grid_dimensions_impl(6); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000007() { fp_grid_dimensions_impl(7); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000008() { fp_grid_dimensions_impl(8); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000009() { fp_grid_dimensions_impl(9); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000010() { fp_grid_dimensions_impl(10); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000011() { fp_grid_dimensions_impl(11); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000012() { fp_grid_dimensions_impl(12); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000013() { fp_grid_dimensions_impl(13); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000014() { fp_grid_dimensions_impl(14); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000015() { fp_grid_dimensions_impl(15); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000016() { fp_grid_dimensions_impl(16); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000017() { fp_grid_dimensions_impl(17); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000018() { fp_grid_dimensions_impl(18); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000019() { fp_grid_dimensions_impl(19); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000020() { fp_grid_dimensions_impl(20); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000021() { fp_grid_dimensions_impl(21); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000022() { fp_grid_dimensions_impl(22); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_dimensions_seed_000023() { fp_grid_dimensions_impl(23); }
+
+    // --- fp_grid_xy_convention: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000000() { fp_grid_xy_convention_impl(0); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000001() { fp_grid_xy_convention_impl(1); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000002() { fp_grid_xy_convention_impl(2); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000003() { fp_grid_xy_convention_impl(3); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000004() { fp_grid_xy_convention_impl(4); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000005() { fp_grid_xy_convention_impl(5); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000006() { fp_grid_xy_convention_impl(6); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000007() { fp_grid_xy_convention_impl(7); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000008() { fp_grid_xy_convention_impl(8); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000009() { fp_grid_xy_convention_impl(9); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000010() { fp_grid_xy_convention_impl(10); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000011() { fp_grid_xy_convention_impl(11); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000012() { fp_grid_xy_convention_impl(12); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000013() { fp_grid_xy_convention_impl(13); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000014() { fp_grid_xy_convention_impl(14); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000015() { fp_grid_xy_convention_impl(15); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000016() { fp_grid_xy_convention_impl(16); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000017() { fp_grid_xy_convention_impl(17); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000018() { fp_grid_xy_convention_impl(18); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000019() { fp_grid_xy_convention_impl(19); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000020() { fp_grid_xy_convention_impl(20); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000021() { fp_grid_xy_convention_impl(21); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000022() { fp_grid_xy_convention_impl(22); }
+    #[cfg_attr(test, test)]
+    fn fp_grid_xy_convention_seed_000023() { fp_grid_xy_convention_impl(23); }
+
+    // --- uq_search_free_x_non_positive_offset_none: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000000() { uq_search_free_x_non_positive_offset_none_impl(0); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000001() { uq_search_free_x_non_positive_offset_none_impl(1); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000002() { uq_search_free_x_non_positive_offset_none_impl(2); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000003() { uq_search_free_x_non_positive_offset_none_impl(3); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000004() { uq_search_free_x_non_positive_offset_none_impl(4); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000005() { uq_search_free_x_non_positive_offset_none_impl(5); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000006() { uq_search_free_x_non_positive_offset_none_impl(6); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000007() { uq_search_free_x_non_positive_offset_none_impl(7); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000008() { uq_search_free_x_non_positive_offset_none_impl(8); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000009() { uq_search_free_x_non_positive_offset_none_impl(9); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000010() { uq_search_free_x_non_positive_offset_none_impl(10); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000011() { uq_search_free_x_non_positive_offset_none_impl(11); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000012() { uq_search_free_x_non_positive_offset_none_impl(12); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000013() { uq_search_free_x_non_positive_offset_none_impl(13); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000014() { uq_search_free_x_non_positive_offset_none_impl(14); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000015() { uq_search_free_x_non_positive_offset_none_impl(15); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000016() { uq_search_free_x_non_positive_offset_none_impl(16); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000017() { uq_search_free_x_non_positive_offset_none_impl(17); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000018() { uq_search_free_x_non_positive_offset_none_impl(18); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000019() { uq_search_free_x_non_positive_offset_none_impl(19); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000020() { uq_search_free_x_non_positive_offset_none_impl(20); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000021() { uq_search_free_x_non_positive_offset_none_impl(21); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000022() { uq_search_free_x_non_positive_offset_none_impl(22); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_non_positive_offset_none_seed_000023() { uq_search_free_x_non_positive_offset_none_impl(23); }
+
+    // --- uq_search_free_x_nan_offset_none: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000000() { uq_search_free_x_nan_offset_none_impl(0); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000001() { uq_search_free_x_nan_offset_none_impl(1); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000002() { uq_search_free_x_nan_offset_none_impl(2); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000003() { uq_search_free_x_nan_offset_none_impl(3); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000004() { uq_search_free_x_nan_offset_none_impl(4); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000005() { uq_search_free_x_nan_offset_none_impl(5); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000006() { uq_search_free_x_nan_offset_none_impl(6); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000007() { uq_search_free_x_nan_offset_none_impl(7); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000008() { uq_search_free_x_nan_offset_none_impl(8); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000009() { uq_search_free_x_nan_offset_none_impl(9); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000010() { uq_search_free_x_nan_offset_none_impl(10); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000011() { uq_search_free_x_nan_offset_none_impl(11); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000012() { uq_search_free_x_nan_offset_none_impl(12); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000013() { uq_search_free_x_nan_offset_none_impl(13); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000014() { uq_search_free_x_nan_offset_none_impl(14); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000015() { uq_search_free_x_nan_offset_none_impl(15); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000016() { uq_search_free_x_nan_offset_none_impl(16); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000017() { uq_search_free_x_nan_offset_none_impl(17); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000018() { uq_search_free_x_nan_offset_none_impl(18); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000019() { uq_search_free_x_nan_offset_none_impl(19); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000020() { uq_search_free_x_nan_offset_none_impl(20); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000021() { uq_search_free_x_nan_offset_none_impl(21); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000022() { uq_search_free_x_nan_offset_none_impl(22); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_nan_offset_none_seed_000023() { uq_search_free_x_nan_offset_none_impl(23); }
+
+    // --- uq_search_free_x_found_within_bounds: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000000() { uq_search_free_x_found_within_bounds_impl(0); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000001() { uq_search_free_x_found_within_bounds_impl(1); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000002() { uq_search_free_x_found_within_bounds_impl(2); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000003() { uq_search_free_x_found_within_bounds_impl(3); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000004() { uq_search_free_x_found_within_bounds_impl(4); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000005() { uq_search_free_x_found_within_bounds_impl(5); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000006() { uq_search_free_x_found_within_bounds_impl(6); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000007() { uq_search_free_x_found_within_bounds_impl(7); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000008() { uq_search_free_x_found_within_bounds_impl(8); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000009() { uq_search_free_x_found_within_bounds_impl(9); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000010() { uq_search_free_x_found_within_bounds_impl(10); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000011() { uq_search_free_x_found_within_bounds_impl(11); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000012() { uq_search_free_x_found_within_bounds_impl(12); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000013() { uq_search_free_x_found_within_bounds_impl(13); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000014() { uq_search_free_x_found_within_bounds_impl(14); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000015() { uq_search_free_x_found_within_bounds_impl(15); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000016() { uq_search_free_x_found_within_bounds_impl(16); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000017() { uq_search_free_x_found_within_bounds_impl(17); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000018() { uq_search_free_x_found_within_bounds_impl(18); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000019() { uq_search_free_x_found_within_bounds_impl(19); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000020() { uq_search_free_x_found_within_bounds_impl(20); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000021() { uq_search_free_x_found_within_bounds_impl(21); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000022() { uq_search_free_x_found_within_bounds_impl(22); }
+    #[cfg_attr(test, test)]
+    fn uq_search_free_x_found_within_bounds_seed_000023() { uq_search_free_x_found_within_bounds_impl(23); }
+
+    // --- uq_enforce_unique_no_violations: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000000() { uq_enforce_unique_no_violations_impl(0); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000001() { uq_enforce_unique_no_violations_impl(1); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000002() { uq_enforce_unique_no_violations_impl(2); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000003() { uq_enforce_unique_no_violations_impl(3); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000004() { uq_enforce_unique_no_violations_impl(4); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000005() { uq_enforce_unique_no_violations_impl(5); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000006() { uq_enforce_unique_no_violations_impl(6); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000007() { uq_enforce_unique_no_violations_impl(7); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000008() { uq_enforce_unique_no_violations_impl(8); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000009() { uq_enforce_unique_no_violations_impl(9); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000010() { uq_enforce_unique_no_violations_impl(10); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000011() { uq_enforce_unique_no_violations_impl(11); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000012() { uq_enforce_unique_no_violations_impl(12); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000013() { uq_enforce_unique_no_violations_impl(13); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000014() { uq_enforce_unique_no_violations_impl(14); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000015() { uq_enforce_unique_no_violations_impl(15); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000016() { uq_enforce_unique_no_violations_impl(16); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000017() { uq_enforce_unique_no_violations_impl(17); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000018() { uq_enforce_unique_no_violations_impl(18); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000019() { uq_enforce_unique_no_violations_impl(19); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000020() { uq_enforce_unique_no_violations_impl(20); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000021() { uq_enforce_unique_no_violations_impl(21); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000022() { uq_enforce_unique_no_violations_impl(22); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_no_violations_seed_000023() { uq_enforce_unique_no_violations_impl(23); }
+
+    // --- uq_enforce_unique_noop_when_already_unique: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000000() { uq_enforce_unique_noop_when_already_unique_impl(0); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000001() { uq_enforce_unique_noop_when_already_unique_impl(1); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000002() { uq_enforce_unique_noop_when_already_unique_impl(2); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000003() { uq_enforce_unique_noop_when_already_unique_impl(3); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000004() { uq_enforce_unique_noop_when_already_unique_impl(4); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000005() { uq_enforce_unique_noop_when_already_unique_impl(5); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000006() { uq_enforce_unique_noop_when_already_unique_impl(6); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000007() { uq_enforce_unique_noop_when_already_unique_impl(7); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000008() { uq_enforce_unique_noop_when_already_unique_impl(8); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000009() { uq_enforce_unique_noop_when_already_unique_impl(9); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000010() { uq_enforce_unique_noop_when_already_unique_impl(10); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000011() { uq_enforce_unique_noop_when_already_unique_impl(11); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000012() { uq_enforce_unique_noop_when_already_unique_impl(12); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000013() { uq_enforce_unique_noop_when_already_unique_impl(13); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000014() { uq_enforce_unique_noop_when_already_unique_impl(14); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000015() { uq_enforce_unique_noop_when_already_unique_impl(15); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000016() { uq_enforce_unique_noop_when_already_unique_impl(16); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000017() { uq_enforce_unique_noop_when_already_unique_impl(17); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000018() { uq_enforce_unique_noop_when_already_unique_impl(18); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000019() { uq_enforce_unique_noop_when_already_unique_impl(19); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000020() { uq_enforce_unique_noop_when_already_unique_impl(20); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000021() { uq_enforce_unique_noop_when_already_unique_impl(21); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000022() { uq_enforce_unique_noop_when_already_unique_impl(22); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_noop_when_already_unique_seed_000023() { uq_enforce_unique_noop_when_already_unique_impl(23); }
+
+    // --- uq_enforce_unique_stays_in_bounds: 24 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000000() { uq_enforce_unique_stays_in_bounds_impl(0); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000001() { uq_enforce_unique_stays_in_bounds_impl(1); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000002() { uq_enforce_unique_stays_in_bounds_impl(2); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000003() { uq_enforce_unique_stays_in_bounds_impl(3); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000004() { uq_enforce_unique_stays_in_bounds_impl(4); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000005() { uq_enforce_unique_stays_in_bounds_impl(5); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000006() { uq_enforce_unique_stays_in_bounds_impl(6); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000007() { uq_enforce_unique_stays_in_bounds_impl(7); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000008() { uq_enforce_unique_stays_in_bounds_impl(8); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000009() { uq_enforce_unique_stays_in_bounds_impl(9); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000010() { uq_enforce_unique_stays_in_bounds_impl(10); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000011() { uq_enforce_unique_stays_in_bounds_impl(11); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000012() { uq_enforce_unique_stays_in_bounds_impl(12); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000013() { uq_enforce_unique_stays_in_bounds_impl(13); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000014() { uq_enforce_unique_stays_in_bounds_impl(14); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000015() { uq_enforce_unique_stays_in_bounds_impl(15); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000016() { uq_enforce_unique_stays_in_bounds_impl(16); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000017() { uq_enforce_unique_stays_in_bounds_impl(17); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000018() { uq_enforce_unique_stays_in_bounds_impl(18); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000019() { uq_enforce_unique_stays_in_bounds_impl(19); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000020() { uq_enforce_unique_stays_in_bounds_impl(20); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000021() { uq_enforce_unique_stays_in_bounds_impl(21); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000022() { uq_enforce_unique_stays_in_bounds_impl(22); }
+    #[cfg_attr(test, test)]
+    fn uq_enforce_unique_stays_in_bounds_seed_000023() { uq_enforce_unique_stays_in_bounds_impl(23); }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -5272,6 +8465,1110 @@ pub(crate) mod tests {
         ("property_campaigns::tests::safe_threshold_monotonic_delay_seed_000057", safe_threshold_monotonic_delay_seed_000057),
         ("property_campaigns::tests::safe_threshold_monotonic_delay_seed_000058", safe_threshold_monotonic_delay_seed_000058),
         ("property_campaigns::tests::safe_threshold_monotonic_delay_seed_000059", safe_threshold_monotonic_delay_seed_000059),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000000", hm_py_max_nan_semantics_seed_000000),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000001", hm_py_max_nan_semantics_seed_000001),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000002", hm_py_max_nan_semantics_seed_000002),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000003", hm_py_max_nan_semantics_seed_000003),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000004", hm_py_max_nan_semantics_seed_000004),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000005", hm_py_max_nan_semantics_seed_000005),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000006", hm_py_max_nan_semantics_seed_000006),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000007", hm_py_max_nan_semantics_seed_000007),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000008", hm_py_max_nan_semantics_seed_000008),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000009", hm_py_max_nan_semantics_seed_000009),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000010", hm_py_max_nan_semantics_seed_000010),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000011", hm_py_max_nan_semantics_seed_000011),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000012", hm_py_max_nan_semantics_seed_000012),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000013", hm_py_max_nan_semantics_seed_000013),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000014", hm_py_max_nan_semantics_seed_000014),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000015", hm_py_max_nan_semantics_seed_000015),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000016", hm_py_max_nan_semantics_seed_000016),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000017", hm_py_max_nan_semantics_seed_000017),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000018", hm_py_max_nan_semantics_seed_000018),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000019", hm_py_max_nan_semantics_seed_000019),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000020", hm_py_max_nan_semantics_seed_000020),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000021", hm_py_max_nan_semantics_seed_000021),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000022", hm_py_max_nan_semantics_seed_000022),
+        ("property_campaigns::tests::hm_py_max_nan_semantics_seed_000023", hm_py_max_nan_semantics_seed_000023),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000000", hm_py_min_nan_semantics_seed_000000),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000001", hm_py_min_nan_semantics_seed_000001),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000002", hm_py_min_nan_semantics_seed_000002),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000003", hm_py_min_nan_semantics_seed_000003),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000004", hm_py_min_nan_semantics_seed_000004),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000005", hm_py_min_nan_semantics_seed_000005),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000006", hm_py_min_nan_semantics_seed_000006),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000007", hm_py_min_nan_semantics_seed_000007),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000008", hm_py_min_nan_semantics_seed_000008),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000009", hm_py_min_nan_semantics_seed_000009),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000010", hm_py_min_nan_semantics_seed_000010),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000011", hm_py_min_nan_semantics_seed_000011),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000012", hm_py_min_nan_semantics_seed_000012),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000013", hm_py_min_nan_semantics_seed_000013),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000014", hm_py_min_nan_semantics_seed_000014),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000015", hm_py_min_nan_semantics_seed_000015),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000016", hm_py_min_nan_semantics_seed_000016),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000017", hm_py_min_nan_semantics_seed_000017),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000018", hm_py_min_nan_semantics_seed_000018),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000019", hm_py_min_nan_semantics_seed_000019),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000020", hm_py_min_nan_semantics_seed_000020),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000021", hm_py_min_nan_semantics_seed_000021),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000022", hm_py_min_nan_semantics_seed_000022),
+        ("property_campaigns::tests::hm_py_min_nan_semantics_seed_000023", hm_py_min_nan_semantics_seed_000023),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000000", hm_py_max_min_agree_on_finite_seed_000000),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000001", hm_py_max_min_agree_on_finite_seed_000001),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000002", hm_py_max_min_agree_on_finite_seed_000002),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000003", hm_py_max_min_agree_on_finite_seed_000003),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000004", hm_py_max_min_agree_on_finite_seed_000004),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000005", hm_py_max_min_agree_on_finite_seed_000005),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000006", hm_py_max_min_agree_on_finite_seed_000006),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000007", hm_py_max_min_agree_on_finite_seed_000007),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000008", hm_py_max_min_agree_on_finite_seed_000008),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000009", hm_py_max_min_agree_on_finite_seed_000009),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000010", hm_py_max_min_agree_on_finite_seed_000010),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000011", hm_py_max_min_agree_on_finite_seed_000011),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000012", hm_py_max_min_agree_on_finite_seed_000012),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000013", hm_py_max_min_agree_on_finite_seed_000013),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000014", hm_py_max_min_agree_on_finite_seed_000014),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000015", hm_py_max_min_agree_on_finite_seed_000015),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000016", hm_py_max_min_agree_on_finite_seed_000016),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000017", hm_py_max_min_agree_on_finite_seed_000017),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000018", hm_py_max_min_agree_on_finite_seed_000018),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000019", hm_py_max_min_agree_on_finite_seed_000019),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000020", hm_py_max_min_agree_on_finite_seed_000020),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000021", hm_py_max_min_agree_on_finite_seed_000021),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000022", hm_py_max_min_agree_on_finite_seed_000022),
+        ("property_campaigns::tests::hm_py_max_min_agree_on_finite_seed_000023", hm_py_max_min_agree_on_finite_seed_000023),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000000", hm_np_maximum_propagates_nan_seed_000000),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000001", hm_np_maximum_propagates_nan_seed_000001),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000002", hm_np_maximum_propagates_nan_seed_000002),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000003", hm_np_maximum_propagates_nan_seed_000003),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000004", hm_np_maximum_propagates_nan_seed_000004),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000005", hm_np_maximum_propagates_nan_seed_000005),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000006", hm_np_maximum_propagates_nan_seed_000006),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000007", hm_np_maximum_propagates_nan_seed_000007),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000008", hm_np_maximum_propagates_nan_seed_000008),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000009", hm_np_maximum_propagates_nan_seed_000009),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000010", hm_np_maximum_propagates_nan_seed_000010),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000011", hm_np_maximum_propagates_nan_seed_000011),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000012", hm_np_maximum_propagates_nan_seed_000012),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000013", hm_np_maximum_propagates_nan_seed_000013),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000014", hm_np_maximum_propagates_nan_seed_000014),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000015", hm_np_maximum_propagates_nan_seed_000015),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000016", hm_np_maximum_propagates_nan_seed_000016),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000017", hm_np_maximum_propagates_nan_seed_000017),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000018", hm_np_maximum_propagates_nan_seed_000018),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000019", hm_np_maximum_propagates_nan_seed_000019),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000020", hm_np_maximum_propagates_nan_seed_000020),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000021", hm_np_maximum_propagates_nan_seed_000021),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000022", hm_np_maximum_propagates_nan_seed_000022),
+        ("property_campaigns::tests::hm_np_maximum_propagates_nan_seed_000023", hm_np_maximum_propagates_nan_seed_000023),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000000", hm_np_maximum_finite_seed_000000),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000001", hm_np_maximum_finite_seed_000001),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000002", hm_np_maximum_finite_seed_000002),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000003", hm_np_maximum_finite_seed_000003),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000004", hm_np_maximum_finite_seed_000004),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000005", hm_np_maximum_finite_seed_000005),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000006", hm_np_maximum_finite_seed_000006),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000007", hm_np_maximum_finite_seed_000007),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000008", hm_np_maximum_finite_seed_000008),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000009", hm_np_maximum_finite_seed_000009),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000010", hm_np_maximum_finite_seed_000010),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000011", hm_np_maximum_finite_seed_000011),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000012", hm_np_maximum_finite_seed_000012),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000013", hm_np_maximum_finite_seed_000013),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000014", hm_np_maximum_finite_seed_000014),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000015", hm_np_maximum_finite_seed_000015),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000016", hm_np_maximum_finite_seed_000016),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000017", hm_np_maximum_finite_seed_000017),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000018", hm_np_maximum_finite_seed_000018),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000019", hm_np_maximum_finite_seed_000019),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000020", hm_np_maximum_finite_seed_000020),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000021", hm_np_maximum_finite_seed_000021),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000022", hm_np_maximum_finite_seed_000022),
+        ("property_campaigns::tests::hm_np_maximum_finite_seed_000023", hm_np_maximum_finite_seed_000023),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000000", hm_np_clip_bounded_seed_000000),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000001", hm_np_clip_bounded_seed_000001),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000002", hm_np_clip_bounded_seed_000002),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000003", hm_np_clip_bounded_seed_000003),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000004", hm_np_clip_bounded_seed_000004),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000005", hm_np_clip_bounded_seed_000005),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000006", hm_np_clip_bounded_seed_000006),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000007", hm_np_clip_bounded_seed_000007),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000008", hm_np_clip_bounded_seed_000008),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000009", hm_np_clip_bounded_seed_000009),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000010", hm_np_clip_bounded_seed_000010),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000011", hm_np_clip_bounded_seed_000011),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000012", hm_np_clip_bounded_seed_000012),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000013", hm_np_clip_bounded_seed_000013),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000014", hm_np_clip_bounded_seed_000014),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000015", hm_np_clip_bounded_seed_000015),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000016", hm_np_clip_bounded_seed_000016),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000017", hm_np_clip_bounded_seed_000017),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000018", hm_np_clip_bounded_seed_000018),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000019", hm_np_clip_bounded_seed_000019),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000020", hm_np_clip_bounded_seed_000020),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000021", hm_np_clip_bounded_seed_000021),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000022", hm_np_clip_bounded_seed_000022),
+        ("property_campaigns::tests::hm_np_clip_bounded_seed_000023", hm_np_clip_bounded_seed_000023),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000000", hm_np_clip_inverted_returns_hi_seed_000000),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000001", hm_np_clip_inverted_returns_hi_seed_000001),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000002", hm_np_clip_inverted_returns_hi_seed_000002),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000003", hm_np_clip_inverted_returns_hi_seed_000003),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000004", hm_np_clip_inverted_returns_hi_seed_000004),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000005", hm_np_clip_inverted_returns_hi_seed_000005),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000006", hm_np_clip_inverted_returns_hi_seed_000006),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000007", hm_np_clip_inverted_returns_hi_seed_000007),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000008", hm_np_clip_inverted_returns_hi_seed_000008),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000009", hm_np_clip_inverted_returns_hi_seed_000009),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000010", hm_np_clip_inverted_returns_hi_seed_000010),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000011", hm_np_clip_inverted_returns_hi_seed_000011),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000012", hm_np_clip_inverted_returns_hi_seed_000012),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000013", hm_np_clip_inverted_returns_hi_seed_000013),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000014", hm_np_clip_inverted_returns_hi_seed_000014),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000015", hm_np_clip_inverted_returns_hi_seed_000015),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000016", hm_np_clip_inverted_returns_hi_seed_000016),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000017", hm_np_clip_inverted_returns_hi_seed_000017),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000018", hm_np_clip_inverted_returns_hi_seed_000018),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000019", hm_np_clip_inverted_returns_hi_seed_000019),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000020", hm_np_clip_inverted_returns_hi_seed_000020),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000021", hm_np_clip_inverted_returns_hi_seed_000021),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000022", hm_np_clip_inverted_returns_hi_seed_000022),
+        ("property_campaigns::tests::hm_np_clip_inverted_returns_hi_seed_000023", hm_np_clip_inverted_returns_hi_seed_000023),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000000", hm_np_clip_nan_propagates_seed_000000),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000001", hm_np_clip_nan_propagates_seed_000001),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000002", hm_np_clip_nan_propagates_seed_000002),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000003", hm_np_clip_nan_propagates_seed_000003),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000004", hm_np_clip_nan_propagates_seed_000004),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000005", hm_np_clip_nan_propagates_seed_000005),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000006", hm_np_clip_nan_propagates_seed_000006),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000007", hm_np_clip_nan_propagates_seed_000007),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000008", hm_np_clip_nan_propagates_seed_000008),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000009", hm_np_clip_nan_propagates_seed_000009),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000010", hm_np_clip_nan_propagates_seed_000010),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000011", hm_np_clip_nan_propagates_seed_000011),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000012", hm_np_clip_nan_propagates_seed_000012),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000013", hm_np_clip_nan_propagates_seed_000013),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000014", hm_np_clip_nan_propagates_seed_000014),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000015", hm_np_clip_nan_propagates_seed_000015),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000016", hm_np_clip_nan_propagates_seed_000016),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000017", hm_np_clip_nan_propagates_seed_000017),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000018", hm_np_clip_nan_propagates_seed_000018),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000019", hm_np_clip_nan_propagates_seed_000019),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000020", hm_np_clip_nan_propagates_seed_000020),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000021", hm_np_clip_nan_propagates_seed_000021),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000022", hm_np_clip_nan_propagates_seed_000022),
+        ("property_campaigns::tests::hm_np_clip_nan_propagates_seed_000023", hm_np_clip_nan_propagates_seed_000023),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000000", hm_py_max_min_idempotent_seed_000000),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000001", hm_py_max_min_idempotent_seed_000001),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000002", hm_py_max_min_idempotent_seed_000002),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000003", hm_py_max_min_idempotent_seed_000003),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000004", hm_py_max_min_idempotent_seed_000004),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000005", hm_py_max_min_idempotent_seed_000005),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000006", hm_py_max_min_idempotent_seed_000006),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000007", hm_py_max_min_idempotent_seed_000007),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000008", hm_py_max_min_idempotent_seed_000008),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000009", hm_py_max_min_idempotent_seed_000009),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000010", hm_py_max_min_idempotent_seed_000010),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000011", hm_py_max_min_idempotent_seed_000011),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000012", hm_py_max_min_idempotent_seed_000012),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000013", hm_py_max_min_idempotent_seed_000013),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000014", hm_py_max_min_idempotent_seed_000014),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000015", hm_py_max_min_idempotent_seed_000015),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000016", hm_py_max_min_idempotent_seed_000016),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000017", hm_py_max_min_idempotent_seed_000017),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000018", hm_py_max_min_idempotent_seed_000018),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000019", hm_py_max_min_idempotent_seed_000019),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000020", hm_py_max_min_idempotent_seed_000020),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000021", hm_py_max_min_idempotent_seed_000021),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000022", hm_py_max_min_idempotent_seed_000022),
+        ("property_campaigns::tests::hm_py_max_min_idempotent_seed_000023", hm_py_max_min_idempotent_seed_000023),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000000", gm_overlap_area_non_negative_seed_000000),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000001", gm_overlap_area_non_negative_seed_000001),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000002", gm_overlap_area_non_negative_seed_000002),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000003", gm_overlap_area_non_negative_seed_000003),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000004", gm_overlap_area_non_negative_seed_000004),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000005", gm_overlap_area_non_negative_seed_000005),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000006", gm_overlap_area_non_negative_seed_000006),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000007", gm_overlap_area_non_negative_seed_000007),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000008", gm_overlap_area_non_negative_seed_000008),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000009", gm_overlap_area_non_negative_seed_000009),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000010", gm_overlap_area_non_negative_seed_000010),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000011", gm_overlap_area_non_negative_seed_000011),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000012", gm_overlap_area_non_negative_seed_000012),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000013", gm_overlap_area_non_negative_seed_000013),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000014", gm_overlap_area_non_negative_seed_000014),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000015", gm_overlap_area_non_negative_seed_000015),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000016", gm_overlap_area_non_negative_seed_000016),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000017", gm_overlap_area_non_negative_seed_000017),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000018", gm_overlap_area_non_negative_seed_000018),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000019", gm_overlap_area_non_negative_seed_000019),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000020", gm_overlap_area_non_negative_seed_000020),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000021", gm_overlap_area_non_negative_seed_000021),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000022", gm_overlap_area_non_negative_seed_000022),
+        ("property_campaigns::tests::gm_overlap_area_non_negative_seed_000023", gm_overlap_area_non_negative_seed_000023),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000000", gm_boundary_violation_count_bounded_seed_000000),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000001", gm_boundary_violation_count_bounded_seed_000001),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000002", gm_boundary_violation_count_bounded_seed_000002),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000003", gm_boundary_violation_count_bounded_seed_000003),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000004", gm_boundary_violation_count_bounded_seed_000004),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000005", gm_boundary_violation_count_bounded_seed_000005),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000006", gm_boundary_violation_count_bounded_seed_000006),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000007", gm_boundary_violation_count_bounded_seed_000007),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000008", gm_boundary_violation_count_bounded_seed_000008),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000009", gm_boundary_violation_count_bounded_seed_000009),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000010", gm_boundary_violation_count_bounded_seed_000010),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000011", gm_boundary_violation_count_bounded_seed_000011),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000012", gm_boundary_violation_count_bounded_seed_000012),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000013", gm_boundary_violation_count_bounded_seed_000013),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000014", gm_boundary_violation_count_bounded_seed_000014),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000015", gm_boundary_violation_count_bounded_seed_000015),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000016", gm_boundary_violation_count_bounded_seed_000016),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000017", gm_boundary_violation_count_bounded_seed_000017),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000018", gm_boundary_violation_count_bounded_seed_000018),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000019", gm_boundary_violation_count_bounded_seed_000019),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000020", gm_boundary_violation_count_bounded_seed_000020),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000021", gm_boundary_violation_count_bounded_seed_000021),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000022", gm_boundary_violation_count_bounded_seed_000022),
+        ("property_campaigns::tests::gm_boundary_violation_count_bounded_seed_000023", gm_boundary_violation_count_bounded_seed_000023),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000000", gm_hv_lv_clearance_default_when_empty_classes_seed_000000),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000001", gm_hv_lv_clearance_default_when_empty_classes_seed_000001),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000002", gm_hv_lv_clearance_default_when_empty_classes_seed_000002),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000003", gm_hv_lv_clearance_default_when_empty_classes_seed_000003),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000004", gm_hv_lv_clearance_default_when_empty_classes_seed_000004),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000005", gm_hv_lv_clearance_default_when_empty_classes_seed_000005),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000006", gm_hv_lv_clearance_default_when_empty_classes_seed_000006),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000007", gm_hv_lv_clearance_default_when_empty_classes_seed_000007),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000008", gm_hv_lv_clearance_default_when_empty_classes_seed_000008),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000009", gm_hv_lv_clearance_default_when_empty_classes_seed_000009),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000010", gm_hv_lv_clearance_default_when_empty_classes_seed_000010),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000011", gm_hv_lv_clearance_default_when_empty_classes_seed_000011),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000012", gm_hv_lv_clearance_default_when_empty_classes_seed_000012),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000013", gm_hv_lv_clearance_default_when_empty_classes_seed_000013),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000014", gm_hv_lv_clearance_default_when_empty_classes_seed_000014),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000015", gm_hv_lv_clearance_default_when_empty_classes_seed_000015),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000016", gm_hv_lv_clearance_default_when_empty_classes_seed_000016),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000017", gm_hv_lv_clearance_default_when_empty_classes_seed_000017),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000018", gm_hv_lv_clearance_default_when_empty_classes_seed_000018),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000019", gm_hv_lv_clearance_default_when_empty_classes_seed_000019),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000020", gm_hv_lv_clearance_default_when_empty_classes_seed_000020),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000021", gm_hv_lv_clearance_default_when_empty_classes_seed_000021),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000022", gm_hv_lv_clearance_default_when_empty_classes_seed_000022),
+        ("property_campaigns::tests::gm_hv_lv_clearance_default_when_empty_classes_seed_000023", gm_hv_lv_clearance_default_when_empty_classes_seed_000023),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000000", gm_zone_violation_max_non_negative_seed_000000),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000001", gm_zone_violation_max_non_negative_seed_000001),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000002", gm_zone_violation_max_non_negative_seed_000002),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000003", gm_zone_violation_max_non_negative_seed_000003),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000004", gm_zone_violation_max_non_negative_seed_000004),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000005", gm_zone_violation_max_non_negative_seed_000005),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000006", gm_zone_violation_max_non_negative_seed_000006),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000007", gm_zone_violation_max_non_negative_seed_000007),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000008", gm_zone_violation_max_non_negative_seed_000008),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000009", gm_zone_violation_max_non_negative_seed_000009),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000010", gm_zone_violation_max_non_negative_seed_000010),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000011", gm_zone_violation_max_non_negative_seed_000011),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000012", gm_zone_violation_max_non_negative_seed_000012),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000013", gm_zone_violation_max_non_negative_seed_000013),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000014", gm_zone_violation_max_non_negative_seed_000014),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000015", gm_zone_violation_max_non_negative_seed_000015),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000016", gm_zone_violation_max_non_negative_seed_000016),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000017", gm_zone_violation_max_non_negative_seed_000017),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000018", gm_zone_violation_max_non_negative_seed_000018),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000019", gm_zone_violation_max_non_negative_seed_000019),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000020", gm_zone_violation_max_non_negative_seed_000020),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000021", gm_zone_violation_max_non_negative_seed_000021),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000022", gm_zone_violation_max_non_negative_seed_000022),
+        ("property_campaigns::tests::gm_zone_violation_max_non_negative_seed_000023", gm_zone_violation_max_non_negative_seed_000023),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000000", hr_h_field_dimensions_seed_000000),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000001", hr_h_field_dimensions_seed_000001),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000002", hr_h_field_dimensions_seed_000002),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000003", hr_h_field_dimensions_seed_000003),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000004", hr_h_field_dimensions_seed_000004),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000005", hr_h_field_dimensions_seed_000005),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000006", hr_h_field_dimensions_seed_000006),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000007", hr_h_field_dimensions_seed_000007),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000008", hr_h_field_dimensions_seed_000008),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000009", hr_h_field_dimensions_seed_000009),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000010", hr_h_field_dimensions_seed_000010),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000011", hr_h_field_dimensions_seed_000011),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000012", hr_h_field_dimensions_seed_000012),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000013", hr_h_field_dimensions_seed_000013),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000014", hr_h_field_dimensions_seed_000014),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000015", hr_h_field_dimensions_seed_000015),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000016", hr_h_field_dimensions_seed_000016),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000017", hr_h_field_dimensions_seed_000017),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000018", hr_h_field_dimensions_seed_000018),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000019", hr_h_field_dimensions_seed_000019),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000020", hr_h_field_dimensions_seed_000020),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000021", hr_h_field_dimensions_seed_000021),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000022", hr_h_field_dimensions_seed_000022),
+        ("property_campaigns::tests::hr_h_field_dimensions_seed_000023", hr_h_field_dimensions_seed_000023),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000000", hr_h_field_uniform_when_empty_seed_000000),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000001", hr_h_field_uniform_when_empty_seed_000001),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000002", hr_h_field_uniform_when_empty_seed_000002),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000003", hr_h_field_uniform_when_empty_seed_000003),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000004", hr_h_field_uniform_when_empty_seed_000004),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000005", hr_h_field_uniform_when_empty_seed_000005),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000006", hr_h_field_uniform_when_empty_seed_000006),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000007", hr_h_field_uniform_when_empty_seed_000007),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000008", hr_h_field_uniform_when_empty_seed_000008),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000009", hr_h_field_uniform_when_empty_seed_000009),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000010", hr_h_field_uniform_when_empty_seed_000010),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000011", hr_h_field_uniform_when_empty_seed_000011),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000012", hr_h_field_uniform_when_empty_seed_000012),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000013", hr_h_field_uniform_when_empty_seed_000013),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000014", hr_h_field_uniform_when_empty_seed_000014),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000015", hr_h_field_uniform_when_empty_seed_000015),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000016", hr_h_field_uniform_when_empty_seed_000016),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000017", hr_h_field_uniform_when_empty_seed_000017),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000018", hr_h_field_uniform_when_empty_seed_000018),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000019", hr_h_field_uniform_when_empty_seed_000019),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000020", hr_h_field_uniform_when_empty_seed_000020),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000021", hr_h_field_uniform_when_empty_seed_000021),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000022", hr_h_field_uniform_when_empty_seed_000022),
+        ("property_campaigns::tests::hr_h_field_uniform_when_empty_seed_000023", hr_h_field_uniform_when_empty_seed_000023),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000000", hr_h_field_cells_at_least_background_seed_000000),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000001", hr_h_field_cells_at_least_background_seed_000001),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000002", hr_h_field_cells_at_least_background_seed_000002),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000003", hr_h_field_cells_at_least_background_seed_000003),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000004", hr_h_field_cells_at_least_background_seed_000004),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000005", hr_h_field_cells_at_least_background_seed_000005),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000006", hr_h_field_cells_at_least_background_seed_000006),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000007", hr_h_field_cells_at_least_background_seed_000007),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000008", hr_h_field_cells_at_least_background_seed_000008),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000009", hr_h_field_cells_at_least_background_seed_000009),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000010", hr_h_field_cells_at_least_background_seed_000010),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000011", hr_h_field_cells_at_least_background_seed_000011),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000012", hr_h_field_cells_at_least_background_seed_000012),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000013", hr_h_field_cells_at_least_background_seed_000013),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000014", hr_h_field_cells_at_least_background_seed_000014),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000015", hr_h_field_cells_at_least_background_seed_000015),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000016", hr_h_field_cells_at_least_background_seed_000016),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000017", hr_h_field_cells_at_least_background_seed_000017),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000018", hr_h_field_cells_at_least_background_seed_000018),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000019", hr_h_field_cells_at_least_background_seed_000019),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000020", hr_h_field_cells_at_least_background_seed_000020),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000021", hr_h_field_cells_at_least_background_seed_000021),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000022", hr_h_field_cells_at_least_background_seed_000022),
+        ("property_campaigns::tests::hr_h_field_cells_at_least_background_seed_000023", hr_h_field_cells_at_least_background_seed_000023),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000000", hr_h_field_all_finite_seed_000000),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000001", hr_h_field_all_finite_seed_000001),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000002", hr_h_field_all_finite_seed_000002),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000003", hr_h_field_all_finite_seed_000003),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000004", hr_h_field_all_finite_seed_000004),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000005", hr_h_field_all_finite_seed_000005),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000006", hr_h_field_all_finite_seed_000006),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000007", hr_h_field_all_finite_seed_000007),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000008", hr_h_field_all_finite_seed_000008),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000009", hr_h_field_all_finite_seed_000009),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000010", hr_h_field_all_finite_seed_000010),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000011", hr_h_field_all_finite_seed_000011),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000012", hr_h_field_all_finite_seed_000012),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000013", hr_h_field_all_finite_seed_000013),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000014", hr_h_field_all_finite_seed_000014),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000015", hr_h_field_all_finite_seed_000015),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000016", hr_h_field_all_finite_seed_000016),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000017", hr_h_field_all_finite_seed_000017),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000018", hr_h_field_all_finite_seed_000018),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000019", hr_h_field_all_finite_seed_000019),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000020", hr_h_field_all_finite_seed_000020),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000021", hr_h_field_all_finite_seed_000021),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000022", hr_h_field_all_finite_seed_000022),
+        ("property_campaigns::tests::hr_h_field_all_finite_seed_000023", hr_h_field_all_finite_seed_000023),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000000", hr_h_field_zero_cs_raises_seed_000000),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000001", hr_h_field_zero_cs_raises_seed_000001),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000002", hr_h_field_zero_cs_raises_seed_000002),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000003", hr_h_field_zero_cs_raises_seed_000003),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000004", hr_h_field_zero_cs_raises_seed_000004),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000005", hr_h_field_zero_cs_raises_seed_000005),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000006", hr_h_field_zero_cs_raises_seed_000006),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000007", hr_h_field_zero_cs_raises_seed_000007),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000008", hr_h_field_zero_cs_raises_seed_000008),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000009", hr_h_field_zero_cs_raises_seed_000009),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000010", hr_h_field_zero_cs_raises_seed_000010),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000011", hr_h_field_zero_cs_raises_seed_000011),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000012", hr_h_field_zero_cs_raises_seed_000012),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000013", hr_h_field_zero_cs_raises_seed_000013),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000014", hr_h_field_zero_cs_raises_seed_000014),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000015", hr_h_field_zero_cs_raises_seed_000015),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000016", hr_h_field_zero_cs_raises_seed_000016),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000017", hr_h_field_zero_cs_raises_seed_000017),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000018", hr_h_field_zero_cs_raises_seed_000018),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000019", hr_h_field_zero_cs_raises_seed_000019),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000020", hr_h_field_zero_cs_raises_seed_000020),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000021", hr_h_field_zero_cs_raises_seed_000021),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000022", hr_h_field_zero_cs_raises_seed_000022),
+        ("property_campaigns::tests::hr_h_field_zero_cs_raises_seed_000023", hr_h_field_zero_cs_raises_seed_000023),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000000", te_pairwise_sum_f32_agrees_naive_below_8_seed_000000),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000001", te_pairwise_sum_f32_agrees_naive_below_8_seed_000001),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000002", te_pairwise_sum_f32_agrees_naive_below_8_seed_000002),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000003", te_pairwise_sum_f32_agrees_naive_below_8_seed_000003),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000004", te_pairwise_sum_f32_agrees_naive_below_8_seed_000004),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000005", te_pairwise_sum_f32_agrees_naive_below_8_seed_000005),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000006", te_pairwise_sum_f32_agrees_naive_below_8_seed_000006),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000007", te_pairwise_sum_f32_agrees_naive_below_8_seed_000007),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000008", te_pairwise_sum_f32_agrees_naive_below_8_seed_000008),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000009", te_pairwise_sum_f32_agrees_naive_below_8_seed_000009),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000010", te_pairwise_sum_f32_agrees_naive_below_8_seed_000010),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000011", te_pairwise_sum_f32_agrees_naive_below_8_seed_000011),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000012", te_pairwise_sum_f32_agrees_naive_below_8_seed_000012),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000013", te_pairwise_sum_f32_agrees_naive_below_8_seed_000013),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000014", te_pairwise_sum_f32_agrees_naive_below_8_seed_000014),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000015", te_pairwise_sum_f32_agrees_naive_below_8_seed_000015),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000016", te_pairwise_sum_f32_agrees_naive_below_8_seed_000016),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000017", te_pairwise_sum_f32_agrees_naive_below_8_seed_000017),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000018", te_pairwise_sum_f32_agrees_naive_below_8_seed_000018),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000019", te_pairwise_sum_f32_agrees_naive_below_8_seed_000019),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000020", te_pairwise_sum_f32_agrees_naive_below_8_seed_000020),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000021", te_pairwise_sum_f32_agrees_naive_below_8_seed_000021),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000022", te_pairwise_sum_f32_agrees_naive_below_8_seed_000022),
+        ("property_campaigns::tests::te_pairwise_sum_f32_agrees_naive_below_8_seed_000023", te_pairwise_sum_f32_agrees_naive_below_8_seed_000023),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000000", te_pairwise_sum_f32_finite_for_finite_seed_000000),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000001", te_pairwise_sum_f32_finite_for_finite_seed_000001),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000002", te_pairwise_sum_f32_finite_for_finite_seed_000002),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000003", te_pairwise_sum_f32_finite_for_finite_seed_000003),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000004", te_pairwise_sum_f32_finite_for_finite_seed_000004),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000005", te_pairwise_sum_f32_finite_for_finite_seed_000005),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000006", te_pairwise_sum_f32_finite_for_finite_seed_000006),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000007", te_pairwise_sum_f32_finite_for_finite_seed_000007),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000008", te_pairwise_sum_f32_finite_for_finite_seed_000008),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000009", te_pairwise_sum_f32_finite_for_finite_seed_000009),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000010", te_pairwise_sum_f32_finite_for_finite_seed_000010),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000011", te_pairwise_sum_f32_finite_for_finite_seed_000011),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000012", te_pairwise_sum_f32_finite_for_finite_seed_000012),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000013", te_pairwise_sum_f32_finite_for_finite_seed_000013),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000014", te_pairwise_sum_f32_finite_for_finite_seed_000014),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000015", te_pairwise_sum_f32_finite_for_finite_seed_000015),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000016", te_pairwise_sum_f32_finite_for_finite_seed_000016),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000017", te_pairwise_sum_f32_finite_for_finite_seed_000017),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000018", te_pairwise_sum_f32_finite_for_finite_seed_000018),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000019", te_pairwise_sum_f32_finite_for_finite_seed_000019),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000020", te_pairwise_sum_f32_finite_for_finite_seed_000020),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000021", te_pairwise_sum_f32_finite_for_finite_seed_000021),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000022", te_pairwise_sum_f32_finite_for_finite_seed_000022),
+        ("property_campaigns::tests::te_pairwise_sum_f32_finite_for_finite_seed_000023", te_pairwise_sum_f32_finite_for_finite_seed_000023),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000000", te_measure_empty_returns_ambient_seed_000000),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000001", te_measure_empty_returns_ambient_seed_000001),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000002", te_measure_empty_returns_ambient_seed_000002),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000003", te_measure_empty_returns_ambient_seed_000003),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000004", te_measure_empty_returns_ambient_seed_000004),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000005", te_measure_empty_returns_ambient_seed_000005),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000006", te_measure_empty_returns_ambient_seed_000006),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000007", te_measure_empty_returns_ambient_seed_000007),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000008", te_measure_empty_returns_ambient_seed_000008),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000009", te_measure_empty_returns_ambient_seed_000009),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000010", te_measure_empty_returns_ambient_seed_000010),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000011", te_measure_empty_returns_ambient_seed_000011),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000012", te_measure_empty_returns_ambient_seed_000012),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000013", te_measure_empty_returns_ambient_seed_000013),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000014", te_measure_empty_returns_ambient_seed_000014),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000015", te_measure_empty_returns_ambient_seed_000015),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000016", te_measure_empty_returns_ambient_seed_000016),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000017", te_measure_empty_returns_ambient_seed_000017),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000018", te_measure_empty_returns_ambient_seed_000018),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000019", te_measure_empty_returns_ambient_seed_000019),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000020", te_measure_empty_returns_ambient_seed_000020),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000021", te_measure_empty_returns_ambient_seed_000021),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000022", te_measure_empty_returns_ambient_seed_000022),
+        ("property_campaigns::tests::te_measure_empty_returns_ambient_seed_000023", te_measure_empty_returns_ambient_seed_000023),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000000", te_measure_finite_for_finite_inputs_seed_000000),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000001", te_measure_finite_for_finite_inputs_seed_000001),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000002", te_measure_finite_for_finite_inputs_seed_000002),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000003", te_measure_finite_for_finite_inputs_seed_000003),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000004", te_measure_finite_for_finite_inputs_seed_000004),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000005", te_measure_finite_for_finite_inputs_seed_000005),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000006", te_measure_finite_for_finite_inputs_seed_000006),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000007", te_measure_finite_for_finite_inputs_seed_000007),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000008", te_measure_finite_for_finite_inputs_seed_000008),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000009", te_measure_finite_for_finite_inputs_seed_000009),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000010", te_measure_finite_for_finite_inputs_seed_000010),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000011", te_measure_finite_for_finite_inputs_seed_000011),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000012", te_measure_finite_for_finite_inputs_seed_000012),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000013", te_measure_finite_for_finite_inputs_seed_000013),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000014", te_measure_finite_for_finite_inputs_seed_000014),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000015", te_measure_finite_for_finite_inputs_seed_000015),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000016", te_measure_finite_for_finite_inputs_seed_000016),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000017", te_measure_finite_for_finite_inputs_seed_000017),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000018", te_measure_finite_for_finite_inputs_seed_000018),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000019", te_measure_finite_for_finite_inputs_seed_000019),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000020", te_measure_finite_for_finite_inputs_seed_000020),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000021", te_measure_finite_for_finite_inputs_seed_000021),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000022", te_measure_finite_for_finite_inputs_seed_000022),
+        ("property_campaigns::tests::te_measure_finite_for_finite_inputs_seed_000023", te_measure_finite_for_finite_inputs_seed_000023),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000000", te_max_tj_at_least_ambient_seed_000000),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000001", te_max_tj_at_least_ambient_seed_000001),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000002", te_max_tj_at_least_ambient_seed_000002),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000003", te_max_tj_at_least_ambient_seed_000003),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000004", te_max_tj_at_least_ambient_seed_000004),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000005", te_max_tj_at_least_ambient_seed_000005),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000006", te_max_tj_at_least_ambient_seed_000006),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000007", te_max_tj_at_least_ambient_seed_000007),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000008", te_max_tj_at_least_ambient_seed_000008),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000009", te_max_tj_at_least_ambient_seed_000009),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000010", te_max_tj_at_least_ambient_seed_000010),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000011", te_max_tj_at_least_ambient_seed_000011),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000012", te_max_tj_at_least_ambient_seed_000012),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000013", te_max_tj_at_least_ambient_seed_000013),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000014", te_max_tj_at_least_ambient_seed_000014),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000015", te_max_tj_at_least_ambient_seed_000015),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000016", te_max_tj_at_least_ambient_seed_000016),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000017", te_max_tj_at_least_ambient_seed_000017),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000018", te_max_tj_at_least_ambient_seed_000018),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000019", te_max_tj_at_least_ambient_seed_000019),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000020", te_max_tj_at_least_ambient_seed_000020),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000021", te_max_tj_at_least_ambient_seed_000021),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000022", te_max_tj_at_least_ambient_seed_000022),
+        ("property_campaigns::tests::te_max_tj_at_least_ambient_seed_000023", te_max_tj_at_least_ambient_seed_000023),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000000", te_measure_deterministic_seed_000000),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000001", te_measure_deterministic_seed_000001),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000002", te_measure_deterministic_seed_000002),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000003", te_measure_deterministic_seed_000003),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000004", te_measure_deterministic_seed_000004),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000005", te_measure_deterministic_seed_000005),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000006", te_measure_deterministic_seed_000006),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000007", te_measure_deterministic_seed_000007),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000008", te_measure_deterministic_seed_000008),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000009", te_measure_deterministic_seed_000009),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000010", te_measure_deterministic_seed_000010),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000011", te_measure_deterministic_seed_000011),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000012", te_measure_deterministic_seed_000012),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000013", te_measure_deterministic_seed_000013),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000014", te_measure_deterministic_seed_000014),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000015", te_measure_deterministic_seed_000015),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000016", te_measure_deterministic_seed_000016),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000017", te_measure_deterministic_seed_000017),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000018", te_measure_deterministic_seed_000018),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000019", te_measure_deterministic_seed_000019),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000020", te_measure_deterministic_seed_000020),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000021", te_measure_deterministic_seed_000021),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000022", te_measure_deterministic_seed_000022),
+        ("property_campaigns::tests::te_measure_deterministic_seed_000023", te_measure_deterministic_seed_000023),
+        ("property_campaigns::tests::ls_length_correct_seed_000000", ls_length_correct_seed_000000),
+        ("property_campaigns::tests::ls_length_correct_seed_000001", ls_length_correct_seed_000001),
+        ("property_campaigns::tests::ls_length_correct_seed_000002", ls_length_correct_seed_000002),
+        ("property_campaigns::tests::ls_length_correct_seed_000003", ls_length_correct_seed_000003),
+        ("property_campaigns::tests::ls_length_correct_seed_000004", ls_length_correct_seed_000004),
+        ("property_campaigns::tests::ls_length_correct_seed_000005", ls_length_correct_seed_000005),
+        ("property_campaigns::tests::ls_length_correct_seed_000006", ls_length_correct_seed_000006),
+        ("property_campaigns::tests::ls_length_correct_seed_000007", ls_length_correct_seed_000007),
+        ("property_campaigns::tests::ls_length_correct_seed_000008", ls_length_correct_seed_000008),
+        ("property_campaigns::tests::ls_length_correct_seed_000009", ls_length_correct_seed_000009),
+        ("property_campaigns::tests::ls_length_correct_seed_000010", ls_length_correct_seed_000010),
+        ("property_campaigns::tests::ls_length_correct_seed_000011", ls_length_correct_seed_000011),
+        ("property_campaigns::tests::ls_length_correct_seed_000012", ls_length_correct_seed_000012),
+        ("property_campaigns::tests::ls_length_correct_seed_000013", ls_length_correct_seed_000013),
+        ("property_campaigns::tests::ls_length_correct_seed_000014", ls_length_correct_seed_000014),
+        ("property_campaigns::tests::ls_length_correct_seed_000015", ls_length_correct_seed_000015),
+        ("property_campaigns::tests::ls_length_correct_seed_000016", ls_length_correct_seed_000016),
+        ("property_campaigns::tests::ls_length_correct_seed_000017", ls_length_correct_seed_000017),
+        ("property_campaigns::tests::ls_length_correct_seed_000018", ls_length_correct_seed_000018),
+        ("property_campaigns::tests::ls_length_correct_seed_000019", ls_length_correct_seed_000019),
+        ("property_campaigns::tests::ls_length_correct_seed_000020", ls_length_correct_seed_000020),
+        ("property_campaigns::tests::ls_length_correct_seed_000021", ls_length_correct_seed_000021),
+        ("property_campaigns::tests::ls_length_correct_seed_000022", ls_length_correct_seed_000022),
+        ("property_campaigns::tests::ls_length_correct_seed_000023", ls_length_correct_seed_000023),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000000", ls_endpoints_exact_seed_000000),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000001", ls_endpoints_exact_seed_000001),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000002", ls_endpoints_exact_seed_000002),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000003", ls_endpoints_exact_seed_000003),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000004", ls_endpoints_exact_seed_000004),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000005", ls_endpoints_exact_seed_000005),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000006", ls_endpoints_exact_seed_000006),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000007", ls_endpoints_exact_seed_000007),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000008", ls_endpoints_exact_seed_000008),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000009", ls_endpoints_exact_seed_000009),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000010", ls_endpoints_exact_seed_000010),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000011", ls_endpoints_exact_seed_000011),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000012", ls_endpoints_exact_seed_000012),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000013", ls_endpoints_exact_seed_000013),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000014", ls_endpoints_exact_seed_000014),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000015", ls_endpoints_exact_seed_000015),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000016", ls_endpoints_exact_seed_000016),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000017", ls_endpoints_exact_seed_000017),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000018", ls_endpoints_exact_seed_000018),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000019", ls_endpoints_exact_seed_000019),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000020", ls_endpoints_exact_seed_000020),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000021", ls_endpoints_exact_seed_000021),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000022", ls_endpoints_exact_seed_000022),
+        ("property_campaigns::tests::ls_endpoints_exact_seed_000023", ls_endpoints_exact_seed_000023),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000000", ls_single_element_is_start_seed_000000),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000001", ls_single_element_is_start_seed_000001),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000002", ls_single_element_is_start_seed_000002),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000003", ls_single_element_is_start_seed_000003),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000004", ls_single_element_is_start_seed_000004),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000005", ls_single_element_is_start_seed_000005),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000006", ls_single_element_is_start_seed_000006),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000007", ls_single_element_is_start_seed_000007),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000008", ls_single_element_is_start_seed_000008),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000009", ls_single_element_is_start_seed_000009),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000010", ls_single_element_is_start_seed_000010),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000011", ls_single_element_is_start_seed_000011),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000012", ls_single_element_is_start_seed_000012),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000013", ls_single_element_is_start_seed_000013),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000014", ls_single_element_is_start_seed_000014),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000015", ls_single_element_is_start_seed_000015),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000016", ls_single_element_is_start_seed_000016),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000017", ls_single_element_is_start_seed_000017),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000018", ls_single_element_is_start_seed_000018),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000019", ls_single_element_is_start_seed_000019),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000020", ls_single_element_is_start_seed_000020),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000021", ls_single_element_is_start_seed_000021),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000022", ls_single_element_is_start_seed_000022),
+        ("property_campaigns::tests::ls_single_element_is_start_seed_000023", ls_single_element_is_start_seed_000023),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000000", ls_monotonic_increasing_seed_000000),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000001", ls_monotonic_increasing_seed_000001),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000002", ls_monotonic_increasing_seed_000002),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000003", ls_monotonic_increasing_seed_000003),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000004", ls_monotonic_increasing_seed_000004),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000005", ls_monotonic_increasing_seed_000005),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000006", ls_monotonic_increasing_seed_000006),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000007", ls_monotonic_increasing_seed_000007),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000008", ls_monotonic_increasing_seed_000008),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000009", ls_monotonic_increasing_seed_000009),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000010", ls_monotonic_increasing_seed_000010),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000011", ls_monotonic_increasing_seed_000011),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000012", ls_monotonic_increasing_seed_000012),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000013", ls_monotonic_increasing_seed_000013),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000014", ls_monotonic_increasing_seed_000014),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000015", ls_monotonic_increasing_seed_000015),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000016", ls_monotonic_increasing_seed_000016),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000017", ls_monotonic_increasing_seed_000017),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000018", ls_monotonic_increasing_seed_000018),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000019", ls_monotonic_increasing_seed_000019),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000020", ls_monotonic_increasing_seed_000020),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000021", ls_monotonic_increasing_seed_000021),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000022", ls_monotonic_increasing_seed_000022),
+        ("property_campaigns::tests::ls_monotonic_increasing_seed_000023", ls_monotonic_increasing_seed_000023),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000000", ls_degenerate_constant_seed_000000),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000001", ls_degenerate_constant_seed_000001),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000002", ls_degenerate_constant_seed_000002),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000003", ls_degenerate_constant_seed_000003),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000004", ls_degenerate_constant_seed_000004),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000005", ls_degenerate_constant_seed_000005),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000006", ls_degenerate_constant_seed_000006),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000007", ls_degenerate_constant_seed_000007),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000008", ls_degenerate_constant_seed_000008),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000009", ls_degenerate_constant_seed_000009),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000010", ls_degenerate_constant_seed_000010),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000011", ls_degenerate_constant_seed_000011),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000012", ls_degenerate_constant_seed_000012),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000013", ls_degenerate_constant_seed_000013),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000014", ls_degenerate_constant_seed_000014),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000015", ls_degenerate_constant_seed_000015),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000016", ls_degenerate_constant_seed_000016),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000017", ls_degenerate_constant_seed_000017),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000018", ls_degenerate_constant_seed_000018),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000019", ls_degenerate_constant_seed_000019),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000020", ls_degenerate_constant_seed_000020),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000021", ls_degenerate_constant_seed_000021),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000022", ls_degenerate_constant_seed_000022),
+        ("property_campaigns::tests::ls_degenerate_constant_seed_000023", ls_degenerate_constant_seed_000023),
+        ("property_campaigns::tests::ls_all_finite_seed_000000", ls_all_finite_seed_000000),
+        ("property_campaigns::tests::ls_all_finite_seed_000001", ls_all_finite_seed_000001),
+        ("property_campaigns::tests::ls_all_finite_seed_000002", ls_all_finite_seed_000002),
+        ("property_campaigns::tests::ls_all_finite_seed_000003", ls_all_finite_seed_000003),
+        ("property_campaigns::tests::ls_all_finite_seed_000004", ls_all_finite_seed_000004),
+        ("property_campaigns::tests::ls_all_finite_seed_000005", ls_all_finite_seed_000005),
+        ("property_campaigns::tests::ls_all_finite_seed_000006", ls_all_finite_seed_000006),
+        ("property_campaigns::tests::ls_all_finite_seed_000007", ls_all_finite_seed_000007),
+        ("property_campaigns::tests::ls_all_finite_seed_000008", ls_all_finite_seed_000008),
+        ("property_campaigns::tests::ls_all_finite_seed_000009", ls_all_finite_seed_000009),
+        ("property_campaigns::tests::ls_all_finite_seed_000010", ls_all_finite_seed_000010),
+        ("property_campaigns::tests::ls_all_finite_seed_000011", ls_all_finite_seed_000011),
+        ("property_campaigns::tests::ls_all_finite_seed_000012", ls_all_finite_seed_000012),
+        ("property_campaigns::tests::ls_all_finite_seed_000013", ls_all_finite_seed_000013),
+        ("property_campaigns::tests::ls_all_finite_seed_000014", ls_all_finite_seed_000014),
+        ("property_campaigns::tests::ls_all_finite_seed_000015", ls_all_finite_seed_000015),
+        ("property_campaigns::tests::ls_all_finite_seed_000016", ls_all_finite_seed_000016),
+        ("property_campaigns::tests::ls_all_finite_seed_000017", ls_all_finite_seed_000017),
+        ("property_campaigns::tests::ls_all_finite_seed_000018", ls_all_finite_seed_000018),
+        ("property_campaigns::tests::ls_all_finite_seed_000019", ls_all_finite_seed_000019),
+        ("property_campaigns::tests::ls_all_finite_seed_000020", ls_all_finite_seed_000020),
+        ("property_campaigns::tests::ls_all_finite_seed_000021", ls_all_finite_seed_000021),
+        ("property_campaigns::tests::ls_all_finite_seed_000022", ls_all_finite_seed_000022),
+        ("property_campaigns::tests::ls_all_finite_seed_000023", ls_all_finite_seed_000023),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000000", fp_edge_non_negative_finite_seed_000000),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000001", fp_edge_non_negative_finite_seed_000001),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000002", fp_edge_non_negative_finite_seed_000002),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000003", fp_edge_non_negative_finite_seed_000003),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000004", fp_edge_non_negative_finite_seed_000004),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000005", fp_edge_non_negative_finite_seed_000005),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000006", fp_edge_non_negative_finite_seed_000006),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000007", fp_edge_non_negative_finite_seed_000007),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000008", fp_edge_non_negative_finite_seed_000008),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000009", fp_edge_non_negative_finite_seed_000009),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000010", fp_edge_non_negative_finite_seed_000010),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000011", fp_edge_non_negative_finite_seed_000011),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000012", fp_edge_non_negative_finite_seed_000012),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000013", fp_edge_non_negative_finite_seed_000013),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000014", fp_edge_non_negative_finite_seed_000014),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000015", fp_edge_non_negative_finite_seed_000015),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000016", fp_edge_non_negative_finite_seed_000016),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000017", fp_edge_non_negative_finite_seed_000017),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000018", fp_edge_non_negative_finite_seed_000018),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000019", fp_edge_non_negative_finite_seed_000019),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000020", fp_edge_non_negative_finite_seed_000020),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000021", fp_edge_non_negative_finite_seed_000021),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000022", fp_edge_non_negative_finite_seed_000022),
+        ("property_campaigns::tests::fp_edge_non_negative_finite_seed_000023", fp_edge_non_negative_finite_seed_000023),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000000", fp_edge_top_row_is_minimal_seed_000000),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000001", fp_edge_top_row_is_minimal_seed_000001),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000002", fp_edge_top_row_is_minimal_seed_000002),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000003", fp_edge_top_row_is_minimal_seed_000003),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000004", fp_edge_top_row_is_minimal_seed_000004),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000005", fp_edge_top_row_is_minimal_seed_000005),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000006", fp_edge_top_row_is_minimal_seed_000006),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000007", fp_edge_top_row_is_minimal_seed_000007),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000008", fp_edge_top_row_is_minimal_seed_000008),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000009", fp_edge_top_row_is_minimal_seed_000009),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000010", fp_edge_top_row_is_minimal_seed_000010),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000011", fp_edge_top_row_is_minimal_seed_000011),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000012", fp_edge_top_row_is_minimal_seed_000012),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000013", fp_edge_top_row_is_minimal_seed_000013),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000014", fp_edge_top_row_is_minimal_seed_000014),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000015", fp_edge_top_row_is_minimal_seed_000015),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000016", fp_edge_top_row_is_minimal_seed_000016),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000017", fp_edge_top_row_is_minimal_seed_000017),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000018", fp_edge_top_row_is_minimal_seed_000018),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000019", fp_edge_top_row_is_minimal_seed_000019),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000020", fp_edge_top_row_is_minimal_seed_000020),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000021", fp_edge_top_row_is_minimal_seed_000021),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000022", fp_edge_top_row_is_minimal_seed_000022),
+        ("property_campaigns::tests::fp_edge_top_row_is_minimal_seed_000023", fp_edge_top_row_is_minimal_seed_000023),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000000", fp_coupling_empty_is_zero_seed_000000),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000001", fp_coupling_empty_is_zero_seed_000001),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000002", fp_coupling_empty_is_zero_seed_000002),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000003", fp_coupling_empty_is_zero_seed_000003),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000004", fp_coupling_empty_is_zero_seed_000004),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000005", fp_coupling_empty_is_zero_seed_000005),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000006", fp_coupling_empty_is_zero_seed_000006),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000007", fp_coupling_empty_is_zero_seed_000007),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000008", fp_coupling_empty_is_zero_seed_000008),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000009", fp_coupling_empty_is_zero_seed_000009),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000010", fp_coupling_empty_is_zero_seed_000010),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000011", fp_coupling_empty_is_zero_seed_000011),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000012", fp_coupling_empty_is_zero_seed_000012),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000013", fp_coupling_empty_is_zero_seed_000013),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000014", fp_coupling_empty_is_zero_seed_000014),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000015", fp_coupling_empty_is_zero_seed_000015),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000016", fp_coupling_empty_is_zero_seed_000016),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000017", fp_coupling_empty_is_zero_seed_000017),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000018", fp_coupling_empty_is_zero_seed_000018),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000019", fp_coupling_empty_is_zero_seed_000019),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000020", fp_coupling_empty_is_zero_seed_000020),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000021", fp_coupling_empty_is_zero_seed_000021),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000022", fp_coupling_empty_is_zero_seed_000022),
+        ("property_campaigns::tests::fp_coupling_empty_is_zero_seed_000023", fp_coupling_empty_is_zero_seed_000023),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000000", fp_coupling_finite_for_moderate_power_seed_000000),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000001", fp_coupling_finite_for_moderate_power_seed_000001),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000002", fp_coupling_finite_for_moderate_power_seed_000002),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000003", fp_coupling_finite_for_moderate_power_seed_000003),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000004", fp_coupling_finite_for_moderate_power_seed_000004),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000005", fp_coupling_finite_for_moderate_power_seed_000005),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000006", fp_coupling_finite_for_moderate_power_seed_000006),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000007", fp_coupling_finite_for_moderate_power_seed_000007),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000008", fp_coupling_finite_for_moderate_power_seed_000008),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000009", fp_coupling_finite_for_moderate_power_seed_000009),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000010", fp_coupling_finite_for_moderate_power_seed_000010),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000011", fp_coupling_finite_for_moderate_power_seed_000011),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000012", fp_coupling_finite_for_moderate_power_seed_000012),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000013", fp_coupling_finite_for_moderate_power_seed_000013),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000014", fp_coupling_finite_for_moderate_power_seed_000014),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000015", fp_coupling_finite_for_moderate_power_seed_000015),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000016", fp_coupling_finite_for_moderate_power_seed_000016),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000017", fp_coupling_finite_for_moderate_power_seed_000017),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000018", fp_coupling_finite_for_moderate_power_seed_000018),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000019", fp_coupling_finite_for_moderate_power_seed_000019),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000020", fp_coupling_finite_for_moderate_power_seed_000020),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000021", fp_coupling_finite_for_moderate_power_seed_000021),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000022", fp_coupling_finite_for_moderate_power_seed_000022),
+        ("property_campaigns::tests::fp_coupling_finite_for_moderate_power_seed_000023", fp_coupling_finite_for_moderate_power_seed_000023),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000000", fp_coupling_peaks_at_device_seed_000000),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000001", fp_coupling_peaks_at_device_seed_000001),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000002", fp_coupling_peaks_at_device_seed_000002),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000003", fp_coupling_peaks_at_device_seed_000003),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000004", fp_coupling_peaks_at_device_seed_000004),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000005", fp_coupling_peaks_at_device_seed_000005),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000006", fp_coupling_peaks_at_device_seed_000006),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000007", fp_coupling_peaks_at_device_seed_000007),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000008", fp_coupling_peaks_at_device_seed_000008),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000009", fp_coupling_peaks_at_device_seed_000009),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000010", fp_coupling_peaks_at_device_seed_000010),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000011", fp_coupling_peaks_at_device_seed_000011),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000012", fp_coupling_peaks_at_device_seed_000012),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000013", fp_coupling_peaks_at_device_seed_000013),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000014", fp_coupling_peaks_at_device_seed_000014),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000015", fp_coupling_peaks_at_device_seed_000015),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000016", fp_coupling_peaks_at_device_seed_000016),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000017", fp_coupling_peaks_at_device_seed_000017),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000018", fp_coupling_peaks_at_device_seed_000018),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000019", fp_coupling_peaks_at_device_seed_000019),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000020", fp_coupling_peaks_at_device_seed_000020),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000021", fp_coupling_peaks_at_device_seed_000021),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000022", fp_coupling_peaks_at_device_seed_000022),
+        ("property_campaigns::tests::fp_coupling_peaks_at_device_seed_000023", fp_coupling_peaks_at_device_seed_000023),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000000", fp_exclusion_non_negative_seed_000000),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000001", fp_exclusion_non_negative_seed_000001),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000002", fp_exclusion_non_negative_seed_000002),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000003", fp_exclusion_non_negative_seed_000003),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000004", fp_exclusion_non_negative_seed_000004),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000005", fp_exclusion_non_negative_seed_000005),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000006", fp_exclusion_non_negative_seed_000006),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000007", fp_exclusion_non_negative_seed_000007),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000008", fp_exclusion_non_negative_seed_000008),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000009", fp_exclusion_non_negative_seed_000009),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000010", fp_exclusion_non_negative_seed_000010),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000011", fp_exclusion_non_negative_seed_000011),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000012", fp_exclusion_non_negative_seed_000012),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000013", fp_exclusion_non_negative_seed_000013),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000014", fp_exclusion_non_negative_seed_000014),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000015", fp_exclusion_non_negative_seed_000015),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000016", fp_exclusion_non_negative_seed_000016),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000017", fp_exclusion_non_negative_seed_000017),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000018", fp_exclusion_non_negative_seed_000018),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000019", fp_exclusion_non_negative_seed_000019),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000020", fp_exclusion_non_negative_seed_000020),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000021", fp_exclusion_non_negative_seed_000021),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000022", fp_exclusion_non_negative_seed_000022),
+        ("property_campaigns::tests::fp_exclusion_non_negative_seed_000023", fp_exclusion_non_negative_seed_000023),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000000", fp_convection_nan_magnitude_is_nan_field_seed_000000),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000001", fp_convection_nan_magnitude_is_nan_field_seed_000001),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000002", fp_convection_nan_magnitude_is_nan_field_seed_000002),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000003", fp_convection_nan_magnitude_is_nan_field_seed_000003),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000004", fp_convection_nan_magnitude_is_nan_field_seed_000004),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000005", fp_convection_nan_magnitude_is_nan_field_seed_000005),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000006", fp_convection_nan_magnitude_is_nan_field_seed_000006),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000007", fp_convection_nan_magnitude_is_nan_field_seed_000007),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000008", fp_convection_nan_magnitude_is_nan_field_seed_000008),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000009", fp_convection_nan_magnitude_is_nan_field_seed_000009),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000010", fp_convection_nan_magnitude_is_nan_field_seed_000010),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000011", fp_convection_nan_magnitude_is_nan_field_seed_000011),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000012", fp_convection_nan_magnitude_is_nan_field_seed_000012),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000013", fp_convection_nan_magnitude_is_nan_field_seed_000013),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000014", fp_convection_nan_magnitude_is_nan_field_seed_000014),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000015", fp_convection_nan_magnitude_is_nan_field_seed_000015),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000016", fp_convection_nan_magnitude_is_nan_field_seed_000016),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000017", fp_convection_nan_magnitude_is_nan_field_seed_000017),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000018", fp_convection_nan_magnitude_is_nan_field_seed_000018),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000019", fp_convection_nan_magnitude_is_nan_field_seed_000019),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000020", fp_convection_nan_magnitude_is_nan_field_seed_000020),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000021", fp_convection_nan_magnitude_is_nan_field_seed_000021),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000022", fp_convection_nan_magnitude_is_nan_field_seed_000022),
+        ("property_campaigns::tests::fp_convection_nan_magnitude_is_nan_field_seed_000023", fp_convection_nan_magnitude_is_nan_field_seed_000023),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000000", fp_convection_zero_or_negative_is_zero_seed_000000),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000001", fp_convection_zero_or_negative_is_zero_seed_000001),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000002", fp_convection_zero_or_negative_is_zero_seed_000002),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000003", fp_convection_zero_or_negative_is_zero_seed_000003),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000004", fp_convection_zero_or_negative_is_zero_seed_000004),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000005", fp_convection_zero_or_negative_is_zero_seed_000005),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000006", fp_convection_zero_or_negative_is_zero_seed_000006),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000007", fp_convection_zero_or_negative_is_zero_seed_000007),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000008", fp_convection_zero_or_negative_is_zero_seed_000008),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000009", fp_convection_zero_or_negative_is_zero_seed_000009),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000010", fp_convection_zero_or_negative_is_zero_seed_000010),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000011", fp_convection_zero_or_negative_is_zero_seed_000011),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000012", fp_convection_zero_or_negative_is_zero_seed_000012),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000013", fp_convection_zero_or_negative_is_zero_seed_000013),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000014", fp_convection_zero_or_negative_is_zero_seed_000014),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000015", fp_convection_zero_or_negative_is_zero_seed_000015),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000016", fp_convection_zero_or_negative_is_zero_seed_000016),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000017", fp_convection_zero_or_negative_is_zero_seed_000017),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000018", fp_convection_zero_or_negative_is_zero_seed_000018),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000019", fp_convection_zero_or_negative_is_zero_seed_000019),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000020", fp_convection_zero_or_negative_is_zero_seed_000020),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000021", fp_convection_zero_or_negative_is_zero_seed_000021),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000022", fp_convection_zero_or_negative_is_zero_seed_000022),
+        ("property_campaigns::tests::fp_convection_zero_or_negative_is_zero_seed_000023", fp_convection_zero_or_negative_is_zero_seed_000023),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000000", fp_grid_dimensions_seed_000000),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000001", fp_grid_dimensions_seed_000001),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000002", fp_grid_dimensions_seed_000002),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000003", fp_grid_dimensions_seed_000003),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000004", fp_grid_dimensions_seed_000004),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000005", fp_grid_dimensions_seed_000005),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000006", fp_grid_dimensions_seed_000006),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000007", fp_grid_dimensions_seed_000007),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000008", fp_grid_dimensions_seed_000008),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000009", fp_grid_dimensions_seed_000009),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000010", fp_grid_dimensions_seed_000010),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000011", fp_grid_dimensions_seed_000011),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000012", fp_grid_dimensions_seed_000012),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000013", fp_grid_dimensions_seed_000013),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000014", fp_grid_dimensions_seed_000014),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000015", fp_grid_dimensions_seed_000015),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000016", fp_grid_dimensions_seed_000016),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000017", fp_grid_dimensions_seed_000017),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000018", fp_grid_dimensions_seed_000018),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000019", fp_grid_dimensions_seed_000019),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000020", fp_grid_dimensions_seed_000020),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000021", fp_grid_dimensions_seed_000021),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000022", fp_grid_dimensions_seed_000022),
+        ("property_campaigns::tests::fp_grid_dimensions_seed_000023", fp_grid_dimensions_seed_000023),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000000", fp_grid_xy_convention_seed_000000),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000001", fp_grid_xy_convention_seed_000001),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000002", fp_grid_xy_convention_seed_000002),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000003", fp_grid_xy_convention_seed_000003),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000004", fp_grid_xy_convention_seed_000004),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000005", fp_grid_xy_convention_seed_000005),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000006", fp_grid_xy_convention_seed_000006),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000007", fp_grid_xy_convention_seed_000007),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000008", fp_grid_xy_convention_seed_000008),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000009", fp_grid_xy_convention_seed_000009),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000010", fp_grid_xy_convention_seed_000010),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000011", fp_grid_xy_convention_seed_000011),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000012", fp_grid_xy_convention_seed_000012),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000013", fp_grid_xy_convention_seed_000013),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000014", fp_grid_xy_convention_seed_000014),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000015", fp_grid_xy_convention_seed_000015),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000016", fp_grid_xy_convention_seed_000016),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000017", fp_grid_xy_convention_seed_000017),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000018", fp_grid_xy_convention_seed_000018),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000019", fp_grid_xy_convention_seed_000019),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000020", fp_grid_xy_convention_seed_000020),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000021", fp_grid_xy_convention_seed_000021),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000022", fp_grid_xy_convention_seed_000022),
+        ("property_campaigns::tests::fp_grid_xy_convention_seed_000023", fp_grid_xy_convention_seed_000023),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000000", uq_search_free_x_non_positive_offset_none_seed_000000),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000001", uq_search_free_x_non_positive_offset_none_seed_000001),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000002", uq_search_free_x_non_positive_offset_none_seed_000002),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000003", uq_search_free_x_non_positive_offset_none_seed_000003),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000004", uq_search_free_x_non_positive_offset_none_seed_000004),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000005", uq_search_free_x_non_positive_offset_none_seed_000005),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000006", uq_search_free_x_non_positive_offset_none_seed_000006),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000007", uq_search_free_x_non_positive_offset_none_seed_000007),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000008", uq_search_free_x_non_positive_offset_none_seed_000008),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000009", uq_search_free_x_non_positive_offset_none_seed_000009),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000010", uq_search_free_x_non_positive_offset_none_seed_000010),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000011", uq_search_free_x_non_positive_offset_none_seed_000011),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000012", uq_search_free_x_non_positive_offset_none_seed_000012),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000013", uq_search_free_x_non_positive_offset_none_seed_000013),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000014", uq_search_free_x_non_positive_offset_none_seed_000014),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000015", uq_search_free_x_non_positive_offset_none_seed_000015),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000016", uq_search_free_x_non_positive_offset_none_seed_000016),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000017", uq_search_free_x_non_positive_offset_none_seed_000017),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000018", uq_search_free_x_non_positive_offset_none_seed_000018),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000019", uq_search_free_x_non_positive_offset_none_seed_000019),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000020", uq_search_free_x_non_positive_offset_none_seed_000020),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000021", uq_search_free_x_non_positive_offset_none_seed_000021),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000022", uq_search_free_x_non_positive_offset_none_seed_000022),
+        ("property_campaigns::tests::uq_search_free_x_non_positive_offset_none_seed_000023", uq_search_free_x_non_positive_offset_none_seed_000023),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000000", uq_search_free_x_nan_offset_none_seed_000000),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000001", uq_search_free_x_nan_offset_none_seed_000001),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000002", uq_search_free_x_nan_offset_none_seed_000002),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000003", uq_search_free_x_nan_offset_none_seed_000003),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000004", uq_search_free_x_nan_offset_none_seed_000004),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000005", uq_search_free_x_nan_offset_none_seed_000005),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000006", uq_search_free_x_nan_offset_none_seed_000006),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000007", uq_search_free_x_nan_offset_none_seed_000007),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000008", uq_search_free_x_nan_offset_none_seed_000008),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000009", uq_search_free_x_nan_offset_none_seed_000009),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000010", uq_search_free_x_nan_offset_none_seed_000010),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000011", uq_search_free_x_nan_offset_none_seed_000011),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000012", uq_search_free_x_nan_offset_none_seed_000012),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000013", uq_search_free_x_nan_offset_none_seed_000013),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000014", uq_search_free_x_nan_offset_none_seed_000014),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000015", uq_search_free_x_nan_offset_none_seed_000015),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000016", uq_search_free_x_nan_offset_none_seed_000016),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000017", uq_search_free_x_nan_offset_none_seed_000017),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000018", uq_search_free_x_nan_offset_none_seed_000018),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000019", uq_search_free_x_nan_offset_none_seed_000019),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000020", uq_search_free_x_nan_offset_none_seed_000020),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000021", uq_search_free_x_nan_offset_none_seed_000021),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000022", uq_search_free_x_nan_offset_none_seed_000022),
+        ("property_campaigns::tests::uq_search_free_x_nan_offset_none_seed_000023", uq_search_free_x_nan_offset_none_seed_000023),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000000", uq_search_free_x_found_within_bounds_seed_000000),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000001", uq_search_free_x_found_within_bounds_seed_000001),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000002", uq_search_free_x_found_within_bounds_seed_000002),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000003", uq_search_free_x_found_within_bounds_seed_000003),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000004", uq_search_free_x_found_within_bounds_seed_000004),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000005", uq_search_free_x_found_within_bounds_seed_000005),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000006", uq_search_free_x_found_within_bounds_seed_000006),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000007", uq_search_free_x_found_within_bounds_seed_000007),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000008", uq_search_free_x_found_within_bounds_seed_000008),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000009", uq_search_free_x_found_within_bounds_seed_000009),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000010", uq_search_free_x_found_within_bounds_seed_000010),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000011", uq_search_free_x_found_within_bounds_seed_000011),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000012", uq_search_free_x_found_within_bounds_seed_000012),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000013", uq_search_free_x_found_within_bounds_seed_000013),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000014", uq_search_free_x_found_within_bounds_seed_000014),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000015", uq_search_free_x_found_within_bounds_seed_000015),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000016", uq_search_free_x_found_within_bounds_seed_000016),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000017", uq_search_free_x_found_within_bounds_seed_000017),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000018", uq_search_free_x_found_within_bounds_seed_000018),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000019", uq_search_free_x_found_within_bounds_seed_000019),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000020", uq_search_free_x_found_within_bounds_seed_000020),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000021", uq_search_free_x_found_within_bounds_seed_000021),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000022", uq_search_free_x_found_within_bounds_seed_000022),
+        ("property_campaigns::tests::uq_search_free_x_found_within_bounds_seed_000023", uq_search_free_x_found_within_bounds_seed_000023),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000000", uq_enforce_unique_no_violations_seed_000000),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000001", uq_enforce_unique_no_violations_seed_000001),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000002", uq_enforce_unique_no_violations_seed_000002),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000003", uq_enforce_unique_no_violations_seed_000003),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000004", uq_enforce_unique_no_violations_seed_000004),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000005", uq_enforce_unique_no_violations_seed_000005),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000006", uq_enforce_unique_no_violations_seed_000006),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000007", uq_enforce_unique_no_violations_seed_000007),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000008", uq_enforce_unique_no_violations_seed_000008),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000009", uq_enforce_unique_no_violations_seed_000009),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000010", uq_enforce_unique_no_violations_seed_000010),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000011", uq_enforce_unique_no_violations_seed_000011),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000012", uq_enforce_unique_no_violations_seed_000012),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000013", uq_enforce_unique_no_violations_seed_000013),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000014", uq_enforce_unique_no_violations_seed_000014),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000015", uq_enforce_unique_no_violations_seed_000015),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000016", uq_enforce_unique_no_violations_seed_000016),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000017", uq_enforce_unique_no_violations_seed_000017),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000018", uq_enforce_unique_no_violations_seed_000018),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000019", uq_enforce_unique_no_violations_seed_000019),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000020", uq_enforce_unique_no_violations_seed_000020),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000021", uq_enforce_unique_no_violations_seed_000021),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000022", uq_enforce_unique_no_violations_seed_000022),
+        ("property_campaigns::tests::uq_enforce_unique_no_violations_seed_000023", uq_enforce_unique_no_violations_seed_000023),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000000", uq_enforce_unique_noop_when_already_unique_seed_000000),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000001", uq_enforce_unique_noop_when_already_unique_seed_000001),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000002", uq_enforce_unique_noop_when_already_unique_seed_000002),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000003", uq_enforce_unique_noop_when_already_unique_seed_000003),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000004", uq_enforce_unique_noop_when_already_unique_seed_000004),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000005", uq_enforce_unique_noop_when_already_unique_seed_000005),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000006", uq_enforce_unique_noop_when_already_unique_seed_000006),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000007", uq_enforce_unique_noop_when_already_unique_seed_000007),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000008", uq_enforce_unique_noop_when_already_unique_seed_000008),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000009", uq_enforce_unique_noop_when_already_unique_seed_000009),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000010", uq_enforce_unique_noop_when_already_unique_seed_000010),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000011", uq_enforce_unique_noop_when_already_unique_seed_000011),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000012", uq_enforce_unique_noop_when_already_unique_seed_000012),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000013", uq_enforce_unique_noop_when_already_unique_seed_000013),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000014", uq_enforce_unique_noop_when_already_unique_seed_000014),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000015", uq_enforce_unique_noop_when_already_unique_seed_000015),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000016", uq_enforce_unique_noop_when_already_unique_seed_000016),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000017", uq_enforce_unique_noop_when_already_unique_seed_000017),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000018", uq_enforce_unique_noop_when_already_unique_seed_000018),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000019", uq_enforce_unique_noop_when_already_unique_seed_000019),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000020", uq_enforce_unique_noop_when_already_unique_seed_000020),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000021", uq_enforce_unique_noop_when_already_unique_seed_000021),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000022", uq_enforce_unique_noop_when_already_unique_seed_000022),
+        ("property_campaigns::tests::uq_enforce_unique_noop_when_already_unique_seed_000023", uq_enforce_unique_noop_when_already_unique_seed_000023),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000000", uq_enforce_unique_stays_in_bounds_seed_000000),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000001", uq_enforce_unique_stays_in_bounds_seed_000001),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000002", uq_enforce_unique_stays_in_bounds_seed_000002),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000003", uq_enforce_unique_stays_in_bounds_seed_000003),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000004", uq_enforce_unique_stays_in_bounds_seed_000004),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000005", uq_enforce_unique_stays_in_bounds_seed_000005),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000006", uq_enforce_unique_stays_in_bounds_seed_000006),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000007", uq_enforce_unique_stays_in_bounds_seed_000007),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000008", uq_enforce_unique_stays_in_bounds_seed_000008),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000009", uq_enforce_unique_stays_in_bounds_seed_000009),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000010", uq_enforce_unique_stays_in_bounds_seed_000010),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000011", uq_enforce_unique_stays_in_bounds_seed_000011),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000012", uq_enforce_unique_stays_in_bounds_seed_000012),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000013", uq_enforce_unique_stays_in_bounds_seed_000013),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000014", uq_enforce_unique_stays_in_bounds_seed_000014),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000015", uq_enforce_unique_stays_in_bounds_seed_000015),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000016", uq_enforce_unique_stays_in_bounds_seed_000016),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000017", uq_enforce_unique_stays_in_bounds_seed_000017),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000018", uq_enforce_unique_stays_in_bounds_seed_000018),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000019", uq_enforce_unique_stays_in_bounds_seed_000019),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000020", uq_enforce_unique_stays_in_bounds_seed_000020),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000021", uq_enforce_unique_stays_in_bounds_seed_000021),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000022", uq_enforce_unique_stays_in_bounds_seed_000022),
+        ("property_campaigns::tests::uq_enforce_unique_stays_in_bounds_seed_000023", uq_enforce_unique_stays_in_bounds_seed_000023),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

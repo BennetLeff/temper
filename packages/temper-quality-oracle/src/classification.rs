@@ -16,7 +16,11 @@ fn matches_any(upper: &str, patterns: &[&str]) -> bool {
     patterns.iter().any(|p| upper.contains(*p))
 }
 
-fn classify_net_name(name: &str) -> NetClass {
+// `pub(crate)`, not private: the wasm32-tier deterministic campaign in
+// `property_campaigns.rs` mirrors this file's `proptests` module (which
+// reaches it via `use super::*` from inside this same file) and needs to
+// call it from a sibling module.
+pub(crate) fn classify_net_name(name: &str) -> NetClass {
     // Uppercase once per net name, not once per pattern group below.
     let upper = name.to_uppercase();
     if matches_any(&upper, GROUND_PATTERNS) {
