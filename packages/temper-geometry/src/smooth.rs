@@ -948,6 +948,1054 @@ pub(crate) mod tests {
         );
     }
 
+    // -----------------------------------------------------------------
+    // WASM-tier mirror of `mod proptests` below (R19/U6: `proptest` is a
+    // dev-dependency, absent from the non-test `wasm-registry` build --
+    // see `docs/evidence/2026-08-11-native-only-classification-all-crates.md`,
+    // which counts this crate's 55 zero-mirror-coverage proptests).
+    // Deterministic SplitMix64 seeded generator: no `rand`, no `proptest`,
+    // no OS entropy (wasm32-unknown-unknown has none). Each `pN_..._impl`
+    // below is the exact assertion body of its `mod proptests` sibling;
+    // each is called by CAMPAIGN_N registered wrapper tests below, one per
+    // seed, so a failure names the exact seed to replay. The native
+    // `mod proptests` is NOT touched -- it keeps exploring randomly.
+    //
+    // Vacuity guard: two ways this module's smoothing properties go
+    // vacuous under plain uniform sampling. (1) a == b is the "sharp
+    // corner" of max/min -- the one input where the smoothing approximation
+    // actually has work to do -- and two independent uniform draws land
+    // there with probability ~0. (2) `small_vec()`/`small_points()`'s
+    // 1-8 elements are "a path": a length-1 draw (the minimal case) or a
+    // draw where every element is already equal (nothing left to smooth)
+    // are both rare under independent uniform sampling of each element.
+    // `gen_pair` and `gen_small_vec`/`gen_small_points` below deliberately
+    // construct these on roughly half of all draws; `wasm_mirror_vacuity_
+    // guard` measures and asserts that rate rather than assuming it.
+    // -----------------------------------------------------------------
+
+    struct SplitMix64(u64);
+
+    impl SplitMix64 {
+        fn new(seed: u64) -> Self {
+            Self(seed)
+        }
+        fn next_u64(&mut self) -> u64 {
+            self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
+            let mut z = self.0;
+            z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+            z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+            z ^ (z >> 31)
+        }
+        fn next_f64(&mut self) -> f64 {
+            (self.next_u64() >> 11) as f64 * (1.0 / (1u64 << 53) as f64)
+        }
+        fn range(&mut self, lo: f64, hi: f64) -> f64 {
+            lo + self.next_f64() * (hi - lo)
+        }
+        fn index(&mut self, n: usize) -> usize {
+            debug_assert!(n > 0);
+            (self.next_u64() % n as u64) as usize
+        }
+        fn bool(&mut self) -> bool {
+            self.next_u64() & 1 == 0
+        }
+    }
+
+    fn sub_rng(seed: u64, salt: u64) -> SplitMix64 {
+        SplitMix64::new(seed.wrapping_mul(0x9E37_79B9_7F4A_7C15).wrapping_add(salt))
+    }
+
+    const CAMPAIGN_N: usize = 20;
+
+    /// Deliberately-chosen value boundary values (zero, negative zero,
+    /// unit magnitude, near the `val()` strategy's `-1e6..1e6` domain
+    /// limit).
+    const BOUNDARY_VALUES: &[f64] = &[0.0, -0.0, 1.0, -1.0, 999_999.0, -999_999.0];
+
+    fn gen_val(rng: &mut SplitMix64) -> (f64, bool) {
+        if rng.bool() {
+            (BOUNDARY_VALUES[rng.index(BOUNDARY_VALUES.len())], true)
+        } else {
+            (rng.range(-1e6, 1e6), false)
+        }
+    }
+
+    /// Deliberately-chosen alpha boundary values (endpoints of the
+    /// `alpha()` strategy's `0.001..1000.0` domain).
+    const BOUNDARY_ALPHAS: &[f64] = &[0.001, 0.01, 500.0, 999.999];
+
+    fn gen_alpha(rng: &mut SplitMix64) -> (f64, bool) {
+        if rng.bool() {
+            (BOUNDARY_ALPHAS[rng.index(BOUNDARY_ALPHAS.len())], true)
+        } else {
+            (rng.range(0.001, 1000.0), false)
+        }
+    }
+
+    /// A pair `(a, b)` for the max/min properties. 50% of the time `a ==
+    /// b` (the "sharp corner" of max/min, where the smoothing
+    /// approximation's overestimate/underestimate is largest relative to
+    /// the alpha scale). Returns `(a, b, was_tie)`.
+    fn gen_pair(rng: &mut SplitMix64) -> (f64, f64, bool) {
+        let (a, _) = gen_val(rng);
+        if rng.bool() {
+            (a, a, true)
+        } else {
+            let (b, _) = gen_val(rng);
+            (a, b, false)
+        }
+    }
+
+    /// A 1-8 element vec (matching `small_vec()`'s `1..=8`). 50% of the
+    /// time, deliberately: a length-1 vec (the minimal "path"), a vec of
+    /// `n` identical elements (already-smooth, nothing left for the
+    /// smoothing approximation to average over), or a vec with two
+    /// elements pinned near the domain's opposite extremes (maximal
+    /// spread -- the sharpest possible corner for `smooth_max_axis` /
+    /// `smooth_min_axis` to round off). Returns `(values, was_interesting)`.
+    fn gen_small_vec(rng: &mut SplitMix64) -> (Vec<f64>, bool) {
+        if rng.bool() {
+            match rng.index(3) {
+                0 => {
+                    let (v, _) = gen_val(rng);
+                    (vec![v], true)
+                }
+                1 => {
+                    let n = 1 + rng.index(8);
+                    let (v, _) = gen_val(rng);
+                    (vec![v; n], true)
+                }
+                _ => {
+                    let n = 2 + rng.index(7);
+                    let mut vals = vec![-1e6 + 1.0, 1e6 - 1.0];
+                    for _ in 2..n {
+                        let (v, _) = gen_val(rng);
+                        vals.push(v);
+                    }
+                    (vals, true)
+                }
+            }
+        } else {
+            let n = 1 + rng.index(8);
+            let mut vals = Vec::with_capacity(n);
+            for _ in 0..n {
+                let (v, _) = gen_val(rng);
+                vals.push(v);
+            }
+            (vals, false)
+        }
+    }
+
+    /// Points for `hpwl_smooth`, with the same minimal-length /
+    /// maximal-spread bias as `gen_small_vec`. Returns
+    /// `(points, was_interesting)`.
+    fn gen_small_points(rng: &mut SplitMix64) -> (Vec<(f64, f64)>, bool) {
+        if rng.bool() {
+            if rng.bool() {
+                let (x, _) = gen_val(rng);
+                let (y, _) = gen_val(rng);
+                (vec![(x, y)], true)
+            } else {
+                let n = 2 + rng.index(7);
+                let mut pts = vec![(-1e6 + 1.0, -1e6 + 1.0), (1e6 - 1.0, 1e6 - 1.0)];
+                for _ in 2..n {
+                    let (x, _) = gen_val(rng);
+                    let (y, _) = gen_val(rng);
+                    pts.push((x, y));
+                }
+                (pts, true)
+            }
+        } else {
+            let n = 1 + rng.index(8);
+            let mut pts = Vec::with_capacity(n);
+            for _ in 0..n {
+                let (x, _) = gen_val(rng);
+                let (y, _) = gen_val(rng);
+                pts.push((x, y));
+            }
+            (pts, false)
+        }
+    }
+
+    /// Deliberately-chosen schedule-endpoint boundary values (endpoints
+    /// of the `0.1..100.0` domain used by `p14`/`p15`).
+    const BOUNDARY_SCHEDULE_VALUES: &[f64] = &[0.1, 99.999, 1.0];
+
+    fn gen_schedule_value(rng: &mut SplitMix64) -> (f64, bool) {
+        if rng.bool() {
+            (BOUNDARY_SCHEDULE_VALUES[rng.index(BOUNDARY_SCHEDULE_VALUES.len())], true)
+        } else {
+            (rng.range(0.1, 100.0), false)
+        }
+    }
+
+    /// `(start, end, epochs, was_flat)` for the alpha-schedule properties.
+    /// `epochs` is deliberately pinned to 2 (the minimal `epochs > 1`
+    /// case) half the time; `start == end` (a flat, already-annealed
+    /// schedule) is constructed deliberately the other half of the time.
+    fn gen_schedule_params(rng: &mut SplitMix64) -> (f64, f64, usize, bool) {
+        let epochs = if rng.bool() { 2 } else { 2 + rng.index(18) };
+        if rng.bool() {
+            let (v, _) = gen_schedule_value(rng);
+            (v, v, epochs, true)
+        } else {
+            let (start, _) = gen_schedule_value(rng);
+            let (end, _) = gen_schedule_value(rng);
+            (start, end, epochs, false)
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // smooth_max
+    // -----------------------------------------------------------------
+
+    fn p1_smooth_max_ge_max_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 1);
+        let (a, b, _) = gen_pair(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        let s = smooth_max(a, b, alpha);
+        assert!(s >= a.max(b), "smooth_max({a},{b},{alpha})={s} < max={}", a.max(b));
+    }
+
+    fn p2_smooth_max_symmetric_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 2);
+        let (a, b, _) = gen_pair(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        assert_eq!(smooth_max(a, b, alpha), smooth_max(b, a, alpha));
+    }
+
+    fn p3_smooth_max_monotonic_in_alpha_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 3);
+        let (a, b, _) = gen_pair(&mut rng);
+        let (alpha1, _) = gen_alpha(&mut rng);
+        let (alpha2, _) = gen_alpha(&mut rng);
+        let (alpha1, alpha2) = if alpha1 < alpha2 { (alpha1, alpha2) } else { (alpha2, alpha1) };
+        let s1 = smooth_max(a, b, alpha1);
+        let s2 = smooth_max(a, b, alpha2);
+        let m = a.max(b);
+        assert!(s1 >= s2, "{s1} < {s2} for alpha {alpha1} < {alpha2}");
+        assert!(s2 >= m, "{s2} < {m}");
+    }
+
+    // -----------------------------------------------------------------
+    // smooth_min
+    // -----------------------------------------------------------------
+
+    fn p4_smooth_min_le_min_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 4);
+        let (a, b, _) = gen_pair(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        let s = smooth_min(a, b, alpha);
+        assert!(s <= a.min(b), "smooth_min({a},{b},{alpha})={s} > min={}", a.min(b));
+    }
+
+    fn p5_smooth_min_symmetric_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 5);
+        let (a, b, _) = gen_pair(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        assert_eq!(smooth_min(a, b, alpha), smooth_min(b, a, alpha));
+    }
+
+    fn p6_smooth_min_via_max_identity_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 6);
+        let (a, b, _) = gen_pair(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        let direct = smooth_min(a, b, alpha);
+        let via_max = -smooth_max(-a, -b, alpha);
+        assert_eq!(direct, via_max);
+    }
+
+    // -----------------------------------------------------------------
+    // smooth_abs
+    // -----------------------------------------------------------------
+
+    fn p7_smooth_abs_symmetric_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 7);
+        let (x, _) = gen_val(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        assert_eq!(smooth_abs(x, alpha), smooth_abs(-x, alpha));
+    }
+
+    fn p8_smooth_abs_non_negative_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 8);
+        let (x, _) = gen_val(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        assert!(smooth_abs(x, alpha) >= 0.0);
+    }
+
+    // -----------------------------------------------------------------
+    // smooth_step
+    // -----------------------------------------------------------------
+
+    fn p9_smooth_step_output_in_01_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 9);
+        let (x, _) = gen_val(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        let s = smooth_step(x, alpha);
+        assert!((0.0..=1.0).contains(&s), "smooth_step({x},{alpha})={s} not in [0,1]");
+    }
+
+    // -----------------------------------------------------------------
+    // smooth_max_axis / smooth_min_axis
+    // -----------------------------------------------------------------
+
+    fn p10_smooth_max_axis_ge_max_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 10);
+        let (arr, _) = gen_small_vec(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        let true_max = arr.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+        let s = smooth_max_axis(&arr, alpha);
+        assert!(s >= true_max, "smooth_max_axis={s} < max={true_max}");
+    }
+
+    fn p11_smooth_min_axis_le_min_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 11);
+        let (arr, _) = gen_small_vec(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        let true_min = arr.iter().copied().fold(f64::INFINITY, f64::min);
+        let s = smooth_min_axis(&arr, alpha);
+        assert!(s <= true_min, "smooth_min_axis={s} > min={true_min}");
+    }
+
+    // -----------------------------------------------------------------
+    // hpwl_smooth
+    // -----------------------------------------------------------------
+
+    fn p12_hpwl_smooth_ge_true_hpwl_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 12);
+        let (pts, _) = gen_small_points(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        let xs: Vec<f64> = pts.iter().map(|(x, _)| *x).collect();
+        let ys: Vec<f64> = pts.iter().map(|(_, y)| *y).collect();
+        let true_max_x = xs.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+        let true_min_x = xs.iter().copied().fold(f64::INFINITY, f64::min);
+        let true_max_y = ys.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+        let true_min_y = ys.iter().copied().fold(f64::INFINITY, f64::min);
+        let true_hpwl = (true_max_x - true_min_x) + (true_max_y - true_min_y);
+        let s = hpwl_smooth(&pts, alpha);
+        assert!(s >= true_hpwl - 1e-9, "hpwl_smooth={s} < true_hpwl={true_hpwl}");
+    }
+
+    // -----------------------------------------------------------------
+    // weighted_average_smooth
+    // -----------------------------------------------------------------
+
+    fn p13_weighted_average_bounded_by_extrema_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 13);
+        let (values, _) = gen_small_vec(&mut rng);
+        let (alpha, _) = gen_alpha(&mut rng);
+        let result = weighted_average_smooth(&values, &values, alpha);
+        let lo = values.iter().copied().fold(f64::INFINITY, f64::min);
+        let hi = values.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+        assert!(result >= lo - 1e-9, "weighted_average_smooth={result} < min={lo}");
+        assert!(result <= hi + 1e-9, "weighted_average_smooth={result} > max={hi}");
+    }
+
+    // -----------------------------------------------------------------
+    // get_alpha_schedule
+    // -----------------------------------------------------------------
+
+    fn p14_alpha_schedule_endpoints_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 14);
+        let (start, end, epochs, _) = gen_schedule_params(&mut rng);
+        let schedule = get_alpha_schedule(start, end, epochs);
+        assert_eq!(schedule.len(), epochs);
+        assert!((schedule[0] - start).abs() < 1e-12, "first={} != start={start}", schedule[0]);
+        assert!(
+            (schedule[epochs - 1] - end).abs() < 1e-12,
+            "last={} != end={end}", schedule[epochs - 1]
+        );
+    }
+
+    fn p15_alpha_schedule_monotonic_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 15);
+        let (start, end, epochs, _) = gen_schedule_params(&mut rng);
+        let (start, end) = if start <= end { (start, end) } else { (end, start) };
+        let schedule = get_alpha_schedule(start, end, epochs);
+        for w in schedule.windows(2) {
+            assert!(w[1] >= w[0], "schedule not monotonic: {} > {}", w[0], w[1]);
+        }
+    }
+
+    /// Vacuity guard: measures, per property's own salt, what fraction of
+    /// the CAMPAIGN_N seeds actually landed a deliberately-constructed
+    /// "sharp corner" (a==b tie), minimal/flat/maximal-spread array, or
+    /// flat schedule, rather than a generic independent-uniform draw.
+    #[cfg_attr(test, test)]
+    fn wasm_mirror_vacuity_guard() {
+        for salt in 1u64..=6 {
+            let mut hits = 0usize;
+            for seed in 0..CAMPAIGN_N as u64 {
+                let mut rng = sub_rng(seed, salt);
+                let (_, _, was_tie) = gen_pair(&mut rng);
+                if was_tie {
+                    hits += 1;
+                }
+            }
+            let rate = hits as f64 / CAMPAIGN_N as f64;
+            assert!(
+                rate >= 0.20,
+                "gen_pair salt={salt}: only {hits}/{CAMPAIGN_N} ({:.0}%) ties \
+                 (a == b, the sharp corner of max/min); expected >= 20%",
+                rate * 100.0
+            );
+        }
+        for salt in [10u64, 11, 13] {
+            let mut hits = 0usize;
+            for seed in 0..CAMPAIGN_N as u64 {
+                let mut rng = sub_rng(seed, salt);
+                let (_, was_interesting) = gen_small_vec(&mut rng);
+                if was_interesting {
+                    hits += 1;
+                }
+            }
+            let rate = hits as f64 / CAMPAIGN_N as f64;
+            assert!(
+                rate >= 0.20,
+                "gen_small_vec salt={salt}: only {hits}/{CAMPAIGN_N} ({:.0}%) \
+                 minimal-length/flat/maximal-spread; expected >= 20%",
+                rate * 100.0
+            );
+        }
+        {
+            let salt = 12u64;
+            let mut hits = 0usize;
+            for seed in 0..CAMPAIGN_N as u64 {
+                let mut rng = sub_rng(seed, salt);
+                let (_, was_interesting) = gen_small_points(&mut rng);
+                if was_interesting {
+                    hits += 1;
+                }
+            }
+            let rate = hits as f64 / CAMPAIGN_N as f64;
+            assert!(
+                rate >= 0.20,
+                "gen_small_points salt={salt}: only {hits}/{CAMPAIGN_N} ({:.0}%) \
+                 minimal-length/maximal-spread; expected >= 20%",
+                rate * 100.0
+            );
+        }
+        for salt in [14u64, 15] {
+            let mut hits = 0usize;
+            for seed in 0..CAMPAIGN_N as u64 {
+                let mut rng = sub_rng(seed, salt);
+                let (_, _, _, was_flat) = gen_schedule_params(&mut rng);
+                if was_flat {
+                    hits += 1;
+                }
+            }
+            let rate = hits as f64 / CAMPAIGN_N as f64;
+            assert!(
+                rate >= 0.20,
+                "gen_schedule_params salt={salt}: only {hits}/{CAMPAIGN_N} \
+                 ({:.0}%) flat (start == end); expected >= 20%",
+                rate * 100.0
+            );
+        }
+    }
+
+    // 15 properties x 20 seeds = 300 distinct-input wasm tests.
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_000() { p1_smooth_max_ge_max_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_001() { p1_smooth_max_ge_max_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_002() { p1_smooth_max_ge_max_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_003() { p1_smooth_max_ge_max_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_004() { p1_smooth_max_ge_max_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_005() { p1_smooth_max_ge_max_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_006() { p1_smooth_max_ge_max_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_007() { p1_smooth_max_ge_max_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_008() { p1_smooth_max_ge_max_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_009() { p1_smooth_max_ge_max_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_010() { p1_smooth_max_ge_max_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_011() { p1_smooth_max_ge_max_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_012() { p1_smooth_max_ge_max_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_013() { p1_smooth_max_ge_max_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_014() { p1_smooth_max_ge_max_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_015() { p1_smooth_max_ge_max_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_016() { p1_smooth_max_ge_max_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_017() { p1_smooth_max_ge_max_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_018() { p1_smooth_max_ge_max_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p1_smooth_max_ge_max_seed_019() { p1_smooth_max_ge_max_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_000() { p2_smooth_max_symmetric_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_001() { p2_smooth_max_symmetric_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_002() { p2_smooth_max_symmetric_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_003() { p2_smooth_max_symmetric_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_004() { p2_smooth_max_symmetric_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_005() { p2_smooth_max_symmetric_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_006() { p2_smooth_max_symmetric_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_007() { p2_smooth_max_symmetric_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_008() { p2_smooth_max_symmetric_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_009() { p2_smooth_max_symmetric_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_010() { p2_smooth_max_symmetric_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_011() { p2_smooth_max_symmetric_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_012() { p2_smooth_max_symmetric_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_013() { p2_smooth_max_symmetric_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_014() { p2_smooth_max_symmetric_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_015() { p2_smooth_max_symmetric_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_016() { p2_smooth_max_symmetric_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_017() { p2_smooth_max_symmetric_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_018() { p2_smooth_max_symmetric_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p2_smooth_max_symmetric_seed_019() { p2_smooth_max_symmetric_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_000() { p3_smooth_max_monotonic_in_alpha_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_001() { p3_smooth_max_monotonic_in_alpha_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_002() { p3_smooth_max_monotonic_in_alpha_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_003() { p3_smooth_max_monotonic_in_alpha_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_004() { p3_smooth_max_monotonic_in_alpha_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_005() { p3_smooth_max_monotonic_in_alpha_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_006() { p3_smooth_max_monotonic_in_alpha_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_007() { p3_smooth_max_monotonic_in_alpha_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_008() { p3_smooth_max_monotonic_in_alpha_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_009() { p3_smooth_max_monotonic_in_alpha_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_010() { p3_smooth_max_monotonic_in_alpha_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_011() { p3_smooth_max_monotonic_in_alpha_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_012() { p3_smooth_max_monotonic_in_alpha_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_013() { p3_smooth_max_monotonic_in_alpha_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_014() { p3_smooth_max_monotonic_in_alpha_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_015() { p3_smooth_max_monotonic_in_alpha_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_016() { p3_smooth_max_monotonic_in_alpha_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_017() { p3_smooth_max_monotonic_in_alpha_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_018() { p3_smooth_max_monotonic_in_alpha_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p3_smooth_max_monotonic_in_alpha_seed_019() { p3_smooth_max_monotonic_in_alpha_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_000() { p4_smooth_min_le_min_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_001() { p4_smooth_min_le_min_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_002() { p4_smooth_min_le_min_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_003() { p4_smooth_min_le_min_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_004() { p4_smooth_min_le_min_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_005() { p4_smooth_min_le_min_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_006() { p4_smooth_min_le_min_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_007() { p4_smooth_min_le_min_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_008() { p4_smooth_min_le_min_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_009() { p4_smooth_min_le_min_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_010() { p4_smooth_min_le_min_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_011() { p4_smooth_min_le_min_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_012() { p4_smooth_min_le_min_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_013() { p4_smooth_min_le_min_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_014() { p4_smooth_min_le_min_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_015() { p4_smooth_min_le_min_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_016() { p4_smooth_min_le_min_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_017() { p4_smooth_min_le_min_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_018() { p4_smooth_min_le_min_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p4_smooth_min_le_min_seed_019() { p4_smooth_min_le_min_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_000() { p5_smooth_min_symmetric_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_001() { p5_smooth_min_symmetric_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_002() { p5_smooth_min_symmetric_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_003() { p5_smooth_min_symmetric_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_004() { p5_smooth_min_symmetric_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_005() { p5_smooth_min_symmetric_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_006() { p5_smooth_min_symmetric_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_007() { p5_smooth_min_symmetric_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_008() { p5_smooth_min_symmetric_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_009() { p5_smooth_min_symmetric_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_010() { p5_smooth_min_symmetric_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_011() { p5_smooth_min_symmetric_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_012() { p5_smooth_min_symmetric_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_013() { p5_smooth_min_symmetric_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_014() { p5_smooth_min_symmetric_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_015() { p5_smooth_min_symmetric_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_016() { p5_smooth_min_symmetric_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_017() { p5_smooth_min_symmetric_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_018() { p5_smooth_min_symmetric_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p5_smooth_min_symmetric_seed_019() { p5_smooth_min_symmetric_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_000() { p6_smooth_min_via_max_identity_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_001() { p6_smooth_min_via_max_identity_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_002() { p6_smooth_min_via_max_identity_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_003() { p6_smooth_min_via_max_identity_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_004() { p6_smooth_min_via_max_identity_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_005() { p6_smooth_min_via_max_identity_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_006() { p6_smooth_min_via_max_identity_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_007() { p6_smooth_min_via_max_identity_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_008() { p6_smooth_min_via_max_identity_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_009() { p6_smooth_min_via_max_identity_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_010() { p6_smooth_min_via_max_identity_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_011() { p6_smooth_min_via_max_identity_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_012() { p6_smooth_min_via_max_identity_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_013() { p6_smooth_min_via_max_identity_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_014() { p6_smooth_min_via_max_identity_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_015() { p6_smooth_min_via_max_identity_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_016() { p6_smooth_min_via_max_identity_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_017() { p6_smooth_min_via_max_identity_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_018() { p6_smooth_min_via_max_identity_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p6_smooth_min_via_max_identity_seed_019() { p6_smooth_min_via_max_identity_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_000() { p7_smooth_abs_symmetric_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_001() { p7_smooth_abs_symmetric_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_002() { p7_smooth_abs_symmetric_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_003() { p7_smooth_abs_symmetric_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_004() { p7_smooth_abs_symmetric_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_005() { p7_smooth_abs_symmetric_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_006() { p7_smooth_abs_symmetric_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_007() { p7_smooth_abs_symmetric_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_008() { p7_smooth_abs_symmetric_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_009() { p7_smooth_abs_symmetric_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_010() { p7_smooth_abs_symmetric_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_011() { p7_smooth_abs_symmetric_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_012() { p7_smooth_abs_symmetric_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_013() { p7_smooth_abs_symmetric_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_014() { p7_smooth_abs_symmetric_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_015() { p7_smooth_abs_symmetric_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_016() { p7_smooth_abs_symmetric_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_017() { p7_smooth_abs_symmetric_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_018() { p7_smooth_abs_symmetric_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p7_smooth_abs_symmetric_seed_019() { p7_smooth_abs_symmetric_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_000() { p8_smooth_abs_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_001() { p8_smooth_abs_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_002() { p8_smooth_abs_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_003() { p8_smooth_abs_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_004() { p8_smooth_abs_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_005() { p8_smooth_abs_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_006() { p8_smooth_abs_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_007() { p8_smooth_abs_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_008() { p8_smooth_abs_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_009() { p8_smooth_abs_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_010() { p8_smooth_abs_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_011() { p8_smooth_abs_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_012() { p8_smooth_abs_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_013() { p8_smooth_abs_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_014() { p8_smooth_abs_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_015() { p8_smooth_abs_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_016() { p8_smooth_abs_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_017() { p8_smooth_abs_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_018() { p8_smooth_abs_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p8_smooth_abs_non_negative_seed_019() { p8_smooth_abs_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_000() { p9_smooth_step_output_in_01_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_001() { p9_smooth_step_output_in_01_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_002() { p9_smooth_step_output_in_01_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_003() { p9_smooth_step_output_in_01_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_004() { p9_smooth_step_output_in_01_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_005() { p9_smooth_step_output_in_01_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_006() { p9_smooth_step_output_in_01_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_007() { p9_smooth_step_output_in_01_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_008() { p9_smooth_step_output_in_01_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_009() { p9_smooth_step_output_in_01_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_010() { p9_smooth_step_output_in_01_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_011() { p9_smooth_step_output_in_01_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_012() { p9_smooth_step_output_in_01_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_013() { p9_smooth_step_output_in_01_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_014() { p9_smooth_step_output_in_01_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_015() { p9_smooth_step_output_in_01_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_016() { p9_smooth_step_output_in_01_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_017() { p9_smooth_step_output_in_01_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_018() { p9_smooth_step_output_in_01_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p9_smooth_step_output_in_01_seed_019() { p9_smooth_step_output_in_01_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_000() { p10_smooth_max_axis_ge_max_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_001() { p10_smooth_max_axis_ge_max_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_002() { p10_smooth_max_axis_ge_max_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_003() { p10_smooth_max_axis_ge_max_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_004() { p10_smooth_max_axis_ge_max_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_005() { p10_smooth_max_axis_ge_max_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_006() { p10_smooth_max_axis_ge_max_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_007() { p10_smooth_max_axis_ge_max_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_008() { p10_smooth_max_axis_ge_max_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_009() { p10_smooth_max_axis_ge_max_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_010() { p10_smooth_max_axis_ge_max_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_011() { p10_smooth_max_axis_ge_max_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_012() { p10_smooth_max_axis_ge_max_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_013() { p10_smooth_max_axis_ge_max_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_014() { p10_smooth_max_axis_ge_max_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_015() { p10_smooth_max_axis_ge_max_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_016() { p10_smooth_max_axis_ge_max_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_017() { p10_smooth_max_axis_ge_max_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_018() { p10_smooth_max_axis_ge_max_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p10_smooth_max_axis_ge_max_seed_019() { p10_smooth_max_axis_ge_max_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_000() { p11_smooth_min_axis_le_min_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_001() { p11_smooth_min_axis_le_min_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_002() { p11_smooth_min_axis_le_min_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_003() { p11_smooth_min_axis_le_min_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_004() { p11_smooth_min_axis_le_min_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_005() { p11_smooth_min_axis_le_min_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_006() { p11_smooth_min_axis_le_min_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_007() { p11_smooth_min_axis_le_min_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_008() { p11_smooth_min_axis_le_min_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_009() { p11_smooth_min_axis_le_min_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_010() { p11_smooth_min_axis_le_min_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_011() { p11_smooth_min_axis_le_min_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_012() { p11_smooth_min_axis_le_min_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_013() { p11_smooth_min_axis_le_min_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_014() { p11_smooth_min_axis_le_min_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_015() { p11_smooth_min_axis_le_min_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_016() { p11_smooth_min_axis_le_min_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_017() { p11_smooth_min_axis_le_min_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_018() { p11_smooth_min_axis_le_min_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p11_smooth_min_axis_le_min_seed_019() { p11_smooth_min_axis_le_min_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_000() { p12_hpwl_smooth_ge_true_hpwl_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_001() { p12_hpwl_smooth_ge_true_hpwl_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_002() { p12_hpwl_smooth_ge_true_hpwl_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_003() { p12_hpwl_smooth_ge_true_hpwl_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_004() { p12_hpwl_smooth_ge_true_hpwl_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_005() { p12_hpwl_smooth_ge_true_hpwl_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_006() { p12_hpwl_smooth_ge_true_hpwl_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_007() { p12_hpwl_smooth_ge_true_hpwl_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_008() { p12_hpwl_smooth_ge_true_hpwl_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_009() { p12_hpwl_smooth_ge_true_hpwl_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_010() { p12_hpwl_smooth_ge_true_hpwl_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_011() { p12_hpwl_smooth_ge_true_hpwl_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_012() { p12_hpwl_smooth_ge_true_hpwl_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_013() { p12_hpwl_smooth_ge_true_hpwl_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_014() { p12_hpwl_smooth_ge_true_hpwl_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_015() { p12_hpwl_smooth_ge_true_hpwl_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_016() { p12_hpwl_smooth_ge_true_hpwl_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_017() { p12_hpwl_smooth_ge_true_hpwl_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_018() { p12_hpwl_smooth_ge_true_hpwl_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p12_hpwl_smooth_ge_true_hpwl_seed_019() { p12_hpwl_smooth_ge_true_hpwl_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_000() { p13_weighted_average_bounded_by_extrema_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_001() { p13_weighted_average_bounded_by_extrema_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_002() { p13_weighted_average_bounded_by_extrema_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_003() { p13_weighted_average_bounded_by_extrema_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_004() { p13_weighted_average_bounded_by_extrema_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_005() { p13_weighted_average_bounded_by_extrema_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_006() { p13_weighted_average_bounded_by_extrema_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_007() { p13_weighted_average_bounded_by_extrema_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_008() { p13_weighted_average_bounded_by_extrema_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_009() { p13_weighted_average_bounded_by_extrema_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_010() { p13_weighted_average_bounded_by_extrema_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_011() { p13_weighted_average_bounded_by_extrema_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_012() { p13_weighted_average_bounded_by_extrema_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_013() { p13_weighted_average_bounded_by_extrema_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_014() { p13_weighted_average_bounded_by_extrema_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_015() { p13_weighted_average_bounded_by_extrema_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_016() { p13_weighted_average_bounded_by_extrema_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_017() { p13_weighted_average_bounded_by_extrema_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_018() { p13_weighted_average_bounded_by_extrema_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p13_weighted_average_bounded_by_extrema_seed_019() { p13_weighted_average_bounded_by_extrema_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_000() { p14_alpha_schedule_endpoints_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_001() { p14_alpha_schedule_endpoints_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_002() { p14_alpha_schedule_endpoints_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_003() { p14_alpha_schedule_endpoints_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_004() { p14_alpha_schedule_endpoints_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_005() { p14_alpha_schedule_endpoints_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_006() { p14_alpha_schedule_endpoints_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_007() { p14_alpha_schedule_endpoints_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_008() { p14_alpha_schedule_endpoints_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_009() { p14_alpha_schedule_endpoints_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_010() { p14_alpha_schedule_endpoints_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_011() { p14_alpha_schedule_endpoints_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_012() { p14_alpha_schedule_endpoints_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_013() { p14_alpha_schedule_endpoints_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_014() { p14_alpha_schedule_endpoints_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_015() { p14_alpha_schedule_endpoints_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_016() { p14_alpha_schedule_endpoints_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_017() { p14_alpha_schedule_endpoints_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_018() { p14_alpha_schedule_endpoints_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p14_alpha_schedule_endpoints_seed_019() { p14_alpha_schedule_endpoints_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_000() { p15_alpha_schedule_monotonic_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_001() { p15_alpha_schedule_monotonic_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_002() { p15_alpha_schedule_monotonic_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_003() { p15_alpha_schedule_monotonic_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_004() { p15_alpha_schedule_monotonic_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_005() { p15_alpha_schedule_monotonic_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_006() { p15_alpha_schedule_monotonic_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_007() { p15_alpha_schedule_monotonic_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_008() { p15_alpha_schedule_monotonic_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_009() { p15_alpha_schedule_monotonic_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_010() { p15_alpha_schedule_monotonic_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_011() { p15_alpha_schedule_monotonic_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_012() { p15_alpha_schedule_monotonic_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_013() { p15_alpha_schedule_monotonic_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_014() { p15_alpha_schedule_monotonic_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_015() { p15_alpha_schedule_monotonic_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_016() { p15_alpha_schedule_monotonic_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_017() { p15_alpha_schedule_monotonic_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_018() { p15_alpha_schedule_monotonic_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p15_alpha_schedule_monotonic_seed_019() { p15_alpha_schedule_monotonic_impl(19); }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -1029,6 +2077,307 @@ pub(crate) mod tests {
         ("smooth::tests::test_max_min_bracket", test_max_min_bracket),
         ("smooth::tests::test_pair_max_ge_min", test_pair_max_ge_min),
         ("smooth::tests::test_smooth_max_axis_via_logsumexp", test_smooth_max_axis_via_logsumexp),
+        ("smooth::tests::wasm_mirror_vacuity_guard", wasm_mirror_vacuity_guard),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_000", p1_smooth_max_ge_max_seed_000),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_001", p1_smooth_max_ge_max_seed_001),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_002", p1_smooth_max_ge_max_seed_002),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_003", p1_smooth_max_ge_max_seed_003),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_004", p1_smooth_max_ge_max_seed_004),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_005", p1_smooth_max_ge_max_seed_005),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_006", p1_smooth_max_ge_max_seed_006),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_007", p1_smooth_max_ge_max_seed_007),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_008", p1_smooth_max_ge_max_seed_008),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_009", p1_smooth_max_ge_max_seed_009),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_010", p1_smooth_max_ge_max_seed_010),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_011", p1_smooth_max_ge_max_seed_011),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_012", p1_smooth_max_ge_max_seed_012),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_013", p1_smooth_max_ge_max_seed_013),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_014", p1_smooth_max_ge_max_seed_014),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_015", p1_smooth_max_ge_max_seed_015),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_016", p1_smooth_max_ge_max_seed_016),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_017", p1_smooth_max_ge_max_seed_017),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_018", p1_smooth_max_ge_max_seed_018),
+        ("smooth::tests::p1_smooth_max_ge_max_seed_019", p1_smooth_max_ge_max_seed_019),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_000", p2_smooth_max_symmetric_seed_000),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_001", p2_smooth_max_symmetric_seed_001),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_002", p2_smooth_max_symmetric_seed_002),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_003", p2_smooth_max_symmetric_seed_003),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_004", p2_smooth_max_symmetric_seed_004),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_005", p2_smooth_max_symmetric_seed_005),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_006", p2_smooth_max_symmetric_seed_006),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_007", p2_smooth_max_symmetric_seed_007),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_008", p2_smooth_max_symmetric_seed_008),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_009", p2_smooth_max_symmetric_seed_009),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_010", p2_smooth_max_symmetric_seed_010),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_011", p2_smooth_max_symmetric_seed_011),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_012", p2_smooth_max_symmetric_seed_012),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_013", p2_smooth_max_symmetric_seed_013),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_014", p2_smooth_max_symmetric_seed_014),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_015", p2_smooth_max_symmetric_seed_015),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_016", p2_smooth_max_symmetric_seed_016),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_017", p2_smooth_max_symmetric_seed_017),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_018", p2_smooth_max_symmetric_seed_018),
+        ("smooth::tests::p2_smooth_max_symmetric_seed_019", p2_smooth_max_symmetric_seed_019),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_000", p3_smooth_max_monotonic_in_alpha_seed_000),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_001", p3_smooth_max_monotonic_in_alpha_seed_001),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_002", p3_smooth_max_monotonic_in_alpha_seed_002),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_003", p3_smooth_max_monotonic_in_alpha_seed_003),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_004", p3_smooth_max_monotonic_in_alpha_seed_004),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_005", p3_smooth_max_monotonic_in_alpha_seed_005),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_006", p3_smooth_max_monotonic_in_alpha_seed_006),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_007", p3_smooth_max_monotonic_in_alpha_seed_007),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_008", p3_smooth_max_monotonic_in_alpha_seed_008),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_009", p3_smooth_max_monotonic_in_alpha_seed_009),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_010", p3_smooth_max_monotonic_in_alpha_seed_010),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_011", p3_smooth_max_monotonic_in_alpha_seed_011),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_012", p3_smooth_max_monotonic_in_alpha_seed_012),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_013", p3_smooth_max_monotonic_in_alpha_seed_013),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_014", p3_smooth_max_monotonic_in_alpha_seed_014),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_015", p3_smooth_max_monotonic_in_alpha_seed_015),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_016", p3_smooth_max_monotonic_in_alpha_seed_016),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_017", p3_smooth_max_monotonic_in_alpha_seed_017),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_018", p3_smooth_max_monotonic_in_alpha_seed_018),
+        ("smooth::tests::p3_smooth_max_monotonic_in_alpha_seed_019", p3_smooth_max_monotonic_in_alpha_seed_019),
+        ("smooth::tests::p4_smooth_min_le_min_seed_000", p4_smooth_min_le_min_seed_000),
+        ("smooth::tests::p4_smooth_min_le_min_seed_001", p4_smooth_min_le_min_seed_001),
+        ("smooth::tests::p4_smooth_min_le_min_seed_002", p4_smooth_min_le_min_seed_002),
+        ("smooth::tests::p4_smooth_min_le_min_seed_003", p4_smooth_min_le_min_seed_003),
+        ("smooth::tests::p4_smooth_min_le_min_seed_004", p4_smooth_min_le_min_seed_004),
+        ("smooth::tests::p4_smooth_min_le_min_seed_005", p4_smooth_min_le_min_seed_005),
+        ("smooth::tests::p4_smooth_min_le_min_seed_006", p4_smooth_min_le_min_seed_006),
+        ("smooth::tests::p4_smooth_min_le_min_seed_007", p4_smooth_min_le_min_seed_007),
+        ("smooth::tests::p4_smooth_min_le_min_seed_008", p4_smooth_min_le_min_seed_008),
+        ("smooth::tests::p4_smooth_min_le_min_seed_009", p4_smooth_min_le_min_seed_009),
+        ("smooth::tests::p4_smooth_min_le_min_seed_010", p4_smooth_min_le_min_seed_010),
+        ("smooth::tests::p4_smooth_min_le_min_seed_011", p4_smooth_min_le_min_seed_011),
+        ("smooth::tests::p4_smooth_min_le_min_seed_012", p4_smooth_min_le_min_seed_012),
+        ("smooth::tests::p4_smooth_min_le_min_seed_013", p4_smooth_min_le_min_seed_013),
+        ("smooth::tests::p4_smooth_min_le_min_seed_014", p4_smooth_min_le_min_seed_014),
+        ("smooth::tests::p4_smooth_min_le_min_seed_015", p4_smooth_min_le_min_seed_015),
+        ("smooth::tests::p4_smooth_min_le_min_seed_016", p4_smooth_min_le_min_seed_016),
+        ("smooth::tests::p4_smooth_min_le_min_seed_017", p4_smooth_min_le_min_seed_017),
+        ("smooth::tests::p4_smooth_min_le_min_seed_018", p4_smooth_min_le_min_seed_018),
+        ("smooth::tests::p4_smooth_min_le_min_seed_019", p4_smooth_min_le_min_seed_019),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_000", p5_smooth_min_symmetric_seed_000),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_001", p5_smooth_min_symmetric_seed_001),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_002", p5_smooth_min_symmetric_seed_002),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_003", p5_smooth_min_symmetric_seed_003),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_004", p5_smooth_min_symmetric_seed_004),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_005", p5_smooth_min_symmetric_seed_005),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_006", p5_smooth_min_symmetric_seed_006),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_007", p5_smooth_min_symmetric_seed_007),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_008", p5_smooth_min_symmetric_seed_008),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_009", p5_smooth_min_symmetric_seed_009),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_010", p5_smooth_min_symmetric_seed_010),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_011", p5_smooth_min_symmetric_seed_011),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_012", p5_smooth_min_symmetric_seed_012),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_013", p5_smooth_min_symmetric_seed_013),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_014", p5_smooth_min_symmetric_seed_014),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_015", p5_smooth_min_symmetric_seed_015),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_016", p5_smooth_min_symmetric_seed_016),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_017", p5_smooth_min_symmetric_seed_017),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_018", p5_smooth_min_symmetric_seed_018),
+        ("smooth::tests::p5_smooth_min_symmetric_seed_019", p5_smooth_min_symmetric_seed_019),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_000", p6_smooth_min_via_max_identity_seed_000),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_001", p6_smooth_min_via_max_identity_seed_001),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_002", p6_smooth_min_via_max_identity_seed_002),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_003", p6_smooth_min_via_max_identity_seed_003),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_004", p6_smooth_min_via_max_identity_seed_004),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_005", p6_smooth_min_via_max_identity_seed_005),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_006", p6_smooth_min_via_max_identity_seed_006),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_007", p6_smooth_min_via_max_identity_seed_007),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_008", p6_smooth_min_via_max_identity_seed_008),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_009", p6_smooth_min_via_max_identity_seed_009),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_010", p6_smooth_min_via_max_identity_seed_010),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_011", p6_smooth_min_via_max_identity_seed_011),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_012", p6_smooth_min_via_max_identity_seed_012),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_013", p6_smooth_min_via_max_identity_seed_013),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_014", p6_smooth_min_via_max_identity_seed_014),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_015", p6_smooth_min_via_max_identity_seed_015),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_016", p6_smooth_min_via_max_identity_seed_016),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_017", p6_smooth_min_via_max_identity_seed_017),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_018", p6_smooth_min_via_max_identity_seed_018),
+        ("smooth::tests::p6_smooth_min_via_max_identity_seed_019", p6_smooth_min_via_max_identity_seed_019),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_000", p7_smooth_abs_symmetric_seed_000),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_001", p7_smooth_abs_symmetric_seed_001),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_002", p7_smooth_abs_symmetric_seed_002),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_003", p7_smooth_abs_symmetric_seed_003),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_004", p7_smooth_abs_symmetric_seed_004),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_005", p7_smooth_abs_symmetric_seed_005),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_006", p7_smooth_abs_symmetric_seed_006),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_007", p7_smooth_abs_symmetric_seed_007),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_008", p7_smooth_abs_symmetric_seed_008),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_009", p7_smooth_abs_symmetric_seed_009),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_010", p7_smooth_abs_symmetric_seed_010),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_011", p7_smooth_abs_symmetric_seed_011),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_012", p7_smooth_abs_symmetric_seed_012),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_013", p7_smooth_abs_symmetric_seed_013),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_014", p7_smooth_abs_symmetric_seed_014),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_015", p7_smooth_abs_symmetric_seed_015),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_016", p7_smooth_abs_symmetric_seed_016),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_017", p7_smooth_abs_symmetric_seed_017),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_018", p7_smooth_abs_symmetric_seed_018),
+        ("smooth::tests::p7_smooth_abs_symmetric_seed_019", p7_smooth_abs_symmetric_seed_019),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_000", p8_smooth_abs_non_negative_seed_000),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_001", p8_smooth_abs_non_negative_seed_001),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_002", p8_smooth_abs_non_negative_seed_002),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_003", p8_smooth_abs_non_negative_seed_003),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_004", p8_smooth_abs_non_negative_seed_004),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_005", p8_smooth_abs_non_negative_seed_005),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_006", p8_smooth_abs_non_negative_seed_006),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_007", p8_smooth_abs_non_negative_seed_007),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_008", p8_smooth_abs_non_negative_seed_008),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_009", p8_smooth_abs_non_negative_seed_009),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_010", p8_smooth_abs_non_negative_seed_010),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_011", p8_smooth_abs_non_negative_seed_011),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_012", p8_smooth_abs_non_negative_seed_012),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_013", p8_smooth_abs_non_negative_seed_013),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_014", p8_smooth_abs_non_negative_seed_014),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_015", p8_smooth_abs_non_negative_seed_015),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_016", p8_smooth_abs_non_negative_seed_016),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_017", p8_smooth_abs_non_negative_seed_017),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_018", p8_smooth_abs_non_negative_seed_018),
+        ("smooth::tests::p8_smooth_abs_non_negative_seed_019", p8_smooth_abs_non_negative_seed_019),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_000", p9_smooth_step_output_in_01_seed_000),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_001", p9_smooth_step_output_in_01_seed_001),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_002", p9_smooth_step_output_in_01_seed_002),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_003", p9_smooth_step_output_in_01_seed_003),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_004", p9_smooth_step_output_in_01_seed_004),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_005", p9_smooth_step_output_in_01_seed_005),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_006", p9_smooth_step_output_in_01_seed_006),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_007", p9_smooth_step_output_in_01_seed_007),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_008", p9_smooth_step_output_in_01_seed_008),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_009", p9_smooth_step_output_in_01_seed_009),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_010", p9_smooth_step_output_in_01_seed_010),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_011", p9_smooth_step_output_in_01_seed_011),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_012", p9_smooth_step_output_in_01_seed_012),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_013", p9_smooth_step_output_in_01_seed_013),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_014", p9_smooth_step_output_in_01_seed_014),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_015", p9_smooth_step_output_in_01_seed_015),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_016", p9_smooth_step_output_in_01_seed_016),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_017", p9_smooth_step_output_in_01_seed_017),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_018", p9_smooth_step_output_in_01_seed_018),
+        ("smooth::tests::p9_smooth_step_output_in_01_seed_019", p9_smooth_step_output_in_01_seed_019),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_000", p10_smooth_max_axis_ge_max_seed_000),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_001", p10_smooth_max_axis_ge_max_seed_001),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_002", p10_smooth_max_axis_ge_max_seed_002),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_003", p10_smooth_max_axis_ge_max_seed_003),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_004", p10_smooth_max_axis_ge_max_seed_004),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_005", p10_smooth_max_axis_ge_max_seed_005),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_006", p10_smooth_max_axis_ge_max_seed_006),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_007", p10_smooth_max_axis_ge_max_seed_007),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_008", p10_smooth_max_axis_ge_max_seed_008),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_009", p10_smooth_max_axis_ge_max_seed_009),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_010", p10_smooth_max_axis_ge_max_seed_010),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_011", p10_smooth_max_axis_ge_max_seed_011),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_012", p10_smooth_max_axis_ge_max_seed_012),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_013", p10_smooth_max_axis_ge_max_seed_013),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_014", p10_smooth_max_axis_ge_max_seed_014),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_015", p10_smooth_max_axis_ge_max_seed_015),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_016", p10_smooth_max_axis_ge_max_seed_016),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_017", p10_smooth_max_axis_ge_max_seed_017),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_018", p10_smooth_max_axis_ge_max_seed_018),
+        ("smooth::tests::p10_smooth_max_axis_ge_max_seed_019", p10_smooth_max_axis_ge_max_seed_019),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_000", p11_smooth_min_axis_le_min_seed_000),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_001", p11_smooth_min_axis_le_min_seed_001),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_002", p11_smooth_min_axis_le_min_seed_002),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_003", p11_smooth_min_axis_le_min_seed_003),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_004", p11_smooth_min_axis_le_min_seed_004),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_005", p11_smooth_min_axis_le_min_seed_005),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_006", p11_smooth_min_axis_le_min_seed_006),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_007", p11_smooth_min_axis_le_min_seed_007),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_008", p11_smooth_min_axis_le_min_seed_008),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_009", p11_smooth_min_axis_le_min_seed_009),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_010", p11_smooth_min_axis_le_min_seed_010),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_011", p11_smooth_min_axis_le_min_seed_011),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_012", p11_smooth_min_axis_le_min_seed_012),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_013", p11_smooth_min_axis_le_min_seed_013),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_014", p11_smooth_min_axis_le_min_seed_014),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_015", p11_smooth_min_axis_le_min_seed_015),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_016", p11_smooth_min_axis_le_min_seed_016),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_017", p11_smooth_min_axis_le_min_seed_017),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_018", p11_smooth_min_axis_le_min_seed_018),
+        ("smooth::tests::p11_smooth_min_axis_le_min_seed_019", p11_smooth_min_axis_le_min_seed_019),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_000", p12_hpwl_smooth_ge_true_hpwl_seed_000),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_001", p12_hpwl_smooth_ge_true_hpwl_seed_001),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_002", p12_hpwl_smooth_ge_true_hpwl_seed_002),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_003", p12_hpwl_smooth_ge_true_hpwl_seed_003),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_004", p12_hpwl_smooth_ge_true_hpwl_seed_004),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_005", p12_hpwl_smooth_ge_true_hpwl_seed_005),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_006", p12_hpwl_smooth_ge_true_hpwl_seed_006),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_007", p12_hpwl_smooth_ge_true_hpwl_seed_007),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_008", p12_hpwl_smooth_ge_true_hpwl_seed_008),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_009", p12_hpwl_smooth_ge_true_hpwl_seed_009),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_010", p12_hpwl_smooth_ge_true_hpwl_seed_010),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_011", p12_hpwl_smooth_ge_true_hpwl_seed_011),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_012", p12_hpwl_smooth_ge_true_hpwl_seed_012),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_013", p12_hpwl_smooth_ge_true_hpwl_seed_013),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_014", p12_hpwl_smooth_ge_true_hpwl_seed_014),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_015", p12_hpwl_smooth_ge_true_hpwl_seed_015),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_016", p12_hpwl_smooth_ge_true_hpwl_seed_016),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_017", p12_hpwl_smooth_ge_true_hpwl_seed_017),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_018", p12_hpwl_smooth_ge_true_hpwl_seed_018),
+        ("smooth::tests::p12_hpwl_smooth_ge_true_hpwl_seed_019", p12_hpwl_smooth_ge_true_hpwl_seed_019),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_000", p13_weighted_average_bounded_by_extrema_seed_000),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_001", p13_weighted_average_bounded_by_extrema_seed_001),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_002", p13_weighted_average_bounded_by_extrema_seed_002),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_003", p13_weighted_average_bounded_by_extrema_seed_003),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_004", p13_weighted_average_bounded_by_extrema_seed_004),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_005", p13_weighted_average_bounded_by_extrema_seed_005),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_006", p13_weighted_average_bounded_by_extrema_seed_006),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_007", p13_weighted_average_bounded_by_extrema_seed_007),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_008", p13_weighted_average_bounded_by_extrema_seed_008),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_009", p13_weighted_average_bounded_by_extrema_seed_009),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_010", p13_weighted_average_bounded_by_extrema_seed_010),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_011", p13_weighted_average_bounded_by_extrema_seed_011),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_012", p13_weighted_average_bounded_by_extrema_seed_012),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_013", p13_weighted_average_bounded_by_extrema_seed_013),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_014", p13_weighted_average_bounded_by_extrema_seed_014),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_015", p13_weighted_average_bounded_by_extrema_seed_015),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_016", p13_weighted_average_bounded_by_extrema_seed_016),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_017", p13_weighted_average_bounded_by_extrema_seed_017),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_018", p13_weighted_average_bounded_by_extrema_seed_018),
+        ("smooth::tests::p13_weighted_average_bounded_by_extrema_seed_019", p13_weighted_average_bounded_by_extrema_seed_019),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_000", p14_alpha_schedule_endpoints_seed_000),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_001", p14_alpha_schedule_endpoints_seed_001),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_002", p14_alpha_schedule_endpoints_seed_002),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_003", p14_alpha_schedule_endpoints_seed_003),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_004", p14_alpha_schedule_endpoints_seed_004),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_005", p14_alpha_schedule_endpoints_seed_005),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_006", p14_alpha_schedule_endpoints_seed_006),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_007", p14_alpha_schedule_endpoints_seed_007),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_008", p14_alpha_schedule_endpoints_seed_008),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_009", p14_alpha_schedule_endpoints_seed_009),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_010", p14_alpha_schedule_endpoints_seed_010),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_011", p14_alpha_schedule_endpoints_seed_011),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_012", p14_alpha_schedule_endpoints_seed_012),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_013", p14_alpha_schedule_endpoints_seed_013),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_014", p14_alpha_schedule_endpoints_seed_014),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_015", p14_alpha_schedule_endpoints_seed_015),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_016", p14_alpha_schedule_endpoints_seed_016),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_017", p14_alpha_schedule_endpoints_seed_017),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_018", p14_alpha_schedule_endpoints_seed_018),
+        ("smooth::tests::p14_alpha_schedule_endpoints_seed_019", p14_alpha_schedule_endpoints_seed_019),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_000", p15_alpha_schedule_monotonic_seed_000),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_001", p15_alpha_schedule_monotonic_seed_001),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_002", p15_alpha_schedule_monotonic_seed_002),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_003", p15_alpha_schedule_monotonic_seed_003),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_004", p15_alpha_schedule_monotonic_seed_004),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_005", p15_alpha_schedule_monotonic_seed_005),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_006", p15_alpha_schedule_monotonic_seed_006),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_007", p15_alpha_schedule_monotonic_seed_007),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_008", p15_alpha_schedule_monotonic_seed_008),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_009", p15_alpha_schedule_monotonic_seed_009),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_010", p15_alpha_schedule_monotonic_seed_010),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_011", p15_alpha_schedule_monotonic_seed_011),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_012", p15_alpha_schedule_monotonic_seed_012),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_013", p15_alpha_schedule_monotonic_seed_013),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_014", p15_alpha_schedule_monotonic_seed_014),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_015", p15_alpha_schedule_monotonic_seed_015),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_016", p15_alpha_schedule_monotonic_seed_016),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_017", p15_alpha_schedule_monotonic_seed_017),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_018", p15_alpha_schedule_monotonic_seed_018),
+        ("smooth::tests::p15_alpha_schedule_monotonic_seed_019", p15_alpha_schedule_monotonic_seed_019),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

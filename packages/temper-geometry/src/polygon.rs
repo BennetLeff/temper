@@ -916,6 +916,667 @@ pub(crate) mod tests {
         assert!((sigmoid(0.0, 1.0) - 0.5).abs() < EPS);
     }
 
+    // -----------------------------------------------------------------
+    // WASM-tier mirror of `mod proptests` below (R19/U6: `proptest` is a
+    // dev-dependency, absent from the non-test `wasm-registry` build --
+    // see `docs/evidence/2026-08-11-native-only-classification-all-crates.md`,
+    // which counts this crate's 55 zero-mirror-coverage proptests).
+    // Deterministic SplitMix64 seeded generator: no `rand`, no `proptest`,
+    // no OS entropy (wasm32-unknown-unknown has none). Each `pN_..._impl`
+    // below is the exact assertion body of its `mod proptests` sibling;
+    // each is called by CAMPAIGN_N registered wrapper tests below, one per
+    // seed, so a failure names the exact seed to replay. The native
+    // `mod proptests` is NOT touched -- it keeps exploring randomly.
+    //
+    // Vacuity guard: `mod proptests`'s `small_polygon()` draws 3-8
+    // independent uniform points, which is overwhelmingly likely to
+    // produce a generic, well-separated, non-degenerate polygon every
+    // time -- the shoelace-formula identities below (non-negativity, sign
+    // flip on reversal, bbox containment, ...) hold trivially for those,
+    // and a bug that only misbehaves on collinear points, duplicated
+    // vertices, or near-zero area would never be reached. `gen_polygon`
+    // and `gen_triangle` below deliberately construct a collinear or
+    // duplicate-vertex-heavy case on roughly half of all draws (not by
+    // sampling and hoping); `wasm_mirror_vacuity_guard` measures and
+    // asserts that rate rather than assuming it.
+    // -----------------------------------------------------------------
+
+    struct SplitMix64(u64);
+
+    impl SplitMix64 {
+        fn new(seed: u64) -> Self {
+            Self(seed)
+        }
+        fn next_u64(&mut self) -> u64 {
+            self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
+            let mut z = self.0;
+            z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+            z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+            z ^ (z >> 31)
+        }
+        fn next_f64(&mut self) -> f64 {
+            (self.next_u64() >> 11) as f64 * (1.0 / (1u64 << 53) as f64)
+        }
+        fn range(&mut self, lo: f64, hi: f64) -> f64 {
+            lo + self.next_f64() * (hi - lo)
+        }
+        fn index(&mut self, n: usize) -> usize {
+            debug_assert!(n > 0);
+            (self.next_u64() % n as u64) as usize
+        }
+        fn bool(&mut self) -> bool {
+            self.next_u64() & 1 == 0
+        }
+    }
+
+    fn sub_rng(seed: u64, salt: u64) -> SplitMix64 {
+        SplitMix64::new(seed.wrapping_mul(0x9E37_79B9_7F4A_7C15).wrapping_add(salt))
+    }
+
+    const CAMPAIGN_N: usize = 20;
+
+    /// Deliberately-chosen coordinate boundary values (zero, negative
+    /// zero, endpoints of the `coord()` strategy's `-100.0..100.0`
+    /// domain, midpoints): 50% of draws use one of these, 50% uniform.
+    const BOUNDARY_COORDS: &[f64] = &[0.0, -0.0, 99.999_999, -99.999_999, 50.0, -50.0];
+
+    fn gen_coord(rng: &mut SplitMix64) -> (f64, bool) {
+        if rng.bool() {
+            (BOUNDARY_COORDS[rng.index(BOUNDARY_COORDS.len())], true)
+        } else {
+            (rng.range(-100.0, 100.0), false)
+        }
+    }
+
+    /// A 3-8 vertex polygon. 50% of the time, deliberately degenerate:
+    /// either every vertex collinear (on the line through two random
+    /// points, extrapolated as well as interpolated via `t in -2.0..3.0`
+    /// so some vertices fall outside the a-b segment), or built from only
+    /// 1-2 distinct points repeated to fill the vertex count. Returns
+    /// `(vertices, was_degenerate)`.
+    fn gen_polygon(seed: u64, salt: u64) -> (Vec<Point>, bool) {
+        let mut rng = sub_rng(seed, salt);
+        let n = 3 + rng.index(6); // 3..=8, matching small_polygon()'s 3..=8
+        if rng.bool() {
+            if rng.bool() {
+                let (ax, _) = gen_coord(&mut rng);
+                let (ay, _) = gen_coord(&mut rng);
+                let (bx, _) = gen_coord(&mut rng);
+                let (by, _) = gen_coord(&mut rng);
+                let mut pts = Vec::with_capacity(n);
+                for _ in 0..n {
+                    let t = rng.range(-2.0, 3.0);
+                    pts.push(Point::new(ax + t * (bx - ax), ay + t * (by - ay)));
+                }
+                (pts, true)
+            } else {
+                let k = 1 + rng.index(2); // 1 or 2 distinct points
+                let mut distinct = Vec::with_capacity(k);
+                for _ in 0..k {
+                    let (x, _) = gen_coord(&mut rng);
+                    let (y, _) = gen_coord(&mut rng);
+                    distinct.push(Point::new(x, y));
+                }
+                let mut pts = Vec::with_capacity(n);
+                for i in 0..n {
+                    pts.push(distinct[i % k]);
+                }
+                (pts, true)
+            }
+        } else {
+            let mut pts = Vec::with_capacity(n);
+            for _ in 0..n {
+                let (x, _) = gen_coord(&mut rng);
+                let (y, _) = gen_coord(&mut rng);
+                pts.push(Point::new(x, y));
+            }
+            (pts, false)
+        }
+    }
+
+    /// Three points for the triangle_area properties. 50% of the time,
+    /// `c` is deliberately placed on the infinite line through `a`, `b`
+    /// (collinear, zero true area) rather than drawn independently.
+    /// Returns `(a, b, c, was_collinear)`.
+    fn gen_triangle(seed: u64, salt: u64) -> (Point, Point, Point, bool) {
+        let mut rng = sub_rng(seed, salt);
+        let (ax, _) = gen_coord(&mut rng);
+        let (ay, _) = gen_coord(&mut rng);
+        let a = Point::new(ax, ay);
+        let (bx, _) = gen_coord(&mut rng);
+        let (by, _) = gen_coord(&mut rng);
+        let b = Point::new(bx, by);
+        if rng.bool() {
+            let t = rng.range(-2.0, 3.0);
+            let c = Point::new(a.x + t * (b.x - a.x), a.y + t * (b.y - a.y));
+            (a, b, c, true)
+        } else {
+            let (cx, _) = gen_coord(&mut rng);
+            let (cy, _) = gen_coord(&mut rng);
+            (a, b, Point::new(cx, cy), false)
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // polygon_area
+    // -----------------------------------------------------------------
+
+    fn p1_polygon_area_non_negative_impl(seed: u64) {
+        let (poly, _) = gen_polygon(seed, 1);
+        let area = polygon_area(&poly);
+        assert!(area >= 0.0, "negative area {area} for poly {poly:?}");
+    }
+
+    fn p2_area_sign_flips_on_reversal_impl(seed: u64) {
+        let (poly, _) = gen_polygon(seed, 2);
+        let mut rev = poly.clone();
+        rev.reverse();
+        let forward = polygon_signed_area(&poly);
+        let backward = polygon_signed_area(&rev);
+        assert!(
+            (forward + backward).abs() < 1e-9,
+            "forward={forward}, backward={backward} expected opposite signs"
+        );
+    }
+
+    // -----------------------------------------------------------------
+    // triangle_area
+    // -----------------------------------------------------------------
+
+    fn p3_triangle_area_non_negative_impl(seed: u64) {
+        let (a, b, c, _) = gen_triangle(seed, 3);
+        assert!(triangle_area(&a, &b, &c) >= 0.0);
+    }
+
+    fn p4_triangle_area_symmetric_impl(seed: u64) {
+        let (a, b, c, _) = gen_triangle(seed, 4);
+        let areas = [
+            triangle_area(&a, &b, &c),
+            triangle_area(&b, &c, &a),
+            triangle_area(&c, &a, &b),
+            triangle_area(&a, &c, &b),
+            triangle_area(&b, &a, &c),
+            triangle_area(&c, &b, &a),
+        ];
+        for pair in areas.windows(2) {
+            assert!(
+                (pair[0] - pair[1]).abs() < 1e-9,
+                "triangle_area varies under permutation: {} != {}", pair[0], pair[1]
+            );
+        }
+    }
+
+    fn p5_triangle_area_matches_polygon_area_impl(seed: u64) {
+        let (a, b, c, _) = gen_triangle(seed, 5);
+        let poly = vec![a, b, c];
+        assert!(
+            (triangle_area(&a, &b, &c) - polygon_area(&poly)).abs() < 1e-9,
+            "triangle_area != polygon_area"
+        );
+    }
+
+    // -----------------------------------------------------------------
+    // polygon_perimeter
+    // -----------------------------------------------------------------
+
+    fn p6_perimeter_non_negative_impl(seed: u64) {
+        let (poly, _) = gen_polygon(seed, 6);
+        assert!(polygon_perimeter(&poly) >= 0.0);
+    }
+
+    fn p7_perimeter_is_sum_of_edge_lengths_impl(seed: u64) {
+        let (poly, _) = gen_polygon(seed, 7);
+        let n = poly.len();
+        let mut sum = 0.0;
+        for i in 0..n {
+            let j = (i + 1) % n;
+            sum += poly[i].distance(&poly[j]);
+        }
+        assert!(
+            (polygon_perimeter(&poly) - sum).abs() < 1e-9,
+            "perimeter {} != sum {}", polygon_perimeter(&poly), sum
+        );
+    }
+
+    // -----------------------------------------------------------------
+    // polygon_bounding_box
+    // -----------------------------------------------------------------
+
+    fn p8_bounding_box_contains_vertices_impl(seed: u64) {
+        let (poly, _) = gen_polygon(seed, 8);
+        let bb = polygon_bounding_box(&poly);
+        for p in &poly {
+            assert!(
+                bb.x_min <= p.x && p.x <= bb.x_max,
+                "x {} out of [{}, {}]", p.x, bb.x_min, bb.x_max
+            );
+            assert!(
+                bb.y_min <= p.y && p.y <= bb.y_max,
+                "y {} out of [{}, {}]", p.y, bb.y_min, bb.y_max
+            );
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // translate_polygon
+    // -----------------------------------------------------------------
+
+    fn p9_translation_preserves_area_impl(seed: u64) {
+        let (poly, _) = gen_polygon(seed, 9);
+        let mut rng2 = sub_rng(seed, 90);
+        let (tx, _) = gen_coord(&mut rng2);
+        let (ty, _) = gen_coord(&mut rng2);
+        let translated = translate_polygon(&poly, tx, ty);
+        assert!(
+            (polygon_area(&poly) - polygon_area(&translated)).abs() < 1e-9,
+            "area changed under translation"
+        );
+    }
+
+    /// Vacuity guard: measures, per property (by its own generator salt),
+    /// what fraction of the CAMPAIGN_N seeds actually produced a
+    /// deliberately degenerate polygon (collinear / duplicate-heavy) or
+    /// collinear triangle, rather than a generic well-separated one.
+    #[cfg_attr(test, test)]
+    fn wasm_mirror_vacuity_guard() {
+        for salt in [1u64, 2, 6, 7, 8, 9] {
+            let mut hits = 0usize;
+            for seed in 0..CAMPAIGN_N as u64 {
+                let (_, was_degenerate) = gen_polygon(seed, salt);
+                if was_degenerate {
+                    hits += 1;
+                }
+            }
+            let rate = hits as f64 / CAMPAIGN_N as f64;
+            assert!(
+                rate >= 0.20,
+                "gen_polygon salt={salt}: only {hits}/{CAMPAIGN_N} ({:.0}%) \
+                 degenerate; expected >= 20% (gen_polygon is 50/50 by \
+                 construction)",
+                rate * 100.0
+            );
+        }
+        for salt in [3u64, 4, 5] {
+            let mut hits = 0usize;
+            for seed in 0..CAMPAIGN_N as u64 {
+                let (_, _, _, was_collinear) = gen_triangle(seed, salt);
+                if was_collinear {
+                    hits += 1;
+                }
+            }
+            let rate = hits as f64 / CAMPAIGN_N as f64;
+            assert!(
+                rate >= 0.20,
+                "gen_triangle salt={salt}: only {hits}/{CAMPAIGN_N} ({:.0}%) \
+                 collinear; expected >= 20% (gen_triangle is 50/50 by \
+                 construction)",
+                rate * 100.0
+            );
+        }
+    }
+
+    // 9 properties x 20 seeds = 180 distinct-input wasm tests.
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_000() { p1_polygon_area_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_001() { p1_polygon_area_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_002() { p1_polygon_area_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_003() { p1_polygon_area_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_004() { p1_polygon_area_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_005() { p1_polygon_area_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_006() { p1_polygon_area_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_007() { p1_polygon_area_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_008() { p1_polygon_area_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_009() { p1_polygon_area_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_010() { p1_polygon_area_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_011() { p1_polygon_area_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_012() { p1_polygon_area_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_013() { p1_polygon_area_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_014() { p1_polygon_area_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_015() { p1_polygon_area_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_016() { p1_polygon_area_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_017() { p1_polygon_area_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_018() { p1_polygon_area_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p1_polygon_area_non_negative_seed_019() { p1_polygon_area_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_000() { p2_area_sign_flips_on_reversal_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_001() { p2_area_sign_flips_on_reversal_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_002() { p2_area_sign_flips_on_reversal_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_003() { p2_area_sign_flips_on_reversal_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_004() { p2_area_sign_flips_on_reversal_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_005() { p2_area_sign_flips_on_reversal_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_006() { p2_area_sign_flips_on_reversal_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_007() { p2_area_sign_flips_on_reversal_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_008() { p2_area_sign_flips_on_reversal_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_009() { p2_area_sign_flips_on_reversal_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_010() { p2_area_sign_flips_on_reversal_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_011() { p2_area_sign_flips_on_reversal_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_012() { p2_area_sign_flips_on_reversal_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_013() { p2_area_sign_flips_on_reversal_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_014() { p2_area_sign_flips_on_reversal_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_015() { p2_area_sign_flips_on_reversal_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_016() { p2_area_sign_flips_on_reversal_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_017() { p2_area_sign_flips_on_reversal_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_018() { p2_area_sign_flips_on_reversal_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p2_area_sign_flips_on_reversal_seed_019() { p2_area_sign_flips_on_reversal_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_000() { p3_triangle_area_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_001() { p3_triangle_area_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_002() { p3_triangle_area_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_003() { p3_triangle_area_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_004() { p3_triangle_area_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_005() { p3_triangle_area_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_006() { p3_triangle_area_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_007() { p3_triangle_area_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_008() { p3_triangle_area_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_009() { p3_triangle_area_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_010() { p3_triangle_area_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_011() { p3_triangle_area_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_012() { p3_triangle_area_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_013() { p3_triangle_area_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_014() { p3_triangle_area_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_015() { p3_triangle_area_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_016() { p3_triangle_area_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_017() { p3_triangle_area_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_018() { p3_triangle_area_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p3_triangle_area_non_negative_seed_019() { p3_triangle_area_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_000() { p4_triangle_area_symmetric_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_001() { p4_triangle_area_symmetric_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_002() { p4_triangle_area_symmetric_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_003() { p4_triangle_area_symmetric_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_004() { p4_triangle_area_symmetric_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_005() { p4_triangle_area_symmetric_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_006() { p4_triangle_area_symmetric_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_007() { p4_triangle_area_symmetric_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_008() { p4_triangle_area_symmetric_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_009() { p4_triangle_area_symmetric_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_010() { p4_triangle_area_symmetric_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_011() { p4_triangle_area_symmetric_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_012() { p4_triangle_area_symmetric_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_013() { p4_triangle_area_symmetric_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_014() { p4_triangle_area_symmetric_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_015() { p4_triangle_area_symmetric_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_016() { p4_triangle_area_symmetric_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_017() { p4_triangle_area_symmetric_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_018() { p4_triangle_area_symmetric_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p4_triangle_area_symmetric_seed_019() { p4_triangle_area_symmetric_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_000() { p5_triangle_area_matches_polygon_area_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_001() { p5_triangle_area_matches_polygon_area_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_002() { p5_triangle_area_matches_polygon_area_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_003() { p5_triangle_area_matches_polygon_area_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_004() { p5_triangle_area_matches_polygon_area_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_005() { p5_triangle_area_matches_polygon_area_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_006() { p5_triangle_area_matches_polygon_area_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_007() { p5_triangle_area_matches_polygon_area_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_008() { p5_triangle_area_matches_polygon_area_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_009() { p5_triangle_area_matches_polygon_area_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_010() { p5_triangle_area_matches_polygon_area_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_011() { p5_triangle_area_matches_polygon_area_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_012() { p5_triangle_area_matches_polygon_area_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_013() { p5_triangle_area_matches_polygon_area_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_014() { p5_triangle_area_matches_polygon_area_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_015() { p5_triangle_area_matches_polygon_area_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_016() { p5_triangle_area_matches_polygon_area_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_017() { p5_triangle_area_matches_polygon_area_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_018() { p5_triangle_area_matches_polygon_area_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p5_triangle_area_matches_polygon_area_seed_019() { p5_triangle_area_matches_polygon_area_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_000() { p6_perimeter_non_negative_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_001() { p6_perimeter_non_negative_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_002() { p6_perimeter_non_negative_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_003() { p6_perimeter_non_negative_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_004() { p6_perimeter_non_negative_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_005() { p6_perimeter_non_negative_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_006() { p6_perimeter_non_negative_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_007() { p6_perimeter_non_negative_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_008() { p6_perimeter_non_negative_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_009() { p6_perimeter_non_negative_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_010() { p6_perimeter_non_negative_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_011() { p6_perimeter_non_negative_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_012() { p6_perimeter_non_negative_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_013() { p6_perimeter_non_negative_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_014() { p6_perimeter_non_negative_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_015() { p6_perimeter_non_negative_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_016() { p6_perimeter_non_negative_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_017() { p6_perimeter_non_negative_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_018() { p6_perimeter_non_negative_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p6_perimeter_non_negative_seed_019() { p6_perimeter_non_negative_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_000() { p7_perimeter_is_sum_of_edge_lengths_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_001() { p7_perimeter_is_sum_of_edge_lengths_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_002() { p7_perimeter_is_sum_of_edge_lengths_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_003() { p7_perimeter_is_sum_of_edge_lengths_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_004() { p7_perimeter_is_sum_of_edge_lengths_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_005() { p7_perimeter_is_sum_of_edge_lengths_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_006() { p7_perimeter_is_sum_of_edge_lengths_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_007() { p7_perimeter_is_sum_of_edge_lengths_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_008() { p7_perimeter_is_sum_of_edge_lengths_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_009() { p7_perimeter_is_sum_of_edge_lengths_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_010() { p7_perimeter_is_sum_of_edge_lengths_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_011() { p7_perimeter_is_sum_of_edge_lengths_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_012() { p7_perimeter_is_sum_of_edge_lengths_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_013() { p7_perimeter_is_sum_of_edge_lengths_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_014() { p7_perimeter_is_sum_of_edge_lengths_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_015() { p7_perimeter_is_sum_of_edge_lengths_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_016() { p7_perimeter_is_sum_of_edge_lengths_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_017() { p7_perimeter_is_sum_of_edge_lengths_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_018() { p7_perimeter_is_sum_of_edge_lengths_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p7_perimeter_is_sum_of_edge_lengths_seed_019() { p7_perimeter_is_sum_of_edge_lengths_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_000() { p8_bounding_box_contains_vertices_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_001() { p8_bounding_box_contains_vertices_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_002() { p8_bounding_box_contains_vertices_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_003() { p8_bounding_box_contains_vertices_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_004() { p8_bounding_box_contains_vertices_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_005() { p8_bounding_box_contains_vertices_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_006() { p8_bounding_box_contains_vertices_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_007() { p8_bounding_box_contains_vertices_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_008() { p8_bounding_box_contains_vertices_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_009() { p8_bounding_box_contains_vertices_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_010() { p8_bounding_box_contains_vertices_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_011() { p8_bounding_box_contains_vertices_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_012() { p8_bounding_box_contains_vertices_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_013() { p8_bounding_box_contains_vertices_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_014() { p8_bounding_box_contains_vertices_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_015() { p8_bounding_box_contains_vertices_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_016() { p8_bounding_box_contains_vertices_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_017() { p8_bounding_box_contains_vertices_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_018() { p8_bounding_box_contains_vertices_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p8_bounding_box_contains_vertices_seed_019() { p8_bounding_box_contains_vertices_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_000() { p9_translation_preserves_area_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_001() { p9_translation_preserves_area_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_002() { p9_translation_preserves_area_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_003() { p9_translation_preserves_area_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_004() { p9_translation_preserves_area_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_005() { p9_translation_preserves_area_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_006() { p9_translation_preserves_area_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_007() { p9_translation_preserves_area_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_008() { p9_translation_preserves_area_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_009() { p9_translation_preserves_area_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_010() { p9_translation_preserves_area_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_011() { p9_translation_preserves_area_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_012() { p9_translation_preserves_area_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_013() { p9_translation_preserves_area_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_014() { p9_translation_preserves_area_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_015() { p9_translation_preserves_area_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_016() { p9_translation_preserves_area_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_017() { p9_translation_preserves_area_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_018() { p9_translation_preserves_area_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p9_translation_preserves_area_seed_019() { p9_translation_preserves_area_impl(19); }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -965,6 +1626,187 @@ pub(crate) mod tests {
         ("polygon::tests::test_scale_polygon_uniform", test_scale_polygon_uniform),
         ("polygon::tests::test_rotate_polygon_90_degrees", test_rotate_polygon_90_degrees),
         ("polygon::tests::test_sigmoid_zero", test_sigmoid_zero),
+        ("polygon::tests::wasm_mirror_vacuity_guard", wasm_mirror_vacuity_guard),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_000", p1_polygon_area_non_negative_seed_000),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_001", p1_polygon_area_non_negative_seed_001),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_002", p1_polygon_area_non_negative_seed_002),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_003", p1_polygon_area_non_negative_seed_003),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_004", p1_polygon_area_non_negative_seed_004),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_005", p1_polygon_area_non_negative_seed_005),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_006", p1_polygon_area_non_negative_seed_006),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_007", p1_polygon_area_non_negative_seed_007),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_008", p1_polygon_area_non_negative_seed_008),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_009", p1_polygon_area_non_negative_seed_009),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_010", p1_polygon_area_non_negative_seed_010),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_011", p1_polygon_area_non_negative_seed_011),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_012", p1_polygon_area_non_negative_seed_012),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_013", p1_polygon_area_non_negative_seed_013),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_014", p1_polygon_area_non_negative_seed_014),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_015", p1_polygon_area_non_negative_seed_015),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_016", p1_polygon_area_non_negative_seed_016),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_017", p1_polygon_area_non_negative_seed_017),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_018", p1_polygon_area_non_negative_seed_018),
+        ("polygon::tests::p1_polygon_area_non_negative_seed_019", p1_polygon_area_non_negative_seed_019),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_000", p2_area_sign_flips_on_reversal_seed_000),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_001", p2_area_sign_flips_on_reversal_seed_001),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_002", p2_area_sign_flips_on_reversal_seed_002),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_003", p2_area_sign_flips_on_reversal_seed_003),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_004", p2_area_sign_flips_on_reversal_seed_004),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_005", p2_area_sign_flips_on_reversal_seed_005),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_006", p2_area_sign_flips_on_reversal_seed_006),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_007", p2_area_sign_flips_on_reversal_seed_007),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_008", p2_area_sign_flips_on_reversal_seed_008),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_009", p2_area_sign_flips_on_reversal_seed_009),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_010", p2_area_sign_flips_on_reversal_seed_010),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_011", p2_area_sign_flips_on_reversal_seed_011),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_012", p2_area_sign_flips_on_reversal_seed_012),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_013", p2_area_sign_flips_on_reversal_seed_013),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_014", p2_area_sign_flips_on_reversal_seed_014),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_015", p2_area_sign_flips_on_reversal_seed_015),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_016", p2_area_sign_flips_on_reversal_seed_016),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_017", p2_area_sign_flips_on_reversal_seed_017),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_018", p2_area_sign_flips_on_reversal_seed_018),
+        ("polygon::tests::p2_area_sign_flips_on_reversal_seed_019", p2_area_sign_flips_on_reversal_seed_019),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_000", p3_triangle_area_non_negative_seed_000),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_001", p3_triangle_area_non_negative_seed_001),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_002", p3_triangle_area_non_negative_seed_002),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_003", p3_triangle_area_non_negative_seed_003),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_004", p3_triangle_area_non_negative_seed_004),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_005", p3_triangle_area_non_negative_seed_005),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_006", p3_triangle_area_non_negative_seed_006),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_007", p3_triangle_area_non_negative_seed_007),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_008", p3_triangle_area_non_negative_seed_008),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_009", p3_triangle_area_non_negative_seed_009),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_010", p3_triangle_area_non_negative_seed_010),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_011", p3_triangle_area_non_negative_seed_011),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_012", p3_triangle_area_non_negative_seed_012),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_013", p3_triangle_area_non_negative_seed_013),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_014", p3_triangle_area_non_negative_seed_014),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_015", p3_triangle_area_non_negative_seed_015),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_016", p3_triangle_area_non_negative_seed_016),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_017", p3_triangle_area_non_negative_seed_017),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_018", p3_triangle_area_non_negative_seed_018),
+        ("polygon::tests::p3_triangle_area_non_negative_seed_019", p3_triangle_area_non_negative_seed_019),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_000", p4_triangle_area_symmetric_seed_000),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_001", p4_triangle_area_symmetric_seed_001),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_002", p4_triangle_area_symmetric_seed_002),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_003", p4_triangle_area_symmetric_seed_003),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_004", p4_triangle_area_symmetric_seed_004),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_005", p4_triangle_area_symmetric_seed_005),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_006", p4_triangle_area_symmetric_seed_006),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_007", p4_triangle_area_symmetric_seed_007),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_008", p4_triangle_area_symmetric_seed_008),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_009", p4_triangle_area_symmetric_seed_009),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_010", p4_triangle_area_symmetric_seed_010),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_011", p4_triangle_area_symmetric_seed_011),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_012", p4_triangle_area_symmetric_seed_012),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_013", p4_triangle_area_symmetric_seed_013),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_014", p4_triangle_area_symmetric_seed_014),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_015", p4_triangle_area_symmetric_seed_015),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_016", p4_triangle_area_symmetric_seed_016),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_017", p4_triangle_area_symmetric_seed_017),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_018", p4_triangle_area_symmetric_seed_018),
+        ("polygon::tests::p4_triangle_area_symmetric_seed_019", p4_triangle_area_symmetric_seed_019),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_000", p5_triangle_area_matches_polygon_area_seed_000),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_001", p5_triangle_area_matches_polygon_area_seed_001),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_002", p5_triangle_area_matches_polygon_area_seed_002),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_003", p5_triangle_area_matches_polygon_area_seed_003),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_004", p5_triangle_area_matches_polygon_area_seed_004),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_005", p5_triangle_area_matches_polygon_area_seed_005),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_006", p5_triangle_area_matches_polygon_area_seed_006),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_007", p5_triangle_area_matches_polygon_area_seed_007),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_008", p5_triangle_area_matches_polygon_area_seed_008),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_009", p5_triangle_area_matches_polygon_area_seed_009),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_010", p5_triangle_area_matches_polygon_area_seed_010),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_011", p5_triangle_area_matches_polygon_area_seed_011),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_012", p5_triangle_area_matches_polygon_area_seed_012),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_013", p5_triangle_area_matches_polygon_area_seed_013),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_014", p5_triangle_area_matches_polygon_area_seed_014),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_015", p5_triangle_area_matches_polygon_area_seed_015),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_016", p5_triangle_area_matches_polygon_area_seed_016),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_017", p5_triangle_area_matches_polygon_area_seed_017),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_018", p5_triangle_area_matches_polygon_area_seed_018),
+        ("polygon::tests::p5_triangle_area_matches_polygon_area_seed_019", p5_triangle_area_matches_polygon_area_seed_019),
+        ("polygon::tests::p6_perimeter_non_negative_seed_000", p6_perimeter_non_negative_seed_000),
+        ("polygon::tests::p6_perimeter_non_negative_seed_001", p6_perimeter_non_negative_seed_001),
+        ("polygon::tests::p6_perimeter_non_negative_seed_002", p6_perimeter_non_negative_seed_002),
+        ("polygon::tests::p6_perimeter_non_negative_seed_003", p6_perimeter_non_negative_seed_003),
+        ("polygon::tests::p6_perimeter_non_negative_seed_004", p6_perimeter_non_negative_seed_004),
+        ("polygon::tests::p6_perimeter_non_negative_seed_005", p6_perimeter_non_negative_seed_005),
+        ("polygon::tests::p6_perimeter_non_negative_seed_006", p6_perimeter_non_negative_seed_006),
+        ("polygon::tests::p6_perimeter_non_negative_seed_007", p6_perimeter_non_negative_seed_007),
+        ("polygon::tests::p6_perimeter_non_negative_seed_008", p6_perimeter_non_negative_seed_008),
+        ("polygon::tests::p6_perimeter_non_negative_seed_009", p6_perimeter_non_negative_seed_009),
+        ("polygon::tests::p6_perimeter_non_negative_seed_010", p6_perimeter_non_negative_seed_010),
+        ("polygon::tests::p6_perimeter_non_negative_seed_011", p6_perimeter_non_negative_seed_011),
+        ("polygon::tests::p6_perimeter_non_negative_seed_012", p6_perimeter_non_negative_seed_012),
+        ("polygon::tests::p6_perimeter_non_negative_seed_013", p6_perimeter_non_negative_seed_013),
+        ("polygon::tests::p6_perimeter_non_negative_seed_014", p6_perimeter_non_negative_seed_014),
+        ("polygon::tests::p6_perimeter_non_negative_seed_015", p6_perimeter_non_negative_seed_015),
+        ("polygon::tests::p6_perimeter_non_negative_seed_016", p6_perimeter_non_negative_seed_016),
+        ("polygon::tests::p6_perimeter_non_negative_seed_017", p6_perimeter_non_negative_seed_017),
+        ("polygon::tests::p6_perimeter_non_negative_seed_018", p6_perimeter_non_negative_seed_018),
+        ("polygon::tests::p6_perimeter_non_negative_seed_019", p6_perimeter_non_negative_seed_019),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_000", p7_perimeter_is_sum_of_edge_lengths_seed_000),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_001", p7_perimeter_is_sum_of_edge_lengths_seed_001),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_002", p7_perimeter_is_sum_of_edge_lengths_seed_002),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_003", p7_perimeter_is_sum_of_edge_lengths_seed_003),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_004", p7_perimeter_is_sum_of_edge_lengths_seed_004),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_005", p7_perimeter_is_sum_of_edge_lengths_seed_005),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_006", p7_perimeter_is_sum_of_edge_lengths_seed_006),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_007", p7_perimeter_is_sum_of_edge_lengths_seed_007),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_008", p7_perimeter_is_sum_of_edge_lengths_seed_008),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_009", p7_perimeter_is_sum_of_edge_lengths_seed_009),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_010", p7_perimeter_is_sum_of_edge_lengths_seed_010),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_011", p7_perimeter_is_sum_of_edge_lengths_seed_011),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_012", p7_perimeter_is_sum_of_edge_lengths_seed_012),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_013", p7_perimeter_is_sum_of_edge_lengths_seed_013),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_014", p7_perimeter_is_sum_of_edge_lengths_seed_014),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_015", p7_perimeter_is_sum_of_edge_lengths_seed_015),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_016", p7_perimeter_is_sum_of_edge_lengths_seed_016),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_017", p7_perimeter_is_sum_of_edge_lengths_seed_017),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_018", p7_perimeter_is_sum_of_edge_lengths_seed_018),
+        ("polygon::tests::p7_perimeter_is_sum_of_edge_lengths_seed_019", p7_perimeter_is_sum_of_edge_lengths_seed_019),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_000", p8_bounding_box_contains_vertices_seed_000),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_001", p8_bounding_box_contains_vertices_seed_001),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_002", p8_bounding_box_contains_vertices_seed_002),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_003", p8_bounding_box_contains_vertices_seed_003),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_004", p8_bounding_box_contains_vertices_seed_004),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_005", p8_bounding_box_contains_vertices_seed_005),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_006", p8_bounding_box_contains_vertices_seed_006),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_007", p8_bounding_box_contains_vertices_seed_007),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_008", p8_bounding_box_contains_vertices_seed_008),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_009", p8_bounding_box_contains_vertices_seed_009),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_010", p8_bounding_box_contains_vertices_seed_010),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_011", p8_bounding_box_contains_vertices_seed_011),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_012", p8_bounding_box_contains_vertices_seed_012),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_013", p8_bounding_box_contains_vertices_seed_013),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_014", p8_bounding_box_contains_vertices_seed_014),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_015", p8_bounding_box_contains_vertices_seed_015),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_016", p8_bounding_box_contains_vertices_seed_016),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_017", p8_bounding_box_contains_vertices_seed_017),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_018", p8_bounding_box_contains_vertices_seed_018),
+        ("polygon::tests::p8_bounding_box_contains_vertices_seed_019", p8_bounding_box_contains_vertices_seed_019),
+        ("polygon::tests::p9_translation_preserves_area_seed_000", p9_translation_preserves_area_seed_000),
+        ("polygon::tests::p9_translation_preserves_area_seed_001", p9_translation_preserves_area_seed_001),
+        ("polygon::tests::p9_translation_preserves_area_seed_002", p9_translation_preserves_area_seed_002),
+        ("polygon::tests::p9_translation_preserves_area_seed_003", p9_translation_preserves_area_seed_003),
+        ("polygon::tests::p9_translation_preserves_area_seed_004", p9_translation_preserves_area_seed_004),
+        ("polygon::tests::p9_translation_preserves_area_seed_005", p9_translation_preserves_area_seed_005),
+        ("polygon::tests::p9_translation_preserves_area_seed_006", p9_translation_preserves_area_seed_006),
+        ("polygon::tests::p9_translation_preserves_area_seed_007", p9_translation_preserves_area_seed_007),
+        ("polygon::tests::p9_translation_preserves_area_seed_008", p9_translation_preserves_area_seed_008),
+        ("polygon::tests::p9_translation_preserves_area_seed_009", p9_translation_preserves_area_seed_009),
+        ("polygon::tests::p9_translation_preserves_area_seed_010", p9_translation_preserves_area_seed_010),
+        ("polygon::tests::p9_translation_preserves_area_seed_011", p9_translation_preserves_area_seed_011),
+        ("polygon::tests::p9_translation_preserves_area_seed_012", p9_translation_preserves_area_seed_012),
+        ("polygon::tests::p9_translation_preserves_area_seed_013", p9_translation_preserves_area_seed_013),
+        ("polygon::tests::p9_translation_preserves_area_seed_014", p9_translation_preserves_area_seed_014),
+        ("polygon::tests::p9_translation_preserves_area_seed_015", p9_translation_preserves_area_seed_015),
+        ("polygon::tests::p9_translation_preserves_area_seed_016", p9_translation_preserves_area_seed_016),
+        ("polygon::tests::p9_translation_preserves_area_seed_017", p9_translation_preserves_area_seed_017),
+        ("polygon::tests::p9_translation_preserves_area_seed_018", p9_translation_preserves_area_seed_018),
+        ("polygon::tests::p9_translation_preserves_area_seed_019", p9_translation_preserves_area_seed_019),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

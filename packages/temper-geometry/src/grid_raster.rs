@@ -681,6 +681,598 @@ pub(crate) mod tests {
         assert_eq!(closest_component_for_zone(&[], 0.0, 0.0, 1.0, 1.0), None);
     }
 
+    // -----------------------------------------------------------------
+    // WASM-tier mirror of `mod proptests` below (R19/U6: `proptest` is a
+    // dev-dependency, absent from the non-test `wasm-registry` build --
+    // see `docs/evidence/2026-08-11-native-only-classification-all-crates.md`,
+    // which counts this crate's 55 zero-mirror-coverage proptests).
+    // Deterministic SplitMix64 seeded generator: no `rand`, no `proptest`,
+    // no OS entropy (wasm32-unknown-unknown has none). Each `pN_..._impl`
+    // below is the exact assertion body of its `mod proptests` sibling;
+    // each is called by CAMPAIGN_N registered wrapper tests below, one per
+    // seed, so a failure names the exact seed to replay. The native
+    // `mod proptests` is NOT touched -- it keeps exploring randomly.
+    //
+    // Vacuity guard (P8 in particular): `closest_component_for_zone`'s
+    // in-bounds test is `(zx - half_w) <= px && px <= (zx + half_w)` (and
+    // the y equivalent) -- an inclusive boundary. The native proptest for
+    // P8 deliberately used a huge fixed zone (half_w=half_h=20) "to
+    // guarantee at least one is in-bounds", which means it never exercises
+    // the boundary itself, and never exercises the `None` arm either.
+    // `gen_zone_and_positions` below instead places roughly half of each
+    // seed's positions exactly ON a zone edge (`zx - hw`, `zx + hw`,
+    // `zy - hh`, or `zy + hh`), and uses a zone sized so the `None` arm is
+    // actually reachable -- `wasm_mirror_vacuity_guard_zone` measures and
+    // asserts both rates rather than assuming them.
+    // -----------------------------------------------------------------
+
+    struct SplitMix64(u64);
+
+    impl SplitMix64 {
+        fn new(seed: u64) -> Self {
+            Self(seed)
+        }
+        fn next_u64(&mut self) -> u64 {
+            self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
+            let mut z = self.0;
+            z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+            z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+            z ^ (z >> 31)
+        }
+        fn next_f64(&mut self) -> f64 {
+            (self.next_u64() >> 11) as f64 * (1.0 / (1u64 << 53) as f64)
+        }
+        fn range(&mut self, lo: f64, hi: f64) -> f64 {
+            lo + self.next_f64() * (hi - lo)
+        }
+        fn range_i64(&mut self, lo: i64, hi: i64) -> i64 {
+            lo + (self.next_u64() % (hi - lo) as u64) as i64
+        }
+        fn index(&mut self, n: usize) -> usize {
+            debug_assert!(n > 0);
+            (self.next_u64() % n as u64) as usize
+        }
+        fn bool(&mut self) -> bool {
+            self.next_u64() & 1 == 0
+        }
+    }
+
+    fn sub_rng(seed: u64, salt: u64) -> SplitMix64 {
+        SplitMix64::new(seed.wrapping_mul(0x9E37_79B9_7F4A_7C15).wrapping_add(salt))
+    }
+
+    const CAMPAIGN_N: usize = 20;
+
+    /// Deliberately-chosen net-id boundary values (endpoints of the
+    /// `net_id()` strategy's `1..99` domain): 50% of draws use one of
+    /// these, 50% uniform.
+    const BOUNDARY_NET_IDS: &[i32] = &[1, 2, 3, 97, 98];
+
+    fn gen_net_id(rng: &mut SplitMix64) -> (i32, bool) {
+        if rng.bool() {
+            (BOUNDARY_NET_IDS[rng.index(BOUNDARY_NET_IDS.len())], true)
+        } else {
+            (rng.range_i64(1, 99) as i32, false)
+        }
+    }
+
+    /// Deliberately-chosen creepage-base boundary values (endpoints of the
+    /// `0.0..100.0` domain, plus a value picked to expose f64 * 0.30
+    /// rounding).
+    const BOUNDARY_BASES: &[f64] = &[0.0, 99.999_999, 10.0, 33.333_333];
+
+    fn gen_base(rng: &mut SplitMix64) -> (f64, bool) {
+        if rng.bool() {
+            (BOUNDARY_BASES[rng.index(BOUNDARY_BASES.len())], true)
+        } else {
+            (rng.range(0.0, 100.0), false)
+        }
+    }
+
+    /// Positions for `closest_component_for_zone`, with roughly half
+    /// placed exactly ON a zone-rectangle edge (deliberately, not by
+    /// uniform-sampling luck) to exercise the `<=` inclusive boundary.
+    /// Returns `(zx, zy, half_w, half_h, positions, any_on_boundary)`.
+    #[allow(clippy::type_complexity)]
+    fn gen_zone_and_positions(seed: u64) -> (f64, f64, f64, f64, Vec<(String, f64, f64)>, bool) {
+        let mut rng = sub_rng(seed, 80);
+        let zx = rng.range(-10.0, 10.0);
+        let zy = rng.range(-10.0, 10.0);
+        let hw = rng.range(1.0, 6.0);
+        let hh = rng.range(1.0, 6.0);
+        let n = 1 + rng.index(8);
+        let mut positions = Vec::with_capacity(n);
+        let mut any_on_boundary = false;
+        for _ in 0..n {
+            let letter = (b'A' + (rng.index(26) as u8)) as char;
+            let digit = (b'0' + (rng.index(10) as u8)) as char;
+            let ref_name: String = [letter, digit].iter().collect();
+            let (px, py) = if rng.bool() {
+                any_on_boundary = true;
+                match rng.index(4) {
+                    0 => (zx - hw, rng.range(zy - hh, zy + hh)),
+                    1 => (zx + hw, rng.range(zy - hh, zy + hh)),
+                    2 => (rng.range(zx - hw, zx + hw), zy - hh),
+                    _ => (rng.range(zx - hw, zx + hw), zy + hh),
+                }
+            } else {
+                (rng.range(-15.0, 15.0), rng.range(-15.0, 15.0))
+            };
+            positions.push((ref_name, px, py));
+        }
+        (zx, zy, hw, hh, positions, any_on_boundary)
+    }
+
+    // -----------------------------------------------------------------
+    // merge_cell
+    // -----------------------------------------------------------------
+
+    fn p1_merge_cell_free_accepts_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 1);
+        let (n, _) = gen_net_id(&mut rng);
+        assert_eq!(merge_cell(0, n), n);
+    }
+
+    fn p2_merge_cell_same_net_idempotent_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 2);
+        let (n, _) = gen_net_id(&mut rng);
+        assert_eq!(merge_cell(n, n), n);
+    }
+
+    fn p3_merge_cell_different_positive_nets_conflict_impl(seed: u64) {
+        // a != b by construction (no prop_assume rejection): offset is in
+        // 1..97, so (a - 1 + offset) % 98 can never land back on a - 1.
+        let mut rng = sub_rng(seed, 3);
+        let (a, _) = gen_net_id(&mut rng);
+        let offset = 1 + rng.index(97) as i32;
+        let b = ((a - 1 + offset).rem_euclid(98)) + 1;
+        assert_ne!(a, b);
+        assert_eq!(merge_cell(a, b), -1);
+    }
+
+    fn p4_merge_cell_conflict_is_sticky_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 4);
+        let (n, _) = gen_net_id(&mut rng);
+        assert_eq!(merge_cell(-1, n), -1);
+    }
+
+    // -----------------------------------------------------------------
+    // effective_creepage
+    // -----------------------------------------------------------------
+
+    fn p5_effective_creepage_outer_is_identity_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 5);
+        let (base, _) = gen_base(&mut rng);
+        assert_eq!(effective_creepage(true, base), base);
+    }
+
+    fn p6_effective_creepage_inner_is_scaled_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 6);
+        let (base, _) = gen_base(&mut rng);
+        assert_eq!(effective_creepage(false, base), base * 0.30);
+    }
+
+    // -----------------------------------------------------------------
+    // closest_component_for_zone
+    // -----------------------------------------------------------------
+
+    fn p7_closest_component_empty_returns_none_impl(seed: u64) {
+        let mut rng = sub_rng(seed, 7);
+        let zx = rng.range(-10.0, 10.0);
+        let zy = rng.range(-10.0, 10.0);
+        let hw = rng.range(1.0, 10.0);
+        let hh = rng.range(1.0, 10.0);
+        assert_eq!(closest_component_for_zone(&[], zx, zy, hw, hh), None);
+    }
+
+    fn p8_closest_component_result_is_an_input_ref_impl(seed: u64) {
+        let (zx, zy, hw, hh, positions, _) = gen_zone_and_positions(seed);
+        if let Some(result) = closest_component_for_zone(&positions, zx, zy, hw, hh) {
+            assert!(
+                positions.iter().any(|(r, _, _)| *r == result),
+                "result '{result}' not in inputs"
+            );
+        }
+    }
+
+    /// Vacuity guard for the scalar boundary corpora (net-id, creepage
+    /// base): measures the deliberate-boundary hit rate.
+    #[cfg_attr(test, test)]
+    fn wasm_mirror_vacuity_guard_scalars() {
+        for salt in [1u64, 2, 4] {
+            let mut hits = 0usize;
+            for seed in 0..CAMPAIGN_N as u64 {
+                let mut rng = sub_rng(seed, salt);
+                let (_, is_boundary) = gen_net_id(&mut rng);
+                if is_boundary {
+                    hits += 1;
+                }
+            }
+            let rate = hits as f64 / CAMPAIGN_N as f64;
+            assert!(
+                rate >= 0.20,
+                "net_id salt={salt}: only {hits}/{CAMPAIGN_N} ({:.0}%) hit \
+                 BOUNDARY_NET_IDS; expected >= 20%",
+                rate * 100.0
+            );
+        }
+        for salt in [5u64, 6] {
+            let mut hits = 0usize;
+            for seed in 0..CAMPAIGN_N as u64 {
+                let mut rng = sub_rng(seed, salt);
+                let (_, is_boundary) = gen_base(&mut rng);
+                if is_boundary {
+                    hits += 1;
+                }
+            }
+            let rate = hits as f64 / CAMPAIGN_N as f64;
+            assert!(
+                rate >= 0.20,
+                "base salt={salt}: only {hits}/{CAMPAIGN_N} ({:.0}%) hit \
+                 BOUNDARY_BASES; expected >= 20%",
+                rate * 100.0
+            );
+        }
+    }
+
+    /// Vacuity guard for P8 (the one property in this module with real
+    /// rasterisation-boundary risk): measures, over the actual P8 seed
+    /// corpus, (a) what fraction place at least one position exactly on a
+    /// zone edge, and (b) what fraction actually reach the `Some(..)` arm
+    /// (a corpus that only ever hits `None` never runs the "result is an
+    /// input ref" assertion at all).
+    #[cfg_attr(test, test)]
+    fn wasm_mirror_vacuity_guard_zone() {
+        let mut boundary_hits = 0usize;
+        let mut some_hits = 0usize;
+        for seed in 0..CAMPAIGN_N as u64 {
+            let (zx, zy, hw, hh, positions, any_on_boundary) = gen_zone_and_positions(seed);
+            if any_on_boundary {
+                boundary_hits += 1;
+            }
+            if closest_component_for_zone(&positions, zx, zy, hw, hh).is_some() {
+                some_hits += 1;
+            }
+        }
+        let boundary_rate = boundary_hits as f64 / CAMPAIGN_N as f64;
+        let some_rate = some_hits as f64 / CAMPAIGN_N as f64;
+        assert!(
+            boundary_rate >= 0.3,
+            "only {boundary_hits}/{CAMPAIGN_N} ({:.0}%) P8 seeds placed a \
+             position exactly on a zone edge; expected >= 30%",
+            boundary_rate * 100.0
+        );
+        assert!(
+            some_rate >= 0.3,
+            "only {some_hits}/{CAMPAIGN_N} ({:.0}%) P8 seeds reached the \
+             Some(..) arm (the assertion this property actually checks); \
+             expected >= 30%",
+            some_rate * 100.0
+        );
+    }
+
+    // 8 properties x 20 seeds = 160 distinct-input wasm tests.
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_000() { p1_merge_cell_free_accepts_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_001() { p1_merge_cell_free_accepts_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_002() { p1_merge_cell_free_accepts_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_003() { p1_merge_cell_free_accepts_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_004() { p1_merge_cell_free_accepts_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_005() { p1_merge_cell_free_accepts_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_006() { p1_merge_cell_free_accepts_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_007() { p1_merge_cell_free_accepts_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_008() { p1_merge_cell_free_accepts_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_009() { p1_merge_cell_free_accepts_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_010() { p1_merge_cell_free_accepts_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_011() { p1_merge_cell_free_accepts_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_012() { p1_merge_cell_free_accepts_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_013() { p1_merge_cell_free_accepts_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_014() { p1_merge_cell_free_accepts_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_015() { p1_merge_cell_free_accepts_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_016() { p1_merge_cell_free_accepts_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_017() { p1_merge_cell_free_accepts_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_018() { p1_merge_cell_free_accepts_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p1_merge_cell_free_accepts_seed_019() { p1_merge_cell_free_accepts_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_000() { p2_merge_cell_same_net_idempotent_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_001() { p2_merge_cell_same_net_idempotent_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_002() { p2_merge_cell_same_net_idempotent_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_003() { p2_merge_cell_same_net_idempotent_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_004() { p2_merge_cell_same_net_idempotent_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_005() { p2_merge_cell_same_net_idempotent_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_006() { p2_merge_cell_same_net_idempotent_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_007() { p2_merge_cell_same_net_idempotent_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_008() { p2_merge_cell_same_net_idempotent_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_009() { p2_merge_cell_same_net_idempotent_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_010() { p2_merge_cell_same_net_idempotent_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_011() { p2_merge_cell_same_net_idempotent_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_012() { p2_merge_cell_same_net_idempotent_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_013() { p2_merge_cell_same_net_idempotent_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_014() { p2_merge_cell_same_net_idempotent_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_015() { p2_merge_cell_same_net_idempotent_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_016() { p2_merge_cell_same_net_idempotent_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_017() { p2_merge_cell_same_net_idempotent_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_018() { p2_merge_cell_same_net_idempotent_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p2_merge_cell_same_net_idempotent_seed_019() { p2_merge_cell_same_net_idempotent_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_000() { p3_merge_cell_different_positive_nets_conflict_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_001() { p3_merge_cell_different_positive_nets_conflict_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_002() { p3_merge_cell_different_positive_nets_conflict_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_003() { p3_merge_cell_different_positive_nets_conflict_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_004() { p3_merge_cell_different_positive_nets_conflict_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_005() { p3_merge_cell_different_positive_nets_conflict_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_006() { p3_merge_cell_different_positive_nets_conflict_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_007() { p3_merge_cell_different_positive_nets_conflict_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_008() { p3_merge_cell_different_positive_nets_conflict_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_009() { p3_merge_cell_different_positive_nets_conflict_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_010() { p3_merge_cell_different_positive_nets_conflict_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_011() { p3_merge_cell_different_positive_nets_conflict_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_012() { p3_merge_cell_different_positive_nets_conflict_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_013() { p3_merge_cell_different_positive_nets_conflict_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_014() { p3_merge_cell_different_positive_nets_conflict_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_015() { p3_merge_cell_different_positive_nets_conflict_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_016() { p3_merge_cell_different_positive_nets_conflict_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_017() { p3_merge_cell_different_positive_nets_conflict_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_018() { p3_merge_cell_different_positive_nets_conflict_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p3_merge_cell_different_positive_nets_conflict_seed_019() { p3_merge_cell_different_positive_nets_conflict_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_000() { p4_merge_cell_conflict_is_sticky_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_001() { p4_merge_cell_conflict_is_sticky_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_002() { p4_merge_cell_conflict_is_sticky_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_003() { p4_merge_cell_conflict_is_sticky_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_004() { p4_merge_cell_conflict_is_sticky_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_005() { p4_merge_cell_conflict_is_sticky_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_006() { p4_merge_cell_conflict_is_sticky_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_007() { p4_merge_cell_conflict_is_sticky_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_008() { p4_merge_cell_conflict_is_sticky_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_009() { p4_merge_cell_conflict_is_sticky_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_010() { p4_merge_cell_conflict_is_sticky_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_011() { p4_merge_cell_conflict_is_sticky_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_012() { p4_merge_cell_conflict_is_sticky_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_013() { p4_merge_cell_conflict_is_sticky_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_014() { p4_merge_cell_conflict_is_sticky_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_015() { p4_merge_cell_conflict_is_sticky_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_016() { p4_merge_cell_conflict_is_sticky_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_017() { p4_merge_cell_conflict_is_sticky_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_018() { p4_merge_cell_conflict_is_sticky_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p4_merge_cell_conflict_is_sticky_seed_019() { p4_merge_cell_conflict_is_sticky_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_000() { p5_effective_creepage_outer_is_identity_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_001() { p5_effective_creepage_outer_is_identity_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_002() { p5_effective_creepage_outer_is_identity_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_003() { p5_effective_creepage_outer_is_identity_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_004() { p5_effective_creepage_outer_is_identity_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_005() { p5_effective_creepage_outer_is_identity_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_006() { p5_effective_creepage_outer_is_identity_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_007() { p5_effective_creepage_outer_is_identity_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_008() { p5_effective_creepage_outer_is_identity_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_009() { p5_effective_creepage_outer_is_identity_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_010() { p5_effective_creepage_outer_is_identity_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_011() { p5_effective_creepage_outer_is_identity_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_012() { p5_effective_creepage_outer_is_identity_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_013() { p5_effective_creepage_outer_is_identity_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_014() { p5_effective_creepage_outer_is_identity_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_015() { p5_effective_creepage_outer_is_identity_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_016() { p5_effective_creepage_outer_is_identity_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_017() { p5_effective_creepage_outer_is_identity_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_018() { p5_effective_creepage_outer_is_identity_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p5_effective_creepage_outer_is_identity_seed_019() { p5_effective_creepage_outer_is_identity_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_000() { p6_effective_creepage_inner_is_scaled_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_001() { p6_effective_creepage_inner_is_scaled_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_002() { p6_effective_creepage_inner_is_scaled_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_003() { p6_effective_creepage_inner_is_scaled_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_004() { p6_effective_creepage_inner_is_scaled_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_005() { p6_effective_creepage_inner_is_scaled_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_006() { p6_effective_creepage_inner_is_scaled_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_007() { p6_effective_creepage_inner_is_scaled_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_008() { p6_effective_creepage_inner_is_scaled_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_009() { p6_effective_creepage_inner_is_scaled_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_010() { p6_effective_creepage_inner_is_scaled_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_011() { p6_effective_creepage_inner_is_scaled_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_012() { p6_effective_creepage_inner_is_scaled_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_013() { p6_effective_creepage_inner_is_scaled_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_014() { p6_effective_creepage_inner_is_scaled_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_015() { p6_effective_creepage_inner_is_scaled_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_016() { p6_effective_creepage_inner_is_scaled_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_017() { p6_effective_creepage_inner_is_scaled_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_018() { p6_effective_creepage_inner_is_scaled_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p6_effective_creepage_inner_is_scaled_seed_019() { p6_effective_creepage_inner_is_scaled_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_000() { p7_closest_component_empty_returns_none_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_001() { p7_closest_component_empty_returns_none_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_002() { p7_closest_component_empty_returns_none_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_003() { p7_closest_component_empty_returns_none_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_004() { p7_closest_component_empty_returns_none_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_005() { p7_closest_component_empty_returns_none_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_006() { p7_closest_component_empty_returns_none_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_007() { p7_closest_component_empty_returns_none_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_008() { p7_closest_component_empty_returns_none_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_009() { p7_closest_component_empty_returns_none_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_010() { p7_closest_component_empty_returns_none_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_011() { p7_closest_component_empty_returns_none_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_012() { p7_closest_component_empty_returns_none_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_013() { p7_closest_component_empty_returns_none_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_014() { p7_closest_component_empty_returns_none_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_015() { p7_closest_component_empty_returns_none_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_016() { p7_closest_component_empty_returns_none_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_017() { p7_closest_component_empty_returns_none_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_018() { p7_closest_component_empty_returns_none_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p7_closest_component_empty_returns_none_seed_019() { p7_closest_component_empty_returns_none_impl(19); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_000() { p8_closest_component_result_is_an_input_ref_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_001() { p8_closest_component_result_is_an_input_ref_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_002() { p8_closest_component_result_is_an_input_ref_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_003() { p8_closest_component_result_is_an_input_ref_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_004() { p8_closest_component_result_is_an_input_ref_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_005() { p8_closest_component_result_is_an_input_ref_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_006() { p8_closest_component_result_is_an_input_ref_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_007() { p8_closest_component_result_is_an_input_ref_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_008() { p8_closest_component_result_is_an_input_ref_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_009() { p8_closest_component_result_is_an_input_ref_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_010() { p8_closest_component_result_is_an_input_ref_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_011() { p8_closest_component_result_is_an_input_ref_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_012() { p8_closest_component_result_is_an_input_ref_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_013() { p8_closest_component_result_is_an_input_ref_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_014() { p8_closest_component_result_is_an_input_ref_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_015() { p8_closest_component_result_is_an_input_ref_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_016() { p8_closest_component_result_is_an_input_ref_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_017() { p8_closest_component_result_is_an_input_ref_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_018() { p8_closest_component_result_is_an_input_ref_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p8_closest_component_result_is_an_input_ref_seed_019() { p8_closest_component_result_is_an_input_ref_impl(19); }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -699,6 +1291,168 @@ pub(crate) mod tests {
         ("grid_raster::tests::test_fence_samples_unknown_shape_circle_branch", test_fence_samples_unknown_shape_circle_branch),
         ("grid_raster::tests::test_effective_creepage_arms", test_effective_creepage_arms),
         ("grid_raster::tests::test_closest_component_first_min_and_bounds", test_closest_component_first_min_and_bounds),
+        ("grid_raster::tests::wasm_mirror_vacuity_guard_scalars", wasm_mirror_vacuity_guard_scalars),
+        ("grid_raster::tests::wasm_mirror_vacuity_guard_zone", wasm_mirror_vacuity_guard_zone),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_000", p1_merge_cell_free_accepts_seed_000),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_001", p1_merge_cell_free_accepts_seed_001),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_002", p1_merge_cell_free_accepts_seed_002),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_003", p1_merge_cell_free_accepts_seed_003),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_004", p1_merge_cell_free_accepts_seed_004),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_005", p1_merge_cell_free_accepts_seed_005),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_006", p1_merge_cell_free_accepts_seed_006),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_007", p1_merge_cell_free_accepts_seed_007),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_008", p1_merge_cell_free_accepts_seed_008),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_009", p1_merge_cell_free_accepts_seed_009),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_010", p1_merge_cell_free_accepts_seed_010),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_011", p1_merge_cell_free_accepts_seed_011),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_012", p1_merge_cell_free_accepts_seed_012),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_013", p1_merge_cell_free_accepts_seed_013),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_014", p1_merge_cell_free_accepts_seed_014),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_015", p1_merge_cell_free_accepts_seed_015),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_016", p1_merge_cell_free_accepts_seed_016),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_017", p1_merge_cell_free_accepts_seed_017),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_018", p1_merge_cell_free_accepts_seed_018),
+        ("grid_raster::tests::p1_merge_cell_free_accepts_seed_019", p1_merge_cell_free_accepts_seed_019),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_000", p2_merge_cell_same_net_idempotent_seed_000),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_001", p2_merge_cell_same_net_idempotent_seed_001),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_002", p2_merge_cell_same_net_idempotent_seed_002),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_003", p2_merge_cell_same_net_idempotent_seed_003),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_004", p2_merge_cell_same_net_idempotent_seed_004),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_005", p2_merge_cell_same_net_idempotent_seed_005),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_006", p2_merge_cell_same_net_idempotent_seed_006),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_007", p2_merge_cell_same_net_idempotent_seed_007),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_008", p2_merge_cell_same_net_idempotent_seed_008),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_009", p2_merge_cell_same_net_idempotent_seed_009),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_010", p2_merge_cell_same_net_idempotent_seed_010),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_011", p2_merge_cell_same_net_idempotent_seed_011),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_012", p2_merge_cell_same_net_idempotent_seed_012),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_013", p2_merge_cell_same_net_idempotent_seed_013),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_014", p2_merge_cell_same_net_idempotent_seed_014),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_015", p2_merge_cell_same_net_idempotent_seed_015),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_016", p2_merge_cell_same_net_idempotent_seed_016),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_017", p2_merge_cell_same_net_idempotent_seed_017),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_018", p2_merge_cell_same_net_idempotent_seed_018),
+        ("grid_raster::tests::p2_merge_cell_same_net_idempotent_seed_019", p2_merge_cell_same_net_idempotent_seed_019),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_000", p3_merge_cell_different_positive_nets_conflict_seed_000),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_001", p3_merge_cell_different_positive_nets_conflict_seed_001),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_002", p3_merge_cell_different_positive_nets_conflict_seed_002),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_003", p3_merge_cell_different_positive_nets_conflict_seed_003),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_004", p3_merge_cell_different_positive_nets_conflict_seed_004),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_005", p3_merge_cell_different_positive_nets_conflict_seed_005),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_006", p3_merge_cell_different_positive_nets_conflict_seed_006),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_007", p3_merge_cell_different_positive_nets_conflict_seed_007),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_008", p3_merge_cell_different_positive_nets_conflict_seed_008),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_009", p3_merge_cell_different_positive_nets_conflict_seed_009),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_010", p3_merge_cell_different_positive_nets_conflict_seed_010),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_011", p3_merge_cell_different_positive_nets_conflict_seed_011),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_012", p3_merge_cell_different_positive_nets_conflict_seed_012),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_013", p3_merge_cell_different_positive_nets_conflict_seed_013),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_014", p3_merge_cell_different_positive_nets_conflict_seed_014),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_015", p3_merge_cell_different_positive_nets_conflict_seed_015),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_016", p3_merge_cell_different_positive_nets_conflict_seed_016),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_017", p3_merge_cell_different_positive_nets_conflict_seed_017),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_018", p3_merge_cell_different_positive_nets_conflict_seed_018),
+        ("grid_raster::tests::p3_merge_cell_different_positive_nets_conflict_seed_019", p3_merge_cell_different_positive_nets_conflict_seed_019),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_000", p4_merge_cell_conflict_is_sticky_seed_000),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_001", p4_merge_cell_conflict_is_sticky_seed_001),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_002", p4_merge_cell_conflict_is_sticky_seed_002),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_003", p4_merge_cell_conflict_is_sticky_seed_003),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_004", p4_merge_cell_conflict_is_sticky_seed_004),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_005", p4_merge_cell_conflict_is_sticky_seed_005),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_006", p4_merge_cell_conflict_is_sticky_seed_006),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_007", p4_merge_cell_conflict_is_sticky_seed_007),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_008", p4_merge_cell_conflict_is_sticky_seed_008),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_009", p4_merge_cell_conflict_is_sticky_seed_009),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_010", p4_merge_cell_conflict_is_sticky_seed_010),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_011", p4_merge_cell_conflict_is_sticky_seed_011),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_012", p4_merge_cell_conflict_is_sticky_seed_012),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_013", p4_merge_cell_conflict_is_sticky_seed_013),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_014", p4_merge_cell_conflict_is_sticky_seed_014),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_015", p4_merge_cell_conflict_is_sticky_seed_015),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_016", p4_merge_cell_conflict_is_sticky_seed_016),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_017", p4_merge_cell_conflict_is_sticky_seed_017),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_018", p4_merge_cell_conflict_is_sticky_seed_018),
+        ("grid_raster::tests::p4_merge_cell_conflict_is_sticky_seed_019", p4_merge_cell_conflict_is_sticky_seed_019),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_000", p5_effective_creepage_outer_is_identity_seed_000),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_001", p5_effective_creepage_outer_is_identity_seed_001),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_002", p5_effective_creepage_outer_is_identity_seed_002),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_003", p5_effective_creepage_outer_is_identity_seed_003),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_004", p5_effective_creepage_outer_is_identity_seed_004),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_005", p5_effective_creepage_outer_is_identity_seed_005),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_006", p5_effective_creepage_outer_is_identity_seed_006),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_007", p5_effective_creepage_outer_is_identity_seed_007),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_008", p5_effective_creepage_outer_is_identity_seed_008),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_009", p5_effective_creepage_outer_is_identity_seed_009),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_010", p5_effective_creepage_outer_is_identity_seed_010),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_011", p5_effective_creepage_outer_is_identity_seed_011),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_012", p5_effective_creepage_outer_is_identity_seed_012),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_013", p5_effective_creepage_outer_is_identity_seed_013),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_014", p5_effective_creepage_outer_is_identity_seed_014),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_015", p5_effective_creepage_outer_is_identity_seed_015),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_016", p5_effective_creepage_outer_is_identity_seed_016),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_017", p5_effective_creepage_outer_is_identity_seed_017),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_018", p5_effective_creepage_outer_is_identity_seed_018),
+        ("grid_raster::tests::p5_effective_creepage_outer_is_identity_seed_019", p5_effective_creepage_outer_is_identity_seed_019),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_000", p6_effective_creepage_inner_is_scaled_seed_000),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_001", p6_effective_creepage_inner_is_scaled_seed_001),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_002", p6_effective_creepage_inner_is_scaled_seed_002),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_003", p6_effective_creepage_inner_is_scaled_seed_003),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_004", p6_effective_creepage_inner_is_scaled_seed_004),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_005", p6_effective_creepage_inner_is_scaled_seed_005),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_006", p6_effective_creepage_inner_is_scaled_seed_006),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_007", p6_effective_creepage_inner_is_scaled_seed_007),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_008", p6_effective_creepage_inner_is_scaled_seed_008),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_009", p6_effective_creepage_inner_is_scaled_seed_009),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_010", p6_effective_creepage_inner_is_scaled_seed_010),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_011", p6_effective_creepage_inner_is_scaled_seed_011),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_012", p6_effective_creepage_inner_is_scaled_seed_012),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_013", p6_effective_creepage_inner_is_scaled_seed_013),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_014", p6_effective_creepage_inner_is_scaled_seed_014),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_015", p6_effective_creepage_inner_is_scaled_seed_015),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_016", p6_effective_creepage_inner_is_scaled_seed_016),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_017", p6_effective_creepage_inner_is_scaled_seed_017),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_018", p6_effective_creepage_inner_is_scaled_seed_018),
+        ("grid_raster::tests::p6_effective_creepage_inner_is_scaled_seed_019", p6_effective_creepage_inner_is_scaled_seed_019),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_000", p7_closest_component_empty_returns_none_seed_000),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_001", p7_closest_component_empty_returns_none_seed_001),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_002", p7_closest_component_empty_returns_none_seed_002),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_003", p7_closest_component_empty_returns_none_seed_003),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_004", p7_closest_component_empty_returns_none_seed_004),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_005", p7_closest_component_empty_returns_none_seed_005),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_006", p7_closest_component_empty_returns_none_seed_006),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_007", p7_closest_component_empty_returns_none_seed_007),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_008", p7_closest_component_empty_returns_none_seed_008),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_009", p7_closest_component_empty_returns_none_seed_009),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_010", p7_closest_component_empty_returns_none_seed_010),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_011", p7_closest_component_empty_returns_none_seed_011),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_012", p7_closest_component_empty_returns_none_seed_012),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_013", p7_closest_component_empty_returns_none_seed_013),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_014", p7_closest_component_empty_returns_none_seed_014),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_015", p7_closest_component_empty_returns_none_seed_015),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_016", p7_closest_component_empty_returns_none_seed_016),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_017", p7_closest_component_empty_returns_none_seed_017),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_018", p7_closest_component_empty_returns_none_seed_018),
+        ("grid_raster::tests::p7_closest_component_empty_returns_none_seed_019", p7_closest_component_empty_returns_none_seed_019),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_000", p8_closest_component_result_is_an_input_ref_seed_000),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_001", p8_closest_component_result_is_an_input_ref_seed_001),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_002", p8_closest_component_result_is_an_input_ref_seed_002),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_003", p8_closest_component_result_is_an_input_ref_seed_003),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_004", p8_closest_component_result_is_an_input_ref_seed_004),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_005", p8_closest_component_result_is_an_input_ref_seed_005),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_006", p8_closest_component_result_is_an_input_ref_seed_006),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_007", p8_closest_component_result_is_an_input_ref_seed_007),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_008", p8_closest_component_result_is_an_input_ref_seed_008),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_009", p8_closest_component_result_is_an_input_ref_seed_009),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_010", p8_closest_component_result_is_an_input_ref_seed_010),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_011", p8_closest_component_result_is_an_input_ref_seed_011),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_012", p8_closest_component_result_is_an_input_ref_seed_012),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_013", p8_closest_component_result_is_an_input_ref_seed_013),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_014", p8_closest_component_result_is_an_input_ref_seed_014),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_015", p8_closest_component_result_is_an_input_ref_seed_015),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_016", p8_closest_component_result_is_an_input_ref_seed_016),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_017", p8_closest_component_result_is_an_input_ref_seed_017),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_018", p8_closest_component_result_is_an_input_ref_seed_018),
+        ("grid_raster::tests::p8_closest_component_result_is_an_input_ref_seed_019", p8_closest_component_result_is_an_input_ref_seed_019),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
