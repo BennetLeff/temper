@@ -63,7 +63,7 @@ from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules, Pars
 # Oracle body pinning (G1)
 # ---------------------------------------------------------------------------
 
-_ORACLE_BODY_DIGEST = "74edf52185b89bddd9ab5d8ce2e7a3ef3750ef5718695d4140ee00c79382ec6c"
+_ORACLE_BODY_DIGEST = "5cc0350b1745141b29112742ea5faf1846480910a1bbbb322b9e7e23f0b1d900"
 _BODY_MARKER = "# --- BEGIN PINNED BODY ---\n"
 
 

@@ -534,9 +534,10 @@ def _is_candidate_edge(
     ``candidate(n, e) = dist_min(e, P_n) <= M_n``
     where ``M_n = max(K * S_n, M_min)``.
 
-    This is an exact Python replica of
-    ``temper_rust_router_core::pruning::is_candidate_edge``.  The
-    test ``test_pruning_python_parity_with_rust`` cross-checks.
+    Same predicate shape as ``temper_rust_router_core::pruning::is_candidate_edge``
+    (a separate Rust kernel in another crate, out of the 2026-08-11 dedupe's
+    scope), but the point-to-segment distance underneath is now the canonical
+    temper-geometry hypot contract (issue #987).
     """
     span = _pin_span(pin_positions)
     margin = max(k_factor * span, m_min)
