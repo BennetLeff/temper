@@ -13,43 +13,15 @@
     "carries temper-geometry alone; a module carrying BOTH crates needs a merged manifest.",
     "",
     "Native baseline, for contrast: `cargo test --no-default-features --lib` on",
-    "temper-geometry passes 779/779 on x86_64-unknown-linux-gnu, these 15 included. Every",
+    "temper-geometry passes 779/779 on x86_64-unknown-linux-gnu, these 8 included. Every",
     "entry below is therefore a genuine native-vs-wasm32 divergence, not a broken test.",
     "",
-    "Measured 2026-08-10 against 722 registered tests: 707 pass, 15 expected-fail, 0 other."
+    "Measured 2026-08-11 against 722 registered tests: 714 pass, 8 expected-fail, 0 other. (Was 707 pass / 15 expected-fail until #941 fixed the unconditional Instant::now() in build_capacitated_graph, moving 7 no-clock entries to passing.)"
   ],
   "expected_failures": {
-    "bottleneck_geometry::tests::test_graph_single_node_no_edges": {
-      "class": "no-clock",
-      "reason": "build_capacitated_graph (bottleneck_geometry.rs:222) calls std::time::Instant::now() unconditionally, to service its optional deadline_remaining_s budget. wasm32-unknown-unknown's std has no clock: Instant::now() panics with 'time not implemented on this platform'. The panic is in PRODUCTION code, not the test -- so this whole kernel is unrunnable on wasm32 today, and these eight entries are that fact's census, not eight independent test defects. Fixing it means making the clock read conditional on the deadline actually being set (the None arm never needs a timestamp), which is a code change and out of this unit's scope."
-    },
-    "bottleneck_geometry::tests::test_graph_full_grid_edges_and_order": {
-      "class": "no-clock",
-      "reason": "Same root cause: Instant::now() in build_capacitated_graph."
-    },
-    "bottleneck_geometry::tests::test_graph_obstacle_wall_splits_components": {
-      "class": "no-clock",
-      "reason": "Same root cause: Instant::now() in build_capacitated_graph."
-    },
     "bottleneck_geometry::tests::test_graph_deadline_fires_only_at_stride": {
-      "class": "no-clock",
-      "reason": "Same root cause: Instant::now() in build_capacitated_graph. This one additionally asserts the deadline behaviour itself, which cannot exist without a clock."
-    },
-    "bottleneck_geometry::tests::test_graph_no_deadline_completes": {
-      "class": "no-clock",
-      "reason": "Same root cause: Instant::now() in build_capacitated_graph. Note it passes deadline_remaining_s = None and still traps -- the timestamp is taken before the option is inspected, which is precisely the bug this class points at."
-    },
-    "bottleneck_geometry::tests::test_min_cut_3x3_free_grid": {
-      "class": "no-clock",
-      "reason": "Same root cause, reached through min_cut, which builds the graph first."
-    },
-    "bottleneck_geometry::tests::test_min_cut_disconnected_islands": {
-      "class": "no-clock",
-      "reason": "Same root cause, reached through min_cut."
-    },
-    "bottleneck_geometry::tests::test_min_cut_deterministic_across_runs": {
-      "class": "no-clock",
-      "reason": "Same root cause, reached through min_cut."
+      "class": "deadline-needs-a-clock",
+      "reason": "NOT a portability defect -- the only entry here that is a property of the TEST rather than of the code under test. It passes Some(-1.0) on a 40x40 grid specifically so BFS exceeds the 256-pop DEADLINE_CHECK_STRIDE and the abort must fire, so it has to reach start.elapsed(). Since #941 the clock is read only when a deadline was requested -- and this test requests one by construction, so it still traps on a target with no clock. Making it pass would mean inventing a wasm32 clock and changing deadline semantics on that target. It was previously classed `no-clock` alongside 7 others that shared a genuine defect (Instant::now() acquired unconditionally in build_capacitated_graph); #941 fixed that defect and those 7 now pass, leaving this one, whose reason is different in kind. Reclassified so the class name stops implying a bug that no longer exists."
     },
     "pad_geometry::tests::pow2_is_exact_where_powi_is_not": {
       "class": "powi-overflow-divergence-absent",
