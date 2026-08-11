@@ -6,16 +6,20 @@ name: WASM Tier Deploy (operator-triggered)
 #
 # THE WORKER LIST IS NOT IN THIS FILE. It is tools/wasm/wasm_tier_topology.json,
 # which scripts/stage_wasm_families.sh, tools/wasm/sweep_multi_worker.mjs and
-# tools/wasm/check_deployed_freshness.mjs also read. Ten Workers today: the
-# temper-drc-rs tier (temper-wasm-tier + 7 family shards), the temper-geometry
-# tier (temper-wasm-geometry) and the temper-thermal tier (temper-wasm-thermal)
-# — each of the latter two a single script that is both its tier's full-corpus
-# Worker and its only shard. Adding an eleventh is a one-line edit to that file,
-# and — this is the point — it is not POSSIBLE to add one that gets deployed but
-# not staleness-checked, which is how the tier would grow its way back into the
-# window described below one Worker at a time. Even the per-tier
-# `--built-json-*` arguments below are generated from that file rather than
-# typed out, so the verification step cannot fall a tier behind the deploy loop.
+# tools/wasm/check_deployed_freshness.mjs also read. Thirteen Workers today: the
+# temper-drc-rs tier (temper-wasm-tier + 7 family shards) plus one script each
+# for temper-geometry, temper-thermal, temper-design-bundle,
+# temper-rust-router-core and temper-constraint-compiler — each of those five a
+# single script that is both its tier's full-corpus Worker and its only shard.
+# Adding a fourteenth is a one-object edit to that file, and — this is the
+# point — it is not POSSIBLE to add one that gets deployed but not
+# staleness-checked, which is how the tier would grow its way back into the
+# window described below one Worker at a time. THREE Workers were added on
+# 2026-08-11 and this file's deploy loop, census loop and verification step
+# needed no edit at all; the only lines that changed are these comments. Even
+# the per-tier `--built-json-*` arguments below are generated from that file
+# rather than typed out, so the verification step cannot fall a tier behind the
+# deploy loop.
 #
 # WHY THIS EXISTS. The 2026-08-07 -> 2026-08-10 staleness window (the deployed
 # Workers carried 147 tests while temper-drc-rs's suite had grown to 1,708, and
@@ -49,18 +53,24 @@ name: WASM Tier Deploy (operator-triggered)
 # WHAT dry_run=true PROVES. It is the only pre-merge validation available for a
 # change to this workflow — nobody should be merging a deploy change whose first
 # execution is the real deploy — so it deliberately exercises every step that
-# does not require the credential: it stages all ten .wasm modules, runs ALL
-# THREE crates' registries under Node (so a module that does not work is caught
-# before anyone clicks the real button), and BUNDLES all ten Workers with
-# `wrangler deploy --dry-run`, which is what would catch a bad import path, a
-# missing .wasm, or a malformed wrangler.toml. What it cannot prove is anything
-# about the currently deployed Workers; it says so in its own output.
+# does not require the credential: it stages all thirteen .wasm modules, runs
+# ALL SIX crates' registries under Node (so a module that does not work is
+# caught before anyone clicks the real button), and BUNDLES all thirteen Workers
+# with `wrangler deploy --dry-run`, which is what would catch a bad import path,
+# a missing .wasm, or a malformed wrangler.toml. What it cannot prove is
+# anything about the currently deployed Workers; it says so in its own output.
 #
-# For temper-thermal specifically the dry run is doing real work rather than
-# ceremony: families/thermal/index.js is a NEW entry point importing a NEW
-# staged module and a NEW JSON manifest, and every one of those three imports is
-# a path that only esbuild resolves. dry_run=true is the only thing that
-# executes that resolution before the operator's first real click.
+# For the three families added on 2026-08-11 (design-bundle, router-core,
+# constraint-compiler) the dry run is doing real work rather than ceremony, as
+# it was for thermal before them: each families/<name>/index.js is a NEW entry
+# point importing a NEW staged module and a NEW JSON manifest, and every one of
+# those three imports per Worker is a path that only esbuild resolves.
+# dry_run=true is the only thing that executes those nine resolutions before the
+# operator's first real click. It is also the only pre-merge exercise of the
+# NEW WRANGLER CONFIGS: a `name` typo in one of those wrangler.toml files would
+# deploy a correct module under a script name the freshness checker has never
+# heard of, and the checker would then report the intended name as a 404 — a
+# failure whose cause is two files away from where it surfaces.
 
 on:
   workflow_dispatch:
@@ -126,10 +136,15 @@ jobs:
       # temper-geometry's fifteen native-vs-wasm32 divergences and
       # temper-thermal's four are not in temper-drc-rs's manifest and vice
       # versa; crossing them would report N unexplained failures for one crate
-      # and N orphan exclusions for the other. The tier list and the manifest
-      # paths both come from the topology file, so a new tier is censused
-      # without editing this step — temper-thermal added none of the lines
-      # below.
+      # and N orphan exclusions for the other. Three of the six manifests are
+      # EMPTY (design-bundle, router-core after #947, constraint-compiler) and
+      # that changes nothing about the argument: run_wasm_tests.mjs exits
+      # non-zero on an orphan exclusion, so pointing one of those modules at
+      # temper-drc-rs's manifest would report every drc entry as an orphan. The
+      # tier list and the manifest paths both come from the topology file, so a
+      # new tier is censused without editing this step — temper-thermal added
+      # none of the lines below, and neither did the three tiers added
+      # 2026-08-11.
       - name: Census + smoke-run every staged full-corpus module
         run: |
           set -euo pipefail
@@ -173,8 +188,9 @@ jobs:
       # auth error whose cause is a typo two files away.
       # ------------------------------------------------------------------
       # The deploy list comes from tools/wasm/wasm_tier_topology.json, already
-      # deduplicated (temper-wasm-geometry is both its tier's full-corpus Worker
-      # and its only shard, and must be uploaded once, not twice).
+      # deduplicated (each single-family tier's one script is both its tier's
+      # full-corpus Worker and its only shard, and must be uploaded once, not
+      # twice — five such scripts today).
       - name: Compute the deploy list from the topology
         run: |
           set -euo pipefail
@@ -273,7 +289,7 @@ jobs:
       # dry_run's real work. `wrangler deploy --dry-run` runs the entire upload
       # path except the upload: it resolves wrangler.toml, runs esbuild over the
       # entry point, follows every import (including the .wasm modules staged
-      # above and families/geometry/index.js's import of the geometry
+      # above and each families/*/index.js's import of its crate's
       # expected-failure JSON), and reports the bundle size. It needs no
       # credential, which is exactly why it is the pre-merge proof for a change
       # to this file: a broken import path or a missing module fails HERE, on a

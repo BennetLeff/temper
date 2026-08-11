@@ -1,0 +1,18 @@
+# temper-wasm-design-bundle — the temper-design-bundle tier's only Worker.
+# See tools/wasm/wasm_tier_topology.json for the tier model.
+name = "temper-wasm-design-bundle"
+main = "index.js"
+compatibility_date = "2026-08-01"
+
+# NOTE the ordering: `account_id` is a TOP-LEVEL key and must appear BEFORE any
+# table header, or TOML puts it inside that table. The seven original
+# families/*/wrangler.toml files place it after `[vars]`, which makes it the var
+# `env.account_id` and leaves the real account_id unset — visible in
+# `wrangler deploy --dry-run`'s bindings list. Those deploys succeed anyway
+# because the API token resolves to a single account, so it is latent rather
+# than broken; this file, like families/geometry and families/thermal, simply
+# does not reproduce it.
+account_id = "03f642afe070f05b727f7cd31f02ef48"
+
+[vars]
+ABI_VERSION = "1"

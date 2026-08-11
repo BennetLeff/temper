@@ -21,17 +21,19 @@
  *
  * ## --tier, and why the default is not what CI should use
  *
- * The tier carries three crates (temper-drc-rs, temper-geometry and
- * temper-thermal). With no `--tier` this sweeps every shard of every tier,
- * which is the right thing for
- * an ad-hoc "is the whole thing up?" run and the wrong thing for R19: the
- * output feeds tools/wasm/r19_compare.py, which joins wasm32 verdicts against
- * ONE `cargo test` invocation's verdicts by test name. Handing it a sweep that
- * mixes both crates would leave the other crate's tests as `wasm32_only` --
- * counted nowhere, failing nothing, which is precisely the "reports green over
- * a corpus nobody compared" failure this tier exists to rule out. So
- * wasm-tier-nightly.yml passes `--tier` explicitly and compares each tier
- * against its own crate's native run.
+ * The tier carries six crates (temper-drc-rs, temper-geometry, temper-thermal,
+ * temper-design-bundle, temper-rust-router-core and temper-constraint-compiler)
+ * across 12 shard Workers. With no `--tier` this sweeps every shard of every
+ * tier, which is the right thing for an ad-hoc "is the whole thing up?" run and
+ * the wrong thing for R19: the output feeds tools/wasm/r19_compare.py, which
+ * joins wasm32 verdicts against ONE `cargo test` invocation's verdicts by test
+ * name. Handing it a sweep that mixes crates would leave the other crates'
+ * tests as `wasm32_only` -- counted nowhere, failing nothing, which is
+ * precisely the "reports green over a corpus nobody compared" failure this tier
+ * exists to rule out, and at six crates a merged sweep compared against
+ * temper-drc-rs would absolve 1069 of 2788 verdicts. So wasm-tier-nightly.yml
+ * passes `--tier` explicitly, in a loop over the topology, and compares each
+ * tier against its own crate's native run.
  */
 
 import { loadTopology, tierByCrate, workerUrl } from "./tier_topology.mjs";

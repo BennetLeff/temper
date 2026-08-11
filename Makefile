@@ -232,11 +232,13 @@ extensions-check:
 #                            # login/token with Workers Scripts:Edit)
 #
 # "Every" is defined by tools/wasm/wasm_tier_topology.json, not by a list in
-# this file. Ten Workers today across three tiers (temper-drc-rs: temper-wasm-
-# tier + 7 family shards; temper-geometry: temper-wasm-geometry;
-# temper-thermal: temper-wasm-thermal). This target used to carry its own copy
-# of the family list, which is bug #2 below repeating itself one crate later —
-# the whole reason that file exists.
+# this file. Thirteen Workers today across six tiers (temper-drc-rs:
+# temper-wasm-tier + 7 family shards; and one Worker each for temper-geometry,
+# temper-thermal, temper-design-bundle, temper-rust-router-core and
+# temper-constraint-compiler). This target used to carry its own copy of the
+# family list, which is bug #2 below repeating itself one crate later — the
+# whole reason that file exists. Three crates were added on 2026-08-11 and this
+# target needed no edit.
 #
 # CI equivalent, and the preferred path: the `workflow_dispatch`-only workflow
 # .github/workflows/wasm-tier-deploy.yml runs exactly these steps and then
@@ -315,11 +317,20 @@ wasm-thermal-test:
 # The 2026-08-10 additions, each its own target for the same reason
 # `wasm-geometry-test` is: a different module, a different result set, and a
 # per-crate expected-failure manifest that cannot judge a module built from
-# another crate's registry.
+# another crate's registry. All three are deployed Workers as of 2026-08-11;
+# these targets are the local equivalent of what those Workers serve.
 #
 #   make wasm-design-bundle-test        # 24 tests, 24 pass
-#   make wasm-router-core-test          # 111 tests, 88 pass + 23 expected-fail
+#   make wasm-router-core-test          # 111 tests, 111 pass
 #   make wasm-constraint-compiler-test  # 70 registered / 69 on wasm32, 69 pass
+#
+# `wasm-router-core-test` read "88 pass + 23 expected-fail" until #947 made
+# combinator::rewrite's trace clock lazy; all 23 `no-clock` entries became
+# passes and were deleted from the manifest in that PR. Note that the number
+# the DEPLOYED tier compares — `summary.registered` — did not move: 111 before,
+# 111 after. A count check cannot see a verdict change (issue #945), which is
+# why run_wasm_tests.mjs's non-zero exit on an UNEXPECTED PASS is the thing that
+# actually caught the manifest going stale.
 wasm-design-bundle-test:
 	@echo "Building temper-wasm-test-runner with temper-design-bundle's registry..."
 	cargo build --release --target wasm32-unknown-unknown --no-default-features \
