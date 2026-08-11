@@ -4,10 +4,30 @@ version = "0.1.0"
 edition = "2024"
 description = "Shared typed PCL intermediate representation"
 
+[features]
+default = []
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index -- `cargo test`'s libtest harness cannot
+# target `wasm32-unknown-unknown`.  Off by default.  Mirrors
+# `temper-constraint-compiler`'s feature set (the closest small analogue), so
+# the shared runner wires every crate the same way.
+#
+# `wasm-registry` is the umbrella feature that gates module visibility; every
+# per-family feature implies it.  One family (`pcl-ir`): this crate is a flat
+# typed data model (the shared PCL IR) with no taxonomy to shard along.
+wasm-registry = []
+wasm-registry-pcl-ir = ["wasm-registry"]
+wasm-registry-all = ["wasm-registry-pcl-ir"]
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
+
 [dependencies]
 serde = { version = "1", features = ["derive"] }
-
-[dev-dependencies]
+# Not a dev-dependency: `tests::all_pcl_kinds_round_trip_deterministically`
+# uses it to round-trip through JSON, and that module is compiled into the
+# ordinary (non-test) `wasm-registry` build, which does not link
+# dev-dependencies.  Mirrors `temper-drc-rs`/`temper-design-bundle`/
+# `temper-io-types`, which promote it the same way for the same reason.
 serde_json = "1"
 
 [lints.clippy]
