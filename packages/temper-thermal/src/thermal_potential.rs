@@ -678,7 +678,12 @@ fn find_min_valid(
 /// anchor.  `search_free_x` replaces the clamp with a bounded two-way
 /// scan for the first x-position on the row that is at least
 /// `tolerance_mm` from *every* other anchor.
-fn search_free_x(
+///
+/// `pub(crate)`, not private: the wasm32-tier deterministic campaign in
+/// `property_campaigns.rs` mirrors this file's `uniqueness_proptests`
+/// module (which reaches it via `use super::*` from inside this same
+/// file) and needs to call it from a sibling module.
+pub(crate) fn search_free_x(
     anchors: &[(String, (f64, f64))],
     j: usize,
     x_min: f64,
