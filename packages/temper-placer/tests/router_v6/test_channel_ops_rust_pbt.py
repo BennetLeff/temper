@@ -239,7 +239,14 @@ def test_p5_width_stats_consistent(nodes, sample_distance):
     assert len(all_w) > 0
     assert float(cw.min_width) == min(float(w) for w in all_w)
     assert float(cw.max_width) == max(float(w) for w in all_w)
-    assert float(cw.avg_width) == sum(float(w) for w in all_w) / len(all_w)
+    # The module's avg is a NAIVE accumulation over the first-element-
+    # np.float64 list (numpy-scalar arithmetic, never CPython's compensated
+    # float fast path), so the reference here is a plain f64 fold in dict
+    # order -- NOT builtin sum().
+    naive = 0.0
+    for w in all_w:
+        naive += float(w)
+    assert float(cw.avg_width) == naive / len(all_w)
 
 
 def test_p5_guard_stats_not_vacuous():
