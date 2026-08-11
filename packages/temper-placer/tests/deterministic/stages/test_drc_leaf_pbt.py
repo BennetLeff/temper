@@ -33,6 +33,7 @@ from __future__ import annotations
 import math
 
 import temper_drc_rs as _drc
+import temper_geometry as _tg
 import tests.deterministic.stages._drc_leaf_py_oracle as _oracle
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -87,7 +88,9 @@ def test_p2_dedup_keeps_and_counts(traces):
 @given(_COORD, _COORD, _COORD, _COORD, _COORD, _COORD)
 @settings(max_examples=200, deadline=None)
 def test_p3_distance_bounds(px, py, x1, y1, x2, y2):
-    d = _drc.point_to_segment_distance_py((px, py), (x1, y1), (x2, y2))
+    # Issue #987: the temper_drc_rs point_to_segment_distance_py binding was
+    # deleted; the canonical temper-geometry kernel is the subject.
+    d = _tg.point_to_segment_distance_py(px, py, x1, y1, x2, y2)
     assert d >= 0.0
     d_end1 = math.hypot(px - x1, py - y1)
     d_end2 = math.hypot(px - x2, py - y2)
@@ -145,8 +148,9 @@ def test_mr2_dedup_orientation(marshalled_dummy):
 @given(_COORD, _COORD, _COORD, _COORD)
 @settings(max_examples=100, deadline=None)
 def test_mr3_segment_collapse(px, py, x1, y1):
-    d = _drc.point_to_segment_distance_py((px, py), (x1, y1), (x1, y1))
-    # Same expression the oracle/kernel evaluate for the degenerate segment:
-    # math.sqrt((px - x1) ** 2 + (py - y1) ** 2) — libm pow + sqrt.
-    expected = math.sqrt((px - x1) ** 2 + (py - y1) ** 2)
+    # Issue #987: the canonical kernel's degenerate arm is CPython
+    # math.hypot (py_hypot), NOT the sqrt(pow+pow) form the deleted copy B
+    # used (the two differ by ≤1 ulp on a measurable input class).
+    d = _tg.point_to_segment_distance_py(px, py, x1, y1, x1, y1)
+    expected = math.hypot(px - x1, py - y1)
     assert d == expected

@@ -9,14 +9,16 @@ pre-migration implementations are pinned VERBATIM as the oracle
 
 R1a: violation summarization (descending-count order, first-seen tie
 order), the dedup key (`round(x/tol) * tol` half-to-even, direction
-normalisation, net/layer in the key), the point-to-segment distance (libm
-pow/sqrt bit-exact), the two constraint validators (messages via CPython
+normalisation, net/layer in the key), the point-to-segment distance (the
+canonical temper-geometry hypot contract since the 2026-08-11 dedupe,
+issue #987), the two constraint validators (messages via CPython
 `__format__`), and the clamp compare bit-identically.
 """
 
 from __future__ import annotations
 
 import temper_drc_rs as _drc
+import temper_geometry as _tg
 import tests.deterministic.stages._drc_leaf_py_oracle as _oracle
 
 
@@ -122,7 +124,10 @@ def test_dedup_net_none_vs_empty_distinct():
 
 def _assert_pts2seg(point, start, end):
     exp = _oracle.point_to_segment_distance(point, start, end)
-    got = _drc.point_to_segment_distance_py(point, start, end)
+    # Issue #987: the temper_drc_rs point_to_segment_distance_py binding was
+    # deleted in the point-to-segment dedupe; the canonical temper-geometry
+    # kernel is now the differential subject.
+    got = _tg.point_to_segment_distance_py(*point, *start, *end)
     assert got.hex() == exp.hex(), f"{point} {start} {end}"
 
 

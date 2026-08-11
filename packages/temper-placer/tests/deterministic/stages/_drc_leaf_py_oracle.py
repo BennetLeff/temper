@@ -12,6 +12,13 @@ pre-migration modules at the dispatch base (origin/main):
 Do NOT edit: this file is the Python arm of the differentials. If it drifts,
 the differentials prove nothing. The `run`/oracle-bound orchestration stays
 Python in the shims and is not part of these oracles.
+
+Re-pin 2026-08-11 (issue #987): `point_to_segment_distance` (below) mirrored
+a Wave-4 reimplementation that was deleted in the point-to-segment dedupe;
+it now mirrors temper-geometry's canonical hypot contract (≤1-ulp,
+decision-immune on real inputs — see
+`docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md`).
+Everything else remains the verbatim pre-migration body.
 """
 
 import math
@@ -74,7 +81,16 @@ def point_to_segment_distance(
     seg_start: tuple[float, float],
     seg_end: tuple[float, float],
 ) -> float:
-    """The `PlacementValidationStage._point_to_segment_distance`."""
+    """The `PlacementValidationStage._point_to_segment_distance`.
+
+    Re-pinned 2026-08-11 (issue #987) to the canonical temper-geometry
+    contract (creepage_check): the Wave-4 ``pow``-squares + ``sqrt`` copy
+    this oracle used to mirror was deleted. CPython ``math.hypot`` == the
+    Rust ``py_hypot`` Dekker double-double; ``denom == 0`` OR non-finite
+    triggers the degenerate arm; builtin ``min``/``max`` clamp a NaN ``t``
+    to 1.0. ≤1-ulp, decision-immune on real inputs
+    (docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md).
+    """
     px, py = point
     x1, y1 = seg_start
     x2, y2 = seg_end
@@ -82,17 +98,17 @@ def point_to_segment_distance(
     dx = x2 - x1
     dy = y2 - y1
 
-    len_sq = dx * dx + dy * dy
+    denom = dx * dx + dy * dy
 
-    if len_sq == 0:
-        return math.sqrt((px - x1) ** 2 + (py - y1) ** 2)
+    if denom == 0.0 or not math.isfinite(denom):
+        return math.hypot(px - x1, py - y1)
 
-    t = max(0, min(1, ((px - x1) * dx + (py - y1) * dy) / len_sq))
+    t = max(0.0, min(1.0, ((px - x1) * dx + (py - y1) * dy) / denom))
 
     closest_x = x1 + t * dx
     closest_y = y1 + t * dy
 
-    return math.sqrt((px - closest_x) ** 2 + (py - closest_y) ** 2)
+    return math.hypot(px - closest_x, py - closest_y)
 
 
 def validate_proximity(constraint, component_positions):

@@ -6,12 +6,20 @@ Verbatim pre-D6 snapshot of the module at the D6 dispatch base (origin/main
 below `# --- BEGIN PINNED BODY ---` is byte-identical to the module; the D6
 Rust port (`temper-orchestration::PlacementValidationStage`) is the
 differential subject, pinned by `test_deterministic_d6_rust_differential.py`.
+
+Re-pin 2026-08-11 (issue #987): `_point_to_segment_distance` now delegates
+to temper-geometry's canonical `point_to_segment_distance_py` — the
+temper_drc_rs binding it used was deleted in the point-to-segment dedupe.
+The re-pin is contract-preserving on real inputs (≤1-ulp, decision-immune;
+see `docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md`);
+the digest pin in the differential was updated in the same commit.
 """
 
 import logging
 from dataclasses import dataclass, replace
 
 import temper_drc_rs as _drc
+import temper_geometry as _tg
 
 from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
@@ -256,7 +264,7 @@ class PlacementValidationStage(Stage):
 
         Uses projection formula to find closest point on segment.
         """
-        return _drc.point_to_segment_distance_py(point, seg_start, seg_end)
+        return _tg.point_to_segment_distance_py(*point, *seg_start, *seg_end)
 
     def _log_summary(self, violations: list[PlacementViolation]):
         if not violations:

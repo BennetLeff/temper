@@ -29,6 +29,16 @@ pure-Python kernels and imports only ``pin_world_position`` (outside the
 migration scope) from the live package. It consumes networkx Graph
 objects and plain dataclasses as inputs; it never touches the Rust
 extension.
+
+Re-pin 2026-08-11 (issue #987): ``_point_to_segment_distance`` was the
+only kernel here that mirrored a deleted reimplementation
+(constraint_model.rs's Wave-4 copy A). It now mirrors the canonical
+temper-geometry hypot contract, and the body digest pin in
+``test_constraint_model_builder_rust_differential.py`` was updated in the
+same commit. Everything else after the marker is still the unmodified
+pre-migration source. The re-pin is contract-preserving on real inputs
+(≤1-ulp, decision-immune; see
+``docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md``).
 """
 # --- BEGIN PINNED BODY ---
 from __future__ import annotations
@@ -441,34 +451,29 @@ def _point_to_segment_distance(
     the distance to the nearer endpoint.  Degenerate (zero-length) segment
     returns the distance to the single endpoint.
 
-    This is an exact Python replica of
-    ``temper_rust_router_core::pruning::point_to_segment_distance`` for
-    use in the model builder.  The test
-    ``test_pruning_python_parity_with_rust`` cross-checks the two
-    implementations on the fixed/test cases.
+    Re-pinned 2026-08-11 (issue #987) to the canonical temper-geometry
+    contract (creepage_check): the Wave-4 ``sqrt``/``if/elif/else`` copy this
+    oracle used to mirror was deleted.  CPython ``math.hypot`` == the Rust
+    ``py_hypot`` Dekker double-double; ``denom == 0`` OR non-finite triggers
+    the degenerate arm; builtin ``min``/``max`` clamp a NaN ``t`` to 1.0.
+    ``math.sqrt``/``math.hypot`` parity with the Rust kernel on the
+    differential corpus is asserted by
+    ``test_constraint_model_rust_differential.py`` (whose own ``_oracle_*``
+    block carries the same re-pin).
     """
     dx = seg_bx - seg_ax
     dy = seg_by - seg_ay
-    len_sq = dx * dx + dy * dy
+    denom = dx * dx + dy * dy
 
-    if len_sq == 0.0:
-        dx_p = px - seg_ax
-        dy_p = py - seg_ay
-        return math.sqrt(dx_p * dx_p + dy_p * dy_p)
+    if denom == 0.0 or not math.isfinite(denom):
+        return math.hypot(px - seg_ax, py - seg_ay)
 
-    t = ((px - seg_ax) * dx + (py - seg_ay) * dy) / len_sq
-    if t < 0.0:
-        t_c = 0.0
-    elif t > 1.0:
-        t_c = 1.0
-    else:
-        t_c = t
+    t = ((px - seg_ax) * dx + (py - seg_ay) * dy) / denom
+    t = max(0.0, min(1.0, t))
 
-    proj_x = seg_ax + t_c * dx
-    proj_y = seg_ay + t_c * dy
-    dx_p = px - proj_x
-    dy_p = py - proj_y
-    return math.sqrt(dx_p * dx_p + dy_p * dy_p)
+    proj_x = seg_ax + t * dx
+    proj_y = seg_ay + t * dy
+    return math.hypot(px - proj_x, py - proj_y)
 
 
 def _pin_world_positions(net: Net, pcb: ParsedPCB) -> list[tuple[float, float]]:

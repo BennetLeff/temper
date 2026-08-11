@@ -18,10 +18,12 @@ The surrounding stage orchestration (zone walking, ``_is_slot_in_copper_zone``
 bounds-margin branch, ``copper_zone_margin``) stays Python in the shim.
 
 Numerical pins (see the differential):
-- ``_point_to_segment_distance`` closes with ``(px - closest_x) ** 2`` and
-  a final ``** 0.5`` -- CPython ``**`` = libm ``pow``, so ``pow(pow(px-cx,2)
-  + pow(py-cy,2), 0.5)``, NOT ``math.sqrt`` (they differ by 1 ulp on a
-  measurable input class). The ``l2 == 0`` branch is ``** 0.5`` too.
+- ``_point_to_segment_distance`` closes with ``math.hypot`` — RE-PINNED
+  2026-08-11 (issue #987) from the Wave-4 ``** 0.5`` (libm ``pow``) close:
+  the reimplementation it mirrored was deleted in the point-to-segment
+  dedupe, and the oracle now mirrors temper-geometry's canonical hypot
+  contract (≤1-ulp, decision-immune on real inputs — see
+  ``docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md``).
 - ``t = max(0, min(1, ((px - x1) * dx + (py - y1) * dy) / l2))`` — Python
   ``max``/``min`` (first argument on ties).
 - ``_point_in_polygon``: the ``xinters`` ternary is
@@ -34,6 +36,8 @@ Numerical pins (see the differential):
 """
 
 from __future__ import annotations
+
+import math
 
 
 def point_in_polygon(
@@ -100,21 +104,30 @@ def point_to_segment_distance(
     p1: tuple[float, float],
     p2: tuple[float, float],
 ) -> float:
-    """The ``RoutingChannelAwareSlotStage._point_to_segment_distance`` (body only)."""
+    """The ``RoutingChannelAwareSlotStage._point_to_segment_distance`` (body only).
+
+    Re-pinned 2026-08-11 (issue #987) to the canonical temper-geometry
+    contract (creepage_check): the Wave-4 ``pow(pow+pow, 0.5)`` copy this
+    oracle used to mirror was deleted. CPython ``math.hypot`` == the Rust
+    ``py_hypot`` Dekker double-double; ``denom == 0`` OR non-finite triggers
+    the degenerate arm; builtin ``min``/``max`` clamp a NaN ``t`` to 1.0.
+    ≤1-ulp, decision-immune on real inputs
+    (docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md).
+    """
     x1, y1 = p1
     x2, y2 = p2
 
     dx = x2 - x1
     dy = y2 - y1
 
-    l2 = dx * dx + dy * dy
+    denom = dx * dx + dy * dy
 
-    if l2 == 0:
-        return ((px - x1) ** 2 + (py - y1) ** 2) ** 0.5
+    if denom == 0.0 or not math.isfinite(denom):
+        return math.hypot(px - x1, py - y1)
 
-    t = max(0, min(1, ((px - x1) * dx + (py - y1) * dy) / l2))
+    t = max(0.0, min(1.0, ((px - x1) * dx + (py - y1) * dy) / denom))
 
     proj_x = x1 + t * dx
     proj_y = y1 + t * dy
 
-    return ((px - proj_x) ** 2 + (py - proj_y) ** 2) ** 0.5
+    return math.hypot(px - proj_x, py - proj_y)

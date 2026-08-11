@@ -43,6 +43,7 @@ import time
 from dataclasses import replace
 
 import temper_design_bundle_python as _tdb
+import temper_geometry as _tg
 
 # Phase E batch E1: the constraint-model data model and the ModelBuilder
 # orchestration live in the Rust `model_builder` submodule; these names
@@ -174,19 +175,13 @@ def _point_to_segment_distance(
     the distance to the nearer endpoint.  Degenerate (zero-length) segment
     returns the distance to the single endpoint.
 
-    This is an exact Python replica of
-    ``temper_rust_router_core::pruning::point_to_segment_distance`` for
-    use in the model builder.  The test
-    ``test_pruning_python_parity_with_rust`` cross-checks the two
-    implementations on the fixed/test cases.
-
     Wave 4: delegates to the Rust kernel
-    ``temper_design_bundle_python.constraint_model.point_to_segment_distance_py``
-    (bit-exact; pinned by ``tests/router_v6/test_constraint_model_rust_differential.py``).
+    ``temper_geometry.point_to_segment_distance_py`` — the canonical
+    point-to-segment kernel (issue #987); the design-bundle binding this
+    shim used to call was deleted in the dedupe.  Pinned by
+    ``tests/router_v6/test_constraint_model_rust_differential.py``.
     """
-    return _tdb.constraint_model.point_to_segment_distance_py(
-        px, py, seg_ax, seg_ay, seg_bx, seg_by
-    )
+    return _tg.point_to_segment_distance_py(px, py, seg_ax, seg_ay, seg_bx, seg_by)
 
 def _dist_min_edge_to_pins(
     edge_ax: float, edge_ay: float,
