@@ -29,19 +29,22 @@ from __future__ import annotations
 import pickle
 import signal
 import time
+from pathlib import Path
 
 import pytest
 
+from temper_placer.router_v6.channel_skeleton import ChannelSkeleton, SkeletonGraph
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.net_batching import (
-    _DesignRulesStub,
     _consume_capacity,
+    _DesignRulesStub,
+    _project_skeletons,
     _run_target_in_subprocess,
     _shrink_channel_widths,
+    _write_shared_context,
 )
 from temper_placer.router_v6.stage0_data import NetClassRules
 from temper_placer.router_v6.topology_extraction import NetTopology
-
 
 # ---------------------------------------------------------------------------
 # Trivial subprocess targets for crash-detection tests. Module-level (not
@@ -261,3 +264,131 @@ class TestCapacityRoundTrip:
         rule = stub.get_rules_for_net("UNKNOWN_NET")
         assert rule.trace_width_mm == pytest.approx(0.25)
         assert rule.clearance_mm == pytest.approx(0.2)
+
+
+# ---------------------------------------------------------------------------
+# Skeleton pickle round trip. Regression coverage for the bug this task
+# fixes: `_write_shared_context` unconditionally pickled Stage 2's
+# `skeletons` dict, whose values became unpicklable Rust `SkeletonGraph`
+# pyo3 objects when `channel_skeleton.py` was migrated to Rust -- crashing
+# every `--net-batching` run before Stage 3 ever solved a batch. Nothing in
+# the prior suite pickled a *real* `SkeletonGraph`; `TestCapacityRoundTrip`
+# above round-trips `ChannelWidths`/`_DesignRulesStub`/`NetClassRules` (all
+# plain dataclasses) but never touched the skeleton graphs. This class
+# closes that gap: it pickles the actual `_write_shared_context` output
+# file (the same file every batch/singleton-retry child process reads),
+# containing a real `SkeletonGraph`-backed `ChannelSkeleton`, and asserts
+# it loads back with the edge/node data intact -- the same round trip
+# `multiprocessing`'s spawn context and this function's own temp-file
+# handoff both perform in production.
+# ---------------------------------------------------------------------------
+
+
+def _make_real_skeleton(
+    edges: list[tuple[tuple[float, float], tuple[float, float]]],
+) -> ChannelSkeleton:
+    """A `ChannelSkeleton` backed by a real Rust `SkeletonGraph` (not a
+    stand-in) -- the same type Stage 2 (`channel_skeleton.py`) actually
+    produces, so a test against it exercises the real pickling boundary.
+    """
+    g = SkeletonGraph()
+    total_length = 0.0
+    for u, v in edges:
+        g.add_node(u, pos=u)
+        g.add_node(v, pos=v)
+        dx, dy = v[0] - u[0], v[1] - u[1]
+        length = (dx**2 + dy**2) ** 0.5
+        g.add_edge(u, v, weight=length)
+        total_length += length
+    return ChannelSkeleton(graph=g, layer_name="F.Cu", total_length=total_length)
+
+
+class _FakeNet:
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+
+class _FakeDesignRulesForSharedContext:
+    """Minimal stand-in for the real Rust `DesignRules` pyclass, exposing
+    only what `_write_shared_context` itself calls: `get_rules_for_net`
+    plus the two default-width attributes.
+    """
+
+    default_trace_width_mm = 0.25
+    default_clearance_mm = 0.2
+
+    def get_rules_for_net(self, net_name: str) -> NetClassRules:
+        return NetClassRules(
+            name="Default",
+            clearance_mm=0.2,
+            trace_width_mm=0.25,
+            via_diameter_mm=0.6,
+            via_drill_mm=0.3,
+        )
+
+
+class _FakePcbForSharedContext:
+    def __init__(self, source_path: Path) -> None:
+        self.source_path = source_path
+        self.nets = [_FakeNet("NET1")]
+        self.design_rules = _FakeDesignRulesForSharedContext()
+
+
+class TestSkeletonPickleRoundTrip:
+    def test_bare_skeletons_dict_is_not_picklable(self):
+        """Pins the underlying defect this fix works around: a real
+        `SkeletonGraph`-backed `ChannelSkeleton` cannot be pickled directly,
+        even though `SkeletonGraph` itself implements `__reduce__`/
+        `__getstate__`/`__setstate__` -- the failure is one level up (the
+        pyo3 submodule it lives in, `temper_design_bundle_python.
+        channel_skeleton_contracts`, is never registered in `sys.modules`,
+        which is what pickle needs to resolve the class back on load). If
+        this assertion ever starts failing, `SkeletonGraph` has become
+        directly picklable (e.g. the submodule-registration gap was fixed
+        crate-wide) and `_project_skeletons` may no longer be required --
+        that would be a welcome reason to revisit this module, not a bug.
+        """
+        skeletons = {"F.Cu": _make_real_skeleton([((0.0, 0.0), (1.0, 0.0))])}
+        with pytest.raises(pickle.PicklingError):
+            pickle.dumps(skeletons)
+
+    def test_project_skeletons_round_trips_edges_and_nodes(self):
+        skeletons = {
+            "F.Cu": _make_real_skeleton([((0.0, 0.0), (1.0, 0.0)), ((1.0, 0.0), (1.0, 1.0))]),
+            "B.Cu": _make_real_skeleton([((2.0, 2.0), (3.0, 2.0))]),
+        }
+        projected = _project_skeletons(skeletons)
+        restored = pickle.loads(pickle.dumps(projected))
+
+        assert set(restored) == {"F.Cu", "B.Cu"}
+        assert set(restored["F.Cu"].graph.edges) == {
+            ((0.0, 0.0), (1.0, 0.0)),
+            ((1.0, 0.0), (1.0, 1.0)),
+        }
+        assert set(restored["F.Cu"].graph.nodes) == {(0.0, 0.0), (1.0, 0.0), (1.0, 1.0)}
+        assert set(restored["B.Cu"].graph.edges) == {((2.0, 2.0), (3.0, 2.0))}
+
+    def test_write_shared_context_round_trips_a_real_skeleton(self, tmp_path):
+        """The end-to-end regression test: build a shared-context file the
+        same way `run_net_batched_stage3` does (real `_write_shared_context`
+        call, real `SkeletonGraph`-backed skeleton) and confirm every child
+        process's `pickle.load(open(ctx_path, "rb"))` step -- the exact
+        line that crashed in production -- succeeds and yields usable
+        edge/node data.
+        """
+        pcb = _FakePcbForSharedContext(tmp_path / "board.kicad_pcb")
+        skeletons = {"F.Cu": _make_real_skeleton([((0.0, 0.0), (5.0, 0.0))])}
+
+        ctx_path = _write_shared_context(pcb, skeletons)
+        try:
+            with open(ctx_path, "rb") as f:
+                shared = pickle.load(f)
+        finally:
+            import os
+
+            os.unlink(ctx_path)
+
+        assert shared["pcb_path"] == str(pcb.source_path)
+        restored_skeleton = shared["skeletons"]["F.Cu"]
+        assert list(restored_skeleton.graph.edges) == [((0.0, 0.0), (5.0, 0.0))]
+        assert set(restored_skeleton.graph.nodes) == {(0.0, 0.0), (5.0, 0.0)}
