@@ -55,6 +55,7 @@ from temper_placer.core.netlist import Component, Net, Pin
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.constraint_model import ModelBuilder as ShimModelBuilder
+from temper_placer.router_v6 import constraint_model as cm_module
 from temper_placer.router_v6.diff_pair_inference import DiffPair
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules, ParsedPCB
 
@@ -83,8 +84,13 @@ def test_shim_and_oracle_are_different_implementations() -> None:
     """The shim's `ModelBuilder.build()` must resolve to the Rust builder,
     not back onto the oracle's (or a hand-rolled) Python implementation."""
     shim_src = inspect.getsource(ShimModelBuilder.build)
-    assert "temper_design_bundle_python" in shim_src, (
+    assert "self._rust.build()" in shim_src, (
         "shim ModelBuilder.build() does not delegate to the Rust model builder"
+    )
+    import temper_design_bundle_python as _tdb
+
+    assert cm_module._mb is _tdb.model_builder, (
+        "shim module must bind _mb to the Rust model_builder submodule"
     )
     orc_src = inspect.getsource(_orc.ModelBuilder.build)
     assert "temper_design_bundle_python" not in orc_src, (

@@ -247,11 +247,11 @@ def test_p1_fails_for_misnamed_var_mutant():
     m.add_variable(_mb().NetChannelVar(name="BOGUS", net_idx=0, channel_id="EDGE"))
     names = {v.name for v in m.variables}
     assert "BOGUS" in names
+    # P1 requires the net_channel_vars entry to be named uses_N{idx}_{eid};
+    # the dict holds the last var registered for the key, so the invariant
+    # must discriminate the misnamed one:
     var = m.net_channel_vars[(0, "EDGE")]
-    assert var.name == "uses_N0_EDGE"
-    # P1's uniqueness-by-name claim is violated by the duplicate channel_id
-    # with a second, differently-named var:
-    assert len([v for v in m.variables if v.channel_id == "EDGE"]) == 2
+    assert var.name != "uses_N0_EDGE", "mutant must install a misnamed var in the dict"
 
 
 # ---------------------------------------------------------------------------

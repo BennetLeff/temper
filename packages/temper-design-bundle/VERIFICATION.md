@@ -4590,6 +4590,138 @@ replicas" of that Rust for cross-checking, and the differential here pins
   spends its per-edge work in Rust. R2 carve-out applies.
 
 
+# `router_v6/constraint_model.py` `ModelBuilder` orchestration — Verification (Phase E E1)
+
+Orchestration plan 2026-08-09-001 Phase E batch E1: the `ModelBuilder`
+model-building orchestration in `router_v6/constraint_model.py` (1,150 LOC)
+moves to `src/model_builder.rs` — `ModelBuilder::build()` plus the
+constraint-model contract pyclasses (`Variable`/`NetChannelVar`/
+`NetLayerVar`/`ViaVar`/`OrderVar` and `Constraint`/`CapacityConstraint`/
+`DiffPairConstraint`/`LayerConstraint`/`ChannelSeparationConstraint`,
+the `ConstraintModel` registry, and `ConstraintModelEmptyError`),
+registered as the `temper_design_bundle_python.model_builder` submodule.
+The pre-migration implementation is pinned VERBATIM as
+`tests/router_v6/_constraint_model_builder_py_oracle.py` (a byte-exact
+snapshot of the module as committed at `8dce8f8a^`, the parent of the
+Wave-4 kernel-migration commit).
+
+## The Python-side split (what stays, with evidence)
+
+- **The `_create_*` loops move to Rust** — channel vars (per-net and
+  bundled), via vars, capacity constraints, diff-pair constraints, layer
+  constraints. `build()` in Rust calls them in the same order as
+  `ModelBuilder.build()`.
+- **PCL application stays Python** (`_apply_pcl_constraints` in the shim):
+  it constructs `CompilationContext`/`CompilationTarget` and calls
+  `pcl_constraints.compile(...)` — the PCL compiler is Python-owned — then
+  adds the compiled constraints onto the Rust-built model via
+  `ConstraintModel.add_constraint`. The shim's `build()` runs the Rust
+  build, then PCL, then the R10 check, preserving the pre-migration order.
+- **`TEMPER_MODEL_TRACE` summary + R10 non-emptiness precondition stay
+  Python** (the shim's `build()`): the summary counts the post-PCL model
+  and the R10 message is byte-identical (pinned by the differential's
+  `test_pruning_empty_raises_identical_message`). The mid-loop
+  `TEMPER_MODEL_TRACE` progress prints are dropped (U5 OOM instrumentation
+  for a Python loop; the loop is now Rust — the surviving summary line is
+  unchanged).
+- **Ortools boundary stays Python untouched**: `placer/cp_sat/
+  {model,_encoder_solve,unsat}.py` are outside Phase E1's file ownership
+  (plan D4 KEEP verdict). The model the builder returns is consumed by
+  `temper_rust_router.solve_topology_rust` — the attribute surface
+  (`name`/`net_idx`/`channel_id`/`capacity`/`slack_factor`/`terms`/
+  `p_var`/`n_var`/`allowed`/`group_a_indices`/`group_b_indices`/
+  `min_slots`) matches exactly what `temper-rust-router/src/types_py_bridge.rs`
+  reads.
+- **`ConstraintGenerationStage` / `validate_constraint_generation` stay
+  Python** — `Stage`/`BoardState` pipeline glue.
+- **The `esl()`/`ESL_REGISTRY` machinery is retired**: `esl.py`/`bmc.py`
+  (its only consumers) were deleted before this migration; no caller
+  remains; ESL predicates return Python closures, unrepresentable as pyclass
+  methods. `ESL_REGISTRY` is kept (exported from `router_v6/__init__.py`)
+  populated with the same three entries as pre-migration.
+
+## Structural proof (bit-identical parity)
+
+- **Iteration-order fidelity**: the Rust builder iterates the LIVE Python
+  dicts/lists (`skeletons.items()`, `channel_widths`, net list,
+  `bundle_id_for_net`) so insertion order is preserved wherever the oracle's
+  output depends on it — including the left-to-right `sum` of a bundle's
+  member widths. The networkx edge iteration order feeds the already-pinned
+  `canonical_channel_edges` kernel. The via-anchor union-node list is sorted
+  with a stable `partial_cmp`-with-`Equal` fallback (Python's Timsort
+  semantics for NaN/incomparable elements); the tie-break input order can
+  only differ for NaN or `-0.0`/`0.0` nodes, which real boards never carry.
+- **B3 (banker's rounding, 2 decimals)**: the via-anchor node id
+  `f"VIA_N{i}_{node[0]:.2f}_{node[1]:.2f}"` is Rust `format!("{:.2}")` —
+  measured byte-identical over 250,005 adversarial samples on this host
+  (near-tie values included); the exact two-decimal tie is unreachable for
+  binary floats, the same argument as the Wave-4 six-decimal B3 note.
+- **`pin_world_position` is not reimplemented**: the builder calls the
+  existing `temper_geometry.pin_world_position_at_py` kernel (the same
+  function `core/pin_geometry.py` delegates to) with the same resolved
+  arguments, so the world positions are bit-identical by construction.
+- **Capacity/net widths**: capacity values come from the live
+  `ChannelWidths.edge_widths` dict (both orientations, reversed lookup with
+  the `0.0` default); net widths from
+  `design_rules.get_rules_for_net(name)` with the same
+  `trace_width_mm + clearance_mm` addition order.
+- **Net-index/bundle-id isolation**: bundle variables route into
+  `bundle_channel_vars` (keyed `(bundle_id, channel_id)`), never
+  `net_channel_vars` — the 2026-08-07 Sec 3.3 collision shape, pinned by the
+  differential's `bundling` config and PBT P6.
+
+## Empirical Verification
+
+- **Differential suite**: `test_constraint_model_builder_rust_differential.py`
+  (13 tests, all green) — the oracle is content-hash-pinned
+  (`206536c9...`); `test_shim_and_oracle_are_different_implementations`
+  asserts the shim's `build()` resolves to `_mb.ModelBuilder` (the shim
+  binds `_mb` to `temper_design_bundle_python.model_builder`) while the
+  oracle stays pure Python. Eight configs (`simple`, `via_vars`, `capacity`,
+  `diff_pair`, `layer_constraints`, `pruning`, `bundling`,
+  `bundling_diff_pair_skipped`) drive both arms with identical inputs; the
+  resulting models are compared field-by-field, bit-exactly (`float.hex()`
+  for floats, exported `name` strings for variable/constraint identity),
+  including the `net_channel_vars`/`bundle_channel_vars`/`via_vars` dicts.
+  R10 empty-model message parity is asserted.
+- **PBT suite**: `test_constraint_model_builder_pbt.py` (15 tests, all
+  green) — six non-vacuous properties (P1 channel-var identity, P2 capacity
+  soundness, P3 pruning subset, P4 via-var opt-in, P5 diff-pair refs, P6
+  bundling isolation), each with a vacuity guard demonstrating the invariant
+  discriminates a violating model, plus three metamorphic relations (MR1
+  monotone net extension, MR2 layer insertion-order permutation, MR3 pruning
+  equality when nothing is rejected — exact).
+- **Consumer suites**: the full existing ModelBuilder surface stays green
+  with the delegating shim — `test_constraint_model.py`,
+  `test_constraint_model_rust_differential.py`, `test_capacity_constraints.py`,
+  `test_layer_constraints.py`, `test_diff_pair_constraints.py`,
+  `test_bundled_capacity_constraints.py`, `test_bundled_model_builder.py`,
+  `test_bundled_equivalence.py`, `test_encoding_pruning_geographic.py`,
+  `test_anti_vacuity_preconditions.py`, `test_constraint_generation_pbt.py`,
+  `test_stage3_constraint_audit.py`, `test_constraint_model_pbt.py`,
+  `test_router_v6_output_validity_pbt.py`, `test_adapter.py` (the
+  `ModelBuilder.__init__` spy test), `test_bundled_full_pipeline.py`,
+  `test_bundle_analyzer*.py` — all green.
+- **Rust unit tests**: `model_builder.rs` carries `#[cfg(test)]` unit tests
+  (field shape, bundle/net var routing); like every pyo3-gated module here
+  they compile under `--features python` only, so the Python differential is
+  the authoritative gate.
+- **Clippy**: `cargo clippy --all-features --all-targets -- -D warnings` —
+  clean.
+- **Wiring**: `check_unwired_kernels.py` reports no new unwired kernel (the
+  pyclasses are re-exported by the production shim).
+- **G6 induction** — N/A: the build orchestration is a bounded loop nest
+  over board/netlist inputs, no recursive computation.
+- **G8 physics discipline** — N/A: the builder assembles constraint objects
+  from already-computed values (capacity/width/position); it computes no
+  physics quantity itself. The AtMostK capacity encoding's R24 soundness
+  proof lives with the constraint's `esl()` docs in the pre-migration source
+  and the CNF encoder in `temper-rust-router-core`.
+- **R1g Rust bar**: every `#[pymethods]` entry point is wrapped in
+  `guard()` (`catch_unwind`); no `unwrap`/`expect` outside `#[cfg(test)]`
+  (crate clippy lint).
+
+
 # HV/LV guard-strip partitioning — Verification (Wave 4 follow-up)
 
 `deterministic/stages/hv_lv_partition.py`'s pure decision compute moves to
