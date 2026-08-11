@@ -32,7 +32,6 @@ dependencies = [
     "click>=8.1.0",
     "rich>=13.0.0",
     "networkx>=3.0",
-    "python-louvain>=0.16",
     "psutil>=5.9.0",
     "jsonschema>=4.20.0",
     "tqdm>=4.67.1",

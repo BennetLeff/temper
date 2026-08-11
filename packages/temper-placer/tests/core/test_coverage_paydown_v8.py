@@ -7,7 +7,7 @@ Exercises public functions in:
   geometry/drc_inflate.py, geometry/__init__.py
 - deterministic/geometry/grid_utils.py, deterministic/flags.py
 - deterministic/channels.py, deterministic/bottleneck_map.py
-- heuristics/base.py, heuristics/graph_utils.py, heuristics/conflict.py
+- heuristics/base.py, heuristics/conflict.py
 - fields/interface.py
 - topological/graph.py
 """
@@ -791,53 +791,6 @@ class TestConflictResolver:
         resolved, conflict = resolver.resolve(placement, 5, 5, ctx)
         # Higher priority wins by default
         assert resolved is None or conflict is not None
-
-
-# ---------------------------------------------------------------------------
-# heuristics/graph_utils.py: GraphBuilder.build_graph
-# ---------------------------------------------------------------------------
-
-
-class TestGraphBuilder:
-    def test_build_graph_empty(self):
-        from temper_placer.core.netlist import Netlist
-        from temper_placer.heuristics.graph_utils import GraphBuilder
-
-        netlist = Netlist(components=[], nets=[])
-        builder = GraphBuilder(netlist)
-        G = builder.build_graph()
-        assert len(G.nodes) == 0
-
-    def test_build_graph_basic(self):
-        from temper_placer.core.netlist import Component, Net, Netlist
-        from temper_placer.heuristics.graph_utils import GraphBuilder
-
-        comps = [
-            Component(ref="U1", footprint="QFN-32", bounds=(5, 5)),
-            Component(ref="C1", footprint="0603", bounds=(2, 1)),
-        ]
-        nets = [Net("VCC", [("U1", "1"), ("C1", "1")])]
-        netlist = Netlist(components=comps, nets=nets)
-        builder = GraphBuilder(netlist)
-        G = builder.build_graph()
-        assert len(G.nodes) == 2
-        assert G.has_edge("U1", "C1")
-
-    def test_build_graph_with_weights(self):
-        from temper_placer.core.netlist import Component, Net, Netlist
-        from temper_placer.heuristics.graph_utils import GraphBuilder
-
-        comps = [
-            Component(ref="U1", footprint="QFN-32", bounds=(5, 5)),
-            Component(ref="C1", footprint="0603", bounds=(2, 1)),
-            Component(ref="C2", footprint="0603", bounds=(2, 1)),
-        ]
-        nets = [Net("VCC", [("U1", "1"), ("C1", "1"), ("C2", "1")])]
-        netlist = Netlist(components=comps, nets=nets)
-        builder = GraphBuilder(netlist)
-        G = builder.build_graph()
-        assert G.has_edge("U1", "C1")
-        assert "weight" in G["U1"]["C1"]
 
 
 # ---------------------------------------------------------------------------

@@ -166,18 +166,14 @@ temper_placer/heuristics/organizational.py::PowerFlowTopologyHeuristic.priority 
 temper_placer/heuristics/organizational.py::identify_decoupling_caps  # TODO: temper-xxx
 temper_placer/heuristics/organizational.py::identify_functional_modules  # TODO: temper-xxx
 temper_placer/heuristics/pipeline.py::HeuristicPipeline.run  # TODO: temper-xxx
-temper_placer/heuristics/pipeline.py::create_default_pipeline  # TODO: temper-xxx
-temper_placer/heuristics/pipeline.py::create_priority_pipeline  # TODO: temper-xxx
+
 temper_placer/heuristics/power_stage.py::DriverProximityHeuristic.apply  # TODO: temper-xxx
 temper_placer/heuristics/power_stage.py::DriverProximityHeuristic.name  # TODO: temper-xxx
 temper_placer/heuristics/power_stage.py::DriverProximityHeuristic.priority  # TODO: temper-xxx
 temper_placer/heuristics/power_stage.py::PowerStageTemplateHeuristic.apply  # TODO: temper-xxx
 temper_placer/heuristics/power_stage.py::PowerStageTemplateHeuristic.name  # TODO: temper-xxx
 temper_placer/heuristics/power_stage.py::PowerStageTemplateHeuristic.priority  # TODO: temper-xxx
-temper_placer/heuristics/spectral.py::SpectralPlacementHeuristic.apply  # TODO: temper-xxx
-temper_placer/heuristics/spectral.py::SpectralPlacementHeuristic.description  # TODO: temper-xxx
-temper_placer/heuristics/spectral.py::SpectralPlacementHeuristic.name  # TODO: temper-xxx
-temper_placer/heuristics/spectral.py::SpectralPlacementHeuristic.priority  # TODO: temper-xxx
+
 temper_placer/heuristics/structural.py::ConnectorEdgeSnappingHeuristic.apply  # TODO: temper-xxx
 temper_placer/heuristics/structural.py::ConnectorEdgeSnappingHeuristic.description  # TODO: temper-xxx
 temper_placer/heuristics/structural.py::CriticalLoopHeuristic.apply  # TODO: temper-xxx
