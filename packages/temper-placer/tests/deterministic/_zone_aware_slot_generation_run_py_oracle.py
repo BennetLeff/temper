@@ -15,6 +15,14 @@
 # If a differential test fails, the Rust side is wrong until proven
 # otherwise -- never edit this file to make a test pass.
 #
+# Re-pin 2026-08-11 (issue #987): `_point_to_segment_distance` now delegates
+# to temper-geometry's canonical `point_to_segment_distance_py` -- the
+# deterministic_phase binding it used was deleted in the point-to-segment
+# dedupe. The re-pin is contract-preserving on real inputs (≤1-ulp,
+# decision-immune; see
+# `docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md`);
+# the digest pin in the differential was updated in the same commit.
+#
 # test_deterministic_d5_rust_differential.py recomputes the sha256 of
 # everything below the marker and fails if this file drifts.
 # --- BEGIN PINNED BODY ---
@@ -50,6 +58,7 @@ import re
 from dataclasses import replace
 
 import temper_design_bundle_python as _tdb
+import temper_geometry as _tg
 
 from temper_placer.io.isolation_slot_geometry import isolation_slot_aabb
 from temper_placer.deterministic.state import BoardState
@@ -584,4 +593,4 @@ class RoutingChannelAwareSlotStage(ZoneAwareSlotGenerationStage):
         p2: tuple[float, float],
     ) -> float:
         """Compute distance from point (px, py) to line segment p1-p2."""
-        return _tdb.deterministic_phase.point_to_segment_distance_py(px, py, p1, p2)
+        return _tg.point_to_segment_distance_py(px, py, *p1, *p2)

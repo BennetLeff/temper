@@ -7,7 +7,7 @@
 //! |---|---|
 //! | `_edge_endpoint_key` | [`edge_endpoint_key`] |
 //! | `canonical_channel_edges` | [`canonical_channel_edges`] |
-//! | `_point_to_segment_distance` | [`point_to_segment_distance`] |
+//! | `_point_to_segment_distance` | delegated to `temper-geometry`'s canonical kernel (issue #987) |
 //! | `_pin_span` | [`pin_span`] |
 //! | `_dist_min_edge_to_pins` | [`dist_min_edge_to_pins`] |
 //! | `_is_candidate_edge` | [`is_candidate_edge`] |
@@ -64,10 +64,12 @@
 //! `_pin_span`'s `(xi - xj) ** 2` is CPython `float_pow` = host-libm
 //! `pow(x, 2.0)` (measured 152/200k samples apart from `x * x` on this
 //! host), so it is transcribed with [`crate::host_math::pow`], never `x*x`.
-//! `math.sqrt` and the `_point_to_segment_distance` degenerate arm likewise
-//! use [`crate::host_math::sqrt`] (host-libm via `dlsym`, discipline B1).
+//! `math.sqrt` likewise uses [`crate::host_math::sqrt`] (host-libm via
+//! `dlsym`, discipline B1).
 //! `_is_candidate_edge`'s `max(k_factor * span, m_min)` is Python's builtin
 //! `max` (keeps the first argument) -> [`crate::host_math::py_max`] (B5).
+//! The `_point_to_segment_distance` kernel itself is no longer this module's:
+//! it delegates to temper-geometry's canonical hypot contract (issue #987).
 //!
 //! The sort is stable (Python `list.sort` is Timsort; Rust `sort_by` is
 //! stable too), and key comparison is byte-order over ASCII-only strings,
@@ -142,49 +144,13 @@ pub fn canonical_channel_edges(layer_name: &str, edges: &[Edge]) -> Vec<EdgeRow>
 }
 
 /// `_point_to_segment_distance`: minimum Euclidean distance from a point to a
-/// line segment. Exact clone of the Python oracle — same operation order,
-/// same `if/elif/else` clamp (a NaN `t` falls through to the `else` arm and
-/// propagates, matching Python), same exact-equality `len_sq == 0.0`
-/// degenerate arm, host-libm `sqrt`.
-pub fn point_to_segment_distance(
-    px: f64,
-    py: f64,
-    seg_ax: f64,
-    seg_ay: f64,
-    seg_bx: f64,
-    seg_by: f64,
-) -> f64 {
-    let dx = seg_bx - seg_ax;
-    let dy = seg_by - seg_ay;
-    let len_sq = dx * dx + dy * dy;
-
-    if len_sq == 0.0 {
-        let dx_p = px - seg_ax;
-        let dy_p = py - seg_ay;
-        return sqrt(dx_p * dx_p + dy_p * dy_p);
-    }
-
-    let t = ((px - seg_ax) * dx + (py - seg_ay) * dy) / len_sq;
-    // The if/elif/else is DELIBERATE, not a `t.clamp(0.0, 1.0)`: the Python
-    // oracle's `if/elif/else` keeps a NaN `t` in the `else` arm and
-    // propagates it (B5-class: Python's `max(0, min(1, t))` semantics), where
-    // `f64::clamp` panics on NaN. Suppressed rather than rewritten.
-    #[allow(clippy::manual_clamp)]
-    let t_c = if t < 0.0 {
-        0.0
-    } else if t > 1.0 {
-        1.0
-    } else {
-        t
-    };
-
-    let proj_x = seg_ax + t_c * dx;
-    let proj_y = seg_ay + t_c * dy;
-    let dx_p = px - proj_x;
-    let dy_p = py - proj_y;
-    sqrt(dx_p * dx_p + dy_p * dy_p)
-}
-
+/// line segment — DELEGATED to temper-geometry's canonical kernel (issue
+/// #987). The Wave-4 reimplementation this module used to carry (x*x
+/// squares, `if/elif/else` NaN-propagating clamp, host-libm `sqrt`) was
+/// deleted; its ≤1-ulp divergence from the canonical hypot contract is
+/// documented in
+/// `docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md`.
+///
 /// `_pin_span`: maximum Euclidean distance between any two pins. `0.0` for
 /// fewer than 2 pins. `(xi - xj) ** 2` is host-libm `pow(x, 2.0)`, NOT `x*x`
 /// (see module docstring).
@@ -219,7 +185,10 @@ pub fn dist_min_edge_to_pins(
     }
     let mut best = f64::INFINITY;
     for &(px, py) in pins {
-        let d = point_to_segment_distance(px, py, edge_ax, edge_ay, edge_bx, edge_by);
+        // Canonical point-to-segment kernel (issue #987) — single source.
+        let d = temper_geometry::creepage_check::point_to_segment_distance(
+            px, py, edge_ax, edge_ay, edge_bx, edge_by,
+        );
         if d < best {
             best = d;
         }
@@ -258,7 +227,6 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     let sub = PyModule::new(py, "constraint_model")?;
     sub.add_function(wrap_pyfunction!(edge_endpoint_key_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(canonical_channel_edges_py, &sub)?)?;
-    sub.add_function(wrap_pyfunction!(point_to_segment_distance_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(pin_span_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(dist_min_edge_to_pins_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(is_candidate_edge_py, &sub)?)?;
@@ -276,18 +244,6 @@ fn canonical_channel_edges_py(
     edges: Vec<Edge>,
 ) -> PyResult<Vec<EdgeRow>> {
     guard(|| Ok(canonical_channel_edges(&layer_name, &edges)))
-}
-
-#[pyfunction]
-fn point_to_segment_distance_py(
-    px: f64,
-    py: f64,
-    ax: f64,
-    ay: f64,
-    bx: f64,
-    by: f64,
-) -> PyResult<f64> {
-    guard(|| Ok(point_to_segment_distance(px, py, ax, ay, bx, by)))
 }
 
 #[pyfunction]
@@ -357,16 +313,6 @@ mod tests {
         assert_ne!(out[0].0, out[1].0); // different _E{i}_ index
         assert_eq!(out[0].1, pt(0.0, 0.0));
         assert_eq!(out[1].1, pt(0.0000004, 0.0));
-    }
-
-    #[test]
-    fn point_to_segment_clamps_and_degenerates() {
-        assert_eq!(point_to_segment_distance(5.0, 3.0, 0.0, 0.0, 10.0, 0.0), 3.0);
-        assert_eq!(point_to_segment_distance(-5.0, 0.0, 0.0, 0.0, 10.0, 0.0), 5.0);
-        assert_eq!(point_to_segment_distance(5.0, 0.0, 0.0, 0.0, 10.0, 0.0), 0.0);
-        assert_eq!(point_to_segment_distance(3.0, 4.0, 0.0, 0.0, 0.0, 0.0), 5.0);
-        // NaN t (segment endpoints NaN) propagates through the else arm.
-        assert!(point_to_segment_distance(5.0, 3.0, f64::NAN, 0.0, 10.0, 0.0).is_nan());
     }
 
     #[test]

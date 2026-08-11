@@ -1139,6 +1139,20 @@ message text.
   constraint on a physics quantity; they summarise/validate DRC geometry.
   Stated explicitly per the ledger.
 
+## Point-to-segment dedupe (issue #987, 2026-08-11)
+
+`validate_signal_hv`'s per-HV-pin clearance kernel is now
+`temper-geometry::creepage_check::point_to_segment_distance` — the repo's
+canonical point-to-segment kernel (a plain rlib call; the crate already
+depends on temper-geometry under the `python` feature). The Wave-4
+reimplementation this module used to carry (`pow`-squares + `sqrt`,
+`len_sq == 0.0`-only degenerate arm) was deleted with its `_py` binding and
+unit test. The ≤1-ulp divergence from the old `sqrt` close is
+decision-immune on real inputs (0 flips in 6000, measured in
+`docs/evidence/2026-08-11-point-to-segment-distance-dedupe-spike.md`; the
+execution note is the `-execution.md` follow-up). The D6 run oracle's
+`_point_to_segment_distance` delegates to the same canonical kernel.
+
 ## Anti-vacuity (mutation campaign)
 
 The 26-mutant reproducible campaign (`scripts/phase5_batch2_mutations.py`)

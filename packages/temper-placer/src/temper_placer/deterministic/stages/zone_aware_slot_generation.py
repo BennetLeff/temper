@@ -43,6 +43,7 @@ stage orchestration); the structural proofs live in
 import logging
 
 import temper_design_bundle_python as _tdb
+import temper_geometry as _tg
 import temper_orchestration as _to
 
 from ..state import BoardState
@@ -333,5 +334,10 @@ class RoutingChannelAwareSlotStage(ZoneAwareSlotGenerationStage):
         p1: tuple[float, float],
         p2: tuple[float, float],
     ) -> float:
-        """Compute distance from point (px, py) to line segment p1-p2."""
-        return _tdb.deterministic_phase.point_to_segment_distance_py(px, py, p1, p2)
+        """Compute distance from point (px, py) to line segment p1-p2.
+
+        Issue #987: delegates to temper-geometry's canonical kernel (the
+        deterministic_phase binding this used to call was deleted in the
+        dedupe).
+        """
+        return _tg.point_to_segment_distance_py(px, py, *p1, *p2)

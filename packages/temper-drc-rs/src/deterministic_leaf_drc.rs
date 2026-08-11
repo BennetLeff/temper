@@ -7,7 +7,7 @@
 //! |---|---|
 //! | `deterministic/stages/drc_validation.py` | [`summarize_violations`] |
 //! | `deterministic/stages/drc_sweep.py` (TrackDeduplicationStage) | [`deduplicate_traces`] |
-//! | `deterministic/stages/placement_validation.py` | [`point_to_segment_distance`], [`validate_proximity`], [`validate_signal_hv`] |
+//! | `deterministic/stages/placement_validation.py` | [`validate_proximity`], [`validate_signal_hv`] (over temper-geometry's canonical point-to-segment kernel, issue #987) |
 //! | `deterministic/stages/courtyard_check.py` | [`clamp_position`] |
 //!
 //! The Python stages are delegation shims keeping their `run()` orchestration
@@ -24,6 +24,12 @@
 //! - Python `max`/`min` keep the FIRST argument on ties (`pymath::py_max`).
 //! - `:.1f` message formatting is delegated to CPython's `__format__` so the
 //!   decimal rounding is Python's own.
+//! - The per-HV-pin `_point_to_segment_distance` clearance in
+//!   [`validate_signal_hv`] delegates to temper-geometry's canonical kernel
+//!   (`creepage_check::point_to_segment_distance`, issue #987) — the Wave-4
+//!   `pow`-squares + `sqrt` reimplementation was deleted; its ≤1-ulp
+//!   divergence is documented in
+//!   `docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md`.
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyString};
@@ -191,42 +197,6 @@ pub fn deduplicate_traces_py<'py>(
 // placement_validation.py — geometry + constraint kernels
 // ---------------------------------------------------------------------------
 
-/// `_point_to_segment_distance` — projection onto the segment with the
-/// oracle's exact expression order: `dx*dx + dy*dy`, `max(0, min(1, t))`
-/// via `py_max`/`py_min`, `(px - closest_x) ** 2` via libm `pow`, and
-/// `math.sqrt`.
-pub fn point_to_segment_distance(
-    px: f64,
-    py: f64,
-    x1: f64,
-    y1: f64,
-    x2: f64,
-    y2: f64,
-) -> f64 {
-    let dx = x2 - x1;
-    let dy = y2 - y1;
-    let len_sq = dx * dx + dy * dy;
-    if len_sq == 0.0 {
-        return sqrt(pow(px - x1, 2.0) + pow(py - y1, 2.0));
-    }
-    let t = py_max(0.0, py_min(1.0, ((px - x1) * dx + (py - y1) * dy) / len_sq));
-    let closest_x = x1 + t * dx;
-    let closest_y = y1 + t * dy;
-    sqrt(pow(px - closest_x, 2.0) + pow(py - closest_y, 2.0))
-}
-
-/// Python-visible `point_to_segment_distance(point, seg_start, seg_end)`.
-#[pyfunction]
-pub fn point_to_segment_distance_py(
-    point: (f64, f64),
-    seg_start: (f64, f64),
-    seg_end: (f64, f64),
-) -> f64 {
-    point_to_segment_distance(
-        point.0, point.1, seg_start.0, seg_start.1, seg_end.0, seg_end.1,
-    )
-}
-
 /// CPython `f"{value:.1f}"` — delegate to the float's own `__format__` so
 /// the decimal rounding is Python's (Rust `{:.1}` can differ).
 fn fmt_1f(py: Python<'_>, value: f64) -> PyResult<String> {
@@ -358,7 +328,9 @@ pub fn validate_signal_hv(
         return Ok((true, severity, path_length, max_path_length_mm, msg, signal_component.to_string(), target_component.to_string(), "path_too_long".to_string()));
     }
     for (hv_pin, (hx, hy)) in hv_positions {
-        let clearance = point_to_segment_distance(*hx, *hy, sx, sy, tx, ty);
+        // Canonical point-to-segment kernel (issue #987) — single source.
+        let clearance =
+            temper_geometry::creepage_check::point_to_segment_distance(*hx, *hy, sx, sy, tx, ty);
         if clearance < required_clearance_mm {
             let msg = format!(
                 "Signal path {}.{} -> {}.{} passes within {}mm of HV pin {}.{} (required: {}mm)",
@@ -648,7 +620,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(summarize_violations_py, m)?)?;
     m.add_function(wrap_pyfunction!(threshold_decision_py, m)?)?;
     m.add_function(wrap_pyfunction!(deduplicate_traces_py, m)?)?;
-    m.add_function(wrap_pyfunction!(point_to_segment_distance_py, m)?)?;
     m.add_function(wrap_pyfunction!(validate_proximity_py, m)?)?;
     m.add_function(wrap_pyfunction!(validate_signal_hv_py, m)?)?;
     m.add_function(wrap_pyfunction!(clamp_position_py, m)?)?;
@@ -760,19 +731,6 @@ mod tests {
             assert!(!r.0);
             assert_eq!(r.7, "");
         });
-    }
-
-    #[test]
-    fn point_to_segment_distance_cases() {
-        // Zero-length segment: distance to the single point.
-        let d0 = point_to_segment_distance(3.0, 4.0, 1.0, 1.0, 1.0, 1.0);
-        assert_eq!(d0, sqrt(pow(2.0, 2.0) + pow(3.0, 2.0)));
-        // Perpendicular foot inside the segment.
-        let d = point_to_segment_distance(2.0, 3.0, 0.0, 0.0, 4.0, 0.0);
-        assert_eq!(d, 3.0);
-        // Foot beyond the end -> distance to the end point.
-        let d2 = point_to_segment_distance(6.0, 3.0, 0.0, 0.0, 4.0, 0.0);
-        assert_eq!(d2, sqrt(pow(2.0, 2.0) + pow(3.0, 2.0)));
     }
 
     #[test]

@@ -16,14 +16,6 @@ def canonical_channel_edges_py(
     layer_name: str,
     edges: list[Any],
 ) -> list[tuple[str, Any, Any]]: ...
-def point_to_segment_distance_py(
-    px: float,
-    py: float,
-    ax: float,
-    ay: float,
-    bx: float,
-    by: float,
-) -> float: ...
 def pin_span_py(pins: list[tuple[float, float]]) -> float: ...
 def dist_min_edge_to_pins_py(
     ax: float,

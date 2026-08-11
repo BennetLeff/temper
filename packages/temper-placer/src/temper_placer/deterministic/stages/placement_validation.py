@@ -35,6 +35,7 @@ import logging
 from dataclasses import dataclass
 
 import temper_drc_rs as _drc
+import temper_geometry as _tg
 import temper_orchestration as _to
 
 from ..state import BoardState
@@ -250,8 +251,11 @@ class PlacementValidationStage(Stage):
         """Calculate minimum distance from a point to a line segment.
 
         Uses projection formula to find closest point on segment.
+
+        Issue #987: delegates to temper-geometry's canonical kernel (the
+        temper_drc_rs binding this used to call was deleted in the dedupe).
         """
-        return _drc.point_to_segment_distance_py(point, seg_start, seg_end)
+        return _tg.point_to_segment_distance_py(*point, *seg_start, *seg_end)
 
     def _log_summary(self, violations: list[PlacementViolation]):
         if not violations:

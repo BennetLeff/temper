@@ -8,9 +8,10 @@ module as committed on ``main`` before this migration):
 
 - ``_edge_endpoint_key`` — 6-decimal-quantised ``(x, y)`` string identity
 - ``canonical_channel_edges`` — quantised-key-sorted edge-identity generator
-- ``_point_to_segment_distance`` — clamped projection with the exact
-  ``len_sq == 0.0`` degenerate arm (DELIBERATELY different from
-  ``temper-geometry``'s ``len2 < 1e-12`` version — not de-duped)
+- ``_point_to_segment_distance`` — clamped projection with the canonical
+  temper-geometry hypot contract (issue #987: the Wave-4 ``sqrt`` copy this
+  oracle used to mirror was deleted; the oracle below was re-pinned to the
+  canonical contract in the same commit)
 - ``_pin_span`` — max pairwise ``sqrt(pow + pow)`` distance
 - ``_dist_min_edge_to_pins`` — min over pins (empty -> ``inf``)
 - ``_is_candidate_edge`` — ``dist_min <= max(k * span, m_min)`` predicate
@@ -86,28 +87,25 @@ def _oracle_point_to_segment_distance(
     seg_bx: float,
     seg_by: float,
 ) -> float:
+    # Re-pinned 2026-08-11 (issue #987) to the canonical temper-geometry
+    # contract (creepage_check): the Wave-4 sqrt/if-elif-else copy this
+    # oracle used to mirror was deleted. CPython math.hypot == the Rust
+    # py_hypot Dekker double-double; denom==0 OR non-finite triggers the
+    # degenerate arm; builtin min/max clamp NaN t to 1.0. ≤1-ulp,
+    # decision-immune on real inputs (docs/evidence/2026-08-11-...execution.md).
     dx = seg_bx - seg_ax
     dy = seg_by - seg_ay
-    len_sq = dx * dx + dy * dy
+    denom = dx * dx + dy * dy
 
-    if len_sq == 0.0:
-        dx_p = px - seg_ax
-        dy_p = py - seg_ay
-        return math.sqrt(dx_p * dx_p + dy_p * dy_p)
+    if denom == 0.0 or not math.isfinite(denom):
+        return math.hypot(px - seg_ax, py - seg_ay)
 
-    t = ((px - seg_ax) * dx + (py - seg_ay) * dy) / len_sq
-    if t < 0.0:
-        t_c = 0.0
-    elif t > 1.0:
-        t_c = 1.0
-    else:
-        t_c = t
+    t = ((px - seg_ax) * dx + (py - seg_ay) * dy) / denom
+    t = max(0.0, min(1.0, t))
 
-    proj_x = seg_ax + t_c * dx
-    proj_y = seg_ay + t_c * dy
-    dx_p = px - proj_x
-    dy_p = py - proj_y
-    return math.sqrt(dx_p * dx_p + dy_p * dy_p)
+    proj_x = seg_ax + t * dx
+    proj_y = seg_ay + t * dy
+    return math.hypot(px - proj_x, py - proj_y)
 
 
 def _oracle_pin_span(pin_positions: list[tuple[float, float]]) -> float:

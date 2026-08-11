@@ -58,14 +58,6 @@ def slot_intersects_iso_py(
 ) -> bool: ...
 
 
-def point_to_segment_distance_py(
-    px: float,
-    py: float,
-    seg_start: tuple[float, float],
-    seg_end: tuple[float, float],
-) -> float: ...
-
-
 def min_distance_to_polygon_py(
     x: float,
     y: float,

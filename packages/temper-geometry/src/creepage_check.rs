@@ -51,7 +51,14 @@ pub(crate) fn py_min(a: f64, b: f64) -> f64 {
 /// Mirrors creepage_check.py `_point_to_segment_distance` exactly:
 /// clamped projection onto the segment, CPython `math.hypot` at both the
 /// degenerate-arm and the final distance.
-fn point_to_segment_distance(
+///
+/// Canonical point-to-segment distance for the repo (issue #987): the three
+/// Wave-4 reimplementations in `temper-design-bundle`/`temper-drc-rs`
+/// (constraint_model.rs, deterministic_phase.rs, deterministic_leaf_drc.rs)
+/// were deduplicated onto this kernel on 2026-08-11. The 1-ulp divergence
+/// from their `sqrt`/`pow` closes is documented in
+/// `docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md`.
+pub fn point_to_segment_distance(
     px: f64,
     py: f64,
     x1: f64,

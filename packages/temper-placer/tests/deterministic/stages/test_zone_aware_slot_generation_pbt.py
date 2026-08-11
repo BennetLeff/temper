@@ -3,9 +3,12 @@
 Wave 4, Phase 5, final leaves. Properties exercise the migrated
 ``temper_design_bundle_python.deterministic_phase`` geometry kernels
 (``point_in_polygon_py``, ``slot_intersects_iso_py``,
-``point_to_segment_distance_py``, ``min_distance_to_polygon_py`` — the
+``min_distance_to_polygon_py``) plus, since the 2026-08-11 point-to-segment
+dedupe (issue #987), the canonical
+``temper_geometry.point_to_segment_distance_py`` — the
+``deterministic_phase`` binding it replaced was deleted; the
 delegation shims in ``deterministic/stages/zone_aware_slot_generation.py``
-call them); bit-identical parity against the pinned pre-migration Python is
+call it); bit-identical parity against the pinned pre-migration Python is
 asserted separately by ``test_zone_aware_slot_generation_rust_differential.py``.
 
 Five properties (R1c):
@@ -29,13 +32,17 @@ Three metamorphic relations (R1d):
 from __future__ import annotations
 
 import temper_design_bundle_python as _tdb
+import temper_geometry as _tg
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
 _DP = _tdb.deterministic_phase
 RS_PIP = _DP.point_in_polygon_py
 RS_ISO = _DP.slot_intersects_iso_py
-RS_PTSD = _DP.point_to_segment_distance_py
+# Issue #987: the deterministic_phase point_to_segment_distance_py binding
+# was deleted in the point-to-segment dedupe; the canonical temper-geometry
+# kernel is the subject.
+RS_PTSD = _tg.point_to_segment_distance_py
 RS_MDP = _DP.min_distance_to_polygon_py
 
 _COORD = st.floats(min_value=-50.0, max_value=50.0, allow_nan=False, allow_infinity=False)
@@ -61,16 +68,18 @@ def test_p2_determinism(pos, polygon):
 @given(_COORD, _COORD, _POS, _POS)
 @settings(max_examples=200, deadline=None)
 def test_p3_distance_non_negative(px, py, p1, p2):
-    assert RS_PTSD(px, py, p1, p2) >= 0.0
+    assert RS_PTSD(px, py, *p1, *p2) >= 0.0
 
 
 @given(_COORD, _COORD, _POS)
 @settings(max_examples=200, deadline=None)
 def test_p4_degenerate_segment_equals_point_distance(px, py, p):
-    d = RS_PTSD(px, py, p, p)
+    d = RS_PTSD(px, py, *p, *p)
     import math
 
-    assert d == math.sqrt((px - p[0]) ** 2 + (py - p[1]) ** 2)
+    # Issue #987: the canonical kernel's degenerate arm is math.hypot (not
+    # the sqrt(pow+pow) form the deleted copy C used — ≤1-ulp divergence).
+    assert d == math.hypot(px - p[0], py - p[1])
 
 
 @given(_COORD, _COORD, _POLY)
@@ -78,7 +87,7 @@ def test_p4_degenerate_segment_equals_point_distance(px, py, p):
 def test_p5_mdp_is_min_over_edges(x, y, polygon):
     best = float("inf")
     for i in range(len(polygon)):
-        d = RS_PTSD(x, y, polygon[i], polygon[(i + 1) % len(polygon)])
+        d = RS_PTSD(x, y, *polygon[i], *polygon[(i + 1) % len(polygon)])
         best = min(best, d)
     assert RS_MDP(x, y, polygon) == best
 
@@ -86,8 +95,8 @@ def test_p5_mdp_is_min_over_edges(x, y, polygon):
 @given(_COORD, _COORD, _POS, _POS, _COORD, _COORD)
 @settings(max_examples=200, deadline=None)
 def test_mr1_ptsd_translation_invariance(px, py, p1, p2, tx, ty):
-    base = RS_PTSD(px, py, p1, p2)
-    got = RS_PTSD(px + tx, py + ty, (p1[0] + tx, p1[1] + ty), (p2[0] + tx, p2[1] + ty))
+    base = RS_PTSD(px, py, *p1, *p2)
+    got = RS_PTSD(px + tx, py + ty, *(p1[0] + tx, p1[1] + ty), *(p2[0] + tx, p2[1] + ty))
     # Translation is NOT bit-exact in IEEE: (a + t) - (b + t) can differ from
     # a - b by 1 ulp, and the projections are products of those differences.
     # The MR is exact in real arithmetic; state an honest tight tolerance.

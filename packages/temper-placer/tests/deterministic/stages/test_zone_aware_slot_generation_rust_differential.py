@@ -11,10 +11,19 @@ its orchestration (zone walking, bounds-margin branch) and delegates the
 kernels. The pre-migration implementations are pinned VERBATIM as the oracle
 (``_zone_aware_slot_generation_py_oracle.py``).
 
+Re-pin 2026-08-11 (issue #987): ``_point_to_segment_distance`` was deleted
+from ``deterministic_phase`` and its differential subject moved to the
+canonical temper-geometry kernel (``temper_geometry.point_to_segment_distance_py``);
+the oracle mirrors the canonical hypot contract (≤1-ulp, decision-immune on
+real inputs — see
+``docs/evidence/2026-08-11-point-to-segment-distance-dedupe-execution.md``).
+
 Numerical traps pinned here:
-- ``_point_to_segment_distance`` closes with ``** 0.5`` (libm ``pow``), NOT
-  ``math.sqrt`` — they differ by 1 ulp on a measurable input class; the
-  differential includes a ``pow``-vs-``sqrt`` discriminating operand search.
+- ``_point_to_segment_distance`` closes with CPython ``math.hypot`` (Dekker
+  double-double) at both the degenerate arm and the final distance; the
+  differential includes a ``hypot``-vs-``sqrt(pow+pow)`` discriminating
+  operand search pinning the canonical contract (the deleted copy C's
+  ``** 0.5`` close would diverge on it).
 - ``t = max(0, min(1, ((px - x1) * dx + (py - y1) * dy) / l2))`` — Python
   ``max``/``min`` (first argument on ties).
 - ``_point_in_polygon``: half-open y tests (``y > min``, ``y <= max``),
@@ -28,6 +37,7 @@ import random
 
 import pytest
 import temper_design_bundle_python as _tdb
+import temper_geometry as _tg
 import tests.deterministic.stages._zone_aware_slot_generation_py_oracle as _oracle
 from tests.core._contract_canon import canon
 
@@ -35,7 +45,10 @@ from tests.core._contract_canon import canon
 _DP = _tdb.deterministic_phase
 RS_PIP = _DP.point_in_polygon_py
 RS_ISO = _DP.slot_intersects_iso_py
-RS_PTSD = _DP.point_to_segment_distance_py
+# Issue #987: the deterministic_phase point_to_segment_distance_py binding
+# was deleted in the point-to-segment dedupe; the canonical temper-geometry
+# kernel is now the differential subject.
+RS_PTSD = _tg.point_to_segment_distance_py
 RS_MDP = _DP.min_distance_to_polygon_py
 
 
@@ -53,7 +66,7 @@ def _iso_equal(slot, aabbs):
 
 def _ptsd_equal(px, py, p1, p2):
     exp = _oracle.point_to_segment_distance(px, py, p1, p2)
-    got = RS_PTSD(px, py, tuple(p1), tuple(p2))
+    got = RS_PTSD(px, py, *p1, *p2)
     assert canon(got) == canon(exp), (
         f"point_to_segment_distance divergence ({px},{py}) {p1}->{p2}: "
         f"{canon(got)} vs {canon(exp)}"
@@ -192,10 +205,13 @@ def test_ptsd_negative_coords():
     _ptsd_equal(-5.0, -5.0, (-10.0, 0.0), (0.0, -10.0))
 
 
-def test_ptsd_pow_vs_sqrt_discriminating_operand():
-    """pow(s, 0.5) != math.sqrt(s) for the constructed sum s on this host:
-    a Rust port that closes with sqrt() diverges on such an operand. The
-    segment is degenerate so the sum is exactly ((px-x1)**2 + (py-y1)**2)."""
+def test_ptsd_degenerate_uses_canonical_hypot_contract():
+    """Re-pinned 2026-08-11 (issue #987): the deleted copy C closed with
+    `pow(pow(px,2.0)+pow(py,2.0), 0.5)`; the canonical kernel closes with
+    CPython `math.hypot`. On a degenerate segment the two differ by 1 ulp on
+    a measurable input class (the spike measured ~40% of ordinary inputs) --
+    find such an operand and pin that RS_PTSD follows the canonical hypot
+    arm, i.e. that a sqrt/pow-close port would diverge here."""
     import math
 
     candidates = []
@@ -203,12 +219,13 @@ def test_ptsd_pow_vs_sqrt_discriminating_operand():
     for _ in range(200000):
         px, py = rng.uniform(-1e3, 1e3), rng.uniform(-1e3, 1e3)
         s = math.pow(px, 2.0) + math.pow(py, 2.0)
-        if math.pow(s, 0.5) != math.sqrt(s):
-            candidates.append((px, py, s))
+        if math.hypot(px, py) != math.sqrt(s):
+            candidates.append((px, py))
             break
-    assert candidates, "host libm agrees pow(s,0.5)==sqrt(s) everywhere sampled"
-    px, py, s = candidates[0]
+    assert candidates, "host libm agrees hypot==sqrt(pow+pow) everywhere sampled"
+    px, py = candidates[0]
     _ptsd_equal(px, py, (0.0, 0.0), (0.0, 0.0))
+    assert RS_PTSD(px, py, 0.0, 0.0, 0.0, 0.0) == math.hypot(px, py)
 
 
 def test_ptsd_randomized():

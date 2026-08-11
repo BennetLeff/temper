@@ -69,7 +69,7 @@ from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
 
 _PINNED = {
     "_zone_aware_slot_generation_run_py_oracle.py": (
-        "3674347387800654af82f63918cb45227ecc69158673f966dd121b238d2e9216"
+        "0731def49ded64dfa2b077d802dafd36223bac0ba90b81a8e2730e9b0025671f"
     ),
     "_phased_assignment_py_oracle.py": (
         "5f23ea0991a14b9aac4819664c4092b9cb503b4c2d12d2d0e048008c720ffe91"

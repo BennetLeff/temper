@@ -85,7 +85,7 @@ from temper_placer.router_v6.constraints_geometry import Point
 # ---------------------------------------------------------------------------
 
 _PINNED = {
-    "_placement_validation_run_py_oracle.py": "1faa542b979894b8eb74697887cdecaf4ac1de8c9eadfedfe7cbc1e267050e57",
+    "_placement_validation_run_py_oracle.py": "92a541f0d1cf2d977e3aee4b9981c0bb4acba5fd1e967599da6550e558e8f176",
     "_via_validation_run_py_oracle.py": "818f78454de32e37482468f5aa389fad9c383f0ea14edea656bab03f7f8916d8",
     "_drc_sweep_run_py_oracle.py": "072ff3d07df9186dcb013fb4047aadf978ef06219b531cc7828a51f9bc4ea3fc",
     "_drc_validation_run_py_oracle.py": "b384e46ca944de80c3a98d66ddc69908ab0406b1e6733865e3bc5681c6feba6b",
