@@ -446,16 +446,41 @@ TEMPER_NET_ASSIGNMENTS = {
     # classification exposed was that the board's LARGEST net -- `gnd`, 86
     # pads, the ground return of a mains-powered board -- had no entry and so
     # still fell through to Signal (trace 0.2mm / clearance 0.15mm) rather
-    # than GND (trace 1.0mm / clearance 0.3mm / routing_strategy
-    # "plane_preferred").
+    # than the "GND" entry above (trace 1.0mm / clearance 0.3mm /
+    # routing_strategy "plane_preferred").
     #
-    # `plane_preferred` is the load-bearing half: router_v6's `_should_route`
-    # already excludes ground from Stage 4 A* as "handled by zone pours, not
-    # path routing", but it did so by a name heuristic rather than by this
-    # class -- so the routing exclusion and the class that justifies it were
-    # never actually connected. They are now.
-    "gnd": "GND",
-    "PWR_RTN": "GND",
+    # FIXED 2026-08-12 (this task; see docs/evidence/2026-08-12-nonexistent-
+    # gnd-class-mapping.md): the "GND" class named above is a real,
+    # genuinely-defined NetClassRules entry in THIS table (has been since
+    # this module's creation, 4f315fd0d, 2025-12-25) -- but pcb/temper.
+    # kicad_pro declares exactly 9 netclasses and "GND" is not one of them
+    # (confirmed: `json.load(open("pcb/temper.kicad_pro"))["net_settings"]
+    # ["classes"]`). Assigning a net to a class name kicad_pro never declared
+    # is inert on the fabrication path -- see the evidence doc for a
+    # measured proof (byte-identical kicad-cli clearance whether "gnd" is
+    # mapped to "GND" or left unassigned entirely). PR #1087 (fix/unassigned-
+    # selv-nets) independently reached the same conclusion for kicad_pro's
+    # OWN net_settings.netclass_assignments and picked "Power", grounded in
+    # docs/specs/NET_CLASS_SPECIFICATION.md 3.2 ("GND (control ground)"
+    # listed under Power); PR #1083 (fix/unassigned-hv-domain-nets) assigned
+    # PWR_RTN to "HighVoltage" there, since it is the doubler midpoint,
+    # HV-domain per elec/domain_manifest.yaml:95. Mirrored here so this
+    # table names the same class kicad_pro actually declares for both nets.
+    #
+    # NOTE (not fixed by this change -- flagged, not silently absorbed):
+    # "GND" was the only entry in this table declaring
+    # `routing_strategy="plane_preferred"`; router_v6/_zone_pour_stitch.py's
+    # `_zone_layers_for_net` reads this table directly (not the get_rules_for_net
+    # fallback cascade) to decide zone-pour eligibility, and `Power` declares
+    # no routing_strategy at all. Reassigning `gnd` here measurably drops it
+    # out of F.Cu/B.Cu zone-pour eligibility and (via `_should_route`) into
+    # A*-routed instead of zone-covered -- see the evidence doc's "Zone-pour
+    # and routing-strategy side effect" section for the measurement. `gnd`'s
+    # own dedicated In1.Cu ground-plane pour (router_v6/_ground_plane.py) is
+    # unaffected -- it targets the literal net name "gnd", never consults
+    # this table.
+    "gnd": "Power",
+    "PWR_RTN": "HighVoltage",
     # NOTE `CGND` names no net on this board (0 references in
     # pcb/temper.kicad_pcb, checked 2026-08-11). It is kept rather than
     # deleted because the GND-family reclassification -- CGND/PGND both
@@ -464,7 +489,11 @@ TEMPER_NET_ASSIGNMENTS = {
     # flags it as human-decision-required with an order-of-magnitude larger
     # blast radius). An assignment for a net that does not exist is inert, so
     # this is dead weight rather than a hazard; removing it is that decision's
-    # job, not this line's.
+    # job, not this line's. It still names the same nonexistent "GND" class
+    # this fix retires from `gnd`/`PWR_RTN` -- the extended
+    # check_netclass_class_param_correspondence.py gate (this task) reports
+    # it as a known, pre-existing, deliberately out-of-scope violation of
+    # the identical shape; not silently exempted, just not this line's fix.
     "CGND": "GND",
 }
 
