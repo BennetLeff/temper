@@ -453,7 +453,8 @@ TEMPER_NET_ASSIGNMENTS = {
     # gnd-class-mapping.md): the "GND" class named above is a real,
     # genuinely-defined NetClassRules entry in THIS table (has been since
     # this module's creation, 4f315fd0d, 2025-12-25) -- but pcb/temper.
-    # kicad_pro declares exactly 9 netclasses and "GND" is not one of them
+    # kicad_pro's declared classes (10 as of this session, 9 when this
+    # defect was reported) never included "GND"
     # (confirmed: `json.load(open("pcb/temper.kicad_pro"))["net_settings"]
     # ["classes"]`). Assigning a net to a class name kicad_pro never declared
     # is inert on the fabrication path -- see the evidence doc for a
