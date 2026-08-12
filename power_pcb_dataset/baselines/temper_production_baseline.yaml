@@ -1,7 +1,72 @@
+# 2026-08-11 re-measure (golden-check split-brain fix): drc_warnings 472 ->
+# 489 (+17). This file's own comment history was stripped by the
+# 2026-08-04 whole-file yaml.safe_dump incident (see
+# scripts/_lib/protected_artifacts.py) -- this note re-establishes the
+# per-field justification convention PR #602 originally set for this file.
+#
+# The +17 is via_dangling 15 -> 32, already measured, attributed, and
+# landed in power_pcb_dataset/drc_ceiling.json's warnings_by_type
+# (warning_ceiling 472 -> 489) by its own `_march` entry
+# "2026-08-07-via-dangling-attribution-correction". That entry traces the
+# rise to a single commit, e5a89b1e0f6f5d77e16a11b05a5c0e06ecffca9c
+# ("fix(router): stop emitting a zero-length track at every via", #771,
+# 2026-08-05): the router had been emitting a zero-length (start == end)
+# track stub at all 48 vias, and kicad-cli's via_dangling check counted
+# the stub's mere presence as connectivity, suppressing a warning the
+# routing had genuinely earned at 17 of them (the 17 whose stub was the
+# ONLY track item at that point/layer). e5a89b1e's own commit message
+# proves this electrically inert (union-find over the copper graph:
+# identical 2389 nodes / 51 components before and after), and
+# docs/evidence/2026-08-07-via-dangling-attribution.md independently
+# re-derives the same 15 -> 32 delta via an old-board-on-10.0.5 control
+# measurement, ruling out the kicad-cli 10.0.4 -> 10.0.5 engine change as
+# the cause. Re-verified directly against this PR's HEAD (kicad-cli
+# 10.0.5, --all-track-errors, DRU regenerated first): via_dangling reads
+# 32/32 deterministically, and every other warning category this repo's
+# environment can measure reliably (silk_overlap, silk_over_copper,
+# track_dangling, missing_courtyard, pth_inside_courtyard,
+# silk_edge_clearance) is unchanged from drc_ceiling.json's own 489
+# breakdown. lib_footprint_issues/lib_footprint_mismatch were NOT part of
+# that re-verification: this measurement environment has no
+# kicad-footprints package installed (zero *.pretty dirs), which is known
+# to inflate lib_footprint_issues and collapse lib_footprint_mismatch --
+# an environment artifact on both the old and new board identically, not
+# a measured delta (same caveat drc_ceiling.json's own 2026-08-11
+# provenance records for the same reason).
+#
+# drc_errors is left at 1046, unchanged: this golden-check gate's own
+# measurement (temper-placer regression, via
+# temper_placer.validation._drc_api.run_drc, called directly against
+# pcb/temper.kicad_pcb with whatever `.kicad_dru` happens to already be
+# on disk) does not regenerate `pcb/temper.kicad_dru` before running --
+# unlike drc_ceiling.json's measurement protocol, which always does. With
+# no `.kicad_dru` present this gate's kicad-cli invocation cannot see the
+# project's custom DRU rules (creepage, track_width) at all -- they read
+# as absent, not zero -- so this gate's live drc_errors measurement
+# (~1003, re-verified against this PR's HEAD) stays under the frozen 1046
+# baseline and reports no regression, exactly as it evidently has since
+# this field was last set (PR #602, 2026-08-03: "drc_errors did not
+# regress (no REGRESSION line for errors)"). This is a real gap in what
+# this specific gate can see -- creepage is the IEC 60335-1 HV/LV
+# isolation check, a safety-critical category -- but it is a pre-existing
+# property of this workflow's own invocation, not something this
+# re-measurement introduces or an unattributed regression to bury by
+# touching drc_errors here. Flagged for a separate follow-up (wiring a
+# DRU-regeneration step into .github/workflows/golden-check.yml, then
+# re-baselining drc_errors against the fuller measurement that unlocks);
+# out of scope for this via_dangling correction.
+#
+# Ceiling-Approval: warning_ceiling 472 -> 489 (via_dangling 15 -> 32,
+# attributed to e5a89b1e0f6f5d77e16a11b05a5c0e06ecffca9c). This also
+# supplies the sign-off power_pcb_dataset/drc_ceiling.json's own
+# "2026-08-07-via-dangling-attribution-correction" `_march` entry
+# recorded as still owed on the commit that landed that file's matching
+# 472 -> 489 raise (drc_ceiling.json itself is not touched by this
+# change -- it already carries the correct, attributed 489).
 drc_available: true
 drc_errors: 1046
-drc_warnings: 472
-extraction_date: '2026-08-03'
+drc_warnings: 489
+extraction_date: '2026-08-11'
 extraction_method: deterministic-pipeline
 deterministic_pipeline:
   config: configs/temper_production_config.yaml
