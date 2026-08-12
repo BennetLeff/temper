@@ -105,6 +105,30 @@ def _zone_layers_for_net(net_name: str) -> list[str]:
     fix. In practice this changes eligibility for exactly one net on the
     production board: ``PWR_RTN`` (``GND``'s only member with committed
     zones today; ``CGND`` carries none regardless -- R5).
+
+    NOT CHANGED 2026-08-11 (In2.Cu power islands, feat/in2cu-power-islands),
+    and deliberately so -- see ``router_v6/_power_islands.py``'s module
+    docstring for the full reasoning. The obvious-looking fix (grant the
+    ``"Power"`` netclass -- whose only members are exactly ``+3V3``,
+    ``+15V``, ``vcc``, ``V_BUS_SENSE`` -- an ``"In2.Cu"`` branch here,
+    driven by ``routing_strategy`` same as GND's R3/R4 fix above) was
+    prototyped and reverted: ``Power`` staying trace-only (no default pour
+    of any kind) is an already-landed, evidence-corroborated, actively
+    tested decision (R1/R7,
+    docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md --
+    ``TestZoneLayersForNet.test_power_class_is_not_zone_eligible`` and
+    roughly a dozen other fixtures across ``tests/router_v6/test_adapter.py``
+    were deliberately re-written 2026-07-28/2026-07-30 to stop assuming
+    ``vcc``/``+3V3`` are zone-eligible), not an accidental gap like GND's
+    was. Flipping it back here would silently revert that fix for every
+    production ``route_pcb()`` call, not just add an In2.Cu option.
+    ``_power_islands.py`` instead follows the same precedent
+    ``_ground_plane.py`` already set for ``In1.Cu``/``gnd``: a standalone
+    generator that calls the zone-emission primitives
+    (``zone_emission.compute_zones_for_net``/``emit_zone_s_expr``)
+    directly, never going through this function at all -- so the inner
+    layer becomes expressible without touching this function's return
+    value for any net class.
     """
     from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
 
