@@ -794,6 +794,14 @@ def optimize(
                     placements=placements,
                     preserve_unmatched=True,
                     components=netlist.components,
+                    # parse_kicad_pcb() above used its default normalize=True,
+                    # which subtracts board.origin from every parsed
+                    # coordinate before the solve -- reverse it here so the
+                    # written (at X Y) anchors land in the template's real,
+                    # absolute frame instead of ~board.origin mm off toward
+                    # (0, 0). See write_placements_to_pcb's board_origin
+                    # docstring / docs/evidence/2026-08-11-board-origin-write-path-fix.md.
+                    board_origin=board.origin,
                 )
                 console.print(f"  [green]✓[/] {write_result.components_updated} components placed")
                 if write_result.has_warnings:

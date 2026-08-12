@@ -266,6 +266,35 @@ class TestWritePlacementsToPcbRoundTrip:
         assert result.passed, result.summary
         assert result.checked_components == 4
 
+    def test_board_origin_adds_offset_and_still_round_trips(self, tmp_path):
+        """A caller solving against parse_kicad_pcb(..., normalize=True)
+        output (the default) gets positions with the board's own Edge.Cuts
+        origin already subtracted. board_origin must be ADDED back so the
+        written anchor lands in the template's real, absolute frame --
+        omitting it silently writes every placed footprint ~board_origin mm
+        off from the outline (caught by scripts/check_board_containment.py,
+        not by this same round-trip oracle -- see
+        docs/evidence/2026-08-11-board-origin-write-path-fix.md for why).
+        The oracle here is checked against the ABSOLUTE (origin-added)
+        positions, matching what was actually written."""
+        content = _board_content(_asymmetric_part("U1", (10.0, 10.0, None)))
+        template, components = _template_and_components(tmp_path, content)
+
+        placements = {"U1": PlacementUpdate(ref="U1", x=30.0, y=40.0, rotation=0.0)}
+        out = tmp_path / "out.kicad_pcb"
+        write_placements_to_pcb(
+            template, out, placements, components=components, board_origin=(20.0, 20.0)
+        )
+
+        # Anchor moved by the (30, 40) model delta PLUS the (20, 20)
+        # board_origin -- never left at the un-offset (30, 40) frame.
+        written = out.read_text()
+        assert "at 10.0 10.0" not in written  # original template position
+
+        absolute_positions = {"U1": (50.0, 60.0)}  # model position + board_origin
+        result = check_placement_roundtrip(out, absolute_positions, {"U1": 0.0}, components)
+        assert result.passed, result.summary
+
     def test_center_offset_component_anchor_differs_from_model(self, tmp_path):
         """A center-offset component: the written anchor differs from the
         model position by the R(-theta)-rotated offset, and the oracle

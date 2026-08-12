@@ -70,6 +70,7 @@ def write_placements_to_pcb(
     placements: dict[str, PlacementUpdate],
     preserve_unmatched: bool = True,
     components: list | None = None,
+    board_origin: tuple[float, float] = (0.0, 0.0),
 ) -> WriteResult:
     """
     Write optimized placements to a KiCad PCB file.
@@ -92,6 +93,24 @@ def write_placements_to_pcb(
             If provided, center offsets will be extracted and subtracted
             from positions to convert from bounding-box-center to
             footprint-origin coordinates (which KiCad expects).
+        board_origin: (x, y) mm offset to ADD to every placement before
+            writing. ``placements`` is produced by solving against
+            ``parse_kicad_pcb(..., normalize=True)`` output (the default),
+            which subtracts the board's own Edge.Cuts origin
+            (``board.origin`` -- (20, 20) mm on this board, not (0, 0)) from
+            every coordinate. ``template_pcb``'s raw ``(at X Y)`` fields are
+            in ABSOLUTE file coordinates, never normalized. Omitting this
+            (the previous, sole behavior -- default keeps it byte-for-byte
+            unchanged for any caller that never solved in a normalized
+            frame) silently writes every placed footprint ~board_origin mm
+            off from the real outline. Caught by
+            ``scripts/check_board_containment.py``, which the pure
+            self-consistency round-trip oracle
+            (``validation.placement_roundtrip.check_placement_roundtrip``)
+            does not cover, since that oracle re-derives its own "expected"
+            geometry from the same (already-wrong) positions dict rather
+            than independently from Edge.Cuts -- see
+            docs/evidence/2026-08-11-board-origin-write-path-fix.md.
 
     Returns:
         WriteResult with statistics and any warnings.
@@ -132,6 +151,8 @@ def write_placements_to_pcb(
 
         update = placements[ref]
         x, y = update.x, update.y
+        x += board_origin[0]
+        y += board_origin[1]
         rotation_deg = update.rotation
 
         # Convert from bounding-box-center to footprint-origin coordinates.
