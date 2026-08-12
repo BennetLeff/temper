@@ -1,7 +1,7 @@
 ---
 title: "Router V6 SAT solver produced unsound AtMostK capacity assignments"
 date: "2026-06-28"
-last_updated: "2026-07-01"
+last_updated: "2026-08-12"
 category: logic-errors/
 module: temper-rust-router
 problem_type: logic_error
@@ -87,10 +87,10 @@ let result = std::panic::catch_unwind(
 
 ### Layer 3 — Constraint audit
 
-An inline audit module validates every solver output against the input constraint model. Capacity, diff-pair, and layer constraints are checked after every solve. Violations raise `RuntimeError` — no silent wrong answers.
+An inline audit module validates every solver output against the input constraint model. Capacity, diff-pair, and layer constraints are checked after every solve. Violations raise `RuntimeError` — no silent wrong answers. As of 2026-08-12 this runs on **both** of `router_v6`'s production solve paths — see the 2026-08-12 erratum under Prevention below for why that wasn't always true, and for the real-board measurement of what it currently reports.
 
 ```python
-# pipeline.py — audit runs after every Rust solve
+# _pipeline_route.py:437-452 — audit runs after every Rust solve, monolithic path
 from temper_rust_router import audit_result
 audit_violations = list(audit_result(py_vars, py_cons, assignments, net_names))
 if audit_violations:
@@ -119,7 +119,12 @@ semantic tag dispatch, and keepout zone constraints.
 
 ## Prevention
 
-- Constraint audit (`audit.rs`) runs unconditionally after every Rust solve — violations raise `RuntimeError`, not a warning
+- Constraint audit (`audit.rs`, exposed to Python as `temper_rust_router.audit_result`) runs after every Rust solve that reaches a `"sat"` status, on **both** of `router_v6`'s production solve paths — violations raise `RuntimeError`, not a warning:
+  - **Monolithic** (`RouteStage`): `packages/temper-placer/src/temper_placer/router_v6/_pipeline_route.py:437-452`.
+  - **Net-batching** (`--net-batching`, the flag the production board recipe uses — `docs/evidence/2026-08-12-board-recipe-reproducibility.md`): `packages/temper-placer/src/temper_placer/router_v6/net_batching.py`'s `_solve_subset` computes `audit_violations` right after the solve (:504-513, while it still holds `cm.variables`/`cm.constraints` — the one place in the subprocess-per-batch design that does); `run_net_batched_stage3` raises `RuntimeError` on a non-empty result at its batch-level (:1136-1143) and singleton-retry (:1196-1203) `"sat"` handling, the two call sites a batch's result can reach production topology from.
+  - **Self-verifying test**: `packages/temper-placer/tests/router_v6/test_net_batching_constraint_audit.py` asserts the audit is actually *invoked* by `_solve_subset` with the real solved model (not merely importable/callable directly, which `test_stage3_constraint_audit.py` already covered) and that `run_net_batched_stage3` raises when a batch reports a violation.
+  - **Erratum (2026-06-28 – 2026-08-12).** This claim was false for the net-batching path for the six weeks between this doc's original publication and the fix above: `net_batching.py` never imported or called `audit_result` — zero call sites, confirmed by `rg audit_result packages/temper-placer/src/temper_placer/router_v6/net_batching.py` returning nothing before the fix — so a violation produced by a batched solve would have passed through to Stage 4 and the final board with no check at all. Only the monolithic path (used by non-batched routes) was ever audited. Found and closed by `docs/plans/2026-08-12-003-fix-sat-capacity-encoding-plan.md` (PR #1065, branch `spike/sat-capacity-vacuity`)'s R3/R4.
+  - **What the audit actually reports on the real board, measured, not assumed.** A full `--net-batching` route of the committed `pcb/temper.kicad_pcb` (2026-08-12, `scripts/route_board.py --net-batching`, `TEMPER_BATCH_TRACE=1`) reached `"sat"` and was audited on **all 11 of 11 batches (110/110 nets)**, with **zero constraint violations** and no `RuntimeError` raised (`[batch-trace] done: 11 batches, 11 solved at batch level, 0 batch-level crashes` in the run's own trace output, no exception in the run log). This is consistent with — and does not yet contradict — the separate, still-open structural finding in the same plan that nothing in net-batching's Stage-3 model currently forces a `NetChannelVar` true in the first place, which would make a clean audit result on every batch the expected outcome rather than evidence the constraint is being meaningfully exercised. That question (whether `uses_channels` carries real data under net-batching at all) is out of scope for this erratum and is the separate, not-yet-executed U1/U2 measurement in the same plan.
 - Hypothesis property-based tests cross-validate the Rust solver against pysat (Glucose3 CDCL) on random models — runs as `@pytest.mark.slow` in CI
 - Exhaustive sequential counter verification (n ≤ 8) in Rust unit tests — any encoding change must pass all 3,286 checks
 - Python AtMostK encoding also fixed (U1) for cases where the sequential counter is exercised without CDCL — validated via exhaustive search in `test_sat_model.py`
