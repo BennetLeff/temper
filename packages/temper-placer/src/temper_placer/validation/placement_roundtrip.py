@@ -226,11 +226,23 @@ def _check_footprint(
     checks and mismatch-record construction -- is the Rust
     ``check_footprint_geometry`` kernel.
     """
-    # A ref absent from `rotations` means "no rotation change": the solved
-    # rotation record (CpSatPlacementResult.to_rotations_dict) omits
-    # zero-index refs, and the adapter writer keeps those footprints'
-    # existing angles byte-for-byte -- so the expected angle is the
-    # template's own board rotation, not 0.
+    # A ref absent from `rotations` means "no rotation change": the adapter
+    # writer (`_apply_placements_to_pcb` / `write_placements_to_pcb`) keeps
+    # such a footprint's existing angle byte-for-byte -- so the expected
+    # angle is the template's own board rotation, not 0. This is a generic
+    # fallback for any caller that genuinely has no rotation data for a ref
+    # (e.g. a polarized/fixed-rotation part with no rot variable at all);
+    # it is NOT a substitute for a caller passing dense data.
+    # ``CpSatPlacementResult.to_rotations_dict`` USED to omit explicit
+    # rotation-index-0 refs to keep this dict "sparse", relying on this
+    # exact fallback to reconstruct them -- that made the oracle blind to a
+    # real defect class: a component solved to absolute rotation 0 whose
+    # prior board angle was non-zero got its dropped-from-the-dict entry
+    # "corrected" back to the (wrong, stale) prior angle by this very
+    # fallback, so the oracle's own expectation silently matched whatever
+    # the writer wrote instead of what the solver actually verified. Fixed
+    # by making ``to_rotations_dict`` dense (every ref has an explicit
+    # entry, including 0.0) -- see its docstring in ``_encoder_solve.py``.
     theta = rotations.get(ref, _template_fp_angle(template))
     theta_rad = math.radians(theta)
 

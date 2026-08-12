@@ -515,3 +515,261 @@ def test_bounds_computed_in_placement_frame_not_raw_anchor(tmp_path):
         f"expected half-width 12.5mm (max(|X_min-c|,|X_max-c|) = max(12.5,7)), "
         f"got bounds={comp.bounds}"
     )
+
+
+# ---------------------------------------------------------------------------
+# P11: Real production board (pcb/temper.kicad_pcb, 168-169 components) --
+# bounds ⊇ pads, extent-aware (P10's stronger check), walked over every
+# component. This is the measurement the L1-outside-outline defect
+# (check_board_containment.py) prompted: does ``Component.bounds``'s
+# DERIVATION actually fail to enclose pad copper anywhere on the real
+# board, or does the derivation hold and the defect live elsewhere?
+#
+# Measured 2026-08-12, directly, over all 169 real components / all real
+# pins: ZERO violations, both point-only (P9's check) and extent-aware
+# (P10's check, including pad half-size). The symmetric
+# ``hw = max(|x_min-c|, |x_max-c|)`` construction in
+# ``_calculate_footprint_bounds``/``calculate_footprint_bounds``
+# (packages/temper-io-types/src/footprint.rs,
+# packages/temper-design-bundle/src/parse_engine.rs) always yields a box
+# that contains the extent it was computed over, in the SAME local frame
+# ``center_offset`` and ``Pin.position`` share -- by construction, not by
+# accident of this board's specific footprints (P10 already proves this on
+# a synthetic counter-example; this test proves it holds for the real
+# board too, not just in theory).
+#
+# So the L1 "pad 3 fully outside the board outline" defect
+# (docs/evidence/2026-08-12-isolation-barrier-pumpkin-placement.md) is NOT
+# a bounds-derivation bug -- see P12 below for the actual mechanism.
+# ---------------------------------------------------------------------------
+
+
+def test_real_board_bounds_enclose_pads_extent_aware():
+    """Walk every component on the REAL production board and assert
+    ``comp.bounds`` (local frame) encloses every pin's full copper extent
+    (not just its center) -- P10's stronger check, run over all real
+    components rather than one synthetic counter-example.
+
+    A future regression here (a footprint type, an offset field, or a
+    rotation-adjacent change to ``_calculate_footprint_bounds`` that
+    breaks the local-frame containment invariant) is exactly the class of
+    defect this test exists to catch BEFORE it reaches a solved/written
+    board -- see ``test_rotation_index_zero_must_not_be_dropped_from_write``
+    below for the sibling defect class this test cannot catch (a
+    consistent, correctly-derived box written at the WRONG rotation).
+    """
+    from pathlib import Path
+
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+
+    REPO_ROOT = Path(__file__).resolve().parents[5]
+    real_board = REPO_ROOT / "pcb" / "temper.kicad_pcb"
+    if not real_board.exists():
+        pytest.skip("pcb/temper.kicad_pcb not found")
+
+    pr = parse_kicad_pcb(real_board)
+    components = pr.netlist.components
+    assert len(components) > 100, (
+        f"expected the real ~168-component board, got {len(components)} -- "
+        f"is {real_board} actually the real board?"
+    )
+
+    violations = []
+    for comp in components:
+        w, h = comp.bounds
+        hw, hh = w / 2.0, h / 2.0
+        for pin in comp.pins:
+            px, py = pin.position
+            pad_hw, pad_hh = pin.width / 2.0, pin.height / 2.0
+            if abs(px) + pad_hw > hw + 1e-6 or abs(py) + pad_hh > hh + 1e-6:
+                violations.append(
+                    f"{comp.ref} pad {pin.number} at ({px:.3f},{py:.3f}) size "
+                    f"({pin.width:.3f}x{pin.height:.3f}) vs bounds "
+                    f"±({hw:.3f},{hh:.3f})"
+                )
+
+    assert not violations, (
+        f"{len(violations)} pad(s) across {len(components)} components have "
+        f"copper extending outside comp.bounds in the local (unrotated) "
+        f"frame -- this IS a bounds-derivation defect, unlike the "
+        f"rotation-write-back defect P12 guards:\n" + "\n".join(violations[:20])
+    )
+
+
+# ---------------------------------------------------------------------------
+# P12: Rotation round-trip consistency -- a component's SOLVED box
+# orientation must match the rotation actually WRITTEN to the board.
+#
+# The real mechanism behind the L1 "pad 3 fully outside the board outline"
+# defect (docs/evidence/2026-08-12-isolation-barrier-pumpkin-placement.md):
+# comp.bounds's LOCAL-frame derivation is sound (P8-P11), and the CP-SAT /
+# Pumpkin solver's own box sizing correctly swaps (w0, h0) per its solved
+# rotation index via an AddElement-equivalent table (model.py::add_rotation,
+# docs/evidence/2026-08-07-pumpkin-engine/src/main.rs's "element" calls) --
+# but ``CpSatPlacementResult.to_rotations_dict()`` used to filter with
+# ``if idx``, silently dropping a component whose SOLVED rotation index was
+# 0. ``_apply_placements_to_pcb``/``write_placements_to_pcb`` treat a ref
+# ABSENT from the rotations dict as "no rotation change -- keep the
+# footprint's PRE-SOLVE board angle" (not "write 0"), so for a non-square
+# component (w0 != h0) solved to absolute rotation 0 whose pre-solve board
+# angle was non-zero, the board ends up with a footprint at the WRONG
+# angle relative to the box the solver verified was safe -- real pad
+# copper lands outside where ``Component.bounds`` (correctly swapped for
+# the SOLVED rotation) says it should be.
+#
+# Measured directly (2026-08-12): forcing a real-board component (L1,
+# non-square 51x28mm, pre-solve angle 90deg) to solve at absolute rotation
+# 0 and writing through the pre-fix ``if idx``-filtered dict produced 2
+# real ``check_board_containment.py`` violations on OTHER non-square,
+# non-zero-pre-angle components the solver also chose rot=0 for (R20, U27)
+# -- the same mechanism, not coincidence. Writing the identical solve
+# through the fixed dense dict produced zero.
+# ---------------------------------------------------------------------------
+
+
+def _rotated_asym_footprint_pcb(path, board_angle_deg: float) -> None:
+    """A non-square footprint (20mm x 6mm courtyard, symmetric pads) at
+    *board_angle_deg* in the input file -- mirrors L1 (power_in.cmc): a
+    non-square courtyard, placed at a non-zero angle pre-solve."""
+    path.write_text(
+        "(kicad_pcb (version 20211014) (generator test)\n"
+        "  (general (thickness 1.6))\n"
+        '  (layers (0 "F.Cu" signal) (31 "B.Cu" signal))\n'
+        '  (net 0 "")\n'
+        '  (net 1 "n1")\n'
+        '  (net 2 "n2")\n'
+        f'  (footprint "TEST:ASYMROT" (layer "F.Cu")\n'
+        f"    (at 100 100 {board_angle_deg:g})\n"
+        '    (property "Reference" "U9")\n'
+        '    (fp_rect (start -10 -3) (end 10 3) (layer "F.CrtYd") (width 0.05) (fill none))\n'
+        '    (pad "1" smd rect (at -8 0) (size 2 2) '
+        '(layers "F.Cu" "F.Mask" "F.Paste")\n'
+        '      (net 1 "n1"))\n'
+        '    (pad "2" smd rect (at 8 0) (size 2 2) '
+        '(layers "F.Cu" "F.Mask" "F.Paste")\n'
+        '      (net 2 "n2"))\n'
+        "  )\n"
+        ")\n"
+    )
+
+
+def _written_pad_polygons_by_ref(board_path):
+    """{ref: [(pad_number, shapely_polygon), ...]} for every footprint on
+    *board_path*, using the SAME sanctioned rotation/geometry machinery
+    ``scripts/check_board_containment.py`` uses (kicad_transform's R(-theta)
+    convention) -- never re-derived here."""
+    import sys
+    from pathlib import Path
+
+    repo_root = Path(__file__).resolve().parents[5]
+    sys.path.insert(0, str(repo_root / "scripts"))
+    import check_board_containment as cbc
+
+    board = cbc.load_board(board_path)
+    Polygon, box, rotate, translate = cbc._require_shapely()
+    place, shapely_angle = cbc._require_kicad_transform()
+
+    out: dict[str, list] = {}
+    for fp in board.footprints:
+        props = fp.properties or {}
+        ref = props.get("Reference")
+        if not ref:
+            continue
+        out[ref] = [
+            (number, poly)
+            for number, poly, _centre in cbc._pad_polygons(
+                fp, box, rotate, translate, place, shapely_angle
+            )
+        ]
+    return out
+
+
+def test_rotation_index_zero_must_not_be_dropped_from_write(tmp_path):
+    """Regression test for the ``to_rotations_dict()`` ``if idx`` bug.
+
+    Simulates exactly the L1 scenario: a non-square (20x6mm) component at
+    a non-zero pre-solve board angle (90deg) that CP-SAT/Pumpkin solves to
+    ABSOLUTE rotation 0 (box sized 20mm along x, 6mm along y at the solved
+    centre). Writing through the OLD, filtered ``{ref: idx*90.0 for ...
+    if idx}`` pattern must FAIL this test (the footprint keeps its stale
+    90deg angle, so its real pads land far outside the box the solver
+    verified). Writing through ``CpSatPlacementResult.to_rotations_dict()``
+    (now dense) must PASS.
+    """
+    pytest.importorskip("kiutils.board")
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+    from temper_placer.placer.cp_sat._encoder_solve import CpSatPlacementResult
+    from temper_placer.router_v6._strip_copper import strip_existing_copper
+    from temper_placer.router_v6.adapter import _apply_placements_to_pcb
+
+    pcb_path = tmp_path / "asymrot.kicad_pcb"
+    _rotated_asym_footprint_pcb(pcb_path, board_angle_deg=90.0)
+
+    pr = parse_kicad_pcb(pcb_path, normalize=False)
+    (comp,) = pr.netlist.components
+    assert comp.ref == "U9"
+    w0, h0 = comp.bounds
+    assert w0 != h0, "test fixture must be non-square (w0 != h0)"
+
+    # Solver decision: rot index 0 (absolute), same position as the input
+    # anchor (100, 100) for a simple, hand-checkable box.
+    solved_x, solved_y = 100.0, 100.0
+    result = CpSatPlacementResult(
+        positions={"U9": (solved_x, solved_y)},
+        rotations={"U9": 0},
+        status="optimal",
+    )
+
+    raw = pcb_path.read_text(encoding="utf-8")
+    stripped, _ = strip_existing_copper(raw)
+
+    def _pre_fix_rotations_dict(res: CpSatPlacementResult) -> dict[str, float]:
+        """The exact pre-fix pattern this test regresses against, kept
+        local so the fix to the real ``to_rotations_dict()`` doesn't
+        silently remove this test's own ability to demonstrate the bug."""
+        return {ref: idx * 90.0 for ref, idx in res.rotations.items() if idx}
+
+    def _solved_box_contains_pads(rotations_dict: dict[str, float]) -> tuple[bool, str]:
+        placed = _apply_placements_to_pcb(
+            stripped,
+            result.positions,
+            rotations=rotations_dict,
+            components=pr.netlist.components,
+        )
+        out_path = tmp_path / f"written_{len(rotations_dict)}_{id(rotations_dict)}.kicad_pcb"
+        out_path.write_text(placed)
+
+        # The box the SOLVER verified: rot index 0 -> unswapped (w0, h0),
+        # centred at (solved_x, solved_y).
+        hw, hh = w0 / 2.0, h0 / 2.0
+        pads = _written_pad_polygons_by_ref(out_path)["U9"]
+        for number, poly in pads:
+            minx, miny, maxx, maxy = poly.bounds
+            if (
+                minx < solved_x - hw - 1e-6
+                or maxx > solved_x + hw + 1e-6
+                or miny < solved_y - hh - 1e-6
+                or maxy > solved_y + hh + 1e-6
+            ):
+                return False, (
+                    f"pad {number} bounds ({minx:.3f},{miny:.3f})-({maxx:.3f},{maxy:.3f}) "
+                    f"outside the solved box "
+                    f"({solved_x - hw:.3f},{solved_y - hh:.3f})-"
+                    f"({solved_x + hw:.3f},{solved_y + hh:.3f})"
+                )
+        return True, ""
+
+    pre_fix_ok, pre_fix_detail = _solved_box_contains_pads(_pre_fix_rotations_dict(result))
+    assert not pre_fix_ok, (
+        "expected the PRE-FIX `if idx` filter to desynchronize the written "
+        "rotation from the solved box (U9 solved to rot=0 but its pre-solve "
+        "board angle was 90deg) -- if this now passes, either the fixture "
+        "changed or the old bug pattern stopped reproducing the defect"
+    )
+
+    post_fix_ok, post_fix_detail = _solved_box_contains_pads(result.to_rotations_dict())
+    assert post_fix_ok, (
+        f"CpSatPlacementResult.to_rotations_dict() must write U9 at its "
+        f"solved absolute rotation (0deg), keeping its real pads inside the "
+        f"box the solver verified: {post_fix_detail}"
+    )
