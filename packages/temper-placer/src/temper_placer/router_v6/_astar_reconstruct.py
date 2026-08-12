@@ -62,6 +62,12 @@ from temper_placer.router_v6.channel_mapping import ChannelMapping
 from temper_placer.router_v6.net_classification import classify_net_type
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
+from temper_placer.router_v6.tank_creepage import (
+    apply_tank_creepage_keepout,
+    needs_tank_creepage_check,
+    release_tank_creepage_keepout,
+    tank_pad_positions,
+)
 from temper_placer.router_v6.tree_route_geometry import TreeRouteBranch, TreeRouteGeometry
 
 # Names above are re-exported for import-site and monkeypatch stability:
@@ -139,6 +145,15 @@ def run_astar_pathfinding(
             print(f"  Found {len(tht_locations)} THT pads for layer switching")
         pad_centers_per_net = _extract_pad_centers_per_net(pcb)
         existing_vias_per_net = _extract_existing_via_centers_per_net(pcb)
+
+    # Pairwise HV<->HV tank-node creepage (docs/evidence/2026-08-12-router-
+    # tank-creepage.md, tank_creepage.py's module docstring for the full
+    # mechanism). Computed once here from PAD positions (order-independent
+    # -- see that module's docstring) and consulted per-net-attempt below,
+    # in _attempt_route_fail_closed, so only nets that actually need the
+    # extra margin (HV/AC-domain nets other than the tank net itself) ever
+    # see it.
+    tank_pads = tank_pad_positions(pad_centers_per_net, design_rules)
 
     net_order = _compute_net_order(channel_mapping, bottleneck_widths=bottleneck_widths)
     routable_nets = [n for n in net_order if _should_route(n)]
@@ -475,7 +490,20 @@ def run_astar_pathfinding(
         rule (we don't know whether clearance/creepage would have held),
         so ``rule_id`` stays ``None`` (``attribution_gap`` derives to
         ``True``) rather than inventing one.
+
+        Also the single choke point for the tank-node creepage keepout
+        (tank_creepage.py): every routing attempt for every net, initial
+        pass or reroute-queue retry alike, goes through this function, so
+        applying/releasing the keepout here (rather than inside
+        ``attempt_route`` itself, which has many internal return points)
+        covers every attempt with one wrap. The keepout is applied to the
+        real, shared grids -- not a throwaway copy -- and released in a
+        ``finally`` so a raised exception can never leave it stuck blocking
+        cells for every subsequent net.
         """
+        keepout_changed: list = []
+        if tank_pads and needs_tank_creepage_check(net_name, design_rules):
+            keepout_changed = apply_tank_creepage_keepout(all_grids, tank_pads)
         try:
             return attempt_route(net_name)
         except Exception:
@@ -485,6 +513,9 @@ def run_astar_pathfinding(
                 net_name,
             )
             return False, FAILURE_REASON_PROVER_ERROR, [], None, None
+        finally:
+            if keepout_changed:
+                release_tank_creepage_keepout(keepout_changed)
 
     for net_name in routable_nets:
         t0 = time.perf_counter()
