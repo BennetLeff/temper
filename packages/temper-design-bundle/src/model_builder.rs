@@ -691,6 +691,136 @@ impl PackedVar {
     }
 }
 
+/// Marks a free slot in a [`VarIndex`]. `u32::MAX` can never be a valid
+/// variable index — [`ConstraintModel::insert_variable`] refuses a model
+/// that large.
+const EMPTY_SLOT: u32 = u32::MAX;
+
+/// The `(net_idx, interned key) -> variable index` reverse index behind
+/// `net_channel_vars` / `bundle_channel_vars` / `via_vars`, at **4 bytes
+/// per slot**.
+///
+/// A `HashMap<(i64, u32), u32>` costs 21 bytes per *bucket* — a 16-byte
+/// padded key, a 4-byte value, a 1-byte control word — and rounds its
+/// bucket count up to a power of two. At 2,044,900 entries (the production
+/// per-batch model: `DEFAULT_BATCH_SIZE = 10` nets over the board's
+/// 204,490-edge skeleton) that is 4,194,304 buckets and 88 MB. MEASURED:
+/// with the variables already packed, the `HashMap` index was 53 of the
+/// remaining 74.9 bytes per variable — more than the variables themselves.
+///
+/// This table stores only the 4-byte variable index and **re-derives** each
+/// occupied slot's key from the variable it points at
+/// ([`ConstraintModel::dict_key_of`]), so no key is stored twice. Open
+/// addressing, linear probing, 0.75 load factor; entries are only ever
+/// inserted or overwritten, never removed, so there are no tombstones.
+#[derive(Debug, Default)]
+struct VarIndex {
+    /// Power-of-two sized, or empty. `EMPTY_SLOT` marks a free slot.
+    slots: Vec<u32>,
+    len: usize,
+}
+
+/// Hash of a `(net_idx, interned key)` dict key: a 64-bit mix followed by
+/// the SplitMix64 finalizer, so the low bits — which select the slot —
+/// depend on every input bit.
+fn dict_hash(net_idx: i64, key: u32) -> u64 {
+    let mut h = (net_idx as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15);
+    h ^= u64::from(key).wrapping_mul(0xC2B2_AE3D_27D4_EB4F);
+    h ^= h >> 30;
+    h = h.wrapping_mul(0xBF58_476D_1CE4_E5B9);
+    h ^= h >> 27;
+    h = h.wrapping_mul(0x94D0_49BB_1331_11EB);
+    h ^ (h >> 31)
+}
+
+impl VarIndex {
+    #[cfg(test)]
+    fn len(&self) -> usize {
+        self.len
+    }
+
+    /// Variable index registered for `wanted`, if any.
+    ///
+    /// `key_of` maps a variable index back to its dict key.
+    fn get(&self, wanted: (i64, u32), key_of: &impl Fn(u32) -> Option<(i64, u32)>) -> Option<u32> {
+        if self.slots.is_empty() {
+            return None;
+        }
+        let mask = self.slots.len() - 1;
+        let mut probe = (dict_hash(wanted.0, wanted.1) as usize) & mask;
+        loop {
+            let slot = self.slots[probe];
+            if slot == EMPTY_SLOT {
+                return None;
+            }
+            if key_of(slot) == Some(wanted) {
+                return Some(slot);
+            }
+            probe = (probe + 1) & mask;
+        }
+    }
+
+    /// Register `var_idx` under `key`, replacing whatever was registered
+    /// under it before — the `HashMap::insert` last-writer-wins semantics
+    /// this replaced.
+    fn insert(
+        &mut self,
+        key: (i64, u32),
+        var_idx: u32,
+        key_of: &impl Fn(u32) -> Option<(i64, u32)>,
+    ) {
+        if (self.len + 1) * 4 > self.slots.len() * 3 {
+            self.grow(key_of);
+        }
+        let mask = self.slots.len() - 1;
+        let mut probe = (dict_hash(key.0, key.1) as usize) & mask;
+        loop {
+            let slot = self.slots[probe];
+            if slot == EMPTY_SLOT {
+                self.slots[probe] = var_idx;
+                self.len += 1;
+                return;
+            }
+            if key_of(slot) == Some(key) {
+                self.slots[probe] = var_idx;
+                return;
+            }
+            probe = (probe + 1) & mask;
+        }
+    }
+
+    fn grow(&mut self, key_of: &impl Fn(u32) -> Option<(i64, u32)>) {
+        let new_len = if self.slots.is_empty() { 16 } else { self.slots.len() * 2 };
+        let old = std::mem::replace(&mut self.slots, vec![EMPTY_SLOT; new_len]);
+        let mask = new_len - 1;
+        for slot in old {
+            if slot == EMPTY_SLOT {
+                continue;
+            }
+            let Some(key) = key_of(slot) else { continue };
+            let mut probe = (dict_hash(key.0, key.1) as usize) & mask;
+            while self.slots[probe] != EMPTY_SLOT {
+                probe = (probe + 1) & mask;
+            }
+            self.slots[probe] = slot;
+        }
+    }
+
+    /// Every `(dict key, variable index)` pair, for rebuilding the Python
+    /// dict. Slot order — arbitrary, exactly as the `HashMap` iteration
+    /// order it replaced was arbitrary.
+    fn iter<'a>(
+        &'a self,
+        key_of: &'a impl Fn(u32) -> Option<(i64, u32)>,
+    ) -> impl Iterator<Item = ((i64, u32), u32)> + 'a {
+        self.slots
+            .iter()
+            .copied()
+            .filter(|slot| *slot != EMPTY_SLOT)
+            .filter_map(move |slot| key_of(slot).map(|key| (key, slot)))
+    }
+}
+
 /// One constraint, in Rust-native form.
 ///
 /// The builder only ever emits the first three; `add_constraint` (the
@@ -739,6 +869,11 @@ pub struct ConstraintModel {
     /// shapes (see [`ConstraintModel::pack_variable`]). Empty on every
     /// production path.
     foreign_vars: Vec<Py<PyAny>>,
+    /// The `(net_idx, interned key)` each `foreign_vars` entry is
+    /// registered under, or `None` for one registered in no dict. Parallel
+    /// to `foreign_vars`; a packed variable's key comes from the variable
+    /// itself, which is why only this arm needs a side table.
+    foreign_var_keys: Vec<Option<(i64, u32)>>,
     /// One record per constraint, in insertion order.
     cons: Vec<PackedConstraint>,
     /// Verbatim Python objects for constraints added via `add_constraint`.
@@ -748,12 +883,42 @@ pub struct ConstraintModel {
     /// `Vec<(u32, f64)>` would pad to.
     term_vars: Vec<u32>,
     term_widths: Vec<f64>,
-    net_channel_vars: HashMap<(i64, u32), u32>,
-    bundle_channel_vars: HashMap<(i64, u32), u32>,
-    via_vars: HashMap<(i64, u32), u32>,
+    net_channel_vars: VarIndex,
+    bundle_channel_vars: VarIndex,
+    via_vars: VarIndex,
 }
 
 impl ConstraintModel {
+    /// The `(net_idx, interned key)` variable `idx` is registered under, or
+    /// `None` if it is registered in no dict. This is what lets [`VarIndex`]
+    /// store a bare variable index per slot instead of the key as well.
+    fn dict_key_of(
+        vars: &[PackedVar],
+        foreign_var_keys: &[Option<(i64, u32)>],
+        idx: u32,
+    ) -> Option<(i64, u32)> {
+        let packed = *vars.get(idx as usize)?;
+        match packed.kind() {
+            VarKind::Foreign => *foreign_var_keys.get(packed.key() as usize)?,
+            _ => Some((i64::from(packed.net_idx), packed.key())),
+        }
+    }
+
+    /// `dict_key_of` bound to a pair of tables. Takes the two slices rather
+    /// than `&self` so a caller can hold it across a `&mut` borrow of one of
+    /// the three [`VarIndex`] fields.
+    fn key_resolver_for<'a>(
+        vars: &'a [PackedVar],
+        foreign_var_keys: &'a [Option<(i64, u32)>],
+    ) -> impl Fn(u32) -> Option<(i64, u32)> + 'a {
+        move |idx| Self::dict_key_of(vars, foreign_var_keys, idx)
+    }
+
+    /// `dict_key_of` bound to this model's own tables.
+    fn key_resolver(&self) -> impl Fn(u32) -> Option<(i64, u32)> + '_ {
+        Self::key_resolver_for(&self.vars, &self.foreign_var_keys)
+    }
+
     /// `(variable index, width)` for term slot `i` of the arena.
     fn term(&self, i: u32) -> PyResult<(u32, f64)> {
         let i = i as usize;
@@ -915,20 +1080,23 @@ impl ConstraintModel {
         original: impl FnOnce() -> PyResult<Py<PyAny>>,
     ) -> PyResult<()> {
         let key = self.ids.intern(key_value)?;
+        let dict_key = match kind {
+            VarKind::Foreign => None,
+            _ => Some((net_idx, key)),
+        };
         let packed = match Self::pack_variable(kind, name, var_type, net_idx, key_value, key)? {
             Some(packed) => packed,
-            None => self.take_foreign_var(original()?)?,
+            None => self.take_foreign_var(original()?, dict_key)?,
         };
-        let idx = u32::try_from(self.vars.len())
-            .map_err(|_| PyRuntimeError::new_err("ConstraintModel: too many variables"))?;
-        self.vars.push(packed);
-        let dict = match kind {
-            VarKind::NetChannel => &mut self.net_channel_vars,
-            VarKind::Bundle => &mut self.bundle_channel_vars,
-            VarKind::Via => &mut self.via_vars,
-            VarKind::Foreign => return Ok(()),
-        };
-        let _ = dict.insert((net_idx, key), idx);
+        let idx = self.push_var(packed)?;
+        let Some(dict_key) = dict_key else { return Ok(()) };
+        let resolver = Self::key_resolver_for(&self.vars, &self.foreign_var_keys);
+        match kind {
+            VarKind::NetChannel => self.net_channel_vars.insert(dict_key, idx, &resolver),
+            VarKind::Bundle => self.bundle_channel_vars.insert(dict_key, idx, &resolver),
+            VarKind::Via => self.via_vars.insert(dict_key, idx, &resolver),
+            VarKind::Foreign => {}
+        }
         Ok(())
     }
 
@@ -937,42 +1105,47 @@ impl ConstraintModel {
     /// the pre-U1 `add_variable` did for anything that was neither a
     /// `NetChannelVar` nor a `ViaVar`).
     fn insert_foreign_variable(&mut self, var: Py<PyAny>) -> PyResult<()> {
-        let packed = self.take_foreign_var(var)?;
-        self.vars.push(packed);
+        let packed = self.take_foreign_var(var, None)?;
+        let _ = self.push_var(packed)?;
         Ok(())
     }
 
-    fn take_foreign_var(&mut self, var: Py<PyAny>) -> PyResult<PackedVar> {
+    fn push_var(&mut self, packed: PackedVar) -> PyResult<u32> {
+        let idx = u32::try_from(self.vars.len())
+            .ok()
+            .filter(|idx| *idx != EMPTY_SLOT)
+            .ok_or_else(|| PyRuntimeError::new_err("ConstraintModel: too many variables"))?;
+        self.vars.push(packed);
+        Ok(idx)
+    }
+
+    fn take_foreign_var(
+        &mut self,
+        var: Py<PyAny>,
+        dict_key: Option<(i64, u32)>,
+    ) -> PyResult<PackedVar> {
         let key = u32::try_from(self.foreign_vars.len()).map_err(|_| {
             PyRuntimeError::new_err("ConstraintModel: too many unpacked variables")
         })?;
         self.foreign_vars.push(var);
+        self.foreign_var_keys.push(dict_key);
         PackedVar::new(VarKind::Foreign, 0, key)
     }
 
     /// Index of the variable registered for `(net_idx, key_value)`, if any.
-    fn lookup_var(
-        &self,
-        dict: &HashMap<(i64, u32), u32>,
-        net_idx: i64,
-        key_value: &str,
-    ) -> Option<u32> {
-        self.ids
-            .lookup(key_value)
-            .and_then(|key| dict.get(&(net_idx, key)).copied())
+    fn lookup_var(&self, dict: &VarIndex, net_idx: i64, key_value: &str) -> Option<u32> {
+        let key = self.ids.lookup(key_value)?;
+        dict.get((net_idx, key), &self.key_resolver())
     }
 
-    fn rebuild_dict(
-        &self,
-        py: Python<'_>,
-        dict: &HashMap<(i64, u32), u32>,
-    ) -> PyResult<Py<PyDict>> {
+    fn rebuild_dict(&self, py: Python<'_>, dict: &VarIndex) -> PyResult<Py<PyDict>> {
         let d = PyDict::new(py);
-        for ((net_idx, key), var_idx) in dict {
+        let resolver = self.key_resolver();
+        for ((net_idx, key), var_idx) in dict.iter(&resolver) {
             let net_obj = net_idx.into_pyobject(py)?.into_any();
-            let key_obj = self.ids.get(*key)?.into_pyobject(py)?.into_any();
+            let key_obj = self.ids.get(key)?.into_pyobject(py)?.into_any();
             let tuple_key = PyTuple::new(py, [net_obj, key_obj])?;
-            d.set_item(tuple_key, self.variable_object(py, *var_idx)?)?;
+            d.set_item(tuple_key, self.variable_object(py, var_idx)?)?;
         }
         Ok(d.unbind())
     }
@@ -1806,7 +1979,7 @@ mod tests {
             .unwrap();
             assert_eq!(m.net_channel_vars.len(), 1);
             assert_eq!(m.bundle_channel_vars.len(), 1);
-            assert!(m.via_vars.is_empty());
+            assert_eq!(m.via_vars.len(), 0);
             // Both packed: the channel id is interned once, and no CPython
             // object was created for either variable.
             assert_eq!(m.ids.values.len(), 1);
@@ -1858,6 +2031,83 @@ mod tests {
             // Still routed into the dict, exactly as pre-U1.
             assert_eq!(m.lookup_var(&m.net_channel_vars, 0, "EDGE"), Some(0));
         })
+    }
+
+    #[test]
+    fn last_writer_wins_on_a_duplicate_dict_key() {
+        Python::attach(|py| {
+            let mut m = ConstraintModel::default();
+            m.insert_variable(VarKind::NetChannel, "uses_N0_EDGE", "bool", 0, "EDGE", || {
+                unreachable!()
+            })
+            .unwrap();
+            let bogus = net_channel("BOGUS", "bool", 0, "EDGE");
+            m.insert_variable(VarKind::NetChannel, "BOGUS", "bool", 0, "EDGE", || {
+                Ok(Py::new(py, bogus).unwrap().into_any())
+            })
+            .unwrap();
+            assert_eq!(m.vars.len(), 2);
+            assert_eq!(m.net_channel_vars.len(), 1);
+            // The dict points at the SECOND variable, and the packed first
+            // one is still there in insertion order.
+            assert_eq!(m.lookup_var(&m.net_channel_vars, 0, "EDGE"), Some(1));
+            let v = m.variable_object(py, 1).unwrap();
+            assert_eq!(
+                v.bind(py).extract::<PyRef<'_, NetChannelVar>>().unwrap().name,
+                "BOGUS"
+            );
+        })
+    }
+
+    /// The reverse index must agree with a `HashMap` on the same operation
+    /// sequence — the structure it replaced, at the same semantics
+    /// (insert-or-overwrite, no removal).
+    #[test]
+    fn var_index_agrees_with_a_hashmap_over_a_mixed_workload() {
+        let mut vars: Vec<PackedVar> = Vec::new();
+        let mut index = VarIndex::default();
+        let mut reference: HashMap<(i64, u32), u32> = HashMap::new();
+
+        // Deterministic pseudo-random keys, including deliberate duplicates
+        // (`% 37` and `% 53` cycle far faster than the 4,000 insertions) so
+        // the overwrite path is exercised heavily.
+        for i in 0..4_000u32 {
+            let net_idx = i64::from(i.wrapping_mul(2_654_435_761) % 37);
+            let key = i.wrapping_mul(40_503) % 53;
+            let idx = u32::try_from(vars.len()).unwrap();
+            vars.push(PackedVar::new(VarKind::NetChannel, net_idx as u32, key).unwrap());
+            let resolver = ConstraintModel::key_resolver_for(&vars, &[]);
+            index.insert((net_idx, key), idx, &resolver);
+            let _ = reference.insert((net_idx, key), idx);
+        }
+
+        let resolver = ConstraintModel::key_resolver_for(&vars, &[]);
+        assert_eq!(index.len(), reference.len());
+        for (key, want) in &reference {
+            assert_eq!(index.get(*key, &resolver), Some(*want), "key {key:?}");
+        }
+        // Absent keys miss rather than probing forever.
+        for key in [(999_i64, 0_u32), (0, 999), (-1, 0)] {
+            assert!(!reference.contains_key(&key));
+            assert_eq!(index.get(key, &resolver), None);
+        }
+        // `iter` yields exactly the reference's contents.
+        let mut got: Vec<_> = index.iter(&resolver).collect();
+        let mut expected: Vec<_> = reference.into_iter().collect();
+        got.sort_unstable();
+        expected.sort_unstable();
+        assert_eq!(got, expected);
+    }
+
+    #[test]
+    fn var_index_resolves_foreign_variables_through_the_side_table() {
+        let vars = vec![PackedVar::new(VarKind::Foreign, 0, 0).unwrap()];
+        let foreign_keys = vec![Some((-9_i64, 3_u32))];
+        let resolver = ConstraintModel::key_resolver_for(&vars, &foreign_keys);
+        let mut index = VarIndex::default();
+        index.insert((-9, 3), 0, &resolver);
+        assert_eq!(index.get((-9, 3), &resolver), Some(0));
+        assert_eq!(index.get((-9, 4), &resolver), None);
     }
 
     #[test]
