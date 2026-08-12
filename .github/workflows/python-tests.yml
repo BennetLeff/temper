@@ -100,6 +100,9 @@ on:
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
       - 'scripts/check_manifest_gate.py'
+      - 'scripts/check_manifest_ci_gate_wiring.py'
+      - 'scripts/tests/test_check_manifest_ci_gate_wiring.py'
+      - '.github/workflows/*.yml'
       - 'scripts/check_script_sunset.py'
       - 'scripts/manifest.yaml'
       - 'scripts/invocation_graph.json'
@@ -207,6 +210,9 @@ on:
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
       - 'scripts/check_manifest_gate.py'
+      - 'scripts/check_manifest_ci_gate_wiring.py'
+      - 'scripts/tests/test_check_manifest_ci_gate_wiring.py'
+      - '.github/workflows/*.yml'
       - 'scripts/check_script_sunset.py'
       - 'scripts/manifest.yaml'
       - 'scripts/invocation_graph.json'
@@ -2472,6 +2478,32 @@ jobs:
       - name: Script manifest gate
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_manifest_gate.py
+
+      # scripts/manifest.yaml's disposition: ci-gate is a claim ("this
+      # script is wired into CI"), never checked against the workflows
+      # themselves until this gate (docs/brainstorms/
+      # 2026-08-12-referential-integrity-options.md). Currently VIOLATION
+      # on origin/main: 10 ci-gate-labeled scripts (bmc_adoption_gate.py,
+      # check_drc_determinism.py, check_migration_narrowing.py,
+      # gen_pcb_skeleton.py, update_regression_cache.py, verify_proofs.py,
+      # write_build_stamp.py, check_ceiling_raise_evidence_corpus.py,
+      # check_component_defect_corpus.py, check_corpus_specificity.py) are
+      # invoked by zero workflows -- the same shape as sync_kicad_
+      # netclass_assignments.py's already-known false "wired into CI"
+      # claim, generalized. Advisory (continue-on-error) until each of
+      # the 10 is either actually wired into a workflow or its
+      # manifest.yaml disposition is corrected to stop claiming it is --
+      # a maintainer call this gate's introduction doesn't make. Path to
+      # blocking: resolve all 10, confirm the gate exits 0, remove
+      # continue-on-error.
+      - name: Manifest ci-gate <-> workflow-wiring gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_manifest_ci_gate_wiring.py -v --tb=short
+
+      - name: Manifest ci-gate <-> workflow-wiring gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        continue-on-error: true
+        run: uv run python scripts/check_manifest_ci_gate_wiring.py
 
       # Wave 4 R7: "the program is complete only when every surface has a
       # recorded verdict". docs/wave4-verdicts.yaml records one per surface and

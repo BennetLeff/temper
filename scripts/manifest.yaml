@@ -574,6 +574,23 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_manifest_ci_gate_wiring.py
+  purpose: 'CI gate: every scripts/manifest.yaml disposition:ci-gate entry must be invoked by a
+    .github/workflows/*.yml run: step -- closes the false-"wired into CI" claim class named for
+    sync_kicad_netclass_assignments.py and found 9 more instances of by survey (docs/brainstorms/
+    2026-08-12-referential-integrity-options.md). Advisory (continue-on-error) -- currently VIOLATION,
+    10 unwired ci-gate entries.'
+  owner: bennet
+  last_run: '2026-08-12'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_manifest_gate.py
   purpose: 'CI gate: enforce scripts/manifest.yaml <-> filesystem consistency'
   owner: pipeline
