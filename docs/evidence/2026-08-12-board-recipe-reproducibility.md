@@ -14,6 +14,32 @@ reproduce. Machine: 24 cores, load average 1.5-3.3 (idle-to-light) throughout. -
 
 # The place-and-route recipe is deterministic; the three-boards-differ finding is fully explained by input/code drift, not solver nondeterminism -- and PR #1050's own 4,228/74 does not reproduce
 
+> **CORRECTION (2026-08-12), added by the void-board-baseline purge task, not by this
+> document's original author.** This document's "deterministic" verdict is correct only
+> **given a fixed `pumpkin_engine` binary** -- and this document never checked that the
+> binary was pinned, because nothing pinned it yet (`docs/evidence/2026-08-07-pumpkin-engine/engine_pin.json`
+> did not exist until #1060, three PRs later). §6's "re-established baseline" below --
+> **168 footprints / 3,349 segments / 56 vias / 70 zones / 80 of 105 nets routed**, since
+> referred to elsewhere as "the verified baseline" -- is therefore **VOID**, for exactly the
+> reason §5 already gives for rejecting PR #1050's 4,228/74: neither figure is reproducible
+> from a binary anyone can identify. `docs/evidence/2026-08-12-candidate-board-not-landed-engine-provenance.md`
+> sec 3-4 found the mechanism afterward: the recipe's placement stage silently resolved its
+> CP solver through an untracked, `.gitignore`d `target-shared/release/pumpkin_engine`, so
+> different sessions (including the one that produced this document) ran different programs
+> and each called its own result "the baseline."
+>
+> **True baseline** -- pinned engine (post-#1060) plus a corrected write path (a separate
+> defect: `_apply_placements_to_pcb`'s `board_origin` parameter being silently omitted by a
+> caller, writing every footprint 20mm off the board outline; this document is not affected
+> by that second defect, only by the unpinned-engine one) -- **2,514 segments / 22 vias / 76
+> zones / 168 footprints**; `SAF_HVL_001` 94 -> 74 (-21%); nets connected 22/112 (19.6%);
+> `unconnected_items` 428 -> 351; kicad-cli `clearance`=499 across 130 samples, `creepage`
+> 114-116, `shorting_items` 110, total errors 1075-1077. Current source of truth:
+> `scripts/board_shape_baseline.json` (carries the full void-baseline history in its
+> `_march` log). **Nothing below this notice has been edited** -- §1-8's measurements and
+> reasoning about *determinism* (as opposed to the baseline's specific numbers) stand as
+> originally recorded, per this repo's evidence-correction convention.
+
 **Verdict up front.** The documented recipe (reconcile -> Pumpkin placement with
 PD2/8.0mm isolation barrier -> `route_board.py --net-batching`) is **deterministic** on
 a fixed commit, fixed inputs, and this machine: reconciliation, placement, and routing

@@ -11,6 +11,37 @@ evidence doc in this lineage). Machine: 24 cores. -->
 
 # The candidate board was NOT landed: the recipe's placement stage silently depends on an untracked `pumpkin_engine` binary, and no build of it reproduces the verified 3,349/56/70 baseline
 
+> **CORRECTION (2026-08-12), added by the void-board-baseline purge task, not by this
+> document's original author.** This document's own diagnosis (§3-4: the placement stage
+> silently resolves its CP solver through an untracked, `.gitignore`d
+> `target-shared/release/pumpkin_engine`) is correct and was the mechanism #1060 fixed. But
+> **every number this document measured is additionally wrong for a second, separate
+> reason**: the scratch driver this task wrote called `_apply_placements_to_pcb(...)`
+> without passing `board_origin`, and `parse_kicad_pcb` normalizes coordinates by
+> subtracting the board's `Edge.Cuts` origin (20, 20) -- so every footprint on both
+> candidate boards measured below was written **20mm off the actual board outline**,
+> silently. Both of this document's own runs are therefore **VOID**, not just "not
+> reproducing the target baseline" as §2 concluded at the time:
+> - `4,140 / 70 / 66` (§2, "engine built from `main`'s committed source", 86/105 nets) -- VOID (off-outline)
+> - `3,505 / 26 / 76` (§2, "engine from `target-shared/`", 75/105 nets) -- VOID (off-outline)
+>
+> The **target** this document tested against, `168/3,349/56/70/80-105 nets`
+> (`docs/evidence/2026-08-12-board-recipe-reproducibility.md` §6, "the verified baseline"),
+> is **also VOID** -- see that document's own correction notice; it was measured on an
+> unpinned engine too, just as this document's §4 already argued it could not be trusted
+> as a target "until the engine binary is pinned."
+>
+> **True baseline** -- pinned engine (post-#1060) plus the write-path fix this document's
+> own defect above needed (`board_origin` passed explicitly) -- **2,514 segments / 22 vias
+> / 76 zones / 168 footprints**; `SAF_HVL_001` 94 -> 74 (-21%); nets connected 22/112
+> (19.6%); `unconnected_items` 428 -> 351; kicad-cli `clearance`=499 across 130 samples,
+> `creepage` 114-116, `shorting_items` 110, total errors 1075-1077. Current source of
+> truth: `scripts/board_shape_baseline.json` (full void-baseline history in its `_march`
+> log). **Nothing below this notice has been edited** -- §1, §3 (the unpinned-binary root
+> cause) and §7-8 stand as originally recorded; only the specific segment/via/zone/net
+> figures in §2 and the "verified baseline" cited throughout are void, per the reasons
+> above.
+
 **Verdict up front.** This PR does **not** change `pcb/temper.kicad_pcb`, and does
 not touch `power_pcb_dataset/drc_ceiling.json`. The owner-authorised landing was
 conditional on the produced board matching the verified baseline

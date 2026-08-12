@@ -7,9 +7,9 @@ and the shared utility methods.
 from __future__ import annotations
 
 import logging
-import math
 from typing import TYPE_CHECKING
 
+import temper_design_bundle_python as _tdb
 import temper_orchestration as _to
 
 from temper_placer.constraints.compiler import ConstraintCompiler
@@ -47,8 +47,14 @@ class _PhaseCoreMixin:
     reservation and the ``frozenset`` writes all run Rust-side, crossing the
     FFI once per stage call with the stage instance as the config carrier.
     This module keeps the public API (the constructor, ``name``,
-    ``invariants`` and the ``_get_footprint_radius`` helper the D4 validator
-    calls) and delegates ``run``. The router_v6 DRC-fence call-back
+    ``invariants`` and the ``_get_footprint_radius`` / ``_reserve_slots`` /
+    ``_distance`` helpers) and delegates ``run`` and those helpers. The
+    residual arithmetic (``_get_footprint_radius``'s
+    ``sqrt(w**2 + h**2) / 2 + 1.0``, ``_reserve_slots``'s distance filter and
+    ``_distance``'s ``sqrt((p1-p2)**2 + ...)``) is implemented in Rust in the
+    ``temper-design-bundle`` crate
+    (``temper_design_bundle_python.deterministic_phase``); the Python methods
+    are thin delegations. The router_v6 DRC-fence call-back
     (``register_validator`` / ``run_validators``) stays Python (router_v6
     surface -- the D4 ``StageDRCFailure`` convention). The differential oracle
     for the pre-migration implementation is pinned VERBATIM in
@@ -171,11 +177,20 @@ class _PhaseCoreMixin:
             pass
 
     def _get_footprint_radius(self, component: Component) -> float:
-        """Get minimum radius to enclose component footprint."""
-        if hasattr(component, "bounds") and component.bounds:
-            w, h = component.bounds
-            return math.sqrt(w**2 + h**2) / 2 + 1.0
-        return self.slot_spacing / 2.0
+        """Get minimum radius to enclose component footprint.
+
+        The arithmetic (``math.sqrt(w**2 + h**2) / 2 + 1.0`` over the
+        component bounds, or ``slot_spacing / 2.0`` on the no-bounds path) is
+        implemented in Rust
+        (``temper_design_bundle_python.deterministic_phase.footprint_radius_py``);
+        the ``hasattr``/truthiness guard stays here.
+        """
+        bounds = (
+            component.bounds
+            if (hasattr(component, "bounds") and component.bounds)
+            else None
+        )
+        return _tdb.deterministic_phase.footprint_radius_py(bounds, self.slot_spacing)
 
     def _reserve_slots(
         self,
@@ -184,14 +199,19 @@ class _PhaseCoreMixin:
         all_slots: list[tuple[float, float]],
         used_slots: set[tuple[float, float]],
     ) -> None:
-        """Reserve all slots within radius of center."""
-        cx, cy = center
-        for slot in all_slots:
-            sx, sy = slot
-            dist = math.sqrt((sx - cx) ** 2 + (sy - cy) ** 2)
-            if dist <= radius:
-                used_slots.add(slot)
+        """Reserve all slots within radius of center.
+
+        The distance filter (``math.sqrt((sx-cx)**2 + (sy-cy)**2) <= radius``)
+        is implemented in Rust (``reserve_slots_py``); the set mutation stays
+        here.
+        """
+        for slot in _tdb.deterministic_phase.reserve_slots_py(center, radius, all_slots):
+            used_slots.add(slot)
 
     def _distance(self, p1: tuple[float, float], p2: tuple[float, float]) -> float:
-        """Euclidean distance between two points."""
-        return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+        """Euclidean distance between two points.
+
+        Delegates to the Rust kernel
+        (``temper_design_bundle_python.deterministic_phase.distance_py``).
+        """
+        return _tdb.deterministic_phase.distance_py(p1, p2)

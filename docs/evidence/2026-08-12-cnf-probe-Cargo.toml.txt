@@ -1,0 +1,28 @@
+[package]
+name = "cnf-probe"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "cnf_repr_probe"
+path = "src/repr_probe.rs"
+
+[[bin]]
+name = "cadical_probe"
+path = "src/cadical_probe.rs"
+
+[[bin]]
+name = "clause_repr_probe"
+path = "src/clause_repr_probe.rs"
+
+[[bin]]
+name = "varnames_probe"
+path = "src/varnames_probe.rs"
+
+[dependencies]
+rustsat = "=0.7.5"
+rustsat-cadical = "=0.7.5"
+temper-rust-router-core = { path = "/home/bennet/Desktop/temper-worktrees/cnf-representation/packages/temper-rust-router-core" }
+
+[profile.release]
+opt-level = 1

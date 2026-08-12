@@ -1897,3 +1897,114 @@ output must not move. Evidence, verified on this branch:
   quantity here, so the R24 discipline (soundness proof, BMC-exhaustive
   validation, post-solve audit) does not apply. Stated explicitly because
   the ledger requires it.
+
+---
+
+# Deterministic stage-leaf residual kernels — Verification (Wave 4 orchestration-port)
+
+The orchestration-port of the validation + partition cluster ports the
+STILL-Python residual compute of seven `deterministic/stages/` leaves
+(`placement_validation.py`, `phased_component_assignment_validator.py`,
+`courtyard_check.py`, `drc_sweep.py`, `hv_lv_partition.py`, `power_plane.py`,
+`fine_pitch_escape.py`) into `src/deterministic_stage_leaves.rs`.
+
+## Record: what was already done (the brainstorm's LOC was stale)
+
+The D4/D6/D7 orchestration (Rust Orchestration Engine plan 2026-08-09-001)
+already landed before this port, so the *run* bodies of all seven leaves were
+already single FFI crossings into `temper-orchestration` (`*_stage.rs`). The
+pure compute of the cluster was likewise already split between two home
+crates:
+
+| Surface | Home | Status before this port |
+|---|---|---|
+| `validate_proximity` / `validate_signal_hv` (placement_validation) | `temper-drc-rs` (`deterministic_leaf_drc.rs`) | already migrated |
+| `clamp_position` (courtyard_check) | `temper-drc-rs` | already migrated |
+| `deduplicate_traces` (drc_sweep), `summarize_violations` / `threshold_decision` (drc_validation), `count_connected_layers` / `dedup_via_positions` (via_validation) | `temper-drc-rs` | already migrated |
+| `min_pin_pitch` / `escape_layer_for_net` (fine_pitch_escape), `recompute_plane_assignments` (power_plane), `hv_lv_classify` / `hv_lv_area_check` (hv_lv_partition), `infer_slot_spacing` / `build_slot_index` / `slots_within_radius` (phased validator) | `temper-design-bundle` | already migrated |
+| `_creepage_mm` / `_absolute_hv_pins` (phased validator), `_rules_by_net` (hv_lv_partition) | safety-category resolution | **stays single-source** — the drc-rs `rules::safety::hv_lv_separation::resolve_safety_category` is the authority; the Rust stages inline the same readers (`phased_component_assignment_validator_stage.rs`, `hv_lv_partition_stage.rs`), so no second resolution path is introduced (AGENTS.md N4) |
+
+## What this port adds
+
+| Kernel | Python origin | Notes |
+|---|---|---|
+| `resolve_pin_position` | `placement_validation._get_pin_position` | the parsed-pads `(cx + px, cy + py)` offset resolution + fallback chain |
+| `flatten_zone_slots` | `phased_component_assignment_validator._flatten_slots` | the per-zone `extend` flatten (single-sourced: the Rust stage's former inline copy now calls `flatten_zone_slots_py` through `py.import("temper_drc_rs")`) |
+| `component_bounds_area` | `hv_lv_partition._area` | the `float(b[0]) * float(b[1])` bounds product |
+
+The three Python leaves keep their public API and become marshalling shims;
+`placement_validation._get_pin_position`, `phased_component_assignment_validator._flatten_slots`
+and `hv_lv_partition._area` delegate to the kernels.
+
+## What stays Python (recorded, not ported)
+
+- `courtyard_check._find_collisions`, `hv_lv_partition._outline`,
+  `deterministic/geometry/guard_strip.compute_guard_strip` — shapely/GEOS
+  geometry, not bit-reproducible in Rust (the D6/D7 differentials already
+  record this boundary).
+- `hv_lv_partition.load_guard_config` / `HvLvGuardConfig` — pydantic.
+- `_nets` (hv_lv_partition), `_get_component_positions` (placement_validation) —
+  duck-typed state readers with no arithmetic; the Rust stages inline them.
+- `power_plane.TEMPER_PLANE_NETS` / `TEMPER_PLANE_LAYERS` — data, not compute.
+
+## Structural proof
+
+**Claim (bit-identical parity).** Each kernel reproduces the pinned
+pre-migration Python body bit-for-bit.
+
+1. `resolve_pin_position` — `cx + px` is IEEE f64 addition; int→float
+   conversion is exact at the placer's magnitudes; the fallback chain
+   (unplaced → `None`; no pad → component position) matches the oracle's
+   dict-membership order. A malformed `parsed_pads` (non-dict pad payload)
+   is skipped by the `cast::<PyDict>()` guards, mirroring the shim's
+   duck-typed subscript that production never exercises.
+2. `flatten_zone_slots_py` — the `extend`-in-iteration-order loop is the
+   exact body of the former Python `_flatten_slots` AND the Rust stage's
+   former inline copy, so slot ORDER and object identity are preserved by
+   construction (the returned list holds the original slot tuples, which the
+   downstream `build_slot_index_py` hashes).
+3. `component_bounds_area` — `float(b[0]) * float(b[1])` is a plain f64
+   multiply; the `or (0, 0)` fallback is applied by the caller (`_area`),
+   and `None` maps to `0.0`.
+
+## Induction applicability
+
+Not applicable — none of the kernels is recursive or iterates over a
+size-parameterized invariant. A structural proof is recorded instead.
+
+## R1 status
+
+- R1a (differential): the **verbatim pre-migration bodies are embedded as
+  the `ORACLE_SOURCE` in `deterministic_stage_leaves.rs`** and compared
+  bit-exactly (`f64::to_bits`, i.e. `float.hex` equivalence) in the three
+  `differential_*` tests. The stronger, RUNNING differential is the existing
+  stage suites, which drive the kernels through the Python leaves end-to-end
+  against their content-hash-pinned oracles and are unchanged green:
+  `test_deterministic_d6_rust_differential.py` (exercises
+  `resolve_pin_position_py` via `_get_pin_position` on the placement-validation
+  path, incl. `test_pv_parsed_pads_offset`), `test_deterministic_d4_rust_differential.py`
+  (exercises `flatten_zone_slots_py` via the Rust stage's kernel call on the
+  validator path), `test_deterministic_d7_rust_differential.py` (exercises
+  `component_bounds_area_py` via `_area` on the hv-lv partition path).
+- R1b (performance A/B): not registered — these are per-call marshalling
+  shims over single-arithmetic-op kernels; no speedup is claimed (the
+  pure-delegation carve-out).
+- R1c (PBT): 8 non-vacuous properties in `deterministic_stage_leaves.rs`'s
+  `proptests` (P1 total-or-bit-exact-sum, P2 identity-without-pads, P3
+  zero-offset identity, P4 flatten length = sum, P5 flatten order, P6
+  area = product, P7 area sign, P8 area commutativity).
+- R1d (metamorphic): 3 relations (MR1 flatten split-concat associativity,
+  MR2 resolve translation-equivariance, MR3 area dyadic-scaling homogeneity).
+- R1e: this file (structural proof; induction N/A).
+- R1f (TDD): the oracles are committed verbatim in the module before the
+  kernels are wired into the leaves (the same commit); the running stage
+  differentials are the red→green evidence.
+- R1g: no `unwrap`/`expect` outside `#[cfg(test)]`; the `#[cfg(test)]` modules
+  carry `#[allow(clippy::unwrap_used, clippy::expect_used)]`; every
+  `#[pyfunction]` boundary relies on pyo3's default `catch_unwind`; the file
+  is clean under `cargo clippy --all-features --all-targets` (the only
+  `--all-features` clippy errors are pre-existing in `board_py_bridge.rs`,
+  verified identical on `origin/main`).
+- R1h: **not physics-gated** — no CP-SAT constraint gates on a physics
+  quantity; the R24 discipline does not apply. Stated explicitly because the
+  ledger requires it.

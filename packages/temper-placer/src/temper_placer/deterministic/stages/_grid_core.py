@@ -105,20 +105,21 @@ class ClearanceGrid:
         """Check if a position is available for routing on specified layer."""
         if layer < 0 or layer >= self.layer_count:
             return False
-        row, col = self._mm_to_cell(x_mm, y_mm)
-        if 0 <= row < self.rows and 0 <= col < self.cols:
-            if net_id is None and net_name:
-                net_id = self.get_net_id(net_name)
-
-            # Check traces
-            t_id = self._trace_net_ids[layer][row, col]
-            if t_id != 0 and t_id != net_id:
-                return False
-
-            # Check pads
-            p_id = self._pad_net_ids[layer][row, col]
-            return not (p_id != 0 and p_id != net_id)
-        return False  # Out of bounds = blocked
+        if net_id is None and net_name:
+            net_id = self.get_net_id(net_name)
+        # The per-sample cell read is computed in temper-geometry
+        # (grid_leaf.rs) with the exact `int(x / cell)` truncation and
+        # net-transparency semantics of the former pure-Python body.
+        return _tg.grid_cell_available_py(
+            self._trace_net_ids[layer],
+            self._pad_net_ids[layer],
+            self.rows,
+            self.cols,
+            self.cell_size_mm,
+            x_mm,
+            y_mm,
+            net_id,
+        )
 
     def block_circle(
         self,
@@ -315,15 +316,20 @@ class ClearanceGrid:
         """Total blocked cells across all layers."""
         count = 0
         for layer in range(self.layer_count):
-            count += np.sum(self._trace_net_ids[layer] != 0)
-            count += np.sum(self._pad_net_ids[layer] != 0)
+            count += _tg.count_blocked_cells_py(
+                self._trace_net_ids[layer], self._pad_net_ids[layer]
+            )
         return int(count)
 
     def blocked_count_on_layer(self, layer: int) -> int:
         """Blocked cells on specific layer."""
         if layer < 0 or layer >= self.layer_count:
             return 0
-        return int(np.sum(self._trace_net_ids[layer] != 0) + np.sum(self._pad_net_ids[layer] != 0))
+        return int(
+            _tg.count_blocked_cells_py(
+                self._trace_net_ids[layer], self._pad_net_ids[layer]
+            )
+        )
 
     @property
     def blocked_cells(self) -> frozenset:

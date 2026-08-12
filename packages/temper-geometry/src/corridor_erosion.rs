@@ -285,9 +285,9 @@ pub(crate) mod tests {
         assert_eq!(mask[3 * w + 3], 1, "own-net pad centre must stay valid");
         // A free cell one step outside the pad, whose (2*1+1)=3-wide
         // window is entirely free-or-own-net: valid.
-        assert_eq!(mask[1 * w + 1], 1);
+        assert_eq!(mask[w + 1], 1);
         // Far corner, fully free: valid.
-        assert_eq!(mask[0 * w + 0], 1);
+        assert_eq!(mask[0], 1);
     }
 
     #[cfg_attr(test, test)]
@@ -308,9 +308,9 @@ pub(crate) mod tests {
         // (1,1)'s 3x3 window is rows/cols 0..=2 -- touches row 2, which is
         // the pad's own top edge starting at col 2 -- (1,1)'s window
         // reaches col 0..=2 too, so it touches grid[2][2] == 5: invalid.
-        assert_eq!(mask[1 * w + 1], 0);
+        assert_eq!(mask[w + 1], 0);
         // Far corner: still valid, its window never reaches the pad.
-        assert_eq!(mask[0 * w + 0], 1);
+        assert_eq!(mask[0], 1);
     }
 
     #[cfg_attr(test, test)]
@@ -322,7 +322,7 @@ pub(crate) mod tests {
         let w = 3;
         let h = 3;
         let mut grid = vec![0i8; w * h];
-        grid[1 * w + 1] = -1;
+        grid[w + 1] = -1;
         let mask = erode_free_mask(&grid, w, h, 5, 1);
         assert!(mask.iter().all(|&v| v == 0), "every cell's window touches the static obstacle");
     }
@@ -373,7 +373,7 @@ pub(crate) mod tests {
         // case (distance exactly 2) -- it is the DIAGONAL case above that
         // is the actual disc-vs-square discriminator; this one is just an
         // ordinary correctness check on the window bounds.
-        assert_eq!(mask[0 * w + 2], 0);
+        assert_eq!(mask[2], 0);
     }
 
     // -----------------------------------------------------------------

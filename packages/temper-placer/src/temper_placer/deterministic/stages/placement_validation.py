@@ -10,7 +10,9 @@ HV collector/emitter pins within 6mm (IEC 60335-1 creepage).
 The pure geometry + constraint kernels are implemented in Rust in the
 ``temper-drc-rs`` crate (Wave 4 **Phase 5, batch 2** — deterministic leaf
 stages): ``_point_to_segment_distance``, ``_validate_proximity`` and
-``_validate_signal_hv`` delegate to ``temper_drc_rs``.
+``_validate_signal_hv`` delegate to ``temper_drc_rs``. The parsed-pads
+``_get_pin_position`` offset resolution additionally delegates to
+``temper_drc_rs.resolve_pin_position_py`` (Wave 4 orchestration-port).
 
 Phase D batch D6 of the Rust Orchestration Engine plan (2026-08-09-001): the
 **run orchestration** (the no-board guard, the component-position extraction,
@@ -126,22 +128,14 @@ class PlacementValidationStage(Stage):
 
         Uses parsed_pads from KiCad parser for accurate pin positions.
         Falls back to component center if pin data not available.
+
+        The parsed-pads offset resolution (the pure compute) lives in the
+        ``temper_drc_rs.resolve_pin_position_py`` kernel (Wave 4
+        orchestration-port); this method is the marshalling shim.
         """
-        if component_ref not in component_positions:
-            return None
-
-        comp_pos = component_positions[component_ref]
-
-        # Look up pin offset from parsed pads
-        if component_ref in self.parsed_pads:
-            pads = self.parsed_pads[component_ref]
-            if pin in pads:
-                pad_info = pads[pin]
-                # Pad position is relative to component origin
-                return (comp_pos[0] + pad_info["x"], comp_pos[1] + pad_info["y"])
-
-        # Fallback to component center
-        return comp_pos
+        return _drc.resolve_pin_position_py(
+            component_ref, pin, component_positions, self.parsed_pads
+        )
 
     def _get_proximity_constraints(self):
         """Get proximity constraints from config."""

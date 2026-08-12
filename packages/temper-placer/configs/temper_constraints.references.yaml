@@ -53,12 +53,31 @@ provenance:
 # (measured 2026-07-30) predates the board resync and is stale for
 # driver/boot-diode/adc/mcu/buck/gate-resistor/burden identities; the
 # sheetpath match below is authoritative for the current board.
+#
+# Extended 2026-08-12 (docs/evidence/2026-08-12-thermal-emi-declaration-drift.md):
+# thermal_management.yaml uses its own spelling for four of the same
+# concepts already aliased above for temper_induction_cooker.yaml (U_RTD
+# vs. MAX31865, R_GATE_HIGH/R_GATE_LOW vs. R_GATE_H/R_GATE_L) plus one name
+# temper_induction_cooker.yaml never declared (TH_HEATSINK). Same sheetpath-
+# match method, same authority commit/board -- these are net-new key strings
+# resolving to already-verified targets below (U9, R23, R27), plus one new
+# target (R60, the heatsink NTC) not previously in this manifest.
 component_aliases:
   C_BUS1: C2       # power_in.c_bus1
   C_BUS2: C3       # power_in.c_bus2
   C_DC: C24        # hb.c_dc_hf
   C_BOOT: C17      # hb.gate_hs.boot_cap
   D_BOOT: U8       # hb.gate_hs.boot_diode
+  U_RTD: U9        # rtd_pan.adc -- thermal_management.yaml's own spelling of the MAX31865 alias below
+  TH_HEATSINK: R60 # safety.thermal.ntc (THM-01, "lug-mount on heatsink" per its own docstring
+                   # in elec/src/modules.ato:2408 -- modeled as a Resistor footprint, "Using
+                   # Resistor as NTC placeholder" per the same docstring, hence the R-prefix ref)
+  R_GATE_HIGH: R23 # hb.gate_hs.rg_on -- thermal_management.yaml's own spelling of R_GATE_H below
+  R_GATE_LOW: R27  # hb.gate_ls.rg_on -- thermal_management.yaml's own spelling of R_GATE_L below
+  C_VCC2: C17      # hb.gate_hs.boot_cap -- thermal_management.yaml's own inline comment ("#
+                   # Bootstrap cap") names this component; C17 is the only bootstrap cap in the
+                   # design (same target as C_BOOT above) -- there is exactly one, so this is not
+                   # a guess among candidates the way C_VCC1 (below, unresolved) would be
   MAX31865: U9     # rtd_pan.adc
   U_GATE: U7       # hb.gate_hs.driver
   U_GD: U7         # legacy validation.yaml spelling of U_GATE
@@ -95,6 +114,24 @@ unresolved_components:
   J_NTC: no source-backed connector instance
   J_USB: no source-backed connector instance
   J_DEBUG: no source-backed connector instance
+  R_SNUB: >-
+    thermal_management.yaml describes an IGBT commutation snubber ('dissipates heat during
+    switching... protect capacitor from electrolyte degradation'); the only real R/C snubber
+    pair in the source is discharge.r_snub1/r_snub2 (board refs R19/R20), a contact-arc snubber
+    across the bus-discharge relay contacts (elec/src/modules.ato lines 1258-1341), a different
+    circuit than the one described. Two equally unprivileged real candidates exist and neither
+    matches the stated intent -- not a rename.
+  C_SNUB: >-
+    same circuit-identity mismatch as R_SNUB -- the real pair is discharge.c_snub1/c_snub2
+    (board refs C7/C8), paired with the relay-contact snubber resistors above, not an IGBT
+    switching snubber cap.
+  C_VCC1: >-
+    paired in thermal_management.yaml with R_GATE_LOW as an implied low-side counterpart to
+    C_VCC2 (the high-side bootstrap cap, aliased above to C17). No such counterpart exists in
+    this half-bridge topology -- only the high side is a floating node that needs a bootstrap
+    supply, the low side references ground directly. The closest real candidates
+    (hb.c_vcci1/hb.c_vcci2, board refs C20/C21) are shared 3.3V logic-side decoupling for the
+    gate-driver IC, not a per-side gate-drive VCC cap -- picking one would be a guess.
 
 # auto_extract_loops() returns no production loop for the current netlist
 # (loop extraction fails on the missing bus-capacitor path; the source export

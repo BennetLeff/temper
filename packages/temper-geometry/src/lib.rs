@@ -93,6 +93,11 @@ pub use grid_raster::{
     clear_circle_from_grid_py, closest_component_for_zone_py, effective_creepage_py,
     fence_samples_py, occupancy_bitmap_row_py,
 };
+pub mod grid_leaf;
+#[cfg(feature = "python")]
+pub use grid_leaf::{
+    block_exclusion_zone_into_grid_py, count_blocked_cells_py, grid_cell_available_py,
+};
 #[cfg(feature = "python")]
 pub mod occupancy_raster;
 #[cfg(feature = "python")]

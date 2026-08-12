@@ -556,6 +556,133 @@ pub fn min_distance_to_polygon_py(
 }
 
 // ---------------------------------------------------------------------------
+// _phase_core.py — footprint radius / slot reservation / distance
+// ---------------------------------------------------------------------------
+
+/// A component's `bounds` carrying each dimension's concrete Python type.
+///
+/// The oracle (`_PhaseCoreMixin._get_footprint_radius`) computes `w ** 2` as
+/// exact integer pow when `bounds` holds ints and as libm `pow` when they are
+/// floats — the two differ in the last ulp (mirrors `deterministic_leaves`'
+/// component-assignment `Bounds` / `sq_dim`).
+#[derive(Clone, Copy, Debug)]
+pub struct FootprintBounds {
+    pub w_int: bool,
+    pub w: f64,
+    pub h_int: bool,
+    pub h: f64,
+}
+
+/// CPython `w ** 2` for a bounds dimension (int `**` int = exact int pow,
+/// then widened to float at the sum; float `**` 2 = libm `pow`).
+fn sq_dim(is_int: bool, v: f64) -> f64 {
+    if is_int {
+        let i = v as i64;
+        (i * i) as f64
+    } else {
+        crate::host_math::pow(v, 2.0)
+    }
+}
+
+/// `_PhaseCoreMixin._get_footprint_radius` — `math.sqrt(w**2 + h**2) / 2 +
+/// 1.0` over the component bounds, or `slot_spacing / 2.0` when the component
+/// has no bounds. `** 2` is libm `pow` / exact int pow per [`sq_dim`];
+/// `math.sqrt` is libm `sqrt`.
+pub fn footprint_radius(bounds: Option<FootprintBounds>, slot_spacing: f64) -> f64 {
+    match bounds {
+        Some(b) => {
+            let w2 = sq_dim(b.w_int, b.w);
+            let h2 = sq_dim(b.h_int, b.h);
+            crate::host_math::sqrt(w2 + h2) / 2.0 + 1.0
+        }
+        None => slot_spacing / 2.0,
+    }
+}
+
+/// `_PhaseCoreMixin._reserve_slots` — every slot whose Euclidean distance
+/// from `center` is `<= radius`, in `all_slots` order. The distance is
+/// `math.sqrt((sx - cx) ** 2 + (sy - cy) ** 2)` (`** 2` is libm `pow`).
+pub fn reserve_slots(
+    center: (f64, f64),
+    radius: f64,
+    all_slots: &[(f64, f64)],
+) -> Vec<(f64, f64)> {
+    let (cx, cy) = center;
+    all_slots
+        .iter()
+        .copied()
+        .filter(|&(sx, sy)| {
+            let dist = crate::host_math::sqrt(
+                crate::host_math::pow(sx - cx, 2.0) + crate::host_math::pow(sy - cy, 2.0),
+            );
+            dist <= radius
+        })
+        .collect()
+}
+
+/// `_PhaseCoreMixin._distance` — `math.sqrt((p1[0]-p2[0]) ** 2 +
+/// (p1[1]-p2[1]) ** 2)` (`** 2` is libm `pow`, `math.sqrt` is libm `sqrt`).
+pub fn distance(p1: (f64, f64), p2: (f64, f64)) -> f64 {
+    crate::host_math::sqrt(
+        crate::host_math::pow(p1.0 - p2.0, 2.0) + crate::host_math::pow(p1.1 - p2.1, 2.0),
+    )
+}
+
+/// Python-visible `footprint_radius(bounds, slot_spacing)` where `bounds` is
+/// a 2-element sequence (int or float elements) or `None`.
+#[pyfunction]
+pub fn footprint_radius_py(
+    bounds: Option<&Bound<'_, PyAny>>,
+    slot_spacing: f64,
+) -> PyResult<f64> {
+    guard(|| {
+        let b = match bounds {
+            None => None,
+            Some(seq) => {
+                let w = seq.get_item(0)?;
+                let h = seq.get_item(1)?;
+                Some(FootprintBounds {
+                    w_int: w.is_instance_of::<pyo3::types::PyInt>(),
+                    w: w.extract()?,
+                    h_int: h.is_instance_of::<pyo3::types::PyInt>(),
+                    h: h.extract()?,
+                })
+            }
+        };
+        Ok(footprint_radius(b, slot_spacing))
+    })
+}
+
+/// Python-visible `reserve_slots(center, radius, all_slots)` — the list of
+/// slots within `radius`, in `all_slots` order.
+#[pyfunction]
+pub fn reserve_slots_py<'py>(
+    py: Python<'py>,
+    center: (f64, f64),
+    radius: f64,
+    all_slots: &Bound<'py, PyAny>,
+) -> PyResult<Bound<'py, PyList>> {
+    guard(|| {
+        let mut flat: Vec<(f64, f64)> = Vec::new();
+        for s in all_slots.try_iter()? {
+            let s = s?;
+            flat.push((s.get_item(0)?.extract()?, s.get_item(1)?.extract()?));
+        }
+        let list = PyList::empty(py);
+        for (sx, sy) in reserve_slots(center, radius, &flat) {
+            list.append((sx, sy))?;
+        }
+        Ok(list)
+    })
+}
+
+/// Python-visible `distance(p1, p2)`.
+#[pyfunction]
+pub fn distance_py(p1: (f64, f64), p2: (f64, f64)) -> PyResult<f64> {
+    guard(|| Ok(distance(p1, p2)))
+}
+
+// ---------------------------------------------------------------------------
 // Registration
 // ---------------------------------------------------------------------------
 
@@ -571,6 +698,9 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(point_in_polygon_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(slot_intersects_iso_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(min_distance_to_polygon_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(footprint_radius_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(reserve_slots_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(distance_py, &sub)?)?;
     module.add_submodule(&sub)
 }
 
@@ -739,5 +869,49 @@ mod tests {
         // signed-zero ties keep the first.
         assert_eq!(py_list_min(&[0.0, -0.0]), 0.0);
         assert_eq!(py_list_min(&[-0.0, 0.0]), -0.0);
+    }
+
+    fn fb(w: f64, h: f64) -> Option<FootprintBounds> {
+        Some(FootprintBounds { w_int: false, w, h_int: false, h })
+    }
+
+    #[test]
+    fn footprint_radius_3_4_5() {
+        // sqrt(3**2 + 4**2)/2 + 1 = 5/2 + 1 = 3.5.
+        assert_eq!(footprint_radius(fb(3.0, 4.0), 12.0), 3.5);
+    }
+
+    #[test]
+    fn footprint_radius_no_bounds_falls_back_to_half_spacing() {
+        assert_eq!(footprint_radius(None, 12.0), 6.0);
+        assert_eq!(footprint_radius(None, 7.5), 3.75);
+    }
+
+    #[test]
+    fn footprint_radius_int_bounds_exact_pow() {
+        // int bounds: (6**2 + 8**2) == 100 exactly -> sqrt/2 + 1 == 6.0.
+        let b = FootprintBounds { w_int: true, w: 6.0, h_int: true, h: 8.0 };
+        assert_eq!(footprint_radius(Some(b), 12.0), 6.0);
+    }
+
+    #[test]
+    fn reserve_slots_within_radius() {
+        let slots = [(0.0, 0.0), (3.0, 4.0), (10.0, 10.0), (4.0, 3.0)];
+        let got = reserve_slots((0.0, 0.0), 5.0, &slots);
+        assert_eq!(got, vec![(0.0, 0.0), (3.0, 4.0), (4.0, 3.0)]);
+    }
+
+    #[test]
+    fn reserve_slots_exclusive_boundary() {
+        // Exactly at radius 5.0 is INCLUSIVE (<=).
+        let slots = [(3.0, 4.0), (6.0, 0.0)];
+        let got = reserve_slots((0.0, 0.0), 5.0, &slots);
+        assert_eq!(got, vec![(3.0, 4.0)]);
+    }
+
+    #[test]
+    fn distance_matches_pythagorean() {
+        assert_eq!(distance((0.0, 0.0), (3.0, 4.0)), 5.0);
+        assert_eq!(distance((1.0, 2.0), (1.0, 2.0)), 0.0);
     }
 }

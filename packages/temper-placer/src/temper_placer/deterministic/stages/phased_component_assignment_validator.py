@@ -12,9 +12,11 @@ Phase D batch D4 of the Rust Orchestration Engine plan 2026-08-09-001). The
 router_v6 ``StageDRCFailure`` construction stays Python: this shim wraps the
 Rust kernel's ``(field, value, reason)`` triples into the failure objects.
 
-``_flatten_slots`` / ``_infer_slot_spacing`` / ``_build_slot_index`` /
+``_infer_slot_spacing`` / ``_build_slot_index`` /
 ``_slots_within_radius`` stay as thin delegations to the already-Rust
-design-bundle kernels; ``_absolute_hv_pins`` / ``_creepage_mm`` stay Python
+design-bundle kernels; ``_flatten_slots`` delegates to
+``temper_drc_rs.flatten_zone_slots_py`` (Wave 4 orchestration-port);
+``_absolute_hv_pins`` / ``_creepage_mm`` stay Python
 (public module API exercised by ``tests/property/test_ghost_pad_injection.py``;
 the Rust kernel inlines the same computation, so the two cannot drift
 separately from the differential).
@@ -29,6 +31,7 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING
 
 import temper_design_bundle_python as _tdb
+import temper_drc_rs as _drc
 import temper_orchestration as _to
 
 if TYPE_CHECKING:
@@ -45,13 +48,13 @@ _RS = _tdb.deterministic_leaves
 
 
 def _flatten_slots(state) -> list[tuple[float, float]]:
-    """All grid slots from every zone in state.zone_slots."""
-    if not state.zone_slots:
-        return []
-    out: list[tuple[float, float]] = []
-    for _zone, slots in state.zone_slots:
-        out.extend(slots)
-    return out
+    """All grid slots from every zone in state.zone_slots.
+
+    The flatten (the pure compute) lives in the
+    ``temper_drc_rs.flatten_zone_slots_py`` kernel (Wave 4 orchestration-port);
+    this is the marshalling shim.
+    """
+    return _drc.flatten_zone_slots_py(state.zone_slots)
 
 
 def _infer_slot_spacing(slots: list[tuple[float, float]]) -> float:
