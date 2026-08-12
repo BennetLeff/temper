@@ -230,7 +230,25 @@
         "via_diameter": 1.2,
         "via_drill": 0.6,
         "wire_width": 6,
-        "description": "DC bus, switch node, resonant tank. 340V, 22A peak. Use copper pours."
+        "description": "DC bus and switch node. 340-400V, 22A peak. Use copper pours. Does NOT include the resonant tank cap<->coil junction -- see HighVoltageTank."
+      },
+      {
+        "bus_width": 12,
+        "clearance": 2.0,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "HighVoltageTank",
+        "pcb_color": "rgba(255, 64, 0, 1.000)",
+        "schematic_color": "rgba(255, 64, 0, 1.000)",
+        "track_width": 3.0,
+        "via_diameter": 1.2,
+        "via_drill": 0.6,
+        "wire_width": 6,
+        "description": "Resonant tank cap<->coil junction. 923.7V peak / 570.5Vrms measured, NOT rail-clamped. Clearance 2.0mm as HighVoltage; creepage 6.3mm (IEC 60335-1 Table 18 row vi, PD2) enforced by the 'HighVoltageTank functional creepage' rule in temper.kicad_dru."
       },
       {
         "bus_width": 12,
@@ -398,7 +416,7 @@
       "w1_2": "HighVoltage",
       "zcd": "HighVoltage",
       "tank-out": "HighVoltage",
-      "tank.c_tank1-p2": "HighVoltage",
+      "tank.c_tank1-p2": "HighVoltageTank",
       "power_in.ntc-no": "HighVoltage",
       "discharge.k_dis1-nc": "HighVoltage",
       "discharge.k_dis2-nc": "HighVoltage",
