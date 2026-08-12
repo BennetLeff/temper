@@ -938,7 +938,7 @@ pub(crate) mod tests {
             let idx = rng.index(27);
             if idx == 26 { '_' } else { (b'A' + idx as u8) as char }
         }
-        if seed % 3 == 0 {
+        if seed.is_multiple_of(3) {
             let len = rng.index(25);
             (0..len).map(|_| filler_char(&mut rng)).collect()
         } else {
@@ -1001,7 +1001,7 @@ pub(crate) mod tests {
     /// (3-7 cells each) with a layer change between runs.
     fn vc_gen_interesting_path(seed: u64) -> Vec<(i64, i64, i64)> {
         let mut rng = SplitMix64::new(seed);
-        if seed % 4 == 0 {
+        if seed.is_multiple_of(4) {
             let n = rng.index(16);
             (0..n)
                 .map(|_| (rng.range_i64(-100, 100), rng.range_i64(-100, 100), rng.range_i64(0, 4)))

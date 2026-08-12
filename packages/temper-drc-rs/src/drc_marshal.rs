@@ -1811,6 +1811,9 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 // ---------------------------------------------------------------------------
 
 #[cfg(test)]
+// Test-only assertions; unwrap/expect on a known-good fixture is the idiom
+// used throughout this crate's test modules (see e.g. board.rs, manufacturing.rs).
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 
