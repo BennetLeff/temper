@@ -154,8 +154,6 @@ mod parse_engine;
 #[cfg(feature = "python")]
 mod manufacturing_tolerances;
 #[cfg(feature = "python")]
-mod manufacturing_monte_carlo;
-#[cfg(feature = "python")]
 mod hypergraph_factory;
 
 #[cfg(feature = "python")]
@@ -463,12 +461,6 @@ mod python {
         // ported from temper_placer/manufacturing/tolerances.py (see
         // manufacturing_tolerances.rs).
         crate::manufacturing_tolerances::register(module)?;
-
-        // Wave 4 Phase 4 leftovers slice: the Monte-Carlo tolerance
-        // simulator ported from temper_placer/manufacturing/monte_carlo.py
-        // (see manufacturing_monte_carlo.rs — the numpy RNG/aggregation
-        // boundary is argued in that module's docstring).
-        crate::manufacturing_monte_carlo::register(module)?;
 
         // Wave 4 Phase 4 leftovers slice: the hypergraph factory ported
         // from temper_placer/extraction/hypergraph_factory.py (see

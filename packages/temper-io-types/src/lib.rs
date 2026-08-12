@@ -1,5 +1,5 @@
-// temper-io-types: KiCad PCB IO types (trace segments, vias, footprint
-// parsing, golden serializers).
+// temper-io-types: KiCad PCB IO types (trace segments, vias, golden
+// diff/serializers, reference aliases, stackup validation).
 //
 // This crate is split into a pure Rust core — plain structs and free
 // functions with no pyo3 dependency, compiling for `wasm32-unknown-unknown`
@@ -10,27 +10,14 @@
 //
 // What's genuinely pure now (see each module for detail):
 //   - export_types:      TraceSegment, TraceVia, ExportResult (data only)
-//   - footprint:          FootprintBounds + regex-based courtyard parsing
 //   - isolation:          isolation_slot_aabb (pure geometry)
-//   - golden_serializers: format_float/round6, SES text, violations/
-//                         connectivity JSON (via serde_json)
 //   - dsn_types:          DSN S-expression formatting (DsnArg/DsnExpressionData)
 //   - footprint_spec:     FootprintSpec (data only)
-//   - config_binding:     extract_config_refs / missing-ref diff (via
-//                         serde_json::Value in place of PyDict/PyList/PyTuple)
 //
 // What stays pyo3-only, and why (no pure core to extract):
-//   - golden_serializers::serialize_boardstate_to_dsn — calls back into a
-//     real Python class (`DSNExporter`) that implements the export
-//     algorithm itself; nothing in Python even imports the Rust
-//     DSNExpression/DSNRect/DSNCircle/DSNPath types instead.
 //   - zone_filler — shells out to a live Python interpreter + KiCad's
 //     `pcbnew` C++ extension via `subprocess`; there is no kernel to make
 //     pure, and wasm32 has neither a filesystem nor process spawning.
-//   - footprint::parse_footprint_directory / the file-reading half of
-//     parse_footprint_courtyard — `std::fs`, gated `not(target_arch =
-//     "wasm32")` rather than pure logic; the parsing itself
-//     (`parse_footprint_courtyard_str`) is pure and wasm32-exported.
 
 // WASM tier R1 (plan 2026-08-03-002): with `--no-default-features` the whole
 // pyo3 surface (`explain`, `report`, `reference_aliases`, `footprint_library`,
@@ -41,7 +28,6 @@
 // the lint.
 #![cfg_attr(not(feature = "python"), allow(dead_code))]
 
-pub mod config_binding;
 pub mod dag_expr;
 pub mod dsn;
 pub mod dsn_exporter;
@@ -54,14 +40,12 @@ pub mod dsn_types;
 #[cfg(feature = "python")]
 pub mod explain;
 pub mod export_types;
-pub mod footprint;
 // Wholly a pyo3 surface: `FootprintLibrary` is a `#[pyclass]` holding a
 // `Py<PyDict>` and `load_footprint_library` reads YAML by calling back into
 // Python's `yaml.safe_load`.  Nothing here exists without pyo3.
 #[cfg(feature = "python")]
 pub mod footprint_library;
 pub mod footprint_spec;
-pub mod golden_serializers;
 pub mod isolation;
 pub mod kicad_write_geometry;
 // Wave-4 tail-tooling migration: the regression golden-manifest path sets
@@ -141,26 +125,9 @@ pub mod golden_diff;
 #[cfg(feature = "python")]
 mod pymodule_def {
     use pyo3::prelude::*;
-    use pyo3::types::PyDict;
 
     #[pymodule]
     fn temper_io_types(m: &Bound<'_, PyModule>) -> PyResult<()> {
-        m.add(
-            "CURRENT_FORMAT_VERSION",
-            crate::golden_serializers::CURRENT_FORMAT_VERSION,
-        )?;
-
-        // Exceptions
-        m.add(
-            "FootprintParseError",
-            m.py().get_type::<crate::footprint::FootprintParseError>(),
-        )?;
-        m.add(
-            "ConfigBoardMismatchError",
-            m.py()
-                .get_type::<crate::config_binding::ConfigBoardMismatchError>(),
-        )?;
-
         // Which Cargo profile this extension was built with. The dag_expr
         // performance A/B reads it: an unoptimised build of the same code
         // measured 0.51x vs Python where the release build measures 2.70x,
@@ -182,7 +149,6 @@ mod pymodule_def {
         m.add_class::<crate::export_types::PyTraceSegment>()?;
         m.add_class::<crate::export_types::PyTraceVia>()?;
         m.add_class::<crate::export_types::PyExportResult>()?;
-        m.add_class::<crate::footprint::PyFootprintBounds>()?;
         m.add_class::<crate::dsn_types::DSNExpression>()?;
         m.add_class::<crate::dsn_exporter::PyDsnExporterCore>()?;
         m.add_class::<crate::dsn_types::PyDsnRect>()?;
@@ -195,31 +161,7 @@ mod pymodule_def {
         // Functions
         m.add_function(wrap_pyfunction!(crate::dag_expr::parse_skip_expr_rs, m)?)?;
         m.add_function(wrap_pyfunction!(
-            crate::footprint::parse_footprint_courtyard,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::footprint::parse_footprint_directory,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
             crate::isolation::isolation_slot_aabb_py,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::golden_serializers::serialize_boardstate_to_dsn,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::golden_serializers::serialize_boardstate_to_ses,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::golden_serializers::serialize_violations_to_json,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::golden_serializers::serialize_connectivity_to_json,
             m
         )?)?;
         m.add_function(wrap_pyfunction!(crate::dsn_types::dsn_list, m)?)?;
@@ -239,14 +181,6 @@ mod pymodule_def {
         )?)?;
         m.add_function(wrap_pyfunction!(
             crate::reference_aliases::load_reference_alias_manifest,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::config_binding::extract_config_refs_py,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::config_binding::verify_config_matches_netlist,
             m
         )?)?;
         // Wave-4 Phase 2 contract layer.
@@ -344,26 +278,6 @@ mod pymodule_def {
             crate::zone_filler::fill_zones_if_present,
             m
         )?)?;
-
-        // SERIALIZER_REGISTRY
-        let registry = PyDict::new(m.py());
-        registry.set_item(
-            "serialize_boardstate_to_dsn",
-            m.getattr("serialize_boardstate_to_dsn")?,
-        )?;
-        registry.set_item(
-            "serialize_boardstate_to_ses",
-            m.getattr("serialize_boardstate_to_ses")?,
-        )?;
-        registry.set_item(
-            "serialize_violations_to_json",
-            m.getattr("serialize_violations_to_json")?,
-        )?;
-        registry.set_item(
-            "serialize_connectivity_to_json",
-            m.getattr("serialize_connectivity_to_json")?,
-        )?;
-        m.add("SERIALIZER_REGISTRY", registry)?;
 
         // Wave 4 Phase 4 leftovers slice: the stackup validator ported from
         // temper_placer/manufacturing/stackup_validator.py (see
