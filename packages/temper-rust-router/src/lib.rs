@@ -208,7 +208,7 @@ mod py {
             conflict_limit,
             time_limit_ms,
         };
-        let mut result: TopologyResult = solver::solve_with_cadical(&cnf, &var_names, limits);
+        let mut result: TopologyResult = solver::solve_with_cadical(&cnf, limits);
         result.num_vars = num_vars;
         result.num_clauses = num_clauses;
         if phase_trace {

@@ -37,11 +37,24 @@ fn encode_at_most_k(
 
     // Register variables r[i][j] for i=0..n-2, j=0..k-1.
     // r[i][j]: at least j+1 of vars[0..i] are true.
+    //
+    // R1 (docs/plans/2026-08-12-004-feat-cnf-representation-plan.md): no
+    // per-variable `String` is formatted for these Sinz auxiliary
+    // variables -- `solve_with_cadical` never reads `encode_to_cnf`'s
+    // `var_names` output and `extract_topology`/`expand_assignments` only
+    // ever match a `"uses_"` prefix no aux name carries, so a formatted
+    // `"sc_r{i}_{j}"` name (measured 56.0 bytes/aux-var, 21.1 GB at full
+    // scale) was pure waste for those two consumers. `bmc.rs::bmc_verify`
+    // is the one real consumer that reads aux-var names -- it filters them
+    // out of the primary-variable set -- so it must keep working; it does,
+    // via `String::is_empty()` (an empty `String` never heap-allocates,
+    // unlike `format!(...)`, and every primary variable's name is
+    // guaranteed non-empty by `add_var_with_net`, `encoding.rs:91-106`).
     let r_start = var_map.len();
     for i in 0..(n - 1) {
         for j in 0..k {
             var_map.push(SatVariable::new(
-                format!("sc_r{i}_{j}"),
+                String::new(),
                 format!("seq-counter r{i}.{j}"),
             ));
         }

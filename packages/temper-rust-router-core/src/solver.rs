@@ -55,11 +55,11 @@ pub struct SolveLimits {
 }
 
 /// Solve the CNF formula using CaDiCaL via the rustsat trait interface.
-pub fn solve_with_cadical(
-    cnf: &CnfFormula,
-    _var_names: &[String],
-    limits: SolveLimits,
-) -> TopologyResult {
+///
+/// R1 (docs/plans/2026-08-12-004-feat-cnf-representation-plan.md): this
+/// used to take a `var_names: &[String]` parameter (underscore-prefixed,
+/// unused) -- deleted since nothing in this function ever read it.
+pub fn solve_with_cadical(cnf: &CnfFormula, limits: SolveLimits) -> TopologyResult {
     let start = Instant::now();
 
     // Guard: empty problems are trivially unsatisfiable.
@@ -281,7 +281,7 @@ mod tests {
     #[test]
     fn unbounded_default_solves_pigeonhole_to_completion() {
         let cnf = pigeonhole_cnf(6, 5);
-        let result = solve_with_cadical(&cnf, &[], SolveLimits::default());
+        let result = solve_with_cadical(&cnf, SolveLimits::default());
         assert_eq!(result.status, SolverStatus::Unsatisfiable);
         let stats = result.solver_stats.expect("stats must be present");
         assert!(
@@ -297,7 +297,7 @@ mod tests {
         // Self-calibrating: learn how many conflicts this CaDiCaL build
         // actually needs, rather than hard-coding a number that could
         // silently stop testing anything if the solver version changes.
-        let baseline = solve_with_cadical(&cnf, &[], SolveLimits::default());
+        let baseline = solve_with_cadical(&cnf, SolveLimits::default());
         let needed = baseline.solver_stats.expect("stats must be present").conflicts;
         assert!(needed > 0, "test precondition: instance must need real search");
 
@@ -307,7 +307,7 @@ mod tests {
             conflict_limit: Some(0),
             time_limit_ms: None,
         };
-        let bounded = solve_with_cadical(&cnf, &[], limits);
+        let bounded = solve_with_cadical(&cnf, limits);
         assert_eq!(
             bounded.status,
             SolverStatus::Unknown,
@@ -322,7 +322,7 @@ mod tests {
         // enough (measured, not assumed) that a 1ms bound is guaranteed to
         // be tighter than what solving actually requires.
         let cnf = pigeonhole_cnf(9, 8);
-        let baseline = solve_with_cadical(&cnf, &[], SolveLimits::default());
+        let baseline = solve_with_cadical(&cnf, SolveLimits::default());
         assert_eq!(baseline.status, SolverStatus::Unsatisfiable);
         assert!(
             baseline.solver_time_ms > 1.0,
@@ -335,7 +335,7 @@ mod tests {
             conflict_limit: None,
             time_limit_ms: Some(1),
         };
-        let bounded = solve_with_cadical(&cnf, &[], limits);
+        let bounded = solve_with_cadical(&cnf, limits);
         assert_eq!(
             bounded.status,
             SolverStatus::Unknown,
@@ -359,7 +359,7 @@ mod tests {
             conflict_limit: Some(1_000_000),
             time_limit_ms: Some(10_000),
         };
-        let result = solve_with_cadical(&cnf, &[], limits);
+        let result = solve_with_cadical(&cnf, limits);
         assert_eq!(result.status, SolverStatus::Satisfiable);
     }
 }

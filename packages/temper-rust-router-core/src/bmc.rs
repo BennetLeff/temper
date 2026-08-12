@@ -57,10 +57,17 @@ pub fn bmc_verify(
     // Encode without connectivity (constraints only).
     let (cnf, var_names) = encode_to_cnf(model);
 
-    // Identify primary variables: those NOT starting with "sc_" (aux vars).
+    // Identify primary variables: those with a non-empty name. Sinz
+    // sequential-counter auxiliary variables carry no name since R1 of
+    // docs/plans/2026-08-12-004-feat-cnf-representation-plan.md (an
+    // unformatted, non-allocating `String::new()` instead of a per-var
+    // `format!("sc_r{i}_{j}")`) -- every primary variable's name is
+    // guaranteed non-empty by `add_var_with_net`
+    // (`encoding.rs:91-106`), so emptiness is an equally reliable
+    // discriminator and costs nothing to check.
     let primary_names: Vec<String> = var_names
         .iter()
-        .filter(|n| !n.starts_with("sc_"))
+        .filter(|n| !n.is_empty())
         .cloned()
         .collect();
 

@@ -292,9 +292,11 @@ mod tests {
 
     /// Helper: encode, solve, return status.
     fn solve_model(model: &InternalConstraintModel) -> TopologyResult {
-        let (cnf, var_names) = encode_to_cnf(model);
+        // R1: encode_to_cnf's var_names is not needed by solve_with_cadical
+        // (it never read the parameter -- deleted).
+        let (cnf, _var_names) = encode_to_cnf(model);
         let limits = SolveLimits::default(); // unbounded for small models
-        let mut result = solve_with_cadical(&cnf, &var_names, limits);
+        let mut result = solve_with_cadical(&cnf, limits);
         result.num_vars = cnf.num_vars;
         result.num_clauses = cnf.clauses.len();
         result
@@ -443,13 +445,13 @@ mod tests {
         let model = build_toy_model_a();
         let (full_cnf, full_names) = encode_to_cnf(&model);
         let limits = SolveLimits::default();
-        let full_result = solve_with_cadical(&full_cnf, &full_names, limits);
+        let full_result = solve_with_cadical(&full_cnf, limits);
 
         let mut remove = HashSet::new();
         remove.insert("uses_N2_chA".to_string());
         let pruned = prune_model(&model, &remove);
         let (pruned_cnf, pruned_names) = encode_to_cnf(&pruned);
-        let pruned_result = solve_with_cadical(&pruned_cnf, &pruned_names, limits);
+        let pruned_result = solve_with_cadical(&pruned_cnf, limits);
 
         // Both should be SAT.
         assert_eq!(full_result.status, SolverStatus::Satisfiable);
