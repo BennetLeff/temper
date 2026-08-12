@@ -28,8 +28,6 @@ use pyo3::types::{PyAny, PyDict, PyList, PyModule, PySet, PyString, PyTuple};
 
 use temper_orchestration::{BoardState, PhasedAssignmentStage, PipelineConfig, PipelineRunner, ZoneAwareSlotGenerationStage};
 
-use temper_design_bundle::{Board, DesignRules, Netlist};
-
 const FAKE_MODULES: &str = r#"
 # Fake Python modules the D5 stages import at runtime (registered into
 # sys.modules by the test so `py.import(...)` resolves without the venv).
@@ -211,10 +209,10 @@ fn zone_state<'py>(
     } else {
         py_frozenset(py, vec![])?
     };
-    let board = py.get_type::<Board>().call1((100.0, 100.0))?.extract::<Py<Board>>()?;
+    let board = ns.getattr("FakeBoard")?.call0()?;
     let mut state = BoardState::new();
     state.zones = Some(zones.into_any().unbind());
-    state.board = Some(board);
+    state.board = Some(board.into_any().unbind());
     Ok(state)
 }
 
@@ -281,9 +279,7 @@ fn phased_state<'py>(
     let r1 = ns.getattr("FakeComponent")?.call1(("Q1", (2.0, 2.0), vec![&pin1]))?;
     let pin2 = ns.getattr("FakePin")?.call1(("1", 0.0, 0.0, "NET"))?;
     let r2 = ns.getattr("FakeComponent")?.call1(("C1", (2.0, 2.0), vec![&pin2]))?;
-    let netlist = py.get_type::<Netlist>().call0()?;
-    netlist.setattr("components", &PyList::new(py, [r1, r2])?)?;
-    let netlist = netlist.extract::<Py<Netlist>>()?;
+    let netlist = ns.getattr("FakeNetlist")?.call1((PyList::new(py, [r1, r2])?,))?;
     let czm = py_frozenset(
         py,
         vec![
@@ -295,11 +291,11 @@ fn phased_state<'py>(
     let zone_slots = py_frozenset(py, vec![pair(py, "Signal", slots)?])?;
 
     let mut state = BoardState::new();
-    state.netlist = Some(netlist);
+    state.netlist = Some(netlist.into_any().unbind());
     state.component_zone_map = Some(czm.into_any().unbind());
     state.zone_slots = Some(zone_slots.into_any().unbind());
     if let Some(dr) = design_rules {
-        state.design_rules = Some(dr.extract::<Py<DesignRules>>()?);
+        state.design_rules = Some(dr.clone().into_any().unbind());
     }
     Ok(state)
 }
@@ -357,13 +353,9 @@ fn phased_hv_rings_reserved() {
     Python::attach(|py| {
         install_fakes(py).unwrap();
         let ns = py.import("d5_fakes")?;
-        let fake_dr = ns.getattr("FakeDesignRules")?.call1((6.0_f64, "HV"))?;
-        let dr = py.get_type::<DesignRules>().call0()?;
-        dr.setattr("net_classes", fake_dr.getattr("net_classes")?)?;
-        dr.setattr("net_class_assignments", fake_dr.getattr("net_class_assignments")?)?;
-        let dr = dr.extract::<Py<DesignRules>>()?;
+        let dr = ns.getattr("FakeDesignRules")?.call1((6.0_f64, "HV"))?;
         let stage_obj = ns.getattr("FakeStage")?.call1((&dr,))?;
-        let state = phased_state(py, &ns, Some(dr.bind(py)))?;
+        let state = phased_state(py, &ns, Some(&dr))?;
 
         let mut runner = PipelineRunner::new(PipelineConfig::default());
         runner.add_stage(Box::new(PhasedAssignmentStage {

@@ -32,8 +32,6 @@ use temper_orchestration::{
     PipelineConfig, PipelineRunner,
 };
 
-use temper_design_bundle::Netlist;
-
 const FAKE_MODULES: &str = r#"
 # Fake Python modules the D1 stages import at runtime (registered into
 # sys.modules by the test so `py.import(...)` resolves without the venv).
@@ -158,34 +156,14 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     Ok(ns.into_any())
 }
 
-fn fake_netlist(py: Python<'_>, ns: &Bound<'_, PyAny>) -> Py<Netlist> {
-    // The fake Component/Net objects stay duck-typed (the stages read
-    // `netlist.components` / `netlist.nets` and reach into them); only the
-    // CONTAINER is the real design-bundle `Netlist` pyclass, because the
-    // BoardState field is now `Option<Py<Netlist>>`.
-    let comp = ns
-        .getattr("FakeComponent")
-        .expect("fake component")
-        .call1(("U1",))
-        .expect("construct fake component");
-    let comps = PyList::new(py, [comp]).expect("component list");
-    let net_a = ns
-        .getattr("FakeNet")
-        .expect("fake net")
-        .call1(("NET_A",))
-        .expect("construct fake net");
-    let net_b = ns
-        .getattr("FakeNet")
-        .expect("fake net")
-        .call1(("NET_B",))
-        .expect("construct fake net");
-    let nets = PyList::new(py, [net_a, net_b]).expect("net list");
-    let netlist = py.get_type::<Netlist>().call0().expect("construct netlist");
-    netlist
-        .setattr("components", &comps)
-        .expect("set components");
-    netlist.setattr("nets", &nets).expect("set nets");
-    netlist.extract::<Py<Netlist>>().expect("typed netlist")
+fn fake_netlist(py: Python<'_>, ns: &Bound<'_, PyAny>) -> Py<PyAny> {
+    let netlist = ns
+        .getattr("FakeNetlist")
+        .expect("fake netlist class")
+        .call0()
+        .expect("construct fake netlist");
+    let _ = py;
+    netlist.into_any().unbind()
 }
 
 fn string_tuple(py: Python<'_>, items: &[&str]) -> Py<PyAny> {
@@ -317,22 +295,15 @@ fn net_class_setup_mutates_in_place_and_returns_state() {
         let (out, report) = runner.run(state);
         assert!(!report.halted_early);
         // Netlist mutated in place; the state object is returned unchanged
-        // (same Py reference). The real Netlist's `apply_net_class_mapping`
-        // rewrites NET_A's net_class (the fake `mapping_applied` bookkeeping
-        // is gone with the fake container).
-        let nets = out
+        // (same Py reference).
+        let applied = out
             .netlist
             .as_ref()
             .unwrap()
             .bind(py)
-            .getattr("nets")
+            .getattr("mapping_applied")
             .unwrap();
-        let first = nets.get_item(0).unwrap();
-        assert_eq!(first.getattr("name").unwrap().extract::<String>().unwrap(), "NET_A");
-        assert_eq!(
-            first.getattr("net_class").unwrap().extract::<String>().unwrap(),
-            "Power"
-        );
+        assert_eq!(applied.len().unwrap(), 1);
         Ok::<(), PyErr>(())
     })
     .unwrap();

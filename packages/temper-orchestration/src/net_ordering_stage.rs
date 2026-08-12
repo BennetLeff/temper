@@ -26,9 +26,6 @@ use crate::derivation_stage::{pyerr_stage, stage_guard};
 use crate::stage::{Stage, StageError};
 
 #[cfg(feature = "python")]
-use temper_design_bundle::LoopCollection;
-
-#[cfg(feature = "python")]
 /// The net-ordering stage: netlist + loops -> `net_order`.
 #[derive(Debug, Clone)]
 pub struct NetOrderingStage {
@@ -48,18 +45,21 @@ impl Stage<BoardState> for NetOrderingStage {
                     Some(n) => n.clone_ref(py),
                     None => return Ok(state),
                 };
-                // loops = state.loops or LoopCollection() -- the empty
-                // fallback is the design-bundle `LoopCollection` pyclass
-                // itself (the `core.loop` module is a shim re-exporting it),
-                // so the fallback is built from the known Rust type directly.
-                let loops: Py<LoopCollection> = match &state.loops {
+                // loops = state.loops or LoopCollection()
+                let loops: Py<PyAny> = match &state.loops {
                     Some(l) => l.clone_ref(py),
-                    None => py
-                        .get_type::<LoopCollection>()
-                        .call0()
-                        .map_err(|e| pyerr_stage("net_ordering", e))?
-                        .extract::<Py<LoopCollection>>()
-                        .map_err(|e| pyerr_stage("net_ordering", e.into()))?,
+                    None => {
+                        let loop_collection = py
+                            .import("temper_placer.core.loop")
+                            .map_err(|e| pyerr_stage("net_ordering", e))?
+                            .getattr("LoopCollection")
+                            .map_err(|e| pyerr_stage("net_ordering", e))?;
+                        loop_collection
+                            .call0()
+                            .map_err(|e| pyerr_stage("net_ordering", e))?
+                            .into_any()
+                            .unbind()
+                    }
                 };
                 let order_nets = py
                     .import("temper_placer.router_v6.net_ordering")

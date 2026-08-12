@@ -28,8 +28,6 @@ use temper_orchestration::{
     StageOutcome,
 };
 
-use temper_design_bundle::{Board, Netlist};
-
 const FAKE_SOURCE: &str = r#"
 class FakeComp:
     def __init__(self, ref, w, h, zone='', net_class=''):
@@ -86,7 +84,7 @@ fn make<'py>(
     Ok(cls.call1(tuple)?.into_any().unbind())
 }
 
-fn standard_netlist(py: Python<'_>, module: &Bound<'_, PyModule>) -> PyResult<Py<Netlist>> {
+fn standard_netlist(py: Python<'_>, module: &Bound<'_, PyModule>) -> PyResult<Py<PyAny>> {
     // R1 20x10 in zone z1, U1 30x20, Q1 5x5 on the HV net class.
     let c1 = make(py, module, "FakeComp", &[s(py, "R1"), f(py, 20.0), f(py, 10.0), s(py, "z1")])?;
     let c2 = make(py, module, "FakeComp", &[s(py, "U1"), f(py, 30.0), f(py, 20.0)])?;
@@ -97,31 +95,7 @@ fn standard_netlist(py: Python<'_>, module: &Bound<'_, PyModule>) -> PyResult<Py
         &[s(py, "Q1"), f(py, 5.0), f(py, 5.0), s(py, ""), s(py, "HighVoltage")],
     )?;
     let comps = PyList::new(py, [c1, c2, c3])?;
-    real_netlist(py, comps.into_any().unbind())
-}
-
-/// Wrap a components list in the real design-bundle `Netlist` pyclass (the
-/// BoardState field is now `Option<Py<Netlist>>`; the component objects stay
-/// fake duck-typed so the stages' `netlist.components` reads resolve to them).
-fn real_netlist(py: Python<'_>, components: Py<PyAny>) -> PyResult<Py<Netlist>> {
-    let netlist = py.get_type::<Netlist>().call0()?;
-    netlist.setattr("components", components)?;
-    Ok(netlist.extract::<Py<Netlist>>()?)
-}
-
-/// Wrap the board dimensions + zones/keepouts in the real design-bundle
-/// `Board` pyclass (the BoardState field is now `Option<Py<Board>>`).
-fn real_board(
-    py: Python<'_>,
-    width: f64,
-    height: f64,
-    zones: Py<PyAny>,
-    keepouts: Py<PyAny>,
-) -> PyResult<Py<Board>> {
-    let board = py.get_type::<Board>().call1((width, height))?;
-    board.setattr("zones", zones)?;
-    board.setattr("keepouts", keepouts)?;
-    Ok(board.extract::<Py<Board>>()?)
+    make(py, module, "FakeNetlist", &[comps.into_any().unbind()])
 }
 
 fn empty_list(py: Python<'_>) -> Py<PyAny> {
@@ -198,12 +172,11 @@ fn preflight_stage_reports_kernel_results() {
 
         // Board 100x50 with one 10x10 zone (z1).
         let zone = make(py, &module, "FakeZone", &[s(py, "z1"), f(py, 10.0), f(py, 10.0)])?;
-        let board = real_board(
+        let board = make(
             py,
-            100.0,
-            50.0,
-            PyList::new(py, [zone])?.into_any().unbind(),
-            empty_list(py),
+            &module,
+            "FakeBoard",
+            &[f(py, 100.0), f(py, 50.0), empty_list(py), PyList::new(py, [zone])?.into_any().unbind()],
         )?;
         let netlist = standard_netlist(py, &module)?;
 
@@ -263,12 +236,11 @@ fn sequenced_pipeline_runs_both_stages() {
         let module = fakes(py).unwrap();
 
         let zone = make(py, &module, "FakeZone", &[s(py, "z1"), f(py, 10.0), f(py, 10.0)])?;
-        let board = real_board(
+        let board = make(
             py,
-            100.0,
-            50.0,
-            PyList::new(py, [zone])?.into_any().unbind(),
-            empty_list(py),
+            &module,
+            "FakeBoard",
+            &[f(py, 100.0), f(py, 50.0), empty_list(py), PyList::new(py, [zone])?.into_any().unbind()],
         )?;
         let netlist = standard_netlist(py, &module)?;
 

@@ -66,9 +66,6 @@ use crate::host_math;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
-#[cfg(feature = "python")]
-use temper_design_bundle::DesignRules;
-
 const STAGE_NAME: &str = "phased_component_assignment";
 const CORE_LOGGER_NAME: &str = "temper_placer.deterministic.stages._phase_core";
 
@@ -139,7 +136,7 @@ impl PhasedAssignmentStage {
         let mut state = state;
         let stage_dr = stage.getattr("design_rules")?;
         if !stage_dr.is_none() && state.design_rules.is_none() {
-            state.design_rules = Some(stage_dr.extract::<Py<DesignRules>>()?);
+            state.design_rules = Some(stage_dr.unbind());
         }
 
         let (domain_for_ref, domain_regions) = domain_lookups(py, &state)?;

@@ -118,7 +118,7 @@ impl ClearanceGridStage {
                 let all_pads = block_pads(
                     py,
                     &grid,
-                    nl.as_any(),
+                    nl,
                     &placements_dict,
                     &pad_sizes,
                     &net_class_clearances,
@@ -128,7 +128,7 @@ impl ClearanceGridStage {
                 hv_expansion(
                     py,
                     &grid,
-                    nl.as_any(),
+                    nl,
                     &placements_dict,
                     &pad_sizes,
                     &hv_zones,

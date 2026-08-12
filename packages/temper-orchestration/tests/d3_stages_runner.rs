@@ -30,8 +30,6 @@ use pyo3::types::{PyDict, PyModule};
 
 use temper_orchestration::{BoardState, PipelineConfig, PipelineRunner, ZoneGeometryStage};
 
-use temper_design_bundle::{Board, Netlist};
-
 const FAKE_MODULES: &str = r#"
 # Fake Python modules the D3 stage imports at runtime (registered into
 # sys.modules by the test so `py.import(...)` resolves without the venv).
@@ -342,24 +340,6 @@ fn py_list<'py>(py: Python<'py>, items: Vec<&Bound<'py, PyAny>>) -> PyResult<Bou
     Ok(list.into_any())
 }
 
-fn real_board(py: Python<'_>, width: f64, height: f64) -> PyResult<Py<Board>> {
-    Ok(py
-        .get_type::<Board>()
-        .call1((width, height))?
-        .extract::<Py<Board>>()?)
-}
-
-fn real_netlist(
-    py: Python<'_>,
-    components: &Bound<'_, PyAny>,
-    nets: &Bound<'_, PyAny>,
-) -> PyResult<Py<Netlist>> {
-    let netlist = py.get_type::<Netlist>().call0()?;
-    netlist.setattr("components", components)?;
-    netlist.setattr("nets", nets)?;
-    Ok(netlist.extract::<Py<Netlist>>()?)
-}
-
 #[test]
 fn clearance_grid_no_board_guard() {
     Python::initialize();
@@ -394,17 +374,19 @@ fn clearance_grid_single_stage_end_to_end() {
     Python::initialize();
     Python::attach(|py| {
         let ns = install_fakes(py).unwrap();
-        let board = real_board(py, 50.0, 50.0)?;
+        let board = ns.getattr("FakeBoard")?.call1((50.0, 50.0))?;
         let pin = ns.getattr("FakePin")?.call1(("1", 0.0, 0.0))?;
         let comp = ns
             .getattr("FakeComponent")?
             .call1(("Q1", 25.0, 25.0, py_list(py, vec![&pin])?))?;
         let net = ns.getattr("FakeNet")?.call1(("NET_A",))?;
-        let netlist = real_netlist(py, &py_list(py, vec![&comp])?, &py_list(py, vec![&net])?)?;
+        let netlist = ns
+            .getattr("FakeNetlist")?
+            .call1((py_list(py, vec![&comp])?, py_list(py, vec![&net])?))?;
 
         let mut state = BoardState::new();
-        state.board = Some(board);
-        state.netlist = Some(netlist);
+        state.board = Some(board.into_any().unbind());
+        state.netlist = Some(netlist.into_any().unbind());
 
         let mut runner = PipelineRunner::new(PipelineConfig::default());
         runner.add_stage(Box::new(temper_orchestration::ClearanceGridStage {
@@ -447,21 +429,23 @@ fn clearance_grid_hv_expansion_fence() {
     Python::initialize();
     Python::attach(|py| {
         let ns = install_fakes(py).unwrap();
-        let board = real_board(py, 50.0, 50.0)?;
+        let board = ns.getattr("FakeBoard")?.call1((50.0, 50.0))?;
         let pin = ns.getattr("FakePin")?.call1(("1", 0.0, 0.0))?;
         let comp = ns
             .getattr("FakeComponent")?
             .call1(("Q1", 25.0, 25.0, py_list(py, vec![&pin])?))?;
         let net = ns.getattr("FakeNet")?.call1(("HV", "HighVoltage"))?;
-        let netlist = real_netlist(py, &py_list(py, vec![&comp])?, &py_list(py, vec![&net])?)?;
+        let netlist = ns
+            .getattr("FakeNetlist")?
+            .call1((py_list(py, vec![&comp])?, py_list(py, vec![&net])?))?;
         let zone = ns
             .getattr("FakeHVZone")?
             .call1(("q1_zone", (25.0, 25.0), (10.0, 10.0), "Q1"))?;
         let zones = py_list(py, vec![&zone])?;
 
         let mut state = BoardState::new();
-        state.board = Some(board);
-        state.netlist = Some(netlist);
+        state.board = Some(board.into_any().unbind());
+        state.netlist = Some(netlist.into_any().unbind());
 
         let mut runner = PipelineRunner::new(PipelineConfig::default());
         runner.add_stage(Box::new(temper_orchestration::ClearanceGridStage {
@@ -497,13 +481,15 @@ fn clearance_grid_exclusion_zone_writes() {
     Python::initialize();
     Python::attach(|py| {
         let ns = install_fakes(py).unwrap();
-        let board = real_board(py, 50.0, 50.0)?;
+        let board = ns.getattr("FakeBoard")?.call1((50.0, 50.0))?;
         let pin = ns.getattr("FakePin")?.call1(("1", 0.0, 0.0))?;
         let comp = ns
             .getattr("FakeComponent")?
             .call1(("Q1", 25.0, 25.0, py_list(py, vec![&pin])?))?;
         let net = ns.getattr("FakeNet")?.call1(("NET_A",))?;
-        let netlist = real_netlist(py, &py_list(py, vec![&comp])?, &py_list(py, vec![&net])?)?;
+        let netlist = ns
+            .getattr("FakeNetlist")?
+            .call1((py_list(py, vec![&comp])?, py_list(py, vec![&net])?))?;
         // A zone with an excluded net -- the stage blocks the zone bbox with
         // net_id -2, which the tuple-indexed fake grid records.
         let zone = ns.getattr("FakeHVZone")?.call(
@@ -514,8 +500,8 @@ fn clearance_grid_exclusion_zone_writes() {
         let zones = py_list(py, vec![&zone])?;
 
         let mut state = BoardState::new();
-        state.board = Some(board);
-        state.netlist = Some(netlist);
+        state.board = Some(board.into_any().unbind());
+        state.netlist = Some(netlist.into_any().unbind());
 
         let mut runner = PipelineRunner::new(PipelineConfig::default());
         runner.add_stage(Box::new(temper_orchestration::ClearanceGridStage {
@@ -551,11 +537,11 @@ fn clearance_grid_exclusion_zone_writes() {
 fn clearance_grid_zone_pipeline_chain() {
     Python::initialize();
     Python::attach(|py| {
-        let _ns = install_fakes(py).unwrap();
-        let board = real_board(py, 100.0, 50.0)?;
+        let ns = install_fakes(py).unwrap();
+        let board = ns.getattr("FakeBoard")?.call1((100.0, 50.0))?;
 
         let mut state = BoardState::new();
-        state.board = Some(board);
+        state.board = Some(board.into_any().unbind());
 
         let mut runner = PipelineRunner::new(PipelineConfig::default());
         runner.add_stage(Box::new(ZoneGeometryStage { zone_config: None }));

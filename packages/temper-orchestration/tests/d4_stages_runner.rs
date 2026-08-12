@@ -36,8 +36,6 @@ use pyo3::types::{PyAny, PyDict, PyList, PyModule, PyString, PyTuple};
 
 use temper_orchestration::{BoardState, ComponentAssignmentStage, PipelineConfig, PipelineRunner};
 
-use temper_design_bundle::{DesignRules, Netlist};
-
 const FAKE_MODULES: &str = r#"
 # Fake Python modules the D4 stage / validator kernel import at runtime
 # (registered into sys.modules by the test so `py.import(...)` resolves
@@ -217,12 +215,12 @@ fn str_any<'py>(py: Python<'py>, s: &str) -> Bound<'py, PyAny> {
 
 fn assignment_state<'py>(
     py: Python<'py>,
-    _ns: &Bound<'py, PyAny>,
+    ns: &Bound<'py, PyAny>,
     components: Vec<Bound<'py, PyAny>>,
 ) -> PyResult<BoardState> {
-    let netlist = py.get_type::<Netlist>().call0()?;
-    netlist.setattr("components", &py_list(py, components.clone())?)?;
-    let netlist = netlist.extract::<Py<Netlist>>()?;
+    let netlist = ns
+        .getattr("FakeNetlist")?
+        .call1((py_list(py, components.clone())?,))?;
     let czm = py_frozenset(
         py,
         components
@@ -234,7 +232,7 @@ fn assignment_state<'py>(
     let zone_slots = py_frozenset(py, vec![pair(py, "Signal", slots.clone())?])?;
 
     let mut state = BoardState::new();
-    state.netlist = Some(netlist);
+    state.netlist = Some(netlist.into_any().unbind());
     state.component_zone_map = Some(czm.into_any().unbind());
     state.zone_slots = Some(zone_slots.into_any().unbind());
     Ok(state)
@@ -359,16 +357,13 @@ fn phased_validator_hv_kernel() {
         let comp = ns.getattr("FakeComponent")?.call1(("Q1", (10.0, 10.0), vec![&pin]))?;
         let pin2 = ns.getattr("FakePin")?.call1(("1", 0.0, 0.0, "VCC"))?;
         let comp2 = ns.getattr("FakeComponent")?.call1(("C1", (2.0, 2.0), vec![&pin2]))?;
-        let netlist = py.get_type::<Netlist>().call0()?;
-        netlist.setattr("components", &py_list(py, vec![comp, comp2])?)?;
-        let netlist = netlist.extract::<Py<Netlist>>()?;
-        let rules = py.get_type::<DesignRules>().call0()?;
+        let netlist = ns.getattr("FakeNetlist")?.call1((py_list(py, vec![comp, comp2])?,))?;
+        let rules = ns.getattr("FakeDesignRules")?.call1((PyDict::new(py), PyDict::new(py)))?;
         let hv_cls = ns.getattr("FakeNetClassRules")?.call1((6.0_f64, "HV"))?;
         rules.getattr("net_classes")?.call_method1("__setitem__", ("HighVoltage", &hv_cls))?;
         rules
             .getattr("net_class_assignments")?
             .call_method1("__setitem__", ("HV", "HighVoltage"))?;
-        let rules = rules.extract::<Py<DesignRules>>()?;
 
         let slots = py_tuple(
             py,
@@ -391,8 +386,8 @@ fn phased_validator_hv_kernel() {
         let used_slots = py_frozenset(py, vec![xy(py, 0.0, 0.0)?, xy(py, 5.0, 0.0)?])?;
 
         let mut state = BoardState::new();
-        state.netlist = Some(netlist);
-        state.design_rules = Some(rules);
+        state.netlist = Some(netlist.into_any().unbind());
+        state.design_rules = Some(rules.into_any().unbind());
         state.zone_slots = Some(zone_slots.into_any().unbind());
         state.placements = Some(placements.into_any().unbind());
         state.used_slots = Some(used_slots.into_any().unbind());
