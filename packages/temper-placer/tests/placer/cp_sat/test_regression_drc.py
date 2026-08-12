@@ -654,11 +654,18 @@ PRODUCTION_BOARD_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 # #690/#711 (7e3608bc2).  This is the first shape change since the gate went
 # masked 2026-07-30 (continue-on-error), which is why it went unnoticed for
 # ~12 days — the un-mask (wasm/router-unmask) surfaced it.
+#
+# 2026-08-11 (feat/board-sync-and-placement): footprints 169 -> 168 (7
+# stale ZCD-opto components removed, 6 OCP-02/pan-probe components added,
+# net -1; docs/evidence/2026-08-11-schematic-elec-drift.md), segments/
+# vias/zones 2290/48/96 -> 0/0/0 (existing copper stripped before writing
+# a fresh Pumpkin placement -- see the PRODUCTION_COMMITTED_BOARD_* block
+# below for the full re-measurement this shape change requires and got).
 PRODUCTION_BOARD_BASELINE_SHAPE = {
-    "footprints": 169,
-    "segments": 2290,
-    "vias": 48,
-    "zones": 96,
+    "footprints": 168,
+    "segments": 0,
+    "vias": 0,
+    "zones": 0,
 }
 
 # KiCad's DRC is not reproducible run-to-run on this board: docs/STRATEGY.md
@@ -823,9 +830,36 @@ PRODUCTION_DRC_SAMPLE_RUNS = 5
 # before) — plus the netclass-reclassification context on main already
 # sitting at 1264 vs the then-threshold 1283 (+19 headroom).  `shorting`
 # does NOT move: written worst median-of-5 138 still clears 141.
-PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1425
-PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 141
-PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 428
+#
+# 2026-08-11 (feat/board-sync-and-placement): board reconciled (7 stale
+# ZCD-opto components removed, 6 OCP-02/pan-probe components added --
+# docs/evidence/2026-08-11-schematic-elec-drift.md) and re-placed with a
+# fresh Pumpkin CP-SAT solve (the isolation barrier hard-constrained for
+# 7 of 8 isolators; see power_pcb_dataset/drc_ceiling.json's own
+# 2026-08-11-board-sync-and-placement _march entry for the full
+# accounting). Existing copper stripped before writing -- this is once
+# again a PLACEMENT-ONLY board (0 segments/vias/zones, matching the
+# pre-2026-07-27 shape this module's own header comment warns against
+# silently comparing to a with-copper budget), so the shape guard below
+# updates footprints/segments/vias/zones together, not just footprints.
+# Measured: 120 samples (kicad-cli 10.0.5, --all-track-errors) gave
+# shorting_items=1/1 (zero scatter) and unconnected_items=382/382 (zero
+# scatter); total DRC count (all severities, matching this module's own
+# `_drc_median` -- errors + warnings) has median 777 (errors 126-128
+# median 128 across all 120 runs + warnings 649/649 deterministic,
+# cross-checked directly against 3 in-place kicad-cli runs each reporting
+# "Found 777 violations" verbatim). All three numbers below are large,
+# real FALLS from the prior committed-board baseline (1425/141/428) --
+# attributable to the isolation-barrier-constrained re-placement
+# (creepage-driven falls dominate the total) and to the board no longer
+# carrying any committed-but-largely-non-functional routing copper (see
+# docs/evidence/2026-08-11-pad-connectivity-ground-truth.md's "0 of 110
+# nets fully connected" finding on the OLD, routed board -- this number
+# does not regress that finding, it removes copper that was not actually
+# closing those connections either).
+PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 777
+PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 1
+PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 382
 
 # --- Category B: kicad-cli DRC on route_pcb()'s output for that board ---
 # RE-MEASURED 2026-07-29 (kicad-cli 10.0.4, macOS arm64), against the shape
