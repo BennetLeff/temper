@@ -271,8 +271,29 @@ subject, not this one's.
   arms' `variables`, `constraints`, `net_channel_vars`,
   `bundle_channel_vars` and `via_vars` field-by-field and bit-exactly
   (`float.hex()`).
-- Full `pytest packages/temper-placer/tests/router_v6/` run on both sides of
-  the change: identical failure sets (see §Pre-existing failures).
+- Full `pytest packages/temper-placer/tests/router_v6/` on both sides.
+  `origin/main`: **25 failed, 6512 passed, 19 skipped, 23 xfailed**. All 25
+  are pre-existing and untouched by this change — `bundle_analyzer` (8) and
+  `bundle_analyzer_rust_differential` (2) hit
+  `'Graph' object has no attribute 'edges_with_data'` (a `networkx.Graph`
+  fixture against the Rust `SkeletonGraph` API), `channel_skeleton_bridging`
+  (6) + `channel_skeleton_radius_pairs` (1) + `coverage_paydown_wave3_f` (3),
+  `bundled_full_pipeline` (1), `phase1_anti_false_zero` (3, environment),
+  `topology_copper_audit` (1).
+  This branch: the run was interrupted at 93% by the monolithic-route OOM
+  described below, so the comparison was completed two ways rather than
+  waved through —
+  (a) a **per-test status diff** over the 224 modules both runs reached
+  (parsing pytest's `-q` `.`/`F`/`s`/`x` stream, not just the summary):
+  **zero differences**, except `phase1_anti_false_zero.py`
+  (`..FF...F..s` → `...F......s`, i.e. *two fewer* failures — those tests
+  shell out to `kicad-cli` and the `origin/main` run shared the machine
+  with a board route) and the OOM-killed module itself; and
+  (b) the 36 modules the killed run never reached, re-run on this build:
+  **393 passed, 1 failed**, that one being
+  `test_topology_copper_audit.py::test_real_policy_predicates_no_longer_orphan_the_measured_power_ground_nets`
+  — already in `origin/main`'s failure list.
+  **No new failure is attributable to this change.**
 
 ## The monolithic path is unbounded on both sides — checked, not assumed
 
