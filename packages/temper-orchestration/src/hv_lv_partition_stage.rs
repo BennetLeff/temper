@@ -103,12 +103,12 @@ impl HvLvPartitionStage {
             let board = state
                 .board
                 .as_ref()
-                .map(|b| b.bind(py).clone())
+                .map(|b| b.bind(py).clone().into_any())
                 .unwrap_or_else(|| py.None().into_bound(py));
             let netlist = state
                 .netlist
                 .as_ref()
-                .map(|n| n.bind(py).clone())
+                .map(|n| n.bind(py).clone().into_any())
                 .unwrap_or_else(|| py.None().into_bound(py));
 
             // `rules = _rules_by_net(state)` -- inlined duck-typed read.

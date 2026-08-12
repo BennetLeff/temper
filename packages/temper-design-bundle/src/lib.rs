@@ -236,6 +236,20 @@ mod sexpr;
 #[cfg(feature = "wasm-registry")]
 pub mod wasm_test_registry;
 
+// Orchestration plan U-A (BoardState Tier-1 downcasts): re-export the four
+// contract pyclasses that `temper-orchestration` now names as concrete
+// `Py<Board>` / `Py<Netlist>` / `Py<LoopCollection>` / `Py<DesignRules>`
+// field types. The modules are private (`mod ...`) so the types need an
+// explicit `pub use` to be nameable outside this crate.
+#[cfg(feature = "python")]
+pub use board_contracts::Board;
+#[cfg(feature = "python")]
+pub use netlist_contracts::Netlist;
+#[cfg(feature = "python")]
+pub use loops::LoopCollection;
+#[cfg(feature = "python")]
+pub use design_rules::DesignRules;
+
 pub use atopile::{
     AtopileComponent, AtopileExport, AtopileNet, MappingEntry, NetMapping, SafetyRule,
 };

@@ -28,6 +28,9 @@ use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
+#[cfg(feature = "python")]
+use temper_design_bundle::Netlist;
+
 /// The apply-placements stage: netlist + placements -> netlist with
 /// `initial_position` synced from the placements frozenset.
 #[derive(Debug, Clone, Default)]
@@ -96,7 +99,7 @@ impl ApplyPlacementsStage {
         let new_netlist = replace.call((&netlist,), Some(&nl_kwargs))?;
 
         let mut new_state = state;
-        new_state.netlist = Some(new_netlist.into_any().unbind());
+        new_state.netlist = Some(new_netlist.extract::<Py<Netlist>>()?);
         Ok(new_state)
     }
 }

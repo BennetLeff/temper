@@ -34,6 +34,8 @@ use temper_orchestration::{
     ZoneGeometryStage,
 };
 
+use temper_design_bundle::{Board, Netlist};
+
 const FAKE_MODULES: &str = r#"
 # Fake Python modules the D2 stages import at runtime (registered into
 # sys.modules by the test so `py.import(...)` resolves without the venv).
@@ -107,12 +109,22 @@ fn three_stages_sequence_end_to_end() {
     Python::initialize();
     Python::attach(|py| {
         let ns = install_fakes(py).unwrap();
-        let board = ns.getattr("FakeBoard").unwrap().call1((100.0, 50.0)).unwrap();
-        let netlist = ns.getattr("FakeNetlist").unwrap().call0().unwrap();
+        let board = py.get_type::<Board>().call1((100.0, 50.0)).unwrap().extract::<Py<Board>>().unwrap();
+        let comps = PyList::new(
+            py,
+            [
+                ns.getattr("FakeComp").unwrap().call1(("Q1",)).unwrap(),
+                ns.getattr("FakeComp").unwrap().call1(("R1",)).unwrap(),
+            ],
+        )
+        .unwrap();
+        let netlist = py.get_type::<Netlist>().call0().unwrap();
+        netlist.setattr("components", &comps).unwrap();
+        let netlist = netlist.extract::<Py<Netlist>>().unwrap();
 
         let mut state = BoardState::new();
-        state.board = Some(board.into_any().unbind());
-        state.netlist = Some(netlist.into_any().unbind());
+        state.board = Some(board);
+        state.netlist = Some(netlist);
 
         let mut runner = PipelineRunner::new(PipelineConfig::default());
         runner.add_stage(Box::new(ZoneGeometryStage { zone_config: None }));

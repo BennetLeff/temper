@@ -104,7 +104,7 @@ impl ComponentAssignmentStage {
         let (domain_for_ref, domain_regions) = domain_lookups(py, &state)?;
         let placements = assign_inner(
             py,
-            &netlist,
+            netlist.as_any(),
             &czm_dict,
             &zs_dict,
             &self.fixed_placements,

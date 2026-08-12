@@ -32,6 +32,8 @@ use temper_orchestration::{
     LayerAssignmentStage, PipelineConfig, PipelineRunner, PowerPlaneStage,
 };
 
+use temper_design_bundle::{Board, Netlist};
+
 const FAKE_MODULES: &str = r#"
 # Fake Python modules the D7 stages import at runtime (registered into
 # sys.modules by the test so `py.import(...)` resolves without the venv).
@@ -57,11 +59,27 @@ class FakeNet:
     def __init__(self, name, net_class=None):
         self.name = name
         self.net_class = net_class
+        # The real `Netlist` constructor computes its indices by reading
+        # `net.pins` (each entry unpacked as `(ref, _)`); the fake net needs
+        # the attribute so the reconstruction path doesn't diverge.
+        self.pins = []
 
 @dataclass
 class FakeNetlist:
     components: list
     nets: list
+
+# `dataclasses.replace()` on the real `Netlist` pyclass needs a
+# `__dataclass_fields__` mapping; in production `core/netlist.py` installs it
+# via `_contract_dataclass_compat`. The test replicates that with a throwaway
+# dataclass whose field list matches the pyclass constructor.
+@dataclass
+class _NetlistProto:
+    components: object = None
+    nets: object = None
+    _component_index: object = None
+    _net_index: object = None
+    _component_nets: object = None
 
 class FakeVia:
     def __init__(self, **kwargs):
@@ -288,7 +306,7 @@ fn netlist<'py>(
     ns: &Bound<'py, PyAny>,
     components: Vec<Bound<'py, PyAny>>,
     nets: Vec<(&str, Option<&str>)>,
-) -> PyResult<Bound<'py, PyAny>> {
+) -> PyResult<Py<Netlist>> {
     let comps = PyTuple::new(py, components)?;
     let net_objs = PyTuple::new(
         py,
@@ -296,7 +314,17 @@ fn netlist<'py>(
             .map(|(name, nc)| ns.getattr("FakeNet")?.call1((name, nc)))
             .collect::<PyResult<Vec<_>>>()?,
     )?;
-    ns.getattr("FakeNetlist")?.call1((comps, net_objs))
+    let netlist = py.get_type::<Netlist>().call0()?;
+    netlist.setattr("components", &comps)?;
+    netlist.setattr("nets", &net_objs)?;
+    // Install `__dataclass_fields__` so `dataclasses.replace()` (used by the
+    // apply_placements stage to rebuild the netlist) accepts the pyclass.
+    let netlist_cls = py.get_type::<Netlist>();
+    netlist_cls.setattr(
+        "__dataclass_fields__",
+        ns.getattr("_NetlistProto")?.getattr("__dataclass_fields__")?,
+    )?;
+    Ok(netlist.extract::<Py<Netlist>>()?)
 }
 
 fn py_frozenset<'py>(py: Python<'py>, items: Vec<Bound<'py, PyAny>>) -> PyResult<Bound<'py, PyAny>> {
@@ -331,7 +359,7 @@ fn fine_pitch_escape_appends_escape_vias() {
         let nl = netlist(py, &ns, vec![u1], vec![("GATE_H", Some("Signal"))])?;
         let stage_obj = ns.getattr("FakeFinePitchStage")?.call0()?;
         let mut state = BoardState::new();
-        state.netlist = Some(nl.into_any().unbind());
+        state.netlist = Some(nl);
         state.placements = Some(
             py_frozenset(
                 py,
@@ -379,8 +407,8 @@ fn hv_lv_partition_writes_domains_and_guards() {
         // Ok path: domain map + corridors + regions written. The fake
         // guard_strip returns polygons, so the write-back fires.
         let mut state2 = BoardState::new();
-        state2.netlist = Some(nl.into_any().unbind());
-        state2.board = Some(py_dict(py, vec![])?.unbind());
+        state2.netlist = Some(nl);
+        state2.board = Some(py.get_type::<Board>().call1((100.0, 100.0))?.extract::<Py<Board>>()?);
         state2.drc_oracle = Some(py_dict(py, vec![])?.unbind());
         let mut r2 = PipelineRunner::new(PipelineConfig::default());
         r2.add_stage(Box::new(HvLvPartitionStage));
@@ -404,7 +432,7 @@ fn power_plane_marks_plane_nets() {
         let nl = netlist(py, &ns, vec![q1], vec![("DC_BUS+", Some("HV")), ("GND", Some("Ground"))])?;
 
         let mut state = BoardState::new();
-        state.netlist = Some(nl.into_any().unbind());
+        state.netlist = Some(nl);
         state.layer_assignments = Some(py_frozenset(py, vec![])?.into_any().unbind());
         let stage_obj = ns.getattr("FakePowerPlaneStage")?.call0()?;
 
@@ -429,7 +457,7 @@ fn layer_assignment_writes_assignments() {
         let nl = netlist(py, &ns, vec![r1], vec![("SIG", Some("Signal"))])?;
 
         let mut state = BoardState::new();
-        state.netlist = Some(nl.into_any().unbind());
+        state.netlist = Some(nl);
         let stage_obj = ns.getattr("FakeLayerAssignmentStage")?.call0()?;
 
         let mut r = PipelineRunner::new(PipelineConfig::default());
@@ -452,7 +480,7 @@ fn apply_placements_syncs_initial_positions_and_guards() {
 
         // Guard: no placements -> state untouched (identity).
         let mut state = BoardState::new();
-        state.netlist = Some(netlist(py, &ns, vec![], vec![])?.into_any().unbind());
+        state.netlist = Some(netlist(py, &ns, vec![], vec![])?);
         let mut r = PipelineRunner::new(PipelineConfig::default());
         r.add_stage(Box::new(ApplyPlacementsStage));
         let (out, report) = r.run(state);
@@ -463,7 +491,7 @@ fn apply_placements_syncs_initial_positions_and_guards() {
         let r1 = comp(py, &ns, "R1", vec![pin(py, &ns, "1", 0.0, 0.0, "A")?], (1.0, 1.0))?;
         let nl = netlist(py, &ns, vec![r1], vec![("A", Some("Signal"))])?;
         let mut state2 = BoardState::new();
-        state2.netlist = Some(nl.into_any().unbind());
+        state2.netlist = Some(nl);
         state2.placements = Some(
             py_frozenset(
                 py,
