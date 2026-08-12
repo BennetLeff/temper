@@ -23,6 +23,8 @@ N = 2,044,900 that is exactly the production **per-batch** model shape:
 ``DEFAULT_BATCH_SIZE = 10`` nets over the board's 204,490-edge skeleton.
 
 Usage:  python3 docs/evidence/2026-08-12-router-model-memory-probe-distinct-keys.py [N]
+
+provenance: commit=08ea097d505c78c6437581c150ebfba71d725445 dirty=false
 """
 
 import gc
