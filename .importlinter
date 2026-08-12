@@ -9,6 +9,11 @@
 [importlinter]
 root_packages =
     temper_placer
+# Required for the no-scipy/no-networkx forbidden-external-module contracts
+# below -- import-linter only builds external packages into its graph (so a
+# forbidden_modules entry outside root_packages can be checked at all) when
+# this is set. See docs/evidence/2026-08-12-migration-reversal-sweep.md.
+include_external_packages = True
 
 # R2: core/ must not import from router_v6/ (router_v6 may use core types).
 [importlinter:contract:core-isolated-from-router-v6]
@@ -139,3 +144,25 @@ forbidden_modules =
 as_packages = False
 ignore_imports =
     temper_placer.router_v6.* -> temper_placer.router_v6.*
+
+# Prevention gate for migration reversals: scipy and networkx were fully
+# migrated off temper_placer's production code (see
+# docs/evidence/2026-08-12-migration-reversal-sweep.md). Both are provably
+# at ZERO production usage as of this contract landing, so this is a
+# ratchet-at-zero, not a partial allowlist -- no per-symbol registry to
+# maintain or let drift; any future re-introduction is a hard failure.
+[importlinter:contract:no-scipy-in-temper-placer]
+name = no-scipy-in-temper-placer
+type = forbidden
+source_modules =
+    temper_placer
+forbidden_modules =
+    scipy
+
+[importlinter:contract:no-networkx-in-temper-placer]
+name = no-networkx-in-temper-placer
+type = forbidden
+source_modules =
+    temper_placer
+forbidden_modules =
+    networkx

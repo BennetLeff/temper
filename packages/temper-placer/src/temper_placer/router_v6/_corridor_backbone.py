@@ -66,6 +66,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
+import temper_geometry as _tg
 from shapely import contains, points
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
@@ -476,6 +477,37 @@ def route_edge_astar(
     return None
 
 
+def _connected_components_8(mask: np.ndarray) -> np.ndarray:
+    """8-connected component labeling, delegating to
+    ``temper_geometry.connected_components_8_transform`` (Rust two-pass
+    union-find raster scan) -- the same migration
+    ``routability_check._connected_components_8`` already made for
+    ``check_routability_cc`` (see
+    ``docs/evidence/2026-08-07-rust-connected-components-spike.md``:
+    measured exact partition AND numeric-label agreement against
+    ``scipy.ndimage.label(mask, structure=np.ones((3, 3)))`` across ~8.9M
+    curated + random cells, 0 mismatches).
+
+    Only the label ARRAY is returned (not ``num_features``) -- this
+    module's only consumers, ``corridor_aware_spanning_edges`` and
+    ``_nearest_label``, use labels purely as partition/equality markers
+    (grouping positions that share a label, or picking the first nonzero
+    label in a geometric scan window); neither depends on specific label
+    *values* or on scipy's left-to-right/top-to-bottom numbering
+    convention, so the (measured, not just asserted) partition-equivalence
+    with scipy is the only property this call site relies on.
+
+    ``mask`` must already be the desired boolean/uint8-castable array;
+    this function does not renormalize dtype. Returns an ``int32`` array,
+    same shape as ``mask``, ``0`` for background and ``1..=num_features``
+    for foreground components.
+    """
+    h, w = mask.shape
+    mask_u8 = np.ascontiguousarray(mask, dtype=np.uint8)
+    out_bytes, _num_features = _tg.connected_components_8_transform(mask_u8.tobytes(), h, w)
+    return np.frombuffer(out_bytes, dtype="<i4").reshape(h, w)
+
+
 def corridor_aware_spanning_edges(
     positions: list[tuple[float, float]],
     grid: OccupancyGrid,
@@ -505,7 +537,7 @@ def corridor_aware_spanning_edges(
     all.
 
     **What this does instead:** labels `corridor_mask`'s own connected
-    components (`scipy.ndimage.label`, 8-connectivity), assigns each
+    components (`_connected_components_8`, Rust, 8-connectivity), assigns each
     position to whichever component it lands in, and computes a Euclidean
     MST *within each component's own subset* -- i.e. it only ever asks
     A* to solve edges between positions that the mask's own connectivity
@@ -546,10 +578,7 @@ def corridor_aware_spanning_edges(
     fallback to stitch different components together and to cover any
     edges this function's own bounded search could not close.
     """
-    from scipy.ndimage import label
-
-    structure = np.ones((3, 3), dtype=int)
-    labels, _n_components = label(corridor_mask, structure=structure)
+    labels = _connected_components_8(corridor_mask)
 
     def _nearest_label(cx: int, cy: int) -> int:
         if labels[cy, cx] != 0:
