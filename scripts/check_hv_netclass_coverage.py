@@ -952,7 +952,7 @@ def _print_report(state: str, report: Report) -> None:
             print(f"    VIOLATION {msg}")
 
         print(
-            f"\n=== PROPERTY 4 (BLOCKING): SELV-domain nets vs pcb/temper.kicad_pro's "
+            "\n=== PROPERTY 4 (BLOCKING): SELV-domain nets vs pcb/temper.kicad_pro's "
             "REAL netclass_assignments ==="
         )
         print(f"  off-board SELV-domain nets: {len(report.selv_domain_nets_off_board)}")
