@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-
 from temper_design_bundle_python import (
     DistributionParams,
     ManufacturingVariables,

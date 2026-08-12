@@ -3,10 +3,6 @@
 import json
 
 import pytest
-
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.deterministic.state import BoardState
 from temper_io_types import (
     CURRENT_FORMAT_VERSION,
     SERIALIZER_REGISTRY,
@@ -15,6 +11,10 @@ from temper_io_types import (
     serialize_connectivity_to_json,
     serialize_violations_to_json,
 )
+
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.deterministic.state import BoardState
 
 
 def _make_minimal_state():
