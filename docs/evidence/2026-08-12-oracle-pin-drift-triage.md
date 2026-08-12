@@ -86,10 +86,11 @@ faithful, verified lock-step oracle edit.
 - `uv run --no-sync python scripts/check_oracle_hashes.py` → clean
   (0 drifted, 0 unregistered).
 - `uv run python scripts/import_linter_gate.py` → passes.
-- Differential suites for all three re-pinned oracles run green:
-  `tests/core/test_design_rules_rust_differential.py`,
-  `tests/regression/test_measure_closure_rust_differential.py`,
-  `tests/validation/test_placement_roundtrip_rust_differential.py`.
+- Differential suites for the re-pinned oracles: measure_closure and
+  placement_roundtrip run fully green (67 passed total across all three
+  files); design_rules' parity assertion passes (Rust and oracle
+  bit-identical, 12 net classes incl. HighVoltageTank) with one
+  pre-existing stale count literal failing — see the finding below.
 
 ## Unrelated pre-existing drifts (NOT touched, out of scope)
 
@@ -99,3 +100,18 @@ the base commit: `gen_repo_state.py` (repo-state artifact) and
 (`packages/temper-io-types/src/wasm_test_registry.rs`). These are separate
 gates with separate generators, owned by other workstreams; this PR
 deliberately does not touch them.
+
+## Pre-existing differential staleness (NOT touched, out of scope)
+
+`tests/core/test_design_rules_rust_differential.py:292`
+(`test_create_temper_design_rules_identical`) asserts
+`len(rust_dr.net_classes) == 11`. The live `design_rules.py` gained the
+12th class (`HighVoltageTank`) in #1084, which did not touch this test
+(last touched `daa3acbf1`, #587) — so this assertion fails on `main`
+independently of this PR's re-pin. The differential's parity assertion
+immediately above it (`_dr_fields(rust_dr) == _dr_fields(py_dr)`, which
+canonicalizes `net_classes`) PASSES with 12 classes on both sides, so the
+re-pinned oracle and the Rust `DesignRules` are bit-identical including
+`HighVoltageTank`; only the stale count literal is wrong. Fix (for the
+#1084 author or a follow-up): `== 11` → `== 12`. Left untouched per this
+PR's file-ownership scope.
