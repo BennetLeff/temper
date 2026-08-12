@@ -3017,3 +3017,122 @@ bit-identical to the pinned oracle's dataclasses (`delta_display`,
    Rust byte-order string sort; Python's sort is code-point order. Board
    shape keys are ASCII identifiers (`component_count`, `net_count`), so the
    orders coincide; the PBT constrains keys accordingly.
+
+## Rust orchestration engine — U-E (the deterministic pipeline loop + factory)
+
+Orchestration-port unit U-E of the Rust Orchestration Engine plan
+(2026-08-09-001): the SEQUENCING of `DeterministicPipeline.run()` and the
+ORDER of the `create_drc_aware_pipeline()` stage factory move to
+`deterministic_pipeline.rs` as the `DeterministicPipeline` pyclass; the
+Python `deterministic/__init__.py` keeps its public API and delegates.
+
+### What migrated
+
+| Python surface | Rust surface | Notes |
+|---|---|---|
+| `DeterministicPipeline.run()` (the `state = stage.run(state)` loop + the per-stage fence invocation) | `DeterministicPipeline::run` → `run_pipeline` | drives the stages through `PipelineRunner<BoardState>` via a `PythonStageShim` (one per Python stage object); the Python `BoardState` threads through a shared side-channel so untouched fields keep OBJECT IDENTITY; a raising stage halts the runner and the ORIGINAL exception is re-raised |
+| `create_drc_aware_pipeline()`'s ordered stage-list construction | `DeterministicPipeline::create_drc_aware_pipeline_stages` (static method) → `build_drc_aware_python_stages` | the D1→D7 order of the 23 shim stages (exposed as `drc_aware_stage_order`), the zone-aware / standard slot-stage selection, the phased / standard component-stage selection (the `config_has_phased_rules` / `config_use_isolation_slots` getattr decisions), the `metadata is None` TypeError, and the R4c sidecar injection (`channel_map` into the phased stage when it has a grid) |
+
+### What stays Python (the U-E boundary, argued in the shim headers and here)
+
+- The config / design_rules parameter EXTRACTION: the `getattr(config, …)`
+  chains assembling plain dicts/lists, the `max(...) + 0.3` clearance
+  margin, the `DesignRules`/`NetClassRules` conversion and the `PadInfo`
+  anonymous-class pad conversion — Python-object marshalling into stage
+  constructor kwargs, not ordering or sequencing.
+- `load_channel_map_from_sidecar` (file I/O, WARNING logging, the
+  `ChannelMap` parse and the `cell_size_um` hard error) and the
+  `SidecarAwarePipeline` wrapper + `record_sidecar_load` counter (the
+  sidecar-orchestration tests assert these).
+- The fence's call-backs: `_board_state_to_drc_input` and
+  `_issue_fingerprint` (imported at runtime by the shim), and
+  `DRCFence.check` itself (the validation-slice differential already records
+  it as kept Python).
+- `create_legacy_pipeline` (a different, legacy order; the task's scope is
+  the DRC-aware factory) and the `DeterministicPipeline` class shell
+  (`.stages` / `.fence` attributes — the isolation-slots, phased-integration
+  and instrumentation tests iterate and re-wrap `.stages`, which must remain
+  the real Python stage objects).
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every stage list and initial state,
+the Rust loop produces the same final Python `BoardState` — same call order,
+same per-field values, same object identity for untouched fields — as the
+pinned pre-migration Python loop, with the documented boundary choices below.
+
+1. **The loop is a pure left fold over the same stage objects.** Both arms
+   call `stage.run(state)` in declaration order on the same Python stage
+   instances (the per-stage compute is pinned by the D1..D7 differentials);
+   the Rust loop additionally marshals the state through
+   `d1_bridge::from_python` per stage (a read-only pass-through; `net_order`
+   is the one owned `tuple[str, …] ↔ Vec<String>` field). The final Python
+   state is the LAST stage's returned object, threaded through the shared
+   context — untouched fields keep identity because no arm copies them.
+2. **Exception identity by value.** A stage raising mid-loop halts the
+   runner (`StageErrorKind::Fatal` from the shim's PyErr conversion) and the
+   ORIGINAL exception is re-raised from the run-loop (its value object is
+   captured in the shared context; `PyErr::from_value` re-raises it) — the
+   exception type and message are preserved, not re-wrapped.
+3. **The fence block is a direct transcription.** `if self.fence and
+   stage.invariants:` (truthiness, not len), `stage_time_ms` wall-clock via
+   `Instant` (the loop's nondeterminism is preserved by design — the fence
+   only observes it), the `fence.check` keyword call, and the
+   `previous_violations` frozenset threading (`_issue_fingerprint` per
+   violation) — all call-backs stay Python (identity parity for the
+   call-back results by construction).
+4. **Empty stage list identity.** `stages=None`/`[]` returns the initial
+   state unchanged (object identity) — the oracle's
+   `DeterministicPipeline(stages=[]).run(state)` semantics.
+5. **`initial_state or BoardState()`.** A `None` initial state constructs a
+   fresh Python `BoardState()` through the module import; a non-None initial
+   state is used as-is (BoardState is always truthy; a falsy custom
+   initial-state object is outside the declared domain — recorded).
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above):
+- The parameter EXTRACTION stays Python (see above); the factory receives
+  the extracted values and returns the constructed stage list — the ORDER
+  and the selections are Rust, the marshalling is Python.
+- The report produced by the internal `PipelineRunner` is not surfaced: the
+  Python API is `run() -> BoardState` (raises on stage failure), so the
+  runner's report is consumed internally (halted-early → re-raise).
+- The differential compares per-field state by `repr`, not `==`: the
+  DRCOracle field holds numpy-array members whose `==` raises
+  `ValueError: truth value of an array is ambiguous`; `repr` is total and
+  deterministic (the U4 convention).
+
+### Differential / PBT / runner suites (U-E)
+
+| Suite | Location | Count |
+|---|---|---|
+| pipeline differential (oracle: `_deterministic_pipeline_py_oracle.py`, sha256-pinned; stage order, per-prefix state threading, fence sequence, exception parity, real 23-stage end-to-end) | `packages/temper-placer/tests/deterministic/test_deterministic_pipeline_rust_differential.py` | 17 |
+| pipeline PBT (P1..P6, each mutation-guarded) | `packages/temper-placer/tests/deterministic/test_deterministic_pipeline_pbt.py` | 12 |
+| U-E runner (the canonical D1→D7 order through the pyclass loop + real Rust stages through `PipelineRunner<BoardState>`) | `packages/temper-orchestration/tests/ue_pipeline_runner.rs` | 3 |
+| existing shim surface (all `tests/deterministic/*` through the delegation shim) | `packages/temper-placer/tests/deterministic/` | 1517 passed, 1 skipped |
+
+### R1 gate status (U-E)
+
+- **R1a** — behavioural A/B vs the verbatim oracle: 17/17 (stage ORDER on
+  every selection axis; per-prefix state threading; fence-check sequence
+  parity with a recording fence; exception parity; a full real D1→D7
+  end-to-end run on a minimal board, compared field-by-field by repr).
+- **R1b** — performance: the loop is invoked once per pipeline run; the
+  added cost is one `from_python` marshalling pass per stage plus the shim
+  call (each stage already crossed the FFI once); no regression beyond noise
+  is possible or claimed.
+- **R1c** — 6 non-vacuous properties (P1..P6), each with a degenerate-mutant
+  guard that must trip.
+- **R1d** — metamorphic relations not claimed: the loop is a pure left fold
+  whose relations (prefix composition) are already pinned as property P5.
+- **R1e** — this section.
+- **R1f** — TDD: the differential + oracle were committed first (RED —
+  `temper_orchestration.DeterministicPipeline` did not exist, 6 failed),
+  then the Rust pyclass + shim landed GREEN.
+- **R1g** — no `unwrap`/`expect` outside tests (crate denies both); the shim
+  `run()` bodies are `catch_unwind`-guarded (panic → `StageError::Fatal`),
+  the pyclass methods by pyo3's own expansion; `cargo clippy --all-features
+  --all-targets -- -D warnings` clean; `cargo test` 1111/1111 green; the
+  wasm tier (`--no-default-features`) compiles.
+- **R1h** — not physics-gated (recorded explicitly: the loop sequences
+  stages; no physics quantity is computed, asserted or gated).

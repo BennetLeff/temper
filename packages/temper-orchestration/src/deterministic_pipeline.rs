@@ -396,7 +396,9 @@ fn config_use_isolation_slots(py: Python<'_>, config: Option<&Bound<'_, PyAny>>)
         // `placer or {}` -- falsy (None / empty dict) falls back to {}.
         PyDict::new(py).into_any()
     };
-    let value = placer_cfg.get_item("use_isolation_slots")?;
+    // `placer_cfg.get("use_isolation_slots", False)` -- dict.get default,
+    // NOT dict[key] (a missing key must not raise).
+    let value = placer_cfg.call_method1("get", ("use_isolation_slots", false))?;
     value.is_truthy()
 }
 
@@ -504,9 +506,10 @@ pub(crate) fn build_drc_aware_python_stages(
     // -- the ordered construction (23 stages, D1 -> D7) --
     let mut stages: Vec<Py<PyAny>> = Vec::new();
 
-    // D1 setup: config attach + net class mapping early.
+    // D1 setup: config attach + net class mapping early. (`ConfigAttachStage`
+    // is not re-exported from `stages/__init__.py`; import its module.)
     stages.push(
-        stages_mod
+        py.import("temper_placer.deterministic.stages.config_attach")?
             .getattr("ConfigAttachStage")?
             .call1((config.clone(),))?
             .into_any()
