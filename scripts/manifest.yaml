@@ -648,6 +648,29 @@ scripts:
   - fnmatch
   - pathlib
   - sys
+- path: check_netclass_class_param_correspondence.py
+  purpose: 'CI gate: assert every netclass declared in BOTH pcb/temper.kicad_pro''s net_settings.classes
+    and design_rules.py''s TEMPER_NET_CLASSES agrees on all four scalar routing fields (clearance,
+    trace_width/track_width, via_diameter, via_drill) -- the dimension PR #1023/#1025 (both titled as
+    syncing kicad_pro against design_rules.py) and sync_kicad_netclass_assignments.py never checked:
+    all three only ever compare/write netclass_assignments (which net maps to which class), never a
+    class''s own parameter values. Currently VIOLATION on origin/main: HighVoltage.clearance 6.0mm
+    (design_rules.py) vs 2.0mm (kicad_pro), plus 4 Power-class field mismatches (docs/evidence/
+    2026-08-12-gate-vacuity-structural-prevention.md). Advisory (continue-on-error) until reconciled.'
+  owner: bennet
+  last_run: '2026-08-12'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - sys
+  - temper_placer.core.design_rules
 - path: check_netclass_map_board_correspondence.py
   purpose: 'CI gate: assert every net-name key in a hand-maintained top-level net_classes: YAML mapping
     (discovered under configs/*.yaml and packages/temper-placer/configs/*.yaml) is a real net name on
