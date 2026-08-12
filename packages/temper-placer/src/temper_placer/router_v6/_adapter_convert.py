@@ -882,7 +882,40 @@ def _apply_placements_to_pcb(
     besides the golden-board regression gate did, until this was wired in)
     are unaffected.
     """
-    foot_starts = [m.start() for m in re.finditer(r'\(footprint\s+"[^"]+"\s+\(layer', raw_content)]
+    # The footprint header's own s-expression fields between the quoted
+    # footprint name and `(layer ...)` are not fixed: newer KiCad exports
+    # (kicad-cli 10.0.5, e.g. the real, committed ``pcb/temper.kicad_pcb``,
+    # regenerated 2026-08-08) insert `(version NNNNNNNN) (generator "...")`
+    # there, while the older ``power_pcb_dataset/corpus/temper/temper.kicad_pcb``
+    # golden-test fixture (last touched 2026-07-08) has neither. A regex
+    # requiring `(layer` immediately after the name (no tolerance for those
+    # optional fields) matches 0 footprints on the real board -- silently, via
+    # this function's own empty-``foot_starts`` early return below -- so a
+    # caller writing solved placements onto the real board got back its input
+    # completely byte-unchanged, with no exception and no visible signal
+    # anything had gone wrong. Found 2026-08-11 while wiring
+    # docs/evidence/2026-08-11-pumpkin-golden-test-spike.md's real-board
+    # golden test: the round-trip oracle
+    # (``validation.placement_roundtrip.check_placement_roundtrip``) caught it
+    # immediately (1033 mismatches across all 169 components -- this function
+    # had touched none of them), which is exactly the class of silent-no-op
+    # bug that oracle exists to catch (see this file's own U3 rotation-drop
+    # precedent, docs/evidence/2026-07-30-placement-writer-rotation.md). The
+    # `(?:\s*\([^()]*\))*` clause below tolerates any number of such flat
+    # (non-nested-paren) fields in either order, and is a no-op change for the
+    # 33-component fixture (still 33/33 matches, confirmed directly). This
+    # bug is orthogonal to which solver produced the placements being
+    # written -- OR-Tools output would hit it identically; nothing before
+    # this fix had ever exercised this function against the real board's
+    # newer export format, since neither `test_golden_board_drc_regression`
+    # (fixture only) nor `test_production_board_drc_regression`/
+    # `test_production_board_routing_drc_regression` (real board, but DRC the
+    # committed board or `route_pcb()`'s output -- neither calls this
+    # function) had a reason to.
+    foot_starts = [
+        m.start()
+        for m in re.finditer(r'\(footprint\s+"[^"]+"(?:\s*\([^()]*\))*\s*\(layer', raw_content)
+    ]
 
     if not foot_starts:
         return raw_content
