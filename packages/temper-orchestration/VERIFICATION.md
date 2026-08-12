@@ -3351,3 +3351,135 @@ preserved by design — the driver only sequences.
 - **R1h** — not physics-gated (recorded explicitly: the driver sequences
   stages; no physics quantity is computed, asserted or gated by the
   migrated surface).
+
+## Rust orchestration engine — U-F (the AutomatedZeroDRC feedback loop)
+
+Orchestration-port unit U-F of the Rust Orchestration Engine plan
+(2026-08-09-001): the iterate-until-clean LOOP of
+`AutomatedZeroDRC.run()` (`deterministic/feedback/orchestrator.py`) moves to
+`feedback_loop.rs` as the `run_automated_zero_drc` pyfunction, which drives
+the per-iteration call-backs through `PipelineRunner<BoardState>` as
+per-iteration shims (`FeedbackIterationStage`, one per iteration) — the U-E
+pattern. The Python `orchestrator.py` keeps its public API and delegates.
+
+### What migrated
+
+| Python surface | Rust surface | Notes |
+|---|---|---|
+| `AutomatedZeroDRC.run()` (the `for i in range(max_iterations)` loop: `state = pipeline.run(state)` → `drc_runner()` → `parse_kicad_drc(report_path)` → per-violation `mapper.map_violation` → `adjuster.compute_adjustments` → `_update_config(adjustment)` → the EXP-5 `BoardState(board, netlist, locked_routes, config)` reset) | `run_automated_zero_drc` pyfunction → `FeedbackIterationStage` `Stage<BoardState>` impls through `PipelineRunner<BoardState>` | one shim per iteration; the Python `BoardState` threads through a shared side-channel (untouched fields keep OBJECT IDENTITY, the U-E contract); the runner's `is_active`/skip semantics ARE the loop's `break` semantics (a clean parse or an empty adjustments dict clears the continue flag and every later shim is Skipped); a raising call-back halts the runner and re-raises the ORIGINAL exception |
+| the termination decisions | `if not raw_violations:` / `if not adjustment.adjustments:` (truthiness, not len) and the `if state:` reset gate, evaluated in Rust | the parsed report's `__bool__` and the adjustments dict's truthiness are the oracle's exact conditions |
+| the log messages | emitted through the SAME logger name (`temper_placer.deterministic.feedback.orchestrator`) with the oracle's f-string formats | `--- Feedback Iteration {i+1}/{max} ---`, `Running DRC...`, `Found {n} raw DRC violations`, `Zero DRC violations achieved!`, `No further zone adjustments possible.`, `EXP-5: Preserving {n} locked routes for next iteration` — the observable log sequence is preserved |
+
+### What stays Python (the U-F boundary, argued in the shim header and here)
+
+- The `__init__` construction/marshalling: the config parsing (the
+  `feedback` block, the `max_iterations or default` fallback), the
+  `ViolationComponentMapper`/`ZoneAdjuster` wiring, `_get_zone_config` /
+  `_inject_zone_config` (getattr chains assembling the zone dicts and
+  mutating pipeline-stage config — the U-E boundary's "Python-object
+  marshalling, not sequencing").
+- `_update_config` (the zone-bounds delta math operating on the CALLER's
+  config object: raw-dict `bounds_ratio` mutations and the
+  PlacementConstraints `zone.bounds` writes + re-injection; the `next(...)` /
+  `.index(zone)` name/equality chains are Python-object semantics not
+  reimplemented). The loop receives it as a bound-method call-back, so the
+  caller's config object mutates exactly as before.
+- `parse_kicad_drc` (the JSON file read — library semantics not
+  reimplemented; the traversal compute is the already-landed
+  `deterministic_hubs.process_drc_violation` kernel) and the subprocess DRC
+  invocation (`drc_runner` — kicad-cli via `_drc_api` stays behind the
+  Python callable boundary).
+- The leaf helpers `ViolationComponentMapper.map_violation` /
+  `ZoneAdjuster.compute_adjustments` (their compute is the already-landed
+  `map_violation_kernel` / `zone_adjustments_kernel`); the per-iteration
+  `zone_config` refresh happens through the `get_zone_config` call-back
+  exactly as the oracle re-assigns `mapper.zone_config` /
+  `adjuster.zone_config` every iteration.
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every pipeline/call-back configuration
+and initial state, the Rust loop produces the same final Python `BoardState`
+— same call order, same per-call arguments, same log messages, same
+termination, same config mutations — as the pinned pre-migration Python loop,
+with the documented boundary choices below.
+
+1. **The loop is a pure left fold over the same call-backs.** Both arms call
+   the identical call-back objects (the pipeline, the DRC runner, the parser,
+   the mapper/adjuster instances, the config-marshalling bound methods) in
+   the oracle's order per iteration; the Rust loop additionally marshals the
+   Python state through `d1_bridge::from_python` per iteration (a read-only
+   pass-through). The differential drives both arms with the same
+   recording/scripted fakes and compares the recorded call sequences
+   byte-identically.
+2. **The termination is the runner's skip semantics.** A clean parse or an
+   empty adjustments dict (both truthiness checks, matching the oracle's
+   `if not …`) clears the shared continue flag; every later iteration shim
+   reports `is_active() == false` and the runner records it Skipped — so the
+   pipeline runs exactly the oracle's iteration count (pinned by the
+   differential's cap / break scenarios and the PBT's counts).
+3. **The EXP-5 reset is a direct transcription.** `if state:` (truthiness) →
+   `BoardState(board=state.board, netlist=state.netlist,
+   locked_routes=state.locked_routes, config=state.config)` through the
+   Python dataclass constructor: the four preserved fields keep their exact
+   objects (identity pinned by P6), derived fields reset to defaults.
+4. **Exception identity by value.** A call-back raising mid-iteration halts
+   the runner (`StageErrorKind::Fatal` from the shim's PyErr conversion) and
+   the ORIGINAL exception is re-raised (its value object captured in the
+   shared context; `PyErr::from_value` re-raises it) — pinned by the
+   differential's boom scenario.
+5. **`max_iterations` semantics.** `max_iterations == 0` (reachable only via
+   the pyfunction; the constructor's `max_iterations or default` revives 5)
+   runs zero shims and returns the initial state object unchanged (the
+   oracle's `range(0)` identity).
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above):
+- The config-object marshalling (`_get_zone_config` / `_inject_zone_config` /
+  `_update_config`) stays Python; the loop calls it through bound-method
+  call-backs, so the config mutations land on the caller's object exactly as
+  the oracle's.
+- The loop is invoked once per `AutomatedZeroDRC.run()`; the added cost is
+  one `from_python` marshalling pass per iteration plus the shim call — the
+  per-iteration compute is untouched, so no performance regression beyond
+  noise is possible or claimed.
+- The differential compares per-field state by `repr`, not `==` (the U4/U-E
+  convention; the DRCOracle numpy members make `==` raise).
+
+### Differential / PBT / runner suites (U-F)
+
+| Suite | Location | Count |
+|---|---|---|
+| feedback-loop differential (oracle: `_orchestrator_py_oracle.py`, sha256-pinned; call sequence + zone_config refresh values, log-message parity through the same logger, real-leaves end-to-end config mutations, cap exhaustion + EXP-5 reset, no-adjustment break, exception parity, anti-vacuity) | `packages/temper-placer/tests/deterministic/test_orchestrator_rust_differential.py` | 10 |
+| feedback-loop PBT (P1..P6: reference-model call order, determinism, iteration cap, clean break, no-adjustment break, EXP-5 reset preserve/clear split — each mutation-guarded) | `packages/temper-placer/tests/deterministic/test_orchestrator_pbt.py` | 12 |
+| U-F runner (the loop through the pyfunction with fake call-backs + the `FeedbackIterationStage` impls through `PipelineRunner<BoardState>` directly: Completed/Completed/Skipped×3 report, zero-cap identity) | `packages/temper-orchestration/tests/uf_feedback_runner.rs` | 3 |
+| existing shim surface (all `tests/deterministic/*` through the delegation shim) | `packages/temper-placer/tests/deterministic/` | 1551 passed, 1 skipped |
+
+### R1 gate status (U-F)
+
+- **R1a** — behavioural A/B vs the verbatim oracle: 10/10 (call sequence with
+  per-call `zone_config` refresh values; log-message parity through the same
+  logger; real-leaves end-to-end config mutations; cap exhaustion + EXP-5
+  reset; zero-cap identity; no-adjustment break; exception parity).
+- **R1b** — performance: one `from_python` marshalling pass per iteration
+  plus the shim call; the per-iteration compute is untouched — no regression
+  beyond noise is possible or claimed.
+- **R1c** — 6 non-vacuous properties (P1..P6), each with a degenerate-mutant
+  guard that must trip.
+- **R1d** — metamorphic relations not claimed: the reference-model call-order
+  property (P1) plus the count-based termination properties already pin the
+  loop's observable contract.
+- **R1e** — this section.
+- **R1f** — TDD: the differential + oracle were committed first (RED —
+  `temper_orchestration.run_automated_zero_drc` did not exist, 13 failed),
+  then the Rust loop + shim landed GREEN.
+- **R1g** — no `unwrap`/`expect` outside tests (crate denies both); every
+  shim `run()` body is `catch_unwind`-guarded (panic → `StageError::Fatal`),
+  the pyfunction by pyo3's own expansion; `cargo clippy --lib -- -D warnings`
+  and `cargo clippy --all-targets` clean; `cargo test` green for all
+  pyo3-bound runner suites except the pre-existing d4 environment failure
+  (`phased_validator_hv_kernel`: the 3.12 extension cannot load into the
+  machine's 3.9 embedded interpreter — reproduced unchanged on the base
+  commit); the wasm tier (`--no-default-features`) compiles.
+- **R1h** — not physics-gated (recorded explicitly: the loop sequences
+  call-backs; no physics quantity is computed, asserted or gated).
