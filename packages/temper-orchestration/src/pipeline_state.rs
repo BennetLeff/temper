@@ -455,17 +455,21 @@ impl PipelineConfig {
 #[cfg(feature = "python")]
 /// Mirror of Python `pipeline.state.PipelineState` (dataclass).
 ///
-/// The `config` / `current_phase` / `failed_phase` / container / `Any`
-/// fields are `Py<PyAny>` (the dataclass does not type-enforce them; the
-/// constructor supplies the dataclass defaults for the Enum and
-/// default-factory fields). The scalar fields are typed (`i64`/`bool`/`f64`).
+/// The `config` / `current_phase` / `failed_phase` fields are tightened to
+/// their concrete pyclass counterparts (`PipelineConfig` / `PipelinePhase`):
+/// the dataclass declares those types and every exercised caller (the
+/// differential + re-export shim) passes them, so the typed extraction is a
+/// lossless downcast, not a marshalling tax. The container / `Any` fields
+/// stay `Py<PyAny>` (the dataclass does not type-enforce them; the
+/// differential exercises them with arbitrary values). The scalar fields are
+/// typed (`i64`/`bool`/`f64`).
 #[pyclass(dict, from_py_object, module = "temper_orchestration", name = "PipelineState")]
 #[derive(Clone, Debug)]
 pub struct PipelineState {
     #[pyo3(get, set)]
-    pub config: Py<PyAny>,
+    pub config: Py<PipelineConfig>,
     #[pyo3(get, set)]
-    pub current_phase: Py<PyAny>,
+    pub current_phase: Py<PipelinePhase>,
     #[pyo3(get, set)]
     pub iteration: i64,
     #[pyo3(get, set)]
@@ -473,7 +477,7 @@ pub struct PipelineState {
     #[pyo3(get, set)]
     pub failure_reason: Option<String>,
     #[pyo3(get, set)]
-    pub failed_phase: Py<PyAny>,
+    pub failed_phase: Option<Py<PipelinePhase>>,
     #[pyo3(get, set)]
     pub elapsed_time_s: f64,
     #[pyo3(get, set)]
@@ -541,12 +545,12 @@ impl PipelineState {
     #[allow(non_snake_case)]
     fn new(
         py: Python<'_>,
-        config: Py<PyAny>,
-        current_phase: Option<Py<PyAny>>,
+        config: Py<PipelineConfig>,
+        current_phase: Option<Py<PipelinePhase>>,
         iteration: i64,
         success: bool,
         failure_reason: Option<String>,
-        failed_phase: Option<Py<PyAny>>,
+        failed_phase: Option<Py<PipelinePhase>>,
         elapsed_time_s: f64,
         phase_timings: Option<Py<PyAny>>,
         board: Option<Py<PyAny>>,
@@ -570,12 +574,12 @@ impl PipelineState {
             // default PipelinePhase.INPUT.
             current_phase: match current_phase {
                 Some(obj) => obj,
-                None => Py::new(py, PipelinePhase::new("input"))?.into_any(),
+                None => Py::new(py, PipelinePhase::new("input"))?,
             },
             iteration,
             success,
             failure_reason,
-            failed_phase: failed_phase.unwrap_or_else(|| py.None()),
+            failed_phase,
             elapsed_time_s,
             // Omitted `phase_timings` (the `None` sentinel) -> a fresh dict
             // (the dataclass `field(default_factory=dict)`).
@@ -614,12 +618,15 @@ impl PipelineState {
              placement_state={}, routing_result={}, physics_report={}, \
              preflight_report={}, decision_trace={}, _refinement_complete={}, \
              _best_routed_nets={}, _best_routability={}, _stall_count={})",
-            repr_obj(self.config.bind(py))?,
-            repr_obj(self.current_phase.bind(py))?,
+            repr_obj(self.config.bind(py).as_any())?,
+            repr_obj(self.current_phase.bind(py).as_any())?,
             self.iteration,
             if self.success { "True" } else { "False" },
             repr_opt_str(py, self.failure_reason.as_deref())?,
-            repr_obj(self.failed_phase.bind(py))?,
+            match &self.failed_phase {
+                Some(p) => repr_obj(p.bind(py).as_any())?,
+                None => "None".to_owned(),
+            },
             repr_float(py, self.elapsed_time_s)?,
             repr_obj(self.phase_timings.bind(py))?,
             repr_obj(self.board.bind(py))?,
@@ -646,10 +653,15 @@ impl PipelineState {
         }
         let lhs = slf.borrow();
         let rhs = other.cast::<Self>()?.borrow();
-        if !lhs.config.bind(slf.py()).eq(rhs.config.bind(slf.py()))? {
+        if !lhs.config.bind(slf.py()).as_any().eq(rhs.config.bind(slf.py()).as_any())? {
             return Ok(false);
         }
-        if !lhs.current_phase.bind(slf.py()).eq(rhs.current_phase.bind(slf.py()))? {
+        if !lhs
+            .current_phase
+            .bind(slf.py())
+            .as_any()
+            .eq(rhs.current_phase.bind(slf.py()).as_any())?
+        {
             return Ok(false);
         }
         if lhs.iteration != rhs.iteration {
@@ -661,7 +673,7 @@ impl PipelineState {
         if lhs.failure_reason != rhs.failure_reason {
             return Ok(false);
         }
-        if !lhs.failed_phase.bind(slf.py()).eq(rhs.failed_phase.bind(slf.py()))? {
+        if !opt_py_eq_phase(slf.py(), lhs.failed_phase.as_ref(), rhs.failed_phase.as_ref())? {
             return Ok(false);
         }
         if lhs.elapsed_time_s != rhs.elapsed_time_s {
@@ -726,6 +738,21 @@ impl PipelineState {
 fn opt_py_eq(py: Python<'_>, a: Option<&Py<PyAny>>, b: Option<&Py<PyAny>>) -> PyResult<bool> {
     match (a, b) {
         (Some(x), Some(y)) => x.bind(py).eq(y.bind(py)),
+        (None, None) => Ok(true),
+        _ => Ok(false),
+    }
+}
+
+#[cfg(feature = "python")]
+/// Python `==` for a pair of optional `Py<PipelinePhase>` values — routed
+/// through the pyclass `__eq__` (value-based), never `Py` pointer identity.
+fn opt_py_eq_phase(
+    py: Python<'_>,
+    a: Option<&Py<PipelinePhase>>,
+    b: Option<&Py<PipelinePhase>>,
+) -> PyResult<bool> {
+    match (a, b) {
+        (Some(x), Some(y)) => x.bind(py).as_any().eq(y.bind(py).as_any()),
         (None, None) => Ok(true),
         _ => Ok(false),
     }
