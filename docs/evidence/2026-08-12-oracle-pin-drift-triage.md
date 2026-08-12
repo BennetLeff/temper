@@ -1,6 +1,6 @@
 # Oracle pin drift triage: 3 drifted `_*_py_oracle.py` pins re-pinned (2026-08-12)
 
-<!-- provenance: commit=<filled at merge> dirty=false -->
+<!-- provenance: commit=f8e83c234664a9332ed80aa319bc464499ec7827 dirty=false -->
 
 **Date:** 2026-08-12
 **Branch:** `fix/oracle-drift-triage` (base `origin/main` @ `df0dc4d90`)
