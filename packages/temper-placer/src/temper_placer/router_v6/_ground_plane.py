@@ -660,7 +660,7 @@ def generate_ground_plane_content(
 
     hv_nets, selv_nets = load_domain_manifest_nets(domain_manifest_path)
     hv_positions: list[tuple[float, float]] = []
-    for net_name in hv_nets:
+    for net_name in sorted(hv_nets):
         for pad in pads_by_net.get(net_name, []):
             hv_positions.append(pad.position)
     # SELV cluster for the keepout gap measurement includes gnd's own
@@ -669,7 +669,7 @@ def generate_ground_plane_content(
     # gnd alone (a keepout sized only to gnd's own pads could be
     # narrower than the real SELV/HV divide and cut it close).
     selv_positions: list[tuple[float, float]] = list(gnd_positions)
-    for net_name in selv_nets:
+    for net_name in sorted(selv_nets):
         if net_name == GND_NET_NAME:
             continue
         for pad in pads_by_net.get(net_name, []):
