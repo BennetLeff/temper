@@ -54,10 +54,22 @@ Regenerating the inputs, from repo root:
 
 Exit codes:
   0 - PASSED: every endpoint_off_grid pin's schematic net matches its
-      atopile net member-for-member. Cosmetic warning class, confirmed.
-  1 - MISMATCH: at least one endpoint_off_grid pin sits on a schematic net
-      that diverges from design intent -- a real connectivity defect
-      riding on this warning class. Printed with net domain for triage.
+      atopile net member-for-member, AND every endpoint_off_grid pin
+      exists in the atopile-compiled netlist in the first place. Cosmetic
+      warning class, confirmed.
+  1 - FAILED: at least one endpoint_off_grid pin sits on a schematic net
+      that diverges from design intent (MISMATCH) -- a real connectivity
+      defect riding on this warning class -- OR at least one
+      endpoint_off_grid pin has no atopile net at all (NO_ATOPILE_NET).
+      NO_ATOPILE_NET means this script cannot answer the question it
+      exists to answer for that pin: the design's stated intent (the
+      atopile netlist) says nothing about it, so member-for-member
+      agreement can't be checked. On a mains-connected board that is not
+      a milder form of "matches" -- it is the one case this gate
+      structurally cannot verify, and is treated as a failure rather than
+      folded into the same green verdict as a checked, passing pin (see
+      docs/evidence/2026-08-11-gate-vacuity-audit.md finding 1). Both
+      classes are printed, with net domain, for triage.
   2 - GATE ERROR: an input file is missing, empty, or unparsable. Never
       treated as "0 mismatches" -- see check_domain_partition.py's own
       fail-closed rationale, which this mirrors.
@@ -274,6 +286,14 @@ def main() -> int:
     off_grid = load_off_grid_pins([Path(p) for p in args.erc_json])
 
     mismatches = []
+    # NO_ATOPILE_NET pins: the atopile-compiled netlist -- the design's
+    # stated intent -- says nothing about this pin at all, so this gate
+    # structurally cannot verify member-for-member agreement for it. That
+    # is NOT a milder form of "matches" (docs/evidence/
+    # 2026-08-11-gate-vacuity-audit.md finding 1): it is treated as a
+    # failure, same as a confirmed MISMATCH, rather than folded into an
+    # unqualified "PASSED".
+    unverifiable = []
     domain_counts: Counter = Counter()
     rows = []
     for e in off_grid:
@@ -286,6 +306,10 @@ def main() -> int:
         detail = ato_name
         if ato_name is None:
             status = 'NO_ATOPILE_NET'
+            detail = ('no atopile net for this pin -- the compiled design '
+                       'never declares it, so member-for-member agreement '
+                       'cannot be checked')
+            unverifiable.append((key, domain, detail))
         else:
             sch_names_for_pin = sch_pin_to_nets.get(key, set())
             if ato_name not in sch_names_for_pin:
@@ -299,7 +323,7 @@ def main() -> int:
                 mismatches.append((key, domain, detail))
         rows.append((e['ref'], e['pin'], ato_name, domain, status))
 
-    rows.sort(key=lambda r: (r[4] != 'MISMATCH', r[3], r[0]))
+    rows.sort(key=lambda r: (r[4] == 'OK', r[3], r[0]))
     print(f"{'ref':8} {'pin':5} {'net':40} {'domain':45} status")
     for r in rows:
         print(f"{r[0]:8} {r[1]:5} {str(r[2]):40} {r[3]:45} {r[4]}")
@@ -313,11 +337,25 @@ def main() -> int:
         print(f"\n{len(mismatches)} MISMATCH(ES) -- schematic net diverges from design intent:")
         for key, domain, detail in mismatches:
             print(f"  {key} [{domain}]: {detail}")
+
+    if unverifiable:
+        print(f"\n{len(unverifiable)} UNVERIFIABLE (NO_ATOPILE_NET) -- endpoint_off_grid "
+              f"pin(s) absent from the atopile-compiled netlist; member-for-member "
+              f"agreement cannot be checked for these:")
+        for key, domain, detail in unverifiable:
+            print(f"  {key} [{domain}]: {detail}")
+
+    if mismatches or unverifiable:
+        print(f"\nFAILED: {len(mismatches)} mismatch(es), {len(unverifiable)} "
+              f"unverifiable (no atopile net) endpoint_off_grid pin(s). A pin "
+              f"this gate cannot verify is not evidence it is safe -- see "
+              f"docs/evidence/2026-08-11-gate-vacuity-audit.md finding 1.")
         return 1
 
     print("\nPASSED: every endpoint_off_grid pin's schematic net matches its "
-          "atopile net member-for-member. No electrical disconnection or "
-          "unintended short rides on this warning class.")
+          "atopile net member-for-member, and every endpoint_off_grid pin "
+          "exists in the atopile-compiled netlist. No electrical "
+          "disconnection or unintended short rides on this warning class.")
     return 0
 
 

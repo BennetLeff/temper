@@ -2193,6 +2193,10 @@ jobs:
       # convention the ERC ratchet gate (erc-gate.yml) already documents and
       # relies on -- so this step checks the report file was produced, not
       # the CLI's own exit code.
+      - name: ERC endpoint_off_grid consequence gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_erc_off_grid_consequence.py -v --tb=short
+
       - name: Regenerate ERC JSON + schematic netlist XML (for endpoint_off_grid consequence gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |

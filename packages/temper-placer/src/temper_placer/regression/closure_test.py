@@ -181,6 +181,15 @@ class ClosureResult:
     router_completion_pct: float = 0.0
     drc_errors: int = 0
     drc_warnings: int = 0
+    # Distinct from ``drc_errors == 0``: True only when the Step 4 DRC try
+    # block ran ``run_drc`` to completion without raising. ``drc_errors``
+    # stays 0 on every failure path (kicad-cli missing, crash, timeout) too,
+    # so a consumer that reads ``drc_errors`` alone cannot tell "DRC ran and
+    # found nothing" from "DRC never ran" -- see
+    # docs/evidence/2026-08-11-gate-vacuity-audit.md finding 14. Callers
+    # computing a DRC-derived score MUST check this before trusting
+    # ``drc_errors``.
+    drc_measured: bool = False
     wall_clock_seconds: float = 0.0
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
@@ -372,12 +381,14 @@ class ClosureTest:
         # Step 4: KiCad DRC
         drc_errors = 0
         drc_warnings = 0
+        drc_measured = False
         try:
             from temper_placer.validation._drc_api import run_drc
 
             drc_result = run_drc(self.pcb_path)
             drc_errors = drc_result.error_count
             drc_warnings = drc_result.warning_count
+            drc_measured = True
             stages_exercised += 1
         except ImportError:
             msg = "kicad-cli not available; skipping DRC"
@@ -428,6 +439,7 @@ class ClosureTest:
             router_completion_pct=router_completion_pct,
             drc_errors=drc_errors,
             drc_warnings=drc_warnings,
+            drc_measured=drc_measured,
             wall_clock_seconds=time.perf_counter() - start_time,
             errors=errors,
             warnings=warnings,

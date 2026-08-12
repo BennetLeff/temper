@@ -81,7 +81,8 @@ def measure_closure(
         RuntimeError: If the closure pipeline produced zero results
             (no placement iterations AND no router completion).  This
             is the truth-gate failure mode the SM1/SM2/SM6 gate
-            exists to catch.
+            exists to catch.  Also raised if the DRC step itself never
+            ran to completion — see the DRC truth-gate below.
     """
     from temper_placer.regression.closure_test import ClosureTest
 
@@ -95,11 +96,51 @@ def measure_closure(
     )
     result = test.run()
 
+    # Truth-gate: refuse to report a "measurement" when the pipeline
+    # produced no placement AND no routing.  The promotion gate
+    # relies on this signal to fail loudly instead of silently
+    # passing a zero-results run.  Checked first — a pipeline that
+    # produced nothing at all is a more fundamental failure than "DRC
+    # specifically did not measure", and this ordering keeps this
+    # message stable for that case.
+    if result.benders_iterations <= 0 and result.router_completion_pct <= 0.0:
+        raise RuntimeError(
+            f"closure pipeline produced zero results: "
+            f"benders_iterations={result.benders_iterations}, "
+            f"router_completion_pct={result.router_completion_pct:.1f}%, "
+            f"stages_exercised={result.stages_exercised}, "
+            f"errors={result.errors!r}"
+        )
+
+    # DRC truth-gate (docs/evidence/2026-08-11-gate-vacuity-audit.md
+    # finding 14): ``result.drc_errors`` stays 0 on every DRC failure path
+    # (kicad-cli missing, crash, timeout) exactly like it does when DRC
+    # ran and found nothing — the count alone cannot tell the two apart.
+    # Previously this function fed ``result.stages_exercised`` (which the
+    # four PRE-DRC stages can independently push to >=4) and
+    # ``result.drc_errors`` straight into
+    # ``compute_drc_clearance_pass_pct``, so "DRC never ran" and "DRC ran
+    # clean" both scored a fabricated 100.0 — passing SM2's ``> 0.0`` and
+    # ``>= baseline`` checks identically to a genuine clean run. Refuse to
+    # report a clearance percentage at all when DRC was not actually
+    # measured, rather than silently reporting the graceful-degradation
+    # value as if it were a real result. This is a deliberate hard-failure
+    # choice (not an UNKNOWN status threaded through the payload): DRC
+    # clearance is a board-safety measurement, kicad-cli is expected to be
+    # present in every environment this gate is meant to run in, and a
+    # missing measurement should block promotion exactly like the
+    # zero-results gate above already blocks on missing placement/routing.
+    if not result.drc_measured:
+        raise RuntimeError(
+            "closure pipeline did not measure DRC clearance: the DRC step "
+            f"never ran to completion (stages_exercised={result.stages_exercised}, "
+            f"errors={result.errors!r}, warnings={result.warnings!r}). Refusing "
+            "to report a drc_clearance_pass_pct for an unmeasured DRC step."
+        )
+
     # DRC clearance pass pct: a heuristic for "fraction of DRC checks
-    # that did not flag an error".  When the DRC step did not run
-    # (kicad-cli unavailable) we default to 100% — this is the
-    # graceful-degradation behavior, and the SM2 gate's "≥ baseline"
-    # check then enforces the floor.
+    # that did not flag an error", computed only once ``result.drc_measured``
+    # is confirmed True above.
     # Wave 4 Phase 4: the drc-clearance-pass formula runs in
     # ``temper_design_bundle_python.compute_drc_clearance_pass_pct``
     # (bit-identical three-branch rule, pinned by the differential).
@@ -119,19 +160,6 @@ def measure_closure(
         "passed": bool(result.passed),
         "closure_summary": result.summary(),
     }
-
-    # Truth-gate: refuse to report a "measurement" when the pipeline
-    # produced no placement AND no routing.  The promotion gate
-    # relies on this signal to fail loudly instead of silently
-    # passing a zero-results run.
-    if result.benders_iterations <= 0 and result.router_completion_pct <= 0.0:
-        raise RuntimeError(
-            f"closure pipeline produced zero results: "
-            f"benders_iterations={result.benders_iterations}, "
-            f"router_completion_pct={result.router_completion_pct:.1f}%, "
-            f"stages_exercised={result.stages_exercised}, "
-            f"errors={result.errors!r}"
-        )
     return payload
 
 
