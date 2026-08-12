@@ -423,7 +423,27 @@
       "PWM_HS": "GateDriveSELV",
       "PWM_LS": "GateDriveSELV",
       "vcc": "Power",
-      "V_BUS_SENSE": "Power"
+      "V_BUS_SENSE": "Power",
+      "gnd": "Power",
+      "usb_dn": "Differential",
+      "usb_dp": "Differential",
+      "i2c_scl_ui": "Default",
+      "i2c_sda_ui": "Default",
+      "rtd_force_p": "FinePitch",
+      "rtd_force_n": "FinePitch",
+      "rtd_sense_p": "FinePitch",
+      "rtd_sense_n": "FinePitch",
+      "WDT_RESET_N": "Default",
+      "SHUTDOWN": "Default",
+      "RELAY_CTRL": "Default",
+      "DISCHARGE_CTRL": "Default",
+      "discharge.k_dis1-coil1": "Power",
+      "discharge.k_dis1-coil2": "Power",
+      "discharge.k_dis2-coil1": "Power",
+      "power_in.bypass_relay-coil1": "Power",
+      "power_in.bypass_relay-coil2": "Power",
+      "safety.ovp.comp-inp": "Default",
+      "safety.uvlo_logic-line": "Default"
     },
     "netclass_patterns": [
       {
