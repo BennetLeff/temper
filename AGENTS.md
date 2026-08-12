@@ -685,6 +685,36 @@ Two corollaries:
     when done. A shared checkout parked on a feature branch silently
     changes what the next agent measures.
 
+### Never Background a Long Run and Wait For It
+
+Long pipeline stages -- `route_board.py` (~250-400 s), a full placement
+solve, a `cargo build` of the workspace -- must be run **in the foreground**,
+or launched and then polled by reading their log/output file directly.
+
+Do not background one and stop, expecting to be woken. Nothing wakes you.
+Four dispatched agents did this in a single session; one did it twice after
+being told explicitly that nothing would wake it. Each burned its remaining
+budget parked on a notification that does not exist, and two of them had
+already finished the work they were sent to do.
+
+The instinct is reasonable -- backgrounding a 6-minute job and yielding is
+what you would do if something *would* wake you. It won't. Treat "I'll wait
+for the background task" as a bug in your own plan.
+
+Two consequences worth stating separately:
+
+*   **A long run is not a prerequisite for reporting.** If the run does not
+    finish, report what you measured and mark the rest **outstanding**, with
+    one sentence on why. A labelled gap is a fine outcome. Inferring the
+    result you would have measured is not -- "the change is
+    representation-only, so the output must be identical" is the argument,
+    not the evidence.
+*   **Do not relaunch a run that died.** This machine has had routing runs
+    OOM-killed at 54-59 GB with several agents active. Check for other live
+    `route_board.py`/`pumpkin_engine` processes before starting one, and if
+    yours dies under load, report it rather than competing for the memory
+    that killed it.
+
 ### Issue Tracking & Management
 
 *   **Granularity is Critical**: Bias towards small, iterative tasks.
