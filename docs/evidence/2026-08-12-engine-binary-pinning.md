@@ -37,10 +37,14 @@ footprints, 3,314 segments, 40 vias, 58 zones, 65/105 nets routed (61.9%),
 kicad-cli `clearance`=499 (byte-stable across 5 DRC samples)**. This
 **supersedes both prior published baselines** (3,349/56/70 and 4,228/74) --
 neither is reproducible from an identifiable binary; this one is. Sec 6
-gives the full breakdown, including that the routing-determinism check
-(second independent `--net-batching` run from the identical placed board)
-was still in flight when this document's numbers were finalized -- see Sec
-6b for its status.
+gives the full breakdown. **One check is explicitly left outstanding**: a
+second independent `--net-batching` run to reconfirm route-stage
+determinism on this exact input was abandoned mid-run when a concurrent
+agent's routing process was OOM-killed on this shared machine (Sec 6c) --
+route-stage determinism itself was already established independently, on
+unchanged code, by the prior reproducibility doc's Sec 4, so this gap does
+not touch Sec 2-5 (the mechanism and its proof) or the single, completed,
+uncorrupted routing run Sec 6b's numbers came from.
 
 ## 1. The problem (verified prior to this task; not re-derived here)
 
@@ -366,23 +370,33 @@ already documented for net-batching). A second independent
 `--net-batching` run from the identical placed board was launched to check
 whether this specific 65/105 result is itself deterministic; see Sec 6c.
 
-### 6c. Routing determinism check
+### 6c. Routing determinism check -- OUTSTANDING, explicitly
 
-⚠ **In flight at the time this section was last written.** A second,
-fully independent `route_board.py --net-batching` process launch (fresh
-interpreter, fresh `multiprocessing.spawn` Stage-3 children, same
-byte-identical `board_placed.kicad_pcb` input) was started to check
-whether Sec 6b's 65/105 / 3,314 / 40 / 58 result reproduces byte-for-byte,
-matching every prior stage's determinism protocol in this lineage. [This
-line is a placeholder pending that run's completion; if this document
-still shows this line when read, either the check finished after
-publication and was not backfilled, or it did not complete in reasonable
-time -- neither undermines Sec 6b's numbers themselves, which are already a
-real, measured, reproducible-from-committed-source-and-a-verified-binary
-result regardless of whether the *route stage's own* determinism was
-independently reconfirmed here (it was already established, on
-then-current code, by `docs/evidence/2026-08-12-board-recipe-reproducibility.md`
-Sec 4).]
+**Not completed. Deliberately abandoned mid-run, not silently dropped.** A
+second, fully independent `route_board.py --net-batching` launch (fresh
+interpreter, fresh `multiprocessing.spawn` Stage-3 children, the identical
+byte-identical `board_placed.kicad_pcb` input Sec 6b's run used) was
+started to check whether that section's 65/105 / 3,314 / 40 / 58 result
+reproduces byte-for-byte. It was killed before completion: a concurrent
+agent on this same machine had a `route_board.py` run OOM-killed twice at
+~59.5GB RSS from shared memory pressure, and running a second concurrent
+routing pass here was more likely to degrade or corrupt that measurement
+and this one than to finish cleanly.
+
+**This does not weaken this document's actual deliverable.** Route-stage
+determinism under concurrent load was already independently established,
+on then-current code (unchanged in every file the routing stage touches,
+per Sec 6a's `git diff` argument extending forward from #1050) by
+`docs/evidence/2026-08-12-board-recipe-reproducibility.md` Sec 4: two
+`--net-batching` runs launched as competing OS processes on the same 24
+cores produced byte-for-byte identical output. This task's own finding is
+orthogonal to that one -- the variable six mutually-inconsistent boards
+traced back to was the **solver binary's identity**, not routing
+nondeterminism, which was already ruled out. Closing this specific gap (a
+fresh two-run determinism check with THIS binary's placement as input) is a
+five-minute follow-up on a machine without concurrent memory pressure; it
+does not change Sec 2-5 (the mechanism and its proof) or the trustworthiness
+of Sec 6b's numbers, which came from a single, completed, non-corrupted run.
 
 ## 7. Rules-compliance notes
 
