@@ -7,6 +7,18 @@ this is the oracle the Rust kernels in the home crates (temper-drc-rs /
 temper-design-bundle) must reproduce bit-identically. Any edit here
 silently weakens the differential proof; if the module's contract changes,
 re-pin the oracle from the new base first.
+
+RE-PINNED (docs/evidence/2026-08-11-gate-vacuity-audit.md finding 14, fix
+on branch fix/vacuous-safety-gates): the pre-fix contract let "DRC never
+ran" and "DRC ran clean" both score a fabricated 100.0
+(``compute_drc_clearance_pass_pct(stages_exercised, drc_errors)`` cannot
+tell them apart from those two inputs alone). The fix adds a
+``result.drc_measured`` truth-gate to ``measure_closure.py`` that raises
+instead of computing a percentage when DRC did not run; this file is
+re-pinned to the POST-fix contract so it stays the intended oracle rather
+than a pinned bug. The three-branch formula itself
+(``compute_drc_clearance_pass_pct``) is UNCHANGED and still bit-identical
+to the Rust kernel — only the caller's decision to invoke it changed.
 """
 
 
@@ -63,11 +75,37 @@ def measure_closure(
     )
     result = test.run()
 
+    # Truth-gate: refuse to report a "measurement" when the pipeline
+    # produced no placement AND no routing.  The promotion gate
+    # relies on this signal to fail loudly instead of silently
+    # passing a zero-results run.  Checked first, ahead of the DRC
+    # truth-gate below.
+    if result.benders_iterations <= 0 and result.router_completion_pct <= 0.0:
+        raise RuntimeError(
+            f"closure pipeline produced zero results: "
+            f"benders_iterations={result.benders_iterations}, "
+            f"router_completion_pct={result.router_completion_pct:.1f}%, "
+            f"stages_exercised={result.stages_exercised}, "
+            f"errors={result.errors!r}"
+        )
+
+    # DRC truth-gate: ``result.drc_errors`` stays 0 on every DRC failure
+    # path exactly like it does when DRC ran and found nothing, so the
+    # count alone cannot tell "never ran" from "ran clean" apart. Refuse
+    # to report a clearance percentage when DRC was not actually
+    # measured, rather than defaulting to the old graceful-degradation
+    # 100%.
+    if not result.drc_measured:
+        raise RuntimeError(
+            "closure pipeline did not measure DRC clearance: the DRC step "
+            f"never ran to completion (stages_exercised={result.stages_exercised}, "
+            f"errors={result.errors!r}, warnings={result.warnings!r}). Refusing "
+            "to report a drc_clearance_pass_pct for an unmeasured DRC step."
+        )
+
     # DRC clearance pass pct: a heuristic for "fraction of DRC checks
-    # that did not flag an error".  When the DRC step did not run
-    # (kicad-cli unavailable) we default to 100% — this is the
-    # graceful-degradation behavior, and the SM2 gate's "≥ baseline"
-    # check then enforces the floor.
+    # that did not flag an error", computed only once ``result.drc_measured``
+    # is confirmed True above.
     if result.stages_exercised >= 4 and result.drc_errors == 0:
         drc_clearance_pass_pct = 100.0
     elif result.stages_exercised >= 4:
@@ -89,19 +127,6 @@ def measure_closure(
         "passed": bool(result.passed),
         "closure_summary": result.summary(),
     }
-
-    # Truth-gate: refuse to report a "measurement" when the pipeline
-    # produced no placement AND no routing.  The promotion gate
-    # relies on this signal to fail loudly instead of silently
-    # passing a zero-results run.
-    if result.benders_iterations <= 0 and result.router_completion_pct <= 0.0:
-        raise RuntimeError(
-            f"closure pipeline produced zero results: "
-            f"benders_iterations={result.benders_iterations}, "
-            f"router_completion_pct={result.router_completion_pct:.1f}%, "
-            f"stages_exercised={result.stages_exercised}, "
-            f"errors={result.errors!r}"
-        )
     return payload
 
 

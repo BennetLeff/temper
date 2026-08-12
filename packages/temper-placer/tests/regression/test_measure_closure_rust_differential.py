@@ -101,6 +101,7 @@ def test_differential_end_to_end_payload(monkeypatch, tmp_path):
         "stages_exercised": 4,
         "drc_errors": 2,
         "drc_warnings": 3,
+        "drc_measured": True,
         "router_completion_pct": 96.5,
         "wall_clock_seconds": 12.34,
         "benders_iterations": 4,
@@ -118,12 +119,20 @@ def test_differential_end_to_end_payload(monkeypatch, tmp_path):
     assert s_payload["ghost_pads_injected"] == 0
 
 
-def test_differential_end_to_end_degraded_stages(monkeypatch, tmp_path):
-    """When DRC did not run (stages < 4) the pass pct is 0.0 — both arms."""
+def test_differential_end_to_end_degraded_stages_drc_measured(monkeypatch, tmp_path):
+    """stages_exercised < 4 with DRC genuinely measured (e.g. earlier
+    optional stages failed but DRC itself ran clean) still uses the
+    formula's stages<4 branch (0.0) — both arms, unchanged from the
+    pre-fix formula. This is a pre-existing quirk of the formula itself
+    (out of scope for finding 14, which is about the (>=4, 0) ambiguity),
+    kept here so the differential still covers a stages<4-with-drc_measured
+    input.
+    """
     result = {
         "stages_exercised": 3,
         "drc_errors": 0,
         "drc_warnings": 0,
+        "drc_measured": True,
         "router_completion_pct": 90.0,
         "wall_clock_seconds": 1.0,
         "benders_iterations": 2,
@@ -147,6 +156,7 @@ def test_differential_end_to_end_zero_results_raise(monkeypatch, tmp_path):
         "stages_exercised": 1,
         "drc_errors": 0,
         "drc_warnings": 0,
+        "drc_measured": False,
         "router_completion_pct": 0.0,
         "wall_clock_seconds": 0.5,
         "benders_iterations": 0,
@@ -163,6 +173,38 @@ def test_differential_end_to_end_zero_results_raise(monkeypatch, tmp_path):
         _shim_mod.measure_closure(pcb, repo_root=tmp_path)
     assert str(se.value) == str(oe.value)
     assert "zero results" in str(se.value)
+
+
+def test_differential_end_to_end_drc_not_measured_raise(monkeypatch, tmp_path):
+    """Finding 14's motivating condition: DRC never ran (kicad-cli missing,
+    crash, or timeout) but the pipeline otherwise produced real placement
+    and routing results, so the zero-results gate does NOT fire and
+    stages_exercised independently reaches >=4 via the four pre-DRC stages.
+    Pre-fix, this scored a fabricated 100.0 — identical to a genuine clean
+    DRC run — in both arms. Post-fix, the DRC truth-gate raises instead,
+    in both arms, with an identical message."""
+    result = {
+        "stages_exercised": 4,
+        "drc_errors": 0,
+        "drc_warnings": 0,
+        "drc_measured": False,
+        "router_completion_pct": 96.5,
+        "wall_clock_seconds": 12.34,
+        "benders_iterations": 4,
+        "passed": True,
+        "errors": [],
+        "warnings": ["kicad-cli not available; skipping DRC"],
+        "summary": lambda: "s",
+    }
+    monkeypatch.setattr(ClosureTest, "run", _stub_run(result))
+    pcb = tmp_path / "b.kicad_pcb"
+    pcb.write_text("(kicad_pcb)\n")
+    with pytest.raises(RuntimeError) as oe:
+        _oracle.measure_closure(pcb, repo_root=tmp_path)
+    with pytest.raises(RuntimeError) as se:
+        _shim_mod.measure_closure(pcb, repo_root=tmp_path)
+    assert str(se.value) == str(oe.value)
+    assert "did not measure DRC clearance" in str(se.value)
 
 
 # ---------------------------------------------------------------------------
