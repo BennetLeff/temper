@@ -19,7 +19,7 @@ Example of bug prevented by type system:
     grid.is_available(Millimeters(x_mm), Millimeters(y_mm))  # OK
 """
 
-from typing import NewType, TypeAlias
+from typing import NewType
 
 import numpy as np
 import temper_geometry as _geometry
@@ -37,10 +37,6 @@ Radians = NewType("Radians", float)
 """Rotation angle in radians [0, 2π). Primarily used for internal math and JAX operations."""
 
 # Array variants for JAX
-DegreesArray: TypeAlias = Array
-RadiansArray: TypeAlias = Array
-
-
 def deg_to_rad(degrees: float | Array) -> float | Array:
     """Convert degrees to radians.
 
