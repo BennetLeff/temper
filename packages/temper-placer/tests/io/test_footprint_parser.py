@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 # Module under test - will be implemented
-from temper_placer.io.footprint_parser import (
+from temper_io_types import (
     FootprintBounds,
     FootprintParseError,
     parse_footprint_courtyard,
@@ -197,7 +197,7 @@ class TestFootprintDirectory:
 
     def test_parse_footprint_directory(self, tmp_path: Path) -> None:
         """Should parse all .kicad_mod files in a directory."""
-        from temper_placer.io.footprint_parser import parse_footprint_directory
+        from temper_io_types import parse_footprint_directory
 
         # Create multiple footprint files
         for name, width, height in [

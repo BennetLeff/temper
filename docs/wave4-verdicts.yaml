@@ -1078,11 +1078,6 @@ removal_surfaces:
       PORT; feedback.py and topology_phase.py, also named in that cluster,
       no longer exist at this path in the current tree and are not
       transcribed (nothing to attach a verdict to).
-  - pattern: packages/temper-placer/src/temper_placer/pipeline/stages/**
-    verdict: PORT
-    note: >-
-      Thin Stage.__call__ wrappers over already-classified compute (evidence
-      doc Sec 2.2, "pipeline/stages/* (705 LOC, 8 files)").
   - paths:
       - packages/temper-placer/src/temper_placer/router_v6/_pipeline_core.py
       - packages/temper-placer/src/temper_placer/router_v6/_pipeline_grid.py
@@ -1207,7 +1202,6 @@ removal_surfaces:
       - packages/temper-placer/src/temper_placer/core/net_graph.py
       - packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py
       - packages/temper-placer/src/temper_placer/core/specification.py
-      - packages/temper-placer/src/temper_placer/core/stackup.py
     verdict: PORT
     note: >-
       Protocol interfaces, a dataclass-protocol compat shim over the
@@ -1243,7 +1237,6 @@ removal_surfaces:
       - packages/temper-placer/src/temper_placer/deterministic/instrumentation.py
       - packages/temper-placer/src/temper_placer/deterministic/state.py
       - packages/temper-placer/src/temper_placer/deterministic/feedback/__init__.py
-      - packages/temper-placer/src/temper_placer/deterministic/feedback/drc_runner.py
       - packages/temper-placer/src/temper_placer/deterministic/feedback/orchestrator.py
       - packages/temper-placer/src/temper_placer/deterministic/geometry/__init__.py
       - packages/temper-placer/src/temper_placer/deterministic/geometry/courtyard.py

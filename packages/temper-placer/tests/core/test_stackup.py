@@ -2,7 +2,7 @@
 
 import pytest
 
-from temper_placer.core.stackup import (
+from temper_design_bundle_python import (
     LayerConfig,
     Stackup,
     characteristic_impedance_microstrip,
