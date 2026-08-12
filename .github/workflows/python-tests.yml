@@ -2440,9 +2440,17 @@ jobs:
 
       # Constraint mutation suite (plan 2026-08-02-006, R32): every CP-SAT
       # constraint encoding must carry a non-empty, triaged kill set in
-      # power_pcb_dataset/constraint_kill_sets.yaml. The gate is an AST +
-      # YAML check (no solves), so it is fast enough for every commit; the
-      # runner that regenerates the register is invoked manually/periodically.
+      # power_pcb_dataset/constraint_kill_sets.yaml. Fixed 2026-08-11
+      # (gate-vacuity audit, finding 8): the gate used to be a pure AST + YAML
+      # check with no solves, which meant it could never fail on a gutted
+      # encoder -- it only re-read whatever a past, disconnected run of
+      # constraint_mutation_runner.py had written to the register, forever.
+      # It now also re-runs constraint_mutation_runner.run_suite() live (the
+      # same pinned-solve harness the runner uses, ~1s for all 32 registered
+      # mutations) and requires every registered outcome to still match a
+      # fresh run against current encoder source -- see
+      # scripts/constraint_mutation_gate.py's check_live_kill_sets docstring
+      # and docs/evidence/2026-08-11-gate-vacuity-audit.md.
       - name: Constraint mutation gate (kill-set register)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/constraint_mutation_gate.py
