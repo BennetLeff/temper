@@ -596,6 +596,77 @@ def test_board_snapshot_from_netlist_omitting_net_class_defs_keeps_legacy_defaul
     assert snapshot.to_dict()["net_class_rules"]["GND"]["trace_width_mm"] == 0.2
 
 
+def test_board_snapshot_from_netlist_populates_real_safety_fields():
+    """Regression (2026-08-11): `from_netlist` (and `from_parsed_pcb`)
+    hardcoded `creepage_mm`, `voltage_v`, `max_current_rating`,
+    `safety_category`, `required_layer`, and `routing_strategy` to `None`
+    for EVERY net class -- a pre-existing gap sibling to the
+    `trace_width_mm` hardcode fixed by #1045 (which reported this gap
+    rather than fixing it). This was harmless before real net
+    classification landed (#1041/#1042, every net resolved to "Signal")
+    but is a live safety-argument gap now that HighVoltage
+    (creepage_mm=6.0, safety_category="HV") is a real per-net class on a
+    board whose entire mains<->SELV isolation argument rests on an 8.0mm
+    creepage bar. Passing `net_class_defs=TEMPER_NET_CLASSES` must produce
+    HighVoltage's REAL values, not `None`. A pre-fix `from_netlist`
+    (hardcoded `None` regardless of `net_class_defs`) fails this test."""
+    positions = np.zeros((1, 2), dtype=np.float64)
+    comps = [_FakeComp("Q1", "TO-247", 5.0, 4.0, "HighVoltage")]
+    nets = [_FakeNet("hv1", "HighVoltage", [("Q1", 1)])]
+    netlist = SimpleNamespace(components=comps, nets=nets)
+    rules = [_FakeClearanceRule("HighVoltage", "Signal", 8.0, "mains-SELV barrier")]
+
+    snapshot = DRC_BOARD_SNAPSHOT.from_netlist(
+        positions=positions,
+        netlist=netlist,
+        board_width=100.0,
+        board_height=100.0,
+        board_margin=3.0,
+        clearance_rules=rules,
+        net_class_defs=TEMPER_NET_CLASSES,
+    )
+    hv_rule = snapshot.to_dict()["net_class_rules"]["HighVoltage"]
+    assert hv_rule["creepage_mm"] == 6.0, (
+        f"HighVoltage's real creepage_mm is 6.0 (TEMPER_NET_CLASSES); got "
+        f"{hv_rule['creepage_mm']!r} -- the pre-fix None hardcode."
+    )
+    assert hv_rule["safety_category"] == "HV", (
+        f"HighVoltage's real safety_category is 'HV'; got "
+        f"{hv_rule['safety_category']!r} -- the pre-fix None hardcode."
+    )
+    assert hv_rule["voltage_v"] == 400.0
+    assert hv_rule["required_layer"] == "B.Cu"
+    assert hv_rule["routing_strategy"] == "plane_required"
+
+
+def test_board_snapshot_from_netlist_omitting_net_class_defs_keeps_safety_fields_none():
+    """Without `net_class_defs` (legacy callers), the six safety fields
+    stay `None` exactly as before -- this fix must not change behavior for
+    callers that don't supply the SSOT mapping (e.g. this file's own
+    bit-exactness tests against the frozen dict kernels)."""
+    positions = np.zeros((1, 2), dtype=np.float64)
+    comps = [_FakeComp("Q1", "TO-247", 5.0, 4.0, "HighVoltage")]
+    nets = [_FakeNet("hv1", "HighVoltage", [("Q1", 1)])]
+    netlist = SimpleNamespace(components=comps, nets=nets)
+    rules = [_FakeClearanceRule("HighVoltage", "Signal", 8.0, "mains-SELV barrier")]
+
+    snapshot = DRC_BOARD_SNAPSHOT.from_netlist(
+        positions=positions,
+        netlist=netlist,
+        board_width=100.0,
+        board_height=100.0,
+        board_margin=3.0,
+        clearance_rules=rules,
+    )
+    hv_rule = snapshot.to_dict()["net_class_rules"]["HighVoltage"]
+    assert hv_rule["creepage_mm"] is None
+    assert hv_rule["safety_category"] is None
+    assert hv_rule["voltage_v"] is None
+    assert hv_rule["max_current_rating"] is None
+    assert hv_rule["required_layer"] is None
+    assert hv_rule["routing_strategy"] is None
+
+
 @dataclass
 class _FakeParsedComponent:
     ref: str
@@ -641,6 +712,54 @@ def test_board_snapshot_from_parsed_pcb_matches_validated_kernel():
     snapshot = DRC_BOARD_SNAPSHOT.from_parsed_pcb(parsed)
     assert _canon_board_dict(snapshot.to_dict()) == _canon_board_dict(dict_result)
     assert snapshot.to_dict()["board"]["margin_mm"] == 3.0
+
+
+@dataclass
+class _FakeRulesWithSafety:
+    trace_width_mm: float
+    clearance_mm: float
+    creepage_mm: float | None = None
+    voltage_v: float | None = None
+    max_current_rating: float | None = None
+    safety_category: str | None = None
+    required_layer: str | None = None
+    routing_strategy: str | None = None
+
+
+def test_board_snapshot_from_parsed_pcb_populates_real_safety_fields():
+    """`from_parsed_pcb` sibling of the `from_netlist` regression above:
+    the same six safety fields were hardcoded to `None` regardless of what
+    `design_rules.net_classes[class_name]` actually carried. Reads them
+    for real when present on the rules object."""
+    parsed = SimpleNamespace(
+        components=[_FakeParsedComponent("Q1", "TO-220", 4.0, 3.0, "HV", initial_rotation=1)],
+        nets=[_FakeParsedNet("N1", "HV", [("Q1", 1)])],
+        design_rules=SimpleNamespace(
+            net_classes={
+                "HV": _FakeRulesWithSafety(
+                    1.2,
+                    6.0,
+                    creepage_mm=6.0,
+                    voltage_v=400.0,
+                    safety_category="HV",
+                    required_layer="B.Cu",
+                    routing_strategy="plane_required",
+                ),
+            }
+        ),
+        board=SimpleNamespace(width=100.0, height=80.0),
+    )
+    snapshot = DRC_BOARD_SNAPSHOT.from_parsed_pcb(parsed)
+    hv_rule = snapshot.to_dict()["net_class_rules"]["HV"]
+    assert hv_rule["creepage_mm"] == 6.0, (
+        f"got {hv_rule['creepage_mm']!r} -- the pre-fix None hardcode."
+    )
+    assert hv_rule["safety_category"] == "HV", (
+        f"got {hv_rule['safety_category']!r} -- the pre-fix None hardcode."
+    )
+    assert hv_rule["voltage_v"] == 400.0
+    assert hv_rule["required_layer"] == "B.Cu"
+    assert hv_rule["routing_strategy"] == "plane_required"
 
 
 def test_typed_constraints_from_context_matches_validated_kernel():
