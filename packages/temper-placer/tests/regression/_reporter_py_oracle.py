@@ -1,0 +1,170 @@
+"""Pinned Python oracle for ``temper_placer/regression/reporter.py``.
+
+VERBATIM copy of the pre-migration implementation of
+``temper_placer/regression/reporter.py`` (as of ``origin/main`` commit
+``2426f5cf5``, the Wave-4 tail-tooling migration base). Do NOT edit the
+semantics: the differential suite
+(``tests/regression/test_reporter_rust_differential.py``) compares the Rust
+pyclasses (``temper-orchestration`` ``reporter`` module) against this file
+byte-for-byte, and its content hash is registered in
+``scripts/oracle_hashes.json``. All four classes — ``BatteryVerdictReport``,
+``MetricDelta``, ``BoardResult``, ``RegressionReporter`` — stay here
+VERBATIM as evidence; the production ``reporter.py`` is now a delegation
+shim re-exporting the Rust pyclasses (public API unchanged).
+
+Original module docstring (kept verbatim):
+-----------------------------------------
+
+Regression reporter — produces per-board pass/fail summary.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any
+
+
+@dataclass
+class BatteryVerdictReport:
+    """U10: A battery verdict surfaced on the reporter.
+
+    Read-only snapshot of a helps-battery run result — additive, does not
+    break existing ``BoardResult`` / ``RegressionReporter`` behaviour.
+    """
+
+    field_name: str
+    verdict: str
+    verdict_details: str
+    cost_seconds: float
+    budget_exceeded: bool
+    event: str = ""  # "keep" | "kill" | "inconclusive"
+
+
+@dataclass
+class MetricDelta:
+    """A single metric comparison result."""
+
+    name: str
+    baseline: float
+    current: float
+    delta: float
+    regression: bool = False
+
+    @property
+    def delta_display(self) -> str:
+        sign = "+" if self.delta > 0 else ""
+        return f"{sign}{self.delta}"
+
+    def message(self) -> str:
+        return f"{self.name}: {self.current} vs baseline {self.baseline} ({self.delta_display})"
+
+
+@dataclass
+class BoardResult:
+    """Result for a single board."""
+
+    board_id: str
+    passed: bool
+    metrics: dict[str, Any] = field(default_factory=dict)
+    baseline_metrics: dict[str, Any] = field(default_factory=dict)
+    deltas: list[MetricDelta] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    skipped: bool = False
+    skip_reason: str = ""
+    # Descriptive facts about the board (component_count, net_count, ...)
+    # measured live from the checked-in artifact on this run. These are
+    # NOT compared to a stored baseline and never affect `passed` -- see
+    # docs/solutions/best-practices/stale-absolute-baseline-vs-mutable-board-2026-07-29.md
+    # for why pinning them as absolutes only guarantees recurring false
+    # failures on legitimate board changes.
+    board_shape: dict[str, int] = field(default_factory=dict)
+
+
+@dataclass
+class RegressionReporter:
+    """Collects and reports regression results."""
+
+    results: list[BoardResult] = field(default_factory=list)
+    battery_verdicts: list[BatteryVerdictReport] = field(default_factory=list)
+
+    def add_result(self, result: BoardResult) -> None:
+        self.results.append(result)
+
+    def add_battery_verdict(self, report: BatteryVerdictReport) -> None:
+        """Record a helps-battery keep/kill verdict (U10 additive)."""
+        self.battery_verdicts.append(report)
+
+    @property
+    def total(self) -> int:
+        return len(self.results)
+
+    @property
+    def passed(self) -> int:
+        return sum(1 for r in self.results if r.passed)
+
+    @property
+    def failed(self) -> int:
+        return sum(1 for r in self.results if not r.passed and not r.skipped)
+
+    @property
+    def skipped(self) -> int:
+        return sum(1 for r in self.results if r.skipped)
+
+    @property
+    def has_failures(self) -> bool:
+        return self.failed > 0
+
+    def summary(self) -> str:
+        lines = ["=== Regression Suite Results ==="]
+        lines.append(
+            f"Total: {self.total}, Passed: {self.passed}, Failed: {self.failed}, Skipped: {self.skipped}"
+        )
+        lines.append("")
+
+        for result in self.results:
+            status = "SKIP" if result.skipped else ("PASS" if result.passed else "FAIL")
+            lines.append(f"  [{status}] {result.board_id}")
+
+            if result.board_shape:
+                shape_str = ", ".join(f"{k}={v}" for k, v in sorted(result.board_shape.items()))
+                lines.append(
+                    f"         BOARD: {shape_str} (descriptive, measured live -- not gated)"
+                )
+
+            if result.skipped and result.skip_reason:
+                lines.append(f"         Reason: {result.skip_reason}")
+
+            for delta in result.deltas:
+                if delta.regression:
+                    lines.append(f"         REGRESSION: {delta.message()}")
+
+            for warning in result.warnings:
+                lines.append(f"         WARNING: {warning}")
+
+            for error in result.errors:
+                lines.append(f"         ERROR: {error}")
+
+        # Append battery verdicts section (U10 additive)
+        if self.battery_verdicts:
+            lines.append("")
+            lines.append("=== Battery Verdicts ===")
+            for bv in self.battery_verdicts:
+                lines.append(f"  [{bv.verdict.upper()}] {bv.field_name}")
+                lines.append(
+                    f"         cost={bv.cost_seconds:.1f}s, budget_exceeded={bv.budget_exceeded}"
+                )
+                lines.append(f"         details: {bv.verdict_details}")
+
+        return "\n".join(lines)
+
+    def battery_report(self) -> str:
+        """Return a standalone battery-verdict report string."""
+        if not self.battery_verdicts:
+            return "No battery verdicts recorded."
+        lines = ["=== Battery Verdict Report ==="]
+        for bv in self.battery_verdicts:
+            lines.append(f"  {bv.field_name}: {bv.verdict.upper()}")
+            lines.append(f"    {bv.verdict_details}")
+            lines.append(f"    cost={bv.cost_seconds:.1f}s, budget_exceeded={bv.budget_exceeded}")
+        return "\n".join(lines)

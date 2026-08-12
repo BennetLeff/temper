@@ -248,6 +248,16 @@ pub mod wasm_test_registry;
 // per the U4 dispatch.
 pub(crate) mod pipeline_route;
 
+// Wave-4 tail-tooling: the regression reporter surface
+// (temper_placer/regression/reporter.py) — `MetricDelta` /
+// `BoardResult` / `BatteryVerdictReport` / `RegressionReporter` pyclasses
+// carrying the metric-delta computation and verdict/result formatting. The
+// Python module is now a delegation shim re-exporting these classes;
+// bit-identical parity is pinned by
+// `tests/regression/test_reporter_rust_differential.py`. Append-only per
+// the tail-tooling dispatch.
+pub(crate) mod reporter;
+
 // Phase C residual (Rust Orchestration Engine plan 2026-08-09-001, U4-style
 // dispatch): the pipeline-contract tail — `pipeline/dag_types.py` →
 // `dag_types` (the `StageResult` dataclass), `pipeline/dag_observability.py`
@@ -438,6 +448,13 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<stage_ledger::CardinalitySnapshot>()?;
     m.add_function(wrap_pyfunction!(stage_ledger::snapshot_cardinality, m)?)?;
     m.add_function(wrap_pyfunction!(stage_ledger::diff_cardinality, m)?)?;
+    // Wave-4 tail-tooling: the regression reporter surface
+    // (regression/reporter.py) — all four pyclasses re-exported by the
+    // delegating shim (public API unchanged).
+    m.add_class::<reporter::BatteryVerdictReport>()?;
+    m.add_class::<reporter::MetricDelta>()?;
+    m.add_class::<reporter::BoardResult>()?;
+    m.add_class::<reporter::RegressionReporter>()?;
     Ok(())
 }
 

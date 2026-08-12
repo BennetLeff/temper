@@ -2920,3 +2920,100 @@ physics quantity. The R24 discipline does not apply.
 - `check_unwired_kernels.py` — no new unwired kernel: every new pyclass /
   pyfunction is referenced by its delegating shim, so the Python AST scan
   sees it wired.
+
+# Regression reporter (`reporter.rs`) — Verification
+
+The Wave-4 tail-tooling migration of `temper_placer/regression/reporter.py`
+(152 LOC): all four classes move to `src/reporter.rs` as pyclasses —
+`MetricDelta` (the `delta_display`/`message()` delta computation),
+`BoardResult`, `BatteryVerdictReport` and `RegressionReporter` (the
+`total`/`passed`/`failed`/`skipped`/`has_failures` counting and the
+`summary()`/`battery_report()` verdict/result formatting). The pre-migration
+module is pinned VERBATIM as
+`packages/temper-placer/tests/regression/_reporter_py_oracle.py`
+(content-hash registered in `scripts/oracle_hashes.json`); the shim
+(`regression/reporter.py`) re-exports the pyclasses by identity (public API
+unchanged — `runner.py`, `cli.py` and the existing suites construct them
+identically).
+
+## Home-crate decision
+
+The reporter is a *reporting* surface — the task's per-module home decision
+places reporting in `temper-orchestration` (vs `temper-io-types` for
+hashing/manifest, where quarantine and the golden-manifest live). The
+classes are data + formatting; the formatting (delta rendering, summary /
+battery-report renderers) and the counting are the portable compute.
+
+## What migrated vs stayed Python
+
+| Piece | Verdict |
+|---|---|
+| `MetricDelta.delta_display` / `message()` (the sign-prefixed delta rendering, the `name: current vs baseline (delta)` line) | migrated (pyclass methods; floats rendered through CPython `str`, David-Gay decimal stays Python) |
+| `MetricDelta`/`BoardResult`/`BatteryVerdictReport`/`RegressionReporter` dataclass semantics (fields, defaults, `repr`/`str`/`eq`) | migrated (pyclasses with CPython-`repr`-built dataclass strings and type-strict `__eq__`) |
+| `RegressionReporter` counting + `summary()`/`battery_report()` renderers | migrated (Rust iteration + key-sorted `board_shape` join; `:.1f` cost via `d6_util::py_format`, verdict `upper()` via CPython) |
+| the helps-battery *decision* (verdicts, `budget_exceeded`, the verdict thresholds) | stays Python in `validation/_thermal_battery.py` (out of this module's scope — the reporter only renders what it is handed) |
+
+## Induction applicability
+
+**Mathematical induction is not applicable.** Rendering and counting are
+single-pass loops over the results/verdicts lists with no recursion or size
+parameter. A **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every input in the differential
+domains (documented cases + Hypothesis-generated metric values, result
+mixes, board shapes, verdict sets), the four pyclasses produce values
+bit-identical to the pinned oracle's dataclasses (`delta_display`,
+`message`, `repr`/`str`, field values, counts, `summary()`,
+`battery_report()`).
+
+*Proof by structural cases.*
+
+1. **`delta_display`.** `"+" if delta > 0 else ""` is `delta_sign`; the float
+   rendering is CPython `str(float)` (`PyFloat::str`), so exponent-range and
+   signed-zero values (`-0.0` → `"-0.0"`) are bit-identical by construction.
+2. **`message()`.** The `"name: current vs baseline (delta_display)"` line
+   is assembled from the same CPython-rendered floats.
+3. **Counting.** `total`/`passed`/`failed`/`skipped`/`has_failures` are the
+   oracle's `sum(1 for r in results if ...)` predicates over the stored
+   `BoardResult` fields (`failed` = not passed and not skipped).
+4. **`summary()`.** The renderer reproduces the oracle line-for-line: the
+   header block, per-result `[SKIP]/[PASS]/[FAIL]` lines, the `board_shape`
+   line via a Rust key-sorted `k=v` join (keys are ASCII identifiers, so
+   byte order == code-point order), skip reasons, `REGRESSION:` lines for
+   regression-flagged deltas (via each delta's `message()`), warnings,
+   errors, and the battery-verdicts section (`verdict.upper()` and the
+   `:.1f` cost column routed through CPython).
+5. **Dataclass semantics.** `repr`/`str` build `Class(field=..., ...)`
+   strings from CPython `repr()` of every field (single-quoted strings,
+   `repr(float)`, `True`/`False`); `eq` is type-strict with field-wise
+   comparison (containers via CPython `==`), exactly like dataclass `__eq__`.
+
+## R1 gate status
+
+| Gate | Status | Evidence |
+|---|---|---|
+| R1a behavioural A/B | PASS | `tests/regression/test_reporter_rust_differential.py` (25 tests): delta display/message/repr/str/eq over 6 documented metric shapes, BoardResult/BatteryVerdictReport repr/eq/defaults, counts + summary + battery_report over 6 result sets incl. the richest full-shape report, `repr` of the reporter, and the oracle class bodies content-hash pinned in-suite and in `scripts/oracle_hashes.json`. |
+| R1b no-regression arm | N/A, recorded | the reporter runs once per regression-suite invocation on a sub-second surface; no speedup is claimed. |
+| R1c ≥5 non-vacuous properties | PASS | 7 hypothesis properties (delta_display differential, message+repr differential, counts differential over random mixes, board-shape-line differential, battery_report differential, sign invariant — each pins a distinct branch against a distinct implementation). |
+| R1d ≥3 MRs | PASS | 4 metamorphic relations (adding a failure flips `has_failures` and moves the counters in lockstep; only regression-flagged deltas emit REGRESSION lines; summary is the ordered concatenation of per-result blocks; battery_report is empty-exact then populated). |
+| R1e VERIFICATION.md | PASS | this section |
+| R1f TDD | PASS | the differential file was authored against the not-yet-registered surface; the shim re-export is proven by identity (`shim_cls is pyo3_cls`) |
+| R1g Rust practice | PASS | no `unwrap`/`expect` outside `#[cfg(test)]`; the pyo3 boundary is catch_unwind-wrapped by pyo3's pymethod expansion (the crate sets `profile.release.panic = "unwind"`); `cargo clippy --all-features --all-targets -- -D warnings` clean. |
+| R1h R24 | N/A | no physics quantity is computed, asserted, or gated. |
+
+## Documented bounds (per R1, recorded here)
+
+1. **Verdict thresholds stay Python.** The reporter renders `verdict` /
+   `budget_exceeded` / `verdict_details` as handed in; the helps-battery
+   decision lives in `validation/_thermal_battery.py`. This is the task's
+   documented pure-Python-orchestration boundary for this module.
+2. **Float rendering is CPython-routed.** `str(float)` (via `PyFloat::str`)
+   and `:.1f` (via `str.format`) are not reimplemented in Rust — the
+   repo-wide David-Gay convention (same as `d6_util`) keeps parity by
+   construction; the differential still pins it end-to-end.
+3. **`board_shape` keys are ASCII.** The summary's `sorted(...)` join uses
+   Rust byte-order string sort; Python's sort is code-point order. Board
+   shape keys are ASCII identifiers (`component_count`, `net_count`), so the
+   orders coincide; the PBT constrains keys accordingly.

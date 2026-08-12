@@ -1,22 +1,27 @@
-"""Golden manifest loader and validator.
+"""Pinned Python oracle for ``temper_placer/regression/manifest.py``.
+
+VERBATIM copy of the pre-migration implementation of
+``temper_placer/regression/manifest.py`` (as of ``origin/main`` commit
+``2426f5cf5``, the Wave-4 tail-tooling migration base). Do NOT edit the
+semantics: the differential suite
+(``tests/regression/test_manifest_rust_differential.py``) compares the Rust
+kernels (``temper-io-types`` ``manifest`` module) against this file
+byte-for-byte, and its content hash is registered in
+``scripts/oracle_hashes.json``. The migrated compute — the path-set rules
+(``resolve_path`` / ``baseline_yaml_path`` / ``baseline_pcb_path``) and the
+PCB-missing validation — stays here VERBATIM as evidence; the production
+``manifest.py`` is now a delegation shim whose YAML ingestion
+(``GoldenManifest.load``), the ``mkdir`` side effect and the
+``get_board`` lookup remain Python.
+
+Original module docstring (kept verbatim):
+-----------------------------------------
+
+Golden manifest loader and validator.
 
 Loads golden_manifest.yaml which declares each golden board for
 the regression suite. The manifest is manually reviewed (B4) and
 never auto-updated by automation.
-
-This module is a delegation shim. The path-set compute moved to
-``temper-io-types``'s ``manifest`` module (Wave-4 tail-tooling migration):
-``resolve_path`` (``repo_root / board.path``), ``baseline_yaml_path`` and
-``baseline_pcb_path`` (the ``power_pcb_dataset/baselines`` rules), and the
-per-board missing-PCB check + error-message construction of ``validate``.
-The YAML ingestion stays here — ``GoldenManifest.load`` (``yaml.safe_load``,
-the same Python-YAML boundary ``reference_aliases`` keeps), the
-``validate`` ``mkdir`` side effect, and the ``get_board`` linear lookup
-(trivial membership orchestration). The public API is unchanged. The
-pre-migration module is pinned VERBATIM as
-``tests/regression/_manifest_py_oracle.py`` (content-hash registered in
-``scripts/oracle_hashes.json``); bit-identical parity is pinned by
-``tests/regression/test_manifest_rust_differential.py``.
 """
 
 from __future__ import annotations
@@ -25,8 +30,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml  # type: ignore[import-untyped]
-
-import temper_io_types as _tio
 
 
 @dataclass
@@ -41,13 +44,13 @@ class GoldenBoard:
     description: str = ""
 
     def resolve_path(self, repo_root: Path) -> Path:
-        return Path(_tio.resolve_board_path_py(str(repo_root), self.path))
+        return repo_root / self.path
 
     def baseline_yaml_path(self, repo_root: Path) -> Path:
-        return Path(_tio.baseline_yaml_path_py(str(repo_root), self.id))
+        return repo_root / "power_pcb_dataset" / "baselines" / f"{self.id}_baseline.yaml"
 
     def baseline_pcb_path(self, repo_root: Path) -> Path:
-        return Path(_tio.baseline_pcb_path_py(str(repo_root), self.id))
+        return repo_root / "power_pcb_dataset" / "baselines" / f"{self.id}.kicad_pcb"
 
 
 @dataclass
@@ -81,12 +84,16 @@ class GoldenManifest:
         return cls(version=data.get("version", 1), boards=boards)
 
     def validate(self, repo_root: Path) -> list[str]:
+        errors: list[str] = []
         baselines_dir = repo_root / "power_pcb_dataset" / "baselines"
         baselines_dir.mkdir(parents=True, exist_ok=True)
 
-        return _tio.validate_board_paths(
-            str(repo_root), [(b.id, b.path) for b in self.boards]
-        )
+        for board in self.boards:
+            pcb_path = board.resolve_path(repo_root)
+            if not pcb_path.exists():
+                errors.append(f"Board '{board.id}': PCB file not found at {pcb_path}")
+
+        return errors
 
     def get_board(self, board_id: str) -> GoldenBoard | None:
         for b in self.boards:

@@ -1623,3 +1623,196 @@ suites are fail-capable on the two behaviours most likely to drift.
    parens inside quoted strings, and the existing production-board
    regression (`test_strip_copper.py`, 2434 blocks) proves the real input
    space is unaffected.
+
+# Dead-letter quarantine compute (`quarantine.rs`) — Verification
+
+The Wave-4 tail-tooling migration of `temper_placer/testing/quarantine.py`
+(188 LOC): the error-taxonomy decision table (`classify_error`), the
+stack-hash SHA-256-prefix reduction (`compute_stack_hash`) and the
+board-fingerprint content kernels (`compute_fingerprint` — line count +
+`(kicad_pcb` header probe) move to `src/quarantine.rs`, exposed as
+`temper_io_types.classify_error` / `compute_stack_hash` /
+`compute_fingerprint`. The pre-migration module is pinned VERBATIM as
+`packages/temper-placer/tests/testing/_quarantine_py_oracle.py`
+(content-hash registered in `scripts/oracle_hashes.json`).
+
+## Home-crate decision
+
+The compute is error/fingerprint *hashing* and content classification — the
+`temper-io-types` (hashing/manifest) family, not reporting/verdict
+orchestration. The three kernels are pure (wasm32-safe) functions; the pyo3
+boundary is a thin adapter. The regression reporter (a separate slice) is
+homed in `temper-orchestration`.
+
+## What migrated vs stayed Python
+
+| Piece | Verdict |
+|---|---|
+| `classify_error` decision table | migrated (`classify`, pure — stage + lowercased message + exception class name → taxonomy class; branch order preserved) |
+| `compute_stack_hash` sha256 prefix | migrated (`sha256_hex_prefix`, sha2 — byte-identical to `hashlib.sha256(...).hexdigest()[:12]`); the *traceback rendering* is CPython (`traceback.format_exception`) — rendering frames/source lines/chains is CPython semantics that cannot be bit-identical in Rust across Python versions (see the module doc's trap note) |
+| `compute_fingerprint` content kernels | migrated (`count_lines`, `has_kicad_header` — pure); the fs-backed dict builder is the pyo3 wrapper (`std::fs`, `errors="replace"` as `String::from_utf8_lossy`) |
+| `QuarantineEntry` + `to_dict`/`to_json` | stays Python (dataclass serialization, evidence) |
+| `quarantine_error` / `_update_manifest` / `load_manifest` / `quarantine_summary` | stays Python (dead-letter filesystem manifest management, evidence) |
+| `TAXONOMY_CLASSES` label table | stays Python (used by `to_dict`/`quarantine_summary`) |
+
+## Induction applicability
+
+**Mathematical induction is not applicable.** `classify` is a fixed finite
+decision table; `count_lines`/`has_kicad_header` are single-pass string
+functions with no recursion or size parameter. A **structural proof** is
+recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every input in the differential
+domains (documented cases + Hypothesis-generated ASCII keyword/message soup
++ generated board-ish content), `temper_io_types.classify_error`,
+`compute_stack_hash` and `compute_fingerprint` return values bit-identical
+to the pinned oracle's.
+
+*Proof by structural cases.*
+
+1. **`classify`.** The Rust decision table transcribes the Python
+   `if`-chain in order, so an earlier-precedence keyword always wins (a
+   message containing `version` classifies as `PARSE_KICAD_VERSION_MISMATCH`
+   even when it also contains `footprint`/`decode`). The message keyword
+   tests run on Rust `str::to_lowercase` — identical to CPython
+   `str.lower()` for the ASCII domain the pipeline produces (differential
+   and PBT pin that domain; exotic-Unicode lowercasing is out of scope and
+   recorded below). The class-name arm matches the exact tuple
+   `("SyntaxError", "ValueError", "KeyError")` via `matches!`.
+2. **`compute_stack_hash`.** Both arms render the traceback with the same
+   CPython `traceback.format_exception(type, exc, exc.__traceback__)` call,
+   so the input bytes are identical by construction; the reduction is the
+   same SHA-256 → 12-hex-prefix (sha2 vs hashlib — both the standard
+   SHA-256, pinned by the differential).
+3. **`compute_fingerprint`.** `exists()` and `metadata().len()` reproduce
+   `Path.exists()`/`stat().st_size`; `String::from_utf8_lossy` reproduces
+   `read_text(errors="replace")`'s U+FFFD substitution; `count_lines` is
+   `content.count("\n") + 1` (`matches('\n').count() + 1`); 
+   `has_kicad_header` slices the first 200 *code points* like `[:200]`,
+   lowercases, and probes `(kicad_pcb`. The `except Exception` unreadable
+   fallback (`readable: False`, no `lines`/`has_kicad_header` keys) is the
+   `Err(_)` match arm.
+
+## R1 gate status
+
+| Gate | Status | Evidence |
+|---|---|---|
+| R1a behavioural A/B | PASS | `tests/testing/test_quarantine_rust_differential.py` (28 tests): both publics vs the verbatim oracle over 13 documented classification cases, 4 raised/unraised/hostile stack-hash cases, 4 fingerprint filesystem cases (existing, missing, headerless, unreadable) and the end-to-end `quarantine_error`/manifest parity. Oracle bodies content-hash pinned in the suite AND in `scripts/oracle_hashes.json`. |
+| R1b no-regression arm | N/A, recorded | quarantine runs once per failed board on an error path already dominated by file I/O; no speedup is claimed and `pr_perf_compare` has no rows for this surface. |
+| R1c ≥5 non-vacuous properties | PASS | 8 hypothesis properties: classify differential over (stage, class, message); non-parse stages are fixed points; `version`-keyword wins; `decode`-keyword invariant; stack-hash differential; 12-hex-chars invariant; fingerprint differential over generated content; lines/header invariant. Each pins a real branch (the differentials are non-vacuous by construction against a distinct implementation). |
+| R1d ≥3 MRs | PASS | 4 metamorphic relations (suffix can only add classification precedence; appending `\n` increments `lines` by exactly 1; stack-hash determinism + distinctness; fingerprint purity under identical rewrite + line-growth direction). |
+| R1e VERIFICATION.md | PASS | this section |
+| R1f TDD | PASS | the differential file was authored against the not-yet-registered surface; the shim's delegation is proven by recording stubs, and the oracle stays distinct (`__module__` assertions) |
+| R1g Rust practice | PASS | no `unwrap`/`expect` outside `#[cfg(test)]`; the pyo3 boundary is catch_unwind-wrapped by pyo3's `#[pyfunction]` expansion (the crate sets `profile.release.panic = "unwind"`); `cargo clippy --all-features --all-targets -- -D warnings` clean. |
+| R1h R24 | N/A | no physics quantity is computed, asserted, or gated — the R24 Chebyshev/BMC/post-solve obligations have no referent. |
+
+## Documented bounds (per R1, recorded here)
+
+1. **Unicode lowercasing.** Rust `str::to_lowercase` and CPython
+   `str.lower()` agree on ASCII and diverge only on exotic Unicode (e.g.
+   Turkish dotted İ, `ß`); exception messages and board content in this
+   pipeline are ASCII by construction, and the differential/PBT suites
+   constrain their inputs to that domain.
+2. **Traceback rendering stays CPython.** The stack hash covers the
+   *formatted* traceback, whose rendering is CPython semantics; the portable
+   kernel under migration is the SHA-256 prefix. Rendering parity is by
+   construction (same `traceback.format_exception` call in both arms), not
+   by reimplementation.
+3. **`usize` fingerprint fields.** `size_bytes`/`lines` are `usize`;
+   CPython's `int` is unbounded. Unreachable in practice for real files.
+
+# Regression golden-manifest path sets (`manifest.rs`) — Verification
+
+The Wave-4 tail-tooling migration of `temper_placer/regression/manifest.py`
+(83 LOC): the golden-manifest path-set rules move to `src/manifest.rs`,
+exposed as `temper_io_types.resolve_board_path_py` /
+`baseline_yaml_path_py` / `baseline_pcb_path_py` / `validate_board_paths`.
+The pre-migration module is pinned VERBATIM as
+`packages/temper-placer/tests/regression/_manifest_py_oracle.py`
+(content-hash registered in `scripts/oracle_hashes.json`).
+
+## Home-crate decision
+
+The migrated compute is *path-set construction and validation* — the
+manifest/hashing family, homed in `temper-io-types` (the task's per-module
+home decision: io-types = hashing/manifest surface; orchestration = the
+reporting slice). The kernels are pure (wasm32-safe); the pyo3 boundary is a
+thin adapter.
+
+## What migrated vs stayed Python
+
+| Piece | Verdict |
+|---|---|
+| `GoldenBoard.resolve_path` (`repo_root / board.path`) | migrated (`resolve_board_path`, pure) |
+| `GoldenBoard.baseline_yaml_path` / `baseline_pcb_path` (the fixed `power_pcb_dataset/baselines` rules) | migrated (`baseline_yaml_path` / `baseline_pcb_path`, pure) |
+| `GoldenManifest.validate` per-board missing-PCB check + error-message construction | migrated (`validate_pcb_paths` — `Path::exists` + the `"Board '<id>': PCB file not found at <resolved>"` f-string, `PathBuf::display`) |
+| `GoldenManifest.load` (the `yaml.safe_load` ingestion) | stays Python (the same Python-YAML boundary `reference_aliases` keeps; a Rust `safe_load` reimplementation for a 30-line loader is net-negative marshalling) |
+| `validate`'s `baselines_dir.mkdir(parents=True, exist_ok=True)` side effect | stays Python in the shim (orchestration side effect, not compute) |
+| `get_board` linear lookup | stays Python (trivial membership orchestration over the dataclass list) |
+
+## Induction applicability
+
+**Mathematical induction is not applicable.** Path joins and the per-board
+validation scan are single-step operations with no recursion or size
+parameter. A **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every input in the differential
+domains (documented cases + Hypothesis-generated relative manifest paths and
+board ids), the four exported functions return values bit-identical to the
+pinned oracle's `GoldenBoard` methods and `GoldenManifest.validate`.
+
+*Proof by structural cases.*
+
+1. **Path joins.** `repo_root.join(board_path)` reproduces pathlib's
+   `repo_root / board.path` for relative paths (the real manifest domain):
+   same component-wise `/` join, same `..`/`.` normalization, and — pinned
+   by the explicit corner test — the same absolute-path *replacement*
+   semantics (`Path('/repo') / '/x'` == `/x`, matched by `join`).
+2. **Baseline rules.** `baseline_yaml_path` / `baseline_pcb_path` are the
+   fixed two-level `power_pcb_dataset/baselines` joins with the id embedded
+   via `format!` — bit-identical to the f-strings (`{id}_baseline.yaml` /
+   `{id}.kicad_pcb`).
+3. **Validation.** `validate_pcb_paths` iterates the `(id, path)` pairs in
+   order, resolves each, `exists()`-probes it, and emits the oracle's exact
+   `"Board '<id>': PCB file not found at <resolved>"` string via
+   `PathBuf::display` (POSIX: identical to `str(Path)`).
+
+## R1 gate status
+
+| Gate | Status | Evidence |
+|---|---|---|
+| R1a behavioural A/B | PASS | `tests/regression/test_manifest_rust_differential.py` (22 tests): both arms over documented cases (4 board/path shapes × 3 roots, missing/existing PCBs, empty manifest, absolute-path replacement, load/get_board pins) + the oracle body digests pinned in-suite and in `scripts/oracle_hashes.json`. |
+| R1b no-regression arm | N/A, recorded | path sets run once per regression-suite invocation; no speedup is claimed. |
+| R1c ≥5 non-vacuous properties | PASS | 5 hypothesis properties (resolve-path differential, baseline-yaml differential, baseline-pcb differential, validate differential over generated board lists against a real empty temp repo, resolve-path root-prefix invariant). |
+| R1d ≥3 MRs | PASS | 4 metamorphic relations (validate reports exactly the missing boards in order; baseline paths embed the id in the fixed layout; validate is idempotent; resolve-path root trailing-slash stability matches the oracle). |
+| R1e VERIFICATION.md | PASS | this section |
+| R1f TDD | PASS | the differential file was authored against the not-yet-registered surface; delegation proven by recording stubs; the oracle stays distinct (`__module__` + source-scan assertions) |
+| R1g Rust practice | PASS | no `unwrap`/`expect` outside `#[cfg(test)]`; pyo3 boundary catch_unwind-wrapped by `#[pyfunction]` expansion; `cargo clippy --all-features --all-targets -- -D warnings` clean. |
+| R1h R24 | N/A | no physics quantity is computed, asserted, or gated. |
+
+## Documented bounds (per R1, recorded here)
+
+1. **Trailing-separator paths are out of domain.** For a board path like
+   `pcb/x/`, pathlib strips the trailing separator while
+   `PathBuf::display` preserves it: the shim's `Path(...)` wrapper
+   normalizes `resolve_path` to full parity, but `validate_board_paths`
+   messages would keep the trailing `/` where the oracle strips it. Real
+   golden manifests never carry trailing separators (the differential/PBT
+   domains are constrained to that), and the divergence is pinned as a fact
+   by `test_trailing_separator_divergence_is_documented_bound`.
+2. **Redundant separators are out of domain.** pathlib collapses empty and
+   `.` components on join (`'0//0'` → `'0/0'`, `'a/./b'` → `'a/b'`) while
+   `PathBuf` preserves them literally; same public-API-parity-vs-validate-
+   message split as bound 1. Pinned by
+   `test_redundant_separator_divergence_is_documented_bound`; real manifest
+   paths use clean relative components.
+3. **Absolute board paths.** A manifest entry whose `path` is absolute
+   *replaces* the repo root in both arms (pathlib and `PathBuf::join`
+   agree); real manifests use relative paths.
+4. **`..` components are preserved, not resolved.** Both arms keep `..`
+   literally (`repo_root / 'a/../b'` resolves to nothing), so parity holds
+   there; real manifests don't use `..`.
