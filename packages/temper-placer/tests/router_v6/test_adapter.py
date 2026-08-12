@@ -353,9 +353,11 @@ class TestApplyPlacementsToPcbCenterOffset:
         assert "at 50.0000 60.0000 90.0000" in result
 
     def test_omitted_rotation_falls_back_to_existing_angle_for_offset(self):
-        """If this ref has no solved rotation (absent from `rotations`,
-        e.g. CP-SAT chose rotation index 0 -- `to_rotations_dict()` omits
-        those), the centre must have been computed at the footprint's
+        """If this ref has no solved rotation at all (genuinely absent from
+        `rotations` -- e.g. a caller with no rotation data for this ref;
+        `CpSatPlacementResult.to_rotations_dict()` no longer omits a
+        genuine solved rotation-index-0 decision this way, see its
+        docstring), the centre must have been computed at the footprint's
         EXISTING angle, so that angle -- not 0 -- is the correct basis
         for inverting center_offset."""
         content = """(kicad_pcb (version 20240108)
