@@ -25,7 +25,11 @@ from typing import TYPE_CHECKING
 import temper_design_bundle_python as _tdb
 
 from temper_placer.core.board import Board
-from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, DesignRules
+from temper_placer.core.design_rules import (
+    TEMPER_NET_ASSIGNMENTS,
+    DesignRules,
+    create_temper_design_rules,
+)
 from temper_placer.io._kicad_types import (
     ParseResult,
 )
@@ -51,9 +55,29 @@ def parse_kicad_pcb(
     Args:
         pcb_path: Path to the .kicad_pcb file.
         normalize: If True, subtract board origin from component positions.
-        design_rules: Optional DesignRules for net safety classification
-            (component-level ``net_class``, HV/LV severity rollup -- see
-            ``_apply_safety_classifications``).
+        design_rules: DesignRules driving component-level safety
+            classification (``comp.net_class``, an HV/LV severity rollup
+            over each component's pins -- see
+            ``_apply_safety_classifications``). Defaults to this project's
+            own SSOT (``create_temper_design_rules()``, built from
+            ``TEMPER_NET_CLASSES``/``TEMPER_NET_ASSIGNMENTS`` in
+            ``core/design_rules.py``) so every component gets its real
+            rollup by default, mirroring ``net_class_mapping``'s own
+            SSOT-by-default precedent below -- pass an explicit empty
+            ``DesignRules(net_classes={}, net_class_assignments={}, ...)``
+            to opt out (e.g. a test asserting the pre-classification
+            raw-parse shape).
+
+            Before this default existed, every caller that didn't
+            separately opt in (nearly all of them -- ``design_rules`` was
+            ``None``-means-skip) got ``comp.net_class == "Signal"`` for
+            every component unconditionally, even after net-level
+            classification was fixed (#1041/#1042): a net's real class was
+            visible on ``Net.net_class``, but never rolled up onto the
+            ``Component`` the three Rust safety kernels
+            (``creepage.rs``/``hv_lv_separation.rs``/``isolation.rs``)
+            actually read. See
+            ``tests/io/test_component_net_classification.py``.
         net_class_mapping: ``net_name -> net_class`` mapping applied to each
             parsed ``Net.net_class`` (Rust ``Netlist.apply_net_class_mapping``,
             invoked inside the Rust parse engine itself -- see
@@ -74,8 +98,10 @@ def parse_kicad_pcb(
     mapping = TEMPER_NET_ASSIGNMENTS if net_class_mapping is None else net_class_mapping
     result = _rs.parse_kicad_pcb(content, normalize=normalize, net_class_mapping=mapping)
 
-    if design_rules is not None:
-        _apply_safety_classifications(result.netlist, design_rules)
+    effective_design_rules = (
+        create_temper_design_rules() if design_rules is None else design_rules
+    )
+    _apply_safety_classifications(result.netlist, effective_design_rules)
 
     return result
 
