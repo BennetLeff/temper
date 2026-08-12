@@ -11,10 +11,15 @@ unresolved key instead, and applies nothing at all if any key is
 unresolved (all-or-nothing).
 
 Synthetic tests below prove the contract directly. `TestRealRepoIntegration`
-proves it against the real board and the real, still-broken
-`temper_constraints.yaml` -- read-only; this task's boundaries forbid
-fixing that file, so the assertions pin the exact current violation set,
-same convention as `scripts/tests/test_check_netclass_map_board_correspondence.py`.
+proves it against the real board and `temper_constraints.yaml`.
+
+UPDATED (fix/netclass-config-keys): `temper_constraints.yaml`'s 5 broken
+keys (`AC_L`/`AC_N`/`GND` case mismatches, stale `+340V_BUS`, and the
+genuinely-nonexistent `PE`, deleted rather than mapped onto a guess -- see
+that file's own `net_classes:` comments) were reconciled in that PR. This
+class now pins the fixed, *clean* state instead of the violation set, and
+exists to catch a future regression (a new key drifting from the board
+again) rather than to document a known-broken input.
 """
 
 from __future__ import annotations
@@ -94,16 +99,13 @@ class TestSyntheticContract:
 
 
 class TestRealRepoIntegration:
-    """Against the real board and the real, currently-broken config file.
+    """Against the real board and the real, now-reconciled config file."""
 
-    Read-only: this task's boundaries forbid fixing
-    `temper_constraints.yaml`, so this pins today's exact violation set
-    (5 of 11 keys, measured directly against `pcb/temper.kicad_pcb`'s own
-    net table) rather than a hand-copied expectation.
-    """
-
-    @pytest.fixture(scope="class")
+    @pytest.fixture
     def real_netlist(self):
+        # Function-scoped (not class-scoped): both tests below mutate net
+        # classes in place, so each must start from a fresh, unmutated
+        # netlist rather than observing the other test's applied changes.
         from temper_placer.io.kicad_parser import parse_kicad_pcb
 
         parse_result = parse_kicad_pcb(REPO_ROOT / "pcb" / "temper.kicad_pcb")
@@ -116,22 +118,17 @@ class TestRealRepoIntegration:
         )
         return yaml.safe_load(config_path.read_text())["net_classes"]
 
-    def test_strict_fails_loudly_on_the_real_broken_config(self, real_netlist, real_net_classes):
-        with pytest.raises(ValueError) as exc_info:
-            real_netlist.apply_net_class_mapping_strict(real_net_classes)
-        msg = str(exc_info.value)
-        # The mains-critical keys named in the task brief must be among
-        # what a safety review would see: AC live, AC neutral, protective
-        # earth, and ground -- exactly the ones the brief calls out as
-        # "did nothing at all, silently".
-        for broken_key in ("AC_L", "AC_N", "PE", "GND", "+340V_BUS"):
-            assert broken_key in msg, f"{broken_key!r} missing from error: {msg}"
-        assert "5 net_classes key(s)" in msg
+    def test_strict_succeeds_on_the_reconciled_config(self, real_netlist, real_net_classes):
+        """Every key in `temper_constraints.yaml`'s `net_classes:` now
+        names a real board net, so the strict, all-or-nothing method must
+        apply every one of them without raising."""
+        updated = real_netlist.apply_net_class_mapping_strict(real_net_classes)
+        assert updated == len(real_net_classes)
+        for net_name, class_name in real_net_classes.items():
+            assert real_netlist.get_net(net_name).net_class == class_name
 
-    def test_existing_method_silently_no_ops_on_the_same_input(
-        self, real_netlist, real_net_classes
-    ):
-        """Same real inputs, old method: no exception, partial silent
-        application -- this is the defect this spike is about."""
+    def test_existing_method_applies_everything_too(self, real_netlist, real_net_classes):
+        """Same real inputs, old (silent-skip) method: now that no key is
+        broken, it has nothing to silently skip -- both methods agree."""
         updated = real_netlist.apply_net_class_mapping(real_net_classes)
-        assert updated == len(real_net_classes) - 5
+        assert updated == len(real_net_classes)

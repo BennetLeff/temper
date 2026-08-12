@@ -26,14 +26,16 @@ groups:
 
 # Nets
 nets:
-  - name: "GATE_H"
+  - name: "GATE_HS"  # was "GATE_H" -- real board net (U_GATE = U7 =
+                      # hb.gate_hs.driver per temper_constraints.references.yaml;
+                      # its OUTA pin drives GATE_HS)
     pins:
       - component: "U_GATE"
         pin: "OUTA"
       - component: "R_GATE_H"
         pin: "1"
-  
-  - name: "GATE_L"
+
+  - name: "GATE_LS"  # was "GATE_L" -- real board net (U_GATE.OUTB drives GATE_LS)
     pins:
       - component: "U_GATE"
         pin: "OUTB"
@@ -64,12 +66,24 @@ nets:
         pin: "1"
 
 # Net classes
+# 2026-08-11 (scripts/check_netclass_map_board_correspondence.py, #1030):
+# GATE_H/GATE_L renamed to the real board nets GATE_HS/GATE_LS (see the
+# `nets:` block above). CGND and VCC_BOOT are deleted, not renamed: neither
+# matches any real net on the board, even case-folded. CGND is the same
+# "dead alias of PWR_RTN" TEMPER_NET_ASSIGNMENTS documents in
+# packages/temper-placer/src/temper_placer/core/design_rules.py, and
+# PWR_RTN's own reclassification is explicitly reserved elsewhere
+# (scripts/sync_kicad_netclass_assignments.py's PROTECTED_NETS, and
+# scripts/check_hv_netclass_coverage.py's docstring) as an open,
+# larger-blast-radius human decision -- not something to settle here by
+# picking a mapping. VCC_BOOT has no entry anywhere in TEMPER_NET_ASSIGNMENTS
+# either, not even as a harmless historical alias, so its absence is not
+# even provisionally resolved by the SSOT; the gate driver's bootstrap
+# supply net has no established name in this codebase to rename it to.
 net_classes:
-  GATE_H: "GateDrive"
-  GATE_L: "GateDrive"
+  GATE_HS: "GateDrive"
+  GATE_LS: "GateDrive"
   +15V: "Power"
-  CGND: "GND"
-  VCC_BOOT: "Power"
 
 net_class_rules:
   GateDrive:
