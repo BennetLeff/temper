@@ -300,6 +300,8 @@ class DRCOracle:
             A ``temper_drc_rs.DrcBoardSnapshot`` (accepted directly by
             ``temper_drc_rs.run_drc``).
         """
+        from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+
         rs = _rs()
         if parsed_pcb is not None:
             return rs.DrcBoardSnapshot.from_parsed_pcb(parsed_pcb)
@@ -310,6 +312,14 @@ class DRCOracle:
             board_height=float(context.board.height),
             board_margin=float(context.board_margin),
             clearance_rules=context.clearance_rules,
+            # Real per-class trace widths, from this project's own netclass
+            # SSOT (TEMPER_NET_CLASSES, core/design_rules.py) -- NOT a
+            # hardcoded 0.2 for every class. `clearance_rules` (pairwise
+            # net_class_a/net_class_b/min_clearance rules) never carried a
+            # trace-width dimension; passing the SSOT mapping here (rather
+            # than transcribing its widths into Rust) mirrors
+            # `parse_kicad_pcb`'s own `net_class_mapping` precedent (#1041).
+            net_class_defs=TEMPER_NET_CLASSES,
         )
 
     @staticmethod

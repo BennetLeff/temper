@@ -1275,10 +1275,27 @@ impl DrcBoardSnapshot {
     }
 
     /// `DrcBoardSnapshot.from_netlist(positions, netlist, board_width,
-    /// board_height, board_margin, clearance_rules)` — the typed marshaler
-    /// for the placer path `drc_oracle._build_board_dict`.
+    /// board_height, board_margin, clearance_rules, net_class_defs=None)` —
+    /// the typed marshaler for the placer path `drc_oracle._build_board_dict`.
+    ///
+    /// `clearance_rules` (pairwise `net_class_a`/`net_class_b`/
+    /// `min_clearance` rules) carries no per-class trace width -- it was
+    /// never the right input for that field, which is why every class used
+    /// to get a hardcoded `0.2` here regardless of its real width (only a
+    /// no-op before real net classification landed in #1041/#1042, since
+    /// every net was "Signal" and Signal's real width happens to be 0.2).
+    /// `net_class_defs` is the real source: an optional `{class_name:
+    /// NetClassRules}` mapping -- pass `TEMPER_NET_CLASSES`
+    /// (`core/design_rules.py`), the project's own net-class SSOT, rather
+    /// than duplicating its widths into Rust (the defect class #1038/#1023
+    /// keep rediscovering). `None` (the default, for callers that don't
+    /// have the SSOT in scope, e.g. differential-test fixtures pinned to
+    /// pre-fix behavior) preserves the old flat-0.2 fallback exactly; a
+    /// class absent from a supplied `net_class_defs` also falls back to 0.2
+    /// (matching `from_parsed_pcb`'s own `.unwrap_or(0.2)` below).
     #[staticmethod]
     #[allow(clippy::too_many_arguments)] // mirrors build_board_dict_py's parameter list
+    #[pyo3(signature = (positions, netlist, board_width, board_height, board_margin, clearance_rules, net_class_defs=None))]
     fn from_netlist(
         _py: Python<'_>,
         positions: &Bound<'_, PyAny>,
@@ -1287,6 +1304,7 @@ impl DrcBoardSnapshot {
         board_height: f64,
         board_margin: f64,
         clearance_rules: &Bound<'_, PyAny>,
+        net_class_defs: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<DrcBoardSnapshot> {
         guard(|| {
             let mut components = Vec::new();
@@ -1308,6 +1326,15 @@ impl DrcBoardSnapshot {
 
             let (nets, net_classes) = nets_from_list(netlist)?;
 
+            // Real per-class trace widths, when the caller supplied the SSOT
+            // mapping. `PyDict::get_item` returns `Ok(None)` for a missing
+            // key (no exception), so an unmapped class just falls through to
+            // the historical 0.2 default below rather than erroring --
+            // matching `from_parsed_pcb`'s own leniency, since this path
+            // (unlike `board_py_bridge::build_board_state`) has no
+            // "net_classes wired => missing entry is a hard error" contract.
+            let net_class_defs_dict = net_class_defs.and_then(|d| d.cast::<PyDict>().ok());
+
             let mut net_class_rules = BTreeMap::new();
             if let Ok(rules_list) = clearance_rules.clone().cast_into::<PyList>() {
                 for rule in rules_list.iter() {
@@ -1316,10 +1343,17 @@ impl DrcBoardSnapshot {
                     let min_clearance = get_attr_f64(&rule, "min_clearance")?;
                     for nc in [&a, &b] {
                         if !net_class_rules.contains_key(nc.as_str()) {
+                            let trace_width_mm = net_class_defs_dict
+                                .as_ref()
+                                .and_then(|d| d.get_item(nc.as_str()).ok().flatten())
+                                .and_then(|rules_val| {
+                                    get_attr_f64(&rules_val, "trace_width_mm").ok()
+                                })
+                                .unwrap_or(0.2);
                             net_class_rules.insert(
                                 nc.clone(),
                                 DrcNetClassRuleSnapshot {
-                                    trace_width_mm: 0.2,
+                                    trace_width_mm,
                                     clearance_mm: min_clearance,
                                     creepage_mm: None,
                                     voltage_v: None,

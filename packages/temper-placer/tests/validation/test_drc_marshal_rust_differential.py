@@ -458,6 +458,8 @@ from dataclasses import dataclass  # noqa: E402, I001
 
 import numpy as np  # noqa: E402
 
+from temper_placer.core.design_rules import TEMPER_NET_CLASSES  # noqa: E402, I001
+
 
 @dataclass
 class _FakeClearanceRule:
@@ -530,6 +532,68 @@ def test_board_snapshot_from_netlist_matches_validated_kernel():
     mech = {c["ref"]: c["is_mechanical"] for c in snapshot.to_dict()["components"]}
     assert mech["MH1"] is True
     assert mech["C1"] is False
+
+
+def test_board_snapshot_from_netlist_uses_real_per_class_trace_width():
+    """Regression (2026-08-11): `from_netlist` hardcoded
+    `trace_width_mm: 0.2` for EVERY net class referenced in
+    `clearance_rules`, regardless of the class's real width. This was an
+    accidental no-op before #1041/#1042 wired real net classification into
+    the Rust parser -- every net resolved to "Signal", whose real width IS
+    0.2mm -- but is live and wrong now that GND (1.0mm), HighVoltage
+    (3.0mm), etc. are real per-net classes on the board (69 Signal, 14
+    HighVoltage, 2 GND, ...). Passing `net_class_defs=TEMPER_NET_CLASSES`
+    (the project's own netclass SSOT, `core/design_rules.py`) must produce
+    GND's REAL 1.0mm trace width, not the old flat 0.2mm. A pre-fix
+    `from_netlist` (hardcoded 0.2 regardless of `net_class_defs`) fails
+    this test."""
+    positions = np.zeros((1, 2), dtype=np.float64)
+    comps = [_FakeComp("C1", "R_0603", 1.0, 0.5, "GND")]
+    nets = [_FakeNet("gnd", "GND", [("C1", 1)])]
+    netlist = SimpleNamespace(components=comps, nets=nets)
+    rules = [_FakeClearanceRule("GND", "Signal", 0.3, "ground return")]
+
+    snapshot = DRC_BOARD_SNAPSHOT.from_netlist(
+        positions=positions,
+        netlist=netlist,
+        board_width=100.0,
+        board_height=100.0,
+        board_margin=3.0,
+        clearance_rules=rules,
+        net_class_defs=TEMPER_NET_CLASSES,
+    )
+    gnd_rule = snapshot.to_dict()["net_class_rules"]["GND"]
+    assert gnd_rule["trace_width_mm"] == 1.0, (
+        f"GND's real trace width is 1.0mm (TEMPER_NET_CLASSES); got "
+        f"{gnd_rule['trace_width_mm']}mm -- the pre-fix hardcode."
+    )
+    # clearance_mm is sourced from clearance_rules (a separate, already-
+    # correct dimension) and must be unaffected by this fix.
+    assert gnd_rule["clearance_mm"] == 0.3
+
+
+def test_board_snapshot_from_netlist_omitting_net_class_defs_keeps_legacy_default():
+    """Without `net_class_defs` (legacy callers -- e.g. this file's own
+    `test_board_snapshot_from_netlist_matches_validated_kernel` above,
+    which pins bit-exactness against `build_board_dict_py`, a frozen
+    migration artifact that never learned about real per-class widths),
+    the historical flat-0.2mm fallback is preserved exactly. This is what
+    keeps that differential test passing unmodified."""
+    positions = np.zeros((1, 2), dtype=np.float64)
+    comps = [_FakeComp("C1", "R_0603", 1.0, 0.5, "GND")]
+    nets = [_FakeNet("gnd", "GND", [("C1", 1)])]
+    netlist = SimpleNamespace(components=comps, nets=nets)
+    rules = [_FakeClearanceRule("GND", "Signal", 0.3, "ground return")]
+
+    snapshot = DRC_BOARD_SNAPSHOT.from_netlist(
+        positions=positions,
+        netlist=netlist,
+        board_width=100.0,
+        board_height=100.0,
+        board_margin=3.0,
+        clearance_rules=rules,
+    )
+    assert snapshot.to_dict()["net_class_rules"]["GND"]["trace_width_mm"] == 0.2
 
 
 @dataclass
