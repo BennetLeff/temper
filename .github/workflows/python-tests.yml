@@ -1938,6 +1938,39 @@ jobs:
         continue-on-error: true
         run: uv run python scripts/check_netclass_map_board_correspondence.py
 
+      # --- PD2 compartment-evidence gate (docs/evidence/2026-08-11-pd2-decision-record.md) ---
+      # A fourth gate for the same declaration/reality-drift shape as Gates
+      # 1-3 above, but for a mechanical rather than electrical claim: on
+      # 2026-08-11 the owner decided the production architecture is PD2
+      # (IEC 60335-2-6 cl. 29.2 Addition), conditional on a sealed, gasketed
+      # PCB compartment that does not exist yet (docs/evidence/
+      # 2026-08-01-pd2-enclosure-legitimacy.md). Every electrical
+      # enforcement point in the tree (generate_kicad_dru.py, the
+      # REQ-SAFE-01 validator, MIN_BARRIER_WIDTH_MM, ...) is already aligned
+      # at the PD2 figure, 8.0mm -- this gate checks the one thing nothing
+      # else checks: whether the compartment that earns that figure has
+      # actually been committed as real, checkable evidence.
+
+      - name: PD2 compartment-evidence gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_pd2_compartment_evidence.py -v --tb=short
+
+      - name: PD2 compartment-evidence gate (Gate 4)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # ADVISORY: the sealed compartment does not exist on origin/main as
+        # of 2026-08-11 -- no docs/specs/pd2_compartment_evidence.yaml has
+        # been committed, and per docs/evidence/2026-08-01-pd2-enclosure-legitimacy.md
+        # the board is forced-air-vented (plain rectangular outline, no
+        # vent/compartment provisions; the coil/heatsink duct crosses the
+        # same cavity the PCB occupies). Path to blocking: build the real
+        # cover/gasket/partition, commit docs/specs/pd2_compartment_evidence.yaml
+        # with every field populated (non-placeholder dimensions, an
+        # inspection acceptance bound, and a board-side keepout zone that
+        # this gate cross-checks against pcb/temper.kicad_pcb), confirm this
+        # step goes clean, then remove continue-on-error.
+        continue-on-error: true
+        run: uv run python scripts/check_pd2_compartment_evidence.py
+
       - name: Check domain model codegen drift
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python3 scripts/gen_domain_models.py --check
