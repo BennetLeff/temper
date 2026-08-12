@@ -269,19 +269,6 @@ mod py {
         catch_unwind_f64(|| Ok(compute_loop_area_loss(&positions, max_area_mm2, weight)))
     }
 
-    // Constraint type enum (Python-visible)
-    #[pyclass(name = "ConstraintType", eq, eq_int, from_py_object)]
-    #[derive(Clone, PartialEq)]
-    enum PyConstraintType {
-        Adjacent = 1,
-        Separated = 2,
-        Enclosing = 3,
-        Aligned = 4,
-        OnSide = 5,
-        Anchored = 6,
-        LoopArea = 7,
-    }
-
     // Unified dispatch: takes constraint type + args as a Python list and computes loss
     #[pyfunction]
     #[pyo3(signature = (constraint_type, args, positions))]
@@ -454,7 +441,6 @@ mod py {
         m.add_function(wrap_pyfunction!(crate::encoder::courtyard_clearance_mm_py, m)?)?;
         m.add_function(wrap_pyfunction!(crate::encoder::required_margin_mm_py, m)?)?;
         m.add_function(wrap_pyfunction!(crate::encoder::keepout_rect_units_py, m)?)?;
-        m.add_class::<PyConstraintType>()?;
         Ok(())
     }
 }

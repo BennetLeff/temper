@@ -6,9 +6,9 @@ pub mod layer_assignment;
 pub mod net_ordering;
 pub mod terminal_planning;
 
-// `loop_extractor`, `net_batching`, `theta_star`, `types` and
-// `types_py_bridge` are pyo3 surfaces with no pure subset: `types`/
-// `types_py_bridge` are `#[pyclass]` wrappers and Python-dict extraction,
+// `loop_extractor`, `net_batching`, `theta_star` and
+// `types_py_bridge` are pyo3 surfaces with no pure subset:
+// `types_py_bridge` is `#[pyclass]`-era Python-dict extraction,
 // `theta_star`/`loop_extractor::bridge`/`net_batching` take
 // `&Bound<'_, PyAny>` (or plain marshalled types with no kernel underneath --
 // `net_batching`'s pure logic lives in the registered
@@ -24,7 +24,6 @@ pub mod net_batching;
 #[cfg(feature = "python")]
 pub mod theta_star;
 #[cfg(feature = "python")]
-pub mod types;
 #[cfg(feature = "python")]
 mod types_py_bridge;
 
@@ -406,15 +405,6 @@ mod py {
     #[pymodule]
     fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
         // Register constraint model types.
-        m.add_class::<crate::types::Variable>()?;
-        m.add_class::<crate::types::Constraint>()?;
-        m.add_class::<crate::types::NetChannelVar>()?;
-        m.add_class::<crate::types::NetLayerVar>()?;
-        m.add_class::<crate::types::ViaVar>()?;
-        m.add_class::<crate::types::OrderVar>()?;
-        m.add_class::<crate::types::CapacityConstraint>()?;
-        m.add_class::<crate::types::DiffPairConstraint>()?;
-        m.add_class::<crate::types::LayerConstraint>()?;
 
         // Register the solver entry point and constraint auditor.
         m.add_function(wrap_pyfunction!(solve_topology_rust, m)?)?;
