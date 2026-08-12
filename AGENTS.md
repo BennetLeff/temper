@@ -628,6 +628,63 @@ only if you suspect the *base* moved out from under you (e.g. a long-running
 session on a shared branch); if it fails with HEAD *behind* the expected
 ref, rebase before trusting anything you measured after that point.
 
+### Absence Is Not Evidence (before concluding a file/PR/doc doesn't exist)
+
+A file missing from your worktree means one of two things, and you cannot
+tell them apart by looking: it never existed, or it merged after your base.
+Before reporting anything as absent, fabricated, or never-written:
+
+```bash
+git fetch origin
+git log origin/main --oneline -5          # has main moved past your base?
+git log --all --oneline -- <path>         # does the path exist on ANY ref?
+gh pr list --state all --search "<topic>" # was it merged under another name?
+```
+
+Only after all four come back empty is "does not exist" a finding.
+
+This exists because the failure mode is loud and expensive: an agent
+dispatched with a citation to
+`docs/evidence/2026-08-12-hvlv-candidate-board-measurement.md` searched its
+own worktree, found nothing, and reported the citation as **fabricated** --
+refusing the task on the grounds that its dispatcher had invented the
+evidence. The document was real, merged as #1053 (`d8062c6e6`), and its
+worktree was cut exactly one commit earlier. The agent was right to refuse
+the underlying action for other reasons, but its stated reason was false,
+and a false accusation of fabrication is worse than a missing file: it
+discredits real prior work and invites re-doing it.
+
+Note the asymmetry with the Base-Commit Assertion above. That rule catches
+you *measuring* stale state. This one catches you *reasoning* from stale
+state -- the assertion can pass (you are exactly on the base you were
+given) while the base itself is behind the tip that has the file you were
+sent to read. `git fetch` costs a second; concluding fabrication costs a
+session.
+
+### Never Work Directly in the Main Checkout
+
+Dispatched agents work in their own worktree, always:
+
+```bash
+git worktree add <path> -b <branch> origin/main
+```
+
+The main checkout is shared. When two agents use it concurrently, one
+switching branches silently discards the other's uncommitted edits -- no
+error, no conflict, no warning. This is not hypothetical: in one session an
+agent lost a completed, user-requested `AGENTS.md` edit this way, and a
+second agent independently hit the same thing mid-task, discovering it only
+because `git reflog` showed branch switches it had not made.
+
+Two corollaries:
+
+*   **Commit early even when the work is unfinished.** An uncommitted edit
+    in a shared checkout is not saved work; it is work that happens to
+    still be on disk. Committing to a throwaway branch costs nothing.
+*   **Leave the main checkout on `main`.** If you did work there, return it
+    when done. A shared checkout parked on a feature branch silently
+    changes what the next agent measures.
+
 ### Issue Tracking & Management
 
 *   **Granularity is Critical**: Bias towards small, iterative tasks.
