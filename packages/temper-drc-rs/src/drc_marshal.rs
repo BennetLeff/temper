@@ -906,21 +906,55 @@ impl DrcBoardSnapshot {
             .map(|(k, v)| (NetClassName(k.clone()), v.to_net_class_rules()))
             .collect();
 
+        // SAFETY (mains-voltage board): see the matching comment in
+        // `board_py_bridge::build_board_state` -- an unresolvable net class
+        // must never silently fall back to the thinnest rule set on the
+        // board (0.2mm trace / 0.2mm clearance). Hard error instead --
+        // EXCEPT when the caller never supplied `net_classes` /
+        // `net_class_rules` at all (an empty map): `DrcBoardSnapshot::from_state`
+        // (the CP-SAT/router `Placement` path, immediately below) always
+        // passes an empty `net_class_rules` -- that schema has no per-net
+        // rules concept -- so hard-erroring unconditionally would make DRC
+        // entirely inoperable for that caller rather than catch a real
+        // misconfiguration. See the longer comment in
+        // `board_py_bridge::build_board_state` for the full reasoning.
+        let net_classes_wired = !self.net_classes.is_empty();
+        let net_class_rules_wired = !net_class_rules.is_empty();
         let mut nets = Vec::with_capacity(self.nets.len());
         for (name, comps) in &self.nets {
-            let class_name = self
-                .net_classes
-                .get(name)
-                .cloned()
-                .unwrap_or_else(|| "Unknown".to_string());
-            let rules = net_class_rules
-                .get(&NetClassName(class_name.clone()))
-                .cloned()
-                .unwrap_or_else(|| NetClassRules {
+            let resolved = self.net_classes.get(name).cloned();
+            let class_name = match resolved {
+                Some(c) => c,
+                None if net_classes_wired => {
+                    return Err(PyValueError::new_err(format!(
+                        "net {name:?} has no entry in net_classes -- refusing to \
+                         run DRC with an unclassified net silently defaulted to \
+                         the thinnest rule set on the board. Add an explicit \
+                         net_classes entry for this net."
+                    )));
+                }
+                None => "Unknown".to_string(),
+            };
+            let found_rules = net_class_rules.get(&NetClassName(class_name.clone())).cloned();
+            let rules = match found_rules {
+                Some(r) => r,
+                None if net_class_rules_wired => {
+                    return Err(PyValueError::new_err(format!(
+                        "net {name:?} is classed {class_name:?} but \
+                         net_class_rules has no entry for class \
+                         {class_name:?} -- refusing to run DRC with an \
+                         unresolvable net class silently defaulted to the \
+                         thinnest rule set on the board. Define \
+                         net_class_rules[{class_name:?}] or correct the \
+                         net's class."
+                    )));
+                }
+                None => NetClassRules {
                     trace_width_mm: 0.2,
                     clearance_mm: 0.2,
                     ..NetClassRules::default()
-                });
+                },
+            };
             nets.push(Net {
                 name: NetName(name.clone()),
                 components: comps.iter().cloned().map(ComponentRef).collect(),
@@ -1727,6 +1761,177 @@ mod tests {
         assert_eq!(rules.trace_width_mm, 0.2);
         assert_eq!(rules.clearance_mm, 8.0);
         assert!(rules.max_current_rating.is_none());
+    }
+
+    /// Build a `DrcBoardSnapshot` with two nets: "OTHER_NET" (always classed
+    /// "Signal", with matching rules -- keeps `net_classes`/
+    /// `net_class_rules` "wired" i.e. non-empty, so the tests below exercise
+    /// the real "caller intended classification but has a gap for THIS net"
+    /// shape) and "MAINS_L", whose classification is controlled by
+    /// `net_classes_entry` / `net_class_rules_entry`.
+    ///
+    /// `wired=false` omits "OTHER_NET" entirely, leaving BOTH maps
+    /// completely empty -- matching a caller (e.g. `DrcBoardSnapshot::from_state`,
+    /// the CP-SAT/router `Placement` path) that never carries per-net
+    /// classification at all.
+    fn snapshot_with_two_nets(
+        wired: bool,
+        net_classes_entry: Option<(&str, &str)>,
+        net_class_rules_entry: Option<(&str, f64, f64)>,
+    ) -> DrcBoardSnapshot {
+        let mut nets = vec![("MAINS_L".to_string(), vec!["J1".to_string()])];
+        let mut net_classes = BTreeMap::new();
+        let mut net_class_rules = BTreeMap::new();
+        if wired {
+            nets.push(("OTHER_NET".to_string(), vec!["J2".to_string()]));
+            net_classes.insert("OTHER_NET".to_string(), "Signal".to_string());
+            net_class_rules.insert(
+                "Signal".to_string(),
+                DrcNetClassRuleSnapshot {
+                    trace_width_mm: 0.25,
+                    clearance_mm: 0.2,
+                    creepage_mm: None,
+                    voltage_v: None,
+                    max_current_rating: None,
+                    safety_category: None,
+                    required_layer: None,
+                    routing_strategy: None,
+                },
+            );
+        }
+        if let Some((net, class)) = net_classes_entry {
+            net_classes.insert(net.to_string(), class.to_string());
+        }
+        if let Some((class, trace_width_mm, clearance_mm)) = net_class_rules_entry {
+            net_class_rules.insert(
+                class.to_string(),
+                DrcNetClassRuleSnapshot {
+                    trace_width_mm,
+                    clearance_mm,
+                    creepage_mm: None,
+                    voltage_v: None,
+                    max_current_rating: None,
+                    safety_category: None,
+                    required_layer: None,
+                    routing_strategy: None,
+                },
+            );
+        }
+        DrcBoardSnapshot {
+            width_mm: 100.0,
+            height_mm: 100.0,
+            margin_mm: 3.0,
+            components: Vec::new(),
+            nets,
+            net_classes,
+            net_class_rules,
+            vias: Vec::new(),
+            traces: Vec::new(),
+            board_source: BoardSource::State,
+        }
+    }
+
+    fn mains_net(state: &BoardState) -> &Net {
+        state.nets.iter().find(|n| n.name.0 == "MAINS_L").unwrap()
+    }
+
+    #[test]
+    fn to_board_state_hard_errors_on_unclassified_net_when_wired() {
+        pyo3::Python::initialize();
+        let err = snapshot_with_two_nets(true, None, None)
+            .to_board_state()
+            .expect_err(
+                "a net absent from a wired-up net_classes must be a hard error, not a silent default",
+            );
+        let msg = err.to_string();
+        assert!(msg.contains("MAINS_L"), "error should name the net: {msg}");
+        assert!(
+            msg.contains("net_classes"),
+            "error should name the missing mapping: {msg}"
+        );
+    }
+
+    #[test]
+    fn to_board_state_hard_errors_on_unmatched_class_when_wired() {
+        pyo3::Python::initialize();
+        let err = snapshot_with_two_nets(true, Some(("MAINS_L", "ACMains")), None)
+            .to_board_state()
+            .expect_err(
+                "a class absent from a wired-up net_class_rules must be a hard error, not a silent default",
+            );
+        let msg = err.to_string();
+        assert!(msg.contains("MAINS_L"), "error should name the net: {msg}");
+        assert!(msg.contains("ACMains"), "error should name the unresolved class: {msg}");
+        assert!(
+            msg.contains("net_class_rules"),
+            "error should name the missing mapping: {msg}"
+        );
+    }
+
+    /// Regression: an unresolvable net class used to fall back to
+    /// `trace_width_mm: 0.2, clearance_mm: 0.2` (the thinnest rule set on
+    /// the board) instead of erroring. Prove that shape is categorically
+    /// gone whenever the caller wired up classification at all: EVERY
+    /// unresolvable net on a wired-up board produces `Err`, so there is no
+    /// `Ok` value left for a 0.2/0.2 `NetClassRules` to hide inside.
+    #[test]
+    fn regression_unresolvable_net_never_yields_thin_default_rules_when_wired() {
+        pyo3::Python::initialize();
+        for snap in [
+            snapshot_with_two_nets(true, None, None),
+            snapshot_with_two_nets(true, Some(("MAINS_L", "ACMains")), None),
+        ] {
+            match snap.to_board_state() {
+                Err(_) => {} // correct: fails loudly instead of silently thinning.
+                Ok(state) => {
+                    let net = mains_net(&state);
+                    panic!(
+                        "pre-fix regression: unresolved net class silently produced \
+                         trace_width_mm={}, clearance_mm={} instead of erroring \
+                         (net={:?}, class={:?})",
+                        net.rules.trace_width_mm, net.rules.clearance_mm, net.name, net.class
+                    );
+                }
+            }
+        }
+    }
+
+    /// Sanity/no-false-positive: a net whose class DOES resolve still
+    /// builds successfully, with the real (non-thinned) rules -- the fix
+    /// must not turn a normal, well-classified net into an error too.
+    #[test]
+    fn to_board_state_succeeds_for_resolvable_net_class() {
+        pyo3::Python::initialize();
+        let snap = snapshot_with_two_nets(
+            true,
+            Some(("MAINS_L", "ACMains")),
+            Some(("ACMains", 1.5, 8.0)),
+        );
+        let state = snap.to_board_state().expect("resolvable net class must not error");
+        let net = mains_net(&state);
+        assert_eq!(net.rules.clearance_mm, 8.0);
+        assert_eq!(net.rules.trace_width_mm, 1.5);
+    }
+
+    /// A caller that supplies NO `net_classes`/`net_class_rules` at all is
+    /// a schema that never carries per-net classification --
+    /// `DrcBoardSnapshot::from_state` itself always builds an empty
+    /// `net_class_rules` (the CP-SAT/router `Placement` schema has no
+    /// per-net rules concept at all), and its real caller
+    /// (`router_v6/_pipeline_verify.py::_parsed_pcb_to_drc_input`) never
+    /// populates `Placement.net_classes` even in production. Hard-erroring
+    /// there would make DRC entirely inoperable for that caller instead of
+    /// catching a real misconfiguration, so the legacy "Unknown" class /
+    /// thin default is preserved ONLY in this all-absent case.
+    #[test]
+    fn completely_unwired_snapshot_keeps_legacy_default_not_a_hard_error() {
+        pyo3::Python::initialize();
+        let snap = snapshot_with_two_nets(false, None, None);
+        let state = snap.to_board_state().expect("a completely unwired snapshot must not error");
+        let net = mains_net(&state);
+        assert_eq!(net.class.0, "Unknown");
+        assert_eq!(net.rules.trace_width_mm, 0.2);
+        assert_eq!(net.rules.clearance_mm, 0.2);
     }
 
     #[test]
