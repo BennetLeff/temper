@@ -2,6 +2,8 @@ import logging
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
+import temper_orchestration as _to
+
 from .. import DeterministicPipeline
 from ..state import BoardState
 from .drc_parser import parse_kicad_drc
@@ -17,6 +19,19 @@ logger = logging.getLogger(__name__)
 class AutomatedZeroDRC:
     """
     Orchestrates the feedback loop between pipeline execution and DRC results.
+
+    Orchestration-port unit U-F (Rust Orchestration Engine plan
+    2026-08-09-001): the iterate-until-clean LOOP of ``run()`` is implemented
+    in Rust (``temper-orchestration``'s ``run_automated_zero_drc``
+    pyfunction), which drives the per-iteration call-backs (``pipeline.run``,
+    the DRC runner, the report parser, the violation mapper, the zone
+    adjuster and the config update) through the Rust
+    ``PipelineRunner<BoardState>`` in the oracle's order and terminates on
+    the oracle's conditions (clean parse, empty adjustments, iteration cap).
+    The construction/marshalling (config parsing, mapper/adjuster wiring,
+    ``_get_zone_config`` / ``_inject_zone_config`` / ``_update_config``) and
+    the subprocess DRC invocation (``drc_runner``) stay Python; the leaf
+    mapping/adjustment compute is the already-landed design-bundle kernels.
     """
 
     def __init__(
@@ -174,62 +189,32 @@ class AutomatedZeroDRC:
         """
         Execute the feedback loop.
 
+        Orchestration-port unit U-F: the iterate-until-clean LOOP is
+        implemented in Rust (``temper-orchestration.run_automated_zero_drc``),
+        which sequences the per-iteration call-backs through the Rust
+        ``PipelineRunner<BoardState>``. The call-backs cross the FFI as
+        arguments: the pipeline object, the DRC runner (subprocess boundary,
+        stays Python), the report parser (file read, stays Python), the
+        mapper/adjuster instances (leaf compute already Rust), and the
+        config-marshalling bound methods ``_get_zone_config`` /
+        ``_update_config`` (stay Python). The Rust loop preserves the
+        oracle's call order, break conditions, iteration cap, EXP-5 state
+        reset and log messages.
+
         Args:
             initial_state: Optional starting state.
 
         Returns:
             The final BoardState after iterations.
         """
-        state = initial_state
-
-        for i in range(self.max_iterations):
-            logger.info(f"--- Feedback Iteration {i + 1}/{self.max_iterations} ---")
-
-            # 1. Run Pipeline
-            # Note: The pipeline needs to be aware of the updated config
-            # This might require re-initializing the pipeline or passing config to stages
-            state = self.pipeline.run(state)
-
-            # 2. Run DRC
-            logger.info("Running DRC...")
-            report_path = self.drc_runner()
-            raw_violations = parse_kicad_drc(report_path)
-
-            if not raw_violations:
-                logger.info("Zero DRC violations achieved!")
-                break
-
-            logger.info(f"Found {len(raw_violations)} raw DRC violations")
-
-            # 3. Map Violations
-            self.mapper.zone_config = self._get_zone_config()
-            mapped_violations = [self.mapper.map_violation(v) for v in raw_violations]
-
-            # 4. Compute Adjustments
-            self.adjuster.zone_config = self._get_zone_config()
-            adjustment = self.adjuster.compute_adjustments(mapped_violations)
-
-            if not adjustment.adjustments:
-                logger.info("No further zone adjustments possible.")
-                break
-
-            # 5. Update Config
-            self._update_config(adjustment)
-
-            # Reset state for next iteration (re-placement needed with new zones)
-            # We preserve core objects but clear derived state
-            # EXP-5: Preserve locked_routes so successfully routed nets aren't re-routed
-            # feat/hv-lv-guard-strip: Preserve config so HvLvPartitionStage and
-            # any other config-reading stages still find their block.
-            if state:
-                logger.info(
-                    f"EXP-5: Preserving {len(state.locked_routes)} locked routes for next iteration"
-                )
-                state = BoardState(
-                    board=state.board,
-                    netlist=state.netlist,
-                    locked_routes=state.locked_routes,  # EXP-5: Preserve locks
-                    config=state.config,  # feat/hv-lv-guard-strip: Preserve config
-                )
-
-        return state
+        return _to.run_automated_zero_drc(
+            pipeline=self.pipeline,
+            drc_runner=self.drc_runner,
+            parse_kicad_drc=parse_kicad_drc,
+            mapper=self.mapper,
+            adjuster=self.adjuster,
+            get_zone_config=self._get_zone_config,
+            update_config=self._update_config,
+            max_iterations=self.max_iterations,
+            initial_state=initial_state,
+        )
