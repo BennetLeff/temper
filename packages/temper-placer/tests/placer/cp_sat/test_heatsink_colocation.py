@@ -34,10 +34,10 @@ TO247_W0_H0 = (16.4, 5.9)
 
 
 def test_derived_gap_is_face_length_less_two_packages():
-    assert MAX_COLOCATED_GAP_MM == pytest.approx(
+    assert pytest.approx(
         HS1_MOUNTING_FACE_LENGTH_MM - 2 * TO247_FOOTPRINT_WIDTH_MM
-    )
-    assert MAX_COLOCATED_GAP_MM == pytest.approx(87.2)
+    ) == MAX_COLOCATED_GAP_MM
+    assert pytest.approx(87.2) == MAX_COLOCATED_GAP_MM
 
 
 def test_rejects_the_committed_board_placement():
@@ -185,3 +185,77 @@ def test_wire_constraints_drop_absent_components():
 def test_rejects_an_out_of_range_rotation():
     with pytest.raises(ValueError, match="rot_index"):
         heatsink_colocation_wire_constraints(HS1, 4)
+
+
+# ---------------------------------------------------------------------------
+# OR-Tools backend
+#
+# The Pumpkin wire path and the OR-Tools model path must agree, or the
+# constraint silently binds in one solver and not the other (Pumpkin
+# exit(2)s on an unknown type; OR-Tools warns and continues).
+# ---------------------------------------------------------------------------
+
+
+def _two_igbt_model():
+    from ortools.sat.python import cp_model as _cp
+
+    from temper_placer.placer.cp_sat.model import CpSatModel
+
+    model = CpSatModel(units_per_mm=100)
+    for ref in HS1.refs:
+        w = model.mm_to_units(TO247_W0_H0[0])
+        h = model.mm_to_units(TO247_W0_H0[1])
+        model.add_component(ref, 0, 0, w, h)
+        model.add_rotation(ref, is_polarized=False)
+    model.set_bounds(0, 0, model.mm_to_units(152.0), model.mm_to_units(234.0))
+    return model, _cp
+
+
+@pytest.mark.parametrize("rot", COMMON_ROTATIONS)
+def test_ortools_model_is_satisfiable_and_pins_both_rotations(rot: int):
+    from temper_placer.placer.cp_sat.heatsink_colocation import (
+        add_heatsink_colocation_to_model,
+    )
+
+    model, cp = _two_igbt_model()
+    labels = add_heatsink_colocation_to_model(model, HS1, rot)
+    assert labels, "expected named assumptions for the relaxable parts"
+
+    solver = cp.CpSolver()
+    solver.parameters.max_time_in_seconds = 20.0
+    status = solver.Solve(model.model_ref)
+    assert status in (cp.OPTIMAL, cp.FEASIBLE), solver.StatusName(status)
+
+    positions = {}
+    rotations = {}
+    for ref in HS1.refs:
+        cv = model.get_component(ref)
+        positions[ref] = (
+            model.units_to_mm(solver.Value(cv.x_center)),
+            model.units_to_mm(solver.Value(cv.y_center)),
+        )
+        rotations[ref] = solver.Value(cv.rot_ref)
+    assert set(rotations.values()) == {rot}
+
+    sizes = dict.fromkeys(HS1.refs, TO247_W0_H0)
+    assert check_heatsink_colocation(positions, rotations, sizes, HS1) == []
+
+
+def test_ortools_model_rejects_the_committed_rotations():
+    """Same isolation probe as the Pumpkin harness, on the other backend."""
+    from temper_placer.placer.cp_sat.heatsink_colocation import (
+        add_heatsink_colocation_to_model,
+    )
+
+    for rot in COMMON_ROTATIONS:
+        model, cp = _two_igbt_model()
+        # The committed board: U5 at 270deg (index 3), U6 at 180deg (index 2).
+        model.add_fixed_rotation("U5", 3)
+        model.add_fixed_rotation("U6", 2)
+        add_heatsink_colocation_to_model(model, HS1, rot)
+        solver = cp.CpSolver()
+        solver.parameters.max_time_in_seconds = 20.0
+        status = solver.Solve(model.model_ref)
+        assert status == cp.INFEASIBLE, (
+            f"common rotation {rot}: expected INFEASIBLE, got {solver.StatusName(status)}"
+        )
