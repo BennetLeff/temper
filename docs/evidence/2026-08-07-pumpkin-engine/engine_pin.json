@@ -1,12 +1,12 @@
 {
   "version": 1,
   "algo": "sha256",
-  "binary_sha256": "57fe087ecf6cfd3c611e23c78c32c1cde5bf50c8dbda7bae78b7eb7fd283cd02",
-  "source_commit": "e5539273a01c030c0968006fcf61bb4bedba65be",
+  "binary_sha256": "7ff153f478f8022f8f8659a514ab7067220812ef82b002fd17955fe0f2083b5e",
+  "source_commit": "5bbf650d47d3a07fffd10a44e7c06c43a0a800bd",
   "manifest_path": "docs/evidence/2026-08-07-pumpkin-engine/Cargo.toml",
   "build_command": "cargo build --release --locked --manifest-path docs/evidence/2026-08-07-pumpkin-engine/Cargo.toml",
   "rustc_version": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
   "cargo_version": "cargo 1.97.1 (c980f4866 2026-06-30)",
   "pinned": "2026-08-12",
-  "notes": "binary_sha256 is a build of source_commit (the last commit on main to touch this directory as of the pin date; `git diff <source_commit> HEAD -- docs/evidence/2026-08-07-pumpkin-engine/` is empty at pin time). Rebuild determinism measured directly: two `cargo build --release --locked` invocations from this commit's source, into two independent CARGO_TARGET_DIRs (different absolute paths), produced byte-identical output on this rustc/cargo version -- see docs/evidence/2026-08-12-engine-binary-pinning.md Sec 3. Not yet verified across other rustc versions or operating systems; a toolchain change is expected to require re-pinning (rustc_version/cargo_version are recorded precisely so a mismatch there is diagnosable rather than mysterious)."
+  "notes": "Re-pinned post-PR #1054 (commit 3322d52da), which changed this directory's src/main.rs (to_units ceil-to-even, not floor-to-even) after the prior pin (source_commit e5539273a, binary_sha256 57fe087e...) was recorded -- the prior pin's build command would still succeed but would rebuild a stale identity, spuriously failing verify_pumpkin_engine.py against a now-correct binary. source_commit is main HEAD at re-pin time; `git diff 3322d52da 5bbf650d47 -- docs/evidence/2026-08-07-pumpkin-engine/` is empty, i.e. no repo changes to this directory between #1054 and HEAD, so pinning to HEAD is equivalent to pinning to #1054 itself. Rebuild determinism re-measured directly at this commit (not assumed from the prior pin, since #1054 changed the source): two `cargo build --release --locked` invocations from this commit's source, into two independent CARGO_TARGET_DIRs (different absolute paths), produced byte-identical output on this rustc/cargo version. Not yet verified across other rustc versions or operating systems; a toolchain change is expected to require re-pinning (rustc_version/cargo_version are recorded precisely so a mismatch there is diagnosable rather than mysterious)."
 }

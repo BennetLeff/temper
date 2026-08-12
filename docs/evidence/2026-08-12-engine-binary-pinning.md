@@ -12,7 +12,22 @@ own pcb/, specifically so it never needed reverting). -->
 
 # The pumpkin_engine binary is now pinned, verified before every solve, and fails loudly on mismatch -- proven against a real wrong binary that is STILL sitting unpinned in the main checkout right now
 
-**Verdict up front.** The place-and-route recipe's placement stage now resolves
+**Update, same day: re-pinned post-#1054.** Sections 1-6 below are the
+original measurements, taken against `source_commit=e5539273a` (pre-#1054).
+PR #1054 has since merged to `main` and edits the exact file this pin's
+`build_command` compiles, which would have made this pin's own gate
+spuriously reject a correct post-#1054 rebuild. **Sec 7 is the fix**: this
+branch rebased cleanly onto `origin/main` (post-#1054), the engine was
+rebuilt and re-pinned (`binary_sha256=7ff153f4...` /
+`source_commit=5bbf650d47` -- current `main` HEAD), rebuild determinism was
+re-measured (not assumed) on the new source, and the gate was re-proven
+firing both ways. Read Sec 7 for the current pin; Sec 1-6's hash
+(`57fe087e...283cd02`) and commit (`e5539273a`) below are historical, not
+what `engine_pin.json` now contains. The Sec 6 routing baseline
+(168/3,314/40/58, `clearance`=499) is now stale for the same reason and is
+flagged outstanding in Sec 7, not silently carried forward.
+
+**Verdict up front (original, pre-#1054 measurement -- see update above).** The place-and-route recipe's placement stage now resolves
 its CP solver through `scripts/verify_pumpkin_engine.py`, which hashes the
 candidate binary and compares it against a checked-in pin
 (`docs/evidence/2026-08-07-pumpkin-engine/engine_pin.json`). A binary that is
@@ -398,7 +413,121 @@ five-minute follow-up on a machine without concurrent memory pressure; it
 does not change Sec 2-5 (the mechanism and its proof) or the trustworthiness
 of Sec 6b's numbers, which came from a single, completed, non-corrupted run.
 
-## 7. Rules-compliance notes
+## 7. Re-pin post-#1054 (`to_units` ceil-to-even) -- rebased, rebuilt, re-verified
+
+**#1054 merged to `main` after this document's original measurements (Sec
+1-6) were taken, and it edits exactly the file this PR's pin's
+`build_command` compiles**
+(`docs/evidence/2026-08-07-pumpkin-engine/src/main.rs`, `to_units`:
+decrement-to-even -> ceil-to-even, changing 6 of 338 `w0`/`h0` dimensions on
+the real board). Left alone, the old pin (`source_commit=e5539273a`,
+`binary_sha256=57fe087e...283cd02`) would make a **correct** rebuild from
+current `main` fail the gate this PR adds -- exactly the failure mode Sec 6
+above flagged as expected ("If/when #1054 lands, the pin's
+`binary_sha256` and `source_commit` must be updated... it will not carry
+over silently"). This section is that update, measured fresh, not carried
+over from Sec 1-6.
+
+**Rebase.** This branch rebased cleanly onto `origin/main` (`5bbf650d47`,
+HEAD at rebase time) with **zero conflicts** -- `main.rs` included, because
+this branch never touched it; the file now matches `origin/main`'s
+post-#1054 content exactly (`git diff origin/main -- .../src/main.rs` is
+empty on this branch after the rebase).
+
+**Rebuild.** Same toolchain as the original pin (`rustc`/`cargo` 1.97.1,
+unchanged), same pin-recorded `build_command`
+(`cargo build --release --locked --manifest-path
+docs/evidence/2026-08-07-pumpkin-engine/Cargo.toml`), two independent
+`CARGO_TARGET_DIR`s:
+
+```
+$ CARGO_TARGET_DIR=<scratch>/pumpkin_build_a cargo build --release --locked --manifest-path docs/evidence/2026-08-07-pumpkin-engine/Cargo.toml
+   Finished `release` profile [optimized] target(s) in 9.93s
+$ CARGO_TARGET_DIR=<scratch>/pumpkin_build_b cargo build --release --locked --manifest-path docs/evidence/2026-08-07-pumpkin-engine/Cargo.toml
+   Finished `release` profile [optimized] target(s) in 10.17s
+$ sha256sum <scratch>/pumpkin_build_a/release/pumpkin_engine <scratch>/pumpkin_build_b/release/pumpkin_engine
+7ff153f478f8022f8f8659a514ab7067220812ef82b002fd17955fe0f2083b5e  pumpkin_build_a/release/pumpkin_engine
+7ff153f478f8022f8f8659a514ab7067220812ef82b002fd17955fe0f2083b5e  pumpkin_build_b/release/pumpkin_engine
+$ cmp pumpkin_build_a/release/pumpkin_engine pumpkin_build_b/release/pumpkin_engine   # (no output: identical)
+```
+
+**Byte-identical.** Determinism was re-measured at this commit, not assumed
+from Sec 4's pre-#1054 finding, because #1054 changed the source.
+
+`docs/evidence/2026-08-07-pumpkin-engine/engine_pin.json` updated:
+
+| field | old (pre-#1054) | new (post-#1054) |
+|---|---|---|
+| `binary_sha256` | `57fe087ecf6cfd3c611e23c78c32c1cde5bf50c8dbda7bae78b7eb7fd283cd02` | `7ff153f478f8022f8f8659a514ab7067220812ef82b002fd17955fe0f2083b5e` |
+| `source_commit` | `e5539273a01c030c0968006fcf61bb4bedba65be` | `5bbf650d47d3a07fffd10a44e7c06c43a0a800bd` (main HEAD at re-pin) |
+| `rustc_version` / `cargo_version` | 1.97.1 / 1.97.1 | unchanged |
+
+`source_commit` is main HEAD rather than #1054's own commit (`3322d52da`)
+because `git diff 3322d52da 5bbf650d47 -- docs/evidence/2026-08-07-pumpkin-engine/`
+is empty -- no further changes to this directory between #1054 and HEAD, so
+the two are equivalent as a pin target.
+
+Note the new `binary_sha256` (`7ff153f4...`) is byte-for-byte the same hash
+Sec 3a/Sec "verdict up front" above reported for the main checkout's actual
+`target-shared/release/pumpkin_engine` at the time this document was
+originally written, attributed there to "a build of the unmerged branch
+`fix/pumpkin-to-units-and-netclass-skip`, not of `main`." That branch's
+change *was* #1054 -- so that binary was the wrong build **then** (`main`
+had not yet merged it) and is, by coincidence of unchanged bytes, the
+**correct** build **now** that `main` has caught up to it. This is
+recorded as a coincidence of this specific source change, not a general
+property of the gate -- a future source change will produce a new hash.
+
+**Gate re-proven, both directions, against real binaries in this
+worktree's own `target-shared`:**
+
+```
+$ python3 scripts/verify_pumpkin_engine.py --repo-root .
+pumpkin_engine identity gate: VERIFIED -- pumpkin_engine sha256=7ff153f478f8022f8f8659a514ab7067220812ef82b002fd17955fe0f2083b5e source_commit=5bbf650d47d3a07fffd10a44e7c06c43a0a800bd path=.../target-shared/release/pumpkin_engine
+exit=0
+```
+
+Byte-flipped copy (one byte XORed with `0xFF` in a copy of the just-built
+binary, installed as the sole candidate, good binary moved aside):
+
+```
+$ python3 scripts/verify_pumpkin_engine.py --repo-root .
+pumpkin_engine identity gate: MISMATCH
+  expected sha256 7ff153f478f8022f8f8659a514ab7067220812ef82b002fd17955fe0f2083b5e (built from commit 5bbf650d47d3a07fffd10a44e7c06c43a0a800bd)
+  actual   sha256 40aa193ac5554e0cd137bd7de3c17e08c10b4a22f24a41ad5e5eb9bd682067de
+exit=3
+```
+
+Good binary restored immediately after (`7ff153f4...` confirmed); gate
+re-verified `exit=0` a second time. Additionally, unprompted: before the
+correct binary was installed, this worktree's own `target-shared/release/pumpkin_engine`
+still held a genuinely **stale** binary left over from before the rebase
+(`57fe087e...283cd02`, a real build of the pre-#1054 source, not staged for
+this test) -- the gate correctly flagged it as `MISMATCH` too, a second,
+unforced real-world confirmation alongside the deliberate byte-flip.
+
+**Baseline (Sec 6): outstanding, not regenerated.** Sec 6's 168/3,314/40/58,
+65/105-net, `clearance`=499 numbers were measured on the pre-#1054 engine
+(Sec 6 already flagged this) and are now stale, since #1054 moves
+placement. Regenerating requires the same multi-stage recipe Sec 6
+used (reconciliation against a scratch `pcb/` copy with the J1
+prerequisite, Pumpkin placement, then `route_board.py --net-batching`,
+which alone took 255s wall in Sec 6b and is the stage the task's own
+briefing warned has OOM-killed two concurrent runs on this shared machine
+today at ~54-59GB RSS). At re-pin time this worktree's machine showed a
+load average around 10 (vs. 24 cores) with multiple other agents'
+concurrent `cargo build`/`mypy` processes active and rising memory use
+during this task's own two engine rebuilds -- not clearly saturated, but
+not the clean conditions Sec 6's own baseline was measured under either.
+Given the task's explicit instruction not to retry a died run repeatedly
+and that this baseline is optional ("if cheap"), it was not attempted this
+session; Sec 6's numbers remain published but should be read as
+**pre-#1054 and now stale**, not as this pin's baseline. Regenerating them
+with the newly-pinned `7ff153f4...` engine, under less contended
+conditions, is the natural next step and does not require re-deriving any
+of Sec 1-7's mechanism or gate proof above.
+
+## 8. Rules-compliance notes
 
 - `pcb/**` untouched throughout this task (`git status --short pcb/` empty
   at every checkpoint in this worktree). The J1 `Connector_JST` footprint
