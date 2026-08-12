@@ -3102,6 +3102,64 @@ argued in-source and above):
   `ValueError: truth value of an array is ambiguous`; `repr` is total and
   deterministic (the U4 convention).
 
+### Correctness-verification sweep (2026-08-12)
+
+A dedicated correctness-verification pass re-audited the two migrated kernels
+against the wave-4 bit-exactness catalog (B1–B13) with the loop's specifics in
+mind. Findings — each either pinned by an existing test or recorded as
+not-applicable with a reason:
+
+- **Stage sequencing is declaration order, not HashMap order.** The run loop
+  collects the Python stage objects into a `Vec<Py<PyAny>>` (list order) and
+  the runner iterates `Vec<Box<dyn Stage>>` in insertion order; the factory's
+  `drc_aware_stage_order` projects a `const` slice through `.iter().map().collect()`
+  — no `HashMap`/`HashSet` in either path. Pinned by the ORDER proptests
+  (which hardcode the differential's `_ORDER_DEFAULT`) and the differential's
+  `test_stage_order_matches_oracle_*`.
+- **No float accumulation across stages (B7 N/A).** The loop threads Python
+  objects; the only float it touches is `stage_wall_time_ms` (wall-clock,
+  nondeterministic by design, not compared bit-exactly). `max(...) + 0.3`
+  (the one `max` in the factory) stays in the Python parameter-extraction
+  shim, unchanged.
+- **B5 min/max NaN, B3 rounding, int overflow in counters/timeouts — N/A in
+  this surface.** The factory emits literal constructor constants (0.25, 4,
+  2.0, 3.0, 0.65, 5.0, 1) and truthiness decisions; no rounding, no `min`/`max`
+  on the Rust side, and `stage_wall_time_ms` is an `f64` (no integer counter
+  to overflow).
+- **Stage-failure semantics: abort (never continue/record).** A raising stage
+  becomes `StageErrorKind::Fatal` (the shim only ever produces Fatal), which
+  halts the default `halt_on_error` runner; the original exception is re-raised
+  by value. `Warning`/`Infeasible`/`continue-on-error` are runner features the
+  shim never emits — the Python loop has no continue path either. Pinned by the
+  differential's exception-parity tests and the `single_fatal_halts_with_prefix_state`
+  proptest.
+- **Factory kwargs match the oracle constructor signatures.** Every stage is
+  constructed with the same kwargs as the oracle (`SlotGenerationStage(slot_spacing)`
+  is the one positional call and binds to the stage's single `slot_spacing_mm`
+  parameter; `ZoneAwareSlotGenerationStage` / `ComponentAssignmentStage` /
+  `PhasedComponentAssignmentStage` / `NetClassSetupStage` / `ConfigAttachStage`
+  / `DRCOracleSetupStage` all keyword-construct identically). The phased stage's
+  `use_isolation_slots=bool(placer_cfg.get(...))` truthiness matches
+  `config_use_isolation_slots`; the `config if config else design_rules` oracle
+  fallback matches the `oracle_design_rules` match.
+- **`initial_state or BoardState()` truthiness.** A `None` initial state
+  constructs a fresh `BoardState()`; a non-None (BoardState is always truthy)
+  is used as-is. A falsy non-`None` object (e.g. `run(False)`) would diverge —
+  Python returns a fresh state, Rust raises on the first field read — but that
+  is outside the declared `BoardState | None` domain and recorded here rather
+  than silently "fixed" (the structural-proof item 5 already records it).
+- **Fence attribute access.** `if self.fence and stage.invariants:` short-circuit
+  matches the Rust `if let Some(fence)` + `invariants.is_truthy()`; `fence` is a
+  `DRCFence` (always truthy) or `None`, so the `Some`-vs-truthiness distinction
+  is unreachable. `stage.invariants` / `stage.name` / `stage.last_modified_regions`
+  are plain attributes on real stages, so Rust reading them once (vs Python's
+  re-read in the fence block) is indistinguishable.
+
+No kernel bug was found in the migrated run loop or factory on this sweep; the
+four prior-wave catches (py_hypot NaN, py_repr_float, py_builtin_sum) live in
+the per-stage compute, which is pinned by the D1..D7 differentials, not in this
+loop.
+
 ### Differential / PBT / runner suites (U-E)
 
 | Suite | Location | Count |
@@ -3109,7 +3167,19 @@ argued in-source and above):
 | pipeline differential (oracle: `_deterministic_pipeline_py_oracle.py`, sha256-pinned; stage order, per-prefix state threading, fence sequence, exception parity, real 23-stage end-to-end) | `packages/temper-placer/tests/deterministic/test_deterministic_pipeline_rust_differential.py` | 17 |
 | pipeline PBT (P1..P6, each mutation-guarded) | `packages/temper-placer/tests/deterministic/test_deterministic_pipeline_pbt.py` | 12 |
 | U-E runner (the canonical D1→D7 order through the pyclass loop + real Rust stages through `PipelineRunner<BoardState>`) | `packages/temper-orchestration/tests/ue_pipeline_runner.rs` | 3 |
+| native Rust proptests — the factory ORDER (`drc_aware_stage_order` P1..P5: 23-stage length, declaration-table base, pinned-default match with the two substitutions, only-substitution-slots change, non-interference) | `packages/temper-orchestration/src/deterministic_pipeline.rs` `mod proptests` | 5 |
+| native Rust proptests — the loop's pure core (`PipelineRunner<u32>` P1..P4: pure left-fold in declaration order, determinism, single-fatal halt preserves the prefix state, inactive stages skip in place) | `packages/temper-orchestration/src/pipeline.rs` `mod proptests` | 4 |
 | existing shim surface (all `tests/deterministic/*` through the delegation shim) | `packages/temper-placer/tests/deterministic/` | 1517 passed, 1 skipped |
+
+The native proptests pin the two migrated kernels the Python suites can only
+reach through the pyclass boundary: the factory's stage ORDER
+(`drc_aware_stage_order`) and the sequencing loop's pure core
+(`PipelineRunner`). The ORDER properties hardcode the differential's
+`_ORDER_DEFAULT` so a HashMap-order regression — the classic determinism bug
+this port exists to prevent — fails on the exact canonical sequence, not
+merely on length. The runner properties express the loop's left-fold /
+halt-at-fatal / skip semantics over random stage lists (`PROPTEST_CASES`
+bumped to 10 000 in verification sweeps).
 
 ### R1 gate status (U-E)
 
@@ -3122,7 +3192,12 @@ argued in-source and above):
   call (each stage already crossed the FFI once); no regression beyond noise
   is possible or claimed.
 - **R1c** — 6 non-vacuous properties (P1..P6), each with a degenerate-mutant
-  guard that must trip.
+  guard that must trip. Plus 9 native Rust proptests on the two migrated
+  kernels (5 on the factory ORDER in `deterministic_pipeline.rs`, 4 on the
+  loop's `PipelineRunner<u32>` core in `pipeline.rs`), each re-run at
+  `PROPTEST_CASES=10000` in the verification sweep — the ORDER properties are
+  the Rust-side analogue of the Python P1 (call order) with the pinned
+  canonical sequence hardcoded.
 - **R1d** — metamorphic relations not claimed: the loop is a pure left fold
   whose relations (prefix composition) are already pinned as property P5.
 - **R1e** — this section.
@@ -3132,7 +3207,7 @@ argued in-source and above):
 - **R1g** — no `unwrap`/`expect` outside tests (crate denies both); the shim
   `run()` bodies are `catch_unwind`-guarded (panic → `StageError::Fatal`),
   the pyclass methods by pyo3's own expansion; `cargo clippy --all-features
-  --all-targets -- -D warnings` clean; `cargo test` 1111/1111 green; the
+  --all-targets -- -D warnings` clean; `cargo test` 1120/1120 green; the
   wasm tier (`--no-default-features`) compiles.
 - **R1h** — not physics-gated (recorded explicitly: the loop sequences
   stages; no physics quantity is computed, asserted or gated).
