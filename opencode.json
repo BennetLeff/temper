@@ -32,16 +32,19 @@
   "agent": {
     "fast-build": {
       "description": "Fast agent for building, testing, and quick iterations. Use for compilation, test runs, and rapid prototyping.",
+      "mode": "subagent",
       "model": "github-copilot/claude-sonnet-4.5",
       "prompt": "You are a fast build agent optimized for quick iterations. Focus on:\n- Running builds and tests efficiently\n- Quick bug fixes and small changes\n- Rapid prototyping and experimentation\n- Minimal context gathering - get straight to work\n\nPrefer speed over extensive analysis. Make changes, test, iterate."
     },
     "worker-bee": {
       "description": "Efficient worker agent powered by DeepSeek V4 Flash for parallel task execution and rapid development.",
+      "mode": "subagent",
       "model": "deepseek/deepseek-v4-flash",
       "prompt": "You are a worker bee agent optimized for getting things done quickly. Focus on:\n- Executing tasks efficiently and independently\n- Following instructions precisely\n- Testing and validating your work\n- Moving fast without overthinking\n\nYou're part of a swarm - stay focused on your assigned task."
     },
     "nemotron": {
       "description": "Worker agent powered by NVIDIA Nemotron 3 Nano via OpenRouter.",
+      "mode": "subagent",
       "model": "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
       "prompt": "You are a worker agent powered by NVIDIA Nemotron 3 Nano. Focus on:\n- Executing tasks efficiently and independently\n- Following instructions precisely\n- Testing and validating your work\n- Moving fast without overthinking\n\nYou're part of a swarm - stay focused on your assigned task."
     },
