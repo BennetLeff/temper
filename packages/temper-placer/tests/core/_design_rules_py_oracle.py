@@ -9,6 +9,16 @@ migration). Only the module docstring was replaced with this pin note; every
 import (including the four internal ``temper_placer.core.*`` imports) was
 already absolute, so no relative-import rewriting was needed.
 
+RE-PINNED 2026-08-12 (drift triage, branch fix/oracle-drift-triage): PR
+#1084 (feat/drc HV-to-HV functional creepage at the resonant-tank node,
+commit 3231dc3db, merged via df0dc4d90) added the ``HighVoltageTank`` net
+class and reclassified ``tank.c_tank1-p2`` from ``HighVoltage`` in lock-step
+with ``design_rules.py`` (see the inline comment block below); the registry
+pin in ``scripts/oracle_hashes.json`` was not updated by that PR and this
+file drifted. The edit is faithful -- the added entry is byte-identical to
+the live ``design_rules.py`` table. Re-pinned from the on-disk bytes after
+establishing the cause.
+
 DO NOT EDIT THE SEMANTICS. This is the oracle the Rust pyo3 pyclasses
 (``temper_design_bundle_python``) must reproduce bit-identically; any
 edit here silently weakens the differential proof. If the module's
