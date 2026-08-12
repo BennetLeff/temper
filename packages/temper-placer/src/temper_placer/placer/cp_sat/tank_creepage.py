@@ -187,7 +187,9 @@ def _hv_net_names(net_class_map: dict[str, str] | None = None) -> frozenset[str]
     """Every net classified ``"HighVoltage"`` in ``TEMPER_NET_ASSIGNMENTS``
     (or a caller-supplied override map, for tests)."""
     if net_class_map is None:
-        from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS as net_class_map  # noqa: N806
+        from temper_placer.core.design_rules import (
+            TEMPER_NET_ASSIGNMENTS as net_class_map,  # noqa: N806
+        )
 
     return frozenset(net for net, cls in net_class_map.items() if cls == "HighVoltage")
 

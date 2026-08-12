@@ -18,7 +18,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 from ortools.sat.python import cp_model
 
 from temper_placer.placer.cp_sat.model import CpSatModel
