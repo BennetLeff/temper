@@ -549,10 +549,13 @@ class OrToolsEngine:
 
 
 # ===========================================================================
-# 3. Corpus: real encoder models (small synthetic / medium synthetic / full
-#    real board), built through the exact same production entry points
-#    (Component/Netlist/PCL constraint dataclasses/solve_placement) that
-#    the placer itself uses -- not a hand-rolled toy format.
+# 3. Corpus: real encoder models (small synthetic / medium synthetic /
+#    corpus-fixture-33c -- a small, frozen, 33-component fixture, NOT the
+#    real 169-component pcb/temper.kicad_pcb board -- see
+#    build_full_board_corpus()'s docstring), built through the exact same
+#    production entry points (Component/Netlist/PCL constraint
+#    dataclasses/solve_placement) that the placer itself uses -- not a
+#    hand-rolled toy format.
 # ===========================================================================
 
 
@@ -694,12 +697,29 @@ def build_medium_corpus() -> CorpusModel:
 
 
 def build_full_board_corpus() -> CorpusModel | None:
-    """The real golden-board corpus: power_pcb_dataset/corpus/temper/temper.kicad_pcb
-    placed under the ACTUAL production PCL config
-    (configs/constraints/temper_induction_cooker.yaml) -- the same board +
-    config test_golden_board_drc_regression uses. Returns None if the
-    fixture files are missing (kept optional, not a hard failure of the
-    harness)."""
+    """**NOT the real board.** This is
+    power_pcb_dataset/corpus/temper/temper.kicad_pcb -- a small, frozen,
+    33-component *independent test fixture* (100x150mm, last touched
+    2026-07-08), placed under the ACTUAL production PCL config
+    (configs/constraints/temper_induction_cooker.yaml) -- the same
+    fixture + config test_golden_board_drc_regression uses. The real ship
+    target is pcb/temper.kicad_pcb (169 components, 152x234mm); this
+    function intentionally does NOT read it -- see
+    docs/evidence/2026-08-11-golden-fixture-regeneration-decision.md for
+    why (CP-SAT does not decide feasibility on the real board within this
+    harness's 30s full-board timeout; see that doc's measurement).
+    Earlier revisions of this docstring called this "the real golden-board
+    corpus", which is what led three CP-SAT spikes
+    (docs/evidence/2026-08-07-cpsat-equivalence-harness.md,
+    docs/evidence/2026-08-07-cpsat-objective-frequency.md, and one more) to
+    report conclusions about "the real board" that were actually about this
+    33-component fixture -- see
+    docs/evidence/2026-08-11-pumpkin-real-budget-spike.md Sec 5. Returns
+    None if the fixture files are missing (kept optional, not a hard
+    failure of the harness). Every caller of this function must report the
+    returned model's own component count (``len(model.verification_model
+    .sizes_mm)``) alongside any result derived from it -- never assume or
+    imply it is the real board's count."""
     board_path = REPO_ROOT / "power_pcb_dataset" / "corpus" / "temper" / "temper.kicad_pcb"
     pcl_config = PLACER_ROOT / "configs" / "constraints" / "temper_induction_cooker.yaml"
     if not board_path.exists() or not pcl_config.exists():
@@ -737,7 +757,10 @@ def build_full_board_corpus() -> CorpusModel | None:
         loop_components={},
     )
     return CorpusModel(
-        name="full-board",
+        # Named for what it IS (a frozen 33-component corpus fixture), not
+        # what it is sometimes mistaken for (the real board) -- see this
+        # function's own docstring.
+        name="corpus-fixture-33c",
         netlist=netlist,
         board=board,
         extra_constraints=extra_constraints,
@@ -873,15 +896,23 @@ def main() -> None:
     if full is not None:
         corpora.append(full)
     else:
-        print("[warn] full-board corpus unavailable (missing fixture files); skipping", file=sys.stderr)
+        print(
+            "[warn] corpus-fixture-33c (power_pcb_dataset/corpus/temper/temper.kicad_pcb, "
+            "NOT the real board) unavailable (missing fixture files); skipping",
+            file=sys.stderr,
+        )
 
     engines: list[Engine] = [OrToolsEngine()]
     seeds = [0, 1, 7]
     worker_counts = [1, 4, 8]
     reports = []
     for model in corpora:
-        timeout_ms = 30_000 if model.name == "full-board" else 5_000
+        timeout_ms = 30_000 if model.name == "corpus-fixture-33c" else 5_000
         repeats = 2
+        # Every result line carries its own component count -- do not rely
+        # on the model name alone to convey scale (see
+        # build_full_board_corpus()'s docstring: "corpus-fixture-33c" is a
+        # 33-component fixture, never the real 169-component board).
         print(f"=== {model.name}: {len(model.verification_model.sizes_mm)} components, "
               f"{len(model.verification_model.constraints)} constraints ===")
         report = run_differential(

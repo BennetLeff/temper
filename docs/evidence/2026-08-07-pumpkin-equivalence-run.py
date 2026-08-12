@@ -167,14 +167,19 @@ def main() -> None:
     if full is not None:
         corpora.append(full)
     else:
-        print("[warn] full-board corpus unavailable; skipping", file=sys.stderr)
+        print("[warn] corpus-fixture-33c unavailable; skipping", file=sys.stderr)
 
     engines: list[Any] = [harness.OrToolsEngine(), PumpkinEngine()]
     seeds = [0, 1, 7] if not quick else [0]
     worker_counts = [1, 4, 8] if not quick else [1]
     reports = []
     for model in corpora:
-        timeout_ms = 30_000 if model.name == "full-board" else 5_000
+        # Model name updated 2026-08-11 (docs/evidence/2026-08-07-cpsat-equivalence-harness.py's
+        # build_full_board_corpus() now names it "corpus-fixture-33c", not
+        # "full-board" -- it was never the real board; see that function's
+        # own docstring). Matched here so a re-run of this script still
+        # picks the right timeout instead of silently falling through to 5s.
+        timeout_ms = 30_000 if model.name == "corpus-fixture-33c" else 5_000
         repeats = 2 if not quick else 1
         print(
             f"=== {model.name}: {len(model.verification_model.sizes_mm)} components, "
