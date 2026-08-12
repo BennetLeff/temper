@@ -1,7 +1,6 @@
 """Tests for core.stackup module — JLCPCB JLC04161H-7628 stackup definition."""
 
 import pytest
-
 from temper_design_bundle_python import (
     LayerConfig,
     Stackup,
