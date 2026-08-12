@@ -136,6 +136,7 @@ def solve_placement(
     fixed_rotations: dict[str, int] | None = None,
     max_displacement_mm: float | None = None,
     isolation_barrier: dict | None = None,
+    heatsink_colocation: int | None = None,
     fixed_positions: dict[str, tuple[float, float, int]] | None = None,
     fixed_copper: dict | None = None,
     validator_input: dict | None = None,
@@ -201,6 +202,18 @@ def solve_placement(
             HARD constraint (see ``isolation_barrier.py``) before encoding.
             The resulting report is attached to the returned
             ``CpSatPlacementResult.isolation_barrier_report``.
+        heatsink_colocation: Optional common rotation index (0-3). When
+            given, registers the shared-heatsink co-location HARD
+            constraint for every group in
+            ``heatsink_colocation.HEATSINK_GROUPS`` -- today, the two
+            TO-247 IGBTs (``U5``/``U6``) that bolt to ``HS1``. Without it a
+            clean solve is free to return the two devices at rotations 90
+            degrees apart, which no single flat heatsink face can contact
+            (measured: ``docs/evidence/2026-08-12-igbt-shared-heatsink-hard-constraint.md``).
+            Opt-in, and an explicit rotation rather than a bool, because
+            the wire vocabulary can only PIN a rotation, not equate two --
+            callers that need true equality sweep 0..3. Same opt-in shape
+            as ``isolation_barrier`` above.
         fixed_copper: Optional pad-vs-fixed-copper NoOverlap constraint set
             (issue #523). A dict with keys ``parse_result`` (a
             ``ParseResult`` carrying ``.traces``/``.vias``/``.board``),
@@ -332,6 +345,19 @@ def solve_placement(
             board_h_mm=board_h,
             **isolation_barrier,
         )
+
+    # Shared-heatsink co-location (opt-in). Same placement in the sequence
+    # and same reason as the barrier above: it calls get_component() for
+    # every ref in its groups, so every component must already be
+    # registered, and it posts directly to the model.
+    if heatsink_colocation is not None:
+        from temper_placer.placer.cp_sat.heatsink_colocation import (
+            HEATSINK_GROUPS,
+            add_heatsink_colocation_to_model,
+        )
+
+        for group in HEATSINK_GROUPS:
+            add_heatsink_colocation_to_model(model_wrapper, group, heatsink_colocation)
 
     # Warm-start: seed solver with hint positions so CP-SAT searches
     # locally from a known-feasible point rather than exploring the full
