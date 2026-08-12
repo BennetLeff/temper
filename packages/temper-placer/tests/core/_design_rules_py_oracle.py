@@ -356,7 +356,7 @@ TEMPER_NET_CLASSES = {
     "HighVoltage": NetClassRules(
         name="HighVoltage",
         trace_width=3.0,
-        clearance=6.0,
+        clearance=2.0,
         via_diameter=1.2,
         via_drill=0.6,
         via_template="Via3x3",
@@ -380,10 +380,10 @@ TEMPER_NET_CLASSES = {
     ),
     "Power": NetClassRules(
         name="Power",
-        trace_width=0.5,
-        clearance=0.25,
-        via_diameter=0.8,
-        via_drill=0.4,
+        trace_width=1.0,
+        clearance=0.5,
+        via_diameter=1.0,
+        via_drill=0.5,
         via_template="Via2x2",
         dru_priority=40,
         required_layer=None,
@@ -614,6 +614,7 @@ TEMPER_NET_ASSIGNMENTS = {
     # GND - power return
     "PWR_RTN": "GND",
     "CGND": "GND",
+    "gnd": "GND",
 }
 
 
