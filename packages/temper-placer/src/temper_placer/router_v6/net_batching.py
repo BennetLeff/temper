@@ -487,8 +487,11 @@ def _solve_subset(
         conflict_limit=sat_conflict_limit,
         time_limit_ms=sat_time_limit_ms,
     )
-    # @req(2026-08-12-003, R3): audit every batch-level "sat" result the same
-    # way `_pipeline_route.py:437-452`'s monolithic path already does --
+    # Per docs/plans/2026-08-12-003-fix-sat-capacity-encoding-plan.md's R3
+    # (branch spike/sat-capacity-vacuity, not yet on main -- cited here as
+    # provenance, not a machine-checked @req tag): audit every batch-level
+    # "sat" result the same way `_pipeline_route.py:437-452`'s monolithic
+    # path already does --
     # this is the module's *only* production call site that still holds
     # cm.variables/cm.constraints (the pyo3 objects `audit_result` needs);
     # `_batch_worker_entry`'s own result dict, which is all that crosses
@@ -782,8 +785,9 @@ def _batch_worker_entry(
         result = {
             "status": status,
             "topology_graph": rust_result.get("topology_graph", {}),
-            # @req(2026-08-12-003, R3): `_solve_subset` already computed this
-            # (audit_result) right after the solve, while it still held
+            # Per plan 2026-08-12-003's R3 (see _solve_subset above):
+            # `_solve_subset` already computed this (audit_result) right
+            # after the solve, while it still held
             # cm.variables/cm.constraints -- carried across the subprocess
             # pipe as plain data so the parent (`run_net_batched_stage3`)
             # can raise on it, mirroring where `_consume_capacity` is
@@ -1123,11 +1127,11 @@ def run_net_batched_stage3(
 
             if status == "sat" and outcome.result is not None:
                 solved_at_batch_level = True
-                # @req(2026-08-12-003, R3): mirror _pipeline_route.py:437-452's
+                # Per plan 2026-08-12-003's R3: mirror _pipeline_route.py:437-452's
                 # monolithic-path audit -- violations raise, not warn. Computed
-                # in the child (_batch_worker_entry, which still holds
-                # cm.variables/cm.constraints); raised here, the one place this
-                # module already treats a "sat" result as ground truth enough
+                # in _solve_subset (which still held cm.variables/cm.constraints);
+                # raised here, the one place this module already treats a
+                # "sat" result as ground truth enough
                 # to consume capacity against it.
                 audit_violations = outcome.result.get("audit_violations", [])
                 if audit_violations:
@@ -1187,8 +1191,8 @@ def run_net_batched_stage3(
                     rr1 = single_outcome.result
                     assert rr1 is not None
                     if rr1["status"] == "sat" and n.name in rr1.get("topology_graph", {}):
-                        # @req(2026-08-12-003, R3): singleton-retry mirror of
-                        # the batch-level audit above.
+                        # Per plan 2026-08-12-003's R3: singleton-retry mirror
+                        # of the batch-level audit above.
                         audit_violations1 = rr1.get("audit_violations", [])
                         if audit_violations1:
                             msg = (
