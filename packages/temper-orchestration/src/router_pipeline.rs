@@ -713,13 +713,14 @@ impl Stage<BoardState> for RouterStageErc {
         let ctx = self.ctx.clone();
         stage_run("router_v6.erc", &ctx, |py| {
             let gates = py.import("temper_placer.placer.cp_sat.gates")?;
+            // The oracle's `ErcGate().check(BoardState(routed_pcb_path=...))`
+            // evaluates ErcGate() BEFORE the BoardState(...) argument; the
+            // construction order is observable and pinned.
+            let erc_gate = gates.getattr("ErcGate")?.call0()?;
             let bs_kwargs = PyDict::new(py);
             bs_kwargs.set_item("routed_pcb_path", ctx.pcb_path.bind(py))?;
             let bs = gates.getattr("BoardState")?.call((), Some(&bs_kwargs))?;
-            let erc_result = gates
-                .getattr("ErcGate")?
-                .call0()?
-                .call_method1("check", (bs,))?;
+            let erc_result = erc_gate.call_method1("check", (bs,))?;
             let status = erc_result.getattr("status")?;
             let gate_status = gates.getattr("GateStatus")?;
             let logger = py
