@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy
+.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate venv-integrity-check worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy
 
 # Show help for workflow commands
 help:
@@ -25,6 +25,7 @@ help:
 	@echo "  make extensions      - Rebuild every pyo3/maturin Rust extension crate (fixes stale .so files)"
 	@echo "  make extensions-check- Report stale/missing pyo3 extension crates without rebuilding"
 	@echo "  make venv-isolate    - Give THIS worktree its own .venv, independent of any shared checkout"
+	@echo "  make venv-integrity-check - Assert THIS venv's editable installs point at THIS repo root, not a worktree/other checkout"
 	@echo "  make clean    - Remove build artifacts"
 	@echo "  make onboard  - Guided quick-start achievement run"
 	@echo "  make clean-onboard- Reset onboard checkpoints"
@@ -219,6 +220,17 @@ extensions:
 # `make extensions` as "check, then fix".
 extensions-check:
 	uv run --no-sync python3 scripts/check_stale_extensions.py
+
+# Is THIS venv's identity trustworthy -- do its editable `.pth` files and
+# `direct_url.json` entries actually point at this repo root, and not at a
+# different git worktree (e.g. `.claude/worktrees/agent-*`, a `maturin
+# develop --active` hijack -- see AGENTS.md "Worktree .venv: shared vs.
+# isolated") or an unrelated checkout entirely? Run this any time you
+# suspect the shared `.venv` might have been touched by a build run from
+# somewhere else; `extensions-check`'s freshness verdict is only meaningful
+# once this passes.
+venv-integrity-check:
+	uv run --no-sync python3 scripts/check_venv_integrity.py
 
 # WASM verification tier (Track D): build the wasm-test-runner artifacts and
 # stage them beside the Worker source so `wrangler deploy` can bundle them via

@@ -560,6 +560,27 @@ jobs:
         if: ${{ !cancelled() && steps.setup_env.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_stale_extensions.py -v --tb=short
 
+      - name: Venv-integrity gate tests
+        if: ${{ !cancelled() && steps.setup_env.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_venv_integrity.py -v --tb=short
+
+      # Runs BEFORE the staleness gate below on purpose: staleness compares
+      # an installed artifact's content/mtime against "this checkout"'s
+      # sources, which is only a coherent question once we know the venv's
+      # editable installs actually point AT this checkout. A CI runner
+      # never has the multi-worktree topology that motivated this gate
+      # (2026-08-11: `maturin develop --active` run from an agent's git
+      # worktree rewrote a SHARED venv's editable pointers to that
+      # worktree, so every measurement in that window silently ran against
+      # the wrong code -- see AGENTS.md "Worktree .venv"), but it is cheap
+      # defense in depth against the same shape arriving via a restored
+      # `.venv` cache or an image layer built somewhere else, and it is
+      # the check a developer/agent should actually run by hand against
+      # the shared checkout's `.venv` when in doubt.
+      - name: Venv-integrity gate (editable installs point at this checkout)
+        if: ${{ !cancelled() && steps.setup_env.outcome == 'success' }}
+        run: uv run --no-sync python scripts/check_venv_integrity.py
+
       # Build side of content-hash freshness (scripts/_lib/freshness.py).
       # Every pyo3 crate has just been built or installed from THIS
       # checkout, so the mtime comparison is correct right here and now --

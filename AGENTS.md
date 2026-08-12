@@ -470,6 +470,83 @@ exhausted disk twice. Isolate the worktrees that are actually building or
 testing Rust extensions; rely on the content-hash gate (unconditional,
 zero downside) everywhere else.
 
+### Four ways a worktree silently poisons the venv it's building into
+
+2026-08-11 incident: the shared `.venv` was found with its editable-install
+pointers rewritten to **an agent's git worktree** rather than the main
+checkout —
+
+```
+_editable_impl_temper_placer.pth      -> .claude/worktrees/agent-ab1dbe8162fa0fbae
+_editable_impl_temper_workflow.pth    -> .claude/worktrees/agent-ab1dbe8162fa0fbae
+__editable__.temper_rust_router_core  -> .claude/worktrees/agent-ab1dbe8162fa0fbae
+```
+
+Every measurement taken against that venv in that window ran against the
+worktree's code, not `main` — and nothing indicated it: imports succeed,
+numbers come back confident and wrong. Confirmed the same day: four
+distinct silent-staleness modes, all reachable from an ordinary worktree
+session running `maturin`/`uv` directly instead of through `make`. A
+developer or agent will actually hit one of these, not a contrived edge
+case:
+
+1. **`maturin` refuses outright if `VIRTUAL_ENV` and `CONDA_PREFIX` are
+   both set** — a loud failure, the safe end of this list. Unset whichever
+   you are not using before invoking `maturin` directly.
+2. **Plain `uv run maturin develop` from a worktree targets a *per-worktree*
+   venv and no-ops against the shared one.** If `UV_PROJECT_ENVIRONMENT`
+   is not pointed at the shared `.venv` (or the worktree has its own via
+   `make venv-isolate`), the build "succeeds" into a venv nobody is
+   importing from — a silent no-op, not a hijack, but just as misleading:
+   the shared venv's extension is untouched and still stale.
+3. **`maturin develop --active` run from a worktree rewrites the SHARED
+   venv's editable pointers** — this incident. `--active` targets whatever
+   venv is currently *active* (`VIRTUAL_ENV`), not one scoped to the
+   worktree it ran from; when that active venv is the shared one, every
+   subsequent `import` from *any* worktree — including the main checkout —
+   silently resolves into the worktree that ran the command, until someone
+   notices or rebuilds. This is the mode `scripts/check_venv_integrity.py`
+   (below) exists to catch.
+4. **`maturin develop` can report "Installed" while leaving the `.so`
+   untouched** — five rebuilds exited 0 in a row while the artifact stayed
+   dated a day behind the source that had changed underneath it. This is
+   `scripts/check_stale_extensions.py`'s territory (its own module
+   docstring covers this exact incident in depth), not this section's —
+   named here only because it is the fourth mode in the same day's
+   confirmed set, and because it is the reason "the build tool said
+   success" is never trusted anywhere in this repo's gates.
+
+**`scripts/check_stale_extensions.py` catches (4)'s mtime symptom but not
+(3)'s redirection** — a hijacked-but-not-yet-rebuilt venv still imports a
+`.so` that is content-fresh *relative to the worktree it was built from*,
+which is exactly what makes (3) silent: the staleness gate has no way to
+know it is comparing against the wrong checkout's sources in the first
+place.
+
+**`scripts/check_venv_integrity.py` closes (3).** It asserts every
+editable-install `.pth` file and every `direct_url.json` in the checked
+venv's site-packages resolves under the expected repo root — not into a
+different registered git worktree (`git worktree list`, so this covers
+`.claude/worktrees/agent-*` and any other worktree location, not a
+hardcoded path) and not into an unrelated checkout entirely. Fast,
+deterministic, local-only (one `git worktree list --porcelain`, no
+network). Run it any time a shared venv's trustworthiness is in doubt:
+
+```bash
+.venv/bin/python scripts/check_venv_integrity.py     # or: make venv-integrity-check
+```
+
+It is a **separate** gate from `check_stale_extensions.py` rather than a
+mode folded into it, deliberately: the two answer different questions on
+different axes (venv *identity*, scanned from installed site-packages, vs.
+per-crate artifact *freshness*, scanned from `packages/` source) and the
+identity question is logically prior — a freshness verdict computed
+against a hijacked venv is meaningless, not merely stale. CI runs it in
+the `test` job (`python-tests.yml`), immediately before the staleness gate
+it protects the meaning of. See the script's own module docstring for the
+full argument and the exit-code convention (mirrors
+`check_stale_extensions.py`'s 0/3/5 on purpose — same job, same reader).
+
 ## Documentation & Context Maintenance
 
 **Critical Rules for AI Agents:**
