@@ -68,6 +68,9 @@ class CpSatPlacementResult:
     # raised, not returned; intra-footprint and coverage-gap buckets land
     # here for the caller to act on).
     validator_audit: object | None = None
+    # Populated only when solve_placement(tank_creepage=...) was passed;
+    # see tank_creepage.py::TankCreepageReport.
+    tank_creepage_report: object | None = None
 
     def to_placements_dict(self) -> dict[str, tuple[float, float]]:
         """Return {component_ref: (x_mm, y_mm)} mapping (loop.py interface)."""
@@ -136,6 +139,7 @@ def solve_placement(
     fixed_rotations: dict[str, int] | None = None,
     max_displacement_mm: float | None = None,
     isolation_barrier: dict | None = None,
+    tank_creepage: dict | None = None,
     fixed_positions: dict[str, tuple[float, float, int]] | None = None,
     fixed_copper: dict | None = None,
     validator_input: dict | None = None,
@@ -201,6 +205,19 @@ def solve_placement(
             HARD constraint (see ``isolation_barrier.py``) before encoding.
             The resulting report is attached to the returned
             ``CpSatPlacementResult.isolation_barrier_report``.
+        tank_creepage: Optional kwargs forwarded to
+            ``tank_creepage.add_tank_creepage_to_model`` (minus
+            ``model``/``netlist``, which this function supplies) -- e.g.
+            ``{"margin_mm": 10.0}``. When given, registers a HARD
+            ``separated`` constraint (min_distance_mm=margin_mm, default
+            10.0mm/PD3) between every ``tank.c_tank1-p2`` component and
+            every other classified-HighVoltage component (see
+            ``tank_creepage.py`` for exactly what this does and does not
+            guarantee against the IEC 60335-1 Table 18 functional-creepage
+            requirement). Same opt-in shape as ``isolation_barrier`` above,
+            posted at the same point in the sequence (after every
+            component is registered). The resulting report is attached to
+            ``CpSatPlacementResult.tank_creepage_report``.
         fixed_copper: Optional pad-vs-fixed-copper NoOverlap constraint set
             (issue #523). A dict with keys ``parse_result`` (a
             ``ParseResult`` carrying ``.traces``/``.vias``/``.board``),
@@ -331,6 +348,21 @@ def solve_placement(
             board_w_mm=board_w,
             board_h_mm=board_h,
             **isolation_barrier,
+        )
+
+    # Tank-node functional creepage (opt-in). Same placement in the
+    # sequence and same reason as the barrier above: it calls
+    # model_wrapper.component_map, so every component must already be
+    # registered, and it posts directly to the model via the existing
+    # `separated` handler (no PCL round-trip needed).
+    tank_creepage_report = None
+    if tank_creepage is not None:
+        from temper_placer.placer.cp_sat.tank_creepage import add_tank_creepage_to_model
+
+        tank_creepage_report = add_tank_creepage_to_model(
+            model_wrapper,
+            netlist,
+            **tank_creepage,
         )
 
     # Warm-start: seed solver with hint positions so CP-SAT searches
@@ -694,6 +726,7 @@ def solve_placement(
         unsat_core=unsat_core,
         isolation_barrier_report=isolation_barrier_report,
         validator_audit=validator_audit,
+        tank_creepage_report=tank_creepage_report,
     )
 
 
