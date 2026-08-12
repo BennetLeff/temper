@@ -120,8 +120,6 @@ class TestGateBase:
         assert result.status is GateStatus.CLEAN
 
     def test_gate_to_delta_returns_none_for_unknown(self):
-        from temper_placer.placer.cp_sat.gates import Gate as _Gate
-
         # Gate.to_delta delegates to DeltaMapper.map which returns None
         # for unregistered violation types.
         gate = _TestGate()

@@ -736,13 +736,6 @@ class TestPolylineLength:
         expected = _oracle_polyline_length(poly)
         got = tg.geom_polyline_length_py(flatten(poly))
         assert_bits(got, expected, "neumaier")
-        # sanity: a naive fold would give a different (wrong) value
-        naive = (
-            math.dist(poly[0], poly[1]) + math.dist(poly[1], poly[2])
-            if False
-            else 0.0
-        )
-        assert naive == 0.0  # placeholder; the pin below is the real guard
         assert got == expected  # compensated, bit-exact
 
     def test_polyline_length_collinear_and_nan(self):

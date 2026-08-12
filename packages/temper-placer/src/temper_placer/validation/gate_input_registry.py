@@ -621,6 +621,18 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("update_production_routing_baseline.py", "power_pcb_dataset/baselines/", "production-routing baseline generator; referenced in the workflow path filters; probe harness deferred"),
     ("vulture_gate.py", "scripts/deadcode-baseline.py", "dead-code scan; probe harness deferred"),
     ("write_extension_stamps.py", "packages/", "stamp writer; probe harness deferred"),
+    # 2026-08-12 hygiene/type-debt paydown: 7 correspondence/integrity gates
+    # invoked in python-tests.yml but never added to this survey (the U4
+    # completeness test only started catching this once run -- see the PR
+    # for the gate's own before/after). Reasons/declared-inputs summarized
+    # from each script's scripts/manifest.yaml entry, which was kept current.
+    ("check_corpus_fixture_realboard_divergence.py", "power_pcb_dataset/corpus/manifest.yaml", "corpus-fixture <-> real-board divergence gate (2026-08-11 golden-fixture decision); probe harness deferred"),
+    ("check_layer_plane_emission_coverage.py", "pcb/temper.kicad_pcb", "declared <-> emitted layer-plane coverage gate; advisory (continue-on-error) pending the underlying In1.Cu/In2.Cu fix; probe harness deferred"),
+    ("check_netclass_class_param_correspondence.py", "pcb/temper.kicad_pro", "netclass scalar-parameter correspondence gate; advisory (continue-on-error); currently VIOLATION on origin/main (HighVoltage.clearance mismatch); probe harness deferred"),
+    ("check_netclass_map_board_correspondence.py", "pcb/temper.kicad_pcb", "hand-maintained net_classes: YAML <-> board net-name correspondence gate; probe harness deferred"),
+    ("check_pcl_config_board_correspondence.py", "packages/temper-placer/configs/constraints/temper_induction_cooker.yaml", "PCL placement-constraint config <-> board correspondence gate; advisory (continue-on-error) pending the config fix; probe harness deferred"),
+    ("check_pd2_compartment_evidence.py", "docs/specs/pd2_compartment_evidence.yaml", "PD2/8.0mm creepage compartment-evidence gate; advisory (continue-on-error) pending the compartment being built; probe harness deferred"),
+    ("check_venv_integrity.py", "", "venv editable-install identity gate (2026-08-11 shared-venv-hijack incident); source/site-packages scan; probe harness deferred"),
 ]
 
 
