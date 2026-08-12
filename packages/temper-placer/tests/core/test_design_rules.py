@@ -197,7 +197,12 @@ class TestCreateTemperDesignRules:
         # packages/temper-placer/configs/netclass_rules.yaml, both of which
         # already had it (9 -> 10). GateDrive then split into
         # GateDriveHV/GateDriveSELV, also 2026-07-28 (R4), 10 -> 11.
-        assert len(rules.net_classes) == 11
+        # HighVoltageTank split out of HighVoltage 2026-08-12, 11 -> 12
+        # (docs/evidence/2026-08-12-hv-hv-creepage-enforcement.md): the
+        # resonant tank node's 570.5 Vrms lands in a different IEC 60335-1
+        # creepage-table row than the 340-400V bus the class was named for,
+        # so one class could not carry one correct creepage figure for both.
+        assert len(rules.net_classes) == 12
 
     def test_rules_are_independent(self):
         """Test that factory creates independent instances."""

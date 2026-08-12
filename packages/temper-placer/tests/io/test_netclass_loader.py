@@ -28,10 +28,13 @@ class TestNetclassLoader:
         TEMPER_NET_CLASSES in design_rules.py (docs/evidence/
         2026-07-28-netclass-defect-reconciliation.md). GateDrive then split
         into GateDriveHV/GateDriveSELV, also 2026-07-28 (R4).
+        HighVoltageTank split out of HighVoltage 2026-08-12
+        (docs/evidence/2026-08-12-hv-hv-creepage-enforcement.md).
         """
         expected = {
             "ACMains",
             "HighVoltage",
+            "HighVoltageTank",
             "HighVoltageIsolated",
             "FinePitch",
             "Power",
