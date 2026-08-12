@@ -69,7 +69,21 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
-_SOURCE_SUFFIXES = (".py", ".c", ".h")
+_SOURCE_SUFFIXES = (".py", ".c", ".h", ".rs")
+# Rust also carries `// @req(...)` annotations (2 files, confirmed by
+# `grep -rl '@req(' --include='*.rs'` at the time this was added:
+# packages/temper-drc-rs/src/drc_oracle.rs,
+# packages/temper-orchestration/src/zone_aware_slot_generation_stage.rs)
+# and was structurally invisible for a second, independent reason on top
+# of the regex fix above: `.rs` was never in this suffix tuple, so
+# `_iter_source_files` skipped Rust files outright regardless of scope or
+# regex. `.rs` reuses `_C_REQ_RE` below (Rust's `//` comment syntax
+# matches it) via the existing suffix != ".py" fallback -- no new regex
+# needed. As of this change no registered plan's `scope:` in
+# docs/traceability-registry.yaml names a `.rs` path or a directory
+# containing one, so this has zero effect on today's scanned-file count;
+# it is a forward-looking correctness fix, not part of the 12 -> N jump
+# reported in docs/evidence/2026-08-12-traceability-regex-fix.md.
 
 
 def _collect_scope_targets(registry: dict, repo_root: Path) -> list[Path]:
@@ -136,8 +150,23 @@ def _collect_and_validate(registry: dict, repo_root: Path):
                 return None, None
             cur = parent
 
-    _PYTHON_REQ_RE = _re.compile(r"#\s*@req\((\w+),\s*(\w+)\):?(.*)")
-    _C_REQ_RE = _re.compile(r"//\s*@req\((\w+),\s*(\w+)\):?(.*)")
+    # Plan-ids in this repo are date-stamped and hyphenated
+    # (`2026-06-23-004`, or the full plan filename
+    # `2026-07-09-001-feat-physics-verification-rigor-plan`), not just the
+    # bare alnum/underscore tokens (`N10`, `APC1`) the old `\w+`-only class
+    # matched -- `\w+` cannot match a hyphen, so every hyphenated plan-id
+    # failed to match at the first `-`, regardless of scope. Requirement-ids
+    # also carry hyphens in real annotations (`R-D5`, `U8-1`, `FR-ADOPT1`)
+    # and, in one dialect, pack two ids into one field with `/` instead of a
+    # second comma (`R2/K4`) -- see
+    # docs/evidence/2026-08-12-traceability-regex-fix.md for the survey this
+    # character class is derived from. Still not matched: annotations with
+    # 3+ comma-separated fields (`@req(id, R1, R2, R3)`) and annotations
+    # with no comment-marker prefix at all (bare `@req(...)` inside a
+    # docstring body) -- both are distinct dialects from the hyphen defect
+    # this fixes, documented as residual gaps in the same evidence doc.
+    _PYTHON_REQ_RE = _re.compile(r"#\s*@req\(([\w-]+),\s*([\w/-]+)\):?(.*)")
+    _C_REQ_RE = _re.compile(r"//\s*@req\(([\w-]+),\s*([\w/-]+)\):?(.*)")
 
     scanned_files: set[Path] = set()
     for target in _collect_scope_targets(registry, repo_root):
@@ -168,7 +197,20 @@ def _collect_and_validate(registry: dict, repo_root: Path):
 
 
 def _run_registry_scope_check(registry: dict, repo_root: Path) -> list[str]:
-    """Validate that every scope entry in the registry points to a git-tracked file."""
+    """Validate that every scope entry in the registry points to a git-tracked file.
+
+    Directory-shaped entries (e.g. `packages/temper-placer/tests/router_v6/`,
+    the convention `_iter_source_files` already treats as "recurse this
+    directory") are checked for git-tracked *content under* them, not exact
+    membership in `git ls-files`. `git` does not track directories as
+    entries in its own right, so an exact-membership test can never pass
+    for one regardless of whether the directory or its contents exist --
+    every directory-shaped scope entry in the registry failed this check
+    unconditionally before this fix (confirmed:
+    `packages/temper-placer/tests/router_v6/` has 300+ real, git-tracked
+    files under it and was still flagged). See
+    docs/evidence/2026-08-12-traceability-regex-fix.md.
+    """
     violations: list[str] = []
     git_files = subprocess.run(
         ["git", "ls-files"],
@@ -188,7 +230,13 @@ def _run_registry_scope_check(registry: dict, repo_root: Path) -> list[str]:
                 f"{plan_id}: plan document '{plan_path_str}' does not exist"
             )
         for scope_entry in plan_entry.get("scope", []):
-            if scope_entry not in git_files_set:
+            if scope_entry.endswith("/"):
+                if not any(f.startswith(scope_entry) for f in git_files_set):
+                    violations.append(
+                        f"{plan_id}: scope entry '{scope_entry}' (directory) "
+                        f"has no git-tracked files under it"
+                    )
+            elif scope_entry not in git_files_set:
                 violations.append(
                     f"{plan_id}: scope entry '{scope_entry}' is not tracked by git"
                 )
