@@ -1,43 +1,66 @@
+# ORACLE COPY -- DO NOT EDIT, DO NOT "FIX".
+#
+# Verbatim copy of the pre-migration source of
+#   packages/temper-placer/src/temper_placer/deterministic/__init__.py
+# at the U-E dispatch base (origin/main, 1a7365587). Relative imports are
+# adapted to absolute paths so the oracle imports from the test tree; every
+# other line is the verbatim pre-migration source.
+#
+# This is the R1a behavioural oracle for the U-E Rust pipeline-loop port in
+# packages/temper-orchestration (plan 2026-08-09-001, orchestration-port unit
+# U-E): the `DeterministicPipeline.run()` sequencing loop (including the
+# per-stage fence invocation) and the `create_drc_aware_pipeline()` stage
+# factory (the D1->D7 ordered construction, the zone-aware / phased stage
+# selection and the sidecar injection). The per-stage compute is the shared
+# shim stages (pinned individually by the D1..D7 differentials); what this
+# oracle pins is the LOOP and the ORDER.
+#
+# It must keep the ORIGINAL pure-Python semantics forever, including any
+# warts. If a differential test fails, the Rust side is wrong until proven
+# otherwise -- never edit this file to make a test pass.
+#
+# test_deterministic_pipeline_rust_differential.py recomputes the sha256 of
+# everything below the marker and fails if this file drifts.
+# --- BEGIN PINNED BODY ---
 # ruff: noqa: F821  # type-only references to PlacementConstraint, CopperZone, etc.
 from __future__ import annotations
 
 import logging
+import time
 from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
-
-import temper_orchestration as _to
 
 from temper_placer.validation.drc_types import ClearanceRule as _DRCClearanceRule
 from temper_placer.validation.drc_types import ComponentPlacement as _DRCCompPlacement
 from temper_placer.validation.drc_types import ConstraintSet as _DRCConstraintSet
 from temper_placer.validation.drc_types import Placement as _DRCPlacement
 
-from .channels import (
+from temper_placer.deterministic.channels import (
     ALLOWED_SCHEMA_HASHES as ALLOWED_SCHEMA_HASHES,
 )
-from .channels import (
+from temper_placer.deterministic.channels import (
     ALLOWED_SEVERITIES as ALLOWED_SEVERITIES,
 )
-from .channels import (
+from temper_placer.deterministic.channels import (
     SEVERITY_WEIGHTS as SEVERITY_WEIGHTS,
 )
-from .channels import (
+from temper_placer.deterministic.channels import (
     Bottleneck as Bottleneck,
 )
-from .channels import (
+from temper_placer.deterministic.channels import (
     ChannelMap as ChannelMap,
 )
-from .channels import (
+from temper_placer.deterministic.channels import (
     ChannelSidecarError as ChannelSidecarError,
 )
-from .channels import (
+from temper_placer.deterministic.channels import (
     routability_penalty as routability_penalty,
 )
-from .stages.base import Stage
-from .stages.hv_lv_partition import HvLvPartitionStage as HvLvPartitionStage
-from .stages.hv_lv_partition import PartitionError as PartitionError
-from .state import BoardState
+from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.stages.hv_lv_partition import HvLvPartitionStage as HvLvPartitionStage
+from temper_placer.deterministic.stages.hv_lv_partition import PartitionError as PartitionError
+from temper_placer.deterministic.state import BoardState
 
 if TYPE_CHECKING:
     from typing import Any
@@ -48,7 +71,7 @@ if TYPE_CHECKING:
     from temper_placer.io.config_loader import IsolationSlot
     from temper_placer.validation.drc_fence import DRCFence
 
-    from .io.kicad_metadata import KiCadMetadata
+    from temper_placer.deterministic.io.kicad_metadata import KiCadMetadata
 
 _SIDE_TO_LAYER: dict[int, str] = {0: "F.Cu", 1: "B.Cu"}
 _DEFAULT_CLEARANCES = [_DRCClearanceRule(from_class="*", to_class="*", min_mm=0.3)]
@@ -183,23 +206,31 @@ class DeterministicPipeline:
         self.fence = fence
 
     def run(self, initial_state: BoardState | None = None) -> BoardState:
-        """Sequence the stages, threading the BoardState through.
+        from temper_placer.validation.drc_fence import _issue_fingerprint
 
-        Orchestration-port unit U-E (Rust Orchestration Engine plan
-        2026-08-09-001): the sequencing loop (including the per-stage fence
-        invocation) is implemented in Rust (``temper-orchestration``'s
-        ``DeterministicPipeline`` pyclass), which drives the stages through
-        the Rust ``PipelineRunner<BoardState>``. The Python ``BoardState``
-        object is threaded through the loop with object identity preserved
-        for untouched fields; a stage that raises halts the run and
-        re-raises the ORIGINAL exception. An empty stage list runs nothing
-        (the state is returned unchanged). The per-stage compute is the
-        shared shim stages (pinned individually by the D1..D7
-        differentials); this method pins the LOOP.
-        """
-        return _to.DeterministicPipeline().run(
-            self.stages or None, self.fence, initial_state
-        )
+        state = initial_state or BoardState()
+        previous_violations: frozenset[str] | None = None
+        for stage in self.stages:
+            t0 = time.time()
+            state = stage.run(state)
+
+            if self.fence and stage.invariants:
+                stage_time = (time.time() - t0) * 1000
+                placement, constraints = _board_state_to_drc_input(state)
+
+                result = self.fence.check(
+                    stage_name=stage.name,
+                    invariants=stage.invariants,
+                    placement=placement,
+                    constraints=constraints,
+                    modified_regions=stage.last_modified_regions,
+                    previous_violations=previous_violations,
+                    stage_wall_time_ms=stage_time,
+                )
+                previous_violations = frozenset(
+                    _issue_fingerprint(v.issue) for v in result.violations
+                )
+        return state
 
 
 class SidecarAwarePipeline(DeterministicPipeline):
@@ -274,6 +305,32 @@ def create_drc_aware_pipeline(
         source_path = getattr(parsed_pcb, "source_path", None)
         if source_path is not None:
             output_dir = Path(source_path).parent
+
+    from temper_placer.deterministic.stages import (
+        ApplyPlacementsStage,
+        ClearanceGridStage,
+        ComponentAssignmentStage,
+        ConnectivityValidationStage,
+        CourtyardCheckStage,
+        DRCOracleSetupStage,
+        DRCValidationStage,
+        FinePitchEscapeStage,
+        LayerAssignmentStage,
+        NetClassSetupStage,
+        NetOrderingStage,
+        PhasedComponentAssignmentStage,
+        PlacementValidationStage,
+        PowerPlaneStage,
+        ShortCircuitDetectionStage,
+        SlotGenerationStage,
+        TrackDeduplicationStage,
+        ViaDeduplicationStage,
+        ViaValidationStage,
+        ZoneAssignmentStage,
+        ZoneAwareSlotGenerationStage,
+        ZoneGeometryStage,
+    )
+    from temper_placer.deterministic.stages.config_attach import ConfigAttachStage
 
     # Build zone config from YAML config if available
     zone_config = None
@@ -366,6 +423,20 @@ def create_drc_aware_pipeline(
                 net_class_assignments=net_class_assignments,
             )
 
+    # Select slot generation stage based on zone_aware flag
+    slot_stage: SlotGenerationStage | ZoneAwareSlotGenerationStage
+    if zone_aware:
+        slot_stage = ZoneAwareSlotGenerationStage(
+            slot_spacing_mm=slot_spacing,
+            copper_zone_margin=2.0,
+            min_routing_channel=3.0,
+            yaml_copper_zones=yaml_copper_zones,
+            yaml_isolation_slots=yaml_isolation_slots,  # @req(2026-06-23-007, R1)
+            net_class_rules=config_rules,  # @req(2026-06-23-007, R2)
+        )
+    else:
+        slot_stage = SlotGenerationStage(slot_spacing_mm=slot_spacing)
+
     # Convert metadata pad_sizes to format expected by stages
     # Stage expects Dict[(ref, pad_num), pad_object] but we have Dict[(ref, pad_num), PadSize]
     pad_sizes_for_stage = {}
@@ -380,43 +451,109 @@ def create_drc_aware_pipeline(
 
         pad_sizes_for_stage[key] = PadInfo(pad_size)
 
+    # Select component assignment stage based on constraint config
+    # Use PhasedComponentAssignmentStage if config has placement_priority or constraint rules
+    use_phased_placement = config is not None and (
+        getattr(config, "placement_priority", None)
+        or getattr(config, "component_spacing_rules", None)
+        or getattr(config, "component_groups", None)
+    )
+
+    component_stage: ComponentAssignmentStage | PhasedComponentAssignmentStage
+    if use_phased_placement:
+        # U1: pass design_rules so PhasedComponentAssignmentStage can inject
+        # 6mm ghost-pad reservations around HV pins before the placement
+        # loop runs.  U2: use_isolation_slots toggles creepage reduction
+        # against the `isolation_slots` table (default off, NFR4 parity).
+        placer_cfg = getattr(config, "placer", None) or {}
+        component_stage = PhasedComponentAssignmentStage(
+            constraints=config,
+            slot_spacing=slot_spacing,
+            fixed_placements=fixed_placements,
+            design_rules=design_rules,
+            use_isolation_slots=bool(placer_cfg.get("use_isolation_slots", False)),
+        )
+    else:
+        component_stage = ComponentAssignmentStage(
+            slot_spacing=slot_spacing,
+            fixed_placements=fixed_placements,
+        )
+
     # R4a/R4c/R4d: Look for placement.channels.json in the run output dir.
     # Load once per pipeline run; record the count on the wrapper.
     channel_map: ChannelMap | None = load_channel_map_from_sidecar(output_dir)
+    if (
+        channel_map is not None
+        and channel_map.has_grid()
+        and isinstance(component_stage, PhasedComponentAssignmentStage)
+    ):
+        component_stage.channel_map = channel_map
 
-    # U-E (Rust Orchestration Engine plan 2026-08-09-001): the ORDER is now
-    # Rust. The factory's stage-list construction -- the D1->D7 ordered
-    # construction of the 23 shim stages, the zone-aware / standard
-    # slot-stage selection, the phased / standard component-stage selection
-    # and the R4c sidecar injection (``channel_map`` into the phased stage
-    # when it has a grid) -- is implemented in ``temper-orchestation``'s
-    # ``DeterministicPipeline.create_drc_aware_pipeline_stages``. The
-    # parameter EXTRACTION above (config/design_rules getattr chains, the
-    # ``max(...) + 0.3`` margin, the DesignRules conversion, the PadInfo
-    # conversion) stays Python; the extracted values feed the Rust factory.
-    stages = _to.DeterministicPipeline.create_drc_aware_pipeline_stages(
-        metadata=metadata,
-        config=config,
-        zone_aware=zone_aware,
-        parsed_pads=parsed_pads,
-        channel_map=channel_map,
-        zone_config=zone_config,
-        slot_spacing=slot_spacing,
-        max_clearance=max_clearance,
-        net_class_clearances=net_class_clearances,
-        net_priority=net_priority,
-        placement_constraints=placement_constraints,
-        hv_exclusion_zones=hv_exclusion_zones,
-        net_classes=config.net_classes if config else None,
-        pad_sizes_for_stage=pad_sizes_for_stage,
-        fixed_placements=fixed_placements,
-        yaml_copper_zones=yaml_copper_zones,
-        yaml_isolation_slots=yaml_isolation_slots,
-        config_rules=config_rules,
-        resolved_design_rules=design_rules,
+    pipeline = DeterministicPipeline(
+        stages=[
+            # feat/hv-lv-guard-strip: attach the parsed config to state so
+            # downstream stages (HvLvPartitionStage in particular) can read
+            # their own block from ``state.config``.
+            ConfigAttachStage(config),
+            # Setup - apply net class mapping early
+            NetClassSetupStage(net_classes=config.net_classes if config else None),
+            # Placement stages
+            ZoneGeometryStage(zone_config=zone_config),
+            ZoneAssignmentStage(),
+            # feat/hv-lv-guard-strip: HV/LV domain map MUST run before
+            # component assignment so phased_component_assignment (and the
+            # standard fallback) can filter slots by domain.
+            HvLvPartitionStage(),
+            slot_stage,  # Use zone-aware or standard slot generation
+            component_stage,  # Use phased or standard component assignment
+            ApplyPlacementsStage(),
+            # DRC-FIX-4: Resolve courtyard overlaps and clamp to board bounds
+            CourtyardCheckStage(
+                courtyards=metadata.courtyards,
+                board_width=metadata.board_width,
+                board_height=metadata.board_height,
+                margin=5.0,
+            ),
+            # DRC-FIX-5: Re-apply placements after clamping to sync component.initial_position
+            ApplyPlacementsStage(),
+            # EXP-12: Validate placement constraints before routing
+            PlacementValidationStage(
+                constraints=placement_constraints,
+                fail_on_hard_violations=False,  # Log warnings, don't abort
+                parsed_pads=parsed_pads,
+            ),
+            # DRC setup - use parsed_pads for correct KiCad positions
+            DRCOracleSetupStage(
+                design_rules=config if config else design_rules,
+                parsed_pads=parsed_pads,
+            ),
+            # Routing
+            ClearanceGridStage(
+                cell_size_mm=0.25,
+                layer_count=4,
+                max_clearance_mm=max_clearance,
+                net_class_clearances=net_class_clearances,
+                net_classes=config.net_classes if config else None,
+                pad_sizes=pad_sizes_for_stage,  # Inject pad sizes for accurate blocking
+                hv_exclusion_zones=hv_exclusion_zones,  # EXP-13: Block zones for signal nets
+            ),
+            NetOrderingStage(net_priority=net_priority),  # EXP-6: Pass explicit priorities
+            LayerAssignmentStage(net_classes=config.net_classes if config else None),
+            PowerPlaneStage(),  # Mark plane nets (GND, power rails, ACMains) before routing
+            FinePitchEscapeStage(
+                pin_pitch_threshold_mm=0.65,
+                escape_layer=1,
+            ),  # Place escape vias for fine-pitch ICs before main routing
+            # Post-routing cleanup (order matters!)
+            TrackDeduplicationStage(),  # Remove duplicate tracks first
+            ShortCircuitDetectionStage(),  # Remove tracks that short
+            ViaDeduplicationStage(),  # Remove duplicate vias
+            ViaValidationStage(),  # Remove dangling vias
+            # Validation
+            DRCValidationStage(),
+            ConnectivityValidationStage(),
+        ]
     )
-
-    pipeline = DeterministicPipeline(stages=stages)
 
     # Wrap in SidecarAwarePipeline so the per-instance sidecar load counter
     # can be asserted at end of run (R7e). The wrapper delegates everything
@@ -434,7 +571,7 @@ def create_drc_aware_pipeline(
 
 def create_legacy_pipeline():
     """Create legacy pipeline without DRC oracle integration."""
-    from .stages import (
+    from temper_placer.deterministic.stages import (
         ApplyPlacementsStage,
         ClearanceGridStage,
         ComponentAssignmentStage,

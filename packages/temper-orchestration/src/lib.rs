@@ -181,6 +181,12 @@ mod courtyard_check_stage;
 mod d1_bridge;
 mod d6_util;
 mod derivation_stage;
+// Orchestration-port unit U-E (Rust Orchestration Engine plan 2026-08-09-001):
+// the `DeterministicPipeline` pyclass hosting the `create_drc_aware_pipeline()`
+// stage factory (the D1->D7 ORDER) and the `DeterministicPipeline.run()`
+// sequencing loop (driving the stages through `PipelineRunner<BoardState>`).
+// Append-only per the U-E dispatch.
+mod deterministic_pipeline;
 mod drc_sweep_stage;
 mod drc_validation_stage;
 pub(crate) mod explainability;
@@ -299,6 +305,8 @@ pub use connectivity_validation_stage::ConnectivityValidationStage;
 #[cfg(feature = "python")]
 pub use courtyard_check_stage::CourtyardCheckStage;
 pub use derivation_stage::DerivationStage;
+#[cfg(feature = "python")]
+pub use deterministic_pipeline::{DeterministicPipeline, drc_aware_stage_order};
 pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
 pub use drc_validation_stage::DRCValidationStage;
 #[cfg(feature = "python")]
@@ -455,6 +463,12 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<reporter::MetricDelta>()?;
     m.add_class::<reporter::BoardResult>()?;
     m.add_class::<reporter::RegressionReporter>()?;
+    // Orchestration-port unit U-E (append-only per the U-E dispatch): the
+    // DeterministicPipeline pyclass -- the create_drc_aware_pipeline()
+    // stage factory (the D1->D7 ORDER) and the DeterministicPipeline.run()
+    // sequencing loop (through PipelineRunner<BoardState>). The
+    // deterministic/__init__.py shim delegates run() + the factory here.
+    m.add_class::<deterministic_pipeline::DeterministicPipeline>()?;
     Ok(())
 }
 

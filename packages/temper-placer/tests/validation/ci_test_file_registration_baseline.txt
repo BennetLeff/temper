@@ -89,9 +89,6 @@ integration/test_place_route_loop_temper.py
 integration/test_power_net_exclusion_manual.py
 integration/test_roundtrip.py
 integration/test_seed_filter_retriggers.py
-manufacturing/test_monte_carlo.py
-manufacturing/test_monte_carlo_pbt.py
-manufacturing/test_monte_carlo_rust_differential.py
 manufacturing/test_stackup_validator.py
 manufacturing/test_stackup_validator_pbt.py
 manufacturing/test_stackup_validator_rust_differential.py
@@ -159,7 +156,9 @@ requirements/validators/test_points.py
 router_v6/test_constraints_drc_oracle_pbt.py
 router_v6/test_constraints_drc_oracle_rust_differential.py
 router_v6/test_corridor_erosion.py
+router_v6/test_net_batching_constraint_audit.py
 router_v6/test_pad_connectivity_audit.py
+router_v6/test_power_islands.py
 router_v6/test_stage_ledger_rust_differential.py
 scripts/test_check_physics_provenance.py
 scripts/test_physics_soundness_register_gate.py
@@ -177,7 +176,6 @@ test_strip_routing_consolidation.py
 test_timing_tighten.py
 test_validation.py
 testing/test_golden_diff.py
-testing/test_golden_serializers.py
 testing/test_version_gate.py
 topological/test_force_refinement.py
 topological/test_graph.py
