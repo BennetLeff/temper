@@ -17,7 +17,9 @@ source_commit 5bbf650d47d3a07fffd10a44e7c06c43a0a800bd; scripts/verify_pumpkin_e
 DRC sampling N=130 per board (R27's threshold; creepage is nondeterministic and measures
 so). All routing via scripts/route_board.py --net-batching --batch-size 10, PYTHONPATH
 pinned to this worktree's temper-placer so the measured code is the changed code.
-Routed boards: A sha256 6a055ae58529e737701ed61a8271f94167850db80361240cab1b2658e1f52b02.
+Routed boards: A sha256 6a055ae58529e737701ed61a8271f94167850db80361240cab1b2658e1f52b02,
+B sha256 f562057d2ff598f552ba71a62f84d90f1cbc8902d9d9b168dcfcb7a8d9708513,
+C sha256 38510f368039a19059de5111404fa5e094520c411c515da9da2c01f9379395fd.
 NO ceiling entry written; power_pcb_dataset/drc_ceiling.json NOT modified. -->
 
 # The band is a router-vs-DRC clearance-model disagreement, exactly 0.05mm wide. Fixing it removes 90% of the track-to-track proximity — and does not move `clearance` at all, which is the finding that matters
