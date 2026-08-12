@@ -7,6 +7,27 @@ boards:
     seed: 42
     epochs: 8000
     description: "Temper induction cooker — must never regress"
+    # role/tracks_real_board settled 2026-08-11
+    # (docs/evidence/2026-08-11-golden-fixture-regeneration-decision.md),
+    # after this fixture (33 components, 100x150mm, frozen since
+    # 2026-07-11 454f71d9) was found mislabeled "the real golden-board
+    # corpus" by docs/evidence/2026-08-07-cpsat-equivalence-harness.py
+    # while three CP-SAT consumers solve *placement* against it
+    # (packages/temper-placer/tests/placer/cp_sat/test_regression_drc.py's
+    # test_golden_board_drc_regression / test_golden_board_routing_drc_regression,
+    # plus that harness). Measured 2026-08-11: CP-SAT solves this fixture
+    # `optimal` in ~3.5s; the same call against the real board
+    # (pcb/temper.kicad_pcb, 169 components) returns `unknown` after ~20s
+    # of its 30s budget (never completes) -- see the decision doc for the
+    # full receipts. role=independent-fixture means: this board is
+    # DELIBERATELY kept small and fast so CP-SAT can actually solve it in
+    # CI; it is not, and must never be described as, a snapshot of
+    # pcb/temper.kicad_pcb. real_board_path is carried purely for
+    # informational divergence reporting (scripts/check_corpus_fixture_realboard_divergence.py),
+    # never as a "must match" requirement -- that comparison would be a
+    # category error under this role.
+    role: independent-fixture
+    real_board_path: pcb/temper.kicad_pcb
   - id: minimal
     pcb: minimal/minimal_board.kicad_pcb
     constraints: minimal/constraints_minimal.yaml

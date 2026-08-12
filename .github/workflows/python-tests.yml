@@ -1993,6 +1993,31 @@ jobs:
         continue-on-error: true
         run: uv run python scripts/check_pd2_compartment_evidence.py
 
+      # --- Corpus fixture <-> real-board divergence gate (docs/evidence/
+      # 2026-08-11-golden-fixture-regeneration-decision.md) ---
+      # A fifth gate for the same declaration/reality-drift shape as Gates
+      # 1-4: power_pcb_dataset/corpus/temper/temper.kicad_pcb (33
+      # components, frozen 2026-07-11) was mislabeled "the real golden-
+      # board corpus" by a CP-SAT evidence harness while pcb/temper.kicad_pcb
+      # (the real board) grew to 169 components -- undetected for 27 days.
+      # Every manifest board that names a real_board_path must now commit,
+      # in writing, to whether it tracks that board (role: real-board-
+      # snapshot, checked and BLOCKING on drift) or is deliberately
+      # independent of it (role: independent-fixture, divergence reported
+      # for information only). `temper` is independent-fixture as of
+      # 2026-08-11 (CP-SAT cannot decide feasibility on the real board
+      # within the consuming tests' 30s budget -- see the decision doc's
+      # solve-time measurement), so this step is clean, not advisory, on
+      # origin/main today.
+
+      - name: Corpus fixture <-> real-board divergence gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_corpus_fixture_realboard_divergence.py -v --tb=short
+
+      - name: Corpus fixture <-> real-board divergence gate (Gate 5)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_corpus_fixture_realboard_divergence.py
+
       - name: Check domain model codegen drift
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python3 scripts/gen_domain_models.py --check

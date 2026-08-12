@@ -183,9 +183,9 @@ scripts:
   - typing
 - path: check_bom_source_reconciliation.py
   purpose: 'BOM<->source reconciliation CI gate (R14): parses docs/hardware/BOM.md component tables and
-    elec/src/*.ato physical-component instantiations, matches by normalized designator, and reports
-    costed-with-no-circuit, wired-but-uncosted, and same-designator-different-MPN findings. Heuristic
-    string-identity matching (documented limitation, no built netlist involved); see the module docstring.'
+    elec/src/*.ato physical-component instantiations, matches by normalized designator, and reports costed-with-no-circuit,
+    wired-but-uncosted, and same-designator-different-MPN findings. Heuristic string-identity matching
+    (documented limitation, no built netlist involved); see the module docstring.'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
@@ -199,7 +199,6 @@ scripts:
   - pathlib
   - re
   - sys
-  - yaml
 - path: check_copper_net_consistency.py
   purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
   owner: bennet
@@ -383,6 +382,7 @@ scripts:
   imports:
   - __future__
   - _lib.gate_allowlist
+  - _lib.github_summary
   - _lib.repo
   - argparse
   - json
@@ -437,13 +437,14 @@ scripts:
     faulted states cannot re-enter heating without the reset path, and the runaway interlock reaches a
     safe/de-energized state from every state) -- named with the invariant id and offending edge/path evidence.
     Separately fails (DRIFT, exit 3) if the committed firmware/tools/proof_record.json does not byte-match
-    a fresh regeneration, so the proof record can never silently go stale relative to the manifest.
-    Wired into CI (2026-08-07): firmware-tests.yml.'
+    a fresh regeneration, so the proof record can never silently go stale relative to the manifest. Wired
+    into CI (2026-08-07): firmware-tests.yml.'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
   disposition: ci-gate
   imports:
+  - __future__
   - gen_proof_record
   - invariants
   - pathlib
@@ -554,12 +555,12 @@ scripts:
   - temper_placer.core.pad_geometry
   - temper_placer.geometry.kicad_transform
 - path: check_layer_plane_emission_coverage.py
-  purpose: 'CI gate: assert every layer pcb/temper.kicad_pcb declares with a power-plane role has both (1) a
-    parser that preserves the role token (parse_engine.rs raw_board_from_tree) and (2) a zone-emission code
-    path reachable from route_pcb that can actually target it (router_v6/_zone_pour_stitch.py
-    _zone_layers_for_net) -- catches the In1.Cu/In2.Cu declared-but-never-poured defect (commit c4956df66;
-    docs/evidence/2026-08-11-correspondence-gates.md). Advisory (continue-on-error) until both underlying
-    bugs are fixed -- see the evidence doc for the exact path to blocking.'
+  purpose: 'CI gate: assert every layer pcb/temper.kicad_pcb declares with a power-plane role has both
+    (1) a parser that preserves the role token (parse_engine.rs raw_board_from_tree) and (2) a zone-emission
+    code path reachable from route_pcb that can actually target it (router_v6/_zone_pour_stitch.py _zone_layers_for_net)
+    -- catches the In1.Cu/In2.Cu declared-but-never-poured defect (commit c4956df66; docs/evidence/2026-08-11-correspondence-gates.md).
+    Advisory (continue-on-error) until both underlying bugs are fixed -- see the evidence doc for the
+    exact path to blocking.'
   owner: bennet
   last_run: '2026-08-11'
   category: keep
@@ -601,31 +602,33 @@ scripts:
   - _lib.measurement_provenance
   - _lib.repo
   - argparse
+  - check_evidence_provenance
   - dataclasses
   - json
   - pathlib
   - sys
   - typing
+  - yaml
 - path: check_migration_narrowing.py
   purpose: 'CI gate: detect a Rust port silently narrowing a Python capability -- const-ification of a
     module-level Python constant that stops reaching the delegate call (H_CONV_BACKGROUND), or numeric
     narrowing at the pyo3 boundary (Option<i64> extraction where Python applies float()) -- neither shape
-    is visible to differential suites since they compare on generated inputs, not perturbed constants or
-    fractional values (2026-08-04/07 triage, fix/main-triage)'
+    is visible to differential suites since they compare on generated inputs, not perturbed constants
+    or fractional values (2026-08-04/07 triage, fix/main-triage)'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.github_summary
+  - _lib.repo
   - argparse
   - ast
   - dataclasses
   - pathlib
   - re
   - sys
-  - _lib.repo
-  - _lib.github_summary
 - path: check_net_classification.py
   purpose: 'CI gate: fail when safety-relevant net classification (HV/SELV) is decided by plain substring
     match against a hand-maintained keyword list, in parallel to elec/domain_manifest.yaml -- the defect
@@ -651,10 +654,10 @@ scripts:
     pcb/temper.kicad_pcb -- the generalisation of the netclass_assignments-drift defect class (#1023/#1025
     fixed the kicad_pro<->TEMPER_NET_ASSIGNMENTS pair; this gate covers the OTHER hand-maintained copies
     found by survey: configs/temper_deterministic_config.yaml, configs/temper_production_config.yaml,
-    packages/temper-placer/configs/temper_constraints.yaml, packages/temper-placer/configs/
-    gate_driver_constraints.yaml all currently have stale/case-mismatched keys that silently no-op on
-    Netlist.apply_net_class_mapping''s exact-key lookup) (docs/evidence/2026-08-11-correspondence-gates.md).
-    Advisory (continue-on-error) until the four files are fixed.'
+    packages/temper-placer/configs/temper_constraints.yaml, packages/temper-placer/configs/ gate_driver_constraints.yaml
+    all currently have stale/case-mismatched keys that silently no-op on Netlist.apply_net_class_mapping''s
+    exact-key lookup) (docs/evidence/2026-08-11-correspondence-gates.md). Advisory (continue-on-error)
+    until the four files are fixed.'
   owner: bennet
   last_run: '2026-08-11'
   category: keep
@@ -692,10 +695,10 @@ scripts:
     and voltage-domain compatibility (component voltage_rating vs. the explicit voltage named in a domain
     net''s own name, e.g. "+170V_BUS" -> 170V) -- imports check_domain_partition.py''s netlist parser,
     freshness check and domain-manifest loader rather than re-deriving them; isolation-domain reachability
-    itself is already covered by check_domain_partition.py and deliberately not re-implemented here.
-    27 real, open single-pin-net findings are a dated backlog allowlist entry class (backlog: true +
-    seeded pair, netlist-stage-checks-allowlist.yaml), reported every run but not blocking. Wired into
-    CI (2026-08-07): python-tests.yml consistency-gates job.'
+    itself is already covered by check_domain_partition.py and deliberately not re-implemented here. 27
+    real, open single-pin-net findings are a dated backlog allowlist entry class (backlog: true + seeded
+    pair, netlist-stage-checks-allowlist.yaml), reported every run but not blocking. Wired into CI (2026-08-07):
+    python-tests.yml consistency-gates job.'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
@@ -794,14 +797,13 @@ scripts:
   - sys
   - temper_placer.geometry.kicad_transform
 - path: check_pcl_config_board_correspondence.py
-  purpose: 'CI gate: assert every component reference in a PCL placement-constraint config (default
-    packages/temper-placer/configs/constraints/temper_induction_cooker.yaml) resolves to a real board
-    component (direct match, or via temper_constraints.references.yaml component_aliases -- with
-    unresolved_components taking precedence over a coincidental direct match, e.g. Q1/Q2), and every
-    declared zone lies within pcb/temper.kicad_pcb''s own Edge.Cuts outline -- catches nonexistent
+  purpose: 'CI gate: assert every component reference in a PCL placement-constraint config (default packages/temper-placer/configs/constraints/temper_induction_cooker.yaml)
+    resolves to a real board component (direct match, or via temper_constraints.references.yaml component_aliases
+    -- with unresolved_components taking precedence over a coincidental direct match, e.g. Q1/Q2), and
+    every declared zone lies within pcb/temper.kicad_pcb''s own Edge.Cuts outline -- catches nonexistent
     connector references and off-board zone geometry (PR #1026; docs/evidence/2026-08-11-correspondence-gates.md).
-    Advisory (continue-on-error) until the config is fixed -- see the evidence doc for the exact path to
-    blocking.'
+    Advisory (continue-on-error) until the config is fixed -- see the evidence doc for the exact path
+    to blocking.'
   owner: bennet
   last_run: '2026-08-11'
   category: keep
@@ -813,21 +815,17 @@ scripts:
   - argparse
   - dataclasses
   - pathlib
-  - re
   - sys
   - typing
   - yaml
 - path: check_pd2_compartment_evidence.py
-  purpose: 'CI gate: if the tree currently claims PD2/8.0mm reinforced creepage
-    (generate_kicad_dru.py HV_CREEPAGE_ENFORCED_MM), a compartment-evidence
-    artifact (docs/specs/pd2_compartment_evidence.yaml) must exist with real,
-    non-placeholder cover/gasket/partition/airflow-routing/inspection fields,
-    cross-checked against a real named zone in pcb/temper.kicad_pcb -- catches
-    the PD2 exception being claimed without the sealed compartment it requires
-    (docs/evidence/2026-08-11-pd2-decision-record.md). Advisory (continue-on-error)
-    until the compartment is built and the evidence file is committed -- see
-    the evidence doc for the exact path to blocking. Expected to VIOLATE on
-    origin/main today: the compartment does not exist yet.'
+  purpose: 'CI gate: if the tree currently claims PD2/8.0mm reinforced creepage (generate_kicad_dru.py
+    HV_CREEPAGE_ENFORCED_MM), a compartment-evidence artifact (docs/specs/pd2_compartment_evidence.yaml)
+    must exist with real, non-placeholder cover/gasket/partition/airflow-routing/inspection fields, cross-checked
+    against a real named zone in pcb/temper.kicad_pcb -- catches the PD2 exception being claimed without
+    the sealed compartment it requires (docs/evidence/2026-08-11-pd2-decision-record.md). Advisory (continue-on-error)
+    until the compartment is built and the evidence file is committed -- see the evidence doc for the
+    exact path to blocking. Expected to VIOLATE on origin/main today: the compartment does not exist yet.'
   owner: bennet
   last_run: '2026-08-11'
   category: keep
@@ -859,17 +857,15 @@ scripts:
   - rich.console
   - sys
 - path: check_plane_condemnation_quantifier.py
-  purpose: 'Plane-condemnation quantifier gate: catch a MINORITY of a copper layer''s zones
-    (fraction < 0.5) silently condemning the whole physical layer via _extract_stackup''s
-    any()-quantifier classification, which routing_space.py then excludes wholesale --
-    docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md.
-    Independently re-derives per-layer zone fractions via kiutils (reusing _is_plane_required_net
-    as the SSOT, not a second copy) and cross-references against temper_placer''s own real
-    classification. Every currently-condemned layer must be on the dated
-    plane-condemnation-allowlist.yaml or the gate fails -- so a NEW layer joining the condemned
-    set, not just the two (F.Cu/B.Cu) already known and tracked, is caught. Fail-closed on a
-    missing/unparseable board, zero copper layers, zero net-bearing zones, or a malformed
-    allowlist. Wired into CI (2026-08-07): python-tests.yml consistency-gates job.'
+  purpose: 'Plane-condemnation quantifier gate: catch a MINORITY of a copper layer''s zones (fraction
+    < 0.5) silently condemning the whole physical layer via _extract_stackup''s any()-quantifier classification,
+    which routing_space.py then excludes wholesale -- docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md.
+    Independently re-derives per-layer zone fractions via kiutils (reusing _is_plane_required_net as the
+    SSOT, not a second copy) and cross-references against temper_placer''s own real classification. Every
+    currently-condemned layer must be on the dated plane-condemnation-allowlist.yaml or the gate fails
+    -- so a NEW layer joining the condemned set, not just the two (F.Cu/B.Cu) already known and tracked,
+    is caught. Fail-closed on a missing/unparseable board, zero copper layers, zero net-bearing zones,
+    or a malformed allowlist. Wired into CI (2026-08-07): python-tests.yml consistency-gates job.'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
@@ -882,8 +878,6 @@ scripts:
   - dataclasses
   - pathlib
   - sys
-  - temper_placer.io._parse_board
-  - temper_placer.io.kicad_parser
 - path: check_pll_range_consistency.py
   purpose: 'CI gate: fail when firmware/components/control/pll_control.h''s PLL_MIN/MAX/DEFAULT_FREQ_HZ
     and elec/src/main.ato''s declared f_switching/f_pll_tracking_min/max disagree -- main.ato asserted
@@ -998,7 +992,8 @@ scripts:
   purpose: 'CI gate: SIL fault-injection coverage over (fault class, origin state) -- fails on any pair
     the transition table (plus documented C-only interlock call sites) defines but firmware/test/traces/manifest.json
     does not exercise (plan 2026-08-02-031, U1/U4). Thin wrapper around firmware/test/test_sil_coverage.py
-    --gate. Wired into CI (2026-08-07): firmware-tests.yml, immediately after the sil_fault_tests ctest step.'
+    --gate. Wired into CI (2026-08-07): firmware-tests.yml, immediately after the sil_fault_tests ctest
+    step.'
   owner: firmware
   last_run: '2026-08-07'
   category: keep
@@ -1050,18 +1045,19 @@ scripts:
   purpose: 'CI gate (R28, plan 2026-08-02-028 U4): runs, in one invocation, the exhaustive reachability
     report over the transition model (firmware/tools/transition_model.py -- 9 states x 25 events including
     the 2 KTD2 runaway-interlock wildcard events, closure from STATE_INIT), the P1-P4 unsafe-state/transition-property
-    checks (firmware/tools/transition_model_checks.py), and the production-vs-test-generator manifest cross-check
-    (firmware/tools/transition_manifest_crosscheck.py) -- fails closed on any unreachable state, undocumented
-    interlock-only state, property violation, or manifest divergence not covered by the documented KTD2
-    wildcard state-set exception OR a dated backlog entry (state-machine-crosscheck-allowlist.yaml). Writes
-    the reachability report artifact to firmware/tools/state_machine_reachability_report.json on every run.
-    Wired into CI (2026-08-07): firmware-tests.yml. One real, pre-existing manifest divergence
+    checks (firmware/tools/transition_model_checks.py), and the production-vs-test-generator manifest
+    cross-check (firmware/tools/transition_manifest_crosscheck.py) -- fails closed on any unreachable
+    state, undocumented interlock-only state, property violation, or manifest divergence not covered by
+    the documented KTD2 wildcard state-set exception OR a dated backlog entry (state-machine-crosscheck-allowlist.yaml).
+    Writes the reachability report artifact to firmware/tools/state_machine_reachability_report.json on
+    every run. Wired into CI (2026-08-07): firmware-tests.yml. One real, pre-existing manifest divergence
     ((STATE_FAULT, EVENT_FAULT_RESET_PERSISTS)) is a dated backlog entry, deferred to a firmware maintainer.'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
   disposition: ci-gate
   imports:
+  - __future__
   - argparse
   - dataclasses
   - json
@@ -1169,7 +1165,6 @@ scripts:
   - ast
   - pathlib
   - re
-  - subprocess
   - sys
 - path: check_vacuous_gates.py
   purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5,
@@ -1245,12 +1240,14 @@ scripts:
   - pathlib
   - sys
 - path: ci_check_erc.py
-  purpose: 'CI entry point: ERC (kicad-cli sch erc) ratchet check -- errors hard-fail, warnings ratchet against power_pcb_dataset/erc_ceiling.json'
+  purpose: 'CI entry point: ERC (kicad-cli sch erc) ratchet check -- errors hard-fail, warnings ratchet
+    against power_pcb_dataset/erc_ceiling.json'
   owner: pipeline
   last_run: '2026-08-07'
   category: keep
   disposition: ci-gate
   imports:
+  - __future__
   - argparse
   - contextlib
   - dataclasses
@@ -1320,6 +1317,7 @@ scripts:
   imports:
   - __future__
   - ast
+  - importlib
   - pathlib
   - sys
 - path: constraint_mutation_runner.py
@@ -1387,12 +1385,11 @@ scripts:
   - typing
 - path: gate_mutate.py
   purpose: 'R42 gate-mutation engine: applies one declarative mutation (guard-strip, condition-invert,
-    scope-remove, violation-discard, comparison-flip, threshold-set, return-stub -- chosen to model
-    observed failure mechanisms, not generic arithmetic mutants) to an in-memory copy of a gate script''s
-    AST and writes the mutated source to a fresh scratch tempfile; never touches the committed gate.
-    Every mutation is validated against a line_hint drift guard before being applied, and reported
-    NOT APPLICABLE (not silently skipped) when the source has moved since the manifest entry was authored.
-    Consumed by check_gate_mutations.py.'
+    scope-remove, violation-discard, comparison-flip, threshold-set, return-stub -- chosen to model observed
+    failure mechanisms, not generic arithmetic mutants) to an in-memory copy of a gate script''s AST and
+    writes the mutated source to a fresh scratch tempfile; never touches the committed gate. Every mutation
+    is validated against a line_hint drift guard before being applied, and reported NOT APPLICABLE (not
+    silently skipped) when the source has moved since the manifest entry was authored. Consumed by check_gate_mutations.py.'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
@@ -1406,7 +1403,6 @@ scripts:
   - pathlib
   - sys
   - typing
-  - yaml
 - path: gen_architecture_poster.py
   purpose: Generate a deterministic SVG architecture poster from monorepo build manifests
   owner: pipeline
@@ -1440,16 +1436,17 @@ scripts:
   - typing
   - yaml
 - path: gen_oracle_freeze.py
-  purpose: 'FREEZE oracle-retirement generator (U4, migration-pipeline wire-and-retire plan): run a
-    _py_oracle.py differential oracle over a declared corpus, bake golden vectors into a Rust
-    regression test with a non-vacuity guard, and (via --check) gate drift. --spec selects one of
-    scripts/oracle_freeze_specs/*.py; --list enumerates them; --all runs every registered spec'
+  purpose: 'FREEZE oracle-retirement generator (U4, migration-pipeline wire-and-retire plan): run a _py_oracle.py
+    differential oracle over a declared corpus, bake golden vectors into a Rust regression test with a
+    non-vacuity guard, and (via --check) gate drift. --spec selects one of scripts/oracle_freeze_specs/*.py;
+    --list enumerates them; --all runs every registered spec'
   owner: pipeline
   last_run: '2026-08-11'
   category: keep
   disposition: utility
   imports:
   - __future__
+  - _lib.oracle_freeze
   - argparse
   - importlib
   - pathlib
@@ -1511,10 +1508,9 @@ scripts:
   - typing
 - path: gen_wasm_test_registry.py
   purpose: 'Generate a crate''s src/wasm_test_registry.rs -- the flat (name, fn()) list that lets a wasm32
-    entry point call each #[test] individually, since cargo test''s libtest harness cannot target
-    wasm32-unknown-unknown. --crate selects the crate (temper-drc-rs, temper-geometry); --check fails
-    closed on drift AND on a test module that could register but is not listed; --census explains every
-    exclusion'
+    entry point call each #[test] individually, since cargo test''s libtest harness cannot target wasm32-unknown-unknown.
+    --crate selects the crate (temper-drc-rs, temper-geometry); --check fails closed on drift AND on a
+    test module that could register but is not listed; --census explains every exclusion'
   owner: pipeline
   last_run: '2026-08-06'
   category: keep
@@ -1522,6 +1518,7 @@ scripts:
   imports:
   - __future__
   - argparse
+  - dataclasses
   - pathlib
   - re
   - sys
@@ -1725,17 +1722,18 @@ scripts:
   - pydantic
   - temper_placer.constraint_types.config
 - path: part_stress_gate.py
-  purpose: 'Part stress gate: applied stress vs. absolute-maximum rating, per part, data-driven
-    against scripts/part_stress_limits.yaml (docs/hardware/PART_STRESS_AUDIT.md). Fails on any
-    non-backlogged FAIL (margin < 0); the 3 real over-rating findings found at CI-wiring time
-    (2026-08-07) are dated backlog entries (backlog: true + seeded pair), still reported every
-    run, deferred to a hardware maintainer redesign call.'
+  purpose: 'Part stress gate: applied stress vs. absolute-maximum rating, per part, data-driven against
+    scripts/part_stress_limits.yaml (docs/hardware/PART_STRESS_AUDIT.md). Fails on any non-backlogged
+    FAIL (margin < 0); the 3 real over-rating findings found at CI-wiring time (2026-08-07) are dated
+    backlog entries (backlog: true + seeded pair), still reported every run, deferred to a hardware maintainer
+    redesign call.'
   owner: bennet
   last_run: '2026-08-07'
   category: keep
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.repo
   - argparse
   - csv
   - dataclasses
@@ -2076,10 +2074,9 @@ scripts:
   - re
   - subprocess
 - path: sync_kicad_netclass_assignments.py
-  purpose: 'Sync pcb/temper.kicad_pro net_settings.netclass_assignments from
-    TEMPER_NET_ASSIGNMENTS (design_rules.py, the Python-side SSOT) -- generator
-    for the defect class PR #1023 hand-fixed four instances of and found ~15
-    more of, unmeasured; --check mode is the CI tripwire against future drift'
+  purpose: 'Sync pcb/temper.kicad_pro net_settings.netclass_assignments from TEMPER_NET_ASSIGNMENTS (design_rules.py,
+    the Python-side SSOT) -- generator for the defect class PR #1023 hand-fixed four instances of and
+    found ~15 more of, unmeasured; --check mode is the CI tripwire against future drift'
   owner: bennet
   last_run: '2026-08-11'
   category: keep
@@ -2088,8 +2085,10 @@ scripts:
   - __future__
   - argparse
   - json
-  - re
   - pathlib
+  - re
+  - sys
+  - temper_placer.core.design_rules
 - path: test_root_hygiene.py
   purpose: 'CI gate: reject root-level artifact files that should live in subdirectories'
   owner: pipeline
@@ -2273,75 +2272,151 @@ scripts:
   - check_stale_extensions
   - pathlib
   - sys
-
 - path: check_ceiling_raise_evidence_corpus.py
-  purpose: "DRC-ceiling-raise-evidence fault-injection corpus (STRATEGY.md build order)"
+  purpose: DRC-ceiling-raise-evidence fault-injection corpus (STRATEGY.md build order)
   owner: bennet
-  last_run: "2026-08-08"
+  last_run: '2026-08-08'
   category: keep
   disposition: ci-gate
-  imports: []
+  imports:
+  - __future__
+  - copy
+  - hashlib
+  - pathlib
+  - sys
+  - typing
 - path: check_component_defect_corpus.py
-  purpose: "Component-value/MPN-fabrication defect corpus runner"
+  purpose: Component-value/MPN-fabrication defect corpus runner
   owner: bennet
-  last_run: "2026-08-08"
+  last_run: '2026-08-08'
   category: keep
   disposition: ci-gate
-  imports: []
+  imports:
+  - __future__
+  - dataclasses
+  - pathlib
+  - sys
+  - tempfile
+  - typing
+- path: check_corpus_fixture_realboard_divergence.py
+  purpose: 'CI gate: every power_pcb_dataset/corpus/manifest.yaml board that declares a real_board_path
+    must also declare a role (real-board-snapshot, checked and BLOCKING on component-count drift; or independent-fixture,
+    divergence reported for information only) -- an undeclared role fails closed. Motivated by power_pcb_dataset/corpus/temper/temper.kicad_pcb
+    (33 components, frozen 2026-07-11) being mislabeled "the real golden-board corpus" while pcb/temper.kicad_pcb
+    grew to 169 components, undetected for 27 days. See docs/evidence/2026-08-11-golden-fixture-regeneration-decision.md.'
+  owner: bennet
+  last_run: '2026-08-11'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - check_pcl_config_board_correspondence
+  - dataclasses
+  - pathlib
+  - sys
+  - typing
+  - yaml
 - path: check_corpus_specificity.py
-  purpose: "Corpus specificity run (STRATEGY.md build order step 5)"
+  purpose: Corpus specificity run (STRATEGY.md build order step 5)
   owner: bennet
-  last_run: "2026-08-08"
+  last_run: '2026-08-08'
   category: keep
   disposition: ci-gate
-  imports: []
+  imports:
+  - __future__
+  - dataclasses
+  - pathlib
+  - sys
+  - typing
 - path: component_defect_mutator.py
-  purpose: "Deterministic component-value/MPN-defect mutations on a synthetic fixture"
+  purpose: Deterministic component-value/MPN-defect mutations on a synthetic fixture
   owner: bennet
-  last_run: "2026-08-08"
+  last_run: '2026-08-08'
   category: keep
   disposition: utility
-  imports: []
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - hashlib
+  - pathlib
+  - re
+  - sys
+  - typing
 - path: rcm_blocking_diag.py
-  purpose: "Problem-3 spot-check diagnostic for the combined (Fix A + Fix B) router"
+  purpose: Problem-3 spot-check diagnostic for the combined (Fix A + Fix B) router
   owner: bennet
-  last_run: "2026-08-08"
+  last_run: '2026-08-08'
   category: keep
   disposition: utility
-  imports: []
-
+  imports:
+  - __future__
+  - argparse
+  - json
+  - pathlib
+  - route_board
+  - sys
+  - time
 - path: rcm_empty_blocker_diag.py
-  purpose: "RCM empty-blocker diagnostic"
+  purpose: RCM empty-blocker diagnostic
   owner: bennet
-  last_run: "2026-08-08"
+  last_run: '2026-08-08'
   category: keep
   disposition: utility
-  imports: []
+  imports:
+  - __future__
+  - json
+  - pathlib
+  - sys
+  - time
 - path: rcm_pin_positions.py
-  purpose: "RCM pin-position analysis"
+  purpose: RCM pin-position analysis
   owner: bennet
-  last_run: "2026-08-08"
+  last_run: '2026-08-08'
   category: keep
   disposition: utility
-  imports: []
+  imports:
+  - __future__
+  - collections
+  - json
+  - pathlib
+  - sys
+  - temper_placer.io.kicad_parser
 - path: rcm_spatial_analysis.py
-  purpose: "RCM spatial analysis"
+  purpose: RCM spatial analysis
   owner: bennet
-  last_run: "2026-08-08"
+  last_run: '2026-08-08'
   category: keep
   disposition: utility
-  imports: []
+  imports:
+  - argparse
+  - collections
+  - json
+  - pathlib
 - path: generate_ground_plane.py
-  purpose: "Ground-plane keepout-before-pour generation (router_v6._ground_plane)"
+  purpose: Ground-plane keepout-before-pour generation (router_v6._ground_plane)
   owner: bennet
-  last_run: "2026-08-11"
+  last_run: '2026-08-11'
   category: keep
   disposition: utility
-  imports: []
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - sys
 - path: spike_2026_08_11_inprocess_netbatch.py
-  purpose: "Spike: in-process net-batching measurement (2026-08-11)"
+  purpose: 'Spike: in-process net-batching measurement (2026-08-11)'
   owner: bennet
-  last_run: "2026-08-11"
+  last_run: '2026-08-11'
   category: keep
   disposition: spike
-  imports: []
+  imports:
+  - __future__
+  - json
+  - pathlib
+  - resource
+  - sys
+  - time
