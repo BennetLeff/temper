@@ -198,7 +198,7 @@ mod py {
         // Encode to CNF (cardinality constraints encoded as CNF clauses).
         let (cnf, var_names) = encoding::encode_to_cnf(&model);
         let num_vars = cnf.num_vars;
-        let num_clauses = cnf.clauses.len();
+        let num_clauses = cnf.num_clauses();
         if phase_trace {
             eprintln!("[phase-trace t={:.3}s] encode_to_cnf done, {num_vars} vars, {num_clauses} clauses", t_start.elapsed().as_secs_f64());
         }
@@ -208,7 +208,7 @@ mod py {
             conflict_limit,
             time_limit_ms,
         };
-        let mut result: TopologyResult = solver::solve_with_cadical(&cnf, &var_names, limits);
+        let mut result: TopologyResult = solver::solve_with_cadical(&cnf, limits);
         result.num_vars = num_vars;
         result.num_clauses = num_clauses;
         if phase_trace {

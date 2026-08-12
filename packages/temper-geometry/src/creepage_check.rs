@@ -1050,7 +1050,7 @@ pub(crate) mod tests {
         }
         let dx = x2 - x1;
         let dy = y2 - y1;
-        let beyond_factor = if seed % 2 == 0 { -1.0 } else { 2.0 };
+        let beyond_factor = if seed.is_multiple_of(2) { -1.0 } else { 2.0 };
         let px = x1 + beyond_factor * dx;
         let py = y1 + beyond_factor * dy;
         let d = point_to_segment_distance(px, py, x1, y1, x2, y2);

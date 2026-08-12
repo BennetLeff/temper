@@ -323,10 +323,20 @@ def test_golden_board_drc_regression_pumpkin_real_board(request: pytest.FixtureR
         pytest.skip(f"Pumpkin solver returned status {status}")
 
     positions = {ref: (float(x), float(y)) for ref, (x, y) in outcome["positions"].items()}
+    # Dense by construction -- every solved ref is included, even rot index
+    # 0. A filtered `if idx` here (the pre-fix form of this line) drops
+    # explicit index-0 decisions, and `_apply_placements_to_pcb` treats a
+    # MISSING ref as "keep the pre-solve board angle" rather than "write
+    # absolute 0" -- for a non-square component solved to rot=0 whose prior
+    # board angle was non-zero, that silently writes the WRONG orientation
+    # relative to the box Pumpkin actually sized, moving real pad copper
+    # outside the board outline. See
+    # ``CpSatPlacementResult.to_rotations_dict``'s docstring
+    # (``_encoder_solve.py``) for the full mechanism and the measurement
+    # that found it.
     rotations = {
         ref: idx * 90.0
         for ref, idx in outcome.get("rotations", {}).items()
-        if idx
     }
 
     # 5. Write output PCB (same writer, rotations+components together, same

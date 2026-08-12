@@ -75,17 +75,44 @@ class CpSatPlacementResult:
 
     def to_rotations_dict(self) -> dict[str, float]:
         """Return {component_ref: rotation_degrees}, converting each solved
-        rotation index (0-3) to degrees via ``index * 90.0`` -- the same
-        convention already used ad hoc at the one existing call site
-        (``cli/__init__.py``'s ``optimize`` command). Only refs with a
-        nonzero rotation index are included; a ref absent from this dict
-        should be treated as "no rotation change" by a consumer such as
-        ``_apply_placements_to_pcb``'s ``rotations=`` parameter, not as an
-        explicit 0 degrees -- absence and explicit-zero are handled
-        identically by that consumer, but keeping the dict sparse here
-        avoids implying every omitted ref was solved at 0 degrees.
+        rotation index (0-3) to degrees via ``index * 90.0``.
+
+        **Dense by construction -- every ref in ``self.rotations`` is
+        included, even index 0.** This used to filter with ``if idx``
+        (dropping index-0 refs to keep the dict "sparse"), on the claimed
+        premise that "absence and explicit-zero are handled identically" by
+        consumers such as ``_apply_placements_to_pcb``. That premise was
+        false: ``_apply_placements_to_pcb`` (and
+        ``io/_write_board.py::write_placements_to_pcb``) treat a MISSING ref
+        as "no rotation change -- keep the footprint's pre-solve board
+        angle" but treat an EXPLICIT ``0.0`` as "write absolute rotation
+        0" (they compare ``target_angle is None``, and ``0.0 is not
+        None``). For a non-square component (``w0 != h0``) whose pre-solve
+        board angle was already non-zero, dropping a genuine solved
+        rotation-index-0 decision silently made the writer keep the OLD
+        angle -- while the CP-SAT/Pumpkin box (``x_size``/``y_size``, tied
+        to ``rot_ref`` via the model's own ``AddElement`` rotation table)
+        had been sized for the SOLVED absolute-0 orientation. The written
+        footprint then no longer matched the box the solver verified was
+        safe, and real pad copper could land outside the board outline
+        (measured: forcing a component to solve at rot=0 with a non-zero
+        prior board angle and writing through the old filtered dict
+        produced real ``check_board_containment.py`` violations; writing
+        the same solve through the dense dict produced none -- see
+        ``docs/evidence/2026-08-12-component-bounds-rotation-write-back-defect.md``
+        for the full measurement, including how many real-board components
+        this hit in a single solve, and
+        ``tests/placer/cp_sat/test_geometry_constraints_pbt.py``'s rotation-
+        consistency regression test).
+
+        The production ``cli/__init__.py`` ``optimize`` command never had
+        this bug -- it builds its own dense mapping directly off
+        ``cp_result.rotations.get(ref, 0) * 90.0`` for every solved ref
+        (see that module's own comment contrasting itself with "the sparse
+        to_rotations_dict() shape"), which is now exactly what this method
+        also returns.
         """
-        return {ref: idx * 90.0 for ref, idx in self.rotations.items() if idx}
+        return {ref: idx * 90.0 for ref, idx in self.rotations.items()}
 
 
 # ---------------------------------------------------------------------------

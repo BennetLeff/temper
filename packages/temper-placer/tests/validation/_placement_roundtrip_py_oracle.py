@@ -192,11 +192,14 @@ def _check_footprint(
     ``kicad_transform``'s R(-theta) convention -- the single sanctioned
     formula (KTD1); this module never re-derives it.
     """
-    # A ref absent from `rotations` means "no rotation change": the solved
-    # rotation record (CpSatPlacementResult.to_rotations_dict) omits
-    # zero-index refs, and the adapter writer keeps those footprints'
-    # existing angles byte-for-byte -- so the expected angle is the
-    # template's own board rotation, not 0.
+    # A ref absent from `rotations` means "no rotation change": the adapter
+    # writer keeps such a footprint's existing angle byte-for-byte -- so the
+    # expected angle is the template's own board rotation, not 0. This is a
+    # generic fallback for a caller with no rotation data for a ref, not a
+    # substitute for dense data -- see ``placement_roundtrip.py``'s (the
+    # implementation this module oracles) matching comment for why
+    # ``CpSatPlacementResult.to_rotations_dict`` no longer relies on it to
+    # reconstruct dropped rotation-index-0 decisions.
     theta = rotations.get(ref, _template_fp_angle(template))
     theta_rad = math.radians(theta)
 

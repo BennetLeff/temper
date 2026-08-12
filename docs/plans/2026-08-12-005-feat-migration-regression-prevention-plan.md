@@ -14,6 +14,17 @@ swept_basis: null
 
 # Migration Regression Prevention
 
+> **CORRECTION (2026-08-12), added by the void-board-baseline purge task.** §1.4 below
+> cites `docs/evidence/2026-08-12-board-recipe-reproducibility.md`'s "168 footprints,
+> 3,349 segments, 56 vias, 70 zones, 80/105 nets" as "the current reproducible full-recipe
+> baseline." That figure is **VOID** -- see the correction notice at the top of that
+> document itself (measured on an unpinned `pumpkin_engine` binary, not reproducible from
+> an identifiable program). The true baseline is **2,514 segments / 22 vias / 76 zones /
+> 168 footprints** (`scripts/board_shape_baseline.json`). §1.3-1.4's own conclusion --
+> that this plan's fix does not change `_corridor_backbone.py`'s output and so does not
+> itself owe a baseline re-measurement -- is not affected by which baseline number is
+> current; only the specific figure cited in §1.4 is void.
+
 ## Goal Capsule
 
 **Objective:** Fix the scipy regression #1052 (`d8e6efd48`) reintroduced into

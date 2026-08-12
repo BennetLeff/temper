@@ -2,6 +2,34 @@
 
 # Place + re-route experiment on the reconciled board: real connectivity gains, a real clearance regression, and why this PR does not land the board
 
+> **CORRECTION (2026-08-12), added by the void-board-baseline purge task, not by this
+> document's original author.** §3's copper table below (**4,228 track segments / 74
+> vias / 66 zones**, cited elsewhere as "PR #1050's figure") and §4's connectivity table
+> (**0/110 -> 34/112 nets fully connected**, §6's headline) do not reproduce and are
+> **VOID**. The cause, found afterward: this PR's recipe ran its placement stage through
+> `target-shared/release/pumpkin_engine`, an untracked, `.gitignore`d binary with no
+> identity check -- nothing pinned which source it was built from, so a later session
+> regenerating "the same" board with a different build of that binary got a materially
+> different placement and a downstream route differing by hundreds to thousands of
+> segments (`docs/evidence/2026-08-12-candidate-board-not-landed-engine-provenance.md`
+> §3, `docs/evidence/2026-08-12-engine-binary-pinning.md` §1-2). This document's write
+> path is not the problem -- it applies `board_origin` correctly (§2 above, "the
+> categorically different from #1049's un-fixed write path" note is accurate) -- only the
+> unpinned engine is.
+>
+> **True baseline** -- pinned engine (`docs/evidence/2026-08-07-pumpkin-engine/engine_pin.json`,
+> landed #1060) plus a corrected write path (a *different* PR's driver, #1058's, separately
+> dropped `board_origin`; not this one) -- **2,514 segments / 22 vias / 76 zones / 168
+> footprints**; nets connected 22/112 (19.6%); `unconnected_items` 428 -> 351; kicad-cli
+> `clearance`=499 across 130 samples, `creepage` 114-116, `shorting_items` 110, total
+> errors 1075-1077. `SAF_HVL_001` 94 -> 74 (-21%) -- not the 94 -> 44 §5's cross-reference
+> table cites from `docs/evidence/2026-08-12-hvlv-candidate-board-measurement.md`, which
+> carries its own correction notice for the same reason. Current source of truth:
+> `scripts/board_shape_baseline.json`. **Nothing below this notice has been edited** --
+> the reconciliation, placement-model, and DRC-category findings in §1-7 stand as
+> originally recorded; only the specific copper/connectivity counts in §3-4/§6 (and
+> anything computed from them) are void.
+
 **Verdict up front: this PR does NOT change `pcb/temper.kicad_pcb`.** The
 experiment below is real, reproducible, and shows genuine progress on
 connectivity — but the `clearance` DRC category regresses by a real,

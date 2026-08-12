@@ -12,6 +12,26 @@ own pcb/, specifically so it never needed reverting). -->
 
 # The pumpkin_engine binary is now pinned, verified before every solve, and fails loudly on mismatch -- proven against a real wrong binary that is STILL sitting unpinned in the main checkout right now
 
+> **CORRECTION (2026-08-12), added by the void-board-baseline purge task, later the same
+> day as the "re-pinned post-#1054" update below, not by this document's original
+> author.** §6's routing baseline -- **168 footprints / 3,314 segments / 40 vias / 58
+> zones, 65/105 nets, `clearance`=499** -- is **VOID**, not merely "stale" as §7 already
+> flagged it. It was measured on the *pre*-#1054 pin (`source_commit=e5539273a`), and a
+> subsequent run against the current, post-#1054 pinned engine, with a separately
+> corrected write path (`_apply_placements_to_pcb`'s `board_origin` parameter, dropped by
+> an unrelated PR's scratch driver -- not a defect in this document's own method),
+> established the true numbers below. This document's core deliverable -- the identity
+> gate itself (§1-5, §7) -- is unaffected by this correction; only §6's specific board
+> shape is void.
+>
+> **True baseline**: **2,514 segments / 22 vias / 76 zones / 168 footprints**;
+> `SAF_HVL_001` 94 -> 74 (-21%); nets connected 22/112 (19.6%); `unconnected_items` 428 ->
+> 351; kicad-cli `clearance`=499 across 130 samples, `creepage` 114-116, `shorting_items`
+> 110, total errors 1075-1077. Current source of truth: `scripts/board_shape_baseline.json`
+> (also records the two still-earlier VOID baselines this document's own §"Verdict up
+> front" already superseded: 3,349/56/70 and PR #1050's 4,228/74). **Nothing below this
+> notice has been edited.**
+
 **Update, same day: re-pinned post-#1054.** Sections 1-6 below are the
 original measurements, taken against `source_commit=e5539273a` (pre-#1054).
 PR #1054 has since merged to `main` and edits the exact file this pin's
