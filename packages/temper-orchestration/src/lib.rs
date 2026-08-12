@@ -211,7 +211,7 @@ mod preflight_stage;
 // sequencing driver (the fixed Stage 0..5 order + the conditionals + the
 // result assembly, driving the Python leaf call-backs through
 // `PipelineRunner<BoardState>`). Append-only per the U-G dispatch.
-mod router_pipeline;
+pub(crate) mod router_pipeline;
 mod setup_stage;
 mod slot_generation_stage;
 pub(crate) mod stage;
