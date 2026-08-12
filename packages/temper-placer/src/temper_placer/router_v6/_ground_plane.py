@@ -555,6 +555,8 @@ class GroundPlaneResult:
         via_skipped_through_hole_count: int = 0,
         via_offset_count: int = 0,
         via_unresolved_conflict_count: int = 0,
+        mst_edges_astar_routed_count: int = 0,
+        mst_edges_fallback_count: int = 0,
     ) -> None:
         self.pad_count = pad_count
         self.drop_via_count = drop_via_count
@@ -582,6 +584,16 @@ class GroundPlaneResult:
         # MST backbone's keepout detour; reported honestly rather than
         # emitting a known-colliding via.
         self.via_unresolved_conflict_count = via_unresolved_conflict_count
+        # MST edges that got a real, corridor-clean A* path (avoiding
+        # both the HV keepout AND other nets' existing F.Cu copper) vs.
+        # edges where no window (up to the whole board) found one, so
+        # this edge fell back to the prior keepout-only straight-line/
+        # one-bend-detour behaviour -- see _corridor_backbone.py's
+        # module docstring for why this is a hybrid, not a full
+        # replacement, and _blocked's `crossed_keepout`/`rerouted`
+        # counts below for the fallback's own internal breakdown.
+        self.mst_edges_astar_routed_count = mst_edges_astar_routed_count
+        self.mst_edges_fallback_count = mst_edges_fallback_count
 
     def __repr__(self) -> str:  # pragma: no cover - trivial
         return (
@@ -594,7 +606,9 @@ class GroundPlaneResult:
             f"keepout_zones={self.keepout_zone_count}, "
             f"via_skipped_through_hole={self.via_skipped_through_hole_count}, "
             f"via_offset={self.via_offset_count}, "
-            f"via_unresolved_conflict={self.via_unresolved_conflict_count})"
+            f"via_unresolved_conflict={self.via_unresolved_conflict_count}, "
+            f"mst_edges_astar_routed={self.mst_edges_astar_routed_count}, "
+            f"mst_edges_fallback={self.mst_edges_fallback_count})"
         )
 
 
@@ -930,21 +944,90 @@ def generate_ground_plane_content(
             f" (net {gnd_net_num}) (tstamp \"{_next_tstamp()}\"))"
         )
 
-    # NOTE (measured 2026-08-11): also routing the MST backbone around
-    # every other net's existing F.Cu copper (the same other_copper_fcu
-    # used for via placement below) was tried here and reverted -- this
-    # board's F.Cu is dense enough (1193 other-net tracks) that it
-    # collapsed gnd pad connectivity from 46/86 to 7/86: the straight-
-    # line-MST-plus-40-candidate-one-bend-detour heuristic is not a real
-    # router and cannot find a path through that little free area. See
-    # this module's docstring / _collect_hv_copper_geometry's HV-track
-    # comment for the same tradeoff on the HV keepout side. Left as a
-    # known, honestly-reported incompleteness (tracks_crossing/clearance/
-    # solder_mask_bridge against OTHER nets' F.Cu copper are NOT fixed by
-    # this module) rather than trading away the project's own declared
-    # primary completion metric; the via-placement checks below (a
-    # per-point, not per-path, search) still avoid other-net copper
-    # because that search is local enough to stay tractable.
+    # --- Corridor-aware A* pass: try a REAL, collision-avoiding path for
+    # every MST edge first, over a grid that blocks the HV keepout AND
+    # every other net's existing F.Cu copper (other_copper_fcu, already
+    # computed above for via placement -- reused, not re-derived). This
+    # is what actually fixes the tracks_crossing/clearance/
+    # solder_mask_bridge deltas the straight-line MST causes; the
+    # keepout-only detour below (unchanged) is the fallback for the
+    # (measured, real -- see _corridor_backbone.py's docstring)
+    # fraction of edges that are genuinely disconnected under full
+    # corridor avoidance, so connectivity never regresses below the
+    # prior, already-measured 46/86 floor.
+    from temper_placer.core.topology import UnionFind
+    from temper_placer.router_v6._corridor_backbone import (
+        build_obstacle_grid,
+        collect_other_net_copper_by_pairwise_clearance,
+        compute_corridor_mask,
+        corridor_aware_spanning_edges,
+        resolve_netclass_clearances,
+    )
+
+    # A separate, per-net-pair-correct clearance polygon for the A*
+    # obstacle grid -- NOT other_copper_fcu (built above at
+    # OTHER_NET_CLEARANCE_MM=0.05mm for via placement). See
+    # resolve_netclass_clearances's docstring for why a single flat
+    # constant (0.05mm, or an earlier version of this fix that tried a
+    # flat 0.5mm) is the wrong shape for this problem, not just the
+    # wrong number: this board's real, kicad-cli-enforced clearance is
+    # per NET-CLASS PAIR (0.2mm Default-vs-Default, 0.5mm against Power,
+    # etc.), read directly from pcb/temper.kicad_pro -- the same file
+    # kicad-cli itself resolves netclasses from.
+    kicad_pro_path = pcb_path.with_suffix(".kicad_pro")
+    net_clearance, default_clearance = resolve_netclass_clearances(kicad_pro_path)
+    gnd_own_clearance = net_clearance.get(GND_NET_NAME, default_clearance)
+    other_copper_fcu_backbone = collect_other_net_copper_by_pairwise_clearance(
+        pcb, GND_NET_NAME, "F.Cu", net_clearance, gnd_own_clearance, default_clearance
+    )
+    backbone_grid = build_obstacle_grid(board_polygon, [keepout, other_copper_fcu_backbone])
+    backbone_corridor_mask = compute_corridor_mask(backbone_grid, STITCH_TRACE_WIDTH_MM)
+
+    # Component-aware, not Euclidean-MST-topology-locked: attempting A*
+    # only on the global Euclidean MST's own edge list measured (2026-08-12)
+    # to solve just 15-33/85 edges with NO measurable DRC improvement --
+    # root cause, confirmed with a no-backbone control run, is that the
+    # violation mass concentrates on the specific MST edges crossing the
+    # densest F.Cu congestion, which the Euclidean MST forces into its
+    # topology regardless of corridor feasibility, while "easier" edges
+    # elsewhere (which the MST also includes) were never the problem.
+    # `corridor_aware_spanning_edges` instead builds a Euclidean MST
+    # WITHIN each of the corridor mask's own connected components --
+    # every such edge is between two points already known (by the mask's
+    # own topology, not a search heuristic) to have SOME corridor-clean
+    # path -- so it captures far more real, safe connectivity before the
+    # keepout-only fallback below has to bridge genuinely disconnected
+    # pieces. See _corridor_backbone.py's own docstring for the full
+    # measurement.
+    astar_routed_edges = corridor_aware_spanning_edges(
+        gnd_positions, backbone_grid, backbone_corridor_mask, mst_edges
+    )
+    # Union-Find seeded with the component-local A* edges: the fallback
+    # loop below must skip any GLOBAL MST edge whose endpoints are
+    # ALREADY connected this way -- drawing it anyway would be pure
+    # downside (adds collision risk for zero connectivity benefit).
+    connectivity_uf = UnionFind()
+    for i, j in astar_routed_edges:
+        connectivity_uf.union(i, j)
+
+    # UPDATED 2026-08-12 (was: "also routing the MST backbone around
+    # every other net's existing F.Cu copper ... was tried here and
+    # reverted"): that was true of the straight-line-MST-plus-one-bend-
+    # detour heuristic specifically -- a real, component-aware
+    # corridor-aware A* pass (astar_routed_edges, computed above) now
+    # attempts exactly this, and succeeds for every pair of positions the
+    # corridor mask's own connectivity actually supports (see
+    # _corridor_backbone.py's docstring for the measured before/after and
+    # why a naive per-Euclidean-MST-edge attempt undersells this). The
+    # loop below is now the FALLBACK: it only has to bridge (a) edges
+    # between DIFFERENT corridor-mask components (a genuine physical
+    # disconnection under full clearance, not a search weakness) and (b)
+    # the rare intra-component edge the bounded A* search itself could
+    # not close. It still only avoids the HV keepout (never other-net
+    # copper), which is why it can still contribute residual
+    # tracks_crossing/clearance/solder_mask_bridge for exactly those
+    # edges; reported honestly via
+    # GroundPlaneResult.mst_edges_fallback_count rather than silently.
     # NOTE (measured 2026-08-11): also routing the MST backbone around
     # every OTHER net's existing drilled holes (other_net_hole_avoid,
     # built above for exactly this) was tried here too and reverted --
@@ -958,12 +1041,28 @@ def generate_ground_plane_content(
     def _blocked(p1: tuple[float, float], p2: tuple[float, float]) -> bool:
         return keepout_established and LineString([p1, p2]).intersects(keepout)
 
+    # Emit every component-local A*-routed edge unconditionally -- these
+    # are additional real connectivity beyond (and not necessarily a
+    # subset of) the global Euclidean MST's own edge list.
+    astar_routed_count = 0
+    for (_i, _j), astar_path in astar_routed_edges.items():
+        for a, b in zip(astar_path, astar_path[1:]):
+            _emit_segment(a, b)
+        astar_routed_count += 1
+
     crossed_keepout = 0
     rerouted = 0
     for i, j in edges:
+        if connectivity_uf.find(i) == connectivity_uf.find(j):
+            # Already joined by a component-local A*-clean edge (or a
+            # chain of them) -- drawing this global-MST edge too would
+            # only add collision risk for zero connectivity benefit.
+            continue
+
         p1, p2 = gnd_positions[i], gnd_positions[j]
         if not _blocked(p1, p2):
             _emit_segment(p1, p2)
+            connectivity_uf.union(i, j)
             continue
 
         # Bounded one-bend detour: try routing p1 -> waypoint -> p2 through
@@ -998,6 +1097,7 @@ def generate_ground_plane_content(
                 break
         if found:
             rerouted += 1
+            connectivity_uf.union(i, j)
         else:
             crossed_keepout += 1
     if crossed_keepout:
@@ -1036,5 +1136,7 @@ def generate_ground_plane_content(
         via_skipped_through_hole_count=via_skipped_through_hole,
         via_offset_count=via_offset_count,
         via_unresolved_conflict_count=via_unresolved_conflict,
+        mst_edges_astar_routed_count=astar_routed_count,
+        mst_edges_fallback_count=len(edges) - astar_routed_count,
     )
     return new_content, result
