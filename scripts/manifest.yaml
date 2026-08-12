@@ -2498,3 +2498,27 @@ scripts:
   - pathlib
   - re
   - sys
+- path: verify_pumpkin_engine.py
+  purpose: 'Pumpkin-engine binary identity gate: the resolved pumpkin_engine CP solver
+    (target-shared/release/pumpkin_engine, gitignored and untracked) must match a pinned
+    sha256, or the pipeline must refuse to proceed -- catches six regenerations of the
+    "same" recipe producing boards differing by hundreds to thousands of routed segments
+    because an unpinned binary silently picked up an unmerged branch''s build (docs/evidence/2026-08-12-engine-binary-pinning.md,
+    2026-08-12-candidate-board-not-landed-engine-provenance.md). Not currently invoked
+    by any workflow step; board-landing track, not this PR''s cluster (2026-08-12 hygiene
+    paydown: manifest entry only, added after a rebase picked up #1060).'
+  owner: board-landing
+  last_run: '2026-08-12'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - hashlib
+  - json
+  - os
+  - pathlib
+  - subprocess
+  - sys
