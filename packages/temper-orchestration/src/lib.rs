@@ -206,6 +206,12 @@ pub(crate) mod pipeline_state;
 mod placement_validation_stage;
 mod power_plane_stage;
 mod preflight_stage;
+// Orchestration-port unit U-G (Rust Orchestration Engine plan 2026-08-09-001):
+// the `RouterPipeline` pyclass hosting the RouterV6Pipeline.run() stage-
+// sequencing driver (the fixed Stage 0..5 order + the conditionals + the
+// result assembly, driving the Python leaf call-backs through
+// `PipelineRunner<BoardState>`). Append-only per the U-G dispatch.
+mod router_pipeline;
 mod setup_stage;
 mod slot_generation_stage;
 pub(crate) mod stage;
@@ -330,6 +336,8 @@ pub use pipeline_route::PipelineRouteStage;
 #[cfg(feature = "python")]
 pub use power_plane_stage::PowerPlaneStage;
 pub use preflight_stage::PreflightStage;
+#[cfg(feature = "python")]
+pub use router_pipeline::RouterPipeline;
 #[cfg(feature = "python")]
 pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
 pub use slot_generation_stage::SlotGenerationStage;
@@ -469,6 +477,10 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // sequencing loop (through PipelineRunner<BoardState>). The
     // deterministic/__init__.py shim delegates run() + the factory here.
     m.add_class::<deterministic_pipeline::DeterministicPipeline>()?;
+    // Orchestration-port unit U-G (append-only per the U-G dispatch): the
+    // RouterPipeline pyclass -- the RouterV6Pipeline.run() stage-sequencing
+    // driver. The router_v6/_pipeline_core.py shim delegates run() here.
+    m.add_class::<router_pipeline::RouterPipeline>()?;
     Ok(())
 }
 
