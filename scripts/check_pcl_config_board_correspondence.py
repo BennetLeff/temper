@@ -118,7 +118,13 @@ Fail-closed contract (this repo's gate-family convention -- see
 gate never exits 0 unless it positively confirms it ran a real check on
 real, fresh data. It exits non-zero for every one of:
   - the PCL config is missing, empty, not YAML, or has no non-empty
-    ``constraints`` or ``zones`` list
+    ``constraints`` list. ``zones`` is OPTIONAL -- a component-only PCL
+    file (e.g. ``thermal_management.yaml``, which declares no zones at
+    all) is a legitimate config, not a vacuous one: Property 1 (reference
+    resolution) still has real content to check even with zero zones.
+    A config with neither a non-empty ``constraints`` list nor any zones
+    has nothing for either property to check and is still rejected via
+    the ``constraints`` requirement above.
   - the board file is missing, has zero parsed component references, or
     has no Edge.Cuts geometry (an empty outline bbox)
   - the reference alias manifest path is given (or the default exists)
@@ -337,8 +343,16 @@ def load_pcl_config(config_path: Path) -> dict[str, Any]:
     zones = data.get("zones")
     if not isinstance(constraints, list) or not constraints:
         raise GateError(f"{config_path} has no non-empty 'constraints' list")
-    if not isinstance(zones, list) or not zones:
-        raise GateError(f"{config_path} has no non-empty 'zones' list")
+    # zones is optional: a component-only PCL file (thermal_management.yaml,
+    # half_bridge_base.yaml) legitimately declares none. A present-but-wrong-
+    # typed zones key is still a tool error (malformed input), but missing/
+    # empty is normalized to an empty list -- Property 2 then trivially
+    # checks zero zones instead of the run erroring out before Property 1
+    # (component reference resolution) ever gets to run at all.
+    if zones is None:
+        data["zones"] = []
+    elif not isinstance(zones, list):
+        raise GateError(f"{config_path}'s 'zones' key is present but not a list")
     return data
 
 

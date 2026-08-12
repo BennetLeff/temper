@@ -1940,6 +1940,34 @@ jobs:
         continue-on-error: true
         run: uv run python scripts/check_pcl_config_board_correspondence.py
 
+      - name: PCL config <-> board correspondence gate (Gate 1, thermal_management.yaml)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # ADVISORY, same shape as Gate 1 above, same gate script, different
+        # config: packages/temper-placer/configs/constraints/thermal_management.yaml
+        # -- this board's IGBT-to-RTD/MCU thermal-clearance declarations --
+        # was NEVER checked by this gate at all before this step existed (the
+        # gate script required a non-empty `zones:` list to even run, and
+        # this config, being component-only, has none -- it errored out
+        # before Property 1 ever ran). See
+        # docs/evidence/2026-08-12-thermal-emi-declaration-drift.md for the
+        # before/after: 21 of 21 checkable references were broken (13/13
+        # constraints affected) before packages/temper-placer/configs/
+        # temper_constraints.references.yaml was extended with this config's
+        # own spelling of already-known aliases (U_RTD, TH_HEATSINK,
+        # R_GATE_HIGH, R_GATE_LOW, C_VCC2); 14 remain broken -- all with a
+        # documented reason, none "unrecognized". Path to blocking: same
+        # Q1/Q2 identity question as Gate 1 above (this config uses the same
+        # two names for the same wrong components), plus a hardware-owner
+        # decision on R_SNUB/C_SNUB (real components exist but are the wrong
+        # circuit -- a relay-contact snubber, not an IGBT switching snubber)
+        # and C_VCC1 (no real counterpart exists in this half-bridge
+        # topology). Confirm this step goes clean, then remove
+        # continue-on-error.
+        continue-on-error: true
+        run: >-
+          uv run python scripts/check_pcl_config_board_correspondence.py
+          --config packages/temper-placer/configs/constraints/thermal_management.yaml
+
       - name: Declared <-> emitted layer gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_layer_plane_emission_coverage.py -v --tb=short
