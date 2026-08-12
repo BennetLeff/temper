@@ -1,0 +1,43 @@
+{
+  "_goal": "Single source of truth for the verified place-and-route recipe's board shape (segments/vias/zones/footprints), read by scripts/check_landed_board_shape.py. This baseline tracks a regenerated board, not a fixed one -- putting it in data instead of a hardcoded script constant means a correction is a diff to _march plus baseline, not a code change, and the _march log below is the reason that matters: this exact baseline drifted through five wrong values before this one, each looking plausible in isolation.",
+  "_march": [
+    {
+      "date": "2026-08-12",
+      "status": "VOID",
+      "value": {"segments": 4228, "vias": 74, "zones": 66},
+      "note": "PR #1050's original figure (docs/evidence/2026-08-12-place-and-reroute-connectivity.md). Measured against an untracked, unpinned pumpkin_engine build. Does not reproduce -- see docs/evidence/2026-08-12-board-recipe-reproducibility.md sec 5."
+    },
+    {
+      "date": "2026-08-12",
+      "status": "VOID",
+      "value": {"footprints": 168, "segments": 3349, "vias": 56, "zones": 70},
+      "note": "The 'verified baseline' (docs/evidence/2026-08-12-board-recipe-reproducibility.md sec 6, 80/105 nets). Its determinism finding held only given a fixed pumpkin_engine binary, and the doc did not check that the binary was pinned. Not reproducible from any binary anyone could identify -- see docs/evidence/2026-08-12-candidate-board-not-landed-engine-provenance.md sec 4 and docs/evidence/2026-08-12-engine-binary-pinning.md sec 1."
+    },
+    {
+      "date": "2026-08-12",
+      "status": "VOID",
+      "value": {"footprints": 168, "segments": 3314, "vias": 40, "zones": 58},
+      "note": "docs/evidence/2026-08-12-engine-binary-pinning.md sec 6 (65/105 nets), pre-#1054. Measured on the pinned engine, but PR #1054 ('to_units' ceil-to-even) landed afterward and moves placement; that same document's sec 7/9 already flags sec 6 as stale and 'outstanding, not regenerated'."
+    },
+    {
+      "date": "2026-08-12",
+      "status": "VOID",
+      "value": {"footprints": 168, "segments": 4140, "vias": 70, "zones": 66},
+      "note": "docs/evidence/2026-08-12-candidate-board-not-landed-engine-provenance.md sec 2, 'engine built from main's committed source' (86/105 nets). PR #1058's scratch driver called _apply_placements_to_pcb(...) without board_origin, so every footprint on this board was written 20mm off the Edge.Cuts outline -- see the sibling VOID entry immediately below for the other run from the same PR."
+    },
+    {
+      "date": "2026-08-12",
+      "status": "VOID",
+      "value": {"footprints": 168, "segments": 3505, "vias": 26, "zones": 76},
+      "note": "docs/evidence/2026-08-12-candidate-board-not-landed-engine-provenance.md sec 2, engine from target-shared/ (the default pickup, 75/105 nets). Same off-outline write-path defect as the sibling VOID entry above -- both of PR #1058's runs share the bug, not just one."
+    },
+    {
+      "date": "2026-08-12",
+      "status": "TRUE",
+      "value": {"footprints": 168, "segments": 2514, "vias": 22, "zones": 76},
+      "note": "Pinned engine (docs/evidence/2026-08-07-pumpkin-engine/engine_pin.json) plus the corrected write path (board_origin passed explicitly to _apply_placements_to_pcb, closing the defect the five VOID entries above either predate or fall afoul of). Two independent concurrent runs, byte-identical at every stage. nets connected 22/112 (19.6%); unconnected_items 428 -> 351. kicad-cli clearance=499 across 130 samples, creepage 114-116, shorting_items 110, total errors 1075-1077. SAF_HVL_001 94 -> 74 (-21%, measured via the Rust safety kernel, independent of this segments/vias/zones shape)."
+    }
+  ],
+  "baseline": {"footprints": 168, "segments": 2514, "vias": 22, "zones": 76},
+  "baseline_source": "pinned pumpkin_engine + corrected write path, 2026-08-12 (see the last _march entry above)"
+}

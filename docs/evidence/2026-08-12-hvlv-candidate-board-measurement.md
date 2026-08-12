@@ -18,6 +18,29 @@ is nested inside the main checkout's path). -->
 
 # Does the candidate place-and-reroute board fix, worsen, or leave unchanged the 94 HV/LV separation violations?
 
+> **CORRECTION (2026-08-12), added by the void-board-baseline purge task, not by this
+> document's original author.** The **94 -> 44 (-53%)** `SAF_HVL_001` finding below is
+> **VOID**. The 94 (measured on the committed `pcb/temper.kicad_pcb`, §1) is unaffected
+> and still stands. The 44 (measured on a regenerated candidate board, §2-3) does not:
+> this document's regeneration built `pumpkin_engine` fresh (§2 step 2) without any
+> identity check against a pin, because no pin existed yet
+> (`docs/evidence/2026-08-07-pumpkin-engine/engine_pin.json` landed in #1060, after this
+> document). A later investigation established that different builds of that binary
+> produce materially different placements from an identical constraint payload
+> (`docs/evidence/2026-08-12-candidate-board-not-landed-engine-provenance.md` §3), so this
+> document's "44" cannot be attributed to a specific, reproducible program and must be
+> treated the same as the other pre-pin figures in this lineage (PR #1050's 4,228/74,
+> the "verified" 3,349/56/70).
+>
+> **True `SAF_HVL_001` figure**, pinned engine (post-#1060) plus a corrected write path:
+> **94 -> 74 (-21%)**, not 94 -> 44 (-53%) -- a real, but roughly 2.4x smaller, reduction
+> than this document reports. The companion segments/vias/zones baseline is 2,514 / 22 /
+> 76 / 168 footprints; nets connected 22/112 (19.6%). Current source of truth:
+> `scripts/board_shape_baseline.json`. **Nothing below this notice has been edited** --
+> §1 (the 94 on the committed board) and the methodology in §2-3 stand as originally
+> recorded; only the "44" and everything computed from it (§3-5's deltas, percentages,
+> and "genuine 53% reduction" framing) are void.
+
 **Lead: the 94 reproduces exactly. The candidate board's SAF_HVL_001 count
 is 44 — a real, substantial reduction (−50, −53%), not a regression.
 This is consistent with (not contradicted by) PR #1050's own kicad-cli

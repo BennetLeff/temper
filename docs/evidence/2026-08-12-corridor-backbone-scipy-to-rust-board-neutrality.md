@@ -9,6 +9,16 @@ in a scratch dir outside pcb/**. -->
 
 # The scipy->Rust connected-components swap in `_corridor_backbone.py` is board-neutral: byte-identical output, directly measured
 
+> **CORRECTION (2026-08-12), added by the void-board-baseline purge task.** §3 cites
+> `docs/evidence/2026-08-12-board-recipe-reproducibility.md`'s "168 footprints / 3,349
+> segments / 56 vias / 70 zones / 80/105 nets" as that document's recipe/baseline. That
+> figure is **VOID** -- see the correction notice at the top of that document (measured
+> on an unpinned `pumpkin_engine` binary). The true baseline is **2,514 segments / 22
+> vias / 76 zones / 168 footprints** (`scripts/board_shape_baseline.json`). This does not
+> affect this document's own finding -- §1-2's byte-identical-output result is a
+> same-input-same-output comparison, independent of which baseline is current; only the
+> §3 citation is void.
+
 **Verdict.** The fix (`cff390182`: swap `scipy.ndimage.label` for
 `temper_geometry.connected_components_8_transform`, wrapped as
 `_connected_components_8`) produces **byte-for-byte identical output**
