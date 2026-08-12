@@ -104,7 +104,14 @@ net_classes:
   ac_n: "HighVoltage"
   w1_1: "HighVoltage"          # CMC winding nodes (L path)
   w1_2: "HighVoltage"
-  "+340V_BUS": "HighVoltage"
+  # 2026-08-11 (scripts/check_netclass_map_board_correspondence.py, #1030):
+  # "+340V_BUS" is the same stale, renamed name the 2026-07-28 sweep above
+  # already fixed elsewhere in this file (see "+15V_LS"'s comment) -- missed
+  # here. This file is still not loaded by any code path today (verified by
+  # repo-wide grep for its filename); corrected anyway per this file's own
+  # established convention so it cannot silently reactivate the same
+  # misclassification if the config is ever wired up.
+  "+170V_BUS": "HighVoltage"
   DC_BUS_RTN: "HighVoltage"
   # zcd, hb.power_loop.q_high-g: ADDED 2026-07-28 (docs/evidence/
   # 2026-07-28-netclass-defect-reconciliation.md sweep) -- the other 7 HV
@@ -196,7 +203,7 @@ net_class_rules:
 net_priority:
   ac_l: 1
   ac_n: 1
-  "+340V_BUS": 1
+  "+170V_BUS": 1  # was "+340V_BUS" -- same rename as net_classes above
   DC_BUS_RTN: 1
   SW_NODE: 1
   GATE_HS: 2

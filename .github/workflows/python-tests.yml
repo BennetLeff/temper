@@ -1944,20 +1944,20 @@ jobs:
 
       - name: Net-class map <-> board correspondence gate (Gate 3)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        # ADVISORY: four hand-maintained net_classes: YAML maps
+        # BLOCKING as of fix/netclass-config-keys: all 31 originally-broken
+        # keys across the four hand-maintained net_classes: YAML maps
         # (configs/temper_deterministic_config.yaml,
         # configs/temper_production_config.yaml,
         # packages/temper-placer/configs/temper_constraints.yaml,
-        # packages/temper-placer/configs/gate_driver_constraints.yaml) each
-        # have at least one key that matches no real board net (stale
-        # +340V_BUS, case-mismatched AC_L/AC_N, or non-existent
-        # GATE_H/GATE_L/CGND/VCC_BOOT). Path to blocking: reconcile each
-        # broken key against the real board net table (some are safe
-        # mechanical renames, others need the same kind of human
-        # reconciliation temper_constraints.references.yaml required for
-        # Gate 1's component references -- see the evidence doc), then
-        # remove continue-on-error.
-        continue-on-error: true
+        # packages/temper-placer/configs/gate_driver_constraints.yaml) were
+        # reconciled: safe renames (case mismatches, documented stale
+        # names) were applied, and keys naming a net that genuinely does
+        # not exist on the board (PE, CGND, VCC_BOOT, PGND, +5V,
+        # TEMP_SENSE, SPI_CLK/SPI_MOSI/SPI_MISO/SPI_CS_TEMP) were deleted
+        # rather than mapped onto a guess -- see the reconciliation
+        # evidence doc and each file's own net_classes: comments.
+        # continue-on-error removed: a future PR that reintroduces drift
+        # here must now fail closed like every other clean gate.
         run: uv run python scripts/check_netclass_map_board_correspondence.py
 
       # --- PD2 compartment-evidence gate (docs/evidence/2026-08-11-pd2-decision-record.md) ---
