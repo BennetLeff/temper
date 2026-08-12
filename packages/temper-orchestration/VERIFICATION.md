@@ -3136,3 +3136,143 @@ argued in-source and above):
   wasm tier (`--no-default-features`) compiles.
 - **R1h** — not physics-gated (recorded explicitly: the loop sequences
   stages; no physics quantity is computed, asserted or gated).
+
+## Rust orchestration engine — U-G (the RouterV6 run-loop)
+
+Orchestration-port unit U-G of the Rust Orchestration Engine plan
+(2026-08-09-001): the SEQUENCING of `RouterV6Pipeline.run()` moves to
+`router_pipeline.rs` as the `RouterPipeline` pyclass; the Python
+`router_v6/_pipeline_core.py` keeps its public API and delegates.
+
+### What migrated
+
+| Python surface | Rust surface | Notes |
+|---|---|---|
+| `RouterV6Pipeline.run()` — the fixed stage sequence (Stage 0 load → Stage 0.5 legalization → Stage 1 escape vias → Stage 2 channel analysis → Stage 3 topological routing → Stage 4 geometric realization → Stage 5 manufacturing DRC → result assembly) | `RouterPipeline::run` → `run_router_pipeline` | one shim per step driven through `PipelineRunner<BoardState>`; the Python objects (pcb, escape_vias, stage2/3/4, manufacturing_report) thread through the shared `RunContext` so untouched objects keep OBJECT IDENTITY; a raising stage halts the runner and the ORIGINAL exception is re-raised |
+| the CONDITIONALS | Rust | legalization on/off (shim added conditionally), manufacturing DRC on/off + the `dfm_fail_on` raise decision (`dfm_should_fail`), fence presence (stage-0.5/1 gates inside the validate/escape shims; a dedicated fence-4 shim), ERC on/off (shim added conditionally) |
+| the verbose print orchestration | Rust | every run()-level print renders through CPython `print`/`str.format` (David-Gay `:.1f`/`{}` semantics stay CPython), byte-identical to the oracle (pinned by the differential, modulo the wall-clock runtime line) |
+| the wall-clock runtime | Rust | `std::time::Instant` (same semantics as `time.time()` deltas) |
+| the exception propagation | Rust | ValueError on validation failure, ManufacturingDRCViolationError on a DFM fail (type + message pinned), a stage exception re-raised as the ORIGINAL value |
+| the result assembly | Rust | `RouterV6Result` construction (with `batch_results=list(self.last_batch_results)`), the final `ledger.checkout("routing_complete", result)` |
+
+### What stays Python (the U-G boundary, argued in the shim headers and here)
+
+- The leaf compute call-backs, invoked by the driver in oracle order:
+  `parse_kicad_pcb_v6` (through the `temper_placer.io.kicad_parser` module
+  attribute seam, so the plane-condemnation monkeypatch test
+  `test_plane_condemnation_pipeline_wiring.py` keeps working;
+  `use_declared_layer_roles=True` passes as a keyword), the Stage-0 setup
+  marshalling (`_run_stage0_setup`: the pcb_override swap, the
+  netclass/assignment injection with the 0.15mm default clearance, and the
+  CPython `list.sort` with the `_net_sort_key` callable — the U-E
+  "parameter EXTRACTION" category, pinned by the injection/order
+  differential), the `Legalizer` methods, `identify_dense_packages` /
+  `generate_escape_vias` (the subprocess-free escape-via compute), the
+  `pcb.validate_placement` method, `_run_stage2` /
+  `_compute_resource_bound`, `_run_stage3` (the ortools / CP-SAT solve —
+  the E6 boundary already records it), `_run_stage4` / `_run_stage5` (the
+  A* geometric realization and post-processing), `_run_manufacturing_drc`
+  (the DFM checks), `_run_fence` (the DRCFence orchestration), the
+  `StageLedger` orchestration (checkin/checkout — the ledger shim's own
+  boundary), the `ErcGate` gate and the `RouterV6Result` dataclass.
+- The R7 skip_stage3 DECISION and the "SKIPPED" verbose print stay in the
+  shim's `run()`: `test_wave3_skip_sat.py` inspects the run() source text
+  (`if self.skip_stage3:` + `"SKIPPED"`), so the branch must execute there;
+  the driver consumes the resolved empty `Stage3Output` (or None to run
+  stage 3 normally). Consequence: on a verbose skip run the "SKIPPED" line
+  lands before the delegation instead of after Stage 2 — a documented
+  positional divergence. The differential therefore compares verbose
+  stdout on the NON-skip path (where the driver prints "Stage 3:
+  Topological routing..." at the oracle position) and compares skip runs
+  with verbose off; no existing test exercises a verbose skip run.
+- `route_pcb` / `_adapter_convert.py` / `_pipeline_route.py` /
+  `_pipeline_grid.py` / `_pipeline_verify.py` / `_pipeline_types.py` /
+  `adapter.py` — untouched (the E6 boundary already covers the pipeline-route
+  surface; `route_pcb` is the run() call site, unchanged).
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every config and input in the
+differential suite's domains, the Rust driver issues the same leaf
+call-backs in the same order with the same arguments, threads the same
+objects, raises the same exceptions and assembles the same result as the
+pinned pre-migration Python loop, with the documented boundary choices
+below.
+
+1. **The driver is a direct transcription of the run() body's control
+   flow.** Every stage shim mirrors the oracle's block: the same
+   conditionals, the same call order (parse → setup → legalize → validate →
+   fence0.5 → ledger.checkin → dense/escape → fence1 → ledger.checkout →
+   stage2 → resource_bound → stage3 → stage4 → manufacturing → fence4 →
+   ERC → result), the same argument threading. The call-back boundaries are
+   pinned by the differential's shared-fake logs; the object identity is
+   pinned intra-arm (the pcb seen by stage4 IS the pcb the parse returned).
+2. **The ERC evaluation order is observable and pinned.** `ErcGate()`
+   constructs before the `BoardState(routed_pcb_path=...)` argument (the
+   oracle's evaluation order), and the status branches use IDENTITY
+   (`is`, not `==`) against `GateStatus.UNMEASURED`/`VIOLATIONS`.
+3. **Exception identity by value.** A stage PyErr stores the ORIGINAL
+   exception value in the context; the driver re-raises it via
+   `PyErr::from_value` — type and message preserved, not re-wrapped. The
+   driver-built raises (ValueError, ManufacturingDRCViolationError) are
+   constructed through CPython (`str.format` for the message, the Python
+   exception class), so the messages are byte-identical.
+4. **CPython rendering.** Every interpolated print/format renders through
+   CPython `print`/`str.format` (David-Gay `:.1f` and `{}` semantics, the
+   tuple-f-string `{}/{}` ref join, the `%s`/`%d` logger formatting); the
+   summary completion expression `100 * success / max(1, success+failure)`
+   is computed in Rust as `100.0 * s / max(1, s+f)` — bit-identical for the
+   small int counts the router produces (pinned by the pure-helper tests).
+5. **The R7 branch boundary.** The skip decision + "SKIPPED" print stay in
+   the shim (pinned by test_wave3_skip_sat.py's source inspection); the
+   driver consumes the resolved empty Stage3Output. The empty-list identity
+   semantics of the deterministic loop do not apply here — the router run
+   always has its fixed stages.
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above): the leaf call-backs (see above); the R7 skip
+branch's print position; the `PipelineRunner` report is consumed internally
+(only `halted_early` and the pending error surface); the router's own
+nondeterminism (wall-clock, seeds, the route_board.py subprocess) is
+preserved by design — the driver only sequences.
+
+### Differential / PBT / runner suites (U-G)
+
+| Suite | Location | Count |
+|---|---|---|
+| run-loop differential (oracle: `_pipeline_core_py_oracle.py`, sha256-pinned; call sequence, state threading, conditionals, fail-mode raise parity, fence gates, ERC status branches, verbose stdout, Stage-0 injection + net sort, real minimal-board end-to-end) | `packages/temper-placer/tests/router_v6/test_router_pipeline_rust_differential.py` | 17 |
+| run-loop PBT (P1..P6, each mutation-guarded) | `packages/temper-placer/tests/router_v6/test_router_pipeline_pbt.py` | 18 |
+| U-G runner (the canonical stage order, the R7 bypass, the exception propagation and the result assembly through the pyclass with sys.modules-registered fakes) | `packages/temper-orchestration/tests/ug_router_runner.rs` | 4 |
+| existing router_v6 surface through the shim (wave3 source pins, the plane-condemnation parse seam, the fence integration incl. real SAT, the E6 route differentials/PBT/metamorphic, DFM, adapter, structural) | `packages/temper-placer/tests/router_v6/` + `tests/test_router_v6_fence_integration.py` | 224 passed, 1 pre-existing failure (networkx `edges_with_data` API drift in `bundle_analyzer.py`, reproduced unchanged on the base commit and the main venv) |
+
+### R1 gate status (U-G)
+
+- **R1a** — behavioural A/B vs the verbatim oracle: 17/17 green (call
+  sequence byte-identical, state-threading object identity, every
+  conditional, fail-mode raise parity, fence gate parity, ERC branch
+  parity, verbose stdout modulo the wall-clock line, Stage-0 injection +
+  power-first sort, real minimal-board end-to-end with the SAT path
+  bypassed).
+- **R1b** — performance: the loop is invoked once per pipeline run (the
+  hot path); the added cost is one FFI crossing per stage (each stage's
+  leaf compute already crosses FFI), and the sequencing itself is now
+  Rust. No regression beyond noise is possible or claimed — the actual
+  routing compute (subprocess + ortools + A*) is unchanged Python.
+- **R1c** — 6 non-vacuous properties (P1..P6), each with a degenerate-mutant
+  guard that must trip.
+- **R1d** — metamorphic relations not claimed: the router run-loop is a
+  fixed sequence (no fold structure to relate); the differential and the
+  PBT cover the conditional surface. Recorded per the plan's per-module
+  discretion.
+- **R1e** — this section.
+- **R1f** — TDD: the differential + oracle were committed first (RED —
+  `temper_orchestration.RouterPipeline` did not exist, 1 failed), then the
+  Rust pyclass + shim landed GREEN (33/33, then 35/35 with the runner).
+- **R1g** — no `unwrap`/`expect` outside tests (crate denies both); every
+  shim `run()` body runs under `catch_unwind` (panic → `StageError::Fatal`,
+  the plan's error model); the pyclass methods by pyo3's own expansion;
+  `cargo clippy --all-features --all-targets -- -D warnings` clean; the
+  wasm tier (`--no-default-features`) compiles.
+- **R1h** — not physics-gated (recorded explicitly: the driver sequences
+  stages; no physics quantity is computed, asserted or gated by the
+  migrated surface).
