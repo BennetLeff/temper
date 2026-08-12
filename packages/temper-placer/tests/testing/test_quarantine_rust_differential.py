@@ -426,10 +426,16 @@ def test_pbt_classify_version_keyword_wins(msg):
 @given(msg=_msg)
 def test_pbt_classify_decode_keyword_invariant(msg):
     """A message containing 'decode' classifies as PARSE_DECODE_ERROR unless
-    a higher-precedence keyword ('version') is also present."""
-    if "version" in msg.lower():
+    a higher-precedence keyword is also present. Precedence (the reference's
+    order): version > footprint/lib > decode/utf."""
+    low = msg.lower()
+    if "version" in low:
         assert _tio.classify_error("parse", ValueError(f"{msg} decode")) == (
             "PARSE_KICAD_VERSION_MISMATCH"
+        )
+    elif "footprint" in low or "lib" in low:
+        assert _tio.classify_error("parse", ValueError(f"{msg} decode")) == (
+            "PARSE_MISSING_FOOTPRINT_LIB"
         )
     else:
         assert _tio.classify_error("parse", ValueError(f"{msg} decode")) == "PARSE_DECODE_ERROR"
