@@ -298,7 +298,7 @@ mod tests {
         let limits = SolveLimits::default(); // unbounded for small models
         let mut result = solve_with_cadical(&cnf, limits);
         result.num_vars = cnf.num_vars;
-        result.num_clauses = cnf.clauses.len();
+        result.num_clauses = cnf.num_clauses();
         result
     }
 
@@ -357,10 +357,10 @@ mod tests {
             full_cnf.num_vars
         );
         assert!(
-            pruned_cnf.clauses.len() <= full_cnf.clauses.len(),
+            pruned_cnf.num_clauses() <= full_cnf.num_clauses(),
             "pruned clauses {} > full clauses {}",
-            pruned_cnf.clauses.len(),
-            full_cnf.clauses.len()
+            pruned_cnf.num_clauses(),
+            full_cnf.num_clauses()
         );
     }
 
@@ -752,13 +752,13 @@ mod tests {
         let pruned = prune_model(&model, &remove);
         let pruned_result = solve_model(&pruned);
 
-        // The empty model is UNSAT (solver.rs: if cnf.num_vars == 0 || cnf.clauses.is_empty())
+        // The empty model is UNSAT (solver.rs: if cnf.num_vars == 0 || cnf.clauses_is_empty())
         // But wait — an empty model (no constraints) is trivially SAT, not UNSAT.
         // Let's check the solver code...
         //
         // From solver.rs line 66-68:
         // ```
-        // if cnf.num_vars == 0 || cnf.clauses.is_empty() {
+        // if cnf.num_vars == 0 || cnf.clauses_is_empty() {
         //     return empty_result_with_stats(SolverStatus::Unsatisfiable, 0.0, cnf);
         // }
         // ```

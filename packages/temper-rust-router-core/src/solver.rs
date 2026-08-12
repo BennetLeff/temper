@@ -63,14 +63,14 @@ pub fn solve_with_cadical(cnf: &CnfFormula, limits: SolveLimits) -> TopologyResu
     let start = Instant::now();
 
     // Guard: empty problems are trivially unsatisfiable.
-    if cnf.num_vars == 0 || cnf.clauses.is_empty() {
+    if cnf.num_vars == 0 || cnf.clauses_is_empty() {
         return empty_result_with_stats(SolverStatus::Unsatisfiable, 0.0, cnf);
     }
 
     let mut solver = CaDiCaL::default();
 
     // Add clauses. Variables are created implicitly from clause literals.
-    for clause in &cnf.clauses {
+    for clause in cnf.clauses() {
         let clause_obj: Clause = clause
             .iter()
             .map(|&lit| {
@@ -160,7 +160,7 @@ pub fn solve_with_cadical(cnf: &CnfFormula, limits: SolveLimits) -> TopologyResu
                     decision_level_histogram: hist,
                     unsat_core_size: 0,
                     variable_count: cnf.num_vars as u64,
-                    clause_count: cnf.clauses.len() as u64,
+                    clause_count: cnf.num_clauses() as u64,
                     cpu_solve_time_ms: elapsed,
                 };
                 TopologyResult {
@@ -185,7 +185,7 @@ pub fn solve_with_cadical(cnf: &CnfFormula, limits: SolveLimits) -> TopologyResu
                     decision_level_histogram: hist,
                     unsat_core_size: 0,
                     variable_count: cnf.num_vars as u64,
-                    clause_count: cnf.clauses.len() as u64,
+                    clause_count: cnf.num_clauses() as u64,
                     cpu_solve_time_ms: elapsed,
                 };
                 let mut r = empty_result_with_stats(SolverStatus::Unsatisfiable, elapsed, cnf);
@@ -208,7 +208,7 @@ fn empty_result_with_stats(status: SolverStatus, elapsed: f64, cnf: &CnfFormula)
         decision_level_histogram: [0; 10],
         unsat_core_size: 0,
         variable_count: cnf.num_vars as u64,
-        clause_count: cnf.clauses.len() as u64,
+        clause_count: cnf.num_clauses() as u64,
         cpu_solve_time_ms: elapsed,
     };
     TopologyResult {
@@ -271,11 +271,7 @@ mod tests {
                 }
             }
         }
-        CnfFormula {
-            num_vars: pigeons * holes,
-            clauses,
-            var_to_net: Vec::new(),
-        }
+        CnfFormula::from_clauses(pigeons * holes, clauses, Vec::new())
     }
 
     #[test]
@@ -350,11 +346,7 @@ mod tests {
         // A trivially satisfiable instance should solve well within any
         // reasonable bound -- bounds must not turn a fast, easy solve into
         // a false Unknown.
-        let cnf = CnfFormula {
-            num_vars: 2,
-            clauses: vec![vec![1, 2], vec![-1, 2]],
-            var_to_net: Vec::new(),
-        };
+        let cnf = CnfFormula::from_clauses(2, vec![vec![1, 2], vec![-1, 2]], Vec::new());
         let limits = SolveLimits {
             conflict_limit: Some(1_000_000),
             time_limit_ms: Some(10_000),

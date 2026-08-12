@@ -139,7 +139,7 @@ fn build_solver(cnf: &CnfFormula) -> Result<CaDiCaL<'static, 'static>, String> {
     let mut solver = CaDiCaL::default();
 
     // Add all clauses.
-    for clause in &cnf.clauses {
+    for clause in cnf.clauses() {
         let clause_obj: Clause = clause
             .iter()
             .map(|&lit| {
@@ -171,7 +171,7 @@ fn solve_with_assumptions(
     fixed: &HashMap<String, bool>,
     name_to_idx: &HashMap<String, usize>,
 ) -> Result<bool, String> {
-    if cnf.num_vars == 0 || cnf.clauses.is_empty() {
+    if cnf.num_vars == 0 || cnf.clauses_is_empty() {
         return Ok(true); // Vacuous
     }
 

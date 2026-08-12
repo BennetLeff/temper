@@ -6,12 +6,61 @@ use std::collections::HashSet;
 
 use crate::types::{InternalConstraint, InternalConstraintModel, InternalVariable, SatVariable};
 
-/// A CNF formula: list of clauses (each clause is a list of signed variable indices).
-/// Positive index = true literal, negative index = false literal.
+/// A CNF formula: a flat literal pool plus a CSR-style clause-offset index,
+/// replacing the earlier `Vec<Vec<i32>>` (one heap allocation per clause).
+/// Positive literal = true, negative = false. `clause_offsets` always has
+/// `num_clauses() + 1` entries (starting at 0); clause `i`'s literals are
+/// `literals[clause_offsets[i]..clause_offsets[i + 1]]`.
+///
+/// Representation-only change (R2 of
+/// docs/plans/2026-08-12-004-feat-cnf-representation-plan.md): same literal
+/// content, same clause order as the `Vec<Vec<i32>>` form it replaces --
+/// measured at 13.81 bytes/clause vs. 56.00 bytes/clause, a 4.06x reduction
+/// on our side of the CaDiCaL FFI boundary (see the plan for the full
+/// measurement, including why CaDiCaL's own clause storage dominates the
+/// total either way).
 pub struct CnfFormula {
     pub num_vars: usize,
-    pub clauses: Vec<Vec<i32>>,
+    pub literals: Vec<i32>,
+    pub clause_offsets: Vec<u32>,
     pub var_to_net: Vec<usize>,
+}
+
+impl CnfFormula {
+    /// Build a packed `CnfFormula` from a nested clause list (CSR flatten).
+    /// Preserves clause order and literal content exactly.
+    pub fn from_clauses(num_vars: usize, clauses: Vec<Vec<i32>>, var_to_net: Vec<usize>) -> Self {
+        let mut literals = Vec::with_capacity(clauses.iter().map(Vec::len).sum());
+        let mut clause_offsets = Vec::with_capacity(clauses.len() + 1);
+        clause_offsets.push(0u32);
+        for clause in clauses {
+            literals.extend(clause);
+            clause_offsets.push(literals.len() as u32);
+        }
+        Self {
+            num_vars,
+            literals,
+            clause_offsets,
+            var_to_net,
+        }
+    }
+
+    /// Number of clauses in the packed representation.
+    pub fn num_clauses(&self) -> usize {
+        self.clause_offsets.len().saturating_sub(1)
+    }
+
+    /// True when there are no clauses.
+    pub fn clauses_is_empty(&self) -> bool {
+        self.clause_offsets.len() <= 1
+    }
+
+    /// Iterate over clauses as literal slices, in original order.
+    pub fn clauses(&self) -> impl Iterator<Item = &[i32]> + '_ {
+        self.clause_offsets
+            .windows(2)
+            .map(move |w| &self.literals[w[0] as usize..w[1] as usize])
+    }
 }
 
 /// Encode AtMostK cardinality constraint via Sinz (2005) sequential counter.
@@ -228,13 +277,10 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
     }
 
     let var_names: Vec<String> = var_map.iter().map(|v| v.name.clone()).collect();
+    let num_vars = var_map.len();
 
     (
-        CnfFormula {
-            num_vars: var_map.len(),
-            clauses,
-            var_to_net,
-        },
+        CnfFormula::from_clauses(num_vars, clauses, var_to_net),
         var_names,
     )
 }
@@ -391,7 +437,7 @@ pub(crate) mod tests {
         };
         let (cnf, var_names) = encode_to_cnf(&model);
         assert_eq!(cnf.num_vars, 0);
-        assert!(cnf.clauses.is_empty());
+        assert!(cnf.clauses_is_empty());
         assert!(cnf.var_to_net.is_empty());
         assert!(var_names.is_empty());
     }
@@ -465,6 +511,25 @@ pub(crate) mod tests {
             }
 
             // --------------------------------------------------------------
+            // Property E1b: the packed CSR representation is internally
+            // consistent -- clause_offsets is non-decreasing, starts at 0,
+            // ends at literals.len(), and has num_clauses() + 1 entries.
+            // Guards R2's flatten step (encoding.rs's `from_clauses`).
+            // --------------------------------------------------------------
+            #[test]
+            fn prop_csr_offsets_consistent(n in 0usize..=20usize) {
+                let model = model_with_layer_restrictions(n);
+                let (cnf, _) = encode_to_cnf(&model);
+                prop_assert_eq!(cnf.clause_offsets.len(), cnf.num_clauses() + 1);
+                prop_assert_eq!(cnf.clause_offsets.first().copied(), Some(0u32));
+                prop_assert_eq!(
+                    cnf.clause_offsets.last().copied(),
+                    Some(cnf.literals.len() as u32)
+                );
+                prop_assert!(cnf.clause_offsets.windows(2).all(|w| w[0] <= w[1]));
+            }
+
+            // --------------------------------------------------------------
             // Property E2: All variable indices in clauses are within
             // [-num_vars, num_vars] \ {0}.
             // --------------------------------------------------------------
@@ -473,7 +538,7 @@ pub(crate) mod tests {
                 let model = model_with_layer_restrictions(n);
                 let (cnf, _) = encode_to_cnf(&model);
                 let num_v = cnf.num_vars as i32;
-                for clause in &cnf.clauses {
+                for clause in cnf.clauses() {
                     for &lit in clause {
                         prop_assert!(lit != 0,
                             "clause contains literal 0");
@@ -490,7 +555,7 @@ pub(crate) mod tests {
             fn prop_no_empty_clauses(n in 0usize..=20usize) {
                 let model = model_with_layer_restrictions(n);
                 let (cnf, _) = encode_to_cnf(&model);
-                for clause in &cnf.clauses {
+                for clause in cnf.clauses() {
                     prop_assert!(!clause.is_empty(),
                         "encoded CNF contains an empty clause");
                 }
@@ -505,7 +570,7 @@ pub(crate) mod tests {
             fn prop_no_tautological_clause(n in 0usize..=10usize) {
                 let model = model_with_layer_restrictions(n);
                 let (cnf, _) = encode_to_cnf(&model);
-                for clause in &cnf.clauses {
+                for clause in cnf.clauses() {
                     for &lit in clause {
                         // Check the negation is NOT also in the same clause.
                         prop_assert!(!clause.contains(&-lit),
@@ -523,7 +588,7 @@ pub(crate) mod tests {
             fn prop_empty_constraints_no_clauses(n in 0usize..=10usize) {
                 let model = model_with_net_channels(n);
                 let (cnf, _) = encode_to_cnf(&model);
-                prop_assert!(cnf.clauses.is_empty());
+                prop_assert!(cnf.clauses_is_empty());
                 prop_assert_eq!(cnf.num_vars, n);
             }
         }

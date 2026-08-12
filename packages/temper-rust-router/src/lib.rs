@@ -198,7 +198,7 @@ mod py {
         // Encode to CNF (cardinality constraints encoded as CNF clauses).
         let (cnf, var_names) = encoding::encode_to_cnf(&model);
         let num_vars = cnf.num_vars;
-        let num_clauses = cnf.clauses.len();
+        let num_clauses = cnf.num_clauses();
         if phase_trace {
             eprintln!("[phase-trace t={:.3}s] encode_to_cnf done, {num_vars} vars, {num_clauses} clauses", t_start.elapsed().as_secs_f64());
         }

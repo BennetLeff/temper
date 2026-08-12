@@ -1127,7 +1127,7 @@ pub(crate) fn enc_clause_indices_in_bounds_impl(seed: u64) {
     let model = enc_model_layer_restrictions(n);
     let (cnf, _) = encode_to_cnf(&model);
     let num_v = cnf.num_vars as i32;
-    for clause in &cnf.clauses {
+    for clause in cnf.clauses() {
         for &lit in clause {
             assert!(lit != 0, "seed={seed} n={n}: clause contains literal 0");
             assert!(
@@ -1149,7 +1149,7 @@ pub(crate) fn enc_no_empty_clauses_impl(seed: u64) {
     let n = rng.index(21); // 0..=20
     let model = enc_model_layer_restrictions(n);
     let (cnf, _) = encode_to_cnf(&model);
-    for clause in &cnf.clauses {
+    for clause in cnf.clauses() {
         assert!(!clause.is_empty(), "seed={seed} n={n}: encoded CNF contains an empty clause");
     }
 }
@@ -1165,7 +1165,7 @@ pub(crate) fn enc_no_tautological_clause_impl(seed: u64) {
     let n = rng.index(11); // 0..=10, same range as the proptest strategy
     let model = enc_model_layer_restrictions(n);
     let (cnf, _) = encode_to_cnf(&model);
-    for clause in &cnf.clauses {
+    for clause in cnf.clauses() {
         for &lit in clause {
             assert!(
                 !clause.contains(&-lit),
@@ -1188,7 +1188,7 @@ pub(crate) fn enc_empty_constraints_no_clauses_impl(seed: u64) {
     let n = rng.index(11); // 0..=10
     let model = enc_model_net_channels(n);
     let (cnf, _) = encode_to_cnf(&model);
-    assert!(cnf.clauses.is_empty(), "seed={seed} n={n}: expected no clauses for an unconstrained model");
+    assert!(cnf.clauses_is_empty(), "seed={seed} n={n}: expected no clauses for an unconstrained model");
     assert_eq!(cnf.num_vars, n, "seed={seed} n={n}");
 }
 
