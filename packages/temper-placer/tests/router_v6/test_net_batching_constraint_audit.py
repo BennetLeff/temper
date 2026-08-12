@@ -45,8 +45,6 @@ site:
 
 from __future__ import annotations
 
-import os
-import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -222,16 +220,15 @@ class TestSolveSubsetCallsAuditResult:
         (redundant, meaningless) audit call, and must still carry an empty
         ``audit_violations`` list rather than omit the key.
         """
-        from temper_placer.router_v6.constraint_model import (
-            ConstraintModel,
-            DiffPairConstraint,
-            NetChannelVar,
-        )
-
         # Unsatisfiable: force a diff pair's two vars to disagree via two
         # LayerRestriction unit clauses, contradicting the DiffPair's
         # biconditional.
-        from temper_placer.router_v6.constraint_model import LayerConstraint
+        from temper_placer.router_v6.constraint_model import (
+            ConstraintModel,
+            DiffPairConstraint,
+            LayerConstraint,
+            NetChannelVar,
+        )
 
         cm = ConstraintModel()
         # LayerConstraint's Python->Rust bridge derives its target var name
@@ -369,9 +366,8 @@ class TestRunNetBatchedStage3RaisesOnViolation:
             net_batching,
             "_run_subset_subprocess",
             return_value=_make_violation_outcome(net_names),
-        ):
-            with pytest.raises(RuntimeError, match="constraint violation"):
-                net_batching.run_net_batched_stage3(pcb, stage2, batch_size=10)
+        ), pytest.raises(RuntimeError, match="constraint violation"):
+            net_batching.run_net_batched_stage3(pcb, stage2, batch_size=10)
 
     def test_raises_runtime_error_on_singleton_retry_violation(self, tmp_path):
         """The batch-level attempt reports non-sat (forcing the singleton
@@ -413,9 +409,8 @@ class TestRunNetBatchedStage3RaisesOnViolation:
             net_batching,
             "_run_subset_subprocess",
             side_effect=[batch_level_unsat, singleton_violation],
-        ):
-            with pytest.raises(RuntimeError, match="constraint violation"):
-                net_batching.run_net_batched_stage3(pcb, stage2, batch_size=10)
+        ), pytest.raises(RuntimeError, match="constraint violation"):
+            net_batching.run_net_batched_stage3(pcb, stage2, batch_size=10)
 
     def test_does_not_raise_when_audit_is_clean(self, tmp_path):
         """Negative control: a "sat" result with an empty
