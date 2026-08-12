@@ -71,6 +71,44 @@ from . import terminal_wire_contracts as terminal_wire_contracts
 from . import hypergraph_contracts as hypergraph_contracts
 
 from . import validation as validation
+
+# 2026-08-12 type-check gate paydown: submodules registered in lib.rs but
+# never mirrored here (same append-only-migration-outran-the-stub shape as
+# temper_orchestration's stub gap, fixed in the same PR). Permissive by
+# convention -- see decision_contracts.pyi / this file's own TagRef-family
+# classes for the established bare-class pattern.
+from . import geometry_contracts as geometry_contracts
+from . import topology_extraction_contracts as topology_extraction_contracts
+from . import net_graph_contracts as net_graph_contracts
+from . import differential_pair_contracts as differential_pair_contracts
+from . import channel_skeleton_contracts as channel_skeleton_contracts
+from . import topological_graph_contracts as topological_graph_contracts
+from . import model_builder as model_builder
+from . import fixed_copper_builder as fixed_copper_builder
+
+# loop_extraction_contracts.rs — registered at the TOP level of the module
+# (not nested; see that file's `register()`), consumed by
+# core/loop_extractor_rs.py as `_tdb.LoopExtractionInput` etc.
+class LoopExtractionInput:
+    def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+    @staticmethod
+    def from_netlist(netlist: Any, topology_hints: dict[str, str] | None = None) -> "LoopExtractionInput": ...
+    def to_dict(self) -> dict[str, Any]: ...
+    def to_json(self) -> str: ...
+
+class ExtractedLoopWire:
+    def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
+class LoopExtractionOutput:
+    ok: bool
+    error: str | None
+    loops: list[Any]
+    def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> "LoopExtractionOutput": ...
+    @staticmethod
+    def from_json(data: str) -> "LoopExtractionOutput": ...
+
 def sha256_hex(bytes: bytes) -> str: ...
 
 
