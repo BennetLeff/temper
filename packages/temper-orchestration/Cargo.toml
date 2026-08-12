@@ -28,10 +28,18 @@ crate-type = ["cdylib", "rlib"]
 # way on `main`). Without it, the test build links libpython normally and
 # the maturin-produced cdylib still gets `extension-module`.
 pyo3 = { version = "0.29", features = ["py-clone"], optional = true }
+# Orchestration plan U-A (BoardState Tier-1 downcasts): the four contract
+# pyclasses (`Board` / `Netlist` / `LoopCollection` / `DesignRules`) live in
+# temper-design-bundle. `default-features = false` keeps this crate's wasm32
+# `--no-default-features` tier pyo3-free (design-bundle's default features are
+# already empty; the `python` feature below is what pulls its pyo3 in, and it
+# is off unless `python` is enabled). Gated exactly like drc-rs gates
+# temper-geometry.
+temper-design-bundle = { path = "../temper-design-bundle", optional = true, default-features = false }
 
 [features]
 default = ["python"]
-python = ["dep:pyo3"]
+python = ["dep:pyo3", "dep:temper-design-bundle", "temper-design-bundle/python"]
 # Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
 # and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
 # call each test function by index -- `cargo test`'s libtest harness cannot

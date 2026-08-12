@@ -32,19 +32,28 @@ use pyo3::types::{PyDict, PyTuple};
 use crate::board_state::BoardState;
 
 #[cfg(feature = "python")]
+use temper_design_bundle::{Board, DesignRules, LoopCollection, Netlist};
+
+#[cfg(feature = "python")]
 /// Read the Python BoardState attributes the D1 stages consume into a Rust
 /// `BoardState`. Python `None` maps to Rust `None`; a non-None value
 /// (including a non-empty default like `placements=frozenset()`) maps to
 /// `Some(Py)`.
+///
+/// U-A (BoardState Tier-1 downcast): the four fields whose Python value is
+/// already a temper-design-bundle pyclass (`board`, `netlist`, `loops`,
+/// `design_rules`) are read through a typed downcast here -- the single FFI
+/// seam the Python shims cross, so the lossless downcast happens exactly
+/// once per pipeline instead of per stage.
 pub(crate) fn from_python(_py: Python<'_>, state: &Bound<'_, PyAny>) -> PyResult<BoardState> {
     let mut bs = BoardState::new();
-    bs.board = attr_opt(state, "board")?;
-    bs.netlist = attr_opt(state, "netlist")?;
-    bs.loops = attr_opt(state, "loops")?;
+    bs.board = attr_opt_typed::<Board>(state, "board")?;
+    bs.netlist = attr_opt_typed::<Netlist>(state, "netlist")?;
+    bs.loops = attr_opt_typed::<LoopCollection>(state, "loops")?;
     bs.grid = attr_opt(state, "grid")?;
     bs.drc_oracle = attr_opt(state, "drc_oracle")?;
     bs.drc_violations = attr_opt(state, "drc_violations")?;
-    bs.design_rules = attr_opt(state, "design_rules")?;
+    bs.design_rules = attr_opt_typed::<DesignRules>(state, "design_rules")?;
     bs.connectivity_violations = attr_opt(state, "connectivity_violations")?;
     bs.placement_violations = attr_opt(state, "placement_violations")?;
     bs.placements = attr_opt(state, "placements")?;
@@ -129,7 +138,7 @@ pub(crate) fn to_python(
             "zone_slots" => opt_value(py, &out.zone_slots),
             "placements" => opt_value(py, &out.placements),
             "used_slots" => opt_value(py, &out.used_slots),
-            "design_rules" => opt_value(py, &out.design_rules),
+            "design_rules" => opt_value_typed(py, &out.design_rules),
             "reclaim_by_pin_pair" => opt_value(py, &out.reclaim_by_pin_pair),
             "routes" => opt_value(py, &out.routes),
             "vias" => opt_value(py, &out.vias),
@@ -137,7 +146,7 @@ pub(crate) fn to_python(
             "placement_violations" => opt_value(py, &out.placement_violations),
             "connectivity_violations" => opt_value(py, &out.connectivity_violations),
             "layer_assignments" => opt_value(py, &out.layer_assignments),
-            "netlist" => opt_value(py, &out.netlist),
+            "netlist" => opt_value_typed(py, &out.netlist),
             "component_domain_map" => opt_value(py, &out.component_domain_map),
             "routing_corridors" => opt_value(py, &out.routing_corridors),
             "domain_regions" => opt_value(py, &out.domain_regions),
@@ -169,6 +178,23 @@ fn attr_opt(state: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<Py<PyAny>>>
 }
 
 #[cfg(feature = "python")]
+/// `attr_opt` with a typed downcast: the Python value must be an instance of
+/// the design-bundle pyclass `T` (the deterministic pipeline always passes
+/// the pyclass -- the typed extraction is a lossless downcast, the pyany-spike
+/// precedent). A non-`T` value is a `TypeError`, not a silent transmute.
+fn attr_opt_typed<T>(state: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<Py<T>>>
+where
+    T: pyo3::PyClass,
+{
+    let value = state.getattr(name)?;
+    if value.is_none() {
+        Ok(None)
+    } else {
+        Ok(Some(value.extract::<Py<T>>()?))
+    }
+}
+
+#[cfg(feature = "python")]
 /// The Python value to write back for an `Option<Py>` field: the value
 /// itself, or Python `None` when the stage cleared the field (a changed
 /// field -- original Some -> Rust None -- writes an explicit None, matching
@@ -176,6 +202,20 @@ fn attr_opt(state: &Bound<'_, PyAny>, name: &str) -> PyResult<Option<Py<PyAny>>>
 fn opt_value(py: Python<'_>, opt: &Option<Py<PyAny>>) -> Py<PyAny> {
     match opt {
         Some(v) => v.clone(),
+        None => py.None(),
+    }
+}
+
+#[cfg(feature = "python")]
+/// `opt_value` for the Tier-1 typed fields: upcast the concrete pyclass
+/// `Py<T>` back to `Py<PyAny>` for the `dataclasses.replace` write-back
+/// (identity-preserving -- the same Python object is written, just retyped).
+fn opt_value_typed<T>(py: Python<'_>, opt: &Option<Py<T>>) -> Py<PyAny>
+where
+    T: pyo3::PyClass,
+{
+    match opt {
+        Some(v) => v.clone_ref(py).into_any(),
         None => py.None(),
     }
 }
@@ -198,7 +238,7 @@ fn py_opt_changed(
         "zone_slots" => out.zone_slots.as_ref(),
         "placements" => out.placements.as_ref(),
         "used_slots" => out.used_slots.as_ref(),
-        "design_rules" => out.design_rules.as_ref(),
+        "design_rules" => out.design_rules.as_ref().map(|v| v.as_any()),
         "reclaim_by_pin_pair" => out.reclaim_by_pin_pair.as_ref(),
         "routes" => out.routes.as_ref(),
         "vias" => out.vias.as_ref(),
@@ -206,7 +246,7 @@ fn py_opt_changed(
         "placement_violations" => out.placement_violations.as_ref(),
         "connectivity_violations" => out.connectivity_violations.as_ref(),
         "layer_assignments" => out.layer_assignments.as_ref(),
-        "netlist" => out.netlist.as_ref(),
+        "netlist" => out.netlist.as_ref().map(|v| v.as_any()),
         "component_domain_map" => out.component_domain_map.as_ref(),
         "routing_corridors" => out.routing_corridors.as_ref(),
         "domain_regions" => out.domain_regions.as_ref(),

@@ -24,6 +24,9 @@
 use pyo3::PyAny;
 
 #[cfg(feature = "python")]
+use temper_design_bundle::{Board, DesignRules, LoopCollection, Netlist};
+
+#[cfg(feature = "python")]
 /// Immutable snapshot of the board at a pipeline point.
 ///
 /// Cloning is cheap for the `Py<PyAny>` fields (a reference-count bump);
@@ -33,14 +36,17 @@ pub struct BoardState {
     // ---- Already-migrated or trivial types ----
     pub net_order: Vec<String>,
 
+    // ---- Tier-1 (U-A): downcast-only fields -- the Python value is already
+    // ---- a temper-design-bundle pyclass, so these hold the concrete type.
+    pub board: Option<pyo3::Py<Board>>,
+    pub netlist: Option<pyo3::Py<Netlist>>,
+    pub loops: Option<pyo3::Py<LoopCollection>>,
+    pub design_rules: Option<pyo3::Py<DesignRules>>,
+
     // ---- Marshalling-pending (Phase A): `Py<PyAny>` ----
-    pub board: Option<pyo3::Py<PyAny>>,
-    pub netlist: Option<pyo3::Py<PyAny>>,
-    pub loops: Option<pyo3::Py<PyAny>>,
     pub grid: Option<pyo3::Py<PyAny>>,
     pub drc_oracle: Option<pyo3::Py<PyAny>>,
     pub drc_violations: Option<pyo3::Py<PyAny>>,
-    pub design_rules: Option<pyo3::Py<PyAny>>,
     pub connectivity_violations: Option<pyo3::Py<PyAny>>,
     pub placement_violations: Option<pyo3::Py<PyAny>>,
     pub placements: Option<pyo3::Py<PyAny>>,    // frozenset of placements
