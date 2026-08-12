@@ -52,25 +52,111 @@ use pumpkin_solver::Solver;
 /// `packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_solve.py`.
 const SCALE: f64 = 100.0;
 
-/// Mirrors `CpSatModel.mm_to_units` / `temper-constraints`'s
-/// `encoder.rs::mm_to_units` bit-exactly: round-half-even, THEN force even
-/// parity (floor-modulo, so a negative odd raw decrements by one).
+/// Round-half-even, THEN force even parity by rounding UP to the next even
+/// integer (ceil-to-even), not down.
 ///
-/// This is not optional cosmetic parity: it is REQUIRED by this program's
-/// own `2*cx = 2*x0 + w` midpoint identity (the direct analogue of the real
-/// encoder's `x_start + x_end == 2*x_center`) -- an odd `w` or `h` makes
-/// that equation unsatisfiable over the integers, which silently turns
-/// "component has an odd-hundredth-of-a-mm footprint dimension" into a
-/// trivial, whole-model UNSAT with no relation to any PCL constraint.
-/// Caught empirically: the `full-board` corpus reported `infeasible` in
-/// ~30ms even with EVERY PCL constraint stripped (board bounds only) until
-/// this fix landed -- see docs/evidence/2026-08-07-pumpkin-equivalence-run.py's
-/// git history / commit message for the bisection that found it.
+/// Started as a bit-exact port of `CpSatModel.mm_to_units` /
+/// `temper-constraints`'s `encoder.rs::mm_to_units` (round-half-even, then
+/// floor-modulo so an odd raw DECREMENTS by one). That direction is wrong
+/// for this harness's purpose: decrementing shrinks the encoded quantity
+/// below its true mm value, and for a component's `w0`/`h0` that means the
+/// encoded box is smaller than the real footprint -- every SEPARATED
+/// constraint on that component is then satisfiable at up to ~2x the
+/// per-dimension shrink (both boxes in the pair can shrink) under its
+/// declared minimum separation. Confirmed empirically on the real board
+/// (`pcb/temper.kicad_pcb`, 169 components): exactly 6 of the 338
+/// `w0`/`h0` dimensions hit the odd-raw branch, shrinking by up to
+/// 0.010282mm each (e.g. `C2`'s 30.130282mm width raw-rounds to 3013,
+/// odd, and used to decrement to 3012 = 30.12mm). The same sweep found
+/// every OTHER `to_units` call site on that board (board bounds, edge
+/// margin, SEPARATED/ADJACENT/ALIGNED distances, zone bounds) never hits
+/// the odd-raw branch at all, so rounding up here has no observed effect
+/// beyond the 6 component-size dimensions it exists to fix.
+///
+/// The even-parity requirement itself is NOT optional cosmetic parity: it
+/// is REQUIRED by this program's own `2*cx = 2*x0 + w` midpoint identity
+/// (the direct analogue of the real encoder's `x_start + x_end ==
+/// 2*x_center`) -- an odd `w` or `h` makes that equation unsatisfiable over
+/// the integers, which silently turns "component has an odd-hundredth-of-
+/// a-mm footprint dimension" into a trivial, whole-model UNSAT with no
+/// relation to any PCL constraint. Caught empirically: the `full-board`
+/// corpus reported `infeasible` in ~30ms even with EVERY PCL constraint
+/// stripped (board bounds only) until parity-forcing landed -- see
+/// docs/evidence/2026-08-07-pumpkin-equivalence-run.py's git history /
+/// commit message for the bisection that found it. Ceiling to the next
+/// even integer preserves this exactly as well as flooring did (both
+/// produce an even result); only the direction of the +/-1-unit
+/// adjustment changed, so that regression is not reintroduced by this
+/// function rounding up instead of down (re-verified: the full-board
+/// corpus still solves, does not go infeasible).
+///
+/// Note this is a deliberate, bounded divergence from `CpSatModel.mm_to_units`
+/// for the ~6-in-338 affected dimensions: this harness's model and
+/// OR-Tools' production model are no longer bit-exact on those dimensions
+/// (Pumpkin's boxes are up to 0.01mm larger). Given the measured 6mm+
+/// isolation margins this operates over, and that ceiling only ever
+/// *tightens* a SEPARATED constraint (never loosens one), this cannot turn
+/// an OR-Tools SAT result into a spurious Pumpkin UNSAT-vs-SAT Tier-1
+/// disagreement at any margin this repo has actually measured -- but it is
+/// a real, intentional trade-off, not a hidden one.
 fn to_units(mm: f64) -> i32 {
     let scaled = mm * SCALE;
     let raw = scaled.round_ties_even() as i64;
     let rem = raw.rem_euclid(2);
-    (if rem != 0 { raw - rem } else { raw }) as i32
+    (if rem != 0 { raw + 1 } else { raw }) as i32
+}
+
+#[cfg(test)]
+mod to_units_tests {
+    use super::*;
+
+    /// The defect this function fixes: a component footprint dimension
+    /// that raw-rounds to an odd hundredth-of-a-mm must never be encoded
+    /// SMALLER than its nominal mm value. `C2`'s real board width
+    /// (30.130282mm) is the exact real-world case that motivated this fix.
+    #[test]
+    fn encoded_box_is_never_smaller_than_nominal() {
+        let cases = [30.130282_f64, 26.75, 33.65, 1.45, 9.49, 7.05];
+        for mm in cases {
+            let units = to_units(mm);
+            let encoded_mm = units as f64 / SCALE;
+            assert!(
+                encoded_mm >= mm,
+                "to_units({mm}) = {units} ({encoded_mm}mm) is smaller than nominal {mm}mm"
+            );
+        }
+    }
+
+    /// The parity invariant `to_units` exists to guarantee: every result
+    /// is even, so `2*cx = 2*x0 + w` stays satisfiable over the integers
+    /// for any `w`/`h` this function produces (see the doc comment above).
+    #[test]
+    fn result_is_always_even() {
+        let cases = [0.0_f64, 0.01, 0.02, 1.45, 9.49, 30.130282, -1.45, -0.01];
+        for mm in cases {
+            let units = to_units(mm);
+            assert_eq!(units.rem_euclid(2), 0, "to_units({mm}) = {units} is odd");
+        }
+    }
+
+    /// Values that already round to an even raw are passed through
+    /// unchanged (no unnecessary +1).
+    #[test]
+    fn even_raw_passes_through_unchanged() {
+        assert_eq!(to_units(10.0), 1000);
+        assert_eq!(to_units(0.02), 2);
+    }
+
+    /// Odd-raw values round UP (ceil) to the next even unit, not down.
+    #[test]
+    fn odd_raw_rounds_up_not_down() {
+        // 30.130282mm -> scaled 3013.0282 -> raw 3013 (odd) -> 3014, i.e.
+        // 30.14mm: at or above nominal, never 30.12mm (below nominal).
+        assert_eq!(to_units(30.130282), 3014);
+        // 0.01mm -> raw 1 (odd) -> 2, i.e. 0.02mm, not 0 (which would be
+        // BELOW nominal and, for a component size, zero-width).
+        assert_eq!(to_units(0.01), 2);
+    }
 }
 
 fn to_mm(units: i32) -> f64 {
