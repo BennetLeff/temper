@@ -2484,10 +2484,12 @@ scripts:
   purpose: 'Hard gate on a placed-and-routed board before it may be landed as pcb/temper.kicad_pcb
     -- anti-#1049 invariant (segments > 0 AND zones > 0 AND footprints == 168, absolute)
     plus a tolerance-bounded baseline-agreement check against the verified recipe
-    baseline (docs/evidence/2026-08-12-board-recipe-reproducibility.md sec 6). Not
-    currently invoked by any workflow step -- a manual/CLI check run as part of the
-    board-landing review, not (yet) CI-wired; board-landing track, not this PR''s
-    cluster (2026-08-12 hygiene paydown: manifest entry only).'
+    baseline, loaded from scripts/board_shape_baseline.json (2,514/22/76/168,
+    pinned-engine + corrected-write-path re-measurement -- see that file''s _march
+    log; the previously hardcoded 3,349/56/70 baseline, and four other values before
+    it, were all void). Not currently invoked by any workflow step -- a manual/CLI
+    check run as part of the board-landing review, not (yet) CI-wired; board-landing
+    track, not this PR''s cluster (2026-08-12 hygiene paydown: manifest entry only).'
   owner: board-landing
   last_run: '2026-08-12'
   category: keep
@@ -2495,6 +2497,7 @@ scripts:
   imports:
   - __future__
   - argparse
+  - json
   - pathlib
   - re
   - sys

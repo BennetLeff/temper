@@ -18,6 +18,21 @@ equal) and a freshly regenerated pcb/temper.kicad_dru
 
 # The `clearance` regression is real, reproduces almost exactly (+113/+113), is 96%+ track/pad-vs-copper (not pad-vs-pad placement crowding), is not a mains&lt;-&gt;SELV hazard, and is not a netclass-enforcement artifact
 
+> **CORRECTION (2026-08-12), added by the void-board-baseline purge task.** This document
+> cites two figures that are **VOID**: §1's fidelity table ("doc's reported value" 4,228
+> segments / 74 vias, PR #1050) and §6/Sources' "94->44" `SAF_HVL_001` cross-reference
+> (`docs/evidence/2026-08-12-hvlv-candidate-board-measurement.md`) -- both measured on an
+> unpinned `pumpkin_engine` build; see the correction notices on the two respective source
+> documents. True figures: segments/vias/zones baseline **2,514 / 22 / 76** (168
+> footprints); `SAF_HVL_001` **94 -> 74 (-21%)**, not 94 -> 44.
+> `scripts/board_shape_baseline.json` is the current source of truth. This document's own
+> primary finding -- that the `clearance` regression is routing-caused congestion, not
+> placement crowding, and not a mains<->SELV hazard (§2-7) -- was derived from this
+> document's own independently-regenerated candidate board (also, necessarily, an
+> unpinned-engine board, since this document predates #1060) and is **not re-verified
+> against the pinned-engine board** by this correction; it is reported as originally
+> measured, not silently re-scoped.
+
 **Verdict up front.** The +113 `clearance` regression (386/392 -> 499/505,
 depending on zone-refill state) reproduces almost exactly under an
 independent, from-scratch regeneration of the candidate board. It

@@ -2,6 +2,20 @@
 
 # Independent spike: the +113 `clearance` delta is essentially 100% real geometric regression, not newly-visible enforcement -- and PR #1051 could not have caused it either way
 
+> **CORRECTION (2026-08-12), added by the void-board-baseline purge task.** §"Honest
+> fidelity check" (segments target "4228", the "499/4228/66 headline figures") and the
+> background reference to "94->44" both cite figures that are **VOID** -- PR #1050's
+> 4,228/74 and `docs/evidence/2026-08-12-hvlv-candidate-board-measurement.md`'s 94->44,
+> both measured on an unpinned `pumpkin_engine` build; see the correction notices on
+> those documents. True segments/vias/zones baseline: **2,514 / 22 / 76** (168
+> footprints); `SAF_HVL_001` **94 -> 74 (-21%)**. `scripts/board_shape_baseline.json` is
+> the current source of truth. This document's own headline finding (the `clearance`
+> delta is real geometric regression, not netclass-enforcement) was derived from this
+> document's own independently-built candidate board -- also, necessarily, an
+> unpinned-engine board, since this document predates #1060 -- and is reported as
+> originally measured, not re-verified against the pinned-engine board by this
+> correction.
+
 **Verdict up front.** I built my own independent candidate board from scratch
 (reconciliation -> Pumpkin placement -> `route_board.py --net-batching`,
 methodology below) and ran the decisive 2x2 the task asked for, redefined

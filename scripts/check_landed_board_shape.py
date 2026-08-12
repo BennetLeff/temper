@@ -18,15 +18,33 @@ board file itself, not on a report *about* the board:
      A board that fails this is not a routed board, whatever else is true of it.
 
   2. **Baseline-agreement check** (tolerance-bounded): segments / vias / zones
-     must land within ``--tolerance-pct`` of the verified recipe baseline
-     (3,349 / 56 / 70), so a board that is *nonzero* but bears no relation to
-     what the documented recipe produces also stops here.
+     must land within ``--tolerance-pct`` of the verified recipe baseline in
+     ``scripts/board_shape_baseline.json``, so a board that is *nonzero* but
+     bears no relation to what the documented recipe produces also stops here.
 
-The verified baseline comes from
-``docs/evidence/2026-08-12-board-recipe-reproducibility.md`` sec 6, which
-established it five independent ways on a fixed commit and fixed inputs.
-**PR #1050's 4,228 segments / 74 vias does not reproduce and is not the
-baseline** -- see sec 5-6 of that document.
+BASELINE PROVENANCE -- this constant moved out of this file on purpose.
+------------------------------------------------------------------------
+The board-shape baseline used to be a hardcoded dict here (``VERIFIED_BASELINE
+= {"segments": 3349, "vias": 56, "zones": 70}``). That number was wrong -- it
+was measured against an unpinned, untracked ``pumpkin_engine`` build, not
+reproducible from any binary anyone could later identify -- and it kept
+company with FOUR other wrong numbers before it (4,228/74/66; 3,314/40/58;
+4,140/70/66; 3,505/26/76 -- the last two additionally written 20mm off the
+board outline by a write-path bug). Every one of those looked like "the
+baseline" when it was written down. A constant living in a script is exactly
+how that kind of drift goes unnoticed: nothing forces whoever regenerates the
+board to also touch this file, and a stale number silently keeps passing (or
+silently starts rejecting everything) with no diff to review.
+
+The baseline now lives in ``scripts/board_shape_baseline.json``, alongside a
+``_march`` log of every value it has held and why each one was replaced --
+the same pattern ``power_pcb_dataset/drc_ceiling.json`` already uses for the
+DRC error ceiling. Updating the baseline is a data change with a paper trail,
+not a code change that has to be spotted in a diff. This does not, by itself,
+stop the baseline from going stale the moment the recipe or its engine
+changes again -- only re-running the recipe and updating the JSON does that
+-- but it does mean the next correction leaves a record instead of silently
+overwriting the last one.
 
 Counting is by the SAME cheap-regex method
 ``tests/placer/cp_sat/test_regression_drc.py::_board_shape`` uses, so this
@@ -42,14 +60,26 @@ Exit status: 0 = may land, 1 = MUST NOT land.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+BASELINE_PATH = Path(__file__).resolve().parent / "board_shape_baseline.json"
 
-# docs/evidence/2026-08-12-board-recipe-reproducibility.md sec 6.
-VERIFIED_BASELINE = {"footprints": 168, "segments": 3349, "vias": 56, "zones": 70}
+
+def _load_verified_baseline() -> dict[str, int]:
+    """Load the current board-shape baseline from its JSON sidecar.
+
+    See ``scripts/board_shape_baseline.json``'s own ``_march`` log for the
+    five prior values this one replaced and why each was wrong.
+    """
+    data = json.loads(BASELINE_PATH.read_text(encoding="utf-8"))
+    return data["baseline"]
+
+
+VERIFIED_BASELINE = _load_verified_baseline()
 REQUIRED_FOOTPRINTS = 168
 DEFAULT_TOLERANCE_PCT = 5.0
 
@@ -98,7 +128,12 @@ def main() -> int:
             failures.append(f"{name} ({detail})")
 
     # ---- Gate 2: agreement with the verified baseline ---------------------
-    print("\nGATE 2 -- agreement with the verified recipe baseline (3,349 / 56 / 70)")
+    baseline_str = (
+        f"{VERIFIED_BASELINE['segments']} / {VERIFIED_BASELINE['vias']} / "
+        f"{VERIFIED_BASELINE['zones']}"
+    )
+    print(f"\nGATE 2 -- agreement with the verified recipe baseline ({baseline_str}, "
+          f"see scripts/board_shape_baseline.json)")
     print(f"  {'metric':<12}{'measured':>10}{'baseline':>10}{'delta':>9}{'delta%':>9}   verdict")
     for key in ("segments", "vias", "zones"):
         got, want = shape[key], VERIFIED_BASELINE[key]
