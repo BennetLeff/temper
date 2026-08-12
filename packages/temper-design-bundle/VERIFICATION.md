@@ -4220,7 +4220,68 @@ silently diverge:
   tests; borrow-over-clone throughout; clippy-clean.
 - R1h: not applicable — no physics-gated quantity (recorded N/A).
 
-# SubNetEdge + NetGraph + DifferentialPairConstraint — Verification by Induction (Wave C)
+# Wave 4 Phase 5 — `_phase_core` residual leaves (`deterministic_phase.rs`)
+
+The three remaining `_PhaseCoreMixin` arithmetic helpers that the D5 batch did
+not move (`deterministic/stages/_phase_core.py` →
+`_get_footprint_radius` / `_reserve_slots` / `_distance`) land in
+`deterministic_phase.rs`, registered as `footprint_radius_py` /
+`reserve_slots_py` / `distance_py` under the existing
+`temper_design_bundle_python.deterministic_phase` submodule. The Python
+methods become delegation shims; the `hasattr(component, "bounds") and
+component.bounds` guard and the `used_slots` set mutation stay Python and are
+not part of the oracle. The pre-migration bodies are pinned VERBATIM in
+`tests/deterministic/stages/_phase_core_py_oracle.py`.
+
+## Structural proof (bit-identical parity)
+
+1. **`w ** 2` is exact int pow for int bounds, libm `pow` for float bounds.**
+   `footprint_radius` carries each dimension's int/float type (`FootprintBounds`)
+   and squares via `sq_dim` — `(i * i) as f64` for ints (exact, widened to
+   float at the sum) and `host_math::pow(v, 2.0)` for floats. The two differ in
+   the last ulp on a measurable operand class, mirroring
+   `deterministic_leaves`' component-assignment `Bounds`/`sq_dim`. The
+   `test_footprint_radius_mixed_int_float_bounds` differential pins both paths.
+2. **`math.sqrt` is libm `sqrt`**, resolved through `host_math::sqrt`
+   (dlsym), never the Rust intrinsic. `footprint_radius` closes
+   `sqrt(w2 + h2) / 2.0 + 1.0`; `reserve_slots`/`distance` close
+   `sqrt(pow(dx, 2.0) + pow(dy, 2.0))`.
+3. **`reserve_slots` distance test is inclusive `<= radius`** — a slot exactly
+   at the radius is reserved (`test_reserve_slots_inclusive_boundary`). The
+   result preserves `all_slots` order (the D5 `frozenset` write is
+   order-insensitive, but the differential still pins order).
+
+## Marshaler coercion pins
+
+- `footprint_radius_py` accepts `bounds` as a 2-element sequence (int or float
+  elements) or `None`; the `hasattr`/truthiness guard that decides which stays
+  in the shim. The int/float element type is read at the boundary
+  (`is_instance_of::<PyInt>()`).
+- `reserve_slots_py` extracts slot coordinates index-wise (tuple OR list),
+  matching the oracle's `sx, sy = slot` unpack.
+
+## Evidence
+
+- Differential (R1a): `test_phase_core_rust_differential.py` — bit-exact
+  `canon` equality against the verbatim oracle, covering float/int/mixed-int
+  bounds, the no-bounds fallback, the inclusive boundary, the negative-radius
+  case and randomized fuzzing.
+- PBT (R1c/R1d): `test_phase_core_pbt.py` — 6 non-vacuous properties
+  (footprint shape `>= 1.0`, no-bounds fallback, monotonicity in bounds
+  magnitude, reservation subset, distance non-negativity/self-zero,
+  determinism) + 3 metamorphic relations (distance symmetry, footprint axis
+  swap, reservation radius monotonicity). The two symmetry MRs are bit-exact
+  (`pow` is even in the exponent; addition is commutative).
+- Rust unit tests: `deterministic_phase.rs::tests` (`footprint_radius_*`,
+  `reserve_slots_*`, `distance_matches_pythagorean`).
+- R1g: `guard` (catch_unwind) at every pyo3 boundary; no `unwrap`/`expect`
+  outside tests; clippy-clean.
+- The D5 stage differential (`test_deterministic_d5_rust_differential.py`)
+  re-verifies `footprint_radius` through the full orchestration chain (the
+  `auto`/`template`/`proximity` phases call `_get_footprint_radius` on every
+  reservation), so the kernel is bit-exact against the D5 oracle end-to-end.
+
+
 
 ## Structural Proof
 
