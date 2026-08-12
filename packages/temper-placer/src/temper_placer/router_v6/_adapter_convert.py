@@ -40,12 +40,13 @@ from temper_placer.router_v6._zone_pour_stitch import (  # noqa: F401
 # Phase E batch E6 (Rust Orchestration Engine plan 2026-08-09-001): the
 # portable adapter orchestration — ``_next_tstamp`` (the deterministic UUIDv5
 # tstamp sequence), ``_to_stage0_netclass_rules`` (the netclass SSOT->stage0
-# conversion boundary) and ``_write_routes_to_content``'s segment/via
+# conversion boundary), ``_write_routes_to_content``'s segment/via
 # emission core (the collinear-step merge + ``(segment ...)``/``(via ...)``
-# rendering with the shared tstamp counter) — moved to ``temper-orchestration``'s
-# ``pipeline_route.rs``; this module keeps its public API as a thin FFI
-# delegation. What stays Python (the E6 boundary): ``route_pcb`` /
-# ``_build_routing_result`` / ``_apply_placements_to_pcb`` /
+# rendering with the shared tstamp counter) and ``_summarize_batch_results``
+# (the ``batch_results`` -> summary-dict reduction) — moved to
+# ``temper-orchestration``'s ``pipeline_route.rs``; this module keeps its
+# public API as a thin FFI delegation. What stays Python (the E6 boundary):
+# ``route_pcb`` / ``_build_routing_result`` / ``_apply_placements_to_pcb`` /
 # ``_reorient_pads_in_footprint_block`` — the pipeline-invocation glue, the
 # failure-extraction assembly and the ``re``-based s-expression text rewriting
 # (no regex engine in the crate; the PAD-AT rewrite is a Perl-5-flavoured
@@ -56,7 +57,30 @@ from temper_placer.router_v6._zone_pour_stitch import (  # noqa: F401
 # single-source; the Rust core is driven per compiled route so the shared
 # tstamp counter's increment order stays byte-identical. The oracle is pinned
 # verbatim as ``tests/router_v6/_adapter_convert_py_oracle.py`` (content-hash
-# registered in ``scripts/oracle_hashes.json``).
+# registered in ``scripts/oracle_hashes.json``); ``_summarize_batch_results``'s
+# oracle is pinned inline in
+# ``tests/router_v6/test_adapter_convert_rust_differential.py``.
+#
+# Residual decision record (R3, see docs/wave4-discipline-contract.md §3):
+# - ``_reorient_pads_in_footprint_block``: product-runtime → JUSTIFIED-KEEP —
+#   a CPython-``re`` s-expression rewrite (B9 divergence class: the crate has
+#   no Perl-5 regex engine and Rust's `regex` is RE2-style), whose float
+#   ``% 360.0`` / ``float()`` parse / ``:.4f`` render would all still round-trip
+#   through CPython -- a net-zero win with real divergence risk. Remedy named
+#   for re-openability: a hand-rolled pad-AT parser (or a KiCad s-expr emitter
+#   crate) IF the footprint-writing path is ever reworked. (LOC: ~21; consumers:
+#   1 — ``_apply_placements_to_pcb``; deps: re; churn: low)
+# - ``_apply_placements_to_pcb``: product-runtime → JUSTIFIED-KEEP — regex-based
+#   footprint text surgery + the rotation/netclass-form-injection orchestration
+#   (``rotate_local_to_world`` already Rust-backed; the ``re`` walks and the
+#   duck-typed ``design_rules.net_classes`` read stay Python). (LOC: ~224;
+#   consumers: 1 — ``route_pcb``, plus 5 test files; deps: re, math,
+#   kicad_transform; churn: high — 2026-08-11 board-origin fix)
+# - ``route_pcb`` / ``_build_routing_result`` / ``_write_routes_to_content``
+#   (remaining body): product-runtime → JUSTIFIED-KEEP — pipeline invocation,
+#   ``tempfile``/subprocess boundary, duck-typed result walks, and the Python
+#   single-source callbacks (``_chamfer_path_points``, ``_emit_zone_pours``,
+#   ``strip_existing_zones``, ``connectivity_preflight``).
 
 logger = logging.getLogger(__name__)
 
@@ -815,36 +839,18 @@ def _summarize_batch_results(batch_results: list[Any] | None) -> dict[str, Any]:
     was not used (``batch_results`` empty/None) -- distinct from a
     populated dict with zero crashes, so a caller can tell "net-batching
     off" from "net-batching on, nothing degraded."
+
+    Phase E E6 follow-on: the reduction moved to
+    ``temper_orchestration.pipeline_route::run_summarize_batch_results`` (the
+    shim passes the ``batch_results`` list itself; the Rust core walks the
+    duck-typed attributes through CPython ``getattr`` and the
+    ``"timed out" in ...`` substring test through ``str.__contains__`` so the
+    summary stays bit-identical). The pre-migration body is pinned verbatim
+    as the inline ``_oracle_summarize_batch_results`` in
+    ``tests/router_v6/test_adapter_convert_rust_differential.py``
+    (content-addressed by its body SHA-256).
     """
-    if not batch_results:
-        return {}
-
-    n_batches = len(batch_results)
-    crashed = [b for b in batch_results if getattr(b, "batch_crashed", False)]
-    timed_out = [
-        b for b in crashed if "timed out" in (getattr(b, "crash_reason", None) or "")
-    ]
-    other_crash = [b for b in crashed if b not in timed_out]
-    singleton_retried = [b for b in batch_results if getattr(b, "retried_singleton_nets", None)]
-    n_singleton_retried_nets = sum(len(b.retried_singleton_nets) for b in singleton_retried)
-    n_crashed_singleton_nets = sum(len(getattr(b, "crashed_nets", None) or []) for b in batch_results)
-    all_failed_nets = sorted({n for b in batch_results for n in (getattr(b, "failed_nets", None) or [])})
-
-    return {
-        "n_batches": n_batches,
-        "n_batches_solved_at_batch_level": sum(
-            1 for b in batch_results if getattr(b, "solved_at_batch_level", False)
-        ),
-        "n_batches_crashed": len(crashed),
-        "n_batches_timed_out": len(timed_out),
-        "timed_out_batch_indices": [getattr(b, "batch_index", -1) for b in timed_out],
-        "n_batches_crashed_other_reason": len(other_crash),
-        "other_crash_reasons": [getattr(b, "crash_reason", None) for b in other_crash],
-        "n_nets_singleton_retried": n_singleton_retried_nets,
-        "n_nets_crashed_at_singleton_too": n_crashed_singleton_nets,
-        "n_nets_no_topology": len(all_failed_nets),
-        "nets_no_topology": all_failed_nets,
-    }
+    return _to.run_summarize_batch_results(batch_results)
 
 
 # A .kicad_pcb pad's `(at x y angle)` angle is its ABSOLUTE (world)
