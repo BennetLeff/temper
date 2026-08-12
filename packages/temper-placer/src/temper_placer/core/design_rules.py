@@ -269,18 +269,27 @@ TEMPER_NET_CLASSES = {
     # power_pcb_dataset/drc_ceiling.json, because it is the bus/relay/rectifier
     # nets -- at most 400 V -- that are packed tight, not the tank node.
     #
-    # WHY 6.3mm: IEC 60335-1 Table 18 ("Minimum Creepage Distances for
-    # FUNCTIONAL Insulation", clauses 29.2.4 and L-2), band >500 and <=800 V,
-    # material group IIIa/IIIb, pollution degree 2 = 6.3mm. Table 18 is the
-    # correct table for this pair (functional, not basic, insulation) and above
-    # 500 V it is numerically IDENTICAL to Table 17 -- the functional-insulation
-    # concession that exists in rows i-v is gone by row vi. Full transcription
-    # and the clause-29.2.4 exemption analysis:
+    # WHY 10.0mm (PD3, was PD2/6.3mm until 2026-08-12): IEC 60335-1 Table 18
+    # ("Minimum Creepage Distances for FUNCTIONAL Insulation", clauses 29.2.4
+    # and L-2), band >500 and <=800 V, material group IIIa/IIIb. Table 18 is
+    # the correct table for this pair (functional, not basic, insulation) and
+    # above 500 V it is numerically IDENTICAL to Table 17 -- the functional-
+    # insulation concession that exists in rows i-v is gone by row vi. Full
+    # transcription and the clause-29.2.4 exemption analysis:
     # docs/evidence/2026-08-12-hv-hv-creepage-determination.md sec 3.1-3.3.
-    # PD2 is the repo's selected pollution degree
-    # (docs/evidence/2026-08-11-pd2-decision-record.md D1; PD3 would be 10.0mm,
-    # and that record's own sec 2 notes PD3 governs the as-built construction
-    # until the sealed compartment lands -- so 6.3mm is a FLOOR, not a ceiling).
+    #
+    # POLLUTION DEGREE: PD2 (6.3mm) was the repo's originally selected target
+    # (docs/evidence/2026-08-11-pd2-decision-record.md D1), but that record's
+    # own sec 2 records PD2 as conditional on a sealed compartment that DOES
+    # NOT EXIST, and names PD3/10.0mm as governing "the as-built construction
+    # today". Switched to PD3 2026-08-12
+    # (docs/evidence/2026-08-12-router-tank-creepage.md) so the figure the
+    # router is taught, the figure kicad-cli's `.kicad_dru` enforces
+    # (scripts/generate_kicad_dru.py's HV_TANK_CREEPAGE_ENFORCED_MM,
+    # `_TANK_POLLUTION_DEGREE = "PD3"`), and the figure this netclass records
+    # all agree on the as-built-governing number rather than an aspirational
+    # one. Revert is a one-line change in both places if the enclosure
+    # prerequisite is ever actually built.
     #
     # `clearance` is deliberately IDENTICAL to `HighVoltage`'s 2.0mm:
     # docs/evidence/2026-08-12-hv-clearance-adequacy.md settled that 2.0mm is
@@ -295,7 +304,7 @@ TEMPER_NET_CLASSES = {
         via_drill=0.6,
         via_template="Via3x3",
         voltage_v=923.7,
-        creepage_mm=6.3,
+        creepage_mm=10.0,
         routing_strategy="plane_required",
         dru_priority=21,
         required_layer="B.Cu",
