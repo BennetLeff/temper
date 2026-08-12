@@ -9,7 +9,7 @@ board (unit U4 wiring).
 import pytest
 
 from temper_placer.core.netlist import Component, Netlist
-from temper_placer.io.config_board_binding import (
+from temper_io_types import (
     ConfigBoardMismatchError,
     extract_config_refs,
     verify_config_matches_netlist,

@@ -13,7 +13,7 @@ from temper_placer.core.ipc2152 import (
     ipc2152_min_width,
     ipc2152_min_width_mm,
 )
-from temper_placer.core.stackup import jlc04161h_7628
+from temper_design_bundle_python import jlc04161h_7628
 
 # ---------------------------------------------------------------------------
 # ipc2152_min_width_mm — core inverse ampacity
