@@ -149,32 +149,60 @@ opting out of PROPERTY 3, not silently passing it (see
 ``TestPropertyThreeAndFour`` in the test file for the anti-vacuity check
 that PROPERTY 3 really does evaluate against the live repo).
 
-PROPERTY 4 -- the same shape for SELV, plus board-wide ghost assignments (INFORMATIONAL)
+PROPERTY 4 -- the same shape for SELV (BLOCKING as of docs/evidence/
+2026-08-12-selv-net-assignment.md)
 -------------------------------------------------------------------------------------
-Reported, never gates the exit code. Two reasons this is informational and
-PROPERTY 3 is not:
+Originally informational (see git history for the rationale as it stood
+before the SELV sweep was actually fixed): an SELV-domain net left
+unassigned still falls to ``Default`` (0.2mm), but KiCad DRC takes the MAX
+of the two nets' netclass figures for any pair -- so an HV<->SELV crossing
+stays protected as long as the HV side carries a real class (evidence doc
+Sec 6.3). The acute hazard is specifically an unassigned or misclassed net
+on the HV side; an unassigned SELV net is the same defect *shape* but not
+the same severity. That severity argument justified reporting-only while
+the 20-net SELV gap was still open and undecided (deferring 20 real net
+classification calls to a human, per this project's own conservative
+convention for ambiguous safety-adjacent nets).
 
-  - An SELV-domain net left unassigned still falls to ``Default`` (0.2mm),
-    but KiCad DRC takes the MAX of the two nets' netclass figures for any
-    pair -- so an HV<->SELV crossing stays protected as long as the HV side
-    carries a real class (evidence doc Sec 6.3). The acute hazard is
-    specifically an unassigned or misclassed net on the HV side; an
-    unassigned SELV net is the same defect *shape* but not the same
-    severity, and is reported for completeness rather than gated.
-  - ``pcb/temper.kicad_pro`` carries ~37 pre-existing "ghost" assignments
-    (dead net names from an earlier schematic revision, e.g. ``AC_L``/
-    ``SWITCH_NODE``/``RTD_CS`` alongside the real, differently-spelled
-    ``ac_l``/``SW_NODE``/``RTD_CS_N``) that
-    ``scripts/sync_kicad_netclass_assignments.py``'s own docstring
-    documents as deliberately, permanently kept ("It never removes an
-    existing kicad_pro entry, even one that names a net no longer present
-    on the board"). Gating on their presence would make this property
-    permanently red for a defect nobody introduced and this task was not
-    asked to clean up. Reported under ``report.ghost_kicad_pro_assignments``
-    for visibility (this is the "every assignment naming a net that does
-    not exist on the board" count the evidence doc's sweep reports),
-    computed once across ALL of ``kicad_pro``'s assignments, not scoped to
-    either domain.
+It does not justify staying informational forever: PROPERTY 4's own
+sub-checks (3a/3b/3c's SELV mirror -- off-board, unassigned-in-kicad_pro,
+wrong-safety-category) are the SAME shape as PROPERTY 3's, just scoped to
+``SELV`` instead of ``HV``, and once every SELV-domain net actually has a
+real, correct ``kicad_pro`` assignment (docs/evidence/
+2026-08-12-selv-net-assignment.md) there is nothing left excusing a
+regression here from silently reappearing unnoticed. Promoted to BLOCKING
+by that evidence doc, mirroring PROPERTY 3 exactly:
+
+  4a. Every SELV-domain net must exist as a real, literal net name in
+      ``pcb/temper.kicad_pcb`` (shared ``parse_board_net_names``).
+  4b. Every SELV-domain net must have an entry in ``pcb/temper.kicad_pro``'s
+      ``net_settings.netclass_assignments``. Catches the ``gnd`` shape (the
+      board's own largest net, 86 pads, was unassigned until the evidence
+      doc above).
+  4c. Every SELV-domain net that DOES have a ``kicad_pro`` assignment must
+      resolve, via that class's ``safety_category``, to ``"LV"`` -- never
+      an HV/AC-only class (the inverse of 3c).
+
+PROPERTY 5 -- board-wide ghost assignments (INFORMATIONAL, permanently)
+-------------------------------------------------------------------------------------
+Reported, never gates the exit code, and this one is NOT a candidate for
+promotion (unlike PROPERTY 4 above) because the condition it reports is
+permanent and deliberate, not a bug awaiting a fix: ``pcb/temper.kicad_pro``
+carries ~37 pre-existing "ghost" assignments (dead net names from an
+earlier schematic revision, e.g. ``AC_L``/``SWITCH_NODE``/``RTD_CS``
+alongside the real, differently-spelled ``ac_l``/``SW_NODE``/``RTD_CS_N``)
+that ``scripts/sync_kicad_netclass_assignments.py``'s own docstring
+documents as deliberately, permanently kept ("It never removes an existing
+kicad_pro entry, even one that names a net no longer present on the
+board"). Gating on their presence would make this property permanently red
+for a defect nobody introduced and no task has ever been asked to clean
+up -- promoting it would require first deciding to delete or rename those
+37 entries, a separate, larger, explicitly out-of-scope decision (see
+docs/evidence/2026-08-12-selv-net-assignment.md Sec on PROPERTY 4/5).
+Reported under ``report.ghost_kicad_pro_assignments`` for visibility (this
+is the "every assignment naming a net that does not exist on the board"
+count the evidence docs' sweeps report), computed once across ALL of
+``kicad_pro``'s assignments, not scoped to either domain.
 
 Fail-closed contract (this repo's gate-family convention -- see
 ``check_domain_partition.py``, ``check_net_classification.py``): this
@@ -197,13 +225,15 @@ real, fresh data. It exits non-zero for every one of:
 Exit codes:
   0 - PASSED: every manifest-HV net has a netclass, every declared
       netclass has at least one positive rule in the generated DRU output,
-      and (when PROPERTY 3 is applicable) every HV-domain net exists on
-      the real board, has a real ``kicad_pro`` netclass assignment, and
-      that assignment's safety_category is HV/AC
+      and (when PROPERTY 3/4 are applicable) every HV- and SELV-domain net
+      exists on the real board, has a real ``kicad_pro`` netclass
+      assignment, and that assignment's safety_category matches its domain
   3 - VIOLATION: at least one manifest-HV net has no netclass, at least
       one declared netclass has zero positive rules, or (PROPERTY 3) at
       least one HV-domain net is off-board, unassigned in
-      ``kicad_pro``, or assigned an LV-safe class
+      ``kicad_pro``, or assigned an LV-safe class, or (PROPERTY 4) at
+      least one SELV-domain net is off-board, unassigned in
+      ``kicad_pro``, or assigned an HV/AC-only class
   5 - GATE ERROR: the gate could not run a trustworthy check at all (see
       list above) -- never conflated with "0 violations"
 
@@ -311,7 +341,7 @@ def load_hv_nets(manifest_path: Path) -> list[str]:
 def load_selv_nets(manifest_path: Path) -> list[str]:
     """Return the exact list of net names declared under
     ``elec/domain_manifest.yaml``'s ``SELV`` domain. See
-    ``load_domain_nets``. Used only by PROPERTY 4 (informational)."""
+    ``load_domain_nets``. Used by PROPERTY 4 (BLOCKING)."""
     return load_domain_nets(manifest_path, "SELV")
 
 
@@ -618,7 +648,7 @@ def check_ghost_kicad_pro_assignments(
 ) -> list[str]:
     """Return the sorted list of EVERY ``kicad_pro`` netclass_assignments
     key (not scoped to either domain) naming a net absent from the real
-    board -- informational only, see the module docstring's PROPERTY 4
+    board -- informational only, see the module docstring's PROPERTY 5
     section for why this does not gate."""
     return sorted(n for n in kicad_pro_assignments if n not in board_nets)
 
@@ -641,11 +671,14 @@ class Report:
     hv_domain_nets_off_board: list[str] = field(default_factory=list)
     hv_domain_nets_unassigned_in_kicad_pro: list[str] = field(default_factory=list)
     hv_domain_class_safety_mismatches: list[str] = field(default_factory=list)
-    # PROPERTY 4 (INFORMATIONAL, never gates) -- same shape for SELV, plus
-    # every kicad_pro assignment (either domain) naming an off-board net.
+    # PROPERTY 4 (BLOCKING as of docs/evidence/2026-08-12-selv-net-assignment.md)
+    # -- same shape as PROPERTY 3, scoped to SELV.
     selv_domain_nets_off_board: list[str] = field(default_factory=list)
     selv_domain_nets_unassigned_in_kicad_pro: list[str] = field(default_factory=list)
     selv_domain_class_safety_mismatches: list[str] = field(default_factory=list)
+    # PROPERTY 5 (INFORMATIONAL, never gates -- permanently, see module
+    # docstring) -- every kicad_pro assignment (either domain) naming an
+    # off-board net; the 37 deliberately-kept dead schematic-revision aliases.
     ghost_kicad_pro_assignments: list[str] = field(default_factory=list)
     kicad_pro_assignments_checked: int = 0
 
@@ -814,7 +847,8 @@ def run(
             hv_nets, kicad_pro_assignments, class_safety_category, _HV_ALLOWED_SAFETY_CATEGORIES
         )
 
-        # PROPERTY 4 -- SELV domain + board-wide ghosts, INFORMATIONAL.
+        # PROPERTY 4 -- SELV domain, BLOCKING (promoted docs/evidence/
+        # 2026-08-12-selv-net-assignment.md; mirrors PROPERTY 3 exactly).
         report.selv_domain_nets_off_board = check_domain_nets_on_board(selv_nets, board_nets)
         report.selv_domain_nets_unassigned_in_kicad_pro = check_domain_net_kicad_pro_coverage(
             selv_nets, kicad_pro_assignments
@@ -825,6 +859,8 @@ def run(
             class_safety_category,
             _SELV_ALLOWED_SAFETY_CATEGORIES,
         )
+        # PROPERTY 5 -- board-wide ghosts, INFORMATIONAL (permanently -- see
+        # module docstring; the 37 dead aliases are deliberate and kept).
         report.ghost_kicad_pro_assignments = check_ghost_kicad_pro_assignments(
             kicad_pro_assignments, board_nets
         )
@@ -835,6 +871,9 @@ def run(
         or report.hv_domain_nets_off_board
         or report.hv_domain_nets_unassigned_in_kicad_pro
         or report.hv_domain_class_safety_mismatches
+        or report.selv_domain_nets_off_board
+        or report.selv_domain_nets_unassigned_in_kicad_pro
+        or report.selv_domain_class_safety_mismatches
     ):
         return "violation", report
     return "clean", report
@@ -913,21 +952,29 @@ def _print_report(state: str, report: Report) -> None:
             print(f"    VIOLATION {msg}")
 
         print(
-            "\n=== PROPERTY 4 (INFORMATIONAL, non-blocking): SELV-domain sweep + "
-            "board-wide ghost assignments ==="
+            "\n=== PROPERTY 4 (BLOCKING): SELV-domain nets vs pcb/temper.kicad_pro's "
+            "REAL netclass_assignments ==="
         )
         print(f"  off-board SELV-domain nets: {len(report.selv_domain_nets_off_board)}")
         for net in report.selv_domain_nets_off_board:
-            print(f"    INFO net {net!r} (SELV domain) is not a real net on pcb/temper.kicad_pcb")
+            print(f"    VIOLATION net {net!r} (SELV domain) is not a real net on pcb/temper.kicad_pcb")
         print(
             f"  SELV-domain nets unassigned in kicad_pro: "
             f"{len(report.selv_domain_nets_unassigned_in_kicad_pro)}"
         )
         for net in report.selv_domain_nets_unassigned_in_kicad_pro:
-            print(f"    INFO net {net!r} (SELV domain) has no kicad_pro netclass assignment")
+            print(
+                f"    VIOLATION net {net!r} (SELV domain) has no kicad_pro netclass "
+                "assignment -- falls to Default (0.2mm)"
+            )
         print(f"  SELV wrong-safety-category assignments: {len(report.selv_domain_class_safety_mismatches)}")
         for msg in report.selv_domain_class_safety_mismatches:
-            print(f"    INFO {msg}")
+            print(f"    VIOLATION {msg}")
+
+        print(
+            "\n=== PROPERTY 5 (INFORMATIONAL, non-blocking, permanently): board-wide "
+            "ghost kicad_pro assignments ==="
+        )
         print(f"  ghost kicad_pro assignments (either domain): {len(report.ghost_kicad_pro_assignments)}")
         for net in report.ghost_kicad_pro_assignments[:10]:
             print(f"    INFO {net!r} has a kicad_pro netclass assignment but no real board net")
@@ -946,7 +993,12 @@ def _print_report(state: str, report: Report) -> None:
             f"{len(report.hv_domain_nets_unassigned_in_kicad_pro)} HV-domain net(s) "
             "unassigned in kicad_pro, "
             f"{len(report.hv_domain_class_safety_mismatches)} HV-domain class "
-            "safety-category mismatch(es) (PROPERTY 3)"
+            "safety-category mismatch(es) (PROPERTY 3), "
+            f"{len(report.selv_domain_nets_off_board)} off-board SELV-domain net(s), "
+            f"{len(report.selv_domain_nets_unassigned_in_kicad_pro)} SELV-domain net(s) "
+            "unassigned in kicad_pro, "
+            f"{len(report.selv_domain_class_safety_mismatches)} SELV-domain class "
+            "safety-category mismatch(es) (PROPERTY 4)"
         )
     else:
         print(
@@ -986,19 +1038,28 @@ def main() -> None:
                     f.write(f"- `{cls}`\n")
             f.write(
                 f"\n- PROPERTY 3/4 evaluated: {report.property3_evaluated}\n"
-                f"- HV-domain nets off-board: {len(report.hv_domain_nets_off_board)}\n"
-                f"- HV-domain nets unassigned in kicad_pro: "
+                f"- HV-domain nets off-board (PROPERTY 3): "
+                f"{len(report.hv_domain_nets_off_board)}\n"
+                f"- HV-domain nets unassigned in kicad_pro (PROPERTY 3): "
                 f"{len(report.hv_domain_nets_unassigned_in_kicad_pro)}\n"
-                f"- HV-domain class safety-category mismatches: "
+                f"- HV-domain class safety-category mismatches (PROPERTY 3): "
                 f"{len(report.hv_domain_class_safety_mismatches)}\n"
-                f"- (informational) SELV-domain nets unassigned in kicad_pro: "
+                f"- SELV-domain nets off-board (PROPERTY 4): "
+                f"{len(report.selv_domain_nets_off_board)}\n"
+                f"- SELV-domain nets unassigned in kicad_pro (PROPERTY 4): "
                 f"{len(report.selv_domain_nets_unassigned_in_kicad_pro)}\n"
-                f"- (informational) ghost kicad_pro assignments: "
+                f"- SELV-domain class safety-category mismatches (PROPERTY 4): "
+                f"{len(report.selv_domain_class_safety_mismatches)}\n"
+                f"- (informational, PROPERTY 5) ghost kicad_pro assignments: "
                 f"{len(report.ghost_kicad_pro_assignments)}\n"
             )
             if report.hv_domain_nets_unassigned_in_kicad_pro:
                 f.write("\nHV-domain nets unassigned in kicad_pro:\n")
                 for net in report.hv_domain_nets_unassigned_in_kicad_pro:
+                    f.write(f"- `{net}`\n")
+            if report.selv_domain_nets_unassigned_in_kicad_pro:
+                f.write("\nSELV-domain nets unassigned in kicad_pro:\n")
+                for net in report.selv_domain_nets_unassigned_in_kicad_pro:
                     f.write(f"- `{net}`\n")
 
     if state == "tool_error":
