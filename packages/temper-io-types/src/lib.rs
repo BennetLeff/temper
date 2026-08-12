@@ -16,7 +16,6 @@
 //                         connectivity JSON (via serde_json)
 //   - dsn_types:          DSN S-expression formatting (DsnArg/DsnExpressionData)
 //   - footprint_spec:     FootprintSpec (data only)
-//   - provenance:         Provenance + sha256_hex (via sha2)
 //   - config_binding:     extract_config_refs / missing-ref diff (via
 //                         serde_json::Value in place of PyDict/PyList/PyTuple)
 //
@@ -191,7 +190,6 @@ mod pymodule_def {
         m.add_class::<crate::dsn_types::PyDsnPath>()?;
         m.add_class::<crate::footprint_spec::PyFootprintSpec>()?;
         m.add_class::<crate::footprint_library::PyFootprintLibrary>()?;
-        m.add_class::<crate::provenance::PyProvenance>()?;
         m.add_class::<crate::reference_aliases::PyReferenceAliasManifest>()?;
 
         // Functions
@@ -225,7 +223,6 @@ mod pymodule_def {
             m
         )?)?;
         m.add_function(wrap_pyfunction!(crate::dsn_types::dsn_list, m)?)?;
-        m.add_function(wrap_pyfunction!(crate::provenance::sha256_hex_py, m)?)?;
         // Wave-4 tail-tooling — quarantine compute (testing/quarantine.py).
         m.add_function(wrap_pyfunction!(crate::quarantine::classify_error, m)?)?;
         m.add_function(wrap_pyfunction!(crate::quarantine::compute_stack_hash, m)?)?;

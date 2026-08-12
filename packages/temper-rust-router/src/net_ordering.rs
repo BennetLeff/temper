@@ -11,8 +11,9 @@
 //! Why this crate
 //! --------------
 //! `net_ordering`'s kernel is a total-order comparator over nets and loops,
-//! not geometry.  `temper-rust-router` already owns that domain -- `types.rs`
-//! carries nets and `loop_extractor/` carries loops -- and the differential's
+//! not geometry.  `temper-rust-router` already owns that domain --
+//! `types_py_bridge`/the core-crate types carry nets and `loop_extractor/`
+//! carries loops -- and the differential's
 //! adapter block names `temper_rust_router` as the migration target, so
 //! hosting the kernel here means the differential binds with **zero edits to
 //! the test file**.  `temper-geometry` (where cluster E points) is the wrong

@@ -19,12 +19,12 @@
 //! R1a signature. The Python-visible fields therefore hold the objects
 //! exactly as passed, and a parallel `RectData` carries the `f64` view
 //! that Rust consumers (and any future Rust-side geometry) read without
-//! crossing the boundary. [`PyRect::data`] is the accessor for that view.
+//! crossing the boundary. `RectData` was the accessor for that view.
 //!
 //! The `f64` view is lossy for an integer beyond 2^53. That does not
 //! affect any Python-visible behaviour (every dunder below goes through
 //! the stored objects); it is only a caveat for a Rust consumer, and is
-//! documented on [`PyRect::data`].
+//! documented on the removed `PyRect::data` bridge.
 //!
 //! # Known, measured API delta
 //!
