@@ -1,3 +1,9 @@
+// VENDORED VERBATIM from `spike/router-orchestration-rust` (PR #1064).
+// Copied onto `feat/constraint-model-rust-repr` unchanged; see
+// `2026-08-12-constraint-model-rust-representation.md` for how case (C)
+// relates to the landed representation (it measures no reverse index).
+//
+// provenance: commit=6b669db2a6ff3943954cc95e7f467429431fbf2e dirty=false
 // Counterfactual memory prototype for the router SAT model at production scale.
 // Mirrors temper-rust-router-core::types::InternalVariable and an interned
 // index-based alternative. Measures real RSS, not estimates.

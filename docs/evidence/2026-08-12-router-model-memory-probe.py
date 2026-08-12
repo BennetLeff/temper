@@ -1,3 +1,13 @@
+"""VENDORED VERBATIM from `spike/router-orchestration-rust` (PR #1064), where
+this probe was written and first measured. Copied onto
+`feat/constraint-model-rust-repr` unchanged so plan 2026-08-12-002 U1's
+before/after bytes-per-variable numbers are reproducible from that branch
+alone. See `2026-08-12-constraint-model-rust-representation.md` for the
+measurements, and `2026-08-12-router-model-memory-probe-distinct-keys.py`
+for why this probe's `net_channel_vars` is degenerate.
+
+provenance: commit=6b669db2a6ff3943954cc95e7f467429431fbf2e dirty=false
+"""
 import os, sys, gc
 import temper_design_bundle_python as t
 mb = t.model_builder
