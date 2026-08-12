@@ -417,6 +417,58 @@ fn main() {
                     }
                 }
             }
+            "bounded" => {
+                // 2026-08-11 board-sync-and-placement addition: a single
+                // one-sided linear bound on one component's own coordinate,
+                // `coord OP value_mm`. This is the exact wire-format
+                // primitive `isolation_barrier.add_isolation_barrier_to_model`
+                // needs and does not otherwise have here: that module (OR-Tools
+                // CpModel-coupled, not reusable against this binary directly)
+                // encodes the HV/SELV domain-only split as
+                // `end <= barrier_lo` / `start >= barrier_hi`, and the
+                // per-isolator pad-cluster straddle as
+                // `center + fixed_offset_mm <= barrier_lo` /
+                // `center + fixed_offset_mm >= barrier_hi` (fixed_offset_mm
+                // precomputed in Python from the isolator's real pad geometry
+                // and chosen rotation, via that module's own pure helpers --
+                // see docs/evidence/2026-08-11-board-sync-and-placement.md).
+                // None of "separated"/"adjacent"/"on_side"/"enclosing"/
+                // "keepout" express an arbitrary single-component one-sided
+                // bound at a caller-supplied constant with no other
+                // component or zone involved -- "on_side" is the closest
+                // but is fixed to the board's own edge, not an arbitrary
+                // interior constant like a barrier corridor position.
+                let comp = str_of(&c["component"]);
+                let coord = str_of(&c["coord"]);
+                let op = str_of(&c["op"]);
+                let value = to_units(f64_of(&c["value_mm"]));
+                if let Some(v) = vars.get(comp).copied() {
+                    let terms = match coord {
+                        "x_start" => vec![v.x0.scaled(1)],
+                        "x_end" => vec![v.x0.scaled(1), v.w.scaled(1)],
+                        "y_start" => vec![v.y0.scaled(1)],
+                        "y_end" => vec![v.y0.scaled(1), v.h.scaled(1)],
+                        "cx" => vec![v.cx.scaled(1)],
+                        "cy" => vec![v.cy.scaled(1)],
+                        _ => {
+                            eprintln!("pumpkin_engine: unsupported bounded coord {coord:?}, aborting");
+                            std::process::exit(2);
+                        }
+                    };
+                    match op {
+                        "le" => {
+                            pumpkin_solver::less_than_or_equals(terms, value, tag).post(&mut solver);
+                        }
+                        "ge" => {
+                            pumpkin_solver::greater_than_or_equals(terms, value, tag).post(&mut solver);
+                        }
+                        _ => {
+                            eprintln!("pumpkin_engine: unsupported bounded op {op:?}, aborting");
+                            std::process::exit(2);
+                        }
+                    }
+                }
+            }
             "loop_area" => {
                 let loop_name = str_of(&c["loop_name"]);
                 let max_area_mm2 = f64_of(&c["max_area_mm2"]);
