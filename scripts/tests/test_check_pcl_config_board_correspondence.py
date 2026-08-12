@@ -252,12 +252,46 @@ class TestAntiVacuity:
         state, report = run(config, board, refs)
         assert state == "tool_error"
 
-    def test_config_with_no_zones(self, tmp_path):
+    def test_config_with_no_zones_is_not_vacuous(self, tmp_path):
+        """A component-only PCL file (thermal_management.yaml's shape: real
+        constraints, zero zones) is a legitimate config, not a tool error --
+        Property 1 (reference resolution) still has real content to check.
+        This used to raise a tool error before any reference was checked,
+        which is why thermal_management.yaml was never actually run through
+        this gate in CI (see docs/evidence/2026-08-12-thermal-emi-declaration-drift.md)."""
         board = _write(tmp_path / "board.kicad_pcb", _board_text(["R1"]))
         refs = _write(tmp_path / "refs.yaml", _references_text())
         config = _write(
             tmp_path / "config.yaml",
-            _config_text(zones=[], constraints=[{"type": "loop_area", "loop_name": "x"}]),
+            _config_text(
+                zones=[], constraints=[{"type": "adjacent", "a": "R1", "b": "GHOST", "max_distance_mm": 5}]
+            ),
+        )
+        state, report = run(config, board, refs)
+        assert state == "violation"
+        assert report.zones_checked == 0
+        assert len(report.broken_references) == 1
+        assert report.broken_references[0].name == "GHOST"
+
+    def test_config_with_no_zones_and_clean_references_passes(self, tmp_path):
+        board = _write(tmp_path / "board.kicad_pcb", _board_text(["R1", "R2"]))
+        refs = _write(tmp_path / "refs.yaml", _references_text())
+        config = _write(
+            tmp_path / "config.yaml",
+            _config_text(
+                zones=[], constraints=[{"type": "adjacent", "a": "R1", "b": "R2", "max_distance_mm": 5}]
+            ),
+        )
+        state, report = run(config, board, refs)
+        assert state == "clean"
+        assert report.zones_checked == 0
+
+    def test_config_with_zones_key_not_a_list_fails_closed(self, tmp_path):
+        board = _write(tmp_path / "board.kicad_pcb", _board_text(["R1"]))
+        refs = _write(tmp_path / "refs.yaml", _references_text())
+        config = _write(
+            tmp_path / "config.yaml",
+            "zones: not-a-list\nconstraints:\n  - type: loop_area\n    loop_name: x\n",
         )
         state, report = run(config, board, refs)
         assert state == "tool_error"
@@ -421,3 +455,34 @@ class TestRealRepoIntegration:
             cwd=REPO_ROOT,
         )
         assert result.returncode == EXIT_VIOLATION, result.stdout + result.stderr
+
+    def test_real_repo_thermal_management_config_currently_violates(self):
+        """thermal_management.yaml -- this board's IGBT-to-RTD/MCU thermal-
+        clearance declarations -- was never checked by this gate at all
+        before docs/evidence/2026-08-12-thermal-emi-declaration-drift.md
+        (the gate required a non-empty ``zones:`` list to run at all, and
+        this component-only config has none). Before that doc's manifest
+        extension, running this gate against it found 21 broken references
+        across all 13 constraints -- U_RTD/TH_HEATSINK/R_GATE_HIGH/
+        R_GATE_LOW/C_VCC2 were simply unrecognized (no alias, no board ref,
+        not even listed as a known-unresolved name), on top of the same
+        Q1/Q2 wrong-component collision temper_induction_cooker.yaml has.
+        After extending temper_constraints.references.yaml with this
+        config's own spelling of those aliases, 14 remain broken -- all
+        with a documented reason (Q1/Q2 wrong-component; R_SNUB/C_SNUB
+        wrong-circuit; C_VCC1 no real counterpart). This test pins that
+        reduced-but-still-broken state so it fails loudly the day any of
+        it changes -- at which point update this test (and, if ALL 14
+        clear, remove the CI step's continue-on-error)."""
+        config = REPO_ROOT / "packages/temper-placer/configs/constraints/thermal_management.yaml"
+        board = REPO_ROOT / "pcb/temper.kicad_pcb"
+        refs = REPO_ROOT / "packages/temper-placer/configs/temper_constraints.references.yaml"
+        state, report = run(config, board, refs)
+        assert state == "violation"
+        assert report.zones_checked == 0
+        broken_names = {b.name for b in report.broken_references}
+        assert broken_names == {"Q1", "Q2", "R_SNUB", "C_SNUB", "C_VCC1"}
+        assert len(report.broken_references) == 14
+        # These now resolve cleanly and must stay resolved:
+        resolved_ok = {"U_RTD", "U_MCU", "TH_HEATSINK", "R_GATE_HIGH", "C_VCC2", "C_BUS1", "C_BUS2"}
+        assert not (resolved_ok & broken_names)

@@ -32,6 +32,7 @@ def test_production_manifest_contains_only_existing_targets() -> None:
             "R23",
             "R27",
             "R31",
+            "R60",
             "T1",
             "U4",
             "U7",
@@ -52,6 +53,15 @@ def test_production_manifest_contains_only_existing_targets() -> None:
     assert manifest.component_aliases["R_GATE_H"] == "R23"
     assert manifest.component_aliases["C_CT_FILT"] == "C28"
     assert manifest.loop_aliases == {}
+
+    # Added 2026-08-12 (docs/evidence/2026-08-12-thermal-emi-declaration-drift.md):
+    # thermal_management.yaml's own spelling of four already-verified concepts,
+    # plus TH_HEATSINK (safety.thermal.ntc, THM-01's heatsink-lug-mount NTC).
+    assert manifest.component_aliases["U_RTD"] == "U9"
+    assert manifest.component_aliases["TH_HEATSINK"] == "R60"
+    assert manifest.component_aliases["R_GATE_HIGH"] == "R23"
+    assert manifest.component_aliases["R_GATE_LOW"] == "R27"
+    assert manifest.component_aliases["C_VCC2"] == "C17"
 
 
 def test_manifest_rejects_alias_source_that_is_live(tmp_path: Path) -> None:
