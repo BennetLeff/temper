@@ -445,3 +445,50 @@ for it.
 - Git facts: `9a3233a60` (validator PD2 adoption, on `main`), `f20400709`
   (handoff's stated base, contains `9a3233a60`), `fix/k2k3-relay-swap`
   (handoff branch, lacks `9a3233a60`)
+
+---
+
+## RESOLUTION (2026-08-11) — the owner chose (a), not superseding the analysis above
+
+**This section is appended, not a rewrite.** Everything above this line is
+the original 2026-08-02 analysis and stands as written — it remains the
+correct read of the physical facts and the standard's condition. This
+section records what the owner decided against it and what changed as a
+result. Follows this repo's convention of correcting/resolving forward
+rather than editing an already-committed finding (see, e.g.,
+`power_pcb_dataset/drc_ceiling.json`'s `_march` log, which appends a new
+entry to supersede an earlier one rather than rewriting it).
+
+**The owner picked option (a) from Section 4 above: build the sealed
+compartment, keep 8.0mm.** Full decision record:
+`docs/evidence/2026-08-11-pd2-decision-record.md`. Summary:
+
+- PD2/8.0mm remains the selected target (this is the 2026-07-30 decision,
+  reaffirmed, not reopened).
+- Option (b) — retargeting to PD3/12.6mm — was considered and is now
+  additionally supported as the wrong direction by a same-day measurement:
+  `docs/plans/2026-08-11-002-feat-placer-wirelength-and-hv-separation-plan.md`
+  found PD3/12.6mm **not established feasible** on this board (196
+  violating pad-pairs, an isolator population structurally invariant to
+  board size, at least one isolator UNSAT even after part substitution).
+  So PD2-with-compartment may be the only viable path, which raises the
+  compartment from "nice to have" to a hard requirement.
+- **This section's own finding stands unchanged**: as of the decision date,
+  the compartment this decision is conditional on still does not exist.
+  Nothing in the owner's choice of (a) makes today's board sealed — it
+  commits to building the seal, on the timeline the owner controls, not on
+  this document's timeline.
+- What is new: `scripts/check_pd2_compartment_evidence.py`, a CI gate that
+  fails (advisory, exit 3) for exactly as long as this document's §1
+  finding remains true — "no cover, gasket, partition, or inspection
+  geometry is committed anywhere" — and will pass once real,
+  non-placeholder compartment evidence is committed and cross-checked
+  against a real board-side keepout zone. See the decision record for the
+  concrete evidence schema, the proof the gate fails today, and the proof
+  it passes against a synthetic tree with the compartment present.
+
+**Interim position (until the gate above is green):** the board is
+PD3-governed as built, per this document's own §1-§2 findings, and any
+creepage figure measured or reported against 8.0mm should be read as
+provisional against an as-yet-unearned exception, not as a closed,
+compliant number.

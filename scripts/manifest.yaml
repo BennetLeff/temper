@@ -817,6 +817,31 @@ scripts:
   - sys
   - typing
   - yaml
+- path: check_pd2_compartment_evidence.py
+  purpose: 'CI gate: if the tree currently claims PD2/8.0mm reinforced creepage
+    (generate_kicad_dru.py HV_CREEPAGE_ENFORCED_MM), a compartment-evidence
+    artifact (docs/specs/pd2_compartment_evidence.yaml) must exist with real,
+    non-placeholder cover/gasket/partition/airflow-routing/inspection fields,
+    cross-checked against a real named zone in pcb/temper.kicad_pcb -- catches
+    the PD2 exception being claimed without the sealed compartment it requires
+    (docs/evidence/2026-08-11-pd2-decision-record.md). Advisory (continue-on-error)
+    until the compartment is built and the evidence file is committed -- see
+    the evidence doc for the exact path to blocking. Expected to VIOLATE on
+    origin/main today: the compartment does not exist yet.'
+  owner: bennet
+  last_run: '2026-08-11'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: check_physics_provenance.py
   purpose: 'Physics provenance gate: require # source: comments on module-level float constants in physics/'
   owner: pipeline
