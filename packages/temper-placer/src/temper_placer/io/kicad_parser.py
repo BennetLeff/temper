@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING
 import temper_design_bundle_python as _tdb
 
 from temper_placer.core.board import Board
-from temper_placer.core.design_rules import DesignRules
+from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, DesignRules
 from temper_placer.io._kicad_types import (
     ParseResult,
 )
@@ -35,6 +35,8 @@ from temper_placer.io._parse_nets import _apply_safety_classifications, _extract
 _rs = _tdb.parse_engine
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from temper_placer.router_v6.stage0_data import ParsedPCB
 
 
@@ -42,13 +44,25 @@ def parse_kicad_pcb(
     pcb_path: Path,
     normalize: bool = True,
     design_rules: DesignRules | None = None,
+    net_class_mapping: Mapping[str, str] | None = None,
 ) -> ParseResult:
     """Parse a KiCad PCB file (.kicad_pcb) to extract component placement and netlist.
 
     Args:
         pcb_path: Path to the .kicad_pcb file.
         normalize: If True, subtract board origin from component positions.
-        design_rules: Optional DesignRules for net safety classification.
+        design_rules: Optional DesignRules for net safety classification
+            (component-level ``net_class``, HV/LV severity rollup -- see
+            ``_apply_safety_classifications``).
+        net_class_mapping: ``net_name -> net_class`` mapping applied to each
+            parsed ``Net.net_class`` (Rust ``Netlist.apply_net_class_mapping``,
+            invoked inside the Rust parse engine itself -- see
+            ``parse_engine.rs``'s ``parse_kicad_pcb_impl``). Defaults to this
+            project's own ``TEMPER_NET_ASSIGNMENTS`` SSOT
+            (``core/design_rules.py``) so every net gets its real class by
+            default instead of silently keeping the ``Net`` pyclass's
+            ``"Signal"`` default -- pass ``{}`` explicitly to opt out (e.g. a
+            test asserting the pre-classification raw-parse shape).
 
     Returns:
         ParseResult containing netlist, board geometry, and any warnings.
@@ -57,7 +71,8 @@ def parse_kicad_pcb(
     # either).
     pcb_path = Path(pcb_path)
     content = pcb_path.read_text(encoding="utf-8")
-    result = _rs.parse_kicad_pcb(content, normalize=normalize)
+    mapping = TEMPER_NET_ASSIGNMENTS if net_class_mapping is None else net_class_mapping
+    result = _rs.parse_kicad_pcb(content, normalize=normalize, net_class_mapping=mapping)
 
     if design_rules is not None:
         _apply_safety_classifications(result.netlist, design_rules)
