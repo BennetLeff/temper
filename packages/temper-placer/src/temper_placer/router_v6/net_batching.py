@@ -465,7 +465,7 @@ def _solve_subset(
     sat_conflict_limit: int | None,
     sat_time_limit_ms: int | None,
 ) -> tuple[ConstraintModel, dict[str, Any]]:
-    from temper_rust_router import solve_topology_rust
+    from temper_rust_router import audit_result, solve_topology_rust
 
     model_builder = ModelBuilder(
         skeletons=skeletons,
@@ -486,6 +486,29 @@ def _solve_subset(
         net_names_subset,
         conflict_limit=sat_conflict_limit,
         time_limit_ms=sat_time_limit_ms,
+    )
+    # @req(2026-08-12-003, R3): audit every batch-level "sat" result the same
+    # way `_pipeline_route.py:437-452`'s monolithic path already does --
+    # this is the module's *only* production call site that still holds
+    # cm.variables/cm.constraints (the pyo3 objects `audit_result` needs);
+    # `_batch_worker_entry`'s own result dict, which is all that crosses
+    # back to the parent over the subprocess pipe, only carries this
+    # dict's plain-data "audit_violations" key onward. The parent
+    # (`run_net_batched_stage3`) is where the RuntimeError is actually
+    # raised -- see its own "sat" handling, both batch-level and the
+    # singleton-retry mirror -- mirroring where `_consume_capacity` is
+    # called for the same "sat" result.
+    rust_result["audit_violations"] = (
+        list(
+            audit_result(
+                py_vars,
+                py_cons,
+                dict(rust_result.get("assignments", {})),
+                net_names_subset,
+            )
+        )
+        if rust_result.get("status") == "sat"
+        else []
     )
     return cm, rust_result
 
@@ -759,6 +782,13 @@ def _batch_worker_entry(
         result = {
             "status": status,
             "topology_graph": rust_result.get("topology_graph", {}),
+            # @req(2026-08-12-003, R3): `_solve_subset` already computed this
+            # (audit_result) right after the solve, while it still held
+            # cm.variables/cm.constraints -- carried across the subprocess
+            # pipe as plain data so the parent (`run_net_batched_stage3`)
+            # can raise on it, mirroring where `_consume_capacity` is
+            # called for the same "sat" result.
+            "audit_violations": rust_result.get("audit_violations", []),
             "primary_vars": cm.variable_count,
             "net_channel_vars": n_net_channel,
             "via_vars": n_via,
@@ -770,6 +800,7 @@ def _batch_worker_entry(
         result = {
             "status": "memory_error",
             "topology_graph": {},
+            "audit_violations": [],
             "primary_vars": 0,
             "net_channel_vars": 0,
             "via_vars": 0,
@@ -1092,6 +1123,20 @@ def run_net_batched_stage3(
 
             if status == "sat" and outcome.result is not None:
                 solved_at_batch_level = True
+                # @req(2026-08-12-003, R3): mirror _pipeline_route.py:437-452's
+                # monolithic-path audit -- violations raise, not warn. Computed
+                # in the child (_batch_worker_entry, which still holds
+                # cm.variables/cm.constraints); raised here, the one place this
+                # module already treats a "sat" result as ground truth enough
+                # to consume capacity against it.
+                audit_violations = outcome.result.get("audit_violations", [])
+                if audit_violations:
+                    msg = (
+                        f"Rust solver produced {len(audit_violations)} constraint "
+                        f"violation(s) in net-batching batch {batch_index} "
+                        f"(nets={[n.name for n in batch_nets]}): {audit_violations}"
+                    )
+                    raise RuntimeError(msg)
                 topo = _topology_from_rust_result(outcome.result)
                 merged_topology.update(topo)
                 _consume_capacity(consumed, topo, batch_nets, pcb.design_rules)
@@ -1142,6 +1187,16 @@ def run_net_batched_stage3(
                     rr1 = single_outcome.result
                     assert rr1 is not None
                     if rr1["status"] == "sat" and n.name in rr1.get("topology_graph", {}):
+                        # @req(2026-08-12-003, R3): singleton-retry mirror of
+                        # the batch-level audit above.
+                        audit_violations1 = rr1.get("audit_violations", [])
+                        if audit_violations1:
+                            msg = (
+                                f"Rust solver produced {len(audit_violations1)} constraint "
+                                f"violation(s) in net-batching singleton retry "
+                                f"(net={n.name!r}): {audit_violations1}"
+                            )
+                            raise RuntimeError(msg)
                         topo1 = _topology_from_rust_result(rr1)
                         merged_topology.update(topo1)
                         _consume_capacity(consumed, topo1, [n], pcb.design_rules)
