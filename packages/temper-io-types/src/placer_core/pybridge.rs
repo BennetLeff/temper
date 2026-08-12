@@ -7,7 +7,7 @@
 
 use pyo3::exceptions::{PyOverflowError, PyTypeError, PyValueError, PyZeroDivisionError};
 use pyo3::prelude::*;
-use pyo3::types::{PyBool, PyDict, PyFloat, PyInt, PyList, PyTuple, PyType};
+use pyo3::types::{PyBool, PyDict, PyFloat, PyInt, PyTuple};
 use std::panic::AssertUnwindSafe;
 
 use super::manufacturing;
@@ -15,39 +15,15 @@ use super::netclass::{self, PatternSet};
 use super::placement_drc as drc;
 use super::placer_compute;
 use super::pyrepr::{repr_f64, repr_str};
-use super::rect::{RectData, x_invariant_message, y_invariant_message};
 use super::units;
 
 // ---------------------------------------------------------------------------
 // shared helpers
 // ---------------------------------------------------------------------------
 
-/// Raise `dataclasses.FrozenInstanceError`, the exact type a frozen
-/// dataclass raises (a subclass of `AttributeError`, so `except
-/// AttributeError` keeps working either way).
-fn frozen_error(py: Python<'_>, verb: &str, name: &str) -> PyErr {
-    let msg = format!("cannot {verb} field {}", repr_str(name));
-    match py
-        .import("dataclasses")
-        .and_then(|m| m.getattr("FrozenInstanceError"))
-    {
-        Ok(exc) => PyErr::from_value(match exc.call1((msg.clone(),)) {
-            Ok(v) => v,
-            Err(e) => return e,
-        }),
-        Err(e) => e,
-    }
-}
-
 /// What `__reduce__` returns: `(callable, args)`, the two-tuple form
 /// `pickle`/`copy` use to rebuild an object.
 type Reduced<'py> = (Bound<'py, PyAny>, Bound<'py, PyTuple>);
-
-/// CPython's `float(x)` builtin, whose failure modes differ from pyo3's
-/// `f64` extraction (see [`PyRect::from_xyxy`]).
-fn py_float(value: &Bound<'_, PyAny>) -> PyResult<f64> {
-    value.py().get_type::<PyFloat>().call1((value,))?.extract()
-}
 
 /// `hash(...)` raised by an unhashable dataclass (`eq=True, frozen=False`
 /// sets `__hash__ = None`).
@@ -81,280 +57,6 @@ fn py_int_from_f64(py: Python<'_>, value: f64) -> PyResult<Py<PyInt>> {
         .cast::<PyInt>()?
         .clone()
         .unbind())
-}
-
-// ---------------------------------------------------------------------------
-// Rect
-// ---------------------------------------------------------------------------
-
-/// `temper_placer.core.board.Rect`.
-#[pyclass(name = "Rect", module = "temper_io_types", subclass)]
-pub struct PyRect {
-    x_min: Py<PyAny>,
-    y_min: Py<PyAny>,
-    x_max: Py<PyAny>,
-    y_max: Py<PyAny>,
-    data: RectData,
-}
-
-impl PyRect {
-    /// The `f64` view, for Rust consumers.
-    ///
-    /// Lossy for an integer field beyond 2^53; the Python-visible
-    /// behaviour never goes through this view.
-    pub fn data(&self) -> RectData {
-        self.data
-    }
-
-    fn as_tuple<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyTuple>> {
-        PyTuple::new(
-            py,
-            [
-                self.x_min.bind(py),
-                self.y_min.bind(py),
-                self.x_max.bind(py),
-                self.y_max.bind(py),
-            ],
-        )
-    }
-
-    fn build(
-        x_min: Bound<'_, PyAny>,
-        y_min: Bound<'_, PyAny>,
-        x_max: Bound<'_, PyAny>,
-        y_max: Bound<'_, PyAny>,
-    ) -> PyResult<Self> {
-        // `__post_init__`: `if not (self.x_max > self.x_min): raise`.
-        // The comparison runs at Python level so it is exact for large
-        // ints and reproduces `__gt__` on any exotic operand.
-        if !x_max.gt(&x_min)? {
-            return Err(PyValueError::new_err(x_invariant_message(
-                &x_min.str()?.to_string_lossy(),
-                &x_max.str()?.to_string_lossy(),
-            )));
-        }
-        if !y_max.gt(&y_min)? {
-            return Err(PyValueError::new_err(y_invariant_message(
-                &y_min.str()?.to_string_lossy(),
-                &y_max.str()?.to_string_lossy(),
-            )));
-        }
-        let data = RectData {
-            x_min: x_min.extract().unwrap_or(f64::NAN),
-            y_min: y_min.extract().unwrap_or(f64::NAN),
-            x_max: x_max.extract().unwrap_or(f64::NAN),
-            y_max: y_max.extract().unwrap_or(f64::NAN),
-        };
-        Ok(PyRect {
-            x_min: x_min.unbind(),
-            y_min: y_min.unbind(),
-            x_max: x_max.unbind(),
-            y_max: y_max.unbind(),
-            data,
-        })
-    }
-}
-
-#[pymethods]
-impl PyRect {
-    #[new]
-    #[pyo3(signature = (x_min, y_min, x_max, y_max))]
-    fn new(
-        x_min: Bound<'_, PyAny>,
-        y_min: Bound<'_, PyAny>,
-        x_max: Bound<'_, PyAny>,
-        y_max: Bound<'_, PyAny>,
-    ) -> PyResult<Self> {
-        PyRect::build(x_min, y_min, x_max, y_max)
-    }
-
-    #[getter]
-    fn x_min(&self, py: Python<'_>) -> Py<PyAny> {
-        self.x_min.clone_ref(py)
-    }
-
-    #[getter]
-    fn y_min(&self, py: Python<'_>) -> Py<PyAny> {
-        self.y_min.clone_ref(py)
-    }
-
-    #[getter]
-    fn x_max(&self, py: Python<'_>) -> Py<PyAny> {
-        self.x_max.clone_ref(py)
-    }
-
-    #[getter]
-    fn y_max(&self, py: Python<'_>) -> Py<PyAny> {
-        self.y_max.clone_ref(py)
-    }
-
-    /// `x_max - x_min`, at Python level so an int `Rect` keeps an int width.
-    #[getter]
-    fn width<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        self.x_max.bind(py).sub(self.x_min.bind(py))
-    }
-
-    #[getter]
-    fn height<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        self.y_max.bind(py).sub(self.y_min.bind(py))
-    }
-
-    /// Build from `(x_min, y_min, x_max, y_max)` — the canonical form.
-    ///
-    /// The coercion is CPython's own `float()` builtin, not pyo3's `f64`
-    /// extraction: the two disagree on the error a non-numeric argument
-    /// raises (`ValueError: could not convert string to float: 'a'` vs
-    /// `TypeError: must be real number, not str`), which the R1a
-    /// differential caught on `Rect.coerce("abcd")`.
-    #[classmethod]
-    #[pyo3(signature = (x_min, y_min, x_max, y_max))]
-    fn from_xyxy<'py>(
-        cls: &Bound<'py, PyType>,
-        x_min: &Bound<'py, PyAny>,
-        y_min: &Bound<'py, PyAny>,
-        x_max: &Bound<'py, PyAny>,
-        y_max: &Bound<'py, PyAny>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        cls.call1((
-            py_float(x_min)?,
-            py_float(y_min)?,
-            py_float(x_max)?,
-            py_float(y_max)?,
-        ))
-    }
-
-    /// Build from an `(x, y, width, height)` origin+size rectangle.
-    #[classmethod]
-    #[pyo3(signature = (x, y, width, height))]
-    fn from_xywh<'py>(
-        cls: &Bound<'py, PyType>,
-        x: &Bound<'py, PyAny>,
-        y: &Bound<'py, PyAny>,
-        width: &Bound<'py, PyAny>,
-        height: &Bound<'py, PyAny>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        // The reference evaluates `float(x)` twice; both calls see the
-        // same object, so one conversion is equivalent.
-        let (fx, fy) = (py_float(x)?, py_float(y)?);
-        cls.call1((fx, fy, fx + py_float(width)?, fy + py_float(height)?))
-    }
-
-    /// `coerce` returns an existing `Rect` **by identity**, not a copy.
-    #[classmethod]
-    fn coerce<'py>(
-        cls: &Bound<'py, PyType>,
-        value: Bound<'py, PyAny>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        if value.is_instance(cls)? {
-            return Ok(value);
-        }
-        // `x_min, y_min, x_max, y_max = value` — iterable unpacking, so
-        // both the "not iterable" and the wrong-length messages have to
-        // be CPython's own wording (measured, not guessed).
-        let items: Vec<Bound<'py, PyAny>> = match value.try_iter() {
-            Ok(it) => it.collect::<PyResult<Vec<_>>>()?,
-            Err(_) => {
-                return Err(PyTypeError::new_err(format!(
-                    "cannot unpack non-iterable {} object",
-                    value.get_type().name()?
-                )));
-            }
-        };
-        if items.len() != 4 {
-            return Err(PyValueError::new_err(if items.len() < 4 {
-                format!(
-                    "not enough values to unpack (expected 4, got {})",
-                    items.len()
-                )
-            } else {
-                "too many values to unpack (expected 4)".to_string()
-            }));
-        }
-        // Dispatch through `from_xyxy` on `cls`, so a subclass that
-        // overrides it is still honoured, and so the `float()` coercion
-        // happens in exactly one place.
-        cls.call_method1(
-            "from_xyxy",
-            (&items[0], &items[1], &items[2], &items[3]),
-        )
-    }
-
-    fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
-        Ok(format!(
-            "Rect(x_min={}, y_min={}, x_max={}, y_max={})",
-            self.x_min.bind(py).repr()?,
-            self.y_min.bind(py).repr()?,
-            self.x_max.bind(py).repr()?,
-            self.y_max.bind(py).repr()?,
-        ))
-    }
-
-    /// Equal to another `Rect` **and** to a 4-element tuple or list, so
-    /// `Rect` is a true drop-in for the tuple it replaced.
-    fn __eq__<'py>(
-        slf: &Bound<'py, Self>,
-        other: &Bound<'py, PyAny>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        let py = slf.py();
-        let mine = slf.borrow().as_tuple(py)?;
-        let theirs: Bound<'py, PyTuple> = if let Ok(rect) = other.cast::<PyRect>() {
-            rect.borrow().as_tuple(py)?
-        } else if other.is_instance_of::<PyTuple>() || other.is_instance_of::<PyList>() {
-            if other.len()? != 4 {
-                return Ok(py.NotImplemented().into_bound(py));
-            }
-            PyTuple::new(py, other.try_iter()?.collect::<PyResult<Vec<_>>>()?)?
-        } else {
-            return Ok(py.NotImplemented().into_bound(py));
-        };
-        Ok(mine.eq(&theirs)?.into_pyobject(py)?.to_owned().into_any())
-    }
-
-    fn __hash__(&self, py: Python<'_>) -> PyResult<isize> {
-        self.as_tuple(py)?.hash()
-    }
-
-    fn __iter__<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
-        let py = slf.py();
-        slf.borrow().as_tuple(py)?.into_any().try_iter().map(|i| i.into_any())
-    }
-
-    /// Delegates to the 4-tuple, so negative indices, slices and the
-    /// `IndexError`/`TypeError` texts all come from CPython unchanged.
-    fn __getitem__<'py>(
-        slf: &Bound<'py, Self>,
-        index: &Bound<'py, PyAny>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        let py = slf.py();
-        slf.borrow().as_tuple(py)?.into_any().get_item(index)
-    }
-
-    fn __len__(&self) -> usize {
-        4
-    }
-
-    fn __setattr__(&self, py: Python<'_>, name: &str, _value: Bound<'_, PyAny>) -> PyResult<()> {
-        Err(frozen_error(py, "assign to", name))
-    }
-
-    fn __delattr__(&self, py: Python<'_>, name: &str) -> PyResult<()> {
-        Err(frozen_error(py, "delete", name))
-    }
-
-    /// Make `pickle`, `copy.copy` and `copy.deepcopy` work.
-    ///
-    /// A pyclass is unpicklable by default, which the dataclass was not:
-    /// `deepcopy(zone)` and `pickle.dumps(board)` both reach a `Rect`
-    /// through `Zone.bounds` and raised `TypeError: cannot pickle
-    /// 'temper_io_types.Rect' object`. Reconstructing through
-    /// `type(self)(...)` re-runs the invariant check and preserves the
-    /// field types exactly (an `int` `Rect` round-trips as `int`), and
-    /// using `type(self)` rather than the concrete class keeps a
-    /// subclass a subclass — matching what the dataclass did.
-    fn __reduce__<'py>(slf: &Bound<'py, Self>) -> PyResult<Reduced<'py>> {
-        let py = slf.py();
-        Ok((slf.get_type().into_any(), slf.borrow().as_tuple(py)?))
-    }
 }
 
 // ---------------------------------------------------------------------------
@@ -646,7 +348,7 @@ impl PyFabPreset {
         Err(unhashable("FabPreset"))
     }
 
-    /// See [`PyRect::__reduce__`] — a pyclass is unpicklable by default.
+    /// See the deleted `Rect` pyclass's `__reduce__` — a pyclass is unpicklable by default.
     fn __reduce__<'py>(slf: &Bound<'py, Self>) -> PyResult<Reduced<'py>> {
         let py = slf.py();
         let s = slf.borrow();
@@ -762,7 +464,7 @@ impl PyPinInfo {
         Err(unhashable("PinInfo"))
     }
 
-    /// See [`PyRect::__reduce__`] — a pyclass is unpicklable by default.
+    /// See the deleted `Rect` pyclass's `__reduce__` — a pyclass is unpicklable by default.
     fn __reduce__<'py>(slf: &Bound<'py, Self>) -> PyResult<Reduced<'py>> {
         let py = slf.py();
         let s = slf.borrow();
@@ -851,7 +553,7 @@ impl PyPlacementViolation {
         Err(unhashable("PlacementViolation"))
     }
 
-    /// See [`PyRect::__reduce__`] — a pyclass is unpicklable by default.
+    /// See the deleted `Rect` pyclass's `__reduce__` — a pyclass is unpicklable by default.
     ///
     /// `item_a`/`item_b` go through the pickler themselves, so a
     /// round-tripped violation holds round-tripped pins — the same as
@@ -1169,7 +871,6 @@ pub fn placer_adjust_for_congestion(
 }
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<PyRect>()?;
     m.add_class::<PyFabPreset>()?;
     m.add_class::<PyPinInfo>()?;
     m.add_class::<PyPlacementViolation>()?;

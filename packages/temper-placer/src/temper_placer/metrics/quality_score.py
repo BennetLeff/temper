@@ -23,28 +23,6 @@ from temper_placer.validation.metrics import PlacementMetrics
 
 
 @dataclass
-class QualityInputs:
-    """Inputs for quality score computation."""
-
-    # Hard constraints (binary)
-    drc_violations: int = 0
-    overlap_loss: float = 0.0
-    boundary_loss: float = 0.0
-
-    # Routing (optional)
-    routing_completion_pct: float = 100.0
-
-    # Efficiency
-    hpwl_mm: float = 0.0
-    hpwl_target_mm: float | None = None
-
-    # Safety/compliance
-    hv_clearance_ok: bool = True
-    thermal_compliance: bool = True
-    zone_compliance_pct: float = 100.0
-
-
-@dataclass
 class QualityScore:
     """
     Composite quality score for a placement.

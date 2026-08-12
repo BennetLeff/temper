@@ -50,7 +50,6 @@ from temper_placer.io.kicad_writer import (
     write_placements_to_pcb,
 )
 from temper_placer.io.placement_exporter import (
-    PCBExporterFn,
     cleanup_temp_pcb,
     create_pcb_exporter,
     export_positions_to_temp_pcb,
@@ -96,7 +95,6 @@ __all__ = [
     "export_positions_to_temp_pcb",
     "create_pcb_exporter",
     "cleanup_temp_pcb",
-    "PCBExporterFn",
     # Reference loader (for benchmarking)
     "load_reference_pcb",
     "netlist_to_placement_state",

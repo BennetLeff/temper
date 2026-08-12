@@ -82,12 +82,10 @@ from temper_placer.core.topology import ComponentCluster, TopologicalGraph, Topo
 from temper_placer.core.units import (
     CellIndex,
     Degrees,
-    DegreesArray,
     LayerIndex,
     Millimeters,
     NetId,
     Radians,
-    RadiansArray,
     mm_to_cell,
 )
 
@@ -142,12 +140,10 @@ __all__ = [
     # Units
     "CellIndex",
     "Degrees",
-    "DegreesArray",
     "LayerIndex",
     "Millimeters",
     "NetId",
     "Radians",
-    "RadiansArray",
     "mm_to_cell",
     # IPC-2221
     "estimate_current_from_net_class",

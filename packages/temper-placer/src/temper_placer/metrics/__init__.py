@@ -20,7 +20,6 @@ from temper_placer.metrics.quality import (
     zone_compliance_score,
 )
 from temper_placer.metrics.quality_score import (
-    QualityInputs,
     compute_quality_score,
     interpret_score,
 )
@@ -39,7 +38,6 @@ __all__ = [
     "compactness_score",
     "connectivity_clustering_score",
     "score_placement",
-    "QualityInputs",
     "compute_quality_score",
     "interpret_score",
     "RoutingQualityScore",
