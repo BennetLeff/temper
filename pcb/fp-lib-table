@@ -18,6 +18,7 @@
   (lib (name "Relay_THT")(type "KiCad")(uri "${KICAD10_FOOTPRINT_DIR}/Relay_THT.pretty")(options "")(descr "Relays, through hole"))
   (lib (name "TestPoint")(type "KiCad")(uri "${KICAD10_FOOTPRINT_DIR}/TestPoint.pretty")(options "")(descr "Test points"))
   (lib (name "Varistor")(type "KiCad")(uri "${KICAD10_FOOTPRINT_DIR}/Varistor.pretty")(options "")(descr "Varistors"))
+  (lib (name "Connector_JST")(type "KiCad")(uri "${KIPRJMOD}/libs/Connector_JST.pretty")(options "")(descr "Project-custom JST XH connector footprints, hand-built -- this environment has no kicad-footprints checkout to source Connector_JST.pretty from (see JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod descr for sourcing/confidence). Added 2026-08-11 for J_RTD1 pan-probe connector board resync."))
   (lib (name "lib")(type "KiCad")(uri "${KIPRJMOD}/libs/lib.pretty")(options "")(descr "Project-custom footprints for nicknames the netlist emits as lib:..."))
   (lib (name "temper")(type "KiCad")(uri "${KIPRJMOD}/libs/temper.pretty")(options "")(descr "Project-custom footprints, hand-built from real datasheet dimensions (G4A-1A-E relay, CST-1005 CT, UCC21550BDWK gate driver, RECOM RP-1505S DC-DC — see each .kicad_mod descr for sourcing and confidence)"))
 )
