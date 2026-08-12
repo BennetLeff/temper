@@ -85,13 +85,13 @@ pub(crate) mod tests {
 
         let original_clause_count = {
             let (cnf, _) = encode_to_cnf(&model);
-            cnf.clauses.len()
+            cnf.num_clauses()
         };
 
         let rewritten = rewrite(&model).unwrap();
         let rewritten_clause_count = {
             let (cnf, _) = encode_to_cnf(&rewritten);
-            cnf.clauses.len()
+            cnf.num_clauses()
         };
 
         // Clause count should not increase after rewrite.

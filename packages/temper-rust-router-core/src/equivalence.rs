@@ -292,11 +292,13 @@ mod tests {
 
     /// Helper: encode, solve, return status.
     fn solve_model(model: &InternalConstraintModel) -> TopologyResult {
-        let (cnf, var_names) = encode_to_cnf(model);
+        // R1: encode_to_cnf's var_names is not needed by solve_with_cadical
+        // (it never read the parameter -- deleted).
+        let (cnf, _var_names) = encode_to_cnf(model);
         let limits = SolveLimits::default(); // unbounded for small models
-        let mut result = solve_with_cadical(&cnf, &var_names, limits);
+        let mut result = solve_with_cadical(&cnf, limits);
         result.num_vars = cnf.num_vars;
-        result.num_clauses = cnf.clauses.len();
+        result.num_clauses = cnf.num_clauses();
         result
     }
 
@@ -355,10 +357,10 @@ mod tests {
             full_cnf.num_vars
         );
         assert!(
-            pruned_cnf.clauses.len() <= full_cnf.clauses.len(),
+            pruned_cnf.num_clauses() <= full_cnf.num_clauses(),
             "pruned clauses {} > full clauses {}",
-            pruned_cnf.clauses.len(),
-            full_cnf.clauses.len()
+            pruned_cnf.num_clauses(),
+            full_cnf.num_clauses()
         );
     }
 
@@ -443,13 +445,13 @@ mod tests {
         let model = build_toy_model_a();
         let (full_cnf, full_names) = encode_to_cnf(&model);
         let limits = SolveLimits::default();
-        let full_result = solve_with_cadical(&full_cnf, &full_names, limits);
+        let full_result = solve_with_cadical(&full_cnf, limits);
 
         let mut remove = HashSet::new();
         remove.insert("uses_N2_chA".to_string());
         let pruned = prune_model(&model, &remove);
         let (pruned_cnf, pruned_names) = encode_to_cnf(&pruned);
-        let pruned_result = solve_with_cadical(&pruned_cnf, &pruned_names, limits);
+        let pruned_result = solve_with_cadical(&pruned_cnf, limits);
 
         // Both should be SAT.
         assert_eq!(full_result.status, SolverStatus::Satisfiable);
@@ -750,13 +752,13 @@ mod tests {
         let pruned = prune_model(&model, &remove);
         let pruned_result = solve_model(&pruned);
 
-        // The empty model is UNSAT (solver.rs: if cnf.num_vars == 0 || cnf.clauses.is_empty())
+        // The empty model is UNSAT (solver.rs: if cnf.num_vars == 0 || cnf.clauses_is_empty())
         // But wait — an empty model (no constraints) is trivially SAT, not UNSAT.
         // Let's check the solver code...
         //
         // From solver.rs line 66-68:
         // ```
-        // if cnf.num_vars == 0 || cnf.clauses.is_empty() {
+        // if cnf.num_vars == 0 || cnf.clauses_is_empty() {
         //     return empty_result_with_stats(SolverStatus::Unsatisfiable, 0.0, cnf);
         // }
         // ```
