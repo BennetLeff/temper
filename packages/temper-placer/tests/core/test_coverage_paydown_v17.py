@@ -19,15 +19,14 @@ from shapely.geometry import Polygon as ShapelyPolygon
 from temper_placer.core.board import Board
 from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.pcl.constraints import ConstraintType
 from temper_placer.placer.cp_sat.feedback import FeedbackClassifier
 from temper_placer.placer.cp_sat.unsat import UnsatConstraint, UnsatReport
 from temper_placer.placer.cp_sat.unsat_surface import format_unsat_panel, write_unsat_json
-from temper_placer.pcl.constraints import ConstraintType
 from temper_placer.router_v6.acid_trap_detection import AcidTrapReport
 from temper_placer.router_v6.annular_ring_check import AnnularRingReport
-from temper_placer.router_v6.astar_core import RoutePath, RoutePath3D
+from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_monitor import (
-    InvariantViolation,
     MonitorState,
     astar_monitor,
     get_monitor_state,
@@ -58,7 +57,6 @@ from temper_placer.router_v6.congestion_analysis import (
 from temper_placer.router_v6.connectivity import (
     CopperPad,
     CopperTrack,
-    CopperVia,
     CopperZone,
     PadIdentity,
     verify_connectivity_by_net,
@@ -166,8 +164,8 @@ from temper_placer.router_v6.trace_width_assignment import (
     TraceWidthAssignment,
     assign_trace_widths,
 )
-from temper_placer.router_v6.via_placement import ViaPlacement, Via as RouteVia, place_vias
-
+from temper_placer.router_v6.via_placement import Via as RouteVia
+from temper_placer.router_v6.via_placement import ViaPlacement, place_vias
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -367,7 +365,6 @@ class TestNetOrdering:
         assert compute_bbox_area("NOPE", netlist) == 0.0
 
     def test_get_loop_criticality(self):
-        netlist = _make_netlist()
         assert get_loop_criticality("N1", LoopCollection([])) == 3  # low/none
 
     def test_order_nets_empty(self):
@@ -514,7 +511,8 @@ class TestTeardropGeneration:
         assert report.teardrop_count == 0
 
     def test_insert_teardrops_clamps_ratio(self):
-        report = insert_teardrops(RoutingResults({}, []), teardrop_length_ratio=5.0)
+        with pytest.warns(UserWarning):
+            report = insert_teardrops(RoutingResults({}, []), teardrop_length_ratio=5.0)
         assert report.teardrop_count == 0
 
 
