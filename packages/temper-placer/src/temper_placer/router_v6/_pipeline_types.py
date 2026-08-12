@@ -110,6 +110,22 @@ class RouterV6Result:
     runtime_seconds: float
     manufacturing_report: ManufacturingReport | None = None
     enable_zone_pours: bool = False
+    # Per-batch net-batching evidence records (net_batching.NetBatchResult),
+    # empty unless --net-batching was used. Previously computed by
+    # run_net_batched_stage3 and stashed on the *pipeline instance* as
+    # ``self.last_batch_results`` (_pipeline_route.py) but never threaded
+    # onto the returned result -- so a batch that hit
+    # net_batching.DEFAULT_SUBPROCESS_TIMEOUT_S (900s) and silently fell
+    # back to singleton retry (or, past that, to Stage 4's no-topology
+    # fallback) left no trace in anything route_pcb()'s caller could see
+    # by default, only via the TEMPER_BATCH_TRACE=1 stderr firehose. See
+    # docs/evidence/2026-08-12-board-recipe-reproducibility.md: a
+    # time-limited subprocess is nondeterministic by construction under
+    # machine load, so this field exists to make "the board changed
+    # because the recipe changed" distinguishable from "the board changed
+    # because a batch ran out of time on a loaded machine" after the fact,
+    # instead of both looking like silent variance.
+    batch_results: list[Any] = field(default_factory=list)
 
     @property
     def success_count(self) -> int:
