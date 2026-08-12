@@ -741,6 +741,18 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "parity vs nx.MultiDiGraph, has_edge/dedup, the final networkx removal. "
         "Pure Python/Rust, no external binary. Not yet wired into any CI job."
     ),
+    "testing/test_golden_diff_rust_differential.py": (
+        "PASSING locally (2026-08-11, golden-diff migration, "
+        "migrate/golden-diff): differential (rust vs the verbatim "
+        "_oracle_parse_dsn_places/_oracle_diff_dsn/_oracle_parse_ses_wires/"
+        "_oracle_diff_ses/_oracle_diff_json/_oracle_json_diff_recursive "
+        "pre-migration pins, incl. real power_pcb_dataset/goldens DSN parity "
+        "runs) + 5 non-vacuous PBT properties + 3 metamorphic relations over "
+        "generated DSN/SES/JSON. Pure Python/Rust, no external binary. The "
+        "temper_io_types.golden_diff_* surface is also pinned by the existing "
+        "tests/testing/test_golden_diff.py consumers through the shim. Not yet "
+        "wired into any CI job."
+    ),
 }
 
 # --- the one dangling workflow reference confirmed in the doc's §1. ---------

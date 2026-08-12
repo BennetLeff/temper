@@ -1816,3 +1816,166 @@ pinned oracle's `GoldenBoard` methods and `GoldenManifest.validate`.
 4. **`..` components are preserved, not resolved.** Both arms keep `..`
    literally (`repo_root / 'a/../b'` resolves to nothing), so parity holds
    there; real manifests don't use `..`.
+
+# Tolerance-aware golden diff (`golden_diff.rs`) — Verification
+
+The tolerance-aware golden-output comparison kernels (`src/golden_diff.rs`,
+exposed as `temper_io_types.golden_diff_dsn` / `golden_diff_ses` /
+`golden_diff_json`) are the Wave-4 PORT of
+`temper_placer/testing/golden_diff.py` (490 LOC) — the last sizeable
+Python module with real parsing/diffing logic (DSN/sexp/JSON
+golden-output comparison with per-boundary tolerance). The Python module
+is now a pure-delegation shim (the `diff_golden` dispatcher,
+`DiffEntry`/`DiffReport` dataclasses and `to_json` presentation stay
+Python); the pre-migration implementation is pinned VERBATIM as the
+`_oracle_*` block inside
+`packages/temper-placer/tests/testing/test_golden_diff_rust_differential.py`
+(origin/main `2426f5cf5`, the migration base). The TDD-RED commit is
+`3639aa299` (the file fails to collect with `AttributeError: module
+'temper_io_types' has no attribute 'golden_diff_dsn'` until the Rust
+surface landed; GREEN landed with `d62e78b2f`, shim `f13ddea80`).
+
+## DSN parser reuse — evidence
+
+The dispatch brief asked whether `_parse_dsn_places` / `_parse_dsn_nets`
+could reuse or wrap the existing DSN parser. They could NOT: the existing
+`dsn` / `dsn_types` / `dsn_exporter` modules are a DSN *formatter*
+(`format_dsn_arg`, `dsn_expression_to_string`, the exporter) and a text
+normaliser (`normalize_dsn`) — no function anywhere in the crate extracts
+`(place ...)` or `(net ... (pins ...))` structures from raw DSN text
+(grepped `dsn.rs`, `dsn_types.rs`, `dsn_exporter.rs`, `dsn_pyo3.rs`).
+The golden_diff regex kernels are therefore genuinely new, transcribed
+verbatim from the reference's `re.finditer` calls.
+
+## What migrated vs stayed Python
+
+| Piece | Verdict |
+|---|---|
+| `_parse_dsn_places` / `_parse_dsn_nets` | migrated (`parse_dsn_places` / `parse_dsn_nets`, pure-Rust, wasm32-safe) |
+| `_parse_ses_wires` | migrated (`parse_ses_wires`) |
+| `_diff_dsn` / `_diff_ses` / `_diff_json` / `_json_diff_recursive` | migrated (`diff_dsn` / `diff_ses` / `diff_json` / `json_diff_recursive`) |
+| `str(float)` rendering (every `golden_value`/`candidate_value`) | migrated (`py_str_float`; no existing pyfmt covers shortest-repr) |
+| `round(x, 6)` in the DSN places parse | migrated (`py_round_6`; exact CPython algorithm) |
+| `diff_golden` dispatch / format registry | stays Python in the shim |
+| `DiffEntry` / `DiffReport` dataclasses + `to_json` | stays Python (public API + presentation) |
+| `GoldenDiffParseError` | stays Python (unused legacy exception) |
+
+## Induction applicability
+
+**Mathematical induction is not applicable.** Every migrated kernel is a
+finite transcription: the three parsers are single regex sweeps; the diffs
+iterate the sorted union of already-materialised key sets; the JSON diff
+is a structural recursion bounded by the input tree's depth, not by any
+size parameter. Per the plan's R1e, a **structural proof** is recorded
+instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every migrated symbol, the Rust
+behaviour is bit-identical to the pinned pre-migration Python
+implementation for every input in the differential suites' domains, with
+the documented seams below.
+
+*Proof by structural cases.*
+
+1. **DSN places parse.** The `[\\d.]+` capture class, the `/100.0` unit
+   division and `round(x, 6)` are transcribed in the reference's exact
+   order (round AFTER divide — load-bearing for fractional DSN units);
+   a `float()` failure on any capture returns `None` for the whole parse
+   (the reference's `try/except Exception`). The capture class has no
+   `-`, so negative coordinates are silently skipped on BOTH sides
+   (shared naive behaviour, pinned by the negative-coord fixture, not
+   fixed).
+2. **`round(x, 6)` exactness.** CPython's `float.__round__` is EXACT: it
+   rounds the exact decimal expansion of the double to 6 places
+   (half-even) and strtod's the result back (correctly rounded). The
+   naive `(x*10^6).round_ties_even()/10^6` diverges at exact ties — the
+   `zone_geometry` coordinate `9836.58905/100` has exact value
+   98.365890500000006…, whose product rounds to the tie 98365890.5 and
+   picks the even neighbour 98365890, while CPython rounds the exact
+   value up to 98365891. `py_round_6` reproduces the exact algorithm with
+   i128 rational arithmetic (x = m·2^e; k = round-half-even of the exact
+   m·10^6·2^e; result = correctly-rounded k·10^-6). Verified bit-identical
+   to CPython over a 449k-value corpus (full-range doubles, DSN-style
+   x/100, 6-dp grid ties with ULP-scale perturbations, 1e-300..1e299):
+   0 mismatches.
+3. **`str(float)` formatting.** The reference renders every value string
+   through CPython's shortest-round-trip `str(float)`. `py_str_float`
+   reproduces the format rules (fixed-point for `-3 <= decpt <= 16`,
+   scientific `e+NN`/`e-NN` with sign and >= 2 exponent digits otherwise,
+   `.0` for integral fixed-point values, lowercase `nan`/`inf`,
+   `-0.0`), with shortest digits from Rust's `{:e}` (Grisu3 + Dragon4).
+   Verified 0 mismatches over 320k values (threshold boundaries
+   1e-4/1e-5 and 1e15/1e16/1e17, subnormals down to 5e-324, |x| <= 1e9
+   sweeps).
+4. **SES distance uses libm `pow`.** The reference writes
+   `(gpt[0]-cpt[0]) ** 2`; Python's float `**` is libm `pow`, and
+   `pow(x, 2.0)` is NOT guaranteed bit-identical to `x*x`. The port uses
+   `f64::powf(2.0)` (the same platform libm call) exactly where the
+   reference exponentiates; `sqrt` is IEEE correctly rounded on both
+   sides. Pinned by the random-SES differential.
+5. **JSON numeric fidelity.** `serde_json`'s vendored float parser is
+   measurably off-by-one-ULP on full-precision literals (measured ~20% of
+   17-digit values, 2026-08-11); the crate now builds serde_json with
+   `arbitrary_precision`, so `Number::as_f64` goes through
+   `str::parse::<f64>()` (correctly rounded, matching CPython `float()`).
+   The crate's other serde_json users (the dsn.rs schema hash — integers
+   only; golden_serializers — floats via `json!`, whose `Number::from_f64`
+   renders with ryu either way) are byte-neutral under the feature,
+   verified by the crate test suite and the io/golden-serializer
+   differentials.
+6. **JSON diff semantics.** Type names reproduce `type(v).__name__`
+   (`dict`/`list`/`int`/`float`/`bool`/`str`/`NoneType`); CPython's
+   `bool` is an `int` subclass so bools enter the numeric branch and
+   render `True`/`False`; dict keys are diffed in sorted union order; list
+   length then index recursion; the float branch uses `delta <= tolerance`
+   (the `<=` boundary is pinned by exactly-at-tolerance fixtures on both
+   SES and JSON).
+7. **Report construction.** `passed` is the conjunction (fails closed on
+   any BINARY/BEYOND entry); the summary is the reference's exact f-string
+   (`{board}/{stage}: {PASS|FAIL} — {n} issues`, em-dash included); parse
+   failures produce the exact golden/candidate distinction and summary
+   strings ("DSN parse failure", "SES parse failure", "Golden JSON parse
+   failure" / "Candidate JSON parse failure").
+
+## R1 gate status
+
+| Gate | Status | Evidence |
+|---|---|---|
+| R1a behavioural A/B | PASS | 54 tests in `test_golden_diff_rust_differential.py`: a fixture matrix (tolerance-edge, rotation-wrap, malformed, nested-JSON, empty) on both the raw-Rust kernels and the shim's `diff_golden`, plus real `power_pcb_dataset/goldens` DSN parity runs. Bit-exact report comparison (entries, passed, summary). |
+| R1b no-regression arm | N/A, recorded | `pr_perf_compare` has no rows for this surface and none is added: the diff is invoked once per golden comparison on content already in memory. No speedup is claimed. |
+| R1c >= 5 non-vacuous properties | PASS | 5 hypothesis properties (P1 identity-pass across all three formats; P2 tolerance monotonicity; P3 rotation mod-360 wrap; P4 JSON boundary flip at exactly-at-tolerance; P5 missing/extra key is BINARY and fails), each with an in-test vacuity guard. |
+| R1d >= 3 MRs | PASS | 3 metamorphic relations (MR1 antisymmetry under argument swap; MR2 identical-extension invariance for SES; MR3 JSON key-order permutation invariance). The random-DSN/SES/JSON differentials double as the CPython-`str(float)` parity sweep. |
+| R1e VERIFICATION.md | PASS | this section |
+| R1f TDD | PASS | RED `3639aa299` — the differential file fails to collect (`AttributeError: no attribute 'golden_diff_dsn'`); GREEN `d62e78b2f` with the Rust surface; shim `f13ddea80`. |
+| R1g Rust practice | PASS | no `unwrap`/`expect` outside `#[cfg(test)]` (two `#[expect]`: the infallible literal-regex construction and the 9-arg dataclass-mirroring constructor); all three pyo3 boundaries wrapped in `temper_py_bridge::catch_panic` (panic -> RuntimeError); `cargo clippy --all-features --all-targets -- -D warnings` clean. |
+| R1h R24 | N/A | string parsing/diffing only — no physics quantity is computed, asserted, or gated; the R24 Chebyshev/BMC/post-solve obligations have no referent. |
+
+## Documented bounds (per R1, recorded here)
+
+1. **`str(float)` shortest-repr tie breaking at |x| >= ~1e14.** Rust's
+   Grisu3/Dragon4 and CPython's David Gay can pick different digit strings
+   among multiple shortest representations for a tiny fraction of doubles
+   at magnitudes >= ~1e14 (measured 72/200000 across uniformly-sampled
+   full-range doubles; 0/320000 at |x| <= 1e9). Golden outputs are PCB mm
+   coordinates and JSON leaves (<= ~1e6); the differential bounds its
+   generated floats to |x| <= 1e9, so the class is never exercised.
+2. **`py_round_6` final conversion above k = 2^52.** For k >= 2^52 the
+   k·10^-6 -> double conversion goes through `str::parse` (correctly
+   rounded, matching CPython's strtod); the k < 2^52 path (all realistic
+   values — |x| < 2^32) is a single correctly-rounded division.
+3. **JSON non-finite / overflow literals.** Python `json.loads` accepts
+   `NaN`/`Infinity`/`-Infinity` and overflows like `1e400` to inf;
+   serde_json rejects those (parse failure) and `as_f64` filters
+   non-finite. Golden outputs are standard finite JSON; out of domain,
+   recorded rather than defended.
+4. **JSON integers above u64::MAX** are stored as f64 by serde_json
+   (type-named "float" where CPython's arbitrary-precision int is "int").
+   Same reachability note.
+5. **`(net X (pins))` with no whitespace after `pins`** does not match
+   the reference's `pins\s+` pattern on either side (shared naive
+   behaviour, pinned by a Rust unit test). Real serialized DSN always
+   emits a space.
+6. **`DiffReport.to_json` and `GoldenDiffParseError` stay Python.**
+   `to_json` is presentation (explicitly kept per the migration scope);
+   `GoldenDiffParseError` is an unused legacy exception.
