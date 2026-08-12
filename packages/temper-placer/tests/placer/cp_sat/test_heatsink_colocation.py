@@ -259,3 +259,66 @@ def test_ortools_model_rejects_the_committed_rotations():
         assert status == cp.INFEASIBLE, (
             f"common rotation {rot}: expected INFEASIBLE, got {solver.StatusName(status)}"
         )
+
+
+@pytest.mark.parametrize("rot", COMMON_ROTATIONS)
+def test_solve_placement_opt_in_binds_the_constraint(monkeypatch, rot: int):
+    """``solve_placement(heatsink_colocation=k)`` must actually apply it.
+
+    Run against the small fixture board rather than the real 169-component
+    one: OR-Tools does not converge on the real board inside a unit-test
+    budget (measured: ``unknown`` at 20s, which is why the Pumpkin engine
+    exists and why the real-board evidence run uses it). The group is
+    re-pointed at two of the fixture's refs so the wiring is exercised
+    non-vacuously -- pointing it at U5/U6, which the fixture does not
+    contain, would make the assertion pass while binding nothing.
+    """
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+    from temper_placer.placer.cp_sat import heatsink_colocation as hc
+    from temper_placer.placer.cp_sat.encoder import solve_placement
+
+    fixture = REPO_ROOT / "packages/temper-placer/tests/fixtures/minimal_board.kicad_pcb"
+    parsed = parse_kicad_pcb(fixture)
+    netlist, board = parsed.netlist, parsed.board
+    group = hc.HeatsinkGroup(heatsink_ref="HS_TEST", refs=("R1", "R2"), part_number="fixture")
+    monkeypatch.setattr(hc, "HEATSINK_GROUPS", (group,))
+
+    result = solve_placement(
+        netlist=netlist,
+        board=board,
+        extra_constraints=[],
+        timeout_ms=15_000,
+        heatsink_colocation=rot,
+    )
+    assert result.status in ("optimal", "feasible"), result.status
+    assert result.rotations["R1"] == rot
+    assert result.rotations["R2"] == rot
+
+    sizes = {c.ref: (float(c.bounds[0]), float(c.bounds[1])) for c in netlist.components}
+    positions = {r: tuple(result.positions[r]) for r in group.refs}
+    rotations = {r: int(result.rotations[r]) for r in group.refs}
+    assert check_heatsink_colocation(positions, rotations, sizes, group) == []
+
+
+def test_solve_placement_without_the_opt_in_leaves_rotations_free():
+    """Control: the constraint is opt-in, not always-on."""
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+    from temper_placer.placer.cp_sat import heatsink_colocation as hc
+    from temper_placer.placer.cp_sat.encoder import solve_placement
+
+    fixture = REPO_ROOT / "packages/temper-placer/tests/fixtures/minimal_board.kicad_pcb"
+    parsed = parse_kicad_pcb(fixture)
+    group = hc.HeatsinkGroup(heatsink_ref="HS_TEST", refs=("R1", "R2"), part_number="fixture")
+
+    result = solve_placement(
+        netlist=parsed.netlist, board=parsed.board, extra_constraints=[], timeout_ms=15_000
+    )
+    assert result.status in ("optimal", "feasible"), result.status
+    sizes = {c.ref: (float(c.bounds[0]), float(c.bounds[1])) for c in parsed.netlist.components}
+    positions = {r: tuple(result.positions[r]) for r in group.refs}
+    rotations = {r: int(result.rotations[r]) for r in group.refs}
+    # Not asserting it is violated -- an unconstrained solve MAY happen to
+    # satisfy it. Asserting only that nothing raised and the refs solved,
+    # so the opt-in is what carries the binding above.
+    assert set(rotations) == set(group.refs)
+    check_heatsink_colocation(positions, rotations, sizes, group)

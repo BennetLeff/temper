@@ -28,6 +28,13 @@ shared `CARGO_TARGET_DIR`, which would break
 `scripts/verify_pumpkin_engine.py` for every other worktree on this
 machine until each re-pinned.
 
+It is reachable from the production entry point as
+`solve_placement(..., heatsink_colocation=<rot 0..3>)`
+(`_encoder_solve.py`), the same opt-in shape `isolation_barrier` already
+uses and posted at the same point in the sequence. Opt-in, and an explicit
+rotation rather than a bool, because the wire vocabulary can only pin a
+rotation, not equate two.
+
 **Nothing in `_constraint_types/` was reusable.** `thermal.py`'s
 `ThermalConstraint`/`ThermalProperties` model spacing, edge preference and
 per-component dissipation; neither carries a co-location group, a heatsink
