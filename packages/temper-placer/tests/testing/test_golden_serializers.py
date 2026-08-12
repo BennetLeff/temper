@@ -7,7 +7,7 @@ import pytest
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.golden_serializers import (
+from temper_io_types import (
     CURRENT_FORMAT_VERSION,
     SERIALIZER_REGISTRY,
     serialize_boardstate_to_dsn,

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from temper_placer.manufacturing.monte_carlo import (
+from temper_design_bundle_python import (
     DistributionParams,
     ManufacturingVariables,
     MonteCarloConfig,

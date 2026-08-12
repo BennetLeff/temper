@@ -56,8 +56,6 @@ temper_placer/deterministic/__init__.py::load_channel_map_from_sidecar  # TODO: 
 temper_placer/deterministic/bottleneck_map.py::load_bottleneck_map  # TODO: temper-xxx
 temper_placer/deterministic/channels.py::ChannelMap.load_from_sidecar  # TODO: temper-xxx
 temper_placer/deterministic/feedback/drc_parser.py::parse_kicad_drc  # TODO: temper-xxx
-temper_placer/deterministic/feedback/drc_runner.py::KiCadDRCRunner.run  # TODO: temper-xxx
-temper_placer/deterministic/feedback/drc_runner.py::run_drc_check  # TODO: temper-xxx
 temper_placer/deterministic/feedback/orchestrator.py::AutomatedZeroDRC.run  # TODO: temper-xxx
 temper_placer/deterministic/feedback/violation_mapper.py::ViolationComponentMapper.map_violation  # TODO: temper-xxx
 temper_placer/deterministic/feedback/zone_adjuster.py::ZoneAdjuster.compute_adjustments  # TODO: temper-xxx
