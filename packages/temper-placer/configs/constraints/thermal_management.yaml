@@ -74,12 +74,34 @@ constraints:
     tier: 3
     because: "Snubber resistor dissipates heat during switching. Keep capacitor away to prevent electrolyte degradation."
 
-  - type: separated
-    a: R_GATE_HIGH  # Gate resistor (2-5W)
-    b: C_VCC2  # Bootstrap cap
-    min_distance_mm: 8
-    tier: 3
-    because: "Gate resistors can get hot during high-frequency switching. Keep away from temperature-sensitive caps."
+  # DISABLED (stale premise, not enforceable as written): derivation in
+  # docs/evidence/2026-08-12-thermal-constraint-derivation.md. R_GATE_HIGH
+  # -> R23 (elec/src/modules.ato hb.gate_hs.rg_on) dissipates ~0.13-0.25W
+  # (derived from the IKW40N120H3's real datasheet gate charge, 185-240nC
+  # @ 15V, at the board's real 47kHz switching frequency -- not the "2-5W"
+  # this line assumed), well inside its 0.5W rating. C_VCC2 -> C17
+  # (hb.gate_hs.boot_cap) is a 10uF/50V X7R *ceramic* (Murata
+  # GRM32ER71H106KA12L, docs/hardware/BOM.md:19), 125C-rated, not the
+  # electrolytic the "temperature-sensitive caps" language implies (that
+  # concern is real, and correctly captured, for the actual electrolytic
+  # C_BUS1/C_BUS2 constraint above). Separately, 8.0mm is this repo's
+  # recurring IEC 60335-1/UCC21550 REINFORCED creepage/clearance figure
+  # (used 9+ times elsewhere for HV<->SELV domain barriers, e.g.
+  # docs/hardware/COMPONENT_COMPATIBILITY_VERIFICATION.md:338,
+  # docs/hardware/PROTECTION_CHAIN_REVIEW.md:108,
+  # docs/hardware/GROUNDING_EMI_STRATEGY.md:389) -- an electrical-isolation
+  # figure, not a thermal one, and R23/C17 share the same floating
+  # high-side gate-drive domain (no isolation barrier between them for a
+  # creepage figure to apply to). No real thermal or electrical
+  # requirement was found to back this line at any distance; re-enable
+  # only with a figure derived from this board's actual copper/thermal
+  # model, not this constant.
+  # - type: separated
+  #   a: R_GATE_HIGH  # Gate resistor (2-5W)
+  #   b: C_VCC2  # Bootstrap cap
+  #   min_distance_mm: 8
+  #   tier: 3
+  #   because: "Gate resistors can get hot during high-frequency switching. Keep away from temperature-sensitive caps."
 
   - type: separated
     a: R_GATE_LOW
