@@ -797,6 +797,9 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
 // ---------------------------------------------------------------------------
 
 #[cfg(test)]
+// Test-only assertions; unwrap/expect on a known-good fixture is the idiom
+// used throughout this crate's test modules (see e.g. board.rs, manufacturing.rs).
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 
@@ -858,7 +861,7 @@ mod tests {
         board_dict
     }
 
-    fn mains_net<'a>(state: &'a BoardState) -> &'a Net {
+    fn mains_net(state: &BoardState) -> &Net {
         state.nets.iter().find(|n| n.name.0 == "MAINS_L").unwrap()
     }
 
