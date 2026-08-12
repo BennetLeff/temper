@@ -35,6 +35,16 @@ on:
 
 jobs:
   test:
+    # Explicit name: the bare job id `test` is a generic, collision-prone
+    # GitHub check-run name (required-checks.json's aggregator resolves a
+    # required context to a check-run purely by name-match -- see the
+    # identical rationale on placer-regression.yml's job, added alongside
+    # this one for the same reason). No other workflow in this repo
+    # currently posts a check-run literally named "test" (python-tests.yml's
+    # own `test` job carries `name: Core Tests`), but naming this ahead of
+    # adding it to required_contexts removes the risk rather than relying on
+    # that staying true.
+    name: Firmware Tests (state-machine + fault-injection)
     runs-on: ubuntu-latest
     timeout-minutes: 15
 

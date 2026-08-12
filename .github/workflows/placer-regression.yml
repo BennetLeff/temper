@@ -33,6 +33,21 @@ on:
 
 jobs:
   regression:
+    # Explicit name so the GitHub check-run this job posts is NOT literally
+    # "regression" -- regression.yml's own job (id `regression`, also
+    # unnamed) posts a check-run under that exact same name, and both
+    # workflows' path filters overlap (regression.yml triggers on
+    # `packages/temper-placer/**`, a superset of this workflow's
+    # `packages/temper-placer/src/**`), so a PR touching the placer's `src/`
+    # fires BOTH. Two check-runs sharing one name is not just cosmetic
+    # confusion: `required-checks.json`'s aggregator (scripts/
+    # check_required_checks.py) resolves a required context to a GitHub
+    # check-run purely by name-match, so an un-disambiguated "regression"
+    # required context could silently observe whichever of the two posted
+    # last -- see docs/evidence/2026-08-11-gate-vacuity-audit.md finding 21
+    # lead (a). Named ahead of adding this job to required_contexts, not
+    # after, so the collision never exists in a required state.
+    name: Placer Regression (baseline-approval gate)
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
