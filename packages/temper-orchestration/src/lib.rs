@@ -469,6 +469,7 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(pipeline_route::run_next_tstamp, m)?)?;
     m.add_function(wrap_pyfunction!(pipeline_route::run_to_stage0_netclass_rules, m)?)?;
     m.add_function(wrap_pyfunction!(pipeline_route::run_write_route_segments, m)?)?;
+    m.add_function(wrap_pyfunction!(pipeline_route::run_summarize_batch_results, m)?)?;
     // Phase C residual (append-only per the U4 dispatch): the pipeline
     // contract tail — dag_types / dag / bottleneck / metrics.
     m.add_class::<dag_types::StageResult>()?;
