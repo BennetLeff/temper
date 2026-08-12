@@ -83,11 +83,20 @@ def generate_netclass_separated_constraints(
     if len(comp_classes) < 2:
         return constraints
 
-    # Collect existing constraint pairs to skip
+    # Collect existing constraint pairs to skip. Only SeparatedConstraint
+    # entries suppress the auto-generated netclass clearance for a pair --
+    # matching on `isinstance(c, SeparatedConstraint)` (the idiom already
+    # used by `_encoder_core.py` / `_encoder_solve.py` to discriminate
+    # constraint types) rather than duck-typing on `a`/`b` attribute
+    # presence. The prior duck-type test also matched AdjacentConstraint
+    # (which has its own `a`/`b` fields), so an adjacency relation on a
+    # pair could silently suppress that pair's netclass clearance
+    # constraint -- an ADJACENT constraint asserts nothing about minimum
+    # separation, so it must not stand in for one.
     existing_pairs: set[tuple[str, str]] = set()
     if existing_constraints:
         for c in existing_constraints:
-            if hasattr(c, "a") and hasattr(c, "b"):
+            if isinstance(c, SeparatedConstraint):
                 key = tuple(sorted([str(c.a), str(c.b)]))
                 existing_pairs.add(key)
 

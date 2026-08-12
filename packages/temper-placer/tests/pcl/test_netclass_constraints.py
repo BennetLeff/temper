@@ -167,3 +167,71 @@ class TestSameClassNoGeneration:
             MockNetlist(), [c1, c2], rules.design_rules
         )
         assert len(constraints) == 0
+
+
+class TestExistingConstraintSkip:
+    """`existing_constraints` should only suppress a pair's auto-generated
+    netclass clearance when a SEPARATED constraint already covers that pair
+    -- an ADJACENT constraint on the same pair asserts a maximum distance,
+    not a minimum separation, and must not be treated as equivalent.
+    """
+
+    def test_adjacent_constraint_does_not_suppress_netclass_clearance(self, rules):
+        from temper_placer.pcl.constraints import AdjacentConstraint, ConstraintTier
+        from temper_placer.placer.cp_sat.netclass_constraints import (
+            generate_netclass_separated_constraints,
+        )
+
+        c1, n1 = _make_mock_component("U1", "DC_BUS+")  # HighVoltage
+        c2, n2 = _make_mock_component("U2", "SPI_CLK")  # Signal
+
+        class MockNetlist:
+            nets = [n1, n2]
+
+        # An AdjacentConstraint on the exact same pair -- has `a`/`b`
+        # attributes like SeparatedConstraint, but asserts a *maximum*
+        # distance, not a minimum separation.
+        adjacent = AdjacentConstraint(
+            a="U1",
+            b="U2",
+            max_distance_mm=10.0,
+            tier=ConstraintTier.HARD,
+            because="Unrelated adjacency requirement",
+        )
+
+        constraints = generate_netclass_separated_constraints(
+            MockNetlist(), [c1, c2], rules.design_rules, existing_constraints=[adjacent]
+        )
+        assert len(constraints) == 1, (
+            "an AdjacentConstraint on a pair must not suppress that pair's "
+            "netclass clearance SEPARATED constraint"
+        )
+        assert constraints[0].min_distance_mm == 6.0
+
+    def test_separated_constraint_does_suppress_netclass_clearance(self, rules):
+        from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
+        from temper_placer.placer.cp_sat.netclass_constraints import (
+            generate_netclass_separated_constraints,
+        )
+
+        c1, n1 = _make_mock_component("U1", "DC_BUS+")  # HighVoltage
+        c2, n2 = _make_mock_component("U2", "SPI_CLK")  # Signal
+
+        class MockNetlist:
+            nets = [n1, n2]
+
+        separated = SeparatedConstraint(
+            a="U1",
+            b="U2",
+            min_distance_mm=6.0,
+            tier=ConstraintTier.HARD,
+            because="Already covered by an explicit rule",
+        )
+
+        constraints = generate_netclass_separated_constraints(
+            MockNetlist(), [c1, c2], rules.design_rules, existing_constraints=[separated]
+        )
+        assert len(constraints) == 0, (
+            "an existing SeparatedConstraint on a pair should still suppress "
+            "the auto-generated netclass clearance for that pair"
+        )
