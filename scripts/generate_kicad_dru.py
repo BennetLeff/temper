@@ -105,6 +105,121 @@ HV_CREEPAGE_PD3_MM = 12.6  # fallback if the PD2 enclosure prerequisite fails
 # changes both points together rather than silently carrying the PD2 number.
 HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM
 
+# ---------------------------------------------------------------------------
+# HV<->HV FUNCTIONAL creepage at the resonant-tank node (ADDED 2026-08-12).
+#
+# The three creepage constraints above (RULES 2, 4, 4b) all require ONE SIDE to
+# be non-HV -- they dimension the reinforced mains/HV <-> LV/SELV barrier. Until
+# this constant existed, NO rule in this file declared a creepage constraint for
+# a pair where BOTH sides are HV, so the highest-voltage pair on the board --
+# the resonant tank's cap<->coil junction against the DC bus rails -- was
+# checked against no creepage requirement at all. Verified two ways in
+# docs/evidence/2026-08-12-hv-clearance-adequacy.md sec 3.2: by rule inventory,
+# and empirically (raising the HighVoltage netclass clearance to 20mm moves the
+# clearance count 386 -> 499 but moves NO creepage count).
+#
+# THE FIGURE. This is FUNCTIONAL insulation (between conductive parts of
+# different potential inside one circuit), so the governing table is IEC
+# 60335-1 **Table 18**, "Minimum Creepage Distances for Functional Insulation"
+# (clauses 29.2.4 and L-2) -- NOT Table 17 (basic insulation), which is what
+# HV_CREEPAGE_PD2_MM above is derived from. Table 18 grants a real concession
+# over Table 17, but only below 500 V working voltage; at and above 500 V the
+# two tables are numerically identical. Full transcription of Table 18 and the
+# side-by-side with Table 17: docs/evidence/2026-08-12-hv-hv-creepage-
+# determination.md sec 3.1-3.2.
+#
+#   working voltage  570.5 Vrms  -> Table 18 band vi (>500 and <=800 V)
+#   material group   IIIa/IIIb   (generic FR-4, CTI unstated; the repo-wide
+#                                 assumption, and IEC 60335-1 merges IIIa/IIIb
+#                                 into one column so the choice is immaterial)
+#   pollution degree PD2         (docs/evidence/2026-08-11-pd2-decision-record.md
+#                                 D1 -- the owner's selected target)
+#   => 6.3mm  (PD3, the fallback, would be 10.0mm)
+#
+# The 570.5 Vrms is measured, not assumed: ngspice against the repo's own
+# committed simulation/harness/nets/zvs_margin_sweep.cir, worst OCP-01-passing
+# corner (L -10%, C -10%, 48 kHz), per-net table in
+# docs/evidence/2026-08-12-hv-clearance-adequacy.md sec 2.3/3.2. Clause 3.1.3
+# Note 2 ("working voltage takes into account resonant voltages") is what makes
+# the resonant swing -- not the 340 V bus -- the number the table is indexed by.
+#
+# NOT ENFORCED-EQUAL TO HV_CREEPAGE_ENFORCED_MM ON PURPOSE. 8.0mm is a
+# REINFORCED figure (Table 17 basic 4.0mm x2 per clause 29.2.3) for a pair that
+# crosses the safety barrier. This pair does not cross it -- both sides are HV.
+# Applying 8.0mm here would be the same false-positive shape as the
+# GateDriveHV/HighVoltageIsolated cases documented in RULE 4's comment below
+# (docs/evidence/2026-08-11-creepage-gatedrivehv-false-positive.md): a
+# same-domain pair charged a cross-barrier figure.
+#
+# PD3 CAVEAT, stated because this number will be read out of context.
+# docs/evidence/2026-08-11-pd2-decision-record.md sec 2 records that the sealed
+# compartment PD2 is conditional on DOES NOT EXIST, and that "PD3/12.6mm governs
+# the as-built construction today". 6.3mm is therefore a FLOOR against the
+# selected target, not a claim the as-built board is compliant; the as-built
+# figure is 10.0mm. Both constants are kept so a mechanical reclassification
+# moves one line, exactly as HV_CREEPAGE_PD2_MM/PD3_MM above do.
+#
+# NOTE ON THE BLANK LINE BELOW -- it is load-bearing, not formatting.
+# scripts/check_creepage_clearance_drift.py classifies each constant's
+# insulation TIER by keyword-scanning the contiguous comment block directly
+# above it, and a blank line ends that block
+# (`_contiguous_comment_block_above`). The prose above deliberately discusses
+# the 8.0mm reinforced figure and the 570.5 Vrms working voltage in order to
+# explain why THIS constant is neither; without the break, those words would
+# be read as this constant's OWN tier and put 6.3mm into a comparison family
+# with 8.0mm/12.6mm, which is precisely the false equivalence the paragraph
+# above exists to deny. With the break these three constants classify as
+# tier-unspecified and are FLAGGED rather than compared -- the same treatment
+# every TEMPER_NET_CLASSES entry already gets. Verified by running that gate
+# before and after: it errors (exit 5) without the break and reports its
+# normal pre-existing violations (exit 3) with it.
+
+# Functional creepage floor for the resonant-tank node, in mm. Derivation,
+# citation and pollution-degree caveat: see the block above.
+HV_TANK_CREEPAGE_PD2_MM = 6.3
+HV_TANK_CREEPAGE_PD3_MM = 10.0  # fallback if the PD2 enclosure prerequisite fails
+
+# Which of the two above is emitted. Deliberately NOT written as the bare
+# `HV_TANK_CREEPAGE_ENFORCED_MM = HV_TANK_CREEPAGE_PD2_MM` alias that
+# HV_CREEPAGE_ENFORCED_MM above uses, and the reason is worth recording rather
+# than leaving as a stylistic oddity:
+#
+# scripts/check_creepage_clearance_drift.py treats a bare `NAME2 = NAME1` as a
+# "selection alias" and then self-checks that the SELECTED constant sits in a
+# comparable (metric, tier) family. It classifies tier by keyword-scanning the
+# attached comment for reinforced/basic/working. This figure is FUNCTIONAL
+# insulation (Table 18) -- a tier that gate does not model -- so it has no
+# family, and the alias form makes the gate exit 5 ("GATE ERROR -- could not run
+# a trustworthy check"), strictly worse than the exit 3 it already reports on
+# main. Measured both ways.
+#
+# Adding "functional" to that gate's tier vocabulary was tried and REJECTED:
+# measured against the pristine tree it also re-tags netclass_rules.yaml's
+# HighVoltageIsolated clearance/creepage entries (whose `because` reads
+# "reinforced separation to LV/SELV, functional-only to its own HV/ACMains
+# neighbours") out of the reinforced families, shrinking [clearance/reinforced]
+# from 4 members to 3 and [creepage/reinforced] from 10 to 9 and turning two
+# real MISMATCH reports into OK ones. That is a loss of gate sensitivity, not a
+# fix. Teaching that gate a functional tier properly -- so it discriminates "the
+# value IS functional" from "the text mentions functional" -- is real work and
+# belongs in its own change, not smuggled in under a creepage rule.
+#
+# The dict-lookup form below keeps the one-line PD switch, duplicates no
+# literal, and reads to that gate as a non-literal expression (its UNRESOLVED
+# bucket) rather than as an alias it must and cannot resolve.
+_TANK_POLLUTION_DEGREE = "PD2"
+HV_TANK_CREEPAGE_ENFORCED_MM = {
+    "PD2": HV_TANK_CREEPAGE_PD2_MM,
+    "PD3": HV_TANK_CREEPAGE_PD3_MM,
+}[_TANK_POLLUTION_DEGREE]
+
+# The net class carrying the resonant-tank node. Named once so every condition
+# below that has to include or exclude it stays in sync -- the failure mode this
+# guards against is the one RULE 4's own 2026-08-11 note describes, where a
+# class was added to one side of one condition and silently inherited a
+# cross-barrier figure everywhere else.
+HV_TANK_CLASS = "HighVoltageTank"
+
 # KiCad uses "Ground" as the net-class name; our Python dict uses "GND"
 KICAD_NAME_MAP = {
     "GND": "Ground",
@@ -440,11 +555,25 @@ def generate_dru() -> str:
         " gate-driver split and still needs the full reinforced boundary."
     )
     lines.append(_SEP)
+    lines.append(
+        "# HighVoltageTank EXCLUDED (2026-08-12): the tank node was carved out"
+        " of HighVoltage into its own class, and without this exclusion an"
+    )
+    lines.append(
+        "# (A=ACMains, B=HighVoltageTank) pair would newly match THIS rule and"
+        " be charged the 8.0mm reinforced cross-barrier figure for a"
+    )
+    lines.append(
+        "# same-HV-domain pairing -- the identical defect this rule's own"
+        " GateDriveHV note above records. RULE 3 keeps handling it."
+    )
+    lines.append(_SEP)
     lines.append('(rule "AC Mains to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'ACMains'"
         " && B.NetClass != 'ACMains'"
         " && B.NetClass != 'HighVoltage'"
+        f" && B.NetClass != '{HV_TANK_CLASS}'"
         " && B.NetClass != 'GateDriveHV'\")"
     )
     lines.append("   (constraint clearance (min 6.0mm))")
@@ -463,7 +592,8 @@ def generate_dru() -> str:
     lines.append('(rule "AC Mains to HV"')
     lines.append(
         "   (condition \"A.NetClass == 'ACMains'"
-        " && B.NetClass == 'HighVoltage'\")"
+        " && (B.NetClass == 'HighVoltage'"
+        f" || B.NetClass == '{HV_TANK_CLASS}')\")"
     )
     lines.append("   (constraint clearance (min 3.0mm))")
     lines.append(")")
@@ -530,9 +660,70 @@ def generate_dru() -> str:
         " docs/evidence/2026-08-11-creepage-gatedrivehv-false-positive.md."
     )
     lines.append(_SEP)
+    lines.append(
+        "# HighVoltageTank EXCLUDED (2026-08-12): same reasoning, and this is"
+        " the exclusion that MATTERS most. Before the tank carve-out the pair"
+    )
+    lines.append(
+        "# (bus rail, tank node) was HighVoltage<->HighVoltage and matched"
+        " nothing here. After it, the ordering (A=HighVoltage bus,"
+    )
+    lines.append(
+        "# B=HighVoltageTank) would match this rule and charge the tank node"
+        " 8.0mm REINFORCED creepage against its own bus -- a same-domain"
+    )
+    lines.append(
+        "# functional pair mislabelled as a barrier crossing. RULE 5a below"
+        " supplies the correct functional figure (Table 18, 6.3mm) instead."
+    )
+    lines.append(_SEP)
     lines.append('(rule "HV to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltage'"
+        " && B.NetClass != 'HighVoltage'"
+        f" && B.NetClass != '{HV_TANK_CLASS}'"
+        " && B.NetClass != 'ACMains'"
+        " && B.NetClass != 'GateDriveHV'"
+        " && B.NetClass != 'HighVoltageIsolated'\")"
+    )
+    lines.append("   (constraint clearance (min 2.0mm))")
+    lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
+    lines.append(")")
+    lines.append("")
+    lines.append(_SEP)
+    lines.append(
+        "# RULE 4c: HighVoltageTank to LV -- an exact clone of RULE 4 above,"
+        " for the class the tank node was carved out into."
+    )
+    lines.append(
+        "# WITHOUT THIS RULE the carve-out would be a SAFETY REGRESSION: while"
+        " tank.c_tank1-p2 was in HighVoltage it received RULE 4's 2.0mm"
+    )
+    lines.append(
+        "# clearance and 8.0mm reinforced creepage against every LV/SELV net,"
+        " and moving it to a new class silently drops that coverage. The"
+    )
+    lines.append(
+        "# figures here are RULE 4's own, carried over unchanged -- this rule"
+        " preserves an existing requirement, it does not introduce one."
+    )
+    lines.append(
+        "# Note PWR_RTN, which has no netclass at all and so lands in Default"
+        " (a known gap: docs/evidence/2026-08-12-hv-clearance-adequacy.md"
+    )
+    lines.append(
+        "# sec 6.3): the tank<->PWR_RTN pair measures 544.6 Vrms, genuinely"
+        " needs 6.3mm functional, and is charged 8.0mm by this rule because"
+    )
+    lines.append(
+        "# Default reads as LV. That is conservative, not wrong, and it is the"
+        " SAME treatment the pair already got before this change."
+    )
+    lines.append(_SEP)
+    lines.append(f'(rule "{HV_TANK_CLASS} to LV"')
+    lines.append(
+        f"   (condition \"A.NetClass == '{HV_TANK_CLASS}'"
+        f" && B.NetClass != '{HV_TANK_CLASS}'"
         " && B.NetClass != 'HighVoltage'"
         " && B.NetClass != 'ACMains'"
         " && B.NetClass != 'GateDriveHV'"
@@ -726,7 +917,9 @@ def generate_dru() -> str:
     lines.append('(rule "HighVoltageIsolated same side"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltageIsolated'"
-        " && (B.NetClass == 'HighVoltage' || B.NetClass == 'ACMains')\")"
+        " && (B.NetClass == 'HighVoltage'"
+        f" || B.NetClass == '{HV_TANK_CLASS}'"
+        " || B.NetClass == 'ACMains')\")"
     )
     lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
     lines.append(")")
@@ -736,6 +929,7 @@ def generate_dru() -> str:
         "   (condition \"A.NetClass == 'HighVoltageIsolated'"
         " && B.NetClass != 'HighVoltageIsolated'"
         " && B.NetClass != 'HighVoltage'"
+        f" && B.NetClass != '{HV_TANK_CLASS}'"
         " && B.NetClass != 'ACMains'"
         " && B.NetClass != 'GateDriveHV'\")"
     )
@@ -811,10 +1005,37 @@ def generate_dru() -> str:
         "# see docs/evidence/2026-07-28-drc-courtyard-condition-fix.md."
     )
     lines.append(_SEP)
+    lines.append(
+        "# HighVoltageTank INCLUDED on both sides (2026-08-12): the three tank"
+        " capacitors C25/C26/C27 each have pad 1 on SW_NODE (HighVoltage) and"
+    )
+    lines.append(
+        "# pad 2 on tank.c_tank1-p2 (HighVoltageTank), so after the carve-out"
+        " this rule -- and the generic 'Same footprint pads' rule, which"
+    )
+    lines.append(
+        "# requires A.NetClass == B.NetClass -- would BOTH stop matching that"
+        " intra-package pair. Widening the condition keeps the intent"
+    )
+    lines.append(
+        "# ('same footprint, same HV domain -> the 2.0mm internal figure')"
+        " intact. Measured impact: zero, because that footprint is a 40mm-"
+    )
+    lines.append(
+        "# pitch axial can (temper:C_Axial_L34.0mm_D22.5mm_P40.00mm) whose two"
+        " pads sit 40mm apart, and the pair-max netclass clearance would have"
+    )
+    lines.append(
+        "# been the same 2.0mm anyway. It is widened for intent parity, not"
+        " to move a number."
+    )
+    lines.append(_SEP)
     lines.append('(rule "HV internal same footprint"')
     lines.append(
-        "   (condition \"A.NetClass == 'HighVoltage'"
-        " && B.NetClass == 'HighVoltage'"
+        "   (condition \"(A.NetClass == 'HighVoltage'"
+        f" || A.NetClass == '{HV_TANK_CLASS}')"
+        " && (B.NetClass == 'HighVoltage'"
+        f" || B.NetClass == '{HV_TANK_CLASS}')"
         " && A.Reference == B.Reference\")"
     )
     lines.append(f"   (constraint clearance (min {fmt_mm(HV_INTERNAL_CLEARANCE_MM)}))")
@@ -843,7 +1064,8 @@ def generate_dru() -> str:
     lines.append('(rule "GateDriveHV near HV"')
     lines.append(
         "   (condition \"A.NetClass == 'GateDriveHV'"
-        " && B.NetClass == 'HighVoltage'\")"
+        " && (B.NetClass == 'HighVoltage'"
+        f" || B.NetClass == '{HV_TANK_CLASS}')\")"
     )
     lines.append("   (constraint clearance (min 0.5mm))")
     lines.append(")")
@@ -851,9 +1073,83 @@ def generate_dru() -> str:
     lines.append('(rule "GateDriveSELV near HV"')
     lines.append(
         "   (condition \"A.NetClass == 'GateDriveSELV'"
-        " && B.NetClass == 'HighVoltage'\")"
+        " && (B.NetClass == 'HighVoltage'"
+        f" || B.NetClass == '{HV_TANK_CLASS}')\")"
     )
     lines.append("   (constraint clearance (min 0.5mm))")
+    lines.append(")")
+    lines.append("")
+    lines.append(_SEP)
+    lines.append(
+        "# RULE 5a: THE HV<->HV FUNCTIONAL CREEPAGE RULE (NEW 2026-08-12)."
+        " This is the constraint this whole class carve-out exists to carry."
+    )
+    lines.append("#")
+    lines.append(
+        "# Every other creepage constraint in this file (RULES 2, 4, 4b, 4c)"
+        " requires one side to be non-HV -- they dimension the reinforced"
+    )
+    lines.append(
+        "# barrier to LV/SELV. This rule is the first one in this repository"
+        " for which BOTH sides are HV. Before it, the highest-voltage pair"
+    )
+    lines.append(
+        "# on the board -- the resonant tank's cap<->coil junction against the"
+        " DC bus rails, 923.7 V peak / 570.5 Vrms measured -- was checked"
+    )
+    lines.append(
+        "# against no creepage requirement whatsoever. See"
+        " docs/evidence/2026-08-12-hv-clearance-adequacy.md sec 3.2 for the"
+    )
+    lines.append(
+        "# rule-inventory and empirical proof of that gap, and"
+        " docs/evidence/2026-08-12-hv-hv-creepage-determination.md for the"
+    )
+    lines.append(
+        "# Table 18 derivation of the 6.3mm figure (see"
+        " HV_TANK_CREEPAGE_PD2_MM's comment at the top of this script)."
+    )
+    lines.append("#")
+    lines.append(
+        "# SCOPE. B is restricted to HighVoltage and HighVoltageTank itself:"
+        " those are exactly the classes carrying the nets the 570.5 Vrms"
+    )
+    lines.append(
+        "# working voltage was MEASURED against (+170V_BUS, DC_BUS_RTN,"
+        " SW_NODE). The pairs to LV/Default, including the unclassed PWR_RTN,"
+    )
+    lines.append(
+        "# are covered by RULE 4c at the stricter 8.0mm and are not repeated"
+        " here."
+    )
+    lines.append("#")
+    lines.append(
+        "# ONE PAIR IS OVER-CONSTRAINED BY ONE TABLE ROW, DELIBERATELY."
+        " tank.c_tank1-p2 <-> SW_NODE (the voltage ACROSS the tank caps)"
+    )
+    lines.append(
+        "# measures 411.5 Vrms, which is Table 18 band v (>400-500 V) = 4.0mm"
+        " at PD2, not band vi's 6.3mm. Splitting it out would need a"
+    )
+    lines.append(
+        "# NetName-keyed override whose rule-precedence behaviour this repo"
+        " has not established; the measured cost of NOT splitting it is zero,"
+    )
+    lines.append(
+        "# because the only components carrying both nets are C25/C26/C27,"
+        " whose pads sit 40mm apart. Recorded so the conservatism is visible"
+    )
+    lines.append("# rather than silently baked in.")
+    lines.append(_SEP)
+    lines.append(f'(rule "{HV_TANK_CLASS} functional creepage"')
+    lines.append(
+        f"   (condition \"A.NetClass == '{HV_TANK_CLASS}'"
+        " && (B.NetClass == 'HighVoltage'"
+        f" || B.NetClass == '{HV_TANK_CLASS}')\")"
+    )
+    lines.append(
+        f"   (constraint creepage (min {fmt_mm(HV_TANK_CREEPAGE_ENFORCED_MM)}))"
+    )
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
@@ -1023,6 +1319,16 @@ def generate_dru() -> str:
         "HighSpeed",
         "Signal",
         "HighCurrent",
+        # Added 2026-08-12 with the tank carve-out. This list is HAND-
+        # MAINTAINED and silently drops any class missing from it: without
+        # this entry tank.c_tank1-p2's tracks would lose the 3.0mm minimum
+        # width they were held to as HighVoltage members, and nothing would
+        # have said so. Same 3.0mm figure -- the carve-out changes the
+        # creepage requirement, not the current-carrying width.
+        # (`HighVoltageIsolated` is still absent from this list; that is a
+        # pre-existing gap, not one this change introduces, and is left
+        # alone rather than fixed silently under an unrelated heading.)
+        HV_TANK_CLASS,
     ]
 
     for py_key in class_order:
