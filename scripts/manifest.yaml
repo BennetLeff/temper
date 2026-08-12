@@ -650,13 +650,13 @@ scripts:
   - sys
 - path: check_netclass_class_param_correspondence.py
   purpose: 'CI gate: assert every netclass declared in BOTH pcb/temper.kicad_pro''s net_settings.classes
-    and design_rules.py''s TEMPER_NET_CLASSES agrees on all four scalar routing fields (clearance,
-    trace_width/track_width, via_diameter, via_drill) -- the dimension PR #1023/#1025 (both titled as
-    syncing kicad_pro against design_rules.py) and sync_kicad_netclass_assignments.py never checked:
-    all three only ever compare/write netclass_assignments (which net maps to which class), never a
-    class''s own parameter values. Currently VIOLATION on origin/main: HighVoltage.clearance 6.0mm
-    (design_rules.py) vs 2.0mm (kicad_pro), plus 4 Power-class field mismatches (docs/evidence/
-    2026-08-12-gate-vacuity-structural-prevention.md). Advisory (continue-on-error) until reconciled.'
+    and design_rules.py''s TEMPER_NET_CLASSES agrees on all four scalar routing fields (clearance, trace_width/track_width,
+    via_diameter, via_drill) -- the dimension PR #1023/#1025 (both titled as syncing kicad_pro against
+    design_rules.py) and sync_kicad_netclass_assignments.py never checked: all three only ever compare/write
+    netclass_assignments (which net maps to which class), never a class''s own parameter values. Currently
+    VIOLATION on origin/main: HighVoltage.clearance 6.0mm (design_rules.py) vs 2.0mm (kicad_pro), plus
+    4 Power-class field mismatches (docs/evidence/ 2026-08-12-gate-vacuity-structural-prevention.md).
+    Advisory (continue-on-error) until reconciled.'
   owner: bennet
   last_run: '2026-08-12'
   category: keep
@@ -665,12 +665,11 @@ scripts:
   - __future__
   - _lib.github_summary
   - _lib.repo
-  - argparse
   - dataclasses
   - json
   - pathlib
   - sys
-  - temper_placer.core.design_rules
+  - typing
 - path: check_netclass_map_board_correspondence.py
   purpose: 'CI gate: assert every net-name key in a hand-maintained top-level net_classes: YAML mapping
     (discovered under configs/*.yaml and packages/temper-placer/configs/*.yaml) is a real net name on
@@ -1052,12 +1051,12 @@ scripts:
   - tomllib
 - path: check_venv_integrity.py
   purpose: 'CI gate: asserts every editable-install `.pth` file and local `direct_url.json` in the checked
-    venv''s site-packages resolves under the expected repo root, and not into a different git worktree or
-    an unrelated checkout -- catches the shared venv identity being silently hijacked (2026-08-11 incident:
-    `maturin develop --active` run from an agent worktree rewrote the SHARED venv''s editable pointers to
-    that worktree, so every measurement in that window ran against the wrong code; see AGENTS.md "Worktree
-    .venv: shared vs. isolated"). Complements, and runs before, check_stale_extensions.py -- freshness is
-    only a coherent question once the venv''s identity is trusted.'
+    venv''s site-packages resolves under the expected repo root, and not into a different git worktree
+    or an unrelated checkout -- catches the shared venv identity being silently hijacked (2026-08-11 incident:
+    `maturin develop --active` run from an agent worktree rewrote the SHARED venv''s editable pointers
+    to that worktree, so every measurement in that window ran against the wrong code; see AGENTS.md "Worktree
+    .venv: shared vs. isolated"). Complements, and runs before, check_stale_extensions.py -- freshness
+    is only a coherent question once the venv''s identity is trusted.'
   owner: bennet
   last_run: '2026-08-11'
   category: keep
@@ -2467,3 +2466,35 @@ scripts:
   - resource
   - sys
   - time
+- path: generate_power_islands.py
+  purpose: 'Generate the In2.Cu power-island pours (+3V3/vcc/+15V/V_BUS_SENSE) and
+    write the result to a new file -- CLI wrapper around router_v6._power_islands.generate_power_islands_content
+    (the In2.Cu counterpart to generate_ground_plane.py''s In1.Cu/gnd); never writes
+    --pcb in place, does not itself run DRC/zone-fill verification on the output.
+    Unregistered since #1047 (2026-08-12 hygiene paydown).'
+  owner: bennet
+  last_run: '2026-08-12'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+- path: check_landed_board_shape.py
+  purpose: 'Hard gate on a placed-and-routed board before it may be landed as pcb/temper.kicad_pcb
+    -- anti-#1049 invariant (segments > 0 AND zones > 0 AND footprints == 168, absolute)
+    plus a tolerance-bounded baseline-agreement check against the verified recipe
+    baseline (docs/evidence/2026-08-12-board-recipe-reproducibility.md sec 6). Not
+    currently invoked by any workflow step -- a manual/CLI check run as part of the
+    board-landing review, not (yet) CI-wired; board-landing track, not this PR''s
+    cluster (2026-08-12 hygiene paydown: manifest entry only).'
+  owner: board-landing
+  last_run: '2026-08-12'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - re
+  - sys
