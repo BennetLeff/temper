@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# provenance: commit=a6a25a786ab697a21793a520d4b12932a56be750 dirty=false
+# provenance: commit=35fba20a20d67c3d68ab90420b88ab814a3a8fa9 dirty=false
 """Solve the real board with Pumpkin under the isolation barrier AND the
 tank-node functional-creepage constraint, and report whether the added
 constraint (a) rejects the committed placement and (b) still lets the
