@@ -63,6 +63,55 @@
 //!   The shim keeps the `ESL_REGISTRY` name populated with the three
 //!   constraint classes it mapped pre-migration.
 //!
+//! # Model representation (plan 2026-08-12-002 U1, R1)
+//!
+//! [`ConstraintModel`] stores variables and constraints **Rust-natively**.
+//! Until 2026-08-12 it held `Vec<Py<PyAny>>` — 22,493,900 CPython objects
+//! for the production board, each a `#[pyclass]` instance carrying three
+//! Rust `String`s, and each variable's `channel_id` stored *twice* (once in
+//! the object, once again as a `HashMap<(i64, String), _>` key). MEASURED
+//! with `docs/evidence/2026-08-12-router-model-memory-probe.py`: **326.7
+//! bytes per variable, 7.35 GB for the full model.**
+//!
+//! What replaces it:
+//!
+//! - [`PackedVar`] — 8 bytes: a `u32` net index and a `u32` that packs a
+//!   2-bit kind tag with a 30-bit interned-string id.
+//! - [`Interner`] — every `channel_id` / `location_id` / diff-pair
+//!   `base_name` stored once (204,490 distinct edge ids, not 22.5M copies),
+//!   as `Arc<str>` shared between the table and its reverse index.
+//! - [`PackedConstraint`] — the three shapes the builder emits, with
+//!   capacity terms in a flat `(u32 variable index, f64 width)` arena.
+//! - Names are **derived**, not stored: `uses_N{net}_{edge}` /
+//!   `uses_B{bundle}_{edge}` / `via_N{net}_{node}` / `cap_{edge}` /
+//!   `diff_{base}_{edge}` / `layer_restr_N{net}_{edge}` are exactly what the
+//!   builder formats, so the packed fields reproduce them byte-for-byte.
+//!
+//! **This is a representation change and nothing else.** No algorithm
+//! moves, no output moves, and every pyo3 getter keeps its signature and
+//! its semantics — `variables` / `constraints` / `net_channel_vars` /
+//! `terms` / `p_var` still hand back the same pyclass instances with the
+//! same field values in the same order, rebuilt on demand (they already
+//! rebuilt a fresh `PyList` on every access). Two escape hatches keep that
+//! promise total rather than approximate:
+//!
+//! - Anything `add_variable` cannot reproduce from packed fields — a
+//!   `net_idx` outside `u32`, an unexpected `var_type`, a hand-written
+//!   name such as `NetChannelVar(name="BOGUS", …)` — is retained as the
+//!   caller's original object (`VarKind::Foreign`) and still routed into
+//!   the same dict. No production path takes it.
+//! - `add_constraint` always retains the caller's object verbatim: its two
+//!   users are the PCL lowering paths, which hand over constraints
+//!   referencing objects the model knows nothing about (a
+//!   `DiffPairConstraint` whose `p_var` is a bare `str`, for one).
+//!
+//! The one observable difference is object *identity*: two reads of
+//! `.variables` used to yield the same instances and now yield
+//! equal-valued fresh ones. Nothing in the tree compares model variables
+//! by identity or uses one as a dict key, and these pyclasses define
+//! neither `__eq__` nor `__hash__` for such a comparison to have been
+//! meaningful through.
+//!
 //! # Bit-exactness notes
 //!
 //! - The edge-identity kernel (`canonical_channel_edges`) is the
@@ -99,6 +148,7 @@
 
 use std::collections::{BTreeSet, HashMap};
 use std::panic::AssertUnwindSafe;
+use std::sync::Arc;
 
 use pyo3::create_exception;
 use pyo3::exceptions::PyRuntimeError;
@@ -297,7 +347,23 @@ pub struct CapacityConstraint {
     pub capacity: f64,
     #[pyo3(get)]
     pub slack_factor: f64,
-    terms: Vec<(Py<PyAny>, f64)>,
+    terms: CapacityTerms,
+}
+
+/// Where a `CapacityConstraint`'s `(variable, width)` terms live.
+///
+/// A constraint built from Python owns its terms as the Python objects the
+/// caller passed (`Owned`, the pre-U1 shape, byte-for-byte). A constraint
+/// *reconstructed from the model* borrows them (`Packed`): the model holds
+/// the terms as `(u32 variable index, f64 width)` in a flat arena and the
+/// `terms` getter materialises the 2-tuples on demand. That laziness is
+/// load-bearing — materialising `list(model.constraints)` would otherwise
+/// build one Python variable object per term, i.e. exactly the 22.5M
+/// objects U1 exists to delete.
+#[derive(Debug)]
+enum CapacityTerms {
+    Owned(Vec<(Py<PyAny>, f64)>),
+    Packed { model: Py<ConstraintModel>, start: u32, len: u32 },
 }
 
 #[pymethods]
@@ -318,10 +384,9 @@ impl CapacityConstraint {
             channel_id,
             capacity,
             slack_factor,
-            terms: terms
-                .into_iter()
-                .map(|(v, w)| (v.unbind(), w))
-                .collect(),
+            terms: CapacityTerms::Owned(
+                terms.into_iter().map(|(v, w)| (v.unbind(), w)).collect(),
+            ),
         }
     }
 
@@ -331,15 +396,34 @@ impl CapacityConstraint {
     fn terms(&self, py: Python<'_>) -> PyResult<Py<PyList>> {
         guard(|| {
             let list = PyList::empty(py);
-            for (var, width) in &self.terms {
-                let var_obj = var.clone_ref(py).into_bound(py);
-                let width_obj = width.into_pyobject(py)?.into_any();
-                let tup = PyTuple::new(py, [var_obj, width_obj])?;
-                list.append(tup)?;
+            match &self.terms {
+                CapacityTerms::Owned(terms) => {
+                    for (var, width) in terms {
+                        append_term(py, &list, var.clone_ref(py), *width)?;
+                    }
+                }
+                CapacityTerms::Packed { model, start, len } => {
+                    let m = model.bind(py).borrow();
+                    for offset in 0..*len {
+                        let (var_idx, width) = m.term(*start + offset)?;
+                        let var = m.variable_object(py, var_idx)?;
+                        append_term(py, &list, var, width)?;
+                    }
+                }
             }
             Ok(list.unbind())
         })
     }
+}
+
+fn append_term(
+    py: Python<'_>,
+    list: &Bound<'_, PyList>,
+    var: Py<PyAny>,
+    width: f64,
+) -> PyResult<()> {
+    let width_obj = width.into_pyobject(py)?.into_any();
+    list.append(PyTuple::new(py, [var.into_bound(py), width_obj])?)
 }
 
 /// `DiffPairConstraint`: `uses[p_net, c] == uses[n_net, c]`.
@@ -356,8 +440,32 @@ pub struct DiffPairConstraint {
     pub p_net_idx: i64,
     #[pyo3(get)]
     pub n_net_idx: i64,
-    p_var: Py<PyAny>,
-    n_var: Py<PyAny>,
+    p_var: VarSlot,
+    n_var: VarSlot,
+}
+
+/// Where a `DiffPairConstraint`'s `p_var`/`n_var` live — the same
+/// owned-vs-borrowed split as [`CapacityTerms`], for the same reason.
+///
+/// Note the `Owned` arm carries an arbitrary object, not necessarily a
+/// variable: `_pipeline_route._augment_with_pcl_constraints` constructs
+/// `DiffPairConstraint(p_var=<str>, n_var=<str>)` from the PCL compiler's
+/// lowered output.
+#[derive(Debug)]
+enum VarSlot {
+    Owned(Py<PyAny>),
+    Packed { model: Py<ConstraintModel>, idx: u32 },
+}
+
+impl VarSlot {
+    fn resolve(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        match self {
+            VarSlot::Owned(obj) => Ok(obj.clone_ref(py)),
+            VarSlot::Packed { model, idx } => {
+                model.bind(py).borrow().variable_object(py, *idx)
+            }
+        }
+    }
 }
 
 #[pymethods]
@@ -379,19 +487,19 @@ impl DiffPairConstraint {
             channel_id,
             p_net_idx,
             n_net_idx,
-            p_var: p_var.unbind(),
-            n_var: n_var.unbind(),
+            p_var: VarSlot::Owned(p_var.unbind()),
+            n_var: VarSlot::Owned(n_var.unbind()),
         }
     }
 
     #[getter]
-    fn p_var(&self, py: Python<'_>) -> Py<PyAny> {
-        self.p_var.clone_ref(py)
+    fn p_var(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        guard(|| self.p_var.resolve(py))
     }
 
     #[getter]
-    fn n_var(&self, py: Python<'_>) -> Py<PyAny> {
-        self.n_var.clone_ref(py)
+    fn n_var(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        guard(|| self.n_var.resolve(py))
     }
 }
 
@@ -474,20 +582,400 @@ impl ChannelSeparationConstraint {
 // ConstraintModel — the variable/constraint registry
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// The Rust-native model representation (plan 2026-08-12-002 U1, R1)
+// ---------------------------------------------------------------------------
+
+/// Append-only string interner.
+///
+/// Every SAT variable's `channel_id` is one of the skeleton's edge ids
+/// (204,490 of them on the production board) and every via var's
+/// `location_id` is one of the skeleton's node ids — so the *distinct*
+/// string count is four orders of magnitude below the *variable* count
+/// (22,493,900). Pre-U1 each of those strings was stored twice per
+/// variable: once inside the `NetChannelVar` CPython object and once again
+/// as the `HashMap<(i64, String), _>` key.
+///
+/// `Arc<str>` rather than `String` so the table and its reverse index share
+/// one allocation per distinct string instead of two.
+#[derive(Debug, Default)]
+struct Interner {
+    values: Vec<Arc<str>>,
+    index: HashMap<Arc<str>, u32>,
+}
+
+impl Interner {
+    /// Interned id for `s`, inserting it if new.
+    fn intern(&mut self, s: &str) -> PyResult<u32> {
+        if let Some(id) = self.index.get(s) {
+            return Ok(*id);
+        }
+        let id = u32::try_from(self.values.len())
+            .ok()
+            .filter(|id| *id <= MAX_INTERNED_ID)
+            .ok_or_else(|| PyRuntimeError::new_err("ConstraintModel: interner exhausted"))?;
+        let shared: Arc<str> = Arc::from(s);
+        self.values.push(Arc::clone(&shared));
+        let _ = self.index.insert(shared, id);
+        Ok(id)
+    }
+
+    /// Interned id for `s` if it is already present. Never inserts — the
+    /// builder's lookups (`model_net_var_idx` and friends) must not grow the
+    /// table with edge ids that own no variable.
+    fn lookup(&self, s: &str) -> Option<u32> {
+        self.index.get(s).copied()
+    }
+
+    fn get(&self, id: u32) -> PyResult<&str> {
+        self.values
+            .get(id as usize)
+            .map(|s| &**s)
+            .ok_or_else(|| PyRuntimeError::new_err("ConstraintModel: bad interned id"))
+    }
+}
+
+/// Which shape a [`PackedVar`] carries.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum VarKind {
+    /// `NetChannelVar`, `var_type == "bool"`; key is the interned `channel_id`.
+    NetChannel = 0,
+    /// `NetChannelVar`, `var_type == "bundle"`; key is the interned `channel_id`.
+    Bundle = 1,
+    /// `ViaVar`, `var_type == "bool"`; key is the interned `location_id`.
+    Via = 2,
+    /// Anything else `add_variable` was handed: key indexes `foreign_vars`
+    /// and the original Python object is retained verbatim.
+    Foreign = 3,
+}
+
+const VAR_KIND_SHIFT: u32 = 30;
+const MAX_INTERNED_ID: u32 = (1 << VAR_KIND_SHIFT) - 1;
+
+/// One SAT variable, in **8 bytes**.
+///
+/// Pre-U1 this was a `Py<PyAny>` pointing at a `#[pyclass]` instance holding
+/// three Rust `String`s: 326.7 bytes/variable measured
+/// (`docs/evidence/2026-08-12-router-model-memory-probe.py`), 7.35 GB for
+/// the full 22,493,900-variable model.
+///
+/// The kind lives in the top two bits of `kind_key` so the record stays at
+/// two `u32`s with no padding; the remaining 30 bits index the interner (or
+/// `foreign_vars`), which is why [`Interner::intern`] caps at
+/// [`MAX_INTERNED_ID`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct PackedVar {
+    net_idx: u32,
+    kind_key: u32,
+}
+
+impl PackedVar {
+    fn new(kind: VarKind, net_idx: u32, key: u32) -> PyResult<Self> {
+        if key > MAX_INTERNED_ID {
+            return Err(PyRuntimeError::new_err("ConstraintModel: variable key overflow"));
+        }
+        Ok(Self { net_idx, kind_key: ((kind as u32) << VAR_KIND_SHIFT) | key })
+    }
+
+    fn kind(self) -> VarKind {
+        match self.kind_key >> VAR_KIND_SHIFT {
+            0 => VarKind::NetChannel,
+            1 => VarKind::Bundle,
+            2 => VarKind::Via,
+            _ => VarKind::Foreign,
+        }
+    }
+
+    fn key(self) -> u32 {
+        self.kind_key & MAX_INTERNED_ID
+    }
+}
+
+/// One constraint, in Rust-native form.
+///
+/// The builder only ever emits the first three; `add_constraint` (the
+/// Python-facing entry point, used by the PCL lowering paths) always takes
+/// `Foreign` and keeps the caller's object exactly as it was handed over.
+#[derive(Debug, Clone, Copy)]
+enum PackedConstraint {
+    /// `cap_{channel_id}`; terms are `[term_start, term_start + term_len)`
+    /// of the model's flat term arena.
+    Capacity { channel: u32, capacity: f64, slack_factor: f64, term_start: u32, term_len: u32 },
+    /// `diff_{base_name}_{channel_id}`; `p_var`/`n_var` index `vars`.
+    DiffPair { channel: u32, base: u32, p_net_idx: i64, n_net_idx: i64, p_var: u32, n_var: u32 },
+    /// `layer_restr_N{net_idx}_{channel_id}`.
+    Layer { channel: u32, net_idx: i64, allowed: bool },
+    /// Index into `foreign_cons`.
+    Foreign(u32),
+}
+
 /// `ConstraintModel`: the SAT/SMT constraint model registry.
 ///
 /// `net_channel_vars` and `bundle_channel_vars` are kept SEPARATE (the
 /// 2026-08-07 Sec 3.3 net-index/bundle-id collision fix): bundle variables
 /// carry `var_type == "bundle"` and are keyed by `(bundle_id, channel_id)`,
 /// never by a real net index.
+///
+/// **Representation (plan 2026-08-12-002 U1).** Variables and constraints
+/// are stored as the packed Rust records above, never as CPython objects.
+/// Every Python-facing getter keeps its exact pre-U1 signature and
+/// semantics — it rebuilds the objects on demand, exactly as it already
+/// rebuilt a fresh `PyList` on demand. The only observable difference is
+/// object *identity*: two reads of `.variables` used to hand back the same
+/// instances and now hand back equal-valued fresh ones. Nothing in the
+/// tree compares model variables by identity or uses one as a dict key
+/// (`types_py_bridge.rs` reads `.name`; `pipeline_route.rs`'s clause-origin
+/// walk reads attributes; the differential suite canonicalises by field
+/// value), and there is no `__hash__`/`__eq__` on these pyclasses for such
+/// a comparison to have been meaningful through.
 #[pyclass(module = "temper_design_bundle_python.model_builder", skip_from_py_object)]
 #[derive(Debug, Default)]
 pub struct ConstraintModel {
-    variables: Vec<Py<PyAny>>,
-    constraints: Vec<Py<PyAny>>,
-    net_channel_vars: HashMap<(i64, String), Py<PyAny>>,
-    bundle_channel_vars: HashMap<(i64, String), Py<PyAny>>,
-    via_vars: HashMap<(i64, String), Py<PyAny>>,
+    /// `channel_id` / `location_id` / diff-pair `base_name` strings, once each.
+    ids: Interner,
+    /// One record per variable, in insertion order.
+    vars: Vec<PackedVar>,
+    /// Verbatim Python objects for variables that do not fit the packed
+    /// shapes (see [`ConstraintModel::pack_variable`]). Empty on every
+    /// production path.
+    foreign_vars: Vec<Py<PyAny>>,
+    /// One record per constraint, in insertion order.
+    cons: Vec<PackedConstraint>,
+    /// Verbatim Python objects for constraints added via `add_constraint`.
+    foreign_cons: Vec<Py<PyAny>>,
+    /// Flat `(variable index, width)` arena for `Capacity` terms, held as
+    /// two parallel vectors so a term costs 12 bytes rather than the 16 a
+    /// `Vec<(u32, f64)>` would pad to.
+    term_vars: Vec<u32>,
+    term_widths: Vec<f64>,
+    net_channel_vars: HashMap<(i64, u32), u32>,
+    bundle_channel_vars: HashMap<(i64, u32), u32>,
+    via_vars: HashMap<(i64, u32), u32>,
+}
+
+impl ConstraintModel {
+    /// `(variable index, width)` for term slot `i` of the arena.
+    fn term(&self, i: u32) -> PyResult<(u32, f64)> {
+        let i = i as usize;
+        match (self.term_vars.get(i), self.term_widths.get(i)) {
+            (Some(v), Some(w)) => Ok((*v, *w)),
+            _ => Err(PyRuntimeError::new_err("ConstraintModel: term index out of range")),
+        }
+    }
+
+    /// Rebuild variable `idx` as the Python object the pre-U1 model stored.
+    fn variable_object(&self, py: Python<'_>, idx: u32) -> PyResult<Py<PyAny>> {
+        let packed = *self
+            .vars
+            .get(idx as usize)
+            .ok_or_else(|| PyRuntimeError::new_err("ConstraintModel: variable index out of range"))?;
+        match packed.kind() {
+            VarKind::Foreign => self
+                .foreign_vars
+                .get(packed.key() as usize)
+                .map(|v| v.clone_ref(py))
+                .ok_or_else(|| PyRuntimeError::new_err("ConstraintModel: foreign var missing")),
+            VarKind::NetChannel | VarKind::Bundle => {
+                let bundle = packed.kind() == VarKind::Bundle;
+                let channel_id = self.ids.get(packed.key())?;
+                let prefix = if bundle { 'B' } else { 'N' };
+                let var = NetChannelVar {
+                    name: format!("uses_{prefix}{}_{channel_id}", packed.net_idx),
+                    var_type: if bundle { "bundle" } else { "bool" }.to_string(),
+                    net_idx: i64::from(packed.net_idx),
+                    channel_id: channel_id.to_string(),
+                };
+                Ok(Py::new(py, var)?.into_any())
+            }
+            VarKind::Via => {
+                let location_id = self.ids.get(packed.key())?;
+                let var = ViaVar {
+                    name: format!("via_N{}_{location_id}", packed.net_idx),
+                    var_type: "bool".to_string(),
+                    net_idx: i64::from(packed.net_idx),
+                    location_id: location_id.to_string(),
+                };
+                Ok(Py::new(py, var)?.into_any())
+            }
+        }
+    }
+
+    /// Rebuild constraint `i` as the Python object the pre-U1 model stored.
+    ///
+    /// `model` is this model's own handle, threaded in so the rebuilt
+    /// `CapacityConstraint`/`DiffPairConstraint` can resolve their variable
+    /// references lazily instead of materialising them here.
+    fn constraint_object(
+        &self,
+        py: Python<'_>,
+        model: &Py<ConstraintModel>,
+        i: usize,
+    ) -> PyResult<Py<PyAny>> {
+        let packed = *self
+            .cons
+            .get(i)
+            .ok_or_else(|| PyRuntimeError::new_err("ConstraintModel: constraint index out of range"))?;
+        match packed {
+            PackedConstraint::Foreign(key) => self
+                .foreign_cons
+                .get(key as usize)
+                .map(|c| c.clone_ref(py))
+                .ok_or_else(|| PyRuntimeError::new_err("ConstraintModel: foreign constraint missing")),
+            PackedConstraint::Capacity { channel, capacity, slack_factor, term_start, term_len } => {
+                let channel_id = self.ids.get(channel)?;
+                let c = CapacityConstraint {
+                    name: format!("cap_{channel_id}"),
+                    description: String::new(),
+                    channel_id: channel_id.to_string(),
+                    capacity,
+                    slack_factor,
+                    terms: CapacityTerms::Packed {
+                        model: model.clone_ref(py),
+                        start: term_start,
+                        len: term_len,
+                    },
+                };
+                Ok(Py::new(py, c)?.into_any())
+            }
+            PackedConstraint::DiffPair { channel, base, p_net_idx, n_net_idx, p_var, n_var } => {
+                let channel_id = self.ids.get(channel)?;
+                let base_name = self.ids.get(base)?;
+                let c = DiffPairConstraint {
+                    name: format!("diff_{base_name}_{channel_id}"),
+                    description: String::new(),
+                    channel_id: channel_id.to_string(),
+                    p_net_idx,
+                    n_net_idx,
+                    p_var: VarSlot::Packed { model: model.clone_ref(py), idx: p_var },
+                    n_var: VarSlot::Packed { model: model.clone_ref(py), idx: n_var },
+                };
+                Ok(Py::new(py, c)?.into_any())
+            }
+            PackedConstraint::Layer { channel, net_idx, allowed } => {
+                let channel_id = self.ids.get(channel)?;
+                let c = LayerConstraint {
+                    name: format!("layer_restr_N{net_idx}_{channel_id}"),
+                    description: String::new(),
+                    net_idx,
+                    channel_id: channel_id.to_string(),
+                    allowed,
+                };
+                Ok(Py::new(py, c)?.into_any())
+            }
+        }
+    }
+
+    /// Try to express `(name, var_type, net_idx, key)` as a [`PackedVar`].
+    ///
+    /// Returns `None` when the object cannot be reconstructed byte-for-byte
+    /// from the packed fields — a `net_idx` outside `u32`, an unexpected
+    /// `var_type`, or a `name` that is not the canonical rendering. The
+    /// caller then retains the original Python object as `Foreign`, so a
+    /// hand-built variable such as `NetChannelVar(name="BOGUS", net_idx=0,
+    /// channel_id="EDGE")` keeps its name exactly.
+    fn pack_variable(
+        kind: VarKind,
+        name: &str,
+        var_type: &str,
+        net_idx: i64,
+        key_value: &str,
+        key: u32,
+    ) -> PyResult<Option<PackedVar>> {
+        let expected_type = if kind == VarKind::Bundle { "bundle" } else { "bool" };
+        if var_type != expected_type {
+            return Ok(None);
+        }
+        let Ok(net_idx_u32) = u32::try_from(net_idx) else {
+            return Ok(None);
+        };
+        let expected_name = match kind {
+            VarKind::NetChannel => format!("uses_N{net_idx_u32}_{key_value}"),
+            VarKind::Bundle => format!("uses_B{net_idx_u32}_{key_value}"),
+            VarKind::Via => format!("via_N{net_idx_u32}_{key_value}"),
+            VarKind::Foreign => return Ok(None),
+        };
+        if name != expected_name {
+            return Ok(None);
+        }
+        PackedVar::new(kind, net_idx_u32, key).map(Some)
+    }
+
+    /// Append a variable and route it into the type-appropriate dict.
+    ///
+    /// `original` is only consulted when the variable cannot be packed.
+    /// `kind` must be one of the three packed kinds; use
+    /// [`ConstraintModel::insert_foreign_variable`] for anything else.
+    fn insert_variable(
+        &mut self,
+        kind: VarKind,
+        name: &str,
+        var_type: &str,
+        net_idx: i64,
+        key_value: &str,
+        original: impl FnOnce() -> PyResult<Py<PyAny>>,
+    ) -> PyResult<()> {
+        let key = self.ids.intern(key_value)?;
+        let packed = match Self::pack_variable(kind, name, var_type, net_idx, key_value, key)? {
+            Some(packed) => packed,
+            None => self.take_foreign_var(original()?)?,
+        };
+        let idx = u32::try_from(self.vars.len())
+            .map_err(|_| PyRuntimeError::new_err("ConstraintModel: too many variables"))?;
+        self.vars.push(packed);
+        let dict = match kind {
+            VarKind::NetChannel => &mut self.net_channel_vars,
+            VarKind::Bundle => &mut self.bundle_channel_vars,
+            VarKind::Via => &mut self.via_vars,
+            VarKind::Foreign => return Ok(()),
+        };
+        let _ = dict.insert((net_idx, key), idx);
+        Ok(())
+    }
+
+    /// Append a variable of a shape the model does not index — retained
+    /// verbatim, in insertion order, and routed into no dict (exactly what
+    /// the pre-U1 `add_variable` did for anything that was neither a
+    /// `NetChannelVar` nor a `ViaVar`).
+    fn insert_foreign_variable(&mut self, var: Py<PyAny>) -> PyResult<()> {
+        let packed = self.take_foreign_var(var)?;
+        self.vars.push(packed);
+        Ok(())
+    }
+
+    fn take_foreign_var(&mut self, var: Py<PyAny>) -> PyResult<PackedVar> {
+        let key = u32::try_from(self.foreign_vars.len()).map_err(|_| {
+            PyRuntimeError::new_err("ConstraintModel: too many unpacked variables")
+        })?;
+        self.foreign_vars.push(var);
+        PackedVar::new(VarKind::Foreign, 0, key)
+    }
+
+    /// Index of the variable registered for `(net_idx, key_value)`, if any.
+    fn lookup_var(
+        &self,
+        dict: &HashMap<(i64, u32), u32>,
+        net_idx: i64,
+        key_value: &str,
+    ) -> Option<u32> {
+        self.ids
+            .lookup(key_value)
+            .and_then(|key| dict.get(&(net_idx, key)).copied())
+    }
+
+    fn rebuild_dict(
+        &self,
+        py: Python<'_>,
+        dict: &HashMap<(i64, u32), u32>,
+    ) -> PyResult<Py<PyDict>> {
+        let d = PyDict::new(py);
+        for ((net_idx, key), var_idx) in dict {
+            let net_obj = net_idx.into_pyobject(py)?.into_any();
+            let key_obj = self.ids.get(*key)?.into_pyobject(py)?.into_any();
+            let tuple_key = PyTuple::new(py, [net_obj, key_obj])?;
+            d.set_item(tuple_key, self.variable_object(py, *var_idx)?)?;
+        }
+        Ok(d.unbind())
+    }
 }
 
 #[pymethods]
@@ -502,26 +990,43 @@ impl ConstraintModel {
         guard(|| {
             if var.is_instance_of::<NetChannelVar>() {
                 let v = var.extract::<PyRef<'_, NetChannelVar>>()?;
-                let key = (v.net_idx, v.channel_id.clone());
-                if v.var_type == "bundle" {
-                    self.bundle_channel_vars.insert(key, var.clone().unbind());
-                } else {
-                    self.net_channel_vars.insert(key, var.clone().unbind());
-                }
+                let kind =
+                    if v.var_type == "bundle" { VarKind::Bundle } else { VarKind::NetChannel };
+                let (name, var_type, net_idx, channel_id) =
+                    (v.name.clone(), v.var_type.clone(), v.net_idx, v.channel_id.clone());
+                drop(v);
+                self.insert_variable(kind, &name, &var_type, net_idx, &channel_id, || {
+                    Ok(var.clone().unbind())
+                })
             } else if var.is_instance_of::<ViaVar>() {
                 let v = var.extract::<PyRef<'_, ViaVar>>()?;
-                self.via_vars
-                    .insert((v.net_idx, v.location_id.clone()), var.clone().unbind());
+                let (name, var_type, net_idx, location_id) =
+                    (v.name.clone(), v.var_type.clone(), v.net_idx, v.location_id.clone());
+                drop(v);
+                self.insert_variable(VarKind::Via, &name, &var_type, net_idx, &location_id, || {
+                    Ok(var.clone().unbind())
+                })
+            } else {
+                // Not one of the two shapes the model routes into a dict:
+                // keep the object verbatim, in insertion order.
+                self.insert_foreign_variable(var.unbind())
             }
-            self.variables.push(var.unbind());
-            Ok(())
         })
     }
 
     /// `add_constraint`: append a constraint.
+    ///
+    /// Always retained verbatim. The Python-facing entry point exists for
+    /// the two PCL lowering paths, which add a handful of constraints
+    /// carrying objects the model knows nothing about (a
+    /// `DiffPairConstraint` whose `p_var` is a bare `str`, for one); the
+    /// builder's own 200k-odd constraints never come through here.
     fn add_constraint(&mut self, constraint: Bound<'_, PyAny>) -> PyResult<()> {
         guard(|| {
-            self.constraints.push(constraint.unbind());
+            let key = u32::try_from(self.foreign_cons.len())
+                .map_err(|_| PyRuntimeError::new_err("ConstraintModel: too many constraints"))?;
+            self.foreign_cons.push(constraint.unbind());
+            self.cons.push(PackedConstraint::Foreign(key));
             Ok(())
         })
     }
@@ -529,13 +1034,13 @@ impl ConstraintModel {
     /// `variable_count`.
     #[getter]
     fn variable_count(&self) -> usize {
-        self.variables.len()
+        self.vars.len()
     }
 
     /// `constraint_count`.
     #[getter]
     fn constraint_count(&self) -> usize {
-        self.constraints.len()
+        self.cons.len()
     }
 
     /// `variables` — a fresh Python list per access (like the pre-migration
@@ -544,8 +1049,10 @@ impl ConstraintModel {
     fn variables(&self, py: Python<'_>) -> PyResult<Py<PyList>> {
         guard(|| {
             let list = PyList::empty(py);
-            for v in &self.variables {
-                list.append(v.clone_ref(py))?;
+            for idx in 0..self.vars.len() {
+                let idx = u32::try_from(idx)
+                    .map_err(|_| PyRuntimeError::new_err("ConstraintModel: too many variables"))?;
+                list.append(self.variable_object(py, idx)?)?;
             }
             Ok(list.unbind())
         })
@@ -553,11 +1060,14 @@ impl ConstraintModel {
 
     /// `constraints` — a fresh Python list per access.
     #[getter]
-    fn constraints(&self, py: Python<'_>) -> PyResult<Py<PyList>> {
+    fn constraints(slf: &Bound<'_, Self>) -> PyResult<Py<PyList>> {
         guard(|| {
+            let py = slf.py();
+            let model = slf.clone().unbind();
+            let m = slf.borrow();
             let list = PyList::empty(py);
-            for c in &self.constraints {
-                list.append(c.clone_ref(py))?;
+            for i in 0..m.cons.len() {
+                list.append(m.constraint_object(py, &model, i)?)?;
             }
             Ok(list.unbind())
         })
@@ -565,32 +1075,18 @@ impl ConstraintModel {
 
     #[getter(net_channel_vars)]
     fn net_channel_vars_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
-        guard(|| py_dict_from_vars(py, &self.net_channel_vars))
+        guard(|| self.rebuild_dict(py, &self.net_channel_vars))
     }
 
     #[getter(bundle_channel_vars)]
     fn bundle_channel_vars_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
-        guard(|| py_dict_from_vars(py, &self.bundle_channel_vars))
+        guard(|| self.rebuild_dict(py, &self.bundle_channel_vars))
     }
 
     #[getter(via_vars)]
     fn via_vars_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
-        guard(|| py_dict_from_vars(py, &self.via_vars))
+        guard(|| self.rebuild_dict(py, &self.via_vars))
     }
-}
-
-fn py_dict_from_vars(
-    py: Python<'_>,
-    vars: &HashMap<(i64, String), Py<PyAny>>,
-) -> PyResult<Py<PyDict>> {
-    let d = PyDict::new(py);
-    for ((idx, channel), var) in vars {
-        let idx_obj = idx.into_pyobject(py)?.into_any();
-        let channel_obj = channel.into_pyobject(py)?.into_any();
-        let key = PyTuple::new(py, [idx_obj, channel_obj])?;
-        d.set_item(key, var)?;
-    }
-    Ok(d.unbind())
 }
 
 // ---------------------------------------------------------------------------
@@ -689,52 +1185,43 @@ impl ModelBuilder {
         Ok(trace_width + clearance)
     }
 
-    fn model_net_var(&self, py: Python<'_>, net_idx: i64, edge_id: &str) -> PyResult<Option<Py<PyAny>>> {
+    /// Index of the `(net_idx, edge_id)` per-net channel variable, if the
+    /// model carries one. Pre-U1 this handed back the variable's Python
+    /// object; every caller only ever needed its identity within the model,
+    /// which an index carries exactly.
+    fn model_net_var(&self, py: Python<'_>, net_idx: i64, edge_id: &str) -> PyResult<Option<u32>> {
         let m = self.model.bind(py).borrow();
-        Ok(m.net_channel_vars.get(&(net_idx, edge_id.to_string())).map(|v| v.clone_ref(py)))
+        Ok(m.lookup_var(&m.net_channel_vars, net_idx, edge_id))
     }
 
-    fn model_bundle_var(&self, py: Python<'_>, bundle_id: i64, edge_id: &str) -> PyResult<Option<Py<PyAny>>> {
+    fn model_bundle_var(&self, py: Python<'_>, bundle_id: i64, edge_id: &str) -> PyResult<Option<u32>> {
         let m = self.model.bind(py).borrow();
-        Ok(m.bundle_channel_vars.get(&(bundle_id, edge_id.to_string())).map(|v| v.clone_ref(py)))
+        Ok(m.lookup_var(&m.bundle_channel_vars, bundle_id, edge_id))
     }
 
     fn push_channel_var(&mut self, py: Python<'_>, var: NetChannelVar) -> PyResult<()> {
-        let pyvar = Py::new(py, var)?;
-        let (net_idx, channel_id, var_type);
-        {
-            let r = pyvar.bind(py).borrow();
-            net_idx = r.net_idx;
-            channel_id = r.channel_id.clone();
-            var_type = r.var_type.clone();
-        }
+        let kind = if var.var_type == "bundle" { VarKind::Bundle } else { VarKind::NetChannel };
         let mut m = self.model.bind(py).borrow_mut();
-        m.variables.push(pyvar.clone_ref(py).into_any());
-        if var_type == "bundle" {
-            m.bundle_channel_vars.insert((net_idx, channel_id), pyvar.into_any());
-        } else {
-            m.net_channel_vars.insert((net_idx, channel_id), pyvar.into_any());
-        }
-        Ok(())
+        m.insert_variable(kind, &var.name, &var.var_type, var.net_idx, &var.channel_id, || {
+            Ok(Py::new(py, var.clone())?.into_any())
+        })
     }
 
     fn push_via_var(&mut self, py: Python<'_>, var: ViaVar) -> PyResult<()> {
-        let pyvar = Py::new(py, var)?;
-        let (net_idx, location_id);
-        {
-            let r = pyvar.bind(py).borrow();
-            net_idx = r.net_idx;
-            location_id = r.location_id.clone();
-        }
         let mut m = self.model.bind(py).borrow_mut();
-        m.variables.push(pyvar.clone_ref(py).into_any());
-        m.via_vars.insert((net_idx, location_id), pyvar.into_any());
-        Ok(())
+        m.insert_variable(
+            VarKind::Via,
+            &var.name,
+            &var.var_type,
+            var.net_idx,
+            &var.location_id,
+            || Ok(Py::new(py, var.clone())?.into_any()),
+        )
     }
 
-    fn push_constraint(&mut self, py: Python<'_>, constraint: Py<PyAny>) -> PyResult<()> {
+    fn push_constraint(&mut self, py: Python<'_>, constraint: PackedConstraint) -> PyResult<()> {
         let mut m = self.model.bind(py).borrow_mut();
-        m.constraints.push(constraint);
+        m.cons.push(constraint);
         Ok(())
     }
 
@@ -939,7 +1426,7 @@ impl ModelBuilder {
                     continue;
                 }
 
-                let mut terms: Vec<(Py<PyAny>, f64)> = Vec::new();
+                let mut terms: Vec<(u32, f64)> = Vec::new();
                 for (bid, members) in &bundle_members {
                     let bvar = match self.model_bundle_var(py, *bid, &edge_id)? {
                         Some(v) => v,
@@ -967,15 +1454,25 @@ impl ModelBuilder {
                 }
 
                 if !terms.is_empty() {
-                    let constraint = CapacityConstraint {
-                        name: format!("cap_{edge_id}"),
-                        description: String::new(),
-                        channel_id: edge_id,
+                    let mut m = self.model.bind(py).borrow_mut();
+                    let channel = m.ids.intern(&edge_id)?;
+                    let term_start = u32::try_from(m.term_vars.len()).map_err(|_| {
+                        PyRuntimeError::new_err("ConstraintModel: capacity term arena overflow")
+                    })?;
+                    let term_len = u32::try_from(terms.len()).map_err(|_| {
+                        PyRuntimeError::new_err("ConstraintModel: capacity term count overflow")
+                    })?;
+                    for (var_idx, width) in terms {
+                        m.term_vars.push(var_idx);
+                        m.term_widths.push(width);
+                    }
+                    m.cons.push(PackedConstraint::Capacity {
+                        channel,
                         capacity,
                         slack_factor,
-                        terms,
-                    };
-                    self.push_constraint(py, Py::new(py, constraint)?.into_any())?;
+                        term_start,
+                        term_len,
+                    });
                 }
             }
         }
@@ -1004,16 +1501,21 @@ impl ModelBuilder {
                         self.model_net_var(py, p_idx, &edge_id)?,
                         self.model_net_var(py, n_idx, &edge_id)?,
                     ) {
-                        let constraint = DiffPairConstraint {
-                            name: format!("diff_{base_name}_{edge_id}"),
-                            description: String::new(),
-                            channel_id: edge_id,
-                            p_net_idx: p_idx,
-                            n_net_idx: n_idx,
-                            p_var,
-                            n_var,
+                        let (channel, base) = {
+                            let mut m = self.model.bind(py).borrow_mut();
+                            (m.ids.intern(&edge_id)?, m.ids.intern(&base_name)?)
                         };
-                        self.push_constraint(py, Py::new(py, constraint)?.into_any())?;
+                        self.push_constraint(
+                            py,
+                            PackedConstraint::DiffPair {
+                                channel,
+                                base,
+                                p_net_idx: p_idx,
+                                n_net_idx: n_idx,
+                                p_var,
+                                n_var,
+                            },
+                        )?;
                     }
                 }
             }
@@ -1061,14 +1563,11 @@ impl ModelBuilder {
                         if (matches(u) || matches(v))
                             && self.model_net_var(py, net_idx, &edge_id)?.is_some()
                         {
-                            let constraint = LayerConstraint {
-                                name: format!("layer_restr_N{net_idx}_{edge_id}"),
-                                description: String::new(),
-                                net_idx,
-                                channel_id: edge_id,
-                                allowed: false,
-                            };
-                            self.push_constraint(py, Py::new(py, constraint)?.into_any())?;
+                            let channel = self.model.bind(py).borrow_mut().ids.intern(&edge_id)?;
+                            self.push_constraint(
+                                py,
+                                PackedConstraint::Layer { channel, net_idx, allowed: false },
+                            )?;
                         }
                     }
                 }
@@ -1275,40 +1774,124 @@ mod tests {
                 channel_id: "E".into(),
                 capacity: 10.0,
                 slack_factor: 0.8,
-                terms: vec![(Py::new(py, v).unwrap().into_any(), 0.2)],
+                terms: CapacityTerms::Owned(vec![(Py::new(py, v).unwrap().into_any(), 0.2)]),
             };
-            assert_eq!(c.terms.len(), 1);
+            assert_eq!(c.terms(py).unwrap().bind(py).len(), 1);
             assert_eq!(c.capacity, 10.0);
         })
+    }
+
+    fn net_channel(name: &str, var_type: &str, net_idx: i64, channel_id: &str) -> NetChannelVar {
+        NetChannelVar {
+            name: name.into(),
+            var_type: var_type.into(),
+            net_idx,
+            channel_id: channel_id.into(),
+        }
     }
 
     #[test]
     fn model_routes_bundle_and_net_vars() {
         Python::attach(|py| {
             let mut m = ConstraintModel::default();
-            let net_var = NetChannelVar {
-                name: "uses_N0_E".into(),
-                var_type: "bool".into(),
-                net_idx: 0,
-                channel_id: "E".into(),
-            };
-            let bundle_var = NetChannelVar {
-                name: "uses_B0_E".into(),
-                var_type: "bundle".into(),
-                net_idx: 0,
-                channel_id: "E".into(),
-            };
-            let _ = m.net_channel_vars.insert(
-                (0, "E".into()),
-                Py::new(py, net_var).unwrap().into_any(),
-            );
-            let _ = m.bundle_channel_vars.insert(
-                (0, "E".into()),
-                Py::new(py, bundle_var).unwrap().into_any(),
-            );
+            let net_var = net_channel("uses_N0_E", "bool", 0, "E");
+            let bundle_var = net_channel("uses_B0_E", "bundle", 0, "E");
+            m.insert_variable(VarKind::NetChannel, "uses_N0_E", "bool", 0, "E", || {
+                Ok(Py::new(py, net_var).unwrap().into_any())
+            })
+            .unwrap();
+            m.insert_variable(VarKind::Bundle, "uses_B0_E", "bundle", 0, "E", || {
+                Ok(Py::new(py, bundle_var).unwrap().into_any())
+            })
+            .unwrap();
             assert_eq!(m.net_channel_vars.len(), 1);
             assert_eq!(m.bundle_channel_vars.len(), 1);
             assert!(m.via_vars.is_empty());
+            // Both packed: the channel id is interned once, and no CPython
+            // object was created for either variable.
+            assert_eq!(m.ids.values.len(), 1);
+            assert!(m.foreign_vars.is_empty());
+            assert_eq!(m.vars[0].kind(), VarKind::NetChannel);
+            assert_eq!(m.vars[1].kind(), VarKind::Bundle);
         })
+    }
+
+    #[test]
+    fn packed_variables_rebuild_their_python_objects_exactly() {
+        Python::attach(|py| {
+            let mut m = ConstraintModel::default();
+            m.insert_variable(VarKind::NetChannel, "uses_N7_EDGE", "bool", 7, "EDGE", || {
+                unreachable!("packable variable must not fall back")
+            })
+            .unwrap();
+            m.insert_variable(VarKind::Via, "via_N7_LOC", "bool", 7, "LOC", || {
+                unreachable!("packable variable must not fall back")
+            })
+            .unwrap();
+            let v0 = m.variable_object(py, 0).unwrap();
+            let v0 = v0.bind(py).extract::<PyRef<'_, NetChannelVar>>().unwrap();
+            assert_eq!(v0.name, "uses_N7_EDGE");
+            assert_eq!(v0.var_type, "bool");
+            assert_eq!(v0.net_idx, 7);
+            assert_eq!(v0.channel_id, "EDGE");
+            let v1 = m.variable_object(py, 1).unwrap();
+            let v1 = v1.bind(py).extract::<PyRef<'_, ViaVar>>().unwrap();
+            assert_eq!(v1.name, "via_N7_LOC");
+            assert_eq!(v1.location_id, "LOC");
+        })
+    }
+
+    #[test]
+    fn non_canonical_name_falls_back_to_the_original_object() {
+        Python::attach(|py| {
+            let mut m = ConstraintModel::default();
+            let bogus = net_channel("BOGUS", "bool", 0, "EDGE");
+            m.insert_variable(VarKind::NetChannel, "BOGUS", "bool", 0, "EDGE", || {
+                Ok(Py::new(py, bogus).unwrap().into_any())
+            })
+            .unwrap();
+            assert_eq!(m.vars[0].kind(), VarKind::Foreign);
+            assert_eq!(m.foreign_vars.len(), 1);
+            let v = m.variable_object(py, 0).unwrap();
+            let v = v.bind(py).extract::<PyRef<'_, NetChannelVar>>().unwrap();
+            assert_eq!(v.name, "BOGUS");
+            // Still routed into the dict, exactly as pre-U1.
+            assert_eq!(m.lookup_var(&m.net_channel_vars, 0, "EDGE"), Some(0));
+        })
+    }
+
+    #[test]
+    fn packed_var_round_trips_kind_and_key() {
+        for (kind, key) in [
+            (VarKind::NetChannel, 0u32),
+            (VarKind::Bundle, 1),
+            (VarKind::Via, MAX_INTERNED_ID),
+            (VarKind::Foreign, 12345),
+        ] {
+            let pv = PackedVar::new(kind, 4242, key).unwrap();
+            assert_eq!(pv.kind(), kind);
+            assert_eq!(pv.key(), key);
+            assert_eq!(pv.net_idx, 4242);
+        }
+        assert!(PackedVar::new(VarKind::NetChannel, 0, MAX_INTERNED_ID + 1).is_err());
+    }
+
+    #[test]
+    fn packed_var_is_eight_bytes() {
+        assert_eq!(std::mem::size_of::<PackedVar>(), 8);
+    }
+
+    #[test]
+    fn interner_shares_one_allocation_per_distinct_string() {
+        let mut ids = Interner::default();
+        let a = ids.intern("F.Cu_E1").unwrap();
+        let b = ids.intern("F.Cu_E1").unwrap();
+        let c = ids.intern("F.Cu_E2").unwrap();
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+        assert_eq!(ids.values.len(), 2);
+        assert_eq!(ids.get(a).unwrap(), "F.Cu_E1");
+        assert_eq!(ids.lookup("F.Cu_E2"), Some(c));
+        assert_eq!(ids.lookup("nope"), None);
     }
 }
