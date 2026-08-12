@@ -1,5 +1,4 @@
 import pytest
-
 from temper_design_bundle_python import (
     CopperWeight,
     LayerType,
