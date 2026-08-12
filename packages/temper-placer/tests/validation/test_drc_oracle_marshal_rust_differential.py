@@ -397,11 +397,43 @@ def test_build_board_dict_with_clearance_rules():
         positions=positions, netlist=netlist, board_width=100.0, board_height=100.0,
         board_margin=3.0, clearance_rules=rules,
     )
-    assert _dicts_equal_bit_exact(py_result, rs_result)
+    # `oracle._build_board_dict` (production) calls the typed
+    # `DrcBoardSnapshot.from_netlist` with `net_class_defs=TEMPER_NET_CLASSES`
+    # (drc_oracle.py), so "Signal" -- a real TEMPER_NET_CLASSES entry -- now
+    # gets its real `creepage_mm`/`voltage_v`/`safety_category` (0.0, 0.0,
+    # "LV") instead of the pre-fix `None` hardcode. `BUILD_BOARD_DICT`
+    # (`build_board_dict_py`) is the frozen migration-parity kernel: it takes
+    # no `net_class_defs` parameter and structurally cannot produce these
+    # (docs/plans -- "Do NOT edit the semantics"). This was already a latent
+    # gap for `trace_width_mm` (#1045) that stayed invisible here only
+    # because Signal's real 0.2mm width happens to equal the frozen 0.2mm
+    # hardcode; creepage_mm/voltage_v/safety_category have no such
+    # coincidence, so the six safety fields are excluded from the bit-exact
+    # comparison (mirroring `thermal_constraints` being dropped in
+    # test_typed_constraints_from_context_matches_validated_kernel above).
+    safety_fields = (
+        "creepage_mm", "voltage_v", "max_current_rating",
+        "safety_category", "required_layer", "routing_strategy",
+    )
+
+    def _drop_safety_fields(result: dict) -> dict:
+        ncr = {
+            cls: {k: v for k, v in rule.items() if k not in safety_fields}
+            for cls, rule in result["net_class_rules"].items()
+        }
+        return {**result, "net_class_rules": ncr}
+
+    assert _dicts_equal_bit_exact(
+        _drop_safety_fields(py_result), _drop_safety_fields(rs_result)
+    )
     ncr = rs_result["net_class_rules"]
     assert "HV" in ncr
     assert "LV" in ncr
     assert ncr["HV"]["clearance_mm"] == 8.0
+    # The real values ARE present on the production (typed) path even
+    # though the frozen dict kernel above never learned about them.
+    assert py_result["net_class_rules"]["Signal"]["creepage_mm"] == 0.0
+    assert py_result["net_class_rules"]["Signal"]["safety_category"] == "LV"
 
 
 def test_build_board_dict_mechanical_ref():

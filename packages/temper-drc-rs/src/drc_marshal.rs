@@ -1293,6 +1293,15 @@ impl DrcBoardSnapshot {
     /// pre-fix behavior) preserves the old flat-0.2 fallback exactly; a
     /// class absent from a supplied `net_class_defs` also falls back to 0.2
     /// (matching `from_parsed_pcb`'s own `.unwrap_or(0.2)` below).
+    ///
+    /// `net_class_defs` also supplies `creepage_mm`, `voltage_v`,
+    /// `max_current_rating`, `safety_category`, `required_layer`, and
+    /// `routing_strategy` -- these were hardcoded to `None` for every class
+    /// unconditionally (pre-existing gap, distinct from the trace-width
+    /// no-op above; reported alongside it but not fixed at the same time).
+    /// Each field falls back to `None` independently, same as
+    /// `trace_width_mm` falls back to `0.2`: no `net_class_defs`, no entry
+    /// for the class, or the entry lacking that particular attribute.
     #[staticmethod]
     #[allow(clippy::too_many_arguments)] // mirrors build_board_dict_py's parameter list
     #[pyo3(signature = (positions, netlist, board_width, board_height, board_margin, clearance_rules, net_class_defs=None))]
@@ -1343,24 +1352,53 @@ impl DrcBoardSnapshot {
                     let min_clearance = get_attr_f64(&rule, "min_clearance")?;
                     for nc in [&a, &b] {
                         if !net_class_rules.contains_key(nc.as_str()) {
-                            let trace_width_mm = net_class_defs_dict
+                            // Look up the SSOT entry for this class once (if
+                            // any) and read every safety-relevant field off
+                            // it, same as trace_width_mm above -- an absent
+                            // `net_class_defs` (legacy callers) or an absent
+                            // per-field attribute (e.g. a caller passing a
+                            // lighter-weight rules object) both fall through
+                            // to `None`/the historical 0.2 default rather
+                            // than erroring, matching `from_parsed_pcb`'s
+                            // own leniency below.
+                            let class_def = net_class_defs_dict
                                 .as_ref()
-                                .and_then(|d| d.get_item(nc.as_str()).ok().flatten())
+                                .and_then(|d| d.get_item(nc.as_str()).ok().flatten());
+                            let trace_width_mm = class_def
+                                .as_ref()
                                 .and_then(|rules_val| {
-                                    get_attr_f64(&rules_val, "trace_width_mm").ok()
+                                    get_attr_f64(rules_val, "trace_width_mm").ok()
                                 })
                                 .unwrap_or(0.2);
+                            let creepage_mm = class_def.as_ref().and_then(|rules_val| {
+                                get_attr_opt_f64(rules_val, "creepage_mm").ok().flatten()
+                            });
+                            let voltage_v = class_def.as_ref().and_then(|rules_val| {
+                                get_attr_opt_f64(rules_val, "voltage_v").ok().flatten()
+                            });
+                            let max_current_rating = class_def.as_ref().and_then(|rules_val| {
+                                get_attr_opt_f64(rules_val, "max_current_rating").ok().flatten()
+                            });
+                            let safety_category = class_def.as_ref().and_then(|rules_val| {
+                                get_attr_opt_str(rules_val, "safety_category").ok().flatten()
+                            });
+                            let required_layer = class_def.as_ref().and_then(|rules_val| {
+                                get_attr_opt_str(rules_val, "required_layer").ok().flatten()
+                            });
+                            let routing_strategy = class_def.as_ref().and_then(|rules_val| {
+                                get_attr_opt_str(rules_val, "routing_strategy").ok().flatten()
+                            });
                             net_class_rules.insert(
                                 nc.clone(),
                                 DrcNetClassRuleSnapshot {
                                     trace_width_mm,
                                     clearance_mm: min_clearance,
-                                    creepage_mm: None,
-                                    voltage_v: None,
-                                    max_current_rating: None,
-                                    safety_category: None,
-                                    required_layer: None,
-                                    routing_strategy: None,
+                                    creepage_mm,
+                                    voltage_v,
+                                    max_current_rating,
+                                    safety_category,
+                                    required_layer,
+                                    routing_strategy,
                                 },
                             );
                         }
@@ -1426,12 +1464,24 @@ impl DrcBoardSnapshot {
                     DrcNetClassRuleSnapshot {
                         trace_width_mm: get_attr_f64(&rules_val, "trace_width_mm").unwrap_or(0.2),
                         clearance_mm: get_attr_f64(&rules_val, "clearance_mm").unwrap_or(0.2),
-                        creepage_mm: None,
-                        voltage_v: None,
-                        max_current_rating: None,
-                        safety_category: None,
-                        required_layer: None,
-                        routing_strategy: None,
+                        // Real per-class safety fields, read straight off
+                        // whatever `design_rules.net_classes[class_name]`
+                        // holds (the object varies by caller -- the
+                        // pydantic SSOT `NetClassRules`, or the lighter
+                        // `router_v6.stage0_data` dataclass, which carries
+                        // `creepage_mm`/`safety_category` but not the other
+                        // four). `get_attr_opt_*` turns a missing attribute
+                        // into `None` rather than erroring, so a caller
+                        // whose rules object doesn't carry a given field
+                        // (rather than one that carries it as an explicit
+                        // `None`) still gets an honest `None`, not a
+                        // fabricated default.
+                        creepage_mm: get_attr_opt_f64(&rules_val, "creepage_mm")?,
+                        voltage_v: get_attr_opt_f64(&rules_val, "voltage_v")?,
+                        max_current_rating: get_attr_opt_f64(&rules_val, "max_current_rating")?,
+                        safety_category: get_attr_opt_str(&rules_val, "safety_category")?,
+                        required_layer: get_attr_opt_str(&rules_val, "required_layer")?,
+                        routing_strategy: get_attr_opt_str(&rules_val, "routing_strategy")?,
                     },
                 );
             }
