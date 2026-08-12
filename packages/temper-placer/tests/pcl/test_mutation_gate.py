@@ -123,3 +123,106 @@ class TestRouterV6Checks:
 class TestExitCodes:
     def test_exit_zero_on_clean_register(self) -> None:
         assert gate.main() is None  # main() prints OK and returns (exit 0)
+
+
+class TestRouterV6Discovery:
+    """2026-08-11 gate-vacuity audit, finding 8's second defect: the router-V6
+    classes are PyO3 re-exports (``X = _mb.X``) since the Wave 4 migration
+    (commit 8dce8f8ae), not ``class X(Constraint):`` definitions -- an
+    ``ast.ClassDef`` scan for a ``Constraint`` base finds none of them.
+    ``discover_router_v6_classes`` must resolve them by importing the module,
+    not by parsing its source.
+    """
+
+    def test_discovers_all_four_post_migration_reexports(self) -> None:
+        classes = gate.discover_router_v6_classes()
+        assert classes == [
+            "CapacityConstraint",
+            "ChannelSeparationConstraint",
+            "DiffPairConstraint",
+            "LayerConstraint",
+        ]
+
+
+class TestLiveKillSetVerification:
+    """2026-08-11 gate-vacuity audit, finding 8: a scratch-tree repro proved
+    that gutting ``handlers/keepout.py``'s ``encode_keepout`` (deleting every
+    enforcement statement, including the ``AddNoOverlap2D`` call that is the
+    sole mechanism keeping components out of the mains<->SELV isolation
+    keepout) left the gate's exit code and output byte-identical to the
+    unmutated baseline, because the gate only ever read a frozen register
+    snapshot and never re-derived its claims from current encoder source.
+
+    These tests exercise ``check_live_kill_sets`` -- the fix -- directly
+    against the real register and a live-mutated ``HANDLER_REGISTRY`` entry,
+    without touching any file on disk.
+    """
+
+    def test_clean_register_has_no_live_mismatches(self, register) -> None:
+        assert gate.check_live_kill_sets(register) == []
+
+    def test_gutted_keepout_encoder_is_caught(self, register, monkeypatch) -> None:
+        """Reproduction of the audit's finding 8: a KEEPOUT handler reduced
+        to a no-op (mirroring ``encode_keepout`` gutted down to a bare
+        ``return []``) must fail live verification, even though the register
+        still claims ``keepout_drop_no_overlap`` is ``killed``.
+        """
+        from temper_placer.pcl.constraints import ConstraintType
+        from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
+
+        def _gutted_encode_keepout(constraint, components, model, ctx):
+            return []
+
+        monkeypatch.setitem(HANDLER_REGISTRY, ConstraintType.KEEPOUT, _gutted_encode_keepout)
+
+        violations = gate.check_live_kill_sets(register)
+        assert violations, (
+            "gutting the keepout encoder's enforcement must produce a live "
+            "verification violation, not pass silently"
+        )
+        assert any("keepout" in v for v in violations)
+
+    def test_gutted_keepout_encoder_fails_the_whole_gate(self, monkeypatch) -> None:
+        """End-to-end: the top-level ``main()`` entrypoint (what CI actually
+        runs) must exit non-zero, not just the isolated check function.
+        """
+        from temper_placer.pcl.constraints import ConstraintType
+        from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
+
+        def _gutted_encode_keepout(constraint, components, model, ctx):
+            return []
+
+        monkeypatch.setitem(HANDLER_REGISTRY, ConstraintType.KEEPOUT, _gutted_encode_keepout)
+
+        with pytest.raises(SystemExit) as exc_info:
+            gate.main()
+        assert exc_info.value.code == gate.EXIT_MISSING
+
+    def test_stale_killed_claim_is_caught_without_touching_source(
+        self, register, monkeypatch
+    ) -> None:
+        """A register that claims a mutation is killed when a live re-run
+        actually classifies it as survived must fail -- the general case of
+        which the gutted-encoder scenario above is one instance."""
+        import constraint_mutation_gate
+
+        class _FakeResult:
+            def __init__(self, surface_id, mutation_id, outcome):
+                self.surface_id = surface_id
+                self.mutation_id = mutation_id
+                self.outcome = outcome
+
+        def _fake_run_suite():
+            return [_FakeResult("separated", "sep_sign_flip_x_margin", "survived")]
+
+        import constraint_mutation_runner as runner
+
+        monkeypatch.setattr(runner, "run_suite", _fake_run_suite)
+
+        violations = constraint_mutation_gate.check_live_kill_sets(register)
+        assert any(
+            "sep_sign_flip_x_margin" in v
+            and "killed" in v
+            and "survived" in v
+            for v in violations
+        )
