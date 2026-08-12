@@ -2060,21 +2060,22 @@ jobs:
 
       - name: Net-class parameter correspondence gate (Gate 6)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        # ADVISORY: origin/main is genuinely inconsistent today -- 5 field
-        # mismatches across 2 classes (HighVoltage.clearance: 6.0mm
-        # design_rules.py vs. 2.0mm kicad_pro; Power.clearance/trace_width/
-        # via_diameter/via_drill all disagree too). Which side is correct
-        # for each value is an explicit, separate human/domain call (the
-        # same category of decision check_hv_netclass_coverage.py's
-        # docstring reserves for PWR_RTN) -- not made in this PR. Landing
-        # this gate hard-failing today would block every unrelated PR
-        # touching either file for a pre-existing defect this PR does not
-        # resolve. Path to blocking: reconcile all 5 mismatches (either
-        # correct the stale side per field, or re-derive one table from the
-        # other the way sync_kicad_netclass_assignments.py does for
-        # netclass_assignments), confirm this step exits 0, then remove
-        # continue-on-error.
-        continue-on-error: true
+        # BLOCKING as of 2026-08-12 (docs/evidence/
+        # 2026-08-12-netclass-param-reconciliation.md): all 5 field
+        # mismatches (HighVoltage.clearance, plus Power.clearance/
+        # trace_width/via_diameter/via_drill) reconciled by correcting
+        # design_rules.py's TEMPER_NET_CLASSES to match pcb/temper.kicad_pro
+        # in every case -- grounded in elec/src/constraints.ato (the
+        # project's original SSOT), docs/specs/NET_CLASS_SPECIFICATION.md,
+        # and HV_INTERNAL_CLEARANCE_MM's cited IEC 60335-1 derivation
+        # (scripts/generate_kicad_dru.py:63). Measured: kicad-cli DRC
+        # clearance/track_width counts are unchanged (386/199 before and
+        # after) -- neither correction touched a value kicad-cli's DRC
+        # actually derives a rule from. See the evidence doc for the one
+        # item this PR does NOT close (whether 2.0mm is itself IEC-adequate
+        # for the same-domain, no-creepage-backstop HighVoltage-to-
+        # HighVoltage case -- a value question, not a correspondence one,
+        # so it does not block this gate).
         run: uv run python scripts/check_netclass_class_param_correspondence.py
 
       - name: Check domain model codegen drift

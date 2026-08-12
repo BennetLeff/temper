@@ -20,8 +20,15 @@ classes:
     safety_category: "AC"
     because: "IEC 60335-1 Table 16 working isolation at 400V"
 
+  # FIXED 2026-08-12 (docs/evidence/2026-08-12-netclass-param-reconciliation.md):
+  # clearance was 6.0 with a debunked citation (Table 16 has no 400V row and
+  # no 6.0mm value); corrected to 2.0, matching pcb/temper.kicad_pro (2.0,
+  # unchanged since introduction) and HV_INTERNAL_CLEARANCE_MM's cited
+  # derivation (scripts/generate_kicad_dru.py:63). See that doc for the open
+  # question this fix does NOT close (whether 2.0 is IEC-adequate for the
+  # same-domain, no-creepage-backstop HighVoltage-to-HighVoltage case).
   HighVoltage:
-    clearance: 6.0
+    clearance: 2.0
     trace_width: 3.0
     via_diameter: 1.2
     via_drill: 0.6
@@ -29,7 +36,7 @@ classes:
     voltage_v: 400.0
     layer: "F.Cu"
     safety_category: "HV"
-    because: "IEC 60335-1 Table 16 working isolation at 400V"
+    because: "HV_INTERNAL_CLEARANCE_MM (scripts/generate_kicad_dru.py:63): IEC 60335-1 cl.29.1 rated impulse 1500V (OVC II, Table 15) -> Table 16 basic clearance 0.5mm -> cl.29.1.3 reinforced step 1.5mm + cl.29.1 soldered-construction adder 0.5mm = 2.0mm"
 
   # Gate-drive floating bootstrap supply (+5V_ISO, VBOOT_H, VBOOT_L, and the
   # UCC21550 gate driver's own secondary bias nets hb.gate_hs.driver-p1-1
@@ -72,11 +79,20 @@ classes:
     layer: "B.Cu"
     safety_category: "LV"
 
+  # FIXED 2026-08-12 (docs/evidence/2026-08-12-netclass-param-reconciliation.md):
+  # all four fields previously matched HighCurrent's row byte-for-byte
+  # (0.25/0.5/0.8/0.4), the established field/class-mixup pattern, not an
+  # independent Power derivation. Corrected to match pcb/temper.kicad_pro
+  # (0.5/1.0/1.0/0.5), which independently matches both
+  # elec/src/constraints.ato's `module Power` (trace_width=1.0mm,
+  # clearance=0.5mm) and docs/specs/NET_CLASS_SPECIFICATION.md's formal
+  # Power row (1.0mm trace / 0.5mm clearance / 1.0mm via pad / 0.5mm via
+  # drill / 3A).
   Power:
-    clearance: 0.25
-    trace_width: 0.5
-    via_diameter: 0.8
-    via_drill: 0.4
+    clearance: 0.5
+    trace_width: 1.0
+    via_diameter: 1.0
+    via_drill: 0.5
     layer: "B.Cu"
     safety_category: "LV"
 

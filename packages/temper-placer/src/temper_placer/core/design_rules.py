@@ -72,10 +72,31 @@ TEMPER_NET_CLASSES = {
         required_layer=None,
         safety_category="AC",
     ),
+    # FIXED 2026-08-12 (docs/evidence/2026-08-12-netclass-param-reconciliation.md):
+    # clearance was 6.0, disagreeing with pcb/temper.kicad_pro's HighVoltage
+    # clearance (2.0, unchanged since the file's introduction). 6.0's own
+    # citation ("IEC 60335-1 Table 16 working isolation at 400V", still
+    # attached to netclass_rules.yaml's matching entry before this fix) is
+    # independently debunked: Table 16 has no 400V row and no 6.0mm value.
+    # 2.0 is what kicad-cli actually enforces for same-class HighVoltage
+    # pairs and traces to a real, cited derivation (HV_INTERNAL_CLEARANCE_MM,
+    # scripts/generate_kicad_dru.py:63). elec/src/constraints.ato -- the
+    # project's original SSOT -- carries two separate HighVoltage fields,
+    # `clearance = 2.0mm` and `air_clearance = 6.0mm`; kicad_pro matches the
+    # former exactly and this table matched the latter exactly, consistent
+    # with a field-name conflation during the Python port. Measured: this
+    # value is not consumed by scripts/generate_kicad_dru.py's per-class
+    # trace-width loop (only .trace_width is), so the change has zero
+    # kicad-cli DRC effect; U6 isolator placement feasibility is also
+    # unaffected (infeasible at both 2.0 and 6.0 -- the isolation barrier's
+    # own corridor geometry is the bottleneck, not this clearance). Whether
+    # 2.0 is itself IEC-adequate for the same-domain, no-creepage-backstop
+    # HighVoltage-to-HighVoltage case is NOT resolved by this fix -- see the
+    # evidence doc's open-question section.
     "HighVoltage": NetClassRules(
         name="HighVoltage",
         trace_width=3.0,
-        clearance=6.0,
+        clearance=2.0,
         via_diameter=1.2,
         via_drill=0.6,
         via_template="Via3x3",
@@ -97,12 +118,25 @@ TEMPER_NET_CLASSES = {
         required_layer=None,
         safety_category="LV",
     ),
+    # FIXED 2026-08-12 (docs/evidence/2026-08-12-netclass-param-reconciliation.md):
+    # all four scalar fields disagreed with pcb/temper.kicad_pro's Power
+    # class (clearance 0.25 vs 0.5, trace_width 0.5 vs 1.0, via_diameter 0.8
+    # vs 1.0, via_drill 0.4 vs 0.5). The old values here matched
+    # HighCurrent's row in this same table byte-for-byte (0.25/0.5/0.8/0.4)
+    # -- the established field/class-mixup failure mode, not an independent
+    # Power derivation. kicad_pro's values (0.5/1.0/1.0/0.5) instead match
+    # BOTH elec/src/constraints.ato's `module Power` (trace_width=1.0mm,
+    # clearance=0.5mm -- the project's original SSOT; .ato has no
+    # via_diameter/via_drill fields) and docs/specs/NET_CLASS_SPECIFICATION.md
+    # SS2/SS3.2's formal "Power (Low Voltage Rails)" row (1.0mm trace /
+    # 0.5mm clearance / 1.0mm via pad / 0.5mm via drill / 3A), independently
+    # of each other. kicad_pro was correct; this table was wrong.
     "Power": NetClassRules(
         name="Power",
-        trace_width=0.5,
-        clearance=0.25,
-        via_diameter=0.8,
-        via_drill=0.4,
+        trace_width=1.0,
+        clearance=0.5,
+        via_diameter=1.0,
+        via_drill=0.5,
         via_template="Via2x2",
         dru_priority=40,
         required_layer=None,

@@ -115,7 +115,12 @@ class TestDesignRules:
         design_rules = create_temper_design_rules()
         vcc_rules = design_rules.get_rules_for_net("VCC")
         assert vcc_rules.name == "Power"
-        assert vcc_rules.trace_width == 0.5
+        # 1.0, not 0.5: fixed 2026-08-12 (docs/evidence/
+        # 2026-08-12-netclass-param-reconciliation.md) -- 0.5 matched
+        # HighCurrent's row byte-for-byte (a field/class mixup), not an
+        # independent Power derivation; kicad_pro/constraints.ato/
+        # NET_CLASS_SPECIFICATION.md all agree Power's trace_width is 1.0.
+        assert vcc_rules.trace_width == 1.0
 
     def test_ground_net_pattern_recognition(self):
         """Test automatic detection of ground net patterns."""
@@ -150,12 +155,21 @@ class TestTemperNetClasses:
             assert name in TEMPER_NET_CLASSES
 
     def test_power_class_parameters(self):
-        """Test Power class has appropriate parameters."""
+        """Test Power class has appropriate parameters.
+
+        Values fixed 2026-08-12 (docs/evidence/
+        2026-08-12-netclass-param-reconciliation.md): all four previously
+        matched HighCurrent's row byte-for-byte (0.25/0.5/0.8/0.4), the
+        established field/class-mixup pattern. Corrected to match
+        pcb/temper.kicad_pro, which independently matches both
+        elec/src/constraints.ato's `module Power` and
+        docs/specs/NET_CLASS_SPECIFICATION.md's formal Power row.
+        """
         power = TEMPER_NET_CLASSES["Power"]
-        assert power.trace_width == 0.5
-        assert power.clearance == 0.25
-        assert power.via_diameter == 0.8
-        assert power.via_drill == 0.4
+        assert power.trace_width == 1.0
+        assert power.clearance == 0.5
+        assert power.via_diameter == 1.0
+        assert power.via_drill == 0.5
 
     def test_high_speed_class_has_impedance(self):
         """Test HighSpeed class has target impedance."""
@@ -189,7 +203,7 @@ class TestCreateTemperDesignRules:
         """Test that factory creates independent instances."""
         create_temper_design_rules()
         rules2 = create_temper_design_rules()
-        assert rules2.net_classes["Power"].trace_width == 0.5
+        assert rules2.net_classes["Power"].trace_width == 1.0
 
     def test_can_add_custom_overrides(self):
         """Test that custom overrides can be added."""
@@ -215,10 +229,14 @@ class TestSafetyConstantAuthority:
         assert len(SAFETY_CONSTANT_AUTHORITY) == 4
 
     def test_authority_set_contents(self):
+        # HighVoltage clearance fixed 2026-08-12 (docs/evidence/
+        # 2026-08-12-netclass-param-reconciliation.md), 6.0 -> 2.0 -- see
+        # that doc for why 2.0 (matching pcb/temper.kicad_pro) is correct
+        # and 6.0's citation was debunked.
         expected = {
             ("ACMains", "clearance", 6.0),
             ("ACMains", "creepage_mm", 6.0),
-            ("HighVoltage", "clearance", 6.0),
+            ("HighVoltage", "clearance", 2.0),
             ("HighVoltage", "creepage_mm", 6.0),
         }
         assert set(SAFETY_CONSTANT_AUTHORITY) == expected
