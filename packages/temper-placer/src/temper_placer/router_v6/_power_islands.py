@@ -122,15 +122,20 @@ than silently skipped):**
   rebuilding a shared native extension for a second, redundant path to
   the same capability was judged not worth the shared-environment risk
   this run.
-- **No MST backbone routing avoids OTHER rails' or OTHER nets' existing
-  F.Cu copper** (only the HV keepout and this run's own new copper are
-  avoided) -- the same measured tradeoff ``_ground_plane.py`` documents
-  (avoiding all of F.Cu's 1193 other-net tracks collapsed gnd
-  connectivity 46/86 -> 7/86; the same collapse risk applies here, likely
-  worse with four rails instead of one). ``tracks_crossing``/``clearance``
-  against pre-existing other-net copper is a known, unfixed category,
-  exactly the #1033 standard ("a partial, honest result beats a claimed
-  complete one").
+- **UPDATED 2026-08-12**: the line above ("No MST backbone routing
+  avoids OTHER rails'/nets' existing F.Cu copper") described the
+  straight-line-MST-plus-one-bend-detour heuristic, which is genuinely
+  incapable of this (measured: collapses connectivity). It is no longer
+  the whole story -- ``_corridor_backbone.py``'s corridor-aware A* pass
+  is now tried first for every MST edge (both the HV keepout and every
+  other net's/rail's existing F.Cu copper), falling back to the
+  keepout-only detour only for edges A* cannot solve (a measured,
+  genuine fraction -- see that module's docstring). Residual
+  ``tracks_crossing``/``clearance`` against pre-existing other-net
+  copper is therefore reduced, not eliminated; still an honest,
+  partial result, reported per-rail via
+  ``PowerIslandResult.mst_edges_astar_routed_count`` /
+  ``mst_edges_fallback_count``.
 """
 
 from __future__ import annotations
@@ -229,6 +234,8 @@ class PowerIslandResult:
         via_offset_count: int = 0,
         via_unresolved_conflict_count: int = 0,
         mst_edges_dropped_count: int = 0,
+        mst_edges_astar_routed_count: int = 0,
+        mst_edges_fallback_count: int = 0,
     ) -> None:
         self.net_name = net_name
         self.pad_count = pad_count
@@ -240,6 +247,8 @@ class PowerIslandResult:
         self.via_offset_count = via_offset_count
         self.via_unresolved_conflict_count = via_unresolved_conflict_count
         self.mst_edges_dropped_count = mst_edges_dropped_count
+        self.mst_edges_astar_routed_count = mst_edges_astar_routed_count
+        self.mst_edges_fallback_count = mst_edges_fallback_count
 
     def __repr__(self) -> str:  # pragma: no cover - trivial
         return (
@@ -250,7 +259,9 @@ class PowerIslandResult:
             f"via_skipped_through_hole={self.via_skipped_through_hole_count}, "
             f"via_offset={self.via_offset_count}, "
             f"via_unresolved_conflict={self.via_unresolved_conflict_count}, "
-            f"mst_edges_dropped={self.mst_edges_dropped_count})"
+            f"mst_edges_dropped={self.mst_edges_dropped_count}, "
+            f"mst_edges_astar_routed={self.mst_edges_astar_routed_count}, "
+            f"mst_edges_fallback={self.mst_edges_fallback_count})"
         )
 
 
@@ -290,6 +301,16 @@ def generate_power_islands_content(
 
     num_to_name = net_number_to_name_map(content)
     name_to_num = {v: k for k, v in num_to_name.items()}
+
+    # Real, per-net-class-pair clearance table for the corridor-aware A*
+    # obstacle grid, read once (not per rail) -- see
+    # _corridor_backbone.resolve_netclass_clearances's docstring for why
+    # this replaces a flat constant.
+    from temper_placer.router_v6._corridor_backbone import resolve_netclass_clearances
+
+    _net_clearance, _default_clearance = resolve_netclass_clearances(
+        pcb_path.with_suffix(".kicad_pro")
+    )
 
     pads_by_net = _pads_by_net(pcb)
     board_polygon = _get_board_polygon(pcb)
@@ -428,12 +449,16 @@ def generate_power_islands_content(
                 else unary_union([other_rail_zone_region, merged_this_rail])
             )
 
-        # --- Drop vias + MST backbone (same discipline as _ground_plane.py:
-        # keepout + this run's own prior new copper are hard obstacles;
-        # OTHER nets' pre-existing F.Cu/B.Cu copper is avoided for VIA
-        # placement (a cheap, per-point search) but not for the backbone
-        # path (a per-path search collapses connectivity -- measured,
-        # documented, in _ground_plane.py; the same tradeoff applies here). ---
+        # --- Drop vias + MST backbone. Vias: keepout + this run's own
+        # prior new copper + OTHER nets' pre-existing F.Cu/B.Cu copper
+        # are all hard obstacles for the per-point via-placement search
+        # below. Backbone: as of 2026-08-12, a corridor-aware A* pass
+        # (below, near `edges = mst_edges(positions)`) now ALSO attempts
+        # to avoid OTHER nets' pre-existing F.Cu copper for the backbone
+        # path itself, not just via placement -- see
+        # _corridor_backbone.py's module docstring for why this had to
+        # be a hybrid (A* first, keepout-only detour as fallback) rather
+        # than a full per-path search replacing `_blocked` outright. ---
         other_copper_fcu = _collect_other_net_copper(
             pcb, net_name, "F.Cu", OTHER_NET_CLEARANCE_MM
         )
@@ -502,6 +527,63 @@ def generate_power_islands_content(
 
         edges = mst_edges(positions)
 
+        # --- Corridor-aware A* pass (see _corridor_backbone.py's module
+        # docstring): try a real, collision-avoiding path for every MST
+        # edge first, over a grid that blocks the HV keepout, every
+        # OTHER net's existing F.Cu copper (other_copper_fcu, already
+        # computed above for via placement), AND every earlier rail's
+        # new copper this same run (run_new_fcu_copper) -- the one
+        # power-islands-specific obstacle _ground_plane.py never has
+        # (In1.Cu carries exactly one net; In2.Cu carries four, each
+        # needing to stay off the others' F.Cu backbone too). The
+        # keepout-only `_blocked`/one-bend-detour loop below is the
+        # fallback for edges this cannot solve (a measured, genuine
+        # physical disconnection for a real fraction of edges -- see
+        # that module's docstring), so connectivity per rail can only
+        # improve edge-by-edge, never regress below the prior behaviour.
+        from temper_placer.core.topology import UnionFind
+        from temper_placer.router_v6._corridor_backbone import (
+            build_obstacle_grid,
+            collect_other_net_copper_by_pairwise_clearance,
+            compute_corridor_mask,
+            corridor_aware_spanning_edges,
+        )
+
+        # Real, per-net-pair clearance polygon for the A* obstacle grid --
+        # NOT other_copper_fcu (built above at OTHER_NET_CLEARANCE_MM
+        # =0.05mm for via placement); see
+        # _corridor_backbone.resolve_netclass_clearances's docstring.
+        # run_new_fcu_copper (earlier rails' new copper this run) is
+        # additionally buffered by INTER_RAIL_CLEARANCE_MM here -- those
+        # polygons already carry ~0.05mm from their own construction
+        # (_emit_segment/this_rail_vias), so this brings their effective
+        # standoff up near the same ballpark as the real Power-class
+        # pairwise clearance without re-deriving them from raw geometry.
+        this_net_own_clearance = _net_clearance.get(net_name, _default_clearance)
+        other_copper_fcu_backbone = collect_other_net_copper_by_pairwise_clearance(
+            pcb, net_name, "F.Cu", _net_clearance, this_net_own_clearance, _default_clearance
+        )
+        prior_rail_backbone_obstacles = [
+            g.buffer(INTER_RAIL_CLEARANCE_MM) for g in run_new_fcu_copper
+        ]
+        backbone_grid = build_obstacle_grid(
+            board_polygon,
+            [keepout, other_copper_fcu_backbone, *prior_rail_backbone_obstacles],
+        )
+        backbone_corridor_mask = compute_corridor_mask(backbone_grid, STITCH_TRACE_WIDTH_MM)
+
+        # Component-aware (see _corridor_backbone.py / _ground_plane.py's
+        # own docstrings for the measured reason a blind per-Euclidean-
+        # MST-edge attempt undersells this): a Euclidean MST WITHIN each
+        # of the corridor mask's own connected components, not the
+        # global MST's own (possibly corridor-infeasible) edge list.
+        astar_routed_edges = corridor_aware_spanning_edges(
+            positions, backbone_grid, backbone_corridor_mask, mst_edges
+        )
+        connectivity_uf = UnionFind()
+        for i, j in astar_routed_edges:
+            connectivity_uf.union(i, j)
+
         def _emit_segment(p1: tuple[float, float], p2: tuple[float, float], _net_num=net_num) -> Polygon:
             new_blocks.append(
                 f"  (segment (start {p1[0]:.4f} {p1[1]:.4f}) (end {p2[0]:.4f} {p2[1]:.4f})"
@@ -523,12 +605,29 @@ def generate_power_islands_content(
                     return True
             return False
 
+        # Emit every component-local A*-routed edge unconditionally --
+        # additional real connectivity beyond (not necessarily a subset
+        # of) the global Euclidean MST's own edge list.
+        astar_routed_count = 0
+        for (_i, _j), astar_path in astar_routed_edges.items():
+            for a, b in zip(astar_path, astar_path[1:]):
+                run_this_rail_backbone.append(_emit_segment(a, b))
+            astar_routed_count += 1
+
         crossed_keepout = 0
         rerouted = 0
         for i, j in edges:
+            if connectivity_uf.find(i) == connectivity_uf.find(j):
+                # Already joined by a component-local A*-clean edge (or a
+                # chain of them) -- drawing this global-MST edge too
+                # would only add collision risk for zero connectivity
+                # benefit.
+                continue
+
             p1, p2 = positions[i], positions[j]
             if not _blocked(p1, p2):
                 run_this_rail_backbone.append(_emit_segment(p1, p2))
+                connectivity_uf.union(i, j)
                 continue
 
             candidates = sorted(
@@ -550,6 +649,7 @@ def generate_power_islands_content(
                     break
             if found:
                 rerouted += 1
+                connectivity_uf.union(i, j)
             else:
                 crossed_keepout += 1
 
@@ -580,6 +680,8 @@ def generate_power_islands_content(
             via_offset_count=via_offset_count,
             via_unresolved_conflict_count=via_unresolved_conflict,
             mst_edges_dropped_count=crossed_keepout,
+            mst_edges_astar_routed_count=astar_routed_count,
+            mst_edges_fallback_count=len(edges) - astar_routed_count,
         )
 
     new_content = content.rstrip()
