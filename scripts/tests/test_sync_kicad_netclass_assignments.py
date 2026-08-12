@@ -253,14 +253,31 @@ class TestRealRepoInvariant:
             f"`uv run python scripts/sync_kicad_netclass_assignments.py --write`"
         )
 
-    def test_pwr_rtn_structurally_unreachable(self):
-        # Defense-in-depth check on the real file: GND must not be a
-        # declared kicad_pro netclass today, so PWR_RTN/CGND cannot be
-        # picked up even without the PROTECTED_NETS guard.
+    def test_pwr_rtn_protected_now_that_gnd_is_declared(self):
+        # 2026-08-12 (docs/evidence/2026-08-12-gnd-class-decision.md, Option
+        # B): pcb/temper.kicad_pro now DOES declare a "GND" class (gnd's own
+        # real design_rules.py parameters, mirrored in -- see that class's
+        # own parameter-correspondence gate). The structural-unreachability
+        # invariant this test used to check ("GND is not a declared kicad_pro
+        # netclass, so PWR_RTN/CGND can't resolve to one") no longer holds by
+        # construction, and is not supposed to: it was defense-in-depth on
+        # top of the PROTECTED_NETS guard, not the primary mechanism. Assert
+        # the guard that IS still the primary mechanism instead: PWR_RTN and
+        # CGND, which TEMPER_NET_ASSIGNMENTS also maps to "GND", must still
+        # be excluded from what this script is authorized to write, even
+        # though "GND" is now a real, declared, resolvable kicad_pro class.
         real_pro = REPO_ROOT / "pcb" / "temper.kicad_pro"
-        declared = sync.load_declared_classes(real_pro.read_text(encoding="utf-8"))
-        assert "GND" not in declared
-        assert "Ground" not in declared
+        text = real_pro.read_text(encoding="utf-8")
+        declared = sync.load_declared_classes(text)
+        assert "GND" in declared, (
+            "expected pcb/temper.kicad_pro to declare GND post-2026-08-12 -- "
+            "if this fails, the class declaration itself regressed"
+        )
+        targets = sync.compute_target_assignments(declared)
+        assert "PWR_RTN" not in targets
+        assert "CGND" not in targets
+        assert sync.TEMPER_NET_ASSIGNMENTS.get("PWR_RTN") == "GND"
+        assert sync.TEMPER_NET_ASSIGNMENTS.get("CGND") == "GND"
 
 
 if __name__ == "__main__":
