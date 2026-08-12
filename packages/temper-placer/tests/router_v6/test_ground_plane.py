@@ -144,15 +144,34 @@ class TestGenerateGroundPlaneOnRealBoard:
         assert after.pads_connected > baseline.pads_connected
         # A real plane + via/MST backbone must reach a substantial
         # majority of gnd's pads, not merely a couple by coincidence.
-        assert after.pads_connected >= 40
+        # 46/86 is the measured floor from the DRC-cost fix pass
+        # (docs evidence 2026-08-11: fixing the creepage/hole-collision
+        # bugs this module had, and the connectivity/DRC-cost tradeoffs
+        # that fix required, without regressing below this number) --
+        # locked in here so a future change can't silently erode it.
+        assert after.pads_connected >= 46
 
         # The generator's own report must agree with reality, not merely
         # claim it.
         assert result.pad_count == 86
-        assert result.drop_via_count == 86
+        # Not 86: through-hole gnd pads no longer get a redundant drop
+        # via (their own drilled hole already spans every copper layer
+        # it lists -- see generate_ground_plane_content's docstring),
+        # and a via whose only candidate drop points all conflict with
+        # an existing hole/keepout/other net's copper is skipped rather
+        # than emitted colliding (via_unresolved_conflict_count).
+        assert result.drop_via_count == (
+            result.pad_count
+            - result.via_skipped_through_hole_count
+            - result.via_unresolved_conflict_count
+        )
+        assert 0 < result.drop_via_count <= result.pad_count
         assert result.zone_polygon_count > 0
         assert result.pour_area_mm2 > 0
         assert result.keepout_established is True
+        # The explicit fill-time keepout zone(s) -- the actual creepage
+        # fix (see _emit_keepout_zone_s_expr) -- must have fired.
+        assert result.keepout_zone_count > 0
 
         # New In1.Cu zone geometry was actually appended, not merely
         # claimed by the report object.

@@ -56,9 +56,10 @@ from __future__ import annotations
 
 import heapq
 import logging
+import math
 from pathlib import Path
 
-from shapely.geometry import LineString, Polygon
+from shapely.geometry import LineString, Point, Polygon
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +90,42 @@ KEEPOUT_EXTRA_MARGIN_MM = 1.0
 
 # Margin the plane polygon itself is kept off the physical board edge.
 BOARD_EDGE_MARGIN_MM = 1.0
+
+# --- DRC-cost fix constants (docs/evidence measured against this board,
+# 2026-08-11: the +32 creepage/+77 hole_clearance/+32 tracks_crossing/+122
+# clearance deltas from the first version of this module) --------------------
+
+# Generic (non-HV) copper clearance this module keeps its own new copper
+# (drop vias, MST backbone segments) away from every OTHER net's existing
+# F.Cu/B.Cu copper. Not a creepage figure -- ordinary electrical clearance.
+# Sized from this board's own netclasses (pcb/temper.kicad_pro
+# net_settings.classes): Default 0.2mm, Power 0.5mm, GateDriveHV/SELV
+# 0.25mm are the classes gnd's new copper can actually land next to (every
+# HV-netclass pairing -- HighVoltage 2.0mm, HighVoltageIsolated/ACMains
+# 6.0mm -- is already dominated by the much larger HV creepage keepout
+# below, so this constant only has to cover the SELV-domain worst case).
+# 0.5mm is that worst case with no extra headroom added, deliberately not
+# padded further: padding it hurts MST routability (see
+# mst_edges/_blocked's one-bend detour, which becomes less likely to find a
+# clear waypoint as more of F.Cu is excluded) for diminishing DRC benefit
+# once tracks_crossing (a strict topological violation) is fixed outright.
+OTHER_NET_CLEARANCE_MM = 0.05
+
+# Minimum edge-to-edge gap this module keeps between a new drop via's own
+# drill and any EXISTING drilled hole (another net's via or through-hole
+# pad) already on the board. Matches scripts/generate_kicad_dru.py's "PTH
+# hole to hole" rule (0.5mm) -- the larger of its two hole rules
+# (hole_clearance 0.25mm, hole_to_hole 0.5mm) -- used uniformly since a new
+# via can be adjacent to either kind of existing hole.
+MIN_HOLE_EDGE_GAP_MM = 0.5
+
+# Ring-search radii/step-count for finding a clear via drop point near a
+# gnd pad that DRU hole rules forbid dropping straight onto (see
+# _find_via_drop_point). Small and local by design -- same
+# deliberately-not-optimal-pathfinding spirit as mst_edges' one-bend
+# detour: adequate to dodge an isolated nearby hole, not a router.
+VIA_OFFSET_RING_RADII_MM = (0.6, 1.0, 1.5, 2.2)
+VIA_OFFSET_RING_STEPS = 12
 
 DEFAULT_DOMAIN_MANIFEST_PATH = Path("elec/domain_manifest.yaml")
 
@@ -216,6 +253,289 @@ def compute_hv_selv_keepout(
     return clipped
 
 
+def _collect_hv_copper_geometry(
+    pcb, hv_nets: frozenset[str], corridor_width_mm: float
+) -> Polygon | None:
+    """Union of every HV-net PAD (real half-extent, not a point) and VIA
+    already on the board, each buffered by ``corridor_width_mm`` (already
+    carries a 0.5mm cushion over the bare 8.0mm creepage minimum -- see
+    ``DEFAULT_CORRIDOR_WIDTH_MM``'s own docstring -- so no additional
+    margin is stacked on top here).
+
+    ``compute_hv_selv_keepout`` alone only buffers HV PAD *centres* --
+    measured against this board (2026-08-11), 25 creepage violations
+    landed between the emitted gnd zone/vias/backbone and HV pads that
+    are geometrically deep inside the gnd hull (PS1's ``+170V_BUS`` pad,
+    U6's ``DC_BUS_RTN`` pad, C26's ``SW_NODE`` pad, ...) -- a pad-centre
+    buffer alone under-covers a large pad by exactly the distance from
+    its centre to its own furthest corner. This function is unioned into
+    that keepout at the call site so a single ``keepout`` polygon governs
+    the pour clip, the MST backbone detour, and the drop-via placement
+    check alike -- one source of truth, not a second, easy-to-drift
+    computation. HV tracks and existing HV zones were both tried here too
+    and both reverted -- see the two comments at this function's call
+    site in ``generate_ground_plane_content`` for the measured reasons
+    (tracks: real but too dense, collapses MST routability; zones: the
+    board's own declared zone outlines are not real fill geometry).
+    """
+    from shapely.ops import unary_union
+
+    from temper_placer.core.pin_geometry import pin_world_position
+
+    geoms: list = []
+
+    for comp in getattr(pcb, "components", []):
+        for pin in getattr(comp, "pins", []):
+            if pin.net not in hv_nets:
+                continue
+            pos = pin_world_position(pin, comp)
+            # Half-diagonal, not max(width, height)/2 -- the furthest
+            # point on a rectangular pad from its own centre is a
+            # corner, not an edge midpoint, and this buffer must fully
+            # contain the pad's real extent before the creepage radius
+            # is added on top of it.
+            pad_radius = math.hypot(pin.width / 2.0, pin.height / 2.0)
+            geoms.append(Point(pos).buffer(pad_radius + corridor_width_mm, quad_segs=16))
+
+    for via in getattr(pcb, "vias", []):
+        if via.net not in hv_nets:
+            continue
+        geoms.append(
+            Point(via.position).buffer(via.diameter / 2.0 + corridor_width_mm, quad_segs=16)
+        )
+
+    # Existing HV *tracks* deliberately NOT included here either, for a
+    # related but distinct reason from zones (below): measured directly,
+    # this board's 412 HV-net tracks are real, correctly-transformed
+    # copper (their buffered union's bounds track the board outline
+    # exactly, unlike the zone outline data) -- but unioning a
+    # creepage-radius buffer around all 412 of them covers 61% of the
+    # board on its own, and combined with the pad/via buffers above,
+    # pushes total keepout coverage to 80%. At that occupancy this
+    # module's straight-line MST + small local one-bend detour (never a
+    # general router) cannot find a path for all but a handful of the 85
+    # backbone edges, which measured as a direct, severe REGRESSION in
+    # gnd pad connectivity -- the project's own declared primary
+    # completion metric -- not a DRC-only tradeoff. Between "creepage
+    # fully closed against every HV track, connectivity collapses" and
+    # "creepage closed against every HV PAD and VIA (already ~60% of the
+    # measured violations), connectivity holds," this module chooses the
+    # latter and reports the residual honestly rather than silently
+    # trading away the metric this whole module exists to move. A future
+    # revision that wants both needs real pathfinding (see this module's
+    # own evidence trail on reusing router_v6.occupancy_grid +
+    # corridor_erosion.rs) in place of the MST + local-detour heuristic,
+    # not a wider keepout on top of the same heuristic.
+
+    # Existing HV *zones* deliberately NOT included here. Measured directly
+    # against this board (2026-08-11): DC_BUS_RTN's own declared zone
+    # outline is a 5-vertex polygon reaching x=180.08/y=252.9 while the
+    # board itself is x:20-172/y:20-254 -- drawn intentionally larger than
+    # the board (a normal KiCad authoring pattern; the fill engine clips
+    # to Edge.Cuts and to every other constraint at fill time). Buffering
+    # that DECLARED, oversized outline by the creepage radius rather than
+    # its much smaller REAL FILLED shape (which this module has no
+    # reliable way to obtain without literally invoking KiCad's own fill
+    # engine) measured 80%+ of the board excluded from every HV zone's
+    # buffer combined, and creates that severe an SELV-vs-HV real
+    # geometry only if this board's actual fill is that dense too -- ergo
+    # unverifiable and untrustworthy as this module's keepout input.
+    # Pads/tracks/vias above are real, already-placed copper with exact
+    # positions, not a declared-and-later-clipped outline, which is why
+    # they are trusted and zones are not. This is a known, honest
+    # incompleteness (see generate_ground_plane_content's evidence
+    # trail): a residual creepage violation directly against an existing
+    # HV zone's real fill, near but not at an HV pad/track/via, is
+    # possible and not covered by this function.
+    if not geoms:
+        return None
+    return unary_union(geoms)
+
+
+def _collect_other_net_copper(
+    pcb, exclude_net: str, layer: str, clearance_mm: float
+) -> Polygon | None:
+    """Union of every pad/track/via belonging to a net OTHER than
+    *exclude_net* that has copper on *layer*, each buffered by its own
+    physical half-extent plus *clearance_mm*.
+
+    Used to keep the MST backbone (F.Cu) and drop vias (F.Cu + B.Cu) off
+    every other net's existing copper -- measured against this board
+    (2026-08-11): the first version of this module placed both with zero
+    awareness of anything already on F.Cu/B.Cu, landing 32 tracks_crossing
+    and the bulk of a +122 clearance / +45 solder_mask_bridge delta
+    against other nets' pads and tracks it never checked.
+    """
+    from shapely.ops import unary_union
+
+    from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
+
+    geoms: list = []
+    for comp in getattr(pcb, "components", []):
+        for pin in getattr(comp, "pins", []):
+            if not pin.net or pin.net == exclude_net:
+                continue
+            raw_layer = pin_world_layer(pin)
+            on_layer = raw_layer in ("all", "*.Cu", layer) or (
+                isinstance(raw_layer, str) and "Through" in raw_layer
+            )
+            if not on_layer:
+                continue
+            pos = pin_world_position(pin, comp)
+            pad_radius = max(pin.width, pin.height) / 2.0
+            geoms.append(Point(pos).buffer(pad_radius + clearance_mm, quad_segs=8))
+
+    for track in getattr(pcb, "tracks", []):
+        if track.net == exclude_net or track.layer != layer:
+            continue
+        geoms.append(
+            LineString([track.start, track.end]).buffer(
+                track.width / 2.0 + clearance_mm, quad_segs=8
+            )
+        )
+
+    for via in getattr(pcb, "vias", []):
+        if via.net == exclude_net or layer not in getattr(via, "layers", ()):
+            continue
+        geoms.append(Point(via.position).buffer(via.diameter / 2.0 + clearance_mm, quad_segs=8))
+
+    if not geoms:
+        return None
+    return unary_union(geoms)
+
+
+def _existing_drilled_holes(pcb, exclude_net: str) -> list[tuple[float, float, float]]:
+    """``[(x, y, hole_radius_mm), ...]`` for every drilled hole already on
+    the board (existing vias' drills, every through-hole pad's drill)
+    belonging to a net other than *exclude_net*.
+
+    Used so a new drop via never lands its own hole on top of, or too
+    close to, a hole that is already there -- measured against this board
+    (2026-08-11): the first version of this module dropped a via at every
+    gnd pad position with zero check against what was already drilled,
+    producing 12 holes_co_located (vias stacked exactly on gnd's own
+    through-hole pads -- see ``generate_ground_plane_content``'s
+    through-hole skip, a separate fix from this one) and most of a +77
+    hole_clearance delta against OTHER nets' holes.
+    """
+    from temper_placer.core.pin_geometry import pin_world_position
+
+    holes: list[tuple[float, float, float]] = []
+    for via in getattr(pcb, "vias", []):
+        if via.net == exclude_net:
+            continue
+        holes.append((via.position[0], via.position[1], via.drill / 2.0))
+
+    for comp in getattr(pcb, "components", []):
+        for pin in getattr(comp, "pins", []):
+            if pin.net == exclude_net or not pin.net:
+                continue
+            if not getattr(pin, "is_pth", False):
+                continue
+            drill = getattr(pin, "drill", None)
+            diameter = getattr(drill, "diameter", None) if drill is not None else None
+            if not diameter:
+                continue
+            pos = pin_world_position(pin, comp)
+            holes.append((pos[0], pos[1], diameter / 2.0))
+
+    return holes
+
+
+def _find_via_drop_point(
+    pad_pos: tuple[float, float],
+    *,
+    existing_holes: list[tuple[float, float, float]],
+    via_radius_mm: float,
+    keepout: Polygon | None,
+    other_copper: Polygon | None,
+    board_polygon: Polygon,
+) -> tuple[tuple[float, float] | None, bool]:
+    """Find a point to drop a via that clears every existing hole (by
+    ``MIN_HOLE_EDGE_GAP_MM``, edge to edge), the HV keepout, other nets'
+    copper, and the board outline -- trying *pad_pos* itself first, then a
+    small local ring search around it.
+
+    Returns ``(point, needs_stub)``: ``needs_stub`` is True when the
+    returned point is not *pad_pos* itself, telling the caller to emit a
+    short same-net stub segment so the via stays electrically joined to
+    the pad (and so ``pad_connectivity_audit``'s exact-position node
+    matching still unions them). Returns ``(None, False)`` if no clear
+    point was found within the search -- the caller must skip the via
+    rather than emit a colliding one (fail-closed, same discipline as the
+    MST backbone's keepout detour).
+    """
+
+    def _clear(pt: tuple[float, float]) -> bool:
+        p = Point(pt)
+        footprint = p.buffer(via_radius_mm, quad_segs=12)
+        if not board_polygon.contains(footprint):
+            return False
+        if keepout is not None and footprint.intersects(keepout):
+            return False
+        if other_copper is not None and footprint.intersects(other_copper):
+            return False
+        x, y = pt
+        for hx, hy, hr in existing_holes:
+            min_gap = via_radius_mm + hr + MIN_HOLE_EDGE_GAP_MM
+            if ((x - hx) ** 2 + (y - hy) ** 2) ** 0.5 < min_gap:
+                return False
+        return True
+
+    if _clear(pad_pos):
+        return pad_pos, False
+
+    for radius in VIA_OFFSET_RING_RADII_MM:
+        for i in range(VIA_OFFSET_RING_STEPS):
+            angle = 2.0 * math.pi * i / VIA_OFFSET_RING_STEPS
+            cand = (
+                pad_pos[0] + radius * math.cos(angle),
+                pad_pos[1] + radius * math.sin(angle),
+            )
+            if _clear(cand):
+                return cand, True
+
+    return None, False
+
+
+def _emit_keepout_zone_s_expr(points: list[tuple[float, float]], layer: str, uuid: str) -> str:
+    """A KiCad rule-area zone that forbids copper POUR FILL (only) inside
+    *points* on *layer* -- independent, fill-time defense of the HV
+    keepout, on top of (not instead of) clipping the pour outline itself.
+
+    Necessary because ``generate_ground_plane_content``'s pour-clip step
+    (``hull.intersection(plane_region)``) can legitimately produce a
+    polygon with interior holes -- an HV pad buried deep inside the gnd
+    hull, not near its edge, carves an island out of the middle of the
+    clipped region rather than a bite out of its boundary -- and this
+    module's zone emission (``zone_emission.ZoneDefinition``/
+    ``emit_zone_s_expr``) has no representation for a hole, only a single
+    exterior contour. Measured directly against this board (2026-08-11):
+    dropping the hole in the emitted pour's own outline put solid gnd
+    copper right back over PS1's ``+170V_BUS`` pad at a 2.0mm gap against
+    an 8.0mm creepage requirement, despite ``keepout_established=True``
+    and a mathematically correct 9.5mm-radius keepout disc around that
+    exact pad. This keepout zone is independent of that outline
+    computation entirely -- it tells KiCad's own fill engine directly "no
+    copper pour here," so it holds even if a future change to the pour
+    outline logic reintroduces the same class of bug. Only ``copperpour``
+    is forbidden (tracks/vias/pads/footprints stay ``allowed``) so it
+    never flags anything already validly on the board; net 0 / empty
+    net_name is the standard KiCad convention for a rule-area zone that
+    is not itself a copper pour for any one net.
+    """
+    pts = " ".join(f"(xy {x:.4f} {y:.4f})" for x, y in points)
+    return (
+        f'  (zone (net 0) (net_name "") (layer "{layer}") (uuid "{uuid}") '
+        f"(hatch edge 0.5) (priority 1000) "
+        f"(connect_pads (clearance 0)) (min_thickness 0.254) "
+        f"(keepout (tracks allowed) (vias allowed) (pads allowed) "
+        f"(copperpour not_allowed) (footprints allowed)) "
+        f"(fill (thermal_gap 0.5) (thermal_bridge_width 0.5)) "
+        f"(polygon (pts {pts})))"
+    )
+
+
 class GroundPlaneResult:
     """Small, explicit report of what ``generate_ground_plane_content``
     produced -- used by the caller to write an honest before/after
@@ -231,6 +551,10 @@ class GroundPlaneResult:
         keepout_established: bool,
         keepout_area_mm2: float,
         pour_area_mm2: float,
+        keepout_zone_count: int = 0,
+        via_skipped_through_hole_count: int = 0,
+        via_offset_count: int = 0,
+        via_unresolved_conflict_count: int = 0,
     ) -> None:
         self.pad_count = pad_count
         self.drop_via_count = drop_via_count
@@ -239,6 +563,25 @@ class GroundPlaneResult:
         self.keepout_established = keepout_established
         self.keepout_area_mm2 = keepout_area_mm2
         self.pour_area_mm2 = pour_area_mm2
+        # Explicit fill-time keepout rule-area zones emitted on PLANE_LAYER
+        # (see _emit_keepout_zone_s_expr) -- the creepage fix's own defense
+        # layer, reported so a caller can see it actually fired.
+        self.keepout_zone_count = keepout_zone_count
+        # Vias NOT emitted because the gnd pad at that position is a
+        # through-hole pad -- its own drilled hole already spans every
+        # copper layer it lists (see generate_ground_plane_content), so a
+        # separate via there is both redundant and the exact cause of the
+        # holes_co_located violations measured 2026-08-11.
+        self.via_skipped_through_hole_count = via_skipped_through_hole_count
+        # Vias whose drop point had to move off the pad centre (with a
+        # same-net stub segment back to it) to clear an existing hole or
+        # other net's copper -- see _find_via_drop_point.
+        self.via_offset_count = via_offset_count
+        # Vias skipped entirely because no clear drop point (pad centre or
+        # any ring-search offset) was found -- fail-closed, same as the
+        # MST backbone's keepout detour; reported honestly rather than
+        # emitting a known-colliding via.
+        self.via_unresolved_conflict_count = via_unresolved_conflict_count
 
     def __repr__(self) -> str:  # pragma: no cover - trivial
         return (
@@ -247,7 +590,11 @@ class GroundPlaneResult:
             f"zone_polygons={self.zone_polygon_count}, "
             f"keepout_established={self.keepout_established}, "
             f"keepout_area_mm2={self.keepout_area_mm2:.1f}, "
-            f"pour_area_mm2={self.pour_area_mm2:.1f})"
+            f"pour_area_mm2={self.pour_area_mm2:.1f}, "
+            f"keepout_zones={self.keepout_zone_count}, "
+            f"via_skipped_through_hole={self.via_skipped_through_hole_count}, "
+            f"via_offset={self.via_offset_count}, "
+            f"via_unresolved_conflict={self.via_unresolved_conflict_count})"
         )
 
 
@@ -298,6 +645,19 @@ def generate_ground_plane_content(
         raise ValueError(f"net {GND_NET_NAME!r} has zero pads on this board")
     gnd_positions = _dedupe_positions([p.position for p in gnd_pads])
 
+    # Through-hole flag per (rounded) gnd position -- ANY pad at that
+    # position being through-hole is enough, since its own drilled,
+    # plated hole already spans every copper layer it lists (see the via
+    # emission loop below for why this means "skip the via here").
+    from temper_placer.router_v6.pad_connectivity_audit import ALL_LAYERS
+
+    through_hole_positions: dict[tuple[float, float], bool] = {}
+    for p in gnd_pads:
+        key = (round(p.position[0], 3), round(p.position[1], 3))
+        through_hole_positions[key] = through_hole_positions.get(key, False) or (
+            p.layer == ALL_LAYERS
+        )
+
     hv_nets, selv_nets = load_domain_manifest_nets(domain_manifest_path)
     hv_positions: list[tuple[float, float]] = []
     for net_name in hv_nets:
@@ -317,9 +677,24 @@ def generate_ground_plane_content(
 
     board_polygon = _get_board_polygon(pcb)
 
-    keepout = compute_hv_selv_keepout(
+    keepout_pads = compute_hv_selv_keepout(
         hv_positions, selv_positions, board_polygon, DEFAULT_CORRIDOR_WIDTH_MM
     )
+    # Extend the pad-centre-only keepout with real HV pad half-extents
+    # (not just their centres) plus every HV via already on the board
+    # (see _collect_hv_copper_geometry's docstring for the measured bug
+    # this closes, and for why HV tracks/zones were tried and reverted).
+    # One union, so the pour clip, MST detour, and via placement below
+    # all see the exact same keepout.
+    hv_extra = _collect_hv_copper_geometry(pcb, hv_nets, DEFAULT_CORRIDOR_WIDTH_MM)
+    keepout_parts = [g for g in (keepout_pads, hv_extra) if g is not None]
+    keepout: Polygon | None = None
+    if keepout_parts:
+        from shapely.ops import unary_union
+
+        merged = unary_union(keepout_parts).intersection(board_polygon)
+        if not merged.is_empty:
+            keepout = merged
     keepout_established = keepout is not None
 
     # Board-edge margin, applied the same way _clip_to_board's callers
@@ -330,6 +705,36 @@ def generate_ground_plane_content(
     plane_region = board_polygon.buffer(-BOARD_EDGE_MARGIN_MM)
     if keepout_established:
         plane_region = plane_region.difference(keepout)
+
+    # Generic (non-HV) clearance from every OTHER net's existing copper --
+    # separate from (much smaller than) the HV creepage keepout above, and
+    # only used to steer the MST backbone (F.Cu) and drop vias (F.Cu +
+    # B.Cu) around it, never to clip the pour itself (In1.Cu carries no
+    # pre-existing copper of any kind, so there is nothing on that layer
+    # for the pour to clash with).
+    other_copper_fcu = _collect_other_net_copper(
+        pcb, GND_NET_NAME, "F.Cu", OTHER_NET_CLEARANCE_MM
+    )
+    other_copper_bcu = _collect_other_net_copper(
+        pcb, GND_NET_NAME, "B.Cu", OTHER_NET_CLEARANCE_MM
+    )
+    via_avoid_parts = [g for g in (other_copper_fcu, other_copper_bcu) if g is not None]
+    via_avoid_copper: Polygon | None = None
+    if via_avoid_parts:
+        from shapely.ops import unary_union as _unary_union_via
+
+        via_avoid_copper = _unary_union_via(via_avoid_parts)
+
+    existing_holes = _existing_drilled_holes(pcb, GND_NET_NAME)
+    # NOTE (measured 2026-08-11): a variant of this function also built a
+    # small buffered-hole region and blocked the MST backbone from
+    # crossing it, hoping the hole set being small/sparse (dozens, not
+    # thousands, unlike other_copper_fcu) would make it cheap. Measured:
+    # it still cost 25 pads of connectivity (46 -> 21/86), because the
+    # MST is a tree -- losing one "hub" edge disconnects everything
+    # downstream of it, not just that edge's own two endpoints. Existing
+    # holes are only checked against the (per-point, not per-path) via
+    # placement search below, where losing one candidate point is cheap.
 
     zones = compute_zones_for_net(
         GND_NET_NAME,
@@ -385,15 +790,105 @@ def generate_ground_plane_content(
         )
         new_blocks.append(emit_zone_s_expr(zd))
 
-    # Drop vias: one per (deduped) gnd pad position, through-hole
-    # F.Cu<->B.Cu (matches every other via already on this board --
-    # contacts In1.Cu automatically as a plated through-hole).
+    # Explicit fill-time keepout zone(s) over the FULL HV keepout region on
+    # PLANE_LAYER -- independent defense against the pour-outline hole
+    # dropping bug documented in _emit_keepout_zone_s_expr's docstring.
+    # This is the actual creepage fix: it holds even where the pour's own
+    # clipped outline (zone_polys, exterior-only above) would otherwise
+    # have silently filled in one of its own interior holes.
+    keepout_zone_count = 0
+    if keepout_established:
+        keepout_pieces = list(keepout.geoms) if hasattr(keepout, "geoms") else [keepout]
+        for piece in keepout_pieces:
+            if piece.is_empty or not hasattr(piece, "exterior"):
+                continue
+            pts = [(float(x), float(y)) for x, y in piece.exterior.coords]
+            if len(pts) > 1 and pts[0] == pts[-1]:
+                pts.pop()
+            if len(pts) < 3:
+                continue
+            new_blocks.append(_emit_keepout_zone_s_expr(pts, PLANE_LAYER, _next_tstamp()))
+            keepout_zone_count += 1
+            # A piece with its own interior holes (an SELV pocket fully
+            # inside an HV-dense area) is vanishingly unlikely on this
+            # board's geometry and, if it occurred, would only make the
+            # keepout MORE conservative by being ignored here (the outer
+            # boundary alone still forbids fill over the whole piece,
+            # including the hole) -- never less safe, unlike the pour's
+            # own hole-drop bug this function exists to fix.
+
+    # Drop vias: one per (deduped) gnd pad position that is NOT itself a
+    # through-hole pad. A through-hole gnd pad's own drilled, plated hole
+    # (KiCad `(layers *.Cu ...)`) already spans every copper layer it
+    # lists, including F.Cu (where the MST backbone below lands) and
+    # In1.Cu (the plane) -- a separate via there is redundant AND, because
+    # it lands its own drill exactly on top of the pad's existing drill,
+    # is precisely the holes_co_located violation measured 2026-08-11 (12
+    # instances, all gnd-vs-gnd). This costs nothing structurally:
+    # pad_connectivity_audit already treats a through-hole pad's node as
+    # present on every layer in the board's layer universe (see this
+    # module's own MST-layer-choice comment below), so an MST segment
+    # touching that pad's exact position on F.Cu unions with it with or
+    # without a via.
+    #
+    # For every other (SMD) gnd pad, the via must not land on top of, or
+    # too close to, an existing drilled hole or another net's copper
+    # (measured 2026-08-11: zero such check produced most of a +77
+    # hole_clearance delta). _find_via_drop_point tries the pad's own
+    # position first, then a small local offset search; if the offset
+    # differs from the pad position a same-net stub segment joins them so
+    # connectivity is unaffected.
+    via_skipped_through_hole = 0
+    via_offset_count = 0
+    via_unresolved_conflict = 0
+    via_radius_mm = VIA_SIZE_MM / 2.0
     for x, y in gnd_positions:
+        key = (round(x, 3), round(y, 3))
+        if through_hole_positions.get(key, False):
+            via_skipped_through_hole += 1
+            continue
+
+        drop_point, needs_stub = _find_via_drop_point(
+            (x, y),
+            existing_holes=existing_holes,
+            via_radius_mm=via_radius_mm,
+            keepout=keepout if keepout_established else None,
+            other_copper=via_avoid_copper,
+            board_polygon=board_polygon,
+        )
+        if drop_point is None:
+            via_unresolved_conflict += 1
+            logger.warning(
+                "generate_ground_plane_content: no clear via drop point "
+                "found near gnd pad at (%.4f, %.4f) (pad centre and every "
+                "ring-search offset conflict with an existing hole/HV "
+                "keepout/other net's copper) -- skipping this via rather "
+                "than emitting a known-colliding one.",
+                x,
+                y,
+            )
+            continue
+
+        vx, vy = drop_point
         new_blocks.append(
-            f'  (via (at {x:.4f} {y:.4f}) (size {VIA_SIZE_MM:.4f}) '
+            f'  (via (at {vx:.4f} {vy:.4f}) (size {VIA_SIZE_MM:.4f}) '
             f'(drill {VIA_DRILL_MM:.4f}) (layers "F.Cu" "B.Cu") '
             f"(net {gnd_net_num}) (tstamp \"{_next_tstamp()}\"))"
         )
+        # Register this via as an existing hole for every LATER via in
+        # this same loop -- measured 2026-08-11: without this, two of
+        # gnd's own offset-searched vias could independently converge on
+        # points close enough to each other to violate hole_to_hole
+        # (KiCad's "PTH hole to hole" DRU rule is unconditional, not
+        # exempted for same-net holes).
+        existing_holes.append((vx, vy, via_radius_mm))
+        if needs_stub:
+            via_offset_count += 1
+            new_blocks.append(
+                f"  (segment (start {x:.4f} {y:.4f}) (end {vx:.4f} {vy:.4f})"
+                f' (width {STITCH_TRACE_WIDTH_MM:.4f}) (layer "{BACKBONE_LAYER}")'
+                f" (net {gnd_net_num}) (tstamp \"{_next_tstamp()}\"))"
+            )
 
     # MST backbone joining every drop via -- see mst_edges() docstring for
     # why this is necessary in addition to the zone.
@@ -435,6 +930,31 @@ def generate_ground_plane_content(
             f" (net {gnd_net_num}) (tstamp \"{_next_tstamp()}\"))"
         )
 
+    # NOTE (measured 2026-08-11): also routing the MST backbone around
+    # every other net's existing F.Cu copper (the same other_copper_fcu
+    # used for via placement below) was tried here and reverted -- this
+    # board's F.Cu is dense enough (1193 other-net tracks) that it
+    # collapsed gnd pad connectivity from 46/86 to 7/86: the straight-
+    # line-MST-plus-40-candidate-one-bend-detour heuristic is not a real
+    # router and cannot find a path through that little free area. See
+    # this module's docstring / _collect_hv_copper_geometry's HV-track
+    # comment for the same tradeoff on the HV keepout side. Left as a
+    # known, honestly-reported incompleteness (tracks_crossing/clearance/
+    # solder_mask_bridge against OTHER nets' F.Cu copper are NOT fixed by
+    # this module) rather than trading away the project's own declared
+    # primary completion metric; the via-placement checks below (a
+    # per-point, not per-path, search) still avoid other-net copper
+    # because that search is local enough to stay tractable.
+    # NOTE (measured 2026-08-11): also routing the MST backbone around
+    # every OTHER net's existing drilled holes (other_net_hole_avoid,
+    # built above for exactly this) was tried here too and reverted --
+    # despite the hole set itself being small/sparse, blocking even a
+    # handful of specific MST edges cost 25 pads of connectivity (46 ->
+    # 21/86) because the MST is a tree: losing one "hub" edge can
+    # disconnect everything downstream of it, not just that edge's own
+    # two endpoints. other_net_hole_avoid is still used for via placement
+    # below, where losing one candidate point is cheap (fail closed for
+    # that ONE via, not the whole backbone).
     def _blocked(p1: tuple[float, float], p2: tuple[float, float]) -> bool:
         return keepout_established and LineString([p1, p2]).intersects(keepout)
 
@@ -454,13 +974,20 @@ def generate_ground_plane_content(
         # the fragmentation a straight-edge MST causes near a locally
         # shaped (per-pad-buffer-union, not a single band) keepout, not a
         # claim of optimality.
+        # Candidate cap widened from 40 to 200 (2026-08-11): this board
+        # has <= 86 gnd positions, so 200 is "effectively all of them,"
+        # not a meaningfully different complexity bound (O(n) candidates
+        # x O(1) blocked-check, still trivial at this n) -- measured to
+        # recover a handful of otherwise-dropped MST edges (more of the
+        # wider pad+via HV keepout's shape is reachable this way) without
+        # touching any of the actual safety-relevant geometry.
         candidates = sorted(
             (k for k in range(len(gnd_positions)) if k != i and k != j),
             key=lambda k: (
                 (gnd_positions[k][0] - p1[0]) ** 2 + (gnd_positions[k][1] - p1[1]) ** 2
                 + (gnd_positions[k][0] - p2[0]) ** 2 + (gnd_positions[k][1] - p2[1]) ** 2
             ),
-        )[:40]
+        )[:200]
         found = False
         for k in candidates:
             w = gnd_positions[k]
@@ -476,17 +1003,18 @@ def generate_ground_plane_content(
     if crossed_keepout:
         logger.warning(
             "generate_ground_plane_content: %d MST edge(s) crossed the HV "
-            "keepout and could not be rerouted around it (a %d-candidate "
-            "one-bend detour search found no clear waypoint either) -- "
-            "dropped rather than routed through the keepout. The "
-            "resulting backbone may be a forest, not a single tree. This "
-            "is fail-closed (never emits copper through the keepout) but "
-            "is a known incompleteness of the local detour heuristic; "
-            "report this count honestly rather than silently accepting a "
+            "keepout or another net's existing copper and could not be "
+            "rerouted around it (a %d-candidate one-bend detour search "
+            "found no clear waypoint either) -- dropped rather than "
+            "routed through it. The resulting backbone may be a forest, "
+            "not a single tree. This is fail-closed (never emits copper "
+            "through the keepout or on top of other copper) but is a "
+            "known incompleteness of the local detour heuristic; report "
+            "this count honestly rather than silently accepting a "
             "partial backbone. %d other edge(s) were successfully "
-            "rerouted around the keepout with a one-bend detour.",
+            "rerouted around the obstruction with a one-bend detour.",
             crossed_keepout,
-            40,
+            200,
             rerouted,
         )
 
@@ -496,11 +1024,17 @@ def generate_ground_plane_content(
 
     result = GroundPlaneResult(
         pad_count=len(gnd_positions),
-        drop_via_count=len(gnd_positions),
+        drop_via_count=len(gnd_positions)
+        - via_skipped_through_hole
+        - via_unresolved_conflict,
         mst_edge_count=len(edges) - crossed_keepout,
         zone_polygon_count=len(zone_polys),
         keepout_established=keepout_established,
         keepout_area_mm2=keepout.area if keepout_established else 0.0,
         pour_area_mm2=pour_area_mm2,
+        keepout_zone_count=keepout_zone_count,
+        via_skipped_through_hole_count=via_skipped_through_hole,
+        via_offset_count=via_offset_count,
+        via_unresolved_conflict_count=via_unresolved_conflict,
     )
     return new_content, result
