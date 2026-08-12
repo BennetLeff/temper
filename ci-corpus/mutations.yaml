@@ -11,12 +11,16 @@
 #
 # Scope (R42's explicit "gates that matter most"): creepage/clearance
 # drift, the physical isolation keepout, HV netclass coverage, the R27 DRC
-# ceiling ratchet approval gate, both provenance checkers, and the
-# anti-vacuity guard itself (check_vacuous_gates.py) -- not the full
-# fail-closed gate inventory (R19/R30's incident-corpus/canary-contract
-# plan, which this suite bootstraps around per the plan's own "Assumptions"
-# section, has not landed yet; this is a first sweep of the safety-critical
-# subset, not a claim of exhaustive coverage).
+# ceiling ratchet approval gate, both provenance checkers, the
+# anti-vacuity guard itself (check_vacuous_gates.py), and (added
+# 2026-08-12) the HighVoltage/Power netclass-parameter correspondence gate
+# -- not the full fail-closed gate inventory (R19/R30's incident-corpus/
+# canary-contract plan, which this suite bootstraps around per the plan's
+# own "Assumptions" section, has not landed yet; this is a first sweep of
+# the safety-critical subset, not a claim of exhaustive coverage). See
+# docs/evidence/2026-08-12-gate-vacuity-structural-prevention.md for the
+# assessment of how far this scope is from covering all ~86
+# `disposition: ci-gate` scripts, and why.
 #
 # Mutation axes deliberately model the nine observed failure mechanisms
 # from the 2026-08-07 session (see docs/plans/.../035's own header), not
@@ -414,3 +418,73 @@ mutations:
       seed: seed_no_stamp
       expected_pristine: clean
       expected_seed: violation
+
+  # ---------------------------------------------------------------------
+  # scripts/check_netclass_class_param_correspondence.py (added
+  # 2026-08-12, alongside the gate itself -- see docs/evidence/
+  # 2026-08-12-gate-vacuity-structural-prevention.md. First correspondence
+  # gate in this repo to ship with an R42 mutation triple on day one,
+  # rather than added retroactively.)
+  # ---------------------------------------------------------------------
+  - gate: scripts/check_netclass_class_param_correspondence.py
+    mutation_id: netclass-param-invert-mismatch-detection
+    axis: comparison-flip
+    function: compare_class_params
+    match: compare-op-flip
+    index: 0
+    line_hint: "if dr_val != kc_val:"
+    description: >-
+      Flip `dr_val != kc_val` to `dr_val == kc_val` -- the exact
+      backwards-comparison class (cf. `rated >= actual*0.5`), mechanized
+      on the one comparison this gate exists to get right: every
+      AGREEING field would be reported a mismatch, and the real
+      HighVoltage.clearance 6.0-vs-2.0 defect would go unreported.
+    canary:
+      module: ci-corpus/canaries/check_netclass_class_param_correspondence.py
+      pristine: pristine_agree
+      seed: seed_mismatch
+      expected_pristine: clean
+      expected_seed: "violation:['clearance']"
+
+  - gate: scripts/check_netclass_class_param_correspondence.py
+    mutation_id: netclass-param-invert-verdict-guard
+    axis: condition-invert
+    function: run
+    match: if-invert
+    index: 1
+    line_hint: "if report.mismatches:"
+    description: >-
+      Invert the final violation guard in run() so a real field mismatch
+      is reported clean and an agreeing class is reported a violation --
+      the StageDRCFailure-gated-behind-verbose class, mechanized on this
+      gate's own verdict line (same axis and shape as
+      hv-netclass-invert-verdict-guard above; index differs because
+      ast.walk's traversal order over this function's four `if`
+      statements is not lexical top-to-bottom -- confirmed directly
+      against a live parse, not assumed. See
+      measurement-invert-freshness-guard's own history in
+      docs/evidence/2026-08-11-phase3-mutation-state-of-play.md for the
+      exact same drift class hitting a hand-authored index before).
+    canary:
+      module: ci-corpus/canaries/check_netclass_class_param_correspondence.py
+      pristine: pristine_agree
+      seed: seed_mismatch
+      expected_pristine: clean
+      expected_seed: "violation:['clearance']"
+
+  - gate: scripts/check_netclass_class_param_correspondence.py
+    mutation_id: netclass-param-return-stub-always-clean
+    axis: return-stub
+    function: run
+    match: return-stub
+    stub_code: "return 'clean', Report()"
+    line_hint: "def run("
+    description: >-
+      Force run() to unconditionally return a clean verdict as its first
+      statement -- the "return a constant success" mutant.
+    canary:
+      module: ci-corpus/canaries/check_netclass_class_param_correspondence.py
+      pristine: pristine_agree
+      seed: seed_mismatch
+      expected_pristine: clean
+      expected_seed: "violation:['clearance']"
