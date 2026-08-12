@@ -125,6 +125,16 @@ class RoutingResult:
     # Left in place -- removing it is a larger API-surface change tracked
     # as separate follow-up work, not part of that plan.
     forced_segment_nets: list[str] = field(default_factory=list)
+    # net-batching budget/fallback summary (empty dict unless
+    # enable_net_batching=True was passed to route_pcb()). See
+    # RouterV6Result.batch_results's docstring (_pipeline_types.py) for why
+    # this exists: DEFAULT_SUBPROCESS_TIMEOUT_S (net_batching.py, 900s) is a
+    # wall-clock budget, and a batch that hits it falls back silently unless
+    # a caller surfaces it. Built by _build_routing_result from
+    # RouterV6Result.batch_results so a normal (non-TEMPER_BATCH_TRACE)
+    # caller -- e.g. scripts/route_board.py -- can print it by default
+    # instead of it only being visible in a stderr trace firehose.
+    net_batch_summary: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

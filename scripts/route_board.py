@@ -284,7 +284,55 @@ def route_once(
         "total_router_nets": total_router_nets,
         "should_route_excluded_nets": should_route_excluded_nets,
         "pad_connectivity": pad_connectivity,
+        "net_batch_summary": getattr(result, "net_batch_summary", None) or {},
     }
+
+
+def _format_net_batch_summary(nbs: dict[str, Any]) -> str:
+    """Format the net-batching budget/fallback summary for ALWAYS-ON
+    printing (not gated behind TEMPER_BATCH_TRACE) -- see
+    RoutingResult.net_batch_summary's docstring
+    (router_v6/_adapter_types.py) and
+    docs/evidence/2026-08-12-board-recipe-reproducibility.md for why
+    silent fallback on a wall-clock subprocess timeout
+    (net_batching.DEFAULT_SUBPROCESS_TIMEOUT_S, 900s) is the thing this
+    makes visible: it did not fire in this task's own repeated-run
+    measurements, but a time-limited subprocess is nondeterministic by
+    construction under machine load, so a caller needs a way to tell
+    "the board changed because the recipe changed" from "the board
+    changed because a batch ran out of time on a loaded machine" without
+    re-deriving it from raw stderr each time.
+    """
+    n = nbs["n_batches"]
+    lines = [
+        f"[net-batching] {n} batch(es), "
+        f"{nbs['n_batches_solved_at_batch_level']} solved at batch level, "
+        f"{nbs['n_batches_crashed']} crashed "
+        f"({nbs['n_batches_timed_out']} hit the subprocess wall-clock "
+        f"timeout, {nbs['n_batches_crashed_other_reason']} crashed another way)"
+    ]
+    if nbs["n_batches_timed_out"]:
+        lines.append(
+            f"[net-batching] TIMED OUT batch indices: {nbs['timed_out_batch_indices']} "
+            "-- these fell back to singleton retry under a possibly-loaded "
+            "machine; a re-run's board is not guaranteed to match this one "
+            "for the nets in these batches"
+        )
+    if nbs["other_crash_reasons"]:
+        lines.append(f"[net-batching] other crash reasons: {nbs['other_crash_reasons']}")
+    if nbs["n_nets_singleton_retried"]:
+        lines.append(
+            f"[net-batching] {nbs['n_nets_singleton_retried']} net(s) needed "
+            f"singleton retry ({nbs['n_nets_crashed_at_singleton_too']} of "
+            "those crashed again at singleton granularity)"
+        )
+    if nbs["n_nets_no_topology"]:
+        lines.append(
+            f"[net-batching] {nbs['n_nets_no_topology']} net(s) got NO Stage 3 "
+            f"topology (fell through to Stage 4's existing no-topology "
+            f"fallback): {', '.join(nbs['nets_no_topology'])}"
+        )
+    return "\n".join(lines)
 
 
 def _format_run(label: str, r: dict[str, Any]) -> str:
@@ -294,6 +342,9 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
         f"segments={r['segments']} vias={r['vias']} zones={r['zones']}  "
         f"wall={r['wall_s']:.1f}s"
     )
+    nbs = r.get("net_batch_summary")
+    if nbs:
+        line += "\n" + _format_net_batch_summary(nbs)
     pc = r.get("pad_connectivity")
     if pc:
         # The PRIMARY completion metric -- see audit_pad_connectivity's
@@ -380,7 +431,12 @@ def run_single(
 
 
 def _run_worker_subprocess(
-    pcb_path: Path, rules_path: Path, *, enable_geographic_pruning: bool = False
+    pcb_path: Path,
+    rules_path: Path,
+    *,
+    enable_geographic_pruning: bool = False,
+    enable_net_batching: bool = False,
+    net_batch_size: int = 10,
 ) -> dict[str, Any]:
     """Run one route_once() in a *fresh child process* and return its result.
 
@@ -395,6 +451,12 @@ def _run_worker_subprocess(
     real spread. This makes --runs N launch N independent processes, each
     inheriting the caller's environment (so `PYTHONHASHSEED=0 ... --runs N`
     pins it identically in every child).
+
+    ``enable_net_batching``/``net_batch_size`` forward --net-batching/
+    --batch-size to the worker (previously silently dropped -- --runs N
+    --net-batching looked like it measured the net-batching recipe's
+    reproducibility but always exercised the monolithic path instead; see
+    docs/evidence/2026-08-12-board-recipe-reproducibility.md).
     """
     with tempfile.NamedTemporaryFile(
         suffix=".json", delete=False
@@ -410,6 +472,8 @@ def _run_worker_subprocess(
         ]
         if enable_geographic_pruning:
             cmd.append("--pruning")
+        if enable_net_batching:
+            cmd += ["--net-batching", "--batch-size", str(net_batch_size)]
         proc = subprocess.run(
             cmd,
             capture_output=True,
@@ -428,24 +492,42 @@ def _run_worker_subprocess(
 
 
 def run_measurement(
-    pcb_path: Path, rules_path: Path, n: int, *, enable_geographic_pruning: bool = False
+    pcb_path: Path,
+    rules_path: Path,
+    n: int,
+    *,
+    enable_geographic_pruning: bool = False,
+    enable_net_batching: bool = False,
+    net_batch_size: int = 10,
 ) -> int:
     hashseed = os.environ.get("PYTHONHASHSEED")
     print(
         f"Routing {pcb_path} {n} time(s) from identical input, each run a "
         f"fresh process (PYTHONHASHSEED={hashseed!r}, "
-        f"pruning={enable_geographic_pruning}) ..."
+        f"pruning={enable_geographic_pruning}, net_batching={enable_net_batching}"
+        + (f", batch_size={net_batch_size}" if enable_net_batching else "")
+        + ") ..."
     )
     completions: list[float] = []
     routed_counts: list[int] = []
     unrouted_sets: list[frozenset[str]] = []
+    segment_counts: list[int] = []
+    via_counts: list[int] = []
+    zone_counts: list[int] = []
     for i in range(1, n + 1):
         r = _run_worker_subprocess(
-            pcb_path, rules_path, enable_geographic_pruning=enable_geographic_pruning
+            pcb_path,
+            rules_path,
+            enable_geographic_pruning=enable_geographic_pruning,
+            enable_net_batching=enable_net_batching,
+            net_batch_size=net_batch_size,
         )
         completions.append(r["completion_rate"])
         routed_counts.append(r["routed"])
         unrouted_sets.append(frozenset(r["unrouted_nets"]))
+        segment_counts.append(r["segments"])
+        via_counts.append(r["vias"])
+        zone_counts.append(r["zones"])
         print(_format_run(f"Run {i}/{n}", r))
 
     lo, hi = min(completions), max(completions)
@@ -456,16 +538,37 @@ def run_measurement(
         f"({(hi - lo) * 100:+.1f} pt range), routed-net count {lo_n}-{hi_n} "
         f"({hi_n - lo_n} net swing)"
     )
+    print(
+        f"Copper spread: segments {min(segment_counts)}-{max(segment_counts)}, "
+        f"vias {min(via_counts)}-{max(via_counts)}, "
+        f"zones {min(zone_counts)}-{max(zone_counts)} "
+        "-- more telling than the completion percentage above: two runs can "
+        "agree on completion% while routing materially different copper."
+    )
     if n > 1:
         print(f"stdev(completion_rate) = {statistics.pstdev(completions):.4f}")
     same_set = len(set(unrouted_sets)) <= 1
-    if hi_n == lo_n and same_set:
-        print("All runs identical -- no variance observed (same completion, same failed-net set).")
+    same_copper_counts = (
+        min(segment_counts) == max(segment_counts)
+        and min(via_counts) == max(via_counts)
+        and min(zone_counts) == max(zone_counts)
+    )
+    if hi_n == lo_n and same_set and same_copper_counts:
+        print(
+            "All runs identical -- no variance observed (same completion, "
+            "same failed-net set, same segment/via/zone counts)."
+        )
     elif hi_n == lo_n and not same_set:
         print(
             "Completion COUNT identical across runs, but the SPECIFIC "
             "failed-net set differs between runs -- which nets route is "
             "non-deterministic even though how many route is not."
+        )
+    elif hi_n == lo_n and same_set and not same_copper_counts:
+        print(
+            "Completion and failed-net set identical across runs, but "
+            "segment/via/zone COUNTS differ -- the same nets complete but "
+            "route through different geometry run to run."
         )
     return 0
 
@@ -495,9 +598,10 @@ def main(argv: list[str] | None = None) -> int:
         "--runs", type=int, default=None, metavar="N",
         help=(
             "Route N times from identical input, each in a fresh process, "
-            "and report the per-run completion figure plus the spread "
-            "across runs. Measurement only -- does not write any output "
-            "file."
+            "and report the per-run completion figure, segment/via/zone "
+            "spread, and the spread across runs. Measurement only -- does "
+            "not write any output file. Honors --net-batching/--batch-size "
+            "(each worker process gets the same flags)."
         ),
     )
     parser.add_argument(
@@ -559,7 +663,12 @@ def main(argv: list[str] | None = None) -> int:
         if args.runs < 1:
             parser.error("--runs must be >= 1")
         return run_measurement(
-            args.pcb, args.rules, args.runs, enable_geographic_pruning=args.pruning
+            args.pcb,
+            args.rules,
+            args.runs,
+            enable_geographic_pruning=args.pruning,
+            enable_net_batching=args.net_batching,
+            net_batch_size=args.batch_size,
         )
 
     if args.output is None:

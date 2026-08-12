@@ -521,6 +521,7 @@ class RouterV6Pipeline:
             stage4=stage4,
             manufacturing_report=manufacturing_report,
             runtime_seconds=runtime,
+            batch_results=list(self.last_batch_results),
         )
         self.ledger.checkout("routing_complete", result)
         return result

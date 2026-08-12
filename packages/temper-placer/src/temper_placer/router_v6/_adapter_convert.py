@@ -798,7 +798,53 @@ def _build_routing_result(
         connectivity=connectivity,
         forced_segment_nets=forced_segment_nets,
         topology_solved_nets=topology_solved_nets,
+        net_batch_summary=_summarize_batch_results(getattr(result, "batch_results", None)),
     )
+
+
+def _summarize_batch_results(batch_results: list[Any] | None) -> dict[str, Any]:
+    """Reduce ``RouterV6Result.batch_results`` (net_batching.NetBatchResult,
+    one per batch or singleton retry attempt) to a small, always-printable
+    summary -- see ``RoutingResult.net_batch_summary``'s docstring for why
+    this needs to exist at all: the per-batch records already carry
+    ``batch_crashed``/``crash_reason`` (net_batching.py's own "Crash vs.
+    UNSAT, made distinguishable by construction" mechanism), but nothing
+    read them by default before this function existed.
+
+    Returns ``{}`` (falsy, easy for a caller to skip) when net-batching
+    was not used (``batch_results`` empty/None) -- distinct from a
+    populated dict with zero crashes, so a caller can tell "net-batching
+    off" from "net-batching on, nothing degraded."
+    """
+    if not batch_results:
+        return {}
+
+    n_batches = len(batch_results)
+    crashed = [b for b in batch_results if getattr(b, "batch_crashed", False)]
+    timed_out = [
+        b for b in crashed if "timed out" in (getattr(b, "crash_reason", None) or "")
+    ]
+    other_crash = [b for b in crashed if b not in timed_out]
+    singleton_retried = [b for b in batch_results if getattr(b, "retried_singleton_nets", None)]
+    n_singleton_retried_nets = sum(len(b.retried_singleton_nets) for b in singleton_retried)
+    n_crashed_singleton_nets = sum(len(getattr(b, "crashed_nets", None) or []) for b in batch_results)
+    all_failed_nets = sorted({n for b in batch_results for n in (getattr(b, "failed_nets", None) or [])})
+
+    return {
+        "n_batches": n_batches,
+        "n_batches_solved_at_batch_level": sum(
+            1 for b in batch_results if getattr(b, "solved_at_batch_level", False)
+        ),
+        "n_batches_crashed": len(crashed),
+        "n_batches_timed_out": len(timed_out),
+        "timed_out_batch_indices": [getattr(b, "batch_index", -1) for b in timed_out],
+        "n_batches_crashed_other_reason": len(other_crash),
+        "other_crash_reasons": [getattr(b, "crash_reason", None) for b in other_crash],
+        "n_nets_singleton_retried": n_singleton_retried_nets,
+        "n_nets_crashed_at_singleton_too": n_crashed_singleton_nets,
+        "n_nets_no_topology": len(all_failed_nets),
+        "nets_no_topology": all_failed_nets,
+    }
 
 
 # A .kicad_pcb pad's `(at x y angle)` angle is its ABSOLUTE (world)
