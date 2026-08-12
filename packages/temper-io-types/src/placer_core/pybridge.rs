@@ -10,7 +10,6 @@ use pyo3::prelude::*;
 use pyo3::types::{PyBool, PyDict, PyFloat, PyInt, PyList, PyTuple, PyType};
 use std::panic::AssertUnwindSafe;
 
-use super::adjacency;
 use super::manufacturing;
 use super::netclass::{self, PatternSet};
 use super::placement_drc as drc;
@@ -920,25 +919,6 @@ pub fn validate_placement_drc(
 }
 
 // ---------------------------------------------------------------------------
-// adjacency
-// ---------------------------------------------------------------------------
-
-/// The `(n, flat_row_major_f32)` adjacency kernel.
-///
-/// Returning a flat `Vec<f32>` keeps this crate free of a numpy
-/// dependency; the shim reshapes it. The reference's empty-netlist
-/// branch is `np.array([]).reshape(0, 0)`, which is **float64**, not
-/// float32 — the shim reproduces that branch rather than this kernel.
-#[pyfunction]
-pub fn build_adjacency_flat(
-    component_refs: Vec<String>,
-    net_pin_refs: Vec<Vec<String>>,
-) -> (usize, Vec<f32>) {
-    let a = adjacency::build_adjacency_matrix(&component_refs, &net_pin_refs);
-    (a.n, a.data)
-}
-
-// ---------------------------------------------------------------------------
 // registration
 // ---------------------------------------------------------------------------
 
@@ -1222,7 +1202,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_fab_presets, m)?)?;
 
     m.add_function(wrap_pyfunction!(validate_placement_drc, m)?)?;
-    m.add_function(wrap_pyfunction!(build_adjacency_flat, m)?)?;
 
     // Wave-4 Phase 4: placer non-cp_sat compute kernels.
     m.add_function(wrap_pyfunction!(placer_apply_component_template, m)?)?;

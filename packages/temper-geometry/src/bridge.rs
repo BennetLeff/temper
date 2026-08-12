@@ -365,16 +365,6 @@ fn polygon_centroid(vertices: Vec<f64>) -> PyResult<(f64, f64)> {
 }
 
 #[pyfunction]
-fn points_centroid_winding(vertices: Vec<f64>) -> PyResult<(f64, f64)> {
-    temper_py_bridge::catch_unwind(|| {
-        let pts = vec_to_points(&vertices);
-        let c = crate::polygon::points_centroid_winding(&pts);
-        (c.x, c.y)
-    })
-    .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[pyfunction]
 fn point_in_polygon_winding(px: f64, py: f64, vertices: Vec<f64>) -> PyResult<bool> {
     temper_py_bridge::catch_unwind(|| {
         let pts = vec_to_points(&vertices);
@@ -1360,7 +1350,6 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(polygon_area, m)?)?;
     m.add_function(wrap_pyfunction!(triangle_area, m)?)?;
     m.add_function(wrap_pyfunction!(polygon_centroid, m)?)?;
-    m.add_function(wrap_pyfunction!(points_centroid_winding, m)?)?;
     m.add_function(wrap_pyfunction!(point_in_polygon_winding, m)?)?;
     m.add_function(wrap_pyfunction!(point_in_polygon_soft, m)?)?;
     m.add_function(wrap_pyfunction!(point_in_rect, m)?)?;

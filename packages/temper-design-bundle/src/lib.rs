@@ -302,39 +302,12 @@ mod python {
     use pyo3::prelude::*;
 
     use crate::{
-        BoardIdentityOptions, BoardRole, Provenance, build_bundle, extract_component_references,
-        extract_footprint_references, normalized_json, parse_atopile, parse_mapping, parse_pcl,
-        sha256, validate_board_identity,
+        BoardIdentityOptions, BoardRole, extract_component_references,
+        extract_footprint_references, sha256, validate_board_identity,
     };
 
     fn value_error(error: impl std::fmt::Display) -> PyErr {
         PyValueError::new_err(error.to_string())
-    }
-
-    #[pyfunction]
-    fn normalized_bundle_json(
-        atopile_json: &[u8],
-        mapping_yaml: &[u8],
-        pcl_yaml: &[u8],
-        board_bytes: &[u8],
-    ) -> PyResult<String> {
-        let atopile = parse_atopile(atopile_json).map_err(value_error)?;
-        let board = atopile.board.clone();
-        let provenance = Provenance {
-            atopile_sha256: sha256(atopile_json),
-            mapping_sha256: sha256(mapping_yaml),
-            pcl_sha256: sha256(pcl_yaml),
-            board_sha256: sha256(board_bytes),
-        };
-        let bundle = build_bundle(
-            atopile,
-            parse_mapping(mapping_yaml).map_err(value_error)?,
-            parse_pcl(pcl_yaml).map_err(value_error)?,
-            board,
-            provenance,
-        )
-        .map_err(value_error)?;
-        normalized_json(&bundle).map_err(value_error)
     }
 
     /// Exposes the crate's canonical SHA-256 (used internally for
@@ -376,7 +349,6 @@ mod python {
 
     #[pymodule]
     fn temper_design_bundle_python(module: &Bound<'_, PyModule>) -> PyResult<()> {
-        module.add_function(wrap_pyfunction!(normalized_bundle_json, module)?)?;
         module.add_function(wrap_pyfunction!(preflight_identity, module)?)?;
         module.add_function(wrap_pyfunction!(sha256_hex, module)?)?;
 
