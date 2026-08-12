@@ -40,7 +40,6 @@ import temper_orchestration as _to
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.deterministic import DeterministicPipeline
 from temper_placer.deterministic.state import BoardState
 
 # ---------------------------------------------------------------------------

@@ -46,19 +46,19 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-
 import temper_orchestration as _to
+import tests.deterministic._deterministic_pipeline_py_oracle as _orc
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic import (
     DeterministicPipeline,
+)
+from temper_placer.deterministic import (
     create_drc_aware_pipeline as _shim_create_drc_aware_pipeline,
 )
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.kicad_metadata import KiCadMetadata
-
-import tests.deterministic._deterministic_pipeline_py_oracle as _orc
 
 # ---------------------------------------------------------------------------
 # Oracle body pinning (G1)
