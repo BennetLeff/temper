@@ -168,12 +168,18 @@ def _minimal_state() -> BoardState:
 
 def _assert_state_fields_equal(a: BoardState, b: BoardState) -> None:
     """Field-by-field equality (dataclass `==` plus explicit field set so a
-    field added to BoardState later is not silently skipped)."""
+    field added to BoardState later is not silently skipped).
+
+    The comparison is by ``repr``, not ``==``: some fields (the DRCOracle in
+    particular) hold numpy-array members whose ``==`` raises
+    ``ValueError: truth value of an array is ambiguous``, while ``repr`` is
+    deterministic and total (the U4 differential's convention).
+    """
     assert type(a) is type(b)
     fields = [f.name for f in a.__dataclass_fields__.values()]
     for name in fields:
         va, vb = getattr(a, name), getattr(b, name)
-        assert va == vb, (
+        assert repr(va) == repr(vb), (
             f"field {name!r} diverged:\n  oracle={va!r}\n  shim ={vb!r}"
         )
 
@@ -200,16 +206,14 @@ def test_stage_order_matches_oracle_no_zone_aware() -> None:
 
 
 def test_stage_order_matches_oracle_with_phased_config() -> None:
-    class _PhasedConfig:
-        placement_priority = {"GND": 0}
-        net_classes = {}
-        zones = None
+    from temper_placer._constraint_types.config import PlacementConstraints
 
+    config = PlacementConstraints(placement_priority={"GND": 0})
     orc = _orc.create_drc_aware_pipeline(
-        metadata=_metadata(), config=_PhasedConfig(), zone_aware=False
+        metadata=_metadata(), config=config, zone_aware=False
     )
     shim = _shim_create_drc_aware_pipeline(
-        metadata=_metadata(), config=_PhasedConfig(), zone_aware=False
+        metadata=_metadata(), config=config, zone_aware=False
     )
     assert _stage_names(shim) == _stage_names(orc)
     assert "phased_component_assignment" in _stage_names(shim)
@@ -239,16 +243,15 @@ def test_factory_sidecar_injection_matches_oracle(tmp_path) -> None:
     cmap = _to_channel_map(sidecar)
     assert cmap.has_grid()
 
-    class _PhasedConfig:
-        placement_priority = {"GND": 0}
-        net_classes = {}
-        zones = None
+    from temper_placer._constraint_types.config import PlacementConstraints
+
+    config = PlacementConstraints(placement_priority={"GND": 0})
 
     orc = _orc.create_drc_aware_pipeline(
-        metadata=_metadata(), config=_PhasedConfig(), output_dir=tmp_path,
+        metadata=_metadata(), config=config, output_dir=tmp_path,
     )
     shim = _shim_create_drc_aware_pipeline(
-        metadata=_metadata(), config=_PhasedConfig(), output_dir=tmp_path,
+        metadata=_metadata(), config=config, output_dir=tmp_path,
     )
     assert _stage_names(shim) == _stage_names(orc)
     assert orc.channel_map is not None and shim.channel_map is not None
@@ -416,6 +419,12 @@ def test_run_propagates_after_successful_stages() -> None:
             return state
         return mutate
 
+    def _mark_and_set(tag):
+        def mutate(state):
+            seen.append(tag)
+            return replace(state, net_order=("N",))
+        return mutate
+
     class _Boom(Exception):
         pass
 
@@ -425,7 +434,7 @@ def test_run_propagates_after_successful_stages() -> None:
 
     stages = [
         _FakeStage("a", _mark("a")),
-        _FakeStage("b", _set("net_order", ("N",))),
+        _FakeStage("b", _mark_and_set("b")),
         _FakeStage("c", _raise),
     ]
     with pytest.raises(_Boom):
