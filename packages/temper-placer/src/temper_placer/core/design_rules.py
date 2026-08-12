@@ -342,7 +342,34 @@ TEMPER_NET_ASSIGNMENTS = {
     "vcc": "Power",
     "V_BUS_SENSE": "Power",
     # GND - power return
+    #
+    # 2026-08-11: `gnd` was ABSENT from this table entirely, which went
+    # unnoticed for as long as it did because nothing consumed the table at
+    # parse time -- every net classified as "Signal" regardless (the Rust
+    # parser's `Net::new` default, netlist_contracts.rs). #1041 wired
+    # TEMPER_NET_ASSIGNMENTS into `parse_kicad_pcb`, and the first thing real
+    # classification exposed was that the board's LARGEST net -- `gnd`, 86
+    # pads, the ground return of a mains-powered board -- had no entry and so
+    # still fell through to Signal (trace 0.2mm / clearance 0.15mm) rather
+    # than GND (trace 1.0mm / clearance 0.3mm / routing_strategy
+    # "plane_preferred").
+    #
+    # `plane_preferred` is the load-bearing half: router_v6's `_should_route`
+    # already excludes ground from Stage 4 A* as "handled by zone pours, not
+    # path routing", but it did so by a name heuristic rather than by this
+    # class -- so the routing exclusion and the class that justifies it were
+    # never actually connected. They are now.
+    "gnd": "GND",
     "PWR_RTN": "GND",
+    # NOTE `CGND` names no net on this board (0 references in
+    # pcb/temper.kicad_pcb, checked 2026-08-11). It is kept rather than
+    # deleted because the GND-family reclassification -- CGND/PGND both
+    # would-be aliases of PWR_RTN -- is an open, deliberately-reserved
+    # decision (see scripts/check_hv_netclass_coverage.py's docstring, which
+    # flags it as human-decision-required with an order-of-magnitude larger
+    # blast radius). An assignment for a net that does not exist is inert, so
+    # this is dead weight rather than a hazard; removing it is that decision's
+    # job, not this line's.
     "CGND": "GND",
 }
 
