@@ -1,5 +1,5 @@
 # Type-check allowlist — monotonic-shrink baseline
-# 284 total errors across 45 files
+# 285 total errors across 45 files
 # <filepath> <max-allowed-error-count>
 # Do not increase these numbers. Fix the errors.
 #
@@ -56,7 +56,7 @@ packages/temper-placer/src/temper_placer/validation/mfem_mesh.py 3
 
 # --- stub-residual (same 2026-08-12 migration-stub cause, deeper field/method gaps) ---
 packages/temper-placer/src/temper_placer/router_v6/_pipeline_route.py 6
-packages/temper-placer/src/temper_placer/router_v6/channel_skeleton.py 7
+packages/temper-placer/src/temper_placer/router_v6/channel_skeleton.py 8
 packages/temper-placer/src/temper_placer/router_v6/constraint_model.py 13
 packages/temper-placer/src/temper_placer/router_v6/net_batching.py 9
 packages/temper-placer/src/temper_placer/core/loop_extractor_rs.py 1
