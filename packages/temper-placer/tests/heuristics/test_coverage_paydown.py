@@ -17,7 +17,7 @@ from temper_placer.io.config_loader import PlacementConstraints
 # ============================================================================
 
 
-def make_simple_netlist(with_groups=True):
+def make_simple_netlist():
     """Create a netlist with test components for organizational heuristics."""
     comps = [
         Component(ref="U1", footprint="SOIC8", bounds=(5, 5),
