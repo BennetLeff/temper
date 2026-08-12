@@ -633,6 +633,158 @@ def test_no_contexts_when_nothing_matches() -> None:
     assert required_contexts_for_files(("README.md",), cross_workflow_manifest()) == ()
 
 
+def test_run_narrows_required_contexts_via_context_triggers() -> None:
+    """Regression test for the exact PR #1028 production incident.
+
+    Before the `_run` fix (check_required_checks.py's `required = ...`
+    assignment), `required` was `manifest.required_contexts` unconditionally
+    once ANY global trigger_path matched -- so `context_triggers` was
+    computed, validated, and unit-tested in isolation
+    (`required_contexts_for_files`) but never actually consulted by the live
+    polling loop. A real docs/evidence/**-only PR (#1028) hit exactly this:
+    its own "Required Python Tests" run logged
+    `missing: PR Performance Comparison` and failed, because pr-perf-check.yml
+    never triggers on a docs-only diff and no check run by that name was ever
+    created. This reproduces that PR's shape: a docs-only change, and a
+    check-run set that contains everything EXCEPT the cross-workflow context.
+    """
+
+    class FakeApi:
+        def pull_request_files(self, repository: str, number: int) -> tuple[str, ...]:
+            return ("docs/plans/x.md",)
+
+        def check_runs(self, repository: str, sha: str) -> tuple[dict[str, object], ...]:
+            # No check-run named "PR Performance Comparison" exists at all --
+            # exactly what GitHub produces when pr-perf-check.yml never fires.
+            return (run("Core Tests"),)
+
+    assert _run(cross_workflow_manifest(), FakeApi(), "BennetLeff/temper", 1, "abc123") == 0
+
+
+def test_run_still_requires_cross_workflow_context_when_its_own_paths_hit() -> None:
+    # The other half of the same fix: narrowing must not become "never
+    # required". When the cross-workflow context's OWN paths match, it is
+    # still required, and a genuinely missing check-run must still fail
+    # (fast-forwarded clock/sleep so this doesn't burn real wall-clock time).
+    #
+    # Needs a manifest whose GLOBAL trigger_paths also cover the changed
+    # file -- cross_workflow_manifest()'s global list and its
+    # context_triggers path deliberately do not overlap (that asymmetry is
+    # what test_cross_workflow_context_not_required_when_its_paths_miss
+    # exercises), so `_run`'s own coarse "did anything in trigger_paths
+    # match at all" pre-check would short-circuit to a legitimate PASS
+    # before context_triggers is even consulted -- not the scenario this
+    # test wants. This manifest's `benchmarks/**` is in both lists, mirroring
+    # the real repo (e.g. `pcb/temper.kicad_sch` is in both the global list
+    # and erc-gate's own context_triggers entry).
+    manifest_with_overlap = Manifest(
+        trigger_paths=("packages/**", "docs/**", "pyproject.toml", "benchmarks/**"),
+        required_contexts=("Core Tests", "PR Performance Comparison"),
+        context_triggers={
+            "PR Performance Comparison": ("benchmarks/**", "scripts/pr_perf_compare.py")
+        },
+        timeout_seconds=30,
+        poll_interval_seconds=5,
+    )
+
+    class FakeApi:
+        def pull_request_files(self, repository: str, number: int) -> tuple[str, ...]:
+            return ("benchmarks/perf_ab.py",)
+
+        def check_runs(self, repository: str, sha: str) -> tuple[dict[str, object], ...]:
+            return (run("Core Tests"),)  # "PR Performance Comparison" never posted
+
+    now = [0.0]
+    result = _run(
+        manifest_with_overlap,
+        FakeApi(),
+        "BennetLeff/temper",
+        1,
+        "abc123",
+        sleep=lambda seconds: now.__setitem__(0, now[0] + seconds),
+        clock=lambda: now[0],
+    )
+    assert result == 1
+
+
+def test_run_polls_for_a_context_triggers_only_path_missing_from_the_global_list() -> None:
+    """The second half of the `_run` fix: a diff touching ONLY a path a
+    context_triggers entry owns, but that is absent from the manifest's
+    global `trigger_paths`, must still be polled and enforced -- not treated
+    as "nothing relevant changed" and passed instantly. This is the real
+    shape of e.g. `firmware/**` for "Firmware Tests (state-machine +
+    fault-injection)": that context's own workflow triggers on it, but the
+    global list (owned by python-tests.yml, which has no reason to care
+    about a firmware-only change) does not mention `firmware/**` at all.
+    Before the fix, `_run`'s early bail-out tested only the coarse global
+    list and would have returned PASS here without ever looking at
+    check-runs, even though the required context's own workflow ran.
+    """
+    manifest_narrow_context_only = Manifest(
+        trigger_paths=("packages/**", "docs/**", "pyproject.toml"),
+        required_contexts=("Core Tests", "Firmware Tests (state-machine + fault-injection)"),
+        context_triggers={
+            "Firmware Tests (state-machine + fault-injection)": ("firmware/**", "pcb/**")
+        },
+        timeout_seconds=30,
+        poll_interval_seconds=5,
+    )
+
+    class FakeApi:
+        def pull_request_files(self, repository: str, number: int) -> tuple[str, ...]:
+            return ("firmware/main/state_machine.c",)
+
+        def check_runs(self, repository: str, sha: str) -> tuple[dict[str, object], ...]:
+            # The required context's real check-run IS present -- proving
+            # the workflow genuinely ran -- but "Core Tests" is not required
+            # for this diff (global list doesn't match), so only this one
+            # context-run needs to exist for a clean pass.
+            return (run("Firmware Tests (state-machine + fault-injection)"),)
+
+    result = _run(
+        manifest_narrow_context_only,
+        FakeApi(),
+        "BennetLeff/temper",
+        1,
+        "abc123",
+    )
+    assert result == 0
+
+
+def test_run_fails_for_a_context_triggers_only_path_when_its_check_never_posts() -> None:
+    # Same shape as above, but the check-run never shows up (as if the
+    # workflow silently failed to trigger) -- must still fail, not pass by
+    # virtue of the global list missing the path.
+    manifest_narrow_context_only = Manifest(
+        trigger_paths=("packages/**", "docs/**", "pyproject.toml"),
+        required_contexts=("Core Tests", "Firmware Tests (state-machine + fault-injection)"),
+        context_triggers={
+            "Firmware Tests (state-machine + fault-injection)": ("firmware/**", "pcb/**")
+        },
+        timeout_seconds=30,
+        poll_interval_seconds=5,
+    )
+
+    class FakeApi:
+        def pull_request_files(self, repository: str, number: int) -> tuple[str, ...]:
+            return ("firmware/main/state_machine.c",)
+
+        def check_runs(self, repository: str, sha: str) -> tuple[dict[str, object], ...]:
+            return ()
+
+    now = [0.0]
+    result = _run(
+        manifest_narrow_context_only,
+        FakeApi(),
+        "BennetLeff/temper",
+        1,
+        "abc123",
+        sleep=lambda seconds: now.__setitem__(0, now[0] + seconds),
+        clock=lambda: now[0],
+    )
+    assert result == 1
+
+
 def test_contexts_without_own_triggers_keep_global_behaviour() -> None:
     # Regression guard: the pre-existing contract is that a context with no
     # context_triggers entry is required whenever the global list matches.

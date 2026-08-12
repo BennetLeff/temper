@@ -807,18 +807,56 @@ def _run(
     clock: Callable[[], float] = monotonic,
 ) -> int:
     changed_files = api.pull_request_files(repository, number)
-    matched = matching_patterns(changed_files, manifest.trigger_paths)
     print(f"changed files: {len(changed_files)}")
-    if not matched:
-        print("PASS: no Python Tests trigger path matched; skip is legitimate")
+
+    # BUGFIX (2026-08-11/12), two parts. Both were caught live on real PRs,
+    # not found by inspection -- see the two regression tests named below.
+    #
+    # (1) `required` used to be the unfiltered `manifest.required_contexts`
+    # once the coarse check below matched at all, which meant
+    # `context_triggers` was pure dead code -- defined, validated, and
+    # unit-tested against `required_contexts_for_files` in isolation, but
+    # never actually consulted by the live polling loop. Caught on PR #1028
+    # (a docs/evidence/**-only change, which matches the global list but not
+    # pr-perf-check.yml's own path filter):
+    #   matched trigger paths: docs/evidence/**
+    #   missing: PR Performance Comparison
+    # -- exactly the "guaranteed red required check on every docs-only PR"
+    # failure mode `_perf_ab_context_note` above describes as fixed by
+    # `context_triggers`. It was never actually fixed; only the data model
+    # and its own pure-function tests existed. See
+    # test_run_narrows_required_contexts_via_context_triggers.
+    #
+    # (2) The early bail-out below used to test the coarse GLOBAL
+    # `manifest.trigger_paths` match (`matching_patterns(changed_files,
+    # manifest.trigger_paths)`), not `required`. That fails in the OPPOSITE
+    # direction from (1): a diff that touches ONLY a path a context_triggers
+    # entry owns but that is absent from the global list (e.g. `firmware/**`
+    # for "Firmware Tests" -- present nowhere in the ~90-entry global list,
+    # which is python-tests.yml's own trigger set and has no reason to know
+    # about a firmware-only change) would find `matched` empty and return
+    # PASS immediately, without ever polling -- even though that context's
+    # own workflow WILL run and post a real check-run. A required context
+    # whose diff shape never gets polled is required in name only. Gating
+    # the bail-out on `required` itself (computed once, below) closes this:
+    # it is empty in EXACTLY the cases the old `matched` check correctly
+    # identified as "nothing applies", and additionally non-empty whenever
+    # only a context_triggers path matched. See
+    # test_run_polls_for_a_context_triggers_only_path_missing_from_the_global_list.
+    required = required_contexts_for_files(changed_files, manifest)
+    if not required:
+        print("PASS: no required context applies to these changed files; skip is legitimate")
         _write_step_summary(
             "Required Python Tests",
-            ["PASS: no Python Tests trigger path matched; skip is legitimate"],
+            ["PASS: no required context applies to these changed files; skip is legitimate"],
         )
         return 0
 
-    required = manifest.required_contexts
-    print("matched trigger paths: " + ", ".join(matched))
+    matched = matching_patterns(changed_files, manifest.trigger_paths)
+    if matched:
+        print("matched trigger paths: " + ", ".join(matched))
+    else:
+        print("matched trigger paths: (none -- required via context_triggers only)")
     deadline = clock() + manifest.timeout_seconds
     grace_deadline = deadline + manifest.backlog_grace_seconds
     extended_for_backlog = False
