@@ -478,6 +478,7 @@ class DrcRatchet:
         """
         import temper_drc_rs
 
+        from temper_placer.core.design_rules import TEMPER_NET_CLASSES
         from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 
         parsed = parse_kicad_pcb_v6(pcb_path)
@@ -533,17 +534,30 @@ class DrcRatchet:
             nets[net.name] = comp_refs
             net_classes[net.name] = net.net_class
 
+        # Real per-class rules, from this project's own netclass SSOT
+        # (``TEMPER_NET_CLASSES``, core/design_rules.py) -- NOT
+        # ``parsed.design_rules.net_classes``, which only ever holds
+        # whatever ``(net_class ...)`` blocks are embedded directly in the
+        # .kicad_pcb text (a "vestigial" extraction path per
+        # ``_parse_nets._extract_design_rules``'s own docstring). Before
+        # real net classification landed, every net resolved to "Signal"
+        # and that vestigial dict's own "Signal" fallback happened to be
+        # enough to keep this working; now that nets carry their real
+        # classes (ACMains, HighVoltage, FinePitch, ...), those class names
+        # must have real entries here or ``temper_drc_rs.run_drc`` hard-errors
+        # (see #1039: an unresolvable net_class_rules entry is a loud
+        # failure, not a silent thinnest-rule-set default).
         net_class_rules: dict[str, dict] = {}
-        for class_name, rules in parsed.design_rules.net_classes.items():
+        for class_name, rules in TEMPER_NET_CLASSES.items():
             net_class_rules[class_name] = {
-                "trace_width_mm": rules.trace_width_mm,
-                "clearance_mm": rules.clearance_mm,
-                "creepage_mm": None,
-                "voltage_v": None,
-                "max_current_rating": None,
-                "safety_category": None,
-                "required_layer": None,
-                "routing_strategy": None,
+                "trace_width_mm": rules.trace_width,
+                "clearance_mm": rules.clearance,
+                "creepage_mm": rules.creepage_mm,
+                "voltage_v": rules.voltage_v,
+                "max_current_rating": rules.max_current_rating,
+                "safety_category": rules.safety_category,
+                "required_layer": rules.required_layer,
+                "routing_strategy": rules.routing_strategy,
             }
 
         board_dict = {

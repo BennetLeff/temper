@@ -3000,7 +3000,28 @@ fn build_pad_data(py: Python<'_>, p: &PadOut) -> PyResult<Py<PyAny>> {
 }
 
 /// The full `parse_kicad_pcb` engine: text in, ParseResult pyclass out.
-fn parse_kicad_pcb_impl(py: Python<'_>, pcb_content: &str, normalize: bool) -> PyResult<Py<PyAny>> {
+///
+/// `net_class_mapping`, when given, is a `net_name -> net_class` Python dict
+/// (or any mapping-like object `Netlist.apply_net_class_mapping` accepts)
+/// applied to the freshly built netlist before it is returned -- this is
+/// what makes the parser assign real per-net classes at parse time instead
+/// of leaving every net at `Net::new`'s `"Signal"` default (see
+/// `netlist_contracts.rs`'s `Net::new`). The caller (the Python
+/// `kicad_parser.parse_kicad_pcb` shim) passes the project's own
+/// `TEMPER_NET_ASSIGNMENTS` SSOT here by default -- the table itself is
+/// never transcribed into Rust, only threaded through once per call, so
+/// there is no second hand-maintained copy to drift from the first (see
+/// the docs/evidence 2026-08-11 correspondence-gate family this mirrors).
+/// Uses the existing, already-tested `apply_net_class_mapping` (silent
+/// skip-on-miss -- matches this table's own documented historical-alias
+/// convention: some keys intentionally name nets absent from the current
+/// board), not the `_strict` variant, which would hard-error on those.
+fn parse_kicad_pcb_impl(
+    py: Python<'_>,
+    pcb_content: &str,
+    normalize: bool,
+    net_class_mapping: Option<&Bound<'_, PyAny>>,
+) -> PyResult<Py<PyAny>> {
     let raw = parse_kicad_document(pcb_content).map_err(PyValueError::new_err)?;
     let mut warnings: Vec<String> = Vec::new();
 
@@ -3033,6 +3054,12 @@ fn parse_kicad_pcb_impl(py: Python<'_>, pcb_content: &str, normalize: bool) -> P
 
     let netlist = build_netlist(py, &components, &nets)?;
 
+    if let Some(mapping) = net_class_mapping {
+        netlist
+            .bind(py)
+            .call_method1("apply_net_class_mapping", (mapping,))?;
+    }
+
     let trace_objs: Vec<Py<PyAny>> = traces.iter().map(|t| build_trace_data(py, t)).collect::<PyResult<_>>()?;
     let via_objs: Vec<Py<PyAny>> = vias.iter().map(|v| build_via_data(py, v)).collect::<PyResult<_>>()?;
     let pad_objs: Vec<Py<PyAny>> = pads.iter().map(|p| build_pad_data(py, p)).collect::<PyResult<_>>()?;
@@ -3059,9 +3086,14 @@ fn build_parse_result(
         .into_py_any(py)
 }
 
-#[pyfunction(signature = (pcb_content, normalize=true))]
-fn parse_kicad_pcb(py: Python<'_>, pcb_content: &str, normalize: bool) -> PyResult<Py<PyAny>> {
-    parse_kicad_pcb_impl(py, pcb_content, normalize)
+#[pyfunction(signature = (pcb_content, normalize=true, net_class_mapping=None))]
+fn parse_kicad_pcb(
+    py: Python<'_>,
+    pcb_content: &str,
+    normalize: bool,
+    net_class_mapping: Option<&Bound<'_, PyAny>>,
+) -> PyResult<Py<PyAny>> {
+    parse_kicad_pcb_impl(py, pcb_content, normalize, net_class_mapping)
 }
 
 /// Extract component positions from raw KiCad PCB content without kiutils.

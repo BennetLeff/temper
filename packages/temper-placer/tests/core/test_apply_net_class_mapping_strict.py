@@ -121,14 +121,33 @@ class TestRealRepoIntegration:
     def test_strict_succeeds_on_the_reconciled_config(self, real_netlist, real_net_classes):
         """Every key in `temper_constraints.yaml`'s `net_classes:` now
         names a real board net, so the strict, all-or-nothing method must
-        apply every one of them without raising."""
+        apply every one of them without raising -- and every one must land
+        on its intended class, whether or not it required a change.
+
+        ``updated`` (the count of nets whose ``net_class`` actually
+        *changed*) is no longer necessarily ``len(real_net_classes)``: since
+        the rust-net-classification fix, `real_netlist` (via
+        `parse_kicad_pcb`'s default `TEMPER_NET_ASSIGNMENTS` mapping) already
+        arrives with real classes for many nets, so some of this config's
+        keys are now no-ops (same value, not a change) rather than first-time
+        assignments -- `apply_net_class_mapping_strict` reports 0 for a
+        no-op, matching `apply_net_class_mapping`'s documented change-count
+        semantics. The end state (every key's net at its intended class) is
+        the real invariant, asserted below regardless of how many were
+        no-ops.
+        """
         updated = real_netlist.apply_net_class_mapping_strict(real_net_classes)
-        assert updated == len(real_net_classes)
+        assert updated <= len(real_net_classes)
         for net_name, class_name in real_net_classes.items():
             assert real_netlist.get_net(net_name).net_class == class_name
 
     def test_existing_method_applies_everything_too(self, real_netlist, real_net_classes):
         """Same real inputs, old (silent-skip) method: now that no key is
-        broken, it has nothing to silently skip -- both methods agree."""
+        broken, it has nothing to silently skip -- both methods agree on
+        the end state (some keys may be no-ops -- see the sibling test's
+        docstring for why the change-count is no longer necessarily
+        ``len(real_net_classes)``)."""
         updated = real_netlist.apply_net_class_mapping(real_net_classes)
-        assert updated == len(real_net_classes)
+        assert updated <= len(real_net_classes)
+        for net_name, class_name in real_net_classes.items():
+            assert real_netlist.get_net(net_name).net_class == class_name
