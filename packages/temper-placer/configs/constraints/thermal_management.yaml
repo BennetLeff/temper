@@ -15,8 +15,47 @@ metadata:
 constraints:
   # ============================================================
   # HEATSINK MOUNTING - TO-247 PACKAGES
+  #
+  # ENFORCEMENT NOW LIVES ELSEWHERE. The two entries below are kept as
+  # the declaration of intent they always were; the solver-side rule is:
+  #
+  #   packages/temper-placer/src/temper_placer/placer/cp_sat/heatsink_colocation.py
+  #
+  # Why (2026-08-12, feat/igbt-heatsink-colocation):
+  #
+  # 1. These entries name Q1/Q2, which on this board are LIVE designators
+  #    for different parts (power_in.q_relay_drv, discharge.q_dis_drv).
+  #    The IGBTs are U5 (hb.power_loop.q_high) and U6 (hb.power_loop.q_low).
+  #    temper_constraints.references.yaml refuses an alias for Q1/Q2 on
+  #    purpose ("unresolved_components"), so constraint 1 here has never
+  #    actually been evaluated against the IGBTs by anything.
+  # 2. Even correctly targeted, `aligned` constrains only centre
+  #    coordinates. The board's real defect is that U5 and U6 sit 90
+  #    degrees apart in ROTATION (270deg vs 180deg -- pcb/temper.kicad_pcb:7969
+  #    and :8008): their TO-247 tab planes face perpendicular directions,
+  #    so no single flat face of HS1 (Wakefield-Vette 392-120AB, BOM.md:542)
+  #    can contact both at ANY separation. `aligned` is satisfiable with
+  #    that defect fully present -- the declaration cannot express the
+  #    thing that is actually wrong. Derived in
+  #    docs/evidence/2026-08-12-thermal-constraint-derivation.md.
+  #
+  # heatsink_colocation.py encodes rotation equality (the non-negotiable
+  # part), the 1.0mm perpendicular tolerance below CARRIED ACROSS
+  # UNCHANGED -- it is a declaration, not a derivation; that module states
+  # the bracket that could be derived and why it does not pin a number --
+  # and an 87.2mm separation bound that IS derived from HS1's published
+  # length. It posts to both solver backends through wire types both
+  # already register, and is exercised against the real board by
+  # docs/evidence/2026-08-12-heatsink-colocation-pumpkin-run.py.
+  #
+  # `on_side` is NOT carried across. The mechanical documentation says the
+  # opposite of "heatsink at a board edge": HS1 is a ~1kg chassis part,
+  # not PCB-mounted, reached by lead-forming (docs/plans/
+  # 2026-07-16-001-feat-active-bus-discharge-and-thermal-bom-plan.md:118),
+  # and no in-repo drawing names which board edge. Left declared, not
+  # enforced, rather than promoted on an assumption.
   # ============================================================
-  
+
   - type: on_side
     components: [Q1, Q2]
     side: top
@@ -74,12 +113,34 @@ constraints:
     tier: 3
     because: "Snubber resistor dissipates heat during switching. Keep capacitor away to prevent electrolyte degradation."
 
-  - type: separated
-    a: R_GATE_HIGH  # Gate resistor (2-5W)
-    b: C_VCC2  # Bootstrap cap
-    min_distance_mm: 8
-    tier: 3
-    because: "Gate resistors can get hot during high-frequency switching. Keep away from temperature-sensitive caps."
+  # DISABLED (stale premise, not enforceable as written): derivation in
+  # docs/evidence/2026-08-12-thermal-constraint-derivation.md. R_GATE_HIGH
+  # -> R23 (elec/src/modules.ato hb.gate_hs.rg_on) dissipates ~0.13-0.25W
+  # (derived from the IKW40N120H3's real datasheet gate charge, 185-240nC
+  # @ 15V, at the board's real 47kHz switching frequency -- not the "2-5W"
+  # this line assumed), well inside its 0.5W rating. C_VCC2 -> C17
+  # (hb.gate_hs.boot_cap) is a 10uF/50V X7R *ceramic* (Murata
+  # GRM32ER71H106KA12L, docs/hardware/BOM.md:19), 125C-rated, not the
+  # electrolytic the "temperature-sensitive caps" language implies (that
+  # concern is real, and correctly captured, for the actual electrolytic
+  # C_BUS1/C_BUS2 constraint above). Separately, 8.0mm is this repo's
+  # recurring IEC 60335-1/UCC21550 REINFORCED creepage/clearance figure
+  # (used 9+ times elsewhere for HV<->SELV domain barriers, e.g.
+  # docs/hardware/COMPONENT_COMPATIBILITY_VERIFICATION.md:338,
+  # docs/hardware/PROTECTION_CHAIN_REVIEW.md:108,
+  # docs/hardware/GROUNDING_EMI_STRATEGY.md:389) -- an electrical-isolation
+  # figure, not a thermal one, and R23/C17 share the same floating
+  # high-side gate-drive domain (no isolation barrier between them for a
+  # creepage figure to apply to). No real thermal or electrical
+  # requirement was found to back this line at any distance; re-enable
+  # only with a figure derived from this board's actual copper/thermal
+  # model, not this constant.
+  # - type: separated
+  #   a: R_GATE_HIGH  # Gate resistor (2-5W)
+  #   b: C_VCC2  # Bootstrap cap
+  #   min_distance_mm: 8
+  #   tier: 3
+  #   because: "Gate resistors can get hot during high-frequency switching. Keep away from temperature-sensitive caps."
 
   - type: separated
     a: R_GATE_LOW

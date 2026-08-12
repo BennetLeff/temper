@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate venv-integrity-check worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy
+.PHONY: all build netlist clean drc kicad-cli-install kicad-cli-check route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate venv-integrity-check worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy
 
 # Show help for workflow commands
 help:
@@ -129,7 +129,13 @@ route: netlist
 # $(ROUTED_PCB) that predates that fix, so this still fails loud rather
 # than measuring a silent subset. See
 # docs/evidence/2026-08-08-drc-project-context-audit.md.
-drc:
+#
+# The kicad-cli pre-flight is the second load-bearing check. This machine has
+# no distro KiCad 10.x, so kicad-cli is a hand-relocated deb tree that has
+# gone missing from PATH repeatedly. A DRC gate that skips when the tool is
+# absent turns the whole measurement into an environment footnote -- so this
+# fails, loudly, with the repair command. See scripts/install_kicad_cli.sh.
+drc: kicad-cli-check
 	@echo "Running KiCad DRC..."
 	@if [ ! -f "$(ROUTED_PCB:.kicad_pcb=.kicad_pro)" ]; then \
 		echo "ERROR: $(ROUTED_PCB:.kicad_pcb=.kicad_pro) not found next to $(ROUTED_PCB)."; \
@@ -141,6 +147,17 @@ drc:
 		exit 1; \
 	fi
 	kicad-cli pcb drc --all-track-errors --exit-code-violations $(ROUTED_PCB)
+
+# Install/repair the relocated KiCad 10.x tree and its PATH shim.
+kicad-cli-install:
+	@scripts/install_kicad_cli.sh
+
+# Fail loudly (never skip) when kicad-cli cannot actually run DRC. Validates
+# with a real `pcb drc` run: `kicad-cli version` resolves only the CLI's own
+# library closure and passes while DRC -- which additionally needs
+# _pcbnew.kiface and OpenCASCADE -- is broken.
+kicad-cli-check:
+	@scripts/install_kicad_cli.sh --check
 
 # Fast inner-loop test run: skips the 163 tests marked `slow` (of 6389).
 #

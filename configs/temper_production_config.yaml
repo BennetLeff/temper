@@ -130,7 +130,13 @@ net_classes:
   "power_in.r_zcd_top1-p2": "HighVoltage"
   # Tank
   tank-out: "HighVoltage"
-  "tank.c_tank1-p2": "HighVoltage"
+  # Reclassified 2026-08-12 to match TEMPER_NET_ASSIGNMENTS
+  # (docs/evidence/2026-08-12-hv-hv-creepage-enforcement.md). As with the
+  # zcd/q_high-g corrections above: this file is not loaded by any code path
+  # today, and no gate compares its values (check_netclass_map_board_
+  # correspondence.py validates only that the KEYS are real net names), so
+  # this would have drifted silently. Corrected anyway, for the same reason.
+  "tank.c_tank1-p2": "HighVoltageTank"
   # Discharge bank (HV side)
   "discharge.k_dis1-nc": "HighVoltage"
   "discharge.k_dis2-nc": "HighVoltage"
