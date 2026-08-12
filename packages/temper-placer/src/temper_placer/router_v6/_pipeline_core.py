@@ -9,12 +9,13 @@ and are patched onto the class at import time.
 
 from __future__ import annotations
 
-import logging
-import time
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import temper_orchestration as _to
+
+if TYPE_CHECKING:
+    from temper_placer.validation.drc_fence import DRCFence
 
 from temper_placer.router_v6._pipeline_grid import (
     _compute_resource_bound,
@@ -28,21 +29,13 @@ from temper_placer.router_v6._pipeline_route import (
     _select_sat_nets,
 )
 from temper_placer.router_v6._pipeline_types import (
-    ManufacturingDRCViolationError,
     RouterV6Result,
     Stage3Output,
 )
 from temper_placer.router_v6._pipeline_verify import (
     _run_fence,
     _run_manufacturing_drc,
-    _stage_0_5_invariants,
-    _stage_1_invariants,
-    _stage_4_invariants,
 )
-from temper_placer.router_v6.dense_package_detection import identify_dense_packages
-from temper_placer.router_v6.escape_via_generator import generate_escape_vias
-from temper_placer.router_v6.placement_legalization import Legalizer
-from temper_placer.validation.drc_fence import DRCFence
 
 # Stage-0 net ordering data (U-G): the power-first stable net sort keeps
 # power/HV nets ahead of signal nets so the final-round displacement of

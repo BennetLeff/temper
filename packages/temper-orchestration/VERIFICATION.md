@@ -3240,14 +3240,14 @@ preserved by design — the driver only sequences.
 
 | Suite | Location | Count |
 |---|---|---|
-| run-loop differential (oracle: `_pipeline_core_py_oracle.py`, sha256-pinned; call sequence, state threading, conditionals, fail-mode raise parity, fence gates, ERC status branches, verbose stdout, Stage-0 injection + net sort, real minimal-board end-to-end) | `packages/temper-placer/tests/router_v6/test_router_pipeline_rust_differential.py` | 17 |
-| run-loop PBT (P1..P6, each mutation-guarded) | `packages/temper-placer/tests/router_v6/test_router_pipeline_pbt.py` | 18 |
+| run-loop differential (oracle: `_pipeline_core_py_oracle.py`, sha256-pinned; call sequence, state threading, conditionals, fail-mode raise parity, fence gates, ERC status branches, verbose stdout, Stage-0 injection + net sort, real minimal-board end-to-end) | `packages/temper-placer/tests/router_v6/test_router_pipeline_rust_differential.py` | 21 |
+| run-loop PBT (P1..P6, each mutation-guarded) | `packages/temper-placer/tests/router_v6/test_router_pipeline_pbt.py` | 12 |
 | U-G runner (the canonical stage order, the R7 bypass, the exception propagation and the result assembly through the pyclass with sys.modules-registered fakes) | `packages/temper-orchestration/tests/ug_router_runner.rs` | 4 |
 | existing router_v6 surface through the shim (wave3 source pins, the plane-condemnation parse seam, the fence integration incl. real SAT, the E6 route differentials/PBT/metamorphic, DFM, adapter, structural) | `packages/temper-placer/tests/router_v6/` + `tests/test_router_v6_fence_integration.py` | 224 passed, 1 pre-existing failure (networkx `edges_with_data` API drift in `bundle_analyzer.py`, reproduced unchanged on the base commit and the main venv) |
 
 ### R1 gate status (U-G)
 
-- **R1a** — behavioural A/B vs the verbatim oracle: 17/17 green (call
+- **R1a** — behavioural A/B vs the verbatim oracle: 21/21 green (call
   sequence byte-identical, state-threading object identity, every
   conditional, fail-mode raise parity, fence gate parity, ERC branch
   parity, verbose stdout modulo the wall-clock line, Stage-0 injection +
@@ -3267,7 +3267,7 @@ preserved by design — the driver only sequences.
 - **R1e** — this section.
 - **R1f** — TDD: the differential + oracle were committed first (RED —
   `temper_orchestration.RouterPipeline` did not exist, 1 failed), then the
-  Rust pyclass + shim landed GREEN (33/33, then 35/35 with the runner).
+  Rust pyclass + shim landed GREEN (35/35, then 39/39 with the runner).
 - **R1g** — no `unwrap`/`expect` outside tests (crate denies both); every
   shim `run()` body runs under `catch_unwind` (panic → `StageError::Fatal`,
   the plan's error model); the pyclass methods by pyo3's own expansion;

@@ -45,7 +45,6 @@ from temper_placer.router_v6._pipeline_verify import (
 from temper_placer.router_v6.dense_package_detection import identify_dense_packages
 from temper_placer.router_v6.escape_via_generator import generate_escape_vias
 from temper_placer.router_v6.placement_legalization import Legalizer
-from temper_placer.validation.drc_fence import DRCFence
 
 
 def run_verbatim(
