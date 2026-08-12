@@ -691,30 +691,76 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     let net_class_rules = parse_net_class_rules_from_dict(board_dict)?;
 
     // --- Join nets + net_classes + rules into Vec<Net> ---
+    //
+    // SAFETY (mains-voltage board, IEC 60335-1 isolation barrier): an
+    // unresolvable net class used to fall back to the thinnest rule set on
+    // the board (0.2mm trace / 0.2mm clearance) rather than an error or the
+    // strictest rule. That is fail-OPEN: a mains net whose class lookup
+    // silently no-ops (a stale/mistyped `net_classes` config key, see
+    // `scripts/check_netclass_map_board_correspondence.py`) would be
+    // DRC-checked against 0.2mm clearance instead of e.g. an 8.0mm
+    // reinforced-creepage requirement, and CI would report clean.
+    //
+    // Both failure modes below are now hard errors -- BUT ONLY when the
+    // caller supplied `net_classes` / `net_class_rules` at all: an EMPTY
+    // map means this caller's schema never carries that dimension (the
+    // CP-SAT/router `Placement` schema has no per-net `net_class_rules`
+    // concept at all -- see `drc_marshal::DrcBoardSnapshot::from_state`,
+    // and `router_v6/_pipeline_verify.py::_parsed_pcb_to_drc_input` never
+    // populates `Placement.net_classes` even in production), so refusing
+    // to run there would make DRC entirely inoperable for those callers,
+    // not catch a real misconfiguration. A NON-empty map that is missing
+    // THIS ONE net is the actual bug this closes: the caller clearly
+    // intended per-net classification and has a gap. See
+    // docs/evidence/2026-08-11-typed-net-refs-spike.md and the PR that
+    // added this comment for the incident this closes.
+    let net_classes_wired = !net_classes_raw.is_empty();
+    let net_class_rules_wired = !net_class_rules.is_empty();
     let nets: Vec<Net> = nets_dict_raw
         .into_iter()
-        .map(|(name, comps)| {
+        .map(|(name, comps)| -> PyResult<Net> {
             let net_name = NetName(name.clone());
-            let class_name = net_classes_raw
-                .get(&name)
-                .map(|c| NetClassName(c.clone()))
-                .unwrap_or(NetClassName("Unknown".to_string()));
-            let rules = net_class_rules
-                .get(&class_name)
-                .cloned()
-                .unwrap_or_else(|| NetClassRules {
+            let resolved = net_classes_raw.get(&name).map(|c| NetClassName(c.clone()));
+            let class_name = match resolved {
+                Some(c) => c,
+                None if net_classes_wired => {
+                    return Err(PyValueError::new_err(format!(
+                        "net {name:?} has no entry in net_classes -- refusing \
+                         to run DRC with an unclassified net silently \
+                         defaulted to the thinnest rule set on the board. \
+                         Add an explicit net_classes entry for this net."
+                    )));
+                }
+                None => NetClassName("Unknown".to_string()),
+            };
+            let found_rules = net_class_rules.get(&class_name).cloned();
+            let rules = match found_rules {
+                Some(r) => r,
+                None if net_class_rules_wired => {
+                    let class_str = &class_name.0;
+                    return Err(PyValueError::new_err(format!(
+                        "net {name:?} is classed {class_str:?} but net_class_rules \
+                         has no entry for class {class_str:?} -- refusing to run \
+                         DRC with an unresolvable net class silently defaulted \
+                         to the thinnest rule set on the board. Define \
+                         net_class_rules[{class_str:?}] or correct the net's \
+                         class."
+                    )));
+                }
+                None => NetClassRules {
                     trace_width_mm: 0.2,
                     clearance_mm: 0.2,
                     ..NetClassRules::default()
-                });
-            Net {
+                },
+            };
+            Ok(Net {
                 name: net_name,
                 components: comps.into_iter().map(ComponentRef).collect(),
                 class: class_name,
                 rules,
-            }
+            })
         })
-        .collect();
+        .collect::<PyResult<Vec<Net>>>()?;
 
     // --- Traces (optional) ---
     let traces = parse_traces_from_dict(board_dict)?;
@@ -744,4 +790,190 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
         vias,
         zones,
     })
+}
+
+// ---------------------------------------------------------------------------
+// Rust unit tests
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Build a minimal K1-schema board dict with two nets: "OTHER_NET"
+    /// (always classed "Signal", with matching rules -- keeps
+    /// `net_classes`/`net_class_rules` "wired" i.e. non-empty, so the tests
+    /// below exercise the real "caller intended classification but has a
+    /// gap for THIS net" shape) and "MAINS_L", whose classification is
+    /// controlled by `net_classes_entry` / `net_class_rules_entry`.
+    ///
+    /// `wired` controls whether "OTHER_NET" is included at all: with
+    /// `wired=false` the whole board has zero `net_classes`/
+    /// `net_class_rules` entries, matching a caller (e.g. the CP-SAT/router
+    /// `Placement` schema) that never carries this dimension at all.
+    fn board_dict_with_two_nets<'py>(
+        py: Python<'py>,
+        wired: bool,
+        net_classes_entry: Option<(&str, &str)>,
+        net_class_rules_entry: Option<(&str, f64, f64)>,
+    ) -> Bound<'py, PyDict> {
+        let board_dict = PyDict::new(py);
+        let board_info = PyDict::new(py);
+        board_info.set_item("width_mm", 100.0).unwrap();
+        board_info.set_item("height_mm", 100.0).unwrap();
+        board_info.set_item("margin_mm", 3.0).unwrap();
+        board_dict.set_item("board", board_info).unwrap();
+
+        let nets = PyDict::new(py);
+        nets.set_item("MAINS_L", PyList::new(py, ["J1"]).unwrap()).unwrap();
+        if wired {
+            nets.set_item("OTHER_NET", PyList::new(py, ["J2"]).unwrap()).unwrap();
+        }
+        board_dict.set_item("nets", nets).unwrap();
+
+        let net_classes = PyDict::new(py);
+        if wired {
+            net_classes.set_item("OTHER_NET", "Signal").unwrap();
+        }
+        if let Some((net, class)) = net_classes_entry {
+            net_classes.set_item(net, class).unwrap();
+        }
+        board_dict.set_item("net_classes", net_classes).unwrap();
+
+        let net_class_rules = PyDict::new(py);
+        if wired {
+            let signal_rules = PyDict::new(py);
+            signal_rules.set_item("trace_width_mm", 0.25).unwrap();
+            signal_rules.set_item("clearance_mm", 0.2).unwrap();
+            net_class_rules.set_item("Signal", signal_rules).unwrap();
+        }
+        if let Some((class, trace_width_mm, clearance_mm)) = net_class_rules_entry {
+            let rules = PyDict::new(py);
+            rules.set_item("trace_width_mm", trace_width_mm).unwrap();
+            rules.set_item("clearance_mm", clearance_mm).unwrap();
+            net_class_rules.set_item(class, rules).unwrap();
+        }
+        board_dict.set_item("net_class_rules", net_class_rules).unwrap();
+
+        board_dict
+    }
+
+    fn mains_net<'a>(state: &'a BoardState) -> &'a Net {
+        state.nets.iter().find(|n| n.name.0 == "MAINS_L").unwrap()
+    }
+
+    #[test]
+    fn unclassified_net_is_hard_error_when_net_classes_is_wired() {
+        // "MAINS_L" has no entry in net_classes, but "OTHER_NET" does --
+        // net_classes is clearly wired up for this board, so a gap for one
+        // specific net is the real bug, not "this caller doesn't classify
+        // nets at all".
+        pyo3::Python::initialize();
+        pyo3::Python::attach(|py| {
+            let dict = board_dict_with_two_nets(py, true, None, None);
+            let err = build_board_state(&dict)
+                .expect_err("a net absent from a wired-up net_classes must be a hard error");
+            let msg = err.to_string();
+            assert!(msg.contains("MAINS_L"), "error should name the net: {msg}");
+            assert!(
+                msg.contains("net_classes"),
+                "error should name the missing mapping: {msg}"
+            );
+        });
+    }
+
+    #[test]
+    fn unmatched_net_class_is_hard_error_when_net_class_rules_is_wired() {
+        // "MAINS_L" resolves to class "ACMains", but net_class_rules only
+        // defines "Signal" -- the shape a stale/mistyped net_classes config
+        // key produces in practice (see
+        // scripts/check_netclass_map_board_correspondence.py).
+        pyo3::Python::initialize();
+        pyo3::Python::attach(|py| {
+            let dict = board_dict_with_two_nets(py, true, Some(("MAINS_L", "ACMains")), None);
+            let err = build_board_state(&dict)
+                .expect_err("a class absent from a wired-up net_class_rules must be a hard error");
+            let msg = err.to_string();
+            assert!(msg.contains("MAINS_L"), "error should name the net: {msg}");
+            assert!(msg.contains("ACMains"), "error should name the unresolved class: {msg}");
+            assert!(
+                msg.contains("net_class_rules"),
+                "error should name the missing mapping: {msg}"
+            );
+        });
+    }
+
+    /// Regression: an unresolvable net class used to fall back to
+    /// `trace_width_mm: 0.2, clearance_mm: 0.2` (the thinnest rule set on
+    /// the board) instead of erroring. Prove that shape is categorically
+    /// gone whenever the caller wired up classification at all: EVERY
+    /// unresolvable net on a wired-up board produces `Err`, so there is no
+    /// `Ok` board left for a silently-thinned 0.2/0.2 `NetClassRules` to
+    /// hide in.
+    #[test]
+    fn regression_unresolvable_net_never_yields_thin_default_rules_when_wired() {
+        pyo3::Python::initialize();
+        pyo3::Python::attach(|py| {
+            for dict in [
+                board_dict_with_two_nets(py, true, None, None),
+                board_dict_with_two_nets(py, true, Some(("MAINS_L", "ACMains")), None),
+            ] {
+                match build_board_state(&dict) {
+                    Err(_) => {} // correct: fails loudly instead of silently thinning.
+                    Ok(state) => {
+                        let net = mains_net(&state);
+                        panic!(
+                            "pre-fix regression: unresolved net class silently produced \
+                             trace_width_mm={}, clearance_mm={} instead of erroring \
+                             (net={:?}, class={:?})",
+                            net.rules.trace_width_mm, net.rules.clearance_mm, net.name, net.class
+                        );
+                    }
+                }
+            }
+        });
+    }
+
+    /// Sanity/no-false-positive: a net whose class DOES resolve still
+    /// builds successfully, with the real (non-thinned) rules.
+    #[test]
+    fn resolvable_net_class_still_succeeds() {
+        pyo3::Python::initialize();
+        pyo3::Python::attach(|py| {
+            let dict = board_dict_with_two_nets(
+                py,
+                true,
+                Some(("MAINS_L", "ACMains")),
+                Some(("ACMains", 1.5, 8.0)),
+            );
+            let state = build_board_state(&dict).expect("resolvable net class must not error");
+            let net = mains_net(&state);
+            assert_eq!(net.rules.clearance_mm, 8.0);
+            assert_eq!(net.rules.trace_width_mm, 1.5);
+        });
+    }
+
+    /// A caller that supplies NO `net_classes`/`net_class_rules` at all
+    /// (both maps entirely empty) is a schema that never carries per-net
+    /// classification -- e.g. `DrcBoardSnapshot::from_state`, the CP-SAT/
+    /// router `Placement` path, which has no per-net `net_class_rules`
+    /// concept at all, and whose real caller
+    /// (`router_v6/_pipeline_verify.py::_parsed_pcb_to_drc_input`) never
+    /// populates `Placement.net_classes` even in production. Hard-erroring
+    /// there would make DRC entirely inoperable for that caller instead of
+    /// catching a real misconfiguration, so the legacy "Unknown" class /
+    /// thin default is preserved ONLY in this all-absent case.
+    #[test]
+    fn completely_unwired_board_keeps_legacy_default_not_a_hard_error() {
+        pyo3::Python::initialize();
+        pyo3::Python::attach(|py| {
+            let dict = board_dict_with_two_nets(py, false, None, None);
+            let state =
+                build_board_state(&dict).expect("a completely unwired board must not error");
+            let net = mains_net(&state);
+            assert_eq!(net.class.0, "Unknown");
+            assert_eq!(net.rules.trace_width_mm, 0.2);
+            assert_eq!(net.rules.clearance_mm, 0.2);
+        });
+    }
 }

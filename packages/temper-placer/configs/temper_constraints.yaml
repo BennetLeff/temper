@@ -269,15 +269,25 @@ minimum_spacing:
 nets: []  # Added to satisfy config loader requirements
 
 net_classes:
-  +340V_BUS: "HighVoltage"
+  # 2026-08-11 (scripts/check_netclass_map_board_correspondence.py, #1030):
+  # "+340V_BUS" is documented in elec/domain_manifest.yaml as renamed to
+  # "+170V_BUS" during the SELV redesign; "AC_L"/"AC_N"/"GND" were case
+  # mismatches against the real board nets "ac_l"/"ac_n"/"gnd". All three
+  # are exact, source-confirmed corrections, not guesses.
+  "+170V_BUS": "HighVoltage"  # was "+340V_BUS" -- stale, renamed net (see above)
   DC_BUS_RTN: "HighVoltage"
   SW_NODE: "HighVoltage"
-  AC_L: "ACMains"
-  AC_N: "ACMains"
-  PE: "ACMains"
+  ac_l: "ACMains"  # was "AC_L" -- case mismatch against the real board net
+  ac_n: "ACMains"  # was "AC_N" -- case mismatch against the real board net
+  # "PE" deleted (was mapped "ACMains"): no PE net exists on the compiled
+  # board. elec/domain_manifest.yaml documents protective earth as bonded
+  # into the SELV `gnd` net through power_in.y_cap_pe (a Y1-class EMI/PE
+  # bonding capacitor), not as its own compiled net -- there is nothing to
+  # rename this key to, and mapping it onto `gnd` would misclassify a SELV
+  # ground return as ACMains. Not inventing a substitute.
   GATE_HS: "GateDrive"
   GATE_LS: "GateDrive"
-  GND: "Ground"
+  gnd: "Ground"  # was "GND" -- case mismatch against the real board net
   +3V3: "Power"
   +15V: "Power"
 

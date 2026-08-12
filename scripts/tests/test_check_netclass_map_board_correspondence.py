@@ -2,9 +2,11 @@
 
 Builds small, synthetic board/config-directory fixtures on disk
 (``tmp_path``) rather than depending on the real config files for every
-scenario. ``TestRealRepoIntegration`` exercises the real repo and
-documents the CURRENT (broken, as surveyed 2026-08-11) state of all four
-discovered files. See docs/evidence/2026-08-11-correspondence-gates.md.
+scenario. ``TestRealRepoIntegration`` exercises the real repo and, as of
+the reconciliation PR, confirms all four discovered files are clean --
+see docs/evidence/2026-08-11-correspondence-gates.md for the original
+31-key violation this gate found, and its follow-up evidence doc for the
+reconciliation.
 """
 
 from __future__ import annotations
@@ -16,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from check_netclass_map_board_correspondence import (  # noqa: E402
-    EXIT_VIOLATION,
+    EXIT_OK,
     discover_netclass_map_files,
     load_real_net_names,
     run,
@@ -179,25 +181,26 @@ class TestHelperUnits:
 
 
 class TestRealRepoIntegration:
-    def test_real_repo_currently_violates(self):
+    def test_real_repo_is_now_clean(self):
         """As surveyed 2026-08-11: four files (configs/temper_deterministic_config.yaml,
         configs/temper_production_config.yaml, packages/temper-placer/configs/
         temper_constraints.yaml, packages/temper-placer/configs/gate_driver_constraints.yaml)
-        each have at least one net_classes key that matches no real board
-        net. Update this test (and consider un-advisory-ing the CI step)
-        once they're fixed -- see docs/evidence/2026-08-11-correspondence-gates.md."""
+        each had at least one net_classes key that matched no real board
+        net -- 31 broken keys total. Reconciled in the PR that touched this
+        test (see docs/evidence/2026-08-11-correspondence-gates.md and its
+        follow-up): every safe rename (case mismatch or documented stale
+        name) was applied, and every key naming a net that genuinely does
+        not exist on the board (PE, CGND, VCC_BOOT, PGND, +5V, TEMP_SENSE,
+        SPI_CLK/SPI_MOSI/SPI_MISO/SPI_CS_TEMP) was deleted rather than
+        mapped onto a guess. The gate is expected to stay clean now that
+        its inputs are reconciled -- a regression here means a new
+        net_classes key drifted from the board again."""
         state, report = run(REPO_ROOT / "pcb" / "temper.kicad_pcb")
-        assert state == "violation"
-        broken_files = {Path(b.config_path).name for b in report.broken_keys}
-        assert broken_files == {
-            "temper_deterministic_config.yaml",
-            "temper_production_config.yaml",
-            "temper_constraints.yaml",
-            "gate_driver_constraints.yaml",
-        }
+        assert state == "clean", report.broken_keys
+        assert report.broken_keys == []
         assert len(report.files_checked) == 4
 
-    def test_real_repo_gate_exits_violation_not_error(self):
+    def test_real_repo_gate_exits_ok(self):
         import subprocess
 
         result = subprocess.run(
@@ -206,4 +209,4 @@ class TestRealRepoIntegration:
             text=True,
             cwd=REPO_ROOT,
         )
-        assert result.returncode == EXIT_VIOLATION, result.stdout + result.stderr
+        assert result.returncode == EXIT_OK, result.stdout + result.stderr

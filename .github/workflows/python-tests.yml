@@ -1944,20 +1944,20 @@ jobs:
 
       - name: Net-class map <-> board correspondence gate (Gate 3)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        # ADVISORY: four hand-maintained net_classes: YAML maps
+        # BLOCKING as of fix/netclass-config-keys: all 31 originally-broken
+        # keys across the four hand-maintained net_classes: YAML maps
         # (configs/temper_deterministic_config.yaml,
         # configs/temper_production_config.yaml,
         # packages/temper-placer/configs/temper_constraints.yaml,
-        # packages/temper-placer/configs/gate_driver_constraints.yaml) each
-        # have at least one key that matches no real board net (stale
-        # +340V_BUS, case-mismatched AC_L/AC_N, or non-existent
-        # GATE_H/GATE_L/CGND/VCC_BOOT). Path to blocking: reconcile each
-        # broken key against the real board net table (some are safe
-        # mechanical renames, others need the same kind of human
-        # reconciliation temper_constraints.references.yaml required for
-        # Gate 1's component references -- see the evidence doc), then
-        # remove continue-on-error.
-        continue-on-error: true
+        # packages/temper-placer/configs/gate_driver_constraints.yaml) were
+        # reconciled: safe renames (case mismatches, documented stale
+        # names) were applied, and keys naming a net that genuinely does
+        # not exist on the board (PE, CGND, VCC_BOOT, PGND, +5V,
+        # TEMP_SENSE, SPI_CLK/SPI_MOSI/SPI_MISO/SPI_CS_TEMP) were deleted
+        # rather than mapped onto a guess -- see the reconciliation
+        # evidence doc and each file's own net_classes: comments.
+        # continue-on-error removed: a future PR that reintroduces drift
+        # here must now fail closed like every other clean gate.
         run: uv run python scripts/check_netclass_map_board_correspondence.py
 
       # --- PD2 compartment-evidence gate (docs/evidence/2026-08-11-pd2-decision-record.md) ---
@@ -2193,6 +2193,10 @@ jobs:
       # convention the ERC ratchet gate (erc-gate.yml) already documents and
       # relies on -- so this step checks the report file was produced, not
       # the CLI's own exit code.
+      - name: ERC endpoint_off_grid consequence gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_erc_off_grid_consequence.py -v --tb=short
+
       - name: Regenerate ERC JSON + schematic netlist XML (for endpoint_off_grid consequence gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
@@ -2495,9 +2499,17 @@ jobs:
 
       # Constraint mutation suite (plan 2026-08-02-006, R32): every CP-SAT
       # constraint encoding must carry a non-empty, triaged kill set in
-      # power_pcb_dataset/constraint_kill_sets.yaml. The gate is an AST +
-      # YAML check (no solves), so it is fast enough for every commit; the
-      # runner that regenerates the register is invoked manually/periodically.
+      # power_pcb_dataset/constraint_kill_sets.yaml. Fixed 2026-08-11
+      # (gate-vacuity audit, finding 8): the gate used to be a pure AST + YAML
+      # check with no solves, which meant it could never fail on a gutted
+      # encoder -- it only re-read whatever a past, disconnected run of
+      # constraint_mutation_runner.py had written to the register, forever.
+      # It now also re-runs constraint_mutation_runner.run_suite() live (the
+      # same pinned-solve harness the runner uses, ~1s for all 32 registered
+      # mutations) and requires every registered outcome to still match a
+      # fresh run against current encoder source -- see
+      # scripts/constraint_mutation_gate.py's check_live_kill_sets docstring
+      # and docs/evidence/2026-08-11-gate-vacuity-audit.md.
       - name: Constraint mutation gate (kill-set register)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/constraint_mutation_gate.py
