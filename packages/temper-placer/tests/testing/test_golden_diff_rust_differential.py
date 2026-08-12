@@ -624,16 +624,19 @@ _SES_GOLDEN = """(session
 )
 """
 
-# NET1's end point nudged by (0.3, 0.4) mm -- exactly a 0.5 mm displacement.
+# NET1's end point nudged by +0.5 mm in X -- a displacement whose delta is
+# EXACTLY the tolerance (0.5, an exactly-representable value, so the
+# sqrt(dx^2+dy^2) delta is the exact float 0.5 and the `<=` boundary is
+# pinned rather than float-noise-dependent).
 _SES_WITHIN = _SES_GOLDEN.replace(
     "(wire NET1 (path 0 0.250000 0.000000 0.000000 10.000000 10.000000))",
-    "(wire NET1 (path 0 0.250000 0.000000 0.000000 10.300000 10.400000))",
+    "(wire NET1 (path 0 0.250000 0.000000 0.000000 10.500000 10.000000))",
 )
 
-# NET1's end point nudged beyond a 0.5 mm tolerance.
+# The same displacement plus one ULP-scale overshoot: strictly beyond 0.5.
 _SES_BEYOND = _SES_GOLDEN.replace(
     "(wire NET1 (path 0 0.250000 0.000000 0.000000 10.000000 10.000000))",
-    "(wire NET1 (path 0 0.250000 0.000000 0.000000 10.300001 10.400000))",
+    "(wire NET1 (path 0 0.250000 0.000000 0.000000 10.500001 10.000000))",
 )
 
 # A second NET1 wire on the candidate -> a new wire_NET1_1 key (BINARY).
@@ -708,7 +711,9 @@ def test_oracle_is_verbatim_semantics() -> None:
         "NET2_1": [(1.0, 2.0), (3.0, 4.0)],
     }
     assert _oracle_parse_ses_wires(_SES_MALFORMED) is None
-    # The 3-4-5 triangle: a (0.3, 0.4) displacement is exactly 0.5 mm.
+    # A +0.5 mm X-only displacement is EXACTLY at the 0.5 tolerance (the
+    # `<=` boundary), so the within fixture passes and the +1e-6 overshoot
+    # fails.
     ses_report = _oracle_diff_ses("test", "routing", _SES_GOLDEN, _SES_WITHIN, 0.5)
     assert ses_report.passed
     beyond = _oracle_diff_ses("test", "routing", _SES_GOLDEN, _SES_BEYOND, 0.5)
@@ -1164,26 +1169,31 @@ def test_mr1_diff_is_antisymmetric_under_argument_swap(golden, candidate, tol: f
     assert ab["summary"] == ba["summary"]
 
 
-@given(golden=dsn_doc(), candidate=dsn_doc(), tol=st.floats(min_value=0.0001, max_value=10.0))
+@given(doc=ses_doc(), tol=st.floats(min_value=0.0001, max_value=10.0))
 @settings(max_examples=_MAX_EXAMPLES)
-def test_mr2_common_offset_leaves_deltas_unchanged(golden, candidate, tol: float) -> None:
-    """Adding the same offset to EVERY component's X in both documents
-    leaves every delta and category unchanged -- the diff is translation
-    invariant (only the rendered value strings shift)."""
-    assert "(place" in golden  # vacuity guard
-    g_shifted = re.sub(r"(\(place \S+ )\d+", lambda m: f"{m.group(1)}9999", golden)
-    c_shifted = re.sub(r"(\(place \S+ )\d+", lambda m: f"{m.group(1)}9999", candidate)
-    base = _rust_report(_BOARD, _DSN_STAGE, _RS_DSN(_BOARD, _DSN_STAGE, golden, candidate, tol))
-    shifted = _rust_report(
-        _BOARD, _DSN_STAGE, _RS_DSN(_BOARD, _DSN_STAGE, g_shifted, c_shifted, tol)
+def test_mr2_identical_extension_leaves_prior_entries_unchanged(doc, tol: float) -> None:
+    """Extending BOTH documents with an identical extra wire leaves every
+    pre-existing entry (delta, category, entity, field) byte-identical and
+    adds exactly two WITHIN entries for the new wire.  (A common coordinate
+    OFFSET would NOT be invariant -- float subtraction of offset values lands
+    on different doubles -- so the extension form is used instead.)"""
+    assert "(wire" in doc  # vacuity guard
+    # "!" is outside the generator's alphabet, so the new wire's key can
+    # never collide with a generated wire's.
+    new_wire = "(wire !EXT (path 0 0.250000 0.000000 0.000000 1.000000 1.000000))\n"
+    base = _rust_report(
+        _BOARD, _SES_STAGE, _RS_SES(_BOARD, _SES_STAGE, doc, doc, tol)
     )
-    assert len(base["entries"]) == len(shifted["entries"])
-    for eb, es in zip(base["entries"], shifted["entries"]):
-        assert eb["category"] == es["category"]
-        assert eb["delta"] == es["delta"]
-        assert eb["tolerance"] == es["tolerance"]
-        assert eb["field"] == es["field"]
-        assert eb["entity"] == es["entity"]
+    extended = _rust_report(
+        _BOARD, _SES_STAGE, _RS_SES(_BOARD, _SES_STAGE, doc + new_wire, doc + new_wire, tol)
+    )
+    assert len(extended["entries"]) == len(base["entries"]) + 2  # 2 points of !EXT
+    ext_without_new = [e for e in extended["entries"] if not e["entity"].startswith("wire_!EXT")]
+    assert ext_without_new == base["entries"]
+    for e in extended["entries"]:
+        if e["entity"].startswith("wire_!EXT"):
+            assert e["delta"] == 0.0
+            assert e["category"] == "WITHIN_TOLERANCE"
 
 
 @given(

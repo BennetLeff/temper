@@ -131,6 +131,13 @@ pub mod dsn_pyo3;
 // router_v6/_strip_copper.py migration (see VERIFICATION.md). Pure core
 // (wasm32-safe) with a thin pyo3 boundary, following the `isolation` shape.
 pub mod strip_copper;
+// Tolerance-aware golden-output comparison kernels (DSN place/net parse +
+// diff, SES wire parse + diff, recursive tolerance JSON diff) -- the
+// testing/golden_diff.py migration (see VERIFICATION.md). Pure core
+// (wasm32-safe) with a thin pyo3 boundary, following the `strip_copper`
+// shape. The three `golden_diff_*` pyfunctions return
+// `(entries, passed, summary)` for the Python shim's `DiffEntry(**e)`.
+pub mod golden_diff;
 
 #[cfg(feature = "python")]
 mod pymodule_def {
@@ -375,6 +382,10 @@ mod pymodule_def {
         // Wave 4 — paren-balanced copper/zone strip kernels
         // (router_v6/_strip_copper.py migration).
         crate::strip_copper::register(m)?;
+
+        // Wave 4 — tolerance-aware golden-diff kernels
+        // (testing/golden_diff.py migration).
+        crate::golden_diff::register(m)?;
 
         Ok(())
     }
