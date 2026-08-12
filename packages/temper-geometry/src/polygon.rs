@@ -105,17 +105,6 @@ pub fn polygon_centroid(vertices: &[Point]) -> Point {
     Point::new(cx / denom, cy / denom)
 }
 
-/// Compute the centroid of a set of points weighted by edge contribution
-/// (winding centroid).
-///
-/// This is equivalent to [`polygon_centroid`] – it uses the shoelace formula
-/// and is the proper centre of mass for a polygon. The name distinguishes it
-/// from [`primitives::points_centroid`], which is the unweighted arithmetic
-/// mean.
-pub fn points_centroid_winding(vertices: &[Point]) -> Point {
-    polygon_centroid(vertices)
-}
-
 // =============================================================================
 // Point-in-Polygon Tests
 // =============================================================================
@@ -633,18 +622,6 @@ pub(crate) mod tests {
         let c = polygon_centroid(&collinear);
         assert!((c.x - 1.0).abs() < EPS, "expected mean x=1.0, got {}", c.x);
         assert!((c.y - 0.0).abs() < EPS);
-    }
-
-    // -----------------------------------------------------------------
-    // points_centroid_winding
-    // -----------------------------------------------------------------
-    #[cfg_attr(test, test)]
-    fn test_points_centroid_winding_matches_centroid() {
-        let sq = unit_square();
-        let c1 = polygon_centroid(&sq);
-        let c2 = points_centroid_winding(&sq);
-        assert!((c1.x - c2.x).abs() < EPS);
-        assert!((c1.y - c2.y).abs() < EPS);
     }
 
     // -----------------------------------------------------------------
@@ -1594,7 +1571,6 @@ pub(crate) mod tests {
         ("polygon::tests::test_centroid_square", test_centroid_square),
         ("polygon::tests::test_centroid_triangle", test_centroid_triangle),
         ("polygon::tests::test_centroid_degenerate_fallback", test_centroid_degenerate_fallback),
-        ("polygon::tests::test_points_centroid_winding_matches_centroid", test_points_centroid_winding_matches_centroid),
         ("polygon::tests::test_point_in_polygon_inside", test_point_in_polygon_inside),
         ("polygon::tests::test_point_in_polygon_outside", test_point_in_polygon_outside),
         ("polygon::tests::test_point_in_polygon_on_edge", test_point_in_polygon_on_edge),
