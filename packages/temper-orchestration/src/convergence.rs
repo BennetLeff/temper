@@ -311,7 +311,7 @@ pub struct ConvergenceState {
     #[pyo3(get, set)]
     pub failure_message: Option<String>,
     #[pyo3(get, set)]
-    pub _best_routed_nets: Option<Py<PyAny>>,
+    pub _best_routed_nets: Option<Py<PyFrozenSet>>,
     #[pyo3(get, set)]
     pub _best_routability: Option<f64>,
     #[pyo3(get, set)]
@@ -562,7 +562,7 @@ impl ConvergenceChecker {
 
         let mut state = self.state.borrow_mut(py);
         let best_routed: Option<Vec<String>> = match &state._best_routed_nets {
-            Some(obj) => Some(collect_sorted(obj.bind(py))?),
+            Some(obj) => Some(collect_sorted(obj.bind(py).as_any())?),
             None => None,
         };
         let best_routability = state._best_routability;
@@ -591,9 +591,7 @@ impl ConvergenceChecker {
         // Write back the kernel's post-call state (mirrors the shim).
         if let Some(best) = &best_routed_out {
             state._best_routed_nets = Some(
-                PyFrozenSet::new(py, best.iter().map(|s| s.as_str()))?
-                    .into_any()
-                    .unbind(),
+                PyFrozenSet::new(py, best.iter().map(|s| s.as_str()))?.unbind(),
             );
             state._best_routability = best_ratio_out;
         }
