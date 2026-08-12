@@ -54,6 +54,12 @@ pub mod wasm_test_registry;
 // drc_sweep dedup / placement_validation / courtyard_check clamp).
 #[cfg(feature = "python")]
 pub mod deterministic_leaf_drc;
+// Wave 4 orchestration-port — residual deterministic stage-leaf kernels of
+// the validation + partition cluster (placement_validation's parsed-pads
+// pin-position resolution, the phased validator's zone-slot flatten, and
+// hv_lv_partition's bounds-area product).
+#[cfg(feature = "python")]
+pub mod deterministic_stage_leaves;
 // Wave 4 Phase 5 — deterministic connectivity-validation kernel
 // (connectivity_validation.py per-net algorithm).
 #[cfg(feature = "python")]
@@ -488,6 +494,9 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Wave 4 Phase 5 — deterministic leaf DRC-check kernels.
     crate::deterministic_leaf_drc::register(m)?;
     crate::deterministic_connectivity::register(m)?;
+    // Wave 4 orchestration-port — residual validation + partition stage-leaf
+    // kernels.
+    crate::deterministic_stage_leaves::register(m)?;
     // Wave 4 — router_v6/constraints_design_rules.py hot-path clearance
     // kernels (clearance_matrix.rs).
     crate::clearance_matrix::register(m)?;

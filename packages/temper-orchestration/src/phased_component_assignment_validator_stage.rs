@@ -106,9 +106,18 @@ fn validate<'py>(py: Python<'py>, state: &BoardState) -> PyResult<Bound<'py, PyL
         return Ok(failures);
     }
 
-    // `all_slots = _flatten_slots(state); if not all_slots: return []`
-    let all_slots = flatten_slots(py, state)?;
-    if all_slots.len() == 0 {
+    // `all_slots = _flatten_slots(state); if not all_slots: return []` — the
+    // flatten delegates to the `temper_drc_rs.flatten_zone_slots_py` kernel
+    // (Wave 4 orchestration-port), which reproduces the `if not zone_slots`
+    // guard + the per-zone `extend` verbatim (single source with the Python
+    // `_flatten_slots` shim).
+    let drc = py.import("temper_drc_rs")?;
+    let zone_slots = match &state.zone_slots {
+        Some(z) => z.clone_ref(py),
+        None => py.None(),
+    };
+    let all_slots = drc.call_method1("flatten_zone_slots_py", (&zone_slots,))?;
+    if all_slots.len()? == 0 {
         return Ok(failures);
     }
 
@@ -329,26 +338,6 @@ fn py_max(a: f64, b: f64) -> f64 {
     } else {
         a
     }
-}
-
-#[cfg(feature = "python")]
-/// ``_flatten_slots``: every grid slot from every zone in ``state.zone_slots``
-/// (a frozenset of ``(zone, slots)`` pairs).
-fn flatten_slots<'py>(
-    py: Python<'py>,
-    state: &BoardState,
-) -> PyResult<Bound<'py, PyList>> {
-    let out = PyList::empty(py);
-    let zone_slots = match &state.zone_slots {
-        Some(z) if z.bind(py).is_truthy()? => z.bind(py),
-        _ => return Ok(out),
-    };
-    for pair in zone_slots.try_iter()? {
-        let pair = pair?;
-        let slots = pair.get_item(1)?;
-        out.call_method1("extend", (slots,))?;
-    }
-    Ok(out)
 }
 
 #[cfg(feature = "python")]
