@@ -63,7 +63,7 @@ from tests.router_v6 import _pipeline_core_py_oracle as _orc
 # ---------------------------------------------------------------------------
 
 _PINNED = {
-    "_pipeline_core_py_oracle.py": "bf64e94ec8e31d45909aeb14a02d9bbd7783ed51d5c25b5be30efc26d4203d16",
+    "_pipeline_core_py_oracle.py": "8d3221be28e3371499e01b1ae68f09ea3c58e434ac21a08a917f71c1a23d75e7",
 }
 _BODY_MARKER = "# --- BEGIN PINNED BODY ---\n"
 
@@ -352,7 +352,7 @@ def _make_pipeline(
     pipe._compute_resource_bound = _resource_bound
     pipe._run_stage3 = _stage3
     pipe._run_stage4 = _stage4
-    pipe._run_stage5 = lambda pcb, stage2, pf: _FakeStage4()  # unreachable: stage4 faked
+    pipe._run_stage5 = lambda _pcb, _stage2, _pf: _FakeStage4()  # unreachable: stage4 faked
     pipe._run_manufacturing_drc = _manufacturing
     pipe._run_fence = _fence
     pipe.ledger = _FakeLedger(arm.log)
@@ -370,11 +370,11 @@ def _patch_modules(monkeypatch, arm, *, nets=DEFAULT_NETS, validation_errors=())
     Rust driver (which imports the source modules at runtime) those bindings
     are inert."""
     import temper_placer.io.kicad_parser as _kicad_parser
+    import temper_placer.placer.cp_sat.gates as _gates_mod
     import temper_placer.router_v6._pipeline_core as _core_mod
     import temper_placer.router_v6.dense_package_detection as _dense_mod
     import temper_placer.router_v6.escape_via_generator as _escape_mod
     import temper_placer.router_v6.placement_legalization as _legalizer_mod
-    import temper_placer.placer.cp_sat.gates as _gates_mod
 
     monkeypatch.setattr(
         _kicad_parser, "parse_kicad_pcb_v6",
@@ -384,10 +384,13 @@ def _patch_modules(monkeypatch, arm, *, nets=DEFAULT_NETS, validation_errors=())
     monkeypatch.setattr(_escape_mod, "generate_escape_vias", _fake_escape(arm.log))
     monkeypatch.setattr(_legalizer_mod, "Legalizer", _make_legalizer_cls(arm.log))
     # RED-mode compatibility: the verbatim run() resolves these through the
-    # _pipeline_core module bindings.
-    monkeypatch.setattr(_core_mod, "identify_dense_packages", _fake_dense(arm.log))
-    monkeypatch.setattr(_core_mod, "generate_escape_vias", _fake_escape(arm.log))
-    monkeypatch.setattr(_core_mod, "Legalizer", _make_legalizer_cls(arm.log))
+    # _pipeline_core module bindings. In GREEN (the shim delegates; the
+    # driver imports the source modules) the module no longer binds them,
+    # so `raising=False` creates the attrs for the patch and the inert
+    # entries are harmless.
+    monkeypatch.setattr(_core_mod, "identify_dense_packages", _fake_dense(arm.log), raising=False)
+    monkeypatch.setattr(_core_mod, "generate_escape_vias", _fake_escape(arm.log), raising=False)
+    monkeypatch.setattr(_core_mod, "Legalizer", _make_legalizer_cls(arm.log), raising=False)
     monkeypatch.setattr(_gates_mod, "GateStatus", _FakeGateStatus)
     monkeypatch.setattr(_gates_mod, "BoardState", _FakeGateBoardState)
     monkeypatch.setattr(_gates_mod, "ErcGate", _FakeErcGate)
@@ -608,21 +611,25 @@ def test_manufacturing_fail_mode_raise_parity(monkeypatch) -> None:
             return ("raised", type(exc).__name__, str(exc))
 
     cases = [
-        dict(dfm_fail_on="critical", report=_FakeManufacturingReport(0, 0)),
-        dict(dfm_fail_on="critical", report=_FakeManufacturingReport(1, 1)),
-        dict(dfm_fail_on="critical", report=_FakeManufacturingReport(0, 5)),
-        dict(dfm_fail_on="all", report=_FakeManufacturingReport(0, 0)),
-        dict(dfm_fail_on="all", report=_FakeManufacturingReport(1, 0)),
-        dict(dfm_fail_on="all", report=_FakeManufacturingReport(0, 3)),
-        dict(dfm_fail_on="none", report=_FakeManufacturingReport(9, 9)),
+        {"dfm_fail_on": "critical", "report": _FakeManufacturingReport(0, 0)},
+        {"dfm_fail_on": "critical", "report": _FakeManufacturingReport(1, 1)},
+        {"dfm_fail_on": "critical", "report": _FakeManufacturingReport(0, 5)},
+        {"dfm_fail_on": "all", "report": _FakeManufacturingReport(0, 0)},
+        {"dfm_fail_on": "all", "report": _FakeManufacturingReport(1, 0)},
+        {"dfm_fail_on": "all", "report": _FakeManufacturingReport(0, 3)},
+        {"dfm_fail_on": "none", "report": _FakeManufacturingReport(9, 9)},
     ]
     for kwargs in cases:
         arm_o = _ArmState([])
         arm_s = _ArmState([])
         pipe_o = _make_pipeline(arm_o, enable_manufacturing_drc=True, **kwargs)
         pipe_s = _make_pipeline(arm_s, enable_manufacturing_drc=True, **kwargs)
-        out_o = _outcome(lambda: _run_oracle(monkeypatch, pipe_o, _PCB_PATH, arm_o))
-        out_s = _outcome(lambda: _run_shim(monkeypatch, pipe_s, _PCB_PATH, arm_s))
+        out_o = _outcome(
+            lambda _po=pipe_o, _ao=arm_o: _run_oracle(monkeypatch, _po, _PCB_PATH, _ao)
+        )
+        out_s = _outcome(
+            lambda _ps=pipe_s, _as=arm_s: _run_shim(monkeypatch, _ps, _PCB_PATH, _as)
+        )
         assert out_s == out_o, f"fail-mode divergence for {kwargs}: {out_s} != {out_o}"
         if out_s[0] == "raised":
             assert out_s[1] == "ManufacturingDRCViolationError"
@@ -663,12 +670,11 @@ def test_fence_gated_on_escape_vias_and_routing_results(monkeypatch) -> None:
     pipe_o = _make_pipeline(arm_o, fence=object())
     pipe_s = _make_pipeline(arm_s, fence=object())
 
-    no_vias = lambda pkg, design_rules, strategy="dog-bone": []  # noqa: E731
-    one_pkg = (
-        lambda pcb_components: [  # noqa: E731
-            SimpleNamespace(component=SimpleNamespace(ref="U1"), _ref="U1")
-        ]
-    )
+    def no_vias(pkg, design_rules, strategy="dog-bone"):  # noqa: ARG001
+        return []
+
+    def one_pkg(pcb_components):  # noqa: ARG001
+        return [SimpleNamespace(component=SimpleNamespace(ref="U1"), _ref="U1")]
     _patch_modules(monkeypatch, arm_o)
     _patch_modules(monkeypatch, arm_s)
     _patch_oracle_arm(monkeypatch, arm_o)
@@ -678,8 +684,8 @@ def test_fence_gated_on_escape_vias_and_routing_results(monkeypatch) -> None:
 
     monkeypatch.setattr(_dense_mod, "identify_dense_packages", one_pkg)
     monkeypatch.setattr(_escape_mod, "generate_escape_vias", no_vias)
-    monkeypatch.setattr(_core_mod, "identify_dense_packages", one_pkg)
-    monkeypatch.setattr(_core_mod, "generate_escape_vias", no_vias)
+    monkeypatch.setattr(_core_mod, "identify_dense_packages", one_pkg, raising=False)
+    monkeypatch.setattr(_core_mod, "generate_escape_vias", no_vias, raising=False)
     monkeypatch.setattr(_orc, "identify_dense_packages", one_pkg)
     monkeypatch.setattr(_orc, "generate_escape_vias", no_vias)
 
@@ -742,12 +748,12 @@ def test_stage_exception_propagation_parity(monkeypatch) -> None:
             pipe_o = _make_pipeline(arm_o)
             pipe_s = _make_pipeline(arm_s)
 
-            def _raise2(pcb, escape_vias):
-                arm_o.log.append(("stage2",))
+            def _raise2(pcb, escape_vias, _log=arm_o.log):  # noqa: ARG001
+                _log.append(("stage2",))
                 raise _Boom("stage2 blew up")
 
-            def _raise2_s(pcb, escape_vias):
-                arm_s.log.append(("stage2",))
+            def _raise2_s(pcb, escape_vias, _log=arm_s.log):  # noqa: ARG001
+                _log.append(("stage2",))
                 raise _Boom("stage2 blew up")
 
             pipe_o._run_stage2 = _raise2
@@ -759,12 +765,12 @@ def test_stage_exception_propagation_parity(monkeypatch) -> None:
             pipe_o = _make_pipeline(arm_o)
             pipe_s = _make_pipeline(arm_s)
 
-            def _raise4(pcb, stage2, stage3, escape_vias):
-                arm_o.log.append(("stage4",))
+            def _raise4(pcb, stage2, stage3, escape_vias, _log=arm_o.log):  # noqa: ARG001
+                _log.append(("stage4",))
                 raise _Boom("stage4 blew up")
 
-            def _raise4_s(pcb, stage2, stage3, escape_vias):
-                arm_s.log.append(("stage4",))
+            def _raise4_s(pcb, stage2, stage3, escape_vias, _log=arm_s.log):  # noqa: ARG001
+                _log.append(("stage4",))
                 raise _Boom("stage4 blew up")
 
             pipe_o._run_stage4 = _raise4
@@ -787,7 +793,7 @@ _RUNTIME_LINE = re.compile(r"^Router V6 complete in .*s$")
 
 
 def _strip_runtime(captured: str) -> list[str]:
-    return [l for l in captured.splitlines() if not _RUNTIME_LINE.match(l)]
+    return [line for line in captured.splitlines() if not _RUNTIME_LINE.match(line)]
 
 
 def test_verbose_stdout_matches_oracle(monkeypatch, capsys) -> None:
@@ -841,12 +847,11 @@ def test_stage0_injection_and_net_sort_match_oracle(monkeypatch) -> None:
     # The 5-net corpus parse override (after _patch_modules so it wins).
     monkeypatch.setattr(
         _kicad_parser, "parse_kicad_pcb_v6",
-        lambda pcb_path, *, use_declared_layer_roles=False: _FakePcb(
+        lambda _pcb_path, *, use_declared_layer_roles=False: _FakePcb(  # noqa: ARG005
             [_FakeNet(n.name, len(n.pins)) for n in nets]
         ),
     )
 
-    override = _FakePcb([_FakeNet("OVERRIDE_NET", 2)])
     net_classes = {"Power": object()}
     assignments = {"GND": "Power"}
 
@@ -921,20 +926,20 @@ def test_erc_gate_conditional_and_status_branches(monkeypatch, caplog) -> None:
     the oracle module -- the logger NAME differs by construction, the
     messages and levels are pinned)."""
     import temper_placer.io.kicad_parser as _kicad_parser
+    import temper_placer.placer.cp_sat.gates as _gates_mod
     import temper_placer.router_v6._pipeline_core as _core_mod
     import temper_placer.router_v6.dense_package_detection as _dense_mod
     import temper_placer.router_v6.escape_via_generator as _escape_mod
     import temper_placer.router_v6.placement_legalization as _legalizer_mod
-    import temper_placer.placer.cp_sat.gates as _gates_mod
 
     monkeypatch.setattr(_gates_mod, "GateStatus", _FakeGateStatus)
     monkeypatch.setattr(_gates_mod, "BoardState", _FakeGateBoardState)
     monkeypatch.setattr(_legalizer_mod, "Legalizer", _make_legalizer_cls([]))
     monkeypatch.setattr(_dense_mod, "identify_dense_packages", _fake_dense([]))
     monkeypatch.setattr(_escape_mod, "generate_escape_vias", _fake_escape([]))
-    monkeypatch.setattr(_core_mod, "Legalizer", _make_legalizer_cls([]))
-    monkeypatch.setattr(_core_mod, "identify_dense_packages", _fake_dense([]))
-    monkeypatch.setattr(_core_mod, "generate_escape_vias", _fake_escape([]))
+    monkeypatch.setattr(_core_mod, "Legalizer", _make_legalizer_cls([]), raising=False)
+    monkeypatch.setattr(_core_mod, "identify_dense_packages", _fake_dense([]), raising=False)
+    monkeypatch.setattr(_core_mod, "generate_escape_vias", _fake_escape([]), raising=False)
     monkeypatch.setattr(_orc, "Legalizer", _make_legalizer_cls([]))
     monkeypatch.setattr(_orc, "identify_dense_packages", _fake_dense([]))
     monkeypatch.setattr(_orc, "generate_escape_vias", _fake_escape([]))
@@ -956,20 +961,19 @@ def test_erc_gate_conditional_and_status_branches(monkeypatch, caplog) -> None:
                 )
             _FakeErcGate.result = result_obj
 
-            class _GateO(_FakeErcGate):
-                def __init__(self):
-                    super().__init__(arm_o.log)
+            def _make_gate(log):
+                class _Gate(_FakeErcGate):
+                    def __init__(self):
+                        super().__init__(log)
 
-            class _GateS(_FakeErcGate):
-                def __init__(self):
-                    super().__init__(arm_s.log)
+                return _Gate
 
             monkeypatch.setattr(
                 _kicad_parser, "parse_kicad_pcb_v6", _fake_parse(arm_o.log, DEFAULT_NETS),
             )
             _FakeGateBoardState.log = arm_o.log
             pipe_o = _make_pipeline(arm_o, enable_erc_check=True)
-            monkeypatch.setattr(_gates_mod, "ErcGate", _GateO)
+            monkeypatch.setattr(_gates_mod, "ErcGate", _make_gate(arm_o.log))
             caplog.clear()
             _orc.run_verbatim(pipe_o, _PCB_PATH)
             msgs_o = [(r.levelname, r.getMessage()) for r in caplog.records]
@@ -979,7 +983,7 @@ def test_erc_gate_conditional_and_status_branches(monkeypatch, caplog) -> None:
             )
             _FakeGateBoardState.log = arm_s.log
             pipe_s = _make_pipeline(arm_s, enable_erc_check=True)
-            monkeypatch.setattr(_gates_mod, "ErcGate", _GateS)
+            monkeypatch.setattr(_gates_mod, "ErcGate", _make_gate(arm_s.log))
             caplog.clear()
             pipe_s.run(_PCB_PATH)
             msgs_s = [(r.levelname, r.getMessage()) for r in caplog.records]

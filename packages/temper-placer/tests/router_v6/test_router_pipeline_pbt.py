@@ -59,7 +59,7 @@ class _FakeNet:
 
 class _FakePcb:
     def __init__(self, nets=()):
-        self.nets = [n for n in nets]
+        self.nets = list(nets)
         self.components = ["U1"]
         self.design_rules = SimpleNamespace(
             net_class_assignments={}, net_classes={}, default_clearance_mm=0.3
@@ -164,23 +164,27 @@ def _patched(log):
     # RED-mode compatibility: the verbatim run() resolves the Legalizer and
     # the dense/escape call-backs through the _pipeline_core module-top
     # bindings; once the shim delegates to the Rust driver (which imports
-    # the source modules at runtime) these are inert.
+    # the source modules at runtime) these are inert -- and the module no
+    # longer binds them, hence create=True.
     stack.enter_context(
         mock.patch(
             "temper_placer.router_v6._pipeline_core.identify_dense_packages",
             _dense,
+            create=True,
         )
     )
     stack.enter_context(
         mock.patch(
             "temper_placer.router_v6._pipeline_core.generate_escape_vias",
             _escape,
+            create=True,
         )
     )
     stack.enter_context(
         mock.patch(
             "temper_placer.router_v6._pipeline_core.Legalizer",
             _make_legalizer_cls(log),
+            create=True,
         )
     )
     return stack
@@ -220,7 +224,7 @@ def _make_pipeline(config, log, raising=None):
     pipe._compute_resource_bound = _resource
     pipe._run_stage3 = _stage3
     pipe._run_stage4 = _stage4
-    pipe._run_stage5 = lambda pcb, stage2, pf: _FakeStage4()
+    pipe._run_stage5 = lambda _pcb, _stage2, _pf: _FakeStage4()
     pipe._run_manufacturing_drc = _manufacturing
     pipe._run_fence = lambda **kw: log.append(("fence", kw["stage_name"]))
     pipe.ledger = _FakeLedger(log)
