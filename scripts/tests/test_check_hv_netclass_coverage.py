@@ -17,7 +17,7 @@ netlist/manifest fixtures -- the pattern this repo uses so a gate test
 never depends on the live repository state to prove a specific mutation
 is caught).
 
-Four groups:
+Six groups:
 
 1. ``TestMutations`` -- the two falsifiers this task requires: a manifest
    HV net absent from ``net_assignments`` (PROPERTY 1), and a declared
@@ -35,7 +35,19 @@ Four groups:
    ``check_netclass_rule_coverage``).
 4. ``TestRealRepoIntegration`` -- the gate passes clean against the
    actual repo (live imports, live ``pcb/temper.kicad_pro``) as of this
-   commit.
+   commit -- including PROPERTY 3, which really did evaluate (not
+   silently skip) and really is clean (``PWR_RTN`` fixed).
+5. ``TestPropertyThreeAndFour`` -- the falsifier this task actually
+   exists for: an HV-domain net with a real ``pcb/temper.kicad_pro``
+   (the ``netclass_assignments`` key present) but no entry for it -- the
+   exact ``PWR_RTN`` shape, reconstructed as a synthetic fixture. Also:
+   off-board HV nets, wrong-safety-category HV assignments, and proof
+   that the SELV/ghost-assignment findings (PROPERTY 4) are reported but
+   never flip the gate to "violation".
+6. ``TestBoardNetParsing`` -- ``parse_board_net_names`` is structural, not
+   a grep: a pad's own nested ``(net ...)`` reference (which contains the
+   exact substring a grep-based scan would match) must never be counted,
+   only genuine top-level ``(net N "name")`` declarations.
 """
 
 from __future__ import annotations
@@ -57,11 +69,19 @@ from check_hv_netclass_coverage import (  # noqa: E402
     EXIT_VIOLATION,
     STRUCTURAL_KICAD_CLASSES,
     GateError,
+    check_domain_class_safety_mismatch,
+    check_domain_net_kicad_pro_coverage,
+    check_domain_nets_on_board,
+    check_ghost_kicad_pro_assignments,
     check_hv_net_coverage,
     check_netclass_rule_coverage,
     declared_netclasses,
     load_hv_nets,
     load_kicad_pro_classes,
+    load_kicad_pro_netclass_assignments,
+    load_netclass_safety_categories,
+    load_selv_nets,
+    parse_board_net_names,
     positively_referenced_classes,
     run,
 )
@@ -104,21 +124,63 @@ def _manifest(tmp_path: Path, hv_nets: list[str], selv_nets: list[str] | None = 
     return path
 
 
-def _kicad_pro(tmp_path: Path, classes: dict[str, str], name: str = "temper.kicad_pro") -> Path:
+def _kicad_pro(
+    tmp_path: Path,
+    classes: dict[str, str],
+    name: str = "temper.kicad_pro",
+    assignments: dict[str, str] | None = None,
+) -> Path:
     """A minimal pcb/temper.kicad_pro fixture: net_settings.classes with
-    the given {name: description} entries."""
+    the given {name: description} entries. ``assignments`` is OMITTED by
+    default (matching every PROPERTY 1/2-only test above -- PROPERTY 3/4
+    are then simply not evaluated, per their own contract); pass a dict
+    (even {}) to opt a test into PROPERTY 3/4."""
     path = tmp_path / name
-    path.write_text(
-        json.dumps(
-            {
-                "net_settings": {
-                    "classes": [
-                        {"name": n, "description": d} for n, d in classes.items()
-                    ]
-                }
-            }
+    net_settings: dict[str, object] = {
+        "classes": [{"name": n, "description": d} for n, d in classes.items()]
+    }
+    if assignments is not None:
+        net_settings["netclass_assignments"] = assignments
+    path.write_text(json.dumps({"net_settings": net_settings}))
+    return path
+
+
+def _kicad_pcb(tmp_path: Path, net_names: list[str], name: str = "temper.kicad_pcb") -> Path:
+    """A minimal but structurally-real .kicad_pcb fixture: top-level
+    ``(net N "name")`` declarations for every name in *net_names*, PLUS a
+    footprint pad carrying its own nested ``(net ...)`` reference to the
+    first net (if any) -- reproducing the exact shape
+    ``parse_board_net_names`` must not be confused by (a grep for ``(net``
+    would match both; the structural parser must match only the former).
+    """
+    lines = ["(kicad_pcb", "  (version 20240108)", "  (generator test)"]
+    for i, n in enumerate(net_names, start=1):
+        lines.append(f'  (net {i} "{n}")')
+    if net_names:
+        lines.append(
+            "  (footprint \"test:pad\" (layer \"F.Cu\")\n"
+            "    (fp_text reference \"REF1\")\n"
+            "    (pad \"1\" smd rect (at 0 0) (size 1 1) (layers \"F.Cu\")\n"
+            f'      (net 1 "{net_names[0]}"))\n'
+            "  )"
         )
-    )
+    lines.append(")")
+    path = tmp_path / name
+    path.write_text("\n".join(lines))
+    return path
+
+
+def _netclass_rules(
+    tmp_path: Path, categories: dict[str, str], name: str = "netclass_rules.yaml"
+) -> Path:
+    """A minimal packages/temper-placer/configs/netclass_rules.yaml
+    fixture: classes: {name: {safety_category: ...}}."""
+    lines = ["classes:"]
+    for cls, category in categories.items():
+        lines.append(f"  {cls}:")
+        lines.append(f'    safety_category: "{category}"')
+    path = tmp_path / name
+    path.write_text("\n".join(lines) + "\n")
     return path
 
 
@@ -785,12 +847,327 @@ class TestRealRepoIntegration:
         assert state == "clean", (
             f"unclassified_hv_nets={report.unclassified_hv_nets} "
             f"classes_with_no_rules={report.classes_with_no_rules} "
+            f"hv_domain_nets_off_board={report.hv_domain_nets_off_board} "
+            f"hv_domain_nets_unassigned_in_kicad_pro="
+            f"{report.hv_domain_nets_unassigned_in_kicad_pro} "
+            f"hv_domain_class_safety_mismatches="
+            f"{report.hv_domain_class_safety_mismatches} "
             f"tool_errors={report.tool_errors}"
         )
         assert report.hv_nets_checked > 0
         assert report.declared_netclasses_checked > 0
+        # PROPERTY 3 anti-vacuity: the real pcb/temper.kicad_pro always has
+        # a netclass_assignments key, so this must genuinely evaluate --
+        # not silently report "clean" by skipping. This is the check that
+        # would have caught PWR_RTN: docs/evidence/
+        # 2026-08-12-unassigned-domain-nets.md.
+        assert report.property3_evaluated is True
+        assert report.kicad_pro_assignments_checked > 0
+        assert report.hv_domain_nets_off_board == []
+        assert report.hv_domain_nets_unassigned_in_kicad_pro == []
+        assert report.hv_domain_class_safety_mismatches == []
+        # PWR_RTN specifically must be a real, on-board, HighVoltage-class
+        # net now -- the exact defect this gate exists to catch, fixed.
+        assert "PWR_RTN" not in report.hv_domain_nets_unassigned_in_kicad_pro
 
     def test_exit_codes_match_module_constants(self):
         assert EXIT_OK == 0
         assert EXIT_VIOLATION == 3
         assert EXIT_GATE_ERROR == 5
+
+
+# ---------------------------------------------------------------------------
+# TestPropertyThreeAndFour
+# ---------------------------------------------------------------------------
+
+
+class TestPropertyThreeAndFour:
+    """PROPERTY 3 (BLOCKING, HV domain) and PROPERTY 4 (INFORMATIONAL,
+    SELV domain + board-wide ghosts) against pcb/temper.kicad_pro's REAL
+    netclass_assignments -- the file kicad-cli's DRC actually reads, which
+    PROPERTIES 1/2 never look at. See module docstring."""
+
+    def test_property3_not_evaluated_without_assignments_key(self, tmp_path):
+        """The exact fixture every PROPERTY 1/2 test above uses (no
+        netclass_assignments key at all) must leave PROPERTY 3/4
+        unevaluated, not silently pass or silently fail -- this is what
+        keeps every pre-existing test in this file behaving identically
+        after PROPERTY 3/4 were added."""
+        manifest = _manifest(tmp_path, hv_nets=["ac_l"])
+        kicad_pro = _kicad_pro(tmp_path, {"ACMains": "mains"})  # no assignments=
+
+        state, report = run(
+            manifest,
+            kicad_pro,
+            net_classes={"ACMains": object()},
+            net_assignments={"ac_l": "ACMains"},
+            dru_content="A.NetClass == 'ACMains'\n",
+            kicad_class_name_fn=lambda k: k,
+        )
+        assert state == "clean"
+        assert report.property3_evaluated is False
+        assert report.hv_domain_nets_unassigned_in_kicad_pro == []
+
+    def test_hv_net_unassigned_in_kicad_pro_is_flagged(self, tmp_path):
+        """The PWR_RTN falsifier: an HV-domain net that IS on the real
+        board, IS present in TEMPER_NET_ASSIGNMENTS (so PROPERTY 1 is
+        clean), but has NO entry in pcb/temper.kicad_pro's REAL
+        netclass_assignments -- must be caught and must block the gate."""
+        manifest = _manifest(tmp_path, hv_nets=["ac_l", "PWR_RTN"])
+        kicad_pro = _kicad_pro(
+            tmp_path,
+            {"ACMains": "mains", "HighVoltage": "hv"},
+            assignments={"ac_l": "ACMains"},  # PWR_RTN missing -- the defect
+        )
+        board = _kicad_pcb(tmp_path, ["ac_l", "PWR_RTN", "gnd", "+3V3"])
+        rules = _netclass_rules(tmp_path, {"ACMains": "AC", "HighVoltage": "HV"})
+
+        state, report = run(
+            manifest,
+            kicad_pro,
+            net_classes={"ACMains": object(), "HighVoltage": object()},
+            net_assignments={"ac_l": "ACMains", "PWR_RTN": "GND"},  # P1 clean
+            dru_content="A.NetClass == 'ACMains'\nA.NetClass == 'HighVoltage'\n",
+            kicad_class_name_fn=lambda k: k,
+            kicad_pcb_path=board,
+            netclass_rules_path=rules,
+        )
+        assert state == "violation"
+        assert report.property3_evaluated is True
+        assert report.unclassified_hv_nets == []  # PROPERTY 1 does NOT catch this
+        assert report.hv_domain_nets_unassigned_in_kicad_pro == ["PWR_RTN"]
+        assert report.hv_domain_nets_off_board == []
+        assert report.hv_domain_class_safety_mismatches == []
+
+    def test_hv_net_assigned_in_kicad_pro_is_not_flagged(self, tmp_path):
+        """Control: the same fixture with PWR_RTN assigned in kicad_pro
+        (the fix) must pass -- proves the property clears once the real
+        file, not just TEMPER_NET_ASSIGNMENTS, is fixed."""
+        manifest = _manifest(tmp_path, hv_nets=["ac_l", "PWR_RTN"])
+        kicad_pro = _kicad_pro(
+            tmp_path,
+            {"ACMains": "mains", "HighVoltage": "hv"},
+            assignments={"ac_l": "ACMains", "PWR_RTN": "HighVoltage"},
+        )
+        board = _kicad_pcb(tmp_path, ["ac_l", "PWR_RTN", "gnd", "+3V3"])
+        rules = _netclass_rules(tmp_path, {"ACMains": "AC", "HighVoltage": "HV"})
+
+        state, report = run(
+            manifest,
+            kicad_pro,
+            net_classes={"ACMains": object(), "HighVoltage": object()},
+            net_assignments={"ac_l": "ACMains", "PWR_RTN": "HighVoltage"},
+            dru_content="A.NetClass == 'ACMains'\nA.NetClass == 'HighVoltage'\n",
+            kicad_class_name_fn=lambda k: k,
+            kicad_pcb_path=board,
+            netclass_rules_path=rules,
+        )
+        assert state == "clean"
+        assert report.hv_domain_nets_unassigned_in_kicad_pro == []
+
+    def test_hv_net_off_board_is_flagged(self, tmp_path):
+        """An HV-domain net the manifest declares but which is not a real
+        net on the board (a manifest/board spelling drift, the historical
+        +340V_BUS -> +170V_BUS shape) must be flagged, distinctly from
+        'unassigned'."""
+        manifest = _manifest(tmp_path, hv_nets=["ac_l", "+340V_BUS"])
+        kicad_pro = _kicad_pro(
+            tmp_path,
+            {"ACMains": "mains", "HighVoltage": "hv"},
+            assignments={"ac_l": "ACMains", "+340V_BUS": "HighVoltage"},
+        )
+        # The real board only has "+170V_BUS" -- "+340V_BUS" does not exist.
+        board = _kicad_pcb(tmp_path, ["ac_l", "+170V_BUS", "gnd"])
+        rules = _netclass_rules(tmp_path, {"ACMains": "AC", "HighVoltage": "HV"})
+
+        state, report = run(
+            manifest,
+            kicad_pro,
+            net_classes={"ACMains": object(), "HighVoltage": object()},
+            net_assignments={"ac_l": "ACMains", "+340V_BUS": "HighVoltage"},
+            dru_content="A.NetClass == 'ACMains'\nA.NetClass == 'HighVoltage'\n",
+            kicad_class_name_fn=lambda k: k,
+            kicad_pcb_path=board,
+            netclass_rules_path=rules,
+        )
+        assert state == "violation"
+        assert report.hv_domain_nets_off_board == ["+340V_BUS"]
+        assert report.hv_domain_nets_unassigned_in_kicad_pro == []
+
+    def test_hv_net_wrong_safety_category_is_flagged(self, tmp_path):
+        """An HV-domain net assigned a REAL kicad_pro class whose
+        safety_category is LV (not HV/AC) must be flagged -- the
+        historical '+15V_LS -> Power' defect shape, but checked against
+        the actual kicad_pro file instead of TEMPER_NET_ASSIGNMENTS."""
+        manifest = _manifest(tmp_path, hv_nets=["+15V_LS"])
+        kicad_pro = _kicad_pro(
+            tmp_path,
+            {"Power": "lv rail", "HighVoltage": "hv"},
+            assignments={"+15V_LS": "Power"},  # LV-safe class on an HV net
+        )
+        board = _kicad_pcb(tmp_path, ["+15V_LS", "gnd"])
+        rules = _netclass_rules(tmp_path, {"Power": "LV", "HighVoltage": "HV"})
+
+        state, report = run(
+            manifest,
+            kicad_pro,
+            net_classes={"Power": object(), "HighVoltage": object()},
+            net_assignments={"+15V_LS": "HighVoltage"},  # PROPERTY 1 clean
+            dru_content="A.NetClass == 'Power'\nA.NetClass == 'HighVoltage'\n",
+            kicad_class_name_fn=lambda k: k,
+            kicad_pcb_path=board,
+            netclass_rules_path=rules,
+        )
+        assert state == "violation"
+        assert report.hv_domain_nets_unassigned_in_kicad_pro == []
+        assert len(report.hv_domain_class_safety_mismatches) == 1
+        assert "+15V_LS" in report.hv_domain_class_safety_mismatches[0]
+
+    def test_selv_and_ghost_findings_are_informational_not_blocking(self, tmp_path):
+        """PROPERTY 4: an unassigned SELV-domain net and a kicad_pro
+        assignment naming an off-board net must both be REPORTED but must
+        NOT flip the gate to 'violation' when every PROPERTY 1/2/3 check
+        is otherwise clean."""
+        manifest = _manifest(tmp_path, hv_nets=["ac_l"], selv_nets=["gnd", "usb_dn"])
+        kicad_pro = _kicad_pro(
+            tmp_path,
+            {"ACMains": "mains", "Power": "lv"},
+            assignments={
+                "ac_l": "ACMains",
+                "gnd": "Power",
+                # "usb_dn" deliberately absent -- PROPERTY 4, not blocking.
+                "GHOST_NET": "Power",  # names no real board net
+            },
+        )
+        board = _kicad_pcb(tmp_path, ["ac_l", "gnd", "usb_dn"])
+        rules = _netclass_rules(tmp_path, {"ACMains": "AC", "Power": "LV"})
+
+        state, report = run(
+            manifest,
+            kicad_pro,
+            net_classes={"ACMains": object(), "Power": object()},
+            net_assignments={"ac_l": "ACMains"},
+            dru_content="A.NetClass == 'ACMains'\nA.NetClass == 'Power'\n",
+            kicad_class_name_fn=lambda k: k,
+            kicad_pcb_path=board,
+            netclass_rules_path=rules,
+        )
+        assert state == "clean", (
+            report.selv_domain_nets_unassigned_in_kicad_pro,
+            report.ghost_kicad_pro_assignments,
+        )
+        assert report.selv_domain_nets_unassigned_in_kicad_pro == ["usb_dn"]
+        assert report.ghost_kicad_pro_assignments == ["GHOST_NET"]
+
+    def test_default_and_differential_resolve_to_lv_safety_category(self, tmp_path):
+        """Structural KiCad classes not modeled in netclass_rules.yaml
+        (via load_netclass_safety_categories's own structural fallback)
+        must resolve to 'LV', not 'UNKNOWN' -- an HV net assigned one of
+        these should be flagged for being LV (the correct reason), not for
+        an unrecognized category. check_domain_class_safety_mismatch
+        itself is a pure lookup with no fallback of its own; the fallback
+        is load_netclass_safety_categories's contract, exercised here
+        end-to-end."""
+        rules = _netclass_rules(tmp_path, {"ACMains": "AC"})  # no Default/Differential entry
+        categories = load_netclass_safety_categories(rules)
+        assert (
+            check_domain_class_safety_mismatch(
+                ["ac_l"],
+                {"ac_l": "Default"},
+                categories,
+                frozenset({"HV", "AC"}),
+            )
+            == ["'ac_l' -> kicad_pro class 'Default' (safety_category='LV')"]
+        )
+
+    def test_check_domain_class_safety_mismatch_unknown_class_reports_unknown(self):
+        """A class absent from the safety-category table entirely (not
+        even the Default/Differential fallback) reports 'UNKNOWN', not a
+        silent pass -- an unrecognized class must never be assumed safe."""
+        assert check_domain_class_safety_mismatch(
+            ["ac_l"], {"ac_l": "SomeUnmappedClass"}, {}, frozenset({"HV", "AC"})
+        ) == ["'ac_l' -> kicad_pro class 'SomeUnmappedClass' (safety_category='UNKNOWN')"]
+
+
+# ---------------------------------------------------------------------------
+# TestBoardNetParsing
+# ---------------------------------------------------------------------------
+
+
+class TestBoardNetParsing:
+    """``parse_board_net_names`` must walk the S-expression structurally
+    (paren depth over a real token stream), not grep for the substring
+    ``(net`` -- a prior agent's grep-based pad count was wrong for exactly
+    this reason (docs/evidence/2026-08-12-unassigned-domain-nets.md)."""
+
+    def test_ignores_nested_pad_net_reference(self, tmp_path):
+        """A pad's own (net N "name") reference, nested many levels below
+        the top-level form, must not be double-counted or misread as a
+        second top-level net -- the fixture below has exactly ONE
+        top-level (net ...) declaration and one nested pad reference to
+        the SAME net name; the result must contain that name exactly
+        once, and must not contain any name only the pad reference would
+        produce if the parser were depth-blind."""
+        board = _kicad_pcb(tmp_path, ["ac_l", "gnd"])
+        names = parse_board_net_names(board)
+        assert names == {"ac_l", "gnd"}
+
+    def test_grep_would_overcount_vs_structural_parse(self, tmp_path):
+        """Direct falsifier: a naive substring count of '(net ' on the
+        fixture disagrees with the structural parser's result, because the
+        fixture's pad carries its own nested (net ...) reference -- proving
+        the structural walk is doing real work, not agreeing with a grep
+        by coincidence."""
+        board = _kicad_pcb(tmp_path, ["ac_l", "gnd"])
+        text = board.read_text()
+        naive_count = text.count("(net ")
+        names = parse_board_net_names(board)
+        assert naive_count != len(names)  # 3 occurrences ((net 1..), (net 2..), pad's) vs 2 real nets
+        assert len(names) == 2
+
+    def test_missing_file_is_gate_error(self, tmp_path):
+        with pytest.raises(GateError):
+            parse_board_net_names(tmp_path / "does-not-exist.kicad_pcb")
+
+    def test_zero_top_level_nets_is_gate_error(self, tmp_path):
+        path = tmp_path / "empty.kicad_pcb"
+        path.write_text("(kicad_pcb (version 1) (generator test))")
+        with pytest.raises(GateError):
+            parse_board_net_names(path)
+
+    def test_load_kicad_pro_netclass_assignments_absent_key_is_none(self, tmp_path):
+        kicad_pro = _kicad_pro(tmp_path, {"ACMains": "mains"})  # no assignments=
+        assert load_kicad_pro_netclass_assignments(kicad_pro) is None
+
+    def test_load_kicad_pro_netclass_assignments_reads_present_key(self, tmp_path):
+        kicad_pro = _kicad_pro(tmp_path, {"ACMains": "mains"}, assignments={"ac_l": "ACMains"})
+        assert load_kicad_pro_netclass_assignments(kicad_pro) == {"ac_l": "ACMains"}
+
+    def test_load_netclass_safety_categories_reads_and_adds_structural(self, tmp_path):
+        rules = _netclass_rules(tmp_path, {"ACMains": "AC", "HighVoltage": "HV"})
+        result = load_netclass_safety_categories(rules)
+        assert result["ACMains"] == "AC"
+        assert result["HighVoltage"] == "HV"
+        assert result["Default"] == "LV"
+        assert result["Differential"] == "LV"
+
+    def test_load_netclass_safety_categories_missing_file_is_gate_error(self, tmp_path):
+        with pytest.raises(GateError):
+            load_netclass_safety_categories(tmp_path / "does-not-exist.yaml")
+
+    def test_check_ghost_kicad_pro_assignments_helper(self):
+        assert check_ghost_kicad_pro_assignments(
+            {"ac_l": "ACMains", "GHOST": "Power"}, {"ac_l", "gnd"}
+        ) == ["GHOST"]
+
+    def test_check_domain_nets_on_board_helper(self):
+        assert check_domain_nets_on_board(["ac_l", "GHOST"], {"ac_l", "gnd"}) == ["GHOST"]
+
+    def test_check_domain_net_kicad_pro_coverage_helper(self):
+        assert check_domain_net_kicad_pro_coverage(
+            ["ac_l", "PWR_RTN"], {"ac_l": "ACMains"}
+        ) == ["PWR_RTN"]
+
+    def test_load_selv_nets_reads_selv_domain(self, tmp_path):
+        manifest = _manifest(tmp_path, hv_nets=["ac_l"], selv_nets=["gnd", "usb_dn"])
+        assert load_selv_nets(manifest) == ["gnd", "usb_dn"]
