@@ -109,6 +109,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import sys
 import tempfile
 import time
 from pathlib import Path
@@ -141,36 +142,35 @@ SEED = 42  # matches test_golden_board_drc_regression's seed=42
 SUBPROCESS_SAFETY_MARGIN_S = 60.0
 
 
-def _find_pumpkin_binary() -> Path | None:
-    """Locate the standalone pumpkin_engine spike binary.
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+from verify_pumpkin_engine import (  # noqa: E402
+    VerifiedPumpkinEngine,
+    resolve_verified_pumpkin_engine,
+)
+
+
+def _find_pumpkin_binary() -> VerifiedPumpkinEngine | None:
+    """Locate AND verify the standalone pumpkin_engine spike binary.
 
     Not a production build artifact -- checks both a worktree-local build
     (default ``target-dir`` relative to this repo root) and the shared
     main-checkout build (``CARGO_TARGET_DIR``/``scripts/cargo_shared_env.sh``
     convention every other agent-worktree build uses -- see
     ``.cargo/config.toml``'s own comment on why the shared path exists).
+
+    Delegates the actual search-and-hash-check to
+    ``scripts/verify_pumpkin_engine.py`` (the single choke point for this
+    repo now -- see that module's docstring for why: an untracked binary
+    that is not provably a build of the pinned source produced six
+    different boards from "the same" recipe,
+    ``docs/evidence/2026-08-12-engine-binary-pinning.md``).
+
+    Returns ``None`` if no candidate exists anywhere (legitimately unbuilt
+    -- callers should still skip). Raises ``PumpkinEngineIdentityError``,
+    uncaught, if a candidate exists but does not match the pin -- this must
+    fail the test, not skip it or warn and continue.
     """
-    candidates = [REPO_ROOT / "target-shared" / "release" / "pumpkin_engine"]
-    env_dir = os.environ.get("CARGO_TARGET_DIR")
-    if env_dir:
-        candidates.append(Path(env_dir) / "release" / "pumpkin_engine")
-    try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--path-format=absolute", "--git-common-dir"],
-            cwd=REPO_ROOT,
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
-        if result.returncode == 0:
-            main_checkout = Path(result.stdout.strip()).parent
-            candidates.append(main_checkout / "target-shared" / "release" / "pumpkin_engine")
-    except (OSError, subprocess.TimeoutExpired):
-        pass
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
-    return None
+    return resolve_verified_pumpkin_engine(REPO_ROOT)
 
 
 def _build_constraints(netlist, refs_sizes: dict[str, tuple[float, float]], rules, tau_mm: float) -> list[dict]:
@@ -242,13 +242,17 @@ def test_golden_board_drc_regression_pumpkin_real_board(request: pytest.FixtureR
     if not _kicad_cli_available():
         pytest.skip("kicad-cli not available")
 
+    # Raises PumpkinEngineIdentityError, uncaught, if a binary exists but does
+    # not match the pin -- that must fail this test loudly, not skip it (see
+    # scripts/verify_pumpkin_engine.py's module docstring).
     pumpkin_bin = _find_pumpkin_binary()
     if pumpkin_bin is None:
         pytest.skip(
             "pumpkin_engine binary not built -- run: cargo build --release "
-            "--manifest-path docs/evidence/2026-08-07-pumpkin-engine/Cargo.toml "
+            "--locked --manifest-path docs/evidence/2026-08-07-pumpkin-engine/Cargo.toml "
             "(see module docstring)"
         )
+    print(f"[pumpkin real-board golden test] {pumpkin_bin.identity_line()}", flush=True)
 
     assert _REAL_PRODUCTION_BOARD.exists(), f"Board not found: {_REAL_PRODUCTION_BOARD}"
     assert RULES_PATH.exists(), f"Rules not found: {RULES_PATH}"
@@ -304,7 +308,7 @@ def test_golden_board_drc_regression_pumpkin_real_board(request: pytest.FixtureR
     #    solve_placement's own Phase-1 "no objective, find any valid
     #    placement" contract; test_golden_board_drc_regression never posts
     #    an objective either).
-    outcome = _solve_with_pumpkin(pumpkin_bin, payload, TIMEOUT_MS)
+    outcome = _solve_with_pumpkin(pumpkin_bin.path, payload, TIMEOUT_MS)
     solve_time_ms = outcome.get("solve_time_ms")
     status = outcome.get("status")
 

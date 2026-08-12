@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "algo": "sha256",
+  "binary_sha256": "57fe087ecf6cfd3c611e23c78c32c1cde5bf50c8dbda7bae78b7eb7fd283cd02",
+  "source_commit": "e5539273a01c030c0968006fcf61bb4bedba65be",
+  "manifest_path": "docs/evidence/2026-08-07-pumpkin-engine/Cargo.toml",
+  "build_command": "cargo build --release --locked --manifest-path docs/evidence/2026-08-07-pumpkin-engine/Cargo.toml",
+  "rustc_version": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "cargo_version": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "pinned": "2026-08-12",
+  "notes": "binary_sha256 is a build of source_commit (the last commit on main to touch this directory as of the pin date; `git diff <source_commit> HEAD -- docs/evidence/2026-08-07-pumpkin-engine/` is empty at pin time). Rebuild determinism measured directly: two `cargo build --release --locked` invocations from this commit's source, into two independent CARGO_TARGET_DIRs (different absolute paths), produced byte-identical output on this rustc/cargo version -- see docs/evidence/2026-08-12-engine-binary-pinning.md Sec 3. Not yet verified across other rustc versions or operating systems; a toolchain change is expected to require re-pinning (rustc_version/cargo_version are recorded precisely so a mismatch there is diagnosable rather than mysterious)."
+}
