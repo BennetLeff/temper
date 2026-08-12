@@ -210,8 +210,12 @@ def run() -> int:
     writes = _literal_clearance_writes()
     below = [w for w in writes if w[3] < floor - _TOL]
     for path, lineno, attr, value in below:
+        try:
+            shown = path.relative_to(REPO_ROOT)
+        except ValueError:  # ROUTER_V6 pointed elsewhere (tests)
+            shown = path
         failures.append(
-            f"P4: {path.relative_to(REPO_ROOT)}:{lineno} assigns {attr} = {value}, "
+            f"P4: {shown}:{lineno} assigns {attr} = {value}, "
             f"below the {floor}mm DRC floor -- the router would reserve less "
             f"than the DRC grades against, producing clearance errors by "
             f"construction"
