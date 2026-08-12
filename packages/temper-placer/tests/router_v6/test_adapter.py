@@ -43,6 +43,27 @@ class TestApplyPlacementsToPcb:
         assert "at 50.0000 60.0000 90.0" in result
         assert "at 10.0 20.0" not in result
 
+    def test_board_origin_offsets_written_position(self):
+        """A caller solving against parse_kicad_pcb(..., normalize=True)
+        output (the default) gets positions with the board's own Edge.Cuts
+        origin already subtracted. board_origin must be ADDED back before
+        writing, since the raw template content's own (at X Y) fields are
+        always in absolute file coordinates -- see this function's
+        board_origin docstring and docs/evidence/2026-08-11-board-origin-
+        write-path-fix.md. Omitting it (board_origin defaults to (0, 0))
+        keeps prior behavior byte-for-byte unchanged, which
+        test_replaces_footprint_position above already pins."""
+        content = """(kicad_pcb (version 20240108)
+  (footprint "Test:SOIC" (layer "F.Cu")
+    (at 10.0 20.0 90.0)
+    (property "Reference" "U1" (at 0 0 0) (layer "F.SilkS") (effects (font (size 1 1) (thickness 0.15))))
+  )
+)"""
+        placements = {"U1": (50.0, 60.0)}
+        result = _apply_placements_to_pcb(content, placements, board_origin=(20.0, 20.0))
+
+        assert "at 70.0000 80.0000 90.0" in result
+
     def test_no_changes_when_ref_not_in_placements(self):
         content = """(kicad_pcb (version 20240108)
   (footprint "Test:SOIC" (layer "F.Cu")

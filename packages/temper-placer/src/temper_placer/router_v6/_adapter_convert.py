@@ -844,8 +844,25 @@ def _apply_placements_to_pcb(
     design_rules: Any = None,
     rotations: dict[str, float] | None = None,
     components: list | None = None,
+    board_origin: tuple[float, float] = (0.0, 0.0),
 ) -> str:
     """Modify footprint (at X Y [ANGLE]) positions in KiCad PCB raw content.
+
+    ``board_origin``: (x, y) mm offset ADDED to every entry in *placements*
+    before it is written. ``placements`` is normally produced by solving
+    against ``parse_kicad_pcb(..., normalize=True)`` output (the default),
+    which subtracts the board's own Edge.Cuts origin (``board.origin`` --
+    (20, 20) mm on the real ``pcb/temper.kicad_pcb``, not (0, 0)) from every
+    parsed coordinate. ``raw_content``'s own ``(at X Y)`` fields are always
+    in ABSOLUTE file coordinates. Omitting this (the previous, sole
+    behavior -- default keeps every existing caller byte-for-byte
+    unchanged) silently writes every placed footprint ~board_origin mm off
+    from the real outline -- caught by ``scripts/check_board_containment.py``,
+    which the self-consistency round-trip oracle
+    (``validation.placement_roundtrip.check_placement_roundtrip``) does not
+    cover (it re-derives its own "expected" geometry from the same,
+    already-wrong positions dict rather than independently from Edge.Cuts).
+    See docs/evidence/2026-08-11-board-origin-write-path-fix.md.
 
     ``rotations``, if given, maps component ref -> new absolute footprint
     rotation in degrees (the same convention as
@@ -943,6 +960,8 @@ def _apply_placements_to_pcb(
             ref = ref_match.group(1)
             if ref in placements:
                 x, y = placements[ref]
+                x += board_origin[0]
+                y += board_origin[1]
                 target_angle = rotations.get(ref) if rotations else None
 
                 fp_at_match = re.search(
