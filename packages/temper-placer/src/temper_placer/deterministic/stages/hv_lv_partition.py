@@ -6,6 +6,7 @@ import logging
 from collections.abc import Mapping
 from typing import Any
 
+import temper_drc_rs as _drc
 import temper_orchestration as _to
 from pydantic import BaseModel, ConfigDict
 from shapely.geometry import Polygon
@@ -68,7 +69,7 @@ def _nets(netlist: object, ref: str) -> list[object]:
 
 def _area(c: object) -> float:
     b = getattr(c, "bounds", None) or (0, 0)
-    return float(b[0]) * float(b[1])
+    return _drc.component_bounds_area_py((float(b[0]), float(b[1])))
 
 
 def _rules_by_net(state: Any) -> dict[Any, Any]:
@@ -114,7 +115,9 @@ class HvLvPartitionStage(Stage):
         config, the shapely outline + ``compute_guard_strip`` GEOS surface
         and the ``_rules_by_net`` / ``_nets`` / ``_area`` duck-typed readers
         stay Python (the Rust stage calls the helpers back; ``_rules_by_net``
-        is inlined and pinned by the differential). The pre-migration
+        is inlined and pinned by the differential). ``_area``'s bounds product
+        delegates to ``temper_drc_rs.component_bounds_area_py`` (Wave 4
+        orchestration-port). The pre-migration
         implementation is pinned VERBATIM in
         ``tests/deterministic/_hv_lv_partition_run_py_oracle.py``.
         """
