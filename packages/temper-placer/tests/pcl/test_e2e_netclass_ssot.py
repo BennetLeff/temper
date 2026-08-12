@@ -20,7 +20,10 @@ class TestE2ENetclassSSOT:
     def test_yaml_loads_and_has_expected_classes(self):
         assert "HighVoltage" in self.dr.net_classes
         assert "Signal" in self.dr.net_classes
-        assert self.dr.net_classes["HighVoltage"].clearance == 6.0
+        # 2.0, not 6.0: fixed 2026-08-12 (docs/evidence/
+        # 2026-08-12-netclass-param-reconciliation.md) -- see that doc for
+        # why 2.0 (matching pcb/temper.kicad_pro) is correct.
+        assert self.dr.net_classes["HighVoltage"].clearance == 2.0
 
     def test_class_pairs_contain_safety_critical_entries(self):
         cp = self.dr.class_pairs
@@ -30,7 +33,8 @@ class TestE2ENetclassSSOT:
 
     def test_get_rules_for_net_resolves_correctly(self):
         rules = self.dr.get_rules_for_net("", net_class="HighVoltage")
-        assert rules.clearance == 6.0
+        # 2.0, not 6.0: see test_yaml_loads_and_has_expected_classes above.
+        assert rules.clearance == 2.0
 
     def test_generate_constraints_for_synthetic_netlist(self):
         from temper_placer.placer.cp_sat.netclass_constraints import (

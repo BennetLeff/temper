@@ -45,15 +45,20 @@ class TestNetclassLoader:
         assert set(self.dr.net_classes.keys()) == expected
 
     def test_class_clearance_values(self):
-        """Each class has correct clearance from YAML."""
-        assert self.dr.net_classes["HighVoltage"].clearance == 6.0
+        """Each class has correct clearance from YAML.
+
+        HighVoltage 2.0 (was 6.0) and Power 0.5 (was 0.25) fixed 2026-08-12
+        (docs/evidence/2026-08-12-netclass-param-reconciliation.md) -- both
+        now match pcb/temper.kicad_pro; see that doc for grounding.
+        """
+        assert self.dr.net_classes["HighVoltage"].clearance == 2.0
         assert self.dr.net_classes["Signal"].clearance == 0.15
-        assert self.dr.net_classes["Power"].clearance == 0.25
+        assert self.dr.net_classes["Power"].clearance == 0.5
 
     def test_get_rules_for_net_returns_class_rules(self):
         """get_rules_for_net resolves by class name."""
         rules = self.dr.get_rules_for_net("", net_class="HighVoltage")
-        assert rules.clearance == 6.0
+        assert rules.clearance == 2.0
         rules = self.dr.get_rules_for_net("", net_class="Signal")
         assert rules.clearance == 0.15
 

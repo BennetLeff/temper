@@ -310,14 +310,18 @@ class TestHelperUnits:
 
 
 class TestRealRepoIntegration:
-    def test_gate_fails_on_real_repo_today(self):
+    def test_gate_passes_clean_on_real_repo(self):
         """The gate, run with the real TEMPER_NET_CLASSES and
-        pcb/temper.kicad_pro, is a VIOLATION as of this commit -- the tree
-        is genuinely inconsistent (HighVoltage.clearance: 6.0 vs 2.0, plus
-        four Power-class field mismatches). This test pins that fact: a
-        future PR that reconciles the values must touch this test too
-        (updating it to assert 'clean'), not silently go green underneath
-        an unchanged assertion.
+        pcb/temper.kicad_pro, is CLEAN as of this commit -- all 5 field
+        mismatches (HighVoltage.clearance: 6.0 vs 2.0, plus four
+        Power-class field mismatches) were reconciled 2026-08-12 (docs/
+        evidence/2026-08-12-netclass-param-reconciliation.md), correcting
+        design_rules.py's TEMPER_NET_CLASSES to match pcb/temper.kicad_pro
+        in every case -- grounded in elec/src/constraints.ato (the
+        project's original SSOT) and, for Power,
+        docs/specs/NET_CLASS_SPECIFICATION.md. This test previously pinned
+        the violation state (renamed from test_gate_fails_on_real_repo_today
+        per its own docstring's instruction to update on reconciliation).
 
         If temper_placer is not importable in this environment the test is
         skipped rather than xfailed -- a real environment gap is not this
@@ -330,14 +334,11 @@ class TestRealRepoIntegration:
 
         kicad_pro = REPO_ROOT / "pcb" / "temper.kicad_pro"
         state, report = run(kicad_pro)
-        assert state == "violation", (
-            "expected the real repo to be inconsistent as of this commit; "
-            f"got state={state!r} tool_errors={report.tool_errors!r} -- if "
-            "this now passes clean, the underlying values were reconciled "
-            "and this test should be updated to assert 'clean'"
+        assert state == "clean", (
+            "expected the real repo to be reconciled as of this commit; "
+            f"got state={state!r} mismatches={report.mismatches!r} "
+            f"tool_errors={report.tool_errors!r}"
         )
-        mismatch_keys = {(m.class_name, m.field_name) for m in report.mismatches}
-        assert ("HighVoltage", "clearance") in mismatch_keys
         assert report.classes_checked  # non-empty: a real comparison ran
 
     def test_exit_codes_match_module_constants(self):

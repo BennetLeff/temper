@@ -33,9 +33,22 @@ _BASELINE_PATH = _REPO_ROOT / "power_pcb_dataset" / "baselines" / "temper_produc
 # Constraint snapshots: values that Phase 1's U2/U3 tests depend on.
 # If any of these are lower (relaxed), the U3/U5 violation counts are
 # not comparable to the pre-Phase-1 state.
+#
+# HighVoltage.clearance re-baselined 2026-08-12 (docs/evidence/
+# 2026-08-12-netclass-param-reconciliation.md), 6.0 -> 2.0: the 6.0 this
+# snapshot captured was itself wrong -- a field-name conflation with
+# elec/src/constraints.ato's separate `air_clearance` field, citing a
+# debunked "IEC 60335-1 Table 16 working isolation at 400V" (Table 16 has
+# no 400V row and no 6.0mm value). 2.0 matches pcb/temper.kicad_pro
+# (unchanged since introduction) and HV_INTERNAL_CLEARANCE_MM's cited
+# derivation (scripts/generate_kicad_dru.py:63). Measured: this is a
+# grounded correction, not a silent relaxation -- kicad-cli DRC clearance
+# and track_width counts are unchanged (386/199, identical before and
+# after) because scripts/generate_kicad_dru.py never derived a rule from
+# TEMPER_NET_CLASSES["HighVoltage"].clearance in the first place.
 _CONSTRAINT_SNAPSHOT = {
     "ACMains.clearance": 6.0,
-    "HighVoltage.clearance": 6.0,
+    "HighVoltage.clearance": 2.0,
     "HighCurrent.clearance": 0.25,
     "Signal.clearance": 0.15,
     "FinePitch.clearance": 0.1,
