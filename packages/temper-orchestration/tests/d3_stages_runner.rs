@@ -265,6 +265,39 @@ def check_clearance_grid_conservatism(grid, expansion_log=None, sample_count_cir
 
 def check_clearance_grid_perf_budget(fence_elapsed_ms, stage_elapsed_ms, budget_pct=20.0, floor_ms=50.0):
     return (False, None)
+
+# Fake temper_geometry leaf kernels the D3 stage calls directly (grid_leaf.rs).
+# The real kernels take PyBuffer<i32> (real numpy), which the embedded
+# interpreter does not have; these operate on FakeNDArray instead so the
+# sequencing contract is what this suite proves, exactly like the FakeGrid
+# methods above.
+def count_blocked_cells_py(trace, pad):
+    n = 0
+    for r in range(len(trace.data)):
+        for c in range(len(trace.data[0])):
+            if trace[r, c] != 0:
+                n += 1
+            if pad[r, c] != 0:
+                n += 1
+    return n
+
+def grid_cell_available_py(trace, pad, rows, cols, cell_size_mm, x_mm, y_mm, net_id):
+    col = int(x_mm / cell_size_mm)
+    row = int(y_mm / cell_size_mm)
+    if 0 <= row < rows and 0 <= col < cols:
+        t = trace[row, col]
+        if t != 0 and t != net_id:
+            return False
+        p = pad[row, col]
+        return not (p != 0 and p != net_id)
+    return False
+
+def block_exclusion_zone_into_grid_py(trace, net_id, min_row, max_row, min_col, max_col):
+    for row in range(min_row, max_row):
+        for col in range(min_col, max_col):
+            curr = trace[row, col]
+            if curr == 0 or curr == net_id:
+                trace[row, col] = -2
 "#;
 
 fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
@@ -303,6 +336,15 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     pin_geometry.add("pin_world_position", ns.getattr("pin_world_position")?)?;
     core.add("pin_geometry", &pin_geometry)?;
     pkg.add("core", &core)?;
+
+    // temper_geometry (the D3 stage now calls its grid_leaf kernels directly;
+    // faked here like the _grid_* modules so the embedded interpreter needs no
+    // numpy/venv -- this suite proves sequencing, not the kernels).
+    let temper_geometry = PyModule::new(py, "temper_geometry")?;
+    temper_geometry.add("count_blocked_cells_py", ns.getattr("count_blocked_cells_py")?)?;
+    temper_geometry.add("grid_cell_available_py", ns.getattr("grid_cell_available_py")?)?;
+    temper_geometry.add("block_exclusion_zone_into_grid_py", ns.getattr("block_exclusion_zone_into_grid_py")?)?;
+    modules.set_item("temper_geometry", &temper_geometry)?;
 
     // temper_placer.deterministic.stages.zone_geometry (for the chain test)
     let zg = PyModule::new(py, "zone_geometry")?;

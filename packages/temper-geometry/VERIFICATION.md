@@ -3774,3 +3774,105 @@ scale).
 | G6 | Structural induction + single-op base case above; data-module structural proof. |
 | G7 | `cargo test -p temper-geometry` green (13 units cases); `cargo clippy --all-features --all-targets -- -D warnings` clean; no `unwrap` outside tests; `catch_unwind` at every pyo3 boundary; append-only lib.rs registration. |
 | G8 | N/A — not physics-gated. |
+
+## Clearance-Grid Residual Leaf Compute — Verification by Induction (D3 residual port, 2026-08-12)
+
+**Scope.** The three pieces of the D3 clearance-grid cluster that were
+STILL Python after the Wave-3 rasterisation kernels moved to
+`grid_raster.rs`:
+
+- `blocked_count` / `blocked_count_on_layer` (the `np.sum(arr != 0)`
+  reductions) -> `count_blocked_cells` (`grid_leaf.rs`).
+- `is_available`'s per-sample cell read -> `grid_cell_available`
+  (`grid_leaf.rs`).
+- the EXP-13 exclusion-zone `if curr == 0 or curr == net_id:
+  arr[row, col] = -2` write loop -> `block_exclusion_zone`
+  (`grid_leaf.rs`).
+
+The `ClearanceGrid` container, the net-id registration, the bbox
+computation, the exception classes and `_EXPANSION_LOG` stay Python — the
+same orchestration/bookkeeping split `grid_raster.rs` documents. The Rust
+orchestration (`grid_stage.rs`, `grid_fence.rs`) now calls these kernels
+directly through the numpy buffer protocol instead of round-tripping
+`blocked_count_on_layer` / `is_available` / per-cell `get_item`/`set_item`
+through the Python methods.
+
+**Conservative-bound argument (restated).** These are the conservatism
+paths of the creepage/HV-clearance safety contract, and all three are
+monotone writes/reductions — they can only OVER-estimate blockage, never
+under-state it:
+
+1. `count_blocked_cells` counts *every* non-zero cell. The count feeds the
+   U2 expansion-log `cells_added` bookkeeping, which is monotone in the
+   number of blocked cells — a count that under-reported would shrink the
+   recorded expansion and could hide an under-block. Counting all non-zero
+   cells (a superset of any routing obstacle) is the conservative choice.
+2. `grid_cell_available` returns false on any non-zero cell whose id is not
+   the caller's own net, and false out-of-bounds. A cell is declared free
+   (True) only when both its trace and pad ids are 0 for that net — the
+   fence's per-sample assertion can therefore never report a blocked cell
+   as free, only a free cell as blocked (a false fence violation, which is
+   loud, not silent).
+3. `block_exclusion_zone` only ever *writes* `-2`. It converts free/own-net
+   cells to obstacle and leaves every other occupied value untouched — it
+   never clears a cell and never writes a conflict `-1`. The exclusion zone
+   can only over-block; it can never open a routing path through the zone.
+
+All three are integer-exact; the only float is the `x / cell` mm->cell
+coordinate conversion in `grid_cell_available`, whose truncation (Python
+`int()` / Rust `as i64`, both toward zero, over the identical IEEE-754
+quotient) is bit-identical for every finite in-range value. There is no
+`pow`/`cos`/`sin`/hypot in this slice, so no dlsym host-math binding is
+needed (unlike the Wave-3 rasterisation kernels).
+
+**Base case.** A 1×1 grid: `count_blocked_cells` reduces one trace and one
+pad cell (0 or 1 blocked); `grid_cell_available` evaluates one cell centre
+against the bounds and the two ids; `block_exclusion_zone` merges one cell
+(0/net_id -> -2, else unchanged). Each agrees bit-for-bit with the pinned
+oracle on the single cell (asserted in the differential suite's
+empty/single-cell cases).
+
+**Induction step.** Each kernel is a loop over independent cells (or a
+fold over them) with no cross-cell interaction: `count_blocked_cells` is a
+fold of the idempotent per-cell predicate `id != 0`; `grid_cell_available`
+reads exactly one cell; `block_exclusion_zone`'s per-cell decision depends
+only on that cell's current value (`0`/`net_id` -> `-2`, else unchanged) and
+is idempotent (`f(f(x)) == f(x)`, P6). Appending a row/column evaluates the
+same per-cell rule on new cells without perturbing existing ones, so
+correctness on an h×w grid extends by induction to any grid — and the
+idempotence/never-clears metamorphic relations pin exactly the monotonicity
+the conservative-bound argument relies on.
+
+**Empirical verification.** The differential suite
+(`packages/temper-placer/tests/deterministic/test_grid_leaf_rust_differential.py`)
+pins all three kernels bit-exactly against the verbatim pre-migration
+implementations: 500 randomized count inputs, 2000 randomized availability
+samples (in/out-of-bounds coordinates, `None` and int net ids), 500
+randomized exclusion-zone bboxes over pre-populated grids, plus the
+truncation-toward-zero and empty-bbox edge cases, and end-to-end parity
+through the public `ClearanceGrid` methods. PBT
+(`test_grid_leaf_pbt.py`): six non-vacuous properties with mutation guards —
+count-is-nonzero-cells, count-grows-by-one-on-block, own-net transparency,
+no-net availability is exactly zero-cells, exclusion-zone conservative write
+domain (only `-2` written, never a clear), and idempotence. Metamorphic
+relations (4): count trace/pad symmetry, count translation invariance,
+exclusion-zone translation equivariance, and exclusion-zone never-clears
+(the creepage conservatism guarantee). The Rust module carries 8 unit tests;
+the existing D3 differential/PBT suites
+(`test_deterministic_d3_rust_differential.py`,
+`test_deterministic_d3_pbt.py`) and the Wave-3 grid suites
+(`test_grid_core_*`, `test_grid_fence_*`, `test_grid_hv_*`,
+`test_4layer_grid.py`) pass unchanged against the now-delegated leafs.
+
+### Gate results
+
+| Gate | Result |
+|---|---|
+| G1 | Differential written against verbatim oracles; kernels delegated to `temper-geometry` (`grid_leaf.rs`), registered via `bridge.rs` + lib.rs. |
+| G2 | Bit-exact (`int32` cells; the float truncation is `int()` in both arms), 3500+ randomized differential samples + end-to-end method parity. |
+| G3 | N/A — leaf delegation, no compute pipeline. |
+| G4 | 6 properties (P1–P6) + 6 mutation tests, each re-running the same body against a degenerate stand-in (vacuity proven). |
+| G5 | 4 metamorphic relations (count symmetry/translation, exclusion-zone translation equivariance, never-clears). |
+| G6 | Structural induction above; per-cell independence + idempotence. |
+| G7 | `cargo test -p temper-geometry` green (8 `grid_leaf` unit cases, 8348 total); no `unwrap` outside tests; `catch_unwind` at every pyo3 boundary; wasm test registry regenerated (8280 tests). |
+| G8 | Conservative-bound compute (creepage/HV clearance safety) — over-estimates clearance, never under; restated above. |

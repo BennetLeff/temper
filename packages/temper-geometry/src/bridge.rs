@@ -29,6 +29,9 @@ use crate::grid_raster::{
     clear_circle_from_grid_py, closest_component_for_zone_py, effective_creepage_py,
     fence_samples_py, occupancy_bitmap_row_py,
 };
+use crate::grid_leaf::{
+    block_exclusion_zone_into_grid_py, count_blocked_cells_py, grid_cell_available_py,
+};
 use crate::creepage_check::{
     calculate_required_creepage_py, closest_point_on_segment_py, is_high_voltage_net_py,
     min_clearance_distance_py, point_to_segment_distance_py, segment_to_segment_info_py,
@@ -1505,6 +1508,12 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(effective_creepage_py, m)?)?;
     m.add_function(wrap_pyfunction!(keepout_mask_flags_py, m)?)?;
     m.add_function(wrap_pyfunction!(closest_component_for_zone_py, m)?)?;
+
+    // grid residual leaf compute (D3 batch: blocked-count reduction,
+    // per-sample availability, EXP-13 exclusion-zone write)
+    m.add_function(wrap_pyfunction!(count_blocked_cells_py, m)?)?;
+    m.add_function(wrap_pyfunction!(grid_cell_available_py, m)?)?;
+    m.add_function(wrap_pyfunction!(block_exclusion_zone_into_grid_py, m)?)?;
 
     // occupancy-grid rasterisation (Wave 4: router_v6/occupancy_grid.py)
     m.add_function(wrap_pyfunction!(mark_path_rect_into_grid_py, m)?)?;

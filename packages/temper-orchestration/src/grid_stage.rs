@@ -11,9 +11,13 @@
 // (`_grid_fence.check_clearance_grid_conservatism` called through the
 // PYTHON module at runtime -- the monkey-patchable seam the U3 tests rely
 // on -- raising `FenceViolation` on a miss), and the EXP-13 exclusion-zone
-// blocking (direct numpy writes through tuple indexing). The leaf objects
+// blocking (the bbox computation here + the per-cell `-2` write via the
+// temper-geometry `block_exclusion_zone_into_grid_py` kernel). The leaf
+// objects
 // stay Python: the `ClearanceGrid` data type (`_grid_core.py` -- its
-// cell-rasterisation compute is already in temper-geometry grid_raster.rs),
+// cell-rasterisation compute is already in temper-geometry grid_raster.rs,
+// and its `blocked_count`/`is_available` leaf reductions are now in
+// temper-geometry grid_leaf.rs),
 // the `_grid_hv`/`_grid_fence` helpers and exceptions, and the module-level
 // `_EXPANSION_LOG`.
 //
@@ -453,6 +457,14 @@ fn hv_expansion<'py>(
     let expansion_log = grid_fence.getattr("_EXPANSION_LOG")?;
     expansion_log.call_method0("clear")?;
 
+    // The blocked-cell reduction (`blocked_count_on_layer`) is a
+    // temper-geometry kernel (`grid_leaf.rs`); fetch the per-layer arrays
+    // and the kernel once rather than round-tripping through the Python
+    // method per (pad, layer).
+    let count_kernel = py.import("temper_geometry")?.getattr("count_blocked_cells_py")?;
+    let trace_arrays = grid.getattr("_trace_net_ids")?;
+    let pad_arrays = grid.getattr("_pad_net_ids")?;
+
     for pad in all_pads_for_expansion.bind(py).try_iter()? {
         let pad = pad?;
         let pad_ref = pad.get_item("ref")?;
@@ -476,8 +488,8 @@ fn hv_expansion<'py>(
                 .getattr("effective_creepage")?
                 .call1((layer_name, 6.0))?; // allow-safety-constant: HV clearance default
 
-            let pre_count: i64 = grid
-                .call_method1("blocked_count_on_layer", (layer_idx,))?
+            let pre_count: i64 = count_kernel
+                .call1((trace_arrays.get_item(layer_idx)?, pad_arrays.get_item(layer_idx)?))?
                 .extract()?;
 
             let pad_key = PyTuple::new(py, [pad_ref.clone(), pad_name.clone()])?;
@@ -540,8 +552,8 @@ fn hv_expansion<'py>(
                 .into_any(),
                 None => PyTuple::new(py, [0.0, 0.0])?.into_any(),
             };
-            let post_count: i64 = grid
-                .call_method1("blocked_count_on_layer", (layer_idx,))?
+            let post_count: i64 = count_kernel
+                .call1((trace_arrays.get_item(layer_idx)?, pad_arrays.get_item(layer_idx)?))?
                 .extract()?;
             let entry = PyTuple::new(
                 py,
@@ -649,19 +661,24 @@ fn exclusion_zones(
             let min_row = (0i64).max(((cy - half_h) / cell) as i64);
             let max_row = rows.min(((cy + half_h) / cell) as i64 + 1);
 
+            // The per-cell -2 write loop is a temper-geometry kernel
+            // (`grid_leaf.rs::block_exclusion_zone`); the bbox computation
+            // above stays here (it is the same O(1) orchestration the
+            // rasterisation kernels already leave in Python).
+            let block_zone_kernel = py
+                .import("temper_geometry")?
+                .getattr("block_exclusion_zone_into_grid_py")?;
             let trace_arrays = grid.getattr("_trace_net_ids")?;
             for layer_idx in 0..(grid.getattr("layer_count")?.extract::<i64>()?) {
                 let target_grid = trace_arrays.get_item(layer_idx)?;
-                for row in min_row..max_row {
-                    for col in min_col..max_col {
-                        let curr: i64 = target_grid.get_item((row, col))?.extract()?;
-                        // Only block if free or already this net (allows HV
-                        // nets to route through their own exclusion zone).
-                        if curr == 0 || curr == net_id {
-                            target_grid.set_item((row, col), -2)?;
-                        }
-                    }
-                }
+                block_zone_kernel.call1((
+                    &target_grid,
+                    net_id as i32,
+                    min_row as usize,
+                    max_row as usize,
+                    min_col as usize,
+                    max_col as usize,
+                ))?;
             }
         }
         // print(f"    {hvz.name}: blocking {hvz.excluded_nets} in ...")

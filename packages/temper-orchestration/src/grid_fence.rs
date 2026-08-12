@@ -8,8 +8,10 @@
 // `run_grid_fence_check` iterates the expansion log, unpacks each entry,
 // computes the sample points via the already-Rust
 // `temper_geometry.fence_samples_py` kernel (with `shape_code` from
-// `temper_placer.core.pad_geometry`), checks `grid.is_available` per sample
-// and assembles the violation dicts. The `reason` f-string's `:.3f` leaves
+// `temper_placer.core.pad_geometry`), checks the per-sample availability via
+// the `temper_geometry.grid_cell_available_py` kernel (`grid_leaf.rs`, the
+// ported `ClearanceGrid.is_available` leaf) and assembles the violation
+// dicts. The `reason` f-string's `:.3f` leaves
 // are formatted by calling CPython's `__format__(".3f")` on the ORIGINAL
 // sample floats, so the rendered text is identical by construction (David
 // Gay dtoa is not reproducible from Rust's `{:.3}`).
@@ -44,6 +46,17 @@ pub fn run_grid_fence_check(
     let shape_code = py
         .import("temper_placer.core.pad_geometry")?
         .getattr("shape_code")?;
+    // The per-sample availability check (`grid.is_available`) is a
+    // temper-geometry kernel (`grid_leaf.rs`); fetch the per-layer arrays
+    // and dimensions once instead of round-tripping through the Python
+    // method per sample.
+    let avail_kernel = py
+        .import("temper_geometry")?
+        .getattr("grid_cell_available_py")?;
+    let trace_arrays = grid.bind(py).getattr("_trace_net_ids")?;
+    let pad_arrays = grid.bind(py).getattr("_pad_net_ids")?;
+    let rows: usize = grid.bind(py).getattr("rows")?.extract()?;
+    let cols: usize = grid.bind(py).getattr("cols")?.extract()?;
 
     let violations = PyList::empty(py);
     for entry in expansion_log.bind(py).try_iter()? {
@@ -77,9 +90,17 @@ pub fn run_grid_fence_check(
         while i + 1 < raw_len {
             let x = raw.get_item(i)?;
             let y = raw.get_item(i + 1)?;
-            let avail: bool = grid
-                .bind(py)
-                .call_method1("is_available", (&x, &y, layer_idx))?
+            let avail: bool = avail_kernel
+                .call1((
+                    trace_arrays.get_item(layer_idx)?,
+                    pad_arrays.get_item(layer_idx)?,
+                    rows,
+                    cols,
+                    cell,
+                    &x,
+                    &y,
+                    py.None(),
+                ))?
                 .extract()?;
             if avail {
                 let x_fmt: String = x.call_method1("__format__", (".3f",))?.extract()?;
