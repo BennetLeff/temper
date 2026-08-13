@@ -241,12 +241,65 @@ def _stitch_isolated_pads(
             )
 
 
+#: A carved fragment smaller than this is not copper anyone can use -- it is a
+#: sliver left where the keepout nearly severed the hull. KiCad's own zone
+#: filler drops islands below `min_thickness` (0.25mm) wide for the same
+#: reason; this is that figure squared, i.e. the area of the smallest square
+#: the filler would keep.
+_MIN_CARVED_AREA_MM2 = 0.25 * 0.25
+
+
+def _carve_outline(
+    points: tuple[tuple[float, float], ...],
+    keepout,
+) -> list[tuple[tuple[float, float], ...]]:
+    """Subtract *keepout* from a zone outline, returning 0..n outlines.
+
+    A hull that straddles the keepout can split into several pieces; each is
+    returned separately so the emitter writes one ``(zone ...)`` per piece,
+    exactly as ``zone_emission._clip_to_board`` already does for the board
+    outline. Interior holes are dropped: the emitted s-expression carries a
+    single ``(polygon (pts ...))`` and cannot express one, and KiCad's filler
+    re-cuts the hole itself from the same clearance rules -- so keeping the
+    outer ring is correct, not a relaxation.
+    """
+    from shapely.geometry import Polygon
+
+    if keepout is None:
+        return [points]
+    hull = Polygon(points)
+    if not hull.is_valid:
+        hull = hull.buffer(0)
+    carved = hull.difference(keepout)
+    if carved.is_empty:
+        return []
+    pieces = list(carved.geoms) if hasattr(carved, "geoms") else [carved]
+    out: list[tuple[tuple[float, float], ...]] = []
+    for piece in pieces:
+        if not hasattr(piece, "exterior") or piece.is_empty:
+            continue
+        if piece.area < _MIN_CARVED_AREA_MM2:
+            continue
+        coords = [(float(x), float(y)) for x, y in piece.exterior.coords]
+        if len(coords) > 1 and coords[0] == coords[-1]:
+            coords.pop()
+        if len(coords) >= 3:
+            out.append(tuple(coords))
+    return out
+
+
 def _emit_zone_pours(
     pad_positions: dict[str, list[tuple[float, float]]],
     segments: list[str],
     net_name_to_number: dict[str, int],
     *,
-    design_rules: Any = None,
+    # Accepted for call-site stability and no longer read: the pour's
+    # clearance now comes from the generated, DRU-derived table, not from
+    # `design_rules.class_pairs`. Kept rather than removed so the change is
+    # visible at every call site as "this argument stopped mattering" instead
+    # of silently disappearing from `route_pcb`'s signature -- the same
+    # convention `_net_policy._allow_forced_segments` already uses.
+    design_rules: Any = None,  # noqa: ARG001
     tstamp_counter: list[int] | None = None,
     pcb: Any = None,
 ) -> None:
@@ -276,6 +329,10 @@ def _emit_zone_pours(
         compute_zones_for_net,
         emit_zone_s_expr,
     )
+    from temper_placer.router_v6.zone_pour_clearance import (
+        default_table,
+        pair_clearance_keepout,
+    )
 
     board_polygon = None
     if pcb is not None:
@@ -300,24 +357,38 @@ def _emit_zone_pours(
             if nc:
                 zone_netclasses.add(nc)
 
-    effective_clearance: dict[str, float] = {}
-    class_pairs = getattr(design_rules, "class_pairs", {}) or {}
-    for nc in zone_netclasses:
-        own_rules = TEMPER_NET_CLASSES.get(nc)
-        own_clearance = own_rules.clearance if own_rules else 0.3
-        eff = own_clearance
-        for other_nc in zone_netclasses:
-            if other_nc == nc:
-                continue
-            pair_key = tuple(sorted((nc, other_nc)))
-            if pair_key in class_pairs:
-                pair_clearance = class_pairs[pair_key].get("clearance", eff)
-                eff = max(eff, pair_clearance)
-            else:
-                other_rules = TEMPER_NET_CLASSES.get(other_nc)
-                other_clearance = other_rules.clearance if other_rules else 0.3
-                eff = max(eff, max(own_clearance, other_clearance))
-        effective_clearance[nc] = eff
+    # PER-PAIR CLEARANCE (2026-08-13, docs/evidence/2026-08-13-zone-pour-
+    # safety-clearances.md). What used to be here resolved ONE scalar per
+    # class as a max over the zone-ELIGIBLE classes' `class_pairs` entries:
+    #
+    #     for other_nc in zone_netclasses:
+    #         eff = max(eff, class_pairs[sorted((nc, other_nc))]["clearance"])
+    #
+    # On this board that yields 6.0mm for every pour, from `class_pairs` rows
+    # that cite "IEC 60335-1 Table 16 working isolation at 400V" -- a row that
+    # does not exist (PR #1081) -- and whose own file comments call the figure
+    # "legacy, not primary-cited". It is a per-NET maximum, it maximises over
+    # the wrong set (only classes that themselves pour), and it cannot express
+    # 6.0mm-to-SELV / 3.0mm-to-HV / 0.5mm-to-gate-drive at the same time.
+    #
+    # Replaced by two things that together ARE per-pair:
+    #   * the zone's `(clearance ...)` scalar carries the pour's MINIMUM
+    #     requirement, the only value that can neither over-clear a pair the
+    #     rules relax nor undercut one a rule governs;
+    #   * the emitted OUTLINE is carved back from every other net's copper by
+    #     that pair's own figure (`pair_clearance_keepout`), which is where a
+    #     per-pair requirement can actually live.
+    #
+    # `design_rules` is no longer read for clearance -- kept in the signature
+    # because callers pass it and other consumers may grow.
+    live_classes = tuple(
+        sorted({TEMPER_NET_ASSIGNMENTS.get(n, "") or "Default" for n in pad_positions})
+    )
+    clearance_table = default_table()
+    effective_clearance: dict[str, float] = {
+        nc: clearance_table.min_required(nc, live_classes) for nc in zone_netclasses
+    }
+    number_to_name = {num: name for name, num in net_name_to_number.items()}
 
     _MAX_DRU_PRIORITY = max(
         (r.dru_priority for r in TEMPER_NET_CLASSES.values()),
@@ -353,18 +424,27 @@ def _emit_zone_pours(
                         cluster=not exempt,
                         board_polygon=board_polygon,
                     )
+                    keepout = pair_clearance_keepout(
+                        net_name,
+                        layer,
+                        pcb=pcb,
+                        segments=segments,
+                        net_number_to_name=number_to_name,
+                        table=clearance_table,
+                    )
                     for zd in zds:
-                        zd = ZoneDefinition(
-                            net_name=zd.net_name,
-                            net_number=zd.net_number,
-                            layer=zd.layer,
-                            points=zd.points,
-                            clearance=eff_clearance,
-                            min_thickness=zd.min_thickness,
-                            priority=prio,
-                        )
-                        segments.append(emit_zone_s_expr(zd))
-                        zone_points_by_net.setdefault(net_name, []).append(zd.points)
+                        for outline in _carve_outline(zd.points, keepout):
+                            zd_out = ZoneDefinition(
+                                net_name=zd.net_name,
+                                net_number=zd.net_number,
+                                layer=zd.layer,
+                                points=outline,
+                                clearance=eff_clearance,
+                                min_thickness=zd.min_thickness,
+                                priority=prio,
+                            )
+                            segments.append(emit_zone_s_expr(zd_out))
+                            zone_points_by_net.setdefault(net_name, []).append(zd_out.points)
                 except ValueError:
                     pass
 

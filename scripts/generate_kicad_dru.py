@@ -1621,6 +1621,200 @@ def render_pair_clearance_yaml(content: str) -> str:
     return "\n".join(lines)
 
 
+# ---------------------------------------------------------------------------
+# ZONE-WORLD PAIR CLEARANCE EXPORT (added 2026-08-13 -- see
+# docs/evidence/2026-08-13-zone-pour-safety-clearances.md).
+#
+# The Track<->Track export above is the world the A* router decides. It is NOT
+# the world a POUR lives in, and the difference is not cosmetic:
+#
+#   * `Default routing`'s condition is `A.Type == 'Track' || B.Type == 'Track'`,
+#     so it matches zone<->track and does NOT match zone<->pad, zone<->via or
+#     zone<->zone. Sixty-four class pairs therefore resolve to a different
+#     figure depending on what the pour is next to.
+#   * Where no rule matches at all, KiCad falls back to the netclass clearance
+#     declared in `pcb/temper.kicad_pro` -- max of the two classes' figures --
+#     not to anything this generator writes. That fallback is read from the
+#     project file here rather than restated, so it cannot drift from what
+#     kicad-cli resolves.
+#
+# Every CROSS-DOMAIN safety pair (mains<->LV 6.0mm, HV<->LV 2.0mm,
+# mains<->HV 3.0mm) is measured to be identical across all four other-item
+# types; the type dependence is confined to same-domain and LV<->LV pairs.
+# `_assert_safety_pairs_type_invariant` re-derives that on every run and
+# raises rather than letting a future rule quietly make a safety figure
+# depend on what it is measured against.
+# ---------------------------------------------------------------------------
+
+ZONE_PAIR_MATRIX_PATH = (
+    REPO_ROOT / "packages" / "temper-placer" / "configs" / "zone_pour_clearance.generated.yaml"
+)
+
+KICAD_PRO_PATH = REPO_ROOT / "pcb" / "temper.kicad_pro"
+
+#: Item types a poured zone can be required to keep clearance from.
+ZONE_OTHER_TYPES = ("Track", "Pad", "Via", "Zone")
+
+#: Above this, a clearance figure is a safety BARRIER rather than ordinary
+#: electrical separation. Every LV netclass on this board declares 0.5mm or
+#: less (`pcb/temper.kicad_pro`: Default 0.2, GND 0.3, GateDrive* 0.25,
+#: Power 0.5, FinePitch 0.1) and every safety figure in the rule file is
+#: 2.0mm or more, so 1.0mm separates the two populations with a factor of two
+#: of headroom on each side and names no figure that is actually in use.
+BARRIER_CLEARANCE_FLOOR_MM = 1.0
+
+
+def _netclass_fallback_clearances() -> dict[str, float]:
+    """``{netclass: clearance_mm}`` as declared in ``pcb/temper.kicad_pro``.
+
+    This is what KiCad's DRC engine (and therefore its zone filler) resolves
+    a pair to when no custom rule matches it. Read from the project file, not
+    from ``netclass_rules.yaml`` -- the project file is what kicad-cli loads.
+    """
+    import json
+
+    data = json.loads(KICAD_PRO_PATH.read_text(encoding="utf-8"))
+    return {
+        str(entry["name"]): float(entry["clearance"])
+        for entry in data["net_settings"]["classes"]
+        if "clearance" in entry
+    }
+
+
+def derive_zone_pair_clearance_matrix(
+    content: str,
+    fallback: dict[str, float] | None = None,
+) -> dict[tuple[str, str, str], float]:
+    """Resolve ``{(zone_class, other_class, other_type): required_mm}``.
+
+    Total over every class the rule file names plus
+    :data:`UNASSIGNED_NETCLASS`, and over every entry of
+    :data:`ZONE_OTHER_TYPES`. Never returns ``None``: a pair no rule matches
+    resolves to the netclass fallback, which is what KiCad does.
+    """
+    if fallback is None:
+        fallback = _netclass_fallback_clearances()
+    default_fallback = fallback.get(UNASSIGNED_NETCLASS, 0.2)
+
+    rules = [r for r in _parse_rules(content) if r.constraints]
+    pair_rules = [r for r in rules if any(t in r.constraints for t in PAIR_CONSTRAINT_TYPES)]
+    predicates = [_compile_condition(r.condition) for r in pair_rules]
+    classes = sorted({kicad_class_name(key) for key in TEMPER_NET_CLASSES} | {UNASSIGNED_NETCLASS})
+
+    matrix: dict[tuple[str, str, str], float] = {}
+    for zone_class, other_class in itertools.product(classes, repeat=2):
+        for other_type in ZONE_OTHER_TYPES:
+            world = {
+                "a_NetClass": zone_class,
+                "b_NetClass": other_class,
+                "a_Type": "Zone",
+                "b_Type": other_type,
+                "a_Pad_Type": "",
+                "b_Pad_Type": "",
+                "a_Reference": "REF_A",
+                "b_Reference": "REF_B",
+            }
+            applicable = [
+                r
+                for r in _matching_rules(pair_rules, predicates, world)
+                if "clearance" in r.constraints
+            ]
+            if applicable:
+                value = applicable[-1].constraints["clearance"]
+            else:
+                value = max(
+                    fallback.get(zone_class, default_fallback),
+                    fallback.get(other_class, default_fallback),
+                )
+            matrix[(zone_class, other_class, other_type)] = value
+    return matrix
+
+
+class ZoneSafetyPairTypeDependenceError(RuntimeError):
+    """A cross-domain safety pair resolves differently per other-item type."""
+
+
+def _assert_safety_pairs_type_invariant(
+    matrix: dict[tuple[str, str, str], float],
+) -> None:
+    """Fail closed if a HV/mains-to-other-domain pair became type-dependent.
+
+    A pour is carved against tracks, pads, vias and other pours alike. If the
+    required separation across a safety boundary ever started depending on
+    which of those it is measured against, the pour would be silently correct
+    against one and wrong against another. Today no such pair exists; this
+    keeps it that way rather than assuming it.
+    """
+    offenders = []
+    for zone_class in {k[0] for k in matrix}:
+        for other_class in {k[1] for k in matrix}:
+            cat_a = getattr(TEMPER_NET_CLASSES.get(zone_class), "safety_category", "LV")
+            cat_b = getattr(TEMPER_NET_CLASSES.get(other_class), "safety_category", "LV")
+            if (cat_a in ("HV", "AC")) == (cat_b in ("HV", "AC")):
+                continue  # same domain -- the DRU deliberately relaxes these
+            values = {matrix[(zone_class, other_class, t)] for t in ZONE_OTHER_TYPES}
+            if len(values) > 1 and max(values) >= BARRIER_CLEARANCE_FLOOR_MM:
+                offenders.append((zone_class, other_class, sorted(values)))
+    if offenders:
+        detail = "\n".join(f"  {a} <-> {b}: {vals}" for a, b, vals in offenders)
+        raise ZoneSafetyPairTypeDependenceError(
+            "a cross-domain safety pair now resolves to different clearances "
+            "depending on the other item's type:\n" + detail
+        )
+
+
+def render_zone_pair_clearance_yaml(content: str) -> str:
+    """Render :func:`derive_zone_pair_clearance_matrix` as the pour's config."""
+    fallback = _netclass_fallback_clearances()
+    matrix = derive_zone_pair_clearance_matrix(content, fallback)
+    _assert_safety_pairs_type_invariant(matrix)
+    classes = sorted({key[0] for key in matrix})
+    lines = [
+        "# GENERATED by scripts/generate_kicad_dru.py -- DO NOT EDIT BY HAND.",
+        "#",
+        "# Per-net-class-PAIR clearance, in mm, for a POUR (zone filled copper)",
+        "# against another net's Track / Pad / Via / Zone. Derived by evaluating",
+        "# pcb/temper.kicad_dru's own rules under KiCad's last-matching-rule-wins",
+        "# precedence, with pcb/temper.kicad_pro's netclass clearances as the",
+        "# fallback for pairs no rule matches -- exactly the two-step resolution",
+        "# KiCad's DRC engine and zone filler perform.",
+        "#",
+        "# Why a SEPARATE table from pair_clearance.generated.yaml: that one is",
+        "# the Track<->Track world the A* router decides in. `Default routing`'s",
+        "# condition names Track explicitly, so it does not reach zone<->pad,",
+        "# zone<->via or zone<->zone -- 64 class pairs resolve differently here.",
+        "#",
+        "# Consumed by temper_placer.router_v6.zone_pour_clearance, which carves",
+        "# each emitted pour back from every other net's copper by the figure",
+        "# that pair requires.",
+        "# Regenerate with: uv run python scripts/generate_kicad_dru.py",
+        "# Drift is gated by scripts/tests/test_generate_kicad_dru.py.",
+        f"# '{UNASSIGNED_NETCLASS}' is the class KiCad reports for an unassigned net.",
+        "",
+        'version: "1.0"',
+        "source: pcb/temper.kicad_dru",
+        "fallback_source: pcb/temper.kicad_pro",
+        "constraint: clearance",
+        "world: zone_to_copper_different_reference",
+        "",
+        "other_types:",
+    ]
+    lines.extend(f"  - {name}" for name in ZONE_OTHER_TYPES)
+    lines.append("")
+    lines.append("classes:")
+    lines.extend(f"  - {name}" for name in classes)
+    lines.append("")
+    lines.append("# zone_class|other_class: {Track: mm, Pad: mm, Via: mm, Zone: mm}")
+    lines.append("pairs:")
+    for zone_class in classes:
+        for other_class in classes:
+            per_type = {t: matrix[(zone_class, other_class, t)] for t in ZONE_OTHER_TYPES}
+            body = ", ".join(f"{t}: {per_type[t]}" for t in ZONE_OTHER_TYPES)
+            lines.append(f"  {zone_class}|{other_class}: {{{body}}}")
+    lines.append("")
+    return "\n".join(lines)
+
+
 def main() -> None:
     content = generate_dru()
     OUTPUT_PATH.write_text(content, encoding="utf-8")
@@ -1628,6 +1822,9 @@ def main() -> None:
     pair_yaml = render_pair_clearance_yaml(content)
     PAIR_MATRIX_PATH.write_text(pair_yaml, encoding="utf-8")
     print(f"Wrote {len(pair_yaml.splitlines())} lines to {PAIR_MATRIX_PATH}")
+    zone_yaml = render_zone_pair_clearance_yaml(content)
+    ZONE_PAIR_MATRIX_PATH.write_text(zone_yaml, encoding="utf-8")
+    print(f"Wrote {len(zone_yaml.splitlines())} lines to {ZONE_PAIR_MATRIX_PATH}")
     print()
     print(content)
 
