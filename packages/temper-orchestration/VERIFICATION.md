@@ -4344,3 +4344,200 @@ filtered + 3/3 full-lib green runs with RANDOM hash seeds (previously
   `temper-orchestration`: clean (`netlist_owned` stays python-gated).
 - `make regen-check`: unchanged (no derived artifact depends on this unit —
   no new crate, no new script, no README count change).
+
+## U4 hard keeps — `ClearageGrid` (numpy-backed) + `DRCOracle` (rules/clearance-matrix) (O-C3/U4)
+
+U4 assesses the two remaining HARD `BoardState` fields — `grid`
+(`ClearageGrid`, numpy-backed) and `drc_oracle` (`DRCOracle` +
+`ClearanceMatrix`) — and ports each one's portable half to owned structs in
+`packages/temper-data-model/`, with the genuinely un-portable half documented
+as precise keeps (identity passthrough) on the pyo3 side of the boundary
+(`netlist_owned.rs`). No `BoardState` field changes; the owned structs + keeps
+are the building blocks a later unit ports `BoardState.grid` /
+`BoardState.drc_oracle` to (exactly like U3's `OwnedBoard` for
+`BoardState.board`).
+
+### ClearageGrid — the numpy dtype question, answered
+
+**Verdict: the scalar dims + net-id registry are OWNED; the numpy `int32`
+cell arrays are a KEEP (identity passthrough), with a precise reason and the
+marshalling cost.**
+
+The `ClearageGrid` dataclass (`deterministic/stages/_grid_core.py`) holds two
+kinds of state. The four scalar dims (`width_mm`/`height_mm`/`cell_size_mm`/
+`layer_count`) and the net-id registry (`_net_to_id`/`_id_to_net`/
+`_next_net_id`) are plain Python data — fully portable. The cell arrays
+(`_trace_net_ids`/`_pad_net_ids`, `np.zeros((rows, cols), dtype=np.int32)`)
+are the hard part, and the honest answer is a keep:
+
+1. **The DATA is portable — the CONTAINER is not.** The dtype is CONSTANT
+   `int32` on every construction path (there is no float grid, so the
+   "int32 vs float" widening hazard the U0 doc flags cannot occur here: no
+   float grid exists to widen). A typed `Vec<i32>` with an implicit constant
+   dtype would be a faithful representation of the *values* — no dtype tag
+   is needed because there is only ever one dtype. But the *container* is
+   numpy, and three independent facts make owning the cells wrong:
+   - **Zero-copy in-place mutation contract.** The rasterisation kernels
+     (`temper-geometry` `grid_raster.rs`'s `block_circle_into_grid_py` etc.)
+     mutate the arrays IN PLACE through pyo3's `PyBuffer<i32>` — the Rust
+     kernel writes straight into the numpy buffer. Owning the cells as
+     `Vec<i32>` would force `Vec → numpy → mutate → copy back` on every
+     kernel call, an O(rows·cols) copy per call (the grids are mutated
+     hundreds of times per stage run).
+   - **numpy is its own serialization.** Array identity (dtype, C-order,
+     strides, buffer layout) is numpy's, not a Rust type's.
+     `temper-data-model` is pyo3-free and wasm32-compiled — it cannot hold a
+     numpy array. The U0 convention already routes numpy through
+     `Plain::Opaque`.
+   - **Downstream Python consumers demand real arrays.** The Cython A*
+     consumes `occupancy_grid` (`np.stack(self._trace_net_ids)`) and
+     `occupancy_bitmap` (uint64 words) — both must be real numpy arrays at
+     the Python boundary.
+   - **The marshalling cost, quantified:** owning the cells would require a
+     `Vec<i32> → np.array(..., dtype=np.int32)` reconstruction — an
+     O(rows·cols) copy through numpy's own constructor per round-trip, plus a
+     Rust-side `import numpy` in the pyo3 half — for a container that is
+     mutated in place by Rust kernels anyway. Keeping it Opaque is zero-copy
+     by construction.
+
+2. **Dtype preservation is proven, not assumed.** The keep returns the SAME
+   array objects (`back._trace_net_ids is orig._trace_net_ids`), so dtype,
+   C-order, strides and element bytes are unchanged because nothing is
+   reconstructed. The round-trip gate asserts the identity directly, and a
+   numpy-gated arm (which RUNS under the venv-backed `PYO3_PYTHON`) builds a
+   real `np.zeros(..., dtype=np.int32)` array and asserts `back.dtype ==
+   np.int32` and byte-identical `.tobytes()` after the round-trip — a numpy
+   int32 array round-trips as int32, never widened to float64.
+
+3. **The dims are `Val`.** `ClearageGrid(width_mm, height_mm, cell_size_mm,
+   layer_count)` performs no `__init__` coercion and the D3 stage passes
+   `board.width`/`board.height` (themselves `Val`-shaped — `Board(100, 80)`
+   keeps int width) straight into the constructor, so `width_mm`/`height_mm`
+   can be int OR float (and `cell_size_mm` per the same no-coercion contract).
+   They are `Val`-shaped (`100` stays `100`); `layer_count` is the concrete
+   `int`.
+
+`rows`/`cols` and the three caches (`_occupancy_grid_cache`/`_bitmap_cache`/
+`_bitmap_stride_cache`) are DERIVED, not stored: the constructor's
+`__post_init__` recomputes `rows = int(height/cell)` / `cols =
+int(width/cell)` and resets the caches to `None` on every write-back (the
+same DERIVED pattern as U3's `Netlist` index dicts).
+
+### DRCOracle — the rules tables owned, the rich models kept
+
+**Verdict: the clearance TABLES + scalar config + the R3 credit table + the
+`pin_owner` Mapping are OWNED; the `_net_class_rules` pydantic models, the
+`zone_manager`, the `PCBGeometry` index, and a Callable `pin_owner` are
+KEEPS.**
+
+The `DRCOracle` (`router_v6/constraints_drc_oracle.py`) is a stateful Python
+object whose numeric bodies already delegate to `temper_drc_rs` kernels. Its
+STATE splits:
+
+| Field | Classification | Owned type | Why |
+|---|---|---|---|
+| `rules._clearances` | OWNED | `Vec<(String, String, f64)>` | `dict[(class_a, class_b) → float]`, insertion-ordered — the exact `_clearances_wire()` shape |
+| `rules._net_to_class` | OWNED | `Vec<(String, String)>` | `dict[net → class]`, insertion-ordered |
+| `rules._differential_pairs` | OWNED | `Vec<(String, String, f64)>` | the `_diff_pairs_wire()` shape; each `frozenset` key read in its own iteration order (the drc-rs `diff_pair_lookup` canonicalizes the unordered pair, so `(a, b)` order is repr-only) |
+| `rules.default_{clearance,track_width,via_diameter,via_drill}` | OWNED | `f64` | always-float dataclass defaults; int is a loud error (U0 discipline) |
+| `rules._net_class_rules` | KEEP | `Plain::Opaque` | `dict[str, NetClassRules]` — the VALUES are pydantic `NetClassRules` models; the drc-rs `DrcNetClassRuleSnapshot` wire type is a deliberate K1 SUBSET, so owning the subset would LOSE `dru_priority`/`via_template`/`target_impedance`/`layer`/`via_cost_multiplier`/`layer_costs` on a full round-trip |
+| `rules.zone_manager` | KEEP | `Plain` (Null/Opaque) | `ZoneManager | None` — a plain (identity-`==`) class holding `RoutingZone` objects with shapely-adjacent polygons; spatial, like `geometry` |
+| `geometry` | KEEP | `Plain::Opaque` | `PCBGeometry` — the Python-visible rstar R-tree over `Track`/`Pad`/`Via` objects |
+| `_search_multiplier` | OWNED | `f64` | always-float (`3.0`) |
+| `enable_internal_layer_creepage` | OWNED | `bool` | |
+| `clearance_credits` | OWNED | `Vec<ClearanceCredit>` | the `_credits_wire()` shape in INSERTION order (the oracle iterates `dict.items()` and the first match wins — order is part of the value) |
+| `pin_owner` (Mapping) | OWNED | `Vec<(String, String)>` | `dict[pin_id → component_ref]`, insertion-ordered |
+| `pin_owner` (Callable) | KEEP | `Plain::Opaque` | a live `Callable[[str], str | None]` — identity passthrough |
+
+The clearance/credit floats are concrete `f64` (rejecting an int-shaped value
+loudly, the U0 "an int is not a float" rule): `add_clearance_credit`
+explicitly `float()`-coerces every field, `set_class_to_class_clearance` is
+called with float literals or parsed KiCad floats, and `add_differential_pair`
+computes its value through the Rust `clearance_diff_pair_required_py` kernel
+(always a float). The net-class safety-category RESOLUTION kernel
+(`resolve_safety_category`, AGENTS.md N4) is already Rust in `temper-drc-rs`
+— the owned structs do NOT reimplement it; they carry the `safety_category`
+as *data* (inside the kept `_net_class_rules` models) and never re-derive it.
+
+### The structs + Marshal boundary
+
+- **`packages/temper-data-model/src/clearance_grid.rs`** — `ClearageGrid`
+  (dims `Val`-shaped + `layer_count` + the two registry `Vec`s +
+  `next_net_id`). Module doc carries the full dtype/keep argument.
+- **`packages/temper-data-model/src/drc_oracle.rs`** — `ClearanceMatrix`
+  (the four tables + four defaults), `ClearanceCredit` (the full R3 tuple
+  with `axis: Option<String>`), `DrcOracle` (rules + scalars + credits +
+  pin_owner map). Module doc carries the owned-vs-keep field table.
+- **`src/netlist_owned.rs`** — `OwnedClearageGrid` (data-model `ClearageGrid`
+  + the two cell-array `Plain::Opaque` keeps) and `OwnedDrcOracle`
+  (data-model `DrcOracle` + the four `Plain` keeps: `_net_class_rules`,
+  `zone_manager` (Null-or-Opaque), `pin_owner_callable` (Null-or-Opaque),
+  `geometry`). Write-back uses runtime class lookup at the REAL module paths
+  (`temper_placer.deterministic.stages._grid_core.ClearageGrid`,
+  `temper_placer.router_v6.constraints_design_rules.ClearanceMatrix`,
+  `temper_placer.router_v6.constraints_drc_oracle.DRCOracle`) — the same
+  d3–d7 fake-module pattern the stage runners use, with every dotted
+  `sys.modules` prefix registered so the embedded test interpreter resolves
+  the import without a filesystem search.
+- `pin_owner` dual-form handling: `from_python` checks `is_callable()` —
+  callable → keep (owned Mapping `Vec` empty), Mapping → owned `Vec`. The
+  callable form round-trips by identity; the Mapping form rebuilds the dict.
+
+### Round-trip gate results
+
+`assert_roundtrip_with` against faithful `@dataclass` stand-ins for all three
+modules (the U2/U3 d3–d7 mock pattern, with a duck-typed `_FakeInt32Array`
+standing in for the numpy arrays so the embedded interpreter needs no numpy
+for the identity arm):
+
+- **`ClearageGrid(100.0, 80.0, 0.5, 2)`, `ClearageGrid(100, 80, 0.5, 2)`,
+  `ClearageGrid(100, 80, 1, 3)`** round-trip bit-identically (the dataclass
+  `__eq__`/`__repr__` cover the four dims; `100` stays `100` via `Val`).
+- **The cell arrays round-trip BY IDENTITY**: `back._trace_net_ids is
+  orig._trace_net_ids` and `back._pad_net_ids is orig._pad_net_ids` — the
+  dtype-preservation proof (same object ⇒ same `int32` dtype, C-order and
+  bytes, because nothing is reconstructed). The numpy-gated arm additionally
+  asserts `back.dtype == np.int32` + byte-identical `.tobytes()` against a
+  real `np.zeros(..., dtype=np.int32)` (runs under the venv python).
+- **The net registry round-trips in ASSIGNMENT order**: a grid mutated to
+  `{'VCC': 1, 'GND': 2, 'SIG': 3}` + `_next_net_id = 4` round-trips with the
+  owned `Vec`s asserted in order (the D3-pinned load-bearing property).
+- **`DRCOracle(rules=ClearanceMatrix())`** and a **full single-element
+  oracle** (one clearance row, one net→class, one differential pair, one
+  net-class rule, one zone, one credit, one pin_owner entry) round-trip
+  bit-identically.
+- **The keeps round-trip BY IDENTITY**: `back.geometry is orig.geometry`,
+  `back.rules._net_class_rules is orig.rules._net_class_rules`,
+  `back.rules.zone_manager is orig.rules.zone_manager` — the SAME objects
+  (identity-bearing reprs, so identity is what makes the repr arm match).
+- **The owned fields hold exact values**: clearance rows, net→class rows,
+  `default_clearance`, `_search_multiplier`, `enable_internal_layer_creepage`,
+  pin_owner rows and the full credit tuple (`('K3', '2', '1') → (1.5, 0.75,
+  4.0, 10.0, 20.0, 'x')`) are asserted field-by-field.
+- **Callable `pin_owner`** round-trips by identity with the owned Mapping
+  `Vec` empty; the Mapping form rebuilds value-identically.
+- **Guards**: an int-shaped `default_clearance` / `_clearances` value / credit
+  field (an int is not a float), a 1-tuple clearance key, a 2-tuple credit
+  key, and an int `pin_owner` value are all REJECTED loudly.
+
+### Gates (U4)
+
+- `cargo test` on `temper-data-model`: **8 passed** (3 base + 5 new: grid
+  int-vs-float dims, grid registry order, matrix wire tables, credit tuple,
+  oracle composition).
+- `cargo test --lib` on `temper-orchestration`
+  (PYO3_PYTHON=/home/bennet/Desktop/temper/.venv/bin/python): **1146 passed**
+  (1140 base + 6 new `netlist_owned::tests` U4 tests). The numpy-gated
+  dtype-preservation test RUNS (the venv-backed interpreter imports numpy),
+  so the `int32`-not-widened + byte-identical assertions are exercised, not
+  skipped.
+- `cargo clippy --all-targets` on both crates: clean.
+- `cargo check --target wasm32-unknown-unknown` on `temper-data-model`:
+  clean (the new structs are pyo3-free, std-only — the wasm32 tier compiles
+  them).
+- `cargo check --no-default-features` on `temper-orchestration`: clean
+  (`netlist_owned` stays python-gated).
+- `make regen-check`: unchanged — "all derived artifacts consistent" (no new
+  crate/script/oracle/README count; the `netlist_owned` tests are
+  python-gated, so the wasm registry census — 1019 tests, unchanged — does
+  not see them).

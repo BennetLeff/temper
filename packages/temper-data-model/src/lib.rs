@@ -129,6 +129,20 @@ pub struct Net {
 pub mod aggregates;
 pub use aggregates::{Board, Netlist};
 
+/// The U4 (O-C3) owned `ClearageGrid` core — the scalar dims + the net-id
+/// registry (the numpy `int32` cell arrays are the pyo3-side keeps). See the
+/// module's own doc for the owned-vs-keep classification and the
+/// dtype-preservation argument.
+pub mod clearance_grid;
+pub use clearance_grid::ClearanceGrid;
+
+/// The U4 (O-C3) owned `DRCOracle` RULES surface — the clearance tables, the
+/// R3 credits, the config scalars and the `pin_owner` Mapping (the
+/// `_net_class_rules` models, `zone_manager`, and the `PCBGeometry` index are
+/// the pyo3-side keeps). See the module's own doc for the field table.
+pub mod drc_oracle;
+pub use drc_oracle::{ClearanceCredit, ClearanceMatrix, DrcOracle};
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {

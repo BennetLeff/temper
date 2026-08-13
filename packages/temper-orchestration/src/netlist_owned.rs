@@ -63,7 +63,12 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyFrozenSet, PySet, PyTuple};
 
-use temper_data_model::{Board, Component, Net, Netlist, Pin, Val};
+use pyo3::IntoPyObjectExt;
+
+use temper_data_model::{
+    Board, ClearanceCredit, ClearanceGrid, ClearanceMatrix, Component, DrcOracle, Net, Netlist, Pin,
+    Val,
+};
 
 use crate::marshal::{Marshal, Plain, type_err};
 
@@ -536,6 +541,506 @@ fn opaque_to_python(py: Python<'_>, keep: &Plain) -> PyResult<Py<PyAny>> {
 }
 
 // ---------------------------------------------------------------------------
+// U4: OwnedClearanceGrid — the owned scalar-dims + net-id registry + the
+// numpy-cell-array keeps
+// ---------------------------------------------------------------------------
+
+/// The design-bundle pyclass at `temper_placer.deterministic.stages._grid_core.ClearanceGrid`,
+/// resolved at call time (runtime class lookup — see the module doc).
+fn grid_cls<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    py.import("temper_placer.deterministic.stages._grid_core")?
+        .getattr("ClearanceGrid")
+}
+
+/// The pyo3-side owned `ClearanceGrid` aggregate: the pure-Rust
+/// [`ClearanceGrid`] (dims + net-id registry) plus the two numpy-cell-array
+/// KEEPs as [`Plain::Opaque`] identity passthroughs.
+///
+/// The cell arrays are kept (not owned) for the three reasons
+/// `temper-data-model`'s `clearance_grid` module documents: (1) they are the
+/// zero-copy in-place mutation targets of the `PyBuffer<i32>` rasterisation
+/// kernels — owning them as `Vec<i32>` would force an O(rows·cols) copy per
+/// kernel call; (2) numpy array identity (dtype/C-order/strides) is numpy's
+/// serialization, and this crate's data-model half is pyo3-free; (3) the
+/// downstream Cython A* consumes real numpy arrays. Identity passthrough is
+/// zero-copy by construction — the SAME array objects are returned, so dtype
+/// (`int32`) and bytes are unchanged because nothing is reconstructed.
+///
+/// `rows`/`cols` and the three caches are DERIVED: the constructor's
+/// `__post_init__` recomputes them from the dims on every write-back.
+#[derive(Clone)]
+pub struct OwnedClearanceGrid {
+    /// The data-model owned fields (dims + registry).
+    pub grid: ClearanceGrid,
+    /// Keep: `list[np.ndarray int32]` (`_trace_net_ids`) — identity.
+    pub trace_net_ids: Plain,
+    /// Keep: `list[np.ndarray int32]` (`_pad_net_ids`) — identity.
+    pub pad_net_ids: Plain,
+}
+
+impl Marshal for OwnedClearanceGrid {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(OwnedClearanceGrid {
+            grid: ClearanceGrid {
+                width_mm: <Val as Marshal>::from_python(py, &obj.getattr("width_mm")?)?,
+                height_mm: <Val as Marshal>::from_python(py, &obj.getattr("height_mm")?)?,
+                cell_size_mm: <Val as Marshal>::from_python(py, &obj.getattr("cell_size_mm")?)?,
+                layer_count: <i64 as Marshal>::from_python(py, &obj.getattr("layer_count")?)?,
+                net_to_id: str_i64_dict_from_python(&obj.getattr("_net_to_id")?)?,
+                id_to_net: i64_str_dict_from_python(&obj.getattr("_id_to_net")?)?,
+                next_net_id: <i64 as Marshal>::from_python(py, &obj.getattr("_next_net_id")?)?,
+            },
+            trace_net_ids: Plain::Opaque(obj.getattr("_trace_net_ids")?.unbind()),
+            pad_net_ids: Plain::Opaque(obj.getattr("_pad_net_ids")?.unbind()),
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let cls = grid_cls(py)?;
+        let args = PyTuple::new(
+            py,
+            [
+                self.grid.width_mm.to_python(py)?,
+                self.grid.height_mm.to_python(py)?,
+                self.grid.cell_size_mm.to_python(py)?,
+                self.grid.layer_count.to_python(py)?,
+            ],
+        )?;
+        let obj = cls.call1(args)?;
+        obj.setattr("_net_to_id", str_i64_dict_to_python(py, &self.grid.net_to_id)?)?;
+        obj.setattr("_id_to_net", i64_str_dict_to_python(py, &self.grid.id_to_net)?)?;
+        obj.setattr("_next_net_id", self.grid.next_net_id)?;
+        // The cell arrays are KEEPS: overwrite the constructor's fresh arrays
+        // with the original objects, by identity (zero-copy, dtype-preserving).
+        obj.setattr("_trace_net_ids", opaque_to_python(py, &self.trace_net_ids)?)?;
+        obj.setattr("_pad_net_ids", opaque_to_python(py, &self.pad_net_ids)?)?;
+        Ok(obj.unbind())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// U4: OwnedDrcOracle — the owned rules/credits/config surface + the foreign
+// keeps (_net_class_rules models, zone_manager, PCBGeometry, callable pin_owner)
+// ---------------------------------------------------------------------------
+
+/// The design-bundle pyclass at `temper_placer.router_v6.constraints_drc_oracle.DRCOracle`
+/// and the `...constraints_design_rules.ClearanceMatrix` it wraps, resolved at
+/// call time (runtime class lookup — see the module doc).
+fn drc_oracle_cls<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    py.import("temper_placer.router_v6.constraints_drc_oracle")?
+        .getattr("DRCOracle")
+}
+
+fn clearance_matrix_cls<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    py.import("temper_placer.router_v6.constraints_design_rules")?
+        .getattr("ClearanceMatrix")
+}
+
+/// The pyo3-side owned `DRCOracle` aggregate: the pure-Rust [`DrcOracle`]
+/// (rules tables + scalar config + the R3 credits + the `pin_owner` Mapping)
+/// plus the foreign KEEPs as [`Plain`] identity passthroughs:
+/// `_net_class_rules` (a `dict[str, NetClassRules]` whose values are pydantic
+/// models — owning the drc-rs `DrcNetClassRuleSnapshot` K1 subset would be
+/// LOSSY), `zone_manager` (a plain identity-`==` class holding
+/// shapely-adjacent `RoutingZone` polygons), `geometry` (`PCBGeometry`, the
+/// Python-visible rstar R-tree over `Track`/`Pad`/`Via`), and a Callable
+/// `pin_owner`. See `temper-data-model`'s `drc_oracle` module for the
+/// field-by-field table.
+#[derive(Clone)]
+pub struct OwnedDrcOracle {
+    /// The data-model owned fields (rules + config + credits + pin_owner map).
+    pub oracle: DrcOracle,
+    /// Keep: `dict[str, NetClassRules]` — foreign pydantic values, identity.
+    pub net_class_rules: Plain,
+    /// Keep: `ZoneManager | None` — `Null` when `None`, else identity.
+    pub zone_manager: Plain,
+    /// The Callable `pin_owner` keep: `Opaque` when `pin_owner` is callable,
+    /// `Null` when it is a Mapping (the owned `oracle.pin_owner` holds it).
+    pub pin_owner_callable: Plain,
+    /// Keep: `PCBGeometry` — the spatial index, identity.
+    pub geometry: Plain,
+}
+
+impl Marshal for OwnedDrcOracle {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let rules = obj.getattr("rules")?;
+        let matrix = ClearanceMatrix {
+            clearances: str_str_f64_dict_from_python(py, &rules.getattr("_clearances")?)?,
+            net_to_class: str_str_dict_from_python(&rules.getattr("_net_to_class")?)?,
+            differential_pairs: diff_pairs_from_python(py, &rules.getattr("_differential_pairs")?)?,
+            default_clearance: <f64 as Marshal>::from_python(py, &rules.getattr("default_clearance")?)?,
+            default_track_width: <f64 as Marshal>::from_python(py, &rules.getattr("default_track_width")?)?,
+            default_via_diameter: <f64 as Marshal>::from_python(py, &rules.getattr("default_via_diameter")?)?,
+            default_via_drill: <f64 as Marshal>::from_python(py, &rules.getattr("default_via_drill")?)?,
+        };
+        let pin_owner_obj = obj.getattr("pin_owner")?;
+        // `pin_owner` may be a Mapping or a Callable (see
+        // `constraints_drc_oracle.py::_resolve_owner`). The Mapping form is
+        // owned; the Callable form is a keep (a live function object).
+        let (pin_owner, pin_owner_callable) = if pin_owner_obj.is_callable() {
+            (Vec::new(), Plain::Opaque(pin_owner_obj.unbind()))
+        } else {
+            (str_str_dict_from_python(&pin_owner_obj)?, Plain::Null)
+        };
+        Ok(OwnedDrcOracle {
+            oracle: DrcOracle {
+                rules: matrix,
+                search_multiplier: <f64 as Marshal>::from_python(
+                    py,
+                    &obj.getattr("_search_multiplier")?,
+                )?,
+                enable_internal_layer_creepage: <bool as Marshal>::from_python(
+                    py,
+                    &obj.getattr("enable_internal_layer_creepage")?,
+                )?,
+                clearance_credits: credits_from_python(py, &obj.getattr("clearance_credits")?)?,
+                pin_owner,
+            },
+            net_class_rules: Plain::Opaque(rules.getattr("_net_class_rules")?.unbind()),
+            // `Plain::from_python` gives `Null` for `None` and `Opaque` for the
+            // ZoneManager instance (a non-builtin class) — exactly the two legal
+            // `zone_manager` states.
+            zone_manager: Plain::from_python(py, &rules.getattr("zone_manager")?)?,
+            pin_owner_callable,
+            geometry: Plain::from_python(py, &obj.getattr("geometry")?)?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        // Rebuild the ClearanceMatrix with the owned tables + the keeps.
+        let cm_cls = clearance_matrix_cls(py)?;
+        let cm = cm_cls.call0()?;
+        cm.setattr("_clearances", str_str_f64_dict_to_python(py, &self.oracle.rules.clearances)?)?;
+        cm.setattr("_net_to_class", str_str_dict_to_python(py, &self.oracle.rules.net_to_class)?)?;
+        cm.setattr("_differential_pairs", diff_pairs_to_python(py, &self.oracle.rules.differential_pairs)?)?;
+        cm.setattr("default_clearance", self.oracle.rules.default_clearance)?;
+        cm.setattr("default_track_width", self.oracle.rules.default_track_width)?;
+        cm.setattr("default_via_diameter", self.oracle.rules.default_via_diameter)?;
+        cm.setattr("default_via_drill", self.oracle.rules.default_via_drill)?;
+        cm.setattr("_net_class_rules", opaque_to_python(py, &self.net_class_rules)?)?;
+        cm.setattr("zone_manager", null_or_opaque_to_python(py, &self.zone_manager)?)?;
+
+        let cls = drc_oracle_cls(py)?;
+        let kwargs = PyDict::new(py);
+        kwargs.set_item("rules", &cm)?;
+        kwargs.set_item("geometry", null_or_opaque_to_python(py, &self.geometry)?)?;
+        kwargs.set_item("_search_multiplier", self.oracle.search_multiplier)?;
+        kwargs.set_item("enable_internal_layer_creepage", self.oracle.enable_internal_layer_creepage)?;
+        kwargs.set_item("clearance_credits", credits_to_python(py, &self.oracle.clearance_credits)?)?;
+        kwargs.set_item("pin_owner", pin_owner_to_python(py, &self.oracle.pin_owner, &self.pin_owner_callable)?)?;
+        cls.call((), Some(&kwargs)).map(Bound::unbind)
+    }
+}
+
+/// Return a keep that may be `None` (`Null`) or an opaque passthrough
+/// (`Opaque`) — the `zone_manager` / `geometry` / callable-`pin_owner` shape.
+/// Anything else is an internal-invariant violation (keeps are identity or
+/// `None`, never a reconstructed tree).
+fn null_or_opaque_to_python(py: Python<'_>, keep: &Plain) -> PyResult<Py<PyAny>> {
+    match keep {
+        Plain::Opaque(obj) => Ok(obj.clone_ref(py)),
+        Plain::Null => Ok(py.None()),
+        other => {
+            let rendered = other.to_python(py)?;
+            Err(type_err(
+                rendered.bind(py),
+                "DRCOracle keep field",
+                "internal invariant: keeps are Plain::Opaque or Plain::Null",
+            ))
+        }
+    }
+}
+
+/// `pin_owner` write-back: the rebuilt dict when the Mapping form was read
+/// (`callable` is `Null`), else the kept callable by identity.
+fn pin_owner_to_python(
+    py: Python<'_>,
+    mapping: &[(String, String)],
+    callable_keep: &Plain,
+) -> PyResult<Py<PyAny>> {
+    match callable_keep {
+        Plain::Null => str_str_dict_to_python(py, mapping),
+        Plain::Opaque(obj) => Ok(obj.clone_ref(py)),
+        other => {
+            let rendered = other.to_python(py)?;
+            Err(type_err(
+                rendered.bind(py),
+                "pin_owner",
+                "internal invariant: callable keep is Opaque or Null",
+            ))
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// U4: dict/tuple wire helpers (the plain collection kinds the rules use)
+// ---------------------------------------------------------------------------
+
+/// `_net_to_id` / `_net_classes`-shaped: a `dict[str, i64]` in insertion order.
+fn str_i64_dict_from_python(obj: &Bound<'_, PyAny>) -> PyResult<Vec<(String, i64)>> {
+    let d = obj
+        .cast::<PyDict>()
+        .map_err(|_| type_err(obj, "net registry", "expected a dict"))?;
+    let mut out = Vec::with_capacity(d.len());
+    for (k, v) in d.iter() {
+        let key = k
+            .extract::<String>()
+            .map_err(|_| type_err(&k, "net registry", "expected a str key"))?;
+        // Net-id values are the registry's own ints (1, 2, 3, ...) — never bool.
+        let val = v
+            .extract::<i64>()
+            .map_err(|_| type_err(&v, "net registry", "expected an int value"))?;
+        out.push((key, val));
+    }
+    Ok(out)
+}
+
+fn str_i64_dict_to_python(py: Python<'_>, pairs: &[(String, i64)]) -> PyResult<Py<PyAny>> {
+    let d = PyDict::new(py);
+    for (k, v) in pairs {
+        d.set_item(k.as_str(), *v)?;
+    }
+    Ok(d.into_any().unbind())
+}
+
+/// `_id_to_net`-shaped: a `dict[i64, str]` in insertion order.
+fn i64_str_dict_from_python(obj: &Bound<'_, PyAny>) -> PyResult<Vec<(i64, String)>> {
+    let d = obj
+        .cast::<PyDict>()
+        .map_err(|_| type_err(obj, "net registry", "expected a dict"))?;
+    let mut out = Vec::with_capacity(d.len());
+    for (k, v) in d.iter() {
+        let key = k
+            .extract::<i64>()
+            .map_err(|_| type_err(&k, "net registry", "expected an int key"))?;
+        let val = v
+            .extract::<String>()
+            .map_err(|_| type_err(&v, "net registry", "expected a str value"))?;
+        out.push((key, val));
+    }
+    Ok(out)
+}
+
+fn i64_str_dict_to_python(py: Python<'_>, pairs: &[(i64, String)]) -> PyResult<Py<PyAny>> {
+    let d = PyDict::new(py);
+    for (k, v) in pairs {
+        d.set_item(*k, v.as_str())?;
+    }
+    Ok(d.into_any().unbind())
+}
+
+/// `_net_to_class` / Mapping-`pin_owner`-shaped: a `dict[str, str]` in
+/// insertion order.
+fn str_str_dict_from_python(obj: &Bound<'_, PyAny>) -> PyResult<Vec<(String, String)>> {
+    let d = obj
+        .cast::<PyDict>()
+        .map_err(|_| type_err(obj, "str->str dict", "expected a dict"))?;
+    let mut out = Vec::with_capacity(d.len());
+    for (k, v) in d.iter() {
+        let key = k
+            .extract::<String>()
+            .map_err(|_| type_err(&k, "str->str dict", "expected a str key"))?;
+        let val = v
+            .extract::<String>()
+            .map_err(|_| type_err(&v, "str->str dict", "expected a str value"))?;
+        out.push((key, val));
+    }
+    Ok(out)
+}
+
+fn str_str_dict_to_python(py: Python<'_>, pairs: &[(String, String)]) -> PyResult<Py<PyAny>> {
+    let d = PyDict::new(py);
+    for (k, v) in pairs {
+        d.set_item(k.as_str(), v.as_str())?;
+    }
+    Ok(d.into_any().unbind())
+}
+
+/// `_clearances`-shaped: a `dict[(str, str), f64]` in insertion order (each
+/// tuple key is the `(class_a, class_b)` pair `set_class_to_class_clearance`
+/// stored).
+fn str_str_f64_dict_from_python(
+    py: Python<'_>,
+    obj: &Bound<'_, PyAny>,
+) -> PyResult<Vec<(String, String, f64)>> {
+    let d = obj
+        .cast::<PyDict>()
+        .map_err(|_| type_err(obj, "_clearances", "expected a dict"))?;
+    let mut out = Vec::with_capacity(d.len());
+    for (k, v) in d.iter() {
+        let t = k
+            .cast::<PyTuple>()
+            .map_err(|_| type_err(&k, "_clearances", "expected a (class_a, class_b) tuple key"))?;
+        if t.len() != 2 {
+            return Err(type_err(&k, "_clearances", "expected a 2-tuple key"));
+        }
+        let a = t
+            .get_item(0)?;
+        let b = t
+            .get_item(1)?;
+        let a = a
+            .extract::<String>()
+            .map_err(|_| type_err(&a, "_clearances", "expected a str"))?;
+        let b = b
+            .extract::<String>()
+            .map_err(|_| type_err(&b, "_clearances", "expected a str"))?;
+        // Strict f64: an int-shaped clearance is a loud error (the U0 "an int
+        // is not a float" discipline), not a silent widen.
+        let val = <f64 as Marshal>::from_python(py, &v)?;
+        out.push((a, b, val));
+    }
+    Ok(out)
+}
+
+fn str_str_f64_dict_to_python(py: Python<'_>, rows: &[(String, String, f64)]) -> PyResult<Py<PyAny>> {
+    let d = PyDict::new(py);
+    for (a, b, v) in rows {
+        let key = PyTuple::new(py, [a.as_str(), b.as_str()])?;
+        d.set_item(key, *v)?;
+    }
+    Ok(d.into_any().unbind())
+}
+
+/// `_differential_pairs`-shaped: a `dict[frozenset[str], f64]` in insertion
+/// order. The unordered 2-element `frozenset` key is read in its own
+/// iteration order and stored as `(a, b)`; `to_python` rebuilds
+/// `frozenset((a, b))` with the same two elements in that order, which (same
+/// process, same str hashes) reproduces the same table layout.
+fn diff_pairs_from_python(
+    py: Python<'_>,
+    obj: &Bound<'_, PyAny>,
+) -> PyResult<Vec<(String, String, f64)>> {
+    let d = obj
+        .cast::<PyDict>()
+        .map_err(|_| type_err(obj, "_differential_pairs", "expected a dict"))?;
+    let mut out = Vec::with_capacity(d.len());
+    for (k, v) in d.iter() {
+        if !k.is_instance_of::<PyFrozenSet>() {
+            return Err(type_err(&k, "_differential_pairs", "expected a frozenset key"));
+        }
+        let mut nets: Vec<String> = Vec::with_capacity(2);
+        for item in k.try_iter()? {
+            let item = item?;
+            nets.push(
+                item.extract::<String>()
+                    .map_err(|_| type_err(&item, "_differential_pairs", "expected a str net"))?,
+            );
+        }
+        if nets.len() != 2 {
+            return Err(type_err(&k, "_differential_pairs", "expected a 2-net frozenset key"));
+        }
+        // Strict f64: an int-shaped clearance is a loud error, not a widen.
+        let val = <f64 as Marshal>::from_python(py, &v)?;
+        out.push((nets[0].clone(), nets[1].clone(), val));
+    }
+    Ok(out)
+}
+
+fn diff_pairs_to_python(py: Python<'_>, rows: &[(String, String, f64)]) -> PyResult<Py<PyAny>> {
+    let d = PyDict::new(py);
+    for (a, b, v) in rows {
+        let items: [Py<PyAny>; 2] = [a.clone().into_py_any(py)?, b.clone().into_py_any(py)?];
+        let fs = PyFrozenSet::new(py, items.iter().map(|o| o.bind(py)))?;
+        d.set_item(fs, *v)?;
+    }
+    Ok(d.into_any().unbind())
+}
+
+/// `clearance_credits`-shaped: `dict[(ref, lv, hv), (eff, hw, hl, smx, smy, axis)]`
+/// in insertion order (the order is load-bearing — the oracle iterates
+/// `dict.items()` and the first matching credit wins).
+fn credits_from_python(
+    py: Python<'_>,
+    obj: &Bound<'_, PyAny>,
+) -> PyResult<Vec<ClearanceCredit>> {
+    let d = obj
+        .cast::<PyDict>()
+        .map_err(|_| type_err(obj, "clearance_credits", "expected a dict"))?;
+    let mut out = Vec::with_capacity(d.len());
+    for (k, v) in d.iter() {
+        let key = k
+            .cast::<PyTuple>()
+            .map_err(|_| type_err(&k, "clearance_credits", "expected a (ref, lv, hv) tuple key"))?;
+        if key.len() != 3 {
+            return Err(type_err(&k, "clearance_credits", "expected a 3-tuple key"));
+        }
+        let key0 = key.get_item(0)?;
+        let key1 = key.get_item(1)?;
+        let key2 = key.get_item(2)?;
+        let component_ref = key0
+            .extract::<String>()
+            .map_err(|_| type_err(&key0, "clearance_credits", "expected a str component_ref"))?;
+        let lv_pin = key1
+            .extract::<String>()
+            .map_err(|_| type_err(&key1, "clearance_credits", "expected a str lv_pin"))?;
+        let hv_pin = key2
+            .extract::<String>()
+            .map_err(|_| type_err(&key2, "clearance_credits", "expected a str hv_pin"))?;
+        let val = v
+            .cast::<PyTuple>()
+            .map_err(|_| type_err(&v, "clearance_credits", "expected a 6-tuple value"))?;
+        if val.len() != 6 {
+            return Err(type_err(&v, "clearance_credits", "expected a 6-tuple value"));
+        }
+        let v0 = val.get_item(0)?;
+        let v1 = val.get_item(1)?;
+        let v2 = val.get_item(2)?;
+        let v3 = val.get_item(3)?;
+        let v4 = val.get_item(4)?;
+        let v5 = val.get_item(5)?;
+        // Strict f64: `add_clearance_credit` float()-coerces every field, so the
+        // stored values are always floats; an int-shaped credit field is a loud
+        // error (never a silent widen).
+        let effective_clearance_mm = <f64 as Marshal>::from_python(py, &v0)?;
+        let half_width_mm = <f64 as Marshal>::from_python(py, &v1)?;
+        let half_length_mm = <f64 as Marshal>::from_python(py, &v2)?;
+        let slot_midpoint_x = <f64 as Marshal>::from_python(py, &v3)?;
+        let slot_midpoint_y = <f64 as Marshal>::from_python(py, &v4)?;
+        let axis = if v5.is_none() {
+            None
+        } else {
+            Some(
+                v5.extract::<String>()
+                    .map_err(|_| type_err(&v5, "clearance_credits", "expected 'x', 'y' or None"))?,
+            )
+        };
+        out.push(ClearanceCredit {
+            component_ref,
+            lv_pin,
+            hv_pin,
+            effective_clearance_mm,
+            half_width_mm,
+            half_length_mm,
+            slot_midpoint_x,
+            slot_midpoint_y,
+            axis,
+        });
+    }
+    Ok(out)
+}
+
+fn credits_to_python(py: Python<'_>, credits: &[ClearanceCredit]) -> PyResult<Py<PyAny>> {
+    let d = PyDict::new(py);
+    for c in credits {
+        let key = PyTuple::new(py, [c.component_ref.as_str(), c.lv_pin.as_str(), c.hv_pin.as_str()])?;
+        let items: [Py<PyAny>; 6] = [
+            c.effective_clearance_mm.into_py_any(py)?,
+            c.half_width_mm.into_py_any(py)?,
+            c.half_length_mm.into_py_any(py)?,
+            c.slot_midpoint_x.into_py_any(py)?,
+            c.slot_midpoint_y.into_py_any(py)?,
+            match &c.axis {
+                Some(a) => a.clone().into_py_any(py)?,
+                None => py.None(),
+            },
+        ];
+        let value = PyTuple::new(py, items.iter().map(|o| o.bind(py)))?;
+        d.set_item(key, value)?;
+    }
+    Ok(d.into_any().unbind())
+}
+
+// ---------------------------------------------------------------------------
 // Tests — the U2 leaf round-trip losslessness proof
 // ---------------------------------------------------------------------------
 
@@ -678,6 +1183,89 @@ class Board:
         if not self.layer_stackup:
             self.layer_stackup = LayerStackup.default_4layer()
         self._zone_map = {z.name: z for z in self.zones}
+
+# --- U4: the ClearanceGrid / DRCOracle stand-ins --------------------------
+# The numpy int32 cell arrays are KEPT opaque (identity passthrough) — a
+# duck-typed stand-in stands in for the ndarray so the embedded interpreter
+# needs no numpy. Its `dtype` field records the (constant) int32 dtype the
+# identity keep preserves.
+
+class _FakeInt32Array:
+    def __init__(self, rows, cols, dtype='int32'):
+        self.rows = rows
+        self.cols = cols
+        self.dtype = dtype
+
+    def __repr__(self):
+        return f"_FakeInt32Array(dtype={self.dtype!r}, shape=({self.rows}, {self.cols}))"
+
+@dataclass
+class ClearanceGrid:
+    width_mm: object
+    height_mm: object
+    cell_size_mm: object
+    layer_count: int = 2
+
+    def __post_init__(self):
+        self.cols = int(self.width_mm / self.cell_size_mm)
+        self.rows = int(self.height_mm / self.cell_size_mm)
+        self._trace_net_ids = [_FakeInt32Array(self.rows, self.cols) for _ in range(self.layer_count)]
+        self._pad_net_ids = [_FakeInt32Array(self.rows, self.cols) for _ in range(self.layer_count)]
+        self._net_to_id = {}
+        self._id_to_net = {}
+        self._next_net_id = 1
+        self._occupancy_grid_cache = None
+        self._bitmap_cache = None
+        self._bitmap_stride_cache = None
+
+@dataclass
+class RoutingZone:
+    name: str
+    polygon: list
+    clearance_mm: float
+    allowed_net_classes: set
+    layer_restrictions: object = None
+
+class ZoneManager:
+    def __init__(self, zones):
+        self.zones = zones
+
+@dataclass
+class NetClassRules:
+    name: str = ""
+    trace_width: float = 0.2
+    clearance: float = 0.2
+    safety_category: object = None
+
+    def __repr__(self):
+        return f"NetClassRules(name={self.name!r})"
+
+@dataclass
+class ClearanceMatrix:
+    _clearances: dict = field(default_factory=dict)
+    default_clearance: float = 0.2
+    default_track_width: float = 0.2
+    default_via_diameter: float = 0.6
+    default_via_drill: float = 0.3
+    _net_class_rules: dict = field(default_factory=dict)
+    _net_to_class: dict = field(default_factory=dict)
+    zone_manager: object = None
+    _differential_pairs: dict = field(default_factory=dict)
+
+class PCBGeometry:
+    def __init__(self):
+        self.tracks = []
+        self.pads = []
+        self.vias = []
+
+@dataclass
+class DRCOracle:
+    rules: object
+    geometry: object = field(default_factory=PCBGeometry)
+    _search_multiplier: float = 3.0
+    enable_internal_layer_creepage: bool = True
+    clearance_credits: dict = field(default_factory=dict)
+    pin_owner: object = field(default_factory=dict)
 "#;
 
     /// The module's tests are serialized by this lock, taken BEFORE any
@@ -718,6 +1306,23 @@ class Board:
             for name in ["Layer", "LayerStackup", "MountingHole", "Zone", "GroundDomain", "Board"] {
                 globals.set_item(name, bc.getattr(name).expect("bc class")).expect("set bc class");
             }
+            // U4: reuse the temper_placer registrations a previous test made.
+            if let Ok(grid_core) = py.import("temper_placer.deterministic.stages._grid_core")
+                && let Ok(cdr) = py.import("temper_placer.router_v6.constraints_design_rules")
+                && let Ok(cdo) = py.import("temper_placer.router_v6.constraints_drc_oracle")
+            {
+                for (name, src) in [
+                    ("ClearanceGrid", grid_core.getattr("ClearanceGrid").expect("ClearanceGrid class")),
+                    ("ClearanceMatrix", cdr.getattr("ClearanceMatrix").expect("ClearanceMatrix class")),
+                    ("RoutingZone", cdr.getattr("RoutingZone").expect("RoutingZone class")),
+                    ("ZoneManager", cdr.getattr("ZoneManager").expect("ZoneManager class")),
+                    ("NetClassRules", cdr.getattr("NetClassRules").expect("NetClassRules class")),
+                    ("PCBGeometry", cdo.getattr("PCBGeometry").expect("PCBGeometry class")),
+                    ("DRCOracle", cdo.getattr("DRCOracle").expect("DRCOracle class")),
+                ] {
+                    globals.set_item(name, src).expect("set u4 class");
+                }
+            }
             return globals;
         }
         let standin = std::ffi::CString::new(STANDIN).expect("STANDIN has no NUL");
@@ -751,6 +1356,47 @@ class Board:
         modules
             .set_item("temper_design_bundle_python.board_contracts", &bc)
             .expect("sys.modules tdb.board_contracts");
+        // U4: temper_placer.deterministic.stages._grid_core (ClearanceGrid) and
+        // temper_placer.router_v6.{constraints_design_rules,constraints_drc_oracle}
+        // (ClearanceMatrix / RoutingZone / ZoneManager / NetClassRules /
+        // PCBGeometry / DRCOracle). Every dotted prefix is registered in
+        // sys.modules so `py.import(...)` of the leaf resolves without a
+        // filesystem search (the D3 runner's fake-module pattern).
+        let pkg = PyModule::new(py, "temper_placer").expect("temper_placer");
+        let det = PyModule::new(py, "deterministic").expect("deterministic");
+        let stages = PyModule::new(py, "stages").expect("stages");
+        let grid_core = PyModule::new(py, "_grid_core").expect("_grid_core");
+        grid_core
+            .add("ClearanceGrid", globals.get_item("ClearanceGrid").expect("ClearanceGrid"))
+            .expect("register ClearanceGrid");
+        stages.add("_grid_core", &grid_core).expect("stages._grid_core");
+        det.add("stages", &stages).expect("det.stages");
+        pkg.add("deterministic", &det).expect("pkg.deterministic");
+        let rv6 = PyModule::new(py, "router_v6").expect("router_v6");
+        let cdr = PyModule::new(py, "constraints_design_rules").expect("constraints_design_rules");
+        for name in ["ClearanceMatrix", "RoutingZone", "ZoneManager", "NetClassRules"] {
+            cdr.add(name, globals.get_item(name).unwrap_or_else(|_| panic!("{name}")))
+                .unwrap_or_else(|e| panic!("register {name}: {e}"));
+        }
+        let cdo = PyModule::new(py, "constraints_drc_oracle").expect("constraints_drc_oracle");
+        for name in ["PCBGeometry", "DRCOracle"] {
+            cdo.add(name, globals.get_item(name).unwrap_or_else(|_| panic!("{name}")))
+                .unwrap_or_else(|e| panic!("register {name}: {e}"));
+        }
+        rv6.add("constraints_design_rules", &cdr).expect("rv6.constraints_design_rules");
+        rv6.add("constraints_drc_oracle", &cdo).expect("rv6.constraints_drc_oracle");
+        pkg.add("router_v6", &rv6).expect("pkg.router_v6");
+        for (path, module) in [
+            ("temper_placer", &pkg),
+            ("temper_placer.deterministic", &det),
+            ("temper_placer.deterministic.stages", &stages),
+            ("temper_placer.deterministic.stages._grid_core", &grid_core),
+            ("temper_placer.router_v6", &rv6),
+            ("temper_placer.router_v6.constraints_design_rules", &cdr),
+            ("temper_placer.router_v6.constraints_drc_oracle", &cdo),
+        ] {
+            modules.set_item(path, module).expect("sys.modules u4");
+        }
         globals
     }
 
@@ -1193,6 +1839,274 @@ class Board:
             assert_eq!(
                 owned,
                 (Val::Int(0), Val::Int(0), Val::Int(50), Val::Int(80))
+            );
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    // U4: OwnedClearanceGrid — dims + registry owned, numpy cell arrays kept
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn clearance_grid_roundtrips_bit_identically_with_arrays_by_identity() {
+        // The dataclass `__eq__`/`__repr__` cover only the four constructor
+        // dims (the `__post_init__` attrs are not declared fields), so
+        // `assert_roundtrip_with` pins the dim round-trip; the registry and
+        // the cell arrays are asserted explicitly below. The dims are
+        // `Val`-shaped: `ClearageGrid(100, 80, ...)` keeps INT width/height
+        // (the D3 stage passes `board.width`/`height` straight through), and
+        // `100` must NOT widen to `100.0`.
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            assert_roundtrip_with::<OwnedClearanceGrid>(py, "ClearanceGrid(100.0, 80.0, 0.5, 2)", Some(&g));
+            assert_roundtrip_with::<OwnedClearanceGrid>(py, "ClearanceGrid(100, 80, 0.5, 2)", Some(&g));
+            assert_roundtrip_with::<OwnedClearanceGrid>(py, "ClearanceGrid(100, 80, 1, 3)", Some(&g));
+
+            // The cell arrays are KEEPS: the rebuilt grid's `_trace_net_ids` /
+            // `_pad_net_ids` ARE the original list objects (identity) — the
+            // dtype (`int32`) and element bytes are unchanged because nothing
+            // is reconstructed (zero-copy passthrough).
+            let orig = eval_expr(py, &g, "ClearanceGrid(100.0, 80.0, 0.5, 2)");
+            let owned = to_owned::<OwnedClearanceGrid>(&orig).unwrap();
+            let back = to_python::<OwnedClearanceGrid>(py, &owned).unwrap().bind(py).clone();
+            for attr in ["_trace_net_ids", "_pad_net_ids"] {
+                let a = orig.getattr(attr).unwrap();
+                let b = back.getattr(attr).unwrap();
+                assert!(a.is(&b), "{attr} must pass through by identity");
+            }
+
+            // The owned dims recorded int vs float (the Val convention).
+            let owned = to_owned::<OwnedClearanceGrid>(&eval_expr(py, &g, "ClearanceGrid(100, 80, 0.5, 2)"))
+                .unwrap();
+            assert_eq!(owned.grid.width_mm, Val::Int(100));
+            assert_eq!(owned.grid.height_mm, Val::Int(80));
+            assert_eq!(owned.grid.cell_size_mm, Val::Float(0.5));
+            assert_eq!(owned.grid.layer_count, 2);
+            let owned = to_owned::<OwnedClearanceGrid>(&eval_expr(py, &g, "ClearanceGrid(100.0, 80.0, 0.5, 2)"))
+                .unwrap();
+            assert_eq!(owned.grid.width_mm, Val::Float(100.0));
+        });
+    }
+
+    #[test]
+    fn clearance_grid_net_registry_roundtrips_in_assignment_order() {
+        // The net-id registry (`_net_to_id` / `_id_to_net` / `_next_net_id`)
+        // is OWNED — the D3 differential pins the net-id ASSIGNMENT order, so
+        // the `Vec`s must preserve insertion order through the round-trip.
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let orig = eval_expr(py, &g, "ClearanceGrid(100.0, 80.0, 0.5, 2)");
+            orig.setattr("_net_to_id", eval_expr(py, &g, "{'VCC': 1, 'GND': 2, 'SIG': 3}"))
+                .unwrap();
+            orig.setattr("_id_to_net", eval_expr(py, &g, "{1: 'VCC', 2: 'GND', 3: 'SIG'}"))
+                .unwrap();
+            orig.setattr("_next_net_id", 4).unwrap();
+            let owned = to_owned::<OwnedClearanceGrid>(&orig).unwrap();
+            assert_eq!(
+                owned.grid.net_to_id,
+                vec![
+                    ("VCC".to_string(), 1),
+                    ("GND".to_string(), 2),
+                    ("SIG".to_string(), 3),
+                ]
+            );
+            assert_eq!(owned.grid.id_to_net[1], (2, "GND".to_string()));
+            assert_eq!(owned.grid.next_net_id, 4);
+            let back = to_python::<OwnedClearanceGrid>(py, &owned).unwrap().bind(py).clone();
+            let back_registry = back.getattr("_net_to_id").unwrap();
+            assert!(
+                back_registry
+                    .eq(eval_expr(py, &g, "{'VCC': 1, 'GND': 2, 'SIG': 3}"))
+                    .unwrap(),
+                "_net_to_id must round-trip value-identically"
+            );
+            assert!(back.getattr("_next_net_id").unwrap().extract::<i64>().unwrap() == 4);
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    // U4: OwnedDrcOracle — rules tables + credits + config owned, keeps by
+    // identity (_net_class_rules models, zone_manager, PCBGeometry, callable)
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn drc_oracle_roundtrips_bit_identically_with_keeps_by_identity() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            // The default/empty oracle (empty tables, empty credits, empty
+            // pin_owner, no zones, no geometry) round-trips bit-identically.
+            assert_roundtrip_with::<OwnedDrcOracle>(py, "DRCOracle(rules=ClearanceMatrix())", Some(&g));
+            // A full single-element oracle: one clearance row, one net->class,
+            // one differential pair, one net-class rule, one zone, one credit,
+            // one pin_owner entry. The keeps (net_class_rules, zone_manager,
+            // geometry) carry identity-bearing reprs, so they must pass by
+            // identity for the repr arm to match.
+            assert_roundtrip_with::<OwnedDrcOracle>(
+                py,
+                "DRCOracle(rules=ClearanceMatrix(_clearances={('Power', 'Signal'): 0.3}, \
+                 _net_to_class={'VCC': 'Power'}, \
+                 _differential_pairs={frozenset({'USB_D+', 'USB_D-'}): -0.05}, \
+                 default_clearance=0.2, \
+                 _net_class_rules={'Power': NetClassRules(name='Power', trace_width=0.5, clearance=0.3)}, \
+                 zone_manager=ZoneManager([RoutingZone('HV', [(0, 0), (10, 0), (10, 10), (0, 10)], 3.0, {'Signal'})])), \
+                 geometry=PCBGeometry(), \
+                 clearance_credits={('K3', '2', '1'): (1.5, 0.75, 4.0, 10.0, 20.0, 'x')}, \
+                 pin_owner={'K3-1': 'K3', 'K3-2': 'K3'})",
+                Some(&g),
+            );
+
+            // Keeps round-trip BY IDENTITY: the rebuilt oracle's keep fields ARE
+            // the original objects (never reconstructed).
+            let orig = eval_expr(
+                py,
+                &g,
+                "DRCOracle(rules=ClearanceMatrix(_net_class_rules={'Power': NetClassRules(name='Power')}, \
+                 zone_manager=ZoneManager([RoutingZone('HV', [(0, 0), (10, 0), (10, 10), (0, 10)], 3.0, {'Signal'})])), \
+                 geometry=PCBGeometry())",
+            );
+            let owned = to_owned::<OwnedDrcOracle>(&orig).unwrap();
+            let back = to_python::<OwnedDrcOracle>(py, &owned).unwrap().bind(py).clone();
+            let geo_orig = orig.getattr("geometry").unwrap();
+            let geo_back = back.getattr("geometry").unwrap();
+            assert!(geo_orig.is(&geo_back), "geometry must pass through by identity");
+            let rules_orig = orig.getattr("rules").unwrap();
+            let rules_back = back.getattr("rules").unwrap();
+            for attr in ["_net_class_rules", "zone_manager"] {
+                let a = rules_orig.getattr(attr).unwrap();
+                let b = rules_back.getattr(attr).unwrap();
+                assert!(a.is(&b), "rules.{attr} must pass through by identity");
+            }
+
+            // The owned rules/credit/config fields hold the exact values.
+            let owned = to_owned::<OwnedDrcOracle>(&eval_expr(
+                py,
+                &g,
+                "DRCOracle(rules=ClearanceMatrix(_clearances={('Power', 'Signal'): 0.3}, \
+                 _net_to_class={'VCC': 'Power'}, default_clearance=0.25), \
+                 _search_multiplier=4.0, enable_internal_layer_creepage=False, \
+                 clearance_credits={('K3', '2', '1'): (1.5, 0.75, 4.0, 10.0, 20.0, 'x')}, \
+                 pin_owner={'K3-1': 'K3'})",
+            ))
+            .unwrap();
+            assert_eq!(owned.oracle.rules.clearances, vec![("Power".to_string(), "Signal".to_string(), 0.3)]);
+            assert_eq!(owned.oracle.rules.net_to_class, vec![("VCC".to_string(), "Power".to_string())]);
+            assert_eq!(owned.oracle.rules.default_clearance, 0.25);
+            assert_eq!(owned.oracle.search_multiplier, 4.0);
+            assert!(!owned.oracle.enable_internal_layer_creepage);
+            assert_eq!(owned.oracle.pin_owner, vec![("K3-1".to_string(), "K3".to_string())]);
+            assert_eq!(owned.oracle.clearance_credits.len(), 1);
+            let credit = &owned.oracle.clearance_credits[0];
+            assert_eq!(credit.component_ref, "K3");
+            assert_eq!(credit.effective_clearance_mm, 1.5);
+            assert_eq!(credit.axis.as_deref(), Some("x"));
+        });
+    }
+
+    #[test]
+    fn drc_oracle_callable_pin_owner_roundtrips_by_identity() {
+        // `pin_owner` may be a Mapping (owned) OR a Callable (keep). A
+        // callable is a live function object — identity passthrough, with the
+        // owned Mapping `Vec` empty.
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let orig = eval_expr(
+                py,
+                &g,
+                "DRCOracle(rules=ClearanceMatrix(), pin_owner=lambda pid: 'K3' if pid.startswith('K3') else None)",
+            );
+            let owned = to_owned::<OwnedDrcOracle>(&orig).unwrap();
+            assert!(owned.oracle.pin_owner.is_empty(), "callable form stores no Mapping rows");
+            assert!(matches!(owned.pin_owner_callable, Plain::Opaque(_)), "callable form is a keep");
+            let back = to_python::<OwnedDrcOracle>(py, &owned).unwrap().bind(py).clone();
+            let a = orig.getattr("pin_owner").unwrap();
+            let b = back.getattr("pin_owner").unwrap();
+            assert!(a.is(&b), "callable pin_owner must pass through by identity");
+            // The Mapping form (Null keep) rebuilds the dict instead.
+            let orig_map = eval_expr(py, &g, "DRCOracle(rules=ClearanceMatrix(), pin_owner={'K3-1': 'K3'})");
+            let owned_map = to_owned::<OwnedDrcOracle>(&orig_map).unwrap();
+            assert!(matches!(owned_map.pin_owner_callable, Plain::Null), "Mapping form is not a callable keep");
+            assert_eq!(owned_map.oracle.pin_owner, vec![("K3-1".to_string(), "K3".to_string())]);
+            let back_map = to_python::<OwnedDrcOracle>(py, &owned_map).unwrap().bind(py).clone();
+            assert!(
+                back_map
+                    .getattr("pin_owner")
+                    .unwrap()
+                    .eq(eval_expr(py, &g, "{'K3-1': 'K3'}"))
+                    .unwrap(),
+                "Mapping pin_owner must rebuild value-identically"
+            );
+        });
+    }
+
+    #[test]
+    fn drc_oracle_guards_reject_the_wrong_shapes() {
+        // The owned rules/credits have concrete types: a str where a float is
+        // required, a wrong-arity tuple key, and a bool leaf are LOUD errors.
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let err = |expr: &str| -> bool {
+                to_owned::<OwnedDrcOracle>(&eval_expr(py, &g, expr)).is_err()
+            };
+            assert!(err("DRCOracle(rules=ClearanceMatrix(default_clearance='x'))"), "str default_clearance must be rejected");
+            assert!(err("DRCOracle(rules=ClearanceMatrix(default_clearance=1))"), "int default_clearance must be rejected (an int is not a float)");
+            assert!(err("DRCOracle(rules=ClearanceMatrix(_clearances={('Power',): 0.3}))"), "1-tuple clearance key must be rejected");
+            assert!(err("DRCOracle(rules=ClearanceMatrix(_clearances={('Power', 'Signal'): 1}))"), "int clearance value must be rejected");
+            assert!(err("DRCOracle(rules=ClearanceMatrix(), clearance_credits={('K3', '2'): (1.5, 0.75, 4.0, 10.0, 20.0, 'x')})"), "2-tuple credit key must be rejected");
+            assert!(err("DRCOracle(rules=ClearanceMatrix(), pin_owner={'a': 1})"), "int pin_owner value must be rejected");
+        });
+    }
+
+    #[test]
+    fn grid_cell_arrays_preserve_numpy_int32_dtype_when_numpy_available() {
+        // The dtype-preservation proof, expressed against REAL numpy when the
+        // embedded interpreter can import it (the venv-backed PYO3_PYTHON); a
+        // no-numpy interpreter skips the numpy arm — the identity assertions in
+        // `clearance_grid_roundtrips_bit_identically_with_arrays_by_identity`
+        // are the standing proof either way (the SAME array object is returned,
+        // so its `int32` dtype and element bytes are unchanged by construction).
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let Ok(np) = py.import("numpy") else { return; };
+            let int32 = np.getattr("int32").expect("np.int32");
+            let kw = PyDict::new(py);
+            kw.set_item("dtype", &int32).expect("dtype kwarg");
+            let arr = np
+                .call_method("zeros", ((2, 3),), Some(&kw))
+                .expect("np.zeros dtype=int32");
+            let trace = pyo3::types::PyList::empty(py);
+            trace.append(&arr).expect("append");
+            let orig = eval_expr(py, &g, "ClearanceGrid(100.0, 80.0, 0.5, 2)");
+            orig.setattr("_trace_net_ids", trace).expect("set trace");
+            orig.setattr("_pad_net_ids", pyo3::types::PyList::empty(py)).expect("set pad");
+            let owned = to_owned::<OwnedClearanceGrid>(&orig).unwrap();
+            let back = to_python::<OwnedClearanceGrid>(py, &owned).unwrap().bind(py).clone();
+            let orig_trace = orig.getattr("_trace_net_ids").unwrap();
+            let back_trace = back.getattr("_trace_net_ids").unwrap();
+            assert!(orig_trace.is(&back_trace), "the array list must pass by identity");
+            let item = back_trace.get_item(0).unwrap();
+            let dtype = item.getattr("dtype").unwrap();
+            assert!(
+                dtype.eq(&int32).unwrap(),
+                "a numpy int32 array must round-trip as int32, not widen"
+            );
+            let orig_arr = orig_trace.get_item(0).unwrap();
+            let orig_bytes = orig_arr.call_method0("tobytes").unwrap();
+            let back_bytes = item.call_method0("tobytes").unwrap();
+            assert!(
+                orig_bytes.eq(&back_bytes).unwrap(),
+                "the kept array's bytes must be unchanged"
             );
         });
     }
