@@ -11,7 +11,7 @@ authority:
   board: pcb/temper.kicad_pcb
   source_export: elec/exports/temper.design-input.v1.json
   component_identity: board Sheetpath matched to source instance path
-  measured_at_commit: PENDING_RESYNC_COMMIT
+  measured_at_commit: 96ebe489cbfb2d69e5f6dd0d76fd4889e224c2d2
 
 # Content-hash freshness identity (scripts/check_measurement_provenance.py),
 # added 2026-08-07. `authority.measured_at_commit` above is advisory (human
@@ -50,7 +50,7 @@ authority:
 # this resync only wrote pcb/temper.kicad_pcb, not elec/ -- confirmed by
 # hash: still 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0.
 provenance:
-  measured_at_commit: PENDING_RESYNC_COMMIT
+  measured_at_commit: 96ebe489cbfb2d69e5f6dd0d76fd4889e224c2d2
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
