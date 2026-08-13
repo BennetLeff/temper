@@ -1116,7 +1116,19 @@ jobs:
             name=$(basename "$f" .rs)
             test_args="$test_args --test $name"
           done
-          cargo test --manifest-path packages/temper-orchestration/Cargo.toml $test_args
+          # `-- --nocapture`: this job never installs pyo3 extensions (no
+          # maturin/uv sync -- see the comment above this step), so two
+          # tests hit ModuleNotFoundError on a real (un-fakeable) extension
+          # import and skip themselves with a printed reason instead of
+          # panicking: d4_stages_runner.rs's phased_validator_hv_kernel
+          # (`temper_drc_rs`) and uh_marshal_runner.rs's two tests
+          # (`temper_orchestration`, this crate's own compiled module).
+          # Without --nocapture, cargo test hides stdout/stderr for passing
+          # tests, which would make those skip reasons invisible in this
+          # job's log -- exactly the "swallowed skip" this repo's
+          # conventions forbid. No test in this crate's tests/*.rs prints
+          # anything otherwise, so this adds no other noise.
+          cargo test --manifest-path packages/temper-orchestration/Cargo.toml $test_args -- --nocapture
           echo "=== residual 2/3: grid_hv.rs's python-gated lib tests (pyo3-bound, 5 tests) ==="
           cargo test --manifest-path packages/temper-orchestration/Cargo.toml --lib "grid_hv::tests::"
           echo "=== residual 3/3: host_math dlsym host-facility test (native-host-only, 1 test) ==="

@@ -27,7 +27,37 @@
 //   4. component_assignment_domain_filter        -- a per-ref domain map
 //      confines the kernel input's domain_ok
 //   5. phased_validator_hv_kernel                -- the coverage / over-claim
-//      kernel returns (field, value, reason) triples
+//      kernel returns (field, value, reason) triples. UNLIKE tests 1-4, this
+//      one calls `temper_orchestration::phased_validator_hv` for real (not
+//      through a `sys.modules` fake) -- it imports `temper_drc_rs` at
+//      phased_component_assignment_validator_stage.rs:117, a compiled pyo3
+//      extension the fake-module mechanism above cannot stand in for. The
+//      `.github/workflows/python-tests.yml` "Rust Checks (cargo check +
+//      clippy)" job runs this crate's `cargo test` cargo-only -- it never
+//      runs `maturin develop`/`uv sync`, so `temper_drc_rs` (and the
+//      `temper_design_bundle_python` kernel this validator also delegates
+//      to) is never installed there. This test SKIPS itself with a printed
+//      reason (see below) when it hits exactly that `ModuleNotFoundError`;
+//      any other failure still panics normally. The scenario this test
+//      exists to pin -- a used_slots set missing a slot inside an HV pin's
+//      creepage ring -- is independently covered end-to-end (bit-exact
+//      against the pinned pre-migration oracle, through the SAME
+//      `run_phased_validator_hv` Rust kernel, with `temper_drc_rs` actually
+//      installed) by
+//      packages/temper-placer/tests/deterministic/test_deterministic_d4_rust_differential.py::test_validator_used_slots_attr_precedence
+//      and ::test_validator_coverage_and_overclaim_order -- verified by
+//      reading both tests, not assumed.
+//
+//      `TEMPER_REQUIRE_RUST_EXTENSIONS=1` (mirrors `TEMPER_REQUIRE_RUST_DRC`
+//      in .github/workflows/python-tests.yml and
+//      `TEMPER_REQUIRE_FRESH_EXTENSIONS` in check_stale_extensions.py)
+//      converts the skip below into a hard failure. A conditional skip that
+//      nobody re-checks decays: if `Rust Checks` ever starts installing
+//      extensions, or these tests move to a job that already does, an
+//      always-firing skip would hide a real regression forever. Any job
+//      that DOES install pyo3 extensions should set this var to get real
+//      enforcement instead; `Rust Checks` leaves it unset on purpose, since
+//      it is cargo-only by design (see the comment above the job).
 
 #![allow(clippy::unwrap_used, clippy::expect_used)] // tests-only integration target
 
@@ -140,6 +170,16 @@ def slots_within_radius_py(center, radius, index, spacing):
                 out.append(s)
     return out
 "#;
+
+/// `TEMPER_REQUIRE_RUST_EXTENSIONS=1` (mirrors `TEMPER_REQUIRE_RUST_DRC` /
+/// `TEMPER_REQUIRE_FRESH_EXTENSIONS`'s truthy-string convention): set this
+/// in any job/environment that DOES install pyo3 extensions, to turn a
+/// missing-extension skip into a hard failure instead.
+fn rust_extensions_required() -> bool {
+    std::env::var("TEMPER_REQUIRE_RUST_EXTENSIONS")
+        .map(|v| matches!(v.trim().to_lowercase().as_str(), "1" | "true" | "yes"))
+        .unwrap_or(false)
+}
 
 fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     let sys = py.import("sys")?;
@@ -414,8 +454,42 @@ fn phased_validator_hv_kernel() {
         state.placements = Some(placements);
         state.used_slots = Some(used_owned);
 
-        let failures = temper_orchestration::phased_validator_hv(py, state);
-        let failures = failures.unwrap();
+        let failures = match temper_orchestration::phased_validator_hv(py, state) {
+            Ok(f) => f,
+            // Real, conditional skip -- only for exactly the "extension not
+            // installed" failure mode (`temper_drc_rs` unimportable), never a
+            // swallowed error. Any other PyErr (a real assertion/behavior
+            // bug) still falls through to a normal panic below via the
+            // Err(e) => return Err(e) arm.
+            Err(e) if e.is_instance_of::<pyo3::exceptions::PyModuleNotFoundError>(py) => {
+                if rust_extensions_required() {
+                    panic!(
+                        "phased_validator_hv_kernel: {e} -- TEMPER_REQUIRE_RUST_EXTENSIONS=1 \
+                         is set, so a missing temper_drc_rs is a HARD FAILURE here, not a \
+                         skip: this environment declares pyo3 extensions are expected to be \
+                         installed. Build it with `maturin develop --release --manifest-path \
+                         packages/temper-drc-rs/Cargo.toml` (or `make extensions`)."
+                    );
+                }
+                eprintln!(
+                    "SKIP phased_validator_hv_kernel: {e} -- the `Rust Checks \
+                     (cargo check + clippy)` CI job is cargo-only and never \
+                     installs pyo3 extensions (no `maturin develop`/`uv \
+                     sync`), so `temper_drc_rs` is not importable here. This \
+                     is NOT a vacuous pass: the missing-HV-ring-slot \
+                     assertion this test makes is independently covered, \
+                     through the same run_phased_validator_hv Rust kernel \
+                     with temper_drc_rs actually installed, by \
+                     packages/temper-placer/tests/deterministic/test_deterministic_d4_rust_differential.py\
+                     ::test_validator_used_slots_attr_precedence and \
+                     ::test_validator_coverage_and_overclaim_order. Run `make \
+                     extensions` locally to exercise this Rust-side test for \
+                     real."
+                );
+                return Ok(());
+            }
+            Err(e) => return Err(e),
+        };
         let n: usize = failures.bind(py).len()?;
         assert!(n >= 1, "the missing (0,5) ring slot must be reported");
         let first = failures.bind(py).get_item(0)?;
