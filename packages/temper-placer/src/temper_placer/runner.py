@@ -102,6 +102,8 @@ class PipelineRunner:
     """
 
     def __init__(self, stages: list[PipelineStage]) -> None:
+        if not stages:
+            raise ValueError("PipelineRunner requires at least one stage")
         self._stages = stages
         self._trace: list[tuple[str, float, bool | None]] = []
         self._ran = False

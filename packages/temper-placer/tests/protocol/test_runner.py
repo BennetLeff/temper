@@ -64,6 +64,10 @@ class RaisingStage:
 
 
 class TestPipelineRunner:
+    def test_empty_pipeline_raises(self):
+        with pytest.raises(ValueError, match="at least one stage"):
+            PipelineRunner([])
+
     def test_sequential_execution(self):
         s1 = CountingStage("s1", provides=["a"])
         s2 = CountingStage("s2", requires=["a"], provides=["b"])
