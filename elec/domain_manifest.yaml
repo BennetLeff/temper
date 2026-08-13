@@ -289,8 +289,40 @@ domains:
                            # construction requirement.
       - PWM_HS             # MCU-side PWM output, primary side of the gate driver
       - PWM_LS
+      - safety.ocp2-line        # OCP-02's SecondaryOCPComparator fault line,
+                                # carried on TP3 (nodes: U25.2 comparator
+                                # output, U19.1 fault-OR input, TP3.1).
+                                # Entirely SELV despite OCP-02 sensing a
+                                # DC_BUS_RTN conductor: it senses through
+                                # CT2, whose "secondary has no galvanic
+                                # connection to the primary, so it can be
+                                # referenced to signal ground regardless of
+                                # common-mode voltage" (modules.ato
+                                # SecondaryOCPComparator docstring) -- the
+                                # same construction that already makes
+                                # OCP-01's ct_sense.ct safe. The comparator
+                                # itself is a TLV3201 powered from
+                                # power_3v3; no HV node is read, driven or
+                                # referenced on this net.
+                                #
+                                # ADDED 2026-08-13. c617e0d08 (2026-08-07)
+                                # instantiated OCP-02 and, in the same
+                                # change, MOVED the uvlo_logic fault line
+                                # from TP3 to a new TP4 and put this new net
+                                # on TP3. The manifest gained OCP-02's
+                                # instance_path (safety.ocp2.ct) but never
+                                # this net, so TP3 went unclassified and the
+                                # domain-clearance generator went back to
+                                # emitting zero constraints for every pair
+                                # touching it -- the SAME defect the
+                                # 2026-07-27 note below records, recurred
+                                # through a different door. Declaring the
+                                # instance is not declaring the net.
       - safety.uvlo_logic-line  # UVL-02's LogicUVLOComparator fault line,
-                                # carried on TP3. Entirely SELV: the module
+                                # carried on TP4 since c617e0d08 (2026-08-07)
+                                # -- it was on TP3 before that change, and
+                                # the rest of this note predates the move.
+                                # Entirely SELV: the module
                                 # monitors power_3v3 against the TPS3700's
                                 # internal bandgap reference, and both its
                                 # power and sense divider are power.vcc /
