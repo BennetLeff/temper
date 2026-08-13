@@ -49,6 +49,18 @@ P4  No assignment anywhere in ``router_v6/`` writes a literal below the
 P5  The ``DesignRules`` the router pipeline actually builds from a board
     (``io/_parse_nets.py::_extract_design_rules``) reports a
     ``default_clearance_mm`` at or above the floor.
+P6  No module-level constant in ``router_v6/`` whose name ends in
+    ``_CLEARANCE_MM`` is a numeric literal below the floor. Added
+    2026-08-12 after the third instance of this defect was found in a
+    place P4 could not see: ``_ground_plane.py`` and ``_power_islands.py``
+    each carried ``OTHER_NET_CLEARANCE_MM = 0.05`` -- the clearance their
+    plane backbones keep from every other net's copper -- for 31 days,
+    against the same 0.2mm RULE 10 bar, four times under it. P4 only
+    watches assignments *to* ``default_clearance[_mm]``; a module constant
+    with a different name and the same job was invisible to it. The name
+    suffix is the contract: a value declared in millimetres and called a
+    clearance is a clearance, and RULE 10's floor applies to all of them.
+    See ``docs/evidence/2026-08-12-plane-backbone-clearance-floor.md``.
 
 What this gate deliberately does NOT do
 ---------------------------------------
@@ -147,6 +159,39 @@ def _literal_clearance_writes() -> list[tuple[Path, int, str, float]]:
     return found
 
 
+def _literal_clearance_constants() -> list[tuple[Path, int, str, float]]:
+    """Every module-level ``NAME_CLEARANCE_MM = <numeric literal>`` in
+    ``router_v6/``, as ``(path, lineno, name, value)``.
+
+    Module level only, and only a bare literal: a constant derived from
+    ``clearance_floor`` (``required_clearance_mm()``) is a call, not a
+    ``Constant``, so it is correctly invisible here -- deriving from the
+    single declaration of the floor is exactly the shape this gate is
+    trying to push code towards.
+    """
+    found: list[tuple[Path, int, str, float]] = []
+    for path in sorted(ROUTER_V6.rglob("*.py")):
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except SyntaxError:  # pragma: no cover - a broken file is not this gate's job
+            continue
+        for node in tree.body:
+            targets: list[ast.expr] = []
+            value: ast.expr | None = None
+            if isinstance(node, ast.Assign):
+                targets, value = list(node.targets), node.value
+            elif isinstance(node, ast.AnnAssign) and node.value is not None:
+                targets, value = [node.target], node.value
+            if value is None or not isinstance(value, ast.Constant):
+                continue
+            if not isinstance(value.value, (int, float)) or isinstance(value.value, bool):
+                continue
+            for target in targets:
+                if isinstance(target, ast.Name) and target.id.endswith("_CLEARANCE_MM"):
+                    found.append((path, node.lineno, target.id, float(value.value)))
+    return found
+
+
 def _parsed_board_default_clearance() -> float | None:
     src = REPO_ROOT / "packages" / "temper-placer" / "src"
     if str(src) not in sys.path:
@@ -242,6 +287,28 @@ def run() -> int:
             )
         else:
             print(f"  P5 OK  _extract_design_rules() default_clearance_mm = {parsed_value}")
+
+    # P6
+    constants = _literal_clearance_constants()
+    const_below = [c for c in constants if c[3] < floor - _TOL]
+    for path, lineno, name, value in const_below:
+        try:
+            shown = path.relative_to(REPO_ROOT)
+        except ValueError:  # ROUTER_V6 pointed elsewhere (tests)
+            shown = path
+        failures.append(
+            f"P6: {shown}:{lineno} declares {name} = {value}, below the "
+            f"{floor}mm DRC floor -- a copper generator reserving less than "
+            f"the DRU grades it against. Derive it from "
+            f"clearance_floor.required_clearance_mm() (an exact-geometry "
+            f"reservation) or blocking_clearance_mm() (a rasterised one) "
+            f"instead of restating a literal"
+        )
+    if not const_below:
+        print(
+            f"  P6 OK  {len(constants)} literal *_CLEARANCE_MM constant(s) in "
+            f"router_v6/, none below {floor}mm"
+        )
 
     if failures:
         print()
