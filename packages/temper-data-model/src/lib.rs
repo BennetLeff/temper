@@ -123,6 +123,12 @@ pub struct Net {
     pub voltage_class: String,
 }
 
+/// The U3 (O-C3) owned AGGREGATE structs — [`Board`] + [`Netlist`],
+/// composing the U2 leaves. See the module's own doc for the field-by-field
+/// owned-vs-keep classification.
+pub mod aggregates;
+pub use aggregates::{Board, Netlist};
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
