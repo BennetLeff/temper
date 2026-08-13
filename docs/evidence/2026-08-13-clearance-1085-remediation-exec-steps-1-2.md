@@ -9,11 +9,7 @@ on origin/fix/board-schematic-resync (PR #1134) @ a3fbaff37. Worktree built with
 this session, per this task's own environment-hazard instructions. `make netlist` run
 in this worktree before any measurement. kicad-cli 10.0.5.
 
-provenance: commit=UNKNOWN dirty=false -- this file is committed together with the fix
-it documents; a follow-up commit in the same PR updates this line to that commit's real,
-resolvable SHA (self-reference isn't possible within one commit), matching this repo's
-own established pattern (see `power_pcb_dataset/drc_ceiling.json`'s `6208bffee`
-"chore(provenance): point measurement provenance at the resync commit hash" precedent). -->
+provenance: commit=2dba7ab41ebcdca08d434df2abd33fe058acb768 dirty=false -->
 
 # Executing plan items 1 and 2: DRU scoping fix + strip disconnected copper on the 7 dominant fake-completion nets
 
