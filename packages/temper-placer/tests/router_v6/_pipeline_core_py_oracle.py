@@ -109,10 +109,21 @@ def run_verbatim(
     if pcb_override is not None:
         pcb = pcb_override
 
-    # Inject per-net netclass assignments and lower default clearance
-    # to the SSOT Signal netclass (0.15mm). FinePitch nets (SPI, USB,
-    # PWM, I_SENSE, TEMP_SENSE) coexist with other low-voltage signals;
-    # 0.15mm is the correct inter-net signal clearance from netclass_rules.yaml.
+    # Inject per-net netclass assignments so ``get_rules_for_net`` can
+    # resolve a class for the nets that have one.
+    #
+    # ``dr.default_clearance_mm = 0.15`` was DELETED here on 2026-08-12, in
+    # lockstep with the shim (``router_v6/_pipeline_core.py``'s
+    # ``_run_stage0_setup``). This oracle pins the MIGRATION contract --
+    # shim output == pre-migration output -- not the VALUE, so a deliberate
+    # value correction has to be made on both sides or the differential
+    # starts asserting the defect. The floor for an unclassified net is
+    # 0.2mm in all three declaring sources (netclass_rules.yaml,
+    # temper.kicad_pro's Default class, generate_kicad_dru.py's RULE 10);
+    # 0.15 was a global relaxation of the fallback, not any net's
+    # requirement. See that file's comment,
+    # scripts/check_router_clearance_floor.py, and
+    # docs/evidence/2026-08-12-clearance-congestion-band.md.
     if net_class_assignments or net_classes:
         dr = getattr(pcb, "design_rules", None)
         if dr is not None:
@@ -121,7 +132,6 @@ def run_verbatim(
                 if isinstance(nc, dict):
                     nc.update(net_class_assignments)
                     dr.net_class_assignments = nc
-                dr.default_clearance_mm = 0.15
             if net_classes:
                 existing = getattr(dr, "net_classes", {})
                 if isinstance(existing, dict):

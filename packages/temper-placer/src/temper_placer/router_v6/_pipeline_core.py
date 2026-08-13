@@ -63,16 +63,46 @@ def _run_stage0_setup(
     net_classes: dict[str, Any] | None = None,
 ):
     """The run()'s Stage-0 post-parse setup block (U-G boundary): the
-    pcb_override swap, the netclass/assignment injection (with the 0.15mm
-    Signal default clearance) and the power-first net sort. This is
-    Python-object marshalling (dict updates, ``list.sort`` with the key
-    callable) — the same category the U-E boundary keeps Python-side — and
-    is invoked by the Rust driver right after the parse call-back. Pinned
-    against the pre-migration inline block by
+    pcb_override swap, the netclass/assignment injection and the power-first
+    net sort. This is Python-object marshalling (dict updates, ``list.sort``
+    with the key callable) — the same category the U-E boundary keeps
+    Python-side — and is invoked by the Rust driver right after the parse
+    call-back. Pinned against the pre-migration inline block by
     ``test_router_pipeline_rust_differential.py``."""
     if pcb_override is not None:
         pcb = pcb_override
 
+    # Inject per-net netclass assignments so ``get_rules_for_net`` can
+    # resolve a class for the nets that have one (FinePitch 0.1mm,
+    # GateDrive 0.25mm, HV 2.0/6.0mm, ...).
+    #
+    # This block used to ALSO do ``dr.default_clearance_mm = 0.15``
+    # (051152e7c, 2026-07-12, "the SSOT Signal netclass"). That was
+    # wrong and it is the dominant cause of the board's ``clearance``
+    # count. Three sources agree the unclassified-net floor is
+    # **0.2mm** -- ``netclass_rules.yaml::default_clearance_mm``,
+    # ``pcb/temper.kicad_pro``'s ``Default`` netclass, and the rule the
+    # violations actually fire against, ``generate_kicad_dru.py``'s
+    # RULE 10 ``Default routing`` (``DEFAULT_ROUTING_CLEARANCE_MM``).
+    # ``netclass_rules.yaml``'s ``Signal`` class is a placer-feasibility
+    # entry with no counterpart in ``temper.kicad_pro`` at all, and no
+    # board net resolves to it (measured: 0/684 net occurrences), so
+    # 0.15 was never any net's real requirement -- it was a global
+    # relaxation of the fallback.
+    #
+    # Consequence, measured on the heatsink candidate board
+    # (docs/evidence/2026-08-12-clearance-congestion-band.md): the A*
+    # reserves ``trace_width + clearance`` around routed copper, so a
+    # 0.15 floor let two 0.25mm Default tracks sit 0.40mm centre to
+    # centre -- an edge gap of exactly 0.1500mm against a 0.2000mm
+    # rule. 136 of 505 clearance errors are that single value to four
+    # decimal places, and another 149 are its 45-degree corner case
+    # (0.4472mm centre distance, 0.1972mm gap). Together 56% of the
+    # board's clearance errors, and 80% of the x[40,60) band's.
+    #
+    # Leaving ``default_clearance_mm`` at its parsed value keeps the
+    # router's own bar equal to the bar it is measured against.
+    # ``scripts/check_router_clearance_floor.py`` gates the equality.
     if net_class_assignments or net_classes:
         dr = getattr(pcb, "design_rules", None)
         if dr is not None:
@@ -81,7 +111,6 @@ def _run_stage0_setup(
                 if isinstance(nc, dict):
                     nc.update(net_class_assignments)
                     dr.net_class_assignments = nc
-                dr.default_clearance_mm = 0.15
             if net_classes:
                 existing = getattr(dr, "net_classes", {})
                 if isinstance(existing, dict):
