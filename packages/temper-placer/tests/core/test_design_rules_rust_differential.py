@@ -289,7 +289,9 @@ def test_create_temper_design_rules_identical():
     py_dr = _oracle.create_temper_design_rules()
     rust_dr = create_temper_design_rules()
     assert _dr_fields(rust_dr) == _dr_fields(py_dr)
-    assert len(rust_dr.net_classes) == 11
+    # The netclass count must match the oracle (was a hardcoded 11, which the
+    # #1087 SELV-net assignment silently invalidated when a 12th class landed).
+    assert len(rust_dr.net_classes) == len(py_dr.net_classes)
 
 
 # ---------------------------------------------------------------------------

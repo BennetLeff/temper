@@ -327,7 +327,11 @@ def test_drc_oracle_setup_design_rules_object() -> None:
     oracle_out = _orc_setup.DRCOracleSetupStage(design_rules=dr).run(state)
     shim_out = _shim_setup.DRCOracleSetupStage(design_rules=dr).run(state)
     assert _drc_oracle_canon(shim_out) == _drc_oracle_canon(oracle_out)
-    assert len(shim_out.drc_oracle.rules._net_class_rules) == 11
+    # The count is the live net-class-set cardinality (grew 11 -> 12 when
+    # #1084 added HighVoltageTank) -- pin against the oracle, not a literal.
+    assert len(shim_out.drc_oracle.rules._net_class_rules) == len(
+        oracle_out.drc_oracle.rules._net_class_rules
+    )
 
 
 def test_drc_oracle_setup_differential_pairs() -> None:

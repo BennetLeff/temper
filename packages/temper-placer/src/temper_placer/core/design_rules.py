@@ -253,6 +253,54 @@ TEMPER_NET_CLASSES = {
     # entry exactly (clearance/creepage 6.0mm, trace_width 2.0mm, voltage
     # 20V, safety_category HV -- elec/domain_manifest.yaml puts every net in
     # this class in the SAME HV domain as ac_l/+170V_BUS/SW_NODE).
+    # ADDED 2026-08-12 (docs/evidence/2026-08-12-hv-hv-creepage-enforcement.md).
+    #
+    # WHY A SEPARATE CLASS AND NOT A RAISE OF `HighVoltage`: the `HighVoltage`
+    # class above conflates a 340-400 V DC bus with the series-resonant tank's
+    # cap<->coil junction, which is not rail-clamped and measures 923.7 V peak /
+    # 570.5 Vrms at the worst OCP-01-passing corner (ngspice against
+    # simulation/harness/nets/zvs_margin_sweep.cir; per-net table in
+    # docs/evidence/2026-08-12-hv-clearance-adequacy.md sec 2.3/3.2). Those two
+    # working voltages land in DIFFERENT rows of IEC 60335-1's creepage tables
+    # -- row iv (>250-400 V) for the bus, row vi (>500-800 V) for the tank node
+    # -- so one class cannot carry one correct creepage figure for both. The
+    # same evidence measured the alternative: raising `HighVoltage` wholesale
+    # costs +5 clearance violations at the smallest step (3.0mm) and breaches
+    # power_pcb_dataset/drc_ceiling.json, because it is the bus/relay/rectifier
+    # nets -- at most 400 V -- that are packed tight, not the tank node.
+    #
+    # WHY 6.3mm: IEC 60335-1 Table 18 ("Minimum Creepage Distances for
+    # FUNCTIONAL Insulation", clauses 29.2.4 and L-2), band >500 and <=800 V,
+    # material group IIIa/IIIb, pollution degree 2 = 6.3mm. Table 18 is the
+    # correct table for this pair (functional, not basic, insulation) and above
+    # 500 V it is numerically IDENTICAL to Table 17 -- the functional-insulation
+    # concession that exists in rows i-v is gone by row vi. Full transcription
+    # and the clause-29.2.4 exemption analysis:
+    # docs/evidence/2026-08-12-hv-hv-creepage-determination.md sec 3.1-3.3.
+    # PD2 is the repo's selected pollution degree
+    # (docs/evidence/2026-08-11-pd2-decision-record.md D1; PD3 would be 10.0mm,
+    # and that record's own sec 2 notes PD3 governs the as-built construction
+    # until the sealed compartment lands -- so 6.3mm is a FLOOR, not a ceiling).
+    #
+    # `clearance` is deliberately IDENTICAL to `HighVoltage`'s 2.0mm:
+    # docs/evidence/2026-08-12-hv-clearance-adequacy.md settled that 2.0mm is
+    # adequate for every HighVoltage pair on this board including this one, and
+    # docs/evidence/2026-08-12-netclass-param-reconciliation.md settled the
+    # value. This class changes the CREEPAGE requirement only.
+    "HighVoltageTank": NetClassRules(
+        name="HighVoltageTank",
+        trace_width=3.0,
+        clearance=2.0,
+        via_diameter=1.2,
+        via_drill=0.6,
+        via_template="Via3x3",
+        voltage_v=923.7,
+        creepage_mm=6.3,
+        routing_strategy="plane_required",
+        dru_priority=21,
+        required_layer="B.Cu",
+        safety_category="HV",
+    ),
     "HighVoltageIsolated": NetClassRules(
         name="HighVoltageIsolated",
         trace_width=2.0,
@@ -323,8 +371,21 @@ TEMPER_NET_ASSIGNMENTS = {
     "w1_1": "HighVoltage",  # CMC winding 1 taps (line side)
     "w1_2": "HighVoltage",
     "zcd": "HighVoltage",  # power_in's internal HV-side ZCD divider tap
-    "tank-out": "HighVoltage",  # ResonantTank input == SW_NODE
-    "tank.c_tank1-p2": "HighVoltage",  # ResonantTank 400V-rated node
+    "tank-out": "HighVoltage",  # coil far end -> CT primary -> PWR_RTN
+    # RECLASSIFIED 2026-08-12 (docs/evidence/2026-08-12-hv-hv-creepage-
+    # enforcement.md). The old "400V-rated node" comment traced to
+    # elec/src/modules.ato:534's `v_tank_peak: voltage = 400V`, which
+    # docs/evidence/2026-08-12-hv-clearance-adequacy.md sec 2.3 measured to be
+    # true only at the declared 47 kHz nominal: at the 44 kHz PLL floor the
+    # cap voltage is 497.8 V pk and the node-to-rail differential is 837.7 V pk,
+    # rising to 923.7 V pk / 570.5 Vrms at the worst OCP-01-passing corner.
+    # This is the ONLY net on the board measured above 500 Vrms against any
+    # other net, which is what puts it alone in IEC 60335-1 Table 18 row vi
+    # (6.3mm at PD2) while every other HighVoltage net sits in row iv or below.
+    # `tank-out` and `SW_NODE` deliberately stay `HighVoltage`: SW_NODE is
+    # rail-clamped (measured +-173 V at every operating point) and tank-out sits
+    # a CT primary away from PWR_RTN. Neither is the unclamped node.
+    "tank.c_tank1-p2": "HighVoltageTank",  # cap<->coil junction, 570.5 Vrms
     "power_in.ntc-no": "HighVoltage",  # bypass relay NO -> rectified mains
     "discharge.k_dis1-nc": "HighVoltage",  # k_dis1 contacts group (HV bus)
     "discharge.k_dis2-nc": "HighVoltage",  # k_dis2 contacts group (HV bus)
@@ -385,16 +446,42 @@ TEMPER_NET_ASSIGNMENTS = {
     # classification exposed was that the board's LARGEST net -- `gnd`, 86
     # pads, the ground return of a mains-powered board -- had no entry and so
     # still fell through to Signal (trace 0.2mm / clearance 0.15mm) rather
-    # than GND (trace 1.0mm / clearance 0.3mm / routing_strategy
-    # "plane_preferred").
+    # than the "GND" entry above (trace 1.0mm / clearance 0.3mm /
+    # routing_strategy "plane_preferred").
     #
-    # `plane_preferred` is the load-bearing half: router_v6's `_should_route`
-    # already excludes ground from Stage 4 A* as "handled by zone pours, not
-    # path routing", but it did so by a name heuristic rather than by this
-    # class -- so the routing exclusion and the class that justifies it were
-    # never actually connected. They are now.
-    "gnd": "GND",
-    "PWR_RTN": "GND",
+    # FIXED 2026-08-12 (this task; see docs/evidence/2026-08-12-nonexistent-
+    # gnd-class-mapping.md): the "GND" class named above is a real,
+    # genuinely-defined NetClassRules entry in THIS table (has been since
+    # this module's creation, 4f315fd0d, 2025-12-25) -- but pcb/temper.
+    # kicad_pro's declared classes (10 as of this session, 9 when this
+    # defect was reported) never included "GND"
+    # (confirmed: `json.load(open("pcb/temper.kicad_pro"))["net_settings"]
+    # ["classes"]`). Assigning a net to a class name kicad_pro never declared
+    # is inert on the fabrication path -- see the evidence doc for a
+    # measured proof (byte-identical kicad-cli clearance whether "gnd" is
+    # mapped to "GND" or left unassigned entirely). PR #1087 (fix/unassigned-
+    # selv-nets) independently reached the same conclusion for kicad_pro's
+    # OWN net_settings.netclass_assignments and picked "Power", grounded in
+    # docs/specs/NET_CLASS_SPECIFICATION.md 3.2 ("GND (control ground)"
+    # listed under Power); PR #1083 (fix/unassigned-hv-domain-nets) assigned
+    # PWR_RTN to "HighVoltage" there, since it is the doubler midpoint,
+    # HV-domain per elec/domain_manifest.yaml:95. Mirrored here so this
+    # table names the same class kicad_pro actually declares for both nets.
+    #
+    # NOTE (not fixed by this change -- flagged, not silently absorbed):
+    # "GND" was the only entry in this table declaring
+    # `routing_strategy="plane_preferred"`; router_v6/_zone_pour_stitch.py's
+    # `_zone_layers_for_net` reads this table directly (not the get_rules_for_net
+    # fallback cascade) to decide zone-pour eligibility, and `Power` declares
+    # no routing_strategy at all. Reassigning `gnd` here measurably drops it
+    # out of F.Cu/B.Cu zone-pour eligibility and (via `_should_route`) into
+    # A*-routed instead of zone-covered -- see the evidence doc's "Zone-pour
+    # and routing-strategy side effect" section for the measurement. `gnd`'s
+    # own dedicated In1.Cu ground-plane pour (router_v6/_ground_plane.py) is
+    # unaffected -- it targets the literal net name "gnd", never consults
+    # this table.
+    "gnd": "Power",
+    "PWR_RTN": "HighVoltage",
     # NOTE `CGND` names no net on this board (0 references in
     # pcb/temper.kicad_pcb, checked 2026-08-11). It is kept rather than
     # deleted because the GND-family reclassification -- CGND/PGND both
@@ -403,7 +490,11 @@ TEMPER_NET_ASSIGNMENTS = {
     # flags it as human-decision-required with an order-of-magnitude larger
     # blast radius). An assignment for a net that does not exist is inert, so
     # this is dead weight rather than a hazard; removing it is that decision's
-    # job, not this line's.
+    # job, not this line's. It still names the same nonexistent "GND" class
+    # this fix retires from `gnd`/`PWR_RTN` -- the extended
+    # check_netclass_class_param_correspondence.py gate (this task) reports
+    # it as a known, pre-existing, deliberately out-of-scope violation of
+    # the identical shape; not silently exempted, just not this line's fix.
     "CGND": "GND",
 }
 

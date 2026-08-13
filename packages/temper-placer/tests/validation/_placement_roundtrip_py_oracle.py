@@ -1,5 +1,14 @@
 """Round-trip oracle: written board vs the solver's placement model.
 
+RE-PINNED 2026-08-12 (drift triage, branch fix/oracle-drift-triage): PR
+#1074 (fix/placer stop dropping solved rotation-index-0 from write-back,
+commit 3ffa080a3) updated the ``_check_footprint`` rotation-fallback comment
+in lock-step with ``placement_roundtrip.py``'s matching comment (the
+``to_rotations_dict`` sparsity note) without updating the registry pin in
+``scripts/oracle_hashes.json``. The edit is comment-only and faithful --
+no semantics changed. Re-pinned from the on-disk bytes after establishing
+the cause.
+
 Every placement write is re-parsed from disk and its pad geometry is
 compared EXACTLY (modulo canonicalization and float epsilon) against the
 geometry the solver's placement record implies under the sanctioned

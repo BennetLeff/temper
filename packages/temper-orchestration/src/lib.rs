@@ -138,6 +138,20 @@
 //                     `validate_all` call-back, the count-by-type summary, the
 //                     `threshold_decision_py` raise decision and the
 //                     `drc_violations` write)
+// - `deterministic_pipeline` — Phase U-E: the `DeterministicPipeline`
+//                     pyclass hosting the `create_drc_aware_pipeline()`
+//                     stage factory (the D1->D7 ORDER) and the
+//                     `DeterministicPipeline.run()` sequencing loop
+//                     (driving the Python shim stages through
+//                     `PipelineRunner<BoardState>` with the fence
+//                     invocation preserved; the Python `BoardState` threads
+//                     through a shared side-channel)
+// - `feedback_loop`  — Phase U-F: the `AutomatedZeroDRC` feedback loop of
+//                     `deterministic/feedback/orchestrator.py` — the
+//                     iterate-until-clean LOOP (solve -> DRC -> map ->
+//                     adjust -> re-solve) as per-iteration shims through
+//                     `PipelineRunner<BoardState>` (the U-E pattern); the
+//                     per-iteration call-backs stay Python
 // - `connectivity_validation_stage` — Phase D batch D6: the
 //                     `ConnectivityValidationStage` `Stage<BoardState>` impl
 //                     (mirroring `deterministic/stages/connectivity_validation.py`:
@@ -181,6 +195,23 @@ mod courtyard_check_stage;
 mod d1_bridge;
 mod d6_util;
 mod derivation_stage;
+// Orchestration-port unit U-E (Rust Orchestration Engine plan 2026-08-09-001):
+// the `DeterministicPipeline` pyclass hosting the `create_drc_aware_pipeline()`
+// stage factory (the D1->D7 ORDER) and the `DeterministicPipeline.run()`
+// sequencing loop (driving the stages through `PipelineRunner<BoardState>`).
+// Append-only per the U-E dispatch.
+mod deterministic_pipeline;
+// Orchestration-port unit U-F (Rust Orchestration Engine plan 2026-08-09-001):
+// the `AutomatedZeroDRC` feedback loop of
+// `temper_placer/deterministic/feedback/orchestrator.py` -- the
+// iterate-until-clean LOOP (solve -> DRC -> map -> adjust -> re-solve),
+// wired through `PipelineRunner<BoardState>` as per-iteration shims (the
+// U-E pattern). The `run_automated_zero_drc` pyfunction is the delegation
+// target of the shim's `AutomatedZeroDRC.run()`; the per-iteration
+// `FeedbackIterationStage` implements `Stage<BoardState>` so the runner's
+// skip semantics ARE the loop's break semantics. Append-only per the U-F
+// dispatch.
+mod feedback_loop;
 mod drc_sweep_stage;
 mod drc_validation_stage;
 pub(crate) mod explainability;
@@ -200,6 +231,12 @@ pub(crate) mod pipeline_state;
 mod placement_validation_stage;
 mod power_plane_stage;
 mod preflight_stage;
+// Orchestration-port unit U-G (Rust Orchestration Engine plan 2026-08-09-001):
+// the `RouterPipeline` pyclass hosting the RouterV6Pipeline.run() stage-
+// sequencing driver (the fixed Stage 0..5 order + the conditionals + the
+// result assembly, driving the Python leaf call-backs through
+// `PipelineRunner<BoardState>`). Append-only per the U-G dispatch.
+pub(crate) mod router_pipeline;
 mod setup_stage;
 mod slot_generation_stage;
 pub(crate) mod stage;
@@ -299,6 +336,10 @@ pub use connectivity_validation_stage::ConnectivityValidationStage;
 #[cfg(feature = "python")]
 pub use courtyard_check_stage::CourtyardCheckStage;
 pub use derivation_stage::DerivationStage;
+#[cfg(feature = "python")]
+pub use deterministic_pipeline::{DeterministicPipeline, drc_aware_stage_order};
+#[cfg(feature = "python")]
+pub use feedback_loop::{FeedbackIterationStage, FeedbackRunContext, run_automated_zero_drc};
 pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
 pub use drc_validation_stage::DRCValidationStage;
 #[cfg(feature = "python")]
@@ -322,6 +363,8 @@ pub use pipeline_route::PipelineRouteStage;
 #[cfg(feature = "python")]
 pub use power_plane_stage::PowerPlaneStage;
 pub use preflight_stage::PreflightStage;
+#[cfg(feature = "python")]
+pub use router_pipeline::RouterPipeline;
 #[cfg(feature = "python")]
 pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
 pub use slot_generation_stage::SlotGenerationStage;
@@ -426,6 +469,12 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(pipeline_route::run_next_tstamp, m)?)?;
     m.add_function(wrap_pyfunction!(pipeline_route::run_to_stage0_netclass_rules, m)?)?;
     m.add_function(wrap_pyfunction!(pipeline_route::run_write_route_segments, m)?)?;
+    m.add_function(wrap_pyfunction!(pipeline_route::run_summarize_batch_results, m)?)?;
+    // Unit U-H (E6 follow-on): the residual _adapter_convert.py adapter
+    // marshalling -- the router input/output wire-format construction.
+    m.add_function(wrap_pyfunction!(pipeline_route::run_collect_pad_positions, m)?)?;
+    m.add_function(wrap_pyfunction!(pipeline_route::run_build_route_payload, m)?)?;
+    m.add_function(wrap_pyfunction!(pipeline_route::run_build_routing_result, m)?)?;
     // Phase C residual (append-only per the U4 dispatch): the pipeline
     // contract tail — dag_types / dag / bottleneck / metrics.
     m.add_class::<dag_types::StageResult>()?;
@@ -455,6 +504,22 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<reporter::MetricDelta>()?;
     m.add_class::<reporter::BoardResult>()?;
     m.add_class::<reporter::RegressionReporter>()?;
+    // Orchestration-port unit U-E (append-only per the U-E dispatch): the
+    // DeterministicPipeline pyclass -- the create_drc_aware_pipeline()
+    // stage factory (the D1->D7 ORDER) and the DeterministicPipeline.run()
+    // sequencing loop (through PipelineRunner<BoardState>). The
+    // deterministic/__init__.py shim delegates run() + the factory here.
+    m.add_class::<deterministic_pipeline::DeterministicPipeline>()?;
+    // Orchestration-port unit U-G (append-only per the U-G dispatch): the
+    // RouterPipeline pyclass -- the RouterV6Pipeline.run() stage-sequencing
+    // driver. The router_v6/_pipeline_core.py shim delegates run() here.
+    m.add_class::<router_pipeline::RouterPipeline>()?;
+    // Orchestration-port unit U-F (append-only per the U-F dispatch): the
+    // AutomatedZeroDRC feedback loop (the iterate-until-clean sequencing of
+    // deterministic/feedback/orchestrator.py). The orchestrator shim's
+    // run() delegates here; the per-iteration call-backs (pipeline.run,
+    // drc_runner, parse, mapper, adjuster, config marshalling) stay Python.
+    m.add_function(wrap_pyfunction!(feedback_loop::run_automated_zero_drc, m)?)?;
     Ok(())
 }
 

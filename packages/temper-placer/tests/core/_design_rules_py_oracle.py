@@ -9,6 +9,16 @@ migration). Only the module docstring was replaced with this pin note; every
 import (including the four internal ``temper_placer.core.*`` imports) was
 already absolute, so no relative-import rewriting was needed.
 
+RE-PINNED 2026-08-12 (drift triage, branch fix/oracle-drift-triage): PR
+#1084 (feat/drc HV-to-HV functional creepage at the resonant-tank node,
+commit 3231dc3db, merged via df0dc4d90) added the ``HighVoltageTank`` net
+class and reclassified ``tank.c_tank1-p2`` from ``HighVoltage`` in lock-step
+with ``design_rules.py`` (see the inline comment block below); the registry
+pin in ``scripts/oracle_hashes.json`` was not updated by that PR and this
+file drifted. The edit is faithful -- the added entry is byte-identical to
+the live ``design_rules.py`` table. Re-pinned from the on-disk bytes after
+establishing the cause.
+
 DO NOT EDIT THE SEMANTICS. This is the oracle the Rust pyo3 pyclasses
 (``temper_design_bundle_python``) must reproduce bit-identically; any
 edit here silently weakens the differential proof. If the module's
@@ -356,7 +366,7 @@ TEMPER_NET_CLASSES = {
     "HighVoltage": NetClassRules(
         name="HighVoltage",
         trace_width=3.0,
-        clearance=6.0,
+        clearance=2.0,
         via_diameter=1.2,
         via_drill=0.6,
         via_template="Via3x3",
@@ -380,10 +390,10 @@ TEMPER_NET_CLASSES = {
     ),
     "Power": NetClassRules(
         name="Power",
-        trace_width=0.5,
-        clearance=0.25,
-        via_diameter=0.8,
-        via_drill=0.4,
+        trace_width=1.0,
+        clearance=0.5,
+        via_diameter=1.0,
+        via_drill=0.5,
         via_template="Via2x2",
         dru_priority=40,
         required_layer=None,
@@ -467,6 +477,28 @@ TEMPER_NET_CLASSES = {
         via_template="Via4x4",
         dru_priority=90,
         required_layer=None,
+        safety_category="HV",
+    ),
+    # HighVoltageTank - the resonant tank's cap<->coil junction, carved out
+    # of HighVoltage 2026-08-12 because it is the only net on this board
+    # measured above 500 Vrms against another net (923.7 V peak / 570.5 Vrms)
+    # and therefore the only one in IEC 60335-1 Table 18 row vi. Mirrors the
+    # live table in temper_placer/core/design_rules.py exactly; see
+    # docs/evidence/2026-08-12-hv-hv-creepage-enforcement.md for the
+    # derivation and why this is a class split rather than a raise of
+    # HighVoltage. Only creepage_mm differs from HighVoltage's parameters.
+    "HighVoltageTank": NetClassRules(
+        name="HighVoltageTank",
+        trace_width=3.0,
+        clearance=2.0,
+        via_diameter=1.2,
+        via_drill=0.6,
+        via_template="Via3x3",
+        voltage_v=923.7,
+        creepage_mm=6.3,
+        routing_strategy="plane_required",
+        dru_priority=21,
+        required_layer="B.Cu",
         safety_category="HV",
     ),
     # HighVoltageIsolated - gate-drive floating bootstrap supply (+5V_ISO,
@@ -559,8 +591,12 @@ TEMPER_NET_ASSIGNMENTS = {
     "w1_1": "HighVoltage",  # CMC winding 1 taps (line side)
     "w1_2": "HighVoltage",
     "zcd": "HighVoltage",  # power_in's internal HV-side ZCD divider tap
-    "tank-out": "HighVoltage",  # ResonantTank input == SW_NODE
-    "tank.c_tank1-p2": "HighVoltage",  # ResonantTank 400V-rated node
+    "tank-out": "HighVoltage",  # coil far end -> CT primary -> PWR_RTN
+    # RECLASSIFIED 2026-08-12: the old "400V-rated node" label came from
+    # elec/src/modules.ato:534's v_tank_peak declaration, which holds only at
+    # the declared 47 kHz nominal; measured 923.7 V pk / 570.5 Vrms at the
+    # worst OCP-01-passing corner. See the HighVoltageTank class above.
+    "tank.c_tank1-p2": "HighVoltageTank",  # cap<->coil junction, 570.5 Vrms
     "power_in.ntc-no": "HighVoltage",  # bypass relay NO -> rectified mains
     "discharge.k_dis1-nc": "HighVoltage",  # k_dis1 contacts group (HV bus)
     "discharge.k_dis2-nc": "HighVoltage",  # k_dis2 contacts group (HV bus)
@@ -614,6 +650,7 @@ TEMPER_NET_ASSIGNMENTS = {
     # GND - power return
     "PWR_RTN": "GND",
     "CGND": "GND",
+    "gnd": "GND",
 }
 
 
