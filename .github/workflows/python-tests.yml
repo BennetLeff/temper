@@ -753,16 +753,49 @@ jobs:
       # with a matching floor lowering also fails loudly. The temper-workflow
       # package's own differential/PBT (route_and_measure) runs from its own
       # test tree below.
+      # wasm-covered: timing compare_stage T1-T4  <- orchestration::timing::tests
+      #   p7_compare_stage_zero_delta_at_parity_seed_000.._019 (20)
+      #   p8_compare_stage_positive_delta_pct_for_regression_seed_000.._019 (20)
+      #   p9_compare_stage_effective_baseline_at_least_floor_seed_000.._019 (20)
+      #   p10_compare_stage_zero_margin_exact_threshold_seed_000.._019 (20)
+      #   + compare_stage_guards_zero_baseline (1)
+      # Coverage authority: registry at THIS commit (gen_wasm_test_registry.py
+      # --check, fast-gates job) + nightly local-sweep-r19 (built from the same
+      # commit, no deployed-Worker staleness possible). Do NOT key the skip off
+      # the deployed Workers' census: that is the advisory arm.
+      # scripts/check_wasm_covered.py resolves the annotation against the
+      # registry-at-commit: on success the pytest plugin (-p check_wasm_covered)
+      # drops the four T1-T4 properties to a token 5 hypothesis examples; on
+      # failure WASM_COVERED_TIMING stays unset, the plugin reduces nothing and
+      # the full-strength suite runs -- a deleted/renamed mirror can never
+      # silently shrink Python coverage (fail-closed). Token examples rather
+      # than a skip/deselect because pytest_guard counts EXECUTED tests: all 63
+      # still execute, so the floor is preserved in both branches. p95 (T5/T7,
+      # CPython decimal -- structurally unmirrorable), the MT/MP relations and
+      # trace_commands are NOT wasm-covered and keep their full 120 examples;
+      # the two differential files remain the bit-exact retained oracles.
       - name: Run Phase-5 cli differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
-        run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 63 --
-          tests/cli/test_timing_rust_differential.py
-          tests/cli/test_trace_commands_rust_differential.py
-          tests/cli/test_timing_pbt.py
-          tests/cli/test_trace_commands_pbt.py
-          -v --tb=short -p no:cacheprovider --maxfail=10
+        run: |
+          # Resolve the wasm-covered annotation against this commit's registry.
+          # Fail-closed: on failure WASM_COVERED_TIMING stays unset and the
+          # plugin reduces nothing -- all 63 tests run at full strength.
+          if python ../../scripts/check_wasm_covered.py --cluster timing; then
+            echo "wasm-covered: timing T1-T4 confirmed at this commit; T1-T4 run at token examples"
+            export WASM_COVERED_TIMING=1
+          else
+            echo "::warning::wasm-covered resolution FAILED for timing T1-T4; the full-strength Python suite runs (fail-closed). Fix the registry or the annotation."
+          fi
+          # scripts/ must be importable for `-p check_wasm_covered`.
+          export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}$GITHUB_WORKSPACE/scripts"
+          uv run python ../../scripts/pytest_guard.py --min-tests 63 -- \
+          tests/cli/test_timing_rust_differential.py \
+          tests/cli/test_trace_commands_rust_differential.py \
+          tests/cli/test_timing_pbt.py \
+          tests/cli/test_trace_commands_pbt.py \
+          -v --tb=short -p no:cacheprovider --maxfail=10 \
+          -p check_wasm_covered
         env:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1

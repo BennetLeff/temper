@@ -2521,6 +2521,27 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_wasm_covered.py
+  purpose: 'Resolve `wasm-covered:` workflow annotations against the wasm registry at the current commit
+    (the `wasm_test_registry.rs` corpus, computed with gen_wasm_test_registry.py''s own collection -- NOT the
+    deployed Workers'' census). Dual role: CLI resolver (exit 0 = every claimed mirror is registered and every
+    Python test it would reduce still exists; exit 1 = stale annotation, fail-closed) and a pytest plugin
+    (`-p check_wasm_covered`) that drops an annotated cluster''s hypothesis tests to a token max_examples when
+    the workflow sets WASM_COVERED_<CLUSTER> after a successful resolution. First cluster: timing T1-T4
+    (p7-p10 x 20 seeds + compare_stage_guards_zero_baseline mirror Python test_t1..test_t4). See
+    docs/solutions/workflow-issues/wasm-covered-annotation-resolver-2026-08-12.md.'
+  owner: pipeline
+  last_run: '2026-08-12'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - os
+  - pathlib
+  - re
+  - sys
 - path: verify_pumpkin_engine.py
   purpose: 'Pumpkin-engine binary identity gate: the resolved pumpkin_engine CP solver
     (target-shared/release/pumpkin_engine, gitignored and untracked) must match a pinned
