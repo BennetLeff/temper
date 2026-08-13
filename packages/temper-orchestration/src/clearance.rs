@@ -1341,6 +1341,81 @@ pub(crate) mod tests {
         }
     }
 
+    /// P4 (mirror of `test_clearance_family_rust_metamorphic.py` MR3):
+    /// domain-partition ref covariance. A bijective ref renaming
+    /// `ref -> ref'` maps every component's bucket membership through the
+    /// same renaming -- classification is a pure function of pin-net
+    /// membership, never of the ref spelling.
+    ///
+    /// Built from the same fixed vocabulary as P1 (one HV net, one SELV net,
+    /// one regular net, cycled `i % 5` so every bucket is populated), with
+    /// the rename drawn as a deterministic permutation of the refs from the
+    /// seed.
+    ///
+    /// Bug this would catch: a classifier that keyed buckets by ref (e.g.
+    /// pattern-matching `R*` prefixes, or remembering refs across calls).
+    fn p4_partition_ref_renaming_covariant_impl(seed: u64) {
+        let mut rng = SplitMix64::new(seed.wrapping_mul(0x9E37_79B9_7F4A_7C15).wrapping_add(0xD4));
+        let hv_net = "AC_L".to_string();
+        let selv_net = "SELV_0".to_string();
+        let regular_net = "NET_0".to_string();
+        let n = rng.range_i64(5, 20);
+
+        let mut comps: Vec<(String, Vec<String>)> = Vec::new();
+        let mut refs: Vec<String> = Vec::new();
+        for i in 0..n {
+            let ref_ = format!("R{i}");
+            let nets = match i % 5 {
+                0 => vec![hv_net.clone()],
+                1 => vec![selv_net.clone()],
+                2 => vec![hv_net.clone(), selv_net.clone()],
+                3 => vec![hv_net.clone(), regular_net.clone()],
+                _ => vec![regular_net.clone()],
+            };
+            refs.push(ref_.clone());
+            comps.push((ref_, nets));
+        }
+
+        // A deterministic bijective rename: R{i} -> Q{(i + k) % n} with k
+        // drawn from the seed (k = 0 is still bijective, but a non-zero k
+        // exercises the mapping properly).
+        let k = rng.range_i64(1, n);
+        let rename = |ref_: &str| -> String {
+            let i: u64 = ref_[1..].parse().unwrap();
+            format!("Q{}", (i + k as u64) % n as u64)
+        };
+        let renamed: Vec<(String, Vec<String>)> = comps
+            .iter()
+            .map(|(ref_, nets)| (rename(ref_), nets.clone()))
+            .collect();
+
+        let hv_nets = vec![hv_net];
+        let selv_nets = vec![selv_net];
+        let (hv_only, selv_only, isolators, unclassified) =
+            classify_domain_partition_py(comps.clone(), hv_nets.clone(), selv_nets.clone());
+        let (r_hv, r_selv, r_iso, r_uncl) = classify_domain_partition_py(
+            renamed.clone(),
+            hv_nets.clone(),
+            selv_nets.clone(),
+        );
+
+        let map_refs = |v: &[String]| -> Vec<String> {
+            v.iter().map(|r| rename(r)).collect()
+        };
+        assert_eq!(map_refs(&hv_only), r_hv, "seed={seed}: hv_only did not map through the rename");
+        assert_eq!(map_refs(&selv_only), r_selv, "seed={seed}: selv_only did not map through the rename");
+        assert_eq!(map_refs(&isolators), r_iso, "seed={seed}: isolators did not map through the rename");
+        assert_eq!(map_refs(&unclassified), r_uncl, "seed={seed}: unclassified did not map through the rename");
+
+        // Every bucket is non-empty by construction (n >= 5 guarantees each
+        // i % 5 class) -- the rename covariance is asserted on live buckets,
+        // not vacuously on empty ones.
+        assert!(!hv_only.is_empty(), "seed={seed}: hv_only unexpectedly empty");
+        assert!(!selv_only.is_empty(), "seed={seed}: selv_only unexpectedly empty");
+        assert!(!isolators.is_empty(), "seed={seed}: isolators unexpectedly empty");
+        assert!(!unclassified.is_empty(), "seed={seed}: unclassified unexpectedly empty");
+    }
+
     // --- BEGIN generated seeded property-mirror wrappers (deterministic proptest mirrors, R19/U6) ---
     // 3 properties x 20 seeds = 60 distinct-input wasm tests.
     #[cfg_attr(test, test)]
@@ -1463,6 +1538,47 @@ pub(crate) mod tests {
     fn p3_rotation_table_correctness_seed_018() { p3_rotation_table_correctness_impl(18); }
     #[cfg_attr(test, test)]
     fn p3_rotation_table_correctness_seed_019() { p3_rotation_table_correctness_impl(19); }
+    // --- p4_partition_ref_renaming_covariant: 20 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_000() { p4_partition_ref_renaming_covariant_impl(0); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_001() { p4_partition_ref_renaming_covariant_impl(1); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_002() { p4_partition_ref_renaming_covariant_impl(2); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_003() { p4_partition_ref_renaming_covariant_impl(3); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_004() { p4_partition_ref_renaming_covariant_impl(4); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_005() { p4_partition_ref_renaming_covariant_impl(5); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_006() { p4_partition_ref_renaming_covariant_impl(6); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_007() { p4_partition_ref_renaming_covariant_impl(7); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_008() { p4_partition_ref_renaming_covariant_impl(8); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_009() { p4_partition_ref_renaming_covariant_impl(9); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_010() { p4_partition_ref_renaming_covariant_impl(10); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_011() { p4_partition_ref_renaming_covariant_impl(11); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_012() { p4_partition_ref_renaming_covariant_impl(12); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_013() { p4_partition_ref_renaming_covariant_impl(13); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_014() { p4_partition_ref_renaming_covariant_impl(14); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_015() { p4_partition_ref_renaming_covariant_impl(15); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_016() { p4_partition_ref_renaming_covariant_impl(16); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_017() { p4_partition_ref_renaming_covariant_impl(17); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_018() { p4_partition_ref_renaming_covariant_impl(18); }
+    #[cfg_attr(test, test)]
+    fn p4_partition_ref_renaming_covariant_seed_019() { p4_partition_ref_renaming_covariant_impl(19); }
     // --- END generated seeded property-mirror wrappers ---
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
@@ -1539,6 +1655,26 @@ pub(crate) mod tests {
         ("clearance::tests::p3_rotation_table_correctness_seed_017", p3_rotation_table_correctness_seed_017),
         ("clearance::tests::p3_rotation_table_correctness_seed_018", p3_rotation_table_correctness_seed_018),
         ("clearance::tests::p3_rotation_table_correctness_seed_019", p3_rotation_table_correctness_seed_019),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_000", p4_partition_ref_renaming_covariant_seed_000),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_001", p4_partition_ref_renaming_covariant_seed_001),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_002", p4_partition_ref_renaming_covariant_seed_002),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_003", p4_partition_ref_renaming_covariant_seed_003),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_004", p4_partition_ref_renaming_covariant_seed_004),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_005", p4_partition_ref_renaming_covariant_seed_005),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_006", p4_partition_ref_renaming_covariant_seed_006),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_007", p4_partition_ref_renaming_covariant_seed_007),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_008", p4_partition_ref_renaming_covariant_seed_008),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_009", p4_partition_ref_renaming_covariant_seed_009),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_010", p4_partition_ref_renaming_covariant_seed_010),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_011", p4_partition_ref_renaming_covariant_seed_011),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_012", p4_partition_ref_renaming_covariant_seed_012),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_013", p4_partition_ref_renaming_covariant_seed_013),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_014", p4_partition_ref_renaming_covariant_seed_014),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_015", p4_partition_ref_renaming_covariant_seed_015),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_016", p4_partition_ref_renaming_covariant_seed_016),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_017", p4_partition_ref_renaming_covariant_seed_017),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_018", p4_partition_ref_renaming_covariant_seed_018),
+        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_019", p4_partition_ref_renaming_covariant_seed_019),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
