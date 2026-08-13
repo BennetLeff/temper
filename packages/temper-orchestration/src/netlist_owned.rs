@@ -55,10 +55,53 @@
 //! and `Board.from_polygon` computes width as `x_max - x_min`, type-
 //! preserving — so ints are legal contract values, not pipeline accidents).
 //! The `(Val, Val)` and `(Val, Val, Val, Val)` tuple impls below serve them.
+//!
+//! # U5: the remaining BoardState COLLECTION fields (unit O-C3/U5)
+//!
+//! U5 ports the owned collection FIELD types for the remaining BoardState
+//! fields — `zones`, `component_zone_map`, `zone_slots`,
+//! `layer_assignments`, `routes`, `vias`, `violations`, `placements`,
+//! `component_domain_map` and the three violation lists. The owned element
+//! structs + the owned collection types live in `temper-data-model`
+//! (`collections.rs` — pyo3-free, with the full field table); the `Marshal`
+//! impls here are the pyo3 half:
+//!
+//! - **frozenset fields** (`zones`, `component_zone_map`,
+//!   `component_domain_map`, `zone_slots`, `layer_assignments`, `routes`,
+//!   `vias`, `placements`) are owned as the `*Set` `HashSet` newtypes and
+//!   marshalled by the shared [`frozenset_read`]/[`frozenset_write`]
+//!   helpers: read accepts a frozenset OR a set, write always rebuilds a
+//!   frozenset whose iteration order is a DETERMINISTIC function of the
+//!   values (the rebuilt element objects are sorted by their Python `repr`
+//!   before insertion — the U1 recorded bound, see `collections.rs`'s
+//!   module doc). Bit-identity is pinned by the gate only on the guaranteed
+//!   shapes (empty/single-element); content + type + determinism are pinned
+//!   for multi-element sets.
+//! - **the three violation lists** (`drc_violations`,
+//!   `connectivity_violations`, `placement_violations`) are Python TUPLES —
+//!   owned as the order-preserving `*List` `Vec` newtypes and marshalled by
+//!   the shared [`tuple_list_read`]/[`tuple_list_write`] helpers (a list is
+//!   REJECTED — the contract is a tuple, and accepting a list would silently
+//!   change the collection kind on write-back).
+//! - **`violations`** (the PreflightReport dict the `PreflightStage`
+//!   writes) is owned as [`PreflightReport`] + [`PreflightCheck`] with the
+//!   `details` leaves through [`OwnedPlain`] (the pyo3-free subset of
+//!   `Plain`).
+//!
+//! Write-back is runtime class lookup at the REAL module paths — the zone
+//! geometry `Zone` at `temper_placer.deterministic.stages.zone_geometry`,
+//! `Trace`/`Via` at `temper_design_bundle_python.board_contracts`,
+//! `LayerAssignment` at `temper_design_bundle_python` (root), `Violation`
+//! at `temper_placer.router_v6.constraints_drc_oracle`, `Point` at
+//! `temper_placer.router_v6.constraints_geometry`, the two stage violation
+//! dataclasses at their own stage modules. The tests register faithful
+//! stand-in classes under those same paths (the d3–d7 mock pattern).
 
 #![allow(dead_code)] // U2/U3 scaffolding: consumed by U4+'s BoardState field
 // ports and the stage rewires; until then only the round-trip gate tests
 // exercise this file.
+
+use std::collections::HashSet;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyFrozenSet, PySet, PyTuple};
@@ -66,8 +109,11 @@ use pyo3::types::{PyDict, PyFrozenSet, PySet, PyTuple};
 use pyo3::IntoPyObjectExt;
 
 use temper_data_model::{
-    Board, ClearanceCredit, ClearanceGrid, ClearanceMatrix, Component, DrcOracle, Net, Netlist, Pin,
-    Val,
+    Board, ClearanceCredit, ClearanceGrid, ClearanceMatrix, Component, ConnectivityViolation,
+    ConnectivityViolationList, DrcOracle, LayerAssignment, LayerAssignmentSet, Net, Netlist, OwnedPlain,
+    Placement, PlacementSet, PlacementViolation, PlacementViolationList, Pin, PreflightCheck,
+    PreflightReport, Route, RouteSet, SlotPos, StrPairSet, Val, Via, ViaSet, Violation,
+    ViolationList, Zone, ZoneSet, ZoneSlots, ZoneSlotsSet,
 };
 
 use crate::marshal::{Marshal, Plain, type_err};
@@ -1041,6 +1087,715 @@ fn credits_to_python(py: Python<'_>, credits: &[ClearanceCredit]) -> PyResult<Py
 }
 
 // ---------------------------------------------------------------------------
+// U5: the shared collection marshallers — frozenset fields + tuple lists
+// ---------------------------------------------------------------------------
+//
+// `frozenset_read`/`frozenset_write` serve every frozenset-backed `*Set`
+// field (`zones`, `component_zone_map`, `component_domain_map`,
+// `zone_slots`, `layer_assignments`, `routes`, `vias`, `placements`): read
+// accepts a frozenset OR a mutable set (the dataclass default is
+// `frozenset()`), write ALWAYS rebuilds a frozenset (the field contract).
+//
+// The write-back iteration order is SORTED BY PYTHON REPR, deliberately:
+// `HashSet` iteration is process-random, an unacceptable property for a
+// deterministic engine's write-back. Sorting the REBUILT element objects by
+// their CPython `repr` (a deterministic function of the values) makes the
+// rebuilt frozenset's table layout — and therefore its Python-side
+// iteration order — deterministic across runs. The U1 recorded bound
+// applies verbatim: for a COLLISION-FREE set CPython's iteration order is a
+// pure function of the values, so the rebuilt frozenset round-trips
+// bit-identically; with collisions the order is a
+// deterministic-but-different table-layout artifact. Type, membership
+// content and `==` are preserved in every case.
+//
+// `tuple_list_read`/`tuple_list_write` serve the three violation lists
+// (`tuple[Violation, ...]` etc.): read casts a TUPLE (a list is rejected —
+// the contract is a tuple, and accepting a list would silently change the
+// collection kind on write-back), write rebuilds a tuple preserving order.
+
+fn frozenset_read<T: Marshal + Eq + std::hash::Hash>(
+    py: Python<'_>,
+    obj: &Bound<'_, PyAny>,
+) -> PyResult<HashSet<T>> {
+    let is_frozen = obj.is_instance_of::<PyFrozenSet>();
+    let is_mutable = obj.is_instance_of::<PySet>();
+    if !is_frozen && !is_mutable {
+        return Err(type_err(
+            obj,
+            "frozenset field",
+            "expected frozenset or set",
+        ));
+    }
+    let mut out = HashSet::with_capacity(obj.len()?);
+    for item in obj.try_iter()? {
+        out.insert(T::from_python(py, &item?)?);
+    }
+    Ok(out)
+}
+
+fn frozenset_write<T: Marshal>(py: Python<'_>, set: &HashSet<T>) -> PyResult<Py<PyAny>> {
+    // Rebuild every element, then sort by the element's CPython repr — a
+    // deterministic sort key that needs no per-type canonicalization (the
+    // repr of a rebuilt element is a pure function of its values). Two
+    // distinct owned elements never produce equal reprs (a repr is a
+    // function of the fields, and distinct fields render distinctly), so
+    // the sort is total in practice; ties (none expected) are stable.
+    let mut items: Vec<(String, Py<PyAny>)> = Vec::with_capacity(set.len());
+    for element in set {
+        let obj = element.to_python(py)?;
+        let key: String = obj.bind(py).repr()?.extract()?;
+        items.push((key, obj));
+    }
+    items.sort_by(|a, b| a.0.cmp(&b.0));
+    let objs: Vec<Py<PyAny>> = items.into_iter().map(|(_, o)| o).collect();
+    Ok(PyFrozenSet::new(py, objs.iter().map(|o| o.bind(py)))?
+        .into_any()
+        .unbind())
+}
+
+fn tuple_list_read<T: Marshal>(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Vec<T>> {
+    let t = obj
+        .cast::<PyTuple>()
+        .map_err(|_| type_err(obj, "violation list", "expected a tuple"))?;
+    let mut out = Vec::with_capacity(t.len());
+    for item in t.iter() {
+        out.push(T::from_python(py, &item)?);
+    }
+    Ok(out)
+}
+
+fn tuple_list_write<T: Marshal>(py: Python<'_>, items: &[T]) -> PyResult<Py<PyAny>> {
+    let objs: Vec<Py<PyAny>> = items
+        .iter()
+        .map(|i| i.to_python(py))
+        .collect::<PyResult<_>>()?;
+    Ok(PyTuple::new(py, objs.iter().map(|o| o.bind(py)))?
+        .into_any()
+        .unbind())
+}
+
+// ---------------------------------------------------------------------------
+// U5: Zone — the zone_geometry 2-field frozen dataclass
+// ---------------------------------------------------------------------------
+
+/// The zone-geometry `Zone` class at
+/// `temper_placer.deterministic.stages.zone_geometry`, resolved at call
+/// time (runtime class lookup — see the module doc).
+fn zone_geometry_cls<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    py.import("temper_placer.deterministic.stages.zone_geometry")?
+        .getattr("Zone")
+}
+
+/// `Zone.bounds` — the nested `((x_min, y_min), (x_max, y_max))` TUPLE
+/// shape, each coordinate element-wise through `Val` (the stage's
+/// documented int-vs-float canon: HV `x_min`/every `y_min` are Python
+/// `int` `0`).
+fn zone_bounds_from_python(
+    py: Python<'_>,
+    obj: &Bound<'_, PyAny>,
+) -> PyResult<((Val, Val), (Val, Val))> {
+    let t = obj
+        .cast::<PyTuple>()
+        .map_err(|_| type_err(obj, "Zone.bounds", "expected a ((x_min, y_min), (x_max, y_max)) tuple"))?;
+    if t.len() != 2 {
+        return Err(type_err(
+            obj,
+            "Zone.bounds",
+            &format!("expected a 2-tuple of 2-tuples, got {} elements", t.len()),
+        ));
+    }
+    let lo = <(Val, Val) as Marshal>::from_python(py, &t.get_item(0)?)
+        .map_err(|e| type_err(obj, "Zone.bounds", &format!("lower corner: {e}")))?;
+    let hi = <(Val, Val) as Marshal>::from_python(py, &t.get_item(1)?)
+        .map_err(|e| type_err(obj, "Zone.bounds", &format!("upper corner: {e}")))?;
+    Ok((lo, hi))
+}
+
+fn zone_bounds_to_python(
+    py: Python<'_>,
+    bounds: &((Val, Val), (Val, Val)),
+) -> PyResult<Py<PyAny>> {
+    let lo = bounds.0.to_python(py)?;
+    let hi = bounds.1.to_python(py)?;
+    Ok(PyTuple::new(py, [lo.bind(py), hi.bind(py)])?
+        .into_any()
+        .unbind())
+}
+
+impl Marshal for Zone {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(Zone {
+            name: <String as Marshal>::from_python(py, &obj.getattr("name")?)?,
+            bounds: zone_bounds_from_python(py, &obj.getattr("bounds")?)?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let cls = zone_geometry_cls(py)?;
+        cls.call1((self.name.as_str(), zone_bounds_to_python(py, &self.bounds)?))
+            .map(Bound::unbind)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// U5: Route + Via — the board_contracts Trace/Via frozen pyclasses
+// ---------------------------------------------------------------------------
+
+/// The design-bundle `Trace`/`Via` classes at
+/// `temper_design_bundle_python.board_contracts`, resolved at call time.
+fn board_contracts_cls<'py>(py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
+    py.import("temper_design_bundle_python")?
+        .getattr("board_contracts")?
+        .getattr(name)
+}
+
+impl Marshal for Route {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(Route {
+            start: <(f64, f64) as Marshal>::from_python(py, &obj.getattr("start")?)?,
+            end: <(f64, f64) as Marshal>::from_python(py, &obj.getattr("end")?)?,
+            width: <f64 as Marshal>::from_python(py, &obj.getattr("width")?)?,
+            layer: <String as Marshal>::from_python(py, &obj.getattr("layer")?)?,
+            net: <Option<String> as Marshal>::from_python(py, &obj.getattr("net")?)?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let cls = board_contracts_cls(py, "Trace")?;
+        let args = PyTuple::new(
+            py,
+            [
+                self.start.to_python(py)?,
+                self.end.to_python(py)?,
+                self.width.into_py_any(py)?,
+                self.layer.as_str().into_py_any(py)?,
+                self.net.to_python(py)?,
+            ],
+        )?;
+        cls.call1(args).map(Bound::unbind)
+    }
+}
+
+impl Marshal for Via {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(Via {
+            position: <(f64, f64) as Marshal>::from_python(py, &obj.getattr("position")?)?,
+            drill: <f64 as Marshal>::from_python(py, &obj.getattr("drill")?)?,
+            width: <f64 as Marshal>::from_python(py, &obj.getattr("width")?)?,
+            // `layers` is the `("F.Cu", "B.Cu")` 2-tuple the pyclass defaults
+            // to — a wrong arity is a loud error (the U3 keepouts rule).
+            layers: <(String, String) as Marshal>::from_python(py, &obj.getattr("layers")?)?,
+            net: <Option<String> as Marshal>::from_python(py, &obj.getattr("net")?)?,
+            is_diff_pair: <bool as Marshal>::from_python(py, &obj.getattr("is_diff_pair")?)?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let cls = board_contracts_cls(py, "Via")?;
+        let args = PyTuple::new(
+            py,
+            [
+                self.position.to_python(py)?,
+                self.drill.into_py_any(py)?,
+                self.width.into_py_any(py)?,
+                self.layers.to_python(py)?,
+                self.net.to_python(py)?,
+                self.is_diff_pair.into_py_any(py)?,
+            ],
+        )?;
+        cls.call1(args).map(Bound::unbind)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// U5: LayerAssignment — the design-bundle root-module frozen pyclass
+// ---------------------------------------------------------------------------
+
+/// The design-bundle `LayerAssignment` class (registered on the ROOT
+/// module — `deterministic_leaves.rs::register` adds it to the
+/// `temper_design_bundle_python` module object), resolved at call time.
+fn layer_assignment_cls<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    py.import("temper_design_bundle_python")?
+        .getattr("LayerAssignment")
+}
+
+impl Marshal for LayerAssignment {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(LayerAssignment {
+            net_name: <String as Marshal>::from_python(py, &obj.getattr("net_name")?)?,
+            // The pyclass stores `layer` UNCOERCED ("an int layer stays
+            // int") — `Val` records int vs float and round-trips either.
+            layer: <Val as Marshal>::from_python(py, &obj.getattr("layer")?)?,
+            allow_layer_change: <bool as Marshal>::from_python(
+                py,
+                &obj.getattr("allow_layer_change")?,
+            )?,
+            is_plane: <bool as Marshal>::from_python(py, &obj.getattr("is_plane")?)?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let cls = layer_assignment_cls(py)?;
+        let args = PyTuple::new(
+            py,
+            [
+                self.net_name.as_str().into_py_any(py)?,
+                self.layer.to_python(py)?,
+                self.allow_layer_change.into_py_any(py)?,
+                self.is_plane.into_py_any(py)?,
+            ],
+        )?;
+        cls.call1(args).map(Bound::unbind)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// U5: Placement + SlotPos + ZoneSlots — the tuple-shaped frozenset elements
+// ---------------------------------------------------------------------------
+
+impl Marshal for Placement {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let t = obj
+            .cast::<PyTuple>()
+            .map_err(|_| type_err(obj, "Placement", "expected a (ref, (x, y)) tuple"))?;
+        if t.len() != 2 {
+            return Err(type_err(
+                obj,
+                "Placement",
+                &format!("expected a 2-tuple, got {} elements", t.len()),
+            ));
+        }
+        Ok(Placement {
+            ref_: <String as Marshal>::from_python(py, &t.get_item(0)?)
+                .map_err(|e| type_err(obj, "Placement", &format!("ref: {e}")))?,
+            position: <(f64, f64) as Marshal>::from_python(py, &t.get_item(1)?)
+                .map_err(|e| type_err(obj, "Placement", &format!("position: {e}")))?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let items: [Py<PyAny>; 2] = [
+            self.ref_.clone().into_py_any(py)?,
+            self.position.to_python(py)?,
+        ];
+        Ok(PyTuple::new(py, items.iter().map(|o| o.bind(py)))?
+            .into_any()
+            .unbind())
+    }
+}
+
+impl Marshal for SlotPos {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let t = obj
+            .cast::<PyTuple>()
+            .map_err(|_| type_err(obj, "SlotPos", "expected a (x, y) tuple"))?;
+        if t.len() != 2 {
+            return Err(type_err(
+                obj,
+                "SlotPos",
+                &format!("expected a 2-tuple, got {} elements", t.len()),
+            ));
+        }
+        let x = <f64 as Marshal>::from_python(py, &t.get_item(0)?)
+            .map_err(|e| type_err(obj, "SlotPos", &format!("x coordinate: {e}")))?;
+        let y = <f64 as Marshal>::from_python(py, &t.get_item(1)?)
+            .map_err(|e| type_err(obj, "SlotPos", &format!("y coordinate: {e}")))?;
+        Ok(SlotPos(x, y))
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        Ok(PyTuple::new(py, [self.0, self.1])?
+            .into_any()
+            .unbind())
+    }
+}
+
+impl Marshal for ZoneSlots {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let t = obj
+            .cast::<PyTuple>()
+            .map_err(|_| type_err(obj, "ZoneSlots", "expected a (zone_name, slots) tuple"))?;
+        if t.len() != 2 {
+            return Err(type_err(
+                obj,
+                "ZoneSlots",
+                &format!("expected a 2-tuple, got {} elements", t.len()),
+            ));
+        }
+        let zone = <String as Marshal>::from_python(py, &t.get_item(0)?)
+            .map_err(|e| type_err(obj, "ZoneSlots", &format!("zone name: {e}")))?;
+        // The slots value is the per-zone TUPLE of slot tuples — an ordered
+        // sequence, so a `Vec` preserves its order (never a set).
+        let slots_any = t.get_item(1)?;
+        let slots_t = slots_any
+            .cast::<PyTuple>()
+            .map_err(|_| type_err(obj, "ZoneSlots", "expected the slots as a tuple"))?;
+        let mut slots = Vec::with_capacity(slots_t.len());
+        for item in slots_t.iter() {
+            slots.push(SlotPos::from_python(py, &item)?);
+        }
+        Ok(ZoneSlots { zone, slots })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        // The slots are a TUPLE (the element's second half is the per-zone
+        // `tuple(slots)` the stage writes) — NOT a `Vec`-marshalled list
+        // (a list would make the frozenset element unhashable and change
+        // the kind).
+        let slot_objs: Vec<Py<PyAny>> = self
+            .slots
+            .iter()
+            .map(|s| s.to_python(py))
+            .collect::<PyResult<_>>()?;
+        let slots = PyTuple::new(py, slot_objs.iter().map(|o| o.bind(py)))?
+            .into_any()
+            .unbind();
+        let items: [Py<PyAny>; 2] = [self.zone.clone().into_py_any(py)?, slots];
+        Ok(PyTuple::new(py, items.iter().map(|o| o.bind(py)))?
+            .into_any()
+            .unbind())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// U5: the violation dataclasses — Violation / ConnectivityViolation /
+// PlacementViolation (the three tuple-list element types)
+// ---------------------------------------------------------------------------
+
+/// The `Point` class at `temper_placer.router_v6.constraints_geometry`
+/// (re-export of the design-bundle `geometry_contracts.Point`), resolved at
+/// call time.
+fn point_cls<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    py.import("temper_placer.router_v6.constraints_geometry")?
+        .getattr("Point")
+}
+
+/// A `Point` object's `(x, y)` — strict `f64` (the oracle builds points
+/// from kernel float coordinates; an int-shaped point is a loud error).
+fn point_from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<(f64, f64)> {
+    let x = <f64 as Marshal>::from_python(py, &obj.getattr("x")?)?;
+    let y = <f64 as Marshal>::from_python(py, &obj.getattr("y")?)?;
+    Ok((x, y))
+}
+
+fn point_to_python(py: Python<'_>, loc: &(f64, f64)) -> PyResult<Py<PyAny>> {
+    let cls = point_cls(py)?;
+    cls.call1((loc.0, loc.1)).map(Bound::unbind)
+}
+
+impl Marshal for Violation {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(Violation {
+            type_: <String as Marshal>::from_python(py, &obj.getattr("type")?)?,
+            geometry_a_id: <String as Marshal>::from_python(py, &obj.getattr("geometry_a_id")?)?,
+            geometry_b_id: <String as Marshal>::from_python(py, &obj.getattr("geometry_b_id")?)?,
+            net_a: <String as Marshal>::from_python(py, &obj.getattr("net_a")?)?,
+            net_b: <String as Marshal>::from_python(py, &obj.getattr("net_b")?)?,
+            clearance_actual: <f64 as Marshal>::from_python(py, &obj.getattr("clearance_actual")?)?,
+            clearance_required: <f64 as Marshal>::from_python(
+                py,
+                &obj.getattr("clearance_required")?,
+            )?,
+            location: point_from_python(py, &obj.getattr("location")?)?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let cls = py
+            .import("temper_placer.router_v6.constraints_drc_oracle")?
+            .getattr("Violation")?;
+        let kwargs = PyDict::new(py);
+        kwargs.set_item("type", self.type_.as_str())?;
+        kwargs.set_item("geometry_a_id", self.geometry_a_id.as_str())?;
+        kwargs.set_item("geometry_b_id", self.geometry_b_id.as_str())?;
+        kwargs.set_item("net_a", self.net_a.as_str())?;
+        kwargs.set_item("net_b", self.net_b.as_str())?;
+        kwargs.set_item("clearance_actual", self.clearance_actual)?;
+        kwargs.set_item("clearance_required", self.clearance_required)?;
+        kwargs.set_item("location", point_to_python(py, &self.location)?)?;
+        cls.call((), Some(&kwargs)).map(Bound::unbind)
+    }
+}
+
+impl Marshal for ConnectivityViolation {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(ConnectivityViolation {
+            type_: <String as Marshal>::from_python(py, &obj.getattr("type")?)?,
+            net: <String as Marshal>::from_python(py, &obj.getattr("net")?)?,
+            location: point_from_python(py, &obj.getattr("location")?)?,
+            description: <String as Marshal>::from_python(py, &obj.getattr("description")?)?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let cls = py
+            .import("temper_placer.deterministic.stages.connectivity_validation")?
+            .getattr("ConnectivityViolation")?;
+        let kwargs = PyDict::new(py);
+        kwargs.set_item("type", self.type_.as_str())?;
+        kwargs.set_item("net", self.net.as_str())?;
+        kwargs.set_item("location", point_to_python(py, &self.location)?)?;
+        kwargs.set_item("description", self.description.as_str())?;
+        cls.call((), Some(&kwargs)).map(Bound::unbind)
+    }
+}
+
+impl Marshal for PlacementViolation {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(PlacementViolation {
+            constraint_name: <String as Marshal>::from_python(py, &obj.getattr("constraint_name")?)?,
+            violation_type: <String as Marshal>::from_python(py, &obj.getattr("violation_type")?)?,
+            message: <String as Marshal>::from_python(py, &obj.getattr("message")?)?,
+            severity: <String as Marshal>::from_python(py, &obj.getattr("severity")?)?,
+            component_a: <Option<String> as Marshal>::from_python(py, &obj.getattr("component_a")?)?,
+            component_b: <Option<String> as Marshal>::from_python(py, &obj.getattr("component_b")?)?,
+            actual_distance_mm: <Option<f64> as Marshal>::from_python(
+                py,
+                &obj.getattr("actual_distance_mm")?,
+            )?,
+            required_distance_mm: <Option<f64> as Marshal>::from_python(
+                py,
+                &obj.getattr("required_distance_mm")?,
+            )?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let cls = py
+            .import("temper_placer.deterministic.stages.placement_validation")?
+            .getattr("PlacementViolation")?;
+        let kwargs = PyDict::new(py);
+        kwargs.set_item("constraint_name", self.constraint_name.as_str())?;
+        kwargs.set_item("violation_type", self.violation_type.as_str())?;
+        kwargs.set_item("message", self.message.as_str())?;
+        kwargs.set_item("severity", self.severity.as_str())?;
+        kwargs.set_item("component_a", self.component_a.to_python(py)?)?;
+        kwargs.set_item("component_b", self.component_b.to_python(py)?)?;
+        kwargs.set_item("actual_distance_mm", self.actual_distance_mm.to_python(py)?)?;
+        kwargs.set_item("required_distance_mm", self.required_distance_mm.to_python(py)?)?;
+        cls.call((), Some(&kwargs)).map(Bound::unbind)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// U5: the violations field — the PreflightReport dict (OwnedPlain leaves)
+// ---------------------------------------------------------------------------
+
+impl Marshal for OwnedPlain {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if obj.is_none() {
+            return Ok(OwnedPlain::Null);
+        }
+        // Order matters: bool before int (bool is an int subclass).
+        if obj.is_instance_of::<pyo3::types::PyBool>() {
+            return Ok(OwnedPlain::Bool(obj.extract::<bool>()?));
+        }
+        if obj.is_instance_of::<pyo3::types::PyInt>() {
+            let i: i64 = obj
+                .extract()
+                .map_err(|e| type_err(obj, "plain value", &format!("int out of i64 range: {e}")))?;
+            return Ok(OwnedPlain::Int(i));
+        }
+        if obj.is_instance_of::<pyo3::types::PyFloat>() {
+            return Ok(OwnedPlain::Float(obj.extract::<f64>()?));
+        }
+        if obj.is_instance_of::<pyo3::types::PyString>() {
+            return Ok(OwnedPlain::Str(obj.extract::<String>()?));
+        }
+        if let Ok(l) = obj.cast::<pyo3::types::PyList>() {
+            let mut items = Vec::with_capacity(l.len());
+            for item in l.iter() {
+                items.push(OwnedPlain::from_python(py, &item)?);
+            }
+            return Ok(OwnedPlain::List(items));
+        }
+        if let Ok(d) = obj.cast::<PyDict>() {
+            let mut items = Vec::with_capacity(d.len());
+            for (k, v) in d.iter() {
+                let key = k
+                    .extract::<String>()
+                    .map_err(|_| type_err(&k, "plain dict", "expected a str key"))?;
+                items.push((key, OwnedPlain::from_python(py, &v)?));
+            }
+            return Ok(OwnedPlain::Dict(items));
+        }
+        Err(type_err(
+            obj,
+            "plain value",
+            "expected None/bool/int/float/str/list/dict (the PreflightReport details shapes)",
+        ))
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        match self {
+            OwnedPlain::Null => Ok(py.None()),
+            OwnedPlain::Bool(b) => (*b).into_py_any(py),
+            OwnedPlain::Int(i) => (*i).into_py_any(py),
+            OwnedPlain::Float(f) => (*f).into_py_any(py),
+            OwnedPlain::Str(s) => s.clone().into_py_any(py),
+            OwnedPlain::List(items) => {
+                let list = pyo3::types::PyList::empty(py);
+                for item in items {
+                    list.append(item.to_python(py)?.bind(py))?;
+                }
+                Ok(list.into_any().unbind())
+            }
+            OwnedPlain::Dict(items) => {
+                let d = PyDict::new(py);
+                for (k, v) in items {
+                    d.set_item(k, v.to_python(py)?.bind(py))?;
+                }
+                Ok(d.into_any().unbind())
+            }
+        }
+    }
+}
+
+impl Marshal for PreflightCheck {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        // Each check is a DICT (the `check_dict` shape the stage writes),
+        // so its fields are read with get_item (dict keys), not getattr.
+        Ok(PreflightCheck {
+            name: <String as Marshal>::from_python(py, &obj.get_item("name")?)?,
+            result: <String as Marshal>::from_python(py, &obj.get_item("result")?)?,
+            message: <String as Marshal>::from_python(py, &obj.get_item("message")?)?,
+            details: match obj.get_item("details")? {
+                d if d.is_none() => None,
+                d => Some(OwnedPlain::from_python(py, &d)?),
+            },
+            time_ms: <f64 as Marshal>::from_python(py, &obj.get_item("time_ms")?)?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let d = PyDict::new(py);
+        d.set_item("name", self.name.as_str())?;
+        d.set_item("result", self.result.as_str())?;
+        d.set_item("message", self.message.as_str())?;
+        d.set_item("details", self.details.to_python(py)?)?;
+        d.set_item("time_ms", self.time_ms)?;
+        Ok(d.into_any().unbind())
+    }
+}
+
+impl Marshal for PreflightReport {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(PreflightReport {
+            checks: <Vec<PreflightCheck> as Marshal>::from_python(py, &obj.get_item("checks")?)?,
+            overall: <String as Marshal>::from_python(py, &obj.get_item("overall")?)?,
+            total_time_ms: <f64 as Marshal>::from_python(py, &obj.get_item("total_time_ms")?)?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let d = PyDict::new(py);
+        d.set_item("checks", self.checks.to_python(py)?)?;
+        d.set_item("overall", self.overall.as_str())?;
+        d.set_item("total_time_ms", self.total_time_ms)?;
+        Ok(d.into_any().unbind())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// U5: the owned collection FIELD types — the *Set frozenset newtypes + the
+// *List tuple newtypes
+// ---------------------------------------------------------------------------
+
+impl Marshal for ZoneSet {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(ZoneSet(frozenset_read::<Zone>(py, obj)?))
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        frozenset_write(py, &self.0)
+    }
+}
+
+impl Marshal for StrPairSet {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(StrPairSet(frozenset_read::<(String, String)>(py, obj)?))
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        frozenset_write(py, &self.0)
+    }
+}
+
+impl Marshal for ZoneSlotsSet {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(ZoneSlotsSet(frozenset_read::<ZoneSlots>(py, obj)?))
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        frozenset_write(py, &self.0)
+    }
+}
+
+impl Marshal for LayerAssignmentSet {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(LayerAssignmentSet(frozenset_read::<LayerAssignment>(py, obj)?))
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        frozenset_write(py, &self.0)
+    }
+}
+
+impl Marshal for RouteSet {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(RouteSet(frozenset_read::<Route>(py, obj)?))
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        frozenset_write(py, &self.0)
+    }
+}
+
+impl Marshal for ViaSet {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(ViaSet(frozenset_read::<Via>(py, obj)?))
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        frozenset_write(py, &self.0)
+    }
+}
+
+impl Marshal for PlacementSet {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(PlacementSet(frozenset_read::<Placement>(py, obj)?))
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        frozenset_write(py, &self.0)
+    }
+}
+
+impl Marshal for ViolationList {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(ViolationList(tuple_list_read::<Violation>(py, obj)?))
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        tuple_list_write(py, &self.0)
+    }
+}
+
+impl Marshal for ConnectivityViolationList {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(ConnectivityViolationList(tuple_list_read::<ConnectivityViolation>(
+            py, obj,
+        )?))
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        tuple_list_write(py, &self.0)
+    }
+}
+
+impl Marshal for PlacementViolationList {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(PlacementViolationList(tuple_list_read::<PlacementViolation>(
+            py, obj,
+        )?))
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        tuple_list_write(py, &self.0)
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Tests — the U2 leaf round-trip losslessness proof
 // ---------------------------------------------------------------------------
 
@@ -1266,6 +2021,83 @@ class DRCOracle:
     enable_internal_layer_creepage: bool = True
     clearance_credits: dict = field(default_factory=dict)
     pin_owner: object = field(default_factory=dict)
+
+# --- U5: the collection-element stand-ins ------------------------------
+# The zone-geometry `Zone` (2-field frozen dataclass) lives in a SEPARATE
+# namespace: the board_contracts `Zone` stand-in above already owns the
+# globals name `Zone`, and the two classes are genuinely different (11 vs 2
+# fields). The U5 round-trip tests eval against this `_u5` dict, so every
+# class here is reachable under its REAL name. The field orders/defaults
+# mirror the Python classes the stage writes bit-for-bit (the frozen
+# dataclasses' `__repr__`/`__eq__`/`__hash__` are exactly the pyclass
+# surfaces the gate compares).
+_u5 = {}
+exec('''
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Zone:
+    name: str
+    bounds: object
+
+@dataclass(frozen=True)
+class Trace:
+    start: object
+    end: object
+    width: object
+    layer: object
+    net: object = None
+
+@dataclass(frozen=True)
+class Via:
+    position: object
+    drill: object
+    width: object
+    layers: object = ("F.Cu", "B.Cu")
+    net: object = None
+    is_diff_pair: object = False
+
+@dataclass(frozen=True)
+class LayerAssignment:
+    net_name: str
+    layer: object
+    allow_layer_change: object = True
+    is_plane: object = False
+
+@dataclass(frozen=True)
+class Point:
+    x: object
+    y: object
+
+@dataclass
+class Violation:
+    type: str
+    geometry_a_id: str
+    geometry_b_id: str
+    net_a: str
+    net_b: str
+    clearance_actual: float
+    clearance_required: float
+    location: object
+
+@dataclass
+class ConnectivityViolation:
+    type: str
+    net: str
+    location: object
+    description: str
+
+@dataclass
+class PlacementViolation:
+    constraint_name: str
+    violation_type: str
+    message: str
+    severity: str
+    component_a: object = None
+    component_b: object = None
+    actual_distance_mm: object = None
+    required_distance_mm: object = None
+''', _u5)
 "#;
 
     /// The module's tests are serialized by this lock, taken BEFORE any
@@ -1296,9 +2128,25 @@ class DRCOracle:
         let globals = PyDict::new(py);
         // Reuse a registration a previous test already made: the classes
         // must be THE SAME objects the runtime-import path will resolve.
+        // The U5 collection-element classes are part of the registration
+        // set: a previous test's stand-in path registered them all, so if
+        // any is missing the reuse branch falls through to (re)register.
         if let Ok(tdb) = py.import("temper_design_bundle_python")
             && let Ok(nc) = tdb.getattr("netlist_contracts")
             && let Ok(bc) = tdb.getattr("board_contracts")
+            && let Ok(layer_assignment) = tdb.getattr("LayerAssignment")
+            && let Ok(trace) = bc.getattr("Trace")
+            && let Ok(via) = bc.getattr("Via")
+            && let Ok(zg) = py.import("temper_placer.deterministic.stages.zone_geometry")
+            && let Ok(zone) = zg.getattr("Zone")
+            && let Ok(cv_mod) = py.import("temper_placer.deterministic.stages.connectivity_validation")
+            && let Ok(connectivity_violation) = cv_mod.getattr("ConnectivityViolation")
+            && let Ok(pv_mod) = py.import("temper_placer.deterministic.stages.placement_validation")
+            && let Ok(placement_violation) = pv_mod.getattr("PlacementViolation")
+            && let Ok(cg) = py.import("temper_placer.router_v6.constraints_geometry")
+            && let Ok(point) = cg.getattr("Point")
+            && let Ok(cdo_u5) = py.import("temper_placer.router_v6.constraints_drc_oracle")
+            && let Ok(violation) = cdo_u5.getattr("Violation")
         {
             for name in ["Pin", "Component", "Net", "Netlist"] {
                 globals.set_item(name, nc.getattr(name).expect("nc class")).expect("set nc class");
@@ -1323,6 +2171,23 @@ class DRCOracle:
                     globals.set_item(name, src).expect("set u4 class");
                 }
             }
+            // U5: the collection-element classes, in the `_u5` namespace the
+            // U5 round-trip tests eval against (their REAL names — the
+            // zone-geometry `Zone` never collides with the board `Zone`).
+            let u5 = PyDict::new(py);
+            for (name, src) in [
+                ("Zone", zone),
+                ("Trace", trace),
+                ("Via", via),
+                ("LayerAssignment", layer_assignment),
+                ("Point", point),
+                ("Violation", violation),
+                ("ConnectivityViolation", connectivity_violation),
+                ("PlacementViolation", placement_violation),
+            ] {
+                u5.set_item(name, src).expect("set u5 class");
+            }
+            globals.set_item("_u5", &u5).expect("set _u5");
             return globals;
         }
         let standin = std::ffi::CString::new(STANDIN).expect("STANDIN has no NUL");
@@ -1346,7 +2211,20 @@ class DRCOracle:
             bc.add(name, globals.get_item(name).unwrap_or_else(|_| panic!("{name}")))
                 .unwrap_or_else(|e| panic!("register {name}: {e}"));
         }
+        // U5: the collection-element classes (from the `_u5` namespace the
+        // STANDIN defined — the zone-geometry `Zone` lives there under its
+        // REAL name, separate from the board `Zone` above).
+        let u5 = globals
+            .get_item("_u5")
+            .expect("_u5")
+            .expect("_u5 present");
+        for name in ["Trace", "Via"] {
+            bc.add(name, u5.get_item(name).unwrap_or_else(|_| panic!("u5 {name}")))
+                .unwrap_or_else(|e| panic!("register {name}: {e}"));
+        }
         tdb.add("board_contracts", &bc).expect("tdb.board_contracts");
+        tdb.add("LayerAssignment", u5.get_item("LayerAssignment").expect("u5 LayerAssignment"))
+            .expect("register LayerAssignment");
         modules
             .set_item("temper_design_bundle_python", &tdb)
             .expect("sys.modules tdb");
@@ -1383,20 +2261,57 @@ class DRCOracle:
             cdo.add(name, globals.get_item(name).unwrap_or_else(|_| panic!("{name}")))
                 .unwrap_or_else(|e| panic!("register {name}: {e}"));
         }
+        cdo.add("Violation", u5.get_item("Violation").expect("u5 Violation"))
+            .expect("register Violation");
         rv6.add("constraints_design_rules", &cdr).expect("rv6.constraints_design_rules");
         rv6.add("constraints_drc_oracle", &cdo).expect("rv6.constraints_drc_oracle");
         pkg.add("router_v6", &rv6).expect("pkg.router_v6");
+        // U5: the remaining collection-element module paths — the stage
+        // violation dataclasses + the zone-geometry Zone + the router_v6
+        // Point. Every dotted prefix is registered in sys.modules so the
+        // runtime class lookup resolves without a filesystem search.
+        let zone_geometry = PyModule::new(py, "zone_geometry").expect("zone_geometry");
+        zone_geometry
+            .add("Zone", u5.get_item("Zone").expect("u5 Zone"))
+            .expect("register zone_geometry.Zone");
+        stages.add("zone_geometry", &zone_geometry).expect("stages.zone_geometry");
+        let connectivity_validation = PyModule::new(py, "connectivity_validation")
+            .expect("connectivity_validation");
+        connectivity_validation
+            .add("ConnectivityViolation", u5.get_item("ConnectivityViolation").expect("u5 ConnectivityViolation"))
+            .expect("register connectivity_validation.ConnectivityViolation");
+        stages.add("connectivity_validation", &connectivity_validation)
+            .expect("stages.connectivity_validation");
+        let placement_validation = PyModule::new(py, "placement_validation")
+            .expect("placement_validation");
+        placement_validation
+            .add("PlacementViolation", u5.get_item("PlacementViolation").expect("u5 PlacementViolation"))
+            .expect("register placement_validation.PlacementViolation");
+        stages.add("placement_validation", &placement_validation)
+            .expect("stages.placement_validation");
+        let constraints_geometry = PyModule::new(py, "constraints_geometry")
+            .expect("constraints_geometry");
+        constraints_geometry
+            .add("Point", u5.get_item("Point").expect("u5 Point"))
+            .expect("register constraints_geometry.Point");
+        rv6.add("constraints_geometry", &constraints_geometry)
+            .expect("rv6.constraints_geometry");
         for (path, module) in [
             ("temper_placer", &pkg),
             ("temper_placer.deterministic", &det),
             ("temper_placer.deterministic.stages", &stages),
             ("temper_placer.deterministic.stages._grid_core", &grid_core),
+            ("temper_placer.deterministic.stages.zone_geometry", &zone_geometry),
+            ("temper_placer.deterministic.stages.connectivity_validation", &connectivity_validation),
+            ("temper_placer.deterministic.stages.placement_validation", &placement_validation),
             ("temper_placer.router_v6", &rv6),
             ("temper_placer.router_v6.constraints_design_rules", &cdr),
             ("temper_placer.router_v6.constraints_drc_oracle", &cdo),
+            ("temper_placer.router_v6.constraints_geometry", &constraints_geometry),
         ] {
-            modules.set_item(path, module).expect("sys.modules u4");
+            modules.set_item(path, module).expect("sys.modules u4/u5");
         }
+        globals.set_item("_u5", &u5).expect("set _u5");
         globals
     }
 
@@ -2107,6 +3022,592 @@ class DRCOracle:
             assert!(
                 orig_bytes.eq(&back_bytes).unwrap(),
                 "the kept array's bytes must be unchanged"
+            );
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    // U5: the collection round-trip gate — the frozenset fields, the tuple
+    // violation lists and the PreflightReport (violations)
+    // -----------------------------------------------------------------------
+
+    /// The U5 eval globals: the `_u5` namespace from `setup()` — the
+    /// collection-element classes under their REAL names (the zone-geometry
+    /// `Zone` lives there precisely so it never collides with the board
+    /// `Zone` in the shared globals).
+    fn u5<'py>(py: Python<'py>, g: &Bound<'py, PyDict>) -> Bound<'py, PyDict> {
+        let _ = py;
+        g.get_item("_u5")
+            .expect("_u5 namespace")
+            .expect("_u5 present")
+            .cast::<PyDict>()
+            .expect("_u5 is a dict")
+            .clone()
+    }
+
+    /// The multi-element content gate: type + `==` + sorted element reprs.
+    /// Iteration order of a rebuilt multi-element frozenset is
+    /// deterministic-but-different (the recorded U1 bound), so the reprs are
+    /// compared as a sorted multiset — never positionally.
+    fn assert_content_roundtrip<'py, T: Marshal>(
+        py: Python<'py>,
+        globals: &Bound<'py, PyDict>,
+        expr: &str,
+    ) {
+        let orig = eval_expr(py, globals, expr);
+        let owned = to_owned::<T>(&orig).unwrap_or_else(|e| {
+            panic!(
+                "to_owned::<{}>({expr}) failed: {e}",
+                std::any::type_name::<T>()
+            )
+        });
+        let back = to_python::<T>(py, &owned).unwrap().bind(py).clone();
+        assert!(
+            orig.get_type().is(back.get_type()),
+            "type mismatch for {expr}"
+        );
+        assert!(
+            orig.eq(&back).unwrap(),
+            "content mismatch for {expr}: orig {orig:?}, back {back:?}"
+        );
+        let sorted_repr = |o: &Bound<'_, PyAny>| -> Vec<String> {
+            let mut items: Vec<String> = o
+                .try_iter()
+                .unwrap()
+                .map(|s| s.unwrap().repr().unwrap().extract::<String>().unwrap())
+                .collect();
+            items.sort();
+            items
+        };
+        assert_eq!(
+            sorted_repr(&orig),
+            sorted_repr(&back),
+            "element reprs must be preserved for {expr}"
+        );
+    }
+
+    #[test]
+    fn zone_and_zone_slots_frozensets_roundtrip() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let g5 = u5(py, &g);
+            // The 2-field zone-geometry Zone: int-vs-float bounds canon (the
+            // stage writes int `x_min`/`y_min` and board-dims with their
+            // original type) round-trips bit-identically — `0` stays `0`.
+            assert_roundtrip_with::<Zone>(py, "Zone('HV', ((0, 0), (50, 80)))", Some(&g5));
+            assert_roundtrip_with::<Zone>(
+                py,
+                "Zone('HV', ((0, 0), (50.0, 80.0)))",
+                Some(&g5),
+            );
+            let owned = to_owned::<Zone>(&eval_expr(py, &g5, "Zone('HV', ((0, 0), (50, 80)))"))
+                .unwrap();
+            assert_eq!(owned.name, "HV");
+            assert_eq!(owned.bounds.0 .0, Val::Int(0));
+            assert_eq!(owned.bounds.1 .0, Val::Int(50));
+            // The zones frozenset: empty + single-element are bit-identical
+            // (the guaranteed shapes); multi-element is content-gated.
+            assert_roundtrip_with::<ZoneSet>(py, "frozenset()", Some(&g5));
+            assert_roundtrip_with::<ZoneSet>(
+                py,
+                "frozenset({Zone('HV', ((0, 0), (50, 80)))})",
+                Some(&g5),
+            );
+            assert_content_roundtrip::<ZoneSet>(
+                py,
+                &g5,
+                "frozenset({Zone('HV', ((0, 0), (50, 80))), Zone('LV', ((0.0, 80.0), (100.0, 150.0)))})",
+            );
+            // zone_slots: (zone_name, tuple_of_slots) elements — the slots
+            // tuple is ORDERED (a tuple, not a set) and preserved.
+            assert_roundtrip_with::<ZoneSlotsSet>(
+                py,
+                "frozenset({('HV', ((0.0, 5.0), (5.0, 0.0)))})",
+                Some(&g5),
+            );
+            assert_roundtrip_with::<ZoneSlotsSet>(py, "frozenset({('HV', ())})", Some(&g5));
+            assert_content_roundtrip::<ZoneSlotsSet>(
+                py,
+                &g5,
+                "frozenset({('HV', ((0.0, 5.0), (5.0, 0.0))), ('LV', ((10.0, 0.0), (0.0, 10.0)))})",
+            );
+            let owned = to_owned::<ZoneSlots>(&eval_expr(
+                py,
+                &g5,
+                "('HV', ((0.0, 5.0), (5.0, 0.0)))",
+            ))
+            .unwrap();
+            assert_eq!(owned.zone, "HV");
+            assert_eq!(owned.slots.len(), 2);
+            assert_eq!(owned.slots[1], SlotPos(5.0, 0.0));
+        });
+    }
+
+    #[test]
+    fn route_and_via_frozensets_roundtrip() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let g5 = u5(py, &g);
+            // routes = frozenset of Trace pyclasses; the owned Route reads
+            // start/end/width/layer/net (strict floats — the pipeline and
+            // D6 tests always construct Trace with float coords/width).
+            assert_roundtrip_with::<Route>(
+                py,
+                "Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=0.2, layer='F.Cu', net='N')",
+                Some(&g5),
+            );
+            // The `net` default (None) round-trips as None.
+            assert_roundtrip_with::<Route>(
+                py,
+                "Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=0.2, layer='B.Cu')",
+                Some(&g5),
+            );
+            assert_roundtrip_with::<RouteSet>(py, "frozenset()", Some(&g5));
+            assert_roundtrip_with::<RouteSet>(
+                py,
+                "frozenset({Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=0.2, layer='F.Cu', net='N')})",
+                Some(&g5),
+            );
+            // vias = frozenset of Via pyclasses (the default layers tuple
+            // and the is_diff_pair default False).
+            assert_roundtrip_with::<Via>(
+                py,
+                "Via(position=(10.0, 20.0), drill=0.3, width=0.6, layers=('F.Cu', 'B.Cu'), \
+                 net='GND', is_diff_pair=False)",
+                Some(&g5),
+            );
+            assert_roundtrip_with::<Via>(
+                py,
+                "Via(position=(10.0, 20.0), drill=0.3, width=0.6)",
+                Some(&g5),
+            );
+            assert_roundtrip_with::<ViaSet>(
+                py,
+                "frozenset({Via(position=(10.0, 20.0), drill=0.3, width=0.6)})",
+                Some(&g5),
+            );
+            // Multi-element content gates for both.
+            assert_content_roundtrip::<RouteSet>(
+                py,
+                &g5,
+                "frozenset({Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=0.2, layer='F.Cu', net='N1'), \
+                  Trace(start=(1.0, 2.0), end=(3.0, 4.0), width=0.5, layer='B.Cu', net='N2')})",
+            );
+            assert_content_roundtrip::<ViaSet>(
+                py,
+                &g5,
+                "frozenset({Via(position=(10.0, 20.0), drill=0.3, width=0.6, net='GND'), \
+                  Via(position=(1.0, 2.0), drill=0.3, width=0.6, layers=('In1.Cu', 'In2.Cu'), net='VCC')})",
+            );
+        });
+    }
+
+    #[test]
+    fn layer_assignment_roundtrips() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let g5 = u5(py, &g);
+            assert_roundtrip_with::<LayerAssignment>(
+                py,
+                "LayerAssignment(net_name='VCC', layer=2, allow_layer_change=True, is_plane=True)",
+                Some(&g5),
+            );
+            assert_roundtrip_with::<LayerAssignmentSet>(
+                py,
+                "frozenset({LayerAssignment(net_name='GND', layer=1, allow_layer_change=True, is_plane=True)})",
+                Some(&g5),
+            );
+            // The pyclass stores `layer` UNCOERCED — int stays int (the
+            // pipeline's `assign_layer_by_net_class` i64), and a float layer
+            // stays float; `Val` records which.
+            assert_roundtrip_with::<LayerAssignment>(
+                py,
+                "LayerAssignment(net_name='SIG', layer=2.0)",
+                Some(&g5),
+            );
+            let owned =
+                to_owned::<LayerAssignment>(&eval_expr(py, &g5, "LayerAssignment(net_name='SIG', layer=2)"))
+                    .unwrap();
+            assert_eq!(owned.layer, Val::Int(2));
+            let owned =
+                to_owned::<LayerAssignment>(&eval_expr(py, &g5, "LayerAssignment(net_name='SIG', layer=2.0)"))
+                    .unwrap();
+            assert_eq!(owned.layer, Val::Float(2.0));
+            assert_content_roundtrip::<LayerAssignmentSet>(
+                py,
+                &g5,
+                "frozenset({LayerAssignment(net_name='VCC', layer=2, is_plane=True), \
+                  LayerAssignment(net_name='GND', layer=1, is_plane=True)})",
+            );
+        });
+    }
+
+    #[test]
+    fn placements_and_pair_maps_roundtrip() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let g5 = u5(py, &g);
+            // placements = frozenset of (ref, (x, y)) tuples.
+            assert_roundtrip_with::<PlacementSet>(py, "frozenset()", Some(&g5));
+            assert_roundtrip_with::<PlacementSet>(
+                py,
+                "frozenset({('U1', (10.0, 20.0))})",
+                Some(&g5),
+            );
+            // The U0 end-to-end multi-element shape — content gate.
+            assert_content_roundtrip::<PlacementSet>(
+                py,
+                &g5,
+                "frozenset({('U1', (10.0, 20.0)), ('R1', (5.5, 7.25))})",
+            );
+            // component_zone_map / component_domain_map — both StrPairSet.
+            assert_roundtrip_with::<StrPairSet>(py, "frozenset({('U1', 'HV')})", Some(&g5));
+            assert_roundtrip_with::<StrPairSet>(
+                py,
+                "frozenset({('K3', 'HV_edge')})",
+                Some(&g5),
+            );
+            assert_content_roundtrip::<StrPairSet>(
+                py,
+                &g5,
+                "frozenset({('U1', 'HV'), ('R1', 'LV'), ('K3', 'iso')})",
+            );
+            let owned = to_owned::<Placement>(&eval_expr(py, &g5, "('U1', (10.0, 20.0))")).unwrap();
+            assert_eq!(owned.ref_, "U1");
+            assert_eq!(owned.position, (10.0, 20.0));
+        });
+    }
+
+    #[test]
+    fn violation_lists_roundtrip() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let g5 = u5(py, &g);
+            // The three violation lists are Python TUPLES — the owned Vec
+            // preserves order, so even a multi-element tuple round-trips
+            // bit-identically (repr is order-based and the order is kept).
+            assert_roundtrip_with::<ViolationList>(py, "()", Some(&g5));
+            assert_roundtrip_with::<ViolationList>(
+                py,
+                "(Violation(type='track_clearance', geometry_a_id='t1', geometry_b_id='t2', \
+                 net_a='N1', net_b='N2', clearance_actual=0.1, clearance_required=0.2, \
+                 location=Point(x=1.0, y=2.0)),)",
+                Some(&g5),
+            );
+            assert_roundtrip_with::<ViolationList>(
+                py,
+                "(Violation(type='a', geometry_a_id='x', geometry_b_id='y', net_a='N1', net_b='N2', \
+                 clearance_actual=0.1, clearance_required=0.2, location=Point(x=1.0, y=2.0)), \
+                 Violation(type='b', geometry_a_id='u', geometry_b_id='v', net_a='N3', net_b='N4', \
+                 clearance_actual=0.3, clearance_required=0.4, location=Point(x=3.0, y=4.0)))",
+                Some(&g5),
+            );
+            assert_roundtrip_with::<ConnectivityViolationList>(
+                py,
+                "(ConnectivityViolation(type='orphan_island', net='GND', \
+                 location=Point(x=1.0, y=2.0), description='isolated copper'),)",
+                Some(&g5),
+            );
+            // PlacementViolation with the optional fields unset (None) and
+            // fully populated.
+            assert_roundtrip_with::<PlacementViolationList>(
+                py,
+                "(PlacementViolation(constraint_name='c1', violation_type='missing_component', \
+                 message='m', severity='warning'),)",
+                Some(&g5),
+            );
+            assert_roundtrip_with::<PlacementViolationList>(
+                py,
+                "(PlacementViolation(constraint_name='c2', violation_type='proximity', \
+                 message='too close', severity='error', component_a='U1', component_b='R1', \
+                 actual_distance_mm=1.5, required_distance_mm=2.0),)",
+                Some(&g5),
+            );
+            // The owned values hold the exact fields.
+            let owned = to_owned::<Violation>(&eval_expr(
+                py,
+                &g5,
+                "Violation(type='via_clearance', geometry_a_id='v1', geometry_b_id='p2', \
+                 net_a='GND', net_b='SIG', clearance_actual=0.05, clearance_required=0.2, \
+                 location=Point(x=5.0, y=6.0))",
+            ))
+            .unwrap();
+            assert_eq!(owned.type_, "via_clearance");
+            assert_eq!(owned.location, (5.0, 6.0));
+            let owned = to_owned::<ConnectivityViolation>(&eval_expr(
+                py,
+                &g5,
+                "ConnectivityViolation(type='dangling_track', net='SIG', location=Point(x=0.5, y=0.5), description='d')",
+            ))
+            .unwrap();
+            assert_eq!(owned.net, "SIG");
+            let owned = to_owned::<PlacementViolation>(&eval_expr(
+                py,
+                &g5,
+                "PlacementViolation(constraint_name='c', violation_type='hv_clearance', message='m', severity='warning')",
+            ))
+            .unwrap();
+            assert_eq!(owned.severity, "warning");
+            assert_eq!(owned.component_a, None);
+            assert_eq!(owned.actual_distance_mm, None);
+        });
+    }
+
+    #[test]
+    fn preflight_report_roundtrips() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            // `violations` at runtime is the PreflightReport-shaped DICT the
+            // PreflightStage writes — plain data, rebuilt as a dict.
+            assert_roundtrip_with::<PreflightReport>(
+                py,
+                "{'checks': [], 'overall': 'pass', 'total_time_ms': 0.0}",
+                None,
+            );
+            assert_roundtrip_with::<PreflightReport>(
+                py,
+                "{'checks': [{'name': 'Component Area', 'result': 'pass', 'message': 'Fill ratio 10.0%', \
+                 'details': None, 'time_ms': 0.5}, \
+                 {'name': 'Constraint Satisfiability', 'result': 'fail', \
+                 'message': 'Found 1 issues', 'details': {'impossible': ['U1-R1: max 5.0mm < min 6.0mm']}, \
+                 'time_ms': 1.25}], \
+                 'overall': 'fail', 'total_time_ms': 1.75}",
+                None,
+            );
+            // The owned struct holds the typed checks.
+            let owned = to_owned::<PreflightReport>(&eval_expr(
+                py,
+                &g,
+                "{'checks': [{'name': 'Zone Capacity', 'result': 'fail', 'message': 'Zone HV over cap', \
+                 'details': {'violations': ['Zone HV over cap']}, 'time_ms': 0.25}], \
+                 'overall': 'fail', 'total_time_ms': 0.25}",
+            ))
+            .unwrap();
+            assert_eq!(owned.overall, "fail");
+            assert_eq!(owned.checks.len(), 1);
+            assert_eq!(owned.checks[0].name, "Zone Capacity");
+            assert_eq!(
+                owned.checks[0].details,
+                Some(OwnedPlain::Dict(vec![(
+                    "violations".to_string(),
+                    OwnedPlain::List(vec![OwnedPlain::Str("Zone HV over cap".to_string())]),
+                )]))
+            );
+        });
+    }
+
+    #[test]
+    fn collection_nan_and_infinities_roundtrip() {
+        // NaN/±inf inside a collection element or the report round-trip with
+        // type + repr preserved and the owned field still NaN (manual
+        // type/repr arm — a dataclass/tuple `__eq__` is False for NaN
+        // fields, the recorded U2 bound).
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let g5 = u5(py, &g);
+            // Manual type/repr arm per shape: the rebuilt object's type and
+            // repr are identical to the original's.
+            for expr in [
+                "(Violation(type='a', geometry_a_id='x', geometry_b_id='y', net_a='N1', net_b='N2', \
+                 clearance_actual=float('nan'), clearance_required=0.2, location=Point(x=1.0, y=2.0)),)",
+                "(ConnectivityViolation(type='orphan_island', net='GND', \
+                 location=Point(x=float('inf'), y=0.0), description='d'),)",
+                "{'checks': [], 'overall': 'pass', 'total_time_ms': float('-inf')}",
+            ] {
+                let back: Py<PyAny> = if expr.contains("ConnectivityViolation") {
+                    let owned = to_owned::<ConnectivityViolationList>(&eval_expr(py, &g5, expr))
+                        .expect("to_owned");
+                    to_python::<ConnectivityViolationList>(py, &owned).expect("to_python")
+                } else if expr.contains("'checks'") {
+                    let owned =
+                        to_owned::<PreflightReport>(&eval_expr(py, &g5, expr)).expect("to_owned");
+                    to_python::<PreflightReport>(py, &owned).expect("to_python")
+                } else {
+                    let owned =
+                        to_owned::<ViolationList>(&eval_expr(py, &g5, expr)).expect("to_owned");
+                    to_python::<ViolationList>(py, &owned).expect("to_python")
+                };
+                let orig = eval_expr(py, &g5, expr);
+                let back = back.bind(py).clone();
+                assert!(orig.get_type().is(back.get_type()), "type mismatch for {expr}");
+                let rp = orig.repr().unwrap().extract::<String>().unwrap();
+                let rb = back.repr().unwrap().extract::<String>().unwrap();
+                assert_eq!(rp, rb, "repr mismatch for {expr}");
+            }
+            // Field-level: the NaN clearance is still NaN after the
+            // round-trip; the NaN Trace width survives in a single-element
+            // frozenset (type + repr preserved).
+            let owned = to_owned::<ViolationList>(&eval_expr(
+                py,
+                &g5,
+                "(Violation(type='a', geometry_a_id='x', geometry_b_id='y', net_a='N1', net_b='N2', \
+                 clearance_actual=float('nan'), clearance_required=0.2, location=Point(x=1.0, y=2.0)),)",
+            ))
+            .unwrap();
+            assert!(owned[0].clearance_actual.is_nan(), "clearance NaN must survive");
+            let orig = eval_expr(
+                py,
+                &g5,
+                "frozenset({Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=float('nan'), layer='F.Cu')})",
+            );
+            let owned = to_owned::<RouteSet>(&orig).expect("to_owned");
+            let back = to_python::<RouteSet>(py, &owned).expect("to_python").bind(py).clone();
+            assert!(orig.get_type().is(back.get_type()), "NaN Trace type mismatch");
+            let rp = orig.repr().unwrap().extract::<String>().unwrap();
+            let rb = back.repr().unwrap().extract::<String>().unwrap();
+            assert_eq!(rp, rb, "NaN Trace repr mismatch");
+        });
+    }
+
+    #[test]
+    fn frozenset_rebuild_is_deterministic() {
+        // The repr-sorted rebuild is DETERMINISTIC: two `to_python` calls
+        // from the same owned value produce repr-identical frozensets
+        // (never the process-random HashSet iteration order).
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let g5 = u5(py, &g);
+            let owned = to_owned::<RouteSet>(&eval_expr(
+                py,
+                &g5,
+                "frozenset({Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=0.2, layer='F.Cu', net='N1'), \
+                  Trace(start=(1.0, 2.0), end=(3.0, 4.0), width=0.5, layer='B.Cu', net='N2'), \
+                  Trace(start=(5.0, 6.0), end=(7.0, 8.0), width=0.3, layer='F.Cu', net='N3')})",
+            ))
+            .unwrap();
+            let r1 = to_python::<RouteSet>(py, &owned)
+                .unwrap()
+                .bind(py)
+                .repr()
+                .unwrap()
+                .extract::<String>()
+                .unwrap();
+            let r2 = to_python::<RouteSet>(py, &owned)
+                .unwrap()
+                .bind(py)
+                .repr()
+                .unwrap()
+                .extract::<String>()
+                .unwrap();
+            assert_eq!(r1, r2, "rebuild must be deterministic across calls");
+        });
+    }
+
+    #[test]
+    fn collection_guards_reject_wrong_shapes() {
+        // Every owned collection element/field has a concrete type: an
+        // int-shaped float coordinate, a wrong-arity tuple, a list where a
+        // tuple/frozenset is the contract, and a str where a float is
+        // required are LOUD errors, never coerced or kind-widened.
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let g5 = u5(py, &g);
+            // int-shaped coords/width (an int is not a float).
+            assert!(
+                to_owned::<RouteSet>(&eval_expr(
+                    py,
+                    &g5,
+                    "frozenset({Trace(start=(0, 0), end=(10.0, 0.0), width=0.2, layer='F.Cu', net='N')})"
+                ))
+                .is_err(),
+                "int Trace coordinate must be rejected"
+            );
+            assert!(
+                to_owned::<Route>(&eval_expr(
+                    py,
+                    &g5,
+                    "Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=1, layer='F.Cu')"
+                ))
+                .is_err(),
+                "int Trace width must be rejected"
+            );
+            assert!(
+                to_owned::<PlacementSet>(&eval_expr(py, &g5, "frozenset({('U1', (10, 20))})")).is_err(),
+                "int placement position must be rejected"
+            );
+            // Wrong-arity tuples.
+            assert!(
+                to_owned::<Via>(&eval_expr(
+                    py,
+                    &g5,
+                    "Via(position=(10.0, 20.0), drill=0.3, width=0.6, layers=('F.Cu',))"
+                ))
+                .is_err(),
+                "1-tuple via layers must be rejected"
+            );
+            assert!(
+                to_owned::<Zone>(&eval_expr(py, &g5, "Zone('HV', ((0, 0),))")).is_err(),
+                "1-corner bounds must be rejected"
+            );
+            assert!(
+                to_owned::<ZoneSlots>(&eval_expr(py, &g5, "('HV', ((0, 5),))")).is_err(),
+                "int slot coordinate must be rejected"
+            );
+            // Collection-kind mismatches: a list is not a frozenset/tuple.
+            assert!(
+                to_owned::<PlacementSet>(&eval_expr(py, &g5, "[('U1', (10.0, 20.0))]")).is_err(),
+                "a list must be rejected for a frozenset field"
+            );
+            assert!(
+                to_owned::<ViolationList>(&eval_expr(
+                    py,
+                    &g5,
+                    "[Violation(type='a', geometry_a_id='x', geometry_b_id='y', net_a='N1', \
+                     net_b='N2', clearance_actual=0.1, clearance_required=0.2, \
+                     location=Point(x=1.0, y=2.0))]"
+                ))
+                .is_err(),
+                "a list must be rejected for a tuple violation field"
+            );
+            // PreflightReport guards: tuple checks (list contract) and a
+            // str total_time_ms (an int/str is not a float).
+            assert!(
+                to_owned::<PreflightReport>(&eval_expr(
+                    py,
+                    &g,
+                    "{'checks': (), 'overall': 'pass', 'total_time_ms': 0.0}"
+                ))
+                .is_err(),
+                "tuple checks must be rejected"
+            );
+            assert!(
+                to_owned::<PreflightReport>(&eval_expr(
+                    py,
+                    &g,
+                    "{'checks': [], 'overall': 'pass', 'total_time_ms': 'x'}"
+                ))
+                .is_err(),
+                "str total_time_ms must be rejected"
+            );
+            // Violation: a str clearance (not a float) is a loud error.
+            assert!(
+                to_owned::<Violation>(&eval_expr(
+                    py,
+                    &g5,
+                    "Violation(type='a', geometry_a_id='x', geometry_b_id='y', net_a='N1', \
+                     net_b='N2', clearance_actual='x', clearance_required=0.2, \
+                     location=Point(x=1.0, y=2.0))"
+                ))
+                .is_err(),
+                "str clearance must be rejected"
             );
         });
     }
