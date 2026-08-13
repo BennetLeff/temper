@@ -139,6 +139,9 @@ ignore = [
 "**/validation/results/battery_run.py" = ["SIM105", "B025"]  # intentional suppress
 "**/physics/copper_coverage.py" = ["SIM102"]  # clearer as-is
 "**/placer/cp_sat/feedback.py" = ["SIM102"]
+# The feedback.py pin oracle carries the same SIM102 as the source it pins
+# (verbatim-copy convention -- see the oracle-pin docstring).
+"tests/placer/cp_sat/_feedback_py_oracle.py" = ["SIM102"]
 "**/router_v6/adapter.py" = ["SIM102"]
 "**/router_v6/quality/via_count.py" = ["SIM102"]
 # Verbatim `git show` copy of the pre-migration cluster-F sources (Wave 4 gate

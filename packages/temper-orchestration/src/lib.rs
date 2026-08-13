@@ -212,6 +212,16 @@ mod deterministic_pipeline;
 // skip semantics ARE the loop's break semantics. Append-only per the U-F
 // dispatch.
 mod feedback_loop;
+// Orchestration-port unit U-I (Rust Orchestration Engine plan 2026-08-09-001,
+// Wave-4 CP-SAT placement-loop slice): the residual non-ortools orchestration
+// of `temper_placer/placer/cp_sat/_loop_core.py` -- the loop SEQUENCING
+// (legacy classifier loop + gate-driven loop), the gate checks, and the
+// convergence/stability/feedback DECISIONS. The CP-SAT solve, routing,
+// classifier, and the gate/field leaf helpers stay Python call-backs. The
+// `cpsat_run_legacy_loop` / `cpsat_run_gated_loop` / `cpsat_solve_with_delta`
+// / `cpsat_solve_phase2` pyfunctions are the delegation targets of the
+// `_loop_core.py` mixin. Append-only per the U-I dispatch.
+mod cpsat_loop;
 mod drc_sweep_stage;
 mod drc_validation_stage;
 pub(crate) mod explainability;
@@ -340,6 +350,9 @@ pub use derivation_stage::DerivationStage;
 pub use deterministic_pipeline::{DeterministicPipeline, drc_aware_stage_order};
 #[cfg(feature = "python")]
 pub use feedback_loop::{FeedbackIterationStage, FeedbackRunContext, run_automated_zero_drc};
+pub use cpsat_loop::{
+    cpsat_run_gated_loop, cpsat_run_legacy_loop, cpsat_solve_phase2, cpsat_solve_with_delta,
+};
 pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
 pub use drc_validation_stage::DRCValidationStage;
 #[cfg(feature = "python")]
@@ -515,6 +528,16 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // run() delegates here; the per-iteration call-backs (pipeline.run,
     // drc_runner, parse, mapper, adjuster, config marshalling) stay Python.
     m.add_function(wrap_pyfunction!(feedback_loop::run_automated_zero_drc, m)?)?;
+    // Orchestration-port unit U-I (append-only per the U-I dispatch): the
+    // CP-SAT placement-loop orchestration -- the legacy classifier loop and
+    // the gate-driven loop sequencing plus the solve_with_delta / solve_phase2
+    // kernels. The `_loop_core.py` mixin delegates run()/`_run_with_gates`/
+    // `_solve_with_delta`/`_solve_phase2` here; the CP-SAT solve, routing,
+    // classifier and the gate/field leaf helpers stay Python call-backs.
+    m.add_function(wrap_pyfunction!(cpsat_loop::cpsat_run_legacy_loop, m)?)?;
+    m.add_function(wrap_pyfunction!(cpsat_loop::cpsat_run_gated_loop, m)?)?;
+    m.add_function(wrap_pyfunction!(cpsat_loop::cpsat_solve_with_delta, m)?)?;
+    m.add_function(wrap_pyfunction!(cpsat_loop::cpsat_solve_phase2, m)?)?;
     Ok(())
 }
 
