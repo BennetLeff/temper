@@ -60,7 +60,7 @@ def state_with_layer_assignments(simple_netlist):
     ]
     return BoardState(
         netlist=simple_netlist,
-        layer_assignments=tuple(assignments),
+        layer_assignments=frozenset(assignments),
     )
 
 

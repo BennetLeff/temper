@@ -71,8 +71,8 @@ class TestDeduplicationCollision:
         for i in range(10):
             traces.append(
                 Trace(
-                    start=(i * 0.25, 0),
-                    end=((i + 1) * 0.25, 0),
+                    start=(i * 0.25, 0.0),
+                    end=((i + 1) * 0.25, 0.0),
                     width=0.2,
                     layer="B.Cu",
                     net="USB_D+",
@@ -198,17 +198,21 @@ class TestDeduplicationCollision:
 
         The kernel's kept indices reference the marshalled Trace list, NOT
         the state.routes positions; the shim remaps them back. A Via (a
-        non-Trace route entry) at routes[0] must not shift the mapping — the
-        pre-migration dedup kept the FIRST of the two duplicate traces (the
-        near-duplicate `b` rounds to the same key) plus the Via. Routes are
-        passed as a list so the Via-before-Trace order is deterministic.
+        non-Trace route entry) anywhere among routes must not shift the
+        mapping — the pre-migration dedup kept the FIRST of the two
+        duplicate traces (the near-duplicate `b` rounds to the same key)
+        plus the Via. `BoardState.routes` is a `frozenset` field (the owned
+        `RouteSet` is a `HashSet`, order-losing by design — see
+        temper-data-model/src/collections.rs's `set_newtype!` doc), so both
+        orderings below marshal to the same set; the loop is retained as a
+        regression check that dedup is insertion-order-independent either way.
         """
         via = Via(position=(0.0, 0.0), drill=0.3, width=0.6, net="GND")
         a = Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=0.2, layer="B.Cu", net="N")
         b = Trace(start=(0.0, 0.02), end=(10.0, 0.0), width=0.2, layer="B.Cu", net="N")
 
         for routes in ([via, a, b], [a, via, b]):
-            state = BoardState(routes=routes)
+            state = BoardState(routes=frozenset(routes))
             result = TrackDeduplicationStage(tolerance_mm=0.05).run(state)
             assert result.routes == frozenset({via, a}), (
                 f"order {[type(r).__name__ for r in routes]}: got "

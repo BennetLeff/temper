@@ -1307,6 +1307,71 @@ impl Marshal for Via {
     }
 }
 
+/// `RouteEntry` (`crate::board_state::RouteEntry`): a `routes` element is a
+/// `Trace` if `isinstance(entry, temper_placer.core.board.Trace)`, else an
+/// opaque identity-preserved pass-through (see the type's doc in
+/// `board_state.rs` — the oracle and every ported `routes`-reading stage
+/// tolerate a non-Trace entry, e.g. a `Via`, mixed into `routes`).
+impl Marshal for crate::board_state::RouteEntry {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let trace_cls = py.import("temper_placer.core.board")?.getattr("Trace")?;
+        if obj.is_instance(&trace_cls)? {
+            Ok(crate::board_state::RouteEntry::Trace(Route::from_python(
+                py, obj,
+            )?))
+        } else {
+            Ok(crate::board_state::RouteEntry::Opaque(obj.clone().unbind()))
+        }
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        match self {
+            crate::board_state::RouteEntry::Trace(r) => r.to_python(py),
+            crate::board_state::RouteEntry::Opaque(o) => Ok(o.clone_ref(py)),
+        }
+    }
+}
+
+impl Marshal for HashSet<crate::board_state::RouteEntry> {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        frozenset_read::<crate::board_state::RouteEntry>(py, obj)
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        frozenset_write(py, self)
+    }
+}
+
+/// `ViaEntry` (`crate::board_state::ViaEntry`): the `RouteEntry` pattern
+/// applied to `vias` — a `vias` element is a `Via` if `isinstance(entry,
+/// temper_placer.core.board.Via)`, else an opaque identity-preserved
+/// pass-through (see the type's doc in `board_state.rs`).
+impl Marshal for crate::board_state::ViaEntry {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let via_cls = py.import("temper_placer.core.board")?.getattr("Via")?;
+        if obj.is_instance(&via_cls)? {
+            Ok(crate::board_state::ViaEntry::Via(Via::from_python(py, obj)?))
+        } else {
+            Ok(crate::board_state::ViaEntry::Opaque(obj.clone().unbind()))
+        }
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        match self {
+            crate::board_state::ViaEntry::Via(v) => v.to_python(py),
+            crate::board_state::ViaEntry::Opaque(o) => Ok(o.clone_ref(py)),
+        }
+    }
+}
+
+impl Marshal for HashSet<crate::board_state::ViaEntry> {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        frozenset_read::<crate::board_state::ViaEntry>(py, obj)
+    }
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        frozenset_write(py, self)
+    }
+}
+
 // ---------------------------------------------------------------------------
 // U5: LayerAssignment — the design-bundle root-module frozen pyclass
 // ---------------------------------------------------------------------------

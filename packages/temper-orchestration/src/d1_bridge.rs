@@ -35,12 +35,12 @@ use std::collections::HashSet;
 
 #[cfg(feature = "python")]
 use temper_data_model::{
-    ConnectivityViolationList, LayerAssignmentSet, PlacementSet, PlacementViolationList, RouteSet,
-    StrPairSet, ViaSet, ViolationList, ZoneSet, ZoneSlotsSet,
+    ConnectivityViolationList, LayerAssignmentSet, PlacementSet, PlacementViolationList,
+    StrPairSet, ViolationList, ZoneSet, ZoneSlotsSet,
 };
 
 #[cfg(feature = "python")]
-use crate::board_state::{BoardState, SlotId};
+use crate::board_state::{BoardState, RouteEntry, SlotId, ViaEntry};
 
 #[cfg(feature = "python")]
 /// Read the Python BoardState attributes the D1 stages consume into a Rust
@@ -86,8 +86,10 @@ pub(crate) fn from_python(_py: Python<'_>, state: &Bound<'_, PyAny>) -> PyResult
     bs.component_domain_map = attr_opt(state, "component_domain_map")?;
     bs.routing_corridors = attr_opt(state, "routing_corridors")?;
     bs.domain_regions = attr_opt(state, "domain_regions")?;
-    bs.routes = crate::marshal::to_owned::<Option<RouteSet>>(&state.getattr("routes")?)?;
-    bs.vias = crate::marshal::to_owned::<Option<ViaSet>>(&state.getattr("vias")?)?;
+    bs.routes =
+        crate::marshal::to_owned::<Option<HashSet<RouteEntry>>>(&state.getattr("routes")?)?;
+    bs.vias =
+        crate::marshal::to_owned::<Option<HashSet<ViaEntry>>>(&state.getattr("vias")?)?;
     bs.violations = attr_opt(state, "violations")?;
     bs.zones = crate::marshal::to_owned::<Option<ZoneSet>>(&state.getattr("zones")?)?;
     bs.component_zone_map =
@@ -140,8 +142,8 @@ pub(crate) fn to_python(
             "reclaim_by_pin_pair" => py_opt_changed(orig, out, "reclaim_by_pin_pair")?,
             // D6 (validation stages): the validation-result and geometry
             // fields the D6 stages write back.
-            "routes" => owned_opt_changed::<RouteSet>(orig, "routes", &out.routes)?,
-            "vias" => owned_opt_changed::<ViaSet>(orig, "vias", &out.vias)?,
+            "routes" => owned_opt_changed::<HashSet<RouteEntry>>(orig, "routes", &out.routes)?,
+            "vias" => owned_opt_changed::<HashSet<ViaEntry>>(orig, "vias", &out.vias)?,
             // U6 (O-C3): the violation lists are owned — the change test
             // marshals the ORIGINAL Python value to the same owned type and
             // compares (the U1 pattern, via the shared generic helper).
@@ -192,8 +194,8 @@ pub(crate) fn to_python(
             "used_slots" => crate::marshal::to_python::<Option<HashSet<SlotId>>>(py, &out.used_slots)?,
             "design_rules" => opt_value(py, &out.design_rules),
             "reclaim_by_pin_pair" => opt_value(py, &out.reclaim_by_pin_pair),
-            "routes" => crate::marshal::to_python::<Option<RouteSet>>(py, &out.routes)?,
-            "vias" => crate::marshal::to_python::<Option<ViaSet>>(py, &out.vias)?,
+            "routes" => crate::marshal::to_python::<Option<HashSet<RouteEntry>>>(py, &out.routes)?,
+            "vias" => crate::marshal::to_python::<Option<HashSet<ViaEntry>>>(py, &out.vias)?,
             "drc_violations" => {
                 crate::marshal::to_python::<Option<ViolationList>>(py, &out.drc_violations)?
             }

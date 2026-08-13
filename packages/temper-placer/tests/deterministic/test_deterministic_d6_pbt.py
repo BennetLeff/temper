@@ -96,8 +96,22 @@ class _BadOracle:
 
 
 class _DrvViolation:
+    """A DRC violation double. `DRCValidationStage` now marshals `drc_oracle.
+    validate_all()`'s output into the owned `Violation` struct
+    (`temper_placer.router_v6.constraints_drc_oracle.Violation`), whose
+    fields are all required (no defaults) -- see that class. Only `type`
+    varies across this suite's uses; the rest are fixed, valid dummies.
+    """
+
     def __init__(self, vtype):
         self.type = vtype
+        self.geometry_a_id = "a"
+        self.geometry_b_id = "b"
+        self.net_a = "net_a"
+        self.net_b = "net_b"
+        self.clearance_actual = 0.1
+        self.clearance_required = 0.2
+        self.location = Point(0.0, 0.0)
 
     def __str__(self):
         return f"<{self.type}>"
@@ -412,9 +426,18 @@ class _ConnOracle:
 
 
 class _LA:
-    def __init__(self, net_name, is_plane):
+    """A `layer_assignments` element double, matching the real
+    `LayerAssignment(net_name, layer, allow_layer_change=None, is_plane=None)`
+    pyclass (`temper-design-bundle/src/deterministic_leaves.rs`) -- `layer`
+    is a required constructor arg there (no default), and `allow_layer_change`
+    defaults to `True`. `ConnectivityValidationStage` marshals every field.
+    """
+
+    def __init__(self, net_name, is_plane, layer=1, allow_layer_change=True):
         self.net_name = net_name
         self.is_plane = is_plane
+        self.layer = layer
+        self.allow_layer_change = allow_layer_change
 
 
 @st.composite

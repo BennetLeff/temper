@@ -31,7 +31,10 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
 
 #[cfg(feature = "python")]
-use crate::board_state::BoardState;
+use std::collections::HashSet;
+
+#[cfg(feature = "python")]
+use crate::board_state::{BoardState, RouteEntry, ViaEntry};
 #[cfg(feature = "python")]
 use crate::d6_util;
 #[cfg(feature = "python")]
@@ -42,8 +45,6 @@ use crate::grid_hv::getattr_default;
 use crate::host_math;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
-#[cfg(feature = "python")]
-use temper_data_model::{RouteSet, ViaSet};
 
 const STAGE_NAME: &str = "via_validation";
 const STAGE_NAME_DEDUP: &str = "via_deduplication";
@@ -80,11 +81,13 @@ impl ViaValidationStage {
         // truthiness guards map to `!set.is_empty()`, the owned sets are
         // rebuilt into the Python frozensets the oracle loops expect.
         let vias = match &state.vias {
-            Some(v) if !v.is_empty() => crate::marshal::to_python::<ViaSet>(py, v)?.into_bound(py),
+            Some(v) if !v.is_empty() => crate::marshal::to_python::<HashSet<ViaEntry>>(py, v)?.into_bound(py),
             _ => return Ok(state),
         };
         let routes = match &state.routes {
-            Some(r) if !r.is_empty() => crate::marshal::to_python::<RouteSet>(py, r)?.into_bound(py),
+            Some(r) if !r.is_empty() => {
+                crate::marshal::to_python::<HashSet<RouteEntry>>(py, r)?.into_bound(py)
+            }
             _ => return Ok(state),
         };
 
@@ -239,7 +242,7 @@ impl ViaValidationStage {
 
         let frozenset_cls = builtins.getattr("frozenset")?;
         let mut new_state = state;
-        new_state.vias = Some(crate::marshal::to_owned::<ViaSet>(
+        new_state.vias = Some(crate::marshal::to_owned::<HashSet<ViaEntry>>(
             &frozenset_cls.call1((&valid_vias,))?,
         )?);
         Ok(new_state)
@@ -410,7 +413,7 @@ impl Stage<BoardState> for ViaDeduplicationStage {
 impl ViaDeduplicationStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let vias = match &state.vias {
-            Some(v) if !v.is_empty() => crate::marshal::to_python::<ViaSet>(py, v)?.into_bound(py),
+            Some(v) if !v.is_empty() => crate::marshal::to_python::<HashSet<ViaEntry>>(py, v)?.into_bound(py),
             _ => return Ok(state),
         };
         let builtins = py.import("builtins")?;
@@ -440,7 +443,7 @@ impl ViaDeduplicationStage {
 
         let frozenset_cls = builtins.getattr("frozenset")?;
         let mut new_state = state;
-        new_state.vias = Some(crate::marshal::to_owned::<ViaSet>(
+        new_state.vias = Some(crate::marshal::to_owned::<HashSet<ViaEntry>>(
             &frozenset_cls.call1((&unique_vias,))?,
         )?);
         Ok(new_state)

@@ -33,8 +33,8 @@ use pyo3::PyAny;
 
 #[cfg(feature = "python")]
 use temper_data_model::{
-    ConnectivityViolationList, LayerAssignmentSet, PlacementSet, PlacementViolationList, RouteSet,
-    StrPairSet, ViaSet, ViolationList, ZoneSet, ZoneSlotsSet,
+    ConnectivityViolationList, LayerAssignmentSet, PlacementSet, PlacementViolationList, Route,
+    StrPairSet, ViolationList, ZoneSet, ZoneSlotsSet,
 };
 
 #[cfg(feature = "python")]
@@ -94,6 +94,109 @@ pub(crate) fn slot_bits(f: f64) -> u64 {
 }
 
 #[cfg(feature = "python")]
+/// A `BoardState.routes` element.
+///
+/// `routes` is documented as "frozenset of Trace objects", and every
+/// PRODUCTION write site (`DRCSweepStage`, `TrackDeduplicationStage`,
+/// `ShortCircuitDetectionStage`) only ever inserts `Trace`s. But the pinned
+/// oracle (`tests/deterministic/_drc_sweep_run_py_oracle.py`) and every one
+/// of those ported stages' own `run_inner` bodies explicitly guard with
+/// `isinstance(entry, Trace)` and pass a non-Trace entry through UNCHANGED
+/// ("non-Trace route entries pass through" is in their doc comments) — a
+/// defensive contract the differential suite tests directly
+/// (`test_ds_non_trace_route_entries_pass_through`,
+/// `test_td_non_trace_pass_through_and_stdout`, and
+/// `test_dedup_via_before_duplicates_remaps_indices`, which puts a `Via` in
+/// `routes`). `Route::from_python` requires Trace-shaped attributes
+/// (`.start`/`.end`/...), so a non-Trace element must not be forced through
+/// it. `Opaque` keeps it as an identity-preserved Python reference instead —
+/// the same "Keeps" philosophy `marshal.rs`'s `Plain::Opaque` documents for
+/// values with no owned representation.
+#[derive(Clone, Debug)]
+pub enum RouteEntry {
+    Trace(Route),
+    Opaque(pyo3::Py<PyAny>),
+}
+
+#[cfg(feature = "python")]
+impl PartialEq for RouteEntry {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (RouteEntry::Trace(a), RouteEntry::Trace(b)) => a == b,
+            // Identity, not `==`: an opaque entry has no owned
+            // representation to compare structurally (the same "Keeps"
+            // reasoning `Plain::Opaque` uses).
+            (RouteEntry::Opaque(a), RouteEntry::Opaque(b)) => a.as_ptr() == b.as_ptr(),
+            _ => false,
+        }
+    }
+}
+
+#[cfg(feature = "python")]
+impl Eq for RouteEntry {}
+
+#[cfg(feature = "python")]
+impl Hash for RouteEntry {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        match self {
+            RouteEntry::Trace(r) => {
+                0u8.hash(state);
+                r.hash(state);
+            }
+            RouteEntry::Opaque(o) => {
+                1u8.hash(state);
+                (o.as_ptr() as usize).hash(state);
+            }
+        }
+    }
+}
+
+#[cfg(feature = "python")]
+/// A `BoardState.vias` element — the `RouteEntry` pattern applied to `vias`.
+///
+/// `DRCSweepStage`/`ViaValidationStage`/`ViaDeduplicationStage` guard every
+/// `vias` read with `isinstance(entry, Via)` and pass a non-Via entry
+/// through unchanged, the same documented tolerance `routes` has for
+/// non-Trace entries (see `RouteEntry`'s doc). `Via::from_python` requires
+/// Via-shaped attributes (`.position`/`.drill`/...), so a non-Via element
+/// keeps as an opaque identity-preserved Python reference instead.
+#[derive(Clone, Debug)]
+pub enum ViaEntry {
+    Via(temper_data_model::Via),
+    Opaque(pyo3::Py<PyAny>),
+}
+
+#[cfg(feature = "python")]
+impl PartialEq for ViaEntry {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (ViaEntry::Via(a), ViaEntry::Via(b)) => a == b,
+            (ViaEntry::Opaque(a), ViaEntry::Opaque(b)) => a.as_ptr() == b.as_ptr(),
+            _ => false,
+        }
+    }
+}
+
+#[cfg(feature = "python")]
+impl Eq for ViaEntry {}
+
+#[cfg(feature = "python")]
+impl Hash for ViaEntry {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        match self {
+            ViaEntry::Via(v) => {
+                0u8.hash(state);
+                v.hash(state);
+            }
+            ViaEntry::Opaque(o) => {
+                1u8.hash(state);
+                (o.as_ptr() as usize).hash(state);
+            }
+        }
+    }
+}
+
+#[cfg(feature = "python")]
 /// Immutable snapshot of the board at a pipeline point.
 ///
 /// Cloning is cheap for the `Py<PyAny>` fields (a reference-count bump);
@@ -137,8 +240,8 @@ pub struct BoardState {
     pub component_domain_map: Option<pyo3::Py<PyAny>>,
     pub routing_corridors: Option<pyo3::Py<PyAny>>,
     pub domain_regions: Option<pyo3::Py<PyAny>>,
-    pub routes: Option<RouteSet>, // frozenset of Trace objects
-    pub vias: Option<ViaSet>,     // frozenset of Via objects
+    pub routes: Option<HashSet<RouteEntry>>, // frozenset of Trace objects (+ opaque non-Trace pass-through)
+    pub vias: Option<HashSet<ViaEntry>>, // frozenset of Via objects (+ opaque non-Via pass-through)
     pub violations: Option<pyo3::Py<PyAny>>,
     pub zones: Option<ZoneSet>, // frozenset of zone-geometry Zone objects
     pub component_zone_map: Option<StrPairSet>, // frozenset of (ref, zone) pairs
