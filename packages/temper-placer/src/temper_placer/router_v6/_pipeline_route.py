@@ -687,9 +687,14 @@ def _run_stage5(
 
     if self.verbose:
         print("  4.4: Assigning trace widths...")
+    # `design_rules` is what makes this stage read the netclass `trace_width`
+    # SSOT instead of the three hardcoded keyword buckets -- the identical
+    # threading `place_vias` above already has.  See
+    # docs/evidence/2026-08-13-router-netclass-trace-widths.md.
     width_assignment = assign_trace_widths(
         pathfinding_result,
         default_width=pcb.design_rules.default_trace_width_mm,
+        design_rules=pcb.design_rules,
     )
 
     if self.verbose:
