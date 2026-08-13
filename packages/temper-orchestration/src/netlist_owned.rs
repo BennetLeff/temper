@@ -2,6 +2,17 @@
 //! `Component`/`Pin`/`Net` structs from `temper-data-model`, plus the two
 //! tuple impls (`(f64, f64)`, `(String, String)`) their fields need.
 //!
+//! Unit U3 extends this file with the owned AGGREGATE boundary: `Marshal`
+//! for `temper_data_model::Netlist` (components/nets — the derived index
+//! dicts are recomputed by the pyclass constructor on write-back) and for
+//! [`OwnedBoard`], the pyo3-side Board aggregate that composes the
+//! data-model [`Board`]'s owned fields with the KEEP fields (`zones`,
+//! `mounting_holes`, `ground_domains`, `layer_stackup`, `outline_polygon`)
+//! as [`Plain::Opaque`] identity passthroughs. The keeps cannot live in
+//! `temper-data-model` (it is pyo3-free for the wasm32 tier), so they live
+//! here, on the pyo3 side of the boundary — identity-preserved, never
+//! reconstructed (see the U3 VERIFICATION.md section for the field table).
+//!
 //! # Reading (never `extract::<Py<T>>()`)
 //!
 //! Each `from_python` reads the pyclass's fields via `obj.getattr("...")` and
@@ -37,17 +48,24 @@
 //! `max_current`, …) are always-float in the real pipeline, so they are
 //! concrete `f64`/`(f64, f64)` and REJECT an int-shaped value loudly (the U0
 //! "an int is not a float" discipline) rather than widen it.
+//!
+//! U3 adds the aggregate-level hazards: `Board.width`/`height`/`origin`/
+//! `keepouts` are `Val`-shaped (the `board_contracts.Board` pyclass
+//! raw-stores every constructor argument — `Board(100, 80)` keeps int width,
+//! and `Board.from_polygon` computes width as `x_max - x_min`, type-
+//! preserving — so ints are legal contract values, not pipeline accidents).
+//! The `(Val, Val)` and `(Val, Val, Val, Val)` tuple impls below serve them.
 
-#![allow(dead_code)] // U2 scaffolding: consumed by U3+'s Board/Netlist
-// aggregates and the stage ports; until then only the round-trip gate tests
+#![allow(dead_code)] // U2/U3 scaffolding: consumed by U4+'s BoardState field
+// ports and the stage rewires; until then only the round-trip gate tests
 // exercise this file.
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyFrozenSet, PySet, PyTuple};
 
-use temper_data_model::{Component, Net, Pin, Val};
+use temper_data_model::{Board, Component, Net, Netlist, Pin, Val};
 
-use crate::marshal::{Marshal, type_err};
+use crate::marshal::{Marshal, Plain, type_err};
 
 // ---------------------------------------------------------------------------
 // Tuple impls — the 2-element containers the leaf fields use
@@ -318,6 +336,206 @@ impl Marshal for Net {
 }
 
 // ---------------------------------------------------------------------------
+// U3: the `Val` tuple impls — the aggregate-level int-or-float containers
+// ---------------------------------------------------------------------------
+//
+// `Board.origin` is the `tuple[float, float]` raw-stored by the pyclass
+// (`Board(100.0, 80.0, origin=(0, 0))` keeps ints), and `Board.keepouts` is
+// `list[tuple[float, float, float, float]]` with the same no-coercion
+// contract — so their leaves marshal element-wise through `Val` (int stays
+// int, float stays float), mirroring `Component.bounds`. A list-shaped quad
+// is rejected (the contract is a tuple), and a wrong arity is a loud error.
+
+impl Marshal for (Val, Val) {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let t = obj
+            .cast::<PyTuple>()
+            .map_err(|_| type_err(obj, "(Val, Val)", "expected a 2-tuple"))?;
+        if t.len() != 2 {
+            return Err(type_err(
+                obj,
+                "(Val, Val)",
+                &format!("expected a 2-tuple, got {} elements", t.len()),
+            ));
+        }
+        let x = <Val as Marshal>::from_python(py, &t.get_item(0)?)
+            .map_err(|e| type_err(obj, "(Val, Val)", &format!("element 0: {e}")))?;
+        let y = <Val as Marshal>::from_python(py, &t.get_item(1)?)
+            .map_err(|e| type_err(obj, "(Val, Val)", &format!("element 1: {e}")))?;
+        Ok((x, y))
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let x = self.0.to_python(py)?;
+        let y = self.1.to_python(py)?;
+        Ok(PyTuple::new(py, [x.bind(py), y.bind(py)])?
+            .into_any()
+            .unbind())
+    }
+}
+
+impl Marshal for (Val, Val, Val, Val) {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let t = obj
+            .cast::<PyTuple>()
+            .map_err(|_| type_err(obj, "(Val, Val, Val, Val)", "expected a 4-tuple"))?;
+        if t.len() != 4 {
+            return Err(type_err(
+                obj,
+                "(Val, Val, Val, Val)",
+                &format!("expected a 4-tuple, got {} elements", t.len()),
+            ));
+        }
+        let mut items = [Val::Int(0); 4];
+        for (i, item) in t.iter().enumerate() {
+            items[i] = <Val as Marshal>::from_python(py, &item)
+                .map_err(|e| type_err(obj, "(Val, Val, Val, Val)", &format!("element {i}: {e}")))?;
+        }
+        Ok((items[0], items[1], items[2], items[3]))
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let items: Vec<Py<PyAny>> = [self.0, self.1, self.2, self.3]
+            .into_iter()
+            .map(|v| v.to_python(py))
+            .collect::<PyResult<_>>()?;
+        Ok(PyTuple::new(py, items.iter().map(|o| o.bind(py)))?
+            .into_any()
+            .unbind())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// U3: Netlist — the owned aggregate (components + nets; indices derived)
+// ---------------------------------------------------------------------------
+//
+// `netlist_contracts.Netlist`'s three `_`-prefixed index dicts are DERIVED:
+// `__post_init__`/`build_indices` recompute them unconditionally from
+// components/nets (a pure function of the two lists in order), and
+// `repr=False` excludes them from `__repr__`. The owned struct therefore
+// stores only the two lists; `to_python` calls the pyclass constructor with
+// just those kwargs, and the constructor recomputes the indices identically
+// — the round-trip is bit-identical (type, repr, and `==`, whose
+// `compare=True` index fields are then equal by recomputation).
+
+impl Marshal for Netlist {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(Netlist {
+            components: <Vec<Component> as Marshal>::from_python(py, &obj.getattr("components")?)?,
+            nets: <Vec<Net> as Marshal>::from_python(py, &obj.getattr("nets")?)?,
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let cls = netlist_cls(py, "Netlist")?;
+        let kwargs = PyDict::new(py);
+        kwargs.set_item("components", self.components.to_python(py)?)?;
+        kwargs.set_item("nets", self.nets.to_python(py)?)?;
+        // The three index dicts are deliberately NOT passed: the pyclass
+        // constructor (`__post_init__` → `build_indices`) recomputes them
+        // unconditionally from components/nets, identically to the original.
+        cls.call((), Some(&kwargs)).map(Bound::unbind)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// U3: Board — the owned aggregate + the Opaque keeps (OwnedBoard)
+// ---------------------------------------------------------------------------
+
+/// The design-bundle pyclass at `temper_design_bundle_python.board_contracts.<name>`,
+/// resolved at call time (runtime class lookup — see the module doc).
+fn board_cls<'py>(py: Python<'py>, name: &str) -> PyResult<Bound<'py, PyAny>> {
+    py.import("temper_design_bundle_python")?
+        .getattr("board_contracts")?
+        .getattr(name)
+}
+
+/// The pyo3-side owned Board aggregate: the pure-Rust [`Board`] (owned
+/// fields) plus the KEEP fields as [`Plain::Opaque`] identity passthroughs.
+///
+/// The keeps (`zones`, `mounting_holes`, `ground_domains`, `layer_stackup`,
+/// `outline_polygon`) cannot live in `temper-data-model` — it is pyo3-free
+/// for the wasm32 tier — so they are held here as `Plain::Opaque` (the
+/// `Plain` tree's reference-passthrough variant): `from_python` wraps each
+/// attribute's Python object UNCONDITIONALLY (never tree-ified, never
+/// inspected), and `to_python` returns that same object — identity
+/// preserved, nothing reconstructed. `Board._zone_map` is DERIVED (the
+/// constructor's `__post_init__` rebuilds it from `zones`, `init=False`), so
+/// it is neither stored nor passed.
+#[derive(Clone)]
+pub struct OwnedBoard {
+    /// The data-model owned fields (width/height/origin/keepouts).
+    pub board: Board,
+    /// Keep: `list[Zone]` — foreign pyclass, identity passthrough.
+    pub zones: Plain,
+    /// Keep: `list[MountingHole]` — foreign pyclass, identity passthrough.
+    pub mounting_holes: Plain,
+    /// Keep: `list[GroundDomain]` — foreign pyclass, identity passthrough.
+    pub ground_domains: Plain,
+    /// Keep: `LayerStackup | None` — foreign pyclass, identity passthrough.
+    pub layer_stackup: Plain,
+    /// Keep: the outline geometry (list of coords or a shapely polygon),
+    /// identity passthrough — lossless for either concrete form.
+    pub outline_polygon: Plain,
+}
+
+impl Marshal for OwnedBoard {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        Ok(OwnedBoard {
+            board: Board {
+                width: <Val as Marshal>::from_python(py, &obj.getattr("width")?)?,
+                height: <Val as Marshal>::from_python(py, &obj.getattr("height")?)?,
+                origin: <(Val, Val) as Marshal>::from_python(py, &obj.getattr("origin")?)?,
+                keepouts: <Vec<(Val, Val, Val, Val)> as Marshal>::from_python(
+                    py,
+                    &obj.getattr("keepouts")?,
+                )?,
+            },
+            zones: Plain::Opaque(obj.getattr("zones")?.unbind()),
+            mounting_holes: Plain::Opaque(obj.getattr("mounting_holes")?.unbind()),
+            ground_domains: Plain::Opaque(obj.getattr("ground_domains")?.unbind()),
+            layer_stackup: Plain::Opaque(obj.getattr("layer_stackup")?.unbind()),
+            outline_polygon: Plain::Opaque(obj.getattr("outline_polygon")?.unbind()),
+        })
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        let cls = board_cls(py, "Board")?;
+        let kwargs = PyDict::new(py);
+        kwargs.set_item("width", self.board.width.to_python(py)?)?;
+        kwargs.set_item("height", self.board.height.to_python(py)?)?;
+        kwargs.set_item("origin", self.board.origin.to_python(py)?)?;
+        kwargs.set_item("keepouts", self.board.keepouts.to_python(py)?)?;
+        kwargs.set_item("zones", opaque_to_python(py, &self.zones)?)?;
+        kwargs.set_item("mounting_holes", opaque_to_python(py, &self.mounting_holes)?)?;
+        kwargs.set_item("ground_domains", opaque_to_python(py, &self.ground_domains)?)?;
+        kwargs.set_item("layer_stackup", opaque_to_python(py, &self.layer_stackup)?)?;
+        kwargs.set_item("outline_polygon", opaque_to_python(py, &self.outline_polygon)?)?;
+        // `_zone_map` is `init=False` — the constructor's `__post_init__`
+        // rebuilds it from `zones` (the same objects, by identity).
+        cls.call((), Some(&kwargs)).map(Bound::unbind)
+    }
+}
+
+/// Return the `Plain::Opaque` payload by reference — the keep fields are
+/// Opaque BY CONSTRUCTION (the read path wraps unconditionally), so anything
+/// else here is an internal-invariant violation and fails loudly rather than
+/// silently reconstructing a keep (keeps are identity-passthrough ONLY).
+fn opaque_to_python(py: Python<'_>, keep: &Plain) -> PyResult<Py<PyAny>> {
+    match keep {
+        Plain::Opaque(obj) => Ok(obj.clone_ref(py)),
+        other => {
+            let rendered = other.to_python(py)?;
+            Err(type_err(
+                rendered.bind(py),
+                "Board keep field",
+                "internal invariant: keep fields are always Plain::Opaque",
+            ))
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Tests — the U2 leaf round-trip losslessness proof
 // ---------------------------------------------------------------------------
 
@@ -328,11 +546,14 @@ mod tests {
     use crate::marshal::{assert_roundtrip_with, to_owned, to_python};
 
     /// Faithful `@dataclass` stand-ins for the design-bundle pyclasses, in the
-    /// oracle's exact field order (`tests/core/_netlist_py_oracle.py`). A
-    /// dataclass reproduces the pyclass `__repr__`/`__eq__` bit-for-bit
-    /// (both assemble the field list and delegate `repr`/`==` to CPython's),
-    /// so the round-trip gate's type/repr/eq checks are meaningful without
-    /// building the real `.so` (which `cargo test` here does not).
+    /// oracle's exact field order (`tests/core/_netlist_py_oracle.py` and
+    /// `tests/core/_board_py_oracle.py`). A dataclass reproduces the pyclass
+    /// `__repr__`/`__eq__` bit-for-bit (both assemble the field list and
+    /// delegate `repr`/`==` to CPython's), so the round-trip gate's
+    /// type/repr/eq checks are meaningful without building the real `.so`
+    /// (which `cargo test` here does not). The `Board` stand-in mirrors the
+    /// oracle's `__post_init__` (default 4-layer stackup fill + `_zone_map`
+    /// build) so constructor-normalised fields round-trip identically.
     const STANDIN: &str = r#"
 from dataclasses import dataclass, field
 
@@ -375,14 +596,130 @@ class Net:
     weight: float = 1.0
     max_current: float = 0.0
     voltage_class: str = "LV"
+
+@dataclass
+class Netlist:
+    components: list = field(default_factory=list)
+    nets: list = field(default_factory=list)
+    _component_index: dict = field(default_factory=dict, repr=False)
+    _net_index: dict = field(default_factory=dict, repr=False)
+    _component_nets: dict = field(default_factory=dict, repr=False)
+
+    def __post_init__(self):
+        self.build_indices()
+
+    def build_indices(self):
+        self._component_index = {c.ref: i for i, c in enumerate(self.components)}
+        self._net_index = {n.name: i for i, n in enumerate(self.nets)}
+        self._component_nets = {c.ref: [] for c in self.components}
+        for net in self.nets:
+            for ref, _ in net.pins:
+                if ref in self._component_nets:
+                    self._component_nets[ref].append(net.name)
+
+@dataclass
+class Layer:
+    name: str
+    layer_type: str
+    copper_weight: float = 1.0
+    is_routable: bool = True
+
+@dataclass
+class LayerStackup:
+    layers: tuple = ()
+    thickness: float = 1.6
+
+    @classmethod
+    def default_4layer(cls):
+        return cls(
+            (Layer("F.Cu", "signal"), Layer("In1.Cu", "plane"),
+             Layer("In2.Cu", "plane"), Layer("B.Cu", "signal"))
+        )
+
+@dataclass
+class MountingHole:
+    position: tuple
+    diameter: float
+    keepout_radius: float = 3.0
+
+@dataclass
+class Zone:
+    name: str
+    bounds: object
+    net_classes: list = field(default_factory=lambda: ["Signal"])
+    components: list = field(default_factory=list)
+    weight: float = 1.0
+    polygon: object = None
+    layers: list = field(default_factory=lambda: ["F.Cu"])
+    max_size: object = None
+    can_expand: list = field(default_factory=lambda: ["up", "down", "left", "right"])
+    zone_type: str = "placement"
+
+@dataclass
+class GroundDomain:
+    name: str
+    bounds: tuple
+    star_point: object = None
+
+@dataclass
+class Board:
+    width: object
+    height: object
+    origin: tuple = (0.0, 0.0)
+    zones: list = field(default_factory=list)
+    mounting_holes: list = field(default_factory=list)
+    keepouts: list = field(default_factory=list)
+    ground_domains: list = field(default_factory=list)
+    layer_stackup: object = None
+    outline_polygon: object = None
+    _zone_map: dict = field(init=False, default_factory=dict)
+
+    def __post_init__(self):
+        if not self.layer_stackup:
+            self.layer_stackup = LayerStackup.default_4layer()
+        self._zone_map = {z.name: z for z in self.zones}
 "#;
+
+    /// The module's tests are serialized by this lock, taken BEFORE any
+    /// Python (before `Python::initialize()`/`Python::attach`): each `setup()`
+    /// call registers the stand-in classes into the PROCESS-GLOBAL
+    /// `sys.modules`, and the round-trip gate's type check compares an
+    /// eval-vs-import class identity (`orig.get_type().is(back.get_type())`).
+    /// Concurrent test threads can interleave closures (the pyo3 GIL pool's
+    /// already-attached fast path runs a previously-attached thread's closure
+    /// without re-acquiring the GIL), so two concurrent `setup()`s would
+    /// clobber `sys.modules` with DIFFERENT stand-in class objects and a test
+    /// whose eval saw one set and whose `to_python` import saw the other
+    /// would fail with a type mismatch whose reprs are identical. The lock
+    /// makes the registrations sequential AND must be taken before attach:
+    /// a lock taken inside a closure deadlocks when the closure's thread is
+    /// on the GIL-pool fast path (it waits for the real GIL — held by the
+    /// thread blocked on this lock — an ABBA cycle). `setup()` additionally
+    /// REUSES an existing registration so every test's globals and the
+    /// runtime-import path resolve the same class objects.
+    static NETLIST_TESTS_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
     /// Define the stand-in dataclasses in a globals dict and register them in
     /// `sys.modules` under the path the `to_python` runtime import looks up
-    /// (`temper_design_bundle_python.netlist_contracts`), exactly the mock
-    /// pattern the d3–d7 stage runners use for their call-backs.
+    /// (`temper_design_bundle_python.netlist_contracts` and
+    /// `...board_contracts`), exactly the mock pattern the d3–d7 stage
+    /// runners use for their call-backs.
     fn setup<'py>(py: Python<'py>) -> Bound<'py, PyDict> {
         let globals = PyDict::new(py);
+        // Reuse a registration a previous test already made: the classes
+        // must be THE SAME objects the runtime-import path will resolve.
+        if let Ok(tdb) = py.import("temper_design_bundle_python")
+            && let Ok(nc) = tdb.getattr("netlist_contracts")
+            && let Ok(bc) = tdb.getattr("board_contracts")
+        {
+            for name in ["Pin", "Component", "Net", "Netlist"] {
+                globals.set_item(name, nc.getattr(name).expect("nc class")).expect("set nc class");
+            }
+            for name in ["Layer", "LayerStackup", "MountingHole", "Zone", "GroundDomain", "Board"] {
+                globals.set_item(name, bc.getattr(name).expect("bc class")).expect("set bc class");
+            }
+            return globals;
+        }
         let standin = std::ffi::CString::new(STANDIN).expect("STANDIN has no NUL");
         py.run(standin.as_c_str(), Some(&globals), None)
             .expect("stand-in classes");
@@ -396,13 +733,24 @@ class Net:
             .expect("register Component");
         nc.add("Net", globals.get_item("Net").expect("Net"))
             .expect("register Net");
+        nc.add("Netlist", globals.get_item("Netlist").expect("Netlist"))
+            .expect("register Netlist");
         tdb.add("netlist_contracts", &nc).expect("tdb.netlist_contracts");
+        let bc = PyModule::new(py, "board_contracts").expect("board_contracts");
+        for name in ["Layer", "LayerStackup", "MountingHole", "Zone", "GroundDomain", "Board"] {
+            bc.add(name, globals.get_item(name).unwrap_or_else(|_| panic!("{name}")))
+                .unwrap_or_else(|e| panic!("register {name}: {e}"));
+        }
+        tdb.add("board_contracts", &bc).expect("tdb.board_contracts");
         modules
             .set_item("temper_design_bundle_python", &tdb)
             .expect("sys.modules tdb");
         modules
             .set_item("temper_design_bundle_python.netlist_contracts", &nc)
             .expect("sys.modules tdb.netlist_contracts");
+        modules
+            .set_item("temper_design_bundle_python.board_contracts", &bc)
+            .expect("sys.modules tdb.board_contracts");
         globals
     }
 
@@ -411,6 +759,7 @@ class Net:
         // The netlist_contracts hazard: `Component("R1", "fp", (1, 2))` keeps
         // `int` bounds; `(1.0, 2.0)` keeps `float` bounds. Both round-trip
         // bit-identically — `1` must NOT widen to `1.0`.
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -440,6 +789,7 @@ class Net:
 
     #[test]
     fn component_with_pins_and_all_fields_roundtrips_losslessly() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -448,9 +798,16 @@ class Net:
                 "Component('U1', 'QFN-56', (7.5, 7.5), [Pin('1', '1', (-3.5, 0.0), net='VCC'), \
                  Pin('2', '2', (3.5, 0.0))], net_class='HighVoltage', zone='power', fixed=True, \
                  initial_position=(10.0, 20.0), initial_rotation=1, initial_side=0, \
-                 attributes={'value': '100nF'}, tags=frozenset({'power', 'top'}), sheetpath='hb.power_loop.q_high')",
+                 attributes={'value': '100nF'}, tags=frozenset({'power'}), sheetpath='hb.power_loop.q_high')",
                 Some(&g),
             );
+            // NOTE (U3 drive-by, R22-aligned): `tags` is a SINGLE-element
+            // frozenset here — the recorded U2 bound ("The gate pins full
+            // bit-identity on empty/single-element tags") guarantees its
+            // iteration order is seed-independent. The previous multi-element
+            // `{'power', 'top'}` could collide under a hash draw and rebuild
+            // in a different order — the exact non-guaranteed case the bound
+            // records — making this gate flaky on origin/main (~13%).
         });
     }
 
@@ -459,6 +816,7 @@ class Net:
         // Only ref/footprint/bounds are given; the rest fall to dataclass
         // defaults and must come back exactly (empty list/dict/frozenset,
         // `None` for the optionals).
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -468,6 +826,7 @@ class Net:
 
     #[test]
     fn pin_roundtrips_losslessly() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -483,6 +842,7 @@ class Net:
 
     #[test]
     fn net_roundtrips_losslessly() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -503,6 +863,7 @@ class Net:
         // dataclass `__eq__` itself returns False for NaN fields (CPython
         // `nan != nan`), so equality is asserted on the marshalled field
         // rather than through `assert_roundtrip_with`'s `==` arm.
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -534,6 +895,7 @@ class Net:
 
     #[test]
     fn leaf_structs_reject_the_wrong_container_and_sibling_types() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -555,6 +917,7 @@ class Net:
 
     #[test]
     fn tuple_impls_roundtrip_losslessly() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             assert_roundtrip_with::<(f64, f64)>(py, "(1.5, -2.5)", None);
@@ -564,6 +927,273 @@ class Net:
             // which the gate's bare-float NaN arm cannot see).
             assert_roundtrip_with::<(f64, f64)>(py, "(-0.0, 2.5)", None);
             assert_roundtrip_with::<(String, String)>(py, "('U1', '1')", None);
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    // U3: the owned aggregates — Netlist + Board round-trip gate
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn netlist_roundtrips_bit_identically() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            // The dataclass default (empty lists) round-trips; `__post_init__`
+            // rebuilds the three index dicts identically on both sides.
+            assert_roundtrip_with::<Netlist>(py, "Netlist()", Some(&g));
+            // A full netlist with U2-leaf components/nets. The `==` arm covers
+            // the DERIVED indices (`compare=True`, `repr=False`): they are
+            // recomputed by `build_indices` on both the original and the
+            // rebuilt object and must be equal.
+            assert_roundtrip_with::<Netlist>(
+                py,
+                "Netlist(components=[Component('U1', 'QFN-56', (7.5, 7.5), \
+                 [Pin('1', '1', (-3.5, 0.0), net='VCC')], net_class='HighVoltage', \
+                 attributes={'value': '100nF'}), Component('R1', 'fp', (1, 2))], \
+                 nets=[Net('GND', [('U1', '1')], net_class='Ground', weight=2.0, \
+                 max_current=3.5, voltage_class='HV'), Net('NET-2', [('R1', '1')])])",
+                Some(&g),
+            );
+            // The owned struct holds exactly the two lists — the indices are
+            // derived, not stored.
+            let owned = to_owned::<Netlist>(&eval_expr(py, &g, "Netlist()")).unwrap();
+            assert!(owned.components.is_empty() && owned.nets.is_empty());
+            let owned =
+                to_owned::<Netlist>(&eval_expr(py, &g, "Netlist(components=[Component('R1', 'fp', (1, 2))])"))
+                    .unwrap();
+            assert_eq!(owned.components.len(), 1);
+            assert_eq!(owned.components[0].bounds, vec![Val::Int(1), Val::Int(2)]);
+        });
+    }
+
+    #[test]
+    fn netlist_nan_and_leaf_int_vs_float_roundtrip_preserved() {
+        // The aggregate carries U2 leaves unchanged: an int `bounds` leaf
+        // inside a component stays int, and a NaN `weight` inside a net
+        // survives with type + repr preserved (manual type/repr arm — the
+        // dataclass `__eq__` returns False for NaN fields, the recorded U2
+        // bound).
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            for expr in [
+                "Netlist(nets=[Net('n', [], weight=float('nan'))])",
+                "Netlist(nets=[Net('n', [], max_current=float('inf'))])",
+                "Netlist(components=[Component('R1', 'fp', (1.0, float('nan')))])",
+            ] {
+                let orig = eval_expr(py, &g, expr);
+                let owned = to_owned::<Netlist>(&orig).expect("to_owned");
+                let back = to_python::<Netlist>(py, &owned).expect("to_python").bind(py).clone();
+                assert!(orig.get_type().is(back.get_type()), "type mismatch for {expr}");
+                let rp = orig.repr().unwrap().extract::<String>().unwrap();
+                let rb = back.repr().unwrap().extract::<String>().unwrap();
+                assert_eq!(rp, rb, "repr mismatch for {expr}");
+            }
+            let owned =
+                to_owned::<Netlist>(&eval_expr(py, &g, "Netlist(nets=[Net('n', [], weight=float('nan'))])"))
+                    .unwrap();
+            assert!(owned.nets[0].weight.is_nan(), "net weight NaN must survive");
+            let owned = to_owned::<Netlist>(&eval_expr(
+                py,
+                &g,
+                "Netlist(components=[Component('R1', 'fp', (1, 2))])",
+            ))
+            .unwrap();
+            assert_eq!(owned.components[0].bounds, vec![Val::Int(1), Val::Int(2)]);
+        });
+    }
+
+    #[test]
+    fn board_roundtrips_bit_identically_with_keeps_by_identity() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            // The constructor-normalised default board: `__post_init__` fills
+            // the 4-layer stackup and the empty `_zone_map` on BOTH sides, so
+            // the repr/eq arms (which include `_zone_map`, `repr=True`) match.
+            assert_roundtrip_with::<OwnedBoard>(py, "Board(100.0, 80.0)", Some(&g));
+            // Float-shaped dims/origin.
+            assert_roundtrip_with::<OwnedBoard>(
+                py,
+                "Board(100.0, 80.0, origin=(0.0, 0.0))",
+                Some(&g),
+            );
+            // The FULL board: every field populated, the keep fields holding
+            // foreign pyclass values and an explicit stackup + outline.
+            assert_roundtrip_with::<OwnedBoard>(
+                py,
+                "Board(100.0, 150.0, origin=(0.0, 0.0), \
+                 zones=[Zone('HV_ZONE', (0, 0, 50, 80))], \
+                 mounting_holes=[MountingHole((5, 5), 3.2)], \
+                 keepouts=[(0, 0, 50, 80)], \
+                 ground_domains=[GroundDomain('PGND', (0, 0, 50, 150))], \
+                 layer_stackup=LayerStackup.default_4layer(), \
+                 outline_polygon=[(0, 0), (100, 0), (100, 150), (0, 150)])",
+                Some(&g),
+            );
+            // Keeps round-trip BY IDENTITY: the rebuilt board's keep fields ARE
+            // the original objects (Plain::Opaque passthrough — never
+            // reconstructed, never copied).
+            let orig = eval_expr(
+                py,
+                &g,
+                "Board(100.0, 80.0, zones=[Zone('HV_ZONE', (0, 0, 50, 80))], \
+                 mounting_holes=[MountingHole((5, 5), 3.2)], \
+                 ground_domains=[GroundDomain('PGND', (0, 0, 50, 150))], \
+                 layer_stackup=LayerStackup.default_4layer(), \
+                 outline_polygon=[(0, 0), (100, 0), (100, 150)])",
+            );
+            let owned = to_owned::<OwnedBoard>(&orig).unwrap();
+            let back = to_python::<OwnedBoard>(py, &owned).unwrap().bind(py).clone();
+            for attr in [
+                "zones",
+                "mounting_holes",
+                "ground_domains",
+                "layer_stackup",
+                "outline_polygon",
+            ] {
+                let a = orig.getattr(attr).unwrap();
+                let b = back.getattr(attr).unwrap();
+                assert!(a.is(&b), "{attr} must pass through by identity");
+            }
+            // `_zone_map` is derived: rebuilt from the same zone objects by the
+            // constructor, so it is value-equal (and repr-identical).
+            let zm_orig = orig.getattr("_zone_map").unwrap();
+            let zm_back = back.getattr("_zone_map").unwrap();
+            assert!(
+                zm_orig.eq(&zm_back).unwrap(),
+                "_zone_map must be recomputed identically"
+            );
+        });
+    }
+
+    #[test]
+    fn board_val_fields_preserve_int_vs_float() {
+        // The aggregate-level hazard: `Board(100, 80)` keeps INT width/height
+        // (the pyclass raw-stores constructor args), and `keepouts=[(0, 0, 50,
+        // 80)]` keeps int quads. Both round-trip bit-identically — `1` must
+        // NOT widen to `1.0` — and the owned `Val` fields record which.
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            assert_roundtrip_with::<OwnedBoard>(py, "Board(100, 80, origin=(0, 0))", Some(&g));
+            assert_roundtrip_with::<OwnedBoard>(
+                py,
+                "Board(100, 80, keepouts=[(0, 0, 50, 80), (10.5, 20.5, 30.5, 40.5)])",
+                Some(&g),
+            );
+            assert_roundtrip_with::<OwnedBoard>(py, "Board(100.0, 80.0)", Some(&g));
+            let owned =
+                to_owned::<OwnedBoard>(&eval_expr(py, &g, "Board(100, 80, origin=(0, 0))"))
+                    .unwrap();
+            assert_eq!(owned.board.width, Val::Int(100));
+            assert_eq!(owned.board.height, Val::Int(80));
+            assert_eq!(owned.board.origin, (Val::Int(0), Val::Int(0)));
+            let owned = to_owned::<OwnedBoard>(&eval_expr(
+                py,
+                &g,
+                "Board(100, 80, keepouts=[(0, 0, 50, 80)])",
+            ))
+            .unwrap();
+            assert_eq!(
+                owned.board.keepouts,
+                vec![(Val::Int(0), Val::Int(0), Val::Int(50), Val::Int(80))]
+            );
+            let owned = to_owned::<OwnedBoard>(&eval_expr(py, &g, "Board(100.0, 80.0)")).unwrap();
+            assert_eq!(owned.board.width, Val::Float(100.0));
+            assert_eq!(owned.board.origin, (Val::Float(0.0), Val::Float(0.0)));
+        });
+    }
+
+    #[test]
+    fn board_nan_and_infinities_roundtrip_in_val_fields() {
+        // A NaN inside a `Val`-shaped Board field round-trips with type + repr
+        // preserved and the owned field still NaN (manual type/repr arm — the
+        // dataclass `__eq__` is False for NaN fields, the recorded U2 bound).
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            for expr in [
+                "Board(float('nan'), 80.0)",
+                "Board(100.0, float('-inf'))",
+                "Board(100.0, 80.0, origin=(float('nan'), 0.0))",
+            ] {
+                let orig = eval_expr(py, &g, expr);
+                let owned = to_owned::<OwnedBoard>(&orig).expect("to_owned");
+                let back = to_python::<OwnedBoard>(py, &owned).expect("to_python").bind(py).clone();
+                assert!(orig.get_type().is(back.get_type()), "type mismatch for {expr}");
+                let rp = orig.repr().unwrap().extract::<String>().unwrap();
+                let rb = back.repr().unwrap().extract::<String>().unwrap();
+                assert_eq!(rp, rb, "repr mismatch for {expr}");
+            }
+            let owned = to_owned::<OwnedBoard>(&eval_expr(py, &g, "Board(float('nan'), 80.0)"))
+                .unwrap();
+            match owned.board.width {
+                Val::Float(f) => assert!(f.is_nan(), "width NaN must survive"),
+                Val::Int(_) => panic!("width must be Val::Float"),
+            }
+        });
+    }
+
+    #[test]
+    fn aggregate_guards_reject_the_wrong_container_and_sibling_types() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            let err = |expr: &str| -> bool {
+                to_owned::<OwnedBoard>(&eval_expr(py, &g, expr)).is_err()
+            };
+            // keepouts: the contract is a list of 4-tuples — a tuple-of-tuples,
+            // a list-shaped quad, a wrong-arity quad and a bool leaf are all
+            // LOUD errors, never coerced.
+            assert!(err("Board(100.0, 80.0, keepouts=((0, 0, 50, 80),))"), "tuple keepouts must be rejected");
+            assert!(err("Board(100.0, 80.0, keepouts=[[0, 0, 50, 80]])"), "list-shaped quad must be rejected");
+            assert!(err("Board(100.0, 80.0, keepouts=[(0, 0, 50)])"), "3-tuple quad must be rejected");
+            assert!(err("Board(100.0, 80.0, keepouts=[(0, 0, 50, True)])"), "bool quad leaf must be rejected");
+            // origin: the contract is a 2-tuple.
+            assert!(err("Board(100.0, 80.0, origin=(0,))"), "1-tuple origin must be rejected");
+            assert!(err("Board(100.0, 80.0, origin=[0, 0])"), "list origin must be rejected");
+            // width/height: a bool is not an int-or-float Val.
+            assert!(err("Board(True, 80.0)"), "bool width must be rejected");
+            // Netlist: components/nets are lists — a tuple-of-components
+            // constructs fine in Python (build_indices iterates it) but must
+            // be REJECTED by the marshal (a `Vec` is a `list`-shaped read).
+            assert!(
+                to_owned::<Netlist>(&eval_expr(
+                    py,
+                    &g,
+                    "Netlist(components=(Component('R1', 'fp', (1, 2)),))"
+                ))
+                .is_err(),
+                "tuple components must be rejected"
+            );
+        });
+    }
+
+    #[test]
+    fn val_tuple_impls_roundtrip_losslessly() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        Python::initialize();
+        Python::attach(|py| {
+            let g = setup(py);
+            assert_roundtrip_with::<(Val, Val)>(py, "(0, 0)", None);
+            assert_roundtrip_with::<(Val, Val)>(py, "(0.0, 1.5)", None);
+            assert_roundtrip_with::<(Val, Val, Val, Val)>(py, "(0, 0, 50, 80)", None);
+            assert_roundtrip_with::<(Val, Val, Val, Val)>(py, "(0.0, 0.0, 50.0, 80.0)", None);
+            // Int leaves stay int in the owned tuple — never widened.
+            let owned: (Val, Val, Val, Val) =
+                to_owned(&eval_expr(py, &g, "(0, 0, 50, 80)")).unwrap();
+            assert_eq!(
+                owned,
+                (Val::Int(0), Val::Int(0), Val::Int(50), Val::Int(80))
+            );
         });
     }
 }
