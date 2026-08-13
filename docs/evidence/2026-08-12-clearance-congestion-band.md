@@ -1,3 +1,12 @@
+<!-- provenance: commit=d60caadd524019e3ea73b07224ddcab7d5414a86 dirty=UNKNOWN -->
+<!-- The machine-checked stamp above names the tree these numbers were measured in:
+`fix/clearance-congestion-band`'s last good commit, which is what this document was
+recovered from when #1095 was re-landed after #1100 reverted it. `dirty=UNKNOWN` is
+honest rather than convenient -- the agent restoring this file cannot attest to the
+working tree's cleanliness at the time the measurements were taken, and a fabricated
+`false` would give none of the traceability the stamp exists for. The document's own
+narrative provenance header follows. -->
+
 <!-- provenance: measured 2026-08-12, worktree /home/bennet/Desktop/temper-clearance-band,
 branch fix/clearance-congestion-band (base origin/main 58292f8f1, merged
 origin/feat/igbt-heatsink-colocation 30ccf6ae5 so the heatsink constraint composes).
