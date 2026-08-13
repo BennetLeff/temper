@@ -1581,6 +1581,9 @@ impl Marshal for PlacementViolation {
 // U5: the violations field — the PreflightReport dict (OwnedPlain leaves)
 // ---------------------------------------------------------------------------
 
+#[allow(clippy::only_used_in_recursion)] // `py` threads through the nested
+// list/dict recursion (the base scalar arms need no interpreter handle) — a
+// genuine use, mirroring `Plain::from_python`'s helper-threaded recursion.
 impl Marshal for OwnedPlain {
     fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
         if obj.is_none() {
