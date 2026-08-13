@@ -146,9 +146,10 @@ from pathlib import Path
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
+from temper_placer.router_v6.clearance_floor import required_clearance_mm
+
 from temper_placer.router_v6._ground_plane import (
     _collect_hv_copper_geometry,
-    _collect_other_net_copper,
     _dedupe_positions,
     _emit_keepout_zone_s_expr,
     _existing_drilled_holes,
@@ -178,7 +179,22 @@ VIA_DRILL_MM = 0.4
 STITCH_TRACE_WIDTH_MM = 0.3
 
 BOARD_EDGE_MARGIN_MM = 1.0
-OTHER_NET_CLEARANCE_MM = 0.05
+
+# Clearance this module keeps its own new copper (drop vias, MST backbone
+# segments) away from other nets' copper -- both pre-existing foreign
+# copper and the earlier rails of this same run.
+#
+# 2026-08-12: was a hard-coded ``0.05``, copied into this module by #1047
+# from ``_ground_plane.py``'s #1033 original, where the comment justifying
+# it had derived **0.5mm** and then assigned a tenth of that. Against a
+# DRU that grades every track-involving pair at 0.2mm
+# (``generate_kicad_dru.py`` RULE 10) it was a 4x under-reservation, and
+# every one of this module's uses is a shapely ``buffer()`` -- an EXACT
+# reservation -- so the required gap is the parameter and no
+# rasteriser conversion applies (see ``clearance_floor``'s docstring for
+# the distinction, and why ``blocking_clearance_mm`` would be wrong here).
+# Derived from the one declaration of the DRU floor rather than restated.
+OTHER_NET_CLEARANCE_MM = required_clearance_mm()
 # NOTE: this module deliberately does NOT redeclare
 # KEEPOUT_EXTRA_MARGIN_MM/MIN_HOLE_EDGE_GAP_MM/VIA_OFFSET_RING_RADII_MM/
 # VIA_OFFSET_RING_STEPS. _find_via_drop_point and compute_hv_selv_keepout
@@ -306,7 +322,10 @@ def generate_power_islands_content(
     # obstacle grid, read once (not per rail) -- see
     # _corridor_backbone.resolve_netclass_clearances's docstring for why
     # this replaces a flat constant.
-    from temper_placer.router_v6._corridor_backbone import resolve_netclass_clearances
+    from temper_placer.router_v6._corridor_backbone import (
+        collect_other_net_copper_by_pairwise_clearance,
+        resolve_netclass_clearances,
+    )
 
     _net_clearance, _default_clearance = resolve_netclass_clearances(
         pcb_path.with_suffix(".kicad_pro")
@@ -459,11 +478,21 @@ def generate_power_islands_content(
         # _corridor_backbone.py's module docstring for why this had to
         # be a hybrid (A* first, keepout-only detour as fallback) rather
         # than a full per-path search replacing `_blocked` outright. ---
-        other_copper_fcu = _collect_other_net_copper(
-            pcb, net_name, "F.Cu", OTHER_NET_CLEARANCE_MM
+        #
+        # 2026-08-12: the two obstacle polygons below used to be built at a
+        # flat OTHER_NET_CLEARANCE_MM (0.05mm) while the corridor-aware A*
+        # pass further down built its own per-NET-PAIR one. One obstacle,
+        # two models, and the flat one was 4x under the DRU floor it is
+        # graded by. There is now one model -- the per-pair one -- used by
+        # both.
+        this_net_own_clearance = max(
+            _net_clearance.get(net_name, _default_clearance), OTHER_NET_CLEARANCE_MM
         )
-        other_copper_bcu = _collect_other_net_copper(
-            pcb, net_name, "B.Cu", OTHER_NET_CLEARANCE_MM
+        other_copper_fcu = collect_other_net_copper_by_pairwise_clearance(
+            pcb, net_name, "F.Cu", _net_clearance, this_net_own_clearance, _default_clearance
+        )
+        other_copper_bcu = collect_other_net_copper_by_pairwise_clearance(
+            pcb, net_name, "B.Cu", _net_clearance, this_net_own_clearance, _default_clearance
         )
         via_avoid_parts = [
             g
@@ -544,25 +573,20 @@ def generate_power_islands_content(
         from temper_placer.core.topology import UnionFind
         from temper_placer.router_v6._corridor_backbone import (
             build_obstacle_grid,
-            collect_other_net_copper_by_pairwise_clearance,
             compute_corridor_mask,
             corridor_aware_spanning_edges,
         )
 
-        # Real, per-net-pair clearance polygon for the A* obstacle grid --
-        # NOT other_copper_fcu (built above at OTHER_NET_CLEARANCE_MM
-        # =0.05mm for via placement); see
-        # _corridor_backbone.resolve_netclass_clearances's docstring.
-        # run_new_fcu_copper (earlier rails' new copper this run) is
-        # additionally buffered by INTER_RAIL_CLEARANCE_MM here -- those
-        # polygons already carry ~0.05mm from their own construction
-        # (_emit_segment/this_rail_vias), so this brings their effective
-        # standoff up near the same ballpark as the real Power-class
-        # pairwise clearance without re-deriving them from raw geometry.
-        this_net_own_clearance = _net_clearance.get(net_name, _default_clearance)
-        other_copper_fcu_backbone = collect_other_net_copper_by_pairwise_clearance(
-            pcb, net_name, "F.Cu", _net_clearance, this_net_own_clearance, _default_clearance
-        )
+        # The per-net-pair clearance polygon for the A* obstacle grid is
+        # now the SAME ``other_copper_fcu`` via placement uses, built once
+        # above (until 2026-08-12 this site built a second, per-pair copy
+        # while via placement kept a flat 0.05mm one). run_new_fcu_copper
+        # (earlier rails' new copper this run) is additionally buffered by
+        # INTER_RAIL_CLEARANCE_MM here -- those polygons already carry
+        # OTHER_NET_CLEARANCE_MM from their own construction
+        # (_emit_segment/this_rail_vias), so this is headroom on top of
+        # the DRU floor, not a substitute for it.
+        other_copper_fcu_backbone = other_copper_fcu
         prior_rail_backbone_obstacles = [
             g.buffer(INTER_RAIL_CLEARANCE_MM) for g in run_new_fcu_copper
         ]
