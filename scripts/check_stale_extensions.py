@@ -465,6 +465,45 @@ def _resolve_native_artifact(module_name: str, origin: Path) -> Path:
     return candidates[0] if candidates else origin
 
 
+#: A CPython extension module is only importable if it exports an init
+#: function named for the module. pyo3 emits ``PyInit_<name>`` (stable ABI
+#: era) or ``PyModExport_<name>`` (newer multi-phase export); maturin's own
+#: "Couldn't find the symbol" warning names both, so both are accepted here.
+_INIT_SYMBOL_PREFIXES = ("PyInit_", "PyModExport_")
+
+#: Cap on how much of an artifact is scanned for the init symbol. The symbol
+#: lives in the dynamic symbol table, but reading the whole file and scanning
+#: it is simpler and stays honest across ELF/Mach-O/PE without a parser. The
+#: largest artifact in this repo is ~8 MB, so this reads everything in
+#: practice; the cap only bounds the damage from a pathological file.
+_SYMBOL_SCAN_MAX_BYTES = 128 << 20
+
+
+def _exports_init_symbol(module_name: str, artifact: Path) -> bool | None:
+    """Whether *artifact* exports an init function for *module_name*.
+
+    Returns ``None`` when the question does not apply -- the artifact is not
+    a native module (we fell back to the ``__init__.py`` wrapper because no
+    ``.so``/``.pyd`` was found) or could not be read.
+
+    Deliberately a byte scan, not an import: this gate must stay
+    side-effect-free (see the module docstring's "resolving the actual
+    compiled artifact" note -- ``find_spec`` is used precisely so that
+    running the gate never executes module-level code). A byte scan answers
+    "would this load?" without loading it, and inspects the same file the
+    original incident's own ``strings`` check did.
+    """
+    if artifact.suffix not in {".so", ".pyd"}:
+        return None
+    try:
+        blob = artifact.read_bytes()[:_SYMBOL_SCAN_MAX_BYTES]
+    except OSError:
+        return None
+    return any(
+        f"{prefix}{module_name}".encode() in blob for prefix in _INIT_SYMBOL_PREFIXES
+    )
+
+
 # ---------------------------------------------------------------------------
 # Build stamps (content hashing) -- see module docstring for the two
 # "Design decision" sections covering why these exist and where they live.
@@ -529,7 +568,7 @@ def read_artifact_stamp(artifact: Path) -> str | None:
 
 @dataclass
 class ModuleStatus:
-    state: str  # "fresh" | "stale" | "missing" | "error"
+    state: str  # "fresh" | "stale" | "unloadable" | "missing" | "error"
     detail: str
     artifact: Path | None = None
     artifact_mtime: float | None = None
@@ -564,6 +603,31 @@ def check_module(crate: Crate) -> ModuleStatus:
         )
 
     artifact = _resolve_native_artifact(crate.module_name, origin)
+
+    # Checked BEFORE freshness, because freshness is meaningless for an
+    # artifact that cannot load: a `.so` rebuilt from a cargo cache that
+    # holds a non-`python`-feature build carries a brand-new mtime and a
+    # matching content hash, so every freshness path below reports it OK
+    # while `import <module>` raises "dynamic module does not define module
+    # export function". Measured 2026-08-13: this gate reported
+    # "PASSED -- 10/10 extension module(s) fresh" against a temper_geometry
+    # artifact that could not be imported at all, and 21 of 32 apparent test
+    # failures were that one broken module. Freshness answers "was it
+    # rebuilt?"; this answers "is what got installed loadable?".
+    if _exports_init_symbol(crate.module_name, artifact) is False:
+        return ModuleStatus(
+            "unloadable",
+            f"{crate.module_name}: installed artifact {artifact} exports no "
+            f"PyInit_{crate.module_name} -- it cannot be imported, regardless "
+            f"of how recently it was built. This is the signature of a cargo "
+            f"cache holding an artifact compiled WITHOUT the crate's `python` "
+            f"feature (left by `cargo check`/clippy), which maturin then "
+            f"reuses and reports as a successful build. Fix with: "
+            f"`source scripts/cargo_shared_env.sh && cargo clean -p "
+            f"{crate.name}` then rebuild, confirming a real `Compiling "
+            f"{crate.name}` line appears (a build that prints only "
+            f"`Finished ... in 0.0Xs` reused the poisoned artifact).",
+        )
 
     try:
         sources = crate_source_files(crate)
@@ -679,7 +743,13 @@ def _required() -> bool:
     }
 
 
-_MARKER = {"fresh": "OK", "stale": "STALE", "missing": "MISSING", "error": "ERROR"}
+_MARKER = {
+    "fresh": "OK",
+    "stale": "STALE",
+    "unloadable": "UNLOADABLE",
+    "missing": "MISSING",
+    "error": "ERROR",
+}
 
 
 def group_by_state(report: Report) -> dict[str, list[CrateResult]]:
@@ -700,6 +770,14 @@ def decide_exit_code(report: Report, required: bool) -> int:
     if by_state.get("error"):
         return EXIT_TOOL_ERROR
     if by_state.get("stale"):
+        return EXIT_VIOLATION
+    # Always fatal, never gated by *required* -- same reasoning as STALE. An
+    # artifact that exports no init function cannot be imported by anyone,
+    # so there is no environment in which tolerating it yields a meaningful
+    # test result; it produces phantom failures instead (21 of 32, measured
+    # 2026-08-13). MISSING is gated by *required* because "not built here"
+    # is a legitimate local state; "built, but unloadable" never is.
+    if by_state.get("unloadable"):
         return EXIT_VIOLATION
     if by_state.get("missing") and required:
         return EXIT_VIOLATION
@@ -760,6 +838,7 @@ def main() -> int:
     fresh = by_state.get("fresh", [])
     stale = by_state.get("stale", [])
     missing = by_state.get("missing", [])
+    unloadable = by_state.get("unloadable", [])
     errors = by_state.get("error", [])
 
     print(
@@ -769,13 +848,14 @@ def main() -> int:
     )
     by_content = [r for r in report.results if r.status.method == "content"]
     print(
-        f"  fresh={len(fresh)} stale={len(stale)} missing={len(missing)} "
-        f"tool-errors={len(errors)}  "
+        f"  fresh={len(fresh)} stale={len(stale)} unloadable={len(unloadable)} "
+        f"missing={len(missing)} tool-errors={len(errors)}  "
         f"TEMPER_REQUIRE_FRESH_EXTENSIONS={'1 (strict)' if required else '0 (lenient)'}"
     )
     print(
         f"  decided by content hash: {len(by_content)}; by mtime fallback "
-        f"(no build stamp): {len(report.results) - len(by_content) - len(missing)}"
+        f"(no build stamp): "
+        f"{len(report.results) - len(by_content) - len(missing) - len(unloadable)}"
     )
     for r in report.results:
         print(f"  [{_MARKER[r.status.state]}] {r.crate.name}: {r.status.detail}")
@@ -788,6 +868,7 @@ def main() -> int:
                 f"- Checked: {len(report.results)}\n"
                 f"- Fresh: {len(fresh)}\n"
                 f"- Stale: {len(stale)}\n"
+                f"- Unloadable (no init symbol): {len(unloadable)}\n"
                 f"- Missing: {len(missing)}\n"
                 f"- Tool errors: {len(errors)}\n"
                 f"- Decided by content hash: {len(by_content)}\n"
@@ -805,6 +886,7 @@ def main() -> int:
     elif exit_code == EXIT_VIOLATION:
         print(
             f"\nFAILED -- {len(stale)} stale extension(s)"
+            + (f", {len(unloadable)} unloadable extension(s)" if unloadable else "")
             + (f", {len(missing)} missing extension(s) (required)" if required and missing else "")
             + ".",
             file=sys.stderr,
