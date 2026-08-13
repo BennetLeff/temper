@@ -1138,6 +1138,55 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     again 2026-07-29; see the provenance block above for why the old 953/260
     no longer apply, and for the two-cause attribution of the 396 -> 405
     ``unconnected_items`` move.
+
+    NET-BATCHING, NOT MONOLITHIC (2026-08-12, this change).  This test used
+    to call ``route_pcb()`` with every ``enable_net_batching``-family kwarg
+    at its default (``False``) -- the monolithic Stage-3 path, which builds
+    one SAT model covering every net on the board at once.  On this board
+    that path OOMs: measured 8.8 -> 17.9 -> 37.7 -> 58.9 GB RSS before
+    ``oom_reaper`` SIGKILLs it (three separate agents lost runs to exactly
+    this on 2026-08-12; earlier "killed by the environment" reports were
+    this).  A gate that cannot run is not a weaker gate than one that runs
+    and checks nothing -- it is a DIFFERENT failure, and it was blocking a
+    board-landing decision that had no way to get a real verdict.
+
+    The fix is not "make the monolithic path fit in memory" -- it is
+    recognizing that monolithic was never the path this test should have
+    exercised.  ``scripts/route_board.py`` (the only production routing
+    entry point -- see its own module docstring) defaults
+    ``enable_net_batching=False`` too, but the *documented recipe* that
+    actually produces a shipped board
+    (``docs/evidence/2026-08-12-board-recipe-reproducibility.md`` §1: place
+    -> ``route_board.py --net-batching``) always passes ``--net-batching``.
+    Net-batching and monolithic are proven to be different algorithms, not
+    two routes to the same board
+    (``docs/plans/2026-08-12-003-fix-sat-capacity-encoding-plan.md``): at
+    ``net_batching.DEFAULT_BATCH_SIZE = 10`` the Stage-3 ``AtMostK``
+    capacity guard never fires (K ≈ 17), and an instrumented production run
+    showed the cross-batch greedy bookkeeping that supposedly enforces
+    capacity instead receives zero data -- Stage 4's occupancy-grid A* is
+    the whole story under net-batching, in a way it structurally cannot be
+    under monolithic (which DOES encode capacity into the CNF).  That means
+    this test switching to net-batching is not a cosmetic flag flip: it
+    changes what gets guarded, from an algorithm nothing ships, to the one
+    that does.  See ``docs/evidence/2026-08-12-production-ratchet-runnable.md``
+    for the full verdict and the peak-RSS measurement this change enables.
+
+    PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS/UNCONNECTED (178/463) were
+    seeded against the monolithic path's output (see the provenance block
+    above -- every re-measurement cited there ran ``route_pcb()`` at its
+    net-batching-disabled default).  They are NOT re-derived here: this
+    change does not know, and does not assert, that 178/463 are the right
+    bars for net-batching's structurally different output (different
+    completion rate, different copper) -- only that the numbers measured
+    below are the first real ones this path has ever produced, checked
+    against the only bars this repo has, honestly reported as whatever they
+    turn out to be relative to those bars. Re-baselining PRODUCTION_ROUTER_
+    OUTPUT_SHORTING_ITEMS/UNCONNECTED for the net-batching artefact -- if
+    warranted -- is deliberately left to a follow-up with its own N>=5
+    median-of-N provenance block, matching this file's own established
+    convention for every prior re-seeding; it is not done silently inside
+    this fix.
     """
     if not _kicad_cli_available():
         pytest.skip("kicad-cli not available")
@@ -1149,6 +1198,7 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.router_v6.adapter import route_pcb
+    from temper_placer.router_v6.net_batching import DEFAULT_BATCH_SIZE
     from tests.conftest import make_parsed_pcb_stub
 
     rules = load_netclass_rules(RULES_PATH)
@@ -1159,9 +1209,21 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
         parsed_stub,
         {},
         design_rules=rules.design_rules,
+        # `#871`/net_batching.py -- the path scripts/route_board.py's
+        # documented recipe (--net-batching) actually exercises in
+        # production; see this function's own docstring for why the
+        # monolithic default OOMs at ~59GB and why net-batching is not a
+        # cosmetic substitute for it.
+        enable_net_batching=True,
+        net_batch_size=DEFAULT_BATCH_SIZE,
     )
 
     assert routing_result.routed_pcb_content is not None, "Routing produced no output"
+    print(
+        f"[production-ratchet] completion_rate={routing_result.completion_rate:.4f} "
+        f"unrouted={len(routing_result.unrouted_nets)} "
+        f"net_batch_summary={getattr(routing_result, 'net_batch_summary', None)}"
+    )
 
     routed_tmp = tempfile.NamedTemporaryFile(  # noqa: SIM115
         suffix=".kicad_pcb",
@@ -1185,16 +1247,24 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
         f"the measured baseline {PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS} "
         f"(2026-07-29: median 115, range 89–122 over N=11 DRC runs on the "
         f"router's deterministic output; this run's sample: {sample.shortings}). "
-        f"A copper short is a fatal defect on a mains-connected board "
-        f"(docs/STRATEGY.md) — this threshold is a ratchet, not a budget. "
-        f"Do not raise it to go green."
+        f"NOTE (2026-08-12): that baseline was measured on the MONOLITHIC "
+        f"path; this assertion now runs net-batching (see this test's own "
+        f"docstring) -- a different artefact the baseline was never "
+        f"re-derived against. A copper short is a fatal defect on a "
+        f"mains-connected board (docs/STRATEGY.md) — this threshold is a "
+        f"ratchet, not a budget. Do not raise it to go green."
     )
 
     assert sample.unconnected <= PRODUCTION_ROUTER_OUTPUT_UNCONNECTED, (
         f"Router output unconnected_items {sample.unconnected} exceeds the "
         f"measured baseline {PRODUCTION_ROUTER_OUTPUT_UNCONNECTED} "
         f"(2026-07-29: 405 in all eleven runs, zero scatter) despite the "
-        f"router completion signal. Same caveat as the Category A gate: this "
+        f"router completion signal (completion_rate="
+        f"{routing_result.completion_rate:.4f}). NOTE (2026-08-12): that "
+        f"baseline was measured on the MONOLITHIC path; this assertion now "
+        f"runs net-batching (see this test's own docstring) -- a different "
+        f"artefact, with its own completion rate, the baseline was never "
+        f"re-derived against. Same caveat as the Category A gate: this "
         f"rose 396 -> 402 (reader fix 1979fcc8) -> 405 (corrected board, "
         f"2026-07-29) as phantom copper connections were removed, every newly "
         f"reported pair verified SAME-NET. KiCad details: "
