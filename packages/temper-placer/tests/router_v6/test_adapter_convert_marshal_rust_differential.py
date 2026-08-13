@@ -51,6 +51,8 @@ import temper_orchestration as _to
 
 from temper_placer.router_v6._adapter_convert import (
     _build_routing_result as shim_build_routing_result,
+)
+from temper_placer.router_v6._adapter_convert import (
     _write_routes_to_content as shim_write_routes,
 )
 from temper_placer.router_v6._adapter_types import CongestionRegion, DrcViolation
@@ -562,7 +564,7 @@ def test_build_route_payload_many_randomized():
 
 
 def _routing_results(**attrs):
-    base = dict(compiled_routes={}, failed_nets=[], net_reports=[])
+    base = {"compiled_routes": {}, "failed_nets": [], "net_reports": []}
     base.update(attrs)
     return SimpleNamespace(**base)
 

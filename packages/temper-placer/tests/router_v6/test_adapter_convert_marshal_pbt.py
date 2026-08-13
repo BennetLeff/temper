@@ -215,7 +215,6 @@ def test_p3_payload_guard_respects_length_and_pad_count(triple):
     path = SimpleNamespace(path_length=path_length, segments=pts)
     vias = [SimpleNamespace(position=(1.0, float(y)), diameter=0.6, drill=0.3, from_layer="F.Cu", to_layer="B.Cu") for y in via_ys]
     route = _route(path, width=0.2, vias=vias)
-    pads = [(0.0, 0.0)] * pads_len
     payload = __import__("temper_orchestration").run_build_route_payload(
         path, route, "NET1", 1, pads_len
     )
