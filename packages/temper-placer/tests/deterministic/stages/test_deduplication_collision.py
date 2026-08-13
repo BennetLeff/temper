@@ -214,3 +214,39 @@ class TestDeduplicationCollision:
                 f"order {[type(r).__name__ for r in routes]}: got "
                 f"{sorted(repr(r) for r in result.routes)}"
             )
+
+    def test_dedup_keeps_first_trace_deterministically_across_hash_seeds(self):
+        """The "first of two duplicates" tie-break must not depend on
+        `PYTHONHASHSEED`.
+
+        `BoardState.routes` is a `frozenset[Trace]`; `Trace.__hash__` mixes
+        the `net`/`layer` string fields, so CPython's per-process string-hash
+        randomization makes raw frozenset iteration order vary run-to-run.
+        `TrackDeduplicationStage` (and `deduplicate_traces_py`) resolve a
+        near-duplicate collision by keeping the FIRST element in the order
+        they read `routes` -- so without a canonical, content-derived order
+        imposed before that read, WHICH of two near-duplicate traces
+        survives is process-dependent, even though this process's own run is
+        internally consistent.
+
+        This reproduces the mechanism with Trace-only input (no Via) so it
+        does not also depend on the separate non-Trace/Via `routes`
+        marshalling gap tracked elsewhere (PR #1136) -- this test's subject
+        is purely the tie-break's determinism, not that gap.
+
+        `a` is defined first and must always be the survivor: this process
+        may run under any `PYTHONHASHSEED` (this test does not fix one), so
+        this assertion is the actual proof the tie-break no longer depends
+        on it -- run this test (or the suite) under several
+        `PYTHONHASHSEED` values to confirm.
+        """
+        a = Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=0.2, layer="B.Cu", net="N")
+        b = Trace(start=(0.0, 0.02), end=(10.0, 0.0), width=0.2, layer="B.Cu", net="N")
+
+        state = BoardState(routes=frozenset([a, b]))
+        result = TrackDeduplicationStage(tolerance_mm=0.05).run(state)
+
+        assert result.routes == frozenset({a}), (
+            f"expected the first-defined trace 'a' to survive, got "
+            f"{sorted(repr(r) for r in result.routes)}"
+        )

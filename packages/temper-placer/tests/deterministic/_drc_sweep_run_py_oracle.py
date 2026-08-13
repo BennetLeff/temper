@@ -130,14 +130,29 @@ class TrackDeduplicationStage(Stage):
         if not state.routes:
             return state
 
+        # DELIBERATE DEVIATION from the verbatim pre-D6 snapshot (see module
+        # docstring): the original body did `for route_index, trace in
+        # enumerate(state.routes)` directly over the frozenset, which makes
+        # "the first of two duplicates" a function of CPython's per-process
+        # string hash (`PYTHONHASHSEED`) -- a real, confirmed nondeterminism
+        # defect (`test_dedup_via_before_duplicates_remaps_indices`), not a
+        # migration artifact: the pre-migration production code had the same
+        # bug. Sorting by `repr()` first (a pure function of field VALUES,
+        # never hash/id) makes the tie-break reproducible across runs. The
+        # Rust port (`drc_sweep_stage.rs`'s `TrackDeduplicationStage`) applies
+        # the identical sort, so this remains the differential subject's
+        # ground truth rather than a diverging oracle -- see that module's
+        # comment for the full argument.
+        ordered_routes = sorted(state.routes, key=repr)
+
         # Marshal ONLY the Trace objects; the kernel's kept indices are
         # positions INTO this marshalled list. Non-Trace route entries (e.g.
         # Via) are never marshalled, so the shim records the marshalled ->
-        # state.routes index mapping and remaps the kept indices back.
+        # ordered_routes index mapping and remaps the kept indices back.
         # (start, end, layer, net) for Trace objects
         marshalled: list[tuple[Any, Any, Any, Any]] = []
-        marshalled_to_route: dict[int, int] = {}  # marshalled idx -> state.routes idx
-        for route_index, trace in enumerate(state.routes):
+        marshalled_to_route: dict[int, int] = {}  # marshalled idx -> ordered_routes idx
+        for route_index, trace in enumerate(ordered_routes):
             if isinstance(trace, Trace):
                 marshalled_to_route[len(marshalled)] = route_index
                 marshalled.append((trace.start, trace.end, trace.layer, trace.net))
@@ -146,10 +161,10 @@ class TrackDeduplicationStage(Stage):
 
         # Rebuild: non-Trace entries pass through unchanged; a Trace is kept
         # iff its marshalled index is in kept_indices (remapped to its
-        # state.routes position via marshalled_to_route).
+        # ordered_routes position via marshalled_to_route).
         kept_route_indices = {marshalled_to_route[i] for i in kept_indices}
         unique_traces = []
-        for j, trace in enumerate(state.routes):
+        for j, trace in enumerate(ordered_routes):
             if isinstance(trace, Trace) and j not in kept_route_indices:
                 continue
             unique_traces.append(trace)

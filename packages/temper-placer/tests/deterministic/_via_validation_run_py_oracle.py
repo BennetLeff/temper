@@ -232,7 +232,20 @@ class ViaDeduplicationStage(Stage):
         if not state.vias:
             return state
 
-        vias_list = list(state.vias)
+        # DELIBERATE DEVIATION from the verbatim pre-D6 snapshot (see module
+        # docstring): the original body did `list(state.vias)` directly over
+        # the frozenset, which makes "first-seen-wins within tolerance" (this
+        # stage's own doc comment) a function of CPython's per-process string
+        # hash (`PYTHONHASHSEED`) -- a real, confirmed nondeterminism defect,
+        # not a migration artifact: the pre-migration production code had the
+        # same bug (see `TrackDeduplicationStage`'s analogous fix in
+        # `_drc_sweep_run_py_oracle.py` for the full argument). Sorting by
+        # `repr()` first (a pure function of field VALUES, never hash/id)
+        # makes the tie-break reproducible across runs. The Rust port
+        # (`via_validation_stage.rs`'s `ViaDeduplicationStage`) applies the
+        # identical sort, so this remains the differential subject's ground
+        # truth rather than a diverging oracle.
+        vias_list = sorted(state.vias, key=repr)
         positions = [via.position for via in vias_list]
         kept_indices, duplicates = _drc.dedup_via_positions_py(
             positions, self.tolerance_mm

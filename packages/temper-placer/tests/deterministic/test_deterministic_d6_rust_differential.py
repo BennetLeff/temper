@@ -86,8 +86,18 @@ from temper_placer.router_v6.constraints_geometry import Point
 
 _PINNED = {
     "_placement_validation_run_py_oracle.py": "92a541f0d1cf2d977e3aee4b9981c0bb4acba5fd1e967599da6550e558e8f176",
-    "_via_validation_run_py_oracle.py": "818f78454de32e37482468f5aa389fad9c383f0ea14edea656bab03f7f8916d8",
-    "_drc_sweep_run_py_oracle.py": "072ff3d07df9186dcb013fb4047aadf978ef06219b531cc7828a51f9bc4ea3fc",
+    # Deliberately re-pinned (not a verbatim-drift violation): the pre-D6
+    # snapshot decided "first of two duplicates" by iterating a frozenset
+    # directly, which CPython's per-process string-hash randomization
+    # (PYTHONHASHSEED) makes non-reproducible across runs -- a confirmed
+    # determinism defect the pre-migration production code already had, not
+    # something this migration introduced. The body now sorts by `repr()`
+    # (a pure function of field values, never hash/id) before that read; see
+    # the "DELIBERATE DEVIATION" comment at its call site for the full
+    # argument. The Rust port applies the identical sort so the two arms
+    # never diverge.
+    "_via_validation_run_py_oracle.py": "7dc872f0c07048db02cc3413153b9722b4b4d9b093c09572d182d189f5b67883",
+    "_drc_sweep_run_py_oracle.py": "4d0c2ecae0e66fcffb5f4ee9016d856898bce59f64d0892b73d5e22004208596",
     "_drc_validation_run_py_oracle.py": "b384e46ca944de80c3a98d66ddc69908ab0406b1e6733865e3bc5681c6feba6b",
     "_connectivity_validation_run_py_oracle.py": "318c7418406d644e9229e9839fd61b2566e973c1cda1e3e2ab7e51757b841dda",
     "_courtyard_check_run_py_oracle.py": "fab02913bc492b2838c8f6d33352c2131254be1c28bc0b841f2ab0170b9a6dec",

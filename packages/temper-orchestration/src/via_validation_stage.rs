@@ -414,7 +414,26 @@ impl ViaDeduplicationStage {
             _ => return Ok(state),
         };
         let builtins = py.import("builtins")?;
-        let vias_list = builtins.getattr("list")?.call1((&vias,))?;
+        // `vias` is a `frozenset`; ITS iteration order is a function of
+        // CPython's per-process string hash (`PYTHONHASHSEED`) because
+        // `Via.__hash__` mixes `net`/`layers` string fields. Reading it in
+        // that order would make "first-seen-wins within tolerance" (this
+        // stage's own doc comment) silently process-dependent -- the same
+        // determinism defect `TrackDeduplicationStage` has (see that
+        // struct's `run_inner` for the full argument). Materialize once and
+        // sort by CPython `repr()` -- a pure function of field VALUES, never
+        // hash/id -- so the tie-break is reproducible across runs/seeds. The
+        // oracle (`_via_validation_run_py_oracle.py`) applies the identical
+        // sort so the two arms never diverge on which duplicate survives.
+        let vias_list_raw = builtins.getattr("list")?.call1((&vias,))?;
+        let mut ordered: Vec<(String, Bound<'_, PyAny>)> = Vec::new();
+        for item in vias_list_raw.try_iter()? {
+            let item = item?;
+            let key: String = item.repr()?.extract()?;
+            ordered.push((key, item));
+        }
+        ordered.sort_by(|a, b| a.0.cmp(&b.0));
+        let vias_list = PyList::new(py, ordered.iter().map(|(_, v)| v))?.into_any();
         let positions = PyList::empty(py);
         for via in vias_list.try_iter()? {
             positions.append(via?.getattr("position")?)?;

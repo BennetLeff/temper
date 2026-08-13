@@ -246,14 +246,33 @@ impl TrackDeduplicationStage {
         let isinstance = builtins.getattr("isinstance")?;
         let trace_cls = py.import("temper_placer.core.board")?.getattr("Trace")?;
 
+        // `routes` is a `frozenset`; ITS iteration order is a function of
+        // CPython's per-process string hash (`PYTHONHASHSEED`) because
+        // `Trace.__hash__` mixes `net`/`layer` string fields. Reading it in
+        // that order would make "the first of two duplicates" -- the tie-
+        // break `deduplicate_traces_py`'s kept-indices encode -- silently
+        // process-dependent (the exact defect this sort fixes). Materialize
+        // once and sort by CPython `repr()`, a pure function of an object's
+        // field VALUES (never its hash/id): two distinct route entries never
+        // share a repr (every field is rendered), so the order is total and
+        // reproducible across runs/seeds. The oracle
+        // (`_drc_sweep_run_py_oracle.py`) applies the identical sort so the
+        // two arms never diverge on which duplicate survives.
+        let mut ordered: Vec<(String, Bound<'_, PyAny>)> = Vec::new();
+        for item in routes.try_iter()? {
+            let item = item?;
+            let key: String = item.repr()?.extract()?;
+            ordered.push((key, item));
+        }
+        ordered.sort_by(|a, b| a.0.cmp(&b.0));
+
         // Marshal ONLY the Trace objects; the kernel's kept indices are
         // positions INTO this marshalled list. Non-Trace route entries are
-        // never marshalled; record the marshalled -> state.routes remap.
+        // never marshalled; record the marshalled -> ordered-routes remap.
         let marshalled = PyList::empty(py);
         let mut marshalled_to_route: Vec<usize> = Vec::new();
-        for (route_index, trace) in routes.try_iter()?.enumerate() {
-            let trace = trace?;
-            let is_trace: bool = isinstance.call1((&trace, &trace_cls))?.extract()?;
+        for (route_index, (_, trace)) in ordered.iter().enumerate() {
+            let is_trace: bool = isinstance.call1((trace, &trace_cls))?.extract()?;
             if is_trace {
                 marshalled_to_route.push(route_index);
                 let entry = PyTuple::new(
@@ -285,13 +304,12 @@ impl TrackDeduplicationStage {
         }
 
         let unique_traces = PyList::empty(py);
-        for (j, trace) in routes.try_iter()?.enumerate() {
-            let trace = trace?;
-            let is_trace: bool = isinstance.call1((&trace, &trace_cls))?.extract()?;
+        for (j, (_, trace)) in ordered.iter().enumerate() {
+            let is_trace: bool = isinstance.call1((trace, &trace_cls))?.extract()?;
             if is_trace && !kept_route_indices.contains(&j) {
                 continue;
             }
-            unique_traces.append(&trace)?;
+            unique_traces.append(trace)?;
         }
 
         if duplicates > 0 {
