@@ -473,6 +473,41 @@ def test_orphan_register_entry_fails(tmp_path: Path) -> None:
     assert "does not resolve to code" in result.stderr
 
 
+def test_encoder_resolves_accepts_pure_delegation_reexport(tmp_path: Path) -> None:
+    """A migrated-to-Rust encoder whose Python module now only does
+    ``Name = <rust module>.Name`` (the repo's pure-delegation re-export
+    pattern -- e.g. ``constraint_model.py`` after the Phase E batch E1
+    router_v6-to-Rust migration) still resolves: the symbol is real, live
+    code every caller uses, just not a Python ``class``/``def`` anymore."""
+    mod = _import_module()
+    src = tmp_path / "src"
+    pkg_dir = src / "temper_placer" / "router_v6"
+    pkg_dir.mkdir(parents=True)
+    (pkg_dir / "constraint_model.py").write_text(
+        "import some_rust_ext as _mb\nCapacityConstraint = _mb.CapacityConstraint\n"
+    )
+    ok, detail = mod.encoder_resolves(
+        "temper_placer.router_v6.constraint_model.CapacityConstraint", src
+    )
+    assert ok, detail
+    assert "pure-delegation" in detail
+
+
+def test_encoder_resolves_rejects_unrelated_same_named_assignment(tmp_path: Path) -> None:
+    """The pure-delegation carve-out is not "any assignment resolves": a
+    same-named local bound to an unrelated literal must still fail, same as
+    the pre-existing ``encode_ghost`` orphan case."""
+    mod = _import_module()
+    src = tmp_path / "src"
+    pkg_dir = src / "temper_placer" / "router_v6"
+    pkg_dir.mkdir(parents=True)
+    (pkg_dir / "constraint_model.py").write_text("CapacityConstraint = None\n")
+    ok, detail = mod.encoder_resolves(
+        "temper_placer.router_v6.constraint_model.CapacityConstraint", src
+    )
+    assert not ok, detail
+
+
 def test_stale_proof_entry_fails_gate(tmp_path: Path) -> None:
     root = _build_synthetic_tree(
         tmp_path,

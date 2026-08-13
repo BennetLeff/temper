@@ -36,6 +36,32 @@ _march:
     relationship is recorded as a stated loop-model limitation in its entry,
     not silently assumed. post-solve audits: audit.py::PlacementAuditor
     (_check_separated, _check_loop_area) and domain_clearance.audit_domain_clearance.
+  "2026-08-13": >-
+    R20 gate fix (following up on PR #1130's "declaration pointing at
+    nothing" flag): the CapacityConstraint entry's proof_location cited
+    "sequential counter" in constraint_model.py, which the 2026-08-09
+    router_v6-to-Rust SAT migration (Phase E batch E1) removed --
+    constraint_model.py is now a 17-line pure-delegation re-export of the
+    Rust `model_builder` pyclasses, no docstring, no proof text. Data-driven
+    classification: STALE, not gone and not always-wrong -- the identical
+    Sinz (2005) sequential-counter induction argument is intact and
+    exhaustively re-verified (n <= 8, all 2^n assignments) at
+    packages/temper-rust-router-core/src/encoding.rs (`encode_at_most_k` +
+    its "Inductive correctness proof" comment), which is also where the CNF
+    actually executed at solve time now lives; the original Python proof
+    text is independently preserved byte-for-byte (SHA-256 pinned) as the
+    differential-test oracle in
+    tests/router_v6/_constraint_model_builder_py_oracle.py. Re-pointed
+    proof_location at encoding.rs; no register entry deleted or weakened.
+    `physics_soundness_register_gate.py`'s `encoder_resolves` was extended
+    to recognize the pure-delegation re-export pattern
+    (`Name = <attribute-chain>`) as "resolves to code" -- narrowly, only a
+    single-target top-level assignment to a bare name or attribute chain, so
+    it cannot be satisfied by an unrelated same-named local -- because the
+    Python-visible encoder identity `CapacityConstraint` is real, live code
+    every caller still uses; a plain FunctionDef/ClassDef check is simply no
+    longer a complete test of "does this symbol resolve to real code" in a
+    repo where pyo3/maturin migrations are routine.
 surfaces:
   - encoder: temper_placer.placer.cp_sat.handlers.separated.encode_separated
     proof_type: conservative-bound
@@ -118,8 +144,8 @@ surfaces:
   - encoder: temper_placer.router_v6.constraint_model.CapacityConstraint
     proof_type: conservative-bound
     proof_location:
-      path: packages/temper-placer/src/temper_placer/router_v6/constraint_model.py
-      symbol: "sequential counter"
+      path: packages/temper-rust-router-core/src/encoding.rs
+      symbol: "Inductive correctness proof"
     coverage_scope: >-
       The AtMostK capacity encoding (sum(width_i * uses_i) <= capacity *
       slack) uses the Sinz (2005) sequential counter: sum(vars) <= K in O(n*k)
@@ -127,18 +153,63 @@ surfaces:
       AND complete (a SAT assignment exists iff the capacity bound holds),
       the strongest form of the R24 conservative-bound branch: it can never
       admit an assignment the capacity bound forbids, and it rejects no
-      assignment the bound permits. The induction (base n<=1 vacuous; step
-      n -> n+1 extends the partial-sum chain over previously defined variables)
-      is re-homed into the class docstring from
-      docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md.
-      Exhaustive verification: all n <= 8, all k <= n-1, all 2^n primary
-      assignments (3,286 SAT checks) + Hypothesis PBT cross-validation against
-      pysat Glucose3.
+      assignment the bound permits. SAME proof as originally registered here
+      (unchanged Sinz (2005) construction, unchanged induction argument over
+      the running-count register r[i][j] and the exclusion clause that forces
+      the next variable false once the count reaches k) -- RE-HOMED, not
+      rewritten, by the router_v6-to-Rust SAT migration (plan
+      2026-06-28-001, Phase E batch E1 of plan 2026-08-09-001):
+      `constraint_model.py`'s `CapacityConstraint` is now a pure-delegation
+      re-export of the Rust pyclass
+      (`temper_design_bundle_python.model_builder.CapacityConstraint`,
+      packages/temper-design-bundle/src/model_builder.rs:339) that carries
+      only the constraint's DATA (name/capacity/slack/terms); the CNF
+      encoding that is actually executed at solve time, and the soundness
+      proof for that encoding, now live in
+      packages/temper-rust-router-core/src/encoding.rs's `encode_at_most_k`
+      plus the "Inductive correctness proof" comment immediately following
+      it. Exhaustive verification (same discipline, same bound, ported to
+      Rust): `exhaustive_at_most_k_n1_to_n8` in the same file checks every
+      n <= 8, every k in 0..n, all 2^n primary-variable assignments against a
+      mini DPLL solver. The original Python encoding + docstring (with its
+      "3,286 SAT checks" + Hypothesis-PBT-vs-pysat-Glucose3 language this
+      entry previously quoted) is not deleted: it survives verbatim,
+      SHA-256-pinned against silent drift, as the differential-test oracle
+      in packages/temper-placer/tests/router_v6/_constraint_model_builder_py_oracle.py
+      (class CapacityConstraint, docstring "Induction (k-induction over
+      n = |terms|)"), which test_constraint_model_builder_rust_differential.py
+      uses to cross-check the Rust port -- corroborating, not substituting
+      for, the encoding.rs proof this entry now cites (that oracle is
+      deliberately never executed in production; see its own module
+      docstring).
     exemptions: null
-    audit: "Post-solve constraint audit (audit.rs / pipeline.py) validates
-      every solver output against the input constraint model -- violations
-      raise RuntimeError, no silent wrong answers."
-    last_verified: "2026-08-02"
-    provenance_note: "Initial population; induction proof re-homed from
-      docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md into
-      the class docstring (U1)."
+    audit: "Post-solve constraint audit (temper_rust_router::audit_result,
+      exposed from packages/temper-rust-router-core/src/audit.rs) validates
+      every solver output against the input constraint model on both
+      router_v6 solve paths -- _pipeline_route.py:437-452 (monolithic) and
+      net_batching.py's _solve_subset (batched, --net-batching); violations
+      raise RuntimeError, no silent wrong answers. See
+      docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md's
+      Prevention section for the measured real-board result."
+    last_verified: "2026-08-13"
+    provenance_note: >-
+      RE-POINTED 2026-08-13 (R20 gate fix, following up on PR #1130's flag):
+      this entry's proof_location cited symbol "sequential counter" in
+      constraint_model.py, which the 2026-08-09 Rust migration removed --
+      `grep -n "sequential counter"
+      packages/temper-placer/src/temper_placer/router_v6/constraint_model.py`
+      returns nothing; the file is now 17 lines re-exporting Rust pyclasses.
+      Classified as the STALE-REGISTER case (proof moved, not lost, not
+      fabricated): the identical induction argument is present, intact, and
+      exhaustively re-verified at
+      packages/temper-rust-router-core/src/encoding.rs (its own "Inductive
+      correctness proof" comment + `exhaustive_at_most_k_n1_to_n8` test), and
+      the pre-migration text this entry originally quoted is separately
+      preserved byte-for-byte (SHA-256 pinned) as a differential-test oracle
+      -- not silently dropped. `scripts/physics_soundness_register_gate.py`'s
+      `encoder_resolves` was extended in the same fix to recognize the
+      pure-delegation re-export pattern (`CapacityConstraint =
+      _mb.CapacityConstraint`) as "resolves to code": the Python-visible
+      encoder identity genuinely still exists and is the live call site
+      every caller uses: the migration changed what backs the name, not
+      whether the name exists or is used.
