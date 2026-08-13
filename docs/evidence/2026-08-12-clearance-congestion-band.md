@@ -483,19 +483,24 @@ the candidate board, so it is a live risk. Six attempts did not reach a
 verdict — five killed mid-run by the session's process management, and one run
 standalone under `nohup` so it could not be killed
 (`scratchpad/ratchet_repro.py`: same call path, same two assertions) was
-**still routing after 31 minutes**. That path routes the committed board *on
-top of its existing copper* rather than from stripped, which none of the clean
-re-routes here exercised. **This must be run before merge.**
+**still inside `route_pcb` after 53 minutes** when it too was killed. That path
+routes the committed board *on top of its existing copper* rather than from
+stripped, which none of the clean re-routes here exercised. A controlled
+baseline -- the identical script against unmodified `origin/main` code -- was
+launched to attribute that 53 minutes and was **also killed before it produced
+a routing time**, so there is no before/after pair and **no attribution is
+available**. **This must be run before merge.**
 
 **Related runtime observation, recorded because it is unresolved, not because
 it is quantified.** `mark_point_rect` stamps a square of `±expansion` cells per
 sampled point, so its cost is O(expansion²), and §5's table raises `expansion`
 for exactly the widest classes — `HighVoltage` 35 → 49 cells, `ACMains`
 75 → 89. On the clean re-route the effect is mild: **431.4s → 491.9s, +14%**,
-which is the only figure actually measured. Whether the 31-minute no-strip run
+which is the only figure actually measured. Whether the 53-minute no-strip run
 is that same +14% on a much slower path, contention from three concurrent
 agents (load average 5.8–8.1 throughout), or a genuine blow-up, **is not
-established here and should not be assumed either way.**
+established here and should not be assumed either way** -- the one measurement
+that would settle it is the baseline that never completed.
 
 ### Recommended split for review
 
