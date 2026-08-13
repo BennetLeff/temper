@@ -3740,6 +3740,46 @@ argued in-source and above):
 | validator_audit differential + PBT + metamorphic (6 real-validator scenario differentials with per-scenario bucket non-vacuity, 2 ValueError-message parity, 10 mocked-validator fallback edge cases with call-argument parity, PBT P1-P5, metamorphic M1-M4) | `packages/temper-placer/tests/placer/cp_sat/test_validator_audit_rust_differential.py` | 27 |
 | existing feedback PBT through the shim (all `tests/placer/cp_sat/test_feedback.py` now exercises the Rust sequencing) | `packages/temper-placer/tests/placer/cp_sat/test_feedback.py` | 13 |
 | existing R24 audit suite through the shim (falsifier, clean, straddler, coverage-gap, reversed ordering, geometry-trust, solve-integration, production-board FREE={K3}) | `packages/temper-placer/tests/placer/cp_sat/test_validator_audit.py` | 23 passed + 1 env-skip (netlist not built) |
+| native Rust proptests (validator_audit: P1 classify bucket+reason bit-parity, P2 disjoint-refs guard, P3 geometry-trust iff, P4 covered_pair_count, P5 record field defaults; feedback: P1 dispatch order + unclassified collection, P2 clean early-return, P3 stable priority sort) | `#[cfg(test)] mod proptests` in `validator_audit.rs` / `feedback.rs` | 8 |
+
+### Verification-audit findings (2026-08-12, fanout19)
+
+A dedicated correctness-verification pass over the "recovered + finished" U-I
+seam (the orphaned `validator_audit.rs` wired after the interrupted
+migration). The finish agent's three bit-parity fixes are all CORRECT (the
+classification seam reproduces the oracle's bucket + reason bit-identically
+at `PROPTEST_CASES=10000`; see P1). The pass found **two further divergences
+from the pinned oracle**, both in side-channel output the finish agent's
+differential does not compare (it canonicalizes the returned dataclass, not
+the log-message text or the unclassified-region element types). Neither was
+fixed here (this pass edits only `#[cfg(test)]` modules + this file); both
+are recorded for the follow-up:
+
+1. **`validator_audit.rs` degraded-geometry `logger.error` — the `%s`
+   component-ref list is joined with `""` instead of `", "`.** The oracle
+   renders `", ".join(sorted(components_without_pads))` (e.g. `2 component(s)
+   carry no pads (X, Y)`); the port calls
+   `str.join("", sorted(...))` (renders `(XY)`). Only observable with 2+
+   pad-less components; the differential's caplog asserts the message's
+   substring (`"DEGRADED geometry"`), not its bytes. Fix: pass `", "` as the
+   separator at `validator_audit.rs` ~line 294.
+2. **`feedback.rs` DRC-unclassified `region` — int `location` yields int
+   elements in the oracle, float in the port.** The oracle computes
+   `(loc[0]-5, loc[1]-5, loc[0]+5, loc[1]+5)` over the raw `location`
+   tuple (ints stay ints); the port extracts `loc.get_item(0)?.extract::<f64>()`
+   and re-adds `5.0`, so an int location produces `(5.0, 15.0, ...)` against
+   the oracle's `(5, 15, ...)`. `==`-equal (int == float), so the
+   differential's `==`-based canonicalization misses it; `repr`/type-check
+   consumers would not. Real router locations are float in most paths but int
+   in e.g. `validation/geometric.py`'s `(x, y)` emissions.
+
+The 8 native proptests above run the same decision surface under
+`PROPTEST_CASES` (the Python differential/PBT caps at fixed seeds), pinning
+the classification seam, the guards, the geometry-trust flip, the
+covered-pair diagnostic, the record defaults, the dispatch order and the
+stable sort. They install fake `temper_placer.*` leaf modules into
+`sys.modules` (cooperative with `feedback_loop.rs`'s own fake), so they run
+without the real venv package.
 
 ### R1 gate status (U-I)
 
