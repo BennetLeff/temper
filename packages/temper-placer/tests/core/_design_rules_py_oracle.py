@@ -19,6 +19,22 @@ file drifted. The edit is faithful -- the added entry is byte-identical to
 the live ``design_rules.py`` table. Re-pinned from the on-disk bytes after
 establishing the cause.
 
+RE-PINNED 2026-08-13 (CI red-gate triage, fix/ci-core-tests-clearance-gate):
+commit 322cbf5b0 (#1092, "gnd/PWR_RTN -> classes kicad_pro actually
+declares") reassigned ``TEMPER_NET_ASSIGNMENTS["gnd"]`` from ``"GND"`` to
+``"Power"`` and ``TEMPER_NET_ASSIGNMENTS["PWR_RTN"]`` from ``"GND"`` to
+``"HighVoltage"`` in ``design_rules.py`` (both nets pointed at a real but
+never-``kicad_pro``-declared "GND" class; PWR_RTN's own reclassification is
+strictly stricter, not a loosening -- HighVoltage's clearance/creepage bars
+exceed GND's). That commit did not touch this oracle or
+``scripts/oracle_hashes.json``, so the two tables drifted (caught here by
+``test_design_rules_rust_differential.py``, which had started comparing the
+live, correctly-migrated Rust ``DesignRules`` pyclass against this stale
+snapshot). Re-pinned from the on-disk ``design_rules.py`` bytes for these
+two entries only, after tracing the drift to that commit -- no other entry
+changed. See ``git show 322cbf5b0`` and
+``docs/evidence/2026-08-12-nonexistent-gnd-class-mapping.md``.
+
 DO NOT EDIT THE SEMANTICS. This is the oracle the Rust pyo3 pyclasses
 (``temper_design_bundle_python``) must reproduce bit-identically; any
 edit here silently weakens the differential proof. If the module's
@@ -648,9 +664,22 @@ TEMPER_NET_ASSIGNMENTS = {
     "vcc": "Power",
     "V_BUS_SENSE": "Power",
     # GND - power return
-    "PWR_RTN": "GND",
     "CGND": "GND",
-    "gnd": "GND",
+    # RE-PINNED 2026-08-13 (see module docstring): commit 322cbf5b0
+    # (#1092, "gnd/PWR_RTN -> classes kicad_pro actually declares")
+    # reassigned both "gnd" and "PWR_RTN" away from the "GND" class (real
+    # in this table but never declared in pcb/temper.kicad_pro, hence
+    # inert on the fabrication path) to the classes kicad_pro's own
+    # net_settings actually carry: gnd -> Power (PR #1087,
+    # docs/specs/NET_CLASS_SPECIFICATION.md 3.2's "GND (control ground)"
+    # under Power) and PWR_RTN -> HighVoltage (PR #1083: doubler
+    # midpoint, HV-domain per elec/domain_manifest.yaml:95). No netclass
+    # PARAMETER value changed by that commit -- only which class name
+    # these two nets point at -- and PWR_RTN's reclassification is
+    # strictly stricter (HighVoltage's clearance/creepage bars are wider
+    # than GND's), not a safety loosening.
+    "gnd": "Power",
+    "PWR_RTN": "HighVoltage",
 }
 
 

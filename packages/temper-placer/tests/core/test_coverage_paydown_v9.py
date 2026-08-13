@@ -928,9 +928,25 @@ class TestKiCadDRCValidator:
         v = KiCadDRCValidator()
         assert v.is_available() is False
 
-    def test_get_version(self):
+    def test_get_version(self, monkeypatch):
         from temper_placer.validation.drc import KiCadDRCValidator
 
+        # FIXED 2026-08-13: this test's docstring always intended "kicad-cli
+        # unavailable" (get_version()'s "unknown" fallback path), but never
+        # enforced it -- it relied on the ambient test environment not
+        # having kicad-cli on PATH. That assumption broke once the CI image
+        # (ghcr.io/bennetleff/temper-ci) started shipping kicad-cli 10.0.5
+        # (needed elsewhere for real DRC/clearance measurements), so
+        # find_kicad_cli() started succeeding here too and get_version()
+        # returned "10.0.5", not "unknown". Mock find_kicad_cli explicitly,
+        # matching test_is_available_false_when_not_found's established
+        # pattern in this same class, so this test exercises the fallback
+        # path deterministically instead of depending on what happens to be
+        # installed on the runner.
+        monkeypatch.setattr(
+            "temper_placer.validation.drc.find_kicad_cli",
+            lambda: None,
+        )
         v = KiCadDRCValidator()
         # Without kicad-cli available, get_version returns "unknown"
         assert v.get_version() == "unknown"

@@ -635,6 +635,12 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_pcl_config_board_correspondence.py", "packages/temper-placer/configs/constraints/temper_induction_cooker.yaml", "PCL placement-constraint config <-> board correspondence gate; advisory (continue-on-error) pending the config fix; probe harness deferred"),
     ("check_pd2_compartment_evidence.py", "docs/specs/pd2_compartment_evidence.yaml", "PD2/8.0mm creepage compartment-evidence gate; advisory (continue-on-error) pending the compartment being built; probe harness deferred"),
     ("check_venv_integrity.py", "", "venv editable-install identity gate (2026-08-11 shared-venv-hijack incident); source/site-packages scan; probe harness deferred"),
+    # 2026-08-13 CI red-gate triage: 2 more gates invoked in python-tests.yml
+    # but never added to this survey (same U4-completeness gap as the
+    # 2026-08-12 batch above). Declared-inputs/reasons summarized from each
+    # script's own scripts/manifest.yaml entry.
+    ("check_router_clearance_floor.py", "packages/temper-placer/configs/netclass_rules.yaml", "router-vs-DRC clearance floor gate: the clearance router_v6 reserves for an unclassified net must never fall below what kicad-cli DRC grades that net against (2026-07-12 -> 2026-08-12 drift, docs/evidence/2026-08-12-clearance-congestion-band.md); probe harness deferred"),
+    ("check_wasm_covered.py", "tools/wasm/wasm_test_registry.json", "wasm-covered annotation resolver + pytest plugin (docs/solutions/workflow-issues/wasm-covered-annotation-resolver-2026-08-12.md); resolves `wasm-covered:` workflow annotations against the registry-at-commit; probe is the check itself"),
 ]
 
 
