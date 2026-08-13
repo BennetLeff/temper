@@ -873,13 +873,71 @@ def generate_dru() -> str:
         " GateDriveHV note above records. RULE 3 keeps handling it."
     )
     lines.append(_SEP)
+    lines.append(
+        "# HighVoltageIsolated EXCLUDED (2026-08-13): this rule's condition"
+        " never excluded HighVoltageIsolated from its B-side, so an"
+    )
+    lines.append(
+        "# (A=ACMains, B=HighVoltageIsolated) pad pair matched THIS rule"
+        " (6.0mm clearance / 8.0mm creepage) even though the reverse"
+    )
+    lines.append(
+        "# ordering (A=HighVoltageIsolated, B=ACMains) already matches RULE"
+        " 4a below ('HighVoltageIsolated same side') and gets only the"
+    )
+    lines.append(
+        "# functional 2.0mm same-side clearance -- the identical asymmetry"
+        " RULE 4's own 2026-08-11 'HighVoltageIsolated ALSO EXCLUDED' note"
+    )
+    lines.append(
+        "# already fixed for the (HighVoltage, HighVoltageIsolated) pair,"
+        " and the same shape as this rule's own GateDriveHV exclusion"
+    )
+    lines.append(
+        "# immediately above. elec/domain_manifest.yaml and"
+        " packages/temper-placer/configs/netclass_rules.yaml's own"
+    )
+    lines.append(
+        "# HighVoltageIsolated class comment both declare +5V_ISO/VBOOT_H/"
+        " VBOOT_L/hb.gate_hs.driver-p1-1/-p2 members of the SAME HV domain"
+    )
+    lines.append(
+        "# as ac_l/+170V_BUS/SW_NODE -- not a third domain on the far side"
+        " of the reinforced barrier -- and netclass_rules.yaml's"
+    )
+    lines.append(
+        "# class_pairs comment says explicitly: 'the fab-authoritative"
+        " KiCad DRC rule in scripts/generate_kicad_dru.py is the one that"
+    )
+    lines.append(
+        "# applies the reduced, cited 2.0mm same-side figure' for this"
+        " exact pair. Before this fix, (A=ACMains, B=HighVoltageIsolated)"
+    )
+    lines.append(
+        "# was silently charged the full 8.0mm reinforced creepage figure"
+        " meant for a genuine mains<->LV/SELV boundary -- a false"
+    )
+    lines.append(
+        "# positive against the project's own domain model, not a real"
+        " cross-barrier hazard. Measured directly against"
+    )
+    lines.append(
+        "# pcb/temper.kicad_pcb (kicad-cli 10.0.5): 3 of the 22 'AC Mains"
+        " to LV' clearance violations are exactly this"
+    )
+    lines.append(
+        "# (ac_n, hb.gate_hs.driver-p1-1) pairing -- see"
+        " docs/evidence/2026-08-13-clearance-1085-remediation-plan.md sec 6."
+    )
+    lines.append(_SEP)
     lines.append('(rule "AC Mains to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'ACMains'"
         " && B.NetClass != 'ACMains'"
         " && B.NetClass != 'HighVoltage'"
         f" && B.NetClass != '{HV_TANK_CLASS}'"
-        " && B.NetClass != 'GateDriveHV'\")"
+        " && B.NetClass != 'GateDriveHV'"
+        " && B.NetClass != 'HighVoltageIsolated'\")"
     )
     lines.append("   (constraint clearance (min 6.0mm))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
