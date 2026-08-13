@@ -751,21 +751,45 @@ module PowerInput:
     ntc.resistance_cold = 10ohm
     ntc.current_rating = 15A
     
+    # PD3 REPLACEMENT 2026-08-13 (docs/evidence/2026-07-30-pd3-part-selection-k1-c6-t1.md
+    # Section 1, re-verified this session -- docs/evidence/2026-08-13-pd3-land-k1-c6.md):
+    # was Omron G4A-1A-E DC12 (temper:Relay_SPST_Omron-G4A-E), 8.000mm
+    # coil<->contact -- fails the 12.6mm PD3 reinforced-creepage target
+    # (docs/evidence/2026-08-13-hv-creepage-pd3-gap-measurement-and-plan.md).
+    # TE Schrack RT33K012 (2-1393240-3, DigiKey PB2347-ND, confirmed
+    # Active/orderable), same RT1 case family already verified for K2/K3's
+    # RT314012: 20A UL508/16A IEC 1-Form-A contact, 12VDC/360ohm/400mW coil,
+    # reinforced insulation (VDE 40007571, same certificate class as
+    # RT314012). MEASURED this session with the canonical pad-geometry
+    # kernel against temper:Relay_SPST_Schrack-RT33K012 (see that
+    # footprint's own descr): 17.8000mm, clears 12.6mm by +5.2mm.
     bypass_relay = new Relay_SPST
     bypass_relay.coil_voltage = 12V
     bypass_relay.contact_current = 20A
-    bypass_relay.mpn = "G4A-1A-E DC12"
-    bypass_relay.footprint = "temper:Relay_SPST_Omron-G4A-E"
+    bypass_relay.mpn = "RT33K012"
+    bypass_relay.footprint = "temper:Relay_SPST_Schrack-RT33K012"
 
     # Coil driver: RELAY_CTRL (3.3V GPIO) cannot drive the 75mA/12V coil directly.
     q_relay_drv = new MOSFET_N
     q_relay_drv.mpn = "AO3400A"
 
+    # RETUNED 2026-08-13 for the RT33K012 swap above: was 39ohm, sized for
+    # the outgoing G4A-1A-E's 160ohm/75mA coil (15V/(160+39)=75.4mA,
+    # 75.4mA*160ohm=12.06V, ~100.5% of rated). RT33K012's coil is
+    # 360ohm/400mW, different enough that 39ohm overdrives it: 15V/(360+39)
+    # =37.6mA, 37.6mA*360ohm=13.5V, 112.7% of the 12V rated coil voltage --
+    # above IEC 61810-1's typical 110% continuous-operation ceiling
+    # (flagged, not fixed, in docs/evidence/2026-07-30-pd3-part-selection-
+    # k1-c6-t1.md Section 1.5). 91ohm (nearest E24 value to the exact
+    # 90.0ohm solve) restores correct coil drive: 15V/(360+91)=33.26mA,
+    # 33.26mA*360ohm=11.97V, 99.8% of rated. Yageo RSF100JB-73-91R -- same
+    # 1W axial metal-film family as the outgoing part, confirmed
+    # orderable/Active at DigiKey this session.
     r_relay_drop = new Resistor
-    r_relay_drop.value = 39ohm +/- 5%
+    r_relay_drop.value = 91ohm +/- 5%
     r_relay_drop.power_rating = 1W
     r_relay_drop.voltage_rating = 25V
-    r_relay_drop.mpn = "RSF100JB-73-39R"  # Yageo 1W axial metal film 39Ω ±5%
+    r_relay_drop.mpn = "RSF100JB-73-91R"  # Yageo 1W axial metal film 91Ω ±5%
     r_relay_drop.footprint = "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 
     r_gate = new Resistor
@@ -909,8 +933,29 @@ module PowerInput:
     # Class I appliance pattern: provides EMI return path from the power
     # return net to PE without a DC short. Y1 safety rating required
     # per IEC 60335-1 for line-to-ground (250VAC) applications.
+    # PD3 REPLACEMENT 2026-08-13 (docs/evidence/2026-07-30-pd3-part-selection-k1-c6-t1.md
+    # Section 2 + docs/evidence/2026-07-30-c6-touch-current-budget-and-part2-routes.md,
+    # re-verified this session -- docs/evidence/2026-08-13-pd3-land-k1-c6.md):
+    # was VY1222M47Y5UQ6TV0 (10.00mm lead spacing, 2.2nF ceramic Y1),
+    # 8.000mm HV<->SELV -- fails the 12.6mm PD3 reinforced-creepage target
+    # (docs/evidence/2026-08-13-hv-creepage-pd3-gap-measurement-and-plan.md).
+    # No 2.2nF Y1 part at any manufacturer checked (TDK, Vishay x3, KEMET)
+    # clears 12.6mm -- ceramic-disc Y1 is flat at a 12.5mm lead-spacing
+    # ceiling industry-wide, independent of capacitance. TDK's own B81123
+    # film-Y1 family only reaches a genuinely larger (22.5mm) lead spacing
+    # starting at 5.6nF, a real 2.5x value change from the 2.2nF+/-20%
+    # spec window -- reported and accepted as an electrical-design decision,
+    # not smoothed over. Touch-current re-checked against the corrected,
+    # complete IEC 60335-1 Clause 13/16 leakage budget (1.35mA, this
+    # appliance's real 0.75mA/kW heating-appliance limit, not the stale
+    # 3.5mA motor-appliance figure three other repo docs still cite):
+    # 5.6nF clears even the strictest reading found (no protective-impedance
+    # exemption, no radio-interference-filter doubling credit) with
+    # 8-15% headroom (1153.7-1241.7uA against 1.35mA) -- thinner margin than
+    # this design's other already-solved PD3 crossings, reported plainly,
+    # not smoothed into a false "wide margin" claim.
     y_cap_pe = new Capacitor
-    y_cap_pe.value = 2.2nF +/- 20%
+    y_cap_pe.value = 5.6nF +/- 20%
     y_cap_pe.dielectric = "Y1"
     y_cap_pe.voltage_rating = 250V  # requirement: Y1 certified >=250VAC line-to-ground
     # MPN VERIFIED 2026-07-28. Was "DE1E3KX222MA4BA01" -- fabricated: it
@@ -960,10 +1005,21 @@ module PowerInput:
     # publishes no recommended land pattern for this part, so that pad
     # size would be an unsourced choice; it is left to a human.
     #
+    # FOOTPRINT/MPN CORRECTED AGAIN 2026-08-13 for the PD3 replacement above:
+    # TDK B81123C1562M000 (5.6nF Y1, 500VAC, 22.5mm lead spacing, DigiKey
+    # 495-1653-ND, confirmed Active/orderable this session -- stock was thin
+    # at fetch time, not EOL). Stock KiCad footprint
+    # Capacitor_THT:C_Rect_L26.5mm_W7.0mm_P22.50mm_MKS4 matches the
+    # datasheet's own max-dimensions row for this ordering code (26.5 x 7.0
+    # x 16.0mm) exactly. MEASURED this session with the canonical
+    # pad-geometry kernel (2.4mm circular pads at 22.5mm pitch):
+    # 20.1000mm, clears 12.6mm by +7.5mm.
+    #
     # BOARD REWORK REQUIRED, NOT DONE HERE: pcb/temper.kicad_pcb still
-    # carries the 5.00mm stub for C6 and is deliberately untouched.
-    y_cap_pe.mpn = "VY1222M47Y5UQ6TV0"
-    y_cap_pe.footprint = "Capacitor_THT:C_Disc_D12.5mm_W5.0mm_P10.00mm"
+    # carries the P10.00mm disc footprint for C6 and is deliberately
+    # untouched by this change, same as the 2026-07-28 note above.
+    y_cap_pe.mpn = "B81123C1562M000"
+    y_cap_pe.footprint = "Capacitor_THT:C_Rect_L26.5mm_W7.0mm_P22.50mm_MKS4"
     
     dc_bus.gnd_ref ~ y_cap_pe.p1
     y_cap_pe.p2 ~ pe
