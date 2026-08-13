@@ -22,7 +22,6 @@ from typing import Any
 
 import numpy as np
 import pytest
-
 from kiutils.board import Board as KiBoard
 
 from temper_placer.core.board import Board, Zone
@@ -93,14 +92,13 @@ from temper_placer.topological.zone_solver import ZoneAssignment, ZoneSolver
 from temper_placer.validation.geometric import GeometricValidator, validate_placement
 from temper_placer.validation.tht_check import validate_hole_clearance
 
-
 # ---------------------------------------------------------------------------
 # Shared fixtures / helpers
 # ---------------------------------------------------------------------------
 
 
 def _board(**kw: Any) -> Board:
-    defaults = dict(width=100.0, height=100.0, origin=(0.0, 0.0))
+    defaults = {"width": 100.0, "height": 100.0, "origin": (0.0, 0.0)}
     defaults.update(kw)
     return Board(**defaults)
 
@@ -264,7 +262,7 @@ class TestInitialPlacement:
         zone = Zone(name="Z", bounds=(0.0, 0.0, 100.0, 100.0))
         pos = place_components_in_zone(zone, ["Q1", "Q2"], {"Q1": (10, 10), "Q2": (10, 10)})
         assert set(pos) == {"Q1", "Q2"}
-        for ref, (x, y) in pos.items():
+        for _ref, (x, y) in pos.items():
             assert 0.0 <= x <= 100.0
             assert 0.0 <= y <= 100.0
 
@@ -362,7 +360,7 @@ class TestZoneSolver:
         assert set(assignment.assignments) == {"Q1", "Q2", "U1"}
         assert assignment.unassigned == []
         assert assignment.conflicts == []
-        for ref, zone_name in assignment.assignments.items():
+        for _ref, zone_name in assignment.assignments.items():
             assert zone_name in {"HV", "MCU"}
 
     def test_solve_reports_no_valid_zones(self):
