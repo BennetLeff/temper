@@ -30,11 +30,17 @@ class TestNetclassLoader:
         into GateDriveHV/GateDriveSELV, also 2026-07-28 (R4).
         HighVoltageTank split out of HighVoltage 2026-08-12
         (docs/evidence/2026-08-12-hv-hv-creepage-enforcement.md).
+        HighVoltageSignal split out of HighVoltage 2026-08-13
+        (docs/evidence/2026-08-13-netclass-current-scoping.md): the
+        mA-scale current tier (bleed string, gate taps, ZCD divider,
+        gate-driver bias rail) carved out of HighVoltage's 1000x current
+        range, same clearance/creepage/voltage_v/safety_category.
         """
         expected = {
             "ACMains",
             "HighVoltage",
             "HighVoltageTank",
+            "HighVoltageSignal",
             "HighVoltageIsolated",
             "FinePitch",
             "Power",

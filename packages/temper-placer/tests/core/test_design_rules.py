@@ -202,7 +202,12 @@ class TestCreateTemperDesignRules:
         # resonant tank node's 570.5 Vrms lands in a different IEC 60335-1
         # creepage-table row than the 340-400V bus the class was named for,
         # so one class could not carry one correct creepage figure for both.
-        assert len(rules.net_classes) == 12
+        # HighVoltageSignal split out of HighVoltage 2026-08-13, 12 -> 13
+        # (docs/evidence/2026-08-13-netclass-current-scoping.md): HighVoltage
+        # bundled a 1000x current range (22.5A RMS tank/bus vs ~20mA bleed
+        # string) under one trace_width; the mA-scale members moved to this
+        # new class (same clearance/creepage/voltage_v/safety_category).
+        assert len(rules.net_classes) == 13
 
     def test_rules_are_independent(self):
         """Test that factory creates independent instances."""
