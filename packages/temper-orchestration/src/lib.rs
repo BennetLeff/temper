@@ -229,6 +229,19 @@ mod cpsat_loop;
 // `classify()`; the four `_handle_*` constraint-building handlers and the
 // leaf helpers stay Python call-backs. Append-only per the U-I dispatch.
 mod feedback;
+// Orchestration-port unit U-I (Rust Orchestration Engine plan 2026-08-09-001,
+// Wave-4 CP-SAT placement-loop slice): the RESIDUAL non-ortools orchestration
+// of `temper_placer/placer/cp_sat/validator_audit.py` -- the R24 post-solve
+// `audit_domain_clearance_validator()` audit SEQUENCING (the two ValueError
+// guards, the validator-placement build, the REQ-SAFE-01 re-run, the
+// geometry-trust computation + degraded-geometry logger.error, the
+// covered-pairs build, the per-violation bucket dispatch + reason strings,
+// and the result assembly). The `audit_domain_clearance_validator` pyfunction
+// is the delegation target of the shim's function of the same name;
+// `build_validator_placement` / the pad-schema serialization and
+// `verify_iec60335_compliance` stay Python call-backs. Append-only per the
+// U-I dispatch.
+mod validator_audit;
 mod drc_sweep_stage;
 mod drc_validation_stage;
 pub(crate) mod explainability;
@@ -361,6 +374,7 @@ pub use cpsat_loop::{
     cpsat_run_gated_loop, cpsat_run_legacy_loop, cpsat_solve_phase2, cpsat_solve_with_delta,
 };
 pub use feedback::classify_feedback;
+pub use validator_audit::audit_domain_clearance_validator;
 pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
 pub use drc_validation_stage::DRCValidationStage;
 #[cfg(feature = "python")]
@@ -551,6 +565,12 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // `classify()` delegates here; the constraint-building `_handle_*`
     // handlers and the leaf helpers stay Python call-backs.
     m.add_function(wrap_pyfunction!(feedback::classify_feedback, m)?)?;
+    // Orchestration-port unit U-I (append-only per the U-I dispatch): the
+    // validator-aligned R24 post-solve audit sequencing. The
+    // `validator_audit.py` shim's `audit_domain_clearance_validator()`
+    // delegates here; `build_validator_placement`, the pad-schema
+    // serialization and `verify_iec60335_compliance` stay Python call-backs.
+    m.add_function(wrap_pyfunction!(validator_audit::audit_domain_clearance_validator, m)?)?;
     Ok(())
 }
 

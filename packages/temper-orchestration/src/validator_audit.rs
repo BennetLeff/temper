@@ -97,10 +97,15 @@ fn classify_violation<'py>(
     };
     let pair_kind = v.getattr("pair_kind")?;
 
-    // `if v.pair_kind == "intra" or ref_a == ref_b:`.
+    // `if v.pair_kind == "intra" or ref_a == ref_b:` -- the oracle compares
+    // the RAW attribute with `==`: a falsy (e.g. None) pair_kind is simply
+    // not "intra", never a TypeError.
     let is_intra = {
-        let pk: String = pair_kind.extract()?;
-        pk == "intra" || ref_a == ref_b
+        let pk_matches = pair_kind.is_truthy()? && {
+            let pk: String = pair_kind.extract()?;
+            pk == "intra"
+        };
+        pk_matches || ref_a == ref_b
     };
     if is_intra {
         let reason = format!(
@@ -189,12 +194,11 @@ pub fn audit_domain_clearance_validator(
 
     // `placement_refs = {c.get("ref") for c in components if
     // isinstance(c.get("ref"), str)}`.
-    let str_type = py.import("builtins")?.getattr("str")?;
     let placement_refs = py.import("builtins")?.getattr("set")?.call0()?;
     for c in components.try_iter()? {
         let c = c?;
         let r = c.call_method1("get", ("ref", py.None()))?;
-        if r.is_instance_of(&str_type)? {
+        if r.is_instance_of::<PyString>() {
             placement_refs.call_method1("add", (&r,))?;
         }
     }
@@ -270,7 +274,9 @@ pub fn audit_domain_clearance_validator(
     for row in rows.try_iter()? {
         let row = row?;
         let v = row.call_method1("get", ("pairs_origin_modelled", 0_i64))?;
-        let v: i64 = v.extract()?;
+        // `int(row.get("pairs_origin_modelled", 0) or 0)`: a falsy value
+        // (None / 0 / "") contributes 0, exactly like the oracle's `or 0`.
+        let v: i64 = if v.is_truthy()? { v.extract()? } else { 0 };
         origin_modelled_pairs += v;
     }
 
@@ -316,13 +322,12 @@ pub fn audit_domain_clearance_validator(
     // `covered_pairs = {frozenset((c.a, c.b)) for c in constraints if
     // isinstance(c.a, str) and isinstance(c.b, str)}`.
     let frozenset = py.import("builtins")?.getattr("frozenset")?;
-    let str_type = py.import("builtins")?.getattr("str")?;
     let covered_pairs = py.import("builtins")?.getattr("set")?.call0()?;
     for c in constraints.try_iter()? {
         let c = c?;
         let a = c.getattr("a")?;
         let b = c.getattr("b")?;
-        if a.is_instance_of(&str_type)? && b.is_instance_of(&str_type)? {
+        if a.is_instance_of::<PyString>() && b.is_instance_of::<PyString>() {
             let fs = frozenset.call1((PyList::new(py, [&a, &b])?,))?;
             covered_pairs.call_method1("add", (&fs,))?;
         }
@@ -338,8 +343,8 @@ pub fn audit_domain_clearance_validator(
         let v = v?;
         let (bucket, reason) = classify_violation(py, &v, &covered_pairs)?;
 
-        let ref_a = v.getattr("ref_a")?;
-        let ref_b = v.getattr("ref_b")?;
+        let ref_a_attr = v.getattr("ref_a")?;
+        let ref_b_attr = v.getattr("ref_b")?;
         let boundary = v.getattr("boundary")?;
         let insulation = v.getattr("insulation_type")?;
         let metric = v.getattr("metric")?;
@@ -348,8 +353,16 @@ pub fn audit_domain_clearance_validator(
         let pair_kind = v.getattr("pair_kind")?;
         let closest_pads = v.getattr("closest_pads")?;
 
-        let ref_a = if ref_a.is_truthy()? { ref_a } else { PyString::new(py, "?").into_any() };
-        let ref_b = if ref_b.is_truthy()? { ref_b } else { PyString::new(py, "?").into_any() };
+        let ref_a = if ref_a_attr.is_truthy()? {
+            ref_a_attr.clone()
+        } else {
+            PyString::new(py, "?").into_any()
+        };
+        let ref_b = if ref_b_attr.is_truthy()? {
+            ref_b_attr.clone()
+        } else {
+            PyString::new(py, "?").into_any()
+        };
         let boundary = if boundary.is_truthy()? { boundary } else { PyString::new(py, "?").into_any() };
         let insulation_type = if !insulation.is_none() {
             insulation.getattr("value")?
@@ -362,7 +375,12 @@ pub fn audit_domain_clearance_validator(
         let pair_kind = if pair_kind.is_truthy()? {
             pair_kind
         } else {
-            let same = ref_a.bind(py).is(&ref_b.bind(py));
+            // `v.pair_kind or ("intra" if v.ref_a == v.ref_b else "inter")` --
+            // VALUE equality on the ORIGINAL attribute values, before the "?"
+            // defaults: two falsy refs (None == None) are "intra" and two
+            // equal-valued strings are "intra" even when they are distinct
+            // objects -- exactly the oracle's `==`.
+            let same = ref_a_attr.eq(&ref_b_attr)?;
             if same {
                 PyString::new(py, "intra").into_any()
             } else {
@@ -406,9 +424,9 @@ pub fn audit_domain_clearance_validator(
              pair(s)",
             &[
                 violations.len()?.into_pyobject(py)?.into_any(),
-                hard.len()?.into_pyobject(py)?.into_any(),
-                intra.len()?.into_pyobject(py)?.into_any(),
-                gaps.len()?.into_pyobject(py)?.into_any(),
+                hard.len().into_pyobject(py)?.into_any(),
+                intra.len().into_pyobject(py)?.into_any(),
+                gaps.len().into_pyobject(py)?.into_any(),
                 covered_pairs.len()?.into_pyobject(py)?.into_any(),
             ],
         )?;
