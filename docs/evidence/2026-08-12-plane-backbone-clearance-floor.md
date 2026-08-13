@@ -514,6 +514,40 @@ aimed at it and nothing in this PR moved it; that is not a failure of the PR.
   `PWM_H`**, inherited from #1095 and deliberately not repaired — §7.
 * `test_production_board_routing_drc_regression`: **unmeasurable, OOM** — §6.
 
+## 9b. The branch this stacks on has a broken tip (`a13cd2a4a`)
+
+This PR is branched from `origin/fix/clearance-congestion-band` at
+**`d60caadd5`**, which is where that branch stood when this task started.
+It moved to **`a13cd2a4a`** during the task, and **that tip does not import.**
+
+`ac12c5000` ("Merge remote-tracking branch 'origin/main' into
+fix/clearance-congestion-band") was committed with **unresolved conflict
+markers** in at least two files:
+
+```
+packages/temper-placer/src/temper_placer/router_v6/_pipeline_core.py:348   <<<<<<< HEAD
+packages/temper-placer/src/temper_placer/router_v6/_pipeline_core.py:540   >>>>>>> origin/main
+packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_solve.py:142,212,372
+```
+
+`ast.parse` of `_pipeline_core.py` at `a13cd2a4a` raises `SyntaxError:
+invalid syntax`; `4370c2eec` (its parent on that branch) and `origin/main`
+both have zero markers, so the damage is entirely in that merge commit.
+`route_pcb()` cannot be imported, so **no board can be routed on that tip and
+no test that touches the placer or the router can run** — merging it here
+turned this PR's 9 passing generator tests into 3 import failures until the
+merge was reverted.
+
+This PR therefore stays based on `d60caadd5` and does **not** merge the
+current tip. Everything measured in §3-§8 is against `d60caadd5 + this PR`,
+which is the correct control for this PR's own effect regardless. Rebasing
+onto `fix/clearance-congestion-band` should wait until that branch's merge is
+repaired; note also that the merge would pull in substantive router changes
+(`netclass_rules.yaml` +55 lines, `core/design_rules.py` +115,
+`_adapter_convert.py`, `_pipeline_core.py`), so the routed board is likely to
+move and **#1095's own board C/§6.2 table would need re-measuring after the
+repair** — that is #1095's measurement to redo, not this PR's.
+
 ## 10. What was NOT done, deliberately
 
 * `power_pcb_dataset/drc_ceiling.json` **not modified**; no `Ceiling-Approval:`
