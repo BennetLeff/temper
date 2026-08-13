@@ -53,6 +53,7 @@ from __future__ import annotations
 import ast
 import math
 import random
+import re
 import subprocess
 from pathlib import Path
 
@@ -166,6 +167,27 @@ def test_oracle_is_verbatim_copy():
     original = _segments_from_source(src, _ORACLE_NAMES)
     with open(ORACLE.__file__, encoding="utf-8") as fh:
         copied = _segments_from_source(fh.read(), _ORACLE_NAMES)
+
+    # KNOWN, DELIBERATE rename, 2026-08-13: `Component.initial_rotation` (a
+    # 0-3 quarter-turn INDEX that read exactly like a degree value -- the
+    # root cause of three independent wrong safety-geometry answers in one
+    # day) became `initial_rotation_quadrant` everywhere, including in this
+    # oracle -- it must track the live `Component` attribute name or every
+    # other test in this file that actually calls the oracle raises
+    # AttributeError. The pin (`_ORACLE_PIN_SHA`) intentionally stays fixed
+    # at the pre-migration commit -- moving it forward would anchor this
+    # differential to *current* (already Rust-delegating) production instead
+    # of the frozen pre-migration implementation it exists to preserve (see
+    # the D4 precedent above: a pin moves only when it can point at a
+    # commit that is STILL the pre-migration shape, which no commit is,
+    # post-rename). So the rename is applied here, narrowly and only to the
+    # pinned text, exactly once, rather than to the pin target -- the one
+    # exception to "verbatim", and the only edit this test's algorithm
+    # tolerates without weakening it for anything else.
+    original = {
+        name: re.sub(r"\binitial_rotation\b", "initial_rotation_quadrant", body)
+        for name, body in original.items()
+    }
 
     for name in _ORACLE_NAMES:
         assert name in copied, f"{name} missing from the oracle module"
