@@ -4627,17 +4627,54 @@ tuple → `Vec`** with the tuple contract enforced at the boundary (a list is
 REJECTED for the three violation fields — accepting one would silently
 change the collection kind on write-back).
 
-### The determinism convention (the U1 bound, extended)
+### The determinism convention (the U1 bound, extended — CORRECTED)
 
 The shared `frozenset_write` sorts the REBUILT element objects by their
 CPython `repr` before inserting them into the rebuilt frozenset — a
-deterministic function of the values, so the rebuild is deterministic across
-runs (never the process-random `HashSet` iteration order), exactly like U1's
-normalized-bits sort. Bit-identity (type + `repr` + `==`) is pinned by the
-gate on the guaranteed shapes: empty/single-element, and any collision-free
-set (CPython's iteration order is then a pure function of the values).
-Colliding multi-element sets round-trip content-identically (type, `==`,
-sorted element reprs) in a deterministic-but-different order.
+deterministic function of the values, so REPEATED REBUILDS OF THE SAME OWNED
+VALUE, WITHIN ONE PROCESS/`PYTHONHASHSEED`, agree byte-for-byte (never the
+raw process-random `HashSet` iteration order).
+
+**This section previously claimed further that the rebuild "is deterministic
+across runs," full stop — i.e. that the resulting frozenset's Python-side
+iteration order is stable ACROSS different `PYTHONHASHSEED` values. That
+claim is FALSE** for any element type whose `__hash__` mixes a `str`/`bytes`
+field — which is every element type `frozenset_write` actually serves
+(`Trace.net`, `Via.net`/`layers`, `LayerAssignment.net_name`, the `(str,
+str)` pair sets, …). Empirically disproven during PR #1137's investigation:
+the identical repr-sorted insertion sequence, replayed under 5+ distinct
+`PYTHONHASHSEED` values, produced a DIFFERENT final frozenset iteration order
+at every seed. Sorting the *insertion sequence* by repr only pins which
+element wins an insertion-order collision tie-break within a fixed process —
+it says nothing about which hash-table slot each element lands in once
+inserted, and that slot assignment is exactly what a per-process-salted
+`str` hash randomizes (PEP 456).
+
+The U1 bound this section is "extending" (`HashSet<SlotId>` in `marshal.rs`)
+is NOT the same claim and remains true there for a narrower, different
+reason: `SlotId` is `(f64, f64)`, and CPython does not salt float hashing —
+only `str`/`bytes`/`datetime` are randomized — so a collision-free
+`HashSet<SlotId>` really does rebuild to a cross-run-identical frozenset.
+That property does not transfer to any string-hashing element type, which is
+why restating it here for `frozenset_write`'s general `T: Marshal` was wrong.
+
+**What this means for callers**: never rely on a rebuilt frozenset's
+Python-side iteration order being stable across processes/`PYTHONHASHSEED`.
+A caller needing a stable, visible order (diagnostic output, KiCad emission,
+a "first N" preview, a duplicate-tie-break) must sort EXPLICITLY at the
+point of consumption — see `temper_placer.io._write_tracks`'s
+`_trace_emission_key`/`_via_emission_key` pattern, and PR #1137, which fixed
+exactly this class of bug in `TrackDeduplicationStage`/`ViaDeduplicationStage`
+("keep first" tie-break) by materializing and repr-sorting before reading
+"first", applied identically to both the Rust stage and its pinned Python
+oracle.
+
+Bit-identity (type + `repr` + `==`) is pinned by the gate on the guaranteed
+shapes: empty/single-element, where order is vacuous. Multi-element sets
+round-trip content-identically (type, `==`, membership — compared via a
+sorted-repr projection so the comparison itself is order-independent); their
+frozenset iteration order is NOT asserted across runs, and (per the
+correction above) must not be assumed to be.
 
 The owned `Eq`/`Hash` mirror CPython set-element semantics (`-0.0` ≡ `0.0`,
 NaN folds to one canonical form — the U1 `feq` convention). The `Val`-shaped

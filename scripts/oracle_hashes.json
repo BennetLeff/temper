@@ -9,7 +9,7 @@
     "packages/temper-placer/tests/constraints/_compiler_py_oracle.py": "bcea06feb22c6ac98ef54e93986facc638178f047cdef69a4cfe109b26362182",
     "packages/temper-placer/tests/constraints/_reporter_py_oracle.py": "ffe52aae15fcebde4216a85fd3cc06a0a8450cacc371cf0da2669d1a1ab19a64",
     "packages/temper-placer/tests/core/_board_py_oracle.py": "b68a1ae07f2d5e226b2151025b28b7d4f91e4bd51c2c6cd23d0543c608dd9057",
-    "packages/temper-placer/tests/core/_design_rules_py_oracle.py": "c3ef6f8dda6fe6a7e76edc05b0c43f0743ff4960a64019864a0121ec92d00464",
+    "packages/temper-placer/tests/core/_design_rules_py_oracle.py": "32e3d8676d3798f3b0c710365423cea76df071d1f28997ea8d3f01df753be6f6",
     "packages/temper-placer/tests/core/_hypergraph_factory_py_oracle.py": "a36815c0c7ac0d6d7d81604e6c46966724d1eab9f7cea7fd33ed056f8ce7d97d",
     "packages/temper-placer/tests/core/_loop_py_oracle.py": "c3fd1d65b21503665709afad40f9be98cefaaf6df0ad3dbf95c3ef72e7edaf43",
     "packages/temper-placer/tests/core/_net_types_py_oracle.py": "59602b34db84382fba15fbd32190e38ce9f1b013ff4924d376713ff6ada96f0e",
@@ -26,7 +26,7 @@
     "packages/temper-placer/tests/deterministic/_courtyard_check_run_py_oracle.py": "2520bb27da9732055056c1e4aa5f251ae91fe9f04a3fc17ebaa47ea51f2d675c",
     "packages/temper-placer/tests/deterministic/_deterministic_pipeline_py_oracle.py": "3db219653594b1b8d058d799329e71ef1b6f525d605d6c1e6d5554863e64165b",
     "packages/temper-placer/tests/deterministic/_drc_parser_py_oracle.py": "4fa23f19f71c1b839aef8d9be311e2a6b9ebe367233e2f171458babaf61b217f",
-    "packages/temper-placer/tests/deterministic/_drc_sweep_run_py_oracle.py": "353019dc33e169d727978cf846f9999f6d9da5f05a86977c783de65a068ca7ea",
+    "packages/temper-placer/tests/deterministic/_drc_sweep_run_py_oracle.py": "b639d8cdcee59d0271da6ec0cc10a62adf4b8ce00daf97cf49cfe729954203f8",
     "packages/temper-placer/tests/deterministic/_drc_validation_run_py_oracle.py": "5a7ae8146c5ac71c96af5d7f0f905d931fb47ff72fc11847a10356ff40044708",
     "packages/temper-placer/tests/deterministic/_fine_pitch_escape_run_py_oracle.py": "dc79eda04ccbf2e51627fa750c3f6ae5015d00e687a82bb68675302977a90036",
     "packages/temper-placer/tests/deterministic/_grid_core_py_oracle.py": "146c810804fd618252eb6ae60657582975af76378e703fdfc4ba7d37c3bfa3c3",
@@ -47,7 +47,7 @@
     "packages/temper-placer/tests/deterministic/_setup_py_oracle.py": "e251ab3c3b3230609d1f3fd8f2032df3dd613e197f28006f256bf99b2b0317f5",
     "packages/temper-placer/tests/deterministic/_slot_generation_py_oracle.py": "6decc574537e5fe1101dde513c8e0c4b411fa13b0959050399458598545ee345",
     "packages/temper-placer/tests/deterministic/_via_placement_py_oracle.py": "b568bdc67837b5d16a4236a119cc178d94054a7a6cbc85354ebfdead41f3a25f",
-    "packages/temper-placer/tests/deterministic/_via_validation_run_py_oracle.py": "3cd56486b8873622421daeea78431b5da0dc48b47dc4df26c3137eaca70c56de",
+    "packages/temper-placer/tests/deterministic/_via_validation_run_py_oracle.py": "5f892fa3d0daf9b640c2d392870f5b01053bb232ed9fa1f73bf61d9a83b39dde",
     "packages/temper-placer/tests/deterministic/_violation_mapper_py_oracle.py": "220335a4cae3d004ef398f5e10f2b042f427c17a4b0519c59d06c7a38d7953ed",
     "packages/temper-placer/tests/deterministic/_zone_adjuster_py_oracle.py": "648ccca4583467ec15f37e053b3d8290c76fbdc488d9888b421813f1e6c8acd5",
     "packages/temper-placer/tests/deterministic/_zone_assignment_py_oracle.py": "e22d328b4b30007f99b6f648a977a5c3891f5ba0517e388872460a2d9f357bdd",
@@ -169,6 +169,5 @@
     "packages/temper-placer/tests/wave4_phase2/_core_py_oracle.py": "216491409ff956508b47fa1442da8da5ac49b0e52b17bc13cb507cba7a1c717e",
     "packages/temper-workflow/tests/_route_and_measure_py_oracle.py": "d3e0d57c371983a987746e972ea6072869d2c1c50b32073f1b4dae0f5c5835ad"
   },
-  "version": 1,
-  "packages/temper-placer/tests/core/_design_rules_py_oracle.py": "32e3d8676d3798f3b0c710365423cea76df071d1f28997ea8d3f01df753be6f6"
+  "version": 1
 }

@@ -220,6 +220,17 @@ impl ViaValidationStage {
             )?;
             d6_util::py_print(py, &[msg])?;
             if plane_vias_removed.len() > 0 {
+                // `plane_vias_removed` was appended in `vias`' frozenset
+                // iteration order, which is PYTHONHASHSEED-salted for
+                // Via's string `net`/`layers` fields (see the
+                // `frozenset_write` doc correction in netlist_owned.rs and
+                // PR #1137) -- printing it unsorted makes an otherwise
+                // byte-identical run's diagnostic vary across processes.
+                // Sort by the entry VALUES (net, pos, layers, connected --
+                // plain Python tuple comparison, never repr/hash) before
+                // truncating, identically to the pinned oracle's
+                // `sorted(plane_vias_removed)[:5]`.
+                plane_vias_removed.sort()?;
                 d6_util::py_print(py, &["  Removed plane vias (first 5):".into_pyobject(py)?.into_any()])?;
                 let first5: Vec<Bound<'_, PyAny>> = plane_vias_removed
                     .try_iter()?
