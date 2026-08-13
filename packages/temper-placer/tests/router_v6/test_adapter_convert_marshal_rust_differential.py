@@ -439,7 +439,13 @@ def test_collect_pad_positions_many_randomized():
                 pins.append((ref, name))
             nets.append(_net(f"NET{n}", pins))
         pcb = _pcb(comps, nets)
-        _assert_pad_positions_same(pcb, f"randomized {n}")
+        _assert_pad_positions_same(pcb, f"randomized {_}")
+    # A duplicate-ref randomized case: last writer wins even under churn.
+    dup = _pcb(
+        [_comp("C1", initial_position=(1.0, 1.0)), _comp("C1", initial_position=(2.0, 2.0))],
+        [_net("N", [("C1", "1")])],
+    )
+    _assert_pad_positions_same(dup, "randomized duplicate-ref")
 
 
 # ---------------------------------------------------------------------------
