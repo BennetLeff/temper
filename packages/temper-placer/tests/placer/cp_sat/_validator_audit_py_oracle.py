@@ -1,105 +1,15 @@
-"""Validator-aligned post-solve audit for domain clearance (issue #523 gap 2).
+"""Pinned Python oracle for the
+``temper_placer/placer/cp_sat/validator_audit.py`` validator-aligned
+post-solve audit (orchestration-port unit U-I, Wave-4).
 
-**The gap this closes (measured, see
-``docs/evidence/2026-08-01-k3-runb-not-validator-clean.md``).** The R24
-post-solve audit for the domain-clearance constraint set
-(``domain_clearance.audit_domain_clearance``) recomputes **center-to-center**
-Euclidean distance from the resolved coordinates and compares it to the
-encoded margin. Its own docstring admits this is "a cheaper, weaker check
-than what ``clearance.py``'s validator actually measures (copper-to-copper
-on exact pad geometry)". That distinction is not academic: the issue-#523
-run-B scoped solve was *center-audit-clean* (0 ``audit_domain_clearance``
-violations) while the actual REQ-SAFE-01 gate measured 12 violations across
-9 pairs on the same placement (e.g. C27 landed 0.32mm from U24 -- the
-solver's boxes were separated, the copper was not). Box separation is a
-Chebyshev bound over each box's *courtyard/bounds*, which is a superset of
-copper only when the box contains the copper; the exact validator measures
-pad copper directly and is the truth that gates the board.
+This file is a VERBATIM copy of the pre-migration
+``temper_placer/placer/cp_sat/validator_audit.py`` audit as of the U-I base
+commit. Only the module docstring was replaced with this pin note.
 
-**What this module adds.** ``audit_domain_clearance_validator`` re-runs the
-REQ-SAFE-01 validator itself (``verify_iec60335_compliance`` --
-copper-to-copper on exact, rotation-aware pad geometry, the same function
-the CI gate ``tests/requirements/safety/test_clearance.py::
-TestClearanceIntegration::test_temper_board_clearance_compliance`` runs)
-against a placement whose positions/rotations come from the *solve* rather
-than the board. It mirrors how ``tests/requirements/safety/
-_real_board_fixture.py`` builds the validator placement (component dicts
-with ref + nets + pads from netlist pins + ``rotation_deg``); only the
-position/rotation source changes. The existing center-distance audit stays
-(cheap encoder check); this audit is additive and is the one that can see
-copper-vs-copper.
-
-**Classification** (per validator violation), so a solve that is
-*validator-dirty* is attributed to the right cause rather than reported as
-one undifferentiated list:
-
-- **(a) HARD failure** -- an *inter-component* pair that the solve's
-  generated ``SeparatedConstraint`` set covers. By
-  ``domain_clearance.py``'s soundness proof, a SAT/optimal solve must have
-  zero of these; any one means the encoding is unsound for this solve (the
-  run-B case: box-separated but copper-touching). Same hard-failure
-  contract as ``fixed_copper.audit_fixed_copper``.
-- **(b) intra-footprint straddler** -- ``pair_kind == "intra"`` (or
-  ``ref_a == ref_b``): one component whose own pads straddle a domain
-  boundary. Placement cannot fix this (a rigid part's own pads move
-  together), so it is reported as a separate, placement-independent list --
-  never a solver-encoding failure. This is the K3 G5LE-1 coil-to-contact
-  gap class.
-- **(c) coverage gap** -- an *inter-component* pair the validator flags but
-  the constraint set does NOT cover (the generator's ``component_refs``
-  filter or the intra-footprint exemption excluded it). This is the
-  "solver-validator pair-set alignment" finding: the audit is the place
-  where a misalignment surfaces as data, not as a silent blind spot.
-
-**Geometry trust (not every clean audit proves copper).** The validator
-models a component without a ``pads`` key as a zero-extent point at its
-origin -- an *optimistic* upper bound on true copper-to-copper separation
-(the run-B lie direction: it can miss violations, never invent them).
-``DomainClearanceValidatorAuditResult`` therefore carries the validator's
-own ``stats`` (``components_without_pads``, per-row
-``pairs_origin_modelled``) and a ``geometry_trusted`` flag: False whenever
-any component lacked pads or any candidate pair was measured origin-to-
-origin, in which case the audit logs ``logger.error``. A clean audit with
-``geometry_trusted=False`` proves nothing about real copper -- the caller
-must not gate the board on it. The audit also refuses to run against a
-placement that does not describe the solve (zero components, or
-``resolved_positions_mm`` refs disjoint from the placement's refs) --
-that is a programmer error and raises ``ValueError`` rather than
-vacuous-passing.
-
-**R24 discipline.** The hard-failure list must be empty for a SAT/optimal
-solve; ``_encoder_solve.py`` raises when it is not (same contract as
-``audit_fixed_copper``). Intra-footprint and coverage-gap lists are
-reportable, not raiseable -- the caller (e.g. ``solve_placement``) logs them
-and surfaces them on the result.
-
----
-
-This module is a delegation shim. The audit SEQUENCING of
-``audit_domain_clearance_validator()`` -- the two ``ValueError`` guards
-(zero components / disjoint solved refs), the validator-placement build
-call, the ``verify_iec60335_compliance`` re-run, the ``stats`` extraction,
-the geometry-trust computation (``components_without_pads`` /
-``pairs_origin_modelled``) + the degraded-geometry ``logger.error``, the
-``covered_pairs`` frozenset build, the per-violation bucket dispatch
-(intra / hard / gap via the Rust ``classify_violation``) +
-``DomainClearanceValidatorViolation`` construction, and the
-``DomainClearanceValidatorAuditResult`` assembly -- moved to
-``temper-orchestration``'s ``validator_audit.rs`` (Rust Orchestration
-Engine plan 2026-08-09-001, orchestration-port unit U-I) as
-``audit_domain_clearance_validator``. What stays Python (the U-I boundary):
-``build_validator_placement`` + the pad-schema serialization
-(``_pads_for_netlist_component`` / ``_netlist_component_by_ref`` -- the
-placement copy / deepcopy + dict mutation over the validator wire shape),
-``verify_iec60335_compliance`` (the exact REQ-SAFE-01 validator -- the R24
-boundary; the CI gate's own function), and the
-``DomainClearanceValidatorViolation`` / ``DomainClearanceValidatorAuditResult``
-dataclasses (data carriers; the Rust sequencing constructs them by keyword
-args). The public API is unchanged. The pre-migration module is pinned
-VERBATIM as ``tests/placer/cp_sat/_validator_audit_py_oracle.py``
-(content-hash registered in ``scripts/oracle_hashes.json``); bit-identical
-parity is pinned by
-``tests/placer/cp_sat/test_validator_audit_rust_differential.py``.
+DO NOT EDIT THE SEMANTICS. This is the oracle the Rust audit kernels
+(``temper_orchestration``) must reproduce bit-identically; any edit here
+silently weakens the differential proof. If the module's audit sequencing
+changes, the oracle must be re-pinned from the new base first.
 """
 
 from __future__ import annotations
@@ -107,12 +17,13 @@ from __future__ import annotations
 import copy
 import logging
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-if TYPE_CHECKING:
-    from temper_placer.pcl.constraints import SeparatedConstraint
-
-import temper_orchestration as _orch
+from temper_placer.pcl.constraints import SeparatedConstraint
+from temper_placer.requirements.validators.clearance import (
+    ClearanceViolation,
+    verify_iec60335_compliance,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -325,6 +236,47 @@ def build_validator_placement(
 # ---------------------------------------------------------------------------
 
 
+def _classify_violation(
+    v: ClearanceViolation,
+    covered_pairs: set[frozenset[str]],
+) -> tuple[str, str]:
+    """Bucket (module docstring's (a)/(b)/(c)) + reason for one validator
+    violation. Returns ``(bucket, reason)`` with bucket in
+    {"hard", "intra", "gap"}.
+    """
+    ref_a = v.ref_a or "?"
+    ref_b = v.ref_b or "?"
+    if v.pair_kind == "intra" or ref_a == ref_b:
+        return (
+            "intra",
+            (
+                f"{ref_a}'s own pads straddle a domain boundary within one "
+                "footprint; placement translates/rotates the part rigidly so no "
+                "SeparatedConstraint (nor any placement) can fix it -- reported "
+                "separately, not as a solver-encoding failure"
+            ),
+        )
+    if frozenset((ref_a, ref_b)) in covered_pairs:
+        return (
+            "hard",
+            (
+                f"pair is covered by the solve's domain-clearance constraint set "
+                f"but the validator still measures {v.measured_mm:.3f}mm "
+                f"copper-to-copper < {v.required_mm}mm required -- the box "
+                "separation the solver SAT did NOT imply the validator's exact "
+                "copper separation (encoding unsound for this solve)"
+            ),
+        )
+    return (
+        "gap",
+        (
+            "pair is NOT in the solve's domain-clearance constraint set -- the "
+            "generator's component_refs filter or the intra-footprint exemption "
+            "excluded it (solver-validator pair-set misalignment)"
+        ),
+    )
+
+
 def audit_domain_clearance_validator(
     constraints: list[SeparatedConstraint],
     resolved_positions_mm: dict[str, tuple[float, float]],
@@ -360,11 +312,6 @@ def audit_domain_clearance_validator(
     placement's refs, raises ``ValueError`` (programmer error -- the
     alternative is a vacuous pass over the wrong geometry).
 
-    The audit SEQUENCING is delegated to ``temper_orchestration``'s
-    ``audit_domain_clearance_validator`` (unit U-I); the exact validator,
-    ``build_validator_placement`` and the result dataclasses stay Python
-    (the U-I boundary). The public API is unchanged.
-
     Args:
         constraints: the domain-clearance SeparatedConstraint list the solve
             encoded (id prefix ``domain_clearance_``). Only the *pair set*
@@ -388,13 +335,107 @@ def audit_domain_clearance_validator(
             overlap with ``resolved_positions_mm`` -- the placement does not
             describe the solve, so auditing it would be vacuous.
     """
-    return _orch.audit_domain_clearance_validator(
-        constraints,
-        resolved_positions_mm,
-        resolved_rotations,
-        placement,
-        voltage_domains,
-        netlist_or_parse_result,
+    components = placement.get("components", [])
+    if not components:
+        raise ValueError(
+            "audit_domain_clearance_validator: placement carries zero "
+            "components -- re-running the REQ-SAFE-01 validator on it would "
+            "vacuous-pass against an empty board; the placement does not "
+            "describe the solve (programmer error)"
+        )
+    placement_refs = {c.get("ref") for c in components if isinstance(c.get("ref"), str)}
+    solved_refs = set(resolved_positions_mm)
+    if not placement_refs or not (placement_refs & solved_refs):
+        raise ValueError(
+            "audit_domain_clearance_validator: solved resolved_positions_mm "
+            f"refs {sorted(solved_refs)} share no overlap with the placement's "
+            f"component refs {sorted(placement_refs)} -- the placement does "
+            "not describe the solve, so re-running the validator on it would "
+            "audit the wrong geometry (programmer error)"
+        )
+
+    validator_placement = build_validator_placement(
+        placement, resolved_positions_mm, resolved_rotations, netlist_or_parse_result
+    )
+    result = verify_iec60335_compliance(validator_placement, voltage_domains)
+    stats = dict(result.stats or {})
+
+    # Geometry trust: a component without pads is modelled as a zero-extent
+    # point -- an OPTIMISTIC upper bound on copper separation (the run-B lie
+    # direction: can miss violations, never invent them). Surface that state
+    # loudly instead of letting a clean audit look like a proof of copper.
+    components_without_pads = list(stats.get("components_without_pads", ()) or ())
+    origin_modelled_pairs = sum(
+        int(row.get("pairs_origin_modelled", 0) or 0) for row in stats.get("rows", [])
+    )
+    geometry_trusted = not components_without_pads and origin_modelled_pairs == 0
+    if not geometry_trusted:
+        logger.error(
+            "REQ-SAFE-01 validator post-solve audit ran with DEGRADED geometry: "
+            "%d component(s) carry no pads (%s) and %d candidate pair(s) were "
+            "measured ORIGIN-TO-ORIGIN -- those figures are an OPTIMISTIC "
+            "upper bound on true copper-to-copper separation (the run-B lie "
+            "direction), so audit.geometry_trusted=False. Supply `pads` on "
+            "every placement component before treating a clean audit as proof "
+            "of copper separation.",
+            len(components_without_pads),
+            ", ".join(sorted(components_without_pads)) or "?",
+            origin_modelled_pairs,
+        )
+
+    covered_pairs: set[frozenset[str]] = {
+        frozenset((c.a, c.b))
+        for c in constraints
+        if isinstance(c.a, str) and isinstance(c.b, str)
+    }
+
+    hard: list[DomainClearanceValidatorViolation] = []
+    intra: list[DomainClearanceValidatorViolation] = []
+    gaps: list[DomainClearanceValidatorViolation] = []
+
+    for v in result.violations:
+        bucket, reason = _classify_violation(v, covered_pairs)
+        violation = DomainClearanceValidatorViolation(
+            ref_a=v.ref_a or "?",
+            ref_b=v.ref_b or "?",
+            boundary=v.boundary or "?",
+            insulation_type=(
+                v.insulation_type.value if v.insulation_type is not None else "?"
+            ),
+            metric=v.metric or "?",
+            measured_mm=v.measured_mm if v.measured_mm is not None else float("nan"),
+            required_mm=v.required_mm if v.required_mm is not None else float("nan"),
+            pair_kind=v.pair_kind or ("intra" if v.ref_a == v.ref_b else "inter"),
+            closest_pads=v.closest_pads,
+            reason=reason,
+        )
+        if bucket == "hard":
+            hard.append(violation)
+        elif bucket == "intra":
+            intra.append(violation)
+        else:
+            gaps.append(violation)
+
+    if result.violations:
+        logger.info(
+            "REQ-SAFE-01 validator post-solve audit: %d violation(s) -> "
+            "%d hard, %d intra-footprint, %d coverage-gap over %d constrained "
+            "pair(s)",
+            len(result.violations),
+            len(hard),
+            len(intra),
+            len(gaps),
+            len(covered_pairs),
+        )
+
+    return DomainClearanceValidatorAuditResult(
+        hard_failures=hard,
+        intra_footprint=intra,
+        coverage_gaps=gaps,
+        covered_pair_count=len(covered_pairs),
+        validator_violation_count=len(result.violations),
+        stats=stats,
+        geometry_trusted=geometry_trusted,
     )
 
 
