@@ -1181,7 +1181,7 @@ scripts:
 - path: check_traceability.py
   purpose: Verify @req() tags in code match plan requirements
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-12'
   category: keep
   disposition: utility
   imports:
