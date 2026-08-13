@@ -27,9 +27,11 @@ existing infrastructure built for exactly this:
   corridor mask.
 
 **The obstacle grid this module builds is deliberately narrow: existing
-OTHER-net F.Cu copper (already buffered by ``OTHER_NET_CLEARANCE_MM`` --
-the exact polygon ``_collect_other_net_copper`` already computes for via
-placement, reused here rather than re-derived) plus the HV/SELV keepout
+OTHER-net F.Cu copper (already buffered by the real per-NET-PAIR
+clearance -- the exact polygon
+``collect_other_net_copper_by_pairwise_clearance`` below computes, which
+since 2026-08-12 is also the one both generators use for via placement,
+so there is one obstacle model rather than two) plus the HV/SELV keepout
 plus, for power islands, this run's own earlier-rail copper.** Passing
 ``clearance=0.0`` to `corridor_mask_for_net` and the net's own
 ``trace_width`` means erosion only has to add the trace's OWN half-width
@@ -110,7 +112,8 @@ WINDOW_PADDINGS_MM: tuple[float | None, ...] = (15.0, 40.0, 100.0, None)
 # Fallback obstacle clearance for a net whose class cannot be resolved at
 # all (should not happen for a real board -- `Default` is always present
 # in `net_settings.classes` -- but a defensive floor is cheap insurance).
-# NOT a reuse of `_ground_plane.OTHER_NET_CLEARANCE_MM` (0.05mm) -- see
+# NOT a reuse of `_ground_plane.OTHER_NET_CLEARANCE_MM` (0.05mm until
+# 2026-08-12, now the DRU floor) -- see
 # `resolve_netclass_clearances`'s docstring for why a single flat
 # constant (that one, or an earlier version of this module that used a
 # flat 0.5mm here) is the wrong shape for this problem at all, not just
@@ -555,13 +558,18 @@ def corridor_aware_spanning_edges(
     0) is not skipped outright -- a small growing-radius search looks
     for the nearest labelled cell nearby and uses that component
     instead. This matters in practice, not just in theory: via/pad drop
-    points are placed by `_find_via_drop_point` against
-    `OTHER_NET_CLEARANCE_MM` (0.05mm), a looser standoff than the real
-    per-pair clearance this module's own obstacle grid enforces (0.2-
-    0.5mm here) -- so a legally-placed via can sit closer to foreign
-    copper than THIS grid's corridor mask allows, landing its own exact
-    cell just outside the mask even though the mask is free one or two
-    cells away. Measured directly (`gnd`, 2026-08-12): treating "own
+    points are placed by `_find_via_drop_point` against an obstacle
+    polygon that, until 2026-08-12, was a flat `OTHER_NET_CLEARANCE_MM`
+    (0.05mm) -- a looser standoff than the real per-pair clearance this
+    module's own obstacle grid enforces (0.2-0.5mm here) -- so a
+    legally-placed via could sit closer to foreign copper than THIS
+    grid's corridor mask allows, landing its own exact cell just outside
+    the mask even though the mask is free one or two cells away. Both
+    now use the same per-pair polygon, which narrows but does not close
+    the gap (a via's own 0.8mm body is buffered differently from a
+    0.4mm backbone trace), so the search below is still load-bearing.
+    Measured directly (`gnd`, 2026-08-12, at the 0.05mm standoff):
+    treating "own
     cell unlabelled" as "unreachable" cost 52 of 86 positions their
     component membership outright, most of which had a labelled
     neighbour within 2-3 cells -- `route_edge_astar` itself does not

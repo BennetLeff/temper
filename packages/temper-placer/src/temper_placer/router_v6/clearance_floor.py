@@ -67,6 +67,33 @@ What this module provides
 rasteriser so the emitted geometry clears ``DEFAULT_ROUTING_CLEARANCE_MM``
 with the fewest lattice steps, never below the net class's own declared
 clearance where that is stricter.
+
+``required_clearance_mm(declared)`` -- the plain *gap*, for the reservations
+that are NOT rasterised.
+
+Two reservation shapes, two different numbers
+---------------------------------------------
+Not every copper generator reserves through the lattice stamp above, and
+handing ``blocking_clearance_mm``'s output to one that doesn't would be
+the original defect a third time, in yet another direction.
+
+* **Rasterised** reservations (``mark_segment_rect`` via
+  ``OccupancyGrid.mark_path_blocked``) quantise: ``ceil(radius/cell)``
+  cells, Chebyshev. The achieved gap is a step function of the input, so
+  the input must be *converted* -- ``blocking_clearance_mm``.
+* **Exact-geometry** reservations -- a shapely ``buffer()`` of foreign
+  copper (``_ground_plane._collect_other_net_copper``,
+  ``_corridor_backbone.collect_other_net_copper_by_pairwise_clearance``),
+  or an erosion of the free area before it is sampled
+  (``build_occupancy_grid``'s ``available_area.buffer(-inflation)``) --
+  do not quantise in the unsafe direction. A point outside a polygon
+  buffered by ``c`` is at least ``c`` from it, full stop; a grid cell
+  whose *centre* survives an erosion by ``w/2 + c`` puts a ``w``-wide
+  trace centred there at least ``c`` from the obstacle. For those the
+  required gap IS the parameter, and ``required_clearance_mm`` is what
+  they must use.
+
+Both live here so the DRU floor they share is declared exactly once.
 """
 
 from __future__ import annotations
@@ -82,6 +109,28 @@ DEFAULT_ROUTING_CLEARANCE_MM = 0.2
 #: ``create_occupancy_grid(cell_size=0.1)``), which is what the production
 #: pipeline builds its layer grids at.
 ROUTING_GRID_CELL_MM = 0.1
+
+
+def required_clearance_mm(
+    declared_clearance_mm: float = 0.0,
+    floor_mm: float = DEFAULT_ROUTING_CLEARANCE_MM,
+) -> float:
+    """The edge-to-edge gap a reservation must actually deliver.
+
+    ``max(declared, floor)`` -- RULE 10's floor is a floor and never a
+    cap, so a class asking for 6.0mm still gets 6.0mm.
+
+    This is the value for **exact-geometry** reservations (shapely
+    buffers, free-area erosions): see this module's docstring for why
+    those must NOT use ``blocking_clearance_mm``, whose return value is a
+    rasteriser input pre-compensated for ``ceil()`` quantisation and is
+    therefore *smaller* than the gap it delivers (0.150 for a 0.20mm
+    Default trace that needs a 0.2000mm gap). Passing that to a shapely
+    buffer would reserve 0.15mm against a 0.2mm rule -- the same
+    under-reservation defect, re-introduced by over-generalising its own
+    fix.
+    """
+    return max(float(declared_clearance_mm or 0.0), float(floor_mm))
 
 
 def rasterised_pitch_mm(

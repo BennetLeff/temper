@@ -61,6 +61,8 @@ from pathlib import Path
 
 from shapely.geometry import LineString, Point, Polygon
 
+from temper_placer.router_v6.clearance_floor import required_clearance_mm
+
 logger = logging.getLogger(__name__)
 
 GND_NET_NAME = "gnd"
@@ -98,18 +100,31 @@ BOARD_EDGE_MARGIN_MM = 1.0
 # Generic (non-HV) copper clearance this module keeps its own new copper
 # (drop vias, MST backbone segments) away from every OTHER net's existing
 # F.Cu/B.Cu copper. Not a creepage figure -- ordinary electrical clearance.
-# Sized from this board's own netclasses (pcb/temper.kicad_pro
-# net_settings.classes): Default 0.2mm, Power 0.5mm, GateDriveHV/SELV
-# 0.25mm are the classes gnd's new copper can actually land next to (every
-# HV-netclass pairing -- HighVoltage 2.0mm, HighVoltageIsolated/ACMains
-# 6.0mm -- is already dominated by the much larger HV creepage keepout
-# below, so this constant only has to cover the SELV-domain worst case).
-# 0.5mm is that worst case with no extra headroom added, deliberately not
-# padded further: padding it hurts MST routability (see
-# mst_edges/_blocked's one-bend detour, which becomes less likely to find a
-# clear waypoint as more of F.Cu is excluded) for diminishing DRC benefit
-# once tracks_crossing (a strict topological violation) is fixed outright.
-OTHER_NET_CLEARANCE_MM = 0.05
+#
+# 2026-08-12: was a hard-coded ``0.05``, against a DRU that grades every
+# track-involving pair at 0.2mm (``generate_kicad_dru.py`` RULE 10). The
+# comment that shipped with it (52c9f176e, #1033) argued its way to
+# **0.5mm** -- "0.5mm is that worst case with no extra headroom added" --
+# and then assigned 0.05, a tenth of the number the prose had just
+# derived. That is not a documented trade; the file's own justification
+# and its value never agreed. See
+# docs/evidence/2026-08-12-plane-backbone-clearance-floor.md sec 2.
+#
+# It is now derived from the single declaration of the DRU floor
+# (``clearance_floor.DEFAULT_ROUTING_CLEARANCE_MM``, also
+# ``netclass_rules.yaml::default_clearance_mm`` and
+# ``pcb/temper.kicad_pro``'s ``Default`` class) rather than restated.
+# ``required_clearance_mm`` and not ``blocking_clearance_mm``: every use
+# below is a shapely ``buffer()``, i.e. an EXACT reservation, not the
+# lattice stamp ``blocking_clearance_mm`` pre-compensates for -- see
+# ``clearance_floor``'s module docstring.
+#
+# This is a floor for the pairings this constant still covers on its own.
+# The per-NET-PAIR requirement (Power 0.5mm, HighVoltage 2.0mm, ...) is
+# stricter for some pairs and is resolved properly by
+# ``_corridor_backbone.collect_other_net_copper_by_pairwise_clearance``,
+# which the via-placement obstacle below now uses too.
+OTHER_NET_CLEARANCE_MM = required_clearance_mm()
 
 # Minimum edge-to-edge gap this module keeps between a new drop via's own
 # drill and any EXISTING drilled hole (another net's via or through-hole
@@ -347,58 +362,6 @@ def _collect_hv_copper_geometry(
     # trail): a residual creepage violation directly against an existing
     # HV zone's real fill, near but not at an HV pad/track/via, is
     # possible and not covered by this function.
-    if not geoms:
-        return None
-    return unary_union(geoms)
-
-
-def _collect_other_net_copper(
-    pcb, exclude_net: str, layer: str, clearance_mm: float
-) -> Polygon | None:
-    """Union of every pad/track/via belonging to a net OTHER than
-    *exclude_net* that has copper on *layer*, each buffered by its own
-    physical half-extent plus *clearance_mm*.
-
-    Used to keep the MST backbone (F.Cu) and drop vias (F.Cu + B.Cu) off
-    every other net's existing copper -- measured against this board
-    (2026-08-11): the first version of this module placed both with zero
-    awareness of anything already on F.Cu/B.Cu, landing 32 tracks_crossing
-    and the bulk of a +122 clearance / +45 solder_mask_bridge delta
-    against other nets' pads and tracks it never checked.
-    """
-    from shapely.ops import unary_union
-
-    from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
-
-    geoms: list = []
-    for comp in getattr(pcb, "components", []):
-        for pin in getattr(comp, "pins", []):
-            if not pin.net or pin.net == exclude_net:
-                continue
-            raw_layer = pin_world_layer(pin)
-            on_layer = raw_layer in ("all", "*.Cu", layer) or (
-                isinstance(raw_layer, str) and "Through" in raw_layer
-            )
-            if not on_layer:
-                continue
-            pos = pin_world_position(pin, comp)
-            pad_radius = max(pin.width, pin.height) / 2.0
-            geoms.append(Point(pos).buffer(pad_radius + clearance_mm, quad_segs=8))
-
-    for track in getattr(pcb, "tracks", []):
-        if track.net == exclude_net or track.layer != layer:
-            continue
-        geoms.append(
-            LineString([track.start, track.end]).buffer(
-                track.width / 2.0 + clearance_mm, quad_segs=8
-            )
-        )
-
-    for via in getattr(pcb, "vias", []):
-        if via.net == exclude_net or layer not in getattr(via, "layers", ()):
-            continue
-        geoms.append(Point(via.position).buffer(via.diameter / 2.0 + clearance_mm, quad_segs=8))
-
     if not geoms:
         return None
     return unary_union(geoms)
@@ -720,17 +683,39 @@ def generate_ground_plane_content(
     if keepout_established:
         plane_region = plane_region.difference(keepout)
 
-    # Generic (non-HV) clearance from every OTHER net's existing copper --
-    # separate from (much smaller than) the HV creepage keepout above, and
-    # only used to steer the MST backbone (F.Cu) and drop vias (F.Cu +
+    # Real, per-NET-PAIR clearance from every OTHER net's existing copper
+    # -- separate from (much smaller than) the HV creepage keepout above,
+    # and only used to steer the MST backbone (F.Cu) and drop vias (F.Cu +
     # B.Cu) around it, never to clip the pour itself (In1.Cu carries no
     # pre-existing copper of any kind, so there is nothing on that layer
     # for the pour to clash with).
-    other_copper_fcu = _collect_other_net_copper(
-        pcb, GND_NET_NAME, "F.Cu", OTHER_NET_CLEARANCE_MM
+    #
+    # 2026-08-12: this used to buffer every foreign net by a single flat
+    # ``OTHER_NET_CLEARANCE_MM`` (0.05mm at the time), and the corridor-
+    # aware A* pass below had to build its OWN, per-pair-correct polygon
+    # to avoid inheriting that. Two obstacle models for one obstacle is
+    # exactly how the 0.05 survived: the backbone got the right one and
+    # via placement kept the wrong one. There is now one, and it is the
+    # per-pair one -- ``max(gnd's own clearance, that net's clearance)``,
+    # read from the same ``.kicad_pro`` kicad-cli resolves netclasses
+    # from, floored at the DRU's own RULE 10 figure via
+    # ``resolve_netclass_clearances``' defaults and
+    # ``OTHER_NET_CLEARANCE_MM``.
+    from temper_placer.router_v6._corridor_backbone import (
+        collect_other_net_copper_by_pairwise_clearance,
+        resolve_netclass_clearances,
     )
-    other_copper_bcu = _collect_other_net_copper(
-        pcb, GND_NET_NAME, "B.Cu", OTHER_NET_CLEARANCE_MM
+
+    kicad_pro_path = pcb_path.with_suffix(".kicad_pro")
+    net_clearance, default_clearance = resolve_netclass_clearances(kicad_pro_path)
+    gnd_own_clearance = max(
+        net_clearance.get(GND_NET_NAME, default_clearance), OTHER_NET_CLEARANCE_MM
+    )
+    other_copper_fcu = collect_other_net_copper_by_pairwise_clearance(
+        pcb, GND_NET_NAME, "F.Cu", net_clearance, gnd_own_clearance, default_clearance
+    )
+    other_copper_bcu = collect_other_net_copper_by_pairwise_clearance(
+        pcb, GND_NET_NAME, "B.Cu", net_clearance, gnd_own_clearance, default_clearance
     )
     via_avoid_parts = [g for g in (other_copper_fcu, other_copper_bcu) if g is not None]
     via_avoid_copper: Polygon | None = None
@@ -958,29 +943,21 @@ def generate_ground_plane_content(
     from temper_placer.core.topology import UnionFind
     from temper_placer.router_v6._corridor_backbone import (
         build_obstacle_grid,
-        collect_other_net_copper_by_pairwise_clearance,
         compute_corridor_mask,
         corridor_aware_spanning_edges,
-        resolve_netclass_clearances,
     )
 
-    # A separate, per-net-pair-correct clearance polygon for the A*
-    # obstacle grid -- NOT other_copper_fcu (built above at
-    # OTHER_NET_CLEARANCE_MM=0.05mm for via placement). See
-    # resolve_netclass_clearances's docstring for why a single flat
-    # constant (0.05mm, or an earlier version of this fix that tried a
-    # flat 0.5mm) is the wrong shape for this problem, not just the
-    # wrong number: this board's real, kicad-cli-enforced clearance is
-    # per NET-CLASS PAIR (0.2mm Default-vs-Default, 0.5mm against Power,
-    # etc.), read directly from pcb/temper.kicad_pro -- the same file
-    # kicad-cli itself resolves netclasses from.
-    kicad_pro_path = pcb_path.with_suffix(".kicad_pro")
-    net_clearance, default_clearance = resolve_netclass_clearances(kicad_pro_path)
-    gnd_own_clearance = net_clearance.get(GND_NET_NAME, default_clearance)
-    other_copper_fcu_backbone = collect_other_net_copper_by_pairwise_clearance(
-        pcb, GND_NET_NAME, "F.Cu", net_clearance, gnd_own_clearance, default_clearance
-    )
-    backbone_grid = build_obstacle_grid(board_polygon, [keepout, other_copper_fcu_backbone])
+    # The per-net-pair-correct clearance polygon for the A* obstacle grid
+    # is now the SAME ``other_copper_fcu`` via placement uses (built once,
+    # above). Until 2026-08-12 these were two different polygons -- this
+    # one per-pair, via placement's a flat 0.05mm -- which is precisely
+    # how the 0.05 survived being noticed: whoever read this site saw the
+    # correct model and whoever read that one saw the constant. The
+    # per-pair figure is this board's real, kicad-cli-enforced
+    # requirement (0.2mm Default-vs-Default, 0.5mm against Power, ...),
+    # read from pcb/temper.kicad_pro -- the same file kicad-cli itself
+    # resolves netclasses from.
+    backbone_grid = build_obstacle_grid(board_polygon, [keepout, other_copper_fcu])
     backbone_corridor_mask = compute_corridor_mask(backbone_grid, STITCH_TRACE_WIDTH_MM)
 
     # Component-aware, not Euclidean-MST-topology-locked: attempting A*

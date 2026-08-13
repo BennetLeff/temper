@@ -90,6 +90,70 @@ def test_p4_ignores_assignments_at_or_above_the_floor(tmp_path, monkeypatch):
     assert gate.run() == 0
 
 
+def test_p6_catches_the_pre_fix_plane_backbone_constant(tmp_path, monkeypatch, capsys):
+    """The exact shape ``_ground_plane.py``/``_power_islands.py`` carried
+    from 2026-08-11 (``52c9f176e``) to 2026-08-12 -- the third instance of
+    the defect, in a place P4 structurally could not see."""
+    module = tmp_path / "_ground_plane.py"
+    module.write_text(
+        textwrap.dedent(
+            """
+            BOARD_EDGE_MARGIN_MM = 1.0
+            OTHER_NET_CLEARANCE_MM = 0.05
+            MIN_HOLE_EDGE_GAP_MM = 0.5
+            """
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(gate, "ROUTER_V6", tmp_path)
+
+    assert gate._literal_clearance_writes() == [], (
+        "P4 must NOT see this -- if it did, P6 would be redundant and the "
+        "31-day survival of the 0.05 would have no explanation"
+    )
+    assert [(c[2], c[3]) for c in gate._literal_clearance_constants()] == [
+        ("OTHER_NET_CLEARANCE_MM", 0.05)
+    ]
+
+    assert gate.run() == 1
+    out = capsys.readouterr().out
+    assert "P6" in out
+    assert "OTHER_NET_CLEARANCE_MM" in out
+
+
+def test_p6_ignores_a_constant_derived_from_the_floor(tmp_path, monkeypatch):
+    """Deriving from ``clearance_floor`` is the shape the gate wants, and a
+    call expression is not an ``ast.Constant`` -- so the derived form is
+    invisible to P6 by construction, not by a special case."""
+    (tmp_path / "m.py").write_text(
+        "OTHER_NET_CLEARANCE_MM = required_clearance_mm()\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(gate, "ROUTER_V6", tmp_path)
+    assert gate._literal_clearance_constants() == []
+    assert gate.run() == 0
+
+
+def test_p6_ignores_a_constant_at_or_above_the_floor(tmp_path, monkeypatch):
+    (tmp_path / "m.py").write_text("INTER_RAIL_CLEARANCE_MM = 0.4\n", encoding="utf-8")
+    monkeypatch.setattr(gate, "ROUTER_V6", tmp_path)
+    assert gate._literal_clearance_constants() == [
+        (tmp_path / "m.py", 1, "INTER_RAIL_CLEARANCE_MM", 0.4)
+    ]
+    assert gate.run() == 0
+
+
+def test_p6_is_module_level_only(tmp_path, monkeypatch):
+    """A local inside a function is a parameter default or a scratch value,
+    not a declared reservation -- P6 deliberately does not reach into
+    function bodies, so it cannot fire on unrelated arithmetic."""
+    (tmp_path / "m.py").write_text(
+        "def f():\n    LOCAL_CLEARANCE_MM = 0.05\n    return LOCAL_CLEARANCE_MM\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(gate, "ROUTER_V6", tmp_path)
+    assert gate._literal_clearance_constants() == []
+
+
 def test_p1_catches_yaml_drift(tmp_path, monkeypatch, capsys):
     rules = tmp_path / "netclass_rules.yaml"
     rules.write_text("default_clearance_mm: 0.15\nclasses: {}\n", encoding="utf-8")
