@@ -183,15 +183,36 @@ HV_TANK_CREEPAGE_PD3_MM: float = 10.0
 DEFAULT_TANK_CREEPAGE_MM: float = HV_TANK_CREEPAGE_PD3_MM
 
 
+#: Classes this module treats as equivalent to "HighVoltage" for Group B
+#: membership (module docstring: "the SAME 16-net classification ... uses
+#: to scope its own DRU rule's B-side"). UPDATED 2026-08-13 (docs/evidence/
+#: 2026-08-13-netclass-current-scoping.md): HighVoltageSignal was carved out
+#: of HighVoltage that day (current-band re-scope, not a domain change --
+#: same clearance/creepage/voltage_v/safety_category) and generate_kicad_dru.py's
+#: own "HighVoltageTank functional creepage" rule (the DRU rule this module
+#: mirrors) was extended to include it on the same day. Without this update,
+#: every component whose only HV-classifying pin moved to HighVoltageSignal
+#: (measured: K2, R7, R12, R19, R23, U8 on the real board) would silently
+#: drop out of Group B here while remaining fully protected at the DRU/DRC
+#: level -- a placement-time-only coverage gap this module's own docstring
+#: says should not exist. HighVoltageTank is deliberately NOT included here:
+#: that is a separate, PRE-EXISTING gap (this literal-string check already
+#: excluded HighVoltageTank before this task), not one this task introduced,
+#: and fixing it is a larger, independent decision outside this task's scope.
+_HV_EQUIVALENT_CLASSES: frozenset[str] = frozenset({"HighVoltage", "HighVoltageSignal"})
+
+
 def _hv_net_names(net_class_map: dict[str, str] | None = None) -> frozenset[str]:
-    """Every net classified ``"HighVoltage"`` in ``TEMPER_NET_ASSIGNMENTS``
-    (or a caller-supplied override map, for tests)."""
+    """Every net classified ``"HighVoltage"`` (or an equivalent current-band
+    carve-out, see :data:`_HV_EQUIVALENT_CLASSES`) in
+    ``TEMPER_NET_ASSIGNMENTS`` (or a caller-supplied override map, for
+    tests)."""
     if net_class_map is None:
         from temper_placer.core.design_rules import (
             TEMPER_NET_ASSIGNMENTS as net_class_map,  # noqa: N806
         )
 
-    return frozenset(net for net, cls in net_class_map.items() if cls == "HighVoltage")
+    return frozenset(net for net, cls in net_class_map.items() if cls in _HV_EQUIVALENT_CLASSES)
 
 
 def tank_node_refs(netlist: Netlist) -> frozenset[str]:

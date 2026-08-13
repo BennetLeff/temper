@@ -204,6 +204,59 @@ unenforced classes, after the DRU threading in Section 3).
   class-set assertions bumped 12->13 classes, following the same tests'
   own established convention (each prior class addition bumped these same
   two assertions; git blame on both confirms this, not a new practice).
+- `packages/temper-placer/src/temper_placer/placer/cp_sat/tank_creepage.py`
+  — see 3.4. This is the one non-DRU, non-netclass-table file this task
+  touches, and it is touched only because its own docstring commits it to
+  mirroring the exact DRU rule this task's Section 3.2 modified.
+
+### 3.4 A real regression caught by running the tests, not just the gates: `tank_creepage.py`
+
+`tank_creepage.py`'s `other_hv_refs()` computes, for the CP-SAT placer's
+tank-node creepage constraint, "every component with a pad on any net
+classified `HighVoltage`" — its own docstring says this is **deliberately
+the same population** RULE 5a (`generate_kicad_dru.py`, Section 3.2) scopes
+on its B-side, just at component-box granularity instead of copper
+granularity. Section 3.2 extended RULE 5a's B-side to include
+`HighVoltageSignal`; `tank_creepage.py`'s own `_hv_net_names()` helper
+still filtered on the literal string `"HighVoltage"` only. Caught by
+`pytest packages/temper-placer/tests/placer/cp_sat/test_tank_creepage.py`
+(not a lint or grep): `TestGroupMembership.test_other_hv_refs_excludes_tank_refs`
+failed because real components (`K2`, `R7`, `R12`, `R19`, `R23`, `U8` —
+measured directly) dropped out of the CP-SAT placement model's protected
+set the moment their only `HighVoltage`-classifying pin moved to
+`HighVoltageSignal` — a placement-time-only coverage regression, even
+though the DRU/DRC level stayed fully protected (Section 3.2's threading).
+
+Fixed by adding a module-scoped `_HV_EQUIVALENT_CLASSES = {"HighVoltage",
+"HighVoltageSignal"}` and filtering on membership in that set instead of
+equality to one string. Verified: `other_hv_refs()` against the real board
+returns the exact same 45-ref set with this fix as it does against an
+**unmodified** `TEMPER_NET_ASSIGNMENTS` (checked directly, not inferred) —
+full parity restored. `HighVoltageTank` is deliberately **not** added to
+this set: that literal-string exclusion already existed before this task
+(confirmed against the unmodified module) and is a separate, pre-existing
+gap this task did not introduce and does not fix under this heading.
+
+**A related, wider finding, flagged and NOT fixed here**: `git grep '"HighVoltage"'`
+across `packages/temper-placer/src` finds this same literal-string-equality
+shape in at least 9 more files (`metrics/physics.py`,
+`deterministic/stages/_phase_rotation.py`, `_constraint_types/config.py`,
+`validation/metrics.py`, `pipeline/preflight.py`, `placer/cp_sat/feedback.py`,
+`router_v6/net_ordering.py`, `regression/physics_oracle.py`,
+`router_v6/constraints_design_rules.py`). Every test suite covering these
+modules was run (`test_physics.py`, `test_physics_coverage.py`,
+`test_preflight.py` x2, `test_physics_oracle_rust_differential.py`,
+`test_net_ordering*.py`, `test_kicad_connectivity_preflight.py`,
+`test_feedback*.py`, `test_phase_rotation_pbt.py`) and **all pass** —
+empirically, none of these are exercised in a way that catches a
+`HighVoltageSignal`-shaped gap the way `tank_creepage.py`'s own test did.
+That is evidence of no *currently-detected* regression, not proof of no
+gap — a systematic audit of whether each of these 9 sites' *intent* is
+"nets classified exactly `HighVoltage`" or "nets in the same physical HV
+domain as `HighVoltage`" is a separate, larger task this one does not
+undertake wholesale (mirroring this project's own established convention
+of fixing what a concrete, measured failure names, not auditing an entire
+pattern speculatively).
 
 `pcb/temper.kicad_pcb` is untouched (`git status --porcelain pcb/temper.kicad_pcb`
 empty at every commit on this branch).
@@ -288,9 +341,17 @@ logic itself.
 | `pytest packages/temper-placer/tests/core/test_design_rules_rust_differential.py` | 26/29 pass; the 3 failures (`gnd`/`PWR_RTN` GND-class drift) are confirmed byte-identical on unmodified `origin/main` — pre-existing, unrelated, reserved for a human decision per that module's own docstring |
 | `pytest` — `test_design_rules.py`, `test_netclass_loader.py`, `test_design_rules_field_parity.py`, `test_design_rules_pbt.py`, `pcl/test_netclass_constraints.py`, `pcl/test_netclass_feedback.py`, `pcl/test_e2e_netclass_ssot.py`, `validation/test_drc_unresolved_netclass_fails_closed.py` | 78/78 pass after updating 2 class-count assertions (12->13) that both tests' own history shows are meant to move on every class addition |
 | `scripts/tests/test_generate_kicad_dru.py`, `test_check_hv_netclass_coverage.py`, `test_check_netclass_class_param_correspondence.py`, `test_check_netclass_map_board_correspondence.py`, `test_sync_kicad_netclass_assignments.py` | 147/151 pass; the 4 failures are the same pre-existing `gnd`/`PWR_RTN`/`CGND` drift, confirmed identical on unmodified `origin/main` |
+| `pytest packages/temper-placer/tests/placer/cp_sat/test_tank_creepage.py` | 14/15 pass after the 3.4 fix; the 1 remaining failure (`test_pair_count_matches_measured_board`, hardcoded `4*42`) is confirmed stale **even against an unmodified `TEMPER_NET_ASSIGNMENTS`** (measured: 45 refs, not 42, with zero netclass changes applied) — pre-existing, unrelated, not fixed under this heading |
+| `pytest packages/temper-placer/tests/router_v6/test_zone_emission_clustering_rust_differential.py` | 22/22 pass |
+| `pytest` sweep of 9 files behind the literal-`"HighVoltage"` pattern (physics/preflight/net-ordering/feedback/physics-oracle) | all pass — see 3.4 |
+| `pytest packages/temper-placer/tests/placer/cp_sat/test_physics_gate.py` | 6/21 fail, confirmed **identical** against an unmodified `TEMPER_NET_ASSIGNMENTS` (same error both ways: `"No resolvable project ... call copy_kicad_project_sidecar"`) — a pre-existing test-fixture/environment issue, unrelated to netclass content |
+| `pytest packages/temper-placer/tests/placer/cp_sat/test_regression_drc.py` | 2/2 fail — **see Section 4.4, not swept under either the pre-existing or the "no action needed" bucket** |
 
-No test failure introduced by this task; every failure present on this
-branch is present, byte-for-byte identical, on unmodified `origin/main`.
+No test failure introduced by this task except the two named in Section
+4.4, which are the deliberate, measured, out-loud finding this task's own
+brief asked for rather than a defect to silently fix. Every other failure
+present on this branch is present, byte-for-byte identical, on unmodified
+`origin/main`.
 
 ## 4. Measurement
 
@@ -394,6 +455,65 @@ territory, not netclass/DRU territory; this task does not re-run the
 placer and does not move any component, so whatever that feasibility state
 is today, it is identical before and after this diff.
 
+### 4.4 `test_regression_drc.py` fails against the COMMITTED board — this is the finding, not a defect, and it is not hidden
+
+`packages/temper-placer/tests/placer/cp_sat/test_regression_drc.py` runs
+kicad-cli DRC against `pcb/temper.kicad_pcb` **exactly as committed** (its
+own docstring: "the actual ship target"), using whatever
+`generate_kicad_dru.py` emits for the currently-checked-out
+`design_rules.py`. Two of its tests fail on this branch:
+
+1. **`test_production_board_drc_regression`**: median DRC total **1648**,
+   against a ratchet threshold of **1425**
+   (`PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS`, last set 2026-08-03).
+   By category (last run): `track_width` 199 (capped — the true count is
+   higher, `measure_uncapped_drc.py` territory), `clearance` 461, `creepage`
+   199 (also capped). **This is the direct, expected, measured consequence
+   of raising the DRU's minimum width requirement (`HighVoltage`/
+   `HighVoltageTank` 3.0mm->5.0mm, `ACMains` 2.5mm->3.0mm) without
+   re-routing the committed board.** The committed board's copper was drawn
+   at the old, narrower widths (and, per PR #1119's own S5 finding, often
+   narrower still — Stage 4.4's keyword-fallback defect means declared
+   class width was frequently not what got drawn even before this task);
+   grading that same unchanged copper against a legitimately stricter
+   minimum surfaces exactly the violations this task's own brief warned it
+   would: *"If a band's correct width is not routable, report it with
+   numbers rather than trimming the width"* and *"Do not raise
+   `drc_ceiling.json`. If newly-correct widths surface violations, that is
+   the finding."* This test's own ratchet is a different file from
+   `drc_ceiling.json`, but the same principle applies and this task
+   applies it the same way: **this ratchet is deliberately NOT bumped
+   here.** Bumping it would silently launder a real, attributable,
+   measured consequence into a passing test — exactly the failure mode
+   `drc_ceiling.json`'s own approval-gate machinery exists to block for the
+   sibling file. The number above (1648, by-category breakdown included)
+   is the record of what happened; a maintainer decides from here whether
+   to re-route the committed board (the real fix — see Section 5 point 3),
+   accept a ratchet bump with the same measured-live provenance discipline
+   `drc_ceiling.json` requires, or revisit the width choice.
+2. **`test_production_board_routing_drc_regression`**: fails before
+   reaching any DRC comparison — `AttributeError: module
+   'temper_orchestration' has no attribute 'RouterPipeline'`. This is an
+   **unrelated, pre-existing shared-venv extension-staleness issue**,
+   independently encountered and documented by PR #1119 under identical
+   circumstances ("the shared venv's `temper_orchestration` extension was
+   stale (missing `RouterPipeline`...)"). This task's own baseline/
+   corrected routing runs (Section 4) used `route_board.py`, which does not
+   hit this code path and completed successfully both times — confirming
+   the failure is specific to this test's own call path into `route_pcb()`,
+   not a general routing breakage, and not something this task's diff
+   causes (`temper_orchestration` is a Rust extension; this task's diff
+   contains no Rust changes).
+
+Both failures are confirmed **not** artifacts of running the wrong
+checkout: re-run against an isolated package tree carrying the unmodified,
+pre-task `TEMPER_NET_ASSIGNMENTS`/`TEMPER_NET_CLASSES` reproduces
+failure #2 identically (the extension issue is orthogonal to any Python
+change) and does **not** reproduce failure #1 (the unmodified DRU is, by
+definition, the one the committed board's threshold was calibrated
+against) — confirming #1 really is this task's own, correctly-attributed
+consequence and not a false positive.
+
 ## 5. Recommendation
 
 1. **Land this re-scoping.** It corrects a real, measured under-build
@@ -415,3 +535,15 @@ is today, it is identical before and after this diff.
    every current-carrying net, this task's corrected values included.
 4. **The tank peak-current gap (S1.5) still needs its own owner.** Nothing
    in this task depends on it being resolved, and nothing here resolves it.
+5. **A human must decide what to do about `test_regression_drc.py`'s two
+   failures (Section 4.4) before/alongside merging.** This PR leaves
+   `test_production_board_drc_regression` red, on purpose, rather than
+   bump its ratchet without the same measured-live justification
+   `drc_ceiling.json` would require for the equivalent move — landing this
+   re-scoping and re-routing the committed board (point 3's Stage 4.4 fix
+   is a prerequisite for that re-route to actually draw the corrected
+   widths) is the change that would turn it green honestly.
+   `test_production_board_routing_drc_regression`'s failure is unrelated
+   (shared-venv extension staleness, already independently seen by PR
+   #1119) and needs a wheel refresh, not a code change, whenever the next
+   session with a clean rebuild opportunity picks it up.
