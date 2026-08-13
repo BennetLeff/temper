@@ -11,7 +11,7 @@ authority:
   board: pcb/temper.kicad_pcb
   source_export: elec/exports/temper.design-input.v1.json
   component_identity: board Sheetpath matched to source instance path
-  measured_at_commit: 96ebe489cbfb2d69e5f6dd0d76fd4889e224c2d2
+  measured_at_commit: fb00ab4f90e5b86456a9f89adf7a7d7e2f3b6107
 
 # Content-hash freshness identity (scripts/check_measurement_provenance.py),
 # added 2026-08-07. `authority.measured_at_commit` above is advisory (human
@@ -49,12 +49,30 @@ authority:
 # source export (elec/exports/temper.design-input.v1.json) is untouched --
 # this resync only wrote pcb/temper.kicad_pcb, not elec/ -- confirmed by
 # hash: still 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0.
+#
+# Re-pinned 2026-08-13 (fix/pcb-stackup-declaration, commit fb00ab4f9): STALE
+# again -- pcb/temper.kicad_pcb changed, but ONLY by adding a
+# (setup (stackup ...)) copper-weight/dielectric declaration block (no
+# stackup existed anywhere in the KiCad project before; see
+# docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md). This is a
+# pure metadata addition -- confirmed zero component moves and zero
+# Sheetpath changes: `(at ` line count (897), `(footprint ` count (168), and
+# `Sheetpath` occurrence count (168) are all identical before/after (diffed
+# byte-for-byte against the prior board with the stackup block stripped back
+# out, which reproduces the prior file exactly). Every alias/unresolved-
+# component board ref above is therefore verified unaffected without needing
+# a fresh Sheetpath->Reference re-match (the same "moved ZERO components"
+# shortcut the 2026-08-11 c4956df66 entry above used, for the same reason:
+# a change scoped entirely outside any `(footprint ...)` block cannot alter
+# which Sheetpath maps to which Reference). The source export
+# (elec/exports/temper.design-input.v1.json) is untouched -- confirmed by
+# hash: still 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0.
 provenance:
-  measured_at_commit: 96ebe489cbfb2d69e5f6dd0d76fd4889e224c2d2
+  measured_at_commit: fb00ab4f90e5b86456a9f89adf7a7d7e2f3b6107
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: b7d865b7946f55dcc0d907cccbbee12f730fd1878b30d417bd56004d1091c1d6
+      sha256: 5b2ce0f2a79c97be32a9c17e81443c3b473015e0709c6a63dce5b3913ab042ae
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
