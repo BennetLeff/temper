@@ -453,17 +453,22 @@ class TestSeedManifest:
     reason="REQ-SAFE-01 inputs (compiled netlist / domain manifest) missing",
 )
 class TestCorpusEndToEnd:
-    # ``missing-courtyard`` is a DELIBERATE, verified-uncovered class
-    # (docs/evidence/2026-08-07-missing-courtyard-and-hole-to-hole-classes.md,
-    # METHODOLOGY.md Sec. 5: "if a gate turns out not to catch its own
-    # defect class, that is a finding -- report it, do not weaken the
-    # class"). Its injector is independently self-verified
-    # (TestMutateMissingCourtyard in test_board_defect_mutator.py); its
-    # owning gate genuinely does not fire, so the corpus is honestly red on
-    # this one class until the underlying gap (kicad-cli's compiled-in
-    # ``missing_courtyard`` severity default without a project file, and
-    # ``run_drc()`` never requesting warning-severity output) is fixed.
-    _EXPECTED_UNCOVERED = {"missing-courtyard"}
+    # ``clearance`` is now the DELIBERATE, verified-uncovered class (was
+    # ``missing-courtyard`` from 2026-08-07 through 2026-08-13; see
+    # scripts/board_defect_corpus.yaml's ``missing-courtyard.uncovered_finding``
+    # addendum and ``clearance.uncovered_finding`` for the full history).
+    # Fixing ``check_board_defect_corpus.run_corpus()`` on 2026-08-13 to
+    # give its scratch clean/mutated board copies a sibling ``.kicad_pro``
+    # (via ``copy_kicad_project_sidecar`` -- the corpus's own measurements
+    # were themselves running context-blind, per
+    # ``_drc_api.DrcProjectContextError``) closed ``missing-courtyard``'s
+    # gap, but revealed that the ``clearance`` class's seeded R64/R67 pad
+    # pair no longer registers a clearance violation under the corrected,
+    # project-aware measurement -- verified across several positions
+    # including full pad overlap (METHODOLOGY.md Sec. 5: "if a gate turns
+    # out not to catch its own defect class, that is a finding -- report
+    # it, do not weaken the class").
+    _EXPECTED_UNCOVERED = {"clearance"}
 
     def test_full_corpus_covers_six_of_seven_classes(self, tmp_path):
         report = corpus.run_corpus(
@@ -480,16 +485,16 @@ class TestCorpusEndToEnd:
             (v.name, v.ok, v.gate_error, v.message) for v in report.class_verdicts
         ]
         assert covered == {
-            "off-board", "pad-short", "creepage", "clearance", "courtyard",
-            "hole-to-hole",
+            "off-board", "pad-short", "creepage", "courtyard",
+            "hole-to-hole", "missing-courtyard",
         }
         # The one uncovered class is a genuine gate gap, not an
         # infrastructure/measurement failure -- gate_error is reserved for
         # "the measurement itself broke" (KTD2), which this is not.
-        missing_courtyard_verdict = next(
-            v for v in report.class_verdicts if v.name == "missing-courtyard"
+        clearance_verdict = next(
+            v for v in report.class_verdicts if v.name == "clearance"
         )
-        assert not missing_courtyard_verdict.gate_error
+        assert not clearance_verdict.gate_error
         assert report.board_matches_manifest
 
     def test_board_change_detected_and_corpus_revalidates(self, tmp_path):

@@ -65,11 +65,32 @@ def _write_pcb(repo: Path, content: bytes = BOARD_CONTENT_V1) -> str:
     return _sha256(content)
 
 
-def _provenance(board_sha: str, **overrides: object) -> dict:
+def _head_sha(repo: Path) -> str:
+    """The repo's current HEAD commit SHA -- used so a compliant-raise
+    fixture's ``measured_at_commit`` is a real, resolvable commit object in
+    the test's own throwaway repo, not a syntactically-valid placeholder.
+
+    ``DrcRatchet.validate_raise_evidence`` batch-verifies every
+    ``measured_at_commit`` via ``check_evidence_provenance.verify_commits_exist``
+    (added after this fixture was first written) -- a fake 40-hex-char SHA
+    like ``"a" * 40`` never resolves, in ANY repo, so it fails evidence
+    validation exactly like a dangling/orphaned commit would, regardless of
+    whether the repo is shallow. This mirrors the same fix already applied
+    in ``scripts/tests/test_check_measurement_provenance.py``
+    (``_init_git_repo``/``_commit_all``) for the sibling gate that shares
+    this verification path.
+    """
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=str(repo), check=True, capture_output=True, text=True
+    )
+    return result.stdout.strip()
+
+
+def _provenance(board_sha: str, *, measured_at_commit: str, **overrides: object) -> dict:
     """A valid measured-live provenance block (the real record's shape:
     sample count in measured_via prose, the legacy default)."""
     prov: dict = {
-        "measured_at_commit": "a" * 40,
+        "measured_at_commit": measured_at_commit,
         "dirty": False,
         "inputs": [{"path": "pcb/temper.kicad_pcb", "sha256": board_sha}],
         "tool_versions": {"kicad-cli": "10.0.4"},
@@ -98,7 +119,7 @@ def _raised_compliant_ceiling(repo: Path, base: dict = BASE_CEILING) -> dict:
     entry["nondeterministic_error_types"] = {
         "clearance": {"observed": [499, 500, 501], "samples": 120, "note": "only nondeterministic category"}
     }
-    entry["provenance"] = _provenance(board_sha)
+    entry["provenance"] = _provenance(board_sha, measured_at_commit=_head_sha(repo))
     raised["_march"] = {
         "2026-07-30": "prior entry (base state)",
         "2026-08-02": "attributed cause: U3 footprint resync (commit abc123)",
@@ -230,7 +251,9 @@ class TestRaiseWithTrailerButNoCauseFails:
         raised["boards"][0]["nondeterministic_error_types"] = {
             "clearance": {"samples": 120, "observed": [499, 500, 501]}
         }
-        raised["boards"][0]["provenance"] = _provenance(board_sha)  # measurement is fine
+        raised["boards"][0]["provenance"] = _provenance(
+            board_sha, measured_at_commit=_head_sha(repo)
+        )  # measurement is fine
         # no "_march" key at all -> no attributed cause
         _write_ceiling(repo, raised)
         _commit(

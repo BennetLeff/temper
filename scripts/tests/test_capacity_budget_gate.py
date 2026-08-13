@@ -393,19 +393,27 @@ def test_classify_occupancy_no_net_entry_at_all(tmp_path):
     not (REAL_NETLIST.is_file() and REAL_BOM.is_file()),
     reason="elec/build/ is gitignored; run `make netlist` first",
 )
-def test_real_tree_reports_three_available_set_path_inputs():
+def test_real_tree_reports_two_available_set_path_inputs():
     """The falsifier for this whole gate: docs/hardware/UVL02_DESIGN.md
-    SS7.2 asserts, by survey, that exactly three SET-path inputs are
-    available on the current tree -- fault_or3.B1 (reserved for OCP-02),
-    fault_or3.C1 and fault_or3.C2 (spare) -- all created by the third
-    fan-in package added in 15b9a33b. SS7/SS7.1 recorded the earlier
-    zero-capacity state and are explicitly superseded there.
+    SS7.3 asserts, by survey, that exactly two SET-path inputs are
+    available on the current tree -- fault_or3.C1 and fault_or3.C2 (both
+    spare) -- on the third fan-in package added in 15b9a33b. SS7/SS7.1
+    recorded the earlier zero-capacity state and SS7.2 the
+    three-available state; both are explicitly superseded by SS7.3.
 
-    This asserts the three inputs *by name*, not just the count: a tree
-    that happens to expose some other three inputs must fail, because the
+    `fault_or3.B1` was SS7.2's third available input, held in reserve for
+    OCP-02. `elec/src/modules.ato` (commit `c617e0d0`, 2026-08-07,
+    "implement OCP-02 as Option A") wired `ocp2.fault.line ~ fault_or3.B1`
+    -- the deliberate, expected use of that reserved slot, not a wiring
+    defect (verified against the design docs and the commit's own message
+    before this assertion was updated; see SS7.3 for the full account).
+    `capacity_budget_gate.py` now correctly reports it OCCUPIED.
+
+    This asserts the two inputs *by name*, not just the count: a tree
+    that happens to expose some other two inputs must fail, because the
     number alone would hide a wiring change. If this test disagrees with
     the netlist, the design docs are the ground truth -- go verify against
-    UVL02_DESIGN.md SS7.2 before touching these assertions.
+    UVL02_DESIGN.md SS7.3 before touching these assertions.
     """
     netlist = load_netlist(REAL_NETLIST)
     ref_to_mpn = load_identity(REAL_BOM)
@@ -421,18 +429,29 @@ def test_real_tree_reports_three_available_set_path_inputs():
         if g.verdict == AVAILABLE
     )
     assert available == [
-        ("safety.fault_or3", "gate1", "B1"),
         ("safety.fault_or3", "gate1", "C1"),
         ("safety.fault_or3", "gate2", "C2"),
     ], (
-        f"Expected exactly fault_or3.B1/C1/C2 available (per UVL02_DESIGN.md "
-        f"SS7.2); got {available}. Investigate before adjusting this "
-        f"assertion -- the design docs are the ground truth here."
+        f"Expected exactly fault_or3.C1/C2 available (per UVL02_DESIGN.md "
+        f"SS7.3; B1 is OCCUPIED by OCP-02 as of c617e0d0); got {available}. "
+        f"Investigate before adjusting this assertion -- the design docs "
+        f"are the ground truth here."
     )
-    assert report.total_available == 3
+    assert report.total_available == 2
     assert report.total_inputs == 27  # 3 packages x 3 gates x 3 inputs
     assert len(report.packages) == 3
     assert report.defects == []
+
+    # B1 is now occupied by OCP-02 (SS7.3) -- must show up as OCCUPIED,
+    # not available, naming the real occupant, not a GND tie.
+    or3_b1 = next(
+        g
+        for g in all_results
+        if g.instance_path == "safety.fault_or3" and g.gate_name == "gate1" and g.pin_name == "B1"
+    )
+    assert or3_b1.occupancy == OCCUPIED
+    assert or3_b1.verdict != AVAILABLE
+    assert "ocp2" in or3_b1.occupant_desc
 
     # Each available input must be available for the right *reason*: its
     # own gate's output reaching the latch SET pin. A GND-tied input on a
@@ -481,11 +500,11 @@ def test_real_tree_reports_three_available_set_path_inputs():
     assert c2.occupancy == GND_TIED
     assert "reset-qualifier" in c2.reason
 
-    # --- fault_or3, the third fan-in package (15b9a33b, UVL02 SS7.2) ---
+    # --- fault_or3, the third fan-in package (15b9a33b, UVL02 SS7.2/7.3) ---
 
     # A1 is where UVL-02's fault actually landed. If this ever reverts to
     # GND_TIED, UVL-02 has been silently unwired from hardware shutdown
-    # and total_available would go 3 -> 4 while looking like "more room".
+    # and total_available would go 2 -> 3 while looking like "more room".
     or3_a1 = next(
         g
         for g in all_results
@@ -511,7 +530,7 @@ def test_real_tree_reports_three_available_set_path_inputs():
 
     # fault_or3 gate3 is dead-ended like the other two packages' gate3s --
     # headroom for a future cascade stage, deliberately NOT counted as
-    # available capacity. This is why the honest number is 3, not 6.
+    # available capacity. This is why the honest number is 2, not 6.
     or3_g3 = [
         g for g in all_results if g.gate_name == "gate3" and g.instance_path == "safety.fault_or3"
     ]
@@ -529,11 +548,12 @@ def test_real_tree_reports_three_available_set_path_inputs():
 def test_real_tree_cli_exits_zero_not_three():
     """The gate blocks only on a capacity_defect (a fault wired into a
     dead gate), which today's tree does not have -- so it must exit 0.
-    It reports 3 available inputs (UVL02_DESIGN.md SS7.2), so the
+    It reports 2 available inputs (UVL02_DESIGN.md SS7.3 -- was 3 under
+    SS7.2, until OCP-02 occupied fault_or3.B1 on 2026-08-07), so the
     zero-capacity warning must NOT be printed.
     """
     result = _run_gate([])
     assert result.returncode == 0, result.stdout + result.stderr
     assert "PASSED" in result.stdout
-    assert "AVAILABLE: 3" in result.stdout
+    assert "AVAILABLE: 2" in result.stdout
     assert "0 genuinely available" not in result.stdout

@@ -8,11 +8,28 @@ why ``clearance``/``courtyards_overlap`` were VACUOUS gates before this
 change and how the new classes close that -- plus drilled hole-to-hole
 spacing and missing courtyard, added later the same day for STRATEGY.md
 build order step 4; see ``docs/evidence/
-2026-08-07-missing-courtyard-and-hole-to-hole-classes.md``. The last of
-these, ``missing-courtyard``, is a DELIBERATE exception: its injector is
-independently self-verified but its owning gate does not fire -- reported
-as a genuine coverage gap, not weakened, per METHODOLOGY.md Sec. 5) this
-runner:
+2026-08-07-missing-courtyard-and-hole-to-hole-classes.md``. ``missing-courtyard``
+was a DELIBERATE exception there: its injector was independently
+self-verified but its owning gate did not fire, reported as a genuine
+coverage gap rather than weakened, per METHODOLOGY.md Sec. 5.
+
+UPDATE (2026-08-13): this runner's own ``measure_drc()`` never gave its
+clean/mutated scratch copies a sibling ``.kicad_pro`` (see
+``copy_kicad_project_sidecar`` calls in ``run_corpus`` below, added this
+date), so every measurement in this file was itself running context-blind
+in exactly the way ``_drc_api.DrcProjectContextError`` warns callers
+about -- a corpus bug, not a corpus finding. Fixing that closes
+``missing-courtyard`` (its owning gate now fires -- cause (1) in the
+manifest's ``uncovered_finding`` note is resolved; see
+``scripts/board_defect_corpus.yaml``) but exposes a NEW, previously
+hidden gap in the ``clearance`` class instead: the seeded R64/R67 pad
+pair no longer registers a clearance violation once real project context
+is used, even at complete pad overlap, while other pad/track clearance
+pairs on the same board measure correctly in the same run. ``clearance``
+is now the DELIBERATE exception (see its own
+``uncovered_finding`` note in the manifest and
+``scripts/tests/test_check_board_defect_corpus.py``'s
+``TestCorpusEndToEnd._EXPECTED_UNCOVERED``) this runner:
 
   1. re-derives a mutated copy of the committed ``pcb/temper.kicad_pcb``
      from the seed manifest (``scripts/board_defect_corpus.yaml``) via
@@ -732,17 +749,18 @@ def evaluate_class(
             name=class_name,
             ok=False,
             message=(
-                f"{class_name}: UNCOVERED (expected, reported per "
-                "METHODOLOGY.md Sec. 5) -- injector independently verified "
+                f"{class_name}: UNCOVERED -- injector independently verified "
                 f"({ref}: 1 courtyard item on clean board, 0 on mutated "
                 "board, re-parsed directly), but no DRC error names "
-                f"missing_courtyard for {ref} on the mutated board. Root "
-                "cause: kicad-cli's compiled-in default for the "
-                "missing_courtyard rule is 'ignore' without an accompanying "
-                ".kicad_pro (which this corpus's mutated-board workdir never "
-                "has), AND run_drc() never passes --severity-warning/"
-                "--severity-all even when a project file is present -- "
-                "either gap alone is sufficient to hide this class. See "
+                f"missing_courtyard for {ref} on the mutated board. As of "
+                "2026-08-13 this scratch copy DOES have a sibling .kicad_pro "
+                "(run_corpus() calls copy_kicad_project_sidecar() before "
+                "measuring -- the original root cause (1) below is closed), "
+                "so if this branch is reached again the remaining suspect is "
+                "root cause (2): run_drc() never passes --severity-warning/"
+                "--severity-all and missing_courtyard is a warning-severity "
+                "rule. Historical root-cause detail (both were independently "
+                "verified sufficient alone, before the project-context fix): "
                 "docs/evidence/2026-08-07-missing-courtyard-and-hole-to-hole-classes.md."
             ),
         )
@@ -833,6 +851,7 @@ def run_corpus(
         )
 
     from board_defect_mutator import apply_mutation, board_content_hash, copy_board
+    from temper_placer.validation._drc_api import copy_kicad_project_sidecar
 
     actual_board_hash = board_content_hash(board_path)
     recorded_board_hash = meta.get("board_sha256")
@@ -847,6 +866,14 @@ def run_corpus(
     # --- clean-board control (byte-identical copy of the committed board) ---
     clean_copy = workdir_path / "clean.kicad_pcb"
     copy_board(board_path, clean_copy)
+    # run_drc() (via _drc_api.ensure_resolvable_kicad_project, added
+    # 2026-08-08 in 67e04601f) now refuses to DRC a board with no sibling
+    # .kicad_pro -- give the scratch copy the real board's project under
+    # its own stem so the measurement isn't silently blind to the
+    # project's creepage/track_width DRU rules and rule_severities
+    # overrides. copy_kicad_project_sidecar() is the supported mechanism
+    # DrcProjectContextError itself points callers at.
+    copy_kicad_project_sidecar(clean_copy, board_path)
     clean_errors = measure_drc(clean_copy, dru_path)
     clean_drc = drc_counts(clean_errors)
     clean_containment_refs = measure_containment(clean_copy)
@@ -870,6 +897,9 @@ def run_corpus(
         mutation_result = apply_mutation(
             board_path, mutation, class_def["params"], seed, out_path
         )
+        # Same project-context propagation as the clean copy above -- every
+        # scratch board this runner DRCs needs its own resolvable project.
+        copy_kicad_project_sidecar(out_path, board_path)
         report_mutation = {
             "seed": seed,
             "mutated_sha256": mutation_result.mutated_sha256,

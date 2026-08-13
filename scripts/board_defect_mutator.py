@@ -32,24 +32,32 @@ name the exact seeded ref(s)/pad(s)), not a raw count-delta -- see
 ``check_board_defect_corpus.py``'s module docstring for why a count-delta
 is not trustworthy for this corpus's DRC categories.
 
-``missing-courtyard`` is a deliberate exception to "every class in this
-module is caught": self-verification proves the injector genuinely deletes
-the courtyard graphics (independent re-parse, Sec. "missing_courtyard"
-below), but the corpus's canonical DRC measurement path
-(``temper_placer.validation._drc_api.run_drc``, used unmodified so every
-class measures through the SAME path) never observes it -- see
-``check_board_defect_corpus.py``'s module docstring and
+``missing-courtyard`` WAS a deliberate exception to "every class in this
+module is caught" (2026-08-07 through 2026-08-13): self-verification
+proved the injector genuinely deletes the courtyard graphics (independent
+re-parse, Sec. "missing_courtyard" below), but the corpus's canonical DRC
+measurement path (``temper_placer.validation._drc_api.run_drc``, used
+unmodified so every class measures through the SAME path) never observed
+it -- see ``check_board_defect_corpus.py``'s module docstring and
 ``docs/evidence/2026-08-07-missing-courtyard-and-hole-to-hole-classes.md``
-for the two independent, verified root causes (kicad-cli's compiled-in
+for the two independently verified root causes (kicad-cli's compiled-in
 default for the ``missing_courtyard`` rule is ``ignore`` without an
-accompanying ``.kicad_pro``, which the corpus's mutated-board workdir never
-has; and even with one, ``run_drc()`` never passes ``--severity-warning``/
-``--severity-all``, so a ``warning``-severity rule's output is dropped
-either way). This is reported as a genuine coverage gap, per
-docs/METHODOLOGY.md Sec. 5 ("if a gate turns out not to catch its own
-defect class, that is a finding -- report it, do not weaken the class"),
-not silently fixed by reimplementing the measurement path for one class
-only.
+accompanying ``.kicad_pro``, which the corpus's mutated-board workdir
+never HAD, until ``check_board_defect_corpus.run_corpus()`` was fixed
+2026-08-13 to call ``copy_kicad_project_sidecar()`` on every scratch
+copy; and even with one, ``run_drc()`` never passes
+``--severity-warning``/``--severity-all``, so a ``warning``-severity
+rule's output could still be dropped either way -- empirically it is
+NOT dropped, so this second cause turned out not to gate the outcome).
+With cause (1) closed, this class is now COVERED. Closing it exposed a
+different, previously-hidden gap in the ``clearance`` class instead (the
+seeded R64/R67 pad pair no longer registers under the corrected,
+project-aware measurement) -- see that class's ``uncovered_finding`` note
+in ``scripts/board_defect_corpus.yaml``, which is now the module's
+DELIBERATE exception, reported per docs/METHODOLOGY.md Sec. 5 ("if a gate
+turns out not to catch its own defect class, that is a finding -- report
+it, do not weaken the class"), not silently fixed by reimplementing the
+measurement path for one class only.
 
 Determinism contract (U1 test 4): a mutation is a pure function of (board
 bytes, params). Two runs with the same seed (i.e. the same params, keyed by

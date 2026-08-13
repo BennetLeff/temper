@@ -12,11 +12,13 @@ docs/hardware/UVL02_DESIGN.md SS7/SS7.1 and docs/hardware/OCP02_DESIGN.md's
 
 That capacity problem was subsequently fixed (2026-07-27, `15b9a33b`) by
 adding a third `SN74HC4075DR`, `safety.fault_or3`, as a single merge point
-ahead of the latch SET pin; UVL-02's fault is wired into it and three
-SET-path inputs are now available. See docs/hardware/UVL02_DESIGN.md SS7.2
-for the current state -- SS7/SS7.1 are superseded there. This gate is what
-keeps that number honest, so it is written against reachability, not
-against any particular expected count.
+ahead of the latch SET pin; UVL-02's fault is wired into it, restoring
+three SET-path inputs (docs/hardware/UVL02_DESIGN.md SS7.2). OCP-02 was
+subsequently wired into one of those three (2026-08-07, `c617e0d0`), the
+reserved slot SS7.2 held for it -- see SS7.3 for the current state (two
+available SET-path inputs today). SS7/SS7.1/SS7.2 are superseded there,
+in that order. This gate is what keeps that number honest, so it is
+written against reachability, not against any particular expected count.
 
 This is a reachability question over the netlist graph, not a pin-
 occupancy count. A naive "count unconnected pins" check on the tree that
