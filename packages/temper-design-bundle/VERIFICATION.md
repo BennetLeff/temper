@@ -4010,6 +4010,49 @@ Python in the shim.
 
 Covered by the same 26-mutant campaign (see temper-drc-rs VERIFICATION.md).
 
+### Radius<=0 empty contract — the p3 reconciliation (2026-08-12)
+
+`slots_within_radius` treats `radius <= 0.0` (and an empty index) as the empty
+result — verbatim from the pre-migration oracle's
+`if radius <= 0.0 or not index: return []` (pinned in
+`_phased_component_assignment_validator_py_oracle.py`). The Python PBT property
+p3 (inclusive radius membership) once over-asserted this: at `radius == 0.0` a
+slot EXACTLY at the center has `hypot == 0.0`, which is `<= 0.0` yet not
+returned, so p3's "unreturned ⇒ distance > radius" direction was false by
+construction. Commit 65760eb5e reconciled the test to skip `radius <= 0.0`
+(p3), leaving the empty case to p4 — the **test** was over-asserting; the
+kernel was not changed and matches the oracle bit-for-bit.
+
+The kernel side of that contract is now pinned in
+`deterministic_leaves.rs::slot_grid_proptests`
+(`nonpositive_radius_is_empty`,
+`zero_radius_returns_empty_even_with_a_center_slot`), and the positive-radius
+membership property p3 still relies on is pinned independently
+(`within_radius_matches_naive_reference`,
+`cell_window_covers_every_within_radius_slot`,
+`within_radius_includes_slot_at_exactly_radius`,
+`within_radius_ceil_window_discriminator`) — so a future kernel weakening
+(e.g. a `ceil`→`floor` window mutant or an `<=`→`<` distance mutant) fails
+here rather than silently passing both p3 and p4. Mutation-checked: the
+`<=`→`<` mutant is caught by `within_radius_includes_slot_at_exactly_radius`,
+the `ceil`→`floor` mutant by all three membership properties, each within
+PROPTEST_CASES=2000.
+
+### Out-of-contract inputs (recorded, not reachable)
+
+The kernel's Python oracle raises on non-finite inputs that the Rust side
+silently saturates, all excluded from the PBT/differential strategies
+(`allow_nan=False`, `allow_infinity=False`, spacing ≥ 1.0) and unreachable in
+production (creepage is finite; `infer_slot_spacing` never returns ≤ 0):
+
+- `radius = NaN` → Rust returns `[]` (NaN cast to `i64` saturates to `k = 0`,
+  `hypot <= NaN` is false); CPython raises `ValueError` from `int(ceil(NaN))`.
+- `radius = +inf` or `spacing = 0.0` → `k = (…).ceil() as i64` saturates to
+  `i64::MAX`, so the `(2k+1)²` cell walk is effectively infinite (Rust hangs);
+  CPython raises `OverflowError` from `int(ceil(inf))`. Not a correctness bug
+  on any reachable input, but a DoS-shaped robustness divergence if an
+  unguarded caller ever passes a non-finite radius or a zero spacing.
+
 # Batch-2 remaining stages — JUSTIFIED-KEEP records (R3-style, named blockers)
 
 For every in-scope stage *not* migrated, the reason is a named blocker, per
