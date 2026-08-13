@@ -361,7 +361,11 @@ def test_per_stage_prefix_threading_matches_oracle() -> None:
         _FakeStage("s1", _set("config", {"n": 1})),
         _FakeStage("s2", _set("net_order", ("A", "B"))),
         _FakeStage("s3", _set("placements", frozenset({("U1", (5.0, 5.0))}))),
-        _FakeStage("s4", _set("used_slots", frozenset({"slot0"}))),
+        # O-C3/U1 typed `used_slots` as an owned `HashSet<SlotId>`, so the
+        # opaque `"slot0"` sentinel this stage used to thread is no longer a
+        # legal value for the field. A real `(x, y)` slot keeps the test's
+        # actual subject -- per-stage state threading -- unchanged.
+        _FakeStage("s4", _set("used_slots", frozenset({(0.0, 0.0)}))),
         _FakeStage("s5", _set("drc_violations", ())),
     ]
     initial = BoardState()

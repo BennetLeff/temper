@@ -35,7 +35,9 @@ class TestPhasedPlacement:
         state = BoardState(
             netlist=netlist,
             component_zone_map=frozenset([("C1", "Signal"), ("C2", "Signal")]),
-            zone_slots=frozenset([("Signal", ((10, 10), (20, 20), (30, 30)))]),
+            zone_slots=frozenset(
+                [("Signal", ((10.0, 10.0), (20.0, 20.0), (30.0, 30.0)))]
+            ),
         )
 
         result = stage.run(state)
@@ -69,7 +71,9 @@ class TestPhasedPlacement:
         state = BoardState(
             netlist=netlist,
             component_zone_map=frozenset([("Q1", "Power"), ("Q2", "Power")]),
-            zone_slots=frozenset([("Power", ((40, 40), (50, 50), (60, 60)))]),
+            zone_slots=frozenset(
+                [("Power", ((40.0, 40.0), (50.0, 50.0), (60.0, 60.0)))]
+            ),
         )
 
         result = stage.run(state)
@@ -253,7 +257,7 @@ class TestPhasedPlacement:
         state = BoardState(
             netlist=netlist,
             component_zone_map=frozenset([("U1", "Signal")]),
-            zone_slots=frozenset([("Signal", ((10, 10),))]),
+            zone_slots=frozenset([("Signal", ((10.0, 10.0),))]),
         )
 
         # Should not crash, just warn
