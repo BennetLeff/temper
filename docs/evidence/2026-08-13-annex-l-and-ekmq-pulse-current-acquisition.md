@@ -40,12 +40,18 @@
    60384-4) whose exact clause text could be read this session shows -- not even as an *available*
    test category for this part's electrolyte technology. §2 gives the full chain. More importantly,
    §2.7 establishes, cross-checked against two independent manufacturers, that **"pulse-current
-   withstand" is the wrong question to be asking of this part for this fault**: the manufacturers'
-   own engineering literature frames capacitor damage under discharge stress as an
-   electrochemical/pressure process (gas generation at the cathode
-   foil culminating in vent-operation or case rupture), evaluated by repeated-cycling endurance
-   testing, not as a single-shot current or I²t figure a designer looks up and compares against.
-   No industry source found this session publishes such a figure for a standard, non-charge/
+   withstand" is the wrong question to be asking of this part for this fault**: Chemi-Con's own
+   engineering literature frames discharge-stress damage as an electrochemical/pressure process
+   (gas generation at the cathode foil culminating in vent-operation or case rupture), evaluated by
+   repeated-cycling endurance testing, not a single-shot current or I²t figure a designer looks up
+   and compares against; Cornell Dubilier's (CDE) independently names a *different* concrete
+   mechanism for a fast discharge/inrush pulse specifically -- **I²t fusing of the internal
+   tab/terminal connection**, not the winding's bulk ESR -- and states, in its own general
+   literature rather than a datasheet number, that it wants direct engineering contact above
+   **1,000 A peak** (§2.5); this fault's own already-established 619-710 A peak (§2.1) sits below
+   that line but is not validated against it (a different manufacturer's threshold, for a different
+   construction, stated as a case-by-case contact point, not a pass/fail spec). No industry source
+   found this session publishes a checkable pass/fail figure for a standard, non-charge/
    discharge-rated wet aluminum electrolytic like this part -- which means the design's safety
    argument for this fault cannot rest on "the capacitor is rated for it," because no such rating
    exists to cite, for anyone's part, not just this one.
@@ -528,8 +534,8 @@ repo has today, including this one; it remains open, named rather than guessed a
 | 2 | Technical-Notes.pdf ("Judicious Use of Aluminum Electrolytic Capacitors," CAT. No. E1001U) | Direct WebFetch + direct PDF read (WebFetch's own text pass failed; PDF read directly instead), `chemi-con.com` | `f773b79883c747a23e4706832a156eda08d239fbd396329d4cfb182239cd0fd2` |
 | 3 | IEC 60384-4 Edition 5.0:2016 preview (TOC/front matter only) | Direct WebFetch + direct PDF read, `cdn.standards.iteh.ai` | `ebd28df1d71e3bb9b2222e10b271b257e3c54b5623ce61c6bb5c3ec8dcc5be11` |
 | 4 | IEC 60384-4 Edition 4.0:2007 preview (TOC/front matter only) | Direct WebFetch + direct PDF read, `normservis.cz` | `7edb7083341e44fbf1be3eeab142d0d8e2ad0228a49584985005bd77230b2c5f` |
-| 8 | CDE/Knowles "Aluminum Electrolytic Capacitor Application Guide" (2024) | Direct WebFetch + direct PDF read, `cde.com` | `fdabf0eed859d6ab648aaac7960f5f002042099163f5ba15152d51c2ca75b5bb` |
-| 9 | Parler, "Transient Thermal, Electrical and Lifetime Analysis of Large-Can Aluminum Electrolytic Capacitors" (APEC 2015) | Direct WebFetch + direct PDF read, `cde.com` | `1803458509a3bd033044924774aeb8a6dc269416f734283289de185963222dcf` |
+| 5 | CDE/Knowles "Aluminum Electrolytic Capacitor Application Guide" (2024) | Direct WebFetch + direct PDF read, `cde.com` | `fdabf0eed859d6ab648aaac7960f5f002042099163f5ba15152d51c2ca75b5bb` |
+| 6 | Parler, "Transient Thermal, Electrical and Lifetime Analysis of Large-Can Aluminum Electrolytic Capacitors" (APEC 2015) | Direct WebFetch + direct PDF read, `cde.com` | `1803458509a3bd033044924774aeb8a6dc269416f734283289de185963222dcf` |
 
 No proxy/text-extraction fallback was needed for any Target 2 source this session -- every fetch
 above succeeded directly.
@@ -538,13 +544,13 @@ above succeeded directly.
 
 | # | Source | Result |
 |---|---|---|
-| 5 | `https://archive.org/advancedsearch.php?q=60335-1&fl[]=identifier&fl[]=title&fl[]=year&rows=50&output=json` | Direct WebFetch, JSON API. 32 items, full list read; exactly one Part-1 item (`gov.in.is.302.1.2008`, the already-known 2008 edition), no newer edition, no BS EN/AS NZS/SANS item |
-| 6 | `https://webstore.ansi.org/preview-pages/iec/preview_iec60335-1{ed6.0.cmv}en.pdf` | Direct WebFetch attempt -- HTTP 403, no content retrieved, no proxy tried |
-| 7 | Suo et al., "Study on Testing Technology of Creepage Distances and Clearances in Safety Standards for Electric Toys," Atlantis Press AER vol. 105 (2017), `https://www.atlantis-press.com/article/25871536.pdf` | Direct WebFetch (text-extraction pass failed) + direct PDF read, full 6 pages, read in full, sha256 `b019c931459b743d3b0d2a43597a220170c8fa6e18942b24d6a678abffc9a00c` |
-| 10 | IEC 60335-1:2020 preview (TOC/List of Figures only), `cdn.standards.iteh.ai` | Direct WebFetch + direct PDF read, 15 pages read; establishes Annex L's page range (170-172) and its 3 figure titles, all procedural | `ceb78334daba333cf67c6d2313cccbeca308d82af692b9a2783dedfe1bef4497` |
-| 11 | IEC 60335-1:2020 preview (front matter only), `en-standard.eu` | Direct WebFetch + direct PDF read; accessible range stops before the TOC, no additional content beyond confirming the same cutoff pattern from a second vendor | `cce5e8929653aeabca2fe7979ecf275635a64b19fefce9c440785a37813756f0` |
-| -- | `https://webstore.ansi.org/preview-pages/bsi/preview_30369343.pdf` (BSI preview of the same standard) | Direct WebFetch attempt -- HTTP 403, no content retrieved, no proxy tried (second independent 403, different preview vendor than source 6) |
-| -- | `gezhi-tech.com` (an unofficial IEC 60335-1 clause-by-clause interpretation blog, found via WebSearch) | Direct WebFetch attempt failed: TLS certificate expired. Not pursued further -- secondary/unofficial source regardless, and no Annex L-specific content was visible in the search snippets that led to it |
+| 7 | `https://archive.org/advancedsearch.php?q=60335-1&fl[]=identifier&fl[]=title&fl[]=year&rows=50&output=json` | Direct WebFetch, JSON API. 32 items, full list read; exactly one Part-1 item (`gov.in.is.302.1.2008`, the already-known 2008 edition), no newer edition, no BS EN/AS NZS/SANS item |
+| 8 | `https://webstore.ansi.org/preview-pages/iec/preview_iec60335-1{ed6.0.cmv}en.pdf` | Direct WebFetch attempt -- HTTP 403, no content retrieved, no proxy tried |
+| 9 | Suo et al., "Study on Testing Technology of Creepage Distances and Clearances in Safety Standards for Electric Toys," Atlantis Press AER vol. 105 (2017), `https://www.atlantis-press.com/article/25871536.pdf` | Direct WebFetch (text-extraction pass failed) + direct PDF read, full 6 pages, read in full, sha256 `b019c931459b743d3b0d2a43597a220170c8fa6e18942b24d6a678abffc9a00c` |
+| 10 | IEC 60335-1:2020 preview (TOC/List of Figures only), `cdn.standards.iteh.ai` | Direct WebFetch + direct PDF read, 15 pages read; establishes Annex L's page range (170-172) and its 3 figure titles, all procedural, sha256 `ceb78334daba333cf67c6d2313cccbeca308d82af692b9a2783dedfe1bef4497` |
+| 11 | IEC 60335-1:2020 preview (front matter only), `en-standard.eu` | Direct WebFetch + direct PDF read; accessible range stops before the TOC, no additional content beyond confirming the same cutoff pattern from a second vendor, sha256 `cce5e8929653aeabca2fe7979ecf275635a64b19fefce9c440785a37813756f0` |
+| 12 | `https://webstore.ansi.org/preview-pages/bsi/preview_30369343.pdf` (BSI preview of the same standard) | Direct WebFetch attempt -- HTTP 403, no content retrieved, no proxy tried (second independent 403, different preview vendor than source 8) |
+| 13 | `gezhi-tech.com` (an unofficial IEC 60335-1 clause-by-clause interpretation blog, found via WebSearch) | Direct WebFetch attempt failed: TLS certificate expired. Not pursued further -- secondary/unofficial source regardless, and no Annex L-specific content was visible in the search snippets that led to it |
 
 ## 5. UNVERIFIED / open items
 
