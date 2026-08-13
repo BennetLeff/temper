@@ -41,7 +41,10 @@
    solder joints, all of which sit on solid, unslotted board outside the candidate slot's
    `y=[-4.0,4.0]` span. The real question this reduces to is therefore **solder-joint fatigue life
    under thermal cycling**, not board fracture and not part pull-off from a hollowed slot -- see §4
-   for why, and what a real answer would require.
+   for why, and what a real answer would require. **A materially smaller slot is also found here,
+   measured directly (§4.4): the same 28.0mm length as PR #1155's own design, narrowed to 4.0mm
+   instead of 8.0mm wide, removes half the board material while still clearing 12.6mm worst-case
+   with real margin** -- this reduces the scale of the open fatigue question but does not close it.
 
 ---
 
@@ -95,7 +98,7 @@ classification method is honest about the direction of its error, in its own wor
 > fix where a slot is physically impossible because it would have to run under the part), not
 > over-reporting it (which merely mis-labels a genuinely-fixable pair as unfixable, **a conservative
 > error**)."
-> (`scripts/measure_cross_domain_creepage.py:107-113`)
+> (`scripts/measure_cross_domain_creepage.py:109-115`)
 
 **This is the load-bearing admission.** The tool's author designed `body_crossing` as a
 *conservative screening bound* -- deliberately willing to mislabel a fixable pair as unfixable --
@@ -123,7 +126,7 @@ edition (`2026-07-28-isolator-creepage-slots.md` §8 flags this explicitly as UN
 current (2020+) edition of IEC 60664-1 was not read"). That gap is closed here.
 
 **IEC 60664-1's own foreword states edition history directly** (fetched and read this session,
-`pdftotext -layout` extraction of two independently-sourced preview documents -- see §5 Sources):
+`pdftotext -layout` extraction of two independently-sourced preview documents -- see "Files" below):
 
 > "This third edition cancels and replaces the second edition published in 2007."
 > (IEC 60664-1:2020, foreword)
@@ -199,17 +202,37 @@ spacings **<=2mm**; every creepage figure in play here (baseline 8.1-9.1mm, slot
 what it says about grooves. Not relied upon for any load-bearing claim in this document.
 
 **IEC 60335-1** (this project's own governing appliance standard, `docs/specs/HIGH_VOLTAGE_
-CLEARANCE_SPEC.md:7`) has no independent creepage-measurement-geometry annex of its own for this
-question -- its Clause 29 states minimum creepage *figures* (Table 17, already cited by this
-project's spec) and cross-references IEC 60664-1/60664-3 for pollution degree, material group, and
-(implicitly, since 60335-1 does not restate it) the geometric measurement method itself. It does not
-supersede or extend the groove-measurement rule.
+CLEARANCE_SPEC.md:7`) was fetched directly this session (IEC 60335-1:2020 Edition 6.0 preview,
+`https://cdn.standards.iteh.ai/samples/101518/78945351a99747cd8a166a9ac8688b50/IEC-60335-1-2020.pdf`,
+`pdftotext -layout`) -- correcting an initial assumption that it has no creepage-measurement annex
+of its own. **It does have one**, per its own TOC: "Annex L (informative) Guidance for the
+measurement of clearances and creepage distances," with three figures -- "Figure L.1 -- Sequence for
+the determination of clearances," "Figure L.2 -- Sequence for the determination of creepage
+distances," "Figure L.3 -- Measurement of clearances." **Annex L's actual content is beyond this
+preview's page range (the fetched document is TOC/foreword/normative-references only, 726 lines,
+cut off well before page 170 where Annex L begins) -- not read this session, and this is stated
+plainly rather than silently assumed closed.** Two things are checked and worth noting: (1) three
+figures, not more, and the title pattern ("Sequence for..." / "Measurement of...") reads as
+flowchart/procedure guidance rather than a groove-geometry worked-example set the size of IEC
+60664-1's own 11 -- consistent with, but not proof of, Annex L being a procedural pointer back to
+60664-1's clause 6.8 rather than an independent geometric treatment; (2) Clause 29's Table 17
+(minimum creepage *figures*, already cited by this project's spec) and 60335-1's own normative
+references list cite **IEC 60664-1:2007** specifically (the second edition, not the current
+2020/2025 third edition) -- so this project's actual governing chain points one edition further back
+than what §2 above independently checked. This does not change the conclusion, since 60664-1:2020's
+own foreword (§2 above) states its changes from the 2007 edition in full and none is a new groove
+example -- so 2007's groove/rib worked-example content is, by that same foreword's own account,
+identical in kind to both the 2002-era text already read and the current 2020/2025 text -- but it is
+reported as a real, unclosed gap (Annex L's actual content) rather than assumed away.
 
 **Net effect on Question 1's second bullet:** checked directly, not assumed -- no edition of IEC
-60664-1 (2002, 2007 by inference from the "cancels and replaces" statement, or the current
-2020/2025 text), nor IEC 60664-5 (out of scope by spacing), nor IEC 60335-1's own text, resolves the
-island/bounded-slot question either way. This is a genuine gap in the standard's own worked
-examples, not a documentation gap in this repo.
+60664-1 (2002-era text, 2007 by direct citation in 60335-1's own references and by inference from
+the 2020 foreword's "cancels and replaces" statement, or the current 2020/2025 text), nor IEC
+60664-5 (out of scope by spacing), resolves the island/bounded-slot question either way. **IEC
+60335-1's own Annex L is a genuine, newly-identified open item** -- its title suggests it could
+contain exactly the geometric guidance this question needs, but this session could not read past its
+TOC, and that is reported as an explicit gap for a follow-up session (or the certification lab in
+§3.4) to close, not folded into "no edition addresses this."
 
 ---
 
@@ -280,8 +303,10 @@ If this design is pursued, the question to put to the test house/certification b
 > slot's nearest end and stays on the top surface, or (c) something else (e.g., is the slot
 > disregarded entirely because it sits beneath a mounted body, on the theory that the moulded
 > package itself -- not just the missing PCB material -- is part of what defines the creepage
-> surface)? Please cite the specific clause/example (IEC 60664-1 or IEC 60335-1) your answer relies
-> on, since clause 4.2/6.8's own worked examples do not appear to picture this exact geometry."
+> surface)? Please cite the specific clause/example (IEC 60664-1 clause 4.2/6.8, or IEC 60335-1
+> Annex L, whose own content beyond its table of contents was not accessible to us) your answer
+> relies on, since clause 4.2/6.8's own worked examples do not appear to picture this exact
+> geometry."
 
 Evidence to supply with that question: (1) this document and PR #1155's full geometry (pad
 positions, slot dimensions, worst-case fab tolerance model); (2) the component's actual mechanical
@@ -372,41 +397,56 @@ retention as independent concerns.** This narrows PR #1155's flag but does not c
 actual mechanical/thermal-cycling review (FEA or a physical qualification sample) can do that, and
 this repo has neither capability today.
 
-### 4.4 Would a smaller or repositioned slot meaningfully reduce this risk?
+### 4.4 Would a smaller or repositioned slot meaningfully reduce this risk? -- MEASURED, not estimated
 
-PR #1155's own numbers already show the 28.0 x 8.0mm design is close to the minimum achievable at
-real worst-case margin, not an unminimized first guess -- both of its two free dimensions are already
-pinned against a real constraint, not chosen with slack:
+A first-pass qualitative read of PR #1155's own two constraints (length apparently pinned by
+worst-case creepage margin, width apparently pinned by the pad-row gap) could suggest the two
+dimensions trade off against each other with little room to shrink both at once. **That estimate
+turns out to be wrong once actually computed, and it is worth computing rather than guessing: length
+and width do not drive the creepage benefit symmetrically.** Length drives the around-the-end detour
+distance (the dominant term). Width mainly needs to (a) clear the IEC PD3 groove-width floor
+(X`>=`1.5mm, §1/§3) and (b) leave `>=`0.2mm worst-case copper clearance to each pad row -- it does
+**not** need to be wide enough to add meaningful detour distance of its own. Narrowing the width
+therefore costs far less creepage margin than the qualitative estimate above assumed.
 
-- **Length is pinned by the worst-case-tolerance margin, not chosen loosely.** PR #1155 §4.1 found
-  that stopping exactly at T1's own courtyard edge (half-length 12.43mm, vs. the chosen 14.0mm) gives
-  only 12.617mm nominal creepage -- technically over 12.6mm but with a worst-case figure that fails
-  outright. The chosen 14.0mm half-length (1.57mm past the courtyard on each end) is what survives
-  JLCPCB's own ±0.2mm/edge worst-case tolerance with real headroom (14.83mm worst-case vs. 12.6mm
-  required). Shrinking the length back toward the courtyard-edge minimum trades away exactly the
-  margin that makes the design pass under pessimistic fab tolerance, for at most ~1.57 x 2 x 8.0 =
-  ~25mm² of area savings (11% of the slot) before nominal creepage itself starts to fail.
-- **Width is pinned by the pad gap itself, not by choice.** The slot must fit inside the 4.55mm real
-  gap between the pad rows (primary inner edge y=-4.45, secondary inner edge y=4.65) while keeping
-  >=0.2mm worst-case copper clearance to each row -- the 8.0mm width already leaves only 0.45mm/0.65mm
-  nominal (0.25mm/0.45mm worst-case) to the nearer row. There is very little room to widen the
-  clearance margin further without narrowing the slot toward JLCPCB's clearance floor on one side,
-  and narrowing the slot *shortens* the around-the-end detour, working against the creepage margin at
-  the same time it would reduce removed area -- the two constraints move in opposite directions, so
-  there is no width choice that meaningfully helps both.
-- **The gap between the pad rows is the hard floor on removable-area fraction.** Because the only
-  available width for the slot is that 4.55mm gap, and the length is set by the courtyard-plus-margin
-  requirement above, there is no rectangle placement that reaches 12.6mm with real worst-case margin
-  while removing substantially less of the board area *between* the pad rows -- which is precisely the
-  region §4.3(b)'s fatigue mechanism concerns. A ~10-15% smaller design (trading creepage margin down
-  toward the 12.6mm floor) is geometrically possible but does not change the qualitative structural
-  picture, since the mechanism scales with the *fraction of the inter-row span* affected, not with
-  small changes in slot width once the slot already spans nearly the whole gap.
+**Method:** re-ran §2.2's exact visibility-graph shortest-path search (own scratch script,
+`networkx`+`shapely`, this session, T1's local-frame pad geometry from §4.1) -- first reproducing PR
+#1155's own baseline exactly (half-length 14.0mm, half-width 4.0mm `→` **15.532mm nominal /
+14.832mm worst-case**, matching the source PR's 15.53mm/14.83mm to 3 decimal places -- verification
+before exploration, not assumption) -- then holding length fixed at PR #1155's own 14.0mm (**no
+length change at all**) and sweeping only the width down:
 
-**Net finding: no meaningfully smaller slot exists that both clears 12.6mm with real worst-case
-margin and removes substantially less material.** PR #1155's design is close to the achievable
-minimum for its own margin requirements, not an unminimized starting point that a follow-up pass
-could easily shrink.
+| Half-width (`Ye`) | Slot (L x W) | Area | Nominal | Worst-case | Groove width (w.c.) | Passes (`>=`12.6mm w.c., `>=`1.5mm groove w.c., `>=`0.2mm Cu w.c.) | Area vs. PR #1155 |
+|---|---|---:|---:|---:|---|:--:|---:|
+| 4.00 (PR #1155's own) | 28.0 x 8.0mm | 224.0mm`^2` | 15.532mm | 14.832mm | 7.6mm | PASS | -- |
+| 3.00 | 28.0 x 6.0mm | 168.0mm`^2` | 14.184mm | 13.639mm | 5.6mm | PASS | -25.0% |
+| 2.00 | 28.0 x 4.0mm | 112.0mm`^2` | 13.265mm | 12.830mm | 3.6mm | PASS | -50.0% |
+| 1.70 | 28.0 x 3.4mm | 95.2mm`^2` | 13.045mm | 12.634mm | 3.0mm | PASS (+0.034mm w.c.) | -57.5% |
+| 1.50 | 28.0 x 3.0mm | 84.0mm`^2` | 12.909mm | 12.514mm | 2.6mm | **FAILS** worst-case | -- |
+
+**A slot the exact same length as PR #1155's own design, just narrower, cuts removed area in half
+(112mm`^2` vs. 224mm`^2`, half-width 2.0mm instead of 4.0mm) while still clearing 12.6mm worst-case
+with a real 0.230mm margin** -- no length change, no erosion of the courtyard-clearing margin §4.1's
+length reasoning already established as load-bearing. Allowing the length to also extend very
+slightly beyond PR #1155's own 14.0mm (to 14.2-14.4mm, still well inside the 6.43-14.83mm real
+neighbor clearance PR #1155 §4.2 already measured) recovers more margin at even less area: a
+28.9 x 3.4mm design (half-length 14.4mm, half-width 1.7mm) reaches 98.1mm`^2` -- **56.2% less than PR
+#1155's design -- at +0.637mm worst-case creepage margin**, a comparable relative safety margin to an
+unminimized design. A full 2D sweep (both dimensions free) finds a bare geometric minimum of
+63.5mm`^2` (28.9 x 2.2mm, +0.248mm worst-case margin) -- 71.7% less area, but with thin (1.2x-the-
+floor) groove-width margin, a more aggressive design than this document recommends taking at face
+value without its own manufacturing-tolerance review.
+
+**Net finding, corrected from the first-pass qualitative estimate above: a meaningfully smaller slot
+does exist.** Halving the removed area (224mm`^2` `→` ~100-112mm`^2`) requires **no length
+change at all** relative to PR #1155's own design and retains real (0.23-0.64mm) worst-case creepage
+margin, not a knife-edge pass. **This does not resolve §4.3(b)'s solder-joint fatigue question -- it
+changes the scale of the void that mechanism has to act through, from roughly a third of the
+footprint area down to roughly a sixth to a seventh.** Whether that reduction is *sufficient* to make
+the part's four solder joints survive §4.2's already-adopted IEC 60068-2-6/-27/-14 regime is still an
+FEA or physical-test question this repo cannot answer (§4.2), not something this geometric result can
+close on its own. Reported here as a real, verified design option for whoever picks up the mechanical
+review, not as a substitute for one.
 
 ---
 
@@ -472,9 +512,10 @@ new capability, and a cheaper check than a full place-and-reroute experiment.
   contradicts this repo's own earlier, more careful reasoning (§1), rather than an independent
   confirmation of the conservative reading. Q2's open structural risk is now identified specifically
   as **solder-joint thermal-cycling fatigue** (not board cracking, not part retention, both of which
-  are now ruled low-risk with reasons given), confirmed **not** meaningfully reducible by a smaller
-  slot design given PR #1155's own margin requirements (§4.4) -- so the remaining path to closing it
-  is an external mechanical/thermal-cycling review, not further repo-side geometry work, and this
+  are now ruled low-risk with reasons given), and a materially smaller slot is measured and reported
+  (§4.4: same 28.0mm length, half the removed area, real worst-case creepage margin retained) --
+  reducing the scale of that open risk without closing it. The remaining path to closing it is an
+  external mechanical/thermal-cycling review, not further repo-side geometry work, and this
   repo has no capability to perform that review itself (§4.2). The reroute-achievability caveat is
   checked against the one related repo measurement that exists and found not to implicate any of the
   six nets actually in question (§5), though the "40 nets" figure's own source remains untraced.
@@ -518,18 +559,27 @@ by this document, and neither should be read as closed by DRC-passing creepage n
     `https://cdn.standards.iteh.ai/samples/100156/f010cc07edff461d9caa559635817555/IEC-60664-1-2020.pdf`
   - IEC 60664-1{ed3.1} (2025-05 consolidated), preview/foreword/TOC:
     `https://assets.vde-verlag.de/iec-normen/preview-pdf/info_iec60664-1%7Bed3.1%7Den.pdf`
-  - IEC 60335-1:2020 (Edition 6.0), sample/normative-references list:
+  - IEC 60335-1:2020 (Edition 6.0), sample/foreword/TOC/normative-references list (726 lines,
+    TOC-only -- Annex L's own body text, pages ~170+, is beyond this preview's range and was not
+    read, §2):
     `https://cdn.standards.iteh.ai/samples/101518/78945351a99747cd8a166a9ac8688b50/IEC-60335-1-2020.pdf`
   - `pcb/libs/temper.pretty/CST3015.kicad_mod` -- read directly this session for T1's real
     mechanical/footprint geometry.
 - Measured this session, not committed (scratch, per this repo's own convention for read-only
   analysis scripts): the `measure_cross_domain_creepage.py` git-history/blame trace, the net-name
-  grep against the real board for T1/U6's reroute nets.
+  grep against the real board for T1/U6's reroute nets, and the §4.4 slot-width-minimization
+  visibility-graph sweep (`networkx`+`shapely`, reproducing §2.2's/PR #1155's own method, verified
+  against PR #1155's own baseline figures to 3 decimal places before exploring alternatives).
 
 ## What is NOT established here (explicit)
 
 - **No certification-lab confirmation of Question 1.** The specific question and evidence package are
   given in §3.4; obtaining an actual answer is outside this document's scope.
+- **IEC 60335-1:2020's own Annex L ("Guidance for the measurement of clearances and creepage
+  distances") was not read beyond its table of contents.** Its existence and figure titles are
+  confirmed (§2); whether its content addresses bounded/island grooves is unknown, not ruled out.
+  This is a real gap this document could not close from the paywalled preview available this
+  session, flagged explicitly rather than assumed to be a restatement of IEC 60664-1's clause 6.8.
 - **No FEA or physical thermal-cycling test for T1's slot.** §4.3(b) is qualitative engineering
   reasoning about mechanism, explicitly labeled as such, not a stress or cycle-life computation. This
   repo has no capability to produce one (§4.2).
