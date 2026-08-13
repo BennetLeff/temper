@@ -4541,3 +4541,154 @@ for the identity arm):
   crate/script/oracle/README count; the `netlist_owned` tests are
   python-gated, so the wasm registry census — 1019 tests, unchanged — does
   not see them).
+
+## U5 collections — the remaining BoardState collection fields (O-C3/U5)
+
+U5 defines the OWNED collection element structs + the owned collection FIELD
+types for every remaining collection-valued `BoardState` field (`zones`,
+`component_zone_map`, `zone_slots`, `layer_assignments`, `routes`, `vias`,
+`violations`, `placements`, `component_domain_map`, and the three violation
+lists `drc_violations` / `connectivity_violations` /
+`placement_violations`), with their `Marshal` impls + round-trip gate. No
+`BoardState` field changes; like U2–U4 the structs + boundary are the
+building blocks a later unit ports the `Option<Py<PyAny>>` fields to.
+
+### Element survey — reused vs new
+
+Every candidate wire-format type was checked first; **all U5 element types
+are NEW owned structs** in `packages/temper-data-model/src/collections.rs`:
+
+| Candidate | Verdict | Why |
+|---|---|---|
+| `temper-drc-rs::violation_contracts::Violation` | NOT reusable | a pyclass whose `type`/`severity`/`description`/`pos` slots are uncoerced `Py<PyAny>` passthroughs (the DRC-feedback *wire class*), in a pyo3 crate `temper-data-model` cannot depend on — not an owned wire format |
+| design-bundle `Zone` (board_contracts, 11 fields) | NOT reusable | a different class from the deterministic `Zone` (`stages/zone_geometry.py`, 2 fields) that `state.zones` actually holds; also a pyclass with uncoerced `Py<PyAny>` fields |
+| design-bundle `LayerAssignment` | NOT reusable | pyclass with uncoerced `Py<PyAny>` fields |
+| design-bundle `Trace`/`Via` (board_contracts) | NOT reusable | same — the `routes`/`vias` elements are these pyclasses, but the owned structs must be pyo3-free |
+| drc-rs `DrcViaSnapshot`/`DrcTraceSnapshot` | NOT reusable | K1-dict snapshots for the DRC kernel input — a deliberately different shape (flat `x`/`y`, no `net: Option`) |
+| the three violation dataclasses | NEW | `Violation` (`router_v6/constraints_drc_oracle.py`), `ConnectivityViolation`, `PlacementViolation` (their stage modules) — plain dataclasses with no Rust twin anywhere |
+
+### The field → owned-type table
+
+| `BoardState` field | Python shape | Owned type (data-model) | Element struct |
+|---|---|---|---|
+| `zones` | `frozenset[Zone]` | `ZoneSet` (`HashSet<Zone>`) | `Zone { name, bounds: ((Val, Val), (Val, Val)) }` — bounds coords are `Val` (the stage's documented int canon: HV `x_min`/every `y_min` are Python `int` `0`) |
+| `component_zone_map` | `frozenset[(str, str)]` | `StrPairSet` | `(String, String)` (the U2 tuple impl) |
+| `component_domain_map` | `frozenset[(str, str)]` | `StrPairSet` | `(String, String)` |
+| `zone_slots` | `frozenset[(str, tuple[slots])]` | `ZoneSlotsSet` | `ZoneSlots { zone, slots: Vec<SlotPos> }` — the per-zone slots TUPLE is ordered (a tuple, not a set), so a `Vec` preserves it; `SlotPos` is the pyo3-free twin of `SlotId` (same normalized-bits `Eq`/`Hash`) |
+| `layer_assignments` | `frozenset[LayerAssignment]` | `LayerAssignmentSet` | `LayerAssignment { net_name, layer: Val, allow_layer_change, is_plane }` — `layer` is `Val`: the pyclass stores it UNCOERCED ("an int layer stays int"), so `2` stays `2` and `2.0` stays `2.0` |
+| `routes` | `frozenset[Trace]` | `RouteSet` | `Route { start: (f64, f64), end, width: f64, layer, net: Option }` — strict floats (the router and D6 tests always construct float coords/width; int-shaped is a loud error) |
+| `vias` | `frozenset[Via]` | `ViaSet` | `Via { position: (f64, f64), drill, width, layers: (String, String), net, is_diff_pair }` |
+| `placements` | `frozenset[(ref, (x, y))]` | `PlacementSet` | `Placement { ref_, position: (f64, f64) }` |
+| `violations` | PreflightReport dict | `PreflightReport` | `PreflightReport { checks: Vec<PreflightCheck>, overall, total_time_ms }` + `PreflightCheck { name, result, message, details: Option<OwnedPlain>, time_ms }` — the report is the plain-data dict the `PreflightStage` writes (its header comment names `BoardState.violations` the report carrier); `OwnedPlain` is the pyo3-free subset of `Plain` (None/bool/int/float/str/list/dict) the `details` leaves need |
+| `drc_violations` | `tuple[Violation, ...] \| None` | `ViolationList` (`Vec<Violation>`) | `Violation { type_, geometry_a_id, geometry_b_id, net_a, net_b, clearance_actual, clearance_required, location: (f64, f64) }` |
+| `connectivity_violations` | `tuple[ConnectivityViolation, ...] \| None` | `ConnectivityViolationList` | `ConnectivityViolation { type_, net, location, description }` |
+| `placement_violations` | `tuple[PlacementViolation, ...] \| None` | `PlacementViolationList` | `PlacementViolation { constraint_name, violation_type, message, severity, component_a/b, actual/required_distance_mm: Option<...> }` |
+
+Collection mapping convention: **frozenset → a `HashSet` newtype** (the U1
+`HashSet<SlotId>` pattern) with a deterministic sorted rebuild; **dict →
+insertion-order-preserving `Vec` pairs** (not needed by these fields — the
+only dict-shaped field, `violations`, is owned as the typed report); **list/
+tuple → `Vec`** with the tuple contract enforced at the boundary (a list is
+REJECTED for the three violation fields — accepting one would silently
+change the collection kind on write-back).
+
+### The determinism convention (the U1 bound, extended)
+
+The shared `frozenset_write` sorts the REBUILT element objects by their
+CPython `repr` before inserting them into the rebuilt frozenset — a
+deterministic function of the values, so the rebuild is deterministic across
+runs (never the process-random `HashSet` iteration order), exactly like U1's
+normalized-bits sort. Bit-identity (type + `repr` + `==`) is pinned by the
+gate on the guaranteed shapes: empty/single-element, and any collision-free
+set (CPython's iteration order is then a pure function of the values).
+Colliding multi-element sets round-trip content-identically (type, `==`,
+sorted element reprs) in a deterministic-but-different order.
+
+The owned `Eq`/`Hash` mirror CPython set-element semantics (`-0.0` ≡ `0.0`,
+NaN folds to one canonical form — the U1 `feq` convention). The `Val`-shaped
+fields keep the int-vs-float distinction with variant-tagged hashes:
+`Int(2)` ≠ `Float(2.0)` in the owned model (the U0 discipline) even though
+CPython's `==`/`hash` treat `2` and `2.0` as equal. A frozenset READ from
+Python cannot contain both (Python already deduped them), so content is
+preserved in every round-trip; a Rust-constructed set holding both would
+collapse them to the Python-first element on rebuild. Recorded bound.
+
+### Marshal boundary (src/netlist_owned.rs)
+
+- Read via `getattr` (element structs) / `get_item` (the report dicts) —
+  never `extract::<Py<T>>()`; write via runtime class lookup at the REAL
+  module paths: `temper_placer.deterministic.stages.zone_geometry.Zone`,
+  `temper_design_bundle_python.board_contracts.{Trace,Via}`,
+  `temper_design_bundle_python.LayerAssignment` (root module — where
+  `deterministic_leaves::register` adds it),
+  `temper_placer.router_v6.constraints_drc_oracle.Violation`,
+  `temper_placer.router_v6.constraints_geometry.Point`,
+  `temper_placer.deterministic.stages.{connectivity_validation,placement_validation}
+  .{ConnectivityViolation,PlacementViolation}`. `PreflightReport` rebuilds
+  the dict (checks/overall/total_time_ms in that key order).
+- Tuple elements (`Placement`, `ZoneSlots`, the slots tuple) rebuild as
+  TUPLES — a `Vec`-marshalled list would change the kind (and make a
+  frozenset element unhashable).
+- The `*Set`/`*List` newtype impls delegate to the shared
+  `frozenset_read`/`frozenset_write` and `tuple_list_read`/`tuple_list_write`
+  helpers.
+- The U5 stand-in classes live in a dedicated `_u5` eval namespace (the
+  zone-geometry `Zone` would collide with the board `Zone` in the shared
+  globals) and are registered in `sys.modules` under their real module
+  paths; the reuse branch requires the full U5 set so the stand-in path
+  re-registers whenever anything is missing.
+
+### Round-trip gate results
+
+- **Zone**: int-bounds `Zone('HV', ((0, 0), (50, 80)))` and float-bounds
+  round-trip bit-identically (the owned bounds assert `Val::Int(0)` — never
+  widened); `zones` empty/single-element frozensets bit-identical;
+  multi-element content-gated.
+- **zone_slots**: `(zone_name, tuple_of_slots)` elements bit-identical,
+  slots order preserved (`('HV', ((0.0, 5.0), (5.0, 0.0)))`), empty slots
+  tuple `('HV', ())` works; multi-element content-gated.
+- **routes/vias**: full `Trace` (incl. the `net=None` default) and `Via`
+  (incl. the default `('F.Cu', 'B.Cu')` layers and `is_diff_pair=False`)
+  round-trip bit-identically; the frozensets empty/single-element
+  bit-identical; multi-element content-gated.
+- **layer_assignments**: `LayerAssignment` bit-identical; `layer=2` asserts
+  `Val::Int(2)` and `layer=2.0` asserts `Val::Float(2.0)` — the uncoerced
+  pyclass contract pinned, not just tolerated.
+- **placements / component_zone_map / component_domain_map**: the U0
+  end-to-end multi-element shape `frozenset({('U1', (10.0, 20.0)), ('R1',
+  (5.5, 7.25))})` content-gates; single-element bit-identical.
+- **the three violation lists**: TUPLES round-trip bit-identically even
+  multi-element (order-preserving `Vec` — repr is order-based and the order
+  is kept); `PlacementViolation` with the optional fields unset (None) and
+  fully populated both round-trip.
+- **PreflightReport**: the empty report and a two-check report with a nested
+  `details` dict (`{'impossible': [...]}`) round-trip bit-identically; the
+  owned `details` asserts the `OwnedPlain::Dict(List(Str))` tree.
+- **NaN/±inf**: a NaN `clearance_actual`, an `inf` point coordinate, a
+  `-inf` `total_time_ms` and a NaN `Trace` width all round-trip with type +
+  repr preserved (manual arm — dataclass/tuple `__eq__` is False for NaN),
+  and the owned NaN field stays NaN.
+- **Determinism**: two `to_python` calls from the same owned 3-element
+  `RouteSet` produce repr-identical frozensets.
+- **Guards**: int-shaped Trace coordinates/width/placement positions/slot
+  coordinates (an int is not a float), a 1-tuple `via.layers`, a
+  1-corner `Zone.bounds`, a list for a frozenset field, a list for a
+  violation tuple, a tuple `checks`, a str `total_time_ms` and a str
+  clearance are all REJECTED loudly.
+
+### Gates (U5)
+
+- `cargo test` on `temper-data-model`: **12 passed** (8 base + 4 new:
+  negative-zero normalization, Val-variant distinction, layer int-vs-float,
+  newtype deref).
+- `cargo test --lib` on `temper-orchestration`
+  (PYO3_PYTHON=/home/bennet/Desktop/temper/.venv/bin/python): **1155 passed**
+  (1146 base + 9 new `netlist_owned::tests` U5 tests).
+- `cargo clippy --all-targets` on both crates: clean.
+- `cargo check --target wasm32-unknown-unknown` on `temper-data-model`:
+  clean (the new structs are pyo3-free, std-only — `HashSet`/`Vec` only).
+- `cargo check --no-default-features` on `temper-orchestration`: clean
+  (`netlist_owned` stays python-gated).
+- `scripts/gen_wasm_test_registry.py --crate temper-orchestration --check`:
+  up to date (1019 tests, unchanged — the U5 tests are python-gated).
+- `make regen-check`: unchanged — "all derived artifacts consistent".
