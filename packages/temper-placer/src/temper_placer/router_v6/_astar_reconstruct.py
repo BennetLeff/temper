@@ -22,7 +22,6 @@ from collections import deque
 logger = logging.getLogger(__name__)
 
 from temper_placer.router_v6._astar_ordering import _compute_net_order
-from temper_placer.router_v6.clearance_floor import effective_blocking_clearance
 from temper_placer.router_v6._astar_search import (
     _MAX_REROUTE_ATTEMPTS_PER_NET,
     _SEGMENT_3D_FALLBACK_MAX_ITER,
@@ -60,6 +59,7 @@ from temper_placer.router_v6.astar_grid import (
     _unmark_route_blocked,
 )
 from temper_placer.router_v6.channel_mapping import ChannelMapping
+from temper_placer.router_v6.clearance_floor import effective_blocking_clearance
 from temper_placer.router_v6.net_classification import classify_net_type
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
