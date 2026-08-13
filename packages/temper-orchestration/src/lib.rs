@@ -370,10 +370,13 @@ pub use derivation_stage::DerivationStage;
 pub use deterministic_pipeline::{DeterministicPipeline, drc_aware_stage_order};
 #[cfg(feature = "python")]
 pub use feedback_loop::{FeedbackIterationStage, FeedbackRunContext, run_automated_zero_drc};
+#[cfg(feature = "python")]
 pub use cpsat_loop::{
     cpsat_run_gated_loop, cpsat_run_legacy_loop, cpsat_solve_phase2, cpsat_solve_with_delta,
 };
+#[cfg(feature = "python")]
 pub use feedback::classify_feedback;
+#[cfg(feature = "python")]
 pub use validator_audit::audit_domain_clearance_validator;
 pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
 pub use drc_validation_stage::DRCValidationStage;
