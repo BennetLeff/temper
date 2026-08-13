@@ -86,6 +86,11 @@ def test_p2_index_coverage(slots, spacing):
 def test_p3_radius_membership(slots, spacing, radius, center):
     if len(slots) < 3:
         return
+    # radius <= 0 is the kernel's empty special case (pinned by
+    # test_p4_empty_inputs) — the inclusive <= membership property only
+    # applies to positive radii.
+    if radius <= 0.0:
+        return
     idx = _RS.build_slot_index_py(slots, spacing)
     got = _RS.slots_within_radius_py(center, radius, idx, spacing)
     cx, cy = center
