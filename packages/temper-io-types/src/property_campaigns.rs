@@ -804,6 +804,125 @@ pub(crate) fn u_rad_to_deg_monotonic_impl(seed: u64) {
     assert!(rad_to_deg(a) <= rad_to_deg(b), "seed={seed} a={a} b={b}");
 }
 
+// ===========================================================================
+// Metamorphic mirrors of `tests/wave4_phase2/test_core_contracts_metamorphic.py`
+// (the relations not already covered by a campaign above -- M1 pin-order and
+// M2 case invariance are `adj_pin_order_invariance` / `nc_case_invariance_*`).
+// ===========================================================================
+
+use crate::placer_core::manufacturing::inflated_width;
+use crate::placer_core::placement_drc::validate_placement_drc;
+
+/// M6: angle conversion is odd (`f(-x) == -f(x)`) exactly.
+///
+/// `deg_to_rad`/`rad_to_deg` are a multiply then a divide; both operations
+/// negate exactly in IEEE-754 (`(-x) * c == -(x * c)`, `(-y) / c ==
+/// -(y / c)`), so this is a bit-exact relation, not an approximate one --
+/// including signed zero, where the sign bit is the whole observable. A
+/// corpus of boundary values plus seeded randoms in `[-1e6, 1e6]` (the
+/// Python test's own value set and range).
+///
+/// Bug this would catch: an implementation that routes the sign through a
+/// table lookup or a branch (e.g. `if x < 0 { -deg_to_rad(-x) }`), or a
+/// `to_degrees()`-style fused path that reassociates the negation away.
+pub(crate) fn u_angle_conversion_odd_impl(seed: u64) {
+    let mut rng = sub_rng(seed, 0xD1);
+    let check = |x: f64| {
+        assert_eq!(
+            deg_to_rad(-x).to_bits(),
+            (-deg_to_rad(x)).to_bits(),
+            "seed={seed}: deg_to_rad not odd at x={x}"
+        );
+        assert_eq!(
+            rad_to_deg(-x).to_bits(),
+            (-rad_to_deg(x)).to_bits(),
+            "seed={seed}: rad_to_deg not odd at x={x}"
+        );
+    };
+    for v in [0.0, -0.0, 5e-324, 1e300, std::f64::consts::PI] {
+        check(v);
+    }
+    for _ in 0..16 {
+        check(rng.range(-1e6, 1e6));
+    }
+}
+
+/// M5: `inflated_width(inflated_width(nominal, a), b) ==
+/// inflated_width(nominal, a + b)` whenever the sum is itself exact.
+///
+/// All three inputs sit on the 1/16 grid (the Python test's
+/// `randrange(0, 4096) * 0.0625` / `randrange(0, 256) * 0.0625`), so every
+/// intermediate sum is an exact dyadic rational and the two accumulation
+/// orders round to the same bits.
+///
+/// Bug this would catch: rewriting `nominal + tolerance` as a fused
+/// `nominal * (1.0 + tolerance / nominal)` or any other reassociation that
+/// round-trips through a coarser exponent.
+pub(crate) fn mf_inflation_additive_impl(seed: u64) {
+    let mut rng = sub_rng(seed, 0xD2);
+    for _ in 0..8 {
+        let nominal = (rng.index(4096) as f64) * 0.0625;
+        let a = (rng.index(256) as f64) * 0.0625;
+        let b = (rng.index(256) as f64) * 0.0625;
+        assert_eq!(
+            inflated_width(inflated_width(nominal, a), b),
+            inflated_width(nominal, a + b),
+            "seed={seed}: inflation not additive at nominal={nominal} a={a} b={b}"
+        );
+    }
+}
+
+/// M4: placement DRC is invariant to a rigid translation of the whole
+/// scene. Translating every pin by the same exact delta changes nothing
+/// but the pin coordinates -- the violation set, distances, requirements
+/// and messages are bit-identical. Pins sit on the 0.25 grid, deltas on
+/// the 0.5 grid (the Python test's own construction), so
+/// `(x_a + d) - (x_b + d) == x_a - x_b` exactly and every downstream
+/// quantity is bit-identical.
+///
+/// Bug this would catch: a kernel that normalized coordinates against an
+/// absolute origin (e.g. snapping to an origin-derived grid) instead of
+/// using only pairwise differences.
+pub(crate) fn pdrc_translation_invariance_impl(seed: u64) {
+    let mut rng = sub_rng(seed, 0xD3);
+    let mut pins: Vec<crate::placer_core::placement_drc::PinInfo> = Vec::with_capacity(30);
+    for _ in 0..30 {
+        pins.push(crate::placer_core::placement_drc::PinInfo {
+            x: (rng.index(1600) as f64) * 0.25,
+            y: (rng.index(1600) as f64) * 0.25,
+            net_name: ["GND", "VCC", "SDA"][rng.index(3)].to_string(),
+            component_name: "U".to_string(),
+            pin_name: "1".to_string(),
+            diameter_mm: [0.5, 1.0, 2.0][rng.index(3)],
+        });
+    }
+    let base = validate_placement_drc(&pins, 0.5);
+    for (dx, dy) in [(0.25f64, 0.0f64), (-8.0, 4.0), (1024.0, -1024.0)] {
+        let moved: Vec<crate::placer_core::placement_drc::PinInfo> = pins
+            .iter()
+            .map(|p| crate::placer_core::placement_drc::PinInfo {
+                x: p.x + dx,
+                y: p.y + dy,
+                ..p.clone()
+            })
+            .collect();
+        let got = validate_placement_drc(&moved, 0.5);
+        assert_eq!(
+            got.len(),
+            base.len(),
+            "seed={seed} dx={dx} dy={dy}: violation count changed"
+        );
+        for (g, b) in got.iter().zip(base.iter()) {
+            assert_eq!(g.index_a, b.index_a, "seed={seed} dx={dx}: index_a changed");
+            assert_eq!(g.index_b, b.index_b, "seed={seed} dx={dx}: index_b changed");
+            assert_eq!(g.distance, b.distance, "seed={seed} dx={dx}: distance changed");
+            assert_eq!(g.required, b.required, "seed={seed} dx={dx}: required changed");
+            assert_eq!(g.kind, b.kind, "seed={seed} dx={dx}: kind changed");
+            assert_eq!(g.message, b.message, "seed={seed} dx={dx}: message changed");
+        }
+    }
+}
+
 // Silence a false "unused const" for U_SALT_D, kept for symmetry with the
 // other kernel sections' `_B`/`_C`/`_D` salt naming convention even though
 // this kernel's generators only needed three distinct salts.
@@ -7730,6 +7849,609 @@ pub(crate) mod tests {
     fn u_rad_to_deg_monotonic_seed_000098() { u_rad_to_deg_monotonic_impl(98); }
     #[cfg_attr(test, test)]
     fn u_rad_to_deg_monotonic_seed_000099() { u_rad_to_deg_monotonic_impl(99); }
+    // --- u_angle_conversion_odd: 100 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000000() { u_angle_conversion_odd_impl(0); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000001() { u_angle_conversion_odd_impl(1); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000002() { u_angle_conversion_odd_impl(2); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000003() { u_angle_conversion_odd_impl(3); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000004() { u_angle_conversion_odd_impl(4); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000005() { u_angle_conversion_odd_impl(5); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000006() { u_angle_conversion_odd_impl(6); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000007() { u_angle_conversion_odd_impl(7); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000008() { u_angle_conversion_odd_impl(8); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000009() { u_angle_conversion_odd_impl(9); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000010() { u_angle_conversion_odd_impl(10); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000011() { u_angle_conversion_odd_impl(11); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000012() { u_angle_conversion_odd_impl(12); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000013() { u_angle_conversion_odd_impl(13); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000014() { u_angle_conversion_odd_impl(14); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000015() { u_angle_conversion_odd_impl(15); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000016() { u_angle_conversion_odd_impl(16); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000017() { u_angle_conversion_odd_impl(17); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000018() { u_angle_conversion_odd_impl(18); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000019() { u_angle_conversion_odd_impl(19); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000020() { u_angle_conversion_odd_impl(20); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000021() { u_angle_conversion_odd_impl(21); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000022() { u_angle_conversion_odd_impl(22); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000023() { u_angle_conversion_odd_impl(23); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000024() { u_angle_conversion_odd_impl(24); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000025() { u_angle_conversion_odd_impl(25); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000026() { u_angle_conversion_odd_impl(26); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000027() { u_angle_conversion_odd_impl(27); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000028() { u_angle_conversion_odd_impl(28); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000029() { u_angle_conversion_odd_impl(29); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000030() { u_angle_conversion_odd_impl(30); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000031() { u_angle_conversion_odd_impl(31); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000032() { u_angle_conversion_odd_impl(32); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000033() { u_angle_conversion_odd_impl(33); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000034() { u_angle_conversion_odd_impl(34); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000035() { u_angle_conversion_odd_impl(35); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000036() { u_angle_conversion_odd_impl(36); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000037() { u_angle_conversion_odd_impl(37); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000038() { u_angle_conversion_odd_impl(38); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000039() { u_angle_conversion_odd_impl(39); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000040() { u_angle_conversion_odd_impl(40); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000041() { u_angle_conversion_odd_impl(41); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000042() { u_angle_conversion_odd_impl(42); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000043() { u_angle_conversion_odd_impl(43); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000044() { u_angle_conversion_odd_impl(44); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000045() { u_angle_conversion_odd_impl(45); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000046() { u_angle_conversion_odd_impl(46); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000047() { u_angle_conversion_odd_impl(47); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000048() { u_angle_conversion_odd_impl(48); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000049() { u_angle_conversion_odd_impl(49); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000050() { u_angle_conversion_odd_impl(50); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000051() { u_angle_conversion_odd_impl(51); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000052() { u_angle_conversion_odd_impl(52); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000053() { u_angle_conversion_odd_impl(53); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000054() { u_angle_conversion_odd_impl(54); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000055() { u_angle_conversion_odd_impl(55); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000056() { u_angle_conversion_odd_impl(56); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000057() { u_angle_conversion_odd_impl(57); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000058() { u_angle_conversion_odd_impl(58); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000059() { u_angle_conversion_odd_impl(59); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000060() { u_angle_conversion_odd_impl(60); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000061() { u_angle_conversion_odd_impl(61); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000062() { u_angle_conversion_odd_impl(62); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000063() { u_angle_conversion_odd_impl(63); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000064() { u_angle_conversion_odd_impl(64); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000065() { u_angle_conversion_odd_impl(65); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000066() { u_angle_conversion_odd_impl(66); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000067() { u_angle_conversion_odd_impl(67); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000068() { u_angle_conversion_odd_impl(68); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000069() { u_angle_conversion_odd_impl(69); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000070() { u_angle_conversion_odd_impl(70); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000071() { u_angle_conversion_odd_impl(71); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000072() { u_angle_conversion_odd_impl(72); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000073() { u_angle_conversion_odd_impl(73); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000074() { u_angle_conversion_odd_impl(74); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000075() { u_angle_conversion_odd_impl(75); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000076() { u_angle_conversion_odd_impl(76); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000077() { u_angle_conversion_odd_impl(77); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000078() { u_angle_conversion_odd_impl(78); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000079() { u_angle_conversion_odd_impl(79); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000080() { u_angle_conversion_odd_impl(80); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000081() { u_angle_conversion_odd_impl(81); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000082() { u_angle_conversion_odd_impl(82); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000083() { u_angle_conversion_odd_impl(83); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000084() { u_angle_conversion_odd_impl(84); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000085() { u_angle_conversion_odd_impl(85); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000086() { u_angle_conversion_odd_impl(86); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000087() { u_angle_conversion_odd_impl(87); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000088() { u_angle_conversion_odd_impl(88); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000089() { u_angle_conversion_odd_impl(89); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000090() { u_angle_conversion_odd_impl(90); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000091() { u_angle_conversion_odd_impl(91); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000092() { u_angle_conversion_odd_impl(92); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000093() { u_angle_conversion_odd_impl(93); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000094() { u_angle_conversion_odd_impl(94); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000095() { u_angle_conversion_odd_impl(95); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000096() { u_angle_conversion_odd_impl(96); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000097() { u_angle_conversion_odd_impl(97); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000098() { u_angle_conversion_odd_impl(98); }
+    #[cfg_attr(test, test)]
+    fn u_angle_conversion_odd_seed_000099() { u_angle_conversion_odd_impl(99); }
+    // --- mf_inflation_additive: 100 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000000() { mf_inflation_additive_impl(0); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000001() { mf_inflation_additive_impl(1); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000002() { mf_inflation_additive_impl(2); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000003() { mf_inflation_additive_impl(3); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000004() { mf_inflation_additive_impl(4); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000005() { mf_inflation_additive_impl(5); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000006() { mf_inflation_additive_impl(6); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000007() { mf_inflation_additive_impl(7); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000008() { mf_inflation_additive_impl(8); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000009() { mf_inflation_additive_impl(9); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000010() { mf_inflation_additive_impl(10); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000011() { mf_inflation_additive_impl(11); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000012() { mf_inflation_additive_impl(12); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000013() { mf_inflation_additive_impl(13); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000014() { mf_inflation_additive_impl(14); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000015() { mf_inflation_additive_impl(15); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000016() { mf_inflation_additive_impl(16); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000017() { mf_inflation_additive_impl(17); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000018() { mf_inflation_additive_impl(18); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000019() { mf_inflation_additive_impl(19); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000020() { mf_inflation_additive_impl(20); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000021() { mf_inflation_additive_impl(21); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000022() { mf_inflation_additive_impl(22); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000023() { mf_inflation_additive_impl(23); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000024() { mf_inflation_additive_impl(24); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000025() { mf_inflation_additive_impl(25); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000026() { mf_inflation_additive_impl(26); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000027() { mf_inflation_additive_impl(27); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000028() { mf_inflation_additive_impl(28); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000029() { mf_inflation_additive_impl(29); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000030() { mf_inflation_additive_impl(30); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000031() { mf_inflation_additive_impl(31); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000032() { mf_inflation_additive_impl(32); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000033() { mf_inflation_additive_impl(33); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000034() { mf_inflation_additive_impl(34); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000035() { mf_inflation_additive_impl(35); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000036() { mf_inflation_additive_impl(36); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000037() { mf_inflation_additive_impl(37); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000038() { mf_inflation_additive_impl(38); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000039() { mf_inflation_additive_impl(39); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000040() { mf_inflation_additive_impl(40); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000041() { mf_inflation_additive_impl(41); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000042() { mf_inflation_additive_impl(42); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000043() { mf_inflation_additive_impl(43); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000044() { mf_inflation_additive_impl(44); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000045() { mf_inflation_additive_impl(45); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000046() { mf_inflation_additive_impl(46); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000047() { mf_inflation_additive_impl(47); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000048() { mf_inflation_additive_impl(48); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000049() { mf_inflation_additive_impl(49); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000050() { mf_inflation_additive_impl(50); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000051() { mf_inflation_additive_impl(51); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000052() { mf_inflation_additive_impl(52); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000053() { mf_inflation_additive_impl(53); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000054() { mf_inflation_additive_impl(54); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000055() { mf_inflation_additive_impl(55); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000056() { mf_inflation_additive_impl(56); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000057() { mf_inflation_additive_impl(57); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000058() { mf_inflation_additive_impl(58); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000059() { mf_inflation_additive_impl(59); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000060() { mf_inflation_additive_impl(60); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000061() { mf_inflation_additive_impl(61); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000062() { mf_inflation_additive_impl(62); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000063() { mf_inflation_additive_impl(63); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000064() { mf_inflation_additive_impl(64); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000065() { mf_inflation_additive_impl(65); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000066() { mf_inflation_additive_impl(66); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000067() { mf_inflation_additive_impl(67); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000068() { mf_inflation_additive_impl(68); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000069() { mf_inflation_additive_impl(69); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000070() { mf_inflation_additive_impl(70); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000071() { mf_inflation_additive_impl(71); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000072() { mf_inflation_additive_impl(72); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000073() { mf_inflation_additive_impl(73); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000074() { mf_inflation_additive_impl(74); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000075() { mf_inflation_additive_impl(75); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000076() { mf_inflation_additive_impl(76); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000077() { mf_inflation_additive_impl(77); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000078() { mf_inflation_additive_impl(78); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000079() { mf_inflation_additive_impl(79); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000080() { mf_inflation_additive_impl(80); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000081() { mf_inflation_additive_impl(81); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000082() { mf_inflation_additive_impl(82); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000083() { mf_inflation_additive_impl(83); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000084() { mf_inflation_additive_impl(84); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000085() { mf_inflation_additive_impl(85); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000086() { mf_inflation_additive_impl(86); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000087() { mf_inflation_additive_impl(87); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000088() { mf_inflation_additive_impl(88); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000089() { mf_inflation_additive_impl(89); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000090() { mf_inflation_additive_impl(90); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000091() { mf_inflation_additive_impl(91); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000092() { mf_inflation_additive_impl(92); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000093() { mf_inflation_additive_impl(93); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000094() { mf_inflation_additive_impl(94); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000095() { mf_inflation_additive_impl(95); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000096() { mf_inflation_additive_impl(96); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000097() { mf_inflation_additive_impl(97); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000098() { mf_inflation_additive_impl(98); }
+    #[cfg_attr(test, test)]
+    fn mf_inflation_additive_seed_000099() { mf_inflation_additive_impl(99); }
+    // --- pdrc_translation_invariance: 100 generated seeds ---
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000000() { pdrc_translation_invariance_impl(0); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000001() { pdrc_translation_invariance_impl(1); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000002() { pdrc_translation_invariance_impl(2); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000003() { pdrc_translation_invariance_impl(3); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000004() { pdrc_translation_invariance_impl(4); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000005() { pdrc_translation_invariance_impl(5); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000006() { pdrc_translation_invariance_impl(6); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000007() { pdrc_translation_invariance_impl(7); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000008() { pdrc_translation_invariance_impl(8); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000009() { pdrc_translation_invariance_impl(9); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000010() { pdrc_translation_invariance_impl(10); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000011() { pdrc_translation_invariance_impl(11); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000012() { pdrc_translation_invariance_impl(12); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000013() { pdrc_translation_invariance_impl(13); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000014() { pdrc_translation_invariance_impl(14); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000015() { pdrc_translation_invariance_impl(15); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000016() { pdrc_translation_invariance_impl(16); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000017() { pdrc_translation_invariance_impl(17); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000018() { pdrc_translation_invariance_impl(18); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000019() { pdrc_translation_invariance_impl(19); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000020() { pdrc_translation_invariance_impl(20); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000021() { pdrc_translation_invariance_impl(21); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000022() { pdrc_translation_invariance_impl(22); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000023() { pdrc_translation_invariance_impl(23); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000024() { pdrc_translation_invariance_impl(24); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000025() { pdrc_translation_invariance_impl(25); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000026() { pdrc_translation_invariance_impl(26); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000027() { pdrc_translation_invariance_impl(27); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000028() { pdrc_translation_invariance_impl(28); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000029() { pdrc_translation_invariance_impl(29); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000030() { pdrc_translation_invariance_impl(30); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000031() { pdrc_translation_invariance_impl(31); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000032() { pdrc_translation_invariance_impl(32); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000033() { pdrc_translation_invariance_impl(33); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000034() { pdrc_translation_invariance_impl(34); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000035() { pdrc_translation_invariance_impl(35); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000036() { pdrc_translation_invariance_impl(36); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000037() { pdrc_translation_invariance_impl(37); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000038() { pdrc_translation_invariance_impl(38); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000039() { pdrc_translation_invariance_impl(39); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000040() { pdrc_translation_invariance_impl(40); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000041() { pdrc_translation_invariance_impl(41); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000042() { pdrc_translation_invariance_impl(42); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000043() { pdrc_translation_invariance_impl(43); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000044() { pdrc_translation_invariance_impl(44); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000045() { pdrc_translation_invariance_impl(45); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000046() { pdrc_translation_invariance_impl(46); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000047() { pdrc_translation_invariance_impl(47); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000048() { pdrc_translation_invariance_impl(48); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000049() { pdrc_translation_invariance_impl(49); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000050() { pdrc_translation_invariance_impl(50); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000051() { pdrc_translation_invariance_impl(51); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000052() { pdrc_translation_invariance_impl(52); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000053() { pdrc_translation_invariance_impl(53); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000054() { pdrc_translation_invariance_impl(54); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000055() { pdrc_translation_invariance_impl(55); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000056() { pdrc_translation_invariance_impl(56); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000057() { pdrc_translation_invariance_impl(57); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000058() { pdrc_translation_invariance_impl(58); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000059() { pdrc_translation_invariance_impl(59); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000060() { pdrc_translation_invariance_impl(60); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000061() { pdrc_translation_invariance_impl(61); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000062() { pdrc_translation_invariance_impl(62); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000063() { pdrc_translation_invariance_impl(63); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000064() { pdrc_translation_invariance_impl(64); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000065() { pdrc_translation_invariance_impl(65); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000066() { pdrc_translation_invariance_impl(66); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000067() { pdrc_translation_invariance_impl(67); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000068() { pdrc_translation_invariance_impl(68); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000069() { pdrc_translation_invariance_impl(69); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000070() { pdrc_translation_invariance_impl(70); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000071() { pdrc_translation_invariance_impl(71); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000072() { pdrc_translation_invariance_impl(72); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000073() { pdrc_translation_invariance_impl(73); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000074() { pdrc_translation_invariance_impl(74); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000075() { pdrc_translation_invariance_impl(75); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000076() { pdrc_translation_invariance_impl(76); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000077() { pdrc_translation_invariance_impl(77); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000078() { pdrc_translation_invariance_impl(78); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000079() { pdrc_translation_invariance_impl(79); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000080() { pdrc_translation_invariance_impl(80); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000081() { pdrc_translation_invariance_impl(81); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000082() { pdrc_translation_invariance_impl(82); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000083() { pdrc_translation_invariance_impl(83); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000084() { pdrc_translation_invariance_impl(84); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000085() { pdrc_translation_invariance_impl(85); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000086() { pdrc_translation_invariance_impl(86); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000087() { pdrc_translation_invariance_impl(87); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000088() { pdrc_translation_invariance_impl(88); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000089() { pdrc_translation_invariance_impl(89); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000090() { pdrc_translation_invariance_impl(90); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000091() { pdrc_translation_invariance_impl(91); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000092() { pdrc_translation_invariance_impl(92); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000093() { pdrc_translation_invariance_impl(93); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000094() { pdrc_translation_invariance_impl(94); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000095() { pdrc_translation_invariance_impl(95); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000096() { pdrc_translation_invariance_impl(96); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000097() { pdrc_translation_invariance_impl(97); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000098() { pdrc_translation_invariance_impl(98); }
+    #[cfg_attr(test, test)]
+    fn pdrc_translation_invariance_seed_000099() { pdrc_translation_invariance_impl(99); }
     // --- pf_fmt0_no_decimal: 100 generated seeds ---
     #[cfg_attr(test, test)]
     fn pf_fmt0_no_decimal_seed_000000() { pf_fmt0_no_decimal_impl(0); }
@@ -16755,6 +17477,306 @@ pub(crate) mod tests {
         ("property_campaigns::tests::u_rad_to_deg_monotonic_seed_000097", u_rad_to_deg_monotonic_seed_000097),
         ("property_campaigns::tests::u_rad_to_deg_monotonic_seed_000098", u_rad_to_deg_monotonic_seed_000098),
         ("property_campaigns::tests::u_rad_to_deg_monotonic_seed_000099", u_rad_to_deg_monotonic_seed_000099),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000000", u_angle_conversion_odd_seed_000000),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000001", u_angle_conversion_odd_seed_000001),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000002", u_angle_conversion_odd_seed_000002),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000003", u_angle_conversion_odd_seed_000003),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000004", u_angle_conversion_odd_seed_000004),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000005", u_angle_conversion_odd_seed_000005),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000006", u_angle_conversion_odd_seed_000006),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000007", u_angle_conversion_odd_seed_000007),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000008", u_angle_conversion_odd_seed_000008),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000009", u_angle_conversion_odd_seed_000009),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000010", u_angle_conversion_odd_seed_000010),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000011", u_angle_conversion_odd_seed_000011),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000012", u_angle_conversion_odd_seed_000012),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000013", u_angle_conversion_odd_seed_000013),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000014", u_angle_conversion_odd_seed_000014),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000015", u_angle_conversion_odd_seed_000015),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000016", u_angle_conversion_odd_seed_000016),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000017", u_angle_conversion_odd_seed_000017),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000018", u_angle_conversion_odd_seed_000018),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000019", u_angle_conversion_odd_seed_000019),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000020", u_angle_conversion_odd_seed_000020),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000021", u_angle_conversion_odd_seed_000021),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000022", u_angle_conversion_odd_seed_000022),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000023", u_angle_conversion_odd_seed_000023),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000024", u_angle_conversion_odd_seed_000024),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000025", u_angle_conversion_odd_seed_000025),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000026", u_angle_conversion_odd_seed_000026),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000027", u_angle_conversion_odd_seed_000027),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000028", u_angle_conversion_odd_seed_000028),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000029", u_angle_conversion_odd_seed_000029),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000030", u_angle_conversion_odd_seed_000030),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000031", u_angle_conversion_odd_seed_000031),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000032", u_angle_conversion_odd_seed_000032),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000033", u_angle_conversion_odd_seed_000033),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000034", u_angle_conversion_odd_seed_000034),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000035", u_angle_conversion_odd_seed_000035),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000036", u_angle_conversion_odd_seed_000036),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000037", u_angle_conversion_odd_seed_000037),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000038", u_angle_conversion_odd_seed_000038),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000039", u_angle_conversion_odd_seed_000039),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000040", u_angle_conversion_odd_seed_000040),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000041", u_angle_conversion_odd_seed_000041),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000042", u_angle_conversion_odd_seed_000042),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000043", u_angle_conversion_odd_seed_000043),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000044", u_angle_conversion_odd_seed_000044),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000045", u_angle_conversion_odd_seed_000045),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000046", u_angle_conversion_odd_seed_000046),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000047", u_angle_conversion_odd_seed_000047),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000048", u_angle_conversion_odd_seed_000048),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000049", u_angle_conversion_odd_seed_000049),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000050", u_angle_conversion_odd_seed_000050),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000051", u_angle_conversion_odd_seed_000051),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000052", u_angle_conversion_odd_seed_000052),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000053", u_angle_conversion_odd_seed_000053),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000054", u_angle_conversion_odd_seed_000054),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000055", u_angle_conversion_odd_seed_000055),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000056", u_angle_conversion_odd_seed_000056),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000057", u_angle_conversion_odd_seed_000057),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000058", u_angle_conversion_odd_seed_000058),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000059", u_angle_conversion_odd_seed_000059),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000060", u_angle_conversion_odd_seed_000060),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000061", u_angle_conversion_odd_seed_000061),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000062", u_angle_conversion_odd_seed_000062),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000063", u_angle_conversion_odd_seed_000063),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000064", u_angle_conversion_odd_seed_000064),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000065", u_angle_conversion_odd_seed_000065),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000066", u_angle_conversion_odd_seed_000066),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000067", u_angle_conversion_odd_seed_000067),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000068", u_angle_conversion_odd_seed_000068),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000069", u_angle_conversion_odd_seed_000069),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000070", u_angle_conversion_odd_seed_000070),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000071", u_angle_conversion_odd_seed_000071),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000072", u_angle_conversion_odd_seed_000072),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000073", u_angle_conversion_odd_seed_000073),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000074", u_angle_conversion_odd_seed_000074),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000075", u_angle_conversion_odd_seed_000075),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000076", u_angle_conversion_odd_seed_000076),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000077", u_angle_conversion_odd_seed_000077),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000078", u_angle_conversion_odd_seed_000078),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000079", u_angle_conversion_odd_seed_000079),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000080", u_angle_conversion_odd_seed_000080),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000081", u_angle_conversion_odd_seed_000081),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000082", u_angle_conversion_odd_seed_000082),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000083", u_angle_conversion_odd_seed_000083),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000084", u_angle_conversion_odd_seed_000084),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000085", u_angle_conversion_odd_seed_000085),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000086", u_angle_conversion_odd_seed_000086),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000087", u_angle_conversion_odd_seed_000087),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000088", u_angle_conversion_odd_seed_000088),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000089", u_angle_conversion_odd_seed_000089),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000090", u_angle_conversion_odd_seed_000090),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000091", u_angle_conversion_odd_seed_000091),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000092", u_angle_conversion_odd_seed_000092),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000093", u_angle_conversion_odd_seed_000093),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000094", u_angle_conversion_odd_seed_000094),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000095", u_angle_conversion_odd_seed_000095),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000096", u_angle_conversion_odd_seed_000096),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000097", u_angle_conversion_odd_seed_000097),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000098", u_angle_conversion_odd_seed_000098),
+        ("property_campaigns::tests::u_angle_conversion_odd_seed_000099", u_angle_conversion_odd_seed_000099),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000000", mf_inflation_additive_seed_000000),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000001", mf_inflation_additive_seed_000001),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000002", mf_inflation_additive_seed_000002),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000003", mf_inflation_additive_seed_000003),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000004", mf_inflation_additive_seed_000004),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000005", mf_inflation_additive_seed_000005),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000006", mf_inflation_additive_seed_000006),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000007", mf_inflation_additive_seed_000007),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000008", mf_inflation_additive_seed_000008),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000009", mf_inflation_additive_seed_000009),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000010", mf_inflation_additive_seed_000010),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000011", mf_inflation_additive_seed_000011),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000012", mf_inflation_additive_seed_000012),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000013", mf_inflation_additive_seed_000013),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000014", mf_inflation_additive_seed_000014),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000015", mf_inflation_additive_seed_000015),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000016", mf_inflation_additive_seed_000016),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000017", mf_inflation_additive_seed_000017),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000018", mf_inflation_additive_seed_000018),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000019", mf_inflation_additive_seed_000019),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000020", mf_inflation_additive_seed_000020),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000021", mf_inflation_additive_seed_000021),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000022", mf_inflation_additive_seed_000022),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000023", mf_inflation_additive_seed_000023),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000024", mf_inflation_additive_seed_000024),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000025", mf_inflation_additive_seed_000025),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000026", mf_inflation_additive_seed_000026),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000027", mf_inflation_additive_seed_000027),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000028", mf_inflation_additive_seed_000028),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000029", mf_inflation_additive_seed_000029),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000030", mf_inflation_additive_seed_000030),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000031", mf_inflation_additive_seed_000031),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000032", mf_inflation_additive_seed_000032),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000033", mf_inflation_additive_seed_000033),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000034", mf_inflation_additive_seed_000034),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000035", mf_inflation_additive_seed_000035),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000036", mf_inflation_additive_seed_000036),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000037", mf_inflation_additive_seed_000037),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000038", mf_inflation_additive_seed_000038),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000039", mf_inflation_additive_seed_000039),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000040", mf_inflation_additive_seed_000040),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000041", mf_inflation_additive_seed_000041),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000042", mf_inflation_additive_seed_000042),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000043", mf_inflation_additive_seed_000043),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000044", mf_inflation_additive_seed_000044),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000045", mf_inflation_additive_seed_000045),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000046", mf_inflation_additive_seed_000046),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000047", mf_inflation_additive_seed_000047),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000048", mf_inflation_additive_seed_000048),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000049", mf_inflation_additive_seed_000049),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000050", mf_inflation_additive_seed_000050),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000051", mf_inflation_additive_seed_000051),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000052", mf_inflation_additive_seed_000052),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000053", mf_inflation_additive_seed_000053),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000054", mf_inflation_additive_seed_000054),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000055", mf_inflation_additive_seed_000055),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000056", mf_inflation_additive_seed_000056),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000057", mf_inflation_additive_seed_000057),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000058", mf_inflation_additive_seed_000058),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000059", mf_inflation_additive_seed_000059),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000060", mf_inflation_additive_seed_000060),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000061", mf_inflation_additive_seed_000061),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000062", mf_inflation_additive_seed_000062),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000063", mf_inflation_additive_seed_000063),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000064", mf_inflation_additive_seed_000064),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000065", mf_inflation_additive_seed_000065),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000066", mf_inflation_additive_seed_000066),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000067", mf_inflation_additive_seed_000067),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000068", mf_inflation_additive_seed_000068),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000069", mf_inflation_additive_seed_000069),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000070", mf_inflation_additive_seed_000070),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000071", mf_inflation_additive_seed_000071),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000072", mf_inflation_additive_seed_000072),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000073", mf_inflation_additive_seed_000073),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000074", mf_inflation_additive_seed_000074),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000075", mf_inflation_additive_seed_000075),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000076", mf_inflation_additive_seed_000076),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000077", mf_inflation_additive_seed_000077),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000078", mf_inflation_additive_seed_000078),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000079", mf_inflation_additive_seed_000079),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000080", mf_inflation_additive_seed_000080),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000081", mf_inflation_additive_seed_000081),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000082", mf_inflation_additive_seed_000082),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000083", mf_inflation_additive_seed_000083),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000084", mf_inflation_additive_seed_000084),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000085", mf_inflation_additive_seed_000085),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000086", mf_inflation_additive_seed_000086),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000087", mf_inflation_additive_seed_000087),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000088", mf_inflation_additive_seed_000088),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000089", mf_inflation_additive_seed_000089),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000090", mf_inflation_additive_seed_000090),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000091", mf_inflation_additive_seed_000091),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000092", mf_inflation_additive_seed_000092),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000093", mf_inflation_additive_seed_000093),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000094", mf_inflation_additive_seed_000094),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000095", mf_inflation_additive_seed_000095),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000096", mf_inflation_additive_seed_000096),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000097", mf_inflation_additive_seed_000097),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000098", mf_inflation_additive_seed_000098),
+        ("property_campaigns::tests::mf_inflation_additive_seed_000099", mf_inflation_additive_seed_000099),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000000", pdrc_translation_invariance_seed_000000),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000001", pdrc_translation_invariance_seed_000001),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000002", pdrc_translation_invariance_seed_000002),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000003", pdrc_translation_invariance_seed_000003),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000004", pdrc_translation_invariance_seed_000004),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000005", pdrc_translation_invariance_seed_000005),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000006", pdrc_translation_invariance_seed_000006),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000007", pdrc_translation_invariance_seed_000007),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000008", pdrc_translation_invariance_seed_000008),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000009", pdrc_translation_invariance_seed_000009),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000010", pdrc_translation_invariance_seed_000010),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000011", pdrc_translation_invariance_seed_000011),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000012", pdrc_translation_invariance_seed_000012),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000013", pdrc_translation_invariance_seed_000013),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000014", pdrc_translation_invariance_seed_000014),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000015", pdrc_translation_invariance_seed_000015),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000016", pdrc_translation_invariance_seed_000016),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000017", pdrc_translation_invariance_seed_000017),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000018", pdrc_translation_invariance_seed_000018),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000019", pdrc_translation_invariance_seed_000019),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000020", pdrc_translation_invariance_seed_000020),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000021", pdrc_translation_invariance_seed_000021),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000022", pdrc_translation_invariance_seed_000022),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000023", pdrc_translation_invariance_seed_000023),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000024", pdrc_translation_invariance_seed_000024),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000025", pdrc_translation_invariance_seed_000025),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000026", pdrc_translation_invariance_seed_000026),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000027", pdrc_translation_invariance_seed_000027),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000028", pdrc_translation_invariance_seed_000028),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000029", pdrc_translation_invariance_seed_000029),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000030", pdrc_translation_invariance_seed_000030),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000031", pdrc_translation_invariance_seed_000031),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000032", pdrc_translation_invariance_seed_000032),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000033", pdrc_translation_invariance_seed_000033),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000034", pdrc_translation_invariance_seed_000034),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000035", pdrc_translation_invariance_seed_000035),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000036", pdrc_translation_invariance_seed_000036),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000037", pdrc_translation_invariance_seed_000037),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000038", pdrc_translation_invariance_seed_000038),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000039", pdrc_translation_invariance_seed_000039),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000040", pdrc_translation_invariance_seed_000040),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000041", pdrc_translation_invariance_seed_000041),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000042", pdrc_translation_invariance_seed_000042),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000043", pdrc_translation_invariance_seed_000043),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000044", pdrc_translation_invariance_seed_000044),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000045", pdrc_translation_invariance_seed_000045),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000046", pdrc_translation_invariance_seed_000046),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000047", pdrc_translation_invariance_seed_000047),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000048", pdrc_translation_invariance_seed_000048),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000049", pdrc_translation_invariance_seed_000049),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000050", pdrc_translation_invariance_seed_000050),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000051", pdrc_translation_invariance_seed_000051),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000052", pdrc_translation_invariance_seed_000052),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000053", pdrc_translation_invariance_seed_000053),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000054", pdrc_translation_invariance_seed_000054),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000055", pdrc_translation_invariance_seed_000055),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000056", pdrc_translation_invariance_seed_000056),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000057", pdrc_translation_invariance_seed_000057),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000058", pdrc_translation_invariance_seed_000058),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000059", pdrc_translation_invariance_seed_000059),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000060", pdrc_translation_invariance_seed_000060),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000061", pdrc_translation_invariance_seed_000061),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000062", pdrc_translation_invariance_seed_000062),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000063", pdrc_translation_invariance_seed_000063),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000064", pdrc_translation_invariance_seed_000064),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000065", pdrc_translation_invariance_seed_000065),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000066", pdrc_translation_invariance_seed_000066),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000067", pdrc_translation_invariance_seed_000067),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000068", pdrc_translation_invariance_seed_000068),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000069", pdrc_translation_invariance_seed_000069),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000070", pdrc_translation_invariance_seed_000070),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000071", pdrc_translation_invariance_seed_000071),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000072", pdrc_translation_invariance_seed_000072),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000073", pdrc_translation_invariance_seed_000073),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000074", pdrc_translation_invariance_seed_000074),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000075", pdrc_translation_invariance_seed_000075),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000076", pdrc_translation_invariance_seed_000076),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000077", pdrc_translation_invariance_seed_000077),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000078", pdrc_translation_invariance_seed_000078),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000079", pdrc_translation_invariance_seed_000079),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000080", pdrc_translation_invariance_seed_000080),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000081", pdrc_translation_invariance_seed_000081),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000082", pdrc_translation_invariance_seed_000082),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000083", pdrc_translation_invariance_seed_000083),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000084", pdrc_translation_invariance_seed_000084),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000085", pdrc_translation_invariance_seed_000085),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000086", pdrc_translation_invariance_seed_000086),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000087", pdrc_translation_invariance_seed_000087),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000088", pdrc_translation_invariance_seed_000088),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000089", pdrc_translation_invariance_seed_000089),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000090", pdrc_translation_invariance_seed_000090),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000091", pdrc_translation_invariance_seed_000091),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000092", pdrc_translation_invariance_seed_000092),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000093", pdrc_translation_invariance_seed_000093),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000094", pdrc_translation_invariance_seed_000094),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000095", pdrc_translation_invariance_seed_000095),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000096", pdrc_translation_invariance_seed_000096),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000097", pdrc_translation_invariance_seed_000097),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000098", pdrc_translation_invariance_seed_000098),
+        ("property_campaigns::tests::pdrc_translation_invariance_seed_000099", pdrc_translation_invariance_seed_000099),
         ("property_campaigns::tests::pf_fmt0_no_decimal_seed_000000", pf_fmt0_no_decimal_seed_000000),
         ("property_campaigns::tests::pf_fmt0_no_decimal_seed_000001", pf_fmt0_no_decimal_seed_000001),
         ("property_campaigns::tests::pf_fmt0_no_decimal_seed_000002", pf_fmt0_no_decimal_seed_000002),
