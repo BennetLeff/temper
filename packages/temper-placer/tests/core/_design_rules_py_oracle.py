@@ -495,7 +495,11 @@ TEMPER_NET_CLASSES = {
         via_drill=0.6,
         via_template="Via3x3",
         voltage_v=923.7,
+<<<<<<< HEAD
+        creepage_mm=10.0,
+=======
         creepage_mm=6.3,
+>>>>>>> origin/main
         routing_strategy="plane_required",
         dru_priority=21,
         required_layer="B.Cu",
