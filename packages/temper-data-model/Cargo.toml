@@ -1,0 +1,28 @@
+[package]
+name = "temper-data-model"
+version = "0.1.0"
+edition = "2024"
+description = "Pure-Rust owned data model for the orchestration data-model port (Val + Component/Pin/Net leaves) — no pyo3, wasm-compatible"
+
+[lib]
+name = "temper_data_model"
+crate-type = ["rlib"]
+
+[dependencies]
+
+[features]
+default = []
+# No `wasm-registry` feature lattice yet: the tier wiring for this crate is
+# O-C4's job (the physical `temper-orchestration-core` split). This unit (U2)
+# only proves the data model is *wasm-compatible* — `cargo check --target
+# wasm32-unknown-unknown` passes because the crate has no pyo3 anywhere —
+# not *wired*. Mirroring `temper-rust-router-core`'s lattice here would add a
+# `wasm_test_registry.rs` for one trivial equality pin, which is not worth the
+# runner/topology/Worker scaffolding until the crate carries real kernel tests.
+
+[profile.release]
+panic = "unwind"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
