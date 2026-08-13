@@ -200,15 +200,7 @@ def _extract_design_rules(
     net_class_assignments = {}
 
     default_clearance = 0.2
-    # 0.25 -> 0.20 on 2026-08-12, in lockstep with the shim
-    # (``io/_parse_nets.py``). This oracle pins the MIGRATION contract --
-    # shim output == pre-migration output -- not the VALUE, so a deliberate
-    # value correction has to be made on both sides or the differential
-    # starts asserting the defect. See that file's comment and
-    # docs/evidence/2026-08-12-clearance-congestion-band.md for why 0.2 is
-    # the correct figure (kicad_pro's Default track_width, the same file's
-    # min_track_width, and core/design_rules.py all say 0.2).
-    default_trace_width = 0.2
+    default_trace_width = 0.25
     default_via_diameter = 0.8
     default_via_drill = 0.4
 

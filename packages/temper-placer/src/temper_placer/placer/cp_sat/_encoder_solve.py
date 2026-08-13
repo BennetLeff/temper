@@ -139,10 +139,7 @@ def solve_placement(
     fixed_rotations: dict[str, int] | None = None,
     max_displacement_mm: float | None = None,
     isolation_barrier: dict | None = None,
-<<<<<<< HEAD
-=======
     tank_creepage: dict | None = None,
->>>>>>> origin/main
     heatsink_colocation: int | None = None,
     fixed_positions: dict[str, tuple[float, float, int]] | None = None,
     fixed_copper: dict | None = None,
@@ -209,8 +206,6 @@ def solve_placement(
             HARD constraint (see ``isolation_barrier.py``) before encoding.
             The resulting report is attached to the returned
             ``CpSatPlacementResult.isolation_barrier_report``.
-<<<<<<< HEAD
-=======
         tank_creepage: Optional kwargs forwarded to
             ``tank_creepage.add_tank_creepage_to_model`` (minus
             ``model``/``netlist``, which this function supplies) -- e.g.
@@ -224,7 +219,6 @@ def solve_placement(
             posted at the same point in the sequence (after every
             component is registered). The resulting report is attached to
             ``CpSatPlacementResult.tank_creepage_report``.
->>>>>>> origin/main
         heatsink_colocation: Optional common rotation index (0-3). When
             given, registers the shared-heatsink co-location HARD
             constraint for every group in
@@ -369,8 +363,6 @@ def solve_placement(
             **isolation_barrier,
         )
 
-<<<<<<< HEAD
-=======
     # Tank-node functional creepage (opt-in). Same placement in the
     # sequence and same reason as the barrier above: it calls
     # model_wrapper.component_map, so every component must already be
@@ -386,7 +378,6 @@ def solve_placement(
             **tank_creepage,
         )
 
->>>>>>> origin/main
     # Shared-heatsink co-location (opt-in). Same placement in the sequence
     # and same reason as the barrier above: it calls get_component() for
     # every ref in its groups, so every component must already be

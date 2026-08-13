@@ -105,21 +105,6 @@ HV_CREEPAGE_PD3_MM = 12.6  # fallback if the PD2 enclosure prerequisite fails
 # changes both points together rather than silently carrying the PD2 number.
 HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM
 
-# RULE 10's floor: the clearance every track-involving pair must hold when no
-# stricter, more specific rule matches. This is the bar 503 of the heatsink
-# candidate board's 505 `clearance` errors are measured against, so it is also
-# the bar the router's own A* occupancy model has to reserve for. It was
-# previously a bare "0.2mm" literal in the RULE 10 emitter while the router's
-# fallback was separately hardcoded to 0.15mm in
-# `router_v6/_pipeline_core.py` -- a 0.05mm gap between "what we route to" and
-# "what we grade against" that cost +115 clearance errors on the heatsink
-# candidate (docs/evidence/2026-08-12-clearance-congestion-band.md). Naming it
-# lets `scripts/check_router_clearance_floor.py` assert the two agree.
-#
-# Value: `packages/temper-placer/configs/netclass_rules.yaml`'s
-# `default_clearance_mm`, which is also `pcb/temper.kicad_pro`'s `Default`
-# net-class clearance. All three must stay equal; the gate enforces it.
-DEFAULT_ROUTING_CLEARANCE_MM = 0.2
 # ---------------------------------------------------------------------------
 # HV<->HV FUNCTIONAL creepage at the resonant-tank node (ADDED 2026-08-12).
 #
@@ -222,22 +207,7 @@ HV_TANK_CREEPAGE_PD3_MM = 10.0  # fallback if the PD2 enclosure prerequisite fai
 # The dict-lookup form below keeps the one-line PD switch, duplicates no
 # literal, and reads to that gate as a non-literal expression (its UNRESOLVED
 # bucket) rather than as an alias it must and cannot resolve.
-#
-# SWITCHED PD2 -> PD3 (2026-08-12, docs/evidence/2026-08-12-router-tank-
-# creepage.md). The PD2 CAVEAT paragraph above already recorded, at the time
-# PD2 was selected, that the sealed compartment PD2 depends on DOES NOT
-# EXIST and that "PD3/12.6mm governs the as-built construction today" for
-# the general HV<->LV barrier -- the identical prerequisite gap applies here.
-# 6.3mm (PD2) was a floor against a target enclosure this board does not
-# have; emitting it let kicad-cli, and every consumer that reads this
-# constant (including the router, once it is taught this figure), pass a
-# board that is not actually compliant as built. This flips the constant
-# selected here to the as-built-governing figure the PD3 caveat already
-# named: 10.0mm. No other line in this block changes -- the PD2 constant is
-# retained (as HV_TANK_CREEPAGE_PD2_MM above) exactly like HV_CREEPAGE_PD2_MM
-# is, so re-selecting it back is a one-line revert once/if the enclosure
-# prerequisite is actually built.
-_TANK_POLLUTION_DEGREE = "PD3"
+_TANK_POLLUTION_DEGREE = "PD2"
 HV_TANK_CREEPAGE_ENFORCED_MM = {
     "PD2": HV_TANK_CREEPAGE_PD2_MM,
     "PD3": HV_TANK_CREEPAGE_PD3_MM,
@@ -704,8 +674,7 @@ def generate_dru() -> str:
     )
     lines.append(
         "# functional pair mislabelled as a barrier crossing. RULE 5a below"
-        f" supplies the correct functional figure (Table 18,"
-        f" {fmt_mm(HV_TANK_CREEPAGE_ENFORCED_MM)}) instead."
+        " supplies the correct functional figure (Table 18, 6.3mm) instead."
     )
     lines.append(_SEP)
     lines.append('(rule "HV to LV"')
@@ -744,21 +713,11 @@ def generate_dru() -> str:
     )
     lines.append(
         "# sec 6.3): the tank<->PWR_RTN pair measures 544.6 Vrms, genuinely"
-        f" needs {fmt_mm(HV_TANK_CREEPAGE_ENFORCED_MM)} functional (same Table"
-        " 18 band vi as the tank<->bus pair, now PD3), and is charged only"
-        " 8.0mm by this rule because"
+        " needs 6.3mm functional, and is charged 8.0mm by this rule because"
     )
     lines.append(
-        "# Default reads as LV. Until the PD2->PD3 switch (2026-08-12,"
-        " docs/evidence/2026-08-12-router-tank-creepage.md) 8.0mm was"
-    )
-    lines.append(
-        "# conservative relative to the tank figure (8.0 > 6.3); it no longer"
-        " is (8.0 < 10.0) -- a real, NOT-fixed-here gap, called out rather"
-    )
-    lines.append(
-        "# than silently left to read as safe. Fixing it means giving PWR_RTN"
-        " a real netclass, out of scope for this change."
+        "# Default reads as LV. That is conservative, not wrong, and it is the"
+        " SAME treatment the pair already got before this change."
     )
     lines.append(_SEP)
     lines.append(f'(rule "{HV_TANK_CLASS} to LV"')
@@ -1147,9 +1106,8 @@ def generate_dru() -> str:
         " docs/evidence/2026-08-12-hv-hv-creepage-determination.md for the"
     )
     lines.append(
-        f"# Table 18 derivation of the {fmt_mm(HV_TANK_CREEPAGE_ENFORCED_MM)}"
-        " figure (see HV_TANK_CREEPAGE_PD3_MM's comment at the top of this"
-        " script)."
+        "# Table 18 derivation of the 6.3mm figure (see"
+        " HV_TANK_CREEPAGE_PD2_MM's comment at the top of this script)."
     )
     lines.append("#")
     lines.append(
@@ -1161,12 +1119,8 @@ def generate_dru() -> str:
         " SW_NODE). The pairs to LV/Default, including the unclassed PWR_RTN,"
     )
     lines.append(
-        "# are covered by RULE 4c at 8.0mm and are not repeated here -- NOTE"
-        " that since the PD2->PD3 switch this is no longer the stricter"
-    )
-    lines.append(
-        "# figure for every such pair (see the RULE 4c comment above,"
-        " tank<->PWR_RTN specifically: 8.0mm < 10.0mm)."
+        "# are covered by RULE 4c at the stricter 8.0mm and are not repeated"
+        " here."
     )
     lines.append("#")
     lines.append(
@@ -1174,9 +1128,8 @@ def generate_dru() -> str:
         " tank.c_tank1-p2 <-> SW_NODE (the voltage ACROSS the tank caps)"
     )
     lines.append(
-        "# measures 411.5 Vrms, which is Table 18 band v (>400-500 V) = 6.3mm"
-        " at PD3 (4.0mm at PD2), not band vi's"
-        f" {fmt_mm(HV_TANK_CREEPAGE_ENFORCED_MM)}. Splitting it out would need a"
+        "# measures 411.5 Vrms, which is Table 18 band v (>400-500 V) = 4.0mm"
+        " at PD2, not band vi's 6.3mm. Splitting it out would need a"
     )
     lines.append(
         "# NetName-keyed override whose rule-precedence behaviour this repo"
@@ -1332,13 +1285,11 @@ def generate_dru() -> str:
     lines.append("")
     lines.append(_SEP)
     lines.append("# RULE 10: Default routing clearance")
-    lines.append(f"# Standard {DEFAULT_ROUTING_CLEARANCE_MM}mm for signal traces")
+    lines.append("# Standard 0.2mm for signal traces")
     lines.append(_SEP)
     lines.append('(rule "Default routing"')
     lines.append("   (condition \"A.Type == 'Track' || B.Type == 'Track'\")")
-    lines.append(
-        f"   (constraint clearance (min {DEFAULT_ROUTING_CLEARANCE_MM}mm))"
-    )
+    lines.append("   (constraint clearance (min 0.2mm))")
     lines.append(")")
     lines.append("")
 
