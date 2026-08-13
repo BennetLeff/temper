@@ -1,4 +1,4 @@
-<!-- provenance: commit=4a64a9fc5942d9052ae71fc7810bb04c4ff8845a, base=8d5e2f2ad5bcdbfd93bee8972b4b5962f4c450f9 (origin/main), dirty=false, branch fix/traceability-regex-and-dangling-reqs, worktree /home/bennet/Desktop/temper-worktrees/fix-traceability-regex. All commands below were run directly against this commit on this machine (Linux x86_64, Python 3.12.3 via /home/bennet/Desktop/temper/.venv/bin/python). No pcb/** file was modified. Builds on docs/evidence/2026-08-12-dangling-reference-count-verification.md (PR #1093, branch verify/dangling-reference-counts, commit 2c98375b2, not yet merged to main at time of writing) -- that report's hand-verified 15-genuinely-dangling / 28-ambiguous / 103-resolvable breakdown is independently re-confirmed here against this fix's actual output, not re-derived from scratch. -->
+<!-- provenance: commit=ca703e7186e2aca90e36f76c3437e4bcc0e745c8, base=3541512ab4786b8637c69ac592e2a572022d98bc (origin/main, post-rebase), dirty=false, branch fix/traceability-regex-and-dangling-reqs, worktree /home/bennet/Desktop/temper-worktrees/fix-traceability-regex. All commands below were run directly against this commit on this machine (Linux x86_64, Python 3.12.3 via /home/bennet/Desktop/temper/.venv/bin/python). No pcb/** file was modified. Builds on docs/evidence/2026-08-12-dangling-reference-count-verification.md (PR #1093, branch verify/dangling-reference-counts, commit 2c98375b2, not yet merged to main at time of writing) -- that report's hand-verified 15-genuinely-dangling / 28-ambiguous / 103-resolvable breakdown is independently re-confirmed here against this fix's actual output, not re-derived from scratch. -->
 
 # Traceability gate: fix the `\w+` regex, then triage what it reveals
 
@@ -111,8 +111,14 @@ VIOLATION: packages/temper-placer/tests/router_v6/test_astar_cluster_rust_differ
 VIOLATION: packages/temper-placer/tests/router_v6/test_los_bb_shortcut.py:85: plan-id '2026-06-29-feat-los-bb' is not in the registry
 VIOLATION: packages/temper-placer/tests/router_v6/test_los_bb_shortcut.py:110: plan-id '2026-06-29-feat-los-bb' is not in the registry
   ... (46 VIOLATION lines total)
-Scanned 335 file(s) across 8 of 11 registered plan(s)' declared scope in docs/traceability-registry.yaml; found 46 @req annotation(s).
+Scanned 336 file(s) across 8 of 11 registered plan(s)' declared scope in docs/traceability-registry.yaml; found 46 @req annotation(s).
 ```
+
+(335 -> 336 files scanned between the "before" and "after" runs above is
+unrelated churn: this branch was rebased onto a newer `origin/main` between
+those two measurements, which landed one additional file into an
+already-in-scope directory. Confirmed it carries no `@req` annotation of its
+own — the found-annotation count is unaffected, 46 either way.)
 
 Exit code: 1 (unchanged — the gate already failed pre-fix; it now fails
 *louder and for more distinguishable reasons*).
@@ -340,7 +346,7 @@ into an expanded regex, consistent with keeping this fix to what was asked.
 
 | Metric | Before | After |
 |---|---:|---:|
-| Files in gate's declared scan universe | 335 | 335 (unchanged — `.rs` addition affects 0 files, no registry scope entry names one) |
+| Files in gate's declared scan universe | 335 | 336 (+1 unrelated rebase churn mid-task, not from this fix — the `.rs` addition itself affects 0 files, no registry scope entry names one) |
 | `@req` annotations found **in scope** (gate's own report) | 12 | **46** |
 | Of those, violations (gate's own report) | 12 (100%) | 46 (100%) |
 | `--check-registry-scope` false positives | 1 | 0 |
