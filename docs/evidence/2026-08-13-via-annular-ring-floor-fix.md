@@ -245,7 +245,53 @@ consistent with the pre-fix board's own dominant band).
 
 ### 5.4 Multi-sample / nondeterminism check
 
-*** FILL IN AFTER 130-SAMPLE RUN COMPLETES ***
+130 samples (>= the file's 120-sample floor for a nondeterministic-category record),
+`temper_placer.validation._drc_api.run_drc`, kicad-cli 10.0.5:
+
+```
+clearance: min=499 max=499 dist={499: 130}              (capped; true count 1093, see 5.3)
+copper_edge_clearance: min=7 max=7 dist={7: 130}
+courtyards_overlap: min=8 max=8 dist={8: 130}
+creepage: min=168 max=169 dist={168: 27, 169: 103}       -- the one nondeterministic category
+drill_out_of_range: min=4 max=4 dist={4: 130}
+hole_clearance: min=89 max=89 dist={89: 130}
+hole_to_hole: min=3 max=3 dist={3: 130}
+shorting_items: min=194 max=194 dist={194: 130}
+solder_mask_bridge: min=146 max=146 dist={146: 130}
+track_width: min=199 max=199 dist={199: 130}             (capped; unverified uncapped, out of scope)
+tracks_crossing: min=1 max=1 dist={1: 130}
+(annular_width, via_diameter: absent from every one of 130 samples -- 0/0/130)
+
+warnings, all 9 categories fully deterministic across 130 samples (lib_footprint_issues 13,
+lib_footprint_mismatch 26, missing_courtyard 5, pth_inside_courtyard 1, silk_edge_clearance 1,
+silk_over_copper 63, silk_overlap 199, track_dangling 44, via_dangling 25)
+```
+
+**11 of 12 error categories and all 9 warning categories are fully deterministic** across all
+130 samples. Only `creepage` varies, spread 1 (unchanged from the prior record's own spread),
+band shifted up by 1 (166-168 -> 168-169) -- consistent with the same upstream KiCad
+pointer-dedup artifact (issue #20048) this repo has documented since #602, not a new source
+(this fix touches no creepage-governing rule or copper). Ceiling = max(169) + 1 headroom = 170,
+numerically unchanged from the prior record (coincidence: prior max 168 + spread-2 headroom =
+170). `scripts/ci_check_drc.py --backend kicad-cli`'s noise-headroom guard passes with zero
+slack (170 - 169 = 1 >= 169 - 168 = 1), verified directly (`DrcRatchet.check_noise_headroom()`
+returns `[]`) before committing `power_pcb_dataset/drc_ceiling.json`.
+
+`shorting_items` (194/194) and `hole_clearance` (89/89) are **fully deterministic** at 130
+samples, confirming §5.1-5.2's single-sample measurements were not noise -- the +13
+`shorting_items` rise is a stable, repeatable property of this board's geometry, not a
+transient artifact.
+
+`error_ceiling`: 1901 -> 1914 (+13, sum of every per-type delta in §5.1: -4 annular_width, +8
+clearance, +0 creepage, -1 hole_clearance, +13 shorting_items, +1 solder_mask_bridge,
+-4 via_diameter). `warning_ceiling`: 382 -> 377 (-5, via_dangling only).
+`scripts/check_drc_ceiling_approval.py` and `scripts/check_measurement_provenance.py` both
+PASS against this record (the latter after also re-pinning
+`packages/temper-placer/configs/temper_constraints.references.yaml`'s content-hash freshness
+block -- a second, independently-registered measurement artifact keyed to
+`pcb/temper.kicad_pcb`'s content hash; re-verified, not blindly re-pinned, that this fix's
+board diff touches zero `reference`/`Sheetpath`/footprint content, only `(via ...)` `size`/
+`drill` fields, so that file's designator aliases needed no re-derivation).
 
 ## 6. Independent gate verification
 
